@@ -311,6 +311,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     }
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_7")) { // F11
       Dialog.infoDialog(International.getMessage("Dies ist ein Internationalisierungs-Test für efa {version} von {email}.",Daten.VERSION,Daten.EFAEMAIL));
+      Dialog.infoDialog(International.getMessage("Test Text {text} mit Zahl {zahl}.","foobar",123));
     }
 
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_8")) { // F12

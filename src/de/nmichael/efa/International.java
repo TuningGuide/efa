@@ -14,6 +14,9 @@ import java.text.*;
  */
 public class International {
 
+    private static final boolean MARK_MISSING_KEYS = true;
+    private static final boolean STACKTRACE_MISSING_KEYS = false;
+
     private static ResourceBundle bundle = null;
     private static MessageFormat msgFormat = null;
 
@@ -31,6 +34,15 @@ public class International {
         }
     }
 
+    private static String getArrayStrings(Object[] a) {
+        String s = "";
+        for (int i=1; a != null && i<a.length; i++) {
+            if (a[i] != null) {
+                s += (s.length() > 0 ? ", " : "") + a[i];
+            }
+        }
+        return s;
+    }
 
     public static String getString(String s) {
         if (bundle == null) {
@@ -39,34 +51,41 @@ public class International {
         try {
             return bundle.getString(EfaUtil.replace(s, " ", "_", true));
         } catch(Exception e) {
-            return "#"+s+"#";
+            if (STACKTRACE_MISSING_KEYS) {
+                e.printStackTrace();
+            }
+            return (MARK_MISSING_KEYS ? "#" : "") + s + (MARK_MISSING_KEYS ? "#" : "");
         }
+    }
+
+    public static String getMessage(String s, Object[] args) {
+        if (msgFormat == null) {
+            initialize();
+        }
+        try {
+            msgFormat.applyPattern(getString(s));
+            return msgFormat.format(args);
+        } catch(Exception e) {
+            if (STACKTRACE_MISSING_KEYS) {
+                e.printStackTrace();
+            }
+            return (MARK_MISSING_KEYS ? "#" : "") + s + ": " + getArrayStrings(args) + (MARK_MISSING_KEYS ? "#" : "");
+        }
+    }
+
+    public static String getMessage(String s, String arg1) {
+        Object[] args = { "dummy", arg1 };
+        return getMessage(s,args);
     }
 
     public static String getMessage(String s, String arg1, String arg2) {
-        if (msgFormat == null) {
-            initialize();
-        }
-        try {
-            Object[] args = { "dummy", arg1, arg2 };
-            msgFormat.applyPattern(getString(s));
-            return msgFormat.format(args);
-        } catch(Exception e) {
-            return "#"+s+"#";
-        }
+        Object[] args = { "dummy", arg1, arg2 };
+        return getMessage(s,args);
     }
 
     public static String getMessage(String s, String arg1, int arg2) {
-        if (msgFormat == null) {
-            initialize();
-        }
-        try {
-            Object[] args = { "dummy", arg1, Integer.toString(arg2) };
-            msgFormat.applyPattern(getString(s));
-            return msgFormat.format(args);
-        } catch(Exception e) {
-            return "#"+s+"#";
-        }
+        Object[] args = { "dummy", arg1, Integer.toString(arg2) };
+        return getMessage(s,args);
     }
 
     // todo:

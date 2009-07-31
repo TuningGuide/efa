@@ -56,6 +56,19 @@ public class International {
         }
     }
 
+    public static String getMessage(String s, String arg1, int arg2) {
+        if (msgFormat == null) {
+            initialize();
+        }
+        try {
+            Object[] args = { "dummy", arg1, Integer.toString(arg2) };
+            msgFormat.applyPattern(getString(s));
+            return msgFormat.format(args);
+        } catch(Exception e) {
+            return "#"+s+"#";
+        }
+    }
+
     // todo:
     // - what to do about mnemonics?
     // - what to do about compound messages with strings and variables?

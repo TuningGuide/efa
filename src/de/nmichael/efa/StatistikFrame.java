@@ -25,7 +25,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
   final static int PROGRESS_TIMETOPOPUP   = 0;
   final static int PROGRESS_TIMERINTERVAL = 20;
 
-  // Achtung: Diese Werte mï¿½ssen mit den AUSGABE_* Konstanten aus StatistikDaten ï¿½bereinstimmen!
+  // Achtung: Diese Werte müssen mit den AUSGABE_* Konstanten aus StatistikDaten übereinstimmen!
   final static String[] ausgabeArten =
     { "im Programm (Grafik)", // 0
       "im Programm (Text)",   // 1
@@ -35,12 +35,12 @@ public class StatistikFrame extends JDialog implements ActionListener {
       "als XML-Datei",        // 5
       "als Textdatei",        // 6
       "als CSV-Datei" };      // 7
-//    "als Meldedatei"        // 8 (wird dynamisch hinzugefï¿½gt, wenn WettPanel aktiv ist)
+//    "als Meldedatei"        // 8 (wird dynamisch hinzugefügt, wenn WettPanel aktiv ist)
   final static String[] ausgabeExt =
     { null, null, null, "html", "pdf", "xml", "txt", "csv", null };
 
-  String aktStatName = ""; // "" normalerweise bzw. Name der bearbeiteten Statistik (wenn "Bearbeiten" gewï¿½hlt
-  boolean aktStatAuchEfaDirekt = false; // ob aktuell bearbeitete Statistik auch in efaDirekt verfï¿½gbar sein soll
+  String aktStatName = ""; // "" normalerweise bzw. Name der bearbeiteten Statistik (wenn "Bearbeiten" gewählt
+  boolean aktStatAuchEfaDirekt = false; // ob aktuell bearbeitete Statistik auch in efaDirekt verfügbar sein soll
   boolean statWettFromSavedValues=false; // damit wettPanel erkennt, ob es aufgrund von gesp. Einstellungen aktiviert wurde
   StatistikErweitertFrame erweitertFrame = null;
 
@@ -347,7 +347,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     artPanel.setLayout(flowLayout1);
     rest1Panel.setLayout(borderLayout3);
     zeitraumPanel.setLayout(flowLayout2);
-    zeitraumLabel.setText("Zeitraum fï¿½r die Berechnung: ");
+    zeitraumLabel.setText("Zeitraum für die Berechnung: ");
     vonLabel.setDisplayedMnemonic('V');
     vonLabel.setLabelFor(von);
     vonLabel.setText("vom ");
@@ -371,7 +371,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
       }
     });
     auswahlLabel.setHorizontalAlignment(SwingConstants.CENTER);
-    auswahlLabel.setText("nur Fahrten berechnen fï¿½r:");
+    auswahlLabel.setText("nur Fahrten berechnen für:");
     auswahlPanel.setLayout(gridBagLayout1);
     geschlechtLabel.setDisplayedMnemonic('0');
     geschlechtLabel.setLabelFor(nurGeschlecht);
@@ -389,7 +389,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     nurNameLabel.setText("nur Name: ");
     nurName.setNextFocusableComponent(nameTeil);
     nurName.setPreferredSize(new Dimension(100, 19));
-    nurName.setToolTipText("nur Daten fï¿½r diese Person auswerten (bzw. fï¿½r alle Personen, in " +
+    nurName.setToolTipText("nur Daten für diese Person auswerten (bzw. für alle Personen, in " +
     "deren Name der angegebene Teil vorkommt)");
     nurName.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyReleased(KeyEvent e) {
@@ -402,8 +402,8 @@ public class StatistikFrame extends JDialog implements ActionListener {
       }
     });
     auswahlPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-    auswahlPanel.setToolTipText("Auswertung auf bestimmte Kriterien einschrï¿½nken: Nur Ruderer/Innen, " +
-    "auf die eines der Merkmale paï¿½t, werden bei der Auswertung berï¿½cksichtigt.");
+    auswahlPanel.setToolTipText("Auswertung auf bestimmte Kriterien einschränken: Nur Ruderer/Innen, " +
+    "auf die eines der Merkmale paßt, werden bei der Auswertung berücksichtigt.");
     auswahlPane.setPreferredSize(new Dimension(750, 390));
     zeitraumPanel.setBorder(BorderFactory.createLineBorder(Color.black));
     artPanel.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -453,7 +453,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     graKm.setText("Kilometer");
     maxBalkenKm.setNextFocusableComponent(graRudKm);
     maxBalkenKm.setPreferredSize(new Dimension(40, 19));
-    maxBalkenKm.setToolTipText("legt die Grï¿½ï¿½e des Balkens fï¿½r 100% fest (Angabe in Pixeln)");
+    maxBalkenKm.setToolTipText("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)");
     maxBalkenKm.setText("200");
     maxBalkenKm.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
@@ -470,7 +470,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     graKmFahrt.setText("Km / Fahrt");
     maxBalkenRudKm.setNextFocusableComponent(graStmKm);
     maxBalkenRudKm.setPreferredSize(new Dimension(40, 19));
-    maxBalkenRudKm.setToolTipText("legt die Grï¿½ï¿½e des Balkens fï¿½r 100% fest (Angabe in Pixeln)");
+    maxBalkenRudKm.setToolTipText("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)");
     maxBalkenRudKm.setText("200");
     maxBalkenRudKm.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
@@ -479,7 +479,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     });
     maxBalkenStmKm.setNextFocusableComponent(graFahrten);
     maxBalkenStmKm.setPreferredSize(new Dimension(40, 19));
-    maxBalkenStmKm.setToolTipText("legt die Grï¿½ï¿½e des Balkens fï¿½r 100% fest (Angabe in Pixeln)");
+    maxBalkenStmKm.setToolTipText("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)");
     maxBalkenStmKm.setText("200");
     maxBalkenStmKm.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
@@ -488,7 +488,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     });
     maxBalkenFahrten.setNextFocusableComponent(graKmFahrt);
     maxBalkenFahrten.setPreferredSize(new Dimension(40, 19));
-    maxBalkenFahrten.setToolTipText("legt die Grï¿½ï¿½e des Balkens fï¿½r 100% fest (Angabe in Pixeln)");
+    maxBalkenFahrten.setToolTipText("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)");
     maxBalkenFahrten.setText("200");
     maxBalkenFahrten.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
@@ -497,7 +497,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     });
     maxBalkenKmFahrt.setNextFocusableComponent(graDauer);
     maxBalkenKmFahrt.setPreferredSize(new Dimension(40, 19));
-    maxBalkenKmFahrt.setToolTipText("legt die Grï¿½ï¿½e des Balkens fï¿½r 100% fest (Angabe in Pixeln)");
+    maxBalkenKmFahrt.setToolTipText("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)");
     maxBalkenKmFahrt.setText("200");
     maxBalkenKmFahrt.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
@@ -536,7 +536,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     nameTeil.setText("als Teil eines Namens");
     nameTeil.setNextFocusableComponent(ausName);
     nameTeil.setToolTipText("Die Angabe im Feld \"nur Name\" soll im Namen als Teil vorkommen; sonst " +
-    "werden nur Eintrï¿½ge ausgewertet, fï¿½r die der Name exakt ï¿½bereinstimmt.");
+    "werden nur Einträge ausgewertet, für die der Name exakt übereinstimmt.");
     createPanel.setLayout(borderLayout6);
     dateiPanel.setBorder(BorderFactory.createLineBorder(Color.black));
     dateiPanel.setLayout(gridBagLayout6);
@@ -548,13 +548,13 @@ public class StatistikFrame extends JDialog implements ActionListener {
     bArtLabel.setText("Statistikart: ");
     bRest1Panel.setLayout(borderLayout9);
     bNurPanel.setLayout(gridBagLayout7);
-    bNurLabel.setText("nur Fahrten berechnen fï¿½r:");
+    bNurLabel.setText("nur Fahrten berechnen für:");
     bNurArtLabel.setDisplayedMnemonic('0');
     bNurArtLabel.setLabelFor(mNurArt);
     bNurArtLabel.setText("Art:");
     bNurAnzahlLabel.setDisplayedMnemonic('0');
     bNurAnzahlLabel.setLabelFor(mNurAnzahl);
-    bNurAnzahlLabel.setText("Ruderplï¿½tze:");
+    bNurAnzahlLabel.setText("Ruderplätze:");
     jScrollPane1.setMinimumSize(new Dimension(100, 131));
     jScrollPane1.setPreferredSize(new Dimension(100, 131));
     jScrollPane2.setMinimumSize(new Dimension(100, 131));
@@ -577,7 +577,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     mNurBoot.setMinimumSize(new Dimension(100, 19));
     mNurBoot.setNextFocusableComponent(mAusName);
     mNurBoot.setPreferredSize(new Dimension(150, 19));
-    mNurBoot.setToolTipText("nur Daten fï¿½r dieses Boot auswerten");
+    mNurBoot.setToolTipText("nur Daten für dieses Boot auswerten");
     mNurBoot.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyReleased(KeyEvent e) {
         mNurBoot_keyReleased(e);
@@ -590,8 +590,8 @@ public class StatistikFrame extends JDialog implements ActionListener {
     });
     bNurPanel.setBorder(BorderFactory.createLineBorder(Color.black));
     bNurPanel.setPreferredSize(new Dimension(311, 260));
-    bNurPanel.setToolTipText("Auswertung auf bestimmte Kriterien einschrï¿½nken: Nur Boote, auf die " +
-    "eines der Merkmale paï¿½t, werden bei der Auswertung berï¿½cksichtigt.");
+    bNurPanel.setToolTipText("Auswertung auf bestimmte Kriterien einschränken: Nur Boote, auf die " +
+    "eines der Merkmale paßt, werden bei der Auswertung berücksichtigt.");
     mRest2Panel.setLayout(borderLayout10);
     mAusPanel.setLayout(borderLayout11);
     mAusgabeLabel.setDisplayedMnemonic('0');
@@ -627,25 +627,25 @@ public class StatistikFrame extends JDialog implements ActionListener {
     mGraAusFahrten.setText("Fahrten");
     mGraAusKmFahrt.setNextFocusableComponent(mGraSizeKmFahrt);
     mGraAusKmFahrt.setText("Km / Fahrt");
-    mGraSizeLabel.setText("Grï¿½ï¿½e:");
+    mGraSizeLabel.setText("Größe:");
     mGraSizeKmFahrt.setNextFocusableComponent(mGraAusDauer);
     mGraSizeKmFahrt.setPreferredSize(new Dimension(40, 19));
-    mGraSizeKmFahrt.setToolTipText("legt die Grï¿½ï¿½e des Balkens fï¿½r 100% fest (Angabe in Pixeln)");
+    mGraSizeKmFahrt.setToolTipText("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)");
     mGraSizeKmFahrt.setText("200");
     mGraSizeFahrten.setNextFocusableComponent(mGraAusKmFahrt);
     mGraSizeFahrten.setPreferredSize(new Dimension(40, 19));
-    mGraSizeFahrten.setToolTipText("legt die Grï¿½ï¿½e des Balkens fï¿½r 100% fest (Angabe in Pixeln)");
+    mGraSizeFahrten.setToolTipText("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)");
     mGraSizeFahrten.setText("200");
     mGraSizeKm.setNextFocusableComponent(mGraAusFahrten);
     mGraSizeKm.setPreferredSize(new Dimension(40, 19));
-    mGraSizeKm.setToolTipText("legt die Grï¿½ï¿½e des Balkens fï¿½r 100% fest (Angabe in Pixeln)");
+    mGraSizeKm.setToolTipText("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)");
     mGraSizeKm.setText("200");
     mGraPanel.setBorder(BorderFactory.createLineBorder(Color.black));
     mGraPanel.setToolTipText("legt fest, welche Daten in Form von Balkendiagrammen veranschaulicht " +
     "werden sollen (nur bei HTML-Ausgabe)");
     mRest4Panel.setLayout(borderLayout12);
     mNumPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-    mNumPanel.setToolTipText("legt fest, welche Eintrï¿½ge numeriert werden sollen und welche nicht");
+    mNumPanel.setToolTipText("legt fest, welche Einträge numeriert werden sollen und welche nicht");
     mNumPanel.setLayout(gridBagLayout11);
     mSortPanel.setBorder(BorderFactory.createLineBorder(Color.black));
     mSortPanel.setPreferredSize(new Dimension(235, 75));
@@ -684,13 +684,13 @@ public class StatistikFrame extends JDialog implements ActionListener {
     bootePanel.setNextFocusableComponent(bArt);
     bootePanel.setToolTipText("Auswertung der Kilometer jedes einzelnen Boots");
     numerierung.setNextFocusableComponent(erweitertButton);
-    numerierung.setToolTipText("legt fest, welche Eintrï¿½ge numeriert werden sollen und welche nicht");
+    numerierung.setToolTipText("legt fest, welche Einträge numeriert werden sollen und welche nicht");
     deleteButton.setMaximumSize(new Dimension(102, 25));
     deleteButton.setMinimumSize(new Dimension(102, 25));
     deleteButton.setNextFocusableComponent(statList);
     deleteButton.setPreferredSize(new Dimension(102, 25));
     deleteButton.setMnemonic('L');
-    deleteButton.setText("Lï¿½schen");
+    deleteButton.setText("Löschen");
     deleteButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         deleteButton_actionPerformed(e);
@@ -724,9 +724,9 @@ public class StatistikFrame extends JDialog implements ActionListener {
         statList_mouseClicked(e);
       }
     });
-    zeitFbUebergreifend.setText("fahrtenbuchï¿½bergreifend");
+    zeitFbUebergreifend.setText("fahrtenbuchübergreifend");
     zeitFbUebergreifend.setNextFocusableComponent(auswahlPane);
-    zeitFbUebergreifend.setToolTipText("alle Fahrtenbï¿½cher, die miteinander verknï¿½pft sind, einbeziehen");
+    zeitFbUebergreifend.setToolTipText("alle Fahrtenbücher, die miteinander verknüpft sind, einbeziehen");
     zeitFbUebergreifend.setMnemonic('F');
     wettPanel.setLayout(gridBagLayout13);
     wettProzLabel.setToolTipText("alle Ruderer/Innen, die x Prozent der geforderten Km erreicht haben, " +
@@ -747,14 +747,14 @@ public class StatistikFrame extends JDialog implements ActionListener {
         wettProz_focusLost(e);
       }
     });
-    wettAnzLabel.setToolTipText("alle Ruderer/Innen ausgeben, die diese Anzahl von Fahrten erfï¿½llt " +
+    wettAnzLabel.setToolTipText("alle Ruderer/Innen ausgeben, die diese Anzahl von Fahrten erfüllt " +
     "haben");
     wettAnzLabel.setDisplayedMnemonic('R');
     wettAnzLabel.setLabelFor(wettAnz);
     wettAnzLabel.setText(" der geforderten Fahrten");
     wettAnz.setNextFocusableComponent(ausWettBedingung);
     wettAnz.setPreferredSize(new Dimension(50, 19));
-    wettAnz.setToolTipText("alle Ruderer/Innen ausgeben, die diese Anzahl von Fahrten erfï¿½llt " +
+    wettAnz.setToolTipText("alle Ruderer/Innen ausgeben, die diese Anzahl von Fahrten erfüllt " +
     "haben");
     wettAnz.setText("4");
     wettAnz.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -763,7 +763,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
       }
     });
     wettTitleLabel.setPreferredSize(new Dimension(300, 19));
-    wettTitleLabel.setText("Ausgabe nur, wenn mindestens erfï¿½llt sind:");
+    wettTitleLabel.setText("Ausgabe nur, wenn mindestens erfüllt sind:");
     wettbewerbPanel.setLayout(borderLayout13);
     jLabel1.setText("Wettbewerb: ");
     wettbewerbPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -1339,7 +1339,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     art.addItem("Wer mit Bootsart");
     art.addItem("Fahrtenbuch");
     art.addItem("Jahre");
-    art.addItem("Monatsï¿½bersicht");
+    art.addItem("Monatsübersicht");
     art.addItem("Wer Unerlaubt");
     art.addItem("Wer mit Fahrtart");
     art.setSelectedIndex(0);
@@ -1364,7 +1364,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
     bArt.addItem("Boote");
     bArt.addItem("Art");
-    bArt.addItem("Ruderplï¿½tze");
+    bArt.addItem("Ruderplätze");
     bArt.addItem("Art - Detail");
     bArt.addItem("Ziele");
     bArt.addItem("Km / Fahrt");
@@ -1386,7 +1386,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     if (Daten.wettDefs != null) {
       for (int i=0; i<WettDefs.ANZWETT; i++) {
         WettDef w = Daten.wettDefs.getWettDef(i,9999);
-        if (w != null) wettArt.addItem(w.name); // Namen der Wettbewerbe fï¿½r hï¿½chstmï¿½gliches Jahr (falls sich Namen ï¿½ndern)!
+        if (w != null) wettArt.addItem(w.name); // Namen der Wettbewerbe für höchstmögliches Jahr (falls sich Namen ändern)!
       }
       if (wettArt.getItemCount()>0) wettArt.setSelectedIndex(0);
     }
@@ -1413,7 +1413,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
   }
 
 
-  // Fenster schlieï¿½en
+  // Fenster schließen
   public void cancel() {
     Dialog.frameClosed(this);
     Dialog.statistikFrame = null;
@@ -1431,7 +1431,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
 
 
-  // Auswahl der Statistikart geï¿½ndert --> Listen anpassen
+  // Auswahl der Statistikart geändert --> Listen anpassen
   void art_itemStateChanged(ItemEvent e) {
     sortKrit.removeAllItems();
     switch (art.getSelectedIndex()) {
@@ -1468,7 +1468,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
       case StatistikDaten.ART_BOOTSART:
         sortKrit.addItem("Bootsart");
         sortKrit.addItem("Art");
-        sortKrit.addItem("Ruderplï¿½tze");
+        sortKrit.addItem("Ruderplätze");
         break;
       case StatistikDaten.ART_FAHRTART:
         sortKrit.addItem("Fahrtart");
@@ -1646,14 +1646,14 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
 
 
-  // Auswahlliste Art (Boote) geï¿½ndert
+  // Auswahlliste Art (Boote) geändert
   void bArt_itemStateChanged(ItemEvent e) {
     mSortKrit.removeAllItems();
     switch (bArt.getSelectedIndex()+100) {
       case StatistikDaten.BART_BOOTE: case StatistikDaten.BART_WELCHESWOHIN:
         mSortKrit.addItem("Bootsname");
         mSortKrit.addItem("Art");
-        mSortKrit.addItem("Ruderplï¿½tze");
+        mSortKrit.addItem("Ruderplätze");
         break;
       case StatistikDaten.BART_ART:
         mSortKrit.addItem("Art");
@@ -1661,14 +1661,14 @@ public class StatistikFrame extends JDialog implements ActionListener {
         mSortKrit.addItem("---");
         break;
       case StatistikDaten.BART_PLAETZE:
-        mSortKrit.addItem("Ruderplï¿½tze");
+        mSortKrit.addItem("Ruderplätze");
         mSortKrit.addItem("---");
         mSortKrit.addItem("---");
         break;
       case StatistikDaten.BART_ARTDETAIL:
         mSortKrit.addItem("Art - Detail");
         mSortKrit.addItem("Art");
-        mSortKrit.addItem("Ruderplï¿½tze");
+        mSortKrit.addItem("Ruderplätze");
         break;
       case StatistikDaten.BART_ZIELE:
         mSortKrit.addItem("Ziel");
@@ -1766,20 +1766,20 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
   }
 
-  // Sortierkriterium geï¿½ndert --> ggf. Sortierreihenfolge anpassen
+  // Sortierkriterium geändert --> ggf. Sortierreihenfolge anpassen
   void sortKrit_itemStateChanged(ItemEvent e) {
     if (sortKrit.getSelectedIndex()<3) sortFolge.setSelectedIndex(0);
     else sortFolge.setSelectedIndex(1);
   }
 
-  // Sortierkriterium geï¿½ndert --> ggf. Sortierreihenfolge anpassen
+  // Sortierkriterium geändert --> ggf. Sortierreihenfolge anpassen
   void mSortKrit_itemStateChanged(ItemEvent e) {
     if (mSortKrit.getSelectedIndex()<3) mSortFolge.setSelectedIndex(0);
     else mSortFolge.setSelectedIndex(1);
   }
 
 
-  // Auswahl der Statistikart geï¿½ndert --> Listen anpassen
+  // Auswahl der Statistikart geändert --> Listen anpassen
   void wettArt_itemStateChanged(ItemEvent e) {
     wettJahr.setText("");
     getWettJahr();
@@ -1800,7 +1800,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
 
 
-  // zu aktuellem Datum das beste passende Wettbewerbsjahr fï¿½r einen gegebenen Wettbewerb ermitteln
+  // zu aktuellem Datum das beste passende Wettbewerbsjahr für einen gegebenen Wettbewerb ermitteln
   public static int getBestWettJahr(WettDef wett, int year, Calendar cal) {
     if (wett == null) return year;
 
@@ -1829,7 +1829,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
       if (wett == null) return;
       year = getBestWettJahr(wett,year,cal);
     }
-    wett = Daten.wettDefs.getWettDef(wettArt.getSelectedIndex(),year); // anhand des ermittelten Jahres jetzt nochmal die gï¿½ltigen Wettbewerbsbedinungen holen
+    wett = Daten.wettDefs.getWettDef(wettArt.getSelectedIndex(),year); // anhand des ermittelten Jahres jetzt nochmal die gültigen Wettbewerbsbedinungen holen
     if (wett == null) return;
 
     TMJ tmj = EfaUtil.string2date(wettJahr.getText(),-1,0,0);
@@ -1854,7 +1854,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
 
 
-  // Wettbewerbsjahr vervollstï¿½ndigen
+  // Wettbewerbsjahr vervollständigen
   void wettJahr_focusLost(FocusEvent e) {
     getWettJahr();
   }
@@ -1870,7 +1870,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     auswahlPanel.doLayout();
     getWettJahr();
     if (!statWettFromSavedValues)
-      nurStatus1.setSelectionInterval(0,Daten.fahrtenbuch.getDaten().status.length-3); // Gast standardmï¿½ï¿½ig nicht ausgeben
+      nurStatus1.setSelectionInterval(0,Daten.fahrtenbuch.getDaten().status.length-3); // Gast standardmäßig nicht ausgeben
     statWettFromSavedValues = false;
     ausgabeArt.addItem("als Meldedatei");
     zeitVorjahresvergleich.setEnabled(false);
@@ -1929,7 +1929,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
 
 
-  // Namen vervollstï¿½ndigen
+  // Namen vervollständigen
   void nurName_keyReleased(KeyEvent e) {
     if (nurAuswahlName.isSelected()) {
       if (nameTeil.isSelected()) return;
@@ -1955,7 +1955,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
 
 
-  // Bootsnamen vervollstï¿½ndigen
+  // Bootsnamen vervollständigen
   void mNurBoot_keyReleased(KeyEvent e) {
     if (Daten.fahrtenbuch.getDaten().boote == null) return;
     if (mNurBoot.getText().trim().equals("")) return;
@@ -1971,8 +1971,8 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
     String ext = ausgabeExt[ausgabeArt.getSelectedIndex()];
     String dat;
-    if (!ausgabeDatei.getText().trim().equals("")) dat = Dialog.dateiDialog(this,ext.toUpperCase()+"-Datei auswï¿½hlen",ext.toUpperCase()+"-Datei (*."+ext+")",ext,ausgabeDatei.getText().trim(),null,"Datei auswï¿½hlen",true,false);
-    else dat = Dialog.dateiDialog(this,ext.toUpperCase()+"-Datei auswï¿½hlen",ext.toUpperCase()+"-Datei (*."+ext+")",ext,null,null,"Datei auswï¿½hlen",true,false);
+    if (!ausgabeDatei.getText().trim().equals("")) dat = Dialog.dateiDialog(this,ext.toUpperCase()+"-Datei auswählen",ext.toUpperCase()+"-Datei (*."+ext+")",ext,ausgabeDatei.getText().trim(),null,"Datei auswählen",true,false);
+    else dat = Dialog.dateiDialog(this,ext.toUpperCase()+"-Datei auswählen",ext.toUpperCase()+"-Datei (*."+ext+")",ext,null,null,"Datei auswählen",true,false);
 
     if (dat != null) {
       ausgabeDatei.setText(dat);
@@ -2007,7 +2007,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
       case StatistikDaten.STAT_WETT: art = wettArt.getSelectedIndex() + 200; break;
     }
 
-    // je nach aktuell ausgewï¿½hlter Statistik die Elemente des erweitertFrame ggf. in grau darstellen
+    // je nach aktuell ausgewählter Statistik die Elemente des erweitertFrame ggf. in grau darstellen
     if (art == StatistikDaten.ART_KMFAHRT || art == StatistikDaten.BART_KMFAHRT) erweitertFrame.kilometerGruppiert.setForeground(Color.black);
     else erweitertFrame.kilometerGruppiert.setForeground(Color.gray);
 
@@ -2092,13 +2092,13 @@ public class StatistikFrame extends JDialog implements ActionListener {
   }
 
 
-  // Ermittelt, ob eine Output-Datei, die fï¿½r d erzeugt werden soll, geschrieben, ggf. ï¿½berschrieben, werden darf
+  // Ermittelt, ob eine Output-Datei, die für d erzeugt werden soll, geschrieben, ggf. überschrieben, werden darf
   // wird aus Statistik.java aufgerufen
   boolean allowedWriteFile(StatistikDaten d) {
     if (d.ausgabeOverwriteWarnung && d.ausgabeDatei != null &&
         d.ausgabeArt != StatistikDaten.AUSGABE_INTERN_GRAFIK && d.ausgabeArt != StatistikDaten.AUSGABE_INTERN_TEXT &&
         new File(d.ausgabeDatei).isFile())
-      switch (Dialog.yesNoDialog("Datei bereits vorhanden","Soll die Datei \n'"+d.ausgabeDatei+"'\nï¿½berschrieben werden?")) {
+      switch (Dialog.yesNoDialog("Datei bereits vorhanden","Soll die Datei \n'"+d.ausgabeDatei+"'\nüberschrieben werden?")) {
         case Dialog.NO: return false;
       }
     return true;
@@ -2138,7 +2138,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     StatistikDaten d = createStatistik();
     if (d == null) return;
     if (d.ausgabeArt == StatistikDaten.AUSGABE_EFAWETT) {
-      Dialog.infoDialog("Fehler","Meldedatei-Ausgaben kï¿½nnen nicht als Statistikeinstellung gespeichert werden!");
+      Dialog.infoDialog("Fehler","Meldedatei-Ausgaben können nicht als Statistikeinstellung gespeichert werden!");
       return;
     }
     StatAddFrame dlg = new StatAddFrame(this,d,aktStatName,aktStatAuchEfaDirekt);
@@ -2205,10 +2205,10 @@ public class StatistikFrame extends JDialog implements ActionListener {
             case StatistikDaten.ART_WERUNERLAUBT: felder[i] = felder[i] + "Wer unerlaubt)"; break;
             case StatistikDaten.ART_KMFAHRT: case StatistikDaten.BART_KMFAHRT: felder[i] = felder[i] + "Km/Fahrt)"; break;
             case StatistikDaten.ART_FAHRTENBUCH: case StatistikDaten.BART_FAHRTENBUCH: felder[i] = felder[i] + "Fahrtenbuch)"; break;
-            case StatistikDaten.ART_MONATSUEBERSICHT: felder[i] = felder[i] + "Monatsï¿½bersicht)"; break;
+            case StatistikDaten.ART_MONATSUEBERSICHT: felder[i] = felder[i] + "Monatsübersicht)"; break;
             case StatistikDaten.BART_ART: felder[i] = felder[i] + "Art)"; break;
             case StatistikDaten.BART_ARTDETAIL: felder[i] = felder[i] + "Art - Detail)"; break;
-            case StatistikDaten.BART_PLAETZE: felder[i] = felder[i] + "Bootsplï¿½tze)"; break;
+            case StatistikDaten.BART_PLAETZE: felder[i] = felder[i] + "Bootsplätze)"; break;
             case StatistikDaten.BART_WELCHESWOHIN: felder[i] = felder[i] + "Welches Boot Wohin)"; break;
           }
           if (art>=200 && art-200<WettDefs.ANZWETT && Daten.wettDefs != null) {
@@ -2223,10 +2223,10 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
 
 
-  // gespeicherten Eintrag lï¿½schen
+  // gespeicherten Eintrag löschen
   void deleteButton_actionPerformed(ActionEvent e) {
     if (statList.getSelectedIndices().length == 0) return;
-    switch (Dialog.yesNoDialog("Warnung","Sollen die markierten Eintrï¿½ge wirklich gelï¿½scht werden?")) {
+    switch (Dialog.yesNoDialog("Warnung","Sollen die markierten Einträge wirklich gelöscht werden?")) {
       case Dialog.YES:
         String[] s = new String[statList.getSelectedValues().length];
         for (int i=0; i<statList.getSelectedValues().length; i++)
@@ -2234,7 +2234,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
         for (int i=0; i<s.length; i++)
           Daten.fahrtenbuch.getDaten().statistik.delete(s[i].substring(0,s[i].lastIndexOf(" (")));
         if (Daten.fahrtenbuch.getDaten().statistik.writeFile() && Daten.fahrtenbuch.getDaten().statistik.readFile()) {}
-        else Dialog.error("ï¿½nderungen konnten nicht gespeichert werden!");
+        else Dialog.error("Änderungen konnten nicht gespeichert werden!");
         showSavedStat();
         break;
       case Dialog.NO: return;
@@ -2243,7 +2243,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
   }
 
 
-  // boolean-Array zu int-Array machen fï¿½r setSelectedIndices
+  // boolean-Array zu int-Array machen für setSelectedIndices
   int[] makeIndexArr(boolean[] a) {
     int c = 0;
     for (int i=0; i<a.length; i++)
@@ -2264,9 +2264,9 @@ public class StatistikFrame extends JDialog implements ActionListener {
     progressMonitor.setProgress(0);
     progressMonitor.setMaximum(1);
     progressMonitor.setMillisToDecideToPopup(PROGRESS_TIMETOPOPUP);
-      // enableFrame(...) gibt false zurï¿½ck, wenn das Frame bereits disabled ist, d.h. wenn bereits eine Berechnung
-      // lï¿½uft. Dies ist ein Bugfix, damit eine Statistikberechnung nicht mehrfach parallel ausgefï¿½hrt werden kann
-      // 13.01.2006 (Bugfix fï¿½r MG)
+      // enableFrame(...) gibt false zurück, wenn das Frame bereits disabled ist, d.h. wenn bereits eine Berechnung
+      // läuft. Dies ist ein Bugfix, damit eine Statistikberechnung nicht mehrfach parallel ausgeführt werden kann
+      // 13.01.2006 (Bugfix für MG)
     if (enableFrame(false,"efa berechnet die Statistik ...",true)) {
       Thread thr = statistikThread.go(d);
       timer.start();
@@ -2274,12 +2274,12 @@ public class StatistikFrame extends JDialog implements ActionListener {
   }
 
 
-  // Fehler, wenn eines der "nur ..."-Felder komplett leer ist (d.h. keine Eintrï¿½ge ausgewï¿½hlt wurden!)
+  // Fehler, wenn eines der "nur ..."-Felder komplett leer ist (d.h. keine Einträge ausgewählt wurden!)
   boolean errorIfEmpty(boolean[] b, String s) {
     boolean empty = true;
     for (int i=0; i<b.length; i++) if (b[i]) empty = false;
     if (empty)
-      Dialog.infoDialog("Ungenï¿½gende Auswahl","In der Auswahl '"+s+"' wurde kein Eintrag ausgewï¿½hlt.\nBitte wï¿½hle zumindest einen Eintrag aus!");
+      Dialog.infoDialog("Ungenügende Auswahl","In der Auswahl '"+s+"' wurde kein Eintrag ausgewählt.\nBitte wähle zumindest einen Eintrag aus!");
     return empty;
   }
 
@@ -2302,7 +2302,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     }
     if (d[0].stat == StatistikDaten.STAT_BOOTE) {
       if (errorIfEmpty(d[0].bArt,"Art")) return;
-      if (errorIfEmpty(d[0].bAnzahl,"Ruderplï¿½tze")) return;
+      if (errorIfEmpty(d[0].bAnzahl,"Ruderplätze")) return;
       if (errorIfEmpty(d[0].fahrtart,"Art der Fahrt")) return;
       if (errorIfEmpty(d[0].bRigger,"Riggerung")) return;
       if (errorIfEmpty(d[0].bStm,"mit oder ohne Steuermann")) return;
@@ -2313,7 +2313,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
   }
 
 
-    // Timer fï¿½r ProgressBar-Aktualisierung
+    // Timer für ProgressBar-Aktualisierung
     class TimerListener implements ActionListener {
         public void actionPerformed(ActionEvent evt) {
 
@@ -2341,7 +2341,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
   synchronized boolean enableFrame(boolean enable, String text, boolean stopIfAlreadyDisabled) {
     if (!enable && stopIfAlreadyDisabled && !erstellenBut.isEnabled()) {
-      return false; // gibt false zurï¿½ck, wenn Ausfï¿½hrung verboten ist
+      return false; // gibt false zurück, wenn Ausführung verboten ist
     }
     setEnabled(enable);
     erstellenBut.setEnabled(enable);
@@ -2378,7 +2378,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
       else d.stylesheet+=".XSL";
     }
     if (d.ausgabeArt == StatistikDaten.AUSGABE_PDF && ausgabeFormat.getSelectedIndex()==0) {
-      Dialog.infoDialog("Bitte wï¿½hle eine Formatierung aus!","Keine Formatierung ausgewï¿½hlt");
+      Dialog.infoDialog("Bitte wähle eine Formatierung aus!","Keine Formatierung ausgewählt");
       return null;
     }
 
@@ -2456,7 +2456,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     return d;
   }
 
-  // spezielle Daten fï¿½r zusï¿½tzliche Wettbewerbsausgabe
+  // spezielle Daten für zusätzliche Wettbewerbsausgabe
   void createZusatzWett(StatistikDaten d, int i, JComboBox wett, JTextField wettjahr) {
     if (i<0 || i>=d.zusatzWett.length) return;
     if (wett.getSelectedIndex()<=0) d.zusatzWett[i] = -1;
@@ -2468,11 +2468,11 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
 
 
-  // spezielle Daten fï¿½r Mitglieder-Statistik ermitteln
+  // spezielle Daten für Mitglieder-Statistik ermitteln
   boolean createStatRuderer(StatistikDaten d) {
     if (art.getSelectedIndex() == StatistikDaten.ART_MITRUDERER &&
         (nurName.getText().trim().equals("") || nameTeil.isSelected()) ) {
-      Dialog.infoDialog("Fehler","Wenn Statistikart 'Mitruderer' gewï¿½hlt ist, muï¿½ bei 'nur Name'\n"+
+      Dialog.infoDialog("Fehler","Wenn Statistikart 'Mitruderer' gewählt ist, muß bei 'nur Name'\n"+
                                          "ein konkreter Name angegeben werden, und 'als Teil eines Namens'\n"+
                                          "darf nicht aktiviert sein.");
       return false;
@@ -2551,7 +2551,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
 
 
-  // spezielle Daten fï¿½r Bootsstatiktik ermitteln
+  // spezielle Daten für Bootsstatiktik ermitteln
   boolean createStatBoote(StatistikDaten d) {
     d.art = bArt.getSelectedIndex() + 100;
     d.vorjahresvergleich = bzeitVorjahresvergleich.isSelected();
@@ -2620,14 +2620,14 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
 
 
-  // spezielle Daten fï¿½r Mitglieder-Statistik ermitteln
+  // spezielle Daten für Mitglieder-Statistik ermitteln
   boolean createStatWett(StatistikDaten d) {
     d.art = wettArt.getSelectedIndex() + 200;
 
     if (d.ausgabeArt == StatistikDaten.AUSGABE_EFAWETT &&
         (d.art == StatistikDaten.WETT_LRVBRB_FAHRTENWETT || d.art == StatistikDaten.WETT_LRVBRB_WANDERRUDERWETT ||
          d.art == StatistikDaten.WETT_LRVMVP_WANDERRUDERWETT)) {
-      Dialog.error("Die Ausgabe als Meldedatei wird fï¿½r diesen Wettbewerb nicht unterstï¿½tzt.");
+      Dialog.error("Die Ausgabe als Meldedatei wird für diesen Wettbewerb nicht unterstützt.");
       return false;
     }
 
@@ -2698,7 +2698,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
       d.wettOhneDetail = false;
       d.ausgebenWettBedingung = false;
       if (!Statistik.checkWettZeitraum(d.wettJahr,d.von,d.bis,d.art-200)) {
-        Dialog.infoDialog("Ungï¿½ltiger Zeitraum","Der gewï¿½hlte Zeitraum entspricht nicht den Bedingungen der Ausschreibung");
+        Dialog.infoDialog("Ungültiger Zeitraum","Der gewählte Zeitraum entspricht nicht den Bedingungen der Ausschreibung");
         return false;
       }
     }
@@ -2870,7 +2870,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
         d.statistikFrame = this;
         d.parent = this;
 
-        // hï¿½ï¿½licher Workaround, damit wettPanel weiï¿½, daï¿½ es nicht angeklickt wurde, sondern als gespeicherte Einstellungen
+        // häßlicher Workaround, damit wettPanel weiß, daß es nicht angeklickt wurde, sondern als gespeicherte Einstellungen
         // gesetzt wurde (denn in diesem Fall sollen alle Status-Felder erhalten bleiben, auch Gast, falls aktiviert)
       if (d.stat == StatistikDaten.STAT_WETT) statWettFromSavedValues = true;
 
@@ -3050,12 +3050,12 @@ public class StatistikFrame extends JDialog implements ActionListener {
   void doEdit() {
     if (statList.getSelectedIndices().length == 0) return;
     if (statList.getSelectedIndices().length>1) {
-      Dialog.infoDialog("Zu viele Eintrï¿½ge markiert","Es kann immer nur eine Statistikeinstellung bearbeitet werden!");
+      Dialog.infoDialog("Zu viele Einträge markiert","Es kann immer nur eine Statistikeinstellung bearbeitet werden!");
       return;
     }
     String s = (String)statList.getSelectedValue();
     if (s.lastIndexOf(" (")<0) {
-      Dialog.error("Statistikdatei hat ungï¿½ltiges Format!");
+      Dialog.error("Statistikdatei hat ungültiges Format!");
       return;
     }
     s = s.substring(0,s.lastIndexOf(" ("));
@@ -3070,53 +3070,53 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
 
 
-  // allgemeine Einstellungen zur Statistik, die nicht aus der Eingabe gewonnen werden kï¿½nnen
+  // allgemeine Einstellungen zur Statistik, die nicht aus der Eingabe gewonnen werden können
   public static void allgStatistikDaten(StatistikDaten d) {
     d.ausgabe = StatistikDaten.AUSGABE_APPLICATION;
     d.anzMitglieder = Daten.fahrtenbuch.getDaten().anzMitglieder;
   }
 
 
-  public void efaWettVervollstaendigen(EfaWett efaWett) {
-    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollstaendigen(...) - START");
+  public void efaWettVervollständigen(EfaWett efaWett) {
+    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen(...) - START");
     if (efaWett.meldung == null) {
-      Dialog.infoDialog("Keine Meldungen","Im gewï¿½hlten Zeitraum haben keine Teilnehmer die Bedingungen erfï¿½llt!");
+      Dialog.infoDialog("Keine Meldungen","Im gewählten Zeitraum haben keine Teilnehmer die Bedingungen erfüllt!");
       return;
     }
     String dat = Daten.fahrtenbuch.getFileName();
-    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollstaendigen(...): dat == "+dat);
+    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen(...): dat == "+dat);
     int to;
     if ((to = dat.toUpperCase().lastIndexOf(Daten.fileSep)) >= 0) {
-      Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollstaendigen(...): to == "+to);
+      Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen(...): to == "+to);
       dat = dat.substring(0,to+1);
-      Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollstaendigen(...): dat == "+dat);
+      Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen(...): dat == "+dat);
       efaWett.datei = dat+EfaUtil.replace(efaWett.allg_wett,".","_",true)+"_"+EfaUtil.replace(efaWett.allg_wettjahr,"/","-",true)+".EFW";
-      Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollstaendigen(...): efaWett.datei == "+efaWett.datei);
+      Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen(...): efaWett.datei == "+efaWett.datei);
     } // anderenfalls Standardwert (StatistikDaten.dateiEfaWett)
 
     VereinsConfigFrame dlg = new VereinsConfigFrame(this,efaWett);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
     dlg.show();
-    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollstaendigen(...) - END");
+    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen(...) - END");
   }
-  public void efaWettVervollstaendigen2(EfaWett efaWett) {
-    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollstaendigen2(...) - START");
+  public void efaWettVervollständigen2(EfaWett efaWett) {
+    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen2(...) - START");
     EfaWettSelectAndCompleteFrame dlg = new EfaWettSelectAndCompleteFrame(this,efaWett);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
     dlg.show();
-    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollstaendigen2(...) - END");
+    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen2(...) - END");
   }
-  public void efaWettVervollstaendigen3(EfaWett efaWett, String meldegeld, Vector papierFahrtenhefte) {
-    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollstaendigen3(...) - START");
+  public void efaWettVervollständigen3(EfaWett efaWett, String meldegeld, Vector papierFahrtenhefte) {
+    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen3(...) - START");
     Statistik.schreibeEfaWett(efaWett);
 
     EfaWettFertigFrame dlg = new EfaWettFertigFrame(this,efaWett,meldegeld,papierFahrtenhefte);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
     dlg.show();
-    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollstaendigen3(...) - END");
+    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen3(...) - END");
   }
 
 
@@ -3139,7 +3139,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     ausgabeFormat.removeAllItems();
 
     if (ausgabeExt[nr] != null && ausgabeExt[nr].equals("pdf"))
-      ausgabeFormat.addItem("--- bitte wï¿½hlen ---");
+      ausgabeFormat.addItem("--- bitte wählen ---");
     else
       ausgabeFormat.addItem("Standard");
     if (nr == 0 || nr == 2 ||

@@ -155,7 +155,7 @@ public class VereinsConfigFrame extends JDialog implements ActionListener {
     jLabel1.setForeground(new Color(0, 0, 99));
     jLabel1.setText("Vereinsdaten");
     vereinsNameLabel.setText("Vereinsname: ");
-    userDrvLabel.setText("Benutzername fï¿½r efaWett (DRV): ");
+    userDrvLabel.setText("Benutzername für efaWett (DRV): ");
     mitgliedsnummerDRVLabel.setText("Mitgliedsnummer im DRV: ");
     jLabel5.setFont(new java.awt.Font("Dialog", 1, 14));
     jLabel5.setForeground(new Color(0, 0, 99));
@@ -169,9 +169,9 @@ public class VereinsConfigFrame extends JDialog implements ActionListener {
     meldenderBLZLabel.setText("BLZ: ");
     jLabel11.setFont(new java.awt.Font("Dialog", 1, 14));
     jLabel11.setForeground(new Color(0, 0, 99));
-    jLabel11.setText("Versandanschrift fï¿½r Meldeergebnisse etc.");
+    jLabel11.setText("Versandanschrift für Meldeergebnisse etc.");
     versandNameLabel.setText("Name: ");
-    versandStrasseLabel.setText("Straï¿½e, Hausnr: ");
+    versandStrasseLabel.setText("Straße, Hausnr: ");
     versandOrtLabel.setText("PLZ, Ort: ");
     vereinsName.setNextFocusableComponent(vereinsOrt);
     vereinsName.setPreferredSize(new Dimension(300, 19));
@@ -246,7 +246,7 @@ public class VereinsConfigFrame extends JDialog implements ActionListener {
         zielbereich_focusLost(e);
       }
     });
-    userLrvLabel.setText("Benutzername fï¿½r efaWett (LRV): ");
+    userLrvLabel.setText("Benutzername für efaWett (LRV): ");
     userLRV.setNextFocusableComponent(okButton);
     efaConfigPanel.setLayout(gridBagLayout1);
     efwErklaerung.setEnabled(false);
@@ -273,12 +273,12 @@ public class VereinsConfigFrame extends JDialog implements ActionListener {
     efaWettPanel.setLayout(gridBagLayout3);
     jLabel4.setFont(new java.awt.Font("Dialog", 1, 16));
     jLabel4.setForeground(SystemColor.activeCaption);
-    jLabel4.setText("efaWett - elektronisches Meldesystem fï¿½r Wettbewerbe");
-    jLabel7.setText("    - Fï¿½r die elektronische Meldung anmelden");
+    jLabel4.setText("efaWett - elektronisches Meldesystem für Wettbewerbe");
+    jLabel7.setText("    - Für die elektronische Meldung anmelden");
     jLabel8.setText("    - Wettbewerbsmeldungen einsenden");
     jLabel9.setText("    - Status der letzten Wettbewerbsmeldung abfragen");
-    jLabel10.setText("    - In efaWett gespeicherte Vereinsdaten einsehen/ï¿½ndern");
-    efaWettHomepageButton.setText("efaWett-Homepage ï¿½ffnen");
+    jLabel10.setText("    - In efaWett gespeicherte Vereinsdaten einsehen/ändern");
+    efaWettHomepageButton.setText("efaWett-Homepage öffnen");
     efaWettHomepageButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         efaWettHomepageButton_actionPerformed(e);
@@ -448,19 +448,19 @@ public class VereinsConfigFrame extends JDialog implements ActionListener {
        efwLetzteAktualisierung.setText(Daten.wettDefs.efw_letzte_aktualisierung);
        efwStandDerDaten.setText(Daten.wettDefs.efw_stand_der_daten);
      }
-    info.append("Die folgenden Daten werden zum Erstellen von elektronischen Wettbewerbsmeldungen benï¿½tigt.\n"+
-                "Vereinsdaten: Daten des Vereins, die fï¿½r Wettbewerbsmeldungen benï¿½tigt werden\n"+
-                "efa-Konfiguraion: Konfiguration von efa fï¿½r elektronische Wettbewerbsmeldungen aktualisieren\n"+
-                "efa-Wett: Fï¿½r elektronische Wettbewerbsmeldung anmelden, Status von Meldungen abrufen etc.");
-    efwErklaerung.append("efa speichert diverse Konfigurationswerte, die fï¿½r die elektronische Meldung\n"+
-                         "erforderlich sind. Hierzu zï¿½hlen insbesondere Adressen zum elektronischen\n"+
-                         "Einsenden der Daten sowie Informationen ï¿½ber die anfallenden Meldegebï¿½hren.\n"+
+    info.append("Die folgenden Daten werden zum Erstellen von elektronischen Wettbewerbsmeldungen benötigt.\n"+
+                "Vereinsdaten: Daten des Vereins, die für Wettbewerbsmeldungen benötigt werden\n"+
+                "efa-Konfiguraion: Konfiguration von efa für elektronische Wettbewerbsmeldungen aktualisieren\n"+
+                "efa-Wett: Für elektronische Wettbewerbsmeldung anmelden, Status von Meldungen abrufen etc.");
+    efwErklaerung.append("efa speichert diverse Konfigurationswerte, die für die elektronische Meldung\n"+
+                         "erforderlich sind. Hierzu zählen insbesondere Adressen zum elektronischen\n"+
+                         "Einsenden der Daten sowie Informationen über die anfallenden Meldegebühren.\n"+
                          "Damit diese Daten stets korrekt sind, sollten sie jeweils vor der Erstellung einer\n"+
                          "Meldedatei aktualisiert werden.\n");
     efaWettInfo.append("efaWett ist ein elektronisches Meldesystem im Internet zum Einsenden von\n"+
-                       "Wettbewerbsmeldungen. Um Wettbewerbe elektronisch melden zu kï¿½nnen, muï¿½ sich\n"+
-                       "jeder Verein zunï¿½chst bei efaWett kostenlos anmelden. Anschlieï¿½end kann der\n"+
-                       "Verein fï¿½r die angebotenen Wettbewerbe mit Hilfe von efa elektronisch melden.\n"+
+                       "Wettbewerbsmeldungen. Um Wettbewerbe elektronisch melden zu können, muß sich\n"+
+                       "jeder Verein zunächst bei efaWett kostenlos anmelden. Anschließend kann der\n"+
+                       "Verein für die angebotenen Wettbewerbe mit Hilfe von efa elektronisch melden.\n"+
                        "Weitere Informationen findest Du auf der efaWett-Homepage.");
    }
 
@@ -554,23 +554,23 @@ public class VereinsConfigFrame extends JDialog implements ActionListener {
          efwStandDerDaten.setText(Daten.wettDefs.efw_stand_der_daten);
        }
      }
-    info.append("Die folgenden Daten sind fï¿½r die Meldung erforderlich.\n"+
-                "Bitte ï¿½berprï¿½fe (und vervollstï¿½ndige ggf.) die Angaben und klicke anschlieï¿½end OK.");
-    efwErklaerung.append("efa speichert diverse Konfigurationswerte, die fï¿½r die elektronische Meldung\n"+
-                         "erforderlich sind. Hierzu zï¿½hlen insbesondere Adressen zum elektronischen\n"+
-                         "Einsenden der Daten sowie Informationen ï¿½ber die anfallenden Meldegebï¿½hren.\n"+
+    info.append("Die folgenden Daten sind für die Meldung erforderlich.\n"+
+                "Bitte überprüfe (und vervollständige ggf.) die Angaben und klicke anschließend OK.");
+    efwErklaerung.append("efa speichert diverse Konfigurationswerte, die für die elektronische Meldung\n"+
+                         "erforderlich sind. Hierzu zählen insbesondere Adressen zum elektronischen\n"+
+                         "Einsenden der Daten sowie Informationen über die anfallenden Meldegebühren.\n"+
                          "Damit diese Daten stets korrekt sind, sollten sie jeweils vor der Erstellung einer\n"+
                          "Meldedatei aktualisiert werden.\n");
     efaWettInfo.append("efaWett ist ein elektronisches Meldesystem im Internet zum Einsenden von\n"+
-                       "Wettbewerbsmeldungen. Um Wettbewerbe elektronisch melden zu kï¿½nnen, muï¿½ sich\n"+
-                       "jeder Verein zunï¿½chst bei efaWett kostenlos anmelden. Anschlieï¿½end kann der\n"+
-                       "Verein fï¿½r die angebotenen Wettbewerbe mit Hilfe von efa elektronisch melden.\n"+
+                       "Wettbewerbsmeldungen. Um Wettbewerbe elektronisch melden zu können, muß sich\n"+
+                       "jeder Verein zunächst bei efaWett kostenlos anmelden. Anschließend kann der\n"+
+                       "Verein für die angebotenen Wettbewerbe mit Hilfe von efa elektronisch melden.\n"+
                        "Weitere Informationen findest Du auf der efaWett-Homepage.");
    }
 
   boolean checkNotEmpty(JTextField t) {
     if (t.isVisible() && t.getText().trim().length()==0) {
-      Dialog.error("Bitte fï¿½lle alle angezeigten Felder vollstï¿½ndig aus!");
+      Dialog.error("Bitte fülle alle angezeigten Felder vollständig aus!");
       t.requestFocus();
       return false;
     }
@@ -619,7 +619,7 @@ public class VereinsConfigFrame extends JDialog implements ActionListener {
     if (!efwErstellen) {
       if (zielbereichGeaendert && Daten.fahrtenbuch != null && Daten.fahrtenbuch.getDaten().ziele != null) Daten.fahrtenbuch.getDaten().ziele.checkAllZielbereiche(vc.zielbereich);
       cancel();
-    } else { // Daten fï¿½r efa-Wett erstellen
+    } else { // Daten für efa-Wett erstellen
       if (vereinsName.isVisible()) ew.verein_name = vereinsName.getText().trim();
       if (userDRV.isVisible()) ew.verein_user = userDRV.getText().trim();
       if (userLRV.isVisible()) ew.verein_user = userLRV.getText().trim();
@@ -640,7 +640,7 @@ public class VereinsConfigFrame extends JDialog implements ActionListener {
       if (versandStrasse.isVisible()) ew.versand_strasse = versandStrasse.getText().trim();
       if (versandOrt.isVisible()) ew.versand_ort = versandOrt.getText().trim();
       cancel();
-      Dialog.statistikFrame.efaWettVervollstaendigen2(ew);
+      Dialog.statistikFrame.efaWettVervollständigen2(ew);
     }
   }
 
@@ -685,7 +685,7 @@ public class VereinsConfigFrame extends JDialog implements ActionListener {
     switch(Dialog.auswahlDialog("Aktuelle Konfigurationsdaten abrufen",
                                 "efa kann die Konfigurationsdaten selbst aus dem Internet abrufen, oder aber\n"+
                                 "eine zuvor heruntergeladene Konfigurationsdatei verarbeiten.\n"+
-                                "Was mï¿½chtest Du tun?",
+                                "Was möchtest Du tun?",
                                 "Konfigurationsdaten im Internet abrufen","vorhandene Konfigurationsdatei verarbeiten")) {
       case 0:
         if (!Dialog.okAbbrDialog("Internet-Verbindung herstellen",
@@ -728,20 +728,20 @@ public class VereinsConfigFrame extends JDialog implements ActionListener {
     if (autoDownloadHasFailed) {
       if (Dialog.yesNoCancelDialog("Wettbewerbskonfiguration manuell aktualisieren",
                                    "Das automatische Herunterladen der Wettbewerbskonfiguration aus dem Internet ist\n"+
-                                   "fehlgeschlagen. Mï¿½glicherweise wurde der Zugriff von efa durch eine Firewall\n"+
+                                   "fehlgeschlagen. Möglicherweise wurde der Zugriff von efa durch eine Firewall\n"+
                                    "blockiert. Du kannst nun mit einem Webbrowser die Konfigurationsdaten manuell\n"+
-                                   "herunterladen. Mï¿½chtest Du die Konfigurationsdaten jetzt manuell herunterladen?") != Dialog.YES) return false;
+                                   "herunterladen. Möchtest Du die Konfigurationsdaten jetzt manuell herunterladen?") != Dialog.YES) return false;
     }
     Dialog.meldung("Konfigurationsdatei herunterladen",
                    "Bitte gib in einem Webbrowser die Adresse\n"+
                    Daten.EFW_UPDATE_DATA+"\n"+
                    "ein, lade diese Datei herunter und speichere sie auf Deiner Festplatte.\n"+
-                   "Klicke anschlieï¿½end bitte OK und wï¿½hle im folgenden Dialog die soeben\n"+
+                   "Klicke anschließend bitte OK und wähle im folgenden Dialog die soeben\n"+
                    "heruntergeladene Datei aus.");
-    String datei = Dialog.dateiDialog(dialog,"Konfigurationsdatei auswï¿½hlen","Wettbewerbskonfiguration (*.data)","data",null,false);
+    String datei = Dialog.dateiDialog(dialog,"Konfigurationsdatei auswählen","Wettbewerbskonfiguration (*.data)","data",null,false);
     if (datei == null) return false;
     if (!EfaUtil.canOpenFile(datei)) {
-      Dialog.error("Die Datei "+datei+" kann nicht geï¿½ffnet werden.");
+      Dialog.error("Die Datei "+datei+" kann nicht geöffnet werden.");
       return false;
     }
     return speichereAktuelleKonfigurationsdaten(datei);

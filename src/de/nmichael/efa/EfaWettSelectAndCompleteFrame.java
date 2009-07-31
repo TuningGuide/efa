@@ -107,9 +107,9 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
         t.setBackground(Color.red);
         t.setForeground(Color.white);
         t.setFont(new java.awt.Font("Dialog", 1, 18));
-        t.append("Die Verwendung von efa befreit nicht von der Notwendigkeit,\ndie ausgewerteten Daten grï¿½ndlich zu prï¿½fen!\n\n"+
-                 "Die Auswertung durch efa basiert ausschlieï¿½lich auf den erfaï¿½ten Daten.\nWenn die erfaï¿½ten Daten fehlerhaft sind, so sind es auch die ausgewerteten Daten.\n\n"+
-                 "Bitte prï¿½fe die Daten vor dem Einsenden grï¿½ndlich auf Korrektheit!");
+        t.append("Die Verwendung von efa befreit nicht von der Notwendigkeit,\ndie ausgewerteten Daten gründlich zu prüfen!\n\n"+
+                 "Die Auswertung durch efa basiert ausschließlich auf den erfaßten Daten.\nWenn die erfaßten Daten fehlerhaft sind, so sind es auch die ausgewerteten Daten.\n\n"+
+                 "Bitte prüfe die Daten vor dem Einsenden gründlich auf Korrektheit!");
         JPanel p = new JPanel();
         p.setBackground(Color.red);
         p.setBorder(BorderFactory.createEtchedBorder());
@@ -182,7 +182,7 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
     }
 
     contentPane.setLayout(borderLayout1);
-    jLabelTitel.setText("Bitte markiere alle Teilnehmer, die fï¿½r den Wettbewerb gemeldet werden " +
+    jLabelTitel.setText("Bitte markiere alle Teilnehmer, die für den Wettbewerb gemeldet werden " +
     "sollen:");
     okButton.setMnemonic('M');
     okButton.setText("Meldedatei erstellen");
@@ -213,7 +213,7 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
     meldungenLabel.setHorizontalAlignment(SwingConstants.CENTER);
     meldungenLabel.setText("Meldungen");
     gebuehrLabel.setHorizontalAlignment(SwingConstants.CENTER);
-    gebuehrLabel.setText("Meldegebï¿½hr");
+    gebuehrLabel.setText("Meldegebühr");
     geb1Label.setText("Erwachsene: ");
     geb.setForeground(Color.black);
     geb.setText("23,-");
@@ -245,13 +245,13 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
     best5.setText("1 x 4,81");
     best6.setForeground(Color.black);
     best6.setText("1 x 3,48");
-    teiln5Label.setText("ï¿½quatorpreise: ");
+    teiln5Label.setText("Äquatorpreise: ");
     teiln5Anz.setForeground(Color.black);
     teiln5Anz.setText("0");
     jLabel1.setForeground(Color.red);
     jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
     jLabel1.setHorizontalTextPosition(SwingConstants.CENTER);
-    jLabel1.setText("Bitte alle Daten grï¿½ndlich auf Richtigkeit prï¿½fen (insb. die rot/orange " +
+    jLabel1.setText("Bitte alle Daten gründlich auf Richtigkeit prüfen (insb. die rot/orange " +
     "markierten Daten)!");
     teilnehmerInfoPanel.setLayout(gridBagLayout3);
     this.getContentPane().add(contentPane, BorderLayout.CENTER);
@@ -365,7 +365,7 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
         this.teiln4Label.setVisible(false);
         this.teiln4Anz.setVisible(false);
       } else if (ew.wettId == WettDefs.LRVBERLIN_BLAUERWIMPEL) {
-        this.meldungenLabel.setText("Ergebnisse fï¿½r 'Blauer Wimpel'");
+        this.meldungenLabel.setText("Ergebnisse für 'Blauer Wimpel'");
         this.teilnLabel.setText("Anzahl der Mitglieder im Verein: ");
         this.teiln1Label.setText("gewertete Mitglieder: ");
         this.teiln2Label.setText("Gesamtkilometer der gewerteten Mitglieder: ");
@@ -392,12 +392,12 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
       }
     if (ew.wettId != WettDefs.DRV_FAHRTENABZEICHEN) {
       if (ew.wettId == WettDefs.DRV_WANDERRUDERSTATISTIK) {
-        jLabelTitel.setText("Bitte markiere alle Wanderfahrten, die fï¿½r den Wettbewerb gemeldet werden sollen:");
+        jLabelTitel.setText("Bitte markiere alle Wanderfahrten, die für den Wettbewerb gemeldet werden sollen:");
       }
       this.teiln5Label.setVisible(false);
       this.teiln5Anz.setVisible(false);
 
-      // Meldegebï¿½hr
+      // Meldegebühr
       if (ew.wettId == WettDefs.LRVBERLIN_BLAUERWIMPEL || ew.wettId == WettDefs.DRV_WANDERRUDERSTATISTIK) {
         this.geb1.setVisible(false);
         this.geb2.setVisible(false);
@@ -642,7 +642,7 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
            }
 
          }
-         if (m.drv_aequatorpreis != null) s += "; "+m.drv_aequatorpreis+". ï¿½quatorpreis";
+         if (m.drv_aequatorpreis != null) s += "; "+m.drv_aequatorpreis+". Äquatorpreis";
 
          addField(m,0,T_LABEL,s,x++,y,0,0,GridBagConstraints.CENTER,c,false);
        }
@@ -769,7 +769,7 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
       }
     }
 
-    // Label fï¿½r Teilnehmer-Anzahl (Meldungen)
+    // Label für Teilnehmer-Anzahl (Meldungen)
     this.teilnAnz.setText(Integer.toString(anzMelden));
     this.teiln1Anz.setText(Integer.toString(anzMelden1));
     this.teiln2Anz.setText(Integer.toString(anzMelden2));
@@ -783,7 +783,7 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
       this.teiln3Anz.setText(EfaUtil.zehntelInt2String(EfaUtil.intdiv(anzMelden2,anzMelden1)));
     }
 
-    // Label fï¿½r Teilnehmer-Gebï¿½hren
+    // Label für Teilnehmer-Gebühren
     int anzErw = 0;
     int anzJug = 0;
     int gebProErw = 0;
@@ -816,7 +816,7 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
     this.geb1.setText(anzErw + " x " + EfaUtil.cent2euro(gebProErw,true));
     this.geb2.setText(anzJug + " x " + EfaUtil.cent2euro(gebProJug,true));
 
-    // Label fï¿½r Bestellungen
+    // Label für Bestellungen
     int gebProBestell1 = 0;
     int gebProBestell2 = 0;
     int gebProBestell3 = 0;
@@ -857,7 +857,7 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
     Logger.log(Logger.DEBUG,"EfaWettSelectAndCompleteFrame.okButton_actionPerformed(e) - START");
     Vector papierFahrtenhefte = new Vector();
 
-    // nicht selektierte Meldungen lï¿½schen
+    // nicht selektierte Meldungen löschen
     Hashtable gemeldete = getSelectedMeldungen();
     Logger.log(Logger.DEBUG,"EfaWettSelectAndCompleteFrame.okButton_actionPerformed(e): gemeldete.size() == "+gemeldete.size());
     if (gemeldete.size() == 0) {
@@ -881,7 +881,7 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
       m=m.next;
     }
 
-    // Spezialbehandlungen fï¿½r die einzelnen Wettbewerbe
+    // Spezialbehandlungen für die einzelnen Wettbewerbe
     switch (ew.wettId) {
       case WettDefs.DRV_FAHRTENABZEICHEN:
         // Bestellungen in Meldedatei vermerken
@@ -893,7 +893,7 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
         ew.drv_stoff_jug        = Integer.toString(anzBestellJugStoff);
         break;
       case WettDefs.LRVBERLIN_SOMMER:
-        // Adressen in Meldedatei vermerken und ggf. in Adreï¿½datei speichern
+        // Adressen in Meldedatei vermerken und ggf. in Adreßdatei speichern
         Object[] textfKeys = this.textfields.keySet().toArray();
         boolean addrChanged = false;
         for (int i=0; i<textfKeys.length; i++) {
@@ -918,8 +918,8 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
         }
         if (addrChanged && Daten.adressen != null) {
           if (Dialog.yesNoDialog("Adressen speichern",
-                                 "Sollen die ï¿½nderungen an den Teilnehmer-Adressen in efa gespeichert werden?\n"+
-                                 "(Wenn die Adressen gespeichert werden, mï¿½ssen sie bei der nï¿½chsten Meldung\n"+
+                                 "Sollen die Änderungen an den Teilnehmer-Adressen in efa gespeichert werden?\n"+
+                                 "(Wenn die Adressen gespeichert werden, müssen sie bei der nächsten Meldung\n"+
                                  "nicht erneut eingegeben werden.)") == Dialog.YES) {
             Daten.adressen.writeFile();
           } else {
@@ -945,7 +945,7 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
     cancel();
     String mg = null;
     if (meldegeld > 0) mg = EfaUtil.cent2euro(meldegeld,true);
-    Dialog.statistikFrame.efaWettVervollstaendigen3(ew,mg,papierFahrtenhefte);
+    Dialog.statistikFrame.efaWettVervollständigen3(ew,mg,papierFahrtenhefte);
     Logger.log(Logger.DEBUG,"EfaWettSelectAndCompleteFrame.okButton_actionPerformed(e) - END");
   }
 

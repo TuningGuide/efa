@@ -131,7 +131,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
         // Zur Zeit funktioniert der Workaround allerdings noch nicht.
         try {
           if (Daten.javaVersion.startsWith("1.5") || Daten.javaVersion.startsWith("1.6")) {
-            if (java15.Java15.editorPaneHandlePostEvent(out,e)) return;
+            if (de.nmichael.efa.java15.Java15.editorPaneHandlePostEvent(out,e)) return;
           }
         } catch(UnsupportedClassVersionError ee) {
         }
@@ -402,7 +402,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
     // Der folgende Code ist ein Workaround für Java-Bug-ID 6222200 (EditorPane GET instead of POST).
     // Zur Zeit funktioniert der Workaround allerdings noch nicht.
     try {
-      if (Daten.javaVersion.startsWith("1.5") || Daten.javaVersion.startsWith("1.6")) java15.Java15.setEditorPaneAutoFormSubmissionFalse(out);
+      if (Daten.javaVersion.startsWith("1.5") || Daten.javaVersion.startsWith("1.6")) de.nmichael.efa.java15.Java15.setEditorPaneAutoFormSubmissionFalse(out);
     } catch(UnsupportedClassVersionError e) {
     }
 */

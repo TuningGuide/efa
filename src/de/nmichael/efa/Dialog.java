@@ -378,7 +378,7 @@ public class Dialog {
     if (Daten.applID == Daten.APPL_EFADIREKT &&
         Daten.efaConfig != null && Daten.efaConfig.efaDirekt_immerImVordergrund) {
       try {
-        java15.Java15.setAlwaysOnTop(w,true);
+        de.nmichael.efa.java15.Java15.setAlwaysOnTop(w,true);
       } catch(UnsupportedClassVersionError e) {
         EfaUtil.foo();
       } catch(NoClassDefFoundError e) {

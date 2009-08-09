@@ -103,7 +103,7 @@ public class EfaDirektFrame extends JFrame {
     // Fenster immer im Vordergrund
     try {
       if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_immerImVordergrund) {
-        if (!java15.Java15.setAlwaysOnTop(this,true)) {
+        if (!de.nmichael.efa.java15.Java15.setAlwaysOnTop(this,true)) {
 //          Logger.log(Logger.WARNING,"Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstützt.");
 //          Hier muß keine Warnung mehr ausgegeben werden, da ab v1.6.0 die Funktionalität auch für Java < 1.5
 //          durch einen Check alle 60 Sekunden nachgebildet wird.
@@ -146,7 +146,7 @@ public class EfaDirektFrame extends JFrame {
     EfaExitFrame.initExitFrame(this);
     // Speicher-Überwachung
     try {
-      java15.Java15.setMemUsageListener(this,Daten.MIN_FREEMEM_COLLECTION_THRESHOLD);
+      de.nmichael.efa.java15.Java15.setMemUsageListener(this,Daten.MIN_FREEMEM_COLLECTION_THRESHOLD);
     } catch(UnsupportedClassVersionError e) {
       EfaUtil.foo();
     } catch(NoClassDefFoundError e) {
@@ -2701,7 +2701,7 @@ public class EfaDirektFrame extends JFrame {
         // Speicher-Überwachung
         try {
 //          System.gc(); // !!! ONLY ENABLE FOR DEBUGGING PURPOSES !!!
-          if (java15.Java15.isMemoryLow(Daten.MIN_FREEMEM_PERCENTAGE,Daten.WARN_FREEMEM_PERCENTAGE)) {
+          if (de.nmichael.efa.java15.Java15.isMemoryLow(Daten.MIN_FREEMEM_PERCENTAGE,Daten.WARN_FREEMEM_PERCENTAGE)) {
             efaDirektFrame.exitOnLowMemory("EfaDirektBackgroundTask:MemoryLow",false);
           }
         } catch(UnsupportedClassVersionError e) {

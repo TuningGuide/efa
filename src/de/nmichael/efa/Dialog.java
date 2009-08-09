@@ -2,8 +2,7 @@ package de.nmichael.efa;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Stack;
-import java.util.Vector;
+import java.util.*;
 import java.io.File;
 
 /**
@@ -32,6 +31,10 @@ public class Dialog {
   public static JTextArea programOutText = null;
   public static AusgabeFrame programDlg = null;
   public static ProgressMonitor progress = null;
+
+  // Mnemonics
+  public static Hashtable mnemonics = new Hashtable();
+  public static Hashtable cachedMnemonics = new Hashtable();
 
   public static Dimension screenSize = new Dimension(1024,768); // nur Default-Values..... ;-)
 
@@ -261,6 +264,59 @@ public class Dialog {
     } catch(Exception e) {
     }
     return s;
+  }
+
+  private static char getCachedMnemonic(Class c, String s) {
+      if (c == null || s == null) return 0x0;
+      Character m = (Character)cachedMnemonics.get(c.toString()+":"+s);
+      if (m == null) {
+          return 0x0;
+      } else {
+          return m.charValue();
+      }
+  }
+
+  private static void setCachedMnemonics(Class c, String s, char m) {
+      if (c == null || s == null || m == 0x0) return;
+      cachedMnemonics.put(c.toString()+":"+s, new Character(m));
+  }
+
+  private static char getMnemonic(Class c, String s) {
+      if (c == null || s == null) return 0x0;
+      char m = getCachedMnemonic(c, s);
+      if (m != 0x0) {
+          return m;
+      }
+      String mlist = (String)mnemonics.get(c);
+      for (int i=0; i<s.length(); i++) {
+          if ((Character.isLetter(s.charAt(i)) || Character.isDigit(s.charAt(i))) && (mlist == null || mlist.indexOf(s.charAt(i))<0)) {
+              // charAt(i) is new mnemonic
+              m = s.charAt(i);
+              mlist = (mlist == null ? "" : mlist) + m;
+              setCachedMnemonics(c, s, m);
+              mnemonics.put(c, mlist);
+              break;
+          }
+      }
+      return m;
+  }
+
+  public static void setLabelWithMnemonic(Window w, JLabel l, String s) {
+      if (w == null || l == null || s == null || s.length() == 0) return;
+      l.setText(s);
+      char c = getMnemonic(w.getClass(),s.toLowerCase());
+      if (c != 0x0) {
+          l.setDisplayedMnemonic(c);
+      }
+  }
+
+  public static void setButtonWithMnemonic(Window w, AbstractButton b, String s) {
+      if (w == null || b == null || s == null || s.length() == 0) return;
+      b.setText(s);
+      char c = getMnemonic(w.getClass(),s.toLowerCase());
+      if (c != 0x0) {
+          b.setMnemonic(c);
+      }
   }
 
   public static void meldung(String s) {

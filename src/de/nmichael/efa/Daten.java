@@ -8,9 +8,9 @@ import java.awt.Color;
 public class Daten {
 
 
-  public final static String VERSION = "v1.8.4_dev01"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSIONID = "1.8.4_#1";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "25.07.2009";  // Release Date: TT.MM.JJJJ
+  public final static String VERSION = "v2.0.0_dev01"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
+  public final static String VERSIONID = "2.0.0_#1";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+  public final static String VERSIONRELEASEDATE = "09.08.2009";  // Release Date: TT.MM.JJJJ
   public final static String PROGRAMMID = "EFA.183"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.183"; // Versions-ID für Wettbewerbsmeldungen
   public final static String COPYRIGHTYEAR = "09";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)

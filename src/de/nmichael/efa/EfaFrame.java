@@ -133,12 +133,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
   JMenu jMenuStatistik = new JMenu();
   JMenuItem jMenuItemKilometerliste = new JMenuItem();
-  JLabel refDatumLabel = new JLabel();
-  JTextField refTag = new JTextField();
-  JTextField refMonat = new JTextField();
-  JTextField refJahr = new JTextField();
-  JLabel refDatumLabel2 = new JLabel();
-  JLabel refDatumLabel3 = new JLabel();
   JButton SuchButton = new JButton();
   JLabel jLabel22 = new JLabel();
   JButton ButtonDelete = new JButton();
@@ -356,75 +350,63 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     });
 
-    jMenuFile.setMnemonic('D');
-    jMenuFile.setText("Datei");
+    Dialog.setButtonWithMnemonic(this, jMenuFile, International.getString("Datei"));
     jMenuFileOpen.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_open.gif")));
-    jMenuFileOpen.setMnemonic('F');
-    jMenuFileOpen.setText("Fahrtenbuch öffnen");
+    Dialog.setButtonWithMnemonic(this, jMenuFileOpen, International.getString("Fahrtenbuch öffnen"));
     jMenuFileOpen.addActionListener(new ActionListener()  {
       public void actionPerformed(ActionEvent e) {
         jMenuFileOpen_actionPerformed(e);
       }
     });
-    jMenuHelp.setMnemonic('I');
-    jMenuHelp.setText("Info");
+    Dialog.setButtonWithMnemonic(this, jMenuHelp, International.getString("Info"));
     jMenuHelpAbout.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_about.gif")));
-    jMenuHelpAbout.setMnemonic('B');
-    jMenuHelpAbout.setText("Über");
+    Dialog.setButtonWithMnemonic(this, jMenuHelpAbout, International.getString("Über"));
     jMenuHelpAbout.addActionListener(new ActionListener()  {
       public void actionPerformed(ActionEvent e) {
         jMenuHelpAbout_actionPerformed(e);
       }
     });
     jMenuFileSave.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_save.gif")));
-    jMenuFileSave.setMnemonic('S');
-    jMenuFileSave.setText("Fahrtenbuch speichern");
+    Dialog.setButtonWithMnemonic(this, jMenuFileSave, International.getString("Fahrtenbuch speichern"));
     jMenuFileSave.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuFileSave_actionPerformed(e);
       }
     });
     jMenuFileSaveAs.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_saveas.gif")));
-    jMenuFileSaveAs.setMnemonic('U');
-    jMenuFileSaveAs.setText("Fahrtenbuch speichern unter");
+    Dialog.setButtonWithMnemonic(this, jMenuFileSaveAs, International.getString("Fahrtenbuch speichern unter"));
     jMenuFileSaveAs.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuFileSaveAs_actionPerformed(e);
       }
     });
     jMenuFileExit.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_exit.gif")));
-    jMenuFileExit.setMnemonic('B');
-    jMenuFileExit.setText("Programm beenden");
+    Dialog.setButtonWithMnemonic(this, jMenuFileExit, International.getString("Programm beenden"));
     jMenuFileExit.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuFileExit_actionPerformed(e);
       }
     });
-    jMenuKonfiguration.setMnemonic('A');
-    jMenuKonfiguration.setText("Administration");
-    jMenuItem4.setMnemonic('F');
-    jMenuItem4.setText("Einstellungen zum Fahrtenbuch");
+    Dialog.setButtonWithMnemonic(this, jMenuKonfiguration, International.getString("Administration"));
+    Dialog.setButtonWithMnemonic(this, jMenuItem4, International.getString("Einstellungen zum Fahrtenbuch"));
     jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem4_actionPerformed(e);
       }
     });
-    jMenuItem5.setMnemonic('M');
-    jMenuItem5.setText("Mitgliederliste");
+    Dialog.setButtonWithMnemonic(this, jMenuItem5, International.getString("Mitgliederliste"));
     jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem5_actionPerformed(e);
       }
     });
-    jMenuItem6.setMnemonic('B');
-    jMenuItem6.setText("Bootsliste");
+    Dialog.setButtonWithMnemonic(this, jMenuItem6, International.getString("Bootsliste"));
     jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem6_actionPerformed(e);
       }
     });
-    jMenuItem7.setMnemonic('Z');
-    jMenuItem7.setText("Zielliste");
+    Dialog.setButtonWithMnemonic(this, jMenuItem7, International.getString("Zielliste"));
     jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem7_actionPerformed(e);
@@ -433,8 +415,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     PrevButton.setMargin(new Insets(3,5,3,5));
     PrevButton.setNextFocusableComponent(NextButton);
     PrevButton.setToolTipText("zum vorherigen Eintrag springen");
-    PrevButton.setMnemonic('V');
-    PrevButton.setText("<< Vorheriger");
+    Dialog.setButtonWithMnemonic(this, PrevButton, "<< "+International.getString("Vorheriger"));
     PrevButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         PrevButton_actionPerformed(e);
@@ -443,8 +424,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     NextButton.setMargin(new Insets(3,5,3,5));
     NextButton.setNextFocusableComponent(LastButton);
     NextButton.setToolTipText("zum nächsten Eintrag springen");
-    NextButton.setMnemonic('C');
-    NextButton.setText("Nächster >>");
+    Dialog.setButtonWithMnemonic(this, NextButton, International.getString("Nächster")+" >>");
     NextButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         NextButton_actionPerformed(e);
@@ -453,20 +433,17 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     NewButton.setMargin(new Insets(3,5,3,5));
     NewButton.setNextFocusableComponent(InsertButton);
     NewButton.setToolTipText("neuen Eintrag erstellen");
-    NewButton.setMnemonic('N');
-    NewButton.setText("Neu");
+    Dialog.setButtonWithMnemonic(this, NewButton, International.getString("Neu"));
     NewButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         NewButton_actionPerformed(e);
       }
     });
     mainPanel.setLayout(gridBagLayout1);
-    lfdnrLabel.setDisplayedMnemonic('F');
+    Dialog.setLabelWithMnemonic(this, lfdnrLabel, International.getString("Lfd. Nr.")+": ");
     lfdnrLabel.setLabelFor(lfdnr);
-    lfdnrLabel.setText(International.getString("Lfd. Nr.")+": ");
-    datumLabel.setDisplayedMnemonic('0');
+    Dialog.setLabelWithMnemonic(this, datumLabel, International.getString("Datum")+": ");
     datumLabel.setLabelFor(datum);
-    datumLabel.setText(International.getString("Datum")+": ");
     datum.setNextFocusableComponent(boot);
     Dialog.setPreferredSize(datum,100,19);
 //    datum.setPreferredSize(new Dimension(100, Dialog.TEXTFIELD_HEIGHT));
@@ -488,12 +465,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         datum_keyPressed(e);
       }
     });
-    bootLabel.setDisplayedMnemonic('0');
+    Dialog.setLabelWithMnemonic(this, bootLabel, International.getString("Boot")+": ");
     bootLabel.setLabelFor(boot);
-    bootLabel.setText(International.getString("Boot")+": ");
-    stmLabel.setDisplayedMnemonic('0');
+    Dialog.setLabelWithMnemonic(this, stmLabel, International.getString("Steuermann")+": ");
     stmLabel.setLabelFor(stm);
-    stmLabel.setText(International.getString("Steuermann")+": ");
 
     stmLabel.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseClicked(MouseEvent e) {
@@ -559,29 +534,21 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       });
     }
 
-    mannsch1_label.setDisplayedMnemonic('0');
+    Dialog.setLabelWithMnemonic(this, mannsch1_label, International.getString("Mannschaft")+": 1: ");
     mannsch1_label.setLabelFor(mannsch[0]);
-    mannsch1_label.setText(International.getString("Mannschaft")+": 1: ");
-    mannsch2_label.setDisplayedMnemonic('0');
     mannsch2_label.setLabelFor(mannsch[1]);
     mannsch2_label.setText("2: ");
-    mannsch3_label.setDisplayedMnemonic('0');
     mannsch3_label.setLabelFor(mannsch[2]);
     mannsch3_label.setText("3: ");
-    mannsch4_label.setDisplayedMnemonic('0');
     mannsch4_label.setHorizontalAlignment(SwingConstants.RIGHT);
     mannsch4_label.setLabelFor(mannsch[3]);
     mannsch4_label.setText("4: ");
-    mannsch5_label.setDisplayedMnemonic('0');
     mannsch5_label.setLabelFor(mannsch[4]);
     mannsch5_label.setText("  5: ");
-    mannsch6_label.setDisplayedMnemonic('<');
     mannsch6_label.setLabelFor(mannsch[5]);
     mannsch6_label.setText("  6: ");
-    mannsch7_label.setDisplayedMnemonic('0');
     mannsch7_label.setLabelFor(mannsch[6]);
     mannsch7_label.setText("  7: ");
-    mannsch8_label.setDisplayedMnemonic('0');
     mannsch8_label.setLabelFor(mannsch[7]);
     mannsch8_label.setText("  8: ");
     mannsch1_label.addMouseListener(new java.awt.event.MouseAdapter() { public void mouseClicked(MouseEvent e) { obmannSelected(1 + mannschAuswahl*8); } });
@@ -592,25 +559,19 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     mannsch6_label.addMouseListener(new java.awt.event.MouseAdapter() { public void mouseClicked(MouseEvent e) { obmannSelected(6 + mannschAuswahl*8); } });
     mannsch7_label.addMouseListener(new java.awt.event.MouseAdapter() { public void mouseClicked(MouseEvent e) { obmannSelected(7 + mannschAuswahl*8); } });
     mannsch8_label.addMouseListener(new java.awt.event.MouseAdapter() { public void mouseClicked(MouseEvent e) { obmannSelected(8 + mannschAuswahl*8); } });
-    abfahrtLabel.setDisplayedMnemonic('0');
+    Dialog.setLabelWithMnemonic(this, abfahrtLabel, International.getString("Abfahrt")+": ");
     abfahrtLabel.setLabelFor(abfahrt);
-    abfahrtLabel.setText(International.getString("Abfahrt")+": ");
-    ankunftLabel.setDisplayedMnemonic('0');
+    Dialog.setLabelWithMnemonic(this, ankunftLabel, International.getString("Ankunft")+": ");
     ankunftLabel.setLabelFor(ankunft);
-    ankunftLabel.setText(International.getString("Ankunft")+": ");
-    zielLabel.setDisplayedMnemonic('0');
+    Dialog.setLabelWithMnemonic(this, zielLabel, International.getString("Ziel")+": ");
     zielLabel.setLabelFor(ziel);
-    zielLabel.setText(International.getString("Ziel")+": ");
-    bootskmLabel.setDisplayedMnemonic('0');
+    Dialog.setLabelWithMnemonic(this, bootskmLabel, International.getString("Boots-Km")+": ");
     bootskmLabel.setLabelFor(bootskm);
-    bootskmLabel.setText(International.getString("Boots-Km")+": ");
     mannschkmLabel.setToolTipText("");
-    mannschkmLabel.setDisplayedMnemonic('0');
+    Dialog.setLabelWithMnemonic(this, mannschkmLabel, International.getString("Mannsch.-Km")+": ");
     mannschkmLabel.setLabelFor(mannschkm);
-    mannschkmLabel.setText(International.getString("Mannsch.-Km")+": ");
-    bemerkLabel.setDisplayedMnemonic('0');
+    Dialog.setLabelWithMnemonic(this, bemerkLabel, International.getString("Bemerkungen")+": ");
     bemerkLabel.setLabelFor(bemerk);
-    bemerkLabel.setText(International.getString("Bemerkungen")+": ");
     stm.setNextFocusableComponent(mannsch[1]);
     Dialog.setPreferredSize(stm,200,19);
 //    stm.setPreferredSize(new Dimension(200, Dialog.TEXTFIELD_HEIGHT));
@@ -810,8 +771,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     addButton.setNextFocusableComponent(FirstButton);
     addButton.setToolTipText("aktuell angezeigten Eintrag zum Fahrtenbuch hinzufügen");
-    addButton.setMnemonic('G');
-    addButton.setText("Eintrag zum Fahrtenbuch hinzufügen");
+    Dialog.setButtonWithMnemonic(this, addButton, International.getString("Eintrag zum Fahrtenbuch hinzufügen"));
     addButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         addButton_actionPerformed(e);
@@ -829,8 +789,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     FirstButton.setMargin(new Insets(3,5,3,5));
     FirstButton.setNextFocusableComponent(PrevButton);
     FirstButton.setToolTipText("zum ersten Eintrag springen");
-    FirstButton.setMnemonic('E');
-    FirstButton.setText("Erster");
+    Dialog.setButtonWithMnemonic(this, FirstButton, International.getString("Erster"));
     FirstButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         FirstButton_actionPerformed(e);
@@ -839,16 +798,14 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     LastButton.setMargin(new Insets(3,5,3,5));
     LastButton.setNextFocusableComponent(NewButton);
     LastButton.setToolTipText("zum letzten Eintrag springen");
-    LastButton.setMnemonic('Z');
-    LastButton.setText("Letzter");
+    Dialog.setButtonWithMnemonic(this, LastButton, International.getString("Letzter"));
     LastButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         LastButton_actionPerformed(e);
       }
     });
     jMenuNew.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_new.gif")));
-    jMenuNew.setMnemonic('N');
-    jMenuNew.setText("Neues Fahrtenbuch erstellen");
+    Dialog.setButtonWithMnemonic(this, jMenuNew, International.getString("Neues Fahrtenbuch erstellen"));
     jMenuNew.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuNew_actionPerformed(e);
@@ -893,34 +850,18 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         zielButton_actionPerformed(e);
       }
     });
-    jMenuStatistik.setMnemonic('U');
-    jMenuStatistik.setText("Ausgabe");
+    Dialog.setButtonWithMnemonic(this, jMenuStatistik, International.getString("Ausgabe"));
     jMenuItemKilometerliste.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_stat.gif")));
-    jMenuItemKilometerliste.setMnemonic('S');
-    jMenuItemKilometerliste.setText("Statistiken und Meldedateien erstellen");
+    Dialog.setButtonWithMnemonic(this, jMenuItemKilometerliste, International.getString("Statistiken und Meldedateien erstellen"));
     jMenuItemKilometerliste.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItemKilometerliste_actionPerformed(e);
       }
     });
-    refDatumLabel.setToolTipText("Das Referenzdatum dient dazu, unvollständige Angaben im Feld Datum " +
-    "zu vervollständigen.");
-    refDatumLabel.setDisplayedMnemonic('R');
-    refDatumLabel.setLabelFor(refTag);
-    refDatumLabel.setText("Referenzdatum: ");
-    refMonat.setNextFocusableComponent(refJahr);
-    refMonat.setPreferredSize(new Dimension(25, 19));
-    refTag.setNextFocusableComponent(refMonat);
-    refTag.setPreferredSize(new Dimension(25, 19));
-    refJahr.setNextFocusableComponent(lfdnr);
-    refJahr.setPreferredSize(new Dimension(40, 19));
-    refDatumLabel2.setText(".");
-    refDatumLabel3.setText(".");
     SuchButton.setMargin(new Insets(3,5,3,5));
     SuchButton.setNextFocusableComponent(ButtonDelete);
     SuchButton.setToolTipText("nach einem Eintrag suchen");
-    SuchButton.setMnemonic('S');
-    SuchButton.setText("Suchen");
+    Dialog.setButtonWithMnemonic(this, SuchButton, International.getString("Suchen"));
     SuchButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         SuchButton_actionPerformed(e);
@@ -928,10 +869,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     jLabel22.setText("     ");
     ButtonDelete.setMargin(new Insets(3,5,3,5));
-    ButtonDelete.setNextFocusableComponent(refTag);
     ButtonDelete.setToolTipText("aktuellen Eintrag löschen");
-    ButtonDelete.setMnemonic('L');
-    ButtonDelete.setText("Löschen");
+    Dialog.setButtonWithMnemonic(this, ButtonDelete, International.getString("Löschen"));
     ButtonDelete.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         ButtonDelete_actionPerformed(e);
@@ -954,14 +893,12 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         decolorize(e);
       }
     });
-    artDerFahrtLabel.setDisplayedMnemonic('T');
+    Dialog.setLabelWithMnemonic(this, artDerFahrtLabel, International.getString("Art der Fahrt")+": ");
     artDerFahrtLabel.setLabelFor(fahrtDauer);
-    artDerFahrtLabel.setText("Art der Fahrt:");
     Dialog.setPreferredSize(weitereMannschButton,200,19);
 //    weitereMannschButton.setPreferredSize(new Dimension(200, Dialog.TEXTFIELD_HEIGHT));
     weitereMannschButton.setToolTipText("weitere Mannschaftsfelder anzeigen");
-    weitereMannschButton.setMnemonic('M');
-    weitereMannschButton.setText("restliche Mannschaft anzeigen");
+    Dialog.setButtonWithMnemonic(this, weitereMannschButton, International.getString("restliche Mannschaft anzeigen"));
     weitereMannschButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         weitereMannschButton_actionPerformed(e);
@@ -973,8 +910,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     });
     Dialog.setPreferredSize(mannschaftSelectButton,200,19);
-    mannschaftSelectButton.setText("Mannschaft auswählen");
-    mannschaftSelectButton.setMnemonic('W');
+    Dialog.setButtonWithMnemonic(this, mannschaftSelectButton, International.getString("Mannschaft auswählen"));
     mannschaftSelectButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         mannschaftSelectButton_actionPerformed(e);
@@ -983,31 +919,27 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
     contentPane.setMinimumSize(new Dimension(590, 350));
     jMenuItem2.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_efawett.gif")));
-    jMenuItem2.setMnemonic('W');
-    jMenuItem2.setText("Elektronische Wettbewerbsmeldung");
+    Dialog.setButtonWithMnemonic(this, jMenuItem2, International.getString("Elektronische Wettbewerbsmeldung"));
     jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem2_actionPerformed(e);
       }
     });
     jMenuImport.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_import.gif")));
-    jMenuImport.setMnemonic('I');
-    jMenuImport.setText("Fahrtenbuch importieren");
+    Dialog.setButtonWithMnemonic(this, jMenuImport, International.getString("Fahrtenbuch importieren"));
     jMenuImport.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuImport_actionPerformed(e);
       }
     });
-    jMenuItem1.setMnemonic('E');
-    jMenuItem1.setText("Mehrtagesfahrten");
+    Dialog.setButtonWithMnemonic(this, jMenuItem1, International.getString("Mehrtagesfahrten"));
     jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem1_actionPerformed(e);
       }
     });
-    gehezuLabel.setDisplayedMnemonic('H');
+    Dialog.setLabelWithMnemonic(this, gehezuLabel, International.getString("gehe zu")+": ");
     gehezuLabel.setLabelFor(geheZu);
-    gehezuLabel.setText("gehe zu: ");
     Dialog.setPreferredSize(geheZu,50,19);
 //    geheZu.setPreferredSize(new Dimension(50, Dialog.TEXTFIELD_HEIGHT));
     geheZu.setToolTipText("direkt zu einer Laufenden Nummer springen");
@@ -1022,19 +954,16 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     });
     jMenuHilfeJavaKonsole.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_konsole.gif")));
-    jMenuHilfeJavaKonsole.setMnemonic('K');
-    jMenuHilfeJavaKonsole.setText("Java-Konsole");
+    Dialog.setButtonWithMnemonic(this, jMenuHilfeJavaKonsole, International.getString("Java-Konsole"));
     jMenuHilfeJavaKonsole.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuHilfeJavaKonsole_actionPerformed(e);
       }
     });
     jMenuFahrtenbuch.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_fbadmin.gif")));
-    jMenuFahrtenbuch.setMnemonic('F');
-    jMenuFahrtenbuch.setText("Fahrtenbuch");
+    Dialog.setButtonWithMnemonic(this, jMenuFahrtenbuch, International.getString("Fahrtenbuch"));
     jMenuItem3.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_einst.gif")));
-    jMenuItem3.setMnemonic('A');
-    jMenuItem3.setText("Allgemeine Einstellungen");
+    Dialog.setButtonWithMnemonic(this, jMenuItem3, International.getString("Allgemeine Einstellungen"));
     jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem3_actionPerformed(e);
@@ -1044,64 +973,55 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     wotag.setToolTipText("");
     wotag.setText("-");
     jMenuDokumentation.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_doc.gif")));
-    jMenuDokumentation.setMnemonic('D');
-    jMenuDokumentation.setText("Dokumentation");
+    Dialog.setButtonWithMnemonic(this, jMenuDokumentation, International.getString("Dokumentation"));
     jMenuDokumentation.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuDokumentation_actionPerformed(e);
       }
     });
     jMenu_efaHomepage.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_www.gif")));
-    jMenu_efaHomepage.setMnemonic('H');
-    jMenu_efaHomepage.setText("efa Homepage");
+    Dialog.setButtonWithMnemonic(this, jMenu_efaHomepage, International.getString("efa-Homepage"));
     jMenu_efaHomepage.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenu_efaHomepage_actionPerformed(e);
       }
     });
     jMenu_startTour.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_tour.gif")));
-    jMenu_startTour.setMnemonic('T');
-    jMenu_startTour.setText("Tour");
+    Dialog.setButtonWithMnemonic(this, jMenu_startTour, International.getString("Tour"));
     jMenu_startTour.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenu_startTour_actionPerformed(e);
       }
     });
     jMenu_Willkommen.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_welcome.gif")));
-    jMenu_Willkommen.setMnemonic('W');
-    jMenu_Willkommen.setText("Willkommen");
+    Dialog.setButtonWithMnemonic(this, jMenu_Willkommen, International.getString("Willkommen"));
     jMenu_Willkommen.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenu_Willkommen_actionPerformed(e);
       }
     });
-    jMenu1.setMnemonic('S');
-    jMenu1.setText("Synonymlisten");
+    Dialog.setButtonWithMnemonic(this, jMenu1, International.getString("Synonymlisten"));
     jMenu1.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_syn.gif")));
-    jMenuItem8.setMnemonic('M');
-    jMenuItem8.setText("Mitglieder");
+    Dialog.setButtonWithMnemonic(this, jMenuItem8, International.getString("Mitglieder"));
     jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem8_actionPerformed(e);
       }
     });
-    jMenuBackup.setText("Backups einspielen");
+    Dialog.setButtonWithMnemonic(this, jMenuBackup, International.getString("Backups einspielen"));
     jMenuBackup.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_backup.gif")));
-    jMenuBackup.setMnemonic('A');
     jMenuBackup.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuBackup_actionPerformed(e);
       }
     });
-    jMenuItem9.setMnemonic('B');
-    jMenuItem9.setText("Boote");
+    Dialog.setButtonWithMnemonic(this, jMenuItem9, International.getString("Boote"));
     jMenuItem9.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem9_actionPerformed(e);
       }
     });
-    jMenuItem10.setMnemonic('Z');
-    jMenuItem10.setText("Ziele");
+    Dialog.setButtonWithMnemonic(this, jMenuItem10, International.getString("Ziele"));
     jMenuItem10.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem10_actionPerformed(e);
@@ -1117,8 +1037,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         InsertButton_actionPerformed(e);
       }
     });
-    jMenuItem11.setMnemonic('Z');
-    jMenuItem11.setText("Zugriffsschutz");
+    Dialog.setButtonWithMnemonic(this, jMenuItem11, International.getString("Zugriffsschutz"));
     jMenuItem11.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_writeprotect.gif")));
     jMenuItem11.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -1132,17 +1051,15 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         efaButton_actionPerformed(e);
       }
     });
-    jMenuItem12.setText("Standardmannschaften");
+    Dialog.setButtonWithMnemonic(this, jMenuItem12, International.getString("Standardmannschaften"));
     jMenuItem12.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_standardmannsch.gif")));
-    jMenuItem12.setMnemonic('M');
     jMenuItem12.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem12_actionPerformed(e);
       }
     });
-    jMenuOnlineUpdate.setText("efa Online-Update");
+    Dialog.setButtonWithMnemonic(this, jMenuOnlineUpdate, International.getString("efa Online-Update"));
     jMenuOnlineUpdate.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_onlupd.gif")));
-    jMenuOnlineUpdate.setMnemonic('O');
     jMenuOnlineUpdate.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuOnlineUpdate_actionPerformed(e);
@@ -1151,8 +1068,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     infoLabel.setForeground(Color.blue);
     infoLabel.setHorizontalTextPosition(SwingConstants.LEFT);
     infoLabel.setText("infoLabel");
-    bootsschadenButton.setMnemonic('B');
-    bootsschadenButton.setText("Bootsschaden melden");
+    Dialog.setButtonWithMnemonic(this, bootsschadenButton, International.getString("Bootsschaden melden"));
     bootsschadenButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         bootsschadenButton_actionPerformed(e);
@@ -1167,26 +1083,21 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         decolorize(e);
       }
     });
-    jMenuItem13.setText("DRV-Fahrtenabzeichen");
+    Dialog.setButtonWithMnemonic(this, jMenuItem13, International.getString("DRV-Fahrtenabzeichen"));
     jMenuItem13.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_fahrtenabzeichen.gif")));
-    jMenuItem13.setMnemonic('F');
     jMenuItem13.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem13_actionPerformed(e);
       }
     });
-    obmannLabel.setDisplayedMnemonic('O');
-    obmannLabel.setLabelFor(obmann);
-    jMenuFileDatensicherung.setMnemonic('D');
-    jMenuFileDatensicherung.setText("Datensicherung");
+    Dialog.setButtonWithMnemonic(this, jMenuFileDatensicherung, International.getString("Datensicherung"));
     jMenuFileDatensicherung.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_datensicherung.gif")));
     jMenuFileDatensicherung.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuFileDatensicherung_actionPerformed(e);
       }
     });
-    jMenuItem14.setMnemonic('G');
-    jMenuItem14.setText("Gruppen");
+    Dialog.setButtonWithMnemonic(this, jMenuItem14, International.getString("Gruppen"));
     jMenuItem14.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_gruppen.gif")));
     jMenuItem14.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -1307,18 +1218,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
     mainPanel.add(zielButton,    new GridBagConstraints(12, 10, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 1, 0, 20), 0, 0));
-    mainPanel.add(refDatumLabel,   new GridBagConstraints(5, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(refTag,   new GridBagConstraints(6, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(refMonat,   new GridBagConstraints(8, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(refJahr,   new GridBagConstraints(10, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(refDatumLabel2,   new GridBagConstraints(9, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(refDatumLabel3,   new GridBagConstraints(7, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     mainPanel.add(fahrtDauer,     new GridBagConstraints(4, 13, 9, 2, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 20), 0, 0));
     mainPanel.add(artDerFahrtLabel,   new GridBagConstraints(4, 12, 2, 1, 0.0, 0.0
@@ -1341,7 +1240,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
             ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
     if (isDirectMode() || true) { // ;-)
-      obmannLabel.setText("  Obmann: ");
+      Dialog.setLabelWithMnemonic(this, obmannLabel, "  "+International.getString("Obmann")+": ");
+      obmannLabel.setLabelFor(obmann);
       obmann.setMinimumSize(new Dimension( (isDirectMode() ? 80 : 50), 17));
       Dialog.setPreferredSize(obmann,(isDirectMode() ? 80 : 50),19);
 //      obmann.setPreferredSize(new Dimension( (isDirectMode() ? 80 : 50), Dialog.TEXTFIELD_HEIGHT));
@@ -1387,32 +1287,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     jMenu1.add(jMenuItem8);
     jMenu1.add(jMenuItem9);
     jMenu1.add(jMenuItem10);
-
-    refTag.addFocusListener(new java.awt.event.FocusAdapter() {
-      public void focusLost(FocusEvent e) {
-        refTag_focusLost(e);
-      }
-    });
-    refMonat.addFocusListener(new java.awt.event.FocusAdapter() {
-      public void focusLost(FocusEvent e) {
-        refMonat_focusLost(e);
-      }
-    });
-    refJahr.addFocusListener(new java.awt.event.FocusAdapter() {
-      public void focusLost(FocusEvent e) {
-        refJahr_focusLost(e);
-      }
-    });
-
-    // folgende Komponenten werden unsichtbar, da sie vorerst nicht mehr benötigt werden
-    // trotzdem sollen sie als "Backup" in der Implementation erhalten bleiben, falls sie
-    // doch noch benötigt werden
-    refDatumLabel.setVisible(false);
-    refDatumLabel2.setVisible(false);
-    refDatumLabel3.setVisible(false);
-    refTag.setVisible(false);
-    refMonat.setVisible(false);
-    refJahr.setVisible(false);
 
     focusManager = new EfaFrameFocusManager(this,FocusManager.getCurrentManager());
     FocusManager.setCurrentManager(focusManager);
@@ -2668,7 +2542,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
   void setDateFromRefDate() {
     for(int iii=0; iii<2; iii++) try {
-//    TMJ ref = EfaUtil.correctDate(refTag.getText().trim()+"."+refMonat.getText().trim()+"."+refJahr.getText().trim(),1,1,2001);
       Calendar cal = GregorianCalendar.getInstance();
       TMJ ref = EfaUtil.correctDate(refDate,cal.get(GregorianCalendar.DAY_OF_MONTH),cal.get(GregorianCalendar.MONTH)+1-cal.getMinimum(GregorianCalendar.MONTH),cal.get(GregorianCalendar.YEAR));
 
@@ -2872,36 +2745,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   }
 
 
-  // Zahlen in Eingabefeldern korrigieren
-  void refTag_focusLost(FocusEvent e) {
-    int i = 1;
-    try {
-      i = Integer.parseInt(refTag.getText().trim());
-    } catch(Exception ee) {
-    }
-    if (i<1 || i>31) i=1;
-    refTag.setText(Integer.toString(i));
-  }
-  void refMonat_focusLost(FocusEvent e) {
-    int i = 1;
-    try {
-      i = Integer.parseInt(refMonat.getText().trim());
-    } catch(Exception ee) {
-    }
-    if (i<1 || i>12) i=1;
-    refMonat.setText(Integer.toString(i));
-  }
-  void refJahr_focusLost(FocusEvent e) {
-    int i = 1;
-    try {
-      i = Integer.parseInt(refJahr.getText().trim());
-    } catch(Exception ee) {
-    }
-    if (i<1 || i>2100) i=1;
-    if (i<1900) i += 1900;
-    if (i<1980) i += 100;
-    refJahr.setText(Integer.toString(i));
-  }
   void lfdnr_focusLost(FocusEvent e) {
     lfdnr.setText(EfaUtil.getLfdNr(lfdnr.getText()));
   }
@@ -3038,9 +2881,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   // Programm initialisieren
   void appIni() {
     Calendar cal = GregorianCalendar.getInstance();
-    refTag.setText(Integer.toString(cal.get(GregorianCalendar.DAY_OF_MONTH)));
-    refMonat.setText(Integer.toString(cal.get(GregorianCalendar.MONTH)+1-cal.getMinimum(GregorianCalendar.MONTH)));
-    refJahr.setText(Integer.toString(cal.get(GregorianCalendar.YEAR)));
 
     datensatzGeaendert = false;
     aktBoot = null;

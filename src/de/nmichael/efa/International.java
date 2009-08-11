@@ -14,8 +14,9 @@ import java.text.*;
  */
 public class International {
 
-    private static final boolean MARK_MISSING_KEYS = true;
-    private static final boolean STACKTRACE_MISSING_KEYS = false;
+    private static final boolean MARK_MISSING_KEYS = true; // default for production: false
+    private static final boolean STACKTRACE_MISSING_KEYS = false; // default for production: false
+    private static final boolean SHOW_KEY_INSTEAD_OF_TRANSLATION = false;  // default for production: false
 
     private static ResourceBundle bundle = null;
     private static MessageFormat msgFormat = null;
@@ -30,7 +31,7 @@ public class International {
                 msgFormat = new MessageFormat("");
             }
         } catch(Exception e) {
-
+            // @todo: to be handled (maybe Logging?)!
         }
     }
 
@@ -44,21 +45,101 @@ public class International {
         return s;
     }
 
-    public static String getString(String s) {
+    private static String makeKey(String s) {
+        if (s == null) return "null";
+        // @todo: To be extended by further characters? And maybe some performance optimization needed.
+        String key = EfaUtil.replace(s, " ", "_", true);
+        key = EfaUtil.replace(key, "=", "_", true);
+        return key;
+    }
+
+    private static String getString(String s, boolean defaultIfNotFound, boolean includingMnemonics) {
         if (bundle == null) {
             initialize();
         }
         try {
-            return bundle.getString(EfaUtil.replace(s, " ", "_", true));
-        } catch(Exception e) {
-            if (STACKTRACE_MISSING_KEYS) {
-                e.printStackTrace();
+            String key = makeKey(s);
+            if (SHOW_KEY_INSTEAD_OF_TRANSLATION) {
+                return (MARK_MISSING_KEYS ? "#" : "") + key + (MARK_MISSING_KEYS ? "#" : "");
+            } else {
+                String t = bundle.getString(key);
+                if (!includingMnemonics) {
+                    if (Mnemonics.containsMnemonics(t)) {
+                        t = Mnemonics.stripMnemonics(t);
+                    }
+                }
+                return t;
             }
-            return (MARK_MISSING_KEYS ? "#" : "") + s + (MARK_MISSING_KEYS ? "#" : "");
+        } catch(Exception e) {
+            if (defaultIfNotFound) {
+                if (STACKTRACE_MISSING_KEYS) {
+                    e.printStackTrace();
+                }
+                return (MARK_MISSING_KEYS ? "#" : "") + s + (MARK_MISSING_KEYS ? "#" : "");
+            } else {
+                return null;
+            }
         }
     }
 
-    public static String getMessage(String s, Object[] args) {
+    /**
+     * Retrieves an internationalized string.
+     * This method strips any mnemonics from the translated string before returning it.
+     * @param s key to be retrieved
+     * @return translated string
+     */
+    public static String getString(String s) {
+        return getString(s, true, false);
+    }
+
+    /**
+     * Retrieves an internationalized variant of a string.
+     * This method is intended for situations where the same key may be translated in different ways
+     * depending on the context it is being used in. For such situations, an additional variant discriminator
+     * may be specified to distinguish (otheriwse same) keys in different contexts. If no translation for
+     * this key including its variant discriminator is found, this method will attempt to return a translation for
+     * the key without the variant discriminator.
+     * This method strips any mnemonics from the translated string before returning it.
+     *
+     * @param s key to be retrieved
+     * @param variant discriminator to specify the context of the key
+     * @return the translation for "s___variant", if existing; translation for "s" otherwise.
+     */
+    public static String getString(String s, String variant) {
+        String t = getString(s + "___" + variant, false, false);
+        if (t != null) {
+            return t;
+        }
+        return getString(s, true, false);
+    }
+
+    /**
+     * Retrieves an internationalized string.
+     * This method keeps all mnemonics in the translated string that is returned.
+     * @param s key to be retrieved
+     * @return translated string including mnemonics marked with "&"
+     */
+    public static String getStringWithMnemonic(String s) {
+        return getString(s, true, true);
+    }
+
+    /**
+     * Retrieves an internationalized variant of a string (see getString(String, String).
+     * This method keeps all mnemonics in the translated string that is returned.
+     *
+     * @param s key to be retrieved
+     * @param variant discriminator to specify the context of the key
+     * @return the translation for "s___variant", if existing; translation for "s" otherwise -- including mnemonics marked with "&".
+     */
+    public static String getStringWithMnemonic(String s, String variant) {
+        String t = getString(s + "___" + variant, false, true);
+        if (t != null) {
+            return t;
+        }
+        return getString(s, true, true);
+    }
+
+    private static String getMessage(String s, Object[] args) {
         if (msgFormat == null) {
             initialize();
         }
@@ -73,28 +154,51 @@ public class International {
         }
     }
 
+    /**
+     * Retrieves an internationalized compound message.
+     * All arguments inside this message have to be masked by "{arg}", where "arg" may be any text
+     * that is not further interpreted or used (other than being part of the key). For each of the
+     * arguments masked by "{arg}", and argument arg1, arg2, ...., argn has to be supplied.
+     * @param s key to be retrieved
+     * @param arg1 argument to be placed into compound message
+     * @return translated message string
+     */
     public static String getMessage(String s, String arg1) {
         Object[] args = { "dummy", arg1 };
         return getMessage(s,args);
     }
 
+    /**
+     * Retrieves an internationalized compound message.
+     * All arguments inside this message have to be masked by "{arg}", where "arg" may be any text
+     * that is not further interpreted or used (other than being part of the key). For each of the
+     * arguments masked by "{arg}", and argument arg1, arg2, ...., argn has to be supplied.
+     * @param s key to be retrieved
+     * @param arg1 argument to be placed into compound message
+     * @param arg2 argument to be placed into compound message
+     * @return translated message string
+     */
     public static String getMessage(String s, String arg1, String arg2) {
         Object[] args = { "dummy", arg1, arg2 };
         return getMessage(s,args);
     }
 
+    /**
+     * Retrieves an internationalized compound message.
+     * All arguments inside this message have to be masked by "{arg}", where "arg" may be any text
+     * that is not further interpreted or used (other than being part of the key). For each of the
+     * arguments masked by "{arg}", and argument arg1, arg2, ...., argn has to be supplied.
+     * @param s key to be retrieved
+     * @param arg1 argument to be placed into compound message
+     * @param arg2 argument to be placed into compound message
+     * @return translated message string
+     */
     public static String getMessage(String s, String arg1, int arg2) {
         Object[] args = { "dummy", arg1, Integer.toString(arg2) };
         return getMessage(s,args);
     }
 
     // todo:
-    // - what to do about mnemonics?
-    // - what to do about compound messages with strings and variables?
-    // - what tool to use for replacing strings?
-    // - how to easily recognize strings that only contain special characters and do not need translation (without prompting)?
     // - how to handle "formatted strings", e.g. some with \n in them? --> efa can automatically generate \n by now!
-    // - how to split existing strings which contain ":" or ">>>" into two strings where only one of them is being translated?
-    // - how to deal with concatenated strings (e.g. "asd" + "qwe")? --> "asdqwe"
 
 }

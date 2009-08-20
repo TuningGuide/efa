@@ -198,6 +198,38 @@ public class International {
         return getMessage(s,args);
     }
 
+	public static String getMessage(String s, String arg1,
+			int arg2, String arg3) {
+		// @todo: This function should probably *not* convert arg2 to string, since EfaFrame uses it in a "Choice", which I think only works for numbers...
+        Object[] args = { "dummy", arg1, Integer.toString(arg2), arg3 };
+        return getMessage(s,args);
+	}
+
+	public static String getMessage(String s, String arg1, String arg2, String arg3, String arg4, String arg5, String arg6, String arg7) {
+        Object[] args = { "dummy", arg1, arg2, arg3, arg4, arg5, arg6, arg7 };
+        return getMessage(s,args);
+	}
+	
+	public static String getMessage(String s, String arg1, String arg2, String arg3, String arg4, String arg5, String arg6, String arg7, String arg8) {
+        Object[] args = { "dummy", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 };
+        return getMessage(s,args);
+	}
+	
+	public static String getMessage(String s, String arg1, String arg2, String arg3, String arg4) {
+        Object[] args = { "dummy", arg1, arg2, arg3, arg4 };
+        return getMessage(s,args);
+	}
+	
+	public static String getMessage(String s, String arg1, String arg2, String arg3) {
+        Object[] args = { "dummy", arg1, arg2, arg3 };
+        return getMessage(s,args);
+	}
+	
+	public static String getMessage(String s, int arg1) {
+        Object[] args = { "dummy", Integer.toString(arg1) };
+        return getMessage(s,args);
+	}
+
     // todo:
     // - how to handle "formatted strings", e.g. some with \n in them? --> efa can automatically generate \n by now!
 

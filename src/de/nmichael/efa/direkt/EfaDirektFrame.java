@@ -1,5 +1,5 @@
 package de.nmichael.efa.direkt;
-
+//International.getString("
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -92,12 +92,12 @@ public class EfaDirektFrame extends JFrame {
     // Fenster nicht verschiebbar
     if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_fensterNichtVerschiebbar) try {
       this.setUndecorated(true);
-      TitledBorder b = new TitledBorder("efa - elektronisches Fahrtenbuch");
+      TitledBorder b = new TitledBorder(International.getString("efa - elektronisches Fahrtenbuch"));
       b.setTitleColor(Color.white);
       contentPane.setBackground(new Color(0,0,150));
       contentPane.setBorder(b);
     } catch (NoSuchMethodError e) {
-      Logger.log(Logger.WARNING,"Fenstereigenschaft 'nicht verschiebbar' wird erst ab Java 1.4 unterstützt.");
+      Logger.log(Logger.WARNING,International.getString("Fenstereigenschaft 'nicht verschiebbar' wird erst ab Java 1.4 unterstützt."));
     }
 
     // Fenster immer im Vordergrund
@@ -111,9 +111,9 @@ public class EfaDirektFrame extends JFrame {
       }
     } catch(UnsupportedClassVersionError e) {
       // Java 1.3 kommt mit der Java 1.5 Klasse nicht klar
-      Logger.log(Logger.WARNING,"Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstützt.");
+      Logger.log(Logger.WARNING,International.getString("Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstützt."));
     } catch(NoClassDefFoundError e) {
-      Logger.log(Logger.WARNING,"Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstützt.");
+      Logger.log(Logger.WARNING,International.getString("Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstützt."));
     }
 
 
@@ -255,7 +255,7 @@ public class EfaDirektFrame extends JFrame {
                        new String[] {"ESCAPE","F1","F2","F3","F4","F5","F6","F7","F8","F9","alt F10","alt F11","F10","F11","F12","shift F1","alt X","shift F4"},
                        new String[] {"keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction"});
     } catch(NoSuchMethodException e) {
-      System.err.println("Error setting up ActionHandler");
+      System.err.println(International.getString("Error setting up ActionHandler"));
     }
 
     this.addMouseListener(new MouseListener() {
@@ -270,7 +270,7 @@ public class EfaDirektFrame extends JFrame {
     contentPane = (JPanel) this.getContentPane();
     contentPane.setLayout(borderLayout1);
     this.setSize(new Dimension(708, 489));
-    this.setTitle("efa - elektronisches Fahrtenbuch");
+    this.setTitle(International.getString("efa - elektronisches Fahrtenbuch"));
     this.addWindowListener(new java.awt.event.WindowAdapter() {
       public void windowActivated(WindowEvent e) {
         this_windowActivated(e);
@@ -281,7 +281,7 @@ public class EfaDirektFrame extends JFrame {
     centerPanel.setLayout(gridBagLayout1);
     fahrtbeginnButton.setBackground(new Color(204, 255, 204));
     fahrtbeginnButton.setNextFocusableComponent(fahrtendeButton);
-    fahrtbeginnButton.setActionCommand("Fahrt beginnen >>>");
+    fahrtbeginnButton.setActionCommand("Fahrt beginnen >>>"); // @todo: is this command still necessary? Why does it exist for fahrtbeginnButton but not for the other buttons?
     fahrtbeginnButton.setMnemonic('B');
     fahrtbeginnButton.setText("Fahrt beginnen >>>");
     fahrtbeginnButton.addActionListener(new java.awt.event.ActionListener() {

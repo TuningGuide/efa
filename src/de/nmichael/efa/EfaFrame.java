@@ -243,7 +243,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     this.mode = mode;
     enableEvents(AWTEvent.WINDOW_EVENT_MASK);
     if (mode == MODE_ADMIN_NUR_FAHRTEN) {
-      mehrtagesfahrtenBearbeiten=">>> Mehrtagesfahrten bearbeiten";
+      mehrtagesfahrtenBearbeiten=">>> Mehrtagesfahrten bearbeiten"; // @todo noch zu internationalisieren?
     }
     try {
       this.startOpenFb = fb;
@@ -304,12 +304,14 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       EfaUtil.gc();
     }
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_7")) { // F11
+      Dialog.infoDialog(International.getString("Dieser i18n-Test verwendet\n"+
+    		  "mehrzeilige Keys.\n"));
       Dialog.infoDialog(International.getMessage("Dies ist ein Internationalisierungs-Test für efa {version} von {email}.",Daten.VERSION,Daten.EFAEMAIL));
       Dialog.infoDialog(International.getMessage("Test Text {text} mit Zahl {zahl}.","foobar",123));
       Dialog.infoDialog(International.getString("von","zeit"));
     }
 
-    if (evt.getActionCommand().equals("KEYSTROKE_ACTION_8")) { // F12
+    if (evt.getActionCommand().equals("KEYSTROKE_ACTION_8")) { // F12 // @todo brauchen wir das noch??
       Dialog.infoDialog(
           "Das ist ein sehr langer Satz, der am liebsten über den gesamten Bildschirm gehen würde und nirgends aufhören würde, wenn er nur die Gelegenheit dazu bekäme, denn das würde er wirklich gerne machen, nur leider läßt ihn efa nicht!\n"+
           "DasisteinsehrlangerSatz,deramliebstenüberdengesamtenBildschirmgehenwürdeundnirgendsaufhörenwürde,wennernurdieGelegenheitdazubekäme,denndaswürdeerwirklichgernemachen,nurleiderläßtihnefanicht!\n\n"+
@@ -341,7 +343,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     contentPane.setLayout(borderLayout1);
     this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
-    this.setTitle("efa - Elektronisches Fahrtenbuch");
+    this.setTitle(International.getString("efa - Elektronisches Fahrtenbuch"));
     this.addWindowListener(new java.awt.event.WindowAdapter() {
       public void windowClosing(WindowEvent e) {
         this_windowClosing(e);
@@ -415,7 +417,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     PrevButton.setMargin(new Insets(3,5,3,5));
     PrevButton.setNextFocusableComponent(NextButton);
-    PrevButton.setToolTipText("zum vorherigen Eintrag springen");
+    PrevButton.setToolTipText(International.getString("zum vorherigen Eintrag springen"));
     Mnemonics.setButton(this, PrevButton, "<< "+International.getStringWithMnemonic("Vorheriger"));
     PrevButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -424,7 +426,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     NextButton.setMargin(new Insets(3,5,3,5));
     NextButton.setNextFocusableComponent(LastButton);
-    NextButton.setToolTipText("zum nächsten Eintrag springen");
+    NextButton.setToolTipText(International.getString("zum nächsten Eintrag springen"));
     Mnemonics.setButton(this, NextButton, International.getStringWithMnemonic("Nächster")+" >>");
     NextButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -433,7 +435,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     NewButton.setMargin(new Insets(3,5,3,5));
     NewButton.setNextFocusableComponent(InsertButton);
-    NewButton.setToolTipText("neuen Eintrag erstellen");
+    NewButton.setToolTipText(International.getString("neuen Eintrag erstellen"));
     Mnemonics.setButton(this, NewButton, International.getStringWithMnemonic("Neu"));
     NewButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -527,7 +529,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       mannschButton[i].setNextFocusableComponent( (i<7 ? mannsch[i+1] : abfahrt) );
       Dialog.setPreferredSize(mannschButton[i],15,11);
 //      mannschButton[i].setPreferredSize(new Dimension(15, 11));
-      mannschButton[i].setToolTipText("Ruderer in die Mitgliederliste aufnehmen");
+      mannschButton[i].setToolTipText(International.getString("Ruderer in die Mitgliederliste aufnehmen"));
       mannschButton[i].addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           mannschButton_actionPerformed(e);
@@ -771,7 +773,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     });
     addButton.setNextFocusableComponent(FirstButton);
-    addButton.setToolTipText("aktuell angezeigten Eintrag zum Fahrtenbuch hinzufügen");
+    addButton.setToolTipText(International.getString("aktuell angezeigten Eintrag zum Fahrtenbuch hinzufügen"));
     Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Eintrag zum Fahrtenbuch hinzufügen"));
     addButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -789,7 +791,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     FirstButton.setMargin(new Insets(3,5,3,5));
     FirstButton.setNextFocusableComponent(PrevButton);
-    FirstButton.setToolTipText("zum ersten Eintrag springen");
+    FirstButton.setToolTipText(International.getString("zum ersten Eintrag springen"));
     Mnemonics.setButton(this, FirstButton, International.getStringWithMnemonic("Erster"));
     FirstButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -798,7 +800,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     LastButton.setMargin(new Insets(3,5,3,5));
     LastButton.setNextFocusableComponent(NewButton);
-    LastButton.setToolTipText("zum letzten Eintrag springen");
+    LastButton.setToolTipText(International.getString("zum letzten Eintrag springen"));
     Mnemonics.setButton(this, LastButton, International.getStringWithMnemonic("Letzter"));
     LastButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -815,7 +817,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     bootButton.setNextFocusableComponent(stm);
     Dialog.setPreferredSize(bootButton,15,11);
 //    bootButton.setPreferredSize(new Dimension(15, 11));
-    bootButton.setToolTipText("Boot in die Bootsliste aufnehmen");
+    bootButton.setToolTipText(International.getString("Boot in die Bootsliste aufnehmen"));
     bootButton.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         bootButton_focusLost(e);
@@ -830,7 +832,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     stmButton.setNextFocusableComponent(mannsch[0]);
     Dialog.setPreferredSize(stmButton,15,11);
 //    stmButton.setPreferredSize(new Dimension(15, 11));
-    stmButton.setToolTipText("Steuermann in die Mitgliederliste aufnehmen");
+    stmButton.setToolTipText(International.getString("Steuermann in die Mitgliederliste aufnehmen"));
     stmButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         stmButton_actionPerformed(e);
@@ -840,7 +842,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     zielButton.setNextFocusableComponent(bootskm);
     Dialog.setPreferredSize(zielButton,15,11);
 //    zielButton.setPreferredSize(new Dimension(15, 11));
-    zielButton.setToolTipText("Ziele in die Zielliste aufnehmen");
+    zielButton.setToolTipText(International.getString("Ziele in die Zielliste aufnehmen"));
     zielButton.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         zielButton_focusLost(e);
@@ -861,7 +863,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     SuchButton.setMargin(new Insets(3,5,3,5));
     SuchButton.setNextFocusableComponent(ButtonDelete);
-    SuchButton.setToolTipText("nach einem Eintrag suchen");
+    SuchButton.setToolTipText(International.getString("nach einem Eintrag suchen"));
     Mnemonics.setButton(this, SuchButton, International.getStringWithMnemonic("Suchen"));
     SuchButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -870,7 +872,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     jLabel22.setText("     ");
     ButtonDelete.setMargin(new Insets(3,5,3,5));
-    ButtonDelete.setToolTipText("aktuellen Eintrag löschen");
+    ButtonDelete.setToolTipText(International.getString("aktuellen Eintrag löschen"));
     Mnemonics.setButton(this, ButtonDelete, International.getStringWithMnemonic("Löschen"));
     ButtonDelete.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -898,7 +900,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     artDerFahrtLabel.setLabelFor(fahrtDauer);
     Dialog.setPreferredSize(weitereMannschButton,200,19);
 //    weitereMannschButton.setPreferredSize(new Dimension(200, Dialog.TEXTFIELD_HEIGHT));
-    weitereMannschButton.setToolTipText("weitere Mannschaftsfelder anzeigen");
+    weitereMannschButton.setToolTipText(International.getString("weitere Mannschaftsfelder anzeigen"));
     Mnemonics.setButton(this, weitereMannschButton, International.getStringWithMnemonic("restliche Mannschaft anzeigen"));
     weitereMannschButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -943,7 +945,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     gehezuLabel.setLabelFor(geheZu);
     Dialog.setPreferredSize(geheZu,50,19);
 //    geheZu.setPreferredSize(new Dimension(50, Dialog.TEXTFIELD_HEIGHT));
-    geheZu.setToolTipText("direkt zu einer Laufenden Nummer springen");
+    geheZu.setToolTipText(International.getString("direkt zu einer Laufenden Nummer springen"));
     geheZu.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyReleased(KeyEvent e) {
         geheZu_keyReleased(e);
@@ -1030,9 +1032,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     jLabel5.setText("     ");
     InsertButton.setNextFocusableComponent(SuchButton);
-    InsertButton.setToolTipText("neuen Eintrag vor dem aktuellen einfügen");
+    InsertButton.setToolTipText(International.getString("neuen Eintrag vor dem aktuellen einfügen"));
     InsertButton.setMargin(new Insets(3,5,3,5));
-    InsertButton.setText("Einf.");
+    Mnemonics.setButton(this, InsertButton, International.getStringWithMnemonic("Einf."));
     InsertButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         InsertButton_actionPerformed(e);
@@ -1250,9 +1252,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
               ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
       mainPanel.add(obmann,   new GridBagConstraints(10, 2, 2, 1, 0.0, 0.0
               ,GridBagConstraints.WEST, (isDirectMode() ? GridBagConstraints.HORIZONTAL : GridBagConstraints.NONE ), new Insets(0, 0, 0, 0), 0, 0));
-      obmann.addItem( (isDirectMode() ? "keine Angabe" : "--") );
-      obmann.addItem( (isDirectMode() ? "Steuermann" : "St") );
-      for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++) obmann.addItem( (isDirectMode() ? "Nummer " : "") + (i+1));
+      obmann.addItem( (isDirectMode() ? International.getString("keine Angabe") : International.getString("--")) );
+      obmann.addItem( (isDirectMode() ? International.getString("Steuermann") : International.getString("St")) );
+      for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++) obmann.addItem( (isDirectMode() ? International.getString("Nummer")+" " : "") + (i+1));
 
       obmann.addItemListener(new java.awt.event.ItemListener() {
         public void itemStateChanged(ItemEvent e) {
@@ -1711,8 +1713,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
     if (sicherheitsabfrage()) {
       String fb=null;
-      if (Daten.fahrtenbuch != null && !Daten.fahrtenbuch.getFileName().equals("")) fb = Dialog.dateiDialog(this,"Fahrtenbuch öffnen","efa Fahrtenbuch (*.efb)","efb",Daten.fahrtenbuch.getFileName(),false);
-      else fb = Dialog.dateiDialog(this,"Fahrtenbuch öffnen","efa Fahrtenbuch (*.efb)","efb",Daten.efaDataDirectory,false);
+      if (Daten.fahrtenbuch != null && !Daten.fahrtenbuch.getFileName().equals("")) fb = Dialog.dateiDialog(this,International.getString("Fahrtenbuch öffnen"),International.getString("efa Fahrtenbuch")+" (*.efb)","efb",Daten.fahrtenbuch.getFileName(),false);
+      else fb = Dialog.dateiDialog(this,International.getString("Fahrtenbuch öffnen"),International.getString("efa Fahrtenbuch")+" (*.efb)","efb",Daten.efaDataDirectory,false);
 
       if (fb != null) fahrtenbuchOeffnen(fb);
     }
@@ -1829,9 +1831,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   void jMenuOnlineUpdate_actionPerformed(ActionEvent e) {
     if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
     if (this.mode != MODE_FULL) {
-      Dialog.error("Diese Funktion steht nur im normalen efa-Modus zur Verfügung.\n"+
+      Dialog.error(International.getString("Diese Funktion steht nur im normalen efa-Modus zur Verfügung.\n"+
                    "Bitte starte efa im normalen Modus (nicht in der Bootshausvariante),\n"+
-                   "um ein Online-Update durchzuführen.");
+                   "um ein Online-Update durchzuführen.")); // @todo: not sure if multiline text will create valid Key in properties file!
       startBringToFront(false); // efaDirekt im BRC -- Workaround
       return;
     }
@@ -1975,7 +1977,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
     if ((mode == MODE_ADMIN && (admin == null || !admin.allowedEfaConfig)) ||
         (mode == MODE_FULL && admin != null && !admin.allowedEfaConfig)) {
-      Dialog.error("Du hast nicht die Berechtigung, diese Funktion auszuführen!");
+      Dialog.error(International.getString("Du hast nicht die Berechtigung, diese Funktion auszuführen!"));
       startBringToFront(false); // efaDirekt im BRC -- Workaround
       return;
     }
@@ -2035,10 +2037,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   void jMenuDokumentation_actionPerformed(ActionEvent e) {
     if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
     if (!EfaUtil.canOpenFile(Daten.efaDocDirectory+"index.html")) {
-      Dialog.infoDialog("Fehler","Die Hilfedatei\n'"+Daten.efaDocDirectory+"index.html'\nkonnte nicht gefunden werden.");
+      Dialog.infoDialog(International.getString("Fehler"),International.getMessage("Die Hilfedatei '{helpfilename}' konnte nicht gefunden werden.", Daten.efaDocDirectory+"index.html"));
       return;
     }
-    Dialog.neuBrowserDlg(this,"Dokumentation","file:"+Daten.efaDocDirectory+"index.html");
+    Dialog.neuBrowserDlg(this,International.getString("Dokumentation"),"file:"+Daten.efaDocDirectory+"index.html");
     startBringToFront(false); // efaDirekt im BRC -- Workaround
   }
 
@@ -2130,7 +2132,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       if (!sicherheitsabfrageDatensatz()) return;
       SetBlankFields();
       if (isAdminMode()) {
-        Logger.log(Logger.INFO,"Admin: Neuer Fahrtenbuch-Eintrag #"+lfdnr.getText().trim()+" wurde erstellt.");
+        Logger.log(Logger.INFO,International.getMessage("Admin: Neuer Fahrtenbuch-Eintrag #{lfdnr} wurde erstellt.",lfdnr.getText().trim()));
       }
     }
   }
@@ -2146,14 +2148,14 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (curlfd == null || curlfd.equals("")) { NewButton_actionPerformed(null); return; }
     if (mode != MODE_FULL) {
       if (efaDirektFrame != null && efaDirektFrame.sindNochBooteUnterwegs()) {
-        Dialog.error("Es sind noch Boote unterwegs.\n"+
-                     "Das Einfügen von Einträgen ist nur möglich, wenn alle laufenden Fahrten beendet sind.");
+        Dialog.error(International.getString("Es sind noch Boote unterwegs.\n"+
+                     "Das Einfügen von Einträgen ist nur möglich, wenn alle laufenden Fahrten beendet sind.")); // @todo: not sure if multiline text will create valid Key in properties file!
         startBringToFront(false);
         return;
       }
     }
-    int ret = Dialog.yesNoDialog("Eintrag einfügen","Soll vor dem aktuellen Eintrag (Lfd. Nr. "+curlfd+") wirklich ein neuer Eintrag eingefügt werden?\n"+
-        "Alle nachfolgenden laufenden Nummern werden dann um eins erhöht!");
+    int ret = Dialog.yesNoDialog(International.getString("Eintrag einfügen"),International.getMessage("Soll vor dem aktuellen Eintrag (Lfd. Nr. {lfdnr}) wirklich ein neuer Eintrag eingefügt werden?\n"+
+        "Alle nachfolgenden laufenden Nummern werden dann um eins erhöht!", curlfd)); // @todo: not sure if multiline text will create valid Key in properties file!
     startBringToFront(false); // efaDirekt im BRC -- Workaround
     if (ret != Dialog.YES) return;
     DatenFelder d = null;
@@ -2182,10 +2184,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (isDirectMode()) return;
     if (Daten.fahrtenbuch == null || aktDatensatz == null) return;
     if (aktDatensatz.get(Fahrtenbuch.LFDNR).trim().equals("")) return;
-    if (Dialog.yesNoDialog("Wirklich löschen?","Soll der aktuelle Eintrag wirklich gelöscht werden?") == Dialog.YES) {
+    if (Dialog.yesNoDialog(International.getString("Wirklich löschen?"),International.getString("Soll der aktuelle Eintrag wirklich gelöscht werden?")) == Dialog.YES) {
       Daten.fahrtenbuch.delete(aktDatensatz.get(Fahrtenbuch.LFDNR));
       if (isAdminMode()) {
-        Logger.log(Logger.INFO,"Admin: Fahrtenbuch-Eintrag #"+(aktDatensatz != null ? aktDatensatz.get(Fahrtenbuch.LFDNR) : "$$")+" wurde gelöscht.");
+        Logger.log(Logger.INFO,"Admin: Fahrtenbuch-Eintrag #"+(aktDatensatz != null ? aktDatensatz.get(Fahrtenbuch.LFDNR) : "$$")+" wurde gelöscht."); // @todo: internationalize log messages
       }
       DatenFelder d;
       if ((d = (DatenFelder)Daten.fahrtenbuch.getCompleteNext()) != null) SetFields(d);
@@ -2252,6 +2254,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
   // Check auf Tippfehler bei Booten, Mitgliedern und Zielen
   // basierend auf Code von Thilo Coblenzer
+  // The parameters art and liste are German strings; they are passed through International.getString() by this function
   void checkNeighbours(JTextField field, JButton button, DatenListe dl, String art, String liste, boolean mitglied) {
     Vector neighbours = null;
     String name = field.getText().trim();
@@ -2277,10 +2280,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       for (Iterator j = neighbours.iterator(); j.hasNext();) {
         DatenFelder d = (DatenFelder)j.next();
         suggestedName = dl.constructKey(d);
-        if (Dialog.yesNoDialog(art+" unbekannt (Tippfehler?)",
-                               "Der Name '"+name+"'\n"+
-                               "konnte in der "+liste+" nicht gefunden werden.\n"+
-                               "Meintest Du '"+suggestedName+"'?") == Dialog.YES) {
+        if (Dialog.yesNoDialog(International.getMessage("{art} unbekannt (Tippfehler?)",International.getString(art)),
+                               International.getMessage("Der Name '{name}'\n"+
+                               "konnte in der {liste} nicht gefunden werden.\n"+
+                               "Meintest Du '{suggestedName}'?", name, International.getString(liste), suggestedName)) == Dialog.YES) {
           field.setText(suggestedName);
           vervollstaendige(field,button,dl,null,this,false);
           startBringToFront(false); // efaDirekt im BRC -- Workaround
@@ -2347,9 +2350,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     // Check auf Tippfehler (Code-Spende von Thilo Coblenzer)
     if (Daten.efaConfig != null) {
       if (mode != MODE_ENDE) {
-        if (Daten.efaConfig.correctMisspelledBoote) checkNeighbours(boot,bootButton,Daten.fahrtenbuch.getDaten().boote,"Boot","Bootsliste",false);
+        if (Daten.efaConfig.correctMisspelledBoote) checkNeighbours(boot,bootButton,Daten.fahrtenbuch.getDaten().boote,"Boot","Bootsliste",false); // the explicit string parameters are passed through International.getString by checkNeighbours()
       }
-      if (Daten.efaConfig.correctMisspelledMitglieder) checkNeighbours(stm,stmButton,Daten.fahrtenbuch.getDaten().mitglieder,"Mitglied","Mitgliederliste",true);
+      if (Daten.efaConfig.correctMisspelledMitglieder) checkNeighbours(stm,stmButton,Daten.fahrtenbuch.getDaten().mitglieder,"Mitglied","Mitgliederliste",true); // the explicit string parameters are passed through International.getString by checkNeighbours()
       if (Daten.efaConfig.correctMisspelledMitglieder) for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++) checkNeighbours(mannsch[i],mannschButton[i % 8],Daten.fahrtenbuch.getDaten().mitglieder,"Mitglied","Mitgliederliste",true);
       if (Daten.efaConfig.correctMisspelledZiele) {
         checkNeighbours(ziel, zielButton, Daten.fahrtenbuch.getDaten().ziele,
@@ -2383,7 +2386,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       break; // alles ok, keine doppelten --> Pseudoschleife abbrechen
     }
     if (doppelt != null) {
-      Dialog.error("Die Person '"+doppelt+"' wurde mehrfach eingegeben!");
+      Dialog.error(International.getMessage("Die Person '{name}' wurde mehrfach eingegeben!",doppelt));
       startBringToFront(false); // efaDirekt im BRC -- Workaround
       return;
     }
@@ -2393,9 +2396,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         Daten.bezeichnungen != null) {
       DatenFelder b = Daten.fahrtenbuch.getDaten().boote.getExactComplete(boot.getText().trim());
       if (b != null && b.get(Boote.STM).equals(Daten.bezeichnungen.bStm.get(Daten.bezeichnungen.BSTM_OHNE))) {
-        int ret = Dialog.yesNoDialog("Steuermann",
-                               "Du hast für ein steuermannsloses Boot einen Steuermann eingetragen.\n"+
-                               "Möchtest Du diesen Eintrag dennoch speichern?");
+        int ret = Dialog.yesNoDialog(International.getString("Steuermann"),
+                               International.getString("Du hast für ein steuermannsloses Boot einen Steuermann eingetragen.\n"+
+                               "Möchtest Du diesen Eintrag dennoch speichern?"));// @todo: not sure if multiline text will create valid Key in properties file!
         startBringToFront(false); // efaDirekt im BRC -- Workaround
         if (ret != Dialog.YES) return;
       }
@@ -2413,14 +2416,15 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         for (int i=0; i<v.size(); i++) {
           m += (m.length()>0 ? "; " : "") + v.get(i);
         }
-        switch(Dialog.auswahlDialog("Doppeleintrag?",
-                                    "Es gibt bereits einen ähnlichen Eintrag im Fahrtenbuch:\n\n"+
-                                    "#"+dop.get(Fahrtenbuch.LFDNR)+" vom "+dop.get(Fahrtenbuch.DATUM)+" mit "+dop.get(Fahrtenbuch.BOOT)+":\n"+
-                                    "Mannschaft: "+m+"\n"+
-                                    "Abfahrt: "+dop.get(Fahrtenbuch.ABFAHRT)+"; Ankunft: "+dop.get(Fahrtenbuch.ANKUNFT)+"; Ziel: "+dop.get(Fahrtenbuch.ZIEL)+"\n\n"+
-                                    "Möglicherweise handelt es sich bei dem aktuellen Eintrag #"+lfdnr.getText()+" um einen Doppeleintrag.\n"+
-                                    "Was möchtest Du tun?",
-                                    "Eintrag hinzufügen (kein Doppeleintrag)","Abbrechen",false)) {
+        switch(Dialog.auswahlDialog(International.getString("Doppeleintrag?"),
+                                    International.getMessage("Es gibt bereits einen ähnlichen Eintrag im Fahrtenbuch:\n\n"+
+                                    "#{vorhandene_lfdnr} vom {datum} mit {boot}:\n"+
+                                    "Mannschaft: {namensliste}\n"+
+                                    "Abfahrt: {abfahrtszeit}; Ankunft: {Ankunftszeit}; Ziel: {ziel}\n\n"+
+                                    "Möglicherweise handelt es sich bei dem aktuellen Eintrag #{neue_lfdnr} um einen Doppeleintrag.\n"+
+                                    "Was möchtest Du tun?",dop.get(Fahrtenbuch.LFDNR), dop.get(Fahrtenbuch.DATUM), dop.get(Fahrtenbuch.BOOT),
+									m, dop.get(Fahrtenbuch.ABFAHRT),dop.get(Fahrtenbuch.ANKUNFT),dop.get(Fahrtenbuch.ZIEL), lfdnr.getText()),
+                                    International.getString("Eintrag hinzufügen (kein Doppeleintrag)"),International.getString("Abbrechen"),false)) {
                case 0: break;
                case 1: return;
         }
@@ -2444,19 +2448,20 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (mtour != null) {
       if (EfaUtil.secondDateIsAfterFirst(datum.getText(),mtour.start) ||
           EfaUtil.secondDateIsAfterFirst(mtour.ende,datum.getText())) {
-        Dialog.error("Das Datum der vorliegenden Fahrt ("+datum.getText()+") liegt außerhalb des\n"+
-                     "Zeitraums ("+mtour.start+" - "+mtour.ende+"), der für die Mehrtagesfahrt\n"+
-                     "'"+mtour.name+"' angegeben wurde.\n\n"+
-                     "Wenn die Mehrtagesfahrt '"+mtour.name+"'\n"+
+        Dialog.error(International.getMessage("Das Datum der vorliegenden Fahrt ({datum}) liegt außerhalb des\n"+
+                     "Zeitraums ({mtour_start} - {mtour_ende}), der für die Mehrtagesfahrt\n"+
+                     "'{mtour_name}' angegeben wurde.\n\n"+
+                     "Wenn die Mehrtagesfahrt '{mtour_name}'\n"+
                      "mehrfach in diesem Jahr durchgeführt wurde, so muß für jede einzelne\n"+
                      "Durchführung ein neuer Mehrtagesfahrt-Eintrag in efa angelegt werden:\n"+
                      "Wähle in diesem Fall bitte als Art der Fahrt '>>> neue Mehrtagesfahrt'\n"+
                      "aus und erstelle einen neuen Mehrtagesfahrt-Eintrag.\n\n"+
                      "Sollte der vorliegende Eintrag tatsächlich zu der Mehrtagesfahrt\n"+
-                     "'"+mtour.name+"' gehören und lediglich\n"+
+                     "'{mtour_name}' gehören und lediglich\n"+
                      "der Zeitraum für diese Mehrtagesfahrt versehentlich falsch eingegeben worden sein,\n"+
                      "so kannst Du den Zeitraum unter ->Administration->Fahrtenbuch->Mehrtagesfahrten\n"+
-                     "korrigieren und anschließend diesen Eintrag der Fahrt hinzufügen.");
+                     "korrigieren und anschließend diesen Eintrag der Fahrt hinzufügen.", 
+					 datum.getText(), mtour.start, mtour.ende, mtour.name)); // @todo: check that single quotes are correct, as well as that using mtour_name several times works like this!!! (Otherwise use {3} syntax...)
         startBringToFront(false); // efaDirekt im BRC -- Workaround
         return;
       }
@@ -2467,11 +2472,12 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     TMJ tmj = EfaUtil.string2date(datum.getText().trim(),0,0,0);
     TMJ ref = EfaUtil.correctDate(refDate,cal.get(GregorianCalendar.DAY_OF_MONTH),cal.get(GregorianCalendar.MONTH)+1-cal.getMinimum(GregorianCalendar.MONTH),cal.get(GregorianCalendar.YEAR));
     if (tmj.jahr != ref.jahr && !Daten.fahrtenbuch.isEmpty()) {
-      Dialog.infoDialog("Warnung","Ein Fahrtenbuch sollte immer nur die Fahrten EINES Jahres enthalten!\n"+
-                                         "Bitte lösche die eben hinzugefügte Fahrt und beginne für die Fahrten\n"+
-                                         "des neuen Jahren ein neues Fahrtenbuch!\n"+
-                                         "Um ein neues Fahrtenbuch zu beginnen, wähle aus dem Menü 'Datei' den Punkt\n"+
-                                         "'Neues Fahrtenbuch erstellen' und dort die Option 'Fahrtenbuch fortsetzen'.");
+      Dialog.infoDialog(International.getString("Warnung"),
+							International.getString("Ein Fahrtenbuch sollte immer nur die Fahrten EINES Jahres enthalten!\n"+
+                            "Bitte lösche die eben hinzugefügte Fahrt und beginne für die Fahrten\n"+
+                            "des neuen Jahren ein neues Fahrtenbuch!\n"+
+                            "Um ein neues Fahrtenbuch zu beginnen, wähle aus dem Menü 'Datei' den Punkt\n"+
+                            "'Neues Fahrtenbuch erstellen' und dort die Option 'Fahrtenbuch fortsetzen'."));
       startBringToFront(false); // efaDirekt im BRC -- Workaround
     }
 
@@ -2712,7 +2718,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       if (!ziel.getText().trim().equals(altesZiel)) {
         // Das "Leeren" des Kilometerfeldes darf nur im DirectMode erfolgen. Im normalen Modus hätte das
         // den unschönen Nebeneffekt, daß beim korrigieren von unbekannten Zielen die eingegeben Kilometer
-        // aus dem Feld verschwinden (ebenso nach der Suche nach unnvollständigen Einträgen mit unbekannten
+        // aus dem Feld verschwinden (ebenso nach der Suche nach unvollständigen Einträgen mit unbekannten
         // Zielen).
         if (isDirectMode() && (mode == MODE_START || mode == MODE_START_KORREKTUR || mode == MODE_ENDE || mode == MODE_NACHTRAG)) {
           bootskm.setText("");
@@ -2894,9 +2900,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (!efaSec.secFileExists() && admin == null) {
       admin = null;
       do {
-        admin = AdminLoginFrame.login(null,"Zugang nur für Administratoren");
+        admin = AdminLoginFrame.login(null,International.getString("Zugang nur für Administratoren"));
         if (admin == null) System.exit(100);
-        if (!admin.allowedFahrtenbuchBearbeiten && !admin.allowedVollzugriff) Dialog.error("Du hast als Admin '"+admin.name+"' keine Berechtigung, das Fahrtenbuch zu bearbeiten!");
+        if (!admin.allowedFahrtenbuchBearbeiten && !admin.allowedVollzugriff) Dialog.error(International.getMessage("Du hast als Admin '{admin.name}' keine Berechtigung, das Fahrtenbuch zu bearbeiten!", admin.name));
       } while (!admin.allowedFahrtenbuchBearbeiten && !admin.allowedVollzugriff);
     }
 
@@ -2919,9 +2925,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       File f = new File(Daten.efaProgramDirectory+"verein.cfg");
       try {
         f.renameTo(new File(Daten.efaDataDirectory+Daten.VEREINSCONFIG));
-        Logger.log(Logger.INFO,"Vereins-Konfigurationsdatei wurde von '"+Daten.efaProgramDirectory+"verein.cfg' nach '"+Daten.efaDataDirectory+Daten.VEREINSCONFIG+"' verschoben.");
+        Logger.log(Logger.INFO,International.getMessage ("{abstract_filename} wurde von '{old_filename}' nach '{new_filename}' verschoben.", "Vereins-Konfigurationsdatei", Daten.efaProgramDirectory+"verein.cfg", Daten.efaDataDirectory+Daten.VEREINSCONFIG)); // @todo: here and below, LOG messages have already been translated :-/
       } catch (Exception e) {
-        Logger.log(Logger.ERROR,"Vereins-Konfigurationsdatei konnte nicht von '"+Daten.efaProgramDirectory+"verein.cfg' nach '"+Daten.efaDataDirectory+Daten.VEREINSCONFIG+"' verschoben werden: "+e.toString());
+        Logger.log(Logger.ERROR,International.getMessage("{abstract_filename} konnte nicht von '{old_filename}' nach '{new_filename}' verschoben werden: {error_message}", "Vereins-Konfigurationsdatei", Daten.efaProgramDirectory+"verein.cfg", Daten.efaDataDirectory+Daten.VEREINSCONFIG, e.toString()));
       }
     }
     Daten.vereinsConfig = new VereinsConfig(Daten.efaDataDirectory+Daten.VEREINSCONFIG);
@@ -2931,7 +2937,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 //      editVerein=true; // Nein, lieber nicht schon beim ersten Start!!
     }
     if (!Daten.vereinsConfig.readFile()) {
-      Logger.log(Logger.ERROR,"Vereins-Konfigurationsdatei '"+Daten.VEREINSCONFIG+"' konnte nicht gelesen werden.");
+      Logger.log(Logger.ERROR,International.getMessage(  "{abstract_filename} '{real_filename}' konnte nicht gelesen werden.", "Vereins-Konfigurationsdatei", Daten.VEREINSCONFIG));
     } else if (editVerein) {
       // Fenster zum Eingeben der Daten öffnen
       VereinsConfigFrame dlg = new VereinsConfigFrame(this,Daten.vereinsConfig);
@@ -2944,76 +2950,76 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     Daten.adressen = new Adressen(Daten.efaDataDirectory+Daten.ADRESSENFILE);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.ADRESSENFILE)) {
       if (Daten.adressen.writeFile())
-        Logger.log(Logger.INFO,"Adressendatei '"+Daten.efaDataDirectory+Daten.ADRESSENFILE+"' wurde neu erstellt.");
+        Logger.log(Logger.INFO,International.getMessage( "{abstract_filename} '{real_filename}' wurde neu erstellt.", 				"Adressendatei", Daten.efaDataDirectory+Daten.ADRESSENFILE));
       else
-        Logger.log(Logger.ERROR,"Adressendatei '"+Daten.efaDataDirectory+Daten.ADRESSENFILE+"' konnte nicht erstellt werden.");
+        Logger.log(Logger.ERROR,International.getMessage("{abstract_filename} '{real_filename}' konnte nicht erstellt werden.", 	"Adressendatei", Daten.efaDataDirectory+Daten.ADRESSENFILE));
     }
     if (!Daten.adressen.readFile()) {
-      Logger.log(Logger.ERROR,"Adressendatei '"+Daten.efaDataDirectory+Daten.ADRESSENFILE+"' konnte nicht gelesen werden.");
+      Logger.log(Logger.ERROR,International.getMessage(  "{abstract_filename} '{real_filename}' konnte nicht gelesen werden.", 		"Adressendatei", Daten.efaDataDirectory+Daten.ADRESSENFILE));
     }
 
     Daten.synMitglieder = new Synonyme(Daten.efaDataDirectory+Daten.MITGLIEDER_SYNONYM);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.MITGLIEDER_SYNONYM)) {
       if (Daten.synMitglieder.writeFile())
-        Logger.log(Logger.INFO,"Mitglieder-Synonymdatei '"+Daten.efaDataDirectory+Daten.MITGLIEDER_SYNONYM+"' wurde neu erstellt.");
+        Logger.log(Logger.INFO,International.getMessage( "{abstract_filename} '{real_filename}' wurde neu erstellt.", 				"Mitglieder-Synonymdatei", Daten.efaDataDirectory+Daten.MITGLIEDER_SYNONYM));
       else
-        Logger.log(Logger.ERROR,"Mitglieder-Synonymdatei '"+Daten.efaDataDirectory+Daten.MITGLIEDER_SYNONYM+"' konnte nicht erstellt werden.");
+        Logger.log(Logger.ERROR,International.getMessage("{abstract_filename} '{real_filename}' konnte nicht erstellt werden.", 	"Mitglieder-Synonymdatei", Daten.efaDataDirectory+Daten.MITGLIEDER_SYNONYM));
     }
     if (!Daten.synMitglieder.readFile()) {
-      Logger.log(Logger.ERROR,"Mitglieder-Synonymdatei '"+Daten.efaDataDirectory+Daten.MITGLIEDER_SYNONYM+"' konnte nicht gelesen werden.");
+      Logger.log(Logger.ERROR,International.getMessage(  "{abstract_filename} '{real_filename}' konnte nicht gelesen werden.", 		"Mitglieder-Synonymdatei", Daten.efaDataDirectory+Daten.MITGLIEDER_SYNONYM));
     }
     Daten.synBoote = new Synonyme(Daten.efaDataDirectory+Daten.BOOTE_SYNONYM);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.BOOTE_SYNONYM)) {
       if (Daten.synBoote.writeFile())
-        Logger.log(Logger.INFO,"Boots-Synonymdatei '"+Daten.efaDataDirectory+Daten.BOOTE_SYNONYM+"' wurde neu erstellt.");
+        Logger.log(Logger.INFO,International.getMessage( "{abstract_filename} '{real_filename}' wurde neu erstellt.", 				"Boots-Synonymdatei", Daten.efaDataDirectory+Daten.BOOTE_SYNONYM));
       else
-        Logger.log(Logger.ERROR,"Boots-Synonymdatei '"+Daten.efaDataDirectory+Daten.BOOTE_SYNONYM+"' konnte nicht erstellt werden.");
+        Logger.log(Logger.ERROR,International.getMessage("{abstract_filename} '{real_filename}' konnte nicht erstellt werden.", 	"Boots-Synonymdatei", Daten.efaDataDirectory+Daten.BOOTE_SYNONYM));
     }
     if (!Daten.synBoote.readFile()) {
-      Logger.log(Logger.ERROR,"Boots-Synonymdatei '"+Daten.efaDataDirectory+Daten.BOOTE_SYNONYM+"' konnte nicht gelesen werden.");
+      Logger.log(Logger.ERROR,International.getMessage(  "{abstract_filename} '{real_filename}' konnte nicht gelesen werden.", 		"Boots-Synonymdatei", Daten.efaDataDirectory+Daten.BOOTE_SYNONYM));
     }
     Daten.synZiele = new Synonyme(Daten.efaDataDirectory+Daten.ZIELE_SYNONYM);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.ZIELE_SYNONYM)) {
       if (Daten.synZiele.writeFile())
-        Logger.log(Logger.INFO,"Ziel-Synonymdatei '"+Daten.efaDataDirectory+Daten.ZIELE_SYNONYM+"' wurde neu erstellt.");
+        Logger.log(Logger.INFO,International.getMessage( "{abstract_filename} '{real_filename}' wurde neu erstellt.", 				"Ziel-Synonymdatei", Daten.efaDataDirectory+Daten.ZIELE_SYNONYM));
       else
-        Logger.log(Logger.ERROR,"Ziel-Synonymdatei '"+Daten.efaDataDirectory+Daten.ZIELE_SYNONYM+"' konnte nicht erstellt werden.");
+        Logger.log(Logger.ERROR,International.getMessage("{abstract_filename} '{real_filename}' konnte nicht erstellt werden.", 	"Ziel-Synonymdatei", Daten.efaDataDirectory+Daten.ZIELE_SYNONYM));
     }
     if (!Daten.synZiele.readFile()) {
-      Logger.log(Logger.ERROR,"Ziel-Synonymdatei '"+Daten.efaDataDirectory+Daten.ZIELE_SYNONYM+"' konnte nicht gelesen werden.");
+      Logger.log(Logger.ERROR,International.getMessage(  "{abstract_filename} '{real_filename}' konnte nicht gelesen werden.", 		"Ziel-Synonymdatei", Daten.efaDataDirectory+Daten.ZIELE_SYNONYM));
     }
 
     Daten.mannschaften = new Mannschaften(Daten.efaDataDirectory+Daten.MANNSCHAFTENFILE);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.MANNSCHAFTENFILE)) {
       if (Daten.mannschaften.writeFile())
-        Logger.log(Logger.INFO,"Mannschaftendatei '"+Daten.efaDataDirectory+Daten.MANNSCHAFTENFILE+"' wurde neu erstellt.");
+        Logger.log(Logger.INFO,International.getMessage( "{abstract_filename} '{real_filename}' wurde neu erstellt.", 				"Mannschaftendatei", Daten.efaDataDirectory+Daten.MANNSCHAFTENFILE));
       else
-        Logger.log(Logger.ERROR,"Mannschaftendatei '"+Daten.efaDataDirectory+Daten.MANNSCHAFTENFILE+"' konnte nicht erstellt werden.");
+        Logger.log(Logger.ERROR,International.getMessage("{abstract_filename} '{real_filename}' konnte nicht erstellt werden.", 	"Mannschaftendatei", Daten.efaDataDirectory+Daten.MANNSCHAFTENFILE));
     }
     if (!Daten.mannschaften.readFile()) {
-      Logger.log(Logger.ERROR,"Mannschaftendatei '"+Daten.efaDataDirectory+Daten.MANNSCHAFTENFILE+"' konnte nicht gelesen werden.");
+      Logger.log(Logger.ERROR,International.getMessage(  "{abstract_filename} '{real_filename}' konnte nicht gelesen werden.", 		"Mannschaftendatei", Daten.efaDataDirectory+Daten.MANNSCHAFTENFILE));
     }
 
     Daten.fahrtenabzeichen = new Fahrtenabzeichen(Daten.efaDataDirectory+Daten.FAHRTENABZEICHEN);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.FAHRTENABZEICHEN)) {
       if (Daten.fahrtenabzeichen.writeFile())
-        Logger.log(Logger.INFO,"DRV-Fahrtenabezeichendatei '"+Daten.efaDataDirectory+Daten.FAHRTENABZEICHEN+"' wurde neu erstellt.");
+        Logger.log(Logger.INFO,International.getMessage( "{abstract_filename} '{real_filename}' wurde neu erstellt.", 				"DRV-Fahrtenabezeichendatei", Daten.efaDataDirectory+Daten.FAHRTENABZEICHEN));
       else
-        Logger.log(Logger.ERROR,"DRV-Fahrtenabezeichendatei '"+Daten.efaDataDirectory+Daten.FAHRTENABZEICHEN+"' konnte nicht erstellt werden.");
+        Logger.log(Logger.ERROR,International.getMessage("{abstract_filename} '{real_filename}' konnte nicht erstellt werden.", 	"DRV-Fahrtenabezeichendatei", Daten.efaDataDirectory+Daten.FAHRTENABZEICHEN));
     }
     if (!Daten.fahrtenabzeichen.readFile()) {
-      Logger.log(Logger.ERROR,"DRV-Fahrtenabezeichendatei '"+Daten.efaDataDirectory+Daten.FAHRTENABZEICHEN+"' konnte nicht gelesen werden.");
+      Logger.log(Logger.ERROR,International.getMessage(  "{abstract_filename} '{real_filename}' konnte nicht gelesen werden.", 		"DRV-Fahrtenabezeichendatei", Daten.efaDataDirectory+Daten.FAHRTENABZEICHEN));
     }
 
     Daten.gruppen = new Gruppen(Daten.efaDataDirectory+Daten.GRUPPEN);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.GRUPPEN)) {
       if (Daten.gruppen.writeFile())
-        Logger.log(Logger.INFO,"Gruppendatei '"+Daten.efaDataDirectory+Daten.GRUPPEN+"' wurde neu erstellt.");
+        Logger.log(Logger.INFO,International.getMessage( "{abstract_filename} '{real_filename}' wurde neu erstellt.", 				"Gruppendatei", Daten.efaDataDirectory+Daten.GRUPPEN));
       else
-        Logger.log(Logger.ERROR,"Gruppendatei '"+Daten.efaDataDirectory+Daten.GRUPPEN+"' konnte nicht erstellt werden.");
+        Logger.log(Logger.ERROR,International.getMessage("{abstract_filename} '{real_filename}' konnte nicht erstellt werden.", 	"Gruppendatei", Daten.efaDataDirectory+Daten.GRUPPEN));
     }
     if (!Daten.gruppen.readFile()) {
-      Logger.log(Logger.ERROR,"Gruppendatei '"+Daten.efaDataDirectory+Daten.GRUPPEN+"' konnte nicht gelesen werden.");
+      Logger.log(Logger.ERROR,International.getMessage(  "{abstract_filename} '{real_filename}' konnte nicht gelesen werden.", 		"Gruppendatei", Daten.efaDataDirectory+Daten.GRUPPEN));
     }
 
     Daten.keyStore = new EfaKeyStore(Daten.efaDataDirectory+Daten.PUBKEYSTORE,"efa".toCharArray());
@@ -3023,7 +3029,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       String[] browsers = { "/opt/netscape/netscape", "/usr/X11R6/bin/netscape", "/usr/bin/netscape", "/usr/local/bin/netscape",
                             "/usr/local/mozilla/mozilla",
                             "/opt/kde2/bin/konqueror/",
-                            "c:\\programme\\netscape\\communicator\\program\\netscape.exe",
+                            "c:\\programme\\netscape\\communicator\\program\\netscape.exe", // @todo: was ist mit Opera, (Firefox?)
                             "c:\\programme\\internet explorer\\iexplore.exe", "c:\\windows\\explorer.exe", "c:\\win\\explorer.exe", "c:\\winnt\\explorer.exe"};
       for (int i=0; i<browsers.length && Daten.efaConfig.browser.equals(""); i++)
         if (new File(browsers[i]).isFile()) Daten.efaConfig.browser = browsers[i];
@@ -3039,7 +3045,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     try {
         ++Daten.efaConfig.countEfaStarts;
         if (Daten.efaConfig.countEfaStarts <31 && Daten.efaConfig.countEfaStarts % 10 == 0)
-          if (Dialog.neuBrowserDlg(this,"efa","file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"users.html",750,600,(int)Dialog.screenSize.getWidth()/2-375,(int)Dialog.screenSize.getHeight()/2-300).endsWith(".pl"))
+          if (Dialog.neuBrowserDlg(this,"efa","file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"users.html",750,600,(int)Dialog.screenSize.getWidth()/2-375,(int)Dialog.screenSize.getHeight()/2-300).endsWith(".pl")) // @todo: does second string ("efa") need internationalization?
             Daten.efaConfig.countEfaStarts += 100000;
     } catch(Exception e) {
         //nothing to do
@@ -3064,10 +3070,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (EfaUtil.getDateDiff(Daten.VERSIONRELEASEDATE,EfaUtil.getCurrentTimeStampDD_MM_YYYY()) > 365 &&
         (Daten.efaConfig.efaVersionLastCheck == null || Daten.efaConfig.efaVersionLastCheck.length() == 0 ||
          EfaUtil.getDateDiff(Daten.efaConfig.efaVersionLastCheck,EfaUtil.getCurrentTimeStampDD_MM_YYYY()) > 90) ) {
-      if (Dialog.yesNoDialog("Prüfen, ob neue efa-Version verfügbar",
-                             "Die von Dir verwendete Version von efa ("+Daten.VERSIONID+") ist bereits\n"+
+      if (Dialog.yesNoDialog(International.getString("Prüfen, ob neue efa-Version verfügbar"),
+                             International.getMessage("Die von Dir verwendete Version von efa ({versionid}) ist bereits\n"+
                              "über ein Jahr alt. Soll efa jetzt für Dich prüfen, ob eine\n"+
-                             "neue Version von efa vorliegt?") == Dialog.YES) {
+                             "neue Version von efa vorliegt?",Daten.VERSIONID)) == Dialog.YES) {
         OnlineUpdateFrame.runOnlineUpdate(this,Daten.ONLINEUPDATE_INFO);
       }
       Daten.efaConfig.efaVersionLastCheck = EfaUtil.getCurrentTimeStampDD_MM_YYYY();
@@ -3076,7 +3082,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (startOpenFb != null && EfaUtil.canOpenFile(startOpenFb)) fahrtenbuchOeffnen(startOpenFb);
     else if (!Daten.efaConfig.letzteDatei.equals("") && EfaUtil.canOpenFile(Daten.efaConfig.letzteDatei)) fahrtenbuchOeffnen(Daten.efaConfig.letzteDatei);
     else if (Daten.efaConfig.letzteDatei.equals("") && Daten.efaConfig.countEfaStarts == 1)
-      if (Dialog.yesNoDialog("Neues Fahrtenbuch anlegen","Du startest efa heute zum ersten Mal.\nMöchtest Du ein neues Fahrtenbuch anlegen?"
+      if (Dialog.yesNoDialog(International.getString("Neues Fahrtenbuch anlegen"),
+	  International.getString("Du startest efa heute zum ersten Mal.\nMöchtest Du ein neues Fahrtenbuch anlegen?")
                                         ) == Dialog.YES) {
         askForOpenNewFb = true;
       }
@@ -3084,13 +3091,13 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     // ggf. fragen, ob es sich um einen Berliner Verein handelt
     if (Daten.efaConfig.version.compareTo("EFA.141")<0 || openWelcome) {
       Daten.efaConfig.showBerlinOptions =
-          Dialog.auswahlDialog("Berliner Vereine",
-                               "efa verfügt über Funktionen (bzgl. Zielbereichen), die speziell für Berliner Vereine\n"+
+          Dialog.auswahlDialog(International.getString("Berliner Vereine"),
+                               International.getString("efa verfügt über Funktionen (bzgl. Zielbereichen), die speziell für Berliner Vereine\n"+
                                "gedacht sind. Die entsprechenden Optionen sind für Nicht-Berliner Vereine nicht\n"+
                                "relevant und können, um die Übersichtlichkeit zu erhöhen, verborgen werden.\n"+
-                               "Bitte wähle aus:",
-                               "Optionen für Berliner Vereine anzeigen",
-                               "Nur-Berlin-relevante Optionen verbergen",
+                               "Bitte wähle aus:"),
+                               International.getString("Optionen für Berliner Vereine anzeigen"),
+                               International.getString("Nur-Berlin-relevante Optionen verbergen"),
                                false) != 1;
       Daten.efaConfig.writeFile();
     }
@@ -3174,7 +3181,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   // Fahrtenbuch öffnen
   void fahrtenbuchOeffnen(String datei) {
     Daten.fahrtenbuch = new Fahrtenbuch(datei);
-    this.setTitle("efa - "+datei);
+    this.setTitle("efa - "+datei); // @todo: internationalisieren??
     continueMTour = false;
     SetBlankFields();
     datensatzGeaendert = false;
@@ -3264,7 +3271,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     aktDatensatz = Daten.fahrtenbuch.add(getFields(mtourEnddatum, mtourRudertage, mtourName));
 
     if (isAdminMode()) {
-      Logger.log(Logger.INFO,"Admin: Fahrtenbuch-Eintrag #"+(aktDatensatz != null ? aktDatensatz.get(Fahrtenbuch.LFDNR) : "$$")+" wurde verändert.");
+      Logger.log(Logger.INFO,International.getMessage("Admin: Fahrtenbuch-Eintrag #{lfdnr} wurde verändert.", 
+    		  (aktDatensatz != null ? aktDatensatz.get(Fahrtenbuch.LFDNR) : "$$")));
     }
   }
 
@@ -3277,17 +3285,18 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
     // Eintrag (Km,Mannschkm) auf Korrektheit prüfen
     if (EfaUtil.zehntelString2Int(bootskm.getText().trim()) == 0)
-      if (Dialog.yesNoDialog("Warnung","Die Bootskilometer sind 0.\nMöchtest Du diesen Eintrag wirklich hinzufügen?"
+      if (Dialog.yesNoDialog(International.getString("Warnung"),
+			International.getString("Die Bootskilometer sind 0.\nMöchtest Du diesen Eintrag wirklich hinzufügen?")
                                              ) == Dialog.NO) {
-        Dialog.infoDialog("Information","Eintrag nicht hinzugefügt.");
+        Dialog.infoDialog(International.getString("Information"),International.getString("Eintrag nicht hinzugefügt."));
         bootskm.requestFocus();
         startBringToFront(false); // efaDirekt im BRC -- Workaround
         return false;
       }
     if (EfaUtil.zehntelString2Int(bootskm.getText().trim()) * getAnzahlRuderer() != EfaUtil.zehntelString2Int(mannschkm.getText().trim()))
-      if (Dialog.yesNoDialog("Warnung","Die Mannschaftskilometer stimmen nicht mit den Bootskilometern\nund der Anzahl der Ruderer überein.\nMöchtest Du diesen Eintrag wirklich hinzufügen?"
+      if (Dialog.yesNoDialog(International.getString("Warnung"),International.getString("Die Mannschaftskilometer stimmen nicht mit den Bootskilometern\nund der Anzahl der Ruderer überein.\nMöchtest Du diesen Eintrag wirklich hinzufügen?")
                                              ) == Dialog.NO) {
-        Dialog.infoDialog("Information","Eintrag nicht hinzugefügt.");
+        Dialog.infoDialog(International.getString("Information"),International.getString("Eintrag nicht hinzugefügt."));
 //        mannschkm.requestFocus(); // wg. Dennis auskommentiert (s. Mail vom 26.02.02)
         startBringToFront(false); // efaDirekt im BRC -- Workaround
         return false;
@@ -3296,11 +3305,12 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     String neu = EfaUtil.getLfdNr(lfdnr.getText());
     if ( (Daten.fahrtenbuch.getExact(neu) != null && (neuerDatensatz || !neu.equals(aktDatensatz.get(Fahrtenbuch.LFDNR))) )
          || neu.equals("")) {
-      Dialog.infoDialog("Ungültige laufende Nummer","Diese Laufende Nummer ist bereits vergeben! Jede Laufende\n"+
+      Dialog.infoDialog(International.getString("Ungültige laufende Nummer"),
+	                                     International.getString("Diese Laufende Nummer ist bereits vergeben! Jede Laufende\n"+
                                          "Nummer darf nur einmal verwendet werden werden.\n"+
                                          "Bitte korrigiere die laufende Nummer des Eintrags!\n\n"+
                                          "Hinweis: Um mehrere Einträge unter 'derselben' Nummer hinzuzufügen,\n"+
-                                         "füge einen Buchstaben von A bis Z direkt an die Nummer an!");
+                                         "füge einen Buchstaben von A bis Z direkt an die Nummer an!"));
       lfdnr.requestFocus();
       startBringToFront(false); // efaDirekt im BRC -- Workaround
       return false;
@@ -3316,11 +3326,12 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         boolean printWarnung = true;
         if (lfdNrForNewEntry > 0 && EfaUtil.string2int(neu,-1) == lfdNrForNewEntry+1) printWarnung = false;
         if (printWarnung && // nur warnen, wenn das erste Mal eine zu kleine LfdNr eingegeben wurde!
-            Dialog.yesNoDialog("Warnung","Die Laufende Nummer dieses Eintrags ist kleiner als die des\n"+
+            Dialog.yesNoDialog(International.getString("Warnung"),
+							   International.getString("Die Laufende Nummer dieses Eintrags ist kleiner als die des\n"+
                                            "letzten Eintrags. Bist Du sicher, daß Du den Eintrag mit einer kleineren\n"+
-                                           "Laufenden Nummer hinzufügen möchtest?"
+                                           "Laufenden Nummer hinzufügen möchtest?")
                                            ) == Dialog.NO) {
-          Dialog.infoDialog("Information","Eintrag nicht hinzugefügt.");
+          Dialog.infoDialog(International.getString("Information"),International.getString("Eintrag nicht hinzugefügt."));
           lfdnr.requestFocus();
           startBringToFront(false); // efaDirekt im BRC -- Workaround
           return false;
@@ -3329,10 +3340,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       lfdNrForNewEntry = EfaUtil.string2date(lfdnr.getText(),1,1,1).tag; // lfdNr merken, nächster Eintrag erhält dann per default diese Nummer + 1
     } else { // geänderter Fahrtenbucheintrag
       if (!aktDatensatz.get(Fahrtenbuch.LFDNR).equals(EfaUtil.getLfdNr(lfdnr.getText()))) {
-        if (Dialog.yesNoDialog("Warnung",
-            "Du hast die Laufende Nummer dieses Eintrags verändert!\n" +
-            "Bist Du sicher, daß die Laufende Nummer geändert werden soll?") == Dialog.NO) {
-          Dialog.infoDialog("Information","Geänderter Eintrag nicht gespeichert.");
+        if (Dialog.yesNoDialog(International.getString("Warnung"),
+            International.getString("Du hast die Laufende Nummer dieses Eintrags verändert!\n" +
+            "Bist Du sicher, daß die Laufende Nummer geändert werden soll?")) == Dialog.NO) {
+          Dialog.infoDialog(International.getString("Information"),International.getString("Geänderter Eintrag nicht gespeichert."));
           lfdnr.requestFocus();
           startBringToFront(false); // efaDirekt im BRC -- Workaround
           return false;
@@ -3350,15 +3361,17 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       if (m != null) {
         String datum = this.datum.getText();
         if (EfaUtil.secondDateIsAfterFirst(m.ende,datum) || EfaUtil.secondDateIsAfterFirst(datum,m.start)) {
-          Dialog.error("Das Datum der aktuellen Fahrt ("+datum+") liegt außerhalb des Zeitraums,\n"+
-                       "der für die gewählte Mehrtagesfahrt angegeben wurde ("+m.start+" bis "+m.ende+")!\n"+
+					 Dialog.error(International.getMessage(
+					   "Das Datum der aktuellen Fahrt ({datum}) liegt außerhalb des Zeitraums,\n"+
+                       "der für die gewählte Mehrtagesfahrt angegeben wurde ({mtour_start} bis {mtour_ende})!\n"+
                        "Falls in diesem Jahr mehrere gleichnamige Mehrtagesfahrten zu unterschiedlichen\n"+
                        "Zeiten (z.B. einmal im April, einmal im September) stattgefunden haben,\n"+
                        "so erstelle bitte für jede Mehrtagesfahrt einen eigenen Mehrtagesfahrt-Eintrag in\n"+
                        "efa, z.B. 'Mehrtagesfahrt XYZ (April)' und 'Mehrtagesfahrt XYZ (September)'.\n"+
                        "Falls die aktuelle Fahrt tatsächlich zu der ausgewählten Mehrtagesfahrt gehört,\n"+
                        "so ändere bitte den Zeitraum für diese Mehrtagesfahrt über das Menü\n"+
-                       "->Administration->Fahrtenbuch->Mehrtagesfahrten entsprechend ab.");
+                       "->Administration->Fahrtenbuch->Mehrtagesfahrten entsprechend ab.",
+					   datum, m.start, m.ende)); // @todo: check that single quotes are correct
           startBringToFront(false); // efaDirekt im BRC -- Workaround
           return false;
         }
@@ -3370,8 +3383,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (obnr>=0) {
       if ( (obnr == 0 && stm.getText().trim().length()==0) ||
            (obnr >  0 && mannsch[obnr-1].getText().trim().length() == 0) ) {
-        Dialog.error("Für die als Obmann ausgewählte Person wurde kein Name eingegeben.\n"+
-                     "Bitte gib entweder einen Namen ein oder wählen jemand anderes als Obmann aus!");
+        Dialog.error(International.getString("Für die als Obmann ausgewählte Person wurde kein Name eingegeben.\n"+
+                     "Bitte gib entweder einen Namen ein oder wählen jemand anderes als Obmann aus!")); // @todo: Diese Meldung schien in Paris nicht zu erscheinen... nachvollziehen, wann sie kommt/nicht kommt!
         startBringToFront(false); // efaDirekt im BRC -- Workaround
         return false;
       }
@@ -3409,9 +3422,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
     if (unter) {
       if (Daten.fahrtenbuch.getFileName() != null && !Daten.fahrtenbuch.getFileName().equals(""))
-        dat = Dialog.dateiDialog(this,"Fahrtenbuch speichern unter","efa Fahrtenbuch (*.efb)","efb",Daten.fahrtenbuch.getFileName(),true);
+        dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuch speichern unter"),International.getString("efa Fahrtenbuch")+" (*.efb)","efb",Daten.fahrtenbuch.getFileName(),true);
       else
-        dat = Dialog.dateiDialog(this,"Fahrtenbuch speichern unter","efa Fahrtenbuch (*.efb)","efb",null,true);
+        dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuch speichern unter"),International.getString("efa Fahrtenbuch")+" (*.efb)","efb",null,true);
 
       if (dat == null) ok = false;
 
@@ -3419,7 +3432,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         if (!dat.endsWith(".") && !dat.toUpperCase().endsWith(".EFB")) {
           dat = dat+".efb";
           if (EfaUtil.canOpenFile(dat)) {
-            switch (Dialog.yesNoCancelDialog("Datei existiert bereits","Soll die Datei\n'"+dat+"'\nüberschrieben werden?")) {
+            switch (Dialog.yesNoCancelDialog(International.getString("Datei existiert bereits"),
+					International.getMessage("Soll die Datei\n'{filename}'\nüberschrieben werden?",dat))) {
               case Dialog.YES: break;
               default: return false;
             }
@@ -3454,17 +3468,17 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
       if (isAdminMode()) {
         if (success) {
-          Logger.log(Logger.INFO,"Admin: Änderungen am Fahrtenbuch wurden erfolgreich gespeichert.");
+          Logger.log(Logger.INFO,International.getString("Admin: Änderungen am Fahrtenbuch wurden erfolgreich gespeichert."));
         } else {
-          Logger.log(Logger.WARNING,"Admin: Die Änderungen am Fahrtenbuch konnten nicht gespeichert werden.");
+          Logger.log(Logger.WARNING,International.getString("Admin: Die Änderungen am Fahrtenbuch konnten nicht gespeichert werden."));
         }
       }
 
       if (unter && success) {
-        if (Dialog.yesNoDialog("Gespeichertes Fahrtenbuch öffnen?",
-                               "Soll das soeben gespeicherte Fahrtenbuch '"+Daten.fahrtenbuch.getFileName()+"'\njetzt benutzt werden?") == Dialog.YES) {
+        if (Dialog.yesNoDialog(International.getString("Gespeichertes Fahrtenbuch öffnen?"),
+                               International.getMessage("Soll das soeben gespeicherte Fahrtenbuch '{filename}'\njetzt benutzt werden?",Daten.fahrtenbuch.getFileName())) == Dialog.YES) {
           if (mode == MODE_FULL) Daten.efaConfig.letzteDatei = Daten.fahrtenbuch.getFileName();
-          this.setTitle("efa - "+Daten.fahrtenbuch.getFileName());
+          this.setTitle("efa - "+Daten.fahrtenbuch.getFileName()); //@todo: i18n?
         } else {
           // ursprüngliches Fahrtenbuch wieder laden
           Daten.fahrtenbuch.setFileName(oldFilename);
@@ -3484,33 +3498,33 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (Daten.fahrtenbuch == null) return;
     if (Daten.fahrtenbuch.getDaten().boote != null && Daten.fahrtenbuch.getDaten().boote.isChanged()) {
       if (!Daten.fahrtenbuch.getDaten().boote.writeFile())
-        Dialog.infoDialog("Fehler","Änderungen an der Bootsliste konnten nicht gespeichert werden!");
+        Dialog.infoDialog(  	International.getString("Fehler"),International.getMessage("Änderungen an der {listname} konnten nicht gespeichert werden!",International.getString("Bootsliste")));
       if (Daten.synBoote != null && Daten.synBoote.isChanged()) // Auch Synonyme wegen ggf. hinzugefügter Kombiboote speichern!
         if (!Daten.synBoote.writeFile())
-          Dialog.infoDialog("Fehler","Änderungen an der Boots-Synonymliste konnten nicht gespeichert werden!");
+          Dialog.infoDialog(	International.getString("Fehler"),International.getMessage("Änderungen an der {listname} konnten nicht gespeichert werden!",International.getString("Boots-Synonymliste")));
       if (isAdminMode()) {
-        Logger.log(Logger.INFO,"Admin: Änderungen an der Bootsliste wurden gespeichert.");
+        Logger.log(Logger.INFO, 								  International.getMessage("Admin: Änderungen an der {listname} wurden gespeichert.",		International.getString("Bootsliste")));
       }
 
     }
     if (Daten.fahrtenbuch.getDaten().mitglieder != null && Daten.fahrtenbuch.getDaten().mitglieder.isChanged()) {
       if (!Daten.fahrtenbuch.getDaten().mitglieder.writeFile())
-        Dialog.infoDialog("Fehler","Änderungen an der Mitgliederliste konnten nicht gespeichert werden!");
+        Dialog.infoDialog(		International.getString("Fehler"),International.getMessage("Änderungen an der {listname} konnten nicht gespeichert werden!",International.getString("Mitgliederliste")));
       if (isAdminMode()) {
-        Logger.log(Logger.INFO,"Admin: Änderungen an der Mitgliederliste wurden gespeichert.");
+        Logger.log(Logger.INFO, 								  International.getMessage("Admin: Änderungen an der {listname} wurden gespeichert.",		International.getString("Mitgliederliste")));
       }
     }
     if (Daten.fahrtenbuch.getDaten().ziele != null && Daten.fahrtenbuch.getDaten().ziele.isChanged()) {
       if (!Daten.fahrtenbuch.getDaten().ziele.writeFile())
-        Dialog.infoDialog("Fehler","Änderungen an der Zielliste konnten nicht gespeichert werden!");
+        Dialog.infoDialog(		International.getString("Fehler"),International.getMessage("Änderungen an der {listname} konnten nicht gespeichert werden!",International.getString("Zielliste")));
       if (isAdminMode()) {
-        Logger.log(Logger.INFO,"Admin: Änderungen an der Zielliste wurden gespeichert.");
+        Logger.log(Logger.INFO,									  International.getMessage("Admin: Änderungen an der {listname} wurden gespeichert.",		International.getString("Zielliste")));
       }
     }
   }
 
   void updateWoTag() {
-    wotag.setText("("+EfaUtil.getWoTag(datum.getText().trim())+")");
+    wotag.setText("("+EfaUtil.getWoTag(datum.getText().trim())+")"); 
   }
 
 
@@ -3536,15 +3550,15 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       } catch(Exception ee) {
         try {
           if (datumErrorCount++ == 0 && !datum.getText().equals(s))
-            Dialog.error("Ein Java-Fehler beim Setzen des Datums ist aufgetreten!\n"+
+            Dialog.error(International.getString("Ein Java-Fehler beim Setzen des Datums ist aufgetreten!\n"+
                          "Bitte setze den Cursor von Hand ins Datums-Feld (einfach\n"+
                          "einmal mit der Maus ins Datums-Feld klicken) und setze\n"+
-                         "die Arbeit dann fort.");
+                         "die Arbeit dann fort."));
         } catch(Exception eeee) {
-          Dialog.error("Ein Java-Fehler beim Setzen des Datums ist aufgetreten!\n"+
+          Dialog.error(International.getString("Ein Java-Fehler beim Setzen des Datums ist aufgetreten!\n"+
                        "Bitte setze den Cursor von Hand ins Datums-Feld (einfach\n"+
                        "einmal mit der Maus ins Datums-Feld klicken) und setze\n"+
-                       "die Arbeit dann fort.");
+                       "die Arbeit dann fort."));
         }
       }
     }
@@ -3560,12 +3574,12 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     continueMTour = false;
     if (d == null) { // wenn beim Start leeres FB geöffnet
       lfdnr.setText("1");
-      addButton.setText("Eintrag zum Fahrtenbuch hinzufügen");
+      Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Eintrag zum Fahrtenbuch hinzufügen"));
       return;
     }
     neuerDatensatz = false;
     neuerDatensatz_einf = false;
-    addButton.setText("Änderungen an aktuellem Eintrag speichern");
+    Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Änderungen an aktuellem Eintrag speichern"));
     refDate = d.get(Fahrtenbuch.DATUM);
     Daten.fahrtenbuch.goTo(d.get(Fahrtenbuch.LFDNR)); // für "getCompleteNext" etc. akt. Datensatz erstmal einstellen
 
@@ -3614,8 +3628,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
   // Felder zurücksetzen
   void SetBlankFields() {
-    addButton.setText("Eintrag zum Fahrtenbuch hinzufügen");
-
+    Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Eintrag zum Fahrtenbuch hinzufügen"));
+    
     lfdnr.setText("");
     datumSetText(""); updateWoTag();
     boot.setText("");
@@ -3683,11 +3697,11 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (isDirectMode()) return true;
     if (datensatzGeaendert) {
       String txt;
-      if (neuerDatensatz) txt= "Der aktuelle Eintrag wurde verändert und noch nicht zum Fahrtenbuch hinzugefügt.\n"+
-                               "Möchtest Du ihn jetzt hinzufügen?";
-      else txt = "Änderungen an dem aktuellen Eintrag wurden noch nicht gespeichert.\n"+
-                 "Sollen sie jetzt gespeichert werden?";
-      switch(Dialog.yesNoCancelDialog("Eintrag nicht gespeichert",txt)) {
+      if (neuerDatensatz) txt= International.getString("Der aktuelle Eintrag wurde verändert und noch nicht zum Fahrtenbuch hinzugefügt.\n"+
+                               "Möchtest Du ihn jetzt hinzufügen?");
+      else txt = International.getString("Änderungen an dem aktuellen Eintrag wurden noch nicht gespeichert.\n"+
+                 "Sollen sie jetzt gespeichert werden?");
+      switch(Dialog.yesNoCancelDialog(International.getString("Eintrag nicht gespeichert"),txt)) {
         case Dialog.YES: speichereDatensatz(); break;
         case Dialog.NO: break;
         default: startBringToFront(false); // efaDirekt im BRC -- Workaround
@@ -3707,8 +3721,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if ( (Daten.fahrtenbuch.getDaten().mitglieder != null && Daten.fahrtenbuch.getDaten().mitglieder.isChanged()) ||
          (Daten.fahrtenbuch.getDaten().boote != null && Daten.fahrtenbuch.getDaten().boote.isChanged()) ||
          (Daten.fahrtenbuch.getDaten().ziele != null && Daten.fahrtenbuch.getDaten().ziele.isChanged())) {
-      int ret =  Dialog.yesNoCancelDialog("Änderungen nicht gespeichert","Änderungen an den Datenlisten wurden noch nicht gespeichert.\n"+
-                                             "Möchtest Du die Änderungen jetzt speichern?");
+      int ret =  Dialog.yesNoCancelDialog(International.getString("Änderungen nicht gespeichert"),
+						International.getString("Änderungen an den Datenlisten wurden noch nicht gespeichert.\n"+
+                                             "Möchtest Du die Änderungen jetzt speichern?"));
       startBringToFront(false); // efaDirekt im BRC -- Workaround
       switch (ret) {
         case Dialog.YES: speichereDatenbanken(); return true;
@@ -3728,8 +3743,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (!sicherheitsabfrageDatensatz()) return false;
 
     if (Daten.fahrtenbuch.isChanged()) {
-      int ret = Dialog.yesNoCancelDialog("Änderungen nicht gespeichert","Änderungen am Fahrtenbuch wurden noch nicht gespeichert.\n"+
-                                             "Möchtest Du die Änderungen jetzt speichern?");
+      int ret = Dialog.yesNoCancelDialog(International.getString("Änderungen nicht gespeichert"),
+						International.getString("Änderungen am Fahrtenbuch wurden noch nicht gespeichert.\n"+
+                                             "Möchtest Du die Änderungen jetzt speichern?"));
       startBringToFront(false); // efaDirekt im BRC -- Workaround
       switch (ret) {
         case Dialog.YES: return speichereFahrtenbuch(false);
@@ -3780,7 +3796,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   }
 
   public void startWillkommen() {
-    Dialog.neuBrowserDlg(this,"Willkommen","file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"welcome.html");
+    Dialog.neuBrowserDlg(this,International.getString("Willkommen"),"file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"welcome.html");
   }
 
 
@@ -3803,7 +3819,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     }
     if (!sicherheitsabfrage()) return;
     if (!Daten.efaConfig.writeFile())
-      Logger.log(Logger.ERROR,"Konfigurationsdatei '"+Daten.CONFIGFILE+"' konnte nicht geschrieben werden.");
+      Logger.log(Logger.ERROR,International.getMessage("Konfigurationsdatei '{configfilename}' konnte nicht geschrieben werden.",Daten.CONFIGFILE));
     System.exit(0);
   }
 
@@ -3867,10 +3883,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       // nur im Admin-Mode nach vorne bringen
       if (!isAdminMode()) return;
       if (this.isActive()) {
-        Logger.log(Logger.DEBUG,"Dialog closed: EfaFrame is already active.");
+        Logger.log(Logger.DEBUG,International.getString("Dialog closed: EfaFrame is already active."));
         return;
       }
-      Logger.log(Logger.DEBUG,"Dialog closed: EfaFrame is inactive and will be brought to front.");
+      Logger.log(Logger.DEBUG,International.getString("Dialog closed: EfaFrame is inactive and will be brought to front."));
     }
     (new EfaFrameBringToFrontThread(this,100)).start();
   }
@@ -3958,7 +3974,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     this.direkt_boot = boot;
     Component focusComponent = null;
     this.mode = MODE_START;
-    this.setTitle("Neue Fahrt beginnen");
+    this.setTitle(International.getString("Neue Fahrt beginnen"));
     SetBlankFields();
     if (this.lfdnr.getText().trim().length()==0) this.lfdnr.setText("1");
 
@@ -3967,7 +3983,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (boot != null) this.boot.setText(boot);
     vervollstaendige(this.boot,bootButton,Daten.fahrtenbuch.getDaten().boote,null,this,false);
     setTime(abfahrt,Daten.efaConfig.efaDirekt_plusMinutenAbfahrt);
-    addButton.setText("Fahrt beginnen");
+    Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Fahrt beginnen"));
 
     setFieldEnabled(false,lfdnr,lfdnrLabel);
     setFieldEnabled(true ,datum,datumLabel);
@@ -4006,18 +4022,18 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   public void direktFahrtAnfangKorrektur(String boot, String lfdnr) {
     this.mode = MODE_START_KORREKTUR;
     this.direkt_boot = boot;
-    this.setTitle("Eintrag für neue Fahrt korrigieren");
+    this.setTitle(International.getString("Eintrag für neue Fahrt korrigieren"));
     DatenFelder d = (DatenFelder)Daten.fahrtenbuch.getExactComplete(lfdnr);
     if (d == null) {
-      Logger.log(Logger.ERROR,"Fahrtbeginn (Korrektur): Die gewählte Fahrt #"+lfdnr+" ("+boot+") konnte nicht gefunden werden!");
-      Dialog.error("Die gewählte Fahrt #"+lfdnr+" konnte nicht gefunden werden! Bitte dem Administrator bescheid sagen!");
+      Logger.log(Logger.ERROR,International.getMessage("Fahrtbeginn (Korrektur): Die gewählte Fahrt #{lfdnr} ({boot}) konnte nicht gefunden werden!", lfdnr, boot));
+      Dialog.error(International.getMessage("Die gewählte Fahrt #{lfdnr} konnte nicht gefunden werden!", lfdnr)+International.getString("\\ Bitte dem Administrator bescheid sagen!"));
       Dialog.frameOpened(this); // Bugfix: Damit es nicht zur Stack-Inkonsistenz kommt!
       cancel();
       return;
     }
     SetFields(d);
-    addButton.setText("Fahrt beginnen (Korrektur)");
-
+    Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Fahrt beginnen (Korrektur)"));
+    
     setFieldEnabled(false,this.lfdnr,lfdnrLabel);
     setFieldEnabled(true ,datum,datumLabel);
     setFieldEnabled(true ,this.boot,bootLabel);
@@ -4046,11 +4062,12 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   public void direktFahrtEnde(String boot, String lfdnr) {
     this.mode = MODE_ENDE;
     this.direkt_boot = boot;
-    this.setTitle("Fahrt abschließen");
+    this.setTitle(International.getString("Fahrt abschließen"));
     DatenFelder d = (DatenFelder)Daten.fahrtenbuch.getExactComplete(lfdnr);
     if (d == null) {
-      Logger.log(Logger.ERROR,"Fahrtende: Die gewählte Fahrt #"+lfdnr+" ("+boot+") konnte nicht gefunden werden!");
-      Dialog.error("Die gewählte Fahrt #"+lfdnr+" konnte nicht gefunden werden! Bitte dem Administrator bescheid sagen!");
+      Logger.log(Logger.ERROR,International.getMessage("Fahrtende: Die gewählte Fahrt #{lfdnr} ({boot})) konnte nicht gefunden werden!", lfdnr, boot));
+      Dialog.error(International.getMessage("Die gewählte Fahrt #{lfdnr} konnte nicht gefunden werden!", lfdnr)
+    		  + International.getString("\\ Bitte dem Administrator bescheid sagen!"));
       efaDirektFrame.fahrtBeendet(boot,true);
       Dialog.frameOpened(this); // Bugfix: Damit es nicht zur Stack-Inkonsistenz kommt!
       cancel();
@@ -4067,7 +4084,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     }
 
     mannschkm.setText("");
-    addButton.setText("Fahrt abschließen");
+    Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Fahrt abschließen"));
 
     setFieldEnabled(false,this.lfdnr,lfdnrLabel);
     setFieldEnabled(false,datum,datumLabel);
@@ -4095,13 +4112,13 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   public void direktFahrtNachtrag(String bootPreselected) {
     this.mode = MODE_NACHTRAG;
     this.direkt_boot = bootPreselected;
-    this.setTitle("Nachtrag");
+    this.setTitle(International.getString("Nachtrag"));
     SetBlankFields();
     if (this.lfdnr.getText().trim().length()==0) this.lfdnr.setText("1");
 
     this.refDate=""; datumSetText(""); // damit aktuelles Datum im Datums-Feld erscheint...
     setDateFromRefDate();
-    addButton.setText("Nachtrag speichern");
+    Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Nachtrag speichern"));
 
     setFieldEnabled(false,lfdnr,lfdnrLabel);
     setFieldEnabled(true ,datum,datumLabel);
@@ -4140,14 +4157,14 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
     if (boot.getText().trim().length()==0) {
       if (mode == MODE_NACHTRAG) {
-        if (Dialog.yesNoDialog("Kein Bootsname angegeben",
-                               "Du hast keinen Bootsnamen angegeben.\nMöchtest Du das Feld wirklich leer lassen?") != Dialog.YES) {
+        if (Dialog.yesNoDialog(International.getString("Kein Bootsname angegeben"),
+                               International.getString("Du hast keinen Bootsnamen angegeben.\nMöchtest Du das Feld wirklich leer lassen?")) != Dialog.YES) {
           boot.requestFocus();
           startBringToFront(false); // efaDirekt im BRC -- Workaround
           return;
         }
       } else {
-        Dialog.error("Bitte gib einen Bootsnamen an!");
+        Dialog.error(International.getString("Bitte gib einen Bootsnamen an!"));
         boot.requestFocus();
         return;
       }
@@ -4156,7 +4173,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
     String pers = stmMannsch2String();
     if (pers.length()==0) {
-      Dialog.error("Bitte trage mindestens eine Person ein!");
+      Dialog.error(International.getString("Bitte trage mindestens eine Person ein!"));
       stm.requestFocus();
       return;
     }
@@ -4173,37 +4190,37 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     // Obmann-Check
     if ( (getObmann() == 0 && stm.getText().trim().length()==0) ||
          (getObmann()  > 0 && mannsch[getObmann()-1].getText().trim().length()==0) ) {
-      Dialog.error("Bitte wähle als Obmann eine Person aus, die tatsächlich im Boot sitzt!");
+      Dialog.error(International.getString("Bitte wähle als Obmann eine Person aus, die tatsächlich im Boot sitzt!"));
       obmann.requestFocus();
       return;
     }
 
     if (Daten.efaConfig.efaDirekt_eintragErzwingeObmann && getObmann() < 0) {
-      Dialog.error("Bitte wähle einen Obmann aus!");
+      Dialog.error(International.getString("Bitte wähle einen Obmann aus!"));
       obmann.requestFocus();
       return;
     }
 
     // Prüfen, ob ggf. nur bekannte Boote/Ruderer/Ziele eingetragen wurden
     if (Daten.efaConfig.efaDirekt_eintragNurBekannteBoote && unbekannterName(boot,Daten.fahrtenbuch.getDaten().boote)) {
-      Dialog.error("Das Boot '"+boot.getText().trim()+"' ist unbekannt. Bitte trage ein bekanntes Boot ein!");
+      Dialog.error(International.getMessage("Das Boot '{bootsname}' ist unbekannt. Bitte trage ein bekanntes Boot ein!", boot.getText().trim()));
       boot.requestFocus();
       return;
     }
     if (Daten.efaConfig.efaDirekt_eintragNurBekannteRuderer && unbekannterName(stm,Daten.fahrtenbuch.getDaten().mitglieder)) {
-      Dialog.error("Person '"+stm.getText().trim()+"' ist unbekannt. Bitte trage eine bekannte Person ein!");
+      Dialog.error(International.getMessage("Person '{name}' ist unbekannt. Bitte trage eine bekannte Person ein!", stm.getText().trim()));
       stm.requestFocus();
       return;
     }
     for (int i=0; i<mannsch.length; i++) {
       if (Daten.efaConfig.efaDirekt_eintragNurBekannteRuderer && unbekannterName(mannsch[i],Daten.fahrtenbuch.getDaten().mitglieder)) {
-        Dialog.error("Person '"+mannsch[i].getText().trim()+"' ist unbekannt. Bitte trage eine bekannte Person ein!");
+        Dialog.error(International.getMessage("Person '{name}' ist unbekannt. Bitte trage eine bekannte Person ein!", mannsch[i].getText().trim()));
         mannsch[i].requestFocus();
         return;
       }
     }
     if (Daten.efaConfig.efaDirekt_eintragNurBekannteZiele && unbekannterName(ziel,Daten.fahrtenbuch.getDaten().ziele)) {
-      Dialog.error("Das Ziel '"+ziel.getText().trim()+"' ist unbekannt. Bitte trage ein bekanntes Ziel ein!");
+      Dialog.error(International.getMessage("Das Ziel '{ziel}' ist unbekannt. Bitte trage ein bekanntes Ziel ein!", ziel.getText().trim()));
       ziel.requestFocus();
       return;
     }
@@ -4214,7 +4231,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
     if (mode == MODE_START || mode == MODE_START_KORREKTUR) {
       if (ziel.getText().trim().length()==0 && Daten.efaConfig.efaDirekt_zielBeiFahrtbeginnPflicht) {
-        Dialog.error("Bitte trage ein voraussichtliches Fahrtziel ein!");
+        Dialog.error(International.getString("Bitte trage ein voraussichtliches Fahrtziel ein!"));
         ziel.requestFocus();
         return;
       }
@@ -4242,18 +4259,18 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         if (nichtErlaubtAnz > EfaUtil.string2int(b.get(Boote.MAX_NICHT_IN_GRUPPE),0)) {
           String erlaubteGruppen = null;
           for (int j=0; j<g.size(); j++) {
-            erlaubteGruppen = (erlaubteGruppen == null ? (String)g.get(j) : erlaubteGruppen + (j+1<g.size() ? ", "+g.get(j) : " und "+g.get(j)) );
+            erlaubteGruppen = (erlaubteGruppen == null ? (String)g.get(j) : erlaubteGruppen + (j+1<g.size() ? ", "+g.get(j) : International.getString("\\ und ")+g.get(j)) ); // @todo: for some languages it might be necessary to translate ", " as well, or even use a ChoiceFormat here
           }
-          switch (Dialog.auswahlDialog("Boot nur für bestimmte Gruppen freigegeben",
-                                 "Dieses Boot dürfen nur "+erlaubteGruppen+" rudern.\n"+
-                                 (nichtErlaubtAnz == 1 ? "Folgender Ruderer gehört diesen Gruppen nicht an und darf das Boot daher nicht rudern:\n" :
-                                                         "Folgende Ruderer gehören diesen Gruppen nicht an und dürfen das Boot daher nicht rudern:\n") +
-                                 nichtErlaubt+"\n"+
-                                 "Was möchtest Du tun?",
-                                 "Anderes Boot wählen",
-                                 "Mannschaft ändern",
-                                 "Trotzdem rudern",
-                                 "Eintrag abbrechen")) {
+          switch (Dialog.auswahlDialog(International.getString("Boot nur für bestimmte Gruppen freigegeben"),
+                                 International.getMessage("Dieses Boot dürfen nur {list_of_valid_groups} rudern.\n"+
+                                 "{nichtErlaubtAnz,choice,1#Folgender Ruderer gehört diesen Gruppen nicht an und darf das Boot daher nicht rudern:\n|"+
+                                                         "2#Folgende Ruderer gehören diesen Gruppen nicht an und dürfen das Boot daher nicht rudern:\n}" +
+                                 "{forbidden_rowers_list}\n",erlaubteGruppen,nichtErlaubtAnz, nichtErlaubt) +
+                                 International.getString("Was möchtest Du tun?"),
+                                 International.getString("Anderes Boot wählen"),
+                                 International.getString("Mannschaft ändern"),
+                                 International.getString("Trotzdem rudern"),
+                                 International.getString("Eintrag abbrechen"))) {
             case 0:
               this.setFieldEnabled(true,this.boot,this.bootLabel);
               this.boot.setText("");
@@ -4263,7 +4280,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
               this.mannsch[0].requestFocus();
               return;
             case 2:
-              Logger.log(Logger.INFO,"Unerlaubte Benutzung eines Bootes: LfdNr="+lfdnr.getText().trim()+" Boot="+boot.getText().trim()+" Mannschaft="+pers);
+              Logger.log(Logger.INFO,International.getMessage("Unerlaubte Benutzung eines Bootes: LfdNr={LFDNR} Boot={bootsname} Mannschaft={namen}", 
+							lfdnr.getText().trim(), boot.getText().trim(), pers));
               break;
             case 3:
               cancel();
@@ -4285,13 +4303,13 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         }
 
         if (gefunden == 0) {
-          switch (Dialog.auswahlDialog("Boot erfordert bestimmte Berechtigung",
-                                 "In diesem Boot muß mindestens ein Mitglied der Gruppe "+gruppe+" sitzen.\n"+
-                                 "Was möchtest Du tun?",
-                                 "Anderes Boot wählen",
-                                 "Mannschaft ändern",
-                                 "Trotzdem rudern",
-                                 "Eintrag abbrechen")) {
+          switch (Dialog.auswahlDialog(International.getString("Boot erfordert bestimmte Berechtigung"),
+                                 International.getMessage("In diesem Boot muß mindestens ein Mitglied der Gruppe {groupname} sitzen.\n",gruppe)+
+                                 International.getString("Was möchtest Du tun?"),
+                                 International.getString("Anderes Boot wählen"),
+                                 International.getString("Mannschaft ändern"),
+                                 International.getString("Trotzdem rudern"),
+                                 International.getString("Eintrag abbrechen"))){
             case 0:
               this.setFieldEnabled(true,this.boot,this.bootLabel);
               this.boot.setText("");
@@ -4301,7 +4319,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
               this.mannsch[0].requestFocus();
               return;
             case 2:
-              Logger.log(Logger.INFO,"Unerlaubte Benutzung eines Bootes: LfdNr="+lfdnr.getText().trim()+" Boot="+boot.getText().trim()+" Mannschaft="+pers);
+              Logger.log(Logger.INFO,International.getString("Unerlaubte Benutzung eines Bootes: ")+
+				International.getMessage("#{LFDNR} - {bootsname} mit {namen}", lfdnr.getText().trim(), boot.getText().trim(), pers));
               break;
             case 3:
               cancel();
@@ -4311,13 +4330,15 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
 
 
-      if (mode == MODE_START) Logger.log(Logger.INFO,"Fahrtbeginn: #"+lfdnr.getText()+" - "+boot.getText()+" mit "+pers);
-      else Logger.log(Logger.INFO,"Fahrtbeginn korrigiert: #"+lfdnr.getText()+" - "+boot.getText()+" mit "+pers);
+      if (mode == MODE_START) Logger.log(Logger.INFO,International.getString("Fahrtbeginn: ")+
+				International.getMessage("#{LFDNR} - {bootsname} mit {namen}", lfdnr.getText().trim(), boot.getText().trim(), pers));
+      else Logger.log(Logger.INFO,International.getString("Fahrtbeginn korrigiert:")+
+				International.getMessage("#{LFDNR} - {bootsname} mit {namen}", lfdnr.getText().trim(), boot.getText().trim(), pers));
       this.bootskm.setText(""); this.mannschkm.setText(""); this.ankunft.setText(""); // wenn alle diese Werte "" sind, gilt der Eintrag als noch nicht zurückgetragen
       speichereDatensatzInFB(true,null,null,null);
       if (!Daten.fahrtenbuch.writeFileOnlyLastRecordChanged()) {
-        Logger.log(Logger.ERROR,"Fahrtenbuch kann nicht geschrieben werden!");
-        Dialog.error("Fahrtenbuch kann nicht geschrieben werden! Bitte dem Administration bescheid sagen!");
+        Logger.log(Logger.ERROR,International.getString("Fahrtenbuch kann nicht geschrieben werden!"));
+        Dialog.error(International.getString("Fahrtenbuch kann nicht geschrieben werden!")+International.getString("\\ Bitte dem Administrator bescheid sagen!"));
       }
       if (mode == MODE_START) {
         efaDirektFrame.fahrtBegonnen(boot.getText().trim(),lfdnr.getText().trim(),datum.getText().trim(),abfahrt.getText().trim(),pers,(String)fahrtDauer.getSelectedItem(),ziel.getText().trim());
@@ -4333,13 +4354,13 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     } else { // MODE_ENDE oder MODE_NACHTRAG
       if (ziel.getText().trim().length()==0 && !Daten.efaConfig.skipZiel) {
-        Dialog.error("Bitte trage ein Fahrtziel ein!");
+        Dialog.error(International.getString("Bitte trage ein Fahrtziel ein!"));
         ziel.requestFocus();
         return;
       }
       String km = bootskm.getText().trim();
       if (km.length()==0 || EfaUtil.zehntelString2Int(km)==0) {
-        Dialog.error("Bitte trage die geruderten Kilometer ein!");
+        Dialog.error(International.getString("Bitte trage die geruderten Kilometer ein!"));
         bootskm.requestFocus();
         return;
       }
@@ -4354,28 +4375,36 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
 
       if (mode == MODE_ENDE) {
-        Logger.log(Logger.INFO,"Fahrtende: #"+lfdnr.getText()+" - "+boot.getText()+" mit "+pers+"; Abfahrt: "+abfahrt.getText()+", Ankunft: "+ankunft.getText()+", Ziel: "+ziel.getText()+"; Km: "+bootskm.getText());
+        Logger.log(Logger.INFO,International.getString("Fahrtende: ")+
+				International.getMessage("#{LFDNR} - {bootsname} mit {namen}; "+
+				"Abfahrt: {abfahrtszeit}, Ankunft: {ankunftszeit}, Ziel: {ziel}; Km: {bootskm}", 
+				lfdnr.getText().trim(), boot.getText().trim(), pers, 
+				abfahrt.getText(), ankunft.getText(), ziel.getText(), bootskm.getText()));
         Daten.fahrtenbuch.delete(this.lfdnr.getText().trim());
         speichereDatensatzInFB(false,enddatum,rudertage,mtourName);
         if (!Daten.fahrtenbuch.writeFile()) {
-          Logger.log(Logger.ERROR,"Fahrtenbuch kann nicht geschrieben werden!");
-          Dialog.error("Fahrtenbuch kann nicht geschrieben werden! Bitte dem Administration bescheid sagen!");
+          Logger.log(Logger.ERROR,International.getString("Fahrtenbuch kann nicht geschrieben werden!"));
+          Dialog.error(International.getString("Fahrtenbuch kann nicht geschrieben werden!")+International.getString("\\ Bitte dem Administrator bescheid sagen!"));
         }
         efaDirektFrame.fahrtBeendet(direkt_boot,true);
       } else if (mode == MODE_NACHTRAG) {
-        Logger.log(Logger.INFO,"Nachtrag: #"+lfdnr.getText()+" - "+boot.getText()+" mit "+pers+"; Abfahrt: "+abfahrt.getText()+", Ankunft: "+ankunft.getText()+", Ziel: "+ziel.getText()+"; Km: "+bootskm.getText());
+        Logger.log(Logger.INFO,International.getString("Nachtrag: ")+
+				International.getMessage("#{LFDNR} - {bootsname} mit {namen}; "+
+				"Abfahrt: {abfahrtszeit}, Ankunft: {ankunftszeit}, Ziel: {ziel}; Km: {bootskm}", 
+				lfdnr.getText().trim(), boot.getText().trim(), pers, 
+				abfahrt.getText(), ankunft.getText(), ziel.getText(), bootskm.getText()));
         speichereDatensatzInFB(true,enddatum,rudertage,mtourName);
         // wir müssen hier writeFile() verwenden anstatt writeFileOnlyLastRecordChanged(),
         // da bei einem Nachtrag (ebenso wie beim Beenden von Fahrten) u.U. auch die Liste der Mehrtagesfahrten
         // am Anfang der Datei mit verändert wird.
         if (!Daten.fahrtenbuch.writeFile()) {
-          Logger.log(Logger.ERROR,"Fahrtenbuch kann nicht geschrieben werden!");
-          Dialog.error("Fahrtenbuch kann nicht geschrieben werden! Bitte dem Administration bescheid sagen!");
+          Logger.log(Logger.ERROR,International.getString("Fahrtenbuch kann nicht geschrieben werden!"));
+          Dialog.error(International.getString("Fahrtenbuch kann nicht geschrieben werden!")+International.getString("\\ Bitte dem Administrator bescheid sagen!"));
         }
         efaDirektFrame.fahrtNachgetragen();
       } else {
-        Logger.log(Logger.ERROR,"Programmfehler: Unerwarteter Modus ["+mode+"] für direktSpeichereDatensatz()!");
-        Dialog.error("Programmfehler: Unerwarteter Modus ["+mode+"] für direktSpeichereDatensatz()! Bitte dem Administration bescheid sagen!");
+        Logger.log(Logger.ERROR,International.getMessage("Programmfehler: Unerwarteter Modus [{mode}] für direktSpeichereDatensatz()!",mode));
+        Dialog.error(			International.getMessage("Programmfehler: Unerwarteter Modus [{mode}] für direktSpeichereDatensatz()!",mode)+International.getString("\\ Bitte dem Administrator bescheid sagen!"));
       }
     }
 
@@ -4419,19 +4448,20 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (s.equals("fahrtDauer")) infoLabel.setText("Auswahl der Art der Fahrt");
     if (s.equals("weitereMannschButton")) infoLabel.setText("weitere Mannschaftsfelder anzeigen");
 */
-    if (s.equals("datum")) infoLabel.setText("Bitte eingeben: <Tag>.<Monat>.<Jahr>");
-    if (s.equals("boot")) infoLabel.setText("Bitte eingeben: <Bootsname>");
-    if (s.equals("stm") || s.equals("mannsch")) infoLabel.setText("Bitte eingeben: "+
-       (Daten.fahrtenbuch != null && Daten.fahrtenbuch.getDaten().erstVorname ? "<Vorname> <Nachname>" : "<Nachname>, <Vorname>"));
-    if (s.equals("abfahrt") || s.equals("ankunft")) infoLabel.setText("Bitte eingeben: <Stunde>:<Minute>");
-    if (s.equals("ziel")) infoLabel.setText("Bitte eingeben: <Ziel der Fahrt>");
-    if (s.equals("bootskm")) infoLabel.setText("Bitte eingeben: <Kilometer>");
-    if (s.equals("bemerk")) infoLabel.setText("Bemerkungen eingeben oder frei lassen");
-    if (s.equals("obmann")) infoLabel.setText("Bitte auswählen: verantwortlichen Obmann");
-    if (s.equals("fahrtDauer")) infoLabel.setText("Bitte auswählen: Art der Fahrt");
-    if (s.equals("weitereMannschButton")) infoLabel.setText("weitere Mannschaftsfelder anzeigen");
-    if (s.equals("bootsschadenButton")) infoLabel.setText("einen Schaden am Boot melden");
-    if (s.equals("addButton")) infoLabel.setText("<Leertaste> drücken, um den Eintrag abzuschließen");
+    if (s.equals("datum")) 							infoLabel.setText(International.getString("Bitte eingeben")+": "+International.getString("<Tag>.<Monat>.<Jahr>"));
+    if (s.equals("boot")) 							infoLabel.setText(International.getString("Bitte eingeben")+": "+International.getString("<Bootsname>"));
+    if (s.equals("stm") || s.equals("mannsch")) 	infoLabel.setText(International.getString("Bitte eingeben")+": "+
+       (Daten.fahrtenbuch != null && Daten.fahrtenbuch.getDaten().erstVorname ? 
+	   International.getString("<Vorname> <Nachname>") : International.getString("<Nachname>, <Vorname>")));
+    if (s.equals("abfahrt") || s.equals("ankunft")) infoLabel.setText(International.getString("Bitte eingeben")+": "+International.getString("<Stunde>:<Minute>"));
+    if (s.equals("ziel")) 							infoLabel.setText(International.getString("Bitte eingeben")+": "+International.getString("<Ziel der Fahrt>"));
+    if (s.equals("bootskm")) 						infoLabel.setText(International.getString("Bitte eingeben")+": "+International.getString("<Kilometer>"));
+    if (s.equals("bemerk")) 						infoLabel.setText(International.getString("Bemerkungen eingeben oder frei lassen"));
+    if (s.equals("obmann")) 						infoLabel.setText(International.getString("Bitte auswählen: verantwortlichen Obmann"));
+    if (s.equals("fahrtDauer")) 					infoLabel.setText(International.getString("Bitte auswählen: Art der Fahrt"));
+    if (s.equals("weitereMannschButton")) 			infoLabel.setText(International.getString("weitere Mannschaftsfelder anzeigen"));
+    if (s.equals("bootsschadenButton")) 			infoLabel.setText(International.getString("einen Schaden am Boot melden"));
+    if (s.equals("addButton")) 						infoLabel.setText(International.getString("<Leertaste> drücken, um den Eintrag abzuschließen"));
   }
 
   void bootsschadenButton_actionPerformed(ActionEvent e) {
@@ -4439,24 +4469,26 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
     NachrichtAnAdminFrame dlg = new NachrichtAnAdminFrame(this,Daten.nachrichten,Nachricht.BOOTSWART,
                       (getObmannTextField(getObmann()) != null ? getObmannTextField(getObmann()).getText() : null),
-                      "Bootsschaden",
-                      "LfdNr: "+lfdnr.getText()+"\n"+
-                      "Datum: "+datum.getText()+"\n"+
-                      "Boot: "+boot.getText()+"\n"+
-                      "Mannschaft: "+stmMannsch2String()+"\n"+
+                      International.getString("Bootsschaden"),
+                      International.getString("LfdNr")+": "+lfdnr.getText()+"\n"+
+                      International.getString("Datum")+": "+datum.getText()+"\n"+
+                      International.getString("Boot")+": "+boot.getText()+"\n"+
+                      International.getString("Mannschaft")+": "+stmMannsch2String()+"\n"+
                       "-----------------------\n"+
-                      "Beschreibung des Schadens:\n");
+                      International.getString("Beschreibung des Schadens")+":\n"); // @todo: check if this works correctly when internationalized!
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(true);
     dlg.show();
     if (dlg.isGesendet()) {
       String s = this.bemerk.getText().trim();
-      this.bemerk.setText(s + (s.length()>0 ? "; " : "") + "Bootsschaden gemeldet.");
+      this.bemerk.setText(s + (s.length()>0 ? "; " : "") + International.getString("Bootsschaden gemeldet."));
       Nachricht n = dlg.getLastMessage();
       if (n != null && n.nachricht != null) {
-        int pos = n.nachricht.indexOf("Beschreibung des Schadens:");
+        int pos = n.nachricht.indexOf(International.getString("Beschreibung des Schadens")+":");
         if (pos >= 0) {
-          String t = n.nachricht.substring(pos+26);
+			// @todo: Is it really the desired behavoir that the Bootsstatus is only updated if the ...
+			// string "Beschreibung des Schadens:" (or the translated version thereof) is not modified by the user when he enters his e-mail text?
+          String t = n.nachricht.substring(pos+(International.getString("Beschreibung des Schadens")+":").length());
           t = EfaUtil.replace(t,"\n"," ",true).trim();
           if (t.length() > 0) {
             efaDirektFrame.setBootstatusSchaden(boot.getText().trim(),t);

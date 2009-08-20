@@ -301,7 +301,7 @@ public class Bezeichnungen extends DatenListe {
     BART_MOTORBOOT = bArt.add("Motorboot");
     BART_ERGO      = bArt.add("Ergo");
 
-    BANZAHL_1 = bAnzahl.add("1er");
+    BANZAHL_1 = bAnzahl.add("1er"); // @todo: careful when translating:  the bAnzahl strings MUST contain the corresponding number as the first Arabic number in the text! This is needed by sortBootsList() in EfaDirektFrame.java
     BANZAHL_2 = bAnzahl.add("2er");
     BANZAHL_3 = bAnzahl.add("3er");
     BANZAHL_4 = bAnzahl.add("4er");

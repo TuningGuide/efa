@@ -121,10 +121,10 @@ public class Mnemonics {
   }
 
   /**
-   * Sets the displayed text and mnemonic for a label.
+   * Sets the displayed text and mnemonic for a button.
    * If s contains a mnemonic marked with "&", this mnemonic is being used
    * (regardless whether such a mnemonic is already being used inside this frame!).
-   * Otherwise, this method determines a unique mnemonic for this label inside this
+   * Otherwise, this method determines a unique mnemonic for this button inside this
    * frame by itself, if any unique mnemonics are available.
    * @todo Shall a specified mnemonic really be used regardless whether the same
    * mnemonic has already been used inside this frame? If not, what is the alternative?
@@ -135,7 +135,7 @@ public class Mnemonics {
    * later in the source code! But how could this best be realized??
    *
    * @param w the Window containing this label
-   * @param l the label
+   * @param b this button
    * @param s the text to be displayed
    */
   public static void setButton(Window w, AbstractButton b, String s) {

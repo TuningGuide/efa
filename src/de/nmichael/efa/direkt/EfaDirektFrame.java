@@ -1,5 +1,4 @@
 package de.nmichael.efa.direkt;
-//International.getString("
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -255,7 +254,7 @@ public class EfaDirektFrame extends JFrame {
                        new String[] {"ESCAPE","F1","F2","F3","F4","F5","F6","F7","F8","F9","alt F10","alt F11","F10","F11","F12","shift F1","alt X","shift F4"},
                        new String[] {"keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction","keyAction"});
     } catch(NoSuchMethodException e) {
-      System.err.println(International.getString("Error setting up ActionHandler"));
+      System.err.println("Error setting up ActionHandler");
     }
 
     this.addMouseListener(new MouseListener() {

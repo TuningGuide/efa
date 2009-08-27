@@ -56,6 +56,7 @@ public class International {
                 case ' ':
                 case '=':
                 case ':':
+                case '#':
                     key = key.substring(0,i) + "_" + (i+1 < key.length() ? key.substring(i+1,key.length()) : "");
                     break;
             }

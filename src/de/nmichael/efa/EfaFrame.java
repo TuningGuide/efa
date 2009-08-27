@@ -306,6 +306,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_7")) { // F11
       Dialog.infoDialog(International.getString("Dieser i18n-Test verwendet\n"+
     		  "mehrzeilige Keys.\n"));
+      Dialog.infoDialog(International.getString("Dieser i18n-Test verwendet "+ // let's try whether Perl can handle comments inside strings as well!
+    		  "mehrzeilige Keys und " + /* ist gemein zu Perl */ "hat ein paar \"ganz miese\" Tricks wie backslashes \\ und fiese Stringenden \\" // blabla
+                  + "Sonderzeichen wie #, = und :, und außerdem auch mehrzeilige Kommentare wie " + /* der Kommentar geht über mehrere
+                   Zeilen */ ", besonders hinterhältig auch die /* Kommentare im Text */, die keine sind, aber gerne welche // sein wollen!"));
       Dialog.infoDialog(International.getMessage("Dies ist ein Internationalisierungs-Test für efa {version} von {email}.",Daten.VERSION,Daten.EFAEMAIL));
       Dialog.infoDialog(International.getMessage("Test Text {text} mit Zahl {zahl}.","foobar",123));
       Dialog.infoDialog(International.getString("von","zeit"));
@@ -1252,7 +1256,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
               ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
       mainPanel.add(obmann,   new GridBagConstraints(10, 2, 2, 1, 0.0, 0.0
               ,GridBagConstraints.WEST, (isDirectMode() ? GridBagConstraints.HORIZONTAL : GridBagConstraints.NONE ), new Insets(0, 0, 0, 0), 0, 0));
-      obmann.addItem( (isDirectMode() ? International.getString("keine Angabe") : International.getString("--")) );
+      obmann.addItem( (isDirectMode() ? International.getString("keine Angabe") : "--") );
       obmann.addItem( (isDirectMode() ? International.getString("Steuermann") : International.getString("St")) );
       for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++) obmann.addItem( (isDirectMode() ? International.getString("Nummer")+" " : "") + (i+1));
 

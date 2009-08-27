@@ -311,7 +311,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       Dialog.infoDialog(International.getString("von","zeit"));
     }
 
-    if (evt.getActionCommand().equals("KEYSTROKE_ACTION_8")) { // F12 // @todo brauchen wir das noch??
+    if (evt.getActionCommand().equals("KEYSTROKE_ACTION_8")) { // F12 // @todo brauchen wir das noch?? @nick ja, ruhig drin lassen. Muß aber nicht übersetzt werden.
       Dialog.infoDialog(
           "Das ist ein sehr langer Satz, der am liebsten über den gesamten Bildschirm gehen würde und nirgends aufhören würde, wenn er nur die Gelegenheit dazu bekäme, denn das würde er wirklich gerne machen, nur leider läßt ihn efa nicht!\n"+
           "DasisteinsehrlangerSatz,deramliebstenüberdengesamtenBildschirmgehenwürdeundnirgendsaufhörenwürde,wennernurdieGelegenheitdazubekäme,denndaswürdeerwirklichgernemachen,nurleiderläßtihnefanicht!\n\n"+
@@ -1832,8 +1832,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
     if (this.mode != MODE_FULL) {
       Dialog.error(International.getString("Diese Funktion steht nur im normalen efa-Modus zur Verfügung.\n"+
-                   "Bitte starte efa im normalen Modus (nicht in der Bootshausvariante),\n"+
-                   "um ein Online-Update durchzuführen.")); // @todo: not sure if multiline text will create valid Key in properties file!
+                   "Bitte starte efa im normalen Modus (nicht in der Bootshausvariante), "+
+                   "um ein Online-Update durchzuführen.")); // @todo: not sure if multiline text will create valid Key in properties file! @nick works. but some \n's should be removed (see my long comment)
       startBringToFront(false); // efaDirekt im BRC -- Workaround
       return;
     }
@@ -2187,7 +2187,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (Dialog.yesNoDialog(International.getString("Wirklich löschen?"),International.getString("Soll der aktuelle Eintrag wirklich gelöscht werden?")) == Dialog.YES) {
       Daten.fahrtenbuch.delete(aktDatensatz.get(Fahrtenbuch.LFDNR));
       if (isAdminMode()) {
-        Logger.log(Logger.INFO,"Admin: Fahrtenbuch-Eintrag #"+(aktDatensatz != null ? aktDatensatz.get(Fahrtenbuch.LFDNR) : "$$")+" wurde gelöscht."); // @todo: internationalize log messages
+        Logger.log(Logger.INFO,"Admin: Fahrtenbuch-Eintrag #"+(aktDatensatz != null ? aktDatensatz.get(Fahrtenbuch.LFDNR) : "$$")+" wurde gelöscht."); // @todo: internationalize log messages @nick I will come up with a new interface for Logger and think about a concept of how to create unique log message ids.
       }
       DatenFelder d;
       if ((d = (DatenFelder)Daten.fahrtenbuch.getCompleteNext()) != null) SetFields(d);
@@ -2280,8 +2280,22 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       for (Iterator j = neighbours.iterator(); j.hasNext();) {
         DatenFelder d = (DatenFelder)j.next();
         suggestedName = dl.constructKey(d);
+        // @todo: Just a remark:
+        // Efa's Dialog class can automatically insert line feeds into message strings that won't fit on the screen.
+        // All explicit line feeds should therefore be removed from the strings that serve as keys or translations of
+        // internationalized text. Only those line feeds that allow a better "readability" of the text should be
+        // maintained.
+        // Example see below:
+        // Originally, there was a line feed after "Der Name '{name}'", although there is no other reason for this line
+        // feed other than to ensure that this line fits on the screen (i.e., this line feed is just formatting that may
+        // not even be appropriate for translated versions of this text, e.g. due to other order of nouns, verbs etc.).
+        // Therefore, this line feed should be removed (as it is now). The Dialog class will ensure by itself that all lines
+        // of the dialog box will fit on the screen.
+        // However, the second line feed (before "Meintest Du") is more than just formatting due to screen size. It serves
+        // as a visual distinction between the message ("Der Name konnte nicht gefunden werden.") and a question requiring
+        // some action from the user ("Meintest Du ...?"). Therefore, this line feed shall be retained.
         if (Dialog.yesNoDialog(International.getMessage("{art} unbekannt (Tippfehler?)",International.getString(art)),
-                               International.getMessage("Der Name '{name}'\n"+
+                               International.getMessage("Der Name '{name}' "+
                                "konnte in der {liste} nicht gefunden werden.\n"+
                                "Meintest Du '{suggestedName}'?", name, International.getString(liste), suggestedName)) == Dialog.YES) {
           field.setText(suggestedName);
@@ -2448,20 +2462,20 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (mtour != null) {
       if (EfaUtil.secondDateIsAfterFirst(datum.getText(),mtour.start) ||
           EfaUtil.secondDateIsAfterFirst(mtour.ende,datum.getText())) {
-        Dialog.error(International.getMessage("Das Datum der vorliegenden Fahrt ({datum}) liegt außerhalb des\n"+
-                     "Zeitraums ({mtour_start} - {mtour_ende}), der für die Mehrtagesfahrt\n"+
+        Dialog.error(International.getMessage("Das Datum der vorliegenden Fahrt ({datum}) liegt außerhalb des "+
+                     "Zeitraums ({mtour_start} - {mtour_ende}), der für die Mehrtagesfahrt "+
                      "'{mtour_name}' angegeben wurde.\n\n"+
-                     "Wenn die Mehrtagesfahrt '{mtour_name}'\n"+
-                     "mehrfach in diesem Jahr durchgeführt wurde, so muß für jede einzelne\n"+
-                     "Durchführung ein neuer Mehrtagesfahrt-Eintrag in efa angelegt werden:\n"+
-                     "Wähle in diesem Fall bitte als Art der Fahrt '>>> neue Mehrtagesfahrt'\n"+
+                     "Wenn die Mehrtagesfahrt '{mtour_name}' "+
+                     "mehrfach in diesem Jahr durchgeführt wurde, so muß für jede einzelne "+
+                     "Durchführung ein neuer Mehrtagesfahrt-Eintrag in efa angelegt werden: "+
+                     "Wähle in diesem Fall bitte als Art der Fahrt '>>> neue Mehrtagesfahrt' "+
                      "aus und erstelle einen neuen Mehrtagesfahrt-Eintrag.\n\n"+
-                     "Sollte der vorliegende Eintrag tatsächlich zu der Mehrtagesfahrt\n"+
-                     "'{mtour_name}' gehören und lediglich\n"+
-                     "der Zeitraum für diese Mehrtagesfahrt versehentlich falsch eingegeben worden sein,\n"+
-                     "so kannst Du den Zeitraum unter ->Administration->Fahrtenbuch->Mehrtagesfahrten\n"+
+                     "Sollte der vorliegende Eintrag tatsächlich zu der Mehrtagesfahrt "+
+                     "'{mtour_name}' gehören und lediglich "+
+                     "der Zeitraum für diese Mehrtagesfahrt versehentlich falsch eingegeben worden sein, "+
+                     "so kannst Du den Zeitraum unter ->Administration->Fahrtenbuch->Mehrtagesfahrten "+
                      "korrigieren und anschließend diesen Eintrag der Fahrt hinzufügen.", 
-					 datum.getText(), mtour.start, mtour.ende, mtour.name)); // @todo: check that single quotes are correct, as well as that using mtour_name several times works like this!!! (Otherwise use {3} syntax...)
+					 datum.getText(), mtour.start, mtour.ende, mtour.name)); // @todo: check that single quotes are correct, as well as that using mtour_name several times works like this!!! (Otherwise use {3} syntax...) @nick I have removed some of the \n's in here!
         startBringToFront(false); // efaDirekt im BRC -- Workaround
         return;
       }
@@ -3029,7 +3043,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       String[] browsers = { "/opt/netscape/netscape", "/usr/X11R6/bin/netscape", "/usr/bin/netscape", "/usr/local/bin/netscape",
                             "/usr/local/mozilla/mozilla",
                             "/opt/kde2/bin/konqueror/",
-                            "c:\\programme\\netscape\\communicator\\program\\netscape.exe", // @todo: was ist mit Opera, (Firefox?)
+                            "c:\\programme\\netscape\\communicator\\program\\netscape.exe",
+                            "c:\\Programme\\\\Mozilla Firefox\\firefox.exe", // @todo: was ist mit Opera, (Firefox?) @nick just added! ;-)
                             "c:\\programme\\internet explorer\\iexplore.exe", "c:\\windows\\explorer.exe", "c:\\win\\explorer.exe", "c:\\winnt\\explorer.exe"};
       for (int i=0; i<browsers.length && Daten.efaConfig.browser.equals(""); i++)
         if (new File(browsers[i]).isFile()) Daten.efaConfig.browser = browsers[i];
@@ -3045,7 +3060,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     try {
         ++Daten.efaConfig.countEfaStarts;
         if (Daten.efaConfig.countEfaStarts <31 && Daten.efaConfig.countEfaStarts % 10 == 0)
-          if (Dialog.neuBrowserDlg(this,"efa","file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"users.html",750,600,(int)Dialog.screenSize.getWidth()/2-375,(int)Dialog.screenSize.getHeight()/2-300).endsWith(".pl")) // @todo: does second string ("efa") need internationalization?
+          if (Dialog.neuBrowserDlg(this,"efa","file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"users.html",750,600,(int)Dialog.screenSize.getWidth()/2-375,(int)Dialog.screenSize.getHeight()/2-300).endsWith(".pl")) // @todo: does second string ("efa") need internationalization? @nick: No!
             Daten.efaConfig.countEfaStarts += 100000;
     } catch(Exception e) {
         //nothing to do
@@ -3181,7 +3196,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   // Fahrtenbuch öffnen
   void fahrtenbuchOeffnen(String datei) {
     Daten.fahrtenbuch = new Fahrtenbuch(datei);
-    this.setTitle("efa - "+datei); // @todo: internationalisieren??
+    this.setTitle("efa - "+datei); // @todo: internationalisieren?? @nick No!
     continueMTour = false;
     SetBlankFields();
     datensatzGeaendert = false;
@@ -3371,7 +3386,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
                        "Falls die aktuelle Fahrt tatsächlich zu der ausgewählten Mehrtagesfahrt gehört,\n"+
                        "so ändere bitte den Zeitraum für diese Mehrtagesfahrt über das Menü\n"+
                        "->Administration->Fahrtenbuch->Mehrtagesfahrten entsprechend ab.",
-					   datum, m.start, m.ende)); // @todo: check that single quotes are correct
+					   datum, m.start, m.ende)); // @todo: check that single quotes are correct @nick Please remove \n's (see above)
           startBringToFront(false); // efaDirekt im BRC -- Workaround
           return false;
         }
@@ -3478,7 +3493,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         if (Dialog.yesNoDialog(International.getString("Gespeichertes Fahrtenbuch öffnen?"),
                                International.getMessage("Soll das soeben gespeicherte Fahrtenbuch '{filename}'\njetzt benutzt werden?",Daten.fahrtenbuch.getFileName())) == Dialog.YES) {
           if (mode == MODE_FULL) Daten.efaConfig.letzteDatei = Daten.fahrtenbuch.getFileName();
-          this.setTitle("efa - "+Daten.fahrtenbuch.getFileName()); //@todo: i18n?
+          this.setTitle("efa - "+Daten.fahrtenbuch.getFileName()); //@todo: i18n? @nick No!
         } else {
           // ursprüngliches Fahrtenbuch wieder laden
           Daten.fahrtenbuch.setFileName(oldFilename);
@@ -4259,7 +4274,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         if (nichtErlaubtAnz > EfaUtil.string2int(b.get(Boote.MAX_NICHT_IN_GRUPPE),0)) {
           String erlaubteGruppen = null;
           for (int j=0; j<g.size(); j++) {
-            erlaubteGruppen = (erlaubteGruppen == null ? (String)g.get(j) : erlaubteGruppen + (j+1<g.size() ? ", "+g.get(j) : International.getString("\\ und ")+g.get(j)) ); // @todo: for some languages it might be necessary to translate ", " as well, or even use a ChoiceFormat here
+            erlaubteGruppen = (erlaubteGruppen == null ? (String)g.get(j) : erlaubteGruppen + (j+1<g.size() ? ", "+g.get(j) : International.getString("\\ und ")+g.get(j)) ); // @todo: for some languages it might be necessary to translate ", " as well, or even use a ChoiceFormat here @nick Did you really mean "\\ und "?? Or probably rather "\n und "? If "\n", please remove...
           }
           switch (Dialog.auswahlDialog(International.getString("Boot nur für bestimmte Gruppen freigegeben"),
                                  International.getMessage("Dieses Boot dürfen nur {list_of_valid_groups} rudern.\n"+
@@ -4488,6 +4503,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         if (pos >= 0) {
 			// @todo: Is it really the desired behavoir that the Bootsstatus is only updated if the ...
 			// string "Beschreibung des Schadens:" (or the translated version thereof) is not modified by the user when he enters his e-mail text?
+                        // @nick No, probably not! ;-) Needs to be fixed.
           String t = n.nachricht.substring(pos+(International.getString("Beschreibung des Schadens")+":").length());
           t = EfaUtil.replace(t,"\n"," ",true).trim();
           if (t.length() > 0) {

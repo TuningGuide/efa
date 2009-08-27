@@ -15,6 +15,7 @@ import java.text.*;
 public class International {
 
     private static final boolean MARK_MISSING_KEYS = true; // default for production: false
+    private static final boolean LOG_MISSING_KEYS = true; // default for production: false (requires "-debug" flag for debug logging)
     private static final boolean STACKTRACE_MISSING_KEYS = false; // default for production: false
     private static final boolean SHOW_KEY_INSTEAD_OF_TRANSLATION = false;  // default for production: false
 
@@ -31,7 +32,7 @@ public class International {
                 msgFormat = new MessageFormat("");
             }
         } catch(Exception e) {
-            // @todo: to be handled (maybe Logging?)!
+            Logger.log(Logger.ERROR, "Failed to set up internationalization: "+e.toString());
         }
     }
 
@@ -39,7 +40,7 @@ public class International {
         String s = "";
         for (int i=1; a != null && i<a.length; i++) {
             if (a[i] != null) {
-                s += (s.length() > 0 ? ", " : "") + a[i];
+                s += (s.length() > 0 ? ", " : "") + a[i].toString();
             }
         }
         return s;
@@ -47,9 +48,18 @@ public class International {
 
     private static String makeKey(String s) {
         if (s == null) return "null";
+        
         // @todo: To be extended by further characters? And maybe some performance optimization needed.
-        String key = EfaUtil.replace(s, " ", "_", true);
-        key = EfaUtil.replace(key, "=", "_", true);
+        String key = s;
+        for (int i=0; i<key.length(); i++) {
+            switch(key.charAt(i)) {
+                case ' ':
+                case '=':
+                case ':':
+                    key = key.substring(0,i) + "_" + (i+1 < key.length() ? key.substring(i+1,key.length()) : "");
+                    break;
+            }
+        }
         return key;
     }
 
@@ -72,8 +82,13 @@ public class International {
             }
         } catch(Exception e) {
             if (defaultIfNotFound) {
+                if (LOG_MISSING_KEYS) {
+                    Logger.log(Logger.DEBUG, "Missing Key: "+makeKey(s));
+                }
                 if (STACKTRACE_MISSING_KEYS) {
+                    EfaErrorPrintStream.ignoreExceptions = true;
                     e.printStackTrace();
+                    EfaErrorPrintStream.ignoreExceptions = false;
                 }
                 return (MARK_MISSING_KEYS ? "#" : "") + s + (MARK_MISSING_KEYS ? "#" : "");
             } else {
@@ -147,8 +162,13 @@ public class International {
             msgFormat.applyPattern(getString(s));
             return msgFormat.format(args);
         } catch(Exception e) {
+            if (LOG_MISSING_KEYS) {
+                Logger.log(Logger.DEBUG, "Incorrect Compound Key: "+s);
+            }
             if (STACKTRACE_MISSING_KEYS) {
+                EfaErrorPrintStream.ignoreExceptions = true;
                 e.printStackTrace();
+                EfaErrorPrintStream.ignoreExceptions = false;
             }
             return (MARK_MISSING_KEYS ? "#" : "") + s + ": " + getArrayStrings(args) + (MARK_MISSING_KEYS ? "#" : "");
         }
@@ -194,43 +214,39 @@ public class International {
      * @return translated message string
      */
     public static String getMessage(String s, String arg1, int arg2) {
-        Object[] args = { "dummy", arg1, Integer.toString(arg2) };
+        Object[] args = { "dummy", arg1, new Integer(arg2) };
         return getMessage(s,args);
     }
 
-	public static String getMessage(String s, String arg1,
-			int arg2, String arg3) {
-		// @todo: This function should probably *not* convert arg2 to string, since EfaFrame uses it in a "Choice", which I think only works for numbers...
-        Object[] args = { "dummy", arg1, Integer.toString(arg2), arg3 };
-        return getMessage(s,args);
-	}
+    public static String getMessage(String s, String arg1,
+            int arg2, String arg3) {
+        Object[] args = {"dummy", arg1, new Integer(arg2), arg3};
+        return getMessage(s, args);
+    }
 
-	public static String getMessage(String s, String arg1, String arg2, String arg3, String arg4, String arg5, String arg6, String arg7) {
-        Object[] args = { "dummy", arg1, arg2, arg3, arg4, arg5, arg6, arg7 };
-        return getMessage(s,args);
-	}
-	
-	public static String getMessage(String s, String arg1, String arg2, String arg3, String arg4, String arg5, String arg6, String arg7, String arg8) {
-        Object[] args = { "dummy", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 };
-        return getMessage(s,args);
-	}
-	
-	public static String getMessage(String s, String arg1, String arg2, String arg3, String arg4) {
-        Object[] args = { "dummy", arg1, arg2, arg3, arg4 };
-        return getMessage(s,args);
-	}
-	
-	public static String getMessage(String s, String arg1, String arg2, String arg3) {
-        Object[] args = { "dummy", arg1, arg2, arg3 };
-        return getMessage(s,args);
-	}
-	
-	public static String getMessage(String s, int arg1) {
-        Object[] args = { "dummy", Integer.toString(arg1) };
-        return getMessage(s,args);
-	}
+    public static String getMessage(String s, String arg1, String arg2, String arg3, String arg4, String arg5, String arg6, String arg7) {
+        Object[] args = {"dummy", arg1, arg2, arg3, arg4, arg5, arg6, arg7};
+        return getMessage(s, args);
+    }
 
-    // todo:
-    // - how to handle "formatted strings", e.g. some with \n in them? --> efa can automatically generate \n by now!
+    public static String getMessage(String s, String arg1, String arg2, String arg3, String arg4, String arg5, String arg6, String arg7, String arg8) {
+        Object[] args = {"dummy", arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8};
+        return getMessage(s, args);
+    }
+
+    public static String getMessage(String s, String arg1, String arg2, String arg3, String arg4) {
+        Object[] args = {"dummy", arg1, arg2, arg3, arg4};
+        return getMessage(s, args);
+    }
+
+    public static String getMessage(String s, String arg1, String arg2, String arg3) {
+        Object[] args = {"dummy", arg1, arg2, arg3};
+        return getMessage(s, args);
+    }
+
+    public static String getMessage(String s, int arg1) {
+        Object[] args = {"dummy", new Integer(arg1)};
+        return getMessage(s, args);
+    }
 
 }

@@ -389,6 +389,7 @@ public class Dialog {
 
   // muﬂ von jedem Frame gerufen werden, das geschlossen wird!!
   public static void frameClosed(Window w) {
+    Mnemonics.clearCache(w);
     if (frameStack == null) return;
     if (frameStack.isEmpty()) {
       if (Daten.watchWindowStack)  {
@@ -414,8 +415,9 @@ public class Dialog {
         Thread.dumpStack();
         (new Exception("Watch Stack Exception")).printStackTrace();
       }
+    } else {
+        frameStack.pop();
     }
-    else frameStack.pop();
 //    System.out.println(w.getClass().toString()+" geschlossen"); // !!!
   }
 

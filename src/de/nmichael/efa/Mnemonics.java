@@ -15,96 +15,72 @@ import java.util.*;
  */
 public class Mnemonics {
 
-  // Mnemonics
-  public static Hashtable mnemonics = new Hashtable();
-  public static Hashtable cachedMnemonics = new Hashtable();
+  // Mnemonic Cache
+  private static MnemonicCache mnemonicCache = new MnemonicCache();
 
-  // Key Code
-//  public static KeyEvent keyCode = new KeyEvent()
-
-
-  private static char getCachedMnemonic(Class c, String s) {
-      if (c == null || s == null) return 0x0;
-      Character m = (Character)cachedMnemonics.get(c.toString()+":"+s);
-      if (m == null) {
-          return 0x0;
-      } else {
-          return m.charValue();
-      }
+  private static boolean isMnemonicFree(Window w, char c) {
+      return mnemonicCache.get(w, c) == null;
   }
 
-  private static void setCachedMnemonics(Class c, String s, char m) {
-      if (c == null || s == null || m == 0x0) return;
-      cachedMnemonics.put(c.toString()+":"+s, new Character(m));
+  private static boolean isMnemonicFreeOrCleared(Window w, char c) {
+      MnemonicHolder mh = mnemonicCache.get(w, c);
+      return (mh == null || mh.clearMnemonics());
+  }
+
+  private static void reserveMnemonic(Window w, char c, AbstractButton b, JLabel l, boolean explicit) {
+      mnemonicCache.put(w, c, b, l, explicit);
+  }
+
+  /**
+   * Clears the mnemonic cache for a window w.
+   * This method *must* be called whenever a window is closed to avoid memory leaks!
+   * @param w window to be released from cache with all its associated mnemonic holders
+   */
+  public static void clearCache(Window w) {
+      mnemonicCache.clear(w);
   }
 
   private static boolean allowedMnemonic(char c) {
+      // @todo: which characters are allowed to contain mnemonics?
+      // e.g. Character.isLetter('ä')==true, but 'ä' cannot be a mnemonic!
+      // probably use KeyCode instead of char for mnemonics (preferred way)
       return (c != '&' &&
-              (Character.isLetter(c) || Character.isDigit(c)) );
+//              (Character.isLetter(c) || Character.isDigit(c)) );
+              ( (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') ) );
   }
 
-  private static char getMnemonic(Class c, String s) {
-      if (c == null || s == null) return 0x0;
+  private static char getMnemonic(Window w, String s, AbstractButton b, JLabel l) {
+      if (w == null || s == null) return 0x0;
+
       s = s.toLowerCase();
 
-      // cached Mnemonic?
-      char m = getCachedMnemonic(c, s);
-      if (m != 0x0) {
-          return m;
-      }
-      
-      // Mnemonics already in use
-      String mlist = (String)mnemonics.get(c);
-
       // explicit Mnemonic?
-      m = getMnemonic(s);
+      char m = getMnemonic(s);
       if (m != 0x0) {
-          // @todo: When Mnemonic already in use, grab this mnemonic if it is in use by a field without explicit assignment!
-          if (mlist != null && mlist.indexOf(m)>=0) {
-              return 0x0;
+          if (isMnemonicFreeOrCleared(w,m)) {
+              reserveMnemonic(w, m, b, l, true);
+              return m;
           }
       }
 
       // generic Mnemonic?
-      if (m == 0x0) {
-          for (int i=0; i<s.length(); i++) {
-              if (allowedMnemonic(s.charAt(i)) && (mlist == null || mlist.indexOf(s.charAt(i))<0)) {
-                  // charAt(i) is new mnemonic
-                  m = s.charAt(i);
-                  break;
-              }
+      for (int i=0; i<s.length(); i++) {
+          m = s.charAt(i);
+          if (allowedMnemonic(m) && isMnemonicFree(w,m)) {
+              reserveMnemonic(w, m, b, l, false);
+              return m;
           }
       }
 
-      // Mnemonic found=
-      if (m != 0x0) {
-          mlist = (mlist == null ? "" : mlist) + m;
-          setCachedMnemonics(c, s, m);
-          mnemonics.put(c, mlist);
-      }
-
-      return m;
-  }
-
-  private static char getMnemonicCode(Window w, String s) {
-      char c = getMnemonic(w.getClass(),s);
-      // @todo: Convert Character into KeyCode!
-      return c;
+      return 0x0;
   }
 
   /**
    * Sets the displayed text and mnemonic for a label.
-   * If s contains a mnemonic marked with "&", this mnemonic is being used
-   * (regardless whether such a mnemonic is already being used inside this frame!).
+   * If s contains a mnemonic marked with "&", this mnemonic is being preferred
+   * and may be grabbed from another component that already has this mnemonic.
    * Otherwise, this method determines a unique mnemonic for this label inside this
    * frame by itself, if any unique mnemonics are available.
-   * @todo Shall a specified mnemonic really be used regardless whether the same
-   * mnemonic has already been used inside this frame? If not, what is the alternative?
-   * Using a different, automatically chosen mnemonic could cause other labels/buttons to
-   * not receive their desired mnemonics any more. Probably it would be the best to not
-   * set any mnemonic at all in this case ...? Even better would be if explicitly
-   * specified mnemonics are preferred over automatically chosen one, even if they appear
-   * later in the source code! But how could this best be realized??
    *
    * @param w the Window containing this label
    * @param l the label
@@ -113,8 +89,7 @@ public class Mnemonics {
   public static void setLabel(Window w, JLabel l, String s) {
       if (w == null || l == null || s == null) return;
       l.setText(stripMnemonics(s));
-      // @todo: replace char by int (see getMnemonicCode)
-      char key = getMnemonicCode(w, s);
+      char key = getMnemonic(w, s, null, l);
       if (key != 0x0) {
           l.setDisplayedMnemonic(key);
       }
@@ -122,30 +97,37 @@ public class Mnemonics {
 
   /**
    * Sets the displayed text and mnemonic for a button.
-   * If s contains a mnemonic marked with "&", this mnemonic is being used
-   * (regardless whether such a mnemonic is already being used inside this frame!).
+   * If s contains a mnemonic marked with "&", this mnemonic is being preferred
+   * and may be grabbed from another component that already has this mnemonic.
    * Otherwise, this method determines a unique mnemonic for this button inside this
    * frame by itself, if any unique mnemonics are available.
-   * @todo Shall a specified mnemonic really be used regardless whether the same
-   * mnemonic has already been used inside this frame? If not, what is the alternative?
-   * Using a different, automatically chosen mnemonic could cause other labels/buttons to
-   * not receive their desired mnemonics any more. Probably it would be the best to not
-   * set any mnemonic at all in this case ...? Even better would be if explicitly
-   * specified mnemonics are preferred over automatically chosen one, even if they appear
-   * later in the source code! But how could this best be realized??
    *
-   * @param w the Window containing this label
+   * @param w the Window containing this button
    * @param b this button
    * @param s the text to be displayed
    */
   public static void setButton(Window w, AbstractButton b, String s) {
       if (w == null || b == null || s == null) return;
       b.setText(stripMnemonics(s));
-      // @todo: replace char by int (see getMnemonicCode)
-      char key = getMnemonicCode(w, s);
+      char key = getMnemonic(w, s, b, null);
       if (key != 0x0) {
           b.setMnemonic(key);
       }
+  }
+
+  /**
+   * Sets the displayed text for a menu button.
+   * This method currently does *not* set mnemonics and is intended for "inner" menu buttons (within a menu)
+   * that are not supposed to get global mnemonics (global as related to their frame). This implementation
+   * currently does not support mnemonics local to a specific menu.
+   *
+   * @param w the Window containing this menu button
+   * @param b this button
+   * @param s the text to be displayed
+   */
+  public static void setMenuButton(Window w, AbstractButton b, String s) {
+      if (w == null || b == null || s == null) return;
+      b.setText(stripMnemonics(s));
   }
 
   /**

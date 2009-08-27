@@ -137,6 +137,9 @@ sub parsefile {
         $txt =~ s/%_2_%/}/g;
       }
 
+      # handle special characters in translated text
+      $txt =~ s/&/&&/g;
+
       # print key and text
       if (exists $keys{$key}) {
         # printf("#DEBUG: Duplicate Key $key=$txt\n");

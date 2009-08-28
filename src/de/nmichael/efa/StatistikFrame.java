@@ -1,5 +1,6 @@
 package de.nmichael.efa;
 
+import de.nmichael.efa.statistics.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -2094,7 +2095,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
   // Ermittelt, ob eine Output-Datei, die für d erzeugt werden soll, geschrieben, ggf. überschrieben, werden darf
   // wird aus Statistik.java aufgerufen
-  boolean allowedWriteFile(StatistikDaten d) {
+  public boolean allowedWriteFile(StatistikDaten d) {
     if (d.ausgabeOverwriteWarnung && d.ausgabeDatei != null &&
         d.ausgabeArt != StatistikDaten.AUSGABE_INTERN_GRAFIK && d.ausgabeArt != StatistikDaten.AUSGABE_INTERN_TEXT &&
         new File(d.ausgabeDatei).isFile())
@@ -2339,7 +2340,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
 
 
-  synchronized boolean enableFrame(boolean enable, String text, boolean stopIfAlreadyDisabled) {
+  public synchronized boolean enableFrame(boolean enable, String text, boolean stopIfAlreadyDisabled) {
     if (!enable && stopIfAlreadyDisabled && !erstellenBut.isEnabled()) {
       return false; // gibt false zurück, wenn Ausführung verboten ist
     }

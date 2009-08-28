@@ -406,7 +406,7 @@ public class DRVSignaturFrame extends JDialog implements ActionListener {
     }
   }
 
-  static boolean downloadKey(String keyname) {
+  public static boolean downloadKey(String keyname) {
       if (Daten.keyStore == null) return false;
       if (Daten.javaVersion.startsWith("1.3")) {
         Dialog.error("Diese Funktionalität steht erst ab Java Version 1.4\n"+

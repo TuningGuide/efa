@@ -1,5 +1,7 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.statistics.StatistikThread;
+import de.nmichael.efa.statistics.Statistik;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;

@@ -12,6 +12,9 @@ import java.text.*;
  *
  * @author nick
  */
+
+// @i18n complete
+
 public class International {
 
     private static final boolean MARK_MISSING_KEYS = true; // default for production: false
@@ -32,8 +35,11 @@ public class International {
                 msgFormat = new MessageFormat("");
             }
         } catch(Exception e) {
-            Logger.log(Logger.ERROR, "Failed to set up internationalization: "+e.toString());
+            Logger.log(Logger.ERROR, Logger.MSG_INTERNATIONAL_FAILEDSETUP, "Failed to set up internationalization: "+e.toString()); // no need for translation
         }
+        
+        Daten.EFA_SHORTNAME = International.getString("efa");
+        Daten.EFA_LONGNAME = International.getString("efa - elektronisches Fahrtenbuch");
     }
 
     private static String getArrayStrings(Object[] a) {
@@ -57,6 +63,7 @@ public class International {
                 case '=':
                 case ':':
                 case '#':
+                case '\'':
                     key = key.substring(0,i) + "_" + (i+1 < key.length() ? key.substring(i+1,key.length()) : "");
                     break;
             }
@@ -84,7 +91,7 @@ public class International {
         } catch(Exception e) {
             if (defaultIfNotFound) {
                 if (LOG_MISSING_KEYS) {
-                    Logger.log(Logger.DEBUG, "Missing Key: "+makeKey(s));
+                    Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_MISSINGKEY, "Missing Key: "+makeKey(s)); // no need for translation!
                 }
                 if (STACKTRACE_MISSING_KEYS) {
                     EfaErrorPrintStream.ignoreExceptions = true;
@@ -164,7 +171,7 @@ public class International {
             return msgFormat.format(args);
         } catch(Exception e) {
             if (LOG_MISSING_KEYS) {
-                Logger.log(Logger.DEBUG, "Incorrect Compound Key: "+s);
+                Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_INCORRECTKEY,"Incorrect Compound Key: "+s); // no need for translation!
             }
             if (STACKTRACE_MISSING_KEYS) {
                 EfaErrorPrintStream.ignoreExceptions = true;

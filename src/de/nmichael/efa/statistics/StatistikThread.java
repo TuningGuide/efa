@@ -1,4 +1,7 @@
-package de.nmichael.efa;
+package de.nmichael.efa.statistics;
+
+import de.nmichael.efa.*;
+import de.nmichael.efa.statistics.Statistik;
 
 /**
  * Title:        efa - Elektronisches Fahrtenbuch

@@ -11,6 +11,8 @@ package de.nmichael.efa;
 
 import java.io.*;
 
+// @i18n complete
+
 public class EfaErrorPrintStream extends PrintStream {
 
   public static boolean ignoreExceptions = false;
@@ -41,7 +43,7 @@ public class EfaErrorPrintStream extends PrintStream {
       if (o == lastErrorObject) return;
       lastErrorObject = o;
 
-      String text = "Unerwarteter Programmfehler: "+o.toString();
+      String text = International.getString("Unerwarteter Programmfehler")+": "+o.toString();
       String stacktrace = "";
 
       try {
@@ -59,16 +61,21 @@ public class EfaErrorPrintStream extends PrintStream {
           };
         };
         if (stack != null) {
-          text += "\nStack Trace:\n";
+          text += "\n"+International.getString("Stack Trace")+":\n";
           for (int i=0; stack != null && i<stack.length; i++) stacktrace += stack[i].toString() + "\n";
           text += stacktrace;
         }
       } catch(NoSuchMethodError j13) {
         EfaUtil.foo(); // StackTraceElement erst ab Java 1.4
       }
-      text += "\nBitte melde diesen Fehler an "+Daten.EFAEMAIL+"!";
+      
+      // if the stack trace concerns classes from efa, ask for bug reports
+      // (some other purely java (especially awt/swing) related bugs do not necessarily need to be reported...
+      if (stacktrace.indexOf("de.nmichael.efa") >= 0) {
+          text += "\n"+International.getString("Bitte melde diesen Fehler an")+": "+Daten.EFAEMAIL;
+      }
 
-      Logger.log(Logger.ERROR,text);
+      Logger.log(Logger.ERROR,Logger.MSG_ERROR_EXCEPTION,text);
       new ErrorThread(o.toString(),stacktrace).start();
     }
   }

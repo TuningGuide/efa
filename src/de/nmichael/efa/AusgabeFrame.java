@@ -17,11 +17,11 @@ import java.io.*;
  */
 
 public class AusgabeFrame extends JDialog implements ActionListener {
-  BorderLayout borderLayout1 = new BorderLayout();
-  JButton closeButton = new JButton();
-  JScrollPane jScrollPane1 = new JScrollPane();
-  JTable out = new JTable();
-  JTextArea outText = null;
+  public BorderLayout borderLayout1 = new BorderLayout();
+  public JButton closeButton = new JButton();
+  public JScrollPane jScrollPane1 = new JScrollPane();
+  public JTable out = new JTable();
+  public JTextArea outText = null;
 
   public AusgabeFrame(JFrame parent) { // für Aufruf aus Dialog
     super(parent);

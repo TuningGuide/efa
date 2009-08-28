@@ -347,7 +347,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     contentPane.setLayout(borderLayout1);
     this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
-    this.setTitle(International.getString("efa - Elektronisches Fahrtenbuch"));
+    this.setTitle(Daten.EFA_LONGNAME);
     this.addWindowListener(new java.awt.event.WindowAdapter() {
       public void windowClosing(WindowEvent e) {
         this_windowClosing(e);
@@ -3064,7 +3064,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     try {
         ++Daten.efaConfig.countEfaStarts;
         if (Daten.efaConfig.countEfaStarts <31 && Daten.efaConfig.countEfaStarts % 10 == 0)
-          if (Dialog.neuBrowserDlg(this,"efa","file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"users.html",750,600,(int)Dialog.screenSize.getWidth()/2-375,(int)Dialog.screenSize.getHeight()/2-300).endsWith(".pl")) // @todo: does second string ("efa") need internationalization? @nick: No!
+          if (Dialog.neuBrowserDlg(this,Daten.EFA_SHORTNAME,"file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"users.html",750,600,(int)Dialog.screenSize.getWidth()/2-375,(int)Dialog.screenSize.getHeight()/2-300).endsWith(".pl"))
             Daten.efaConfig.countEfaStarts += 100000;
     } catch(Exception e) {
         //nothing to do
@@ -3078,7 +3078,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     // folgende Zeile liefert manchmal (?) für den equals-Vergleich "false", obwohl die Strings identisch sind; daher doppelter Boden:
     // der Dialog wird nur angezeigt, wenn auch compareTo != 0 liefert!
     if (!startEfaTour && !Daten.efaConfig.version.equals(Daten.PROGRAMMID) && Daten.efaConfig.version.compareTo(Daten.PROGRAMMID) != 0) {
-      Dialog.neuBrowserDlg(this,"efa","file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"tour"+Daten.fileSep+"k06-001.html",750,600,(int)Dialog.screenSize.getWidth()/2-375,(int)Dialog.screenSize.getHeight()/2-300);
+      Dialog.neuBrowserDlg(this,Daten.EFA_SHORTNAME,"file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"tour"+Daten.fileSep+"k06-001.html",750,600,(int)Dialog.screenSize.getWidth()/2-375,(int)Dialog.screenSize.getHeight()/2-300);
       Daten.checkJavaVersion(true);
     } else {
       Daten.checkJavaVersion(false);
@@ -3200,7 +3200,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   // Fahrtenbuch öffnen
   void fahrtenbuchOeffnen(String datei) {
     Daten.fahrtenbuch = new Fahrtenbuch(datei);
-    this.setTitle("efa - "+datei); // @todo: internationalisieren?? @nick No!
+    this.setTitle(Daten.EFA_SHORTNAME + " - " + datei);
     continueMTour = false;
     SetBlankFields();
     datensatzGeaendert = false;
@@ -3497,7 +3497,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         if (Dialog.yesNoDialog(International.getString("Gespeichertes Fahrtenbuch öffnen?"),
                                International.getMessage("Soll das soeben gespeicherte Fahrtenbuch '{filename}'\njetzt benutzt werden?",Daten.fahrtenbuch.getFileName())) == Dialog.YES) {
           if (mode == MODE_FULL) Daten.efaConfig.letzteDatei = Daten.fahrtenbuch.getFileName();
-          this.setTitle("efa - "+Daten.fahrtenbuch.getFileName()); //@todo: i18n? @nick No!
+          this.setTitle(Daten.EFA_SHORTNAME + " - " + Daten.fahrtenbuch.getFileName());
         } else {
           // ursprüngliches Fahrtenbuch wieder laden
           Daten.fahrtenbuch.setFileName(oldFilename);
@@ -3798,7 +3798,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     refDatensatz=null;
     SetBlankFields();
     lfdnr.setText("1");
-    this.setTitle("efa - "+Daten.fahrtenbuch.getFileName());
+    this.setTitle(Daten.EFA_SHORTNAME + " - " + Daten.fahrtenbuch.getFileName());
     if (mode == MODE_FULL) Daten.efaConfig.letzteDatei = Daten.fahrtenbuch.getFileName();
     getAllFahrtDauer();
     if (Daten.fahrtenbuch != null && Daten.fahrtenbuch.getDaten().mitglieder != null)

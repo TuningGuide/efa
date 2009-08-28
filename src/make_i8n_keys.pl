@@ -125,6 +125,7 @@ sub parsefile {
       $key =~ s/=/_/g;
       $key =~ s/:/_/g;
       $key =~ s/#/_/g;
+      $key =~ s/'/_/g;
 
       # create message text for compound messages
       if ($isMessage) {
@@ -139,6 +140,7 @@ sub parsefile {
 
       # handle special characters in translated text
       $txt =~ s/&/&&/g;
+      $txt =~ s/'/''/g;
 
       # print key and text
       if (exists $keys{$key}) {

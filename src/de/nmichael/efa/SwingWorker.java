@@ -124,7 +124,7 @@ public abstract class SwingWorker {
     /**
      * Start the worker thread.
      */
-    Thread start() {
+    public Thread start() {
         Thread t = threadVar.get();
         if (t != null) {
             t.start();

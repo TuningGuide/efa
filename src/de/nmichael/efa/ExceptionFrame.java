@@ -16,6 +16,8 @@ import java.io.*;
  * @version 1.0
  */
 
+// @i18n complete
+
 public class ExceptionFrame extends JDialog implements ActionListener {
   String error;
   String stacktrace;
@@ -25,12 +27,8 @@ public class ExceptionFrame extends JDialog implements ActionListener {
   JLabel jLabel1 = new JLabel();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
   JLabel errorLabel = new JLabel();
-  JLabel jLabel3 = new JLabel();
-  JLabel jLabel4 = new JLabel();
-  JLabel jLabel5 = new JLabel();
-  JLabel jLabel6 = new JLabel();
-  JLabel jLabel7 = new JLabel();
   JScrollPane jScrollPane1 = new JScrollPane();
+  JTextArea infotext = new JTextArea();
   JTextArea errortext = new JTextArea();
 
   public ExceptionFrame(JDialog frame, String error, String stacktrace) {
@@ -80,8 +78,7 @@ public class ExceptionFrame extends JDialog implements ActionListener {
       System.err.println("Error setting up ActionHandler");
     }
 
-    jButton1.setMnemonic('S');
-    jButton1.setText("Schließen");
+    Mnemonics.setButton(this, jButton1, International.getStringWithMnemonic("Schließen"));
     jButton1.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jButton1_actionPerformed(e);
@@ -89,7 +86,7 @@ public class ExceptionFrame extends JDialog implements ActionListener {
     });
     this.getContentPane().setLayout(borderLayout1);
     jPanel1.setLayout(gridBagLayout1);
-    jLabel1.setText("Ein unbehandelter Programmfehler ist aufgetreten:");
+    jLabel1.setText(International.getString("Ein unerwarteter Programmfehler ist aufgetreten!"));
     errorLabel.setForeground(Color.red);
     errorLabel.setText(error);
     String logfile = Daten.efaLogfile;
@@ -98,24 +95,24 @@ public class ExceptionFrame extends JDialog implements ActionListener {
       if (pos>0 && pos+1<logfile.length()) logfile = logfile.substring(pos+1,logfile.length());
       logfile = logfile.toUpperCase();
     }
-    jLabel3.setText("Ein Fehlerprotokoll wurde in '"+Daten.efaLogfile+"' erstellt.");
-    jLabel4.setText("Damit dieser Fehler korrigiert werden kann, schicke bitte eine email");
-    jLabel5.setText("mit einer kurzen Beschreibung dessen, was diesen Fehler ausgelöst hat,");
-    jLabel6.setText("an "+Daten.EFAEMAIL+". Kopiere bitte zusätzlich folgende Informationen");
-    jLabel7.setText("in die email: -- Danke!");
-    jLabel4.setForeground(Color.blue);
-    jLabel5.setForeground(Color.blue);
-    jLabel6.setForeground(Color.blue);
-    jLabel7.setForeground(Color.blue);
-    errortext.append("#####################################################\n# Unbehandelter Programmfehler!\n# Bitte per email an "+Daten.EFAEMAIL+" schicken!\n#####################################################\n\n");
-    errortext.append("Fehler-Information:\n============================================\n");
-    errortext.append("Fehlermeldung: "+error+"\n");
+    infotext.append(Dialog.chopDialogString(International.getMessage("Ein Fehlerprotokoll wurde in '{logfile}' erstellt. " +
+            "Damit dieser Fehler korrigiert werden kann, schicke bitte eine email " +
+            "mit einer kurzen Beschreibung dessen, was diesen Fehler ausgelöst hat, " +
+            "an {email}. Kopiere bitte zusätzlich folgende Informationen " +
+            "in die email: -- Danke!", Daten.efaLogfile, Daten.EFAEMAIL)));
+    infotext.setForeground(Color.blue);
+    errortext.append("#####################################################\n# " +
+            International.getString("Unerwarteter Programmfehler")+"!\n# " +
+            International.getMessage("Bitte per email an {email} schicken!",Daten.EFAEMAIL) +
+            "\n#####################################################\n\n");
+    errortext.append(International.getString("Fehler-Information")+":\n============================================\n");
+    errortext.append(International.getString("Fehlermeldung")+": "+error+"\n");
     errortext.append(stacktrace);
     errortext.append("\n\n");
-    errortext.append("Programm-Information:\n============================================\n");
+    errortext.append(International.getString("Programm-Information")+":\n============================================\n");
     Vector info = Daten.getEfaInfos();
     for (int i=0; info != null && i<info.size(); i++) errortext.append((String)info.get(i)+"\n");
-    this.setTitle("Unerwarteter Programmfehler (Exception)");
+    this.setTitle(International.getString("Unerwarteter Programmfehler"));
     jScrollPane1.setPreferredSize(new Dimension(200, 200));
     this.getContentPane().add(jButton1, BorderLayout.SOUTH);
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
@@ -123,16 +120,8 @@ public class ExceptionFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     jPanel1.add(errorLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    jPanel1.add(jLabel3,   new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+    jPanel1.add(infotext,   new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
-    jPanel1.add(jLabel4,       new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
-    jPanel1.add(jLabel5,   new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    jPanel1.add(jLabel6,   new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    jPanel1.add(jLabel7,   new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     jPanel1.add(jScrollPane1,   new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     jScrollPane1.getViewport().add(errortext, null);

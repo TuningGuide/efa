@@ -91,7 +91,7 @@ public class EfaDirektFrame extends JFrame {
     // Fenster nicht verschiebbar
     if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_fensterNichtVerschiebbar) try {
       this.setUndecorated(true);
-      TitledBorder b = new TitledBorder(International.getString("efa - elektronisches Fahrtenbuch"));
+      TitledBorder b = new TitledBorder(Daten.EFA_LONGNAME);
       b.setTitleColor(Color.white);
       contentPane.setBackground(new Color(0,0,150));
       contentPane.setBorder(b);
@@ -269,7 +269,7 @@ public class EfaDirektFrame extends JFrame {
     contentPane = (JPanel) this.getContentPane();
     contentPane.setLayout(borderLayout1);
     this.setSize(new Dimension(708, 489));
-    this.setTitle(International.getString("efa - elektronisches Fahrtenbuch"));
+    this.setTitle(Daten.EFA_LONGNAME);
     this.addWindowListener(new java.awt.event.WindowAdapter() {
       public void windowActivated(WindowEvent e) {
         this_windowActivated(e);
@@ -2355,7 +2355,7 @@ public class EfaDirektFrame extends JFrame {
       Logger.log(Logger.INFO,"Aktuelles Fahrtenbuch ist jetzt: "+Daten.fahrtenbuch.getFileName());
 
       Nachricht n = new Nachricht();
-      n.name = "efa";
+      n.name = Daten.EFA_SHORTNAME;
       n.empfaenger = Nachricht.ADMIN;
       n.betreff = "Neues Fahrtenbuch angelegt";
       n.nachricht = "efa hat soeben wie konfiguriert ein neues Fahrtenbuch angelegt.\n"+
@@ -2428,7 +2428,7 @@ public class EfaDirektFrame extends JFrame {
                  Logger.log(Logger.ERROR,"Kritischer Fehler: efa befindet sich in einem undefinierten Zustand! Überprüfung durch Administrator erforderlich!");
       }
       Nachricht n = new Nachricht();
-      n.name = "efa";
+      n.name = Daten.EFA_SHORTNAME;
       n.empfaenger = Nachricht.ADMIN;
       n.betreff = "FEHLER beim Anlegen eines neuen Fahrtenbuchs";
       n.nachricht = "efa hat soeben versucht, wie konfiguriert ein neues Fahrtenbuch anzulegen.\n"+
@@ -2511,10 +2511,10 @@ public class EfaDirektFrame extends JFrame {
           }
           if (Daten.nachrichten != null && Daten.efaConfig != null) {
             if (Daten.efaConfig.efaDirekt_bnrWarning_admin) {
-              Daten.nachrichten.createNachricht("efa", Nachricht.ADMIN,"Warnungen", txt);
+              Daten.nachrichten.createNachricht(Daten.EFA_SHORTNAME, Nachricht.ADMIN,"Warnungen", txt);
             }
             if (Daten.efaConfig.efaDirekt_bnrWarning_bootswart) {
-              Daten.nachrichten.createNachricht("efa", Nachricht.BOOTSWART,"Warnungen", txt);
+              Daten.nachrichten.createNachricht(Daten.EFA_SHORTNAME, Nachricht.BOOTSWART,"Warnungen", txt);
             }
           }
         }

@@ -1,5 +1,8 @@
 package de.nmichael.efa;
 
+import de.nmichael.efa.statistics.FTPWriter;
+import de.nmichael.efa.statistics.PDFWriter;
+import de.nmichael.efa.statistics.XMLWriter;
 import java.io.*;
 import java.util.jar.*;
 import java.util.*;
@@ -7,6 +10,9 @@ import java.awt.Color;
 
 public class Daten {
 
+
+  public       static String EFA_SHORTNAME = "efa";                              // dummy, will be set in International.ininitalize()
+  public       static String EFA_LONGNAME  = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
 
   public final static String VERSION = "v2.0.0_dev01"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
   public final static String VERSIONID = "2.0.0_#1";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
@@ -211,8 +217,13 @@ public class Daten {
     File f = new File(dir);
     if (!f.isDirectory()) {
       boolean result = f.mkdirs();
-      if (result == true) errors.add("Warnung: Verzeichnis '"+dir+"' konnte nicht gefunden werden und wurde neu erstellt.");
-      else errors.add("Fehler: Verzeichnis '"+dir+"' konnte weder gefunden, noch neu erstellt werden.");
+      if (result == true) {
+          errors.add(International.getString("Warnung") + ": " +
+                  International.getMessage("Verzeichnis '{directory}' konnte nicht gefunden werden und wurde neu erstellt.",dir));
+      } else {
+          errors.add(International.getString("Fehler") + ": " +
+                  International.getMessage("Verzeichnis '{directory}' konnte weder gefunden, noch neu erstellt werden.",dir));
+      }
       return result;
     }
     return true;
@@ -279,11 +290,11 @@ public class Daten {
     if (showMsg && errors.size()>0) {
       String s = "";
       for (int i=0; i<errors.size(); i++) s += (s.length()>0 ? "\n" : "") + errors.get(i);
-      Dialog.meldung( (dirs_ok ? "Warnung" : "Fehler"), s);
+      Dialog.meldung( (dirs_ok ? International.getString("Warnung") : International.getString("Fehler")), s);
     }
 
-    for (int i=0; i<errors.size(); i++) { Logger.log(Logger.WARNING,(String)errors.get(i)); }
-    if (!dirs_ok) Logger.log(Logger.ERROR,"Ein oder mehrere Verzeichnisse konnten weder gefunden, noch neu erstellt werden!");
+    for (int i=0; i<errors.size(); i++) { Logger.log(Logger.WARNING,Logger.MSG_CORE_SETUPDIRS,(String)errors.get(i)); }
+    if (!dirs_ok) Logger.log(Logger.ERROR,Logger.MSG_CORE_SETUPDIRS,International.getString("Ein oder mehrere Verzeichnisse konnten weder gefunden, noch neu erstellt werden!"));
 
     return dirs_ok;
   }
@@ -347,7 +358,7 @@ public class Daten {
         infos.add("efa.plugin.jsuntimes=NOT INSTALLED");
       }
     } catch(Exception e) {
-      Logger.log(Logger.ERROR,"Info failed: "+e.toString());
+      Logger.log(Logger.ERROR,Logger.MSG_CORE_INFOFAILED,International.getString("Programminformationen konnten nicht ermittelt werden")+": "+e.toString());
       return null;
     }
 
@@ -391,13 +402,13 @@ public class Daten {
                 infos.add("java.jar.content="+o+":"+ ( jar.getEntry(o.toString()) == null ? "null" : Long.toString(jar.getEntry(o.toString()).getSize()) ) );
               }
             } catch (Exception e) {
-              Logger.log(Logger.ERROR,e.toString());
+              Logger.log(Logger.ERROR,Logger.MSG_CORE_INFOFAILED,e.toString());
               return null;
             }
           }
         }
       } catch(Exception e) {
-        Logger.log(Logger.ERROR,"Info failed: "+e.toString());
+        Logger.log(Logger.ERROR,Logger.MSG_CORE_INFOFAILED,International.getString("Programminformationen konnten nicht ermittelt werden")+": "+e.toString());
         return null;
       }
     }
@@ -406,7 +417,7 @@ public class Daten {
 
   public static void printEfaInfos() {
     Vector infos = getEfaInfos();
-    for (int i=0; infos != null && i<infos.size(); i++) Logger.log(Logger.INFO,(String)infos.get(i));
+    for (int i=0; infos != null && i<infos.size(); i++) Logger.log(Logger.INFO,Logger.MSG_INFO_CONFIGURATION,(String)infos.get(i));
   }
 
   public static String getEfaImage(int size) {
@@ -426,14 +437,14 @@ public class Daten {
     int version = tmj.tag*100 + tmj.monat*10 + tmj.jahr;
 
     if (version < 140) {
-      if (Dialog.yesNoDialog("Java-Version zu alt",
-                             "Die von Dir verwendete Java-Version "+Daten.javaVersion+" wird von efa\n"+
-                             "offiziell nicht mehr unterstützt. Einige Funktionen von efa stehen\n"+
-                             "unter dieser Java-Version nicht zur Verfügung oder funktionieren nicht\n"+
-                             "richtig. Vom Einsatz von efa mit dieser Java-Version wird dringend abgeraten.\n"+
+      if (Dialog.yesNoDialog(International.getString("Java-Version zu alt"),
+              International.getMessage("Die von Dir verwendete Java-Version {version} wird von efa "+
+                             "offiziell nicht mehr unterstützt. Einige Funktionen von efa stehen "+
+                             "unter dieser Java-Version nicht zur Verfügung oder funktionieren nicht "+
+                             "richtig. Vom Einsatz von efa mit dieser Java-Version wird dringend abgeraten. "+
                              "Für den optimalen Einsatz von efa wird Java-Version 5 oder neuer empfohlen.\n\n"+
-                             "Sollen jetzt die Download-Anleitung für eine neue Java-Version\n"+
-                             "angezeigt werden?") == Dialog.YES) {
+                             "Sollen jetzt die Download-Anleitung für eine neue Java-Version "+
+                             "angezeigt werden?",Daten.javaVersion)) == Dialog.YES) {
         showJavaDownloadHints();
       }
       return;
@@ -442,15 +453,15 @@ public class Daten {
     if (!alsoCheckForOptimalVersion) return;
 
     if (version < 150) {
-      if (Dialog.yesNoDialog("Java-Version alt",
-                             "Die von Dir verwendete Java-Version "+Daten.javaVersion+" ist bereits relativ alt.\n"+
-                             "Für den optimalen Einsatz von efa wird Java 5 (Version 1.5.0) oder neuer empfohlen.\n"+
-                             "efa funktioniert zwar auch mit älteren Java-Versionen weiterhin, jedoch gibt es einige\n"+
-                             "Funktionen, die nur unter neueren Java-Versionen unterstützt werden. Außerdem werden\n"+
-                             "Java-Fehler oft nur noch in den neueren Versionen korrigiert, so daß auch aus diesem\n"+
+      if (Dialog.yesNoDialog(International.getString("Java-Version alt"),
+              International.getMessage("Die von Dir verwendete Java-Version {version} ist bereits relativ alt. "+
+                             "Für den optimalen Einsatz von efa wird Java 5 (Version 1.5.0) oder neuer empfohlen. "+
+                             "efa funktioniert zwar auch mit älteren Java-Versionen weiterhin, jedoch gibt es einige "+
+                             "Funktionen, die nur unter neueren Java-Versionen unterstützt werden. Außerdem werden "+
+                             "Java-Fehler oft nur noch in den neueren Versionen korrigiert, so daß auch aus diesem "+
                              "Grund immer der Einsatz einer möglichst neuen Java-Version empfohlen ist.\n\n"+
-                             "Sollen jetzt die Download-Anleitung für eine neue Java-Version\n"+
-                             "angezeigt werden?") == Dialog.YES) {
+                             "Sollen jetzt die Download-Anleitung für eine neue Java-Version "+
+                             "angezeigt werden?",Daten.javaVersion)) == Dialog.YES) {
         showJavaDownloadHints();
       }
     }
@@ -458,10 +469,10 @@ public class Daten {
 
   private static void showJavaDownloadHints() {
     if (Daten.efaDocDirectory == null) return;
-    Dialog.infoDialog("Download-Anleitung",
-                      "Bitte folge in der folgenden Anleitung den Hinweisen unter Punkt 5,\n"+
-                      "um eine neue Java-Version zu installieren.");
-    Dialog.neuBrowserDlg((javax.swing.JFrame)null,"Java-Installation","file:"+Daten.efaDocDirectory+"installation.html");
+    Dialog.infoDialog(International.getString("Download-Anleitung"),
+                      International.getString("Bitte folge in der folgenden Anleitung den Hinweisen unter Punkt 5, "+
+                      "um eine neue Java-Version zu installieren."));
+    Dialog.neuBrowserDlg((javax.swing.JFrame)null,International.getString("Java-Installation"),"file:"+Daten.efaDocDirectory+"installation.html");
   }
 
 }

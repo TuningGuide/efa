@@ -13,6 +13,9 @@ import java.util.*;
  *
  * @author nick
  */
+
+// @i18n complete
+
 public class Mnemonics {
 
   // Mnemonic Cache

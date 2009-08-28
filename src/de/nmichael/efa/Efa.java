@@ -1,5 +1,6 @@
 package de.nmichael.efa;
 
+import de.nmichael.efa.statistics.Statistik;
 import javax.swing.UIManager;
 import java.awt.*;
 import java.io.PrintStream;

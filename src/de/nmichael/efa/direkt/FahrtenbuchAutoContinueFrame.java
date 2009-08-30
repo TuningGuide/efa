@@ -1,5 +1,9 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.util.TMJ;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -7,7 +11,7 @@ import javax.swing.border.*;
 import java.io.*;
 import java.util.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 
 /**
  * Title:        efa - Elektronisches Fahrtenbuch
@@ -121,11 +125,11 @@ public class FahrtenbuchAutoContinueFrame extends JDialog implements ActionListe
       jPanel2.add(fileSelectButton, new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
-      info.append("Diese Funktion ist daf¸r gedacht, zu einem bestimmten Datum (z.B. Neujahr)\n"+
-                  "die zur Zeit geˆffnete Fahrtenbuchdatei abzuschlieﬂen und eine neue zu\n"+
+      info.append("Diese Funktion ist daf√ºr gedacht, zu einem bestimmten Datum (z.B. Neujahr)\n"+
+                  "die zur Zeit ge√∂ffnete Fahrtenbuchdatei abzuschlie√üen und eine neue zu\n"+
                   "beginnen.\n"+
                   "Hinweis: Sollten zu dem Zeitpunkt des Wechsels noch Boote auf dem Wasser sein,\n"+
-                  "so werden diese Fahrten abgebrochen und der Administrator per Nachricht ¸ber\n"+
+                  "so werden diese Fahrten abgebrochen und der Administrator per Nachricht √ºber\n"+
                   "den Abbruch der Fahrten informiert.");
 
     } catch(NoSuchMethodException e) {
@@ -183,7 +187,7 @@ public class FahrtenbuchAutoContinueFrame extends JDialog implements ActionListe
   void fileSelectButton_actionPerformed(ActionEvent e) {
     String base = EfaUtil.getPathOfFile(Daten.fahrtenbuch.getFileName());
     if (filename.getText().trim().length()>0) base = EfaUtil.getPathOfFile(filename.getText().trim());
-    String dat = Dialog.dateiDialog(this,"Fahrtenbuchdatei ausw‰hlen","efa Fahrtenbuch (*.efb)","efb",base,true);
+    String dat = Dialog.dateiDialog(this,"Fahrtenbuchdatei ausw√§hlen","efa Fahrtenbuch (*.efb)","efb",base,true);
     if (dat != null) {
       filename.setText(dat);
     }

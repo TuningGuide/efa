@@ -1,5 +1,8 @@
 package de.nmichael.efa.eddi;
 
+import de.nmichael.efa.core.Mitglieder;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -7,7 +10,7 @@ import javax.swing.border.*;
 import java.io.*;
 import java.util.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 
 /**
  * Title:        efa - Elektronisches Fahrtenbuch
@@ -155,7 +158,7 @@ public class MitgliederFehlerFrame extends JDialog implements ActionListener {
     jLabel3.setText("Nachname: ");
     jLabel4.setDisplayedMnemonic('K');
     jLabel4.setLabelFor(kuerzel);
-    jLabel4.setText("Eingabekürzel: ");
+    jLabel4.setText("EingabekÃ¼rzel: ");
     jLabel5.setDisplayedMnemonic('J');
     jLabel5.setLabelFor(jahrgang);
     jLabel5.setText("Jahrgang: ");
@@ -196,15 +199,15 @@ public class MitgliederFehlerFrame extends JDialog implements ActionListener {
       }
     });
     replGeschlBox.setPreferredSize(new Dimension(300, 17));
-    replGeschlBox.setToolTipText("Bei künftigen Einträgen diese Ersetzung immer durchführen");
+    replGeschlBox.setToolTipText("Bei kÃ¼nftigen EintrÃ¤gen diese Ersetzung immer durchfÃ¼hren");
     fehlerText.setBackground(new Color(204, 204, 204));
     fehlerText.setFont(new java.awt.Font("Dialog", 1, 12));
     fehlerText.setForeground(Color.red);
     fehlerText.setEditable(false);
     replStatusBox.setPreferredSize(new Dimension(300, 17));
-    replStatusBox.setToolTipText("Bei künftigen Einträgen diese Ersetzung immer durchführen");
+    replStatusBox.setToolTipText("Bei kÃ¼nftigen EintrÃ¤gen diese Ersetzung immer durchfÃ¼hren");
     replBehBox.setPreferredSize(new Dimension(300, 17));
-    replBehBox.setToolTipText("Bei künftigen Einträgen diese Ersetzung immer durchführen");
+    replBehBox.setToolTipText("Bei kÃ¼nftigen EintrÃ¤gen diese Ersetzung immer durchfÃ¼hren");
     status.setNextFocusableComponent(verein);
     status.setPreferredSize(new Dimension(200, 17));
     status.addActionListener(new java.awt.event.ActionListener() {
@@ -213,7 +216,7 @@ public class MitgliederFehlerFrame extends JDialog implements ActionListener {
       }
     });
     jLabel10.setText("Mitgliedsnummer: ");
-    jLabel11.setText("Paßwort: ");
+    jLabel11.setText("PaÃŸwort: ");
     jLabel12.setText("Frei 1: ");
     jLabel13.setText("Frei 2: ");
     jLabel14.setText("Frei 3: ");
@@ -222,7 +225,7 @@ public class MitgliederFehlerFrame extends JDialog implements ActionListener {
     frei1.setNextFocusableComponent(frei2);
     frei2.setNextFocusableComponent(frei3);
     frei3.setNextFocusableComponent(okButton);
-    skipButton.setText("Eintrag überspringen");
+    skipButton.setText("Eintrag Ã¼berspringen");
     skipButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         skipButton_actionPerformed(e);
@@ -298,11 +301,11 @@ public class MitgliederFehlerFrame extends JDialog implements ActionListener {
     jPanel2.add(skipButton,    new GridBagConstraints(0, 13, 3, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 10, 0), 0, 0));
 
-    geschlecht.addItem("ungültiger Wert");
+    geschlecht.addItem("ungÃ¼ltiger Wert");
     for (int i=0; i<Daten.bezeichnungen.geschlecht.size(); i++) geschlecht.addItem(Daten.bezeichnungen.geschlecht.get(i));
-    status.addItem("ungültiger Wert");
+    status.addItem("ungÃ¼ltiger Wert");
     for (int i=0; i<statusList.length; i++) status.addItem(statusList[i]);
-    behinderung.addItem("ungültiger Wert");
+    behinderung.addItem("ungÃ¼ltiger Wert");
     behinderung.addItem("ja");
     behinderung.addItem("nein");
   }

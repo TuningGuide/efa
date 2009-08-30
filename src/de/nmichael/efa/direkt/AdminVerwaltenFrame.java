@@ -1,11 +1,17 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.core.DownloadFrame;
+import de.nmichael.efa.core.EfaConfig;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.util.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 import java.beans.*;
 
@@ -19,7 +25,7 @@ import java.beans.*;
  */
 
 public class AdminVerwaltenFrame extends JDialog implements ActionListener {
-  String _password; // Paﬂwort des aktuell angezeigten Eintrags
+  String _password; // Pa√üwort des aktuell angezeigten Eintrags
   boolean neuerEintrag;
   TitledBorder titledBorder1;
   JPanel jPanel1 = new JPanel();
@@ -120,7 +126,7 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
     });
       deleteButton.setNextFocusableComponent(name);
       deleteButton.setMnemonic('L');
-      deleteButton.setText("Lˆschen");
+      deleteButton.setText("L√∂schen");
       deleteButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           deleteButton_actionPerformed(e);
@@ -130,10 +136,10 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
       nameLabel.setDisplayedMnemonic('N');
       nameLabel.setLabelFor(name);
       nameLabel.setText("Name: ");
-      pwdLabel.setText("Paﬂwort: ");
+      pwdLabel.setText("Pa√üwort: ");
       passwordButton.setNextFocusableComponent(email);
       passwordButton.setMnemonic('P');
-      passwordButton.setText("Paﬂwort ‰ndern");
+      passwordButton.setText("Pa√üwort √§ndern");
       passwordButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           passwordButton_actionPerformed(e);
@@ -145,10 +151,10 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
       adminsVerwaltenCheckBox.setText("Admins verwalten");
       passwortAendernCheckBox.setNextFocusableComponent(vollzugriffCheckBox);
       passwortAendernCheckBox.setMnemonic('P');
-      passwortAendernCheckBox.setText("Paﬂwort ‰ndern");
+      passwortAendernCheckBox.setText("Pa√üwort √§ndern");
       fahrtenbuchAuswaehlenCheckBox.setNextFocusableComponent(fahrtenbuchAnzeigenCheckBox);
       fahrtenbuchAuswaehlenCheckBox.setMnemonic('F');
-      fahrtenbuchAuswaehlenCheckBox.setText("Fahrtenbuch ausw‰hlen");
+      fahrtenbuchAuswaehlenCheckBox.setText("Fahrtenbuch ausw√§hlen");
       fahrtenbuchAnzeigenCheckBox.setNextFocusableComponent(bootsstatusBearbeitenCheckBox);
       fahrtenbuchAnzeigenCheckBox.setMnemonic('R');
       fahrtenbuchAnzeigenCheckBox.setText("Fahrtenbuch bearbeiten");
@@ -184,7 +190,7 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
       editPanel.setBorder(BorderFactory.createEtchedBorder());
       saveButton.setNextFocusableComponent(okButton);
       saveButton.setMnemonic('D');
-      saveButton.setText("ƒnderungen ¸bernehmen");
+      saveButton.setText("√Ñnderungen √ºbernehmen");
       saveButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           saveButton_actionPerformed(e);
@@ -355,7 +361,7 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
     Admin admin;
     if (name != null) {
       admin = (Admin)Daten.efaConfig.admins.get(name);
-      password.setText("verschl¸sselt");
+      password.setText("verschl√ºsselt");
       _password = admin.password;
       neuerEintrag = false;
     } else {
@@ -389,7 +395,7 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
     logdateiAnzeigenCheckBox.setSelected(admin.allowedLogdateiAnzeigen);
     efaBeendenCheckBox.setSelected(admin.allowedEfaBeenden);
     if (admin.name.equals(EfaConfig.SUPERADMIN)) { // SuperAdmin
-      // bestimmte Felder des Super-Admins d¸rfen nicht ver‰ndert werden
+      // bestimmte Felder des Super-Admins d√ºrfen nicht ver√§ndert werden
       this.name.setEditable(false);
       adminsVerwaltenCheckBox.setEnabled(false);
       passwortAendernCheckBox.setEnabled(false);
@@ -434,7 +440,7 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
       nachrichtenAdminAllowedGelesenMarkierenCheckBox.setSelected(true);
       deleteButton.setSelected(true);
     } else {
-      // Bei normalen Admins d¸rfen alle Felder ver‰ndert werden
+      // Bei normalen Admins d√ºrfen alle Felder ver√§ndert werden
       this.name.setEditable(true);
       adminsVerwaltenCheckBox.setEnabled(false);
       passwortAendernCheckBox.setEnabled(true);
@@ -471,7 +477,7 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
     if (!Daten.efaConfig.writeFile()) {
       Dialog.error("Die Konfigurationsdatei konnte nicht geschrieben werden!");
     } else {
-      Logger.log(Logger.INFO,"ƒnderungen an Liste der Admins gespeichert.");
+      Logger.log(Logger.INFO,"√Ñnderungen an Liste der Admins gespeichert.");
     }
     cancel();
   }
@@ -490,13 +496,13 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
 
   void deleteButton_actionPerformed(ActionEvent e) {
     if (adminList.getSelectedIndex()<0) {
-      Dialog.error("Bitte w‰hle zuerst aus der linken Liste einen Admin aus!");
+      Dialog.error("Bitte w√§hle zuerst aus der linken Liste einen Admin aus!");
       return;
     }
     String name = (String)adminList.getSelectedValue();
-    if (Dialog.yesNoDialog("Admin lˆschen","Willst Du den Admin '"+name+"' wirklich lˆschen?") == Dialog.YES) {
+    if (Dialog.yesNoDialog("Admin l√∂schen","Willst Du den Admin '"+name+"' wirklich l√∂schen?") == Dialog.YES) {
       Daten.efaConfig.admins.remove(name);
-      Logger.log(Logger.INFO,"Admin '"+name+"' gelˆscht.");
+      Logger.log(Logger.INFO,"Admin '"+name+"' gel√∂scht.");
       listAdmins();
     }
   }
@@ -507,19 +513,19 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
     if (!neuerEintrag && adminList.getSelectedIndex()>=0) altername = (String)adminList.getSelectedValue();
 
     if (name.length() == 0) {
-      Dialog.error("Bitte gib einen Namen f¸r den Admin an!");
+      Dialog.error("Bitte gib einen Namen f√ºr den Admin an!");
       this.name.requestFocus();
       return;
     }
 
     if (!name.equals(altername) && Daten.efaConfig.admins.get(name) != null) {
-      Dialog.error("Es gibt bereits einen Admin mit diesem Namen.\nBitte w‰hle einen anderen Namen!");
+      Dialog.error("Es gibt bereits einen Admin mit diesem Namen.\nBitte w√§hle einen anderen Namen!");
       this.name.requestFocus();
       return;
     }
 
     if (_password == null) {
-      Dialog.error("Bitte gib zun‰chst ein Paﬂwort f¸r den Admin an!");
+      Dialog.error("Bitte gib zun√§chst ein Pa√üwort f√ºr den Admin an!");
       this.passwordButton.requestFocus();
       return;
     }
@@ -558,7 +564,7 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
       Logger.log(Logger.INFO,"Neuer Admin '"+name+"' angelegt.");
     } else {
       if (!name.equals(altername)) Logger.log(Logger.INFO,"Admin '"+altername+"' in '"+name+"' umbenannt.");
-      Logger.log(Logger.INFO,"Daten des Admins '"+name+"' ge‰ndert.");
+      Logger.log(Logger.INFO,"Daten des Admins '"+name+"' ge√§ndert.");
     }
 
     listAdmins();
@@ -576,7 +582,7 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
     String pwd = NewPasswordFrame.getNewPassword(this,this.name.getText().trim());
     if (pwd == null) return;
     this._password = EfaUtil.getSHA(pwd);
-    password.setText("verschl¸sselt");
+    password.setText("verschl√ºsselt");
   }
 
   void name_focusLost(FocusEvent e) {

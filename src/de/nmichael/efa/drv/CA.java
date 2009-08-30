@@ -1,10 +1,10 @@
 package de.nmichael.efa.drv;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.Logger;
-import de.nmichael.efa.EfaUtil;
-import de.nmichael.efa.Dialog;
-import de.nmichael.efa.EnterPasswordFrame;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.core.EnterPasswordFrame;
 import java.io.*;
 
 public class CA {
@@ -16,7 +16,7 @@ public class CA {
   public CA(DRVConfig drvConfig) throws Exception {
     this.drvConfig = drvConfig;
 
-    if (!(new File(Daten.efaDataDirectory+"CA").isDirectory())) throw new Exception("Verzeichnis "+Daten.efaDataDirectory+"CA existiert nicht. Bitte erstelle zun‰chst eine CA!");
+    if (!(new File(Daten.efaDataDirectory+"CA").isDirectory())) throw new Exception("Verzeichnis "+Daten.efaDataDirectory+"CA existiert nicht. Bitte erstelle zun√§chst eine CA!");
 
     if (Daten.keyStore.getCertificate(DRVCA) == null) {
       runKeytool("-import"+
@@ -63,7 +63,7 @@ public class CA {
       return false;
     }
     try {
-      char[] pwd = EnterPasswordFrame.enterPassword(Dialog.frameCurrent(),"Bitte Schl¸ssel-Paﬂwort f¸r CA eingeben:");
+      char[] pwd = EnterPasswordFrame.enterPassword(Dialog.frameCurrent(),"Bitte Schl√ºssel-Pa√üwort f√ºr CA eingeben:");
       if (pwd == null) return false;
       String openssl = drvConfig.openssl;
       String sigReqTmp = sigReq+".tmp";

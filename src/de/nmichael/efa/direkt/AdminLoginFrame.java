@@ -1,11 +1,15 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 
 /**
@@ -104,7 +108,7 @@ public class AdminLoginFrame extends JDialog implements ActionListener {
     nameLabel.setText("Admin-Name: ");
     passwortLabel.setDisplayedMnemonic('P');
     passwortLabel.setLabelFor(passwort);
-    passwortLabel.setText("Paﬂwort: ");
+    passwortLabel.setText("Pa√üwort: ");
     name.setNextFocusableComponent(passwort);
     Dialog.setPreferredSize(name,100,17);
     name.setMinimumSize(name.getPreferredSize()); // neu (Bugfix 1.7.0_03)
@@ -204,14 +208,14 @@ public class AdminLoginFrame extends JDialog implements ActionListener {
     }
     String pwd = new String(passwort.getPassword()).trim();
     if (pwd.length()==0) {
-      Dialog.error("Kein Paﬂwort eingegeben!");
+      Dialog.error("Kein Pa√üwort eingegeben!");
       passwort.requestFocus();
       return;
     }
     Admin admin = null;
     if ( (admin = Daten.efaConfig.login(name.getText().trim(),pwd)) == null) {
-      Dialog.error("Admin-Name oder Paﬂwort ung¸ltig!");
-      Logger.log(Logger.WARNING,"Admin-Login: Name '"+name.getText().trim()+"' oder Paﬂwort ung¸ltig!");
+      Dialog.error("Admin-Name oder Pa√üwort ung√ºltig!");
+      Logger.log(Logger.WARNING,"Admin-Login: Name '"+name.getText().trim()+"' oder Pa√üwort ung√ºltig!");
       passwort.requestFocus();
       return;
     }

@@ -1,5 +1,9 @@
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.core.EfaWettMeldung;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -7,7 +11,7 @@ import javax.swing.border.*;
 import java.util.*;
 import java.beans.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 
 
 public class WSFahrtenUebersichtFrame extends JDialog implements ActionListener {
@@ -63,7 +67,7 @@ public class WSFahrtenUebersichtFrame extends JDialog implements ActionListener 
       ah.addKeyActions(getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW,
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
-      closeButton.setText("Schlieﬂen");
+      closeButton.setText("Schlie√üen");
       closeButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           closeButton_actionPerformed(e);
@@ -76,7 +80,7 @@ public class WSFahrtenUebersichtFrame extends JDialog implements ActionListener 
           editButton_actionPerformed(e);
         }
     });
-      this.setTitle("‹bersicht der Wanderfahrten");
+      this.setTitle("√úbersicht der Wanderfahrten");
       scrollPane.setPreferredSize(new Dimension(500, 400));
       this.getContentPane().add(jPanel1, BorderLayout.CENTER);
       jPanel1.add(closeButton, BorderLayout.SOUTH);
@@ -158,7 +162,7 @@ public class WSFahrtenUebersichtFrame extends JDialog implements ActionListener 
   void editButton_actionPerformed(ActionEvent e) {
     int selected = table.getSelectedRow();
     if (selected < 0) {
-      Dialog.error("Bitte w‰hle zuerst eine Fahrt aus!");
+      Dialog.error("Bitte w√§hle zuerst eine Fahrt aus!");
       return;
     }
     cancel(selected);

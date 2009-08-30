@@ -1,7 +1,17 @@
 package de.nmichael.efa.emil;
 
+import de.nmichael.efa.core.WettDefs;
+import de.nmichael.efa.core.EfaWettMeldung;
+import de.nmichael.efa.core.EfaWett;
+import de.nmichael.efa.core.WettDef;
+import de.nmichael.efa.core.EfaFrame;
+import de.nmichael.efa.util.TMJ;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
+import de.nmichael.efa.util.ZielfahrtFolge;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -22,7 +32,7 @@ public class EmilFrame extends JFrame {
   int currentTeilnehmerNummer = 0; // Position des Teilnehmers in der verketteten Liste, 0 == efw.meldung; 1 == efw.meldung.next usw.
   boolean geaendertEintrag = false;
   boolean geaendertDatei = false;
-  boolean anStdCsvAngehaengt = false; // true, wenn aktuelle Daten bereits an Standard-CSV-Datei angehängt wurden
+  boolean anStdCsvAngehaengt = false; // true, wenn aktuelle Daten bereits an Standard-CSV-Datei angehÃ¤ngt wurden
 
   JPanel contentPane;
   JMenuBar jMenuBar1 = new JMenuBar();
@@ -197,7 +207,7 @@ public class EmilFrame extends JFrame {
     jMenuHelp.setMnemonic('I');
     jMenuHelp.setText("Info");
     menuItemUeber.setMnemonic('B');
-    menuItemUeber.setText("Über");
+    menuItemUeber.setText("Ãœber");
     menuItemUeber.addActionListener(new ActionListener()  {
       public void actionPerformed(ActionEvent e) {
         menuItemUeber_actionPerformed(e);
@@ -279,7 +289,7 @@ public class EmilFrame extends JFrame {
     });
     nextButton.setNextFocusableComponent(lastButton);
     nextButton.setMnemonic('N');
-    nextButton.setText("Nächster >>");
+    nextButton.setText("NÃ¤chster >>");
     nextButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         nextButton_actionPerformed(e);
@@ -316,17 +326,17 @@ public class EmilFrame extends JFrame {
     versandPanel.setLayout(gridBagLayout5);
     jLabel8.setText("Versand: Name: ");
     jPanel5.setLayout(borderLayout6);
-    jLabel9.setText("Anzahl Teilnehmer (erfüllt/gesamt): ");
+    jLabel9.setText("Anzahl Teilnehmer (erfÃ¼llt/gesamt): ");
     saveButton.setNextFocusableComponent(firstButton);
     saveButton.setPreferredSize(new Dimension(400, 25));
     saveButton.setMnemonic('S');
-    saveButton.setText("Änderungen am Eintrag speichern");
+    saveButton.setText("Ã„nderungen am Eintrag speichern");
     saveButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         saveButton_actionPerformed(e);
       }
     });
-    jLabel10.setText("Straße: ");
+    jLabel10.setText("StraÃŸe: ");
     jLabel11.setText("PLZ, Ort: ");
     versandName.setNextFocusableComponent(versandStrasse);
     versandName.setPreferredSize(new Dimension(200, 19));
@@ -360,7 +370,7 @@ public class EmilFrame extends JFrame {
     jPanel6.setLayout(gridBagLayout6);
     deleteButton.setNextFocusableComponent(nachname);
     deleteButton.setMnemonic('C');
-    deleteButton.setText("Löschen");
+    deleteButton.setText("LÃ¶schen");
     deleteButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         deleteButton_actionPerformed(e);
@@ -438,7 +448,7 @@ public class EmilFrame extends JFrame {
       }
     });
     menuItemOeffnen.setMnemonic('F');
-    menuItemOeffnen.setText("Meldedatei öffnen");
+    menuItemOeffnen.setText("Meldedatei Ã¶ffnen");
     menuItemOeffnen.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         menuItemOeffnen_actionPerformed(e);
@@ -474,7 +484,7 @@ public class EmilFrame extends JFrame {
     erfuellt.setForeground(Color.black);
     erfuellt.setOpaque(true);
     erfuellt.setHorizontalAlignment(SwingConstants.CENTER);
-    erfuellt.setText("nicht erfüllt");
+    erfuellt.setText("nicht erfÃ¼llt");
     jLabel19.setText("Adresse: ");
     adresse.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyTyped(KeyEvent e) {
@@ -487,7 +497,7 @@ public class EmilFrame extends JFrame {
     jLabel21.setText("Gruppe: ");
     gruppe.setForeground(Color.black);
     menuitemAddToCVS.setMnemonic('A');
-    menuitemAddToCVS.setText("Meldedatei an Standard-CVS anhängen");
+    menuitemAddToCVS.setText("Meldedatei an Standard-CVS anhÃ¤ngen");
     menuitemAddToCVS.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         menuitemAddToCVS_actionPerformed(e);
@@ -773,7 +783,7 @@ public class EmilFrame extends JFrame {
         wett_itemStateChanged(e);
       }
     });
-    wett.addItem("--- Bitte auswählen ---");
+    wett.addItem("--- Bitte auswÃ¤hlen ---");
     for (int i=0; i<WettDefs.ANZWETT; i++)
       if (wettDefs != null && wettDefs.getWettDef(i,9999) != null &&
           i != WettDefs.DRV_FAHRTENABZEICHEN &&
@@ -781,14 +791,14 @@ public class EmilFrame extends JFrame {
           i != WettDefs.LRVBRB_WANDERRUDERWETT &&
           i != WettDefs.LRVBRB_FAHRTENWETT)
         wett.addItem(wettDefs.getWettDef(i,9999).name);
-    geschlecht.addItem("--- Bitte auswählen ---");
-    geschlecht.addItem("männlich");
+    geschlecht.addItem("--- Bitte auswÃ¤hlen ---");
+    geschlecht.addItem("mÃ¤nnlich");
     geschlecht.addItem("weiblich");
 
   }
 
 /*********************************************************************************************************/
-/* MENÜ **************************************************************************************************/
+/* MENÃœ **************************************************************************************************/
 /*********************************************************************************************************/
 
   void menuItemNeu_actionPerformed(ActionEvent e) {
@@ -811,15 +821,15 @@ public class EmilFrame extends JFrame {
     if (dir.equals("") || !new File(dir).isDirectory()) dir = System.getProperty("user.dir");
 
 
-    String dat = Dialog.dateiDialog(this,"Meldedatei öffnen","efa Meldedatei (*.efw)","efw",dir,false);
+    String dat = Dialog.dateiDialog(this,"Meldedatei Ã¶ffnen","efa Meldedatei (*.efw)","efw",dir,false);
 
     if (dat != null) {
       efw = new EfaWett();
       efw.datei = dat;
       try {
         if (!efw.readFile()) {
-          Dialog.infoDialog("Fehler","Datei '"+efw.datei+"' hat ungültiges Format!\n"+
-                                             "Es können nur Dateien im Format "+efw.EFAWETT+" gelesen werden!");
+          Dialog.infoDialog("Fehler","Datei '"+efw.datei+"' hat ungÃ¼ltiges Format!\n"+
+                                             "Es kÃ¶nnen nur Dateien im Format "+efw.EFAWETT+" gelesen werden!");
           efw = null;
         } else {
           this.setTitle(KURZTITEL + " - " + efw.datei);
@@ -853,21 +863,21 @@ public class EmilFrame extends JFrame {
     }
     if (efw == null || !eintragAenderungenGespeichert()) return;
     if (anStdCsvAngehaengt) {
-      Dialog.infoDialog("Warnung","Die aktuellen Daten wurden bereits an die Standard-CSV-Datei angehängt!\n"+
-                                         "Um die Daten erneut anzuhängen, öffne die aktuelle Datei neu.");
+      Dialog.infoDialog("Warnung","Die aktuellen Daten wurden bereits an die Standard-CSV-Datei angehÃ¤ngt!\n"+
+                                         "Um die Daten erneut anzuhÃ¤ngen, Ã¶ffne die aktuelle Datei neu.");
       return;
     }
-    if (Dialog.yesNoCancelDialog("An Standard-CVS-Datei anhängen",
-                                 "Sollen alle Teilnehmer" + (cfg.getExportNurErfuellt() ? ", die die Bedingungen erfüllt haben, " : " (auch welche, die die Bedingungen nicht erfüllt haben) " ) + "an die Datei\n'"+cfg.getStdCsv()+"'\nangehängt werden?"
+    if (Dialog.yesNoCancelDialog("An Standard-CVS-Datei anhÃ¤ngen",
+                                 "Sollen alle Teilnehmer" + (cfg.getExportNurErfuellt() ? ", die die Bedingungen erfÃ¼llt haben, " : " (auch welche, die die Bedingungen nicht erfÃ¼llt haben) " ) + "an die Datei\n'"+cfg.getStdCsv()+"'\nangehÃ¤ngt werden?"
         ) != Dialog.YES) return;
 
     try {
       BufferedWriter f = new BufferedWriter(new FileWriter(cfg.getStdCsv(),true));
       int c = writeCSVfile(f);
       if (efw.wettId != WettDefs.LRVBERLIN_BLAUERWIMPEL)
-        Dialog.infoDialog("Bestätigung","Es wurden "+c+" von insgesamt "+getAnzTeilnehmer()+" Einträgen in die Datei\n'"+cfg.getStdCsv()+"'\ngeschrieben!");
+        Dialog.infoDialog("BestÃ¤tigung","Es wurden "+c+" von insgesamt "+getAnzTeilnehmer()+" EintrÃ¤gen in die Datei\n'"+cfg.getStdCsv()+"'\ngeschrieben!");
       else
-        Dialog.infoDialog("Bestätigung","Es wurden die Daten für den Verein "+efw.verein_name+" in die Datei\n'"+cfg.getStdCsv()+"'\ngeschrieben!");
+        Dialog.infoDialog("BestÃ¤tigung","Es wurden die Daten fÃ¼r den Verein "+efw.verein_name+" in die Datei\n'"+cfg.getStdCsv()+"'\ngeschrieben!");
       anStdCsvAngehaengt = true;
     } catch(IOException ee) {
       Dialog.infoDialog("Fehler","Die Datei\n'"+cfg.getStdCsv()+"'\nkonnte nicht geschrieben werden!");
@@ -975,7 +985,7 @@ public class EmilFrame extends JFrame {
   void deleteButton_actionPerformed(ActionEvent e) {
     if (efw == null) return;
     if (currentTeilnehmer == null) return;
-    if (Dialog.yesNoDialog("Wirklich löschen?","Soll der aktuelle Eintrag wirklich gelöscht werden?") == Dialog.NO) return;
+    if (Dialog.yesNoDialog("Wirklich lÃ¶schen?","Soll der aktuelle Eintrag wirklich gelÃ¶scht werden?") == Dialog.NO) return;
 
     if (currentTeilnehmerNummer == 0) currentTeilnehmer = efw.meldung = efw.meldung.next;
     else {
@@ -1290,8 +1300,8 @@ public class EmilFrame extends JFrame {
 
   // Anzahl der im Formular eingetragenen Fahrten ermitteln
   int getAnzFahrten() {
-    int c=0; // Zähler für die Fahrten
-    for (int i=0; i<fahrtDatum.length; i++) // Fahrt vollständig
+    int c=0; // ZÃ¤hler fÃ¼r die Fahrten
+    for (int i=0; i<fahrtDatum.length; i++) // Fahrt vollstÃ¤ndig
       if (!fahrtDatum[i].getText().trim().equals("") ||
           !fahrtZiel[i].getText().trim().equals("") ||
           !fahrtKm[i].getText().trim().equals("") ||
@@ -1300,8 +1310,8 @@ public class EmilFrame extends JFrame {
   }
 
 /*
-  // prüft, ob Bedingungen erfüllt;
-  // Rückgabe: Name der Gruppe oder null, wenn nicht erfüllt
+  // prÃ¼ft, ob Bedingungen erfÃ¼llt;
+  // RÃ¼ckgabe: Name der Gruppe oder null, wenn nicht erfÃ¼llt
   String isErfuellt() {
     if (wett.getSelectedIndex() == 0 || wettJahr.getText().trim().equals("")) return null;
     TMJ tmj = EfaUtil.string2date(wettJahr.getText(),0,0,0);
@@ -1336,8 +1346,8 @@ public class EmilFrame extends JFrame {
   }
 */
 
-  // prüft, ob Bedingungen erfüllt;
-  // Rückgabe: Name der Gruppe oder null, wenn nicht erfüllt
+  // prÃ¼ft, ob Bedingungen erfÃ¼llt;
+  // RÃ¼ckgabe: Name der Gruppe oder null, wenn nicht erfÃ¼llt
   String isErfuellt(int wettbewerb, String wettjahr, EfaWettMeldung m) {
     if (m == null) return null;
     if (wettbewerb == 0 || wettjahr == null || wettjahr.trim().equals("")) return null;
@@ -1354,7 +1364,7 @@ public class EmilFrame extends JFrame {
     if (tmj.monat<0 || tmj.monat>10) tmj.monat=0;
     int _km = tmj.tag*10 + tmj.monat;
     int _geschlecht = ( m.geschlecht.equals("M") ? 0 : ( m.geschlecht.equals("W") ? 1 : -1 ) );
-    boolean _behinderung = false; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! (wenn DRV implementiert, dann muß hierfür ein Feld eingefügt werden!)
+    boolean _behinderung = false; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! (wenn DRV implementiert, dann muÃŸ hierfÃ¼r ein Feld eingefÃ¼gt werden!)
     if (_jahrgang == 0 || _geschlecht<0) return null;
     int _z1 = 0; int _z2 = 0;
     switch (wettbewerb) {
@@ -1381,17 +1391,17 @@ public class EmilFrame extends JFrame {
 
   void setErfuellt(boolean erf) {
     if (erf) {
-      erfuellt.setText("- erfüllt -");
+      erfuellt.setText("- erfÃ¼llt -");
       erfuellt.setBackground(Color.green);
     } else {
-      erfuellt.setText("- nicht erfüllt -");
+      erfuellt.setText("- nicht erfÃ¼llt -");
       erfuellt.setBackground(Color.red);
     }
   }
 
   void checkErfuellt() {
     if (efw == null || currentTeilnehmer == null) return;
-//    System.out.println("checking erfüllt...");
+//    System.out.println("checking erfÃ¼llt...");
     String gr;
     setErfuellt( (gr = isErfuellt(wett.getSelectedIndex(),wettJahr.getText().trim(),getTeilnehmer())) != null);
     gruppe.setText(gr);
@@ -1433,7 +1443,7 @@ public class EmilFrame extends JFrame {
 /*
   // Anzahl der wertbaren Fahrten ermitteln
   int countFahrten() {
-    // Zeitraum für Wettbewerb ermitteln
+    // Zeitraum fÃ¼r Wettbewerb ermitteln
     int wjahr = EfaUtil.string2date(wettJahr.getText(),0,0,0).tag;
     GregorianCalendar vonCal = new GregorianCalendar(wettDefs.wett[wett.getSelectedIndex()].von.jahr+wjahr,wettDefs.wett[wett.getSelectedIndex()].von.monat-1,wettDefs.wett[wett.getSelectedIndex()].von.tag);
     vonCal.set(wettDefs.wett[wett.getSelectedIndex()].von.jahr+wjahr,wettDefs.wett[wett.getSelectedIndex()].von.monat-1,wettDefs.wett[wett.getSelectedIndex()].von.tag);
@@ -1443,12 +1453,12 @@ public class EmilFrame extends JFrame {
     String tage=" "; // zum ermitteln der doppelten Tage (nur eine Fahrt pro Tag!)
     String zf="";   // Zielfahrten insgesamt
     if (wett.getSelectedIndex()<1) return 0;
-    int c=0; // Zähler für die Fahrten
+    int c=0; // ZÃ¤hler fÃ¼r die Fahrten
 
-//    System.out.println("zähle Fahrten...");
+//    System.out.println("zÃ¤hle Fahrten...");
     for (int i=0; i<fahrtDatum.length; i++) {
 
-      // Fahrt vollständig
+      // Fahrt vollstÃ¤ndig
       if (fahrtDatum[i].getText().trim().equals("") ||
           fahrtKm[i].getText().trim().equals("")) continue;
       if (wett.getSelectedIndex() == WettDefs.LRVBERLIN_SOMMER && fahrtZiel[i].getText().trim().equals("")) continue;
@@ -1459,7 +1469,7 @@ public class EmilFrame extends JFrame {
       GregorianCalendar dateCal = new GregorianCalendar(dateF.jahr,dateF.monat-1,dateF.tag);
       dateCal.set(dateF.jahr,dateF.monat-1+dateCal.getMinimum(GregorianCalendar.MONTH),dateF.tag);
       if (dateCal.before(vonCal) || dateCal.after(bisCal)) {
-//        System.out.println("Fahrt "+(i+1)+" liegt außerhalb des Zeitraums!");
+//        System.out.println("Fahrt "+(i+1)+" liegt auÃŸerhalb des Zeitraums!");
         continue;
       }
 
@@ -1473,7 +1483,7 @@ public class EmilFrame extends JFrame {
 
       // LRVSOMMER: Zielfahrt mind. 20 Km lang?
       if (wett.getSelectedIndex() == WettDefs.LRVBERLIN_SOMMER && EfaUtil.string2date(fahrtKm[i].getText(),0,0,0).tag < 20) {
-//        System.out.println("Fahrt "+(i+1)+" muß mindestens 20 Km lang sein!");
+//        System.out.println("Fahrt "+(i+1)+" muÃŸ mindestens 20 Km lang sein!");
         continue;
       }
 
@@ -1493,7 +1503,7 @@ public class EmilFrame extends JFrame {
     WettDef wett = wettDefs.getWettDef(wettbewerb,wettjahr);
     if (wett == null) return 0;
 
-    // Zeitraum für Wettbewerb ermitteln
+    // Zeitraum fÃ¼r Wettbewerb ermitteln
     GregorianCalendar vonCal = new GregorianCalendar(wett.von.jahr+wettjahr,wett.von.monat-1,wett.von.tag);
     vonCal.set(wett.von.jahr+wettjahr,wett.von.monat-1,wett.von.tag);
     GregorianCalendar bisCal = new GregorianCalendar(wett.bis.jahr+wettjahr,wett.bis.monat-1,wett.bis.tag);
@@ -1502,12 +1512,12 @@ public class EmilFrame extends JFrame {
     String tage=" "; // zum ermitteln der doppelten Tage (nur eine Fahrt pro Tag!)
     ZielfahrtFolge zf = new ZielfahrtFolge();   // Zielfahrten insgesamt
     if (wettbewerb<1) return 0;
-    int c=0; // Zähler für die Fahrten
+    int c=0; // ZÃ¤hler fÃ¼r die Fahrten
 
-//    System.out.println("zähle Fahrten...");
+//    System.out.println("zÃ¤hle Fahrten...");
     for (int i=0; i<m.fahrt.length; i++) {
 
-      // Fahrt vollständig
+      // Fahrt vollstÃ¤ndig
       if (m.fahrt[i][0] == null || m.fahrt[i][0].trim().equals("") ||
           m.fahrt[i][2] == null || m.fahrt[i][2].trim().equals("")) continue;
       if (wettbewerb == WettDefs.LRVBERLIN_SOMMER && (m.fahrt[i][1] == null || m.fahrt[i][1].trim().equals(""))) continue;
@@ -1518,7 +1528,7 @@ public class EmilFrame extends JFrame {
       GregorianCalendar dateCal = new GregorianCalendar(dateF.jahr,dateF.monat-1,dateF.tag);
       dateCal.set(dateF.jahr,dateF.monat-1+dateCal.getMinimum(GregorianCalendar.MONTH),dateF.tag);
       if (dateCal.before(vonCal) || dateCal.after(bisCal)) {
-//        System.out.println("Fahrt "+(i+1)+" liegt außerhalb des Zeitraums!");
+//        System.out.println("Fahrt "+(i+1)+" liegt auÃŸerhalb des Zeitraums!");
         continue;
       }
 
@@ -1532,7 +1542,7 @@ public class EmilFrame extends JFrame {
 
       // LRVSOMMER: Zielfahrt mind. 20 Km lang?
       if (wettbewerb == WettDefs.LRVBERLIN_SOMMER && EfaUtil.string2date(m.fahrt[i][2],0,0,0).tag < 20) {
-//        System.out.println("Fahrt "+(i+1)+" muß mindestens 20 Km lang sein!");
+//        System.out.println("Fahrt "+(i+1)+" muÃŸ mindestens 20 Km lang sein!");
         continue;
       }
 
@@ -1609,7 +1619,7 @@ public class EmilFrame extends JFrame {
 
   boolean eintragAenderungenGespeichert() {
     if (!geaendertEintrag) return true;
-    switch (Dialog.yesNoCancelDialog("Änderungen nicht gespeichert","Änderungen am aktuellen Eintrag wurden noch nicht gespeichert.\nSollen sie jetzt gespeichert werden?")) {
+    switch (Dialog.yesNoCancelDialog("Ã„nderungen nicht gespeichert","Ã„nderungen am aktuellen Eintrag wurden noch nicht gespeichert.\nSollen sie jetzt gespeichert werden?")) {
       case Dialog.YES: speichereEintrag(); return true;
       case Dialog.NO: return true;
     }
@@ -1619,7 +1629,7 @@ public class EmilFrame extends JFrame {
   boolean dateiAenderungenGespeichert() {
     if (!eintragAenderungenGespeichert()) return false;
     if (!geaendertDatei) return true;
-    switch (Dialog.yesNoCancelDialog("Änderungen nicht gespeichert","Änderungen an der Meldedatei wurden noch nicht gespeichert.\nSollen sie jetzt gespeichert werden?")) {
+    switch (Dialog.yesNoCancelDialog("Ã„nderungen nicht gespeichert","Ã„nderungen an der Meldedatei wurden noch nicht gespeichert.\nSollen sie jetzt gespeichert werden?")) {
       case Dialog.YES: return speichereDatei(false);
       case Dialog.NO: return true;
     }
@@ -1642,9 +1652,9 @@ public class EmilFrame extends JFrame {
       BufferedWriter f = new BufferedWriter(new FileWriter(datei));
       int c = writeCSVfile(f);
       if (efw.wettId != WettDefs.LRVBERLIN_BLAUERWIMPEL)
-        Dialog.infoDialog("Bestätigung","Es wurden "+c+" von insgesamt "+getAnzTeilnehmer()+" Einträgen in die Datei\n'"+datei+"'\ngeschrieben!");
+        Dialog.infoDialog("BestÃ¤tigung","Es wurden "+c+" von insgesamt "+getAnzTeilnehmer()+" EintrÃ¤gen in die Datei\n'"+datei+"'\ngeschrieben!");
       else
-        Dialog.infoDialog("Bestätigung","Es wurden die Daten für den Verein "+efw.verein_name+" in die Datei\n'"+datei+"'\ngeschrieben!");
+        Dialog.infoDialog("BestÃ¤tigung","Es wurden die Daten fÃ¼r den Verein "+efw.verein_name+" in die Datei\n'"+datei+"'\ngeschrieben!");
     } catch(IOException e) {
       Dialog.infoDialog("Fehler","Die Datei\n'"+datei+"'\nkonnte nicht geschrieben werden!");
     }

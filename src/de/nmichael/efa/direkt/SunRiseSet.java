@@ -1,9 +1,9 @@
 package de.nmichael.efa.direkt;
 
 import java.util.*;
-import de.nmichael.efa.EfaConfig;
+import de.nmichael.efa.core.EfaConfig;
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.EfaUtil;
+import de.nmichael.efa.util.EfaUtil;
 
 public class SunRiseSet {
 
@@ -72,9 +72,9 @@ public class SunRiseSet {
   public static String getLonLat() {
     if (Daten.efaConfig == null) return null;
     if (Daten.efaConfig.efaDirekt_sunRiseSet_ll == null || Daten.efaConfig.efaDirekt_sunRiseSet_ll.length != 8) return null;
-    return Daten.efaConfig.efaDirekt_sunRiseSet_ll[1]+"°"+Daten.efaConfig.efaDirekt_sunRiseSet_ll[2]+"'"+
+    return Daten.efaConfig.efaDirekt_sunRiseSet_ll[1]+"Â°"+Daten.efaConfig.efaDirekt_sunRiseSet_ll[2]+"'"+
            Daten.efaConfig.efaDirekt_sunRiseSet_ll[3]+"\" "+(Daten.efaConfig.efaDirekt_sunRiseSet_ll[0] == EfaConfig.LL_NORTH ? "north" : "south")+" / "+
-           Daten.efaConfig.efaDirekt_sunRiseSet_ll[5]+"°"+Daten.efaConfig.efaDirekt_sunRiseSet_ll[6]+"'"+
+           Daten.efaConfig.efaDirekt_sunRiseSet_ll[5]+"Â°"+Daten.efaConfig.efaDirekt_sunRiseSet_ll[6]+"'"+
            Daten.efaConfig.efaDirekt_sunRiseSet_ll[7]+"\" "+(Daten.efaConfig.efaDirekt_sunRiseSet_ll[4] == EfaConfig.LL_WEST  ? "west" : "east");
   }
 

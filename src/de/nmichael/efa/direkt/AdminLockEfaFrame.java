@@ -1,12 +1,16 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.util.TMJ;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 
 /**
  * Title:        efa - Elektronisches Fahrtenbuch
@@ -174,7 +178,7 @@ public class AdminLockEfaFrame extends JDialog implements ActionListener {
   }
 
   void htmlButton_actionPerformed(ActionEvent e) {
-    String dat =Dialog.dateiDialog(this,"HTML-Datei ausw‰hlen","HTML-Datei (*.html)","html",null,false);
+    String dat =Dialog.dateiDialog(this,"HTML-Datei ausw√§hlen","HTML-Datei (*.html)","html",null,false);
     if (dat != null) {
       html.setText(dat);
     }

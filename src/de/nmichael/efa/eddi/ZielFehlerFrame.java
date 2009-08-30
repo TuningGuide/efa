@@ -1,5 +1,8 @@
 package de.nmichael.efa.eddi;
 
+import de.nmichael.efa.core.Ziele;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -7,7 +10,7 @@ import javax.swing.border.*;
 import java.io.*;
 import java.util.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 
 /**
  * Title:        efa - Elektronisches Fahrtenbuch
@@ -135,8 +138,8 @@ public class ZielFehlerFrame extends JDialog implements ActionListener {
     zielbereiche.setNextFocusableComponent(okButton);
     zielbereiche.setPreferredSize(new Dimension(300, 17));
     jLabel5.setText("Start/Ziel ist Bootshaus: ");
-    jLabel6.setText("Gewässer: ");
-    skipButton.setText("Eintrag überspringen");
+    jLabel6.setText("GewÃ¤sser: ");
+    skipButton.setText("Eintrag Ã¼berspringen");
     skipButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         skipButton_actionPerformed(e);
@@ -180,7 +183,7 @@ public class ZielFehlerFrame extends JDialog implements ActionListener {
         stegziel_actionPerformed(e);
       }
     });
-    stegziel.addItem("ungültiger Wert");
+    stegziel.addItem("ungÃ¼ltiger Wert");
     stegziel.addItem("ja");
     stegziel.addItem("nein");
   }

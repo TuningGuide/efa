@@ -1,5 +1,5 @@
 /*
-  Unix Zeilenumbr�che (LF) nach DOS (CRLF) umwandeln
+  Unix Zeilenumbrï¿½che (LF) nach DOS (CRLF) umwandeln
 */
 
 import java.io.*;

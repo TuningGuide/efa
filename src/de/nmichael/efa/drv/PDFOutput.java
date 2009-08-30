@@ -1,9 +1,13 @@
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.core.EfaWett;
+import de.nmichael.efa.core.ESigFahrtenhefte;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.DRVSignatur;
 import java.io.*;
 import java.util.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 
 public class PDFOutput {
 
@@ -60,7 +64,7 @@ public class PDFOutput {
       f.write("	       </fo:table-body>\n");
       f.write("      </fo:table>\n");
 
-      f.write("      <fo:block space-before=\"3mm\" font-size=\"12pt\" font-weight=\"bold\">Meldung für das DRV-Fahrtenabzeichen "+drvConfig.aktJahr+"</fo:block>\n");
+      f.write("      <fo:block space-before=\"3mm\" font-size=\"12pt\" font-weight=\"bold\">Meldung fÃ¼r das DRV-Fahrtenabzeichen "+drvConfig.aktJahr+"</fo:block>\n");
       f.write("      <fo:block font-size=\"12pt\" font-weight=\"bold\">Verein: "+ew.verein_name+"</fo:block>\n");
       f.write("      <fo:block font-size=\"12pt\" font-weight=\"bold\">Mitgliedsnummer: "+ew.verein_mitglnr+"</fo:block>\n");
       f.write("      <fo:block font-size=\"12pt\" font-weight=\"bold\">Quittungsnummer: "+qnr+"</fo:block>\n");
@@ -121,7 +125,7 @@ public class PDFOutput {
           for (int i=0; i<a.length; i++) {
             if (a[i]>0) einzeln += (einzeln.length()>0 ? "; " : "") + a[i] + "x" + ((i+1)*5) + ".";
           }
-          if (a.length == 1) einzeln = null; // wenn noch altes Format, d.h. keine Information über Anzahl der einzelnen Abzeichen
+          if (a.length == 1) einzeln = null; // wenn noch altes Format, d.h. keine Information Ã¼ber Anzahl der einzelnen Abzeichen
           f.write("          <fo:list-item>\n");
           f.write("            <fo:list-item-label start-indent=\"10mm\"><fo:block>Erwachsene (gold):</fo:block></fo:list-item-label>\n");
           f.write("            <fo:list-item-body start-indent=\"50mm\"><fo:block>" + gold + (einzeln != null ? " ("+einzeln+")" : "") + "</fo:block></fo:list-item-body>\n");
@@ -140,7 +144,7 @@ public class PDFOutput {
           for (int i=0; i<a.length; i++) {
             if (a[i]>0) einzeln += (einzeln.length()>0 ? "; " : "") + a[i] + "x" + ((i+1)*5) + ".";
           }
-          if (a.length == 1) einzeln = null; // wenn noch altes Format, d.h. keine Information über Anzahl der einzelnen Abzeichen
+          if (a.length == 1) einzeln = null; // wenn noch altes Format, d.h. keine Information Ã¼ber Anzahl der einzelnen Abzeichen
           f.write("          <fo:list-item>\n");
           f.write("            <fo:list-item-label start-indent=\"10mm\"><fo:block>Jugend (gold):</fo:block></fo:list-item-label>\n");
           f.write("            <fo:list-item-body start-indent=\"50mm\"><fo:block>" + gold + (einzeln != null ? " ("+einzeln+")" : "") + "</fo:block></fo:list-item-body>\n");
@@ -152,22 +156,22 @@ public class PDFOutput {
           f.write("            <fo:list-item-body start-indent=\"50mm\"><fo:block>"+ew.drv_nadel_jug_silber+"</fo:block></fo:list-item-body>\n");
           f.write("          </fo:list-item>\n");
         }
-        s = " sowie das Geld für die bestellten Anstecknadeln";
+        s = " sowie das Geld fÃ¼r die bestellten Anstecknadeln";
       }
       f.write("      </fo:list-block>\n");
 
-      f.write("      <fo:block space-before=\"4mm\">Das Meldegeld"+s+" in Höhe von "+EfaUtil.cent2euro(meldegeld,true)+
+      f.write("      <fo:block space-before=\"4mm\">Das Meldegeld"+s+" in HÃ¶he von "+EfaUtil.cent2euro(meldegeld,true)+
               " ist auf unserem Konto "+(ew.drvint_meldegeldEingegangen ? "" : "noch nicht ")+"eingegangen."+
-              (ew.drvint_meldegeldEingegangen ? "" : " Bitte überweisen Sie den fälligen Betrag auf das Konto 8290 305 "+
+              (ew.drvint_meldegeldEingegangen ? "" : " Bitte Ã¼berweisen Sie den fÃ¤lligen Betrag auf das Konto 8290 305 "+
               "bei der Postbank Hannover, BLZ 250 100 30.")+"</fo:block>\n");
 
-      f.write("      <fo:block space-before=\"4mm\">Zusätzlich zu den ausgedruckten Nachweisen liegen im Meldesystem efaWett"+
-              " elektronische Fahrtenhefte für Sie zum Abruf bereit. Bitte rufen Sie diese ab und speichern Sie sie in Ihrer"+
-              " Software (in efa: -&gt; Administration -&gt; DRV-Fahrtenabzeichen -&gt; Bestätigungsdatei abrufen),"+
-              " da sie für die nächste elektronische Meldung benötigt werden.</fo:block>\n");
+      f.write("      <fo:block space-before=\"4mm\">ZusÃ¤tzlich zu den ausgedruckten Nachweisen liegen im Meldesystem efaWett"+
+              " elektronische Fahrtenhefte fÃ¼r Sie zum Abruf bereit. Bitte rufen Sie diese ab und speichern Sie sie in Ihrer"+
+              " Software (in efa: -&gt; Administration -&gt; DRV-Fahrtenabzeichen -&gt; BestÃ¤tigungsdatei abrufen),"+
+              " da sie fÃ¼r die nÃ¤chste elektronische Meldung benÃ¶tigt werden.</fo:block>\n");
 
-      f.write("      <fo:block space-before=\"4mm\">Dieses Schriftstück wurde per EDV erstellt und ist daher ohne Unterschrift.</fo:block>\n");
-      f.write("      <fo:block space-before=\"4mm\">Mit freundlichen Grüßen,</fo:block>\n");
+      f.write("      <fo:block space-before=\"4mm\">Dieses SchriftstÃ¼ck wurde per EDV erstellt und ist daher ohne Unterschrift.</fo:block>\n");
+      f.write("      <fo:block space-before=\"4mm\">Mit freundlichen GrÃ¼ÃŸen,</fo:block>\n");
       f.write("      <fo:block space-before=\"2mm\">Deutscher Ruderverband</fo:block>\n");
       f.write("    </fo:flow>\n");
       f.write("  </fo:page-sequence>\n");
@@ -195,7 +199,7 @@ public class PDFOutput {
 
         f.write("            <fo:table-cell border=\"1pt #000000 solid\" height=\"130mm\" padding-top=\"3mm\" padding-bottom=\"3mm\" padding-left=\"3mm\" padding-right=\"3mm\">\n");
         f.write("              <fo:block font-size=\"14pt\" font-weight=\"bold\" text-align=\"center\">elektronisches Fahrtenheft</fo:block>\n");
-        f.write("              <fo:block font-size=\"14pt\" font-weight=\"bold\" text-align=\"center\">für "+sig.getVorname()+" "+sig.getNachname()+"</fo:block>\n");
+        f.write("              <fo:block font-size=\"14pt\" font-weight=\"bold\" text-align=\"center\">fÃ¼r "+sig.getVorname()+" "+sig.getNachname()+"</fo:block>\n");
         f.write("              <fo:table space-before=\"3mm\">\n");
         f.write("                <fo:table-column column-width=\"40mm\"/>\n");
         f.write("                <fo:table-column column-width=\"49mm\"/>\n");
@@ -212,7 +216,7 @@ public class PDFOutput {
         writeRow(f,"Kilometer "+Integer.toString(sig.getJahr())+":",Integer.toString(sig.getLetzteKm()));
         writeRow(f,"Ausstellungsdatum:",sig.getSignaturDatum(true));
         writeRow(f,"Version:",Byte.toString(sig.getVersion()));
-        writeRow(f,"Schlüssel:",sig.getKeyName());
+        writeRow(f,"SchlÃ¼ssel:",sig.getKeyName());
         writeRow(f,"Signatur:",sig.getSignaturString());
         writeRow(f,"elektronisches Fahrtenheft (zur Eingabe):",EfaUtil.replace(EfaUtil.replace(sig.toString(),";","~~~~~",true),"~~~~~","; ",true));
         f.write("                </fo:table-body>\n");

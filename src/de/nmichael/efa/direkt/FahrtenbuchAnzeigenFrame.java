@@ -1,5 +1,10 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.core.Fahrtenbuch;
+import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.event.*;
@@ -7,10 +12,10 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
 import java.util.Vector;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
-import de.nmichael.efa.TableMap;
-import de.nmichael.efa.TableSorter;
+import de.nmichael.efa.util.TableMap;
+import de.nmichael.efa.util.TableSorter;
 
 /**
  * Title:        efa - Elektronisches Fahrtenbuch
@@ -187,9 +192,9 @@ public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener 
       });
       jLabel2.setText(" Fahrten anzeigen");
       auchUnvollstaendige.setNextFocusableComponent(okButton);
-      auchUnvollstaendige.setActionCommand("auch unvollst‰ndige Fahrten (Boote, die noch unterwegs sind) zeigen");
+      auchUnvollstaendige.setActionCommand("auch unvollst√§ndige Fahrten (Boote, die noch unterwegs sind) zeigen");
       auchUnvollstaendige.setMnemonic('U');
-      auchUnvollstaendige.setText("auch unvollst‰ndige Fahrten (Boote, die noch unterwegs sind) zeigen");
+      auchUnvollstaendige.setText("auch unvollst√§ndige Fahrten (Boote, die noch unterwegs sind) zeigen");
       auchUnvollstaendige.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           auchUnvollstaendige_actionPerformed(e);
@@ -197,7 +202,7 @@ public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener 
     });
       okButton.setNextFocusableComponent(anzahl);
       okButton.setMnemonic('S');
-      okButton.setText("Schlieﬂen");
+      okButton.setText("Schlie√üen");
       okButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           okButton_actionPerformed(e);
@@ -335,7 +340,7 @@ public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener 
 
     // intelligente Spaltenbreiten
     int width = table.getSize().width;
-    if (width < this.getSize().width-20 || width > this.getSize().width) { // beim ersten Aufruf steht Tabellenbreite noch nicht (korrekt) zur Verf¸gung, daher dieser Plausi-Check
+    if (width < this.getSize().width-20 || width > this.getSize().width) { // beim ersten Aufruf steht Tabellenbreite noch nicht (korrekt) zur Verf√ºgung, daher dieser Plausi-Check
       width = this.getSize().width-10;
     }
 

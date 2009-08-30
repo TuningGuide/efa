@@ -2,9 +2,9 @@ package de.nmichael.efa.direkt;
 
 import java.io.*;
 import java.util.Vector;
-import de.nmichael.efa.DatenListe;
+import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.EfaUtil;
+import de.nmichael.efa.util.EfaUtil;
 
 
 public class NachrichtenAnAdmin extends DatenListe {
@@ -24,7 +24,7 @@ public class NachrichtenAnAdmin extends DatenListe {
     checkIfSizeExceeded();
   }
 
-  // Einstellungen zurücksetzen
+  // Einstellungen zurÃ¼cksetzen
   void reset() {
     nachrichten = new Vector();
   }
@@ -169,7 +169,7 @@ public class NachrichtenAnAdmin extends DatenListe {
       nachrichten = nArchive;
       dat = bakdat;
       if (!writeFile(false)) {
-        // alles rückgängig machen
+        // alles rÃ¼ckgÃ¤ngig machen
         dat = orgdat;
         nachrichten = alle;
         return false;
@@ -180,7 +180,7 @@ public class NachrichtenAnAdmin extends DatenListe {
       nachrichten = nKeep;
       Nachricht n = new Nachricht(Nachricht.ADMIN,EfaUtil.getCurrentTimeStamp(),"efa",
                     "alte Nachrichten aussortiert",
-                    "Da die Nachrichtendatei ihre maximale Größe erreicht hat,\n"+
+                    "Da die Nachrichtendatei ihre maximale GrÃ¶ÃŸe erreicht hat,\n"+
                     "hat efa soeben alle alten" + (archiveAlsoOldUnread ? "" : ", gelesenen") + " Nachrichten aussortiert.\n"+
                     nArchive.size()+ " alte Nachrichten wurden in die Datei\n"+
                     bakdat+"\n"+

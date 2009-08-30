@@ -1,5 +1,7 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.EfaUtil;
 import java.util.*;
 import de.nmichael.efa.*;
 import de.nmichael.efa.direkt.*;
@@ -17,15 +19,15 @@ public class EmailSender {
 
   public static void sendEmail(Nachricht n, String adressen) {
 
-    if (sendThread != null) return; // verhindern, daﬂ durch Fehler sich das Senden rekursiv aufruft
-    if (!sendCompleted) return;     // verhindern, daﬂ durch Fehler sich das Senden rekursiv aufruft
+    if (sendThread != null) return; // verhindern, da√ü durch Fehler sich das Senden rekursiv aufruft
+    if (!sendCompleted) return;     // verhindern, da√ü durch Fehler sich das Senden rekursiv aufruft
     try {
       sendCompleted = false;
       sendThread = new EmailSenderThread(n,adressen);
       sendThread.start();
       sendCompleted = true;
     } catch (NoClassDefFoundError e1) {
-      Logger.log(Logger.ERROR,"Nachricht als email versenden nicht mˆglich, da das EMAIL-PLUGIN nicht installiert ist.\n"+
+      Logger.log(Logger.ERROR,"Nachricht als email versenden nicht m√∂glich, da das EMAIL-PLUGIN nicht installiert ist.\n"+
                               "Bitte schaue unter "+Daten.pluginWWWdirectory+Daten.PLUGIN_EMAIL_HTML+" zur Installation des Plugins.");
     } catch(Exception e2) {
     }
@@ -55,11 +57,11 @@ class EmailSenderThread extends Thread {
   public void run() {
     if (Daten.efaConfig == null) return;
     if (Daten.efaConfig.efaDirekt_emailServer == null || Daten.efaConfig.efaDirekt_emailServer.length() == 0) {
-      Logger.log(Logger.ERROR,"Nachricht als email versenden nicht mˆglich, da kein SMTP-Server konfiguriert ist.");
+      Logger.log(Logger.ERROR,"Nachricht als email versenden nicht m√∂glich, da kein SMTP-Server konfiguriert ist.");
       return;
     }
     if (Daten.efaConfig.efaDirekt_emailAbsender == null || Daten.efaConfig.efaDirekt_emailAbsender.length() == 0) {
-      Logger.log(Logger.ERROR,"Nachricht als email versenden nicht mˆglich, da keine Absender-Adresse konfiguriert ist.");
+      Logger.log(Logger.ERROR,"Nachricht als email versenden nicht m√∂glich, da keine Absender-Adresse konfiguriert ist.");
       return;
     }
     int retryCount = 0;
@@ -96,7 +98,7 @@ class EmailSenderThread extends Thread {
         t.send(mail,mail.getAllRecipients());
         break; // Retry-Schleife verlassen
       } catch(Exception e) {
-        Logger.log((retryCount<3 ? Logger.INFO : Logger.WARNING),"Nachricht konnte nicht als email versendet werden ("+(retryCount<3 ? retryCount+". Versuch" : "endg¸ltig fehlgeschlagen")+"): "+e.toString()+" "+e.getMessage());
+        Logger.log((retryCount<3 ? Logger.INFO : Logger.WARNING),"Nachricht konnte nicht als email versendet werden ("+(retryCount<3 ? retryCount+". Versuch" : "endg√ºltig fehlgeschlagen")+"): "+e.toString()+" "+e.getMessage());
         if (retryCount<3) try { Thread.sleep(10000); } catch(Exception ee) {}
       }
     } while(retryCount<3);

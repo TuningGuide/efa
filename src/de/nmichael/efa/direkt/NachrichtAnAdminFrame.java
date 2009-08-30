@@ -1,12 +1,17 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.core.EfaFrame;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.AutoCompletePopupWindow;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 import java.util.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 
 /**
@@ -137,12 +142,12 @@ public class NachrichtAnAdminFrame extends JDialog implements ActionListener {
       this.setTitle("Nachricht an Admin");
       jLabel4.setDisplayedMnemonic('E');
       jLabel4.setLabelFor(empfaenger);
-      jLabel4.setText("Empf‰nger: ");
+      jLabel4.setText("Empf√§nger: ");
       empfaenger.setNextFocusableComponent(name);
       southPanel.setLayout(borderLayout2);
       closeButton.setNextFocusableComponent(empfaenger);
       closeButton.setMnemonic('S');
-      closeButton.setText("Schlieﬂen");
+      closeButton.setText("Schlie√üen");
       closeButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           closeButton_actionPerformed(e);

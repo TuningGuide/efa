@@ -2,8 +2,8 @@ package de.nmichael.efa.drv;
 
 import java.io.*;
 import java.util.Hashtable;
-import de.nmichael.efa.DatenListe;
-import de.nmichael.efa.EfaUtil;
+import de.nmichael.efa.core.DatenListe;
+import de.nmichael.efa.util.EfaUtil;
 
 /**
  * Title:        efa - Elektronisches Fahrtenbuch
@@ -70,7 +70,7 @@ public class DRVConfig extends DatenListe {
     this.backupEnabled = true;
   }
 
-  // Einstellungen zurücksetzen
+  // Einstellungen zurÃ¼cksetzen
   void reset() {
     datenDirectory = "";
     aktJahr = 0;

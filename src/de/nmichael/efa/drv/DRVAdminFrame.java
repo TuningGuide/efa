@@ -1,12 +1,18 @@
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.core.DatensicherungFrame;
+import de.nmichael.efa.core.OnlineUpdateFrame;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import java.util.Vector;
 
 
@@ -80,7 +86,7 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
     });
       closeButton.setNextFocusableComponent(wettJahrButton);
       closeButton.setMnemonic('C');
-      closeButton.setText("Schließen");
+      closeButton.setText("SchlieÃŸen");
       closeButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           closeButton_actionPerformed(e);
@@ -88,7 +94,7 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
     });
       keysButton.setNextFocusableComponent(datensicherungButton);
       keysButton.setMnemonic('S');
-      keysButton.setText("Schlüsselverwaltung");
+      keysButton.setText("SchlÃ¼sselverwaltung");
       keysButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           keysButton_actionPerformed(e);
@@ -149,17 +155,17 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
 
   void wettJahrButton_actionPerformed(ActionEvent e) {
     String jahr = Dialog.inputDialog("Wettbewerbsjahr eingeben",
-                                     "Bitte gib das Jahr ein, für welches Meldungen bearbeitet werden sollen!");
+                                     "Bitte gib das Jahr ein, fÃ¼r welches Meldungen bearbeitet werden sollen!");
     if (jahr == null) return;
     int j = EfaUtil.string2int(jahr,-1);
     if (j <= -1 || j >= 2100) {
-      Dialog.error("Der eingegebene Wert stellt kein gültiges Jahr dar!");
+      Dialog.error("Der eingegebene Wert stellt kein gÃ¼ltiges Jahr dar!");
       return;
     }
     if (j < 1900) j += 1900;
     if (j < 1980) j += 100;
     if (j >= 2100) {
-      Dialog.error("Der eingegebene Wert stellt kein gültiges Jahr dar!");
+      Dialog.error("Der eingegebene Wert stellt kein gÃ¼ltiges Jahr dar!");
       return;
     }
 
@@ -176,7 +182,7 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
             Dialog.error("Das Verzeichnis\n"+mdir+"\n konnte nicht erstellt werden!");
             return;
           }
-          Logger.log(Logger.INFO,"Neues Verzeichnis "+mdir+" für Wettbewerbsjahr "+j+" erstellt.");
+          Logger.log(Logger.INFO,"Neues Verzeichnis "+mdir+" fÃ¼r Wettbewerbsjahr "+j+" erstellt.");
           neuesDir = true;
         }
         MeldungenIndex mIndex;
@@ -186,9 +192,9 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
             Dialog.error("Die Datei\n"+mIndex.getFileName()+"\n konnte nicht erstellt werden!");
             return;
           }
-          Logger.log(Logger.INFO,"Neue Meldungen-Indexdatei "+mdatFA+" für Wettbewerbsjahr "+j+" (Fahrtenabzeichen) erstellt.");
+          Logger.log(Logger.INFO,"Neue Meldungen-Indexdatei "+mdatFA+" fÃ¼r Wettbewerbsjahr "+j+" (Fahrtenabzeichen) erstellt.");
         } else {
-          Logger.log(Logger.INFO,"Meldungen-Indexdatei "+mdatFA+" für Wettbewerbsjahr "+j+" (Fahrtenabzeichen) geöffnet.");
+          Logger.log(Logger.INFO,"Meldungen-Indexdatei "+mdatFA+" fÃ¼r Wettbewerbsjahr "+j+" (Fahrtenabzeichen) geÃ¶ffnet.");
         }
         mIndex = new MeldungenIndex(mdatWS);
         if (!mIndex.readFile()) {
@@ -196,34 +202,34 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
             Dialog.error("Die Datei\n"+mIndex.getFileName()+"\n konnte nicht erstellt werden!");
             return;
           }
-          Logger.log(Logger.INFO,"Neue Meldungen-Indexdatei "+mdatWS+" für Wettbewerbsjahr "+j+" (Wanderruderstatistik) erstellt.");
+          Logger.log(Logger.INFO,"Neue Meldungen-Indexdatei "+mdatWS+" fÃ¼r Wettbewerbsjahr "+j+" (Wanderruderstatistik) erstellt.");
         } else {
-          Logger.log(Logger.INFO,"Meldungen-Indexdatei "+mdatFA+" für Wettbewerbsjahr "+j+" (Wanderruderstatistik) geöffnet.");
+          Logger.log(Logger.INFO,"Meldungen-Indexdatei "+mdatFA+" fÃ¼r Wettbewerbsjahr "+j+" (Wanderruderstatistik) geÃ¶ffnet.");
         }
 
       } catch(Exception ee) {
         Dialog.error("Es ist ein Fehler aufgetreten: "+e.toString());
         return;
       }
-      Logger.log(Logger.INFO,"Neues Wettbewerbsjahr "+j+" ausgewählt.");
+      Logger.log(Logger.INFO,"Neues Wettbewerbsjahr "+j+" ausgewÃ¤hlt.");
     } else {
       // vorhandenes Jahr
       MeldungenIndex mIndex;
       mIndex = new MeldungenIndex(mdatFA);
       if (!mIndex.readFile()) {
-        Dialog.error("Die Datei\n"+mIndex.getFileName()+"\n konnte nicht geöffnet werden!");
+        Dialog.error("Die Datei\n"+mIndex.getFileName()+"\n konnte nicht geÃ¶ffnet werden!");
         return;
       }
       mIndex = new MeldungenIndex(mdatWS);
       if (!mIndex.readFile()) {
-        Dialog.error("Die Datei\n"+mIndex.getFileName()+"\n konnte nicht geöffnet werden!");
+        Dialog.error("Die Datei\n"+mIndex.getFileName()+"\n konnte nicht geÃ¶ffnet werden!");
         return;
       }
-      Logger.log(Logger.INFO,"Vorhandenes Wettbewerbsjahr "+j+" ausgewählt.");
+      Logger.log(Logger.INFO,"Vorhandenes Wettbewerbsjahr "+j+" ausgewÃ¤hlt.");
     }
     drvConfig.aktJahr = j;
     drvConfig.writeFile();
-    Dialog.infoDialog("Wettbewerbsjahr ausgewählt","Das ausgewählte Jahr für die Erfassung von Meldungen ist jetzt "+j+".");
+    Dialog.infoDialog("Wettbewerbsjahr ausgewÃ¤hlt","Das ausgewÃ¤hlte Jahr fÃ¼r die Erfassung von Meldungen ist jetzt "+j+".");
   }
 
   void configButton_actionPerformed(ActionEvent e) {

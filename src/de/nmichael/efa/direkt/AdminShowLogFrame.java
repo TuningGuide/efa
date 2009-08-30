@@ -1,5 +1,9 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -7,7 +11,7 @@ import javax.swing.border.*;
 import java.beans.*;
 import java.util.*;
 import java.io.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 
 /**
@@ -89,7 +93,7 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
           zeitHeute_actionPerformed(e);
         }
     });
-      jLabel2.setText("Art der Eintr‰ge: ");
+      jLabel2.setText("Art der Eintr√§ge: ");
       artInfo.setNextFocusableComponent(artWarn);
       artInfo.setMnemonic('I');
       artInfo.setSelected(true);
@@ -207,7 +211,7 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
             type = tok.nextToken().trim();
           } catch(Exception ee) {}
         }
-        // ist diese Art von Nachricht ausgew‰hlt?
+        // ist diese Art von Nachricht ausgew√§hlt?
         boolean typeok = false;
         if (type.trim().equals(Logger.INFO)) {
           if (artInfo.isSelected()) typeok=true;

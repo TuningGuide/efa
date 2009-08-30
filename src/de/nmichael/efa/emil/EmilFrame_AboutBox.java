@@ -1,5 +1,8 @@
 package de.nmichael.efa.emil;
 
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import de.nmichael.efa.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -63,7 +66,7 @@ public class EmilFrame_AboutBox extends JDialog implements ActionListener {
       System.err.println("Error setting up ActionHandler");
     }
 
-    this.setTitle("emil - Über");
+    this.setTitle("emil - Ãœber");
     this.setSize(new Dimension(500, 200));
     panel1.setLayout(borderLayout1);
     panel2.setLayout(borderLayout2);

@@ -1,11 +1,14 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 
 public class EfaExitFrame extends JFrame implements ActionListener {
@@ -123,10 +126,10 @@ public class EfaExitFrame extends JFrame implements ActionListener {
     this.hide();
     if (_exit) {
       thread = null;
-      Logger.log(Logger.INFO,"efa beendet sich jetzt" + (restart ? " und wird anschlieﬂend neu gestartet." : "."));
+      Logger.log(Logger.INFO,"efa beendet sich jetzt" + (restart ? " und wird anschlie√üend neu gestartet." : "."));
       efaDirektFrame.cancel(null,who,restart);
     } else {
-      thread = new CountdownThread(this); // Thread f¸r's n‰chste Mal initialisieren
+      thread = new CountdownThread(this); // Thread f√ºr's n√§chste Mal initialisieren
       Logger.log(Logger.WARNING,"Beenden von efa wurde durch Benutzer abgebrochen.");
       Daten.DONT_SAVE_ANY_FILES_DUE_TO_OOME = false;
     }

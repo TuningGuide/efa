@@ -5,6 +5,7 @@
 
 package de.nmichael.efa.statistics;
 
+import de.nmichael.efa.util.ZielfahrtFolge;
 import java.util.*;
 import de.nmichael.efa.*;
 

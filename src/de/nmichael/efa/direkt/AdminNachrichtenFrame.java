@@ -1,12 +1,18 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.core.EfaConfig;
+import de.nmichael.efa.util.SimpleFilePrinter;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.util.*;
 import java.io.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 
 /**
@@ -117,7 +123,7 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
     });
       deleteButton.setNextFocusableComponent(printButton);
       deleteButton.setMnemonic('L');
-      deleteButton.setText("Nachricht(en) löschen");
+      deleteButton.setText("Nachricht(en) lÃ¶schen");
       deleteButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           deleteButton_actionPerformed(e);
@@ -125,7 +131,7 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
     });
       deleteAllButton.setNextFocusableComponent(nachricht);
       deleteAllButton.setMnemonic('A');
-      deleteAllButton.setText("Alle gelesenen Nachrichten löschen");
+      deleteAllButton.setText("Alle gelesenen Nachrichten lÃ¶schen");
       deleteAllButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           deleteAllButton_actionPerformed(e);
@@ -198,7 +204,7 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
   void zeigeNachrichten() {
     nID = -1;
     Vector titel = new Vector();
-    titel.add("Empfänger"); titel.add("Absender"); titel.add("Betreff"); titel.add("Datum");
+    titel.add("EmpfÃ¤nger"); titel.add("Absender"); titel.add("Betreff"); titel.add("Datum");
     Vector nachr = new Vector();
     nachrIds = new Vector();
     for (int i=nachrichten.size()-1; i>=0; i--) {
@@ -272,7 +278,7 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
 
   void deleteButton_actionPerformed(ActionEvent e) {
     if (uebersicht.getSelectedRowCount() > 1) {
-      if (Dialog.yesNoDialog("Nachrichten wirklich löschen","Möchtest Du "+uebersicht.getSelectedRowCount()+" ausgewählte Nachrichten wirklich löschen?") != Dialog.YES) return;
+      if (Dialog.yesNoDialog("Nachrichten wirklich lÃ¶schen","MÃ¶chtest Du "+uebersicht.getSelectedRowCount()+" ausgewÃ¤hlte Nachrichten wirklich lÃ¶schen?") != Dialog.YES) return;
       int[] selected = uebersicht.getSelectedRows();
       for (int i=0; selected != null && i<selected.length; i++) {
         Integer nID = (Integer)nachrIds.get(selected[i]);
@@ -280,10 +286,10 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
       }
     } else {
       if (nachrichten == null || nID < 0) {
-        Dialog.error("Bitte wähle zuerst eine zu löschende Nachricht aus!");
+        Dialog.error("Bitte wÃ¤hle zuerst eine zu lÃ¶schende Nachricht aus!");
         return;
       }
-      if (Dialog.yesNoDialog("Nachricht wirklich löschen","Möchtest Du die Nachricht\n'"+nachrichten.get(nID).betreff+"'\nwirklich löschen?") != Dialog.YES) return;
+      if (Dialog.yesNoDialog("Nachricht wirklich lÃ¶schen","MÃ¶chtest Du die Nachricht\n'"+nachrichten.get(nID).betreff+"'\nwirklich lÃ¶schen?") != Dialog.YES) return;
       nachrichten.delete(nID);
     }
     zeigeNachrichten();
@@ -297,7 +303,7 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
       Dialog.error("Es gibt keine gelesenen Nachrichten!");
       return;
     }
-    if (Dialog.yesNoDialog("Nachrichten wirklich löschen","Möchtest Du "+c+" gelesene Nachrichten wirklich löschen?") != Dialog.YES) return;
+    if (Dialog.yesNoDialog("Nachrichten wirklich lÃ¶schen","MÃ¶chtest Du "+c+" gelesene Nachrichten wirklich lÃ¶schen?") != Dialog.YES) return;
     for (int i=nachrichten.size()-1; i>=0; i--) if (nachrichten.get(i).gelesen) nachrichten.delete(i);
     zeigeNachrichten();
     showNachricht(-1);
@@ -321,11 +327,11 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
       weiterAnS = "Admin";
     }
     if (weiterAn < 0) {
-      Dialog.error("Weiterleiten dieser Nachricht nicht möglich!");
+      Dialog.error("Weiterleiten dieser Nachricht nicht mÃ¶glich!");
       return;
     }
     if (Dialog.yesNoCancelDialog("Nachricht weiterleiten",
-                                 "Möchtest Du diese Nachricht an \""+weiterAnS+"\" weiterleiten?") != Dialog.YES) return;
+                                 "MÃ¶chtest Du diese Nachricht an \""+weiterAnS+"\" weiterleiten?") != Dialog.YES) return;
     Nachricht nfwd = new Nachricht(weiterAn,n.datum,n.name,"Fwd: "+n.betreff,n.nachricht);
     nachrichten.add(nfwd);
     if (!nachrichten.writeFile()) {

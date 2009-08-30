@@ -1,5 +1,18 @@
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.core.WettDefs;
+import de.nmichael.efa.core.EfaWettMeldung;
+import de.nmichael.efa.core.EfaWett;
+import de.nmichael.efa.core.ESigFahrtenhefte;
+import de.nmichael.efa.core.DRVSignaturFrame;
+import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.util.TableSorter;
+import de.nmichael.efa.util.SimpleFilePrinter;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.EfaKeyStore;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -10,7 +23,7 @@ import java.util.*;
 import java.security.*;
 import java.beans.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.emil.*;
 import java.net.*;
 
@@ -75,7 +88,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
     catch(Exception e) {
       e.printStackTrace();
     }
-    this.setTitle("Meldungen f¸r das Jahr "+drvConfig.aktJahr);
+    this.setTitle("Meldungen f√ºr das Jahr "+drvConfig.aktJahr);
     EfaUtil.pack(this);
     this.parent = parent;
     // this.requestFocus();
@@ -98,7 +111,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
   private void jbInit() throws Exception {
     ActionHandler ah= new ActionHandler(this);
     try {
-      this.setTitle("Meldungen f¸r das Jahr ????");
+      this.setTitle("Meldungen f√ºr das Jahr ????");
       ah.addKeyActions(getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW,
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
@@ -107,7 +120,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       centerPanel.setLayout(borderLayout2);
       southPanel.setLayout(gridBagLayout2);
       eastPanel.setLayout(gridBagLayout3);
-      closeButton.setText("Schlieﬂen");
+      closeButton.setText("Schlie√üen");
       closeButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           closeButton_actionPerformed(e);
@@ -125,22 +138,22 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
           editButton_actionPerformed(e);
         }
     });
-      deleteButton.setText("Meldung lˆschen");
+      deleteButton.setText("Meldung l√∂schen");
       deleteButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           deleteButton_actionPerformed(e);
         }
     });
-      jLabel2.setText("Zu best‰tigende Meldungen: ");
+      jLabel2.setText("Zu best√§tigende Meldungen: ");
       anzBestaetigte.setForeground(Color.blue);
       anzBestaetigte.setText("0");
-      uploadButton.setText("Meldungen best‰tigen");
+      uploadButton.setText("Meldungen best√§tigen");
       uploadButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           uploadButton_actionPerformed(e);
         }
     });
-      rejectButton.setText("Meldung zur¸ckweisen");
+      rejectButton.setText("Meldung zur√ºckweisen");
       rejectButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           rejectButton_actionPerformed(e);
@@ -152,13 +165,13 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
           meldestatistikButton_actionPerformed(e);
         }
     });
-      checkFahrtenheftButton.setText("Einzelnes eFahrtenheft pr¸fen");
+      checkFahrtenheftButton.setText("Einzelnes eFahrtenheft pr√ºfen");
       checkFahrtenheftButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           checkFahrtenheftButton_actionPerformed(e);
         }
     });
-      printOverviewButton.setText("‹bersicht drucken");
+      printOverviewButton.setText("√úbersicht drucken");
       printOverviewButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           printOverviewButton_actionPerformed(e);
@@ -248,8 +261,8 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
     meldungenAuswahl.addItem("alle");
     meldungenAuswahl.addItem("unbearbeitete");
     meldungenAuswahl.addItem("bearbeitete");
-    meldungenAuswahl.addItem("zur¸ckgewiesene");
-    meldungenAuswahl.addItem("gelˆschte");
+    meldungenAuswahl.addItem("zur√ºckgewiesene");
+    meldungenAuswahl.addItem("gel√∂schte");
     meldungenAuswahl.setSelectedIndex(1);
 
     if (MELDTYP == MELD_WANDERRUDERSTATISTIK) {
@@ -266,7 +279,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
     int auswahl = meldungenAuswahl.getSelectedIndex();
     if (auswahl < 0) auswahl = 0;
 
-    // z‰hlen der Meldungen, f¸r die eine Best‰tigungsdatei vorliegt, die noch nicht hochgeladen wurde
+    // z√§hlen der Meldungen, f√ºr die eine Best√§tigungsdatei vorliegt, die noch nicht hochgeladen wurde
     int countBestaetigung = 0;
 
     // Alle Meldungen einlesen und relevante Meldungen merken
@@ -319,8 +332,8 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       tableData[i][j++] = best;
     }
 
-    String[] tableHeaderFA = { "Quittungsnr." , "Verein" , "Mitgliedsnr." , "Datum" , "Status" , "Fahrtenhefte" , "Best‰tigt" };
-    String[] tableHeaderWS = { "Quittungsnr." , "Verein" , "Mitgliedsnr." , "Datum" , "Status" , "Best‰tigt" };
+    String[] tableHeaderFA = { "Quittungsnr." , "Verein" , "Mitgliedsnr." , "Datum" , "Status" , "Fahrtenhefte" , "Best√§tigt" };
+    String[] tableHeaderWS = { "Quittungsnr." , "Verein" , "Mitgliedsnr." , "Datum" , "Status" , "Best√§tigt" };
     String[] tableHeader = null;
     switch(this.MELDTYP) {
       case MELD_FAHRTENABZEICHEN:
@@ -349,7 +362,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
 
     // intelligente Spaltenbreiten
     int width = meldungen.getSize().width;
-    if (width < this.centerPanel.getSize().width-20 || width > this.getSize().width) { // beim ersten Aufruf steht Tabellenbreite noch nicht (korrekt) zur Verf¸gung, daher dieser Plausi-Check
+    if (width < this.centerPanel.getSize().width-20 || width > this.getSize().width) { // beim ersten Aufruf steht Tabellenbreite noch nicht (korrekt) zur Verf√ºgung, daher dieser Plausi-Check
       width = this.centerPanel.getSize().width-10;
     }
     for (int i=0; i<numberOfColumns; i++) {
@@ -363,7 +376,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
             case 3: column.setPreferredWidth(17 * width / 100); break; // Datum
             case 4: column.setPreferredWidth(13 * width / 100); break; // Status
             case 5: column.setPreferredWidth(13 * width / 100); break; // Fahrtenheft
-            case 6: column.setPreferredWidth(10 * width / 100); break; // Best‰tigungsdatei
+            case 6: column.setPreferredWidth(10 * width / 100); break; // Best√§tigungsdatei
           }
           break;
         case MELD_WANDERRUDERSTATISTIK:
@@ -373,7 +386,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
             case 2: column.setPreferredWidth(11 * width / 100); break; // Mitgliedsnr
             case 3: column.setPreferredWidth(17 * width / 100); break; // Datum
             case 4: column.setPreferredWidth(13 * width / 100); break; // Status
-            case 5: column.setPreferredWidth(10 * width / 100); break; // Best‰tigungsdatei
+            case 5: column.setPreferredWidth(10 * width / 100); break; // Best√§tigungsdatei
           }
           break;
       }
@@ -386,22 +399,22 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
 
   void downloadButton_actionPerformed(ActionEvent e) {
     if (drvConfig.efw_script == null || drvConfig.efw_script.length() == 0) {
-      Dialog.error("Kein EFW-Script konfiguriert. Bitte vervollst‰ndige zun‰chst die Konfiguration!");
+      Dialog.error("Kein EFW-Script konfiguriert. Bitte vervollst√§ndige zun√§chst die Konfiguration!");
       return;
     }
     if (drvConfig.efw_user == null || drvConfig.efw_user.length() == 0) {
-      Dialog.error("Kein EFW-Nutzer konfiguriert. Bitte vervollst‰ndige zun‰chst die Konfiguration!");
+      Dialog.error("Kein EFW-Nutzer konfiguriert. Bitte vervollst√§ndige zun√§chst die Konfiguration!");
       return;
     }
     if (drvConfig.efw_password == null || drvConfig.efw_password.length() == 0) {
-      Dialog.error("Kein EFW-Paﬂwort konfiguriert. Bitte vervollst‰ndige zun‰chst die Konfiguration!");
+      Dialog.error("Kein EFW-Pa√üwort konfiguriert. Bitte vervollst√§ndige zun√§chst die Konfiguration!");
       return;
     }
     if (drvConfig.testmode) {
       if (Dialog.yesNoDialog("Testmodus",
                              "Du befindest Dich im Testmodus!\n"+
-                             "Dieser Modus ist nur f¸r Testzwecke gedacht.\n"+
-                             "Mˆchtest Du weitermachen?") != Dialog.YES) return;
+                             "Dieser Modus ist nur f√ºr Testzwecke gedacht.\n"+
+                             "M√∂chtest Du weitermachen?") != Dialog.YES) return;
     }
     if (!Dialog.okAbbrDialog("Internet-Verbindung","Bitte stelle eine Verbindung zum Internet her\nund klicke dann OK.")) return;
 
@@ -411,8 +424,8 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
     String listFile = Daten.efaTmpDirectory+"meldungen.list";
     String url = drvConfig.makeScriptRequestString(DRVConfig.ACTION_LIST,null,null,null,null);
     if ((new File(listFile)).exists() && !(new File(listFile)).delete()) {
-      Dialog.error("Datei\n"+listFile+"\nkann nicht gelˆscht werden.");
-      Logger.log(Logger.ERROR,"Datei\n"+listFile+"\nkann nicht gelˆscht werden.");
+      Dialog.error("Datei\n"+listFile+"\nkann nicht gel√∂scht werden.");
+      Logger.log(Logger.ERROR,"Datei\n"+listFile+"\nkann nicht gel√∂scht werden.");
       Logger.log(Logger.INFO,"ENDE Neue Meldungen aus dem Internet abrufen");
       return;
     }
@@ -438,8 +451,8 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
         }
         Vector v = EfaUtil.split(s,'|');
         if (v.size() != 6) {
-          Dialog.error("Meldungen-Indexdatei hat ung¸ltiges Format!");
-          Logger.log(Logger.ERROR,"Fehler beim Lesen der Meldungen-Indexdatei: Datei hat ung¸ltiges Format ("+v.size()+" Felder).");
+          Dialog.error("Meldungen-Indexdatei hat ung√ºltiges Format!");
+          Logger.log(Logger.ERROR,"Fehler beim Lesen der Meldungen-Indexdatei: Datei hat ung√ºltiges Format ("+v.size()+" Felder).");
           Logger.log(Logger.INFO,"ENDE Neue Meldungen aus dem Internet abrufen");
           f.close();
           return;
@@ -466,7 +479,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
                 Logger.log(Logger.ERROR,"Heruntergeladene Meldung "+qnr+" kann nicht gelesen werden.");
                 meldungOk = false;
               } else {
-                efw.resetDrvIntern(); // Interne Felder entsprechend zur¸cksetzen (zur Sicherheit)
+                efw.resetDrvIntern(); // Interne Felder entsprechend zur√ºcksetzen (zur Sicherheit)
                 for (EfaWettMeldung ew = efw.meldung; ew != null; ew = ew.next) {
                   if (ew.drv_fahrtenheft == null || ew.drv_fahrtenheft.length()==0) {
                     if (ew.drv_anzAbzeichen != null && ew.drv_anzAbzeichen.length()>0 &&
@@ -538,7 +551,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
   void exportButton_actionPerformed(ActionEvent e) {
     int row = meldungen.getSelectedRow();
     if (row < 0) {
-      Dialog.error("Bitte w‰hle zun‰chst eine Meldung zum Exportieren aus!");
+      Dialog.error("Bitte w√§hle zun√§chst eine Meldung zum Exportieren aus!");
       return;
     }
     String qnr = null;
@@ -567,7 +580,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
         exportField(f,efw.verein_lrv,"Bundesland");
         exportField(f,efw.verein_mitglnr,"Mitgliedsnummer");
         exportField(f,efw.verein_mitglieder,"Mitglieder");
-        exportField(f,efw.verein_mitgl_in,"Verb‰nde");
+        exportField(f,efw.verein_mitgl_in,"Verb√§nde");
         exportField(f,efw.verein_user,"Benutzername");
         f.write("\n");
         exportField(f,efw.meld_name,"Meldende Person");
@@ -577,7 +590,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
         exportField(f,efw.meld_bank,"Bank");
         f.write("\n");
         exportField(f,efw.versand_name,"Versand an");
-        exportField(f,efw.versand_strasse,"Straﬂe");
+        exportField(f,efw.versand_strasse,"Stra√üe");
         exportField(f,efw.versand_ort,"Ort");
         f.write("\n");
         exportField(f,efw.drv_nadel_erw_silber,"Bestellung Nadel Erwachsene Silber");
@@ -587,15 +600,15 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
         exportField(f,efw.drv_stoff_erw,"Bestellung Stoffabzeichen Erwachsene");
         exportField(f,efw.drv_stoff_jug,"Bestellung Stoffabzeichen Jugendliche");
         f.write("\n");
-        exportField(f,efw.wimpel_mitglieder,"Gewertete Mitglieder f¸r Blauer Wimpel");
-        exportField(f,efw.wimpel_km,"Kilometer f¸r Blauer Wimpel");
-        exportField(f,efw.wimpel_schnitt,"Durchschnitt f¸r Blauer Wimpel");
+        exportField(f,efw.wimpel_mitglieder,"Gewertete Mitglieder f√ºr Blauer Wimpel");
+        exportField(f,efw.wimpel_km,"Kilometer f√ºr Blauer Wimpel");
+        exportField(f,efw.wimpel_schnitt,"Durchschnitt f√ºr Blauer Wimpel");
         f.write("\n");
         f.write("\n");
 
         boolean teilnHeader = true;
         if (WettDefs.STR_DRV_WANDERRUDERSTATISTIK.equals(efw.allg_wett)) {
-          f.write("Start und Ziel;Gew‰sser;Kilometer;Tage;Teilnehmer;Mannsch-Km;M‰nner Anz;M‰nner Km;Junioren Anz;Junioren Km;Frauen Anz;Frauen Km;Juniorinnen Anz;Juniorinnen Km\n");
+          f.write("Start und Ziel;Gew√§sser;Kilometer;Tage;Teilnehmer;Mannsch-Km;M√§nner Anz;M√§nner Km;Junioren Anz;Junioren Km;Frauen Anz;Frauen Km;Juniorinnen Anz;Juniorinnen Km\n");
           teilnHeader = false;
         }
         int i = 0;
@@ -615,7 +628,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
           exportField(f,m.drv_anzAbzeichenAB,"davon Abzeichen A/B bisher");
           exportField(f,m.drv_gesKmAB,"davon Kilometer A/B bisher");
           exportField(f,m.drv_fahrtenheft,"Elektronisches Fahrtenheft");
-          exportField(f,m.drv_aequatorpreis,"ƒquatorpreis");
+          exportField(f,m.drv_aequatorpreis,"√Ñquatorpreis");
           if (m.drvWS_StartZiel != null) {
             f.write(m.drvWS_StartZiel + ";" +
                     m.drvWS_Gewaesser + ";" +
@@ -653,7 +666,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
   void editButton_actionPerformed(ActionEvent e) {
     int row = meldungen.getSelectedRow();
     if (row < 0) {
-      Dialog.error("Bitte w‰hle zun‰chst eine Meldung zum Bearbeiten aus!");
+      Dialog.error("Bitte w√§hle zun√§chst eine Meldung zum Bearbeiten aus!");
       return;
     }
     String qnr = null;
@@ -671,10 +684,10 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
     }
     switch (EfaUtil.string2int(d.get(MeldungenIndex.STATUS),-1)) {
       case MeldungenIndex.ST_GELOESCHT:
-        Dialog.error("Die gew‰hlte Meldung wurde bereits gelˆscht und kann nicht mehr bearbeitet werden.");
+        Dialog.error("Die gew√§hlte Meldung wurde bereits gel√∂scht und kann nicht mehr bearbeitet werden.");
         return;
       case MeldungenIndex.ST_ZURUECKGEWIESEN:
-        Dialog.error("Die gew‰hlte Meldung wurde bereits zur¸ckgewiesen und kann nicht mehr bearbeitet werden.");
+        Dialog.error("Die gew√§hlte Meldung wurde bereits zur√ºckgewiesen und kann nicht mehr bearbeitet werden.");
         return;
     }
 
@@ -720,7 +733,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
     }
     int row = meldungen.getSelectedRow();
     if (row < 0) {
-      Dialog.error("Bitte w‰hle zun‰chst eine Meldung zum Lˆschen aus!");
+      Dialog.error("Bitte w√§hle zun√§chst eine Meldung zum L√∂schen aus!");
       return;
     }
     String qnr = null;
@@ -730,7 +743,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       return;
     }
     if (qnr == null) return;
-    if (Dialog.yesNoDialog("Meldung lˆschen","Mˆchtest Du die Meldung mit Quittungsnummer "+qnr+" wirklich lˆschen?") != Dialog.YES) return;
+    if (Dialog.yesNoDialog("Meldung l√∂schen","M√∂chtest Du die Meldung mit Quittungsnummer "+qnr+" wirklich l√∂schen?") != Dialog.YES) return;
 
     DatenFelder d = drvConfig.meldungenIndex.getExactComplete(qnr);
     if (d == null) {
@@ -739,20 +752,20 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
     }
     if (EfaUtil.string2int(d.get(MeldungenIndex.STATUS),-1) != MeldungenIndex.ST_UNBEARBEITET &&
         EfaUtil.string2int(d.get(MeldungenIndex.STATUS),-1) != MeldungenIndex.ST_ZURUECKGEWIESEN) {
-        if (Dialog.yesNoDialog("Meldung wirklich lˆschen",
-                               "Nur unbearbeitete oder zur¸ckgewiesene Meldungen sollten gelˆscht werden.\n"+
-                               "Eine Meldung, die bereits bearbeitet wurde, sollte nur in Ausnahmef‰llen\n"+
-                               "gelˆscht werden (bspw. wenn sie wegen fehlerhafter Bearbeitung erneut aus\n"+
+        if (Dialog.yesNoDialog("Meldung wirklich l√∂schen",
+                               "Nur unbearbeitete oder zur√ºckgewiesene Meldungen sollten gel√∂scht werden.\n"+
+                               "Eine Meldung, die bereits bearbeitet wurde, sollte nur in Ausnahmef√§llen\n"+
+                               "gel√∂scht werden (bspw. wenn sie wegen fehlerhafter Bearbeitung erneut aus\n"+
                                "dem Internet heruntergeladen werden soll in der Form, in der sie vom\n"+
                                "Verein eingeschickt wurde).\n"+
-                               "Mˆchtest Du die Meldung wirklich lˆschen?") != Dialog.YES) return;
+                               "M√∂chtest Du die Meldung wirklich l√∂schen?") != Dialog.YES) return;
     }
 
     d.set(MeldungenIndex.STATUS,Integer.toString(MeldungenIndex.ST_GELOESCHT));
     if (!drvConfig.meldungenIndex.writeFile()) {
       Logger.log(Logger.ERROR,"Meldungen-Indexdatei konnte nicht geschrieben werden!");
     }
-    Logger.log(Logger.INFO,"Meldung "+qnr+" gelˆscht!");
+    Logger.log(Logger.INFO,"Meldung "+qnr+" gel√∂scht!");
     showMeldungen();
   }
 
@@ -774,28 +787,28 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       }
     }
     if (bestaetigungen.size() == 0) {
-      Dialog.error("Es liegen keine Meldungen zum Best‰tigen vor.");
+      Dialog.error("Es liegen keine Meldungen zum Best√§tigen vor.");
       return;
     }
     boolean einzeln = false;
-    switch(Dialog.auswahlDialog("Meldungen best‰tigen",
-                                "Es liegen "+bestaetigungen.size()+" Meldungen zum Best‰tigen vor.\n"+
-                                "Mˆchtest Du jetzt alle Meldungen oder nur einzelne Meldungen best‰tigen?",
-                                "Alle best‰tigen","Einzeln best‰tigen",true)) {
+    switch(Dialog.auswahlDialog("Meldungen best√§tigen",
+                                "Es liegen "+bestaetigungen.size()+" Meldungen zum Best√§tigen vor.\n"+
+                                "M√∂chtest Du jetzt alle Meldungen oder nur einzelne Meldungen best√§tigen?",
+                                "Alle best√§tigen","Einzeln best√§tigen",true)) {
       case 0: einzeln = false; break;
       case 1: einzeln = true;  break;
       default: return;
     }
     if (!Dialog.okAbbrDialog("Internet-Verbindung","Bitte stelle eine Verbindung zum Internet her\nund klicke dann OK.")) return;
 
-    Logger.log(Logger.INFO,"START Meldungen best‰tigen");
+    Logger.log(Logger.INFO,"START Meldungen best√§tigen");
     String errors = "";
     int cok = 0;
     for (int i=0; i<bestaetigungen.size(); i++) {
       String filename = (String)bestaetigungen.get(i);
       if (!EfaUtil.canOpenFile(filename)) {
-        Logger.log(Logger.ERROR,"(Best‰tigungs-)Datei "+filename+" existiert nicht.");
-        errors += "(Best‰tigungs-)Datei "+filename+" existiert nicht!\n";
+        Logger.log(Logger.ERROR,"(Best√§tigungs-)Datei "+filename+" existiert nicht.");
+        errors += "(Best√§tigungs-)Datei "+filename+" existiert nicht!\n";
         continue;
       }
 
@@ -808,8 +821,8 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
         if (MELDTYP == MELD_FAHRTENABZEICHEN) {
           ESigFahrtenhefte esfh = new ESigFahrtenhefte(filename);
           if (!esfh.readFile()) {
-            errors += "Best‰tigungsdatei "+filename+" kann nicht gelesen werden!\n";
-            Logger.log(Logger.ERROR,"Best‰tigungsdatei "+filename+" kann nicht gelesen werden.");
+            errors += "Best√§tigungsdatei "+filename+" kann nicht gelesen werden!\n";
+            Logger.log(Logger.ERROR,"Best√§tigungsdatei "+filename+" kann nicht gelesen werden.");
             continue;
           }
           verein = esfh.verein_user;
@@ -829,9 +842,9 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
           qnr = EfaUtil.getFilenameWithoutPath(filename); qnr = qnr.substring(0,qnr.length()-4);
         }
 
-        if (einzeln && Dialog.yesNoDialog("Meldung "+qnr+" best‰tigen",
+        if (einzeln && Dialog.yesNoDialog("Meldung "+qnr+" best√§tigen",
                                           "Soll die Meldung "+qnr+" des Vereins\n"+
-                                          vereinsname+" best‰tigt werden?") != Dialog.YES) continue;
+                                          vereinsname+" best√§tigt werden?") != Dialog.YES) continue;
 
         String data = "";
 
@@ -841,7 +854,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
           while ( (z = f.readLine()) != null) {
             z = EfaUtil.replace(z,"\"","**2**",true); // " als **2** maskieren
             z = EfaUtil.replace(z,"=","**0**",true);  // = als **0** maskieren
-            data += z+"**#**"; // Zeilenumbr¸che als **#** maskieren
+            data += z+"**#**"; // Zeilenumbr√ºche als **#** maskieren
           }
           f.close();
         }
@@ -853,8 +866,8 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
         String request = drvConfig.makeScriptRequestString(DRVConfig.ACTION_UPLOAD,"verein="+verein,"qnr="+qnr,"wettid="+wettid,"data="+data);
         int pos = request.indexOf("?");
         if (pos < 0) {
-          Logger.log(Logger.ERROR,"efaWett-Anfrage f¸r Best‰tigungsdatei "+filename+" kann nicht erstellt werden.");
-          errors += "efaWett-Anfrage f¸r Best‰tigungsdatei "+filename+" kann nicht erstellt werden.\n";
+          Logger.log(Logger.ERROR,"efaWett-Anfrage f√ºr Best√§tigungsdatei "+filename+" kann nicht erstellt werden.");
+          errors += "efaWett-Anfrage f√ºr Best√§tigungsdatei "+filename+" kann nicht erstellt werden.\n";
           continue;
         }
         String url = request.substring(0,pos);
@@ -878,27 +891,27 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
         String z;
         while((z = in.readLine()) != null) {
           if (!z.equals("OK")) {
-            Logger.log(Logger.ERROR,"Fehler beim Best‰tigen von Meldung "+qnr+": "+z);
-            errors += "Fehler beim Best‰tigen von Meldung "+qnr+": "+z+"\n";
+            Logger.log(Logger.ERROR,"Fehler beim Best√§tigen von Meldung "+qnr+": "+z);
+            errors += "Fehler beim Best√§tigen von Meldung "+qnr+": "+z+"\n";
             ok = false;
           }
         }
         if (ok) {
           DatenFelder d = drvConfig.meldungenIndex.getExactComplete(qnr);
           if (d == null) {
-            Logger.log(Logger.ERROR,"Konnte Status f¸r Meldung "+qnr+" nicht aktualisieren: Meldung nicht gefunden!");
-            errors += "Konnte Status f¸r Meldung "+qnr+" nicht aktualisieren: Meldung nicht gefunden!\n";
+            Logger.log(Logger.ERROR,"Konnte Status f√ºr Meldung "+qnr+" nicht aktualisieren: Meldung nicht gefunden!");
+            errors += "Konnte Status f√ºr Meldung "+qnr+" nicht aktualisieren: Meldung nicht gefunden!\n";
           } else {
             d.set(MeldungenIndex.BESTAETIGUNGSDATEI,"");
             drvConfig.meldungenIndex.delete(qnr);
             drvConfig.meldungenIndex.add(d);
           }
-          Logger.log(Logger.INFO,"Meldung "+qnr+" von Verein "+verein+" wurde erfolgreich best‰tigt!ˇ");
+          Logger.log(Logger.INFO,"Meldung "+qnr+" von Verein "+verein+" wurde erfolgreich best√§tigt!√ø");
           cok++;
         }
       } catch(Exception ee) {
-        Logger.log(Logger.ERROR,"Fehler beim Best‰tigen von Meldung "+qnr+": "+ee.toString());
-        errors += "Fehler beim Best‰tigen von Meldung "+qnr+": "+ee.getMessage()+"\n";
+        Logger.log(Logger.ERROR,"Fehler beim Best√§tigen von Meldung "+qnr+": "+ee.toString());
+        errors += "Fehler beim Best√§tigen von Meldung "+qnr+": "+ee.getMessage()+"\n";
       }
     }
     if (!drvConfig.meldungenIndex.writeFile()) {
@@ -906,10 +919,10 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       Logger.log(Logger.ERROR,"Meldungen-Indexdatei konnte nicht geschrieben werden!");
     }
     if (errors.length() > 0) {
-      Dialog.error("Bei der Best‰tigung der Meldungen traten folgende Fehler auf:\n"+errors);
+      Dialog.error("Bei der Best√§tigung der Meldungen traten folgende Fehler auf:\n"+errors);
     }
-    Dialog.infoDialog("Meldungen best‰tigt","Es wurden "+cok+" Meldungen erfolgreich best‰tigt.");
-    Logger.log(Logger.INFO,"ENDE Meldungen best‰tigen");
+    Dialog.infoDialog("Meldungen best√§tigt","Es wurden "+cok+" Meldungen erfolgreich best√§tigt.");
+    Logger.log(Logger.INFO,"ENDE Meldungen best√§tigen");
     showMeldungen();
   }
 
@@ -920,7 +933,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
     }
     int row = meldungen.getSelectedRow();
     if (row < 0) {
-      Dialog.error("Bitte w‰hle zun‰chst eine Meldung zum Zur¸ckweisen aus!");
+      Dialog.error("Bitte w√§hle zun√§chst eine Meldung zum Zur√ºckweisen aus!");
       return;
     }
     String qnr = null;
@@ -938,15 +951,15 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
     }
     if (EfaUtil.string2int(d.get(MeldungenIndex.STATUS),-1) != MeldungenIndex.ST_UNBEARBEITET) {
       if (EfaUtil.string2int(d.get(MeldungenIndex.STATUS),-1) == MeldungenIndex.ST_ZURUECKGEWIESEN) {
-        Dialog.error("Die Meldung wurde bereits zur¸ckgewiesen. Sie kann nicht nochmals zur¸ckgewiesen werden.");
+        Dialog.error("Die Meldung wurde bereits zur√ºckgewiesen. Sie kann nicht nochmals zur√ºckgewiesen werden.");
         return;
       }
-      if (Dialog.yesNoDialog("Meldung wirklich zur¸ckweisen",
-                             "Nur unbearbeitete Meldungen sollten zur¸ckgewiesen werden.\n"+
-                             "Eine Meldung, die bereits bearbeitet wurde, sollte nur in Ausnahmef‰llen\n"+
-                             "zur¸ckgewiesen werden (etwa nach R¸cksprache mit dem Verein, falls bspw. eine\n"+
+      if (Dialog.yesNoDialog("Meldung wirklich zur√ºckweisen",
+                             "Nur unbearbeitete Meldungen sollten zur√ºckgewiesen werden.\n"+
+                             "Eine Meldung, die bereits bearbeitet wurde, sollte nur in Ausnahmef√§llen\n"+
+                             "zur√ºckgewiesen werden (etwa nach R√ºcksprache mit dem Verein, falls bspw. eine\n"+
                              "korrigierte Meldung eingeschickt werden soll).\n"+
-                             "Mˆchtest Du die Meldung wirklich zur¸ckweisen?") != Dialog.YES) return;
+                             "M√∂chtest Du die Meldung wirklich zur√ºckweisen?") != Dialog.YES) return;
     }
 
     String verein = null;
@@ -967,8 +980,8 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       return;
     }
 
-    if (Dialog.yesNoDialog("Meldung zur¸ckweisen","Mˆchtest Du die Meldung "+qnr+" des Vereins "+verein+" wirklich zur¸ckweisen?") != Dialog.YES) return;
-    String grund = Dialog.inputDialog("Grund f¸r Zur¸ckweisen","Bitte gib einen Grund ein, aus dem die Meldung zur¸ckgewiesen wurde.\n"+
+    if (Dialog.yesNoDialog("Meldung zur√ºckweisen","M√∂chtest Du die Meldung "+qnr+" des Vereins "+verein+" wirklich zur√ºckweisen?") != Dialog.YES) return;
+    String grund = Dialog.inputDialog("Grund f√ºr Zur√ºckweisen","Bitte gib einen Grund ein, aus dem die Meldung zur√ºckgewiesen wurde.\n"+
                                                                "Dieser wird dem Verein per email mitgeteilt.");
     if (grund == null) return;
     if (d == null) {
@@ -981,7 +994,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
     String url = drvConfig.makeScriptRequestString(DRVConfig.ACTION_REJECT,"verein="+verein,"qnr="+qnr,"grund="+EfaUtil.replace(grund," ","+",true),null);
     String localFile = Daten.efaTmpDirectory+"efwstatus.tmp";
     if (!EfaUtil.getFile(this,url,localFile,true) || !EfaUtil.canOpenFile(localFile)) {
-      Logger.log(Logger.ERROR,"Zur¸ckweisen der Meldung "+qnr+" von Verein "+verein+" fehlgeschlagen: Kann efaWett nicht erreichen");
+      Logger.log(Logger.ERROR,"Zur√ºckweisen der Meldung "+qnr+" von Verein "+verein+" fehlgeschlagen: Kann efaWett nicht erreichen");
       Dialog.error("Aktion fehlgeschlagen: Kann efaWett nicht erreichen");
       return;
     }
@@ -989,14 +1002,14 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       BufferedReader f = new BufferedReader(new FileReader(localFile));
       String s = f.readLine();
       if (s == null || !s.equals("OK")) {
-        Logger.log(Logger.ERROR,"Zur¸ckweisen der Meldung "+qnr+" von Verein "+verein+" fehlgeschlagen: "+s);
+        Logger.log(Logger.ERROR,"Zur√ºckweisen der Meldung "+qnr+" von Verein "+verein+" fehlgeschlagen: "+s);
         Dialog.error("Aktion fehlgeschlagen: "+s);
         return;
       }
       f.close();
       EfaUtil.deleteFile(localFile);
     } catch(Exception ee) {
-      Logger.log(Logger.ERROR,"Zur¸ckweisen der Meldung "+qnr+" von Verein "+verein+" fehlgeschlagen: "+ee.getMessage());
+      Logger.log(Logger.ERROR,"Zur√ºckweisen der Meldung "+qnr+" von Verein "+verein+" fehlgeschlagen: "+ee.getMessage());
       Dialog.error("Aktion fehlgeschlagen: "+ee.getMessage());
       return;
     }
@@ -1006,8 +1019,8 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
     if (!drvConfig.meldungenIndex.writeFile()) {
       Logger.log(Logger.ERROR,"Meldungen-Indexdatei konnte nicht geschrieben werden!");
     }
-    Logger.log(Logger.INFO,"Meldung "+qnr+" von Verein "+verein+" zur¸ckgewiesen. Grund: "+grund);
-    Dialog.infoDialog("Meldung zur¸ckgewiesen!");
+    Logger.log(Logger.INFO,"Meldung "+qnr+" von Verein "+verein+" zur√ºckgewiesen. Grund: "+grund);
+    Dialog.infoDialog("Meldung zur√ºckgewiesen!");
     showMeldungen();
   }
 
@@ -1022,7 +1035,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       String stat_complete = Daten.efaDataDirectory+drvConfig.aktJahr+Daten.fileSep+"meldestatistik_komplett.csv";
       BufferedWriter f;
       f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(stat_complete),Daten.ENCODING));
-      f.write("Verein;Vorname;Nachname;Jahrgang;Geschlecht;Kilometer;Gruppe;AnzAbzeichen(ges);AnzAbzeichen(AB);ƒquator\n");
+      f.write("Verein;Vorname;Nachname;Jahrgang;Geschlecht;Kilometer;Gruppe;AnzAbzeichen(ges);AnzAbzeichen(AB);√Ñquator\n");
       for (DatenFelder d = drvConfig.meldestatistik.getCompleteFirst(); d != null; d = drvConfig.meldestatistik.getCompleteNext()) {
         f.write(d.get(Meldestatistik.VEREIN)+";"+d.get(Meldestatistik.VORNAME)+";"+d.get(Meldestatistik.NACHNAME)+";"+
                 d.get(Meldestatistik.JAHRGANG)+";"+d.get(Meldestatistik.GESCHLECHT)+";"+d.get(Meldestatistik.KILOMETER)+";"+
@@ -1035,9 +1048,9 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       String stat_div = Daten.efaDataDirectory+drvConfig.aktJahr+Daten.fileSep+"meldestatistik_einzeln.csv";
       f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(stat_div),Daten.ENCODING));
 
-      // Tabelle 2: ‹bersicht M‰nner Frauen Junioren Juniorinnen
-      f.write("Statistik 2: ‹bersicht M‰nner / Frauen / Junioren / Junioninnen\n");
-      f.write("M‰nner 18-30;M‰nner 31-60;M‰nner ¸ber 60;Frauen 18-30;Frauen 31-60;Frauen ¸ber 60;Junioren 13/14;Junioren 15/16;Junioren 17/18;Juniorinnen 13/14;Juniorinnen 15/16;Juniorinnen 17/18;\n");
+      // Tabelle 2: √úbersicht M√§nner Frauen Junioren Juniorinnen
+      f.write("Statistik 2: √úbersicht M√§nner / Frauen / Junioren / Junioninnen\n");
+      f.write("M√§nner 18-30;M√§nner 31-60;M√§nner √ºber 60;Frauen 18-30;Frauen 31-60;Frauen √ºber 60;Junioren 13/14;Junioren 15/16;Junioren 17/18;Juniorinnen 13/14;Juniorinnen 15/16;Juniorinnen 17/18;\n");
       int data[] = new int[12];
       for (DatenFelder d = drvConfig.meldestatistik.getCompleteFirst(); d != null; d = drvConfig.meldestatistik.getCompleteNext()) {
         if (d.get(Meldestatistik.GESCHLECHT).equals(EfaWettMeldung.GESCHLECHT_M)) {
@@ -1062,9 +1075,9 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       for (int i=0; i<data.length; i++) f.write((i > 0 ? ";" : "") + data[i]);
       f.write("\n\n\n");
 
-      // Tabelle 3: 75 Jahre und ‰lter
+      // Tabelle 3: 75 Jahre und √§lter
       SortedStatistic sStat = new SortedStatistic();
-      f.write("Statistik 3: Jahrgang "+(drvConfig.aktJahr - 75)+" und ‰lter (75 Jahre und ‰lter)\n");
+      f.write("Statistik 3: Jahrgang "+(drvConfig.aktJahr - 75)+" und √§lter (75 Jahre und √§lter)\n");
       f.write("Jahrgang;Name, Verein;Km\n");
       for (DatenFelder d = drvConfig.meldestatistik.getCompleteFirst(); d != null; d = drvConfig.meldestatistik.getCompleteNext()) {
         int jahrgang = EfaUtil.string2int(d.get(Meldestatistik.JAHRGANG),9999);
@@ -1083,9 +1096,9 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       }
       f.write("\n\n\n");
 
-      // Tabelle 4: ‹ber 4000 Km
+      // Tabelle 4: √úber 4000 Km
       sStat = new SortedStatistic();
-      f.write("Statistik 4: ‹ber 4000 Km haben gerudert:\n");
+      f.write("Statistik 4: √úber 4000 Km haben gerudert:\n");
       f.write("Platz;Km;Name/Jahrgang/Verein\n");
       for (DatenFelder d = drvConfig.meldestatistik.getCompleteFirst(); d != null; d = drvConfig.meldestatistik.getCompleteNext()) {
         int km = EfaUtil.string2int(d.get(Meldestatistik.KILOMETER),0);
@@ -1135,7 +1148,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
           c = 0;
           lastAbz = sdata[0];
           if (!sdata[0].equals("99")) {
-            f.write("Zum "+sdata[0]+". Mal erf¸llt:\n");
+            f.write("Zum "+sdata[0]+". Mal erf√ºllt:\n");
           } else {
             f.write("Jugendfahrtenabzeichen in Gold:\n");
           }
@@ -1144,9 +1157,9 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       }
       f.write("\n\n\n");
 
-      // Tabelle 6: ƒquatorpreistr‰ger
-      f.write("Statistik 6: ƒquatorpreistr‰ger:\n");
-      f.write("Verein;Vorname;Nachname;Kilometer;ƒquatorpreis\n");
+      // Tabelle 6: √Ñquatorpreistr√§ger
+      f.write("Statistik 6: √Ñquatorpreistr√§ger:\n");
+      f.write("Verein;Vorname;Nachname;Kilometer;√Ñquatorpreis\n");
       for (DatenFelder d = drvConfig.meldestatistik.getCompleteFirst(); d != null; d = drvConfig.meldestatistik.getCompleteNext()) {
         if (d.get(Meldestatistik.AEQUATOR).length() > 0) {
           f.write(d.get(Meldestatistik.VEREIN)+";"+d.get(Meldestatistik.VORNAME)+";"+d.get(Meldestatistik.NACHNAME)+";"+
@@ -1160,8 +1173,8 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       String stat_info = "";
       if (mitglnr_hash.size() < drvConfig.meldungenIndex.countElements()) {
         int differenz = drvConfig.meldungenIndex.countElements() - mitglnr_hash.size();
-        stat_info = "ACHTUNG: Die Statistik enth‰lt nur die Daten von "+mitglnr_hash.size()+" bereits fertig\n"+
-                    "bearbeiteten Vereinen. "+differenz+" nicht bearbeitete Vereine wurden NICHT ber¸cksichtigt.\n\n";
+        stat_info = "ACHTUNG: Die Statistik enth√§lt nur die Daten von "+mitglnr_hash.size()+" bereits fertig\n"+
+                    "bearbeiteten Vereinen. "+differenz+" nicht bearbeitete Vereine wurden NICHT ber√ºcksichtigt.\n\n";
       }
       Dialog.infoDialog("Statistiken exportiert",
                         "Die Statistiken wurden erfolgreich erstellt:\n"+
@@ -1176,7 +1189,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
           ziel = ziel.trim();
           if (!ziel.endsWith(Daten.fileSep)) ziel += Daten.fileSep;
           if (!(new File(ziel)).isDirectory()) {
-            Dialog.error("Statistiken kˆnnen nicht kopiert werden:\nZielverzeichnis "+ziel+" existiert nicht.");
+            Dialog.error("Statistiken k√∂nnen nicht kopiert werden:\nZielverzeichnis "+ziel+" existiert nicht.");
           } else {
             boolean b1 = EfaUtil.copyFile(stat_complete,ziel+EfaUtil.getFilenameWithoutPath(stat_complete));
             boolean b2 = EfaUtil.copyFile(stat_div,ziel+EfaUtil.getFilenameWithoutPath(stat_div));
@@ -1196,7 +1209,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       String stat_complete = Daten.efaDataDirectory+drvConfig.aktJahr+Daten.fileSep+"wanderruderstatistik.csv";
       BufferedWriter f;
       f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(stat_complete),Daten.ENCODING));
-      f.write("Vereinsnummer;Verein;Bundesland;SRV/ADH;Befahrene Gew‰sser;Teilnehmer insg.;Mannschafts-Km;M‰nner Km; Junioren Km; Frauen Km; Juniorinnen Km\n");
+      f.write("Vereinsnummer;Verein;Bundesland;SRV/ADH;Befahrene Gew√§sser;Teilnehmer insg.;Mannschafts-Km;M√§nner Km; Junioren Km; Frauen Km; Juniorinnen Km\n");
       Hashtable mitglnr_hash = new Hashtable();
       for (DatenFelder d = drvConfig.meldestatistik.getCompleteFirst(); d != null; d = drvConfig.meldestatistik.getCompleteNext()) {
         String mitgl_in = "";
@@ -1220,20 +1233,20 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       String stat_info = "";
       if (mitglnr_hash.size() < drvConfig.meldungenIndex.countElements()) {
         int differenz = drvConfig.meldungenIndex.countElements() - mitglnr_hash.size();
-        stat_info = "ACHTUNG: Die Statistik enth‰lt nur die Daten von "+mitglnr_hash.size()+" bereits fertig\n"+
-                    "bearbeiteten Vereinen. "+differenz+" nicht bearbeitete Vereine wurden NICHT ber¸cksichtigt.\n\n";
+        stat_info = "ACHTUNG: Die Statistik enth√§lt nur die Daten von "+mitglnr_hash.size()+" bereits fertig\n"+
+                    "bearbeiteten Vereinen. "+differenz+" nicht bearbeitete Vereine wurden NICHT ber√ºcksichtigt.\n\n";
       }
 
       Dialog.infoDialog("Statistik exportiert",
                         "Die Statistik wurde erfolgreich erstellt:\n"+
                         stat_complete+"\n\n"+
                         stat_info+
-                        "Um die Statistik in Excel zu ˆffnen:\n"+
+                        "Um die Statistik in Excel zu √∂ffnen:\n"+
                         "1. Excel starten\n"+
-                        "2. ->Datei->÷ffnen w‰hlen\n"+
+                        "2. ->Datei->√ñffnen w√§hlen\n"+
                         "3. In den Ordner \""+EfaUtil.getPathOfFile(stat_complete)+"\" wechseln\n"+
-                        "4. Bei der Auswahl der anzuzeigenden Dateien \"Alle Dateien\" w‰hlen\n"+
-                        "5. Die Datei \""+EfaUtil.getFilenameWithoutPath(stat_complete)+"\" ˆffnen");
+                        "4. Bei der Auswahl der anzuzeigenden Dateien \"Alle Dateien\" w√§hlen\n"+
+                        "5. Die Datei \""+EfaUtil.getFilenameWithoutPath(stat_complete)+"\" √∂ffnen");
     } catch(Exception ee) {
       Dialog.error("Fehler beim Erstellen der Statistik: "+ee.toString());
       Logger.log(Logger.ERROR,"Fehler beim Erstellen der Statistik: "+ee.toString());
@@ -1257,7 +1270,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
     if (!loadKeys()) return;
 
     DRVSignaturFrame dlg = new DRVSignaturFrame(this,null);
-    dlg.setCloseButtonText("Schlieﬂen");
+    dlg.setCloseButtonText("Schlie√üen");
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(true);
     dlg.show();
@@ -1270,10 +1283,10 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       f.write("<html>\n");
       f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"></head>\n");
       f.write("<body>\n");
-      f.write("<h1 align=\"center\">Melde¸bersicht</h1>\n");
+      f.write("<h1 align=\"center\">Melde√ºbersicht</h1>\n");
       f.write("<table align=\"center\" border=\"3\" width=\"100%\">\n");
       f.write("<tr><th>Verein</th><th>Status</th>"+
-              (MELDTYP == MELD_WANDERRUDERSTATISTIK ? "<th>Gew‰sser</th>" : "<th>Fahrtenhefte</th>")+"</tr>\n");
+              (MELDTYP == MELD_WANDERRUDERSTATISTIK ? "<th>Gew√§sser</th>" : "<th>Fahrtenhefte</th>")+"</tr>\n");
 
       for (DatenFelder d = drvConfig.meldungenIndex.getCompleteFirst(); d != null; d = drvConfig.meldungenIndex.getCompleteNext()) {
         String verein = d.get(MeldungenIndex.VEREIN);
@@ -1323,7 +1336,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       Dialog.error("Die Quittungsnummer "+qnr+" existiert bereits.");
       return;
     }
-    Logger.log(Logger.INFO,"Neue Meldungen mit Quittungsnummer "+qnr+" wird von Hand erfaﬂt.");
+    Logger.log(Logger.INFO,"Neue Meldungen mit Quittungsnummer "+qnr+" wird von Hand erfa√üt.");
     DatenFelder d = new DatenFelder(MeldungenIndex._ANZFELDER);
     d.set(MeldungenIndex.QNR,qnr);
     d.set(MeldungenIndex.DATUM,EfaUtil.getCurrentTimeStampYYYY_MM_DD_HH_MM_SS());
@@ -1349,7 +1362,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       dlg.show();
       if (dlg.hasBeenSaved()) {
         d = drvConfig.meldungenIndex.getExactComplete(qnr);
-        if (d != null) { // muﬂ immer != null sein
+        if (d != null) { // mu√ü immer != null sein
           d.set(MeldungenIndex.VEREIN,efw.verein_name);
           d.set(MeldungenIndex.MITGLNR,efw.verein_mitglnr);
           drvConfig.meldungenIndex.delete(qnr);

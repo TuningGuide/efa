@@ -1,15 +1,15 @@
 package de.nmichael.efa.direkt;
 
-import de.nmichael.efa.EfaUtil;
+import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.Logger;
+import de.nmichael.efa.util.Logger;
 import java.util.*;
 
 public class Nachricht {
 
   public static final int ADMIN = 0;
   public static final int BOOTSWART = 1;
-  public static final int ALLE = 99; // nur für Check auf ungelesene Nachrichten, wenn Nachrichten für beide vorliegen
+  public static final int ALLE = 99; // nur fÃ¼r Check auf ungelesene Nachrichten, wenn Nachrichten fÃ¼r beide vorliegen
 
   public int empfaenger=ADMIN;
   public String datum=null;

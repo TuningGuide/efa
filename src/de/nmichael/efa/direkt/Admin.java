@@ -1,6 +1,6 @@
 package de.nmichael.efa.direkt;
 
-import de.nmichael.efa.EfaConfig;
+import de.nmichael.efa.core.EfaConfig;
 
 public class Admin {
   public String name = null;

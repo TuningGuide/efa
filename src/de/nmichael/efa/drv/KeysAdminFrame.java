@@ -1,5 +1,15 @@
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.core.EnterPasswordFrame;
+import de.nmichael.efa.core.DRVSignaturFrame;
+import de.nmichael.efa.util.TMJ;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.EfaKeyStore;
+import de.nmichael.efa.util.CertInfos;
+import de.nmichael.efa.util.Base64;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -12,7 +22,7 @@ import java.security.cert.Certificate;
 import java.net.*;
 // import java.security.interfaces.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 
 
 public class KeysAdminFrame extends JDialog implements ActionListener {
@@ -53,14 +63,14 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
       enterNewKeyPassword(drvConfig);
       if (drvConfig.keyPassword == null) {
         cancel();
-        throw new Exception("Falsches Paßwort!");
+        throw new Exception("Falsches PaÃŸwort!");
       }
     }
     if (drvConfig.keyPassword == null) enterKeyPassword(drvConfig);
     if (drvConfig.keyPassword == null || !loadKeys()) {
       cancel();
       drvConfig.keyPassword = null;
-      throw new Exception("Falsches Paßwort!");
+      throw new Exception("Falsches PaÃŸwort!");
     }
     displayKeys();
 
@@ -69,21 +79,21 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
   }
 
   public static void enterKeyPassword(DRVConfig drvConfig) {
-    drvConfig.keyPassword = EnterPasswordFrame.enterPassword(Dialog.frameCurrent(),"Bitte Schlüssel-Paßwort eingeben:");
+    drvConfig.keyPassword = EnterPasswordFrame.enterPassword(Dialog.frameCurrent(),"Bitte SchlÃ¼ssel-PaÃŸwort eingeben:");
   }
 
   public static void enterNewKeyPassword(DRVConfig drvConfig) {
     drvConfig.keyPassword = EnterPasswordFrame.enterNewPassword(Dialog.frameCurrent(),
-                            "Damit die erstellten Schlüssel vor unbefugten Zugriffen sicher sind,\n"+
-                            "werden sie durch ein Paßwort geschützt. Dieses Paßwort muß unter\n"+
-                            "allen Umständen geheim bleiben, da von ihm die Sicherheit des\n"+
-                            "Gesamtsystems abhängt.\n"+
-                            "Gib daher bitte jetzt ein Paßwort ein, das möglichst lang und\n"+
+                            "Damit die erstellten SchlÃ¼ssel vor unbefugten Zugriffen sicher sind,\n"+
+                            "werden sie durch ein PaÃŸwort geschÃ¼tzt. Dieses PaÃŸwort muÃŸ unter\n"+
+                            "allen UmstÃ¤nden geheim bleiben, da von ihm die Sicherheit des\n"+
+                            "Gesamtsystems abhÃ¤ngt.\n"+
+                            "Gib daher bitte jetzt ein PaÃŸwort ein, das mÃ¶glichst lang und\n"+
                             "vor allem nicht zu erraten ist (kein Wort der deutschen Sprache!).\n"+
-                            "Das Paßwort muß mindestens 8 Zeichen lang sein und muß von den vier\n"+
-                            "Zeichengruppen 'Kleinbuchstaben', 'Großbuchstaben', 'Ziffern' und\n"+
+                            "Das PaÃŸwort muÃŸ mindestens 8 Zeichen lang sein und muÃŸ von den vier\n"+
+                            "Zeichengruppen 'Kleinbuchstaben', 'GroÃŸbuchstaben', 'Ziffern' und\n"+
                             "'sonstige Zeichen' mindestens drei Gruppen enthalten.");
-    if (drvConfig.keyPassword != null) Logger.log(Logger.INFO,"Neues Paßwort für Schlüsselspeicher festgelegt.");
+    if (drvConfig.keyPassword != null) Logger.log(Logger.INFO,"Neues PaÃŸwort fÃ¼r SchlÃ¼sselspeicher festgelegt.");
   }
 
   boolean loadKeys() {
@@ -117,17 +127,17 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
         tableData[i][4] = (drvConfig.schluessel.equals(keys[i]) ? "Standard" : "");
       }
       String[] tableHeader = new String[5];
-      tableHeader[0] = "Schlüssel-ID";
-      tableHeader[1] = "gültig für";
-      tableHeader[2] = "gültig von";
-      tableHeader[3] = "gültig bis";
+      tableHeader[0] = "SchlÃ¼ssel-ID";
+      tableHeader[1] = "gÃ¼ltig fÃ¼r";
+      tableHeader[2] = "gÃ¼ltig von";
+      tableHeader[3] = "gÃ¼ltig bis";
       tableHeader[4] = "Status";
 
       if (keyTable != null) jScrollPane1.getViewport().remove(keyTable);
       keyTable = new JTable(tableData,tableHeader);
       jScrollPane1.getViewport().add(keyTable, null);
     } catch(Exception e) {
-      Dialog.error("Kann die Schlüsselliste nicht anzeigen: "+e.toString());
+      Dialog.error("Kann die SchlÃ¼sselliste nicht anzeigen: "+e.toString());
     }
   }
 
@@ -136,8 +146,8 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
       X509Certificate cert = Daten.keyStore.getCertificate(alias);
       Date date = (new GregorianCalendar()).getTime();
       if (date.after(cert.getNotAfter()) || date.before(cert.getNotBefore())) {
-        Dialog.error("Der Schlüssel ist zum aktuellen Datum ungültig\n"+
-                     "und kann nicht als Standardschlüssel festgelegt werden!");
+        Dialog.error("Der SchlÃ¼ssel ist zum aktuellen Datum ungÃ¼ltig\n"+
+                     "und kann nicht als StandardschlÃ¼ssel festgelegt werden!");
         return;
       }
     } catch(Exception ee) {
@@ -149,9 +159,9 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
     if (!drvConfig.writeFile()) {
       Dialog.error("Konfigurationsdatei\n"+drvConfig.getFileName()+"\nkann nicht geschrieben werden!");
       drvConfig.schluessel = "";
-      Logger.log(Logger.WARNING,"Kein Schlüssel als Standardschlüssel ausgewählt.");
+      Logger.log(Logger.WARNING,"Kein SchlÃ¼ssel als StandardschlÃ¼ssel ausgewÃ¤hlt.");
     } else {
-      Logger.log(Logger.INFO,"Schlüssel "+alias+" als neuer Standardschlüssel ausgewählt.");
+      Logger.log(Logger.INFO,"SchlÃ¼ssel "+alias+" als neuer StandardschlÃ¼ssel ausgewÃ¤hlt.");
     }
   }
 
@@ -176,14 +186,14 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
       jPanel2.setLayout(gridBagLayout1);
-      closeButton.setText("Schließen");
+      closeButton.setText("SchlieÃŸen");
       closeButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           closeButton_actionPerformed(e);
         }
     });
       jPanel3.setLayout(gridBagLayout2);
-      newButton.setText("Neuen Schlüssel erstellen");
+      newButton.setText("Neuen SchlÃ¼ssel erstellen");
       newButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           newButton_actionPerformed(e);
@@ -195,7 +205,7 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
           editButton_actionPerformed(e);
         }
     });
-      deleteButton.setText("Schlüssel sperren");
+      deleteButton.setText("SchlÃ¼ssel sperren");
       deleteButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           deleteButton_actionPerformed(e);
@@ -213,7 +223,7 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
           setDefaultButton_actionPerformed(e);
         }
     });
-      this.setTitle("Schlüsselverwaltung");
+      this.setTitle("SchlÃ¼sselverwaltung");
       importCertButton.setText("Zertifikat importieren");
       importCertButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
@@ -262,11 +272,11 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
   }
 
   void newButton_actionPerformed(ActionEvent e) {
-    String _nr = Dialog.inputDialog("Schlüsselnummer","Bitte gib eine Nummer für den neu zu erstellenden Schlüssel ein:");
+    String _nr = Dialog.inputDialog("SchlÃ¼sselnummer","Bitte gib eine Nummer fÃ¼r den neu zu erstellenden SchlÃ¼ssel ein:");
     if (_nr == null) return;
     int nr = EfaUtil.string2int(_nr,-1);
     if (nr < 1 || nr > 99) {
-      Dialog.error("Ungültige Nummer: Die Nummer muß zwischen 1 und 99 liegen.");
+      Dialog.error("UngÃ¼ltige Nummer: Die Nummer muÃŸ zwischen 1 und 99 liegen.");
       return;
     }
     _nr = Integer.toString(nr);
@@ -276,23 +286,23 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
     boolean existiert = false;
     for (int i=0; keys != null && i<keys.length; i++) if (keys[i].equals(alias)) existiert = true;
     if (existiert) {
-      Dialog.error("Es existiert bereits ein Schlüssel mit dieser Nummer!");
+      Dialog.error("Es existiert bereits ein SchlÃ¼ssel mit dieser Nummer!");
       return;
     }
 
-    String _validity = Dialog.inputDialog("Gültigkeitsdauer","Bitte gib an, für welche Wettbewerbsjahre der Schlüssel gelten soll (JJJJ-JJJJ):");
+    String _validity = Dialog.inputDialog("GÃ¼ltigkeitsdauer","Bitte gib an, fÃ¼r welche Wettbewerbsjahre der SchlÃ¼ssel gelten soll (JJJJ-JJJJ):");
     if (_validity == null) return;
     TMJ tmj = EfaUtil.string2date(_validity,0,0,0);
     if (tmj.tag<2000) {
-      Dialog.error("Ungültiges Jahr: "+tmj.tag);
+      Dialog.error("UngÃ¼ltiges Jahr: "+tmj.tag);
       return;
     }
     if (tmj.monat > 0 && tmj.monat < 2000) {
-      Dialog.error("Ungültiges Jahr: "+tmj.monat);
+      Dialog.error("UngÃ¼ltiges Jahr: "+tmj.monat);
       return;
     }
     if (tmj.monat > 0 && tmj.tag > tmj.monat) {
-      Dialog.error("Das Startjahr "+tmj.tag+" muß vor dem Endjahr "+tmj.monat+" liegen!");
+      Dialog.error("Das Startjahr "+tmj.tag+" muÃŸ vor dem Endjahr "+tmj.monat+" liegen!");
       return;
     }
     if (tmj.monat == 0) tmj.monat = tmj.tag;
@@ -322,23 +332,23 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
 
       if (!ca.signRequest(Daten.efaTmpDirectory+"certreq.csr",Daten.efaTmpDirectory+"certreq.pem",tage)) {
         Dialog.error("Fehler beim Signieren des Zertifikats durch die CA.");
-        Dialog.infoDialog("Der erstellte Schlüssel wird nun wieder gelöscht.");
+        Dialog.infoDialog("Der erstellte SchlÃ¼ssel wird nun wieder gelÃ¶scht.");
         ca.runKeytool("-delete"+
                       " -alias "+alias+"_priv",drvConfig.keyPassword);
-        Dialog.infoDialog("Schlüssel wurde gelöscht","Der erstellte Schlüssel wurde erfolgreich gelöscht.");
+        Dialog.infoDialog("SchlÃ¼ssel wurde gelÃ¶scht","Der erstellte SchlÃ¼ssel wurde erfolgreich gelÃ¶scht.");
         return;
       }
 
       ca.runKeytool("-import -alias "+alias+
                     " -file "+Daten.efaTmpDirectory+"certreq.pem",null);
 
-      Logger.log(Logger.INFO,"Neuer Schlüssel "+alias+" (und privater Schlüssel "+alias+"_priv) erstellt.");
+      Logger.log(Logger.INFO,"Neuer SchlÃ¼ssel "+alias+" (und privater SchlÃ¼ssel "+alias+"_priv) erstellt.");
 
       (new File(Daten.efaTmpDirectory+"certreq.csr")).delete();
       (new File(Daten.efaTmpDirectory+"certreq.pem")).delete();
       Daten.keyStore.reload();
       if (keys == null || keys.length == 0) {
-        // neu erzeugten Schlüssel als Standardschlüssel festlegen
+        // neu erzeugten SchlÃ¼ssel als StandardschlÃ¼ssel festlegen
         setDefaultKey(alias+"_priv");
       }
     } catch(Exception ee) {
@@ -351,18 +361,18 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
   void editButton_actionPerformed(ActionEvent e) {
     if (keyTable == null) return;
     if (keyTable.getSelectedRow() < 0) {
-      Dialog.error("Bitte wähle zuerst einen Schlüssel aus!");
+      Dialog.error("Bitte wÃ¤hle zuerst einen SchlÃ¼ssel aus!");
       return;
     }
     if (keyTable.getSelectedRow()>=keys.length) {
-      Dialog.error("Oops! Der ausgewählte Schlüssel existiert nicht!");
+      Dialog.error("Oops! Der ausgewÃ¤hlte SchlÃ¼ssel existiert nicht!");
       return;
     }
     String alias = (String)keys[keyTable.getSelectedRow()];
 
     try {
       String s = CertInfos.getCertInfos(Daten.keyStore.getCertificate(alias),null);
-      Dialog.infoDialog("Informationen zum Zertifikat für "+alias,s);
+      Dialog.infoDialog("Informationen zum Zertifikat fÃ¼r "+alias,s);
     } catch(Exception ee) {
       Dialog.error(ee.toString());
     }
@@ -375,20 +385,20 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
   void exportCertButton_actionPerformed(ActionEvent e) {
     if (keyTable == null) return;
     if (keyTable.getSelectedRow() < 0) {
-      Dialog.error("Bitte wähle zuerst einen Schlüssel aus!");
+      Dialog.error("Bitte wÃ¤hle zuerst einen SchlÃ¼ssel aus!");
       return;
     }
     if (keyTable.getSelectedRow()>=keys.length) {
-      Dialog.error("Oops! Der ausgewählte Schlüssel existiert nicht!");
+      Dialog.error("Oops! Der ausgewÃ¤hlte SchlÃ¼ssel existiert nicht!");
       return;
     }
     String alias = (String)keys[keyTable.getSelectedRow()];
     if (alias == null) {
-      Dialog.error("Oops! Der ausgewählte Schlüssel ist NULL!");
+      Dialog.error("Oops! Der ausgewÃ¤hlte SchlÃ¼ssel ist NULL!");
       return;
     }
     if (alias.endsWith("_priv")) {
-      Dialog.error("Zertifikate werden nur für öffentliche Schlüssel ausgestellt!\nBitte wähle einen Schlüssel mit Namen drvXX.");
+      Dialog.error("Zertifikate werden nur fÃ¼r Ã¶ffentliche SchlÃ¼ssel ausgestellt!\nBitte wÃ¤hle einen SchlÃ¼ssel mit Namen drvXX.");
       return;
     }
 
@@ -398,7 +408,7 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
                            "Die Zertifikatsdatei\n"+
                            certFile+"\n"+
                            "existiert bereits.\n"+
-                           "Soll sie überschrieben werden?") != Dialog.YES) return;
+                           "Soll sie Ã¼berschrieben werden?") != Dialog.YES) return;
     CA ca;
     try {
       ca = new CA(drvConfig);
@@ -409,7 +419,7 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
     ca.runKeytool("-export -alias "+alias+
                   " -file "+certFile,null);
     Dialog.infoDialog("Zertifikat exportiert",
-                      "Das Zertifikat für "+alias+" wurde erfolgreich in die Datei\n"+
+                      "Das Zertifikat fÃ¼r "+alias+" wurde erfolgreich in die Datei\n"+
                       certFile+"\n"+
                       "exportiert.");
     if (Dialog.yesNoDialog("Zertifikat in efaWett hinterlegen",
@@ -466,20 +476,20 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
   void setDefaultButton_actionPerformed(ActionEvent e) {
     if (keyTable == null) return;
     if (keyTable.getSelectedRow() < 0) {
-      Dialog.error("Bitte wähle zuerst einen Schlüssel aus!");
+      Dialog.error("Bitte wÃ¤hle zuerst einen SchlÃ¼ssel aus!");
       return;
     }
     if (keyTable.getSelectedRow()>=keys.length) {
-      Dialog.error("Oops! Der ausgewählte Schlüssel existiert nicht!");
+      Dialog.error("Oops! Der ausgewÃ¤hlte SchlÃ¼ssel existiert nicht!");
       return;
     }
     String alias = (String)keys[keyTable.getSelectedRow()];
     if (alias == null) {
-      Dialog.error("Oops! Der ausgewählte Schlüssel ist NULL!");
+      Dialog.error("Oops! Der ausgewÃ¤hlte SchlÃ¼ssel ist NULL!");
       return;
     }
     if (!alias.endsWith("_priv")) {
-      Dialog.error("Nur private Schlüssel können als Standardschlüssel markiert werden!\nBitte wähle einen privaten Schlüssel aus.");
+      Dialog.error("Nur private SchlÃ¼ssel kÃ¶nnen als StandardschlÃ¼ssel markiert werden!\nBitte wÃ¤hle einen privaten SchlÃ¼ssel aus.");
       return;
     }
 
@@ -492,8 +502,8 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
   }
 
   void importCertButton_actionPerformed(ActionEvent e) {
-    String keyfile = Dialog.dateiDialog(Dialog.frameCurrent(),"Öffentlichen Schlüssel auswählen",
-                       "Öffentlicher Schlüssel (*.cert)","cert",Daten.efaDataDirectory,false);
+    String keyfile = Dialog.dateiDialog(Dialog.frameCurrent(),"Ã–ffentlichen SchlÃ¼ssel auswÃ¤hlen",
+                       "Ã–ffentlicher SchlÃ¼ssel (*.cert)","cert",Daten.efaDataDirectory,false);
     if (keyfile == null) return;
     DRVSignaturFrame.importKey(keyfile);
     displayKeys();

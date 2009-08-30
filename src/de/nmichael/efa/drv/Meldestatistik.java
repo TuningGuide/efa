@@ -1,7 +1,10 @@
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.core.DatenListe;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.Backup;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import java.io.*;
 
 public class Meldestatistik extends DatenListe {
@@ -41,7 +44,7 @@ public class Meldestatistik extends DatenListe {
   }
 
 
-  // Dateiformat überprüfen, ggf. konvertieren
+  // Dateiformat Ã¼berprÃ¼fen, ggf. konvertieren
   public boolean checkFileFormat() {
     String s;
     try {
@@ -72,7 +75,7 @@ public class Meldestatistik extends DatenListe {
 
         // FERTIG MIT KONVERTIEREN
         if (s == null || !s.trim().startsWith(kennung)) {
-          Dialog.error("Datei '"+dat+"' hat ungültiges Format!");
+          Dialog.error("Datei '"+dat+"' hat ungÃ¼ltiges Format!");
           fclose(false);
           return false;
         }

@@ -1,5 +1,6 @@
 package de.nmichael.efa.statistics;
 
+import de.nmichael.efa.util.SwingWorker;
 import de.nmichael.efa.*;
 import de.nmichael.efa.statistics.Statistik;
 

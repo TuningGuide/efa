@@ -1,7 +1,18 @@
 package de.nmichael.efa.eddi;
 
+import de.nmichael.efa.core.EfaConfigFrame;
+import de.nmichael.efa.core.Mitglieder;
+import de.nmichael.efa.core.Ziele;
+import de.nmichael.efa.core.EfaFrame;
+import de.nmichael.efa.core.Boote;
+import de.nmichael.efa.core.Bezeichnungen;
+import de.nmichael.efa.util.TMJ;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
+import de.nmichael.efa.util.ZielfahrtFolge;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -126,7 +137,7 @@ public class EddiFrame extends JFrame {
     datei.setToolTipText("Name der zu importierenden Datei");
     openButton.setNextFocusableComponent(readFileButton);
     openButton.setPreferredSize(new Dimension(59, 20));
-    openButton.setToolTipText("Datei auswählen");
+    openButton.setToolTipText("Datei auswÃ¤hlen");
     openButton.setIcon(new ImageIcon(EddiFrame.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
     openButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -149,12 +160,12 @@ public class EddiFrame extends JFrame {
     zeileLabel.setForeground(Color.white);
     zeileLabel.setOpaque(true);
     zeileLabel.setPreferredSize(new Dimension(400, 20));
-    zeileLabel.setText("---bitte zuerst Datei auswählen---");
+    zeileLabel.setText("---bitte zuerst Datei auswÃ¤hlen---");
     nextLineButton.setNextFocusableComponent(fieldSeparator);
     nextLineButton.setPreferredSize(new Dimension(89, 20));
-    nextLineButton.setToolTipText("nächste Zeile auswählen");
+    nextLineButton.setToolTipText("nÃ¤chste Zeile auswÃ¤hlen");
     nextLineButton.setMnemonic('C');
-    nextLineButton.setText("nächste");
+    nextLineButton.setText("nÃ¤chste");
     nextLineButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         nextLineButton_actionPerformed(e);
@@ -162,7 +173,7 @@ public class EddiFrame extends JFrame {
     });
     PrevLineButton.setNextFocusableComponent(nextLineButton);
     PrevLineButton.setPreferredSize(new Dimension(103, 20));
-    PrevLineButton.setToolTipText("vorherige Zeile auswählen");
+    PrevLineButton.setToolTipText("vorherige Zeile auswÃ¤hlen");
     PrevLineButton.setMnemonic('V');
     PrevLineButton.setText("vorherige");
     PrevLineButton.addActionListener(new java.awt.event.ActionListener() {
@@ -188,7 +199,7 @@ public class EddiFrame extends JFrame {
     jMenu1.setMnemonic('D');
     jMenu1.setText("Datei");
     menuFileOpen.setMnemonic('F');
-    menuFileOpen.setText("Datei öffnen");
+    menuFileOpen.setText("Datei Ã¶ffnen");
     menuFileOpen.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         menuFileOpen_actionPerformed(e);
@@ -218,7 +229,7 @@ public class EddiFrame extends JFrame {
       }
     });
     menuAbout.setMnemonic('B');
-    menuAbout.setText("Über");
+    menuAbout.setText("Ãœber");
     menuAbout.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         menuAbout_actionPerformed(e);
@@ -226,7 +237,7 @@ public class EddiFrame extends JFrame {
     });
     contentPane.setMinimumSize(new Dimension(600, 165));
     contentPane.setPreferredSize(new Dimension(800, 147));
-    aliasCheckBox.setText("Generiere Eingabekürzel: ");
+    aliasCheckBox.setText("Generiere EingabekÃ¼rzel: ");
     alias.setPreferredSize(new Dimension(150, 17));
     alias.setText("{V1}{V2}-{N1}");
     contentPane.add(jPanel1, BorderLayout.NORTH);
@@ -276,7 +287,7 @@ public class EddiFrame extends JFrame {
 
 
 
-  // Initialisieren der Combos und Labels für ein speziellen Panel
+  // Initialisieren der Combos und Labels fÃ¼r ein speziellen Panel
   void _iniSelectFields(String[] feldnamen, Vector combos, Vector values, JPanel panel, int l) {
     for (int i=0; i<feldnamen.length; i++) {
       JLabel label = new JLabel();
@@ -324,9 +335,9 @@ public class EddiFrame extends JFrame {
 
   // Initialisieren der Combos und Labels
   void iniSelectFields() {
-    String[] mitglieder = { "Vorname", "Nachname", "Eingabekürzel", "Jahrgang", "Geschlecht", "Status", "Verein", "Behinderung", "MitglNr", "Paßwort", "Frei 1", "Frei 2", "Frei 3" };
-    String[] boote = { "Bootsname", "Verein", "Bootsart", "Anzahl Ruderplätze", "Riggerung", "mit/ohne Stm.", "Gruppen", "Max. nicht in Gruppe", "Mind. in Gruppe", "Frei 1", "Frei 2", "Frei 3" };
-    String[] ziele = { "Bezeichnung", "Entfernung", "Zielbereiche", "Start/Ziel ist Bootshaus", "Gewässer" };
+    String[] mitglieder = { "Vorname", "Nachname", "EingabekÃ¼rzel", "Jahrgang", "Geschlecht", "Status", "Verein", "Behinderung", "MitglNr", "PaÃŸwort", "Frei 1", "Frei 2", "Frei 3" };
+    String[] boote = { "Bootsname", "Verein", "Bootsart", "Anzahl RuderplÃ¤tze", "Riggerung", "mit/ohne Stm.", "Gruppen", "Max. nicht in Gruppe", "Mind. in Gruppe", "Frei 1", "Frei 2", "Frei 3" };
+    String[] ziele = { "Bezeichnung", "Entfernung", "Zielbereiche", "Start/Ziel ist Bootshaus", "GewÃ¤sser" };
     mitgliederCombos = new Vector();
     mitgliederValues = new Vector();
     _iniSelectFields(mitglieder,mitgliederCombos,mitgliederValues,mitgliederPanel,0);
@@ -359,7 +370,7 @@ public class EddiFrame extends JFrame {
   void readFile(String datei) {
     if (datei == null) return;
     if (!EfaUtil.canOpenFile(datei)) {
-      Dialog.error("Datei "+datei+" kann nicht geöffnet werden.");
+      Dialog.error("Datei "+datei+" kann nicht geÃ¶ffnet werden.");
       return;
     }
     this.datei.setText(datei);
@@ -391,7 +402,7 @@ public class EddiFrame extends JFrame {
   }
 
 
-  // Anführungsstriche aus Feldern entfernen
+  // AnfÃ¼hrungsstriche aus Feldern entfernen
   void removeQuotes(Vector a) {
     if (a == null) return;
     for (int i=0; i<a.size(); i++) {
@@ -467,7 +478,7 @@ public class EddiFrame extends JFrame {
   }
 
 
-  // Combos combos zurücksetzen
+  // Combos combos zurÃ¼cksetzen
   void _resetCombos(Vector combos, int fields) {
     for (int i=0; i<combos.size(); i++) {
       JComboBox combo = (JComboBox)combos.get(i);
@@ -479,7 +490,7 @@ public class EddiFrame extends JFrame {
   }
 
 
-  // alle Combos zurücksetzen
+  // alle Combos zurÃ¼cksetzen
   void resetCombos(int fields) {
     try {
       _resetCombos(mitgliederCombos,fields);
@@ -489,7 +500,7 @@ public class EddiFrame extends JFrame {
   }
 
 
-  // ComboLabels values zurücksetzen
+  // ComboLabels values zurÃ¼cksetzen
   void _resetComboFields(Vector values) {
     for (int i=0; i<values.size(); i++) {
       JLabel label = (JLabel)values.get(i);
@@ -498,7 +509,7 @@ public class EddiFrame extends JFrame {
   }
 
 
-  // alle ComboLabels zurücksetzen
+  // alle ComboLabels zurÃ¼cksetzen
   void resetComboFields() {
     try {
       _resetComboFields(mitgliederValues);
@@ -528,31 +539,31 @@ public class EddiFrame extends JFrame {
   }
 
 
-  // Menü: Datei->Öffnen
+  // MenÃ¼: Datei->Ã–ffnen
   void menuFileOpen_actionPerformed(ActionEvent e) {
     openButton_actionPerformed(null);
   }
 
 
-  // Menü: Datei->Importieren
+  // MenÃ¼: Datei->Importieren
   void menuImport_actionPerformed(ActionEvent e) {
     importButton_actionPerformed(null);
   }
 
 
-  // Menü: Datei->Beenden
+  // MenÃ¼: Datei->Beenden
   void menuExit_actionPerformed(ActionEvent e) {
     cancel();
   }
 
 
-  // Menü: Info->Hilfe
+  // MenÃ¼: Info->Hilfe
   void jMenuItem4_actionPerformed(ActionEvent e) {
     Help.getHelp(this,"EddiFrame");
   }
 
 
-  // Menü: Info->Über
+  // MenÃ¼: Info->Ãœber
   void menuAbout_actionPerformed(ActionEvent e) {
     EddiAboutFrame dlg = new EddiAboutFrame(this);
     Dialog.setDlgLocation(dlg,this);
@@ -561,7 +572,7 @@ public class EddiFrame extends JFrame {
   }
 
 
-  // Datei öffnen
+  // Datei Ã¶ffnen
   void openButton_actionPerformed(ActionEvent e) {
     if (currentDirectory == null || currentDirectory.length()==0) currentDirectory = System.getProperty("user.dir");
     String dat = Dialog.dateiDialog(this,null,null,null,currentDirectory,false);
@@ -576,27 +587,27 @@ public class EddiFrame extends JFrame {
   }
 
 
-  // Ändern des Separators
+  // Ã„ndern des Separators
   void fieldSeparator_keyReleased(KeyEvent e) {
     if (e.getKeyCode() != KeyEvent.VK_BACK_SPACE && e.getKeyCode() != KeyEvent.VK_DELETE) showLine();
   }
 
 
-  // nächste Zeile auswählen
+  // nÃ¤chste Zeile auswÃ¤hlen
   void nextLineButton_actionPerformed(ActionEvent e) {
     lineNr++;
     showLine();
   }
 
 
-  // vorherige Zeile auswählen
+  // vorherige Zeile auswÃ¤hlen
   void PrevLineButton_actionPerformed(ActionEvent e) {
     lineNr--;
     showLine();
   }
 
 
-  // neues Feld in einer Combo auswählen
+  // neues Feld in einer Combo auswÃ¤hlen
   void combo_actionPerformed(ActionEvent e, Vector combos, Vector labels) {
     JComboBox combo = (JComboBox)e.getSource();
     JLabel label = (JLabel)labels.get(combos.indexOf(combo));
@@ -608,20 +619,20 @@ public class EddiFrame extends JFrame {
   // Liste importieren
   void importButton_actionPerformed(ActionEvent e) {
     if (lines == null) {
-      Dialog.error("Bitte wähle zuerst eine Quelldatei aus!");
+      Dialog.error("Bitte wÃ¤hle zuerst eine Quelldatei aus!");
       return;
     }
     if (fields == null) {
-      Dialog.error("Bitte wähle zuerst eine Startzeile aus!");
+      Dialog.error("Bitte wÃ¤hle zuerst eine Startzeile aus!");
       return;
     }
     String dat = null;
     if (tabbedPane.getSelectedIndex() == 0)
-      dat = Dialog.dateiDialog(this,"Dateiname für zu erstellende Mitgliederliste","Mitgliederliste (*.efbm)","efbm",Daten.efaDataDirectory,true);
+      dat = Dialog.dateiDialog(this,"Dateiname fÃ¼r zu erstellende Mitgliederliste","Mitgliederliste (*.efbm)","efbm",Daten.efaDataDirectory,true);
     if (tabbedPane.getSelectedIndex() == 1)
-      dat = Dialog.dateiDialog(this,"Dateiname für zu erstellende Bootsliste","Bootsliste (*.efbb)","efbb",Daten.efaDataDirectory,true);
+      dat = Dialog.dateiDialog(this,"Dateiname fÃ¼r zu erstellende Bootsliste","Bootsliste (*.efbb)","efbb",Daten.efaDataDirectory,true);
     if (tabbedPane.getSelectedIndex() == 2)
-      dat = Dialog.dateiDialog(this,"Dateiname für zu erstellende Zielliste","Zielliste (*.efbz)","efbz",Daten.efaDataDirectory,true);
+      dat = Dialog.dateiDialog(this,"Dateiname fÃ¼r zu erstellende Zielliste","Zielliste (*.efbz)","efbz",Daten.efaDataDirectory,true);
     if (dat == null) return;
     if (tabbedPane.getSelectedIndex() == 0) importMitgliederliste(dat);
     if (tabbedPane.getSelectedIndex() == 1) importBootsliste(dat);
@@ -633,7 +644,7 @@ public class EddiFrame extends JFrame {
   void importMitgliederliste(String datei) {
     if (aliasCheckBox.isSelected()) {
       if (EfaConfigFrame.parseAlias(this.alias.getText().trim()) >= 0) {
-        Dialog.error("Ungültiges Format des Eingabekürzels:\n"+EfaConfigFrame.parseError);
+        Dialog.error("UngÃ¼ltiges Format des EingabekÃ¼rzels:\n"+EfaConfigFrame.parseError);
         return;
       }
     }
@@ -683,15 +694,15 @@ public class EddiFrame extends JFrame {
         // Fehlerhafter Eintrag?
         fehler = "";
         if (feld[Mitglieder.VORNAME].length()==0 && feld[Mitglieder.NACHNAME].length()==0)
-          fehler += "Vor- und Nachname dürfen nicht leer sein!\n";
+          fehler += "Vor- und Nachname dÃ¼rfen nicht leer sein!\n";
         if (!feld[Mitglieder.GESCHLECHT].equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH)) &&
             !feld[Mitglieder.GESCHLECHT].equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_WEIBLICH)))
-          fehler += "Ungültiger Wert im Feld 'Geschlecht': "+feld[Mitglieder.GESCHLECHT]+"\n";
+          fehler += "UngÃ¼ltiger Wert im Feld 'Geschlecht': "+feld[Mitglieder.GESCHLECHT]+"\n";
         boolean statusOk = false;
         for (int k=0; k<statusList.length; k++) if (feld[Mitglieder.STATUS].equals(statusList[k])) statusOk = true;
-        if (!statusOk) fehler += "Ungültiger Wert im Feld 'Status': "+feld[Mitglieder.STATUS]+"\n";
+        if (!statusOk) fehler += "UngÃ¼ltiger Wert im Feld 'Status': "+feld[Mitglieder.STATUS]+"\n";
         if (!(feld[Mitglieder.BEHINDERUNG].length()==0) && !feld[Mitglieder.BEHINDERUNG].equals("+") && !feld[Mitglieder.BEHINDERUNG].equals("-"))
-          fehler += "Ungültiger Wert im Feld 'Behinderung': "+feld[Mitglieder.BEHINDERUNG]+"\n";
+          fehler += "UngÃ¼ltiger Wert im Feld 'Behinderung': "+feld[Mitglieder.BEHINDERUNG]+"\n";
 
         if (fehler.length()>0) {
           MitgliederFehlerFrame dlg = new MitgliederFehlerFrame(this,(String)lines.get(l),fehler,feld,statusList,replGeschl,replStatus,replBeh);
@@ -756,16 +767,16 @@ public class EddiFrame extends JFrame {
           fehler += "Bootsname darf nicht leer sein!\n";
         boolean ok = false;
         for (int k=0; k<Daten.bezeichnungen.bArt.size(); k++) if (feld[Boote.ART].equals(Daten.bezeichnungen.bArt.get(k))) ok = true;
-        if (!ok) fehler += "Ungültiger Wert im Feld 'Bootsart': "+feld[Boote.ART]+"\n";
+        if (!ok) fehler += "UngÃ¼ltiger Wert im Feld 'Bootsart': "+feld[Boote.ART]+"\n";
         ok = false;
         for (int k=0; k<Daten.bezeichnungen.bAnzahl.size(); k++) if (feld[Boote.ANZAHL].equals(Daten.bezeichnungen.bAnzahl.get(k))) ok = true;
-        if (!ok) fehler += "Ungültiger Wert im Feld 'Anzahl Ruderplätze': "+feld[Boote.ANZAHL]+"\n";
+        if (!ok) fehler += "UngÃ¼ltiger Wert im Feld 'Anzahl RuderplÃ¤tze': "+feld[Boote.ANZAHL]+"\n";
         ok = false;
         for (int k=0; k<Daten.bezeichnungen.bRigger.size(); k++) if (feld[Boote.RIGGER].equals(Daten.bezeichnungen.bRigger.get(k))) ok = true;
-        if (!ok) fehler += "Ungültiger Wert im Feld 'Riggerung': "+feld[Boote.RIGGER]+"\n";
+        if (!ok) fehler += "UngÃ¼ltiger Wert im Feld 'Riggerung': "+feld[Boote.RIGGER]+"\n";
         ok = false;
         for (int k=0; k<Daten.bezeichnungen.bStm.size(); k++) if (feld[Boote.STM].equals(Daten.bezeichnungen.bStm.get(k))) ok = true;
-        if (!ok) fehler += "Ungültiger Wert im Feld 'mit/ohne Stm.': "+feld[Boote.STM]+"\n";
+        if (!ok) fehler += "UngÃ¼ltiger Wert im Feld 'mit/ohne Stm.': "+feld[Boote.STM]+"\n";
 
         if (fehler.length()>0) {
           BootFehlerFrame dlg = new BootFehlerFrame(this,(String)lines.get(l),fehler,feld,replArt,replAnzahl,replRigger,replStm);
@@ -826,9 +837,9 @@ public class EddiFrame extends JFrame {
         if (feld[Ziele.NAME].length()==0 )
           fehler += "Zielbezeichnung darf nicht leer sein!\n";
         if (feld[Ziele.KM].length()==0 )
-          fehler += "Kilometer dürfen nicht leer sein!\n";
+          fehler += "Kilometer dÃ¼rfen nicht leer sein!\n";
         if (!(feld[Ziele.STEGZIEL].length()==0) && !feld[Ziele.STEGZIEL].equals("+") && !feld[Ziele.STEGZIEL].equals("-"))
-          fehler += "Ungültiger Wert im Feld 'Start/Ziel ist Bootshaus': "+feld[Ziele.STEGZIEL]+"\n";
+          fehler += "UngÃ¼ltiger Wert im Feld 'Start/Ziel ist Bootshaus': "+feld[Ziele.STEGZIEL]+"\n";
 
         if (fehler.length()>0) {
           ZielFehlerFrame dlg = new ZielFehlerFrame(this,(String)lines.get(l),fehler,feld,replStegZiel);

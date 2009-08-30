@@ -1,5 +1,9 @@
 package de.nmichael.efa.eddi;
 
+import de.nmichael.efa.core.Boote;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -7,7 +11,7 @@ import javax.swing.border.*;
 import java.io.*;
 import java.util.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 
 /**
  * Title:        efa - Elektronisches Fahrtenbuch
@@ -154,7 +158,7 @@ public class BootFehlerFrame extends JDialog implements ActionListener {
     jLabel4.setText("Bootsart: ");
     jLabel5.setDisplayedMnemonic('Z');
     jLabel5.setLabelFor(anzahl);
-    jLabel5.setText("Anzahl Ruderplätze: ");
+    jLabel5.setText("Anzahl RuderplÃ¤tze: ");
     jLabel6.setDisplayedMnemonic('R');
     jLabel6.setLabelFor(rigger);
     jLabel6.setText("Riggerung: ");
@@ -173,13 +177,13 @@ public class BootFehlerFrame extends JDialog implements ActionListener {
       }
     });
     replRiggerBox.setPreferredSize(new Dimension(300, 17));
-    replRiggerBox.setToolTipText("Bei künftigen Einträgen diese Ersetzung immer durchführen");
+    replRiggerBox.setToolTipText("Bei kÃ¼nftigen EintrÃ¤gen diese Ersetzung immer durchfÃ¼hren");
     fehlerText.setBackground(new Color(204, 204, 204));
     fehlerText.setFont(new java.awt.Font("Dialog", 1, 12));
     fehlerText.setForeground(Color.red);
     fehlerText.setEditable(false);
     replStmBox.setPreferredSize(new Dimension(300, 17));
-    replStmBox.setToolTipText("Bei künftigen Einträgen diese Ersetzung immer durchführen");
+    replStmBox.setToolTipText("Bei kÃ¼nftigen EintrÃ¤gen diese Ersetzung immer durchfÃ¼hren");
     stm.setNextFocusableComponent(gruppen);
     stm.setPreferredSize(new Dimension(200, 17));
     stm.addActionListener(new java.awt.event.ActionListener() {
@@ -202,9 +206,9 @@ public class BootFehlerFrame extends JDialog implements ActionListener {
       }
     });
     replArtBox.setPreferredSize(new Dimension(300, 17));
-    replArtBox.setToolTipText("Bei künftigen Einträgen diese Ersetzung immer durchführen");
+    replArtBox.setToolTipText("Bei kÃ¼nftigen EintrÃ¤gen diese Ersetzung immer durchfÃ¼hren");
     replAnzahlBox.setPreferredSize(new Dimension(300, 17));
-    replAnzahlBox.setToolTipText("Bei künftigen Einträgen diese Ersetzung immer durchführen");
+    replAnzahlBox.setToolTipText("Bei kÃ¼nftigen EintrÃ¤gen diese Ersetzung immer durchfÃ¼hren");
     jLabel8.setText("Gruppen: ");
     jLabel9.setText("Max. nicht in Gruppe: ");
     jLabel10.setText("Mind. in Gruppe: ");
@@ -217,7 +221,7 @@ public class BootFehlerFrame extends JDialog implements ActionListener {
     frei1.setNextFocusableComponent(frei2);
     frei2.setNextFocusableComponent(frei3);
     frei3.setNextFocusableComponent(okButton);
-    skipButton.setText("Eintrag überspringen");
+    skipButton.setText("Eintrag Ã¼berspringen");
     skipButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         skipButton_actionPerformed(e);
@@ -291,13 +295,13 @@ public class BootFehlerFrame extends JDialog implements ActionListener {
     jPanel2.add(skipButton,    new GridBagConstraints(0, 12, 3, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 10, 0), 0, 0));
 
-    art.addItem("ungültiger Wert");
+    art.addItem("ungÃ¼ltiger Wert");
     for (int i=0; i<Daten.bezeichnungen.bArt.size(); i++) art.addItem(Daten.bezeichnungen.bArt.get(i));
-    anzahl.addItem("ungültiger Wert");
+    anzahl.addItem("ungÃ¼ltiger Wert");
     for (int i=0; i<Daten.bezeichnungen.bAnzahl.size(); i++) anzahl.addItem(Daten.bezeichnungen.bAnzahl.get(i));
-    rigger.addItem("ungültiger Wert");
+    rigger.addItem("ungÃ¼ltiger Wert");
     for (int i=0; i<Daten.bezeichnungen.bRigger.size(); i++) rigger.addItem(Daten.bezeichnungen.bRigger.get(i));
-    stm.addItem("ungültiger Wert");
+    stm.addItem("ungÃ¼ltiger Wert");
     for (int i=0; i<Daten.bezeichnungen.bStm.size(); i++) stm.addItem(Daten.bezeichnungen.bStm.get(i));
   }
 

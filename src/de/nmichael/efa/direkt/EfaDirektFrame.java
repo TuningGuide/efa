@@ -1,11 +1,37 @@
 package de.nmichael.efa.direkt;
+import de.nmichael.efa.core.WettDefs;
+import de.nmichael.efa.core.Fahrtenabzeichen;
+import de.nmichael.efa.core.StatSave;
+import de.nmichael.efa.core.FahrtenbuchNeuFortsetzenFrame;
+import de.nmichael.efa.core.EfaConfig;
+import de.nmichael.efa.core.FBDaten;
+import de.nmichael.efa.core.Fahrtenbuch;
+import de.nmichael.efa.core.EfaFrame;
+import de.nmichael.efa.core.Gruppen;
+import de.nmichael.efa.core.VereinsConfig;
+import de.nmichael.efa.core.Synonyme;
+import de.nmichael.efa.core.EfaFrame_AboutBox;
+import de.nmichael.efa.core.Mannschaften;
+import de.nmichael.efa.core.Adressen;
+import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.core.Boote;
+import de.nmichael.efa.core.Bezeichnungen;
+import de.nmichael.efa.core.BrowserFrame;
+import de.nmichael.efa.util.TMJ;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.EfaSec;
+import de.nmichael.efa.util.Backup;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 import java.io.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import java.beans.*;
 import javax.swing.border.*;
 
@@ -96,23 +122,23 @@ public class EfaDirektFrame extends JFrame {
       contentPane.setBackground(new Color(0,0,150));
       contentPane.setBorder(b);
     } catch (NoSuchMethodError e) {
-      Logger.log(Logger.WARNING,International.getString("Fenstereigenschaft 'nicht verschiebbar' wird erst ab Java 1.4 unterstützt."));
+      Logger.log(Logger.WARNING,International.getString("Fenstereigenschaft 'nicht verschiebbar' wird erst ab Java 1.4 unterstÃ¼tzt."));
     }
 
     // Fenster immer im Vordergrund
     try {
       if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_immerImVordergrund) {
         if (!de.nmichael.efa.java15.Java15.setAlwaysOnTop(this,true)) {
-//          Logger.log(Logger.WARNING,"Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstützt.");
-//          Hier muß keine Warnung mehr ausgegeben werden, da ab v1.6.0 die Funktionalität auch für Java < 1.5
+//          Logger.log(Logger.WARNING,"Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstÃ¼tzt.");
+//          Hier muÃŸ keine Warnung mehr ausgegeben werden, da ab v1.6.0 die FunktionalitÃ¤t auch fÃ¼r Java < 1.5
 //          durch einen Check alle 60 Sekunden nachgebildet wird.
         }
       }
     } catch(UnsupportedClassVersionError e) {
       // Java 1.3 kommt mit der Java 1.5 Klasse nicht klar
-      Logger.log(Logger.WARNING,International.getString("Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstützt."));
+      Logger.log(Logger.WARNING,International.getString("Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstÃ¼tzt."));
     } catch(NoClassDefFoundError e) {
-      Logger.log(Logger.WARNING,International.getString("Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstützt."));
+      Logger.log(Logger.WARNING,International.getString("Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstÃ¼tzt."));
     }
 
 
@@ -127,10 +153,10 @@ public class EfaDirektFrame extends JFrame {
 
       Dimension newsize = this.getSize();
 
-      // breite für Scrollpanes ist (Fensterbreite - 20) / 2.
+      // breite fÃ¼r Scrollpanes ist (Fensterbreite - 20) / 2.
       int width = (int)((newsize.getWidth() - this.fahrtbeginnButton.getSize().getWidth() - 20) / 2);
-      // die Höhe der Scrollpanes ist, da sie CENTER sind, irrelevant; nur für jScrollPane3
-      // ist die Höhe ausschlaggebend.
+      // die HÃ¶he der Scrollpanes ist, da sie CENTER sind, irrelevant; nur fÃ¼r jScrollPane3
+      // ist die HÃ¶he ausschlaggebend.
       jScrollPane1.setPreferredSize(new Dimension(width,500));
       jScrollPane2.setPreferredSize(new Dimension(width,300));
       jScrollPane3.setPreferredSize(new Dimension(width,(int)(newsize.getHeight()/4)));
@@ -143,7 +169,7 @@ public class EfaDirektFrame extends JFrame {
 
 
     EfaExitFrame.initExitFrame(this);
-    // Speicher-Überwachung
+    // Speicher-Ãœberwachung
     try {
       de.nmichael.efa.java15.Java15.setMemUsageListener(this,Daten.MIN_FREEMEM_COLLECTION_THRESHOLD);
     } catch(UnsupportedClassVersionError e) {
@@ -280,7 +306,6 @@ public class EfaDirektFrame extends JFrame {
     centerPanel.setLayout(gridBagLayout1);
     fahrtbeginnButton.setBackground(new Color(204, 255, 204));
     fahrtbeginnButton.setNextFocusableComponent(fahrtendeButton);
-    fahrtbeginnButton.setActionCommand("Fahrt beginnen >>>"); // @todo: is this command still necessary? Why does it exist for fahrtbeginnButton but not for the other buttons?
     fahrtbeginnButton.setMnemonic('B');
     fahrtbeginnButton.setText("Fahrt beginnen >>>");
     fahrtbeginnButton.addActionListener(new java.awt.event.ActionListener() {
@@ -345,7 +370,7 @@ public class EfaDirektFrame extends JFrame {
     verfuegbareBooteLabel.setDisplayedMnemonic('V');
     verfuegbareBooteLabel.setHorizontalAlignment(SwingConstants.CENTER);
     verfuegbareBooteLabel.setLabelFor(booteVerfuegbar);
-    verfuegbareBooteLabel.setText("verfügbare Boote");
+    verfuegbareBooteLabel.setText("verfÃ¼gbare Boote");
     aufFahrtBooteLabel.setDisplayedMnemonic('F');
     aufFahrtBooteLabel.setHorizontalAlignment(SwingConstants.CENTER);
     aufFahrtBooteLabel.setLabelFor(booteAufFahrt);
@@ -353,7 +378,7 @@ public class EfaDirektFrame extends JFrame {
     nichtVerfuegbareBooteLabel.setDisplayedMnemonic('I');
     nichtVerfuegbareBooteLabel.setHorizontalAlignment(SwingConstants.CENTER);
     nichtVerfuegbareBooteLabel.setLabelFor(booteNichtVerfuegbar);
-    nichtVerfuegbareBooteLabel.setText("nicht verfügbare Boote");
+    nichtVerfuegbareBooteLabel.setText("nicht verfÃ¼gbare Boote");
     southPanel.setBorder(BorderFactory.createRaisedBevelBorder());
     booteVerfuegbar.setNextFocusableComponent(fahrtbeginnButton);
     booteVerfuegbar.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -560,7 +585,7 @@ public class EfaDirektFrame extends JFrame {
   //Overridden so we can exit when window is closed
   protected void processWindowEvent(WindowEvent e) {
     if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-      // Fenster schließen
+      // Fenster schlieÃŸen
       cancel(e,EFA_EXIT_REASON_USER,false);
     } else if (e.getID() == WindowEvent.WINDOW_DEACTIVATED) {
       // Fenster deaktivieren
@@ -596,27 +621,27 @@ public class EfaDirektFrame extends JFrame {
          durchMitglied = true;
        }
        if (Daten.efaConfig.efaDirekt_execOnEfaExit.length()>0 && durchMitglied) {
-         Logger.log(Logger.INFO,"Programmende veranlaßt; versuche, Kommando '"+Daten.efaConfig.efaDirekt_execOnEfaExit+"' auszuführen...");
+         Logger.log(Logger.INFO,"Programmende veranlaÃŸt; versuche, Kommando '"+Daten.efaConfig.efaDirekt_execOnEfaExit+"' auszufÃ¼hren...");
          try {
            Runtime.getRuntime().exec(Daten.efaConfig.efaDirekt_execOnEfaExit);
          } catch(Exception ee) {
-           Logger.log(Logger.ERROR,"Kann Kommando '"+Daten.efaConfig.efaDirekt_execOnEfaExit+"' nicht ausführen.");
+           Logger.log(Logger.ERROR,"Kann Kommando '"+Daten.efaConfig.efaDirekt_execOnEfaExit+"' nicht ausfÃ¼hren.");
          }
        }
        break;
      case EFA_EXIT_REASON_TIME:
        wer = "Zeitsteuerung";
        if (Daten.efaConfig.efaDirekt_execOnEfaAutoExit.length()>0) {
-         Logger.log(Logger.INFO,"Programmende veranlaßt; versuche, Kommando '"+Daten.efaConfig.efaDirekt_execOnEfaAutoExit+"' auszuführen...");
+         Logger.log(Logger.INFO,"Programmende veranlaÃŸt; versuche, Kommando '"+Daten.efaConfig.efaDirekt_execOnEfaAutoExit+"' auszufÃ¼hren...");
          try {
            Runtime.getRuntime().exec(Daten.efaConfig.efaDirekt_execOnEfaAutoExit);
          } catch(Exception ee) {
-           Logger.log(Logger.ERROR,"Kann Kommando '"+Daten.efaConfig.efaDirekt_execOnEfaAutoExit+"' nicht ausführen.");
+           Logger.log(Logger.ERROR,"Kann Kommando '"+Daten.efaConfig.efaDirekt_execOnEfaAutoExit+"' nicht ausfÃ¼hren.");
          }
        }
        break;
      case EFA_EXIT_REASON_OOME:
-       wer = "Speicherüberwachung";
+       wer = "SpeicherÃ¼berwachung";
        break;
      case EFA_EXIT_REASON_AUTORESTART:
        wer = "Automatischer Neustart";
@@ -630,14 +655,14 @@ public class EfaDirektFrame extends JFrame {
             "bin" + Daten.fileSep + "java " +
             (Daten.efa_java_arguments != null ? Daten.efa_java_arguments :
              "-cp " + System.getProperty("java.class.path") +
-             " " + Daten.EFADIREKT_MAINCLASS + EfaDirekt.STARTARGS);
+             " " + Daten.EFADIREKT_MAINCLASS + Main.STARTARGS);
         Logger.log(Logger.INFO, "Neustart mit Kommando: " + restartcmd);
         try {
           Runtime.getRuntime().exec(restartcmd);
         }
         catch (Exception ee) {
           Logger.log(Logger.ERROR,
-                     "Kann Kommando '" + restartcmd + "' nicht ausführen.");
+                     "Kann Kommando '" + restartcmd + "' nicht ausfÃ¼hren.");
         }
       } else {
         exitCode = 99;
@@ -682,7 +707,7 @@ public class EfaDirektFrame extends JFrame {
     if (Daten.efaConfig.efaDirekt_checkRunning) {
       efaRunning = new EfaRunning();
       if (efaRunning.isRunning()) {
-        haltProgram("efa läuft bereits und kann nicht zeitgleich zweimal gestartet werden!");
+        haltProgram("efa lÃ¤uft bereits und kann nicht zeitgleich zweimal gestartet werden!");
       }
       efaRunning.run();
     }
@@ -696,7 +721,7 @@ public class EfaDirektFrame extends JFrame {
     if (!EfaUtil.canOpenFile(Daten.nachrichten.getFileName())) {
       if (!Daten.nachrichten.writeFile()) haltProgram("Kann Nachrichten-Datei "+Daten.nachrichten.getFileName()+" nicht erstellen!");
     } else {
-      if (!Daten.nachrichten.readFile()) haltProgram("Kann Nachrichten-Datei "+Daten.nachrichten.getFileName()+" nicht öffnen!");
+      if (!Daten.nachrichten.readFile()) haltProgram("Kann Nachrichten-Datei "+Daten.nachrichten.getFileName()+" nicht Ã¶ffnen!");
     }
     Logger.setNachrichtenAnAdmin(Daten.nachrichten);
     updateUnreadMessages();
@@ -704,45 +729,45 @@ public class EfaDirektFrame extends JFrame {
     // Security File
     EfaSec efaSec = new EfaSec(Daten.efaProgramDirectory+Daten.EFA_SECFILE);
 
-    // Admin-Paßwort vorhanden?
+    // Admin-PaÃŸwort vorhanden?
     boolean neuerSuperAdmin = false;
     if (Daten.efaConfig.admins.get(EfaConfig.SUPERADMIN) == null) {
       Logger.log(Logger.INFO,"Kein Super-Admin gefunden.");
       try {
         // gibt es noch das Sicherheitsfile?
         if (!efaSec.secFileExists()) {
-          String s = "efa konnte kein Super-Admin Paßwort finden!\n"+
-                     "Aus Gründen der Sicherheit verweigert efa den Dienst.\n"+
+          String s = "efa konnte kein Super-Admin PaÃŸwort finden!\n"+
+                     "Aus GrÃ¼nden der Sicherheit verweigert efa den Dienst.\n"+
                      "Bitte installiere efa neu oder kontaktiere den Entwickler: "+Daten.EFAEMAIL;
           haltProgram(s);
         }
-        // stimmen die Sicherheits-Werte überein?
+        // stimmen die Sicherheits-Werte Ã¼berein?
         if (!efaSec.secValueValid()) {
-          String s = "efa konnte kein Super-Admin Paßwort finden, und die Sicherheitsdatei ist korrupt.!\n"+
-                     "Aus Gründen der Sicherheit verweigert efa den Dienst.\n"+
+          String s = "efa konnte kein Super-Admin PaÃŸwort finden, und die Sicherheitsdatei ist korrupt.!\n"+
+                     "Aus GrÃ¼nden der Sicherheit verweigert efa den Dienst.\n"+
                      "Bitte installiere efa neu oder kontaktiere den Entwickler: "+Daten.EFAEMAIL;
           haltProgram(s);
         }
       } catch(Exception e) {
-        String s = "efa konnte kein Super-Admin Paßwort finden, und bei den folgenden Tests trat ein Fehler auf: "+e.toString()+"\n"+
-                   "Aus Gründen der Sicherheit verweigert efa den Dienst.\n"+
+        String s = "efa konnte kein Super-Admin PaÃŸwort finden, und bei den folgenden Tests trat ein Fehler auf: "+e.toString()+"\n"+
+                   "Aus GrÃ¼nden der Sicherheit verweigert efa den Dienst.\n"+
                    "Bitte installiere efa neu oder kontaktiere den Entwickler: "+Daten.EFAEMAIL;
         haltProgram(s);
       }
       String pwd = "";
       Dialog.infoDialog("Willkommen bei der Bootshaus-Version von efa",
-                        "Mitglieder dürfen in efa nur Fahrten eintragen. Alle weiteren\n"+
-                        "Aktionen dürfen nur von einem Administrator ausgeführt werden.\n"+
-                        "Der Super-Administrator (Haupt-Administrator) hat uneingeschränkte\n"+
-                        "Rechte, die anderen Administratoren können eingeschränkte Rechte\n"+
+                        "Mitglieder dÃ¼rfen in efa nur Fahrten eintragen. Alle weiteren\n"+
+                        "Aktionen dÃ¼rfen nur von einem Administrator ausgefÃ¼hrt werden.\n"+
+                        "Der Super-Administrator (Haupt-Administrator) hat uneingeschrÃ¤nkte\n"+
+                        "Rechte, die anderen Administratoren kÃ¶nnen eingeschrÃ¤nkte Rechte\n"+
                         "besitzen.\n"+
                         "Der Name des Super-Administrators lautet 'admin'. Zur Zeit gibt es\n"+
-                        "noch kein Paßwort für 'admin'. Du wirst nun gleich aufgefordert, ein\n"+
-                        "neues Paßwort für den Super-Administrator 'admin' einzugeben.");
+                        "noch kein PaÃŸwort fÃ¼r 'admin'. Du wirst nun gleich aufgefordert, ein\n"+
+                        "neues PaÃŸwort fÃ¼r den Super-Administrator 'admin' einzugeben.");
 
       pwd = NewPasswordFrame.getNewPassword(this,EfaConfig.SUPERADMIN);
       if (pwd == null) {
-        haltProgram("Paßworteingabe für Super-Admin abgebrochen.");
+        haltProgram("PaÃŸworteingabe fÃ¼r Super-Admin abgebrochen.");
       }
 
       Admin root = new Admin(EfaConfig.SUPERADMIN,EfaUtil.getSHA(pwd));
@@ -754,20 +779,20 @@ public class EfaDirektFrame extends JFrame {
 
 
     if (efaSec.secFileExists() && !efaSec.isDontDeleteSet()) {
-      switch (Dialog.auswahlDialog("Sicherheits-Frage","Aus Gründen der Sicherheit sollte es im Bootshaus nicht möglich sein,\n"+
-                                   "das herkömmliche efa ohne Paßwort zu starten, da dort jeder Benutzer auch ohne\n"+
+      switch (Dialog.auswahlDialog("Sicherheits-Frage","Aus GrÃ¼nden der Sicherheit sollte es im Bootshaus nicht mÃ¶glich sein,\n"+
+                                   "das herkÃ¶mmliche efa ohne PaÃŸwort zu starten, da dort jeder Benutzer auch ohne\n"+
                                    "Admin-Rechte alle Daten manipulieren kann. Es wird daher dringend\n"+
-                                   "geraten, das herkömmliche efa ebenfalls durch das Admin-Paßwort zu sichern!\n"+
-                                   "Für den Einsatz zu Hause ist es natürlich nicht erforderlich, efa\n"+
-                                   "zu sperren, da hier i.d.R. keine Mißbrauchgefahr besteht.\n\n"+
-                                   "Möchtest Du, daß die herkömmliche efa-Oberfläche paßwortgeschützt wird und nur\n"+
-                                   "noch für Admins zugänglich ist (für Bootshaus-Einsatz dringend empfohlen!)?\n"+
-                                   "Herkömmliche efa-Oberfläche ...",
-                                   "... durch Paßwort schützen","... nicht schützen")) {
+                                   "geraten, das herkÃ¶mmliche efa ebenfalls durch das Admin-PaÃŸwort zu sichern!\n"+
+                                   "FÃ¼r den Einsatz zu Hause ist es natÃ¼rlich nicht erforderlich, efa\n"+
+                                   "zu sperren, da hier i.d.R. keine MiÃŸbrauchgefahr besteht.\n\n"+
+                                   "MÃ¶chtest Du, daÃŸ die herkÃ¶mmliche efa-OberflÃ¤che paÃŸwortgeschÃ¼tzt wird und nur\n"+
+                                   "noch fÃ¼r Admins zugÃ¤nglich ist (fÃ¼r Bootshaus-Einsatz dringend empfohlen!)?\n"+
+                                   "HerkÃ¶mmliche efa-OberflÃ¤che ...",
+                                   "... durch PaÃŸwort schÃ¼tzen","... nicht schÃ¼tzen")) {
         case 0: // Sperren
-          if (efaSec.delete(true)) Dialog.meldung("Der Start des herkömmlichen efa ist nun nur noch mit Paßwort möglich!");
-          else haltProgram("efa konnte die Datei "+efaSec.getFilename()+" nicht löschen und wird daher beendet!");
-          // Standardwerte für Backups ändern
+          if (efaSec.delete(true)) Dialog.meldung("Der Start des herkÃ¶mmlichen efa ist nun nur noch mit PaÃŸwort mÃ¶glich!");
+          else haltProgram("efa konnte die Datei "+efaSec.getFilename()+" nicht lÃ¶schen und wird daher beendet!");
+          // Standardwerte fÃ¼r Backups Ã¤ndern
           Daten.efaConfig.bakSave = false;
           Daten.efaConfig.bakKonv = true;
           Daten.efaConfig.bakMonat = false;
@@ -776,7 +801,7 @@ public class EfaDirektFrame extends JFrame {
           Daten.backup = new Backup(Daten.efaBakDirectory,Daten.efaConfig.bakSave,Daten.efaConfig.bakMonat,Daten.efaConfig.bakTag,Daten.efaConfig.bakKonv);
           break;
         case 1:
-          if (efaSec.writeSecFile(efaSec.getSecValue(),true)) Dialog.meldung("Der Start des herkömmlichen efa ist weiterhin möglich!");
+          if (efaSec.writeSecFile(efaSec.getSecValue(),true)) Dialog.meldung("Der Start des herkÃ¶mmlichen efa ist weiterhin mÃ¶glich!");
           else haltProgram("efa konnte die Datei "+efaSec.getFilename()+" nicht schreiben und wird daher beendet!");
           break;
         default:
@@ -784,9 +809,9 @@ public class EfaDirektFrame extends JFrame {
       }
     }
 
-    // efaSec löschen (außer, wenn DontDelete-Flag gesetzt ist)
+    // efaSec lÃ¶schen (auÃŸer, wenn DontDelete-Flag gesetzt ist)
     if (efaSec.secFileExists() && !efaSec.delete(false)) {
-      String s = "efa konnte die Datei "+efaSec.getFilename()+" nicht löschen und wird daher beendet!";
+      String s = "efa konnte die Datei "+efaSec.getFilename()+" nicht lÃ¶schen und wird daher beendet!";
       haltProgram(s);
     }
 
@@ -803,24 +828,24 @@ public class EfaDirektFrame extends JFrame {
       haltProgram("Liste der Bezeichnungen "+Daten.bezeichnungen.getFileName()+" kann nicht gelesen werden!");
     }
 
-    // Fahrtenbuch öffnen, falls keines angegeben
+    // Fahrtenbuch Ã¶ffnen, falls keines angegeben
     if (Daten.efaConfig.direkt_letzteDatei == null || Daten.efaConfig.direkt_letzteDatei.length()==0) {
 
-      if (neuerSuperAdmin) Dialog.infoDialog("Fahrtenbuch auswählen",
-                                             "Bisher wurde noch kein Fahrtenbuch ausgewählt, mit dem\n"+
+      if (neuerSuperAdmin) Dialog.infoDialog("Fahrtenbuch auswÃ¤hlen",
+                                             "Bisher wurde noch kein Fahrtenbuch ausgewÃ¤hlt, mit dem\n"+
                                              "gearbeitet werden soll. Im folgenden Schritt wirst Du\n"+
-                                             "aufgefordert, ein Fahrtenbuch auszuwählen.\n"+
-                                             "Du mußt Dich daher zunächst als Administrator anmelden:\n"+
+                                             "aufgefordert, ein Fahrtenbuch auszuwÃ¤hlen.\n"+
+                                             "Du muÃŸt Dich daher zunÃ¤chst als Administrator anmelden:\n"+
                                              "Der Name des Super-Administrators lautet 'admin', das\n"+
-                                             "Paßwort hast Du eben selbst gewählt.");
+                                             "PaÃŸwort hast Du eben selbst gewÃ¤hlt.");
       Admin admin = null;
       do {
-        admin = AdminLoginFrame.login(this,"Kein Fahrtenbuch ausgewählt");
-        if (admin == null) haltProgram("Programmende, da kein Fahrtenbuch ausgewählt und Admin-Login nicht erfolgreich.");
-        if (!admin.allowedFahrtenbuchAuswaehlen) Dialog.error("Du hast als Admin '"+admin.name+"' keine Berechtigung, ein Fahrtenbuch auszuwählen!");
+        admin = AdminLoginFrame.login(this,"Kein Fahrtenbuch ausgewÃ¤hlt");
+        if (admin == null) haltProgram("Programmende, da kein Fahrtenbuch ausgewÃ¤hlt und Admin-Login nicht erfolgreich.");
+        if (!admin.allowedFahrtenbuchAuswaehlen) Dialog.error("Du hast als Admin '"+admin.name+"' keine Berechtigung, ein Fahrtenbuch auszuwÃ¤hlen!");
       } while (!admin.allowedFahrtenbuchAuswaehlen);
       String dat = null;
-      switch (Dialog.auswahlDialog("Fahrtenbuch auswählen","Möchtest Du ein neues Fahrtenbuch erstellen, oder ein vorhandenes öffnen?","Neues Fahrtenbuch erstellen","Vorhandenes Fahrtenbuch öffnen")) {
+      switch (Dialog.auswahlDialog("Fahrtenbuch auswÃ¤hlen","MÃ¶chtest Du ein neues Fahrtenbuch erstellen, oder ein vorhandenes Ã¶ffnen?","Neues Fahrtenbuch erstellen","Vorhandenes Fahrtenbuch Ã¶ffnen")) {
         case 0: // Neues Fahrtenbuch erstellen
           FahrtenbuchNeuFortsetzenFrame dlg = new FahrtenbuchNeuFortsetzenFrame(this,false);
           Dialog.setDlgLocation(dlg,this);
@@ -830,15 +855,15 @@ public class EfaDirektFrame extends JFrame {
             dat = Daten.fahrtenbuch.getFileName();
           }
           break;
-        case 1: // Vorhandenes Fahrtenbuch öffnen
-          dat = Dialog.dateiDialog(this,"Fahrtenbuch öffnen","efa Fahrtenbuch (*.efb)","efb",Daten.efaDataDirectory,false);
+        case 1: // Vorhandenes Fahrtenbuch Ã¶ffnen
+          dat = Dialog.dateiDialog(this,"Fahrtenbuch Ã¶ffnen","efa Fahrtenbuch (*.efb)","efb",Daten.efaDataDirectory,false);
           break;
         default:
-          haltProgram("Kein Fahrtenbuch ausgewählt");
+          haltProgram("Kein Fahrtenbuch ausgewÃ¤hlt");
       }
-      if (dat == null || dat.length()==0) haltProgram("Kein Fahrtenbuch ausgewählt");
+      if (dat == null || dat.length()==0) haltProgram("Kein Fahrtenbuch ausgewÃ¤hlt");
       Daten.efaConfig.direkt_letzteDatei = dat;
-      Logger.log(Logger.INFO,"Neue Fahrtenbuchdatei "+dat+" ausgewählt.");
+      Logger.log(Logger.INFO,"Neue Fahrtenbuchdatei "+dat+" ausgewÃ¤hlt.");
       if (!Daten.efaConfig.writeFile()) haltProgram(Daten.efaConfig.getFileName()+" konnte nicht geschrieben werden!");
     }
 
@@ -970,23 +995,23 @@ public class EfaDirektFrame extends JFrame {
   // Fahrtenbuch einlesen
   public void readFahrtenbuch() {
     if (Daten.efaConfig == null || Daten.efaConfig.direkt_letzteDatei == null || Daten.efaConfig.direkt_letzteDatei.length()==0) {
-      haltProgram("Oops! Kein Fahrtenbuch zum Öffnen da!");
+      haltProgram("Oops! Kein Fahrtenbuch zum Ã–ffnen da!");
     } else {
       Daten.fahrtenbuch = new Fahrtenbuch(Daten.efaConfig.direkt_letzteDatei);
       int sveAction = Daten.actionOnDatenlisteNotFound;
       Daten.actionOnDatenlisteNotFound = Daten.DATENLISTE_FRAGE_REQUIRE_ADMIN_RETURN_FALSE_ON_NEIN;
       while (!Daten.fahrtenbuch.readFile()) {
-        Dialog.error("Kann Fahrtenbuch-Datei "+Daten.efaConfig.direkt_letzteDatei+" nicht öffnen!");
+        Dialog.error("Kann Fahrtenbuch-Datei "+Daten.efaConfig.direkt_letzteDatei+" nicht Ã¶ffnen!");
 
         Admin admin = null;
         do {
-          admin = AdminLoginFrame.login(this,"Fahrtenbuch konnte nicht geöffnet werden");
-          if (admin == null) haltProgram("Programmende, da Fahrtenbuch nicht geöffnet werden konnte und Admin-Login nicht erfolgreich.");
-          if (!admin.allowedFahrtenbuchAuswaehlen) Dialog.error("Du hast als Admin '"+admin.name+"' keine Berechtigung, ein Fahrtenbuch auszuwählen!");
+          admin = AdminLoginFrame.login(this,"Fahrtenbuch konnte nicht geÃ¶ffnet werden");
+          if (admin == null) haltProgram("Programmende, da Fahrtenbuch nicht geÃ¶ffnet werden konnte und Admin-Login nicht erfolgreich.");
+          if (!admin.allowedFahrtenbuchAuswaehlen) Dialog.error("Du hast als Admin '"+admin.name+"' keine Berechtigung, ein Fahrtenbuch auszuwÃ¤hlen!");
         } while (!admin.allowedFahrtenbuchAuswaehlen);
 
-        String dat = Dialog.dateiDialog(this,"Fahrtenbuch öffnen","efa Fahrtenbuch (*.efb)","efb",Daten.efaDataDirectory,false);
-        if (dat == null || dat.length()==0) haltProgram("Kein Fahrtenbuch ausgewählt.");
+        String dat = Dialog.dateiDialog(this,"Fahrtenbuch Ã¶ffnen","efa Fahrtenbuch (*.efb)","efb",Daten.efaDataDirectory,false);
+        if (dat == null || dat.length()==0) haltProgram("Kein Fahrtenbuch ausgewÃ¤hlt.");
         Daten.efaConfig.direkt_letzteDatei = dat;
         if (!Daten.efaConfig.writeFile()) haltProgram(Daten.efaConfig.getFileName()+" konnte nicht geschrieben werden!");
         Daten.fahrtenbuch = new Fahrtenbuch(Daten.efaConfig.direkt_letzteDatei);
@@ -996,7 +1021,7 @@ public class EfaDirektFrame extends JFrame {
         Daten.fahrtenbuch.getDaten().mitglieder.getAliases();
 
     }
-    Logger.log(Logger.INFO,"Fahrtenbuch "+Daten.fahrtenbuch.getFileName()+" geöffnet.");
+    Logger.log(Logger.INFO,"Fahrtenbuch "+Daten.fahrtenbuch.getFileName()+" geÃ¶ffnet.");
   }
 
   public boolean sindNochBooteUnterwegs() {
@@ -1006,8 +1031,8 @@ public class EfaDirektFrame extends JFrame {
 
   void statusLabelSetText(String s) {
     statusLabel.setText(s);
-    // wenn Text zu lang, dann PreferredSize verringern, damit bei pack() die zu große Label-Breite nicht
-    // zum Vergrößern des Fensters führt!
+    // wenn Text zu lang, dann PreferredSize verringern, damit bei pack() die zu groÃŸe Label-Breite nicht
+    // zum VergrÃ¶ÃŸern des Fensters fÃ¼hrt!
     if (statusLabel.getPreferredSize().getWidth() > this.getSize().getWidth())
       statusLabel.setPreferredSize(new Dimension((int)this.getSize().getWidth()-20,
                                                  (int)statusLabel.getPreferredSize().getHeight()));
@@ -1058,9 +1083,9 @@ public class EfaDirektFrame extends JFrame {
     this.adminHinweisButton.setText("Nachricht an Admin"                          + (fkey ? " [F9]" : ""));
     this.adminButton.setText("Admin-Modus"                                        + (fkey ? " [Alt-F10]" : ""));
     this.spezialButton.setText(Daten.efaConfig.efaDirekt_butSpezialText           + (fkey ? " [Alt-F11]" : ""));
-    this.verfuegbareBooteLabel.setText("verfügbare Boote"                         + (fkey ? " [F10]" : ""));
+    this.verfuegbareBooteLabel.setText("verfÃ¼gbare Boote"                         + (fkey ? " [F10]" : ""));
     this.aufFahrtBooteLabel.setText("Boote auf Fahrt"                             + (fkey ? " [F11]" : ""));
-    this.nichtVerfuegbareBooteLabel.setText("nicht verfügbare Boote"              + (fkey ? " [F12]" : ""));
+    this.nichtVerfuegbareBooteLabel.setText("nicht verfÃ¼gbare Boote"              + (fkey ? " [F12]" : ""));
     if (!Daten.efaConfig.efaDirekt_startMaximized) packFrame("setButtonText()");
   }
 
@@ -1069,7 +1094,7 @@ public class EfaDirektFrame extends JFrame {
     // Bootsliste aufbauen
     booteAlle = new Vector();
     if (Daten.fahrtenbuch.getDaten().boote == null) {
-      haltProgram("Fahrtenbuch enthält keine Bootsliste!");
+      haltProgram("Fahrtenbuch enthÃ¤lt keine Bootsliste!");
     }
     for (DatenFelder d = (DatenFelder)Daten.fahrtenbuch.getDaten().boote.getCompleteFirst();
          d != null;  d = (DatenFelder)Daten.fahrtenbuch.getDaten().boote.getCompleteNext()) {
@@ -1081,7 +1106,7 @@ public class EfaDirektFrame extends JFrame {
     if (!EfaUtil.canOpenFile(bootStatus.getFileName())) {
       if (!bootStatus.writeFile()) haltProgram("Kann Bootststatus-Datei "+bootStatus.getFileName()+" nicht erstellen!");
     } else {
-      if (!bootStatus.readFile()) haltProgram("Kann Bootststatus-Datei "+bootStatus.getFileName()+" nicht öffnen!");
+      if (!bootStatus.readFile()) haltProgram("Kann Bootststatus-Datei "+bootStatus.getFileName()+" nicht Ã¶ffnen!");
     }
     for (int i=0; i<booteAlle.size(); i++) {
       DatenFelder d;
@@ -1093,11 +1118,11 @@ public class EfaDirektFrame extends JFrame {
         if (Daten.fahrtenbuch.getDaten().boote.getExactComplete((String)booteAlle.get(i)).get(Boote.VEREIN).length()>0) {
           d.set(BootStatus.STATUS,Integer.toString(BootStatus.STAT_HIDE));
           d.set(BootStatus.BEMERKUNG,"wird nicht angezeigt");
-          Logger.log(Logger.WARNING,"Boot "+booteAlle.get(i)+" in Statusliste nicht gefunden; mit Status '"+BootStatus.STATUSNAMES[BootStatus.STAT_HIDE]+"' hinzugefügt.");
+          Logger.log(Logger.WARNING,"Boot "+booteAlle.get(i)+" in Statusliste nicht gefunden; mit Status '"+BootStatus.STATUSNAMES[BootStatus.STAT_HIDE]+"' hinzugefÃ¼gt.");
         } else {
           d.set(BootStatus.STATUS,Integer.toString(BootStatus.STAT_VERFUEGBAR));
           d.set(BootStatus.BEMERKUNG,BootStatus.STATUSNAMES[BootStatus.STAT_VERFUEGBAR]);
-          Logger.log(Logger.WARNING,"Boot "+booteAlle.get(i)+" in Statusliste nicht gefunden; mit Status '"+BootStatus.STATUSNAMES[BootStatus.STAT_VERFUEGBAR]+"' hinzugefügt.");
+          Logger.log(Logger.WARNING,"Boot "+booteAlle.get(i)+" in Statusliste nicht gefunden; mit Status '"+BootStatus.STATUSNAMES[BootStatus.STAT_VERFUEGBAR]+"' hinzugefÃ¼gt.");
         }
         bootStatus.add(d);
       }
@@ -1126,36 +1151,36 @@ public class EfaDirektFrame extends JFrame {
 
     private String normalizeString(String s) {
       s = s.toLowerCase();
-      if (s.indexOf("ä") >= 0) s = EfaUtil.replace(s,"ä","a",true);
-      if (s.indexOf("Ä") >= 0) s = EfaUtil.replace(s,"Ä","a",true);
-      if (s.indexOf("à") >= 0) s = EfaUtil.replace(s,"à","a",true);
-      if (s.indexOf("á") >= 0) s = EfaUtil.replace(s,"á","a",true);
-      if (s.indexOf("â") >= 0) s = EfaUtil.replace(s,"â","a",true);
-      if (s.indexOf("ã") >= 0) s = EfaUtil.replace(s,"ã","a",true);
-      if (s.indexOf("æ") >= 0) s = EfaUtil.replace(s,"æ","ae",true);
-      if (s.indexOf("ç") >= 0) s = EfaUtil.replace(s,"ç","c",true);
-      if (s.indexOf("è") >= 0) s = EfaUtil.replace(s,"è","e",true);
-      if (s.indexOf("é") >= 0) s = EfaUtil.replace(s,"é","e",true);
-      if (s.indexOf("è") >= 0) s = EfaUtil.replace(s,"è","e",true);
-      if (s.indexOf("é") >= 0) s = EfaUtil.replace(s,"é","e",true);
-      if (s.indexOf("ê") >= 0) s = EfaUtil.replace(s,"ê","e",true);
-      if (s.indexOf("ì") >= 0) s = EfaUtil.replace(s,"ì","i",true);
-      if (s.indexOf("í") >= 0) s = EfaUtil.replace(s,"í","i",true);
-      if (s.indexOf("î") >= 0) s = EfaUtil.replace(s,"î","i",true);
-      if (s.indexOf("ñ") >= 0) s = EfaUtil.replace(s,"ñ","n",true);
-      if (s.indexOf("ö") >= 0) s = EfaUtil.replace(s,"ö","o",true);
-      if (s.indexOf("Ö") >= 0) s = EfaUtil.replace(s,"Ö","o",true);
-      if (s.indexOf("ò") >= 0) s = EfaUtil.replace(s,"ò","o",true);
-      if (s.indexOf("ó") >= 0) s = EfaUtil.replace(s,"ó","o",true);
-      if (s.indexOf("ô") >= 0) s = EfaUtil.replace(s,"ô","o",true);
-      if (s.indexOf("õ") >= 0) s = EfaUtil.replace(s,"õ","o",true);
-      if (s.indexOf("ø") >= 0) s = EfaUtil.replace(s,"ø","o",true);
-      if (s.indexOf("ü") >= 0) s = EfaUtil.replace(s,"ü","u",true);
-      if (s.indexOf("Ü") >= 0) s = EfaUtil.replace(s,"Ü","u",true);
-      if (s.indexOf("ù") >= 0) s = EfaUtil.replace(s,"ù","u",true);
-      if (s.indexOf("ú") >= 0) s = EfaUtil.replace(s,"ú","u",true);
-      if (s.indexOf("û") >= 0) s = EfaUtil.replace(s,"û","u",true);
-      if (s.indexOf("ß") >= 0) s = EfaUtil.replace(s,"ß","ss",true);
+      if (s.indexOf("Ã¤") >= 0) s = EfaUtil.replace(s,"Ã¤","a",true);
+      if (s.indexOf("Ã„") >= 0) s = EfaUtil.replace(s,"Ã„","a",true);
+      if (s.indexOf("Ã ") >= 0) s = EfaUtil.replace(s,"Ã ","a",true);
+      if (s.indexOf("Ã¡") >= 0) s = EfaUtil.replace(s,"Ã¡","a",true);
+      if (s.indexOf("Ã¢") >= 0) s = EfaUtil.replace(s,"Ã¢","a",true);
+      if (s.indexOf("Ã£") >= 0) s = EfaUtil.replace(s,"Ã£","a",true);
+      if (s.indexOf("Ã¦") >= 0) s = EfaUtil.replace(s,"Ã¦","ae",true);
+      if (s.indexOf("Ã§") >= 0) s = EfaUtil.replace(s,"Ã§","c",true);
+      if (s.indexOf("Ã¨") >= 0) s = EfaUtil.replace(s,"Ã¨","e",true);
+      if (s.indexOf("Ã©") >= 0) s = EfaUtil.replace(s,"Ã©","e",true);
+      if (s.indexOf("Ã¨") >= 0) s = EfaUtil.replace(s,"Ã¨","e",true);
+      if (s.indexOf("Ã©") >= 0) s = EfaUtil.replace(s,"Ã©","e",true);
+      if (s.indexOf("Ãª") >= 0) s = EfaUtil.replace(s,"Ãª","e",true);
+      if (s.indexOf("Ã¬") >= 0) s = EfaUtil.replace(s,"Ã¬","i",true);
+      if (s.indexOf("Ã­") >= 0) s = EfaUtil.replace(s,"Ã­","i",true);
+      if (s.indexOf("Ã®") >= 0) s = EfaUtil.replace(s,"Ã®","i",true);
+      if (s.indexOf("Ã±") >= 0) s = EfaUtil.replace(s,"Ã±","n",true);
+      if (s.indexOf("Ã¶") >= 0) s = EfaUtil.replace(s,"Ã¶","o",true);
+      if (s.indexOf("Ã–") >= 0) s = EfaUtil.replace(s,"Ã–","o",true);
+      if (s.indexOf("Ã²") >= 0) s = EfaUtil.replace(s,"Ã²","o",true);
+      if (s.indexOf("Ã³") >= 0) s = EfaUtil.replace(s,"Ã³","o",true);
+      if (s.indexOf("Ã´") >= 0) s = EfaUtil.replace(s,"Ã´","o",true);
+      if (s.indexOf("Ãµ") >= 0) s = EfaUtil.replace(s,"Ãµ","o",true);
+      if (s.indexOf("Ã¸") >= 0) s = EfaUtil.replace(s,"Ã¸","o",true);
+      if (s.indexOf("Ã¼") >= 0) s = EfaUtil.replace(s,"Ã¼","u",true);
+      if (s.indexOf("Ãœ") >= 0) s = EfaUtil.replace(s,"Ãœ","u",true);
+      if (s.indexOf("Ã¹") >= 0) s = EfaUtil.replace(s,"Ã¹","u",true);
+      if (s.indexOf("Ãº") >= 0) s = EfaUtil.replace(s,"Ãº","u",true);
+      if (s.indexOf("Ã»") >= 0) s = EfaUtil.replace(s,"Ã»","u",true);
+      if (s.indexOf("ÃŸ") >= 0) s = EfaUtil.replace(s,"ÃŸ","ss",true);
       return s;
     }
 
@@ -1248,14 +1273,14 @@ public class EfaDirektFrame extends JFrame {
     }
 
     // es gibt einen komischen Bug, der manchmal aufzutreten scheint, wenn in gerade selektiertes Boot aus
-    // der Statusliste verschwindet. Der Bug läßt sich manchmal reproduzieren, indem als Mitglied ein Boot
-    // für sofort reserviert wird. Während dann der Focus noch auf dem Boot steht, nimmt der ReservierungsChecker
-    // das Boot aus der Liste. Die Folge ist dann manchmal, daß die Liste einen riesigen Freiraum bekommt.
-    // Manchmal verändert sich sogar die Größe des Frames dadurch. Vermutlich handelt es sich hierbei um einen
+    // der Statusliste verschwindet. Der Bug lÃ¤ÃŸt sich manchmal reproduzieren, indem als Mitglied ein Boot
+    // fÃ¼r sofort reserviert wird. WÃ¤hrend dann der Focus noch auf dem Boot steht, nimmt der ReservierungsChecker
+    // das Boot aus der Liste. Die Folge ist dann manchmal, daÃŸ die Liste einen riesigen Freiraum bekommt.
+    // Manchmal verÃ¤ndert sich sogar die GrÃ¶ÃŸe des Frames dadurch. Vermutlich handelt es sich hierbei um einen
     // Java-Bug.
-    // Um den Bug zu umgehen, wurden folgende drei Zeilen eingefügt. Es konnte jedoch leider nicht überprüft
+    // Um den Bug zu umgehen, wurden folgende drei Zeilen eingefÃ¼gt. Es konnte jedoch leider nicht Ã¼berprÃ¼ft
     // werden, ob diese Zeilen den Bug beheben, da er sich leider auch ohne diese Zeilen nicht mehr reproduzieren
-    // ließ.
+    // lieÃŸ.
     booteVerfuegbar.setSelectedIndex(-1);
     booteAufFahrt.setSelectedIndex(-1);
     booteNichtVerfuegbar.setSelectedIndex(-1);
@@ -1264,7 +1289,7 @@ public class EfaDirektFrame extends JFrame {
     booteAufFahrt.setListData(booteAufFahrtListData);
     booteNichtVerfuegbar.setListData(booteNichtVerfuegbarListData);
 
-    statusLabelSetText("Kein Boot ausgewählt.");
+    statusLabelSetText("Kein Boot ausgewÃ¤hlt.");
     booteVerfuegbar.setSelectedIndex(0);
     booteVerfuegbar.requestFocus();
   }
@@ -1280,9 +1305,9 @@ public class EfaDirektFrame extends JFrame {
     }
 
     if (d.get(BootStatus.LFDNR).trim().length()==0) {
-      // keine LfdNr eingetragen: Das kann passieren, wenn der Admin den Status der Bootes manuell geändert hat!
-      Dialog.error("Es ist kein angefangener Eintrag im Fahrtenbuch für dieses Boot vermerkt!\n"+
-                   "Der Eintrag kann nicht geändert werden.");
+      // keine LfdNr eingetragen: Das kann passieren, wenn der Admin den Status der Bootes manuell geÃ¤ndert hat!
+      Dialog.error("Es ist kein angefangener Eintrag im Fahrtenbuch fÃ¼r dieses Boot vermerkt!\n"+
+                   "Der Eintrag kann nicht geÃ¤ndert werden.");
       return;
     }
     setEnabled(false);
@@ -1323,7 +1348,7 @@ public class EfaDirektFrame extends JFrame {
           bootstyp = " ("+Boote.getDetailBezeichnung(d)+")";
           Vector gr = Boote.getGruppen(d);
           for (int i=0; i<gr.size(); i++)  {
-            rudererlaubnis = (rudererlaubnis.length()>0 ? rudererlaubnis + ", " : "; nur für ") + (String)gr.get(i);
+            rudererlaubnis = (rudererlaubnis.length()>0 ? rudererlaubnis + ", " : "; nur fÃ¼r ") + (String)gr.get(i);
           }
         }
       }
@@ -1347,7 +1372,7 @@ public class EfaDirektFrame extends JFrame {
 
     if (boot == null) return;
 
-    // Handelt es sich um ein Boot, das auf Fahrt ist, aber trotzdem bei "nicht verfügbar" angezeigt wird?
+    // Handelt es sich um ein Boot, das auf Fahrt ist, aber trotzdem bei "nicht verfÃ¼gbar" angezeigt wird?
     DatenFelder d = bootStatus.getExactComplete(boot);
     if (d != null && listnr == 3 && EfaUtil.string2date(d.get(BootStatus.LFDNR),0,0,0).tag>0) listnr = 2;
 
@@ -1358,14 +1383,14 @@ public class EfaDirektFrame extends JFrame {
       int auswahl = -1;
       if (listnr == 1) {
         if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren) {
-          auswahl = Dialog.auswahlDialog("Boot "+boot,"Was möchtest Du mit dem Boot '"+boot+"' machen?",
+          auswahl = Dialog.auswahlDialog("Boot "+boot,"Was mÃ¶chtest Du mit dem Boot '"+boot+"' machen?",
                                    fahrtBeginnen,"Boot reservieren","Nichts");
         } else {
-          auswahl = Dialog.auswahlDialog("Boot "+boot,"Was möchtest Du mit dem Boot '"+boot+"' machen?",
+          auswahl = Dialog.auswahlDialog("Boot "+boot,"Was mÃ¶chtest Du mit dem Boot '"+boot+"' machen?",
                                    fahrtBeginnen,"Nichts",false);
         }
       } else {
-        auswahl = Dialog.auswahlDialog("Boot "+boot,"Was möchtest Du mit dem Boot '"+boot+"' machen?",
+        auswahl = Dialog.auswahlDialog("Boot "+boot,"Was mÃ¶chtest Du mit dem Boot '"+boot+"' machen?",
                                    fahrtBeginnen,"Bootsreservierungen anzeigen","Nichts");
       }
       switch (auswahl) {
@@ -1383,11 +1408,11 @@ public class EfaDirektFrame extends JFrame {
       if (pos>0) fahrtBeenden = fahrtBeenden.substring(0,pos);
       int auswahl = -1;
       if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren) {
-        auswahl = Dialog.auswahlDialog("Boot "+boot,"Was möchtest Du mit dem Boot '"+boot+"' machen?",
-                                   fahrtBeenden,"Eintrag ändern","Fahrt abbrechen","Boot reservieren","Nichts");
+        auswahl = Dialog.auswahlDialog("Boot "+boot,"Was mÃ¶chtest Du mit dem Boot '"+boot+"' machen?",
+                                   fahrtBeenden,"Eintrag Ã¤ndern","Fahrt abbrechen","Boot reservieren","Nichts");
       } else {
-        auswahl = Dialog.auswahlDialog("Boot "+boot,"Was möchtest Du mit dem Boot '"+boot+"' machen?",
-                                   fahrtBeenden,"Eintrag ändern","Fahrt abbrechen","Nichts");
+        auswahl = Dialog.auswahlDialog("Boot "+boot,"Was mÃ¶chtest Du mit dem Boot '"+boot+"' machen?",
+                                   fahrtBeenden,"Eintrag Ã¤ndern","Fahrt abbrechen","Nichts");
       }
       switch (auswahl) {
         case 0: this.fahrtendeButton_actionPerformed(null); break;
@@ -1455,7 +1480,7 @@ public class EfaDirektFrame extends JFrame {
   }
 
   // scrolle in der Liste list (deren Inhalt der Vector boote ist), zu dem Eintrag
-  // mit dem Namen such und selektiere ihn. Zeige unterhalb des Boote bis zu plus weitere Einträge.
+  // mit dem Namen such und selektiere ihn. Zeige unterhalb des Boote bis zu plus weitere EintrÃ¤ge.
   private void scrollToBoot(JList list, Vector boote, String such, int plus) {
     if (list == null || boote == null || such == null || such.length()==0) return;
     try {
@@ -1533,13 +1558,13 @@ public class EfaDirektFrame extends JFrame {
     }
 
     if (boot == null) {
-      Dialog.error("Bitte wähle zuerst ein Boot aus!");
+      Dialog.error("Bitte wÃ¤hle zuerst ein Boot aus!");
       this.booteVerfuegbar.requestFocus();
       this.efaDirektBackgroundTask.interrupt(); // Falls requestFocus nicht funktioniert hat, setzt der Thread ihn richtig!
       return;
     }
 
-    if (booteVerfuegbar.getSelectedIndex()==0) { // <anderes Boot> ausgewählt!
+    if (booteVerfuegbar.getSelectedIndex()==0) { // <anderes Boot> ausgewÃ¤hlt!
       boot = null;
     } else {
       if (!checkFahrtbeginnFuerBoot(boot,1)) return;
@@ -1551,9 +1576,9 @@ public class EfaDirektFrame extends JFrame {
   }
 
   // mode bestimmt die Art der Checks
-  // mode==1 - alle Checks durchführen
-  // mode==2 - nur solche Checks durchführen, bei denen es egal ist, ob das Boot aus der Liste direkt ausgewählt wurde
-  //           oder manuell über <anders Boot> eingegeben wurde. Der Aufruf von checkFahrtbeginnFuerBoot mit mode==2
+  // mode==1 - alle Checks durchfÃ¼hren
+  // mode==2 - nur solche Checks durchfÃ¼hren, bei denen es egal ist, ob das Boot aus der Liste direkt ausgewÃ¤hlt wurde
+  //           oder manuell Ã¼ber <anders Boot> eingegeben wurde. Der Aufruf von checkFahrtbeginnFuerBoot mit mode==2
   //           erfolgt aus EfaFrame.java.
   public boolean checkFahrtbeginnFuerBoot(String boot, int mode) {
     if (boot == null) return true;
@@ -1577,9 +1602,9 @@ public class EfaDirektFrame extends JFrame {
                                       "Bemerkung: " +
                                       d.get(BootStatus.BEMERKUNG) + "\n" : "") +
                                      "\n" +
-                                     "Was möchtest Du tun?",
+                                     "Was mÃ¶chtest Du tun?",
                                      "Neue Fahrt beginnen",
-                                     "Vorhandenen Eintrag ändern", "Nichts")) {
+                                     "Vorhandenen Eintrag Ã¤ndern", "Nichts")) {
           case 0:
             break;
           case 1:
@@ -1595,16 +1620,16 @@ public class EfaDirektFrame extends JFrame {
                                                "Das Boot "+bootsname+" ist laut Liste bereits unterwegs:\n"+
                                                (d != null ? "Bemerkung: "+d.get(BootStatus.BEMERKUNG)+"\n" : "")+
                                                "\n"+
-                                               "Möchtest Du trotzdem eine neue Fahrt mit diesem Boot beginnen?")
+                                               "MÃ¶chtest Du trotzdem eine neue Fahrt mit diesem Boot beginnen?")
                       != Dialog.YES) return false;
       }
     }
     if (status == BootStatus.STAT_NICHT_VERFUEGBAR && !d.get(BootStatus.LFDNR).equals(BootStatus.RES_LFDNR)) {
       if (Dialog.yesNoCancelDialog("Boot ist gesperrt",
-                                             "Das Boot "+bootsname+" ist laut Liste nicht verfügbar:\n"+
+                                             "Das Boot "+bootsname+" ist laut Liste nicht verfÃ¼gbar:\n"+
                                              (d != null ? "Bemerkung: "+d.get(BootStatus.BEMERKUNG)+"\n" : "")+
                                              "\n"+
-                                             "Möchtest Du trotzdem eine neue Fahrt mit diesem Boot beginnen?")
+                                             "MÃ¶chtest Du trotzdem eine neue Fahrt mit diesem Boot beginnen?")
                     != Dialog.YES) return false;
     }
 
@@ -1615,18 +1640,18 @@ public class EfaDirektFrame extends JFrame {
     if (res != null) {
       if (Dialog.yesNoCancelDialog("Boot reserviert","Das Boot "+bootsname+" ist "+
                                              (res.gueltigInMinuten == 0 ? "zur Zeit" : "in "+res.gueltigInMinuten+" Minuten")+"\n"+
-                                             "für "+res.name+" reserviert" + (res.grund.equals ("k.A.") ? "" : " (Grund: "+res.grund+")") + ".\n"+
+                                             "fÃ¼r "+res.name+" reserviert" + (res.grund.equals ("k.A.") ? "" : " (Grund: "+res.grund+")") + ".\n"+
                                              "Die Reservierung liegt "+BootStatus.makeReservierungText(res)+" vor.\n"+
                                              "\n"+
-                                             "Möchtest Du trotzdem eine neue Fahrt mit diesem Boot beginnen?")
+                                             "MÃ¶chtest Du trotzdem eine neue Fahrt mit diesem Boot beginnen?")
                     != Dialog.YES) return false;
     }
     if (d.get(BootStatus.BOOTSSCHAEDEN).trim().length() > 0 || (d2 != null && d2.get(BootStatus.BOOTSSCHAEDEN).trim().length() > 0)) {
-      if (Dialog.yesNoDialog("Bootsschaden gemeldet","Für das Boot "+bootsname+" wurde folgender Bootsschaden gemeldet:\n"+
+      if (Dialog.yesNoDialog("Bootsschaden gemeldet","FÃ¼r das Boot "+bootsname+" wurde folgender Bootsschaden gemeldet:\n"+
                                                 "\""+
                                                 (d.get(BootStatus.BOOTSSCHAEDEN).trim().length() > 0 ? d.get(BootStatus.BOOTSSCHAEDEN).trim() : d2.get(BootStatus.BOOTSSCHAEDEN).trim())
                                                 +"\"\n\n"+
-                                                "Möchtest Du trotzdem mit dem Boot rudern?")
+                                                "MÃ¶chtest Du trotzdem mit dem Boot rudern?")
                              != Dialog.YES) return false;
     }
     return true;
@@ -1653,20 +1678,20 @@ public class EfaDirektFrame extends JFrame {
         if (bootStatus.getExact(tmp) != null) tmp = null;
       }
 
-      if (tmp == null) { // alle 27 Timestamps für dieses Boot schon vergeben: sollte niemals passieren ...
-        Logger.log(Logger.ERROR,"Fahrtbeginn des Bootes '"+boot+"' nicht möglich!");
+      if (tmp == null) { // alle 27 Timestamps fÃ¼r dieses Boot schon vergeben: sollte niemals passieren ...
+        Logger.log(Logger.ERROR,"Fahrtbeginn des Bootes '"+boot+"' nicht mÃ¶glich!");
         return;
       }
 
       boot = tmp;
-      Logger.log(Logger.INFO,"Fahrtbeginn eines Bootes, welches laut Liste nicht verfügbar ist (Status ["+status+"]: "+
+      Logger.log(Logger.INFO,"Fahrtbeginn eines Bootes, welches laut Liste nicht verfÃ¼gbar ist (Status ["+status+"]: "+
                                   d.get(BootStatus.BEMERKUNG) +"); Neuer Eintrag als Boot: "+boot);
       DatenFelder old_d = d;
       d = new DatenFelder(BootStatus._FELDANZ);
       d.set(BootStatus.NAME,boot);
-      d.set(BootStatus.UNBEKANNTESBOOT,"+"); // Doppeleinträge sind immer "unbekannte" Boote!!
-      // Bugfix: auch Bootsschäden und Reservierungen müssen übernommen werden, da sonst diese Daten u.U. verloren gehen
-      // könnten, wenn der andere Eintrag als erstes und dieser als zweites beendet wird.
+      d.set(BootStatus.UNBEKANNTESBOOT,"+"); // DoppeleintrÃ¤ge sind immer "unbekannte" Boote!!
+      // Bugfix: auch BootsschÃ¤den und Reservierungen mÃ¼ssen Ã¼bernommen werden, da sonst diese Daten u.U. verloren gehen
+      // kÃ¶nnten, wenn der andere Eintrag als erstes und dieser als zweites beendet wird.
       d.set(BootStatus.BOOTSSCHAEDEN,old_d.get(BootStatus.BOOTSSCHAEDEN));
       d.set(BootStatus.RESERVIERUNGEN,old_d.get(BootStatus.RESERVIERUNGEN));
     }
@@ -1688,24 +1713,24 @@ public class EfaDirektFrame extends JFrame {
     }
     d.set(BootStatus.BEMERKUNG,"unterwegs"+aufFahrtart+nachZiel+" seit "+datum+ (zeit.trim().length()>0 ? " um "+zeit : "") + " mit "+person);
     bootStatus.add(d);
-    setKombiBootStatus(boot,"",BootStatus.STAT_VORUEBERGEHEND_VERSTECKEN,"vorübergehend von efa versteckt");
+    setKombiBootStatus(boot,"",BootStatus.STAT_VORUEBERGEHEND_VERSTECKEN,"vorÃ¼bergehend von efa versteckt");
     if (!bootStatus.writeFile()) {
-      Dialog.error("Statusliste für Boote konnte nicht geschrieben werden! Bitte den Administrator benachrichtigen!");
-      Logger.log(Logger.ERROR,"Statusliste für Boote konnte nicht geschrieben werden!");
+      Dialog.error("Statusliste fÃ¼r Boote konnte nicht geschrieben werden! Bitte den Administrator benachrichtigen!");
+      Logger.log(Logger.ERROR,"Statusliste fÃ¼r Boote konnte nicht geschrieben werden!");
     }
     updateBootsListen();
   }
 
   public void fahrtBeginnKorrigiert(String boot, String lfdNr, String datum, String zeit, String person, String fahrtart, String ziel, String ursprBoot) {
     if (!boot.equals(ursprBoot)) {
-      // Bootsname wurde geändert
-      Logger.log(Logger.INFO,"Fahrtbeginn korrigiert: #"+lfdNr+" - Änderung des Bootsnamens von "+ursprBoot+" in "+boot);
+      // Bootsname wurde geÃ¤ndert
+      Logger.log(Logger.INFO,"Fahrtbeginn korrigiert: #"+lfdNr+" - Ã„nderung des Bootsnamens von "+ursprBoot+" in "+boot);
       fahrtBeendet(ursprBoot,true);
       fahrtBegonnen(boot,lfdNr,datum,zeit,person,fahrtart,ziel);
       return;
     }
 
-    // Bootsname wurde nicht geändert
+    // Bootsname wurde nicht geÃ¤ndert
     int status = BootStatus.STAT_VERFUEGBAR;
     DatenFelder d = bootStatus.getExactComplete(boot);
     if (d == null) {
@@ -1729,10 +1754,10 @@ public class EfaDirektFrame extends JFrame {
     }
     d.set(BootStatus.BEMERKUNG,"unterwegs"+aufFahrtart+" seit "+datum+ (zeit.trim().length()>0 ? " um "+zeit : "") + " mit "+person);
     bootStatus.add(d);
-    setKombiBootStatus(boot,"",BootStatus.STAT_VORUEBERGEHEND_VERSTECKEN,"vorübergehend von efa versteckt");
+    setKombiBootStatus(boot,"",BootStatus.STAT_VORUEBERGEHEND_VERSTECKEN,"vorÃ¼bergehend von efa versteckt");
     if (!bootStatus.writeFile()) {
-      Dialog.error("Statusliste für Boote konnte nicht geschrieben werden! Bitte den Administrator benachrichtigen!");
-      Logger.log(Logger.ERROR,"Statusliste für Boote konnte nicht geschrieben werden!");
+      Dialog.error("Statusliste fÃ¼r Boote konnte nicht geschrieben werden! Bitte den Administrator benachrichtigen!");
+      Logger.log(Logger.ERROR,"Statusliste fÃ¼r Boote konnte nicht geschrieben werden!");
     }
     updateBootsListen();
   }
@@ -1743,18 +1768,18 @@ public class EfaDirektFrame extends JFrame {
     try {
       if (!booteAufFahrt.isSelectionEmpty()) boot = listGetSelectedValue(booteAufFahrt);
       if (boot == null && Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar && !booteNichtVerfuegbar.isSelectionEmpty()) {
-        // prüfen, ob vielleicht ein Boot in der Liste "nicht verfügbar" auf Regatta oder Wanderfahrt unterwegs ist
+        // prÃ¼fen, ob vielleicht ein Boot in der Liste "nicht verfÃ¼gbar" auf Regatta oder Wanderfahrt unterwegs ist
         boot = listGetSelectedValue(booteNichtVerfuegbar);
         if (boot != null  && bootStatus.getExact(boot) != null) {
           DatenFelder d = (DatenFelder)bootStatus.getComplete();
-          if (EfaUtil.string2int(d.get(BootStatus.LFDNR),0) == 0) boot = null; // keine gültige LfdNr
+          if (EfaUtil.string2int(d.get(BootStatus.LFDNR),0) == 0) boot = null; // keine gÃ¼ltige LfdNr
         }
       }
     } catch(Exception ee) {
       EfaUtil.foo();// list.getSelectedValue() wirft bei Frederik Hoppe manchmal eine Exception (Java-Bug?)
     }
     if (boot == null) {
-      Dialog.error("Bitte wähle zuerst"+(Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar ? " " : " aus der rechten oberen Liste ") +"ein Boot aus, welches unterwegs ist!");
+      Dialog.error("Bitte wÃ¤hle zuerst"+(Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar ? " " : " aus der rechten oberen Liste ") +"ein Boot aus, welches unterwegs ist!");
       this.booteAufFahrt.requestFocus();
       this.efaDirektBackgroundTask.interrupt(); // Falls requestFocus nicht funktioniert hat, setzt der Thread ihn richtig!
       return;
@@ -1762,16 +1787,16 @@ public class EfaDirektFrame extends JFrame {
     if (bootStatus.getExact(boot) != null) {
       DatenFelder d = (DatenFelder)bootStatus.getComplete();
       if (d.get(BootStatus.LFDNR).trim().length()==0) {
-        // keine LfdNr eingetragen: Das kann passieren, wenn der Admin den Status der Bootes manuell geändert hat!
-        Logger.log(Logger.ERROR,"Oops: Keine LfdNr für Boot "+boot+" vermerkt! Beenden der Fahrt nicht möglich.");
-        Dialog.error("Es ist kein angefangener Eintrag im Fahrtenbuch für dieses Boot vermerkt!\n"+
+        // keine LfdNr eingetragen: Das kann passieren, wenn der Admin den Status der Bootes manuell geÃ¤ndert hat!
+        Logger.log(Logger.ERROR,"Oops: Keine LfdNr fÃ¼r Boot "+boot+" vermerkt! Beenden der Fahrt nicht mÃ¶glich.");
+        Dialog.error("Es ist kein angefangener Eintrag im Fahrtenbuch fÃ¼r dieses Boot vermerkt!\n"+
                      "Die Fahrt kann nicht beendet werden.");
         return;
       }
       if (Daten.fahrtenbuch.getExact(d.get(BootStatus.LFDNR)) == null) {
-        Logger.log(Logger.ERROR,"Oops: Beenden der Fahrt "+d.get(BootStatus.LFDNR)+" nicht möglich, da diese im Fahrtenbuch nicht gefunden wurde!");
-        Dialog.error("Es konnte kein angefangener Eintrag im Fahrtenbuch für dieses Boot gefunden werden!\n"+
-                     "Die Fahrt kann nicht zurückgetragen werden.");
+        Logger.log(Logger.ERROR,"Oops: Beenden der Fahrt "+d.get(BootStatus.LFDNR)+" nicht mÃ¶glich, da diese im Fahrtenbuch nicht gefunden wurde!");
+        Dialog.error("Es konnte kein angefangener Eintrag im Fahrtenbuch fÃ¼r dieses Boot gefunden werden!\n"+
+                     "Die Fahrt kann nicht zurÃ¼ckgetragen werden.");
         return;
       }
       setEnabled(false);
@@ -1792,7 +1817,7 @@ public class EfaDirektFrame extends JFrame {
       return;
     }
 
-    // Boot aus Statustliste löschen
+    // Boot aus Statustliste lÃ¶schen
     bootStatus.delete(boot);
 
     if (!d.get(BootStatus.UNBEKANNTESBOOT).equals("+")) {
@@ -1801,13 +1826,13 @@ public class EfaDirektFrame extends JFrame {
       // gibt es einen zu diesem Bootsnamen passenden Doppelaustrag?
       DatenFelder dd = bootStatus.getCompleteFirst(boot+" [");
       if (dd != null) {
-        // Ja, Doppeleintrag existiert: Dann eckige Klammern dort löschen und Boot *nicht* als verfügbar markieren
+        // Ja, Doppeleintrag existiert: Dann eckige Klammern dort lÃ¶schen und Boot *nicht* als verfÃ¼gbar markieren
         bootStatus.delete(dd.get(BootStatus.NAME));
         dd.set(BootStatus.NAME,boot);
         dd.set(BootStatus.UNBEKANNTESBOOT,"-");
         bootStatus.add(dd);
       } else {
-        // Nein, Doppeleintrag existiert nicht: Boot als verfügbar markieren
+        // Nein, Doppeleintrag existiert nicht: Boot als verfÃ¼gbar markieren
         d.set(BootStatus.STATUS,Integer.toString(BootStatus.STAT_VERFUEGBAR));
         d.set(BootStatus.BEMERKUNG,BootStatus.STATUSNAMES[BootStatus.STAT_VERFUEGBAR]);
         d.set(BootStatus.LFDNR,"");
@@ -1817,8 +1842,8 @@ public class EfaDirektFrame extends JFrame {
     }
 
     if (interaktiv && !bootStatus.writeFile()) {
-      Dialog.error("Statusliste für Boote konnte nicht geschrieben werden! Bitte den Administrator benachrichtigen!");
-      Logger.log(Logger.ERROR,"Statusliste für Boote konnte nicht geschrieben werden!");
+      Dialog.error("Statusliste fÃ¼r Boote konnte nicht geschrieben werden! Bitte den Administrator benachrichtigen!");
+      Logger.log(Logger.ERROR,"Statusliste fÃ¼r Boote konnte nicht geschrieben werden!");
     }
     if (interaktiv) {
       updateBootsListen();
@@ -1832,18 +1857,18 @@ public class EfaDirektFrame extends JFrame {
     try {
       if (!booteAufFahrt.isSelectionEmpty()) boot = listGetSelectedValue(booteAufFahrt);
       if (boot == null && Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar && !booteNichtVerfuegbar.isSelectionEmpty()) {
-        // prüfen, ob vielleicht ein Boot in der Liste "nicht verfügbar" auf Regatta oder Wanderfahrt unterwegs ist
+        // prÃ¼fen, ob vielleicht ein Boot in der Liste "nicht verfÃ¼gbar" auf Regatta oder Wanderfahrt unterwegs ist
         boot = listGetSelectedValue(booteNichtVerfuegbar);
         if (boot != null  && bootStatus.getExact(boot) != null) {
           DatenFelder d = (DatenFelder)bootStatus.getComplete();
-          if (EfaUtil.string2int(d.get(BootStatus.LFDNR),0) == 0) boot = null; // keine gülte LfdNr
+          if (EfaUtil.string2int(d.get(BootStatus.LFDNR),0) == 0) boot = null; // keine gÃ¼lte LfdNr
         }
       }
     } catch(Exception ee) {
       EfaUtil.foo();// list.getSelectedValue() wirft bei Frederik Hoppe manchmal eine Exception (Java-Bug?)
     }
     if (boot == null) {
-      Dialog.error("Bitte wähle zuerst"+(Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar ? " " : " aus der rechten oberen Liste ") +"ein Boot aus, welches unterwegs ist!");
+      Dialog.error("Bitte wÃ¤hle zuerst"+(Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar ? " " : " aus der rechten oberen Liste ") +"ein Boot aus, welches unterwegs ist!");
       this.booteAufFahrt.requestFocus();
       this.efaDirektBackgroundTask.interrupt(); // Falls requestFocus nicht funktioniert hat, setzt der Thread ihn richtig!
       return;
@@ -1862,15 +1887,15 @@ public class EfaDirektFrame extends JFrame {
     if (interaktiv && Dialog.yesNoDialog("Fahrt wirklich abbrechen",
                                            "Die Fahrt des Bootes "+removeDoppeleintragFromBootsname(boot)+" sollte nur abgebrochen werden,\n"+
                                            "wenn sie nie stattgefunden hat. In diesem Fall wird der begonnene Eintrag wieder entfernt.\n"+
-                                           "Möchtest Du die Fahrt wirklich abbrechen?") != Dialog.YES) return;
+                                           "MÃ¶chtest Du die Fahrt wirklich abbrechen?") != Dialog.YES) return;
     if (d.get(BootStatus.LFDNR).trim().length() == 0) {
-      Logger.log(Logger.ERROR,"Oops: Fahrtabbruch für Boot "+d.get(BootStatus.NAME)+", aber keine LfdNr für Boot "+d.get(BootStatus.NAME)+" vermerkt! Fahrt wird NICHT abgebrochen.");
-      if (interaktiv) Dialog.error("Die Fahrt kann nicht abgebrochen werden, da im Fahrtenbuch kein Eintrag für diese Fahrt existiert.");
+      Logger.log(Logger.ERROR,"Oops: Fahrtabbruch fÃ¼r Boot "+d.get(BootStatus.NAME)+", aber keine LfdNr fÃ¼r Boot "+d.get(BootStatus.NAME)+" vermerkt! Fahrt wird NICHT abgebrochen.");
+      if (interaktiv) Dialog.error("Die Fahrt kann nicht abgebrochen werden, da im Fahrtenbuch kein Eintrag fÃ¼r diese Fahrt existiert.");
       return;
     }
     if (Daten.fahrtenbuch.getExact(d.get(BootStatus.LFDNR)) == null) {
-      Logger.log(Logger.ERROR,"Oops: Fahrtabbruch für Boot "+d.get(BootStatus.NAME)+", aber LfdNr #"+d.get(BootStatus.LFDNR)+" existiert im Fahrtenbuch nicht! Fahrt wird NICHT abgebrochen.");
-      if (interaktiv) Dialog.error("Die Fahrt kann nicht abgebrochen werden, da im Fahrtenbuch kein Eintrag für diese Fahrt existiert.");
+      Logger.log(Logger.ERROR,"Oops: Fahrtabbruch fÃ¼r Boot "+d.get(BootStatus.NAME)+", aber LfdNr #"+d.get(BootStatus.LFDNR)+" existiert im Fahrtenbuch nicht! Fahrt wird NICHT abgebrochen.");
+      if (interaktiv) Dialog.error("Die Fahrt kann nicht abgebrochen werden, da im Fahrtenbuch kein Eintrag fÃ¼r diese Fahrt existiert.");
       return;
     }
     Logger.log(Logger.INFO,"Fahrtabbruch: #"+d.get(BootStatus.LFDNR)+" - "+d.get(BootStatus.NAME)+" ("+d.get(BootStatus.BEMERKUNG)+")");
@@ -1923,7 +1948,7 @@ public class EfaDirektFrame extends JFrame {
       EfaUtil.foo();// list.getSelectedValue() wirft bei Frederik Hoppe manchmal eine Exception (Java-Bug?)
     }
     if (boot == null) {
-      Dialog.error("Bitte wähle zuerst ein Boot aus!");
+      Dialog.error("Bitte wÃ¤hle zuerst ein Boot aus!");
       return;
     }
 
@@ -1957,12 +1982,12 @@ public class EfaDirektFrame extends JFrame {
   void statButton_actionPerformed(ActionEvent e) {
     alive();
     if (Daten.fahrtenbuch == null || Daten.fahrtenbuch.getDaten().statistik == null) {
-      Dialog.error("Es sind keine Statistiken verfügbar!\n\n"+
-                   "Hinweis für Administratoren:\n"+
+      Dialog.error("Es sind keine Statistiken verfÃ¼gbar!\n\n"+
+                   "Hinweis fÃ¼r Administratoren:\n"+
                    "Damit Statistiken im Bootshaus von jedem Mitglied aufrufbar sind,\n"+
-                   "müssen sie zuerst im Admin-Modus vorbereitet und als Statistikeinstellungen\n"+
-                   "abgespeichert werden. Beim Abspeichern muß zusätzliche die Option\n"+
-                   "'Statistik auch im Bootshaus verfügbar machen' aktiviert werden.");
+                   "mÃ¼ssen sie zuerst im Admin-Modus vorbereitet und als Statistikeinstellungen\n"+
+                   "abgespeichert werden. Beim Abspeichern muÃŸ zusÃ¤tzliche die Option\n"+
+                   "'Statistik auch im Bootshaus verfÃ¼gbar machen' aktiviert werden.");
       return;
     }
 
@@ -1973,12 +1998,12 @@ public class EfaDirektFrame extends JFrame {
       d = Daten.fahrtenbuch.getDaten().statistik.getCompleteNext();
     }
     if (stats.size() == 0) {
-      Dialog.error("Es sind keine Statistiken verfügbar!\n\n"+
-                   "Hinweis für Administratoren:\n"+
+      Dialog.error("Es sind keine Statistiken verfÃ¼gbar!\n\n"+
+                   "Hinweis fÃ¼r Administratoren:\n"+
                    "Damit Statistiken im Bootshaus von jedem Mitglied aufrufbar sind,\n"+
-                   "müssen sie zuerst im Admin-Modus vorbereitet und als Statistikeinstellungen\n"+
-                   "abgespeichert werden. Beim Abspeichern muß zusätzliche die Option\n"+
-                   "'Statistik auch im Bootshaus verfügbar machen' aktiviert werden.");
+                   "mÃ¼ssen sie zuerst im Admin-Modus vorbereitet und als Statistikeinstellungen\n"+
+                   "abgespeichert werden. Beim Abspeichern muÃŸ zusÃ¤tzliche die Option\n"+
+                   "'Statistik auch im Bootshaus verfÃ¼gbar machen' aktiviert werden.");
       return;
     }
 
@@ -2004,7 +2029,7 @@ public class EfaDirektFrame extends JFrame {
   void adminButton_actionPerformed(ActionEvent e) {
     alive();
 
-    // Prüfe, ob bereits ein Admin-Modus-Fenster offen ist
+    // PrÃ¼fe, ob bereits ein Admin-Modus-Fenster offen ist
     Stack s = Dialog.frameStack;
     boolean adminOnStack = false;
     try {
@@ -2013,7 +2038,7 @@ public class EfaDirektFrame extends JFrame {
       }
     } catch(Exception ee) {}
     if (adminOnStack) {
-      Dialog.error("Es ist bereits ein Admin-Fenster geöffnet.");
+      Dialog.error("Es ist bereits ein Admin-Fenster geÃ¶ffnet.");
       return;
     }
 
@@ -2021,11 +2046,11 @@ public class EfaDirektFrame extends JFrame {
     if (admin == null) return;
     AdminFrame dlg = new AdminFrame(this,admin,bootStatus);
     Dialog.setDlgLocation(dlg,this);
-    // Folgende Zeile *muß* auskommentiert sein; statt dessen wird "this.setEnabled(false)" verwendet.
+    // Folgende Zeile *muÃŸ* auskommentiert sein; statt dessen wird "this.setEnabled(false)" verwendet.
     //    dlg.setModal(!Dialog.tourRunning);
-    // Folgende Zeile *muß* auskommentiert sein, da unter Java 1.5 sonst in den im Admin-Modus geöffneten Dialogen
-    // keine Eingaben möglich sind. Dies scheint ein Bug in 1.5 zu sein. Da EfaDirektFrame aktiviert bleibt, ist
-    // ein Navigieren im Admin-Modus im EfaDirektFrame möglich, was aber eine vertretbare Unschönheit ist... ;-)
+    // Folgende Zeile *muÃŸ* auskommentiert sein, da unter Java 1.5 sonst in den im Admin-Modus geÃ¶ffneten Dialogen
+    // keine Eingaben mÃ¶glich sind. Dies scheint ein Bug in 1.5 zu sein. Da EfaDirektFrame aktiviert bleibt, ist
+    // ein Navigieren im Admin-Modus im EfaDirektFrame mÃ¶glich, was aber eine vertretbare UnschÃ¶nheit ist... ;-)
     //    this.setEnabled(false); //!!!
     dlg.show();
   }
@@ -2041,10 +2066,10 @@ public class EfaDirektFrame extends JFrame {
           Runtime.getRuntime().exec(cmd);
         }
       } catch(Exception ee) {
-        Logger.log(Logger.WARNING,"Kann Kommando für Spezial-Button (\""+cmd+"\") nicht ausführen: "+ee.toString());
+        Logger.log(Logger.WARNING,"Kann Kommando fÃ¼r Spezial-Button (\""+cmd+"\") nicht ausfÃ¼hren: "+ee.toString());
       }
     } else {
-      Dialog.error("Kein Kommando für diesen Button konfiguriert!");
+      Dialog.error("Kein Kommando fÃ¼r diesen Button konfiguriert!");
     }
   }
 
@@ -2067,7 +2092,7 @@ public class EfaDirektFrame extends JFrame {
     boolean bootswart = false;
 
     if (Daten.nachrichten != null) {
-      // durchsuche die letzten 50 Nachrichten nach ungelesenen (aus Performancegründen immer nur die letzen 50)
+      // durchsuche die letzten 50 Nachrichten nach ungelesenen (aus PerformancegrÃ¼nden immer nur die letzen 50)
       for (int i=Daten.nachrichten.size()-1; i>=0 && i>Daten.nachrichten.size()-50; i--) {
         if (!Daten.nachrichten.get(i).gelesen && Daten.nachrichten.get(i).empfaenger == Nachricht.ADMIN) admin = true;
         if (!Daten.nachrichten.get(i).gelesen && Daten.nachrichten.get(i).empfaenger == Nachricht.BOOTSWART) bootswart = true;
@@ -2136,8 +2161,8 @@ public class EfaDirektFrame extends JFrame {
       html = Daten.efaTmpDirectory+"locked.html";
       try {
         BufferedWriter f = new BufferedWriter(new FileWriter(html));
-        f.write("<html><body><h1 align=\"center\">efa ist für die Benutzung gesperrt</h1>\n");
-        f.write("<p>efa wurde vom Administrator vorübergehend für die Benutzung gesperrt.</p>\n");
+        f.write("<html><body><h1 align=\"center\">efa ist fÃ¼r die Benutzung gesperrt</h1>\n");
+        f.write("<p>efa wurde vom Administrator vorÃ¼bergehend fÃ¼r die Benutzung gesperrt.</p>\n");
         if (endeDerSperrung.length() > 0) f.write("<p>"+endeDerSperrung+"</p>\n");
         f.write("</body></html>\n");
         f.close();
@@ -2153,8 +2178,8 @@ public class EfaDirektFrame extends JFrame {
       browser.setSize(Dialog.screenSize);
     }
     Dialog.setDlgLocation(browser, this);
-    browser.setClosingTimeout(10); // nur um Lock-Ende zu überwachen
-    Logger.log(Logger.INFO,"efa wurde für die Benutzung gesperrt."+endeDerSperrung);
+    browser.setClosingTimeout(10); // nur um Lock-Ende zu Ã¼berwachen
+    Logger.log(Logger.INFO,"efa wurde fÃ¼r die Benutzung gesperrt."+endeDerSperrung);
     Daten.efaConfig.efaDirekt_lockEfaFromDatum = null; // damit nach Entsperren nicht wiederholt gelockt wird
     Daten.efaConfig.efaDirekt_lockEfaFromZeit = null;  // damit nach Entsperren nicht wiederholt gelockt wird
     Daten.efaConfig.efaDirekt_locked = true;
@@ -2259,11 +2284,11 @@ public class EfaDirektFrame extends JFrame {
       String fnameEfbm = makeSureFileDoesntExist(fnameBase+".efbm");
       String fnameEfbz = makeSureFileDoesntExist(fnameBase+".efbz");
       String fnameEfbs = makeSureFileDoesntExist(fnameBase+".efbs");
-      Logger.log(Logger.INFO,"Name für neue Fahrtenbuchdatei      : "+fnameEfb);
-      Logger.log(Logger.INFO,"Name für neue Bootsliste            : "+fnameEfbb);
-      Logger.log(Logger.INFO,"Name für neue Mitgliederliste       : "+fnameEfbm);
-      Logger.log(Logger.INFO,"Name für neue Zielliste             : "+fnameEfbz);
-      Logger.log(Logger.INFO,"Name für neue Statistikeinstellungen: "+fnameEfbs);
+      Logger.log(Logger.INFO,"Name fÃ¼r neue Fahrtenbuchdatei      : "+fnameEfb);
+      Logger.log(Logger.INFO,"Name fÃ¼r neue Bootsliste            : "+fnameEfbb);
+      Logger.log(Logger.INFO,"Name fÃ¼r neue Mitgliederliste       : "+fnameEfbm);
+      Logger.log(Logger.INFO,"Name fÃ¼r neue Zielliste             : "+fnameEfbz);
+      Logger.log(Logger.INFO,"Name fÃ¼r neue Statistikeinstellungen: "+fnameEfbs);
 
       oldFnameEfbb = Daten.fahrtenbuch.getDaten().boote.getFileName();
       oldFnameEfbm = Daten.fahrtenbuch.getDaten().mitglieder.getFileName();
@@ -2313,7 +2338,7 @@ public class EfaDirektFrame extends JFrame {
       }
       Logger.log(Logger.INFO,"Fertig mit dem Erstellen des Fahrtenbuchs.");
 
-      // Fahrten für Boote, die noch unterwegs sind, abbrechen
+      // Fahrten fÃ¼r Boote, die noch unterwegs sind, abbrechen
       level = 3;
       Vector unterwegs = bootStatus.getBoote(BootStatus.STAT_UNTERWEGS);
       if (unterwegs.size()>0) {
@@ -2334,16 +2359,16 @@ public class EfaDirektFrame extends JFrame {
         Logger.log(Logger.INFO,"Abbrechen der Fahrten beendet.");
       }
 
-      // Änderungen an altem Fahrtenbuch speichern
-      Logger.log(Logger.INFO,"Speichere Änderungen an altem Fahrtenbuch ...");
+      // Ã„nderungen an altem Fahrtenbuch speichern
+      Logger.log(Logger.INFO,"Speichere Ã„nderungen an altem Fahrtenbuch ...");
       oldNextFb = Daten.fahrtenbuch.getNextFb(false);
       level = 5;
       Daten.fahrtenbuch.setNextFb(EfaUtil.makeRelativePath(neuesFb.getFileName(),Daten.fahrtenbuch.getFileName()));
       if (!Daten.fahrtenbuch.writeFile()) {
-        Logger.log(Logger.ERROR,"Änderungen an altem Fahrtenbuch konnte nicht gesichert werden (Schreiben der Datei schlug fehl).");
+        Logger.log(Logger.ERROR,"Ã„nderungen an altem Fahrtenbuch konnte nicht gesichert werden (Schreiben der Datei schlug fehl).");
         throw new Exception("Level 5");
       }
-      Logger.log(Logger.INFO,"Änderungen an Fahrtenbuch gespeichert.");
+      Logger.log(Logger.INFO,"Ã„nderungen an Fahrtenbuch gespeichert.");
 
       level = 6;
       Daten.fahrtenbuch = neuesFb;
@@ -2375,14 +2400,14 @@ public class EfaDirektFrame extends JFrame {
       EfaUtil.sleep(500);
       efaDirektBackgroundTask.interrupt();
     } catch(Exception e) {
-      Logger.log(Logger.ERROR,"Beim Versuch, ein neues Fahrtenbuch anzulegen, trat ein Fehler auf. Alle Änderungen werden rückgängig gemacht ...");
+      Logger.log(Logger.ERROR,"Beim Versuch, ein neues Fahrtenbuch anzulegen, trat ein Fehler auf. Alle Ã„nderungen werden rÃ¼ckgÃ¤ngig gemacht ...");
       switch (level) {
         case 0: break; // nothing to do
         case 7: break; // nothing to do
         case 6: break; // nothing to do
         case 5: Logger.log(Logger.WARNING,"Rollback von Level 5 ...");
                 Daten.fahrtenbuch.setNextFb(oldNextFb);
-                Daten.fahrtenbuch.writeFile(); // egal, ob dies fehlschlägt oder nicht
+                Daten.fahrtenbuch.writeFile(); // egal, ob dies fehlschlÃ¤gt oder nicht
                 Logger.log(Logger.INFO,"Rollback von Level 5 erfolgreich.");
         case 4: Logger.log(Logger.WARNING,"Rollback von Level 4 ...");
                 // nothing to do
@@ -2424,8 +2449,8 @@ public class EfaDirektFrame extends JFrame {
                   Logger.log(Logger.ERROR,"Rollback von Level 1 mit "+errors+" Fehlern abgeschlossen.");
                 }
                 break;
-        default: Logger.log(Logger.ERROR,"Rollback nicht möglich: efa kann den Originalzustand nicht wiederherstellen!");
-                 Logger.log(Logger.ERROR,"Kritischer Fehler: efa befindet sich in einem undefinierten Zustand! Überprüfung durch Administrator erforderlich!");
+        default: Logger.log(Logger.ERROR,"Rollback nicht mÃ¶glich: efa kann den Originalzustand nicht wiederherstellen!");
+                 Logger.log(Logger.ERROR,"Kritischer Fehler: efa befindet sich in einem undefinierten Zustand! ÃœberprÃ¼fung durch Administrator erforderlich!");
       }
       Nachricht n = new Nachricht();
       n.name = Daten.EFA_SHORTNAME;
@@ -2438,7 +2463,7 @@ public class EfaDirektFrame extends JFrame {
       Daten.nachrichten.writeFile();
 
       Daten.efaConfig.writeFile();
-      Logger.log(Logger.INFO,"Rückgängigmachen aller Änderungen abgeschlossen.");
+      Logger.log(Logger.INFO,"RÃ¼ckgÃ¤ngigmachen aller Ã„nderungen abgeschlossen.");
     }
 
   }
@@ -2465,7 +2490,7 @@ public class EfaDirektFrame extends JFrame {
 
     public EfaDirektBackgroundTask(EfaDirektFrame efaDirektFrame) {
       this.efaDirektFrame = efaDirektFrame;
-      this.onceAnHour = 5; // initial nach 5 Schleifendurchläufen zum ersten Mal hier reingehen
+      this.onceAnHour = 5; // initial nach 5 SchleifendurchlÃ¤ufen zum ersten Mal hier reingehen
       this.cal = new GregorianCalendar();
       this.lockEfa = null;
       this.date = new Date();
@@ -2524,12 +2549,12 @@ public class EfaDirektFrame extends JFrame {
         }
 
       } catch(Exception e) {
-        Logger.log(Logger.ERROR,"Benachrichtigung über WARNING's im Logfile ist fehlgeschlagen: "+e.toString());
+        Logger.log(Logger.ERROR,"Benachrichtigung Ã¼ber WARNING's im Logfile ist fehlgeschlagen: "+e.toString());
       }
     }
 
     public void run() {
-      // Diese Schleife läuft i.d.R. einmal pro Minute
+      // Diese Schleife lÃ¤uft i.d.R. einmal pro Minute
       while(true) {
 
         // Reservierungs-Checker
@@ -2538,18 +2563,18 @@ public class EfaDirektFrame extends JFrame {
           boolean changes = false;
           DatenFelder d;
           for (d = bootStatus.getCompleteFirst(); d != null; d = bootStatus.getCompleteNext()) {
-            // prüfen, ob für dieses Boot Reservierungen möglich sind
+            // prÃ¼fen, ob fÃ¼r dieses Boot Reservierungen mÃ¶glich sind
             if (EfaUtil.string2int(d.get(BootStatus.STATUS),-1) == BootStatus.STAT_HIDE) continue;
             if (d.get(BootStatus.UNBEKANNTESBOOT).equals("+")) continue;
 
-            // derzeit gültige Reservierungen finden
+            // derzeit gÃ¼ltige Reservierungen finden
             Reservierung reservierung = BootStatus.getReservierung(d,System.currentTimeMillis(),0);
 
-            // verfallene Reservierungen löschen
+            // verfallene Reservierungen lÃ¶schen
             if (BootStatus.deleteObsoleteReservierungen(d)) {
-              // Ok, alte Reservierungen wurden gelöscht: Jetzt prüfen, ob das Boot zur Zeit reserviert
-              // ist. Falls ja, muß es verfügbar gemacht werden, damit ggf. neue Reservierungen zum Tragen
-              // kommen können.
+              // Ok, alte Reservierungen wurden gelÃ¶scht: Jetzt prÃ¼fen, ob das Boot zur Zeit reserviert
+              // ist. Falls ja, muÃŸ es verfÃ¼gbar gemacht werden, damit ggf. neue Reservierungen zum Tragen
+              // kommen kÃ¶nnen.
               if ( (EfaUtil.string2int(d.get(BootStatus.STATUS),-1) == BootStatus.STAT_VERFUEGBAR ||
                     EfaUtil.string2int(d.get(BootStatus.STATUS),-1) == BootStatus.STAT_NICHT_VERFUEGBAR) &&
                   d.get(BootStatus.LFDNR).equals(BootStatus.RES_LFDNR)) {
@@ -2558,29 +2583,29 @@ public class EfaDirektFrame extends JFrame {
                 d.set(BootStatus.LFDNR,"");
                 Logger.log(Logger.INFO,"ReservierungsChecker: Boot '"+d.get(BootStatus.NAME)+"' auf '"+
                                        BootStatus.STATUSNAMES[BootStatus.STAT_VERFUEGBAR]+
-                                       "' gesetzt: Alte Reservierungen gelöscht.");
+                                       "' gesetzt: Alte Reservierungen gelÃ¶scht.");
               }
               changes = true;
             }
 
             if (reservierung != null) {
-              // Reservierung liegt vor: Jetzt prüfen, ob das Boot zur Zeit *nicht* reserviert ist; nur
+              // Reservierung liegt vor: Jetzt prÃ¼fen, ob das Boot zur Zeit *nicht* reserviert ist; nur
               // in diesem Fall kommt die gefundene Reservierung zum Tragen
               if (EfaUtil.string2int(d.get(BootStatus.STATUS),-1) == BootStatus.STAT_VERFUEGBAR &&
                   !d.get(BootStatus.LFDNR).equals(BootStatus.RES_LFDNR)) {
                 if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_resBooteNichtVerfuegbar) {
                   d.set(BootStatus.STATUS,Integer.toString(BootStatus.STAT_NICHT_VERFUEGBAR));
                 }
-                d.set(BootStatus.BEMERKUNG,"reserviert für "+reservierung.name+" ("+reservierung.grund+") "+BootStatus.makeReservierungText(reservierung));
-                d.set(BootStatus.LFDNR,BootStatus.RES_LFDNR); // Kennzeichnung dafür, daß es sich um eine *Reservierung* handelt (und nicht Sperrung des Bootes o.ä.)
-                Logger.log(Logger.INFO,"ReservierungsChecker: Für Boot '"+d.get(BootStatus.NAME)+"' wurde eine Reservierung gefunden "+
+                d.set(BootStatus.BEMERKUNG,"reserviert fÃ¼r "+reservierung.name+" ("+reservierung.grund+") "+BootStatus.makeReservierungText(reservierung));
+                d.set(BootStatus.LFDNR,BootStatus.RES_LFDNR); // Kennzeichnung dafÃ¼r, daÃŸ es sich um eine *Reservierung* handelt (und nicht Sperrung des Bootes o.Ã¤.)
+                Logger.log(Logger.INFO,"ReservierungsChecker: FÃ¼r Boot '"+d.get(BootStatus.NAME)+"' wurde eine Reservierung gefunden "+
                                        "(neuer Status: "+BootStatus.STATUSNAMES[EfaUtil.string2int(d.get(BootStatus.STATUS),0)]+"): "+
                                        d.get(BootStatus.BEMERKUNG));
                 changes = true;
               }
             } else {
-              // Reservierung liegt nicht vor: Jetzt prüfen, ob das Boot zur Zeit reserviert ist; nur
-              // in diesem Fall wird die aktuelle Reservierung gelöscht
+              // Reservierung liegt nicht vor: Jetzt prÃ¼fen, ob das Boot zur Zeit reserviert ist; nur
+              // in diesem Fall wird die aktuelle Reservierung gelÃ¶scht
               if ( (EfaUtil.string2int(d.get(BootStatus.STATUS),-1) == BootStatus.STAT_VERFUEGBAR ||
                     EfaUtil.string2int(d.get(BootStatus.STATUS),-1) == BootStatus.STAT_NICHT_VERFUEGBAR) &&
                   d.get(BootStatus.LFDNR).equals(BootStatus.RES_LFDNR)) {
@@ -2602,7 +2627,7 @@ public class EfaDirektFrame extends JFrame {
           }
         }
 
-        // Nach ungelesenen Nachrichten für den Admin suchen
+        // Nach ungelesenen Nachrichten fÃ¼r den Admin suchen
         updateUnreadMessages();
 
         // automatisches, zeitgesteuertes Beenden von efa ?
@@ -2616,7 +2641,7 @@ public class EfaDirektFrame extends JFrame {
           if ( (now >= exitTime && now < exitTime+Daten.AUTO_EXIT_MIN_RUNTIME) || (now+(24*60) >= exitTime && now+(24*60) < exitTime+Daten.AUTO_EXIT_MIN_RUNTIME) ) {
             Logger.log(Logger.INFO,"Eingestellte Uhrzeit zum Beenden von efa erreicht!");
             if (System.currentTimeMillis() - efaDirektFrame.lastUserInteraction < Daten.AUTO_EXIT_MIN_LAST_USED*60*1000) {
-              Logger.log(Logger.INFO,"Beenden von efa wird verzögert, da efa innerhalb der letzten "+Daten.AUTO_EXIT_MIN_LAST_USED+" Minuten noch benutzt wurde ...");
+              Logger.log(Logger.INFO,"Beenden von efa wird verzÃ¶gert, da efa innerhalb der letzten "+Daten.AUTO_EXIT_MIN_LAST_USED+" Minuten noch benutzt wurde ...");
             } else {
               EfaExitFrame.exitEfa("Zeitgesteuertes Beenden von efa",false,EFA_EXIT_REASON_TIME);
             }
@@ -2632,9 +2657,9 @@ public class EfaDirektFrame extends JFrame {
           int now = cal.get(Calendar.HOUR_OF_DAY)*60 + cal.get(Calendar.MINUTE);
           int restartTime = Daten.efaConfig.efaDirekt_restartTime.tag*60 + Daten.efaConfig.efaDirekt_restartTime.monat;
           if ( (now >= restartTime && now < restartTime+Daten.AUTO_EXIT_MIN_RUNTIME) || (now+(24*60) >= restartTime && now+(24*60) < restartTime+Daten.AUTO_EXIT_MIN_RUNTIME) ) {
-            Logger.log(Logger.INFO,"Automatischer Neustart von efa (einmal täglich).");
+            Logger.log(Logger.INFO,"Automatischer Neustart von efa (einmal tÃ¤glich).");
             if (System.currentTimeMillis() - efaDirektFrame.lastUserInteraction < Daten.AUTO_EXIT_MIN_LAST_USED*60*1000) {
-              Logger.log(Logger.INFO,"Neustart von efa wird verzögert, da efa innerhalb der letzten "+Daten.AUTO_EXIT_MIN_LAST_USED+" Minuten noch benutzt wurde ...");
+              Logger.log(Logger.INFO,"Neustart von efa wird verzÃ¶gert, da efa innerhalb der letzten "+Daten.AUTO_EXIT_MIN_LAST_USED+" Minuten noch benutzt wurde ...");
             } else {
               EfaExitFrame.exitEfa("Automatischer Neustart von efa",true,EFA_EXIT_REASON_AUTORESTART);
             }
@@ -2684,9 +2709,9 @@ public class EfaDirektFrame extends JFrame {
           else if (this.efaDirektFrame.booteVerfuegbar != null) this.efaDirektFrame.booteVerfuegbar.requestFocus();
         }
 
-        // Aktivitäten einmal pro Stunde
+        // AktivitÃ¤ten einmal pro Stunde
         if (--onceAnHour <= 0) {
-          System.gc(); // Damit Speicherüberwachung funktioniert (anderenfalls wird CollectionUsage nicht aktualisiert; Java-Bug)
+          System.gc(); // Damit SpeicherÃ¼berwachung funktioniert (anderenfalls wird CollectionUsage nicht aktualisiert; Java-Bug)
           onceAnHour = ONCE_AN_HOUR;
           Logger.log(Logger.DEBUG,"EfaDirektBackgroundTask: alive!");
 
@@ -2697,7 +2722,7 @@ public class EfaDirektFrame extends JFrame {
           }
         }
 
-        // Speicher-Überwachung
+        // Speicher-Ãœberwachung
         try {
 //          System.gc(); // !!! ONLY ENABLE FOR DEBUGGING PURPOSES !!!
           if (de.nmichael.efa.java15.Java15.isMemoryLow(Daten.MIN_FREEMEM_PERCENTAGE,Daten.WARN_FREEMEM_PERCENTAGE)) {

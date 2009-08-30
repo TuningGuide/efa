@@ -1,7 +1,33 @@
 package de.nmichael.efa.statistics;
 
+import de.nmichael.efa.core.WettDefs;
+import de.nmichael.efa.core.EfaWettMeldung;
+import de.nmichael.efa.core.Fahrtenabzeichen;
+import de.nmichael.efa.core.EfaWett;
+import de.nmichael.efa.core.EnterPasswordFrame;
+import de.nmichael.efa.core.WettDefGruppe;
+import de.nmichael.efa.core.DownloadFrame;
+import de.nmichael.efa.core.Mitglieder;
+import de.nmichael.efa.core.Ziele;
+import de.nmichael.efa.core.WettDef;
+import de.nmichael.efa.core.Fahrtenbuch;
+import de.nmichael.efa.core.Adressen;
+import de.nmichael.efa.core.DRVSignaturFrame;
+import de.nmichael.efa.core.DatenListe;
+import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.core.Boote;
+import de.nmichael.efa.core.Bezeichnungen;
+import de.nmichael.efa.util.TMJ;
+import de.nmichael.efa.util.TableSorter;
+import de.nmichael.efa.util.SimpleInputFrame;
+import de.nmichael.efa.util.Mehrtagesfahrt;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.DRVSignatur;
+import de.nmichael.efa.util.ZielfahrtFolge;
+import de.nmichael.efa.util.Zielfahrt;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import java.util.*;
 import java.io.*;
 import java.awt.*;
@@ -18,10 +44,10 @@ import java.awt.*;
 // Statistikfunktionen
 public class Statistik {
 
-  public static boolean isCreateRunning = false; // soll verhindern, daß u.U. zwei Statistikerstellungen parallel laufen
-                                                  // Bugfix 13.02.2006 für MG
+  public static boolean isCreateRunning = false; // soll verhindern, daÃŸ u.U. zwei Statistikerstellungen parallel laufen
+                                                  // Bugfix 13.02.2006 fÃ¼r MG
 
-  // Farbdefinitionen für die Balken (entsprechen den Dateinamen der *.gif-Dateien)
+  // Farbdefinitionen fÃ¼r die Balken (entsprechen den Dateinamen der *.gif-Dateien)
   protected static final String COLORKM      = "km";
   protected static final String COLORRUDKM   = "rudkm";
   protected static final String COLORSTMKM   = "stmkm";
@@ -30,23 +56,23 @@ public class Statistik {
   protected static final String COLORDAUER   = "dauer";
   protected static final String COLORKMH     = "kmh";
 
-  // Status-Kennzeichnungen für Personen, die ans Ende sortiert werden sollen
+  // Status-Kennzeichnungen fÃ¼r Personen, die ans Ende sortiert werden sollen
   protected static final String GAST = "_GAST_";
   protected static final String ANDERE = "_ANDERE_";
 
-  // Status für Gäste und andere
-  protected static final String GASTBEZ = "Gäste";
+  // Status fÃ¼r GÃ¤ste und andere
+  protected static final String GASTBEZ = "GÃ¤ste";
   protected static final String ANDEREBEZ = "andere";
 
   protected static Hashtable alleWW;
   protected static AlleWWArrEl[] alleWWArr;
 
-  protected static String lastLfdNr; // für Art: Fahrtenbuch (damit Einträge nicht doppelt)
+  protected static String lastLfdNr; // fÃ¼r Art: Fahrtenbuch (damit EintrÃ¤ge nicht doppelt)
 
-  protected static Hashtable nichtBeruecksichtigt; // Bei Wettbewerben nicht berücksichtigte Mitglieder (z.B. weil Jahrgang fehlt oder Wettbewerbsmeldungen deaktiviert sind)
+  protected static Hashtable nichtBeruecksichtigt; // Bei Wettbewerben nicht berÃ¼cksichtigte Mitglieder (z.B. weil Jahrgang fehlt oder Wettbewerbsmeldungen deaktiviert sind)
   protected static String warnungen;            // Warnungen, die am Ende ausgegeben werden
 
-  protected static EfaWett efaWett; // Zusammenstellung aller Wettbewerbsdaten für Erstellung einer Meldedatei
+  protected static EfaWett efaWett; // Zusammenstellung aller Wettbewerbsdaten fÃ¼r Erstellung einer Meldedatei
 
   public static volatile int progressDone=0;
   public static volatile int progressCurrent=0;
@@ -66,7 +92,7 @@ public class Statistik {
 
 
 
-  // Alle zusätzlichen Daten berechnen, die nicht direkt mit den einzelnen Teilnehmern zusammenhängen
+  // Alle zusÃ¤tzlichen Daten berechnen, die nicht direkt mit den einzelnen Teilnehmern zusammenhÃ¤ngen
   static AusgabeDaten createHeaderInformation(StatistikDaten sd, int anz, ArrEl[] a) {
     AusgabeDaten ad = new AusgabeDaten();
     letzterAusgabeEintrag = null;
@@ -142,14 +168,14 @@ public class Statistik {
       case StatistikDaten.BART_FAHRTENBUCH:
         ad.auswertungsArt += "Fahrtenbuch"; break;
       case StatistikDaten.ART_MONATSUEBERSICHT:
-        ad.auswertungsArt += "Monatsübersicht"; break;
+        ad.auswertungsArt += "MonatsÃ¼bersicht"; break;
       case StatistikDaten.ART_KMFAHRT:
       case StatistikDaten.BART_KMFAHRT:
         ad.auswertungsArt += "Km / Fahrt"; break;
       case StatistikDaten.BART_ART:
         ad.auswertungsArt += "Art"; break;
       case StatistikDaten.BART_PLAETZE:
-        ad.auswertungsArt += "Bootsplätze"; break;
+        ad.auswertungsArt += "BootsplÃ¤tze"; break;
       case StatistikDaten.BART_ARTDETAIL:
         ad.auswertungsArt += "Art (Detail)"; break;
       case StatistikDaten.BART_WELCHESWOHIN:
@@ -167,11 +193,11 @@ public class Statistik {
     else ad.auswertungsZeitraum = "vom "+sd.von.tag+"."+sd.von.monat+"."+sd.von.jahr+" bis "+sd.bis.tag+"."+sd.bis.monat+"."+sd.bis.jahr+"";
     if (sd.vorjahresvergleich) ad.auswertungsZeitraum = "Jahresvergleich "+sd.von.jahr+"/"+sd.bis.jahr+": vom "+sd.von.tag+"."+sd.von.monat+". bis "+sd.bis.tag+"."+sd.bis.monat+".";
 
-    // Ausgewertete Einträge
+    // Ausgewertete EintrÃ¤ge
     if (sd.fruehesteFahrt == null || sd.spaetesteFahrt == null)
-      ad.ausgewerteteEintraege = "keine passenden Einträge gefunden";
+      ad.ausgewerteteEintraege = "keine passenden EintrÃ¤ge gefunden";
     else
-      ad.ausgewerteteEintraege = sd.alleAusgewertetenEintraege.keySet().size() + " Einträge: #"+sd.ersterEintrag+" - #"+sd.letzterEintrag+
+      ad.ausgewerteteEintraege = sd.alleAusgewertetenEintraege.keySet().size() + " EintrÃ¤ge: #"+sd.ersterEintrag+" - #"+sd.letzterEintrag+
           " ("+sd.fruehesteFahrt.tag+"."+sd.fruehesteFahrt.monat+"."+sd.fruehesteFahrt.jahr+" - "+
                sd.spaetesteFahrt.tag+"."+sd.spaetesteFahrt.monat+"."+sd.spaetesteFahrt.jahr+")";
 
@@ -244,7 +270,7 @@ public class Statistik {
             ad.auswertungFuer[1] += Daten.bezeichnungen.bAnzahl.get(i);
           }
         }
-      } else ad.auswertungFuer[1] += "alle Bootsgrößen";
+      } else ad.auswertungFuer[1] += "alle BootsgrÃ¶ÃŸen";
       alle=true;
       for (int i=0; i<Daten.bezeichnungen.bRigger.size(); i++)
         if (!sd.bRigger[i]) alle=false;
@@ -281,7 +307,7 @@ public class Statistik {
       } else ad.auswertungFuer[4] += "alle Vereine";
     }
 
-    // Auswertung nur für Name
+    // Auswertung nur fÃ¼r Name
     if (!sd.name.equals("")) {
       if (sd.stat == StatistikDaten.STAT_MITGLIEDER || sd.stat == StatistikDaten.STAT_WETT) {
         if (sd.nameOderGruppe == StatistikDaten.NG_NAME) ad.auswertungNurFuerBez = "Name";
@@ -305,12 +331,12 @@ public class Statistik {
       ad.auswertungNurFuer = EfaUtil.zehntelInt2String(sd.nurMindKm)+" Km";
     }
 
-    // Ausgabe für Wettbewerbe nur bei ...
+    // Ausgabe fÃ¼r Wettbewerbe nur bei ...
     if (sd.art == StatistikDaten.WETT_DRV ||
         sd.art == StatistikDaten.WETT_LRVBSOMMER || sd.art == StatistikDaten.WETT_LRVBWINTER ||
         sd.art == StatistikDaten.WETT_LRVBRB_WANDERRUDERWETT || sd.art == StatistikDaten.WETT_LRVBRB_FAHRTENWETT ||
         sd.art == StatistikDaten.WETT_LRVMVP_WANDERRUDERWETT) {
-      ad.auswertungWettNur = "erfüllt";
+      ad.auswertungWettNur = "erfÃ¼llt";
       switch(sd.art) {
         case StatistikDaten.WETT_DRV:
         case StatistikDaten.WETT_LRVBSOMMER:
@@ -350,7 +376,7 @@ public class Statistik {
       case StatistikDaten.ART_GESCHLECHT:                              nameBez="Geschlecht"; break;
       case StatistikDaten.BART_ART:                                    nameBez="Art"; break;
       case StatistikDaten.BART_ARTDETAIL:                              nameBez="Art (Detail)"; break;
-      case StatistikDaten.BART_PLAETZE:                                nameBez="Bootsplätze"; break;
+      case StatistikDaten.BART_PLAETZE:                                nameBez="BootsplÃ¤tze"; break;
       case StatistikDaten.ART_KMFAHRT: case StatistikDaten.BART_KMFAHRT:nameBez="Entfernung (Km)"; break;
     }
 
@@ -396,7 +422,7 @@ public class Statistik {
           if (sd.ausgebenName){ ad.tabellenTitel[i++] = nameBez; ad.tabellenTitelBreite[i-1] = 1; }
           if (sd.ausgebenJahrgang) {
             if (sd.art != StatistikDaten.ART_BOOTSART) ad.tabellenTitel[i++] = "Jahrgang";
-            else ad.tabellenTitel[i++] = "Bootsplätze";
+            else ad.tabellenTitel[i++] = "BootsplÃ¤tze";
             ad.tabellenTitelBreite[i-1] = 1;
           }
           if (sd.ausgebenStatus) {
@@ -487,7 +513,7 @@ public class Statistik {
           if (sd.fbMannschKm)   { ad.tabellenTitel[i++] = "Mannschafts-Km"; ad.tabellenTitelBreite[i-1] = 1; }
           if (sd.fbBemerkungen) { ad.tabellenTitel[i++] = "Bemerkungen";    ad.tabellenTitelBreite[i-1] = 1; }
     }
-    if (sd.art == StatistikDaten.ART_MONATSUEBERSICHT) { // Art: Monatsübersicht
+    if (sd.art == StatistikDaten.ART_MONATSUEBERSICHT) { // Art: MonatsÃ¼bersicht
           // nothing to do
     }
 
@@ -501,7 +527,7 @@ public class Statistik {
 
 
 
-  // Berechnung der Ausgabewerte für graphische Ausgabe eines Eintrags:
+  // Berechnung der Ausgabewerte fÃ¼r graphische Ausgabe eines Eintrags:
   // ret[0] = Wert
   // ret[1] = Image-Datei
   // ret[2] = Balkenbreite
@@ -534,7 +560,7 @@ public class Statistik {
 
 
 
-  // Berechnung der gesamten Wafa-Km in der Datenstruktur (Rückgabe: 100m-Einheiten)
+  // Berechnung der gesamten Wafa-Km in der Datenstruktur (RÃ¼ckgabe: 100m-Einheiten)
   static int getAllWafaKm(KmWettInfo kmwett) {
     if (kmwett == null || kmwett.wafa == null) return 0;
     Object[] keys = kmwett.wafa.keySet().toArray();
@@ -553,7 +579,7 @@ public class Statistik {
 
 
 
-  // Berechnung der Ausgabewerte für die Ausgabe eines Eintrags a:
+  // Berechnung der Ausgabewerte fÃ¼r die Ausgabe eines Eintrags a:
   // nr ist aktuelle Nummer, -1, wenn Nummer nicht ausgegeben werden soll und -2 beim Gesamtergebnis
   // pos ist der Index von a in arr[]
   static void ausgabeEintrag(AusgabeDaten ad, int absnr, int nr, StatistikDaten sd, ArrEl a, ArrEl[] arr, int pos) {
@@ -568,7 +594,7 @@ public class Statistik {
       } else {
         ae.fahrtenbuch = new String[11];
         if (sd.fbLfdNr) ae.fahrtenbuch[0] = "-ges-";
-        if (sd.fbDatum) ae.fahrtenbuch[1] = arr.length + " Einträge";
+        if (sd.fbDatum) ae.fahrtenbuch[1] = arr.length + " EintrÃ¤ge";
         if (sd.fbBoot) ae.fahrtenbuch[2] = "";
         if (sd.fbStm) ae.fahrtenbuch[3] = "";
         if (sd.fbMannsch) ae.fahrtenbuch[4] = "";
@@ -582,7 +608,7 @@ public class Statistik {
           else ae.fahrtenbuch[10] = "";
         }
       }
-    } else { // kein Fahrtenbuch, keine Monatsübersicht --> normale Felder ausgeben
+    } else { // kein Fahrtenbuch, keine MonatsÃ¼bersicht --> normale Felder ausgeben
 
       // Nummer
       if (sd.ausgebenNr || sd.ausgebenXMLalle) {
@@ -699,7 +725,7 @@ public class Statistik {
     // Zusammenfassung?
     if (nr == -2) ae.zusammenfassung = true;
 
-    // Eintrag hinzufügen
+    // Eintrag hinzufÃ¼gen
     if (letzterAusgabeEintrag == null) ad.ae = ae;
     else letzterAusgabeEintrag.next = ae;
     letzterAusgabeEintrag = ae;
@@ -708,7 +734,7 @@ public class Statistik {
 
 
 
-  // Berechnung der Werte für die Ausgabe von WW-Listen
+  // Berechnung der Werte fÃ¼r die Ausgabe von WW-Listen
   static void ausgabeWW(StatistikDaten sd, ArrEl a, ArrEl[] arr, int pos, AusgabeEintrag ae) {
     HashEl h;
     String such;
@@ -719,8 +745,8 @@ public class Statistik {
       if (a.ww != null) {
         such = alleWWArr[i].name;
         if ( (h = (HashEl)a.ww.get(such)) == null) ae.ww[i] = "";
-        else { // Tabelleneintrag für Wer mit Wem, Wer Wohin
-          boolean c = false;  // ob Semikolon vor nächster Zahl ausgegeben werden muß
+        else { // Tabelleneintrag fÃ¼r Wer mit Wem, Wer Wohin
+          boolean c = false;  // ob Semikolon vor nÃ¤chster Zahl ausgegeben werden muÃŸ
           String s = "";      // Ausgabestring
           if (sd.ausgebenKm || sd.graphischKm) {
             s = s + EfaUtil.zehntelInt2String(h.rudKm + h.stmKm);
@@ -758,7 +784,7 @@ public class Statistik {
 
 
 
-  // Erstellen der Daten für die Ausgabe
+  // Erstellen der Daten fÃ¼r die Ausgabe
   static void ausgabe(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a, ArrEl ges)  {
     if (sd.art == StatistikDaten.WETT_LRVBSOMMER) {
       ausgabeKmWettLRVBSommer(ad,sd,a);
@@ -811,7 +837,7 @@ public class Statistik {
             sd.numeriere[0]) count = true;
       }
       if (sd.stat == StatistikDaten.STAT_BOOTE) {
-        // zuerst aus dem Originalnamen ggf. ein Synonymnamen machen, damit der Name in der Bootsliste (bei Kombibooten) überhaupt gefunden werden kann
+        // zuerst aus dem Originalnamen ggf. ein Synonymnamen machen, damit der Name in der Bootsliste (bei Kombibooten) Ã¼berhaupt gefunden werden kann
         String name_tmp = a[i].name;
         Vector namen_tmp = EfaUtil.org2syn(Daten.synBoote,name_tmp);
         if (namen_tmp != null && namen_tmp.size()>0) name_tmp = (String)namen_tmp.get(0); // Synoym? Wenn ja, dann 1. Synonym verwenden
@@ -874,7 +900,7 @@ public class Statistik {
       ges.zf.addZielfahrten(a[i].zf);
       if (sd.ausgebenWafaKm && sd.art == StatistikDaten.ART_MITGLIEDER) gesWafaKm += getAllWafaKm(a[i].kmwett);
 
-      // Summenbildung für WW-Statistiken
+      // Summenbildung fÃ¼r WW-Statistiken
       for (int j=0; wwKeys != null && j<wwKeys.length; j++) {
         HashEl sww = (HashEl)(a[i].ww != null ? a[i].ww.get(wwKeys[j]) : null);
         HashEl ges_sww = (HashEl)(ges.ww != null ? ges.ww.get(wwKeys[j]) : null);
@@ -929,7 +955,7 @@ public class Statistik {
 
 
 
-  // Prüfen, ob gewählter Zeitraum tatsächlich den Wettbewerbsbedingungen entspricht; true, falls korrekt
+  // PrÃ¼fen, ob gewÃ¤hlter Zeitraum tatsÃ¤chlich den Wettbewerbsbedingungen entspricht; true, falls korrekt
   public static boolean checkWettZeitraum(int wettJahr, TMJ von, TMJ bis, int wettnr) {
     WettDef wett = Daten.wettDefs.getWettDef(wettnr,wettJahr);
     return (von.tag == wett.von.tag &&
@@ -943,7 +969,7 @@ public class Statistik {
 
 
 
-  // String für Ausgabe der Zielfahrten
+  // String fÃ¼r Ausgabe der Zielfahrten
   static String zfAusgabeString(String szf, int izf, boolean bzf, boolean kurz, boolean mitAnford, int geforderteFahrten) {
     if (szf.length() == 0) izf=0;
     if (!bzf) return null;
@@ -959,7 +985,7 @@ public class Statistik {
   static boolean zfErfuellt(Zielfahrt[] zf) {
     if (zf == null || zf.length<4 || zf[0] == null || zf[1] == null || zf[2] == null || zf[3] == null) return false;
 
-    // auf zu geringe Km und doppeltes Datum prüfen
+    // auf zu geringe Km und doppeltes Datum prÃ¼fen
     Vector datum = new Vector();
     for (int i=0; i<4; i++) {
       if (EfaUtil.zehntelString2Int(zf[i].getKm()) < 200) return false;
@@ -1036,7 +1062,7 @@ public class Statistik {
   }
 
 
-  // Ausgabedaten für Kilometerwettbewerbe erstellen (LRV Sommer)
+  // Ausgabedaten fÃ¼r Kilometerwettbewerbe erstellen (LRV Sommer)
   static void ausgabeKmWettLRVBSommer(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
     WettDef wett = Daten.wettDefs.getWettDef(WettDefs.LRVBERLIN_SOMMER,sd.wettJahr);
     WettDefGruppe[] gruppen = wett.gruppen;
@@ -1046,7 +1072,7 @@ public class Statistik {
     int geskm=0;
     int gesanz=0;
 
-    // Zielfahrten für alle Ruderer aufbereiten und auswählen
+    // Zielfahrten fÃ¼r alle Ruderer aufbereiten und auswÃ¤hlen
     for (int i=0; i<a.length; i++) {
       // suche vier passende Zielfahrten
       a[i].kmwett.zielfahrtenFinal = getBestZf(a[i].kmwett.zielfahrten);
@@ -1056,13 +1082,13 @@ public class Statistik {
       if (sd.ausgebenWettBedingung) ad.wett_bedingungen = createAusgabeBedingungen(sd,wett.key,ad.wett_bedingungen_fett,ad.wett_bedingungen_kursiv);
 
       if (!checkWettZeitraum(sd.wettJahr,sd.von,sd.bis,WettDefs.LRVBERLIN_SOMMER))
-        ad.wett_zeitraumWarnung = "Achtung: Der gewählte Zeitraum entspricht nicht der Ausschreibung!";
+        ad.wett_zeitraumWarnung = "Achtung: Der gewÃ¤hlte Zeitraum entspricht nicht der Ausschreibung!";
 
       ad.wett_gruppennamen = new String[gruppen.length][3];
       ad.wett_teilnehmerInGruppe = new AusgabeEintrag[gruppen.length];
       for (int g=0; g<gruppen.length; g++) {
         ad.wett_gruppennamen[g][0] = "Gruppe "+gruppen[g].bezeichnung+")";
-        ad.wett_gruppennamen[g][1] = "Jahrgänge "+makeJahrgang(sd.wettJahr-gruppen[g].hoechstalter)+
+        ad.wett_gruppennamen[g][1] = "JahrgÃ¤nge "+makeJahrgang(sd.wettJahr-gruppen[g].hoechstalter)+
                                      " - "+makeJahrgang(sd.wettJahr-gruppen[g].mindalter)+
                                      " ("+makeGeschlecht(gruppen[g].geschlecht)+")";
         ad.wett_gruppennamen[g][2] = gruppen[g].km+" Kilometer"+
@@ -1082,12 +1108,12 @@ public class Statistik {
               geskm += a[i].rudKm+a[i].stmKm;
             }
 
-            // sollen Daten für den Teilnehmer ausgegeben werden?
+            // sollen Daten fÃ¼r den Teilnehmer ausgegeben werden?
             if (erfuellt ||
                 (((a[i].rudKm+a[i].stmKm)/10 >= gruppen[g].km*sd.wettProz/100) && sd.wettProz<100)) {
               anzInGruppe++;
               if (sd.ausgabeArt == sd.AUSGABE_EFAWETT) {
-                // Ausgabe für efaWett
+                // Ausgabe fÃ¼r efaWett
                 if (erfuellt) {
                   EfaWettMeldung ewm = new EfaWettMeldung();
                   ewm.nachname = EfaUtil.getNachname(a[i].name);
@@ -1103,7 +1129,7 @@ public class Statistik {
                     if (d != null) {
                       ewm.anschrift = d.get(Adressen.ADRESSE);
                     } else {
-                      ewm.anschrift=""; // muß noch eingetragen werden! (im Gegensatz zu "null": wird nicht mehr abgefragt!)
+                      ewm.anschrift=""; // muÃŸ noch eingetragen werden! (im Gegensatz zu "null": wird nicht mehr abgefragt!)
                     }
                   }
                   for (int j=0; a[i].kmwett.zielfahrtenFinal != null && j<a[i].kmwett.zielfahrtenFinal.length; j++) {
@@ -1159,11 +1185,11 @@ public class Statistik {
                 } else {
                   ae.w_additional = zfAusgabeString(a[i].zf.toString(),countedZf,gruppen[g].zusatz>0,sd.wettKurzAusgabe,sd.zusatzWettMitAnforderung,gruppen[g].zusatz);
                   ae.w_attr1 = Integer.toString(countedZf);
-                  if (!erfuellt && countedZf < a[i].zf.getAnzZielfahrten()) ae.w_warnung = "möglicherweise mehrere Zielfahrten am selben Tag";
+                  if (!erfuellt && countedZf < a[i].zf.getAnzZielfahrten()) ae.w_warnung = "mÃ¶glicherweise mehrere Zielfahrten am selben Tag";
                 }
                 ae.w_erfuellt = erfuellt;
 
-                // Eintrag hinzufügen
+                // Eintrag hinzufÃ¼gen
                 if (ad.wett_teilnehmerInGruppe[g] == null) ad.wett_teilnehmerInGruppe[g] = ae;
                 else letzterAusgabeEintrag.next = ae;
                 letzterAusgabeEintrag = ae;
@@ -1182,9 +1208,9 @@ public class Statistik {
       }
       if (sd.ausgabeArt != sd.AUSGABE_EFAWETT) {
         ad.additionalTable = new String[2][2];
-        ad.additionalTable[0][0] = "Anzahl der Erfüller:";
+        ad.additionalTable[0][0] = "Anzahl der ErfÃ¼ller:";
         ad.additionalTable[0][1] = Integer.toString(gesanz);
-        ad.additionalTable[1][0] = "Kilometer aller Erfüller:";
+        ad.additionalTable[1][0] = "Kilometer aller ErfÃ¼ller:";
         ad.additionalTable[1][1] = EfaUtil.zehntelInt2String(geskm);
       }
   }
@@ -1193,7 +1219,7 @@ public class Statistik {
 
 
 
-  // Ausgabedaten für Kilometerwettbewerbe erstellen (LRV Winter)
+  // Ausgabedaten fÃ¼r Kilometerwettbewerbe erstellen (LRV Winter)
   static void ausgabeKmWettLRVBWinter(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
     WettDef wett = Daten.wettDefs.getWettDef(WettDefs.LRVBERLIN_WINTER,sd.wettJahr);
     WettDefGruppe[] gruppen = wett.gruppen;
@@ -1205,14 +1231,14 @@ public class Statistik {
       if (sd.ausgebenWettBedingung) ad.wett_bedingungen = createAusgabeBedingungen(sd,wett.key,ad.wett_bedingungen_fett,ad.wett_bedingungen_kursiv);
 
       if (!checkWettZeitraum(sd.wettJahr,sd.von,sd.bis,WettDefs.LRVBERLIN_WINTER))
-        ad.wett_zeitraumWarnung = "Achtung: Der gewählte Zeitraum entspricht nicht der Ausschreibung!";
+        ad.wett_zeitraumWarnung = "Achtung: Der gewÃ¤hlte Zeitraum entspricht nicht der Ausschreibung!";
 
       ad.wett_gruppennamen = new String[gruppen.length][3];
       ad.wett_teilnehmerInGruppe = new AusgabeEintrag[gruppen.length];
 
       for (int g=0; g<gruppen.length; g++) {
         ad.wett_gruppennamen[g][0] = "Gruppe "+gruppen[g].bezeichnung+")";
-        ad.wett_gruppennamen[g][1] = "Jahrgänge "+makeJahrgang(sd.wettJahr-gruppen[g].hoechstalter)+
+        ad.wett_gruppennamen[g][1] = "JahrgÃ¤nge "+makeJahrgang(sd.wettJahr-gruppen[g].hoechstalter)+
                                      " - "+makeJahrgang(sd.wettJahr-gruppen[g].mindalter);
         ad.wett_gruppennamen[g][2] = gruppen[g].km+" Kilometer"+
                             (gruppen[g].zusatz>0 ? "; mind. "+gruppen[g].zusatz+" Fahrten" : "") +
@@ -1231,14 +1257,14 @@ public class Statistik {
               geskm += a[i].rudKm+a[i].stmKm;
             }
 
-            // sollen Daten für den Teilnehmer ausgegeben werden?
+            // sollen Daten fÃ¼r den Teilnehmer ausgegeben werden?
             if (erfuellt ||
                 (((a[i].rudKm+a[i].stmKm)/10 >= gruppen[g].km*sd.wettProz/100 && a[i].kmwett.winterAnz>=sd.wettFahrten && sd.wettProz<100)) ) {
 
               EfaWettMeldung ewm = null;
 
 
-              // bereits geruderte Monate ermitteln (für Ausgabe, wenn nicht erfüllt)
+              // bereits geruderte Monate ermitteln (fÃ¼r Ausgabe, wenn nicht erfÃ¼llt)
               String monate="";
               for (int m=0; m<a[i].kmwett.winterfahrten.length; m++)
                 if (a[i].kmwett.winterfahrten[m][0][0] != null)
@@ -1247,12 +1273,12 @@ public class Statistik {
                     case 1: monate = monate + (monate.equals("") ? "" : ", ") + (sd.wettKurzAusgabe?"Dez":"Dezember"); break;
                     case 2: monate = monate + (monate.equals("") ? "" : ", ") + (sd.wettKurzAusgabe?"Jan":"Januar"); break;
                     case 3: monate = monate + (monate.equals("") ? "" : ", ") + (sd.wettKurzAusgabe?"Feb":"Februar"); break;
-                    case 4: monate = monate + (monate.equals("") ? "" : ", ") + (sd.wettKurzAusgabe?"Mar":"März"); break;
+                    case 4: monate = monate + (monate.equals("") ? "" : ", ") + (sd.wettKurzAusgabe?"Mar":"MÃ¤rz"); break;
                     case 5: monate = monate + (monate.equals("") ? "" : ", ") + (sd.wettKurzAusgabe?"Apr":"April"); break;
                   }
 
               if (sd.ausgabeArt == sd.AUSGABE_EFAWETT) {
-                // Ausgabe für efaWett
+                // Ausgabe fÃ¼r efaWett
                 if (erfuellt) {
                   ewm = new EfaWettMeldung();
                   ewm.nachname = EfaUtil.getNachname(a[i].name);
@@ -1321,7 +1347,7 @@ public class Statistik {
                   }
                 }
 
-              // Eintrag hinzufügen
+              // Eintrag hinzufÃ¼gen
 
               if (sd.ausgabeArt == sd.AUSGABE_EFAWETT) {
                 if (efaWett.letzteMeldung() == null) efaWett.meldung = ewm;
@@ -1346,9 +1372,9 @@ public class Statistik {
       }
       if (sd.ausgabeArt != sd.AUSGABE_EFAWETT) {
         ad.additionalTable = new String[2][2];
-        ad.additionalTable[0][0] = "Anzahl der Erfüller:";
+        ad.additionalTable[0][0] = "Anzahl der ErfÃ¼ller:";
         ad.additionalTable[0][1] = Integer.toString(gesanz);
-        ad.additionalTable[1][0] = "Kilometer aller Erfüller:";
+        ad.additionalTable[1][0] = "Kilometer aller ErfÃ¼ller:";
         ad.additionalTable[1][1] = EfaUtil.zehntelInt2String(geskm);
       }
   }
@@ -1357,7 +1383,7 @@ public class Statistik {
 
 
 
-  // Ausgabedaten für Kilometerwettbewerbe erstellen (DRV)
+  // Ausgabedaten fÃ¼r Kilometerwettbewerbe erstellen (DRV)
   static void ausgabeKmWettDRV(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
     WettDef wett = Daten.wettDefs.getWettDef(WettDefs.DRV_FAHRTENABZEICHEN,sd.wettJahr);
     WettDefGruppe[] gruppen = wett.gruppen;
@@ -1373,7 +1399,7 @@ public class Statistik {
       if (sd.ausgebenWettBedingung) ad.wett_bedingungen = createAusgabeBedingungen(sd,wett.key,ad.wett_bedingungen_fett,ad.wett_bedingungen_kursiv);
 
     if (!checkWettZeitraum(sd.wettJahr,sd.von,sd.bis,WettDefs.DRV_FAHRTENABZEICHEN))
-      ad.wett_zeitraumWarnung = "Achtung: Der gewählte Zeitraum entspricht nicht der Ausschreibung!";
+      ad.wett_zeitraumWarnung = "Achtung: Der gewÃ¤hlte Zeitraum entspricht nicht der Ausschreibung!";
 
     if (sd.ausgabeArt == sd.AUSGABE_EFAWETT) {
       efaWett.verein_mitglnr = Daten.vereinsConfig.mitgliedsnummerDRV;
@@ -1387,12 +1413,12 @@ public class Statistik {
 
       for (int g=0; g<gruppen.length; g++) {
         if (gruppen[g].gruppe == 1)
-          ad.wett_gruppennamen[g][0] = "Männer "+gruppen[g].bezeichnung+")";
+          ad.wett_gruppennamen[g][0] = "MÃ¤nner "+gruppen[g].bezeichnung+")";
         else if (gruppen[g].gruppe == 2)
           ad.wett_gruppennamen[g][0] = "Frauen "+gruppen[g].bezeichnung+")";
         else
           ad.wett_gruppennamen[g][0] = "Jugend "+gruppen[g].bezeichnung+")";
-        ad.wett_gruppennamen[g][1] = "Jahrgänge "+makeJahrgang(sd.wettJahr-gruppen[g].hoechstalter)+
+        ad.wett_gruppennamen[g][1] = "JahrgÃ¤nge "+makeJahrgang(sd.wettJahr-gruppen[g].hoechstalter)+
                                      " - "+makeJahrgang(sd.wettJahr-gruppen[g].mindalter)+
                                      " ("+makeGeschlecht(gruppen[g].geschlecht)+")";
         ad.wett_gruppennamen[g][2] = gruppen[g].km+" Kilometer"+
@@ -1409,19 +1435,19 @@ public class Statistik {
             // Teilnehmer ist in der Gruppe!
 
             // Wanderfahrten zusammenstellen
-            String[][] wafa = new String[7][6]; // 7 Einträge mit jeweils LfdNr/Abfahrt/Ankunft/Ziel/Km/Bemerk
+            String[][] wafa = new String[7][6]; // 7 EintrÃ¤ge mit jeweils LfdNr/Abfahrt/Ankunft/Ziel/Km/Bemerk
             Object[] keys = a[i].kmwett.wafa.keySet().toArray(); // Keys ermitteln
             boolean[] ausg = new boolean[keys.length]; // merken, welche Fahrt schon zur Ausgabe markiert wurde
             for (int k=0; k<ausg.length; k++) ausg[k]=false; // erstmal: keine Fahrt markiert
-            int hoechst,hoechstEl=0; // zum Ermitteln des höchsten verbleibenden Elements
+            int hoechst,hoechstEl=0; // zum Ermitteln des hÃ¶chsten verbleibenden Elements
             int wafaKm=0; // Wafa-Km aller auszugebenden Fahrten
-            int wafaAnzMTour=0; // für Gruppe 3: Anzahl der Tage durch Mehrtagestouren
-            int jumAnz=0;       // für Gruppe 3 a/b: Anzahl der JuM-Regatten
+            int wafaAnzMTour=0; // fÃ¼r Gruppe 3: Anzahl der Tage durch Mehrtagestouren
+            int jumAnz=0;       // fÃ¼r Gruppe 3 a/b: Anzahl der JuM-Regatten
             DRVFahrt drvel=null,bestEl=null;
-            for (int nr=0; nr<7; nr++) { // max. für 7 auszufüllende Felder Fahrten suchen
-              hoechst=0; // höchste verbleibende KmZahl oder Tagezahl
+            for (int nr=0; nr<7; nr++) { // max. fÃ¼r 7 auszufÃ¼llende Felder Fahrten suchen
+              hoechst=0; // hÃ¶chste verbleibende KmZahl oder Tagezahl
 
-              // nächste geeignete Fahrt heraussuchen (meiste Km (Gruppe<3) oder längste Tour (Gruppe 3))
+              // nÃ¤chste geeignete Fahrt heraussuchen (meiste Km (Gruppe<3) oder lÃ¤ngste Tour (Gruppe 3))
               for (int k=0; k<ausg.length; k++) {
                 drvel = (DRVFahrt)a[i].kmwett.wafa.get(keys[k]);
 
@@ -1430,7 +1456,7 @@ public class Statistik {
                 if (drvel != null && drvel.jum == false && drvel.km >= Daten.WAFAKM && drvel.anzTage == 1) drvel.ok = true;
 
                 if (!ausg[k] &&                                                   // Fahrt, die noch nicht ausgegeben wurde, ...
-                     drvel != null &&                                             // und die wirklich vorhanden ist, außerdem:
+                     drvel != null &&                                             // und die wirklich vorhanden ist, auÃŸerdem:
                       (  (gruppen[g].gruppe!=3 && drvel.ok && drvel.km>hoechst) ||    // Gruppe 1/2: Fahrt "ok", d.h. >30 bzw. >40 Km
                          ( gruppen[g].gruppe == 3 && drvel.anzTage>hoechst &&         // Gruppe 3:
                             (drvel.anzTage>1 || drvel.jum && gruppen[g].untergruppe<=2)    // echte Mehrtagesfahrt oder JuM bei Gr. 3 a/b
@@ -1444,9 +1470,9 @@ public class Statistik {
                 }
               }
               if (hoechst>0 && // was gefunden?
-                  (nr<5 ||     // weniger als 5 Einträge, oder ...
-                   (wafaKm/10 < gruppen[g].zusatz && gruppen[g].gruppe != 3) || // noch Km nötig
-                   (wafaAnzMTour<3 && gruppen[g].gruppe == 3) ) ) {         // noch Fahrten nötig
+                  (nr<5 ||     // weniger als 5 EintrÃ¤ge, oder ...
+                   (wafaKm/10 < gruppen[g].zusatz && gruppen[g].gruppe != 3) || // noch Km nÃ¶tig
+                   (wafaAnzMTour<3 && gruppen[g].gruppe == 3) ) ) {         // noch Fahrten nÃ¶tig
                 ausg[hoechstEl] = true;
                 wafa[nr][0] = bestEl.lfdnr;
                 wafa[nr][1] = bestEl.datumStart;
@@ -1471,7 +1497,7 @@ public class Statistik {
                 }
 
 
-            // sollen für den Teilnehmer Daten ausgegeben werden?
+            // sollen fÃ¼r den Teilnehmer Daten ausgegeben werden?
             boolean erfuellt = Daten.wettDefs.erfuelltGruppe(WettDefs.DRV_FAHRTENABZEICHEN,sd.wettJahr,g,jahrgang,a[i].kmwett.geschlecht,a[i].kmwett.behinderung,a[i].rudKm+a[i].stmKm,wafaKm/10,wafaAnzMTour,jumAnz,0);
 
             if (erfuellt) {
@@ -1486,7 +1512,7 @@ public class Statistik {
               for (wafaLength=0; wafaLength<7 && wafa[wafaLength][0] != null; wafaLength++);
 
               if (sd.ausgabeArt == sd.AUSGABE_EFAWETT) {
-                // Ausgabe für efaWett
+                // Ausgabe fÃ¼r efaWett
                 if (erfuellt) {
                   EfaWettMeldung ewm = new EfaWettMeldung();
                   ewm.nachname = EfaUtil.getNachname(a[i].name);
@@ -1513,11 +1539,11 @@ public class Statistik {
                       if (fahrtenheft.get(Fahrtenabzeichen.LETZTEMELDUNG).length()>0) {
                         DRVSignatur drvSignatur = new DRVSignatur(fahrtenheft.get(Fahrtenabzeichen.LETZTEMELDUNG));
                         if (drvSignatur.getSignatureState() == DRVSignatur.SIG_UNKNOWN_KEY) {
-                          Dialog.infoDialog("Schlüssel nicht bekannt",
-                                            "efa hat für den Teilnehmer "+ewm.vorname+" "+ewm.nachname+"\n"+
-                                            "ein elektronisches Fahrtenheft gefunden, kann dessen Gültigkeit\n"+
-                                            "aber nicht prüfen, da der Schlüssel unbekannt ist.\n"+
-                                            "Im folgenden Dialog wirst Du daher aufgefordert, den Schlüssel\n"+
+                          Dialog.infoDialog("SchlÃ¼ssel nicht bekannt",
+                                            "efa hat fÃ¼r den Teilnehmer "+ewm.vorname+" "+ewm.nachname+"\n"+
+                                            "ein elektronisches Fahrtenheft gefunden, kann dessen GÃ¼ltigkeit\n"+
+                                            "aber nicht prÃ¼fen, da der SchlÃ¼ssel unbekannt ist.\n"+
+                                            "Im folgenden Dialog wirst Du daher aufgefordert, den SchlÃ¼ssel\n"+
                                             "aus dem Internet herunterzuladen.");
                           if (DRVSignaturFrame.downloadKey(drvSignatur.getKeyName())) {
                             drvSignatur.checkSignature();
@@ -1553,8 +1579,8 @@ public class Statistik {
                     }
                   }
 
-                  // Äquatorpreis
-                  int aeqKm = gesKm; // - gesKmAB; (seit 2007 zählen auch die Kilometer AB zum Äquatorpreis)
+                  // Ã„quatorpreis
+                  int aeqKm = gesKm; // - gesKmAB; (seit 2007 zÃ¤hlen auch die Kilometer AB zum Ã„quatorpreis)
                   int anzAeqBefore = aeqKm / WettDefs.DRV_AEQUATOR_KM;
                   int anzAeqJetzt  = (aeqKm + EfaUtil.string2int(ewm.kilometer,0)) / WettDefs.DRV_AEQUATOR_KM;
                   if (anzAeqJetzt > anzAeqBefore) ewm.drv_aequatorpreis = Integer.toString(anzAeqJetzt);
@@ -1603,7 +1629,7 @@ public class Statistik {
                 }
                 ae.w_erfuellt = erfuellt;
 
-                // Eintrag hinzufügen
+                // Eintrag hinzufÃ¼gen
                 if (ad.wett_teilnehmerInGruppe[g] == null) ad.wett_teilnehmerInGruppe[g] = ae;
                 else letzterAusgabeEintrag.next = ae;
                 letzterAusgabeEintrag = ae;
@@ -1623,14 +1649,14 @@ public class Statistik {
     if (sd.ausgabeArt == sd.AUSGABE_EFAWETT && anzahlGemeldeteTeilnehmer > 0 && ungueltigeFahrtenhefte.size() > 0) {
       Dialog.infoDialog("Warnung",
                         "Die elektronischen Fahrtenhefte folgender Teilnehmer wurden\n"+
-                        "NICHT berücksichtigt, da ihre Gültigkeit nicht überprüft werden\n"+
-                        "konnte. Bitte prüfe unter ->Administration->DRV-Fahrtenhefte\n"+
-                        "den Grund für die Ungültigkeit der Fahrtenhefte.\n"+
-                        "Hinweis: Für die elektronisch Meldung müssen die elektronischen Fahrtenhefte\n"+
-                        "aller Teilnehmer gültig sein, da sonst der Nachweis der bereits erworbenen\n"+
-                        "Fahrtenabzeichen für diese Teilnehmer auf herkömmlichem Weg (durch Einsenden\n"+
-                        "der Papier-Fahrtenhefte) erfolgen muß.\n"+
-                        "Teilnehmer mit ungültigen Fahrtenheften:\n"+
+                        "NICHT berÃ¼cksichtigt, da ihre GÃ¼ltigkeit nicht Ã¼berprÃ¼ft werden\n"+
+                        "konnte. Bitte prÃ¼fe unter ->Administration->DRV-Fahrtenhefte\n"+
+                        "den Grund fÃ¼r die UngÃ¼ltigkeit der Fahrtenhefte.\n"+
+                        "Hinweis: FÃ¼r die elektronisch Meldung mÃ¼ssen die elektronischen Fahrtenhefte\n"+
+                        "aller Teilnehmer gÃ¼ltig sein, da sonst der Nachweis der bereits erworbenen\n"+
+                        "Fahrtenabzeichen fÃ¼r diese Teilnehmer auf herkÃ¶mmlichem Weg (durch Einsenden\n"+
+                        "der Papier-Fahrtenhefte) erfolgen muÃŸ.\n"+
+                        "Teilnehmer mit ungÃ¼ltigen Fahrtenheften:\n"+
                         EfaUtil.vector2string(ungueltigeFahrtenhefte,"\n"));
     }
     if (sd.ausgabeArt == sd.AUSGABE_EFAWETT && anzahlGemeldeteTeilnehmer > 0 && zumErstenMalGemeldet.size() > 0) {
@@ -1638,11 +1664,11 @@ public class Statistik {
       if (anzahlGemeldeteTeilnehmer == zumErstenMalGemeldet.size()) {
         info = "Keiner der gemeldeten Teilnehmer hat jemals zuvor ein\n"+
                "Fahrtenabzeichen erworben, weder auf elektronische, noch\n"+
-               "auf herkömmliche Weise.";
+               "auf herkÃ¶mmliche Weise.";
       } else {
         info = "Folgende Teilnehmer haben bislang noch nie ein\n"+
                "Fahrtenabzeichen erworben, weder auf elektronische,\n"+
-               "noch auf herkömmliche Weise:\n"+
+               "noch auf herkÃ¶mmliche Weise:\n"+
                EfaUtil.vector2string(zumErstenMalGemeldet,"\n");
       }
       if (Dialog.yesNoDialog("Erstes Fahrtenabzeichen?",
@@ -1651,7 +1677,7 @@ public class Statistik {
         Dialog.infoDialog("Erworbene Fahrtenabzeichen nachtragen",
                           "Bitte trage unter ->Administration->DRV-Fahrtenabzeichen die\n"+
                           "bereits erworbenen Fahrtenabzeichen aller Teilnehmer ein und\n"+
-                          "erstelle anschließend eine neue Meldedatei.");
+                          "erstelle anschlieÃŸend eine neue Meldedatei.");
         sd.abbruchEfaWett = true;
         return;
       }
@@ -1659,44 +1685,44 @@ public class Statistik {
     if (sd.ausgabeArt == sd.AUSGABE_EFAWETT && anzahlGemeldeteTeilnehmer > 0 && letzteElektronischeMeldung+1 != sd.wettJahr) {
       if (letzteElektronischeMeldung == 0) {
         if (Dialog.yesNoDialog("Erste elektronische Meldung?",
-                               "efa hat keine elektronischen Fahrtenhefte für die Teilnehmer\n"+
-                               "finden können. Sollte es sich bei dieser Meldung um die erste\n"+
+                               "efa hat keine elektronischen Fahrtenhefte fÃ¼r die Teilnehmer\n"+
+                               "finden kÃ¶nnen. Sollte es sich bei dieser Meldung um die erste\n"+
                                "elektronische Meldung handeln, so ist dies korrekt.\n"+
                                "Ist dies die erste elektronische Meldung des Vereins?") != Dialog.YES) {
-          Dialog.infoDialog("Bestätigungsdatei abrufen",
+          Dialog.infoDialog("BestÃ¤tigungsdatei abrufen",
                             "Wenn Du bereits zuvor elektronisch gemeldet hast, so rufe bitte\n"+
-                            "zunächst unter ->Administration->DRV-Fahrtenabzeichen über den Punkt\n"+
-                            "'Bestätigungsdatei abrufen' die Bestätigungsdatei der letzten Meldung\n"+
-                            "ab. Sie enthält die elektronischen Fahrtenhefte der damals gemeldeten\n"+
-                            "Teilnehmer. Anschließend erstelle bitte eine neue Meldedatei.");
+                            "zunÃ¤chst unter ->Administration->DRV-Fahrtenabzeichen Ã¼ber den Punkt\n"+
+                            "'BestÃ¤tigungsdatei abrufen' die BestÃ¤tigungsdatei der letzten Meldung\n"+
+                            "ab. Sie enthÃ¤lt die elektronischen Fahrtenhefte der damals gemeldeten\n"+
+                            "Teilnehmer. AnschlieÃŸend erstelle bitte eine neue Meldedatei.");
           sd.abbruchEfaWett = true;
           return;
         }
       } else if (letzteElektronischeMeldung+1 < sd.wettJahr) {
         if (Dialog.yesNoDialog("Letzte elektronische Meldung?",
-                               "Die letzte in efa gespeicherte Bestätigungsdatei stammt aus dem Jahr\n"+
-                               letzteElektronischeMeldung+". Eventuell in späteren Jahren gemeldete\n"+
-                               "Fahrtenabzeichen liegen efa nicht vor und werden daher NICHT berücksichtigt.\n\n"+
-                               "Ist es richtig, daß Du zum letzten Mal für das Jahr "+letzteElektronischeMeldung+" elektronisch gemeldet hast?") != Dialog.YES) {
-          Dialog.infoDialog("Bestätigungsdatei abrufen",
+                               "Die letzte in efa gespeicherte BestÃ¤tigungsdatei stammt aus dem Jahr\n"+
+                               letzteElektronischeMeldung+". Eventuell in spÃ¤teren Jahren gemeldete\n"+
+                               "Fahrtenabzeichen liegen efa nicht vor und werden daher NICHT berÃ¼cksichtigt.\n\n"+
+                               "Ist es richtig, daÃŸ Du zum letzten Mal fÃ¼r das Jahr "+letzteElektronischeMeldung+" elektronisch gemeldet hast?") != Dialog.YES) {
+          Dialog.infoDialog("BestÃ¤tigungsdatei abrufen",
                             "Anscheinend hast Du nach Deiner letzten elektronischen Meldung vergessen,\n"+
-                            "die Bestätigungsdatei abzurufen. Rufe daher bitte zunächst unter\n"+
-                            "->Administration->DRV-Fahrtenabzeichen über den Punkt 'Bestätigungsdatei abrufen'\n"+
-                            "die Bestätigungsdatei der letzten Meldung ab. Sie enthält die elektronischen\n"+
-                            "Fahrtenhefte der damals gemeldeten Teilnehmer. Anschließend erstelle bitte eine\n"+
+                            "die BestÃ¤tigungsdatei abzurufen. Rufe daher bitte zunÃ¤chst unter\n"+
+                            "->Administration->DRV-Fahrtenabzeichen Ã¼ber den Punkt 'BestÃ¤tigungsdatei abrufen'\n"+
+                            "die BestÃ¤tigungsdatei der letzten Meldung ab. Sie enthÃ¤lt die elektronischen\n"+
+                            "Fahrtenhefte der damals gemeldeten Teilnehmer. AnschlieÃŸend erstelle bitte eine\n"+
                             "neue Meldedatei.");
           sd.abbruchEfaWett = true;
           return;
         }
       } else {
-        Dialog.infoDialog("Bereits für dieses Jahr gemeldet",
-                          "Es liegen für einige Teilnehmer bereits vom DRV bestätigte Fahrtenhefte aus dem Jahr "+sd.wettJahr+" vor.\n"+
-                          "Du kannst daher für das Jahr "+sd.wettJahr+" nicht erneut melden.\n\n"+
-                          "Falls Deine Meldung nachträglich vom DRV zurückgewiesen wurde und Du nun eine korrigierte Meldung\n"+
-                          "einsenden möchtest, mußt Du zuvor alle elektronischen Fahrtenhefte des Jahres "+sd.wettJahr+" in efa\n"+
-                          "löschen und die elektronischen Fahrtenhefte bis "+(sd.wettJahr-1)+" erneut einspielen. Gehe dazu in\n"+
-                          "die Übersicht der DRV-Fahrtenabzeichen unter 'Administration - DRV-Fahrtenabzeichen', lösche dort alle\n"+
-                          "Fahrtenabzeichen des Jahres "+sd.wettJahr+" und spiele anschließend alle Bestätiungsdateien bis zum\n"+
+        Dialog.infoDialog("Bereits fÃ¼r dieses Jahr gemeldet",
+                          "Es liegen fÃ¼r einige Teilnehmer bereits vom DRV bestÃ¤tigte Fahrtenhefte aus dem Jahr "+sd.wettJahr+" vor.\n"+
+                          "Du kannst daher fÃ¼r das Jahr "+sd.wettJahr+" nicht erneut melden.\n\n"+
+                          "Falls Deine Meldung nachtrÃ¤glich vom DRV zurÃ¼ckgewiesen wurde und Du nun eine korrigierte Meldung\n"+
+                          "einsenden mÃ¶chtest, muÃŸt Du zuvor alle elektronischen Fahrtenhefte des Jahres "+sd.wettJahr+" in efa\n"+
+                          "lÃ¶schen und die elektronischen Fahrtenhefte bis "+(sd.wettJahr-1)+" erneut einspielen. Gehe dazu in\n"+
+                          "die Ãœbersicht der DRV-Fahrtenabzeichen unter 'Administration - DRV-Fahrtenabzeichen', lÃ¶sche dort alle\n"+
+                          "Fahrtenabzeichen des Jahres "+sd.wettJahr+" und spiele anschlieÃŸend alle BestÃ¤tiungsdateien bis zum\n"+
                           "Jahr "+(sd.wettJahr-1)+" erneut ein.");
         sd.abbruchEfaWett = true;
         return;
@@ -1704,9 +1730,9 @@ public class Statistik {
     }
       if (sd.ausgabeArt != sd.AUSGABE_EFAWETT) {
         ad.additionalTable = new String[2][2];
-        ad.additionalTable[0][0] = "Anzahl der Erfüller:";
+        ad.additionalTable[0][0] = "Anzahl der ErfÃ¼ller:";
         ad.additionalTable[0][1] = Integer.toString(gesanz);
-        ad.additionalTable[1][0] = "Kilometer aller Erfüller:";
+        ad.additionalTable[1][0] = "Kilometer aller ErfÃ¼ller:";
         ad.additionalTable[1][1] = EfaUtil.zehntelInt2String(geskm);
       }
   }
@@ -1716,7 +1742,7 @@ public class Statistik {
 
 
 
-  // Ausgabedaten für Kilometerwettbewerbe erstellen (Blauer Wimpel)
+  // Ausgabedaten fÃ¼r Kilometerwettbewerbe erstellen (Blauer Wimpel)
   static void ausgabeKmWettLRVBWimpel(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
     WettDef wett = Daten.wettDefs.getWettDef(WettDefs.LRVBERLIN_BLAUERWIMPEL,sd.wettJahr);
     int anzWertung = 20 + (int)(0.1 * sd.anzMitglieder); // Anzahl der zu wertenden Mitglieder
@@ -1724,7 +1750,7 @@ public class Statistik {
       if (sd.ausgebenWettBedingung) ad.wett_bedingungen = createAusgabeBedingungen(sd,wett.key,ad.wett_bedingungen_fett,ad.wett_bedingungen_kursiv);
 
     if (!checkWettZeitraum(sd.wettJahr,sd.von,sd.bis,WettDefs.LRVBERLIN_BLAUERWIMPEL))
-      ad.wett_zeitraumWarnung = "Achtung: Der gewählte Zeitraum entspricht nicht der Ausschreibung!";
+      ad.wett_zeitraumWarnung = "Achtung: Der gewÃ¤hlte Zeitraum entspricht nicht der Ausschreibung!";
 
       int geskm=0;
 
@@ -1778,14 +1804,14 @@ public class Statistik {
 
 
 
-  // Ausgabedaten für Kilometerwettbewerbe erstellen (DRV Wanderruderstatistik)
+  // Ausgabedaten fÃ¼r Kilometerwettbewerbe erstellen (DRV Wanderruderstatistik)
   static void ausgabeKmWettDRVWafaStat(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
     WettDef wett = Daten.wettDefs.getWettDef(WettDefs.DRV_WANDERRUDERSTATISTIK,sd.wettJahr);
 
     if (sd.ausgebenWettBedingung) ad.wett_bedingungen = createAusgabeBedingungen(sd,wett.key,ad.wett_bedingungen_fett,ad.wett_bedingungen_kursiv);
 
     if (!checkWettZeitraum(sd.wettJahr,sd.von,sd.bis,WettDefs.DRV_WANDERRUDERSTATISTIK))
-      ad.wett_zeitraumWarnung = "Achtung: Der gewählte Zeitraum entspricht nicht der Ausschreibung!";
+      ad.wett_zeitraumWarnung = "Achtung: Der gewÃ¤hlte Zeitraum entspricht nicht der Ausschreibung!";
 
     if (sd.ausgabeArt == sd.AUSGABE_EFAWETT) {
       efaWett.verein_mitglnr = Daten.vereinsConfig.mitgliedsnummerDRV;
@@ -1808,7 +1834,7 @@ public class Statistik {
     ad.ausgabeZeilenOben.addZeile("Mitglied im:|"+mitgl,2,AusgabeZeilen.FONT_BOLD);
 
     ad.ausgabeZeilenUnten = new AusgabeZeilen();
-    ad.ausgabeZeilenUnten.addZeile("Anschrift des Wanderruderwartes bzw. des Ausfüllers: ",1,AusgabeZeilen.FONT_BOLD);
+    ad.ausgabeZeilenUnten.addZeile("Anschrift des Wanderruderwartes bzw. des AusfÃ¼llers: ",1,AusgabeZeilen.FONT_BOLD);
     ad.ausgabeZeilenUnten.addZeile(Daten.vereinsConfig.versandName,1,AusgabeZeilen.FONT_NORMAL);
     if (!Daten.vereinsConfig.versandName.equals(Daten.vereinsConfig.meldenderName)) ad.ausgabeZeilenUnten.addZeile("c/o "+Daten.vereinsConfig.meldenderName,1,AusgabeZeilen.FONT_NORMAL);
     ad.ausgabeZeilenUnten.addZeile(Daten.vereinsConfig.versandStrasse,1,AusgabeZeilen.FONT_NORMAL);
@@ -1818,13 +1844,13 @@ public class Statistik {
 
     String[] tabellentitel = new String[14];
     tabellentitel[ 0] = "Start + Ziel der Fahrt";
-    tabellentitel[ 1] = "Gewässer";
+    tabellentitel[ 1] = "GewÃ¤sser";
     tabellentitel[ 2] = "Gesamt Km";
     tabellentitel[ 3] = "Gesamt Tage";
     tabellentitel[ 4] = "Anz. Teilnehmer";
     tabellentitel[ 5] = "Mannsch-Km";
-    tabellentitel[ 6] = "Männer (Anz)";
-    tabellentitel[ 7] = "Männer (Km)";
+    tabellentitel[ 6] = "MÃ¤nner (Anz)";
+    tabellentitel[ 7] = "MÃ¤nner (Km)";
     tabellentitel[ 8] = "Junioren (Anz)";
     tabellentitel[ 9] = "Junioren (Km)";
     tabellentitel[10] = "Frauen (Anz)";
@@ -1834,7 +1860,7 @@ public class Statistik {
     ad.tabellenTitelBreite = new int[14];
     Arrays.fill(ad.tabellenTitelBreite,1);
 
-    // lösche Mehrtagesfahrten, die gar keine sind
+    // lÃ¶sche Mehrtagesfahrten, die gar keine sind
     int anzMtours = 0;
     for (int i=0; i<a.length; i++) {
       if (a[i] != null && a[i].kmwett != null) {
@@ -1864,7 +1890,7 @@ public class Statistik {
     int pos = 0; // Position in ad.additionalTable
     int nichtGewerteteEintraege = 0;
     for (int i=0; i<a.length; i++) {
-      if (a[i] == null) continue; // Wafa gelöscht, da sie die Kriterien nicht erfüllte!
+      if (a[i] == null) continue; // Wafa gelÃ¶scht, da sie die Kriterien nicht erfÃ¼llte!
       pos++;
       int tmp;
       ad.additionalTable[pos][ 0] = a[i].name;
@@ -1899,8 +1925,8 @@ public class Statistik {
 
         // Plausi-Test
         if (tmpGesKm * tmpAnzTeiln < a[i].kmwett.drvWafaStat_mannschKm) {
-          warnungen += "Die berechneten Gesamt- und Mannschaftskilometer für die Mehrtagesfahrt '"+a[i].name+"'\n"+
-                       "sind unstimmig. Bitte überprüfe, ob alle Einträge zu dieser Fahrt korrekt sind, insb. ob\n"+
+          warnungen += "Die berechneten Gesamt- und Mannschaftskilometer fÃ¼r die Mehrtagesfahrt '"+a[i].name+"'\n"+
+                       "sind unstimmig. Bitte Ã¼berprÃ¼fe, ob alle EintrÃ¤ge zu dieser Fahrt korrekt sind, insb. ob\n"+
                        "alle Etappennamen unterschiedlich sind und kein Ruderer auf einer Etappe mehrfach vorkommt!\n";
           ad.additionalTable[pos][ 0] += " (UNSTIMMIG - WIRD NICHT ANERKANNT)";
           wirdGewertet = false;
@@ -1956,8 +1982,8 @@ public class Statistik {
     }
 
     if (nichtGewerteteEintraege>0) {
-      warnungen += ""+nichtGewerteteEintraege+" Fahrten enthalten ungültige Eintragungen "+
-                   "und können daher nicht gewertet werden.\n";
+      warnungen += ""+nichtGewerteteEintraege+" Fahrten enthalten ungÃ¼ltige Eintragungen "+
+                   "und kÃ¶nnen daher nicht gewertet werden.\n";
     }
 
     Object[] ga = gewaesser.toArray();
@@ -1995,7 +2021,7 @@ public class Statistik {
 
 
 
-  // Ausgabedaten für Kilometerwettbewerbe erstellen (LRV Brandenburg Wanderruderwettbewerb: "Großer Wettbewerb")
+  // Ausgabedaten fÃ¼r Kilometerwettbewerbe erstellen (LRV Brandenburg Wanderruderwettbewerb: "GroÃŸer Wettbewerb")
   static void ausgabeKmWettLRVBrbWanderruderWett(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
     WettDef wett = Daten.wettDefs.getWettDef(WettDefs.LRVBRB_WANDERRUDERWETT,sd.wettJahr);
     WettDefGruppe[] gruppen = wett.gruppen;
@@ -2006,14 +2032,14 @@ public class Statistik {
     if (sd.ausgebenWettBedingung) ad.wett_bedingungen = createAusgabeBedingungen(sd,wett.key,ad.wett_bedingungen_fett,ad.wett_bedingungen_kursiv);
 
     if (!checkWettZeitraum(sd.wettJahr,sd.von,sd.bis,WettDefs.LRVBRB_WANDERRUDERWETT))
-      ad.wett_zeitraumWarnung = "Achtung: Der gewählte Zeitraum entspricht nicht der Ausschreibung!";
+      ad.wett_zeitraumWarnung = "Achtung: Der gewÃ¤hlte Zeitraum entspricht nicht der Ausschreibung!";
 
     ad.wett_gruppennamen = new String[gruppen.length][3];
     ad.wett_teilnehmerInGruppe = new AusgabeEintrag[gruppen.length];
 
     for (int g=0; g<gruppen.length; g++) {
         ad.wett_gruppennamen[g][0] = gruppen[g].bezeichnung+")";
-        ad.wett_gruppennamen[g][1] = "Jahrgänge "+makeJahrgang(sd.wettJahr-gruppen[g].hoechstalter)+
+        ad.wett_gruppennamen[g][1] = "JahrgÃ¤nge "+makeJahrgang(sd.wettJahr-gruppen[g].hoechstalter)+
                                      " - "+makeJahrgang(sd.wettJahr-gruppen[g].mindalter)+
                                      " ("+makeGeschlecht(gruppen[g].geschlecht)+")";
         ad.wett_gruppennamen[g][2] = gruppen[g].km+" Kilometer"+
@@ -2031,10 +2057,10 @@ public class Statistik {
             // Wanderfahrten zusammenstellen
             int anzWafaTage = 0;
             int anzWafa = 0; // max. 3 ausgeben
-            String[][] wafa = new String[gruppen[g].zusatz2][6]; // 3 Einträge mit jeweils LfdNr/Abfahrt/Ankunft/Ziel/Km/Bemerk
+            String[][] wafa = new String[gruppen[g].zusatz2][6]; // 3 EintrÃ¤ge mit jeweils LfdNr/Abfahrt/Ankunft/Ziel/Km/Bemerk
             Object[] keys = a[i].kmwett.wafa.keySet().toArray(); // Keys ermitteln
             int fahrtnr = 0;
-            for (int nr=0; nr<wafa.length; nr++) { // max. für 3 auszufüllende Felder Fahrten suchen
+            for (int nr=0; nr<wafa.length; nr++) { // max. fÃ¼r 3 auszufÃ¼llende Felder Fahrten suchen
               DRVFahrt drvel = null;
               if (fahrtnr < keys.length) do {
                 drvel = (DRVFahrt)a[i].kmwett.wafa.get(keys[fahrtnr]);
@@ -2064,7 +2090,7 @@ public class Statistik {
                 }
 
 
-            // sollen für den Teilnehmer Daten ausgegeben werden?
+            // sollen fÃ¼r den Teilnehmer Daten ausgegeben werden?
             boolean erfuellt = Daten.wettDefs.erfuelltGruppe(WettDefs.LRVBRB_WANDERRUDERWETT,sd.wettJahr,g,jahrgang,a[i].kmwett.geschlecht,a[i].kmwett.behinderung,a[i].rudKm+a[i].stmKm,a[i].kmwett.gigbootkm/10,anzWafaTage,0,0);
 
             if (erfuellt) {
@@ -2076,7 +2102,7 @@ public class Statistik {
                 (((a[i].rudKm+a[i].stmKm)/10 >= gruppen[g].km*sd.wettProz/100) && sd.wettProz<100) ) {
 
               if (sd.ausgabeArt == sd.AUSGABE_EFAWETT) {
-                // Ausgabe für efaWett
+                // Ausgabe fÃ¼r efaWett
               } else {
                 // normale Ausgabe des Teilnehmers
                 AusgabeEintrag ae = new AusgabeEintrag();
@@ -2098,7 +2124,7 @@ public class Statistik {
                 }
                 ae.w_erfuellt = erfuellt;
 
-                // Eintrag hinzufügen
+                // Eintrag hinzufÃ¼gen
                 if (ad.wett_teilnehmerInGruppe[g] == null) ad.wett_teilnehmerInGruppe[g] = ae;
                 else letzterAusgabeEintrag.next = ae;
                 letzterAusgabeEintrag = ae;
@@ -2117,14 +2143,14 @@ public class Statistik {
     }
       if (sd.ausgabeArt != sd.AUSGABE_EFAWETT) {
         ad.additionalTable = new String[2][2];
-        ad.additionalTable[0][0] = "Anzahl der Erfüller:";
+        ad.additionalTable[0][0] = "Anzahl der ErfÃ¼ller:";
         ad.additionalTable[0][1] = Integer.toString(gesanz);
-        ad.additionalTable[1][0] = "Kilometer aller Erfüller:";
+        ad.additionalTable[1][0] = "Kilometer aller ErfÃ¼ller:";
         ad.additionalTable[1][1] = EfaUtil.zehntelInt2String(geskm);
       }
   }
 
-  // Ausgabedaten für Kilometerwettbewerbe erstellen (LRV Brandenburg Fahrtenwettbewerb: "Kleiner Wettbewerb")
+  // Ausgabedaten fÃ¼r Kilometerwettbewerbe erstellen (LRV Brandenburg Fahrtenwettbewerb: "Kleiner Wettbewerb")
   static void ausgabeKmWettLRVBrbFahrtenWett(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
     WettDef wett = Daten.wettDefs.getWettDef(WettDefs.LRVBRB_FAHRTENWETT,sd.wettJahr);
     WettDefGruppe[] gruppen = wett.gruppen;
@@ -2135,14 +2161,14 @@ public class Statistik {
     if (sd.ausgebenWettBedingung) ad.wett_bedingungen = createAusgabeBedingungen(sd,wett.key,ad.wett_bedingungen_fett,ad.wett_bedingungen_kursiv);
 
     if (!checkWettZeitraum(sd.wettJahr,sd.von,sd.bis,WettDefs.LRVBRB_FAHRTENWETT))
-      ad.wett_zeitraumWarnung = "Achtung: Der gewählte Zeitraum entspricht nicht der Ausschreibung!";
+      ad.wett_zeitraumWarnung = "Achtung: Der gewÃ¤hlte Zeitraum entspricht nicht der Ausschreibung!";
 
     ad.wett_gruppennamen = new String[gruppen.length][3];
     ad.wett_teilnehmerInGruppe = new AusgabeEintrag[gruppen.length];
 
     for (int g=0; g<gruppen.length; g++) {
         ad.wett_gruppennamen[g][0] = gruppen[g].bezeichnung+")";
-        ad.wett_gruppennamen[g][1] = "Jahrgänge "+makeJahrgang(sd.wettJahr-gruppen[g].hoechstalter)+
+        ad.wett_gruppennamen[g][1] = "JahrgÃ¤nge "+makeJahrgang(sd.wettJahr-gruppen[g].hoechstalter)+
                                      " - "+makeJahrgang(sd.wettJahr-gruppen[g].mindalter)+
                                      " ("+makeGeschlecht(gruppen[g].geschlecht)+")";
         ad.wett_gruppennamen[g][2] = gruppen[g].km+" Kilometer" +
@@ -2176,7 +2202,7 @@ public class Statistik {
               if (EfaUtil.zehntelString2Int(fahrt[4]) / 10 >= gruppen[g].zusatz) gigfahrten++;
             }
 
-            // sollen für den Teilnehmer Daten ausgegeben werden?
+            // sollen fÃ¼r den Teilnehmer Daten ausgegeben werden?
             boolean erfuellt = Daten.wettDefs.erfuelltGruppe(WettDefs.LRVBRB_FAHRTENWETT,sd.wettJahr,g,jahrgang,a[i].kmwett.geschlecht,a[i].kmwett.behinderung,a[i].rudKm+a[i].stmKm,gruppen[g].zusatz,gigfahrten,0,0);
             if (Daten.wettDefs.erfuellt(WettDefs.LRVBRB_WANDERRUDERWETT,sd.wettJahr,jahrgang,a[i].kmwett.geschlecht,a[i].kmwett.behinderung,a[i].rudKm+a[i].stmKm,a[i].kmwett.gigbootkm/10,anzWafaTage,0,0) != null) {
               erfuellt = false;
@@ -2191,7 +2217,7 @@ public class Statistik {
                 (((a[i].rudKm+a[i].stmKm)/10 >= gruppen[g].km*sd.wettProz/100) && sd.wettProz<100) ) {
 
               if (sd.ausgabeArt == sd.AUSGABE_EFAWETT) {
-                // Ausgabe für efaWett
+                // Ausgabe fÃ¼r efaWett
               } else {
                 // normale Ausgabe des Teilnehmers
                 AusgabeEintrag ae = new AusgabeEintrag();
@@ -2210,7 +2236,7 @@ public class Statistik {
                     for (int gigid=0; gigid < a[i].kmwett.gigfahrten.size(); gigid++) {
                       String[] fahrt = (String[])a[i].kmwett.gigfahrten.get(gigid);
                       int km = EfaUtil.zehntelString2Int(fahrt[4]);
-                      if (km/10 < gruppen[g].zusatz) continue; // nur Fahrten mit genügend Km zulassen
+                      if (km/10 < gruppen[g].zusatz) continue; // nur Fahrten mit genÃ¼gend Km zulassen
                       if (km > maxkm) {
                         boolean doppelt = false;
                         for (int ijk=0; ijk<fid; ijk++) {
@@ -2244,7 +2270,7 @@ public class Statistik {
                 }
                 ae.w_erfuellt = erfuellt;
 
-                // Eintrag hinzufügen
+                // Eintrag hinzufÃ¼gen
                 if (ad.wett_teilnehmerInGruppe[g] == null) ad.wett_teilnehmerInGruppe[g] = ae;
                 else letzterAusgabeEintrag.next = ae;
                 letzterAusgabeEintrag = ae;
@@ -2263,14 +2289,14 @@ public class Statistik {
     }
       if (sd.ausgabeArt != sd.AUSGABE_EFAWETT) {
         ad.additionalTable = new String[2][2];
-        ad.additionalTable[0][0] = "Anzahl der Erfüller:";
+        ad.additionalTable[0][0] = "Anzahl der ErfÃ¼ller:";
         ad.additionalTable[0][1] = Integer.toString(gesanz);
-        ad.additionalTable[1][0] = "Kilometer aller Erfüller:";
+        ad.additionalTable[1][0] = "Kilometer aller ErfÃ¼ller:";
         ad.additionalTable[1][1] = EfaUtil.zehntelInt2String(geskm);
       }
   }
 
-  // Ausgabedaten für Kilometerwettbewerbe erstellen (LRV Mecklenburg-Vorpommern Wanderruderwettbewerb)
+  // Ausgabedaten fÃ¼r Kilometerwettbewerbe erstellen (LRV Mecklenburg-Vorpommern Wanderruderwettbewerb)
   static void ausgabeKmWettLRVMVpWanderruderWett(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
     WettDef wett = Daten.wettDefs.getWettDef(WettDefs.LRVMVP_WANDERRUDERWETT,sd.wettJahr);
     WettDefGruppe[] gruppen = wett.gruppen;
@@ -2278,19 +2304,19 @@ public class Statistik {
     int geskm=0;
     int gesanz=0;
 
-    ad.wett_zeitraumWarnung = "Es haben nur Personen diesen Wettbewerb erfüllt, die NICHT das Fahrtenabzeichen des DRV erfüllen. Diese Zusatzbedingung wird von efa NICHT überprüft. Die von efa erstellte Liste enthällt alle potentiellen Erfüller.";
+    ad.wett_zeitraumWarnung = "Es haben nur Personen diesen Wettbewerb erfÃ¼llt, die NICHT das Fahrtenabzeichen des DRV erfÃ¼llen. Diese Zusatzbedingung wird von efa NICHT Ã¼berprÃ¼ft. Die von efa erstellte Liste enthÃ¤llt alle potentiellen ErfÃ¼ller.";
 
     if (sd.ausgebenWettBedingung) ad.wett_bedingungen = createAusgabeBedingungen(sd,wett.key,ad.wett_bedingungen_fett,ad.wett_bedingungen_kursiv);
 
     if (!checkWettZeitraum(sd.wettJahr,sd.von,sd.bis,WettDefs.LRVMVP_WANDERRUDERWETT))
-      ad.wett_zeitraumWarnung = "Achtung: Der gewählte Zeitraum entspricht nicht der Ausschreibung!";
+      ad.wett_zeitraumWarnung = "Achtung: Der gewÃ¤hlte Zeitraum entspricht nicht der Ausschreibung!";
 
     ad.wett_gruppennamen = new String[gruppen.length][3];
     ad.wett_teilnehmerInGruppe = new AusgabeEintrag[gruppen.length];
 
     for (int g=0; g<gruppen.length; g++) {
         ad.wett_gruppennamen[g][0] = gruppen[g].bezeichnung+")";
-        ad.wett_gruppennamen[g][1] = "Jahrgänge "+makeJahrgang(sd.wettJahr-gruppen[g].hoechstalter)+
+        ad.wett_gruppennamen[g][1] = "JahrgÃ¤nge "+makeJahrgang(sd.wettJahr-gruppen[g].hoechstalter)+
                                      " - "+makeJahrgang(sd.wettJahr-gruppen[g].mindalter)+
                                      " ("+makeGeschlecht(gruppen[g].geschlecht)+")";
         ad.wett_gruppennamen[g][2] = gruppen[g].km+" Kilometer"+
@@ -2310,10 +2336,10 @@ public class Statistik {
 
 
             /*
-            // Überprüfung, ob der Teilnehmer den DRV-Wettbewerb erfüllt hat
+            // ÃœberprÃ¼fung, ob der Teilnehmer den DRV-Wettbewerb erfÃ¼llt hat
             // Der folgende Code ist auskommentiert, da der DRV-Wettbewerb einen anderen Zeitraum als der Landeswettbewerb
             // hat und efa daher keinen Abgleich zwischen beiden Wettbewerben machen kann. Sollte der LRV seine Ausschreibung
-            // ändern und denselben Zeitraum wie der DRV verwenden, so kann dieser Block wieder eingefügt werden.
+            // Ã¤ndern und denselben Zeitraum wie der DRV verwenden, so kann dieser Block wieder eingefÃ¼gt werden.
             // Wanderfahrten zusammenstellen
             int wafaKm = 0;
             int wafaAnzMTour = 0;
@@ -2332,14 +2358,14 @@ public class Statistik {
             }
             */
 
-            // sollen für den Teilnehmer Daten ausgegeben werden?
+            // sollen fÃ¼r den Teilnehmer Daten ausgegeben werden?
             boolean erfuellt = Daten.wettDefs.erfuelltGruppe(WettDefs.LRVMVP_WANDERRUDERWETT,sd.wettJahr,g,jahrgang,a[i].kmwett.geschlecht,a[i].kmwett.behinderung,a[i].rudKm+a[i].stmKm,a[i].kmwett.gigbootkm/10,a[i].kmwett.gigbootanz,a[i].kmwett.gigboot20plus,a[i].kmwett.gigboot30plus);
             if (!erfuellt && a[i].kmwett.gigboot30plus>1) {
               erfuellt = Daten.wettDefs.erfuelltGruppe(WettDefs.LRVMVP_WANDERRUDERWETT,sd.wettJahr,g,jahrgang,a[i].kmwett.geschlecht,a[i].kmwett.behinderung,a[i].rudKm+a[i].stmKm,a[i].kmwett.gigbootkm/10,a[i].kmwett.gigbootanz,a[i].kmwett.gigboot20plus+a[i].kmwett.gigboot30plus-1,1);
             }
             /*
-            // Folgenden Block nur aktivieren, wenn der Block der Zusammenstellung der Fahrten für DRV oben aktiviert ist
-            // Wenn der DRV-Wettbewerb erfüllt ist, dann ist der LRV-Wettbewerb nicht erfüllt
+            // Folgenden Block nur aktivieren, wenn der Block der Zusammenstellung der Fahrten fÃ¼r DRV oben aktiviert ist
+            // Wenn der DRV-Wettbewerb erfÃ¼llt ist, dann ist der LRV-Wettbewerb nicht erfÃ¼llt
             if (Daten.wettDefs.erfuellt(WettDefs.DRV_FAHRTENABZEICHEN,sd.wettJahr,jahrgang,a[i].kmwett.geschlecht,a[i].kmwett.behinderung,a[i].rudKm+a[i].stmKm,wafaKm/10,wafaAnzMTour,jumAnz,0) != null) {
               erfuellt = false;
             }
@@ -2354,7 +2380,7 @@ public class Statistik {
                 (((a[i].rudKm+a[i].stmKm)/10 >= gruppen[g].km*sd.wettProz/100) && sd.wettProz<100) ) {
 
               if (sd.ausgabeArt == sd.AUSGABE_EFAWETT) {
-                // Ausgabe für efaWett
+                // Ausgabe fÃ¼r efaWett
               } else {
                 // normale Ausgabe des Teilnehmers
                 AusgabeEintrag ae = new AusgabeEintrag();
@@ -2414,7 +2440,7 @@ public class Statistik {
                 }
                 ae.w_erfuellt = erfuellt;
 
-                // Eintrag hinzufügen
+                // Eintrag hinzufÃ¼gen
                 if (ad.wett_teilnehmerInGruppe[g] == null) ad.wett_teilnehmerInGruppe[g] = ae;
                 else letzterAusgabeEintrag.next = ae;
                 letzterAusgabeEintrag = ae;
@@ -2433,9 +2459,9 @@ public class Statistik {
     }
       if (sd.ausgabeArt != sd.AUSGABE_EFAWETT) {
         ad.additionalTable = new String[2][2];
-        ad.additionalTable[0][0] = "Anzahl der Erfüller:";
+        ad.additionalTable[0][0] = "Anzahl der ErfÃ¼ller:";
         ad.additionalTable[0][1] = Integer.toString(gesanz);
-        ad.additionalTable[1][0] = "Kilometer aller Erfüller:";
+        ad.additionalTable[1][0] = "Kilometer aller ErfÃ¼ller:";
         ad.additionalTable[1][1] = EfaUtil.zehntelInt2String(geskm);
       }
   }
@@ -2445,7 +2471,7 @@ public class Statistik {
 
 
 
-  // Ausgabedaten für Monatsübersicht erstellen
+  // Ausgabedaten fÃ¼r MonatsÃ¼bersicht erstellen
   static void ausgabeMonatsuebersicht(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
     TMJ lastDatum = null;
     int[] monat = null;
@@ -2481,8 +2507,8 @@ public class Statistik {
     lastCol.next = col; lastCol = col;
     txt = new String[4];
     color = new String[4];
-    txt[0] = "normale Fahrt"; color[0] = "88ff88"; // grün
-    txt[1] = Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_AUSBILDUNG); color[1] = "88ffff"; // türkis
+    txt[0] = "normale Fahrt"; color[0] = "88ff88"; // grÃ¼n
+    txt[1] = Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_AUSBILDUNG); color[1] = "88ffff"; // tÃ¼rkis
     txt[2] = Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_JUMREGATTA); color[2] = "ff8888"; // rot
     txt[3] = Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_REGATTA); color[3] = "ff8888"; // rot
     col = new TabellenFolgenEintrag(4,1,txt,color,noneBold7);
@@ -2517,12 +2543,12 @@ public class Statistik {
           lastCol.next = col;
           lastCol = col;
 
-          // Monatsüberschrift
+          // MonatsÃ¼berschrift
           tit = new String[1];
           switch (lastDatum.monat) {
             case  1: tit[0] = "Januar";    break;
             case  2: tit[0] = "Februar";   break;
-            case  3: tit[0] = "März";      break;
+            case  3: tit[0] = "MÃ¤rz";      break;
             case  4: tit[0] = "April";     break;
             case  5: tit[0] = "Mai";       break;
             case  6: tit[0] = "Juni";      break;
@@ -2539,7 +2565,7 @@ public class Statistik {
           lastCol.next = col;
           lastCol = col;
 
-          // Wochentagsüberschrift
+          // WochentagsÃ¼berschrift
           col = new TabellenFolgenEintrag(7,1,wotage,allAA7,allBold7);
           lastCol.next = col;
           lastCol = col;
@@ -2567,15 +2593,15 @@ public class Statistik {
                 else txt[(j-1) % 7] = (j-start+1)+".";
                 if (monat[j-start+1]>0) {
                   String c = "0000ff"; // blau
-                  if (fahrtart[j-start+1] == null || fahrtart[j-start+1].equals("")) c = "00ff00"; // grün
+                  if (fahrtart[j-start+1] == null || fahrtart[j-start+1].equals("")) c = "00ff00"; // grÃ¼n
                   else if (fahrtart[j-start+1].equals("MEHRERE_FAHRTARTEN")) c = "ffff00"; // gelb
-                  else if (fahrtart[j-start+1].equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_AUSBILDUNG))) c = "00ffff"; // türkis
+                  else if (fahrtart[j-start+1].equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_AUSBILDUNG))) c = "00ffff"; // tÃ¼rkis
                   else if (fahrtart[j-start+1].equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_JUMREGATTA))) c = "ff0000"; // rot
                   else if (fahrtart[j-start+1].equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_REGATTA))) c = "ff0000"; // rot
                   else if (fahrtart[j-start+1].equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_TRAINING))) c = "ff00ff"; // lila
 //                  int intens = 9 - (monat[j-start+1] / 100);
 //                  if (intens<0) intens = 0;
-                  int intens = 8; // alle Fahrten mit gleicher Intensität färben!
+                  int intens = 8; // alle Fahrten mit gleicher IntensitÃ¤t fÃ¤rben!
                   color[(j-1) % 7] = EfaUtil.replace(c,"0",Integer.toString(intens),true);
                 }
                 else color[(j-1) % 7] = "eeeeee";
@@ -2619,12 +2645,12 @@ public class Statistik {
     if (zf != null) zfAnz = zf.getAnzZielfahrten();
     if (z == null) {
       if (zf == null) return 0;
-      else return (zfAnz<4 ? zfAnz : 3); // wenn z==null, dann maximal 3 zurückgeben (weil: zf könnte mehrere Fahrten an einem Tag enthalten)
+      else return (zfAnz<4 ? zfAnz : 3); // wenn z==null, dann maximal 3 zurÃ¼ckgeben (weil: zf kÃ¶nnte mehrere Fahrten an einem Tag enthalten)
     }
     for (int c=0; c<z.length; c++) {
       if (z[c] == null) return c;
     }
-    // wenn z != null (also eigentlich erfüllt), dann den größeren der beiden Werte zurückgeben
+    // wenn z != null (also eigentlich erfÃ¼llt), dann den grÃ¶ÃŸeren der beiden Werte zurÃ¼ckgeben
     if (z.length < zfAnz) return zfAnz;
     else return z.length;
   }
@@ -2651,18 +2677,18 @@ public class Statistik {
 
 
 
-  // prüft, ob für die angegebene Person "pers" mit Namen "name" Einträge berechnet werden sollen
+  // prÃ¼ft, ob fÃ¼r die angegebene Person "pers" mit Namen "name" EintrÃ¤ge berechnet werden sollen
   static boolean ignorePerson(StatistikDaten sd, DatenFelder pers, String name, boolean mitruderer) {
     if (sd.art != StatistikDaten.BART_RUDERER) {
       for (int i=0; i<Daten.bezeichnungen.geschlecht.size(); i++)
         if (!sd.geschlecht[i] && (pers == null || pers.get(Mitglieder.GESCHLECHT).equals(Daten.bezeichnungen.geschlecht.get(i)))) return true;
 
 
-      // folgender Code dient als Ersatz für die unten ausgeklammerten drei Zeilen!
-      // Es soll sichergestellt werden, daß auch bei Fahrtenbüchern mit verschiedenen Statuslisten nur diejenigen Personen
-      // ausgewertet werden, die einen der ausgewählten (der angezeigten) Status haben.
+      // folgender Code dient als Ersatz fÃ¼r die unten ausgeklammerten drei Zeilen!
+      // Es soll sichergestellt werden, daÃŸ auch bei FahrtenbÃ¼chern mit verschiedenen Statuslisten nur diejenigen Personen
+      // ausgewertet werden, die einen der ausgewÃ¤hlten (der angezeigten) Status haben.
       if (pers == null) {
-        if (!sd.status[sd.status.length-1]) return true; // nicht "andere" gewählt
+        if (!sd.status[sd.status.length-1]) return true; // nicht "andere" gewÃ¤hlt
       } else {
         boolean _found = false;
         for (int i=0; !_found && i<sd.statusNames.length; i++) {
@@ -2671,14 +2697,14 @@ public class Statistik {
             _found = true;
           }
         }
-        if (!_found && !sd.status[sd.status.length-1]) return true; // nicht "andere" gewählt
+        if (!_found && !sd.status[sd.status.length-1]) return true; // nicht "andere" gewÃ¤hlt
       }
 /*
       for (int i=0; i<Daten.fahrtenbuch.getDaten().status.length; i++)
         if (i<sd.status.length && !sd.status[i] && pers != null && pers.get(Mitglieder.STATUS).equals(Daten.fahrtenbuch.getDaten().status[i])) return true;
       if (!sd.status[Daten.fahrtenbuch.getDaten().status.length-1] && pers == null) return true;
 */
-      // prüfen, ob spezieller Name angegeben wurde
+      // prÃ¼fen, ob spezieller Name angegeben wurde
       if (!mitruderer && !sd.name.equals("")) {
         if (sd.nameOderGruppe == StatistikDaten.NG_NAME) {
           // nur Name
@@ -2701,7 +2727,7 @@ public class Statistik {
     return ignorePerson(sd,pers,name,mitruderer);
   }
 
-  // prüft, ob für das angegebene Boot "boot" Einträge berechnet werden sollen
+  // prÃ¼ft, ob fÃ¼r das angegebene Boot "boot" EintrÃ¤ge berechnet werden sollen
   static boolean ignoreBoot(StatistikDaten sd, DatenFelder boot) {
     if (boot == null) {
       if (!sd.bArt[sd.bArt.length-1]) return true;
@@ -2752,7 +2778,7 @@ public class Statistik {
       case StatistikDaten.ART_MONATE: case StatistikDaten.BART_MONATE:
         if (!h.containsKey("Januar")) h.put("Januar",new HashEl("01","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         if (!h.containsKey("Februar")) h.put("Februar",new HashEl("02","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("März")) h.put("März",new HashEl("03","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey("MÃ¤rz")) h.put("MÃ¤rz",new HashEl("03","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         if (!h.containsKey("April")) h.put("April",new HashEl("04","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         if (!h.containsKey("Mai")) h.put("Mai",new HashEl("05","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         if (!h.containsKey("Juni")) h.put("Juni",new HashEl("06","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
@@ -2838,7 +2864,7 @@ public class Statistik {
               sd.art == StatistikDaten.ART_WERMITBOOTSART || sd.art == StatistikDaten.ART_WERMITFAHRTART ||
               sd.art == StatistikDaten.ART_WERUNERLAUBT)
             ww = new Hashtable();
-          // Gäste und andere ggf. zusammenfassen (auch vereinsweise)
+          // GÃ¤ste und andere ggf. zusammenfassen (auch vereinsweise)
           if (sd.art == StatistikDaten.ART_MITGLIEDER || sd.art == StatistikDaten.ART_MITRUDERER ||
               sd.art == StatistikDaten.BART_RUDERER ||
               sd.art == StatistikDaten.ART_WERMITWEM || sd.art == StatistikDaten.ART_WERWOHIN ||
@@ -2854,7 +2880,7 @@ public class Statistik {
             }
           }
           if ((sd.stat == StatistikDaten.STAT_MITGLIEDER && !ignorePerson(sd,d,orgname,false)) ||
-              (sd.stat == StatistikDaten.STAT_BOOTE && !ignoreBoot(sd,d)) ) // nur Nullwerte für die ausgeben, die auch in die Berechnung mit einbezogen sind
+              (sd.stat == StatistikDaten.STAT_BOOTE && !ignoreBoot(sd,d)) ) // nur Nullwerte fÃ¼r die ausgeben, die auch in die Berechnung mit einbezogen sind
             if (!h.containsKey(s)) h.put(s,new HashEl(jahrgang,status,"",0,0,0,0,0,new ZielfahrtFolge(),ww,null,null));
         } while ( (d = (DatenFelder)Daten.fahrtenbuch.getDaten().mitglieder.getCompleteNext()) != null);
     }
@@ -2862,7 +2888,7 @@ public class Statistik {
   }
 
   // Teilziele ermitteln und in zielArr[] speichern;
-  // falls Teilziele nicht erwünscht, dann ist Hauptziel einziges Arr-Element
+  // falls Teilziele nicht erwÃ¼nscht, dann ist Hauptziel einziges Arr-Element
   static String[] makeZielArr(StatistikDaten sd, String zz) {
     String zielArr[];
     if (sd.ziele_gruppiert) {
@@ -2875,7 +2901,7 @@ public class Statistik {
         if ( (wo = zz.indexOf("+")) >=0) {
           kurzzz = zz.substring(0,wo).trim();
           zz = EfaUtil.replace(zz,kurzzz,"").trim();
-          zz = EfaUtil.replace(zz,"+","").trim(); // erstes "+" löschen
+          zz = EfaUtil.replace(zz,"+","").trim(); // erstes "+" lÃ¶schen
         } else {
           kurzzz = zz;
           zz = "";
@@ -2892,11 +2918,11 @@ public class Statistik {
   static void tageszeitAddRemaining(int[] a, int total) {
     int _addedUp=0;
     for (int hour=0; hour<24; hour++) _addedUp += a[hour];
-    if (_addedUp == 0) return; // nicht möglich, wenn das gesamte a-array auf Null steht
+    if (_addedUp == 0) return; // nicht mÃ¶glich, wenn das gesamte a-array auf Null steht
     _addedUp = Math.abs(total - _addedUp); // positiver Rest der verbleibenden, aufzuteilenden Zeit
     while (_addedUp>0)
       for (int hour=0; hour<24 && _addedUp>0; hour++)
-        if (a[hour] != 0) { a[hour]+= (a[hour]>0? 1 : -1); _addedUp--; } // beachte, daß bei Vorjahresvergleich auch mit negativen Werten gerechnet werden muß!!
+        if (a[hour] != 0) { a[hour]+= (a[hour]>0? 1 : -1); _addedUp--; } // beachte, daÃŸ bei Vorjahresvergleich auch mit negativen Werten gerechnet werden muÃŸ!!
   }
 
 
@@ -2908,12 +2934,12 @@ public class Statistik {
   // 'mitruderer' ist true, wenn es sich um einen Mitruderer eines Fahrtenbucheintrags bei ART_MITRUDERER handelt; sonst false
   static void calc(String name, boolean stm, DatenFelder d, Hashtable h, StatistikDaten sd, boolean mitruderer, String zf,
                    int forcedMTourTage) {
-    // Datum überprüfen
+    // Datum Ã¼berprÃ¼fen
     TMJ dateF = EfaUtil.string2date(d.get(Fahrtenbuch.DATUM),0,0,0);
     GregorianCalendar dateCal = new GregorianCalendar(dateF.jahr,dateF.monat-1,dateF.tag);
     dateCal.set(dateF.jahr,dateF.monat-1+dateCal.getMinimum(GregorianCalendar.MONTH),dateF.tag);
 
-    // Art der Fahrt überprüfen
+    // Art der Fahrt Ã¼berprÃ¼fen
     String mtour = d.get(Fahrtenbuch.FAHRTART);
     boolean mtourfound = false; // true, wenn Mehrtagestour in Liste gefunden und in SD auf true gesetzt ist
     if (mtour.length()==0) {
@@ -2947,14 +2973,14 @@ public class Statistik {
     Mehrtagesfahrt mehrtagesfahrt = null;
     if (d.get(Fahrtenbuch.FAHRTART).length()>0) mehrtagesfahrt = Daten.fahrtenbuch.getMehrtagesfahrt(d.get(Fahrtenbuch.FAHRTART));
 
-    // Zeitraum bzgl. Mehrtagestouren überprüfen
+    // Zeitraum bzgl. Mehrtagestouren Ã¼berprÃ¼fen
     if (mehrtagesfahrt != null) {
       String _datum = d.get(Fahrtenbuch.DATUM);
       if ( (mehrtagesfahrt.start != null && mehrtagesfahrt.start.length()>0 &&
             EfaUtil.secondDateIsAfterFirst(_datum,mehrtagesfahrt.start)) ||
            (mehrtagesfahrt.ende != null && mehrtagesfahrt.ende.length()>0 &&
             EfaUtil.secondDateIsAfterFirst(mehrtagesfahrt.ende,_datum)) ) {
-        Dialog.error("Das Datum der Mehrtagesfahrt #"+d.get(Fahrtenbuch.LFDNR)+" ("+_datum+") liegt außerhalb des für\n"+
+        Dialog.error("Das Datum der Mehrtagesfahrt #"+d.get(Fahrtenbuch.LFDNR)+" ("+_datum+") liegt auÃŸerhalb des fÃ¼r\n"+
                      "diese Fahrt konfigurierten Zeitraums ("+mehrtagesfahrt.start+" - "+mehrtagesfahrt.ende+").\n"+
                      "Der Eintrag wird daher NICHT ausgewertet.");
         return;
@@ -2976,16 +3002,16 @@ public class Statistik {
     }
 
 
-    // Anzahl der tatsächlichen Rudertage dieser Fahrt (oder Etappe) ermitteln;
-    // Hinweis: Für Mehrtagestouren, die in Form von Etappen eingetragen sind, ist für jede Etappe anzRuderTage == 1!
+    // Anzahl der tatsÃ¤chlichen Rudertage dieser Fahrt (oder Etappe) ermitteln;
+    // Hinweis: FÃ¼r Mehrtagestouren, die in Form von Etappen eingetragen sind, ist fÃ¼r jede Etappe anzRuderTage == 1!
     int anzRuderTage = 1;
     if (mehrtagesfahrt != null && !mehrtagesfahrt.isEtappen) anzRuderTage = mehrtagesfahrt.rudertage;
     if (forcedMTourTage > 0) anzRuderTage = forcedMTourTage; // wird nur benutzt, wenn eine Mehrtages.Zielfahrt nicht in Form von Etappen berechnet wird und calc() rekursiv aufgerufen wird
 
-    // Datum: Wenn außerhalb Zeitraum, dann raus
+    // Datum: Wenn auÃŸerhalb Zeitraum, dann raus
     if (dateCal.before(sd.vonCal) || dateCal.after(sd.bisCal)) return;
 
-    // Bei Vorjahresvergleich: Zeitraum prüfen
+    // Bei Vorjahresvergleich: Zeitraum prÃ¼fen
     if (sd.vorjahresvergleich &&
        ( dateCal.get(Calendar.MONTH)+1 < sd.von.monat ||
          ( dateCal.get(Calendar.MONTH)+1 == sd.von.monat && dateCal.get(Calendar.DAY_OF_MONTH) < sd.von.tag) ) ) return;
@@ -3023,26 +3049,26 @@ public class Statistik {
       // Personendaten ermitteln
       DatenFelder pers = Daten.fahrtenbuch.getDaten().mitglieder.getExactComplete(name);
 
-      // prüfen, ob für die Person Daten berechnet werden sollen
+      // prÃ¼fen, ob fÃ¼r die Person Daten berechnet werden sollen
       if (ignorePerson(sd,pers,name,mitruderer)) return;
 
-      // prüfen, ob bei Wettbewerben diese Person ignoriert werden soll
+      // prÃ¼fen, ob bei Wettbewerben diese Person ignoriert werden soll
       if (sd.stat == StatistikDaten.STAT_WETT && pers != null && !Mitglieder.isKmwettMelden(pers)) {
-        nichtBeruecksichtigt.put(EfaUtil.getFullName(pers.get(Mitglieder.VORNAME),pers.get(Mitglieder.NACHNAME),pers.get(Mitglieder.VEREIN),true), "Soll nicht für Wettbewerbe gemeldet werden");
+        nichtBeruecksichtigt.put(EfaUtil.getFullName(pers.get(Mitglieder.VORNAME),pers.get(Mitglieder.NACHNAME),pers.get(Mitglieder.VEREIN),true), "Soll nicht fÃ¼r Wettbewerbe gemeldet werden");
         return;
       }
 
       // ggf. Original zum Synonymnamen ermitteln
       orgVerein = EfaUtil.getVerein(name); // Vereinsnamen sichern, falls ein Gast durch ein Synonymnamen seine Vereinsbezeichnung verliert
-      orgName = name; // Namen sichern, damit dieser für Unteraufrufe von calc() verwendet werden kann
+      orgName = name; // Namen sichern, damit dieser fÃ¼r Unteraufrufe von calc() verwendet werden kann
       name = EfaUtil.syn2org(Daten.synMitglieder,name);
 
-      // prüfen, ob Mitruderer sich selbst berechnet? ;-)
+      // prÃ¼fen, ob Mitruderer sich selbst berechnet? ;-)
       if (mitruderer && sd.art == StatistikDaten.ART_MITRUDERER) {
         if (name.toUpperCase().equals(sd.name.toUpperCase())) return;
       }
 
-      // hier jetzt: Person, für die die Mitruderer berechnet werden sollen!
+      // hier jetzt: Person, fÃ¼r die die Mitruderer berechnet werden sollen!
       if (!mitruderer && sd.art == StatistikDaten.ART_MITRUDERER) {
         String s;
         if ( !(s = d.get(Fahrtenbuch.STM)).equals("") ) calc(s,true,d,h,sd,true,null,-1);
@@ -3079,18 +3105,18 @@ public class Statistik {
 
       // ggf. Original zum Synonymnamen ermitteln
       orgVerein = EfaUtil.getVerein(name); // Vereinsnamen sichern, falls ein Gast durch ein Synonymnamen seine Vereinsbezeichnung verliert
-      orgName = name; // Namen sichern, damit dieser für Unteraufrufe von calc() verwendet werden kann
+      orgName = name; // Namen sichern, damit dieser fÃ¼r Unteraufrufe von calc() verwendet werden kann
       name = EfaUtil.syn2org(Daten.synBoote,name);
 
-      // prüfen, ob für das Boot Daten berechnet werden sollen
+      // prÃ¼fen, ob fÃ¼r das Boot Daten berechnet werden sollen
       if (ignoreBoot(sd,boot)) return;
 
-      // prüfen, ob spezieller Name angegeben wurde
+      // prÃ¼fen, ob spezieller Name angegeben wurde
       if (!mitruderer && !sd.name.equals("")) {
         if (!name.toUpperCase().equals(sd.name.toUpperCase())) return;
       }
 
-      // hier jetzt: Ruderer, für die berechnet werden sollen!
+      // hier jetzt: Ruderer, fÃ¼r die berechnet werden sollen!
       if (!mitruderer && sd.art == StatistikDaten.BART_RUDERER) {
         String s;
         if ( !(s = d.get(Fahrtenbuch.STM)).equals("") ) calc(s,true,d,h,sd,true,null,-1);
@@ -3135,7 +3161,7 @@ public class Statistik {
     }
     if (ankunft - abfahrt < 0 && ankunft - abfahrt >= -10) {
       // Annahme: Bei einer solchen Fahrt handelt es sich um eine Fahrt, bei der "Fahrt beginnen" und "Fahrt beenden"
-      // kurz nacheinander gedrückt wurden. Diese Fahrt wird korrigiert auf ankuft=abfahrt.
+      // kurz nacheinander gedrÃ¼ckt wurden. Diese Fahrt wird korrigiert auf ankuft=abfahrt.
       ankunft = abfahrt;
     }
     int dauer = 0;
@@ -3146,7 +3172,7 @@ public class Statistik {
 
     // Zielfahrt ermitteln
     DatenFelder ziel = Daten.fahrtenbuch.getDaten().ziele.getExactComplete(d.get(Fahrtenbuch.ZIEL));
-    if (zf == null) { // falls zf nicht durch calc()-Aufruf vorbelegt ist (bei mehrtägigen Zielfahrten der Fall)
+    if (zf == null) { // falls zf nicht durch calc()-Aufruf vorbelegt ist (bei mehrtÃ¤gigen Zielfahrten der Fall)
       zf = "";
       if (ziel != null && km>=Daten.ZIELFAHRTKM) zf = ziel.get(Ziele.BEREICH);
     }
@@ -3157,7 +3183,7 @@ public class Statistik {
     // nur Fahrten mit mind x. Km
     if (km < sd.nurMindKm) return;
 
-    // nur Boote für Gruppe
+    // nur Boote fÃ¼r Gruppe
     if (sd.nurBooteFuerGruppe != null && sd.nurBooteFuerGruppe.length() > 0) {
       DatenFelder boot = Daten.fahrtenbuch.getDaten().boote.getExactComplete(d.get(Fahrtenbuch.BOOT));
       if (boot == null) return;
@@ -3172,7 +3198,7 @@ public class Statistik {
     // Ziel-Array aufbauen
     String zielArr[] = makeZielArr(sd,d.get(Fahrtenbuch.ZIEL));
 
-    // Gäste und andere ggf. zusammenfassen (auch vereinsweise)
+    // GÃ¤ste und andere ggf. zusammenfassen (auch vereinsweise)
     if (sd.art == StatistikDaten.ART_MITGLIEDER || sd.art == StatistikDaten.ART_MITRUDERER ||
         sd.art == StatistikDaten.BART_RUDERER ||
         sd.art == StatistikDaten.ART_WERMITWEM || sd.art == StatistikDaten.ART_WERWOHIN ||
@@ -3190,7 +3216,7 @@ public class Statistik {
 
 
     // Mehrtagesfahrten mit mehreren Zielbereichen in einzelne Teilfahrten aufspalten
-    // Bugfix in 1.4.1_03: Aufspaltung für ALLE Statistikarten mit Ausnahme der aufgezählten durchführen!
+    // Bugfix in 1.4.1_03: Aufspaltung fÃ¼r ALLE Statistikarten mit Ausnahme der aufgezÃ¤hlten durchfÃ¼hren!
     if (sd.art != StatistikDaten.ART_ZIELE &&
         sd.art != StatistikDaten.ART_FAHRTENBUCH &&
         sd.art != StatistikDaten.BART_ZIELE &&
@@ -3209,21 +3235,21 @@ public class Statistik {
         anzZB = new ZielfahrtFolge(zf).getAnzZielfahrten();
       }
       if (anzZB>anzRuderTage) {
-        Dialog.error("Für Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" sind Zielbereiche für "+anzZB+" Etappen angegeben, aber\n"+
+        Dialog.error("FÃ¼r Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" sind Zielbereiche fÃ¼r "+anzZB+" Etappen angegeben, aber\n"+
                      "die Mehrtagesfahrt hat nur "+anzRuderTage+" Rudertage!\n"+
-                     "Die Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" wurde daher bei der Auswertung NICHT berücksichtigt!\n"+
+                     "Die Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" wurde daher bei der Auswertung NICHT berÃ¼cksichtigt!\n"+
                      "(Bitte korrigiere die Anzahl der Rudertage oder die Zielbereiche!)");
         return;
       }
 
       int _km;
-      _km = ( (km / anzRuderTage) / 5 ) * 5; // Grundsätzlich werden alle Teiletappen immer auf ganze oder halbe Kilometer gerundet (Bugfix in 1.8.1_05)
+      _km = ( (km / anzRuderTage) / 5 ) * 5; // GrundsÃ¤tzlich werden alle Teiletappen immer auf ganze oder halbe Kilometer gerundet (Bugfix in 1.8.1_05)
 
       if (anzZB >= 1 && _km < Daten.ZIELFAHRTKM) {
         Dialog.error("Beim Versuch, die Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" in "+anzRuderTage+" Teilfahrten aufzuteilen, um die\n"+
-                     "Zielfahrten der einzelnen Etappen zu berechnen, hat efa festgestellt, daß die einzelnen\n"+
+                     "Zielfahrten der einzelnen Etappen zu berechnen, hat efa festgestellt, daÃŸ die einzelnen\n"+
                      "Etappen weniger als "+(Daten.ZIELFAHRTKM / 10)+ " Km lang sind und somit keine Zielfahrten darstellen.\n"+
-                     "Die Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" wurde daher bei der Auswertung NICHT berücksichtigt!\n"+
+                     "Die Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" wurde daher bei der Auswertung NICHT berÃ¼cksichtigt!\n"+
                      "(Bitte gib im Zweifelsfall die Fahrt in Form von einzelnen Etappen ein!)");
         return;
       }
@@ -3264,11 +3290,11 @@ public class Statistik {
       }
       return;
     }
-    // Bugfix in 1.4.1_03: Semikolons nicht generell, sondern nur in 1tägigen Fahrten verbieten
-    // in 1.7.4_00: Grund für nachfolgendes Bugfix nicht mehr ersichtlich; der Bugfix wurde daher entfernt.
+    // Bugfix in 1.4.1_03: Semikolons nicht generell, sondern nur in 1tÃ¤gigen Fahrten verbieten
+    // in 1.7.4_00: Grund fÃ¼r nachfolgendes Bugfix nicht mehr ersichtlich; der Bugfix wurde daher entfernt.
 //    else if (anzRuderTage==1 && zf.indexOf(ZielfahrtFolge.ZIELFAHRT_MTOUR_TRENNER_S)>=0) zf = EfaUtil.replace(zf,ZielfahrtFolge.ZIELFAHRT_MTOUR_TRENNER_S,",",true); // keine Semikolons in Zielfahrten erlauben
 
-    int eins = 1; // Wert für "1" (positiv, oder ggf. bei sd.vorjahresvergleich auch negativ)
+    int eins = 1; // Wert fÃ¼r "1" (positiv, oder ggf. bei sd.vorjahresvergleich auch negativ)
 
     // Bei Vorjahresvergleich: Auswertung einer Fahrt im Vorjahr
     if (sd.vorjahresvergleich && dateCal.get(Calendar.YEAR) == sd.von.jahr) {
@@ -3286,7 +3312,7 @@ public class Statistik {
     sd.alleAusgewertetenEintraege.put(Daten.fahrtenbuch.getFileName()+"#"+d.get(Fahrtenbuch.LFDNR),"foo");
 
 
-    // Fahrt hinzufügen
+    // Fahrt hinzufÃ¼gen
     switch (sd.art) {
       case StatistikDaten.ART_ZIELE: case StatistikDaten.BART_ZIELE:
         for (int i=0; i<zielArr.length; i++) { // alle Teilziele (falls keine Teilziele, dann ist nur das 1 Hauptziel im Array
@@ -3320,7 +3346,7 @@ public class Statistik {
         switch (dateCal.get(GregorianCalendar.MONTH)) {
           case GregorianCalendar.JANUARY:   name = "Januar";    jahrgang = "01"; break;
           case GregorianCalendar.FEBRUARY:  name = "Februar";   jahrgang = "02"; break;
-          case GregorianCalendar.MARCH:     name = "März";      jahrgang = "03"; break;
+          case GregorianCalendar.MARCH:     name = "MÃ¤rz";      jahrgang = "03"; break;
           case GregorianCalendar.APRIL:     name = "April";     jahrgang = "04"; break;
           case GregorianCalendar.MAY:       name = "Mai";       jahrgang = "05"; break;
           case GregorianCalendar.JUNE:      name = "Juni";      jahrgang = "06"; break;
@@ -3344,7 +3370,7 @@ public class Statistik {
           boolean[] _hour = new boolean[24];
           for (int hour=0; hour<24; hour++) {
             if (hour>=abfahrt/60 && hour<=ankunft/60 || // Fahrt innerhalb desselben Tages
-                (abfahrt>ankunft && (hour>=abfahrt/60 || hour<=ankunft/60)) ) { // Fahrt über Mitternacht hinaus
+                (abfahrt>ankunft && (hour>=abfahrt/60 || hour<=ankunft/60)) ) { // Fahrt Ã¼ber Mitternacht hinaus
               int anteilAnStunde = 60;
               if (abfahrt>hour*60 && abfahrt<(hour+1)*60) anteilAnStunde -= abfahrt - hour*60;
               if (ankunft>=hour*60 && ankunft<(hour+1)*60) anteilAnStunde -= (hour+1)*60 - ankunft;
@@ -3400,7 +3426,7 @@ public class Statistik {
         else h.put(name,new HashEl(jahrgang,"","",rudKm + ges.rudKm, stmKm + ges.stmKm, ges.mannschKm + mannschKm, ges.dauer + dauer,eins*anzRuderTage + ges.anz, ges.zf.addZielfahrten(zf),null,null,null));
         break;
       case StatistikDaten.BART_ARTDETAIL: case StatistikDaten.ART_BOOTSART:
-        // Bei StatistiKDaten.ART_BOOTSART wurde "bezeichnung" noch nicht ermittelt, daher muß dies hier nachgeholt werden!
+        // Bei StatistiKDaten.ART_BOOTSART wurde "bezeichnung" noch nicht ermittelt, daher muÃŸ dies hier nachgeholt werden!
         if (sd.art == StatistikDaten.ART_BOOTSART) {
           DatenFelder b = Daten.fahrtenbuch.getDaten().boote.getExactComplete(d.get(Fahrtenbuch.BOOT));
           if (b != null) {
@@ -3432,7 +3458,7 @@ public class Statistik {
         else h.put(name,new HashEl("","","",rudKm + ges.rudKm, stmKm + ges.stmKm, ges.mannschKm + mannschKm, ges.dauer + dauer,eins*anzRuderTage + ges.anz, ges.zf.addZielfahrten(zf),null,null,null));
         break;
       case StatistikDaten.ART_WERMITWEM:
-        if ( (ges = (HashEl)h.get(name)) == null) { // schauen, ob für akt. Person bereits Eintrag vorhanden
+        if ( (ges = (HashEl)h.get(name)) == null) { // schauen, ob fÃ¼r akt. Person bereits Eintrag vorhanden
           Hashtable ww = new Hashtable(); // --> nein, neue Person --> dann auch alle Mitruderer neu
           String s;
           if ( !(s = d.get(Fahrtenbuch.STM)).equals("") ) {
@@ -3454,7 +3480,7 @@ public class Statistik {
             }
           h.put(name,new HashEl(jahrgang,status,"",rudKm,stmKm,mannschKm,dauer,eins*anzRuderTage,new ZielfahrtFolge(zf),ww,null,null));
         } else { // --> ja, akt. Person bereits vorhanden
-          HashEl gesww; // --> dann prüfen, ob Mitruderer jeweils schon vorhanden (werden in gesww gespeichert)
+          HashEl gesww; // --> dann prÃ¼fen, ob Mitruderer jeweils schon vorhanden (werden in gesww gespeichert)
           String s;
           if ( !(s = d.get(Fahrtenbuch.STM)).equals("") ) {
             if (sd.ww_horiz_alle || !ignorePerson(sd,s,false)) {
@@ -3479,7 +3505,7 @@ public class Statistik {
         }
         break;
       case StatistikDaten.ART_WERWOHIN:
-        if ( (ges = (HashEl)h.get(name)) == null) { // schauen, ob für akt. Person bereits Eintrag vorhanden
+        if ( (ges = (HashEl)h.get(name)) == null) { // schauen, ob fÃ¼r akt. Person bereits Eintrag vorhanden
           Hashtable ww = new Hashtable(); // --> nein, neue Person --> dann auch alles neue Ziele
           for (int i=0; i<zielArr.length; i++) {
             if ( !zielArr[i].equals("") )
@@ -3488,7 +3514,7 @@ public class Statistik {
           }
           h.put(name,new HashEl(jahrgang,status,"",rudKm,stmKm,mannschKm,dauer,eins,new ZielfahrtFolge(zf),ww,null,null));
         } else { // --> ja, akt. Person bereits vorhanden
-          HashEl gesww; // --> dann prüfen, ob Ziel schon vorhanden (wird in gesww gespeichert)
+          HashEl gesww; // --> dann prÃ¼fen, ob Ziel schon vorhanden (wird in gesww gespeichert)
           for (int i=0; i<zielArr.length; i++) {
             if ( !zielArr[i].equals("") )
               if ( (gesww = (HashEl)ges.ww.get(zielArr[i])) == null) ges.ww.put(zielArr[i],new HashEl("","","",rudKm,stmKm,mannschKm,dauer,eins,new ZielfahrtFolge(zf),null,null,null));
@@ -3505,7 +3531,7 @@ public class Statistik {
           if (b != null) bootsart = Boote.getDetailBezeichnung(b);
         }
 
-        if ( (ges = (HashEl)h.get(name)) == null) { // schauen, ob für akt. Person bereits Eintrag vorhanden
+        if ( (ges = (HashEl)h.get(name)) == null) { // schauen, ob fÃ¼r akt. Person bereits Eintrag vorhanden
           Hashtable ww = new Hashtable(); // --> nein, neue Person --> dann auch alles neue Ziele
           if (bootsart.length()>0) {
             ww.put(bootsart,new HashEl("","","",rudKm,stmKm,mannschKm,dauer,eins,new ZielfahrtFolge(zf),null,null,null));
@@ -3513,7 +3539,7 @@ public class Statistik {
           }
           h.put(name,new HashEl(jahrgang,status,"",rudKm,stmKm,mannschKm,dauer,eins,new ZielfahrtFolge(zf),ww,null,null));
         } else { // --> ja, akt. Person bereits vorhanden
-          HashEl gesww; // --> dann prüfen, ob Ziel schon vorhanden (wird in gesww gespeichert)
+          HashEl gesww; // --> dann prÃ¼fen, ob Ziel schon vorhanden (wird in gesww gespeichert)
           if (bootsart.length()>0) {
             if ( (gesww = (HashEl)ges.ww.get(bootsart)) == null) ges.ww.put(bootsart,new HashEl("","","",rudKm,stmKm,mannschKm,dauer,eins,new ZielfahrtFolge(zf),null,null,null));
             else ges.ww.put(bootsart,new HashEl("","","",rudKm + gesww.rudKm, stmKm + gesww.stmKm, gesww.mannschKm+mannschKm, gesww.dauer+dauer,eins+gesww.anz,gesww.zf.addZielfahrten(zf),null,null,null));
@@ -3533,13 +3559,13 @@ public class Statistik {
               if (Daten.gruppen.isInGroup((String)gruppen.get(i),EfaUtil.getVorname(name),EfaUtil.getNachname(name),EfaUtil.getVerein(name))) inGruppe = true;
             }
             if (!inGruppe && gruppen.size()>0) {
-              if ( (ges = (HashEl)h.get(name)) == null) { // schauen, ob für akt. Person bereits Eintrag vorhanden
+              if ( (ges = (HashEl)h.get(name)) == null) { // schauen, ob fÃ¼r akt. Person bereits Eintrag vorhanden
                 Hashtable ww = new Hashtable(); // --> nein, neue Person --> dann auch alles neue Ziele
                 ww.put(boot,new HashEl("","","",rudKm,stmKm,mannschKm,dauer,eins,new ZielfahrtFolge(zf),null,null,null));
                 alleWW.put(boot,new Object());
                 h.put(name,new HashEl(jahrgang,status,"",rudKm,stmKm,mannschKm,dauer,eins,new ZielfahrtFolge(zf),ww,null,null));
               } else { // --> ja, akt. Person bereits vorhanden
-                HashEl gesww; // --> dann prüfen, ob Ziel schon vorhanden (wird in gesww gespeichert)
+                HashEl gesww; // --> dann prÃ¼fen, ob Ziel schon vorhanden (wird in gesww gespeichert)
                 if ( (gesww = (HashEl)ges.ww.get(boot)) == null) ges.ww.put(boot,new HashEl("","","",rudKm,stmKm,mannschKm,dauer,eins,new ZielfahrtFolge(zf),null,null,null));
                 else ges.ww.put(boot,new HashEl("","","",rudKm + gesww.rudKm, stmKm + gesww.stmKm, gesww.mannschKm+mannschKm, gesww.dauer+dauer,eins+gesww.anz,gesww.zf.addZielfahrten(zf),null,null,null));
                 alleWW.put(boot,new Object());
@@ -3554,13 +3580,13 @@ public class Statistik {
         if (!mtourfound) fahrtart = Daten.bezeichnungen.fahrtart.get(Daten.bezeichnungen.fahrtart.size()-1);
         if (fahrtart.equals("")) fahrtart=Daten.bezeichnungen.fahrtart.get(0);
 
-        if ( (ges = (HashEl)h.get(name)) == null) { // schauen, ob für akt. Person bereits Eintrag vorhanden
+        if ( (ges = (HashEl)h.get(name)) == null) { // schauen, ob fÃ¼r akt. Person bereits Eintrag vorhanden
           Hashtable ww = new Hashtable(); // --> nein, neue Person --> dann auch alles neue Ziele
           ww.put(fahrtart,new HashEl("","","",rudKm,stmKm,mannschKm,dauer,eins,new ZielfahrtFolge(zf),null,null,null));
           alleWW.put(fahrtart,new Object());
           h.put(name,new HashEl(jahrgang,status,"",rudKm,stmKm,mannschKm,dauer,eins,new ZielfahrtFolge(zf),ww,null,null));
         } else { // --> ja, akt. Person bereits vorhanden
-          HashEl gesww; // --> dann prüfen, ob Ziel schon vorhanden (wird in gesww gespeichert)
+          HashEl gesww; // --> dann prÃ¼fen, ob Ziel schon vorhanden (wird in gesww gespeichert)
           if ( (gesww = (HashEl)ges.ww.get(fahrtart)) == null) ges.ww.put(fahrtart,new HashEl("","","",rudKm,stmKm,mannschKm,dauer,eins,new ZielfahrtFolge(zf),null,null,null));
           else ges.ww.put(fahrtart,new HashEl("","","",rudKm + gesww.rudKm, stmKm + gesww.stmKm, gesww.mannschKm+mannschKm, gesww.dauer+dauer,eins+gesww.anz,gesww.zf.addZielfahrten(zf),null,null,null));
           alleWW.put(fahrtart,new Object());
@@ -3568,7 +3594,7 @@ public class Statistik {
         }
         break;
       case StatistikDaten.BART_WELCHESWOHIN:
-        if ( (ges = (HashEl)h.get(name)) == null) { // schauen, ob für akt. Person bereits Eintrag vorhanden
+        if ( (ges = (HashEl)h.get(name)) == null) { // schauen, ob fÃ¼r akt. Person bereits Eintrag vorhanden
           Hashtable ww = new Hashtable(); // --> nein, neue Person --> dann auch alles neue Ziele
           for (int i=0; i<zielArr.length; i++) {
             if ( !zielArr[i].equals("") )
@@ -3577,7 +3603,7 @@ public class Statistik {
           }
           h.put(name,new HashEl(jahrgang,status,"",rudKm,stmKm,mannschKm,dauer,eins,new ZielfahrtFolge(zf),ww,null,null));
         } else { // --> ja, akt. Person bereits vorhanden
-          HashEl gesww; // --> dann prüfen, ob Ziel schon vorhanden (wird in gesww gespeichert)
+          HashEl gesww; // --> dann prÃ¼fen, ob Ziel schon vorhanden (wird in gesww gespeichert)
           for (int i=0; i<zielArr.length; i++) {
             if ( !zielArr[i].equals("") )
               if ( (gesww = (HashEl)ges.ww.get(zielArr[i])) == null) ges.ww.put(zielArr[i],new HashEl("","","",rudKm,stmKm,mannschKm,dauer,eins,new ZielfahrtFolge(zf),null,null,null));
@@ -3596,7 +3622,7 @@ public class Statistik {
         String lfdnr_key = tmp.jahr+"/"+(tmp.monat<10 ? "0"+tmp.monat : ""+tmp.monat)+"/"+(tmp.tag<10 ? "0"+tmp.tag : ""+tmp.tag)+"-"+EfaUtil.leadingZeroString(lfdnri,7)+lfdnr;
         String lfdnr_show = Integer.toString(lfdnri);                    // lfdnr_show: LfdNr, die angezeigt werden soll
 
-        // String für Sortierkriterium "Lfd. Nr" generieren
+        // String fÃ¼r Sortierkriterium "Lfd. Nr" generieren
         String sort_lfdnr = EfaUtil.leadingZeroString(lfdnri,7)+lfdnr;
         sort_lfdnr = tmp.jahr+"-"+sort_lfdnr+"-"+(tmp.monat<10 ? "0"+tmp.monat : ""+tmp.monat)+"/"+(tmp.tag<10 ? "0"+tmp.tag : ""+tmp.tag);
 
@@ -3606,7 +3632,7 @@ public class Statistik {
 
         while (h.get(lfdnr_key) != null) lfdnr_key = lfdnr_key + "+"; // Doppelte Keys vermeiden
 
-        // Felder für Fahrtenbuch aufbauen
+        // Felder fÃ¼r Fahrtenbuch aufbauen
         String[] as = new String[11];
 
         if (sd.fbLfdNr) as[0] = lfdnr_show; // Ein ggf. vorhandener Buchstabe in der LfdNr wird in der Ausgabe ignoriert!
@@ -3669,7 +3695,7 @@ public class Statistik {
         break;
       case StatistikDaten.WETT_LRVBWINTER:
         if ( (rudKm+stmKm) % 5 > 0) rudKm += 5 - (rudKm+stmKm) % 5; // auf .5 oder .0 aufrunden
-        if (rudKm + stmKm == 0) return; // keine 0Km-Fahrten werten, da diese sonst unberechtigt zur Erfüllung der Regel "mind 8 Fahrten / mind 3 Monate" führen könnte
+        if (rudKm + stmKm == 0) return; // keine 0Km-Fahrten werten, da diese sonst unberechtigt zur ErfÃ¼llung der Regel "mind 8 Fahrten / mind 3 Monate" fÃ¼hren kÃ¶nnte
         if ( (ges = (HashEl)h.get(name)) == null) {
           KmWettInfo kmwett = new KmWettInfo();
           if (geschlecht.equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH))) kmwett.geschlecht = 0;
@@ -3690,7 +3716,7 @@ public class Statistik {
         if (mehrtagesfahrt == null) fahrtname += " ##"+d.get(Fahrtenbuch.DATUM)+"##"+d.get(Fahrtenbuch.BOOTSKM)+"##";
 
         // vorhandene Fahrt suchen bzw. neue erstellen
-        if (true) { // nur, damit die Variable kmwett einen lokalen Gültigkeitsbereich erhält
+        if (true) { // nur, damit die Variable kmwett einen lokalen GÃ¼ltigkeitsbereich erhÃ¤lt
         KmWettInfo kmwett = null;
         if ( (ges = (HashEl)h.get(fahrtname)) != null) kmwett = ges.kmwett;
         if (kmwett == null) {
@@ -3706,7 +3732,7 @@ public class Statistik {
           }
         }
 
-        // Daten der Fahrt füllen
+        // Daten der Fahrt fÃ¼llen
         Integer integer;
 
         String etappenName = null;
@@ -3722,19 +3748,19 @@ public class Statistik {
         int jjj = EfaUtil.string2int(jahrgang,0);
         if (jjj == 0) {
           String wtext = "Das Alter des Teilnehmers '"+name+"' konnte nicht ermittelt werden, da sein/ihr Jahrgang "+
-                         "nicht in efa erfaßt ist! Fahrten dieses Teilnehmers werden ignoriert.\n";
-          if (warnungen.indexOf(wtext)<0) warnungen += wtext; // keine doppelten Warnungen hinzufügen
+                         "nicht in efa erfaÃŸt ist! Fahrten dieses Teilnehmers werden ignoriert.\n";
+          if (warnungen.indexOf(wtext)<0) warnungen += wtext; // keine doppelten Warnungen hinzufÃ¼gen
           return;
         }
 
         // Alter des Teilnehmers
         int alter = sd.wettJahr - jjj;
 
-        // keine Teilnehmer berücksichtigen, die jünger als 13 Jahre sind
-        // seit 2007 entfällt diese Beschränkung: Es werden jetzt alle Teilnehmer gewertet, die
-        // Wanderfahrten gemäß der Regel "30Km 1tägig / 40Km mehrtägig" absolviert haben, unabhängig
+        // keine Teilnehmer berÃ¼cksichtigen, die jÃ¼nger als 13 Jahre sind
+        // seit 2007 entfÃ¤llt diese BeschrÃ¤nkung: Es werden jetzt alle Teilnehmer gewertet, die
+        // Wanderfahrten gemÃ¤ÃŸ der Regel "30Km 1tÃ¤gig / 40Km mehrtÃ¤gig" absolviert haben, unabhÃ¤ngig
         // ihres Alters
-        // Daher ENTFÄLLT (seit 1.8.1_06):
+        // Daher ENTFÃ„LLT (seit 1.8.1_06):
         // if (alter < 13) {
         //   return;
         // }
@@ -3751,7 +3777,7 @@ public class Statistik {
             // Boot 2 rudert Etappe A1 50 Km und wechselt dann
             // Boot 2 rudert Etappe A2 30 Km nach dem Wechsel
 
-            // immer den größeren Km-Wert verwenden (falls eine Etappe wegen Landdienstwechsel aufgeteilt wurde)
+            // immer den grÃ¶ÃŸeren Km-Wert verwenden (falls eine Etappe wegen Landdienstwechsel aufgeteilt wurde)
             int oldvalue = integer.intValue();
             if (km > integer.intValue()) {
               integer = new Integer(km);
@@ -3761,16 +3787,16 @@ public class Statistik {
             String newWarn = "Etappe '"+fahrtname+": "+etappenName+"' kommt mit unterschiedlichen Entfernungen ("+
                              EfaUtil.zehntelInt2String(oldvalue)+" und "+EfaUtil.zehntelInt2String(km)+
                              " Km) vor (Wert '"+EfaUtil.zehntelInt2String(integer.intValue())+" Km' wird verwendet)!";
-            if (warnungen.indexOf(newWarn)<0) warnungen += newWarn+"\n"; // nur neue Warnungen hinzufügen
+            if (warnungen.indexOf(newWarn)<0) warnungen += newWarn+"\n"; // nur neue Warnungen hinzufÃ¼gen
           }
         }
 
         // Berechnung der Mannschaftskilometer
         kmwett.drvWafaStat_mannschKm += km;
 
-        // Kilometer für einzelne Altersgruppen hinzufügen
-        if (alter>18) { // über 18 Jahre
-          if (geschlecht.equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH))) { // männlich
+        // Kilometer fÃ¼r einzelne Altersgruppen hinzufÃ¼gen
+        if (alter>18) { // Ã¼ber 18 Jahre
+          if (geschlecht.equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH))) { // mÃ¤nnlich
             integer = (Integer)kmwett.drvWafaStat_teilnMueber18.get(name);
             if (integer == null) kmwett.drvWafaStat_teilnMueber18.put(name,new Integer(km));
             else kmwett.drvWafaStat_teilnMueber18.put(name,new Integer(integer.intValue()+km));
@@ -3780,7 +3806,7 @@ public class Statistik {
             else kmwett.drvWafaStat_teilnFueber18.put(name,new Integer(integer.intValue()+km));
           }
         } else { // bis 18 Jahre
-          if (geschlecht.equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH))) { // männlich
+          if (geschlecht.equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH))) { // mÃ¤nnlich
             integer = (Integer)kmwett.drvWafaStat_teilnMbis18.get(name);
             if (integer == null) kmwett.drvWafaStat_teilnMbis18.put(name,new Integer(km));
             else kmwett.drvWafaStat_teilnMbis18.put(name,new Integer(integer.intValue()+km));
@@ -3791,7 +3817,7 @@ public class Statistik {
           }
         }
 
-        // Hinzufügen der Daten
+        // HinzufÃ¼gen der Daten
         h.put(fahrtname,new HashEl("","","",0,0,0,0,0,null,null,null,kmwett));
         } // end if(true)
 
@@ -3900,7 +3926,7 @@ public class Statistik {
 
         ges = (HashEl)h.get(name);
 
-        if (true) { // nur, damit die Variable kmwett einen lokalen Gültigkeitsbereich erhält
+        if (true) { // nur, damit die Variable kmwett einen lokalen GÃ¼ltigkeitsbereich erhÃ¤lt
           KmWettInfo kmwett = null;
           if (sd.art == StatistikDaten.ART_MITGLIEDER && sd.ausgebenWafaKm) {
             if (ges == null || ges.kmwett == null) kmwett = new KmWettInfo();
@@ -3918,7 +3944,7 @@ public class Statistik {
 
 
 
-  // Einen Namen in "Gäste", "<Vereinsname>" oder "andere" umwandeln, falls zutreffend
+  // Einen Namen in "GÃ¤ste", "<Vereinsname>" oder "andere" umwandeln, falls zutreffend
   static String gastAndereName(StatistikDaten sd, String name, String status) {
     if (!sd.gasteAlsEinePerson && !sd.gaesteVereinsweise) return name;
 
@@ -3944,8 +3970,8 @@ public class Statistik {
 
 
 
-  // Zielfahrt für Auswertung der Kilometerwettbewerbe zum Array hinzufügen
-  // @return true, wenn Zielfahrt erfolgreich hinzugefügt wurde
+  // Zielfahrt fÃ¼r Auswertung der Kilometerwettbewerbe zum Array hinzufÃ¼gen
+  // @return true, wenn Zielfahrt erfolgreich hinzugefÃ¼gt wurde
   static boolean wettAddZf(KmWettInfo kmwett, String datum, String ziel, String km, String zf) {
     if (kmwett == null) return false;
     if (datum == null || km == null || EfaUtil.zehntelString2Int(km)<200 || zf == null) return false;
@@ -3957,7 +3983,7 @@ public class Statistik {
 
 
 
-  // Winterfahrt für Auswertung der Kilometerwettbewerbe zum Array hinzufügen
+  // Winterfahrt fÃ¼r Auswertung der Kilometerwettbewerbe zum Array hinzufÃ¼gen
   static void wettAddWinter(KmWettInfo kmwett, String datum, String ziel, String km, Mehrtagesfahrt mtour, StatistikDaten sd) {
     if (kmwett == null) return;
     TMJ tmj = EfaUtil.string2date(datum,0,0,0);;
@@ -3999,15 +4025,15 @@ public class Statistik {
         mTour.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_TRAININGSLAGER)) ||
         mTour.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_KILOMETERNACHTRAG)) ||
         mTour.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_REGATTA)) ||
-        mTour.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_JUMREGATTA))) return false; // Trainings-Fahrten und Regatten zählen nicht
+        mTour.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_JUMREGATTA))) return false; // Trainings-Fahrten und Regatten zÃ¤hlen nicht
     for (int i=1; i<Daten.bezeichnungen.fahrtart.size()-1; i++) // vordefinierte Fahrtarten sind keine Mehrtagesfahrten
       if (mTour.equals(Daten.bezeichnungen.fahrtart.get(i))) mTour="";
     if (mTour.equals("") && bootskm < Daten.WAFAKM) return false; // Eintagestour
-    return true; // könnte eine Mehrtagesfahrt sein (bei Mehrtagesfahrten aber nur ab 40 Km!)
+    return true; // kÃ¶nnte eine Mehrtagesfahrt sein (bei Mehrtagesfahrten aber nur ab 40 Km!)
   }
 
 
-  // Wanderfahrt für DRV-Wettbewerb hinzufügen
+  // Wanderfahrt fÃ¼r DRV-Wettbewerb hinzufÃ¼gen
   static void wettAddWafa(KmWettInfo kmwett, String lfdnr, String datum, String ziel, String km, String bemerk, int bootskm, String mtourName, Mehrtagesfahrt mtour) {
     if (kmwett == null) return;
     boolean jum = mtourName.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_JUMREGATTA));
@@ -4038,17 +4064,17 @@ public class Statistik {
         fahrt.bemerk = bemerk;
 
         // *** ACHTUNG ***
-        // In diesem Abschnitt müßten Änderungen vorgenommen werden, wenn die Implementierung
-        // dahingehend geändert werden soll, daß einem Teilnehmer an einer Mehrtagesfahrt immer
+        // In diesem Abschnitt mÃ¼ÃŸten Ã„nderungen vorgenommen werden, wenn die Implementierung
+        // dahingehend geÃ¤ndert werden soll, daÃŸ einem Teilnehmer an einer Mehrtagesfahrt immer
         // alle Tage der Mehrtagesfahrt als Rudertage angerechnet werden sollen. Dies ist zwar
-        // in bestimmten Fällen (Trainingslager) die Ansicht des DRV, verträgt sich aber nicht
+        // in bestimmten FÃ¤llen (Trainingslager) die Ansicht des DRV, vertrÃ¤gt sich aber nicht
         // mit anderen Szenarien und wurde daher bislang nicht realisiert.
         // Folgende Zeilen sind der Original-Code:
         if (mtour != null && !mtour.isEtappen) {
           if (mtour.rudertage > 0) fahrt.anzTage = mtour.rudertage;
           else fahrt.anzTage = EfaUtil.getDateDiff(fahrt.datumStart,fahrt.datumEnde);
         } else fahrt.anzTage = 1; // erst 1 Tag der Mehrtagesfahrt gerudert
-        // Folgende Zeilen entpsrächen der DRV-Implementierung:
+        // Folgende Zeilen entpsrÃ¤chen der DRV-Implementierung:
         // if (mtour != null) fahrt.anzTage = mtour.rudertage;
         // else fahrt.anzTage = 1;
         // *** ACHTUNG ***
@@ -4060,7 +4086,7 @@ public class Statistik {
         if (jum) {
           fahrt.ziel = ziel + " ("+Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_JUMREGATTA)+")";
           fahrt.anzTage = 1;
-          fahrt.ok = false; // denn: ok wird als gültige Mehrtagesfahrt gewertet...
+          fahrt.ok = false; // denn: ok wird als gÃ¼ltige Mehrtagesfahrt gewertet...
           fahrt.jum = true;
           mtourName = lfdnr+fahrt.ziel; // Key bei JuM-Regatten
         }
@@ -4069,17 +4095,17 @@ public class Statistik {
       } else { // vorhandene MTour
 
         // *** ACHTUNG ***
-        // In diesem Abschnitt müßten Änderungen vorgenommen werden, wenn die Implementierung
-        // dahingehend geändert werden soll, daß einem Teilnehmer an einer Mehrtagesfahrt immer
+        // In diesem Abschnitt mÃ¼ÃŸten Ã„nderungen vorgenommen werden, wenn die Implementierung
+        // dahingehend geÃ¤ndert werden soll, daÃŸ einem Teilnehmer an einer Mehrtagesfahrt immer
         // alle Tage der Mehrtagesfahrt als Rudertage angerechnet werden sollen. Dies ist zwar
-        // in bestimmten Fällen (Trainingslager) die Ansicht des DRV, verträgt sich aber nicht
+        // in bestimmten FÃ¤llen (Trainingslager) die Ansicht des DRV, vertrÃ¤gt sich aber nicht
         // mit anderen Szenarien und wurde daher bislang nicht realisiert.
-        // Folgende Zeilen sind der Original-Code und müßten für den DRV entfernt werden:
+        // Folgende Zeilen sind der Original-Code und mÃ¼ÃŸten fÃ¼r den DRV entfernt werden:
         if (!fahrt.datumEnde.equals(datum)) fahrt.anzTage++; // 1 weiterer Tag der Mehrtagesfahrt gerudert
         if (EfaUtil.getRealDateDiff(EfaUtil.string2date(fahrt.datumEnde,0,0,0),EfaUtil.string2date(datum,0,0,0)) > 0)
           fahrt.datumEnde = datum;
         if (EfaUtil.getRealDateDiff(EfaUtil.string2date(fahrt.datumStart,0,0,0),EfaUtil.string2date(datum,0,0,0)) < 0)
-          fahrt.datumStart = datum; // Bugfix: War nötig, weil die Einträge einer Fahrt nicht immer in chronologischer Reihenfolge vorliegen müssen
+          fahrt.datumStart = datum; // Bugfix: War nÃ¶tig, weil die EintrÃ¤ge einer Fahrt nicht immer in chronologischer Reihenfolge vorliegen mÃ¼ssen
         // *** ACHTUNG ***
 
         fahrt.km += bootskm;
@@ -4101,7 +4127,7 @@ public class Statistik {
 
 
 
-  // Einträge berechnen
+  // EintrÃ¤ge berechnen
   static void berechnung(StatistikDaten sd, Hashtable h) {
     int count = 0;
     int fbSize = Daten.fahrtenbuch.countElements()+1;
@@ -4191,7 +4217,7 @@ public class Statistik {
 
       ArrEl.sortierKriterium = sd.sortierKriterium;
       ArrEl.sortierFolge = sd.sortierFolge;
-    } else { // Art: Fahrtenbuch oder Monatsübersicht
+    } else { // Art: Fahrtenbuch oder MonatsÃ¼bersicht
 //      ArrEl.sortierKriterium = StatistikDaten.SORTKRIT_JAHRGANG; // schmutzig! Es wird nach LfdNr_Key sortiert! ;-)
 //      ArrEl.sortierFolge = StatistikDaten.SORTFOLGE_AUF;
       ArrEl.sortVorNachname = false;
@@ -4201,7 +4227,7 @@ public class Statistik {
     }
     Arrays.sort(a[0],0,h[0].size());
 
-    // Maximalwerte berechnen (für graphische Ausgabe, nur a[0])
+    // Maximalwerte berechnen (fÃ¼r graphische Ausgabe, nur a[0])
     for (int i=0; i<a[0].length; i++) {
       if (sd.zusammengefassteDatenOhneBalken && a[0][i].status != null &&
           (a[0][i].status.equals(GAST) || a[0][i].status.equals(ANDERE)) ) continue;
@@ -4235,17 +4261,17 @@ public class Statistik {
   }
 
 
-  // Zusatz-Wettbewerbsausgabe aus ad[1] .. ad[3] zu ad[0] hinzufügen
+  // Zusatz-Wettbewerbsausgabe aus ad[1] .. ad[3] zu ad[0] hinzufÃ¼gen
   static void addZusatzWettToOutput(AusgabeDaten[] ad, StatistikDaten sd) {
     boolean zusatz = false;
     for (int i=0; i<sd.zusatzWett.length; i++) if (sd.zusatzWett[i]>=200) zusatz = true;
     if (!zusatz) return;
 
-    // Anzahl der erfüllten Teilnehmer pro Zusatzwettbewerb ermitteln
+    // Anzahl der erfÃ¼llten Teilnehmer pro Zusatzwettbewerb ermitteln
     int[] ok = new int[sd.zusatzWett.length];
     for (int i=0; i<ok.length; i++) ok[i]=0;
 
-    // Alle Einträge in Haupt-Daten durchgehen und passende Wettbewerbseinträge dazu suchen
+    // Alle EintrÃ¤ge in Haupt-Daten durchgehen und passende WettbewerbseintrÃ¤ge dazu suchen
     AusgabeEintrag ae;
     for (ae = ad[0].ae; ae != null; ae = ae.next)
       for (int i=0; i<sd.zusatzWett.length; i++) {
@@ -4257,7 +4283,7 @@ public class Statistik {
           else s = w.w_kilometer;
           if (w.w_erfuellt) ok[i]++;
         }
-        if (ae.zusammenfassung) s = "erfüllt: "+ok[i];
+        if (ae.zusammenfassung) s = "erfÃ¼llt: "+ok[i];
         if (sd.zusatzWett[i]-200 == WettDefs.DRV_FAHRTENABZEICHEN)      ae.zusatzDRV = s;
         if (sd.zusatzWett[i]-200 == WettDefs.LRVBERLIN_SOMMER)          ae.zusatzLRVBSommer = s;
         if (sd.zusatzWett[i]-200 == WettDefs.LRVBERLIN_WINTER)          ae.zusatzLRVBWinter = s;
@@ -4270,7 +4296,7 @@ public class Statistik {
 
 
 
-  // Alle Variablen zurücksetzen (sicherheitshalber)
+  // Alle Variablen zurÃ¼cksetzen (sicherheitshalber)
   static void clearAllVars() {
     alleWW=null;
     alleWWArr=null;
@@ -4301,7 +4327,7 @@ public class Statistik {
           return;
         }
         if (Daten.wettDefs.getWettDef(sd[i].art-200,sd[i].wettJahr) == null) {
-          Dialog.error("Keine Wettbewerbsdefinition für Wettbewerbsjahr "+sd[i].wettJahr+" gefunden!");
+          Dialog.error("Keine Wettbewerbsdefinition fÃ¼r Wettbewerbsjahr "+sd[i].wettJahr+" gefunden!");
           return;
         }
       }
@@ -4312,7 +4338,7 @@ public class Statistik {
             return;
           }
           if (sd[i].zusatzWett[j] >= 200 && Daten.wettDefs.getWettDef(sd[i].zusatzWett[j]-200,sd[i].zusatzWettjahr[j]) == null) {
-            Dialog.error("Keine Wettbewerbsdefinition für Wettbewerbsjahr "+sd[i].zusatzWettjahr[j]+" gefunden!");
+            Dialog.error("Keine Wettbewerbsdefinition fÃ¼r Wettbewerbsjahr "+sd[i].zusatzWettjahr[j]+" gefunden!");
             return;
           }
         }
@@ -4328,7 +4354,7 @@ public class Statistik {
       progressMessage = "Vorbereiten...";
       progressCurrent = 1;
 
-      // temporäre Datei erstellen?
+      // temporÃ¤re Datei erstellen?
       if (sd[i].ausgabeArt == StatistikDaten.AUSGABE_BROWSER ||
           sd[i].ausgabeArt == StatistikDaten.AUSGABE_INTERN_GRAFIK) {
         sd[i].ausgabeDatei = Daten.efaTmpDirectory+"browser"+i+".html"; // Tmp-Browser Datei
@@ -4339,7 +4365,7 @@ public class Statistik {
       }
       if ( (sd[i].ausgabeArtPrimaer == StatistikDaten.AUSGABE_HTML || (sd[i].ausgabeArt == StatistikDaten.AUSGABE_HTML && sd[i].stylesheet != null) )
            && sd[i].tabelleHTML) {
-        sd[i].ausgabeDateiTmp = Daten.efaTmpDirectory+"html"+i+".html"; // Tmp-Datei für Tabelle ersetzen
+        sd[i].ausgabeDateiTmp = Daten.efaTmpDirectory+"html"+i+".html"; // Tmp-Datei fÃ¼r Tabelle ersetzen
         sd[i].ausgabeOverwriteWarnung = false;
       }
 
@@ -4353,7 +4379,7 @@ public class Statistik {
             s = s.substring(pos+1,s.length());
           } else {
             progressCurrent = progressLength; // damit Progressbar den Dialog nicht verdeckt
-            Dialog.error("Kein Nutzername für FTP-Upload angegeben!\nFormat: ftp://nutzername:passwort@mein.server.de/ein/verzeichnis/datei.html");
+            Dialog.error("Kein Nutzername fÃ¼r FTP-Upload angegeben!\nFormat: ftp://nutzername:passwort@mein.server.de/ein/verzeichnis/datei.html");
             continue;
           }
           pos = s.indexOf("@"); // Password
@@ -4362,7 +4388,7 @@ public class Statistik {
             s = s.substring(pos+1,s.length());
           } else {
             progressCurrent = progressLength; // damit Progressbar den Dialog nicht verdeckt
-            Dialog.error("Kein Passwort für FTP-Upload angegeben!\nFormat: ftp://nutzername:passwort@mein.server.de/ein/verzeichnis/datei.html");
+            Dialog.error("Kein Passwort fÃ¼r FTP-Upload angegeben!\nFormat: ftp://nutzername:passwort@mein.server.de/ein/verzeichnis/datei.html");
             continue;
           }
           pos = s.indexOf("/"); // Hostname
@@ -4371,7 +4397,7 @@ public class Statistik {
             s = s.substring(pos,s.length());
           } else {
             progressCurrent = progressLength; // damit Progressbar den Dialog nicht verdeckt
-            Dialog.error("Kein Servername für FTP-Upload angegeben!\nFormat: ftp://nutzername:passwort@mein.server.de/ein/verzeichnis/datei.html");
+            Dialog.error("Kein Servername fÃ¼r FTP-Upload angegeben!\nFormat: ftp://nutzername:passwort@mein.server.de/ein/verzeichnis/datei.html");
             continue;
           }
           pos = s.lastIndexOf("/"); // Directory & Filename
@@ -4384,16 +4410,16 @@ public class Statistik {
           }
           if (sd[i].ftpFilename.length()==0) {
             progressCurrent = progressLength; // damit Progressbar den Dialog nicht verdeckt
-            Dialog.error("Kein Dateiname für FTP-Upload angegeben!\nFormat: ftp://nutzername:passwort@mein.server.de/ein/verzeichnis/datei.html");
+            Dialog.error("Kein Dateiname fÃ¼r FTP-Upload angegeben!\nFormat: ftp://nutzername:passwort@mein.server.de/ein/verzeichnis/datei.html");
             continue;
           }
           sd[i].ausgabeDatei = Daten.efaTmpDirectory+sd[i].ftpFilename;
           sd[i].ausgabeOverwriteWarnung = false;
         }
 
-      // vor Überschreiben warnen?
+      // vor Ãœberschreiben warnen?
       if (sd[i].ausgabeOverwriteWarnung && sd[i].ausgabeDatei != null && new File(sd[i].ausgabeDatei).isFile()) {
-        progressCurrent = progressLength; // Damit ProgressBar den Überschreiben-Dialog nicht verdeckt, sondern kurz verschwindet, da max>cur
+        progressCurrent = progressLength; // Damit ProgressBar den Ãœberschreiben-Dialog nicht verdeckt, sondern kurz verschwindet, da max>cur
         if (sd[i].statistikFrame != null) {
           sd[i].statistikFrame.setEnabled(true);
           if (!sd[i].statistikFrame.allowedWriteFile(sd[i])) continue;
@@ -4401,7 +4427,7 @@ public class Statistik {
         }
       }
 
-      // variablen Namen für "nur Name" eingeben
+      // variablen Namen fÃ¼r "nur Name" eingeben
       if (sd[i].name != null && (sd[i].name.equals("$$") || sd[i].name.equals("$?"))) {
         boolean requirePassword = sd[i].name.equals("$?");
         DatenListe d = null;
@@ -4424,22 +4450,22 @@ public class Statistik {
         int progressBefore = progressCurrent;
         progressCurrent = progressLength; // damit Progressbar den Dialog nicht verdeckt
         sd[i].name = SimpleInputFrame.showInputDialog("Namen eingeben","Bitte gib den Namen "+
-                                                      (sd[i].stat == StatistikDaten.STAT_BOOTE ? "des Boots an, für das" :
-                                                       (sd[i].nameOderGruppe == StatistikDaten.NG_NAME ? "der Person an, für die" :
-                                                       "der Gruppe an, für die") )+
+                                                      (sd[i].stat == StatistikDaten.STAT_BOOTE ? "des Boots an, fÃ¼r das" :
+                                                       (sd[i].nameOderGruppe == StatistikDaten.NG_NAME ? "der Person an, fÃ¼r die" :
+                                                       "der Gruppe an, fÃ¼r die") )+
                                                       " diese Statistik erstellt werden soll:",d,(javax.swing.JDialog)null);
         progressCurrent = progressBefore;
         if (sd[i].name == null) sd[i].name="";
 
-        // ggf. Paßwort abfragen
+        // ggf. PaÃŸwort abfragen
         if (requirePassword &&
             sd[i].stat != StatistikDaten.STAT_BOOTE && sd[i].nameOderGruppe == StatistikDaten.NG_NAME &&
             sd[i].name.length() > 0 && Daten.fahrtenbuch != null && Daten.fahrtenbuch.getDaten().mitglieder != null) {
           DatenFelder dm = Daten.fahrtenbuch.getDaten().mitglieder.getExactComplete(sd[i].name);
           if (dm != null && dm.get(Mitglieder.PASSWORT).length()>0) {
-            char[] pwd = EnterPasswordFrame.enterPassword(Dialog.frameCurrent(),"Bitte Paßwort für "+sd[i].name+" eingeben:");
+            char[] pwd = EnterPasswordFrame.enterPassword(Dialog.frameCurrent(),"Bitte PaÃŸwort fÃ¼r "+sd[i].name+" eingeben:");
             if (pwd == null || !(new String(pwd)).equals(dm.get(Mitglieder.PASSWORT))) {
-              Dialog.error("Ungültiges Paßwort!");
+              Dialog.error("UngÃ¼ltiges PaÃŸwort!");
               sd[i].name = "";
             }
           }
@@ -4470,11 +4496,11 @@ public class Statistik {
           sd[i].bisCal = sd[i].bis.toCalendar();
         }
         if (sd[i].von.jahr+1 != sd[i].bis.jahr) {
-          Dialog.error("Beginn und Ende der Auswertung müssen im gleichen Jahr liegen!");
+          Dialog.error("Beginn und Ende der Auswertung mÃ¼ssen im gleichen Jahr liegen!");
           continue;
         }
         if (sd[i].von.monat > sd[i].bis.monat || (sd[i].von.monat == sd[i].bis.monat && sd[i].von.tag > sd[i].bis.tag)) {
-          Dialog.error("Tag und Monat des Beginns der Auswertung müssen vor Tag und Monat des Endes liegen!");
+          Dialog.error("Tag und Monat des Beginns der Auswertung mÃ¼ssen vor Tag und Monat des Endes liegen!");
           continue;
         }
       }
@@ -4490,11 +4516,11 @@ public class Statistik {
 
 
 
-      Fahrtenbuch orgFahrtenbuch = Daten.fahrtenbuch;      // Ursprüngliches FB, falls Berechnung über die FB-Grenzen hinaus
+      Fahrtenbuch orgFahrtenbuch = Daten.fahrtenbuch;      // UrsprÃ¼ngliches FB, falls Berechnung Ã¼ber die FB-Grenzen hinaus
 
       String s;
 
-      // Hash für Sammeln der Ergebnisse: h[0] - "normale" Ergebnisse; h[1] .. h[3] Zusatzwettbewerbe 1-3
+      // Hash fÃ¼r Sammeln der Ergebnisse: h[0] - "normale" Ergebnisse; h[1] .. h[3] Zusatzwettbewerbe 1-3
       Hashtable[] h = new Hashtable[1+sd[i].zusatzWett.length];
       h[0] = new Hashtable();
 
@@ -4527,7 +4553,7 @@ public class Statistik {
             sd_zusatz[z].bis = new TMJ(w.bis.tag,w.bis.monat,w.bis.jahr + sd[i].zusatzWettjahr[z]);
             sd_zusatz[z].bisCal = sd_zusatz[z].bis.toCalendar();
             // wenn Berechnung nur bis zu einem bestimmten Enddatum geht, dann auch den Wettbewerb nicht
-            // über dieses Datum hinaus berechnen (anders als beim Anfang, der immer "pünktlich" anfängt)
+            // Ã¼ber dieses Datum hinaus berechnen (anders als beim Anfang, der immer "pÃ¼nktlich" anfÃ¤ngt)
             if (sd[i].bisCal.before(sd_zusatz[z].bisCal)) {
               sd_zusatz[z].bis = new TMJ(sd[i].bis.tag,sd[i].bis.monat,sd[i].bis.jahr);
               sd_zusatz[z].bisCal = sd_zusatz[z].bis.toCalendar();
@@ -4537,12 +4563,12 @@ public class Statistik {
       }
 
 
-      alleWW = new Hashtable(); // alle Ziele für "Wer Wohin"
+      alleWW = new Hashtable(); // alle Ziele fÃ¼r "Wer Wohin"
       lastLfdNr = "";
       nichtBeruecksichtigt = new Hashtable();
       warnungen = "";
 
-      // sollen nur bestimmte Fahrtenbücher ausgewertet werden?
+      // sollen nur bestimmte FahrtenbÃ¼cher ausgewertet werden?
       boolean nurBestimmteFb = false;
       int nurBestimmteFbCnt = 0;
       if (sd[i].nurFb != null) {
@@ -4551,13 +4577,13 @@ public class Statistik {
         }
       }
 
-      // Erstes Fahrtenbuch für die Berechnung ermitteln
+      // Erstes Fahrtenbuch fÃ¼r die Berechnung ermitteln
       Fahrtenbuch neu;
-      Hashtable alleFb = new Hashtable(); // um sicherzustellen, daß keine FB doppelt vorkommen
+      Hashtable alleFb = new Hashtable(); // um sicherzustellen, daÃŸ keine FB doppelt vorkommen
       int counterToAktFb=0; // um bei Berechnung festzustellen, wann aktuelles Fb wieder erreicht ist
       if (!nurBestimmteFb) {
         alleFb.put(EfaUtil.upcaseFileName(Daten.fahrtenbuch.getFileName()),"");
-        boolean cont=false; // um ein continue in der umgebenden for-Schleife auszulösen
+        boolean cont=false; // um ein continue in der umgebenden for-Schleife auszulÃ¶sen
         while (sd[i].zeitFbUebergreifend && !(s = EfaUtil.upcaseFileName(Daten.fahrtenbuch.getPrevFb(true))).equals("") ) {
   	  if (EfaUtil.canOpenFile(s)) {
             neu = new Fahrtenbuch(s);
@@ -4573,14 +4599,14 @@ public class Statistik {
             }
             alleFb.put(s,"");
             Daten.fahrtenbuch = neu;
-            counterToAktFb++; // ein zusätzliches Fb *vor* dem aktuellen mehr
+            counterToAktFb++; // ein zusÃ¤tzliches Fb *vor* dem aktuellen mehr
 	  } else {
-            Dialog.error("Kann Datei\n"+s+"\nnicht öffnen!");
+            Dialog.error("Kann Datei\n"+s+"\nnicht Ã¶ffnen!");
             break;
   	  }
         }
-        if (cont) continue; // die breaks sollen zu einem continue in der umgebenden for-Schleife führen!
-        alleFb = new Hashtable(); // Hashtable wieder löschen
+        if (cont) continue; // die breaks sollen zu einem continue in der umgebenden for-Schleife fÃ¼hren!
+        alleFb = new Hashtable(); // Hashtable wieder lÃ¶schen
       } else {
         boolean cont=false;
         counterToAktFb = -1; // da es kein "aktuelles Fahrtenbuch" gibt, das ausgewertet werden soll!
@@ -4589,14 +4615,14 @@ public class Statistik {
           if (sd[i].nurFb[j].trim().length()>0) fbs = sd[i].nurFb[j].trim();
           if (fbs != null) {
             if (alleFb.get(fbs) != null) {
-              Dialog.error("Fahrtenbuch\n"+fbs+"\nkommt mehrfach in der Liste der auszuwertenden Fahrtenbücher vor!");
+              Dialog.error("Fahrtenbuch\n"+fbs+"\nkommt mehrfach in der Liste der auszuwertenden FahrtenbÃ¼cher vor!");
               cont=true; break;
             }
             alleFb.put(fbs,"");
             counterToAktFb++;
           }
         }
-        if (cont) continue; // die breaks sollen zu einem continue in der umgebenden for-Schleife führen!
+        if (cont) continue; // die breaks sollen zu einem continue in der umgebenden for-Schleife fÃ¼hren!
       }
 
       progressCurrent = 1;
@@ -4604,7 +4630,7 @@ public class Statistik {
       int anzZusWett = 0;
       for (int j=0; j<sd[i].zusatzWett.length; j++) if (sd[i].zusatzWett[j]>=200) anzZusWett++;
 
-      do { // Schleife über alle zu berechnenden Fahrtenbücher
+      do { // Schleife Ã¼ber alle zu berechnenden FahrtenbÃ¼cher
         if (nurBestimmteFb) {
           while (nurBestimmteFbCnt<sd[i].nurFb.length && sd[i].nurFb[nurBestimmteFbCnt].trim().length()==0) nurBestimmteFbCnt++;
           if (nurBestimmteFbCnt>=sd[i].nurFb.length) {
@@ -4650,7 +4676,7 @@ public class Statistik {
         }
 
 
-	counterToAktFb--; // wieder runterzählen bis zu aktuellem Fahrtenbuch
+	counterToAktFb--; // wieder runterzÃ¤hlen bis zu aktuellem Fahrtenbuch
 
         if (nurBestimmteFb) {
           // nothing to do
@@ -4660,7 +4686,7 @@ public class Statistik {
               if (EfaUtil.canOpenFile(s)) {
                 neu = new Fahrtenbuch(s);
               } else {
-                Dialog.error("Kann Datei\n"+s+"\nnicht öffnen! Berechnung abgebrochen!");
+                Dialog.error("Kann Datei\n"+s+"\nnicht Ã¶ffnen! Berechnung abgebrochen!");
                 break;
               }
             else neu=null; // aktFahrtenbuch soll verwendet werden!
@@ -4670,7 +4696,7 @@ public class Statistik {
             }
             alleFb.put(s,"");
             Daten.fahrtenbuch = neu;
-	  } else break; // Abbruch für Normalmodus, oder wenn Ende erreicht!
+	  } else break; // Abbruch fÃ¼r Normalmodus, oder wenn Ende erreicht!
         }
       } while (!abort);
       Daten.fahrtenbuch = orgFahrtenbuch;
@@ -4687,7 +4713,7 @@ public class Statistik {
 	// Ergebnis ausgeben
         if (sd[i].ausgabeArt == StatistikDaten.AUSGABE_EFAWETT) initEfaWett(sd[i]);
 
-        // AusgabeDaten für alle a[0] .. a[3] erstellen (normaler Durchlauf und Zusatz-Wettbewerbsausgabe)
+        // AusgabeDaten fÃ¼r alle a[0] .. a[3] erstellen (normaler Durchlauf und Zusatz-Wettbewerbsausgabe)
         AusgabeDaten[] ad = new AusgabeDaten[a.length];
         for (int ia=0; ia<a.length; ia++) {
           if (a[ia] == null) continue;
@@ -4698,7 +4724,7 @@ public class Statistik {
 	  else ausgabe(ad[ia],sd_tmp,a[ia],null);
         }
 
-        addZusatzWettToOutput(ad,sd[i]); // Spalten für Zusatz-Wettbewerbsausgabe zu a[0] hinzufügen
+        addZusatzWettToOutput(ad,sd[i]); // Spalten fÃ¼r Zusatz-Wettbewerbsausgabe zu a[0] hinzufÃ¼gen
 
 	if (nichtBeruecksichtigt != null && nichtBeruecksichtigt.size()>0 && sd[i].statistikFrame != null) {
           String sn = "";
@@ -4706,7 +4732,7 @@ public class Statistik {
           for (int in=0; in<keys.length; in++) {
             sn = sn + (sn.length() > 0 ? "\n" : "") + keys[in] + " ("+nichtBeruecksichtigt.get(keys[in])+")";
           }
-          Dialog.meldung("Folgende Teilnehmer könnten die Bedingungen erfüllt haben,\nwurden aber bei der Auswertung ignoriert:\n"+sn);
+          Dialog.meldung("Folgende Teilnehmer kÃ¶nnten die Bedingungen erfÃ¼llt haben,\nwurden aber bei der Auswertung ignoriert:\n"+sn);
         }
         if (!warnungen.equals(""))
           Dialog.meldung("Warnungen:\n"+warnungen);
@@ -4745,7 +4771,7 @@ public class Statistik {
 
     // EFAWETT
     if (sd.ausgabeArtPrimaer == StatistikDaten.AUSGABE_EFAWETT)
-      if (!sd.abbruchEfaWett) Dialog.statistikFrame.efaWettVervollständigen(efaWett);
+      if (!sd.abbruchEfaWett) Dialog.statistikFrame.efaWettVervollstÃ¤ndigen(efaWett);
 
     // XML
     if (sd.ausgabeArtPrimaer == StatistikDaten.AUSGABE_XML)
@@ -4816,20 +4842,20 @@ public class Statistik {
         if (s[1] != null && s[2]!=null && !s[2].equals("0")) f.write("<img src=\""+s[1]+"\" width=\""+s[2]+"\" height=\"20\" alt=\"\">&nbsp;");
         f.write(s[0] + "</td>\n");
       } else {
-        // Ausgabe für Vorjahresvergleich bei grafischer Ausgabe mit zwei Tabellenfeldern
+        // Ausgabe fÃ¼r Vorjahresvergleich bei grafischer Ausgabe mit zwei Tabellenfeldern
         int wert = EfaUtil.zehntelString2Int(s[0]);
-        // Null-Wert zentriert über beide Spalten
+        // Null-Wert zentriert Ã¼ber beide Spalten
         if (wert == 0) {
           f.write("<td align=\"center\" colspan=\"2\">"+s[0]+"</td>");
         } else {
-          // linke Spalte für negative Werte
+          // linke Spalte fÃ¼r negative Werte
           f.write("<td align=\"right\">");
           if (wert<0) {
             f.write(s[0]);
             if (!s[2].equals("0")) f.write("&nbsp;<img src=\""+s[1]+"\" width=\""+Math.abs(EfaUtil.string2int(s[2],0))+"\" height=\"20\" alt=\"\">");
           } else f.write("&nbsp;");
           f.write("</td>");
-          // rechte Spalte für positive Werte
+          // rechte Spalte fÃ¼r positive Werte
           f.write("<td align=\"left\">");
           if (wert>0) {
             if (!s[2].equals("0")) f.write("<img src=\""+s[1]+"\" width=\""+s[2]+"\" height=\"20\" alt=\"\">&nbsp;");
@@ -4940,21 +4966,21 @@ public class Statistik {
       f.write("<td>Kilometerliste erstellt am:</td><td><b>"+ad.ausgewertetAm+
               ", <i><a href=\""+ad.ausgewertetVonURL+"\">"+ad.ausgewertetVon+"</a></i></b></td></tr>\n");
       f.write("<tr><td>Art der Auswertung:</td><td><b>"+ad.auswertungsArt+"</b></td></tr>\n");
-      f.write("<tr><td>Zeitraum für Auswertung:</td><td><b>"+ad.auswertungsZeitraum+"</b></td></tr>\n");
-      f.write("<tr><td>Ausgewertete Einträge:</td><td><b>"+ad.ausgewerteteEintraege+"</b></td></tr>\n");
-      f.write("<tr><td>Auswertung für:</td><td><b>");
+      f.write("<tr><td>Zeitraum fÃ¼r Auswertung:</td><td><b>"+ad.auswertungsZeitraum+"</b></td></tr>\n");
+      f.write("<tr><td>Ausgewertete EintrÃ¤ge:</td><td><b>"+ad.ausgewerteteEintraege+"</b></td></tr>\n");
+      f.write("<tr><td>Auswertung fÃ¼r:</td><td><b>");
       for (int i=0; i<ad.auswertungFuer.length; i++)
         f.write( (i>0 ? "<br>" : "") + ad.auswertungFuer[i]);
       f.write("</b></td></tr>\n");
       if (ad.auswertungNurFuer != null)
-        f.write("<tr><td>nur für "+ad.auswertungNurFuerBez+":</td><td><b>"+ad.auswertungNurFuer+"</b></td></tr>\n");
+        f.write("<tr><td>nur fÃ¼r "+ad.auswertungNurFuerBez+":</td><td><b>"+ad.auswertungNurFuer+"</b></td></tr>\n");
       if (ad.auswertungWettNur != null)
         f.write("<tr><td>Ausgabe, wenn:</td><td><b>"+ad.auswertungWettNur+"</b></td></tr>\n");
       f.write("</table>\n<br><br>\n");
 
       AusgabeEintrag ae;
 
-      // Auswertung von Wettbewerbseinträgen
+      // Auswertung von WettbewerbseintrÃ¤gen
       // Wettbewerbsbedingungen
       if (ad.wett_bedingungen != null) {
         f.write("<table align=\"center\" bgcolor=\"#eeeeee\" border><tr><td>\n");
@@ -4971,8 +4997,8 @@ public class Statistik {
       if (sd.wettOhneDetail) {
         f.write("<table align=\"center\" width=\"500\">\n");
         f.write("<tr><th colspan=\"2\" bgcolor=\"#ddddff\">Legende</th></tr>\n");
-        f.write("<tr><td bgcolor=\"#00ff00\" width=\"250\" align=\"center\">Bedingungen erfüllt</td>");
-        f.write("<td bgcolor=\"#ffff00\" width=\"250\" align=\"center\">Bedingungen noch nicht erfüllt</td></tr>\n");
+        f.write("<tr><td bgcolor=\"#00ff00\" width=\"250\" align=\"center\">Bedingungen erfÃ¼llt</td>");
+        f.write("<td bgcolor=\"#ffff00\" width=\"250\" align=\"center\">Bedingungen noch nicht erfÃ¼llt</td></tr>\n");
         f.write("</table>\n<br><br>\n");
       }
 
@@ -5000,14 +5026,14 @@ public class Statistik {
               } else {
                 String additional = ( ae.w_additional == null || ae.w_additional.equals("") ? "" : ae.w_additional ) +
                                     ( ae.w_warnung == null ? "" : "; <font color=\"red\">"+ae.w_warnung+"</font>");
-                f.write("<td width=\"90%\" colspan=\"2\">"+(ae.w_erfuellt ? "Erfüllt: " : "Noch nicht erfüllt: ")+"<b>"+ae.w_name+"</b>"+
+                f.write("<td width=\"90%\" colspan=\"2\">"+(ae.w_erfuellt ? "ErfÃ¼llt: " : "Noch nicht erfÃ¼llt: ")+"<b>"+ae.w_name+"</b>"+
                                        (ae.w_jahrgang != null ? " ("+ae.w_jahrgang+")" : "") +
                                        ": "+ae.w_kilometer+" Km"+
                                        (additional.length() > 0 ? " ("+additional+")" : "") +
                                        "</td>\n");
               }
             } else {
-              // ausführliche Ausgabe
+              // ausfÃ¼hrliche Ausgabe
               f.write("<td width=\"90%\" colspan=\"2\">\n");
               int colspan = 1;
               if (ae.w_detail.length>0) colspan = ae.w_detail[0].length;
@@ -5029,14 +5055,14 @@ public class Statistik {
         f.write("</table>\n");
       }
 
-      // Auswertung normaler Einträge
+      // Auswertung normaler EintrÃ¤ge
       if (ad.tabellenTitel != null) {
         f.write("<table align=\"center\" bgcolor=\"#ffffff\" border>\n<tr>\n");
         for (int i=0; i<ad.tabellenTitel.length; i++)
           f.write("<th"+ (ad.tabellenTitelBreite != null ? " colspan=\""+ad.tabellenTitelBreite[i]+"\"" : "") +">"+ad.tabellenTitel[i]+"</th>");
         f.write("</tr>\n");
 
-        // Einträge auswerten
+        // EintrÃ¤ge auswerten
         for (ae = ad.ae; ae != null; ae = ae.next) {
           if (!ae.zusammenfassung) f.write("<tr bgcolor=\""+ (ae.absnr % 2 == 0 ? "#eeeeff" : "#ccccff" ) +"\">");
           else f.write("<tr>");
@@ -5186,7 +5212,7 @@ public class Statistik {
     String tempdatei = sd.ausgabeDatei+".efatmp";
 
     try {
-      // existiert die Originaldatei überhaupt?
+      // existiert die Originaldatei Ã¼berhaupt?
       if (! new File(sd.ausgabeDatei).isFile()) {
         new File(sd.ausgabeDateiTmp).renameTo(new File(sd.ausgabeDatei));
         return true;
@@ -5198,7 +5224,7 @@ public class Statistik {
       File bak = new File(sd.ausgabeDatei);
       bak.renameTo(new File(tempdatei));
 
-      // Dateien öffnen und neue Datei erstellen
+      // Dateien Ã¶ffnen und neue Datei erstellen
       fo = new BufferedReader(new InputStreamReader(new FileInputStream(tempdatei),Daten.ENCODING));
       fn = new BufferedReader(new InputStreamReader(new FileInputStream(sd.ausgabeDateiTmp),Daten.ENCODING));
       f =  new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sd.ausgabeDatei),Daten.ENCODING));
@@ -5216,19 +5242,19 @@ public class Statistik {
         f.write(zz+"\n");
       f.write("<!--EFA-ENDE-->\n");
 
-      // Dateifuß in fo suchen
+      // DateifuÃŸ in fo suchen
       while ( (zz = fo.readLine()) != null && !zz.equals("<!--EFA-ENDE-->") );
 
-      // Dateifuß von fo nach f kopieren
+      // DateifuÃŸ von fo nach f kopieren
       while ( (zz = fo.readLine()) != null)
         f.write(zz+"\n");
 
-      // Dateien schließen
+      // Dateien schlieÃŸen
       f.close();
       fo.close();
       fn.close();
 
-      // Alte Datei (fo) und Temp-Datei (fn) löschen
+      // Alte Datei (fo) und Temp-Datei (fn) lÃ¶schen
       new File(tempdatei).delete();
       new File(sd.ausgabeDateiTmp).delete();
 
@@ -5257,7 +5283,7 @@ public class Statistik {
       // Datei erstellen und Kopf schreiben
       f = new BufferedWriter(new FileWriter(sd.ausgabeDatei));
 
-      // Einträge auswerten
+      // EintrÃ¤ge auswerten
       AusgabeEintrag ae;
       for (ae = ad.ae; ae != null; ae = ae.next) {
         outCSV(f,ae.nr);
@@ -5306,7 +5332,7 @@ public class Statistik {
 //                  outCSV(f,ae.w_detail[i][j]);
             outCSV(f, (ae.w_attr1==null ? "" : ae.w_attr1));
             outCSV(f, (ae.w_attr2==null ? "" : ae.w_attr2));
-            outCSV(f, (ae.w_erfuellt ? "erfüllt" : "nicht erfüllt") );
+            outCSV(f, (ae.w_erfuellt ? "erfÃ¼llt" : "nicht erfÃ¼llt") );
             if (ae.w_additional != null && ae.w_warnung != null) outCSV(f,ae.w_additional+"; "+ae.w_warnung);
             else if (ae.w_additional != null) outCSV(f,ae.w_additional);
             else if (ae.w_warnung != null) outCSV(f,ae.w_warnung);
@@ -5360,7 +5386,7 @@ public class Statistik {
       Dialog.error("Die Ausgabedatei '"+sd.ausgabeDatei+"' konnte nicht gefunden werden!");
     else {
       if (Daten.efaConfig == null || !new File(Daten.efaConfig.browser).isFile())
-        if (Daten.efaConfig == null) System.out.println("Browser-Ausgabe nicht möglich!");
+        if (Daten.efaConfig == null) System.out.println("Browser-Ausgabe nicht mÃ¶glich!");
         else Dialog.error("Der Webbroser '"+Daten.efaConfig.browser+"' konnte nicht gefunden werden!");
       else try {
         String[] cmd = new String[2];
@@ -5544,16 +5570,16 @@ public class Statistik {
       kt[0][1] = ad.ausgewertetAm+", "+ad.ausgewertetVon;
       kt[1][0] = "Art der Auswertung:";
       kt[1][1] = ad.auswertungsArt;
-      kt[2][0] = "Zeitraum für Auswertung:";
+      kt[2][0] = "Zeitraum fÃ¼r Auswertung:";
       kt[2][1] = ad.auswertungsZeitraum;
-      kt[3][0] = "Ausgewertete Einträge:";
+      kt[3][0] = "Ausgewertete EintrÃ¤ge:";
       kt[3][1] = ad.ausgewerteteEintraege;
       for (int i=0; i<ad.auswertungFuer.length; i++) {
-        kt[4+i][0] = (i>0 ? "Auswertung für:" : "");
+        kt[4+i][0] = (i>0 ? "Auswertung fÃ¼r:" : "");
         kt[4+i][1] = ad.auswertungFuer[i];
       }
       if (ad.auswertungNurFuer != null) {
-        kt[4 + ad.auswertungFuer.length][0] = "nur für "+ad.auswertungNurFuerBez+":";
+        kt[4 + ad.auswertungFuer.length][0] = "nur fÃ¼r "+ad.auswertungNurFuerBez+":";
         kt[4 + ad.auswertungFuer.length][1] = ad.auswertungNurFuer;
       }
       if (ad.auswertungWettNur != null) {
@@ -5566,7 +5592,7 @@ public class Statistik {
 
       AusgabeEintrag ae;
 
-      // Auswertung von Wettbewerbseinträgen
+      // Auswertung von WettbewerbseintrÃ¤gen
       // Wettbewerbsbedingungen
       if (ad.wett_bedingungen != null) {
         for (int i=0; i<ad.wett_bedingungen.length; i++) {
@@ -5586,11 +5612,11 @@ public class Statistik {
           for (ae = ad.wett_teilnehmerInGruppe[i]; ae != null; ae = ae.next) {
             if (ae.w_detail == null) {
               // kurze Ausgabe
-              f.write("  "+(ae.w_erfuellt ? "Erfüllt: " : "Noch nicht erfüllt: ")+ae.w_name+" ("+ae.w_kilometer+" Km"+
+              f.write("  "+(ae.w_erfuellt ? "ErfÃ¼llt: " : "Noch nicht erfÃ¼llt: ")+ae.w_name+" ("+ae.w_kilometer+" Km"+
                       ( ae.w_additional == null || ae.w_additional.equals("") ? "" : "; "+ae.w_additional ) +")\n");
               if (ae.w_warnung != null) f.write("    "+ae.w_warnung+"\n");
             } else {
-              // ausführliche Ausgabe
+              // ausfÃ¼hrliche Ausgabe
               f.write("  "+ae.w_name+" ("+ae.w_jahrgang+"): "+ae.w_kilometer+" Km\n");
               if (ae.w_detail.length>0) {
                 outTXT(f,"    ",ae.w_detail,false,false);
@@ -5673,7 +5699,7 @@ public class Statistik {
       Dialog.programOutText = new javax.swing.JTextArea();
 
       AusgabeEintrag ae;
-      // Auswertung von Wettbewerbseinträgen
+      // Auswertung von WettbewerbseintrÃ¤gen
       // Wettbewerbsbedingungen
       if (ad.wett_bedingungen != null) {
         for (int i=0; i<ad.wett_bedingungen.length; i++) {
@@ -5693,10 +5719,10 @@ public class Statistik {
           for (ae = ad.wett_teilnehmerInGruppe[i]; ae != null; ae = ae.next) {
             if (ae.w_detail == null) {
               // kurze Ausgabe
-              Dialog.programOutText.append("  "+(ae.w_erfuellt ? "Erfüllt: " : "Noch nicht erfüllt: ")+ae.w_name+" ("+ae.w_kilometer+" Km"+
+              Dialog.programOutText.append("  "+(ae.w_erfuellt ? "ErfÃ¼llt: " : "Noch nicht erfÃ¼llt: ")+ae.w_name+" ("+ae.w_kilometer+" Km"+
                       ( ae.w_additional == null || ae.w_additional.equals("") ? "" : "; "+ae.w_additional ) +")\n");
             } else {
-              // ausführliche Ausgabe
+              // ausfÃ¼hrliche Ausgabe
               Dialog.programOutText.append("  "+ae.w_name+" ("+ae.w_jahrgang+"): "+ae.w_kilometer+" Km\n");
               if (ae.w_detail.length>0) {
                 outInternTXT("    ",ae.w_detail);
@@ -5774,7 +5800,7 @@ public class Statistik {
 // ============================== D I V E R S E =================================================
 
 
-  // Anzahl der verketteten AusgabeEintraege zählen
+  // Anzahl der verketteten AusgabeEintraege zÃ¤hlen
   static int count(AusgabeEintrag a) {
     int i;
     for (i=0; a != null; a = a.next, i++);
@@ -5840,7 +5866,7 @@ public class Statistik {
   }
 
 
-  // Tabelle t auf Felder mit gleicher Länge bringen
+  // Tabelle t auf Felder mit gleicher LÃ¤nge bringen
   static int normalizeAusgabeTabelle(String[][] t) {
     int[] maxBreite = new int[t[0].length];
     for (int x=0; x<t[0].length; x++) maxBreite[x] = 0;

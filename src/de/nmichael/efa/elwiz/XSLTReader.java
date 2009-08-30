@@ -1,7 +1,7 @@
 package de.nmichael.efa.elwiz;
 
-import de.nmichael.efa.EfaUtil;
-import de.nmichael.efa.Logger;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.Logger;
 import java.util.Vector;
 import org.xml.sax.XMLReader;
 import org.xml.sax.Attributes;

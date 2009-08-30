@@ -1,5 +1,7 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.EfaUtil;
 import java.io.*;
 import java.net.*;
 import de.nmichael.efa.*;
@@ -33,7 +35,7 @@ public class EfaRunning {
       } catch(IOException e) {
         trace("Fehler beim Versuch, an Port "+port+" zu binden: "+e.toString());
         socket = null;
-        port++; // n‰chsten Port versuchen
+        port++; // n√§chsten Port versuchen
       } catch(SecurityException e) {
         trace("Fehler beim Versuch, an Port "+port+" zu binden: "+e.toString());
         Logger.log(Logger.WARNING,"efa konnte sich an keinen Port binden (SecurityException), um den Doppelstart-Verhinderer zu aktivieren!");
@@ -65,7 +67,7 @@ public class EfaRunning {
 
 
 
-  // Server Port schlieﬂen (der Thread lebt trotzdem weiter!)
+  // Server Port schlie√üen (der Thread lebt trotzdem weiter!)
   public boolean closeServer() {
     if (thread == null) return true;
     try {
@@ -123,7 +125,7 @@ public class EfaRunning {
       trace("Verbindung zu Server fehlgeschlagen");
     } finally {
       try {
-        trace("Schlieﬂe Socket ...");
+        trace("Schlie√üe Socket ...");
         socket.close();
         trace("Socket geschlossen!");
       } catch(Exception e) {}
@@ -133,7 +135,7 @@ public class EfaRunning {
     return running;
   }
 
-  // testen (als Client), ob efa l‰uft oder nicht
+  // testen (als Client), ob efa l√§uft oder nicht
   public boolean isRunning() {
     boolean running = false;
     running = checkIfRunning(); // 1st try
@@ -145,7 +147,7 @@ public class EfaRunning {
       }
       running = checkIfRunning(); // 2nd try
     }
-    trace("Doppelstart-Verhinderer: efa l‰uft "+(running ? "bereits" : "nicht")+".");
+    trace("Doppelstart-Verhinderer: efa l√§uft "+(running ? "bereits" : "nicht")+".");
     return running;
   }
 
@@ -188,7 +190,7 @@ public class EfaRunning {
                 // korrekten PING empfangen, sende PONG ...
                 out.writeUTF(PONG);
                 trace("SENDE: "+PONG);
-              } else out.writeUTF("Nˆˆˆ");
+              } else out.writeUTF("N√∂√∂√∂");
             }
           } catch(Exception e) {
             // Senden oder Empfangen der Daten fehlgeschlagen
@@ -197,7 +199,7 @@ public class EfaRunning {
             try {
               client.close();
               trace("Verbindung geschlossen");
-            } catch(Exception e) { /* Schlieﬂen des Client Sockets fehlgeschlagen */ }
+            } catch(Exception e) { /* Schlie√üen des Client Sockets fehlgeschlagen */ }
           }
         } catch(Exception e) {
           // Warten auf Client-Anfrage fehlgeschlagen
@@ -209,13 +211,13 @@ public class EfaRunning {
 
     public boolean closeSocket() {
       try {
-        trace("Schlieﬂe Server Socket ...");
+        trace("Schlie√üe Server Socket ...");
         socket.close();
         socket = null;
         trace("Server Socket geschlossen!");
         return true;
       } catch(Exception e) {
-        trace("Fehler beim Schlieﬂen des Server Sockets!");
+        trace("Fehler beim Schlie√üen des Server Sockets!");
         return false;
       }
     }

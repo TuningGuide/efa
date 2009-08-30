@@ -1,7 +1,11 @@
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.core.DatenListe;
+import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.Backup;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import java.io.*;
 
 public class MeldungenIndex extends DatenListe {
@@ -21,7 +25,7 @@ public class MeldungenIndex extends DatenListe {
   public static final int ST_BEARBEITET = 2;
   public static final int ST_ZURUECKGEWIESEN = 3;
   public static final int ST_GELOESCHT = 4;
-  public static final String[] ST_NAMES = { "unbekannt" , "unbearbeitet" , "bearbeitet" , "zurückgewiesen" , "gelöscht" };
+  public static final String[] ST_NAMES = { "unbekannt" , "unbearbeitet" , "bearbeitet" , "zurÃ¼ckgewiesen" , "gelÃ¶scht" };
 
   public static final int FH_UNBEKANNT = 0;
   public static final int FH_KEINE = 1;
@@ -38,7 +42,7 @@ public class MeldungenIndex extends DatenListe {
     kennung = KENNUNG160;
   }
 
-  // Dateiformat überprüfen, ggf. konvertieren
+  // Dateiformat Ã¼berprÃ¼fen, ggf. konvertieren
   public boolean checkFileFormat() {
     String s;
     try {
@@ -74,7 +78,7 @@ public class MeldungenIndex extends DatenListe {
 
         // FERTIG MIT KONVERTIEREN
         if (s == null || !s.trim().startsWith(kennung)) {
-          Dialog.error("Datei '"+dat+"' hat ungültiges Format!");
+          Dialog.error("Datei '"+dat+"' hat ungÃ¼ltiges Format!");
           fclose(false);
           return false;
         }

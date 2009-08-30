@@ -1,5 +1,8 @@
 package de.nmichael.efa.statistics;
 
+import de.nmichael.efa.util.TMJ;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 import java.io.File;
 
@@ -84,7 +87,7 @@ public class XMLWriter {
                 "kursiv", (ad.wett_bedingungen_kursiv.get(new Integer(i)) != null ? "true" : null ));
       }
 
-      // Normale Eintr‰ge
+      // Normale Eintr√§ge
       if (ad.tabellenTitel != null) {
         org.w3c.dom.Node tabelle = root.appendChild(doc.createElement("tabelle"));
         org.w3c.dom.Element feldnamen = (org.w3c.dom.Element)tabelle.appendChild(doc.createElement("tabellenTitel"));
@@ -93,7 +96,7 @@ public class XMLWriter {
           if (ad.tabellenTitelBreite == null || ad.tabellenTitelBreite[i] == 1) outXML(feldnamen,"spaltenTitel",ad.tabellenTitel[i]);
           else outXML(feldnamen,"spaltenTitel",ad.tabellenTitel[i],"colspan",Integer.toString(ad.tabellenTitelBreite[i]));
 
-        // Eintr‰ge auswerten
+        // Eintr√§ge auswerten
         org.w3c.dom.Element eintrag;
         for (ae = ad.ae; ae != null; ae = ae.next) {
           eintrag = (org.w3c.dom.Element)tabelle.appendChild(doc.createElement("eintrag"));
@@ -224,7 +227,7 @@ public class XMLWriter {
       if (sd.stylesheet == null) trans = trfac.newTransformer();
       else {
         if (!EfaUtil.canOpenFile(sd.stylesheet)) {
-          Dialog.error("Das Stylesheet\n'"+sd.stylesheet+"'\nkann nicht geˆffnet werden!");
+          Dialog.error("Das Stylesheet\n'"+sd.stylesheet+"'\nkann nicht ge√∂ffnet werden!");
           return "";
         }
         trans = trfac.newTransformer(new javax.xml.transform.stream.StreamSource(new File(sd.stylesheet)));

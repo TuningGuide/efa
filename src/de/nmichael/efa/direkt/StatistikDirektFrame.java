@@ -1,5 +1,11 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.core.StatistikFrame;
+import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.statistics.StatistikDaten;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import de.nmichael.efa.statistics.StatistikThread;
 import de.nmichael.efa.statistics.Statistik;
 import java.awt.*;
@@ -7,7 +13,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.util.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 import java.beans.*;
 
@@ -46,7 +52,7 @@ public class StatistikDirektFrame extends JDialog implements ActionListener {
     public void run() {
       try {
         do {
-          Thread.sleep(Daten.WINDOWCLOSINGTIMEOUT*100); // absichtlich nur *100, d.h. 1/10 der sonst üblichen Zeit
+          Thread.sleep(Daten.WINDOWCLOSINGTIMEOUT*100); // absichtlich nur *100, d.h. 1/10 der sonst Ã¼blichen Zeit
         } while (Dialog.frameCurrent() != frame);
       } catch(InterruptedException e) {
         return;
@@ -118,7 +124,7 @@ public class StatistikDirektFrame extends JDialog implements ActionListener {
     list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     closeButton.setNextFocusableComponent(list);
     closeButton.setMnemonic('C');
-    closeButton.setText("Schließen");
+    closeButton.setText("SchlieÃŸen");
     closeButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         closeButton_actionPerformed(e);
@@ -148,7 +154,7 @@ public class StatistikDirektFrame extends JDialog implements ActionListener {
   /**Close the dialog*/
   // timeout=true, wenn cancel() vom TimeoutThread gerufen wird!
   void cancel(boolean timeout) {
-    if (Statistik.isCreateRunning) return; // Bugfix: Damit nicht "Schließen" gedrückt werden kann, während die Statistikerstellung läuft
+    if (Statistik.isCreateRunning) return; // Bugfix: Damit nicht "SchlieÃŸen" gedrÃ¼ckt werden kann, wÃ¤hrend die Statistikerstellung lÃ¤uft
     Dialog.frameClosed(this);
     try {
       if (!timeout && timeoutThread != null && timeoutThread.isAlive()) timeoutThread.interrupt();
@@ -164,7 +170,7 @@ public class StatistikDirektFrame extends JDialog implements ActionListener {
 
   void createButton_actionPerformed(ActionEvent e) {
     if (list.getSelectedValue() == null) {
-      Dialog.error("Bitte wähle zunächst eine Statistik aus!");
+      Dialog.error("Bitte wÃ¤hle zunÃ¤chst eine Statistik aus!");
       return;
     }
 
@@ -208,9 +214,9 @@ public class StatistikDirektFrame extends JDialog implements ActionListener {
     progressMonitor.setProgress(0);
     progressMonitor.setMaximum(1);
     progressMonitor.setMillisToDecideToPopup(PROGRESS_TIMETOPOPUP);
-      // enableFrame(...) gibt false zurück, wenn das Frame bereits disabled ist, d.h. wenn bereits eine Berechnung
-      // läuft. Dies ist ein Bugfix, damit eine Statistikberechnung nicht mehrfach parallel ausgeführt werden kann
-      // 13.01.2006 (Bugfix für MG)
+      // enableFrame(...) gibt false zurÃ¼ck, wenn das Frame bereits disabled ist, d.h. wenn bereits eine Berechnung
+      // lÃ¤uft. Dies ist ein Bugfix, damit eine Statistikberechnung nicht mehrfach parallel ausgefÃ¼hrt werden kann
+      // 13.01.2006 (Bugfix fÃ¼r MG)
     if (enableFrame(false,"efa berechnet die Statistik ...",true)) {
       Thread thr = statistikThread.go(d);
       timer.start();
@@ -219,7 +225,7 @@ public class StatistikDirektFrame extends JDialog implements ActionListener {
 
   synchronized boolean enableFrame(boolean enable, String text, boolean stopIfAlreadyDisabled) {
     if (!enable && stopIfAlreadyDisabled && !createButton.isEnabled()) {
-      return false; // gibt false zurück, wenn Ausführung verboten ist
+      return false; // gibt false zurÃ¼ck, wenn AusfÃ¼hrung verboten ist
     }
     setEnabled(enable);
     createButton.setEnabled(enable);
@@ -245,7 +251,7 @@ public class StatistikDirektFrame extends JDialog implements ActionListener {
     return true;
   }
 
-    // Timer für ProgressBar-Aktualisierung
+    // Timer fÃ¼r ProgressBar-Aktualisierung
     class TimerListener implements ActionListener {
         public void actionPerformed(ActionEvent evt) {
             if (progressMonitor.isCanceled() || statistikThread.done()) {

@@ -6,7 +6,7 @@
 package de.nmichael.efa.statistics;
 
 import java.util.*;
-import de.nmichael.efa.EfaUtil;
+import de.nmichael.efa.util.EfaUtil;
 
 /**
  *

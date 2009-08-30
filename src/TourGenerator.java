@@ -17,8 +17,9 @@ public class TourGenerator {
 
     if (allPages == null) {
       allPages = new BufferedWriter(new FileWriter("tourall.html"));
-      allPages.write("<html>\n<head>\n<title>efa Tour</title>\n</head>\n<body>\n");
+      allPages.write("<html>\n<head>\n<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n<title>efa Tour</title>\n</head>\n<body>\n");
     }
+
     BufferedWriter f = new BufferedWriter(new FileWriter(datei));
     f.write("<html>\n<head>\n<title>efa Tour</title>\n</head>\n<body>\n");
     for (int i=0; i<txt.size(); i++) {
@@ -121,7 +122,7 @@ public class TourGenerator {
             if (k < kapitel.size()) {
               txt.add("<p><a href=\"k"+(k+1<10?"0":"")+(k+1)+"-001.html\">Weiter mit Kapitel "+(k+1)+": "+ ((Kapitel)kapitel.get(k)).name +"</a></p>\n");
             }
-            txt.add("<p><a href=\"index.html\">Zurück zur Kapitelübersicht</a></p>\n");
+            txt.add("<p><a href=\"index.html\">ZurÃ¼ck zur KapitelÃ¼bersicht</a></p>\n");
           } else {
             txt.add("<p><a href=\"k" + (k<10?"0":"") + k + "-" + (t+1<100?"0":"") + (t+1<10?"0":"") + (t+1) + ".html\">Weiter</a></p>\n");
           }

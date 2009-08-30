@@ -1,12 +1,18 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.core.Fahrtenbuch;
+import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.beans.*;
 import java.util.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 
 /**
@@ -24,8 +30,8 @@ public class BootStatusFrame extends JDialog implements ActionListener {
   Admin admin;
   DatenFelder boot;
   BootStatus bootStatus;
-  int orgStatus = -1; // um beim Speichern Veränderungen am Status zu erkennen
-  int lastSelectedStatus = -1; // um während der BEarbeitung beim Ändern des Status auch den Bemerkungstext entspr. zu setzen
+  int orgStatus = -1; // um beim Speichern VerÃ¤nderungen am Status zu erkennen
+  int lastSelectedStatus = -1; // um wÃ¤hrend der BEarbeitung beim Ã„ndern des Status auch den Bemerkungstext entspr. zu setzen
   String lastBootsschaden = null;
 
   JPanel mainPanel = new JPanel();
@@ -98,7 +104,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
     try {
       jbInit();
       frameIni();
-      okButton.setText("Schließen");
+      okButton.setText("SchlieÃŸen");
       if (!Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierungenEditieren) {
         this.delResButton.setEnabled(false);
         this.editResButton.setEnabled(false);
@@ -194,7 +200,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
     });
     delResButton.setNextFocusableComponent(okButton);
     delResButton.setMnemonic('L');
-    delResButton.setText("Reservierung löschen");
+    delResButton.setText("Reservierung lÃ¶schen");
     delResButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         delResButton_actionPerformed(e);
@@ -309,7 +315,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
     }
     Vector titel = new Vector();
     titel.add("Von");  titel.add("Bis");
-    titel.add("reserviert für"); titel.add("Grund");
+    titel.add("reserviert fÃ¼r"); titel.add("Grund");
     reservierungen = new JTable(resData,titel);
     try {
       if (reservierungen != null) jScrollPane1.getViewport().remove(reservierungen);
@@ -336,15 +342,15 @@ public class BootStatusFrame extends JDialog implements ActionListener {
     String name = boot.get(BootStatus.NAME);
     if (EfaUtil.string2int(boot.get(BootStatus.STATUS),-1) == BootStatus.STAT_UNTERWEGS &&
         newStatus != BootStatus.STAT_UNTERWEGS) {
-      // Bootsstatus soll von "unterwegs" auf etwas anderes geändert werden!
+      // Bootsstatus soll von "unterwegs" auf etwas anderes geÃ¤ndert werden!
       if (boot.get(BootStatus.LFDNR).trim().length()>0) {
         if (Dialog.yesNoCancelDialog("Warnung",
                                                "Das Boot "+name+" befindet sich laut Liste zur Zeit auf Fahrt #"+boot.get(BootStatus.LFDNR)+"!\n"+
-                                               "Wenn Du den Status jetzt änderst, bleibt der angefangene Eintrag\n"+
-                                               "im Fahrtenbuch zurück.\n"+
-                                               "Möchtest Du den Status dieses Bootes wirklich ändern?"
+                                               "Wenn Du den Status jetzt Ã¤nderst, bleibt der angefangene Eintrag\n"+
+                                               "im Fahrtenbuch zurÃ¼ck.\n"+
+                                               "MÃ¶chtest Du den Status dieses Bootes wirklich Ã¤ndern?"
                                                ) != Dialog.YES) return false;
-        Logger.log(Logger.WARNING,"Der Status der Bootes "+boot.get(BootStatus.NAME)+" wird geändert, obwohl das Boot auf Fahrt #"+
+        Logger.log(Logger.WARNING,"Der Status der Bootes "+boot.get(BootStatus.NAME)+" wird geÃ¤ndert, obwohl das Boot auf Fahrt #"+
                                   boot.get(BootStatus.LFDNR)+" unterwegs ist! Der angefangene Eintrag #"+boot.get(BootStatus.LFDNR)+
                                   " bleibt im Fahrtenbuch stehen.");
       }
@@ -357,9 +363,9 @@ public class BootStatusFrame extends JDialog implements ActionListener {
         if (Dialog.yesNoCancelDialog("Warnung","Dem Boot "+name+" wird kein Fahrtenbucheintrag zugeordnet (LfdNr ist leer),\n"+
                                                "obwohl der Status des Boots 'unterwegs' sein soll!\n"+
                                                "Wenn Du den Status jetzt auf 'unterwegs' setzt, wird das Boot zwar in der\n"+
-                                               "Liste der Boote auf Fahrt angezeigt, kann jedoch nicht 'zurückgetragen' werden, \n"+
+                                               "Liste der Boote auf Fahrt angezeigt, kann jedoch nicht 'zurÃ¼ckgetragen' werden, \n"+
                                                "da kein Eintrag im Fahrtenbuch zugeordnet wurde.\n"+
-                                               "Möchtest Du wirklich fortfahren?"
+                                               "MÃ¶chtest Du wirklich fortfahren?"
                                                ) != Dialog.YES) return false;
         Logger.log(Logger.WARNING,"Der Status des Bootes "+name+" wird auf 'unterwegs' gesetzt, obwohl dem Boot kein Fahrtenbuch-Eintrag zugeordnet ist.");
       } else {
@@ -369,32 +375,32 @@ public class BootStatusFrame extends JDialog implements ActionListener {
           // LfdNr existiert nicht
           if (Dialog.yesNoCancelDialog("Warnung","Dem Boot "+name+" wird ein Fahrtenbucheintrag (#"+newLfdNr+") zugeordnet, welcher nicht existiert!\n"+
                                                "Wenn Du den Status jetzt auf 'unterwegs' setzt, wird das Boot zwar in der\n"+
-                                               "Liste der Boote auf Fahrt angezeigt, kann jedoch nicht 'zurückgetragen' werden, \n"+
+                                               "Liste der Boote auf Fahrt angezeigt, kann jedoch nicht 'zurÃ¼ckgetragen' werden, \n"+
                                                "da der angegebene Eintrag im Fahrtenbuch nicht existiert.\n"+
-                                               "Möchtest Du wirklich fortfahren?"
+                                               "MÃ¶chtest Du wirklich fortfahren?"
                                                ) != Dialog.YES) return false;
           Logger.log(Logger.WARNING,"Der Status des Bootes "+name+" wird auf 'unterwegs' gesetzt, aber der zugewiesene Fahrtenbuch-Eintrag #"+newLfdNr+" existiert nicht.");
         } else {
           // LfdNr existiert
           if (d.get(Fahrtenbuch.BOOTSKM).equals("0") && d.get(Fahrtenbuch.MANNSCHKM).equals("0") &&
               d.get(Fahrtenbuch.ANKUNFT).equals("")) {
-            // gültige LfdNr
+            // gÃ¼ltige LfdNr
             int altstatus = EfaUtil.string2int(boot.get(BootStatus.STATUS),0);
             if (altstatus != BootStatus.STAT_UNTERWEGS) {
-              // Änderung von != unterwegs auf unterwegs
+              // Ã„nderung von != unterwegs auf unterwegs
               Logger.log(Logger.INFO,"Der Status der Bootes "+name+" wird von '"+BootStatus.STATUSNAMES[altstatus]+
-                                     "' auf '"+BootStatus.STATUSNAMES[BootStatus.STAT_UNTERWEGS]+"' geändert mit"+
-                                     " gültiger LfdNr=#"+newLfdNr);
+                                     "' auf '"+BootStatus.STATUSNAMES[BootStatus.STAT_UNTERWEGS]+"' geÃ¤ndert mit"+
+                                     " gÃ¼ltiger LfdNr=#"+newLfdNr);
             }
           } else {
-            // ungültige LfdNr, d.h. Eintrag wurde bereits zurückgetragen
+            // ungÃ¼ltige LfdNr, d.h. Eintrag wurde bereits zurÃ¼ckgetragen
             if (Dialog.yesNoCancelDialog("Warnung","Dem Boot "+name+" wird ein Fahrtenbucheintrag (#"+newLfdNr+") zugeordnet, welcher\n"+
-                                                 "bereits vollständig ist, d.h. schon zurückgetragen wurde!\n"+
-                                                 "Wenn Du den Status jetzt auf 'unterwegs' setzt und das Boot zurückgetragen wird, \n"+
-                                                 "wird der Fahrtenbuch-Eintrag #"+newLfdNr+" damit überschrieben.\n"+
-                                                 "Möchtest Du wirklich fortfahren?"
+                                                 "bereits vollstÃ¤ndig ist, d.h. schon zurÃ¼ckgetragen wurde!\n"+
+                                                 "Wenn Du den Status jetzt auf 'unterwegs' setzt und das Boot zurÃ¼ckgetragen wird, \n"+
+                                                 "wird der Fahrtenbuch-Eintrag #"+newLfdNr+" damit Ã¼berschrieben.\n"+
+                                                 "MÃ¶chtest Du wirklich fortfahren?"
                                                  ) != Dialog.YES) return false;
-            Logger.log(Logger.WARNING,"Der Status des Bootes "+name+" wird auf 'unterwegs' gesetzt, aber der zugewiesene Fahrtenbuch-Eintrag #"+newLfdNr+" ist bereits vollständig.");
+            Logger.log(Logger.WARNING,"Der Status des Bootes "+name+" wird auf 'unterwegs' gesetzt, aber der zugewiesene Fahrtenbuch-Eintrag #"+newLfdNr+" ist bereits vollstÃ¤ndig.");
           }
         }
       }
@@ -410,8 +416,8 @@ public class BootStatusFrame extends JDialog implements ActionListener {
     String _bootsschaden = EfaUtil.removeSepFromString(bootsschaden.getText().trim());
     String _lfdnr = lfdnr.getText().trim();
 
-    // Bugfix, damit reservierte Boote, die z.B. auf "nicht verfügbar" gesetzt werden, nicht
-    // nach Ende der Reservierung wieder automatisch auf "verfügbar" wechseln.
+    // Bugfix, damit reservierte Boote, die z.B. auf "nicht verfÃ¼gbar" gesetzt werden, nicht
+    // nach Ende der Reservierung wieder automatisch auf "verfÃ¼gbar" wechseln.
     if (_status != orgStatus &&
         _lfdnr.equals(BootStatus.RES_LFDNR) && _status != BootStatus.STAT_VERFUEGBAR) { _lfdnr = ""; }
 
@@ -422,17 +428,17 @@ public class BootStatusFrame extends JDialog implements ActionListener {
       boot.set(BootStatus.LFDNR,_lfdnr);
     }
 
-    // Wenn Status geändert wurde, dann ggf. auch für Kombiboote den Status übernehmen
+    // Wenn Status geÃ¤ndert wurde, dann ggf. auch fÃ¼r Kombiboote den Status Ã¼bernehmen
     if (_status != orgStatus) {
       Vector syn = getVectorKombiBoote(name);
       if (syn != null) {
         // Kombiboot
         syn.remove(name);
-        if (Dialog.yesNoDialog("Bootsstatus für Kombiboote übernehmen",
-                               "Der Bootsstatus wurde geändert. Soll der neue Bootsstatus auch für\n"+
+        if (Dialog.yesNoDialog("Bootsstatus fÃ¼r Kombiboote Ã¼bernehmen",
+                               "Der Bootsstatus wurde geÃ¤ndert. Soll der neue Bootsstatus auch fÃ¼r\n"+
                                (syn.size() == 1 ? "das Boot " : "die Boote ") + EfaUtil.vector2string(syn,",")+"\n"+
-                               "übernommen werden?") == Dialog.YES) {
-          // neuen Bootsstatus für alle Kombiboote übernehmen
+                               "Ã¼bernommen werden?") == Dialog.YES) {
+          // neuen Bootsstatus fÃ¼r alle Kombiboote Ã¼bernehmen
           for (int i=0; i<syn.size(); i++) {
             String s = (String)syn.get(i);
             if (!s.equals(name)) {
@@ -449,7 +455,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
         }
       }
     } else {
-      // sonst zumindest für alle Kombiboote den Bootsschaden anpassen
+      // sonst zumindest fÃ¼r alle Kombiboote den Bootsschaden anpassen
       Vector syn = getVectorKombiBoote(name);
       if (syn != null) {
         // Kombiboot
@@ -466,16 +472,16 @@ public class BootStatusFrame extends JDialog implements ActionListener {
       }
     }
 
-    // Bei Status-Änderungen durch Admin ggf. Benachrichtigung an Bootswarte (und Admins)
+    // Bei Status-Ã„nderungen durch Admin ggf. Benachrichtigung an Bootswarte (und Admins)
     if (_status != orgStatus) {
       if (Daten.efaConfig != null && Daten.nachrichten != null) {
-        String txt = "Der Status des Bootes "+name+" wurde von "+(admin.name != null ? admin.name : "einem Mitglied")+" geändert.\n"+
+        String txt = "Der Status des Bootes "+name+" wurde von "+(admin.name != null ? admin.name : "einem Mitglied")+" geÃ¤ndert.\n"+
                      "alter Status: "+BootStatus.getStatusName(orgStatus)+"; neuer Status: "+BootStatus.getStatusName(_status);
         if (Daten.efaConfig.efaDirekt_bnrBootsstatus_admin) {
-          Daten.nachrichten.createNachricht("efa",Nachricht.ADMIN,"Bootsstatus-Änderung",txt);
+          Daten.nachrichten.createNachricht("efa",Nachricht.ADMIN,"Bootsstatus-Ã„nderung",txt);
         }
         if (Daten.efaConfig.efaDirekt_bnrBootsstatus_bootswart) {
-          Daten.nachrichten.createNachricht("efa",Nachricht.BOOTSWART,"Bootsstatus-Änderung",txt);
+          Daten.nachrichten.createNachricht("efa",Nachricht.BOOTSWART,"Bootsstatus-Ã„nderung",txt);
         }
       }
     }
@@ -484,7 +490,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
     } else {
       if (!bootStatus.writeFile()) {
         Dialog.error("Bootstatus-Liste konnte nicht geschrieben werden!");
-        Logger.log(Logger.ERROR,"Bootstatus-Liste konnte nach Änderung der Reservierungen für Boot '"+boot.get(BootStatus.NAME)+"' nicht geschrieben werden.");
+        Logger.log(Logger.ERROR,"Bootstatus-Liste konnte nach Ã„nderung der Reservierungen fÃ¼r Boot '"+boot.get(BootStatus.NAME)+"' nicht geschrieben werden.");
       }
       parentEfaDirektFrame.efaDirektBackgroundTask.interrupt();
     }
@@ -520,7 +526,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
   void editResButton_actionPerformed(ActionEvent e) {
     if (admin == null && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierungenEditieren) return;
     if (reservierungen.getSelectedRow()<0) {
-      Dialog.error("Bitte wähle zunächst eine Reservierung aus!");
+      Dialog.error("Bitte wÃ¤hle zunÃ¤chst eine Reservierung aus!");
       return;
     }
     try {
@@ -528,7 +534,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
       if ( admin == null &&
            ((res.einmalig && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren) ||
             (!res.einmalig && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch) )) {
-        Dialog.error("Du darfst "+(res.einmalig ? "einmalige" : "wöchentliche")+ " Reservierungen nicht bearbeiten.");
+        Dialog.error("Du darfst "+(res.einmalig ? "einmalige" : "wÃ¶chentliche")+ " Reservierungen nicht bearbeiten.");
         return;
       }
       ReservierungenEditFrame dlg =
@@ -548,7 +554,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
   void delResButton_actionPerformed(ActionEvent e) {
     if (admin == null && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierungenEditieren) return;
     if (reservierungen.getSelectedRow()<0) {
-      Dialog.error("Bitte wähle zunächst eine Reservierung aus!");
+      Dialog.error("Bitte wÃ¤hle zunÃ¤chst eine Reservierung aus!");
       return;
     }
 
@@ -556,11 +562,11 @@ public class BootStatusFrame extends JDialog implements ActionListener {
     if (admin == null &&
          ( (res.einmalig && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren) ||
            (!res.einmalig && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch) )) {
-      Dialog.error("Du darfst "+(res.einmalig ? "einmalige" : "wöchentliche")+ " Reservierungen nicht löschen.");
+      Dialog.error("Du darfst "+(res.einmalig ? "einmalige" : "wÃ¶chentliche")+ " Reservierungen nicht lÃ¶schen.");
       return;
     }
 
-    if (Dialog.yesNoCancelDialog("Reservierung löschen","Möchtest Du die gewählte Reservierung wirklich löschen?"
+    if (Dialog.yesNoCancelDialog("Reservierung lÃ¶schen","MÃ¶chtest Du die gewÃ¤hlte Reservierung wirklich lÃ¶schen?"
                                       ) != Dialog.YES) return;
     try {
       Vector v = BootStatus.getReservierungen(this.boot);
@@ -586,7 +592,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
   }
 
 
-  // true, wenn *keine* Überschneidungen; false, wenn Überschneidung
+  // true, wenn *keine* Ãœberschneidungen; false, wenn Ãœberschneidung
   public static boolean keineUeberschneidung(Vector v, Reservierung r, int exclude) {
     if (v == null || r == null) return true;
     long v1 = EfaUtil.dateTime2Cal(r.vonTag,r.vonZeit).getTimeInMillis()+1;
@@ -594,8 +600,8 @@ public class BootStatusFrame extends JDialog implements ActionListener {
     for (int i=0; i<v.size(); i++) {
       if (i == exclude) continue;
       Reservierung rr = (Reservierung)v.get(i);
-      if (r.einmalig != rr.einmalig) continue; // Überschneidungen von einmaligen mit wöchentlichen Reservierungen zulassen
-      if (!r.einmalig && !rr.einmalig && !r.vonTag.equals(rr.vonTag)) continue; // zyklische Reservierungen nur prüfen, wenn am selben Tag
+      if (r.einmalig != rr.einmalig) continue; // Ãœberschneidungen von einmaligen mit wÃ¶chentlichen Reservierungen zulassen
+      if (!r.einmalig && !rr.einmalig && !r.vonTag.equals(rr.vonTag)) continue; // zyklische Reservierungen nur prÃ¼fen, wenn am selben Tag
       long v2 = EfaUtil.dateTime2Cal(rr.vonTag,rr.vonZeit).getTimeInMillis()+1;
       long b2 = EfaUtil.dateTime2Cal(rr.bisTag,rr.bisZeit).getTimeInMillis();
 
@@ -610,7 +616,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
   public void addNewReservierung(Reservierung r) {
     Vector v = BootStatus.getReservierungen(this.boot);
     if (!keineUeberschneidung(v,r,-1)) {
-      Dialog.error("Die Reservierung überschneidet sich mit einer anderen Reservierung!");
+      Dialog.error("Die Reservierung Ã¼berschneidet sich mit einer anderen Reservierung!");
       return;
     }
     v.add(r);
@@ -623,7 +629,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
     try {
       Vector v = BootStatus.getReservierungen(this.boot);
       if (!keineUeberschneidung(v,r,nr)) {
-        Dialog.error("Die Reservierung überschneidet sich mit einer anderen Reservierung!");
+        Dialog.error("Die Reservierung Ã¼berschneidet sich mit einer anderen Reservierung!");
         return;
       }
       v.remove(nr);

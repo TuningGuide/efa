@@ -40,13 +40,13 @@ public class EmilConfig {
     BufferedReader f;
     String s;
 
-    // Datei öffnen
+    // Datei Ã¶ffnen
     try {
       f = new BufferedReader(new InputStreamReader(new FileInputStream(dat),Daten.ENCODING));
     } catch(IOException e) {
       return false;
     }
-    // Dateiformat überprüfen
+    // Dateiformat Ã¼berprÃ¼fen
     try {
       s = f.readLine();
       if ( s == null || !s.startsWith(kennung) ) {
@@ -76,7 +76,7 @@ public class EmilConfig {
         return false;
       }
     }
-    // Datei schließen
+    // Datei schlieÃŸen
     try {
       f.close();
     } catch(Exception e) {
@@ -90,7 +90,7 @@ public class EmilConfig {
   public synchronized boolean writeFile() {
     BufferedWriter f;
 
-    // Versuchen, die Datei zu öffnen
+    // Versuchen, die Datei zu Ã¶ffnen
     try {
       f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dat),Daten.ENCODING));
     } catch(IOException e) {

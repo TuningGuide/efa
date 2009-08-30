@@ -1,7 +1,10 @@
 package de.nmichael.efa.emil;
 
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -119,7 +122,7 @@ public class EmilConfigFrame extends JDialog implements ActionListener {
     dir_efw.setNextFocusableComponent(efwdirButton);
     dir_efw.setPreferredSize(new Dimension(400, 19));
     nurExportErfuellt.setNextFocusableComponent(saveButton);
-    nurExportErfuellt.setText("beim Export nur Teilnehmer exportieren, die die Bedingungen erfüllt " +
+    nurExportErfuellt.setText("beim Export nur Teilnehmer exportieren, die die Bedingungen erfÃ¼llt " +
     "haben");
     this.setTitle("emil Einstellungen");
     this.getContentPane().add(saveButton, BorderLayout.SOUTH);

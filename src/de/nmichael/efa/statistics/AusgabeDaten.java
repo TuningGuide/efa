@@ -46,7 +46,7 @@ public class AusgabeDaten {
   String[][] wett_gruppennamen = null;
   AusgabeEintrag[] wett_teilnehmerInGruppe = null;
 
-  // weitere Tabelle für Zusatzdaten
+  // weitere Tabelle fÃ¼r Zusatzdaten
   String[][] additionalTable = null;
   boolean additionalTable_1stRowBold = false;
   boolean additionalTable_lastRowBold = false;

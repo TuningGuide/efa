@@ -25,6 +25,7 @@ public class HelpGenerator {
     BufferedWriter f = new BufferedWriter(new FileWriter(datei));
     f.write("<html>\n");
     f.write("<head>\n");
+    f.write("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
     f.write("<title>efa - elektronisches Fahrtenbuch</title>\n");
     f.write("</head>\n");
     f.write("<body bgcolor=\"#ffffff\">\n");
@@ -45,7 +46,7 @@ public class HelpGenerator {
     if (erklaerung != null) {
       f.write("<br clear=\"all\">\n");
       f.write("<table bgcolor=\"#0000ff\" width=\"100%\">\n");
-      f.write("<tr><td><font color=\"#ffffff\"><b><i>Erkl�rung der Buttons und Felder</i></b></font></td></tr>\n");
+      f.write("<tr><td><font color=\"#ffffff\"><b><i>Erklï¿½rung der Buttons und Felder</i></b></font></td></tr>\n");
       f.write("</table>\n");
       f.write("\n");
       f.write("<table width=\"100%\">\n");
@@ -99,7 +100,7 @@ public class HelpGenerator {
       f.write("\n");
     }
 
-    f.write("<p><a href=\"Frames.html\">Zur�ck zur �bersicht der Hilfeseiten</a></p>\n");
+    f.write("<p><a href=\"Frames.html\">Zurï¿½ck zur ï¿½bersicht der Hilfeseiten</a></p>\n");
     f.write("<br clear=\"all\"><hr>\n");
     f.write("<small><a href=\"index.html\">efa - elektronisches Fahrtenbuch</a>,\n");
     f.write("Copyright &copy; 2001-09 by <a href=\"http://www.nmichael.de/\" target=\"_new\">Nicolas Michael</a>\n");
@@ -177,7 +178,7 @@ public class HelpGenerator {
     f.write("</head>\n");
     f.write("<body bgcolor=\"#ffffff\">\n");
     f.write("<h1 align=\"center\">Hilfeseiten zu den efa-Fenstern</h1>\n");
-    f.write("<p>Um eine dieser Hilfeseiten direkt aus efa heraus aufzurufen, dr�cke in dem entsprechenden Fenster &lt;F1&gt;. Du erh�lst dann die Hilfeseite f�r das aktuelle Fenster.</p>\n");
+    f.write("<p>Um eine dieser Hilfeseiten direkt aus efa heraus aufzurufen, drï¿½cke in dem entsprechenden Fenster &lt;F1&gt;. Du erhï¿½lst dann die Hilfeseite fï¿½r das aktuelle Fenster.</p>\n");
     f.write("\n");
 
     Hashtable h = null;
@@ -205,7 +206,7 @@ public class HelpGenerator {
 
 
 
-    f.write("<p><a href=\"index.html\">Zur�ck zur �bersicht</a></p>\n");
+    f.write("<p><a href=\"index.html\">Zurï¿½ck zur ï¿½bersicht</a></p>\n");
     f.write("<br><hr>\n");
     f.write("<small><a href=\"index.html\">efa - elektronisches Fahrtenbuch</a>,\n");
     f.write("Copyright &copy; 2001-09 by <a href=\"http://www.nmichael.de/\" target=\"_new\">Nicolas Michael</a>\n");

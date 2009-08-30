@@ -9,12 +9,12 @@ package de.nmichael.efa.statistics;
  *
  * @author nick
  */
-// Daten für DRV-Fahrten
+// Daten fÃ¼r DRV-Fahrten
 public class DRVFahrt {
 
   public String lfdnr,datumStart,datumEnde,ziel,bemerk;
   int km,anzTage;
-  boolean ok; // gültige Wanderfahrt, oder nicht (MTour < 40 Km)
+  boolean ok; // gÃ¼ltige Wanderfahrt, oder nicht (MTour < 40 Km)
   boolean jum; // ob JuM-Regatta
 
 }

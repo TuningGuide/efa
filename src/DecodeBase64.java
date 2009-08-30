@@ -1,4 +1,4 @@
-import de.nmichael.efa.Base64;
+import de.nmichael.efa.util.Base64;
 import java.io.*;
 
 public class DecodeBase64 {

@@ -1,5 +1,22 @@
 package de.nmichael.efa;
 
+import de.nmichael.efa.core.WettDefs;
+import de.nmichael.efa.core.Gruppen;
+import de.nmichael.efa.core.Fahrtenabzeichen;
+import de.nmichael.efa.core.VereinsConfig;
+import de.nmichael.efa.core.Synonyme;
+import de.nmichael.efa.core.EfaConfig;
+import de.nmichael.efa.core.Fahrtenbuch;
+import de.nmichael.efa.core.Mannschaften;
+import de.nmichael.efa.core.Adressen;
+import de.nmichael.efa.core.Bezeichnungen;
+import de.nmichael.efa.util.TMJ;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.EfaKeyStore;
+import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.util.Backup;
 import de.nmichael.efa.statistics.FTPWriter;
 import de.nmichael.efa.statistics.PDFWriter;
 import de.nmichael.efa.statistics.XMLWriter;
@@ -8,17 +25,19 @@ import java.util.jar.*;
 import java.util.*;
 import java.awt.Color;
 
+// @i18n complete
+
 public class Daten {
 
 
   public       static String EFA_SHORTNAME = "efa";                              // dummy, will be set in International.ininitalize()
   public       static String EFA_LONGNAME  = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
 
-  public final static String VERSION = "v2.0.0_dev01"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
+  public final static String VERSION = "v2.0.0_dev01"; // Version fÃ¼r die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch ZusÃ¤tze wie "alpha" o.Ã¤. enthalten)
   public final static String VERSIONID = "2.0.0_#1";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
   public final static String VERSIONRELEASEDATE = "09.08.2009";  // Release Date: TT.MM.JJJJ
-  public final static String PROGRAMMID = "EFA.183"; // Versions-ID für Wettbewerbsmeldungen
-  public final static String PROGRAMMID_DRV = "EFADRV.183"; // Versions-ID für Wettbewerbsmeldungen
+  public final static String PROGRAMMID = "EFA.183"; // Versions-ID fÃ¼r Wettbewerbsmeldungen
+  public final static String PROGRAMMID_DRV = "EFADRV.183"; // Versions-ID fÃ¼r Wettbewerbsmeldungen
   public final static String COPYRIGHTYEAR = "09";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
 
   public final static String EMIL_VERSION = VERSION; // Version
@@ -37,9 +56,9 @@ public class Daten {
 
   public final static String CONFIGFILE = "efa.cfg";                // ./cfg/efa.cfg            Konfigurationsdatei
   public final static String DRVCONFIGFILE = "drv.cfg";             // ./cfg/drv.cfg            DRV-Konfigurationsdatei
-  public static final String WETTFILE = "wett.cfg";                 // ./cfg/wett.cfg           Konfiguration für Wettbewerbe
-  public static final String BEZEICHFILE = "bezeichnungen.cfg";     // ./cfg/bezeichnungen.cfg  Konfiguration für Bezeichnungen
-  public final static String VEREINSCONFIG = "verein.efv";          // ./daten/verein.efv       Konfigurationsdatei für Vereinseinstellungen
+  public static final String WETTFILE = "wett.cfg";                 // ./cfg/wett.cfg           Konfiguration fÃ¼r Wettbewerbe
+  public static final String BEZEICHFILE = "bezeichnungen.cfg";     // ./cfg/bezeichnungen.cfg  Konfiguration fÃ¼r Bezeichnungen
+  public final static String VEREINSCONFIG = "verein.efv";          // ./daten/verein.efv       Konfigurationsdatei fÃ¼r Vereinseinstellungen
   public static final String ADRESSENFILE = "adressen.efd";         // ./daten/adressen.efd     gespeicherte Adressen von Teilnehmern
   public static final String MITGLIEDER_SYNONYM = "mitglieder.efs"; // ./daten/mitglieder.efs   Synonymdatei
   public static final String BOOTE_SYNONYM = "boote.efs";           // ./daten/boote.efs        Synonymdatei
@@ -54,13 +73,13 @@ public class Daten {
   public final static String DIREKTBOOTSTATUS = "bootstatus.efdb";  // ./daten/bootstatus.efdb  Status der Boote
   public final static String DIREKTNACHRICHTEN= "nachrichten.efdn"; // ./daten/nachrichten.efdn Nachrichten an Admin
 
-  public static final String EFA_SECFILE = "efa.sec";               // ./program/efa.sec        Hash von efa.jar: für Erstellen des Admins
-  public static final String EFA_RUNNUNG = "efa.run";               // ./program/efa.run        Indiz, daß efaDirekt läuft (enthält Port#)
+  public static final String EFA_SECFILE = "efa.sec";               // ./program/efa.sec        Hash von efa.jar: fÃ¼r Erstellen des Admins
+  public static final String EFA_RUNNUNG = "efa.run";               // ./program/efa.run        Indiz, daÃŸ efaDirekt lÃ¤uft (enthÃ¤lt Port#)
 
-  public static final String CLUBLOGO = "clublogo.gif";             // ./program/clublogo.gif   Clublogo für efaDirekt
+  public static final String CLUBLOGO = "clublogo.gif";             // ./program/clublogo.gif   Clublogo fÃ¼r efaDirekt
 
   public static String efaUserHome = null;
-  public static String efaLogfile = null; // Logdatei für Java-Konsole
+  public static String efaLogfile = null; // Logdatei fÃ¼r Java-Konsole
   public static String efaMainDirectory = null;    // Efa-Hauptverzeichnis, immer mit "/" am Ende
   public static String efaProgramDirectory = null; // Programmverzeichnis, immer mit "/" am Ende     ("./program/")
   public static String efaPluginDirectory = null;  // Programmverzeichnis, immer mit "/" am Ende     ("./program/plugins")
@@ -77,12 +96,12 @@ public class Daten {
   public static String osName = "";
   public static String osVersion = "";
 
-  public static final int ZIELFAHRTKM = 200; // nötige Kilometer für eine Zielfahrt (in 100m)
-  public static final int WAFAKM = 300;      // nötige Kilometer für eine Eintages-DRV-Wanderfahrt (in 100m)
+  public static final int ZIELFAHRTKM = 200; // nÃ¶tige Kilometer fÃ¼r eine Zielfahrt (in 100m)
+  public static final int WAFAKM = 300;      // nÃ¶tige Kilometer fÃ¼r eine Eintages-DRV-Wanderfahrt (in 100m)
   public static final int FART_TRAINING = 1;
   public static final int FART_REGATTA = 2;
 
-  public final static String PLUGIN_WWW_URL = "http://efa.nmichael.de/plugins/plugins.url"; // in dieser Datei muß eine gültige Plugin-Download-URL stehen!
+  public final static String PLUGIN_WWW_URL = "http://efa.nmichael.de/plugins/plugins.url"; // in dieser Datei muÃŸ eine gÃ¼ltige Plugin-Download-URL stehen!
   public static String pluginWWWdirectory = "http://efa.nmichael.de/plugins/"; // wird automatisch auf das in der o.g. Datei stehende gesetzt
   public final static String PLUGIN_JAXP_NAME = "JAXP-Plugin";
   public final static String PLUGIN_JAXP_FILE = "jaxp.plugin";
@@ -104,8 +123,8 @@ public class Daten {
   public final static String ONLINEUPDATE_INFO_DRV = "http://efa.nmichael.de/efadrv.eou";
   public final static String EFW_UPDATE_DATA = "http://efa.nmichael.de/efw.data";
 
-  public final static int AUTO_EXIT_MIN_RUNTIME = 60; // Minuten, die efa mindestens gelaufen sein muß, damit es zu einem automatischen Beenden/Restart kommt (60)
-  public final static int AUTO_EXIT_MIN_LAST_USED = 5; // Minuten, die efa mindestens nicht benutzt wurde, damit Beenden/Neustart nicht verzögert wird (muß kleiner als AUTO_EXIT_MIN_RUNTIME sein!!!) (5)
+  public final static int AUTO_EXIT_MIN_RUNTIME = 60; // Minuten, die efa mindestens gelaufen sein muÃŸ, damit es zu einem automatischen Beenden/Restart kommt (60)
+  public final static int AUTO_EXIT_MIN_LAST_USED = 5; // Minuten, die efa mindestens nicht benutzt wurde, damit Beenden/Neustart nicht verzÃ¶gert wird (muÃŸ kleiner als AUTO_EXIT_MIN_RUNTIME sein!!!) (5)
   public final static int WINDOWCLOSINGTIMEOUT = 600; // Timeout in Sekunden, nach denen im Direkt-Modus manche Fenster automatisch geschlossen werden
 
   public final static int MIN_FREEMEM_PERCENTAGE = 90;
@@ -114,14 +133,14 @@ public class Daten {
   public static boolean DONT_SAVE_ANY_FILES_DUE_TO_OOME = false;
   public static boolean javaRestart = false;
 
-  public static EfaConfigUserHome efaConfigUserHome; // UserHome-Konfigurationsdatei
+  public static UserHome efaConfigUserHome; // UserHome-Konfigurationsdatei
   public static EfaConfig efaConfig;         // Konfigurationsdatei
   public static Bezeichnungen bezeichnungen; // Bezeichnungen
-  public static VereinsConfig vereinsConfig; // Konfigurationsdatei für Vereinseinstellungen
+  public static VereinsConfig vereinsConfig; // Konfigurationsdatei fÃ¼r Vereinseinstellungen
   public static Adressen adressen;           // gespeicherte Teilnehmer-Adressen
-  public static Synonyme synMitglieder;      // Synonymliste für Mitglieder
-  public static Synonyme synBoote;           // Synonymliste für Boote
-  public static Synonyme synZiele;           // Synonymliste für Ziele
+  public static Synonyme synMitglieder;      // Synonymliste fÃ¼r Mitglieder
+  public static Synonyme synBoote;           // Synonymliste fÃ¼r Boote
+  public static Synonyme synZiele;           // Synonymliste fÃ¼r Ziele
   public static Mannschaften mannschaften;   // Standardmannschaften
   public static Fahrtenbuch fahrtenbuch;     // Fahrtenbuch
   public static Fahrtenabzeichen fahrtenabzeichen; // DRV Fahrtenabzeichen
@@ -156,8 +175,8 @@ public class Daten {
   public static long efaStartTime;
 
   public static boolean verbose=false; // wenn true, wird stderr (Datei) auch auf stdout ausgegeben
-  public static boolean exceptionTest = false; // Exceptions beim Drücken von F1 produzieren (für Exception-Test)
-  public static boolean watchWindowStack  = false; // Window-Stack überwachen
+  public static boolean exceptionTest = false; // Exceptions beim DrÃ¼cken von F1 produzieren (fÃ¼r Exception-Test)
+  public static boolean watchWindowStack  = false; // Window-Stack Ã¼berwachen
 
   // Verhalten, wenn Checksumme nicht stimmt
   public static final int CHECKSUM_LOAD_NO_ACTION = 0;
@@ -172,13 +191,13 @@ public class Daten {
   public static final int CHECKSUM_SAVE_NO_ACTION = 2;
   public static int actionOnChecksumSaveError = CHECKSUM_SAVE_PRINT_ERROR;
 
-  // Verhalten, wenn beim Öffnen einer Datenliste diese nicht existiert
+  // Verhalten, wenn beim Ã–ffnen einer Datenliste diese nicht existiert
   public static final int DATENLISTE_FRAGE_NUTZER = 0;
   public static final int DATENLISTE_FRAGE_REQUIRE_ADMIN_EXIT_ON_NEIN = 1;
   public static final int DATENLISTE_FRAGE_REQUIRE_ADMIN_RETURN_FALSE_ON_NEIN = 2;
   public static int actionOnDatenlisteNotFound = DATENLISTE_FRAGE_NUTZER;
 
-  // Verhalten, wenn beim Öffnen einer Datenliste diese sich als Backup herausstellt
+  // Verhalten, wenn beim Ã–ffnen einer Datenliste diese sich als Backup herausstellt
   public static final int BACKUP_LOAD_WITHOUT_QUESTION = 0;
   public static final int BACKUP_FRAGE_REQUIRE_ADMIN_EXIT_ON_NEIN = 1;
   public static int actionOnDatenlisteIsBackup = BACKUP_LOAD_WITHOUT_QUESTION;
@@ -239,8 +258,8 @@ public class Daten {
       Daten.efaMainDirectory = Daten.efaMainDirectory.substring(0,Daten.efaMainDirectory.length()-8);
 
     String userHomeConfigDir = (Daten.efaUserHome != null ? Daten.efaUserHome : "") + (Daten.fileSep != null && !Daten.efaUserHome.endsWith(Daten.fileSep) ? Daten.fileSep : "");
-    EfaConfigUserHome.setEfaConfigUserHomeFilename(userHomeConfigDir);
-    Daten.efaConfigUserHome = new EfaConfigUserHome();
+    UserHome.setEfaConfigUserHomeFilename(userHomeConfigDir);
+    Daten.efaConfigUserHome = new UserHome();
     if (!EfaUtil.canOpenFile(Daten.efaConfigUserHome.getFileName())) {
       Daten.efaConfigUserHome.writeFile();
     }
@@ -439,11 +458,11 @@ public class Daten {
     if (version < 140) {
       if (Dialog.yesNoDialog(International.getString("Java-Version zu alt"),
               International.getMessage("Die von Dir verwendete Java-Version {version} wird von efa "+
-                             "offiziell nicht mehr unterstützt. Einige Funktionen von efa stehen "+
-                             "unter dieser Java-Version nicht zur Verfügung oder funktionieren nicht "+
+                             "offiziell nicht mehr unterstÃ¼tzt. Einige Funktionen von efa stehen "+
+                             "unter dieser Java-Version nicht zur VerfÃ¼gung oder funktionieren nicht "+
                              "richtig. Vom Einsatz von efa mit dieser Java-Version wird dringend abgeraten. "+
-                             "Für den optimalen Einsatz von efa wird Java-Version 5 oder neuer empfohlen.\n\n"+
-                             "Sollen jetzt die Download-Anleitung für eine neue Java-Version "+
+                             "FÃ¼r den optimalen Einsatz von efa wird Java-Version 5 oder neuer empfohlen.\n\n"+
+                             "Sollen jetzt die Download-Anleitung fÃ¼r eine neue Java-Version "+
                              "angezeigt werden?",Daten.javaVersion)) == Dialog.YES) {
         showJavaDownloadHints();
       }
@@ -455,12 +474,12 @@ public class Daten {
     if (version < 150) {
       if (Dialog.yesNoDialog(International.getString("Java-Version alt"),
               International.getMessage("Die von Dir verwendete Java-Version {version} ist bereits relativ alt. "+
-                             "Für den optimalen Einsatz von efa wird Java 5 (Version 1.5.0) oder neuer empfohlen. "+
-                             "efa funktioniert zwar auch mit älteren Java-Versionen weiterhin, jedoch gibt es einige "+
-                             "Funktionen, die nur unter neueren Java-Versionen unterstützt werden. Außerdem werden "+
-                             "Java-Fehler oft nur noch in den neueren Versionen korrigiert, so daß auch aus diesem "+
-                             "Grund immer der Einsatz einer möglichst neuen Java-Version empfohlen ist.\n\n"+
-                             "Sollen jetzt die Download-Anleitung für eine neue Java-Version "+
+                             "FÃ¼r den optimalen Einsatz von efa wird Java 5 (Version 1.5.0) oder neuer empfohlen. "+
+                             "efa funktioniert zwar auch mit Ã¤lteren Java-Versionen weiterhin, jedoch gibt es einige "+
+                             "Funktionen, die nur unter neueren Java-Versionen unterstÃ¼tzt werden. AuÃŸerdem werden "+
+                             "Java-Fehler oft nur noch in den neueren Versionen korrigiert, so daÃŸ auch aus diesem "+
+                             "Grund immer der Einsatz einer mÃ¶glichst neuen Java-Version empfohlen ist.\n\n"+
+                             "Sollen jetzt die Download-Anleitung fÃ¼r eine neue Java-Version "+
                              "angezeigt werden?",Daten.javaVersion)) == Dialog.YES) {
         showJavaDownloadHints();
       }

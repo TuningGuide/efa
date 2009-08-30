@@ -1,6 +1,6 @@
 package de.nmichael.efa.drv;
 
-import de.nmichael.efa.DatenListe;
+import de.nmichael.efa.core.DatenListe;
 
 public class Teilnehmer extends DatenListe {
 

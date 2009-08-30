@@ -1,7 +1,7 @@
 package de.nmichael.efa.elwiz;
 
-import de.nmichael.efa.EfaUtil;
-import de.nmichael.efa.Logger;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.Logger;
 import de.nmichael.efa.Daten;
 import java.util.Vector;
 import javax.swing.*;
@@ -61,7 +61,7 @@ public class XSLTWriter extends DefaultHandler {
 
         } else { // Unterelement
 
-          // Position des Unterelements für Zugriff auf options-Vektor ermitteln
+          // Position des Unterelements fÃ¼r Zugriff auf options-Vektor ermitteln
           int pos = -1;
           for (int i=0; i<atts.getLength(); i++)
             if (atts.getLocalName(i).equals("pos")) pos = EfaUtil.string2int(atts.getValue(i),-1);
@@ -90,7 +90,7 @@ public class XSLTWriter extends DefaultHandler {
 
         // Elemente des XSLT-Namensraums
 
-        if (skip) return; // Element unterdrücken?
+        if (skip) return; // Element unterdrÃ¼cken?
 
         f.write("<"+qname);
         for (int i=0; i<atts.getLength(); i++) {

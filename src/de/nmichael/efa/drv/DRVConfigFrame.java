@@ -1,12 +1,15 @@
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 
 
 public class DRVConfigFrame extends JDialog implements ActionListener {
@@ -128,12 +131,12 @@ public class DRVConfigFrame extends JDialog implements ActionListener {
       jLabel2.setText("Meldegeld:");
       jLabel3.setText("Erwachsene: ");
       jLabel4.setText("Jugendliche: ");
-      jLabel5.setText("Preise für Anstecknadeln:");
+      jLabel5.setText("Preise fÃ¼r Anstecknadeln:");
       jLabel6.setText("Erwachsene (silber): ");
       jLabel7.setText("Erwachsene (gold): ");
       jLabel8.setText("Jugendliche (silber): ");
       jLabel9.setText("Jugendliche (gold): ");
-      jLabel10.setText("Preise für Stoffabzeichen:");
+      jLabel10.setText("Preise fÃ¼r Stoffabzeichen:");
       jLabel11.setText("Erwachsene (gold): ");
       jLabel12.setText("Jugendliche: ");
       meld_erw.setNextFocusableComponent(meld_jug);
@@ -161,10 +164,10 @@ public class DRVConfigFrame extends JDialog implements ActionListener {
       jLabel19.setText(" Cent");
       jLabel20.setText(" Cent");
       efaWettPanel.setLayout(gridBagLayout3);
-      jLabel21.setText("Zugangsdaten für efaWett:");
+      jLabel21.setText("Zugangsdaten fÃ¼r efaWett:");
       jLabel22.setText("Script: ");
       jLabel23.setText("Username: ");
-      jLabel24.setText("Paßwort: ");
+      jLabel24.setText("PaÃŸwort: ");
       efw_username.setNextFocusableComponent(efw_password);
       efw_username.setPreferredSize(new Dimension(100, 17));
       efw_script.setNextFocusableComponent(efw_username);
@@ -181,10 +184,10 @@ public class DRVConfigFrame extends JDialog implements ActionListener {
       prog_acrobat.setPreferredSize(new Dimension(300, 17));
       this.setTitle("Konfiguration");
     jLabel28.setText("Allgemeine Konfiguration");
-    jLabel29.setText("Ort für Verzeichnis \'daten\': ");
+    jLabel29.setText("Ort fÃ¼r Verzeichnis \'daten\': ");
     datenDirectory.setPreferredSize(new Dimension(300, 19));
     datenDirectory.setText("");
-    jLabel30.setText("Ort für Nutzerdaten: ");
+    jLabel30.setText("Ort fÃ¼r Nutzerdaten: ");
     userDirectory.setText("");
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
       jPanel1.add(saveButton, BorderLayout.SOUTH);

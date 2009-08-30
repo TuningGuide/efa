@@ -5,6 +5,8 @@
 
 package de.nmichael.efa.statistics;
 
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ZielfahrtFolge;
 import java.util.*;
 import de.nmichael.efa.*;
 
@@ -23,7 +25,7 @@ class ArrEl implements Comparable {
   public static int sortierKriterium;
   public static int sortierFolge;
   public static boolean sortVorNachname;
-  public static boolean gaesteHinten; // Gäste mit Status _GAST_ hinten einsortieren
+  public static boolean gaesteHinten; // GÃ¤ste mit Status _GAST_ hinten einsortieren
   public static int kmTypSortKrit;
 
   public String name;
@@ -93,8 +95,8 @@ class ArrEl implements Comparable {
         else if (this.anz < b.anz) return -1 * aufab;
         else return 0;
       case StatistikDaten.SORTKRIT_KMFAHRT:
-        this_km = this.rudKm + this.stmKm; // da "Fahrten" immer die gesamten Fahrten sind, müssen auch hier immer die gesamten Kilometer herangezogen werden
-        b_km = b.rudKm + b.stmKm;          // da "Fahrten" immer die gesamten Fahrten sind, müssen auch hier immer die gesamten Kilometer herangezogen werden
+        this_km = this.rudKm + this.stmKm; // da "Fahrten" immer die gesamten Fahrten sind, mÃ¼ssen auch hier immer die gesamten Kilometer herangezogen werden
+        b_km = b.rudKm + b.stmKm;          // da "Fahrten" immer die gesamten Fahrten sind, mÃ¼ssen auch hier immer die gesamten Kilometer herangezogen werden
         if ( EfaUtil.div(this_km,this.anz) > EfaUtil.div(b_km,b.anz) ) return 1 * aufab;
         else if ( EfaUtil.div(this_km,this.anz) < EfaUtil.div(b_km,b.anz) ) return -1 * aufab;
         else return 0;

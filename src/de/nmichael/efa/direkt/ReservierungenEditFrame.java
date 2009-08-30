@@ -1,11 +1,17 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.core.EfaFrame;
+import de.nmichael.efa.util.TMJ;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.AutoCompletePopupWindow;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.util.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 
 /**
@@ -62,7 +68,7 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
     catch(Exception e) {
       e.printStackTrace();
     }
-    resLabel.setText("Reservierung für "+boot);
+    resLabel.setText("Reservierung fÃ¼r "+boot);
     this.parent = parent;
     this.admin = admin;
     this.data = data;
@@ -112,7 +118,7 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
       bisZeitLabel.setDisplayedMnemonic('I');
       bisZeitLabel.setText("Bis (Zeit): ");
       nameLabel.setDisplayedMnemonic('F');
-      nameLabel.setText("Reserviert für: ");
+      nameLabel.setText("Reserviert fÃ¼r: ");
       grundLabel.setDisplayedMnemonic('R');
       grundLabel.setText("Reservierungsgrund: ");
       this.setTitle("Reservierung");
@@ -161,7 +167,7 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
       Dialog.setPreferredSize(grund,150,17);
       resLabel.setForeground(new Color(0, 0, 153));
       resLabel.setHorizontalAlignment(SwingConstants.CENTER);
-      resLabel.setText("Reservierung für ...");
+      resLabel.setText("Reservierung fÃ¼r ...");
       woTagVonLabel.setText("(Wochentag)      ");
       woTagBisLabel.setText("(Wochentag)      ");
       resEinmalig.setMnemonic('E');
@@ -173,7 +179,7 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
         }
     });
       resZyklisch.setMnemonic('W');
-      resZyklisch.setText("Wöchentliche Reservierung");
+      resZyklisch.setText("WÃ¶chentliche Reservierung");
       resZyklisch.addItemListener(new java.awt.event.ItemListener() {
         public void itemStateChanged(ItemEvent e) {
           resZyklisch_itemStateChanged(e);
@@ -380,7 +386,7 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
     r.grund = grund.getText().trim();
 
     if (!BootStatusFrame.keineUeberschneidung(alleRes,r,nr)) {
-      Dialog.error("Die Reservierung überschneidet sich mit einer anderen Reservierung!");
+      Dialog.error("Die Reservierung Ã¼berschneidet sich mit einer anderen Reservierung!");
       return;
     }
 

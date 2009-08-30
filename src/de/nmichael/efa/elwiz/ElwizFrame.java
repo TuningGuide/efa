@@ -1,11 +1,16 @@
 package de.nmichael.efa.elwiz;
 
+import de.nmichael.efa.core.EfaFrame;
+import de.nmichael.efa.util.TMJ;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 
 public class ElwizFrame extends JFrame {
   Vector optionsHTML, optionsPDF;
@@ -110,7 +115,7 @@ public class ElwizFrame extends JFrame {
     jMenu2.setMnemonic('I');
     jMenu2.setText("Info");
     jMenuItem3.setMnemonic('B');
-    jMenuItem3.setText("‹ber");
+    jMenuItem3.setText("√úber");
     jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem3_actionPerformed(e);
@@ -265,7 +270,7 @@ public class ElwizFrame extends JFrame {
     try {
       cint = Integer.parseInt(cstr.substring(0,6),16);
     } catch(Exception ee) { cint = 0; }
-    Color color = JColorChooser.showDialog(this,"Farbe w‰hlen",new Color(cint));
+    Color color = JColorChooser.showDialog(this,"Farbe w√§hlen",new Color(cint));
     if (color != null) {
       cstr = "";
       float[] rgb = color.getRGBColorComponents(null);

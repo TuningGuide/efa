@@ -1,12 +1,22 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.core.FahrtenbuchNeuFortsetzenFrame;
+import de.nmichael.efa.core.StatistikFrame;
+import de.nmichael.efa.core.EfaConfigFrame;
+import de.nmichael.efa.core.Fahrtenbuch;
+import de.nmichael.efa.core.EfaFrame;
+import de.nmichael.efa.core.AuswahlFrame;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 import java.util.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 
 /**
@@ -74,7 +84,7 @@ public class AdminFrame extends JDialog implements ActionListener {
     Daten.applMode = Daten.APPL_MODE_ADMIN;
 
     if (!admin.allowedAdminsVerwalten) {
-        this.adminsButton.setText("Paßwort ändern");
+        this.adminsButton.setText("PaÃŸwort Ã¤ndern");
         this.adminsButton.setVisible(admin.allowedPasswortAendern);
     }
     this.vollzugriffButton.setVisible(admin.allowedVollzugriff);
@@ -206,7 +216,7 @@ public class AdminFrame extends JDialog implements ActionListener {
     fbLabel.setText("Fahrtenbuch: ");
     selectFbButton.setNextFocusableComponent(fahrtenbuchButton);
     selectFbButton.setMnemonic('W');
-    selectFbButton.setText("Fahrtenbuch auswählen");
+    selectFbButton.setText("Fahrtenbuch auswÃ¤hlen");
     selectFbButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         selectFbButton_actionPerformed(e);
@@ -386,7 +396,7 @@ public class AdminFrame extends JDialog implements ActionListener {
 
     this.admin = (Admin)Daten.efaConfig.admins.get(this.admin.name);
     if (this.admin == null) { // sollte nie passieren!
-      Dialog.error("Der Admin wurde gelöscht!");
+      Dialog.error("Der Admin wurde gelÃ¶scht!");
       cancel();
     }
   }
@@ -401,14 +411,14 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void selectFbButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedFahrtenbuchAuswaehlen) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszufÃ¼hren!");
       return;
     }
 
     int ret = Dialog.auswahlDialog("Fahrtenbuch festlegen",
-                              "Möchtest Du jetzt sofort ein neues Fahrtenbuch auswählen/anlegen,\n"+
+                              "MÃ¶chtest Du jetzt sofort ein neues Fahrtenbuch auswÃ¤hlen/anlegen,\n"+
                               "oder das automatische Erstellen eines neuen Fahrtenbuchs (z.B. zum\n"+
-                              "Jahreswechsel) vorbereiten?","Jetzt","Für später vorbereiten",true);
+                              "Jahreswechsel) vorbereiten?","Jetzt","FÃ¼r spÃ¤ter vorbereiten",true);
     switch(ret) {
       case 0: break; // Jetzt
       case 1: configureAutoNewFB();
@@ -418,15 +428,15 @@ public class AdminFrame extends JDialog implements ActionListener {
     }
 
     if (parent.sindNochBooteUnterwegs()) {
-      Dialog.error("Es kann kein neues Fahrtenbuch ausgewählt werden,\n"+
+      Dialog.error("Es kann kein neues Fahrtenbuch ausgewÃ¤hlt werden,\n"+
                    "da noch einige Boote unterwegs sind!\n"+
-                   "Bitte trage zuerst alle Boote zurück.");
+                   "Bitte trage zuerst alle Boote zurÃ¼ck.");
       return;
     }
     Logger.log(Logger.INFO,"Admin: Aktion '"+selectFbButton.getText()+"'");
 
     String dat = null;
-    switch (Dialog.auswahlDialog("Fahrtenbuch auswählen","Möchtest Du ein neues Fahrtenbuch erstellen, oder ein vorhandenes öffnen?","Neues Fahrtenbuch erstellen","Vorhandenes Fahrtenbuch öffnen")) {
+    switch (Dialog.auswahlDialog("Fahrtenbuch auswÃ¤hlen","MÃ¶chtest Du ein neues Fahrtenbuch erstellen, oder ein vorhandenes Ã¶ffnen?","Neues Fahrtenbuch erstellen","Vorhandenes Fahrtenbuch Ã¶ffnen")) {
       case 0: // Neues Fahrtenbuch erstellen
         FahrtenbuchNeuFortsetzenFrame dlg = new FahrtenbuchNeuFortsetzenFrame(this,false);
         Dialog.setDlgLocation(dlg,this);
@@ -436,8 +446,8 @@ public class AdminFrame extends JDialog implements ActionListener {
           dat = Daten.fahrtenbuch.getFileName();
         }
         break;
-      case 1: // Vorhandenes Fahrtenbuch öffnen
-        dat = Dialog.dateiDialog(this,"Fahrtenbuch öffnen","efa Fahrtenbuch (*.efb)","efb",Daten.efaDataDirectory,false);
+      case 1: // Vorhandenes Fahrtenbuch Ã¶ffnen
+        dat = Dialog.dateiDialog(this,"Fahrtenbuch Ã¶ffnen","efa Fahrtenbuch (*.efb)","efb",Daten.efaDataDirectory,false);
         break;
       default:
         return;
@@ -455,7 +465,7 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void fahrtenbuchButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedFahrtenbuchBearbeiten) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszufÃ¼hren!");
       return;
     }
     Logger.log(Logger.INFO,"Admin: Aktion 'Fahrtenbuch bearbeiten' (Start).");
@@ -486,7 +496,7 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void bootsstatusButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedBootsstatusBearbeiten && !this.admin.allowedBootsreservierung) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszufÃ¼hren!");
       return;
     }
     Logger.log(Logger.INFO,"Admin: Aktion '"+bootsstatusButton.getText()+"'");
@@ -498,7 +508,7 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void nachrichtenButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedNachrichtenAnzeigenAdmin && !this.admin.allowedNachrichtenAnzeigenBootswart) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszufÃ¼hren!");
       return;
     }
     Logger.log(Logger.INFO,"Admin: Aktion '"+nachrichtenButton.getText()+"'");
@@ -511,7 +521,7 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void logButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedLogdateiAnzeigen) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszufÃ¼hren!");
       return;
     }
     Logger.log(Logger.INFO,"Admin: Aktion '"+logButton.getText()+"'");
@@ -523,7 +533,7 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void efaConfigButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedEfaConfig) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszufÃ¼hren!");
       return;
     }
     Logger.log(Logger.INFO,"Admin: Aktion '"+efaConfigButton.getText()+"'");
@@ -541,7 +551,7 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void statistikButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedStatistikErstellen) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszufÃ¼hren!");
       return;
     }
     Logger.log(Logger.INFO,"Admin: Aktion '"+statistikButton.getText()+"'");
@@ -559,7 +569,7 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void bootslisteButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedBootslisteBearbeiten) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszufÃ¼hren!");
       return;
     }
     Logger.log(Logger.INFO,"Admin: Aktion '"+bootslisteButton.getText()+"'");
@@ -571,7 +581,7 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void mitgliederlisteButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedMitgliederlisteBearbeiten) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszufÃ¼hren!");
       return;
     }
     Logger.log(Logger.INFO,"Admin: Aktion '"+mitgliederlisteButton.getText()+"'");
@@ -583,7 +593,7 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void ziellisteButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedZiellisteBearbeiten) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszufÃ¼hren!");
       return;
     }
     Logger.log(Logger.INFO,"Admin: Aktion '"+ziellisteButton.getText()+"'");
@@ -595,7 +605,7 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void gruppenButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedGruppenBearbeiten) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszufÃ¼hren!");
       return;
     }
     Logger.log(Logger.INFO,"Admin: Aktion '"+gruppenButton.getText()+"'");
@@ -607,7 +617,7 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void vollzugriffButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedVollzugriff) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszufÃ¼hren!");
       return;
     }
     Logger.log(Logger.INFO,"Admin: Aktion 'Fahrtenbuch bearbeiten - Vollzugriff' (Start).");
@@ -640,7 +650,7 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void lockButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedEfaSperren) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszufÃ¼hren!");
       return;
     }
     Logger.log(Logger.INFO,"Admin: Aktion '"+lockButton.getText()+"'");

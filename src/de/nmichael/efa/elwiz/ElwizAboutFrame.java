@@ -5,11 +5,11 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.Help;
-import de.nmichael.efa.ActionHandler;
-import de.nmichael.efa.EfaUtil;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.ActionHandler;
+import de.nmichael.efa.util.EfaUtil;
 
 /**
  * Title:        efa - Elektronisches Fahrtenbuch
@@ -69,7 +69,7 @@ public class ElwizAboutFrame extends JDialog implements ActionListener {
     versionLabel.setText("Version " + Daten.ELWIZ_VERSION);
     jLabel2.setText("Copyright (c) 2003-"+Daten.COPYRIGHTYEAR+" by Nicolas Michael <software@nmichael.de>");
     closeButton.setMnemonic('S');
-    closeButton.setText("Schlieﬂen");
+    closeButton.setText("Schlie√üen");
     closeButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         closeButton_actionPerformed(e);

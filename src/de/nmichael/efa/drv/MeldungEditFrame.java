@@ -1,5 +1,19 @@
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.core.WettDefs;
+import de.nmichael.efa.core.EfaWettMeldung;
+import de.nmichael.efa.core.EfaWett;
+import de.nmichael.efa.core.ESigFahrtenhefte;
+import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.util.TMJ;
+import de.nmichael.efa.util.SimpleFilePrinter;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.EfaKeyStore;
+import de.nmichael.efa.util.DRVSignatur;
+import de.nmichael.efa.util.Base64;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -7,7 +21,7 @@ import javax.swing.border.*;
 import java.io.*;
 import java.util.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import java.beans.*;
 import javax.swing.event.*;
 import java.security.PrivateKey;
@@ -310,8 +324,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       infoVereinLabel.setForeground(Color.black);
       infoVereinLabel.setText("Vereinsname");
       southPanel.setLayout(gridBagLayout2);
-      bestaetigenButton.setActionCommand("Bearbeitung abschließen");
-      bestaetigenButton.setText("Bearbeitung abschließen");
+      bestaetigenButton.setActionCommand("Bearbeitung abschlieÃŸen");
+      bestaetigenButton.setText("Bearbeitung abschlieÃŸen");
       bestaetigenButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           bestaetigenButton_actionPerformed(e);
@@ -356,7 +370,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       versandPanel.setBorder(titledBorderVersand);
       versandPanel.setLayout(gridBagLayout6);
       jLabel6.setText("Ort: ");
-      jLabel7.setText("Straße: ");
+      jLabel7.setText("StraÃŸe: ");
       jLabel13.setText("Name: ");
       vVersantStrasse.setMinimumSize(new Dimension(300, 17));
       vVersantStrasse.setPreferredSize(new Dimension(300, 17));
@@ -438,14 +452,14 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       vZusGemTeilnehmer.setText("gemeldete Teilnehmer: ");
       vZusammenfassungAnzTeilnehmer.setPreferredSize(new Dimension(90, 17));
       vZusammenfassungAnzTeilnehmer.setEditable(false);
-      vZusTeilnehmerErfuellt.setText("... davon erfüllt: ");
+      vZusTeilnehmerErfuellt.setText("... davon erfÃ¼llt: ");
       vZusammenfassungAnzTeilnehmerErfuellt.setPreferredSize(new Dimension(90, 17));
       vZusammenfassungAnzTeilnehmerErfuellt.setEditable(false);
-      vZusTeilnehmerUngueltig.setText("... davon ungültig: ");
+      vZusTeilnehmerUngueltig.setText("... davon ungÃ¼ltig: ");
       vZusammenfassungAnzTeilnehmerUngueltig.setForeground(Color.red);
       vZusammenfassungAnzTeilnehmerUngueltig.setPreferredSize(new Dimension(90, 17));
       vZusammenfassungAnzTeilnehmerUngueltig.setEditable(false);
-      vBetragMeldLabel.setText("... davon Meldegebühr+Anstecknadeln: ");
+      vBetragMeldLabel.setText("... davon MeldegebÃ¼hr+Anstecknadeln: ");
       vZusammenfassungMeldegebuehr.setPreferredSize(new Dimension(90, 17));
       vZusammenfassungMeldegebuehr.setEditable(false);
       vBetragStoffLabel.setText("... davon Stoffabzeichen: ");
@@ -465,7 +479,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       teilnehmerPanel.setLayout(gridBagLayout9);
       tailnNaviPanel.setLayout(gridBagLayout10);
       deleteButton.setPreferredSize(new Dimension(140, 23));
-      deleteButton.setText("Löschen");
+      deleteButton.setText("LÃ¶schen");
       deleteButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           deleteButton_actionPerformed(e);
@@ -486,7 +500,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         }
     });
       nextButton.setPreferredSize(new Dimension(140, 23));
-      nextButton.setText("Nächster >>");
+      nextButton.setText("NÃ¤chster >>");
       nextButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           nextButton_actionPerformed(e);
@@ -529,7 +543,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       jLabel40.setPreferredSize(new Dimension(132, 22));
       jLabel40.setText("Abzeichen bisher: ");
       jLabel41.setPreferredSize(new Dimension(102, 22));
-      jLabel41.setText("Äquatorpreis: ");
+      jLabel41.setText("Ã„quatorpreis: ");
       mNachname.setPreferredSize(new Dimension(200, 17));
       mVorname.setPreferredSize(new Dimension(200, 17));
       mJahrgang.setPreferredSize(new Dimension(200, 17));
@@ -554,7 +568,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       jLabel46.setText("Ziel");
       jLabel47.setText("Km");
       jLabel48.setText("Bemerk.");
-      mFahrtnachweisErbracht.setText("Fahrtnachweis erbracht (keine Prüfung)");
+      mFahrtnachweisErbracht.setText("Fahrtnachweis erbracht (keine PrÃ¼fung)");
       mFahrtnachweisErbracht.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           mFahrtnachweisErbracht_actionPerformed(e);
@@ -606,7 +620,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     });
       aequatorButton.setForeground(Color.blue);
       aequatorButton.setHorizontalTextPosition(SwingConstants.CENTER);
-      aequatorButton.setText("5 Äquatorpreisträger");
+      aequatorButton.setText("5 Ã„quatorpreistrÃ¤ger");
       aequatorButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           aequatorButton_actionPerformed(e);
@@ -632,9 +646,9 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     });
       vEingPapierhefteLabel.setText("Eingesandte Papier-Fahrtenhefte: ");
       jLabel8.setText("Weg und Ziel der Fahrt: ");
-      jLabel10.setText("Befahrene Gewässer: ");
+      jLabel10.setText("Befahrene GewÃ¤sser: ");
       jLabel11.setToolTipText("");
-      jLabel11.setText("Dauer und Länge: ");
+      jLabel11.setText("Dauer und LÃ¤nge: ");
       jLabel55.setText("Tage: ");
       jLabel56.setText("Anzahl: ");
       fKilometer.setMinimumSize(new Dimension(50, 17));
@@ -645,7 +659,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       fTeilnehmer.setPreferredSize(new Dimension(60, 17));
       fMannschKm.setMinimumSize(new Dimension(60, 17));
       fMannschKm.setPreferredSize(new Dimension(60, 17));
-      jLabel58.setText("Männer: ");
+      jLabel58.setText("MÃ¤nner: ");
       jLabel59.setText("Junioren: ");
       jLabel60.setText("Frauen: ");
       jLabel61.setText("Juniorinnen: ");
@@ -674,7 +688,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       fMaennerKm.setMinimumSize(new Dimension(60, 17));
       fMaennerKm.setPreferredSize(new Dimension(60, 17));
       jLabel57.setText("Kilometer: ");
-      jLabel70.setText("Streckenlänge (Kilomter): ");
+      jLabel70.setText("StreckenlÃ¤nge (Kilomter): ");
       fStartZiel.setPreferredSize(new Dimension(600, 17));
       fGewaesser.setPreferredSize(new Dimension(600, 17));
       fUnblockButton.setText("Felder zum Bearbeiten freigeben");
@@ -1131,7 +1145,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
   void cancel() {
     if (!checkAndSaveChangedMeldung()) return;
     if (changed) {
-      switch(Dialog.yesNoCancelDialog("Änderungen speichern","Sollen die Änderungen an der Meldedatei gespeichert werden?")) {
+      switch(Dialog.yesNoCancelDialog("Ã„nderungen speichern","Sollen die Ã„nderungen an der Meldedatei gespeichert werden?")) {
         case Dialog.YES:
           if (!saveMeldedatei()) {
             Logger.log(Logger.ERROR,"Speichern der Meldedatei ist fehlgeschlagen!");
@@ -1155,15 +1169,15 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
   void iniFields() {
     switch(MELDTYP) {
       case MeldungenIndexFrame.MELD_FAHRTENABZEICHEN:
-        this.mGeschlecht.addItem("ungültig"); hGeschlecht.put("",new Integer(0));
-        this.mGeschlecht.addItem("männlich"); hGeschlecht.put(EfaWettMeldung.GESCHLECHT_M,new Integer(1));
+        this.mGeschlecht.addItem("ungÃ¼ltig"); hGeschlecht.put("",new Integer(0));
+        this.mGeschlecht.addItem("mÃ¤nnlich"); hGeschlecht.put(EfaWettMeldung.GESCHLECHT_M,new Integer(1));
         this.mGeschlecht.addItem("weiblich"); hGeschlecht.put(EfaWettMeldung.GESCHLECHT_W,new Integer(2));
 
-        this.mGruppe.addItem("ungültig");             hGruppe.put("",new Integer(0));
-        this.mGruppe.addItem("1a (Männer 19-30)");    hGruppe.put("1a",new Integer(1));
-        this.mGruppe.addItem("1b (Männer 31-60)");    hGruppe.put("1b",new Integer(2));
-        this.mGruppe.addItem("1c (Männer 61-??)");    hGruppe.put("1c",new Integer(3));
-        this.mGruppe.addItem("1x (Männer 50% Beh.)"); hGruppe.put("1 (50% Behinderung)",new Integer(4));
+        this.mGruppe.addItem("ungÃ¼ltig");             hGruppe.put("",new Integer(0));
+        this.mGruppe.addItem("1a (MÃ¤nner 19-30)");    hGruppe.put("1a",new Integer(1));
+        this.mGruppe.addItem("1b (MÃ¤nner 31-60)");    hGruppe.put("1b",new Integer(2));
+        this.mGruppe.addItem("1c (MÃ¤nner 61-??)");    hGruppe.put("1c",new Integer(3));
+        this.mGruppe.addItem("1x (MÃ¤nner 50% Beh.)"); hGruppe.put("1 (50% Behinderung)",new Integer(4));
         this.mGruppe.addItem("2a (Frauen 19-30)");    hGruppe.put("2a",new Integer(5));
         this.mGruppe.addItem("2b (Frauen 31-60)");    hGruppe.put("2b",new Integer(6));
         this.mGruppe.addItem("2c (Frauen 61-??)");    hGruppe.put("2c",new Integer(7));
@@ -1174,7 +1188,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         this.mGruppe.addItem("3d (Jugend 15-16)");    hGruppe.put("3d",new Integer(12));
         this.mGruppe.addItem("3e (Jugend 17-18)");    hGruppe.put("3e",new Integer(13));
 
-        hAbzeichen.put("","ungültig");
+        hAbzeichen.put("","ungÃ¼ltig");
         hAbzeichen.put(EfaWettMeldung.ABZEICHEN_ERW_EINF,"Erwachsene einfach");
         hAbzeichen.put(EfaWettMeldung.ABZEICHEN_ERW_GOLD_PRAEFIX,"Erwachsene gold");
         hAbzeichen.put(EfaWettMeldung.ABZEICHEN_JUG_EINF,"Jugend einfach");
@@ -1298,7 +1312,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     if (olds == null && news == null) return;
     if ((olds == null || news == null) ||
         !olds.equals(news))
-      log(true,"Wert für Feld '"+field+"' geändert: alt='"+(olds == null ? "" : olds)+"', neu='"+(news == null ? "" : news)+"'");
+      log(true,"Wert fÃ¼r Feld '"+field+"' geÃ¤ndert: alt='"+(olds == null ? "" : olds)+"', neu='"+(news == null ? "" : news)+"'");
   }
 
   void readMeldedatei() {
@@ -1316,40 +1330,40 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
             ewm.drv_teilnNr = ewm.drvSignatur.getTeilnNr();
             if (ewm.drvSignatur.getJahr() >= drvConfig.aktJahr) {
               ewm.sigError = (ewm.sigError == null ? "" : ewm.sigError+"\n") +
-                             "Fahrtenheft des Teilnehmers wurde für eine Meldung des Jahres "+ewm.drvSignatur.getJahr()+" ausgestellt und kann daher im aktuellen Meldejahr "+drvConfig.aktJahr+" nicht bearbeitet werden.";
+                             "Fahrtenheft des Teilnehmers wurde fÃ¼r eine Meldung des Jahres "+ewm.drvSignatur.getJahr()+" ausgestellt und kann daher im aktuellen Meldejahr "+drvConfig.aktJahr+" nicht bearbeitet werden.";
               ewm.sigValid = false;
             } else {
               ewm.sigValid = true;
             }
           } else {
             ewm.sigError = (ewm.sigError == null ? "" : ewm.sigError+"\n") +
-                           "Signatur des Fahrtenhefts ist ungültig: "+ewm.drvSignatur.getSignatureError();
+                           "Signatur des Fahrtenhefts ist ungÃ¼ltig: "+ewm.drvSignatur.getSignatureError();
             ewm.sigValid = false;
           }
         }
       } catch(Exception e) {
         ewm.sigError = (ewm.sigError == null ? "" : ewm.sigError+"\n") +
-                       "Fehler beim Überprüfen der Signatur des Fahrtenhefts: "+e.getMessage();
+                       "Fehler beim ÃœberprÃ¼fen der Signatur des Fahrtenhefts: "+e.getMessage();
         ewm.sigValid = false;
       }
       switch(MELDTYP) {
         case MeldungenIndexFrame.MELD_FAHRTENABZEICHEN:
           if (!ewm.drvint_wirdGewertetExplizitGesetzt || ewm.drvint_wirdGewertet) {
-            // Die Eigenschaft "wirdGewertet" kann auch vom DRV durch eine frühere Bearbeitung bereits in die Datei
+            // Die Eigenschaft "wirdGewertet" kann auch vom DRV durch eine frÃ¼here Bearbeitung bereits in die Datei
             // geschrieben worden sein. In diesem Fall hat "wirdGewertetExplizitGesetzt" den Wert "true".
             // Beim Einlesen der Meldedatei wird die Eigenschaft "wirdGewertet" nur dann von efa neu bestimmt, wenn
             // sie nicht zuvor explizit gesetzt war, oder wenn sie "true" ist (in diesem Fall bleibt das "true" nur
-            // erhalten, wenn die Meldung wirklich gültig ist).
+            // erhalten, wenn die Meldung wirklich gÃ¼ltig ist).
             ewm.drvint_wirdGewertet = ((ewm.sigValid || ewm.drvSignatur == null) && isErfuellt(ewm,false));
           }
           break;
         case MeldungenIndexFrame.MELD_WANDERRUDERSTATISTIK:
           if (!ewm.drvint_wirdGewertetExplizitGesetzt || ewm.drvint_wirdGewertet) {
-            // Die Eigenschaft "wirdGewertet" kann auch vom DRV durch eine frühere Bearbeitung bereits in die Datei
+            // Die Eigenschaft "wirdGewertet" kann auch vom DRV durch eine frÃ¼here Bearbeitung bereits in die Datei
             // geschrieben worden sein. In diesem Fall hat "wirdGewertetExplizitGesetzt" den Wert "true".
             // Beim Einlesen der Meldedatei wird die Eigenschaft "wirdGewertet" nur dann von efa neu bestimmt, wenn
             // sie nicht zuvor explizit gesetzt war, oder wenn sie "true" ist (in diesem Fall bleibt das "true" nur
-            // erhalten, wenn die Meldung wirklich gültig ist).
+            // erhalten, wenn die Meldung wirklich gÃ¼ltig ist).
             ewm.drvint_wirdGewertet = isErfuellt(ewm,false);
           }
           ewm.drvint_geprueft = (checkAndCorrectWSAnz(ewm,false) == null) && (checkAndCorrectWSKm(ewm,false) == null) && ewm.drvint_wirdGewertet;
@@ -1375,15 +1389,15 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       printDiff("AnzAbzeichenAB",ewmOld.drv_anzAbzeichenAB,ewmCur.drv_anzAbzeichenAB);
       printDiff("GesKmAB",ewmOld.drv_gesKmAB,ewmCur.drv_gesKmAB);
       printDiff("Fahrtenheft",ewmOld.drv_fahrtenheft,ewmCur.drv_fahrtenheft);
-      printDiff("Äquatorpreis",ewmOld.drv_aequatorpreis,ewmCur.drv_aequatorpreis);
+      printDiff("Ã„quatorpreis",ewmOld.drv_aequatorpreis,ewmCur.drv_aequatorpreis);
       printDiff("Weg und Ziel der Fahrt",ewmOld.drvWS_StartZiel,ewmCur.drvWS_StartZiel);
-      printDiff("Gewässer",ewmOld.drvWS_Gewaesser,ewmCur.drvWS_Gewaesser);
+      printDiff("GewÃ¤sser",ewmOld.drvWS_Gewaesser,ewmCur.drvWS_Gewaesser);
       printDiff("Anzahl Teilnehmer",ewmOld.drvWS_Teilnehmer,ewmCur.drvWS_Teilnehmer);
       printDiff("Kilometer",ewmOld.drvWS_Km,ewmCur.drvWS_Km);
       printDiff("Tage",ewmOld.drvWS_Tage,ewmCur.drvWS_Tage);
       printDiff("Mannschafs-Kilometer",ewmOld.drvWS_MannschKm,ewmCur.drvWS_MannschKm);
-      printDiff("Männer (Anzahl)",ewmOld.drvWS_MaennerAnz,ewmCur.drvWS_MaennerAnz);
-      printDiff("Männer (Kilometer)",ewmOld.drvWS_MaennerKm,ewmCur.drvWS_MaennerKm);
+      printDiff("MÃ¤nner (Anzahl)",ewmOld.drvWS_MaennerAnz,ewmCur.drvWS_MaennerAnz);
+      printDiff("MÃ¤nner (Kilometer)",ewmOld.drvWS_MaennerKm,ewmCur.drvWS_MaennerKm);
       printDiff("Junioren (Anzahl)",ewmOld.drvWS_JuniorenAnz,ewmCur.drvWS_JuniorenAnz);
       printDiff("Junioren (Kilometer)",ewmOld.drvWS_JuniorenKm,ewmCur.drvWS_JuniorenKm);
       printDiff("Frauen (Anzahl)",ewmOld.drvWS_FrauenAnz,ewmCur.drvWS_FrauenAnz);
@@ -1401,12 +1415,12 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
 
   int getGeschlechtIndex(String s) {
     if (s == null) {
-      warnung("Ungültiger Wert für Geschlecht: "+s);
+      warnung("UngÃ¼ltiger Wert fÃ¼r Geschlecht: "+s);
       return 0;
     }
     Integer i = (Integer)hGeschlecht.get(s);
     if (i == null) {
-      warnung("Ungültiger Wert für Geschlecht: "+s);
+      warnung("UngÃ¼ltiger Wert fÃ¼r Geschlecht: "+s);
       return 0;
     }
     else return i.intValue();
@@ -1414,12 +1428,12 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
 
   int getGruppeIndex(EfaWettMeldung ewm) {
     if (ewm.gruppe == null) {
-      warnung("Ungültiger Wert für Gruppe: "+ewm.gruppe);
+      warnung("UngÃ¼ltiger Wert fÃ¼r Gruppe: "+ewm.gruppe);
       return 0;
     }
     Integer i = (Integer)hGruppe.get(ewm.gruppe);
     if (i == null) {
-      warnung("Ungültiger Wert für Gruppe: "+ewm.gruppe);
+      warnung("UngÃ¼ltiger Wert fÃ¼r Gruppe: "+ewm.gruppe);
       return 0;
     }
     else return i.intValue();
@@ -1427,12 +1441,12 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
 
   String getAbzeichen(EfaWettMeldung ewm) {
     if (ewm.abzeichen == null) {
-      warnung("Ungültiger Wert für Abzeichen: "+ewm.abzeichen);
+      warnung("UngÃ¼ltiger Wert fÃ¼r Abzeichen: "+ewm.abzeichen);
       return "";
     }
     String s = (String)hAbzeichen.get(ewm.abzeichen);
     if (s == null) {
-      warnung("Ungültiger Wert für Abzeichen: "+ewm.abzeichen);
+      warnung("UngÃ¼ltiger Wert fÃ¼r Abzeichen: "+ewm.abzeichen);
       return "";
     }
     else return s;
@@ -1456,10 +1470,10 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       }
     } else {
       if (ewm.sigValid) {
-        mFahrtenheft.setText("Das elektronische Fahrtenheft ist gültig! (Letzte Meldung: "+ewm.drvSignatur.getJahr()+")");
+        mFahrtenheft.setText("Das elektronische Fahrtenheft ist gÃ¼ltig! (Letzte Meldung: "+ewm.drvSignatur.getJahr()+")");
         mFahrtenheft.setForeground(Daten.colorGreen);
       } else {
-        mFahrtenheft.setText("Das elektronische Fahrtenheft ist ungültig!");
+        mFahrtenheft.setText("Das elektronische Fahrtenheft ist ungÃ¼ltig!");
         mFahrtenheft.setForeground(Color.red);
       }
     }
@@ -1508,7 +1522,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         String gem = ewm.abzeichen;
         ewm.abzeichen = abzeichen;
         ewm.changed = true;
-        return "Teilnehmer hat für Abzeichen '"+gem+"' gemeldet, hat aber Abzeichen '"+abzeichen+"' erlangt. Abzeichen wurde korrigiert!";
+        return "Teilnehmer hat fÃ¼r Abzeichen '"+gem+"' gemeldet, hat aber Abzeichen '"+abzeichen+"' erlangt. Abzeichen wurde korrigiert!";
       }
     }
     return null;
@@ -1517,7 +1531,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
   String checkAndCorrectAequator(EfaWettMeldung ewm) {
     int gesKm = EfaUtil.string2int(ewm.drv_gesKm,0);
     int gesKmAB = EfaUtil.string2int(ewm.drv_gesKmAB,0);
-    int aeqKm = gesKm; // - gesKmAB; (seit 2007 zählen auch die AB-Kilometer zum Äquatorpreis)
+    int aeqKm = gesKm; // - gesKmAB; (seit 2007 zÃ¤hlen auch die AB-Kilometer zum Ã„quatorpreis)
     int anzAeqBefore = aeqKm / WettDefs.DRV_AEQUATOR_KM;
     int anzAeqJetzt  = (aeqKm + EfaUtil.string2int(ewm.kilometer,0)) / WettDefs.DRV_AEQUATOR_KM;
     String aeq = null;
@@ -1528,16 +1542,16 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         String gem = ewm.drv_aequatorpreis;
         ewm.drv_aequatorpreis = aeq;
         ewm.changed = true;
-        return "Teilnehmer hat für Äquatorpreis '"+gem+"' gemeldet, hat ihn aber nicht erfüllt. Äquatorpreis wurde korrigiert!";
+        return "Teilnehmer hat fÃ¼r Ã„quatorpreis '"+gem+"' gemeldet, hat ihn aber nicht erfÃ¼llt. Ã„quatorpreis wurde korrigiert!";
       } else if (ewm.drv_aequatorpreis == null) {
         ewm.drv_aequatorpreis = aeq;
         ewm.changed = true;
-        return "Teilnehmer hat für Äquatorpreis nicht gemeldet, hat ihn aber zum "+aeq+". Mal erfüllt. Äquatorpreis wurde korrigiert!";
+        return "Teilnehmer hat fÃ¼r Ã„quatorpreis nicht gemeldet, hat ihn aber zum "+aeq+". Mal erfÃ¼llt. Ã„quatorpreis wurde korrigiert!";
       } else if (!aeq.equals(ewm.drv_aequatorpreis)) {
         String gem = ewm.drv_aequatorpreis;
         ewm.drv_aequatorpreis = aeq;
         ewm.changed = true;
-        return "Teilnehmer hat für Äquatorpreis '"+gem+"' gemeldet, hat ihn aber zum "+aeq+". Mal erfüllt. Äquatorpreis wurde korrigiert!";
+        return "Teilnehmer hat fÃ¼r Ã„quatorpreis '"+gem+"' gemeldet, hat ihn aber zum "+aeq+". Mal erfÃ¼llt. Ã„quatorpreis wurde korrigiert!";
       }
     }
     return null;
@@ -1550,8 +1564,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     int gesKm = EfaUtil.string2int(ewm.drv_gesKm,0);
     int gesKmAB = EfaUtil.string2int(ewm.drv_gesKmAB,0);
 
-    if (anzAbzeichenAB > anzAbzeichen) return "Der Teilnehmer darf nicht mehr A/B-Abzeichen als Gesamt-Abzeichen haben! Bitte überprüfen!";
-    if (gesKmAB > gesKm) return "Der Teilnehmer darf nicht mehr A/B-Kilometer als Gesamt-Kilometer haben! Bitte überprüfen!";
+    if (anzAbzeichenAB > anzAbzeichen) return "Der Teilnehmer darf nicht mehr A/B-Abzeichen als Gesamt-Abzeichen haben! Bitte Ã¼berprÃ¼fen!";
+    if (gesKmAB > gesKm) return "Der Teilnehmer darf nicht mehr A/B-Kilometer als Gesamt-Kilometer haben! Bitte Ã¼berprÃ¼fen!";
     return null;
   }
 
@@ -1569,7 +1583,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         ewm.drvWS_Teilnehmer = Integer.toString(maenner+frauen+junioren+juniorinnen);
         ewm.changed = true;
       }
-      return "Gemeldete Teilnehmer-Anzahl '"+gem+"' stimmt nicht mit Summe der einzelnen Altersklassen überein. Teilnehmer-Anzahl wurde korrigiert!";
+      return "Gemeldete Teilnehmer-Anzahl '"+gem+"' stimmt nicht mit Summe der einzelnen Altersklassen Ã¼berein. Teilnehmer-Anzahl wurde korrigiert!";
     }
     return null;
   }
@@ -1588,7 +1602,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         ewm.drvWS_MannschKm = EfaUtil.zehntelInt2String(maenner+frauen+junioren+juniorinnen);
         ewm.changed = true;
       }
-      return "Gemeldete Mannschafts-Kilometer '"+gem+"' stimmen nicht mit Summe der einzelnen Altersklassen überein. Mannschafts-Kilometer wurde korrigiert!";
+      return "Gemeldete Mannschafts-Kilometer '"+gem+"' stimmen nicht mit Summe der einzelnen Altersklassen Ã¼berein. Mannschafts-Kilometer wurde korrigiert!";
     }
     return null;
   }
@@ -1646,8 +1660,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
 
   boolean checkAndSaveChangedMeldung() {
     if (ewmCur != null && (ewmCur.changed || !mBlocked)) {
-      switch (Dialog.yesNoCancelDialog("Änderungen speichern",
-                                       "Änderungen an Eintrag "+(ewmNr+1)+" wurden noch nicht gespeichert. Jetzt speichern?")) {
+      switch (Dialog.yesNoCancelDialog("Ã„nderungen speichern",
+                                       "Ã„nderungen an Eintrag "+(ewmNr+1)+" wurden noch nicht gespeichert. Jetzt speichern?")) {
         case Dialog.YES:
           if (!mBlocked) getMFields(ewmCur);
           replaceMeldung();
@@ -1695,10 +1709,10 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
             tmpefw.drvint_wirdGewertet = false;
           }
           if (ewmCur.drvint_nichtGewertetGrund == null) {
-            ewmCur.drvint_nichtGewertetGrund = "Wettbewerbsbedingungen nicht erfüllt";
+            ewmCur.drvint_nichtGewertetGrund = "Wettbewerbsbedingungen nicht erfÃ¼llt";
             tmpefw.drvint_nichtGewertetGrund = ewmCur.drvint_nichtGewertetGrund;
           }
-          warnung("Der Teilnehmer hat die Bedingungen für den Wettbewerb nicht erfüllt!");
+          warnung("Der Teilnehmer hat die Bedingungen fÃ¼r den Wettbewerb nicht erfÃ¼llt!");
         }
         String s;
         s = checkAndCorrectAbzeichen(ewmCur); if (s != null) warnung(s);
@@ -1737,7 +1751,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
             if (ewmCur.fahrt[i] != null && ewmCur.fahrt[i].length>0 && ewmCur.fahrt[i][0] != null) anzFahrten = i;
           }
 
-          if (anzFahrten>=MAX_FAHRTEN) warnung("Für den Teilnehmer sind mehr als "+MAX_FAHRTEN+" Fahrten angegeben; die restlichen Fahrten werden ignoriert.");
+          if (anzFahrten>=MAX_FAHRTEN) warnung("FÃ¼r den Teilnehmer sind mehr als "+MAX_FAHRTEN+" Fahrten angegeben; die restlichen Fahrten werden ignoriert.");
         }
         this.titledBorderTeilnehmer.setTitle("Teilnehmer " + (nr+1)+" / "+data.size());
         this.teilnDataPanel.repaint();
@@ -1755,10 +1769,10 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
             tmpefw.drvint_wirdGewertet = false;
           }
           if (ewmCur.drvint_nichtGewertetGrund == null) {
-            ewmCur.drvint_nichtGewertetGrund = "Wettbewerbsbedingungen nicht erfüllt";
+            ewmCur.drvint_nichtGewertetGrund = "Wettbewerbsbedingungen nicht erfÃ¼llt";
             tmpefw.drvint_nichtGewertetGrund = ewmCur.drvint_nichtGewertetGrund;
           }
-          warnung("Die Fahrt entspricht nicht den geforderten Bedingungen für eine Wanderfahrt!");
+          warnung("Die Fahrt entspricht nicht den geforderten Bedingungen fÃ¼r eine Wanderfahrt!");
         }
         s = checkAndCorrectWSAnz(ewmCur,true); if (s != null) warnung(s);
         s = checkAndCorrectWSKm(ewmCur,true); if (s != null) warnung(s);
@@ -1793,7 +1807,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
   void getMFields(EfaWettMeldung ewm) {
     switch(MELDTYP) {
       case MeldungenIndexFrame.MELD_FAHRTENABZEICHEN:
-        // Teilnnr überprüfen
+        // Teilnnr Ã¼berprÃ¼fen
         if (mTeilnNr.getText().trim().length() > 0 && drvConfig.teilnehmer != null) {
           DatenFelder d = drvConfig.teilnehmer.getExactComplete(mTeilnNr.getText().trim());
           if (d != null) {
@@ -1803,8 +1817,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
               if (Dialog.yesNoDialog("Warnung","Es existiert bereits ein Teilnehmer mit der Nummer "+d.get(Teilnehmer.TEILNNR)+",\n"+
                                      "jedoch hat dieser Teilnehmer andere Daten:\n"+
                                      "'"+d.get(Teilnehmer.VORNAME)+" "+d.get(Teilnehmer.NACHNAME)+" ("+d.get(Teilnehmer.JAHRGANG)+")'\n"+
-                                     "Soll der aktuell gewählte Teilnehmer dennoch diese Teilnehmernummer erhalten?\n"+
-                                     "(Bitte wähle nur JA, wenn es sich bei beiden Teilnehmern um denselben Teilnehmer handelt!)") != Dialog.YES) {
+                                     "Soll der aktuell gewÃ¤hlte Teilnehmer dennoch diese Teilnehmernummer erhalten?\n"+
+                                     "(Bitte wÃ¤hle nur JA, wenn es sich bei beiden Teilnehmern um denselben Teilnehmer handelt!)") != Dialog.YES) {
                 return;
               }
             }
@@ -1835,21 +1849,21 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
               !ewm.drv_gesKmAB.equals(Integer.toString(ewm.drvSignatur.getGesKmAB()))) {
             if (Dialog.auswahlDialog("Achtung",
                                      "Du hast die durch das elektronische Fahrtenheft nachgewiesene Anzahl an\n"+
-                                     "bereits erbrachten Abzeichen und Kilometern verändert, so daß diese nicht\n"+
-                                     "mehr mit dem elektronischen Fahrtenheft des Vorjahres übereinstimmen.\n"+
-                                     "Wenn Du diese Änderungen übernehmen möchtest, wird das elektronische Fahrtenheft\n"+
+                                     "bereits erbrachten Abzeichen und Kilometern verÃ¤ndert, so daÃŸ diese nicht\n"+
+                                     "mehr mit dem elektronischen Fahrtenheft des Vorjahres Ã¼bereinstimmen.\n"+
+                                     "Wenn Du diese Ã„nderungen Ã¼bernehmen mÃ¶chtest, wird das elektronische Fahrtenheft\n"+
                                      "des Vorjahres ignoriert.\n\n"+
-                                     "Was möchtest Du tun?",
-                                     "Änderungen verwerfen und elektr. Fahrtenheft beibehalten",
-                                     "Änderungen übernehmen und elektr. Fahrtenheft ignorieren",
+                                     "Was mÃ¶chtest Du tun?",
+                                     "Ã„nderungen verwerfen und elektr. Fahrtenheft beibehalten",
+                                     "Ã„nderungen Ã¼bernehmen und elektr. Fahrtenheft ignorieren",
                                      false) == 0) {
-              // Änderungen verwerfen und elektr. Fahrtenheft beibehalten
+              // Ã„nderungen verwerfen und elektr. Fahrtenheft beibehalten
               ewm.drv_anzAbzeichen = Integer.toString(ewm.drvSignatur.getAnzAbzeichen());
               ewm.drv_gesKm = Integer.toString(ewm.drvSignatur.getGesKm());
               ewm.drv_anzAbzeichenAB = Integer.toString(ewm.drvSignatur.getAnzAbzeichenAB());
               ewm.drv_gesKmAB = Integer.toString(ewm.drvSignatur.getGesKmAB());
             } else {
-              // Änderungen übernehmen und elektr. Fahrtenheft ignorieren
+              // Ã„nderungen Ã¼bernehmen und elektr. Fahrtenheft ignorieren
               ewm.drvSignatur = null;
               ewm.drv_fahrtenheft = null;
             }
@@ -1947,7 +1961,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     if (stoffabzeichen == 0) this.printStoffBestellButton.setVisible(false);
 
     this.aequatorButton.setVisible(aequator > 0);
-    this.aequatorButton.setText(aequator+" Äquatorpreisträger");
+    this.aequatorButton.setText(aequator+" Ã„quatorpreistrÃ¤ger");
     this.papierFahrtenhefteErforderlichLabel.setVisible(papierFahrtenhefteErforderlich > 0);
 
     this.vZusammenfassungMeldegebuehr.setText(EfaUtil.cent2euro(meldegeld,true));
@@ -1966,7 +1980,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         String gruppe = getGruppe(ewm);
         if (gruppe != null && ewm.gruppe != null) {
           if (!ewm.gruppe.startsWith(gruppe) && testeUndKorrigiere) {
-            warnung("Teilnehmer hat für Gruppe '"+ewm.gruppe+"' gemeldet, hat aber für Gruppe '"+gruppe+"' erfüllt. Gruppe wurde korrigiert!");
+            warnung("Teilnehmer hat fÃ¼r Gruppe '"+ewm.gruppe+"' gemeldet, hat aber fÃ¼r Gruppe '"+gruppe+"' erfÃ¼llt. Gruppe wurde korrigiert!");
             ewm.gruppe = gruppe;
             ewm.changed = true;
           }
@@ -2000,7 +2014,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       for (int i=0; i<ewm.fahrt.length && i<MAX_FAHRTEN; i++) {
         boolean jum = ewm.fahrt[i][5] != null && ewm.fahrt[i][5].equals(EfaWettMeldung.JUM);
 
-        // Bugfix für EFA.150
+        // Bugfix fÃ¼r EFA.150
         if (ew.allg_programm != null && ew.allg_programm.equals("EFA.150") &&
             ewm.fahrt[i][3] != null && ewm.fahrt[i][3].endsWith(" (JuM-Regatta)")) jum = true;
 
@@ -2015,7 +2029,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         if (jum) jumAnz++;
       }
     }
-    if (ewm.drvint_fahrtErfuellt) { // nicht Zusatzbedingungen prüfen, sondern als erfüllt betrachten
+    if (ewm.drvint_fahrtErfuellt) { // nicht Zusatzbedingungen prÃ¼fen, sondern als erfÃ¼llt betrachten
       wafaKm = 99999;
       wafaAnzTage = 99999;
       jumAnz = 99999;
@@ -2037,14 +2051,14 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       if (!loadKeys()) return;
     }
 
-    // schaue, ob es ungeprüfte Meldungen gibt
+    // schaue, ob es ungeprÃ¼fte Meldungen gibt
     int c = 0;
     int teilnErw = 0;
     int teilnJug = 0;
     for (int i=0; i<data.size(); i++) {
       EfaWettMeldung ewm = (EfaWettMeldung)data.get(i);
       if (!ewm.drvint_geprueft && !drvConfig.readOnlyMode) {
-        Dialog.error("Meldung "+(i+1)+" wurde noch nicht geprüft! Es müssen zuerst alle Meldungen geprüft werden!");
+        Dialog.error("Meldung "+(i+1)+" wurde noch nicht geprÃ¼ft! Es mÃ¼ssen zuerst alle Meldungen geprÃ¼ft werden!");
         setMFields(i,false);
         this.jTabbedPane1.setSelectedIndex(1);
         return;
@@ -2058,10 +2072,10 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       if (Dialog.yesNoDialog("Warnung","Es sind nur "+c+" von "+data.size()+" Teilnehmern als 'wird gewertet' markiert.\nIst das korrekt?") != Dialog.YES) return;
     }
 
-    // prüfen, ob Signaturdatei bereits existiert
+    // prÃ¼fen, ob Signaturdatei bereits existiert
     if (MELDTYP == MeldungenIndexFrame.MELD_FAHRTENABZEICHEN) {
       if ((new File(ew.datei+"sig")).exists()) {
-        if (Dialog.yesNoDialog("Warnung","Eine Bestätigungsdatei für diese Meldung existiert bereits.\nSoll trotzdem eine neue erstellt werden?") != Dialog.YES) return;
+        if (Dialog.yesNoDialog("Warnung","Eine BestÃ¤tigungsdatei fÃ¼r diese Meldung existiert bereits.\nSoll trotzdem eine neue erstellt werden?") != Dialog.YES) return;
       }
     }
 
@@ -2109,7 +2123,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       for (int i=0; i<data.size(); i++) {
         EfaWettMeldung m = (EfaWettMeldung)data.get(i);
 
-        // prüfen, ob diese Meldung gewertet werden soll
+        // prÃ¼fen, ob diese Meldung gewertet werden soll
         if (!m.drvint_wirdGewertet) {
           nichtGewerteteTeilnehmer.add(m.vorname+" "+m.nachname+
                      (m.drvint_nichtGewertetGrund != null && m.drvint_nichtGewertetGrund.length()>0 ? " (Grund: "+m.drvint_nichtGewertetGrund+")" : ""));
@@ -2122,20 +2136,20 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         int gesKm = EfaUtil.string2int(m.drv_gesKm,0);
         int gesKmAB = EfaUtil.string2int(m.drv_gesKmAB,0);
 
-        // Gruppe, für die der Teilnehmer erfüllt hat
+        // Gruppe, fÃ¼r die der Teilnehmer erfÃ¼llt hat
         String gruppe = getGruppe(m);
         if (gruppe == null) {
-          errors += "Teilnehmer "+(i+1)+" ("+m.vorname+" "+m.nachname+") wurde nicht gewertet, da er/sie die Bedingungen nicht erfüllt hat.\n";
-          nichtGewerteteTeilnehmer.add(m.vorname+" "+m.nachname+" (Grund: Wettbewerbsbedingungen nicht erfüllt)");
+          errors += "Teilnehmer "+(i+1)+" ("+m.vorname+" "+m.nachname+") wurde nicht gewertet, da er/sie die Bedingungen nicht erfÃ¼llt hat.\n";
+          nichtGewerteteTeilnehmer.add(m.vorname+" "+m.nachname+" (Grund: Wettbewerbsbedingungen nicht erfÃ¼llt)");
           continue;
         }
 
-        // prüfen, ob Gruppe der Meldung entspricht
+        // prÃ¼fen, ob Gruppe der Meldung entspricht
         if (!gruppe.equals(m.gruppe)) {
-          warnings += "Teilnehmer "+(i+1)+" ("+m.vorname+" "+m.nachname+") wurde für Gruppe '"+m.gruppe+"' gemeldet, hat aber in Gruppe '"+gruppe+"' erfüllt. Gruppe wurde korrigiert.\n";
+          warnings += "Teilnehmer "+(i+1)+" ("+m.vorname+" "+m.nachname+") wurde fÃ¼r Gruppe '"+m.gruppe+"' gemeldet, hat aber in Gruppe '"+gruppe+"' erfÃ¼llt. Gruppe wurde korrigiert.\n";
         }
 
-        // Abzeichen und Kilometer hochzählen
+        // Abzeichen und Kilometer hochzÃ¤hlen
         anzAbz++;
         gesKm += EfaUtil.string2int(m.kilometer,0);
         boolean isAB = (gruppe.startsWith("3a") || gruppe.startsWith("3b"));
@@ -2144,10 +2158,10 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
           gesKmAB += EfaUtil.string2int(m.kilometer,0);
         }
 
-        // Anzahl Abzeichen und Kilometer prüfen
+        // Anzahl Abzeichen und Kilometer prÃ¼fen
         if (anzAbz < anzAbzAB || gesKm < gesKmAB) {
-          errors += "Teilnehmer "+(i+1)+" ("+m.vorname+" "+m.nachname+") wurde nicht gewertet, da er/sie ungültige Werte der Abzeichen/Kilometer (mehr AB als normal) hat.\n";
-          nichtGewerteteTeilnehmer.add(m.vorname+" "+m.nachname+" (Grund: Unstimmige Werte der Abzeichen/Kilometer für Jugend-A/B)");
+          errors += "Teilnehmer "+(i+1)+" ("+m.vorname+" "+m.nachname+") wurde nicht gewertet, da er/sie ungÃ¼ltige Werte der Abzeichen/Kilometer (mehr AB als normal) hat.\n";
+          nichtGewerteteTeilnehmer.add(m.vorname+" "+m.nachname+" (Grund: Unstimmige Werte der Abzeichen/Kilometer fÃ¼r Jugend-A/B)");
           continue;
         }
 
@@ -2156,7 +2170,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
           if (m.drv_teilnNr == null || m.drv_teilnNr.length() == 0) {
             long l = EfaUtil.getSHAlong((m.vorname+"#"+m.nachname+"#"+m.jahrgang).getBytes(),3);
             if (l < 0) {
-              errors += "Für Teilnehmer "+(i+1)+" ("+m.vorname+" "+m.nachname+") konnte keine Teilnehmernummer berechnet werden (-1).\n";
+              errors += "FÃ¼r Teilnehmer "+(i+1)+" ("+m.vorname+" "+m.nachname+") konnte keine Teilnehmernummer berechnet werden (-1).\n";
               nichtGewerteteTeilnehmer.add(m.vorname+" "+m.nachname+" (Grund: Es konnte keine Teilnehmernummer berechnet werden)");
               continue;
             }
@@ -2173,7 +2187,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
           try {
             PrivateKey privKey = Daten.keyStore.getPrivateKey(drvConfig.schluessel);
             if (privKey == null) {
-              errors += "Privater Schlüssel "+drvConfig.schluessel+" nicht gefunden: "+Daten.keyStore.getLastError()+"\n";
+              errors += "Privater SchlÃ¼ssel "+drvConfig.schluessel+" nicht gefunden: "+Daten.keyStore.getLastError()+"\n";
             }
             DRVSignatur sig = new DRVSignatur(m.drv_teilnNr,m.vorname,m.nachname,m.jahrgang,
                                               anzAbz,gesKm,anzAbzAB,gesKmAB,jahr,EfaUtil.string2int(m.kilometer,0),null,
@@ -2181,8 +2195,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
                                               privKey);
             sig.checkSignature();
             if (sig.getSignatureState() != DRVSignatur.SIG_VALID) {
-              errors += "Teilnehmer "+(i+1)+" ("+m.vorname+" "+m.nachname+") wurde nicht gewertet, da die für ihr erstellte Signatur ungültig ist: "+sig.getSignatureError()+"\n";
-              nichtGewerteteTeilnehmer.add(m.vorname+" "+m.nachname+" (Grund: Erstellte Signatur ist ungültig)");
+              errors += "Teilnehmer "+(i+1)+" ("+m.vorname+" "+m.nachname+") wurde nicht gewertet, da die fÃ¼r ihr erstellte Signatur ungÃ¼ltig ist: "+sig.getSignatureError()+"\n";
+              nichtGewerteteTeilnehmer.add(m.vorname+" "+m.nachname+" (Grund: Erstellte Signatur ist ungÃ¼ltig)");
               continue;
             } else {
               // elektronisches Fahrtenheft
@@ -2199,7 +2213,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
               opSuccess = true;
             }
           } catch(Exception ee) {
-            errors += "Fehler beim Erstellen des elektronischen Fahrtenhefts für Teilnehmer "+(i+1)+" ("+m.vorname+" "+m.nachname+"): "+ee.getMessage()+"\n";
+            errors += "Fehler beim Erstellen des elektronischen Fahrtenhefts fÃ¼r Teilnehmer "+(i+1)+" ("+m.vorname+" "+m.nachname+"): "+ee.getMessage()+"\n";
           }
         } else opSuccess = true;
 
@@ -2239,7 +2253,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       for (int i=0; i<data.size(); i++) {
         EfaWettMeldung m = (EfaWettMeldung)data.get(i);
 
-        // prüfen, ob diese Meldung gewertet werden soll
+        // prÃ¼fen, ob diese Meldung gewertet werden soll
         if (!m.drvint_wirdGewertet) {
           continue;
         }
@@ -2293,7 +2307,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         if (MELDTYP == MeldungenIndexFrame.MELD_FAHRTENABZEICHEN && !drvConfig.readOnlyMode) f.writeFile();
       }
     } catch(Exception ee) {
-      errors += "Fehler beim Erstellen der Bestätigungsdatei: "+e.toString()+"\n";
+      errors += "Fehler beim Erstellen der BestÃ¤tigungsdatei: "+e.toString()+"\n";
       c = 0;
     }
     if (MELDTYP == MeldungenIndexFrame.MELD_FAHRTENABZEICHEN && !drvConfig.teilnehmer.writeFile()) {
@@ -2301,23 +2315,23 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     }
 
     if (errors.length() > 0) {
-      Dialog.error("Beim Erstellen der Bestätigungsdatei traten Fehler auf:\n"+errors);
+      Dialog.error("Beim Erstellen der BestÃ¤tigungsdatei traten Fehler auf:\n"+errors);
     }
     if (warnings.length() > 0) {
-      Dialog.infoDialog("Warnung","Beim Erstellen der Bestätigungsdatei kam es zu Warnungen:\n"+warnings);
+      Dialog.infoDialog("Warnung","Beim Erstellen der BestÃ¤tigungsdatei kam es zu Warnungen:\n"+warnings);
     }
 
     if (c > 0) {
       if (MELDTYP == MeldungenIndexFrame.MELD_FAHRTENABZEICHEN && !drvConfig.readOnlyMode) {
         Dialog.infoDialog("Es wurden "+c+" von "+data.size()+" Teilnehmern gewertet und ein elektronisches Fahrtenbuch\n"+
-                          "für sie generiert.\n"+
-                          "Bestätigungsdatei: "+f.getDateiname()+
+                          "fÃ¼r sie generiert.\n"+
+                          "BestÃ¤tigungsdatei: "+f.getDateiname()+
                           "\n\nEs wird nun ein PDF-Dokument mit den elektronischen Fahrtenheften erzeugt.");
         try {
           PDFOutput.printPDFbestaetigung(drvConfig,ew,qnr,meldegeld,data.size(),c,teilnErw,teilnJug,f,nichtGewerteteTeilnehmer);
         } catch (NoClassDefFoundError ee) {
           Dialog.error("Das PDF-Plugin ist nicht installiert.\n"+
-                       "Die Meldung kann nicht bestätigt werden.");
+                       "Die Meldung kann nicht bestÃ¤tigt werden.");
           return;
         }
       }
@@ -2327,7 +2341,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         return;
       }
       if (!setMeldedateiBearbeitet( (f != null ? f.getDateiname() : "ok") )) {
-        Dialog.error("Fehler beim Aktualisieren des Status für die vorliegende Meldedatei");
+        Dialog.error("Fehler beim Aktualisieren des Status fÃ¼r die vorliegende Meldedatei");
         return;
       }
       if (!drvConfig.meldestatistik.writeFile()) {
@@ -2348,7 +2362,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     }
     try {
       if (this.ew.writeFile()) {
-        log(false,"Alle Änderungen erfolgreich in der Meldedatei gespeichert.");
+        log(false,"Alle Ã„nderungen erfolgreich in der Meldedatei gespeichert.");
         changed = false;
         _hasBeenSaved = true;
         return true;
@@ -2365,7 +2379,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     d.set(MeldungenIndex.STATUS,Integer.toString(MeldungenIndex.ST_BEARBEITET));
     d.set(MeldungenIndex.BESTAETIGUNGSDATEI,bestaetigungsdatei);
     if (drvConfig.meldungenIndex.writeFile()) {
-      log(false,"Status für Meldung auf 'Bearbeitet' gesetzt.");
+      log(false,"Status fÃ¼r Meldung auf 'Bearbeitet' gesetzt.");
       return true;
     }
     return false;
@@ -2399,11 +2413,11 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     this.vVersantStrasse.setEditable(!blocked);
     this.vAnzahlPapierFahrtenhefte.setEditable(!blocked);
     if (blocked) this.vUnblockButton.setText("Felder zum Bearbeiten freigeben");
-    else this.vUnblockButton.setText("Änderungen speichern und Felder schützen");
+    else this.vUnblockButton.setText("Ã„nderungen speichern und Felder schÃ¼tzen");
     this.vBlocked = blocked;
 
     if (blocked) {
-      // Änderungen speichern
+      // Ã„nderungen speichern
       if (EfaUtil.string2int(this.vBestNadelErwGold.getText().trim(),0) != EfaUtil.sumUpArray(EfaUtil.kommaList2IntArr(ew.drv_nadel_erw_gold,','))) {
         ew.drv_nadel_erw_gold = this.vBestNadelErwGold.getText().trim();
       }
@@ -2470,8 +2484,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       this.mUnblockButton.setText("Felder zum Bearbeiten freigeben");
       this.fUnblockButton.setText("Felder zum Bearbeiten freigeben");
     } else {
-      this.mUnblockButton.setText("Änderungen speichern und Felder schützen");
-      this.fUnblockButton.setText("Änderungen speichern und Felder schützen");
+      this.mUnblockButton.setText("Ã„nderungen speichern und Felder schÃ¼tzen");
+      this.fUnblockButton.setText("Ã„nderungen speichern und Felder schÃ¼tzen");
     }
     this.mBlocked = blocked;
   }
@@ -2505,7 +2519,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
 
   void mUnblockButton_actionPerformed(ActionEvent e) {
     if (ewmCur == null) {
-      Dialog.error("Es ist kein Eintrag ausgewählt. Bitte gehe zu einem vorhandenen Eintrag oder klicke 'Neu'.");
+      Dialog.error("Es ist kein Eintrag ausgewÃ¤hlt. Bitte gehe zu einem vorhandenen Eintrag oder klicke 'Neu'.");
       return;
     }
     if (!mBlocked) {
@@ -2520,7 +2534,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
 
   void fUnblockButton_actionPerformed(ActionEvent e) {
     if (ewmCur == null) {
-      Dialog.error("Es ist kein Eintrag ausgewählt. Bitte gehe zu einem vorhandenen Eintrag oder klicke 'Neu'.");
+      Dialog.error("Es ist kein Eintrag ausgewÃ¤hlt. Bitte gehe zu einem vorhandenen Eintrag oder klicke 'Neu'.");
       return;
     }
     if (!mBlocked) {
@@ -2605,7 +2619,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     String nachname = mNachname.getText().trim();
     String jahrgang = mJahrgang.getText().trim();
     if (vorname.length() == 0 || nachname.length() == 0 || jahrgang.length() == 0) {
-      Dialog.error("Bitte fülle die Felder 'Vorname', 'Nachname' und 'Jahrgang' aus!");
+      Dialog.error("Bitte fÃ¼lle die Felder 'Vorname', 'Nachname' und 'Jahrgang' aus!");
       return;
     }
 
@@ -2650,7 +2664,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       f.write("<tr><td>BLZ:</td><td><tt><b>"+ew.meld_blz+"</b></tt></td></tr>\n");
       f.write("<tr><td colspan=\"2\" align=\"center\"><big>Versandanschrift</big></tt></td></tr>\n");
       f.write("<tr><td>Name:</td><td><tt><b>"+ew.versand_name+"</b></tt></td></tr>\n");
-      f.write("<tr><td>Straße:</td><td><tt><b>"+ew.versand_strasse+"</b></tt></td></tr>\n");
+      f.write("<tr><td>StraÃŸe:</td><td><tt><b>"+ew.versand_strasse+"</b></tt></td></tr>\n");
       f.write("<tr><td>Ort:</td><td><tt><b>"+ew.versand_ort+"</b></tt></td></tr>\n");
       f.write("<tr><td colspan=\"2\" align=\"center\"><big>Bestellung</big></tt></td></tr>\n");
       f.write("<tr><td>Stoffabzeichen Jugend:</td><td><tt><b>"+ew.drv_stoff_jug+"</b></tt></td></tr>\n");
@@ -2737,20 +2751,20 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         if (isErfuellt(ewm,false) && ewm.drvint_wirdGewertet) {
           int km = EfaUtil.string2int(ewm.drv_gesKm,0) + EfaUtil.string2int(ewm.kilometer,0);
           int anzAeq  = km / WettDefs.DRV_AEQUATOR_KM;
-          aequator.add("<p><b>"+ewm.vorname+" "+ewm.nachname+"</b><br>Jahrgang: "+ewm.jahrgang+"<br>Kilometer: "+km+"<br>"+anzAeq+". Äquatorpreis</p>");
+          aequator.add("<p><b>"+ewm.vorname+" "+ewm.nachname+"</b><br>Jahrgang: "+ewm.jahrgang+"<br>Kilometer: "+km+"<br>"+anzAeq+". Ã„quatorpreis</p>");
         } else {
           warnings++;
         }
       }
     }
     if (warnings>0) {
-      Dialog.error("Es gibt "+warnings+" Teilnehmer, die den Äquatorpreis bekommen würden, aber die Bedingungen für dieses\n"+
-                   "Jahr nicht erfüllt haben oder nicht gewertet werden sollen. Diese Teilnehmer werden NICHT ausgegeben.\n\n"+
-                   "Bitte prüfen Sie erst alle Meldungen dieses Vereins auf Gültigkeit und Drucken Sie anschließend erst\n"+
-                   "die Äquatorpreisträger aus.");
+      Dialog.error("Es gibt "+warnings+" Teilnehmer, die den Ã„quatorpreis bekommen wÃ¼rden, aber die Bedingungen fÃ¼r dieses\n"+
+                   "Jahr nicht erfÃ¼llt haben oder nicht gewertet werden sollen. Diese Teilnehmer werden NICHT ausgegeben.\n\n"+
+                   "Bitte prÃ¼fen Sie erst alle Meldungen dieses Vereins auf GÃ¼ltigkeit und Drucken Sie anschlieÃŸend erst\n"+
+                   "die Ã„quatorpreistrÃ¤ger aus.");
     }
     if (aequator.size() == 0) {
-      Dialog.error("Es gibt keine Äquatorpreisträger in diesem Verein.");
+      Dialog.error("Es gibt keine Ã„quatorpreistrÃ¤ger in diesem Verein.");
       return;
     }
 
@@ -2760,7 +2774,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       f.write("<html>\n");
       f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"></head>\n");
       f.write("<body>\n");
-      f.write("<h1 align=\"center\">Äquatorpreisträger</h1>\n");
+      f.write("<h1 align=\"center\">Ã„quatorpreistrÃ¤ger</h1>\n");
       f.write("<p><b>Verein: "+ew.verein_name+"</b><br>Mitgliedsnummer: "+ew.verein_mitglnr+"<br><br>Anschrift:<br>"+ew.versand_name+"<br>"+ew.versand_strasse+"<br>"+ew.versand_ort+"</p>\n");
       for (int i=0; i<aequator.size(); i++) {
         f.write(((String)aequator.get(i))+"\n");

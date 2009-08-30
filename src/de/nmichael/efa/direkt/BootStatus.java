@@ -1,5 +1,12 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.core.DatenListe;
+import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.util.TMJ;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.util.Backup;
 import de.nmichael.efa.*;
 import java.util.*;
 import java.io.IOException;
@@ -28,7 +35,7 @@ class Reservierung implements Comparable {
       if (!this.bisZeit.equals(b.bisZeit)) return (EfaUtil.secondTimeIsAfterFirst(this.bisZeit,b.bisZeit) ? -1 : 1);
       return 0;
     }
-    // beide Reservierungen wöchentlich
+    // beide Reservierungen wÃ¶chentlich
     if (!this.vonTag.equals(b.vonTag)) {
       if (this.vonTag.equals("Montag")) return -1;
       if (   b.vonTag.equals("Montag")) return  1;
@@ -68,8 +75,8 @@ public class BootStatus extends DatenListe {
   public static final int STAT_VERFUEGBAR = 1;
   public static final int STAT_UNTERWEGS = 2;
   public static final int STAT_NICHT_VERFUEGBAR = 3;
-  public static final int STAT_VORUEBERGEHEND_VERSTECKEN = 4; // wird intern für Kombiboote verwendet
-  protected static final String[] STATUSNAMES = { "nicht anzeigen", "verfügbar", "unterwegs", "nicht verfügbar", "vorübergehend verstecken" };
+  public static final int STAT_VORUEBERGEHEND_VERSTECKEN = 4; // wird intern fÃ¼r Kombiboote verwendet
+  protected static final String[] STATUSNAMES = { "nicht anzeigen", "verfÃ¼gbar", "unterwegs", "nicht verfÃ¼gbar", "vorÃ¼bergehend verstecken" };
 
   public static final String KENNUNG120 = "##EFA.120.BOOTSTATUS##";
   public static final String KENNUNG160 = "##EFA.160.BOOTSTATUS##";
@@ -127,8 +134,8 @@ public class BootStatus extends DatenListe {
     return getReservierungen(boot,170);
   }
 
-  // gibt die Reservierung zurück, die zum Zeitpunkt now gültig ist oder max. minutesAhead beginnt
-  // null, wenn keine Reservierung diese Kriterien erfüllt
+  // gibt die Reservierung zurÃ¼ck, die zum Zeitpunkt now gÃ¼ltig ist oder max. minutesAhead beginnt
+  // null, wenn keine Reservierung diese Kriterien erfÃ¼llt
   public static Reservierung getReservierung(DatenFelder boot, long now, long minutesAhead) {
     if (boot == null) return null;
     Vector res = getReservierungen(boot);
@@ -162,13 +169,13 @@ public class BootStatus extends DatenListe {
       long von = EfaUtil.dateTime2Cal(vonTag,vonZeit).getTimeInMillis();
       long bis = EfaUtil.dateTime2Cal(bisTag,bisZeit).getTimeInMillis();
 
-      // ist die vorliegende Reservierung jetzt gültig
+      // ist die vorliegende Reservierung jetzt gÃ¼ltig
       if (now >= von && now <= bis) {
         r.gueltigInMinuten = 0;
         return r;
       }
 
-      // ist die vorliegende Reservierung innerhalb von minutesAhead gültig
+      // ist die vorliegende Reservierung innerhalb von minutesAhead gÃ¼ltig
       if (now < von && now + minutesAhead*60*1000 >= von) {
         r.gueltigInMinuten = (von-now)/(60*1000);
         return r;
@@ -188,8 +195,8 @@ public class BootStatus extends DatenListe {
     return s;
   }
 
-  // alle verfallenen Reservierungen löschen;
-  // gibt true zurück, falls Reservierungen gelöscht wurden; sonst false.
+  // alle verfallenen Reservierungen lÃ¶schen;
+  // gibt true zurÃ¼ck, falls Reservierungen gelÃ¶scht wurden; sonst false.
   public static boolean deleteObsoleteReservierungen(DatenFelder boot) {
     if (boot == null) return false;
     Vector res = getReservierungen(boot);
@@ -200,7 +207,7 @@ public class BootStatus extends DatenListe {
     boolean geloscht = false;
     for (int i=0; i<res.size(); i++) {
       Reservierung r = (Reservierung)res.get(i);
-      if (!r.einmalig) continue; // zyklische Reservierungen werden nicht gelöscht
+      if (!r.einmalig) continue; // zyklische Reservierungen werden nicht gelÃ¶scht
 
       TMJ bisTag  = EfaUtil.string2date(r.bisTag,0,0,0);
       TMJ bisZeit = EfaUtil.string2date(r.bisZeit,0,0,0);
@@ -248,7 +255,7 @@ public class BootStatus extends DatenListe {
   }
 
 
-  // Dateiformat überprüfen, ggf. konvertieren
+  // Dateiformat Ã¼berprÃ¼fen, ggf. konvertieren
   public boolean checkFileFormat() {
     String s;
     try {
@@ -305,7 +312,7 @@ public class BootStatus extends DatenListe {
 
         // FERTIG MIT KONVERTIEREN
         if (s == null || !s.trim().startsWith(kennung)) {
-          Dialog.error("Datei '"+dat+"' hat ungültiges Format!");
+          Dialog.error("Datei '"+dat+"' hat ungÃ¼ltiges Format!");
           fclose(false);
           return false;
         }

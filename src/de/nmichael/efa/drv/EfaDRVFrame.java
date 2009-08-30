@@ -1,10 +1,14 @@
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 
 public class EfaDRVFrame extends JFrame {
   private DRVConfig drvConfig;
@@ -66,19 +70,19 @@ public class EfaDRVFrame extends JFrame {
     if (drvConfig.aktJahr != 0) {
       String mdat = Daten.efaDataDirectory+drvConfig.aktJahr+Daten.fileSep+DRVConfig.MELDUNGEN_FA_FILE;
       if (EfaUtil.canOpenFile(mdat)) {
-        this.meldungenFAButton.setText("DRV-Fahrtenabzeichen für das Jahr "+drvConfig.aktJahr+" bearbeiten");
+        this.meldungenFAButton.setText("DRV-Fahrtenabzeichen fÃ¼r das Jahr "+drvConfig.aktJahr+" bearbeiten");
         this.meldungenFAButton.setEnabled(true);
       } else {
-        Dialog.error("Die Datei\n"+mdat+"\nkonnte nicht gefunden werden.\nVorhandene Fahrtenabzeichen-Meldungen des Jahres "+drvConfig.aktJahr+" können daher nicht bearbeitet werden.");
-        Logger.log(Logger.ERROR,"Die Datei\n"+mdat+"\nkonnte nicht gefunden werden.\nVorhandene Fahrtenabzeichen-Meldungen des Jahres "+drvConfig.aktJahr+" können daher nicht bearbeitet werden.");
+        Dialog.error("Die Datei\n"+mdat+"\nkonnte nicht gefunden werden.\nVorhandene Fahrtenabzeichen-Meldungen des Jahres "+drvConfig.aktJahr+" kÃ¶nnen daher nicht bearbeitet werden.");
+        Logger.log(Logger.ERROR,"Die Datei\n"+mdat+"\nkonnte nicht gefunden werden.\nVorhandene Fahrtenabzeichen-Meldungen des Jahres "+drvConfig.aktJahr+" kÃ¶nnen daher nicht bearbeitet werden.");
       }
       mdat = Daten.efaDataDirectory+drvConfig.aktJahr+Daten.fileSep+DRVConfig.MELDUNGEN_WS_FILE;
       if (EfaUtil.canOpenFile(mdat)) {
-        this.meldungenWSButton.setText("DRV-Wanderruderstatistik für das Jahr "+drvConfig.aktJahr+" bearbeiten");
+        this.meldungenWSButton.setText("DRV-Wanderruderstatistik fÃ¼r das Jahr "+drvConfig.aktJahr+" bearbeiten");
         this.meldungenWSButton.setEnabled(true);
       } else {
-        Dialog.error("Die Datei\n"+mdat+"\nkonnte nicht gefunden werden.\nVorhandene Wanderruderstatistik-Meldungen des Jahres "+drvConfig.aktJahr+" können daher nicht bearbeitet werden.");
-        Logger.log(Logger.ERROR,"Die Datei\n"+mdat+"\nkonnte nicht gefunden werden.\nVorhandene Wanderruderstatistik-Meldungen des Jahres "+drvConfig.aktJahr+" können daher nicht bearbeitet werden.");
+        Dialog.error("Die Datei\n"+mdat+"\nkonnte nicht gefunden werden.\nVorhandene Wanderruderstatistik-Meldungen des Jahres "+drvConfig.aktJahr+" kÃ¶nnen daher nicht bearbeitet werden.");
+        Logger.log(Logger.ERROR,"Die Datei\n"+mdat+"\nkonnte nicht gefunden werden.\nVorhandene Wanderruderstatistik-Meldungen des Jahres "+drvConfig.aktJahr+" kÃ¶nnen daher nicht bearbeitet werden.");
       }
 
     }
@@ -125,7 +129,7 @@ public class EfaDRVFrame extends JFrame {
     meldungenFAButton.setEnabled(false);
     meldungenFAButton.setNextFocusableComponent(meldungenWSButton);
     meldungenFAButton.setMnemonic('F');
-    meldungenFAButton.setText("DRV-Fahrtenabzeichen für das Jahr ???? bearbeiten");
+    meldungenFAButton.setText("DRV-Fahrtenabzeichen fÃ¼r das Jahr ???? bearbeiten");
     meldungenFAButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         meldungenFAButton_actionPerformed(e);
@@ -149,7 +153,7 @@ public class EfaDRVFrame extends JFrame {
     meldungenWSButton.setEnabled(false);
     meldungenWSButton.setNextFocusableComponent(administrationButton);
     meldungenWSButton.setMnemonic('W');
-    meldungenWSButton.setText("DRV-Wanderruderstatistik für das Jahr ???? bearbeiten");
+    meldungenWSButton.setText("DRV-Wanderruderstatistik fÃ¼r das Jahr ???? bearbeiten");
     copyLabel.setText("Copyright (c) 2004-"+Daten.COPYRIGHTYEAR+" by Nicolas Michael");
     modeLabel.setForeground(Color.red);
     modeLabel.setText("Testmode");
@@ -193,7 +197,7 @@ public class EfaDRVFrame extends JFrame {
 
   void meldungenFAButton_actionPerformed(ActionEvent e) {
     if (drvConfig.aktJahr < 1980) {
-      Dialog.error("Es ist kein Wettbewerbsjahr ausgewählt.\nBitte wähle zuerst über den Punkt 'Administration' ein Wettbewerbsjahr aus.");
+      Dialog.error("Es ist kein Wettbewerbsjahr ausgewÃ¤hlt.\nBitte wÃ¤hle zuerst Ã¼ber den Punkt 'Administration' ein Wettbewerbsjahr aus.");
       return;
     }
 
@@ -218,18 +222,18 @@ public class EfaDRVFrame extends JFrame {
       return;
     }
 
-    Logger.log(Logger.INFO,"START Meldungen für "+drvConfig.aktJahr+" bearbeiten");
+    Logger.log(Logger.INFO,"START Meldungen fÃ¼r "+drvConfig.aktJahr+" bearbeiten");
     MeldungenIndexFrame dlg = new MeldungenIndexFrame(this,drvConfig,MeldungenIndexFrame.MELD_FAHRTENABZEICHEN);
     dlg.setSize((int)Dialog.screenSize.getWidth()-100,(int)Dialog.screenSize.getHeight()-100);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(true);
     dlg.show();
-    Logger.log(Logger.INFO,"ENDE Meldungen für "+drvConfig.aktJahr+" bearbeiten");
+    Logger.log(Logger.INFO,"ENDE Meldungen fÃ¼r "+drvConfig.aktJahr+" bearbeiten");
   }
 
   void meldungenWSButton_actionPerformed(ActionEvent e) {
     if (drvConfig.aktJahr < 1980) {
-      Dialog.error("Es ist kein Wettbewerbsjahr ausgewählt.\nBitte wähle zuerst über den Punkt 'Administration' ein Wettbewerbsjahr aus.");
+      Dialog.error("Es ist kein Wettbewerbsjahr ausgewÃ¤hlt.\nBitte wÃ¤hle zuerst Ã¼ber den Punkt 'Administration' ein Wettbewerbsjahr aus.");
       return;
     }
 
@@ -254,13 +258,13 @@ public class EfaDRVFrame extends JFrame {
       return;
     }
 
-    Logger.log(Logger.INFO,"START Meldungen für "+drvConfig.aktJahr+" bearbeiten");
+    Logger.log(Logger.INFO,"START Meldungen fÃ¼r "+drvConfig.aktJahr+" bearbeiten");
     MeldungenIndexFrame dlg = new MeldungenIndexFrame(this,drvConfig,MeldungenIndexFrame.MELD_WANDERRUDERSTATISTIK);
     dlg.setSize((int)Dialog.screenSize.getWidth()-100,(int)Dialog.screenSize.getHeight()-100);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(true);
     dlg.show();
-    Logger.log(Logger.INFO,"ENDE Meldungen für "+drvConfig.aktJahr+" bearbeiten");
+    Logger.log(Logger.INFO,"ENDE Meldungen fÃ¼r "+drvConfig.aktJahr+" bearbeiten");
   }
 
   void beendenButton_actionPerformed(ActionEvent e) {

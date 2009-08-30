@@ -1,12 +1,19 @@
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.core.ListenausgabeFrame;
+import de.nmichael.efa.core.DatenListe;
+import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.Help;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.beans.*;
 import java.util.*;
-import de.nmichael.efa.Dialog;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 
 /**
@@ -133,8 +140,8 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
   /**Close the dialog*/
   void cancel(boolean saved) {
     if (bootStatus.isChanged()) {
-      if (Dialog.yesNoDialog("ƒnderungen speichern",
-                             "Die ƒnderungen an der Bootsstatus-Liste wurden noch nicht gespeichert.\n"+
+      if (Dialog.yesNoDialog("√Ñnderungen speichern",
+                             "Die √Ñnderungen an der Bootsstatus-Liste wurden noch nicht gespeichert.\n"+
                              "Sollen sie jetzt gespeichert werden?") == Dialog.YES) {
         if (!this.bootStatus.writeFile()) {
           Logger.log(Logger.INFO,"Admin: Bootsstatus-Liste konnte nicht geschrieben werden.");
@@ -145,7 +152,7 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
       }
     }
     if (saved) Logger.log(Logger.INFO,"Admin: Bootsstatus-Liste neu geschrieben.");
-    else Logger.log(Logger.INFO,"Admin: Alle ƒnderungen an Bootsstatus-Liste verworfen.");
+    else Logger.log(Logger.INFO,"Admin: Alle √Ñnderungen an Bootsstatus-Liste verworfen.");
     Dialog.frameClosed(this);
     dispose();
   }
@@ -217,7 +224,7 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
   }
 
   public void editDone(DatenFelder boot) {
-    Logger.log(Logger.INFO,"Admin: Bootsstatus f¸r Boot '"+boot.get(BootStatus.NAME)+"' auf '"+
+    Logger.log(Logger.INFO,"Admin: Bootsstatus f√ºr Boot '"+boot.get(BootStatus.NAME)+"' auf '"+
                            BootStatus.STATUSNAMES[EfaUtil.string2int(boot.get(BootStatus.STATUS),0)]+"' gesetzt"+
                            ( boot.get(BootStatus.LFDNR).length()>0 ? " mit LfdNr=#"+boot.get(BootStatus.LFDNR) : "") );
     firstclick=false;
@@ -262,7 +269,7 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
   }
 
   void schaedenButton_actionPerformed(ActionEvent e) {
-    String[] felder  = { "Boot", "Sch‰den" };
+    String[] felder  = { "Boot", "Sch√§den" };
     boolean[] select = {  true ,  true            };
     // virtuelle Datenliste erzeugen
     DatenListe dl = new DatenListe("",2,1,false);

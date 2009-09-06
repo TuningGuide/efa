@@ -67,6 +67,12 @@ public class EfaWett {
   public String wimpel_km=null;
   public String wimpel_schnitt=null;
 
+  // DRV Wanderruderstatistik
+  public String aktive_M_ab19=null;
+  public String aktive_M_bis18=null;
+  public String aktive_W_ab19=null;
+  public String aktive_W_bis18=null;
+
   // DRV-intern (müssen unbedingt in EfaWett.resetDrvIntern() zurückgesetzt werden!)
   public boolean drvint_meldegeldEingegangen = false;
   public int drvint_anzahlPapierFahrtenhefte = -1;
@@ -102,6 +108,7 @@ public class EfaWett {
      meld_name=null; meld_email=null; meld_bank=null; meld_blz=null; meld_kto=null;
      versand_name=null; versand_strasse=null; versand_ort=null;
      wimpel_mitglieder=null; wimpel_km=null; wimpel_schnitt=null;
+     aktive_M_ab19=null; aktive_M_bis18=null; aktive_W_ab19=null; aktive_W_bis18=null;
      EfaWettMeldung meldung=null;
   }
 
@@ -162,6 +169,14 @@ public class EfaWett {
         if (wimpel_mitglieder != null) f.write("MITGLIEDER="+wimpel_mitglieder+"\n");
         if (wimpel_km != null) f.write("KILOMETER="+wimpel_km+"\n");
         if (wimpel_schnitt != null) f.write("SCHNITT="+wimpel_schnitt+"\n");
+      }
+
+      if (aktive_M_ab19 != null || aktive_M_bis18 != null || aktive_W_ab19 != null || aktive_W_bis18 != null) {
+        f.write("\n[DRV_WANDERRUDERPREIS]\n");
+        if (aktive_M_ab19 != null) f.write("AKTIVE_M_AB19="+aktive_M_ab19+"\n");
+        if (aktive_M_bis18 != null) f.write("AKTIVE_M_BIS18="+aktive_M_bis18+"\n");
+        if (aktive_W_ab19 != null) f.write("AKTIVE_W_AB19="+aktive_W_ab19+"\n");
+        if (aktive_W_bis18 != null) f.write("AKTIVE_W_BIS18="+aktive_W_bis18+"\n");
       }
 
       if (drvint_meldegeldEingegangen || drvint_anzahlPapierFahrtenhefte>=0) {
@@ -325,6 +340,12 @@ public class EfaWett {
         if (s.startsWith("MITGLIEDER=")) wimpel_mitglieder = s.substring(11,s.length());
         if (s.startsWith("KILOMETER=")) wimpel_km = s.substring(10,s.length());
         if (s.startsWith("SCHNITT=")) wimpel_schnitt = s.substring(8,s.length());
+      }
+      if (block.equals("DRV_WANDERRUDERPREIS")) {
+        if (s.startsWith("AKTIVE_M_AB19=")) aktive_M_ab19 = s.substring(14,s.length());
+        if (s.startsWith("AKTIVE_M_BIS18=")) aktive_M_bis18 = s.substring(15,s.length());
+        if (s.startsWith("AKTIVE_W_AB19=")) aktive_W_ab19 = s.substring(14,s.length());
+        if (s.startsWith("AKTIVE_W_BIS18=")) aktive_W_bis18 = s.substring(15,s.length());
       }
       if (block.equals("DRV_INTERN")) {
         if (s.startsWith("MELDEGELD_EINGEGANGEN=")) drvint_meldegeldEingegangen = s.substring(22,s.length()).equals("+");

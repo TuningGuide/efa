@@ -2393,7 +2393,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       if (Daten.efaConfig.correctMisspelledZiele) {
         checkNeighbours(ziel, zielButton, Daten.fahrtenbuch.getDaten().ziele,
                         "Ziel", "Zielliste", false);
-        if (Daten.efaConfig.efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen &&
+        if (isDirectMode() && Daten.efaConfig.efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen &&
             ziel.getText().trim().length() > 0) {
           DatenFelder d = Daten.fahrtenbuch.getDaten().ziele.getExactComplete(ziel.getText().trim());
           if (d != null && !bootskm.getText().trim().equals(d.get(Ziele.KM))) {
@@ -3949,7 +3949,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   }
 
   private void setFieldEnabledBootsKm() {
-    if (mode != MODE_ENDE && mode != MODE_NACHTRAG) return; // Zielabhängiges Enabled der BootsKm nur bei "Fahrt beenden" und "Nachtrag"
+    if (mode != MODE_ENDE && mode != MODE_NACHTRAG) {
+        return; // Zielabhängiges Enabled der BootsKm nur bei "Fahrt beenden" und "Nachtrag"
+    }
     boolean enabled = !(zielButton.getBackground() == Color.green) ||
             Daten.efaConfig == null || !Daten.efaConfig.efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen;
     setFieldEnabled(enabled,bootskm,bootskmLabel);

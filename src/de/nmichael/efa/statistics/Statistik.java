@@ -64,8 +64,15 @@ public class Statistik {
   protected static final String GASTBEZ = "Gäste";
   protected static final String ANDEREBEZ = "andere";
 
+  // aktive Mitglieder
+  protected static final String AKTIV_M_AB19  = "M19";
+  protected static final String AKTIV_M_BIS18 = "M18";
+  protected static final String AKTIV_W_AB19  = "W19";
+  protected static final String AKTIV_W_BIS18 = "W18";
+
   protected static Hashtable alleWW;
   protected static AlleWWArrEl[] alleWWArr;
+  protected static Hashtable alleAktive;
 
   protected static String lastLfdNr; // für Art: Fahrtenbuch (damit Einträge nicht doppelt)
 
@@ -2003,6 +2010,28 @@ public class Statistik {
     ad.additionalTable[anzMtours+1][11] = EfaUtil.zehntelInt2String(_gesKmTeilnFueber18);
     ad.additionalTable[anzMtours+1][12] = Integer.toString(_gesTeilnFbis18);
     ad.additionalTable[anzMtours+1][13] = EfaUtil.zehntelInt2String(_gesKmTeilnFbis18);
+
+    // Anzahl der aktiven Mitglieder
+    if (sd.ausgabeArt == sd.AUSGABE_EFAWETT && alleAktive != null) {
+      int aktMab19  = 0;
+      int aktMbis18 = 0;
+      int aktWab19  = 0;
+      int aktWbis18 = 0;
+      Object[] aktive = alleAktive.keySet().toArray();
+      for (int i=0; i<aktive.length; i++) {
+        String s = (String)alleAktive.get(aktive[i]);
+        if (s != null) {
+          if (s.equals(AKTIV_M_AB19))  aktMab19++;
+          if (s.equals(AKTIV_M_BIS18)) aktMbis18++;
+          if (s.equals(AKTIV_W_AB19))  aktWab19++;
+          if (s.equals(AKTIV_W_BIS18)) aktWbis18++;
+        }
+      }
+      efaWett.aktive_M_ab19  = Integer.toString(aktMab19);
+      efaWett.aktive_M_bis18 = Integer.toString(aktMbis18);
+      efaWett.aktive_W_ab19  = Integer.toString(aktWab19);
+      efaWett.aktive_W_bis18 = Integer.toString(aktWbis18);
+    }
   }
 
   static int getSumOfAllHashEntries(Hashtable h) {
@@ -3235,23 +3264,25 @@ public class Statistik {
         anzZB = new ZielfahrtFolge(zf).getAnzZielfahrten();
       }
       if (anzZB>anzRuderTage) {
-        Dialog.error("Für Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" sind Zielbereiche für "+anzZB+" Etappen angegeben, aber\n"+
-                     "die Mehrtagesfahrt hat nur "+anzRuderTage+" Rudertage!\n"+
-                     "Die Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" wurde daher bei der Auswertung NICHT berücksichtigt!\n"+
+        Dialog.error("Für Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" sind Zielbereiche für "+anzZB+" Etappen angegeben, aber "+
+                     "die Mehrtagesfahrt hat nur "+anzRuderTage+" Rudertage! "+
+                     "Die Zielbereiche der Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" wurden daher bei der Auswertung NICHT berücksichtigt! "+
                      "(Bitte korrigiere die Anzahl der Rudertage oder die Zielbereiche!)");
-        return;
+        anzZB = 0;
+        zf = null;
       }
 
       int _km;
       _km = ( (km / anzRuderTage) / 5 ) * 5; // Grundsätzlich werden alle Teiletappen immer auf ganze oder halbe Kilometer gerundet (Bugfix in 1.8.1_05)
 
       if (anzZB >= 1 && _km < Daten.ZIELFAHRTKM) {
-        Dialog.error("Beim Versuch, die Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" in "+anzRuderTage+" Teilfahrten aufzuteilen, um die\n"+
-                     "Zielfahrten der einzelnen Etappen zu berechnen, hat efa festgestellt, daß die einzelnen\n"+
-                     "Etappen weniger als "+(Daten.ZIELFAHRTKM / 10)+ " Km lang sind und somit keine Zielfahrten darstellen.\n"+
-                     "Die Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" wurde daher bei der Auswertung NICHT berücksichtigt!\n"+
+        Dialog.error("Beim Versuch, die Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" in "+anzRuderTage+" Teilfahrten aufzuteilen, um die "+
+                     "Zielfahrten der einzelnen Etappen zu berechnen, hat efa festgestellt, daß die einzelnen "+
+                     "Etappen weniger als "+(Daten.ZIELFAHRTKM / 10)+ " Km lang sind und somit keine Zielfahrten darstellen. "+
+                     "Die Zielbereiche der Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" wurden daher bei der Auswertung NICHT berücksichtigt! "+
                      "(Bitte gib im Zweifelsfall die Fahrt in Form von einzelnen Etappen ein!)");
-        return;
+        anzZB = 0;
+        zf = null;
       }
 
       DatenFelder ddd = new DatenFelder(d); // Datenfelder kopieren
@@ -3709,6 +3740,36 @@ public class Statistik {
         }
         break;
       case StatistikDaten.WETT_DRV_WAFASTATISTIK:
+        // Berechnung der Teilnehmerkilometer
+        int jjj = EfaUtil.string2int(jahrgang,0);
+        if (jjj == 0) {
+          String wtext = "Das Alter des Teilnehmers '"+name+"' konnte nicht ermittelt werden, da sein/ihr Jahrgang "+
+                         "nicht in efa erfaßt ist! Fahrten dieses Teilnehmers werden ignoriert.\n";
+          if (warnungen.indexOf(wtext)<0) warnungen += wtext; // keine doppelten Warnungen hinzuf�gen
+          return;
+        }
+
+        // Alter des Teilnehmers
+        int alter = sd.wettJahr - jjj;
+
+        // Anzahl der aktiven Ruderer ermitteln
+        if (km >= 10) { // mind. 1 Km gerudert
+          if (alter>18) { // über 18 Jahre
+            if (geschlecht.equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH))) { // männlich
+              alleAktive.put(name,AKTIV_M_AB19);
+            } else { // weiblich
+              alleAktive.put(name,AKTIV_W_AB19);
+            }
+          } else { // bis 18 Jahre
+            if (geschlecht.equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH))) { // männlich
+              alleAktive.put(name,AKTIV_M_BIS18);
+            } else { // weiblich
+              alleAktive.put(name,AKTIV_W_BIS18);
+            }
+          }
+        }
+
+        // Mehrtagesfahrt berechnen
         String fahrtname = d.get(Fahrtenbuch.FAHRTART);
         if (!mayBeWafa(fahrtname,km)) return;
         if (fahrtname.length() == 0 || Mehrtagesfahrt.isVordefinierteFahrtart(fahrtname)) fahrtname = d.get(Fahrtenbuch.ZIEL);
@@ -3743,18 +3804,6 @@ public class Statistik {
           // Fahrt als ein einziger Eintrag: "Etappenname" ist Fahrtart (Name der MTour)
           etappenName = fahrtname;
         }
-
-        // Berechnung der Teilnehmerkilometer
-        int jjj = EfaUtil.string2int(jahrgang,0);
-        if (jjj == 0) {
-          String wtext = "Das Alter des Teilnehmers '"+name+"' konnte nicht ermittelt werden, da sein/ihr Jahrgang "+
-                         "nicht in efa erfaßt ist! Fahrten dieses Teilnehmers werden ignoriert.\n";
-          if (warnungen.indexOf(wtext)<0) warnungen += wtext; // keine doppelten Warnungen hinzufügen
-          return;
-        }
-
-        // Alter des Teilnehmers
-        int alter = sd.wettJahr - jjj;
 
         // keine Teilnehmer berücksichtigen, die jünger als 13 Jahre sind
         // seit 2007 entfällt diese Beschränkung: Es werden jetzt alle Teilnehmer gewertet, die
@@ -4300,6 +4349,7 @@ public class Statistik {
   static void clearAllVars() {
     alleWW=null;
     alleWWArr=null;
+    alleAktive=null;
     lastLfdNr=null;
     nichtBeruecksichtigt=null;
     warnungen=null;
@@ -4564,6 +4614,7 @@ public class Statistik {
 
 
       alleWW = new Hashtable(); // alle Ziele für "Wer Wohin"
+      alleAktive = new Hashtable(); // alle aktive Ruderer (DRV Wafa-Statistik)
       lastLfdNr = "";
       nichtBeruecksichtigt = new Hashtable();
       warnungen = "";

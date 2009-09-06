@@ -498,7 +498,7 @@ public class SuchFrame extends JDialog implements ActionListener {
             for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++)
               if (d.get(Fahrtenbuch.MANNSCH1+i).length()>0 && Daten.fahrtenbuch.getDaten().mitglieder.getExact(d.get(Fahrtenbuch.MANNSCH1+i)) == null) {
                 if (!Daten.such_errUnbekRudererOhneGast ||
-                    (Daten.bezeichnungen != null && Daten.bezeichnungen.gast != null && Daten.bezeichnungen.gast.length()>0 && d.get(Fahrtenbuch.STM).toLowerCase().indexOf(Daten.bezeichnungen.gast.toLowerCase())<0)) {
+                    (Daten.bezeichnungen != null && Daten.bezeichnungen.gast != null && Daten.bezeichnungen.gast.length()>0 && d.get(Fahrtenbuch.MANNSCH1+i).toLowerCase().indexOf(Daten.bezeichnungen.gast.toLowerCase())<0)) {
                   parent.setActiveMannsch(i / 8);
                   gefunden(parent, d, parent.mannsch[i]);
                   return true;

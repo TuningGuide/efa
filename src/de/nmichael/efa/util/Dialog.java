@@ -63,6 +63,15 @@ public class Dialog {
     initializeMaxDialogSizes();
   }
 
+  // max size that a dialog may have, depending on screen size
+  public static Dimension getMaxSize(Dimension d) {
+    Dimension newd = new Dimension(d);
+    if (d.getWidth() > screenSize.getWidth() || d.getHeight() > screenSize.getHeight()) {
+      newd.setSize((int)Math.min(d.getWidth(),screenSize.getWidth()),(int)Math.min(d.getHeight(),screenSize.getHeight()));
+    }
+    return newd;
+  }
+
   public static void setMaxDialogSizes(int width, int height) {
     if (width>0) MAX_DIALOG_WIDTH = width;
     if (height>0) MAX_DIALOG_HEIGHT = height;

@@ -1,19 +1,5 @@
 package de.nmichael.efa.drv;
 
-import de.nmichael.efa.core.WettDefs;
-import de.nmichael.efa.core.EfaWettMeldung;
-import de.nmichael.efa.core.EfaWett;
-import de.nmichael.efa.core.ESigFahrtenhefte;
-import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.util.TMJ;
-import de.nmichael.efa.util.SimpleFilePrinter;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.EfaKeyStore;
-import de.nmichael.efa.util.DRVSignatur;
-import de.nmichael.efa.util.Base64;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -21,7 +7,9 @@ import javax.swing.border.*;
 import java.io.*;
 import java.util.*;
 import de.nmichael.efa.*;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.core.*;
 import java.beans.*;
 import javax.swing.event.*;
 import java.security.PrivateKey;
@@ -247,6 +235,15 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
   JLabel jLabel22 = new JLabel();
   JButton wsListButton = new JButton();
   JCheckBox mFahrtnachweisErbracht = new JCheckBox();
+  JLabel vAktiveLabel = new JLabel();
+  JLabel vAktiveMbis18Label = new JLabel();
+  JLabel vAktiveMab19Label = new JLabel();
+  JLabel vAktiveWbis18Label = new JLabel();
+  JLabel vAktiveWab19Label = new JLabel();
+  JTextField vAktiveMbis18 = new JTextField();
+  JTextField vAktiveMab19 = new JTextField();
+  JTextField vAktiveWbis18 = new JTextField();
+  JTextField vAktiveWab19 = new JTextField();
 
 
   public MeldungEditFrame(JDialog parent, DRVConfig drvConfig, EfaWett ew, String qnr, int meldTyp) {
@@ -777,6 +774,19 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
           wsListButton_actionPerformed(e);
         }
     });
+      vAktiveLabel.setText("Aktive Ruderer:");
+      vAktiveMbis18Label.setText("männlich bis 18: ");
+      vAktiveMab19Label.setText("männlich ab 19: ");
+      vAktiveWbis18Label.setText("weiblich bis 18: ");
+      vAktiveWab19Label.setText("weiblich ab 19: ");
+      vAktiveMbis18.setPreferredSize(new Dimension(50, 19));
+      vAktiveMbis18.setEditable(false);
+      vAktiveMab19.setPreferredSize(new Dimension(50, 19));
+      vAktiveMab19.setEditable(false);
+      vAktiveWbis18.setPreferredSize(new Dimension(50, 19));
+      vAktiveWbis18.setEditable(false);
+      vAktiveWab19.setPreferredSize(new Dimension(50, 19));
+      vAktiveWab19.setEditable(false);
       this.getContentPane().add(mainPanel, BorderLayout.CENTER);
       mainPanel.add(northPanel, BorderLayout.NORTH);
       northPanel.add(infoQnrLabel,    new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
@@ -944,6 +954,24 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
       zusammenfassungPanel.add(vAnzahlPapierFahrtenhefte,    new GridBagConstraints(3, 5, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(8, 0, 0, 0), 0, 0));
+      zusammenfassungPanel.add(vAktiveLabel,  new GridBagConstraints(7, 0, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+      zusammenfassungPanel.add(vAktiveMbis18Label,   new GridBagConstraints(7, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
+      zusammenfassungPanel.add(vAktiveMab19Label,   new GridBagConstraints(7, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
+      zusammenfassungPanel.add(vAktiveWbis18Label,   new GridBagConstraints(7, 3, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
+      zusammenfassungPanel.add(vAktiveWab19Label,    new GridBagConstraints(7, 4, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
+      zusammenfassungPanel.add(vAktiveMbis18, new GridBagConstraints(8, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+      zusammenfassungPanel.add(vAktiveMab19, new GridBagConstraints(8, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+      zusammenfassungPanel.add(vAktiveWbis18, new GridBagConstraints(8, 3, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+      zusammenfassungPanel.add(vAktiveWab19, new GridBagConstraints(8, 4, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
       vereinsdatenPanel.add(dateiPanel,    new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 10, 10, 10), 0, 0));
       dateiPanel.add(jLabel49, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -1253,6 +1281,16 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
 
         teilnDataPanel.add(mFahrtnachweisErbracht,  new GridBagConstraints(7, 2+MAX_FAHRTEN, 6, 1, 0.0, 0.0
                 ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+
+        vAktiveLabel.setVisible(false);
+        vAktiveMbis18Label.setVisible(false);
+        vAktiveMab19Label.setVisible(false);
+        vAktiveWbis18Label.setVisible(false);
+        vAktiveWab19Label.setVisible(false);
+        vAktiveMbis18.setVisible(false);
+        vAktiveMab19.setVisible(false);
+        vAktiveWbis18.setVisible(false);
+        vAktiveWab19.setVisible(false);
         break;
       case MeldungenIndexFrame.MELD_WANDERRUDERSTATISTIK:
         bestellungenPanel.setVisible(false);
@@ -1652,7 +1690,10 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         if (ew.drvint_anzahlPapierFahrtenhefte>=0) this.vAnzahlPapierFahrtenhefte.setText(Integer.toString(ew.drvint_anzahlPapierFahrtenhefte));
         break;
       case MeldungenIndexFrame.MELD_WANDERRUDERSTATISTIK:
-        // nothing to do
+        this.vAktiveMbis18.setText(notNull(ew.aktive_M_bis18));
+        this.vAktiveMab19.setText(notNull(ew.aktive_M_ab19));
+        this.vAktiveWbis18.setText(notNull(ew.aktive_W_bis18));
+        this.vAktiveWab19.setText(notNull(ew.aktive_W_ab19));
         break;
     }
     vBlock(true);
@@ -1948,29 +1989,37 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     this.vZusammenfassungAnzTeilnehmerErfuellt.setText(Integer.toString(erfuellt));
     this.vZusammenfassungAnzTeilnehmerUngueltig.setText(Integer.toString(ungueltig));
 
-    if (MELDTYP != MeldungenIndexFrame.MELD_FAHRTENABZEICHEN) return;
+    switch(MELDTYP) {
+      case MeldungenIndexFrame.MELD_FAHRTENABZEICHEN:
+        meldegeld += EfaUtil.string2int(ew.drv_nadel_erw_silber,0) * drvConfig.eur_nadel_erw_silber;
+        meldegeld += EfaUtil.sumUpArray(EfaUtil.kommaList2IntArr(ew.drv_nadel_erw_gold,','))  * drvConfig.eur_nadel_erw_gold;
+        meldegeld += EfaUtil.string2int(ew.drv_nadel_jug_silber,0) * drvConfig.eur_nadel_jug_silber;
+        meldegeld += EfaUtil.sumUpArray(EfaUtil.kommaList2IntArr(ew.drv_nadel_jug_gold,','))  * drvConfig.eur_nadel_jug_gold;
 
-    meldegeld += EfaUtil.string2int(ew.drv_nadel_erw_silber,0) * drvConfig.eur_nadel_erw_silber;
-    meldegeld += EfaUtil.sumUpArray(EfaUtil.kommaList2IntArr(ew.drv_nadel_erw_gold,','))  * drvConfig.eur_nadel_erw_gold;
-    meldegeld += EfaUtil.string2int(ew.drv_nadel_jug_silber,0) * drvConfig.eur_nadel_jug_silber;
-    meldegeld += EfaUtil.sumUpArray(EfaUtil.kommaList2IntArr(ew.drv_nadel_jug_gold,','))  * drvConfig.eur_nadel_jug_gold;
+        stoffabzeichen += EfaUtil.string2int(ew.drv_stoff_erw,0) * drvConfig.eur_stoff_erw;
+        stoffabzeichen += EfaUtil.string2int(ew.drv_stoff_jug,0) * drvConfig.eur_stoff_jug;
 
-    stoffabzeichen += EfaUtil.string2int(ew.drv_stoff_erw,0) * drvConfig.eur_stoff_erw;
-    stoffabzeichen += EfaUtil.string2int(ew.drv_stoff_jug,0) * drvConfig.eur_stoff_jug;
+        if (stoffabzeichen == 0) this.printStoffBestellButton.setVisible(false);
 
-    if (stoffabzeichen == 0) this.printStoffBestellButton.setVisible(false);
+        this.aequatorButton.setVisible(aequator > 0);
+        this.aequatorButton.setText(aequator+" Äquatorpreisträger");
+        this.papierFahrtenhefteErforderlichLabel.setVisible(papierFahrtenhefteErforderlich > 0);
 
-    this.aequatorButton.setVisible(aequator > 0);
-    this.aequatorButton.setText(aequator+" Äquatorpreisträger");
-    this.papierFahrtenhefteErforderlichLabel.setVisible(papierFahrtenhefteErforderlich > 0);
+        this.vZusammenfassungMeldegebuehr.setText(EfaUtil.cent2euro(meldegeld,true));
+        this.vZusammenfassungStoffabzeichen.setText(EfaUtil.cent2euro(stoffabzeichen,true));
+        this.vZusammenfassungEurGesamt.setText(EfaUtil.cent2euro(meldegeld+stoffabzeichen,true));
 
-    this.vZusammenfassungMeldegebuehr.setText(EfaUtil.cent2euro(meldegeld,true));
-    this.vZusammenfassungStoffabzeichen.setText(EfaUtil.cent2euro(stoffabzeichen,true));
-    this.vZusammenfassungEurGesamt.setText(EfaUtil.cent2euro(meldegeld+stoffabzeichen,true));
-
-    if (ew.drvint_anzahlPapierFahrtenhefte<0) {
-      this.vAnzahlPapierFahrtenhefte.setText(Integer.toString(papierFahrtenhefteErforderlich));
-      ew.drvint_anzahlPapierFahrtenhefte = papierFahrtenhefteErforderlich;
+        if (ew.drvint_anzahlPapierFahrtenhefte<0) {
+          this.vAnzahlPapierFahrtenhefte.setText(Integer.toString(papierFahrtenhefteErforderlich));
+          ew.drvint_anzahlPapierFahrtenhefte = papierFahrtenhefteErforderlich;
+        }
+        break;
+      case MeldungenIndexFrame.MELD_WANDERRUDERSTATISTIK:
+        this.vAktiveMbis18.setText(notNull(ew.aktive_M_bis18));
+        this.vAktiveMab19.setText(notNull(ew.aktive_M_ab19));
+        this.vAktiveWbis18.setText(notNull(ew.aktive_W_bis18));
+        this.vAktiveWab19.setText(notNull(ew.aktive_W_ab19));
+        break;
     }
   }
 
@@ -2297,6 +2346,10 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       d.set(Meldestatistik.WS_JUNIORENKM,Integer.toString(juniorenkm));
       d.set(Meldestatistik.WS_FRAUENKM,Integer.toString(frauenkm));
       d.set(Meldestatistik.WS_JUNIORINNENKM,Integer.toString(juniorinnenkm));
+      d.set(Meldestatistik.WS_AKT18M,ew.aktive_M_bis18);
+      d.set(Meldestatistik.WS_AKT19M,ew.aktive_M_ab19);
+      d.set(Meldestatistik.WS_AKT18W,ew.aktive_W_bis18);
+      d.set(Meldestatistik.WS_AKT19W,ew.aktive_W_ab19);
       drvConfig.meldestatistik.add(d);
     }
 
@@ -2412,6 +2465,10 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     this.vVersandOrt.setEditable(!blocked);
     this.vVersantStrasse.setEditable(!blocked);
     this.vAnzahlPapierFahrtenhefte.setEditable(!blocked);
+    this.vAktiveMbis18.setEditable(!blocked);
+    this.vAktiveMab19.setEditable(!blocked);
+    this.vAktiveWbis18.setEditable(!blocked);
+    this.vAktiveWab19.setEditable(!blocked);
     if (blocked) this.vUnblockButton.setText("Felder zum Bearbeiten freigeben");
     else this.vUnblockButton.setText("Änderungen speichern und Felder schützen");
     this.vBlocked = blocked;
@@ -2440,6 +2497,11 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       ew.versand_ort= this.vVersandOrt.getText().trim();
       ew.versand_strasse = this.vVersantStrasse.getText().trim();
       ew.drvint_anzahlPapierFahrtenhefte = EfaUtil.string2int(this.vAnzahlPapierFahrtenhefte.getText().trim(),-1);
+      ew.aktive_M_bis18 = Integer.toString(EfaUtil.string2int(this.vAktiveMbis18.getText().trim(),0));
+      ew.aktive_M_ab19  = Integer.toString(EfaUtil.string2int(this.vAktiveMab19.getText().trim(),0));
+      ew.aktive_W_bis18 = Integer.toString(EfaUtil.string2int(this.vAktiveWbis18.getText().trim(),0));
+      ew.aktive_W_ab19  = Integer.toString(EfaUtil.string2int(this.vAktiveWab19.getText().trim(),0));
+
       calcOverallValues();
       changed = true;
     }

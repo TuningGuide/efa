@@ -15,6 +15,15 @@ public interface IDataAccess {
     public static final int TYPE_FILE_XML = 1;
     public static final int TYPE_DB_SQL = 2;
 
+    public static final int DATA_STRING = 0;
+    public static final int DATA_INTEGER = 1;
+    public static final int DATA_LONGINT = 2;
+    public static final int DATA_DECIMAL = 3;
+    public static final int DATA_BOOLEAN = 4;
+    public static final int DATA_DATE = 5;
+    public static final int DATA_TIME = 6;
+
+
     /**
      * Returns the storage type of this implementation (e.g. CSV file, XML file or SQL database)
      * @return one of the TYPE_xxx constants
@@ -100,11 +109,29 @@ public interface IDataAccess {
     public int rollback() throws Exception;
     public long getSCN() throws Exception;
 
+    public String getStorageObjectVersion() throws Exception;
+    public void setStorageObjectVersion(String version) throws Exception;
+
+    public void registerDataField(String fieldName, int dataType) throws Exception;
+    public void setKey(String[] fieldNames) throws Exception;
+    public String[] getKeyFieldNames();
+    public String[] getFieldNames();
+    public int getFieldType(String fieldName) throws Exception;
+
+    public void add(DataRecord record) throws Exception;
+    public void addOrUpdate(DataRecord record) throws Exception;
+    public DataRecord get(String key) throws Exception;
+    public void delete(String key) throws Exception;
+
+    public DataRecord getFirst() throws Exception;
+    public DataRecord getNext() throws Exception;
+    public DataRecord getPrev() throws Exception;
+    public DataRecord getLast() throws Exception;
+
+    public int getNumberOfRecords() throws Exception;
+
     /*
      * @todo
-     * - Versioning
-     * - Field Names and Field Types
-     * - Data Manipulation Methods: add record, delete record, update record
      * - Callback Mechanism for Data Changes?
      */
 

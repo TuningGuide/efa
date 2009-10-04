@@ -1,18 +1,5 @@
 package de.nmichael.efa.drv;
 
-import de.nmichael.efa.core.WettDefs;
-import de.nmichael.efa.core.EfaWettMeldung;
-import de.nmichael.efa.core.EfaWett;
-import de.nmichael.efa.core.ESigFahrtenhefte;
-import de.nmichael.efa.core.DRVSignaturFrame;
-import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.util.TableSorter;
-import de.nmichael.efa.util.SimpleFilePrinter;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.EfaKeyStore;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -23,6 +10,9 @@ import java.util.*;
 import java.security.*;
 import java.beans.*;
 import de.nmichael.efa.*;
+import de.nmichael.efa.*;
+import de.nmichael.efa.core.*;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.emil.*;
 import java.net.*;
@@ -1209,7 +1199,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       String stat_complete = Daten.efaDataDirectory+drvConfig.aktJahr+Daten.fileSep+"wanderruderstatistik.csv";
       BufferedWriter f;
       f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(stat_complete),Daten.ENCODING));
-      f.write("Vereinsnummer;Verein;Bundesland;SRV/ADH;Befahrene Gewässer;Teilnehmer insg.;Mannschafts-Km;Männer Km; Junioren Km; Frauen Km; Juniorinnen Km\n");
+      f.write("Vereinsnummer;Verein;Bundesland;SRV/ADH;Befahrene Gewässer;Teilnehmer insg.;Mannschafts-Km;Männer Km; Junioren Km; Frauen Km; Juniorinnen Km; Aktive M bis 18; Aktive M ab 19; Aktive W bis 18; Aktive W ab 19\n");
       Hashtable mitglnr_hash = new Hashtable();
       for (DatenFelder d = drvConfig.meldestatistik.getCompleteFirst(); d != null; d = drvConfig.meldestatistik.getCompleteNext()) {
         String mitgl_in = "";
@@ -1225,7 +1215,12 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
                 d.get(Meldestatistik.WS_MAENNERKM)+";"+
                 d.get(Meldestatistik.WS_JUNIORENKM)+";"+
                 d.get(Meldestatistik.WS_FRAUENKM)+";"+
-                d.get(Meldestatistik.WS_JUNIORINNENKM)+"\n");
+                d.get(Meldestatistik.WS_JUNIORINNENKM)+";"+
+                d.get(Meldestatistik.WS_AKT18M)+";"+
+                d.get(Meldestatistik.WS_AKT19M)+";"+
+                d.get(Meldestatistik.WS_AKT18W)+";"+
+                d.get(Meldestatistik.WS_AKT19W)+
+                "\n");
         mitglnr_hash.put(d.get(Meldestatistik.VEREINSMITGLNR),"foo");
       }
       f.close();

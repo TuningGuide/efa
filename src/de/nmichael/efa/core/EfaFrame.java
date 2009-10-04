@@ -2792,19 +2792,21 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     lfdnr.setText(EfaUtil.getLfdNr(lfdnr.getText()));
   }
   void bootskm_focusLost(FocusEvent e) {
-    TMJ hhmm = EfaUtil.string2date(bootskm.getText().trim(),0,0,0); // TMJ mißbraucht für die Auswertung von Kilometern
-    if (hhmm.monat == 0)
-      if (hhmm.tag != 0) bootskm.setText(Integer.toString(hhmm.tag));
-      else bootskm.setText("");
-    else bootskm.setText(Integer.toString(hhmm.tag)+"."+Integer.toString(EfaUtil.makeDigit(hhmm.monat)));
+      String s = EfaUtil.correctZehntelString(bootskm.getText());
+      if (s.equals("0")) {
+          bootskm.setText("");
+      } else {
+          bootskm.setText(s);
+      }
     if (isDirectMode()) mannschkm_focusGained(null); // damit Mannsch-Km ausgefüllt werden
   }
   void mannschkm_focusLost(FocusEvent e) {
-    TMJ hhmm = EfaUtil.string2date(mannschkm.getText().trim(),0,0,0); // TMJ mißbraucht für die Auswertung von Kilometern
-    if (hhmm.monat == 0)
-      if (hhmm.tag != 0) mannschkm.setText(Integer.toString(hhmm.tag));
-      else mannschkm.setText("");
-    else mannschkm.setText(Integer.toString(hhmm.tag)+"."+Integer.toString(EfaUtil.makeDigit(hhmm.monat)));
+      String s = EfaUtil.correctZehntelString(mannschkm.getText());
+      if (s.equals("0")) {
+          mannschkm.setText("");
+      } else {
+          mannschkm.setText(s);
+      }
   }
   void abfahrt_focusLost(FocusEvent e) {
   if (abfahrt.getText().trim().length()==0 && (isDirectMode())) setTime(abfahrt,0);

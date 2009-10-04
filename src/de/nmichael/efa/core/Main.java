@@ -9,6 +9,7 @@ import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.EfaSec;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.statistics.Statistik;
+import de.nmichael.efa.util.International;
 import javax.swing.UIManager;
 import java.awt.*;
 import java.io.PrintStream;
@@ -133,10 +134,9 @@ public class Main {
 
     if (!Daten.dirsIni(true)) {
       // Directory nicht gefunden
-      if (!ignore)
-        Dialog.error("FEHLER: Eines oder mehrere erforderlichen Verzeichnisse konnten nicht gefunden werden.\n"+
-                     "Es wird nicht empfohlen, efa mit fehlenden Verzeichnissen zu benutzen!\n"+
-                     "Um diese Meldung dauerhaft zu unterdrücken, starte efa mit der Option '-ignore'.");
+      if (!ignore) {
+        Dialog.error(International.getString("efa kann nicht gestartet werden, da eines oder mehrere erforderliche Verzeichnisse nicht gefunden werden konnten."));
+      }
     }
 
     Daten.printEfaInfos();
@@ -150,7 +150,6 @@ public class Main {
   // stderr in die Logdatei umleiten
   static void setupLog() {
     Logger.ini("efa.log",false);
-    Logger.log(Logger.INFO,"--- Hier werden Status- und Fehlermeldungen von efa ausgegeben. ---");
   }
 
 
@@ -160,7 +159,8 @@ public class Main {
 
   // Argumentliste ausgeben (überflüssig, da jetzt standardmäßig Logdatei angelegt wird)
   static void printArgs() {
-    System.out.println("efa "+Daten.VERSION+"\n");
+    System.out.println(Daten.EFA_SHORTNAME+" "+Daten.VERSION+"\n");
+    // @todo internationalisieren ... oder nur auf Englisch?
     System.out.println("Syntax: java [javaopt] de.nmichael.efa.Efa [option]");
     System.out.println("    javaopt - Optionen der Java Virtual Machine (s. 'java -help')");
     System.out.println("    option:");
@@ -197,6 +197,7 @@ public class Main {
   static void checkargs(String[] args) {
     if (args.length == 0) return;
     for (int i=0; i<args.length; i++) {
+      // @todo: Namen der Parameter einheitlich auf Englisch!
       if (args[i].equals("-verbose")) Daten.verbose = true;
       if (args[i].equals("-ignore"))  ignore = true;
       if (args[i].equals("-ws"))      Daten.watchWindowStack = true;
@@ -224,17 +225,17 @@ public class Main {
     cmdmode = true;
     Daten.bezeichnungen = new Bezeichnungen(Daten.efaCfgDirectory+Daten.BEZEICHFILE);
     if (!Daten.bezeichnungen.readFile()) {
-      System.out.println("Bezeichnungen-Datei '"+Daten.bezeichnungen.getFileName()+"' kann nicht gelesen werden!");
+      System.out.println(International.getMessage("Bezeichnungen {file} können nicht gelesen werden!",Daten.bezeichnungen.getFileName()));
       System.exit(2);
     }
     Daten.wettDefs = new WettDefs(Daten.efaCfgDirectory+Daten.WETTDEFS);
     if (!Daten.wettDefs.readFile()) {
-      System.out.println("Wettbewerbsdefinitions-Datei '"+Daten.wettDefs.getFileName()+"' kann nicht gelesen werden!");
+      System.out.println(International.getMessage("Wettbewerbsdefinitionen {file} können nicht gelesen werden!",Daten.wettDefs.getFileName()));
       System.exit(2);
     }
     Daten.fahrtenbuch = new Fahrtenbuch(fb);
     if (!Daten.fahrtenbuch.readFile()) {
-      System.out.println("Fahrtenbuch '"+fb+"' kann nicht gelesen werden!");
+      System.out.println(International.getMessage("Fahrtenbuch {file} kann nicht gelesen werden!",fb));
       System.exit(2);
     }
     Daten.fahrtenbuch.getDaten().statistik.getFirst(stat);
@@ -244,15 +245,15 @@ public class Main {
       try {
         sd[0] = StatistikFrame.getSavedValues(f);
         StatistikFrame.allgStatistikDaten(sd[0]);
-        System.out.print("Erstelle '"+stat+"'...");
+        System.out.print(International.getMessage("Erstelle Statistik {stat} ...",stat));
         Statistik.create(sd);
-        System.out.println("fertig.");
+        System.out.println(International.getString("fertig")+".");
         System.exit(0);
       } catch(StringIndexOutOfBoundsException e) {
-        System.out.println("Fehler beim Lesen der gespeicherten Konfiguration!");
+        System.out.println(International.getString("Fehler beim Lesen der gespeicherten Konfiguration!"));
       }
     } else {
-      System.out.println("Statistik '"+stat+"' nicht gefunden!");
+      System.out.println(International.getMessage("Statistik {stat} nicht gefunden!",stat));
       System.exit(3);
     }
   }
@@ -299,9 +300,8 @@ public class Main {
     EfaSec efaSec = new EfaSec(Daten.efaProgramDirectory+Daten.EFA_SECFILE);
     // if (!efaSec.secFileExists()) ... wird in EfaFrame getestet.
     if (efaSec.secFileExists() && !efaSec.secValueValid()) {
-      Dialog.error("Die Sicherheitsdatei ist korrupt!\n"+
-                   "Aus Gründen der Sicherheit verweigert efa daher den Dienst.\n"+
-                   "Um efa zu reaktivieren, wende Dich an den Entwickler: "+Daten.EFAEMAIL);
+      Dialog.error(International.getString("Die Sicherheitsdatei ist korrupt! Aus Gründen der Sicherheit verweigert efa daher den Dienst.\n"+
+                   "Um efa zu reaktivieren, wende Dich bitte an den Entwickler: ")+Daten.EFAEMAIL);
       System.exit(100);
     }
 
@@ -316,13 +316,13 @@ public class Main {
           } else if (fb != null && fb.equals("efadirekt")) fb = Daten.efaConfig.direkt_letzteDatei;
         }
         if (fb == null) {
-          System.out.println("Kein Fahrtenbuch angegeben.");
+          System.out.println(International.getString("Kein Fahrtenbuch angegeben."));
           printArgs();
         }
       }
-      System.out.println("Fahrtenbuch: "+fb);
+      System.out.println(International.getString("Fahrtenbuch")+": "+fb);
       if (!EfaUtil.canOpenFile(fb)) {
-        System.out.println("Fahrtenbuch '"+fb+"' nicht gefunden!");
+        System.out.println(International.getMessage("Fahrtenbuch {fahrtenbuch} nicht gefunden!",fb));
         System.exit(1);
       }
       if (stat != null) {

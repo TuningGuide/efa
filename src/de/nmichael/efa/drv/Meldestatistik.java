@@ -1,15 +1,13 @@
 package de.nmichael.efa.drv;
 
-import de.nmichael.efa.core.DatenListe;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.Backup;
 import de.nmichael.efa.*;
-import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.util.*;
+import de.nmichael.efa.core.*;
 import java.io.*;
 
 public class Meldestatistik extends DatenListe {
 
-  public static final int _ANZFELDER = 22;
+  public static final int _ANZFELDER = 26;
 
   public static final int KEY = 0; // VEREINSMITGLNR#VORNAME#NACHNAME#JAHRGANG
   public static final int VEREINSMITGLNR = 1;
@@ -33,14 +31,20 @@ public class Meldestatistik extends DatenListe {
   public static final int WS_JUNIORENKM = 19;
   public static final int WS_FRAUENKM = 20;
   public static final int WS_JUNIORINNENKM = 21;
+  public static final int WS_AKT18M = 22;
+  public static final int WS_AKT19M = 23;
+  public static final int WS_AKT18W = 24;
+  public static final int WS_AKT19W = 25;
+
 
   public static final String KENNUNG151 = "##EFA.151.MELDESTATISTIK##";
   public static final String KENNUNG160 = "##EFA.160.MELDESTATISTIK##";
+  public static final String KENNUNG183 = "##EFA.183.MELDESTATISTIK##";
 
   // Konstruktor
   public Meldestatistik(String pdat) {
     super(pdat,_ANZFELDER,1,false);
-    kennung = KENNUNG160;
+    kennung = KENNUNG183;
   }
 
 
@@ -67,6 +71,28 @@ public class Meldestatistik extends DatenListe {
              return false;
           }
           kennung = KENNUNG160;
+          if (closeFile() && writeFile(true) && openFile()) {
+            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            s = kennung;
+          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+        }
+
+        // KONVERTIEREN: 160 -> 183
+        if (s != null && s.trim().startsWith(KENNUNG160)) {
+          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"160");
+          iniList(this.dat,26,1,true); // Rahmenbedingungen von v183 schaffen
+          try {
+            while ((s = freadLine()) != null) {
+              s = s.trim();
+              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              s += "||||";
+              add(s);
+            }
+          } catch(IOException e) {
+             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             return false;
+          }
+          kennung = KENNUNG183;
           if (closeFile() && writeFile(true) && openFile()) {
             Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
             s = kennung;

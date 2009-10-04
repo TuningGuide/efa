@@ -24,18 +24,28 @@ public class International {
     private static final boolean STACKTRACE_MISSING_KEYS = false; // default for production: false
     private static final boolean SHOW_KEY_INSTEAD_OF_TRANSLATION = false;  // default for production: false
 
+    private static Locale locale = null;
     private static ResourceBundle bundle = null;
     private static MessageFormat msgFormat = null;
+    private static NumberFormat numberFormat = null;
+    private static char decimalSeparator = '.';
 
-    private static void initialize() {
+    public static void initialize() {
+        Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Initializing Language Support ...");
         try {
             if (Daten.efaConfig != null && Daten.efaConfig.language != null) {
-                bundle = ResourceBundle.getBundle("efa",new Locale(Daten.efaConfig.language));
-                msgFormat = new MessageFormat("",new Locale(Daten.efaConfig.language));
+                Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Using configured language setting: "+Daten.efaConfig.language);
+                locale = new Locale(Daten.efaConfig.language);
             } else {
-                bundle = ResourceBundle.getBundle("efa");
-                msgFormat = new MessageFormat("");
+                Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Using default language.");
+                locale = Locale.getDefault();
             }
+            Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Language is now: "+locale.getDisplayName());
+            
+            bundle = ResourceBundle.getBundle("efa",locale);
+            msgFormat = new MessageFormat("",locale);
+            numberFormat = NumberFormat.getNumberInstance(locale);
+            decimalSeparator = ((DecimalFormat)numberFormat).getDecimalFormatSymbols().getDecimalSeparator();
         } catch(Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_INTERNATIONAL_FAILEDSETUP, "Failed to set up internationalization: "+e.toString()); // no need for translation
         }
@@ -257,6 +267,24 @@ public class International {
     public static String getMessage(String s, int arg1) {
         Object[] args = {"dummy", new Integer(arg1)};
         return getMessage(s, args);
+    }
+
+    public static char getDecimalSeparator() {
+        if (numberFormat == null) {
+            initialize();
+        }
+        return decimalSeparator;
+    }
+
+    public static String getLanguageDescription() {
+        if (locale == null) {
+            initialize();
+        }
+        try {
+            return locale.getDisplayName();
+        } catch(Exception e) {
+            return "unknown"; // do not internationalize
+        }
     }
 
 }

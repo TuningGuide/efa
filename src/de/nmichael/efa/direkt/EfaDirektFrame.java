@@ -501,7 +501,7 @@ public class EfaDirektFrame extends JFrame {
     centerPanel.add(adminHinweisButton,              new GridBagConstraints(1, 9, 1, 1, 0.0, 0.0
             ,GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
     centerPanel.add(adminButton,                 new GridBagConstraints(1, 11, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(30, 0, 30, 0), 0, 0));
+            ,GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(20, 0, 20, 0), 0, 0));
     centerPanel.add(spezialButton,                 new GridBagConstraints(1, 12, 1, 1, 0.0, 0.0
             ,GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 20, 0), 0, 0));
 //    centerPanel.add(verfuegbareBooteLabel,            new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -522,9 +522,12 @@ public class EfaDirektFrame extends JFrame {
 
     // Logo-Label
     int logoTop = (int)(20.0f * (Dialog.getFontSize() < 10 ? 12 : Dialog.getFontSize()) / Dialog.getDefaultFontSize());
-    int logoBottom = 10;
+    int logoBottom = 5;
     if (Daten.efaConfig.efaDirekt_startMaximized && Daten.efaConfig.efaDirekt_vereinsLogo != null) {
-      logoBottom += (int)((Dialog.screenSize.getHeight()-800)/5);
+      logoBottom += (int)((Dialog.screenSize.getHeight()-825)/5);
+      if (logoBottom < 0) {
+          logoBottom = 0;
+      }
     }
     centerPanel.add(logoLabel,           new GridBagConstraints(1, 0, 1, 2, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(logoTop, 0, logoBottom, 0), 0, 0));

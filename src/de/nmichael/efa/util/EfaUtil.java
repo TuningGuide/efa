@@ -14,6 +14,7 @@ import java.awt.event.*;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.net.*;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -290,7 +291,7 @@ public class EfaUtil {
     String s = Integer.toString(i);
     if (s.length()==1 && i != 0) s = "0"+s;
     if (s.endsWith("0")) s = s.substring(0,s.length()-1);
-    else s = s.substring(0,s.length()-1)+"."+s.substring(s.length()-1,s.length());
+    else s = s.substring(0,s.length()-1)+International.getDecimalSeparator()+s.substring(s.length()-1,s.length());
     if (s.length() == 0) s = "0";
     return s;
   }
@@ -302,6 +303,10 @@ public class EfaUtil {
     TMJ tmj = string2date(s,0,0,0);
     while (tmj.monat > 9) tmj.monat /= 10;
     return tmj.tag*10 + tmj.monat;
+  }
+
+  public static String correctZehntelString(String s) {
+      return zehntelInt2String(zehntelString2Int(s));
   }
 
   // Split: Einen String anhand von Trennzeichen in einen Vector aufspalten
@@ -1211,7 +1216,9 @@ public class EfaUtil {
     try {
       setMinimumSize(frame);
       frame.pack();
-      frame.setSize(frame.getWidth()+2,frame.getHeight()+2);
+      Dimension size = frame.getSize();
+      size.setSize(size.getWidth()+2,size.getHeight()+2);
+      frame.setSize(Dialog.getMaxSize(size));
     } catch(Exception e) {
     }
   }
@@ -1227,7 +1234,7 @@ public class EfaUtil {
         }
       }
       JComponent jcomponent = (JComponent)c;
-      jcomponent.setMinimumSize(jcomponent.getPreferredSize());
+      jcomponent.setMinimumSize(Dialog.getMaxSize(jcomponent.getPreferredSize()));
     } catch(Exception e) {
     }
   }

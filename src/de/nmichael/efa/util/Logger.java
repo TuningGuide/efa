@@ -41,9 +41,10 @@ public class Logger {
   public static final String MSG_ERROR_EXCEPTION             = "EXC001";
 
   // de.nmichael.efa.International
-  public static final String MSG_INTERNATIONAL_FAILEDSETUP   = "INT001";
-  public static final String MSG_INTERNATIONAL_MISSINGKEY    = "INT002";
-  public static final String MSG_INTERNATIONAL_INCORRECTKEY  = "INT003";
+  public static final String MSG_INTERNATIONAL_DEBUG         = "INT001";
+  public static final String MSG_INTERNATIONAL_FAILEDSETUP   = "INT002";
+  public static final String MSG_INTERNATIONAL_MISSINGKEY    = "INT003";
+  public static final String MSG_INTERNATIONAL_INCORRECTKEY  = "INT004";
 
 
 
@@ -68,7 +69,7 @@ public class Logger {
 
     if (debugLogging) log(Logger.INFO,
             Logger.MSG_LOGGER_DEBUGACTIVATED,
-            International.getString("Debug-Logging aktiviert!"));
+            "Debug Logging activated."); // do not internationalize!
   }
 
   /**

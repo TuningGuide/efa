@@ -54,6 +54,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
   JButton browserButton = new JButton();
   BorderLayout borderLayout3 = new BorderLayout();
   JPanel mainPanel = new JPanel();
+  JScrollPane jScrollPane = new JScrollPane();
   BorderLayout borderLayout2 = new BorderLayout();
   JTabbedPane Allgemein = new JTabbedPane();
   JPanel druckPanel = new JPanel();
@@ -1137,7 +1138,8 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     extProgPanel.add(acrobat,    new GridBagConstraints(2, 7, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     mainPanel.add(saveButton, BorderLayout.SOUTH);
-    mainPanel.add(Allgemein, BorderLayout.CENTER);
+    jScrollPane.getViewport().add(Allgemein, null);
+    mainPanel.add(jScrollPane, BorderLayout.CENTER);
     Allgemein.add(druckPanel,  "Drucken");
     druckPanel.add(jLabel6,    new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 20, 0), 0, 0));

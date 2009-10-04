@@ -5,11 +5,13 @@ import java.util.Vector;
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.Logger;
 
 
 public class NachrichtenAnAdmin extends DatenListe {
 
   private Vector nachrichten;
+  private int errorCount = 0; // to avoid stack overflow when recursively running into errors when writing files, mailing this to the admin and then writing the message file to disk, failing doing so, mailing this to the admin, ...
 
   public static final String KENNUNG130 = "##EFA.130.NACHRICHTEN##";
 
@@ -199,7 +201,24 @@ public class NachrichtenAnAdmin extends DatenListe {
     n.nachricht = text;
 
     add(n);
-    boolean success = writeFile();
+
+    boolean success = false;
+    if (errorCount >= 0 && errorCount < 5) {
+      success = writeFile();
+    } else {
+      if (errorCount > 0) {
+        Logger.log(Logger.WARNING,"Error count for writing message file exceeded: "+errorCount+". Message file writing skipped for some time.");
+        errorCount = -5; // try again after 5 more attempts
+      }
+    }
+    if (!success) {
+      errorCount++;
+      if (errorCount == 0) {
+        Logger.log(Logger.INFO,"Message file writing is now enabled again.");
+      }
+    } else {
+      errorCount=0; // reset errorCount upon first successful write
+    }
 
     if (Daten.efaConfig != null && Daten.efaConfig.admins != null) {
       n.sendEmail(Daten.efaConfig.admins);

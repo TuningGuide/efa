@@ -5,20 +5,15 @@ import de.nmichael.efa.util.Help;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.ActionHandler;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.Mnemonics;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.util.Vector;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:  About-Dialog für EfaFrame
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class EfaFrame_AboutBox extends JDialog implements ActionListener {
 
@@ -29,14 +24,17 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
   JButton okButton = new JButton();
   JLabel nameLabel = new JLabel();
   JLabel versionLabel = new JLabel();
+  JLabel languageLabel = new JLabel();
   JLabel copyLabel = new JLabel();
+  JLabel urlLabel0 = new JLabel();
   JLabel urlLabel = new JLabel();
   BorderLayout borderLayout1 = new BorderLayout();
   BorderLayout borderLayout2 = new BorderLayout();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
+  JLabel emailLabel0 = new JLabel();
   JLabel emailLabel = new JLabel();
   JLabel gpl1Label = new JLabel();
-  JLabel jLabel2 = new JLabel();
+  JLabel logoLabel = new JLabel();
   JLabel gplLabel = new JLabel();
   JTabbedPane tabbedPane = new JTabbedPane();
   JPanel detailPanel = new JPanel();
@@ -89,18 +87,18 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
       System.err.println("Error setting up ActionHandler");
     }
 
-    //imageLabel.setIcon(new ImageIcon(EfaFrame_AboutBox.class.getResource("[Your Image]")));
-    this.setTitle("efa Programm-Info");
-//    setResizable(false); // bringt Probleme seit KDE 3.1 / Qt 3.1.1 (Fenster verschwindet wieder)
+    this.setTitle(Daten.EFA_LONGNAME);
     panelMain.setLayout(borderLayout1);
     panel2.setLayout(borderLayout2);
     nameLabel.setFont(new java.awt.Font("Dialog", 1, (Dialog.getFontSize() > 0 ? Dialog.getFontSize()+6 : 18)));
     nameLabel.setForeground(Color.black);
-    nameLabel.setText("efa - elektronisches Fahrtenbuch");
-    versionLabel.setText("Version 0.1");
-    copyLabel.setText("Copyright (c) 2001-"+Daten.COPYRIGHTYEAR+" by Nicolas Michael");
+    nameLabel.setText(Daten.EFA_LONGNAME);
+    versionLabel.setText("Version 0.1"); // do not internationalize
+    languageLabel.setText(International.getString("Sprache")+": "+International.getLanguageDescription());
+    copyLabel.setText("Copyright (c) 2001-"+Daten.COPYRIGHTYEAR+" by Nicolas Michael"); // do not internationalize
+    urlLabel0.setText(International.getString("Homepage"+": "));
     urlLabel.setForeground(Color.blue);
-    urlLabel.setText(Daten.NICOLASURL);
+    urlLabel.setText(Daten.EFAURL);
     urlLabel.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseClicked(MouseEvent e) {
         urlLabel_mouseClicked(e);
@@ -114,11 +112,11 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
     });
     insetsPanel3.setLayout(gridBagLayout1);
     insetsPanel3.setBorder(BorderFactory.createEmptyBorder(10, 60, 10, 10));
-    okButton.setMnemonic('O');
-    okButton.setText("Ok");
+    Mnemonics.setButton(this, okButton, "OK");
     okButton.addActionListener(this);
+    emailLabel0.setText(International.getString("email")+": ");
     emailLabel.setForeground(Color.blue);
-    emailLabel.setText("email: "+Daten.EFAEMAIL);
+    emailLabel.setText(Daten.EFAEMAIL);
     emailLabel.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseEntered(MouseEvent e) {
         emailLabel_mouseEntered(e);
@@ -131,13 +129,13 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
       }
     });
     gpl1Label.setToolTipText("");
-    gpl1Label.setText("efa unterliegt den ");
+    gpl1Label.setText(International.getString("efa unterliegt den")+" ");
     versionLabel.setForeground(Color.black);
-    jLabel2.setHorizontalAlignment(SwingConstants.CENTER);
-    jLabel2.setHorizontalTextPosition(SwingConstants.CENTER);
-    jLabel2.setIcon(new ImageIcon(EfaFrame_AboutBox.class.getResource(Daten.getEfaImage(2))));
+    logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    logoLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+    logoLabel.setIcon(new ImageIcon(EfaFrame_AboutBox.class.getResource(Daten.getEfaImage(2))));
     gplLabel.setForeground(Color.blue);
-    gplLabel.setText("Lizenzbestimmungen der GPL v3");
+    gplLabel.setText(International.getString("Lizenzbestimmungen der GPL v3"));
     gplLabel.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseClicked(MouseEvent e) {
         gplLabel_mouseClicked(e);
@@ -152,29 +150,35 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
     detailPanel.setLayout(borderLayout3);
     jScrollPane1.setPreferredSize(new Dimension(400, 300));
     efaBirthdayLabel.setForeground(Color.red);
-    efaBirthdayLabel.setText("efaBirthdayLabel");
+    efaBirthdayLabel.setText("efaBirthdayLabel"); // do not internationalize
     dankePanel.setLayout(borderLayout4);
     insetsPanel3.add(nameLabel,   new GridBagConstraints(1, 0, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 93, 0));
     insetsPanel3.add(versionLabel,   new GridBagConstraints(1, 1, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 5, 0), 230, 0));
+    insetsPanel3.add(languageLabel,   new GridBagConstraints(1, 2, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 230, 0));
-    insetsPanel3.add(copyLabel,   new GridBagConstraints(1, 2, 2, 1, 0.0, 0.0
+    insetsPanel3.add(copyLabel,   new GridBagConstraints(1, 3, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 65, 0));
-    insetsPanel3.add(urlLabel,   new GridBagConstraints(1, 3, 2, 1, 0.0, 0.0
+    insetsPanel3.add(urlLabel0,   new GridBagConstraints(1, 4, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 1, 0));
-    insetsPanel3.add(emailLabel,   new GridBagConstraints(1, 4, 2, 1, 0.0, 0.0
+    insetsPanel3.add(urlLabel,   new GridBagConstraints(2, 4, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 1, 0));
+    insetsPanel3.add(emailLabel0,   new GridBagConstraints(1, 5, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
-    insetsPanel3.add(gpl1Label,    new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0
+    insetsPanel3.add(emailLabel,   new GridBagConstraints(2, 5, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
-    insetsPanel3.add(jLabel2,  new GridBagConstraints(0, 1, 1, 6, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 20), 0, 0));
-    insetsPanel3.add(gplLabel,     new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0
+    insetsPanel3.add(gpl1Label,    new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
+    insetsPanel3.add(logoLabel,  new GridBagConstraints(0, 0, 1, 7, 0.0, 0.0
+            ,GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(0, 0, 0, 20), 0, 0));
+    insetsPanel3.add(gplLabel,     new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 20), 0, 0));
-    insetsPanel3.add(efaBirthdayLabel,  new GridBagConstraints(0, 7, 3, 1, 0.0, 0.0
+    insetsPanel3.add(efaBirthdayLabel,  new GridBagConstraints(0, 8, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    tabbedPane.add(panelMain,   "Über efa");
-    tabbedPane.add(detailPanel,   "Systeminformationen");
-    tabbedPane.add(dankePanel,  "Danksagungen");
+    tabbedPane.add(panelMain,     International.getString("Über efa"));
+    tabbedPane.add(detailPanel,   International.getString("Systeminformationen"));
+    tabbedPane.add(dankePanel,    International.getString("Danksagungen"));
     detailPanel.add(jScrollPane1,  BorderLayout.CENTER);
     dankePanel.add(jScrollPane2, BorderLayout.CENTER);
     jScrollPane2.getViewport().add(danke, null);
@@ -183,45 +187,41 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
     panelMain.add(panel2, BorderLayout.CENTER);
     this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
     this.getContentPane().add(okButton, BorderLayout.SOUTH);
-    versionLabel.setText("Version "+Daten.VERSION);
-
+    versionLabel.setText(International.getString("Version")+" "+Daten.VERSION);
   }
 
 
   private void frIni() {
     Vector infos = Daten.getEfaInfos();
     for (int i=0; infos != null && i<infos.size(); i++) efaInfos.append((String)infos.get(i)+"\n");
-    if (infos == null) efaInfos.append("Keine Systeminformationen verfügbar.");
+    if (infos == null) efaInfos.append(International.getString("Keine Systeminformationen verfügbar."));
     jScrollPane1.getViewport().add(efaInfos, null);
     efaInfos.setCaretPosition(0);
     efaInfos.setEditable(false);
 
     if (EfaUtil.getEfaBirthday() == 5) {
-      efaBirthdayLabel.setText("5 Jahre efa: Erste Veröffentlichung am 15.07.2001");
+      efaBirthdayLabel.setText(International.getString("5 Jahre efa: Erste Veröffentlichung am 15.07.2001"));
       efaBirthdayLabel.setVisible(true);
     } else {
       efaBirthdayLabel.setVisible(false);
     }
 
     danke.setEditable(false);
-    danke.append("Ich möchte folgenden Personen und Organisationen danken,\n"+
-                 "die mich bei der Entwicklung von efa unterstützt haben\n"+
-                 "oder deren freier Code in efa eingeflossen ist:\n"+
+    danke.append(International.getString("Folgenden Personen gilt Dank für die Unterstützung, Weiterentwicklung oder das Beisteuern von Code zu efa:")+"\n"+
                  "\n"+
-                 "* Apache Software Foundation (Code für FOP-Plugin, XML-Plugin)\n"+
-                 "* Dennis Klopke (efa-Logo, zahlreiche Verbesserungsvorschläge und Bug-Reports)\n"+
-                 "* Deutscher Ruderverband (Zusammenarbeit)\n"+
-                 "* Enterprise Distributed Technologies (Code für FTP-Plugin)\n"+
-                 "* Jonathan Stott (Code für JSunrise-Plugin)\n"+
-                 "* Kay Hannay (Weiterentwicklung efa)\n"+
-                 "* KDE-Team (Icons)\n"+
-                 "* Landesruderverband Berlin (Zusammenarbeit, Lehrgänge)\n"+
-                 "* Ralf Ludwig (Verbreitung von efa im LRV Berlin und im DRV)\n"+
-                 "* Robert Harder (Code für Base64-Algorithmus)\n"+
-                 "* Thilo Coblenzer (Linux-Kiosk-HowTo, Code für Tippfehler-Korrektur)\n"+
-                 "* World Wide Web Consortium (Code für XML-Plugin)\n"+
-                 "... und allen anderen Nutzern, die mit ihren Hinweisen zur Verbesserung\n"+
-                 "von efa beigetragen haben."
+                 "* Apache Software Foundation (FOP-Plugin, XML-Plugin)\n"+
+                 "* Dennis Klopke\n"+
+                 "* Deutscher Ruderverband\n"+
+                 "* Enterprise Distributed Technologies (FTP-Plugin)\n"+
+                 "* Jonas Binding\n"+
+                 "* Jonathan Stott (JSunrise-Plugin)\n"+
+                 "* Kay Hannay\n"+
+                 "* KDE-Team\n"+
+                 "* Landesruderverband Berlin\n"+
+                 "* Ralf Ludwig\n"+
+                 "* Robert Harder (Base64)\n"+
+                 "* Thilo Coblenzer\n"+
+                 "* World Wide Web Consortium (XML-Plugin)"
                  );
 
   }

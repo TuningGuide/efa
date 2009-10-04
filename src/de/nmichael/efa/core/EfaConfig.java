@@ -2,6 +2,7 @@ package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenListe;
+import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.TMJ;
 import de.nmichael.efa.util.Logger;
 import de.nmichael.efa.util.EfaUtil;
@@ -378,6 +379,9 @@ public class EfaConfig extends DatenListe {
         if (s.startsWith("LANGUAGE=")) {
             language=s.substring(9,s.length()).trim();
             if (language.length() == 0) language = null;
+            if (language != null) {
+                International.initialize();
+            }
         }
         if (s.startsWith("DATEI="))
             letzteDatei=s.substring(6,s.length()).trim();

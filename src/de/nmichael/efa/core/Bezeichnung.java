@@ -1,6 +1,9 @@
 package de.nmichael.efa.core;
 
 import java.util.Vector;
+import de.nmichael.efa.util.International;
+
+// @i18n complete
 
 public class Bezeichnung {
 
@@ -21,7 +24,7 @@ public class Bezeichnung {
   }
 
   public String get(int i) {
-    if (i<0 || i>=values.size()) return "unbekannt";
+    if (i<0 || i>=values.size()) return International.getString("unbekannt");
     return (String)values.get(i);
   }
 

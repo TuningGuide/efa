@@ -4,10 +4,8 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.core.DatenFelder;
 import de.nmichael.efa.statistics.StatistikDaten;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.Backup;
 import java.io.*;
 
 /**
@@ -155,14 +153,14 @@ public class StatSave extends DatenListe {
               add(d);
             }
           } catch(IOException e) {
-             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             errReadingFile(dat,e.getMessage());
              return false;
           }
           kennung = KENNUNG080;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
 
@@ -178,14 +176,14 @@ public class StatSave extends DatenListe {
               add(s+"|-|-");
             }
           } catch(IOException e) {
-             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             errReadingFile(dat,e.getMessage());
              return false;
           }
           kennung = KENNUNG085;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
 
@@ -208,14 +206,14 @@ public class StatSave extends DatenListe {
               add(d);
             }
           } catch(IOException e) {
-             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             errReadingFile(dat,e.getMessage());
              return false;
           }
           kennung = KENNUNG090;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // KONVERTIEREN: 090 -> 091
@@ -232,14 +230,14 @@ public class StatSave extends DatenListe {
               add(d);
             }
           } catch(IOException e) {
-             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             errReadingFile(dat,e.getMessage());
              return false;
           }
           kennung = KENNUNG091;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // KONVERTIEREN: 091 -> 100
@@ -291,14 +289,14 @@ public class StatSave extends DatenListe {
               add(d);
             }
           } catch(IOException e) {
-             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             errReadingFile(dat,e.getMessage());
              return false;
           }
           kennung = KENNUNG100;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // KONVERTIEREN: 100 -> 110
@@ -322,14 +320,14 @@ public class StatSave extends DatenListe {
               add(d);
             }
           } catch(IOException e) {
-             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             errReadingFile(dat,e.getMessage());
              return false;
           }
           kennung = KENNUNG110;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // KONVERTIEREN: 110 -> 120
@@ -346,14 +344,14 @@ public class StatSave extends DatenListe {
               add(d);
             }
           } catch(IOException e) {
-             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             errReadingFile(dat,e.getMessage());
              return false;
           }
           kennung = KENNUNG120;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // KONVERTIEREN: 120 -> 130
@@ -373,14 +371,14 @@ public class StatSave extends DatenListe {
               add(d);
             }
           } catch(IOException e) {
-             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             errReadingFile(dat,e.getMessage());
              return false;
           }
           kennung = KENNUNG130;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // KONVERTIEREN: 130 -> 131
@@ -397,14 +395,14 @@ public class StatSave extends DatenListe {
               add(d);
             }
           } catch(IOException e) {
-             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             errReadingFile(dat,e.getMessage());
              return false;
           }
           kennung = KENNUNG131;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // KONVERTIEREN: 131 -> 140
@@ -421,14 +419,14 @@ public class StatSave extends DatenListe {
               add(d);
             }
           } catch(IOException e) {
-             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             errReadingFile(dat,e.getMessage());
              return false;
           }
           kennung = KENNUNG140;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // KONVERTIEREN: 140 -> 141
@@ -447,14 +445,14 @@ public class StatSave extends DatenListe {
               add(d);
             }
           } catch(IOException e) {
-             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             errReadingFile(dat,e.getMessage());
              return false;
           }
           kennung = KENNUNG141;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // KONVERTIEREN: 141 -> 160
@@ -473,14 +471,14 @@ public class StatSave extends DatenListe {
               add(d);
             }
           } catch(IOException e) {
-             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             errReadingFile(dat,e.getMessage());
              return false;
           }
           kennung = KENNUNG160;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // KONVERTIEREN: 160 -> 170
@@ -498,14 +496,14 @@ public class StatSave extends DatenListe {
               add(d);
             }
           } catch(IOException e) {
-             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             errReadingFile(dat,e.getMessage());
              return false;
           }
           kennung = KENNUNG170;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // KONVERTIEREN: 170 -> 172
@@ -522,14 +520,14 @@ public class StatSave extends DatenListe {
               add(d);
             }
           } catch(IOException e) {
-             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             errReadingFile(dat,e.getMessage());
              return false;
           }
           kennung = KENNUNG172;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // KONVERTIEREN: 172 -> 180
@@ -553,14 +551,14 @@ public class StatSave extends DatenListe {
               add(d);
             }
           } catch(IOException e) {
-             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             errReadingFile(dat,e.getMessage());
              return false;
           }
           kennung = KENNUNG180;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // KONVERTIEREN: 180 -> 181
@@ -588,14 +586,14 @@ public class StatSave extends DatenListe {
               add(d);
             }
           } catch(IOException e) {
-             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             errReadingFile(dat,e.getMessage());
              return false;
           }
           kennung = KENNUNG181;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // KONVERTIEREN: 181 -> 182
@@ -612,25 +610,25 @@ public class StatSave extends DatenListe {
               add(d);
             }
           } catch(IOException e) {
-             Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+             errReadingFile(dat,e.getMessage());
              return false;
           }
           kennung = KENNUNG182;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // FERTIG MIT KONVERTIEREN
         if (s == null || !s.trim().startsWith(kennung)) {
-          Dialog.error("Datei '"+dat+"' hat ungültiges Format!");
+          errInvalidFormat(dat, EfaUtil.trimto(s, 20));
           fclose(false);
           return false;
         }
       }
     } catch(IOException e) {
-      Dialog.error("Datei '"+dat+"' kann nicht gelesen werden!");
+      errReadingFile(dat,e.getMessage());
       return false;
     }
     return true;

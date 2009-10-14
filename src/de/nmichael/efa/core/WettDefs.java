@@ -10,8 +10,7 @@ package de.nmichael.efa.core;
  */
 
 import de.nmichael.efa.core.DatenListe;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.io.*;
 import java.util.*;
@@ -243,7 +242,7 @@ public class WettDefs extends DatenListe {
         storeWettDef(wettDef,gruppen);
       }
     } catch(IOException e) {
-      Dialog.error("Lesen der Datei '"+dat+"' fehlgeschlagen!");
+      errReadingFile(dat,e.getMessage());
       return false;
     }
     return true;
@@ -359,20 +358,20 @@ public class WettDefs extends DatenListe {
           readEinstellungen();
           kennung = KENNUNG170;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // FERTIG MIT KONVERTIEREN
         if (s == null || !s.trim().startsWith(kennung)) {
-          Dialog.error("Datei '"+dat+"' hat ungültiges Format!");
+          errInvalidFormat(dat, EfaUtil.trimto(s, 20));
           fclose(false);
           return false;
         }
       }
     } catch(IOException e) {
-      Dialog.error("Datei '"+dat+"' kann nicht gelesen werden!");
+      errReadingFile(dat,e.getMessage());
       return false;
     }
     return true;

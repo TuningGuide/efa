@@ -1274,7 +1274,13 @@ public class EfaUtil {
     }
   }
 
-  // just for test purpose
+  public static String trimto(String s, int maxchar) {
+      if (s == null) return null;
+      if (s.length() <= maxchar) return s;
+      return s.substring(0, maxchar);
+  }
+
+          // just for test purpose
   public static void main(String[] args) {
     TMJ tmj = string2date("23.01.1979",0,0,0); System.out.println(tmj.tag+"    "+tmj.monat+"    "+tmj.jahr);
         tmj = string2date("-42",0,0,0); System.out.println(tmj.tag+"    "+tmj.monat+"    "+tmj.jahr);

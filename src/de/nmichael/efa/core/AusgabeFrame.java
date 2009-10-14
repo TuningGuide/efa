@@ -1,8 +1,6 @@
 package de.nmichael.efa.core;
 
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.ActionHandler;
+import de.nmichael.efa.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -18,6 +16,8 @@ import java.io.*;
  * @author Nicolas Michael
  * @version 1.0
  */
+
+// @i18n complete
 
 public class AusgabeFrame extends JDialog implements ActionListener {
   public BorderLayout borderLayout1 = new BorderLayout();
@@ -71,14 +71,13 @@ public class AusgabeFrame extends JDialog implements ActionListener {
       System.err.println("Error setting up ActionHandler");
     }
 
-    closeButton.setMnemonic('S');
-    closeButton.setText("Schließen");
+    Mnemonics.setButton(this, closeButton, International.getStringWithMnemonic("Schließen"));
     closeButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         closeButton_actionPerformed(e);
       }
     });
-    this.setTitle("Ausgabe");
+    this.setTitle(International.getString("Ausgabe"));
     this.getContentPane().setLayout(borderLayout1);
     jScrollPane1.setMinimumSize(new Dimension(300, 200));
     jScrollPane1.setPreferredSize(new Dimension(600, 300));

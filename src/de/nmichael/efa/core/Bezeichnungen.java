@@ -1,12 +1,13 @@
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.util.Logger;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.Backup;
+import de.nmichael.efa.util.*;
 import java.io.*;
 import java.util.Vector;
 
+
+// @todo Konzept von Bezeichnungen generell überdenken/erweitern für Internationalisierung!
 
 public class Bezeichnungen extends DatenListe {
 
@@ -274,7 +275,7 @@ public class Bezeichnungen extends DatenListe {
         }
 
       } catch(IOException e) {
-        Dialog.error("Datei '"+dat+"' kann nicht geschrieben werden!");
+        Dialog.error(International.getMessage("Datei {file} kann nicht geschrieben werden!",dat));
         return false;
       }
     return true;
@@ -326,16 +327,11 @@ public class Bezeichnungen extends DatenListe {
     FAHRT_TRAININGSLAGER    = fahrtart.add("Trainingslager");
     FAHRT_AUSBILDUNG        = fahrtart.add("Ausbildung");
     FAHRT_KILOMETERNACHTRAG = fahrtart.add("Kilometernachtrag");
-    if (Dialog.yesNoDialog("Fahrtarten für Motorboot und Ergo",
-                           "Möchtest Du Fahrtarten für Motorboote und Ergos in efa verwenden?\n\n"+
-                           "Hinweis: Dies ist nur dann notwendig, wenn Du vorhast, Fahrten von Motorbooten\n"+
-                           "und Ergos in efa zu erfassen. efa fügt in diesem Fall zwei neue Fahrtarten\n"+
-                           "'Motorboot' und 'Ergo' hinzu. Anderenfalls kannst Du auf diese Fahrtarten\n"+
-                           "verzichten und diese Frage mit 'Nein' beantworten. (Es ist immer möglich,\n"+
-                           "von Hand nachträglich diese Fahrtarten hinzuzufügen oder zu entfernen.)") == Dialog.YES) {
-      FAHRT_MOTORBOOT       = fahrtart.add("Motorboot");
-      FAHRT_ERGO            = fahrtart.add("Ergo");
-    }
+
+    // @todo it should be configurable whether Motorboot and Ergo should appear in the list or not! But other than in efa 1.x, this should not be decided upon the first start of efa (code for this has been removed), but later on in a configuation dialogue.
+    FAHRT_MOTORBOOT       = fahrtart.add("Motorboot");
+    FAHRT_ERGO            = fahrtart.add("Ergo");
+
     FAHRT_MEHRTAGESFAHRT    = fahrtart.add("Mehrtagesfahrt");
 
     return writeFile(false);
@@ -369,9 +365,9 @@ public class Bezeichnungen extends DatenListe {
           BART_ERGO      = bArt.add("Ergo");
           kennung = KENNUNG140;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // KONVERTIEREN v1.4.0 -> v1.8.0 (urspr. würde in v1.8.0_00 in das Format 174 konvertiert)
@@ -381,9 +377,9 @@ public class Bezeichnungen extends DatenListe {
           FAHRT_TRAININGSLAGER = fahrtart.add("Trainingslager");
           kennung = KENNUNG180;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // KONVERTIEREN v1.7.4 -> v1.8.0 (Bugfix in 1.8.0_01: In v1.8.0_00 wurde ins Format 174 konvertiert, das jedoch einen Fehler enthielt)
@@ -393,43 +389,38 @@ public class Bezeichnungen extends DatenListe {
           FAHRT_TRAININGSLAGER = fahrtart.get("Trainingslager");
           kennung = KENNUNG180;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // KONVERTIEREN v1.8.0 -> v1.8.1
         if ( s != null && s.trim().startsWith(KENNUNG180)) {
           if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"180");
           if (!readEinstellungen()) return false;
-          if (Dialog.yesNoDialog("Fahrtarten für Motorboot und Ergo",
-                                 "Möchtest Du Fahrtarten für Motorboote und Ergos in efa verwenden?\n\n"+
-                                 "Hinweis: Dies ist nur dann notwendig, wenn Du vorhast, Fahrten von Motorbooten\n"+
-                                 "und Ergos in efa zu erfassen. efa fügt in diesem Fall zwei neue Fahrtarten\n"+
-                                 "'Motorboot' und 'Ergo' hinzu. Anderenfalls kannst Du auf diese Fahrtarten\n"+
-                                 "verzichten und diese Frage mit 'Nein' beantworten. (Es ist immer möglich,\n"+
-                                 "von Hand nachträglich diese Fahrtarten hinzuzufügen oder zu entfernen.)") == Dialog.YES) {
-            FAHRT_MOTORBOOT = fahrtart.add("Motorboot");
-            FAHRT_ERGO = fahrtart.add("Ergo");
-          }
+
+          // @todo it should be configurable whether Motorboot and Ergo should appear in the list or not! But other than in efa 1.x, this should not be decided upon the first start of efa (code for this has been removed), but later on in a configuation dialogue.
+          FAHRT_MOTORBOOT = fahrtart.add("Motorboot");
+          FAHRT_ERGO = fahrtart.add("Ergo");
+
           BART_INRIGGER = bArt.add("Inrigger");
           FAHRT_KILOMETERNACHTRAG = fahrtart.add("Kilometernachtrag");
           kennung = KENNUNG181;
           if (closeFile() && writeFile(true) && openFile()) {
-            Logger.log(Logger.INFO,dat+" wurde in das neue Format "+kennung+" konvertiert.");
+            infSuccessfullyConverted(dat,kennung);
             s = kennung;
-          } else Dialog.error("Fehler beim Konvertieren von "+dat);
+          } else errConvertingFile(dat,kennung);
         }
 
         // FERTIG MIT KONVERTIEREN
         if (s == null || !s.trim().startsWith(kennung)) {
-          Dialog.error("Datei '"+dat+"' hat ungültiges Format!");
+          errInvalidFormat(dat, EfaUtil.trimto(s, 20));
           fclose(false);
           return false;
         }
       }
     } catch(IOException e) {
-      Dialog.error("Datei '"+dat+"' kann nicht gelesen werden!");
+      errReadingFile(dat,e.getMessage());
       return false;
     }
     return true;

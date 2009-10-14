@@ -14,6 +14,8 @@ import java.io.*;
  * @version 1.0
  */
 
+// @i18n complete
+
 public class UserHome extends DatenListe {
 
   public static final String KENNUNG183 = "##EFA.183.USERHOME##";
@@ -51,7 +53,7 @@ public class UserHome extends DatenListe {
       f.close();
       EfaUtil.deleteFile(path+testfile);
     } catch(Exception e) {
-      Logger.log(Logger.DEBUG,"efaCanWrite("+path+") = false: "+e.toString());
+      Logger.log(Logger.DEBUG,Logger.MSG_CORE_USERHOME,"efaCanWrite("+path+") = false: "+e.toString());
       return false;
     }
     return true;
@@ -61,14 +63,14 @@ public class UserHome extends DatenListe {
   void reset() {
     efaUserDirectory = Daten.efaMainDirectory;
     if (efaCanWrite(efaUserDirectory,false)) {
-      Logger.log(Logger.DEBUG,"efa.dir.user="+efaUserDirectory);
+      Logger.log(Logger.DEBUG,Logger.MSG_CORE_USERHOME,"efa.dir.user="+efaUserDirectory);
     } else {
       efaUserDirectory = Daten.efaUserHome + (!Daten.efaUserHome.endsWith(Daten.fileSep) ? Daten.fileSep : "") + "efa" + Daten.fileSep;
       if (efaCanWrite(efaUserDirectory,true)) {
-        Logger.log(Logger.DEBUG,"efa.dir.user="+efaUserDirectory);
+        Logger.log(Logger.DEBUG,Logger.MSG_CORE_USERHOME,"efa.dir.user="+efaUserDirectory);
       } else {
         efaUserDirectory = null;
-        Logger.log(Logger.DEBUG,"efa.dir.user=<null>");
+        Logger.log(Logger.DEBUG,Logger.MSG_CORE_USERHOME,"efa.dir.user=<null>");
       }
     }
   }

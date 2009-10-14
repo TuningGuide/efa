@@ -1,11 +1,8 @@
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.util.Mehrtagesfahrt;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -25,6 +22,8 @@ import de.nmichael.efa.direkt.BootStatus;
  * @author Nicolas Michael
  * @version 1.0
  */
+
+// @i18n complete
 
 public class AuswahlFrame extends JDialog implements ActionListener {
   BorderLayout borderLayout1 = new BorderLayout();
@@ -111,20 +110,7 @@ public class AuswahlFrame extends JDialog implements ActionListener {
     }
     if (daten == FAHRTENABZEICHEN) {
       if (Daten.javaVersion.startsWith("1.3")) {
-        if (Dialog.yesNoDialog("Java-Version zu alt",
-                               "Die Verwaltung von elektronischen Fahrtenheften steht erst\n"+
-                               "ab Java Version 1.4 zur Verfügung. Du benutzt zur Zeit Java\n"+
-                               "Version "+Daten.javaVersion+".\n"+
-                               "Um diese Funktionalität nutzen zu können, installiere bitte\n"+
-                               "eine aktuelle Java-Version.\n\n"+
-                               "Sollen jetzt die Download-Anleitung für eine neue Java-Version\n"+
-                               "angezeigt werden?") == Dialog.YES) {
-          Dialog.infoDialog("Download-Anleitung",
-                            "Bitte folge in der folgenden Anleitung den Hinweisen unter Punkt 5,\n"+
-                            "um eine neue Java-Version zu installieren.");
-          Dialog.neuBrowserDlg(this,"Java-Installation","file:"+Daten.efaDocDirectory+"installation.html");
-        }
-
+        Daten.checkJavaVersion(false);
       }
     }
 
@@ -167,18 +153,16 @@ public class AuswahlFrame extends JDialog implements ActionListener {
     }
 
     switch (datenArt) {
-      case MITGLIEDER: this.setTitle("Mitglieder"); break;
-      case BOOTE: this.setTitle("Boote"); break;
-      case ZIELE: this.setTitle("Ziele"); break;
-      case MEHRTAGESFAHRTEN: this.setTitle("Mehrtagesfahrten"); break;
-      case MANNSCHAFTEN: this.setTitle("Standardmannschaften"); break;
-      case FAHRTENABZEICHEN: this.setTitle("DRV-Fahrtenabzeichen"); break;
-      case GRUPPEN: this.setTitle("Gruppen"); break;
+      case MITGLIEDER: this.setTitle(International.getString("Mitglieder")); break;
+      case BOOTE: this.setTitle(International.getString("Boote")); break;
+      case ZIELE: this.setTitle(International.getString("Ziele")); break;
+      case MEHRTAGESFAHRTEN: this.setTitle(International.getString("Mehrtagesfahrten")); break;
+      case MANNSCHAFTEN: this.setTitle(International.getString("Standardmannschaften")); break;
+      case FAHRTENABZEICHEN: this.setTitle(International.getString("DRV-Fahrtenabzeichen")); break;
+      case GRUPPEN: this.setTitle(International.getString("Gruppen")); break;
     }
     SaveButton.setNextFocusableComponent(addBut);
-    SaveButton.setToolTipText("");
-    SaveButton.setMnemonic('S');
-    SaveButton.setText("Schließen");
+    Mnemonics.setButton(this, SaveButton, International.getStringWithMnemonic("Schließen"));
     SaveButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         SaveButton_actionPerformed(e);
@@ -188,9 +172,7 @@ public class AuswahlFrame extends JDialog implements ActionListener {
     jPanel1.setLayout(borderLayout3);
     jPanel2.setLayout(gridBagLayout2);
     editBut.setNextFocusableComponent(delBut);
-    editBut.setToolTipText("markierten Eintrag bearbeiten");
-    editBut.setMnemonic('B');
-    editBut.setText("Bearbeiten");
+    Mnemonics.setButton(this, editBut, International.getStringWithMnemonic("Bearbeiten"));
     editBut.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         editBut_actionPerformed(e);
@@ -198,9 +180,7 @@ public class AuswahlFrame extends JDialog implements ActionListener {
     });
     delBut.setNextFocusableComponent(createListButton);
     Dialog.setPreferredSize(delBut,100,25);
-    delBut.setToolTipText("markierten Eintrag löschen");
-    delBut.setMnemonic('L');
-    delBut.setText("Löschen");
+    Mnemonics.setButton(this, delBut, International.getStringWithMnemonic("Löschen"));
     delBut.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         delBut_actionPerformed(e);
@@ -212,9 +192,8 @@ public class AuswahlFrame extends JDialog implements ActionListener {
     addBut.setMinimumSize(new Dimension(101, 25));
     addBut.setNextFocusableComponent(editBut);
     Dialog.setPreferredSize(addBut,100,25);
+    Mnemonics.setButton(this, addBut, International.getStringWithMnemonic("Hinzufügen"));
     addBut.setMargin(new Insets(2, 10, 2, 10));
-    addBut.setMnemonic('H');
-    addBut.setText("Hinzufügen");
     addBut.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         addBut_actionPerformed(e);
@@ -223,23 +202,20 @@ public class AuswahlFrame extends JDialog implements ActionListener {
     contentPane.setPreferredSize(new Dimension(600, 525));
     jPanel1.setPreferredSize(new Dimension(500, 500));
     createListButton.setNextFocusableComponent(updateStatusButton);
-    createListButton.setMnemonic('A');
-    createListButton.setText("Liste ausgeben");
+    Mnemonics.setButton(this, createListButton, International.getStringWithMnemonic("Liste ausgeben"));
     createListButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         createListButton_actionPerformed(e);
       }
     });
     updateStatusButton.setNextFocusableComponent(SaveButton);
-    updateStatusButton.setMnemonic('T');
-    updateStatusButton.setText("Status aktualisieren");
+    Mnemonics.setButton(this, updateStatusButton, International.getStringWithMnemonic("Status aktualisieren"));
     updateStatusButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         updateStatusButton_actionPerformed(e);
       }
     });
-    getSigBestaetigungenButton.setMnemonic('F');
-    getSigBestaetigungenButton.setText("Bestätigungsdatei abrufen");
+    Mnemonics.setButton(this, getSigBestaetigungenButton, International.getStringWithMnemonic("Bestätigungsdatei abrufen"));
     getSigBestaetigungenButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         getSigBestaetigungenButton_actionPerformed(e);
@@ -288,43 +264,43 @@ public class AuswahlFrame extends JDialog implements ActionListener {
         tabelleBreite=3;
         anz = Daten.fahrtenbuch.getDaten().mitglieder.countElements();
         tabelleTitel = new String[tabelleBreite];
-        tabelleTitel[0]="Name"; tabelleTitel[1]="Jahrgang"; tabelleTitel[2]="Status";
+        tabelleTitel[0]=International.getString("Name"); tabelleTitel[1]=International.getString("Jahrgang"); tabelleTitel[2]=International.getString("Status");
         break;
       case BOOTE:
         tabelleBreite=2;
         anz = Daten.fahrtenbuch.getDaten().boote.countElements();
         tabelleTitel = new String[tabelleBreite];
-        tabelleTitel[0]="Boot"; tabelleTitel[1]="Art";
+        tabelleTitel[0]=International.getString("Boot"); tabelleTitel[1]=International.getString("Art");
         break;
       case ZIELE:
         tabelleBreite=4;
         anz = Daten.fahrtenbuch.getDaten().ziele.countElements();
         tabelleTitel = new String[tabelleBreite];
-        tabelleTitel[0]="Ziel"; tabelleTitel[1]="Kilometer"; tabelleTitel[2]="Gewässer"; tabelleTitel[3]="Zielbereiche";
+        tabelleTitel[0]=International.getString("Ziel"); tabelleTitel[1]=International.getString("Kilometer"); tabelleTitel[2]=International.getString("Gewässer"); tabelleTitel[3]=International.getString("Zielbereiche");
         break;
       case MEHRTAGESFAHRTEN:
         tabelleBreite=4;
         anz = Daten.fahrtenbuch.getAnzahlMehrtagesfahrten();
         tabelleTitel = new String[tabelleBreite];
-        tabelleTitel[0]="Fahrt"; tabelleTitel[1]="Startdatum"; tabelleTitel[2]="Enddatum"; tabelleTitel[3]="Rudertage";
+        tabelleTitel[0]=International.getString("Fahrt"); tabelleTitel[1]=International.getString("Startdatum"); tabelleTitel[2]=International.getString("Enddatum"); tabelleTitel[3]=International.getString("Rudertage");
         break;
       case MANNSCHAFTEN:
         tabelleBreite=1;
         anz = Daten.mannschaften.countElements();
         tabelleTitel = new String[tabelleBreite];
-        tabelleTitel[0]="Mannschaft";
+        tabelleTitel[0]=International.getString("Mannschaft");
         break;
       case FAHRTENABZEICHEN:
         tabelleBreite=3;
         anz = Daten.fahrtenabzeichen.countElements();
         tabelleTitel = new String[tabelleBreite];
-        tabelleTitel[0]="Name"; tabelleTitel[1]="Anz. Abzeichen"; tabelleTitel[2]="Gesamt-Km.";
+        tabelleTitel[0]=International.getString("Name"); tabelleTitel[1]=International.getString("Anz. Abzeichen"); tabelleTitel[2]=International.getString("Gesamt-Km.");
         break;
       case GRUPPEN:
         tabelleBreite=2;
         anz = Daten.gruppen.getGruppen().size();
         tabelleTitel = new String[tabelleBreite];
-        tabelleTitel[0]="Gruppe"; tabelleTitel[1]="Anz. Mitglieder";
+        tabelleTitel[0]=International.getString("Gruppe"); tabelleTitel[1]=International.getString("Anz. Mitglieder");
         break;
     }
     tabelle = new String[anz][tabelleBreite];
@@ -383,8 +359,8 @@ public class AuswahlFrame extends JDialog implements ActionListener {
             String name = EfaUtil.getFullName(f.get(Fahrtenabzeichen.VORNAME), f.get(Fahrtenabzeichen.NACHNAME), "");
             if (alleMitglieder != null) {
               String jahrgang = (String)alleMitglieder.get(name);
-              if (jahrgang == null) mitglError += name + " (nicht in Mitgliederliste gefunden)\n";
-              else if (!jahrgang.equals(f.get(Fahrtenabzeichen.JAHRGANG))) mitglError += name + " (unterschiedlicher Jahrgang in beiden Listen)\n";
+              if (jahrgang == null) mitglError += name + " (" + International.getString("nicht in Mitgliederliste gefunden") + ")\n";
+              else if (!jahrgang.equals(f.get(Fahrtenabzeichen.JAHRGANG))) mitglError += name + " (" + International.getString("unterschiedlicher Jahrgang in beiden Listen") +")\n";
             }
             tabelle[i][0] = name;
             tabelle[i][1] = f.get(Fahrtenabzeichen.ANZABZEICHEN);
@@ -420,11 +396,11 @@ public class AuswahlFrame extends JDialog implements ActionListener {
     zeigeTabelle();
 
     if (datenArt == FAHRTENABZEICHEN && mitglError.length() > 0) {
-      Dialog.error("Folgende Personen sind in der Fahrtenabzeichenliste eingetragen,\n"+
-                   "können aber in der aktuellen Mitgliederliste nicht gefunden werden\n"+
-                   "oder sind dort mit anderen Daten eingetragen.\n"+
+      Dialog.error(International.getString("Folgende Personen sind in der Fahrtenabzeichenliste eingetragen, "+
+                   "können aber in der aktuellen Mitgliederliste nicht gefunden werden "+
+                   "oder sind dort mit anderen Daten eingetragen. "+
                    "Für diese Mitglieder ist keine korrekte Auswertung der DRV-Fahrtenabzeichen möglich!\n"+
-                   "Bitte überprüfe die Namen und Jahrgänge der angegebenen Personen:\n\n"+mitglError);
+                   "Bitte überprüfe die Namen und Jahrgänge der angegebenen Personen:")+"\n\n"+mitglError);
     }
   }
 
@@ -459,35 +435,40 @@ public class AuswahlFrame extends JDialog implements ActionListener {
 
   // Alle geänderten Dateien speichern
   void speichern() {
+      String listError = null;
     if (this.datenArt == this.MITGLIEDER && Daten.fahrtenbuch.getDaten().mitglieder.isChanged())
       if (!Daten.fahrtenbuch.getDaten().mitglieder.writeFile())
-        Dialog.error("Änderungen an der Mitgliederliste konnten nicht gespeichert werden!");
+          listError = International.getString("Mitgliederliste");
     if (this.datenArt == this.BOOTE && Daten.fahrtenbuch.getDaten().boote.isChanged())
       if (!Daten.fahrtenbuch.getDaten().boote.writeFile())
-        Dialog.error("Änderungen an der Bootsliste konnten nicht gespeichert werden!");
+          listError = International.getString("Bootsliste");
     if (this.datenArt == this.BOOTE && Daten.synBoote.isChanged())
       if (!Daten.synBoote.writeFile())
-        Dialog.error("Änderungen an der Boots-Synonymliste konnten nicht gespeichert werden!");
+          listError = International.getString("Boots-Synonymliste");
     if (this.datenArt == this.ZIELE && Daten.fahrtenbuch.getDaten().ziele.isChanged()) {
       if (Daten.vereinsConfig != null) Daten.fahrtenbuch.getDaten().ziele.checkAllZielbereiche(Daten.vereinsConfig.zielbereich);
       if (!Daten.fahrtenbuch.getDaten().ziele.writeFile())
-        Dialog.error("Änderungen an der Zielliste konnten nicht gespeichert werden!");
+          listError = International.getString("Zielliste");
     }
     if (this.datenArt == this.FAHRTENABZEICHEN && Daten.fahrtenabzeichen.isChanged())
       if (!Daten.fahrtenabzeichen.writeFile())
-        Dialog.error("Änderungen an der DRV-Fahrtenabezeichenliste konnten nicht gespeichert werden!");
+          listError = International.getString("DRV-Fahrtenabezeichenliste");
     if (Daten.fahrtenbuch.isChanged()) {
       if (!Daten.fahrtenbuch.writeFile())
-        Dialog.error("Änderungen am Fahrtenbuch konnten nicht gespeichert werden!");
+          listError = International.getString("Fahrtenbuch-Datei");
       if (this.datenArt == this.MEHRTAGESFAHRTEN && efaFrame != null) efaFrame.getAllFahrtDauer();
       if (efaFrame != null) efaFrame.datensatzGeaendert=false;
     }
     if (this.datenArt == this.MANNSCHAFTEN && Daten.mannschaften.isChanged())
       if (!Daten.mannschaften.writeFile())
-        Dialog.error("Änderungen an den Standardmannschaften konnten nicht gespeichert werden!");
+          listError = International.getString("Liste der Standardmannschaften");
     if (this.datenArt == this.GRUPPEN && Daten.gruppen.isChanged())
       if (!Daten.gruppen.writeFile())
-        Dialog.error("Änderungen an der Gruppenliste konnten nicht gespeichert werden!");
+          listError = International.getString("Gruppenliste");
+    if (listError != null) {
+        Dialog.error(International.getMessage("Änderungen an der {list} konnten nicht gespeichert werden!",listError));
+
+    }
   }
 
 
@@ -502,7 +483,7 @@ public class AuswahlFrame extends JDialog implements ActionListener {
         Daten.fahrtenbuch.isChanged()) {
       String pos = null;
       try { pos = efaFrame.aktDatensatz.get(Fahrtenbuch.LFDNR); } catch(Exception e) { pos=null; }
-      switch(Dialog.yesNoCancelDialog("Änderungen speichern?","Sollen alle Änderungen gespeichert werden?")) {
+      switch(Dialog.yesNoCancelDialog(International.getString("Änderungen speichern?"),International.getString("Sollen alle Änderungen gespeichert werden?"))) {
         case Dialog.YES: { // Speichern
           speichern();
           break;
@@ -620,9 +601,9 @@ public class AuswahlFrame extends JDialog implements ActionListener {
     int[] sel = out.getSelectedRows();
     if (sel == null || sel.length == 0) return; // Sicher ist sicher... ;-)
     String s;
-    if (sel.length == 1) s = "Möchtest Du den Eintrag\n'"+tabelle[out.getSelectedRow()][0]+"'\nwirklich löschen?";
-    else s = "Möchtest Du wirklich "+sel.length+" Einträge löschen?";
-    switch(Dialog.yesNoDialog("Warnung",s)) {
+    if (sel.length == 1) s = International.getMessage("Möchtest Du den Eintrag '{entry}' wirklich löschen?",tabelle[out.getSelectedRow()][0]);
+    else s = International.getMessage("Möchtest Du wirklich {count} Einträge löschen?",sel.length);
+    switch(Dialog.yesNoDialog(International.getString("Warnung"),s)) {
       case Dialog.YES:
         for (int i=0; i<sel.length; i++) {
           s = (String)tabelle[sel[i]][0];
@@ -640,9 +621,9 @@ public class AuswahlFrame extends JDialog implements ActionListener {
 
               if (d != null)
                 if (Daten.adressen.getExact(d.get(Mitglieder.VORNAME)+" "+d.get(Mitglieder.NACHNAME)) != null)
-                  if (Dialog.yesNoDialog("Adresse löschen","Soll die gespeicherte Anschrift von\n'"+
-                             d.get(Mitglieder.VORNAME)+" "+d.get(Mitglieder.NACHNAME)+
-                             "'\ngelöscht werden?") == Dialog.YES) {
+                  if (Dialog.yesNoDialog(International.getString("Löschen"),
+                               International.getMessage("Soll die gespeicherte Anschrift von {firstname} {lastname} gelöscht werden?",
+                             d.get(Mitglieder.VORNAME),d.get(Mitglieder.NACHNAME))) == Dialog.YES) {
                     Daten.adressen.delete(d.get(Mitglieder.VORNAME)+" "+d.get(Mitglieder.NACHNAME));
                     Daten.adressen.writeFile();
                   }
@@ -696,12 +677,11 @@ public class AuswahlFrame extends JDialog implements ActionListener {
     if (alleMtours.size()>0) {
       String s = "";
       for (int i=0; i<alleMtours.size(); i++) s += alleMtours.get(i) + "\n";
-      if (Dialog.yesNoCancelDialog("Unreferenzierte Mehrtagesfahrten",
-                                    "Es wurden unreferenzierte Mehrtagesfahrten gefunden,\n"+
-                                    "d.h. konfigurierte Mehrtagesfahrten, die im Fahrtenbuch\n"+
-                                    "nicht mehr auftauchen. Es sind dies:\n"+
+      if (Dialog.yesNoCancelDialog(International.getString("Unreferenzierte Mehrtagesfahrten"),
+                                    International.getString("Es wurden unreferenzierte Mehrtagesfahrten gefunden "+
+                                    "(konfigurierte Mehrtagesfahrten, die im Fahrtenbuch nicht verwendet werden):")+
                                     s+
-                                    "Sollen diese Mehrtagesfahrten gelöscht werden?") == Dialog.YES) {
+                                    International.getString("Sollen diese Mehrtagesfahrten gelöscht werden?")) == Dialog.YES) {
         for (int i=0; i<alleMtours.size(); i++) Daten.fahrtenbuch.removeMehrtagesfahrt((String)alleMtours.get(i));
         Daten.fahrtenbuch.setChanged();
       }
@@ -800,47 +780,113 @@ public class AuswahlFrame extends JDialog implements ActionListener {
     ListenausgabeFrame dlg = null;
     switch (datenArt) {
       case MITGLIEDER:
-         String[] felder1 = { "Vorname", "Nachname", "Eingabekürzel", "Jahrgang", "Geschlecht", "Status", "Verein", "Behinderung", "Mitgliedsnummer", "Paßwort", "Frei 1", "Frei 2", "Frei 3", "Für Wettbewerbe melden" };
+         String[] felder1 = { International.getString("Vorname"),
+                              International.getString("Nachname"),
+                              International.getString("Eingabekürzel"),
+                              International.getString("Jahrgang"),
+                              International.getString("Geschlecht"),
+                              International.getString("Status"),
+                              International.getString("Verein"),
+                              International.getString("Behinderung"),
+                              International.getString("Mitgliedsnummer"),
+                              International.getString("Paßwort"),
+                              International.getString("Frei 1"),
+                              International.getString("Frei 2"),
+                              International.getString("Frei 3"),
+                              International.getString("Für Wettbewerbe melden")
+         };
          boolean[] select1 = {  true   ,  true     ,  false         ,  true     ,  true       ,  true   ,  true   ,  false       , true             , false    , false   , false   , false   , false};
          String[] nur1 = createArray(Daten.fahrtenbuch.getDaten().status,Daten.bezeichnungen.geschlecht.toArray(),null,null,null);
          int[] nurCheck1 = { 4 , 5 };
          if (Daten.fahrtenbuch.getDaten().mitglieder != null)
-           dlg = new ListenausgabeFrame(this,"Mitgliederliste",Daten.fahrtenbuch.getDaten().mitglieder,felder1,select1,1,nur1,nurCheck1);
+           dlg = new ListenausgabeFrame(this,International.getString("Mitgliederliste"),Daten.fahrtenbuch.getDaten().mitglieder,felder1,select1,1,nur1,nurCheck1);
          break;
       case BOOTE:
-         String[] felder2 = { "Bootsname", "Verein", "Art", "Anzahl", "Riggerung", "Steuermann", "erlaubte Gruppen", "max. nicht in Gruppe", "mind. 1 aus Gruppe", "Frei 1", "Frei 2", "Frei 3" };
+         String[] felder2 = { International.getString("Bootsname"),
+                              International.getString("Verein"),
+                              International.getString("Art"),
+                              International.getString("Anzahl"),
+                              International.getString("Riggerung"),
+                              International.getString("Steuermann"),
+                              International.getString("erlaubte Gruppen"),
+                              International.getString("max. nicht in Gruppe"),
+                              International.getString("mind. 1 aus Gruppe"),
+                              International.getString("Frei 1"),
+                              International.getString("Frei 2"),
+                              International.getString("Frei 3")
+         };
          boolean[] select2 = {  true     ,  true   , true ,  true   ,  true      ,  true       , false             , false                 , false               , false   , false   , false };
-         String[] tmp = { "eigene Boote", "fremde Boote" };
+         String[] tmp = { International.getString("eigene Boote"),
+                          International.getString("fremde Boote")
+         };
          String[] nur2 = createArray(tmp,Daten.bezeichnungen.bArt.toArray(), Daten.bezeichnungen.bAnzahl.toArray(), Daten.bezeichnungen.bRigger.toArray(), Daten.bezeichnungen.bStm.toArray());
          int[] nurCheck2 = { 1, 2, 3, 4 , 5 };
          if (Daten.fahrtenbuch.getDaten().boote != null)
-           dlg = new ListenausgabeFrame(this,"Bootsliste",Daten.fahrtenbuch.getDaten().boote,felder2,select2,0,nur2,nurCheck2);
+           dlg = new ListenausgabeFrame(this,International.getString("Bootsliste"),Daten.fahrtenbuch.getDaten().boote,felder2,select2,0,nur2,nurCheck2);
          break;
       case ZIELE:
-         String[] felder3 = { "Ziel", "Kilometer", "Zielbereich", "Steg-Ziel", "Gewässer" };
+         String[] felder3 = { International.getString("Ziel"),
+                              International.getString("Kilometer"),
+                              International.getString("Zielbereich"),
+                              International.getString("Steg-Ziel"),
+                              International.getString("Gewässer")
+         };
          boolean[] select3 = { true ,  true      ,  true        ,  false     ,  true};
          if (Daten.fahrtenbuch.getDaten().ziele != null)
-           dlg = new ListenausgabeFrame(this,"Zielliste",Daten.fahrtenbuch.getDaten().ziele,felder3,select3,0,null,null);
+           dlg = new ListenausgabeFrame(this,International.getString("Zielliste"),Daten.fahrtenbuch.getDaten().ziele,felder3,select3,0,null,null);
          break;
       case MANNSCHAFTEN:
-         String[] felder5 = { "Mannschaft", "Steuermann", "Mannschaft 1", "Mannschaft 2", "Mannschaft 3", "Mannschaft 4",
-                              "Mannschaft 5", "Mannschaft 6", "Mannschaft 7", "Mannschaft 8", "Mannschaft 9",
-                              "Mannschaft 10", "Mannschaft 11", "Mannschaft 12", "Mannschaft 13", "Mannschaft 14",
-                              "Mannschaft 15", "Mannschaft 16", "Mannschaft 17", "Mannschaft 18", "Mannschaft 19",
-                              "Mannschaft 20", "Mannschaft 21", "Mannschaft 22", "Mannschaft 23", "Mannschaft 24",
-                              "Ziel", "Fahrtart" };
+         String[] felder5 = { International.getString("Mannschaft"),
+                              International.getString("Steuermann"),
+                              International.getString("Mannschaft") + " 1",
+                              International.getString("Mannschaft") + " 2",
+                              International.getString("Mannschaft") + " 3",
+                              International.getString("Mannschaft") + " 4",
+                              International.getString("Mannschaft") + " 5",
+                              International.getString("Mannschaft") + " 6",
+                              International.getString("Mannschaft") + " 7",
+                              International.getString("Mannschaft") + " 8",
+                              International.getString("Mannschaft") + " 9",
+                              International.getString("Mannschaft") + " 10",
+                              International.getString("Mannschaft") + " 11",
+                              International.getString("Mannschaft") + " 12",
+                              International.getString("Mannschaft") + " 13",
+                              International.getString("Mannschaft") + " 14",
+                              International.getString("Mannschaft") + " 15",
+                              International.getString("Mannschaft") + " 16",
+                              International.getString("Mannschaft") + " 17",
+                              International.getString("Mannschaft") + " 18",
+                              International.getString("Mannschaft") + " 19",
+                              International.getString("Mannschaft") + " 20",
+                              International.getString("Mannschaft") + " 21",
+                              International.getString("Mannschaft") + " 22",
+                              International.getString("Mannschaft") + " 23",
+                              International.getString("Mannschaft") + " 24",
+                              International.getString("Ziel"),
+                              International.getString("Fahrtart")
+         };
          boolean[] select5 = { true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true };
          if (Daten.mannschaften != null)
-           dlg = new ListenausgabeFrame(this,"Standardmannschaftsliste",Daten.mannschaften,felder5,select5,0,null,null);
+           dlg = new ListenausgabeFrame(this,International.getString("Standardmannschaftsliste"),Daten.mannschaften,felder5,select5,0,null,null);
          break;
       case FAHRTENABZEICHEN:
-         String[] felder6 = { "Vorname", "Nachname", "Jahrgang", "Anz. Abzeichen", "Gesamt-Km", "Anz. Abzeichen AB", "Gesamt-Km AB", "elektronisches Fahrtenheft" };
+         String[] felder6 = { International.getString("Vorname"),
+                              International.getString("Nachname"),
+                              International.getString("Jahrgang"),
+                              International.getString("Anz. Abzeichen"),
+                              International.getString("Gesamt-Km"),
+                              International.getString("Anz. Abzeichen AB"),
+                              International.getString("Gesamt-Km AB"),
+                              International.getString("elektronisches Fahrtenheft")
+         };
          boolean[] select6 = {  true   ,  true     ,  true     ,  true           ,  true       ,  false             , false          , false           };
          if (Daten.fahrtenabzeichen != null)
-           dlg = new ListenausgabeFrame(this,"DRV-Fahrtenabzeichenliste",Daten.fahrtenabzeichen,felder6,select6,1,null,null);
+           dlg = new ListenausgabeFrame(this,International.getString("DRV-Fahrtenabzeichenliste"),Daten.fahrtenabzeichen,felder6,select6,1,null,null);
          break;
       case GRUPPEN:
-         String[] felder7 = { "Gruppe", "Mitglieder" };
+         String[] felder7 = { International.getString("Gruppe"),
+                              International.getString("Mitglieder")
+         };
          boolean[] select7 = {  true  ,  true        };
          if (Daten.gruppen != null) {
            // virtuelle Datenliste erzeugen
@@ -860,7 +906,7 @@ public class AuswahlFrame extends JDialog implements ActionListener {
                dl.add(d);
              }
            }
-           dlg = new ListenausgabeFrame(this,"Gruppenliste",dl,felder7,select7,0,null,null);
+           dlg = new ListenausgabeFrame(this,International.getString("Gruppenliste"),dl,felder7,select7,0,null,null);
          }
          break;
     }

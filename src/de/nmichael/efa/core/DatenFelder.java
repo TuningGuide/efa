@@ -9,6 +9,8 @@ package de.nmichael.efa.core;
  * @version 1.0
  */
 
+// @i18n complete
+
 public class DatenFelder {
 
   String[] a;

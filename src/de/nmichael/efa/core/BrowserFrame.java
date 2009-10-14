@@ -1,14 +1,8 @@
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.util.TMJ;
-import de.nmichael.efa.util.SwingWorker;
-import de.nmichael.efa.util.SimpleFilePrinter;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -30,6 +24,8 @@ import java.util.*;
  * @author Nicolas Michael
  * @version 1.0
  */
+
+// @i18n complete
 
 public class BrowserFrame extends JDialog implements ActionListener {
   final static int PROGRESS_TIMETOPOPUP   = 1;
@@ -75,6 +71,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
   JTextField search = new JTextField();
   JButton searchPrevButton = new JButton();
   JButton searchNextButton = new JButton();
+  JLabel sslLabel = new JLabel();
 
 
   class TimeoutThread extends Thread {
@@ -126,7 +123,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
   class LinkFollower implements HyperlinkListener {
     public void hyperlinkUpdate(HyperlinkEvent e) {
       if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-        if (e.getURL().toString().toLowerCase().startsWith("http://") &&
+        if ((e.getURL().toString().toLowerCase().startsWith("http://") || e.getURL().toString().toLowerCase().startsWith("https://")) &&
             Daten.applID == Daten.APPL_EFADIREKT && Daten.applMode == Daten.APPL_MODE_NORMAL) {
           return;
         }
@@ -149,22 +146,24 @@ public class BrowserFrame extends JDialog implements ActionListener {
         try {
           URLConnection conn = e.getURL().openConnection();
           if (conn == null || conn.getContentType() == null) {
-            out.setText("FEHLER: Kann Adresse '"+e.getURL().toString()+"' nicht öffnen: Bist Du online?");
+            out.setText(International.getString("FEHLER") + ": "+
+                    International.getMessage("Kann Adresse '{url}' nicht öffnen: {message}",e.getURL().toString(),International.getString("Bist Du online?")));
             return;
           }
           String surl = e.getURL().toString();
           if (conn.getContentType().equals("text/html") || conn.getContentType().equals("text/plain")) {
             if (surl.toLowerCase().equals("mailto:"+Daten.EFAEMAIL)) surl = "file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"mailto.html";
             if (surl.toLowerCase().startsWith("mailto:"))
-              Dialog.error("Bitte benutze ein externes email-Programm, um eine email\nan "+
-                           surl.substring(7,surl.length())+" zu verschicken!");
+              Dialog.error(International.getString("Bitte benutze ein externes email-Programm, um eine email an "+
+                           surl.substring(7,surl.length())+" zu verschicken!"));
             else setNewPage(surl);
           } else downloadUrl(conn,e.getURL().toString());
         } catch(IOException ee) {
-          out.setText("FEHLER: Kann Adresse '"+e.getURL().toString()+"' nicht öffnen: "+ee.toString()+"\n"+
-                      "Eventuell wird efa durch eine Firewall blockiert. Sollte dies der Fall sein,\n"+
-                      "ändere entweder Deine Firewall-Einstellungen und erlaube efa den Internet-Zugriff\n"+
-                      "oder benutze einen normalen Webbrowser.");
+          out.setText(International.getString("FEHLER") + ": "+
+                  International.getMessage("Kann Adresse '{url}' nicht öffnen: {message}",e.getURL().toString(),ee.toString())+"\n"+
+                  International.getString("Eventuell wird efa durch eine Firewall blockiert. Sollte dies der Fall sein, "+
+                      "ändere entweder Deine Firewall-Einstellungen und erlaube efa den Internet-Zugriff "+
+                      "oder benutze einen normalen Webbrowser."));
         }
       }
     }
@@ -202,7 +201,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
     this.tour = false;
     this.locked = true;
     Dialog.frameOpened(this);
-    frIni("efa - elektronisches Fahrtenbuch",url);
+    frIni(Daten.EFA_LONGNAME,url);
     this.remove(this.northPanel);
     this.remove(this.southPanel);
   }
@@ -258,14 +257,13 @@ public class BrowserFrame extends JDialog implements ActionListener {
     }
 
     closeButton.setNextFocusableComponent(backButton);
-    closeButton.setMnemonic('C');
-    closeButton.setText("Schließen");
+    Mnemonics.setButton(this, closeButton, "Schließen");
     closeButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         closeButton_actionPerformed(e);
       }
     });
-    this.setTitle("Ausgabe");
+    this.setTitle(International.getString("Ausgabe"));
     this.getContentPane().setLayout(borderLayout1);
     jScrollPane1.setMinimumSize(new Dimension(300, 200));
     jScrollPane1.setPreferredSize(new Dimension(600, 300));
@@ -273,9 +271,8 @@ public class BrowserFrame extends JDialog implements ActionListener {
     northPanel.setLayout(borderLayout2);
     reloadButton.setNextFocusableComponent(saveButton);
     reloadButton.setPreferredSize(new Dimension(45, 22));
-    reloadButton.setToolTipText("Neu laden");
+    reloadButton.setToolTipText(International.getString("Neu laden"));
     reloadButton.setIcon(new ImageIcon(BrowserFrame.class.getResource("/de/nmichael/efa/img/browser_reload.gif")));
-    reloadButton.setMnemonic('L');
     reloadButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         reloadButton_actionPerformed(e);
@@ -283,9 +280,8 @@ public class BrowserFrame extends JDialog implements ActionListener {
     });
     nextButton.setNextFocusableComponent(reloadButton);
     nextButton.setPreferredSize(new Dimension(45, 22));
-    nextButton.setToolTipText("Vorwärts");
+    nextButton.setToolTipText(International.getString("Vorwärts"));
     nextButton.setIcon(new ImageIcon(BrowserFrame.class.getResource("/de/nmichael/efa/img/browser_forward.gif")));
-    nextButton.setMnemonic('V');
     nextButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         nextButton_actionPerformed(e);
@@ -293,9 +289,8 @@ public class BrowserFrame extends JDialog implements ActionListener {
     });
     backButton.setNextFocusableComponent(nextButton);
     backButton.setPreferredSize(new Dimension(45, 22));
-    backButton.setToolTipText("Zurück");
+    backButton.setToolTipText(International.getString("Zurück"));
     backButton.setIcon(new ImageIcon(BrowserFrame.class.getResource("/de/nmichael/efa/img/browser_back.gif")));
-    backButton.setMnemonic('Z');
     backButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         backButton_actionPerformed(e);
@@ -318,14 +313,12 @@ public class BrowserFrame extends JDialog implements ActionListener {
     });
     printButton.setNextFocusableComponent(pageButton);
     printButton.setPreferredSize(new Dimension(45, 22));
-    printButton.setToolTipText("Drucken");
+    printButton.setToolTipText(International.getString("Drucken"));
     printButton.setIcon(new ImageIcon(BrowserFrame.class.getResource("/de/nmichael/efa/img/browser_print.gif")));
-    printButton.setMnemonic('D');
     pageButton.setNextFocusableComponent(out);
     pageButton.setPreferredSize(new Dimension(45, 22));
-    pageButton.setToolTipText("Seite einrichten");
+    pageButton.setToolTipText(International.getString("Seite einrichten"));
     pageButton.setIcon(new ImageIcon(BrowserFrame.class.getResource("/de/nmichael/efa/img/browser_printsetup.gif")));
-    pageButton.setMnemonic('E');
     pageButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         pageButton_actionPerformed(e);
@@ -333,9 +326,8 @@ public class BrowserFrame extends JDialog implements ActionListener {
     });
     saveButton.setNextFocusableComponent(printButton);
     saveButton.setPreferredSize(new Dimension(45, 22));
-    saveButton.setToolTipText("Seite speichern");
+    saveButton.setToolTipText(International.getString("Seite speichern"));
     saveButton.setIcon(new ImageIcon(BrowserFrame.class.getResource("/de/nmichael/efa/img/browser_save.gif")));
-    saveButton.setMnemonic('S');
     saveButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         saveButton_actionPerformed(e);
@@ -349,9 +341,8 @@ public class BrowserFrame extends JDialog implements ActionListener {
     });
     southPanel.setLayout(borderLayout4);
     searchPanel.setLayout(gridBagLayout2);
-    searchLabel.setDisplayedMnemonic('S');
     searchLabel.setLabelFor(search);
-    searchLabel.setText("  Suche: ");
+    Mnemonics.setLabel(this, searchLabel, "  "+International.getStringWithMnemonic("Suche")+": ");
     search.setText("");
     Dialog.setPreferredSize(search,300,19);
     search.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -375,6 +366,8 @@ public class BrowserFrame extends JDialog implements ActionListener {
       }
     });
 
+    sslLabel.setIcon(new ImageIcon(BrowserFrame.class.getResource("/de/nmichael/efa/img/browser_secure.gif")));
+    sslLabel.setVisible(false);
     this.getContentPane().add(northPanel,  BorderLayout.NORTH);
     northPanel.add(jPanel2, BorderLayout.WEST);
     jPanel2.add(backButton,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -403,6 +396,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     searchPanel.add(searchNextButton,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    southPanel.add(sslLabel, BorderLayout.EAST);
     this.getContentPane().add(jScrollPane1, BorderLayout.CENTER);
     this.getContentPane().add(southPanel,  BorderLayout.SOUTH);
     jScrollPane1.getViewport().add(out, null);
@@ -439,7 +433,9 @@ public class BrowserFrame extends JDialog implements ActionListener {
     if (Daten.efaConfig != null) {
       Daten.efaConfig.efaDirekt_locked = false;
       Daten.efaConfig.writeFile();
-      Logger.log(Logger.INFO,"efa ist wieder entsperrt und für die Benutzung freigegeben.");
+      Logger.log(Logger.INFO,
+              Logger.MSG_BHEVENTS_UNLOCKED,
+              International.getString("efa ist wieder entsperrt und für die Benutzung freigegeben."));
     }
   }
 
@@ -448,9 +444,9 @@ public class BrowserFrame extends JDialog implements ActionListener {
     if (locked) {
       de.nmichael.efa.direkt.Admin admin = null;
       do {
-        admin = de.nmichael.efa.direkt.AdminLoginFrame.login(this,"Entsperren von efa",null);
+        admin = de.nmichael.efa.direkt.AdminLoginFrame.login(this,International.getString("Entsperren von efa"),null);
         if (admin != null && !admin.allowedEfaSperren)
-          Dialog.error("Du hast nicht die Berechtigung, um efa zu entsperren!");
+          Dialog.error(International.getString("Du hast nicht die Berechtigung, um efa zu entsperren!"));
       } while (admin != null && !admin.allowedEfaSperren);
       if (admin == null) return;
       unlock();
@@ -477,10 +473,12 @@ public class BrowserFrame extends JDialog implements ActionListener {
     try {
       out.setPage(url);
       this.url.setText(url);
+      updateSslLabel(url);
       nopage = false;
     } catch (IOException e) {
-      out.setText("FEHLER: Kann Adresse '"+url+"' nicht öffnen: "+e.toString());
-      nopage = true;
+        out.setText(International.getString("FEHLER") + ": "+
+                    International.getMessage("Kann Adresse '{url}' nicht öffnen: {message}",url,e.toString()));
+        nopage = true;
     } catch (Exception ee) {
       // abfangen von Java-Fehlern bei der Darstellung von HTML-Seiten
     }
@@ -570,11 +568,13 @@ public class BrowserFrame extends JDialog implements ActionListener {
     if (Daten.applID == Daten.APPL_EFADIREKT && Daten.applMode == Daten.APPL_MODE_NORMAL) return;
     String quelle = this.url.getText();
     if (!quelle.startsWith("file:")) {
-      Dialog.infoDialog("Fehler","Es können nur lokale Seiten gespeichert werden!");
+      Dialog.infoDialog(International.getString("Fehler"),
+              International.getString("Es können nur lokale Seiten gespeichert werden!"));
       return;
     }
     quelle = quelle.substring(5,quelle.length());
-    String ziel = Dialog.dateiDialog(this,"Seite speichern","HTML-Dateien","html",Daten.efaDataDirectory,true);
+    String ziel = Dialog.dateiDialog(this,International.getString("Seite speichern"),
+            International.getString("HTML-Dateien"),"html",Daten.efaDataDirectory,true);
     if (ziel == null) return;
 
     int i = quelle.lastIndexOf(".");
@@ -583,8 +583,9 @@ public class BrowserFrame extends JDialog implements ActionListener {
       ext = quelle.substring(i+1,quelle.length());
       if (ext.length()>0 && !ziel.toLowerCase().endsWith(ext.toLowerCase())) ziel += "."+ext;
     }
-    if (!EfaUtil.copyFile(quelle,ziel)) Dialog.error("Fehler beim Speichern der Seite unter dem Namen\n"+ziel);
-    else {
+    if (!EfaUtil.copyFile(quelle,ziel)) {
+        Dialog.error(International.getMessage("Fehler beim Speichern der Seite unter dem Namen {name}.",ziel));
+    } else {
       // Datei erfolgreich kopiert
 
       if (ziel.toLowerCase().endsWith(".html") || ziel.toLowerCase().endsWith(".htm")) {
@@ -632,7 +633,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
             } while(i>=0);
           }
         } catch(Exception ee) {
-          Dialog.error("Fehler beim Speichern der eingebetteten Bilder: "+ee.toString());
+          Dialog.error(International.getMessage("Fehler beim Speichern der eingebetteten Bilder: {message}",ee.toString()));
         } finally {
           try { f.close(); } catch(Exception eee) { f = null; }
         }
@@ -656,84 +657,60 @@ public class BrowserFrame extends JDialog implements ActionListener {
 
       String localName = Daten.efaTmpDirectory+fname.substring(fname.lastIndexOf("/")+1,fname.length());
 
-      String dat = Dialog.dateiDialog(this,"Download",null,null,localName,localName,"Download speichern",true,false);
+      String dat = Dialog.dateiDialog(this,International.getString("Download"),
+              null,null,localName,localName,
+              International.getString("Download speichern"),true,false);
 
       if (dat != null) {
         runDownload(this,conn,fname,dat,false);
       }
     } catch(IOException e) {
-      Dialog.error("Download fehlgeschlagen:\n"+e.toString()+"\nEventuell wurde efa durch eine Firewall blockiert.");
+      Dialog.error(International.getString("Download fehlgeschlagen")+":\n"+e.toString()+"\n"+
+              International.getString("Eventuell wurde efa durch eine Firewall blockiert."));
     }
   }
 
-
+  private boolean runDownload(ProgressMonitor progressMonitor, URLConnection conn, String local, boolean waitfor) {
+    progressMonitor.setProgress(0);
+    progressMonitor.setMaximum(conn.getContentLength());
+    progressMonitor.setMillisToDecideToPopup(PROGRESS_TIMETOPOPUP);
+    downloadThread.go(conn,local);
+    timer.start();
+    if (waitfor) {
+      try {
+        downloadThread.thr.join();
+      } catch(InterruptedException e) {}
+    }
+    if (downloadThread.exceptionText != null) {
+      Dialog.error(International.getString("Download fehlgeschlagen")+": "+downloadThread.exceptionText+"\n"+
+              International.getString("Eventuell wurde efa durch eine Firewall blockiert."));
+      return false;
+    }
+    return true;
+  }
 
 
   public boolean runDownload(JFrame frame, URLConnection conn, String remote, String local, boolean waitfor) {
     downloadThread = new DownloadThread(null);
-    progressMonitor = new ProgressMonitor(frame, "Download "+remote, "", 0, downloadThread.getLengthOfTask());
-    progressMonitor.setProgress(0);
-    progressMonitor.setMaximum(conn.getContentLength());
-    progressMonitor.setMillisToDecideToPopup(PROGRESS_TIMETOPOPUP);
-    downloadThread.go(conn,local);
-    timer.start();
-    if (waitfor) {
-      try {
-        downloadThread.thr.join();
-      } catch(InterruptedException e) {}
-    }
-    if (downloadThread.exceptionText != null) {
-      Dialog.error("Download fehlgeschlagen: "+downloadThread.exceptionText+"\nEventuell wurde efa durch eine Firewall blockiert.");
-      return false;
-    }
-    return true;
+    progressMonitor = new ProgressMonitor(frame, International.getString("Download") + " " + remote, "", 0, downloadThread.getLengthOfTask());
+    return runDownload(progressMonitor, conn, local, waitfor);
   }
+
   public boolean runDownload(JDialog frame, URLConnection conn, String remote, String local, boolean waitfor) {
     downloadThread = new DownloadThread(null);
-    progressMonitor = new ProgressMonitor(frame, "Download "+remote, "", 0, downloadThread.getLengthOfTask());
-    progressMonitor.setProgress(0);
-    progressMonitor.setMaximum(conn.getContentLength());
-    progressMonitor.setMillisToDecideToPopup(PROGRESS_TIMETOPOPUP);
-    downloadThread.go(conn,local);
-    timer.start();
-    if (waitfor) {
-      try {
-        downloadThread.thr.join();
-      } catch(InterruptedException e) {}
-    }
-    if (downloadThread.exceptionText != null) {
-      Dialog.error("Download fehlgeschlagen: "+downloadThread.exceptionText+"\nEventuell wurde efa durch eine Firewall blockiert.");
-      return false;
-    }
-    return true;
+    progressMonitor = new ProgressMonitor(frame, International.getString("Download")+" "+remote, "", 0, downloadThread.getLengthOfTask());
+    return runDownload(progressMonitor, conn, local, waitfor);
   }
+
   public boolean runDownload(JFrame frame, URLConnection conn, String remote, String local, ExecuteAfterDownload afterDownload) {
     downloadThread = new DownloadThread(afterDownload);
-    progressMonitor = new ProgressMonitor(frame, "Download "+remote, "", 0, downloadThread.getLengthOfTask());
-    progressMonitor.setProgress(0);
-    progressMonitor.setMaximum(conn.getContentLength());
-    progressMonitor.setMillisToDecideToPopup(PROGRESS_TIMETOPOPUP);
-    downloadThread.go(conn,local);
-    timer.start();
-    if (downloadThread.exceptionText != null) {
-      Dialog.error("Download fehlgeschlagen: "+downloadThread.exceptionText+"\nEventuell wurde efa durch eine Firewall blockiert.");
-      return false;
-    }
-    return true;
+    progressMonitor = new ProgressMonitor(frame, International.getString("Download")+ " "+remote, "", 0, downloadThread.getLengthOfTask());
+    return runDownload(progressMonitor, conn, local, false);
   }
   public boolean runDownload(JDialog frame, URLConnection conn, String remote, String local, ExecuteAfterDownload afterDownload) {
     downloadThread = new DownloadThread(afterDownload);
-    progressMonitor = new ProgressMonitor(frame, "Download "+remote, "", 0, downloadThread.getLengthOfTask());
-    progressMonitor.setProgress(0);
-    progressMonitor.setMaximum(conn.getContentLength());
-    progressMonitor.setMillisToDecideToPopup(PROGRESS_TIMETOPOPUP);
-    downloadThread.go(conn,local);
-    timer.start();
-    if (downloadThread.exceptionText != null) {
-      Dialog.error("Download fehlgeschlagen: "+downloadThread.exceptionText+"\nEventuell wurde efa durch eine Firewall blockiert.");
-      return false;
-    }
-    return true;
+    progressMonitor = new ProgressMonitor(frame, International.getString("Download")+ " "+remote, "", 0, downloadThread.getLengthOfTask());
+    return runDownload(progressMonitor, conn, local, false);
   }
 
   class DownloadThread {
@@ -779,7 +756,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
      return (downTotal == downDone);
     }
     String getMessage() {
-      return downDone+" Bytes von "+downTotal+" Bytes ...";
+      return International.getMessage("{bytesDone} Bytes von {bytesTotal} Bytes ...",downDone,downTotal);
     }
     void exit() {
 //      thr.destroy();
@@ -830,6 +807,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
     try {
       storePageInHistory(out.getPage().toString());
       this.url.setText(out.getPage().toString());
+      updateSslLabel(out.getPage().toString());
     } catch(Exception ee) {
       EfaUtil.foo();
     }
@@ -875,6 +853,9 @@ public class BrowserFrame extends JDialog implements ActionListener {
     searchfor(null);
   }
 
+  void updateSslLabel(String url) {
+    sslLabel.setVisible(url.startsWith("https"));;
+  }
 
 
 }

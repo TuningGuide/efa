@@ -12,6 +12,8 @@ package de.nmichael.efa.core;
 import java.io.*;
 import java.util.Hashtable;
 
+// @i18n complete
+
 public class Adressen extends DatenListe {
 
 

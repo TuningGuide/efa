@@ -1,14 +1,8 @@
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.util.SimpleFilePrinter;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.CertInfos;
-import de.nmichael.efa.util.DRVSignatur;
-import de.nmichael.efa.util.Base64;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -27,6 +21,8 @@ import java.security.cert.Certificate;
  * @author Nicolas Michael
  * @version 1.0
  */
+
+// @i18n complete (needs no internationalization -- only relevant for Germany)
 
 public class DRVSignaturFrame extends JDialog implements ActionListener {
   private JDialog parent;
@@ -118,8 +114,7 @@ public class DRVSignaturFrame extends JDialog implements ActionListener {
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
       closeButton.setNextFocusableComponent(fahrtenheft);
-      closeButton.setMnemonic('S');
-      closeButton.setText("Speichern");
+      Mnemonics.setButton(this, closeButton, International.getStringWithMnemonic("Speichern"));
       closeButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           closeButton_actionPerformed(e);

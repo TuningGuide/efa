@@ -10,6 +10,8 @@ import java.io.*;
 import javax.swing.border.*;
 import java.beans.*;
 
+// @i18n complete
+
 public class StartLogo {
 
   private String logoFile;

@@ -29,6 +29,7 @@ public class Logger {
   // Core Functionality Errors and Warnings (multiple source files)
   public static final String MSG_CORE_SETUPDIRS              = "COR001";
   public static final String MSG_CORE_INFOFAILED             = "COR002";
+  public static final String MSG_CORE_USERHOME               = "COR003";
 
   // Activities performed in Admin Mode
   public static final String MSG_ADMIN_LOGBOOKENTRYDELETED   = "ADM001";
@@ -46,7 +47,28 @@ public class Logger {
   public static final String MSG_INTERNATIONAL_MISSINGKEY    = "INT003";
   public static final String MSG_INTERNATIONAL_INCORRECTKEY  = "INT004";
 
+  // de.nmichael.efa.core.DatenListe (and subclasses)
+  public static final String MSG_CSVFILE_FILECONVERTED       = "CSV001";
+  public static final String MSG_CSVFILE_ERRORCONVERTING     = "CSV002";
+  public static final String MSG_CSVFILE_ERRORINVALIDFORMAT  = "CSV003";
+  public static final String MSG_CSVFILE_ERRORREADINGFILE    = "CSV004";
+  public static final String MSG_CSVFILE_ERRORWRITEFILE      = "CSV005";
+  public static final String MSG_CSVFILE_ERRORCREATEFILE     = "CSV006";
+  public static final String MSG_CSVFILE_ERRORCLOSINGFILE    = "CSV007";
+  public static final String MSG_CSVFILE_INCONSISTENTDATA    = "CSV008";
+  public static final String MSG_CSVFILE_CHECKSUMERROR       = "CSV009";
+  public static final String MSG_CSVFILE_CHECKSUMCORRECTED   = "CSV010";
+  public static final String MSG_CSVFILE_CHECKSUMNOTCORRECTED= "CSV011";
+  public static final String MSG_CSVFILE_FILEISBACKUP        = "CSV012";
+  public static final String MSG_CSVFILE_FILENEWCREATED      = "CSV013";
+  public static final String MSG_CSVFILE_BACKUPERROR         = "CSV014";
+  public static final String MSG_CSVFILE_OOMSAVEERROR        = "CSV015";
 
+  // efa in the Boat House - Events (multiple source files)
+  public static final String MSG_BHEVENTS_UNLOCKED           = "EVT001";
+
+  // efa in the Boat House - Fehler
+  public static final String MSG_BHERROR_PANIC               = "ERR001";
 
 
   public static boolean debugLogging = false;

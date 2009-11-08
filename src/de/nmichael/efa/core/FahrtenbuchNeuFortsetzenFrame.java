@@ -2,11 +2,8 @@ package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.Boote;
-import de.nmichael.efa.util.TMJ;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -21,6 +18,8 @@ import java.io.*;
  * @author Nicolas Michael
  * @version 1.0
  */
+
+// @i18n complete
 
 public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionListener {
   EfaFrame efaframe = null;
@@ -95,8 +94,8 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
     jPanel1.setLayout(gridBagLayout1);
     neuButton.setNextFocusableComponent(FortsetzenButton);
     Dialog.setPreferredSize(neuButton,620,25);
-    neuButton.setMnemonic('N');
-    neuButton.setText("Neues, unabhängiges Fahrtenbuch mit leere Datenlisten (leere Mitglieder-/Boots-/Ziellisten)");
+
+    Mnemonics.setButton(this, neuButton, International.getStringWithMnemonic("Neues, unabhängiges Fahrtenbuch mit leere Datenlisten (leere Mitglieder-/Boots-/Ziellisten)"));
     neuButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         neuButton_actionPerformed(e);
@@ -104,8 +103,7 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
     });
     FortsetzenButton.setNextFocusableComponent(neuButton);
     Dialog.setPreferredSize(FortsetzenButton,620,25);
-    FortsetzenButton.setMnemonic('F');
-    FortsetzenButton.setText("Neues Fahrtenbuch als Fortsetzung des aktuellen Fahrtenbuchs (z.B. bei Jahreswechsel)");
+    Mnemonics.setButton(this, FortsetzenButton, International.getStringWithMnemonic("Neues Fahrtenbuch als Fortsetzung des aktuellen Fahrtenbuchs (z.B. bei Jahreswechsel)"));
     FortsetzenButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         FortsetzenButton_actionPerformed(e);
@@ -114,19 +112,16 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
     jPanel1.setFont(new java.awt.Font("Dialog", 1, 12));
     jPanel1.setMinimumSize(new Dimension(700, 170));
     jPanel1.setPreferredSize(new Dimension(700, 170));
-    weiterButton.setMnemonic('W');
-    weiterButton.setText("Weiter");
+    Mnemonics.setButton(this, weiterButton, International.getStringWithMnemonic("Weiter"));
     weiterButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         weiterButton_actionPerformed(e);
       }
     });
-    dateiLabel.setDisplayedMnemonic('D');
+    Mnemonics.setLabel(this, dateiLabel, International.getStringWithMnemonic("Dateiname")+": ");
     dateiLabel.setLabelFor(dateiEfb);
-    dateiLabel.setText("Dateiname: ");
     Dialog.setPreferredSize(dateiEfb,300,19);
     Dialog.setPreferredSize(saveButton,59,25);
-    saveButton.setToolTipText("Fahrtenbuchdatei auswählen");
     saveButton.setIcon(new ImageIcon(FahrtenbuchNeuFortsetzenFrame.class.getResource("/de/nmichael/efa/img/prog_save.gif")));
     saveButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -134,7 +129,6 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
       }
     });
     Dialog.setPreferredSize(openButton,59,25);
-    openButton.setToolTipText("Fahrtenbuchdatei auswählen");
     openButton.setIcon(new ImageIcon(FahrtenbuchNeuFortsetzenFrame.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
     openButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -161,16 +155,17 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
     erklaerung.setBackground(UIManager.getColor("control"));
     erklaerung.setEditable(false);
     erklaerung.setFont(new java.awt.Font("Dialog", 1, 12));
-    erklaerung.append("Soll ein neues, unabhängiges Fahrtenbuch (mit neuen, leeren Datenlisten)\n");
-    erklaerung.append("erstellt werden, das keinen Bezug zu bestehenden Fahrtenbüchern hat?\n\n");
-    erklaerung.append("Oder soll ein neues Fahrtenbuch erstellt werden, das ein bestehendes Fahrtenbuch\n");
-    erklaerung.append("fortsetzt und die existierende Datenlisten übernimmt (z.B. beim Jahreswechsel)?\n");
+    erklaerung.append(
+            International.getString("Soll ein neues, unabhängiges Fahrtenbuch (mit neuen, leeren Datenlisten)\n"+
+                                    "erstellt werden, das keinen Bezug zu bestehenden Fahrtenbüchern hat?\n\n"+
+                                     "Oder soll ein neues Fahrtenbuch erstellt werden, das ein bestehendes Fahrtenbuch\n"+
+                                     "fortsetzt und die existierende Datenlisten übernimmt (z.B. beim Jahreswechsel)?\n"));
     weiterButton.setVisible(false);
     dateiLabel.setVisible(false);
     dateiEfb.setVisible(false);
     saveButton.setVisible(false);
     openButton.setVisible(false);
-    this.setTitle("Neues Fahrenbuch erstellen oder fortsetzen");
+    this.setTitle(International.getString("Neues Fahrenbuch erstellen oder fortsetzen"));
   }
 
   /**Overridden so we can exit when window is closed*/
@@ -208,10 +203,11 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
   // Auswahl: Fahrtenbuch fortsetzen (Datenbanken übernehmen)
   void FortsetzenButton_actionPerformed(ActionEvent e) {
     erklaerungClear();
-    erklaerung.append("Schritt 1:\n\n");
-    erklaerung.append("Bitte wähle jetzt ein bestehendes Fahrtenbuch aus, das\n");
-    erklaerung.append("fortgesetzt werden soll!\n");
-    erklaerung.append("Die Datenlisten aus diesem Fahrtenbuch werden dann\nautomatisch übernommen.");
+    erklaerung.append(International.getString("Schritt 1")+":\n\n");
+    erklaerung.append(
+            International.getString("Bitte wähle jetzt ein bestehendes Fahrtenbuch aus, das\n"+
+                                    "fortgesetzt werden soll!\n"+
+                                    "Die Datenlisten aus diesem Fahrtenbuch werden dann\nautomatisch übernommen."));
     neuButton.setVisible(false);
     FortsetzenButton.setVisible(false);
     openButton.setVisible(true);
@@ -256,13 +252,13 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
           altesFb = new Fahrtenbuch(dateiEfb.getText().trim());
           altesFb.readFile();
           erklaerungClear();
-          erklaerung.append("Schritt 2:\n\n");
-          erklaerung.append("Folgende Datenlisten werden übernommen:\n");
-          erklaerung.append("Mitgliederliste: "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(altesFb.getFileName()),altesFb.getDaten().mitgliederDatei)+"\n");
-          erklaerung.append("Bootsliste: "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(altesFb.getFileName()),altesFb.getDaten().bootDatei)+"\n");
-          erklaerung.append("Zielliste: "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(altesFb.getFileName()),altesFb.getDaten().zieleDatei)+"\n");
-          erklaerung.append("gesp. Statistiken: "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(altesFb.getFileName()),altesFb.getDaten().statistikDatei)+"\n\n");
-          erklaerung.append("Gib nun den Dateinamen für das neue Fahrtenbuch an!\n");
+          erklaerung.append(International.getString("Schritt 2")+":\n\n");
+          erklaerung.append(International.getString("Folgende Datenlisten werden übernommen:")+"\n");
+          erklaerung.append(International.getString("Mitgliederliste")+": "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(altesFb.getFileName()),altesFb.getDaten().mitgliederDatei)+"\n");
+          erklaerung.append(International.getString("Bootsliste")+": "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(altesFb.getFileName()),altesFb.getDaten().bootDatei)+"\n");
+          erklaerung.append(International.getString("Zielliste")+": "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(altesFb.getFileName()),altesFb.getDaten().zieleDatei)+"\n");
+          erklaerung.append(International.getString("Statistikeinstellungen")+": "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(altesFb.getFileName()),altesFb.getDaten().statistikDatei)+"\n\n");
+          erklaerung.append(International.getString("Gib nun den Dateinamen für das neue Fahrtenbuch an!"));
           openButton.setVisible(false);
           saveButton.setVisible(true);
 
@@ -279,7 +275,8 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
 
           dateiEfb.setText(neuesFbName);
         } else {
-          Dialog.infoDialog("Fehler","Datei\n"+dateiEfb.getText().trim()+"\nkonnte nicht geöffnet werden!");
+          Dialog.infoDialog(International.getString("Fehler"),
+                  International.getMessage("Datei {file} konnte nicht geöffnet werden!",dateiEfb.getText().trim()));
           dateiEfb.requestFocus();
           return;
         }
@@ -289,8 +286,10 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
         String s = dateiEfb.getText().trim();
         if (s.toUpperCase().indexOf(".EFB") < 0) s = s + ".efb";
         neuesFb = new Fahrtenbuch(s);
-        if (EfaUtil.canOpenFile(neuesFb.getFileName()))
-          if (!(Dialog.yesNoDialog("Warnung","Datei\n"+neuesFb.getFileName()+"\nexistiert bereits! Überschreiben?") == Dialog.YES)) return;
+        if (EfaUtil.canOpenFile(neuesFb.getFileName())) {
+          if (!(Dialog.yesNoDialog(International.getString("Warnung"),
+                      International.getMessage("Datei {file} existiert bereits! Überschreiben?",neuesFb.getFileName())) == Dialog.YES)) return;
+        }
         FBDaten neu = new FBDaten(altesFb.getDaten());
         neu.mitgliederDatei = createFilename(neuesFb.getFileName().substring(0,neuesFb.getFileName().toUpperCase().lastIndexOf(".EFB")),".efbm");
         neu.bootDatei = createFilename(neuesFb.getFileName().substring(0,neuesFb.getFileName().toUpperCase().lastIndexOf(".EFB")),".efbb");
@@ -298,20 +297,21 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
         neu.statistikDatei = createFilename(neuesFb.getFileName().substring(0,neuesFb.getFileName().toUpperCase().lastIndexOf(".EFB")),".efbs");
         neuesFb.setDaten(neu);
         erklaerungClear();
-        erklaerung.append("Schritt 3:\n\n");
-        erklaerung.append("Folgende Datenlisten werden neu erstellt:\n");
-        erklaerung.append("Mitgliederliste: "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(neuesFb.getFileName()),neu.mitgliederDatei)+"\n");
-        erklaerung.append("Bootsliste: "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(neuesFb.getFileName()),neu.bootDatei)+"\n");
-        erklaerung.append("Zielliste: "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(neuesFb.getFileName()),neu.zieleDatei)+"\n");
-        erklaerung.append("gesp. Statistiken: "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(neuesFb.getFileName()),neu.statistikDatei)+"\n\n");
-        erklaerung.append("Klicke Weiter, um Fahrtenbuch und Datenlisten zu erstellen!\n");
+        erklaerung.append(International.getString("Schritt 3")+":\n\n");
+        erklaerung.append(International.getString("Folgende Datenlisten werden neu erstellt:")+"\n");
+        erklaerung.append(International.getString("Mitgliederliste")+": "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(neuesFb.getFileName()),neu.mitgliederDatei)+"\n");
+        erklaerung.append(International.getString("Bootsliste")+": "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(neuesFb.getFileName()),neu.bootDatei)+"\n");
+        erklaerung.append(International.getString("Zielliste")+": "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(neuesFb.getFileName()),neu.zieleDatei)+"\n");
+        erklaerung.append(International.getString("Statistikeinstellungen")+": "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(neuesFb.getFileName()),neu.statistikDatei)+"\n\n");
+        erklaerung.append(International.getString("Klicke Weiter, um Fahrtenbuch und Datenlisten zu erstellen!"));
         dateiLabel.setVisible(false);
         dateiEfb.setVisible(false);
         saveButton.setVisible(false);
         count++;
         break;
       case 2: // alles vorbereitet: Jetzt Fahrtenbuchdateien erstellen
-          String anzmitgl = Dialog.inputDialog("Mitgliederzahl","Anzahl der Mitglieder am 01.01. des Jahres?");
+          String anzmitgl = Dialog.inputDialog(International.getString("Mitgliederzahl"),
+                  International.getString("Anzahl der Mitglieder am 01.01. des Jahres?"));
           if (anzmitgl == null) return;
           neuesFb.getDaten().anzMitglieder = EfaUtil.string2date(anzmitgl,0,0,0).tag;
           // folgende vier Zeilen werden benötigt, wenn aus irgendeinem Grund das Einlesen der Datenliste fehlschlug
@@ -330,11 +330,12 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
               if (altesFb.getNextFb(false).equals("")) { // Verweis auf neues FB setzen
                 altesFb.setNextFb(EfaUtil.makeRelativePath(neuesFb.getFileName(),altesFb.getFileName()));
                 altesFb.writeFile();
-              } else Dialog.infoDialog("Warnung","Das ursprüngliche Fahrtenbuch '"+altesFb.getFileName()+"'\n"+
-                                                        "enthält bereits einen Verweis auf '"+altesFb.getNextFb(false)+"'\n"+
-                                                        "als 'nächstes Fahrtenbuch'. Dies führt zu Problemen bei der fahrtenbuchübergreifenden\n"+
-                                                        "Auswertung. Um den Verweis zu ändern, öffne im ursprünglichen Fahrtenbuch die\n"+
-                                                        "'Einstellungen zum Fahrtenbuch'.");
+              } else Dialog.infoDialog(International.getString("Warnung"),
+                      International.getMessage("Das ursprüngliche Fahrtenbuch {oldLogbook} "+
+                                               "enthält bereits einen Verweis auf {nextLogbookFromOld} "+
+                                               "als 'nächstes Fahrtenbuch'. Dies führt zu Problemen bei der fahrtenbuchübergreifenden "+
+                                               "Auswertung. Um den Verweis zu ändern, öffne im ursprünglichen Fahrtenbuch die "+
+                                               "'Einstellungen zum Fahrtenbuch'.",altesFb.getFileName(),altesFb.getNextFb(false)));
               neuesFb.setPrevFb(EfaUtil.makeRelativePath(altesFb.getFileName(),neuesFb.getFileName()));  // Verweis auf altes FB
             } else neuesFb.setPrevFb("");
             neuesFb.setNextFb("");
@@ -352,15 +353,18 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
 
   // Dateiauswahl
   void saveButton_actionPerformed(ActionEvent e) {
-    String dat = Dialog.dateiDialog(this,"Fahrtenbuchdatei auswählen","efa Fahrtenbuch (*.efb)","efb",altesFb.getFileName(),true);
+    String dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuchdatei auswählen"),
+            International.getString("efa Fahrtenbuch")+" (*.efb)","efb",altesFb.getFileName(),true);
     if (dat != null) {
       dateiEfb.setText(dat);
     }
   }
   void openButton_actionPerformed(ActionEvent e) {
     String dat;
-    if (!dateiEfb.getText().trim().equals("")) dat = Dialog.dateiDialog(this,"Fahrtenbuchdatei auswählen","efa Fahrtenbuch (*.efb)","efb",dateiEfb.getText().trim(),false);
-    else dat = Dialog.dateiDialog(this,"Fahrtenbuchdatei auswählen","efa Fahrtenbuch (*.efb)","efb",null,false);
+    if (!dateiEfb.getText().trim().equals("")) dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuchdatei auswählen"),
+            International.getString("efa Fahrtenbuch")+" (*.efb)","efb",dateiEfb.getText().trim(),false);
+    else dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuchdatei auswählen"),
+            International.getString("efa Fahrtenbuch")+" (*.efb)","efb",null,false);
     if (dat != null) {
       dateiEfb.setText(dat);
     }

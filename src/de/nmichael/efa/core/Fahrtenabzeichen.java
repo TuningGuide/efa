@@ -15,6 +15,8 @@ import java.io.*;
  * @version 1.0
  */
 
+// @i18n complete
+
 public class Fahrtenabzeichen extends DatenListe {
 
   public static final int _ANZ = 8;            // geändert in v1.5.1 (in 1.5.0: 6)

@@ -542,10 +542,19 @@ public class Statistik {
            int wert, int divisor, float fwert, float max, int graSize, int maxSize, String farbe, int typ,
            String[] ret, boolean mitBalken) {
     if (!ausWert && !ausGraWert) return;
-    if (divisor == 0) ret[0] = "0";
-    else if (divisor == 1) ret[0] = Integer.toString(wert);
-    else if (divisor == 10) ret[0] = EfaUtil.zehntelInt2String(wert);
-    else ret[0] = Float.toString(EfaUtil.div(wert,divisor));
+    if (divisor == 0) {
+        ret[0] = "0";
+    } else if (divisor == 1) {
+        ret[0] = Integer.toString(wert);
+    } else if (divisor == 10) {
+      if (sd.nurGanzeKm) {
+        ret[0] = Integer.toString(wert/10);
+      } else {
+        ret[0] = EfaUtil.zehntelInt2String(wert);
+      }
+    } else {
+        ret[0] = Float.toString(EfaUtil.div(wert,divisor));
+    }
     if (sd.vorjahresvergleich && wert >0) ret[0] = "+" + ret[0];
     if (sd.vorjahresvergleich && wert==0) ret[0] = "+/- " + ret[0];
     if (!ausGraWert) return;

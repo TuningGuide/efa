@@ -93,6 +93,7 @@ public class StatSave extends DatenListe {
   public static final int NUR_FB=71;                // neu in v1.7.2
   public static final int NURBOOTEFUERGRUPPE=72;    // neu in v1.8.1
   public static final int ALLEZIELFAHRTEN = 73;     // neu in v1.8.2
+  public static final int NURGANZEKM = 74;          // neu in v1.8.3
 
 
   public static final String KENNUNG070 = "##EFA.070.STATISTIK##";
@@ -116,7 +117,7 @@ public class StatSave extends DatenListe {
 
   // Konstruktor
   public StatSave(String pdat) {
-    super(pdat,74,1,false);
+    super(pdat,75,1,false);
     kennung = KENNUNG182;
   }
 

@@ -1,8 +1,6 @@
 package de.nmichael.efa.core;
 
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.ActionHandler;
+import de.nmichael.efa.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -19,7 +17,10 @@ import de.nmichael.efa.util.Dialog;
  * @version 1.0
  */
 
+// @i18n complete
+
 public class EnterPasswordFrame extends JDialog implements ActionListener {
+  static final int MIN_PASSWORD_LENGTH = 8;
   static char[] resultPassword;
 
   Window parent;
@@ -97,21 +98,20 @@ public class EnterPasswordFrame extends JDialog implements ActionListener {
 
     jPanel1.setLayout(borderLayout1);
     okButton.setMnemonic('O');
-    okButton.setText("OK");
+    okButton.setText(International.getString("OK"));
     okButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         okButton_actionPerformed(e);
       }
     });
     jPanel2.setLayout(gridBagLayout1);
-    passwortLabel.setDisplayedMnemonic('P');
+    Mnemonics.setLabel(this, passwortLabel, International.getStringWithMnemonic("Paßwort")+": ");
     passwortLabel.setLabelFor(passwort);
-    passwortLabel.setText("Paßwort: ");
     Dialog.setPreferredSize(passwort,150,19);
-    this.setTitle("Paßworteingabe");
+    this.setTitle(International.getString("Paßworteingabe"));
     grund.setBackground(Color.lightGray);
     grund.setEditable(false);
-    passwort2Label.setText("Paßwort (Wiederholung): ");
+    Mnemonics.setLabel(this, passwort2Label, International.getStringWithMnemonic("Paßwort (Wiederholung)")+": ");
     jLabel1.setText(" ");
     Dialog.setPreferredSize(passwort2,150,19);
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
@@ -207,25 +207,25 @@ public class EnterPasswordFrame extends JDialog implements ActionListener {
   void okButton_actionPerformed(ActionEvent e) {
     String pwd = new String(passwort.getPassword());
     if (pwd.length()==0) {
-      Dialog.error("Kein Paßwort eingegeben!");
+      Dialog.error(International.getString("Kein Paßwort eingegeben!"));
       passwort.requestFocus();
       return;
     }
     if (newPwd) {
       String pwd2 = new String(passwort2.getPassword());
       if (!pwd.equals(pwd2)) {
-        Dialog.error("Die beiden eingegebenen Paßwörter sind verschieden.\nDu mußt in beide Felder dasselbe Paßwort eingeben!");
+        Dialog.error(International.getString("Die beiden eingegebenen Paßwörter sind verschieden.\nDu mußt in beide Felder dasselbe Paßwort eingeben!"));
         passwort2.requestFocus();
         return;
       }
 
       if (pwd.indexOf(" ") >= 0) {
-        Dialog.error("Das Paßwort darf keine Leerzeichen enthalten!");
+        Dialog.error(International.getString("Das Paßwort darf keine Leerzeichen enthalten!"));
         passwort.requestFocus();
         return;
       }
-      if (pwd.length()<8) {
-        Dialog.error("Das Paßwort muß mindestens 8 Zeichen lang sein!");
+      if (pwd.length()<MIN_PASSWORD_LENGTH) {
+        Dialog.error(International.getMessage("Das Paßwort muß mindestens {number} Zeichen lang sein!",MIN_PASSWORD_LENGTH));
         passwort.requestFocus();
         return;
       }
@@ -244,8 +244,8 @@ public class EnterPasswordFrame extends JDialog implements ActionListener {
                  (pwd.charAt(i) >= '0' && pwd.charAt(i) <= '9') ) ) sonst = true;
       int merkmale = (klein ? 1 : 0) + (gross ? 1 : 0) + (ziffer ? 1 : 0) + (sonst ? 1 : 0);
       if (merkmale<3) {
-        Dialog.error("Das Paßwort muß mindestens Zeichen aus drei der insgesamt vier Zeichengruppen\n"+
-                     "'Kleinbuchstaben', 'Großbuchstaben', 'Ziffern' und 'sonstige Zeichen' enthalten!");
+        Dialog.error(International.getString("Das Paßwort muß mindestens Zeichen aus drei der insgesamt vier Zeichengruppen "+
+                     "'Kleinbuchstaben', 'Großbuchstaben', 'Ziffern' und 'sonstige Zeichen' enthalten!"));
         passwort.requestFocus();
         return;
       }

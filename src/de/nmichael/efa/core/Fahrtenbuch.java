@@ -18,6 +18,8 @@ import java.util.Arrays;
  * @version 1.0
  */
 
+// @i18n complete
+
 public class Fahrtenbuch extends DatenListe {
 
   public static final int LFDNR = 0;
@@ -170,7 +172,7 @@ public class Fahrtenbuch extends DatenListe {
 
       fwrite("##ENDE_KONFIG\n");
     } catch(IOException e) {
-      Dialog.error("Datei '"+dat+"' kann nicht geschrieben werden!");
+      errWritingFile(dat);
       return false;
     }
     return true;

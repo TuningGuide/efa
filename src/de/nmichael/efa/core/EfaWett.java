@@ -15,6 +15,8 @@ import de.nmichael.efa.util.Logger;
 import de.nmichael.efa.util.EfaUtil;
 import java.io.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class EfaWett {
 
   public static final String EFAWETT091="##EFA.091.WETT##";
@@ -114,12 +116,12 @@ public class EfaWett {
 
 
   public boolean writeFile() throws IOException {
-      Logger.log(Logger.DEBUG,"EfaWett.writeFile() - START");
-      Logger.log(Logger.DEBUG,"EfaWett.writeFile(): datei == "+datei);
+      Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_EFAWETT,"EfaWett.writeFile() - START");
+      Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_EFAWETT,"EfaWett.writeFile(): datei == "+datei);
       if (datei == null) return false;
       BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(datei),Daten.ENCODING));
       kennung = EfaWett.EFAWETT;
-      Logger.log(Logger.DEBUG,"EfaWett.writeFile(): Start writing Header and Common Data ...");
+      Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_EFAWETT,"EfaWett.writeFile(): Start writing Header and Common Data ...");
       f.write(kennung+"\n");
 
       f.write("\n[ALLGEMEIN]\n");
@@ -184,14 +186,14 @@ public class EfaWett {
         if (drvint_meldegeldEingegangen) f.write("MELDEGELD_EINGEGANGEN=+\n");
         if (drvint_anzahlPapierFahrtenhefte>=0) f.write("ANZAHL_PAPIERFAHRTENHEFTE="+drvint_anzahlPapierFahrtenhefte+"\n");
       }
-      Logger.log(Logger.DEBUG,"EfaWett.writeFile(): Done writing Header and Common Data ...");
+      Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_EFAWETT,"EfaWett.writeFile(): Done writing Header and Common Data ...");
 
-      Logger.log(Logger.DEBUG,"EfaWett.writeFile(): Start writing Meldungen ...");
+      Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_EFAWETT,"EfaWett.writeFile(): Start writing Meldungen ...");
       EfaWettMeldung m = meldung;
       int c=0;
       while (m != null) {
         f.write("\n[MELDUNG#"+(++c)+"]\n");
-        Logger.log(Logger.DEBUG,"EfaWett.writeFile(): Writing Meldung "+c+" == "+m.vorname+" "+m.nachname);
+        Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_EFAWETT,"EfaWett.writeFile(): Writing Meldung "+c+" == "+m.vorname+" "+m.nachname);
 
         // Teilnehmerdaten
         if (m.nachname != null) f.write("NACHNAME="+m.nachname+"\n");
@@ -250,13 +252,13 @@ public class EfaWett {
 
         m = m.next;
       }
-      Logger.log(Logger.DEBUG,"EfaWett.writeFile(): Done writing Meldungen ...");
+      Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_EFAWETT,"EfaWett.writeFile(): Done writing Meldungen ...");
       f.close();
       if (Logger.debugLogging) {
         File ff = new File(datei);
-        Logger.log(Logger.DEBUG,"EfaWett.writeFile(): Filesize ff.length() == "  + ff.length());
+        Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_EFAWETT,"EfaWett.writeFile(): Filesize ff.length() == "  + ff.length());
       }
-      Logger.log(Logger.DEBUG,"EfaWett.writeFile() - END");
+      Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_EFAWETT,"EfaWett.writeFile() - END");
       return true;
   }
 

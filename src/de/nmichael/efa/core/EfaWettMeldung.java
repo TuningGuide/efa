@@ -4,6 +4,8 @@ package de.nmichael.efa.core;
 
 import de.nmichael.efa.util.DRVSignatur;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class EfaWettMeldung {
   public static final String GESCHLECHT_M = "M";
   public static final String GESCHLECHT_W = "W";

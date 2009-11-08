@@ -1,10 +1,8 @@
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -20,6 +18,8 @@ import java.util.*;
  * @author Nicolas Michael
  * @version 1.0
  */
+
+// @i18n complete
 
 public class DownloadFrame extends JDialog implements ActionListener {
   Vector fnames;
@@ -66,10 +66,10 @@ public class DownloadFrame extends JDialog implements ActionListener {
     for (int c=0; c<fnames.size(); c++)
       if (fnames.get(c) != null) size += ((Integer)fsizes.get(c)).intValue();
 
-    out.append("Folgende Dateien werden jetzt installiert (Gesamtgröße: "+size+" Bytes):\n");
+    out.append(International.getMessage("Folgende Dateien werden jetzt installiert (Gesamtgröße: {size} Bytes):",size)+"\n");
     for (int c=0; c<fnames.size(); c++)
       if (fnames.get(c) != null) {
-        out.append((String)fnames.get(c)+" ("+((Integer)fsizes.get(c)).intValue()+" Bytes)\n");
+        out.append((String)fnames.get(c)+" ("+((Integer)fsizes.get(c)).intValue()+" byte)\n");
         size += ((Integer)fsizes.get(c)).intValue();
       }
     out.append("\n");
@@ -97,7 +97,7 @@ public class DownloadFrame extends JDialog implements ActionListener {
       System.err.println("Error setting up ActionHandler");
     }
 
-    button.setText("Plugin-Download starten");
+    button.setText(International.getString("Plugin-Download starten"));
     button.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         button_actionPerformed(e);
@@ -106,7 +106,7 @@ public class DownloadFrame extends JDialog implements ActionListener {
     this.getContentPane().setLayout(borderLayout1);
     out.setFont(new java.awt.Font("Dialog", 1, 12));
     out.setEditable(false);
-    this.setTitle("Plugin-Installation");
+    this.setTitle(International.getString("Plugin-Installation"));
     this.getContentPane().add(button, BorderLayout.SOUTH);
     this.getContentPane().add(jScrollPane1, BorderLayout.CENTER);
     this.setSize(new Dimension(607, 300));
@@ -124,9 +124,9 @@ public class DownloadFrame extends JDialog implements ActionListener {
   /**Close the dialog*/
   void cancel() {
     if (AfterDownloadImpl.fileCount > 0) {
-      if (Dialog.yesNoDialog("Noch nicht alle Downloads beendet",
-                             "Es sind noch nicht alle Downloads beendet.\n"+
-                             "Möchtest Du wirklich abbrechen?") != Dialog.YES) return;
+      if (Dialog.yesNoDialog(International.getString("Offene Downloads"),
+                             International.getString("Es sind noch nicht alle Downloads beendet. "+
+                             "Möchtest Du wirklich abbrechen?")) != Dialog.YES) return;
     }
     Dialog.frameClosed(this);
     dispose();
@@ -139,8 +139,14 @@ public class DownloadFrame extends JDialog implements ActionListener {
       if (fnames.get(i) != null) {
         f = new File(Daten.efaPluginDirectory+(String)fnames.get(i));
         if (f.isFile()) {
-          if (f.length() != ((Integer)fsizes.get(i)).intValue()) { s+= (String)fnames.get(i)+": ungültige Dateigröße (erwartet war: "+((Integer)fsizes.get(i)).intValue()+")\n"; ok=false; }
-        } else { s+= (String)fnames.get(i)+": nicht installiert\n"; ok=false; }
+          if (f.length() != ((Integer)fsizes.get(i)).intValue()) { 
+              s += International.getMessage("{file}: ungültige Dateigröße (erwartet war: {size})", (String)fnames.get(i), ((Integer)fsizes.get(i)).intValue()) + "\n";
+              ok=false;
+          }
+        } else {
+            s+= (String)fnames.get(i)+": "+International.getString("nicht installiert")+"\n";
+            ok=false;
+        }
       }
     }
 
@@ -167,12 +173,12 @@ public class DownloadFrame extends JDialog implements ActionListener {
       Dialog.infoDialog(plugname,
                         "jSunTimes v0.3\nCopyright (C) Jonathan Stott.\nwww.jstott.me.uk/jsuntimes");
     if (ok) {
-      Dialog.infoDialog("Das "+plugname+" wurde erfolgreich installiert.\n"+
-                        "Bitte starte nun "+progname+" neu, um die neuen Funktionen nutzen zu können!");
+      Dialog.infoDialog(International.getMessage("Das {plugin} wurde erfolgreich installiert. "+
+                        "Bitte starte nun {program} neu, um die neuen Funktionen nutzen zu können!",plugname,progname));
       if (exit) System.exit(0);
     } else {
-      Dialog.error("Das "+plugname+" konnte NICHT erfolgreich installiert werden!\n"+
-                   "Folgende Fehler traten auf:\n"+s);
+      Dialog.error(International.getMessage("Das {plugin} konnte NICHT erfolgreich installiert werden! "+
+                   "Es traten folgende Fehler auf:",plugname)+"\n"+s);
       if (exit) System.exit(1);
     }
   }
@@ -188,11 +194,13 @@ public class DownloadFrame extends JDialog implements ActionListener {
       for (int c=0; c<fnames.size(); c++) {
         if (fnames.get(c) != null) {
           AfterDownloadImpl after = new AfterDownloadImpl((String)fnames.get(c),out);
-          out.append("Starte Download von "+(String)fnames.get(c)+" ...");
+          out.append(International.getMessage("Starte Download von {file} ...",(String)fnames.get(c)));
           out.doLayout();
           if (EfaUtil.getFile(this,Daten.pluginWWWdirectory+(String)fnames.get(c),Daten.efaPluginDirectory+(String)fnames.get(c),after)) {
-            out.append(" gestartet!\n");
-          } else out.append(" FEHLER!");
+            out.append(" "+International.getString("gestartet")+"!\n");
+          } else {
+              out.append(" "+International.getString("FEHLER")+"!");
+          }
         }
       }
   }
@@ -201,20 +209,23 @@ public class DownloadFrame extends JDialog implements ActionListener {
     if (!buttonClose) {
       buttonClose = true;
       runDownload();
-      button.setText("Schließen");
+      button.setText(International.getString("Schließen"));
     } else cancel();
   }
 
 
 
   public static boolean getPlugin(String progname, String pname, String pfile, String phtml, String classError, StatistikFrame frame, boolean exit) {
-      if (Dialog.yesNoDialog("Fehlendes Plugin","Das erforderliche "+pname+" konnte nicht gefunden werden:\n"+
-                                                classError+
-                                                "\nMöchtest Du das "+pname+" jetzt installieren?") != Dialog.YES) return false;
-      int x = Dialog.auswahlDialog("Art der Installation","efa kann die Plugin-Dateien automatisch aus dem Intnernet laden,\n"+
-                                                  "oder eine Anleitung für die manuelle Installation anzeigen.\n"+
-                                                  "Bitte wähle die Art der Installation:",
-                                                  "automatische Installation","manuelle Installation");
+      if (Dialog.yesNoDialog(International.getString("Fehlendes Plugin"),
+              International.getMessage("Das erforderliche {plugin} konnte nicht gefunden werden:\n{error}\n"+
+                                                "Möchtest Du das {plugin} jetzt installieren?",
+                                                pname,classError,pname)) != Dialog.YES) return false;
+      int x = Dialog.auswahlDialog(International.getString("Art der Installation"),
+              International.getString("efa kann die Plugin-Dateien automatisch aus dem Intnernet laden "+
+                                                  "oder eine Anleitung für die manuelle Installation anzeigen.")+"\n"+
+                                                  International.getString("Bitte wähle die Art der Installation."),
+                                                  International.getString("Automatische Installation"),
+                                                  International.getString("Manuelle Installation"));
       if (x == -1 || x == 2) return false;
       if (x == 1) { // manuelle Installation
         Dialog.neuBrowserDlg(frame,pname,"file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+phtml);
@@ -222,9 +233,9 @@ public class DownloadFrame extends JDialog implements ActionListener {
       }
 
       // automatische Installation
-      if (!Dialog.okAbbrDialog("Automatische Installation",
-                               "Bitte stelle nun eine Verbindung zum Internet her.\n"+
-                               "Sobald Du online bist, klicke bitte OK.")) return false;
+      if (!Dialog.okAbbrDialog(International.getString("Automatische Installation"),
+                               International.getString("Bitte stelle nun eine Verbindung zum Internet her. "+
+                               "Sobald Du online bist, klicke bitte OK."))) return false;
 
       // aktuelle Plugin-Download-URL besorgen
       String infoFile = Daten.efaTmpDirectory+"plugins.url";
@@ -238,7 +249,7 @@ public class DownloadFrame extends JDialog implements ActionListener {
         f.close();
         new File(infoFile).delete();
       } catch(IOException ee) {
-        Dialog.error("Bestimmung der Plugin-URL schlug fehl:\n"+ee.toString());
+        Dialog.error(International.getMessage("Bestimmung der Plugin-URL schlug fehl: {error}",ee.toString()));
         return false;
       }
 
@@ -248,7 +259,7 @@ public class DownloadFrame extends JDialog implements ActionListener {
 
       // Informationen über das Plugin auswerten
       if (!EfaUtil.canOpenFile(infoFile)) {
-        Dialog.error("Plugin-Infodatei '"+infoFile+"' konnte nicht geöffnet werden.");
+        Dialog.error(International.getMessage("Plugin-Infodatei {file} konnte nicht geöffnet werden.",infoFile));
         return false;
       }
 
@@ -277,7 +288,7 @@ public class DownloadFrame extends JDialog implements ActionListener {
         f.close();
         new File(infoFile).delete();
       } catch(IOException ee) {
-        Dialog.error("Lesen der Plugin-Infodatei schlug fehl: "+ee.toString());
+        Dialog.error(International.getMessage("Lesen der Plugin-Infodatei schlug fehl: {error}",ee.toString()));
         return false;
       }
 //      String[] fnames = (String[])_fnames.toArray();
@@ -311,12 +322,12 @@ class AfterDownloadImpl implements ExecuteAfterDownload {
   }
 
   public void success() {
-    out.append("Download von "+fname+" erfolgreich beendet.\n");
+    out.append(International.getMessage("Download von {file} erfolgreich beendet.",fname)+"\n");
     fileCount--;
   }
 
   public void failure(String text) {
-    out.append("Download von "+fname+" fehlgeschlagen: "+text+"\n");
+    out.append(International.getMessage("Download von {file} fehlgeschlagen: {error}",fname,text)+"\n");
     fileCount--;
   }
 

@@ -14,6 +14,8 @@ import de.nmichael.efa.util.DRVSignatur;
 import java.io.*;
 import java.util.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class ESigFahrtenhefte {
 
   public static final String KENNUNG="##EFA.150.SIGFAHRTENHEFTE##";

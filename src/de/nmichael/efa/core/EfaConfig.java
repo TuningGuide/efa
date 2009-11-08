@@ -4,8 +4,7 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.TMJ;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.io.*;
 import java.util.Hashtable;
@@ -22,6 +21,8 @@ import java.awt.Font;
  * @author Nicolas Michael
  * @version 1.0
  */
+
+// @i18n complete
 
 public class EfaConfig extends DatenListe {
 
@@ -176,6 +177,7 @@ public class EfaConfig extends DatenListe {
   public int efaDirekt_fontStyle;
   public boolean efaDirekt_colorizeInputField;
   public boolean efaDirekt_showZielnameFuerBooteUnterwegs;
+  public String efadirekt_adminLastOsCommand;
 
   public boolean efaDirekt_bnrError_admin;
   public boolean efaDirekt_bnrError_bootswart;
@@ -201,7 +203,7 @@ public class EfaConfig extends DatenListe {
 
 
 
-  public static final String LOOKANDFEEL_STANDARD = "Standard";
+  public static final String LOOKANDFEEL_STANDARD = International.getString("Standard");
 
   public static final String KENNUNG100 = "##EFA.100.KONFIGURATION##";
 
@@ -218,7 +220,7 @@ public class EfaConfig extends DatenListe {
     language = null;
     letzteDatei="";
     autogenAlias = true;
-    aliasFormat = "{V1}{V2}-{N1}";
+    aliasFormat = "{V1}{V2}-{N1}"; // @todo: Internationalize?!? How?!
     if (new File(Daten.efaMainDirectory + "backup").isDirectory())
       bakDir = Daten.efaMainDirectory + "backup" + Daten.fileSep;
     else bakDir = Daten.efaMainDirectory;
@@ -298,9 +300,9 @@ public class EfaConfig extends DatenListe {
     efaDirekt_butNachrichtAnAdminFarbe="FFF197";
     efaDirekt_butAdminModusFarbe="CCCCCC";
     efaDirekt_butSpezialFarbe="CCCCCC";
-    efaDirekt_butFahrtBeginnenText="Fahrt beginnen >>>";
-    efaDirekt_butFahrtBeendenText="<<< Fahrt beenden";
-    efaDirekt_butSpezialText="Spezial-Button";
+    efaDirekt_butFahrtBeginnenText=International.getString("Fahrt beginnen")+" >>>";
+    efaDirekt_butFahrtBeendenText="<<< "+International.getString("Fahrt beenden");
+    efaDirekt_butSpezialText=International.getString("Spezial-Button");
     efaDirekt_butBootsreservierungenAnzeigen=true;
     efaDirekt_butFahrtenbuchAnzeigenAnzeigen=true;
     efaDirekt_butStatistikErstellenAnzeigen=true;
@@ -326,6 +328,7 @@ public class EfaConfig extends DatenListe {
     efaDirekt_fontStyle=-1;
     efaDirekt_colorizeInputField=true;
     efaDirekt_showZielnameFuerBooteUnterwegs=false;
+    efadirekt_adminLastOsCommand="";
     efaDirekt_vereinsLogo="";
     efaDirekt_newsText="";
     efaDirekt_startMaximized=false;
@@ -344,9 +347,9 @@ public class EfaConfig extends DatenListe {
     efaDirekt_emailAbsender="";
     efaDirekt_emailUsername="";
     efaDirekt_emailPassword="";
-    efaDirekt_emailAbsenderName="efa";
-    efaDirekt_emailBetreffPraefix="efa";
-    efaDirekt_emailSignatur="Diese Nachricht wurde von efa verschickt.";
+    efaDirekt_emailAbsenderName=Daten.EFA_SHORTNAME;
+    efaDirekt_emailBetreffPraefix=Daten.EFA_SHORTNAME;
+    efaDirekt_emailSignatur=International.getString("Diese Nachricht wurde von efa verschickt.");
 
     efaDirekt_lockEfaShowHtml = "";
     efaDirekt_lockEfaVollbild = false;
@@ -604,6 +607,8 @@ public class EfaConfig extends DatenListe {
             efaDirekt_showBootsschadenButton = s.substring(25,s.length()).trim().equals("+");
         if (s.startsWith("SHOW_ZIELNAME_BOOTEUNTERWEGS="))
             efaDirekt_showZielnameFuerBooteUnterwegs = s.substring(29,s.length()).trim().equals("+");
+        if (s.startsWith("LAST_OS_COMMAND="))
+            efadirekt_adminLastOsCommand = s.substring(16,s.length()).trim();
 
         if (s.startsWith("FB_ANZEIGEN_MAX_FAHRTEN="))
             efaDirekt_maxFBAnzeigenFahrten = EfaUtil.string2int(s.substring(24,s.length()).trim(),1000);
@@ -849,6 +854,7 @@ public class EfaConfig extends DatenListe {
       fwrite("SHOW_EINGABE_INFOS="+(efaDirekt_showEingabeInfos ? "+" : "-") + "\n");
       fwrite("SHOW_BOOTSSCHADEN_BUTTON="+(efaDirekt_showBootsschadenButton ? "+" : "-") + "\n");
       fwrite("SHOW_ZIELNAME_BOOTEUNTERWEGS="+(efaDirekt_showZielnameFuerBooteUnterwegs ? "+" : "-") + "\n");
+      fwrite("LAST_OS_COMMAND=" + efadirekt_adminLastOsCommand  + "\n");
       fwrite("FB_ANZEIGEN_MAX_FAHRTEN="+efaDirekt_maxFBAnzeigenFahrten+"\n");
       fwrite("FB_ANZEIGEN_ANZ_FAHRTEN="+efaDirekt_anzFBAnzeigenFahrten+"\n");
       fwrite("FB_ANZEIGEN_AUCH_UNVOLLSTAENDIGE_FAHRTEN="+(efaDirekt_FBAnzeigenAuchUnvollstaendige ? "+" : "-") + "\n");

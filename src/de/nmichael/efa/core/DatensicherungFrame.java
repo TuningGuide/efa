@@ -1,10 +1,8 @@
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -22,6 +20,8 @@ import java.beans.*;
  * @author Nicolas Michael
  * @version 1.0
  */
+
+// @i18n complete
 
 public class DatensicherungFrame extends JDialog implements ActionListener {
   Vector directories;
@@ -94,22 +94,21 @@ public class DatensicherungFrame extends JDialog implements ActionListener {
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
       startButton.setNextFocusableComponent(efaBackupRadioButton);
-      startButton.setMnemonic('D');
-      startButton.setText("Datensicherung starten");
+      Mnemonics.setButton(this, startButton, International.getStringWithMnemonic("Datensicherung starten"));
       startButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           startButton_actionPerformed(e);
         }
     });
       jPanel2.setLayout(gridBagLayout1);
-      jLabel1.setText("Zu sichernde Verzeichnisse:");
+      jLabel1.setText(International.getString("Zu sichernde Verzeichnisse")+": ");
       scrollPane.setPreferredSize(new Dimension(750, 100));
-      this.setTitle("Datensicherung");
-      jLabel2.setText("Sicherungsdatei erstellen in:");
+      this.setTitle(International.getString("Datensicherung"));
+      jLabel2.setText(International.getString("Sicherungsdatei erstellen in")+": ");
       efaBackupRadioButton.setNextFocusableComponent(belVerzRadioButton);
       efaBackupRadioButton.setText("...efaBackupDir...");
       belVerzRadioButton.setNextFocusableComponent(backupVerzeichnis);
-      belVerzRadioButton.setText("anderes Verzeichnis: ");
+      belVerzRadioButton.setText(International.getString("anderes Verzeichnis")+": ");
       backupVerzeichnis.setNextFocusableComponent(dirSelectButton);
       backupVerzeichnis.setPreferredSize(new Dimension(500, 17));
       backupVerzeichnis.setText("A:\\");
@@ -147,30 +146,30 @@ public class DatensicherungFrame extends JDialog implements ActionListener {
 
   private void createTable() {
     Object[] title = new Object[3];
-    title[0] = "Sichern";
-    title[1] = "Verzeichnis";
-    title[2] = "Unterverzeichnisse";
+    title[0] = International.getString("Sichern");
+    title[1] = International.getString("Verzeichnis");
+    title[2] = International.getString("Unterverzeichnisse");
 
     Object[][] verzeichnisse = new Object[directories.size()][3];
     for (int i=0; i<directories.size(); i++) {
       JCheckBox sichernCheck = new JCheckBox();
-      sichernCheck.setText("Sichern");
+      sichernCheck.setText(International.getString("Sichern"));
       sichernCheck.setSelected(((Boolean)selected.get(i)).booleanValue());
       verzeichnisse[i][0] = sichernCheck;
 
       verzeichnisse[i][1] = directories.get(i);
 
       JCheckBox subdirCheck = new JCheckBox();
-      subdirCheck.setText("mit Unterverzeichnissen");
+      subdirCheck.setText(International.getString("mit Unterverzeichnissen"));
       subdirCheck.setSelected(((Boolean)inclSubdirs.get(i)).booleanValue());
       verzeichnisse[i][2] = subdirCheck;
     }
 
     directoryTable = new JTable(verzeichnisse,title);
-    directoryTable.getColumn("Sichern").setCellRenderer(new CheckboxInTableRenderer());
-    directoryTable.getColumn("Sichern").setCellEditor(new CheckboxEditor(new JCheckBox()));
-    directoryTable.getColumn("Unterverzeichnisse").setCellRenderer(new CheckboxInTableRenderer());
-    directoryTable.getColumn("Unterverzeichnisse").setCellEditor(new CheckboxEditor(new JCheckBox()));
+    directoryTable.getColumn(International.getString("Sichern")).setCellRenderer(new CheckboxInTableRenderer());
+    directoryTable.getColumn(International.getString("Sichern")).setCellEditor(new CheckboxEditor(new JCheckBox()));
+    directoryTable.getColumn(International.getString("Unterverzeichnisse")).setCellRenderer(new CheckboxInTableRenderer());
+    directoryTable.getColumn(International.getString("Unterverzeichnisse")).setCellEditor(new CheckboxEditor(new JCheckBox()));
     directoryTable.getColumnModel().getColumn(0).setPreferredWidth(100);
     directoryTable.getColumnModel().getColumn(1).setPreferredWidth(450);
     directoryTable.getColumnModel().getColumn(2).setPreferredWidth(200);
@@ -198,7 +197,7 @@ public class DatensicherungFrame extends JDialog implements ActionListener {
   void dirSelectButton_actionPerformed(ActionEvent e) {
     String dir = backupVerzeichnis.getText().trim();
     if (dir.length() == 0 || !new File(dir).isDirectory()) dir = Daten.efaMainDirectory;
-    dir = Dialog.dateiDialog(this,"Backup-Verzeichnis auswählen",null,null,dir,null,"auswählen",false,true);
+    dir = Dialog.dateiDialog(this,International.getString("Backup-Verzeichnis auswählen"),null,null,dir,null,International.getString("auswählen"),false,true);
     if (dir != null) backupVerzeichnis.setText(dir);
   }
 
@@ -213,19 +212,19 @@ public class DatensicherungFrame extends JDialog implements ActionListener {
     }
     String zipdir = (efaBackupRadioButton.isSelected() ? Daten.efaBakDirectory : backupVerzeichnis.getText().trim());
     if (!(new File(zipdir)).isDirectory()) {
-      Dialog.error("Backup-Verzeichnis "+zipdir+" nicht gefunden!");
+      Dialog.error(International.getMessage("Backup-Verzeichnis {dir} nicht gefunden!",zipdir));
       return;
     }
     String zipfile = zipdir + (zipdir.endsWith(Daten.fileSep) ? "" : Daten.fileSep)
-                     + "Sicherung_" + EfaUtil.getCurrentTimeStampYYYYMMDD_HHMMSS() + ".zip";
+                     + "backup_" + EfaUtil.getCurrentTimeStampYYYYMMDD_HHMMSS() + ".zip";
 
 
     String result = EfaUtil.createZipArchive(dirs,inclSubdirs,zipfile);
     if (result == null) {
-      Dialog.infoDialog("Daten erfolgreich in der Datei\n"+zipfile+"\ngesichert.");
+      Dialog.infoDialog(International.getMessage("Daten erfolgreich in der Datei {file} gesichert.",zipfile));
       cancel();
     } else {
-      Dialog.error("Bei der Datensicherung trat ein Fehler auf:\n"+result);
+      Dialog.error(International.getString("Bei der Datensicherung trat ein Fehler auf:")+result);
     }
   }
 

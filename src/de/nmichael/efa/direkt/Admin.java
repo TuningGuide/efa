@@ -25,6 +25,7 @@ public class Admin {
   public boolean allowedLogdateiAnzeigen = false;
   public boolean allowedEfaBeenden = false;
   public boolean allowedEfaSperren = false;
+  public boolean allowedExecCommand = false;
 
   public boolean nachrichtenAdminGelesenMarkierenDefault = false;
   public boolean nachrichtenAdminAllowedGelesenMarkieren = false;
@@ -46,7 +47,8 @@ public class Admin {
     this.allowedFahrtenbuchAuswaehlen = this.allowedLogdateiAnzeigen = 
     this.allowedNachrichtenAnzeigenAdmin = 
     this.allowedNachrichtenAnzeigenBootswart = this.allowedStatistikErstellen = 
-    this.allowedEfaConfig =this.allowedEfaBeenden = this.allowedEfaSperren = 
+    this.allowedEfaConfig = this.allowedEfaBeenden = this.allowedEfaSperren =
+    this.allowedExecCommand =
         superAdmin;
 
     this.nachrichtenAdminAllowedGelesenMarkieren = this.nachrichtenAdminGelesenMarkierenDefault = superAdmin;

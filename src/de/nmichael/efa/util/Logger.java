@@ -70,6 +70,10 @@ public class Logger {
   // efa in the Boat House - Fehler
   public static final String MSG_BHERROR_PANIC               = "ERR001";
 
+  // Debug Logging
+  public static final String MSG_DEBUG_GENERIC               = "DBG001";
+  public static final String MSG_DEBUG_EFAWETT               = "DBG002";
+
 
   public static boolean debugLogging = false;
 

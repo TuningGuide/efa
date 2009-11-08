@@ -60,6 +60,7 @@ public class AdminFrame extends JDialog implements ActionListener {
   JButton vollzugriffButton = new JButton();
   JLabel autoNewFbLabel = new JLabel();
   JButton lockButton = new JButton();
+  JButton cmdButton = new JButton();
 
 
 
@@ -101,6 +102,7 @@ public class AdminFrame extends JDialog implements ActionListener {
     this.statistikButton.setVisible(admin.allowedStatistikErstellen);
     this.logButton.setVisible(admin.allowedLogdateiAnzeigen);
     this.lockButton.setVisible(admin.allowedEfaSperren);
+    this.cmdButton.setVisible(admin.allowedExecCommand);
 
     updateButtons();
 
@@ -280,12 +282,19 @@ public class AdminFrame extends JDialog implements ActionListener {
     });
     autoNewFbLabel.setHorizontalAlignment(SwingConstants.CENTER);
     autoNewFbLabel.setText("Neu zum 1.1.2008: ");
-    lockButton.setNextFocusableComponent(okButton);
+    lockButton.setNextFocusableComponent(cmdButton);
     lockButton.setMnemonic('P');
     lockButton.setText("efa sperren");
     lockButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         lockButton_actionPerformed(e);
+      }
+    });
+    cmdButton.setNextFocusableComponent(okButton);
+    cmdButton.setText("Kommando ausf�hren");
+    cmdButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        cmdButton_actionPerformed(e);
       }
     });
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
@@ -324,6 +333,8 @@ public class AdminFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     jPanel2.add(lockButton,    new GridBagConstraints(0, 14, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 10, 0), 0, 0));
+    jPanel2.add(cmdButton,   new GridBagConstraints(0, 15, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     this.addWindowListener(new java.awt.event.WindowAdapter() {
       public void windowActivated(WindowEvent e) {
         this_windowActivated(e);
@@ -666,6 +677,24 @@ public class AdminFrame extends JDialog implements ActionListener {
         // efaBackgroundTask updaten (auch, falls Datum == null)
         parent.lockEfaAt(Daten.efaConfig.efaDirekt_lockEfaFromDatum,Daten.efaConfig.efaDirekt_lockEfaFromZeit);
       }
+    }
+  }
+
+  void cmdButton_actionPerformed(ActionEvent e) {
+    if (!this.admin.allowedExecCommand) {
+      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuf�hren!");
+      return;
+    }
+    String cmd = Dialog.inputDialog("Betriebssystemkommando ausf�hren","Betriebssystemkommando:",Daten.efaConfig.efadirekt_adminLastOsCommand);
+    if (cmd == null || cmd.length()==0) {
+      return;
+    }
+    try {
+      Logger.log(Logger.INFO,"Admin: Starte Kommando: "+cmd);
+      Runtime.getRuntime().exec(cmd);
+      Daten.efaConfig.efadirekt_adminLastOsCommand = cmd;
+    } catch(Exception ee) {
+      Logger.log(Logger.ERROR,"Admin: Kann Kommando '"+cmd+"' nicht ausf�hren.");
     }
   }
 

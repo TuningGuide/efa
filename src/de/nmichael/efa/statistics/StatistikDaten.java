@@ -196,6 +196,7 @@ public class StatistikDaten implements Cloneable {
   public boolean gaesteVereinsweise = false; // Gäste vereinsweise zusammenfassen
   public boolean auchNullWerte = false; // auch immer alle Null-Werte ausgeben (d.h. Personen etc., die nicht gerudert sind, aber in den Datenlisten stehen)
   public boolean alleZielfahrten = false; // Alle Zielfahrten ausgeben (auch die, die über die 4 geforderten hinausgehen)
+  public boolean nurGanzeKm = true; // Kilometer nur ganzzahlig ausgeben (Nachkommastellen abschneiden)
 
   public int wettProz = 70;   // Prozent, die erfüllt sein müssen, damit Ruderer ausgegeben wird
   public int wettFahrten = 0; // Anzahl von Fahrten, die absolviert sein müssen, damit Ruderer ausgegeben wird

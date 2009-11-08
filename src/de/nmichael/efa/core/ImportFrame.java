@@ -3,13 +3,8 @@ package de.nmichael.efa.core;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.util.TMJ;
-import de.nmichael.efa.util.Mehrtagesfahrt;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.AutoCompletePopupWindow;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -28,6 +23,8 @@ import java.util.*;
  * @author Nicolas Michael
  * @version 1.0
  */
+
+// @i18n complete
 
 public class ImportFrame extends JDialog implements ActionListener {
   public static int anzImportierteFahrten=0;
@@ -101,17 +98,16 @@ public class ImportFrame extends JDialog implements ActionListener {
 
     jPanel1.setLayout(borderLayout1);
     okButton.setNextFocusableComponent(quellFb);
-    okButton.setMnemonic('I');
-    okButton.setText("Fahrten importieren");
+
+    Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("Fahrten importieren"));
     okButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         okButton_actionPerformed(e);
       }
     });
     jPanel2.setLayout(gridBagLayout1);
-    jLabel1.setDisplayedMnemonic('F');
+    Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Fahrten importieren aus")+": ");
     jLabel1.setLabelFor(quellFb);
-    jLabel1.setText("Fahrten importieren aus: ");
     quellFb.setNextFocusableComponent(dateiButton);
     quellFb.setPreferredSize(new Dimension(200, 19));
     dateiButton.setNextFocusableComponent(lfdNrVon);
@@ -123,19 +119,15 @@ public class ImportFrame extends JDialog implements ActionListener {
         dateiButton_actionPerformed(e);
       }
     });
-    jLabel2.setText("nur Fahrten importieren mit: ");
-    jLabel3.setDisplayedMnemonic('V');
+    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("nur Fahrten importieren mit")+": ");
     jLabel3.setLabelFor(lfdNrVon);
-    jLabel3.setText("Lfd. Nr. von: ");
-    jLabel4.setDisplayedMnemonic('B');
+    Mnemonics.setLabel(this, jLabel3, International.getStringWithMnemonic("Lfd. Nr. von")+": ");
     jLabel4.setLabelFor(lfdNrBis);
-    jLabel4.setText("Lfd. Nr. bis:");
-    jLabel5.setDisplayedMnemonic('A');
+    Mnemonics.setLabel(this, jLabel4, International.getStringWithMnemonic("Lfd. Nr. bis")+": ");
     jLabel5.setLabelFor(datumVon);
-    jLabel5.setText("Datum von:");
-    jLabel6.setDisplayedMnemonic('M');
+    Mnemonics.setLabel(this, jLabel5, International.getStringWithMnemonic("Datum von")+": ");
     jLabel6.setLabelFor(datumBis);
-    jLabel6.setText("Datum bis: ");
+    Mnemonics.setLabel(this, jLabel6, International.getStringWithMnemonic("Datum bis")+": ");
     lfdNrVon.setNextFocusableComponent(lfdNrBis);
     lfdNrVon.setPreferredSize(new Dimension(80, 19));
     lfdNrVon.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -164,8 +156,7 @@ public class ImportFrame extends JDialog implements ActionListener {
         datumBis_focusLost(e);
       }
     });
-    jLabel7.setDisplayedMnemonic('Z');
-    jLabel7.setText("Zu allen importierten Fahrten: ");
+    Mnemonics.setLabel(this, jLabel7, International.getStringWithMnemonic("Zu allen importierten Fahrten")+": ");
     lfdNrAdd.setNextFocusableComponent(characterAdd);
     lfdNrAdd.setPreferredSize(new Dimension(80, 19));
     lfdNrAdd.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -173,19 +164,16 @@ public class ImportFrame extends JDialog implements ActionListener {
         lfdNrAdd_focusLost(e);
       }
     });
-    jLabel8.setDisplayedMnemonic('D');
+    Mnemonics.setLabel(this, jLabel8, International.getStringWithMnemonic("Bei doppelten Lfd. Nr.")+": ");
     jLabel8.setLabelFor(doppelteLfdNr);
-    jLabel8.setText("Bei doppelten Lfd. Nr.: ");
     zusatzImport.setNextFocusableComponent(okButton);
-    zusatzImport.setMnemonic('Z');
+    Mnemonics.setButton(this, zusatzImport, International.getStringWithMnemonic("auch neue Daten aus Zusatzdatenlisten importieren")+": ");
     zusatzImport.setSelected(true);
-    zusatzImport.setText("auch neue Daten aus Zusatzdatenlisten importieren");
     jPanel1.setPreferredSize(new Dimension(700, 260));
-    this.setTitle("Fahrten importieren");
+    this.setTitle(International.getString("Fahrten importieren"));
     doppelteLfdNr.setNextFocusableComponent(zusatzImport);
-    jLabel9.setDisplayedMnemonic('G');
+    Mnemonics.setLabel(this, jLabel9, International.getStringWithMnemonic("Ruderern der Gruppe")+": ");
     jLabel9.setLabelFor(gruppe);
-    jLabel9.setText("Ruderern der Gruppe: ");
     gruppe.setNextFocusableComponent(lfdNrAdd);
     gruppe.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyReleased(KeyEvent e) {
@@ -197,12 +185,10 @@ public class ImportFrame extends JDialog implements ActionListener {
         gruppe_focusLost(e);
       }
     });
-    jLabel10.setDisplayedMnemonic('H');
+    Mnemonics.setLabel(this, jLabel10, International.getStringWithMnemonic("Lfd. Nr. hinzuaddieren")+": ");
     jLabel10.setLabelFor(lfdNrAdd);
-    jLabel10.setText("Lfd. Nr. hinzuaddieren: ");
-    jLabel11.setDisplayedMnemonic('U');
+    Mnemonics.setLabel(this, jLabel11, International.getStringWithMnemonic("Buchstaben anhängen")+": ");
     jLabel11.setLabelFor(characterAdd);
-    jLabel11.setText("Buchstaben anhängen: ");
     characterAdd.setNextFocusableComponent(doppelteLfdNr);
     characterAdd.setPreferredSize(new Dimension(80, 19));
     characterAdd.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -277,9 +263,9 @@ public class ImportFrame extends JDialog implements ActionListener {
   }
 
   void iniFelder() {
-    doppelteLfdNr.addItem("Buchstaben anhängen");
-    doppelteLfdNr.addItem("Fahrt am Ende hinzufügen");
-    doppelteLfdNr.addItem("Fahrt nicht importieren");
+    doppelteLfdNr.addItem(International.getString("Buchstaben anhängen"));
+    doppelteLfdNr.addItem(International.getString("Fahrt am Ende hinzufügen"));
+    doppelteLfdNr.addItem(International.getString("Fahrt nicht importieren"));
     doppelteLfdNr.setSelectedIndex(2);
   }
 
@@ -301,14 +287,14 @@ public class ImportFrame extends JDialog implements ActionListener {
     if (datumVon.getText().trim().equals("")) return;
     Calendar cal = GregorianCalendar.getInstance();
     TMJ c = EfaUtil.correctDate(datumVon.getText().trim(),cal.get(GregorianCalendar.DAY_OF_MONTH),cal.get(GregorianCalendar.MONTH)+1-cal.getMinimum(GregorianCalendar.MONTH),cal.get(GregorianCalendar.YEAR));
-    datumVon.setText(c.tag+"."+c.monat+"."+c.jahr);
+    datumVon.setText(c.tag+"."+c.monat+"."+c.jahr); // @todo: internationalize date
   }
 
   void datumBis_focusLost(FocusEvent e) {
     if (datumBis.getText().trim().equals("")) return;
     Calendar cal = GregorianCalendar.getInstance();
     TMJ c = EfaUtil.correctDate(datumBis.getText().trim(),cal.get(GregorianCalendar.DAY_OF_MONTH),cal.get(GregorianCalendar.MONTH)+1-cal.getMinimum(GregorianCalendar.MONTH),cal.get(GregorianCalendar.YEAR));
-    datumBis.setText(c.tag+"."+c.monat+"."+c.jahr);
+    datumBis.setText(c.tag+"."+c.monat+"."+c.jahr); // @todo: internationalize date
   }
 
   void lfdNrAdd_focusLost(FocusEvent e) {
@@ -333,9 +319,13 @@ public class ImportFrame extends JDialog implements ActionListener {
 
   void dateiButton_actionPerformed(ActionEvent e) {
     String dat;
-    if (Daten.fahrtenbuch != null && !Daten.fahrtenbuch.getFileName().equals(""))
-      dat = Dialog.dateiDialog(this,"Zu importierendes Fahrtenbuch auswählen","efa Fahrtenbuch (*.efb)","efb",Daten.fahrtenbuch.getFileName(),false);
-    else dat = Dialog.dateiDialog(this,"Zu importierendes Fahrtenbuch auswählen","efa Fahrtenbuch (*.efb)","efb",null,false);
+    if (Daten.fahrtenbuch != null && !Daten.fahrtenbuch.getFileName().equals("")) {
+      dat = Dialog.dateiDialog(this,International.getString("Zu importierendes Fahrtenbuch auswählen"),
+              International.getString("efa Fahrtenbuch")+" (*.efb)","efb",Daten.fahrtenbuch.getFileName(),false);
+    } else {
+        dat = Dialog.dateiDialog(this,International.getString("Zu importierendes Fahrtenbuch auswählen"),
+                International.getString("efa Fahrtenbuch")+" (*.efb)","efb",null,false);
+    }
     if (dat != null) {
       quellFb.setText(dat);
       if (!quellFb.getText().endsWith(".") && !quellFb.getText().toUpperCase().endsWith(".EFB"))
@@ -347,16 +337,19 @@ public class ImportFrame extends JDialog implements ActionListener {
   void okButton_actionPerformed(ActionEvent e) {
     String quelle = quellFb.getText().trim();
     if (quelle.equals("")) {
-      Dialog.infoDialog("Keine Quelle ausgewählt","Kein zu importierendes Fahrtenbuch ausgewählt.");
+      Dialog.infoDialog(International.getString("Keine Quelle ausgewählt"),
+              International.getString("Kein zu importierendes Fahrtenbuch ausgewählt."));
       return;
     }
     if (!EfaUtil.canOpenFile(quelle)) {
-      Dialog.infoDialog("Fehler beim Öffnen",quelle+"\nkann nicht geöffnet werden");
+      Dialog.infoDialog(International.getString("Fehler beim Öffnen"),
+              International.getMessage("{file} kann nicht geöffnet werden.",quelle));
       return;
     }
     Fahrtenbuch q = new Fahrtenbuch(quelle);
     if (!q.readFile()) {
-      Dialog.infoDialog("Fehler beim Lesen",quelle+"\nkann nicht gelesen werden");
+      Dialog.infoDialog(International.getString("Fehler beim Lesen"),
+              International.getMessage("{file} kann nicht gelesen werden.",quelle));
       return;
     }
 
@@ -370,7 +363,7 @@ public class ImportFrame extends JDialog implements ActionListener {
     if (result != null) {
       Dialog.error(result);
     } else {
-      Dialog.infoDialog(anzImportierteFahrten+" Einträge erfolgreich importiert.");
+      Dialog.infoDialog(International.getMessage("{count} Einträge erfolgreich importiert.",anzImportierteFahrten));
     }
 
 
@@ -462,7 +455,7 @@ public class ImportFrame extends JDialog implements ActionListener {
             if (cc >= 'A' && cc < 'Z') s = Integer.toString(lfdnr+add)+(++cc);
             else if (cc != 'Z') s = Integer.toString(lfdnr+add)+"A";
             else {
-              return "Zu viele gleiche Laufende Nummern";
+              return International.getString("Zu viele gleiche Laufende Nummern");
             }
             break;
           case 1: // Fahrt hinten anhängen

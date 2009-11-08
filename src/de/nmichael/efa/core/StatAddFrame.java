@@ -450,6 +450,10 @@ public class StatAddFrame extends JDialog implements ActionListener {
     if (d.alleZielfahrten)  s = s+"+|";
     else s = s+"-|";
 
+    // NURGANZEKM
+    if (d.nurGanzeKm) s = s+"+|";
+    else s = s+"-|";
+
     Daten.fahrtenbuch.getDaten().statistik.add(s);
     if (Daten.fahrtenbuch.getDaten().statistik.writeFile() && Daten.fahrtenbuch.getDaten().statistik.readFile()) {
       EfaUtil.foo();

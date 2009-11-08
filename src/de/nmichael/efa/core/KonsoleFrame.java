@@ -1,9 +1,7 @@
 package de.nmichael.efa.core;
 
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -18,6 +16,8 @@ import java.io.*;
  * @author Nicolas Michael
  * @version 1.0
  */
+
+// @i18n complete
 
 public class KonsoleFrame extends JDialog implements ActionListener {
   JPanel jPanel1 = new JPanel();
@@ -66,8 +66,7 @@ public class KonsoleFrame extends JDialog implements ActionListener {
     }
 
     okButton.setNextFocusableComponent(out);
-    okButton.setMnemonic('S');
-    okButton.setText("Schließen");
+    Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("Schließen"));
     okButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         okButton_actionPerformed(e);
@@ -76,7 +75,7 @@ public class KonsoleFrame extends JDialog implements ActionListener {
     jPanel1.setLayout(borderLayout1);
     jScrollPane1.setMinimumSize(new Dimension(200, 100));
     jScrollPane1.setPreferredSize(new Dimension(600, 200));
-    this.setTitle("Java-Konsole");
+    this.setTitle(International.getString("Java-Konsole"));
     out.setNextFocusableComponent(okButton);
     out.setDisabledTextColor(Color.black);
     out.setEditable(false);
@@ -107,7 +106,7 @@ public class KonsoleFrame extends JDialog implements ActionListener {
 
   void readLog(String logfile) {
     if (logfile == null) {
-      out.append("\nFEHLER beim Lesen der Protokolldatei '"+logfile+"'.");
+      out.append("\n"+International.getString("FEHLER beim Lesen der Logdatei '{logfile}'.",logfile));
       return;
     }
     BufferedReader f;
@@ -120,7 +119,7 @@ public class KonsoleFrame extends JDialog implements ActionListener {
       f.close();
     } catch(FileNotFoundException e) {
     } catch(IOException e) {
-      out.append("\nFEHLER beim Lesen der Protokolldatei '"+logfile+"'.");
+      out.append("\n"+International.getString("FEHLER beim Lesen der Logdatei '{logfile}'.",logfile));
     }
     out.setCaretPosition(0);
   }

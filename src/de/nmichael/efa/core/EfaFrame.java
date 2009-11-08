@@ -1,26 +1,9 @@
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.Adressen;
-import de.nmichael.efa.core.AuswahlFrame;
-import de.nmichael.efa.core.DatenListe;
-import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.core.Boote;
-import de.nmichael.efa.core.Bezeichnungen;
-import de.nmichael.efa.util.TMJ;
-import de.nmichael.efa.util.Mehrtagesfahrt;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.Mnemonics;
-import de.nmichael.efa.util.International;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.EfaSec;
-import de.nmichael.efa.util.EfaKeyStore;
+import de.nmichael.efa.core.*;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.Backup;
-import de.nmichael.efa.util.AutoCompletePopupWindowCallback;
-import de.nmichael.efa.util.AutoCompletePopupWindow;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -48,6 +31,8 @@ import de.nmichael.efa.direkt.NachrichtAnAdminFrame;
  * @version 1.0
  */
 
+
+// @i18n complete
 
 public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback {
   public EfaFrameFocusManager focusManager = null;
@@ -1376,7 +1361,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (e != null && e.getKeyCode() == -23) return; // dieses Key-Event wurde von AutoCompletePopupWindow generiert
 
     boolean isMitgliederliste = false;
-    if (liste != null && liste.getClass().toString().endsWith("de.nmichael.efa.Mitglieder")) isMitgliederliste = true;
+    if (liste != null && Mitglieder.class.isInstance(liste)) isMitgliederliste = true;
 
     if (feld.getText().trim().equals("")) {
       if (button != null) setButtonColor(button,Color.lightGray);
@@ -2059,7 +2044,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   void jMenuDokumentation_actionPerformed(ActionEvent e) {
     if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
     if (!EfaUtil.canOpenFile(Daten.efaDocDirectory+"index.html")) {
-      Dialog.infoDialog(International.getString("Fehler"),International.getMessage("Die Hilfedatei '{helpfilename}' konnte nicht gefunden werden.", Daten.efaDocDirectory+"index.html"));
+      Dialog.infoDialog(International.getString("Fehler"),International.getMessage("Die Hilfedatei {helpfilename} konnte nicht gefunden werden.", Daten.efaDocDirectory+"index.html"));
       return;
     }
     Dialog.neuBrowserDlg(this,International.getString("Dokumentation"),"file:"+Daten.efaDocDirectory+"index.html");
@@ -2091,7 +2076,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   }
 
   void this_windowIconified(WindowEvent e) {
-    System.out.println("windowIconified");
     if (isDirectMode()) {
       startBringToFront(true);
     }
@@ -2170,7 +2154,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (curlfd == null || curlfd.equals("")) { NewButton_actionPerformed(null); return; }
     if (mode != MODE_FULL) {
       if (efaDirektFrame != null && efaDirektFrame.sindNochBooteUnterwegs()) {
-        Dialog.error(International.getString("Es sind noch Boote unterwegs.\n"+
+        Dialog.error(International.getString("Es sind noch Boote unterwegs. "+
                      "Das Einfügen von Einträgen ist nur möglich, wenn alle laufenden Fahrten beendet sind."));
         startBringToFront(false);
         return;
@@ -2209,7 +2193,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (Dialog.yesNoDialog(International.getString("Wirklich löschen?"),International.getString("Soll der aktuelle Eintrag wirklich gelöscht werden?")) == Dialog.YES) {
       Daten.fahrtenbuch.delete(aktDatensatz.get(Fahrtenbuch.LFDNR));
       if (isAdminMode()) {
-        Logger.log(Logger.INFO,Logger.MSG_ADMIN_LOGBOOKENTRYDELETED,"Admin: Fahrtenbuch-Eintrag #"+(aktDatensatz != null ? aktDatensatz.get(Fahrtenbuch.LFDNR) : "$$")+" wurde gelöscht."); // @todo: internationalize log messages @nick Log messages shall be translated. To identify foreign language messages, each log message should contain a key (see Logger.MSG_xxx)
+        Logger.log(Logger.INFO,Logger.MSG_ADMIN_LOGBOOKENTRYDELETED,International.getString("Admin")+": "+
+                International.getString("Fahrtenbuch-Eintrag")+" #"+(aktDatensatz != null ? aktDatensatz.get(Fahrtenbuch.LFDNR) : "$$")+" wurde gelöscht."); // @todo: internationalize log messages @nick Log messages shall be translated. To identify foreign language messages, each log message should contain a key (see Logger.MSG_xxx)
       }
       DatenFelder d;
       if ((d = (DatenFelder)Daten.fahrtenbuch.getCompleteNext()) != null) SetFields(d);
@@ -2386,13 +2371,24 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     // Check auf Tippfehler (Code-Spende von Thilo Coblenzer)
     if (Daten.efaConfig != null) {
       if (mode != MODE_ENDE) {
-        if (Daten.efaConfig.correctMisspelledBoote) checkNeighbours(boot,bootButton,Daten.fahrtenbuch.getDaten().boote,"Boot","Bootsliste",false); // the explicit string parameters are passed through International.getString by checkNeighbours()
+        if (Daten.efaConfig.correctMisspelledBoote) {
+            checkNeighbours(boot,bootButton,Daten.fahrtenbuch.getDaten().boote,
+                International.getString("Boot"),International.getString("Bootsliste"),false); // the explicit string parameters are passed through International.getString by checkNeighbours()
+        }
       }
-      if (Daten.efaConfig.correctMisspelledMitglieder) checkNeighbours(stm,stmButton,Daten.fahrtenbuch.getDaten().mitglieder,"Mitglied","Mitgliederliste",true); // the explicit string parameters are passed through International.getString by checkNeighbours()
-      if (Daten.efaConfig.correctMisspelledMitglieder) for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++) checkNeighbours(mannsch[i],mannschButton[i % 8],Daten.fahrtenbuch.getDaten().mitglieder,"Mitglied","Mitgliederliste",true);
+      if (Daten.efaConfig.correctMisspelledMitglieder) {
+          checkNeighbours(stm,stmButton,Daten.fahrtenbuch.getDaten().mitglieder,
+                  International.getString("Mitglied"),International.getString("Mitgliederliste"),true);
+      } // the explicit string parameters are passed through International.getString by checkNeighbours()
+      if (Daten.efaConfig.correctMisspelledMitglieder) {
+          for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++) {
+              checkNeighbours(mannsch[i],mannschButton[i % 8],Daten.fahrtenbuch.getDaten().mitglieder,
+                      International.getString("Mitglied"),International.getString("Mitgliederliste"),true);
+          }
+      }
       if (Daten.efaConfig.correctMisspelledZiele) {
         checkNeighbours(ziel, zielButton, Daten.fahrtenbuch.getDaten().ziele,
-                        "Ziel", "Zielliste", false);
+                        International.getString("Ziel"), International.getString("Zielliste"), false);
         if (isDirectMode() && Daten.efaConfig.efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen &&
             ziel.getText().trim().length() > 0) {
           DatenFelder d = Daten.fahrtenbuch.getDaten().ziele.getExactComplete(ziel.getText().trim());
@@ -3068,8 +3064,11 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
                             "/usr/local/mozilla/mozilla",
                             "/opt/kde2/bin/konqueror/",
                             "c:\\programme\\netscape\\communicator\\program\\netscape.exe",
-                            "c:\\Programme\\\\Mozilla Firefox\\firefox.exe", // @todo: was ist mit Opera, (Firefox?) @nick just added! ;-)
-                            "c:\\programme\\internet explorer\\iexplore.exe", "c:\\windows\\explorer.exe", "c:\\win\\explorer.exe", "c:\\winnt\\explorer.exe"};
+                            "c:\\Programme\\\\Mozilla Firefox\\firefox.exe",
+                            "c:\\programme\\internet explorer\\iexplore.exe",
+                            "c:\\windows\\explorer.exe",
+                            "c:\\win\\explorer.exe",
+                            "c:\\winnt\\explorer.exe"};
       for (int i=0; i<browsers.length && Daten.efaConfig.browser.equals(""); i++)
         if (new File(browsers[i]).isFile()) Daten.efaConfig.browser = browsers[i];
     }
@@ -3084,7 +3083,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     try {
         ++Daten.efaConfig.countEfaStarts;
         if (Daten.efaConfig.countEfaStarts <31 && Daten.efaConfig.countEfaStarts % 10 == 0)
-          if (Dialog.neuBrowserDlg(this,Daten.EFA_SHORTNAME,"file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"users.html",750,600,(int)Dialog.screenSize.getWidth()/2-375,(int)Dialog.screenSize.getHeight()/2-300).endsWith(".pl"))
+          if (Dialog.neuBrowserDlg(this,Daten.EFA_SHORTNAME,
+                     "file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"users.html", // @todo: How to internationalize such an HTML file?
+                     750,600,(int)Dialog.screenSize.getWidth()/2-375,(int)Dialog.screenSize.getHeight()/2-300).endsWith(".pl"))
             Daten.efaConfig.countEfaStarts += 100000;
     } catch(Exception e) {
         //nothing to do
@@ -3098,7 +3099,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     // folgende Zeile liefert manchmal (?) für den equals-Vergleich "false", obwohl die Strings identisch sind; daher doppelter Boden:
     // der Dialog wird nur angezeigt, wenn auch compareTo != 0 liefert!
     if (!startEfaTour && !Daten.efaConfig.version.equals(Daten.PROGRAMMID) && Daten.efaConfig.version.compareTo(Daten.PROGRAMMID) != 0) {
-      Dialog.neuBrowserDlg(this,Daten.EFA_SHORTNAME,"file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"tour"+Daten.fileSep+"k06-001.html",750,600,(int)Dialog.screenSize.getWidth()/2-375,(int)Dialog.screenSize.getHeight()/2-300);
+      Dialog.neuBrowserDlg(this,Daten.EFA_SHORTNAME,
+              "file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"tour"+Daten.fileSep+"k06-001.html", // @todo: How to internationalize the tour?
+              750,600,(int)Dialog.screenSize.getWidth()/2-375,(int)Dialog.screenSize.getHeight()/2-300);
       Daten.checkJavaVersion(true);
     } else {
       Daten.checkJavaVersion(false);
@@ -3835,7 +3838,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   }
 
   public void startWillkommen() {
-    Dialog.neuBrowserDlg(this,International.getString("Willkommen"),"file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"welcome.html");
+    Dialog.neuBrowserDlg(this,International.getString("Willkommen"),
+            "file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"welcome.html"); // @todo: HOw to internationlize HTML files?
   }
 
 
@@ -4067,7 +4071,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     DatenFelder d = (DatenFelder)Daten.fahrtenbuch.getExactComplete(lfdnr);
     if (d == null) {
       Logger.log(Logger.ERROR,International.getMessage("Fahrtbeginn (Korrektur): Die gewählte Fahrt #{lfdnr} ({boot}) konnte nicht gefunden werden!", lfdnr, boot));
-      Dialog.error(International.getMessage("Die gewählte Fahrt #{lfdnr} konnte nicht gefunden werden!", lfdnr)+International.getString("\\ Bitte dem Administrator bescheid sagen!"));
+      Dialog.error(International.getMessage("Die gewählte Fahrt #{lfdnr} konnte nicht gefunden werden!", lfdnr)+" "+International.getString("Bitte dem Administrator bescheid sagen!"));
       Dialog.frameOpened(this); // Bugfix: Damit es nicht zur Stack-Inkonsistenz kommt!
       cancel();
       return;
@@ -4108,7 +4112,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (d == null) {
       Logger.log(Logger.ERROR,International.getMessage("Fahrtende: Die gewählte Fahrt #{lfdnr} ({boot})) konnte nicht gefunden werden!", lfdnr, boot));
       Dialog.error(International.getMessage("Die gewählte Fahrt #{lfdnr} konnte nicht gefunden werden!", lfdnr)
-    		  + International.getString("\\ Bitte dem Administrator bescheid sagen!"));
+    		  + International.getString(" Bitte dem Administrator bescheid sagen!"));
       efaDirektFrame.fahrtBeendet(boot,true);
       Dialog.frameOpened(this); // Bugfix: Damit es nicht zur Stack-Inkonsistenz kommt!
       cancel();
@@ -4300,7 +4304,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         if (nichtErlaubtAnz > EfaUtil.string2int(b.get(Boote.MAX_NICHT_IN_GRUPPE),0)) {
           String erlaubteGruppen = null;
           for (int j=0; j<g.size(); j++) {
-            erlaubteGruppen = (erlaubteGruppen == null ? (String)g.get(j) : erlaubteGruppen + (j+1<g.size() ? ", "+g.get(j) : International.getString("\\ und ")+g.get(j)) ); // @todo: for some languages it might be necessary to translate ", " as well, or even use a ChoiceFormat here @nick Did you really mean "\\ und "?? Or probably rather "\n und "? If "\n", please remove...
+            erlaubteGruppen = (erlaubteGruppen == null ? (String)g.get(j) : erlaubteGruppen + (j+1<g.size() ? ", "+g.get(j) : " " + International.getString("und") + " " + g.get(j)) ); // @todo: for some languages it might be necessary to translate ", " as well, or even use a ChoiceFormat here
           }
           switch (Dialog.auswahlDialog(International.getString("Boot nur für bestimmte Gruppen freigegeben"),
                                  International.getMessage("Dieses Boot dürfen nur {list_of_valid_groups} rudern.\n"+
@@ -4379,7 +4383,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       speichereDatensatzInFB(true,null,null,null);
       if (!Daten.fahrtenbuch.writeFileOnlyLastRecordChanged()) {
         Logger.log(Logger.ERROR,International.getString("Fahrtenbuch kann nicht geschrieben werden!"));
-        Dialog.error(International.getString("Fahrtenbuch kann nicht geschrieben werden!")+International.getString("\\ Bitte dem Administrator bescheid sagen!"));
+        Dialog.error(International.getString("Fahrtenbuch kann nicht geschrieben werden!")+" "+International.getString("Bitte dem Administrator bescheid sagen!"));
       }
       if (mode == MODE_START) {
         efaDirektFrame.fahrtBegonnen(boot.getText().trim(),lfdnr.getText().trim(),datum.getText().trim(),abfahrt.getText().trim(),pers,(String)fahrtDauer.getSelectedItem(),ziel.getText().trim());
@@ -4425,7 +4429,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         speichereDatensatzInFB(false,enddatum,rudertage,mtourName);
         if (!Daten.fahrtenbuch.writeFile()) {
           Logger.log(Logger.ERROR,International.getString("Fahrtenbuch kann nicht geschrieben werden!"));
-          Dialog.error(International.getString("Fahrtenbuch kann nicht geschrieben werden!")+International.getString("\\ Bitte dem Administrator bescheid sagen!"));
+          Dialog.error(International.getString("Fahrtenbuch kann nicht geschrieben werden!")+" "+International.getString("Bitte dem Administrator bescheid sagen!"));
         }
         efaDirektFrame.fahrtBeendet(direkt_boot,true);
       } else if (mode == MODE_NACHTRAG) {
@@ -4440,12 +4444,12 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         // am Anfang der Datei mit verändert wird.
         if (!Daten.fahrtenbuch.writeFile()) {
           Logger.log(Logger.ERROR,International.getString("Fahrtenbuch kann nicht geschrieben werden!"));
-          Dialog.error(International.getString("Fahrtenbuch kann nicht geschrieben werden!")+International.getString("\\ Bitte dem Administrator bescheid sagen!"));
+          Dialog.error(International.getString("Fahrtenbuch kann nicht geschrieben werden!")+" "+International.getString("Bitte dem Administrator bescheid sagen!"));
         }
         efaDirektFrame.fahrtNachgetragen();
       } else {
         Logger.log(Logger.ERROR,International.getMessage("Programmfehler: Unerwarteter Modus [{mode}] für direktSpeichereDatensatz()!",mode));
-        Dialog.error(			International.getMessage("Programmfehler: Unerwarteter Modus [{mode}] für direktSpeichereDatensatz()!",mode)+International.getString("\\ Bitte dem Administrator bescheid sagen!"));
+        Dialog.error(			International.getMessage("Programmfehler: Unerwarteter Modus [{mode}] für direktSpeichereDatensatz()!",mode)+" "+International.getString("Bitte dem Administrator bescheid sagen!"));
       }
     }
 

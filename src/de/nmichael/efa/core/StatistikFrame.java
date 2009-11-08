@@ -2414,6 +2414,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     d.ausgabeOverwriteWarnung = erweitertFrame.overwrite.isSelected();
     d.fileExecBefore = erweitertFrame.fileExecBefore.getText().trim();
     d.fileExecAfter = erweitertFrame.fileExecAfter.getText().trim();
+    d.nurGanzeKm = erweitertFrame.nurGanzeKm.isSelected();
     d.ziele_gruppiert = erweitertFrame.teilzieleEinzeln.isSelected();
     d.gasteAlsEinePerson = erweitertFrame.zusammenGaesteAndere.isSelected();
     d.gaesteVereinsweise = erweitertFrame.gaesteVereinsweiseZusammen.isSelected();
@@ -2823,6 +2824,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     d.fileExecAfter  = f.get(StatSave.FILE_EXEC_AFTER);
     d.kmfahrt_gruppiert = EfaUtil.isOptionSet(f.get(StatSave.KMFAHRT_GRUPPIERT),0);
     d.ziele_gruppiert = EfaUtil.isOptionSet(f.get(StatSave.ZIELEGRUPPIERT),0);
+    d.nurGanzeKm = EfaUtil.isOptionSet( (f.get(StatSave.NURGANZEKM) == null || f.get(StatSave.NURGANZEKM).length() == 0 ? "+" : f.get(StatSave.NURGANZEKM)),0); // null="+" since this was only added with 1.8.3_04 (no change in Format)
     d.auchNullWerte = EfaUtil.isOptionSet(f.get(StatSave.AUCHNULLWERTE),0);
     d.alleZielfahrten = EfaUtil.isOptionSet(f.get(StatSave.ALLEZIELFAHRTEN),0);
     d.wettProz = EfaUtil.string2int(f.get(StatSave.WETTPROZENT),60);
@@ -3007,6 +3009,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
         erweitertFrame.horiz_alle.setSelected(d.ww_horiz_alle);
         erweitertFrame.kilometerGruppiert.setSelected(d.kmfahrt_gruppiert);
         erweitertFrame.teilzieleEinzeln.setSelected(d.ziele_gruppiert);
+        erweitertFrame.nurGanzeKm.setSelected(d.nurGanzeKm);
         erweitertFrame.auchNullWerte.setSelected(d.auchNullWerte);
         erweitertFrame.alleZielfahrtenAusgeben.setSelected(d.alleZielfahrten);
         erweitertFrame.xmlImmerAlle.setSelected(d.ausgebenXMLalle);

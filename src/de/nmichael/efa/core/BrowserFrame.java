@@ -376,11 +376,11 @@ public class BrowserFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     jPanel2.add(reloadButton,   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    jPanel2.add(printButton,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    jPanel2.add(pageButton,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     if (Daten.applID != Daten.APPL_EFADIREKT || Daten.applMode == Daten.APPL_MODE_ADMIN) {
+      jPanel2.add(printButton,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+              ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+      jPanel2.add(pageButton,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+              ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
       jPanel2.add(saveButton, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
               ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     }

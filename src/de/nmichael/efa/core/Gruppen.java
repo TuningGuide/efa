@@ -14,6 +14,8 @@ import java.util.Vector;
  * @version 1.0
  */
 
+// @i18n complete
+
 class GruppenMitglied {
 
   public GruppenMitglied(String vorname, String nachname, String verein) {

@@ -20,6 +20,8 @@ import java.awt.Color;
 import java.awt.KeyboardFocusManager;
 import java.awt.DefaultKeyboardFocusManager;
 
+// @i18n complete
+
 public class EfaFrameFocusManager extends DefaultFocusManager {
 
   EfaFrame efaFrame;

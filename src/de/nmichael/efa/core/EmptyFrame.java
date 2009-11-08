@@ -19,6 +19,8 @@ import java.io.*;
  * @version 1.0
  */
 
+// @i18n complete
+
 public class EmptyFrame extends JDialog implements ActionListener {
   Frame parent;
 

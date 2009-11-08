@@ -119,6 +119,7 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
   JTextField nurBooteFuerGruppe = new JTextField();
   DatenListe gruppen = null;
   JCheckBox alleZielfahrtenAusgeben = new JCheckBox();
+  JCheckBox nurGanzeKm = new JCheckBox();
 
 
   public StatistikErweitertFrame(StatistikFrame parent) {
@@ -179,7 +180,7 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
     zusammenGaesteAndere.setToolTipText("\'Gäste\' und \'Andere\' zu je einer Person zusammenfassen");
     zusammenGaesteAndere.setMnemonic('G');
     teilzieleEinzeln.setText("Teilziele einzeln");
-    teilzieleEinzeln.setNextFocusableComponent(kilometerGruppiert);
+    teilzieleEinzeln.setNextFocusableComponent(nurGanzeKm);
     teilzieleEinzeln.setToolTipText("Mit \'+\' getrennte Teilziele einzeln auflisten");
     teilzieleEinzeln.setMnemonic('T');
     maxKmLabel.setForeground(Color.black);
@@ -490,6 +491,8 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
     alleZielfahrtenAusgeben.setNextFocusableComponent(okButton);
     alleZielfahrtenAusgeben.setMnemonic('Z');
     alleZielfahrtenAusgeben.setText("alle Zielfahrten ausgeben (LRV Berlin Sommer)");
+    nurGanzeKm.setNextFocusableComponent(kilometerGruppiert);
+    nurGanzeKm.setText("Nachkommastellen bei Ausgabe von Kilometern abschneiden");
     allgemeinPanel.add(jPanel2,  BorderLayout.CENTER);
     jPanel2.add(jLabel1,    new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 0, 20, 0), 0, 0));
@@ -508,6 +511,8 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
     jPanel2.add(xmlImmerAlle,    new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     jPanel2.add(mitglnrStattName,  new GridBagConstraints(0, 8, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    jPanel2.add(nurGanzeKm,  new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     balkenPanel.add(jLabel2,   new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 5, 0), 0, 0));

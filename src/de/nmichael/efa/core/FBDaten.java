@@ -1,6 +1,7 @@
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.Boote;
 
 /**
@@ -11,6 +12,8 @@ import de.nmichael.efa.core.Boote;
  * @author Nicolas Michael
  * @version 1.0
  */
+
+// @i18n complete
 
 // Fahrtenbuch-Zusatzdaten (individuell für jedes FB verwaltet!)
 public class FBDaten {
@@ -41,12 +44,12 @@ public class FBDaten {
     if (Daten.bezeichnungen != null && Daten.bezeichnungen.gast != null && Daten.bezeichnungen.gast.length()>0) {
       status[0] = Daten.bezeichnungen.gast;
     } else {
-      status[0] = "Gast";
+      status[0] = International.getString("Gast");
     }
     if (Daten.bezeichnungen != null && Daten.bezeichnungen.andere != null && Daten.bezeichnungen.andere.length()>0) {
       status[1] = Daten.bezeichnungen.andere;
     } else {
-      status[1] = "andere";
+      status[1] = International.getString("andere");
     }
     anzMitglieder=0;
   }

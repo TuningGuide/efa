@@ -1,6 +1,18 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.util.TMJ;
+
+// @i18n complete (needs no internationalization -- only relevant for Germany)
 
 public class WettDef {
   public int wettid=-1;

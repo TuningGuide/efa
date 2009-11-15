@@ -1,3 +1,13 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.drv;
 
 import java.awt.*;
@@ -16,7 +26,6 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.emil.*;
 import java.net.*;
-
 
 public class MeldungenIndexFrame extends JDialog implements ActionListener {
   public static final int MELD_FAHRTENABZEICHEN = 1;

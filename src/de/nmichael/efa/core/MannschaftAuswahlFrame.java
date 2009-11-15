@@ -1,26 +1,26 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.AutoCompletePopupWindow;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class MannschaftAuswahlFrame extends JDialog implements ActionListener {
   EfaFrame efaFrame;
@@ -71,12 +71,10 @@ public class MannschaftAuswahlFrame extends JDialog implements ActionListener {
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
       jPanel2.setLayout(gridBagLayout1);
-      jLabel1.setDisplayedMnemonic('M');
+      Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Mannschaft")+": ");
       jLabel1.setLabelFor(mannschaft);
-      jLabel1.setText("Mannschaft: ");
+      Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("Auswählen"));
       okButton.setNextFocusableComponent(mannschaft);
-      okButton.setMnemonic('W');
-      okButton.setText("Auswählen");
       okButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           okButton_actionPerformed(e);
@@ -94,7 +92,7 @@ public class MannschaftAuswahlFrame extends JDialog implements ActionListener {
           mannschaft_focusLost(e);
         }
       });
-      this.setTitle("Mannschaft auswählen");
+      this.setTitle(International.getString("Mannschaft auswählen"));
       this.getContentPane().add(jPanel1, BorderLayout.CENTER);
       jPanel1.add(jPanel2, BorderLayout.CENTER);
       jPanel2.add(jLabel1,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0

@@ -1,19 +1,18 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
  */
 
 package de.nmichael.efa.statistics;
 
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.ZielfahrtFolge;
+import de.nmichael.efa.util.*;
 import java.util.*;
 import de.nmichael.efa.*;
-
-/**
- *
- * @author nick
- */
 
 // Ein Element des Arrays
 class ArrEl implements Comparable {

@@ -1,13 +1,14 @@
-package de.nmichael.efa.core;
-
 /**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:  Mitgliederliste, abgeleitet von DatenListe
- * Copyright:    Copyright (c) 2001
- * Company:
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
  * @author Nicolas Michael
- * @version 1.0
+ * @version 2
  */
+
+package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenListe;
@@ -16,6 +17,8 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.io.*;
 import java.util.Hashtable;
+
+// @i18n complete
 
 public class Mitglieder extends DatenListe {
 
@@ -77,6 +80,7 @@ public class Mitglieder extends DatenListe {
               if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
               DatenFelder d = constructFields(s);
 
+              // following lines do not need to be internationalized, since they just concern converting files from very old versions!
               s = d.get(0)+"|"+d.get(1)+"||"+d.get(2)+"|"+d.get(3)+"|"; // an Pos 2 "Alias" einfügen
               if (d.get(5).equals("Gast")) s = s+"Gast"+"|";            // status2==Gast nach status übernehmen
               else if (d.get(5).equals("andere")) s = s+"andere"+"|";   // status2==andere nach status übernehmen

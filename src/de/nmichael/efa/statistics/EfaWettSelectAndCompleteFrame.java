@@ -1,18 +1,19 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.statistics;
 
-import de.nmichael.efa.core.WettDefs;
-import de.nmichael.efa.core.EfaWettMeldung;
-import de.nmichael.efa.core.EfaWett;
-import de.nmichael.efa.core.StatistikFrame;
-import de.nmichael.efa.core.Adressen;
-import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.*;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.core.*;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.DRVSignatur;
-import de.nmichael.efa.util.ActionHandler;
+import de.nmichael.efa.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -20,16 +21,6 @@ import javax.swing.border.*;
 import java.beans.*;
 import javax.swing.event.*;
 import java.util.*;
-
-
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
 
 public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionListener {
 

@@ -1,37 +1,24 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.direkt;
-import de.nmichael.efa.core.WettDefs;
-import de.nmichael.efa.core.Fahrtenabzeichen;
-import de.nmichael.efa.core.StatSave;
-import de.nmichael.efa.core.FahrtenbuchNeuFortsetzenFrame;
-import de.nmichael.efa.core.EfaConfig;
-import de.nmichael.efa.core.FBDaten;
-import de.nmichael.efa.core.Fahrtenbuch;
-import de.nmichael.efa.core.EfaFrame;
-import de.nmichael.efa.core.Gruppen;
-import de.nmichael.efa.core.VereinsConfig;
-import de.nmichael.efa.core.Synonyme;
-import de.nmichael.efa.core.EfaFrame_AboutBox;
-import de.nmichael.efa.core.Mannschaften;
-import de.nmichael.efa.core.Adressen;
-import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.core.Boote;
-import de.nmichael.efa.core.Bezeichnungen;
-import de.nmichael.efa.core.BrowserFrame;
-import de.nmichael.efa.util.TMJ;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.International;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.EfaSec;
-import de.nmichael.efa.util.Backup;
-import de.nmichael.efa.util.ActionHandler;
+
+import de.nmichael.efa.core.*;
+import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 import java.io.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.util.Dialog;
 import java.beans.*;
 import javax.swing.border.*;
 

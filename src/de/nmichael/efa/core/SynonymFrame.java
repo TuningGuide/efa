@@ -1,13 +1,19 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.DatenListe;
-import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.core.*;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.AutoCompletePopupWindow;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -16,14 +22,7 @@ import java.util.*;
 import java.beans.*;
 import javax.swing.event.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class SynonymFrame extends JDialog implements ActionListener {
   Synonyme synList;
@@ -92,35 +91,30 @@ public class SynonymFrame extends JDialog implements ActionListener {
       System.err.println("Error setting up ActionHandler");
     }
 
+    Mnemonics.setButton(this, closeButton, International.getStringWithMnemonic("Schließen"));
     closeButton.setNextFocusableComponent(synonymList);
-    closeButton.setMnemonic('C');
-    closeButton.setText("Schließen");
     closeButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         closeButton_actionPerformed(e);
       }
     });
     jPanel1.setLayout(borderLayout1);
+    Mnemonics.setButton(this, neuButton, International.getStringWithMnemonic("Neu ..."));
     neuButton.setNextFocusableComponent(delButton);
     neuButton.setPreferredSize(new Dimension(100, 23));
-    neuButton.setToolTipText("neues Synonym hinzufügen");
-    neuButton.setMnemonic('N');
-    neuButton.setText("Neu...");
     neuButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         neuButton_actionPerformed(e);
       }
     });
     jPanel2.setLayout(gridBagLayout2);
-    jLabel2.setDisplayedMnemonic('V');
+    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("vorhandene Einträge"));
     jLabel2.setHorizontalAlignment(SwingConstants.CENTER);
     jLabel2.setLabelFor(synonymList);
-    jLabel2.setText("vorhandene Einträge");
     jScrollPane1.setPreferredSize(new Dimension(220, 131));
     jPanel3.setLayout(gridBagLayout1);
-    jLabel1.setDisplayedMnemonic('H');
+    Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Hauptname")+": ");
     jLabel1.setLabelFor(orgFeld);
-    jLabel1.setText("Hauptname: ");
     orgFeld.setPreferredSize(new Dimension(200, 17));
     orgFeld.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyReleased(KeyEvent e) {
@@ -133,7 +127,7 @@ public class SynonymFrame extends JDialog implements ActionListener {
       }
     });
 
-    jLabel3.setText("Synonyme: ");
+    jLabel3.setText(International.getString("Synonyme")+": ");
     for (int i=0; i<synFeld.length; i++) {
       synFeld[i] = new JTextField();
       synFeld[i].setPreferredSize(new Dimension(200, 17));
@@ -151,7 +145,7 @@ public class SynonymFrame extends JDialog implements ActionListener {
     }
     synFeld[synFeld.length-1].setNextFocusableComponent(saveButton);
     orgFeld.setNextFocusableComponent(synFeld[0]);
-    this.setTitle("Synonyme");
+    this.setTitle(International.getString("Synonyme"));
     synonymList.setNextFocusableComponent(neuButton);
     synonymList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     synonymList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
@@ -161,18 +155,15 @@ public class SynonymFrame extends JDialog implements ActionListener {
     });
     delButton.setNextFocusableComponent(orgFeld);
     delButton.setPreferredSize(new Dimension(100, 23));
-    delButton.setToolTipText("vorhandenes Synonym löschen");
-    delButton.setMnemonic('L');
-    delButton.setText("Löschen");
+    Mnemonics.setButton(this, delButton, International.getStringWithMnemonic("Löschen"));
     delButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         delButton_actionPerformed(e);
       }
     });
+    Mnemonics.setButton(this, saveButton, International.getStringWithMnemonic("Speichern"));
     saveButton.setNextFocusableComponent(closeButton);
     saveButton.setPreferredSize(new Dimension(200, 23));
-    saveButton.setMnemonic('S');
-    saveButton.setText("Speichern");
     saveButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         saveButton_actionPerformed(e);
@@ -215,7 +206,8 @@ public class SynonymFrame extends JDialog implements ActionListener {
   /**Close the dialog*/
   void cancel() {
     if (changed) {
-      int c = Dialog.yesNoCancelDialog("Änderungen speichern","Sollen alle Änderungen gespeichert werden?");
+      int c = Dialog.yesNoCancelDialog(International.getString("Änderungen speichern"),
+              International.getString("Sollen alle Änderungen gespeichert werden?"));
       if (c == Dialog.CANCEL) return;
       if (c == Dialog.YES) {
         synList.removeAllSyns();
@@ -232,7 +224,7 @@ public class SynonymFrame extends JDialog implements ActionListener {
           }
         }
         if (!synList.writeFile())
-          Dialog.error("Fehler beim Speichern der Daten!");
+          Dialog.error(International.getString("Fehler beim Speichern der Daten!"));
       }
     }
     Dialog.frameClosed(this);
@@ -270,14 +262,14 @@ public class SynonymFrame extends JDialog implements ActionListener {
 
   void setNeuerEintrag(boolean neu) {
     if (neu) {
-      saveButton.setText("Neuen Eintrag hinzufügen");
+      saveButton.setText(International.getString("Neuen Eintrag hinzufügen"));
       neuerEintrag = true;
       synonymList.clearSelection();
       orgFeld.setText("");
       for (int i=0; i<synFeld.length; i++) synFeld[i].setText("");
       orgFeld.requestFocus();
     } else {
-      saveButton.setText("Änderungen speichern");
+      saveButton.setText(International.getString("Änderungen speichern"));
       neuerEintrag = false;
     }
   }
@@ -302,7 +294,7 @@ public class SynonymFrame extends JDialog implements ActionListener {
 
   void saveButton_actionPerformed(ActionEvent e) {
     if (orgFeld.getText().trim().length() == 0) {
-      Dialog.error("Der Hauptname darf nicht leer sein!");
+      Dialog.error(International.getString("Der Hauptname darf nicht leer sein!"));
       return;
     }
 
@@ -315,7 +307,7 @@ public class SynonymFrame extends JDialog implements ActionListener {
     String org = orgFeld.getText();
     Vector v = null;
     if ( neuerEintrag && (v = (Vector)syn.get(org)) != null) {
-      Dialog.error("Ein Eintrag mit demselben Hauptnamen existiert bereits!");
+      Dialog.error(International.getString("Ein Eintrag mit demselben Hauptnamen existiert bereits!"));
       return;
     }
     if (v == null) v = new Vector();
@@ -332,16 +324,17 @@ public class SynonymFrame extends JDialog implements ActionListener {
 
   void delButton_actionPerformed(ActionEvent e) {
     if (synonymList.isSelectionEmpty()) {
-      Dialog.error("Und *was* möchtest Du löschen? Wähle doch bitte einen Eintrag aus!");
+      Dialog.error(International.getString("Was möchtest Du löschen? Wähle bitte einen Eintrag aus!"));
       return;
     }
     String org = (String)synonymList.getSelectedValue();
     if (syn.get(org) == null) { // sollte eigentlich nicht möglich sein..... ;-)
-      Dialog.error("Oops! Der Eintrag '"+org+"' existiert gar nicht...");
+      Dialog.error(International.getMessage("Oops! Der Eintrag '{record}' existiert gar nicht ...",org));
       return;
     }
 
-    if (Dialog.yesNoCancelDialog("Eintrag löschen","Möchtest Du alle Synonyme für '"+org+"' wirklich löschen?") == Dialog.YES) {
+    if (Dialog.yesNoCancelDialog(International.getString("Eintrag löschen"),
+            International.getMessage("Möchtest Du alle Synonyme für '{name}' wirklich löschen?",org)) == Dialog.YES) {
       syn.remove(org);
       updateSynList();
       synonymList.clearSelection();

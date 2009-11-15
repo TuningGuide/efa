@@ -1,25 +1,26 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenListe;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class WriteProtectFrame extends JDialog implements ActionListener {
   DatenListe[] files;
@@ -91,9 +92,8 @@ public class WriteProtectFrame extends JDialog implements ActionListener {
     }
 
     allPanel.setLayout(borderLayout1);
+    Mnemonics.setButton(this, closeButton, International.getStringWithMnemonic("Schliessen"));
     closeButton.setNextFocusableComponent(defaultPw);
-    closeButton.setMnemonic('C');
-    closeButton.setText("Schliessen");
     closeButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         closeButton_actionPerformed(e);
@@ -102,36 +102,32 @@ public class WriteProtectFrame extends JDialog implements ActionListener {
     actionPanel.setLayout(borderLayout3);
     actionPanel1.setLayout(gridBagLayout1);
     actionPanel2.setLayout(gridBagLayout4);
+    Mnemonics.setButton(this, selectAllButton, International.getStringWithMnemonic("alle auswählen"));
     selectAllButton.setNextFocusableComponent(selectFbButton);
-    selectAllButton.setMnemonic('E');
-    selectAllButton.setText("alle auswählen");
     selectAllButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         selectAllButton_actionPerformed(e);
       }
     });
+    Mnemonics.setButton(this, selectNoneButton, International.getStringWithMnemonic("keine auswählen"));
     selectNoneButton.setNextFocusableComponent(selectAllButton);
-    selectNoneButton.setMnemonic('K');
-    selectNoneButton.setText("keine auswählen");
     selectNoneButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         selectNoneButton_actionPerformed(e);
       }
     });
-    jLabel1.setText("für alle ausgewählten Dateien: ");
+    jLabel1.setText(International.getString("für alle ausgewählten Dateien")+": ");
+    Mnemonics.setButton(this, setWriteProtectButton, International.getStringWithMnemonic("Schreibschutz aktivieren"));
     setWriteProtectButton.setBackground(Color.red);
     setWriteProtectButton.setNextFocusableComponent(removeWriteProtectButton);
-    setWriteProtectButton.setMnemonic('A');
-    setWriteProtectButton.setText("Schreibschutz aktivieren");
     setWriteProtectButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         setWriteProtectButton_actionPerformed(e);
       }
     });
+    Mnemonics.setButton(this, removeWriteProtectButton, International.getStringWithMnemonic("Schreibschutz deaktivieren"));
     removeWriteProtectButton.setBackground(Color.green);
     removeWriteProtectButton.setNextFocusableComponent(closeButton);
-    removeWriteProtectButton.setMnemonic('D');
-    removeWriteProtectButton.setText("Schreibschutz deaktivieren");
     removeWriteProtectButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         removeWriteProtectButton_actionPerformed(e);
@@ -142,26 +138,22 @@ public class WriteProtectFrame extends JDialog implements ActionListener {
     defaultPwPanel.setLayout(gridBagLayout3);
     defaultPw.setNextFocusableComponent(selectNoneButton);
     defaultPw.setPreferredSize(new Dimension(150, 17));
-    defaultPw.setToolTipText("Gib hier das Paßwort an, mit dem die Dateien geschützt sind");
     defaultPw.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         defaultPw_focusLost(e);
       }
     });
-    jLabel2.setDisplayedMnemonic('P');
+    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("bis zum Beenden von efa für alle Paßwortfragen folgendes Paßwort verwenden")+": ");
     jLabel2.setLabelFor(defaultPw);
-    jLabel2.setText("bis zum Beenden von efa für alle Paßwortfragen folgendes Paßwort " +
-    "verwenden: ");
     filesPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+    Mnemonics.setButton(this, selectFbButton, International.getStringWithMnemonic("Fahrtenbuchdateien auswählen"));
     selectFbButton.setNextFocusableComponent(setWriteProtectButton);
-    selectFbButton.setMnemonic('F');
-    selectFbButton.setText("Fahrtenbuchdateien auswählen");
     selectFbButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         selectFbButton_actionPerformed(e);
       }
     });
-    this.setTitle("Zugriffsschutz für Dateien");
+    this.setTitle(International.getString("Zugriffsschutz für Dateien"));
     this.getContentPane().add(allPanel, BorderLayout.CENTER);
     allPanel.add(closeButton, BorderLayout.SOUTH);
     workPanel.add(actionPanel,  BorderLayout.SOUTH);
@@ -221,17 +213,17 @@ public class WriteProtectFrame extends JDialog implements ActionListener {
     for (int i=0; i<dateityp.length; i++) {
       dateityp[i] = new JLabel();
       switch(i) {
-        case  0: dateityp[i].setText("Fahrtenbuch: "); break;
-        case  1: dateityp[i].setText("Bootsliste: "); break;
-        case  2: dateityp[i].setText("Mitgliederliste: "); break;
-        case  3: dateityp[i].setText("Zielliste: "); break;
-        case  4: dateityp[i].setText("Statistikeinstellungen: "); break;
-        case  5: dateityp[i].setText("Synonymliste Boote: "); break;
-        case  6: dateityp[i].setText("Synonymliste Mitglieder: "); break;
-        case  7: dateityp[i].setText("Synonymliste Ziele: "); break;
-        case  8: dateityp[i].setText("Vereinskonfiguration: "); break;
-        case  9: dateityp[i].setText("Adreßdatei: "); break;
-        case 10: dateityp[i].setText("efa-Konfiguration: "); break;
+        case  0: dateityp[i].setText(International.getString("Fahrtenbuch")+": "); break;
+        case  1: dateityp[i].setText(International.getString("Bootsliste")+": "); break;
+        case  2: dateityp[i].setText(International.getString("Mitgliederliste")+": "); break;
+        case  3: dateityp[i].setText(International.getString("Zielliste")+": "); break;
+        case  4: dateityp[i].setText(International.getString("Statistikeinstellungen")+": "); break;
+        case  5: dateityp[i].setText(International.getString("Synonymliste Boote")+": "); break;
+        case  6: dateityp[i].setText(International.getString("Synonymliste Mitglieder")+": "); break;
+        case  7: dateityp[i].setText(International.getString("Synonymliste Ziele")+": "); break;
+        case  8: dateityp[i].setText(International.getString("Vereinskonfiguration")+": "); break;
+        case  9: dateityp[i].setText(International.getString("Adreßdatei")+": "); break;
+        case 10: dateityp[i].setText(International.getString("efa-Konfiguration")+": "); break;
       }
       filesPanel.add(dateityp[i],  new GridBagConstraints(1, i, 1, 1, 0.0, 0.0
               ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 10, 0, 0), 0, 0));
@@ -274,14 +266,14 @@ public class WriteProtectFrame extends JDialog implements ActionListener {
   void updateFileList() {
     for (int i=0; i<dateistatus.length; i++) {
       if (files[i] == null) {
-        dateistatus[i].setText("nicht verfügbar");
+        dateistatus[i].setText(International.getString("nicht verfügbar"));
         dateiselect[i].setEnabled(false);
         dateiselect[i].setSelected(false);
       } else if (files[i].isWriteProtected()) {
-        dateistatus[i].setText("schreibgeschützt" + (files[i].isPassword() ? "(PW)" : "") );
+        dateistatus[i].setText(International.getString("schreibgeschützt") + (files[i].isPassword() ? "(PW)" : "") );
         dateistatus[i].setBackground(Color.red);
       } else {
-        dateistatus[i].setText("nicht schreibgeschützt");
+        dateistatus[i].setText(International.getString("nicht schreibgeschützt"));
         dateistatus[i].setBackground(Color.green);
       }
     }
@@ -331,11 +323,13 @@ public class WriteProtectFrame extends JDialog implements ActionListener {
     boolean empty = true;
     for (int i=0; i<files.length; i++) if (dateiselect[i].isSelected()) empty = false;
     if (empty) {
-      Dialog.infoDialog("Keine Dateien ausgewählt","Bitte wähle zuerst mindestens eine Datei aus!");
+      Dialog.infoDialog(International.getString("Keine Dateien ausgewählt"),
+              International.getString("Bitte wähle zuerst mindestens eine Datei aus!"));
       return;
     }
 
-    String pwd = Dialog.inputDialog("Paßwort für Schreibschutz","Paßwort für den Schreibschutz (kann leergelassen werden):");
+    String pwd = Dialog.inputDialog(International.getString("Paßwort für Schreibschutz"),
+            International.getString("Paßwort für den Schreibschutz (kann leergelassen werden)")+":");
     if (pwd == null) return;
 
     for (int i=0; i<files.length; i++)
@@ -349,7 +343,8 @@ public class WriteProtectFrame extends JDialog implements ActionListener {
     boolean empty = true;
     for (int i=0; i<files.length; i++) if (dateiselect[i].isSelected()) empty = false;
     if (empty) {
-      Dialog.infoDialog("Keine Dateien ausgewählt","Bitte wähle zuerst mindestens eine Datei aus!");
+      Dialog.infoDialog(International.getString("Keine Dateien ausgewählt"),
+              International.getString("Bitte wähle zuerst mindestens eine Datei aus!"));
       return;
     }
 

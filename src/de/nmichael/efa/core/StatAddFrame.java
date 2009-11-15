@@ -1,25 +1,26 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.statistics.StatistikDaten;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class StatAddFrame extends JDialog implements ActionListener {
 
@@ -80,25 +81,24 @@ public class StatAddFrame extends JDialog implements ActionListener {
 
     this.getContentPane().setLayout(borderLayout1);
     jPanel1.setLayout(gridBagLayout1);
-    nameLabel.setText("Bezeichnung für aktuelle Einstellungen: ");
+    Mnemonics.setLabel(this, nameLabel, International.getStringWithMnemonic("Bezeichnung für aktuelle Einstellungen")+": ");
+    nameLabel.setLabelFor(name);
     name.setMinimumSize(new Dimension(150, 19));
     name.setPreferredSize(new Dimension(150, 19));
-    addButton.setText("Statistikeinstellungen speichern");
+    Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Statistikeinstellungen speichern"));
     addButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         addButton_actionPerformed(e);
       }
     });
-    this.setTitle("Statistikeinstellungen speichern");
-    defaultRadioButton.setText("Einstellungen als Standardeinstellung speichern");
-    defaultRadioButton.setMnemonic('E');
+    this.setTitle(International.getString("Statistikeinstellungen speichern"));
+    Mnemonics.setButton(this, defaultRadioButton, International.getStringWithMnemonic("Einstellungen als Standardeinstellung speichern"));
     defaultRadioButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         defaultRadioButton_actionPerformed(e);
       }
     });
-    efaDirektButton.setText("Statistik auch im Bootshaus verfügbar machen");
-    efaDirektButton.setMnemonic('O');
+    Mnemonics.setButton(this, efaDirektButton, International.getStringWithMnemonic("Statistik auch im Bootshaus verfügbar machen"));
     this.getContentPane().add(addButton, BorderLayout.SOUTH);
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(nameLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -109,9 +109,6 @@ public class StatAddFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     jPanel1.add(efaDirektButton, new GridBagConstraints(0, 2, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    nameLabel.setDisplayedMnemonic('B');
-    nameLabel.setLabelFor(this.name);
-    addButton.setMnemonic('S');
     name.requestFocus();
     name.setNextFocusableComponent(defaultRadioButton);
     defaultRadioButton.setNextFocusableComponent(efaDirektButton);
@@ -146,7 +143,8 @@ public class StatAddFrame extends JDialog implements ActionListener {
     if (s.equals("")) return;
     if ( (t = Daten.fahrtenbuch.getDaten().statistik.getExact(s)) != null) {
       if (s.equals(DEFAULT) ||
-          Dialog.yesNoDialog("Bezeichnung bereits vergeben","Diese Bezeichnung ist bereits vergeben!\nSoll der alte Eintrag überschrieben werden"
+          Dialog.yesNoDialog(International.getString("Bezeichnung bereits vergeben"),
+          International.getString("Diese Bezeichnung ist bereits vergeben! Soll der alte Eintrag überschrieben werden?")
           ) == Dialog.YES) {
         if (!Daten.fahrtenbuch.getDaten().statistik.delete(t)) return;
       } else return;
@@ -458,7 +456,8 @@ public class StatAddFrame extends JDialog implements ActionListener {
     if (Daten.fahrtenbuch.getDaten().statistik.writeFile() && Daten.fahrtenbuch.getDaten().statistik.readFile()) {
       EfaUtil.foo();
     } else {
-      Dialog.infoDialog("Fehler","Einstellungen konnten nicht gespeichert werden!");
+      Dialog.infoDialog(International.getString("Fehler"),
+              International.getString("Einstellungen konnten nicht gespeichert werden!"));
     }
     cancel();
 

@@ -1,15 +1,20 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.core.Bezeichnungen;
-import de.nmichael.efa.statistics.StatistikDaten;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.EfaSec;
+import de.nmichael.efa.core.*;
+import de.nmichael.efa.statistics.*;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.statistics.Statistik;
-import de.nmichael.efa.util.International;
 import javax.swing.UIManager;
 import java.awt.*;
 import java.io.PrintStream;
@@ -17,14 +22,7 @@ import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.File;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:  efa - Hauptprogramm
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class Main {
   boolean packFrame = true;

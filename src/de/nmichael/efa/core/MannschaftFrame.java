@@ -1,27 +1,27 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.AuswahlFrame;
 import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.AutoCompletePopupWindow;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class MannschaftFrame extends JDialog implements ActionListener {
   AuswahlFrame auswahlFrame;
@@ -92,9 +92,8 @@ public class MannschaftFrame extends JDialog implements ActionListener {
     }
 
     jPanel1.setLayout(gridBagLayout1);
-    jLabel1.setDisplayedMnemonic('B');
+    Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Mannschaft")+": ");
     jLabel1.setLabelFor(boot);
-    jLabel1.setText("Mannschaft: ");
     Dialog.setPreferredSize(boot,200,19);
     boot.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyReleased(KeyEvent e) {
@@ -106,22 +105,19 @@ public class MannschaftFrame extends JDialog implements ActionListener {
         inputField_focusLost(e);
       }
     });
-    this.setTitle("Standardmannschaften");
+    this.setTitle(International.getString("Standardmannschaften"));
     saveButton.setNextFocusableComponent(boot);
     Dialog.setPreferredSize(saveButton,300,23);
-    saveButton.setMnemonic('S');
-    saveButton.setText("Eintrag speichern");
+    Mnemonics.setButton(this, saveButton, International.getStringWithMnemonic("Eintrag speichern"));
     saveButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         saveButton_actionPerformed(e);
       }
     });
-    jLabel2.setDisplayedMnemonic('Z');
+    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Ziel")+": ");
     jLabel2.setLabelFor(ziel);
-    jLabel2.setText("Ziel: ");
-    jLabel3.setDisplayedMnemonic('F');
+    Mnemonics.setLabel(this, jLabel3, International.getStringWithMnemonic("Fahrtart")+": ");
     jLabel3.setLabelFor(fahrtart);
-    jLabel3.setText("Fahrtart: ");
     ziel.setNextFocusableComponent(fahrtart);
     Dialog.setPreferredSize(ziel,200,19);
     ziel.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -136,9 +132,8 @@ public class MannschaftFrame extends JDialog implements ActionListener {
     });
     fahrtart.setNextFocusableComponent(obmann);
     Dialog.setPreferredSize(fahrtart,200,22);
-    jLabel4.setDisplayedMnemonic('O');
+    Mnemonics.setLabel(this, jLabel4, International.getStringWithMnemonic("Obmann")+": ");
     jLabel4.setLabelFor(obmann);
-    jLabel4.setText("Obmann: ");
     obmann.setNextFocusableComponent(saveButton);
     jPanel1.add(jLabel1,      new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(20, 20, 10, 0), 0, 0));
@@ -163,7 +158,7 @@ public class MannschaftFrame extends JDialog implements ActionListener {
     }
     for (int i=0; i<mannschaft.length; i++) {
       JLabel label = new JLabel();
-      label.setText( (i==0? "Steuermann: " : "Mannschaft "+i+": ") );
+      label.setText( (i==0? International.getString("Steuermann")+": " : International.getString("Mannschaft")+" "+i+": ") );
       Dialog.setPreferredSize(mannschaft[i],200,19);
       mannschaft[i].setMinimumSize(new Dimension(200, 19));
       jPanel1.add(label,   new GridBagConstraints(0, i+1, 1, 1, 0.0, 0.0
@@ -196,9 +191,9 @@ public class MannschaftFrame extends JDialog implements ActionListener {
     fahrtart.setSelectedIndex(0);
 
     obmann.addItem(Mannschaften.NO_OBMANN);
-    obmann.addItem("Steuermann");
+    obmann.addItem(International.getString("Steuermann"));
     for (int i=1; i<=Fahrtenbuch.ANZ_MANNSCH; i++) {
-      obmann.addItem("Nummer "+i);
+      obmann.addItem(International.getString("Nummer")+" "+i);
     }
     obmann.setSelectedIndex(0);
   }
@@ -238,12 +233,12 @@ public class MannschaftFrame extends JDialog implements ActionListener {
     String key = EfaUtil.removeSepFromString(boot.getText().trim());
 
     if (key.length() == 0) {
-      Dialog.error("Der Bootsname darf nicht leer sein!");
+      Dialog.error(International.getString("Der Bootsname darf nicht leer sein!"));
       boot.requestFocus();
       return;
     }
     if (neu && Daten.mannschaften.getExact(key) != null) {
-      Dialog.error("Der Bootsname existiert bereits!");
+      Dialog.error(International.getString("Der Bootsname existiert bereits!"));
       boot.requestFocus();
       return;
     }
@@ -264,7 +259,7 @@ public class MannschaftFrame extends JDialog implements ActionListener {
       editnr = 0;
     } else {
       if (!Daten.mannschaften.writeFile())
-        Dialog.error(Daten.mannschaften.getFileName()+" konnte nicht geschrieben werden.");
+        Dialog.error(International.getMessage("{filename} konnte nicht geschrieben werden.",Daten.mannschaften.getFileName()));
     }
 
     cancel();

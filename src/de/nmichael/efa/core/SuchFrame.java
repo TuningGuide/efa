@@ -1,25 +1,26 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class SuchFrame extends JDialog implements ActionListener {
   EfaFrame parent;
@@ -145,18 +146,16 @@ public class SuchFrame extends JDialog implements ActionListener {
     }
 
     suchButton.setNextFocusableComponent(such);
-    suchButton.setMnemonic('S');
-    suchButton.setText("Suchen");
+    Mnemonics.setButton(this, suchButton, International.getStringWithMnemonic("Suchen"));
     suchButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         suchButton_actionPerformed(e);
       }
     });
-    this.setTitle("Eintrag suchen");
+    this.setTitle(International.getString("Eintrag suchen"));
     this.getContentPane().setLayout(borderLayout1);
-    jLabel1.setDisplayedMnemonic('U');
+    Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Suchbegriff")+": ");
     jLabel1.setLabelFor(such);
-    jLabel1.setText("Suchbegriff: ");
     such.setNextFocusableComponent(lfdnr);
     Dialog.setPreferredSize(such,200,19);
     such.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -164,50 +163,39 @@ public class SuchFrame extends JDialog implements ActionListener {
         such_keyTyped(e);
       }
     });
-    lfdnr.setText("Lfd. Nr.");
+    Mnemonics.setButton(this, lfdnr, International.getStringWithMnemonic("Lfd. Nr."));
     lfdnr.setNextFocusableComponent(datum);
-    lfdnr.setMnemonic('L');
-    datum.setText("Datum");
+    Mnemonics.setButton(this, datum, International.getStringWithMnemonic("Datum"));
     datum.setNextFocusableComponent(stm);
-    datum.setMnemonic('D');
-    stm.setText("Steuermann");
+    Mnemonics.setButton(this, stm, International.getStringWithMnemonic("Steuermann"));
     stm.setNextFocusableComponent(mannsch);
-    stm.setMnemonic('T');
-    mannsch.setText("Mannschaft");
+    Mnemonics.setButton(this, mannsch, International.getStringWithMnemonic("Mannschaft"));
     mannsch.setNextFocusableComponent(boot);
-    mannsch.setMnemonic('M');
-    boot.setText("Boot");
+    Mnemonics.setButton(this, boot, International.getStringWithMnemonic("Boot"));
     boot.setNextFocusableComponent(ziel);
-    boot.setMnemonic('B');
-    ziel.setText("Ziel");
+    Mnemonics.setButton(this, ziel, International.getStringWithMnemonic("Ziel"));
     ziel.setNextFocusableComponent(abfahrt);
-    ziel.setMnemonic('Z');
-    abfahrt.setText("Abfahrt");
+    Mnemonics.setButton(this, abfahrt, International.getStringWithMnemonic("Abfahrt"));
     abfahrt.setNextFocusableComponent(ankunft);
-    abfahrt.setMnemonic('F');
-    ankunft.setText("Ankunft");
+    Mnemonics.setButton(this, ankunft, International.getStringWithMnemonic("Ankunft"));
     ankunft.setNextFocusableComponent(bootskm);
-    ankunft.setMnemonic('N');
-    bootskm.setText("Boots-Km");
+    Mnemonics.setButton(this, bootskm, International.getStringWithMnemonic("Boots-Km"));
     bootskm.setNextFocusableComponent(mannschkm);
-    bootskm.setMnemonic('O');
-    mannschkm.setText("Mannschafts-Km");
+    Mnemonics.setButton(this, mannschkm, International.getStringWithMnemonic("Mannschafts-Km"));
     mannschkm.setNextFocusableComponent(bemerk);
-    mannschkm.setMnemonic('A');
-    bemerk.setText("Bemerkungen");
+    Mnemonics.setButton(this, bemerk, International.getStringWithMnemonic("Bemerkungen"));
     bemerk.setNextFocusableComponent(fahrtart);
-    bemerk.setMnemonic('E');
+    Mnemonics.setButton(this, alleButton, International.getStringWithMnemonic("alle"));
     alleButton.setNextFocusableComponent(keineButton);
     Dialog.setPreferredSize(alleButton,89,23);
-    alleButton.setText("alle");
     alleButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         alleButton_actionPerformed(e);
       }
     });
+    Mnemonics.setButton(this, keineButton, International.getStringWithMnemonic("keine"));
     keineButton.setNextFocusableComponent(suchButton);
     Dialog.setPreferredSize(keineButton,89,23);
-    keineButton.setText("keine");
     keineButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         keineButton_actionPerformed(e);
@@ -215,66 +203,55 @@ public class SuchFrame extends JDialog implements ActionListener {
     });
     jLabel3.setHorizontalAlignment(SwingConstants.CENTER);
     jLabel3.setHorizontalTextPosition(SwingConstants.CENTER);
-    jLabel3.setText("Weitersuchen mit F3 möglich!");
+    jLabel3.setText(International.getString("Weitersuchen mit F3 möglich!"));
+    Mnemonics.setButton(this, fahrtart, International.getStringWithMnemonic("Art der Fahrt"));
     fahrtart.setNextFocusableComponent(alleButton);
     fahrtart.setSelected(true);
-    fahrtart.setText("Art der Fahrt");
     normalPanel.setLayout(gridBagLayout2);
     fehlersuchPanel.setLayout(gridBagLayout3);
-    jLabel4.setText("Suche nach:");
+    jLabel4.setText(International.getString("Suche nach")+":");
+    Mnemonics.setButton(this, err_unvollst, International.getStringWithMnemonic("unvollständige Einträge"));
     err_unvollst.setNextFocusableComponent(err_km);
-    err_unvollst.setMnemonic('U');
     err_unvollst.setSelected(true);
-    err_unvollst.setText("unvollständige Einträge");
+    Mnemonics.setButton(this, err_km, International.getStringWithMnemonic("Einträge mit widersprüchlichen Kilometerangaben"));
     err_km.setNextFocusableComponent(err_unbekRuderer);
-    err_km.setMnemonic('K');
     err_km.setSelected(true);
-    err_km.setText("Einträge mit widersprüchlichen Kilometerangaben");
+    Mnemonics.setButton(this, err_unbekRuderer, International.getStringWithMnemonic("Einträge mit unbekannten Ruderern"));
     err_unbekRuderer.setNextFocusableComponent(err_unbekRudererOhneGast);
-    err_unbekRuderer.setMnemonic('R');
     err_unbekRuderer.setSelected(true);
-    err_unbekRuderer.setText("Einträge mit unbekannten Ruderern");
+    Mnemonics.setButton(this, err_unbekBoot, International.getStringWithMnemonic("Einträge mit unbekannten Booten"));
     err_unbekBoot.setNextFocusableComponent(err_unbekZiel);
-    err_unbekBoot.setMnemonic('B');
     err_unbekBoot.setSelected(true);
-    err_unbekBoot.setText("Einträge mit unbekannten Booten");
+    Mnemonics.setButton(this, err_unbekZiel, International.getStringWithMnemonic("Einträge mit unbekannten Zielen"));
     err_unbekZiel.setNextFocusableComponent(err_wafa);
-    err_unbekZiel.setMnemonic('Z');
     err_unbekZiel.setSelected(true);
-    err_unbekZiel.setText("Einträge mit unbekannten Zielen");
-    jLabel5.setText("Weitersuchen mit F3 möglich!");
+    jLabel5.setText(International.getString("Weitersuchen mit F3 möglich!"));
+    Mnemonics.setButton(this, err_nichtZurueckgetragen, International.getStringWithMnemonic("nicht zurückgetragene Einträge (efa im Bootshaus)"));
     err_nichtZurueckgetragen.setNextFocusableComponent(suchButton);
-    err_nichtZurueckgetragen.setMnemonic('G');
     err_nichtZurueckgetragen.setSelected(true);
-    err_nichtZurueckgetragen.setText("nicht zurückgetragene Einträge (efa im Bootshaus)");
-    err_zuUebertragendeMehrtagesfahrten.setMnemonic('M');
+    Mnemonics.setButton(this, err_zuUebertragendeMehrtagesfahrten, International.getStringWithMnemonic("noch nicht konfigurierte Mehrtagesfahrten"));
     err_zuUebertragendeMehrtagesfahrten.setSelected(true);
-    err_zuUebertragendeMehrtagesfahrten.setText("noch nicht konfigurierte Mehrtagesfahrten");
+    Mnemonics.setButton(this, err_zielfahrten, International.getStringWithMnemonic("Potentielle Zielfahrten (unbek. Ziel, >= 20 Km)"));
     err_zielfahrten.setNextFocusableComponent(err_vieleKm);
-    err_zielfahrten.setMnemonic('O');
     err_zielfahrten.setSelected(true);
-    err_zielfahrten.setText("Potentielle Zielfahrten (unbek. Ziel, >= 20 Km)");
+    Mnemonics.setButton(this, err_unbekRudererOhneGast, International.getStringWithMnemonic("Unbekannte Einträge mit \'Gast\' ignorieren"));
     err_unbekRudererOhneGast.setNextFocusableComponent(err_unbekBoot);
-    err_unbekRudererOhneGast.setMnemonic('I');
-    err_unbekRudererOhneGast.setText("Unbekannte Einträge mit \'Gast\' ignorieren");
+    Mnemonics.setButton(this, err_wafa, International.getStringWithMnemonic("Potentielle Wanderfahrten (normale Fahrt, >= 30 Km)"));
     err_wafa.setNextFocusableComponent(err_zielfahrten);
-    err_wafa.setMnemonic('W');
     err_wafa.setSelected(true);
-    err_wafa.setText("Potentielle Wanderfahrten (normale Fahrt, >= 30 Km)");
+    Mnemonics.setButton(this, err_vieleKm, International.getStringWithMnemonic("Fahrten mit mehr als"));
     err_vieleKm.setNextFocusableComponent(err_vieleKmKm);
-    err_vieleKm.setMnemonic('F');
-    err_vieleKm.setText("Fahrten mit mehr als");
-    jLabel6.setText(" Km");
+    jLabel6.setText(" "+International.getString("Km"));
     err_vieleKmKm.setNextFocusableComponent(err_nichtZurueckgetragen);
     Dialog.setPreferredSize(err_vieleKmKm, 50, 19);
     err_vieleKmKm.setText("");
-    alle2Button.setText("alle");
+    Mnemonics.setButton(this, alle2Button, International.getStringWithMnemonic("alle"));
     alle2Button.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         alle2Button_actionPerformed(e);
       }
     });
-    keine2Button.setText("keine");
+    Mnemonics.setButton(this, keine2Button, International.getStringWithMnemonic("keine"));
     keine2Button.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         keine2Button_actionPerformed(e);
@@ -318,8 +295,8 @@ public class SuchFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 10, 0), 0, 0));
     this.getContentPane().add(suchButton, BorderLayout.SOUTH);
     this.getContentPane().add(auswahlPane,  BorderLayout.CENTER);
-    auswahlPane.add(normalPanel,   "normale Suche");
-    auswahlPane.add(fehlersuchPanel,    "Spezialsuche");
+    auswahlPane.add(normalPanel,   International.getString("normale Suche"));
+    auswahlPane.add(fehlersuchPanel,    International.getString("Spezialsuche"));
     fehlersuchPanel.add(jLabel4,            new GridBagConstraints(0, 0, 5, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
     fehlersuchPanel.add(err_unvollst,            new GridBagConstraints(0, 1, 5, 1, 0.0, 0.0
@@ -384,7 +361,10 @@ public class SuchFrame extends JDialog implements ActionListener {
       Daten.suchMode = Daten.SUCH_NORMAL;
       Daten.such = such.getText().trim();
       if (Daten.such.equals("")) {
-        Dialog.infoDialog("Fehleder Suchbegriff","Wenn Du gar nichts suchen möchtest, warum klickst Du dann 'Suchen'?\nGib doch bitte einen Suchbegriff ein!");
+        Dialog.infoDialog(International.getString("Fehleder Suchbegriff"),
+                International.getString("Wenn Du gar nichts suchen möchtest, warum klickst Du dann 'Suchen'?")+
+                "\n"+
+                International.getString("Gib bitte einen Suchbegriff ein!"));
         return;
       }
       Daten.such_lfdnr = lfdnr.isSelected();
@@ -402,7 +382,10 @@ public class SuchFrame extends JDialog implements ActionListener {
       if (!Daten.such_abfahrt && !Daten.such_ankunft && !Daten.such_bemerk && !Daten.such_boot &&
           !Daten.such_bootskm && !Daten.such_datum && !Daten.such_lfdnr && !Daten.such_mannsch &&
           !Daten.such_mannschkm && !Daten.such_stm && !Daten.such_ziel && !Daten.such_fahrtart) {
-        Dialog.infoDialog("Kein Feld ausgewählt","Wenn Du gar nichts suchen möchtest, warum klickst Du dann 'Suchen'?\nWähle doch bitte zumindest ein zu durchsuchendes Feld aus!");
+        Dialog.infoDialog(International.getString("Kein Feld ausgewählt"),
+                International.getString("Wenn Du gar nichts suchen möchtest, warum klickst Du dann 'Suchen'?")+
+                "\n"+
+                International.getString("Wähle bitte zumindest ein zu durchsuchendes Feld aus!"));
         return;
       }
     } else {
@@ -422,7 +405,10 @@ public class SuchFrame extends JDialog implements ActionListener {
       if (!Daten.such_errUnvollst  && !Daten.such_errKm && !Daten.such_errUnbekRuderer && !Daten.such_errUnbekBoot &&
           !Daten.such_errUnbekZiel && !Daten.such_errWafa && !Daten.such_errZielfahrten && !Daten.such_errVieleKm &&
           !Daten.such_errNichtZurueckgetragen && !Daten.such_errNichtKonfMTours) {
-        Dialog.infoDialog("Kein Suchkriterium ausgewählt","Wenn Du gar nichts suchen möchtest, warum klickst Du dann 'Suchen'?\nWähle doch bitte zumindest ein Suchkriterium aus!");
+        Dialog.infoDialog(International.getString("Kein Suchkriterium ausgewählt"),
+                International.getString("Wenn Du gar nichts suchen möchtest, warum klickst Du dann 'Suchen'?")+
+                "\n"+
+                International.getString("Wähle bitte zumindest ein Suchkriterium aus!"));
         return;
       }
 
@@ -438,8 +424,9 @@ public class SuchFrame extends JDialog implements ActionListener {
     while (weiter) {
       d = (DatenFelder)Daten.fahrtenbuch.getCompleteNext();
       if (d == null)
-        if (JOptionPane.showConfirmDialog(_this,"Suchbegriff nicht gefunden!\nSuche vom Anfang an fortsetzen?",
-            "Nicht gefunden",JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+        if (JOptionPane.showConfirmDialog(_this,International.getString("Suchbegriff nicht gefunden!")+"" +
+        "\n"+International.getString("Suche vom Anfang an fortsetzen?"),
+            International.getString("Nicht gefunden"),JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
           d = (DatenFelder)Daten.fahrtenbuch.getCompleteFirst();
         else weiter = false;
       if (d != null) {

@@ -1,26 +1,27 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.AuswahlFrame;
 import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class StatusUpdateFrame extends JDialog implements ActionListener {
   AuswahlFrame parent;
@@ -72,16 +73,16 @@ public class StatusUpdateFrame extends JDialog implements ActionListener {
       ah.addKeyActions(getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW,
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
-      okButton.setText("Status aktualisieren");
+      Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("Status aktualisieren"));
       okButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           okButton_actionPerformed(e);
         }
     });
       panel.setLayout(gridBagLayout1);
-      this.setTitle("Mitglieder-Status aktualisieren");
-      jLabel1.setText("Der Status von Mitgliedern, die folgende Eigenschaften erfüllen, " +
-    "wird geändert:");
+      this.setTitle(International.getString("Mitglieder-Status aktualisieren"));
+      jLabel1.setText(International.getString("Der Status von Mitgliedern, die folgende Eigenschaften erfüllen, " +
+    "wird geändert:"));
       this.getContentPane().add(jPanel1, BorderLayout.CENTER);
       jPanel1.add(okButton, BorderLayout.SOUTH);
       jPanel1.add(panel, BorderLayout.CENTER);
@@ -108,7 +109,7 @@ public class StatusUpdateFrame extends JDialog implements ActionListener {
       statusNeu[i] = new JComboBox();
     }
     for (int i=0; i<status.length; i++) {
-      label[i][0] = new JLabel(); label[i][0].setText("Ändere den Status von Mitgliedern mit aktuellem Status ");
+      label[i][0] = new JLabel(); label[i][0].setText(International.getString("Ändere den Status von Mitgliedern mit aktuellem Status {status}",""));
       panel.add(label[i][0], new GridBagConstraints(0, i+1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 10, (i == status.length-1 ? 10 : 0), 0), 0, 0));
 
@@ -117,7 +118,7 @@ public class StatusUpdateFrame extends JDialog implements ActionListener {
       panel.add(statusAlt[i], new GridBagConstraints(1, i+1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, (i == status.length-1 ? 10 : 0), 0), 0, 0));
 
-      label[i][1] = new JLabel(); label[i][1].setText(" und Jahrgang ");
+      label[i][1] = new JLabel(); label[i][1].setText(" "+International.getString("und Jahrgang")+" ");
       panel.add(label[i][1], new GridBagConstraints(2, i+1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, (i == status.length-1 ? 10 : 0), 0), 0, 0));
 
@@ -136,7 +137,7 @@ public class StatusUpdateFrame extends JDialog implements ActionListener {
       panel.add(jahrgang[i], new GridBagConstraints(3, i+1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, (i == status.length-1 ? 10 : 0), 0), 0, 0));
 
-      label[i][2] = new JLabel(); label[i][2].setText(" zu Status: ");
+      label[i][2] = new JLabel(); label[i][2].setText(" "+International.getString("zu Status")+": ");
       panel.add(label[i][2], new GridBagConstraints(4, i+1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, (i == status.length-1 ? 10 : 0), 0), 0, 0));
 
@@ -202,14 +203,14 @@ public class StatusUpdateFrame extends JDialog implements ActionListener {
 
   void okButton_actionPerformed(ActionEvent e) {
     if (updateLabels() == 0) {
-      Dialog.error("Bitte trage mindestens einen Jahrgang in eines der Felder ein,\n"+
-                   "um mindestens eine Ersetzung anzugeben!");
+      Dialog.error(International.getString("Bitte trage mindestens einen Jahrgang in eines der Felder ein, "+
+                   "um mindestens eine Ersetzung anzugeben!"));
       return;
     }
     for (int i=0; i<statusAlt.length; i++) {
       if (jahrgang[i].getText().trim().length()>0 && statusAlt[i].getSelectedIndex() == statusNeu[i].getSelectedIndex()) {
-        Dialog.error("In Zeile "+(i+1)+" sind alter und neuer Status identisch!\n"+
-                     "Bitte wähle als neuen Status einen anderen Wert.");
+        Dialog.error(International.getMessage("In Zeile {row} sind alter und neuer Status identisch! "+
+                     "Bitte wähle als neuen Status einen anderen Wert.",(i+1)));
         return;
       }
     }
@@ -235,8 +236,8 @@ public class StatusUpdateFrame extends JDialog implements ActionListener {
         }
       }
     }
-    Dialog.infoDialog("Fertig",
-                      "Von insgesamt "+ges+" Mitgliedern wurden "+anz+" aktualisiert:\n"+mitgl);
+    Dialog.infoDialog(International.getString("Fertig"),
+                      International.getMessage("Von insgesamt {total} Mitgliedern wurden {count} aktualisiert:",ges,anz)+"\n"+mitgl);
     if (anz>0) Daten.fahrtenbuch.getDaten().mitglieder.setChanged();
     parent.update();
     cancel();

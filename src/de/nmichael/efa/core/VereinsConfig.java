@@ -1,3 +1,13 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
@@ -6,14 +16,7 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.io.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete (needs no internationalization -- only relevant for Germany)
 
 public class VereinsConfig extends DatenListe {
 
@@ -183,7 +186,7 @@ public class VereinsConfig extends DatenListe {
       fwrite(USER_LRV + "=" + userLRV + "\n");
     }
     catch (IOException e) {
-      Dialog.error("Datei '" + dat + "' kann nicht geschrieben werden!");
+      errWritingFile(dat);
       return false;
     }
     return true;

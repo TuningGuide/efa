@@ -1,20 +1,22 @@
-package de.nmichael.efa.core;
-
 /**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:  Liste der Ziele, abgeleitet von DatenListe
- * Copyright:    Copyright (c) 2001
- * Company:
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
  * @author Nicolas Michael
- * @version 1.0
+ * @version 2
  */
 
+package de.nmichael.efa.core;
+
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.DatenListe;
-import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.core.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.io.IOException;
+
+// @i18n complete
 
 public class Ziele extends DatenListe {
 
@@ -183,6 +185,7 @@ public class Ziele extends DatenListe {
           if (zff.getZielfahrt(i).isErreicht(heimZb)) eigenerBereichErreicht = true;
         }
         if (eigenerBereichErreicht) {
+            // needs no internationalization (just for Berlin, Germany)
           switch (Dialog.auswahlDialog("Fehlerhafter Zieleintrag",
                                        "Name des Ziels: "+d.get(NAME)+" ("+d.get(KM)+" Km)\n"+
                                        "Zielbereiche: "+d.get(BEREICH)+"\n"+

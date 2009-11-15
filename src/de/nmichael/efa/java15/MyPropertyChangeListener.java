@@ -1,5 +1,14 @@
-package de.nmichael.efa.java15;
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
 
+package de.nmichael.efa.java15;
 
 public class MyPropertyChangeListener implements java.beans.PropertyChangeListener {
   javax.swing.JEditorPane editorPane;

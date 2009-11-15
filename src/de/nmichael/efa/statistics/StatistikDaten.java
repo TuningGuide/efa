@@ -1,3 +1,13 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.statistics;
 
 import de.nmichael.efa.core.StatistikFrame;
@@ -6,15 +16,6 @@ import de.nmichael.efa.*;
 import java.util.GregorianCalendar;
 import javax.swing.JDialog;
 import java.util.Hashtable;
-
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
 
 public class StatistikDaten implements Cloneable {
 

@@ -1,13 +1,20 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.AuswahlFrame;
 import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -16,14 +23,7 @@ import javax.swing.filechooser.FileFilter;
 import java.io.*;
 import java.util.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class NeuesMitgliedFrame extends JDialog implements ActionListener {
   EfaFrame efaFrame;
@@ -95,14 +95,13 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
     verein.setText(EfaUtil.getVerein(name));
     if (!EfaUtil.getVerein(name).equals("")) status1.setSelectedIndex(Daten.fahrtenbuch.getDaten().status.length-2);
     vorname.requestFocus();
-    this.setTitle("Neues Mitglied hinzufügen");
+    this.setTitle(International.getString("Neues Mitglied hinzufügen"));
     iniGruppen();
-    SaveButton.setText("Person hinzufügen");
+    Mnemonics.setButton(this, SaveButton, International.getStringWithMnemonic("Person hinzufügen"));
   }
 
   void editiereMitglied(DatenFelder d) {
     if (d == null) { // sollte eigentlich nicht passieren
-      Logger.log(Logger.ERROR,"NeuesMitgliedFrame.editiereMitglied(null): Mitglied nicht gefunden --- diesen Fehler bitte an software@nmichael.de melden! Danke!");
       cancel();
       return;
     }
@@ -131,9 +130,9 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
     frei2.setText(d.get(Mitglieder.FREI2));
     frei3.setText(d.get(Mitglieder.FREI3));
     vorname.requestFocus();
-    this.setTitle("Mitglied bearbeiten");
+    this.setTitle(International.getString("Mitglied bearbeiten"));
     iniGruppen();
-    SaveButton.setText("Eintrag übernehmen");
+    Mnemonics.setButton(this, SaveButton, International.getStringWithMnemonic("Eintrag übernehmen"));
   }
 
 
@@ -217,26 +216,22 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
       System.err.println("Error setting up ActionHandler");
     }
 
+    Mnemonics.setButton(this, SaveButton, International.getStringWithMnemonic("Person hinzufügen"));
     SaveButton.setNextFocusableComponent(vorname);
-    SaveButton.setMnemonic('H');
-    SaveButton.setText("Person hinzufügen");
     SaveButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         SaveButton_actionPerformed(e);
       }
     });
-    this.setTitle("Neues Mitglied hinzufügen");
+    this.setTitle(International.getString("Neues Mitglied hinzufügen"));
     this.getContentPane().setLayout(borderLayout1);
     mitglDataPanel.setLayout(gridBagLayout1);
-    jLabel1.setDisplayedMnemonic('V');
+    Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Vorname")+": ");
     jLabel1.setLabelFor(vorname);
-    jLabel1.setText("Vorname: ");
-    jLabel2.setDisplayedMnemonic('N');
+    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Nachname")+": ");
     jLabel2.setLabelFor(nachname);
-    jLabel2.setText("Nachname: ");
-    jLabel3.setDisplayedMnemonic('E');
+    Mnemonics.setLabel(this, jLabel3, International.getStringWithMnemonic("falls auswärtig, Verein")+": ");
     jLabel3.setLabelFor(verein);
-    jLabel3.setText("falls auswärtig, Verein: ");
     vorname.setNextFocusableComponent(nachname);
     Dialog.setPreferredSize(vorname,200,19);
     vorname.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -258,19 +253,16 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
         verein_focusLost(e);
       }
     });
-    jLabel4.setDisplayedMnemonic('S');
+    Mnemonics.setLabel(this, jLabel4, International.getStringWithMnemonic("Status")+": ");
     jLabel4.setLabelFor(status1);
-    jLabel4.setText("Status: ");
     status1.setNextFocusableComponent(behinderung);
     Dialog.setPreferredSize(status1,200,19);
-    jLabel5.setDisplayedMnemonic('G');
+    Mnemonics.setLabel(this, jLabel5, International.getStringWithMnemonic("Geschlecht")+": ");
     jLabel5.setLabelFor(geschlecht);
-    jLabel5.setText("Geschlecht: ");
     geschlecht.setNextFocusableComponent(status1);
     Dialog.setPreferredSize(geschlecht,200,19);
-    jLabel7.setDisplayedMnemonic('J');
+    Mnemonics.setLabel(this, jLabel7, International.getStringWithMnemonic("Jahrgang")+": ");
     jLabel7.setLabelFor(jahrgang);
-    jLabel7.setText("Jahrgang: ");
     jahrgang.setNextFocusableComponent(geschlecht);
     Dialog.setPreferredSize(jahrgang,200,19);
     jahrgang.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -278,10 +270,8 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
         jahrgang_focusLost(e);
       }
     });
-    jLabel8.setToolTipText("Kurzname für diese Person");
-    jLabel8.setDisplayedMnemonic('A');
+    Mnemonics.setLabel(this, jLabel8, International.getStringWithMnemonic("Eingabe-Kürzel")+": ");
     jLabel8.setLabelFor(alias);
-    jLabel8.setText("Eingabe-Kürzel: ");
     alias.setNextFocusableComponent(jahrgang);
     Dialog.setPreferredSize(alias,200,19);
     alias.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -292,30 +282,24 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
         alias_focusGained(e);
       }
     });
-    jLabel6.setText("Behinderung: ");
+    jLabel6.setText(International.getString("Behinderung")+": ");
     behinderung.setNextFocusableComponent(mitgliedsnummer);
-    behinderung.setMnemonic('B');
-    behinderung.setText("50% oder mehr Behinderung");
-    jLabel9.setDisplayedMnemonic('M');
+    Mnemonics.setButton(this, behinderung, International.getStringWithMnemonic("50% oder mehr Behinderung"));
+    Mnemonics.setLabel(this, jLabel9, International.getStringWithMnemonic("Mitgliedsnummer")+": ");
     jLabel9.setLabelFor(mitgliedsnummer);
-    jLabel9.setText("Mitgliedsnummer: ");
-    jLabel10.setDisplayedMnemonic('P');
+    Mnemonics.setLabel(this, jLabel10, International.getStringWithMnemonic("Paßwort")+": ");
     jLabel10.setLabelFor(passwort);
-    jLabel10.setText("Paßwort: ");
     mitgliedsnummer.setNextFocusableComponent(passwort);
     Dialog.setPreferredSize(mitgliedsnummer,200,19);
     passwort.setNextFocusableComponent(wettbewerbe);
     Dialog.setPreferredSize(passwort,200,19);
     weitereDatenPanel.setLayout(gridBagLayout2);
-    jLabel11.setDisplayedMnemonic('1');
+    Mnemonics.setLabel(this, jLabel11, International.getStringWithMnemonic("Freie Verwendung 1")+": ");
+    Mnemonics.setLabel(this, jLabel12, International.getStringWithMnemonic("Freie Verwendung 2")+": ");
+    Mnemonics.setLabel(this, jLabel13, International.getStringWithMnemonic("Freie Verwendung 3")+": ");
     jLabel11.setLabelFor(frei1);
-    jLabel11.setText("Freie Verwendung 1: ");
-    jLabel12.setDisplayedMnemonic('2');
     jLabel12.setLabelFor(frei2);
-    jLabel12.setText("Freie Verwendung 2: ");
-    jLabel13.setDisplayedMnemonic('3');
     jLabel13.setLabelFor(frei3);
-    jLabel13.setText("Freie Verwendung 3: ");
     frei1.setNextFocusableComponent(frei2);
     frei2.setNextFocusableComponent(frei3);
     frei3.setNextFocusableComponent(SaveButton);
@@ -323,15 +307,12 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
     Dialog.setPreferredSize(frei2,300,19);
     Dialog.setPreferredSize(frei3,300,19);
     wettbewerbe.setNextFocusableComponent(SaveButton);
-    wettbewerbe.setToolTipText("Wenn aktiviert, dann wird dieses Mitglied NICHT für Meldungen zu " +
-    "Wettbewerben berücksichtigt");
-    wettbewerbe.setMnemonic('W');
-    wettbewerbe.setText("von Wettbewerbsmeldungen ausnehmen");
+    wettbewerbe.setToolTipText(International.getString("Wenn aktiviert, dann wird dieses Mitglied NICHT für Meldungen zu Wettbewerben berücksichtigt"));
+    Mnemonics.setButton(this, wettbewerbe, International.getStringWithMnemonic("von Wettbewerbsmeldungen ausnehmen"));
     mitglDataPanel.setToolTipText("");
     gruppenPanel.setLayout(gridBagLayout3);
-    jLabel14.setText("Ist Mitglied in folgenden Gruppen:");
-    weitereGruppeButton.setMnemonic('W');
-    weitereGruppeButton.setText("Weitere Gruppe");
+    jLabel14.setText(International.getString("Ist Mitglied in folgenden Gruppen")+": ");
+    Mnemonics.setButton(this, weitereGruppeButton, International.getStringWithMnemonic("Weitere Gruppe"));
     weitereGruppeButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         weitereGruppeButton_actionPerformed(e);
@@ -339,8 +320,8 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
     });
     this.getContentPane().add(SaveButton, BorderLayout.SOUTH);
     this.getContentPane().add(jTabbedPane1, BorderLayout.CENTER);
-    jTabbedPane1.add(mitglDataPanel, "Mitgliederdaten");
-    jTabbedPane1.add(weitereDatenPanel,  "Weitere");
+    jTabbedPane1.add(mitglDataPanel, International.getString("Mitgliederdaten"));
+    jTabbedPane1.add(weitereDatenPanel,  International.getString("Weitere"));
     mitglDataPanel.add(vorname,   new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
     mitglDataPanel.add(nachname,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
@@ -395,7 +376,7 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     weitereDatenPanel.add(frei3,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    jTabbedPane1.add(gruppenPanel,   "Gruppen");
+    jTabbedPane1.add(gruppenPanel,   International.getString("Gruppen"));
     gruppenPanel.add(jLabel14,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     gruppenPanel.add(weitereGruppeButton,    new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
@@ -434,7 +415,7 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
     String nachname=this.nachname.getText().trim();
     String verein=this.verein.getText().trim();
     gruppen = Daten.gruppen.getGruppen();
-    gruppen.insertElementAt("--- keine Gruppe ---",0);
+    gruppen.insertElementAt(International.getString("--- keine Gruppe ---"),0);
     for (int i=0; i<gruppen.size(); i++) {
       if (Daten.gruppen.isInGroup((String)gruppen.get(i),vorname,nachname,verein)) {
         addGruppenFeld((String)gruppen.get(i));
@@ -448,7 +429,7 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
     if (gruppenCombos == null) {
       gruppenCombos = new Vector();
     }
-    JLabel label = new JLabel("Gruppe "+(gruppenCombos.size()+1)+": ");
+    JLabel label = new JLabel(International.getString("Gruppe")+" "+(gruppenCombos.size()+1)+": ");
     JComboBox combo = new JComboBox(gruppen);
     if (gruppe != null) {
       combo.setSelectedItem(gruppe);
@@ -479,7 +460,8 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
     alias.setText(s);
     if (s.equals("")) return;
     if (Daten.fahrtenbuch.getDaten().mitglieder.isAlias(s) && !s.equals(oldAlias) && !e.isTemporary()) {
-      Dialog.infoDialog("Ungültiges Eingabe-Kürzel","Das angegebene Eingabe-Kürzel ist bereits vergeben");
+      Dialog.infoDialog(International.getString("Ungültiges Eingabe-Kürzel"),
+              International.getString("Das angegebene Eingabe-Kürzel ist bereits vergeben"));
       alias.requestFocus();
     }
   }
@@ -533,7 +515,7 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
   // Speichern & Schliessen
   void SaveButton_actionPerformed(ActionEvent e) {
     if (this.vorname.getText().trim().length() + this.nachname.getText().trim().length() == 0) {
-      Dialog.error("Bitte gib einen Namen ein!");
+      Dialog.error(International.getString("Bitte gib einen Namen ein!"));
       this.vorname.requestFocus();
       return;
     }
@@ -542,7 +524,8 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
     String k = EfaUtil.getFullName(vorname.getText().trim(),nachname.getText().trim(),verein.getText().trim());
 
     if (neu && Daten.fahrtenbuch.getDaten().mitglieder.getExact(k) != null) {
-      Dialog.infoDialog("Fehler","Es existiert bereits ein Mitglied gleichen Namens!");
+      Dialog.infoDialog(International.getString("Fehler"),
+              International.getString("Es existiert bereits ein Mitglied gleichen Namens!"));
       return;
     }
 
@@ -550,24 +533,28 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
       if (Daten.fahrtenbuch != null) {
 
         if (Daten.fahrtenbuch.getDaten().mitglieder.getExact(k) != null)
-          switch(Dialog.yesNoCancelDialog("Frage","Ein Eintrag mit gleichem Namen existiert bereits.\nSoll dieser durch den aktuellen Eintrag ersetzt werden?")) {
+          switch(Dialog.yesNoCancelDialog(International.getString("Gleichnamiger Eintrag"),
+                  International.getString("Ein Eintrag mit gleichem Namen existiert bereits. Soll dieser durch den aktuellen Eintrag ersetzt werden?"))) {
             case Dialog.YES: Daten.fahrtenbuch.getDaten().mitglieder.delete(k); break;
             default: return;
           }
 
-        switch(Dialog.yesNoCancelDialog("Frage","Sollen Einträge im Fahrtenbuch an den neuen Namen angepaßt werden?")) {
+        switch(Dialog.yesNoCancelDialog(International.getString("Einträge anpassen"),
+                International.getString("Sollen Einträge im Fahrtenbuch an den neuen Namen angepaßt werden?"))) {
           case Dialog.YES: updateFb(oldKey,k); break;
           case Dialog.CANCEL: return;
           default: break;
         }
-        switch(Dialog.yesNoCancelDialog("Frage","Sollen Einträge in der Gruppenliste an den neuen Namen angepaßt werden?")) {
+        switch(Dialog.yesNoCancelDialog(International.getString("Gruppenliste anpassen"),
+                International.getString("Sollen Einträge in der Gruppenliste an den neuen Namen angepaßt werden?"))) {
           case Dialog.YES: updateGruppen(oldKey,k); break;
           case Dialog.CANCEL: return;
           default: break;
         }
       } else {
-        switch(Dialog.yesNoCancelDialog("Warnung","Durch die Änderung kann eine Inkonsistenz zu bestehenden Fahrtenbüchern entstehen.\n"+
-                                                  "Soll der Eintrag trotzdem geändert werden?")) {
+        switch(Dialog.yesNoCancelDialog(International.getString("Warnung"),
+                International.getString("Durch die Änderung kann eine Inkonsistenz zu bestehenden Fahrtenbüchern entstehen. "+
+                                                  "Soll der Eintrag trotzdem geändert werden?"))) {
           case Dialog.YES: break;
           case Dialog.CANCEL: return;
           default: cancel(); return;
@@ -575,7 +562,8 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
       }
     } else {
       if (gruppenChanged && !directMode) {
-        switch(Dialog.yesNoCancelDialog("Frage","Sollen Einträge in der Gruppenliste an die Änderungen angepaßt werden?")) {
+        switch(Dialog.yesNoCancelDialog(International.getString("Gruppenliste anpassen"),
+                International.getString("Sollen Einträge in der Gruppenliste an die Änderungen angepaßt werden?"))) {
           case Dialog.YES: updateGruppen(oldKey,k); break;
           case Dialog.CANCEL: return;
           default: break;
@@ -611,7 +599,8 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
     Daten.fahrtenbuch.getDaten().mitglieder.add(d);
 
     if (directMode && Daten.fahrtenbuch.getDaten().mitglieder.writeFile()) {
-      Logger.log(Logger.INFO,"Ein neues Mitglied wurde zur Mitgliederliste hinzugefügt: "+EfaUtil.getFullName(d.get(Mitglieder.VORNAME),d.get(Mitglieder.NACHNAME),d.get(Mitglieder.VEREIN)));
+      Logger.log(Logger.INFO,Logger.MSG_DATA_NEWMEMBERADDED,
+              International.getString("Ein neues Mitglied wurde zur Mitgliederliste hinzugefügt")+": "+EfaUtil.getFullName(d.get(Mitglieder.VORNAME),d.get(Mitglieder.NACHNAME),d.get(Mitglieder.VEREIN)));
     }
 
     if (efamain) {

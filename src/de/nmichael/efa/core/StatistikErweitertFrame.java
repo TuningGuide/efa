@@ -1,13 +1,20 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.AutoCompletePopupWindow;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -15,14 +22,7 @@ import javax.swing.border.*;
 import java.io.*;
 import java.util.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class StatistikErweitertFrame extends JDialog implements ActionListener {
   JPanel allgemeinPanel = new JPanel();
@@ -161,67 +161,57 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
 
     border1 = BorderFactory.createEmptyBorder(10,10,10,10);
     border2 = BorderFactory.createEmptyBorder(10,10,10,10);
-    this.setTitle("Erweiterte Ausgabeeinstellungen");
+    this.setTitle(International.getString("Erweiterte Ausgabeeinstellungen"));
     allgemeinPanel.setLayout(borderLayout1);
     okButton.setNextFocusableComponent(jTabbedPane1);
-    okButton.setMnemonic('O');
-    okButton.setText("OK");
+    Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("OK"));
     okButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         okButton_actionPerformed(e);
       }
     });
-    jLabel1.setText("Ausgabevarianten");
-    jLabel2.setText("maximale Balkengröße");
+    jLabel1.setText(International.getString("Ausgabevarianten"));
+    jLabel2.setText(International.getString("maximale Balkengröße"));
     jPanel2.setLayout(gridBagLayout1);
     balkenPanel.setLayout(gridBagLayout2);
-    zusammenGaesteAndere.setText("Gäste & Andere zusammenfassen (am Ende)");
+    Mnemonics.setButton(this, zusammenGaesteAndere, International.getStringWithMnemonic("Gäste & Andere zusammenfassen (am Ende)"));
     zusammenGaesteAndere.setNextFocusableComponent(gaesteVereinsweiseZusammen);
-    zusammenGaesteAndere.setToolTipText("\'Gäste\' und \'Andere\' zu je einer Person zusammenfassen");
-    zusammenGaesteAndere.setMnemonic('G');
-    teilzieleEinzeln.setText("Teilziele einzeln");
+    Mnemonics.setButton(this, teilzieleEinzeln, International.getStringWithMnemonic("Teilziele einzeln"));
     teilzieleEinzeln.setNextFocusableComponent(nurGanzeKm);
-    teilzieleEinzeln.setToolTipText("Mit \'+\' getrennte Teilziele einzeln auflisten");
-    teilzieleEinzeln.setMnemonic('T');
+    Mnemonics.setLabel(this, maxKmLabel, International.getStringWithMnemonic("Kilometer")+": ");
     maxKmLabel.setForeground(Color.black);
-    maxKmLabel.setDisplayedMnemonic('K');
     maxKmLabel.setLabelFor(maxKm);
-    maxKmLabel.setText("Kilometer: ");
+    Mnemonics.setLabel(this, maxRudKmLabel, International.getStringWithMnemonic("Ruderkilometer")+": ");
     maxRudKmLabel.setForeground(Color.black);
-    maxRudKmLabel.setDisplayedMnemonic('R');
     maxRudKmLabel.setLabelFor(maxRudKm);
-    maxRudKmLabel.setText("Ruderkilometer: ");
+    Mnemonics.setLabel(this, maxStmKmLabel, International.getStringWithMnemonic("Steuerkilometer")+": ");
     maxStmKmLabel.setForeground(Color.black);
-    maxStmKmLabel.setDisplayedMnemonic('S');
     maxStmKmLabel.setLabelFor(maxStmKm);
-    maxStmKmLabel.setText("Steuerkilometer: ");
+    Mnemonics.setLabel(this, maxFahrtenLabel, International.getStringWithMnemonic("Fahrten")+": ");
     maxFahrtenLabel.setForeground(Color.black);
-    maxFahrtenLabel.setDisplayedMnemonic('F');
     maxFahrtenLabel.setLabelFor(maxFahrten);
-    maxFahrtenLabel.setText("Fahrten: ");
+    Mnemonics.setLabel(this, maxKmFahrtLabel, International.getStringWithMnemonic("Km / Fahrt")+": ");
     maxKmFahrtLabel.setForeground(Color.black);
-    maxKmFahrtLabel.setDisplayedMnemonic('M');
     maxKmFahrtLabel.setLabelFor(maxKmFahrt);
-    maxKmFahrtLabel.setText("Km / Fahrt: ");
     maxKmFahrt.setNextFocusableComponent(maxDauer);
     maxKmFahrt.setPreferredSize(new Dimension(50, 19));
-    maxKmFahrt.setToolTipText("maximale Balkengröße in Pixel");
+    maxKmFahrt.setToolTipText(International.getString("maximale Balkengröße in Pixeln"));
     maxKmFahrt.setText("200");
     maxFahrten.setNextFocusableComponent(maxKmFahrt);
     maxFahrten.setPreferredSize(new Dimension(50, 19));
-    maxFahrten.setToolTipText("maximale Balkengröße in Pixel");
+    maxFahrten.setToolTipText(International.getString("maximale Balkengröße in Pixeln"));
     maxFahrten.setText("200");
     maxStmKm.setNextFocusableComponent(maxFahrten);
     maxStmKm.setPreferredSize(new Dimension(50, 19));
-    maxStmKm.setToolTipText("maximale Balkengröße in Pixel");
+    maxStmKm.setToolTipText(International.getString("maximale Balkengröße in Pixeln"));
     maxStmKm.setText("200");
     maxRudKm.setNextFocusableComponent(maxStmKm);
     maxRudKm.setPreferredSize(new Dimension(50, 19));
-    maxRudKm.setToolTipText("maximale Balkengröße in Pixel");
+    maxRudKm.setToolTipText(International.getString("maximale Balkengröße in Pixeln"));
     maxRudKm.setText("200");
     maxKm.setNextFocusableComponent(maxRudKm);
     maxKm.setPreferredSize(new Dimension(50, 19));
-    maxKm.setToolTipText("maximale Balkengröße in Pixel");
+    maxKm.setToolTipText(International.getString("maximale Balkengröße in Pixeln"));
     maxKm.setText("200");
     maxKm.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
@@ -251,47 +241,29 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
     jPanel2.setBorder(border1);
     balkenPanel.setBorder(border2);
     balkenPanel.setNextFocusableComponent(crop);
-    balkenPanel.setToolTipText("Balken, die zu groß werden, auf eine geringere Größe stutzen");
     crop.setNextFocusableComponent(maxKm);
-    crop.setToolTipText("Balken, die bei 100% länger als der angegebene Wert sind, werden " +
-    "umgebrochen");
-    crop.setMnemonic('G');
-    crop.setText("zu große Balken spalten");
+    Mnemonics.setButton(this, crop, International.getStringWithMnemonic("zu große Balken spalten"));
+    Mnemonics.setButton(this, kilometerGruppiert, International.getStringWithMnemonic("Entfernungen gruppieren"));
     kilometerGruppiert.setSelected(true);
-    kilometerGruppiert.setText("Entfernungen gruppieren");
     kilometerGruppiert.setNextFocusableComponent(auchNullWerte);
-    kilometerGruppiert.setToolTipText("Kilometerentfernungen bei der Ausgabe zu 5-Km-Gruppen zusammenfassen");
-    kilometerGruppiert.setMnemonic('E');
-    gaesteVereinsweiseZusammen.setText("Gäste vereinsweise zusammenfassen");
+    Mnemonics.setButton(this, gaesteVereinsweiseZusammen, International.getStringWithMnemonic("Gäste vereinsweise zusammenfassen"));
     gaesteVereinsweiseZusammen.setNextFocusableComponent(teilzieleEinzeln);
-    gaesteVereinsweiseZusammen.setToolTipText("Gäste unter ihren Vereinsnamen als zusammenfassen");
-    gaesteVereinsweiseZusammen.setMnemonic('V');
-    horiz_alle.setText("horizontal immer alle (Wer mit Wem)");
+    Mnemonics.setButton(this, horiz_alle, International.getStringWithMnemonic("horizontal immer alle (Wer mit Wem)"));
     horiz_alle.setNextFocusableComponent(xmlImmerAlle);
-    horiz_alle.setToolTipText("auf der Horizontalen immer alle Namen anzeigen");
-    horiz_alle.setMnemonic('A');
     dateiPanel.setLayout(gridBagLayout3);
+    Mnemonics.setButton(this, overwrite, International.getStringWithMnemonic("vor Überschreiben vorhandener Dateien warnen"));
     overwrite.setNextFocusableComponent(nurTabelle);
-    overwrite.setToolTipText("beim Überschreiben von Dateien warnen");
-    overwrite.setMnemonic('W');
-    overwrite.setText("vor Überschreiben vorhandener Dateien warnen");
+    Mnemonics.setButton(this, nurTabelle, International.getStringWithMnemonic("in existierenden HTML-Dateien nur Tabelle ersetzen"));
     nurTabelle.setNextFocusableComponent(fileExecBefore);
-    nurTabelle.setToolTipText("in bestehenden HTML-Dateien das Gerüst der Datei übernehmen");
-    nurTabelle.setMnemonic('E');
-    nurTabelle.setText("in existierenden HTML-Dateien nur Tabelle ersetzen");
-    jLabel3.setText("Ausgabe in Dateien");
+    jLabel3.setText(International.getString("Ausgabe in Dateien"));
+    Mnemonics.setButton(this, auchNullWerte, International.getStringWithMnemonic("immer auch alle Null-Werte ausgeben"));
     auchNullWerte.setNextFocusableComponent(horiz_alle);
-    auchNullWerte.setToolTipText("auch Einträge, die im gewählten Zeitraum nicht vorkommen, mit ausgeben");
-    auchNullWerte.setMnemonic('N');
-    auchNullWerte.setText("immer auch alle Null-Werte ausgeben");
+    Mnemonics.setLabel(this, maxDauerLabel, International.getStringWithMnemonic("Dauer (Stunden)")+": ");
     maxDauerLabel.setForeground(Color.black);
-    maxDauerLabel.setDisplayedMnemonic('D');
     maxDauerLabel.setLabelFor(maxDauer);
-    maxDauerLabel.setText("Dauer (Stunden): ");
+    Mnemonics.setLabel(this, maxKmHLabel, International.getStringWithMnemonic("Km/h")+": ");
     maxKmHLabel.setForeground(Color.black);
-    maxKmHLabel.setDisplayedMnemonic('H');
     maxKmHLabel.setLabelFor(maxKmH);
-    maxKmHLabel.setText("Km / h: ");
     maxDauer.setNextFocusableComponent(maxKmH);
     maxDauer.setPreferredSize(new Dimension(50, 17));
     maxDauer.setText("200");
@@ -299,24 +271,19 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
     maxKmH.setPreferredSize(new Dimension(50, 17));
     maxKmH.setText("200");
     weiterePanel.setLayout(gridBagLayout4);
-    jLabel4.setDisplayedMnemonic('E');
+    Mnemonics.setLabel(this, jLabel4, International.getStringWithMnemonic("Bemerkungsfeld enthält")+": ");
     jLabel4.setLabelFor(nurBemerk);
-    jLabel4.setText("Bemerkungsfeld enthält: ");
     nurBemerk.setNextFocusableComponent(nurBemerkNicht);
     nurBemerk.setPreferredSize(new Dimension(200, 17));
-    nurBemerk.setToolTipText("Text, den das Bemerkungsfeld enthalten muß");
     nurBemerk.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyPressed(KeyEvent e) {
         nurBemerk_keyPressed(e);
       }
     });
-    jLabel5.setDisplayedMnemonic('N');
+    Mnemonics.setLabel(this, jLabel5, International.getStringWithMnemonic("Bemerkungsfeld enthält nicht")+": ");
     jLabel5.setLabelFor(nurBemerkNicht);
-    jLabel5.setText("Bemerkungsfeld enthält nicht: ");
-    jLabel6.setText("Nur Fahrten mit folgenden Eigenschaften auswerten:");
     nurBemerkNicht.setNextFocusableComponent(nurStegKm);
     nurBemerkNicht.setPreferredSize(new Dimension(200, 17));
-    nurBemerkNicht.setToolTipText("Text, den das Bemerkungsfeld nicht enthalten darf");
     nurBemerkNicht.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyPressed(KeyEvent e) {
         nurBemerkNicht_keyPressed(e);
@@ -326,10 +293,11 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
     dateiPanel.setNextFocusableComponent(overwrite);
     weiterePanel.setNextFocusableComponent(nurBemerk);
     wettPanel.setLayout(gridBagLayout5);
-    jLabel7.setText("Zusätzlich noch folgende Wettbewerbe auswerten:");
-    jLabel8.setText("Wettbewerbsjahr: ");
-    jLabel9.setText("Wettbewerbsjahr: ");
-    jLabel10.setText("Wettbewerbsjahr: ");
+
+    jLabel7.setText(International.getString("Zusätzlich noch folgende Wettbewerbe auswerten")+":");
+    jLabel8.setText(International.getString("Wettbewerbsjahr")+": ");
+    jLabel9.setText(International.getString("Wettbewerbsjahr")+": ");
+    jLabel10.setText(International.getString("Wettbewerbsjahr")+": ");
     wettjahr1.setNextFocusableComponent(wett2);
     wettjahr1.setPreferredSize(new Dimension(100, 17));
     wettjahr1.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -373,19 +341,14 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
       }
     });
     wettMitAnforderungen.setNextFocusableComponent(alleZielfahrtenAusgeben);
-    wettMitAnforderungen.setText("auch geforderte Kilometer und Zusatzbedingungen ausgeben");
-    nurStegKm.setText("nur Fahrten mit Start und Ziel Bootshaus (\'Steg-Km\')");
+    Mnemonics.setButton(this, wettMitAnforderungen, International.getStringWithMnemonic("auch geforderte Kilometer und Zusatzbedingungen ausgeben"));
+    Mnemonics.setButton(this, nurStegKm, International.getStringWithMnemonic("nur Fahrten mit Start und Ziel Bootshaus (\'Steg-Km\')"));
     nurStegKm.setNextFocusableComponent(nurMindKm);
-    nurStegKm.setToolTipText("nur Fahrten auswerten, deren Start und Ziel das eigene Bootshaus ist");
-    nurStegKm.setMnemonic('Z');
+    Mnemonics.setButton(this, xmlImmerAlle, International.getStringWithMnemonic("in XML-Ausgabe immer alle Felder ausgeben"));
     xmlImmerAlle.setNextFocusableComponent(mitglnrStattName);
-    xmlImmerAlle.setToolTipText("Zur Weiterverarbeitung aller ausgewerteten Daten");
-    xmlImmerAlle.setMnemonic('X');
-    xmlImmerAlle.setText("in XML-Ausgabe immer alle Felder ausgeben");
-    jLabel11.setDisplayedMnemonic('F');
+    Mnemonics.setLabel(this, jLabel11, International.getStringWithMnemonic("nur Fahrten mit mind.")+" ");
     jLabel11.setLabelFor(nurMindKm);
-    jLabel11.setText("nur Fahrten mit mind. ");
-    jLabel12.setText(" Kilometern");
+    jLabel12.setText(" "+International.getString("Kilometern"));
     nurMindKm.setNextFocusableComponent(nurBooteFuerGruppe);
     nurMindKm.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
@@ -393,65 +356,61 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
       }
     });
     fahrtenbuchPanel.setLayout(gridBagLayout6);
-    jLabel13.setText("Folgende Felder bei Statistikart \'Fahrtenbuch\' ausgeben:");
+    jLabel13.setText(International.getString("Folgende Felder bei Statistikart \'Fahrtenbuch\' ausgeben:"));
+    Mnemonics.setButton(this, fbLfdNrCheckBox, International.getStringWithMnemonic("Lfd.Nr."));
     fbLfdNrCheckBox.setNextFocusableComponent(fbDatumCheckBox);
     fbLfdNrCheckBox.setSelected(true);
-    fbLfdNrCheckBox.setText("Lfd.Nr.");
+    Mnemonics.setButton(this, fbDatumCheckBox, International.getStringWithMnemonic("Datum"));
     fbDatumCheckBox.setNextFocusableComponent(fbBootCheckBox);
     fbDatumCheckBox.setSelected(true);
-    fbDatumCheckBox.setText("Datum");
+    Mnemonics.setButton(this, fbBootCheckBox, International.getStringWithMnemonic("Boot"));
     fbBootCheckBox.setNextFocusableComponent(fbStmCheckBox);
     fbBootCheckBox.setSelected(true);
-    fbBootCheckBox.setText("Boot");
+    Mnemonics.setButton(this, fbStmCheckBox, International.getStringWithMnemonic("Steuermann"));
     fbStmCheckBox.setNextFocusableComponent(fbMannschCheckBox);
     fbStmCheckBox.setSelected(true);
-    fbStmCheckBox.setText("Steuermann");
+    Mnemonics.setButton(this, fbMannschCheckBox, International.getStringWithMnemonic("Mannschaft"));
     fbMannschCheckBox.setNextFocusableComponent(fbAbfahrtCheckBox);
     fbMannschCheckBox.setSelected(true);
-    fbMannschCheckBox.setText("Mannschaft");
+    Mnemonics.setButton(this, fbAbfahrtCheckBox, International.getStringWithMnemonic("Abfahrt"));
     fbAbfahrtCheckBox.setNextFocusableComponent(fbAnkunftCheckBox);
     fbAbfahrtCheckBox.setSelected(true);
-    fbAbfahrtCheckBox.setText("Abfahrt");
+    Mnemonics.setButton(this, fbAnkunftCheckBox, International.getStringWithMnemonic("Ankunft"));
     fbAnkunftCheckBox.setNextFocusableComponent(fbZielCheckBox);
     fbAnkunftCheckBox.setSelected(true);
-    fbAnkunftCheckBox.setText("Ankunft");
+    Mnemonics.setButton(this, fbZielCheckBox, International.getStringWithMnemonic("Ziel"));
     fbZielCheckBox.setNextFocusableComponent(fbBootsKmCheckBox);
     fbZielCheckBox.setSelected(true);
-    fbZielCheckBox.setText("Ziel");
+    Mnemonics.setButton(this, fbBootsKmCheckBox, International.getStringWithMnemonic("Boots-Km"));
     fbBootsKmCheckBox.setNextFocusableComponent(fbMannschKmCheckBox);
     fbBootsKmCheckBox.setSelected(true);
-    fbBootsKmCheckBox.setText("Boots-Km");
+    Mnemonics.setButton(this, fbMannschKmCheckBox, International.getStringWithMnemonic("Mannsch.-Km"));
     fbMannschKmCheckBox.setNextFocusableComponent(fbBemerkungenCheckBox);
     fbMannschKmCheckBox.setSelected(true);
-    fbMannschKmCheckBox.setText("Mannsch.-Km");
+    Mnemonics.setButton(this, fbBemerkungenCheckBox, International.getStringWithMnemonic("Bemerkungen"));
     fbBemerkungenCheckBox.setNextFocusableComponent(fbFahrtartInBemerkungenCheckBox);
     fbBemerkungenCheckBox.setSelected(true);
-    fbBemerkungenCheckBox.setText("Bemerkungen");
     jTabbedPane1.setMinimumSize(new Dimension(540, 244));
     jTabbedPane1.setPreferredSize(new Dimension(540, 244));
+    Mnemonics.setButton(this, zusammengefassteWerteOhneBalken, International.getStringWithMnemonic("zusammengefaßte Werte ohne Balken"));
     zusammengefassteWerteOhneBalken.setNextFocusableComponent(okButton);
-    zusammengefassteWerteOhneBalken.setText("zusammengefaßte Werte ohne Balken");
+    Mnemonics.setButton(this, fbFahrtartInBemerkungenCheckBox, International.getStringWithMnemonic("Im Feld Bemerkungen auch die Fahrtart ausgeben"));
     fbFahrtartInBemerkungenCheckBox.setNextFocusableComponent(fbZielbereichInBemerkungenCheckBox);
-    fbFahrtartInBemerkungenCheckBox.setText("Im Feld Bemerkungen auch die Fahrtart ausgeben");
-    jLabel14.setDisplayedMnemonic('V');
+    Mnemonics.setLabel(this, jLabel14, International.getStringWithMnemonic("vor Erstellen der Datei Kommando ausführen")+": ");
     jLabel14.setLabelFor(fileExecBefore);
-    jLabel14.setText("vor Erstellen der Datei Kommando ausführen: ");
-    jLabel15.setDisplayedMnemonic('N');
+    Mnemonics.setLabel(this, jLabel15, International.getStringWithMnemonic("nach Erstellen der Datei Kommando ausführen")+": ");
     jLabel15.setLabelFor(fileExecAfter);
-    jLabel15.setText("nach Erstellen der Datei Kommando ausführen: ");
     fileExecBefore.setNextFocusableComponent(fileExecAfter);
     fileExecBefore.setPreferredSize(new Dimension(200, 17));
     fileExecAfter.setNextFocusableComponent(okButton);
     fileExecAfter.setPreferredSize(new Dimension(200, 17));
+    Mnemonics.setButton(this, mitglnrStattName, International.getStringWithMnemonic("Mitgliedsnummern anstelle von Namen ausgeben"));
     mitglnrStattName.setNextFocusableComponent(okButton);
-    mitglnrStattName.setMnemonic('M');
-    mitglnrStattName.setText("Mitgliedsnummern anstelle von Namen ausgeben");
+    Mnemonics.setButton(this, fbZielbereichInBemerkungenCheckBox, International.getStringWithMnemonic("Im Feld Bemerkungen auch den Zielbereich ausgeben"));
     fbZielbereichInBemerkungenCheckBox.setNextFocusableComponent(okButton);
     fbZielbereichInBemerkungenCheckBox.setSelected(true);
-    fbZielbereichInBemerkungenCheckBox.setText("Im Feld Bemerkungen auch den Zielbereich ausgeben");
-    jLabel16.setDisplayedMnemonic('F');
+    Mnemonics.setLabel(this, jLabel16, International.getStringWithMnemonic("nur die folgenden Fahrtenbücher auswerten")+": ");
     jLabel16.setLabelFor(nurFb1);
-    jLabel16.setText("nur die folgenden Fahrtenbücher auswerten:");
     nurFb1Button.setText("");
     nurFb1Button.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -473,9 +432,8 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
 
     nurFb1.setNextFocusableComponent(nurFb2);
     nurFb2.setNextFocusableComponent(okButton);
-    jLabel17.setDisplayedMnemonic('B');
+    Mnemonics.setLabel(this, jLabel17, International.getStringWithMnemonic("nur Boote für Gruppe")+": ");
     jLabel17.setLabelFor(nurBooteFuerGruppe);
-    jLabel17.setText("nur Boote für Gruppe: ");
     nurBooteFuerGruppe.setNextFocusableComponent(nurFb1);
     nurBooteFuerGruppe.setText("");
     nurBooteFuerGruppe.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -488,11 +446,10 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
         gruppe_focusLost(e);
       }
     });
+    Mnemonics.setButton(this, alleZielfahrtenAusgeben, International.getStringWithMnemonic("alle Zielfahrten ausgeben (LRV Berlin Sommer)"));
     alleZielfahrtenAusgeben.setNextFocusableComponent(okButton);
-    alleZielfahrtenAusgeben.setMnemonic('Z');
-    alleZielfahrtenAusgeben.setText("alle Zielfahrten ausgeben (LRV Berlin Sommer)");
+    Mnemonics.setButton(this, nurGanzeKm, International.getStringWithMnemonic("Nachkommastellen bei Ausgabe von Kilometern abschneiden"));
     nurGanzeKm.setNextFocusableComponent(kilometerGruppiert);
-    nurGanzeKm.setText("Nachkommastellen bei Ausgabe von Kilometern abschneiden");
     allgemeinPanel.add(jPanel2,  BorderLayout.CENTER);
     jPanel2.add(jLabel1,    new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 0, 20, 0), 0, 0));
@@ -550,10 +507,9 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
     this.getContentPane().add(jTabbedPane1,  BorderLayout.CENTER);
     this.getContentPane().add(okButton, BorderLayout.SOUTH);
-    jTabbedPane1.add(allgemeinPanel,   "Ausgabevarianten");
-    jTabbedPane1.add(balkenPanel,  "Balken");
-
-    jTabbedPane1.add(fahrtenbuchPanel,  "Fahrtenbuch");
+    jTabbedPane1.add(allgemeinPanel,   International.getString("Ausgabevarianten"));
+    jTabbedPane1.add(balkenPanel,  International.getString("Balken"));
+    jTabbedPane1.add(fahrtenbuchPanel,  International.getString("Fahrtenbuch"));
     fahrtenbuchPanel.add(jLabel13,     new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
     fahrtenbuchPanel.add(fbLfdNrCheckBox,    new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
@@ -582,8 +538,7 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     fahrtenbuchPanel.add(fbZielbereichInBemerkungenCheckBox,    new GridBagConstraints(0, 7, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-
-    jTabbedPane1.add(wettPanel,   "Wettbewerbe");
+    jTabbedPane1.add(wettPanel,   International.getString("Wettbewerbe"));
     wettPanel.add(jLabel7,    new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
     wettPanel.add(wett1,    new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
@@ -608,7 +563,7 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
     wettPanel.add(alleZielfahrtenAusgeben,  new GridBagConstraints(0, 5, 3, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    jTabbedPane1.add(dateiPanel,  "Datei");
+    jTabbedPane1.add(dateiPanel,  International.getString("Datei"));
     dateiPanel.add(overwrite,     new GridBagConstraints(0, 1, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     dateiPanel.add(nurTabelle,      new GridBagConstraints(0, 2, 3, 1, 0.0, 0.0
@@ -678,7 +633,7 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
   }
 
   void iniWett(JComboBox combo) {
-    combo.addItem("--- keine Auswahl ---");
+    combo.addItem(International.getString("--- keine Auswahl ---"));
     if (Daten.wettDefs != null) {
       for (int i=0; i<WettDefs.ANZWETT; i++)
         if (i==WettDefs.LRVBERLIN_BLAUERWIMPEL || i==WettDefs.DRV_WANDERRUDERSTATISTIK) {
@@ -811,7 +766,8 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
   void nurFb1Button_actionPerformed(ActionEvent e) {
     String startdir = nurFb1.getText().trim();
     if (startdir.length() == 0 || startdir.indexOf(Daten.fileSep)<0) startdir = Daten.fahrtenbuch.getFileName();
-    String dat = Dialog.dateiDialog(this,"Fahrtenbuch auswählen","efa-Fahrtenbuch (*.efb)","efb",startdir,false);
+    String dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuch auswählen"),
+            International.getString("efa-Fahrtenbuch")+" (*.efb)","efb",startdir,false);
     if (dat != null) {
       if (EfaUtil.getPathOfFile(dat).equals(EfaUtil.getPathOfFile(Daten.fahrtenbuch.getFileName()))) {
         dat = EfaUtil.getFilenameWithoutPath(dat);
@@ -823,7 +779,8 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
   void nurFb2Button_actionPerformed(ActionEvent e) {
     String startdir = nurFb2.getText().trim();
     if (startdir.length() == 0 || startdir.indexOf(Daten.fileSep)<0) startdir = Daten.fahrtenbuch.getFileName();
-    String dat = Dialog.dateiDialog(this,"Fahrtenbuch auswählen","efa-Fahrtenbuch (*.efb)","efb",startdir,false);
+    String dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuch auswählen"),
+            International.getString("efa-Fahrtenbuch")+" (*.efb)","efb",startdir,false);
     if (dat != null) {
       if (EfaUtil.getPathOfFile(dat).equals(EfaUtil.getPathOfFile(Daten.fahrtenbuch.getFileName()))) {
         dat = EfaUtil.getFilenameWithoutPath(dat);

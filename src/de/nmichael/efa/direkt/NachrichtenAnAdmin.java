@@ -1,12 +1,20 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.direkt;
 
 import java.io.*;
 import java.util.Vector;
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.Logger;
-
+import de.nmichael.efa.util.*;
 
 public class NachrichtenAnAdmin extends DatenListe {
 

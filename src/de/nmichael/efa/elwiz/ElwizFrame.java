@@ -1,16 +1,23 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.elwiz;
 
 import de.nmichael.efa.core.EfaFrame;
-import de.nmichael.efa.util.TMJ;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.ActionHandler;
+import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.util.Dialog;
 
 public class ElwizFrame extends JFrame {
   Vector optionsHTML, optionsPDF;

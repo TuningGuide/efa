@@ -1,6 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
  */
 
 package de.nmichael.efa.statistics;
@@ -8,10 +13,6 @@ package de.nmichael.efa.statistics;
 import java.util.*;
 import de.nmichael.efa.util.EfaUtil;
 
-/**
- *
- * @author nick
- */
 class AusgabeZeilen {
   public static final int FONT_NORMAL = 0;
   public static final int FONT_BOLD = 1;

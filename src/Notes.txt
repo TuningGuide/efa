@@ -1,3 +1,9 @@
+International.getString()
+International.getMessage()
+Mnemonics.setLabel(this, label, International.getStringWithMnemonic("")+": ");
+Mnemonics.setButton(this, button, International.getStringWithMnemonic(""));
+
+
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
  * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
@@ -8,12 +14,3 @@
  * @version 2
  */
 
-package de.nmichael.efa.util;
-
-import javax.swing.JTextField;
-
-public interface AutoCompletePopupWindowCallback {
-
-  public void acpwCallback(JTextField field);
-
-}

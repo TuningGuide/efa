@@ -1,12 +1,19 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.util.TMJ;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -15,14 +22,7 @@ import javax.swing.filechooser.FileFilter;
 import java.io.*;
 import java.util.Vector;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
   BorderLayout borderLayout1 = new BorderLayout();
@@ -91,7 +91,7 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
     if (!neu) {
       fahrtenbuch.disable();
       fahrtenbuchButton.disable();
-      SaveButton.setText("Änderungen übernehmen");
+      Mnemonics.setButton(this, SaveButton, International.getStringWithMnemonic("Änderungen übernehmen"));
       fahrtenbuch.setText(Daten.fahrtenbuch.getFileName());
       mitglieder.setText(Daten.fahrtenbuch.getDaten().mitgliederDatei);
       boote.setText(Daten.fahrtenbuch.getDaten().bootDatei);
@@ -103,7 +103,7 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
       nachVor.setSelected(!Daten.fahrtenbuch.getDaten().erstVorname);
       status1.setText(EfaUtil.arr2KommaList(Daten.fahrtenbuch.getDaten().status));
       anzMitglieder.setText(Integer.toString(Daten.fahrtenbuch.getDaten().anzMitglieder));
-      this.setTitle("Einstellungen zum Fahrtenbuch");
+      this.setTitle(International.getString("Einstellungen zum Fahrtenbuch"));
       SaveButton.requestFocus();
     } else fahrtenbuch.requestFocus();
     EfaUtil.pack(this);
@@ -131,8 +131,7 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
     }
 
     SaveButton.setNextFocusableComponent(fahrtenbuch);
-    SaveButton.setMnemonic('E');
-    SaveButton.setText("Fahrtenbuch erstellen");
+    Mnemonics.setButton(this, SaveButton, International.getStringWithMnemonic("Fahrtenbuch erstellen"));
     SaveButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         SaveButton_actionPerformed(e);
@@ -140,15 +139,12 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
     });
     this.getContentPane().setLayout(borderLayout1);
     jPanel1.setLayout(gridBagLayout1);
-    jLabel1.setDisplayedMnemonic('F');
+    Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Dateiname Fahrtenbuch")+": ");
     jLabel1.setLabelFor(fahrtenbuch);
-    jLabel1.setText("Dateiname Fahrtenbuch:");
-    jLabel2.setDisplayedMnemonic('B');
+    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Dateiname Bootsliste")+": ");
     jLabel2.setLabelFor(boote);
-    jLabel2.setText("Dateiname Bootsliste:");
     boote.setNextFocusableComponent(booteButton);
     Dialog.setPreferredSize(boote,200,19);
-    boote.setToolTipText("Dateiname für die Bootsliste");
     boote.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         boote_focusLost(e);
@@ -157,15 +153,12 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
         boote_focusGained(e);
       }
     });
-    jLabel3.setDisplayedMnemonic('M');
+    Mnemonics.setLabel(this, jLabel3, International.getStringWithMnemonic("Dateiname Mitgliederliste")+": ");
     jLabel3.setLabelFor(mitglieder);
-    jLabel3.setText("Dateiname Mitgliederliste:");
-    jLabel4.setDisplayedMnemonic('Z');
+    Mnemonics.setLabel(this, jLabel4, International.getStringWithMnemonic("Dateiname Zielliste")+": ");
     jLabel4.setLabelFor(ziele);
-    jLabel4.setText("Dateiname Zielliste:");
     ziele.setNextFocusableComponent(zieleButton);
     Dialog.setPreferredSize(ziele,200,19);
-    ziele.setToolTipText("Dateiname für die Zielliste");
     ziele.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         ziele_focusLost(e);
@@ -176,7 +169,6 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
     });
     mitglieder.setNextFocusableComponent(mitgliederButton);
     Dialog.setPreferredSize(mitglieder,200,19);
-    mitglieder.setToolTipText("Dateiname für die Mitgliederliste");
     mitglieder.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         mitglieder_focusLost(e);
@@ -187,8 +179,6 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
     });
     fahrtenbuch.setNextFocusableComponent(fahrtenbuchButton);
     Dialog.setPreferredSize(fahrtenbuch,200,19);
-    fahrtenbuch.setToolTipText("Name für die Datei, in der die Fahrtenbuch-Einträge gespeichert werden " +
-    "sollen");
     fahrtenbuch.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         fahrtenbuch_focusLost(e);
@@ -196,7 +186,6 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
     });
     fahrtenbuchButton.setNextFocusableComponent(boote);
     fahrtenbuchButton.setPreferredSize(new Dimension(59, 25));
-    fahrtenbuchButton.setToolTipText("Fahrtenbuchdatei erstellen");
     fahrtenbuchButton.setIcon(new ImageIcon(NeuesFahrtenbuchFrame.class.getResource("/de/nmichael/efa/img/prog_save.gif")));
     fahrtenbuchButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -205,7 +194,6 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
     });
     booteButton.setNextFocusableComponent(mitglieder);
     booteButton.setPreferredSize(new Dimension(59, 25));
-    booteButton.setToolTipText("Bootsdatei auswählen");
     booteButton.setIcon(new ImageIcon(NeuesFahrtenbuchFrame.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
     booteButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -214,7 +202,6 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
     });
     mitgliederButton.setNextFocusableComponent(ziele);
     mitgliederButton.setPreferredSize(new Dimension(59, 25));
-    mitgliederButton.setToolTipText("Mitgliederdatei auswählen");
     mitgliederButton.setIcon(new ImageIcon(NeuesFahrtenbuchFrame.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
     mitgliederButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -223,33 +210,23 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
     });
     zieleButton.setNextFocusableComponent(statistik);
     zieleButton.setPreferredSize(new Dimension(59, 25));
-    zieleButton.setToolTipText("Zieledatei auswählen");
     zieleButton.setIcon(new ImageIcon(NeuesFahrtenbuchFrame.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
     zieleButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         zieleButton_actionPerformed(e);
       }
     });
-    jLabel5.setDisplayedMnemonic('0');
-    jLabel5.setText("Angabe von Mitgliedernamen:");
+    Mnemonics.setLabel(this, jLabel5, International.getStringWithMnemonic("Angabe von Mitgliedernamen")+": ");
+    Mnemonics.setButton(this, vorNach, International.getStringWithMnemonic("Vorname Nachname"));
     vorNach.setSelected(true);
-    vorNach.setText("Vorname Nachname");
     vorNach.setNextFocusableComponent(nachVor);
-    vorNach.setToolTipText("legt das Format für die Angabe von Mitgliedernamen fest");
-    vorNach.setMnemonic('V');
-    nachVor.setText("Nachname, Vorname");
+    Mnemonics.setButton(this, nachVor, International.getStringWithMnemonic("Nachname, Vorname"));
     nachVor.setNextFocusableComponent(status1);
-    nachVor.setToolTipText("legt das Format für die Angabe von Mitgliedernamen fest");
-    nachVor.setMnemonic('N');
-    jLabel6.setDisplayedMnemonic('L');
+    Mnemonics.setLabel(this, jLabel6, International.getStringWithMnemonic("Liste für Status")+": ");
     jLabel6.setLabelFor(status1);
-    jLabel6.setText("Liste für Status: ");
     status1.setNextFocusableComponent(anzMitglieder);
     Dialog.setPreferredSize(status1,200,19);
-    status1.setToolTipText("Liste von Status, den eine Person haben kann; einzelne " +
-    "Einträge sind durch Kommata getrennt.");
-
-    String stati = "Junior(in),Senior(in)";
+    String stati = International.getString("Junior(in),Senior(in)");
     if (Daten.bezeichnungen != null && Daten.bezeichnungen.gast != null && Daten.bezeichnungen.gast.length()>0) stati = stati + "," + Daten.bezeichnungen.gast;
     if (Daten.bezeichnungen != null && Daten.bezeichnungen.andere != null && Daten.bezeichnungen.andere.length()>0) stati = stati + "," + Daten.bezeichnungen.andere;
     status1.setText(stati);
@@ -258,9 +235,8 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
         status1_focusLost(e);
       }
     });
-    jLabel7.setDisplayedMnemonic('S');
+    Mnemonics.setLabel(this, jLabel7, International.getStringWithMnemonic("Dateiname Statistikeinstellungen")+": ");
     jLabel7.setLabelFor(statistik);
-    jLabel7.setText("Dateiname Statistikeinstellungen: ");
     statistik.setNextFocusableComponent(statistikButton);
     Dialog.setPreferredSize(statistik,200,19);
     statistik.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -273,19 +249,16 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
     });
     statistikButton.setNextFocusableComponent(prevFb);
     statistikButton.setPreferredSize(new Dimension(59, 25));
-    statistikButton.setToolTipText("Statistikeinstellungendatei auswählen");
     statistikButton.setIcon(new ImageIcon(NeuesFahrtenbuchFrame.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
     statistikButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         statistikButton_actionPerformed(e);
       }
     });
-    jLabel8.setDisplayedMnemonic('O');
+    Mnemonics.setLabel(this, jLabel8, International.getStringWithMnemonic("vorherige Fahrtenbuchdatei")+": ");
     jLabel8.setLabelFor(prevFb);
-    jLabel8.setText("vorherige Fahrtenbuchdatei: ");
-    jLabel9.setDisplayedMnemonic('C');
+    Mnemonics.setLabel(this, jLabel9, International.getStringWithMnemonic("nächste Fahrtenbuchdatei")+": ");
     jLabel9.setLabelFor(nextFb);
-    jLabel9.setText("nächste Fahrtenbuchdatei: ");
     prevFb.setNextFocusableComponent(prevFbButton);
     Dialog.setPreferredSize(prevFb,200,19);
     nextFb.setNextFocusableComponent(nextFbButton);
@@ -306,9 +279,8 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
         prevFbButton_actionPerformed(e);
       }
     });
-    jLabel10.setDisplayedMnemonic('A');
+    Mnemonics.setLabel(this, jLabel10, International.getStringWithMnemonic("Mitgliederzahl am 01.01. des Jahres")+": ");
     jLabel10.setLabelFor(anzMitglieder);
-    jLabel10.setText("Mitgliederzahl am 01.01. des Jahres: ");
     anzMitglieder.setNextFocusableComponent(SaveButton);
     Dialog.setPreferredSize(anzMitglieder,200,19);
     anzMitglieder.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -377,7 +349,7 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     namensformat.add(vorNach);
     namensformat.add(nachVor);
-    this.setTitle("Neues Fahrtenbuch erstellen");
+    this.setTitle(International.getString("Neues Fahrtenbuch erstellen"));
   }
   /**Overridden so we can exit when window is closed*/
   protected void processWindowEvent(WindowEvent e) {
@@ -426,28 +398,34 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
   void SaveButton_actionPerformed(ActionEvent e) {
     fahrtenbuch_focusLost(null);
     if (fahrtenbuch.getText().trim().length()==0) {
-      Dialog.infoDialog("Fahrtenbuch-Dateiname fehlt","Kein Fahrtenbuch-Dateiname eingetragen!");
+      Dialog.infoDialog(International.getMessage("{listname}-Dateiname fehlt",International.getString("Fahrtenbuch")),
+              International.getMessage("Kein {listname}-Dateiname eingetragen!",International.getString("Fahrtenbuch")));
       fahrtenbuch.requestFocus(); return;
     }
     if (boote.getText().trim().length()==0) {
-      Dialog.infoDialog("Bootsliste-Dateiname fehlt","Kein Bootsliste-Dateiname eingetragen!");
+      Dialog.infoDialog(International.getMessage("{listname}-Dateiname fehlt",International.getString("Bootsliste")),
+              International.getMessage("Kein {listname}-Dateiname eingetragen!",International.getString("Bootsliste")));
       boote.requestFocus(); return;
     }
     if (mitglieder.getText().trim().length()==0) {
-      Dialog.infoDialog("Mitgliederliste-Dateiname fehlt","Kein Mitgliederliste-Dateiname eingetragen!");
+      Dialog.infoDialog(International.getMessage("{listname}-Dateiname fehlt",International.getString("Mitgliederliste")),
+              International.getMessage("Kein {listname}-Dateiname eingetragen!",International.getString("Mitgliederliste")));
       mitglieder.requestFocus(); return;
     }
     if (ziele.getText().trim().length()==0) {
-      Dialog.infoDialog("Zielliste-Dateiname fehlt","Kein Zielliste-Dateiname eingetragen!");
+      Dialog.infoDialog(International.getMessage("{listname}-Dateiname fehlt",International.getString("Zielliste")),
+              International.getMessage("Kein {listname}-Dateiname eingetragen!",International.getString("Zielliste")));
       ziele.requestFocus(); return;
     }
     if (statistik.getText().trim().length()==0) {
-      Dialog.infoDialog("Statistikeinstellungen-Dateiname fehlt","Kein Statistikeinstellungen-Dateiname eingetragen!");
+      Dialog.infoDialog(International.getMessage("{listname}-Dateiname fehlt",International.getString("Statistikeinstellungen")),
+              International.getMessage("Kein {listname}-Dateiname eingetragen!",International.getString("Statistikeinstellungen")));
       statistik.requestFocus(); return;
     }
 
     if (neu && EfaUtil.canOpenFile(fahrtenbuch.getText().trim()))
-      if (!(Dialog.yesNoDialog("Warnung","Datei\n"+fahrtenbuch.getText().trim()+"\nexistiert bereits! Überschreiben?") == Dialog.YES)) return;
+      if (!(Dialog.yesNoDialog(International.getString("Warnung"),
+              International.getMessage("Datei {filename} existiert bereits! Überschreiben?",fahrtenbuch.getText().trim())) == Dialog.YES)) return;
 
     FBDaten daten;
     if (neu) daten = new FBDaten();
@@ -489,8 +467,10 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
 
     String dat;
     if (Daten.fahrtenbuch != null && !Daten.fahrtenbuch.getFileName().equals(""))
-      dat = Dialog.dateiDialog(this,"Fahrtenbuchdatei erstellen","efa Fahrtenbuch (*.efb)","efb",Daten.fahrtenbuch.getFileName(),true);
-    else dat = Dialog.dateiDialog(this,"Fahrtenbuchdatei erstellen","efa Fahrtenbuch (*.efb)","efb",Daten.efaDataDirectory,true);
+      dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuchdatei erstellen"),
+              International.getString("efa Fahrtenbuch")+" (*.efb)","efb",Daten.fahrtenbuch.getFileName(),true);
+    else dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuchdatei erstellen"),
+            International.getString("efa Fahrtenbuch")+" (*.efb)","efb",Daten.efaDataDirectory,true);
 
     if (dat != null) {
       fahrtenbuch.setText(dat);
@@ -519,27 +499,33 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
 
   // Boots-Datei auswählen
   void booteButton_actionPerformed(ActionEvent e) {
-    dateiOeffnen(boote,"Bootsdatei auswählen","efa Bootsliste (*.efbb)","efbb");
+    dateiOeffnen(boote,International.getString("Bootsdatei auswählen"),
+            International.getString("efa Bootsliste")+" (*.efbb)","efbb");
   }
   // Mitglieder-Datei auswählen
   void mitgliederButton_actionPerformed(ActionEvent e) {
-    dateiOeffnen(mitglieder,"Mitgliederdatei auswählen","efa Mitgliederliste (*.efbm)","efbm");
+    dateiOeffnen(mitglieder,International.getString("Mitgliederdatei auswählen"),
+            International.getString("efa Mitgliederliste")+" (*.efbm)","efbm");
   }
   // Ziel-Datei auswählen
   void zieleButton_actionPerformed(ActionEvent e) {
-    dateiOeffnen(ziele,"Zieledatei auswählen","efa Zielliste (*.efbz)","efbz");
+    dateiOeffnen(ziele,International.getString("Zieledatei auswählen"),
+            International.getString("efa Zielliste")+" (*.efbz)","efbz");
   }
   // Statistikeinstellungen-Datei auswählen
   void statistikButton_actionPerformed(ActionEvent e) {
-    dateiOeffnen(statistik,"Statistikeinstellungendatei auswählen","efa Statistikeinstellungen (*.efbs)","efbs");
+    dateiOeffnen(statistik,International.getString("Statistikeinstellungendatei auswählen"),
+            International.getString("efa Statistikeinstellungen")+" (*.efbs)","efbs");
   }
   // vorherige Fahrtenbuchdatei auswählen
   void prevFbButton_actionPerformed(ActionEvent e) {
-    dateiOeffnen(prevFb,"vorherige Fahrtenbuchdatei auswählen","efa Fahrtenbuchdatei (*.efb)","efb");
+    dateiOeffnen(prevFb,International.getString("vorherige Fahrtenbuchdatei auswählen"),
+            International.getString("efa Fahrtenbuchdatei")+" (*.efb)","efb");
   }
   // nächste Fahrtenbuchdatei auswählen
   void nextFbButton_actionPerformed(ActionEvent e) {
-    dateiOeffnen(nextFb,"nächste Fahrtenbuchdatei auswählen","efa Fahrtenbuchdatei (*.efb)","efb");
+    dateiOeffnen(nextFb,International.getString("nächste Fahrtenbuchdatei auswählen"),
+            International.getString("efa Fahrtenbuchdatei")+" (*.efb)","efb");
   }
 
 
@@ -670,10 +656,10 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
     for (int i=0; i<v.size(); i++) a[i] = (String)v.get(i);
     status1.setText(EfaUtil.arr2KommaList(a));
     if (added.length() > 0) {
-      Dialog.infoDialog("Statusliste ergänzt","Es dürfen keine Stati entfernt werden, die in der\n"+
-                                              "Mitgliederliste noch verwendet werden. Diese Stati\n"+
-                                              "wurden wieder hinzugefügt:\n"+
-                                              added);
+      Dialog.infoDialog(International.getString("Statusliste ergänzt"),
+              International.getString("Es dürfen keine Stati entfernt werden, die in der "+
+                                      "Mitgliederliste noch verwendet werden. Diese Stati "+
+                                      "wurden wieder hinzugefügt:")+"\n"+added);
     }
   }
 

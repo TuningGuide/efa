@@ -1,10 +1,18 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -12,14 +20,7 @@ import javax.swing.border.*;
 import java.io.*;
 import java.util.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class OnlineUpdateFrame extends JDialog implements ActionListener {
   Window parent;
@@ -102,31 +103,29 @@ public class OnlineUpdateFrame extends JDialog implements ActionListener {
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
       jPanel2.setLayout(flowLayout1);
-      cancelButton.setMnemonic('B');
-      cancelButton.setText("Abbruch");
+      Mnemonics.setButton(this, cancelButton, International.getStringWithMnemonic("Abbruch"));
       cancelButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           cancelButton_actionPerformed(e);
         }
     });
-      downloadButton.setMnemonic('D');
-      downloadButton.setText("Neue Version downloaden");
+    Mnemonics.setButton(this, downloadButton, International.getStringWithMnemonic("Neue Version downloaden"));
       downloadButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           downloadButton_actionPerformed(e);
         }
     });
       jPanel3.setLayout(gridBagLayout1);
-      jLabel1.setText("derzeit installierte Version: ");
+      jLabel1.setText(International.getString("derzeit installierte Version")+": ");
       installedVersionLabel.setText("1.2.3_04");
-      jLabel3.setText("im Internet verfügbare Version: ");
+      jLabel3.setText(International.getString("im Internet verfügbare Version")+": ");
       newVersionLabel.setText("5.6.7_08");
-      jLabel5.setText("Downloadgröße: ");
+      jLabel5.setText(International.getString("Downloadgröße")+": ");
       downloadSizeLabel.setText("1234567 Bytes");
       jScrollPane1.setMinimumSize(new Dimension(300, 150));
       jScrollPane1.setPreferredSize(new Dimension(600, 150));
-      jLabel2.setText("Änderungen gegenüber der installierten Version:");
-      this.setTitle("efa Online-Update");
+      jLabel2.setText(International.getString("Änderungen gegenüber der installierten Version")+": ");
+      this.setTitle(International.getString("Online-Update"));
       this.getContentPane().add(jPanel1, BorderLayout.CENTER);
       jPanel1.add(jPanel2, BorderLayout.SOUTH);
       jPanel2.add(downloadButton, null);
@@ -188,12 +187,12 @@ public class OnlineUpdateFrame extends JDialog implements ActionListener {
     String newVersion = null;
 
     // Online Update
-    if (!Dialog.okAbbrDialog("efa Online Update",
-                             "Mit dem efa Online Update kann efa eine neue Version aus dem\n"+
+    if (!Dialog.okAbbrDialog(International.getString("Online Update"),
+                             International.getString("Mit dem efa Online Update kann efa eine neue Version aus dem "+
                              "Internet herunterladen und installieren.\n\n"+
-                             "Damit efa überprüfen kann, ob es eine neue Version gibt,\n"+
-                             "stelle nun bitte eine Verbindung zum Internet her und klicke\n"+
-                             "anschließend OK.")) return false;
+                             "Damit efa überprüfen kann, ob es eine neue Version gibt, "+
+                             "stelle nun bitte eine Verbindung zum Internet her und klicke "+
+                             "anschließend OK."))) return false;
 
     // aktuelle Versionsnummer aus dem Internet besorgen
     String versionFile = Daten.efaTmpDirectory+"efa.eou";
@@ -209,12 +208,12 @@ public class OnlineUpdateFrame extends JDialog implements ActionListener {
         newVersion = newVersion.trim();
       }
     } catch(IOException ee) {
-      Dialog.error("efa konnte keine neue Versionsnummer ermitteln:\n"+ee.getMessage());
+      Dialog.error(International.getString("efa konnte keine neue Versionsnummer ermitteln.")+"\n"+ee.getMessage());
       EfaUtil.deleteFile(versionFile);
       return false;
     }
     if (newVersion == null) {
-      Dialog.error("efa konnte keine neue Versionsnummer ermitteln.");
+      Dialog.error(International.getString("efa konnte keine neue Versionsnummer ermitteln."));
       EfaUtil.deleteFile(versionFile);
       return false;
     }
@@ -225,15 +224,15 @@ public class OnlineUpdateFrame extends JDialog implements ActionListener {
 
     // ist die installierte Version aktuell?
     if (Daten.VERSIONID.equals(newVersion)) {
-      Dialog.infoDialog("Es liegt derzeit keine neuere Version von efa vor.\n"+
-                        "Die von Dir benutzte Version "+Daten.VERSIONID+" ist noch aktuell.");
+      Dialog.infoDialog(International.getMessage("Es liegt derzeit keine neuere Version von efa vor. "+
+                        "Die von Dir benutzte Version {version} ist noch aktuell.",Daten.VERSIONID));
       EfaUtil.deleteFile(versionFile);
       return true;
     }
 
     // ist die installierte Version neuer als das Update?
     if (Daten.VERSIONID.compareTo(newVersion)>0) {
-      Dialog.infoDialog("Deine derzeit installierte Version ist neuer als die Version im Internet.");
+      Dialog.infoDialog(International.getString("Deine derzeit installierte Version ist neuer als die Version im Internet."));
       EfaUtil.deleteFile(versionFile);
       return true;
     }
@@ -258,7 +257,7 @@ public class OnlineUpdateFrame extends JDialog implements ActionListener {
       versionInfo.close();
       EfaUtil.deleteFile(versionFile);
     } catch(IOException e) {
-      Dialog.error("Fehler beim Lesen der Versionsinformationen: "+e.toString());
+      Dialog.error(International.getString("Fehler beim Lesen der Versionsinformationen")+": "+e.toString());
       EfaUtil.deleteFile(versionFile);
       return false;
     }
@@ -316,48 +315,49 @@ class ExecuteAfterDownloadImpl implements ExecuteAfterDownload {
     parent.setEnabled(true); // !!!NEW!!!
     File f = new File(zipFile);
     if (f.length() < fileSize) {
-      Dialog.error("Der Download des Updates ist nicht vollständig.\nDer Update-Vorgang wird daher abgebrochen.");
+      Dialog.error(International.getString("Der Download des Updates ist nicht vollständig.")+" "+International.getString("Der Update-Vorgang wird daher abgebrochen."));
       return;
     }
     if (f.length() > fileSize) {
-      Dialog.error("Der Download des Updates hat eine unerwartete Dateigröße.\nDer Update-Vorgang wird daher abgebrochen.");
+      Dialog.error(International.getString("Der Download des Updates hat eine unerwartete Dateigröße.")+" "+International.getString("Der Update-Vorgang wird daher abgebrochen."));
       return;
     }
 
     // Download war erfolgreich
-    Dialog.infoDialog("Der Download war erfolgreich.\nEs werden jetzt alle Daten gesichert.\nAnschließend wird die neue Version installiert.");
+    Dialog.infoDialog(International.getString("Der Download war erfolgreich. Es werden jetzt alle Daten gesichert. Anschließend wird die neue Version installiert."));
 
     // ZIP-Archiv mit bisherigen Daten sichern
     Vector sourceDirs = new Vector();
     Vector inclSubdirs = new Vector();
     sourceDirs.add(Daten.efaDataDirectory);
     inclSubdirs.add(new Boolean(true));
-    String backup = Daten.efaBakDirectory + "Sicherung_"+Daten.VERSIONID+"_vor_Neuinstallation.zip";
+    String backup = Daten.efaBakDirectory + "Backup_"+Daten.VERSIONID+"_before_Update.zip";
     String result = EfaUtil.createZipArchive(sourceDirs,inclSubdirs,backup);
     if (result != null) {
-      if (Dialog.yesNoDialog("Fehler bei Datensicherung",
-                         "Sicherung der Daten in der Datei\n"+backup+"\nfehlgeschlagen: "+result+
-                         "\nSoll der Update-Vorgang trotzdem fortgesetzt werden?") != Dialog.YES) return;
+      if (Dialog.yesNoDialog(International.getString("Fehler bei Datensicherung"),
+                         International.getMessage("Sicherung der Daten in der Datei {filename} fehlgeschlagen: {error}",backup,result)+
+                         "\n"+
+                         International.getString("Soll der Update-Vorgang trotzdem fortgesetzt werden?")) != Dialog.YES) return;
     }
 
     // Neue Version entpacken
     result = EfaUtil.unzip(zipFile,Daten.efaMainDirectory);
     if (result != null) {
       if (result.length()>1000) result = result.substring(0,1000);
-      Dialog.error("Die Installation der neuen Version ist fehlgeschlagen:\n"+result);
+      Dialog.error(International.getString("Die Installation der neuen Version ist fehlgeschlagen.")+"\n"+result);
       return;
     }
 
     // Erfolgreich
-    Dialog.infoDialog("Installation abgeschlossen",
-                      "Die Installation des Updates wurde erfolgreich abgeschlossen.\n"+
-                      "efa wird nun beendet.\n"+
-                      "Beim nächsten Start von efa wird automatisch die neue Version gestartet.");
+    Dialog.infoDialog(International.getString("Installation abgeschlossen"),
+                      International.getString("Die Installation des Updates wurde erfolgreich abgeschlossen.")+"\n"+
+                      International.getString("efa wird nun beendet.")+"\n"+
+                      International.getString("Beim nächsten Start von efa wird automatisch die neue Version gestartet."));
     System.exit(0);
   }
 
   public void failure(String text) {
     parent.setEnabled(true); // !!!NEW!!!
-    Dialog.infoDialog("Der Download der neuen Version ist fehlgeschlagen: "+text);
+    Dialog.infoDialog(International.getString("Der Download der neuen Version ist fehlgeschlagen:")+" "+text);
   }
 }

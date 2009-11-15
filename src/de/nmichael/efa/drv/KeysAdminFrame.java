@@ -1,15 +1,19 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.drv;
 
-import de.nmichael.efa.core.EnterPasswordFrame;
-import de.nmichael.efa.core.DRVSignaturFrame;
-import de.nmichael.efa.util.TMJ;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.EfaKeyStore;
-import de.nmichael.efa.util.CertInfos;
-import de.nmichael.efa.util.Base64;
-import de.nmichael.efa.util.ActionHandler;
+import de.nmichael.efa.*;
+import de.nmichael.efa.core.*;
+import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -20,10 +24,6 @@ import java.security.*;
 import java.security.cert.*;
 import java.security.cert.Certificate;
 import java.net.*;
-// import java.security.interfaces.*;
-import de.nmichael.efa.*;
-import de.nmichael.efa.util.Dialog;
-
 
 public class KeysAdminFrame extends JDialog implements ActionListener {
   JDialog parent;

@@ -1,15 +1,20 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.AuswahlFrame;
 import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.util.TMJ;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.ActionHandler;
-import de.nmichael.efa.util.ZielfahrtFolge;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -18,14 +23,7 @@ import javax.swing.filechooser.FileFilter;
 import java.io.*;
 import java.util.Arrays;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class NeuesZielFrame extends JDialog implements ActionListener {
   BorderLayout borderLayout1 = new BorderLayout();
@@ -61,15 +59,14 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
     oldKey = "";
     oldkm = "";
     this.ziel.setText(ziel);
-    this.setTitle("Neues Ziel hinzufügen");
-    SaveButton.setText("Ziel hinzufügen");
+    this.setTitle(International.getString("Neues Ziel hinzufügen"));
+    Mnemonics.setButton(this, SaveButton, International.getStringWithMnemonic("Ziel hinzufügen"));
     this.gewaesser.setVisible(false);
     this.gewaesserLabel.setVisible(false);
   }
 
   void editiereZiel(DatenFelder d) {
     if (d == null) { // sollte eigentlich nicht passieren
-      Logger.log(Logger.ERROR,"NeuesZielFrame.editiereZiel(null): Ziel nicht gefunden --- diesen Fehler bitte an software@nmichael.de melden! Danke!");
       cancel();
       return;
     }
@@ -88,8 +85,8 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
     gewaesser.setText(d.get(Ziele.GEWAESSER));
     bereich.setText(d.get(Ziele.BEREICH));
     stegziel.setSelected(d.get(Ziele.STEGZIEL).equals("+"));
-    this.setTitle("Ziel bearbeiten");
-    SaveButton.setText("Eintrag übernehmen");
+    this.setTitle(International.getString("Ziel bearbeiten"));
+    Mnemonics.setButton(this, SaveButton, International.getStringWithMnemonic("Eintrag übernehmen"));
     if (EfaUtil.zehntelString2Int(d.get(Ziele.KM))>=Daten.WAFAKM) {
       this.gewaesser.setVisible(true);
       this.gewaesserLabel.setVisible(true);
@@ -169,25 +166,21 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
     }
 
     SaveButton.setNextFocusableComponent(ziel);
-    SaveButton.setMnemonic('H');
-    SaveButton.setText("Ziel hinzufügen");
+    Mnemonics.setButton(this, SaveButton, International.getStringWithMnemonic("Ziel hinzufügen"));
     SaveButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         SaveButton_actionPerformed(e);
       }
     });
-    this.setTitle("Neues Ziel hinzufügen");
+    this.setTitle(International.getString("Neues Ziel hinzufügen"));
     this.getContentPane().setLayout(borderLayout1);
     jPanel1.setLayout(gridBagLayout1);
-    jLabel1.setDisplayedMnemonic('Z');
+    Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Ziel")+": ");
     jLabel1.setLabelFor(ziel);
-    jLabel1.setText("Ziel: ");
-    jLabel2.setDisplayedMnemonic('K');
+    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Kilometer")+": ");
     jLabel2.setLabelFor(kilometer);
-    jLabel2.setText("Kilometer: ");
-    bereichLabel.setDisplayedMnemonic('B');
+    Mnemonics.setLabel(this, bereichLabel, International.getStringWithMnemonic("Zielbereiche")+": ");
     bereichLabel.setLabelFor(bereich);
-    bereichLabel.setText("Zielbereiche: ");
     ziel.setNextFocusableComponent(kilometer);
     Dialog.setPreferredSize(ziel,200,19);
     kilometer.setNextFocusableComponent(gewaesser);
@@ -199,7 +192,6 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
     });
     bereich.setNextFocusableComponent(stegziel);
     Dialog.setPreferredSize(bereich,200,19);
-    bereich.setToolTipText("Liste von Ziffern der Zielbereiche, durch Kommata getrennt.");
     bereich.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         bereich_focusLost(e);
@@ -207,8 +199,8 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
     });
     stegziel.setNextFocusableComponent(SaveButton);
     stegziel.setSelected(true);
-    stegziel.setText("Start und Ziel ist eigenes Bootshaus");
-    gewaesserLabel.setText("Gewässer: ");
+    Mnemonics.setButton(this, stegziel, International.getStringWithMnemonic("Start und Ziel ist eigenes Bootshaus"));
+    Mnemonics.setLabel(this, gewaesserLabel, International.getStringWithMnemonic("Gewässer")+": ");
     gewaesser.setNextFocusableComponent(bereich);
     Dialog.setPreferredSize(gewaesser,200,19);
     gewaesser.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -300,24 +292,24 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
       }
     } while( (d = (DatenFelder)Daten.fahrtenbuch.getCompleteNext()) != null);
 
-    Dialog.meldung(c+" Einträge angepaßt.");
+    Dialog.meldung(International.getMessage("{count} Einträge angepaßt.",c));
   }
 
 
   // Änderungen übernehmen, speichern
   void SaveButton_actionPerformed(ActionEvent e) {
     if (this.ziel.getText().trim().length()==0) {
-      Dialog.error("Bitte gib einen Zielnamen ein!");
+      Dialog.error(International.getString("Bitte gib einen Zielnamen ein!"));
       this.ziel.requestFocus();
       return;
     }
 
     if (Daten.efaConfig != null && Daten.efaConfig.showBerlinOptions) {
       if (new ZielfahrtFolge(bereich.getText()).getAnzZielfahrten() > 1 && stegziel.isSelected()) {
-        Dialog.error("Die Eigenschaft 'Start und Ziel ist eigenes Bootshaus' ist nur für\n"+
-                     "eintägige Fahrten gedacht. Du hast aber Zielbereiche für mehrere Tage\n"+
-                     "(getrennt durch '"+Daten.efaConfig.zielfahrtSeparatorFahrten+"') eingegeben.\n"+
-                     "Bitte deaktiviere die Option 'Start und Ziel ist eigenes Bootshaus'.");
+        Dialog.error(International.getMessage("Die Eigenschaft 'Start und Ziel ist eigenes Bootshaus' ist nur für "+
+                     "eintägige Fahrten gedacht. Du hast aber Zielbereiche für mehrere Tage "+
+                     "(getrennt durch '{separator}') eingegeben.\n"+
+                     "Bitte deaktiviere die Option 'Start und Ziel ist eigenes Bootshaus'.",Daten.efaConfig.zielfahrtSeparatorFahrten));
         stegziel.requestFocus();
         return;
       }
@@ -329,12 +321,11 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
           if (zff.getZielfahrt(i).isErreicht(EfaUtil.string2int(Daten.vereinsConfig.zielbereich,0))) eigenerBereichErreicht = true;
         }
         if (eigenerBereichErreicht) {
-          Dialog.error(
-              "Bei einer Fahrt mit Start und Ziel am eigenen Bootshaus gilt der eigene\n" +
-              "Zielbereich " + Daten.vereinsConfig.zielbereich +
-              " NICHT als erreicht und darf daher auch NICHT als\n" +
-              "Zielbereich angegeben werden. Bitte entferne ihn aus der Aufzählung der\n" +
-              "Zielbereiche!");
+          Dialog.error(International.getMessage("Bei einer Fahrt mit Start und Ziel am eigenen Bootshaus gilt der eigene " +
+              "Zielbereich {area} " +
+              " NICHT als erreicht und darf daher auch NICHT als " +
+              "Zielbereich angegeben werden. Bitte entferne ihn aus der Aufzählung der " +
+              "Zielbereiche!",Daten.vereinsConfig.zielbereich));
           bereich.requestFocus();
           return;
         }
@@ -345,7 +336,8 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
     String newkm = kilometer.getText().trim();
 
     if (neu && Daten.fahrtenbuch.getDaten().ziele.getExact(k) != null) {
-      Dialog.infoDialog("Fehler","Es existiert bereits ein Ziel gleichen Namens!");
+      Dialog.infoDialog(International.getString("Fehler"),
+              International.getString("Es existiert bereits ein Ziel gleichen Namens!"));
       return;
     }
 
@@ -353,20 +345,23 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
       if (Daten.fahrtenbuch != null) {
 
         if (Daten.fahrtenbuch.getDaten().ziele.getExact(k) != null)
-          switch(Dialog.yesNoCancelDialog("Frage","Ein Eintrag mit gleichem Namen existiert bereits.\nSoll dieser durch den aktuellen Eintrag ersetzt werden?")) {
+          switch(Dialog.yesNoCancelDialog(International.getString("Gleichnamiger Eintrag"),
+                  International.getString("Ein Eintrag mit gleichem Namen existiert bereits. Soll dieser durch den aktuellen Eintrag ersetzt werden?"))) {
             case Dialog.YES: Daten.fahrtenbuch.getDaten().ziele.delete(k); break;
             default: return;
           }
 
-        switch(Dialog.yesNoCancelDialog("Name des Ziels geändert","Sollen im Fahrtenbuch die Zielnamen aller Einträge von Ziel '"+oldKey+"'\n"+
-                                                  "nach Ziel '"+k+"' angepaßt werden?")) {
+        switch(Dialog.yesNoCancelDialog(International.getString("Name des Ziels geändert"),
+                International.getMessage("Sollen im Fahrtenbuch die Zielnamen aller Einträge von Ziel {oldName} "+
+                                                  "nach Ziel {newName} angepaßt werden?",oldKey,k))) {
           case Dialog.YES: updateFb(oldKey,k,null,null); break;
           case Dialog.CANCEL: return;
           default: break;
         }
       } else {
-        switch(Dialog.yesNoCancelDialog("Warnung","Durch die Änderung kann eine Inkonsistenz zu bestehenden Fahrtenbüchern entstehen.\n"+
-                                                  "Soll der Eintrag trotzdem geändert werden?")) {
+        switch(Dialog.yesNoCancelDialog(International.getString("Warnung"),
+                International.getString("Durch die Änderung kann eine Inkonsistenz zu bestehenden Fahrtenbüchern entstehen. "+
+                                                  "Soll der Eintrag trotzdem geändert werden?"))) {
           case Dialog.YES: break;
           case Dialog.CANCEL: return;
           default: cancel(); return;
@@ -375,8 +370,9 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
     }
 
     if (!neu && !newkm.equals(oldkm) && Daten.fahrtenbuch != null) {
-      switch(Dialog.yesNoCancelDialog("Kilometer geändert","Sollen im Fahrtenbuch die Kilometer aller Einträge mit Ziel '"+k+"'\n"+
-                                                "von "+oldkm+" Km nach "+newkm+" Km angepaßt werden?")) {
+      switch(Dialog.yesNoCancelDialog(International.getString("Kilometer geändert"),
+              International.getMessage("Sollen im Fahrtenbuch die Kilometer aller Einträge mit Ziel {destination} "+
+                                                "von {oldkm} Km nach {newkm} Km angepaßt werden?",k,oldkm,newkm))) {
         case Dialog.YES: updateFb(null,k,oldkm,newkm); break;
         case Dialog.CANCEL: return;
         default: break;

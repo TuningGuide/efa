@@ -1,11 +1,19 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenListe;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -13,27 +21,20 @@ import javax.swing.border.*;
 import java.io.*;
 import java.util.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class RestoreBackupFrame extends JDialog implements ActionListener {
   FileInfo[] fileInfo = null;
   int[] table2fileInfo = null;
 
-  String[][] fileTypes = { { "EFB" , "Fahrtenbuch" } ,
-                           { "EFBM", "Mitgliederliste" } ,
-                           { "EFBB", "Bootsliste" } ,
-                           { "EFBZ", "Zielliste" } ,
-                           { "EFBS", "Statistikeinstellungen" } ,
-                           { "SYN" , "Synonymliste" } ,
-                           { "EFV" , "Vereinskonfiguration" } ,
-                           { "EFD" , "Adreßliste" }
+  String[][] fileTypes = { { "EFB" , International.getString("Fahrtenbuch") } ,
+                           { "EFBM", International.getString("Mitgliederliste") } ,
+                           { "EFBB", International.getString("Bootsliste") } ,
+                           { "EFBZ", International.getString("Zielliste") } ,
+                           { "EFBS", International.getString("Statistikeinstellungen") } ,
+                           { "SYN" , International.getString("Synonymliste") } ,
+                           { "EFV" , International.getString("Vereinskonfiguration") } ,
+                           { "EFD" , International.getString("Adreßliste") }
                          };
 
   BorderLayout borderLayout1 = new BorderLayout();
@@ -107,32 +108,28 @@ public class RestoreBackupFrame extends JDialog implements ActionListener {
       System.err.println("Error setting up ActionHandler");
     }
 
-    this.setTitle("Backups einspielen");
+    this.setTitle(International.getString("Backups einspielen"));
     this.getContentPane().setLayout(borderLayout1);
-    jLabel1.setText("Auswahl der anzuzeigenden Backups");
+    jLabel1.setText(International.getString("Auswahl der anzuzeigenden Backups"));
     einspielenButton.setNextFocusableComponent(schliessenButton);
-    einspielenButton.setMnemonic('E');
-    einspielenButton.setText("Backup einspielen");
+    Mnemonics.setButton(this, einspielenButton, International.getStringWithMnemonic("Backup einspielen"));
     einspielenButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         einspielenButton_actionPerformed(e);
       }
     });
     schliessenButton.setNextFocusableComponent(auswahlTyp);
-    schliessenButton.setMnemonic('C');
-    schliessenButton.setText("Schließen");
+    Mnemonics.setButton(this, schliessenButton, International.getStringWithMnemonic("Schließen"));
     schliessenButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         schliessenButton_actionPerformed(e);
       }
     });
-    jLabel2.setDisplayedMnemonic('F');
+    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Backups für")+": ");
     jLabel2.setLabelFor(auswahlFb);
-    jLabel2.setText("Backups für: ");
     jPanel1.setLayout(gridBagLayout1);
-    jLabel3.setDisplayedMnemonic('T');
+    Mnemonics.setLabel(this, jLabel3, International.getStringWithMnemonic("Dateityp")+": ");
     jLabel3.setLabelFor(auswahlTyp);
-    jLabel3.setText("Dateityp: ");
     auswahlFb.addItemListener(new java.awt.event.ItemListener() {
       public void itemStateChanged(ItemEvent e) {
         auswahlFb_itemStateChanged(e);
@@ -185,12 +182,12 @@ public class RestoreBackupFrame extends JDialog implements ActionListener {
   }
 
   void frIni() {
-    auswahlTyp.addItem("alle Datenlisten");
+    auswahlTyp.addItem(International.getString("alle Datenlisten"));
     for (int i=0; i<fileTypes.length; i++)
-      auswahlTyp.addItem("nur "+fileTypes[i][1]);
+      auswahlTyp.addItem(International.getString("nur")+" "+fileTypes[i][1]);
     createFileList();
-    auswahlFb.addItem("aktuelles Fahrtenbuch und global");
-    auswahlFb.addItem("alle Fahrtenbücher");
+    auswahlFb.addItem(International.getString("aktuelles Fahrtenbuch und global"));
+    auswahlFb.addItem(International.getString("alle Fahrtenbücher"));
   }
 
   void createFileList() {
@@ -273,7 +270,10 @@ public class RestoreBackupFrame extends JDialog implements ActionListener {
     }
 
     String[] title = new String[4];
-    title[0] = "Dateiname"; title[1] = "Dateityp"; title[2] = "Datum"; title[3] = "Backup-Typ";
+    title[0] = International.getString("Dateiname");
+    title[1] = International.getString("Dateityp");
+    title[2] = International.getString("Datum");
+    title[3] = International.getString("Backup-Typ");
     jScrollPane1.remove(fileList);
     fileList = new JTable(table,title);
     fileList.setSelectionMode(0); // SINGLE_SELECTION
@@ -298,7 +298,8 @@ public class RestoreBackupFrame extends JDialog implements ActionListener {
 
   void einspielenButton_actionPerformed(ActionEvent e) {
     if (fileList.getSelectedRow() < 0) {
-      Dialog.infoDialog("Keine Datei ausgewählt","Bitte wähle zuerst eine Datei aus!");
+      Dialog.infoDialog(International.getString("Keine Datei ausgewählt"),
+              International.getString("Bitte wähle zuerst eine Datei aus!"));
       return;
     }
     String restoreDir = null;
@@ -314,17 +315,16 @@ public class RestoreBackupFrame extends JDialog implements ActionListener {
     }
     if (!restoreDir.endsWith(Daten.fileSep)) restoreDir += Daten.fileSep;
 
-    if (Dialog.yesNoDialog("Datei wiederherstellen","Soll die Datei '"+filename+"' ("+
-                                            fileInfo[table2fileInfo[fileList.getSelectedRow()]].fdate+
-                                            ") im Verzeichnis\n'"+
-                                            restoreDir+"'\nwiederhergestellt werden?") == Dialog.YES) {
+    if (Dialog.yesNoDialog(International.getString("Datei wiederherstellen"),
+            International.getMessage("Soll die Datei '{filename} ({fileinfo}) im Verzeichnis '{directory}' wiederhergestellt werden?",
+            filename,fileInfo[table2fileInfo[fileList.getSelectedRow()]].fdate,restoreDir)) == Dialog.YES) {
       // Restore Datei
       String info="";
       File old = new File(restoreDir+filename);
       if (old.isFile()) {
         if (new File(restoreDir+filename+".org").isFile()) new File(restoreDir+filename+".org").delete();
         old.renameTo(new File(restoreDir+filename+".org"));
-        info += "Originaldatei nach '"+restoreDir+filename+".org' umbenannt.\n";
+        info += International.getMessage("Originaldatei nach '{filename}.org' umbenannt.",restoreDir+filename)+"\n";
       }
 
       if (EfaUtil.copyFile(Daten.efaBakDirectory+fileInfo[table2fileInfo[fileList.getSelectedRow()]].orgname, restoreDir+filename)) {
@@ -343,13 +343,13 @@ public class RestoreBackupFrame extends JDialog implements ActionListener {
         else if (Daten.synZiele != null && (restoreDir+filename).equals(Daten.synZiele.getFileName())) einlesen(Daten.synZiele);
         else if (Daten.adressen != null && (restoreDir+filename).equals(Daten.adressen.getFileName())) einlesen(Daten.adressen);
 
-        info += "Datei '"+filename+"' erfolgreich wiederhergestellt!";
+        info += International.getMessage("Datei '{filename}' erfolgreich wiederhergestellt!",filename);
       } else
-        info += "Datei '"+filename+"' konnte NICHT wiederhergestellt werden!";
+        info += International.getMessage("Datei '{filename}' konnte NICHT wiederhergestellt werden!",filename);
 
 
 
-      Dialog.infoDialog("Ergebnis",info);
+      Dialog.infoDialog(International.getString("Ergebnis"),info);
     }
   }
 

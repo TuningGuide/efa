@@ -1,30 +1,27 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.Backup;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
-
 public class EfaConfigFrame extends JDialog implements ActionListener {
   EfaFrame parent;
-
 
   // parseAlias(String) parst den String und liefert -1 bei Erfolg, sonst die Position des Zeichens, das den
   // Fehler verursachte; eine Fehlermeldung steht in diesem Fall in dem String parseError
@@ -311,19 +308,20 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
       System.err.println("Error setting up ActionHandler");
     }
 
-    this.setTitle("Allgemeine Einstellungen");
+    this.setTitle(International.getString("Konfiguration"));
     this.setSize(new Dimension(723, 707));
+    saveButton.setNextFocusableComponent(Allgemein);
+    saveButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        saveButton_actionPerformed(e);
+      }
+    });
     allgemeinPanel.setLayout(gridBagLayout1);
-    jLabel1.setText("Allgemeine Einstellungen");
-    autogenAlias.setText("Eingabe-Kürzel automatisch beim Anlegen neuer Mitglieder generieren");
+    jLabel1.setText(International.getString("Allgemeine Einstellungen"));
+    Mnemonics.setButton(this, autogenAlias, International.getStringWithMnemonic("Eingabe-Kürzel automatisch beim Anlegen neuer Mitglieder generieren"));
     autogenAlias.setNextFocusableComponent(aliasFormat);
-    autogenAlias.setToolTipText("beim Hinzufügen neuer Mitglieder automatisch Eingabe-Kürzel generieren");
-    autogenAlias.setActionCommand("Eingabe-Kürzel automatisch beim Anlegen neuer Mitglieder generieren");
-    autogenAlias.setMnemonic('A');
-    jLabel2.setToolTipText("nach welchem Schema die Eingabe-Kürzel generiert werden sollen...");
-    jLabel2.setDisplayedMnemonic('F');
+    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Format der Eingabe-Kürzel")+": ");
     jLabel2.setLabelFor(aliasFormat);
-    jLabel2.setText("Format der Eingabe-Kürzel: ");
     aliasFormat.setNextFocusableComponent(autoStandardmannsch);
     Dialog.setPreferredSize(aliasFormat,200,19);
     aliasFormat.setToolTipText("");
@@ -334,34 +332,19 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     });
     allgemeinPanel.setBorder(BorderFactory.createEtchedBorder());
     allgemeinPanel.setNextFocusableComponent(autogenAlias);
-    jLabel3.setText("Sicherungskopien erstellen");
+    jLabel3.setText(International.getString("Sicherungskopien erstellen"));
     backupPanel.setBorder(BorderFactory.createEtchedBorder());
     backupPanel.setNextFocusableComponent(bakDir);
     backupPanel.setLayout(gridBagLayout3);
-    bakSave.setText("bei jedem Speichern");
+    Mnemonics.setButton(this, bakSave, International.getStringWithMnemonic("bei jedem Speichern"));
     bakSave.setNextFocusableComponent(bakMonat);
-    bakSave.setToolTipText("Sicherungskopie bei jedem Speichern einer Datei anlegen");
-    bakSave.setMnemonic('J');
-    bakMonat.setText("jeden Monat");
+    Mnemonics.setButton(this, bakMonat, International.getStringWithMnemonic("jeden Monat"));
     bakMonat.setNextFocusableComponent(bakTag);
-    bakMonat.setToolTipText("Sicherungskopie jeden Monat anlegen");
-    bakMonat.setMnemonic('M');
-    bakKonv.setText("beim Konvertieren");
+    Mnemonics.setButton(this, bakKonv, International.getStringWithMnemonic("beim Konvertieren"));
     bakKonv.setNextFocusableComponent(saveButton);
-    bakKonv.setToolTipText("Sicherungskopie vor dem Konvertieren in ein neues Format anlegen");
-    bakKonv.setMnemonic('K');
-    saveButton.setNextFocusableComponent(Allgemein);
-    saveButton.setMnemonic('S');
-    saveButton.setText("Speichern");
-    saveButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        saveButton_actionPerformed(e);
-      }
-    });
-    jLabel4.setToolTipText("");
-    jLabel4.setDisplayedMnemonic('V');
+    Mnemonics.setButton(this, saveButton, International.getStringWithMnemonic("Speichern"));
+    Mnemonics.setLabel(this, jLabel4, International.getStringWithMnemonic("Backup-Verzeichnis")+": ");
     jLabel4.setLabelFor(bakDir);
-    jLabel4.setText("Backup-Verzeichnis: ");
     bakDir.setNextFocusableComponent(bakSave);
     Dialog.setPreferredSize(bakDir,340,19);
     bakDir.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -369,12 +352,10 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
         bakDir_focusLost(e);
       }
     });
-    browserLabel.setDisplayedMnemonic('W');
+    Mnemonics.setLabel(this, browserLabel, International.getStringWithMnemonic("Webbrowser")+": ");
     browserLabel.setLabelFor(browser);
-    browserLabel.setText("Webbrowser: ");
     browser.setNextFocusableComponent(browserButton);
     Dialog.setPreferredSize(browser,400,19);
-    browser.setToolTipText("Pfad zum Webbrowser zum Anzeigen und Drucken der Statistiken");
     browser.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         browser_focusLost(e);
@@ -390,13 +371,12 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     });
     extProgPanel.setLayout(gridBagLayout2);
     jLabel5.setHorizontalAlignment(SwingConstants.CENTER);
-    jLabel5.setText("Pfade zu externen Programmen");
+    jLabel5.setText(International.getString("Pfade zu externen Programmen"));
     druckPanel.setLayout(gridBagLayout4);
     jLabel6.setHorizontalAlignment(SwingConstants.CENTER);
-    jLabel6.setText("Seitenlayout für Druck");
-    jLabel7.setDisplayedMnemonic('B');
+    jLabel6.setText(International.getString("Seitenlayout für Druck"));
+    Mnemonics.setLabel(this, jLabel7, International.getStringWithMnemonic("Seitenbreite")+": ");
     jLabel7.setLabelFor(printPageWidth);
-    jLabel7.setText("Seitenbreite: ");
     printPageWidth.setNextFocusableComponent(printPageHeight);
     Dialog.setPreferredSize(printPageWidth,80,19);
     printPageWidth.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -404,9 +384,8 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
         correctIntValue(e);
       }
     });
-    jLabel8.setDisplayedMnemonic('H');
+    Mnemonics.setLabel(this, jLabel8, International.getStringWithMnemonic("Seitenhöhe")+": ");
     jLabel8.setLabelFor(printPageHeight);
-    jLabel8.setText("Seitenhöhe: ");
     printPageHeight.setNextFocusableComponent(printLeftMargin);
     Dialog.setPreferredSize(printPageHeight,80,19);
     printPageHeight.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -414,15 +393,12 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
         correctIntValue(e);
       }
     });
-    jLabel9.setDisplayedMnemonic('L');
+    Mnemonics.setLabel(this, jLabel9, International.getStringWithMnemonic("linker und rechter Rand")+": ");
     jLabel9.setLabelFor(printLeftMargin);
-    jLabel9.setText("linker und rechter Rand: ");
-    jLabel10.setDisplayedMnemonic('O');
+    Mnemonics.setLabel(this, jLabel10, International.getStringWithMnemonic("oberer und unterer Rand")+": ");
     jLabel10.setLabelFor(printTopMargin);
-    jLabel10.setText("oberer und unterer Rand: ");
-    jLabel11.setDisplayedMnemonic('E');
+    Mnemonics.setLabel(this, jLabel11, International.getStringWithMnemonic("Seitenüberlappung")+": ");
     jLabel11.setLabelFor(printOverlap);
-    jLabel11.setText("Seitenüberlappung: ");
     printOverlap.setNextFocusableComponent(saveButton);
     Dialog.setPreferredSize(printOverlap,80,19);
     printOverlap.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -449,26 +425,19 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     jLabel14.setText(" mm");
     jLabel15.setText(" mm");
     jLabel16.setText(" mm");
-    jLabel17.setText("Tastenbelegungen für Bemerkungs-Feld:");
-    jLabel18.setDisplayedMnemonic('6');
+    jLabel17.setText(International.getString("Tastenbelegungen für Bemerkungs-Feld")+":");
     jLabel18.setLabelFor(f6);
     jLabel18.setText("F6: ");
-    jLabel19.setDisplayedMnemonic('7');
     jLabel19.setLabelFor(f7);
     jLabel19.setText("F7: ");
-    jLabel20.setDisplayedMnemonic('8');
     jLabel20.setLabelFor(f8);
     jLabel20.setText("F8: ");
-    jLabel21.setDisplayedMnemonic('9');
     jLabel21.setLabelFor(f9);
     jLabel21.setText("F9: ");
-    jLabel22.setDisplayedMnemonic('0');
     jLabel22.setLabelFor(f10);
     jLabel22.setText("F10: ");
-    jLabel23.setDisplayedMnemonic('1');
     jLabel23.setLabelFor(f11);
     jLabel23.setText("F11: ");
-    jLabel24.setDisplayedMnemonic('2');
     jLabel24.setLabelFor(f12);
     jLabel24.setText("F12: ");
     f6.setNextFocusableComponent(f7);
@@ -485,8 +454,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     Dialog.setPreferredSize(f11,200,19);
     f12.setNextFocusableComponent(saveButton);
     Dialog.setPreferredSize(f12,200,19);
-    jLabel25.setDisplayedMnemonic('A');
-    jLabel25.setText("Acrobat Reader: ");
+    Mnemonics.setLabel(this, jLabel25, International.getStringWithMnemonic("Acrobat Reader")+": ");
     acrobat.setNextFocusableComponent(acrobatButton);
     Dialog.setPreferredSize(acrobat,400,19);
     acrobat.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -504,50 +472,34 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     });
     extProgPanel.setNextFocusableComponent(browser);
     druckPanel.setNextFocusableComponent(printPageWidth);
+    Mnemonics.setButton(this, autoStandardmannsch, International.getStringWithMnemonic("Standardmannschaft automatisch eintragen"));
     autoStandardmannsch.setNextFocusableComponent(standardFahrtart);
-    autoStandardmannsch.setToolTipText("wenn eine Standardmannschaft konfiguriert ist, diese bei der Eingabe " +
-    "automatisch immer eintragen");
-    autoStandardmannsch.setMnemonic('T');
-    autoStandardmannsch.setText("Standardmannschaft automatisch eintragen");
+    Mnemonics.setButton(this, skipUhrzeit, International.getStringWithMnemonic("Eingabefelder \'Uhrzeit\' überspringen"));
     skipUhrzeit.setNextFocusableComponent(skipZiel);
-    skipUhrzeit.setToolTipText("Bei der Eingabe die Felder \'Abfahrt\' und \'Ankunft\' überspringen");
-    skipUhrzeit.setMnemonic('U');
-    skipUhrzeit.setText("Eingabefelder \'Uhrzeit\' überspringen");
+    Mnemonics.setButton(this, skipMannschKm, International.getStringWithMnemonic("Eingabefeld \'Mannsch.-Km\' überspringen"));
     skipMannschKm.setNextFocusableComponent(skipBemerk);
-    skipMannschKm.setToolTipText("Bei der Eingabe das Feld \'Mannschaftskilometer\' überspringen");
-    skipMannschKm.setMnemonic('M');
-    skipMannschKm.setText("Eingabefeld \'Mannsch.-Km\' überspringen");
+    Mnemonics.setButton(this, skipBemerk, International.getStringWithMnemonic("Bei der Eingabe das Feld \'Bemerkungen\' überspringen"));
     skipBemerk.setNextFocusableComponent(f6);
-    skipBemerk.setToolTipText("Bei der Eingabe das Feld \'Bemerkungen\' überspringen");
-    skipBemerk.setMnemonic('B');
-    skipBemerk.setText("Eingabefeld \'Bemerkungen\' überspringen");
     Dialog.setPreferredSize(bakdirButton,50,20);
-    bakdirButton.setToolTipText("Backup-Verzeichnis auswählen");
     bakdirButton.setIcon(new ImageIcon(EfaConfigFrame.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
     bakdirButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         bakdirButton_actionPerformed(e);
       }
     });
+    Mnemonics.setButton(this, bakTag, International.getStringWithMnemonic("jeden Tag"));
     bakTag.setNextFocusableComponent(bakKonv);
-    bakTag.setToolTipText("Sicherungskopie jeden Tag anlegen");
-    bakTag.setMnemonic('T');
-    bakTag.setText("jeden Tag");
     efaDirektPanel.setLayout(borderLayout3);
     efaDirektEinstellungenPanel.setLayout(gridBagLayout5);
+    Mnemonics.setButton(this, efaDirekt_zielBeiFahrtbeginn, International.getStringWithMnemonic("Ziel muß bereits bei Fahrtbeginn angegeben werden"));
     efaDirekt_zielBeiFahrtbeginn.setNextFocusableComponent(efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen);
-    efaDirekt_zielBeiFahrtbeginn.setToolTipText("Beim beginnen einer Fahrt muß bereits ein Fahrtziel angegeben werden");
-    efaDirekt_zielBeiFahrtbeginn.setMnemonic('Z');
-    efaDirekt_zielBeiFahrtbeginn.setText("Ziel muß bereits bei Fahrtbeginn angegeben werden");
-    jLabel26.setText("Berechnung der vorgeschlagenen Uhrzeiten bei Abfahrt und Ankunft:");
-    jLabel27.setText(" Minuten zu aktueller Zeit addieren");
-    jLabel28.setDisplayedMnemonic('F');
+    jLabel26.setText(International.getString("Berechnung der vorgeschlagenen Uhrzeiten bei Abfahrt und Ankunft")+":");
+    jLabel27.setText(" "+International.getString("Minuten zu aktueller Zeit addieren"));
+    Mnemonics.setLabel(this, jLabel28, International.getStringWithMnemonic("Abfahrt")+": ");
     jLabel28.setLabelFor(efaDirekt_abfahrtMinuten);
-    jLabel28.setText("Abfahrt: ");
-    jLabel29.setDisplayedMnemonic('N');
+    Mnemonics.setLabel(this, jLabel29, International.getStringWithMnemonic("Ankunft")+": ");
     jLabel29.setLabelFor(efaDirekt_ankunftMinuten);
-    jLabel29.setText("Ankunft: ");
-    jLabel30.setText(" Minuten von aktueller Zeit abziehen");
+    jLabel30.setText(" "+International.getString("Minuten von aktueller Zeit abziehen"));
     efaDirekt_abfahrtMinuten.setNextFocusableComponent(efaDirekt_ankunftMinuten);
     Dialog.setPreferredSize(efaDirekt_abfahrtMinuten,50,19);
     efaDirekt_abfahrtMinuten.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -562,32 +514,27 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
         correctIntValue(e);
       }
     });
+    Mnemonics.setButton(this, efaDirekt_reservierungenEditErlaubt, International.getStringWithMnemonic("Mitglieder dürfen Bootsreservierungen verändern und löschen"));
     efaDirekt_reservierungenEditErlaubt.setNextFocusableComponent(efaDirekt_mitgliederNamenHinzufuegen);
-    efaDirekt_reservierungenEditErlaubt.setMnemonic('D');
-    efaDirekt_reservierungenEditErlaubt.setText("Mitglieder dürfen Bootsreservierungen verändern und löschen");
-    jLabel31.setText("Einstellungen für efa beim Einsatz im Bootshaus");
+    jLabel31.setText(International.getString("Einstellungen für efa beim Einsatz im Bootshaus"));
+    Mnemonics.setButton(this, efaDirekt_MitglEfaExit, International.getStringWithMnemonic("Mitglieder dürfen efa beenden"));
     efaDirekt_MitglEfaExit.setNextFocusableComponent(efaDirekt_execOnEfaExit);
-    efaDirekt_MitglEfaExit.setMnemonic('B');
-    efaDirekt_MitglEfaExit.setText("Mitglieder dürfen efa beenden");
-    jLabel32.setDisplayedMnemonic('O');
+    Mnemonics.setLabel(this, jLabel32, International.getStringWithMnemonic("Folgendes Kommando beim Beenden von efa durch Mitglieder ausführen")+": ");
     jLabel32.setLabelFor(efaDirekt_execOnEfaExit);
-    jLabel32.setText("Folgendes Kommando beim Beenden von efa durch Mitglieder ausführen:");
     efaDirekt_execOnEfaExit.setNextFocusableComponent(efaDirekt_exitTime);
+    Mnemonics.setButton(this, skipZiel, International.getStringWithMnemonic("Eingabefeld \'Ziel\' überspringen (Ziel nicht erforderlich)"));
     skipZiel.setNextFocusableComponent(skipMannschKm);
-    skipZiel.setToolTipText("Bei der Eingabe das Geld \'Ziel\' überspringen");
-    skipZiel.setMnemonic('Z');
-    skipZiel.setText("Eingabefeld \'Ziel\' überspringen (Ziel nicht erforderlich)");
     efaDirektErscheinungsbildPanel.setLayout(gridBagLayout6);
     Dialog.setPreferredSize(jLabel33,280,13);
     jLabel33.setHorizontalAlignment(SwingConstants.CENTER);
-    jLabel33.setText("Erscheinungsbild der Buttons");
+    jLabel33.setText(International.getString("Erscheinungsbild der Buttons"));
     efaDirektErscheinungsbildPanel.setBorder(BorderFactory.createEtchedBorder());
     efaDirektEinstellungenPanel.setBorder(BorderFactory.createEtchedBorder());
     efaDirektFahrtenPanel.setBorder(BorderFactory.createEtchedBorder());
     efaDirektFahrtenPanel.setLayout(gridBagLayout9);
     efaDirekt_fahrtBeginnenButton.setNextFocusableComponent(efaDirekt_FahrtBeginnenTextButton);
     Dialog.setPreferredSize(efaDirekt_fahrtBeginnenButton,200,23);
-    efaDirekt_fahrtBeginnenButton.setText("Fahrt beginnen >>>");
+    efaDirekt_fahrtBeginnenButton.setText(International.getString("Fahrt beginnen")+" >>>");
     efaDirekt_fahrtBeginnenButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         colorButton_actionPerformed(e);
@@ -595,7 +542,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     });
     efaDirekt_fahrtBeendenButton.setNextFocusableComponent(efaDirekt_fahrtBeendenTextButton);
     Dialog.setPreferredSize(efaDirekt_fahrtBeendenButton,200,23);
-    efaDirekt_fahrtBeendenButton.setText("<<< Fahrt beenden");
+    efaDirekt_fahrtBeendenButton.setText("<<< "+International.getString("Fahrt beenden"));
     efaDirekt_fahrtBeendenButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         colorButton_actionPerformed(e);
@@ -603,7 +550,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     });
     efaDirekt_fahrtAbbrechenButton.setNextFocusableComponent(efaDirekt_nachtragButton);
     Dialog.setPreferredSize(efaDirekt_fahrtAbbrechenButton,200,23);
-    efaDirekt_fahrtAbbrechenButton.setText("Fahrt abbrechen");
+    Mnemonics.setButton(this, efaDirekt_fahrtAbbrechenButton, International.getStringWithMnemonic("Fahrt abbrechen"));
     efaDirekt_fahrtAbbrechenButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         colorButton_actionPerformed(e);
@@ -611,7 +558,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     });
     efaDirekt_nachtragButton.setNextFocusableComponent(efaDirekt_bootsreservierungenButton);
     Dialog.setPreferredSize(efaDirekt_nachtragButton,200,23);
-    efaDirekt_nachtragButton.setText("Nachtrag");
+    Mnemonics.setButton(this, efaDirekt_nachtragButton, International.getStringWithMnemonic("Nachtrag"));
     efaDirekt_nachtragButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         colorButton_actionPerformed(e);
@@ -619,7 +566,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     });
     efaDirekt_bootsreservierungenButton.setNextFocusableComponent(efaDirekt_bootsreservierungenAnzeigen);
     Dialog.setPreferredSize(efaDirekt_bootsreservierungenButton,200,23);
-    efaDirekt_bootsreservierungenButton.setText("Bootsreservierungen");
+    Mnemonics.setButton(this, efaDirekt_bootsreservierungenButton, International.getStringWithMnemonic("Bootsreservierungen"));
     efaDirekt_bootsreservierungenButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         colorButton_actionPerformed(e);
@@ -627,7 +574,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     });
     efaDirekt_fahrtenbuchAnzeigenButton.setNextFocusableComponent(efaDirekt_fahrtenbuchAnzeigenAnzeigen);
     Dialog.setPreferredSize(efaDirekt_fahrtenbuchAnzeigenButton,200,23);
-    efaDirekt_fahrtenbuchAnzeigenButton.setText("Fahrtenbuch anzeigen");
+    Mnemonics.setButton(this, efaDirekt_fahrtenbuchAnzeigenButton, International.getStringWithMnemonic("Fahrtenbuch anzeigen"));
     efaDirekt_fahrtenbuchAnzeigenButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         colorButton_actionPerformed(e);
@@ -635,7 +582,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     });
     efaDirekt_statistikErstellenButton.setNextFocusableComponent(efaDirekt_statistikErstellenAnzeigen);
     Dialog.setPreferredSize(efaDirekt_statistikErstellenButton,200,23);
-    efaDirekt_statistikErstellenButton.setText("Statistik erstellen");
+    Mnemonics.setButton(this, efaDirekt_statistikErstellenButton, International.getStringWithMnemonic("Statistik erstellen"));
     efaDirekt_statistikErstellenButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         colorButton_actionPerformed(e);
@@ -643,7 +590,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     });
     efaDirekt_nachrichtAnAdminButton.setNextFocusableComponent(efaDirekt_nachrichtAnAdminAnzeigen);
     Dialog.setPreferredSize(efaDirekt_nachrichtAnAdminButton,200,23);
-    efaDirekt_nachrichtAnAdminButton.setText("Nachricht an Admin");
+    Mnemonics.setButton(this, efaDirekt_nachrichtAnAdminButton, International.getStringWithMnemonic("Nachricht an Admin"));
     efaDirekt_nachrichtAnAdminButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         colorButton_actionPerformed(e);
@@ -651,80 +598,70 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     });
     efaDirekt_adminModusButton.setNextFocusableComponent(efaDirekt_adminModusAnzeigen);
     Dialog.setPreferredSize(efaDirekt_adminModusButton,200,23);
-    efaDirekt_adminModusButton.setText("Admin-Modus");
+    Mnemonics.setButton(this, efaDirekt_adminModusButton, International.getStringWithMnemonic("Admin-Modus"));
     efaDirekt_adminModusButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         colorButton_actionPerformed(e);
       }
     });
     efaDirekt_FahrtBeginnenTextButton.setNextFocusableComponent(efaDirekt_fahrtBeendenButton);
-    efaDirekt_FahrtBeginnenTextButton.setText("Text");
+    Mnemonics.setButton(this, efaDirekt_FahrtBeginnenTextButton, International.getStringWithMnemonic("Text"));
     efaDirekt_FahrtBeginnenTextButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         efaDirekt_FahrtBeginnenTextButton_actionPerformed(e);
       }
     });
     efaDirekt_fahrtBeendenTextButton.setNextFocusableComponent(efaDirekt_fahrtAbbrechenButton);
-    efaDirekt_fahrtBeendenTextButton.setText("Text");
+    Mnemonics.setButton(this, efaDirekt_fahrtBeendenTextButton, International.getStringWithMnemonic("Text"));
     efaDirekt_fahrtBeendenTextButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         efaDirekt_fahrtBeendenTextButton_actionPerformed(e);
       }
     });
     efaDirekt_bootsreservierungenAnzeigen.setNextFocusableComponent(efaDirekt_fahrtenbuchAnzeigenButton);
-    efaDirekt_bootsreservierungenAnzeigen.setText("anzeigen");
+    efaDirekt_bootsreservierungenAnzeigen.setText(International.getString("anzeigen"));
     efaDirekt_statistikErstellenAnzeigen.setNextFocusableComponent(efaDirekt_nachrichtAnAdminButton);
-    efaDirekt_statistikErstellenAnzeigen.setText("anzeigen");
+    efaDirekt_statistikErstellenAnzeigen.setText(International.getString("anzeigen"));
     efaDirekt_nachrichtAnAdminAnzeigen.setNextFocusableComponent(efaDirekt_adminModusButton);
-    efaDirekt_nachrichtAnAdminAnzeigen.setText("anzeigen");
+    efaDirekt_nachrichtAnAdminAnzeigen.setText(International.getString("anzeigen"));
     efaDirekt_adminModusAnzeigen.setNextFocusableComponent(efaDirekt_spezialButton);
-    efaDirekt_adminModusAnzeigen.setText("anzeigen");
+    efaDirekt_adminModusAnzeigen.setText(International.getString("anzeigen"));
     efaDirekt_fahrtenbuchAnzeigenAnzeigen.setNextFocusableComponent(efaDirekt_statistikErstellenButton);
-    efaDirekt_fahrtenbuchAnzeigenAnzeigen.setText("anzeigen");
+    efaDirekt_fahrtenbuchAnzeigenAnzeigen.setText(International.getString("anzeigen"));
     efaDirekt_logoLabel.setBorder(BorderFactory.createEtchedBorder());
     efaDirekt_logoLabel.setPreferredSize(new Dimension(192, 64));
-    efaDirekt_logoLabel.setToolTipText("Vereinslogo");
+    efaDirekt_logoLabel.setToolTipText(International.getString("Vereinslogo"));
     efaDirekt_logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
     efaDirekt_logoLabel.setHorizontalTextPosition(SwingConstants.CENTER);
     efaDirekt_logoSelectButton.setNextFocusableComponent(efaDirekt_logoDeleteButton);
-    efaDirekt_logoSelectButton.setText("auswählen");
+    Mnemonics.setButton(this, efaDirekt_logoSelectButton, International.getStringWithMnemonic("auswählen"));
     efaDirekt_logoSelectButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         efaDirekt_logoSelectButton_actionPerformed(e);
       }
     });
     efaDirekt_logoDeleteButton.setNextFocusableComponent(efaDirekt_maximiertStarten);
-    efaDirekt_logoDeleteButton.setText("entfernen");
+    Mnemonics.setButton(this, efaDirekt_logoDeleteButton, International.getStringWithMnemonic("entfernen"));
     efaDirekt_logoDeleteButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         efaDirekt_logoDeleteButton_actionPerformed(e);
       }
     });
     jLabel34.setHorizontalAlignment(SwingConstants.CENTER);
-    jLabel34.setText("Vereinslogo");
+    jLabel34.setText(International.getString("Vereinslogo"));
+    Mnemonics.setButton(this, efaDirekt_reservierungenErlaubt, International.getStringWithMnemonic("Mitglieder dürfen Boote reservieren (einmalige Reservierungen)"));
     efaDirekt_reservierungenErlaubt.setNextFocusableComponent(efaDirekt_reservierungenErlaubtZyklisch);
-    efaDirekt_reservierungenErlaubt.setMnemonic('R');
-    efaDirekt_reservierungenErlaubt.setText("Mitglieder dürfen Boote reservieren (einmalige Reservierungen)");
+    Mnemonics.setButton(this, efaDirekt_maximiertStarten, International.getStringWithMnemonic("efa maximiert starten"));
     efaDirekt_maximiertStarten.setNextFocusableComponent(efaDirekt_fensterNichtVerschiebbar);
-    efaDirekt_maximiertStarten.setToolTipText("bewirkt, daß efa im Vollbildmodus gestartet wird");
-    efaDirekt_maximiertStarten.setMnemonic('M');
-    efaDirekt_maximiertStarten.setText("efa maximiert starten");
+    Mnemonics.setButton(this, efaDirekt_sortBooteByAnzahl, International.getStringWithMnemonic("sortiere Boote nach Anzahl der Ruderplätze"));
     efaDirekt_sortBooteByAnzahl.setNextFocusableComponent(efaDirekt_showEingabeInfos);
-    efaDirekt_sortBooteByAnzahl.setToolTipText("legt fest, ob die Boote in den Bootslisten nach Name oder Anzahl " +
-    "der Ruderplätze sortiert sein sollen");
-    efaDirekt_sortBooteByAnzahl.setMnemonic('O');
-    efaDirekt_sortBooteByAnzahl.setText("sortiere Boote nach Anzahl der Ruderplätze");
+    Mnemonics.setButton(this, autoObmann, International.getStringWithMnemonic("Obmann bei Eingabe automatisch auswählen"));
     autoObmann.setNextFocusableComponent(defaultObmann);
-    autoObmann.setToolTipText("Bei der Eingabe neuer Fahrten automatisch den Obmann auswählen");
-    autoObmann.setMnemonic('O');
-    autoObmann.setText("Obmann bei Eingabe automatisch auswählen");
-    jLabel35.setDisplayedMnemonic('A');
+    Mnemonics.setLabel(this, jLabel35, International.getStringWithMnemonic("efa automatisch um")+" ");
     jLabel35.setLabelFor(efaDirekt_exitTime);
-    jLabel35.setText("efa automatisch um ");
-    jLabel36.setText(" Uhr beenden");
-    jLabel37.setDisplayedMnemonic('M');
+    jLabel36.setText(" "+International.getString("Uhr beenden"));
+    Mnemonics.setLabel(this, jLabel37, International.getStringWithMnemonic("Folgendes Kommando beim automatischen Beenden von efa ausführen")+": ");
     jLabel37.setLabelFor(efaDirekt_execOnEfaAutoExit);
-    jLabel37.setText("Folgendes Kommando beim automatischen Beenden von efa ausführen:");
     efaDirekt_exitTime.setNextFocusableComponent(efaDirekt_execOnEfaAutoExit);
     Dialog.setPreferredSize(efaDirekt_exitTime,80,19);
     efaDirekt_exitTime.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -733,9 +670,8 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
       }
     });
     efaDirekt_execOnEfaAutoExit.setNextFocusableComponent(efaDirekt_restartTime);
+    Mnemonics.setButton(this, showObmann, International.getStringWithMnemonic("Obmann-Auswahlliste anzeigen"));
     showObmann.setNextFocusableComponent(autoObmann);
-    showObmann.setMnemonic('N');
-    showObmann.setText("Obmann-Auswahlliste anzeigen");
     Dialog.setPreferredSize(exec1FileSelectButton,50,20);
     Dialog.setPreferredSize(exec2FileSelectButton,50,20);
     exec1FileSelectButton.setIcon(new ImageIcon(EfaConfigFrame.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
@@ -750,73 +686,58 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
         exec2FileSelectButton_actionPerformed(e);
       }
     });
-    jLabel38.setText("Look & Feel: ");
+    jLabel38.setText(International.getString("Look & Feel")+": ");
+    Mnemonics.setButton(this, efaDirekt_fensterNichtVerschiebbar, International.getStringWithMnemonic("Hauptfenster nicht verschiebbar"));
     efaDirekt_fensterNichtVerschiebbar.setNextFocusableComponent(efaDirekt_immerImVordergrund);
-    efaDirekt_fensterNichtVerschiebbar.setToolTipText("bewirkt, daß der Benutzer das Hauptfenster von efa nicht verschieben " +
-    "kann");
-    efaDirekt_fensterNichtVerschiebbar.setMnemonic('R');
-    efaDirekt_fensterNichtVerschiebbar.setText("Hauptfenster nicht verschiebbar");
     efaDirekt_fensterNichtVerschiebbar.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         efaDirekt_fensterNichtVerschiebbar_actionPerformed(e);
       }
     });
+    Mnemonics.setButton(this, efaDirekt_immerImVordergrund, International.getStringWithMnemonic("efa immer im Vordergrund"));
     efaDirekt_immerImVordergrund.setNextFocusableComponent(efaDirekt_sortBooteByAnzahl);
-    efaDirekt_immerImVordergrund.setToolTipText("bewirkt, daß efa immer im Vordergrund angezeigt wird und nicht von " +
-    "anderen Programmen verdeckt wird");
-    efaDirekt_immerImVordergrund.setMnemonic('V');
-    efaDirekt_immerImVordergrund.setText("efa immer im Vordergrund");
     efaDirekt_immerImVordergrund.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         efaDirekt_immerImVordergrund_actionPerformed(e);
       }
     });
     efaDirektErscheinungsbildWeiterePanel.setLayout(gridBagLayout7);
+    Mnemonics.setButton(this, efaDirekt_buttonsShowHotkey, International.getStringWithMnemonic("Hotkeys für Buttons anzeigen"));
     efaDirekt_buttonsShowHotkey.setNextFocusableComponent(efaDirekt_showFahrtzielInBooteAufFahrt);
-    efaDirekt_buttonsShowHotkey.setToolTipText("bewirkt, daß auf der Buttons zusätzlich die Hotkeys zum Aktivieren " +
-    "der Buttons angezeigt werden");
-    efaDirekt_buttonsShowHotkey.setMnemonic('K');
-    efaDirekt_buttonsShowHotkey.setText("Hotkeys für Buttons anzeigen");
     efaDirekt_buttonsShowHotkey.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         efaDirekt_buttonsShowHotkey_actionPerformed(e);
       }
     });
-
-    jLabel39.setDisplayedMnemonic('G');
+    Mnemonics.setLabel(this, jLabel39, International.getStringWithMnemonic("Schriftgröße (leer=Standard)")+": ");
     jLabel39.setLabelFor(efaDirekt_fontSize);
-    jLabel39.setText("Schriftgröße (leer=Standard): ");
     efaDirekt_fontSize.setNextFocusableComponent(efaDirekt_fontStyle);
-    efaDirekt_fontSize.setToolTipText("Schriftgröße in Punkten (6 bis 32)");
+    efaDirekt_fontSize.setToolTipText(International.getString("Schriftgröße in Punkten (6 bis 32, Standard: 12)"));
     Dialog.setPreferredSize(efaDirekt_fontSize,50,19);
     efaDirekt_fontSize.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         efaDirekt_fontSize_focusLost(e);
       }
     });
+    Mnemonics.setButton(this, efaDirekt_showEingabeInfos, International.getStringWithMnemonic("Eingabehinweise anzeigen"));
     efaDirekt_showEingabeInfos.setNextFocusableComponent(efadirekt_colorizedtextfield);
-    efaDirekt_showEingabeInfos.setToolTipText("Beim Ein- und Austragen von Booten Hinweise zur Eingabe anzeigen");
-    efaDirekt_showEingabeInfos.setMnemonic('H');
-    efaDirekt_showEingabeInfos.setText("Eingabehinweise anzeigen");
-    jLabel40.setText("Schriftstil: ");
+    Mnemonics.setLabel(this, jLabel40, International.getStringWithMnemonic("Schriftstil")+": ");
+    jLabel40.setLabelFor(efaDirekt_fontStyle);
     Dialog.setPreferredSize(efaDirekt_fontStyle,100,20);
-    efaDirekt_fontStyle.addItem("Standard");
-    efaDirekt_fontStyle.addItem("normal");
-    efaDirekt_fontStyle.addItem("fett");
+    efaDirekt_fontStyle.addItem(International.getString("Standard"));
+    efaDirekt_fontStyle.addItem(International.getString("normal"));
+    efaDirekt_fontStyle.addItem(International.getString("fett"));
     efaDirekt_fontStyle.setNextFocusableComponent(saveButton);
+    Mnemonics.setButton(this, showBerlinOptions, International.getStringWithMnemonic("Berlin-spezifische Optionen anzeigen"));
     showBerlinOptions.setNextFocusableComponent(saveButton);
-    showBerlinOptions.setToolTipText("Optionen, die nur für Berliner Vereine gedacht sind, anzeigen");
-    showBerlinOptions.setText("Berlin-spezifische Optionen anzeigen");
     lookAndFeel.setNextFocusableComponent(showBerlinOptions);
-    jLabel41.setDisplayedMnemonic('D');
+    Mnemonics.setLabel(this, jLabel41, International.getStringWithMnemonic("Standard-Obmann für ungesteuerte Boote")+": ");
     jLabel41.setLabelFor(defaultObmann);
-    jLabel41.setText("Standard-Obmann für ungesteuerte Boote: ");
     defaultObmann.setNextFocusableComponent(completePopupEnabled);
+    Mnemonics.setButton(this, efaDirekt_showUhr, International.getStringWithMnemonic("Uhr anzeigen"));
     efaDirekt_showUhr.setNextFocusableComponent(efaDirekt_newsText);
-    efaDirekt_showUhr.setMnemonic('U');
-    efaDirekt_showUhr.setText("Uhr anzeigen");
+    Mnemonics.setButton(this, efaDirekt_spezialButton, International.getStringWithMnemonic("Spezial-Button"));
     efaDirekt_spezialButton.setNextFocusableComponent(efaDirekt_spezialButtonAnzeigen);
-    efaDirekt_spezialButton.setText("Spezial-Button");
     Dialog.setPreferredSize(efaDirekt_spezialButton,200,23);
     efaDirekt_spezialButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -824,36 +745,32 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
       }
     });
     efaDirekt_spezialButtonAnzeigen.setNextFocusableComponent(efaDirekt_spezielButtonTextButton);
-    efaDirekt_spezialButtonAnzeigen.setText("anzeigen");
+    Mnemonics.setButton(this, efaDirekt_spezialButtonAnzeigen, International.getStringWithMnemonic("anzeigen"));
+    Mnemonics.setButton(this, efaDirekt_spezielButtonTextButton, International.getStringWithMnemonic("Text"));
     efaDirekt_spezielButtonTextButton.setNextFocusableComponent(efaDirekt_spezialButtonCmd);
-    efaDirekt_spezielButtonTextButton.setText("Text");
     efaDirekt_spezielButtonTextButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         efaDirekt_spezielButtonTextButton_actionPerformed(e);
       }
     });
-    jLabel42.setText("bei Click ausführen: ");
+    Mnemonics.setLabel(this, jLabel42, International.getStringWithMnemonic("bei Click ausführen")+": ");
+    jLabel42.setLabelFor(efaDirekt_spezialButtonCmd);
     efaDirekt_spezialButtonCmd.setNextFocusableComponent(efaDirekt_buttonsShowHotkey);
+    Mnemonics.setButton(this, completePopupEnabled, International.getStringWithMnemonic("Beim Vervollständigen Popup-Liste anzeigen"));
     completePopupEnabled.setNextFocusableComponent(correctMisspelledMitglieder);
-    completePopupEnabled.setMnemonic('V');
-    completePopupEnabled.setText("Beim Vervollständigen Popup-Liste anzeigen");
+    Mnemonics.setButton(this, correctMisspelledMitglieder, International.getStringWithMnemonic("Mitglieder"));
     correctMisspelledMitglieder.setNextFocusableComponent(correctMisspelledBoote);
-    correctMisspelledMitglieder.setText("Mitglieder");
     efaDirektBenachrichtigungPanel.setLayout(gridBagLayout8);
     efaDirektSunrisePanel.setLayout(gridBagLayout10);
-    jLabel43.setText("Einstellungen zum email-Versand:");
-    jLabel44.setDisplayedMnemonic('S');
+    jLabel43.setText(International.getString("Einstellungen zum email-Versand")+":");
+    Mnemonics.setLabel(this, jLabel44, International.getStringWithMnemonic("SMTP-Server")+": ");
     jLabel44.setLabelFor(efaDirekt_emailServer);
-    jLabel44.setText("SMTP-Server: ");
-    jLabel45.setDisplayedMnemonic('U');
+    Mnemonics.setLabel(this, jLabel45, International.getStringWithMnemonic("Username")+": ");
     jLabel45.setLabelFor(efaDirekt_emailUsername);
-    jLabel45.setText("Username: ");
-    jLabel46.setDisplayedMnemonic('P');
+    Mnemonics.setLabel(this, jLabel46, International.getStringWithMnemonic("Paßwort")+": ");
     jLabel46.setLabelFor(efaDirekt_emailPassword);
-    jLabel46.setText("Paßwort: ");
-    jLabel47.setDisplayedMnemonic('A');
+    Mnemonics.setLabel(this, jLabel47, International.getStringWithMnemonic("Absender-Adresse")+": ");
     jLabel47.setLabelFor(efaDirekt_emailAbsender);
-    jLabel47.setText("Absender-Adresse: ");
     efaDirekt_emailServer.setNextFocusableComponent(efaDirekt_emailUsername);
     Dialog.setPreferredSize(efaDirekt_emailServer,250,19);
     efaDirekt_emailUsername.setNextFocusableComponent(efaDirekt_emailPassword);
@@ -862,17 +779,13 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     Dialog.setPreferredSize(efaDirekt_emailPassword,250,19);
     efaDirekt_emailAbsender.setNextFocusableComponent(efaDirekt_emailBetreffPraefix);
     Dialog.setPreferredSize(efaDirekt_emailAbsender,250,19);
+    Mnemonics.setButton(this, efaDirekt_resBooteNichtVerfuegbar, International.getStringWithMnemonic("Reservierte Boote als \'nicht verfügbar\' anzeigen"));
     efaDirekt_resBooteNichtVerfuegbar.setNextFocusableComponent(efaDirekt_wafaRegattaBooteNichtVerfuegbar);
-    efaDirekt_resBooteNichtVerfuegbar.setMnemonic('E');
-    efaDirekt_resBooteNichtVerfuegbar.setText("Reservierte Boote als \'nicht verfügbar\' anzeigen");
-    efaDirekt_showSunrise.setMnemonic('O');
-    efaDirekt_showSunrise.setText("Sonnenaufgangs- und -untergangszeit anzeigen");
-    jLabel48.setDisplayedMnemonic('B');
+    Mnemonics.setButton(this, efaDirekt_showSunrise, International.getStringWithMnemonic("Sonnenaufgangs- und -untergangszeit anzeigen"));
+    Mnemonics.setLabel(this, jLabel48, International.getStringWithMnemonic("geographische Breite")+": ");
     jLabel48.setLabelFor(efaDirekt_latComboBox);
-    jLabel48.setText("geographische Breite: ");
-    jLabel49.setDisplayedMnemonic('L');
+    Mnemonics.setLabel(this, jLabel49, International.getStringWithMnemonic("geographische Länge")+": ");
     jLabel49.setLabelFor(efaDirekt_lonComboBox);
-    jLabel49.setText("geographische Länge: ");
     efaDirekt_latHH.setNextFocusableComponent(efaDirekt_latMM);
     Dialog.setPreferredSize(efaDirekt_latHH,50,19);
     jLabel50.setText("° ");
@@ -928,64 +841,52 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
         efaDirekt_showSunrise_actionPerformed(e);
       }
     });
-    jLabel56.setDisplayedMnemonic('N');
-    jLabel56.setText("Absender-Name: ");
-    jLabel57.setDisplayedMnemonic('E');
-    jLabel57.setText("Betreff (Präfix): ");
-    jLabel58.setDisplayedMnemonic('I');
-    jLabel58.setText("Signatur: ");
+    Mnemonics.setLabel(this, jLabel56, International.getStringWithMnemonic("Absender-Name")+": ");
+    jLabel56.setLabelFor(efaDirekt_emailAbsenderName);
+    Mnemonics.setLabel(this, jLabel57, International.getStringWithMnemonic("Betreff (Präfix)")+": ");
+    jLabel57.setLabelFor(efaDirekt_emailBetreffPraefix);
+    Mnemonics.setLabel(this, jLabel58, International.getStringWithMnemonic("Signatur")+": ");
+    jLabel58.setLabelFor(efaDirekt_emailSignatur);
     emailSignaturScrollPane.setPreferredSize(new Dimension(200, 50));
     efaDirekt_emailAbsenderName.setNextFocusableComponent(efaDirekt_emailAbsender);
     efaDirekt_emailBetreffPraefix.setNextFocusableComponent(efaDirekt_emailSignatur);
     efaDirekt_emailSignatur.setNextFocusableComponent(efaDirekt_showSunrise);
+    Mnemonics.setButton(this, efaDirekt_reservierungenErlaubtZyklisch, International.getStringWithMnemonic("Mitglieder dürfen Boote reservieren (wöchentliche Reservierungen)"));
     efaDirekt_reservierungenErlaubtZyklisch.setNextFocusableComponent(efaDirekt_reservierungenEditErlaubt);
-    efaDirekt_reservierungenErlaubtZyklisch.setMnemonic('W');
-    efaDirekt_reservierungenErlaubtZyklisch.setText("Mitglieder dürfen Boote reservieren (wöchentliche Reservierungen)");
-    jLabel59.setText("Fahrtenbucheinträge auf Tippfehler prüfen für ");
+    jLabel59.setText(International.getString("Fahrtenbucheinträge auf Tippfehler prüfen für")+" ");
     correctMisspelledBoote.setNextFocusableComponent(correctMisspelledZiele);
-    correctMisspelledBoote.setText("Boote");
+    correctMisspelledBoote.setText(International.getString("Boote"));
     correctMisspelledZiele.setNextFocusableComponent(skipUhrzeit);
-    correctMisspelledZiele.setText("Ziele");
+    correctMisspelledZiele.setText(International.getString("Ziele"));
     jLabel60.setHorizontalAlignment(SwingConstants.CENTER);
-    jLabel60.setText("Einstellungen zum Eintragen von Fahrten");
+    jLabel60.setText(International.getString("Einstellungen zum Eintragen von Fahrten"));
+    Mnemonics.setButton(this, efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen, International.getStringWithMnemonic("Vorgeschlagene Kilometer bei bekannten Zielen können nicht geändert werden"));
     efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen.setNextFocusableComponent(efaDirekt_nurBekannteBoote);
-    efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen.setMnemonic('K');
-    efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen.setText("Vorgeschlagene Kilometer bei bekannten Zielen können nicht geändert " +
-    "werden");
+    Mnemonics.setButton(this, efaDirekt_eintragNichtAenderbarUhrzeit, International.getStringWithMnemonic("Vorgeschlagene Uhrzeiten können nicht geändert werden"));
     efaDirekt_eintragNichtAenderbarUhrzeit.setNextFocusableComponent(efaDirekt_zielBeiFahrtbeginn);
-    efaDirekt_eintragNichtAenderbarUhrzeit.setMnemonic('V');
-    efaDirekt_eintragNichtAenderbarUhrzeit.setText("Vorgeschlagene Uhrzeiten können nicht geändert werden");
+    Mnemonics.setButton(this, efaDirekt_eintragErlaubeNurMaxRudererzahl, International.getStringWithMnemonic("Nur für das Boot maximal mögliche Anzahl an Ruderern erlauben"));
     efaDirekt_eintragErlaubeNurMaxRudererzahl.setNextFocusableComponent(efaDirekt_eintragErzwingeObmann);
-    efaDirekt_eintragErlaubeNurMaxRudererzahl.setMnemonic('M');
-    efaDirekt_eintragErlaubeNurMaxRudererzahl.setText("Nur für das Boot maximal mögliche Anzahl an Ruderern erlauben");
+    Mnemonics.setButton(this, efaDirekt_eintragErzwingeObmann, International.getStringWithMnemonic("Obmann muß ausgewählt werden"));
     efaDirekt_eintragErzwingeObmann.setNextFocusableComponent(efaDirekt_abfahrtMinuten);
-    efaDirekt_eintragErzwingeObmann.setMnemonic('O');
-    efaDirekt_eintragErzwingeObmann.setText("Obmann muß ausgewählt werden");
-    aliasGenButton.setText("neu generieren");
+    Mnemonics.setButton(this, aliasGenButton, International.getStringWithMnemonic("neu generieren"));
     aliasGenButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         aliasGenButton_actionPerformed(e);
       }
     });
-    efaDirekt_wafaRegattaBooteNichtVerfuegbar.setMnemonic('T');
-    efaDirekt_wafaRegattaBooteNichtVerfuegbar.setText("Boote auf Regatta, Trainingslager oder Mehrtagesfahrt als \'nicht verfügbar\' anzeigen");
+    Mnemonics.setButton(this, efaDirekt_wafaRegattaBooteNichtVerfuegbar, International.getStringWithMnemonic("Boote auf Regatta, Trainingslager oder Mehrtagesfahrt als \'nicht verfügbar\' anzeigen"));
+    Mnemonics.setButton(this, efadirekt_colorizedtextfield, International.getStringWithMnemonic("aktuelles Eingabefeld farblich hervorheben"));
     efadirekt_colorizedtextfield.setNextFocusableComponent(efaDirekt_showUhr);
-    efadirekt_colorizedtextfield.setActionCommand("aktuelles Eingabefeld farblich hervorheben");
-    efadirekt_colorizedtextfield.setText("aktuelles Eingabefeld farblich hervorheben");
-    jLabel61.setText("Beim Eintrag von Fahrten nur bekannte Namen erlauben für:");
+    jLabel61.setText(International.getString("Beim Eintrag von Fahrten nur bekannte Namen erlauben für")+":");
+    Mnemonics.setButton(this, efaDirekt_nurBekannteBoote, International.getStringWithMnemonic("Boote"));
     efaDirekt_nurBekannteBoote.setNextFocusableComponent(efaDirekt_nurBekannteRuderer);
-    efaDirekt_nurBekannteBoote.setMnemonic('B');
-    efaDirekt_nurBekannteBoote.setText("Boote");
+    Mnemonics.setButton(this, efaDirekt_nurBekannteRuderer, International.getStringWithMnemonic("Ruderer"));
     efaDirekt_nurBekannteRuderer.setNextFocusableComponent(efaDirekt_nurBekannteZiele);
-    efaDirekt_nurBekannteRuderer.setMnemonic('R');
-    efaDirekt_nurBekannteRuderer.setText("Ruderer");
+    Mnemonics.setButton(this, efaDirekt_nurBekannteZiele, International.getStringWithMnemonic("Ziele"));
     efaDirekt_nurBekannteZiele.setNextFocusableComponent(saveButton);
-    efaDirekt_nurBekannteZiele.setMnemonic('E');
-    efaDirekt_nurBekannteZiele.setText("Ziele");
-    jLabel62.setText("efa automatisch um ");
-    jLabel63.setDisplayedMnemonic('N');
-    jLabel63.setLabelFor(efaDirekt_restartTime);
-    jLabel63.setText(" Uhr neu starten");
+    Mnemonics.setLabel(this, jLabel62, International.getStringWithMnemonic("efa automatisch um")+" ");
+    jLabel62.setLabelFor(efaDirekt_restartTime);
+    jLabel63.setText(" "+International.getString("Uhr neu starten"));
     efaDirekt_restartTime.setNextFocusableComponent(saveButton);
     efaDirekt_restartTime.setText("");
     Dialog.setPreferredSize(efaDirekt_restartTime,80,19);
@@ -994,20 +895,18 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
         efaDirekt_restartTime_focusLost(e);
       }
     });
-    standardFahrtartLabel.setText("Standard-Fahrtart: ");
+    Mnemonics.setLabel(this, standardFahrtartLabel, International.getStringWithMnemonic("Standard-Fahrtart")+": ");
     standardFahrtart.setNextFocusableComponent(showObmann);
+    Mnemonics.setButton(this, efaDirekt_showFahrtzielInBooteAufFahrt, International.getStringWithMnemonic("Fahrtziel in der Liste \'Boote auf Fahrt\' anzeigen"));
     efaDirekt_showFahrtzielInBooteAufFahrt.setNextFocusableComponent(efaDirekt_logoSelectButton);
-    efaDirekt_showFahrtzielInBooteAufFahrt.setMnemonic('Z');
-    efaDirekt_showFahrtzielInBooteAufFahrt.setText("Fahrtziel in der Liste \'Boote auf Fahrt\' anzeigen");
+    Mnemonics.setButton(this, efaDirekt_mitgliederNamenHinzufuegen, International.getStringWithMnemonic("Mitglieder dürfen Namen zur Mitgliederliste hinzufügen"));
     efaDirekt_mitgliederNamenHinzufuegen.setNextFocusableComponent(efaDirekt_resBooteNichtVerfuegbar);
-    efaDirekt_mitgliederNamenHinzufuegen.setText("Mitglieder dürfen Namen zur Mitgliederliste hinzufügen");
-    jLabel64.setText("Verzeichnis für Nutzer");
-    jLabel65.setText("Pfade für efa");
-    jLabel66.setDisplayedMnemonic('N');
+    Mnemonics.setLabel(this, jLabel64, International.getStringWithMnemonic("Verzeichnis für Nutzer")+": ");
+    Mnemonics.setLabel(this, jLabel65, International.getStringWithMnemonic("Pfade für efa")+": ");
+    Mnemonics.setLabel(this, jLabel66, International.getStringWithMnemonic("Nutzerdaten")+": ");
     jLabel66.setHorizontalAlignment(SwingConstants.CENTER);
     jLabel66.setHorizontalTextPosition(SwingConstants.CENTER);
     jLabel66.setLabelFor(userdatadir);
-    jLabel66.setText("Nutzerdaten: ");
     userdatadirButton.setNextFocusableComponent(browser);
     Dialog.setPreferredSize(userdatadirButton,50,20);
     userdatadirButton.setIcon(new ImageIcon(EfaConfigFrame.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
@@ -1019,17 +918,16 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     userdatadir.setNextFocusableComponent(userdatadirButton);
     userdatadir.setText("");
     benachrichtigenBeiPanel.setLayout(gridBagLayout11);
-    jLabel67.setText("Benachrichtigungen verschicken:");
-    jLabel68.setText("an Admins");
-    jLabel69.setText("an Bootswarte");
-    jLabel70.setText("bei Fehlern (ERROR): ");
-    jLabel71.setText("bei Warnungen (WARNING) einmal pro Woche:");
-    jLabel72.setText("bei Bootsstatus-Änderungen:");
-    efaDirekt_newsTextLabel.setDisplayedMnemonic('W');
+    jLabel67.setText(International.getString("Benachrichtigungen verschicken")+":");
+    jLabel68.setText(International.getString("an Admins"));
+    jLabel69.setText(International.getString("an Bootswarte"));
+    jLabel70.setText(International.getString("bei Fehlern (ERROR)")+": ");
+    jLabel71.setText(International.getString("bei Warnungen (WARNING) einmal pro Woche")+":");
+    jLabel72.setText(International.getString("bei Bootsstatus-Änderungen")+":");
+    Mnemonics.setLabel(this, efaDirekt_newsTextLabel, International.getStringWithMnemonic("News-Text")+": ");
     efaDirekt_newsTextLabel.setLabelFor(efaDirekt_newsText);
-    efaDirekt_newsTextLabel.setText("News-Text: ");
     efaDirekt_newsText.setNextFocusableComponent(efaDirekt_fontSize);
-    Allgemein.add(allgemeinPanel,   "Allgemein");
+    Allgemein.add(allgemeinPanel,   International.getString("Allgemein"));
     mainPanel.setLayout(borderLayout2);
     allgemeinPanel.add(jLabel1,                         new GridBagConstraints(0, 0, 4, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
@@ -1107,7 +1005,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
     allgemeinPanel.add(standardFahrtartLabel,   new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    Allgemein.add(backupPanel,   "Backup");
+    Allgemein.add(backupPanel,   International.getString("Backup"));
     backupPanel.add(jLabel3,   new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
     backupPanel.add(bakSave,  new GridBagConstraints(0, 2, 2, 1, 0.0, 0.0
@@ -1140,7 +1038,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     mainPanel.add(saveButton, BorderLayout.SOUTH);
     jScrollPane.getViewport().add(Allgemein, null);
     mainPanel.add(jScrollPane, BorderLayout.CENTER);
-    Allgemein.add(druckPanel,  "Drucken");
+    Allgemein.add(druckPanel,  International.getString("Drucken"));
     druckPanel.add(jLabel6,    new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 20, 0), 0, 0));
     druckPanel.add(jLabel7,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
@@ -1235,8 +1133,8 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(20, 0, 0, 0), 0, 0));
     efaDirektEinstellungenPanel.add(efaDirekt_execOnEfaAutoExit,        new GridBagConstraints(0, 17, 5, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    Allgemein.add(efaDirektPane, "efa im Bootshaus");
-    Allgemein.add(extProgPanel,   "Pfade");
+    Allgemein.add(efaDirektPane, International.getString("efa im Bootshaus"));
+    Allgemein.add(extProgPanel,   International.getString("Pfade"));
     druckPanel.add(jLabel12, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     druckPanel.add(jLabel13,  new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0
@@ -1257,8 +1155,8 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     extProgPanel.add(userdatadirButton, new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    efaDirektPane.add(efaDirektEinstellungenPanel,   "Allgemeine Einstellungen");
-    efaDirektPane.add(efaDirektFahrtenPanel,   "Eintrag von Fahrten");
+    efaDirektPane.add(efaDirektEinstellungenPanel,   International.getString("Allgemeine Einstellungen"));
+    efaDirektPane.add(efaDirektFahrtenPanel,   International.getString("Eintrag von Fahrten"));
     efaDirektFahrtenPanel.add(jLabel60,      new GridBagConstraints(0, 0, 6, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 20, 0), 0, 0));
     efaDirektFahrtenPanel.add(efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen,     new GridBagConstraints(0, 9, 6, 1, 0.0, 0.0
@@ -1277,7 +1175,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
     efaDirektFahrtenPanel.add(efaDirekt_nurBekannteZiele,  new GridBagConstraints(5, 11, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
-    efaDirektPane.add(efaDirektErscheinungsbildPanel,   "Erscheinungsbild");
+    efaDirektPane.add(efaDirektErscheinungsbildPanel,   International.getString("Erscheinungsbild"));
 
     efaDirektErscheinungsbildPanel.add(efaDirekt_logoSelectButton,           new GridBagConstraints(5, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
@@ -1348,7 +1246,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     efaDirektErscheinungsbildPanel.add(efaDirekt_showFahrtzielInBooteAufFahrt,   new GridBagConstraints(0, 13, 5, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    efaDirektPane.add(efaDirektBenachrichtigungPanel,   "Benachrichtigungen");
+    efaDirektPane.add(efaDirektBenachrichtigungPanel,   International.getString("Benachrichtigungen"));
     efaDirektBenachrichtigungPanel.add(jLabel43,         new GridBagConstraints(0, 1, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     efaDirektBenachrichtigungPanel.add(jLabel44,          new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
@@ -1479,8 +1377,8 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
 
     showObmann.setSelected(Daten.efaConfig.showObmann);
     autoObmann.setSelected(Daten.efaConfig.autoObmann);
-    defaultObmann.addItem("Bugmann");
-    defaultObmann.addItem("Schlagmann");
+    defaultObmann.addItem(International.getString("Bugmann"));
+    defaultObmann.addItem(International.getString("Schlagmann"));
     try {
       defaultObmann.setSelectedIndex(Daten.efaConfig.defaultObmann-1);
     } catch(Exception e) { EfaUtil.foo(); }
@@ -1525,10 +1423,10 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
         lookAndFeel.setSelectedIndex(i); break;
       }
     }
-    efaDirekt_latComboBox.addItem("Nord");
-    efaDirekt_latComboBox.addItem("Süd");
-    efaDirekt_lonComboBox.addItem("West");
-    efaDirekt_lonComboBox.addItem("Ost");
+    efaDirekt_latComboBox.addItem(International.getString("Nord"));
+    efaDirekt_latComboBox.addItem(International.getString("Süd"));
+    efaDirekt_lonComboBox.addItem(International.getString("West"));
+    efaDirekt_lonComboBox.addItem(International.getString("Ost"));
 
     bakDir.setText(Daten.efaConfig.bakDir);
     bakSave.setSelected(Daten.efaConfig.bakSave);
@@ -1643,14 +1541,16 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
       switch (s.charAt(i)) {
         case '{':
           if (vari != 0) {
-            parseError = "Ungültige Variablenbezeichnung: '{' im Variablennamen nicht erlaubt";
+            parseError = International.getString("Ungültige Variablenbezeichnung")+": "+
+                    International.getString("'{' im Variablennamen nicht erlaubt");
             return i;
           }
           vari++;
           break;
         case '}':
           if (vari != 3) {
-            parseError = "Ungültige Variablenbezeichnung: Variablenname muß die Form '<Feld><Position>' haben";
+            parseError = International.getString("Ungültige Variablenbezeichnung")+": "+
+                    International.getString("Variablenname muß die Form '<Feld><Position>' haben");
             return i;
           }
           vari=0;
@@ -1660,25 +1560,28 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
             case 1:
               if (s.charAt(i) != 'V' && s.charAt(i) != 'v' && s.charAt(i) != 'N' && s.charAt(i) != 'n'
                   && s.charAt(i) != 'C' && s.charAt(i) != 'c') {
-                parseError = "Ungültige Variablenbezeichnung: <Feld> muß einen der Werte 'V', 'N', 'C' haben";
+                parseError = International.getString("Ungültige Variablenbezeichnung")+": "+
+                        International.getString("<Feld> muß einen der Werte 'V', 'N', 'C' haben");
                 return i;
               }
               vari++;
               break;
             case 2:
               if (s.charAt(i) < 49 || s.charAt(i) > 57) {
-                parseError = "Ungültige Variablenbezeichnung: <Position> muß eine Ziffer sein";
+                parseError = International.getString("Ungültige Variablenbezeichnung")+": "+
+                        International.getString("<Position> muß eine Ziffer sein");
                 return i;
               }
               vari++;
               break;
             case 3:
-              parseError = "Ungültige Variablenbezeichnung: Variablenname muß die Form '<Feld><Position>' haben";
+              parseError = International.getString("Ungültige Variablenbezeichnung")+": "+
+                      International.getString("Variablenname muß die Form '<Feld><Position>' haben");
               return i;
           }
       }
     if (vari != 0) {
-      parseError = "Unvollständiger Formatstring: Variable nicht korrekt abgeschlossen (Format: {<Feld><Position>})";
+      parseError = International.getString("Unvollständiger Formatstring: Variable nicht korrekt abgeschlossen (Format: {<Feld><Position>})");
       return i;
     }
     return -1;
@@ -1688,7 +1591,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     aliasFormat.setText(aliasFormat.getText().trim());
     int i;
     if ( ( i = parseAlias(aliasFormat.getText().trim())) != -1) {
-      Dialog.infoDialog("Syntaxfehler",parseError);
+      Dialog.infoDialog(International.getString("Syntaxfehler"),parseError);
       aliasFormat.setCaretPosition(i);
       return false;
     }
@@ -1700,7 +1603,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     if (s.equals("")) return true;
 
     if (!new File(s).isDirectory()) {
-      Dialog.infoDialog("Fehler","Das angegeben Verzeichnis\n'"+s+"'\nexistiert nicht.");
+      Dialog.infoDialog(International.getString("Fehler"),International.getMessage("Das angegeben Verzeichnis {directory} existiert nicht.",s));
       return false;
     }
     return true;
@@ -1726,26 +1629,31 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
 
   void browser_focusLost(FocusEvent e) {
     if (!browser.getText().trim().equals("") && !new File(browser.getText().trim()).isFile())
-      Dialog.infoDialog("Browser nicht gefunden","Das Programm\n'"+browser.getText().trim()+"'\nkonnte nicht gefunden werden!");
+      Dialog.infoDialog(International.getString("Browser nicht gefunden"),
+              International.getMessage("Das Programm '{program}' konnte nicht gefunden werden!",browser.getText().trim()));
   }
   void browserButton_actionPerformed(ActionEvent e) {
-    String dat = Dialog.dateiDialog(this,"Webbroser auswählen","Windows-Programme (*.exe)","exe",Daten.efaConfig.browser,false);
+    String dat = Dialog.dateiDialog(this,International.getString("Webbroser auswählen"),
+            International.getString("Windows-Programme")+" (*.exe)","exe",Daten.efaConfig.browser,false);
     if (dat != null)
       browser.setText(dat);
   }
   void userdatadirButton_actionPerformed(ActionEvent e) {
-    String dat = Dialog.dateiDialog(this,"Nutzerdaten-Verzeichnis auswählen","Verzeichnisse",null,Daten.efaConfigUserHome.efaUserDirectory,null,null,false,true);
+    String dat = Dialog.dateiDialog(this,International.getString("Nutzerdaten-Verzeichnis auswählen"),
+            International.getString("Verzeichnisse"),null,Daten.efaConfigUserHome.efaUserDirectory,null,null,false,true);
     if (dat != null)
       userdatadir.setText(dat);
   }
 
   void acrobat_focusLost(FocusEvent e) {
     if (!acrobat.getText().trim().equals("") && !new File(acrobat.getText().trim()).isFile())
-      Dialog.infoDialog("Acrobat Reader nicht gefunden","Das Programm\n'"+acrobat.getText().trim()+"'\nkonnte nicht gefunden werden!");
+      Dialog.infoDialog(International.getString("Acrobat Reader nicht gefunden"),
+              International.getMessage("Das Programm '{program}' konnte nicht gefunden werden!",acrobat.getText().trim()));
   }
 
   void acrobatButton_actionPerformed(ActionEvent e) {
-    String dat = Dialog.dateiDialog(this,"Acrobat Reader auswählen","Windows-Programme (*.exe)","exe",Daten.efaConfig.acrobat,false);
+    String dat = Dialog.dateiDialog(this,International.getString("Acrobat Reader auswählen"),
+            International.getString("Windows-Programme")+" (*.exe)","exe",Daten.efaConfig.acrobat,false);
     if (dat != null)
       acrobat.setText(dat);
   }
@@ -1754,20 +1662,18 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     String newUserDir = userdatadir.getText().trim();
     if (newUserDir.length()>0 && !Daten.efaConfigUserHome.efaUserDirectory.equals(newUserDir)) {
       if (!Daten.efaConfigUserHome.efaCanWrite(newUserDir,true)) {
-        Dialog.error("efa kann in das Nutzerdaten-Verzeichnis '" + newUserDir +
-            "' nicht schreiben.\nBitte wähle ein anderes Verzeichnis aus.");
+        Dialog.error(International.getMessage("efa kann in das Nutzerdaten-Verzeichnis '{directory}' nicht schreiben. Bitte wähle ein anderes Verzeichnis aus.",newUserDir));
         userdatadir.requestFocus();
         userdatadir.setCaretPosition(userdatadir.getText().length());
         return;
       } else {
         Daten.efaConfigUserHome.efaUserDirectory = newUserDir;
         Daten.efaConfigUserHome.writeFile();
-        Dialog.infoDialog("Neues Nutzerdaten-Verzeichnis",
-                          "Das neue Nutzerdaten-Verzeichnis\n"+
-                          "'"+newUserDir+"'\n"+
-                          "wird erst nach einem Neustart von efa benutzt.\n"+
-                          "efa kopiert keinerlei bestehende Daten von dem alten in das neue Verzeichnis\n"+
-                          "und löscht auch keinerlei Daten in dem alten Verzeichnis.");
+        Dialog.infoDialog(International.getString("Neues Nutzerdaten-Verzeichnis"),
+                          International.getMessage("Das neue Nutzerdaten-Verzeichnis '{directory}' "+
+                          "wird erst nach einem Neustart von efa benutzt. "+
+                          "efa kopiert keinerlei bestehende Daten von dem alten in das neue Verzeichnis "+
+                          "und löscht auch keinerlei Daten in dem alten Verzeichnis.",newUserDir));
       }
     }
 
@@ -1913,7 +1819,10 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     Daten.efaConfig.efaDirekt_sunRiseSet_ll[7] = EfaUtil.string2int(efaDirekt_lonSS.getText().trim(),0);
 
     if (!Daten.efaConfig.writeFile()) {
-      Dialog.infoDialog("Fehler","Die Einstellungen konnten nicht gespeichert werden, da die Datei\n'"+Daten.efaConfig.dat+"'\nnicht geschrieben werden konnte.");
+
+      Dialog.infoDialog(International.getString("Fehler"),
+              International.getMessage("Die Einstellungen konnten nicht gespeichert werden, da die Datei '' nicht geschrieben werden konnte.",
+              Daten.efaConfig.dat));
     }
 
     setBakDir(Daten.efaConfig.bakDir);
@@ -1939,28 +1848,32 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
   void bakdirButton_actionPerformed(ActionEvent e) {
     String dir = bakDir.getText().trim();
     if (dir.length() == 0 || !new File(dir).isDirectory()) dir = Daten.efaMainDirectory;
-    dir = Dialog.dateiDialog(this,"Backup-Verzeichnis auswählen",null,null,dir,null,"auswählen",false,true);
+    dir = Dialog.dateiDialog(this,International.getString("Backup-Verzeichnis auswählen"),null,null,dir,null,
+            International.getString("auswählen"),false,true);
     if (dir != null)
       bakDir.setText(dir);
   }
 
   void colorButton_actionPerformed(ActionEvent e) {
-    Color color = JColorChooser.showDialog(this,"Farbe wählen",((JButton)e.getSource()).getBackground());
+    Color color = JColorChooser.showDialog(this,International.getString("Farbe wählen"),((JButton)e.getSource()).getBackground());
     if (color != null) ((JButton)e.getSource()).setBackground(color);
   }
 
   void efaDirekt_FahrtBeginnenTextButton_actionPerformed(ActionEvent e) {
-    String s = Dialog.inputDialog(efaDirekt_fahrtBeginnenButton.getText().trim(),"Bitte Text für Button eingeben:");
+    String s = Dialog.inputDialog(efaDirekt_fahrtBeginnenButton.getText().trim(),
+            International.getString("Bitte Text für Button eingeben")+":");
     if (s != null) efaDirekt_fahrtBeginnenButton.setText(s);
   }
 
   void efaDirekt_fahrtBeendenTextButton_actionPerformed(ActionEvent e) {
-    String s = Dialog.inputDialog(efaDirekt_fahrtBeendenButton.getText().trim(),"Bitte Text für Button eingeben:");
+    String s = Dialog.inputDialog(efaDirekt_fahrtBeendenButton.getText().trim(),
+            International.getString("Bitte Text für Button eingeben")+":");
     if (s != null) efaDirekt_fahrtBeendenButton.setText(s);
   }
 
   void efaDirekt_spezielButtonTextButton_actionPerformed(ActionEvent e) {
-    String s = Dialog.inputDialog(efaDirekt_spezialButton.getText().trim(),"Bitte Text für Button eingeben:");
+    String s = Dialog.inputDialog(efaDirekt_spezialButton.getText().trim(),
+            International.getString("Bitte Text für Button eingeben")+":");
     if (s != null) efaDirekt_spezialButton.setText(s);
   }
 
@@ -1979,10 +1892,12 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
   void efaDirekt_logoSelectButton_actionPerformed(ActionEvent e) {
     String dir = Daten.efaMainDirectory;
     if (efaDirekt_vereinsLogo != null && efaDirekt_vereinsLogo.length()>0) EfaUtil.getPathOfFile(efaDirekt_vereinsLogo);
-    String datei = Dialog.dateiDialog(this,"Vereinslogo auswählen","Bild-Datei (*.gif, *.jpg)","gif|jpg",dir,efaDirekt_vereinsLogo,"auswählen",false,false);
+    String datei = Dialog.dateiDialog(this,International.getString("Vereinslogo auswählen"),
+            International.getString("Bild-Datei")+" (*.gif, *.jpg)","gif|jpg",dir,efaDirekt_vereinsLogo,
+            International.getString("auswählen"),false,false);
     if (datei == null) return;
     if (!EfaUtil.canOpenFile(datei)) {
-      Dialog.error("Datei '"+datei+"' kann nicht geöffnet werden!");
+      Dialog.error(International.getMessage("Datei '{file}' kann nicht geöffnet werden!",datei));
       return;
     }
     setVereinsLogo(datei);
@@ -1990,7 +1905,8 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
 
   void efaDirekt_logoDeleteButton_actionPerformed(ActionEvent e) {
     if (efaDirekt_vereinsLogo == null) return;
-    if (Dialog.yesNoDialog("Logo wirklich entfernen","Soll das Logo wirklich entfernt werden?") == Dialog.YES) {
+    if (Dialog.yesNoDialog(International.getString("Logo wirklich entfernen"),
+            International.getString("Soll das Logo wirklich entfernt werden?")) == Dialog.YES) {
       setVereinsLogo(null);
     }
   }
@@ -2011,25 +1927,27 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
   void exec1FileSelectButton_actionPerformed(ActionEvent e) {
     String dat = efaDirekt_execOnEfaExit.getText().trim();
     if (dat.length() == 0 || !new File(dat).isFile()) dat = Daten.efaMainDirectory;
-    dat = Dialog.dateiDialog(this,"Programm auswählen",null,null,dat,null,"auswählen",false,false);
+    dat = Dialog.dateiDialog(this,International.getString("Programm auswählen"),null,null,dat,null,
+            International.getString("auswählen"),false,false);
     if (dat != null) efaDirekt_execOnEfaExit.setText(dat);
   }
 
   void exec2FileSelectButton_actionPerformed(ActionEvent e) {
     String dat = efaDirekt_execOnEfaAutoExit.getText().trim();
     if (dat.length() == 0 || !new File(dat).isFile()) dat = Daten.efaMainDirectory;
-    dat = Dialog.dateiDialog(this,"Programm auswählen",null,null,dat,null,"auswählen",false,false);
+    dat = Dialog.dateiDialog(this,International.getString("Programm auswählen"),null,null,dat,null,
+            International.getString("auswählen"),false,false);
     if (dat != null) efaDirekt_execOnEfaAutoExit.setText(dat);
   }
 
   void efaDirekt_immerImVordergrund_actionPerformed(ActionEvent e) {
     if (efaDirekt_immerImVordergrund.isSelected() && Daten.javaVersion.compareTo("1.5")<0)
-      Dialog.infoDialog("Diese Funktion wird erst ab Java Version 1.5 unterstützt.");
+      Dialog.infoDialog(International.getString("Diese Funktion wird erst ab Java Version {version} unterstützt."),"1.5");
   }
 
   void efaDirekt_fensterNichtVerschiebbar_actionPerformed(ActionEvent e) {
     if (efaDirekt_fensterNichtVerschiebbar.isSelected() && Daten.javaVersion.compareTo("1.4")<0)
-      Dialog.infoDialog("Diese Funktion wird erst ab Java Version 1.4 unterstützt.");
+      Dialog.infoDialog(International.getString("Diese Funktion wird erst ab Java Version {version} unterstützt."),"1.4");
   }
 
   void efaDirekt_fontSize_focusLost(FocusEvent e) {
@@ -2040,31 +1958,31 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     else efaDirekt_fontSize.setText(Integer.toString(size));
     if (Dialog.screenSize != null) {
       if ((Dialog.screenSize.getWidth()<=800 || Dialog.screenSize.getHeight()<=600) && size>14) {
-        Dialog.infoDialog("Warnung",
-                          "Für eine Auflösung von 800x600 wird eine maximale Schriftgröße\n"+
-                          "von 14 empfohlen. Eine größere Schriftgröße kann dazu führen,\n"+
-                          "daß einige Fenster von efa nicht korrekt dargestellt werden.");
+        Dialog.infoDialog(International.getString("Warnung"),
+                          International.getMessage("Für eine Auflösung von 800x600 wird eine maximale Schriftgröße "+
+                          "von {size} empfohlen. Eine größere Schriftgröße kann dazu führen, "+
+                          "daß einige Fenster von efa nicht korrekt dargestellt werden.",14));
         return;
       }
       if ((Dialog.screenSize.getWidth()<=1024 || Dialog.screenSize.getHeight()<=768) && size>16) {
-        Dialog.infoDialog("Warnung",
-                          "Für eine Auflösung von 1024x768 wird eine maximale Schriftgröße\n"+
-                          "von 16 empfohlen. Eine größere Schriftgröße kann dazu führen,\n"+
-                          "daß einige Fenster von efa nicht korrekt dargestellt werden.");
+        Dialog.infoDialog(International.getString("Warnung"),
+                          International.getMessage("Für eine Auflösung von 1024x768 wird eine maximale Schriftgröße "+
+                          "von {size} empfohlen. Eine größere Schriftgröße kann dazu führen, "+
+                          "daß einige Fenster von efa nicht korrekt dargestellt werden.",16));
         return;
       }
       if ((Dialog.screenSize.getWidth()<=1280 || Dialog.screenSize.getHeight()<=1024) && size>18) {
-        Dialog.infoDialog("Warnung",
-                          "Für eine Auflösung von 1280x1024 wird eine maximale Schriftgröße\n"+
-                          "von 18 empfohlen. Eine größere Schriftgröße kann dazu führen,\n"+
-                          "daß einige Fenster von efa nicht korrekt dargestellt werden.");
+        Dialog.infoDialog(International.getString("Warnung"),
+                          International.getMessage("Für eine Auflösung von 1280x1024 wird eine maximale Schriftgröße "+
+                          "von {size} empfohlen. Eine größere Schriftgröße kann dazu führen, "+
+                          "daß einige Fenster von efa nicht korrekt dargestellt werden.",18));
         return;
       }
       if ((Dialog.screenSize.getWidth()>1280 && Dialog.screenSize.getHeight()>1024) && size>20) {
-        Dialog.infoDialog("Warnung",
-                          "Auch für hohe Auflösungen wird eine maximale Schriftgröße\n"+
-                          "von 20 empfohlen. Eine größere Schriftgröße kann dazu führen,\n"+
-                          "daß einige Fenster von efa nicht korrekt dargestellt werden.");
+        Dialog.infoDialog(International.getString("Warnung"),
+                          International.getMessage("Auch für hohe Auflösungen wird eine maximale Schriftgröße "+
+                          "von {size} empfohlen. Eine größere Schriftgröße kann dazu führen, "+
+                          "daß einige Fenster von efa nicht korrekt dargestellt werden.",20));
         return;
       }
     }
@@ -2072,7 +1990,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
 
   void efaDirekt_buttonsShowHotkey_actionPerformed(ActionEvent e) {
     if (efaDirekt_buttonsShowHotkey.isSelected() && Daten.javaVersion.compareTo("1.4")<0)
-      Dialog.infoDialog("Diese Funktion wird erst ab Java Version 1.4 unterstützt.");
+      Dialog.infoDialog(International.getString("Diese Funktion wird erst ab Java Version {version} unterstützt."),"1.4");
   }
 
   void efaDirekt_showSunrise_actionPerformed(ActionEvent e) {
@@ -2086,15 +2004,14 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     String fmt = this.aliasFormat.getText().trim();
     if (Daten.fahrtenbuch == null || Daten.fahrtenbuch.getDaten() == null ||
         Daten.fahrtenbuch.getDaten().mitglieder == null) {
-      Dialog.error("Generieren der Eingabekürzel nicht möglich:\nEs ist zur Zeit keine Mitgliederliste geöffnet.");
+      Dialog.error(International.getString("Generieren der Eingabekürzel nicht möglich: Es ist zur Zeit keine Mitgliederliste geöffnet."));
       return;
     }
     Mitglieder m = Daten.fahrtenbuch.getDaten().mitglieder;
-    if (Dialog.yesNoCancelDialog("Eingabekürzel neu generieren",
-                                 "Sollen alle Eingabekürzel für die Mitgliederliste\n"+
-                                 m.getFileName()+"\n"+
-                                 "neu generiert und bestehende Eingabekürzel dabei\n"+
-                                 "ersetzt werden?") != Dialog.YES) {
+    if (Dialog.yesNoCancelDialog(International.getString("Eingabekürzel neu generieren"),
+                                 International.getMessage("Sollen alle Eingabekürzel für die Mitgliederliste {list} "+
+                                 "neu generiert und bestehende Eingabekürzel dabei "+
+                                 "ersetzt werden?",m.getFileName())) != Dialog.YES) {
       return;
     }
     DatenFelder d = m.getCompleteFirst();
@@ -2108,7 +2025,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
       }
       d = m.getCompleteNext();
     }
-    Dialog.infoDialog(c+" Eingabekürzel neu generiert.");
+    Dialog.infoDialog(International.getMessage("{count} Eingabekürzel neu generiert.",c));
     if (c > 0) Daten.fahrtenbuch.getDaten().mitglieder.setChanged();
   }
 

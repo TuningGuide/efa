@@ -1,20 +1,19 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.DatenListe;
-import de.nmichael.efa.core.AusgabeFrame;
-import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.core.Bezeichnungen;
-import de.nmichael.efa.util.TMJ;
-import de.nmichael.efa.statistics.StatistikDaten;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.statistics.EfaWettFertigFrame;
-import de.nmichael.efa.statistics.EfaWettSelectAndCompleteFrame;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.core.*;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.AutoCompletePopupWindow;
-import de.nmichael.efa.util.ActionHandler;
 import de.nmichael.efa.statistics.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -24,14 +23,7 @@ import javax.swing.filechooser.FileFilter;
 import java.io.*;
 import java.util.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class StatistikFrame extends JDialog implements ActionListener {
   final static int ALL = 0;
@@ -43,14 +35,14 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
   // Achtung: Diese Werte müssen mit den AUSGABE_* Konstanten aus StatistikDaten übereinstimmen!
   final static String[] ausgabeArten =
-    { "im Programm (Grafik)", // 0
-      "im Programm (Text)",   // 1
-      "im Browser",           // 2
-      "als HTML-Datei",       // 3
-      "als PDF-Datei",        // 4
-      "als XML-Datei",        // 5
-      "als Textdatei",        // 6
-      "als CSV-Datei" };      // 7
+    { International.getString("im Programm (Grafik)"), // 0
+      International.getString("im Programm (Text)"),   // 1
+      International.getString("im Browser"),           // 2
+      International.getString("als HTML-Datei"),       // 3
+      International.getString("als PDF-Datei"),        // 4
+      International.getString("als XML-Datei"),        // 5
+      International.getString("als Textdatei"),        // 6
+      International.getString("als CSV-Datei") };      // 7
 //    "als Meldedatei"        // 8 (wird dynamisch hinzugefügt, wenn WettPanel aktiv ist)
   final static String[] ausgabeExt =
     { null, null, null, "html", "pdf", "xml", "txt", "csv", null };
@@ -344,69 +336,57 @@ public class StatistikFrame extends JDialog implements ActionListener {
     bArt.setNextFocusableComponent(bzeitVorjahresvergleich);
     bArt.setMaximumRowCount(16);
     art.setNextFocusableComponent(zeitVorjahresvergleich);
-    art.setToolTipText("Art der Statistik (welche Daten betrachtet werden sollen)");
     art.setMaximumRowCount(17);
     erstellenBut.setNextFocusableComponent(ausgabeFormat);
-    erstellenBut.setMnemonic('E');
-    erstellenBut.setText("Statistik erstellen");
+    Mnemonics.setButton(this, erstellenBut, International.getStringWithMnemonic("Statistik erstellen"));
     erstellenBut.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         erstellenBut_actionPerformed(e);
       }
     });
-    this.setTitle("Statistik erstellen");
+    this.setTitle(International.getString("Statistik erstellen"));
     this.getContentPane().setLayout(borderLayout1);
     rudererPanel.setLayout(borderLayout2);
-    artLabel.setDisplayedMnemonic('A');
+    Mnemonics.setLabel(this, artLabel, International.getStringWithMnemonic("Statistikart")+": ");
     artLabel.setLabelFor(art);
-    artLabel.setText("Statistikart: ");
     artPanel.setLayout(flowLayout1);
     rest1Panel.setLayout(borderLayout3);
     zeitraumPanel.setLayout(flowLayout2);
-    zeitraumLabel.setText("Zeitraum für die Berechnung: ");
-    vonLabel.setDisplayedMnemonic('V');
+    zeitraumLabel.setText(International.getString("Zeitraum für die Berechnung")+": ");
+    Mnemonics.setLabel(this, vonLabel, International.getStringWithMnemonic("vom")+" ");
     vonLabel.setLabelFor(von);
-    vonLabel.setText("vom ");
     von.setNextFocusableComponent(bis);
     von.setPreferredSize(new Dimension(80, 19));
-    von.setToolTipText("Tag, ab dem Fahrten ausgewertet werden sollen");
     von.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         von_focusLost(e);
       }
     });
-    bisLabel.setDisplayedMnemonic('B');
+    Mnemonics.setLabel(this, bisLabel, " "+International.getStringWithMnemonic("bis")+" ");
     bisLabel.setLabelFor(bis);
-    bisLabel.setText(" bis ");
     bis.setNextFocusableComponent(zeitFbUebergreifend);
     bis.setPreferredSize(new Dimension(80, 19));
-    bis.setToolTipText("Tag, bis zu dem Fahrten ausgewertet werden sollen");
     bis.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         bis_focusLost(e);
       }
     });
     auswahlLabel.setHorizontalAlignment(SwingConstants.CENTER);
-    auswahlLabel.setText("nur Fahrten berechnen für:");
+    auswahlLabel.setText(International.getString("nur Fahrten berechnen für")+":");
     auswahlPanel.setLayout(gridBagLayout1);
-    geschlechtLabel.setDisplayedMnemonic('0');
+    Mnemonics.setLabel(this, geschlechtLabel, International.getStringWithMnemonic("Geschlecht")+": ");
     geschlechtLabel.setLabelFor(nurGeschlecht);
-    geschlechtLabel.setText("Geschlecht:");
     rest1Panel.setMinimumSize(new Dimension(100, 40));
     rest1Panel.setPreferredSize(new Dimension(100, 40));
     geschlechtScrollPane.setMaximumSize(new Dimension(140, 120));
     geschlechtScrollPane.setPreferredSize(new Dimension(90, 120));
-    status1Label.setDisplayedMnemonic('0');
+    Mnemonics.setLabel(this, status1Label, International.getStringWithMnemonic("Status")+": ");
     status1Label.setLabelFor(nurStatus1);
-    status1Label.setText("Status:");
     status1ScrollPane.setPreferredSize(new Dimension(90, 120));
-    nurNameLabel.setDisplayedMnemonic('0');
+    Mnemonics.setLabel(this, nurNameLabel, International.getStringWithMnemonic("nur Name")+": ");
     nurNameLabel.setLabelFor(nurName);
-    nurNameLabel.setText("nur Name: ");
     nurName.setNextFocusableComponent(nameTeil);
     nurName.setPreferredSize(new Dimension(100, 19));
-    nurName.setToolTipText("nur Daten für diese Person auswerten (bzw. für alle Personen, in " +
-    "deren Name der angegebene Teil vorkommt)");
     nurName.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyReleased(KeyEvent e) {
         nurName_keyReleased(e);
@@ -418,75 +398,68 @@ public class StatistikFrame extends JDialog implements ActionListener {
       }
     });
     auswahlPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-    auswahlPanel.setToolTipText("Auswertung auf bestimmte Kriterien einschränken: Nur Ruderer/Innen, " +
-    "auf die eines der Merkmale paßt, werden bei der Auswertung berücksichtigt.");
     auswahlPane.setPreferredSize(new Dimension(750, 390));
     zeitraumPanel.setBorder(BorderFactory.createLineBorder(Color.black));
     artPanel.setBorder(BorderFactory.createLineBorder(Color.black));
     ausgabePanel.setLayout(gridBagLayout2);
+    Mnemonics.setButton(this, ausKm, International.getStringWithMnemonic("Kilometer"));
     ausKm.setNextFocusableComponent(ausRudKm);
     ausKm.setSelected(true);
-    ausKm.setText("Kilometer");
+    Mnemonics.setButton(this, ausName, International.getStringWithMnemonic("Name"));
     ausName.setNextFocusableComponent(ausJahrgang);
     ausName.setSelected(true);
-    ausName.setText("Name");
+    Mnemonics.setButton(this, ausJahrgang, International.getStringWithMnemonic("Jahrgang"));
     ausJahrgang.setNextFocusableComponent(ausStatus1);
-    ausJahrgang.setText("Jahrgang");
+    Mnemonics.setButton(this, ausStatus1, International.getStringWithMnemonic("Status"));
     ausStatus1.setNextFocusableComponent(ausZielfahrten);
-    ausStatus1.setText("Status");
+    Mnemonics.setButton(this, ausZielfahrten, International.getStringWithMnemonic("Zielfahrten"));
     ausZielfahrten.setNextFocusableComponent(ausWafaKm);
-    ausZielfahrten.setText("Zielfahrten");
-    ausgabeLabel.setDisplayedMnemonic('0');
+    Mnemonics.setLabel(this, ausgabeLabel, International.getStringWithMnemonic("Ausgabe")+": ");
     ausgabeLabel.setHorizontalAlignment(SwingConstants.CENTER);
     ausgabeLabel.setLabelFor(ausgabePanel);
-    ausgabeLabel.setText("Ausgabe: ");
+    Mnemonics.setButton(this, ausRudKm, International.getStringWithMnemonic("Ruderkilometer"));
     ausRudKm.setNextFocusableComponent(ausStmKm);
-    ausRudKm.setText("Ruderkilometer");
+    Mnemonics.setButton(this, ausStmKm, International.getStringWithMnemonic("Steuerkilometer"));
     ausStmKm.setNextFocusableComponent(ausFahrten);
-    ausStmKm.setText("Steuerkilometer");
+    Mnemonics.setButton(this, ausFahrten, International.getStringWithMnemonic("Fahrten"));
     ausFahrten.setNextFocusableComponent(ausKmFahrt);
     ausFahrten.setSelected(true);
-    ausFahrten.setText("Fahrten");
+    Mnemonics.setButton(this, ausKmFahrt, International.getStringWithMnemonic("Km / Fahrt"));
     ausKmFahrt.setNextFocusableComponent(ausDauer);
     ausKmFahrt.setSelected(true);
-    ausKmFahrt.setText("Km / Fahrt");
     ausgabePanel.setBorder(BorderFactory.createLineBorder(Color.black));
     ausgabePanel.setPreferredSize(new Dimension(245, 201));
-    ausgabePanel.setToolTipText("legt fest, welche Daten ausgegeben werden sollen");
     rest2Panel.setLayout(borderLayout4);
-    jLabel2.setDisplayedMnemonic('0');
+    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("graphische Ausgabe")+": ");
     jLabel2.setHorizontalAlignment(SwingConstants.CENTER);
     jLabel2.setLabelFor(graAusgabePanel);
-    jLabel2.setText("graphische Ausgabe:");
     graAusgabePanel.setLayout(gridBagLayout3);
     graAusgabePanel.setBorder(BorderFactory.createLineBorder(Color.black));
     graAusgabePanel.setMinimumSize(new Dimension(183, 185));
     graAusgabePanel.setPreferredSize(new Dimension(183, 185));
-    graAusgabePanel.setToolTipText("legt fest, welche Daten in Form von Balkendiagrammen veranschaulicht " +
-    "werden sollen (nur bei HTML-Ausgabe)");
     graKm.setNextFocusableComponent(maxBalkenKm);
     graKm.setSelected(true);
-    graKm.setText("Kilometer");
+    Mnemonics.setButton(this, graKm, International.getStringWithMnemonic("Kilometer"));
     maxBalkenKm.setNextFocusableComponent(graRudKm);
     maxBalkenKm.setPreferredSize(new Dimension(40, 19));
-    maxBalkenKm.setToolTipText("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)");
     maxBalkenKm.setText("200");
+    maxBalkenKm.setToolTipText(International.getString("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)"));
     maxBalkenKm.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         maxBalkenKm_focusLost(e);
       }
     });
+    Mnemonics.setButton(this, graRudKm, International.getStringWithMnemonic("Ruderkilometer"));
     graRudKm.setNextFocusableComponent(maxBalkenRudKm);
-    graRudKm.setText("Ruderkilometer");
+    Mnemonics.setButton(this, graStmKm, International.getStringWithMnemonic("Steuerkilometer"));
     graStmKm.setNextFocusableComponent(maxBalkenStmKm);
-    graStmKm.setText("Steuerkilometer");
+    Mnemonics.setButton(this, graFahrten, International.getStringWithMnemonic("Fahrten"));
     graFahrten.setNextFocusableComponent(maxBalkenFahrten);
-    graFahrten.setText("Fahrten");
+    Mnemonics.setButton(this, graKmFahrt, International.getStringWithMnemonic("Km / Fahrt"));
     graKmFahrt.setNextFocusableComponent(maxBalkenKmFahrt);
-    graKmFahrt.setText("Km / Fahrt");
     maxBalkenRudKm.setNextFocusableComponent(graStmKm);
     maxBalkenRudKm.setPreferredSize(new Dimension(40, 19));
-    maxBalkenRudKm.setToolTipText("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)");
+    maxBalkenRudKm.setToolTipText(International.getString("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)"));
     maxBalkenRudKm.setText("200");
     maxBalkenRudKm.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
@@ -495,7 +468,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     });
     maxBalkenStmKm.setNextFocusableComponent(graFahrten);
     maxBalkenStmKm.setPreferredSize(new Dimension(40, 19));
-    maxBalkenStmKm.setToolTipText("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)");
+    maxBalkenStmKm.setToolTipText(International.getString("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)"));
     maxBalkenStmKm.setText("200");
     maxBalkenStmKm.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
@@ -504,7 +477,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     });
     maxBalkenFahrten.setNextFocusableComponent(graKmFahrt);
     maxBalkenFahrten.setPreferredSize(new Dimension(40, 19));
-    maxBalkenFahrten.setToolTipText("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)");
+    maxBalkenFahrten.setToolTipText(International.getString("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)"));
     maxBalkenFahrten.setText("200");
     maxBalkenFahrten.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
@@ -513,7 +486,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     });
     maxBalkenKmFahrt.setNextFocusableComponent(graDauer);
     maxBalkenKmFahrt.setPreferredSize(new Dimension(40, 19));
-    maxBalkenKmFahrt.setToolTipText("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)");
+    maxBalkenKmFahrt.setToolTipText(International.getString("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)"));
     maxBalkenKmFahrt.setText("200");
     maxBalkenKmFahrt.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
@@ -524,24 +497,17 @@ public class StatistikFrame extends JDialog implements ActionListener {
     sortPanel.setLayout(gridBagLayout4);
     sortPanel.setBorder(BorderFactory.createLineBorder(Color.black));
     sortPanel.setPreferredSize(new Dimension(245, 65));
-    sortPanel.setToolTipText("legt fest, in welcher Reihenfolge die Daten ausgegeben werden sollen");
-    sortFolgeLabel.setDisplayedMnemonic('0');
+    Mnemonics.setLabel(this, sortFolgeLabel, International.getStringWithMnemonic("Reihenfolge")+": ");
     sortFolgeLabel.setLabelFor(sortFolge);
-    sortFolgeLabel.setText("Reihenfolge: ");
-    sortLabel.setToolTipText("legt fest, nach welchen Kriterien die Daten sortiert werden sollen");
+    Mnemonics.setLabel(this, sortLabel, International.getStringWithMnemonic("Sortierung")+": ");
     sortLabel.setHorizontalAlignment(SwingConstants.CENTER);
-    sortLabel.setText("Sortierung:");
-    sortKritLabel.setDisplayedMnemonic('0');
+    Mnemonics.setLabel(this, sortKritLabel, International.getStringWithMnemonic("Kriterium")+": ");
     sortKritLabel.setLabelFor(sortKrit);
-    sortKritLabel.setText("Kriterium: ");
     numPanel.setLayout(gridBagLayout5);
-    numLabel.setToolTipText("");
-    numLabel.setDisplayedMnemonic('0');
+    Mnemonics.setLabel(this, numLabel, International.getStringWithMnemonic("Numerierung")+": ");
     numLabel.setLabelFor(numerierung);
-    numLabel.setText("Numerierung:");
     numPanel.setBorder(BorderFactory.createLineBorder(Color.black));
     numPanel.setPreferredSize(new Dimension(163, 65));
-    numPanel.setToolTipText("");
     numScrollPane.setMinimumSize(new Dimension(100, 40));
     numScrollPane.setPreferredSize(new Dimension(100, 40));
     art.addItemListener(new java.awt.event.ItemListener() {
@@ -549,28 +515,23 @@ public class StatistikFrame extends JDialog implements ActionListener {
         art_itemStateChanged(e);
       }
     });
-    nameTeil.setText("als Teil eines Namens");
+    Mnemonics.setButton(this, nameTeil, International.getStringWithMnemonic("als Teil eines Namens"));
     nameTeil.setNextFocusableComponent(ausName);
-    nameTeil.setToolTipText("Die Angabe im Feld \"nur Name\" soll im Namen als Teil vorkommen; sonst " +
-    "werden nur Einträge ausgewertet, für die der Name exakt übereinstimmt.");
     createPanel.setLayout(borderLayout6);
     dateiPanel.setBorder(BorderFactory.createLineBorder(Color.black));
     dateiPanel.setLayout(gridBagLayout6);
-    outputLabel.setText("Daten ausgeben:");
+    outputLabel.setText(International.getString("Daten ausgeben")+":");
     gespeichertPanel.setLayout(borderLayout7);
     bootePanel.setLayout(borderLayout8);
-    bArtLabel.setDisplayedMnemonic('A');
+    Mnemonics.setLabel(this, bArtLabel, International.getStringWithMnemonic("Statistikart")+": ");
     bArtLabel.setLabelFor(bArt);
-    bArtLabel.setText("Statistikart: ");
     bRest1Panel.setLayout(borderLayout9);
     bNurPanel.setLayout(gridBagLayout7);
-    bNurLabel.setText("nur Fahrten berechnen für:");
-    bNurArtLabel.setDisplayedMnemonic('0');
+    bNurLabel.setText(International.getString("nur Fahrten berechnen für")+":");
+    Mnemonics.setLabel(this, bNurArtLabel, International.getStringWithMnemonic("Art")+": ");
     bNurArtLabel.setLabelFor(mNurArt);
-    bNurArtLabel.setText("Art:");
-    bNurAnzahlLabel.setDisplayedMnemonic('0');
+    Mnemonics.setLabel(this, bNurAnzahlLabel, International.getStringWithMnemonic("Ruderplätze")+": ");
     bNurAnzahlLabel.setLabelFor(mNurAnzahl);
-    bNurAnzahlLabel.setText("Ruderplätze:");
     jScrollPane1.setMinimumSize(new Dimension(100, 131));
     jScrollPane1.setPreferredSize(new Dimension(100, 131));
     jScrollPane2.setMinimumSize(new Dimension(100, 131));
@@ -587,13 +548,11 @@ public class StatistikFrame extends JDialog implements ActionListener {
     mNurOhneStm.setNextFocusableComponent(mNurAndere2);
     mNurOhneStm.setSelected(true);
     mNurOhneStm.setText(Daten.bezeichnungen.bStm.get(Bezeichnungen.BSTM_OHNE));
-    mNurNameLabel.setDisplayedMnemonic('0');
+    Mnemonics.setLabel(this, mNurNameLabel, International.getStringWithMnemonic("nur Boot")+": ");
     mNurNameLabel.setLabelFor(mNurBoot);
-    mNurNameLabel.setText("nur Boot: ");
     mNurBoot.setMinimumSize(new Dimension(100, 19));
     mNurBoot.setNextFocusableComponent(mAusName);
     mNurBoot.setPreferredSize(new Dimension(150, 19));
-    mNurBoot.setToolTipText("nur Daten für dieses Boot auswerten");
     mNurBoot.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyReleased(KeyEvent e) {
         mNurBoot_keyReleased(e);
@@ -606,107 +565,91 @@ public class StatistikFrame extends JDialog implements ActionListener {
     });
     bNurPanel.setBorder(BorderFactory.createLineBorder(Color.black));
     bNurPanel.setPreferredSize(new Dimension(311, 260));
-    bNurPanel.setToolTipText("Auswertung auf bestimmte Kriterien einschränken: Nur Boote, auf die " +
-    "eines der Merkmale paßt, werden bei der Auswertung berücksichtigt.");
     mRest2Panel.setLayout(borderLayout10);
     mAusPanel.setLayout(borderLayout11);
-    mAusgabeLabel.setDisplayedMnemonic('0');
+    Mnemonics.setLabel(this, mAusgabeLabel, International.getStringWithMnemonic("Ausgabe")+": ");
     mAusgabeLabel.setLabelFor(mAusPanel);
-    mAusgabeLabel.setText("Ausgabe:");
-    mGraAusLabel.setDisplayedMnemonic('0');
+    Mnemonics.setLabel(this, mGraAusLabel, International.getStringWithMnemonic("graphische Ausgabe")+": ");
     mGraAusLabel.setLabelFor(mGraPanel);
-    mGraAusLabel.setText("graphische Ausgabe:");
     mAusgabePanel.setLayout(gridBagLayout8);
     mGraPanel.setLayout(gridBagLayout9);
+    Mnemonics.setButton(this, mAusName, International.getStringWithMnemonic("Bootsname"));
     mAusName.setNextFocusableComponent(mAusArt);
     mAusName.setSelected(true);
-    mAusName.setText("Bootsname");
+    Mnemonics.setButton(this, mAusArt, International.getStringWithMnemonic("Art"));
     mAusArt.setNextFocusableComponent(mAusBez);
-    mAusArt.setText("Art");
+    Mnemonics.setButton(this, mAusBez, International.getStringWithMnemonic("Bootsbezeichnung"));
     mAusBez.setNextFocusableComponent(mAusKm);
-    mAusBez.setText("Bootsbezeichnung");
+    Mnemonics.setButton(this, mAusKm, International.getStringWithMnemonic("Kilometer"));
     mAusKm.setNextFocusableComponent(mAusFahrten);
     mAusKm.setSelected(true);
-    mAusKm.setText("Kilometer");
+    Mnemonics.setButton(this, mAusFahrten, International.getStringWithMnemonic("Fahrten"));
     mAusFahrten.setNextFocusableComponent(mAusKmFahrt);
     mAusFahrten.setSelected(true);
-    mAusFahrten.setText("Fahrten");
+    Mnemonics.setButton(this, mAusKmFahrt, International.getStringWithMnemonic("Km / Fahrt"));
     mAusKmFahrt.setNextFocusableComponent(mAusDauer);
     mAusKmFahrt.setSelected(true);
-    mAusKmFahrt.setText("Km / Fahrt");
     mAusgabePanel.setBorder(BorderFactory.createLineBorder(Color.black));
-    mAusgabePanel.setToolTipText("legt fest, welche Daten ausgegeben werden sollen");
+    Mnemonics.setButton(this, mGraAusKm, International.getStringWithMnemonic("Kilometer"));
     mGraAusKm.setNextFocusableComponent(mGraSizeKm);
     mGraAusKm.setSelected(true);
-    mGraAusKm.setText("Kilometer");
+    Mnemonics.setButton(this, mGraAusFahrten, International.getStringWithMnemonic("Fahrten"));
     mGraAusFahrten.setNextFocusableComponent(mGraSizeFahrten);
-    mGraAusFahrten.setText("Fahrten");
+    Mnemonics.setButton(this, mGraAusKmFahrt, International.getStringWithMnemonic("Km / Fahrt"));
     mGraAusKmFahrt.setNextFocusableComponent(mGraSizeKmFahrt);
-    mGraAusKmFahrt.setText("Km / Fahrt");
-    mGraSizeLabel.setText("Größe:");
+    mGraSizeLabel.setText(International.getString("Größe")+":");
     mGraSizeKmFahrt.setNextFocusableComponent(mGraAusDauer);
     mGraSizeKmFahrt.setPreferredSize(new Dimension(40, 19));
-    mGraSizeKmFahrt.setToolTipText("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)");
+    mGraSizeKmFahrt.setToolTipText(International.getString("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)"));
     mGraSizeKmFahrt.setText("200");
     mGraSizeFahrten.setNextFocusableComponent(mGraAusKmFahrt);
     mGraSizeFahrten.setPreferredSize(new Dimension(40, 19));
-    mGraSizeFahrten.setToolTipText("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)");
+    mGraSizeFahrten.setToolTipText(International.getString("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)"));
     mGraSizeFahrten.setText("200");
     mGraSizeKm.setNextFocusableComponent(mGraAusFahrten);
     mGraSizeKm.setPreferredSize(new Dimension(40, 19));
-    mGraSizeKm.setToolTipText("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)");
+    mGraSizeKm.setToolTipText(International.getString("legt die Größe des Balkens für 100% fest (Angabe in Pixeln)"));
     mGraSizeKm.setText("200");
     mGraPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-    mGraPanel.setToolTipText("legt fest, welche Daten in Form von Balkendiagrammen veranschaulicht " +
-    "werden sollen (nur bei HTML-Ausgabe)");
     mRest4Panel.setLayout(borderLayout12);
     mNumPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-    mNumPanel.setToolTipText("legt fest, welche Einträge numeriert werden sollen und welche nicht");
     mNumPanel.setLayout(gridBagLayout11);
     mSortPanel.setBorder(BorderFactory.createLineBorder(Color.black));
     mSortPanel.setPreferredSize(new Dimension(235, 75));
-    mSortPanel.setToolTipText("legt fest, in welcher Reihenfolge die Daten ausgegeben werden sollen");
     mSortPanel.setLayout(gridBagLayout10);
     jLabel3.setHorizontalAlignment(SwingConstants.CENTER);
-    jLabel3.setText("Sortierung");
-    jLabel4.setDisplayedMnemonic('0');
+    jLabel3.setText(International.getString("Sortierung"));
+    Mnemonics.setLabel(this, jLabel4, International.getStringWithMnemonic("Numerierung"));
     jLabel4.setLabelFor(mNumPanel);
-    jLabel4.setText("Numerierung");
-    mSortKritLabel.setDisplayedMnemonic('0');
+    Mnemonics.setLabel(this, mSortKritLabel, International.getStringWithMnemonic("Kriterium")+": ");
     mSortKritLabel.setLabelFor(mSortKrit);
-    mSortKritLabel.setText("Kriterium: ");
-    mSortFolgeLabel.setDisplayedMnemonic('0');
+    Mnemonics.setLabel(this, mSortFolgeLabel, International.getStringWithMnemonic("Reihenfolge")+": ");
     mSortFolgeLabel.setLabelFor(mSortFolge);
-    mSortFolgeLabel.setText("Reihenfolge: ");
+    Mnemonics.setButton(this, mNurEigene, International.getStringWithMnemonic("eigene"));
     mNurEigene.setNextFocusableComponent(mNumFremde);
     mNurEigene.setSelected(true);
-    mNurEigene.setText("eigene");
+    Mnemonics.setButton(this, mNurFremde, International.getStringWithMnemonic("fremde Boote"));
     mNurFremde.setNextFocusableComponent(mNurMitStm);
     mNurFremde.setSelected(true);
-    mNurFremde.setText("fremde Boote");
+    Mnemonics.setButton(this, mNumEigene, International.getStringWithMnemonic("eigene Boote"));
     mNumEigene.setNextFocusableComponent(mNumFremde);
     mNumEigene.setSelected(true);
-    mNumEigene.setText("eigene Boote");
+    Mnemonics.setButton(this, mNumFremde, International.getStringWithMnemonic("fremde Boote"));
     mNumFremde.setNextFocusableComponent(bErweitertButton);
-    mNumFremde.setText("fremde Boote");
+    Mnemonics.setButton(this, mNurAndere1, International.getStringWithMnemonic("andere"));
     mNurAndere1.setNextFocusableComponent(mNumEigene);
     mNurAndere1.setSelected(true);
-    mNurAndere1.setText("andere");
+    Mnemonics.setButton(this, mNurAndere2, International.getStringWithMnemonic("andere"));
     mNurAndere2.setNextFocusableComponent(mNurBoot);
     mNurAndere2.setSelected(true);
-    mNurAndere2.setText("andere");
     rudererPanel.setNextFocusableComponent(art);
-    rudererPanel.setToolTipText("Auswertung der Kilometerleistung jedes einzelnen Ruderers");
     bootePanel.setNextFocusableComponent(bArt);
-    bootePanel.setToolTipText("Auswertung der Kilometer jedes einzelnen Boots");
     numerierung.setNextFocusableComponent(erweitertButton);
-    numerierung.setToolTipText("legt fest, welche Einträge numeriert werden sollen und welche nicht");
+    Mnemonics.setButton(this, deleteButton, International.getStringWithMnemonic("Löschen"));
     deleteButton.setMaximumSize(new Dimension(102, 25));
     deleteButton.setMinimumSize(new Dimension(102, 25));
     deleteButton.setNextFocusableComponent(statList);
     deleteButton.setPreferredSize(new Dimension(102, 25));
-    deleteButton.setMnemonic('L');
-    deleteButton.setText("Löschen");
     deleteButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         deleteButton_actionPerformed(e);
@@ -720,15 +663,13 @@ public class StatistikFrame extends JDialog implements ActionListener {
         gespeichertPanel_componentHidden(e);
       }
     });
-    ausAnzVersch.setText("Anzahl Verschiedene");
+    Mnemonics.setButton(this, ausAnzVersch, International.getStringWithMnemonic("Anzahl Verschiedene"));
     ausAnzVersch.setNextFocusableComponent(graKm);
-    ausAnzVersch.setToolTipText("Anzahl der verschiedenen Mitruderer oder Ziele");
+    Mnemonics.setButton(this, editButton, International.getStringWithMnemonic("Bearbeiten"));
     editButton.setMaximumSize(new Dimension(102, 25));
     editButton.setMinimumSize(new Dimension(102, 25));
     editButton.setNextFocusableComponent(deleteButton);
     editButton.setPreferredSize(new Dimension(102, 25));
-    editButton.setMnemonic('R');
-    editButton.setText("Bearbeiten");
     editButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         editButton_actionPerformed(e);
@@ -740,38 +681,25 @@ public class StatistikFrame extends JDialog implements ActionListener {
         statList_mouseClicked(e);
       }
     });
-    zeitFbUebergreifend.setText("fahrtenbuchübergreifend");
+    Mnemonics.setButton(this, zeitFbUebergreifend, International.getStringWithMnemonic("fahrtenbuchübergreifend"));
     zeitFbUebergreifend.setNextFocusableComponent(auswahlPane);
-    zeitFbUebergreifend.setToolTipText("alle Fahrtenbücher, die miteinander verknüpft sind, einbeziehen");
-    zeitFbUebergreifend.setMnemonic('F');
     wettPanel.setLayout(gridBagLayout13);
-    wettProzLabel.setToolTipText("alle Ruderer/Innen, die x Prozent der geforderten Km erreicht haben, " +
-    "werden ausgegeben");
-    wettProzLabel.setDisplayedMnemonic('R');
+    Mnemonics.setLabel(this, wettProzLabel, " "+International.getStringWithMnemonic("Prozent der geforderten Kilometer"));
     wettProzLabel.setLabelFor(wettProz);
-    wettProzLabel.setText(" Prozent der geforderten Kilometer");
-    ausWettBedingung.setText("Wettbewerbsbedingungen ausgeben");
+    Mnemonics.setButton(this, ausWettBedingung, International.getStringWithMnemonic("Wettbewerbsbedingungen ausgeben"));
     ausWettBedingung.setNextFocusableComponent(ausWettOhneDetails);
-    ausWettBedingung.setMnemonic('T');
     wettProz.setNextFocusableComponent(wettAnz);
     wettProz.setPreferredSize(new Dimension(50, 19));
-    wettProz.setToolTipText("alle Ruderer/Innen, die x Prozent der geforderten Km erreicht haben, " +
-    "werden ausgegeben");
     wettProz.setText("60");
     wettProz.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         wettProz_focusLost(e);
       }
     });
-    wettAnzLabel.setToolTipText("alle Ruderer/Innen ausgeben, die diese Anzahl von Fahrten erfüllt " +
-    "haben");
-    wettAnzLabel.setDisplayedMnemonic('R');
+    Mnemonics.setLabel(this, wettAnzLabel, " "+International.getStringWithMnemonic("der geforderten Fahrten"));
     wettAnzLabel.setLabelFor(wettAnz);
-    wettAnzLabel.setText(" der geforderten Fahrten");
     wettAnz.setNextFocusableComponent(ausWettBedingung);
     wettAnz.setPreferredSize(new Dimension(50, 19));
-    wettAnz.setToolTipText("alle Ruderer/Innen ausgeben, die diese Anzahl von Fahrten erfüllt " +
-    "haben");
     wettAnz.setText("4");
     wettAnz.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
@@ -779,9 +707,9 @@ public class StatistikFrame extends JDialog implements ActionListener {
       }
     });
     wettTitleLabel.setPreferredSize(new Dimension(300, 19));
-    wettTitleLabel.setText("Ausgabe nur, wenn mindestens erfüllt sind:");
+    wettTitleLabel.setText(International.getString("Ausgabe nur, wenn mindestens erfüllt sind")+":");
     wettbewerbPanel.setLayout(borderLayout13);
-    jLabel1.setText("Wettbewerb: ");
+    Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Wettbewerb")+": ");
     wettbewerbPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
       public void componentShown(ComponentEvent e) {
         wettbewerbPanel_componentShown(e);
@@ -791,9 +719,8 @@ public class StatistikFrame extends JDialog implements ActionListener {
       }
     });
     wettPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-    jLabel5.setDisplayedMnemonic('J');
+    Mnemonics.setLabel(this, jLabel5, "  "+International.getStringWithMnemonic("Wettbewerbsjahr")+": ");
     jLabel5.setLabelFor(wettJahr);
-    jLabel5.setText("  Wettbewerbsjahr: ");
     wettJahr.setNextFocusableComponent(wettProz);
     wettJahr.setPreferredSize(new Dimension(100, 19));
     wettJahr.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -801,10 +728,8 @@ public class StatistikFrame extends JDialog implements ActionListener {
         wettJahr_focusLost(e);
       }
     });
-    ausWettOhneDetails.setText("nur Zusammenfassung ausgeben");
+    Mnemonics.setButton(this, ausWettOhneDetails, International.getStringWithMnemonic("nur Zusammenfassung ausgeben"));
     ausWettOhneDetails.setNextFocusableComponent(wErweiterteAusgabe);
-    ausWettOhneDetails.setToolTipText("keine detailierten Fahrtennachweise ausgeben");
-    ausWettOhneDetails.setMnemonic('Z');
     sortKrit.setMinimumSize(new Dimension(130, 24));
     sortKrit.setNextFocusableComponent(sortFolge);
     sortKrit.setPreferredSize(new Dimension(160, 24));
@@ -823,30 +748,25 @@ public class StatistikFrame extends JDialog implements ActionListener {
     mSortFolge.setNextFocusableComponent(mNumEigene);
     mSortFolge.setPreferredSize(new Dimension(130, 24));
     erweitertButton.setNextFocusableComponent(speichernButton);
-    erweitertButton.setMnemonic('W');
-    erweitertButton.setText("erweiterte Ausgabe...");
+    Mnemonics.setButton(this, erweitertButton, International.getStringWithMnemonic("erweiterte Ausgabe ..."));
     erweitertButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         erweitertButton_actionPerformed(e);
       }
     });
     bErweitertButton.setNextFocusableComponent(bSpeichernButton);
-    bErweitertButton.setMnemonic('W');
-    bErweitertButton.setText("Erweiterte Ausgabe...");
+    Mnemonics.setButton(this, bErweitertButton, International.getStringWithMnemonic("erweiterte Ausgabe ..."));
     bErweitertButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         erweitertButton_actionPerformed(e);
       }
     });
-    ausgabeArtLabel.setDisplayedMnemonic('U');
+    Mnemonics.setLabel(this, ausgabeArtLabel, International.getStringWithMnemonic("Ausgabeart")+": ");
     ausgabeArtLabel.setLabelFor(ausgabeArt);
-    ausgabeArtLabel.setText("Ausgabeart: ");
-    ausgabeFormatLabel.setDisplayedMnemonic('O');
+    Mnemonics.setLabel(this, ausgabeFormatLabel, International.getStringWithMnemonic("Formatierung")+": ");
     ausgabeFormatLabel.setLabelFor(ausgabeFormat);
-    ausgabeFormatLabel.setText("Formatierung: ");
-    ausgabeDateiLabel.setDisplayedMnemonic('D');
+    Mnemonics.setLabel(this, ausgabeDateiLabel, International.getStringWithMnemonic("Ausgabe in Datei")+": ");
     ausgabeDateiLabel.setLabelFor(ausgabeDatei);
-    ausgabeDateiLabel.setText("Ausgabe in Datei: ");
     ausgabeDateiButton.setMaximumSize(new Dimension(59, 20));
     ausgabeDateiButton.setMinimumSize(new Dimension(59, 20));
     ausgabeDateiButton.setNextFocusableComponent(erstellenBut);
@@ -863,16 +783,14 @@ public class StatistikFrame extends JDialog implements ActionListener {
       }
     });
     speichernButton.setNextFocusableComponent(art);
-    speichernButton.setMnemonic('S');
-    speichernButton.setText("Statistikeinstellungen speichern");
+    Mnemonics.setButton(this, speichernButton, International.getStringWithMnemonic("Statistikeinstellungen speichern"));
     speichernButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         speichernButton_actionPerformed(e);
       }
     });
     bSpeichernButton.setNextFocusableComponent(bArt);
-    bSpeichernButton.setMnemonic('S');
-    bSpeichernButton.setText("Statistikeinstellungen speichern");
+    Mnemonics.setButton(this, bSpeichernButton, International.getStringWithMnemonic("Statistikeinstellungen speichern"));
     bSpeichernButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         speichernButton_actionPerformed(e);
@@ -888,56 +806,52 @@ public class StatistikFrame extends JDialog implements ActionListener {
     ausgabeFormat.setPreferredSize(new Dimension(200, 22));
     ausgabeFormat.setMaximumRowCount(7);
     wSpeichernButton.setNextFocusableComponent(wettArt);
-    wSpeichernButton.setMnemonic('S');
-    wSpeichernButton.setText("Statistikeinstellungen speichern");
+    Mnemonics.setButton(this, wSpeichernButton, International.getStringWithMnemonic("Statistikeinstellungen speichern"));
     wSpeichernButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         wSpeichernButton_actionPerformed(e);
       }
     });
     wErweiterteAusgabe.setNextFocusableComponent(wSpeichernButton);
-    wErweiterteAusgabe.setMnemonic('W');
-    wErweiterteAusgabe.setText("Erweiterte Ausgabe...");
+    Mnemonics.setButton(this, wErweiterteAusgabe, International.getStringWithMnemonic("erweiterte Ausgabe ..."));
     wErweiterteAusgabe.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         erweitertButton_actionPerformed(e);
       }
     });
+    Mnemonics.setButton(this, ausDauer, International.getStringWithMnemonic("Dauer (Stunden)"));
     ausDauer.setNextFocusableComponent(ausKmH);
-    ausDauer.setText("Dauer (Stunden)");
+    Mnemonics.setButton(this, ausKmH, International.getStringWithMnemonic("Km/h"));
     ausKmH.setNextFocusableComponent(ausAnzVersch);
-    ausKmH.setText("Km / h");
+    Mnemonics.setButton(this, graDauer, International.getStringWithMnemonic("Dauer (Stunden)"));
     graDauer.setNextFocusableComponent(maxBalkenDauer);
-    graDauer.setText("Dauer (Stunden)");
+    Mnemonics.setButton(this, graKmH, International.getStringWithMnemonic("Km/h"));
     graKmH.setNextFocusableComponent(maxBalkenKmH);
-    graKmH.setText("Km / h");
     maxBalkenDauer.setNextFocusableComponent(graKmH);
     maxBalkenDauer.setPreferredSize(new Dimension(40, 17));
     maxBalkenDauer.setText("200");
     maxBalkenKmH.setNextFocusableComponent(sortKrit);
     maxBalkenKmH.setPreferredSize(new Dimension(40, 17));
     maxBalkenKmH.setText("200");
+    Mnemonics.setButton(this, mAusDauer, International.getStringWithMnemonic("Dauer"));
     mAusDauer.setNextFocusableComponent(mAusKmH);
-    mAusDauer.setText("Dauer");
+    Mnemonics.setButton(this, mAusKmH, International.getStringWithMnemonic("Km/h"));
     mAusKmH.setNextFocusableComponent(mGraAusKm);
-    mAusKmH.setText("Km / h");
+    Mnemonics.setButton(this, mGraAusDauer, International.getStringWithMnemonic("Dauer"));
     mGraAusDauer.setNextFocusableComponent(mGraSizeDauer);
-    mGraAusDauer.setText("Dauer");
+    Mnemonics.setButton(this, mGraAusKmH, International.getStringWithMnemonic("Km/h"));
     mGraAusKmH.setNextFocusableComponent(mGraSizeKmH);
-    mGraAusKmH.setText("Km / h");
     mGraSizeDauer.setNextFocusableComponent(mGraAusKmH);
     mGraSizeDauer.setPreferredSize(new Dimension(40, 17));
     mGraSizeDauer.setText("200");
     mGraSizeKmH.setNextFocusableComponent(mSortKrit);
     mGraSizeKmH.setPreferredSize(new Dimension(40, 17));
     mGraSizeKmH.setText("200");
-    fahrtartLabel.setDisplayedMnemonic('0');
+    Mnemonics.setLabel(this, fahrtartLabel, International.getStringWithMnemonic("Art der Fahrt")+": ");
     fahrtartLabel.setLabelFor(nurFahrtart);
-    fahrtartLabel.setText("Art der Fahrt: ");
     fahrtartScrollPane.setPreferredSize(new Dimension(90, 120));
-    jLabel6.setDisplayedMnemonic('0');
+    Mnemonics.setLabel(this, jLabel6, International.getStringWithMnemonic("Art der Fahrt")+": ");
     jLabel6.setLabelFor(mNurFahrtart);
-    jLabel6.setText("Art der Fahrt:");
     jScrollPane4.setPreferredSize(new Dimension(100, 131));
     rudererOptionenPanel.setLayout(borderLayout14);
     booteOptionenPanel.setLayout(borderLayout15);
@@ -953,17 +867,15 @@ public class StatistikFrame extends JDialog implements ActionListener {
     gespeichertPanel.setNextFocusableComponent(statList);
     statList.setNextFocusableComponent(editButton);
     ausgabeDatei.setNextFocusableComponent(ausgabeDateiButton);
+    Mnemonics.setButton(this, zeitVorjahresvergleich, International.getStringWithMnemonic("Vorjahresvergleich"));
     zeitVorjahresvergleich.setNextFocusableComponent(nurGeschlecht);
-    zeitVorjahresvergleich.setToolTipText("Vergleich der Werte eines gegebenen (aktuellen) Jahres mit dem Vorjahr");
-    zeitVorjahresvergleich.setText("Vorjahresvergleich");
     zeitVorjahresvergleich.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         zeitVorjahresvergleich_actionPerformed(e);
       }
     });
     bzeitVorjahresvergleich.setNextFocusableComponent(mNurArt);
-    bzeitVorjahresvergleich.setToolTipText("Vergleich der Werte eines gegebenen (aktuellen) Jahres mit dem Vorjahr");
-    bzeitVorjahresvergleich.setText("Vorjahresvergleich");
+    Mnemonics.setButton(this, bzeitVorjahresvergleich, International.getStringWithMnemonic("Vorjahresvergleich"));
     bzeitVorjahresvergleich.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         zeitVorjahresvergleich_actionPerformed(e);
@@ -971,12 +883,12 @@ public class StatistikFrame extends JDialog implements ActionListener {
     });
     separatorLabel1.setPreferredSize(new Dimension(50, 0));
     separatorLabel2.setPreferredSize(new Dimension(50, 0));
+    Mnemonics.setButton(this, ausWafaKm, International.getStringWithMnemonic("Wafa-Km"));
     ausWafaKm.setNextFocusableComponent(ausKm);
-    ausWafaKm.setText("Wafa-Km");
-    nurNameAuswahlLabel.setText("Auswahl: ");
+    nurNameAuswahlLabel.setText(International.getString("Auswahl")+": ");
     nurAuswahlName.setSelected(true);
-    nurAuswahlName.setText("Name");
-    nurAuswahlGruppe.setText("Gruppe");
+    nurAuswahlName.setText(International.getString("Name"));
+    nurAuswahlGruppe.setText(International.getString("Gruppe"));
     nurAuswahl.add(nurAuswahlName);
     nurAuswahl.add(nurAuswahlGruppe);
     nurAuswahlGruppe.addItemListener(new java.awt.event.ItemListener() {
@@ -1008,7 +920,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     dateiPanel.add(ausgabeFormat, new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     this.getContentPane().add(auswahlPane, BorderLayout.CENTER);
-    auswahlPane.add(rudererPanel, "Mannschafts-Kilometer");
+    auswahlPane.add(rudererPanel, International.getString("Mannschafts-Kilometer"));
     rudererPanel.add(artPanel, BorderLayout.NORTH);
     artPanel.add(artLabel, null);
     artPanel.add(art, null);
@@ -1147,7 +1059,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     erweitertButtonPanel.add(speichernButton, null);
     rest2Panel.add(rudererOptionenPanel, BorderLayout.CENTER);
     rest2Panel.add(erweitertButtonPanel, BorderLayout.SOUTH);
-    auswahlPane.add(bootePanel, "Boots-Kilometer");
+    auswahlPane.add(bootePanel, International.getString("Boots-Kilometer"));
     bootePanel.add(bArtPanel, BorderLayout.NORTH);
     bArtPanel.add(bArtLabel, null);
     bArtPanel.add(bArt, null);
@@ -1250,7 +1162,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     mErweitertButtonPanel.add(bSpeichernButton, null);
     mRest2Panel.add(booteOptionenPanel, BorderLayout.CENTER);
     mRest2Panel.add(mErweitertButtonPanel, BorderLayout.SOUTH);
-    auswahlPane.add(wettbewerbPanel, "Wettbewerbe");
+    auswahlPane.add(wettbewerbPanel, International.getString("Wettbewerbe"));
     wettbewerbPanel.add(jPanel1, BorderLayout.NORTH);
     wettbewerbPanel.add(wettPanel, BorderLayout.CENTER);
 
@@ -1263,7 +1175,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
         wettArt_itemStateChanged(e);
       }
     });
-    auswahlPane.add(gespeichertPanel, "gespeicherte Statistikeinstellungen");
+    auswahlPane.add(gespeichertPanel, International.getString("gespeicherte Statistikeinstellungen"));
     gespeichertPanel.add(jScrollPane3, BorderLayout.CENTER);
     gespeichertPanel.add(jPanel3, BorderLayout.EAST);
     jPanel3.add(editButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -1334,30 +1246,30 @@ public class StatistikFrame extends JDialog implements ActionListener {
     Dialog.programDlg = dlg;
 
     sortFolge.setPreferredSize(new Dimension(160, 24));
-    sortFolge.addItem("aufsteigend");
-    sortFolge.addItem("absteigend");
+    sortFolge.addItem(International.getString("aufsteigend"));
+    sortFolge.addItem(International.getString("absteigend"));
 
-    art.addItem("Ruderer/Innen");
-    art.addItem("Status");
-    art.addItem("Jahrgang");
-    art.addItem("Geschlecht");
-    art.addItem("Ziele");
-    art.addItem("Km / Fahrt");
-    art.addItem("Monate");
-    art.addItem("Wochentage");
-    art.addItem("Tageszeit");
-    art.addItem("Boote");
-    art.addItem("Bootsart");
-    art.addItem("Fahrtart");
-    art.addItem("Mitruderer/Innen");
-    art.addItem("Wer mit Wem");
-    art.addItem("Wer Wohin");
-    art.addItem("Wer mit Bootsart");
-    art.addItem("Fahrtenbuch");
-    art.addItem("Jahre");
-    art.addItem("Monatsübersicht");
-    art.addItem("Wer Unerlaubt");
-    art.addItem("Wer mit Fahrtart");
+    art.addItem(International.getString("Ruderer/Innen"));
+    art.addItem(International.getString("Status"));
+    art.addItem(International.getString("Jahrgang"));
+    art.addItem(International.getString("Geschlecht"));
+    art.addItem(International.getString("Ziele"));
+    art.addItem(International.getString("Km / Fahrt"));
+    art.addItem(International.getString("Monate"));
+    art.addItem(International.getString("Wochentage"));
+    art.addItem(International.getString("Tageszeit"));
+    art.addItem(International.getString("Boote"));
+    art.addItem(International.getString("Bootsart"));
+    art.addItem(International.getString("Fahrtart"));
+    art.addItem(International.getString("Mitruderer/Innen"));
+    art.addItem(International.getString("Wer mit Wem"));
+    art.addItem(International.getString("Wer Wohin"));
+    art.addItem(International.getString("Wer mit Bootsart"));
+    art.addItem(International.getString("Fahrtenbuch"));
+    art.addItem(International.getString("Jahre"));
+    art.addItem(International.getString("Monatsübersicht"));
+    art.addItem(International.getString("Wer Unerlaubt"));
+    art.addItem(International.getString("Wer mit Fahrtart"));
     art.setSelectedIndex(0);
 
     nurGeschlecht.setListData(Daten.bezeichnungen.geschlecht.toArray());
@@ -1375,22 +1287,22 @@ public class StatistikFrame extends JDialog implements ActionListener {
       ausgabeArt.addItem(ausgabeArten[i]);
     ausgabeArt.setSelectedIndex(0);
 
-    mSortFolge.addItem("aufsteigend");
-    mSortFolge.addItem("absteigend");
+    mSortFolge.addItem(International.getString("aufsteigend"));
+    mSortFolge.addItem(International.getString("absteigend"));
 
-    bArt.addItem("Boote");
-    bArt.addItem("Art");
-    bArt.addItem("Ruderplätze");
-    bArt.addItem("Art - Detail");
-    bArt.addItem("Ziele");
-    bArt.addItem("Km / Fahrt");
-    bArt.addItem("Monate");
-    bArt.addItem("Wochentage");
-    bArt.addItem("Tageszeit");
-    bArt.addItem("Ruderer");
-    bArt.addItem("Welches Boot Wohin");
-    bArt.addItem("Fahrtenbuch");
-    bArt.addItem("Jahre");
+    bArt.addItem(International.getString("Boote"));
+    bArt.addItem(International.getString("Art"));
+    bArt.addItem(International.getString("Ruderplätze"));
+    bArt.addItem(International.getString("Art - Detail"));
+    bArt.addItem(International.getString("Ziele"));
+    bArt.addItem(International.getString("Km / Fahrt"));
+    bArt.addItem(International.getString("Monate"));
+    bArt.addItem(International.getString("Wochentage"));
+    bArt.addItem(International.getString("Tageszeit"));
+    bArt.addItem(International.getString("Ruderer"));
+    bArt.addItem(International.getString("Welches Boot Wohin"));
+    bArt.addItem(International.getString("Fahrtenbuch"));
+    bArt.addItem(International.getString("Jahre"));
     bArt.setSelectedIndex(0);
 
     mNurArt.setListData(Daten.bezeichnungen.bArt.toArray());
@@ -1452,84 +1364,84 @@ public class StatistikFrame extends JDialog implements ActionListener {
     sortKrit.removeAllItems();
     switch (art.getSelectedIndex()) {
       case StatistikDaten.ART_MITGLIEDER:
-        sortKrit.addItem("Nachname");
-        sortKrit.addItem("Vorname");
-        sortKrit.addItem("Jahrgang");
+        sortKrit.addItem(International.getString("Nachname"));
+        sortKrit.addItem(International.getString("Vorname"));
+        sortKrit.addItem(International.getString("Jahrgang"));
         break;
       case StatistikDaten.ART_ZIELE:
-        sortKrit.addItem("Ziel");
+        sortKrit.addItem(International.getString("Ziel"));
         sortKrit.addItem("---");
         sortKrit.addItem("---");
         break;
       case StatistikDaten.ART_WOTAGE:
-        sortKrit.addItem("Tag (alphabetisch)");
+        sortKrit.addItem(International.getString("Tag (alphabetisch)"));
         sortKrit.addItem("---");
-        sortKrit.addItem("Wochentag");
+        sortKrit.addItem(International.getString("Wochentag"));
         break;
       case StatistikDaten.ART_TAGESZEIT:
-        sortKrit.addItem("Zeit (alphabetisch)");
+        sortKrit.addItem(International.getString("Zeit (alphabetisch)"));
         sortKrit.addItem("---");
-        sortKrit.addItem("Tageszeit");
+        sortKrit.addItem(International.getString("Tageszeit"));
         break;
       case StatistikDaten.ART_MONATE:
-        sortKrit.addItem("Monat (alphabetisch)");
+        sortKrit.addItem(International.getString("Monat (alphabetisch)"));
         sortKrit.addItem("---");
-        sortKrit.addItem("Monat");
+        sortKrit.addItem(International.getString("Monat"));
         break;
       case StatistikDaten.ART_BOOTE:
-        sortKrit.addItem("Boot");
+        sortKrit.addItem(International.getString("Boot"));
         sortKrit.addItem("---");
         sortKrit.addItem("---");
         break;
       case StatistikDaten.ART_BOOTSART:
-        sortKrit.addItem("Bootsart");
-        sortKrit.addItem("Art");
-        sortKrit.addItem("Ruderplätze");
+        sortKrit.addItem(International.getString("Bootsart"));
+        sortKrit.addItem(International.getString("Art"));
+        sortKrit.addItem(International.getString("Ruderplätze"));
         break;
       case StatistikDaten.ART_FAHRTART:
-        sortKrit.addItem("Fahrtart");
+        sortKrit.addItem(International.getString("Fahrtart"));
         sortKrit.addItem("---");
         sortKrit.addItem("---");
         break;
       case StatistikDaten.ART_MITRUDERER:
-        sortKrit.addItem("Nachname");
-        sortKrit.addItem("Vorname");
-        sortKrit.addItem("Jahrgang");
+        sortKrit.addItem(International.getString("Nachname"));
+        sortKrit.addItem(International.getString("Vorname"));
+        sortKrit.addItem(International.getString("Jahrgang"));
         break;
       case StatistikDaten.ART_STATUS:
-        sortKrit.addItem("Status");
+        sortKrit.addItem(International.getString("Status"));
         sortKrit.addItem("---");
         sortKrit.addItem("---");
         break;
       case StatistikDaten.ART_JAHRGANG:
-        sortKrit.addItem("Jahrgang");
+        sortKrit.addItem(International.getString("Jahrgang"));
         sortKrit.addItem("---");
         sortKrit.addItem("---");
         break;
       case StatistikDaten.ART_GESCHLECHT:
-        sortKrit.addItem("Geschlecht");
+        sortKrit.addItem(International.getString("Geschlecht"));
         sortKrit.addItem("---");
         sortKrit.addItem("---");
         break;
       case StatistikDaten.ART_WERMITWEM: case StatistikDaten.ART_WERWOHIN:
       case StatistikDaten.ART_WERMITBOOTSART: case StatistikDaten.ART_WERMITFAHRTART:
       case StatistikDaten.ART_WERUNERLAUBT:
-        sortKrit.addItem("Nachname");
-        sortKrit.addItem("Vorname");
-        sortKrit.addItem("Jahrgang");
+        sortKrit.addItem(International.getString("Nachname"));
+        sortKrit.addItem(International.getString("Vorname"));
+        sortKrit.addItem(International.getString("Jahrgang"));
         break;
       case StatistikDaten.ART_JAHRE:
-        sortKrit.addItem("Jahr");
+        sortKrit.addItem(International.getString("Jahr"));
         sortKrit.addItem("---");
         sortKrit.addItem("---");
         break;
       case StatistikDaten.ART_FAHRTENBUCH:
-        sortKrit.addItem("Datum");
+        sortKrit.addItem(International.getString("Datum"));
         sortKrit.addItem("---");
-        sortKrit.addItem("Lfd. Nr.");
+        sortKrit.addItem(International.getString("Lfd. Nr."));
         break;
        case StatistikDaten.ART_MONATSUEBERSICHT:
-        sortKrit.addItem("Datum");
+        sortKrit.addItem(International.getString("Datum"));
         sortKrit.addItem("---");
         sortKrit.addItem("---");
         break;
@@ -1540,23 +1452,23 @@ public class StatistikFrame extends JDialog implements ActionListener {
         break;
     }
     if (art.getSelectedIndex() != StatistikDaten.ART_FAHRTENBUCH && art.getSelectedIndex() != StatistikDaten.ART_MONATSUEBERSICHT) {
-      sortKrit.addItem("Kilometer");
-      sortKrit.addItem("Fahrten");
-      sortKrit.addItem("Km/Fahrt");
-      sortKrit.addItem("Dauer");
-      sortKrit.addItem("Km/h");
+      sortKrit.addItem(International.getString("Kilometer"));
+      sortKrit.addItem(International.getString("Fahrten"));
+      sortKrit.addItem(International.getString("Km/Fahrt"));
+      sortKrit.addItem(International.getString("Dauer"));
+      sortKrit.addItem(International.getString("Km/h"));
     }
     if (art.getSelectedIndex() == StatistikDaten.ART_WERMITWEM ||
         art.getSelectedIndex() == StatistikDaten.ART_WERWOHIN ||
         art.getSelectedIndex() == StatistikDaten.ART_WERMITBOOTSART ||
         art.getSelectedIndex() == StatistikDaten.ART_WERMITFAHRTART ||
         art.getSelectedIndex() == StatistikDaten.ART_WERUNERLAUBT)
-      sortKrit.addItem("Anzahl Verschiedene");
+      sortKrit.addItem(International.getString("Anzahl Verschiedene"));
 
     if (art.getSelectedIndex() == StatistikDaten.ART_MITGLIEDER ||
         art.getSelectedIndex() == StatistikDaten.ART_MITRUDERER) {
       sortKrit.addItem("---");
-      sortKrit.addItem("Status");
+      sortKrit.addItem(International.getString("Status"));
     }
 
     switch (art.getSelectedIndex()) {
@@ -1619,7 +1531,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
       ausStatus1.setSelected(false);
       if (art.getSelectedIndex() != StatistikDaten.ART_ZIELE) ausZielfahrten.setSelected(false);
       String[] g = new String[1];
-      g[0] = "alle";
+      g[0] = International.getString("alle");
       numerierung.setListData(g);
     } else {
       numerierung.setListData(Daten.fahrtenbuch.getDaten().status);
@@ -1667,47 +1579,47 @@ public class StatistikFrame extends JDialog implements ActionListener {
     mSortKrit.removeAllItems();
     switch (bArt.getSelectedIndex()+100) {
       case StatistikDaten.BART_BOOTE: case StatistikDaten.BART_WELCHESWOHIN:
-        mSortKrit.addItem("Bootsname");
-        mSortKrit.addItem("Art");
-        mSortKrit.addItem("Ruderplätze");
+        mSortKrit.addItem(International.getString("Bootsname"));
+        mSortKrit.addItem(International.getString("Art"));
+        mSortKrit.addItem(International.getString("Ruderplätze"));
         break;
       case StatistikDaten.BART_ART:
-        mSortKrit.addItem("Art");
+        mSortKrit.addItem(International.getString("Art"));
         mSortKrit.addItem("---");
         mSortKrit.addItem("---");
         break;
       case StatistikDaten.BART_PLAETZE:
-        mSortKrit.addItem("Ruderplätze");
+        mSortKrit.addItem(International.getString("Ruderplätze"));
         mSortKrit.addItem("---");
         mSortKrit.addItem("---");
         break;
       case StatistikDaten.BART_ARTDETAIL:
-        mSortKrit.addItem("Art - Detail");
-        mSortKrit.addItem("Art");
-        mSortKrit.addItem("Ruderplätze");
+        mSortKrit.addItem(International.getString("Art - Detail"));
+        mSortKrit.addItem(International.getString("Art"));
+        mSortKrit.addItem(International.getString("Ruderplätze"));
         break;
       case StatistikDaten.BART_ZIELE:
-        mSortKrit.addItem("Ziel");
+        mSortKrit.addItem(International.getString("Ziel"));
         mSortKrit.addItem("---");
         mSortKrit.addItem("---");
         break;
       case StatistikDaten.BART_MONATE:
         mSortKrit.addItem("---");
         mSortKrit.addItem("---");
-        mSortKrit.addItem("Monat");
+        mSortKrit.addItem(International.getString("Monat"));
         break;
       case StatistikDaten.BART_WOTAGE:
         mSortKrit.addItem("---");
         mSortKrit.addItem("---");
-        mSortKrit.addItem("Wochentag");
+        mSortKrit.addItem(International.getString("Wochentag"));
         break;
       case StatistikDaten.BART_TAGESZEIT:
-        sortKrit.addItem("Zeit (alphabetisch)");
+        sortKrit.addItem(International.getString("Zeit (alphabetisch)"));
         sortKrit.addItem("---");
-        sortKrit.addItem("Tageszeit");
+        sortKrit.addItem(International.getString("Tageszeit"));
         break;
       case StatistikDaten.BART_RUDERER:
-        mSortKrit.addItem("Name");
+        mSortKrit.addItem(International.getString("Name"));
         mSortKrit.addItem("---");
         mSortKrit.addItem("---");
         break;
@@ -1717,22 +1629,22 @@ public class StatistikFrame extends JDialog implements ActionListener {
         mSortKrit.addItem("---");
         break;
       case StatistikDaten.BART_JAHRE:
-        mSortKrit.addItem("Jahr");
+        mSortKrit.addItem(International.getString("Jahr"));
         mSortKrit.addItem("---");
         mSortKrit.addItem("---");
         break;
       case StatistikDaten.BART_FAHRTENBUCH:
-        mSortKrit.addItem("Datum");
+        mSortKrit.addItem(International.getString("Datum"));
         mSortKrit.addItem("---");
-        mSortKrit.addItem("Lfd. Nr.");
+        mSortKrit.addItem(International.getString("Lfd. Nr."));
         break;
     }
     if (bArt.getSelectedIndex()+100 != StatistikDaten.BART_FAHRTENBUCH) {
-      mSortKrit.addItem("Kilometer");
-      mSortKrit.addItem("Fahrten");
-      mSortKrit.addItem("Km/Fahrt");
-      mSortKrit.addItem("Dauer");
-      mSortKrit.addItem("Km/h");
+      mSortKrit.addItem(International.getString("Kilometer"));
+      mSortKrit.addItem(International.getString("Fahrten"));
+      mSortKrit.addItem(International.getString("Km/Fahrt"));
+      mSortKrit.addItem(International.getString("Dauer"));
+      mSortKrit.addItem(International.getString("Km/h"));
     }
     switch (bArt.getSelectedIndex()+100) {
       case StatistikDaten.BART_MONATE:
@@ -1888,13 +1800,13 @@ public class StatistikFrame extends JDialog implements ActionListener {
     if (!statWettFromSavedValues)
       nurStatus1.setSelectionInterval(0,Daten.fahrtenbuch.getDaten().status.length-3); // Gast standardmäßig nicht ausgeben
     statWettFromSavedValues = false;
-    ausgabeArt.addItem("als Meldedatei");
+    ausgabeArt.addItem(International.getString("als Meldedatei"));
     zeitVorjahresvergleich.setEnabled(false);
     bzeitVorjahresvergleich.setEnabled(false);
   }
   void wettbewerbPanel_componentHidden(ComponentEvent e) {
     rest1Panel.add(auswahlPanel,BorderLayout.WEST);
-    ausgabeArt.removeItem("als Meldedatei");
+    ausgabeArt.removeItem(International.getString("als Meldedatei"));
     zeitVorjahresvergleich.setEnabled(true);
     bzeitVorjahresvergleich.setEnabled(true);
   }
@@ -1987,8 +1899,16 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
     String ext = ausgabeExt[ausgabeArt.getSelectedIndex()];
     String dat;
-    if (!ausgabeDatei.getText().trim().equals("")) dat = Dialog.dateiDialog(this,ext.toUpperCase()+"-Datei auswählen",ext.toUpperCase()+"-Datei (*."+ext+")",ext,ausgabeDatei.getText().trim(),null,"Datei auswählen",true,false);
-    else dat = Dialog.dateiDialog(this,ext.toUpperCase()+"-Datei auswählen",ext.toUpperCase()+"-Datei (*."+ext+")",ext,null,null,"Datei auswählen",true,false);
+    if (!ausgabeDatei.getText().trim().equals("")) {
+        dat = Dialog.dateiDialog(this,ext.toUpperCase()+"-"+International.getString("Datei auswählen"),
+                ext.toUpperCase()+"-"+International.getString("Datei")+" (*."+ext+")",
+                ext,ausgabeDatei.getText().trim(),null,
+                International.getString("Datei auswählen"),true,false);
+    } else {
+        dat = Dialog.dateiDialog(this,ext.toUpperCase()+"-"+International.getString("Datei auswählen"),
+                ext.toUpperCase()+"-"+International.getString("Datei")+" (*."+ext+")",ext,null,null,
+                International.getString("Datei auswählen"),true,false);
+    }
 
     if (dat != null) {
       ausgabeDatei.setText(dat);
@@ -2114,7 +2034,8 @@ public class StatistikFrame extends JDialog implements ActionListener {
     if (d.ausgabeOverwriteWarnung && d.ausgabeDatei != null &&
         d.ausgabeArt != StatistikDaten.AUSGABE_INTERN_GRAFIK && d.ausgabeArt != StatistikDaten.AUSGABE_INTERN_TEXT &&
         new File(d.ausgabeDatei).isFile())
-      switch (Dialog.yesNoDialog("Datei bereits vorhanden","Soll die Datei \n'"+d.ausgabeDatei+"'\nüberschrieben werden?")) {
+      switch (Dialog.yesNoDialog(International.getString("Datei bereits vorhanden"),
+              International.getMessage("Soll die Datei '{filename}' überschrieben werden?",d.ausgabeDatei))) {
         case Dialog.NO: return false;
       }
     return true;
@@ -2137,10 +2058,10 @@ public class StatistikFrame extends JDialog implements ActionListener {
           sd[i].parent = this;
           allgStatistikDaten(sd[i]);
         } catch(StringIndexOutOfBoundsException e) {
-          Dialog.error("Fehler beim Lesen der gespeicherten Konfiguration!");
+          Dialog.error(International.getString("Fehler beim Lesen der gespeicherten Konfiguration!"));
         }
       } else {
-        Dialog.error("Fehler beim Lesen der gespeicherten Konfiguration!");
+        Dialog.error(International.getString("Fehler beim Lesen der gespeicherten Konfiguration!"));
         return;
       }
     }
@@ -2154,7 +2075,8 @@ public class StatistikFrame extends JDialog implements ActionListener {
     StatistikDaten d = createStatistik();
     if (d == null) return;
     if (d.ausgabeArt == StatistikDaten.AUSGABE_EFAWETT) {
-      Dialog.infoDialog("Fehler","Meldedatei-Ausgaben können nicht als Statistikeinstellung gespeichert werden!");
+      Dialog.infoDialog(International.getString("Fehler"),
+              International.getString("Meldedatei-Ausgaben können nicht als Statistikeinstellung gespeichert werden!"));
       return;
     }
     StatAddFrame dlg = new StatAddFrame(this,d,aktStatName,aktStatAuchEfaDirekt);
@@ -2193,39 +2115,39 @@ public class StatistikFrame extends JDialog implements ActionListener {
       if (f != null) {
         felder[i] = f.get(StatSave.NAMESTAT);
         if (f.get(StatSave.STAT).equals(Integer.toString(StatistikDaten.STAT_MITGLIEDER)))
-          felder[i] = felder[i] + " (Mannschafts-Kilometer:";
+          felder[i] = felder[i] + " ("+International.getString("Mannschafts-Kilometer")+":";
         if (f.get(StatSave.STAT).equals(Integer.toString(StatistikDaten.STAT_BOOTE)))
-          felder[i] = felder[i] + " (Boots-Kilometer:";
+          felder[i] = felder[i] + " ("+International.getString("Boots-Kilometer")+":";
         if (f.get(StatSave.STAT).equals(Integer.toString(StatistikDaten.STAT_WETT)))
-          felder[i] = felder[i] + " (Wettbewerb:";
+          felder[i] = felder[i] + " ("+International.getString("Wettbewerb")+":";
 
 
         switch (art = EfaUtil.string2int(f.get(StatSave.ART),StatistikDaten.ART_MITGLIEDER)) {
-            case StatistikDaten.ART_MITGLIEDER: case StatistikDaten.BART_RUDERER: felder[i] = felder[i] + "Ruderer/Innen)"; break;
-            case StatistikDaten.ART_ZIELE: case StatistikDaten.BART_ZIELE: felder[i] = felder[i] + "Ziele)"; break;
-            case StatistikDaten.ART_MONATE: case StatistikDaten.BART_MONATE: felder[i] = felder[i] + "Monate)"; break;
-            case StatistikDaten.ART_WOTAGE: case StatistikDaten.BART_WOTAGE: felder[i] = felder[i] + "Wochentage)"; break;
-            case StatistikDaten.ART_TAGESZEIT: case StatistikDaten.BART_TAGESZEIT: felder[i] = felder[i] + "Tageszeit)"; break;
-            case StatistikDaten.ART_BOOTE: case StatistikDaten.BART_BOOTE: felder[i] = felder[i] + "Boote)"; break;
-            case StatistikDaten.ART_BOOTSART: felder[i] = felder[i] + "Bootsart)"; break;
-            case StatistikDaten.ART_FAHRTART: felder[i] = felder[i] + "Fahrtart)"; break;
-            case StatistikDaten.ART_JAHRE: case StatistikDaten.BART_JAHRE: felder[i] = felder[i] + "Jahre)"; break;
-            case StatistikDaten.ART_MITRUDERER: felder[i] = felder[i] + "Mitruderer)"; break;
-            case StatistikDaten.ART_STATUS: felder[i] = felder[i] + "Status)"; break;
-            case StatistikDaten.ART_JAHRGANG: felder[i] = felder[i] + "Jahrgang)"; break;
-            case StatistikDaten.ART_GESCHLECHT: felder[i] = felder[i] + "Geschlecht)"; break;
-            case StatistikDaten.ART_WERMITWEM: felder[i] = felder[i] + "Wer mit Wem)"; break;
-            case StatistikDaten.ART_WERWOHIN: felder[i] = felder[i] + "Wer Wohin)"; break;
-            case StatistikDaten.ART_WERMITBOOTSART: felder[i] = felder[i] + "Wer mit Bootsart)"; break;
-            case StatistikDaten.ART_WERMITFAHRTART: felder[i] = felder[i] + "Wer mit Fahrtart)"; break;
-            case StatistikDaten.ART_WERUNERLAUBT: felder[i] = felder[i] + "Wer unerlaubt)"; break;
-            case StatistikDaten.ART_KMFAHRT: case StatistikDaten.BART_KMFAHRT: felder[i] = felder[i] + "Km/Fahrt)"; break;
-            case StatistikDaten.ART_FAHRTENBUCH: case StatistikDaten.BART_FAHRTENBUCH: felder[i] = felder[i] + "Fahrtenbuch)"; break;
-            case StatistikDaten.ART_MONATSUEBERSICHT: felder[i] = felder[i] + "Monatsübersicht)"; break;
-            case StatistikDaten.BART_ART: felder[i] = felder[i] + "Art)"; break;
-            case StatistikDaten.BART_ARTDETAIL: felder[i] = felder[i] + "Art - Detail)"; break;
-            case StatistikDaten.BART_PLAETZE: felder[i] = felder[i] + "Bootsplätze)"; break;
-            case StatistikDaten.BART_WELCHESWOHIN: felder[i] = felder[i] + "Welches Boot Wohin)"; break;
+            case StatistikDaten.ART_MITGLIEDER: case StatistikDaten.BART_RUDERER: felder[i] = felder[i] + International.getString("Ruderer/Innen")+")"; break;
+            case StatistikDaten.ART_ZIELE: case StatistikDaten.BART_ZIELE: felder[i] = felder[i] + International.getString("Ziele")+")"; break;
+            case StatistikDaten.ART_MONATE: case StatistikDaten.BART_MONATE: felder[i] = felder[i] + International.getString("Monate")+")"; break;
+            case StatistikDaten.ART_WOTAGE: case StatistikDaten.BART_WOTAGE: felder[i] = felder[i] + International.getString("Wochentage")+")"; break;
+            case StatistikDaten.ART_TAGESZEIT: case StatistikDaten.BART_TAGESZEIT: felder[i] = felder[i] + International.getString("Tageszeit")+")"; break;
+            case StatistikDaten.ART_BOOTE: case StatistikDaten.BART_BOOTE: felder[i] = felder[i] + International.getString("Boote")+")"; break;
+            case StatistikDaten.ART_BOOTSART: felder[i] = felder[i] + International.getString("Bootsart")+")"; break;
+            case StatistikDaten.ART_FAHRTART: felder[i] = felder[i] + International.getString("Fahrtart")+")"; break;
+            case StatistikDaten.ART_JAHRE: case StatistikDaten.BART_JAHRE: felder[i] = felder[i] + International.getString("Jahre")+")"; break;
+            case StatistikDaten.ART_MITRUDERER: felder[i] = felder[i] + International.getString("Mitruderer")+")"; break;
+            case StatistikDaten.ART_STATUS: felder[i] = felder[i] + International.getString("Status")+")"; break;
+            case StatistikDaten.ART_JAHRGANG: felder[i] = felder[i] + International.getString("Jahrgang")+")"; break;
+            case StatistikDaten.ART_GESCHLECHT: felder[i] = felder[i] + International.getString("Geschlecht")+")"; break;
+            case StatistikDaten.ART_WERMITWEM: felder[i] = felder[i] + International.getString("Wer mit Wem")+")"; break;
+            case StatistikDaten.ART_WERWOHIN: felder[i] = felder[i] + International.getString("Wer Wohin")+")"; break;
+            case StatistikDaten.ART_WERMITBOOTSART: felder[i] = felder[i] + International.getString("Wer mit Bootsart")+")"; break;
+            case StatistikDaten.ART_WERMITFAHRTART: felder[i] = felder[i] + International.getString("Wer mit Fahrtart")+")"; break;
+            case StatistikDaten.ART_WERUNERLAUBT: felder[i] = felder[i] + International.getString("Wer unerlaubt")+")"; break;
+            case StatistikDaten.ART_KMFAHRT: case StatistikDaten.BART_KMFAHRT: felder[i] = felder[i] + International.getString("Km/Fahrt")+")"; break;
+            case StatistikDaten.ART_FAHRTENBUCH: case StatistikDaten.BART_FAHRTENBUCH: felder[i] = felder[i] + International.getString("Fahrtenbuch")+")"; break;
+            case StatistikDaten.ART_MONATSUEBERSICHT: felder[i] = felder[i] + International.getString("Monatsübersicht")+")"; break;
+            case StatistikDaten.BART_ART: felder[i] = felder[i] + International.getString("Art")+")"; break;
+            case StatistikDaten.BART_ARTDETAIL: felder[i] = felder[i] + International.getString("Art - Detail")+")"; break;
+            case StatistikDaten.BART_PLAETZE: felder[i] = felder[i] + International.getString("Bootsplätze")+")"; break;
+            case StatistikDaten.BART_WELCHESWOHIN: felder[i] = felder[i] + International.getString("Welches Boot Wohin")+")"; break;
           }
           if (art>=200 && art-200<WettDefs.ANZWETT && Daten.wettDefs != null) {
             WettDef w = Daten.wettDefs.getWettDef(art-200,9999);
@@ -2242,7 +2164,8 @@ public class StatistikFrame extends JDialog implements ActionListener {
   // gespeicherten Eintrag löschen
   void deleteButton_actionPerformed(ActionEvent e) {
     if (statList.getSelectedIndices().length == 0) return;
-    switch (Dialog.yesNoDialog("Warnung","Sollen die markierten Einträge wirklich gelöscht werden?")) {
+    switch (Dialog.yesNoDialog(International.getString("Warnung"),
+            International.getString("Sollen die markierten Einträge wirklich gelöscht werden?"))) {
       case Dialog.YES:
         String[] s = new String[statList.getSelectedValues().length];
         for (int i=0; i<statList.getSelectedValues().length; i++)
@@ -2250,7 +2173,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
         for (int i=0; i<s.length; i++)
           Daten.fahrtenbuch.getDaten().statistik.delete(s[i].substring(0,s[i].lastIndexOf(" (")));
         if (Daten.fahrtenbuch.getDaten().statistik.writeFile() && Daten.fahrtenbuch.getDaten().statistik.readFile()) {}
-        else Dialog.error("Änderungen konnten nicht gespeichert werden!");
+        else Dialog.error(International.getString("Änderungen konnten nicht gespeichert werden!"));
         showSavedStat();
         break;
       case Dialog.NO: return;
@@ -2276,14 +2199,14 @@ public class StatistikFrame extends JDialog implements ActionListener {
   public void startStatistik(StatistikDaten[] d) {
     // Statistikberechnung mit Progress-Bar
     statistikThread = new StatistikThread();
-    progressMonitor = new ProgressMonitor(this, "Statistikberechnung", "", 0, statistikThread.getLengthOfTask());
+    progressMonitor = new ProgressMonitor(this, International.getString("Statistikberechnung"), "", 0, statistikThread.getLengthOfTask());
     progressMonitor.setProgress(0);
     progressMonitor.setMaximum(1);
     progressMonitor.setMillisToDecideToPopup(PROGRESS_TIMETOPOPUP);
       // enableFrame(...) gibt false zurück, wenn das Frame bereits disabled ist, d.h. wenn bereits eine Berechnung
       // läuft. Dies ist ein Bugfix, damit eine Statistikberechnung nicht mehrfach parallel ausgeführt werden kann
       // 13.01.2006 (Bugfix für MG)
-    if (enableFrame(false,"efa berechnet die Statistik ...",true)) {
+    if (enableFrame(false,International.getString("efa berechnet die Statistik ..."),true)) {
       Thread thr = statistikThread.go(d);
       timer.start();
     }
@@ -2295,7 +2218,8 @@ public class StatistikFrame extends JDialog implements ActionListener {
     boolean empty = true;
     for (int i=0; i<b.length; i++) if (b[i]) empty = false;
     if (empty)
-      Dialog.infoDialog("Ungenügende Auswahl","In der Auswahl '"+s+"' wurde kein Eintrag ausgewählt.\nBitte wähle zumindest einen Eintrag aus!");
+      Dialog.infoDialog(International.getString("Ungenügende Auswahl"),
+              International.getMessage("In der Auswahl {selection} wurde kein Eintrag ausgewählt. Bitte wähle zumindest einen Eintrag aus!",s));
     return empty;
   }
 
@@ -2312,17 +2236,17 @@ public class StatistikFrame extends JDialog implements ActionListener {
     allgStatistikDaten(d[0]);
 
     if (d[0].stat == StatistikDaten.STAT_MITGLIEDER || d[0].stat == StatistikDaten.STAT_WETT) {
-      if (errorIfEmpty(d[0].geschlecht,"Geschlecht")) return;
-      if (errorIfEmpty(d[0].status,"Status")) return;
-      if (errorIfEmpty(d[0].fahrtart,"Art der Fahrt")) return;
+      if (errorIfEmpty(d[0].geschlecht,International.getString("Geschlecht"))) return;
+      if (errorIfEmpty(d[0].status,International.getString("Status"))) return;
+      if (errorIfEmpty(d[0].fahrtart,International.getString("Art der Fahrt"))) return;
     }
     if (d[0].stat == StatistikDaten.STAT_BOOTE) {
-      if (errorIfEmpty(d[0].bArt,"Art")) return;
-      if (errorIfEmpty(d[0].bAnzahl,"Ruderplätze")) return;
-      if (errorIfEmpty(d[0].fahrtart,"Art der Fahrt")) return;
-      if (errorIfEmpty(d[0].bRigger,"Riggerung")) return;
-      if (errorIfEmpty(d[0].bStm,"mit oder ohne Steuermann")) return;
-      if (errorIfEmpty(d[0].bVerein,"Vereins- oder Gastboot")) return;
+      if (errorIfEmpty(d[0].bArt,International.getString("Art"))) return;
+      if (errorIfEmpty(d[0].bAnzahl,International.getString("Ruderplätze"))) return;
+      if (errorIfEmpty(d[0].fahrtart,International.getString("Art der Fahrt"))) return;
+      if (errorIfEmpty(d[0].bRigger,International.getString("Riggerung"))) return;
+      if (errorIfEmpty(d[0].bStm,International.getString("mit oder ohne Steuermann"))) return;
+      if (errorIfEmpty(d[0].bVerein,International.getString("Vereins- oder Gastboot"))) return;
     }
 
     startStatistik(d);
@@ -2369,10 +2293,10 @@ public class StatistikFrame extends JDialog implements ActionListener {
         try {
           Thread.sleep(2000);
         } catch(Exception e) { EfaUtil.foo(); }
-        erstellenBut.setText("Statistik erstellen");
+        erstellenBut.setText(International.getString("Statistik erstellen"));
         erstellenBut.setForeground(Color.black);
       }
-    } else erstellenBut.setText("Statistik erstellen");
+    } else erstellenBut.setText(International.getString("Statistik erstellen"));
     return true;
   }
 
@@ -2394,7 +2318,8 @@ public class StatistikFrame extends JDialog implements ActionListener {
       else d.stylesheet+=".XSL";
     }
     if (d.ausgabeArt == StatistikDaten.AUSGABE_PDF && ausgabeFormat.getSelectedIndex()==0) {
-      Dialog.infoDialog("Bitte wähle eine Formatierung aus!","Keine Formatierung ausgewählt");
+      Dialog.infoDialog(International.getString("Keine Formatierung ausgewählt"),
+              International.getString("Bitte wähle eine Formatierung aus!"));
       return null;
     }
 
@@ -2489,9 +2414,10 @@ public class StatistikFrame extends JDialog implements ActionListener {
   boolean createStatRuderer(StatistikDaten d) {
     if (art.getSelectedIndex() == StatistikDaten.ART_MITRUDERER &&
         (nurName.getText().trim().equals("") || nameTeil.isSelected()) ) {
-      Dialog.infoDialog("Fehler","Wenn Statistikart 'Mitruderer' gewählt ist, muß bei 'nur Name'\n"+
-                                         "ein konkreter Name angegeben werden, und 'als Teil eines Namens'\n"+
-                                         "darf nicht aktiviert sein.");
+      Dialog.infoDialog(International.getString("Fehler"),
+              International.getString("Wenn Statistikart 'Mitruderer' gewählt ist, muß bei 'nur Name' "+
+                                         "ein konkreter Name angegeben werden, und 'als Teil eines Namens' "+
+                                         "darf nicht aktiviert sein."));
       return false;
     }
 
@@ -2644,7 +2570,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     if (d.ausgabeArt == StatistikDaten.AUSGABE_EFAWETT &&
         (d.art == StatistikDaten.WETT_LRVBRB_FAHRTENWETT || d.art == StatistikDaten.WETT_LRVBRB_WANDERRUDERWETT ||
          d.art == StatistikDaten.WETT_LRVMVP_WANDERRUDERWETT)) {
-      Dialog.error("Die Ausgabe als Meldedatei wird für diesen Wettbewerb nicht unterstützt.");
+      Dialog.error(International.getString("Die Ausgabe als Meldedatei wird für diesen Wettbewerb nicht unterstützt."));
       return false;
     }
 
@@ -2652,13 +2578,15 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
     if (d.ausgabeArt == StatistikDaten.AUSGABE_EFAWETT && Daten.wettDefs != null &&
         Daten.wettDefs.isDataOld() ) {
-      if (Dialog.yesNoDialog("efaWett-Konfigurationsdaten",
-                             "Die efaWett-Konfigurationsdaten sind schon recht alt (Stand: "+Daten.wettDefs.efw_stand_der_daten+").\n"+
-                             "Sollen jetzt aktuelle Konfigurationsdaten aus dem Internet heruntergeladen werden?") == Dialog.YES) {
+      if (Dialog.yesNoDialog(International.getString("efaWett-Konfigurationsdaten"),
+                             International.getMessage("Die efaWett-Konfigurationsdaten sind schon recht alt "+
+                             "(Stand: {date}).\n"+
+                             "Sollen jetzt aktuelle Konfigurationsdaten aus dem Internet heruntergeladen werden?",
+                             Daten.wettDefs.efw_stand_der_daten)) == Dialog.YES) {
         if (VereinsConfigFrame.holeAktuelleDatenAusDemInternet()) {
-          Dialog.infoDialog("Die efaWett-Konfigurationsdaten wurden erfolgreich aktualisiert!");
+          Dialog.infoDialog(International.getString("Die efaWett-Konfigurationsdaten wurden erfolgreich aktualisiert!"));
         } else {
-          Dialog.error("Die efaWett-Konfigurationsdaten konnten nicht aktualisiert werden!");
+          Dialog.error(International.getString("Die efaWett-Konfigurationsdaten konnten nicht aktualisiert werden!"));
         }
       }
     }
@@ -2715,7 +2643,8 @@ public class StatistikFrame extends JDialog implements ActionListener {
       d.wettOhneDetail = false;
       d.ausgebenWettBedingung = false;
       if (!Statistik.checkWettZeitraum(d.wettJahr,d.von,d.bis,d.art-200)) {
-        Dialog.infoDialog("Ungültiger Zeitraum","Der gewählte Zeitraum entspricht nicht den Bedingungen der Ausschreibung");
+        Dialog.infoDialog(International.getString("Ungültiger Zeitraum"),
+                International.getString("Der gewählte Zeitraum entspricht nicht den Bedingungen der Ausschreibung"));
         return false;
       }
     }
@@ -3059,7 +2988,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
           ausgabeFormat.setSelectedItem(s);
         }
       } catch(Exception ee) {
-        Dialog.error("Fehler beim Lesen der gespeicherten Konfiguration!");
+        Dialog.error(International.getString("Fehler beim Lesen der gespeicherten Konfiguration!"));
       }
     }
   }
@@ -3069,12 +2998,13 @@ public class StatistikFrame extends JDialog implements ActionListener {
   void doEdit() {
     if (statList.getSelectedIndices().length == 0) return;
     if (statList.getSelectedIndices().length>1) {
-      Dialog.infoDialog("Zu viele Einträge markiert","Es kann immer nur eine Statistikeinstellung bearbeitet werden!");
+      Dialog.infoDialog(International.getString("Zu viele Einträge markiert"),
+              International.getString("Es kann immer nur eine Statistikeinstellung bearbeitet werden!"));
       return;
     }
     String s = (String)statList.getSelectedValue();
     if (s.lastIndexOf(" (")<0) {
-      Dialog.error("Statistikdatei hat ungültiges Format!");
+      Dialog.error(International.getString("Statistikdatei hat ungültiges Format!"));
       return;
     }
     s = s.substring(0,s.lastIndexOf(" ("));
@@ -3097,45 +3027,46 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
 
   public void efaWettVervollständigen(EfaWett efaWett) {
-    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen(...) - START");
+    Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...) - START");
     if (efaWett.meldung == null) {
-      Dialog.infoDialog("Keine Meldungen","Im gewählten Zeitraum haben keine Teilnehmer die Bedingungen erfüllt!");
+      Dialog.infoDialog(International.getString("Keine Meldungen"),
+              International.getString("Im gewählten Zeitraum haben keine Teilnehmer die Bedingungen erfüllt!"));
       return;
     }
     String dat = Daten.fahrtenbuch.getFileName();
-    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen(...): dat == "+dat);
+    Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...): dat == "+dat);
     int to;
     if ((to = dat.toUpperCase().lastIndexOf(Daten.fileSep)) >= 0) {
-      Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen(...): to == "+to);
+      Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...): to == "+to);
       dat = dat.substring(0,to+1);
-      Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen(...): dat == "+dat);
+      Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...): dat == "+dat);
       efaWett.datei = dat+EfaUtil.replace(efaWett.allg_wett,".","_",true)+"_"+EfaUtil.replace(efaWett.allg_wettjahr,"/","-",true)+".EFW";
-      Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen(...): efaWett.datei == "+efaWett.datei);
+      Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...): efaWett.datei == "+efaWett.datei);
     } // anderenfalls Standardwert (StatistikDaten.dateiEfaWett)
 
     VereinsConfigFrame dlg = new VereinsConfigFrame(this,efaWett);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
     dlg.show();
-    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen(...) - END");
+    Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...) - END");
   }
   public void efaWettVervollständigen2(EfaWett efaWett) {
-    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen2(...) - START");
+    Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen2(...) - START");
     EfaWettSelectAndCompleteFrame dlg = new EfaWettSelectAndCompleteFrame(this,efaWett);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
     dlg.show();
-    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen2(...) - END");
+    Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen2(...) - END");
   }
   public void efaWettVervollständigen3(EfaWett efaWett, String meldegeld, Vector papierFahrtenhefte) {
-    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen3(...) - START");
+    Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen3(...) - START");
     Statistik.schreibeEfaWett(efaWett);
 
     EfaWettFertigFrame dlg = new EfaWettFertigFrame(this,efaWett,meldegeld,papierFahrtenhefte);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
     dlg.show();
-    Logger.log(Logger.DEBUG,"StatistikFrame.efaWettVervollständigen3(...) - END");
+    Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen3(...) - END");
   }
 
 
@@ -3158,9 +3089,9 @@ public class StatistikFrame extends JDialog implements ActionListener {
     ausgabeFormat.removeAllItems();
 
     if (ausgabeExt[nr] != null && ausgabeExt[nr].equals("pdf"))
-      ausgabeFormat.addItem("--- bitte wählen ---");
+      ausgabeFormat.addItem(International.getString("--- bitte wählen ---"));
     else
-      ausgabeFormat.addItem("Standard");
+      ausgabeFormat.addItem(International.getString("Standard"));
     if (nr == 0 || nr == 2 ||
         (ausgabeExt[nr] != null && ausgabeExt[nr].equals("html")))
       readLayoutFiles(Daten.efaStyleDirectory+"html");
@@ -3210,10 +3141,10 @@ public class StatistikFrame extends JDialog implements ActionListener {
   public void nurAuswahlGruppe_itemStateChanged(ItemEvent e) {
     if (nurAuswahlGruppe.isSelected()) {
       nameTeil.setEnabled(false);
-      nurNameLabel.setText("Nur Gruppe: ");
+      nurNameLabel.setText(International.getString("Nur Gruppe")+": ");
     } else {
       nameTeil.setEnabled(true);
-      nurNameLabel.setText("Nur Name: ");
+      nurNameLabel.setText(International.getString("Nur Name")+": ");
     }
   }
 

@@ -1,4 +1,15 @@
 /**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
+
+/**
  * In a chain of data manipulators some behaviour is common. TableMap
  * provides most of this behaviour and can be subclassed by filters
  * that only need to override a handful of specific methods. TableMap

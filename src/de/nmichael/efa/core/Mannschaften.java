@@ -1,19 +1,22 @@
-package de.nmichael.efa.core;
-
 /**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:  Liste der Boote, abgeleitet von DatenListe
- * Copyright:    Copyright (c) 2001
- * Company:
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
  * @author Nicolas Michael
- * @version 1.0
+ * @version 2
  */
+
+package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.core.DatenFelder;
 import de.nmichael.efa.util.*;
 import java.io.IOException;
+
+// @i18n complete
 
 public class Mannschaften extends DatenListe {
 
@@ -47,8 +50,8 @@ public class Mannschaften extends DatenListe {
   public static final int FAHRTART  = 27; // vor 1.4.0: 19
   public static final int OBMANN    = 28; // neu in v1.7.3
 
-  public static final String NO_FAHRTART = "--- keine Auswahl ---";
-  public static final String NO_OBMANN   = "--- keine Auswahl ---";
+  public static final String NO_FAHRTART = International.getString("--- keine Auswahl ---");
+  public static final String NO_OBMANN   = International.getString("--- keine Auswahl ---");
 
   public static final String KENNUNG120 = "##EFA.120.MANNSCHAFTEN##";
   public static final String KENNUNG135 = "##EFA.135.MANNSCHAFTEN##";

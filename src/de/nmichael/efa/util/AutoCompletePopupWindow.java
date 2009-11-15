@@ -1,3 +1,13 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.util;
 
 import de.nmichael.efa.core.DatenListe;
@@ -6,15 +16,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-
-/**
- * <p>Überschrift: </p>
- * <p>Beschreibung: </p>
- * <p>Copyright: Copyright (c) 2005</p>
- * <p>Organisation: </p>
- * @author unbekannt
- * @version 1.0
- */
 
 public class AutoCompletePopupWindow extends JWindow {
   private static AutoCompletePopupWindow window = null;

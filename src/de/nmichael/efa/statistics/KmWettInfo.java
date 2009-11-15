@@ -1,6 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
  */
 
 package de.nmichael.efa.statistics;
@@ -9,10 +14,6 @@ import de.nmichael.efa.util.Zielfahrt;
 import java.util.*;
 import de.nmichael.efa.*;
 
-/**
- *
- * @author nick
- */
 // Weitere Informationen für Km-Wettbewerbe
 class KmWettInfo {
 

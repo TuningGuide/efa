@@ -1,8 +1,16 @@
-/*
-  Unix Zeilenumbrï¿½che (LF) nach DOS (CRLF) umwandeln
-*/
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
 
 import java.io.*;
+
+// @i18n complete (needs no translation, just for developers)
 
 public class Unixlf2doslf {
 

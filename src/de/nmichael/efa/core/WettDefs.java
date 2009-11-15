@@ -1,19 +1,22 @@
-package de.nmichael.efa.core;
-
 /**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:  Wettbewerbsdefinitionen
- * Copyright:    Copyright (c) 2001
- * Company:
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
  * @author Nicolas Michael
- * @version 1.0
+ * @version 2
  */
+
+package de.nmichael.efa.core;
 
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.io.*;
 import java.util.*;
+
+// @i18n complete (needs no internationalization -- only relevant for Germany)
 
 public class WettDefs extends DatenListe {
 
@@ -303,7 +306,7 @@ public class WettDefs extends DatenListe {
         }
       }
     } catch(IOException e) {
-      Dialog.error("Datei '"+dat+"' kann nicht geschrieben werden!");
+      errWritingFile(dat);
       return false;
     }
     return true;

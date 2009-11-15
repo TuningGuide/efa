@@ -1,26 +1,26 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.AuswahlFrame;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.AutoCompletePopupWindow;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.util.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class NeueGruppeFrame extends JDialog implements ActionListener {
   AuswahlFrame auswahlFrame;
@@ -68,23 +68,23 @@ public class NeueGruppeFrame extends JDialog implements ActionListener {
   void startNeueGruppe() {
     this.gruppeOld = "";
     neu = true; // Neue Gruppe
-    this.setTitle("Neue Gruppe hinzufügen");
-    saveButton.setText("Gruppe hinzufügen");
+    this.setTitle(International.getString("Neue Gruppe hinzufügen"));
+    Mnemonics.setButton(this, saveButton, International.getStringWithMnemonic("Gruppe hinzufügen"));
     mehrFelderButton_actionPerformed(null);
   }
 
   void editiereGruppe(String gruppe) {
     Vector mitglieder = Daten.gruppen.getGruppenMitglieder(gruppe);
     if (mitglieder == null) {
-      Dialog.error("Eine Gruppe mit dem Namen "+gruppe+" konnte nicht gefunden werden.");
+      Dialog.error(International.getMessage("Eine Gruppe mit dem Namen {groupname} konnte nicht gefunden werden.",gruppe));
       cancel();
       return;
     }
     this.gruppeOld = gruppe;
     neu = false; // Eintrag ändern
     gruppenname.setText(gruppe);
-    this.setTitle("Gruppe bearbeiten");
-    saveButton.setText("Eintrag übernehmen");
+    this.setTitle(International.getString("Gruppe bearbeiten"));
+    saveButton.setText(International.getString("Eintrag übernehmen"));
     for (int i=0; i<mitglieder.size(); i++) {
       GruppenMitglied m = (GruppenMitglied)mitglieder.get(i);
       addField(EfaUtil.getFullName(m.vorname,m.nachname,m.verein));
@@ -114,18 +114,18 @@ public class NeueGruppeFrame extends JDialog implements ActionListener {
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
       saveButton.setNextFocusableComponent(gruppenname);
-      saveButton.setText("Speichern");
+      Mnemonics.setButton(this, saveButton, International.getStringWithMnemonic("Speichern"));
       saveButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           saveButton_actionPerformed(e);
         }
     });
       jPanel2.setLayout(gridBagLayout1);
-      jLabel1.setText("Gruppe: ");
+      Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Gruppe")+": ");
       mitgliederPanel.setLayout(gridBagLayout2);
       Dialog.setPreferredSize(gruppenname,200,19);
       jPanel3.setLayout(gridBagLayout3);
-      mehrFelderButton.setText("Mehr Felder");
+      Mnemonics.setButton(this, mehrFelderButton, International.getStringWithMnemonic("Mehr Felder"));
       mehrFelderButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           mehrFelderButton_actionPerformed(e);
@@ -170,7 +170,7 @@ public class NeueGruppeFrame extends JDialog implements ActionListener {
 
   void addField(String name) {
       JLabel jLabel = new JLabel();
-      jLabel.setText("Gruppenmitglied: ");
+      jLabel.setText(International.getString("Gruppenmitglied")+": "); // no mnemonics wanted, since we have many fields of this name!
       JTextField jTextField = new JTextField();
       jTextField.setText(name);
       Dialog.setPreferredSize(jTextField,200,19);
@@ -227,20 +227,20 @@ public class NeueGruppeFrame extends JDialog implements ActionListener {
   void saveButton_actionPerformed(ActionEvent e) {
     String gn = gruppenname.getText().trim();
     if (gn.length() == 0) {
-      Dialog.error("Bitte gibt einen Namen für die Gruppe ein!");
+      Dialog.error(International.getString("Bitte gibt einen Namen für die Gruppe ein!"));
       gruppenname.requestFocus();
       return;
     }
     if (neu) {
       if (Daten.gruppen.getGruppenMitglieder(gn) != null) {
-        Dialog.error("Eine Gruppe dieses Namens existiert bereits. Bitte wähle einen anderen Gruppennamen.");
+        Dialog.error(International.getString("Eine Gruppe dieses Namens existiert bereits. Bitte wähle einen anderen Gruppennamen."));
         gruppenname.requestFocus();
         return;
       }
     } else {
       if (!gn.equals(gruppeOld)) {
         if (Daten.gruppen.getGruppenMitglieder(gn) != null) {
-          Dialog.error("Eine Gruppe dieses Namens existiert bereits. Bitte wähle einen anderen Gruppennamen.");
+          Dialog.error(International.getString("Eine Gruppe dieses Namens existiert bereits. Bitte wähle einen anderen Gruppennamen."));
           gruppenname.requestFocus();
           return;
         }

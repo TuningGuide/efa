@@ -1,12 +1,19 @@
+/**
+ * <p>Title: efa - Elektronisches Fahrtenbuch</p>
+ * <p>Description: </p>
+ * <p>Copyright: Copyright (c) 2001</p>
+ * <p>Company: </p>
+ * @author Nicolas Michael
+ * @version 1.0
+ */
+
 package de.nmichael.efa.util;
 
-
-
- import java.awt.*;
- import java.awt.event.*;
- import javax.swing.*;
- import java.lang.reflect.*;
- import java.util.*;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.lang.reflect.*;
+import java.util.*;
 
  /**
   * General helper class which convieniently allows

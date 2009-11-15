@@ -1,47 +1,23 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.statistics;
 
-import de.nmichael.efa.core.WettDefs;
-import de.nmichael.efa.core.EfaWettMeldung;
-import de.nmichael.efa.core.Fahrtenabzeichen;
-import de.nmichael.efa.core.EfaWett;
-import de.nmichael.efa.core.EnterPasswordFrame;
-import de.nmichael.efa.core.WettDefGruppe;
-import de.nmichael.efa.core.DownloadFrame;
-import de.nmichael.efa.core.Mitglieder;
-import de.nmichael.efa.core.Ziele;
-import de.nmichael.efa.core.WettDef;
-import de.nmichael.efa.core.Fahrtenbuch;
-import de.nmichael.efa.core.Adressen;
-import de.nmichael.efa.core.DRVSignaturFrame;
-import de.nmichael.efa.core.DatenListe;
-import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.core.Boote;
-import de.nmichael.efa.core.Bezeichnungen;
-import de.nmichael.efa.util.TMJ;
-import de.nmichael.efa.util.TableSorter;
-import de.nmichael.efa.util.SimpleInputFrame;
-import de.nmichael.efa.util.Mehrtagesfahrt;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.DRVSignatur;
-import de.nmichael.efa.util.ZielfahrtFolge;
-import de.nmichael.efa.util.Zielfahrt;
-import de.nmichael.efa.*;
+import de.nmichael.efa.core.*;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.*;
 import java.util.*;
 import java.io.*;
 import java.awt.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
-
-// Statistikfunktionen
 public class Statistik {
 
   public static boolean isCreateRunning = false; // soll verhindern, daß u.U. zwei Statistikerstellungen parallel laufen

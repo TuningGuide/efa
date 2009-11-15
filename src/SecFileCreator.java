@@ -1,7 +1,19 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.EfaSec;
 import de.nmichael.efa.*;
 import java.io.*;
+
+// @i18n complete (needs no translation, just for developers)
 
 public class SecFileCreator {
 
@@ -13,10 +25,10 @@ public class SecFileCreator {
       String sha = EfaUtil.getSHA(new File(efaJar));
       EfaSec efaSec = new EfaSec(secFile);
       efaSec.writeSecFile(sha,false);
-      System.out.println("Erfolg: SHA von "+efaJar+" nach "+secFile+" geschrieben. Wert="+sha);
+      System.out.println("Success: SHA from "+efaJar+" written to "+secFile+". Value="+sha);
       System.exit(0);
     } catch(Exception e) {
-      System.out.println("Fehler: "+e.toString());
+      System.out.println("Error: "+e.toString());
       System.exit(1);
     }
   }

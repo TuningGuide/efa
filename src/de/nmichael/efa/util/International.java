@@ -1,6 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
  */
 
 package de.nmichael.efa.util;
@@ -9,11 +14,6 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.util.EfaErrorPrintStream;
 import java.util.*;
 import java.text.*;
-
-/**
- *
- * @author nick
- */
 
 // @i18n complete
 
@@ -208,44 +208,23 @@ public class International {
         return getMessage(s,args);
     }
 
-    /**
-     * Retrieves an internationalized compound message.
-     * All arguments inside this message have to be masked by "{arg}", where "arg" may be any text
-     * that is not further interpreted or used (other than being part of the key). For each of the
-     * arguments masked by "{arg}", and argument arg1, arg2, ...., argn has to be supplied.
-     * @param s key to be retrieved
-     * @param arg1 argument to be placed into compound message
-     * @param arg2 argument to be placed into compound message
-     * @return translated message string
-     */
     public static String getMessage(String s, String arg1, String arg2) {
         Object[] args = { "dummy", arg1, arg2 };
         return getMessage(s,args);
     }
 
-    /**
-     * Retrieves an internationalized compound message.
-     * All arguments inside this message have to be masked by "{arg}", where "arg" may be any text
-     * that is not further interpreted or used (other than being part of the key). For each of the
-     * arguments masked by "{arg}", and argument arg1, arg2, ...., argn has to be supplied.
-     * @param s key to be retrieved
-     * @param arg1 argument to be placed into compound message
-     * @param arg2 argument to be placed into compound message
-     * @return translated message string
-     */
-    public static String getMessage(String s, String arg1, int arg2) {
-        Object[] args = { "dummy", arg1, new Integer(arg2) };
-        return getMessage(s,args);
+    public static String getMessage(String s, String arg1, String arg2, String arg3) {
+        Object[] args = {"dummy", arg1, arg2, arg3};
+        return getMessage(s, args);
     }
 
-    public static String getMessage(String s, int arg1, int arg2) {
-        Object[] args = { "dummy", new Integer(arg1), new Integer(arg2) };
-        return getMessage(s,args);
+    public static String getMessage(String s, String arg1, String arg2, String arg3, String arg4) {
+        Object[] args = {"dummy", arg1, arg2, arg3, arg4};
+        return getMessage(s, args);
     }
 
-    public static String getMessage(String s, String arg1,
-            int arg2, String arg3) {
-        Object[] args = {"dummy", arg1, new Integer(arg2), arg3};
+    public static String getMessage(String s, String arg1, String arg2, String arg3, String arg4, String arg5) {
+        Object[] args = {"dummy", arg1, arg2, arg3, arg4, arg5};
         return getMessage(s, args);
     }
 
@@ -259,18 +238,23 @@ public class International {
         return getMessage(s, args);
     }
 
-    public static String getMessage(String s, String arg1, String arg2, String arg3, String arg4) {
-        Object[] args = {"dummy", arg1, arg2, arg3, arg4};
-        return getMessage(s, args);
-    }
-
-    public static String getMessage(String s, String arg1, String arg2, String arg3) {
-        Object[] args = {"dummy", arg1, arg2, arg3};
-        return getMessage(s, args);
-    }
-
     public static String getMessage(String s, int arg1) {
         Object[] args = {"dummy", new Integer(arg1)};
+        return getMessage(s, args);
+    }
+
+    public static String getMessage(String s, String arg1, int arg2) {
+        Object[] args = { "dummy", arg1, new Integer(arg2) };
+        return getMessage(s,args);
+    }
+
+    public static String getMessage(String s, int arg1, int arg2) {
+        Object[] args = { "dummy", new Integer(arg1), new Integer(arg2) };
+        return getMessage(s,args);
+    }
+
+    public static String getMessage(String s, String arg1, int arg2, String arg3) {
+        Object[] args = {"dummy", arg1, new Integer(arg2), arg3};
         return getMessage(s, args);
     }
 

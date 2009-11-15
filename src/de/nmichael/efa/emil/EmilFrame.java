@@ -1,16 +1,18 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.emil;
 
-import de.nmichael.efa.core.WettDefs;
-import de.nmichael.efa.core.EfaWettMeldung;
-import de.nmichael.efa.core.EfaWett;
-import de.nmichael.efa.core.WettDef;
-import de.nmichael.efa.core.EfaFrame;
-import de.nmichael.efa.util.TMJ;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.ActionHandler;
-import de.nmichael.efa.util.ZielfahrtFolge;
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.*;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
@@ -19,7 +21,6 @@ import javax.swing.border.*;
 import java.io.*;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-
 
 public class EmilFrame extends JFrame {
   final static String PROGRAMMNAME = "emil - elektronischer Meldedatei Editor";

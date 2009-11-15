@@ -1,17 +1,19 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.AuswahlFrame;
-import de.nmichael.efa.core.DatenListe;
-import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.core.Boote;
-import de.nmichael.efa.core.Bezeichnungen;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.core.*;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.AutoCompletePopupWindow;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -21,14 +23,7 @@ import java.io.*;
 import java.util.*;
 import de.nmichael.efa.direkt.BootStatus;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class NeuesBootFrame extends JDialog implements ActionListener {
   JButton SaveButton = new JButton();
@@ -98,8 +93,8 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
     neu = true; // Neues Boot
     name.setText(EfaUtil.getName(boot));
     verein.setText(EfaUtil.getVerein(boot));
-    this.setTitle("Neues Boot hinzufügen");
-    SaveButton.setText("Boot hinzufügen");
+    this.setTitle(International.getString("Neues Boot hinzufügen"));
+    Mnemonics.setButton(this, SaveButton, International.getStringWithMnemonic("Boot hinzufügen"));
     kombiBootSyn.setVisible(false);
     kombiBootLabel();
     name.requestFocus();
@@ -107,7 +102,6 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
 
   void editiereBoot(DatenFelder d) {
     if (d == null) { // sollte eigentlich nicht passieren
-      Logger.log(Logger.ERROR,"NeuesBootFrame.editiereBoot(null): Boot nicht gefunden --- diesen Fehler bitte an software@nmichael.de melden! Danke!");
       cancel(false);
       return;
     }
@@ -147,13 +141,13 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
     frei2.setText(d.get(Boote.FREI2));
     frei3.setText(d.get(Boote.FREI3));
 
-    this.setTitle("Boot bearbeiten");
-    SaveButton.setText("Eintrag übernehmen");
+    this.setTitle(International.getString("Boot bearbeiten"));
+    Mnemonics.setButton(this, SaveButton, International.getStringWithMnemonic("Eintrag übernehmen"));
 
     if (EfaUtil.syn2org(Daten.synBoote,oldKey).equals(oldKey)) {
       kombiBootSyn.setVisible(false); // kein Synonym
     } else {
-      kombiBootSyn.setText("Synonym für: "+EfaUtil.syn2org(Daten.synBoote,oldKey));
+      kombiBootSyn.setText(International.getString("Synonym für")+": "+EfaUtil.syn2org(Daten.synBoote,oldKey));
     }
     kombiBootLabel();
     name.requestFocus();
@@ -232,14 +226,13 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
     }
 
     SaveButton.setNextFocusableComponent(name);
-    SaveButton.setMnemonic('H');
-    SaveButton.setText("Boot hinzufügen");
+    Mnemonics.setButton(this, SaveButton, International.getStringWithMnemonic("Boot hinzufügen"));
     SaveButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         SaveButton_actionPerformed(e);
       }
     });
-    this.setTitle("Neues Boot hinzufügen");
+    this.setTitle(International.getString("Neues Boot hinzufügen"));
     bootDataPanel.setLayout(gridBagLayout1);
     art.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
@@ -252,7 +245,7 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
       }
     });
     kombiAnzahlBoot.setNextFocusableComponent(kombiBootSyn);
-    kombiAnzahlBoot.setText("Kombi-Boot (auch ruderbar als...)");
+    Mnemonics.setButton(this, kombiAnzahlBoot, International.getStringWithMnemonic("Kombi-Boot (auch ruderbar als...)"));
     anzahl.addItemListener(new java.awt.event.ItemListener() {
       public void itemStateChanged(ItemEvent e) {
         anzahl_itemStateChanged(e);
@@ -263,7 +256,7 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
         stm_itemStateChanged(e);
       }
     });
-    kombiBootSyn.setText("Synonym für");
+    Mnemonics.setLabel(this, kombiBootSyn, International.getStringWithMnemonic("Synonym für"));
     art.addItemListener(new java.awt.event.ItemListener() {
       public void itemStateChanged(ItemEvent e) {
         art_itemStateChanged(e);
@@ -284,14 +277,12 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
         verein_focusLost(e);
       }
     });
-    jLabel2.setDisplayedMnemonic('V');
-    jLabel2.setLabelFor(verein);
-    jLabel2.setText("falls auswärtig, Vereinsname: ");
-    jLabel1.setDisplayedMnemonic('B');
+    Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Bootsname")+": ");
     jLabel1.setLabelFor(name);
-    jLabel1.setText("Bootsname: ");
+    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("falls auswärtig, Vereinsname")+": ");
+    jLabel2.setLabelFor(verein);
     kombiRiggerBoot.setNextFocusableComponent(SaveButton);
-    kombiRiggerBoot.setText("Kombi-Boot (auch ruderbar als...)");
+    kombiRiggerBoot.setText(International.getString("Kombi-Boot (auch ruderbar als...)"));
     rigger.addItemListener(new java.awt.event.ItemListener() {
       public void itemStateChanged(ItemEvent e) {
         rigger_itemStateChanged(e);
@@ -302,34 +293,26 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
     rigger.setNextFocusableComponent(stm);
     stm.setNextFocusableComponent(standardmannschaftButton);
     standardmannschaftButton.setNextFocusableComponent(SaveButton);
-    standardmannschaftButton.setMnemonic('S');
-    standardmannschaftButton.setText("Standardmannschaft konfigurieren");
+    Mnemonics.setButton(this, standardmannschaftButton, International.getStringWithMnemonic("Standardmannschaft konfigurieren"));
     standardmannschaftButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         standardmannschaftButton_actionPerformed(e);
       }
     });
     rudererlaubnisPanel.setLayout(gridBagLayout3);
-    jLabel3.setText("Dieses Boot darf nur von Mitgliedern der folgenden Gruppen gerudert " +
-    "werden:");
-    jLabel4.setDisplayedMnemonic('1');
+    Mnemonics.setLabel(this, jLabel3, International.getStringWithMnemonic("Dieses Boot darf nur von Mitgliedern der folgenden Gruppen gerudert werden")+": ");
+    Mnemonics.setLabel(this, jLabel4, International.getStringWithMnemonic("Gruppe 1")+": ");
+    Mnemonics.setLabel(this, jLabel5, International.getStringWithMnemonic("Gruppe 2")+": ");
+    Mnemonics.setLabel(this, jLabel6, International.getStringWithMnemonic("Gruppe 3")+": ");
+    Mnemonics.setLabel(this, jLabel7, International.getStringWithMnemonic("Gruppe 4")+": ");
+    Mnemonics.setLabel(this, jLabel8, International.getStringWithMnemonic("Gruppe 5")+": ");
     jLabel4.setLabelFor(gruppe1);
-    jLabel4.setText("Gruppe 1: ");
-    jLabel5.setDisplayedMnemonic('2');
     jLabel5.setLabelFor(gruppe2);
-    jLabel5.setText("Gruppe 2: ");
-    jLabel6.setDisplayedMnemonic('3');
     jLabel6.setLabelFor(gruppe3);
-    jLabel6.setText("Gruppe 3: ");
-    jLabel7.setDisplayedMnemonic('4');
     jLabel7.setLabelFor(gruppe4);
-    jLabel7.setText("Gruppe 4: ");
-    jLabel8.setDisplayedMnemonic('5');
     jLabel8.setLabelFor(gruppe5);
-    jLabel8.setText("Gruppe 5: ");
-    jLabel9.setDisplayedMnemonic('M');
+    Mnemonics.setLabel(this, jLabel9, International.getStringWithMnemonic("Max. erlaubte Anzahl an Ruderern, die NICHT einer der Gruppen angehören")+": ");
     jLabel9.setLabelFor(maxAnzahlNichtInGruppe);
-    jLabel9.setText("Max. erlaubte Anzahl an Ruderern, die NICHT einer der Gruppen angehören: ");
     maxAnzahlNichtInGruppe.setNextFocusableComponent(gruppeMind1);
     Dialog.setPreferredSize(maxAnzahlNichtInGruppe,50,19);
     maxAnzahlNichtInGruppe.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -403,31 +386,26 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
       }
     });
     weiterePanel.setLayout(gridBagLayout4);
-    jLabel10.setDisplayedMnemonic('1');
+    Mnemonics.setLabel(this, jLabel10, International.getStringWithMnemonic("Freie Verwendung 1")+": ");
+    Mnemonics.setLabel(this, jLabel11, International.getStringWithMnemonic("Freie Verwendung 2")+": ");
+    Mnemonics.setLabel(this, jLabel12, International.getStringWithMnemonic("Freie Verwendung 3")+": ");
     jLabel10.setLabelFor(frei1);
-    jLabel10.setText("Freie Verwendung 1: ");
-    jLabel11.setDisplayedMnemonic('2');
     jLabel11.setLabelFor(frei2);
-    jLabel11.setText("Freie Verwendung 2: ");
-    jLabel12.setDisplayedMnemonic('3');
     jLabel12.setLabelFor(frei3);
-    jLabel12.setText("Freie Verwendung 3: ");
     frei2.setNextFocusableComponent(frei3);
     Dialog.setPreferredSize(frei2, 400, 19);
     frei3.setNextFocusableComponent(SaveButton);
     Dialog.setPreferredSize(frei3, 400, 19);
     frei1.setNextFocusableComponent(frei2);
     Dialog.setPreferredSize(frei1, 400, 19);
-    jLabel13.setText("Mindestens ein Ruderer (oder der Steuermann) muß folgender Gruppe " +
-    "angehören:");
-    jLabel14.setDisplayedMnemonic('R');
+    jLabel13.setText(International.getString("Mindestens ein Ruderer (oder der Steuermann) muß folgender Gruppe angehören")+": ");
+    Mnemonics.setLabel(this, jLabel14, International.getStringWithMnemonic("Gruppe")+": ");
     jLabel14.setLabelFor(gruppeMind1);
-    jLabel14.setText("Gruppe: ");
     gruppeMind1.setNextFocusableComponent(SaveButton);
     mainPanel.add(SaveButton, BorderLayout.SOUTH);
     mainPanel.add(tabbedPane, BorderLayout.CENTER);
-    tabbedPane.add(bootDataPanel, "Bootsdaten");
-    tabbedPane.add(rudererlaubnisPanel, "Rudererlaubnis");
+    tabbedPane.add(bootDataPanel, International.getString("Bootsdaten"));
+    tabbedPane.add(rudererlaubnisPanel, International.getString("Rudererlaubnis"));
     rudererlaubnisPanel.add(jLabel3,  new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     rudererlaubnisPanel.add(jLabel4,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
@@ -485,7 +463,7 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
     bootDataPanel.add(standardmannschaftButton,     new GridBagConstraints(0, 7, 4, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(20, 0, 0, 0), 0, 0));
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
-    tabbedPane.add(weiterePanel,  "Weitere");
+    tabbedPane.add(weiterePanel,  International.getString("Weitere"));
     weiterePanel.add(jLabel10,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     weiterePanel.add(jLabel11,   new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
@@ -563,7 +541,7 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
   // Änderungen übernehmen, speichern
   void SaveButton_actionPerformed(ActionEvent e) {
     if (this.name.getText().trim().length()==0) {
-      Dialog.error("Bitte gib einen Bootsnamen ein!");
+      Dialog.error(International.getString("Bitte gib einen Bootsnamen ein!"));
       this.name.requestFocus();
       return;
     }
@@ -580,7 +558,8 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
     boolean newKombi = kombiAnzahlBoot.isSelected() || kombiRiggerBoot.isSelected();
 
     if (neu && Daten.fahrtenbuch.getDaten().boote.getExact(k) != null && !newKombi) {
-      Dialog.infoDialog("Fehler","Es existiert bereits ein Boot gleichen Namens!");
+      Dialog.infoDialog(International.getString("Fehler"),
+              International.getString("Es existiert bereits ein Boot gleichen Namens!"));
       return;
     }
 
@@ -588,19 +567,22 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
       if (Daten.fahrtenbuch != null) {
 
         if (Daten.fahrtenbuch.getDaten().boote.getExact(k) != null)
-          switch(Dialog.yesNoCancelDialog("Frage","Ein Eintrag mit gleichem Namen existiert bereits.\nSoll dieser durch den aktuellen Eintrag ersetzt werden?")) {
+          switch(Dialog.yesNoCancelDialog(International.getString("Gleichnamiger Eintrag"),
+                  International.getString("Ein Eintrag mit gleichem Namen existiert bereits. Soll dieser durch den aktuellen Eintrag ersetzt werden?"))) {
             case Dialog.YES: Daten.fahrtenbuch.getDaten().boote.delete(k); break;
             default: return;
           }
 
-        switch(Dialog.yesNoCancelDialog("Frage","Sollen Einträge im Fahrtenbuch an die Änderung angepaßt werden?")) {
+        switch(Dialog.yesNoCancelDialog(International.getString("Einträge anpassen"),
+                International.getString("Sollen Einträge im Fahrtenbuch an die Änderung angepaßt werden?"))) {
           case Dialog.YES: updateFb(oldKey,k); break;
           case Dialog.CANCEL: return;
           default: break;
         }
 
         if (Daten.applID == Daten.APPL_EFADIREKT && bootstatus != null) {
-          switch(Dialog.yesNoCancelDialog("Frage","Soll die Bootsstatusliste an die Änderung angepaßt werden?")) {
+          switch(Dialog.yesNoCancelDialog(International.getString("Statusliste anpassen"),
+                  International.getString("Soll die Bootsstatusliste an die Änderung angepaßt werden?"))) {
             case Dialog.YES: updateBootstatus(oldKey,k); break;
             case Dialog.CANCEL: return;
             default: break;
@@ -609,8 +591,9 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
 
 
       } else {
-        switch(Dialog.yesNoCancelDialog("Warnung","Durch die Änderung kann eine Inkonsistenz zu bestehenden Fahrtenbüchern entstehen.\n"+
-                                                  "Soll der Eintrag trotzdem geändert werden?")) {
+        switch(Dialog.yesNoCancelDialog(International.getString("Warnung"),
+                International.getString("Durch die Änderung kann eine Inkonsistenz zu bestehenden Fahrtenbüchern entstehen. "+
+                                                  "Soll der Eintrag trotzdem geändert werden?"))) {
           case Dialog.YES: break;
           case Dialog.CANCEL: return;
           default: cancel(false); return;
@@ -660,7 +643,8 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
     if (!verein.getText().trim().equals("")) nameMitVerein += " ("+EfaUtil.removeSepFromString(verein.getText().trim())+")";
 
     if (Daten.fahrtenbuch.getDaten().boote.getExact(nameMitVerein) != null) {
-      Dialog.infoDialog("Fehler","Es existiert bereits ein Boot gleichen Namens:\n"+nameMitVerein);
+      Dialog.infoDialog(International.getString("Fehler"),
+              International.getString("Es existiert bereits ein Boot gleichen Namens")+":\n"+nameMitVerein);
     } else {
       DatenFelder d = new DatenFelder(Boote._ANZFELDER);
       d.set(Boote.NAME,EfaUtil.removeSepFromString(name));
@@ -764,7 +748,7 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
     if (anz != 0 && anz % 2 == 0 && rigger.getSelectedIndex()<2) {
       if (rigger.getSelectedIndex() == 0) s = Daten.bezeichnungen.bRigger.get(Bezeichnungen.BRIGGER_RIEMEN);
       else s = Daten.bezeichnungen.bRigger.get(Bezeichnungen.BRIGGER_SKULL);
-      kombiRiggerBoot.setText("Kombi-Boot (auch ruderbar als "+s+"-Boot)");
+      kombiRiggerBoot.setText(International.getMessage("Kombi-Boot (auch ruderbar als {rigtype}-Boot)",s));
       kombiRiggerBoot.setVisible(true);
     } else kombiRiggerBoot.setVisible(false);
 
@@ -773,7 +757,7 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
     if (anz==0 || anz==7 || anz>8 || stm.getSelectedIndex() == 2 || anzahl.getSelectedIndex() == Daten.bezeichnungen.bAnzahl.size()-1 ||
         rigger.getSelectedIndex()==1 ) kombiAnzahlBoot.setVisible(false);
     else {
-      kombiAnzahlBoot.setText("Kombi-Boot (auch ruderbar als "+rig+" "+s+")");
+      kombiAnzahlBoot.setText(International.getMessage("Kombi-Boot (auch ruderbar als {rigtype} {boattypenumber}",rig,s));
       kombiAnzahlBoot.setVisible(true);
     }
   }

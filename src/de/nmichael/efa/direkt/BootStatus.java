@@ -1,21 +1,21 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.direkt;
 
-import de.nmichael.efa.core.DatenListe;
-import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.core.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 import java.util.*;
 import java.io.IOException;
-
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:  Liste der Boote, abgeleitet von DatenListe
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
 
 class Reservierung implements Comparable {
   boolean einmalig;

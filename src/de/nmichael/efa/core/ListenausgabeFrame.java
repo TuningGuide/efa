@@ -1,13 +1,19 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.DatenListe;
-import de.nmichael.efa.core.DatenFelder;
-import de.nmichael.efa.core.Boote;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.core.*;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -15,14 +21,7 @@ import javax.swing.border.*;
 import java.util.*;
 import java.io.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 class Entry implements Comparable {
 
@@ -117,7 +116,7 @@ public class ListenausgabeFrame extends JDialog implements ActionListener {
       System.err.println("Error setting up ActionHandler");
     }
 
-    createButton.setText(listenname+" erstellen");
+    createButton.setText(listenname+" " + International.getString("erstellen"));
     createButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         createButton_actionPerformed(e);
@@ -125,9 +124,9 @@ public class ListenausgabeFrame extends JDialog implements ActionListener {
     });
     this.getContentPane().setLayout(borderLayout1);
     mainPanel.setLayout(gridBagLayout1);
-    jLabel1.setText("Felder ausgeben:");
-    jLabel2.setText("Sortieren nach:");
-    this.setTitle("Erstellen einer "+listenname);
+    jLabel1.setText(International.getString("Felder ausgeben")+": ");
+    jLabel2.setText(International.getString("Sortieren nach")+": ");
+    this.setTitle(International.getMessage("Erstellen einer {listname}",listenname));
     this.getContentPane().add(createButton, BorderLayout.SOUTH);
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -176,7 +175,7 @@ public class ListenausgabeFrame extends JDialog implements ActionListener {
     }
     if (nur != null) {
       JLabel label = new JLabel();
-      label.setText("nicht ausgeben:");
+      label.setText(International.getString("nicht ausgeben")+": ");
       mainPanel.add(label,          new GridBagConstraints(0, i+2, 2, 1, 0.0, 0.0
               ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(20, 10, 0, 10), 0, 0));
       mainPanel.add(jScrollPane1,   new GridBagConstraints(0, i+3, 2, 1, 0.0, 0.0
@@ -196,7 +195,7 @@ public class ListenausgabeFrame extends JDialog implements ActionListener {
     int length = readListe();
 
     if (length == 0) {
-      Dialog.error("Die Liste ist leer!");
+      Dialog.error(International.getString("Die Liste ist leer!"));
       return;
     }
 
@@ -224,7 +223,8 @@ public class ListenausgabeFrame extends JDialog implements ActionListener {
         for (int j=0; j<nurCheck.length; j++)
           if (nur.get( (s=eintrag.get(nurCheck[j]))) == null) {
             if (nurCheck[j] == Boote.VEREIN && // Wenn Vereinsname bei Booten (sehr häßliche Lösung, quick und dirty, aber funktioniert)
-                 ( (s.equals("") && nur.get("eigene Boote")!=null) || (!s.equals("") && nur.get("fremde Boote")!=null) )) continue; // Ok, kein Skip
+                 ( (s.equals("") && nur.get(International.getString("eigene Boote"))!=null) ||
+                   (!s.equals("") && nur.get(International.getString("fremde Boote"))!=null) )) continue; // Ok, kein Skip
             skip = true;
           }
         if (skip) continue;
@@ -273,10 +273,10 @@ public class ListenausgabeFrame extends JDialog implements ActionListener {
       f.write("</body></html>\n");
       f.close();
 
-      Dialog.neuBrowserDlg(this,"Ausgabe","file:"+filename);
+      Dialog.neuBrowserDlg(this,International.getString("Ausgabe"),"file:"+filename);
       EfaUtil.deleteFile(filename);
     } catch(IOException e) {
-      Dialog.error("Liste konnte nicht erstellt werden:\n"+e.toString());
+      Dialog.error(International.getMessage("Liste konnte nicht erstellt werden: {error}",e.toString()));
     }
   }
 

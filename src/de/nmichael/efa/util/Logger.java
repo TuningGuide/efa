@@ -1,3 +1,13 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.util;
 
 import de.nmichael.efa.*;
@@ -33,6 +43,9 @@ public class Logger {
 
   // Activities performed in Admin Mode
   public static final String MSG_ADMIN_LOGBOOKENTRYDELETED   = "ADM001";
+
+  // Data Administration (not only Admin Mode)
+  public static final String MSG_DATA_NEWMEMBERADDED         = "DAT001";
 
   // de.nmichael.efa.Logger
   public static final String MSG_LOGGER_FAILEDCREATELOG      = "LOG001";
@@ -73,6 +86,7 @@ public class Logger {
   // Debug Logging
   public static final String MSG_DEBUG_GENERIC               = "DBG001";
   public static final String MSG_DEBUG_EFAWETT               = "DBG002";
+  public static final String MSG_DEBUG_STATISTICS            = "DBG003";
 
 
   public static boolean debugLogging = false;

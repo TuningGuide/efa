@@ -1,11 +1,18 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.util.Mehrtagesfahrt;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.ActionHandler;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -13,14 +20,7 @@ import javax.swing.border.*;
 import java.io.*;
 import de.nmichael.efa.direkt.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class WanderfahrtSelectFrame extends JDialog implements ActionListener {
   private static String selectedWafa = null;
@@ -87,35 +87,35 @@ public class WanderfahrtSelectFrame extends JDialog implements ActionListener {
     try {
       ah.addKeyActions(getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW,
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
-      this.setTitle("Wanderfahrt auswählen");
+      this.setTitle(International.getString("Wanderfahrt auswählen"));
       jPanel1.setLayout(borderLayout1);
       jPanel3.setLayout(gridBagLayout1);
       jPanel2.setLayout(gridBagLayout2);
       Dialog.setPreferredSize(okButton,150,23);
-      okButton.setText("OK");
+      Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("OK"));
       okButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           okButton_actionPerformed(e);
         }
     });
       Dialog.setPreferredSize(abortButton,150,23);
-      abortButton.setText("Abbruch");
+      Mnemonics.setButton(this, abortButton, International.getStringWithMnemonic("Abbruch"));
       abortButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           abortButton_actionPerformed(e);
         }
     });
-      addButton.setText("Neue Mehrtagesfahrt");
+    Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Neue Mehrtagesfahrt"));
       addButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           addButton_actionPerformed(e);
         }
     });
       info.setWrapStyleWord(true);
-      info.setText("Bitte ordne den Fahrtenbucheintrag einer Wanderfahrt aus der\n"+
+      info.setText(International.getString("Bitte ordne den Fahrtenbucheintrag einer Wanderfahrt aus der\n"+
                    "angezeigten Liste zu und klicke 'OK'.\n"+
                    "Wenn es sich um eine neue Wanderfahrt handelt, die in der Liste\n"+
-                   "nicht aufgeführt ist, klicke bitte 'Neue Mehrtagesfahrt'.");
+                   "nicht aufgeführt ist, klicke bitte 'Neue Mehrtagesfahrt'."));
       info.setEditable(false);
       info.setEnabled(false);
       info.setFont(info.getFont().deriveFont(Font.BOLD));
@@ -146,7 +146,7 @@ public class WanderfahrtSelectFrame extends JDialog implements ActionListener {
     String[] listdata = new String[wafaNamen.length];
     for (int i=0; i<wafaNamen.length; i++) {
       Mehrtagesfahrt m = Daten.fahrtenbuch.getMehrtagesfahrt(wafaNamen[i]);
-      listdata[i] = m.start + " bis " + m.ende + ": " + m.name;
+      listdata[i] = International.getMessage("{begin} bis {end}",m.start,m.ende) + ": " + m.name;
     }
     list.setListData(listdata);
   }
@@ -184,8 +184,8 @@ public class WanderfahrtSelectFrame extends JDialog implements ActionListener {
   void okButton_actionPerformed(ActionEvent e) {
     if (list.getSelectedIndex()<0 || wafaNamen == null || wafaNamen.length == 0 ||
         list.getSelectedIndex() >= wafaNamen.length) {
-      Dialog.error("Bitte wähle zunächst aus der Liste der Wanderfahrten eine Fahrt aus\n"+
-                   "oder klicke 'Neue Wanderfahrt'.");
+      Dialog.error(International.getString("Bitte wähle zunächst aus der Liste der Wanderfahrten eine Fahrt aus "+
+                   "oder erstelle einen neuen Eintrag."));
       return;
     }
     String wafa = this.wafaNamen[list.getSelectedIndex()];;
@@ -193,16 +193,16 @@ public class WanderfahrtSelectFrame extends JDialog implements ActionListener {
     if (m != null) {
       if (EfaUtil.secondDateIsAfterFirst(m.ende,this.datum) ||
           EfaUtil.secondDateIsAfterFirst(this.datum,m.start)) {
-        int ret = Dialog.auswahlDialog("Datum außerhalb der Fahrt",
-                             "Das Datum Deines Fahrtenbucheintrags ("+datum+") liegt außerhalb des\n"+
-                             "Zeitraums der ausgewählten Mehrtagesfahrt ("+m.start+" bis "+m.ende+").\n\n"+
-                             "Falls das Datum Deines Fahrtenbucheintrags falsch ist und Deine Fahrt tatsächlich\n"+
-                             "im Zeitraum "+m.start+" bis "+m.ende+" liegt, wähle bitte 'Datum korrigieren'.\n\n"+
-                             "Anderenfalls wähle bitte eine andere Mehrtagesfahrt mit passendem Zeitraum aus oder\n"+
-                             "erstelle eine neue Mehrtagesfahrt, falls es keine passende Mehrtagesfahrt gibt. Klicke\n"+
-                             "dazu jetzt bitte 'Andere Mehrtagesfahrt'.",
-                             "Datum korrigieren",
-                             "Andere Mehrtagesfahrt");
+        int ret = Dialog.auswahlDialog(International.getString("Datum außerhalb der Fahrt"),
+                             International.getMessage("Das Datum Deines Fahrtenbucheintrags ({date}) liegt außerhalb des "+
+                             "Zeitraums der ausgewählten Mehrtagesfahrt ({begin} bis {end}).\n\n"+
+                             "Falls das Datum Deines Fahrtenbucheintrags falsch ist und Deine Fahrt tatsächlich "+
+                             "im Zeitraum {begin} bis {end} liegt, wähle bitte 'Datum korrigieren'.\n\n"+
+                             "Anderenfalls wähle bitte eine andere Mehrtagesfahrt mit passendem Zeitraum aus oder "+
+                             "erstelle eine neue Mehrtagesfahrt, falls es keine passende Mehrtagesfahrt gibt. Klicke "+
+                             "dazu jetzt bitte 'Andere Mehrtagesfahrt'.",datum,m.start,m.ende,m.start,m.ende),
+                             International.getString("Datum korrigieren"),
+                             International.getString("Andere Mehrtagesfahrt"));
         if (ret != 0) return;
       }
       this.selectedWafa =  wafa;
@@ -220,28 +220,28 @@ public class WanderfahrtSelectFrame extends JDialog implements ActionListener {
     if (Daten.nachrichten != null && selectedWafa != null) {
       Nachricht n = new Nachricht();
       n.empfaenger = Nachricht.ADMIN;
-      n.betreff = "Neue Wanderfahrt";
-      n.name = "efa";
+      n.betreff = International.getString("Neue Wanderfahrt");
+      n.name = Daten.EFA_SHORTNAME;
       if (neueFahrt) {
-        n.nachricht = "Eine neue Wanderfahrt wurde eingetragen:\n\n";
+        n.nachricht = International.getString("Eine neue Wanderfahrt wurde eingetragen")+":\n\n";
       } else {
-        n.nachricht = "Ein Eintrag wurde einer vorhandenen Wanderfahrt zugeordnet:\n\n";
+        n.nachricht = International.getString("Ein Eintrag wurde einer vorhandenen Wanderfahrt zugeordnet")+":\n\n";
       }
       Mehrtagesfahrt m = Daten.fahrtenbuch.getMehrtagesfahrt(selectedWafa);
       n.nachricht = n.nachricht +
-                    "Eintrag im Fahrtenbuch:\n"+
-                    "LfdNr: "+lfdnr+"\n"+
-                    "Datum: "+datum+"\n"+
-                    "Boot: "+boot+"\n"+
-                    "Mannschaft: "+mannschaft+"\n"+
-                    "Ziel: "+ziel+"\n\n"+
-                    "Wanderfahrt:\n"+
-                    "Name: "+selectedWafa+"\n"+
-                    (m == null ? "*** Mehrtagesfahrt nicht gefunden ***\n" :
-                    "Start-Datum: "+m.start+"\n"+
-                    "End-Datum: "+m.ende+"\n"+
-                    "Rudertage: "+m.rudertage+"\n"+
-                    "Gewässer: "+m.gewaesser+"\n");
+                    International.getString("Eintrag im Fahrtenbuch")+":\n"+
+                    International.getString("LfdNr")+": "+lfdnr+"\n"+
+                    International.getString("Datum")+": "+datum+"\n"+
+                    International.getString("Boot")+": "+boot+"\n"+
+                    International.getString("Mannschaft")+": "+mannschaft+"\n"+
+                    International.getString("Ziel")+": "+ziel+"\n\n"+
+                    International.getString("Wanderfahrt")+":\n"+
+                    International.getString("Name")+": "+selectedWafa+"\n"+
+                    (m == null ? "*** "+International.getString("Mehrtagesfahrt nicht gefunden")+" ***\n" :
+                    International.getString("Start-Datum")+": "+m.start+"\n"+
+                    International.getString("End-Datum")+": "+m.ende+"\n"+
+                    International.getString("Rudertage")+": "+m.rudertage+"\n"+
+                    International.getString("Gewässer")+": "+m.gewaesser+"\n");
       Daten.nachrichten.add(n);
       Daten.nachrichten.writeFile();
 

@@ -243,6 +243,11 @@ public class International {
         return getMessage(s, args);
     }
 
+    public static String getMessage(String s, int arg1, String arg2) {
+        Object[] args = {"dummy", new Integer(arg1), arg2};
+        return getMessage(s, args);
+    }
+
     public static String getMessage(String s, String arg1, int arg2) {
         Object[] args = { "dummy", arg1, new Integer(arg2) };
         return getMessage(s,args);

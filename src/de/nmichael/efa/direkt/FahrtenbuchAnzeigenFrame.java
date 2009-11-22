@@ -22,14 +22,7 @@ import javax.swing.table.*;
 import java.util.Vector;
 import de.nmichael.efa.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener {
   static boolean wirdBereitsAngezeigt = false;
@@ -176,12 +169,22 @@ public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener 
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
       jPanel2.setLayout(gridBagLayout1);
-      jLabel1.setDisplayedMnemonic('L');
+
+      int anz = 50;
+      String t = International.getMessage("Nur die letzten {number} Fahrten anzeigen",anz);
+      if (t != null && t.length()>0) {
+          int pos = t.indexOf(Integer.toString(anz));
+          if (pos >= 0) {
+              String t1 = t.substring(0,pos);
+              String t2 = t.substring(pos+2);
+              Mnemonics.setLabel(this, jLabel1, t1);
+              jLabel2.setText(t2);
+          }
+      }
+      
       jLabel1.setLabelFor(anzahl);
-      jLabel1.setText("Nur die letzten ");
       anzahl.setNextFocusableComponent(auchUnvollstaendige);
       Dialog.setPreferredSize(anzahl,50,17);
-      int anz = 50;
       if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_anzFBAnzeigenFahrten > 0) anz = Daten.efaConfig.efaDirekt_anzFBAnzeigenFahrten;
       if (Daten.efaConfig != null && anz > Daten.efaConfig.efaDirekt_maxFBAnzeigenFahrten) anz = Daten.efaConfig.efaDirekt_maxFBAnzeigenFahrten;
       anzahl.setText(Integer.toString(anz));
@@ -195,26 +198,22 @@ public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener 
           anzahl_focusLost(e);
         }
       });
-      jLabel2.setText(" Fahrten anzeigen");
       auchUnvollstaendige.setNextFocusableComponent(okButton);
-      auchUnvollstaendige.setActionCommand("auch unvollständige Fahrten (Boote, die noch unterwegs sind) zeigen");
-      auchUnvollstaendige.setMnemonic('U');
-      auchUnvollstaendige.setText("auch unvollständige Fahrten (Boote, die noch unterwegs sind) zeigen");
+      Mnemonics.setButton(this, auchUnvollstaendige, International.getStringWithMnemonic("auch unvollständige Fahrten (Boote, die noch unterwegs sind) zeigen"));
       auchUnvollstaendige.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           auchUnvollstaendige_actionPerformed(e);
         }
     });
       okButton.setNextFocusableComponent(anzahl);
-      okButton.setMnemonic('S');
-      okButton.setText("Schließen");
+      Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("Schließen"));
       okButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           okButton_actionPerformed(e);
         }
     });
       jPanel1.setPreferredSize(new Dimension(750, 500));
-      this.setTitle("Fahrtenbuch anzeigen");
+      this.setTitle(International.getString("Fahrtenbuch anzeigen"));
       this.getContentPane().add(jPanel1, BorderLayout.CENTER);
       jPanel1.add(jPanel2,  BorderLayout.NORTH);
       jPanel2.add(jLabel1,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -263,16 +262,16 @@ public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener 
     if (table != null) jScrollPane1.remove(table);
 
     Object[] title = new Object[10];
-    title[0] = "LfdNr";
-    title[1] = "Datum";
-    title[2] = "Boot";
-    title[3] = "Steuermann";
-    title[4] = "Mannschaft";
-    title[5] = "Abfahrt";
-    title[6] = "Ankunft";
-    title[7] = "Ziel";
-    title[8] = "Km";
-    title[9] = "Bemerkungen";
+    title[0] = International.getString("LfdNr");
+    title[1] = International.getString("Datum");
+    title[2] = International.getString("Boot");
+    title[3] = International.getString("Steuermann");
+    title[4] = International.getString("Mannschaft");
+    title[5] = International.getString("Abfahrt");
+    title[6] = International.getString("Ankunft");
+    title[7] = International.getString("Ziel");
+    title[8] = International.getString("Km");
+    title[9] = International.getString("Bemerkungen");
 
     Object[][] fahrten = new Object[max][10];
     DatenFelder d;
@@ -321,7 +320,7 @@ public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener 
 
     TableSorter sorter = new TableSorter(new DefaultTableModel(fahrten,title));
     table = new MyJTable(sorter);
-    table.getColumn("Mannschaft").setCellRenderer(new TableInTableRenderer());
+    table.getColumn(International.getString("Mannschaft")).setCellRenderer(new TableInTableRenderer());
 //table.getColumn("Mannschaft").setCellEditor(new TableInTableEditor(new JCheckBox()));
 
     for (int i=0; i<fahrten.length; i++) {

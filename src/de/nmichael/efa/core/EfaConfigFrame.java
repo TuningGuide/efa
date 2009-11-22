@@ -20,6 +20,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 
+// @i18n complete
+
 public class EfaConfigFrame extends JDialog implements ActionListener {
   EfaFrame parent;
 

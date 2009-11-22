@@ -15,6 +15,8 @@ import java.util.*;
 import de.nmichael.efa.*;
 import de.nmichael.efa.direkt.*;
 
+// @i18n complete
+
 public class EmailSender {
 
   // Constructor usually not needed (everything static), except for Plungin-Test in Daten.java
@@ -36,8 +38,9 @@ public class EmailSender {
       sendThread.start();
       sendCompleted = true;
     } catch (NoClassDefFoundError e1) {
-      Logger.log(Logger.ERROR,"Nachricht als email versenden nicht möglich, da das EMAIL-PLUGIN nicht installiert ist.\n"+
-                              "Bitte schaue unter "+Daten.pluginWWWdirectory+Daten.PLUGIN_EMAIL_HTML+" zur Installation des Plugins.");
+      Logger.log(Logger.ERROR,Logger.MSG_BHERR_SENDMAILFAILED_PLUGIN,
+              International.getMessage("Nachricht als email versenden nicht möglich, da das EMAIL-PLUGIN nicht installiert ist. "+
+                              "Bitte schaue unter {url} zur Installation des Plugins.",Daten.pluginWWWdirectory+Daten.PLUGIN_EMAIL_HTML));
     } catch(Exception e2) {
     }
 
@@ -66,11 +69,13 @@ class EmailSenderThread extends Thread {
   public void run() {
     if (Daten.efaConfig == null) return;
     if (Daten.efaConfig.efaDirekt_emailServer == null || Daten.efaConfig.efaDirekt_emailServer.length() == 0) {
-      Logger.log(Logger.ERROR,"Nachricht als email versenden nicht möglich, da kein SMTP-Server konfiguriert ist.");
+      Logger.log(Logger.ERROR,Logger.MSG_BHERR_SENDMAILFAILED_CFG,
+              International.getString("Nachricht als email versenden nicht möglich, da kein SMTP-Server konfiguriert ist."));
       return;
     }
     if (Daten.efaConfig.efaDirekt_emailAbsender == null || Daten.efaConfig.efaDirekt_emailAbsender.length() == 0) {
-      Logger.log(Logger.ERROR,"Nachricht als email versenden nicht möglich, da keine Absender-Adresse konfiguriert ist.");
+      Logger.log(Logger.ERROR,Logger.MSG_BHERR_SENDMAILFAILED_CFG,
+              International.getString("Nachricht als email versenden nicht möglich, da keine Absender-Adresse konfiguriert ist."));
       return;
     }
     int retryCount = 0;
@@ -97,7 +102,11 @@ class EmailSenderThread extends Thread {
         mail.setRecipients(com.sun.mail.smtp.SMTPMessage.RecipientType.TO,javax.mail.internet.InternetAddress.parse(adressen));
         mail.setSubject( (Daten.efaConfig.efaDirekt_emailBetreffPraefix.length()>0 ? "["+Daten.efaConfig.efaDirekt_emailBetreffPraefix+"] " : "") + n.betreff, charset);
         mail.setSentDate(new Date());
-        mail.setText("## Absender: "+n.name+"\n"+"## Betreff : "+n.betreff+"\n\n"+n.nachricht+ (Daten.efaConfig.efaDirekt_emailSignatur.length()>0 ? "\n\n-- \n"+EfaUtil.replace(Daten.efaConfig.efaDirekt_emailSignatur,"$$","\n",true) : ""), charset);
+        mail.setText("## "+International.getString("Absender")+": "+n.name+"\n"+
+                     "## "+International.getString("Betreff")+" : "+n.betreff+"\n\n"+
+                     n.nachricht+
+                     (Daten.efaConfig.efaDirekt_emailSignatur.length()>0 ? "\n\n-- \n"+
+                     EfaUtil.replace(Daten.efaConfig.efaDirekt_emailSignatur,"$$","\n",true) : ""), charset);
         com.sun.mail.smtp.SMTPTransport t = (com.sun.mail.smtp.SMTPTransport)session.getTransport("smtp");
         if (auth) {
           t.connect(Daten.efaConfig.efaDirekt_emailServer,Daten.efaConfig.efaDirekt_emailUsername,Daten.efaConfig.efaDirekt_emailPassword);
@@ -107,7 +116,12 @@ class EmailSenderThread extends Thread {
         t.send(mail,mail.getAllRecipients());
         break; // Retry-Schleife verlassen
       } catch(Exception e) {
-        Logger.log((retryCount<3 ? Logger.INFO : Logger.WARNING),"Nachricht konnte nicht als email versendet werden ("+(retryCount<3 ? retryCount+". Versuch" : "endgültig fehlgeschlagen")+"): "+e.toString()+" "+e.getMessage());
+        Logger.log((retryCount<3 ? Logger.INFO : Logger.WARNING),Logger.MSG_BHERR_SENDMAILFAILED_ERROR,
+                International.getString("Nachricht konnte nicht als email versendet werden")+
+                "("+(retryCount<3 ?
+                    International.getMessage("{n}. Versuch",retryCount) :
+                    International.getString("endgültig fehlgeschlagen"))+"): "+
+                    e.toString()+" "+e.getMessage());
         if (retryCount<3) try { Thread.sleep(10000); } catch(Exception ee) {}
       }
     } while(retryCount<3);

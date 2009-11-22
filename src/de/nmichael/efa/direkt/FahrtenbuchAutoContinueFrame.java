@@ -20,6 +20,8 @@ import java.io.*;
 import java.util.*;
 import de.nmichael.efa.*;
 
+// @i18n complete
+
 public class FahrtenbuchAutoContinueFrame extends JDialog implements ActionListener {
   AdminFrame parent;
   JPanel jPanel1 = new JPanel();
@@ -72,16 +74,17 @@ public class FahrtenbuchAutoContinueFrame extends JDialog implements ActionListe
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
       okButton.setNextFocusableComponent(datum);
-      okButton.setMnemonic('S');
-      okButton.setText("Speichern");
+      Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("Speichern"));
       okButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           okButton_actionPerformed(e);
         }
     });
       jPanel2.setLayout(gridBagLayout1);
-      jLabel1.setText("Neues Fahrtenbuch erstellen am: ");
-      jLabel2.setText("Dateiname des neuen Fahrtenbuchs: ");
+      Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Neues Fahrtenbuch erstellen am")+": ");
+      Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Dateiname des neuen Fahrtenbuchs")+": ");
+      jLabel1.setLabelFor(datum);
+      jLabel2.setLabelFor(filename);
       info.setMinimumSize(new Dimension(0, 100));
       info.setPreferredSize(new Dimension(50, 100));
       info.setEditable(false);
@@ -106,7 +109,7 @@ public class FahrtenbuchAutoContinueFrame extends JDialog implements ActionListe
           fileSelectButton_actionPerformed(e);
         }
     });
-      this.setTitle("Automatisches Erstellen eines neuen Fahrtenbuchs konfigurieren");
+      this.setTitle(International.getString("Automatisches Erstellen eines neuen Fahrtenbuchs konfigurieren"));
       this.getContentPane().add(jPanel1, BorderLayout.CENTER);
       jPanel1.add(okButton, BorderLayout.SOUTH);
       jPanel1.add(jPanel2, BorderLayout.CENTER);
@@ -123,12 +126,13 @@ public class FahrtenbuchAutoContinueFrame extends JDialog implements ActionListe
       jPanel2.add(fileSelectButton, new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
-      info.append("Diese Funktion ist dafür gedacht, zu einem bestimmten Datum (z.B. Neujahr)\n"+
-                  "die zur Zeit geöffnete Fahrtenbuchdatei abzuschließen und eine neue zu\n"+
-                  "beginnen.\n"+
-                  "Hinweis: Sollten zu dem Zeitpunkt des Wechsels noch Boote auf dem Wasser sein,\n"+
-                  "so werden diese Fahrten abgebrochen und der Administrator per Nachricht über\n"+
-                  "den Abbruch der Fahrten informiert.");
+      String t = International.getString("Diese Funktion ist dafür gedacht, zu einem bestimmten Datum (z.B. Neujahr) "+
+              "die zur Zeit geöffnete Fahrtenbuchdatei abzuschließen und eine neue zu "+
+              "beginnen.\n"+
+              "Hinweis: Sollten zu dem Zeitpunkt des Wechsels noch Boote auf dem Wasser sein, "+
+              "so werden diese Fahrten abgebrochen und der Administrator per Nachricht über "+
+              "den Abbruch der Fahrten informiert.");
+      info.append(Dialog.chopDialogString(t));
 
     } catch(NoSuchMethodException e) {
       System.err.println("Error setting up ActionHandler");
@@ -185,7 +189,8 @@ public class FahrtenbuchAutoContinueFrame extends JDialog implements ActionListe
   void fileSelectButton_actionPerformed(ActionEvent e) {
     String base = EfaUtil.getPathOfFile(Daten.fahrtenbuch.getFileName());
     if (filename.getText().trim().length()>0) base = EfaUtil.getPathOfFile(filename.getText().trim());
-    String dat = Dialog.dateiDialog(this,"Fahrtenbuchdatei auswählen","efa Fahrtenbuch (*.efb)","efb",base,true);
+    String dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuchdatei auswählen"),
+            International.getString("efa Fahrtenbuch")+" (*.efb)","efb",base,true);
     if (dat != null) {
       filename.setText(dat);
     }
@@ -197,10 +202,8 @@ public class FahrtenbuchAutoContinueFrame extends JDialog implements ActionListe
       String datei = filename.getText().trim();
       if (tmp.length() > 0 && datei.length() > 0) {
         if ((new File(datei)).exists()) {
-          Dialog.error("Die Datei\n"+
-                       datei+"\n"+
-                       "existiert bereits. Bitte gib eine noch nicht existierende\n"+
-                       "Datei an.");
+          Dialog.error(International.getMessage("Die Datei {filename} existiert bereits. "+
+                  "Bitte gib eine noch nicht existierende Datei an.",datei));
           return;
         }
       }

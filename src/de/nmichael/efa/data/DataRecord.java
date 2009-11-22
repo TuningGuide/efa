@@ -12,6 +12,8 @@ package de.nmichael.efa.data;
 
 import java.util.*;
 
+// @i18n complete
+
 public class DataRecord {
 
     private Hashtable data = new Hashtable();

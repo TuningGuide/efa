@@ -20,6 +20,8 @@ import java.io.*;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.Dialog;
 
+// @i18n complete
+
 public class AdminLockEfaFrame extends JDialog implements ActionListener {
   private TMJ _datumAnfang,_zeitAnfang,_datumEnde,_zeitEnde;
 
@@ -78,36 +80,32 @@ public class AdminLockEfaFrame extends JDialog implements ActionListener {
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
       okButton.setNextFocusableComponent(html);
-      okButton.setMnemonic('S');
-      okButton.setText("efa sperren");
+      Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("efa sperren"));
       okButton.addActionListener(new AdminLockEfaFrame_okButton_actionAdapter(this));
       jPanel2.setLayout(gridBagLayout1);
-      jLabel1.setDisplayedMnemonic('A');
+      Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("HTML-Seite anzeigen")+": ");
       jLabel1.setLabelFor(html);
-      jLabel1.setText("HTML-Seite anzeigen: ");
       htmlButton.setText("");
       htmlButton.addActionListener(new AdminLockEfaFrame_htmlButton_actionAdapter(this));
       htmlButton.setPreferredSize(new Dimension(59,25));
       htmlButton.setIcon(new ImageIcon(AdminLockEfaFrame.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
-      jLabel2.setDisplayedMnemonic('B');
+      Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Sperrung automatisch beenden")+": ");
       jLabel2.setLabelFor(endeSperrung);
-      jLabel2.setText("Sperrung automatisch beenden: ");
-      this.setTitle("efa sperren");
+      this.setTitle(International.getMessage("{efa} sperren",Daten.EFA_SHORTNAME));
       html.setNextFocusableComponent(vollbild);
       html.setPreferredSize(new Dimension(400, 19));
       html.setText("");
-      jLabel3.setText("(TT.MM.JJJJ HH:MM)");
+      jLabel3.setText("("+International.getString("TT.MM.JJJJ SS:MM")+")");
       endeSperrung.setNextFocusableComponent(okButton);
       endeSperrung.setPreferredSize(new Dimension(200, 19));
       endeSperrung.setText("");
       endeSperrung.addFocusListener(new AdminLockEfaFrame_endeSperrung_focusAdapter(this));
       vollbild.setNextFocusableComponent(anfangSperrung);
-      vollbild.setMnemonic('V');
-      vollbild.setText("Vollbild");
+      Mnemonics.setButton(this, vollbild, International.getStringWithMnemonic("Vollbild"));
       jLabel4.setDisplayedMnemonic('G');
       jLabel4.setLabelFor(anfangSperrung);
-      jLabel4.setText("Sperrung automatisch beginnen: ");
-      jLabel5.setText("(TT.MM.JJJJ HH:MM)");
+      Mnemonics.setLabel(this, jLabel4, International.getStringWithMnemonic("Sperrung automatisch beginnen")+": ");
+      jLabel5.setText("("+International.getString("TT.MM.JJJJ SS:MM")+")");
       anfangSperrung.setNextFocusableComponent(endeSperrung);
       anfangSperrung.setPreferredSize(new Dimension(200, 19));
       anfangSperrung.setText("");
@@ -177,7 +175,8 @@ public class AdminLockEfaFrame extends JDialog implements ActionListener {
   }
 
   void htmlButton_actionPerformed(ActionEvent e) {
-    String dat =Dialog.dateiDialog(this,"HTML-Datei auswählen","HTML-Datei (*.html)","html",null,false);
+    String dat =Dialog.dateiDialog(this,International.getString("HTML-Datei auswählen"),
+            International.getString("HTML-Datei")+" (*.html)","html",null,false);
     if (dat != null) {
       html.setText(dat);
     }

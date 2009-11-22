@@ -12,6 +12,8 @@ package de.nmichael.efa.data;
 
 import java.util.*;
 
+// @i18n complete
+
 public abstract class DataAccess implements IDataAccess {
 
     protected String storageLocation;

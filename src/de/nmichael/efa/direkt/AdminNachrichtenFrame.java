@@ -22,6 +22,8 @@ import java.io.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 
+// @i18n complete
+
 public class AdminNachrichtenFrame extends JDialog implements ActionListener {
   NachrichtenAnAdmin nachrichten;
   Admin admin;
@@ -86,8 +88,7 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
       okButton.setNextFocusableComponent(nurUngelesenCheckBox);
-      okButton.setMnemonic('O');
-      okButton.setText("OK");
+      Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("OK"));
       okButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           okButton_actionPerformed(e);
@@ -95,9 +96,7 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
     });
       jPanel2.setLayout(gridBagLayout1);
       nurUngelesenCheckBox.setNextFocusableComponent(gelesenMarkierenCheckBox);
-      nurUngelesenCheckBox.setToolTipText("nur ungelesene Nachrichten anzeigen");
-      nurUngelesenCheckBox.setMnemonic('U');
-      nurUngelesenCheckBox.setText("nur ungelesene");
+      Mnemonics.setButton(this, nurUngelesenCheckBox, International.getStringWithMnemonic("nur ungelesene"));
       nurUngelesenCheckBox.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           nurUngelesenCheckBox_actionPerformed(e);
@@ -108,44 +107,38 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
       jScrollPane2.setPreferredSize(new Dimension(700, 300));
       nachricht.setNextFocusableComponent(okButton);
       nachricht.setEditable(false);
-      this.setTitle("Nachrichten an Admin");
-      jLabel1.setText("Anzeigen:");
+      this.setTitle(International.getString("Nachrichten an Admin"));
+      jLabel1.setText(International.getString("Anzeigen")+":");
       gelesenMarkierenCheckBox.setNextFocusableComponent(forwardButton);
-      gelesenMarkierenCheckBox.setToolTipText("die aktuelle Nachricht als gelesen markieren");
-      gelesenMarkierenCheckBox.setMnemonic('G');
-      gelesenMarkierenCheckBox.setText("Nachricht als gelesen markieren");
+      Mnemonics.setButton(this, gelesenMarkierenCheckBox, International.getStringWithMnemonic("Nachricht als gelesen markieren"));
       gelesenMarkierenCheckBox.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           gelesenMarkierenCheckBox_actionPerformed(e);
         }
     });
       deleteButton.setNextFocusableComponent(printButton);
-      deleteButton.setMnemonic('L');
-      deleteButton.setText("Nachricht(en) löschen");
+      Mnemonics.setButton(this, deleteButton, International.getStringWithMnemonic("Nachricht(en) löschen"));
       deleteButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           deleteButton_actionPerformed(e);
         }
     });
       deleteAllButton.setNextFocusableComponent(nachricht);
-      deleteAllButton.setMnemonic('A');
-      deleteAllButton.setText("Alle gelesenen Nachrichten löschen");
+      Mnemonics.setButton(this, deleteAllButton, International.getStringWithMnemonic("Alle gelesenen Nachrichten löschen"));
       deleteAllButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           deleteAllButton_actionPerformed(e);
         }
     });
       forwardButton.setNextFocusableComponent(deleteButton);
-      forwardButton.setMnemonic('W');
-      forwardButton.setText("Nachricht weiterleiten");
+      Mnemonics.setButton(this, forwardButton, International.getStringWithMnemonic("Nachricht weiterleiten"));
       forwardButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           forwardButton_actionPerformed(e);
         }
     });
       printButton.setNextFocusableComponent(deleteButton);
-      printButton.setMnemonic('D');
-      printButton.setText("Nachricht drucken");
+      Mnemonics.setButton(this, printButton, International.getStringWithMnemonic("Nachricht drucken"));
       printButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           printButton_actionPerformed(e);
@@ -202,7 +195,10 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
   void zeigeNachrichten() {
     nID = -1;
     Vector titel = new Vector();
-    titel.add("Empfänger"); titel.add("Absender"); titel.add("Betreff"); titel.add("Datum");
+    titel.add(International.getString("Empfänger"));
+    titel.add(International.getString("Absender"));
+    titel.add(International.getString("Betreff"));
+    titel.add(International.getString("Datum"));
     Vector nachr = new Vector();
     nachrIds = new Vector();
     for (int i=nachrichten.size()-1; i>=0; i--) {
@@ -235,11 +231,11 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
       return;
     }
     Nachricht n = (Nachricht)nachrichten.get(id);
-    nachricht.setText("## Nachricht "+(id+1)+"/"+nachrichten.size()+"\n"+
-                      "## Datum: "+n.datum+"\n"+
-                      "## Von: "+n.name+"\n"+
-                      "## An: "+Nachricht.getEmpfaengerName(n.empfaenger)+"\n"+
-                      "## Betreff: "+n.betreff+"\n"+
+    nachricht.setText("## "+International.getString("Nachricht")+" "+(id+1)+"/"+nachrichten.size()+"\n"+
+                      "## "+International.getString("Datum")+": "+n.datum+"\n"+
+                      "## "+International.getString("Von")+": "+n.name+"\n"+
+                      "## "+International.getString("An")+": "+Nachricht.getEmpfaengerName(n.empfaenger)+"\n"+
+                      "## "+International.getString("Betreff")+": "+n.betreff+"\n"+
                       "\n"+
                       n.nachricht);
     nachricht.setCaretPosition(0);
@@ -276,7 +272,9 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
 
   void deleteButton_actionPerformed(ActionEvent e) {
     if (uebersicht.getSelectedRowCount() > 1) {
-      if (Dialog.yesNoDialog("Nachrichten wirklich löschen","Möchtest Du "+uebersicht.getSelectedRowCount()+" ausgewählte Nachrichten wirklich löschen?") != Dialog.YES) return;
+      if (Dialog.yesNoDialog(International.getString("Nachrichten wirklich löschen"),
+              International.getMessage("Möchtest Du {count} ausgewählte Nachrichten wirklich löschen?",uebersicht.getSelectedRowCount()))
+              != Dialog.YES) return;
       int[] selected = uebersicht.getSelectedRows();
       for (int i=0; selected != null && i<selected.length; i++) {
         Integer nID = (Integer)nachrIds.get(selected[i]);
@@ -284,10 +282,12 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
       }
     } else {
       if (nachrichten == null || nID < 0) {
-        Dialog.error("Bitte wähle zuerst eine zu löschende Nachricht aus!");
+        Dialog.error(International.getString("Bitte wähle zuerst eine zu löschende Nachricht aus!"));
         return;
       }
-      if (Dialog.yesNoDialog("Nachricht wirklich löschen","Möchtest Du die Nachricht\n'"+nachrichten.get(nID).betreff+"'\nwirklich löschen?") != Dialog.YES) return;
+      if (Dialog.yesNoDialog(International.getString("Nachricht wirklich löschen"),
+              International.getMessage("Möchtest Du die Nachricht '{message_subject}' wirklich löschen?",nachrichten.get(nID).betreff))
+              != Dialog.YES) return;
       nachrichten.delete(nID);
     }
     zeigeNachrichten();
@@ -298,10 +298,11 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
     int c=0;
     for (int i=0; nachrichten != null && i<nachrichten.size(); i++) if (nachrichten.get(i).gelesen) c++;
     if (c == 0) {
-      Dialog.error("Es gibt keine gelesenen Nachrichten!");
+      Dialog.error(International.getString("Es gibt keine gelesenen Nachrichten!"));
       return;
     }
-    if (Dialog.yesNoDialog("Nachrichten wirklich löschen","Möchtest Du "+c+" gelesene Nachrichten wirklich löschen?") != Dialog.YES) return;
+    if (Dialog.yesNoDialog(International.getString("Nachrichten wirklich löschen"),
+            International.getMessage("Möchtest Du {count} gelesene Nachrichten wirklich löschen?",c)) != Dialog.YES) return;
     for (int i=nachrichten.size()-1; i>=0; i--) if (nachrichten.get(i).gelesen) nachrichten.delete(i);
     zeigeNachrichten();
     showNachricht(-1);
@@ -318,23 +319,25 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
     String weiterAnS = null;
     if (n.empfaenger == Nachricht.ADMIN) {
       weiterAn = Nachricht.BOOTSWART;
-      weiterAnS = "Bootswart";
+      weiterAnS = International.getString("Bootswart");
     }
     if (n.empfaenger == Nachricht.BOOTSWART) {
       weiterAn = Nachricht.ADMIN;
-      weiterAnS = "Admin";
+      weiterAnS = International.getString("Admin");
     }
     if (weiterAn < 0) {
-      Dialog.error("Weiterleiten dieser Nachricht nicht möglich!");
+      Dialog.error(International.getString("Weiterleiten dieser Nachricht nicht möglich!"));
       return;
     }
-    if (Dialog.yesNoCancelDialog("Nachricht weiterleiten",
-                                 "Möchtest Du diese Nachricht an \""+weiterAnS+"\" weiterleiten?") != Dialog.YES) return;
+    if (Dialog.yesNoCancelDialog(International.getString("Nachricht weiterleiten"),
+                                 International.getMessage("Möchtest Du diese Nachricht an '{receiver}' weiterleiten?",weiterAnS))
+                                 != Dialog.YES) return;
     Nachricht nfwd = new Nachricht(weiterAn,n.datum,n.name,"Fwd: "+n.betreff,n.nachricht);
     nachrichten.add(nfwd);
     if (!nachrichten.writeFile()) {
-      Dialog.error("Fehler beim Schreiben der Nachrichtendatei.");
-      Logger.log(Logger.ERROR,"Nachrichtendatei konnte nicht gespeichert werden (Weiterleiten einer Nachricht).");
+      Dialog.error(International.getString("Fehler beim Schreiben der Nachrichtendatei."));
+      Logger.log(Logger.ERROR,Logger.MSG_CSVFILE_ERRORWRITEFILE,
+              International.getString("Nachrichtendatei konnte nicht gespeichert werden (Weiterleiten einer Nachricht)."));
     }
   }
 
@@ -352,11 +355,11 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
       f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"></head>\n");
       f.write("<body>\n");
       f.write("<table>\n");
-      f.write("<tr><td>##</td><td colspan=\"2\">Nachricht "+(nID+1)+"/"+nachrichten.size()+"</td></tr>\n");
-      f.write("<tr><td>##</td><td>Datum:</td><td>"+n.datum+"</td></tr>\n");
-      f.write("<tr><td>##</td><td>Von:</td><td>"+n.name+"</td></tr>\n");
-      f.write("<tr><td>##</td><td>An:</td><td>"+Nachricht.getEmpfaengerName(n.empfaenger)+"</td></tr>\n");
-      f.write("<tr><td>##</td><td>Betreff:</td><td>"+n.betreff+"</td></tr>\n");
+      f.write("<tr><td>##</td><td colspan=\"2\">"+International.getString("Nachricht")+" "+(nID+1)+"/"+nachrichten.size()+"</td></tr>\n");
+      f.write("<tr><td>##</td><td>"+International.getString("Datum")+":</td><td>"+n.datum+"</td></tr>\n");
+      f.write("<tr><td>##</td><td>"+International.getString("Von")+":</td><td>"+n.name+"</td></tr>\n");
+      f.write("<tr><td>##</td><td>"+International.getString("An")+":</td><td>"+Nachricht.getEmpfaengerName(n.empfaenger)+"</td></tr>\n");
+      f.write("<tr><td>##</td><td>"+International.getString("Betreff")+":</td><td>"+n.betreff+"</td></tr>\n");
       f.write("</table>\n");
       f.write("<hr>\n");
       f.write("<p>"+EfaUtil.replace(n.nachricht,"\n","<br>",true)+"</p>\n");
@@ -375,7 +378,7 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
       }
       EfaUtil.deleteFile(tmpdatei);
     } catch(Exception ee) {
-      Dialog.error("Druckdatei konnte nicht erstellt werden: "+ee.toString());
+      Dialog.error(International.getString("Druckdatei konnte nicht erstellt werden")+": "+ee.toString());
       return;
     }
   }

@@ -129,7 +129,7 @@ public class DatenListe {
                   International.getString("Um Dateninkonsistenz zu vermeiden, beendet sich efa JETZT. Bitte informiere den Administrator."));
           Logger.log(Logger.ERROR,Logger.MSG_CSVFILE_INCONSISTENTDATA,
                   International.getString("Möglicherweise laufen zwei Instanzen von efa zeitgleich. Um Inkonsistenzen zu vermeiden, beendet sich efa JETZT."));
-          Logger.log(Logger.INFO,Logger.MSG_BHERROR_PANIC,
+          Logger.log(Logger.INFO,Logger.MSG_BHERR_PANIC,
                   International.getString("PROGRAMMENDE durch efa (PANIC)"));
           System.exit(7);
           break;

@@ -21,6 +21,8 @@ import java.beans.*;
 import java.util.*;
 import de.nmichael.efa.*;
 
+// @i18n complete
+
 public class BootStatusListeFrame extends JDialog implements ActionListener {
   BootStatus bootStatus;
   Admin admin;
@@ -79,34 +81,30 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
 
     jPanel1.setLayout(borderLayout1);
     okButton.setNextFocusableComponent(editButton);
-    okButton.setMnemonic('S');
-    okButton.setText("Speichern");
+    Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("Speichern"));
     okButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         okButton_actionPerformed(e);
       }
     });
+    Mnemonics.setButton(this, editButton, International.getStringWithMnemonic("Bearbeiten"));
     editButton.setNextFocusableComponent(resListButton);
-    editButton.setMnemonic('B');
-    editButton.setText("Bearbeiten");
     editButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         editButton_actionPerformed(e);
       }
     });
-    this.setTitle("Bootsstatus Liste");
+    this.setTitle(International.getString("Bootsstatus-Liste"));
     jPanel2.setLayout(gridBagLayout1);
     resListButton.setNextFocusableComponent(schaedenButton);
-    resListButton.setMnemonic('R');
-    resListButton.setText("Reservierungsliste");
+    Mnemonics.setButton(this, resListButton, International.getStringWithMnemonic("Reservierungsliste"));
     resListButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         resListButton_actionPerformed(e);
       }
     });
     schaedenButton.setNextFocusableComponent(okButton);
-    schaedenButton.setMnemonic('A');
-    schaedenButton.setText("Schadensliste");
+    Mnemonics.setButton(this, schaedenButton, International.getStringWithMnemonic("Schadensliste"));
     schaedenButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         schaedenButton_actionPerformed(e);
@@ -136,19 +134,20 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
   /**Close the dialog*/
   void cancel(boolean saved) {
     if (bootStatus.isChanged()) {
-      if (Dialog.yesNoDialog("Änderungen speichern",
-                             "Die Änderungen an der Bootsstatus-Liste wurden noch nicht gespeichert.\n"+
-                             "Sollen sie jetzt gespeichert werden?") == Dialog.YES) {
+      if (Dialog.yesNoDialog(International.getString("Änderungen speichern"),
+                             International.getString("Die Änderungen an der Bootsstatus-Liste wurden noch nicht gespeichert. "+
+                             "Sollen sie jetzt gespeichert werden?")) == Dialog.YES) {
         if (!this.bootStatus.writeFile()) {
-          Logger.log(Logger.INFO,"Admin: Bootsstatus-Liste konnte nicht geschrieben werden.");
-          Dialog.error("Bootsstatus-Liste konnte nicht geschrieben werden!");
+          Dialog.error(International.getString("Änderungen konnten nicht gespeichert werden!"));
           return;
         }
         saved = true;
       }
     }
-    if (saved) Logger.log(Logger.INFO,"Admin: Bootsstatus-Liste neu geschrieben.");
-    else Logger.log(Logger.INFO,"Admin: Alle Änderungen an Bootsstatus-Liste verworfen.");
+    if (saved) Logger.log(Logger.INFO,Logger.MSG_ADMIN_ALLBOATSTATECHANGED,
+            International.getString("Admin")+": "+International.getString("Bootsstatus-Liste neu geschrieben."));
+    else Logger.log(Logger.INFO,Logger.MSG_ADMIN_NOBOATSTATECHANGED,
+            International.getString("Admin")+": "+International.getString("Alle Änderungen an Bootsstatus-Liste verworfen."));
     Dialog.frameClosed(this);
     dispose();
   }
@@ -160,9 +159,9 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
 
   void frameIni() {
     Vector titel = new Vector();
-    titel.add("Boot");
-    titel.add("Status");
-    titel.add("Bemerkung");
+    titel.add(International.getString("Boot"));
+    titel.add(International.getString("Status"));
+    titel.add(International.getString("Bemerkung"));
 
     Vector inhalt = new Vector();
     DatenFelder d;
@@ -220,9 +219,11 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
   }
 
   public void editDone(DatenFelder boot) {
-    Logger.log(Logger.INFO,"Admin: Bootsstatus für Boot '"+boot.get(BootStatus.NAME)+"' auf '"+
-                           BootStatus.STATUSNAMES[EfaUtil.string2int(boot.get(BootStatus.STATUS),0)]+"' gesetzt"+
-                           ( boot.get(BootStatus.LFDNR).length()>0 ? " mit LfdNr=#"+boot.get(BootStatus.LFDNR) : "") );
+    Logger.log(Logger.INFO,Logger.MSG_ADMIN_BOATSTATECHANGED,
+            International.getString("Admin")+": "+
+            International.getMessage("Bootsstatus für Boot '{name}' auf '{new_status}' gesetzt (LfdNr=#{record})."+
+                           boot.get(BootStatus.NAME),BootStatus.STATUSNAMES[EfaUtil.string2int(boot.get(BootStatus.STATUS),0)],
+                           boot.get(BootStatus.LFDNR)));
     firstclick=false;
     this.bootStatus.delete(boot.get(BootStatus.NAME));
     this.bootStatus.add(boot);
@@ -232,15 +233,15 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
 
   void okButton_actionPerformed(ActionEvent e) {
     if (!this.bootStatus.writeFile()) {
-      Logger.log(Logger.INFO,"Admin: Bootsstatus-Liste konnte nicht geschrieben werden.");
-      Dialog.error("Bootsstatus-Liste konnte nicht geschrieben werden!");
+      Dialog.error(International.getString("Änderungen konnten nicht gespeichert werden!"));
       return;
     }
     cancel(true);
   }
 
   void resListButton_actionPerformed(ActionEvent e) {
-    String[] felder  = { "Boot", "Reservierungen" };
+    String[] felder  = { International.getString("Boot"),
+                         International.getString("Reservierungen") };
     boolean[] select = {  true ,  true            };
     // virtuelle Datenliste erzeugen
     DatenListe dl = new DatenListe("",2,1,false);
@@ -258,14 +259,16 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
         dl.add(df);
       }
     }
-    ListenausgabeFrame dlg = new ListenausgabeFrame(this,"Reservierungsliste",dl,felder,select,0,null,null);
+    ListenausgabeFrame dlg = new ListenausgabeFrame(this,International.getString("Reservierungsliste"),
+            dl,felder,select,0,null,null);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
     dlg.show();
   }
 
   void schaedenButton_actionPerformed(ActionEvent e) {
-    String[] felder  = { "Boot", "Schäden" };
+    String[] felder  = { International.getString("Boot"),
+                         International.getString("Schäden") };
     boolean[] select = {  true ,  true            };
     // virtuelle Datenliste erzeugen
     DatenListe dl = new DatenListe("",2,1,false);
@@ -277,7 +280,8 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
         dl.add(df);
       }
     }
-    ListenausgabeFrame dlg = new ListenausgabeFrame(this,"Schadensliste",dl,felder,select,0,null,null);
+    ListenausgabeFrame dlg = new ListenausgabeFrame(this,International.getString("Schadensliste"),
+            dl,felder,select,0,null,null);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
     dlg.show();

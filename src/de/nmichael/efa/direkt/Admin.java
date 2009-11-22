@@ -12,6 +12,8 @@ package de.nmichael.efa.direkt;
 
 import de.nmichael.efa.core.EfaConfig;
 
+// @i18n complete
+
 public class Admin {
   public String name = null;
   public String password = null;

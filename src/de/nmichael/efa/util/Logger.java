@@ -42,7 +42,37 @@ public class Logger {
   public static final String MSG_CORE_USERHOME               = "COR003";
 
   // Activities performed in Admin Mode
-  public static final String MSG_ADMIN_LOGBOOKENTRYDELETED   = "ADM001";
+  public static final String MSG_ADMIN_LOGIN                 = "ADM001";
+  public static final String MSG_ADMIN_LOGINFAILURE          = "ADM002";
+  public static final String MSG_ADMIN_ADMINMODEEXITED       = "ADM003";
+  public static final String MSG_ADMIN_ACTION_ADMINS         = "ADM004";
+  public static final String MSG_ADMIN_ACTION_CONFNEWLOGBOOK = "ADM005";
+  public static final String MSG_ADMIN_ACTION_OPENLOGBOOK    = "ADM006";
+  public static final String MSG_ADMIN_ACTION_EDITLOGBOOK    = "ADM007";
+  public static final String MSG_ADMIN_ACTION_EDITLOGBOOKDONE= "ADM008";
+  public static final String MSG_ADMIN_ACTION_EDITBOATSTATUS = "ADM009";
+  public static final String MSG_ADMIN_ACTION_VIEWMESSAGES   = "ADM010";
+  public static final String MSG_ADMIN_ACTION_VIEWLOGFILE    = "ADM011";
+  public static final String MSG_ADMIN_ACTION_EDITCONFIG     = "ADM012";
+  public static final String MSG_ADMIN_ACTION_STATISTICS     = "ADM013";
+  public static final String MSG_ADMIN_ACTION_EDITBOATLIST   = "ADM014";
+  public static final String MSG_ADMIN_ACTION_EDITMEMBERLIST = "ADM015";
+  public static final String MSG_ADMIN_ACTION_EDITDESTLIST   = "ADM016";
+  public static final String MSG_ADMIN_ACTION_EDITGROUPS     = "ADM017";
+  public static final String MSG_ADMIN_ACTION_FULLACCESS     = "ADM018";
+  public static final String MSG_ADMIN_ACTION_LOCKEFA        = "ADM019";
+  public static final String MSG_ADMIN_ACTION_EXECCMD        = "ADM019";
+  public static final String MSG_ADMIN_ACTION_EXECCMDFAILED  = "ADM019";
+  public static final String MSG_ADMIN_LOGBOOKENTRYDELETED   = "ADM020";
+  public static final String MSG_ADMIN_ACTION_ADMINSMODIFIED = "ADM021";
+  public static final String MSG_ADMIN_ACTION_ADMINCREATED   = "ADM022";
+  public static final String MSG_ADMIN_ACTION_ADMINRENAMED   = "ADM023";
+  public static final String MSG_ADMIN_ACTION_ADMINCHANGED   = "ADM024";
+  public static final String MSG_ADMIN_ACTION_ADMINDELETED   = "ADM025";
+  public static final String MSG_ADMIN_BOATSTATECHANGED      = "ADM026";
+  public static final String MSG_ADMIN_ALLBOATSTATECHANGED   = "ADM027";
+  public static final String MSG_ADMIN_NOBOATSTATECHANGED    = "ADM028";
+
 
   // Data Administration (not only Admin Mode)
   public static final String MSG_DATA_NEWMEMBERADDED         = "DAT001";
@@ -79,14 +109,24 @@ public class Logger {
 
   // efa in the Boat House - Events (multiple source files)
   public static final String MSG_BHEVENTS_UNLOCKED           = "EVT001";
+  public static final String MSG_BHEVENTS_EFAEXIT            = "EVT002";
+  public static final String MSG_BHEVENTS_EFAEXITABORTED     = "EVT003";
 
-  // efa in the Boat House - Fehler
-  public static final String MSG_BHERROR_PANIC               = "ERR001";
+  // efa in the Boat House - Errors
+  public static final String MSG_BHERR_PANIC                 = "ERR001";
+  public static final String MSG_BHERR_EFARUNNING_FAILED     = "ERR002";
+  public static final String MSG_BHERR_SENDMAILFAILED_PLUGIN = "ERR003";
+  public static final String MSG_BHERR_SENDMAILFAILED_CFG    = "ERR004";
+  public static final String MSG_BHERR_SENDMAILFAILED_ERROR  = "ERR004";
+
+  // efa in the Boat House - Warnings
+  public static final String MSG_BHWARN_EFARUNNING_FAILED    = "WRN001";
 
   // Debug Logging
   public static final String MSG_DEBUG_GENERIC               = "DBG001";
   public static final String MSG_DEBUG_EFAWETT               = "DBG002";
   public static final String MSG_DEBUG_STATISTICS            = "DBG003";
+  public static final String MSG_DEBUG_EFARUNNING            = "DBG004";
 
 
   public static boolean debugLogging = false;

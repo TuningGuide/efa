@@ -21,6 +21,8 @@ import java.util.*;
 import java.io.*;
 import de.nmichael.efa.*;
 
+// @i18n complete
+
 public class AdminShowLogFrame extends JDialog implements ActionListener {
   JPanel jPanel1 = new JPanel();
   BorderLayout borderLayout1 = new BorderLayout();
@@ -74,70 +76,63 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
       okButton.setNextFocusableComponent(zeitHeute);
-      okButton.setMnemonic('O');
-      okButton.setText("OK");
+      Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("OK"));
       okButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           okButton_actionPerformed(e);
         }
     });
       jPanel2.setLayout(gridBagLayout1);
-      jLabel1.setText("Zeitraum: ");
+      jLabel1.setText(International.getString("Zeitraum")+": ");
       zeitHeute.setNextFocusableComponent(zeit7Tage);
-      zeitHeute.setMnemonic('H');
-      zeitHeute.setText("heute");
+      Mnemonics.setButton(this, zeitHeute, International.getStringWithMnemonic("heute"));
       zeitHeute.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           zeitHeute_actionPerformed(e);
         }
     });
-      jLabel2.setText("Art der Einträge: ");
+      jLabel2.setText(International.getString("Art der Einträge")+": ");
       artInfo.setNextFocusableComponent(artWarn);
-      artInfo.setMnemonic('I');
+      Mnemonics.setButton(this, artInfo, International.getStringWithMnemonic("Informationen")+" ("+Logger.INFO+")");
       artInfo.setSelected(true);
-      artInfo.setText("Informationen (INFO)");
       artInfo.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           artInfo_actionPerformed(e);
         }
     });
       zeit7Tage.setNextFocusableComponent(zeitAlle);
-      zeit7Tage.setMnemonic('7');
+      Mnemonics.setButton(this, zeit7Tage, International.getStringWithMnemonic("die letzten 7 Tage"));
       zeit7Tage.setSelected(true);
-      zeit7Tage.setText("die letzten 7 Tage");
       zeit7Tage.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           zeit7Tage_actionPerformed(e);
         }
     });
       zeitAlle.setNextFocusableComponent(artInfo);
-      zeitAlle.setMnemonic('A');
-      zeitAlle.setText("alle");
+      Mnemonics.setButton(this, zeitAlle, International.getStringWithMnemonic("alle"));
       zeitAlle.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           zeitAlle_actionPerformed(e);
         }
     });
       artWarn.setNextFocusableComponent(artErr);
-      artWarn.setMnemonic('W');
+      Mnemonics.setButton(this, artWarn, International.getStringWithMnemonic("Warnungen")+" ("+Logger.WARNING+")");
       artWarn.setSelected(true);
-      artWarn.setText("Warnungen (WARNING)");
       artWarn.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           artWarn_actionPerformed(e);
         }
     });
       artErr.setNextFocusableComponent(log);
-      artErr.setMnemonic('F');
+      Mnemonics.setButton(this, artErr, International.getStringWithMnemonic("Fehler")+" ("+Logger.ERROR+")");
       artErr.setSelected(true);
-      artErr.setText("Fehler (ERROR)");
       artErr.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           artErr_actionPerformed(e);
         }
     });
       jScrollPane1.setPreferredSize(new Dimension(600, 500));
-      this.setTitle("Logdatei");
+      this.setTitle(International.getString("Logdatei"));
       log.setNextFocusableComponent(okButton);
       jPanel1.setPreferredSize(new Dimension(750, 550));
       this.getContentPane().add(jPanel1, BorderLayout.CENTER);
@@ -201,7 +196,7 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
       while ( (s=f.readLine()) != null) {
         StringTokenizer tok = new StringTokenizer(s,"-");
         if (tok.countTokens()<3) {
-          type="ERROR";
+          type=Logger.ERROR;
           s = time + " - " + type + " - " + s;
         } else {
           try {
@@ -233,7 +228,7 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
         }
       }
     } catch(Exception e) {
-      log.append("FEHLER BEIM LESEN DER LOGDATEI: "+e.toString());
+      log.append("ERROR READING LOGFILE: "+e.toString());
     } finally {
       try { f.close(); } catch(Exception ee) { f = null; }
     }

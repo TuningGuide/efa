@@ -15,6 +15,8 @@ import java.io.*;
 import java.net.*;
 import de.nmichael.efa.*;
 
+// @i18n complete
+
 public class EfaRunning {
 
   private static final int DEFAULT_PORT = 3834; // 3834 == EFA ;-)
@@ -27,7 +29,9 @@ public class EfaRunning {
   }
 
   private void trace(String s) {
-    if (Daten.efaConfig != null && Daten.efaConfig.debugLogging) Logger.log(Logger.DEBUG,"EfaRunning: "+s);
+    if (Daten.efaConfig != null && Daten.efaConfig.debugLogging) {
+        Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_EFARUNNING,"EfaRunning: "+s);
+    }
   }
 
 
@@ -38,24 +42,26 @@ public class EfaRunning {
     ServerSocket socket = null;
     while (socket == null && port < DEFAULT_PORT + 100) {
       try {
-        trace("Versuche, Server an Port "+port+" zu binden ...");
+        trace("Trying to bind to port "+port+" ...");
         socket = new ServerSocket(port);
-        trace("Server an Port "+port+" gebunden!");
+        trace("Server is now listening on port "+port+"!");
       } catch(IOException e) {
-        trace("Fehler beim Versuch, an Port "+port+" zu binden: "+e.toString());
+        trace("Error while trying to bind to port "+port+": "+e.toString());
         socket = null;
         port++; // nächsten Port versuchen
       } catch(SecurityException e) {
-        trace("Fehler beim Versuch, an Port "+port+" zu binden: "+e.toString());
-        Logger.log(Logger.WARNING,"efa konnte sich an keinen Port binden (SecurityException), um den Doppelstart-Verhinderer zu aktivieren!");
+        trace("Error while trying to bind to port "+port+": "+e.toString());
+        Logger.log(Logger.WARNING,Logger.MSG_BHWARN_EFARUNNING_FAILED,
+                International.getString("efa konnte sich an keinen Port binden, um den Doppelstart-Verhinderer zu aktivieren:")+" "+e.toString());
         return false;
       }
     }
     if (socket == null) {
-      Logger.log(Logger.WARNING,"efa konnte sich an keinen Port binden, um den Doppelstart-Verhinderer zu aktivieren!");
+      Logger.log(Logger.WARNING,Logger.MSG_BHWARN_EFARUNNING_FAILED,
+                International.getString("efa konnte sich an keinen Port binden, um den Doppelstart-Verhinderer zu aktivieren:")+" socket==null");
       return false;
     }
-    trace("Doppelstart-Verhinderer lauscht jetzt an Port "+port+".");
+    trace("EfaRunning now listening on port "+port+".");
 
     // erfolgreich an Port gebunden!
 
@@ -65,7 +71,9 @@ public class EfaRunning {
       f.write(Integer.toString(port) + " ("+EfaUtil.getCurrentTimeStamp()+")\n");
       f.close();
     } catch(Exception e) {
-      Logger.log(Logger.ERROR,"Datei '"+Daten.efaProgramDirectory+Daten.EFA_RUNNUNG+"' konnte nicht erstellt werden: "+e.toString());
+      Logger.log(Logger.ERROR,Logger.MSG_BHERR_EFARUNNING_FAILED,
+              International.getMessage("Datei '{filename}' konnte nicht erstellt werden: {msg}",
+              Daten.efaProgramDirectory+Daten.EFA_RUNNUNG,e.toString()));
     }
 
     // Thread starten
@@ -90,12 +98,12 @@ public class EfaRunning {
   private boolean checkIfRunning() {
     int port = DEFAULT_PORT;
     if (EfaUtil.canOpenFile(Daten.efaProgramDirectory+Daten.EFA_RUNNUNG)) {
-      trace("efa.run gefunden!");
+      trace("Found "+Daten.EFA_RUNNUNG+"!");
       BufferedReader f = null;
       try {
         f = new BufferedReader(new InputStreamReader(new FileInputStream(Daten.efaProgramDirectory+Daten.EFA_RUNNUNG),Daten.ENCODING));
         port = EfaUtil.string2date(f.readLine(),DEFAULT_PORT,0,0).tag;
-        trace("Port "+port+" gelesen!");
+        trace("Data read from port "+port+"!");
       } catch(Exception e) {
         EfaUtil.foo();
       } finally {
@@ -103,7 +111,7 @@ public class EfaRunning {
       }
     } else return false;
 
-    trace("Benutze Port "+port);
+    trace("Using port "+port+".");
     boolean running = false;
     Socket socket = null;
     try {
@@ -112,10 +120,10 @@ public class EfaRunning {
         DataInputStream in = new DataInputStream(socket.getInputStream());
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
-        trace("SENDE "+PING);
+        trace("SENDING "+PING);
         out.writeUTF(PING);
 
-        trace("Warte, bis Daten anliegen ...");
+        trace("Waiting for data ...");
         // warten, bis Daten vorliegen
         for (int i=0; in.available()==0 && i<5; i++) {
           try { Thread.sleep(1000); } catch(InterruptedException ee) {}
@@ -125,18 +133,18 @@ public class EfaRunning {
         if (in.available()>0) {
           String data = in.readUTF();
           if (data != null && data.equals(PONG)) running = true;
-          trace("EMPFANGE "+data);
+          trace("RECEIVING "+data);
         }
       } catch(Exception e) {
-        trace("Senden oder Empfangen fehlgeschlagen");
+        trace("Sending or receiving failed!");
       }
     } catch(Exception e) {
-      trace("Verbindung zu Server fehlgeschlagen");
+      trace("Connection to server failed!");
     } finally {
       try {
-        trace("Schließe Socket ...");
+        trace("Closing socket ...");
         socket.close();
-        trace("Socket geschlossen!");
+        trace("Socket closed!");
       } catch(Exception e) {}
     }
 
@@ -156,7 +164,7 @@ public class EfaRunning {
       }
       running = checkIfRunning(); // 2nd try
     }
-    trace("Doppelstart-Verhinderer: efa läuft "+(running ? "bereits" : "nicht")+".");
+    trace("efa is "+(running ? "already" : "not yet")+" running.");
     return running;
   }
 
@@ -174,17 +182,17 @@ public class EfaRunning {
       while (true) {
         try {
           // Auf Verbindung warten
-          trace("Warte auf Verbindung...");
+          trace("Waiting for connection ...");
           if (socket == null) return;
           Socket client = socket.accept();
-          trace("Verbindung auf Socket "+client.getPort());
+          trace("Got a connection on port "+client.getPort());
 
           try {
             // Data Streams erstellen
             DataInputStream in = new DataInputStream(client.getInputStream());
             DataOutputStream out = new DataOutputStream(client.getOutputStream());
 
-            trace("Warte, bis Daten anliegen ...");
+            trace("Waiting for data ...");
             // warten, bis Daten vorliegen
             for (int i=0; in.available()==0 && i<5; i++) {
               try { Thread.sleep(1000); } catch(InterruptedException ee) {}
@@ -192,41 +200,41 @@ public class EfaRunning {
 
             // wenn Daten vorliegen
             if (in.available()>0) {
-              trace("Daten sind da!");
+              trace("Got data!");
               String data = in.readUTF();
-              trace("EMPFANGEN: "+data);
+              trace("RECEIVED: "+data);
               if (data != null && data.equals(PING)) {
                 // korrekten PING empfangen, sende PONG ...
                 out.writeUTF(PONG);
-                trace("SENDE: "+PONG);
+                trace("SENDING: "+PONG);
               } else out.writeUTF("Nööö");
             }
           } catch(Exception e) {
             // Senden oder Empfangen der Daten fehlgeschlagen
-            trace("Fehler beim Senden oder Empfangen");
+            trace("Error while receiving or sending.");
           } finally {
             try {
               client.close();
-              trace("Verbindung geschlossen");
+              trace("Connection closed.");
             } catch(Exception e) { /* Schließen des Client Sockets fehlgeschlagen */ }
           }
         } catch(Exception e) {
           // Warten auf Client-Anfrage fehlgeschlagen
           if (socket == null) return; // passiert, wenn Socket beim Programmende geschlossen wird
-          trace("Fehler beim Warten auf Verbindung");
+          trace("Error waiting for connection.");
         }
       }
     }
 
     public boolean closeSocket() {
       try {
-        trace("Schließe Server Socket ...");
+        trace("Closing server socket ...");
         socket.close();
         socket = null;
-        trace("Server Socket geschlossen!");
+        trace("Server socket closed!");
         return true;
       } catch(Exception e) {
-        trace("Fehler beim Schließen des Server Sockets!");
+        trace("Error while closing server socket!");
         return false;
       }
     }

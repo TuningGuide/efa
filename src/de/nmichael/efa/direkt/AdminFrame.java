@@ -10,33 +10,18 @@
 
 package de.nmichael.efa.direkt;
 
-import de.nmichael.efa.core.FahrtenbuchNeuFortsetzenFrame;
-import de.nmichael.efa.core.StatistikFrame;
-import de.nmichael.efa.core.EfaConfigFrame;
-import de.nmichael.efa.core.Fahrtenbuch;
-import de.nmichael.efa.core.EfaFrame;
-import de.nmichael.efa.core.AuswahlFrame;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.Help;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.ActionHandler;
+import de.nmichael.efa.core.*;
+import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 import java.util.*;
-import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 
-/**
- * Title:        efa - Elektronisches Fahrtenbuch
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author Nicolas Michael
- * @version 1.0
- */
+// @i18n complete
 
 public class AdminFrame extends JDialog implements ActionListener {
   EfaDirektFrame parent;
@@ -88,14 +73,14 @@ public class AdminFrame extends JDialog implements ActionListener {
     this.admin = admin;
     this.bootstatus = bootstatus;
     this.thisFrame = this;
-    this.setTitle("Admin-Modus ["+admin.name+"]");
-    this.fbLabel.setText("Fahrtenbuch: "+Daten.fahrtenbuch.getFileName());
+    this.setTitle(International.getString("Admin-Modus")+" ["+admin.name+"]");
+    this.fbLabel.setText(International.getString("Fahrtenbuch")+": "+Daten.fahrtenbuch.getFileName());
     EfaUtil.pack(this);
 
     Daten.applMode = Daten.APPL_MODE_ADMIN;
 
     if (!admin.allowedAdminsVerwalten) {
-        this.adminsButton.setText("Paßwort ändern");
+        Mnemonics.setButton(this, adminsButton, International.getStringWithMnemonic("Paßwort ändern"));
         this.adminsButton.setVisible(admin.allowedPasswortAendern);
     }
     this.vollzugriffButton.setVisible(admin.allowedVollzugriff);
@@ -172,9 +157,8 @@ public class AdminFrame extends JDialog implements ActionListener {
     }
 
     jPanel1.setLayout(borderLayout1);
+    Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("Admin-Modus verlassen"));
     okButton.setNextFocusableComponent(adminsButton);
-    okButton.setMnemonic('M');
-    okButton.setText("Admin-Modus verlassen");
     okButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         okButton_actionPerformed(e);
@@ -182,42 +166,36 @@ public class AdminFrame extends JDialog implements ActionListener {
     });
     jPanel2.setLayout(gridBagLayout1);
     adminsButton.setNextFocusableComponent(vollzugriffButton);
-    adminsButton.setToolTipText("");
-    adminsButton.setMnemonic('V');
-    adminsButton.setText("Admins verwalten");
+    Mnemonics.setButton(this, adminsButton, International.getStringWithMnemonic("Admins verwalten"));
     adminsButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         adminsButton_actionPerformed(e);
       }
     });
     fahrtenbuchButton.setNextFocusableComponent(bootsstatusButton);
-    fahrtenbuchButton.setMnemonic('F');
-    fahrtenbuchButton.setText("Fahrtenbuch bearbeiten");
+    Mnemonics.setButton(this, fahrtenbuchButton, International.getStringWithMnemonic("Fahrtenbuch bearbeiten"));
     fahrtenbuchButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         fahrtenbuchButton_actionPerformed(e);
       }
     });
     bootsstatusButton.setNextFocusableComponent(bootslisteButton);
-    bootsstatusButton.setMnemonic('B');
-    bootsstatusButton.setText("Bootsstatus bearbeiten");
+    Mnemonics.setButton(this, bootsstatusButton, International.getStringWithMnemonic("Bootsstatus bearbeiten"));
     bootsstatusButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         bootsstatusButton_actionPerformed(e);
       }
     });
-    this.setTitle("Admin-Modus");
+    this.setTitle(International.getString("Admin-Modus"));
     nachrichtenButton.setNextFocusableComponent(statistikButton);
-    nachrichtenButton.setMnemonic('N');
-    nachrichtenButton.setText("Nachrichten anzeigen");
+    Mnemonics.setButton(this, nachrichtenButton, International.getStringWithMnemonic("Nachrichten anzeigen"));
     nachrichtenButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         nachrichtenButton_actionPerformed(e);
       }
     });
     logButton.setNextFocusableComponent(lockButton);
-    logButton.setMnemonic('L');
-    logButton.setText("Logdatei anzeigen");
+    Mnemonics.setButton(this, logButton, International.getStringWithMnemonic("Logdatei anzeigen"));
     logButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         logButton_actionPerformed(e);
@@ -225,83 +203,74 @@ public class AdminFrame extends JDialog implements ActionListener {
     });
     jPanel3.setLayout(gridBagLayout2);
     fbLabel.setForeground(Color.blue);
-    fbLabel.setText("Fahrtenbuch: ");
+    fbLabel.setText(International.getString("Fahrtenbuch")+": ");
     selectFbButton.setNextFocusableComponent(fahrtenbuchButton);
-    selectFbButton.setMnemonic('W');
-    selectFbButton.setText("Fahrtenbuch auswählen");
+    Mnemonics.setButton(this, selectFbButton, International.getStringWithMnemonic("Fahrtenbuch auswählen"));
     selectFbButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         selectFbButton_actionPerformed(e);
       }
     });
     efaConfigButton.setNextFocusableComponent(selectFbButton);
-    efaConfigButton.setMnemonic('K');
-    efaConfigButton.setText("efa konfigurieren");
+    Mnemonics.setButton(this, efaConfigButton, International.getStringWithMnemonic("efa konfigurieren"));
     efaConfigButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         efaConfigButton_actionPerformed(e);
       }
     });
     statistikButton.setNextFocusableComponent(logButton);
-    statistikButton.setMnemonic('S');
-    statistikButton.setText("Statistiken erstellen");
+    Mnemonics.setButton(this, statistikButton, International.getStringWithMnemonic("Statistiken erstellen"));
     statistikButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         statistikButton_actionPerformed(e);
       }
     });
     bootslisteButton.setNextFocusableComponent(mitgliederlisteButton);
-    bootslisteButton.setMnemonic('O');
-    bootslisteButton.setText("Bootsliste bearbeiten");
+    Mnemonics.setButton(this, bootslisteButton, International.getStringWithMnemonic("Bootsliste bearbeiten"));
     bootslisteButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         bootslisteButton_actionPerformed(e);
       }
     });
     mitgliederlisteButton.setNextFocusableComponent(ziellisteButton);
-    mitgliederlisteButton.setMnemonic('T');
-    mitgliederlisteButton.setText("Mitgliederliste bearbeiten");
+    Mnemonics.setButton(this, mitgliederlisteButton, International.getStringWithMnemonic("Mitgliederliste bearbeiten"));
     mitgliederlisteButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         mitgliederlisteButton_actionPerformed(e);
       }
     });
     ziellisteButton.setNextFocusableComponent(gruppenButton);
-    ziellisteButton.setMnemonic('Z');
-    ziellisteButton.setText("Zielliste bearbeiten");
+    Mnemonics.setButton(this, ziellisteButton, International.getStringWithMnemonic("Zielliste bearbeiten"));
     ziellisteButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         ziellisteButton_actionPerformed(e);
       }
     });
     gruppenButton.setNextFocusableComponent(nachrichtenButton);
-    gruppenButton.setMnemonic('G');
-    gruppenButton.setText("Gruppen bearbeiten");
+    Mnemonics.setButton(this, gruppenButton, International.getStringWithMnemonic("Gruppen bearbeiten"));
     gruppenButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         gruppenButton_actionPerformed(e);
       }
     });
     vollzugriffButton.setNextFocusableComponent(efaConfigButton);
-    vollzugriffButton.setMnemonic('U');
-    vollzugriffButton.setText("Fahrtenbuch-Vollzugriff");
+    Mnemonics.setButton(this, vollzugriffButton, International.getStringWithMnemonic("Fahrtenbuch-Vollzugriff"));
     vollzugriffButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         vollzugriffButton_actionPerformed(e);
       }
     });
     autoNewFbLabel.setHorizontalAlignment(SwingConstants.CENTER);
-    autoNewFbLabel.setText("Neu zum 1.1.2008: ");
+    autoNewFbLabel.setText(International.getMessage("Neu zum {date}","1.1.2008")+": ");
     lockButton.setNextFocusableComponent(cmdButton);
-    lockButton.setMnemonic('P');
-    lockButton.setText("efa sperren");
+    Mnemonics.setButton(this, lockButton, International.getStringWithMnemonic("efa sperren"));
     lockButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         lockButton_actionPerformed(e);
       }
     });
     cmdButton.setNextFocusableComponent(okButton);
-    cmdButton.setText("Kommando ausf�hren");
+    Mnemonics.setButton(this, cmdButton, International.getStringWithMnemonic("Kommando ausführen"));
     cmdButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         cmdButton_actionPerformed(e);
@@ -387,7 +356,7 @@ public class AdminFrame extends JDialog implements ActionListener {
     }
     Dialog.frameClosed(this);
     dispose();
-    Logger.log(Logger.INFO,"Admin-Modus verlassen.");
+    Logger.log(Logger.INFO, Logger.MSG_ADMIN_ADMINMODEEXITED, International.getString("Admin-Modus verlassen."));
     Daten.applMode = Daten.APPL_MODE_NORMAL;
   }
 
@@ -395,6 +364,14 @@ public class AdminFrame extends JDialog implements ActionListener {
   public void actionPerformed(ActionEvent e) {
   }
 
+  private void noRight() {
+      Dialog.error(International.getMessage("Du hast als Admin {name} nicht die Berechtigung, diese Funktion auszuführen!",admin.name));
+  }
+
+  private void logAction(String msg, String action) {
+      Logger.log(Logger.INFO, msg,
+              International.getString("Admin")+": "+International.getString("Aktion")+" "+action);
+  }
 
   void okButton_actionPerformed(ActionEvent e) {
     cancel();
@@ -406,10 +383,10 @@ public class AdminFrame extends JDialog implements ActionListener {
       if (pwd == null) return;
       this.admin .password = EfaUtil.getSHA(pwd);
       Daten.efaConfig.admins.put(admin.name,admin);
-      if (!Daten.efaConfig.writeFile()) Dialog.error("Konfigurationsdatei konnte nicht geschrieben werden!");
+      if (!Daten.efaConfig.writeFile()) Dialog.error(International.getString("Konfigurationsdatei konnte nicht geschrieben werden!"));
       return;
     }
-    Logger.log(Logger.INFO,"Admin: Aktion '"+adminsButton.getText()+"'");
+    logAction(Logger.MSG_ADMIN_ACTION_ADMINS,adminsButton.getText());
     AdminVerwaltenFrame dlg = new AdminVerwaltenFrame(this);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
@@ -417,13 +394,13 @@ public class AdminFrame extends JDialog implements ActionListener {
 
     this.admin = (Admin)Daten.efaConfig.admins.get(this.admin.name);
     if (this.admin == null) { // sollte nie passieren!
-      Dialog.error("Der Admin wurde gelöscht!");
+      Dialog.error(International.getString("Der Admin wurde gelöscht!"));
       cancel();
     }
   }
 
   void configureAutoNewFB() {
-    Logger.log(Logger.INFO,"Admin: Aktion 'Automatisches Erstellen eines neuen Fahrtenbuchs konfigurieren'");
+    logAction(Logger.MSG_ADMIN_ACTION_CONFNEWLOGBOOK,International.getString("Automatisches Erstellen eines neuen Fahrtenbuchs konfigurieren"));
     FahrtenbuchAutoContinueFrame dlg = new FahrtenbuchAutoContinueFrame(this);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
@@ -432,14 +409,16 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void selectFbButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedFahrtenbuchAuswaehlen) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      noRight();
       return;
     }
 
-    int ret = Dialog.auswahlDialog("Fahrtenbuch festlegen",
-                              "Möchtest Du jetzt sofort ein neues Fahrtenbuch auswählen/anlegen,\n"+
-                              "oder das automatische Erstellen eines neuen Fahrtenbuchs (z.B. zum\n"+
-                              "Jahreswechsel) vorbereiten?","Jetzt","Für später vorbereiten",true);
+    int ret = Dialog.auswahlDialog(International.getString("Fahrtenbuch festlegen"),
+                              International.getString("Möchtest Du jetzt sofort ein neues Fahrtenbuch auswählen/anlegen, "+
+                              "oder das automatische Erstellen eines neuen Fahrtenbuchs (z.B. zum "+
+                              "Jahreswechsel) vorbereiten?"),
+                              International.getString("Jetzt"),
+                              International.getString("Für später vorbereiten"),true);
     switch(ret) {
       case 0: break; // Jetzt
       case 1: configureAutoNewFB();
@@ -449,15 +428,18 @@ public class AdminFrame extends JDialog implements ActionListener {
     }
 
     if (parent.sindNochBooteUnterwegs()) {
-      Dialog.error("Es kann kein neues Fahrtenbuch ausgewählt werden,\n"+
-                   "da noch einige Boote unterwegs sind!\n"+
-                   "Bitte trage zuerst alle Boote zurück.");
+      Dialog.error(International.getString("Es kann kein neues Fahrtenbuch ausgewählt werden, "+
+                   "da noch einige Boote unterwegs sind! "+
+                   "Bitte trage zuerst alle Boote zurück."));
       return;
     }
-    Logger.log(Logger.INFO,"Admin: Aktion '"+selectFbButton.getText()+"'");
+    logAction(Logger.MSG_ADMIN_ACTION_OPENLOGBOOK,selectFbButton.getText());
 
     String dat = null;
-    switch (Dialog.auswahlDialog("Fahrtenbuch auswählen","Möchtest Du ein neues Fahrtenbuch erstellen, oder ein vorhandenes öffnen?","Neues Fahrtenbuch erstellen","Vorhandenes Fahrtenbuch öffnen")) {
+    switch (Dialog.auswahlDialog(International.getString("Fahrtenbuch auswählen"),
+            International.getString("Möchtest Du ein neues Fahrtenbuch erstellen oder ein vorhandenes öffnen?"),
+            International.getString("Neues Fahrtenbuch erstellen"),
+            International.getString("Vorhandenes Fahrtenbuch öffnen"))) {
       case 0: // Neues Fahrtenbuch erstellen
         FahrtenbuchNeuFortsetzenFrame dlg = new FahrtenbuchNeuFortsetzenFrame(this,false);
         Dialog.setDlgLocation(dlg,this);
@@ -468,7 +450,8 @@ public class AdminFrame extends JDialog implements ActionListener {
         }
         break;
       case 1: // Vorhandenes Fahrtenbuch öffnen
-        dat = Dialog.dateiDialog(this,"Fahrtenbuch öffnen","efa Fahrtenbuch (*.efb)","efb",Daten.efaDataDirectory,false);
+        dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuch öffnen"),
+                International.getString("efa Fahrtenbuch")+" (*.efb)","efb",Daten.efaDataDirectory,false);
         break;
       default:
         return;
@@ -476,20 +459,20 @@ public class AdminFrame extends JDialog implements ActionListener {
     if (dat == null || dat.length()==0) return;
     Daten.efaConfig.direkt_letzteDatei = dat;
     if (!Daten.efaConfig.writeFile()) {
-      Dialog.error("Datei "+Daten.efaConfig.getFileName()+" kann nicht geschrieben werden!");
-      Logger.log(Logger.ERROR,"Datei "+Daten.efaConfig.getFileName()+" kann nicht geschrieben werden!");
+      Dialog.error(International.getMessage("Datei '{filename}' kann nicht geschrieben werden!",Daten.efaConfig.getFileName()));
+      Logger.log(Logger.ERROR,International.getMessage("Datei '{filename}' kann nicht geschrieben werden!",Daten.efaConfig.getFileName()));
     }
     parent.readFahrtenbuch();
     parent.iniBootsListen();
-    this.fbLabel.setText("Fahrtenbuch: "+dat);
+    this.fbLabel.setText(International.getString("Fahrtenbuch")+": "+dat);
   }
 
   void fahrtenbuchButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedFahrtenbuchBearbeiten) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      noRight();
       return;
     }
-    Logger.log(Logger.INFO,"Admin: Aktion 'Fahrtenbuch bearbeiten' (Start).");
+    logAction(Logger.MSG_ADMIN_ACTION_EDITLOGBOOK,International.getString("Fahrtenbuch bearbeiten") + " ("+International.getString("Start")+")");
     aktFb = Daten.fahrtenbuch;
     this.setEnabled(false);
     if (Dialog.isFontSizeChanged()) {
@@ -505,7 +488,7 @@ public class AdminFrame extends JDialog implements ActionListener {
   }
 
   public void fahrtenbuchClosed() {
-    Logger.log(Logger.INFO,"Admin: Fahrtenbuch bearbeiten (Ende).");
+    logAction(Logger.MSG_ADMIN_ACTION_EDITLOGBOOKDONE,International.getString("Fahrtenbuch bearbeiten") + " ("+International.getString("Ende")+")");
     if (oldFontSize > 0) Dialog.setGlobalFontSize(oldFontSize, oldFontStyle);
     if (Daten.fahrtenbuch != aktFb) {
       Daten.fahrtenbuch = aktFb;
@@ -517,10 +500,10 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void bootsstatusButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedBootsstatusBearbeiten && !this.admin.allowedBootsreservierung) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      noRight();
       return;
     }
-    Logger.log(Logger.INFO,"Admin: Aktion '"+bootsstatusButton.getText()+"'");
+    logAction(Logger.MSG_ADMIN_ACTION_EDITBOATSTATUS,bootsstatusButton.getText());
     BootStatusListeFrame dlg = new BootStatusListeFrame(this,bootstatus,admin);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
@@ -529,10 +512,10 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void nachrichtenButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedNachrichtenAnzeigenAdmin && !this.admin.allowedNachrichtenAnzeigenBootswart) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      noRight();
       return;
     }
-    Logger.log(Logger.INFO,"Admin: Aktion '"+nachrichtenButton.getText()+"'");
+    logAction(Logger.MSG_ADMIN_ACTION_VIEWMESSAGES,nachrichtenButton.getText());
     AdminNachrichtenFrame dlg = new AdminNachrichtenFrame(this,Daten.nachrichten,this.admin);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
@@ -542,10 +525,10 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void logButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedLogdateiAnzeigen) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      noRight();
       return;
     }
-    Logger.log(Logger.INFO,"Admin: Aktion '"+logButton.getText()+"'");
+    logAction(Logger.MSG_ADMIN_ACTION_VIEWLOGFILE,logButton.getText());
     AdminShowLogFrame dlg = new AdminShowLogFrame(this);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
@@ -554,10 +537,10 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void efaConfigButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedEfaConfig) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      noRight();
       return;
     }
-    Logger.log(Logger.INFO,"Admin: Aktion '"+efaConfigButton.getText()+"'");
+    logAction(Logger.MSG_ADMIN_ACTION_EDITCONFIG,efaConfigButton.getText());
     EfaConfigFrame dlg = new EfaConfigFrame(this);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
@@ -572,10 +555,10 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void statistikButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedStatistikErstellen) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      noRight();
       return;
     }
-    Logger.log(Logger.INFO,"Admin: Aktion '"+statistikButton.getText()+"'");
+    logAction(Logger.MSG_ADMIN_ACTION_STATISTICS,statistikButton.getText());
     if (Dialog.isFontSizeChanged()) {
       oldFontSize = Dialog.getFontSize();
       oldFontStyle = Dialog.getFontStyle();
@@ -590,10 +573,10 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void bootslisteButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedBootslisteBearbeiten) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      noRight();
       return;
     }
-    Logger.log(Logger.INFO,"Admin: Aktion '"+bootslisteButton.getText()+"'");
+    logAction(Logger.MSG_ADMIN_ACTION_EDITBOATLIST,bootslisteButton.getText());
     AuswahlFrame dlg = new AuswahlFrame(this,AuswahlFrame.BOOTE,bootstatus);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
@@ -602,10 +585,10 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void mitgliederlisteButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedMitgliederlisteBearbeiten) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      noRight();
       return;
     }
-    Logger.log(Logger.INFO,"Admin: Aktion '"+mitgliederlisteButton.getText()+"'");
+    logAction(Logger.MSG_ADMIN_ACTION_EDITMEMBERLIST,mitgliederlisteButton.getText());
     AuswahlFrame dlg = new AuswahlFrame(this,AuswahlFrame.MITGLIEDER);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
@@ -614,10 +597,10 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void ziellisteButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedZiellisteBearbeiten) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      noRight();
       return;
     }
-    Logger.log(Logger.INFO,"Admin: Aktion '"+ziellisteButton.getText()+"'");
+    logAction(Logger.MSG_ADMIN_ACTION_EDITDESTLIST,ziellisteButton.getText());
     AuswahlFrame dlg = new AuswahlFrame(this,AuswahlFrame.ZIELE);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
@@ -626,10 +609,10 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void gruppenButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedGruppenBearbeiten) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      noRight();
       return;
     }
-    Logger.log(Logger.INFO,"Admin: Aktion '"+gruppenButton.getText()+"'");
+    logAction(Logger.MSG_ADMIN_ACTION_EDITGROUPS,gruppenButton.getText());
     AuswahlFrame dlg = new AuswahlFrame(this,AuswahlFrame.GRUPPEN);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
@@ -638,10 +621,10 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void vollzugriffButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedVollzugriff) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      noRight();
       return;
     }
-    Logger.log(Logger.INFO,"Admin: Aktion 'Fahrtenbuch bearbeiten - Vollzugriff' (Start).");
+    logAction(Logger.MSG_ADMIN_ACTION_FULLACCESS,International.getString("Fahrtenbuch bearbeiten")+" - "+International.getString("Vollzugriff") + " ("+International.getString("Start")+")");
     aktFb = Daten.fahrtenbuch;
     this.setEnabled(false);
     if (Dialog.isFontSizeChanged()) {
@@ -671,10 +654,10 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void lockButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedEfaSperren) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuführen!");
+      noRight();
       return;
     }
-    Logger.log(Logger.INFO,"Admin: Aktion '"+lockButton.getText()+"'");
+    logAction(Logger.MSG_ADMIN_ACTION_LOCKEFA,lockButton.getText());
     AdminLockEfaFrame dlg = new AdminLockEfaFrame(this);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
@@ -692,19 +675,22 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   void cmdButton_actionPerformed(ActionEvent e) {
     if (!this.admin.allowedExecCommand) {
-      Dialog.error("Du hast als Admin '"+admin.name+"' nicht die Berechtigung, diese Funktion auszuf�hren!");
+      noRight();
       return;
     }
-    String cmd = Dialog.inputDialog("Betriebssystemkommando ausf�hren","Betriebssystemkommando:",Daten.efaConfig.efadirekt_adminLastOsCommand);
+    String cmd = Dialog.inputDialog(International.getString("Betriebssystemkommando ausführen"),
+            International.getString("Betriebssystemkommando")+":",Daten.efaConfig.efadirekt_adminLastOsCommand);
     if (cmd == null || cmd.length()==0) {
       return;
     }
     try {
-      Logger.log(Logger.INFO,"Admin: Starte Kommando: "+cmd);
+      logAction(Logger.MSG_ADMIN_ACTION_EXECCMD,International.getString("Starte Kommando")+": "+cmd);
       Runtime.getRuntime().exec(cmd);
       Daten.efaConfig.efadirekt_adminLastOsCommand = cmd;
     } catch(Exception ee) {
-      Logger.log(Logger.ERROR,"Admin: Kann Kommando '"+cmd+"' nicht ausf�hren.");
+      Logger.log(Logger.ERROR,Logger.MSG_ADMIN_ACTION_EXECCMDFAILED,
+              International.getString("Admin")+": "+
+              International.getMessage("Kann Kommando '{command}' nicht ausführen.",cmd));
     }
   }
 

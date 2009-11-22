@@ -17,6 +17,8 @@ import de.nmichael.efa.*;
 import java.util.*;
 import java.io.IOException;
 
+// @i18n @todo Separation of display data from file data!
+
 class Reservierung implements Comparable {
   boolean einmalig;
   String vonTag,vonZeit,bisTag,bisZeit,name,grund;

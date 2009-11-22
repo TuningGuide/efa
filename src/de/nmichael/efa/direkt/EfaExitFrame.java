@@ -19,6 +19,8 @@ import javax.swing.border.*;
 import java.io.*;
 import de.nmichael.efa.*;
 
+// @i18n complete
+
 public class EfaExitFrame extends JFrame implements ActionListener {
 
   private static EfaExitFrame dlg = null;
@@ -87,21 +89,29 @@ public class EfaExitFrame extends JFrame implements ActionListener {
     jLabel0.setForeground(Color.black);
     jLabel1.setFont(new java.awt.Font("Dialog", 1, 18));
     jLabel1.setForeground(Color.black);
-    jLabel1.setText("efa wird in ");
+    String t = International.getMessage("efa wird in {sec} Sekunden automatisch beendet ...",10);
+    if (t != null && t.length()>0) {
+        int pos = t.indexOf("10");
+        if (pos >= 0) {
+            String t1 = t.substring(0,pos);
+            String t2 = t.substring(pos+2);
+            jLabel1.setText(t1);
+            jLabel3.setText(t2);
+        }
+    }
     sekundenLabel.setFont(new java.awt.Font("Dialog", 1, 18));
     sekundenLabel.setForeground(Color.black);
     sekundenLabel.setText("10");
     jLabel3.setFont(new java.awt.Font("Dialog", 1, 18));
     jLabel3.setForeground(Color.black);
-    jLabel3.setText(" Sekunden automatisch beendet ...");
-    jLabel0.setText(" --- Grund --- ");
-    dontExitButton.setText("efa noch nicht beenden");
+    jLabel0.setText(" --- "+International.getString("Grund")+" --- ");
+    Mnemonics.setButton(this, dontExitButton, International.getStringWithMnemonic("efa noch nicht beenden"));
     dontExitButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         dontExitButton_actionPerformed(e);
       }
     });
-    this.setTitle("Automatisches Beenden von efa");
+    this.setTitle(International.getString("Automatisches Beenden von efa"));
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(jLabel0,     new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(20, 20, 0, 20), 0, 0));
@@ -134,11 +144,15 @@ public class EfaExitFrame extends JFrame implements ActionListener {
     this.hide();
     if (_exit) {
       thread = null;
-      Logger.log(Logger.INFO,"efa beendet sich jetzt" + (restart ? " und wird anschließend neu gestartet." : "."));
+      Logger.log(Logger.INFO,Logger.MSG_BHEVENTS_EFAEXIT,
+              International.getString("efa beendet sich jetzt") +
+              (restart ? " "+International.getString("und wird anschließend neu gestartet")+"." :
+                  "."));
       efaDirektFrame.cancel(null,who,restart);
     } else {
       thread = new CountdownThread(this); // Thread für's nächste Mal initialisieren
-      Logger.log(Logger.WARNING,"Beenden von efa wurde durch Benutzer abgebrochen.");
+      Logger.log(Logger.WARNING,Logger.MSG_BHEVENTS_EFAEXITABORTED,
+              International.getString("Beenden von efa wurde durch Benutzer abgebrochen."));
       Daten.DONT_SAVE_ANY_FILES_DUE_TO_OOME = false;
     }
   }

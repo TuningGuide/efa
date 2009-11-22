@@ -21,6 +21,8 @@ import java.util.*;
 import de.nmichael.efa.*;
 import java.beans.*;
 
+// @i18n complete
+
 public class AdminVerwaltenFrame extends JDialog implements ActionListener {
   String _password; // Paßwort des aktuell angezeigten Eintrags
   boolean neuerEintrag;
@@ -105,8 +107,7 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
       okButton.setNextFocusableComponent(adminList);
-      okButton.setMnemonic('S');
-      okButton.setText("Speichern");
+      Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("Speichern"));
       okButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           okButton_actionPerformed(e);
@@ -114,67 +115,51 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
     });
       jPanel2.setLayout(gridBagLayout1);
       newButton.setNextFocusableComponent(deleteButton);
-      newButton.setMnemonic('U');
-      newButton.setText("Neu");
+      Mnemonics.setButton(this, newButton, International.getStringWithMnemonic("Neu"));
       newButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           newButton_actionPerformed(e);
         }
     });
       deleteButton.setNextFocusableComponent(name);
-      deleteButton.setMnemonic('L');
-      deleteButton.setText("Löschen");
+      Mnemonics.setButton(this, deleteButton, International.getStringWithMnemonic("Löschen"));
       deleteButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           deleteButton_actionPerformed(e);
         }
     });
       editPanel.setLayout(gridBagLayout2);
-      nameLabel.setDisplayedMnemonic('N');
+      Mnemonics.setLabel(this, nameLabel, International.getStringWithMnemonic("Name")+": ");
       nameLabel.setLabelFor(name);
-      nameLabel.setText("Name: ");
-      pwdLabel.setText("Paßwort: ");
+      pwdLabel.setText(International.getString("Paßwort")+": ");
       passwordButton.setNextFocusableComponent(email);
-      passwordButton.setMnemonic('P');
-      passwordButton.setText("Paßwort ändern");
+      Mnemonics.setButton(this, passwordButton, International.getStringWithMnemonic("Paßwort ändern"));
       passwordButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           passwordButton_actionPerformed(e);
         }
     });
-      permissionsLabel.setText("Berechtigungen: ");
+      permissionsLabel.setText(International.getString("Berechtigungen")+": ");
       adminsVerwaltenCheckBox.setNextFocusableComponent(passwortAendernCheckBox);
-      adminsVerwaltenCheckBox.setMnemonic('V');
-      adminsVerwaltenCheckBox.setText("Admins verwalten");
+      Mnemonics.setButton(this, adminsVerwaltenCheckBox, International.getStringWithMnemonic("Admins verwalten"));
       passwortAendernCheckBox.setNextFocusableComponent(vollzugriffCheckBox);
-      passwortAendernCheckBox.setMnemonic('P');
-      passwortAendernCheckBox.setText("Paßwort ändern");
+      Mnemonics.setButton(this, passwortAendernCheckBox, International.getStringWithMnemonic("Paßwort ändern"));
       fahrtenbuchAuswaehlenCheckBox.setNextFocusableComponent(fahrtenbuchAnzeigenCheckBox);
-      fahrtenbuchAuswaehlenCheckBox.setMnemonic('F');
-      fahrtenbuchAuswaehlenCheckBox.setText("Fahrtenbuch auswählen");
+      Mnemonics.setButton(this, fahrtenbuchAuswaehlenCheckBox, International.getStringWithMnemonic("Fahrtenbuch auswählen"));
       fahrtenbuchAnzeigenCheckBox.setNextFocusableComponent(bootsstatusBearbeitenCheckBox);
-      fahrtenbuchAnzeigenCheckBox.setMnemonic('R');
-      fahrtenbuchAnzeigenCheckBox.setText("Fahrtenbuch bearbeiten");
+      Mnemonics.setButton(this, fahrtenbuchAnzeigenCheckBox, International.getStringWithMnemonic("Fahrtenbuch bearbeiten"));
       bootsstatusBearbeitenCheckBox.setNextFocusableComponent(bootsreservierungCheckBox);
-      bootsstatusBearbeitenCheckBox.setMnemonic('B');
-      bootsstatusBearbeitenCheckBox.setText("Bootsstatus bearbeiten");
+      Mnemonics.setButton(this, bootsstatusBearbeitenCheckBox, International.getStringWithMnemonic("Bootsstatus bearbeiten"));
       bootsreservierungCheckBox.setNextFocusableComponent(bootslisteBearbeitenCheckBox);
-      bootsreservierungCheckBox.setText("Bootsreservierungen vornehmen");
+      Mnemonics.setButton(this, bootsreservierungCheckBox, International.getStringWithMnemonic("Bootsreservierungen vornehmen"));
       nachrichtenAdminAnzeigenCheckBox.setNextFocusableComponent(nachrichtenAdminAllowedGelesenMarkierenCheckBox);
-      nachrichtenAdminAnzeigenCheckBox.setMnemonic('C');
-      nachrichtenAdminAnzeigenCheckBox.setText("Nachrichten an Admin lesen");
+      Mnemonics.setButton(this, nachrichtenAdminAnzeigenCheckBox, International.getStringWithMnemonic("Nachrichten an Admin lesen"));
       logdateiAnzeigenCheckBox.setNextFocusableComponent(efaBeendenCheckBox);
-      logdateiAnzeigenCheckBox.setToolTipText("");
-      logdateiAnzeigenCheckBox.setMnemonic('G');
-      logdateiAnzeigenCheckBox.setText("Logdatei anzeigen");
+      Mnemonics.setButton(this, logdateiAnzeigenCheckBox, International.getStringWithMnemonic("Logdatei anzeigen"));
       nachrichtenAdminGelesenDefaultCheckBox.setNextFocusableComponent(nachrichtenBootswartAnzeigenCheckBox);
-      nachrichtenAdminGelesenDefaultCheckBox.setToolTipText("Nachrichten an Admin beim Lesen automatisch als gelesen markieren");
-      nachrichtenAdminGelesenDefaultCheckBox.setMnemonic('T');
-      nachrichtenAdminGelesenDefaultCheckBox.setText("automatisch als gelesen markieren");
+      Mnemonics.setButton(this, nachrichtenAdminGelesenDefaultCheckBox, International.getStringWithMnemonic("automatisch als gelesen markieren"));
       nachrichtenAdminAllowedGelesenMarkierenCheckBox.setNextFocusableComponent(nachrichtenAdminGelesenDefaultCheckBox);
-      nachrichtenAdminAllowedGelesenMarkierenCheckBox.setToolTipText("darf Nachrichten an Admin als gelesen markieren");
-      nachrichtenAdminAllowedGelesenMarkierenCheckBox.setMnemonic('M');
-      nachrichtenAdminAllowedGelesenMarkierenCheckBox.setText("darf Nachr. als gelesen markieren");
+      Mnemonics.setButton(this, nachrichtenAdminAllowedGelesenMarkierenCheckBox, International.getStringWithMnemonic("darf Nachr. als gelesen markieren"));
       name.setNextFocusableComponent(passwordButton);
       Dialog.setPreferredSize(name,150,17);
       name.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -186,61 +171,49 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
       password.setEditable(false);
       editPanel.setBorder(BorderFactory.createEtchedBorder());
       saveButton.setNextFocusableComponent(okButton);
-      saveButton.setMnemonic('D');
-      saveButton.setText("Änderungen übernehmen");
+      Mnemonics.setButton(this, saveButton, International.getStringWithMnemonic("Änderungen übernehmen"));
       saveButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           saveButton_actionPerformed(e);
         }
     });
       jScrollPane1.setPreferredSize(new Dimension(150, 300));
-      adminsLabel.setDisplayedMnemonic('0');
+      Mnemonics.setLabel(this, adminsLabel, International.getStringWithMnemonic("Admins")+": ");
       adminsLabel.setLabelFor(adminList);
-      adminsLabel.setText("Admins:");
       adminList.addMouseListener(new java.awt.event.MouseAdapter() {
         public void mouseClicked(MouseEvent e) {
           adminList_mouseClicked(e);
         }
     });
-      this.setTitle("Admins verwalten");
+      this.setTitle(International.getString("Admins verwalten"));
       adminList.setNextFocusableComponent(newButton);
       efaConfigCheckBox.setNextFocusableComponent(fahrtenbuchAuswaehlenCheckBox);
-      efaConfigCheckBox.setMnemonic('K');
-      efaConfigCheckBox.setText("efa konfigurieren");
+      Mnemonics.setButton(this, efaConfigCheckBox, International.getStringWithMnemonic("efa konfigurieren"));
       efaBeendenCheckBox.setNextFocusableComponent(saveButton);
-      efaBeendenCheckBox.setMnemonic('E');
-      efaBeendenCheckBox.setText("efa beenden");
+      Mnemonics.setButton(this, efaBeendenCheckBox, International.getStringWithMnemonic("efa beenden"));
       nachrichtenBootswartAnzeigenCheckBox.setNextFocusableComponent(nachrichtenBootswartAllowedGelesenMarkierenCheckBox);
-      nachrichtenBootswartAnzeigenCheckBox.setMnemonic('H');
-      nachrichtenBootswartAnzeigenCheckBox.setText("Nachrichten an Bootswart lesen");
+      Mnemonics.setButton(this, nachrichtenBootswartAnzeigenCheckBox, International.getStringWithMnemonic("Nachrichten an Bootswart lesen"));
       nachrichtenBootswartAllowedGelesenMarkierenCheckBox.setNextFocusableComponent(nachrichtenBootswartGelesenDefaultCheckBox);
-      nachrichtenBootswartAllowedGelesenMarkierenCheckBox.setToolTipText("darf Nachrichten an Bootswart als gelesen markieren");
-      nachrichtenBootswartAllowedGelesenMarkierenCheckBox.setMnemonic('I');
-      nachrichtenBootswartAllowedGelesenMarkierenCheckBox.setText("darf Nachr. als gelesen markieren");
+      Mnemonics.setButton(this, nachrichtenBootswartAllowedGelesenMarkierenCheckBox, International.getStringWithMnemonic("darf Nachr. als gelesen markieren"));
       nachrichtenBootswartGelesenDefaultCheckBox.setNextFocusableComponent(statistikErstellenCheckBox);
-      nachrichtenBootswartGelesenDefaultCheckBox.setToolTipText("Nachrichten an Bootswart beim Lesen automatisch als gelesen markieren");
-      nachrichtenBootswartGelesenDefaultCheckBox.setMnemonic('O');
-      nachrichtenBootswartGelesenDefaultCheckBox.setText("automatisch als gelesen markieren");
+      Mnemonics.setButton(this, nachrichtenBootswartGelesenDefaultCheckBox, International.getStringWithMnemonic("automatisch als gelesen markieren"));
       statistikErstellenCheckBox.setNextFocusableComponent(logdateiAnzeigenCheckBox);
-      statistikErstellenCheckBox.setToolTipText("darf Statistiken erstellen");
-      statistikErstellenCheckBox.setMnemonic('A');
-      statistikErstellenCheckBox.setText("Statistiken erstellen");
-      emailLabel.setText("email-Adresse: ");
+      Mnemonics.setButton(this, statistikErstellenCheckBox, International.getStringWithMnemonic("Statistiken erstellen"));
+      Mnemonics.setLabel(this, emailLabel, International.getStringWithMnemonic("email-Adresse")+": ");
+      emailLabel.setLabelFor(email);
       emailLabel.setMinimumSize(emailLabel.getPreferredSize()); // Bugfix
       email.setNextFocusableComponent(adminsVerwaltenCheckBox);
       Dialog.setPreferredSize(email,150,17);
       bootslisteBearbeitenCheckBox.setNextFocusableComponent(mitgliederlisteBearbeitenCheckBox);
-      bootslisteBearbeitenCheckBox.setText("Bootsliste bearbeiten");
+      Mnemonics.setButton(this, bootslisteBearbeitenCheckBox, International.getStringWithMnemonic("Bootsliste bearbeiten"));
       mitgliederlisteBearbeitenCheckBox.setNextFocusableComponent(ziellisteBearbeitenCheckBox);
-      mitgliederlisteBearbeitenCheckBox.setText("Mitgliederliste bearbeiten");
+      Mnemonics.setButton(this, mitgliederlisteBearbeitenCheckBox, International.getStringWithMnemonic("Mitgliederliste bearbeiten"));
       ziellisteBearbeitenCheckBox.setNextFocusableComponent(gruppenBearbeitenCheckBox);
-      ziellisteBearbeitenCheckBox.setMnemonic('Z');
-      ziellisteBearbeitenCheckBox.setText("Zielliste bearbeiten");
+      Mnemonics.setButton(this, ziellisteBearbeitenCheckBox, International.getStringWithMnemonic("Zielliste bearbeiten"));
       gruppenBearbeitenCheckBox.setNextFocusableComponent(nachrichtenAdminAnzeigenCheckBox);
-      gruppenBearbeitenCheckBox.setText("Gruppen bearbeiten");
+      Mnemonics.setButton(this, gruppenBearbeitenCheckBox, International.getStringWithMnemonic("Gruppen bearbeiten"));
       vollzugriffCheckBox.setNextFocusableComponent(efaConfigCheckBox);
-      vollzugriffCheckBox.setMnemonic('V');
-      vollzugriffCheckBox.setText("Fahrtenbuch-Vollzugriff");
+      Mnemonics.setButton(this, vollzugriffCheckBox, International.getStringWithMnemonic("Fahrtenbuch-Vollzugriff"));
       this.getContentPane().add(jPanel1, BorderLayout.CENTER);
       jPanel1.add(okButton, BorderLayout.SOUTH);
       jPanel1.add(jPanel2, BorderLayout.WEST);
@@ -358,12 +331,12 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
     Admin admin;
     if (name != null) {
       admin = (Admin)Daten.efaConfig.admins.get(name);
-      password.setText("verschlüsselt");
+      password.setText(International.getString("verschlüsselt"));
       _password = admin.password;
       neuerEintrag = false;
     } else {
       admin = new Admin("",""); // neuer Admin
-      password.setText("--- leer ---");
+      password.setText("--- "+International.getString("leer")+" ---");
       _password = null;
       neuerEintrag = true;
     }
@@ -472,9 +445,9 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
   void okButton_actionPerformed(ActionEvent e) {
     if (saveButton.isEnabled()) saveButton_actionPerformed(null);
     if (!Daten.efaConfig.writeFile()) {
-      Dialog.error("Die Konfigurationsdatei konnte nicht geschrieben werden!");
+      Dialog.error(International.getString("Die Konfigurationsdatei konnte nicht geschrieben werden!"));
     } else {
-      Logger.log(Logger.INFO,"Änderungen an Liste der Admins gespeichert.");
+      Logger.log(Logger.INFO,Logger.MSG_ADMIN_ACTION_ADMINSMODIFIED,International.getString("Änderungen an Liste der Admins gespeichert."));
     }
     cancel();
   }
@@ -493,13 +466,15 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
 
   void deleteButton_actionPerformed(ActionEvent e) {
     if (adminList.getSelectedIndex()<0) {
-      Dialog.error("Bitte wähle zuerst aus der linken Liste einen Admin aus!");
+      Dialog.error(International.getString("Bitte wähle zuerst aus der linken Liste einen Admin aus!"));
       return;
     }
     String name = (String)adminList.getSelectedValue();
-    if (Dialog.yesNoDialog("Admin löschen","Willst Du den Admin '"+name+"' wirklich löschen?") == Dialog.YES) {
+    if (Dialog.yesNoDialog(International.getString("Admin löschen"),
+            International.getMessage("Willst Du den Admin {name} wirklich löschen?",name)) == Dialog.YES) {
       Daten.efaConfig.admins.remove(name);
-      Logger.log(Logger.INFO,"Admin '"+name+"' gelöscht.");
+      Logger.log(Logger.INFO,Logger.MSG_ADMIN_ACTION_ADMINDELETED,
+              International.getMessage("Admin '{name}' gelöscht.",name));
       listAdmins();
     }
   }
@@ -510,19 +485,19 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
     if (!neuerEintrag && adminList.getSelectedIndex()>=0) altername = (String)adminList.getSelectedValue();
 
     if (name.length() == 0) {
-      Dialog.error("Bitte gib einen Namen für den Admin an!");
+      Dialog.error(International.getString("Bitte gib einen Namen für den Admin an!"));
       this.name.requestFocus();
       return;
     }
 
     if (!name.equals(altername) && Daten.efaConfig.admins.get(name) != null) {
-      Dialog.error("Es gibt bereits einen Admin mit diesem Namen.\nBitte wähle einen anderen Namen!");
+      Dialog.error(International.getString("Es gibt bereits einen Admin mit diesem Namen. Bitte wähle einen anderen Namen!"));
       this.name.requestFocus();
       return;
     }
 
     if (_password == null) {
-      Dialog.error("Bitte gib zunächst ein Paßwort für den Admin an!");
+      Dialog.error(International.getString("Bitte gib zunächst ein Paßwort für den Admin an!"));
       this.passwordButton.requestFocus();
       return;
     }
@@ -558,17 +533,23 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
     Daten.efaConfig.admins.put(name,admin);
 
     if (neuerEintrag) {
-      Logger.log(Logger.INFO,"Neuer Admin '"+name+"' angelegt.");
+      Logger.log(Logger.INFO,Logger.MSG_ADMIN_ACTION_ADMINCREATED,
+              International.getMessage("Neuer Admin '{name}' angelegt.",name));
     } else {
-      if (!name.equals(altername)) Logger.log(Logger.INFO,"Admin '"+altername+"' in '"+name+"' umbenannt.");
-      Logger.log(Logger.INFO,"Daten des Admins '"+name+"' geändert.");
+      if (!name.equals(altername)) {
+          Logger.log(Logger.INFO,Logger.MSG_ADMIN_ACTION_ADMINRENAMED,
+                  International.getMessage("Admin '{oldname}' in '{newname}' umbenannt.",altername,name));
+      }
+      Logger.log(Logger.INFO,Logger.MSG_ADMIN_ACTION_ADMINCHANGED,
+              International.getMessage("Daten des Admins '{name}' geändert.",name));
     }
 
     listAdmins();
 
     if (email.getText().trim().length()>0) {
       if (!EmailSender.emailPluginInstalled()) {
-        DownloadFrame.getPlugin("efa",Daten.PLUGIN_EMAIL_NAME,Daten.PLUGIN_EMAIL_FILE,Daten.PLUGIN_EMAIL_HTML,"NoClassDefFoundError",null,false);
+        DownloadFrame.getPlugin(Daten.EFA_SHORTNAME,
+                Daten.PLUGIN_EMAIL_NAME,Daten.PLUGIN_EMAIL_FILE,Daten.PLUGIN_EMAIL_HTML,"NoClassDefFoundError",null,false);
       }
     }
   }
@@ -579,7 +560,7 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
     String pwd = NewPasswordFrame.getNewPassword(this,this.name.getText().trim());
     if (pwd == null) return;
     this._password = EfaUtil.getSHA(pwd);
-    password.setText("verschlüsselt");
+    password.setText(International.getString("verschlüsselt"));
   }
 
   void name_focusLost(FocusEvent e) {

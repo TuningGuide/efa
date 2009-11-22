@@ -20,6 +20,8 @@ import java.io.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 
+// @i18n complete
+
 public class AdminLoginFrame extends JDialog implements ActionListener {
   static Admin result;
 
@@ -94,20 +96,17 @@ public class AdminLoginFrame extends JDialog implements ActionListener {
 
     jPanel1.setLayout(borderLayout1);
     okButton.setNextFocusableComponent(name);
-    okButton.setMnemonic('O');
-    okButton.setText("OK");
+    Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("OK"));
     okButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         okButton_actionPerformed(e);
       }
     });
     jPanel2.setLayout(gridBagLayout1);
-    nameLabel.setDisplayedMnemonic('A');
+    Mnemonics.setLabel(this, nameLabel, International.getStringWithMnemonic("Admin-Name")+": ");
     nameLabel.setLabelFor(name);
-    nameLabel.setText("Admin-Name: ");
-    passwortLabel.setDisplayedMnemonic('P');
+    Mnemonics.setLabel(this, passwortLabel, International.getStringWithMnemonic("Paßwort")+": ");
     passwortLabel.setLabelFor(passwort);
-    passwortLabel.setText("Paßwort: ");
     name.setNextFocusableComponent(passwort);
     Dialog.setPreferredSize(name,100,17);
     name.setMinimumSize(name.getPreferredSize()); // neu (Bugfix 1.7.0_03)
@@ -119,11 +118,11 @@ public class AdminLoginFrame extends JDialog implements ActionListener {
     passwort.setNextFocusableComponent(okButton);
     Dialog.setPreferredSize(passwort,100,17);
     passwort.setMinimumSize(passwort.getPreferredSize()); // neu (Bugfix 1.7.0_03)
-    this.setTitle("Admin Login");
+    this.setTitle(International.getString("Admin-Login"));
     jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
-    jLabel1.setText("Admin-Login erforderlich.");
+    jLabel1.setText(International.getString("Admin-Login erforderlich."));
     grundLabel.setHorizontalAlignment(SwingConstants.CENTER);
-    grundLabel.setText("Grund");
+    grundLabel.setText(International.getString("Grund"));
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(okButton, BorderLayout.SOUTH);
     jPanel1.add(jPanel2, BorderLayout.CENTER);
@@ -200,25 +199,27 @@ public class AdminLoginFrame extends JDialog implements ActionListener {
 
   void okButton_actionPerformed(ActionEvent e) {
     if (name.getText().trim().length()==0) {
-      Dialog.error("Kein Admin-Name eingegeben!");
+      Dialog.error(International.getString("Kein Admin-Name eingegeben!"));
       name.requestFocus();
       cancel();
       return;
     }
     String pwd = new String(passwort.getPassword()).trim();
     if (pwd.length()==0) {
-      Dialog.error("Kein Paßwort eingegeben!");
+      Dialog.error(International.getString("Kein Paßwort eingegeben!"));
       passwort.requestFocus();
       return;
     }
     Admin admin = null;
     if ( (admin = Daten.efaConfig.login(name.getText().trim(),pwd)) == null) {
-      Dialog.error("Admin-Name oder Paßwort ungültig!");
-      Logger.log(Logger.WARNING,"Admin-Login: Name '"+name.getText().trim()+"' oder Paßwort ungültig!");
+      Dialog.error(International.getString("Admin-Name oder Paßwort ungültig!"));
+      Logger.log(Logger.WARNING,Logger.MSG_ADMIN_LOGINFAILURE,International.getString("Admin-Login")+": "+
+              International.getMessage("Name {name} oder Paßwort ungültig!",name.getText().trim()));
       passwort.requestFocus();
       return;
     }
-    Logger.log(Logger.INFO,"Admin-Login: Name '"+name.getText().trim()+"'");
+    Logger.log(Logger.INFO,Logger.MSG_ADMIN_LOGIN,International.getString("Admin-Login")+": "+
+            International.getString("Name")+": "+name.getText().trim());
     result = admin;
     cancel();
   }

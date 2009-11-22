@@ -10,6 +10,8 @@
 
 package de.nmichael.efa.data;
 
+// @i18n complete
+
 public interface IDataAccess {
 
     public static final int TYPE_FILE_CSV = 0;

@@ -3,6 +3,10 @@ International.getMessage()
 Mnemonics.setLabel(this, label, International.getStringWithMnemonic("")+": ");
 Mnemonics.setButton(this, button, International.getStringWithMnemonic(""));
 
+log_fileNewCreated(Daten.bezeichnungen.getFileName(), International.getString("Liste der Bezeichnungen"));
+haltProgram(logstring_fileCreationFailed(Daten.bezeichnungen.getFileName(), International.getString("Liste der Bezeichnungen")));
+haltProgram(logstring_fileOpenFailed(Daten.bezeichnungen.getFileName(), International.getString("Liste der Bezeichnungen")));
+
 
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer

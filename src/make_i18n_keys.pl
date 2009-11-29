@@ -3,7 +3,7 @@
 my $properties = shift;
 
 if (length($properties) == 0) {
-  printf("usage: make_i8n_keys.pl <properties>\n");
+  printf("usage: make_i18n_keys.pl <properties>\n");
   printf("\nThis script recursively searches all .java files in the current\n"+
          "directory and any subdirectories for internationalized strings and\n"+
          "creates a new property file (based on the original one) on stdout.\n");
@@ -17,7 +17,7 @@ readProps($properties);
 searchdir(".");
 
 # print new properties file
-printf("# Property File created by make_i8n_keys.pl:\n# ------------------------------------------\n");
+printf("# Property File created by make_i18n_keys.pl:\n# ------------------------------------------\n");
 my %data;
 foreach $key (sort %keys) {
   if (exists $keys{$key}{txt}) {

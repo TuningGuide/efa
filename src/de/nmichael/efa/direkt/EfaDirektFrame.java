@@ -22,6 +22,8 @@ import de.nmichael.efa.*;
 import java.beans.*;
 import javax.swing.border.*;
 
+// @i18n NOT YET complete
+
 public class EfaDirektFrame extends JFrame {
   BootStatus bootStatus = null;
   Vector booteAlle = new Vector();
@@ -109,7 +111,8 @@ public class EfaDirektFrame extends JFrame {
       contentPane.setBackground(new Color(0,0,150));
       contentPane.setBorder(b);
     } catch (NoSuchMethodError e) {
-      Logger.log(Logger.WARNING,International.getString("Fenstereigenschaft 'nicht verschiebbar' wird erst ab Java 1.4 unterstützt."));
+      Logger.log(Logger.WARNING, Logger.MSG_BHWARN_JAVA_VERSION, 
+              International.getString("Fenstereigenschaft 'nicht verschiebbar' wird erst ab Java 1.4 unterstützt."));
     }
 
     // Fenster immer im Vordergrund
@@ -123,9 +126,11 @@ public class EfaDirektFrame extends JFrame {
       }
     } catch(UnsupportedClassVersionError e) {
       // Java 1.3 kommt mit der Java 1.5 Klasse nicht klar
-      Logger.log(Logger.WARNING,International.getString("Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstützt."));
+      Logger.log(Logger.WARNING, Logger.MSG_BHWARN_JAVA_VERSION,
+              International.getString("Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstützt."));
     } catch(NoClassDefFoundError e) {
-      Logger.log(Logger.WARNING,International.getString("Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstützt."));
+      Logger.log(Logger.WARNING, Logger.MSG_BHWARN_JAVA_VERSION,
+              International.getString("Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstützt."));
     }
 
 
@@ -288,13 +293,12 @@ public class EfaDirektFrame extends JFrame {
         this_windowActivated(e);
       }
     });
-    statusLabelSetText("Status");
+    statusLabelSetText(International.getString("Status"));
     southPanel.setLayout(borderLayout2);
     centerPanel.setLayout(gridBagLayout1);
     fahrtbeginnButton.setBackground(new Color(204, 255, 204));
     fahrtbeginnButton.setNextFocusableComponent(fahrtendeButton);
-    fahrtbeginnButton.setMnemonic('B');
-    fahrtbeginnButton.setText("Fahrt beginnen >>>");
+    Mnemonics.setButton(this, fahrtbeginnButton, International.getStringWithMnemonic("Fahrt beginnen")+ ">>>");
     fahrtbeginnButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         fahrtbeginnButton_actionPerformed(e);
@@ -302,8 +306,7 @@ public class EfaDirektFrame extends JFrame {
     });
     fahrtendeButton.setBackground(new Color(204, 255, 204));
     fahrtendeButton.setNextFocusableComponent(fahrtabbruchButton);
-    fahrtendeButton.setMnemonic('E');
-    fahrtendeButton.setText("<<< Fahrt beenden");
+    Mnemonics.setButton(this, fahrtendeButton, "<<< " + International.getStringWithMnemonic("Fahrt beenden"));
     fahrtendeButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         fahrtendeButton_actionPerformed(e);
@@ -311,8 +314,7 @@ public class EfaDirektFrame extends JFrame {
     });
     nachtragButton.setBackground(new Color(204, 255, 255));
     nachtragButton.setNextFocusableComponent(bootsstatusButton);
-    nachtragButton.setMnemonic('N');
-    nachtragButton.setText("Nachtrag");
+    Mnemonics.setButton(this, nachtragButton, International.getStringWithMnemonic("Nachtrag"));
     nachtragButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         nachtragButton_actionPerformed(e);
@@ -320,8 +322,7 @@ public class EfaDirektFrame extends JFrame {
     });
     bootsstatusButton.setBackground(new Color(255, 255, 204));
     bootsstatusButton.setNextFocusableComponent(showFbButton);
-    bootsstatusButton.setMnemonic('O');
-    bootsstatusButton.setText("Bootsreservierungen");
+    Mnemonics.setButton(this, bootsstatusButton, International.getStringWithMnemonic("Bootsreservierungen"));
     bootsstatusButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         bootsstatusButton_actionPerformed(e);
@@ -329,23 +330,21 @@ public class EfaDirektFrame extends JFrame {
     });
     adminHinweisButton.setBackground(new Color(255, 241, 151));
     adminHinweisButton.setNextFocusableComponent(adminButton);
-    adminHinweisButton.setMnemonic('H');
-    adminHinweisButton.setText("Nachricht an Admin");
+    Mnemonics.setButton(this, adminHinweisButton, International.getStringWithMnemonic("Nachricht an Admin"));
     adminHinweisButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         adminHinweisButton_actionPerformed(e);
       }
     });
     adminButton.setNextFocusableComponent(booteAufFahrt);
-    adminButton.setMnemonic('M');
-    adminButton.setText("Admin-Modus");
+    Mnemonics.setButton(this, adminButton, International.getStringWithMnemonic("Admin-Modus"));
     adminButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         adminButton_actionPerformed(e);
       }
     });
     spezialButton.setNextFocusableComponent(booteAufFahrt);
-    spezialButton.setText("Spezial-Button");
+    spezialButton.setText(International.getString("Spezial-Button"));
     spezialButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         spezialButton_actionPerformed(e);
@@ -354,18 +353,15 @@ public class EfaDirektFrame extends JFrame {
     Dialog.setPreferredSize(verfuegbareBooteLabel,260,20);
     Dialog.setPreferredSize(aufFahrtBooteLabel,260,20);
     Dialog.setPreferredSize(nichtVerfuegbareBooteLabel,220,20);
-    verfuegbareBooteLabel.setDisplayedMnemonic('V');
+    Mnemonics.setLabel(this, verfuegbareBooteLabel, International.getStringWithMnemonic("verfügbare Boote"));
     verfuegbareBooteLabel.setHorizontalAlignment(SwingConstants.CENTER);
     verfuegbareBooteLabel.setLabelFor(booteVerfuegbar);
-    verfuegbareBooteLabel.setText("verfügbare Boote");
-    aufFahrtBooteLabel.setDisplayedMnemonic('F');
+    Mnemonics.setLabel(this, aufFahrtBooteLabel, International.getStringWithMnemonic("Boote auf Fahrt"));
     aufFahrtBooteLabel.setHorizontalAlignment(SwingConstants.CENTER);
     aufFahrtBooteLabel.setLabelFor(booteAufFahrt);
-    aufFahrtBooteLabel.setText("Boote auf Fahrt");
-    nichtVerfuegbareBooteLabel.setDisplayedMnemonic('I');
+    Mnemonics.setLabel(this, nichtVerfuegbareBooteLabel, International.getStringWithMnemonic("nicht verfügbare Boote"));
     nichtVerfuegbareBooteLabel.setHorizontalAlignment(SwingConstants.CENTER);
     nichtVerfuegbareBooteLabel.setLabelFor(booteNichtVerfuegbar);
-    nichtVerfuegbareBooteLabel.setText("nicht verfügbare Boote");
     southPanel.setBorder(BorderFactory.createRaisedBevelBorder());
     booteVerfuegbar.setNextFocusableComponent(fahrtbeginnButton);
     booteVerfuegbar.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -428,15 +424,13 @@ public class EfaDirektFrame extends JFrame {
     });
     fahrtabbruchButton.setBackground(new Color(255, 204, 204));
     fahrtabbruchButton.setNextFocusableComponent(nachtragButton);
-    fahrtabbruchButton.setMnemonic('A');
-    fahrtabbruchButton.setText("Fahrt abbrechen");
+    Mnemonics.setButton(this, fahrtabbruchButton, International.getStringWithMnemonic("Fahrt abbrechen"));
     fahrtabbruchButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         fahrtabbruchButton_actionPerformed(e);
       }
     });
-    hilfeButton.setMnemonic('0');
-    hilfeButton.setText("Hilfe mit [F1]");
+    hilfeButton.setText(International.getString("Hilfe mit [F1]"));
     hilfeButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         hilfeButton_actionPerformed(e);
@@ -444,8 +438,7 @@ public class EfaDirektFrame extends JFrame {
     });
     showFbButton.setBackground(new Color(204, 204, 255));
     showFbButton.setNextFocusableComponent(statButton);
-    showFbButton.setMnemonic('Z');
-    showFbButton.setText("Fahrtenbuch anzeigen");
+    Mnemonics.setButton(this, showFbButton, International.getStringWithMnemonic("Fahrtenbuch anzeigen"));
     showFbButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         showFbButton_actionPerformed(e);
@@ -453,8 +446,7 @@ public class EfaDirektFrame extends JFrame {
     });
     statButton.setBackground(new Color(204, 204, 255));
     statButton.setNextFocusableComponent(adminHinweisButton);
-    statButton.setMnemonic('S');
-    statButton.setText("Statistik erstellen");
+    Mnemonics.setButton(this, statButton, International.getStringWithMnemonic("Statistik erstellen"));
     statButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         statButton_actionPerformed(e);
@@ -599,42 +591,46 @@ public class EfaDirektFrame extends JFrame {
        if (!Daten.efaConfig.efaDirekt_mitgliederDuerfenEfaBeenden) {
          Admin admin = null;
          do {
-           admin = AdminLoginFrame.login(this,"Beenden von efa");
+           admin = AdminLoginFrame.login(this,International.getString("Beenden von efa"));
            if (admin != null && !admin.allowedEfaBeenden)
-             Dialog.error("Du hast nicht die Berechtigung, um efa zu beenden!");
+             Dialog.error(International.getString("Du hast nicht die Berechtigung, um efa zu beenden!"));
          } while (admin != null && !admin.allowedEfaBeenden);
          if (admin == null) return;
-         wer = "Admin="+admin.name;
+         wer = International.getString("Admin")+"="+admin.name;
          durchMitglied = false;
        } else {
-         wer = "Nutzer";
+         wer = International.getString("Nutzer");
          durchMitglied = true;
        }
        if (Daten.efaConfig.efaDirekt_execOnEfaExit.length()>0 && durchMitglied) {
-         Logger.log(Logger.INFO,"Programmende veranlaßt; versuche, Kommando '"+Daten.efaConfig.efaDirekt_execOnEfaExit+"' auszuführen...");
+         Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_EFAEXITEXECCMD,
+                 International.getMessage("Programmende veranlaßt; versuche, Kommando '{cmd}' auszuführen...", Daten.efaConfig.efaDirekt_execOnEfaExit));
          try {
            Runtime.getRuntime().exec(Daten.efaConfig.efaDirekt_execOnEfaExit);
          } catch(Exception ee) {
-           Logger.log(Logger.ERROR,"Kann Kommando '"+Daten.efaConfig.efaDirekt_execOnEfaExit+"' nicht ausführen.");
+           Logger.log(Logger.ERROR, Logger.MSG_BHERR_EFAEXITEXECCMD_FAILED,
+                   International.getMessage("Kann Kommando '{cmd}' nicht ausführen.",Daten.efaConfig.efaDirekt_execOnEfaExit));
          }
        }
        break;
      case EFA_EXIT_REASON_TIME:
-       wer = "Zeitsteuerung";
+       wer = International.getString("Zeitsteuerung");
        if (Daten.efaConfig.efaDirekt_execOnEfaAutoExit.length()>0) {
-         Logger.log(Logger.INFO,"Programmende veranlaßt; versuche, Kommando '"+Daten.efaConfig.efaDirekt_execOnEfaAutoExit+"' auszuführen...");
+         Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_EFAEXITEXECCMD,
+                 International.getMessage("Programmende veranlaßt; versuche, Kommando '{cmd}' auszuführen...",Daten.efaConfig.efaDirekt_execOnEfaAutoExit));
          try {
            Runtime.getRuntime().exec(Daten.efaConfig.efaDirekt_execOnEfaAutoExit);
          } catch(Exception ee) {
-           Logger.log(Logger.ERROR,"Kann Kommando '"+Daten.efaConfig.efaDirekt_execOnEfaAutoExit+"' nicht ausführen.");
+           Logger.log(Logger.ERROR, Logger.MSG_BHERR_EFAEXITEXECCMD_FAILED,
+                   International.getMessage("Kann Kommando '{cmd}' nicht ausführen.",Daten.efaConfig.efaDirekt_execOnEfaAutoExit));
          }
        }
        break;
      case EFA_EXIT_REASON_OOME:
-       wer = "Speicherüberwachung";
+       wer = International.getString("Speicherüberwachung");
        break;
      case EFA_EXIT_REASON_AUTORESTART:
-       wer = "Automatischer Neustart";
+       wer = International.getString("Automatischer Neustart");
        break;
     }
 
@@ -646,13 +642,14 @@ public class EfaDirektFrame extends JFrame {
             (Daten.efa_java_arguments != null ? Daten.efa_java_arguments :
              "-cp " + System.getProperty("java.class.path") +
              " " + Daten.EFADIREKT_MAINCLASS + Main.STARTARGS);
-        Logger.log(Logger.INFO, "Neustart mit Kommando: " + restartcmd);
+        Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_EFARESTART,
+                International.getMessage("Neustart mit Kommando: {cmd}",restartcmd));
         try {
           Runtime.getRuntime().exec(restartcmd);
         }
         catch (Exception ee) {
-          Logger.log(Logger.ERROR,
-                     "Kann Kommando '" + restartcmd + "' nicht ausführen.");
+          Logger.log(Logger.ERROR, Logger.MSG_BHERR_EFARESTARTEXEC_FAILED,
+                     International.getMessage("Kann Kommando '{cmd}' nicht ausführen.",restartcmd));
         }
       } else {
         exitCode = 99;
@@ -660,17 +657,21 @@ public class EfaDirektFrame extends JFrame {
     }
 
     if (e != null) super.processWindowEvent(e);
-    Logger.log(Logger.INFO,"PROGRAMMENDE durch "+wer);
+    Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_EFAEXIT,
+            International.getMessage("PROGRAMMENDE durch {originator}.",wer));
     System.exit(exitCode);
   }
 
   public synchronized void exitOnLowMemory(String detector, boolean immediate) {
     largeChunkOfMemory = null;
-    Logger.log(Logger.ERROR,"Der Arbeitsspeicher wird knapp ["+detector+"]: efa versucht " + (immediate ? "JETZT" : "jetzt") + " einen Neustart ...");
+    Logger.log(Logger.ERROR, Logger.MSG_BHERR_EXITLOWMEMORY,
+            International.getMessage("Der Arbeitsspeicher wird knapp [{detector}]: "+
+                                     "efa versucht {jetzt} einen Neustart ...",detector,
+                                     (immediate ? International.getString("jetzt").toUpperCase() : International.getString("jetzt"))));
     if (immediate) {
       this.cancel(null,EFA_EXIT_REASON_OOME,true);
     } else {
-      EfaExitFrame.exitEfa("Neustart wegen knappen Arbeitsspeichers", true, EFA_EXIT_REASON_OOME);
+      EfaExitFrame.exitEfa(International.getString("Neustart wegen knappen Arbeitsspeichers"), true, EFA_EXIT_REASON_OOME);
     }
   }
 
@@ -686,10 +687,38 @@ public class EfaDirektFrame extends JFrame {
   public static void haltProgram(String s) {
     if (s != null) {
       Dialog.error(s);
-      Logger.log(Logger.ERROR,EfaUtil.replace(s,"\n"," ",true));
+      Logger.log(Logger.ERROR, Logger.MSG_BHERR_GENERIC,
+              EfaUtil.replace(s,"\n"," ",true));
     }
-    Logger.log(Logger.INFO,"PROGRAMMENDE (wegen Fehler)");
+    Logger.log(Logger.INFO, Logger.MSG_BHERR_EXITONERROR,
+            International.getString("PROGRAMMENDE (wegen Fehler)"));
     System.exit(1);
+  }
+
+  private void log_fileNewCreated(String filename, String description) {
+      Logger.log(Logger.WARNING, Logger.MSG_BHWARN_FILENEWCREATED,
+                 International.getMessage("{filedescription} ({filename}) wurde neu erzeugt.",
+                                          description,filename));
+  }
+
+  private String logstring_fileCreationFailed(String filename, String description) {
+      return International.getMessage("{filedescription} ({filename}) konnte nicht neu erzeugt werden.",
+                                       description,filename);
+  }
+
+  private void log_fileCreationFailed(String filename, String description) {
+      Logger.log(Logger.ERROR, Logger.MSG_BHERR_FILECREATEFAILED,
+              logstring_fileCreationFailed(description,filename));
+  }
+
+  private String logstring_fileOpenFailed(String filename, String description) {
+      return International.getMessage("{filedescription} ({filename}) konnte nicht gelesen werden.",
+                                       description,filename);
+  }
+
+  private void log_fileOpenFailed(String filename, String description) {
+      Logger.log(Logger.ERROR, Logger.MSG_BHERR_FILEOPENFAILED,
+              logstring_fileOpenFailed(description,filename));
   }
 
   void appIni() {
@@ -697,7 +726,7 @@ public class EfaDirektFrame extends JFrame {
     if (Daten.efaConfig.efaDirekt_checkRunning) {
       efaRunning = new EfaRunning();
       if (efaRunning.isRunning()) {
-        haltProgram("efa läuft bereits und kann nicht zeitgleich zweimal gestartet werden!");
+        haltProgram(International.getString("efa läuft bereits und kann nicht zeitgleich zweimal gestartet werden!"));
       }
       efaRunning.run();
     }
@@ -709,9 +738,13 @@ public class EfaDirektFrame extends JFrame {
     // Nachrichten an Admin einlesen
     Daten.nachrichten = new NachrichtenAnAdmin(Daten.efaDataDirectory+Daten.DIREKTNACHRICHTEN);
     if (!EfaUtil.canOpenFile(Daten.nachrichten.getFileName())) {
-      if (!Daten.nachrichten.writeFile()) haltProgram("Kann Nachrichten-Datei "+Daten.nachrichten.getFileName()+" nicht erstellen!");
+      if (!Daten.nachrichten.writeFile()) {
+          haltProgram(International.getMessage("Kann Nachrichten-Datei {filename} nicht erstellen!",Daten.nachrichten.getFileName()));
+      }
     } else {
-      if (!Daten.nachrichten.readFile()) haltProgram("Kann Nachrichten-Datei "+Daten.nachrichten.getFileName()+" nicht öffnen!");
+      if (!Daten.nachrichten.readFile()) {
+          haltProgram(International.getMessage("Kann Nachrichten-Datei {filename} nicht öffnen!",Daten.nachrichten.getFileName()));
+      }
     }
     Logger.setNachrichtenAnAdmin(Daten.nachrichten);
     updateUnreadMessages();
@@ -722,66 +755,77 @@ public class EfaDirektFrame extends JFrame {
     // Admin-Paßwort vorhanden?
     boolean neuerSuperAdmin = false;
     if (Daten.efaConfig.admins.get(EfaConfig.SUPERADMIN) == null) {
-      Logger.log(Logger.INFO,"Kein Super-Admin gefunden.");
+      Logger.log(Logger.INFO, Logger.MSG_BHERR_NOSUPERADMIN,
+              International.getString("Kein Super-Admin gefunden."));
       try {
         // gibt es noch das Sicherheitsfile?
         if (!efaSec.secFileExists()) {
-          String s = "efa konnte kein Super-Admin Paßwort finden!\n"+
-                     "Aus Gründen der Sicherheit verweigert efa den Dienst.\n"+
-                     "Bitte installiere efa neu oder kontaktiere den Entwickler: "+Daten.EFAEMAIL;
+          String s = International.getMessage("efa konnte kein Super-Admin Paßwort finden! "+
+                     "Aus Gründen der Sicherheit verweigert efa den Dienst. "+
+                     "Bitte installiere efa neu oder kontaktiere den Entwickler: {email}",Daten.EFAEMAIL);
           haltProgram(s);
         }
         // stimmen die Sicherheits-Werte überein?
         if (!efaSec.secValueValid()) {
-          String s = "efa konnte kein Super-Admin Paßwort finden, und die Sicherheitsdatei ist korrupt.!\n"+
-                     "Aus Gründen der Sicherheit verweigert efa den Dienst.\n"+
-                     "Bitte installiere efa neu oder kontaktiere den Entwickler: "+Daten.EFAEMAIL;
+          String s = International.getMessage("efa konnte kein Super-Admin Paßwort finden, und die Sicherheitsdatei ist korrupt.! "+
+                     "Aus Gründen der Sicherheit verweigert efa den Dienst. "+
+                     "Bitte installiere efa neu oder kontaktiere den Entwickler: {email}",Daten.EFAEMAIL);
           haltProgram(s);
         }
       } catch(Exception e) {
-        String s = "efa konnte kein Super-Admin Paßwort finden, und bei den folgenden Tests trat ein Fehler auf: "+e.toString()+"\n"+
-                   "Aus Gründen der Sicherheit verweigert efa den Dienst.\n"+
-                   "Bitte installiere efa neu oder kontaktiere den Entwickler: "+Daten.EFAEMAIL;
+        String s = International.getMessage("efa konnte kein Super-Admin Paßwort finden, und bei den folgenden Tests trat ein Fehler auf: {error} "+
+                   "Aus Gründen der Sicherheit verweigert efa den Dienst. "+
+                   "Bitte installiere efa neu oder kontaktiere den Entwickler: {email}",e.toString(),Daten.EFAEMAIL);
         haltProgram(s);
       }
       String pwd = "";
-      Dialog.infoDialog("Willkommen bei der Bootshaus-Version von efa",
-                        "Mitglieder dürfen in efa nur Fahrten eintragen. Alle weiteren\n"+
-                        "Aktionen dürfen nur von einem Administrator ausgeführt werden.\n"+
-                        "Der Super-Administrator (Haupt-Administrator) hat uneingeschränkte\n"+
-                        "Rechte, die anderen Administratoren können eingeschränkte Rechte\n"+
+      Dialog.infoDialog(International.getString("Willkommen bei der Bootshaus-Version von efa"),
+                        International.getString("Mitglieder dürfen in efa nur Fahrten eintragen. Alle weiteren "+
+                        "Aktionen dürfen nur von einem Administrator ausgeführt werden. "+
+                        "Der Super-Administrator (Haupt-Administrator) hat uneingeschränkte "+
+                        "Rechte, die anderen Administratoren können eingeschränkte Rechte "+
                         "besitzen.\n"+
-                        "Der Name des Super-Administrators lautet 'admin'. Zur Zeit gibt es\n"+
-                        "noch kein Paßwort für 'admin'. Du wirst nun gleich aufgefordert, ein\n"+
-                        "neues Paßwort für den Super-Administrator 'admin' einzugeben.");
+                        "Der Name des Super-Administrators lautet 'admin'. Zur Zeit gibt es "+
+                        "noch kein Paßwort für 'admin'. Du wirst nun gleich aufgefordert, ein "+
+                        "neues Paßwort für den Super-Administrator 'admin' einzugeben."));
 
       pwd = NewPasswordFrame.getNewPassword(this,EfaConfig.SUPERADMIN);
       if (pwd == null) {
-        haltProgram("Paßworteingabe für Super-Admin abgebrochen.");
+        haltProgram(International.getString("Paßworteingabe für Super-Admin abgebrochen."));
       }
 
       Admin root = new Admin(EfaConfig.SUPERADMIN,EfaUtil.getSHA(pwd));
       Daten.efaConfig.admins.put(EfaConfig.SUPERADMIN,root);
-      if (!Daten.efaConfig.writeFile()) haltProgram(Daten.efaConfig.getFileName()+" konnte nicht geschrieben werden!");
-      Logger.log(Logger.INFO,"Neuer Super-Admin erstellt.");
+      if (!Daten.efaConfig.writeFile()) {
+          haltProgram(International.getMessage("{filename} konnte nicht geschrieben werden!",Daten.efaConfig.getFileName()));
+      }
+      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_SUPERADMINCREATED,
+              International.getString("Neuer Super-Admin erstellt."));
       neuerSuperAdmin = true;
     }
 
 
     if (efaSec.secFileExists() && !efaSec.isDontDeleteSet()) {
-      switch (Dialog.auswahlDialog("Sicherheits-Frage","Aus Gründen der Sicherheit sollte es im Bootshaus nicht möglich sein,\n"+
-                                   "das herkömmliche efa ohne Paßwort zu starten, da dort jeder Benutzer auch ohne\n"+
-                                   "Admin-Rechte alle Daten manipulieren kann. Es wird daher dringend\n"+
-                                   "geraten, das herkömmliche efa ebenfalls durch das Admin-Paßwort zu sichern!\n"+
-                                   "Für den Einsatz zu Hause ist es natürlich nicht erforderlich, efa\n"+
+      switch (Dialog.auswahlDialog(International.getString("Sicherheits-Frage"),
+              International.getString("Aus Gründen der Sicherheit sollte es im Bootshaus nicht möglich sein, "+
+                                   "das herkömmliche efa ohne Paßwort zu starten, da dort jeder Benutzer auch ohne "+
+                                   "Admin-Rechte alle Daten manipulieren kann. Es wird daher dringend "+
+                                   "geraten, das herkömmliche efa ebenfalls durch das Admin-Paßwort zu sichern! "+
+                                   "Für den Einsatz zu Hause ist es natürlich nicht erforderlich, efa "+
                                    "zu sperren, da hier i.d.R. keine Mißbrauchgefahr besteht.\n\n"+
-                                   "Möchtest Du, daß die herkömmliche efa-Oberfläche paßwortgeschützt wird und nur\n"+
+                                   "Möchtest Du, daß die herkömmliche efa-Oberfläche paßwortgeschützt wird und nur "+
                                    "noch für Admins zugänglich ist (für Bootshaus-Einsatz dringend empfohlen!)?\n"+
-                                   "Herkömmliche efa-Oberfläche ...",
-                                   "... durch Paßwort schützen","... nicht schützen")) {
+                                   "Herkömmliche efa-Oberfläche ..."),
+                                   International.getString("... durch Paßwort schützen"),
+                                   International.getString("... nicht schützen"))) {
         case 0: // Sperren
-          if (efaSec.delete(true)) Dialog.meldung("Der Start des herkömmlichen efa ist nun nur noch mit Paßwort möglich!");
-          else haltProgram("efa konnte die Datei "+efaSec.getFilename()+" nicht löschen und wird daher beendet!");
+          if (efaSec.delete(true)) {
+              String s = International.getString("Der Start des herkömmlichen efa ist nun nur noch mit Paßwort möglich!");
+              Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_EFASECURE, s);
+              Dialog.meldung(s);
+          } else {
+              haltProgram(International.getMessage("efa konnte die Datei {filename} nicht löschen und wird daher beendet!",efaSec.getFilename()));
+          }
           // Standardwerte für Backups ändern
           Daten.efaConfig.bakSave = false;
           Daten.efaConfig.bakKonv = true;
@@ -791,8 +835,13 @@ public class EfaDirektFrame extends JFrame {
           Daten.backup = new Backup(Daten.efaBakDirectory,Daten.efaConfig.bakSave,Daten.efaConfig.bakMonat,Daten.efaConfig.bakTag,Daten.efaConfig.bakKonv);
           break;
         case 1:
-          if (efaSec.writeSecFile(efaSec.getSecValue(),true)) Dialog.meldung("Der Start des herkömmlichen efa ist weiterhin möglich!");
-          else haltProgram("efa konnte die Datei "+efaSec.getFilename()+" nicht schreiben und wird daher beendet!");
+          if (efaSec.writeSecFile(efaSec.getSecValue(),true)) {
+              String s = International.getString("Der Start des herkömmlichen efa ist auch ohne Paßwort möglich!");
+              Logger.log(Logger.WARNING, Logger.MSG_BHWARN_EFAUNSECURE, s);
+              Dialog.meldung(s);
+          } else {
+              haltProgram(International.getMessage("efa konnte die Datei {filename} nicht schreiben und wird daher beendet!",efaSec.getFilename()));
+          }
           break;
         default:
           haltProgram(null);
@@ -801,7 +850,7 @@ public class EfaDirektFrame extends JFrame {
 
     // efaSec löschen (außer, wenn DontDelete-Flag gesetzt ist)
     if (efaSec.secFileExists() && !efaSec.delete(false)) {
-      String s = "efa konnte die Datei "+efaSec.getFilename()+" nicht löschen und wird daher beendet!";
+      String s = International.getMessage("efa konnte die Datei {filename} nicht löschen und wird daher beendet!",efaSec.getFilename());
       haltProgram(s);
     }
 
@@ -809,33 +858,40 @@ public class EfaDirektFrame extends JFrame {
     Daten.bezeichnungen = new Bezeichnungen(Daten.efaCfgDirectory+Daten.BEZEICHFILE);
     if (!EfaUtil.canOpenFile(Daten.bezeichnungen.getFileName())) {
       if (Daten.bezeichnungen.createNewIfDoesntExist()) {
-        Logger.log(Logger.WARNING,"Liste der Bezeichnungen "+Daten.bezeichnungen.getFileName()+" mit Standard-Werten neu erzeugt.");
+          log_fileNewCreated(Daten.bezeichnungen.getFileName(), International.getString("Liste der Bezeichnungen"));
       } else {
-        haltProgram("Liste der Bezeichnungen "+Daten.bezeichnungen.getFileName()+" wurde nicht gefunden und konnte nicht neu erzeugt werden!");
+          haltProgram(logstring_fileCreationFailed(Daten.bezeichnungen.getFileName(), International.getString("Liste der Bezeichnungen")));
       }
     }
     if (!Daten.bezeichnungen.readFile()) {
-      haltProgram("Liste der Bezeichnungen "+Daten.bezeichnungen.getFileName()+" kann nicht gelesen werden!");
+      haltProgram(logstring_fileOpenFailed(Daten.bezeichnungen.getFileName(), International.getString("Liste der Bezeichnungen")));
     }
 
     // Fahrtenbuch öffnen, falls keines angegeben
     if (Daten.efaConfig.direkt_letzteDatei == null || Daten.efaConfig.direkt_letzteDatei.length()==0) {
 
-      if (neuerSuperAdmin) Dialog.infoDialog("Fahrtenbuch auswählen",
-                                             "Bisher wurde noch kein Fahrtenbuch ausgewählt, mit dem\n"+
-                                             "gearbeitet werden soll. Im folgenden Schritt wirst Du\n"+
-                                             "aufgefordert, ein Fahrtenbuch auszuwählen.\n"+
-                                             "Du mußt Dich daher zunächst als Administrator anmelden:\n"+
-                                             "Der Name des Super-Administrators lautet 'admin', das\n"+
-                                             "Paßwort hast Du eben selbst gewählt.");
+      if (neuerSuperAdmin) Dialog.infoDialog(International.getString("Fahrtenbuch auswählen"),
+                                             International.getString("Bisher wurde noch kein Fahrtenbuch ausgewählt, mit dem "+
+                                             "gearbeitet werden soll. Im folgenden Schritt wirst Du "+
+                                             "aufgefordert, ein Fahrtenbuch auszuwählen. "+
+                                             "Du mußt Dich daher zunächst als Administrator anmelden: "+
+                                             "Der Name des Super-Administrators lautet 'admin', das "+
+                                             "Paßwort hast Du eben selbst gewählt."));
       Admin admin = null;
       do {
-        admin = AdminLoginFrame.login(this,"Kein Fahrtenbuch ausgewählt");
-        if (admin == null) haltProgram("Programmende, da kein Fahrtenbuch ausgewählt und Admin-Login nicht erfolgreich.");
-        if (!admin.allowedFahrtenbuchAuswaehlen) Dialog.error("Du hast als Admin '"+admin.name+"' keine Berechtigung, ein Fahrtenbuch auszuwählen!");
+        admin = AdminLoginFrame.login(this,International.getString("Kein Fahrtenbuch ausgewählt"));
+        if (admin == null) {
+            haltProgram(International.getString("Programmende, da kein Fahrtenbuch ausgewählt und Admin-Login nicht erfolgreich."));
+        }
+        if (!admin.allowedFahrtenbuchAuswaehlen) {
+            Dialog.error(International.getMessage("Du hast als Admin '{name}' keine Berechtigung, ein Fahrtenbuch auszuwählen!",admin.name));
+        }
       } while (!admin.allowedFahrtenbuchAuswaehlen);
       String dat = null;
-      switch (Dialog.auswahlDialog("Fahrtenbuch auswählen","Möchtest Du ein neues Fahrtenbuch erstellen, oder ein vorhandenes öffnen?","Neues Fahrtenbuch erstellen","Vorhandenes Fahrtenbuch öffnen")) {
+      switch (Dialog.auswahlDialog(International.getString("Fahrtenbuch auswählen"),
+              International.getString("Möchtest Du ein neues Fahrtenbuch erstellen, oder ein vorhandenes öffnen?"),
+              International.getString("Neues Fahrtenbuch erstellen"),
+              International.getString("Vorhandenes Fahrtenbuch öffnen"))) {
         case 0: // Neues Fahrtenbuch erstellen
           FahrtenbuchNeuFortsetzenFrame dlg = new FahrtenbuchNeuFortsetzenFrame(this,false);
           Dialog.setDlgLocation(dlg,this);
@@ -846,15 +902,19 @@ public class EfaDirektFrame extends JFrame {
           }
           break;
         case 1: // Vorhandenes Fahrtenbuch öffnen
-          dat = Dialog.dateiDialog(this,"Fahrtenbuch öffnen","efa Fahrtenbuch (*.efb)","efb",Daten.efaDataDirectory,false);
+          dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuch öffnen"),
+                  International.getString("efa Fahrtenbuch")+" (*.efb)","efb",Daten.efaDataDirectory,false);
           break;
         default:
-          haltProgram("Kein Fahrtenbuch ausgewählt");
+          haltProgram(International.getString("Kein Fahrtenbuch ausgewählt"));
       }
       if (dat == null || dat.length()==0) haltProgram("Kein Fahrtenbuch ausgewählt");
       Daten.efaConfig.direkt_letzteDatei = dat;
-      Logger.log(Logger.INFO,"Neue Fahrtenbuchdatei "+dat+" ausgewählt.");
-      if (!Daten.efaConfig.writeFile()) haltProgram(Daten.efaConfig.getFileName()+" konnte nicht geschrieben werden!");
+      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_NEWLOGBOOKOPENED,
+              International.getMessage("Neue Fahrtenbuchdatei '{filename}' ausgewählt.",dat));
+      if (!Daten.efaConfig.writeFile()) {
+          haltProgram(logstring_fileCreationFailed(Daten.efaConfig.getFileName(), International.getString("Konfigurationsdatei")));
+      }
     }
 
     readFahrtenbuch();
@@ -868,83 +928,90 @@ public class EfaDirektFrame extends JFrame {
     Daten.mannschaften = new Mannschaften(Daten.efaDataDirectory+Daten.MANNSCHAFTENFILE);
     if (!EfaUtil.canOpenFile(Daten.mannschaften.getFileName())) {
       if (!Daten.mannschaften.writeFile()) {
-        haltProgram(Daten.mannschaften.getFileName()+" kann nicht erstellt werden!");
+        haltProgram(logstring_fileCreationFailed(Daten.mannschaften.getFileName(), International.getString("Liste der Standardmannschaften")));
       }
-      Logger.log(Logger.WARNING,"Standardmannschaften-Datei neu erstellt.");
+      log_fileNewCreated(Daten.mannschaften.getFileName(), International.getString("Liste der Standardmannschaften"));
     };
     if (!Daten.mannschaften.readFile()) {
-      Logger.log(Logger.WARNING,"Liste der Standardmannschaften "+Daten.mannschaften.getFileName()+" kann nicht gelesen werden!");
+        log_fileOpenFailed(Daten.mannschaften.getFileName(), International.getString("Liste der Standardmannschaften"));
     }
     // Synonymdateien einlesen
     Daten.synMitglieder = new Synonyme(Daten.efaDataDirectory+Daten.MITGLIEDER_SYNONYM);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.MITGLIEDER_SYNONYM)) {
-      if (Daten.synMitglieder.writeFile())
-        Logger.log(Logger.WARNING,"Mitglieder-Synonymdatei '"+Daten.efaDataDirectory+Daten.MITGLIEDER_SYNONYM+"' wurde neu erstellt.");
-      else
-        Logger.log(Logger.ERROR,"Mitglieder-Synonymdatei '"+Daten.efaDataDirectory+Daten.MITGLIEDER_SYNONYM+"' konnte nicht erstellt werden.");
+      if (Daten.synMitglieder.writeFile()) {
+          log_fileNewCreated(Daten.synMitglieder.getFileName(), International.getString("Mitglieder-Synonymliste"));
+      } else {
+          log_fileCreationFailed(Daten.synMitglieder.getFileName(), International.getString("Mitglieder-Synonymliste"));
+      }
     }
     if (!Daten.synMitglieder.readFile()) {
-      Logger.log(Logger.ERROR,"Mitglieder-Synonymdatei '"+Daten.efaDataDirectory+Daten.MITGLIEDER_SYNONYM+"' konnte nicht gelesen werden.");
+        log_fileOpenFailed(Daten.synMitglieder.getFileName(), International.getString("Mitglieder-Synonymliste"));
     }
     Daten.synBoote = new Synonyme(Daten.efaDataDirectory+Daten.BOOTE_SYNONYM);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.BOOTE_SYNONYM)) {
-      if (Daten.synBoote.writeFile())
-        Logger.log(Logger.WARNING,"Boots-Synonymdatei '"+Daten.efaDataDirectory+Daten.BOOTE_SYNONYM+"' wurde neu erstellt.");
-      else
-        Logger.log(Logger.ERROR,"Boots-Synonymdatei '"+Daten.efaDataDirectory+Daten.BOOTE_SYNONYM+"' konnte nicht erstellt werden.");
+      if (Daten.synBoote.writeFile()) {
+          log_fileNewCreated(Daten.synBoote.getFileName(), International.getString("Boots-Synonymliste"));
+      } else {
+          log_fileCreationFailed(Daten.synBoote.getFileName(), International.getString("Boots-Synonymliste"));
+      }
     }
     if (!Daten.synBoote.readFile()) {
-      Logger.log(Logger.ERROR,"Boots-Synonymdatei '"+Daten.efaDataDirectory+Daten.BOOTE_SYNONYM+"' konnte nicht gelesen werden.");
+        log_fileOpenFailed(Daten.synBoote.getFileName(), International.getString("Boots-Synonymliste"));
     }
     Daten.synZiele = new Synonyme(Daten.efaDataDirectory+Daten.ZIELE_SYNONYM);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.ZIELE_SYNONYM)) {
-      if (Daten.synZiele.writeFile())
-        Logger.log(Logger.WARNING,"Ziel-Synonymdatei '"+Daten.efaDataDirectory+Daten.ZIELE_SYNONYM+"' wurde neu erstellt.");
-      else
-        Logger.log(Logger.ERROR,"Ziel-Synonymdatei '"+Daten.efaDataDirectory+Daten.ZIELE_SYNONYM+"' konnte nicht erstellt werden.");
+      if (Daten.synZiele.writeFile()) {
+          log_fileNewCreated(Daten.synZiele.getFileName(), International.getString("Ziel-Synonymliste"));
+      } else {
+          log_fileCreationFailed(Daten.synZiele.getFileName(), International.getString("Ziel-Synonymliste"));
+      }
     }
     if (!Daten.synZiele.readFile()) {
-      Logger.log(Logger.ERROR,"Ziel-Synonymdatei '"+Daten.efaDataDirectory+Daten.ZIELE_SYNONYM+"' konnte nicht gelesen werden.");
+        log_fileOpenFailed(Daten.synZiele.getFileName(), International.getString("Ziel-Synonymliste"));
     }
     Daten.adressen = new Adressen(Daten.efaDataDirectory+Daten.ADRESSENFILE);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.ADRESSENFILE)) {
-      if (Daten.adressen.writeFile())
-        Logger.log(Logger.WARNING,"Adressendatei '"+Daten.efaDataDirectory+Daten.ADRESSENFILE+"' wurde neu erstellt.");
-      else
-        Logger.log(Logger.ERROR,"Adressendatei '"+Daten.efaDataDirectory+Daten.ADRESSENFILE+"' konnte nicht erstellt werden.");
+      if (Daten.adressen.writeFile()) {
+          log_fileNewCreated(Daten.adressen.getFileName(), International.getString("Adressenliste"));
+      } else {
+          log_fileCreationFailed(Daten.adressen.getFileName(), International.getString("Adressenliste"));
+      }
     }
     if (!Daten.adressen.readFile()) {
-      Logger.log(Logger.ERROR,"Adressendatei '"+Daten.efaDataDirectory+Daten.ADRESSENFILE+"' konnte nicht gelesen werden.");
+        log_fileOpenFailed(Daten.adressen.getFileName(), International.getString("Adressenliste"));
     }
     Daten.vereinsConfig = new VereinsConfig(Daten.efaDataDirectory+Daten.VEREINSCONFIG);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.VEREINSCONFIG)) {
-      if (Daten.vereinsConfig.writeFile())
-        Logger.log(Logger.WARNING,"Vereinskonfiguration '"+Daten.efaDataDirectory+Daten.VEREINSCONFIG+"' wurde neu erstellt.");
-      else
-        Logger.log(Logger.ERROR,"Vereinskonfiguration '"+Daten.efaDataDirectory+Daten.VEREINSCONFIG+"' konnte nicht erstellt werden.");
+      if (Daten.vereinsConfig.writeFile()) {
+          log_fileNewCreated(Daten.vereinsConfig.getFileName(), International.getString("Vereinskonfiguration"));
+      } else {
+          log_fileCreationFailed(Daten.vereinsConfig.getFileName(), International.getString("Vereinskonfiguration"));
+      }
     }
     if (!Daten.vereinsConfig.readFile()) {
-      Logger.log(Logger.ERROR,"Vereinskonfiguration '"+Daten.efaDataDirectory+Daten.VEREINSCONFIG+"' konnte nicht gelesen werden.");
+        log_fileOpenFailed(Daten.vereinsConfig.getFileName(), International.getString("Vereinskonfiguration"));
     }
     Daten.fahrtenabzeichen = new Fahrtenabzeichen(Daten.efaDataDirectory+Daten.FAHRTENABZEICHEN);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.FAHRTENABZEICHEN)) {
-      if (Daten.fahrtenabzeichen.writeFile())
-        Logger.log(Logger.WARNING,"DRV-Fahrtenabezeichendatei '"+Daten.efaDataDirectory+Daten.FAHRTENABZEICHEN+"' wurde neu erstellt.");
-      else
-        Logger.log(Logger.ERROR,"DRV-Fahrtenabezeichendatei '"+Daten.efaDataDirectory+Daten.FAHRTENABZEICHEN+"' konnte nicht erstellt werden.");
+      if (Daten.fahrtenabzeichen.writeFile()) {
+          log_fileNewCreated(Daten.fahrtenabzeichen.getFileName(), International.getString("Liste der DRV-Fahrtenabezeichen"));
+      } else {
+          log_fileCreationFailed(Daten.fahrtenabzeichen.getFileName(), International.getString("Liste der DRV-Fahrtenabezeichen"));
+      }
     }
     if (!Daten.fahrtenabzeichen.readFile()) {
-      Logger.log(Logger.ERROR,"DRV-Fahrtenabezeichendatei '"+Daten.efaDataDirectory+Daten.FAHRTENABZEICHEN+"' konnte nicht gelesen werden.");
+        log_fileOpenFailed(Daten.fahrtenabzeichen.getFileName(), International.getString("Liste der DRV-Fahrtenabezeichen"));
     }
     Daten.gruppen = new Gruppen(Daten.efaDataDirectory+Daten.GRUPPEN);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.GRUPPEN)) {
-      if (Daten.gruppen.writeFile())
-        Logger.log(Logger.INFO,"Gruppendatei '"+Daten.efaDataDirectory+Daten.GRUPPEN+"' wurde neu erstellt.");
-      else
-        Logger.log(Logger.ERROR,"Gruppendatei '"+Daten.efaDataDirectory+Daten.GRUPPEN+"' konnte nicht erstellt werden.");
+      if (Daten.gruppen.writeFile()) {
+          log_fileNewCreated(Daten.gruppen.getFileName(), International.getString("Liste der Gruppen"));
+      } else {
+          log_fileCreationFailed(Daten.gruppen.getFileName(), International.getString("Liste der Gruppen"));
+      }
     }
     if (!Daten.gruppen.readFile()) {
-      Logger.log(Logger.ERROR,"Gruppendatei '"+Daten.efaDataDirectory+Daten.GRUPPEN+"' konnte nicht gelesen werden.");
+        log_fileOpenFailed(Daten.gruppen.getFileName(), International.getString("Liste Gruppen"));
     }
 
     setButtonsLookAndFeel();
@@ -957,7 +1024,8 @@ public class EfaDirektFrame extends JFrame {
       Daten.checkJavaVersion(false);
     }
 
-    Logger.log(Logger.INFO,"BEREIT");
+    Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_EFAREADY,
+            International.getString("BEREIT"));
 
     // EfaFrame vorbereiten
     efaFrame = new EfaFrame(this,Daten.nachrichten);
@@ -985,25 +1053,32 @@ public class EfaDirektFrame extends JFrame {
   // Fahrtenbuch einlesen
   public void readFahrtenbuch() {
     if (Daten.efaConfig == null || Daten.efaConfig.direkt_letzteDatei == null || Daten.efaConfig.direkt_letzteDatei.length()==0) {
-      haltProgram("Oops! Kein Fahrtenbuch zum Öffnen da!");
+      haltProgram(International.getString("Oops! Kein Fahrtenbuch zum Öffnen da!"));
     } else {
       Daten.fahrtenbuch = new Fahrtenbuch(Daten.efaConfig.direkt_letzteDatei);
       int sveAction = Daten.actionOnDatenlisteNotFound;
       Daten.actionOnDatenlisteNotFound = Daten.DATENLISTE_FRAGE_REQUIRE_ADMIN_RETURN_FALSE_ON_NEIN;
       while (!Daten.fahrtenbuch.readFile()) {
-        Dialog.error("Kann Fahrtenbuch-Datei "+Daten.efaConfig.direkt_letzteDatei+" nicht öffnen!");
+        Dialog.error(International.getMessage("Fahrtenbuch-Datei {filename} kann nicht geöffnet werden!",Daten.efaConfig.direkt_letzteDatei));
 
         Admin admin = null;
         do {
-          admin = AdminLoginFrame.login(this,"Fahrtenbuch konnte nicht geöffnet werden");
-          if (admin == null) haltProgram("Programmende, da Fahrtenbuch nicht geöffnet werden konnte und Admin-Login nicht erfolgreich.");
-          if (!admin.allowedFahrtenbuchAuswaehlen) Dialog.error("Du hast als Admin '"+admin.name+"' keine Berechtigung, ein Fahrtenbuch auszuwählen!");
+          admin = AdminLoginFrame.login(this,International.getString("Fahrtenbuch konnte nicht geöffnet werden"));
+          if (admin == null) {
+              haltProgram(International.getString("Programmende, da Fahrtenbuch nicht geöffnet werden konnte und Admin-Login nicht erfolgreich."));
+          }
+          if (!admin.allowedFahrtenbuchAuswaehlen) {
+              Dialog.error(International.getMessage("Du hast als Admin {name} keine Berechtigung, ein Fahrtenbuch auszuwählen!",admin.name));
+          }
         } while (!admin.allowedFahrtenbuchAuswaehlen);
 
-        String dat = Dialog.dateiDialog(this,"Fahrtenbuch öffnen","efa Fahrtenbuch (*.efb)","efb",Daten.efaDataDirectory,false);
-        if (dat == null || dat.length()==0) haltProgram("Kein Fahrtenbuch ausgewählt.");
+        String dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuch öffnen"),
+                International.getString("efa Fahrtenbuch")+" (*.efb)","efb",Daten.efaDataDirectory,false);
+        if (dat == null || dat.length()==0) haltProgram(International.getString("Kein Fahrtenbuch ausgewählt."));
         Daten.efaConfig.direkt_letzteDatei = dat;
-        if (!Daten.efaConfig.writeFile()) haltProgram(Daten.efaConfig.getFileName()+" konnte nicht geschrieben werden!");
+        if (!Daten.efaConfig.writeFile()) {
+            haltProgram(logstring_fileCreationFailed(Daten.efaConfig.getFileName(), International.getString("Konfigurationsdatei")));
+        }
         Daten.fahrtenbuch = new Fahrtenbuch(Daten.efaConfig.direkt_letzteDatei);
       }
       Daten.actionOnDatenlisteNotFound = sveAction;
@@ -1011,7 +1086,8 @@ public class EfaDirektFrame extends JFrame {
         Daten.fahrtenbuch.getDaten().mitglieder.getAliases();
 
     }
-    Logger.log(Logger.INFO,"Fahrtenbuch "+Daten.fahrtenbuch.getFileName()+" geöffnet.");
+    Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_LOGBOOKOPENED,
+            International.getMessage("Fahrtenbuch '{filename}' geöffnet.",Daten.fahrtenbuch.getFileName()));
   }
 
   public boolean sindNochBooteUnterwegs() {

@@ -111,16 +111,34 @@ public class Logger {
   public static final String MSG_BHEVENTS_UNLOCKED           = "EVT001";
   public static final String MSG_BHEVENTS_EFAEXIT            = "EVT002";
   public static final String MSG_BHEVENTS_EFAEXITABORTED     = "EVT003";
+  public static final String MSG_BHEVENTS_EFAEXITEXECCMD     = "EVT004";
+  public static final String MSG_BHEVENTS_EFARESTART         = "EVT005";
+  public static final String MSG_BHEVENTS_SUPERADMINCREATED  = "EVT005";
+  public static final String MSG_BHEVENTS_EFASECURE          = "EVT006";
+  public static final String MSG_BHEVENTS_NEWLOGBOOKOPENED   = "EVT007";
+  public static final String MSG_BHEVENTS_EFAREADY           = "EVT008";
+  public static final String MSG_BHEVENTS_LOGBOOKOPENED      = "EVT009";
 
   // efa in the Boat House - Errors
-  public static final String MSG_BHERR_PANIC                 = "ERR001";
-  public static final String MSG_BHERR_EFARUNNING_FAILED     = "ERR002";
-  public static final String MSG_BHERR_SENDMAILFAILED_PLUGIN = "ERR003";
-  public static final String MSG_BHERR_SENDMAILFAILED_CFG    = "ERR004";
-  public static final String MSG_BHERR_SENDMAILFAILED_ERROR  = "ERR004";
+  public static final String MSG_BHERR_GENERIC               = "ERR001";
+  public static final String MSG_BHERR_PANIC                 = "ERR002";
+  public static final String MSG_BHERR_EFARUNNING_FAILED     = "ERR003";
+  public static final String MSG_BHERR_SENDMAILFAILED_PLUGIN = "ERR004";
+  public static final String MSG_BHERR_SENDMAILFAILED_CFG    = "ERR005";
+  public static final String MSG_BHERR_SENDMAILFAILED_ERROR  = "ERR006";
+  public static final String MSG_BHERR_EFAEXITEXECCMD_FAILED = "ERR007";
+  public static final String MSG_BHERR_EFARESTARTEXEC_FAILED = "ERR008";
+  public static final String MSG_BHERR_EXITLOWMEMORY         = "ERR009";
+  public static final String MSG_BHERR_EXITONERROR           = "ERR010";
+  public static final String MSG_BHERR_NOSUPERADMIN          = "ERR011";
+  public static final String MSG_BHERR_FILEOPENFAILED        = "ERR012";
+  public static final String MSG_BHERR_FILECREATEFAILED      = "ERR013";
 
   // efa in the Boat House - Warnings
   public static final String MSG_BHWARN_EFARUNNING_FAILED    = "WRN001";
+  public static final String MSG_BHWARN_JAVA_VERSION         = "WRN002";
+  public static final String MSG_BHWARN_EFAUNSECURE          = "WRN003";
+  public static final String MSG_BHWARN_FILENEWCREATED       = "WRN003";
 
   // Debug Logging
   public static final String MSG_DEBUG_GENERIC               = "DBG001";

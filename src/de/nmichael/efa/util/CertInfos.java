@@ -17,6 +17,8 @@ import java.security.MessageDigest;
 import java.security.cert.X509Certificate;
 import java.security.cert.CertificateFactory;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class CertInfos {
 
   public static String getCertInfos(X509Certificate cert, String filename) {

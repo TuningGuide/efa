@@ -17,6 +17,8 @@ import javax.swing.UIManager;
 import java.awt.*;
 import java.io.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class Main {
   static boolean ignore  = false;
   boolean packFrame = false;

@@ -17,6 +17,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 
+// @i18n complete
+
 public class AutoCompletePopupWindow extends JWindow {
   private static AutoCompletePopupWindow window = null;
 

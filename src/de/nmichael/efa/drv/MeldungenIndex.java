@@ -16,6 +16,8 @@ import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 import java.io.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class MeldungenIndex extends DatenListe {
 
   public static final int _ANZFELDER = 7;

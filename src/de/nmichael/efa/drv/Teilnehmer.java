@@ -12,6 +12,8 @@ package de.nmichael.efa.drv;
 
 import de.nmichael.efa.core.DatenListe;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class Teilnehmer extends DatenListe {
 
   public static final int _ANZFELDER = 5;

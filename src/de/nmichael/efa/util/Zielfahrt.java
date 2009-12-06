@@ -14,6 +14,8 @@ import de.nmichael.efa.*;
 import java.util.*;
 
 
+// @i18n complete
+
 public class Zielfahrt {
 
   public static final int ANZ_ZIELBEREICHE = 13;

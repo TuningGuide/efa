@@ -12,6 +12,8 @@ package de.nmichael.efa.util;
 
 import java.util.GregorianCalendar;
 
+// @i18n complete
+
 public class TMJ implements Cloneable {
 
   public int tag,monat,jahr;

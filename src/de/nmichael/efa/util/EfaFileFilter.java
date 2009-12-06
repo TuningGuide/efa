@@ -12,6 +12,8 @@ package de.nmichael.efa.util;
 
 import java.io.*;
 
+// @i18n complete
+
 public class EfaFileFilter extends javax.swing.filechooser.FileFilter {
 
   String description = "";

@@ -13,6 +13,8 @@ package de.nmichael.efa.util;
 import de.nmichael.efa.*;
 import java.io.*;
 
+// @i18n complete
+
 public class EfaSec {
 
   private String filename;

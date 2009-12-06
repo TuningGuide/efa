@@ -21,6 +21,8 @@ import java.io.*;
 import java.util.*;
 import de.nmichael.efa.*;
 
+// @i18n complete
+
 public class NachrichtAnAdminFrame extends JDialog implements ActionListener {
 
   boolean gesendet = false;
@@ -98,24 +100,20 @@ public class NachrichtAnAdminFrame extends JDialog implements ActionListener {
       ah.addKeyActions(getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW,
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
+      Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("Nachricht abschicken"));
       okButton.setNextFocusableComponent(closeButton);
-      okButton.setMnemonic('A');
-      okButton.setText("Nachricht abschicken");
       okButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           okButton_actionPerformed(e);
         }
     });
       jPanel2.setLayout(gridBagLayout1);
-      jLabel1.setDisplayedMnemonic('N');
+      Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Dein Name")+": ");
       jLabel1.setLabelFor(name);
-      jLabel1.setText("Dein Name: ");
-      jLabel2.setDisplayedMnemonic('A');
+      Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Nachricht")+": ");
       jLabel2.setLabelFor(nachricht);
-      jLabel2.setText("Nachricht: ");
-      jLabel3.setDisplayedMnemonic('B');
+      Mnemonics.setLabel(this, jLabel3, International.getStringWithMnemonic("Betreff")+": ");
       jLabel3.setLabelFor(betreff);
-      jLabel3.setText("Betreff: ");
       name.setNextFocusableComponent(betreff);
       Dialog.setPreferredSize(empfaenger,400,17);
       Dialog.setPreferredSize(name,400,17);
@@ -137,15 +135,13 @@ public class NachrichtAnAdminFrame extends JDialog implements ActionListener {
       Dialog.setPreferredSize(jScrollPane1,400,150);
       nachricht.setNextFocusableComponent(okButton);
       nachricht.setLineWrap(true);
-      this.setTitle("Nachricht an Admin");
-      jLabel4.setDisplayedMnemonic('E');
+      this.setTitle(International.getString("Nachricht an Admin"));
+      Mnemonics.setLabel(this, jLabel4, International.getStringWithMnemonic("Empfänger")+": ");
       jLabel4.setLabelFor(empfaenger);
-      jLabel4.setText("Empfänger: ");
       empfaenger.setNextFocusableComponent(name);
       southPanel.setLayout(borderLayout2);
+      Mnemonics.setButton(this, closeButton, International.getStringWithMnemonic("Schließen"));
       closeButton.setNextFocusableComponent(empfaenger);
-      closeButton.setMnemonic('S');
-      closeButton.setText("Schließen");
       closeButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           closeButton_actionPerformed(e);
@@ -199,17 +195,17 @@ public class NachrichtAnAdminFrame extends JDialog implements ActionListener {
 
   void okButton_actionPerformed(ActionEvent e) {
     if (name.getText().trim().length()==0) {
-      Dialog.error("Bitte gib einen Namen ein!");
+      Dialog.error(International.getString("Bitte gib einen Namen ein!"));
       name.requestFocus();
       return;
     }
     if (betreff.getText().trim().length()==0) {
-      Dialog.error("Bitte gib einen Betreff ein!");
+      Dialog.error(International.getString("Bitte gib einen Betreff ein!"));
       betreff.requestFocus();
       return;
     }
     if (nachricht.getText().trim().length()==0) {
-      Dialog.error("Bitte gib einen Nachrichtentext ein!");
+      Dialog.error(International.getString("Bitte gib einen Nachrichtentext ein!"));
       nachricht.requestFocus();
       return;
     }

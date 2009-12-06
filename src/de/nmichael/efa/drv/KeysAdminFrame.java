@@ -25,6 +25,8 @@ import java.security.cert.*;
 import java.security.cert.Certificate;
 import java.net.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class KeysAdminFrame extends JDialog implements ActionListener {
   JDialog parent;
   DRVConfig drvConfig;

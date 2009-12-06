@@ -12,6 +12,8 @@ package de.nmichael.efa.util;
 
 import javax.swing.SwingUtilities;
 
+// @i18n complete
+
 /**
  * This is the 3rd version of SwingWorker (also known as
  * SwingWorker 3), an abstract class that you subclass to

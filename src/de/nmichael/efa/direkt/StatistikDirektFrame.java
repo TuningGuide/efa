@@ -22,6 +22,8 @@ import javax.swing.border.*;
 import java.util.*;
 import java.beans.*;
 
+// @i18n complete
+
 public class StatistikDirektFrame extends JDialog implements ActionListener {
   EfaDirektFrame parent;
   JPanel jPanel1 = new JPanel();
@@ -108,19 +110,17 @@ public class StatistikDirektFrame extends JDialog implements ActionListener {
     }
     jPanel1.setLayout(borderLayout1);
     createButton.setNextFocusableComponent(closeButton);
-    createButton.setMnemonic('S');
-    createButton.setText("Statistik erstellen");
+    Mnemonics.setButton(this, createButton, International.getStringWithMnemonic("Statistik erstellen"));
     createButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         createButton_actionPerformed(e);
       }
     });
-    this.setTitle("Statistik erstellen");
+    this.setTitle(International.getString("Statistik erstellen"));
     list.setNextFocusableComponent(createButton);
     list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     closeButton.setNextFocusableComponent(list);
-    closeButton.setMnemonic('C');
-    closeButton.setText("Schließen");
+    Mnemonics.setButton(this, closeButton, International.getStringWithMnemonic("Schließen"));
     closeButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         closeButton_actionPerformed(e);
@@ -166,7 +166,7 @@ public class StatistikDirektFrame extends JDialog implements ActionListener {
 
   void createButton_actionPerformed(ActionEvent e) {
     if (list.getSelectedValue() == null) {
-      Dialog.error("Bitte wähle zunächst eine Statistik aus!");
+      Dialog.error(International.getString("Bitte wähle eine Statistik aus!"));
       return;
     }
 
@@ -177,7 +177,10 @@ public class StatistikDirektFrame extends JDialog implements ActionListener {
     } catch(Exception ee) {
     }
     if (d == null) {
-      Dialog.error("Statistik nicht gefunden!"); // sollte nie passieren
+      Logger.log(Logger.ERROR, Logger.MSG_BHERR_STATISTICNOTFOUND,
+              International.getString("Fehler beim Erstellen der Statistik!") + " " +
+              International.getString("Statistik nicht gefunden!"));
+      Dialog.error(International.getString("Statistik nicht gefunden!")); // sollte nie passieren
       return;
     }
 
@@ -188,13 +191,19 @@ public class StatistikDirektFrame extends JDialog implements ActionListener {
       StatistikFrame.allgStatistikDaten(sd[0]);
       sd[0].parent = this;
     } catch(StringIndexOutOfBoundsException ee) {
-      Dialog.error("Fehler beim Lesen der gespeicherten Konfiguration!");
+      Logger.log(Logger.ERROR, Logger.MSG_BHERR_ERRORCREATINGSTATISTIC,
+              International.getString("Fehler beim Erstellen der Statistik!") + " " +
+              International.getString("Fehler beim Lesen der gespeicherten Konfiguration!"));
+      Dialog.error(International.getString("Fehler beim Lesen der gespeicherten Konfiguration!"));
     }
 
     try {
       startStatistik(sd);
     } catch(Exception ee) {
-      Dialog.error("Fehler beim Erstellen der Statistik!");
+      Logger.log(Logger.ERROR, Logger.MSG_BHERR_ERRORCREATINGSTATISTIC,
+              International.getString("Fehler beim Erstellen der Statistik!") + " " +
+              ee.toString());
+      Dialog.error(International.getString("Fehler beim Erstellen der Statistik!"));
     }
   }
 
@@ -206,14 +215,14 @@ public class StatistikDirektFrame extends JDialog implements ActionListener {
   public void startStatistik(StatistikDaten[] d) {
     // Statistikberechnung mit Progress-Bar
     statistikThread = new StatistikThread();
-    progressMonitor = new ProgressMonitor(this, "Statistikberechnung", "", 0, statistikThread.getLengthOfTask());
+    progressMonitor = new ProgressMonitor(this, International.getString("Statistikberechnung"), "", 0, statistikThread.getLengthOfTask());
     progressMonitor.setProgress(0);
     progressMonitor.setMaximum(1);
     progressMonitor.setMillisToDecideToPopup(PROGRESS_TIMETOPOPUP);
       // enableFrame(...) gibt false zurück, wenn das Frame bereits disabled ist, d.h. wenn bereits eine Berechnung
       // läuft. Dies ist ein Bugfix, damit eine Statistikberechnung nicht mehrfach parallel ausgeführt werden kann
       // 13.01.2006 (Bugfix für MG)
-    if (enableFrame(false,"efa berechnet die Statistik ...",true)) {
+    if (enableFrame(false,International.getString("efa berechnet die Statistik ..."),true)) {
       Thread thr = statistikThread.go(d);
       timer.start();
     }
@@ -240,10 +249,10 @@ public class StatistikDirektFrame extends JDialog implements ActionListener {
         try {
           Thread.sleep(2000);
         } catch(Exception e) { EfaUtil.foo(); }
-        createButton.setText("Statistik erstellen");
+        createButton.setText(International.getString("Statistik erstellen"));
         createButton.setForeground(Color.black);
       }
-    } else createButton.setText("Statistik erstellen");
+    } else createButton.setText(International.getString("Statistik erstellen"));
     return true;
   }
 

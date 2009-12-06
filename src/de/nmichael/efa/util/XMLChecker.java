@@ -14,6 +14,8 @@ import de.nmichael.efa.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
+// @i18n complete
+
 public class XMLChecker extends DefaultHandler {
 
   Locator locator;
@@ -59,7 +61,7 @@ public class XMLChecker extends DefaultHandler {
 
 
   static void printHelp() {
-    System.out.println("XMLChecker v0.01, (c) 2002 by Nicolas Michael (http://www.nmichael.de/)");
+    System.out.println("XMLChecker "+Daten.VERSION+", (c) 2002-"+Daten.COPYRIGHTYEAR+" by Nicolas Michael ("+Daten.EFAURL+")");
     System.out.println("XMLChecker is based on the Xerces XML parser.");
     System.out.println("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).\n");
     System.out.println("XMLChecker [options] filename");

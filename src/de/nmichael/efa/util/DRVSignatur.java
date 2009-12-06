@@ -17,6 +17,8 @@ import java.security.*;
 import java.security.cert.*;
 import java.security.cert.Certificate;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class DRVSignatur {
 
   private String _meldung = null; // Meldung als String bestehend aus den folgenden Feldern

@@ -35,6 +35,7 @@ public class Logger {
 
   // Core Functionality Informations (multiple source files)
   public static final String MSG_INFO_CONFIGURATION          = "INF001";
+  public static final String MSG_INFO_VERSION                = "INF002";
 
   // Core Functionality Errors and Warnings (multiple source files)
   public static final String MSG_CORE_SETUPDIRS              = "COR001";
@@ -108,6 +109,8 @@ public class Logger {
   public static final String MSG_CSVFILE_OOMSAVEERROR        = "CSV015";
 
   // efa in the Boat House - Events (multiple source files)
+  public static final String MSG_BHEVENTS_EFASTART           = "EVT002";
+  public static final String MSG_BHEVENTS_LOCKED             = "EVT001";
   public static final String MSG_BHEVENTS_UNLOCKED           = "EVT001";
   public static final String MSG_BHEVENTS_EFAEXIT            = "EVT002";
   public static final String MSG_BHEVENTS_EFAEXITABORTED     = "EVT003";
@@ -118,6 +121,24 @@ public class Logger {
   public static final String MSG_BHEVENTS_NEWLOGBOOKOPENED   = "EVT007";
   public static final String MSG_BHEVENTS_EFAREADY           = "EVT008";
   public static final String MSG_BHEVENTS_LOGBOOKOPENED      = "EVT009";
+  public static final String MSG_BHEVENTS_TRIPUNKNOWNBOAT    = "EVT010";
+  public static final String MSG_BHEVENTS_TRIPSTART_BNA      = "EVT011";
+  public static final String MSG_BHEVENTS_TRIPSTART_CORR     = "EVT012";
+  public static final String MSG_BHEVENTS_TRIPSTART_CORRUKNW = "EVT013";
+  public static final String MSG_BHEVENTS_TRIPSTART_CORRSNOT = "EVT014";
+  public static final String MSG_BHEVENTS_TRIPABORT          = "EVT015";
+  public static final String MSG_BHEVENTS_AUTOSTARTNEWLOGBOOK= "EVT016";
+  public static final String MSG_BHEVENTS_AUTOSTARTNEWLB_LX  = "EVT017";
+  public static final String MSG_BHEVENTS_AUTOSTARTNEWLBDONE = "EVT017";
+  public static final String MSG_BHEVENTS_AUTONEWLOGROLLBACK = "EVT017";
+  public static final String MSG_BHEVENTS_CHECKFORWARNINGS   = "EVT017";
+  public static final String MSG_BHEVENTS_RESCHECK_AVAIL     = "EVT017";
+  public static final String MSG_BHEVENTS_RESCHECK_RESFOUND  = "EVT017";
+  public static final String MSG_BHEVENTS_TIMEBASEDEXIT      = "EVT017";
+  public static final String MSG_BHEVENTS_TIMEBASEDEXITDELAY = "EVT017";
+  public static final String MSG_BHEVENTS_MEMORYSUPERVISOR   = "EVT006";
+  public static final String MSG_BHEVENTS_LOGFILEARCHIVED    = "EVT006";
+  public static final String MSG_BHEVENTS_ERRORCNTMSGCLEAR   = "EVT006";
 
   // efa in the Boat House - Errors
   public static final String MSG_BHERR_GENERIC               = "ERR001";
@@ -133,18 +154,41 @@ public class Logger {
   public static final String MSG_BHERR_NOSUPERADMIN          = "ERR011";
   public static final String MSG_BHERR_FILEOPENFAILED        = "ERR012";
   public static final String MSG_BHERR_FILECREATEFAILED      = "ERR013";
+  public static final String MSG_BHERR_FILEWRITEFAILED       = "ERR014";
+  public static final String MSG_BHERR_BOATNOTFOUNDINSTATUS  = "ERR015";
+  public static final String MSG_BHERR_NOLOGENTRYFORBOAT     = "ERR016";
+  public static final String MSG_BHERR_TRIPSTARTNOTPOSSIBLE1 = "ERR017";
+  public static final String MSG_BHERR_AUTOSTARTNEWLOGBOOK   = "ERR016";
+  public static final String MSG_BHERR_AUTONEWLOGROLLBACK    = "ERR017";
+  public static final String MSG_BHERR_INCONSISTENTSTATE     = "ERR018";
+  public static final String MSG_BHERR_CHECKFORWARNINGS      = "ERR017";
+  public static final String MSG_BHERR_STATISTICNOTFOUND     = "ERR017";
+  public static final String MSG_BHERR_ERRORCREATINGSTATISTIC= "ERR017";
 
   // efa in the Boat House - Warnings
   public static final String MSG_BHWARN_EFARUNNING_FAILED    = "WRN001";
   public static final String MSG_BHWARN_JAVA_VERSION         = "WRN002";
   public static final String MSG_BHWARN_EFAUNSECURE          = "WRN003";
   public static final String MSG_BHWARN_FILENEWCREATED       = "WRN003";
+  public static final String MSG_BHWARN_BOATADDEDWITHSTATUS1 = "WRN004";
+  public static final String MSG_BHWARN_BOATADDEDWITHSTATUS2 = "WRN005";
+  public static final String MSG_BHWARN_BOATDELETEDFROMLIST  = "WRN005";
+  public static final String MSG_BHWARN_CANTEXECCOMMAND      = "WRN006";
+  public static final String MSG_BHWARN_AUTONEWLOGROLLBACK   = "WRN006";
+  public static final String MSG_BHWARN_MEMORYSUPERVISOR     = "WRN006";
+  public static final String MSG_BHWARN_CANTSETLOOKANDFEEL   = "WRN006";
+  public static final String MSG_BHWARN_CANTSETFONTSIZE      = "WRN006";
+  public static final String MSG_BHWARN_CANTGETEFAJAVAARGS   = "WRN006";
+  public static final String MSG_BHWARN_ERRORCNTMSGEXCEEDED  = "WRN006";
 
   // Debug Logging
   public static final String MSG_DEBUG_GENERIC               = "DBG001";
   public static final String MSG_DEBUG_EFAWETT               = "DBG002";
   public static final String MSG_DEBUG_STATISTICS            = "DBG003";
   public static final String MSG_DEBUG_EFARUNNING            = "DBG004";
+  public static final String MSG_DEBUG_EFABACKGROUNDTASK     = "DBG005";
+  public static final String MSG_DEBUG_MEMORYSUPERVISOR      = "DBG006";
+  public static final String MSG_DEBUG_SIMPLEFILEPRINTER     = "DBG007";
 
 
   public static boolean debugLogging = false;

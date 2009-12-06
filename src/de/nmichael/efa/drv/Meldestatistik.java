@@ -15,6 +15,8 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.*;
 import java.io.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class Meldestatistik extends DatenListe {
 
   public static final int _ANZFELDER = 26;

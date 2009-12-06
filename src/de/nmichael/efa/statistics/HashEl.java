@@ -14,6 +14,8 @@ import de.nmichael.efa.util.ZielfahrtFolge;
 import java.util.*;
 import de.nmichael.efa.*;
 
+// @i18n complete
+
 // Ein Element der Hashtable
 class HashEl {
 

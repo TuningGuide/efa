@@ -43,6 +43,8 @@ import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
+// @i18n complete
+
 public class TableSorter extends TableMap {
     int             indexes[];
     Vector          sortingColumns = new Vector();

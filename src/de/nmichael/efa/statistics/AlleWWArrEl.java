@@ -12,6 +12,8 @@ package de.nmichael.efa.statistics;
 
 import de.nmichael.efa.util.EfaUtil;
 
+// @i18n complete
+
 // Ein Element des AlleWWArr-Arrays
 class AlleWWArrEl implements Comparable {
 

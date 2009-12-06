@@ -12,8 +12,10 @@ package de.nmichael.efa.direkt;
 
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.*;
 import java.util.*;
+
+// @i18n complete
 
 public class Nachricht {
 
@@ -42,8 +44,8 @@ public class Nachricht {
 
   public static String getEmpfaengerName(int empfaenger) {
     switch(empfaenger) {
-      case ADMIN: return "Administrator";
-      case BOOTSWART: return "Bootswart";
+      case ADMIN: return International.getString("Administrator");
+      case BOOTSWART: return International.getString("Bootswart");
     }
     return null;
   }

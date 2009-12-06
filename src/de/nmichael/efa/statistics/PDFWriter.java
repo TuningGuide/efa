@@ -13,6 +13,8 @@ package de.nmichael.efa.statistics;
 import de.nmichael.efa.*;
 import java.io.*;
 
+// @i18n complete
+
 public class PDFWriter {
 
   StatistikDaten sd;

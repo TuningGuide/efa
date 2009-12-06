@@ -17,6 +17,8 @@ import de.nmichael.efa.util.Dialog;
 import java.io.*;
 import java.util.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class PDFOutput {
 
   private static void writeRow(BufferedWriter f, String field, String value) throws IOException {

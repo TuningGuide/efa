@@ -10,6 +10,8 @@
 
 package de.nmichael.efa.statistics;
 
+// @i18n complete
+
 // Daten für DRV-Fahrten
 public class DRVFahrt {
 

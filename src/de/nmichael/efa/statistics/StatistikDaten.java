@@ -17,6 +17,8 @@ import java.util.GregorianCalendar;
 import javax.swing.JDialog;
 import java.util.Hashtable;
 
+// @i18n complete
+
 public class StatistikDaten implements Cloneable {
 
   public static final int AUSGABE_APPLICATION = 0;

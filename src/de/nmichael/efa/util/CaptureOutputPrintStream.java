@@ -13,6 +13,8 @@ package de.nmichael.efa.util;
 import java.util.*;
 import java.io.*;
 
+// @i18n complete
+
 public class CaptureOutputPrintStream extends PrintStream {
 
   private Vector lines;

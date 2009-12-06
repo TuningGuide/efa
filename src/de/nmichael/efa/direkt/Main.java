@@ -19,6 +19,8 @@ import de.nmichael.efa.*;
 import java.io.*;
 import java.util.*;
 
+// @i18n complete
+
 public class Main {
   public static String STARTARGS = "";
   boolean packFrame = false;
@@ -49,12 +51,15 @@ public class Main {
     Daten.efaConfig = new EfaConfig(Daten.efaCfgDirectory+Daten.CONFIGFILE);
     if (!EfaUtil.canOpenFile(Daten.efaConfig.getFileName())) {
       if (!Daten.efaConfig.writeFile()) {
-        EfaDirektFrame.haltProgram(Daten.efaConfig.getFileName()+" kann nicht erstellt werden!");
+        EfaDirektFrame.haltProgram(LogString.logstring_fileCreationFailed(Daten.efaConfig.getFileName(),
+                International.getString("Konfigurationsdatei")));
       }
-      Logger.log(Logger.INFO,"Konfigurationsdatei neu erstellt.");
-    };
+      LogString.logWarning_fileNewCreated(Daten.efaConfig.getFileName(),
+                International.getString("Konfigurationsdatei"));
+    }
     if (!Daten.efaConfig.readFile()) {
-      EfaDirektFrame.haltProgram(Daten.efaConfig.getFileName()+" kann nicht gelesen werden!");
+        LogString.logError_fileOpenFailed(Daten.efaConfig.getFileName(),
+                International.getString("Konfigurationsdatei"));
     }
 
     // Look&Feel
@@ -62,7 +67,8 @@ public class Main {
       if (Daten.efaConfig.lookAndFeel.equals(EfaConfig.LOOKANDFEEL_STANDARD)) UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
       else UIManager.setLookAndFeel(Daten.efaConfig.lookAndFeel);
     } catch(Exception e) {
-      Logger.log(Logger.WARNING,"Konnte Look&Feel nicht setzen: "+e.toString());
+      Logger.log(Logger.WARNING, Logger.MSG_BHWARN_CANTSETLOOKANDFEEL,
+              International.getString("Konnte Look&Feel nicht setzen")+": "+e.toString());
     }
 
     // Schriftgröße
@@ -70,7 +76,8 @@ public class Main {
       if (Daten.efaConfig.efaDirekt_fontSize != 0 || Daten.efaConfig.efaDirekt_fontStyle != -1)
         Dialog.setGlobalFontSize(Daten.efaConfig.efaDirekt_fontSize,Daten.efaConfig.efaDirekt_fontStyle);
     } catch(Exception e) {
-      Logger.log(Logger.WARNING,"Schriftgröße konnte nicht geändert werden: "+e.toString());
+      Logger.log(Logger.WARNING, Logger.MSG_BHWARN_CANTSETFONTSIZE,
+              International.getString("Schriftgröße konnte nicht geändert werden")+": "+e.toString());
     }
 
     EfaDirektFrame frame = new EfaDirektFrame();
@@ -126,22 +133,28 @@ public class Main {
         baklog = EfaUtil.moveAndEmptyFile(Daten.efaLogfile,Daten.efaConfigUserHome.efaUserDirectory+"backup"+Daten.fileSep);
       }
     } catch (Exception e) {
-      Logger.log(Logger.ERROR,"Logdatei '"+Daten.efaLogfile+"' konnte nicht archiviert werden!");
+        LogString.logError_fileArchivingFailed(Daten.efaLogfile, International.getString("Logdatei"));
     }
 
     Logger.ini("efadirekt.log",true);
 
-    Logger.log(Logger.INFO,"PROGRAMMSTART");
-    Logger.log(Logger.INFO,"efa-Version: "+Daten.VERSIONID+" -- Java-Version: "+Daten.javaVersion+" (JVM "+Daten.jvmVersion+") -- OS-Version: "+Daten.osName+" "+Daten.osVersion);
+    Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_EFASTART, 
+            International.getString("PROGRAMMSTART"));
+    Logger.log(Logger.INFO, Logger.MSG_INFO_VERSION,
+            "Version efa: "+Daten.VERSIONID+" -- Java: "+Daten.javaVersion+" (JVM "+Daten.jvmVersion+") -- OS: "+Daten.osName+" "+Daten.osVersion);
     try {
       Daten.efa_java_arguments = System.getenv(Daten.EFA_JAVA_ARGUMENTS);
-      Logger.log(Logger.DEBUG,Daten.EFA_JAVA_ARGUMENTS + "=" + Daten.efa_java_arguments);
+      Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GENERIC,
+              Daten.EFA_JAVA_ARGUMENTS + "=" + Daten.efa_java_arguments);
     } catch(Error e) {
-      Logger.log(Logger.WARNING, "Abfragen der Environment-Variable "+Daten.EFA_JAVA_ARGUMENTS+" nicht möglich: "+e.toString());
+      Logger.log(Logger.WARNING, Logger.MSG_BHWARN_CANTGETEFAJAVAARGS,
+              International.getMessage("Abfragen der Environment-Variable {name} nicht möglich: {msg}",
+              Daten.EFA_JAVA_ARGUMENTS,e.toString()));
     }
 
     if (baklog != null) {
-      Logger.log(Logger.INFO,"Alte Logdatei wurde nach '"+baklog+"' verschoben.");
+      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_LOGFILEARCHIVED,
+              International.getMessage("Alte Logdatei wurde nach '{filename}' verschoben.",baklog));
     }
   }
 
@@ -153,6 +166,7 @@ public class Main {
   // Argumentliste ausgeben (überflüssig, da jetzt standardmäßig Logdatei angelegt wird)
   static void printArgs() {
     System.out.println("efaDirekt "+Daten.VERSION+"\n");
+    // @todo internationalisieren ... oder nur auf Englisch?
     System.out.println("Syntax: java [javaopt] de.nmichael.efa.direkt.EfaDirekt [option]");
     System.out.println("    javaopt - Optionen der Java Virtual Machine (s. 'java -help')");
     System.out.println("    option:");

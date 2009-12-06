@@ -15,6 +15,8 @@ import java.util.Hashtable;
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.util.EfaUtil;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class DRVConfig extends DatenListe {
 
 

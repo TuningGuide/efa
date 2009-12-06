@@ -16,6 +16,8 @@ import java.security.cert.Certificate;
 import java.io.*;
 import java.util.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class EfaKeyStore {
 
   private KeyStore keyStore;

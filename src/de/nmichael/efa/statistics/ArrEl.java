@@ -14,6 +14,8 @@ import de.nmichael.efa.util.*;
 import java.util.*;
 import de.nmichael.efa.*;
 
+// @i18n complete
+
 // Ein Element des Arrays
 class ArrEl implements Comparable {
 

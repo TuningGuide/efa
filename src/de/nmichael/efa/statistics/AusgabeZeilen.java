@@ -13,6 +13,8 @@ package de.nmichael.efa.statistics;
 import java.util.*;
 import de.nmichael.efa.util.EfaUtil;
 
+// @i18n complete
+
 class AusgabeZeilen {
   public static final int FONT_NORMAL = 0;
   public static final int FONT_BOLD = 1;

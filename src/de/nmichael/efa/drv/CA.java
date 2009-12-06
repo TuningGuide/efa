@@ -16,6 +16,8 @@ import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.EnterPasswordFrame;
 import java.io.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class CA {
 
   public static final String DRVCA = "drvca";

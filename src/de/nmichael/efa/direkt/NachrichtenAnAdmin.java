@@ -16,6 +16,8 @@ import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
 
+// @i18n complete
+
 public class NachrichtenAnAdmin extends DatenListe {
 
   private Vector nachrichten;
@@ -188,13 +190,12 @@ public class NachrichtenAnAdmin extends DatenListe {
       // Backup war erfolgreich; in aktueller Datei nur ungelesene Nachrichten speichern
       dat = orgdat;
       nachrichten = nKeep;
-      Nachricht n = new Nachricht(Nachricht.ADMIN,EfaUtil.getCurrentTimeStamp(),"efa",
-                    "alte Nachrichten aussortiert",
-                    "Da die Nachrichtendatei ihre maximale Größe erreicht hat,\n"+
-                    "hat efa soeben alle alten" + (archiveAlsoOldUnread ? "" : ", gelesenen") + " Nachrichten aussortiert.\n"+
-                    nArchive.size()+ " alte Nachrichten wurden in die Datei\n"+
-                    bakdat+"\n"+
-                    "verschoben.");
+      Nachricht n = new Nachricht(Nachricht.ADMIN,EfaUtil.getCurrentTimeStamp(),Daten.EFA_SHORTNAME,
+                    International.getString("Alte Nachrichten aussortiert"),
+                    International.getMessage("Da die Nachrichtendatei ihre maximale Größe erreicht hat, "+
+                    "hat efa soeben alle alten Nachrichten aussortiert.\n"+
+                    "{count} alte Nachrichten wurden in die Datei "+
+                    bakdat+" verschoben.",nArchive.size()));
       add(n);
       writeFile(false,true);
       return true;
@@ -215,14 +216,17 @@ public class NachrichtenAnAdmin extends DatenListe {
       success = writeFile();
     } else {
       if (errorCount > 0) {
-        Logger.log(Logger.WARNING,"Error count for writing message file exceeded: "+errorCount+". Message file writing skipped for some time.");
+        Logger.log(Logger.WARNING, Logger.MSG_BHWARN_ERRORCNTMSGEXCEEDED,
+                International.getMessage("Anzahl von Fehlermeldungen überschritten: {errorcount}. "+
+                "Weitere Fehlermeldungen werden vorerst nicht per Nachricht an den Admin zugestellt.",errorCount));
         errorCount = -5; // try again after 5 more attempts
       }
     }
     if (!success) {
       errorCount++;
       if (errorCount == 0) {
-        Logger.log(Logger.INFO,"Message file writing is now enabled again.");
+        Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_ERRORCNTMSGCLEAR,
+                International.getString("Fehlermeldungen werden ab jetzt wieder als Nachricht dem Admin zugestellt."));
       }
     } else {
       errorCount=0; // reset errorCount upon first successful write

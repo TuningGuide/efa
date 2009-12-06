@@ -21,6 +21,7 @@ import java.io.*;
 import de.nmichael.efa.*;
 import java.util.Vector;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
 
 public class DRVAdminFrame extends JDialog implements ActionListener {
   Frame parent;

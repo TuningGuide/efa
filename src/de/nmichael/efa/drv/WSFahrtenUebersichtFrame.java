@@ -20,6 +20,7 @@ import javax.swing.border.*;
 import java.util.*;
 import java.beans.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
 
 public class WSFahrtenUebersichtFrame extends JDialog implements ActionListener {
   JDialog parent;

@@ -24,6 +24,8 @@ import java.beans.*;
 import javax.swing.event.*;
 import java.security.PrivateKey;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class MeldungEditFrame extends JDialog implements ActionListener {
 
   static final int MAX_FAHRTEN = 7;

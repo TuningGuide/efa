@@ -14,6 +14,8 @@ import de.nmichael.efa.util.SwingWorker;
 import de.nmichael.efa.*;
 import de.nmichael.efa.statistics.Statistik;
 
+// @i18n complete
+
 public class StatistikThread {
 
   StatistikDaten[] d;

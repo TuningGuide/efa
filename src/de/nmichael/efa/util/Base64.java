@@ -10,6 +10,8 @@
 
 package de.nmichael.efa.util;
 
+// @i18n complete
+
 /**
  * Encodes and decodes to and from Base64 notation.
  *

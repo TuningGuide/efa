@@ -15,7 +15,9 @@ import javax.swing.*;
 import java.lang.reflect.*;
 import java.util.*;
 
- /**
+// @i18n complete
+
+/**
   * General helper class which convieniently allows
   * user-interface handling. Components or
   * keystrokes are coupled with function calls; in

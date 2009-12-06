@@ -19,6 +19,8 @@ import javax.swing.border.*;
 import java.io.*;
 import de.nmichael.efa.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class DRVConfigFrame extends JDialog implements ActionListener {
   JDialog parent;
   DRVConfig drvConfig;

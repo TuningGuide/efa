@@ -20,6 +20,8 @@ import javax.swing.border.*;
 import java.util.*;
 import de.nmichael.efa.*;
 
+// @i18n complete
+
 public class ReservierungenEditFrame extends JDialog implements ActionListener {
 
   BootStatusFrame parent;
@@ -65,7 +67,7 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
     catch(Exception e) {
       e.printStackTrace();
     }
-    resLabel.setText("Reservierung für "+boot);
+    resLabel.setText(International.getMessage("Reservierung für {boat}",boot));
     this.parent = parent;
     this.admin = admin;
     this.data = data;
@@ -98,27 +100,20 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
       okButton.setNextFocusableComponent(vonTag);
-      okButton.setMnemonic('S');
-      okButton.setText("Speichern");
+      Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("Speichern"));
       okButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           okButton_actionPerformed(e);
         }
     });
       jPanel2.setLayout(gridBagLayout1);
-      vonTagLabel.setDisplayedMnemonic('V');
-      vonTagLabel.setText("Von (Tag): ");
-      vonZeitLabel.setDisplayedMnemonic('O');
-      vonZeitLabel.setText("Von (Zeit): ");
-      bisTagLabel.setDisplayedMnemonic('B');
-      bisTagLabel.setText("Bis (Tag): ");
-      bisZeitLabel.setDisplayedMnemonic('I');
-      bisZeitLabel.setText("Bis (Zeit): ");
-      nameLabel.setDisplayedMnemonic('F');
-      nameLabel.setText("Reserviert für: ");
-      grundLabel.setDisplayedMnemonic('R');
-      grundLabel.setText("Reservierungsgrund: ");
-      this.setTitle("Reservierung");
+      Mnemonics.setLabel(this, vonTagLabel, International.getStringWithMnemonic("Von (Tag)")+": ");
+      Mnemonics.setLabel(this, vonZeitLabel, International.getStringWithMnemonic("Von (Zeit)")+": ");
+      Mnemonics.setLabel(this, bisTagLabel, International.getStringWithMnemonic("Bis (Tag)")+": ");
+      Mnemonics.setLabel(this, bisZeitLabel, International.getStringWithMnemonic("Bis (Zeit)")+": ");
+      Mnemonics.setLabel(this, nameLabel, International.getStringWithMnemonic("Reserviert für")+": ");
+      Mnemonics.setLabel(this, grundLabel, International.getStringWithMnemonic("Reservierungsgrund")+": ");
+      this.setTitle(International.getString("Reservierung"));
       vonTag.setNextFocusableComponent(vonZeit);
       Dialog.setPreferredSize(okButton,400,23);
       Dialog.setPreferredSize(vonTag,150,17);
@@ -164,27 +159,24 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
       Dialog.setPreferredSize(grund,150,17);
       resLabel.setForeground(new Color(0, 0, 153));
       resLabel.setHorizontalAlignment(SwingConstants.CENTER);
-      resLabel.setText("Reservierung für ...");
-      woTagVonLabel.setText("(Wochentag)      ");
-      woTagBisLabel.setText("(Wochentag)      ");
-      resEinmalig.setMnemonic('E');
+      resLabel.setText(International.getMessage("Reservierung für {boat}","..."));
+      woTagVonLabel.setText("("+International.getString("Wochentag")+")      ");
+      woTagBisLabel.setText("("+International.getString("Wochentag")+")      ");
+      Mnemonics.setButton(this, resEinmalig, International.getStringWithMnemonic("Einmalige Reservierung"));
       resEinmalig.setSelected(true);
-      resEinmalig.setText("Einmalige Reservierung");
       resEinmalig.addItemListener(new java.awt.event.ItemListener() {
         public void itemStateChanged(ItemEvent e) {
           resEinmalig_itemStateChanged(e);
         }
-    });
-      resZyklisch.setMnemonic('W');
-      resZyklisch.setText("Wöchentliche Reservierung");
+      });
+      Mnemonics.setButton(this, resZyklisch, International.getStringWithMnemonic("Wöchentliche Reservierung"));
       resZyklisch.addItemListener(new java.awt.event.ItemListener() {
         public void itemStateChanged(ItemEvent e) {
           resZyklisch_itemStateChanged(e);
         }
-    });
-      wochentagLabel.setDisplayedMnemonic('T');
+      });
+      Mnemonics.setLabel(this, wochentagLabel, International.getStringWithMnemonic("Wochentag")+": ");
       wochentagLabel.setLabelFor(wochentagList);
-      wochentagLabel.setText("Wochentag: ");
       wochentagList.setNextFocusableComponent(vonZeit);
       buttonGroup.add(resEinmalig);
       buttonGroup.add(resZyklisch);
@@ -254,13 +246,14 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
   }
 
   void frIni() {
-    wochentagList.addItem("Montag");
-    wochentagList.addItem("Dienstag");
-    wochentagList.addItem("Mittwoch");
-    wochentagList.addItem("Donnerstag");
-    wochentagList.addItem("Freitag");
-    wochentagList.addItem("Samstag");
-    wochentagList.addItem("Sonntag");
+    // @todo change order depending on locale
+    wochentagList.addItem(International.getString("Montag"));
+    wochentagList.addItem(International.getString("Dienstag"));
+    wochentagList.addItem(International.getString("Mittwoch"));
+    wochentagList.addItem(International.getString("Donnerstag"));
+    wochentagList.addItem(International.getString("Freitag"));
+    wochentagList.addItem(International.getString("Samstag"));
+    wochentagList.addItem(International.getString("Sonntag"));
 
     if (!admin && Daten.efaConfig != null) {
       if (!Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren ||
@@ -326,7 +319,7 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
 
   boolean validateNotEmpty(JTextField field, String name) {
     if (field.getText().trim().length()>0) return true;
-    Dialog.error("Das Feld '"+name+"' ist leer. Bitte gib einen Wert ein!");
+    Dialog.error(International.getMessage("Das Feld '{field_name}' ist leer. Bitte gib einen Wert ein!",name));
     field.requestFocus();
     return false;
   }
@@ -335,14 +328,14 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
     bisTag_focusLost(null);
     boolean einmalig = this.resEinmalig.isSelected();
     if (einmalig) {
-      if (!validateNotEmpty(vonTag,"Von (Tag)")) return;
-      if (!validateNotEmpty(bisTag,"Bis (Tag)")) return;
+      if (!validateNotEmpty(vonTag,International.getString("Von (Tag)"))) return;
+      if (!validateNotEmpty(bisTag,International.getString("Bis (Tag)"))) return;
     } else {
     }
-    if (!validateNotEmpty(vonZeit,"Von (Zeit)")) return;
-    if (!validateNotEmpty(bisZeit,"Bis (Zeit)")) return;
-    if (!validateNotEmpty(name,"Name")) return;
-    if (grund.getText().trim().length()==0) grund.setText("k.A.");
+    if (!validateNotEmpty(vonZeit,International.getString("Von (Zeit)"))) return;
+    if (!validateNotEmpty(bisZeit,International.getString("Bis (Zeit)"))) return;
+    if (!validateNotEmpty(name,International.getString("Name"))) return;
+    if (grund.getText().trim().length()==0) grund.setText(International.getString("k.A."));
 
     Calendar vonCal = null;
     Calendar bisCal = null;
@@ -352,7 +345,7 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
       vonCal = new GregorianCalendar(von.jahr,von.monat-1,von.tag);
       bisCal = new GregorianCalendar(bis.jahr,bis.monat-1,bis.tag);
       if (vonCal.after(bisCal)) {
-        Dialog.error("Das Ende der Reservierung kann nicht vor dem Anfang liegen!");
+        Dialog.error(International.getString("Das Ende der Reservierung kann nicht vor dem Anfang liegen!"));
         bisTag.requestFocus();
         return;
       }
@@ -361,7 +354,7 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
       TMJ von = EfaUtil.string2date(vonZeit.getText().trim(),0,0,0);
       TMJ bis = EfaUtil.string2date(bisZeit.getText().trim(),0,0,0);
       if (von.tag > bis.tag || (von.tag == bis.tag && von.monat > bis.monat)){
-        Dialog.error("Das Ende der Reservierung kann nicht vor dem Anfang liegen!");
+        Dialog.error(International.getString("Das Ende der Reservierung kann nicht vor dem Anfang liegen!"));
         bisZeit.requestFocus();
         return;
       }
@@ -383,7 +376,7 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
     r.grund = grund.getText().trim();
 
     if (!BootStatusFrame.keineUeberschneidung(alleRes,r,nr)) {
-      Dialog.error("Die Reservierung überschneidet sich mit einer anderen Reservierung!");
+      Dialog.error(International.getString("Die Reservierung überschneidet sich mit einer anderen Reservierung!"));
       return;
     }
 

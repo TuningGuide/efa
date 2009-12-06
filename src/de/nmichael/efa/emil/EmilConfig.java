@@ -13,6 +13,8 @@ package de.nmichael.efa.emil;
 import de.nmichael.efa.*;
 import java.io.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class EmilConfig {
 
   private String dat;           // Dateiname

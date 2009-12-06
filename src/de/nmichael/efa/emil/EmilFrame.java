@@ -22,6 +22,8 @@ import java.io.*;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class EmilFrame extends JFrame {
   final static String PROGRAMMNAME = "emil - elektronischer Meldedatei Editor";
   final static String KURZTITEL = "emil";

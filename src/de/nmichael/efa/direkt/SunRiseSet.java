@@ -15,6 +15,8 @@ import de.nmichael.efa.core.EfaConfig;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.EfaUtil;
 
+// @i18n complete
+
 public class SunRiseSet {
 
   // Constructor usually not needed (everything static), except for Plungin-Test in Daten.java

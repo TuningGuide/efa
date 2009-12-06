@@ -20,6 +20,8 @@ import javax.swing.border.*;
 import java.io.*;
 import de.nmichael.efa.*;
 
+// @i18n complete
+
 public class NewPasswordFrame extends JDialog implements ActionListener {
   static String result;
   Window parent;
@@ -60,10 +62,10 @@ public class NewPasswordFrame extends JDialog implements ActionListener {
     }
 
     if (admin != null) {
-      if (admin.equals(EfaConfig.SUPERADMIN)) titleLabel.setText("Bitte gib ein neues Paßwort für den Super-Administrator '"+admin+"' ein!");
-      else titleLabel.setText("Bitte gib ein neues Paßwort für den Administrator '"+admin+"' ein!");
+      titleLabel.setText(International.getMessage("Bitte gib ein neues Paßwort für den {admin_description} '{admin_name}' ein!",
+              (admin.equals(EfaConfig.SUPERADMIN) ? International.getString("Super-Administrator") : International.getString("Administrator")),admin));
     } else {
-      titleLabel.setText("Bitte gib ein neues Paßwort ein!");
+      titleLabel.setText(International.getString("Bitte gib ein neues Paßwort ein!"));
     }
 
     EfaUtil.pack(this);
@@ -100,18 +102,16 @@ public class NewPasswordFrame extends JDialog implements ActionListener {
         }
     });
       jPanel2.setLayout(gridBagLayout1);
-      jLabel1.setDisplayedMnemonic('P');
+      Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Paßwort (mind. 6 Zeichen)")+": ");
       jLabel1.setLabelFor(pwd1);
-      jLabel1.setText("Paßwort (mind. 6 Zeichen): ");
-      jLabel2.setDisplayedMnemonic('W');
+      Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Paßwort (Wiederholung)")+": ");
       jLabel2.setLabelFor(pwd2);
-      jLabel2.setText("Paßwort (Wiederholung): ");
-      titleLabel.setText("Bitte gib ein neues Paßwort für ... ein!");
+      titleLabel.setText(International.getString("Bitte gib ein neues Paßwort ein!"));
       pwd1.setNextFocusableComponent(pwd2);
       Dialog.setPreferredSize(pwd1,120,17);
       pwd2.setNextFocusableComponent(okButton);
       Dialog.setPreferredSize(pwd2,120,17);
-      this.setTitle("Neues Paßwort eingeben");
+      this.setTitle(International.getString("Neues Paßwort eingeben"));
       this.getContentPane().add(jPanel1, BorderLayout.CENTER);
       jPanel1.add(okButton, BorderLayout.SOUTH);
       jPanel1.add(jPanel2, BorderLayout.CENTER);
@@ -182,13 +182,13 @@ public class NewPasswordFrame extends JDialog implements ActionListener {
     String p2 = new String (pwd2.getPassword()).trim();
 
     if (p1.length()<6) {
-      Dialog.error("Das Paßwort muß mindestens 6 Zeichen lang sein!");
+      Dialog.error(International.getMessage("Das Paßwort muß mindestens {n} Zeichen lang sein!",6));
       pwd1.requestFocus();
       return;
     }
 
     if (!p1.equals(p2)) {
-      Dialog.error("Das Paßwort im zweiten Feld muß mit dem im ersten Feld identisch sein!");
+      Dialog.error(International.getString("Das Paßwort im zweiten Feld muß mit dem im ersten Feld identisch sein!"));
       pwd2.requestFocus();
       return;
     }

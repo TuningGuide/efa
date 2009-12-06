@@ -17,6 +17,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import de.nmichael.efa.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class EfaDRVFrame extends JFrame {
   private DRVConfig drvConfig;
 

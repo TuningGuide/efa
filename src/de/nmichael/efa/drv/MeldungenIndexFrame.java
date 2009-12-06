@@ -27,6 +27,8 @@ import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.emil.*;
 import java.net.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class MeldungenIndexFrame extends JDialog implements ActionListener {
   public static final int MELD_FAHRTENABZEICHEN = 1;
   public static final int MELD_WANDERRUDERSTATISTIK = 2;

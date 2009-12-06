@@ -12,6 +12,8 @@ package de.nmichael.efa.statistics;
 
 import java.util.*;
 
+// @i18n complete
+
 public class AusgabeDaten {
 
   // globale Daten

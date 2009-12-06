@@ -10,6 +10,8 @@
 
 package de.nmichael.efa.util;
 
+// @i18n complete
+
 /**
  * Adapted from 
  * http://www.devdaily.com/java/jwarehouse/jazzy/src/com/swabunga/spell/engine/EditDistance.java.shtml

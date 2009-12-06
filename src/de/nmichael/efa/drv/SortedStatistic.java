@@ -12,6 +12,8 @@ package de.nmichael.efa.drv;
 
 import java.util.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class SortedStatistic {
 
   private Vector data = null;

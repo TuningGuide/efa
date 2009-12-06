@@ -18,6 +18,8 @@ import java.awt.*;
 import java.io.*;
 import de.nmichael.efa.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class Main {
   boolean packFrame = true;
 

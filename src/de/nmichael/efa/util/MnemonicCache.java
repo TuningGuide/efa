@@ -14,6 +14,8 @@ import java.util.Hashtable;
 import java.awt.*;
 import javax.swing.*;
 
+// @i18n complete
+
 class MnemonicCache {
 
     private Hashtable windows = new Hashtable();

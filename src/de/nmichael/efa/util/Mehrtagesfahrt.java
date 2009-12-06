@@ -13,6 +13,8 @@ package de.nmichael.efa.util;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.EfaUtil;
 
+// @i18n complete
+
 public class Mehrtagesfahrt {
 
   private String displayName;

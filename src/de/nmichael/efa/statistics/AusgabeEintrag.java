@@ -10,6 +10,8 @@
 
 package de.nmichael.efa.statistics;
 
+// @i18n complete
+
 public class AusgabeEintrag {
   int absnr = -1;
 

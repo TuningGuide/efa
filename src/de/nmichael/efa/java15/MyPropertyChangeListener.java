@@ -10,6 +10,8 @@
 
 package de.nmichael.efa.java15;
 
+// @i18n complete
+
 public class MyPropertyChangeListener implements java.beans.PropertyChangeListener {
   javax.swing.JEditorPane editorPane;
   

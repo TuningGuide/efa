@@ -14,6 +14,8 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.util.Zielfahrt;
 import java.util.*;
 
+// @i18n complete
+
 public class ZielfahrtFolge {
 
   public static String SEPARATOR;

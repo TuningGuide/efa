@@ -14,6 +14,8 @@ import de.nmichael.efa.util.Zielfahrt;
 import java.util.*;
 import de.nmichael.efa.*;
 
+// @i18n complete
+
 // Weitere Informationen für Km-Wettbewerbe
 class KmWettInfo {
 

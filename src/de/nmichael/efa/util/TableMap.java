@@ -28,6 +28,8 @@ import javax.swing.table.TableModel;
 import javax.swing.event.TableModelListener;
 import javax.swing.event.TableModelEvent;
 
+// @i18n complete
+
 public class TableMap extends AbstractTableModel
                       implements TableModelListener {
     protected TableModel model;

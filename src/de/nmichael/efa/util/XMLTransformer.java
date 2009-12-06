@@ -10,13 +10,16 @@
 
 package de.nmichael.efa.util;
 
+import de.nmichael.efa.*;
 import javax.xml.transform.*;
 import javax.xml.transform.stream.*;
+
+// @i18n complete
 
 public class XMLTransformer {
 
   static void printHelp() {
-    System.out.println("XMLTransformer v0.01, (c) 2002 by Nicolas Michael (http://www.nmichael.de/)");
+    System.out.println("XMLTransformer "+Daten.VERSION+", (c) 2002-"+Daten.COPYRIGHTYEAR+" by Nicolas Michael ("+Daten.EFAURL+")");
     System.out.println("XMLTransformer is based on the Xerces XML parser and the Xalan XSLT processor.");
     System.out.println("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).");
     System.out.println("The DOM bindings are published under the W3C Software Copyright Notice and License (http://www.w3.org).\n");

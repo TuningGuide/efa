@@ -16,6 +16,8 @@ import java.awt.print.*;
 import java.io.*;
 import javax.swing.*;
 
+// @i18n complete
+
 public class SimpleFilePrinter implements Printable {
 
   private static final int    DPI         = 72;         // Referenzauflösung des Drucksystems
@@ -91,11 +93,11 @@ public class SimpleFilePrinter implements Printable {
     int offset = (int)((pf.getImageableHeight()-MARGIN_TOP-OVERLAP)*scale*page);
     if (offset>=out.getHeight()) return NO_SUCH_PAGE;
 
-    System.out.println("Printing page "+(page+1)+"...");
-    System.out.println("PageMargin: "+pf.getImageableX()+" ; "+pf.getImageableY());
-    System.out.println("PageUsable: "+pf.getImageableWidth()+" x "+pf.getImageableHeight());
-    System.out.println("PageSize  : "+pf.getWidth()+" x "+pf.getHeight());
-    System.out.println("Document  : "+out.getWidth()+" x "+out.getHeight());
+    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_SIMPLEFILEPRINTER, "Printing page "+(page+1)+"...");
+    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_SIMPLEFILEPRINTER, "PageMargin: "+pf.getImageableX()+" ; "+pf.getImageableY());
+    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_SIMPLEFILEPRINTER, "PageUsable: "+pf.getImageableWidth()+" x "+pf.getImageableHeight());
+    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_SIMPLEFILEPRINTER, "PageSize  : "+pf.getWidth()+" x "+pf.getHeight());
+    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_SIMPLEFILEPRINTER, "Document  : "+out.getWidth()+" x "+out.getHeight());
 
     Graphics2D g2 = (Graphics2D)g;
     g2.scale(1.0/scale, 1.0/scale);

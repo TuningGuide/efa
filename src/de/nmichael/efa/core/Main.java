@@ -12,6 +12,7 @@ package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.*;
+import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.statistics.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -88,7 +89,7 @@ public class Main {
 
     // Look&Feel
     try {
-      if (Daten.efaConfig.lookAndFeel.equals(EfaConfig.LOOKANDFEEL_STANDARD)) UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+      if (Daten.efaConfig.lookAndFeel.equals(EfaConfig.DEFAULT)) UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
       else UIManager.setLookAndFeel(Daten.efaConfig.lookAndFeel);
     } catch(Exception e) {
       Logger.log(Logger.WARNING,e.toString());
@@ -133,7 +134,10 @@ public class Main {
     if (!Daten.dirsIni(true)) {
       // Directory nicht gefunden
       if (!ignore) {
-        Dialog.error(International.getString("efa kann nicht gestartet werden, da eines oder mehrere erforderliche Verzeichnisse nicht gefunden werden konnten."));
+        Dialog.error(International.getMessage("{program} kann nicht gestartet werden, "+
+                "da eines oder mehrere erforderliche Verzeichnisse nicht gefunden werden konnten.",
+                Daten.EFA_SHORTNAME));
+        System.exit(1);
       }
     }
 
@@ -221,19 +225,19 @@ public class Main {
   // Aufgrund von Aufruf-Parametern eine Statistik erstellen
   static void createStat() {
     cmdmode = true;
-    Daten.bezeichnungen = new Bezeichnungen(Daten.efaCfgDirectory+Daten.BEZEICHFILE);
-    if (!Daten.bezeichnungen.readFile()) {
-      System.out.println(International.getMessage("Bezeichnungen {file} können nicht gelesen werden!",Daten.bezeichnungen.getFileName()));
+    Daten.efaTypes = new EfaTypes(Daten.efaCfgDirectory+Daten.EFATYPESFILE);
+    if (!Daten.efaTypes.readFile()) {
+      System.out.println(LogString.logstring_fileOpenFailed(Daten.efaTypes.getFileName(), International.getString("Bezeichnungen")));
       System.exit(2);
     }
     Daten.wettDefs = new WettDefs(Daten.efaCfgDirectory+Daten.WETTDEFS);
     if (!Daten.wettDefs.readFile()) {
-      System.out.println(International.getMessage("Wettbewerbsdefinitionen {file} können nicht gelesen werden!",Daten.wettDefs.getFileName()));
+      System.out.println(LogString.logstring_fileOpenFailed(Daten.wettDefs.getFileName(), International.getString("Wettbewerbsdefinitionen")));
       System.exit(2);
     }
     Daten.fahrtenbuch = new Fahrtenbuch(fb);
     if (!Daten.fahrtenbuch.readFile()) {
-      System.out.println(International.getMessage("Fahrtenbuch {file} kann nicht gelesen werden!",fb));
+      System.out.println(LogString.logstring_fileOpenFailed(fb, International.getString("Fahrtenbuch")));
       System.exit(2);
     }
     Daten.fahrtenbuch.getDaten().statistik.getFirst(stat);
@@ -245,7 +249,7 @@ public class Main {
         StatistikFrame.allgStatistikDaten(sd[0]);
         System.out.print(International.getMessage("Erstelle Statistik {stat} ...",stat));
         Statistik.create(sd);
-        System.out.println(International.getString("fertig")+".");
+        System.out.println(International.getString("Fertig")+".");
         System.exit(0);
       } catch(StringIndexOutOfBoundsException e) {
         System.out.println(International.getString("Fehler beim Lesen der gespeicherten Konfiguration!"));
@@ -320,7 +324,7 @@ public class Main {
       }
       System.out.println(International.getString("Fahrtenbuch")+": "+fb);
       if (!EfaUtil.canOpenFile(fb)) {
-        System.out.println(International.getMessage("Fahrtenbuch {fahrtenbuch} nicht gefunden!",fb));
+        System.out.println(LogString.logstring_fileNotFound(fb, International.getString("Fahrtenbuch")));
         System.exit(1);
       }
       if (stat != null) {

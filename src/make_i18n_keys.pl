@@ -1,12 +1,21 @@
 #!/usr/bin/perl
 
 my $properties = shift;
+my $options = "";
+if ($properties =~ /^-/) {
+  $options = $properties;
+  $properties = shift;
+}
 
 if (length($properties) == 0) {
-  printf("usage: make_i18n_keys.pl <properties>\n");
-  printf("\nThis script recursively searches all .java files in the current\n"+
-         "directory and any subdirectories for internationalized strings and\n"+
+  printf("usage: make_i18n_keys.pl [-options] <properties>\n");
+  printf("\nThis script recursively searches all .java files in the current\n" .
+         "directory and any subdirectories for internationalized strings and\n" .
          "creates a new property file (based on the original one) on stdout.\n");
+  printf("\nOptions:\n");
+  printf("       s   sort all keys independent of source file\n");
+  printf("       S   sort all keys independent of source file (case-insentivive)\n");
+  printf("       f   print file name as a comment after each key\n");
   exit(1);
 }
 
@@ -24,9 +33,23 @@ foreach $key (sort %keys) {
     my $txt = $keys{$key}{txt};
     my $file = $keys{$key}{file};
     my $new = $keys{$key}{new};
-    $data{$file}{$new}{$key} = $txt;
+
+    my $sortkey = $key;
+    if ($options =~ /s/ || $options =~ /S/) {
+      $file = "global";
+    }
+    if ($options =~ /S/) {
+      $sortkey = lc($sortkey);
+      while ($data{$file}{$new}{$sortkey}{key}) {
+        $sortkey .= "X";
+      }
+    }
+
+    $data{$file}{$new}{$sortkey}{key} = $key;
+    $data{$file}{$new}{$sortkey}{value} = $txt;
   }
 }
+
 foreach $file (sort keys %data) {
   printf("# file: $file\n");
   my $old = 1;
@@ -36,7 +59,11 @@ foreach $file (sort keys %data) {
       $old = 0;
     }
     foreach $key (sort keys %{$data{$file}{$new}}) {
-      printf("%s=%s\n",$key,$data{$file}{$new}{$key});
+      printf("%s=%s%s\n",
+                 $data{$file}{$new}{$key}{key},
+                 $data{$file}{$new}{$key}{value},
+                 ($options =~ /f/ ? "\t\t### " . $keys{$key}{file} : "")
+                 );
     }
   }
 }
@@ -85,12 +112,20 @@ sub searchdir {
 
 sub parsefile {
   my $file = shift;
+  # printf STDERR ("INFO   : File %s ...\n",$file);
   open(JAVA,$file) || die "cannot open source file: $file\n";
   my $isMessage = 0;
+  my $linenr = 0;
   while(<JAVA>) {
 
     my $txt = "";
     my $discr = "";
+    $linenr++;
+
+    # warn if multiple international strings are found in one source code line
+    if (/International.get(.*)International.get/) {
+      printf STDERR ("WARNING: Multiple Strings: %-60s line %4d: %s",$file,$linenr,$_);
+    }
 
     # getString(...) or getStringWithMnemonic(...)
     if (/International.getString[^\(]*\s*\((.*)/) {
@@ -141,6 +176,11 @@ sub parsefile {
       # handle special characters in translated text
       $txt =~ s/&/&&/g;
       $txt =~ s/'/''/g;
+
+      # handle special English strings from International.java (keys must remain English, but translation should be German)
+      if ($txt =~ /^Default$/) { $txt = "Standard"; }
+      if ($txt =~ /^Select Language$/) { $txt = "Sprache wählen"; }
+      if ($txt =~ /^Please select your language$/) { $txt = "Bitte wähle Deine Sprache"; }
 
       # print key and text
       if (exists $keys{$key}) {

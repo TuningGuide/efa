@@ -13,6 +13,7 @@ package de.nmichael.efa.core;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.statistics.StatistikDaten;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -579,11 +580,11 @@ public class StatSave extends DatenListe {
               // füge neue Fahrtarten "Motorboot" und "Ergo" als nicht selektierte Fahrtarten hinzu (falls vorhanden),
               // und füge "Kilometernachtrag" als selektierte Fahrtart hinzu
               String fa_tmp = d.get(FAHRTART);
-              if (Daten.bezeichnungen != null && Daten.bezeichnungen.fahrtart != null &&
-                  Daten.bezeichnungen.fahrtart.size() > fa_tmp.length()) {
+              if (Daten.efaTypes != null &&
+                  Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP) > fa_tmp.length()) {
                 d.set(FAHRTART,fa_tmp.
                       substring(0,fa_tmp.length() - 1) +
-                      (Daten.bezeichnungen.fahrtart.size() == fa_tmp.length() + 1 ? "+" : "+--") +
+                      (Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP) == fa_tmp.length() + 1 ? "+" : "+--") +
                       fa_tmp.substring(fa_tmp.length() - 1));
               }
 
@@ -642,13 +643,13 @@ public class StatSave extends DatenListe {
   public void validateValues(DatenFelder d) {
 
     // Überprüfen, ob die in bezeichnungen.cfg konfigurierten Fahrtarten mit denen in den gespeicherten Statistikeinstellungen übereinstimmen
-    if (d != null && Daten.bezeichnungen != null) {
+    if (d != null && Daten.efaTypes != null) {
       String fahrtart = d.get(FAHRTART);
-      if (fahrtart != null && Daten.bezeichnungen.fahrtart != null && Daten.bezeichnungen.fahrtart.size() != fahrtart.length()) {
-        if (fahrtart.length() < Daten.bezeichnungen.fahrtart.size()) {
+      if (fahrtart != null && Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP) != fahrtart.length()) {
+        if (fahrtart.length() < Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP)) {
           if (fahrtart.indexOf("-") < 0) {
             // fehlende Fahrtarten, aber vorher alle selektiert
-            while (fahrtart.length() < Daten.bezeichnungen.fahrtart.size()) fahrtart += "+";
+            while (fahrtart.length() < Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP)) fahrtart += "+";
             d.set(FAHRTART, fahrtart);
           } else {
             // fehlende Fahrtarten, aber vorher nicht alle selektiert

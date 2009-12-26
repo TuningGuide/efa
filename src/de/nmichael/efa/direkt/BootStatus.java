@@ -17,7 +17,7 @@ import de.nmichael.efa.*;
 import java.util.*;
 import java.io.IOException;
 
-// @i18n @todo Separation of display data from file data!
+// @i18n complete
 
 class Reservierung implements Comparable {
   boolean einmalig;
@@ -36,20 +36,10 @@ class Reservierung implements Comparable {
     }
     // beide Reservierungen wöchentlich
     if (!this.vonTag.equals(b.vonTag)) {
-      if (this.vonTag.equals("Montag")) return -1;
-      if (   b.vonTag.equals("Montag")) return  1;
-      if (this.vonTag.equals("Dienstag")) return -1;
-      if (   b.vonTag.equals("Dienstag")) return  1;
-      if (this.vonTag.equals("Mittwoch")) return -1;
-      if (   b.vonTag.equals("Mittwoch")) return  1;
-      if (this.vonTag.equals("Donnerstag")) return -1;
-      if (   b.vonTag.equals("Donnerstag")) return  1;
-      if (this.vonTag.equals("Freitag")) return -1;
-      if (   b.vonTag.equals("Freitag")) return  1;
-      if (this.vonTag.equals("Samstag")) return -1;
-      if (   b.vonTag.equals("Samstag")) return  1;
-      if (this.vonTag.equals("Sonntag")) return -1;
-      if (   b.vonTag.equals("Sonntag")) return  1;
+        for (int i=0; i<BootStatus.WEEKDAYKEYS.length; i++) {
+            if (this.vonTag.equals(BootStatus.WEEKDAYKEYS[i])) return -1;
+            if (   b.vonTag.equals(BootStatus.WEEKDAYKEYS[i])) return  1;
+        }
     }
     if (!this.vonZeit.equals(b.vonZeit)) return (EfaUtil.secondTimeIsAfterFirst(this.vonZeit,b.vonZeit) ? -1 : 1);
     if (!this.bisZeit.equals(b.bisZeit)) return (EfaUtil.secondTimeIsAfterFirst(this.bisZeit,b.bisZeit) ? -1 : 1);
@@ -75,11 +65,14 @@ public class BootStatus extends DatenListe {
   public static final int STAT_UNTERWEGS = 2;
   public static final int STAT_NICHT_VERFUEGBAR = 3;
   public static final int STAT_VORUEBERGEHEND_VERSTECKEN = 4; // wird intern für Kombiboote verwendet
-  protected static final String[] STATUSNAMES = { "nicht anzeigen", "verfügbar", "unterwegs", "nicht verfügbar", "vorübergehend verstecken" };
+  private static final String[] STATUSKEYS  = { "HIDE", "AVAILABLE", "ONTHEWATER", "NOTAVAILABLE", "CURRENTLYHIDDEN" };
+  private static String[] STATUSDESCR;
+  public static final String[] WEEKDAYKEYS  = { "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN" };
 
   public static final String KENNUNG120 = "##EFA.120.BOOTSTATUS##";
   public static final String KENNUNG160 = "##EFA.160.BOOTSTATUS##";
   public static final String KENNUNG170 = "##EFA.170.BOOTSTATUS##";
+  public static final String KENNUNG190 = "##EFA.190.BOOTSTATUS##";
 
   public static final String RES_LFDNR = "RES";
 
@@ -87,14 +80,22 @@ public class BootStatus extends DatenListe {
   // Konstruktor
   public BootStatus(String pdat) {
     super(pdat,_FELDANZ,1,false);
-    kennung = KENNUNG170;
+    if (STATUSDESCR == null) {
+        STATUSDESCR = new String[STATUSKEYS.length];
+        STATUSDESCR[STAT_HIDE]                      = International.getString("nicht anzeigen");
+        STATUSDESCR[STAT_VERFUEGBAR]                = International.getString("verfügbar");
+        STATUSDESCR[STAT_UNTERWEGS]                 = International.getString("unterwegs");
+        STATUSDESCR[STAT_NICHT_VERFUEGBAR]          = International.getString("nicht verfügbar");
+        STATUSDESCR[STAT_VORUEBERGEHEND_VERSTECKEN] = International.getString("vorübergehend verstecken");
+    }
+    kennung = KENNUNG190;
   }
 
 
   public Vector getBoote(int status) {
     Vector v = new Vector();
     for (DatenFelder d = (DatenFelder)this.getCompleteFirst(); d != null; d = (DatenFelder)this.getCompleteNext()) {
-      if (EfaUtil.string2int(d.get(STATUS),-1) == status) v.add(d.get(NAME));
+      if (getStatusID(d.get(STATUS)) == status) v.add(d.get(NAME));
     }
     return v;
   }
@@ -121,16 +122,33 @@ public class BootStatus extends DatenListe {
         case 6: r.einmalig= tok.nextToken().equals("+"); break;
       }
       pos++;
-      if ((version == 160 && pos>5) || (version == 170 && pos>6)) {
-       v.add(r);
-       pos = 0;
+      if ((version == 160 && pos>5) || (version >= 170 && pos>6)) {
+          if (version == 170) {
+              // do not translate (these are the former keys for version <= 170)
+              if (r.vonTag.equals("Montag"))     r.vonTag = WEEKDAYKEYS[0];
+              if (r.vonTag.equals("Dienstag"))   r.vonTag = WEEKDAYKEYS[1];
+              if (r.vonTag.equals("Mittwoch"))   r.vonTag = WEEKDAYKEYS[2];
+              if (r.vonTag.equals("Donnerstag")) r.vonTag = WEEKDAYKEYS[3];
+              if (r.vonTag.equals("Freitag"))    r.vonTag = WEEKDAYKEYS[4];
+              if (r.vonTag.equals("Samstag"))    r.vonTag = WEEKDAYKEYS[5];
+              if (r.vonTag.equals("Sonntag"))    r.vonTag = WEEKDAYKEYS[6];
+              if (r.bisTag.equals("Montag"))     r.bisTag = WEEKDAYKEYS[0];
+              if (r.bisTag.equals("Dienstag"))   r.bisTag = WEEKDAYKEYS[1];
+              if (r.bisTag.equals("Mittwoch"))   r.bisTag = WEEKDAYKEYS[2];
+              if (r.bisTag.equals("Donnerstag")) r.bisTag = WEEKDAYKEYS[3];
+              if (r.bisTag.equals("Freitag"))    r.bisTag = WEEKDAYKEYS[4];
+              if (r.bisTag.equals("Samstag"))    r.bisTag = WEEKDAYKEYS[5];
+              if (r.bisTag.equals("Sonntag"))    r.bisTag = WEEKDAYKEYS[6];
+          }
+          v.add(r);
+          pos = 0;
       }
     }
     return v;
   }
 
   public static Vector getReservierungen(DatenFelder boot) {
-    return getReservierungen(boot,170);
+    return getReservierungen(boot,190);
   }
 
   // gibt die Reservierung zurück, die zum Zeitpunkt now gültig ist oder max. minutesAhead beginnt
@@ -152,13 +170,13 @@ public class BootStatus extends DatenListe {
       TMJ bisZeit = EfaUtil.string2date(r.bisZeit,0,0,0);
       if (!r.einmalig) {
         switch(weekday) {
-          case Calendar.MONDAY: if (!r.vonTag.equals("Montag")) continue; break;
-          case Calendar.TUESDAY: if (!r.vonTag.equals("Dienstag")) continue; break;
-          case Calendar.WEDNESDAY: if (!r.vonTag.equals("Mittwoch")) continue; break;
-          case Calendar.THURSDAY: if (!r.vonTag.equals("Donnerstag")) continue; break;
-          case Calendar.FRIDAY: if (!r.vonTag.equals("Freitag")) continue; break;
-          case Calendar.SATURDAY: if (!r.vonTag.equals("Samstag")) continue; break;
-          case Calendar.SUNDAY: if (!r.vonTag.equals("Sonntag")) continue; break;
+          case Calendar.MONDAY:    if (!r.vonTag.equals(WEEKDAYKEYS[0])) continue; break;
+          case Calendar.TUESDAY:   if (!r.vonTag.equals(WEEKDAYKEYS[1])) continue; break;
+          case Calendar.WEDNESDAY: if (!r.vonTag.equals(WEEKDAYKEYS[2])) continue; break;
+          case Calendar.THURSDAY:  if (!r.vonTag.equals(WEEKDAYKEYS[3])) continue; break;
+          case Calendar.FRIDAY:    if (!r.vonTag.equals(WEEKDAYKEYS[4])) continue; break;
+          case Calendar.SATURDAY:  if (!r.vonTag.equals(WEEKDAYKEYS[5])) continue; break;
+          case Calendar.SUNDAY:    if (!r.vonTag.equals(WEEKDAYKEYS[6])) continue; break;
         }
         vonTag.tag   = bisTag.tag   = cal.get(Calendar.DAY_OF_MONTH);
         vonTag.monat = bisTag.monat = cal.get(Calendar.MONTH)+1;
@@ -186,10 +204,13 @@ public class BootStatus extends DatenListe {
   public static String makeReservierungText(Reservierung r) {
     String s = null;
     if (r.einmalig) {
-      if (r.vonTag.equals(r.bisTag)) s = "am "+r.vonTag+" von "+r.vonZeit+" bis "+r.bisZeit;
-      else s = "vom "+r.vonTag+" "+r.vonZeit+" bis "+r.bisTag+"  "+r.bisZeit;
+      if (r.vonTag.equals(r.bisTag)) {
+          s = International.getMessage("am {day} von {time_from} bis {time_to}",r.vonTag,r.vonZeit,r.bisZeit);
+      } else {
+          s = International.getMessage("vom {day_from} {time_from} bis {day_to} {time_to}",r.vonTag,r.vonZeit,r.bisTag,r.bisZeit);
+      }
     } else {
-      s = "jeden "+r.vonTag+" von "+r.vonZeit+" bis "+r.bisZeit;
+        s = International.getMessage("jeden {day_from} von {time_from} bis {time_to}",r.vonTag,r.vonZeit,r.bisZeit);
     }
     return s;
   }
@@ -309,6 +330,47 @@ public class BootStatus extends DatenListe {
           } else errConvertingFile(dat,kennung);
         }
 
+        // KONVERTIEREN: 170 -> 190
+        if (s != null && s.trim().startsWith(KENNUNG170)) {
+          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"170");
+          iniList(this.dat,7,1,false); // Rahmenbedingungen von v1.9.0 schaffen
+          // Datei lesen
+          try {
+            while ((s = freadLine()) != null) {
+              s = s.trim();
+              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              
+              DatenFelder d = constructFields(s);
+
+              // convert status names to keys
+              int status = EfaUtil.string2int(d.get(STATUS),STAT_HIDE);
+              d.set(STATUS, STATUSKEYS[status]);
+              
+              //convert bemerkungen to selected language
+              String bemerk = d.get(BEMERKUNG);
+              if (bemerk.equals("nicht anzeigen"))           bemerk = International.getString("nicht anzeigen");
+              if (bemerk.equals("verfügbar"))                bemerk = International.getString("verfügbar");
+              if (bemerk.equals("unterwegs"))                bemerk = International.getString("unterwegs");
+              if (bemerk.equals("nicht verfügbar"))          bemerk = International.getString("nicht verfügbar");
+              if (bemerk.equals("vorübergehend verstecken")) bemerk = International.getString("vorübergehend verstecken");
+              d.set(BEMERKUNG, bemerk);
+
+              // convert weekday names to keys
+              setReservierungen(d, getReservierungen(d,170));
+              
+              add(d);
+            }
+          } catch(IOException e) {
+             errReadingFile(dat,e.getMessage());
+             return false;
+          }
+          kennung = KENNUNG190;
+          if (closeFile() && writeFile(true) && openFile()) {
+            infSuccessfullyConverted(dat,kennung);
+            s = kennung;
+          } else errConvertingFile(dat,kennung);
+        }
+
         // FERTIG MIT KONVERTIEREN
         if (s == null || !s.trim().startsWith(kennung)) {
           errInvalidFormat(dat, EfaUtil.trimto(s, 20));
@@ -323,10 +385,25 @@ public class BootStatus extends DatenListe {
     return true;
   }
 
-  public static String getStatusName(int status) {
-    if (STATUSNAMES != null && status >= 0 && status < STATUSNAMES.length) return STATUSNAMES[status];
-    return "unbekannt";
+  public static int getNumberOfStati() {
+      return STATUSKEYS.length;
   }
 
+  public static String getStatusName(int status) {
+    if (STATUSDESCR != null && status >= 0 && status < STATUSDESCR.length) return STATUSDESCR[status];
+    return International.getString("unbekannt");
+  }
+
+  public static String getStatusKey(int status) {
+    if (status >= 0 && status < STATUSKEYS.length) return STATUSKEYS[status];
+    return null;
+  }
+
+  public static int getStatusID(String key) {
+      for (int i=0; i<STATUSKEYS.length; i++) {
+          if (STATUSKEYS[i].equals(key)) return i;
+      }
+      return STAT_HIDE;
+  }
 
 }

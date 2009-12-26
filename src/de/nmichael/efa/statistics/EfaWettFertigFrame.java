@@ -23,6 +23,8 @@ import javax.swing.event.*;
 import java.io.*;
 import java.util.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class EfaWettFertigFrame extends JDialog implements ActionListener {
   EfaWett ew;
   String meldegeld;

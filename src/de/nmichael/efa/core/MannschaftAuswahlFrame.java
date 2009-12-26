@@ -73,7 +73,7 @@ public class MannschaftAuswahlFrame extends JDialog implements ActionListener {
       jPanel2.setLayout(gridBagLayout1);
       Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Mannschaft")+": ");
       jLabel1.setLabelFor(mannschaft);
-      Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("Auswählen"));
+      Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("auswählen"));
       okButton.setNextFocusableComponent(mannschaft);
       okButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {

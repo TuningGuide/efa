@@ -11,6 +11,7 @@
 package de.nmichael.efa.eddi;
 
 import de.nmichael.efa.core.Mitglieder;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -20,6 +21,8 @@ import javax.swing.border.*;
 import java.io.*;
 import java.util.*;
 import de.nmichael.efa.*;
+
+// @i18n complete
 
 public class MitgliederFehlerFrame extends JDialog implements ActionListener {
   String[] felder;
@@ -133,47 +136,38 @@ public class MitgliederFehlerFrame extends JDialog implements ActionListener {
     }
 
     this.setSize(new Dimension(700,520));
-    this.setTitle("Fehler in zu importierendem Eintrag");
+    this.setTitle(International.getString("Fehler in zu importierendem Eintrag"));
     this.getContentPane().setLayout(borderLayout1);
     jPanel1.setLayout(gridBagLayout1);
-    jLabel1.setText("Zu importierender Eintrag:");
+    jLabel1.setText(International.getString("Zu importierender Eintrag")+":");
     eintragLabel.setBackground(Color.blue);
     eintragLabel.setForeground(Color.white);
     eintragLabel.setOpaque(true);
-    eintragLabel.setText("---Eintrag---");
+    eintragLabel.setText("---"+International.getString("Eintrag")+"---");
     okButton.setNextFocusableComponent(vorname);
-    okButton.setMnemonic('O');
-    okButton.setText("OK");
+    Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("OK"));
     okButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         okButton_actionPerformed(e);
       }
     });
     jPanel2.setLayout(gridBagLayout2);
-    jLabel2.setDisplayedMnemonic('V');
+    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Vorname")+": ");
     jLabel2.setLabelFor(vorname);
-    jLabel2.setText("Vorname: ");
-    jLabel3.setDisplayedMnemonic('N');
+    Mnemonics.setLabel(this, jLabel3, International.getStringWithMnemonic("Nachname")+": ");
     jLabel3.setLabelFor(nachname);
-    jLabel3.setText("Nachname: ");
-    jLabel4.setDisplayedMnemonic('K');
+    Mnemonics.setLabel(this, jLabel4, International.getStringWithMnemonic("Eingabekürzel")+": ");
     jLabel4.setLabelFor(kuerzel);
-    jLabel4.setText("Eingabekürzel: ");
-    jLabel5.setDisplayedMnemonic('J');
+    Mnemonics.setLabel(this, jLabel5, International.getStringWithMnemonic("Jahrgang")+": ");
     jLabel5.setLabelFor(jahrgang);
-    jLabel5.setText("Jahrgang: ");
-    jLabel6.setDisplayedMnemonic('G');
+    Mnemonics.setLabel(this, jLabel6, International.getStringWithMnemonic("Geschlecht")+": ");
     jLabel6.setLabelFor(geschlecht);
-    jLabel6.setText("Geschlecht: ");
-    jLabel7.setDisplayedMnemonic('S');
+    Mnemonics.setLabel(this, jLabel7, International.getStringWithMnemonic("Status")+": ");
     jLabel7.setLabelFor(status);
-    jLabel7.setText("Status: ");
-    jLabel8.setDisplayedMnemonic('E');
+    Mnemonics.setLabel(this, jLabel8, International.getStringWithMnemonic("Verein")+": ");
     jLabel8.setLabelFor(verein);
-    jLabel8.setText("Verein: ");
-    jLabel9.setDisplayedMnemonic('B');
+    Mnemonics.setLabel(this, jLabel9, International.getStringWithMnemonic("Behinderung")+": ");
     jLabel9.setLabelFor(behinderung);
-    jLabel9.setText("Behinderung: ");
     vorname.setNextFocusableComponent(nachname);
     vorname.setPreferredSize(new Dimension(200, 17));
     nachname.setNextFocusableComponent(kuerzel);
@@ -199,15 +193,15 @@ public class MitgliederFehlerFrame extends JDialog implements ActionListener {
       }
     });
     replGeschlBox.setPreferredSize(new Dimension(300, 17));
-    replGeschlBox.setToolTipText("Bei künftigen Einträgen diese Ersetzung immer durchführen");
+    replGeschlBox.setToolTipText(International.getString("Bei weiteren Einträgen diese Ersetzung immer durchführen"));
     fehlerText.setBackground(new Color(204, 204, 204));
     fehlerText.setFont(new java.awt.Font("Dialog", 1, 12));
     fehlerText.setForeground(Color.red);
     fehlerText.setEditable(false);
     replStatusBox.setPreferredSize(new Dimension(300, 17));
-    replStatusBox.setToolTipText("Bei künftigen Einträgen diese Ersetzung immer durchführen");
+    replStatusBox.setToolTipText(International.getString("Bei weiteren Einträgen diese Ersetzung immer durchführen"));
     replBehBox.setPreferredSize(new Dimension(300, 17));
-    replBehBox.setToolTipText("Bei künftigen Einträgen diese Ersetzung immer durchführen");
+    replBehBox.setToolTipText(International.getString("Bei weiteren Einträgen diese Ersetzung immer durchführen"));
     status.setNextFocusableComponent(verein);
     status.setPreferredSize(new Dimension(200, 17));
     status.addActionListener(new java.awt.event.ActionListener() {
@@ -215,17 +209,22 @@ public class MitgliederFehlerFrame extends JDialog implements ActionListener {
         status_actionPerformed(e);
       }
     });
-    jLabel10.setText("Mitgliedsnummer: ");
-    jLabel11.setText("Paßwort: ");
-    jLabel12.setText("Frei 1: ");
-    jLabel13.setText("Frei 2: ");
-    jLabel14.setText("Frei 3: ");
+    Mnemonics.setLabel(this, jLabel10, International.getStringWithMnemonic("Mitgliedsnummer")+": ");
+    jLabel10.setLabelFor(mitglnr);
+    Mnemonics.setLabel(this, jLabel11, International.getStringWithMnemonic("Paßwort")+": ");
+    jLabel11.setLabelFor(password);
+    Mnemonics.setLabel(this, jLabel12, International.getStringWithMnemonic("Frei")+" 1: ");
+    jLabel12.setLabelFor(frei1);
+    Mnemonics.setLabel(this, jLabel13, International.getStringWithMnemonic("Frei")+" 2: ");
+    jLabel13.setLabelFor(frei2);
+    Mnemonics.setLabel(this, jLabel14, International.getStringWithMnemonic("Frei")+" 3: ");
+    jLabel14.setLabelFor(frei3);
     mitglnr.setNextFocusableComponent(password);
     password.setNextFocusableComponent(frei1);
     frei1.setNextFocusableComponent(frei2);
     frei2.setNextFocusableComponent(frei3);
     frei3.setNextFocusableComponent(okButton);
-    skipButton.setText("Eintrag überspringen");
+    skipButton.setText(International.getString("Eintrag überspringen"));
     skipButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         skipButton_actionPerformed(e);
@@ -301,13 +300,15 @@ public class MitgliederFehlerFrame extends JDialog implements ActionListener {
     jPanel2.add(skipButton,    new GridBagConstraints(0, 13, 3, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 10, 0), 0, 0));
 
-    geschlecht.addItem("ungültiger Wert");
-    for (int i=0; i<Daten.bezeichnungen.geschlecht.size(); i++) geschlecht.addItem(Daten.bezeichnungen.geschlecht.get(i));
-    status.addItem("ungültiger Wert");
+    geschlecht.addItem(International.getString("ungültiger Wert"));
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_GENDER); i++) {
+        geschlecht.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, i));
+    }
+    status.addItem(International.getString("ungültiger Wert"));
     for (int i=0; i<statusList.length; i++) status.addItem(statusList[i]);
-    behinderung.addItem("ungültiger Wert");
-    behinderung.addItem("ja");
-    behinderung.addItem("nein");
+    behinderung.addItem(International.getString("ungültiger Wert"));
+    behinderung.addItem(International.getString("ja"));
+    behinderung.addItem(International.getString("nein"));
   }
 
   /**Overridden so we can exit when window is closed*/
@@ -333,19 +334,28 @@ public class MitgliederFehlerFrame extends JDialog implements ActionListener {
   void geschlecht_actionPerformed(ActionEvent e) {
     if (geschlecht.getSelectedIndex()==0) this.replGeschlBox.setEnabled(false);
     else this.replGeschlBox.setEnabled(true);
-    if (geschlecht.getSelectedIndex()>0) this.replGeschlBox.setText("'"+felder[Mitglieder.GESCHLECHT]+"' immer durch '"+geschlecht.getSelectedItem()+"' ersetzen");
+    if (geschlecht.getSelectedIndex()>0) {
+        this.replGeschlBox.setText(International.getMessage("'{original_text}' immer durch '{new_text}' ersetzen",
+                felder[Mitglieder.GESCHLECHT],geschlecht.getSelectedItem().toString()));
+    }
   }
 
   void status_actionPerformed(ActionEvent e) {
     if (status.getSelectedIndex()==0) this.replStatusBox.setEnabled(false);
     else this.replStatusBox.setEnabled(true);
-    if (status.getSelectedIndex()>0) this.replStatusBox.setText("'"+felder[Mitglieder.STATUS]+"' immer durch '"+status.getSelectedItem()+"' ersetzen");
+    if (status.getSelectedIndex()>0) {
+        this.replStatusBox.setText(International.getMessage("'{original_text}' immer durch '{new_text}' ersetzen",
+                felder[Mitglieder.STATUS],status.getSelectedItem().toString()));
+    }
   }
 
   void behinderung_actionPerformed(ActionEvent e) {
     if (behinderung.getSelectedIndex()==0) this.replBehBox.setEnabled(false);
     else this.replBehBox.setEnabled(true);
-    if (behinderung.getSelectedIndex()>0) this.replBehBox.setText("'"+felder[Mitglieder.BEHINDERUNG]+"' immer durch '"+behinderung.getSelectedItem()+"' ersetzen");
+    if (behinderung.getSelectedIndex()>0) {
+        this.replBehBox.setText(International.getMessage("'{original_text}' immer durch '{new_text}' ersetzen",
+                felder[Mitglieder.BEHINDERUNG],behinderung.getSelectedItem().toString()));
+    }
   }
 
   void okButton_actionPerformed(ActionEvent e) {

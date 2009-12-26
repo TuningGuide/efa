@@ -356,7 +356,7 @@ public class AdminFrame extends JDialog implements ActionListener {
     }
     Dialog.frameClosed(this);
     dispose();
-    Logger.log(Logger.INFO, Logger.MSG_ADMIN_ADMINMODEEXITED, International.getString("Admin-Modus verlassen."));
+    Logger.log(Logger.INFO, Logger.MSG_ADMIN_ADMINMODEEXITED, International.getString("Admin-Modus verlassen")+ ".");
     Daten.applMode = Daten.APPL_MODE_NORMAL;
   }
 
@@ -370,7 +370,8 @@ public class AdminFrame extends JDialog implements ActionListener {
 
   private void logAction(String msg, String action) {
       Logger.log(Logger.INFO, msg,
-              International.getString("Admin")+": "+International.getString("Aktion")+" "+action);
+              International.getString("Admin")+": "+
+              International.getString("Aktion")+" "+action);
   }
 
   void okButton_actionPerformed(ActionEvent e) {
@@ -383,7 +384,9 @@ public class AdminFrame extends JDialog implements ActionListener {
       if (pwd == null) return;
       this.admin .password = EfaUtil.getSHA(pwd);
       Daten.efaConfig.admins.put(admin.name,admin);
-      if (!Daten.efaConfig.writeFile()) Dialog.error(International.getString("Konfigurationsdatei konnte nicht geschrieben werden!"));
+      if (!Daten.efaConfig.writeFile()) {
+          Dialog.error(LogString.logstring_fileWritingFailed(Daten.efaConfig.getFileName(), International.getString("Konfigurationsdatei")));;
+      }
       return;
     }
     logAction(Logger.MSG_ADMIN_ACTION_ADMINS,adminsButton.getText());
@@ -459,8 +462,8 @@ public class AdminFrame extends JDialog implements ActionListener {
     if (dat == null || dat.length()==0) return;
     Daten.efaConfig.direkt_letzteDatei = dat;
     if (!Daten.efaConfig.writeFile()) {
-      Dialog.error(International.getMessage("Datei '{filename}' kann nicht geschrieben werden!",Daten.efaConfig.getFileName()));
-      Logger.log(Logger.ERROR,International.getMessage("Datei '{filename}' kann nicht geschrieben werden!",Daten.efaConfig.getFileName()));
+      Dialog.error(LogString.logstring_fileWritingFailed(Daten.efaConfig.getFileName(), International.getString("Konfigurationsdatei")));
+      LogString.logError_fileWritingFailed(Daten.efaConfig.getFileName(), International.getString("Konfigurationsdatei"));
     }
     parent.readFahrtenbuch();
     parent.iniBootsListen();
@@ -472,7 +475,8 @@ public class AdminFrame extends JDialog implements ActionListener {
       noRight();
       return;
     }
-    logAction(Logger.MSG_ADMIN_ACTION_EDITLOGBOOK,International.getString("Fahrtenbuch bearbeiten") + " ("+International.getString("Start")+")");
+    logAction(Logger.MSG_ADMIN_ACTION_EDITLOGBOOK,International.getString("Fahrtenbuch bearbeiten") + " ("+
+            International.getString("Start")+")");
     aktFb = Daten.fahrtenbuch;
     this.setEnabled(false);
     if (Dialog.isFontSizeChanged()) {
@@ -488,7 +492,8 @@ public class AdminFrame extends JDialog implements ActionListener {
   }
 
   public void fahrtenbuchClosed() {
-    logAction(Logger.MSG_ADMIN_ACTION_EDITLOGBOOKDONE,International.getString("Fahrtenbuch bearbeiten") + " ("+International.getString("Ende")+")");
+    logAction(Logger.MSG_ADMIN_ACTION_EDITLOGBOOKDONE,International.getString("Fahrtenbuch bearbeiten") + " ("+
+            International.getString("Ende")+")");
     if (oldFontSize > 0) Dialog.setGlobalFontSize(oldFontSize, oldFontStyle);
     if (Daten.fahrtenbuch != aktFb) {
       Daten.fahrtenbuch = aktFb;
@@ -624,7 +629,9 @@ public class AdminFrame extends JDialog implements ActionListener {
       noRight();
       return;
     }
-    logAction(Logger.MSG_ADMIN_ACTION_FULLACCESS,International.getString("Fahrtenbuch bearbeiten")+" - "+International.getString("Vollzugriff") + " ("+International.getString("Start")+")");
+    logAction(Logger.MSG_ADMIN_ACTION_FULLACCESS,International.getString("Fahrtenbuch bearbeiten")+" - "+
+            International.getString("Vollzugriff") +
+            " ("+International.getString("Start")+")");
     aktFb = Daten.fahrtenbuch;
     this.setEnabled(false);
     if (Dialog.isFontSizeChanged()) {
@@ -690,7 +697,7 @@ public class AdminFrame extends JDialog implements ActionListener {
     } catch(Exception ee) {
       Logger.log(Logger.ERROR,Logger.MSG_ADMIN_ACTION_EXECCMDFAILED,
               International.getString("Admin")+": "+
-              International.getMessage("Kann Kommando '{command}' nicht ausführen.",cmd));
+              LogString.logstring_cantExecCommand(cmd, International.getString("Kommando")));
     }
   }
 

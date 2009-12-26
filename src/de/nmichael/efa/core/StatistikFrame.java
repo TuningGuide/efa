@@ -12,6 +12,7 @@ package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.*;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.statistics.*;
@@ -352,7 +353,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     artPanel.setLayout(flowLayout1);
     rest1Panel.setLayout(borderLayout3);
     zeitraumPanel.setLayout(flowLayout2);
-    zeitraumLabel.setText(International.getString("Zeitraum für die Berechnung")+": ");
+    zeitraumLabel.setText(International.getString("Zeitraum für Auswertung")+": ");
     Mnemonics.setLabel(this, vonLabel, International.getStringWithMnemonic("vom")+" ");
     vonLabel.setLabelFor(von);
     von.setNextFocusableComponent(bis);
@@ -383,7 +384,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     Mnemonics.setLabel(this, status1Label, International.getStringWithMnemonic("Status")+": ");
     status1Label.setLabelFor(nurStatus1);
     status1ScrollPane.setPreferredSize(new Dimension(90, 120));
-    Mnemonics.setLabel(this, nurNameLabel, International.getStringWithMnemonic("nur Name")+": ");
+    Mnemonics.setLabel(this, nurNameLabel, International.getStringWithMnemonic("Nur Name")+": ");
     nurNameLabel.setLabelFor(nurName);
     nurName.setNextFocusableComponent(nameTeil);
     nurName.setPreferredSize(new Dimension(100, 19));
@@ -412,7 +413,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     ausJahrgang.setNextFocusableComponent(ausStatus1);
     Mnemonics.setButton(this, ausStatus1, International.getStringWithMnemonic("Status"));
     ausStatus1.setNextFocusableComponent(ausZielfahrten);
-    Mnemonics.setButton(this, ausZielfahrten, International.getStringWithMnemonic("Zielfahrten"));
+    Mnemonics.setButton(this, ausZielfahrten, International.onlyFor("Zielfahrten","de"));
     ausZielfahrten.setNextFocusableComponent(ausWafaKm);
     Mnemonics.setLabel(this, ausgabeLabel, International.getStringWithMnemonic("Ausgabe")+": ");
     ausgabeLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -424,7 +425,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     Mnemonics.setButton(this, ausFahrten, International.getStringWithMnemonic("Fahrten"));
     ausFahrten.setNextFocusableComponent(ausKmFahrt);
     ausFahrten.setSelected(true);
-    Mnemonics.setButton(this, ausKmFahrt, International.getStringWithMnemonic("Km / Fahrt"));
+    Mnemonics.setButton(this, ausKmFahrt, International.getStringWithMnemonic("Km/Fahrt"));
     ausKmFahrt.setNextFocusableComponent(ausDauer);
     ausKmFahrt.setSelected(true);
     ausgabePanel.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -455,7 +456,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     graStmKm.setNextFocusableComponent(maxBalkenStmKm);
     Mnemonics.setButton(this, graFahrten, International.getStringWithMnemonic("Fahrten"));
     graFahrten.setNextFocusableComponent(maxBalkenFahrten);
-    Mnemonics.setButton(this, graKmFahrt, International.getStringWithMnemonic("Km / Fahrt"));
+    Mnemonics.setButton(this, graKmFahrt, International.getStringWithMnemonic("Km/Fahrt"));
     graKmFahrt.setNextFocusableComponent(maxBalkenKmFahrt);
     maxBalkenRudKm.setNextFocusableComponent(graStmKm);
     maxBalkenRudKm.setPreferredSize(new Dimension(40, 19));
@@ -538,16 +539,16 @@ public class StatistikFrame extends JDialog implements ActionListener {
     jScrollPane2.setPreferredSize(new Dimension(100, 131));
     mNurSkull.setNextFocusableComponent(mNurRiemen);
     mNurSkull.setSelected(true);
-    mNurSkull.setText(Daten.bezeichnungen.bRigger.get(Bezeichnungen.BRIGGER_SKULL));
+    mNurSkull.setText(Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, EfaTypes.TYPE_RIGGING_SCULL));
     mNurRiemen.setNextFocusableComponent(mNurAndere1);
     mNurRiemen.setSelected(true);
-    mNurRiemen.setText(Daten.bezeichnungen.bRigger.get(Bezeichnungen.BRIGGER_RIEMEN));
+    mNurRiemen.setText(Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, EfaTypes.TYPE_RIGGING_SWEEP));
     mNurMitStm.setNextFocusableComponent(mNurOhneStm);
     mNurMitStm.setSelected(true);
-    mNurMitStm.setText(Daten.bezeichnungen.bStm.get(Bezeichnungen.BSTM_MIT));
+    mNurMitStm.setText(Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, EfaTypes.TYPE_COXING_COXED));
     mNurOhneStm.setNextFocusableComponent(mNurAndere2);
     mNurOhneStm.setSelected(true);
-    mNurOhneStm.setText(Daten.bezeichnungen.bStm.get(Bezeichnungen.BSTM_OHNE));
+    mNurOhneStm.setText(Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, EfaTypes.TYPE_COXING_COXLESS));
     Mnemonics.setLabel(this, mNurNameLabel, International.getStringWithMnemonic("nur Boot")+": ");
     mNurNameLabel.setLabelFor(mNurBoot);
     mNurBoot.setMinimumSize(new Dimension(100, 19));
@@ -586,7 +587,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     Mnemonics.setButton(this, mAusFahrten, International.getStringWithMnemonic("Fahrten"));
     mAusFahrten.setNextFocusableComponent(mAusKmFahrt);
     mAusFahrten.setSelected(true);
-    Mnemonics.setButton(this, mAusKmFahrt, International.getStringWithMnemonic("Km / Fahrt"));
+    Mnemonics.setButton(this, mAusKmFahrt, International.getStringWithMnemonic("Km/Fahrt"));
     mAusKmFahrt.setNextFocusableComponent(mAusDauer);
     mAusKmFahrt.setSelected(true);
     mAusgabePanel.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -595,7 +596,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     mGraAusKm.setSelected(true);
     Mnemonics.setButton(this, mGraAusFahrten, International.getStringWithMnemonic("Fahrten"));
     mGraAusFahrten.setNextFocusableComponent(mGraSizeFahrten);
-    Mnemonics.setButton(this, mGraAusKmFahrt, International.getStringWithMnemonic("Km / Fahrt"));
+    Mnemonics.setButton(this, mGraAusKmFahrt, International.getStringWithMnemonic("Km/Fahrt"));
     mGraAusKmFahrt.setNextFocusableComponent(mGraSizeKmFahrt);
     mGraSizeLabel.setText(International.getString("Größe")+":");
     mGraSizeKmFahrt.setNextFocusableComponent(mGraAusDauer);
@@ -819,11 +820,13 @@ public class StatistikFrame extends JDialog implements ActionListener {
         erweitertButton_actionPerformed(e);
       }
     });
-    Mnemonics.setButton(this, ausDauer, International.getStringWithMnemonic("Dauer (Stunden)"));
+    Mnemonics.setButton(this, ausDauer, International.getStringWithMnemonic("Dauer")
+            + " (" + International.getString("Stunden") +"): ");
     ausDauer.setNextFocusableComponent(ausKmH);
     Mnemonics.setButton(this, ausKmH, International.getStringWithMnemonic("Km/h"));
     ausKmH.setNextFocusableComponent(ausAnzVersch);
-    Mnemonics.setButton(this, graDauer, International.getStringWithMnemonic("Dauer (Stunden)"));
+    Mnemonics.setButton(this, graDauer, International.getStringWithMnemonic("Dauer")
+            + " (" + International.getString("Stunden") +"): ");
     graDauer.setNextFocusableComponent(maxBalkenDauer);
     Mnemonics.setButton(this, graKmH, International.getStringWithMnemonic("Km/h"));
     graKmH.setNextFocusableComponent(maxBalkenKmH);
@@ -1254,7 +1257,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     art.addItem(International.getString("Jahrgang"));
     art.addItem(International.getString("Geschlecht"));
     art.addItem(International.getString("Ziele"));
-    art.addItem(International.getString("Km / Fahrt"));
+    art.addItem(International.getString("Km/Fahrt"));
     art.addItem(International.getString("Monate"));
     art.addItem(International.getString("Wochentage"));
     art.addItem(International.getString("Tageszeit"));
@@ -1272,16 +1275,16 @@ public class StatistikFrame extends JDialog implements ActionListener {
     art.addItem(International.getString("Wer mit Fahrtart"));
     art.setSelectedIndex(0);
 
-    nurGeschlecht.setListData(Daten.bezeichnungen.geschlecht.toArray());
-    nurGeschlecht.setSelectionInterval(0,Daten.bezeichnungen.geschlecht.size()-1);
+    nurGeschlecht.setListData(Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_GENDER));
+    nurGeschlecht.setSelectionInterval(0,Daten.efaTypes.size(EfaTypes.CATEGORY_GENDER)-1);
 
     nurStatus1.setListData(Daten.fahrtenbuch.getDaten().status);
     nurStatus1.setSelectionInterval(0,Daten.fahrtenbuch.getDaten().status.length-2);
 
-    nurFahrtart.setListData(Daten.bezeichnungen.fahrtart.toArray());
-    nurFahrtart.setSelectionInterval(0,Daten.bezeichnungen.fahrtart.size()-1);
-    mNurFahrtart.setListData(Daten.bezeichnungen.fahrtart.toArray());
-    mNurFahrtart.setSelectionInterval(0,Daten.bezeichnungen.fahrtart.size()-1);
+    nurFahrtart.setListData(Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_TRIP));
+    nurFahrtart.setSelectionInterval(0,Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP)-1);
+    mNurFahrtart.setListData(Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_TRIP));
+    mNurFahrtart.setSelectionInterval(0,Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP)-1);
 
     for (int i=0; i<ausgabeArten.length; i++)
       ausgabeArt.addItem(ausgabeArten[i]);
@@ -1293,9 +1296,10 @@ public class StatistikFrame extends JDialog implements ActionListener {
     bArt.addItem(International.getString("Boote"));
     bArt.addItem(International.getString("Art"));
     bArt.addItem(International.getString("Ruderplätze"));
-    bArt.addItem(International.getString("Art - Detail"));
+    bArt.addItem(International.getString("Art") + " - " +
+            International.getString("Detail"));
     bArt.addItem(International.getString("Ziele"));
-    bArt.addItem(International.getString("Km / Fahrt"));
+    bArt.addItem(International.getString("Km/Fahrt"));
     bArt.addItem(International.getString("Monate"));
     bArt.addItem(International.getString("Wochentage"));
     bArt.addItem(International.getString("Tageszeit"));
@@ -1305,11 +1309,11 @@ public class StatistikFrame extends JDialog implements ActionListener {
     bArt.addItem(International.getString("Jahre"));
     bArt.setSelectedIndex(0);
 
-    mNurArt.setListData(Daten.bezeichnungen.bArt.toArray());
-    mNurArt.setSelectionInterval(0,Daten.bezeichnungen.bArt.size()-1);
+    mNurArt.setListData(Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_BOAT));
+    mNurArt.setSelectionInterval(0,Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT)-1);
 
-    mNurAnzahl.setListData(Daten.bezeichnungen.bAnzahl.toArray());
-    mNurAnzahl.setSelectionInterval(0,Daten.bezeichnungen.bAnzahl.size()-1);
+    mNurAnzahl.setListData(Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_NUMROWERS));
+    mNurAnzahl.setSelectionInterval(0,Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS)-1);
 
     if (Daten.wettDefs != null) {
       for (int i=0; i<WettDefs.ANZWETT; i++) {
@@ -1374,17 +1378,20 @@ public class StatistikFrame extends JDialog implements ActionListener {
         sortKrit.addItem("---");
         break;
       case StatistikDaten.ART_WOTAGE:
-        sortKrit.addItem(International.getString("Tag (alphabetisch)"));
+        sortKrit.addItem(International.getString("Tag") +
+                " (" + International.getString("alphabetisch") + ")");
         sortKrit.addItem("---");
         sortKrit.addItem(International.getString("Wochentag"));
         break;
       case StatistikDaten.ART_TAGESZEIT:
-        sortKrit.addItem(International.getString("Zeit (alphabetisch)"));
+        sortKrit.addItem(International.getString("Zeit") +
+                " (" + International.getString("alphabetisch") + ")");
         sortKrit.addItem("---");
         sortKrit.addItem(International.getString("Tageszeit"));
         break;
       case StatistikDaten.ART_MONATE:
-        sortKrit.addItem(International.getString("Monat (alphabetisch)"));
+        sortKrit.addItem(International.getString("Monat") +
+                " (" + International.getString("alphabetisch") + ")");
         sortKrit.addItem("---");
         sortKrit.addItem(International.getString("Monat"));
         break;
@@ -1594,7 +1601,8 @@ public class StatistikFrame extends JDialog implements ActionListener {
         mSortKrit.addItem("---");
         break;
       case StatistikDaten.BART_ARTDETAIL:
-        mSortKrit.addItem(International.getString("Art - Detail"));
+        mSortKrit.addItem(International.getString("Art") + " - " +
+                International.getString("Detail"));
         mSortKrit.addItem(International.getString("Art"));
         mSortKrit.addItem(International.getString("Ruderplätze"));
         break;
@@ -1614,7 +1622,8 @@ public class StatistikFrame extends JDialog implements ActionListener {
         mSortKrit.addItem(International.getString("Wochentag"));
         break;
       case StatistikDaten.BART_TAGESZEIT:
-        sortKrit.addItem(International.getString("Zeit (alphabetisch)"));
+        sortKrit.addItem(International.getString("Zeit") +
+                " (" + International.getString("alphabetisch") + ")");
         sortKrit.addItem("---");
         sortKrit.addItem(International.getString("Tageszeit"));
         break;
@@ -1900,14 +1909,23 @@ public class StatistikFrame extends JDialog implements ActionListener {
     String ext = ausgabeExt[ausgabeArt.getSelectedIndex()];
     String dat;
     if (!ausgabeDatei.getText().trim().equals("")) {
-        dat = Dialog.dateiDialog(this,ext.toUpperCase()+"-"+International.getString("Datei auswählen"),
+        dat = Dialog.dateiDialog(this,ext.toUpperCase()+"-"+
+                International.getMessage("{item} auswählen",
+                International.getString("Datei")),
                 ext.toUpperCase()+"-"+International.getString("Datei")+" (*."+ext+")",
                 ext,ausgabeDatei.getText().trim(),null,
-                International.getString("Datei auswählen"),true,false);
+                International.getMessage("{item} auswählen",
+                International.getString("Datei")),
+                true,false);
     } else {
-        dat = Dialog.dateiDialog(this,ext.toUpperCase()+"-"+International.getString("Datei auswählen"),
-                ext.toUpperCase()+"-"+International.getString("Datei")+" (*."+ext+")",ext,null,null,
-                International.getString("Datei auswählen"),true,false);
+        dat = Dialog.dateiDialog(this,ext.toUpperCase()+"-"+
+                International.getMessage("{item} auswählen",
+                International.getString("Datei")),
+                ext.toUpperCase()+"-"+
+                International.getString("Datei")+" (*."+ext+")",ext,null,null,
+                International.getMessage("{item} auswählen",
+                International.getString("Datei")),
+                true,false);
     }
 
     if (dat != null) {
@@ -2034,7 +2052,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     if (d.ausgabeOverwriteWarnung && d.ausgabeDatei != null &&
         d.ausgabeArt != StatistikDaten.AUSGABE_INTERN_GRAFIK && d.ausgabeArt != StatistikDaten.AUSGABE_INTERN_TEXT &&
         new File(d.ausgabeDatei).isFile())
-      switch (Dialog.yesNoDialog(International.getString("Datei bereits vorhanden"),
+      switch (Dialog.yesNoDialog(International.getString("Datei existiert bereits"),
               International.getMessage("Soll die Datei '{filename}' überschrieben werden?",d.ausgabeDatei))) {
         case Dialog.NO: return false;
       }
@@ -2076,7 +2094,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     if (d == null) return;
     if (d.ausgabeArt == StatistikDaten.AUSGABE_EFAWETT) {
       Dialog.infoDialog(International.getString("Fehler"),
-              International.getString("Meldedatei-Ausgaben können nicht als Statistikeinstellung gespeichert werden!"));
+              "Meldedatei-Ausgaben können nicht als Statistikeinstellung gespeichert werden!");
       return;
     }
     StatAddFrame dlg = new StatAddFrame(this,d,aktStatName,aktStatAuchEfaDirekt);
@@ -2145,7 +2163,8 @@ public class StatistikFrame extends JDialog implements ActionListener {
             case StatistikDaten.ART_FAHRTENBUCH: case StatistikDaten.BART_FAHRTENBUCH: felder[i] = felder[i] + International.getString("Fahrtenbuch")+")"; break;
             case StatistikDaten.ART_MONATSUEBERSICHT: felder[i] = felder[i] + International.getString("Monatsübersicht")+")"; break;
             case StatistikDaten.BART_ART: felder[i] = felder[i] + International.getString("Art")+")"; break;
-            case StatistikDaten.BART_ARTDETAIL: felder[i] = felder[i] + International.getString("Art - Detail")+")"; break;
+            case StatistikDaten.BART_ARTDETAIL: felder[i] = felder[i] + International.getString("Art") + " - " +
+                    International.getString("Detail")+")"; break;
             case StatistikDaten.BART_PLAETZE: felder[i] = felder[i] + International.getString("Bootsplätze")+")"; break;
             case StatistikDaten.BART_WELCHESWOHIN: felder[i] = felder[i] + International.getString("Welches Boot Wohin")+")"; break;
           }
@@ -2165,7 +2184,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
   void deleteButton_actionPerformed(ActionEvent e) {
     if (statList.getSelectedIndices().length == 0) return;
     switch (Dialog.yesNoDialog(International.getString("Warnung"),
-            International.getString("Sollen die markierten Einträge wirklich gelöscht werden?"))) {
+            International.getString("Möchtest Du die markierten Einträge wirklich löschen?"))) {
       case Dialog.YES:
         String[] s = new String[statList.getSelectedValues().length];
         for (int i=0; i<statList.getSelectedValues().length; i++)
@@ -2245,7 +2264,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
       if (errorIfEmpty(d[0].bAnzahl,International.getString("Ruderplätze"))) return;
       if (errorIfEmpty(d[0].fahrtart,International.getString("Art der Fahrt"))) return;
       if (errorIfEmpty(d[0].bRigger,International.getString("Riggerung"))) return;
-      if (errorIfEmpty(d[0].bStm,International.getString("mit oder ohne Steuermann"))) return;
+      if (errorIfEmpty(d[0].bStm,International.getString("mit/ohne Stm."))) return;
       if (errorIfEmpty(d[0].bVerein,International.getString("Vereins- oder Gastboot"))) return;
     }
 
@@ -2424,13 +2443,13 @@ public class StatistikFrame extends JDialog implements ActionListener {
     d.art = art.getSelectedIndex();
     d.vorjahresvergleich = zeitVorjahresvergleich.isSelected();
 
-    for (int i=0; i<Daten.bezeichnungen.geschlecht.size(); i++) {
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_GENDER); i++) {
       d.geschlecht[i] = nurGeschlecht.isSelectedIndex(i);
     }
     for (int i=0; i<Daten.fahrtenbuch.getDaten().status.length; i++) {
       d.status[i] = nurStatus1.isSelectedIndex(i);
     }
-    for (int i=0; i<Daten.bezeichnungen.fahrtart.size(); i++) {
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++) {
       d.fahrtart[i] = nurFahrtart.isSelectedIndex(i);
     }
 
@@ -2500,13 +2519,13 @@ public class StatistikFrame extends JDialog implements ActionListener {
     d.vorjahresvergleich = bzeitVorjahresvergleich.isSelected();
 
 
-    for (int i=0; i<Daten.bezeichnungen.bArt.size(); i++) {
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT); i++) {
       d.bArt[i] = mNurArt.isSelectedIndex(i);
     }
-    for (int i=0; i<Daten.bezeichnungen.bAnzahl.size(); i++) {
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS); i++) {
       d.bAnzahl[i] = mNurAnzahl.isSelectedIndex(i);
     }
-    for (int i=0; i<Daten.bezeichnungen.fahrtart.size(); i++) {
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++) {
       d.fahrtart[i] = mNurFahrtart.isSelectedIndex(i);
     }
     d.bRigger[0] = mNurSkull.isSelected();
@@ -2578,32 +2597,35 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
     if (d.ausgabeArt == StatistikDaten.AUSGABE_EFAWETT && Daten.wettDefs != null &&
         Daten.wettDefs.isDataOld() ) {
-      if (Dialog.yesNoDialog(International.getString("efaWett-Konfigurationsdaten"),
-                             International.getMessage("Die efaWett-Konfigurationsdaten sind schon recht alt "+
-                             "(Stand: {date}).\n"+
-                             "Sollen jetzt aktuelle Konfigurationsdaten aus dem Internet heruntergeladen werden?",
-                             Daten.wettDefs.efw_stand_der_daten)) == Dialog.YES) {
+      if (Dialog.yesNoDialog(International.onlyFor("efaWett-Konfigurationsdaten","de"),
+                             International.onlyFor("Die efaWett-Konfigurationsdaten sind schon recht alt.","de")+
+                             " (" + International.onlyFor("Stand","de") + ": " + Daten.wettDefs.efw_stand_der_daten + ")\n"+
+                             International.onlyFor("Sollen jetzt aktuelle Konfigurationsdaten aus dem Internet heruntergeladen werden?","de")
+                             ) == Dialog.YES) {
         if (VereinsConfigFrame.holeAktuelleDatenAusDemInternet()) {
-          Dialog.infoDialog(International.getString("Die efaWett-Konfigurationsdaten wurden erfolgreich aktualisiert!"));
+          Dialog.infoDialog(International.onlyFor("Die efaWett-Konfigurationsdaten wurden erfolgreich aktualisiert!","de"));
         } else {
-          Dialog.error(International.getString("Die efaWett-Konfigurationsdaten konnten nicht aktualisiert werden!"));
+          Dialog.error(International.onlyFor("Die efaWett-Konfigurationsdaten konnten nicht aktualisiert werden!","de"));
         }
       }
     }
 
-    for (int i=0; i<Daten.bezeichnungen.geschlecht.size(); i++) {
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_GENDER); i++) {
       d.geschlecht[i] = nurGeschlecht.isSelectedIndex(i);
     }
     for (int i=0; i<Daten.fahrtenbuch.getDaten().status.length; i++) {
       d.status[i] = nurStatus1.isSelectedIndex(i);
-      if (Daten.bezeichnungen != null) {
-        if (Daten.bezeichnungen.gast != null && Daten.bezeichnungen.gast.length()>0 && Daten.fahrtenbuch.getDaten().status[i].equals(Daten.bezeichnungen.gast)) d.status[i] = false;
-        if (Daten.bezeichnungen.andere != null && Daten.bezeichnungen.andere.length()>0 && Daten.fahrtenbuch.getDaten().status[i].equals(Daten.bezeichnungen.andere)) d.status[i] = false;
+      if (Daten.efaTypes != null) {
+        if (Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST) &&
+            Daten.fahrtenbuch.getDaten().status[i].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST))) d.status[i] = false;
+        if (Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_OTHER) && 
+            Daten.fahrtenbuch.getDaten().status[i].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_OTHER))) d.status[i] = false;
       }
     }
-    for (int i=0; i<Daten.bezeichnungen.fahrtart.size(); i++) {
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++) {
       d.fahrtart[i] = nurFahrtart.isSelectedIndex(i);
-      if (i == Bezeichnungen.FAHRT_MOTORBOOT || i == Bezeichnungen.FAHRT_ERGO) d.fahrtart[i] = false;
+      if (Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP, i).equals(EfaTypes.TYPE_BOAT_MOTORBOAT) ||
+          Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP, i).equals(EfaTypes.TYPE_BOAT_ERG)) d.fahrtart[i] = false;
     }
 
     d.name = nurName.getText().trim();
@@ -3089,7 +3111,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     ausgabeFormat.removeAllItems();
 
     if (ausgabeExt[nr] != null && ausgabeExt[nr].equals("pdf"))
-      ausgabeFormat.addItem(International.getString("--- bitte wählen ---"));
+      ausgabeFormat.addItem("--- " + International.getString("bitte wählen") + " ---");
     else
       ausgabeFormat.addItem(International.getString("Standard"));
     if (nr == 0 || nr == 2 ||

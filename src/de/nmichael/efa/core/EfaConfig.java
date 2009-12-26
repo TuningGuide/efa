@@ -35,9 +35,11 @@ public class EfaConfig extends DatenListe {
   public static final int LL_WEST = 2;
   public static final int LL_EAST = 3;
 
+  // default Werte
+  public static final String DEFAULT = "%DEFAULT%";
+
 
   // ------------- Intern -------------
-  public String language=null;              // Sprache: null=default; de=deutsch, en=english etc.
   public String letzteDatei="";             // zuletzt bearbeitete Fahrtenbuchdatei
   public String version = "100";            // efa Versionsnummer
   public int countEfaStarts=0;              // Wie oft wurde efa schon gestartet
@@ -202,8 +204,6 @@ public class EfaConfig extends DatenListe {
 
 
 
-  public static final String LOOKANDFEEL_STANDARD = International.getString("Standard");
-
   public static final String KENNUNG100 = "##EFA.100.KONFIGURATION##";
 
   // Konstruktor
@@ -212,11 +212,11 @@ public class EfaConfig extends DatenListe {
     kennung = KENNUNG100;
     reset();
     this.backupEnabled = false; // Aus Sicherheitsgründen kein Backup von efa.cfg anlegen!!
+    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFACONFIG, "EfaConfig("+pdat+")");
   }
 
   // Einstellungen zurücksetzen
   void reset() {
-    language = null;
     letzteDatei="";
     autogenAlias = true;
     aliasFormat = "{V1}{V2}-{N1}"; // @todo: Internationalize?!? How?!
@@ -255,7 +255,7 @@ public class EfaConfig extends DatenListe {
     screenHeight=0;
     maxDialogHeight=0;
     maxDialogWidth=0;
-    lookAndFeel = (Daten.osName != null && Daten.osName.equals("Linux") ? "javax.swing.plaf.metal.MetalLookAndFeel" : LOOKANDFEEL_STANDARD);
+    lookAndFeel = (Daten.osName != null && Daten.osName.equals("Linux") ? "javax.swing.plaf.metal.MetalLookAndFeel" : DEFAULT);
     showBerlinOptions = true;
     zielfahrtSeparatorBereiche = ",";
     zielfahrtSeparatorFahrten = "/";
@@ -378,13 +378,6 @@ public class EfaConfig extends DatenListe {
         s = s.trim();
         if (s.startsWith("VERSION="))
             version=s.substring(8,s.length()).trim();
-        if (s.startsWith("LANGUAGE=")) {
-            language=s.substring(9,s.length()).trim();
-            if (language.length() == 0) language = null;
-            if (language != null) {
-                International.initialize();
-            }
-        }
         if (s.startsWith("DATEI="))
             letzteDatei=s.substring(6,s.length()).trim();
         if (s.startsWith("AUTOGEN_ALIAS="))
@@ -711,7 +704,6 @@ public class EfaConfig extends DatenListe {
     // Datei schreiben
     try {
       fwrite("VERSION=" + Daten.PROGRAMMID + "\n");
-      fwrite("LANGUAGE=" + (language != null ? language : "") + "\n");
       fwrite("DATEI=" + letzteDatei + "\n");
       fwrite("AUTOGEN_ALIAS=" + ( autogenAlias ? "Y" : "N" ) + "\n");
       fwrite("ALIASFORMAT=" + aliasFormat + "\n");

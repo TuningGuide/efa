@@ -51,13 +51,13 @@ public class EfaRunning {
         port++; // nächsten Port versuchen
       } catch(SecurityException e) {
         trace("Error while trying to bind to port "+port+": "+e.toString());
-        Logger.log(Logger.WARNING,Logger.MSG_BHWARN_EFARUNNING_FAILED,
+        Logger.log(Logger.WARNING,Logger.MSG_WARN_EFARUNNING_FAILED,
                 International.getString("efa konnte sich an keinen Port binden, um den Doppelstart-Verhinderer zu aktivieren:")+" "+e.toString());
         return false;
       }
     }
     if (socket == null) {
-      Logger.log(Logger.WARNING,Logger.MSG_BHWARN_EFARUNNING_FAILED,
+      Logger.log(Logger.WARNING,Logger.MSG_WARN_EFARUNNING_FAILED,
                 International.getString("efa konnte sich an keinen Port binden, um den Doppelstart-Verhinderer zu aktivieren:")+" socket==null");
       return false;
     }
@@ -71,9 +71,9 @@ public class EfaRunning {
       f.write(Integer.toString(port) + " ("+EfaUtil.getCurrentTimeStamp()+")\n");
       f.close();
     } catch(Exception e) {
-      Logger.log(Logger.ERROR,Logger.MSG_BHERR_EFARUNNING_FAILED,
-              International.getMessage("Datei '{filename}' konnte nicht erstellt werden: {msg}",
-              Daten.efaProgramDirectory+Daten.EFA_RUNNUNG,e.toString()));
+      Logger.log(Logger.ERROR,Logger.MSG_ERR_EFARUNNING_FAILED,
+              LogString.logstring_fileCreationFailed(Daten.efaProgramDirectory+Daten.EFA_RUNNUNG, International.getString("Datei"))+
+              "  " + e.toString());
     }
 
     // Thread starten

@@ -13,6 +13,7 @@ package de.nmichael.efa.core;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.AuswahlFrame;
 import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -158,7 +159,8 @@ public class MannschaftFrame extends JDialog implements ActionListener {
     }
     for (int i=0; i<mannschaft.length; i++) {
       JLabel label = new JLabel();
-      label.setText( (i==0? International.getString("Steuermann")+": " : International.getString("Mannschaft")+" "+i+": ") );
+      label.setText( (i==0? International.getString("Steuermann")+": " :
+          International.getString("Mannschaft")+" "+i+": ") );
       Dialog.setPreferredSize(mannschaft[i],200,19);
       mannschaft[i].setMinimumSize(new Dimension(200, 19));
       jPanel1.add(label,   new GridBagConstraints(0, i+1, 1, 1, 0.0, 0.0
@@ -184,9 +186,12 @@ public class MannschaftFrame extends JDialog implements ActionListener {
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
 
     fahrtart.addItem(Mannschaften.NO_FAHRTART);
-    if (Daten.bezeichnungen != null && Daten.bezeichnungen.fahrtart != null) {
-      for (int i=0; i<Daten.bezeichnungen.fahrtart.size()-1; i++)
-        fahrtart.addItem(Daten.bezeichnungen.fahrtart.get(i));
+    if (Daten.efaTypes != null) {
+      for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++) {
+          if (!Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP, i).endsWith(EfaTypes.TYPE_TRIP_MULTIDAY)) {
+              fahrtart.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, i));
+          }
+      }
     }
     fahrtart.setSelectedIndex(0);
 
@@ -233,7 +238,8 @@ public class MannschaftFrame extends JDialog implements ActionListener {
     String key = EfaUtil.removeSepFromString(boot.getText().trim());
 
     if (key.length() == 0) {
-      Dialog.error(International.getString("Der Bootsname darf nicht leer sein!"));
+      Dialog.error(International.getMessage("Das Feld '{fieldname}' darf nicht leer sein!",
+                   International.getString("Mannschaft")));
       boot.requestFocus();
       return;
     }
@@ -259,7 +265,7 @@ public class MannschaftFrame extends JDialog implements ActionListener {
       editnr = 0;
     } else {
       if (!Daten.mannschaften.writeFile())
-        Dialog.error(International.getMessage("{filename} konnte nicht geschrieben werden.",Daten.mannschaften.getFileName()));
+        Dialog.error(LogString.logstring_fileWritingFailed(Daten.mannschaften.getFileName(), International.getString("Mannschaften-Liste")));
     }
 
     cancel();

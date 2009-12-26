@@ -118,7 +118,8 @@ public class StatusUpdateFrame extends JDialog implements ActionListener {
       panel.add(statusAlt[i], new GridBagConstraints(1, i+1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, (i == status.length-1 ? 10 : 0), 0), 0, 0));
 
-      label[i][1] = new JLabel(); label[i][1].setText(" "+International.getString("und Jahrgang")+" ");
+      label[i][1] = new JLabel(); label[i][1].setText(" "+International.getString("und") + " " +
+              International.getString("Jahrgang")+" ");
       panel.add(label[i][1], new GridBagConstraints(2, i+1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, (i == status.length-1 ? 10 : 0), 0), 0, 0));
 

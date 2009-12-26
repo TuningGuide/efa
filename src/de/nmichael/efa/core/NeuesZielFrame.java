@@ -179,7 +179,7 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
     jLabel1.setLabelFor(ziel);
     Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Kilometer")+": ");
     jLabel2.setLabelFor(kilometer);
-    Mnemonics.setLabel(this, bereichLabel, International.getStringWithMnemonic("Zielbereiche")+": ");
+    Mnemonics.setLabel(this, bereichLabel, International.onlyFor("Zielbereiche","de")+": ");
     bereichLabel.setLabelFor(bereich);
     ziel.setNextFocusableComponent(kilometer);
     Dialog.setPreferredSize(ziel,200,19);
@@ -306,10 +306,11 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
 
     if (Daten.efaConfig != null && Daten.efaConfig.showBerlinOptions) {
       if (new ZielfahrtFolge(bereich.getText()).getAnzZielfahrten() > 1 && stegziel.isSelected()) {
-        Dialog.error(International.getMessage("Die Eigenschaft 'Start und Ziel ist eigenes Bootshaus' ist nur für "+
+        // no need to translate!
+        Dialog.error("Die Eigenschaft 'Start und Ziel ist eigenes Bootshaus' ist nur für "+
                      "eintägige Fahrten gedacht. Du hast aber Zielbereiche für mehrere Tage "+
-                     "(getrennt durch '{separator}') eingegeben.\n"+
-                     "Bitte deaktiviere die Option 'Start und Ziel ist eigenes Bootshaus'.",Daten.efaConfig.zielfahrtSeparatorFahrten));
+                     "(getrennt durch '"+Daten.efaConfig.zielfahrtSeparatorFahrten+"') eingegeben.\n"+
+                     "Bitte deaktiviere die Option 'Start und Ziel ist eigenes Bootshaus'.");
         stegziel.requestFocus();
         return;
       }
@@ -321,11 +322,12 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
           if (zff.getZielfahrt(i).isErreicht(EfaUtil.string2int(Daten.vereinsConfig.zielbereich,0))) eigenerBereichErreicht = true;
         }
         if (eigenerBereichErreicht) {
-          Dialog.error(International.getMessage("Bei einer Fahrt mit Start und Ziel am eigenen Bootshaus gilt der eigene " +
-              "Zielbereich {area} " +
+          // no need to translate
+          Dialog.error("Bei einer Fahrt mit Start und Ziel am eigenen Bootshaus gilt der eigene " +
+              "Zielbereich "+Daten.vereinsConfig.zielbereich+" " +
               " NICHT als erreicht und darf daher auch NICHT als " +
               "Zielbereich angegeben werden. Bitte entferne ihn aus der Aufzählung der " +
-              "Zielbereiche!",Daten.vereinsConfig.zielbereich));
+              "Zielbereiche!");
           bereich.requestFocus();
           return;
         }

@@ -12,6 +12,7 @@ package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -226,17 +227,18 @@ public class SuchFrame extends JDialog implements ActionListener {
     err_unbekZiel.setNextFocusableComponent(err_wafa);
     err_unbekZiel.setSelected(true);
     jLabel5.setText(International.getString("Weitersuchen mit F3 möglich!"));
-    Mnemonics.setButton(this, err_nichtZurueckgetragen, International.getStringWithMnemonic("nicht zurückgetragene Einträge (efa im Bootshaus)"));
+    Mnemonics.setButton(this, err_nichtZurueckgetragen, International.getStringWithMnemonic("nicht zurückgetragene Einträge"));
     err_nichtZurueckgetragen.setNextFocusableComponent(suchButton);
     err_nichtZurueckgetragen.setSelected(true);
     Mnemonics.setButton(this, err_zuUebertragendeMehrtagesfahrten, International.getStringWithMnemonic("noch nicht konfigurierte Mehrtagesfahrten"));
     err_zuUebertragendeMehrtagesfahrten.setSelected(true);
-    Mnemonics.setButton(this, err_zielfahrten, International.getStringWithMnemonic("Potentielle Zielfahrten (unbek. Ziel, >= 20 Km)"));
+    Mnemonics.setButton(this, err_zielfahrten, International.onlyFor("Potentielle Zielfahrten (unbek. Ziel, >= 20 Km)","de"));
     err_zielfahrten.setNextFocusableComponent(err_vieleKm);
     err_zielfahrten.setSelected(true);
     Mnemonics.setButton(this, err_unbekRudererOhneGast, International.getStringWithMnemonic("Unbekannte Einträge mit \'Gast\' ignorieren"));
     err_unbekRudererOhneGast.setNextFocusableComponent(err_unbekBoot);
-    Mnemonics.setButton(this, err_wafa, International.getStringWithMnemonic("Potentielle Wanderfahrten (normale Fahrt, >= 30 Km)"));
+    Mnemonics.setButton(this, err_wafa, International.getStringWithMnemonic("Potentielle Wanderfahrten") +
+            " (" + International.getString("normale Fahrt") + ", >= 30 Km)");
     err_wafa.setNextFocusableComponent(err_zielfahrten);
     err_wafa.setSelected(true);
     Mnemonics.setButton(this, err_vieleKm, International.getStringWithMnemonic("Fahrten mit mehr als"));
@@ -477,7 +479,8 @@ public class SuchFrame extends JDialog implements ActionListener {
           if (Daten.such_errUnbekRuderer && Daten.fahrtenbuch.getDaten() != null && Daten.fahrtenbuch.getDaten().mitglieder != null) {
             if (d.get(Fahrtenbuch.STM).length()>0 && Daten.fahrtenbuch.getDaten().mitglieder.getExact(d.get(Fahrtenbuch.STM)) == null) {
               if (!Daten.such_errUnbekRudererOhneGast ||
-                  (Daten.bezeichnungen != null && Daten.bezeichnungen.gast != null && Daten.bezeichnungen.gast.length()>0 && d.get(Fahrtenbuch.STM).toLowerCase().indexOf(Daten.bezeichnungen.gast.toLowerCase())<0)) {
+                  (Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST) &&
+                   d.get(Fahrtenbuch.STM).toLowerCase().indexOf(Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST).toLowerCase())<0)) {
                 gefunden(parent, d, parent.stm);
                 return true;
               }
@@ -485,7 +488,8 @@ public class SuchFrame extends JDialog implements ActionListener {
             for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++)
               if (d.get(Fahrtenbuch.MANNSCH1+i).length()>0 && Daten.fahrtenbuch.getDaten().mitglieder.getExact(d.get(Fahrtenbuch.MANNSCH1+i)) == null) {
                 if (!Daten.such_errUnbekRudererOhneGast ||
-                    (Daten.bezeichnungen != null && Daten.bezeichnungen.gast != null && Daten.bezeichnungen.gast.length()>0 && d.get(Fahrtenbuch.MANNSCH1+i).toLowerCase().indexOf(Daten.bezeichnungen.gast.toLowerCase())<0)) {
+                    (Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST) &&
+                     d.get(Fahrtenbuch.MANNSCH1+i).toLowerCase().indexOf(Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST).toLowerCase())<0)) {
                   parent.setActiveMannsch(i / 8);
                   gefunden(parent, d, parent.mannsch[i]);
                   return true;
@@ -493,7 +497,7 @@ public class SuchFrame extends JDialog implements ActionListener {
               }
           }
           if (Daten.such_errNichtZurueckgetragen && d.get(Fahrtenbuch.BOOTSKM).equals("0")) { gefunden(parent,d,parent.bootskm); return true; }
-          if (Daten.such_errNichtKonfMTours && d.get(Fahrtenbuch.FAHRTART).startsWith(parent.mehrtagesfahrtKonfigurieren))  { gefunden(parent,d,parent.fahrtDauer); return true; }
+          if (Daten.such_errNichtKonfMTours && d.get(Fahrtenbuch.FAHRTART).startsWith(Fahrtenbuch.CONFIGURE_MTOUR))  { gefunden(parent,d,parent.fahrtDauer); return true; }
         }
       }
     }

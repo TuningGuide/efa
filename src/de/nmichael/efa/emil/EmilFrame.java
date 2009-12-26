@@ -988,7 +988,7 @@ public class EmilFrame extends JFrame {
   void deleteButton_actionPerformed(ActionEvent e) {
     if (efw == null) return;
     if (currentTeilnehmer == null) return;
-    if (Dialog.yesNoDialog("Wirklich löschen?","Soll der aktuelle Eintrag wirklich gelöscht werden?") == Dialog.NO) return;
+    if (Dialog.yesNoDialog("Wirklich löschen?","Möchtest Du den aktuellen Eintrag wirklich löschen?") == Dialog.NO) return;
 
     if (currentTeilnehmerNummer == 0) currentTeilnehmer = efw.meldung = efw.meldung.next;
     else {

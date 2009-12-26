@@ -112,58 +112,58 @@ public class Java15 {
           MemoryUsage usage = pool.getCollectionUsage();
 	  if (usage.getMax() > 0 && (usage.getUsed()*100)/usage.getMax() >= percentageHigh) {
             de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.WARNING,
-                                            de.nmichael.efa.util.Logger.MSG_BHWARN_MEMORYSUPERVISOR,
+                                            de.nmichael.efa.util.Logger.MSG_WARN_MEMORYSUPERVISOR,
                                             "MemorySupervisor: Memory Pool: "+pool.getName());
             de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.WARNING,
-                                            de.nmichael.efa.util.Logger.MSG_BHWARN_MEMORYSUPERVISOR,
+                                            de.nmichael.efa.util.Logger.MSG_WARN_MEMORYSUPERVISOR,
                                             "MemorySupervisor:   Current Usage      : "+printMemUsage(pool.getUsage()));
             de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.WARNING,
-                                            de.nmichael.efa.util.Logger.MSG_BHWARN_MEMORYSUPERVISOR,
+                                            de.nmichael.efa.util.Logger.MSG_WARN_MEMORYSUPERVISOR,
                                             "MemorySupervisor:   Usage after last GC: "+printMemUsage(pool.getCollectionUsage()));
             de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.WARNING,
-                                            de.nmichael.efa.util.Logger.MSG_BHWARN_MEMORYSUPERVISOR,
+                                            de.nmichael.efa.util.Logger.MSG_WARN_MEMORYSUPERVISOR,
                                             "MemorySupervisor:   Peak Usage         : "+printMemUsage(pool.getPeakUsage()));
 	    memoryLow = true;
 	    wasRelativelyHighBefore = true;
 	  } else if (usage.getMax() > 0 && (usage.getUsed()*100)/usage.getMax() >= percentageRelativelyHigh && !wasRelativelyHighBefore) {
             de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.WARNING,
-                                            de.nmichael.efa.util.Logger.MSG_BHWARN_MEMORYSUPERVISOR,
+                                            de.nmichael.efa.util.Logger.MSG_WARN_MEMORYSUPERVISOR,
                                             "MemorySupervisor: "+
                                             de.nmichael.efa.util.International.getString("Der aktuelle Speicherverbrauch ist relativ hoch."));
             de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.WARNING,
-                                            de.nmichael.efa.util.Logger.MSG_BHWARN_MEMORYSUPERVISOR,
+                                            de.nmichael.efa.util.Logger.MSG_WARN_MEMORYSUPERVISOR,
                                             "MemorySupervisor: Memory Pool: "+pool.getName());
             de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.WARNING,
-                                            de.nmichael.efa.util.Logger.MSG_BHWARN_MEMORYSUPERVISOR,
+                                            de.nmichael.efa.util.Logger.MSG_WARN_MEMORYSUPERVISOR,
                                             "MemorySupervisor:   Current Usage      : "+printMemUsage(pool.getUsage()));
             de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.WARNING,
-                                            de.nmichael.efa.util.Logger.MSG_BHWARN_MEMORYSUPERVISOR,
+                                            de.nmichael.efa.util.Logger.MSG_WARN_MEMORYSUPERVISOR,
                                             "MemorySupervisor:   Usage after last GC: "+printMemUsage(pool.getCollectionUsage()));
             de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.WARNING,
-                                            de.nmichael.efa.util.Logger.MSG_BHWARN_MEMORYSUPERVISOR,
+                                            de.nmichael.efa.util.Logger.MSG_WARN_MEMORYSUPERVISOR,
                                             "MemorySupervisor:   Peak Usage         : "+printMemUsage(pool.getPeakUsage()));
             de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.WARNING,
-                                            de.nmichael.efa.util.Logger.MSG_BHWARN_MEMORYSUPERVISOR,
+                                            de.nmichael.efa.util.Logger.MSG_WARN_MEMORYSUPERVISOR,
                                             "MemorySupervisor: "+
                                             de.nmichael.efa.util.International.getString("Der efa zur Verfügung stehende Arbeitsspeicher kann durch eine Konfigurationsdatei hochgesetzt werden (siehe efa-FAQ)."));
 	    wasRelativelyHighBefore = true;
 	  } else {
 	    if (usage.getMax() > 0 && (usage.getUsed()*100)/usage.getMax() < percentageRelativelyHigh && wasRelativelyHighBefore) {
               de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.INFO,
-                                              de.nmichael.efa.util.Logger.MSG_BHEVENTS_MEMORYSUPERVISOR,
+                                              de.nmichael.efa.util.Logger.MSG_EVT_MEMORYSUPERVISOR,
                                               "MemorySupervisor: "+
                                               de.nmichael.efa.util.International.getString("Der aktuelle Speicherverbrauch ist wieder im unkritischen Bereich."));
               de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.INFO,
-                                              de.nmichael.efa.util.Logger.MSG_BHEVENTS_MEMORYSUPERVISOR,
+                                              de.nmichael.efa.util.Logger.MSG_EVT_MEMORYSUPERVISOR,
                                               "MemorySupervisor: Memory Pool: "+pool.getName());
               de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.INFO,
-                                              de.nmichael.efa.util.Logger.MSG_BHEVENTS_MEMORYSUPERVISOR,
+                                              de.nmichael.efa.util.Logger.MSG_EVT_MEMORYSUPERVISOR,
                                               "MemorySupervisor:   Current Usage      : "+printMemUsage(pool.getUsage()));
               de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.INFO,
-                                              de.nmichael.efa.util.Logger.MSG_BHEVENTS_MEMORYSUPERVISOR,
+                                              de.nmichael.efa.util.Logger.MSG_EVT_MEMORYSUPERVISOR,
                                               "MemorySupervisor:   Usage after last GC: "+printMemUsage(pool.getCollectionUsage()));
               de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.INFO,
-                                              de.nmichael.efa.util.Logger.MSG_BHEVENTS_MEMORYSUPERVISOR,
+                                              de.nmichael.efa.util.Logger.MSG_EVT_MEMORYSUPERVISOR,
                                               "MemorySupervisor:   Peak Usage         : "+printMemUsage(pool.getPeakUsage()));
   	      wasRelativelyHighBefore = false;
 	    }

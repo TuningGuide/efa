@@ -10,7 +10,8 @@
 
 package de.nmichael.efa.eddi;
 
-import de.nmichael.efa.core.Boote;
+import de.nmichael.efa.core.*;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -20,6 +21,8 @@ import javax.swing.border.*;
 import java.io.*;
 import java.util.*;
 import de.nmichael.efa.*;
+
+// @i18n complete
 
 public class BootFehlerFrame extends JDialog implements ActionListener {
   String[] felder;
@@ -129,41 +132,34 @@ public class BootFehlerFrame extends JDialog implements ActionListener {
     }
 
     this.setSize(new Dimension(700,520));
-    this.setTitle("Fehler in zu importierendem Eintrag");
+    this.setTitle(International.getString("Fehler in zu importierendem Eintrag"));
     this.getContentPane().setLayout(borderLayout1);
     jPanel1.setLayout(gridBagLayout1);
-    jLabel1.setText("Zu importierender Eintrag:");
+    jLabel1.setText(International.getString("Zu importierender Eintrag")+":");
     eintragLabel.setBackground(Color.blue);
     eintragLabel.setForeground(Color.white);
     eintragLabel.setOpaque(true);
-    eintragLabel.setText("---Eintrag---");
+    eintragLabel.setText("---"+International.getString("Eintrag")+"---");
     okButton.setNextFocusableComponent(name);
-    okButton.setMnemonic('O');
-    okButton.setText("OK");
+    Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("OK"));
     okButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         okButton_actionPerformed(e);
       }
     });
     jPanel2.setLayout(gridBagLayout2);
-    jLabel2.setDisplayedMnemonic('N');
+    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Bootsname")+": ");
     jLabel2.setLabelFor(name);
-    jLabel2.setText("Bootsname: ");
-    jLabel3.setDisplayedMnemonic('V');
+    Mnemonics.setLabel(this, jLabel3, International.getStringWithMnemonic("Verein")+": ");
     jLabel3.setLabelFor(verein);
-    jLabel3.setText("Verein: ");
-    jLabel4.setDisplayedMnemonic('A');
+    Mnemonics.setLabel(this, jLabel4, International.getStringWithMnemonic("Bootsart")+": ");
     jLabel4.setLabelFor(art);
-    jLabel4.setText("Bootsart: ");
-    jLabel5.setDisplayedMnemonic('Z');
+    Mnemonics.setLabel(this, jLabel5, International.getStringWithMnemonic("Anzahl Ruderplätze")+": ");
     jLabel5.setLabelFor(anzahl);
-    jLabel5.setText("Anzahl Ruderplätze: ");
-    jLabel6.setDisplayedMnemonic('R');
+    Mnemonics.setLabel(this, jLabel6, International.getStringWithMnemonic("Riggerung")+": ");
     jLabel6.setLabelFor(rigger);
-    jLabel6.setText("Riggerung: ");
-    jLabel7.setDisplayedMnemonic('S');
+    Mnemonics.setLabel(this, jLabel7, International.getStringWithMnemonic("mit/ohne Stm.")+": ");
     jLabel7.setLabelFor(stm);
-    jLabel7.setText("mit/ohne Stm:");
     name.setNextFocusableComponent(verein);
     name.setPreferredSize(new Dimension(200, 17));
     verein.setNextFocusableComponent(art);
@@ -176,13 +172,13 @@ public class BootFehlerFrame extends JDialog implements ActionListener {
       }
     });
     replRiggerBox.setPreferredSize(new Dimension(300, 17));
-    replRiggerBox.setToolTipText("Bei künftigen Einträgen diese Ersetzung immer durchführen");
+    replRiggerBox.setToolTipText(International.getString("Bei weiteren Einträgen diese Ersetzung immer durchführen"));
     fehlerText.setBackground(new Color(204, 204, 204));
     fehlerText.setFont(new java.awt.Font("Dialog", 1, 12));
     fehlerText.setForeground(Color.red);
     fehlerText.setEditable(false);
     replStmBox.setPreferredSize(new Dimension(300, 17));
-    replStmBox.setToolTipText("Bei künftigen Einträgen diese Ersetzung immer durchführen");
+    replStmBox.setToolTipText(International.getString("Bei weiteren Einträgen diese Ersetzung immer durchführen"));
     stm.setNextFocusableComponent(gruppen);
     stm.setPreferredSize(new Dimension(200, 17));
     stm.addActionListener(new java.awt.event.ActionListener() {
@@ -205,22 +201,28 @@ public class BootFehlerFrame extends JDialog implements ActionListener {
       }
     });
     replArtBox.setPreferredSize(new Dimension(300, 17));
-    replArtBox.setToolTipText("Bei künftigen Einträgen diese Ersetzung immer durchführen");
+    replArtBox.setToolTipText(International.getString("Bei weiteren Einträgen diese Ersetzung immer durchführen"));
     replAnzahlBox.setPreferredSize(new Dimension(300, 17));
-    replAnzahlBox.setToolTipText("Bei künftigen Einträgen diese Ersetzung immer durchführen");
-    jLabel8.setText("Gruppen: ");
-    jLabel9.setText("Max. nicht in Gruppe: ");
-    jLabel10.setText("Mind. in Gruppe: ");
-    jLabel11.setText("Frei 1: ");
-    jLabel12.setText("Frei 2: ");
-    jLabel13.setText("Frei 3: ");
+    replAnzahlBox.setToolTipText(International.getString("Bei weiteren Einträgen diese Ersetzung immer durchführen"));
+    Mnemonics.setLabel(this, jLabel8, International.getStringWithMnemonic("Gruppen")+": ");
+    jLabel8.setLabelFor(gruppen);
+    Mnemonics.setLabel(this, jLabel9, International.getStringWithMnemonic("max. nicht in Gruppe")+": ");
+    jLabel8.setLabelFor(maxNichtInGruppe);
+    Mnemonics.setLabel(this, jLabel10, International.getStringWithMnemonic("mind. in Gruppe")+": ");
+    jLabel8.setLabelFor(mindInGruppe);
+    Mnemonics.setLabel(this, jLabel11, International.getStringWithMnemonic("Frei")+" 1: ");
+    jLabel8.setLabelFor(frei1);
+    Mnemonics.setLabel(this, jLabel12, International.getStringWithMnemonic("Frei")+" 2: ");
+    jLabel8.setLabelFor(frei2);
+    Mnemonics.setLabel(this, jLabel13, International.getStringWithMnemonic("Frei")+" 3: ");
+    jLabel8.setLabelFor(frei3);
     gruppen.setNextFocusableComponent(maxNichtInGruppe);
     maxNichtInGruppe.setNextFocusableComponent(mindInGruppe);
     mindInGruppe.setNextFocusableComponent(frei1);
     frei1.setNextFocusableComponent(frei2);
     frei2.setNextFocusableComponent(frei3);
     frei3.setNextFocusableComponent(okButton);
-    skipButton.setText("Eintrag überspringen");
+    Mnemonics.setButton(this, skipButton, International.getStringWithMnemonic("Eintrag überspringen"));
     skipButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         skipButton_actionPerformed(e);
@@ -294,14 +296,22 @@ public class BootFehlerFrame extends JDialog implements ActionListener {
     jPanel2.add(skipButton,    new GridBagConstraints(0, 12, 3, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 10, 0), 0, 0));
 
-    art.addItem("ungültiger Wert");
-    for (int i=0; i<Daten.bezeichnungen.bArt.size(); i++) art.addItem(Daten.bezeichnungen.bArt.get(i));
-    anzahl.addItem("ungültiger Wert");
-    for (int i=0; i<Daten.bezeichnungen.bAnzahl.size(); i++) anzahl.addItem(Daten.bezeichnungen.bAnzahl.get(i));
-    rigger.addItem("ungültiger Wert");
-    for (int i=0; i<Daten.bezeichnungen.bRigger.size(); i++) rigger.addItem(Daten.bezeichnungen.bRigger.get(i));
-    stm.addItem("ungültiger Wert");
-    for (int i=0; i<Daten.bezeichnungen.bStm.size(); i++) stm.addItem(Daten.bezeichnungen.bStm.get(i));
+    art.addItem(International.getString("ungültiger Wert"));
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT); i++) {
+        art.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,i));
+    }
+    anzahl.addItem(International.getString("ungültiger Wert"));
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS); i++) {
+        anzahl.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS,i));
+    }
+    rigger.addItem(International.getString("ungültiger Wert"));
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_RIGGING); i++) {
+        rigger.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING,i));
+    }
+    stm.addItem(International.getString("ungültiger Wert"));
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_COXING); i++) {
+        stm.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING,i));
+    }
   }
 
   /**Overridden so we can exit when window is closed*/
@@ -327,25 +337,37 @@ public class BootFehlerFrame extends JDialog implements ActionListener {
   void art_actionPerformed(ActionEvent e) {
     if (art.getSelectedIndex()==0) this.replArtBox.setEnabled(false);
     else this.replArtBox.setEnabled(true);
-    if (art.getSelectedIndex()>0) this.replArtBox.setText("'"+felder[Boote.ART]+"' immer durch '"+art.getSelectedItem()+"' ersetzen");
+    if (art.getSelectedIndex()>0) {
+        this.replArtBox.setText(International.getMessage("'{original_text}' immer durch '{new_text}' ersetzen",
+                felder[Boote.ART],art.getSelectedItem().toString()));
+    }
   }
 
   void anzahl_actionPerformed(ActionEvent e) {
     if (anzahl.getSelectedIndex()==0) this.replAnzahlBox.setEnabled(false);
     else this.replAnzahlBox.setEnabled(true);
-    if (anzahl.getSelectedIndex()>0) this.replAnzahlBox.setText("'"+felder[Boote.ANZAHL]+"' immer durch '"+anzahl.getSelectedItem()+"' ersetzen");
+    if (anzahl.getSelectedIndex()>0) {
+        this.replAnzahlBox.setText(International.getMessage("'{original_text}' immer durch '{new_text}' ersetzen",
+                felder[Boote.ANZAHL],anzahl.getSelectedItem().toString()));
+    }
   }
 
   void rigger_actionPerformed(ActionEvent e) {
     if (rigger.getSelectedIndex()==0) this.replRiggerBox.setEnabled(false);
     else this.replRiggerBox.setEnabled(true);
-    if (rigger.getSelectedIndex()>0) this.replRiggerBox.setText("'"+felder[Boote.RIGGER]+"' immer durch '"+rigger.getSelectedItem()+"' ersetzen");
+    if (rigger.getSelectedIndex()>0) {
+        this.replRiggerBox.setText(International.getMessage("'{original_text}' immer durch '{new_text}' ersetzen",
+                felder[Boote.RIGGER],rigger.getSelectedItem().toString()));
+    }
   }
 
   void stm_actionPerformed(ActionEvent e) {
     if (stm.getSelectedIndex()==0) this.replStmBox.setEnabled(false);
     else this.replStmBox.setEnabled(true);
-    if (stm.getSelectedIndex()>0) this.replStmBox.setText("'"+felder[Boote.STM]+"' immer durch '"+stm.getSelectedItem()+"' ersetzen");
+    if (stm.getSelectedIndex()>0) {
+        this.replStmBox.setText(International.getMessage("'{original_text}' immer durch '{new_text}' ersetzen",
+                felder[Boote.STM],stm.getSelectedItem().toString()));
+    }
   }
 
 

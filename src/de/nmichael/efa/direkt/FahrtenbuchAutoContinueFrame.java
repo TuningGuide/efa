@@ -189,8 +189,10 @@ public class FahrtenbuchAutoContinueFrame extends JDialog implements ActionListe
   void fileSelectButton_actionPerformed(ActionEvent e) {
     String base = EfaUtil.getPathOfFile(Daten.fahrtenbuch.getFileName());
     if (filename.getText().trim().length()>0) base = EfaUtil.getPathOfFile(filename.getText().trim());
-    String dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuchdatei auswählen"),
-            International.getString("efa Fahrtenbuch")+" (*.efb)","efb",base,true);
+    String dat = Dialog.dateiDialog(this,
+            International.getMessage("{item} auswählen",
+            International.getString("Fahrtenbuch")),
+            International.getString("Fahrtenbuch")+" (*.efb)","efb",base,true);
     if (dat != null) {
       filename.setText(dat);
     }

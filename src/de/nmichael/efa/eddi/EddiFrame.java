@@ -12,6 +12,7 @@ package de.nmichael.efa.eddi;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.*;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -20,6 +21,8 @@ import javax.swing.*;
 import java.io.*;
 import java.util.*;
 import java.beans.*;
+
+// @i18n complete
 
 public class EddiFrame extends JFrame {
   public boolean wait;
@@ -118,16 +121,13 @@ public class EddiFrame extends JFrame {
     contentPane = (JPanel) this.getContentPane();
     contentPane.setLayout(borderLayout1);
     this.setSize(new Dimension(850, 550));
-    this.setTitle("eddi - efa Datenlisten-Importeur");
+    this.setTitle("eddi - "+International.getString("efa Datenlisten-Importeur"));
     jPanel1.setLayout(gridBagLayout1);
-    jLabel1.setDisplayedMnemonic('T');
+    Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Trennzeichen")+": ");
     jLabel1.setLabelFor(fieldSeparator);
-    jLabel1.setText("Trennzeichen: ");
-    jLabel2.setDisplayedMnemonic('N');
+    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Dateiname")+": ");
     jLabel2.setLabelFor(datei);
-    jLabel2.setText("Dateiname: ");
-    importButton.setMnemonic('M');
-    importButton.setText("Datenliste importieren");
+    Mnemonics.setButton(this, importButton, International.getStringWithMnemonic("Datenliste importieren"));
     importButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         importButton_actionPerformed(e);
@@ -135,10 +135,8 @@ public class EddiFrame extends JFrame {
     });
     datei.setNextFocusableComponent(openButton);
     datei.setPreferredSize(new Dimension(400, 17));
-    datei.setToolTipText("Name der zu importierenden Datei");
     openButton.setNextFocusableComponent(readFileButton);
     openButton.setPreferredSize(new Dimension(59, 20));
-    openButton.setToolTipText("Datei auswählen");
     openButton.setIcon(new ImageIcon(EddiFrame.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
     openButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -146,7 +144,6 @@ public class EddiFrame extends JFrame {
       }
     });
     fieldSeparator.setPreferredSize(new Dimension(20, 17));
-    fieldSeparator.setToolTipText("Zeichen, welches die einzelnen Felder trennt");
     fieldSeparator.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyReleased(KeyEvent e) {
         fieldSeparator_keyReleased(e);
@@ -155,18 +152,16 @@ public class EddiFrame extends JFrame {
     jPanel3.setLayout(borderLayout2);
     jLabel3.setPreferredSize(new Dimension(280, 13));
     jLabel3.setHorizontalAlignment(SwingConstants.CENTER);
-    jLabel3.setText("Felder:");
-    startzeileLabel.setText("Startzeile: ");
+    jLabel3.setText(International.getString("Felder")+":");
+    startzeileLabel.setText(International.getString("Startzeile")+": ");
     zeileLabel.setBackground(Color.blue);
     zeileLabel.setForeground(Color.white);
     zeileLabel.setOpaque(true);
     zeileLabel.setPreferredSize(new Dimension(400, 20));
-    zeileLabel.setText("---bitte zuerst Datei auswählen---");
+    zeileLabel.setText("---"+International.getString("bitte zuerst Datei auswählen")+"---");
     nextLineButton.setNextFocusableComponent(fieldSeparator);
     nextLineButton.setPreferredSize(new Dimension(89, 20));
-    nextLineButton.setToolTipText("nächste Zeile auswählen");
-    nextLineButton.setMnemonic('C');
-    nextLineButton.setText("nächste");
+    Mnemonics.setButton(this, nextLineButton, International.getStringWithMnemonic("nächste"));
     nextLineButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         nextLineButton_actionPerformed(e);
@@ -174,9 +169,7 @@ public class EddiFrame extends JFrame {
     });
     PrevLineButton.setNextFocusableComponent(nextLineButton);
     PrevLineButton.setPreferredSize(new Dimension(103, 20));
-    PrevLineButton.setToolTipText("vorherige Zeile auswählen");
-    PrevLineButton.setMnemonic('V');
-    PrevLineButton.setText("vorherige");
+    Mnemonics.setButton(this, PrevLineButton, International.getStringWithMnemonic("vorherige"));
     PrevLineButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         PrevLineButton_actionPerformed(e);
@@ -184,9 +177,7 @@ public class EddiFrame extends JFrame {
     });
     readFileButton.setNextFocusableComponent(PrevLineButton);
     readFileButton.setPreferredSize(new Dimension(95, 20));
-    readFileButton.setToolTipText("Datei einlesen");
-    readFileButton.setMnemonic('E');
-    readFileButton.setText("einlesen");
+    Mnemonics.setButton(this, readFileButton, International.getStringWithMnemonic("einlesen"));
     readFileButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         readFileButton_actionPerformed(e);
@@ -197,40 +188,33 @@ public class EddiFrame extends JFrame {
     jPanel3.setBorder(BorderFactory.createRaisedBevelBorder());
     bootsPanel.setLayout(gridBagLayout4);
     zielPanel.setLayout(gridBagLayout5);
-    jMenu1.setMnemonic('D');
-    jMenu1.setText("Datei");
-    menuFileOpen.setMnemonic('F');
-    menuFileOpen.setText("Datei öffnen");
+    Mnemonics.setButton(this, jMenu1, International.getStringWithMnemonic("Datei"));
+    Mnemonics.setButton(this, menuFileOpen, International.getStringWithMnemonic("Datei öffnen"));
     menuFileOpen.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         menuFileOpen_actionPerformed(e);
       }
     });
-    menuImport.setMnemonic('I');
-    menuImport.setText("Datenliste importieren");
+    Mnemonics.setButton(this, menuImport, International.getStringWithMnemonic("Datenliste importieren"));
     menuImport.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         menuImport_actionPerformed(e);
       }
     });
-    menuExit.setMnemonic('B');
-    menuExit.setText("Beenden");
+    Mnemonics.setButton(this, menuExit, International.getStringWithMnemonic("Beenden"));
     menuExit.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         menuExit_actionPerformed(e);
       }
     });
-    menuHelp.setMnemonic('I');
-    menuHelp.setText("Info");
-    jMenuItem4.setMnemonic('H');
-    jMenuItem4.setText("Hilfe");
+    Mnemonics.setButton(this, menuHelp, International.getStringWithMnemonic("Info"));
+    Mnemonics.setButton(this, jMenuItem4, International.getStringWithMnemonic("Hilfe"));
     jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem4_actionPerformed(e);
       }
     });
-    menuAbout.setMnemonic('B');
-    menuAbout.setText("Über");
+    Mnemonics.setButton(this, menuAbout, International.getStringWithMnemonic("Über"));
     menuAbout.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         menuAbout_actionPerformed(e);
@@ -238,7 +222,7 @@ public class EddiFrame extends JFrame {
     });
     contentPane.setMinimumSize(new Dimension(600, 165));
     contentPane.setPreferredSize(new Dimension(800, 147));
-    aliasCheckBox.setText("Generiere Eingabekürzel: ");
+    Mnemonics.setButton(this, aliasCheckBox, International.getStringWithMnemonic("Generiere Eingabekürzel")+": ");
     alias.setPreferredSize(new Dimension(150, 17));
     alias.setText("{V1}{V2}-{N1}");
     contentPane.add(jPanel1, BorderLayout.NORTH);
@@ -261,19 +245,19 @@ public class EddiFrame extends JFrame {
     contentPane.add(jPanel3, BorderLayout.WEST);
     jPanel3.add(jLabel3,  BorderLayout.NORTH);
     contentPane.add(tabbedPane, BorderLayout.CENTER);
-    tabbedPane.add(mitgliederPanel,  "Mitgliederliste");
+    tabbedPane.add(mitgliederPanel,  International.getString("Mitgliederliste"));
     mitgliederPanel.add(aliasCheckBox,   new GridBagConstraints(0, 20, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
     mitgliederPanel.add(alias,  new GridBagConstraints(1, 20, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
-    tabbedPane.add(bootsPanel,  "Bootsliste");
+    tabbedPane.add(bootsPanel,  International.getString("Bootsliste"));
     jPanel1.add(nextLineButton,      new GridBagConstraints(4, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     jPanel1.add(PrevLineButton,    new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     jPanel1.add(readFileButton,   new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    tabbedPane.add(zielPanel,  "Zielliste");
+    tabbedPane.add(zielPanel,  International.getString("Zielliste"));
     jMenuBar1.add(jMenu1);
     jMenuBar1.add(menuHelp);
     jMenu1.add(menuFileOpen);
@@ -336,9 +320,42 @@ public class EddiFrame extends JFrame {
 
   // Initialisieren der Combos und Labels
   void iniSelectFields() {
-    String[] mitglieder = { "Vorname", "Nachname", "Eingabekürzel", "Jahrgang", "Geschlecht", "Status", "Verein", "Behinderung", "MitglNr", "Paßwort", "Frei 1", "Frei 2", "Frei 3" };
-    String[] boote = { "Bootsname", "Verein", "Bootsart", "Anzahl Ruderplätze", "Riggerung", "mit/ohne Stm.", "Gruppen", "Max. nicht in Gruppe", "Mind. in Gruppe", "Frei 1", "Frei 2", "Frei 3" };
-    String[] ziele = { "Bezeichnung", "Entfernung", "Zielbereiche", "Start/Ziel ist Bootshaus", "Gewässer" };
+    String[] mitglieder = { 
+        International.getString("Vorname"),
+        International.getString("Nachname"),
+        International.getString("Eingabekürzel"),
+        International.getString("Jahrgang"),
+        International.getString("Geschlecht"),
+        International.getString("Status"),
+        International.getString("Verein"),
+        International.getString("Behinderung"),
+        International.getString("MitglNr."),
+        International.getString("Paßwort"),
+        International.getString("Frei")+" 1",
+        International.getString("Frei")+" 2",
+        International.getString("Frei")+" 3"
+    };
+    String[] boote = { 
+        International.getString("Bootsname"),
+        International.getString("Verein"),
+        International.getString("Bootsart"),
+        International.getString("Anzahl Ruderplätze"),
+        International.getString("Riggerung"),
+        International.getString("mit/ohne Stm."),
+        International.getString("Gruppen"),
+        International.getString("max. nicht in Gruppe"),
+        International.getString("mind. in Gruppe"),
+        International.getString("Frei")+" 1",
+        International.getString("Frei")+" 2",
+        International.getString("Frei")+" 3"
+    };
+    String[] ziele = { 
+        International.getString("Bezeichnung"),
+        International.getString("Entfernung"),
+        International.onlyFor("Zielbereiche","de"),
+        International.getString("Start und Ziel ist eigenes Bootshaus"),
+        International.getString("Gewässer")
+    };
     mitgliederCombos = new Vector();
     mitgliederValues = new Vector();
     _iniSelectFields(mitglieder,mitgliederCombos,mitgliederValues,mitgliederPanel,0);
@@ -371,7 +388,7 @@ public class EddiFrame extends JFrame {
   void readFile(String datei) {
     if (datei == null) return;
     if (!EfaUtil.canOpenFile(datei)) {
-      Dialog.error("Datei "+datei+" kann nicht geöffnet werden.");
+      Dialog.error(LogString.logstring_fileOpenFailed(datei, International.getString("Datei")));
       return;
     }
     this.datei.setText(datei);
@@ -397,7 +414,7 @@ public class EddiFrame extends JFrame {
     if (lineNr<0) lineNr = 0;
     if (lineNr>=lines.size()) lineNr = lines.size()-1;
     if (lineNr<0) return;
-    startzeileLabel.setText("Startzeile ("+(lineNr+1)+"): ");
+    startzeileLabel.setText(International.getString("Startzeile")+" ("+(lineNr+1)+"): ");
     zeileLabel.setText((String)lines.get(lineNr));
     splitFields();
   }
@@ -459,7 +476,7 @@ public class EddiFrame extends JFrame {
 
     for (int i=0; i<fields.size(); i++) {
       JLabel label = new JLabel();
-      label.setText("Feld "+(i+1)+": ");
+      label.setText(International.getString("Feld")+" "+(i+1)+": ");
       fieldPanel.add(label,   new GridBagConstraints(0, i, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
       JLabel value = new JLabel();
@@ -484,9 +501,9 @@ public class EddiFrame extends JFrame {
     for (int i=0; i<combos.size(); i++) {
       JComboBox combo = (JComboBox)combos.get(i);
       combo.removeAllItems();
-      combo.addItem("n/a");
+      combo.addItem(International.getString("n/a"));
       for (int j=0; j<fields; j++)
-        combo.addItem("Feld "+(j+1));
+        combo.addItem(International.getString("Feld")+" "+(j+1));
     }
   }
 
@@ -620,20 +637,29 @@ public class EddiFrame extends JFrame {
   // Liste importieren
   void importButton_actionPerformed(ActionEvent e) {
     if (lines == null) {
-      Dialog.error("Bitte wähle zuerst eine Quelldatei aus!");
+      Dialog.error(International.getString("Bitte wähle zuerst eine Quelldatei aus!"));
       return;
     }
     if (fields == null) {
-      Dialog.error("Bitte wähle zuerst eine Startzeile aus!");
+      Dialog.error(International.getString("Bitte wähle zuerst eine Startzeile aus!"));
       return;
     }
     String dat = null;
     if (tabbedPane.getSelectedIndex() == 0)
-      dat = Dialog.dateiDialog(this,"Dateiname für zu erstellende Mitgliederliste","Mitgliederliste (*.efbm)","efbm",Daten.efaDataDirectory,true);
+      dat = Dialog.dateiDialog(this,
+              International.getMessage("Dateiname für {listname}",
+              International.getString("Mitgliederliste")),
+              International.getString("Mitgliederliste")+" (*.efbm)","efbm",Daten.efaDataDirectory,true);
     if (tabbedPane.getSelectedIndex() == 1)
-      dat = Dialog.dateiDialog(this,"Dateiname für zu erstellende Bootsliste","Bootsliste (*.efbb)","efbb",Daten.efaDataDirectory,true);
+      dat = Dialog.dateiDialog(this,
+              International.getMessage("Dateiname für {listname}",
+              International.getString("Bootsliste")),
+              International.getString("Bootsliste")+" (*.efbb)","efbb",Daten.efaDataDirectory,true);
     if (tabbedPane.getSelectedIndex() == 2)
-      dat = Dialog.dateiDialog(this,"Dateiname für zu erstellende Zielliste","Zielliste (*.efbz)","efbz",Daten.efaDataDirectory,true);
+      dat = Dialog.dateiDialog(this,
+              International.getMessage("Dateiname für {listname}",
+              International.getString("Zielliste")),
+              International.getString("Zielliste")+" (*.efbz)","efbz",Daten.efaDataDirectory,true);
     if (dat == null) return;
     if (tabbedPane.getSelectedIndex() == 0) importMitgliederliste(dat);
     if (tabbedPane.getSelectedIndex() == 1) importBootsliste(dat);
@@ -645,7 +671,7 @@ public class EddiFrame extends JFrame {
   void importMitgliederliste(String datei) {
     if (aliasCheckBox.isSelected()) {
       if (EfaConfigFrame.parseAlias(this.alias.getText().trim()) >= 0) {
-        Dialog.error("Ungültiges Format des Eingabekürzels:\n"+EfaConfigFrame.parseError);
+        Dialog.error(International.getString("Ungültiges Format des Eingabekürzels")+":\n"+EfaConfigFrame.parseError);
         return;
       }
     }
@@ -659,7 +685,11 @@ public class EddiFrame extends JFrame {
     Hashtable replStatus = new Hashtable();
     Hashtable replBeh = new Hashtable();
 
-    String status = Dialog.inputDialog("Status-Liste","Liste von Status, die ein Mitglied haben kann","Junior(in),Senior(in),Gast");
+    String status = Dialog.inputDialog(International.getString("Status"),
+            International.getString("Liste von Status, die ein Mitglied haben kann"),
+            International.getString("Junior(in)")+","+
+            International.getString("Senior(in)")+","+
+            International.getString("Gast"));
     if (status == null) return;
     status = EfaUtil.removeSepFromString(status);
     String[] statusList = EfaUtil.statusList2Arr(status.trim());
@@ -694,24 +724,32 @@ public class EddiFrame extends JFrame {
 
         // Fehlerhafter Eintrag?
         fehler = "";
-        if (feld[Mitglieder.VORNAME].length()==0 && feld[Mitglieder.NACHNAME].length()==0)
-          fehler += "Vor- und Nachname dürfen nicht leer sein!\n";
-        if (!feld[Mitglieder.GESCHLECHT].equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH)) &&
-            !feld[Mitglieder.GESCHLECHT].equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_WEIBLICH)))
-          fehler += "Ungültiger Wert im Feld 'Geschlecht': "+feld[Mitglieder.GESCHLECHT]+"\n";
+        if (feld[Mitglieder.VORNAME].length()==0 && feld[Mitglieder.NACHNAME].length()==0) {
+            fehler += International.getMessage("Das Feld '{fieldname}' darf nicht leer sein!",
+                      International.getString("Name"))+"\n";
+        }
+        if (!feld[Mitglieder.GESCHLECHT].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, EfaTypes.TYPE_GENDER_MALE)) &&
+            !feld[Mitglieder.GESCHLECHT].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, EfaTypes.TYPE_GENDER_FEMALE))) {
+          fehler += International.getMessage("Ungültiger Wert im Feld '{fieldname}'",
+                  International.getString("Geschlecht")) + ": "+feld[Mitglieder.GESCHLECHT]+"\n";
+        }
         boolean statusOk = false;
         for (int k=0; k<statusList.length; k++) if (feld[Mitglieder.STATUS].equals(statusList[k])) statusOk = true;
-        if (!statusOk) fehler += "Ungültiger Wert im Feld 'Status': "+feld[Mitglieder.STATUS]+"\n";
-        if (!(feld[Mitglieder.BEHINDERUNG].length()==0) && !feld[Mitglieder.BEHINDERUNG].equals("+") && !feld[Mitglieder.BEHINDERUNG].equals("-"))
-          fehler += "Ungültiger Wert im Feld 'Behinderung': "+feld[Mitglieder.BEHINDERUNG]+"\n";
-
+        if (!statusOk) {
+          fehler += International.getMessage("Ungültiger Wert im Feld '{fieldname}'",
+                  International.getString("Status")) + ": "+feld[Mitglieder.STATUS]+"\n";
+        }
+        if (!(feld[Mitglieder.BEHINDERUNG].length()==0) && !feld[Mitglieder.BEHINDERUNG].equals("+") && !feld[Mitglieder.BEHINDERUNG].equals("-")) {
+          fehler += International.getMessage("Ungültiger Wert im Feld '{fieldname}'",
+                  International.getString("Behinderung")) + ": "+feld[Mitglieder.BEHINDERUNG]+"\n";
+        }
         if (fehler.length()>0) {
           MitgliederFehlerFrame dlg = new MitgliederFehlerFrame(this,(String)lines.get(l),fehler,feld,statusList,replGeschl,replStatus,replBeh);
           Dialog.setDlgLocation(dlg,this);
           dlg.setModal(!Dialog.tourRunning);
           dlg.show();
           if (abort) {
-            Dialog.meldung("Import abgebrochen.");
+            Dialog.meldung(International.getString("Import abgebrochen."));
             return;
           }
         }
@@ -719,11 +757,29 @@ public class EddiFrame extends JFrame {
       } while(fehler.length() != 0 && !skip);
 
 
-      if (!skip) f.add(feld[0]+"|"+feld[1]+"|"+feld[2]+"|"+feld[3]+"|"+feld[4]+"|"+feld[5]+"|"+feld[6]+"|"+feld[7]+"|"+feld[8]+"|"+feld[9]+"|"+feld[10]+"|"+feld[11]+"|"+feld[12]+"|+");
+      if (!skip) {
+          DatenFelder d = new DatenFelder(Mitglieder._ANZAHL);
+          d.set(Mitglieder.VORNAME, feld[0]);
+          d.set(Mitglieder.NACHNAME, feld[1]);
+          d.set(Mitglieder.ALIAS, feld[2]);
+          d.set(Mitglieder.JAHRGANG, feld[3]);
+          d.set(Mitglieder.GESCHLECHT, Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_GENDER,feld[4]));
+          d.set(Mitglieder.STATUS, feld[5]);
+          d.set(Mitglieder.VEREIN, feld[6]);
+          d.set(Mitglieder.BEHINDERUNG, feld[7]);
+          d.set(Mitglieder.MITGLNR, feld[8]);
+          d.set(Mitglieder.PASSWORT, feld[9]);
+          d.set(Mitglieder.FREI1, feld[10]);
+          d.set(Mitglieder.FREI2, feld[11]);
+          d.set(Mitglieder.FREI3, feld[12]);
+          d.set(Mitglieder.KMWETT_MELDEN, feld[13]);
+          f.add(d);
+      }
       skip = false;
     }
     f.writeFile();
-    Dialog.meldung("Mitgliederliste erfolgreich importiert!");
+    Dialog.meldung(International.getMessage("{listname} erfolgreich importiert!",
+            International.getString("Mitgliederliste")));
   }
 
 
@@ -764,20 +820,34 @@ public class EddiFrame extends JFrame {
 
         // Fehlerhafter Eintrag?
         fehler = "";
-        if (feld[Boote.NAME].length()==0 )
-          fehler += "Bootsname darf nicht leer sein!\n";
+        if (feld[Boote.NAME].length()==0 ) {
+            fehler += International.getMessage("Das Feld '{fieldname}' darf nicht leer sein!",
+                      International.getString("Boot"))+"\n";
+        }
         boolean ok = false;
-        for (int k=0; k<Daten.bezeichnungen.bArt.size(); k++) if (feld[Boote.ART].equals(Daten.bezeichnungen.bArt.get(k))) ok = true;
-        if (!ok) fehler += "Ungültiger Wert im Feld 'Bootsart': "+feld[Boote.ART]+"\n";
+        for (int k=0; k<Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT); k++) if (feld[Boote.ART].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, k))) ok = true;
+        if (!ok) {
+            fehler += International.getMessage("Ungültiger Wert im Feld '{fieldname}'",
+                      International.getString("Bootsart")) + ": "+feld[Boote.ART]+"\n";
+        }
         ok = false;
-        for (int k=0; k<Daten.bezeichnungen.bAnzahl.size(); k++) if (feld[Boote.ANZAHL].equals(Daten.bezeichnungen.bAnzahl.get(k))) ok = true;
-        if (!ok) fehler += "Ungültiger Wert im Feld 'Anzahl Ruderplätze': "+feld[Boote.ANZAHL]+"\n";
+        for (int k=0; k<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS); k++) if (feld[Boote.ANZAHL].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, k))) ok = true;
+        if (!ok) {
+            fehler += International.getMessage("Ungültiger Wert im Feld '{fieldname}'",
+                      International.getString("Anzahl Ruderplätze")) + ": "+feld[Boote.ANZAHL]+"\n";
+        }
         ok = false;
-        for (int k=0; k<Daten.bezeichnungen.bRigger.size(); k++) if (feld[Boote.RIGGER].equals(Daten.bezeichnungen.bRigger.get(k))) ok = true;
-        if (!ok) fehler += "Ungültiger Wert im Feld 'Riggerung': "+feld[Boote.RIGGER]+"\n";
+        for (int k=0; k<Daten.efaTypes.size(EfaTypes.CATEGORY_RIGGING); k++) if (feld[Boote.RIGGER].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, k))) ok = true;
+        if (!ok) {
+            fehler += International.getMessage("Ungültiger Wert im Feld '{fieldname}'",
+                      International.getString("Riggerung")) + ": "+feld[Boote.RIGGER]+"\n";
+        }
         ok = false;
-        for (int k=0; k<Daten.bezeichnungen.bStm.size(); k++) if (feld[Boote.STM].equals(Daten.bezeichnungen.bStm.get(k))) ok = true;
-        if (!ok) fehler += "Ungültiger Wert im Feld 'mit/ohne Stm.': "+feld[Boote.STM]+"\n";
+        for (int k=0; k<Daten.efaTypes.size(EfaTypes.CATEGORY_COXING); k++) if (feld[Boote.STM].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, k))) ok = true;
+        if (!ok) {
+            fehler += International.getMessage("Ungültiger Wert im Feld '{fieldname}'",
+                      International.getString("mit/ohne Stm.")) + ": "+feld[Boote.STM]+"\n";
+        }
 
         if (fehler.length()>0) {
           BootFehlerFrame dlg = new BootFehlerFrame(this,(String)lines.get(l),fehler,feld,replArt,replAnzahl,replRigger,replStm);
@@ -785,7 +855,7 @@ public class EddiFrame extends JFrame {
           dlg.setModal(!Dialog.tourRunning);
           dlg.show();
           if (abort) {
-            Dialog.meldung("Import abgebrochen.");
+            Dialog.meldung(International.getString("Import abgebrochen."));
             return;
           }
         }
@@ -793,11 +863,27 @@ public class EddiFrame extends JFrame {
       } while(fehler.length() != 0 && !skip);
 
 
-      if (!skip) f.add(feld[0]+"|"+feld[1]+"|"+feld[2]+"|"+feld[3]+"|"+feld[4]+"|"+feld[5]+"|"+feld[6]+"|"+feld[7]+"|"+feld[8]+"|"+feld[9]+"|"+feld[10]+"|"+feld[11]);
+      if (!skip) {
+          DatenFelder d = new DatenFelder(Boote._ANZFELDER);
+          d.set(Boote.NAME, feld[0]);
+          d.set(Boote.VEREIN, feld[1]);
+          d.set(Boote.ART, Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_BOAT, feld[2]));
+          d.set(Boote.ANZAHL, Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_NUMROWERS, feld[3]));
+          d.set(Boote.RIGGER, Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_RIGGING, feld[4]));
+          d.set(Boote.STM, Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_COXING, feld[5]));
+          d.set(Boote.GRUPPEN, feld[6]);
+          d.set(Boote.MAX_NICHT_IN_GRUPPE, feld[7]);
+          d.set(Boote.MIND_1_IN_GRUPPE, feld[8]);
+          d.set(Boote.FREI1, feld[9]);
+          d.set(Boote.FREI2, feld[10]);
+          d.set(Boote.FREI3, feld[11]);
+          f.add(d);
+      }
       skip = false;
     }
     f.writeFile();
-    Dialog.meldung("Bootsliste erfolgreich importiert!");
+    Dialog.meldung(International.getMessage("{listname} erfolgreich importiert!",
+            International.getString("Bootsliste")));
   }
 
 
@@ -835,12 +921,14 @@ public class EddiFrame extends JFrame {
 
         // Fehlerhafter Eintrag?
         fehler = "";
-        if (feld[Ziele.NAME].length()==0 )
-          fehler += "Zielbezeichnung darf nicht leer sein!\n";
+        if (feld[Ziele.NAME].length()==0 ) {
+            fehler += International.getMessage("Das Feld '{fieldname}' darf nicht leer sein!",
+                      International.getString("Ziel"))+"\n";
+        }
         if (feld[Ziele.KM].length()==0 )
-          fehler += "Kilometer dürfen nicht leer sein!\n";
+          fehler += International.getString("Kilometer dürfen nicht leer sein!")+"\n";
         if (!(feld[Ziele.STEGZIEL].length()==0) && !feld[Ziele.STEGZIEL].equals("+") && !feld[Ziele.STEGZIEL].equals("-"))
-          fehler += "Ungültiger Wert im Feld 'Start/Ziel ist Bootshaus': "+feld[Ziele.STEGZIEL]+"\n";
+          fehler += "Ungültiger Wert im Feld 'Start und Ziel ist eigenes Bootshaus': "+feld[Ziele.STEGZIEL]+"\n";
 
         if (fehler.length()>0) {
           ZielFehlerFrame dlg = new ZielFehlerFrame(this,(String)lines.get(l),fehler,feld,replStegZiel);
@@ -848,7 +936,7 @@ public class EddiFrame extends JFrame {
           dlg.setModal(!Dialog.tourRunning);
           dlg.show();
           if (abort) {
-            Dialog.meldung("Import abgebrochen.");
+            Dialog.meldung(International.getString("Import abgebrochen."));
             return;
           }
         }
@@ -856,11 +944,20 @@ public class EddiFrame extends JFrame {
       } while(fehler.length() != 0 && !skip);
 
 
-      if (!skip) f.add(feld[0]+"|"+feld[1]+"|"+feld[2]+"|"+feld[3]+"|"+feld[4]);
+      if (!skip) {
+          DatenFelder d = new DatenFelder(Ziele._ANZFELDER);
+          d.set(Ziele.NAME, feld[0]);
+          d.set(Ziele.KM, feld[1]);
+          d.set(Ziele.BEREICH, feld[2]);
+          d.set(Ziele.STEGZIEL, feld[3]);
+          d.set(Ziele.GEWAESSER, feld[4]);
+          f.add(d);
+      }
       skip = false;
     }
     f.writeFile();
-    Dialog.meldung("Zielliste erfolgreich importiert!");
+    Dialog.meldung(International.getMessage("{listname} erfolgreich importiert!",
+            International.getString("Zielliste")));
   }
 
 

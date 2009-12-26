@@ -13,6 +13,7 @@ package de.nmichael.efa.core;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.core.config.EfaTypes;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -159,7 +160,7 @@ public class AuswahlFrame extends JDialog implements ActionListener {
       case ZIELE: this.setTitle(International.getString("Ziele")); break;
       case MEHRTAGESFAHRTEN: this.setTitle(International.getString("Mehrtagesfahrten")); break;
       case MANNSCHAFTEN: this.setTitle(International.getString("Standardmannschaften")); break;
-      case FAHRTENABZEICHEN: this.setTitle(International.getString("DRV-Fahrtenabzeichen")); break;
+      case FAHRTENABZEICHEN: this.setTitle("DRV-Fahrtenabzeichen"); break;
       case GRUPPEN: this.setTitle(International.getString("Gruppen")); break;
     }
     SaveButton.setNextFocusableComponent(addBut);
@@ -216,7 +217,7 @@ public class AuswahlFrame extends JDialog implements ActionListener {
         updateStatusButton_actionPerformed(e);
       }
     });
-    Mnemonics.setButton(this, getSigBestaetigungenButton, International.getStringWithMnemonic("Bestätigungsdatei abrufen"));
+    Mnemonics.setButton(this, getSigBestaetigungenButton, "Bestätigungsdatei abrufen");
     getSigBestaetigungenButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         getSigBestaetigungenButton_actionPerformed(e);
@@ -265,25 +266,34 @@ public class AuswahlFrame extends JDialog implements ActionListener {
         tabelleBreite=3;
         anz = Daten.fahrtenbuch.getDaten().mitglieder.countElements();
         tabelleTitel = new String[tabelleBreite];
-        tabelleTitel[0]=International.getString("Name"); tabelleTitel[1]=International.getString("Jahrgang"); tabelleTitel[2]=International.getString("Status");
+        tabelleTitel[0]=International.getString("Name"); 
+        tabelleTitel[1]=International.getString("Jahrgang");
+        tabelleTitel[2]=International.getString("Status");
         break;
       case BOOTE:
         tabelleBreite=2;
         anz = Daten.fahrtenbuch.getDaten().boote.countElements();
         tabelleTitel = new String[tabelleBreite];
-        tabelleTitel[0]=International.getString("Boot"); tabelleTitel[1]=International.getString("Art");
+        tabelleTitel[0]=International.getString("Boot");
+        tabelleTitel[1]=International.getString("Art");
         break;
       case ZIELE:
         tabelleBreite=4;
         anz = Daten.fahrtenbuch.getDaten().ziele.countElements();
         tabelleTitel = new String[tabelleBreite];
-        tabelleTitel[0]=International.getString("Ziel"); tabelleTitel[1]=International.getString("Kilometer"); tabelleTitel[2]=International.getString("Gewässer"); tabelleTitel[3]=International.getString("Zielbereiche");
+        tabelleTitel[0]=International.getString("Ziel");
+        tabelleTitel[1]=International.getString("Kilometer");
+        tabelleTitel[2]=International.getString("Gewässer");
+        tabelleTitel[3]=International.onlyFor("Zielbereiche","de");
         break;
       case MEHRTAGESFAHRTEN:
         tabelleBreite=4;
         anz = Daten.fahrtenbuch.getAnzahlMehrtagesfahrten();
         tabelleTitel = new String[tabelleBreite];
-        tabelleTitel[0]=International.getString("Fahrt"); tabelleTitel[1]=International.getString("Startdatum"); tabelleTitel[2]=International.getString("Enddatum"); tabelleTitel[3]=International.getString("Rudertage");
+        tabelleTitel[0]=International.getString("Fahrt");
+        tabelleTitel[1]=International.getString("Startdatum");
+        tabelleTitel[2]=International.getString("Enddatum");
+        tabelleTitel[3]=International.getString("Rudertage");
         break;
       case MANNSCHAFTEN:
         tabelleBreite=1;
@@ -295,13 +305,16 @@ public class AuswahlFrame extends JDialog implements ActionListener {
         tabelleBreite=3;
         anz = Daten.fahrtenabzeichen.countElements();
         tabelleTitel = new String[tabelleBreite];
-        tabelleTitel[0]=International.getString("Name"); tabelleTitel[1]=International.getString("Anz. Abzeichen"); tabelleTitel[2]=International.getString("Gesamt-Km.");
+        tabelleTitel[0]=International.getString("Name"); 
+        tabelleTitel[1]=International.onlyFor("Anz. Abzeichen","de");
+        tabelleTitel[2]=International.getString("Gesamt-Km");
         break;
       case GRUPPEN:
         tabelleBreite=2;
         anz = Daten.gruppen.getGruppen().size();
         tabelleTitel = new String[tabelleBreite];
-        tabelleTitel[0]=International.getString("Gruppe"); tabelleTitel[1]=International.getString("Anz. Mitglieder");
+        tabelleTitel[0]=International.getString("Gruppe");
+        tabelleTitel[1]=International.getString("Anz. Mitglieder");
         break;
     }
     tabelle = new String[anz][tabelleBreite];
@@ -345,7 +358,7 @@ public class AuswahlFrame extends JDialog implements ActionListener {
           case BOOTE:
             if (f.get(Boote.VEREIN).equals("")) tabelle[i][0] = f.get(Boote.NAME);
             else tabelle[i][0] = f.get(Boote.NAME)+" ("+f.get(Boote.VEREIN)+")";
-            tabelle[i][1] = f.get(Boote.ART) + "-" + f.get(Boote.RIGGER) + "-" + f.get(Boote.ANZAHL) + " " + f.get(Boote.STM);
+            tabelle[i][1] = Boote.getDetailBezeichnung(f);
             break;
           case ZIELE:
             tabelle[i][0] = f.get(Ziele.NAME);
@@ -453,10 +466,10 @@ public class AuswahlFrame extends JDialog implements ActionListener {
     }
     if (this.datenArt == this.FAHRTENABZEICHEN && Daten.fahrtenabzeichen.isChanged())
       if (!Daten.fahrtenabzeichen.writeFile())
-          listError = International.getString("DRV-Fahrtenabezeichenliste");
+          listError = "DRV-Fahrtenabzeichenliste";
     if (Daten.fahrtenbuch.isChanged()) {
       if (!Daten.fahrtenbuch.writeFile())
-          listError = International.getString("Fahrtenbuch-Datei");
+          listError = International.getString("Fahrtenbuch");
       if (this.datenArt == this.MEHRTAGESFAHRTEN && efaFrame != null) efaFrame.getAllFahrtDauer();
       if (efaFrame != null) efaFrame.datensatzGeaendert=false;
     }
@@ -484,7 +497,8 @@ public class AuswahlFrame extends JDialog implements ActionListener {
         Daten.fahrtenbuch.isChanged()) {
       String pos = null;
       try { pos = efaFrame.aktDatensatz.get(Fahrtenbuch.LFDNR); } catch(Exception e) { pos=null; }
-      switch(Dialog.yesNoCancelDialog(International.getString("Änderungen speichern?"),International.getString("Sollen alle Änderungen gespeichert werden?"))) {
+      switch(Dialog.yesNoCancelDialog(International.getString("Änderungen speichern"),
+              International.getString("Möchtest Du die Änderungen jetzt speichern?"))) {
         case Dialog.YES: { // Speichern
           speichern();
           break;
@@ -791,13 +805,15 @@ public class AuswahlFrame extends JDialog implements ActionListener {
                               International.getString("Behinderung"),
                               International.getString("Mitgliedsnummer"),
                               International.getString("Paßwort"),
-                              International.getString("Frei 1"),
-                              International.getString("Frei 2"),
-                              International.getString("Frei 3"),
+                              International.getString("Frei") + " 1",
+                              International.getString("Frei") + " 2",
+                              International.getString("Frei") + " 3",
                               International.getString("Für Wettbewerbe melden")
          };
          boolean[] select1 = {  true   ,  true     ,  false         ,  true     ,  true       ,  true   ,  true   ,  false       , true             , false    , false   , false   , false   , false};
-         String[] nur1 = createArray(Daten.fahrtenbuch.getDaten().status,Daten.bezeichnungen.geschlecht.toArray(),null,null,null);
+         String[] nur1 = createArray(Daten.fahrtenbuch.getDaten().status,
+                 Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_GENDER),
+                 null,null,null);
          int[] nurCheck1 = { 4 , 5 };
          if (Daten.fahrtenbuch.getDaten().mitglieder != null)
            dlg = new ListenausgabeFrame(this,International.getString("Mitgliederliste"),Daten.fahrtenbuch.getDaten().mitglieder,felder1,select1,1,nur1,nurCheck1);
@@ -812,15 +828,19 @@ public class AuswahlFrame extends JDialog implements ActionListener {
                               International.getString("erlaubte Gruppen"),
                               International.getString("max. nicht in Gruppe"),
                               International.getString("mind. 1 aus Gruppe"),
-                              International.getString("Frei 1"),
-                              International.getString("Frei 2"),
-                              International.getString("Frei 3")
+                              International.getString("Frei") + " 1",
+                              International.getString("Frei") + " 2",
+                              International.getString("Frei") + " 3"
          };
          boolean[] select2 = {  true     ,  true   , true ,  true   ,  true      ,  true       , false             , false                 , false               , false   , false   , false };
          String[] tmp = { International.getString("eigene Boote"),
                           International.getString("fremde Boote")
          };
-         String[] nur2 = createArray(tmp,Daten.bezeichnungen.bArt.toArray(), Daten.bezeichnungen.bAnzahl.toArray(), Daten.bezeichnungen.bRigger.toArray(), Daten.bezeichnungen.bStm.toArray());
+         String[] nur2 = createArray(tmp,
+                 Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_BOAT),
+                 Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_NUMROWERS),
+                 Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_RIGGING),
+                 Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_COXING));
          int[] nurCheck2 = { 1, 2, 3, 4 , 5 };
          if (Daten.fahrtenbuch.getDaten().boote != null)
            dlg = new ListenausgabeFrame(this,International.getString("Bootsliste"),Daten.fahrtenbuch.getDaten().boote,felder2,select2,0,nur2,nurCheck2);
@@ -828,7 +848,7 @@ public class AuswahlFrame extends JDialog implements ActionListener {
       case ZIELE:
          String[] felder3 = { International.getString("Ziel"),
                               International.getString("Kilometer"),
-                              International.getString("Zielbereich"),
+                              International.onlyFor("Zielbereich","de"),
                               International.getString("Steg-Ziel"),
                               International.getString("Gewässer")
          };
@@ -874,15 +894,15 @@ public class AuswahlFrame extends JDialog implements ActionListener {
          String[] felder6 = { International.getString("Vorname"),
                               International.getString("Nachname"),
                               International.getString("Jahrgang"),
-                              International.getString("Anz. Abzeichen"),
+                              International.onlyFor("Anz. Abzeichen","de"),
                               International.getString("Gesamt-Km"),
-                              International.getString("Anz. Abzeichen AB"),
-                              International.getString("Gesamt-Km AB"),
-                              International.getString("elektronisches Fahrtenheft")
+                              International.onlyFor("Anz. Abzeichen AB","de"),
+                              International.getString("Gesamt-Km") + " AB",
+                              International.onlyFor("elektronisches Fahrtenheft","de")
          };
          boolean[] select6 = {  true   ,  true     ,  true     ,  true           ,  true       ,  false             , false          , false           };
          if (Daten.fahrtenabzeichen != null)
-           dlg = new ListenausgabeFrame(this,International.getString("DRV-Fahrtenabzeichenliste"),Daten.fahrtenabzeichen,felder6,select6,1,null,null);
+           dlg = new ListenausgabeFrame(this,"DRV-Fahrtenabzeichenliste",Daten.fahrtenabzeichen,felder6,select6,1,null,null);
          break;
       case GRUPPEN:
          String[] felder7 = { International.getString("Gruppe"),

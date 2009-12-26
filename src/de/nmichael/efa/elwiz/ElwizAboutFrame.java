@@ -19,6 +19,8 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.Daten;
 
+// @i18n complete
+
 public class ElwizAboutFrame extends JDialog implements ActionListener {
   GridBagLayout gridBagLayout1 = new GridBagLayout();
   JLabel jLabel1 = new JLabel();
@@ -67,14 +69,13 @@ public class ElwizAboutFrame extends JDialog implements ActionListener {
     this.getContentPane().setLayout(gridBagLayout1);
     versionLabel.setText("Version " + Daten.ELWIZ_VERSION);
     jLabel2.setText("Copyright (c) 2003-"+Daten.COPYRIGHTYEAR+" by Nicolas Michael <software@nmichael.de>");
-    closeButton.setMnemonic('S');
-    closeButton.setText("Schließen");
+    Mnemonics.setButton(this, closeButton, International.getStringWithMnemonic("Schließen"));
     closeButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         closeButton_actionPerformed(e);
       }
     });
-    this.setTitle("elwiz Programm Info");
+    this.setTitle("elwiz");
     this.getContentPane().add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 0, 0, 0), 0, 0));
     this.getContentPane().add(versionLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0

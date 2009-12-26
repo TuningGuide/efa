@@ -18,6 +18,8 @@ import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+// @i18n complete
+
 public class XSLTReader extends DefaultHandler {
 
   static Vector allOptions;
@@ -73,20 +75,25 @@ public class XSLTReader extends DefaultHandler {
     XMLReader parser = null;
     try {
       if (className != null) {
-        Logger.log(Logger.INFO,"Versuche XML-Parser "+className+" zu laden...");
+        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_ELWIZ,
+                "Trying to load XML-Parser "+className+" ...");
         parser = XMLReaderFactory.createXMLReader(className);
       } else {
-        Logger.log(Logger.INFO,"Versuche Standard-XML-Parser zu laden...");
+        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_ELWIZ,
+                "Trying to load default XML-Parser ...");
         parser = XMLReaderFactory.createXMLReader();
       }
     } catch(Exception e) {
-      Logger.log(Logger.ERROR,"PARSER EXCEPTION: "+e.toString());
+      Logger.log(Logger.ERROR, Logger.MSG_DEBUG_ELWIZ,
+              "PARSER EXCEPTION: "+e.toString());
       if (e.getClass().toString().indexOf("java.lang.ClassNotFoundException")>0) {
-        Logger.log(Logger.ERROR,className+" NICHT gefunden.");
+        Logger.log(Logger.ERROR, Logger.MSG_DEBUG_ELWIZ,
+                className+" not found.");
         parser = null;
       }
     }
-    Logger.log(Logger.INFO,"XML-Parser erfolgreich geladen.");
+    Logger.log(Logger.INFO, Logger.MSG_DEBUG_ELWIZ,
+            "XML-Parser successfully loaded.");
     return parser;
   }
 
@@ -95,7 +102,8 @@ public class XSLTReader extends DefaultHandler {
 
     allOptions = new Vector();
 
-    Logger.log(Logger.INFO,"XSLTReader: Lese "+filename+" ...");
+    Logger.log(Logger.INFO, Logger.MSG_DEBUG_ELWIZ,
+            "XSLTReader: Reading "+filename+" ...");
 
     XMLReader parser;
     parser = tryToSetup(null);
@@ -103,7 +111,8 @@ public class XSLTReader extends DefaultHandler {
     if (parser == null) parser = tryToSetup("javax.xml.parsers.SAXParser"); // Java 1.5
     if (parser == null) parser = tryToSetup("org.apache.crimson.parser.XMLReaderImpl");
     if (parser == null) {
-      Logger.log(Logger.ERROR,"Kein XML-Parser gefunden!");
+      Logger.log(Logger.ERROR, Logger.MSG_DEBUG_ELWIZ,
+              "No XML-Parser found!");
       return null;
     }
 
@@ -111,9 +120,11 @@ public class XSLTReader extends DefaultHandler {
       parser.setContentHandler(new XSLTReader());
       parser.parse(filename);
     } catch(Exception e) {
-      Logger.log(Logger.ERROR,"PARSER EXCEPTION: "+e.toString());
+      Logger.log(Logger.ERROR, Logger.MSG_DEBUG_ELWIZ,
+              "PARSER EXCEPTION: "+e.toString());
     }
-    Logger.log(Logger.INFO,"XSLTReader: "+allOptions.size()+" Elemente gelesen.");
+    Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_ELWIZ,
+            "XSLTReader: "+allOptions.size()+" elements read.");
 
 /*
     for (int i=0; i<allOptions.size(); i++) {

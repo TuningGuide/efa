@@ -11,6 +11,7 @@
 package de.nmichael.efa.statistics;
 
 import de.nmichael.efa.core.*;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
@@ -18,12 +19,15 @@ import java.util.*;
 import java.io.*;
 import java.awt.*;
 
+// @i18n complete
+
 public class Statistik {
 
   public static boolean isCreateRunning = false; // soll verhindern, daß u.U. zwei Statistikerstellungen parallel laufen
-                                                  // Bugfix 13.02.2006 für MG
+                                                 // Bugfix 13.02.2006 für MG
 
   // Farbdefinitionen für die Balken (entsprechen den Dateinamen der *.gif-Dateien)
+  // @todo: change names for files??
   protected static final String COLORKM      = "km";
   protected static final String COLORRUDKM   = "rudkm";
   protected static final String COLORSTMKM   = "stmkm";
@@ -33,12 +37,12 @@ public class Statistik {
   protected static final String COLORKMH     = "kmh";
 
   // Status-Kennzeichnungen für Personen, die ans Ende sortiert werden sollen
-  protected static final String GAST = "_GAST_";
-  protected static final String ANDERE = "_ANDERE_";
+  protected static final String GAST = "_GUEST_";
+  protected static final String ANDERE = "_OTHERS_";
 
   // Status für Gäste und andere
-  protected static final String GASTBEZ = "Gäste";
-  protected static final String ANDEREBEZ = "andere";
+  protected static String GASTBEZ   = null; // "Gäste";  --> wird in create() initialisiert
+  protected static String ANDEREBEZ = null; // "andere"; --> wird in create() initialisiert
 
   // aktive Mitglieder
   protected static final String AKTIV_M_AB19  = "M19";
@@ -81,7 +85,7 @@ public class Statistik {
     letzterAusgabeEintrag = null;
 
     // Titel
-    ad.titel = "Kilometerliste";
+    ad.titel = International.getString("Kilometerliste");
 
     // ausgewertet am
     Calendar c = GregorianCalendar.getInstance();
@@ -89,100 +93,120 @@ public class Statistik {
     ad.ausgewertetAm = tmj.tag+"."+tmj.monat+"."+tmj.jahr;
 
     // ausgewertet von
-    ad.ausgewertetVon = "efa - elektronisches Fahrtenbuch "+Daten.VERSION;
+    ad.ausgewertetVon = Daten.EFA_LONGNAME + " " + Daten.VERSION;
     ad.ausgewertetVonURL = Daten.EFAURL;
 
     // Art der Auswertung
     switch (sd.stat) {
-      case StatistikDaten.STAT_MITGLIEDER: ad.auswertungsArt = "Mannschafts-Kilometer: "; break;
-      case StatistikDaten.STAT_BOOTE: ad.auswertungsArt = "Boots-Kilometer: "; break;
-      case StatistikDaten.STAT_WETT: ad.auswertungsArt = "Wettbewerb: "; break;
-      default: ad.auswertungsArt = "Unbekannt: "; break;
+      case StatistikDaten.STAT_MITGLIEDER: ad.auswertungsArt = International.getString("Mannschafts-Kilometer")+": "; break;
+      case StatistikDaten.STAT_BOOTE: ad.auswertungsArt = International.getString("Boots-Kilometer")+": "; break;
+      case StatistikDaten.STAT_WETT: ad.auswertungsArt = International.getString("Wettbewerb")+": "; break;
+      default: ad.auswertungsArt = International.getString("unbekannt")+": "; break;
     }
     switch (sd.art) {
       case StatistikDaten.ART_MITGLIEDER:
       case StatistikDaten.BART_RUDERER:
-        ad.auswertungsArt += "Ruderer/Innen"; break;
+        ad.auswertungsArt += International.getString("Ruderer/Innen"); break;
       case StatistikDaten.ART_ZIELE:
       case StatistikDaten.BART_ZIELE:
-        ad.auswertungsArt += "Ziele";
-        if (sd.ziele_gruppiert) ad.auswertungsArt += " (Teilziele einzeln)";
+        ad.auswertungsArt += International.getString("Ziele");
+        if (sd.ziele_gruppiert) ad.auswertungsArt += " (" + International.getString("Teilziele einzeln") + ")";
         break;
       case StatistikDaten.ART_MONATE:
       case StatistikDaten.BART_MONATE:
-        ad.auswertungsArt += "Monate"; break;
+        ad.auswertungsArt += International.getString("Monate"); break;
       case StatistikDaten.ART_WOTAGE:
       case StatistikDaten.BART_WOTAGE:
-        ad.auswertungsArt += "Wochentage"; break;
+        ad.auswertungsArt += International.getString("Wochentage"); break;
       case StatistikDaten.ART_TAGESZEIT:
       case StatistikDaten.BART_TAGESZEIT:
-        ad.auswertungsArt += "Tageszeit"; break;
+        ad.auswertungsArt += International.getString("Tageszeit"); break;
       case StatistikDaten.ART_JAHRE:
       case StatistikDaten.BART_JAHRE:
-        ad.auswertungsArt += "Jahre"; break;
+        ad.auswertungsArt += International.getString("Jahre"); break;
       case StatistikDaten.ART_BOOTE:
       case StatistikDaten.BART_BOOTE:
-        ad.auswertungsArt += "Boote"; break;
+        ad.auswertungsArt += International.getString("Boote"); break;
       case StatistikDaten.ART_BOOTSART:
-        ad.auswertungsArt += "Bootsart"; break;
+        ad.auswertungsArt += International.getString("Bootsart"); break;
       case StatistikDaten.ART_FAHRTART:
-        ad.auswertungsArt += "Fahrtart"; break;
+        ad.auswertungsArt += International.getString("Fahrtart"); break;
       case StatistikDaten.ART_MITRUDERER:
-        ad.auswertungsArt += "Mitruderer"; break;
+        ad.auswertungsArt += International.getString("Mitruderer"); break;
       case StatistikDaten.ART_STATUS:
-        ad.auswertungsArt += "Status"; break;
+        ad.auswertungsArt += International.getString("Status"); break;
       case StatistikDaten.ART_JAHRGANG:
-        ad.auswertungsArt += "Jahrgang"; break;
+        ad.auswertungsArt += International.getString("Jahrgang"); break;
       case StatistikDaten.ART_GESCHLECHT:
-        ad.auswertungsArt += "Geschlecht"; break;
+        ad.auswertungsArt += International.getString("Geschlecht"); break;
       case StatistikDaten.ART_WERMITWEM:
-        ad.auswertungsArt += "Wer mit Wem"; break;
+        ad.auswertungsArt += International.getString("Wer mit Wem"); break;
       case StatistikDaten.ART_WERWOHIN:
-        ad.auswertungsArt += "Wer Wohin";
-        if (sd.ziele_gruppiert) ad.auswertungsArt += " (Teilziele einzeln)";
+        ad.auswertungsArt += International.getString("Wer Wohin");
+        if (sd.ziele_gruppiert) ad.auswertungsArt += " (" + International.getString("Teilziele einzeln") + ")";
         break;
       case StatistikDaten.ART_WERMITBOOTSART:
-        ad.auswertungsArt += "Wer mit Bootsart"; break;
+        ad.auswertungsArt += International.getString("Wer mit Bootsart"); break;
       case StatistikDaten.ART_WERUNERLAUBT:
-        ad.auswertungsArt += "Wer unerlaubt"; break;
+        ad.auswertungsArt += International.getString("Wer unerlaubt"); break;
       case StatistikDaten.ART_WERMITFAHRTART:
-        ad.auswertungsArt += "Wer mit Fahrtart"; break;
+        ad.auswertungsArt += International.getString("Wer mit Fahrtart"); break;
       case StatistikDaten.ART_FAHRTENBUCH:
       case StatistikDaten.BART_FAHRTENBUCH:
-        ad.auswertungsArt += "Fahrtenbuch"; break;
+        ad.auswertungsArt += International.getString("Fahrtenbuch"); break;
       case StatistikDaten.ART_MONATSUEBERSICHT:
-        ad.auswertungsArt += "Monatsübersicht"; break;
+        ad.auswertungsArt += International.getString("Monatsübersicht"); break;
       case StatistikDaten.ART_KMFAHRT:
       case StatistikDaten.BART_KMFAHRT:
-        ad.auswertungsArt += "Km / Fahrt"; break;
+        ad.auswertungsArt += International.getString("Km/Fahrt"); break;
       case StatistikDaten.BART_ART:
-        ad.auswertungsArt += "Art"; break;
+        ad.auswertungsArt += International.getString("Art"); break;
       case StatistikDaten.BART_PLAETZE:
-        ad.auswertungsArt += "Bootsplätze"; break;
+        ad.auswertungsArt += International.getString("Bootsplätze"); break;
       case StatistikDaten.BART_ARTDETAIL:
-        ad.auswertungsArt += "Art (Detail)"; break;
+        ad.auswertungsArt += International.getString("Art")+
+                " (" + International.getString("Detail") + ")"; break;
       case StatistikDaten.BART_WELCHESWOHIN:
-        ad.auswertungsArt += "Welches Boot Wohin";
-        if (sd.ziele_gruppiert) ad.auswertungsArt += " (Teilziele einzeln)";
+        ad.auswertungsArt += International.getString("Welches Boot Wohin");
+        if (sd.ziele_gruppiert) ad.auswertungsArt += " (" + International.getString("Teilziele einzeln") + ")";
         break;
     }
     if (sd.art >= 200 && sd.art - 200 < WettDefs.ANZWETT)
       ad.auswertungsArt += Daten.wettDefs.getWettDef(sd.art - StatistikDaten.WETT_DRV,sd.wettJahr).name;
 
     // Auswertungszeitraum
-    if (sd.von.jahr == 1 && sd.bis.jahr == 9999) ad.auswertungsZeitraum = "gesamter Zeitraum";
-    else if (sd.von.jahr == 1) ad.auswertungsZeitraum = "bis "+sd.bis.tag+"."+sd.bis.monat+"."+sd.bis.jahr+"";
-    else if (sd.bis.jahr == 9999) ad.auswertungsZeitraum = "vom "+sd.von.tag+"."+sd.von.monat+"."+sd.von.jahr+"";
-    else ad.auswertungsZeitraum = "vom "+sd.von.tag+"."+sd.von.monat+"."+sd.von.jahr+" bis "+sd.bis.tag+"."+sd.bis.monat+"."+sd.bis.jahr+"";
-    if (sd.vorjahresvergleich) ad.auswertungsZeitraum = "Jahresvergleich "+sd.von.jahr+"/"+sd.bis.jahr+": vom "+sd.von.tag+"."+sd.von.monat+". bis "+sd.bis.tag+"."+sd.bis.monat+".";
+    if (sd.von.jahr == 1 && sd.bis.jahr == 9999) {
+        ad.auswertungsZeitraum = International.getString("gesamter Zeitraum");
+    } else if (sd.von.jahr == 1) {
+        ad.auswertungsZeitraum = International.getMessage("bis {day}.{month}.{year}",sd.bis.tag,sd.bis.monat,sd.bis.jahr);
+    } else if (sd.bis.jahr == 9999) {
+        ad.auswertungsZeitraum = International.getMessage("vom {day}.{month}.{year}",sd.von.tag,sd.von.monat,sd.von.jahr);
+    } else {
+        ad.auswertungsZeitraum = International.getMessage("vom {day}.{month}.{year}",sd.von.tag,sd.von.monat,sd.von.jahr) +
+                " " +
+                International.getMessage("bis {day}.{month}.{year}",sd.bis.tag,sd.bis.monat,sd.bis.jahr);
+    }
+    if (sd.vorjahresvergleich) {
+        ad.auswertungsZeitraum = International.getString("Jahresvergleich") +
+                " "+sd.von.jahr+"/"+sd.bis.jahr+": "+
+                International.getMessage("vom {day}.{month}",sd.von.tag,sd.von.monat) +
+                " " +
+                International.getMessage("bis {day}.{month}",sd.bis.tag,sd.bis.monat);
+    }
 
     // Ausgewertete Einträge
-    if (sd.fruehesteFahrt == null || sd.spaetesteFahrt == null)
-      ad.ausgewerteteEintraege = "keine passenden Einträge gefunden";
-    else
-      ad.ausgewerteteEintraege = sd.alleAusgewertetenEintraege.keySet().size() + " Einträge: #"+sd.ersterEintrag+" - #"+sd.letzterEintrag+
-          " ("+sd.fruehesteFahrt.tag+"."+sd.fruehesteFahrt.monat+"."+sd.fruehesteFahrt.jahr+" - "+
-               sd.spaetesteFahrt.tag+"."+sd.spaetesteFahrt.monat+"."+sd.spaetesteFahrt.jahr+")";
+    if (sd.fruehesteFahrt == null || sd.spaetesteFahrt == null) {
+      ad.ausgewerteteEintraege = International.getString("keine passenden Einträge gefunden");
+    } else {
+      ad.ausgewerteteEintraege = 
+              International.getMessage("{n} Einträge",sd.alleAusgewertetenEintraege.keySet().size()) +
+              ": #"+sd.ersterEintrag+" - #"+sd.letzterEintrag+
+              " ("+
+              International.getMessage("vom {day}.{month}.{year}",sd.fruehesteFahrt.tag,sd.fruehesteFahrt.monat,sd.fruehesteFahrt.jahr) +
+              " " +
+              International.getMessage("bis {day}.{month}.{year}",sd.spaetesteFahrt.tag,sd.spaetesteFahrt.monat,sd.spaetesteFahrt.jahr)
+              +")";
+    }
 
     // Titel (2)
     if (ad.titel != null && sd.fruehesteFahrt != null && sd.spaetesteFahrt != null) {
@@ -197,16 +221,19 @@ public class Statistik {
       ad.auswertungFuer = new String[3];
       ad.auswertungFuer[0] = ad.auswertungFuer[1] = ad.auswertungFuer[2] = "";
       alle=true;
-      for (int i=0; i<Daten.bezeichnungen.geschlecht.size(); i++)
+      for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_GENDER); i++)
         if (!sd.geschlecht[i]) alle=false;
       if (!alle) {
-        for (int i=j=0; i<Daten.bezeichnungen.geschlecht.size(); i++) {
+        for (int i=j=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_GENDER); i++) {
           if (sd.geschlecht[i]) {
             if (j++>0) ad.auswertungFuer[0] += ", ";
-            ad.auswertungFuer[0] += Daten.bezeichnungen.geschlecht.get(i);
+            ad.auswertungFuer[0] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER,i);
           }
         }
-      } else ad.auswertungFuer[0] += Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH)+", "+Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_WEIBLICH);
+      } else {
+          ad.auswertungFuer[0] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER,EfaTypes.TYPE_GENDER_MALE) + ", " +
+                                  Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER,EfaTypes.TYPE_GENDER_FEMALE);
+      }
       alle=true;
       for (int i=0; i<Daten.fahrtenbuch.getDaten().status.length; i++)
         if (!sd.status[i]) alle=false;
@@ -217,65 +244,66 @@ public class Statistik {
             ad.auswertungFuer[1] += Daten.fahrtenbuch.getDaten().status[i];
           }
         }
-      } else ad.auswertungFuer[1] += "alle";
+      } else ad.auswertungFuer[1] += International.getString("alle");
       alle=true;
-      for (int i=0; i<Daten.bezeichnungen.fahrtart.size(); i++)
+      for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++)
         if (!sd.fahrtart[i]) alle=false;
       if (!alle) {
-        for (int i=j=0; i<Daten.bezeichnungen.fahrtart.size(); i++) {
+        for (int i=j=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++) {
           if (sd.fahrtart[i]) {
             if (j++>0) ad.auswertungFuer[2] += ", ";
-            ad.auswertungFuer[2] += Daten.bezeichnungen.fahrtart.get(i);
+            ad.auswertungFuer[2] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP,i);
           }
         }
-      } else ad.auswertungFuer[2] += "alle Arten von Fahrten";
+      } else ad.auswertungFuer[2] += International.getString("alle Arten von Fahrten");
     } else { // STAT_BOOTE
       ad.auswertungFuer = new String[5];
       ad.auswertungFuer[0] = ad.auswertungFuer[1] = ad.auswertungFuer[2] = ad.auswertungFuer[3] = ad.auswertungFuer[4] = "";
       alle=true;
-      for (int i=0; i<Daten.bezeichnungen.bArt.size(); i++)
+      for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT); i++)
         if (!sd.bArt[i]) alle=false;
       if (!alle) {
-        for (int i=j=0; i<Daten.bezeichnungen.bArt.size(); i++) {
+        for (int i=j=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT); i++) {
           if (sd.bArt[i]) {
             if (j++>0) ad.auswertungFuer[0] += ", ";
-            ad.auswertungFuer[0] += Daten.bezeichnungen.bArt.get(i);
+            ad.auswertungFuer[0] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,i);
           }
         }
-      } else ad.auswertungFuer[0] += "alle Bootsarten";
+      } else ad.auswertungFuer[0] += International.getString("alle Bootsarten");
       alle=true;
-      for (int i=0; i<Daten.bezeichnungen.bAnzahl.size(); i++)
+      for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS); i++)
         if (!sd.bAnzahl[i]) alle=false;
       if (!alle) {
-        for (int i=j=0; i<Daten.bezeichnungen.bAnzahl.size(); i++) {
+        for (int i=j=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS); i++) {
           if (sd.bAnzahl[i]) {
             if (j++>0) ad.auswertungFuer[1] += ", ";
-            ad.auswertungFuer[1] += Daten.bezeichnungen.bAnzahl.get(i);
+            ad.auswertungFuer[1] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS,i);
           }
         }
-      } else ad.auswertungFuer[1] += "alle Bootsgrößen";
+      } else ad.auswertungFuer[1] += International.getString("alle Bootsgrößen");
       alle=true;
-      for (int i=0; i<Daten.bezeichnungen.bRigger.size(); i++)
+      for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_RIGGING); i++)
         if (!sd.bRigger[i]) alle=false;
       if (!alle) {
-        for (int i=j=0; i<Daten.bezeichnungen.bRigger.size(); i++) {
+        for (int i=j=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_RIGGING); i++) {
           if (sd.bRigger[i]) {
             if (j++>0) ad.auswertungFuer[2] += ", ";
-            ad.auswertungFuer[2] += Daten.bezeichnungen.bRigger.get(i);
+            ad.auswertungFuer[2] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING,i);
           }
         }
-      } else ad.auswertungFuer[2] += "alle Riggertypen";
+      } else ad.auswertungFuer[2] += International.getString("alle Riggertypen");
       alle=true;
-      for (int i=0; i<Daten.bezeichnungen.bStm.size(); i++)
+      for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_COXING); i++)
         if (!sd.bStm[i]) alle=false;
       if (!alle) {
-        for (int i=j=0; i<Daten.bezeichnungen.bStm.size(); i++) {
+        for (int i=j=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_COXING); i++) {
           if (sd.bStm[i]) {
             if (j++>0) ad.auswertungFuer[3] += ", ";
-            ad.auswertungFuer[3] += Daten.bezeichnungen.bStm.get(i);
+            ad.auswertungFuer[3] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING,i);
           }
         }
-      } else ad.auswertungFuer[3] += Daten.bezeichnungen.bStm.get(Bezeichnungen.BSTM_MIT)+", "+Daten.bezeichnungen.bStm.get(Bezeichnungen.BSTM_OHNE);
+      } else ad.auswertungFuer[3] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, EfaTypes.TYPE_COXING_COXED) + ", " +
+                                     Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, EfaTypes.TYPE_COXING_COXLESS);
       alle=true;
       for (int i=0; i<sd.bVerein.length; i++)
         if (!sd.bVerein[i]) alle=false;
@@ -283,34 +311,34 @@ public class Statistik {
         for (int i=j=0; i<2; i++) {
           if (sd.bVerein[i]) {
             if (j++>0) ad.auswertungFuer[4] += ", ";
-            if (i==0) ad.auswertungFuer[4] += "eigene Boote";
-            else ad.auswertungFuer[4] += "fremde Boote";
+            if (i==0) ad.auswertungFuer[4] += International.getString("eigene Boote");
+            else ad.auswertungFuer[4] += International.getString("fremde Boote");
           }
         }
-      } else ad.auswertungFuer[4] += "alle Vereine";
+      } else ad.auswertungFuer[4] += International.getString("alle Vereine");
     }
 
     // Auswertung nur für Name
     if (!sd.name.equals("")) {
       if (sd.stat == StatistikDaten.STAT_MITGLIEDER || sd.stat == StatistikDaten.STAT_WETT) {
-        if (sd.nameOderGruppe == StatistikDaten.NG_NAME) ad.auswertungNurFuerBez = "Name";
-        else ad.auswertungNurFuerBez = "Gruppe";
+        if (sd.nameOderGruppe == StatistikDaten.NG_NAME) ad.auswertungNurFuerBez = International.getString("Name");
+        else ad.auswertungNurFuerBez = International.getString("Gruppe");
       } else {
-        ad.auswertungNurFuerBez = "Boot";
+        ad.auswertungNurFuerBez = International.getString("Boot");
       }
       ad.auswertungNurFuer = sd.name;
     } else if (sd.nurBemerk.length()>0 || sd.nurBemerkNicht.length()>0) {
-      ad.auswertungNurFuerBez = "Bemerkungen";
+      ad.auswertungNurFuerBez = International.getString("Bemerkungen");
       ad.auswertungNurFuer = sd.nurBemerk;
       if (sd.nurBemerkNicht.length()>0) {
         if (ad.auswertungNurFuer.length()>0) ad.auswertungNurFuer+= "; ";
-        ad.auswertungNurFuer+= "nicht "+sd.nurBemerkNicht;
+        ad.auswertungNurFuer+= International.getMessage("nicht {something}",sd.nurBemerkNicht);
       }
     } else if (sd.nurStegKm) {
-      ad.auswertungNurFuerBez = "Fahrten";
-      ad.auswertungNurFuer = "Start und Ziel am Bootshaus";
+      ad.auswertungNurFuerBez = International.getString("Fahrten");
+      ad.auswertungNurFuer = International.getString("Start und Ziel ist eigenes Bootshaus");
     } else if (sd.nurMindKm>0) {
-      ad.auswertungNurFuerBez = "Fahrten mit mind";
+      ad.auswertungNurFuerBez = International.getString("Fahrten mit mind.");
       ad.auswertungNurFuer = EfaUtil.zehntelInt2String(sd.nurMindKm)+" Km";
     }
 
@@ -319,48 +347,96 @@ public class Statistik {
         sd.art == StatistikDaten.WETT_LRVBSOMMER || sd.art == StatistikDaten.WETT_LRVBWINTER ||
         sd.art == StatistikDaten.WETT_LRVBRB_WANDERRUDERWETT || sd.art == StatistikDaten.WETT_LRVBRB_FAHRTENWETT ||
         sd.art == StatistikDaten.WETT_LRVMVP_WANDERRUDERWETT) {
-      ad.auswertungWettNur = "erfüllt";
+      ad.auswertungWettNur = International.getString("erfüllt");
       switch(sd.art) {
         case StatistikDaten.WETT_DRV:
         case StatistikDaten.WETT_LRVBSOMMER:
         case StatistikDaten.WETT_LRVBRB_WANDERRUDERWETT:
         case StatistikDaten.WETT_LRVBRB_FAHRTENWETT:
         case StatistikDaten.WETT_LRVMVP_WANDERRUDERWETT:
-          if (sd.wettProz != 100) ad.auswertungWettNur += " oder mind. "+sd.wettProz+"% der geforderten Km erreicht";
-          if (sd.wettProz == 0)   ad.auswertungWettNur = "alle ausgeben";
+          if (sd.wettProz != 100) ad.auswertungWettNur += " "+
+                  International.getMessage("oder mind. {percent}% der geforderten Km erreicht",sd.wettProz);
+          if (sd.wettProz == 0)   ad.auswertungWettNur = International.getString("alle ausgeben");
           break;
         case StatistikDaten.WETT_LRVBWINTER:
-          if (sd.wettProz != 100) ad.auswertungWettNur += " oder mind. "+sd.wettProz+"% der geforderten Km und "+sd.wettFahrten+" Fahrten erreicht";
-          if (sd.wettProz == 0   && sd.wettFahrten == 0) ad.auswertungWettNur = "alle ausgeben";
+          if (sd.wettProz != 100) ad.auswertungWettNur += " " +
+                  International.getMessage("oder mind. {percent}% der geforderten Km und {count} Fahrten erreicht",sd.wettProz,sd.wettFahrten);
+          if (sd.wettProz == 0   && sd.wettFahrten == 0) ad.auswertungWettNur = International.getString("alle ausgeben");
           break;
       }
     }
 
     // TabellenTitel
-    String nameBez = "Name";
+    String nameBez = International.getString("Name");
     switch (sd.art) {
-      case StatistikDaten.ART_MITGLIEDER: case StatistikDaten.BART_RUDERER: case StatistikDaten.ART_MITRUDERER:
-      case StatistikDaten.ART_WERMITWEM: case StatistikDaten.ART_WERWOHIN:
-      case StatistikDaten.ART_WERMITBOOTSART: case StatistikDaten.ART_WERUNERLAUBT:
-      case StatistikDaten.ART_WERMITFAHRTART:
-        if (!sd.ausgebenMitglnrStattName) nameBez="Name";
-        else nameBez="MitglNr.";
-        break;
-      case StatistikDaten.ART_MONATE: case StatistikDaten.BART_MONATE: nameBez="Monat"; break;
-      case StatistikDaten.ART_WOTAGE: case StatistikDaten.BART_WOTAGE: nameBez="Wochentag"; break;
-      case StatistikDaten.ART_TAGESZEIT: case StatistikDaten.BART_TAGESZEIT: nameBez="Tageszeit"; break;
-      case StatistikDaten.ART_JAHRE: case StatistikDaten.BART_JAHRE:   nameBez="Jahr"; break;
-      case StatistikDaten.ART_ZIELE: case StatistikDaten.BART_ZIELE:   nameBez="Ziel"; break;
-      case StatistikDaten.ART_BOOTE: case StatistikDaten.BART_BOOTE: case StatistikDaten.BART_WELCHESWOHIN: nameBez="Boot"; break;
-      case StatistikDaten.ART_BOOTSART:                                nameBez="Bootsart"; break;
-      case StatistikDaten.ART_FAHRTART:                                nameBez="Fahrtart"; break;
-      case StatistikDaten.ART_STATUS:                                  nameBez="Status"; break;
-      case StatistikDaten.ART_JAHRGANG:                                nameBez="Jahrgang"; break;
-      case StatistikDaten.ART_GESCHLECHT:                              nameBez="Geschlecht"; break;
-      case StatistikDaten.BART_ART:                                    nameBez="Art"; break;
-      case StatistikDaten.BART_ARTDETAIL:                              nameBez="Art (Detail)"; break;
-      case StatistikDaten.BART_PLAETZE:                                nameBez="Bootsplätze"; break;
-      case StatistikDaten.ART_KMFAHRT: case StatistikDaten.BART_KMFAHRT:nameBez="Entfernung (Km)"; break;
+        case StatistikDaten.ART_MITGLIEDER:
+        case StatistikDaten.BART_RUDERER:
+        case StatistikDaten.ART_MITRUDERER:
+        case StatistikDaten.ART_WERMITWEM:
+        case StatistikDaten.ART_WERWOHIN:
+        case StatistikDaten.ART_WERMITBOOTSART:
+        case StatistikDaten.ART_WERUNERLAUBT:
+        case StatistikDaten.ART_WERMITFAHRTART:
+            if (!sd.ausgebenMitglnrStattName) {
+                nameBez=International.getString("Name");
+            } else {
+                nameBez=International.getString("MitglNr.");
+            }
+            break;
+        case StatistikDaten.ART_MONATE:
+        case StatistikDaten.BART_MONATE:
+            nameBez=International.getString("Monat");
+            break;
+        case StatistikDaten.ART_WOTAGE:
+        case StatistikDaten.BART_WOTAGE:
+            nameBez=International.getString("Wochentag");
+            break;
+        case StatistikDaten.ART_TAGESZEIT:
+        case StatistikDaten.BART_TAGESZEIT:
+            nameBez=International.getString("Tageszeit");
+            break;
+        case StatistikDaten.ART_JAHRE:
+        case StatistikDaten.BART_JAHRE:
+            nameBez=International.getString("Jahr");
+            break;
+        case StatistikDaten.ART_ZIELE:
+        case StatistikDaten.BART_ZIELE:
+            nameBez=International.getString("Ziel");
+            break;
+        case StatistikDaten.ART_BOOTE:
+        case StatistikDaten.BART_BOOTE:
+        case StatistikDaten.BART_WELCHESWOHIN:
+            nameBez=International.getString("Boot");
+            break;
+        case StatistikDaten.ART_BOOTSART:
+          nameBez=International.getString("Bootsart");
+          break;
+        case StatistikDaten.ART_FAHRTART:
+          nameBez=International.getString("Fahrtart");
+          break;
+        case StatistikDaten.ART_STATUS:
+          nameBez=International.getString("Status");
+          break;
+        case StatistikDaten.ART_JAHRGANG:
+          nameBez=International.getString("Jahrgang");
+          break;
+        case StatistikDaten.ART_GESCHLECHT:
+          nameBez=International.getString("Geschlecht");
+          break;
+        case StatistikDaten.BART_ART:
+          nameBez=International.getString("Art");
+          break;
+        case StatistikDaten.BART_ARTDETAIL:
+          nameBez=International.getString("Art") +
+                  " (" + International.getString("Detail") + ")";
+          break;
+        case StatistikDaten.BART_PLAETZE:
+          nameBez=International.getString("Bootsplätze");
+          break;
+        case StatistikDaten.ART_KMFAHRT:
+        case StatistikDaten.BART_KMFAHRT:
+            nameBez=International.getString("Entfernung")+" (Km)";
+            break;
     }
 
     int tabelleBreite;
@@ -399,49 +475,49 @@ public class Statistik {
           if (sd.ausgebenNr) {
             if (sd.sortierKriterium == StatistikDaten.SORTKRIT_JAHRGANG || sd.sortierKriterium == StatistikDaten.SORTKRIT_NACHNAME ||
                 sd.sortierKriterium == StatistikDaten.SORTKRIT_STATUS || sd.sortierKriterium == StatistikDaten.SORTKRIT_VORNAME)
-              ad.tabellenTitel[i++] = "LfdNr.";
-            else ad.tabellenTitel[i++] = "Platz";
+              ad.tabellenTitel[i++] = International.getString("LfdNr");
+            else ad.tabellenTitel[i++] = International.getString("Platz");
             ad.tabellenTitelBreite[i-1] = 1; }
           if (sd.ausgebenName){ ad.tabellenTitel[i++] = nameBez; ad.tabellenTitelBreite[i-1] = 1; }
           if (sd.ausgebenJahrgang) {
-            if (sd.art != StatistikDaten.ART_BOOTSART) ad.tabellenTitel[i++] = "Jahrgang";
-            else ad.tabellenTitel[i++] = "Bootsplätze";
+            if (sd.art != StatistikDaten.ART_BOOTSART) ad.tabellenTitel[i++] = International.getString("Jahrgang");
+            else ad.tabellenTitel[i++] = International.getString("Bootsplätze");
             ad.tabellenTitelBreite[i-1] = 1;
           }
           if (sd.ausgebenStatus) {
-            if (sd.stat == StatistikDaten.STAT_MITGLIEDER && sd.art != StatistikDaten.ART_BOOTSART) ad.tabellenTitel[i++] = "Status";
-            else ad.tabellenTitel[i++] = "Art";
+            if (sd.stat == StatistikDaten.STAT_MITGLIEDER && sd.art != StatistikDaten.ART_BOOTSART) ad.tabellenTitel[i++] = International.getString("Status");
+            else ad.tabellenTitel[i++] = International.getString("Art");
              ad.tabellenTitelBreite[i-1] = 1;
           }
           if (sd.ausgebenBezeichnung && sd.stat == StatistikDaten.STAT_BOOTE) {
-            ad.tabellenTitel[i++] = "Bezeichnung";
+            ad.tabellenTitel[i++] = International.getString("Bezeichnung");
             ad.tabellenTitelBreite[i-1] = 1;
           }
-          if (sd.ausgebenWWAnzVersch) { ad.tabellenTitel[i++] = "Anzahl Verschiedene"; ad.tabellenTitelBreite[i-1] = 1; }
+          if (sd.ausgebenWWAnzVersch) { ad.tabellenTitel[i++] = International.getString("Anzahl Verschiedene"); ad.tabellenTitelBreite[i-1] = 1; }
           if (sd.ausgebenKm || sd.graphischKm) {
-            ad.tabellenTitel[i++] = "Kilometer";
+            ad.tabellenTitel[i++] = International.getString("Kilometer");
             ad.tabellenTitelBreite[i-1] = (sd.vorjahresvergleich && sd.graphischKm ? 2 : 1);
           }
           if (sd.ausgebenRudKm || sd.graphischRudKm) {
-            ad.tabellenTitel[i++] = "Ruderkilometer";
+            ad.tabellenTitel[i++] = International.getString("Ruderkilometer");
             ad.tabellenTitelBreite[i-1] = (sd.vorjahresvergleich && sd.graphischRudKm ? 2 : 1);
           }
           if (sd.ausgebenStmKm || sd.graphischStmKm) {
-            ad.tabellenTitel[i++] = "Steuerkilometer";
+            ad.tabellenTitel[i++] = International.getString("Steuerkilometer");
             ad.tabellenTitelBreite[i-1] = (sd.vorjahresvergleich && sd.graphischStmKm ? 2 : 1);
           }
           if (sd.ausgebenFahrten || sd.graphischFahrten) {
-            ad.tabellenTitel[i++] = "Fahrten";
+            ad.tabellenTitel[i++] = International.getString("Fahrten");
             ad.tabellenTitelBreite[i-1] = (sd.vorjahresvergleich && sd.graphischFahrten ? 2 : 1);
           }
-          if (sd.ausgebenKmFahrt || sd.graphischKmFahrt) { ad.tabellenTitel[i++] = "Km/Fahrt"; ad.tabellenTitelBreite[i-1] = 1; }
+          if (sd.ausgebenKmFahrt || sd.graphischKmFahrt) { ad.tabellenTitel[i++] = International.getString("Km/Fahrt"); ad.tabellenTitelBreite[i-1] = 1; }
           if (sd.ausgebenDauer || sd.graphischDauer) {
-            ad.tabellenTitel[i++] = "Stunden";
+            ad.tabellenTitel[i++] = International.getString("Stunden");
             ad.tabellenTitelBreite[i-1] = (sd.vorjahresvergleich && sd.graphischDauer ? 2 : 1);
           }
-          if (sd.ausgebenKmH || sd.graphischKmH) { ad.tabellenTitel[i++] = "Km/h"; ad.tabellenTitelBreite[i-1] = 1; }
-          if (sd.ausgebenWafaKm && sd.art == StatistikDaten.ART_MITGLIEDER) { ad.tabellenTitel[i++] = "Wafa-Km"; ad.tabellenTitelBreite[i-1] = 1; }
-          if (sd.ausgebenZielfahrten) { ad.tabellenTitel[i++] = "Zielfahrten"; ad.tabellenTitelBreite[i-1] = 1; }
+          if (sd.ausgebenKmH || sd.graphischKmH) { ad.tabellenTitel[i++] = International.getString("Km/h"); ad.tabellenTitelBreite[i-1] = 1; }
+          if (sd.ausgebenWafaKm && sd.art == StatistikDaten.ART_MITGLIEDER) { ad.tabellenTitel[i++] = International.getString("Wafa-Km"); ad.tabellenTitelBreite[i-1] = 1; }
+          if (sd.ausgebenZielfahrten) { ad.tabellenTitel[i++] = International.onlyFor("Zielfahrten","de"); ad.tabellenTitelBreite[i-1] = 1; }
 
           for (int iw=0; iw<Daten.wettDefs.ANZWETT; iw++) {
             boolean wfound = false;
@@ -484,17 +560,17 @@ public class Statistik {
           ad.tabellenTitelBreite = new int[tabelleBreite];
 
           int i=0;
-          if (sd.fbLfdNr)       { ad.tabellenTitel[i++] = "Lfd. Nr.";       ad.tabellenTitelBreite[i-1] = 1; }
-          if (sd.fbDatum)       { ad.tabellenTitel[i++] = "Datum";          ad.tabellenTitelBreite[i-1] = 1; }
-          if (sd.fbBoot)        { ad.tabellenTitel[i++] = "Boot";           ad.tabellenTitelBreite[i-1] = 1; }
-          if (sd.fbStm)         { ad.tabellenTitel[i++] = "Steuermann";     ad.tabellenTitelBreite[i-1] = 1; }
-          if (sd.fbMannsch)     { ad.tabellenTitel[i++] = "Mannschaft";     ad.tabellenTitelBreite[i-1] = 1; }
-          if (sd.fbAbfahrt)     { ad.tabellenTitel[i++] = "Abfahrt";        ad.tabellenTitelBreite[i-1] = 1; }
-          if (sd.fbAnkunft)     { ad.tabellenTitel[i++] = "Ankunft";        ad.tabellenTitelBreite[i-1] = 1; }
-          if (sd.fbZiel)        { ad.tabellenTitel[i++] = "Ziel";           ad.tabellenTitelBreite[i-1] = 1; }
-          if (sd.fbBootsKm)     { ad.tabellenTitel[i++] = "Boots-Km";       ad.tabellenTitelBreite[i-1] = 1; }
-          if (sd.fbMannschKm)   { ad.tabellenTitel[i++] = "Mannschafts-Km"; ad.tabellenTitelBreite[i-1] = 1; }
-          if (sd.fbBemerkungen) { ad.tabellenTitel[i++] = "Bemerkungen";    ad.tabellenTitelBreite[i-1] = 1; }
+          if (sd.fbLfdNr)       { ad.tabellenTitel[i++] = International.getString("Lfd. Nr.");       ad.tabellenTitelBreite[i-1] = 1; }
+          if (sd.fbDatum)       { ad.tabellenTitel[i++] = International.getString("Datum");          ad.tabellenTitelBreite[i-1] = 1; }
+          if (sd.fbBoot)        { ad.tabellenTitel[i++] = International.getString("Boot");           ad.tabellenTitelBreite[i-1] = 1; }
+          if (sd.fbStm)         { ad.tabellenTitel[i++] = International.getString("Steuermann");     ad.tabellenTitelBreite[i-1] = 1; }
+          if (sd.fbMannsch)     { ad.tabellenTitel[i++] = International.getString("Mannschaft");     ad.tabellenTitelBreite[i-1] = 1; }
+          if (sd.fbAbfahrt)     { ad.tabellenTitel[i++] = International.getString("Abfahrt");        ad.tabellenTitelBreite[i-1] = 1; }
+          if (sd.fbAnkunft)     { ad.tabellenTitel[i++] = International.getString("Ankunft");        ad.tabellenTitelBreite[i-1] = 1; }
+          if (sd.fbZiel)        { ad.tabellenTitel[i++] = International.getString("Ziel");           ad.tabellenTitelBreite[i-1] = 1; }
+          if (sd.fbBootsKm)     { ad.tabellenTitel[i++] = International.getString("Boots-Km");       ad.tabellenTitelBreite[i-1] = 1; }
+          if (sd.fbMannschKm)   { ad.tabellenTitel[i++] = International.getString("Mannschafts-Km"); ad.tabellenTitelBreite[i-1] = 1; }
+          if (sd.fbBemerkungen) { ad.tabellenTitel[i++] = International.getString("Bemerkungen");    ad.tabellenTitelBreite[i-1] = 1; }
     }
     if (sd.art == StatistikDaten.ART_MONATSUEBERSICHT) { // Art: Monatsübersicht
           // nothing to do
@@ -585,8 +661,8 @@ public class Statistik {
         ae.fahrtenbuch = a.fahrtenbuch;
       } else {
         ae.fahrtenbuch = new String[11];
-        if (sd.fbLfdNr) ae.fahrtenbuch[0] = "-ges-";
-        if (sd.fbDatum) ae.fahrtenbuch[1] = arr.length + " Einträge";
+        if (sd.fbLfdNr) ae.fahrtenbuch[0] = "-" + International.getString("ges") + "-";
+        if (sd.fbDatum) ae.fahrtenbuch[1] = International.getMessage("{n} Einträge",arr.length);
         if (sd.fbBoot) ae.fahrtenbuch[2] = "";
         if (sd.fbStm) ae.fahrtenbuch[3] = "";
         if (sd.fbMannsch) ae.fahrtenbuch[4] = "";
@@ -596,8 +672,9 @@ public class Statistik {
         if (sd.fbBootsKm) ae.fahrtenbuch[8] = EfaUtil.zehntelInt2String(a.rudKm+a.stmKm);
         if (sd.fbMannschKm) ae.fahrtenbuch[9] = EfaUtil.zehntelInt2String(a.mannschKm);
         if (sd.fbBemerkungen) {
-          if (sd.fbZielbereichInBemerkungen && !a.zf.toString().equals("")) ae.fahrtenbuch[10] = "Zielbereiche: "+a.zf.toString();
-          else ae.fahrtenbuch[10] = "";
+          if (sd.fbZielbereichInBemerkungen && !a.zf.toString().equals("")) {
+              ae.fahrtenbuch[10] = International.onlyFor("Zielbereiche","de") + ": "+a.zf.toString();
+          } else ae.fahrtenbuch[10] = "";
         }
       }
     } else { // kein Fahrtenbuch, keine Monatsübersicht --> normale Felder ausgeben
@@ -644,7 +721,7 @@ public class Statistik {
           if (sd.art == sd.ART_WERMITWEM) ae.anzversch = Integer.toString(a.ww.size()-1);
           else if (sd.art == sd.ART_WERWOHIN || sd.art == sd.BART_WELCHESWOHIN ||
                    sd.art == sd.ART_WERMITBOOTSART || sd.art == sd.ART_WERMITFAHRTART || sd.art == sd.ART_WERUNERLAUBT) ae.anzversch = Integer.toString(a.ww.size());
-          else ae.anzversch = "oops";
+          else ae.anzversch = "oops"; // no need to translate ;-)
         else ae.anzversch = "";
 
 
@@ -881,7 +958,7 @@ public class Statistik {
       wwKeys = alleWW.keySet().toArray();
     }
 
-    ArrEl ges = new ArrEl("--- gesamt ("+a.length+") ---","","","",0,0,0,0,0,new ZielfahrtFolge(),(alleWW != null ? new Hashtable() : null),null,null);
+    ArrEl ges = new ArrEl("--- " + International.getString("gesamt") + " ("+a.length+") ---","","","",0,0,0,0,0,new ZielfahrtFolge(),(alleWW != null ? new Hashtable() : null),null,null);
     int gesWafaKm = 0;
     for (int i=0; i<a.length; i++) {
       ges.anz += a[i].anz;
@@ -938,9 +1015,9 @@ public class Statistik {
   // Eine int-Zahl (Geschlecht) in einen String umwandeln
   static String makeGeschlecht(int g) {
     switch (g) {
-      case 0: return "m";
-      case 1: return "w";
-      default: return "m/w";
+      case 0: return International.getString("m","gender");
+      case 1: return International.getString("w","gender");
+      default: return International.getString("m/w","gender");
     }
   }
 
@@ -967,6 +1044,7 @@ public class Statistik {
     if (!bzf) return null;
     String s;
     if (kurz) {
+        // not translated (only Berlin, GER
       if (mitAnford) s = izf + "/" + geforderteFahrten + " Zf";
       else s = izf + " Zf";
     } else s = izf + " Zielfahrt" + (izf != 1 ? "en" : "");
@@ -1055,6 +1133,7 @@ public class Statistik {
 
 
   // Ausgabedaten für Kilometerwettbewerbe erstellen (LRV Sommer)
+  // @i18n Methode wird nicht internationalisiert
   static void ausgabeKmWettLRVBSommer(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
     WettDef wett = Daten.wettDefs.getWettDef(WettDefs.LRVBERLIN_SOMMER,sd.wettJahr);
     WettDefGruppe[] gruppen = wett.gruppen;
@@ -1212,6 +1291,7 @@ public class Statistik {
 
 
   // Ausgabedaten für Kilometerwettbewerbe erstellen (LRV Winter)
+  // @i18n Methode wird nicht internationalisiert
   static void ausgabeKmWettLRVBWinter(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
     WettDef wett = Daten.wettDefs.getWettDef(WettDefs.LRVBERLIN_WINTER,sd.wettJahr);
     WettDefGruppe[] gruppen = wett.gruppen;
@@ -1376,6 +1456,7 @@ public class Statistik {
 
 
   // Ausgabedaten für Kilometerwettbewerbe erstellen (DRV)
+  // @i18n Methode wird nicht internationalisiert
   static void ausgabeKmWettDRV(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
     WettDef wett = Daten.wettDefs.getWettDef(WettDefs.DRV_FAHRTENABZEICHEN,sd.wettJahr);
     WettDefGruppe[] gruppen = wett.gruppen;
@@ -1735,6 +1816,7 @@ public class Statistik {
 
 
   // Ausgabedaten für Kilometerwettbewerbe erstellen (Blauer Wimpel)
+  // @i18n Methode wird nicht internationalisiert
   static void ausgabeKmWettLRVBWimpel(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
     WettDef wett = Daten.wettDefs.getWettDef(WettDefs.LRVBERLIN_BLAUERWIMPEL,sd.wettJahr);
     int anzWertung = 20 + (int)(0.1 * sd.anzMitglieder); // Anzahl der zu wertenden Mitglieder
@@ -1797,6 +1879,7 @@ public class Statistik {
 
 
   // Ausgabedaten für Kilometerwettbewerbe erstellen (DRV Wanderruderstatistik)
+  // @i18n Methode wird nicht internationalisiert
   static void ausgabeKmWettDRVWafaStat(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
     WettDef wett = Daten.wettDefs.getWettDef(WettDefs.DRV_WANDERRUDERSTATISTIK,sd.wettJahr);
 
@@ -2036,6 +2119,7 @@ public class Statistik {
 
 
   // Ausgabedaten für Kilometerwettbewerbe erstellen (LRV Brandenburg Wanderruderwettbewerb: "Großer Wettbewerb")
+  // @i18n Methode wird nicht internationalisiert
   static void ausgabeKmWettLRVBrbWanderruderWett(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
     WettDef wett = Daten.wettDefs.getWettDef(WettDefs.LRVBRB_WANDERRUDERWETT,sd.wettJahr);
     WettDefGruppe[] gruppen = wett.gruppen;
@@ -2165,6 +2249,7 @@ public class Statistik {
   }
 
   // Ausgabedaten für Kilometerwettbewerbe erstellen (LRV Brandenburg Fahrtenwettbewerb: "Kleiner Wettbewerb")
+  // @i18n Methode wird nicht internationalisiert
   static void ausgabeKmWettLRVBrbFahrtenWett(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
     WettDef wett = Daten.wettDefs.getWettDef(WettDefs.LRVBRB_FAHRTENWETT,sd.wettJahr);
     WettDefGruppe[] gruppen = wett.gruppen;
@@ -2311,6 +2396,7 @@ public class Statistik {
   }
 
   // Ausgabedaten für Kilometerwettbewerbe erstellen (LRV Mecklenburg-Vorpommern Wanderruderwettbewerb)
+  // @i18n Methode wird nicht internationalisiert
   static void ausgabeKmWettLRVMVpWanderruderWett(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
     WettDef wett = Daten.wettDefs.getWettDef(WettDefs.LRVMVP_WANDERRUDERWETT,sd.wettJahr);
     WettDefGruppe[] gruppen = wett.gruppen;
@@ -2497,7 +2583,13 @@ public class Statistik {
     TabellenFolgenEintrag col = null;
 
     String[] wotage = new String[7];
-    wotage[0] = "Montag"; wotage[1] = "Dienstag"; wotage[2] = "Mittwoch"; wotage[3] = "Donnerstag"; wotage[4] = "Freitag"; wotage[5] = "Samstag"; wotage[6] = "Sonntag";
+    wotage[0] = International.getString("Montag");
+    wotage[1] = International.getString("Dienstag");
+    wotage[2] = International.getString("Mittwoch");
+    wotage[3] = International.getString("Donnerstag");
+    wotage[4] = International.getString("Freitag");
+    wotage[5] = International.getString("Samstag");
+    wotage[6] = International.getString("Sonntag");
 
     boolean[] allBold7 = new boolean[7];
     Arrays.fill(allBold7,true);
@@ -2516,23 +2608,24 @@ public class Statistik {
 
     col = new TabellenFolgenEintrag(0,0,null,null,null);
     ad.tfe = col; lastCol = col;
-    tit = new String[1]; tit[0] = "Legende";
+    tit = new String[1]; tit[0] = International.getString("Legende");
     col = new TabellenFolgenEintrag(4,4,tit,allAA1,allBold1);
     lastCol.next = col; lastCol = col;
     txt = new String[4];
     color = new String[4];
-    txt[0] = "normale Fahrt"; color[0] = "88ff88"; // grün
-    txt[1] = Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_AUSBILDUNG); color[1] = "88ffff"; // türkis
-    txt[2] = Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_JUMREGATTA); color[2] = "ff8888"; // rot
-    txt[3] = Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_REGATTA); color[3] = "ff8888"; // rot
+    txt[0] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_NORMAL); color[0] = "88ff88"; // grün
+    txt[1] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_INSTRUCTION); color[1] = "88ffff"; // türkis
+    txt[2] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_JUMREGATTA); color[2] = "ff8888"; // rot
+    txt[3] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_REGATTA); color[3] = "ff8888"; // rot
     col = new TabellenFolgenEintrag(4,1,txt,color,noneBold7);
     lastCol.next = col; lastCol = col;
     txt = new String[4];
     color = new String[4];
-    txt[0] = Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_TRAINING); color[0] = "ff88ff"; // lila
-    txt[1] = "mehrere Fahrtarten"; color[1] = "ffff88"; // gelb
-    txt[2] = "Mehrtagesfahrt & andere"; color[2] = "8888ff"; // blau
-    txt[3] = "keine Fahrt"; color[3] = "eeeeee"; // grau
+    txt[0] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_TRAINING); color[0] = "ff88ff"; // lila
+    txt[1] = International.getString("mehrere Fahrtarten"); color[1] = "ffff88"; // gelb
+    txt[2] = International.getString("Mehrtagesfahrt") + " & " +
+            International.getString("andere"); color[2] = "8888ff"; // blau
+    txt[3] = International.getString("keine Fahrt"); color[3] = "eeeeee"; // grau
     col = new TabellenFolgenEintrag(4,1,txt,color,noneBold7);
     lastCol.next = col; lastCol = col;
 
@@ -2560,18 +2653,18 @@ public class Statistik {
           // Monatsüberschrift
           tit = new String[1];
           switch (lastDatum.monat) {
-            case  1: tit[0] = "Januar";    break;
-            case  2: tit[0] = "Februar";   break;
-            case  3: tit[0] = "März";      break;
-            case  4: tit[0] = "April";     break;
-            case  5: tit[0] = "Mai";       break;
-            case  6: tit[0] = "Juni";      break;
-            case  7: tit[0] = "Juli";      break;
-            case  8: tit[0] = "August";    break;
-            case  9: tit[0] = "September"; break;
-            case 10: tit[0] = "Oktober";   break;
-            case 11: tit[0] = "November";  break;
-            case 12: tit[0] = "Dezember";  break;
+            case  1: tit[0] = International.getString("Januar");    break;
+            case  2: tit[0] = International.getString("Februar");   break;
+            case  3: tit[0] = International.getString("März");      break;
+            case  4: tit[0] = International.getString("April");     break;
+            case  5: tit[0] = International.getString("Mai");       break;
+            case  6: tit[0] = International.getString("Juni");      break;
+            case  7: tit[0] = International.getString("Juli");      break;
+            case  8: tit[0] = International.getString("August");    break;
+            case  9: tit[0] = International.getString("September"); break;
+            case 10: tit[0] = International.getString("Oktober");   break;
+            case 11: tit[0] = International.getString("November");  break;
+            case 12: tit[0] = International.getString("Dezember");  break;
             default: tit[0] = ANDEREBEZ;   break;
           }
           tit[0] += " " + lastDatum.jahr;
@@ -2609,10 +2702,10 @@ public class Statistik {
                   String c = "0000ff"; // blau
                   if (fahrtart[j-start+1] == null || fahrtart[j-start+1].equals("")) c = "00ff00"; // grün
                   else if (fahrtart[j-start+1].equals("MEHRERE_FAHRTARTEN")) c = "ffff00"; // gelb
-                  else if (fahrtart[j-start+1].equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_AUSBILDUNG))) c = "00ffff"; // türkis
-                  else if (fahrtart[j-start+1].equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_JUMREGATTA))) c = "ff0000"; // rot
-                  else if (fahrtart[j-start+1].equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_REGATTA))) c = "ff0000"; // rot
-                  else if (fahrtart[j-start+1].equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_TRAINING))) c = "ff00ff"; // lila
+                  else if (fahrtart[j-start+1].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_INSTRUCTION))) c = "00ffff"; // türkis
+                  else if (fahrtart[j-start+1].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_JUMREGATTA))) c = "ff0000"; // rot
+                  else if (fahrtart[j-start+1].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_REGATTA))) c = "ff0000"; // rot
+                  else if (fahrtart[j-start+1].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_TRAINING))) c = "ff00ff"; // lila
 //                  int intens = 9 - (monat[j-start+1] / 100);
 //                  if (intens<0) intens = 0;
                   int intens = 8; // alle Fahrten mit gleicher Intensität färben!
@@ -2694,9 +2787,10 @@ public class Statistik {
   // prüft, ob für die angegebene Person "pers" mit Namen "name" Einträge berechnet werden sollen
   static boolean ignorePerson(StatistikDaten sd, DatenFelder pers, String name, boolean mitruderer) {
     if (sd.art != StatistikDaten.BART_RUDERER) {
-      for (int i=0; i<Daten.bezeichnungen.geschlecht.size(); i++)
-        if (!sd.geschlecht[i] && (pers == null || pers.get(Mitglieder.GESCHLECHT).equals(Daten.bezeichnungen.geschlecht.get(i)))) return true;
-
+      for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_GENDER); i++) {
+        if (!sd.geschlecht[i] && (pers == null || 
+                pers.get(Mitglieder.GESCHLECHT).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_GENDER, i)))) return true;
+      }
 
       // folgender Code dient als Ersatz für die unten ausgeklammerten drei Zeilen!
       // Es soll sichergestellt werden, daß auch bei Fahrtenbüchern mit verschiedenen Statuslisten nur diejenigen Personen
@@ -2751,14 +2845,14 @@ public class Statistik {
       if (!sd.bVerein[sd.bVerein.length-1]) return true;
       return false;
     }
-    for (int i=0; i<Daten.bezeichnungen.bArt.size(); i++)
-      if (!sd.bArt[i] && (boot.get(Boote.ART).equals(Daten.bezeichnungen.bArt.get(i)))) return true;
-    for (int i=0; i<Daten.bezeichnungen.bAnzahl.size(); i++)
-      if (!sd.bAnzahl[i] && (boot.get(Boote.ANZAHL).equals(Daten.bezeichnungen.bAnzahl.get(i)))) return true;
-    for (int i=0; i<Daten.bezeichnungen.bStm.size(); i++)
-      if (!sd.bStm[i] && (boot.get(Boote.STM).equals(Daten.bezeichnungen.bStm.get(i)))) return true;
-    for (int i=0; i<Daten.bezeichnungen.bRigger.size(); i++)
-      if (!sd.bRigger[i] && (boot.get(Boote.RIGGER).equals(Daten.bezeichnungen.bRigger.get(i)))) return true;
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT); i++)
+      if (!sd.bArt[i] && (boot.get(Boote.ART).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_BOAT,i)))) return true;
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS); i++)
+      if (!sd.bAnzahl[i] && (boot.get(Boote.ANZAHL).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_NUMROWERS,i)))) return true;
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_COXING); i++)
+      if (!sd.bStm[i] && (boot.get(Boote.STM).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_COXING,i)))) return true;
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_RIGGING); i++)
+      if (!sd.bRigger[i] && (boot.get(Boote.RIGGER).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_RIGGING,i)))) return true;
     if (!sd.bVerein[0] && (boot.get(Boote.VEREIN).equals(""))) return true;
     if (!sd.bVerein[1] && (!boot.get(Boote.VEREIN).equals(""))) return true;
     return false;
@@ -2781,31 +2875,50 @@ public class Statistik {
         // nichts zu tun
         break;
       case StatistikDaten.ART_WOTAGE: case StatistikDaten.BART_WOTAGE:
-        if (!h.containsKey("Montag")) h.put("Montag",new HashEl("01","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("Dienstag")) h.put("Dienstag",new HashEl("02","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("Mittwoch")) h.put("Mittwoch",new HashEl("03","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("Donnerstag")) h.put("Donnerstag",new HashEl("04","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("Freitag")) h.put("Freitag",new HashEl("05","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("Samstag")) h.put("Samstag",new HashEl("06","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("Sonntag")) h.put("Sonntag",new HashEl("07","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("Montag")))
+            h.put(International.getString("Montag"),new HashEl("01","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("Dienstag")))
+            h.put(International.getString("Dienstag"),new HashEl("02","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("Mittwoch")))
+            h.put(International.getString("Mittwoch"),new HashEl("03","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("Donnerstag")))
+            h.put(International.getString("Donnerstag"),new HashEl("04","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("Freitag")))
+            h.put(International.getString("Freitag"),new HashEl("05","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("Samstag")))
+            h.put(International.getString("Samstag"),new HashEl("06","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("Sonntag")))
+            h.put(International.getString("Sonntag"),new HashEl("07","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.ART_MONATE: case StatistikDaten.BART_MONATE:
-        if (!h.containsKey("Januar")) h.put("Januar",new HashEl("01","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("Februar")) h.put("Februar",new HashEl("02","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("März")) h.put("März",new HashEl("03","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("April")) h.put("April",new HashEl("04","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("Mai")) h.put("Mai",new HashEl("05","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("Juni")) h.put("Juni",new HashEl("06","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("Juli")) h.put("Juli",new HashEl("07","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("August")) h.put("August",new HashEl("08","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("September")) h.put("September",new HashEl("09","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("Oktober")) h.put("Oktober",new HashEl("10","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("November")) h.put("November",new HashEl("11","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
-        if (!h.containsKey("Dezember")) h.put("Dezember",new HashEl("12","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("Januar")))
+            h.put(International.getString("Januar"),new HashEl("01","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("Februar")))
+            h.put(International.getString("Februar"),new HashEl("02","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("März")))
+            h.put(International.getString("März"),new HashEl("03","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("April")))
+            h.put(International.getString("April"),new HashEl("04","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("Mai")))
+            h.put(International.getString("Mai"),new HashEl("05","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("Juni")))
+            h.put(International.getString("Juni"),new HashEl("06","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("Juli")))
+            h.put(International.getString("Juli"),new HashEl("07","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("August")))
+            h.put(International.getString("August"),new HashEl("08","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("September")))
+            h.put(International.getString("September"),new HashEl("09","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("Oktober")))
+            h.put(International.getString("Oktober"),new HashEl("10","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("November")))
+            h.put(International.getString("November"),new HashEl("11","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        if (!h.containsKey(International.getString("Dezember")))
+            h.put(International.getString("Dezember"),new HashEl("12","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.ART_TAGESZEIT: case StatistikDaten.BART_TAGESZEIT:
         for (int hour=0; hour<24; hour++) {
-          String name = hour + " Uhr";
+          String name = International.getMessage("{hour} Uhr",hour);
           String kurz = (hour < 10 ? "0" : "") + hour;
           if (!h.containsKey(name)) h.put(name,new HashEl(kurz,"","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         }
@@ -2831,23 +2944,23 @@ public class Statistik {
           if (!h.containsKey(key=Daten.fahrtenbuch.getDaten().status[i])) h.put(key,new HashEl("",Daten.fahrtenbuch.getDaten().status[i],"",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.BART_ART: case StatistikDaten.ART_BOOTSART:
-        for (int i=0; i<Daten.bezeichnungen.bArt.size(); i++)
-          if (!h.containsKey(Daten.bezeichnungen.bArt.get(i))) h.put(Daten.bezeichnungen.bArt.get(i),new HashEl("",Daten.bezeichnungen.bArt.get(i),"",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT); i++)
+          if (!h.containsKey(Daten.efaTypes.getType(EfaTypes.CATEGORY_BOAT,i))) h.put(Daten.efaTypes.getType(EfaTypes.CATEGORY_BOAT,i),new HashEl("",Daten.efaTypes.getType(EfaTypes.CATEGORY_BOAT,i),"",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.ART_FAHRTART:
-        for (int i=0; i<Daten.bezeichnungen.fahrtart.size(); i++)
-          if (!h.containsKey(Daten.bezeichnungen.fahrtart.get(i))) h.put(Daten.bezeichnungen.fahrtart.get(i),new HashEl("",Daten.bezeichnungen.fahrtart.get(i),"",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++)
+          if (!h.containsKey(Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP,i))) h.put(Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP,i),new HashEl("",Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP,i),"",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.ART_JAHRGANG:
         // nichts zu tun
         break;
       case StatistikDaten.BART_PLAETZE:
-        for (int i=0; i<Daten.bezeichnungen.bAnzahl.size(); i++)
-          if (!h.containsKey(Daten.bezeichnungen.bAnzahl.get(i))) h.put(Daten.bezeichnungen.bAnzahl.get(i),new HashEl(Daten.bezeichnungen.bAnzahl.get(i),"","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS); i++)
+          if (!h.containsKey(Daten.efaTypes.getType(EfaTypes.CATEGORY_NUMROWERS,i))) h.put(Daten.efaTypes.getType(EfaTypes.CATEGORY_NUMROWERS,i),new HashEl(Daten.efaTypes.getType(EfaTypes.CATEGORY_NUMROWERS,i),"","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.ART_GESCHLECHT:
-        for (int i=0; i<Daten.bezeichnungen.geschlecht.size(); i++)
-          if (!h.containsKey(Daten.bezeichnungen.geschlecht.get(i))) h.put(Daten.bezeichnungen.geschlecht.get(i),new HashEl("","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_GENDER); i++)
+          if (!h.containsKey(Daten.efaTypes.getType(EfaTypes.CATEGORY_GENDER,i))) h.put(Daten.efaTypes.getType(EfaTypes.CATEGORY_GENDER,i),new HashEl("","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.ART_FAHRTENBUCH: case StatistikDaten.BART_FAHRTENBUCH:
         // nichts zu tun
@@ -2956,7 +3069,7 @@ public class Statistik {
     // Art der Fahrt überprüfen
     String mtour = d.get(Fahrtenbuch.FAHRTART);
     boolean mtourfound = false; // true, wenn Mehrtagestour in Liste gefunden und in SD auf true gesetzt ist
-    if (mtour.length()==0) {
+    if (mtour.equals(EfaTypes.TYPE_TRIP_NORMAL)) {
       mtourfound = true;
       if (!sd.fahrtart[0]) return; // normale Fahrt == false
     }
@@ -2964,24 +3077,24 @@ public class Statistik {
     if (d.get(Fahrtenbuch.BOOT).length()>0) {
       DatenFelder boot = Daten.fahrtenbuch.getDaten().boote.getExactComplete(d.get(Fahrtenbuch.BOOT));
       if (boot != null &&
-          boot.get(Boote.ART).equals(Daten.bezeichnungen.bArt.get(Bezeichnungen.BART_MOTORBOOT))) {
+          boot.get(Boote.ART).equals(EfaTypes.TYPE_BOAT_MOTORBOAT)) {
         if (sd.stat == StatistikDaten.STAT_WETT) return; // zur Sicherheit (falls Bezeichnungen.FAHRT_MOTORBOOT == -1)
-        if (Bezeichnungen.FAHRT_MOTORBOOT>=0) mtour = Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_MOTORBOOT);
+        if (Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_MOTORBOAT)) mtour = EfaTypes.TYPE_TRIP_MOTORBOAT;
       }
       if (boot != null &&
-          boot.get(Boote.ART).equals(Daten.bezeichnungen.bArt.get(Bezeichnungen.BART_ERGO))) {
+          boot.get(Boote.ART).equals(EfaTypes.TYPE_BOAT_ERG)) {
         if (sd.stat == StatistikDaten.STAT_WETT) return; // zur Sicherheit (falls Bezeichnungen.FAHRT_MOTORBOOT == -1)
-        if (Bezeichnungen.FAHRT_MOTORBOOT>=0) mtour = Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_ERGO);
+        if (Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_ERG)) mtour = EfaTypes.TYPE_TRIP_ERG;
       }
     }
 
-    for (int i=1; i<Daten.bezeichnungen.fahrtart.size()-1; i++)
-      if (mtour.equals(Daten.bezeichnungen.fahrtart.get(i))) {
+    for (int i=1; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP)-1; i++)
+      if (mtour.equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP,i))) {
         mtourfound = true;
         if (!sd.fahrtart[i]) return; // Fahrtart[1..length-1] == false
         break;
       }
-    if (!mtourfound && !sd.fahrtart[Daten.bezeichnungen.fahrtart.size()-1]) return; // Wanderfahrt == false
+    if (!mtourfound && !sd.fahrtart[Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP)-1]) return; // Wanderfahrt == false
 
     // Infos zu Mehrtagesfahrt holen
     Mehrtagesfahrt mehrtagesfahrt = null;
@@ -2994,9 +3107,13 @@ public class Statistik {
             EfaUtil.secondDateIsAfterFirst(_datum,mehrtagesfahrt.start)) ||
            (mehrtagesfahrt.ende != null && mehrtagesfahrt.ende.length()>0 &&
             EfaUtil.secondDateIsAfterFirst(mehrtagesfahrt.ende,_datum)) ) {
-        Dialog.error("Das Datum der Mehrtagesfahrt #"+d.get(Fahrtenbuch.LFDNR)+" ("+_datum+") liegt außerhalb des für\n"+
-                     "diese Fahrt konfigurierten Zeitraums ("+mehrtagesfahrt.start+" - "+mehrtagesfahrt.ende+").\n"+
-                     "Der Eintrag wird daher NICHT ausgewertet.");
+        Dialog.error(International.getMessage("Das Datum des Fahrtenbucheintrags ({entry}) liegt außerhalb des Zeitraums " +
+                " ({date_from} - {date_to}), der für die ausgewählte Mehrtagesfahrt '{name}' angegeben wurde.",
+                     "#" + d.get(Fahrtenbuch.LFDNR) + " " + _datum,
+                     mehrtagesfahrt.start,
+                     mehrtagesfahrt.ende,
+                     mehrtagesfahrt.name) + "\n" +
+                     International.getString("Der Eintrag wird daher NICHT ausgewertet."));
         return;
       }
 
@@ -3008,8 +3125,8 @@ public class Statistik {
              (dateCal.before(sd.bisCal) && dateMCal.after(sd.bisCal)) ) {
           if (d.get(Fahrtenbuch.LFDNR).equals(lastLfdNr)) return;
           lastLfdNr = d.get(Fahrtenbuch.LFDNR);
-          Dialog.meldung("Die Mehrtagesfahrt #"+d.get(Fahrtenbuch.LFDNR)+" liegt nur zum Teil im Berechnungszeitraum\n"+
-                         "und wird daher NICHT ausgewertet!");
+          Dialog.meldung(International.getMessage("Die Mehrtagesfahrt #{number} liegt nur zum Teil im Berechnungszeitraum "+
+                         "und wird daher NICHT ausgewertet!",d.get(Fahrtenbuch.LFDNR)));
           return;
         }
       }
@@ -3249,6 +3366,7 @@ public class Statistik {
         anzZB = new ZielfahrtFolge(zf).getAnzZielfahrten();
       }
       if (anzZB>anzRuderTage) {
+        // @i18n only relevant for Berlin, GER (no need to internationalize)
         Dialog.error("Für Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" sind Zielbereiche für "+anzZB+" Etappen angegeben, aber "+
                      "die Mehrtagesfahrt hat nur "+anzRuderTage+" Rudertage! "+
                      "Die Zielbereiche der Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" wurden daher bei der Auswertung NICHT berücksichtigt! "+
@@ -3261,6 +3379,7 @@ public class Statistik {
       _km = ( (km / anzRuderTage) / 5 ) * 5; // Grundsätzlich werden alle Teiletappen immer auf ganze oder halbe Kilometer gerundet (Bugfix in 1.8.1_05)
 
       if (anzZB >= 1 && _km < Daten.ZIELFAHRTKM) {
+        // @i18n only relevant for Berlin, GER (no need to internationalize)
         Dialog.error("Beim Versuch, die Fahrt #"+d.get(Fahrtenbuch.LFDNR)+" in "+anzRuderTage+" Teilfahrten aufzuteilen, um die "+
                      "Zielfahrten der einzelnen Etappen zu berechnen, hat efa festgestellt, daß die einzelnen "+
                      "Etappen weniger als "+(Daten.ZIELFAHRTKM / 10)+ " Km lang sind und somit keine Zielfahrten darstellen. "+
@@ -3292,13 +3411,14 @@ public class Statistik {
         String thisDate = dateMCal.get(GregorianCalendar.DAY_OF_MONTH)+"."+(dateMCal.get(GregorianCalendar.MONTH)+1)+"."+dateMCal.get(GregorianCalendar.YEAR);
         if ( (mtourEnde != null && EfaUtil.secondDateIsAfterFirst(mtourEnde,thisDate) ) ||
              (mtourStart != null && EfaUtil.secondDateIsAfterFirst(thisDate,mtourStart) ) ) {
-          Dialog.error("Die Angaben zu Anfang und Ende der Mehrtagesfahrt #"+d.get(Fahrtenbuch.LFDNR)+"\n"+
-                       "bzw. die Anzahl der angegebenen Rudertage sind unstimmig.\n"+
-                       "Alle Etappen ab Etappe "+(i+1)+" ("+thisDate+") werden ignoriert.");
+          Dialog.error(International.getMessage("Die Angaben zu Anfang und Ende der Mehrtagesfahrt #{number} "+
+                       "bzw. die Anzahl der angegebenen Rudertage sind unstimmig.",d.get(Fahrtenbuch.LFDNR)) +
+                       "\n" +
+                       International.getMessage("Alle Etappen ab Etappe {number} ({date}) werden ignoriert.",i+1,thisDate));
           return;
         }
         ddd.set(Fahrtenbuch.DATUM,thisDate);
-        ddd.set(Fahrtenbuch.ZIEL,d.get(Fahrtenbuch.ZIEL)+" (Teil "+Integer.toString(i+1)+")");
+        ddd.set(Fahrtenbuch.ZIEL,d.get(Fahrtenbuch.ZIEL)+" (" + International.getMessage("Teil {n}",i+1)+")");
         String teilzf = "";
         ZielfahrtFolge zff = new ZielfahrtFolge(zf);
         if (zff.getAnzZielfahrten() > i) teilzf = zff.getZielfahrt(i).getBereiche();
@@ -3338,21 +3458,24 @@ public class Statistik {
         break;
       case StatistikDaten.ART_KMFAHRT: case StatistikDaten.BART_KMFAHRT:
         if (sd.kmfahrt_gruppiert) {
-          for (int k=0; k<=Math.abs(km); k+=50)
-            if (Math.abs(km)<=k+49) name = EfaUtil.zehntelInt2String(k) + " bis " + EfaUtil.zehntelInt2String(k+49);
+          for (int k=0; k<=Math.abs(km); k+=50) {
+            if (Math.abs(km)<=k+49) {
+                name = International.getMessage("{begin} bis {end}",EfaUtil.zehntelInt2String(k),EfaUtil.zehntelInt2String(k+49));
+            }
+          }
         } else name = d.get(Fahrtenbuch.BOOTSKM);
         if ( (ges = (HashEl)h.get(name)) == null) h.put(name,new HashEl("","","",rudKm,stmKm,mannschKm,dauer,eins,new ZielfahrtFolge(zf),null,null,null));
         else h.put(name,new HashEl("","","",rudKm + ges.rudKm, stmKm + ges.stmKm, ges.mannschKm + mannschKm, ges.dauer + dauer, eins+ges.anz,ges.zf.addZielfahrten(zf),null,null,null));
         break;
       case StatistikDaten.ART_WOTAGE: case StatistikDaten.BART_WOTAGE:
         switch (dateCal.get(GregorianCalendar.DAY_OF_WEEK)) {
-          case GregorianCalendar.MONDAY:    name = "Montag";    jahrgang = "01"; break;
-          case GregorianCalendar.TUESDAY:   name = "Dienstag";  jahrgang = "02"; break;
-          case GregorianCalendar.WEDNESDAY: name = "Mittwoch";  jahrgang = "03"; break;
-          case GregorianCalendar.THURSDAY:  name = "Donnerstag";jahrgang = "04"; break;
-          case GregorianCalendar.FRIDAY:    name = "Freitag";   jahrgang = "05"; break;
-          case GregorianCalendar.SATURDAY:  name = "Samstag";   jahrgang = "06"; break;
-          case GregorianCalendar.SUNDAY:    name = "Sonntag";   jahrgang = "07"; break;
+          case GregorianCalendar.MONDAY:    name = International.getString("Montag");    jahrgang = "01"; break;
+          case GregorianCalendar.TUESDAY:   name = International.getString("Dienstag");  jahrgang = "02"; break;
+          case GregorianCalendar.WEDNESDAY: name = International.getString("Mittwoch");  jahrgang = "03"; break;
+          case GregorianCalendar.THURSDAY:  name = International.getString("Donnerstag");jahrgang = "04"; break;
+          case GregorianCalendar.FRIDAY:    name = International.getString("Freitag");   jahrgang = "05"; break;
+          case GregorianCalendar.SATURDAY:  name = International.getString("Samstag");   jahrgang = "06"; break;
+          case GregorianCalendar.SUNDAY:    name = International.getString("Sonntag");   jahrgang = "07"; break;
           default:                          name = ANDEREBEZ;   jahrgang = "99"; break;
         }
         if ( (ges = (HashEl)h.get(name)) == null) h.put(name,new HashEl(jahrgang,"","",rudKm,stmKm,mannschKm,dauer,eins,new ZielfahrtFolge(zf),null,null,null));
@@ -3360,18 +3483,18 @@ public class Statistik {
         break;
       case StatistikDaten.ART_MONATE: case StatistikDaten.BART_MONATE:
         switch (dateCal.get(GregorianCalendar.MONTH)) {
-          case GregorianCalendar.JANUARY:   name = "Januar";    jahrgang = "01"; break;
-          case GregorianCalendar.FEBRUARY:  name = "Februar";   jahrgang = "02"; break;
-          case GregorianCalendar.MARCH:     name = "März";      jahrgang = "03"; break;
-          case GregorianCalendar.APRIL:     name = "April";     jahrgang = "04"; break;
-          case GregorianCalendar.MAY:       name = "Mai";       jahrgang = "05"; break;
-          case GregorianCalendar.JUNE:      name = "Juni";      jahrgang = "06"; break;
-          case GregorianCalendar.JULY:      name = "Juli";      jahrgang = "07"; break;
-          case GregorianCalendar.AUGUST:    name = "August";    jahrgang = "08"; break;
-          case GregorianCalendar.SEPTEMBER: name = "September"; jahrgang = "09"; break;
-          case GregorianCalendar.OCTOBER:   name = "Oktober";   jahrgang = "10"; break;
-          case GregorianCalendar.NOVEMBER:  name = "November";  jahrgang = "11"; break;
-          case GregorianCalendar.DECEMBER:  name = "Dezember";  jahrgang = "12"; break;
+          case GregorianCalendar.JANUARY:   name = International.getString("Januar");    jahrgang = "01"; break;
+          case GregorianCalendar.FEBRUARY:  name = International.getString("Februar");   jahrgang = "02"; break;
+          case GregorianCalendar.MARCH:     name = International.getString("März");      jahrgang = "03"; break;
+          case GregorianCalendar.APRIL:     name = International.getString("April");     jahrgang = "04"; break;
+          case GregorianCalendar.MAY:       name = International.getString("Mai");       jahrgang = "05"; break;
+          case GregorianCalendar.JUNE:      name = International.getString("Juni");      jahrgang = "06"; break;
+          case GregorianCalendar.JULY:      name = International.getString("Juli");      jahrgang = "07"; break;
+          case GregorianCalendar.AUGUST:    name = International.getString("August");    jahrgang = "08"; break;
+          case GregorianCalendar.SEPTEMBER: name = International.getString("September"); jahrgang = "09"; break;
+          case GregorianCalendar.OCTOBER:   name = International.getString("Oktober");   jahrgang = "10"; break;
+          case GregorianCalendar.NOVEMBER:  name = International.getString("November");  jahrgang = "11"; break;
+          case GregorianCalendar.DECEMBER:  name = International.getString("Dezember");  jahrgang = "12"; break;
           default:                          name = ANDEREBEZ;   jahrgang = "99"; break;
         }
         if ( (ges = (HashEl)h.get(name)) == null) h.put(name,new HashEl(jahrgang,"","",rudKm,stmKm,mannschKm,dauer,eins,new ZielfahrtFolge(zf),null,null,null));
@@ -3411,7 +3534,7 @@ public class Statistik {
 
           for (int hour=0; hour<24; hour++) {
             if (_hour[hour]) {
-              name = hour + " Uhr";
+              name = International.getMessage("{hour} Uhr",hour);
               jahrgang = (hour<10 ? "0" : "") + hour;
               if ( (ges = (HashEl)h.get(name)) == null) h.put(name,new HashEl(jahrgang,"","",_rudKm[hour],_stmKm[hour],_mannschKm[hour],_dauer[hour],eins,new ZielfahrtFolge(zf),null,null,null));
               else h.put(name,new HashEl(jahrgang,"","",_rudKm[hour] + ges.rudKm, _stmKm[hour] + ges.stmKm, ges.mannschKm + _mannschKm[hour], ges.dauer + _dauer[hour], eins+ges.anz, ges.zf.addZielfahrten(zf),null,null,null));
@@ -3431,13 +3554,13 @@ public class Statistik {
         break;
       case StatistikDaten.ART_STATUS: case StatistikDaten.BART_ART:
         name = status;
-        if (name.equals("")) name="unbekannt";
+        if (name.equals("")) name=International.getString("unbekannt");
         if ( (ges = (HashEl)h.get(name)) == null) h.put(name,new HashEl("",status,"",rudKm,stmKm,mannschKm,dauer,eins*anzRuderTage,new ZielfahrtFolge(zf),null,null,null));
         else h.put(name,new HashEl("",status,"",rudKm + ges.rudKm, stmKm + ges.stmKm, ges.mannschKm + mannschKm, ges.dauer + dauer, eins*anzRuderTage + ges.anz, ges.zf.addZielfahrten(zf),null,null,null));
         break;
       case StatistikDaten.ART_JAHRGANG: case StatistikDaten.BART_PLAETZE:
         name = jahrgang;
-        if (name.equals("")) name="unbekannt";
+        if (name.equals("")) name=International.getString("unbekannt");
         if ( (ges = (HashEl)h.get(name)) == null) h.put(name,new HashEl(jahrgang,"","",rudKm,stmKm,mannschKm,dauer,eins*anzRuderTage,new ZielfahrtFolge(zf),null,null,null));
         else h.put(name,new HashEl(jahrgang,"","",rudKm + ges.rudKm, stmKm + ges.stmKm, ges.mannschKm + mannschKm, ges.dauer + dauer,eins*anzRuderTage + ges.anz, ges.zf.addZielfahrten(zf),null,null,null));
         break;
@@ -3456,20 +3579,20 @@ public class Statistik {
           }
         }
         name = bezeichnung;
-        if (name.trim().equals("")) name="unbekannt";
+        if (name.trim().equals("")) name=International.getString("unbekannt");
         if ( (ges = (HashEl)h.get(name)) == null) h.put(name,new HashEl(jahrgang,status,bezeichnung,rudKm,stmKm,mannschKm,dauer,eins*anzRuderTage,new ZielfahrtFolge(zf),null,null,null));
         else h.put(name,new HashEl(jahrgang,status,bezeichnung,rudKm + ges.rudKm, stmKm + ges.stmKm, ges.mannschKm + mannschKm, ges.dauer + dauer,eins*anzRuderTage + ges.anz, ges.zf.addZielfahrten(zf),null,null,null));
         break;
       case StatistikDaten.ART_GESCHLECHT:
         name = geschlecht;
-        if (name.equals("")) name="unbekannt";
+        if (name.equals("")) name=International.getString("unbekannt");
         if ( (ges = (HashEl)h.get(name)) == null) h.put(name,new HashEl("","","",rudKm,stmKm,mannschKm,dauer,eins*anzRuderTage,new ZielfahrtFolge(zf),null,null,null));
         else h.put(name,new HashEl("","","",rudKm + ges.rudKm, stmKm + ges.stmKm, ges.mannschKm + mannschKm, ges.dauer + dauer,eins*anzRuderTage + ges.anz, ges.zf.addZielfahrten(zf),null,null,null));
         break;
       case StatistikDaten.ART_FAHRTART:
         name = mtour;
-        if (!mtourfound) name = Daten.bezeichnungen.fahrtart.get(Daten.bezeichnungen.fahrtart.size()-1);
-        if (name.equals("")) name=Daten.bezeichnungen.fahrtart.get(0);
+        if (!mtourfound) name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_MULTIDAY);
+        if (name.equals("")) name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_NORMAL);
         if ( (ges = (HashEl)h.get(name)) == null) h.put(name,new HashEl("","","",rudKm,stmKm,mannschKm,dauer,eins*anzRuderTage,new ZielfahrtFolge(zf),null,null,null));
         else h.put(name,new HashEl("","","",rudKm + ges.rudKm, stmKm + ges.stmKm, ges.mannschKm + mannschKm, ges.dauer + dauer,eins*anzRuderTage + ges.anz, ges.zf.addZielfahrten(zf),null,null,null));
         break;
@@ -3541,7 +3664,7 @@ public class Statistik {
         }
         break;
       case StatistikDaten.ART_WERMITBOOTSART:
-        String bootsart = "unbekannt";
+        String bootsart = International.getString("unbekannt");
         if (d.get(Fahrtenbuch.BOOT).trim().length()>0) {
           DatenFelder b = Daten.fahrtenbuch.getDaten().boote.getExactComplete(d.get(Fahrtenbuch.BOOT).trim());
           if (b != null) bootsart = Boote.getDetailBezeichnung(b);
@@ -3593,8 +3716,8 @@ public class Statistik {
         break;
       case StatistikDaten.ART_WERMITFAHRTART:
         String fahrtart = mtour;
-        if (!mtourfound) fahrtart = Daten.bezeichnungen.fahrtart.get(Daten.bezeichnungen.fahrtart.size()-1);
-        if (fahrtart.equals("")) fahrtart=Daten.bezeichnungen.fahrtart.get(0);
+        if (!mtourfound) name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_MULTIDAY);
+        if (name.equals("")) name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_NORMAL);
 
         if ( (ges = (HashEl)h.get(name)) == null) { // schauen, ob für akt. Person bereits Eintrag vorhanden
           Hashtable ww = new Hashtable(); // --> nein, neue Person --> dann auch alles neue Ziele
@@ -3666,7 +3789,8 @@ public class Statistik {
         if (sd.fbMannschKm) as[9] =d.get(Fahrtenbuch.MANNSCHKM);
         if (sd.fbBemerkungen) {
           as[10] = d.get(Fahrtenbuch.BEMERK);
-          if (sd.fbZielbereichInBemerkungen && zf.length()>0) as[10] = (as[10].length() > 0 ? as[10]+"; " : "") + "Zielbereiche: "+zf;
+          if (sd.fbZielbereichInBemerkungen && zf.length()>0) as[10] = (as[10].length() > 0 ? as[10]+"; " : "") + 
+                  International.onlyFor("Zielbereiche","de")+": "+zf;
           if (sd.fbFahrtartInBemerkungen && mtour.length()>0) as[10] =
             (as[10].length() > 0 ? as[10]+"; " : "") + mtour;
 
@@ -3675,7 +3799,7 @@ public class Statistik {
         break;
       case StatistikDaten.ART_MONATSUEBERSICHT:
         TMJ tmp2 = EfaUtil.string2date(d.get(Fahrtenbuch.DATUM),0,0,0);
-        if (tmp2.jahr == 0 || tmp2.monat == 0 || tmp2.tag == 0) name = "unbekannt";
+        if (tmp2.jahr == 0 || tmp2.monat == 0 || tmp2.tag == 0) name = International.getString("unbekannt");
         else name = tmp2.jahr + "/" + (tmp2.monat<10 ? "0" : "")+tmp2.monat + "/" + (tmp2.tag<10 ? "0" : "")+tmp2.tag;
         int iii = 0;
         while (h.get(name) != null) name = name + (iii == 0 ? " " : "") + (iii++);
@@ -3684,7 +3808,7 @@ public class Statistik {
       case StatistikDaten.WETT_DRV:
         if ( (ges = (HashEl)h.get(name)) == null) {
           KmWettInfo kmwett = new KmWettInfo();
-          if (geschlecht.equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH))) kmwett.geschlecht = 0;
+          if (geschlecht.equals(EfaTypes.TYPE_GENDER_MALE)) kmwett.geschlecht = 0;
           else kmwett.geschlecht = 1;
           kmwett.behinderung = behinderung;
 
@@ -3699,7 +3823,7 @@ public class Statistik {
         if ( (rudKm+stmKm) % 5 > 0) rudKm += 5 - (rudKm+stmKm) % 5; // auf .5 oder .0 aufrunden
         if ( (ges = (HashEl)h.get(name)) == null) {
           KmWettInfo kmwett = new KmWettInfo();
-          if (geschlecht.equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH))) kmwett.geschlecht = 0;
+          if (geschlecht.equals(EfaTypes.TYPE_GENDER_MALE)) kmwett.geschlecht = 0;
           else kmwett.geschlecht = 1;
           kmwett.behinderung = behinderung;
           if (zf.length()>0) wettAddZf(kmwett,d.get(Fahrtenbuch.DATUM),d.get(Fahrtenbuch.ZIEL),d.get(Fahrtenbuch.BOOTSKM),zf);
@@ -3714,7 +3838,7 @@ public class Statistik {
         if (rudKm + stmKm == 0) return; // keine 0Km-Fahrten werten, da diese sonst unberechtigt zur Erfüllung der Regel "mind 8 Fahrten / mind 3 Monate" führen könnte
         if ( (ges = (HashEl)h.get(name)) == null) {
           KmWettInfo kmwett = new KmWettInfo();
-          if (geschlecht.equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH))) kmwett.geschlecht = 0;
+          if (geschlecht.equals(EfaTypes.TYPE_GENDER_MALE)) kmwett.geschlecht = 0;
           else kmwett.geschlecht = 1;
           kmwett.behinderung = behinderung;
           wettAddWinter(kmwett,d.get(Fahrtenbuch.DATUM),d.get(Fahrtenbuch.ZIEL),d.get(Fahrtenbuch.BOOTSKM),mehrtagesfahrt,sd);
@@ -3728,6 +3852,7 @@ public class Statistik {
         // Berechnung der Teilnehmerkilometer
         int jjj = EfaUtil.string2int(jahrgang,0);
         if (jjj == 0) {
+          // @i18n only Germany, no need to translate
           String wtext = "Das Alter des Teilnehmers '"+name+"' konnte nicht ermittelt werden, da sein/ihr Jahrgang "+
                          "nicht in efa erfaßt ist! Fahrten dieses Teilnehmers werden ignoriert.\n";
           if (warnungen.indexOf(wtext)<0) warnungen += wtext; // keine doppelten Warnungen hinzuf�gen
@@ -3740,13 +3865,13 @@ public class Statistik {
         // Anzahl der aktiven Ruderer ermitteln
         if (km >= 10) { // mind. 1 Km gerudert
           if (alter>18) { // über 18 Jahre
-            if (geschlecht.equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH))) { // männlich
+            if (geschlecht.equals(EfaTypes.TYPE_GENDER_MALE)) { // männlich
               alleAktive.put(name,AKTIV_M_AB19);
             } else { // weiblich
               alleAktive.put(name,AKTIV_W_AB19);
             }
           } else { // bis 18 Jahre
-            if (geschlecht.equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH))) { // männlich
+            if (geschlecht.equals(EfaTypes.TYPE_GENDER_MALE)) { // männlich
               alleAktive.put(name,AKTIV_M_BIS18);
             } else { // weiblich
               alleAktive.put(name,AKTIV_W_BIS18);
@@ -3818,6 +3943,7 @@ public class Statistik {
               kmwett.drvWafaStat_etappen.put(etappenName,new Integer(km));
             }
 
+            // @i18n only Germany, no need to translate
             String newWarn = "Etappe '"+fahrtname+": "+etappenName+"' kommt mit unterschiedlichen Entfernungen ("+
                              EfaUtil.zehntelInt2String(oldvalue)+" und "+EfaUtil.zehntelInt2String(km)+
                              " Km) vor (Wert '"+EfaUtil.zehntelInt2String(integer.intValue())+" Km' wird verwendet)!";
@@ -3830,7 +3956,7 @@ public class Statistik {
 
         // Kilometer für einzelne Altersgruppen hinzufügen
         if (alter>18) { // über 18 Jahre
-          if (geschlecht.equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH))) { // männlich
+          if (geschlecht.equals(EfaTypes.TYPE_GENDER_MALE)) { // männlich
             integer = (Integer)kmwett.drvWafaStat_teilnMueber18.get(name);
             if (integer == null) kmwett.drvWafaStat_teilnMueber18.put(name,new Integer(km));
             else kmwett.drvWafaStat_teilnMueber18.put(name,new Integer(integer.intValue()+km));
@@ -3840,7 +3966,7 @@ public class Statistik {
             else kmwett.drvWafaStat_teilnFueber18.put(name,new Integer(integer.intValue()+km));
           }
         } else { // bis 18 Jahre
-          if (geschlecht.equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH))) { // männlich
+          if (geschlecht.equals(EfaTypes.TYPE_GENDER_MALE)) { // männlich
             integer = (Integer)kmwett.drvWafaStat_teilnMbis18.get(name);
             if (integer == null) kmwett.drvWafaStat_teilnMbis18.put(name,new Integer(km));
             else kmwett.drvWafaStat_teilnMbis18.put(name,new Integer(integer.intValue()+km));
@@ -3860,15 +3986,15 @@ public class Statistik {
       case StatistikDaten.WETT_LRVBRB_FAHRTENWETT:
         // Gigboot-Kilometer
         int gigbootkm = 0;
-        if (Daten.fahrtenbuch.getDaten().boote != null && Daten.bezeichnungen != null) {
+        if (Daten.fahrtenbuch.getDaten().boote != null) {
           DatenFelder b = Daten.fahrtenbuch.getDaten().boote.getExactComplete(d.get(Fahrtenbuch.BOOT));
-          if (b != null && Daten.bezeichnungen.isGigBoot(b.get(Boote.ART))) gigbootkm += rudKm+stmKm;
+          if (b != null && EfaTypes.isGigBoot(b.get(Boote.ART))) gigbootkm += rudKm+stmKm;
         }
 
         String[] gigfahrtBRB = null;
-        if (Daten.fahrtenbuch.getDaten().boote != null && Daten.bezeichnungen != null) {
+        if (Daten.fahrtenbuch.getDaten().boote != null) {
           DatenFelder b = Daten.fahrtenbuch.getDaten().boote.getExactComplete(d.get(Fahrtenbuch.BOOT));
-          if (b != null && Daten.bezeichnungen.isGigBoot(b.get(Boote.ART)) &&
+          if (b != null && EfaTypes.isGigBoot(b.get(Boote.ART)) &&
               rudKm+stmKm >= 200) {
             gigfahrtBRB = new String[6];
             gigfahrtBRB[0] = d.get(Fahrtenbuch.LFDNR);
@@ -3882,7 +4008,7 @@ public class Statistik {
 
         if ( (ges = (HashEl)h.get(name)) == null) {
           KmWettInfo kmwett = new KmWettInfo();
-          if (geschlecht.equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH))) kmwett.geschlecht = 0;
+          if (geschlecht.equals(EfaTypes.TYPE_GENDER_MALE)) kmwett.geschlecht = 0;
           else kmwett.geschlecht = 1;
           kmwett.behinderung = behinderung;
 
@@ -3906,9 +4032,9 @@ public class Statistik {
         int gigboot20plus = 0;
         int gigboot30plus = 0;
         String[] gigfahrt = null;
-        if (Daten.fahrtenbuch.getDaten().boote != null && Daten.bezeichnungen != null) {
+        if (Daten.fahrtenbuch.getDaten().boote != null) {
           DatenFelder b = Daten.fahrtenbuch.getDaten().boote.getExactComplete(d.get(Fahrtenbuch.BOOT));
-          if (b != null && Daten.bezeichnungen.isGigBoot(b.get(Boote.ART))) {
+          if (b != null && EfaTypes.isGigBoot(b.get(Boote.ART))) {
             gigbootkm2 += rudKm+stmKm;
             gigbootanz++;
             if (gigbootkm2 >= 300) {
@@ -3928,7 +4054,7 @@ public class Statistik {
 
         if ( (ges = (HashEl)h.get(name)) == null) {
           KmWettInfo kmwett = new KmWettInfo();
-          if (geschlecht.equals(Daten.bezeichnungen.geschlecht.get(Bezeichnungen.GESCHLECHT_MAENNLICH))) kmwett.geschlecht = 0;
+          if (geschlecht.equals(EfaTypes.TYPE_GENDER_MALE)) kmwett.geschlecht = 0;
           else kmwett.geschlecht = 1;
           kmwett.behinderung = behinderung;
 
@@ -4055,13 +4181,12 @@ public class Statistik {
 
   static boolean mayBeWafa(String mTour, int bootskm) {
     if (mTour == null) return false;
-    if (mTour.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_TRAINING)) ||
-        mTour.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_TRAININGSLAGER)) ||
-        mTour.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_KILOMETERNACHTRAG)) ||
-        mTour.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_REGATTA)) ||
-        mTour.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_JUMREGATTA))) return false; // Trainings-Fahrten und Regatten zählen nicht
-    for (int i=1; i<Daten.bezeichnungen.fahrtart.size()-1; i++) // vordefinierte Fahrtarten sind keine Mehrtagesfahrten
-      if (mTour.equals(Daten.bezeichnungen.fahrtart.get(i))) mTour="";
+    if (mTour.equals(EfaTypes.TYPE_TRIP_TRAINING) ||
+        mTour.equals(EfaTypes.TYPE_TRIP_TRAININGCAMP) ||
+        mTour.equals(EfaTypes.TYPE_TRIP_LATEENTRY) ||
+        mTour.equals(EfaTypes.TYPE_TRIP_REGATTA) ||
+        mTour.equals(EfaTypes.TYPE_TRIP_JUMREGATTA)) return false; // Trainings-Fahrten und Regatten zählen nicht
+    if (Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_TRIP, mTour)) mTour=""; // vordefinierte Fahrtarten sind keine Mehrtagesfahrten
     if (mTour.equals("") && bootskm < Daten.WAFAKM) return false; // Eintagestour
     return true; // könnte eine Mehrtagesfahrt sein (bei Mehrtagesfahrten aber nur ab 40 Km!)
   }
@@ -4070,7 +4195,7 @@ public class Statistik {
   // Wanderfahrt für DRV-Wettbewerb hinzufügen
   static void wettAddWafa(KmWettInfo kmwett, String lfdnr, String datum, String ziel, String km, String bemerk, int bootskm, String mtourName, Mehrtagesfahrt mtour) {
     if (kmwett == null) return;
-    boolean jum = mtourName.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_JUMREGATTA));
+    boolean jum = mtourName.equals(EfaTypes.TYPE_TRIP_JUMREGATTA);
 
     if (!mayBeWafa(mtourName,bootskm) && !jum) return;
 
@@ -4118,7 +4243,7 @@ public class Statistik {
         fahrt.jum = false;
 
         if (jum) {
-          fahrt.ziel = ziel + " ("+Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_JUMREGATTA)+")";
+          fahrt.ziel = ziel + " ("+Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_JUMREGATTA)+")";
           fahrt.anzTage = 1;
           fahrt.ok = false; // denn: ok wird als gültige Mehrtagesfahrt gewertet...
           fahrt.jum = true;
@@ -4180,7 +4305,7 @@ public class Statistik {
       } else {
         s = d.get(Fahrtenbuch.BOOT);
         if (s.length()==0) {
-          s = "<unbekanntes Boot>";
+          s = "<" + International.getString("unbekanntes Boot") + ">";
         }
         calc(s,false,d,h,sd,false,null,-1);
       }
@@ -4317,7 +4442,7 @@ public class Statistik {
           else s = w.w_kilometer;
           if (w.w_erfuellt) ok[i]++;
         }
-        if (ae.zusammenfassung) s = "erfüllt: "+ok[i];
+        if (ae.zusammenfassung) s = International.getString("erfüllt")+": "+ok[i];
         if (sd.zusatzWett[i]-200 == WettDefs.DRV_FAHRTENABZEICHEN)      ae.zusatzDRV = s;
         if (sd.zusatzWett[i]-200 == WettDefs.LRVBERLIN_SOMMER)          ae.zusatzLRVBSommer = s;
         if (sd.zusatzWett[i]-200 == WettDefs.LRVBERLIN_WINTER)          ae.zusatzLRVBWinter = s;
@@ -4355,25 +4480,32 @@ public class Statistik {
     if (isCreateRunning) return;
     isCreateRunning = true;
 
+    if (GASTBEZ == null) {
+        GASTBEZ = Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST);
+    }
+    if (ANDEREBEZ == null) {
+        ANDEREBEZ = Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_OTHER);
+    }
+
     for (int i=0; i<sd.length; i++) {
       if (sd[i].art >= 200) {
         if (Daten.wettDefs == null) {
-          Dialog.error("Keine Wettbewerbsdefinitionen gefunden!");
+          Dialog.error(International.getString("Keine Wettbewerbsdefinitionen gefunden!"));
           return;
         }
         if (Daten.wettDefs.getWettDef(sd[i].art-200,sd[i].wettJahr) == null) {
-          Dialog.error("Keine Wettbewerbsdefinition für Wettbewerbsjahr "+sd[i].wettJahr+" gefunden!");
+          Dialog.error(International.getMessage("Keine Wettbewerbsdefinition für Wettbewerbsjahr {year} gefunden!",sd[i].wettJahr));
           return;
         }
       }
       if (sd[i].zusatzWett != null) {
         for (int j=0; j<sd[i].zusatzWett.length; j++) {
           if (sd[i].zusatzWett[j] >= 200 && Daten.wettDefs == null) {
-            Dialog.error("Keine Wettbewerbsdefinitionen gefunden!");
+            Dialog.error(International.getString("Keine Wettbewerbsdefinitionen gefunden!"));
             return;
           }
           if (sd[i].zusatzWett[j] >= 200 && Daten.wettDefs.getWettDef(sd[i].zusatzWett[j]-200,sd[i].zusatzWettjahr[j]) == null) {
-            Dialog.error("Keine Wettbewerbsdefinition für Wettbewerbsjahr "+sd[i].zusatzWettjahr[j]+" gefunden!");
+            Dialog.error(International.getMessage("Keine Wettbewerbsdefinition für Wettbewerbsjahr {year} gefunden!",sd[i].zusatzWettjahr[j]));
             return;
           }
         }
@@ -4386,7 +4518,7 @@ public class Statistik {
 
 
     for (int i=0; i<sd.length; i++) {
-      progressMessage = "Vorbereiten...";
+      progressMessage = International.getString("Vorbereiten ...");
       progressCurrent = 1;
 
       // temporäre Datei erstellen?
@@ -4414,7 +4546,8 @@ public class Statistik {
             s = s.substring(pos+1,s.length());
           } else {
             progressCurrent = progressLength; // damit Progressbar den Dialog nicht verdeckt
-            Dialog.error("Kein Nutzername für FTP-Upload angegeben!\nFormat: ftp://nutzername:passwort@mein.server.de/ein/verzeichnis/datei.html");
+            Dialog.error(International.getString("Kein Nutzername für FTP-Upload angegeben!") +
+                    "\n" + International.getString("Format: ftp://nutzername:passwort@mein.server.de/ein/verzeichnis/datei.html"));
             continue;
           }
           pos = s.indexOf("@"); // Password
@@ -4423,7 +4556,8 @@ public class Statistik {
             s = s.substring(pos+1,s.length());
           } else {
             progressCurrent = progressLength; // damit Progressbar den Dialog nicht verdeckt
-            Dialog.error("Kein Passwort für FTP-Upload angegeben!\nFormat: ftp://nutzername:passwort@mein.server.de/ein/verzeichnis/datei.html");
+            Dialog.error(International.getString("Kein Passwort für FTP-Upload angegeben!") +
+                    "\n" + International.getString("Format: ftp://nutzername:passwort@mein.server.de/ein/verzeichnis/datei.html"));
             continue;
           }
           pos = s.indexOf("/"); // Hostname
@@ -4432,7 +4566,8 @@ public class Statistik {
             s = s.substring(pos,s.length());
           } else {
             progressCurrent = progressLength; // damit Progressbar den Dialog nicht verdeckt
-            Dialog.error("Kein Servername für FTP-Upload angegeben!\nFormat: ftp://nutzername:passwort@mein.server.de/ein/verzeichnis/datei.html");
+            Dialog.error(International.getString("Kein Servername für FTP-Upload angegeben!") +
+                    "\n" + International.getString("Format: ftp://nutzername:passwort@mein.server.de/ein/verzeichnis/datei.html"));
             continue;
           }
           pos = s.lastIndexOf("/"); // Directory & Filename
@@ -4445,7 +4580,8 @@ public class Statistik {
           }
           if (sd[i].ftpFilename.length()==0) {
             progressCurrent = progressLength; // damit Progressbar den Dialog nicht verdeckt
-            Dialog.error("Kein Dateiname für FTP-Upload angegeben!\nFormat: ftp://nutzername:passwort@mein.server.de/ein/verzeichnis/datei.html");
+            Dialog.error(International.getString("Kein Dateiname für FTP-Upload angegeben!") +
+                    "\n" + International.getString("Format: ftp://nutzername:passwort@mein.server.de/ein/verzeichnis/datei.html"));
             continue;
           }
           sd[i].ausgabeDatei = Daten.efaTmpDirectory+sd[i].ftpFilename;
@@ -4484,11 +4620,15 @@ public class Statistik {
         }
         int progressBefore = progressCurrent;
         progressCurrent = progressLength; // damit Progressbar den Dialog nicht verdeckt
-        sd[i].name = SimpleInputFrame.showInputDialog("Namen eingeben","Bitte gib den Namen "+
-                                                      (sd[i].stat == StatistikDaten.STAT_BOOTE ? "des Boots an, für das" :
-                                                       (sd[i].nameOderGruppe == StatistikDaten.NG_NAME ? "der Person an, für die" :
-                                                       "der Gruppe an, für die") )+
-                                                      " diese Statistik erstellt werden soll:",d,(javax.swing.JDialog)null);
+        String msg = null;
+        if (sd[i].stat == StatistikDaten.STAT_BOOTE) {
+            msg = International.getString("Bitte gib den Namen des Boots an, für das diese Statistik erstellt werden soll:");
+        } else if (sd[i].nameOderGruppe == StatistikDaten.NG_NAME) {
+            msg = International.getString("Bitte gib den Namen der Person an, für die diese Statistik erstellt werden soll:");
+        } else {
+            msg = International.getString("Bitte gib den Namen der Gruppe an, für die diese Statistik erstellt werden soll:");
+        }
+        sd[i].name = SimpleInputFrame.showInputDialog(International.getString("Namen eingeben"),msg,d,(javax.swing.JDialog)null);
         progressCurrent = progressBefore;
         if (sd[i].name == null) sd[i].name="";
 
@@ -4498,9 +4638,10 @@ public class Statistik {
             sd[i].name.length() > 0 && Daten.fahrtenbuch != null && Daten.fahrtenbuch.getDaten().mitglieder != null) {
           DatenFelder dm = Daten.fahrtenbuch.getDaten().mitglieder.getExactComplete(sd[i].name);
           if (dm != null && dm.get(Mitglieder.PASSWORT).length()>0) {
-            char[] pwd = EnterPasswordFrame.enterPassword(Dialog.frameCurrent(),"Bitte Paßwort für "+sd[i].name+" eingeben:");
+            char[] pwd = EnterPasswordFrame.enterPassword(Dialog.frameCurrent(),
+                    International.getMessage("Bitte Paßwort für {name} eingeben",sd[i].name)+ ":");
             if (pwd == null || !(new String(pwd)).equals(dm.get(Mitglieder.PASSWORT))) {
-              Dialog.error("Ungültiges Paßwort!");
+              Dialog.error(International.getString("Ungültiges Paßwort!"));
               sd[i].name = "";
             }
           }
@@ -4523,19 +4664,19 @@ public class Statistik {
         }
 
         if (sd[i].von.tag == 1 && sd[i].von.monat == 1 && sd[i].von.jahr == 1) { // keine Angabe des Startzeitraums
-          sd[i].von = new TMJ(1,1,EfaUtil.correctDate(EfaUtil.correctDate("heute"),0,0,0).jahr-1); // 1.1. des Vorjahres
+          sd[i].von = new TMJ(1,1,EfaUtil.correctDate(EfaUtil.correctDate("today"),0,0,0).jahr-1); // 1.1. des Vorjahres
           sd[i].vonCal = sd[i].von.toCalendar();
         }
         if (sd[i].bis.tag == 31 && sd[i].bis.monat == 12 && sd[i].bis.jahr == 9999) { // keine Angabe des Startzeitraums
-          sd[i].bis = EfaUtil.correctDate(EfaUtil.correctDate("heute"),0,0,0); // heute
+          sd[i].bis = EfaUtil.correctDate(EfaUtil.correctDate("today"),0,0,0); // heute
           sd[i].bisCal = sd[i].bis.toCalendar();
         }
         if (sd[i].von.jahr+1 != sd[i].bis.jahr) {
-          Dialog.error("Beginn und Ende der Auswertung müssen im gleichen Jahr liegen!");
+          Dialog.error(International.getString("Beginn und Ende der Auswertung müssen im gleichen Jahr liegen!"));
           continue;
         }
         if (sd[i].von.monat > sd[i].bis.monat || (sd[i].von.monat == sd[i].bis.monat && sd[i].von.tag > sd[i].bis.tag)) {
-          Dialog.error("Tag und Monat des Beginns der Auswertung müssen vor Tag und Monat des Endes liegen!");
+          Dialog.error(International.getString("Tag und Monat des Beginns der Auswertung müssen vor Tag und Monat des Endes liegen!"));
           continue;
         }
       }
@@ -4543,8 +4684,8 @@ public class Statistik {
       // bei Wettbewerben Motorboote und Ergos ignorieren
       if (sd[i].stat == StatistikDaten.STAT_WETT) {
         for (int fi = 0; fi < sd[i].fahrtart.length; fi++) {
-          if (fi == Bezeichnungen.FAHRT_MOTORBOOT ||
-              fi == Bezeichnungen.FAHRT_ERGO)
+          if (EfaTypes.TYPE_TRIP_MOTORBOAT.equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP, fi)) ||
+              EfaTypes.TYPE_TRIP_ERG.equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP, fi)))
             sd[i].fahrtart[fi] = false;
         }
       }
@@ -4624,12 +4765,12 @@ public class Statistik {
   	  if (EfaUtil.canOpenFile(s)) {
             neu = new Fahrtenbuch(s);
             if (alleFb.get(s) != null) {
-              Dialog.error("Fahrtenbuch\n"+s+"\nkommt mehrfach als vorangehendes Fahrtenbuch vor!");
+              Dialog.error(International.getMessage("Fahrtenbuch {logbook} kommt mehrfach als vorangehendes Fahrtenbuch vor!",s));
               Daten.fahrtenbuch = orgFahrtenbuch;
               cont=true; break;
             }
             if (!EfaUtil.upcaseFileName(neu.getNextFb(true)).equals(EfaUtil.upcaseFileName(Daten.fahrtenbuch.getFileName()))) {
-              Dialog.error("Fahrtenbuch\n"+s+"\nverweist nicht auf\n"+EfaUtil.upcaseFileName(Daten.fahrtenbuch.getFileName())+"!");
+              Dialog.error(International.getMessage("Fahrtenbuch {logbook} verweist nicht auf {filename}!",s,EfaUtil.upcaseFileName(Daten.fahrtenbuch.getFileName())));
               Daten.fahrtenbuch = orgFahrtenbuch;
               cont=true; break;
             }
@@ -4637,7 +4778,7 @@ public class Statistik {
             Daten.fahrtenbuch = neu;
             counterToAktFb++; // ein zusätzliches Fb *vor* dem aktuellen mehr
 	  } else {
-            Dialog.error("Kann Datei\n"+s+"\nnicht öffnen!");
+            Dialog.error(LogString.logstring_fileOpenFailed(s, International.getString("Fahrtenbuch")));
             break;
   	  }
         }
@@ -4651,7 +4792,7 @@ public class Statistik {
           if (sd[i].nurFb[j].trim().length()>0) fbs = sd[i].nurFb[j].trim();
           if (fbs != null) {
             if (alleFb.get(fbs) != null) {
-              Dialog.error("Fahrtenbuch\n"+fbs+"\nkommt mehrfach in der Liste der auszuwertenden Fahrtenbücher vor!");
+              Dialog.error(International.getMessage("Fahrtenbuch {logbook} kommt mehrfach in der Liste der auszuwertenden Fahrtenbücher vor!",fbs));
               cont=true; break;
             }
             alleFb.put(fbs,"");
@@ -4676,7 +4817,8 @@ public class Statistik {
           if (fbs.indexOf(Daten.fileSep)<0) fbs = EfaUtil.getPathOfFile(orgFahrtenbuch.getFileName()) + Daten.fileSep + fbs;
           Daten.fahrtenbuch = new Fahrtenbuch(fbs);
           if (!EfaUtil.canOpenFile(fbs) || !Daten.fahrtenbuch.readFile()) {
-            Dialog.error("Fahrtenbuch\n"+fbs+"\nkann nicht gelesen werden! Berechnung abgebrochen!");
+              Dialog.error(LogString.logstring_fileOpenFailed(fbs, International.getString("Fahrtenbuch")) +
+                      " " + International.getString("Berechnung abgebrochen!"));
             break;
           }
           nurBestimmteFbCnt++;
@@ -4685,7 +4827,8 @@ public class Statistik {
             if (counterToAktFb == 0) { // aktuelles Fahrtenbuch nicht neu lesen, sondern Kopie im Speicher verwenden!
               Daten.fahrtenbuch = orgFahrtenbuch;
             } else if (!Daten.fahrtenbuch.readFile()) {
-              Dialog.error("Fahrtenbuch\n"+Daten.fahrtenbuch.getFileName()+"\nkann nicht gelesen werden! Berechnung abgebrochen!");
+              Dialog.error(LogString.logstring_fileOpenFailed(Daten.fahrtenbuch.getFileName(), International.getString("Fahrtenbuch")) +
+                      " " + International.getString("Berechnung abgebrochen!"));
               break;
             }
           }
@@ -4695,7 +4838,7 @@ public class Statistik {
 	String fname = Daten.fahrtenbuch.getFileName();
 	int spos;
 	if ( (spos = fname.lastIndexOf(Daten.fileSep)) >= 0) fname = fname.substring(spos+1,fname.length());
-	progressMessage = "Auswertung " + fname + "...";
+	progressMessage = International.getMessage("Auswertung {logbook} ...",fname);
         progressInc = 1000 / (anzFb > 0 ? anzFb : 1);
         progressInc = progressInc / (anzZusWett+1);
 
@@ -4722,12 +4865,14 @@ public class Statistik {
               if (EfaUtil.canOpenFile(s)) {
                 neu = new Fahrtenbuch(s);
               } else {
-                Dialog.error("Kann Datei\n"+s+"\nnicht öffnen! Berechnung abgebrochen!");
+                Dialog.error(LogString.logstring_fileOpenFailed(s, International.getString("Fahrtenbuch")) +
+                      " " + International.getString("Berechnung abgebrochen!"));
                 break;
               }
             else neu=null; // aktFahrtenbuch soll verwendet werden!
             if (alleFb.get(s) != null) {
-              Dialog.error("Fahrtenbuch\n"+s+"\nkommt mehrfach in der Berechnung vor! Berechnung abgebrochen!");
+              Dialog.error(International.getMessage("Fahrtenbuch {logbook} kommt mehrfach in der Liste der auszuwertenden Fahrtenbücher vor!",s) +
+                      International.getString("Berechnung abgebrochen!"));
               break;
             }
             alleFb.put(s,"");
@@ -4740,7 +4885,7 @@ public class Statistik {
       progressCurrent = 0;
       progressDone += 1000;
       if (sd.length == i+1) progressDone = progressLength;
-      progressMessage = "Aufbereiten der Daten...";
+      progressMessage = International.getString("Aufbereiten der Daten ...");
       ArrEl[][] a = aufbereiten(sd[i],h);
 
 
@@ -4768,17 +4913,18 @@ public class Statistik {
           for (int in=0; in<keys.length; in++) {
             sn = sn + (sn.length() > 0 ? "\n" : "") + keys[in] + " ("+nichtBeruecksichtigt.get(keys[in])+")";
           }
-          Dialog.meldung("Folgende Teilnehmer könnten die Bedingungen erfüllt haben,\nwurden aber bei der Auswertung ignoriert:\n"+sn);
+          Dialog.meldung(International.getString("Folgende Teilnehmer könnten die Bedingungen erfüllt haben, " +
+                  "wurden aber bei der Auswertung ignoriert:") + "\n"+sn);
         }
         if (!warnungen.equals(""))
-          Dialog.meldung("Warnungen:\n"+warnungen);
+          Dialog.meldung(International.getString("Warnungen")+":\n"+warnungen);
 
         if (sd.length == i+1) progressCurrent = -2; // Done
 
-        progressMessage = "Ausgabe der Daten";
+        progressMessage = International.getString("Ausgabe der Daten");
         schreibeAusgabe(ad[0],sd[i]);
 
-        progressMessage = "Statistik erstellt!";
+        progressMessage = International.getString("Statistik erstellt!");
       }
     } // end for
 
@@ -4999,19 +5145,33 @@ public class Statistik {
 //      if (ad.auswertungNurFuer != null) rowspan++; // @@LOGO
 //      if (ad.auswertungWettNur != null) rowspan++; // @@LOGO
 //      if.write("<td rowspan=\""+rowspan+"\"><a href=\""+ad.ausgewertetVonURL+"\"><img src=\"efa.gif\" width=\"128\" height=\"128\" alt=\"efa\" border=\"0\"></a></td>\n"); // @@LOGO
-      f.write("<td>Kilometerliste erstellt am:</td><td><b>"+ad.ausgewertetAm+
+      f.write("<td>" + 
+              International.getString("Kilometerliste erstellt am") +
+              ":</td><td><b>"+ad.ausgewertetAm+
               ", <i><a href=\""+ad.ausgewertetVonURL+"\">"+ad.ausgewertetVon+"</a></i></b></td></tr>\n");
-      f.write("<tr><td>Art der Auswertung:</td><td><b>"+ad.auswertungsArt+"</b></td></tr>\n");
-      f.write("<tr><td>Zeitraum für Auswertung:</td><td><b>"+ad.auswertungsZeitraum+"</b></td></tr>\n");
-      f.write("<tr><td>Ausgewertete Einträge:</td><td><b>"+ad.ausgewerteteEintraege+"</b></td></tr>\n");
-      f.write("<tr><td>Auswertung für:</td><td><b>");
+      f.write("<tr><td>" +
+              International.getString("Art der Auswertung") +
+              ":</td><td><b>"+ad.auswertungsArt+"</b></td></tr>\n");
+      f.write("<tr><td>" + 
+              International.getString("Zeitraum für Auswertung") +
+              ":</td><td><b>"+ad.auswertungsZeitraum+"</b></td></tr>\n");
+      f.write("<tr><td>" +
+              International.getString("Ausgewertete Einträge") +
+              ":</td><td><b>"+ad.ausgewerteteEintraege+"</b></td></tr>\n");
+      f.write("<tr><td>" + 
+              International.getString("Auswertung für") +
+              ":</td><td><b>");
       for (int i=0; i<ad.auswertungFuer.length; i++)
         f.write( (i>0 ? "<br>" : "") + ad.auswertungFuer[i]);
       f.write("</b></td></tr>\n");
       if (ad.auswertungNurFuer != null)
-        f.write("<tr><td>nur für "+ad.auswertungNurFuerBez+":</td><td><b>"+ad.auswertungNurFuer+"</b></td></tr>\n");
+        f.write("<tr><td>" + 
+                International.getString("nur für") +
+                " "+ad.auswertungNurFuerBez+":</td><td><b>"+ad.auswertungNurFuer+"</b></td></tr>\n");
       if (ad.auswertungWettNur != null)
-        f.write("<tr><td>Ausgabe, wenn:</td><td><b>"+ad.auswertungWettNur+"</b></td></tr>\n");
+        f.write("<tr><td>" + 
+                International.getString("Ausgabe, wenn") +
+                ":</td><td><b>"+ad.auswertungWettNur+"</b></td></tr>\n");
       f.write("</table>\n<br><br>\n");
 
       AusgabeEintrag ae;
@@ -5033,8 +5193,10 @@ public class Statistik {
       if (sd.wettOhneDetail) {
         f.write("<table align=\"center\" width=\"500\">\n");
         f.write("<tr><th colspan=\"2\" bgcolor=\"#ddddff\">Legende</th></tr>\n");
-        f.write("<tr><td bgcolor=\"#00ff00\" width=\"250\" align=\"center\">Bedingungen erfüllt</td>");
-        f.write("<td bgcolor=\"#ffff00\" width=\"250\" align=\"center\">Bedingungen noch nicht erfüllt</td></tr>\n");
+        f.write("<tr><td bgcolor=\"#00ff00\" width=\"250\" align=\"center\">" +
+                International.getString("Bedingungen erfüllt") + "</td>");
+        f.write("<td bgcolor=\"#ffff00\" width=\"250\" align=\"center\">" +
+                International.getString("Bedingungen noch nicht erfüllt") + "</td></tr>\n");
         f.write("</table>\n<br><br>\n");
       }
 
@@ -5062,7 +5224,9 @@ public class Statistik {
               } else {
                 String additional = ( ae.w_additional == null || ae.w_additional.equals("") ? "" : ae.w_additional ) +
                                     ( ae.w_warnung == null ? "" : "; <font color=\"red\">"+ae.w_warnung+"</font>");
-                f.write("<td width=\"90%\" colspan=\"2\">"+(ae.w_erfuellt ? "Erfüllt: " : "Noch nicht erfüllt: ")+"<b>"+ae.w_name+"</b>"+
+                f.write("<td width=\"90%\" colspan=\"2\">"+(ae.w_erfuellt ? 
+                    International.getString("erfüllt")+": " :
+                    International.getString("noch nicht erfüllt") + ": ")+"<b>"+ae.w_name+"</b>"+
                                        (ae.w_jahrgang != null ? " ("+ae.w_jahrgang+")" : "") +
                                        ": "+ae.w_kilometer+" Km"+
                                        (additional.length() > 0 ? " ("+additional+")" : "") +
@@ -5168,8 +5332,8 @@ public class Statistik {
         f.write("</html>\n");
       }
     } catch(IOException e) {
-      Dialog.error("Datei '"+sd.ausgabeDatei+"' konnte nicht erstellt werden:\n"+e.toString());
-      Logger.log(Logger.ERROR,e.toString());
+      Dialog.error(LogString.logstring_fileCreationFailed(sd.ausgabeDatei, International.getString("Ausgabedatei")));
+      LogString.logError_fileCreationFailed(sd.ausgabeDatei, International.getString("Ausgabedatei"));
       return false;
     } finally {
       try { f.close(); } catch(Exception ee) { f = null; }
@@ -5295,7 +5459,8 @@ public class Statistik {
       new File(sd.ausgabeDateiTmp).delete();
 
     } catch(IOException e) {
-      Dialog.error("Ausgabedatei konnte nicht erstellt werden: "+e.toString());
+      Dialog.error(LogString.logstring_fileCreationFailed(sd.ausgabeDatei, International.getString("Ausgabedatei")));
+      LogString.logError_fileCreationFailed(sd.ausgabeDatei, International.getString("Ausgabedatei"));
       return false;
     }
     return true;
@@ -5368,7 +5533,9 @@ public class Statistik {
 //                  outCSV(f,ae.w_detail[i][j]);
             outCSV(f, (ae.w_attr1==null ? "" : ae.w_attr1));
             outCSV(f, (ae.w_attr2==null ? "" : ae.w_attr2));
-            outCSV(f, (ae.w_erfuellt ? "erfüllt" : "nicht erfüllt") );
+            outCSV(f, (ae.w_erfuellt ? 
+                International.getString("erfüllt") :
+                International.getString("nicht erfüllt")) );
             if (ae.w_additional != null && ae.w_warnung != null) outCSV(f,ae.w_additional+"; "+ae.w_warnung);
             else if (ae.w_additional != null) outCSV(f,ae.w_additional);
             else if (ae.w_warnung != null) outCSV(f,ae.w_warnung);
@@ -5386,8 +5553,8 @@ public class Statistik {
 
       f.close();
     } catch(IOException e) {
-      Dialog.error("Datei '"+sd.ausgabeDatei+"' konnte nicht erstellt werden!");
-      Logger.log(Logger.ERROR,e.toString());
+      Dialog.error(LogString.logstring_fileCreationFailed(sd.ausgabeDatei, International.getString("Ausgabedatei")));
+      LogString.logError_fileCreationFailed(sd.ausgabeDatei, International.getString("Ausgabedatei"));
       return false;
     }
 
@@ -5404,10 +5571,13 @@ public class Statistik {
 // ============================== I N T E R N - G R A F I K =====================================
 
   static void schreibeInternGrafik(StatistikDaten sd) {
-    if (!new File(sd.ausgabeDatei).isFile())
-      Dialog.error("Die Ausgabedatei '"+sd.ausgabeDatei+"' konnte nicht gefunden werden!");
-    else
-      Dialog.neuBrowserDlg(sd.parent,"Ausgabe","file:"+sd.ausgabeDatei,sd.browserCloseTimeout);
+    if (!new File(sd.ausgabeDatei).isFile()) {
+      Dialog.error(LogString.logstring_fileNotFound(sd.ausgabeDatei, International.getString("Ausgabedatei")));
+    } else {
+      Dialog.neuBrowserDlg(sd.parent,
+              International.getString("Ausgabe"),
+              "file:"+sd.ausgabeDatei,sd.browserCloseTimeout);
+    }
   }
 
 
@@ -5418,20 +5588,18 @@ public class Statistik {
 // ============================== B R O W S E R =================================================
 
   static void schreibeBrowser(StatistikDaten sd) {
-    if (!new File(sd.ausgabeDatei).isFile())
-      Dialog.error("Die Ausgabedatei '"+sd.ausgabeDatei+"' konnte nicht gefunden werden!");
-    else {
-      if (Daten.efaConfig == null || !new File(Daten.efaConfig.browser).isFile())
-        if (Daten.efaConfig == null) System.out.println("Browser-Ausgabe nicht möglich!");
-        else Dialog.error("Der Webbroser '"+Daten.efaConfig.browser+"' konnte nicht gefunden werden!");
-      else try {
+    if (!new File(sd.ausgabeDatei).isFile()) {
+        Dialog.error(LogString.logstring_fileNotFound(sd.ausgabeDatei, International.getString("Ausgabedatei")));
+    } else {
+      if (Daten.efaConfig == null || !new File(Daten.efaConfig.browser).isFile()) {
+          Dialog.error(LogString.logstring_cantExecCommand(Daten.efaConfig.browser, International.getString("für Browser"), ""));
+      } else try {
         String[] cmd = new String[2];
         cmd[0] = Daten.efaConfig.browser;
         cmd[1] = sd.ausgabeDatei;
-        System.out.println("Starte Browser: "+cmd[0]+" "+cmd[1]);
         Runtime.getRuntime().exec(cmd);
       } catch(Exception ee) {
-        Dialog.error("Fehler: '"+Daten.efaConfig.browser+"' konnte nicht gestartet werden!");
+          Dialog.error(LogString.logstring_cantExecCommand(Daten.efaConfig.browser, International.getString("für Browser"), ee.toString()));
       }
     }
   }
@@ -5446,7 +5614,8 @@ public class Statistik {
       PDFWriter pdf = new PDFWriter(sd,ad);
       String s;
       if (sd.fileExecBefore != null && sd.fileExecBefore.length() > 0) execCmd(sd.fileExecBefore);
-      if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(false,"FOP erstellt die PDF Datei ...",false);
+      if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(false,
+              International.getString("FOP erstellt die PDF Datei ..."),false);
       s = pdf.run();
       if (s != null) {
         if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(true,null,false);
@@ -5456,7 +5625,7 @@ public class Statistik {
             c=0;
           }
         }
-        Dialog.error("Die Ausgabedatei konnte nicht erstellt werden:\n"+s);
+        Dialog.error(LogString.logstring_fileCreationFailed(sd.ausgabeDatei, International.getString("Ausgabedatei")));
         return false;
       } else {
         if (Daten.efaConfig != null && Daten.efaConfig.acrobat.length()>0 && sd.statistikFrame != null) {
@@ -5465,19 +5634,22 @@ public class Statistik {
             String[] cmd = new String[2];
             cmd[0] = Daten.efaConfig.acrobat;
             cmd[1] = sd.ausgabeDatei;
-            if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(false,"Starte Acrobat: "+cmd[0]+" "+cmd[1],false);
-            System.out.println("Starte Acrobat: "+cmd[0]+" "+cmd[1]);
+            if (sd.statistikFrame != null) {
+                sd.statistikFrame.enableFrame(false,International.getString("Starte Acrobat ..."),false);
+            }
             Runtime.getRuntime().exec(cmd);
           } catch(Exception ee) {
-            Dialog.error("Fehler: '"+Daten.efaConfig.acrobat+"' konnte nicht gestartet werden!");
+            Dialog.error(LogString.logstring_cantExecCommand(Daten.efaConfig.acrobat, International.getString("für Acrobat Reader"), ee.toString()));
           }
         }
-        if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(true,"PDF-Datei erfolgreich erstellt ("+pdf.getPageCount()+" Seiten)!",false);
+        if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(true,
+                International.getString("PDF-Datei erfolgreich erstellt") +
+                " (" + International.getMessage("{n} Seiten",pdf.getPageCount()) + ")!",false);
       }
     } catch (NoClassDefFoundError e) {
       // Plugin-Dialoge
       if (sd.statistikFrame != null) sd.statistikFrame.setEnabled(true);
-      DownloadFrame.getPlugin("efa",Daten.PLUGIN_FOP_NAME,Daten.PLUGIN_FOP_FILE,Daten.PLUGIN_FOP_HTML,e.toString(),sd.statistikFrame,false);
+      DownloadFrame.getPlugin(Daten.EFA_SHORTNAME,Daten.PLUGIN_FOP_NAME,Daten.PLUGIN_FOP_FILE,Daten.PLUGIN_FOP_HTML,e.toString(),sd.statistikFrame,false);
       return false;
     }
     if (sd.fileExecAfter != null && sd.fileExecAfter.length() > 0) execCmd(sd.fileExecAfter);
@@ -5504,13 +5676,13 @@ public class Statistik {
             c=0;
           }
         }
-        Dialog.error("Die Ausgabedatei konnte nicht erstellt werden:\n"+s);
+        Dialog.error(LogString.logstring_fileCreationFailed(sd.ausgabeDatei, International.getString("Ausgabedatei")));
         return false;
       }
     } catch (NoClassDefFoundError e) {
       // Plugin-Dialoge
       if (sd.statistikFrame != null) sd.statistikFrame.setEnabled(true);
-      DownloadFrame.getPlugin("efa",Daten.PLUGIN_JAXP_NAME,Daten.PLUGIN_JAXP_FILE,Daten.PLUGIN_JAXP_HTML,e.toString(),sd.statistikFrame,false);
+      DownloadFrame.getPlugin(Daten.EFA_SHORTNAME,Daten.PLUGIN_JAXP_NAME,Daten.PLUGIN_JAXP_FILE,Daten.PLUGIN_JAXP_HTML,e.toString(),sd.statistikFrame,false);
       return false;
     }
     if (sd.fileExecAfter != null && sd.fileExecAfter.length() > 0) execCmd(sd.fileExecAfter);
@@ -5602,24 +5774,24 @@ public class Statistik {
       int kopfzeilen = 4 + ad.auswertungFuer.length +
           (ad.auswertungNurFuer != null ? 1 : 0) + (ad.auswertungWettNur != null ? 1 : 0);
       String[][] kt = new String[kopfzeilen][2];
-      kt[0][0] = "Kilometerliste erstellt am:";
+      kt[0][0] = International.getString("Kilometerliste erstellt am")+":";
       kt[0][1] = ad.ausgewertetAm+", "+ad.ausgewertetVon;
-      kt[1][0] = "Art der Auswertung:";
+      kt[1][0] = International.getString("Art der Auswertung")+":";
       kt[1][1] = ad.auswertungsArt;
-      kt[2][0] = "Zeitraum für Auswertung:";
+      kt[2][0] = International.getString("Zeitraum für Auswertung")+":";
       kt[2][1] = ad.auswertungsZeitraum;
-      kt[3][0] = "Ausgewertete Einträge:";
+      kt[3][0] = International.getString("Ausgewertete Einträge")+":";
       kt[3][1] = ad.ausgewerteteEintraege;
       for (int i=0; i<ad.auswertungFuer.length; i++) {
-        kt[4+i][0] = (i>0 ? "Auswertung für:" : "");
+        kt[4+i][0] = (i>0 ? International.getString("Auswertung für")+":" : "");
         kt[4+i][1] = ad.auswertungFuer[i];
       }
       if (ad.auswertungNurFuer != null) {
-        kt[4 + ad.auswertungFuer.length][0] = "nur für "+ad.auswertungNurFuerBez+":";
+        kt[4 + ad.auswertungFuer.length][0] = International.getMessage("nur für {something}",ad.auswertungNurFuerBez)+":";
         kt[4 + ad.auswertungFuer.length][1] = ad.auswertungNurFuer;
       }
       if (ad.auswertungWettNur != null) {
-        kt[4 + ad.auswertungFuer.length + (ad.auswertungNurFuer != null ? 1 : 0)][0] = "Ausgabe, wenn:";
+        kt[4 + ad.auswertungFuer.length + (ad.auswertungNurFuer != null ? 1 : 0)][0] = International.getString("Ausgabe, wenn")+":";
         kt[4 + ad.auswertungFuer.length + (ad.auswertungNurFuer != null ? 1 : 0)][1] = ad.auswertungWettNur;
       }
       outTXT(f,"",kt,false,false);
@@ -5644,11 +5816,13 @@ public class Statistik {
 
         for (int i=0; i<ad.wett_gruppennamen.length; i++) {
           f.write(ad.wett_gruppennamen[i][0]+" "+ad.wett_gruppennamen[i][1]+
-                  " (gefordert: "+ad.wett_gruppennamen[i][2]+")\n\n");
+                  " ("+International.getString("gefordert")+": "+ad.wett_gruppennamen[i][2]+")\n\n");
           for (ae = ad.wett_teilnehmerInGruppe[i]; ae != null; ae = ae.next) {
             if (ae.w_detail == null) {
               // kurze Ausgabe
-              f.write("  "+(ae.w_erfuellt ? "Erfüllt: " : "Noch nicht erfüllt: ")+ae.w_name+" ("+ae.w_kilometer+" Km"+
+              f.write("  "+(ae.w_erfuellt ? 
+                  International.getString("erfüllt")+": " :
+                  International.getString("noch nicht erfüllt")+": ")+ae.w_name+" ("+ae.w_kilometer+" Km"+
                       ( ae.w_additional == null || ae.w_additional.equals("") ? "" : "; "+ae.w_additional ) +")\n");
               if (ae.w_warnung != null) f.write("    "+ae.w_warnung+"\n");
             } else {
@@ -5685,7 +5859,7 @@ public class Statistik {
 
       f.close();
     } catch (IOException e) {
-      Dialog.error("Kann Ausgabedatei nicht erstellen: "+e.toString());
+      Dialog.error(LogString.logstring_fileCreationFailed(sd.ausgabeDatei, International.getString("Ausgabedatei")));
       return false;
     }
     if (sd.fileExecAfter != null && sd.fileExecAfter.length() > 0) execCmd(sd.fileExecAfter);
@@ -5751,11 +5925,13 @@ public class Statistik {
 
         for (int i=0; i<ad.wett_gruppennamen.length; i++) {
           Dialog.programOutText.append(ad.wett_gruppennamen[i][0]+" "+ad.wett_gruppennamen[i][1]+
-                  " (gefordert: "+ad.wett_gruppennamen[i][2]+")\n\n");
+                  " ("+International.getString("gefordert")+": "+ad.wett_gruppennamen[i][2]+")\n\n");
           for (ae = ad.wett_teilnehmerInGruppe[i]; ae != null; ae = ae.next) {
             if (ae.w_detail == null) {
               // kurze Ausgabe
-              Dialog.programOutText.append("  "+(ae.w_erfuellt ? "Erfüllt: " : "Noch nicht erfüllt: ")+ae.w_name+" ("+ae.w_kilometer+" Km"+
+              Dialog.programOutText.append("  "+(ae.w_erfuellt ? 
+                  International.getString("erfüllt")+": " :
+                  International.getString("noch nicht erfüllt")+": ")+ae.w_name+" ("+ae.w_kilometer+" Km"+
                       ( ae.w_additional == null || ae.w_additional.equals("") ? "" : "; "+ae.w_additional ) +")\n");
             } else {
               // ausführliche Ausgabe
@@ -5806,7 +5982,8 @@ public class Statistik {
   static boolean schreibeFTP(StatistikDaten sd) {
     try {
       FTPWriter ftp = new FTPWriter(sd);
-      if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(false,"FTP-Upload der Datei "+sd.ftpFilename+" ...",false);
+      if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(false,
+              International.getMessage("FTP-Upload der Datei {filename} ...",sd.ftpFilename),false);
       String s;
       s = ftp.run();
       if (s != null) {
@@ -5817,7 +5994,7 @@ public class Statistik {
             c=0;
           }
         }
-        Dialog.error("Der FTP-Upload ist fehlgeschlagen:\n"+s);
+        Dialog.error(International.getString("Der FTP-Upload ist fehlgeschlagen.")+"\n"+s);
         return false;
       } else {
         if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(true,null,false);
@@ -5825,7 +6002,7 @@ public class Statistik {
     } catch (NoClassDefFoundError e) {
       // Plugin-Dialoge
       if (sd.statistikFrame != null) sd.statistikFrame.setEnabled(true);
-      DownloadFrame.getPlugin("efa",Daten.PLUGIN_FTP_NAME,Daten.PLUGIN_FTP_FILE,Daten.PLUGIN_FTP_HTML,e.toString(),sd.statistikFrame,false);
+      DownloadFrame.getPlugin(Daten.EFA_SHORTNAME,Daten.PLUGIN_FTP_NAME,Daten.PLUGIN_FTP_FILE,Daten.PLUGIN_FTP_HTML,e.toString(),sd.statistikFrame,false);
       return false;
     }
     return true;
@@ -5952,9 +6129,9 @@ public class Statistik {
       }
       f.close();
     } catch(FileNotFoundException e) {
-      Dialog.error("Datei\n"+dir+Daten.WETTFILE+"\nnicht gefunden!");
+        Dialog.error(LogString.logstring_fileNotFound(dir+Daten.WETTFILE, International.getString("Wettbewerbskonfiguration")));
     } catch(IOException e) {
-      Dialog.error("Fehler beim Lesen von\n"+dir+Daten.WETTFILE);
+        Dialog.error(LogString.logstring_fileReadFailed(dir+Daten.WETTFILE, International.getString("Wettbewerbskonfiguration")));
     }
     String[] zeilen = new String[_zeil.size()];
     _zeil.toArray(zeilen);

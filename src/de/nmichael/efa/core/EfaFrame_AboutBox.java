@@ -100,9 +100,10 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
     nameLabel.setForeground(Color.black);
     nameLabel.setText(Daten.EFA_LONGNAME);
     versionLabel.setText("Version 0.1"); // do not internationalize
-    languageLabel.setText(International.getString("Sprache")+": "+International.getLanguageDescription());
+    languageLabel.setText(International.getString("Sprache")+": "+
+            International.getLanguageDescription());
     copyLabel.setText("Copyright (c) 2001-"+Daten.COPYRIGHTYEAR+" by Nicolas Michael"); // do not internationalize
-    urlLabel0.setText(International.getString("Homepage"+": "));
+    urlLabel0.setText(International.getString("Homepage")+": ");
     urlLabel.setForeground(Color.blue);
     urlLabel.setText(Daten.EFAURL);
     urlLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -118,7 +119,7 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
     });
     insetsPanel3.setLayout(gridBagLayout1);
     insetsPanel3.setBorder(BorderFactory.createEmptyBorder(10, 60, 10, 10));
-    Mnemonics.setButton(this, okButton, "OK");
+    Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("OK"));
     okButton.addActionListener(this);
     emailLabel0.setText(International.getString("email")+": ");
     emailLabel.setForeground(Color.blue);
@@ -134,14 +135,13 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
         emailLabel_mouseClicked(e);
       }
     });
-    gpl1Label.setToolTipText("");
     gpl1Label.setText(International.getString("efa unterliegt den")+" ");
     versionLabel.setForeground(Color.black);
     logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
     logoLabel.setHorizontalTextPosition(SwingConstants.CENTER);
     logoLabel.setIcon(new ImageIcon(EfaFrame_AboutBox.class.getResource(Daten.getEfaImage(2))));
     gplLabel.setForeground(Color.blue);
-    gplLabel.setText(International.getString("Lizenzbestimmungen der GPL v3"));
+    gplLabel.setText(International.getMessage("Lizenzbestimmungen der {license}","GPL v2"));
     gplLabel.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseClicked(MouseEvent e) {
         gplLabel_mouseClicked(e);
@@ -206,7 +206,8 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
     efaInfos.setEditable(false);
 
     if (EfaUtil.getEfaBirthday() == 5) {
-      efaBirthdayLabel.setText(International.getString("5 Jahre efa: Erste Veröffentlichung am 15.07.2001"));
+      efaBirthdayLabel.setText(International.getMessage("{n} Jahre efa",5) + ": " +
+              International.getString("Erste Veröffentlichung am 15.07.2001"));
       efaBirthdayLabel.setVisible(true);
     } else {
       efaBirthdayLabel.setVisible(false);

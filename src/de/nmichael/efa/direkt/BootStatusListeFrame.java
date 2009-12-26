@@ -135,8 +135,7 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
   void cancel(boolean saved) {
     if (bootStatus.isChanged()) {
       if (Dialog.yesNoDialog(International.getString("Änderungen speichern"),
-                             International.getString("Die Änderungen an der Bootsstatus-Liste wurden noch nicht gespeichert. "+
-                             "Sollen sie jetzt gespeichert werden?")) == Dialog.YES) {
+                             International.getString("Möchtest Du die Änderungen jetzt speichern?")) == Dialog.YES) {
         if (!this.bootStatus.writeFile()) {
           Dialog.error(International.getString("Änderungen konnten nicht gespeichert werden!"));
           return;
@@ -145,9 +144,11 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
       }
     }
     if (saved) Logger.log(Logger.INFO,Logger.MSG_ADMIN_ALLBOATSTATECHANGED,
-            International.getString("Admin")+": "+International.getString("Bootsstatus-Liste neu geschrieben."));
+            International.getString("Admin")+": "+
+            International.getString("Bootsstatus-Liste neu geschrieben."));
     else Logger.log(Logger.INFO,Logger.MSG_ADMIN_NOBOATSTATECHANGED,
-            International.getString("Admin")+": "+International.getString("Alle Änderungen an Bootsstatus-Liste verworfen."));
+            International.getString("Admin")+": "+
+            International.getString("Alle Änderungen an Bootsstatus-Liste verworfen."));
     Dialog.frameClosed(this);
     dispose();
   }
@@ -168,7 +169,7 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
     for (d = bootStatus.getCompleteFirst(); d != null; d = bootStatus.getCompleteNext()) {
       Vector feld = new Vector();
       feld.add(d.get(BootStatus.NAME));
-      feld.add(BootStatus.STATUSNAMES[EfaUtil.string2int(d.get(BootStatus.STATUS),0)]);
+      feld.add(BootStatus.getStatusName(BootStatus.getStatusID(d.get(BootStatus.STATUS))));
       feld.add(d.get(BootStatus.BEMERKUNG));
       inhalt.add(feld);
     }
@@ -222,7 +223,7 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
     Logger.log(Logger.INFO,Logger.MSG_ADMIN_BOATSTATECHANGED,
             International.getString("Admin")+": "+
             International.getMessage("Bootsstatus für Boot '{name}' auf '{new_status}' gesetzt (LfdNr=#{record})."+
-                           boot.get(BootStatus.NAME),BootStatus.STATUSNAMES[EfaUtil.string2int(boot.get(BootStatus.STATUS),0)],
+                           boot.get(BootStatus.NAME),BootStatus.getStatusName(EfaUtil.string2int(boot.get(BootStatus.STATUS),0)),
                            boot.get(BootStatus.LFDNR)));
     firstclick=false;
     this.bootStatus.delete(boot.get(BootStatus.NAME));

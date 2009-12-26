@@ -38,7 +38,7 @@ public class EmailSender {
       sendThread.start();
       sendCompleted = true;
     } catch (NoClassDefFoundError e1) {
-      Logger.log(Logger.ERROR,Logger.MSG_BHERR_SENDMAILFAILED_PLUGIN,
+      Logger.log(Logger.ERROR,Logger.MSG_ERR_SENDMAILFAILED_PLUGIN,
               International.getMessage("Nachricht als email versenden nicht möglich, da das EMAIL-PLUGIN nicht installiert ist. "+
                               "Bitte schaue unter {url} zur Installation des Plugins.",Daten.pluginWWWdirectory+Daten.PLUGIN_EMAIL_HTML));
     } catch(Exception e2) {
@@ -69,12 +69,12 @@ class EmailSenderThread extends Thread {
   public void run() {
     if (Daten.efaConfig == null) return;
     if (Daten.efaConfig.efaDirekt_emailServer == null || Daten.efaConfig.efaDirekt_emailServer.length() == 0) {
-      Logger.log(Logger.ERROR,Logger.MSG_BHERR_SENDMAILFAILED_CFG,
+      Logger.log(Logger.ERROR,Logger.MSG_ERR_SENDMAILFAILED_CFG,
               International.getString("Nachricht als email versenden nicht möglich, da kein SMTP-Server konfiguriert ist."));
       return;
     }
     if (Daten.efaConfig.efaDirekt_emailAbsender == null || Daten.efaConfig.efaDirekt_emailAbsender.length() == 0) {
-      Logger.log(Logger.ERROR,Logger.MSG_BHERR_SENDMAILFAILED_CFG,
+      Logger.log(Logger.ERROR,Logger.MSG_ERR_SENDMAILFAILED_CFG,
               International.getString("Nachricht als email versenden nicht möglich, da keine Absender-Adresse konfiguriert ist."));
       return;
     }
@@ -116,7 +116,7 @@ class EmailSenderThread extends Thread {
         t.send(mail,mail.getAllRecipients());
         break; // Retry-Schleife verlassen
       } catch(Exception e) {
-        Logger.log((retryCount<3 ? Logger.INFO : Logger.WARNING),Logger.MSG_BHERR_SENDMAILFAILED_ERROR,
+        Logger.log((retryCount<3 ? Logger.INFO : Logger.WARNING),Logger.MSG_ERR_SENDMAILFAILED_ERROR,
                 International.getString("Nachricht konnte nicht als email versendet werden")+
                 "("+(retryCount<3 ?
                     International.getMessage("{n}. Versuch",retryCount) :

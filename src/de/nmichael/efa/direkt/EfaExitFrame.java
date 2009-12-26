@@ -144,14 +144,14 @@ public class EfaExitFrame extends JFrame implements ActionListener {
     this.hide();
     if (_exit) {
       thread = null;
-      Logger.log(Logger.INFO,Logger.MSG_BHEVENTS_EFAEXIT,
+      Logger.log(Logger.INFO,Logger.MSG_EVT_EFAEXIT,
               International.getString("efa beendet sich jetzt") +
               (restart ? " "+International.getString("und wird anschließend neu gestartet")+"." :
                   "."));
       efaDirektFrame.cancel(null,who,restart);
     } else {
       thread = new CountdownThread(this); // Thread für's nächste Mal initialisieren
-      Logger.log(Logger.WARNING,Logger.MSG_BHEVENTS_EFAEXITABORTED,
+      Logger.log(Logger.WARNING,Logger.MSG_EVT_EFAEXITABORTED,
               International.getString("Beenden von efa wurde durch Benutzer abgebrochen."));
       Daten.DONT_SAVE_ANY_FILES_DUE_TO_OOME = false;
     }

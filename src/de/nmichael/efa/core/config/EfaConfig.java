@@ -57,7 +57,8 @@ public class EfaConfig {
     private void iniCategories() {
         CATEGORY_INTERNAL = International.getString("intern");
         CATEGORY_BOATHOUSE = International.getString("Bootshaus");
-        CATEGORY_BOATHOUSE_GUI = International.getString("Bootshaus") + ":" + International.getString("Erscheinungsbild");
+        CATEGORY_BOATHOUSE_GUI = International.getString("Bootshaus") + ":" +
+                International.getString("Erscheinungsbild");
     }
 
     private void addParameter(ConfigValue configValue) {

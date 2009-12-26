@@ -91,7 +91,7 @@ public class AdminLockEfaFrame extends JDialog implements ActionListener {
       htmlButton.setIcon(new ImageIcon(AdminLockEfaFrame.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
       Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Sperrung automatisch beenden")+": ");
       jLabel2.setLabelFor(endeSperrung);
-      this.setTitle(International.getMessage("{efa} sperren",Daten.EFA_SHORTNAME));
+      this.setTitle(International.getString("efa sperren"));
       html.setNextFocusableComponent(vollbild);
       html.setPreferredSize(new Dimension(400, 19));
       html.setText("");
@@ -175,7 +175,9 @@ public class AdminLockEfaFrame extends JDialog implements ActionListener {
   }
 
   void htmlButton_actionPerformed(ActionEvent e) {
-    String dat =Dialog.dateiDialog(this,International.getString("HTML-Datei auswählen"),
+    String dat =Dialog.dateiDialog(this,
+            International.getMessage("{item} auswählen",
+            International.getString("HTML-Datei")),
             International.getString("HTML-Datei")+" (*.html)","html",null,false);
     if (dat != null) {
       html.setText(dat);

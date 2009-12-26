@@ -107,7 +107,8 @@ public class KonsoleFrame extends JDialog implements ActionListener {
 
   void readLog(String logfile) {
     if (logfile == null) {
-      out.append("\n"+International.getString("FEHLER beim Lesen der Logdatei '{logfile}'.",logfile));
+      out.append("\n"+
+              LogString.logstring_fileReadFailed(logfile, International.getString("Logdatei")));
       return;
     }
     BufferedReader f;

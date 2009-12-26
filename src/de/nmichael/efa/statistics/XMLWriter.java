@@ -15,6 +15,9 @@ import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
 import java.io.File;
 
+// @i18n complete
+// @todo: change XML format to english keys!
+
 public class XMLWriter {
 
   StatistikDaten sd;
@@ -227,8 +230,8 @@ public class XMLWriter {
       if (sd.stylesheet == null) trans = trfac.newTransformer();
       else {
         if (!EfaUtil.canOpenFile(sd.stylesheet)) {
-          Dialog.error("Das Stylesheet\n'"+sd.stylesheet+"'\nkann nicht geöffnet werden!");
-          return "";
+            LogString.logstring_fileOpenFailed(sd.stylesheet, International.getString("Stylesheet"));
+            return "";
         }
         trans = trfac.newTransformer(new javax.xml.transform.stream.StreamSource(new File(sd.stylesheet)));
       }

@@ -10,6 +10,7 @@
 
 package de.nmichael.efa;
 
+import de.nmichael.efa.core.config.EfaBaseConfig;
 import de.nmichael.efa.core.WettDefs;
 import de.nmichael.efa.core.Gruppen;
 import de.nmichael.efa.core.Fahrtenabzeichen;
@@ -19,7 +20,7 @@ import de.nmichael.efa.core.EfaConfig;
 import de.nmichael.efa.core.Fahrtenbuch;
 import de.nmichael.efa.core.Mannschaften;
 import de.nmichael.efa.core.Adressen;
-import de.nmichael.efa.core.Bezeichnungen;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.TMJ;
 import de.nmichael.efa.util.Logger;
 import de.nmichael.efa.util.International;
@@ -45,13 +46,13 @@ public class Daten {
 
   public final static String VERSION = "v1.9.0_dev01"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
   public final static String VERSIONID = "1.9.0_#1";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "09.08.2009";  // Release Date: TT.MM.JJJJ
-  public final static String PROGRAMMID = "EFA.183"; // Versions-ID für Wettbewerbsmeldungen
-  public final static String PROGRAMMID_DRV = "EFADRV.183"; // Versions-ID für Wettbewerbsmeldungen
+  public final static String VERSIONRELEASEDATE = "26.12.2009";  // Release Date: TT.MM.JJJJ
+  public final static String PROGRAMMID = "EFA.190"; // Versions-ID für Wettbewerbsmeldungen
+  public final static String PROGRAMMID_DRV = "EFADRV.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String COPYRIGHTYEAR = "09";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
 
   public final static String EMIL_VERSION = VERSION; // Version
-  public final static String EMIL_KENNUNG = "EMIL.183";
+  public final static String EMIL_KENNUNG = "EMIL.190";
   public final static String ELWIZ_VERSION = VERSION; // Version
   public final static String EDDI_VERSION = VERSION; // Version
 
@@ -67,7 +68,7 @@ public class Daten {
   public final static String CONFIGFILE = "efa.cfg";                // ./cfg/efa.cfg            Konfigurationsdatei
   public final static String DRVCONFIGFILE = "drv.cfg";             // ./cfg/drv.cfg            DRV-Konfigurationsdatei
   public static final String WETTFILE = "wett.cfg";                 // ./cfg/wett.cfg           Konfiguration für Wettbewerbe
-  public static final String BEZEICHFILE = "bezeichnungen.cfg";     // ./cfg/bezeichnungen.cfg  Konfiguration für Bezeichnungen
+  public static final String EFATYPESFILE = "types.cfg";            // ./cfg/types.cfg          Konfiguration für EfaTypes (Bezeichnungen)
   public final static String VEREINSCONFIG = "verein.efv";          // ./daten/verein.efv       Konfigurationsdatei für Vereinseinstellungen
   public static final String ADRESSENFILE = "adressen.efd";         // ./daten/adressen.efd     gespeicherte Adressen von Teilnehmern
   public static final String MITGLIEDER_SYNONYM = "mitglieder.efs"; // ./daten/mitglieder.efs   Synonymdatei
@@ -143,9 +144,9 @@ public class Daten {
   public static boolean DONT_SAVE_ANY_FILES_DUE_TO_OOME = false;
   public static boolean javaRestart = false;
 
-  public static UserHome efaConfigUserHome; // UserHome-Konfigurationsdatei
+  public static EfaBaseConfig efaBaseConfig; // efa Base Config
   public static EfaConfig efaConfig;         // Konfigurationsdatei
-  public static Bezeichnungen bezeichnungen; // Bezeichnungen
+  public static EfaTypes efaTypes;           // EfaTypes (Bezeichnungen)
   public static VereinsConfig vereinsConfig; // Konfigurationsdatei für Vereinseinstellungen
   public static Adressen adressen;           // gespeicherte Teilnehmer-Adressen
   public static Synonyme synMitglieder;      // Synonymliste für Mitglieder
@@ -242,6 +243,15 @@ public class Daten {
     efaStartTime = System.currentTimeMillis();
   }
 
+  public static boolean isGuiAppl() {
+      return (applID == APPL_EFA ||
+              applID == APPL_EFADIREKT ||
+              applID == APPL_EMIL ||
+              applID == APPL_ELWIZ ||
+              applID == APPL_EDDI ||
+              applID == APPL_DRV);
+  }
+
   private static boolean checkAndCreateDirectory(String dir, Vector errors) {
     File f = new File(dir);
     if (!f.isDirectory()) {
@@ -267,13 +277,15 @@ public class Daten {
     if (Daten.efaMainDirectory.endsWith("/classes/") && !new File(Daten.efaMainDirectory+"program/").isDirectory())
       Daten.efaMainDirectory = Daten.efaMainDirectory.substring(0,Daten.efaMainDirectory.length()-8);
 
-    String userHomeConfigDir = (Daten.efaUserHome != null ? Daten.efaUserHome : "") + (Daten.fileSep != null && !Daten.efaUserHome.endsWith(Daten.fileSep) ? Daten.fileSep : "");
-    UserHome.setEfaConfigUserHomeFilename(userHomeConfigDir);
-    Daten.efaConfigUserHome = new UserHome();
-    if (!EfaUtil.canOpenFile(Daten.efaConfigUserHome.getFileName())) {
-      Daten.efaConfigUserHome.writeFile();
+    String efaBaseConfigFile = (Daten.efaUserHome != null ? Daten.efaUserHome : "") + (Daten.fileSep != null && !Daten.efaUserHome.endsWith(Daten.fileSep) ? Daten.fileSep : "");
+    EfaBaseConfig.setEfaConfigUserHomeFilename(efaBaseConfigFile);
+    Daten.efaBaseConfig = new EfaBaseConfig();
+    if (!EfaUtil.canOpenFile(Daten.efaBaseConfig.getFileName())) {
+      Daten.efaBaseConfig.writeFile();
     }
-    Daten.efaConfigUserHome.readFile();
+    Daten.efaBaseConfig.readFile();
+    Daten.efaProgramDirectory = Daten.efaMainDirectory+"program"+Daten.fileSep; // same as below in dirsIni() (is required by International.initialize()!!)
+    International.initialize();
   }
 
   public static boolean dirsIni(boolean showMsg) {
@@ -289,11 +301,11 @@ public class Daten {
     if ( !checkAndCreateDirectory(Daten.efaPluginDirectory,errors) ) { dirs_ok = false; Daten.efaPluginDirectory=Daten.efaMainDirectory; }
 
     // ./daten
-    Daten.efaDataDirectory = Daten.efaConfigUserHome.efaUserDirectory+"daten"+Daten.fileSep;
+    Daten.efaDataDirectory = Daten.efaBaseConfig.efaUserDirectory+"daten"+Daten.fileSep;
     if ( !checkAndCreateDirectory(Daten.efaDataDirectory,errors) ) { dirs_ok = false; Daten.efaDataDirectory=Daten.efaMainDirectory; }
 
     // ./cfg
-    Daten.efaCfgDirectory = Daten.efaConfigUserHome.efaUserDirectory+"cfg"+Daten.fileSep;
+    Daten.efaCfgDirectory = Daten.efaBaseConfig.efaUserDirectory+"cfg"+Daten.fileSep;
     if ( !checkAndCreateDirectory(Daten.efaCfgDirectory,errors) ) { dirs_ok = false; Daten.efaCfgDirectory=Daten.efaMainDirectory; }
 
     // ./doc
@@ -309,17 +321,19 @@ public class Daten {
     if ( !checkAndCreateDirectory(Daten.efaStyleDirectory,errors) ) { dirs_ok = false; Daten.efaStyleDirectory=Daten.efaMainDirectory; }
 
     // ./bak
-    Daten.efaBakDirectory = Daten.efaConfigUserHome.efaUserDirectory+"backup"+Daten.fileSep;
+    Daten.efaBakDirectory = Daten.efaBaseConfig.efaUserDirectory+"backup"+Daten.fileSep;
     if ( !checkAndCreateDirectory(Daten.efaBakDirectory,errors) ) { dirs_ok = false; Daten.efaBakDirectory=Daten.efaMainDirectory; }
 
     // ./tmp
-    Daten.efaTmpDirectory = Daten.efaConfigUserHome.efaUserDirectory+"tmp"+Daten.fileSep;
+    Daten.efaTmpDirectory = Daten.efaBaseConfig.efaUserDirectory+"tmp"+Daten.fileSep;
     if ( !checkAndCreateDirectory(Daten.efaTmpDirectory,errors) ) { dirs_ok = false; Daten.efaTmpDirectory=Daten.efaMainDirectory; }
 
     if (showMsg && errors.size()>0) {
       String s = "";
       for (int i=0; i<errors.size(); i++) s += (s.length()>0 ? "\n" : "") + errors.get(i);
-      Dialog.meldung( (dirs_ok ? International.getString("Warnung") : International.getString("Fehler")), s);
+      Dialog.meldung( (dirs_ok ? 
+          International.getString("Warnung") :
+          International.getString("Fehler")), s);
     }
 
     for (int i=0; i<errors.size(); i++) { Logger.log(Logger.WARNING,Logger.MSG_CORE_SETUPDIRS,(String)errors.get(i)); }
@@ -335,7 +349,7 @@ public class Daten {
     infos.add("efa.version="+Daten.VERSIONID);
     if (applID != APPL_EFADIREKT) {
       infos.add("efa.dir.main="+Daten.efaMainDirectory);
-      infos.add("efa.dir.user="+Daten.efaConfigUserHome.efaUserDirectory);
+      infos.add("efa.dir.user="+Daten.efaBaseConfig.efaUserDirectory);
       infos.add("efa.dir.program="+Daten.efaProgramDirectory);
       infos.add("efa.dir.plugin="+Daten.efaPluginDirectory);
       infos.add("efa.dir.doc="+Daten.efaDocDirectory);

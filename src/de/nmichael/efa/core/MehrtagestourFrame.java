@@ -155,7 +155,8 @@ public class MehrtagestourFrame extends JDialog implements ActionListener {
     jLabel1.setLabelFor(fahrt);
     fahrt.setNextFocusableComponent(start);
     Dialog.setPreferredSize(fahrt, 250, 19);
-    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Beginn der Ruderfahrt (Datum)")+": ");
+    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Beginn der Ruderfahrt") +
+            " (" + International.getString("Datum") + "): ");
     jLabel2.setLabelFor(start);
     start.setNextFocusableComponent(ende);
     Dialog.setPreferredSize(start,250, 19);
@@ -179,7 +180,8 @@ public class MehrtagestourFrame extends JDialog implements ActionListener {
         anzTage_focusLost(e);
       }
     });
-    Mnemonics.setLabel(this, jLabel3, International.getStringWithMnemonic("Ende der Ruderfahrt (Datum)")+": ");
+    Mnemonics.setLabel(this, jLabel3, International.getStringWithMnemonic("Ende der Ruderfahrt") + 
+            " (" + International.getString("Datum") + "): ");
     jLabel3.setLabelFor(ende);
     Mnemonics.setLabel(this, jLabel4, International.getStringWithMnemonic("Befahrene Gewässer (durch Kommata getrennt)")+": ");
     jLabel4.setLabelFor(gewaesser);
@@ -289,7 +291,7 @@ public class MehrtagestourFrame extends JDialog implements ActionListener {
     String name = EfaUtil.removeSepFromString(fahrt.getText().trim());
 
     if (name.length() == 0) {
-      Dialog.error(International.getString("Bitte gib einen Namen für die Mehrtagesfahrt ein."));
+      Dialog.error(International.getString("Bitte gib einen Namen für die Mehrtagesfahrt ein!"));
       fahrt.requestFocus();
       return;
     }
@@ -297,7 +299,8 @@ public class MehrtagestourFrame extends JDialog implements ActionListener {
     if (auswahlFrame == null && efaFrame != null) { // Aufruf aus EfaFrame
       if (Daten.fahrtenbuch.getMehrtagesfahrt(name) != null) {
         Dialog.infoDialog(International.getString("Name bereits vergeben"),
-                International.getString("Es gibt bereits eine Mehrtagesfahrt mit diesem Namen! Bitte wähle einen anderen Namen."));
+                International.getString("Es gibt bereits eine Mehrtagesfahrt mit diesem Namen!") + " " +
+                International.getString("Bitte wähle einen anderen Namen."));
         fahrt.requestFocus();
         return;
       }
@@ -318,7 +321,8 @@ public class MehrtagestourFrame extends JDialog implements ActionListener {
       if (!(fahrt.getText().equals(tabelle[tabIndex][0]))) {
         if (Daten.fahrtenbuch.getMehrtagesfahrt(name) != null) {
           Dialog.infoDialog(International.getString("Name bereits vergeben"),
-                  International.getString("Es gibt bereits eine Mehrtagesfahrt mit diesem Namen! Bitte wähle einen anderen Namen."));
+                  International.getString("Es gibt bereits eine Mehrtagesfahrt mit diesem Namen!") + " " +
+                  International.getString("Bitte wähle einen anderen Namen."));
           fahrt.requestFocus();
           return;
         }
@@ -335,7 +339,8 @@ public class MehrtagestourFrame extends JDialog implements ActionListener {
 
     if (wanderfahrtSelectFrame != null) {
       if (Daten.fahrtenbuch.getMehrtagesfahrt(name) != null) {
-        Dialog.error(International.getString("Es gibt bereits eine Mehrtagesfahrt mit diesem Namen! Bitte wähle einen anderen Namen."));
+        Dialog.error(International.getString("Es gibt bereits eine Mehrtagesfahrt mit diesem Namen!") + " " +
+                International.getString("Bitte wähle einen anderen Namen."));
         fahrt.requestFocus();
         return;
       }

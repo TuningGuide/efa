@@ -148,22 +148,23 @@ public class BrowserFrame extends JDialog implements ActionListener {
           URLConnection conn = e.getURL().openConnection();
           if (conn == null || conn.getContentType() == null) {
             out.setText(International.getString("FEHLER") + ": "+
-                    International.getMessage("Kann Adresse '{url}' nicht öffnen: {message}",e.getURL().toString(),International.getString("Bist Du online?")));
+                    International.getMessage("Kann Adresse '{url}' nicht öffnen: {message}",e.getURL().toString(),
+                    International.getString("Bist Du online?")));
             return;
           }
           String surl = e.getURL().toString();
           if (conn.getContentType().equals("text/html") || conn.getContentType().equals("text/plain")) {
             if (surl.toLowerCase().equals("mailto:"+Daten.EFAEMAIL)) surl = "file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"mailto.html";
             if (surl.toLowerCase().startsWith("mailto:"))
-              Dialog.error(International.getString("Bitte benutze ein externes email-Programm, um eine email an "+
-                           surl.substring(7,surl.length())+" zu verschicken!"));
+              Dialog.error(International.getString("Bitte benutze ein externes email-Programm, um eine email an {receiver} zu verschicken!",
+                      surl.substring(7,surl.length())));
             else setNewPage(surl);
           } else downloadUrl(conn,e.getURL().toString());
         } catch(IOException ee) {
           out.setText(International.getString("FEHLER") + ": "+
                   International.getMessage("Kann Adresse '{url}' nicht öffnen: {message}",e.getURL().toString(),ee.toString())+"\n"+
-                  International.getString("Eventuell wird efa durch eine Firewall blockiert. Sollte dies der Fall sein, "+
-                      "ändere entweder Deine Firewall-Einstellungen und erlaube efa den Internet-Zugriff "+
+                  International.getString("Eventuell wird efa durch eine Firewall blockiert.") + " " +
+                  International.getString("Bitte prüfe Deine Firewall-Einstellungen und erlaube efa den Internet-Zugriff "+
                       "oder benutze einen normalen Webbrowser."));
         }
       }
@@ -435,7 +436,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
       Daten.efaConfig.efaDirekt_locked = false;
       Daten.efaConfig.writeFile();
       Logger.log(Logger.INFO,
-              Logger.MSG_BHEVENTS_UNLOCKED,
+              Logger.MSG_EVT_UNLOCKED,
               International.getString("efa ist wieder entsperrt und für die Benutzung freigegeben."));
     }
   }
@@ -667,7 +668,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
       }
     } catch(IOException e) {
       Dialog.error(International.getString("Download fehlgeschlagen")+":\n"+e.toString()+"\n"+
-              International.getString("Eventuell wurde efa durch eine Firewall blockiert."));
+              International.getString("Eventuell wird efa durch eine Firewall blockiert."));
     }
   }
 
@@ -684,7 +685,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
     }
     if (downloadThread.exceptionText != null) {
       Dialog.error(International.getString("Download fehlgeschlagen")+": "+downloadThread.exceptionText+"\n"+
-              International.getString("Eventuell wurde efa durch eine Firewall blockiert."));
+              International.getString("Eventuell wird efa durch eine Firewall blockiert."));
       return false;
     }
     return true;

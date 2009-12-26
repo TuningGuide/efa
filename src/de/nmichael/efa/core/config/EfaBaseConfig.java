@@ -8,8 +8,9 @@
  * @version 2
  */
 
-package de.nmichael.efa;
+package de.nmichael.efa.core.config;
 
+import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.util.Logger;
 import de.nmichael.efa.util.EfaUtil;
@@ -17,12 +18,14 @@ import java.io.*;
 
 // @i18n complete
 
-public class UserHome extends DatenListe {
+public class EfaBaseConfig extends DatenListe {
 
   public static final String KENNUNG183 = "##EFA.183.USERHOME##";
+  public static final String KENNUNG190 = "##EFA.190.BASECONFIG##";
 
   private static String _filename;
   public String efaUserDirectory; // Verzeichnis für alle User-Daten von efa (daten, cfg, tmp)
+  public String language;         // Sprache
 
   public static void setEfaConfigUserHomeFilename(String dir) {
     String fname = "";
@@ -35,9 +38,10 @@ public class UserHome extends DatenListe {
   }
 
   // Konstruktor
-  public UserHome() {
+  public EfaBaseConfig() {
     super(_filename,0,0,false);
-    kennung = KENNUNG183;
+    Logger.log(Logger.DEBUG, Logger.MSG_CORE_USERHOME, "EfaBaseConfig="+_filename);
+    kennung = KENNUNG190;
     reset();
     this.backupEnabled = false; // Aus Sicherheitsgründen kein Backup von .efa.cfg anlegen!!
   }
@@ -63,6 +67,7 @@ public class UserHome extends DatenListe {
   // Einstellungen zurücksetzen
   void reset() {
     efaUserDirectory = Daten.efaMainDirectory;
+    language = null;
     if (efaCanWrite(efaUserDirectory,false)) {
       Logger.log(Logger.DEBUG,Logger.MSG_CORE_USERHOME,"efa.dir.user="+efaUserDirectory);
     } else {
@@ -91,6 +96,9 @@ public class UserHome extends DatenListe {
             if (!efaUserDirectory.endsWith(Daten.fileSep)) efaUserDirectory += Daten.fileSep;
           }
         }
+        if (s.startsWith("LANGUAGE=")) {
+          language = s.substring(9).trim();
+        }
       }
     } catch(IOException e) {
       try {
@@ -109,12 +117,33 @@ public class UserHome extends DatenListe {
       if (efaUserDirectory != null && efaUserDirectory.length()>0) {
         fwrite("USERHOME=" + efaUserDirectory + "\n");
       }
+      if (language != null) {
+        fwrite("LANGUAGE=" + language + "\n");
+      }
     } catch(Exception e) {
       try {
         fcloseW();
       } catch(Exception ee) {
         return false;
       }
+      return false;
+    }
+    return true;
+  }
+
+  // Dateiformat überprüfen (ggf. überschrieben durch Unterklassen)
+  public synchronized boolean checkFileFormat() {
+    String s;
+    try {
+      s = freadLine();
+      if ( s == null ||
+              (!s.trim().startsWith(KENNUNG183) && !s.trim().startsWith(KENNUNG190))) {
+        errInvalidFormat(dat, EfaUtil.trimto(s,50));
+        fclose(false);
+        return false;
+      }
+    } catch(IOException e) {
+      this.errReadingFile(dat,e.toString());
       return false;
     }
     return true;

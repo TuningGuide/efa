@@ -114,8 +114,8 @@ public class DatenListe {
       error = e.toString();
     }
     if (error != null) {
-        String msg = International.getMessage("Fehler beim Schreiben der Datei {file}: {error} (Ein anderes Programm hat die Datei verändert. Um inkonsistente Änderungen zu vermeiden, wird efa die Datei NICHT speichern.)",
-              dat,error);
+        String msg = LogString.logstring_fileWritingFailed(dat, International.getString("Datei"), error) + " (" +
+              International.getString("Ein anderes Programm hat die Datei verändert. Um inkonsistente Änderungen zu vermeiden, wird efa die Datei NICHT speichern.") + ")";
       Logger.log(Logger.ERROR,Logger.MSG_CSVFILE_ERRORWRITEFILE,msg);
       switch (Daten.actionOnChecksumSaveError) {
         case Daten.CHECKSUM_SAVE_NO_ACTION:
@@ -126,11 +126,11 @@ public class DatenListe {
           break;
         case Daten.CHECKSUM_SAVE_HALT_PROGRAM:
           Dialog.infoDialog(International.getString("Fataler Fehler"),
-                  International.getString("Um Dateninkonsistenz zu vermeiden, beendet sich efa JETZT. Bitte informiere den Administrator."));
+                  International.getString("Um Dateninkonsistenz zu vermeiden, beendet sich efa JETZT."));
           Logger.log(Logger.ERROR,Logger.MSG_CSVFILE_INCONSISTENTDATA,
                   International.getString("Möglicherweise laufen zwei Instanzen von efa zeitgleich. Um Inkonsistenzen zu vermeiden, beendet sich efa JETZT."));
-          Logger.log(Logger.INFO,Logger.MSG_BHERR_PANIC,
-                  International.getString("PROGRAMMENDE durch efa (PANIC)"));
+          Logger.log(Logger.INFO,Logger.MSG_ERR_PANIC,
+                  International.getMessage("PROGRAMMENDE durch {originator}",Daten.EFA_SHORTNAME) + " (PANIC)");
           System.exit(7);
           break;
       }
@@ -173,7 +173,8 @@ public class DatenListe {
 
     if (hash != null && checksum != null && !checksum.equals(hash)) {
       if (checksum.length()==0) checksum = "<"+International.getString("leer")+">";
-      String msg = International.getMessage("Die Prüfsumme {checksum} der Datei {file} stimmt nicht. Die Datei wurde von einem externen Programm verändert.",checksum,dat);
+      String msg = International.getMessage("Die Prüfsumme {checksum} der Datei {file} stimmt nicht.",checksum,dat) + " " +
+              International.getString("Die Datei wurde von einem externen Programm verändert.");
         switch(Daten.actionOnChecksumLoadError) {
           case Daten.CHECKSUM_LOAD_NO_ACTION:
                break;
@@ -190,7 +191,8 @@ public class DatenListe {
                               International.getString("Um nicht mit unbefugt manipulierten Daten weiterzuarbeiten, "+
                                         "stellt efa hiermit den Dienst ein, bis es vom Super-Admin "+
                                         "wieder freigeschaltet wird."));
-               Admin admin = AdminLoginFrame.login(Dialog.frameCurrent(),International.getString("Datei-Prüfsummenfehler: Freischalten von efa"),EfaConfig.SUPERADMIN);
+               Admin admin = AdminLoginFrame.login(Dialog.frameCurrent(),International.getString("Datei-Prüfsummenfehler") + ": " +
+                       International.getString("Freischalten von efa"),EfaConfig.SUPERADMIN);
                if (admin == null) EfaDirektFrame.haltProgram(International.getString("Programmende, da Datei-Prüfsummenfehler vorliegt und Admin-Login nicht erfolgreich war."));
                String oldChecksum = checksum;
                if (writeFile(false,true)) {
@@ -206,8 +208,8 @@ public class DatenListe {
                }
                break;
           case Daten.CHECKSUM_LOAD_PRINT_WARNING_AND_AUTO_REWRITE:
-              msg = International.getMessage("Die Prüfsumme {checksum} der Datei {file} stimmte nicht. "+
-                            "Die Datei wurde von einem externen Programm verändert.",checksum,dat);
+              msg = International.getMessage("Die Prüfsumme {checksum} der Datei {file} stimmt nicht.",checksum,dat) + " " +
+                            International.getString("Die Datei wurde von einem externen Programm verändert.");
                if (writeFile(false,true)) {
                  String s = msg + "\n" + International.getString("efa hat die Prüfsumme nun korrigiert.");
                  Logger.log(Logger.WARNING,Logger.MSG_CSVFILE_CHECKSUMCORRECTED,s);
@@ -220,12 +222,14 @@ public class DatenListe {
                break;
           case Daten.CHECKSUM_LOAD_HALT_PROGRAM:
                Logger.log(Logger.ERROR,Logger.MSG_CSVFILE_CHECKSUMERROR,
-                       International.getMessage("Die Prüfsumme {checksum} der Datei {file} stimmt nicht. Das Programm wurde angehalten.",checksum,dat));
+                       International.getMessage("Die Prüfsumme {checksum} der Datei {file} stimmt nicht.",checksum,dat) + " " +
+                            International.getString("Das Programm wurde angehalten."));
                System.exit(7);
                break;
           default:
                Logger.log(Logger.ERROR,Logger.MSG_CSVFILE_CHECKSUMERROR,
-                       International.getMessage("Die Prüfsumme {checksum} der Datei {file} stimmt nicht. Das Programm wurde angehalten.",checksum,dat));
+                       International.getMessage("Die Prüfsumme {checksum} der Datei {file} stimmt nicht.",checksum,dat) + " " +
+                            International.getString("Das Programm wurde angehalten."));
                System.exit(7);
                break;
         }
@@ -405,7 +409,7 @@ public class DatenListe {
   }
 
   public void errWritingFile(String file) {
-      String msg = International.getMessage("Die Datei {file} konnte nicht geschrieben werden.",file);
+      String msg = LogString.logstring_fileWritingFailed(file, International.getString("Datei"));
       Dialog.error(msg);
       Logger.log(Logger.ERROR,
               Logger.MSG_CSVFILE_ERRORWRITEFILE,
@@ -413,7 +417,7 @@ public class DatenListe {
   }
 
   public void errCreatingFile(String file) {
-      String msg = International.getMessage("Die Datei {file} konnte nicht erstellt werden.",file);
+      String msg = LogString.logstring_fileCreationFailed(file, International.getString("Datei"));
       Dialog.error(msg);
       Logger.log(Logger.ERROR,
               Logger.MSG_CSVFILE_ERRORCREATEFILE,
@@ -437,7 +441,7 @@ public class DatenListe {
   }
 
   public void errReadingFile(String file, String message) {
-      String msg = International.getMessage("Die Datei {file} kann nicht gelesen werden: {message}.",file,message);
+      String msg = LogString.logstring_fileReadFailed(file, International.getString("Datei"),message);
       Dialog.error(msg);
       Logger.log(Logger.ERROR,
               Logger.MSG_CSVFILE_ERRORREADINGFILE,
@@ -445,7 +449,7 @@ public class DatenListe {
   }
 
   public void errClosingFile(String file, String message) {
-      String msg = International.getMessage("Die Datei {file} kann nicht geschlossen werden: {message}.",file,message);
+      String msg = LogString.logstring_fileCloseFailed(file, International.getString("Datei"),message);
       Dialog.error(msg);
       Logger.log(Logger.ERROR,
               Logger.MSG_CSVFILE_ERRORCLOSINGFILE,
@@ -499,7 +503,7 @@ public class DatenListe {
 
     // Versuchen, die Datei zu öffnen
     if (dat == null) {
-      Dialog.error(International.getString("Datei <null> kann nicht geöffnet werden!"));
+      Dialog.error(LogString.logstring_fileOpenFailed("<null>", International.getString("Datei")));
       return false;
     }
     try {
@@ -543,7 +547,7 @@ public class DatenListe {
           if (Daten.actionOnDatenlisteNotFound == Daten.DATENLISTE_FRAGE_REQUIRE_ADMIN_EXIT_ON_NEIN) {
             EfaDirektFrame.haltProgram(International.getMessage("Programmende, da Datenliste {file} nicht gefunden wurde.",dat));
           }
-          Dialog.error(International.getMessage("Datei {file} nicht gefunden!",dat));
+          Dialog.error(LogString.logstring_fileNotFound(dat, International.getString("Datei")));
           return false;
         }
       }
@@ -644,7 +648,7 @@ public class DatenListe {
       } catch(IOException e) {
         File f = new File(dat);
         if (f.isFile() && !f.canWrite()) {
-          if (!Dialog.okAbbrDialog(International.getString("Datei ist schreibgeschützt"),
+          if (!Dialog.okAbbrDialog(International.getString("Datei schreibgeschützt"),
                                    International.getMessage("Datei {file} ist schreibgeschützt und kann von efa nicht überschrieben werden! "+
                                    "Bitte entferne den Schreibschutz und versuche es erneut.",dat))) break;
         } else break;

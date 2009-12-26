@@ -11,6 +11,7 @@
 package de.nmichael.efa.direkt;
 
 import de.nmichael.efa.core.*;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -111,7 +112,7 @@ public class EfaDirektFrame extends JFrame {
       contentPane.setBackground(new Color(0,0,150));
       contentPane.setBorder(b);
     } catch (NoSuchMethodError e) {
-      Logger.log(Logger.WARNING, Logger.MSG_BHWARN_JAVA_VERSION, 
+      Logger.log(Logger.WARNING, Logger.MSG_WARN_JAVA_VERSION, 
               International.getString("Fenstereigenschaft 'nicht verschiebbar' wird erst ab Java 1.4 unterstützt."));
     }
 
@@ -126,10 +127,10 @@ public class EfaDirektFrame extends JFrame {
       }
     } catch(UnsupportedClassVersionError e) {
       // Java 1.3 kommt mit der Java 1.5 Klasse nicht klar
-      Logger.log(Logger.WARNING, Logger.MSG_BHWARN_JAVA_VERSION,
+      Logger.log(Logger.WARNING, Logger.MSG_WARN_JAVA_VERSION,
               International.getString("Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstützt."));
     } catch(NoClassDefFoundError e) {
-      Logger.log(Logger.WARNING, Logger.MSG_BHWARN_JAVA_VERSION,
+      Logger.log(Logger.WARNING, Logger.MSG_WARN_JAVA_VERSION,
               International.getString("Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstützt."));
     }
 
@@ -430,7 +431,7 @@ public class EfaDirektFrame extends JFrame {
         fahrtabbruchButton_actionPerformed(e);
       }
     });
-    hilfeButton.setText(International.getString("Hilfe mit [F1]"));
+    hilfeButton.setText(International.getMessage("Hilfe mit {key}","[F1]"));
     hilfeButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         hilfeButton_actionPerformed(e);
@@ -603,26 +604,26 @@ public class EfaDirektFrame extends JFrame {
          durchMitglied = true;
        }
        if (Daten.efaConfig.efaDirekt_execOnEfaExit.length()>0 && durchMitglied) {
-         Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_EFAEXITEXECCMD,
+         Logger.log(Logger.INFO, Logger.MSG_EVT_EFAEXITEXECCMD,
                  International.getMessage("Programmende veranlaßt; versuche, Kommando '{cmd}' auszuführen...", Daten.efaConfig.efaDirekt_execOnEfaExit));
          try {
            Runtime.getRuntime().exec(Daten.efaConfig.efaDirekt_execOnEfaExit);
          } catch(Exception ee) {
-           Logger.log(Logger.ERROR, Logger.MSG_BHERR_EFAEXITEXECCMD_FAILED,
-                   International.getMessage("Kann Kommando '{cmd}' nicht ausführen.",Daten.efaConfig.efaDirekt_execOnEfaExit));
+           Logger.log(Logger.ERROR, Logger.MSG_ERR_EFAEXITEXECCMD_FAILED,
+                   LogString.logstring_cantExecCommand(Daten.efaConfig.efaDirekt_execOnEfaExit, International.getString("Kommando")));
          }
        }
        break;
      case EFA_EXIT_REASON_TIME:
        wer = International.getString("Zeitsteuerung");
        if (Daten.efaConfig.efaDirekt_execOnEfaAutoExit.length()>0) {
-         Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_EFAEXITEXECCMD,
+         Logger.log(Logger.INFO, Logger.MSG_EVT_EFAEXITEXECCMD,
                  International.getMessage("Programmende veranlaßt; versuche, Kommando '{cmd}' auszuführen...",Daten.efaConfig.efaDirekt_execOnEfaAutoExit));
          try {
            Runtime.getRuntime().exec(Daten.efaConfig.efaDirekt_execOnEfaAutoExit);
          } catch(Exception ee) {
-           Logger.log(Logger.ERROR, Logger.MSG_BHERR_EFAEXITEXECCMD_FAILED,
-                   International.getMessage("Kann Kommando '{cmd}' nicht ausführen.",Daten.efaConfig.efaDirekt_execOnEfaAutoExit));
+           Logger.log(Logger.ERROR, Logger.MSG_ERR_EFAEXITEXECCMD_FAILED,
+                   LogString.logstring_cantExecCommand(Daten.efaConfig.efaDirekt_execOnEfaAutoExit, International.getString("Kommando")));
          }
        }
        break;
@@ -642,14 +643,14 @@ public class EfaDirektFrame extends JFrame {
             (Daten.efa_java_arguments != null ? Daten.efa_java_arguments :
              "-cp " + System.getProperty("java.class.path") +
              " " + Daten.EFADIREKT_MAINCLASS + Main.STARTARGS);
-        Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_EFARESTART,
+        Logger.log(Logger.INFO, Logger.MSG_EVT_EFARESTART,
                 International.getMessage("Neustart mit Kommando: {cmd}",restartcmd));
         try {
           Runtime.getRuntime().exec(restartcmd);
         }
         catch (Exception ee) {
-          Logger.log(Logger.ERROR, Logger.MSG_BHERR_EFARESTARTEXEC_FAILED,
-                     International.getMessage("Kann Kommando '{cmd}' nicht ausführen.",restartcmd));
+          Logger.log(Logger.ERROR, Logger.MSG_ERR_EFARESTARTEXEC_FAILED,
+                   LogString.logstring_cantExecCommand(restartcmd, International.getString("Kommando")));
         }
       } else {
         exitCode = 99;
@@ -657,14 +658,14 @@ public class EfaDirektFrame extends JFrame {
     }
 
     if (e != null) super.processWindowEvent(e);
-    Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_EFAEXIT,
-            International.getMessage("PROGRAMMENDE durch {originator}.",wer));
+    Logger.log(Logger.INFO, Logger.MSG_EVT_EFAEXIT,
+            International.getMessage("PROGRAMMENDE durch {originator}",wer));
     System.exit(exitCode);
   }
 
   public synchronized void exitOnLowMemory(String detector, boolean immediate) {
     largeChunkOfMemory = null;
-    Logger.log(Logger.ERROR, Logger.MSG_BHERR_EXITLOWMEMORY,
+    Logger.log(Logger.ERROR, Logger.MSG_ERR_EXITLOWMEMORY,
             International.getMessage("Der Arbeitsspeicher wird knapp [{detector}]: "+
                                      "efa versucht {jetzt} einen Neustart ...",detector,
                                      (immediate ? International.getString("jetzt").toUpperCase() : International.getString("jetzt"))));
@@ -687,10 +688,10 @@ public class EfaDirektFrame extends JFrame {
   public static void haltProgram(String s) {
     if (s != null) {
       Dialog.error(s);
-      Logger.log(Logger.ERROR, Logger.MSG_BHERR_GENERIC,
+      Logger.log(Logger.ERROR, Logger.MSG_ERR_GENERIC,
               EfaUtil.replace(s,"\n"," ",true));
     }
-    Logger.log(Logger.INFO, Logger.MSG_BHERR_EXITONERROR,
+    Logger.log(Logger.INFO, Logger.MSG_ERR_EXITONERROR,
             International.getString("PROGRAMMENDE (wegen Fehler)"));
     System.exit(1);
   }
@@ -707,17 +708,18 @@ public class EfaDirektFrame extends JFrame {
 
 
     // Backup
+    EfaConfigFrame.setBakDir(Daten.efaConfig.bakDir);
     Daten.backup = new Backup(Daten.efaBakDirectory,Daten.efaConfig.bakSave,Daten.efaConfig.bakMonat,Daten.efaConfig.bakTag,Daten.efaConfig.bakKonv);
 
     // Nachrichten an Admin einlesen
     Daten.nachrichten = new NachrichtenAnAdmin(Daten.efaDataDirectory+Daten.DIREKTNACHRICHTEN);
     if (!EfaUtil.canOpenFile(Daten.nachrichten.getFileName())) {
       if (!Daten.nachrichten.writeFile()) {
-          haltProgram(International.getMessage("Kann Nachrichten-Datei {filename} nicht erstellen!",Daten.nachrichten.getFileName()));
+          haltProgram(LogString.logstring_fileCreationFailed(Daten.nachrichten.getFileName(), International.getString("Nachrichtendatei")));
       }
     } else {
       if (!Daten.nachrichten.readFile()) {
-          haltProgram(International.getMessage("Kann Nachrichten-Datei {filename} nicht öffnen!",Daten.nachrichten.getFileName()));
+          haltProgram(LogString.logstring_fileOpenFailed(Daten.nachrichten.getFileName(), International.getString("Nachrichtendatei")));
       }
     }
     Logger.setNachrichtenAnAdmin(Daten.nachrichten);
@@ -729,27 +731,27 @@ public class EfaDirektFrame extends JFrame {
     // Admin-Paßwort vorhanden?
     boolean neuerSuperAdmin = false;
     if (Daten.efaConfig.admins.get(EfaConfig.SUPERADMIN) == null) {
-      Logger.log(Logger.INFO, Logger.MSG_BHERR_NOSUPERADMIN,
+      Logger.log(Logger.INFO, Logger.MSG_ERR_NOSUPERADMIN,
               International.getString("Kein Super-Admin gefunden."));
       try {
         // gibt es noch das Sicherheitsfile?
         if (!efaSec.secFileExists()) {
-          String s = International.getMessage("efa konnte kein Super-Admin Paßwort finden! "+
-                     "Aus Gründen der Sicherheit verweigert efa den Dienst. "+
+          String s = International.getString("efa konnte kein Super-Admin Paßwort finden!") + " " +
+                     International.getMessage("Aus Gründen der Sicherheit verweigert efa den Dienst. "+
                      "Bitte installiere efa neu oder kontaktiere den Entwickler: {email}",Daten.EFAEMAIL);
           haltProgram(s);
         }
         // stimmen die Sicherheits-Werte überein?
         if (!efaSec.secValueValid()) {
-          String s = International.getMessage("efa konnte kein Super-Admin Paßwort finden, und die Sicherheitsdatei ist korrupt.! "+
-                     "Aus Gründen der Sicherheit verweigert efa den Dienst. "+
+          String s = International.getString("efa konnte kein Super-Admin Paßwort finden, und die Sicherheitsdatei ist korrupt!") + " " +
+                     International.getMessage("Aus Gründen der Sicherheit verweigert efa den Dienst. "+
                      "Bitte installiere efa neu oder kontaktiere den Entwickler: {email}",Daten.EFAEMAIL);
           haltProgram(s);
         }
       } catch(Exception e) {
-        String s = International.getMessage("efa konnte kein Super-Admin Paßwort finden, und bei den folgenden Tests trat ein Fehler auf: {error} "+
-                   "Aus Gründen der Sicherheit verweigert efa den Dienst. "+
-                   "Bitte installiere efa neu oder kontaktiere den Entwickler: {email}",e.toString(),Daten.EFAEMAIL);
+        String s = International.getMessage("efa konnte kein Super-Admin Paßwort finden, und bei den folgenden Tests trat ein Fehler auf: {error}",e.toString()) + " " +
+                   International.getMessage("Aus Gründen der Sicherheit verweigert efa den Dienst. "+
+                   "Bitte installiere efa neu oder kontaktiere den Entwickler: {email}",Daten.EFAEMAIL);
         haltProgram(s);
       }
       String pwd = "";
@@ -773,7 +775,7 @@ public class EfaDirektFrame extends JFrame {
       if (!Daten.efaConfig.writeFile()) {
           haltProgram(International.getMessage("{filename} konnte nicht geschrieben werden!",Daten.efaConfig.getFileName()));
       }
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_SUPERADMINCREATED,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_SUPERADMINCREATED,
               International.getString("Neuer Super-Admin erstellt."));
       neuerSuperAdmin = true;
     }
@@ -790,12 +792,12 @@ public class EfaDirektFrame extends JFrame {
                                    "Möchtest Du, daß die herkömmliche efa-Oberfläche paßwortgeschützt wird und nur "+
                                    "noch für Admins zugänglich ist (für Bootshaus-Einsatz dringend empfohlen!)?\n"+
                                    "Herkömmliche efa-Oberfläche ..."),
-                                   International.getString("... durch Paßwort schützen"),
-                                   International.getString("... nicht schützen"))) {
+                                   "... " + International.getString("durch Paßwort schützen"),
+                                   "... " + International.getString("nicht schützen"))) {
         case 0: // Sperren
           if (efaSec.delete(true)) {
               String s = International.getString("Der Start des herkömmlichen efa ist nun nur noch mit Paßwort möglich!");
-              Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_EFASECURE, s);
+              Logger.log(Logger.INFO, Logger.MSG_EVT_EFASECURE, s);
               Dialog.meldung(s);
           } else {
               haltProgram(International.getMessage("efa konnte die Datei {filename} nicht löschen und wird daher beendet!",efaSec.getFilename()));
@@ -811,7 +813,7 @@ public class EfaDirektFrame extends JFrame {
         case 1:
           if (efaSec.writeSecFile(efaSec.getSecValue(),true)) {
               String s = International.getString("Der Start des herkömmlichen efa ist auch ohne Paßwort möglich!");
-              Logger.log(Logger.WARNING, Logger.MSG_BHWARN_EFAUNSECURE, s);
+              Logger.log(Logger.WARNING, Logger.MSG_WARN_EFAUNSECURE, s);
               Dialog.meldung(s);
           } else {
               haltProgram(International.getMessage("efa konnte die Datei {filename} nicht schreiben und wird daher beendet!",efaSec.getFilename()));
@@ -829,16 +831,16 @@ public class EfaDirektFrame extends JFrame {
     }
 
     // Bezeichnungen einlesen
-    Daten.bezeichnungen = new Bezeichnungen(Daten.efaCfgDirectory+Daten.BEZEICHFILE);
-    if (!EfaUtil.canOpenFile(Daten.bezeichnungen.getFileName())) {
-      if (Daten.bezeichnungen.createNewIfDoesntExist()) {
-          LogString.logWarning_fileNewCreated(Daten.bezeichnungen.getFileName(), International.getString("Liste der Bezeichnungen"));
+    Daten.efaTypes = new EfaTypes(Daten.efaCfgDirectory+Daten.EFATYPESFILE);
+    if (!EfaUtil.canOpenFile(Daten.efaTypes.getFileName())) {
+      if (Daten.efaTypes.createNewIfDoesntExist()) {
+          LogString.logWarning_fileNewCreated(Daten.efaTypes.getFileName(), International.getString("Liste der Bezeichnungen"));
       } else {
-          haltProgram(LogString.logstring_fileCreationFailed(Daten.bezeichnungen.getFileName(), International.getString("Liste der Bezeichnungen")));
+          haltProgram(LogString.logstring_fileCreationFailed(Daten.efaTypes.getFileName(), International.getString("Liste der Bezeichnungen")));
       }
     }
-    if (!Daten.bezeichnungen.readFile()) {
-      haltProgram(LogString.logstring_fileOpenFailed(Daten.bezeichnungen.getFileName(), International.getString("Liste der Bezeichnungen")));
+    if (!Daten.efaTypes.readFile()) {
+      haltProgram(LogString.logstring_fileOpenFailed(Daten.efaTypes.getFileName(), International.getString("Liste der Bezeichnungen")));
     }
 
     // Fahrtenbuch öffnen, falls keines angegeben
@@ -858,12 +860,12 @@ public class EfaDirektFrame extends JFrame {
             haltProgram(International.getString("Programmende, da kein Fahrtenbuch ausgewählt und Admin-Login nicht erfolgreich."));
         }
         if (!admin.allowedFahrtenbuchAuswaehlen) {
-            Dialog.error(International.getMessage("Du hast als Admin '{name}' keine Berechtigung, ein Fahrtenbuch auszuwählen!",admin.name));
+            Dialog.error(International.getMessage("Du hast als Admin {name} keine Berechtigung, ein Fahrtenbuch auszuwählen!",admin.name));
         }
       } while (!admin.allowedFahrtenbuchAuswaehlen);
       String dat = null;
       switch (Dialog.auswahlDialog(International.getString("Fahrtenbuch auswählen"),
-              International.getString("Möchtest Du ein neues Fahrtenbuch erstellen, oder ein vorhandenes öffnen?"),
+              International.getString("Möchtest Du ein neues Fahrtenbuch erstellen oder ein vorhandenes öffnen?"),
               International.getString("Neues Fahrtenbuch erstellen"),
               International.getString("Vorhandenes Fahrtenbuch öffnen"))) {
         case 0: // Neues Fahrtenbuch erstellen
@@ -884,7 +886,7 @@ public class EfaDirektFrame extends JFrame {
       }
       if (dat == null || dat.length()==0) haltProgram("Kein Fahrtenbuch ausgewählt");
       Daten.efaConfig.direkt_letzteDatei = dat;
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_NEWLOGBOOKOPENED,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_NEWLOGBOOKOPENED,
               International.getMessage("Neue Fahrtenbuchdatei '{filename}' ausgewählt.",dat));
       if (!Daten.efaConfig.writeFile()) {
           haltProgram(LogString.logstring_fileCreationFailed(Daten.efaConfig.getFileName(), International.getString("Konfigurationsdatei")));
@@ -946,13 +948,13 @@ public class EfaDirektFrame extends JFrame {
     Daten.adressen = new Adressen(Daten.efaDataDirectory+Daten.ADRESSENFILE);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.ADRESSENFILE)) {
       if (Daten.adressen.writeFile()) {
-          LogString.logWarning_fileNewCreated(Daten.adressen.getFileName(), International.getString("Adressenliste"));
+          LogString.logWarning_fileNewCreated(Daten.adressen.getFileName(), International.getString("Adreßliste"));
       } else {
-          LogString.logError_fileCreationFailed(Daten.adressen.getFileName(), International.getString("Adressenliste"));
+          LogString.logError_fileCreationFailed(Daten.adressen.getFileName(), International.getString("Adreßliste"));
       }
     }
     if (!Daten.adressen.readFile()) {
-        LogString.logError_fileOpenFailed(Daten.adressen.getFileName(), International.getString("Adressenliste"));
+        LogString.logError_fileOpenFailed(Daten.adressen.getFileName(), International.getString("Adreßliste"));
     }
     Daten.vereinsConfig = new VereinsConfig(Daten.efaDataDirectory+Daten.VEREINSCONFIG);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.VEREINSCONFIG)) {
@@ -968,24 +970,24 @@ public class EfaDirektFrame extends JFrame {
     Daten.fahrtenabzeichen = new Fahrtenabzeichen(Daten.efaDataDirectory+Daten.FAHRTENABZEICHEN);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.FAHRTENABZEICHEN)) {
       if (Daten.fahrtenabzeichen.writeFile()) {
-          LogString.logWarning_fileNewCreated(Daten.fahrtenabzeichen.getFileName(), International.getString("Liste der DRV-Fahrtenabezeichen"));
+          LogString.logWarning_fileNewCreated(Daten.fahrtenabzeichen.getFileName(), "Liste der DRV-Fahrtenabezeichen");
       } else {
-          LogString.logError_fileCreationFailed(Daten.fahrtenabzeichen.getFileName(), International.getString("Liste der DRV-Fahrtenabezeichen"));
+          LogString.logError_fileCreationFailed(Daten.fahrtenabzeichen.getFileName(), "Liste der DRV-Fahrtenabezeichen");
       }
     }
     if (!Daten.fahrtenabzeichen.readFile()) {
-        LogString.logError_fileOpenFailed(Daten.fahrtenabzeichen.getFileName(), International.getString("Liste der DRV-Fahrtenabezeichen"));
+        LogString.logError_fileOpenFailed(Daten.fahrtenabzeichen.getFileName(), "Liste der DRV-Fahrtenabezeichen");
     }
     Daten.gruppen = new Gruppen(Daten.efaDataDirectory+Daten.GRUPPEN);
     if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.GRUPPEN)) {
       if (Daten.gruppen.writeFile()) {
-          LogString.logWarning_fileNewCreated(Daten.gruppen.getFileName(), International.getString("Liste der Gruppen"));
+          LogString.logWarning_fileNewCreated(Daten.gruppen.getFileName(), International.getString("Gruppenliste"));
       } else {
-          LogString.logError_fileCreationFailed(Daten.gruppen.getFileName(), International.getString("Liste der Gruppen"));
+          LogString.logError_fileCreationFailed(Daten.gruppen.getFileName(), International.getString("Gruppenliste"));
       }
     }
     if (!Daten.gruppen.readFile()) {
-        LogString.logError_fileOpenFailed(Daten.gruppen.getFileName(), International.getString("Liste Gruppen"));
+        LogString.logError_fileOpenFailed(Daten.gruppen.getFileName(), International.getString("Gruppenliste"));
     }
 
     setButtonsLookAndFeel();
@@ -998,7 +1000,7 @@ public class EfaDirektFrame extends JFrame {
       Daten.checkJavaVersion(false);
     }
 
-    Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_EFAREADY,
+    Logger.log(Logger.INFO, Logger.MSG_EVT_EFAREADY,
             International.getString("BEREIT"));
 
     // EfaFrame vorbereiten
@@ -1027,13 +1029,14 @@ public class EfaDirektFrame extends JFrame {
   // Fahrtenbuch einlesen
   public void readFahrtenbuch() {
     if (Daten.efaConfig == null || Daten.efaConfig.direkt_letzteDatei == null || Daten.efaConfig.direkt_letzteDatei.length()==0) {
-      haltProgram(International.getString("Oops! Kein Fahrtenbuch zum Öffnen da!"));
+      haltProgram(International.getString("Oops!") + " " +
+              International.getString("Kein Fahrtenbuch zum Öffnen da!"));
     } else {
       Daten.fahrtenbuch = new Fahrtenbuch(Daten.efaConfig.direkt_letzteDatei);
       int sveAction = Daten.actionOnDatenlisteNotFound;
       Daten.actionOnDatenlisteNotFound = Daten.DATENLISTE_FRAGE_REQUIRE_ADMIN_RETURN_FALSE_ON_NEIN;
       while (!Daten.fahrtenbuch.readFile()) {
-        Dialog.error(International.getMessage("Fahrtenbuch-Datei {filename} kann nicht geöffnet werden!",Daten.efaConfig.direkt_letzteDatei));
+        Dialog.error(LogString.logstring_fileOpenFailed(Daten.efaConfig.direkt_letzteDatei, International.getString("Fahrtenbuch")));
 
         Admin admin = null;
         do {
@@ -1048,7 +1051,7 @@ public class EfaDirektFrame extends JFrame {
 
         String dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuch öffnen"),
                 International.getString("efa Fahrtenbuch")+" (*.efb)","efb",Daten.efaDataDirectory,false);
-        if (dat == null || dat.length()==0) haltProgram(International.getString("Kein Fahrtenbuch ausgewählt."));
+        if (dat == null || dat.length()==0) haltProgram(International.getString("Kein Fahrtenbuch ausgewählt")+".");
         Daten.efaConfig.direkt_letzteDatei = dat;
         if (!Daten.efaConfig.writeFile()) {
             haltProgram(LogString.logstring_fileCreationFailed(Daten.efaConfig.getFileName(), International.getString("Konfigurationsdatei")));
@@ -1060,7 +1063,7 @@ public class EfaDirektFrame extends JFrame {
         Daten.fahrtenbuch.getDaten().mitglieder.getAliases();
 
     }
-    Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_LOGBOOKOPENED,
+    Logger.log(Logger.INFO, Logger.MSG_EVT_LOGBOOKOPENED,
             International.getMessage("Fahrtenbuch '{filename}' geöffnet.",Daten.fahrtenbuch.getFileName()));
   }
 
@@ -1145,11 +1148,11 @@ public class EfaDirektFrame extends JFrame {
     bootStatus = new BootStatus(Daten.efaDataDirectory+Daten.DIREKTBOOTSTATUS);
     if (!EfaUtil.canOpenFile(bootStatus.getFileName())) {
       if (!bootStatus.writeFile()) {
-          haltProgram(LogString.logstring_fileCreationFailed(bootStatus.getFileName(),International.getString("Bootststatus-Liste")));
+          haltProgram(LogString.logstring_fileCreationFailed(bootStatus.getFileName(),International.getString("Bootsstatus-Liste")));
       }
     } else {
       if (!bootStatus.readFile()) {
-          haltProgram(LogString.logstring_fileOpenFailed(bootStatus.getFileName(),International.getString("Bootststatus-Liste")));
+          haltProgram(LogString.logstring_fileOpenFailed(bootStatus.getFileName(),International.getString("Bootsstatus-Liste")));
       }
     }
     for (int i=0; i<booteAlle.size(); i++) {
@@ -1160,17 +1163,17 @@ public class EfaDirektFrame extends JFrame {
         d = new DatenFelder(BootStatus._FELDANZ);
         d.set(BootStatus.NAME,(String)booteAlle.get(i));
         if (Daten.fahrtenbuch.getDaten().boote.getExactComplete((String)booteAlle.get(i)).get(Boote.VEREIN).length()>0) {
-          d.set(BootStatus.STATUS,Integer.toString(BootStatus.STAT_HIDE));
+          d.set(BootStatus.STATUS,BootStatus.getStatusKey(BootStatus.STAT_HIDE));
           d.set(BootStatus.BEMERKUNG,International.getString("wird nicht angezeigt"));
-          Logger.log(Logger.WARNING,Logger.MSG_BHWARN_BOATADDEDWITHSTATUS1,
+          Logger.log(Logger.WARNING,Logger.MSG_WARN_BOATADDEDWITHSTATUS1,
                   International.getMessage("Boot {boat} in Statusliste nicht gefunden; mit Status '{status}' hinzugefügt.",
-                  (String)booteAlle.get(i),BootStatus.STATUSNAMES[BootStatus.STAT_HIDE]));
+                  (String)booteAlle.get(i),BootStatus.getStatusName(BootStatus.STAT_HIDE)));
         } else {
-          d.set(BootStatus.STATUS,Integer.toString(BootStatus.STAT_VERFUEGBAR));
-          d.set(BootStatus.BEMERKUNG,BootStatus.STATUSNAMES[BootStatus.STAT_VERFUEGBAR]);
-          Logger.log(Logger.WARNING,Logger.MSG_BHWARN_BOATADDEDWITHSTATUS2,
+          d.set(BootStatus.STATUS,BootStatus.getStatusKey(BootStatus.STAT_VERFUEGBAR));
+          d.set(BootStatus.BEMERKUNG,BootStatus.getStatusName(BootStatus.STAT_VERFUEGBAR));
+          Logger.log(Logger.WARNING,Logger.MSG_WARN_BOATADDEDWITHSTATUS2,
                   International.getMessage("Boot {boat} in Statusliste nicht gefunden; mit Status '{status}' hinzugefügt.",
-                  (String)booteAlle.get(i),BootStatus.STATUSNAMES[BootStatus.STAT_VERFUEGBAR]));
+                  (String)booteAlle.get(i),BootStatus.getStatusName(BootStatus.STAT_VERFUEGBAR)));
         }
         bootStatus.add(d);
       }
@@ -1180,17 +1183,17 @@ public class EfaDirektFrame extends JFrame {
     for (DatenFelder d = (DatenFelder)bootStatus.getCompleteFirst();
          d != null; d = (DatenFelder)bootStatus.getCompleteNext()) {
       if (!booteAlle.contains(d.get(BootStatus.NAME)) &&
-          EfaUtil.string2int(d.get(BootStatus.STATUS),-1) != BootStatus.STAT_UNTERWEGS) remove.add(d.get(BootStatus.NAME));
+          !d.get(BootStatus.STATUS).equals(BootStatus.getStatusKey(BootStatus.STAT_UNTERWEGS))) remove.add(d.get(BootStatus.NAME));
     }
     for (int i=0; i<remove.size(); i++) {
       bootStatus.delete((String)remove.get(i));
-      Logger.log(Logger.WARNING,Logger.MSG_BHWARN_BOATDELETEDFROMLIST,
+      Logger.log(Logger.WARNING,Logger.MSG_WARN_BOATDELETEDFROMLIST,
               International.getMessage("Boot {boat} existiert in Statusliste, jedoch nicht in Bootsliste, und wurde daher entfernt.",
               (String)remove.get(i)));
     }
     // Statusliste speichern und Boote anzeigen
     if (!bootStatus.writeFile()) {
-        haltProgram(LogString.logstring_fileWritingFailed(bootStatus.getFileName(),International.getString("Bootststatus-Liste")));
+        haltProgram(LogString.logstring_fileWritingFailed(bootStatus.getFileName(),International.getString("Bootsstatus-Liste")));
     }
     updateBootsListen();
 
@@ -1253,7 +1256,10 @@ public class EfaDirektFrame extends JFrame {
       a[i] = new BootsString();
       DatenFelder d = Daten.fahrtenbuch.getDaten().boote.getExactComplete(removeDoppeleintragFromBootsname((String)v.get(i)));
       int anz = 99;
-      if (d != null) anz = EfaUtil.string2date(d.get(Boote.ANZAHL),99,0,0).tag;
+      if (d != null) {
+          anz = EfaTypes.getNumberOfRowers(d.get(Boote.ANZAHL));
+          if (anz == 0) anz = 99;
+      }
       if (anz<0) anz = 0;
       if (anz>99) anz = 99;
       a[i].anzahl = anz;
@@ -1266,9 +1272,27 @@ public class EfaDirektFrame extends JFrame {
     int anz = -1;
     for (int i=0; i<a.length; i++) {
       if (a[i].anzahl != anz) {
-        vv.add("---------- " + (a[i].anzahl != 99 ? 
-            International.getMessage("{number_of_rowers}er",a[i].anzahl) :
-            International.getString("andere")) + " ----------");
+          String s = null;
+          switch(a[i].anzahl) {
+              case 1: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_1);
+                      break;
+              case 2: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_2);
+                      break;
+              case 3: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_3);
+                      break;
+              case 4: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_4);
+                      break;
+              case 5: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_5);
+                      break;
+              case 6: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_6);
+                      break;
+              case 8: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_8);
+                      break;
+          }
+          if (s == null) {
+              s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_OTHER);
+          }
+        vv.add("---------- " + s + " ----------");
         anz = a[i].anzahl;
       }
       vv.add(a[i].name);
@@ -1356,7 +1380,7 @@ public class EfaDirektFrame extends JFrame {
       String s = International.getString("Programmfehler") + ": " +
               International.getMessage("Boot {boat} nicht in der Statusliste gefunden!",boot);
       Dialog.error(s);
-      Logger.log(Logger.ERROR,Logger.MSG_BHERR_BOATNOTFOUNDINSTATUS,s);
+      Logger.log(Logger.ERROR,Logger.MSG_ERR_BOATNOTFOUNDINSTATUS,s);
       return;
     }
 
@@ -1364,7 +1388,7 @@ public class EfaDirektFrame extends JFrame {
       // keine LfdNr eingetragen: Das kann passieren, wenn der Admin den Status der Bootes manuell geändert hat!
       String s = International.getMessage("Es gibt keine offene Fahrt im Fahrtenbuch mit dem Boot {boat}.",boot);
       Dialog.error(s + " " + International.getString("Der Eintrag kann nicht geändert werden."));
-      Logger.log(Logger.ERROR,Logger.MSG_BHERR_NOLOGENTRYFORBOAT,
+      Logger.log(Logger.ERROR,Logger.MSG_ERR_NOLOGENTRYFORBOAT,
               s + " " + International.getString("Bitte korrigiere den Status des Bootes im Admin-Modus."));
       return;
     }
@@ -1407,7 +1431,7 @@ public class EfaDirektFrame extends JFrame {
           Vector gr = Boote.getGruppen(d);
           for (int i=0; i<gr.size(); i++)  {
             rudererlaubnis = (rudererlaubnis.length()>0 ? rudererlaubnis + ", " : 
-                "; "+ International.getMessage("nur für {group}",(String)gr.get(i)));
+                "; "+ International.getMessage("nur für {something}",(String)gr.get(i)));
           }
         }
       }
@@ -1667,10 +1691,10 @@ public class EfaDirektFrame extends JFrame {
       String s = International.getString("Programmfehler") + ": " +
               International.getMessage("Boot {boat} nicht in der Statusliste gefunden!",boot);
       Dialog.error(s);
-      Logger.log(Logger.ERROR,Logger.MSG_BHERR_BOATNOTFOUNDINSTATUS,s);
+      Logger.log(Logger.ERROR,Logger.MSG_ERR_BOATNOTFOUNDINSTATUS,s);
       return false;
     }
-    int status = EfaUtil.string2int(d.get(BootStatus.STATUS),-1);
+    int status = BootStatus.getStatusID(d.get(BootStatus.STATUS));
 
     if (status == BootStatus.STAT_UNTERWEGS) {
       if (mode == 1) {
@@ -1697,7 +1721,7 @@ public class EfaDirektFrame extends JFrame {
                                      International.getMessage("Das Boot {boat} ist laut Liste bereits unterwegs.",bootsname) + "\n" +
                                      (d != null ? International.getString("Bemerkung")+": " + d.get(BootStatus.BEMERKUNG) + "\n" : "") +
                                      "\n" +
-                                     International.getString("Möchtest Du trotzdem eine neue Fahrt mit diesem Boot beginnen?"))
+                                     International.getString("Möchtest Du trotzdem mit dem Boot rudern?"))
                       != Dialog.YES) return false;
       }
     }
@@ -1706,7 +1730,7 @@ public class EfaDirektFrame extends JFrame {
                                      International.getMessage("Das Boot {boat} ist laut Liste nicht verfügbar.",bootsname) + "\n" +
                                      (d != null ? International.getString("Bemerkung")+": " + d.get(BootStatus.BEMERKUNG) + "\n" : "") +
                                      "\n" +
-                                             International.getString("Möchtest Du trotzdem eine neue Fahrt mit diesem Boot beginnen?"))
+                                             International.getString("Möchtest Du trotzdem mit dem Boot rudern?"))
                     != Dialog.YES) return false;
     }
 
@@ -1724,7 +1748,7 @@ public class EfaDirektFrame extends JFrame {
                                            res.name)+"\n"+
               (res.grund.length()>0 ? " ("+International.getString("Grund")+": "+res.grund+")\n" : "") +
               International.getMessage("Die Reservierung liegt {from_time_to_time} vor.",BootStatus.makeReservierungText(res))+"\n"+
-              International.getString("Möchtest Du trotzdem eine neue Fahrt mit diesem Boot beginnen?"))
+              International.getString("Möchtest Du trotzdem mit dem Boot rudern?"))
                     != Dialog.YES) return false;
     }
     if (d.get(BootStatus.BOOTSSCHAEDEN).trim().length() > 0 || (d2 != null && d2.get(BootStatus.BOOTSSCHAEDEN).trim().length() > 0)) {
@@ -1739,20 +1763,24 @@ public class EfaDirektFrame extends JFrame {
     return true;
   }
 
-  private String createStatusString(String fahrtart, String ziel, String datum, String zeit, String person) {
+  private String createStatusString(String fahrttype, String ziel, String datum, String zeit, String person) {
     String aufFahrtart = "";
-    if (Daten.bezeichnungen != null && Daten.bezeichnungen.fahrtart != null && fahrtart != null) {
-      if (fahrtart.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_REGATTA))) {
-          aufFahrtart = " " + International.getMessage("auf {trip_type}",Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_REGATTA));
+    if (Daten.efaTypes != null && fahrttype != null) {
+      if (fahrttype.equals(EfaTypes.TYPE_TRIP_REGATTA)) {
+          aufFahrtart = " " + 
+          International.getMessage("auf {trip_type}",Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_REGATTA));
       }
-      if (fahrtart.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_JUMREGATTA))) {
-          aufFahrtart = " " + International.getMessage("auf {trip_type}",Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_JUMREGATTA));
+      if (fahrttype.equals(EfaTypes.TYPE_TRIP_JUMREGATTA)) {
+          aufFahrtart = " " +
+          International.getMessage("auf {trip_type}",Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_JUMREGATTA));
       }
-      if (fahrtart.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_TRAININGSLAGER))) {
-          aufFahrtart = " " + International.getMessage("auf {trip_type}",Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_TRAININGSLAGER));
+      if (fahrttype.equals(EfaTypes.TYPE_TRIP_TRAININGCAMP)) {
+          aufFahrtart = " " +
+          International.getMessage("auf {trip_type}",Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_TRAININGCAMP));
       }
-      if (fahrtart.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_MEHRTAGESFAHRT))) {
-          aufFahrtart = " " + International.getMessage("auf {trip_type}",Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_MEHRTAGESFAHRT));
+      if (fahrttype.startsWith(EfaTypes.TYPE_TRIP_MULTIDAY)) {
+          aufFahrtart = " " +
+          International.getMessage("auf {trip_type}",Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_MULTIDAY));
       }
     }
     String nachZiel = "";
@@ -1760,30 +1788,30 @@ public class EfaDirektFrame extends JFrame {
       nachZiel = " " + International.getMessage("nach {destination}",ziel);
     }
     return  International.getString("unterwegs")+aufFahrtart+nachZiel+
-            International.getMessage(" seit {date}",datum) +
+            " " + International.getMessage("seit {date}",datum) +
             (zeit.trim().length()>0 ? " " + International.getMessage("um {time}",zeit) : "") +
-            " "+International.getMessage("mit {person}",person);
+            " "+International.getMessage("mit {crew}",person);
   }
 
-  private boolean isMultiDayFahrtart(String fahrtart) {
-      if (fahrtart.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_REGATTA))) return true;
-      if (fahrtart.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_JUMREGATTA))) return true;
-      if (fahrtart.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_TRAININGSLAGER))) return true;
-      if (fahrtart.equals(Daten.bezeichnungen.fahrtart.get(Bezeichnungen.FAHRT_MEHRTAGESFAHRT))) return true;
+  private boolean isMultiDayFahrtart(String fahrttype) {
+      if (fahrttype.equals(EfaTypes.TYPE_TRIP_REGATTA)) return true;
+      if (fahrttype.equals(EfaTypes.TYPE_TRIP_JUMREGATTA)) return true;
+      if (fahrttype.equals(EfaTypes.TYPE_TRIP_TRAININGCAMP)) return true;
+      if (fahrttype.startsWith(EfaTypes.TYPE_TRIP_MULTIDAY)) return true;
       return false;
   }
 
-  public void fahrtBegonnen(String boot, String lfdNr, String datum, String zeit, String person, String fahrtart, String ziel) {
+  public void fahrtBegonnen(String boot, String lfdNr, String datum, String zeit, String person, String fahrttype, String ziel) {
     int status = BootStatus.STAT_VERFUEGBAR;
     DatenFelder d = bootStatus.getExactComplete(boot);
     if (d == null) {
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_TRIPUNKNOWNBOAT,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_TRIPUNKNOWNBOAT,
               International.getString("Fahrtbeginn eines unbekannten Bootes")+": "+boot);
       d = new DatenFelder(BootStatus._FELDANZ);
       d.set(BootStatus.NAME,boot);
       d.set(BootStatus.UNBEKANNTESBOOT,"+");
     } else {
-      status = EfaUtil.string2int(d.get(BootStatus.STATUS),-1);
+      status = BootStatus.getStatusID(d.get(BootStatus.STATUS));
     }
 
     if (status != BootStatus.STAT_VERFUEGBAR && !d.get(BootStatus.LFDNR).equals(BootStatus.RES_LFDNR)) {
@@ -1796,13 +1824,13 @@ public class EfaDirektFrame extends JFrame {
       }
 
       if (tmp == null) { // alle 27 Timestamps für dieses Boot schon vergeben: sollte niemals passieren ...
-        Logger.log(Logger.ERROR, Logger.MSG_BHERR_TRIPSTARTNOTPOSSIBLE1,
+        Logger.log(Logger.ERROR, Logger.MSG_ERR_TRIPSTARTNOTPOSSIBLE1,
                 International.getMessage("Fahrtbeginn des Bootes {boat} nicht möglich!",boot));
         return;
       }
 
       boot = tmp;
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_TRIPSTART_BNA,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_TRIPSTART_BNA,
               International.getMessage("Fahrtbeginn eines Bootes, welches laut Liste nicht verfügbar ist (Status [{status}]: {notes}).",
                                        status,d.get(BootStatus.BEMERKUNG)) +
               International.getMessage("Neuer Eintrag als Boot: {boat}",boot));
@@ -1818,12 +1846,12 @@ public class EfaDirektFrame extends JFrame {
 
     bootStatus.delete(boot);
     d.set(BootStatus.LFDNR,lfdNr);
-    if (Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar && isMultiDayFahrtart(fahrtart)) {
-        d.set(BootStatus.STATUS,Integer.toString(BootStatus.STAT_NICHT_VERFUEGBAR));
+    if (Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar && isMultiDayFahrtart(fahrttype)) {
+        d.set(BootStatus.STATUS,BootStatus.getStatusKey(BootStatus.STAT_NICHT_VERFUEGBAR));
     } else {
-        d.set(BootStatus.STATUS,Integer.toString(BootStatus.STAT_UNTERWEGS));
+        d.set(BootStatus.STATUS,BootStatus.getStatusKey(BootStatus.STAT_UNTERWEGS));
     }
-    d.set(BootStatus.BEMERKUNG,createStatusString(fahrtart,ziel,datum,zeit,person));
+    d.set(BootStatus.BEMERKUNG,createStatusString(fahrttype,ziel,datum,zeit,person));
     bootStatus.add(d);
     setKombiBootStatus(boot,"",BootStatus.STAT_VORUEBERGEHEND_VERSTECKEN,
             International.getString("vorübergehend von efa versteckt"));
@@ -1833,14 +1861,14 @@ public class EfaDirektFrame extends JFrame {
     updateBootsListen();
   }
 
-  public void fahrtBeginnKorrigiert(String boot, String lfdNr, String datum, String zeit, String person, String fahrtart, String ziel, String ursprBoot) {
+  public void fahrtBeginnKorrigiert(String boot, String lfdNr, String datum, String zeit, String person, String fahrttype, String ziel, String ursprBoot) {
     if (!boot.equals(ursprBoot)) {
       // Bootsname wurde geändert
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_TRIPSTART_CORR,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_TRIPSTART_CORR,
               International.getString("Fahrtbeginn korrigiert")+": #"+lfdNr+" - "+
               International.getMessage("Änderung des Bootsnamens von {original_name} in {new_name}.",ursprBoot,boot));
       fahrtBeendet(ursprBoot,true);
-      fahrtBegonnen(boot,lfdNr,datum,zeit,person,fahrtart,ziel);
+      fahrtBegonnen(boot,lfdNr,datum,zeit,person,fahrttype,ziel);
       return;
     }
 
@@ -1848,26 +1876,26 @@ public class EfaDirektFrame extends JFrame {
     int status = BootStatus.STAT_VERFUEGBAR;
     DatenFelder d = bootStatus.getExactComplete(boot);
     if (d == null) {
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_TRIPSTART_CORRUKNW,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_TRIPSTART_CORRUKNW,
               International.getString("Fahrtbeginn korrigiert")+": "+
               International.getString("Korrektur des Fahrtbeginns eines unbekannten Bootes")+": "+boot);
       return;
     }
-    status = EfaUtil.string2int(d.get(BootStatus.STATUS),-1);
+    status = BootStatus.getStatusID(d.get(BootStatus.STATUS));
     if (status != BootStatus.STAT_UNTERWEGS) {
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_TRIPSTART_CORRSNOT,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_TRIPSTART_CORRSNOT,
               International.getString("Fahrtbeginn korrigiert")+": "+
               International.getMessage("Korrektur des Fahrtbeginns des Bootes {boat}, das nicht unterwegs ist [Status: {status}]",boot,status));
       return;
     }
     bootStatus.delete(boot);
     d.set(BootStatus.LFDNR,lfdNr);
-    if (Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar && isMultiDayFahrtart(fahrtart)) {
-        d.set(BootStatus.STATUS,Integer.toString(BootStatus.STAT_NICHT_VERFUEGBAR));
+    if (Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar && isMultiDayFahrtart(fahrttype)) {
+        d.set(BootStatus.STATUS,BootStatus.getStatusKey(BootStatus.STAT_NICHT_VERFUEGBAR));
     } else {
-        d.set(BootStatus.STATUS,Integer.toString(BootStatus.STAT_UNTERWEGS));
+        d.set(BootStatus.STATUS,BootStatus.getStatusKey(BootStatus.STAT_UNTERWEGS));
     }
-    d.set(BootStatus.BEMERKUNG,createStatusString(fahrtart,ziel,datum,zeit,person));
+    d.set(BootStatus.BEMERKUNG,createStatusString(fahrttype,ziel,datum,zeit,person));
     bootStatus.add(d);
     setKombiBootStatus(boot,"",BootStatus.STAT_VORUEBERGEHEND_VERSTECKEN,
             International.getString("vorübergehend von efa versteckt"));
@@ -1908,7 +1936,7 @@ public class EfaDirektFrame extends JFrame {
         // keine LfdNr eingetragen: Das kann passieren, wenn der Admin den Status der Bootes manuell geändert hat!
         String s = International.getMessage("Es gibt keine offene Fahrt im Fahrtenbuch mit dem Boot {boat}.",boot)
                  + " " + International.getString("Die Fahrt kann nicht beendet werden.");
-        Logger.log(Logger.ERROR,Logger.MSG_BHERR_NOLOGENTRYFORBOAT,
+        Logger.log(Logger.ERROR,Logger.MSG_ERR_NOLOGENTRYFORBOAT,
               s + " " + International.getString("Bitte korrigiere den Status des Bootes im Admin-Modus."));
         Dialog.error(s);
         return;
@@ -1917,7 +1945,7 @@ public class EfaDirektFrame extends JFrame {
         String s = International.getMessage("Es gibt keine offene Fahrt im Fahrtenbuch mit dem Boot {boat} und LfdNr {lfdnr}.",
                 boot,d.get(BootStatus.LFDNR))
                  + " " + International.getString("Die Fahrt kann nicht beendet werden.");
-        Logger.log(Logger.ERROR,Logger.MSG_BHERR_NOLOGENTRYFORBOAT,
+        Logger.log(Logger.ERROR,Logger.MSG_ERR_NOLOGENTRYFORBOAT,
               s + " " + International.getString("Bitte korrigiere den Status des Bootes im Admin-Modus."));
         Dialog.error(s);
         return;
@@ -1929,7 +1957,7 @@ public class EfaDirektFrame extends JFrame {
       String s = International.getString("Programmfehler") + ": " +
               International.getMessage("Boot {boat} nicht in der Statusliste gefunden!",boot);
       Dialog.error(s);
-      Logger.log(Logger.ERROR,Logger.MSG_BHERR_BOATNOTFOUNDINSTATUS,s);
+      Logger.log(Logger.ERROR,Logger.MSG_ERR_BOATNOTFOUNDINSTATUS,s);
     }
   }
 
@@ -1942,7 +1970,7 @@ public class EfaDirektFrame extends JFrame {
       if (interaktiv) {
           Dialog.error(s);
       }
-      Logger.log(Logger.ERROR,Logger.MSG_BHERR_BOATNOTFOUNDINSTATUS,s);
+      Logger.log(Logger.ERROR,Logger.MSG_ERR_BOATNOTFOUNDINSTATUS,s);
       return;
     }
 
@@ -1962,11 +1990,11 @@ public class EfaDirektFrame extends JFrame {
         bootStatus.add(dd);
       } else {
         // Nein, Doppeleintrag existiert nicht: Boot als verfügbar markieren
-        d.set(BootStatus.STATUS,Integer.toString(BootStatus.STAT_VERFUEGBAR));
-        d.set(BootStatus.BEMERKUNG,BootStatus.STATUSNAMES[BootStatus.STAT_VERFUEGBAR]);
+        d.set(BootStatus.STATUS,BootStatus.getStatusKey(BootStatus.STAT_VERFUEGBAR));
+        d.set(BootStatus.BEMERKUNG,BootStatus.getStatusName(BootStatus.STAT_VERFUEGBAR));
         d.set(BootStatus.LFDNR,"");
         bootStatus.add(d);
-        setKombiBootStatus(boot,"",BootStatus.STAT_VERFUEGBAR,BootStatus.STATUSNAMES[BootStatus.STAT_VERFUEGBAR]);
+        setKombiBootStatus(boot,"",BootStatus.STAT_VERFUEGBAR,BootStatus.getStatusName(BootStatus.STAT_VERFUEGBAR));
       }
     }
 
@@ -2016,7 +2044,7 @@ public class EfaDirektFrame extends JFrame {
       if (interaktiv) {
           Dialog.error(s);
       }
-      Logger.log(Logger.ERROR,Logger.MSG_BHERR_BOATNOTFOUNDINSTATUS,s);
+      Logger.log(Logger.ERROR,Logger.MSG_ERR_BOATNOTFOUNDINSTATUS,s);
       return;
     }
     if (interaktiv && Dialog.yesNoDialog(International.getString("Fahrt abbrechen"),
@@ -2028,7 +2056,7 @@ public class EfaDirektFrame extends JFrame {
     if (d.get(BootStatus.LFDNR).trim().length() == 0) {
         String s = International.getMessage("Es gibt keine offene Fahrt im Fahrtenbuch mit dem Boot {boat}.",d.get(BootStatus.NAME))
                  + " " + International.getString("Die Fahrt kann nicht abgebrochen werden.");
-        Logger.log(Logger.ERROR,Logger.MSG_BHERR_NOLOGENTRYFORBOAT,
+        Logger.log(Logger.ERROR,Logger.MSG_ERR_NOLOGENTRYFORBOAT,
               s + " " + International.getString("Bitte korrigiere den Status des Bootes im Admin-Modus."));
         if (interaktiv) Dialog.error(s);
         return;
@@ -2037,12 +2065,12 @@ public class EfaDirektFrame extends JFrame {
         String s = International.getMessage("Es gibt keine offene Fahrt im Fahrtenbuch mit dem Boot {boat} und LfdNr {lfdnr}.",
                 d.get(BootStatus.NAME),d.get(BootStatus.LFDNR))
                  + " " + International.getString("Die Fahrt kann nicht abgebrochen werden.");
-        Logger.log(Logger.ERROR,Logger.MSG_BHERR_NOLOGENTRYFORBOAT,
+        Logger.log(Logger.ERROR,Logger.MSG_ERR_NOLOGENTRYFORBOAT,
               s + " " + International.getString("Bitte korrigiere den Status des Bootes im Admin-Modus."));
         if (interaktiv) Dialog.error(s);
       return;
     }
-    Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_TRIPABORT,
+    Logger.log(Logger.INFO, Logger.MSG_EVT_TRIPABORT,
             International.getString("Fahrtabbruch")+": #"+d.get(BootStatus.LFDNR)+" - "+d.get(BootStatus.NAME)+" ("+d.get(BootStatus.BEMERKUNG)+")");
     Daten.fahrtenbuch.delete(d.get(BootStatus.LFDNR));
     if (!Daten.fahrtenbuch.writeFile()) {
@@ -2102,7 +2130,7 @@ public class EfaDirektFrame extends JFrame {
     if (d == null) {
       String s = International.getMessage("Boot {boat} nicht in der Statusliste gefunden!",boot);
       Dialog.error(s);
-      Logger.log(Logger.ERROR,Logger.MSG_BHERR_BOATNOTFOUNDINSTATUS,s);
+      Logger.log(Logger.ERROR,Logger.MSG_ERR_BOATNOTFOUNDINSTATUS,s);
       return;
     }
     if (d.get(BootStatus.UNBEKANNTESBOOT).equals("+")) {
@@ -2212,8 +2240,7 @@ public class EfaDirektFrame extends JFrame {
           Runtime.getRuntime().exec(cmd);
         }
       } catch(Exception ee) {
-        Logger.log(Logger.WARNING, Logger.MSG_BHWARN_CANTEXECCOMMAND,
-                International.getMessage("Kann Kommando für Spezial-Button (\"{cmd}\") nicht ausführen: {msg}",cmd,ee.toString()));
+          LogString.logWarning_cantExecCommand(cmd, International.getString("für Spezial-Button"), ee.toString());
       }
     } else {
       Dialog.error(International.getString("Kein Kommando für diesen Button konfiguriert!"));
@@ -2326,8 +2353,8 @@ public class EfaDirektFrame extends JFrame {
     }
     Dialog.setDlgLocation(browser, this);
     browser.setClosingTimeout(10); // nur um Lock-Ende zu überwachen
-    Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_LOCKED,
-            International.getString("efa wurde für die Benutzung gesperrt.")+endeDerSperrung);
+    Logger.log(Logger.INFO, Logger.MSG_EVT_LOCKED,
+            International.getString("efa wurde vom Administrator vorübergehend für die Benutzung gesperrt.")+endeDerSperrung);
     Daten.efaConfig.efaDirekt_lockEfaFromDatum = null; // damit nach Entsperren nicht wiederholt gelockt wird
     Daten.efaConfig.efaDirekt_lockEfaFromZeit = null;  // damit nach Entsperren nicht wiederholt gelockt wird
     Daten.efaConfig.efaDirekt_locked = true;
@@ -2348,9 +2375,9 @@ public class EfaDirektFrame extends JFrame {
       String s = (String)syn.get(i);
       if (!boot.equals(s)) {
         DatenFelder d = bootStatus.getExactComplete(s);
-        if (d != null && EfaUtil.string2int(d.get(BootStatus.STATUS),-1) != BootStatus.STAT_HIDE) {
+        if (d != null && !d.get(BootStatus.STATUS).equals(BootStatus.getStatusKey(BootStatus.STAT_HIDE))) {
           d.set(BootStatus.LFDNR,lfdnr);
-          d.set(BootStatus.STATUS,Integer.toString(status));
+          d.set(BootStatus.STATUS,BootStatus.getStatusKey(status));
           d.set(BootStatus.BEMERKUNG,bemerk);
           bootStatus.delete(s);
           bootStatus.add(d);
@@ -2410,7 +2437,7 @@ public class EfaDirektFrame extends JFrame {
     Daten.efaConfig.efaDirekt_autoNewFb_datei = "";
 
     fnameEfb = EfaUtil.makeFullPath(EfaUtil.getPathOfFile(Daten.fahrtenbuch.getFileName()),fnameEfb);
-    Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTOSTARTNEWLOGBOOK,
+    Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLOGBOOK,
             International.getString("Automatisches Anlegen eines neuen Fahrtenbuchs wird begonnen ..."));
 
 
@@ -2433,16 +2460,20 @@ public class EfaDirektFrame extends JFrame {
       String fnameEfbm = makeSureFileDoesntExist(fnameBase+".efbm");
       String fnameEfbz = makeSureFileDoesntExist(fnameBase+".efbz");
       String fnameEfbs = makeSureFileDoesntExist(fnameBase+".efbs");
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTOSTARTNEWLB_LX,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLB_LX,
               International.getString("Name für neue Fahrtenbuchdatei")+": "+fnameEfb);
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTOSTARTNEWLB_LX,
-              International.getMessage("Name für neue {list}",International.getString("Bootsliste"))+": "+fnameEfbb);
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTOSTARTNEWLB_LX,
-              International.getMessage("Name für neue {list}",International.getString("Mitgliederliste"))+": "+fnameEfbm);
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTOSTARTNEWLB_LX,
-              International.getMessage("Name für neue {list}",International.getString("Zielliste"))+": "+fnameEfbz);
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTOSTARTNEWLB_LX,
-              International.getMessage("Name für neue {list}",International.getString("Statistikeinstellungen"))+": "+fnameEfbs);
+      Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLB_LX,
+              International.getMessage("Name für neue {list}",
+              International.getString("Bootsliste"))+": "+fnameEfbb);
+      Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLB_LX,
+              International.getMessage("Name für neue {list}",
+              International.getString("Mitgliederliste"))+": "+fnameEfbm);
+      Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLB_LX,
+              International.getMessage("Name für neue {list}",
+              International.getString("Zielliste"))+": "+fnameEfbz);
+      Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLB_LX,
+              International.getMessage("Name für neue {list}",
+              International.getString("Statistikeinstellungen"))+": "+fnameEfbs);
 
       oldFnameEfbb = Daten.fahrtenbuch.getDaten().boote.getFileName();
       oldFnameEfbm = Daten.fahrtenbuch.getDaten().mitglieder.getFileName();
@@ -2460,7 +2491,7 @@ public class EfaDirektFrame extends JFrame {
 
       // Neue Datenlisten erstellen
       level = 1;
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTOSTARTNEWLB_LX,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLB_LX,
               "L1-START: " + International.getString("Erstelle neue Datenlisten ..."));
       if (!fbDaten.boote.writeFile()) {
           LogString.logError_fileCreationFailed(fbDaten.boote.getFileName(), International.getString("Bootsliste"));
@@ -2478,12 +2509,12 @@ public class EfaDirektFrame extends JFrame {
           LogString.logError_fileCreationFailed(fbDaten.statistik.getFileName(), International.getString("Statistikeinstellungen"));
           throw new Exception("Level 1");
       }
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTOSTARTNEWLB_LX,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLB_LX,
               "L1-DONE: " + International.getString("Fertig mit dem Erstellen der Datenlisten."));
 
       // Neue Fahrtenbuchdatei erstellen
       level = 2;
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTOSTARTNEWLB_LX,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLB_LX,
               "L2-START: " + International.getString("Erstelle neues Fahrtenbuch ..."));
       neuesFb = new Fahrtenbuch(fnameEfb);
       neuesFb.setDaten(fbDaten);
@@ -2493,7 +2524,7 @@ public class EfaDirektFrame extends JFrame {
           LogString.logError_fileCreationFailed(neuesFb.getFileName(), International.getString("Fahrtenbuch"));
           throw new Exception("Level 2");
       }
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTOSTARTNEWLB_LX,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLB_LX,
               "L2-DONE: " + International.getString("Fertig mit dem Erstellen des Fahrtenbuchs."));
 
       // Fahrten für Boote, die noch unterwegs sind, abbrechen
@@ -2501,10 +2532,10 @@ public class EfaDirektFrame extends JFrame {
       Vector unterwegs = bootStatus.getBoote(BootStatus.STAT_UNTERWEGS);
       if (unterwegs.size()>0) {
         abgebrocheneFahrten = true;
-        Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTOSTARTNEWLB_LX,
+        Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLB_LX,
                 "L3-START: " + International.getString("Breche bestehende Fahrten ab ..."));
         if (!bootStatus.writeFile()) {
-            LogString.logError_fileCreationFailed(bootStatus.getFileName(), International.getString("Bootstatus-Liste"));
+            LogString.logError_fileCreationFailed(bootStatus.getFileName(), International.getString("Bootsstatus-Liste"));
             throw new Exception("Level 3");
         }
         for (int i=0; i<unterwegs.size(); i++) {
@@ -2512,15 +2543,15 @@ public class EfaDirektFrame extends JFrame {
         }
         level = 4;
         if (!bootStatus.writeFile()) {
-            LogString.logError_fileCreationFailed(bootStatus.getFileName(), International.getString("Bootstatus-Liste"));
+            LogString.logError_fileCreationFailed(bootStatus.getFileName(), International.getString("Bootsstatus-Liste"));
             throw new Exception("Level 4");
         }
-        Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTOSTARTNEWLB_LX,
+        Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLB_LX,
                 "L4-DONE: " + International.getString("Abbrechen der Fahrten beendet."));
       }
 
       // Änderungen an altem Fahrtenbuch speichern
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTOSTARTNEWLB_LX,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLB_LX,
               "L5-START: " + International.getString("Speichere Änderungen an altem Fahrtenbuch ..."));
       oldNextFb = Daten.fahrtenbuch.getNextFb(false);
       level = 5;
@@ -2529,7 +2560,7 @@ public class EfaDirektFrame extends JFrame {
           LogString.logError_fileCreationFailed(Daten.fahrtenbuch.getFileName(), International.getString("Fahrtenbuch"));
           throw new Exception("Level 5");
       }
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTOSTARTNEWLB_LX,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLB_LX,
               "L5-DONE: " + International.getString("Änderungen an Fahrtenbuch gespeichert."));
 
       level = 6;
@@ -2538,9 +2569,9 @@ public class EfaDirektFrame extends JFrame {
       Daten.efaConfig.writeFile();
 
       level = 7;
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTOSTARTNEWLBDONE,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLBDONE,
               International.getString("Automatisches Anlegen des neuen Fahrtenbuchs erfolgreich abgeschlossen."));
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTOSTARTNEWLBDONE,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLBDONE,
               International.getMessage("Aktuelles Fahrtenbuch ist jetzt: {filename}",Daten.fahrtenbuch.getFileName()));
 
       Nachricht n = new Nachricht();
@@ -2564,39 +2595,39 @@ public class EfaDirektFrame extends JFrame {
       EfaUtil.sleep(500);
       efaDirektBackgroundTask.interrupt();
     } catch(Exception e) {
-      Logger.log(Logger.ERROR, Logger.MSG_BHERR_AUTOSTARTNEWLOGBOOK,
+      Logger.log(Logger.ERROR, Logger.MSG_ERR_AUTOSTARTNEWLOGBOOK,
               International.getString("Beim Versuch, ein neues Fahrtenbuch anzulegen, trat ein Fehler auf. Alle Änderungen werden rückgängig gemacht ..."));
       switch (level) {
         case 0: break; // nothing to do
         case 7: break; // nothing to do
         case 6: break; // nothing to do
-        case 5: Logger.log(Logger.WARNING, Logger.MSG_BHWARN_AUTONEWLOGROLLBACK,
+        case 5: Logger.log(Logger.WARNING, Logger.MSG_WARN_AUTONEWLOGROLLBACK,
                         International.getMessage("Rollback von Level {n} ...",5));
                 Daten.fahrtenbuch.setNextFb(oldNextFb);
                 Daten.fahrtenbuch.writeFile(); // egal, ob dies fehlschlägt oder nicht
-                Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTONEWLOGROLLBACK,
+                Logger.log(Logger.INFO, Logger.MSG_EVT_AUTONEWLOGROLLBACK,
                         International.getMessage("Rollback von Level {n} erfolgreich.",5));
-        case 4: Logger.log(Logger.WARNING, Logger.MSG_BHWARN_AUTONEWLOGROLLBACK,
+        case 4: Logger.log(Logger.WARNING, Logger.MSG_WARN_AUTONEWLOGROLLBACK,
                         International.getMessage("Rollback von Level {n} ...",4));
                 // nothing to do
-                Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTONEWLOGROLLBACK,
+                Logger.log(Logger.INFO, Logger.MSG_EVT_AUTONEWLOGROLLBACK,
                         International.getMessage("Rollback von Level {n} erfolgreich.",4));
-        case 3: Logger.log(Logger.WARNING, Logger.MSG_BHWARN_AUTONEWLOGROLLBACK,
+        case 3: Logger.log(Logger.WARNING, Logger.MSG_WARN_AUTONEWLOGROLLBACK,
                         International.getMessage("Rollback von Level {n} ...",3));
                 if (!bootStatus.readFile()) {
-                  Logger.log(Logger.ERROR, Logger.MSG_BHERR_AUTONEWLOGROLLBACK,
+                  Logger.log(Logger.ERROR, Logger.MSG_ERR_AUTONEWLOGROLLBACK,
                           International.getMessage("Rollback von Level {n} fehlgeschlagen: {msg}",
                           3,International.getString("Bootsstatus konnte nicht wiederhergestellt werden.")));
                 } else {
-                  Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTONEWLOGROLLBACK,
+                  Logger.log(Logger.INFO, Logger.MSG_EVT_AUTONEWLOGROLLBACK,
                         International.getMessage("Rollback von Level {n} erfolgreich.",3));
                 }
-        case 2: Logger.log(Logger.WARNING, Logger.MSG_BHWARN_AUTONEWLOGROLLBACK,
+        case 2: Logger.log(Logger.WARNING, Logger.MSG_WARN_AUTONEWLOGROLLBACK,
                         International.getMessage("Rollback von Level {n} ...",2));
                 // nothing to do
-                Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTONEWLOGROLLBACK,
+                Logger.log(Logger.INFO, Logger.MSG_EVT_AUTONEWLOGROLLBACK,
                         International.getMessage("Rollback von Level {n} erfolgreich.",2));
-        case 1: Logger.log(Logger.WARNING, Logger.MSG_BHWARN_AUTONEWLOGROLLBACK,
+        case 1: Logger.log(Logger.WARNING, Logger.MSG_WARN_AUTONEWLOGROLLBACK,
                         International.getMessage("Rollback von Level {n} ...",1));
                 Daten.fahrtenbuch.getDaten().boote.setFileName(oldFnameEfbb);
                 Daten.fahrtenbuch.getDaten().mitglieder.setFileName(oldFnameEfbm);
@@ -2604,36 +2635,36 @@ public class EfaDirektFrame extends JFrame {
                 Daten.fahrtenbuch.getDaten().statistik.setFileName(oldFnameEfbs);
                 int errors = 0;
                 if (!Daten.fahrtenbuch.getDaten().boote.writeFile()) {
-                  Logger.log(Logger.ERROR, Logger.MSG_BHERR_AUTONEWLOGROLLBACK,
+                  Logger.log(Logger.ERROR, Logger.MSG_ERR_AUTONEWLOGROLLBACK,
                           LogString.logstring_fileCreationFailed(Daten.fahrtenbuch.getDaten().boote.getFileName(),International.getString("Bootsliste")));
                   errors++;
                 }
                 if (!Daten.fahrtenbuch.getDaten().mitglieder.writeFile()) {
-                  Logger.log(Logger.ERROR, Logger.MSG_BHERR_AUTONEWLOGROLLBACK,
+                  Logger.log(Logger.ERROR, Logger.MSG_ERR_AUTONEWLOGROLLBACK,
                           LogString.logstring_fileCreationFailed(Daten.fahrtenbuch.getDaten().mitglieder.getFileName(),International.getString("Mitgliederliste")));
                   errors++;
                 }
                 if (!Daten.fahrtenbuch.getDaten().ziele.writeFile()) {
-                  Logger.log(Logger.ERROR, Logger.MSG_BHERR_AUTONEWLOGROLLBACK,
+                  Logger.log(Logger.ERROR, Logger.MSG_ERR_AUTONEWLOGROLLBACK,
                           LogString.logstring_fileCreationFailed(Daten.fahrtenbuch.getDaten().ziele.getFileName(),International.getString("Zielliste")));
                   errors++;
                 }
                 if (!Daten.fahrtenbuch.getDaten().statistik.writeFile()) {
-                  Logger.log(Logger.ERROR, Logger.MSG_BHERR_AUTONEWLOGROLLBACK,
+                  Logger.log(Logger.ERROR, Logger.MSG_ERR_AUTONEWLOGROLLBACK,
                           LogString.logstring_fileCreationFailed(Daten.fahrtenbuch.getDaten().statistik.getFileName(),International.getString("Statistikeinstellungen")));
                   errors++;
                 }
                 if (errors == 0) {
-                  Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTONEWLOGROLLBACK,
+                  Logger.log(Logger.INFO, Logger.MSG_EVT_AUTONEWLOGROLLBACK,
                         International.getMessage("Rollback von Level {n} erfolgreich.",1));
                 } else {
-                  Logger.log(Logger.ERROR, Logger.MSG_BHERR_AUTONEWLOGROLLBACK,
+                  Logger.log(Logger.ERROR, Logger.MSG_ERR_AUTONEWLOGROLLBACK,
                           International.getMessage("Rollback von Level {level} mit {n} Fehlern abgeschlossen.",1,errors));
                 }
                 break;
-        default: Logger.log(Logger.ERROR, Logger.MSG_BHERR_AUTONEWLOGROLLBACK,
+        default: Logger.log(Logger.ERROR, Logger.MSG_ERR_AUTONEWLOGROLLBACK,
                 International.getString("Rollback nicht möglich: efa kann den Originalzustand nicht wiederherstellen!"));
-                 Logger.log(Logger.ERROR, Logger.MSG_BHERR_INCONSISTENTSTATE,
+                 Logger.log(Logger.ERROR, Logger.MSG_ERR_INCONSISTENTSTATE,
                          International.getString("Kritischer Fehler")+": "+
                          International.getString("efa befindet sich in einem undefinierten Zustand! Überprüfung durch Administrator erforderlich!"));
       }
@@ -2648,7 +2679,7 @@ public class EfaDirektFrame extends JFrame {
       Daten.nachrichten.writeFile();
 
       Daten.efaConfig.writeFile();
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_AUTONEWLOGROLLBACK,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_AUTONEWLOGROLLBACK,
               International.getString("Rückgängigmachen aller Änderungen abgeschlossen."));
     }
 
@@ -2712,10 +2743,10 @@ public class EfaDirektFrame extends JFrame {
         }
         f.close();
         if (warnings.size() == 0) {
-          Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_CHECKFORWARNINGS,
+          Logger.log(Logger.INFO, Logger.MSG_EVT_CHECKFORWARNINGS,
                   International.getMessage("Seit {date} sind keinerlei Warnungen in efa verzeichnet worden.",EfaUtil.getTimeStamp(Daten.efaConfig.efaDirekt_bnrWarning_lasttime)));
         } else {
-          Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_CHECKFORWARNINGS,
+          Logger.log(Logger.INFO, Logger.MSG_EVT_CHECKFORWARNINGS,
                   International.getMessage("Seit {date} sind {n} Warnungen in efa verzeichnet worden.",
                   EfaUtil.getTimeStamp(Daten.efaConfig.efaDirekt_bnrWarning_lasttime),warnings.size()));
           String txt = International.getMessage("Folgende Warnungen sind seit {date} in efa verzeichnet worden:",
@@ -2739,7 +2770,7 @@ public class EfaDirektFrame extends JFrame {
         }
 
       } catch(Exception e) {
-        Logger.log(Logger.ERROR, Logger.MSG_BHERR_CHECKFORWARNINGS,
+        Logger.log(Logger.ERROR, Logger.MSG_ERR_CHECKFORWARNINGS,
                 International.getMessage("Benachrichtigung über WARNING's im Logfile ist fehlgeschlagen: {msg}",e.toString()));
       }
     }
@@ -2755,7 +2786,7 @@ public class EfaDirektFrame extends JFrame {
           DatenFelder d;
           for (d = bootStatus.getCompleteFirst(); d != null; d = bootStatus.getCompleteNext()) {
             // prüfen, ob für dieses Boot Reservierungen möglich sind
-            if (EfaUtil.string2int(d.get(BootStatus.STATUS),-1) == BootStatus.STAT_HIDE) continue;
+            if (BootStatus.getStatusID(d.get(BootStatus.STATUS)) == BootStatus.STAT_HIDE) continue;
             if (d.get(BootStatus.UNBEKANNTESBOOT).equals("+")) continue;
 
             // derzeit gültige Reservierungen finden
@@ -2766,16 +2797,16 @@ public class EfaDirektFrame extends JFrame {
               // Ok, alte Reservierungen wurden gelöscht: Jetzt prüfen, ob das Boot zur Zeit reserviert
               // ist. Falls ja, muß es verfügbar gemacht werden, damit ggf. neue Reservierungen zum Tragen
               // kommen können.
-              if ( (EfaUtil.string2int(d.get(BootStatus.STATUS),-1) == BootStatus.STAT_VERFUEGBAR ||
-                    EfaUtil.string2int(d.get(BootStatus.STATUS),-1) == BootStatus.STAT_NICHT_VERFUEGBAR) &&
+              if ( (BootStatus.getStatusID(d.get(BootStatus.STATUS)) == BootStatus.STAT_VERFUEGBAR ||
+                    BootStatus.getStatusID(d.get(BootStatus.STATUS)) == BootStatus.STAT_NICHT_VERFUEGBAR) &&
                   d.get(BootStatus.LFDNR).equals(BootStatus.RES_LFDNR)) {
-                d.set(BootStatus.STATUS,Integer.toString(BootStatus.STAT_VERFUEGBAR));
-                d.set(BootStatus.BEMERKUNG,BootStatus.STATUSNAMES[BootStatus.STAT_VERFUEGBAR]);
+                d.set(BootStatus.STATUS,BootStatus.getStatusKey(BootStatus.STAT_VERFUEGBAR));
+                d.set(BootStatus.BEMERKUNG,BootStatus.getStatusName(BootStatus.STAT_VERFUEGBAR));
                 d.set(BootStatus.LFDNR,"");
-                Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_RESCHECK_AVAIL,
-                        International.getString("ReservierungsChecker")+": "+
-                        International.getMessage("Boot {boat} auf '{status}' gesetzt: {notes}.",
-                                       d.get(BootStatus.NAME),BootStatus.STATUSNAMES[BootStatus.STAT_VERFUEGBAR],
+                Logger.log(Logger.INFO, Logger.MSG_EVT_RESCHECK_AVAIL,
+                        "ReservatioChecker: "+
+                        International.getMessage("Boot {boat} auf '{status}' gesetzt: {notes}",
+                                       d.get(BootStatus.NAME),BootStatus.getStatusName(BootStatus.STAT_VERFUEGBAR),
                                        International.getString("Alte Reservierungen gelöscht")));
               }
               changes = true;
@@ -2784,35 +2815,35 @@ public class EfaDirektFrame extends JFrame {
             if (reservierung != null) {
               // Reservierung liegt vor: Jetzt prüfen, ob das Boot zur Zeit *nicht* reserviert ist; nur
               // in diesem Fall kommt die gefundene Reservierung zum Tragen
-              if (EfaUtil.string2int(d.get(BootStatus.STATUS),-1) == BootStatus.STAT_VERFUEGBAR &&
+              if (BootStatus.getStatusID(d.get(BootStatus.STATUS)) == BootStatus.STAT_VERFUEGBAR &&
                   !d.get(BootStatus.LFDNR).equals(BootStatus.RES_LFDNR)) {
                 if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_resBooteNichtVerfuegbar) {
-                  d.set(BootStatus.STATUS,Integer.toString(BootStatus.STAT_NICHT_VERFUEGBAR));
+                  d.set(BootStatus.STATUS,BootStatus.getStatusKey(BootStatus.STAT_NICHT_VERFUEGBAR));
                 }
                 d.set(BootStatus.BEMERKUNG,
                         International.getMessage("reserviert für {name} ({reason}) {from_to}",
                         reservierung.name,reservierung.grund,BootStatus.makeReservierungText(reservierung)));
                 d.set(BootStatus.LFDNR,BootStatus.RES_LFDNR); // Kennzeichnung dafür, daß es sich um eine *Reservierung* handelt (und nicht Sperrung des Bootes o.ä.)
-                Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_RESCHECK_RESFOUND,
-                        International.getString("ReservierungsChecker")+": "+
+                Logger.log(Logger.INFO, Logger.MSG_EVT_RESCHECK_RESFOUND,
+                        "ReservatioChecker: "+
                         International.getMessage("Für Boot {boat} wurde eine Reservierung gefunden (neuer Status: '{status}')",
-                                       d.get(BootStatus.NAME),BootStatus.STATUSNAMES[EfaUtil.string2int(d.get(BootStatus.STATUS),0)])+
+                                       d.get(BootStatus.NAME),BootStatus.getStatusName(BootStatus.getStatusID(d.get(BootStatus.STATUS))))+
                                        ": " + d.get(BootStatus.BEMERKUNG));
                 changes = true;
               }
             } else {
               // Reservierung liegt nicht vor: Jetzt prüfen, ob das Boot zur Zeit reserviert ist; nur
               // in diesem Fall wird die aktuelle Reservierung gelöscht
-              if ( (EfaUtil.string2int(d.get(BootStatus.STATUS),-1) == BootStatus.STAT_VERFUEGBAR ||
-                    EfaUtil.string2int(d.get(BootStatus.STATUS),-1) == BootStatus.STAT_NICHT_VERFUEGBAR) &&
+              if ( (BootStatus.getStatusID(d.get(BootStatus.STATUS)) == BootStatus.STAT_VERFUEGBAR ||
+                    BootStatus.getStatusID(d.get(BootStatus.STATUS)) == BootStatus.STAT_NICHT_VERFUEGBAR) &&
                   d.get(BootStatus.LFDNR).equals(BootStatus.RES_LFDNR)) {
-                d.set(BootStatus.STATUS,Integer.toString(BootStatus.STAT_VERFUEGBAR));
-                d.set(BootStatus.BEMERKUNG,BootStatus.STATUSNAMES[BootStatus.STAT_VERFUEGBAR]);
+                d.set(BootStatus.STATUS,BootStatus.getStatusKey(BootStatus.STAT_VERFUEGBAR));
+                d.set(BootStatus.BEMERKUNG,BootStatus.getStatusName(BootStatus.STAT_VERFUEGBAR));
                 d.set(BootStatus.LFDNR,"");
-                Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_RESCHECK_AVAIL,
-                        International.getString("ReservierungsChecker")+": "+
+                Logger.log(Logger.INFO, Logger.MSG_EVT_RESCHECK_AVAIL,
+                        "ReservatioChecker: "+
                         International.getMessage("Boot {boat} auf '{status}' gesetzt: {notes}",
-                        d.get(BootStatus.NAME),BootStatus.STATUSNAMES[BootStatus.STAT_VERFUEGBAR],
+                        d.get(BootStatus.NAME),BootStatus.getStatusName(BootStatus.STAT_VERFUEGBAR),
                         International.getString("Reservierungszeitraum beendet.")));
                 changes = true;
               }
@@ -2838,10 +2869,10 @@ public class EfaDirektFrame extends JFrame {
           int now = cal.get(Calendar.HOUR_OF_DAY)*60 + cal.get(Calendar.MINUTE);
           int exitTime = Daten.efaConfig.efaDirekt_exitTime.tag*60 + Daten.efaConfig.efaDirekt_exitTime.monat;
           if ( (now >= exitTime && now < exitTime+Daten.AUTO_EXIT_MIN_RUNTIME) || (now+(24*60) >= exitTime && now+(24*60) < exitTime+Daten.AUTO_EXIT_MIN_RUNTIME) ) {
-            Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_TIMEBASEDEXIT,
+            Logger.log(Logger.INFO, Logger.MSG_EVT_TIMEBASEDEXIT,
                     International.getString("Eingestellte Uhrzeit zum Beenden von efa erreicht!"));
             if (System.currentTimeMillis() - efaDirektFrame.lastUserInteraction < Daten.AUTO_EXIT_MIN_LAST_USED*60*1000) {
-              Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_TIMEBASEDEXITDELAY,
+              Logger.log(Logger.INFO, Logger.MSG_EVT_TIMEBASEDEXITDELAY,
                       International.getMessage("Beenden von efa wird verzögert, da efa innerhalb der letzten {n} Minuten noch benutzt wurde ...",
                       Daten.AUTO_EXIT_MIN_LAST_USED));
             } else {

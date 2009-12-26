@@ -112,7 +112,8 @@ public class EnterPasswordFrame extends JDialog implements ActionListener {
     this.setTitle(International.getString("Paßworteingabe"));
     grund.setBackground(Color.lightGray);
     grund.setEditable(false);
-    Mnemonics.setLabel(this, passwort2Label, International.getStringWithMnemonic("Paßwort (Wiederholung)")+": ");
+    Mnemonics.setLabel(this, passwort2Label, International.getStringWithMnemonic("Paßwort") +
+            " (" + International.getString("Wiederholung") + "): ");
     jLabel1.setText(" ");
     Dialog.setPreferredSize(passwort2,150,19);
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
@@ -215,7 +216,7 @@ public class EnterPasswordFrame extends JDialog implements ActionListener {
     if (newPwd) {
       String pwd2 = new String(passwort2.getPassword());
       if (!pwd.equals(pwd2)) {
-        Dialog.error(International.getString("Die beiden eingegebenen Paßwörter sind verschieden.\nDu mußt in beide Felder dasselbe Paßwort eingeben!"));
+        Dialog.error(International.getString("Die beiden eingegebenen Paßwörter sind verschieden. Du mußt in beide Felder dasselbe Paßwort eingeben!"));
         passwort2.requestFocus();
         return;
       }
@@ -226,7 +227,7 @@ public class EnterPasswordFrame extends JDialog implements ActionListener {
         return;
       }
       if (pwd.length()<MIN_PASSWORD_LENGTH) {
-        Dialog.error(International.getMessage("Das Paßwort muß mindestens {number} Zeichen lang sein!",MIN_PASSWORD_LENGTH));
+        Dialog.error(International.getMessage("Das Paßwort muß mindestens {n} Zeichen lang sein!",MIN_PASSWORD_LENGTH));
         passwort.requestFocus();
         return;
       }

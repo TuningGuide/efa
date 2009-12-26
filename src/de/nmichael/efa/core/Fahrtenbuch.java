@@ -11,6 +11,7 @@
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.core.DatenFelder;
 import de.nmichael.efa.core.Boote;
@@ -61,6 +62,7 @@ public class Fahrtenbuch extends DatenListe {
   public static final int FAHRTART = 35; // bis 1.3.1: 26; neue Bedeutung in 1.3.0;  neu in v0.85
 
   public static final int ANZ_MANNSCH = 24;
+  public static final String CONFIGURE_MTOUR = "CONFIGUREMTOUR";
 
   public static final String KENNUNG060 = "##EFA.060.FAHRTENBUCH##";
   public static final String KENNUNG070 = "##EFA.070.FAHRTENBUCH##";
@@ -69,6 +71,7 @@ public class Fahrtenbuch extends DatenListe {
   public static final String KENNUNG100 = "##EFA.100.FAHRTENBUCH##";
   public static final String KENNUNG130 = "##EFA.130.FAHRTENBUCH##";
   public static final String KENNUNG135 = "##EFA.135.FAHRTENBUCH##";
+  public static final String KENNUNG190 = "##EFA.190.FAHRTENBUCH##";
 
   private FBDaten fbDaten = null;
   private Hashtable mehrtagesfahrten = null;
@@ -78,7 +81,7 @@ public class Fahrtenbuch extends DatenListe {
   // Konstruktor
   public Fahrtenbuch(String pdat) {
     super(pdat,36,1,true);
-    kennung = KENNUNG135;
+    kennung = KENNUNG190;
     fbDaten = new FBDaten();
     mehrtagesfahrten = new Hashtable();
   }
@@ -110,7 +113,9 @@ public class Fahrtenbuch extends DatenListe {
           fbDaten.erstVorname = s.substring(14,s.length()).equals("VORNACH");
         if (s.startsWith("STATUS1=")) { // aus Kompatibilität zu FBs von vor 090
           String t = s.substring(8,s.length());
-          if (!t.endsWith(",Gast")) t = t+",Gast";
+          if (!t.endsWith(","+Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST))) {
+              t = t+"," + Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST);
+          }
           fbDaten.status = EfaUtil.statusList2Arr(t);
         }
         if (s.startsWith("STATUS=")) {
@@ -391,6 +396,52 @@ public class Fahrtenbuch extends DatenListe {
           } else errConvertingFile(dat,kennung);
         }
 
+        // KONVERTIEREN: 135 -> 190
+        if (s != null && s.trim().startsWith(KENNUNG135)) {
+          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"135");
+          iniList(this.dat,36,1,true); // Rahmenbedingungen von v1.9.0 schaffen
+
+          if (!readEinstellungen()) return false;
+          try {
+            while ((s = freadLine()) != null) {
+              s = s.trim();
+              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              DatenFelder d = constructFields(s);
+              String fa = d.get(FAHRTART);
+              if (fa.length() == 0) {
+                  fa = EfaTypes.TYPE_TRIP_NORMAL;
+              } else {
+                  fa = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_TRIP, d.get(FAHRTART));
+                  if (fa == null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_MULTIDAY)) {
+                      if (d.get(FAHRTART).startsWith("Mehrtagesfahrt: konfigurieren!!")) {
+                          fa = CONFIGURE_MTOUR + d.get(FAHRTART).substring("Mehrtagesfahrt: konfigurieren!!".length());
+                      } else {
+                          fa = EfaTypes.TYPE_TRIP_MULTIDAY + ":" + d.get(FAHRTART);
+                      }
+                  }
+              }
+              if (fa == null) {
+                  fa = EfaTypes.TYPE_TRIP_NORMAL;
+                  Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORCONVERTING,
+                          getFileName() + ": " +
+                          International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!",constructKey(d)) + " " +
+                          International.getMessage("Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
+                          d.get(FAHRTART), Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, fa)));
+              }
+              d.set(FAHRTART, fa);
+              add(d);
+            }
+
+          } catch(IOException e) {
+             errReadingFile(dat,e.getMessage());
+             return false;
+          }
+          kennung = KENNUNG190;
+          if (closeFile() && writeFile(true) && openFile()) {
+            infSuccessfullyConverted(dat,kennung);
+            s = kennung;
+          } else errConvertingFile(dat,kennung);
+        }
 
         // FERTIG MIT KONVERTIEREN
         if (s == null || !s.trim().startsWith(kennung)) {

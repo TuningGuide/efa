@@ -18,6 +18,8 @@ import java.io.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
+// @i18n complete
+
 public class XSLTWriter extends DefaultHandler {
 
   BufferedWriter f;
@@ -152,7 +154,8 @@ public class XSLTWriter extends DefaultHandler {
       parser.setContentHandler(new XSLTWriter(allOptions, fileto));
       parser.parse(filename);
     } catch(Exception e) {
-      Logger.log(Logger.ERROR,"PARSER EXCEPTION: "+e);
+      Logger.log(Logger.ERROR, Logger.MSG_DEBUG_ELWIZ,
+              "PARSER EXCEPTION: "+e);
     }
 
     return true;

@@ -190,7 +190,7 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
     Mnemonics.setLabel(this, maxFahrtenLabel, International.getStringWithMnemonic("Fahrten")+": ");
     maxFahrtenLabel.setForeground(Color.black);
     maxFahrtenLabel.setLabelFor(maxFahrten);
-    Mnemonics.setLabel(this, maxKmFahrtLabel, International.getStringWithMnemonic("Km / Fahrt")+": ");
+    Mnemonics.setLabel(this, maxKmFahrtLabel, International.getStringWithMnemonic("Km/Fahrt")+": ");
     maxKmFahrtLabel.setForeground(Color.black);
     maxKmFahrtLabel.setLabelFor(maxKmFahrt);
     maxKmFahrt.setNextFocusableComponent(maxDauer);
@@ -248,17 +248,19 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
     kilometerGruppiert.setNextFocusableComponent(auchNullWerte);
     Mnemonics.setButton(this, gaesteVereinsweiseZusammen, International.getStringWithMnemonic("Gäste vereinsweise zusammenfassen"));
     gaesteVereinsweiseZusammen.setNextFocusableComponent(teilzieleEinzeln);
-    Mnemonics.setButton(this, horiz_alle, International.getStringWithMnemonic("horizontal immer alle (Wer mit Wem)"));
+    Mnemonics.setButton(this, horiz_alle, International.getStringWithMnemonic("horizontal immer alle") +
+            " (" + International.getString("Wer mit Wem") + ")");
     horiz_alle.setNextFocusableComponent(xmlImmerAlle);
     dateiPanel.setLayout(gridBagLayout3);
     Mnemonics.setButton(this, overwrite, International.getStringWithMnemonic("vor Überschreiben vorhandener Dateien warnen"));
     overwrite.setNextFocusableComponent(nurTabelle);
     Mnemonics.setButton(this, nurTabelle, International.getStringWithMnemonic("in existierenden HTML-Dateien nur Tabelle ersetzen"));
     nurTabelle.setNextFocusableComponent(fileExecBefore);
-    jLabel3.setText(International.getString("Ausgabe in Dateien"));
+    jLabel3.setText(International.getString("Ausgabe in Datei"));
     Mnemonics.setButton(this, auchNullWerte, International.getStringWithMnemonic("immer auch alle Null-Werte ausgeben"));
     auchNullWerte.setNextFocusableComponent(horiz_alle);
-    Mnemonics.setLabel(this, maxDauerLabel, International.getStringWithMnemonic("Dauer (Stunden)")+": ");
+    Mnemonics.setLabel(this, maxDauerLabel, International.getStringWithMnemonic("Dauer")
+            + " (" + International.getString("Stunden") +"): ");
     maxDauerLabel.setForeground(Color.black);
     maxDauerLabel.setLabelFor(maxDauer);
     Mnemonics.setLabel(this, maxKmHLabel, International.getStringWithMnemonic("Km/h")+": ");
@@ -357,7 +359,7 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
     });
     fahrtenbuchPanel.setLayout(gridBagLayout6);
     jLabel13.setText(International.getString("Folgende Felder bei Statistikart \'Fahrtenbuch\' ausgeben:"));
-    Mnemonics.setButton(this, fbLfdNrCheckBox, International.getStringWithMnemonic("Lfd.Nr."));
+    Mnemonics.setButton(this, fbLfdNrCheckBox, International.getStringWithMnemonic("Lfd. Nr."));
     fbLfdNrCheckBox.setNextFocusableComponent(fbDatumCheckBox);
     fbLfdNrCheckBox.setSelected(true);
     Mnemonics.setButton(this, fbDatumCheckBox, International.getStringWithMnemonic("Datum"));
@@ -446,7 +448,7 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
         gruppe_focusLost(e);
       }
     });
-    Mnemonics.setButton(this, alleZielfahrtenAusgeben, International.getStringWithMnemonic("alle Zielfahrten ausgeben (LRV Berlin Sommer)"));
+    Mnemonics.setButton(this, alleZielfahrtenAusgeben, International.onlyFor("alle Zielfahrten ausgeben (LRV Berlin Sommer)","de"));
     alleZielfahrtenAusgeben.setNextFocusableComponent(okButton);
     Mnemonics.setButton(this, nurGanzeKm, International.getStringWithMnemonic("Nachkommastellen bei Ausgabe von Kilometern abschneiden"));
     nurGanzeKm.setNextFocusableComponent(kilometerGruppiert);
@@ -633,7 +635,7 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
   }
 
   void iniWett(JComboBox combo) {
-    combo.addItem(International.getString("--- keine Auswahl ---"));
+    combo.addItem("--- " + International.getString("keine Auswahl") + " ---");
     if (Daten.wettDefs != null) {
       for (int i=0; i<WettDefs.ANZWETT; i++)
         if (i==WettDefs.LRVBERLIN_BLAUERWIMPEL || i==WettDefs.DRV_WANDERRUDERSTATISTIK) {
@@ -766,8 +768,10 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
   void nurFb1Button_actionPerformed(ActionEvent e) {
     String startdir = nurFb1.getText().trim();
     if (startdir.length() == 0 || startdir.indexOf(Daten.fileSep)<0) startdir = Daten.fahrtenbuch.getFileName();
-    String dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuch auswählen"),
-            International.getString("efa-Fahrtenbuch")+" (*.efb)","efb",startdir,false);
+    String dat = Dialog.dateiDialog(this,
+            International.getMessage("{item} auswählen",
+            International.getString("Fahrtenbuch")),
+            International.getString("Fahrtenbuch")+" (*.efb)","efb",startdir,false);
     if (dat != null) {
       if (EfaUtil.getPathOfFile(dat).equals(EfaUtil.getPathOfFile(Daten.fahrtenbuch.getFileName()))) {
         dat = EfaUtil.getFilenameWithoutPath(dat);
@@ -779,8 +783,10 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
   void nurFb2Button_actionPerformed(ActionEvent e) {
     String startdir = nurFb2.getText().trim();
     if (startdir.length() == 0 || startdir.indexOf(Daten.fileSep)<0) startdir = Daten.fahrtenbuch.getFileName();
-    String dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuch auswählen"),
-            International.getString("efa-Fahrtenbuch")+" (*.efb)","efb",startdir,false);
+    String dat = Dialog.dateiDialog(this,
+            International.getMessage("{item} auswählen",
+            International.getString("Fahrtenbuch")),
+            International.getString("Fahrtenbuch")+" (*.efb)","efb",startdir,false);
     if (dat != null) {
       if (EfaUtil.getPathOfFile(dat).equals(EfaUtil.getPathOfFile(Daten.fahrtenbuch.getFileName()))) {
         dat = EfaUtil.getFilenameWithoutPath(dat);

@@ -12,6 +12,7 @@ package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
+import de.nmichael.efa.core.config.EfaTypes;
 import java.io.*;
 import java.util.*;
 
@@ -36,11 +37,12 @@ public class Boote extends DatenListe {
 
   public static final String KENNUNG060 = "##EFA.060.BOOTE##";
   public static final String KENNUNG170 = "##EFA.170.BOOTE##";
+  public static final String KENNUNG190 = "##EFA.190.BOOTE##";
 
   // Konstruktor
   public Boote(String pdat) {
     super(pdat,_ANZFELDER,1,false);
-    kennung = KENNUNG170;
+    kennung = KENNUNG190;
   }
 
 
@@ -53,17 +55,12 @@ public class Boote extends DatenListe {
 
 
   public static String getDetailBezeichnung(DatenFelder boot) {
-    if (boot == null) return null;
-    String bezeichnung = boot.get(ART);
-    if (Daten.bezeichnungen == null ||
-        (!bezeichnung.equals(Daten.bezeichnungen.bArt.get(Bezeichnungen.BART_SKIFF)) &&
-         !bezeichnung.equals(Daten.bezeichnungen.bArt.get(Bezeichnungen.BART_WHERRY)) &&
-         !bezeichnung.equals(Daten.bezeichnungen.bArt.get(Bezeichnungen.BART_TRIMMY)) &&
-         !bezeichnung.equals(Daten.bezeichnungen.bArt.get(Bezeichnungen.BART_BARKE)) &&
-         !bezeichnung.equals(Daten.bezeichnungen.bArt.get(Bezeichnungen.BART_KIRCHBOOT)) &&
-         !bezeichnung.equals(Daten.bezeichnungen.bArt.get(Bezeichnungen.BART_ERGO)) &&
-         !bezeichnung.equals(Daten.bezeichnungen.bArt.get(Bezeichnungen.BART_MOTORBOOT)) ) )
-       bezeichnung += " " + boot.get(Boote.RIGGER) + "-" + boot.get(Boote.ANZAHL) + " " + boot.get(Boote.STM);
+    if (boot == null || Daten.efaTypes == null) return null;
+    String bezeichnung = International.getMessage("{boattype} {riggering}-{numrowers} {coxedornot}", 
+            Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,      boot.get(Boote.ART)),
+            Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING,   boot.get(Boote.RIGGER)),
+            Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, boot.get(Boote.ANZAHL)),
+            Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING,    boot.get(Boote.STM)));
     return bezeichnung;
   }
 
@@ -117,6 +114,69 @@ public class Boote extends DatenListe {
              return false;
           }
           kennung = KENNUNG170;
+          if (closeFile() && writeFile(true) && openFile()) {
+            infSuccessfullyConverted(dat,kennung);
+            s = kennung;
+          } else errConvertingFile(dat,kennung);
+        }
+
+        // KONVERTIEREN: 170 -> 190
+        if (s != null && s.trim().startsWith(KENNUNG170)) {
+          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"170");
+          iniList(this.dat,11,1,false); // Rahmenbedingungen von v1.9.0 schaffen
+          // Datei lesen
+          try {
+            while ((s = freadLine()) != null) {
+              s = s.trim();
+              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              DatenFelder d = constructFields(s);
+              String art = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_BOAT, d.get(ART));
+              String anz = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_NUMROWERS, d.get(ANZAHL));
+              String rig = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_RIGGING, d.get(RIGGER));
+              String stm = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_COXING, d.get(STM));
+              if (art == null) {
+                  art = EfaTypes.TYPE_BOAT_OTHER;
+                  Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORCONVERTING,
+                          getFileName() + ": " +
+                          International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!",constructKey(d)) + " " +
+                          International.getMessage("Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
+                          d.get(ART), Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, art)));
+              }
+              if (anz == null) {
+                  anz = EfaTypes.TYPE_NUMROWERS_OTHER;
+                  Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORCONVERTING,
+                          getFileName() + ": " +
+                          International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!",constructKey(d)) + " " +
+                          International.getMessage("Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
+                          d.get(ANZAHL), Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, art)));
+              }
+              if (rig == null) {
+                  rig = EfaTypes.TYPE_RIGGING_OTHER;
+                  Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORCONVERTING,
+                          getFileName() + ": " +
+                          International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!",constructKey(d)) + " " +
+                          International.getMessage("Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
+                          d.get(RIGGER), Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, art)));
+              }
+              if (stm == null) {
+                  stm = EfaTypes.TYPE_COXING_OTHER;
+                  Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORCONVERTING,
+                          getFileName() + ": " +
+                          International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!",constructKey(d)) + " " +
+                          International.getMessage("Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
+                          d.get(STM), Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, art)));
+              }
+              d.set(ART, art);
+              d.set(ANZAHL, anz);
+              d.set(RIGGER, rig);
+              d.set(STM, stm);
+              add(d);
+            }
+          } catch(IOException e) {
+             errReadingFile(dat,e.getMessage());
+             return false;
+          }
+          kennung = KENNUNG190;
           if (closeFile() && writeFile(true) && openFile()) {
             infSuccessfullyConverted(dat,kennung);
             s = kennung;

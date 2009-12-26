@@ -12,6 +12,7 @@ package de.nmichael.efa.util;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.core.config.*;
 
 // @i18n complete
 
@@ -45,9 +46,12 @@ public class Mehrtagesfahrt {
 
   // prüft, ob es sich bei "s" um eine vordefinierte Fahrtart handelt, d.h. eine, die in dem Daten.fahrtart-Array steht
   public static boolean isVordefinierteFahrtart(String s) {
-    if (Daten.bezeichnungen == null || Daten.bezeichnungen.fahrtart == null) return false;
-    for (int i=0; i<Daten.bezeichnungen.fahrtart.size(); i++)
-      if (Daten.bezeichnungen.fahrtart.get(i).equals(s)) return true;
+    if (Daten.efaTypes == null) return false;
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++) {
+        if (Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, i).equals(s)) {
+            return true;
+        }
+    }
     return false;
   }
 

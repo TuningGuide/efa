@@ -3,6 +3,10 @@ International.getMessage()
 Mnemonics.setLabel(this, label, International.getStringWithMnemonic("")+": ");
 Mnemonics.setButton(this, button, International.getStringWithMnemonic(""));
 
+International.onlyFor()
+International.onlyFor("","de")
+
+
 log_fileNewCreated(Daten.bezeichnungen.getFileName(), International.getString("Liste der Bezeichnungen"));
 haltProgram(logstring_fileCreationFailed(Daten.bezeichnungen.getFileName(), International.getString("Liste der Bezeichnungen")));
 haltProgram(logstring_fileOpenFailed(Daten.bezeichnungen.getFileName(), International.getString("Liste der Bezeichnungen")));
@@ -17,4 +21,3 @@ haltProgram(logstring_fileOpenFailed(Daten.bezeichnungen.getFileName(), Internat
  * @author Nicolas Michael
  * @version 2
  */
-

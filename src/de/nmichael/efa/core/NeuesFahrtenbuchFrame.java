@@ -12,6 +12,7 @@ package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -139,9 +140,11 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
     });
     this.getContentPane().setLayout(borderLayout1);
     jPanel1.setLayout(gridBagLayout1);
-    Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Dateiname Fahrtenbuch")+": ");
+    Mnemonics.setLabel(this, jLabel1, International.getString("Dateiname") + " " +
+            International.getStringWithMnemonic("Fahrtenbuch")+": ");
     jLabel1.setLabelFor(fahrtenbuch);
-    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Dateiname Bootsliste")+": ");
+    Mnemonics.setLabel(this, jLabel2, International.getString("Dateiname") + " " +
+            International.getStringWithMnemonic("Bootsliste")+": ");
     jLabel2.setLabelFor(boote);
     boote.setNextFocusableComponent(booteButton);
     Dialog.setPreferredSize(boote,200,19);
@@ -153,9 +156,11 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
         boote_focusGained(e);
       }
     });
-    Mnemonics.setLabel(this, jLabel3, International.getStringWithMnemonic("Dateiname Mitgliederliste")+": ");
+    Mnemonics.setLabel(this, jLabel3, International.getString("Dateiname") + " " +
+            International.getStringWithMnemonic("Mitgliederliste")+": ");
     jLabel3.setLabelFor(mitglieder);
-    Mnemonics.setLabel(this, jLabel4, International.getStringWithMnemonic("Dateiname Zielliste")+": ");
+    Mnemonics.setLabel(this, jLabel4, International.getString("Dateiname") + " " +
+            International.getStringWithMnemonic("Zielliste")+": ");
     jLabel4.setLabelFor(ziele);
     ziele.setNextFocusableComponent(zieleButton);
     Dialog.setPreferredSize(ziele,200,19);
@@ -217,25 +222,29 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
       }
     });
     Mnemonics.setLabel(this, jLabel5, International.getStringWithMnemonic("Angabe von Mitgliedernamen")+": ");
-    Mnemonics.setButton(this, vorNach, International.getStringWithMnemonic("Vorname Nachname"));
+    Mnemonics.setButton(this, vorNach, International.getStringWithMnemonic("Vorname") + " " +
+            International.getString("Nachname"));
     vorNach.setSelected(true);
     vorNach.setNextFocusableComponent(nachVor);
-    Mnemonics.setButton(this, nachVor, International.getStringWithMnemonic("Nachname, Vorname"));
+    Mnemonics.setButton(this, nachVor, International.getStringWithMnemonic("Nachname") + ", " +
+            International.getString("Vorname"));
     nachVor.setNextFocusableComponent(status1);
     Mnemonics.setLabel(this, jLabel6, International.getStringWithMnemonic("Liste für Status")+": ");
     jLabel6.setLabelFor(status1);
     status1.setNextFocusableComponent(anzMitglieder);
     Dialog.setPreferredSize(status1,200,19);
-    String stati = International.getString("Junior(in),Senior(in)");
-    if (Daten.bezeichnungen != null && Daten.bezeichnungen.gast != null && Daten.bezeichnungen.gast.length()>0) stati = stati + "," + Daten.bezeichnungen.gast;
-    if (Daten.bezeichnungen != null && Daten.bezeichnungen.andere != null && Daten.bezeichnungen.andere.length()>0) stati = stati + "," + Daten.bezeichnungen.andere;
+    String stati = International.getString("Junior(in)") + "," +
+            International.getString("Senior(in)");
+    stati = stati + "," + Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST);
+    stati = stati + "," + Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_OTHER);
     status1.setText(stati);
     status1.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         status1_focusLost(e);
       }
     });
-    Mnemonics.setLabel(this, jLabel7, International.getStringWithMnemonic("Dateiname Statistikeinstellungen")+": ");
+    Mnemonics.setLabel(this, jLabel7, International.getString("Dateiname") + " " +
+            International.getStringWithMnemonic("Statistikeinstellungen")+": ");
     jLabel7.setLabelFor(statistik);
     statistik.setNextFocusableComponent(statistikButton);
     Dialog.setPreferredSize(statistik,200,19);
@@ -255,9 +264,9 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
         statistikButton_actionPerformed(e);
       }
     });
-    Mnemonics.setLabel(this, jLabel8, International.getStringWithMnemonic("vorherige Fahrtenbuchdatei")+": ");
+    Mnemonics.setLabel(this, jLabel8, International.getStringWithMnemonic("vorheriges Fahrtenbuch")+": ");
     jLabel8.setLabelFor(prevFb);
-    Mnemonics.setLabel(this, jLabel9, International.getStringWithMnemonic("nächste Fahrtenbuchdatei")+": ");
+    Mnemonics.setLabel(this, jLabel9, International.getStringWithMnemonic("nächstes Fahrtenbuch")+": ");
     jLabel9.setLabelFor(nextFb);
     prevFb.setNextFocusableComponent(prevFbButton);
     Dialog.setPreferredSize(prevFb,200,19);
@@ -398,34 +407,45 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
   void SaveButton_actionPerformed(ActionEvent e) {
     fahrtenbuch_focusLost(null);
     if (fahrtenbuch.getText().trim().length()==0) {
-      Dialog.infoDialog(International.getMessage("{listname}-Dateiname fehlt",International.getString("Fahrtenbuch")),
-              International.getMessage("Kein {listname}-Dateiname eingetragen!",International.getString("Fahrtenbuch")));
+      Dialog.infoDialog(International.getMessage("{listname}-Dateiname fehlt",
+              International.getString("Fahrtenbuch")),
+              International.getMessage("Kein {listname}-Dateiname eingetragen!",
+              International.getString("Fahrtenbuch")));
       fahrtenbuch.requestFocus(); return;
     }
     if (boote.getText().trim().length()==0) {
-      Dialog.infoDialog(International.getMessage("{listname}-Dateiname fehlt",International.getString("Bootsliste")),
-              International.getMessage("Kein {listname}-Dateiname eingetragen!",International.getString("Bootsliste")));
+      Dialog.infoDialog(International.getMessage("{listname}-Dateiname fehlt",
+              International.getString("Bootsliste")),
+              International.getMessage("Kein {listname}-Dateiname eingetragen!",
+              International.getString("Bootsliste")));
       boote.requestFocus(); return;
     }
     if (mitglieder.getText().trim().length()==0) {
-      Dialog.infoDialog(International.getMessage("{listname}-Dateiname fehlt",International.getString("Mitgliederliste")),
-              International.getMessage("Kein {listname}-Dateiname eingetragen!",International.getString("Mitgliederliste")));
+      Dialog.infoDialog(International.getMessage("{listname}-Dateiname fehlt",
+              International.getString("Mitgliederliste")),
+              International.getMessage("Kein {listname}-Dateiname eingetragen!",
+              International.getString("Mitgliederliste")));
       mitglieder.requestFocus(); return;
     }
     if (ziele.getText().trim().length()==0) {
-      Dialog.infoDialog(International.getMessage("{listname}-Dateiname fehlt",International.getString("Zielliste")),
-              International.getMessage("Kein {listname}-Dateiname eingetragen!",International.getString("Zielliste")));
+      Dialog.infoDialog(International.getMessage("{listname}-Dateiname fehlt",
+              International.getString("Zielliste")),
+              International.getMessage("Kein {listname}-Dateiname eingetragen!",
+              International.getString("Zielliste")));
       ziele.requestFocus(); return;
     }
     if (statistik.getText().trim().length()==0) {
-      Dialog.infoDialog(International.getMessage("{listname}-Dateiname fehlt",International.getString("Statistikeinstellungen")),
-              International.getMessage("Kein {listname}-Dateiname eingetragen!",International.getString("Statistikeinstellungen")));
+      Dialog.infoDialog(International.getMessage("{listname}-Dateiname fehlt",
+              International.getString("Statistikeinstellungen")),
+              International.getMessage("Kein {listname}-Dateiname eingetragen!",
+              International.getString("Statistikeinstellungen")));
       statistik.requestFocus(); return;
     }
 
     if (neu && EfaUtil.canOpenFile(fahrtenbuch.getText().trim()))
       if (!(Dialog.yesNoDialog(International.getString("Warnung"),
-              International.getMessage("Datei {filename} existiert bereits! Überschreiben?",fahrtenbuch.getText().trim())) == Dialog.YES)) return;
+              LogString.logstring_fileAlreadyExists(fahrtenbuch.getText().trim(), International.getString("Fahrtenbuch")) +
+              " " + International.getString("Überschreiben?")) == Dialog.YES)) return;
 
     FBDaten daten;
     if (neu) daten = new FBDaten();
@@ -467,10 +487,10 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
 
     String dat;
     if (Daten.fahrtenbuch != null && !Daten.fahrtenbuch.getFileName().equals(""))
-      dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuchdatei erstellen"),
-              International.getString("efa Fahrtenbuch")+" (*.efb)","efb",Daten.fahrtenbuch.getFileName(),true);
-    else dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuchdatei erstellen"),
-            International.getString("efa Fahrtenbuch")+" (*.efb)","efb",Daten.efaDataDirectory,true);
+      dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuch erstellen"),
+              International.getString("Fahrtenbuch")+" (*.efb)","efb",Daten.fahrtenbuch.getFileName(),true);
+    else dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuch erstellen"),
+            International.getString("Fahrtenbuch")+" (*.efb)","efb",Daten.efaDataDirectory,true);
 
     if (dat != null) {
       fahrtenbuch.setText(dat);
@@ -499,33 +519,45 @@ public class NeuesFahrtenbuchFrame extends JDialog implements ActionListener {
 
   // Boots-Datei auswählen
   void booteButton_actionPerformed(ActionEvent e) {
-    dateiOeffnen(boote,International.getString("Bootsdatei auswählen"),
-            International.getString("efa Bootsliste")+" (*.efbb)","efbb");
+    dateiOeffnen(boote,
+            International.getMessage("{item} auswählen",
+            International.getString("Bootsliste")),
+            International.getString("Bootsliste")+" (*.efbb)","efbb");
   }
   // Mitglieder-Datei auswählen
   void mitgliederButton_actionPerformed(ActionEvent e) {
-    dateiOeffnen(mitglieder,International.getString("Mitgliederdatei auswählen"),
-            International.getString("efa Mitgliederliste")+" (*.efbm)","efbm");
+    dateiOeffnen(mitglieder,
+            International.getMessage("{item} auswählen",
+            International.getString("Mitgliederliste")),
+            International.getString("Mitgliederliste")+" (*.efbm)","efbm");
   }
   // Ziel-Datei auswählen
   void zieleButton_actionPerformed(ActionEvent e) {
-    dateiOeffnen(ziele,International.getString("Zieledatei auswählen"),
-            International.getString("efa Zielliste")+" (*.efbz)","efbz");
+    dateiOeffnen(ziele,
+            International.getMessage("{item} auswählen",
+            International.getString("Zielliste")),
+            International.getString("Zielliste")+" (*.efbz)","efbz");
   }
   // Statistikeinstellungen-Datei auswählen
   void statistikButton_actionPerformed(ActionEvent e) {
-    dateiOeffnen(statistik,International.getString("Statistikeinstellungendatei auswählen"),
-            International.getString("efa Statistikeinstellungen")+" (*.efbs)","efbs");
+    dateiOeffnen(statistik,
+            International.getMessage("{item} auswählen",
+            International.getString("Statistikeinstellungen")),
+            International.getString("Statistikeinstellungen")+" (*.efbs)","efbs");
   }
   // vorherige Fahrtenbuchdatei auswählen
   void prevFbButton_actionPerformed(ActionEvent e) {
-    dateiOeffnen(prevFb,International.getString("vorherige Fahrtenbuchdatei auswählen"),
-            International.getString("efa Fahrtenbuchdatei")+" (*.efb)","efb");
+    dateiOeffnen(prevFb,
+            International.getMessage("{item} auswählen",
+            International.getString("vorheriges Fahrtenbuch")),
+            International.getString("Fahrtenbuch")+" (*.efb)","efb");
   }
   // nächste Fahrtenbuchdatei auswählen
   void nextFbButton_actionPerformed(ActionEvent e) {
-    dateiOeffnen(nextFb,International.getString("nächste Fahrtenbuchdatei auswählen"),
-            International.getString("efa Fahrtenbuchdatei")+" (*.efb)","efb");
+    dateiOeffnen(nextFb,
+            International.getMessage("{item} auswählen",
+            International.getString("nächstes Fahrtenbuch")),
+            International.getString("Fahrtenbuch")+" (*.efb)","efb");
   }
 
 

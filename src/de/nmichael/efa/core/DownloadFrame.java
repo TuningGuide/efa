@@ -178,8 +178,7 @@ public class DownloadFrame extends JDialog implements ActionListener {
                         "Bitte starte nun {program} neu, um die neuen Funktionen nutzen zu können!",plugname,progname));
       if (exit) System.exit(0);
     } else {
-      Dialog.error(International.getMessage("Das {plugin} konnte NICHT erfolgreich installiert werden! "+
-                   "Es traten folgende Fehler auf:",plugname)+"\n"+s);
+      Dialog.error(International.getMessage("Das {plugin} konnte NICHT erfolgreich installiert werden!",plugname)+"\n"+s);
       if (exit) System.exit(1);
     }
   }
@@ -218,9 +217,10 @@ public class DownloadFrame extends JDialog implements ActionListener {
 
   public static boolean getPlugin(String progname, String pname, String pfile, String phtml, String classError, StatistikFrame frame, boolean exit) {
       if (Dialog.yesNoDialog(International.getString("Fehlendes Plugin"),
-              International.getMessage("Das erforderliche {plugin} konnte nicht gefunden werden:\n{error}\n"+
-                                                "Möchtest Du das {plugin} jetzt installieren?",
-                                                pname,classError,pname)) != Dialog.YES) return false;
+              International.getMessage("Das erforderliche {plugin} konnte nicht gefunden werden",pname) +
+              ":\n" + classError + "\n"+
+              International.getMessage("Möchtest Du das {plugin} jetzt installieren?",pname)
+              ) != Dialog.YES) return false;
       int x = Dialog.auswahlDialog(International.getString("Art der Installation"),
               International.getString("efa kann die Plugin-Dateien automatisch aus dem Intnernet laden "+
                                                   "oder eine Anleitung für die manuelle Installation anzeigen.")+"\n"+

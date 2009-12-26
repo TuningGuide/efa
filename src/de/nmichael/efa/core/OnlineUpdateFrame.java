@@ -187,10 +187,10 @@ public class OnlineUpdateFrame extends JDialog implements ActionListener {
     String newVersion = null;
 
     // Online Update
-    if (!Dialog.okAbbrDialog(International.getString("Online Update"),
-                             International.getString("Mit dem efa Online Update kann efa eine neue Version aus dem "+
-                             "Internet herunterladen und installieren.\n\n"+
-                             "Damit efa überprüfen kann, ob es eine neue Version gibt, "+
+    if (!Dialog.okAbbrDialog(International.getString("Online-Update"),
+                             International.getString("Mit dem efa Online-Update kann efa eine neue Version aus dem "+
+                             "Internet herunterladen und installieren.") + "\n\n" +
+                             International.getString("Damit efa überprüfen kann, ob es eine neue Version gibt, "+
                              "stelle nun bitte eine Verbindung zum Internet her und klicke "+
                              "anschließend OK."))) return false;
 
@@ -315,11 +315,13 @@ class ExecuteAfterDownloadImpl implements ExecuteAfterDownload {
     parent.setEnabled(true); // !!!NEW!!!
     File f = new File(zipFile);
     if (f.length() < fileSize) {
-      Dialog.error(International.getString("Der Download des Updates ist nicht vollständig.")+" "+International.getString("Der Update-Vorgang wird daher abgebrochen."));
+      Dialog.error(International.getString("Der Download des Updates ist nicht vollständig.")+" "+
+              International.getString("Der Update-Vorgang wird daher abgebrochen."));
       return;
     }
     if (f.length() > fileSize) {
-      Dialog.error(International.getString("Der Download des Updates hat eine unerwartete Dateigröße.")+" "+International.getString("Der Update-Vorgang wird daher abgebrochen."));
+      Dialog.error(International.getString("Der Download des Updates hat eine unerwartete Dateigröße.")+" "+
+              International.getString("Der Update-Vorgang wird daher abgebrochen."));
       return;
     }
 

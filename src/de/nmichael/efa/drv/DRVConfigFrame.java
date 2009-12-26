@@ -375,7 +375,7 @@ public class DRVConfigFrame extends JDialog implements ActionListener {
   }
 
   void frameIni() {
-    this.userDirectory.setText(Daten.efaConfigUserHome.efaUserDirectory);
+    this.userDirectory.setText(Daten.efaBaseConfig.efaUserDirectory);
     this.datenDirectory.setText(drvConfig.datenDirectory);
     this.darfFAbearbeitenCheckBox.setSelected(drvConfig.darfFAbearbeiten);
     this.darfWSbearbeitenCheckBox.setSelected(drvConfig.darfWSbearbeiten);
@@ -399,9 +399,9 @@ public class DRVConfigFrame extends JDialog implements ActionListener {
 
   void saveButton_actionPerformed(ActionEvent e) {
     String newUserHome = this.userDirectory.getText().trim();
-    if (newUserHome.length()>0 && !newUserHome.equals(Daten.efaConfigUserHome.efaUserDirectory) && Daten.efaConfigUserHome.efaCanWrite(newUserHome,true)) {
-      Daten.efaConfigUserHome.efaUserDirectory = newUserHome;
-      Daten.efaConfigUserHome.writeFile();
+    if (newUserHome.length()>0 && !newUserHome.equals(Daten.efaBaseConfig.efaUserDirectory) && Daten.efaBaseConfig.efaCanWrite(newUserHome,true)) {
+      Daten.efaBaseConfig.efaUserDirectory = newUserHome;
+      Daten.efaBaseConfig.writeFile();
     }
 
     drvConfig.datenDirectory = this.datenDirectory.getText().trim();

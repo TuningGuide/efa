@@ -22,6 +22,8 @@ import java.beans.*;
 import javax.swing.event.*;
 import java.util.*;
 
+// @i18n complete (needs no internationalization -- only relevant for Germany)
+
 public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionListener {
 
   class Item {
@@ -897,7 +899,7 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
         ew.drv_stoff_jug        = Integer.toString(anzBestellJugStoff);
         break;
       case WettDefs.LRVBERLIN_SOMMER:
-        // Adressen in Meldedatei vermerken und ggf. in Adreßdatei speichern
+        // Adressen in Meldedatei vermerken und ggf. in Adreßliste speichern
         Object[] textfKeys = this.textfields.keySet().toArray();
         boolean addrChanged = false;
         for (int i=0; i<textfKeys.length; i++) {

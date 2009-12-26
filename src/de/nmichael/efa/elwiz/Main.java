@@ -18,6 +18,8 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.DownloadFrame;
 
+// @i18n complete
+
 public class Main {
   boolean packFrame = false;
   static boolean ignore  = false;
@@ -70,9 +72,10 @@ public class Main {
     if (!Daten.dirsIni(true)) {
       // Directory nicht gefunden
       if (!ignore)
-        Dialog.error("FEHLER: Eines oder mehrere erforderlichen Verzeichnisse konnten nicht gefunden werden!\n"+
-                     "Es wird nicht empfohlen, elwiz mit fehlenden Verzeichnissen zu benutzen!\n"+
-                     "Um diese Meldung dauerhaft zu unterdrücken, starte elwiz mit der Option '-ignore'.");
+        Dialog.error(International.getMessage("{program} kann nicht gestartet werden, "+
+                "da eines oder mehrere erforderliche Verzeichnisse nicht gefunden werden konnten.",
+                "elwiz"));
+        System.exit(1);
     }
 
     Daten.printEfaInfos();
@@ -86,7 +89,6 @@ public class Main {
   // stderr in die Logdatei umleiten
   static void setupLog() {
     Logger.ini("elwiz.log",false);
-    Logger.log(Logger.INFO,"--- Hier werden Fehlermeldungen von elwiz ausgegeben. ---");
  }
 
 
@@ -96,6 +98,7 @@ public class Main {
 
   // Argumentliste ausgeben (überflüssig, da jetzt standardmäßig Logdatei angelegt wird)
   static void printArgs() {
+    // @todo internationalisieren ... oder nur auf Englisch?
     System.out.println("elwiz "+Daten.EMIL_VERSION+"\n");
     System.out.println("Syntax: java [javaopt] de.nmichael.efa.elwiz.Elwiz [option]");
     System.out.println("    javaopt - Optionen der Java Virtual Machine (s. 'java -help')");

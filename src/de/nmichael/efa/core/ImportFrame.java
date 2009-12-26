@@ -320,10 +320,14 @@ public class ImportFrame extends JDialog implements ActionListener {
   void dateiButton_actionPerformed(ActionEvent e) {
     String dat;
     if (Daten.fahrtenbuch != null && !Daten.fahrtenbuch.getFileName().equals("")) {
-      dat = Dialog.dateiDialog(this,International.getString("Zu importierendes Fahrtenbuch auswählen"),
+      dat = Dialog.dateiDialog(this,
+            International.getMessage("{item} auswählen",
+            International.getString("Fahrtenbuch")),
               International.getString("efa Fahrtenbuch")+" (*.efb)","efb",Daten.fahrtenbuch.getFileName(),false);
     } else {
-        dat = Dialog.dateiDialog(this,International.getString("Zu importierendes Fahrtenbuch auswählen"),
+        dat = Dialog.dateiDialog(this,
+            International.getMessage("{item} auswählen",
+            International.getString("Fahrtenbuch")),
                 International.getString("efa Fahrtenbuch")+" (*.efb)","efb",null,false);
     }
     if (dat != null) {
@@ -342,14 +346,12 @@ public class ImportFrame extends JDialog implements ActionListener {
       return;
     }
     if (!EfaUtil.canOpenFile(quelle)) {
-      Dialog.infoDialog(International.getString("Fehler beim Öffnen"),
-              International.getMessage("{file} kann nicht geöffnet werden.",quelle));
+      Dialog.error(LogString.logstring_fileOpenFailed(quelle, International.getString("Quell-Fahrtenbuch")));
       return;
     }
     Fahrtenbuch q = new Fahrtenbuch(quelle);
     if (!q.readFile()) {
-      Dialog.infoDialog(International.getString("Fehler beim Lesen"),
-              International.getMessage("{file} kann nicht gelesen werden.",quelle));
+      Dialog.error(LogString.logstring_fileReadFailed(quelle, International.getString("Quell-Fahrtenbuch")));
       return;
     }
 

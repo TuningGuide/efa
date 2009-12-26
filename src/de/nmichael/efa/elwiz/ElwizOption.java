@@ -12,6 +12,8 @@ package de.nmichael.efa.elwiz;
 
 import java.util.Vector;
 
+// @i18n complete
+
 class ElwizSingleOption {
   public String descr = null;
   public String value = null;

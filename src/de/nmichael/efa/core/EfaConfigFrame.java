@@ -12,6 +12,7 @@ package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -651,7 +652,8 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     });
     jLabel34.setHorizontalAlignment(SwingConstants.CENTER);
     jLabel34.setText(International.getString("Vereinslogo"));
-    Mnemonics.setButton(this, efaDirekt_reservierungenErlaubt, International.getStringWithMnemonic("Mitglieder dürfen Boote reservieren (einmalige Reservierungen)"));
+    Mnemonics.setButton(this, efaDirekt_reservierungenErlaubt, International.getStringWithMnemonic("Mitglieder dürfen Boote reservieren") + 
+            " (" + International.getString("einmalige Reservierungen") + ")");
     efaDirekt_reservierungenErlaubt.setNextFocusableComponent(efaDirekt_reservierungenErlaubtZyklisch);
     Mnemonics.setButton(this, efaDirekt_maximiertStarten, International.getStringWithMnemonic("efa maximiert starten"));
     efaDirekt_maximiertStarten.setNextFocusableComponent(efaDirekt_fensterNichtVerschiebbar);
@@ -730,7 +732,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     efaDirekt_fontStyle.addItem(International.getString("normal"));
     efaDirekt_fontStyle.addItem(International.getString("fett"));
     efaDirekt_fontStyle.setNextFocusableComponent(saveButton);
-    Mnemonics.setButton(this, showBerlinOptions, International.getStringWithMnemonic("Berlin-spezifische Optionen anzeigen"));
+    Mnemonics.setButton(this, showBerlinOptions, International.onlyFor("Berlin-spezifische Optionen anzeigen","de"));
     showBerlinOptions.setNextFocusableComponent(saveButton);
     lookAndFeel.setNextFocusableComponent(showBerlinOptions);
     Mnemonics.setLabel(this, jLabel41, International.getStringWithMnemonic("Standard-Obmann für ungesteuerte Boote")+": ");
@@ -853,7 +855,8 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     efaDirekt_emailAbsenderName.setNextFocusableComponent(efaDirekt_emailAbsender);
     efaDirekt_emailBetreffPraefix.setNextFocusableComponent(efaDirekt_emailSignatur);
     efaDirekt_emailSignatur.setNextFocusableComponent(efaDirekt_showSunrise);
-    Mnemonics.setButton(this, efaDirekt_reservierungenErlaubtZyklisch, International.getStringWithMnemonic("Mitglieder dürfen Boote reservieren (wöchentliche Reservierungen)"));
+    Mnemonics.setButton(this, efaDirekt_reservierungenErlaubtZyklisch, International.getStringWithMnemonic("Mitglieder dürfen Boote reservieren") +
+            " (" + International.getString("wöchentliche Reservierungen") + ")");
     efaDirekt_reservierungenErlaubtZyklisch.setNextFocusableComponent(efaDirekt_reservierungenEditErlaubt);
     jLabel59.setText(International.getString("Fahrtenbucheinträge auf Tippfehler prüfen für")+" ");
     correctMisspelledBoote.setNextFocusableComponent(correctMisspelledZiele);
@@ -923,7 +926,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     jLabel67.setText(International.getString("Benachrichtigungen verschicken")+":");
     jLabel68.setText(International.getString("an Admins"));
     jLabel69.setText(International.getString("an Bootswarte"));
-    jLabel70.setText(International.getString("bei Fehlern (ERROR)")+": ");
+    jLabel70.setText(International.getString("bei Fehlern") + " (ERROR): ");
     jLabel71.setText(International.getString("bei Warnungen (WARNING) einmal pro Woche")+":");
     jLabel72.setText(International.getString("bei Bootsstatus-Änderungen")+":");
     Mnemonics.setLabel(this, efaDirekt_newsTextLabel, International.getStringWithMnemonic("News-Text")+": ");
@@ -1367,13 +1370,13 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
   }
 
   void iniFelder() {
-    userdatadir.setText(Daten.efaConfigUserHome.efaUserDirectory);
+    userdatadir.setText(Daten.efaBaseConfig.efaUserDirectory);
 
     autogenAlias.setSelected(Daten.efaConfig.autogenAlias);
     aliasFormat.setText(Daten.efaConfig.aliasFormat);
     autoStandardmannsch.setSelected(Daten.efaConfig.autoStandardmannsch);
-    for(int i=0; i<Daten.bezeichnungen.fahrtart.size(); i++) {
-       standardFahrtart.addItem(Daten.bezeichnungen.fahrtart.get(i));
+    for(int i=0; Daten.efaTypes != null && i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++) {
+       standardFahrtart.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, i));
     }
     standardFahrtart.setSelectedItem(Daten.efaConfig.standardFahrtart);
 
@@ -1410,20 +1413,24 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     // Look&Feel
     UIManager.LookAndFeelInfo[] info = UIManager.getInstalledLookAndFeels();
     lookAndFeelArray = new String[info.length+1];
-    lookAndFeelArray[0] = EfaConfig.LOOKANDFEEL_STANDARD;
-    lookAndFeel.addItem(EfaConfig.LOOKANDFEEL_STANDARD);
+    lookAndFeelArray[0] = EfaConfig.DEFAULT;
+    lookAndFeel.addItem(International.getString("Standard"));
     for (int i=0; i<info.length; i++) {
       lookAndFeelArray[i+1] = info[i].getClassName();
       String s = info[i].getClassName();
       int pos = (s != null ? s.lastIndexOf(".") : -1);
       if (pos>0 && pos+1<s.length()) s = s.substring(pos+1,s.length());
-      else s = EfaConfig.LOOKANDFEEL_STANDARD;
+      else s = International.getString("Standard");
       lookAndFeel.addItem(s);
     }
-    for (int i=0; i<lookAndFeelArray.length; i++) {
-      if (lookAndFeelArray[i].endsWith(Daten.efaConfig.lookAndFeel)) {
-        lookAndFeel.setSelectedIndex(i); break;
-      }
+    if (Daten.efaConfig.lookAndFeel.equals(EfaConfig.DEFAULT)) {
+        lookAndFeel.setSelectedIndex(0);
+    } else {
+        for (int i=0; i<lookAndFeelArray.length; i++) {
+            if (lookAndFeelArray[i].endsWith(Daten.efaConfig.lookAndFeel)) {
+                lookAndFeel.setSelectedIndex(i); break;
+            }
+        }
     }
     efaDirekt_latComboBox.addItem(International.getString("Nord"));
     efaDirekt_latComboBox.addItem(International.getString("Süd"));
@@ -1544,7 +1551,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
         case '{':
           if (vari != 0) {
             parseError = International.getString("Ungültige Variablenbezeichnung")+": "+
-                    International.getString("'{' im Variablennamen nicht erlaubt");
+                    International.getMessage("Das Zeichen '{character}' ist im Variablennamen nicht erlaubt", "{");
             return i;
           }
           vari++;
@@ -1605,7 +1612,8 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     if (s.equals("")) return true;
 
     if (!new File(s).isDirectory()) {
-      Dialog.infoDialog(International.getString("Fehler"),International.getMessage("Das angegeben Verzeichnis {directory} existiert nicht.",s));
+      Dialog.infoDialog(International.getString("Fehler"),
+              LogString.logstring_directoryDoesNotExist(s, International.getString("Verzeichnis")));
       return false;
     }
     return true;
@@ -1631,30 +1639,33 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
 
   void browser_focusLost(FocusEvent e) {
     if (!browser.getText().trim().equals("") && !new File(browser.getText().trim()).isFile())
-      Dialog.infoDialog(International.getString("Browser nicht gefunden"),
+      Dialog.infoDialog(International.getMessage("{program} nicht gefunden",
+              International.getString("Browser")),
               International.getMessage("Das Programm '{program}' konnte nicht gefunden werden!",browser.getText().trim()));
   }
   void browserButton_actionPerformed(ActionEvent e) {
-    String dat = Dialog.dateiDialog(this,International.getString("Webbroser auswählen"),
+    String dat = Dialog.dateiDialog(this,International.getString("Webbrowser"),
             International.getString("Windows-Programme")+" (*.exe)","exe",Daten.efaConfig.browser,false);
     if (dat != null)
       browser.setText(dat);
   }
   void userdatadirButton_actionPerformed(ActionEvent e) {
-    String dat = Dialog.dateiDialog(this,International.getString("Nutzerdaten-Verzeichnis auswählen"),
-            International.getString("Verzeichnisse"),null,Daten.efaConfigUserHome.efaUserDirectory,null,null,false,true);
+    String dat = Dialog.dateiDialog(this,
+            International.getMessage("{item} auswählen",
+            International.getString("Nutzerdaten-Verzeichnis")),
+            International.getString("Verzeichnisse"),null,Daten.efaBaseConfig.efaUserDirectory,null,null,false,true);
     if (dat != null)
       userdatadir.setText(dat);
   }
 
   void acrobat_focusLost(FocusEvent e) {
     if (!acrobat.getText().trim().equals("") && !new File(acrobat.getText().trim()).isFile())
-      Dialog.infoDialog(International.getString("Acrobat Reader nicht gefunden"),
+      Dialog.infoDialog(International.getMessage("{program} nicht gefunden","Acrobat Reader"),
               International.getMessage("Das Programm '{program}' konnte nicht gefunden werden!",acrobat.getText().trim()));
   }
 
   void acrobatButton_actionPerformed(ActionEvent e) {
-    String dat = Dialog.dateiDialog(this,International.getString("Acrobat Reader auswählen"),
+    String dat = Dialog.dateiDialog(this,International.getString("Acrobat Reader"),
             International.getString("Windows-Programme")+" (*.exe)","exe",Daten.efaConfig.acrobat,false);
     if (dat != null)
       acrobat.setText(dat);
@@ -1662,15 +1673,15 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
 
   void saveButton_actionPerformed(ActionEvent e) {
     String newUserDir = userdatadir.getText().trim();
-    if (newUserDir.length()>0 && !Daten.efaConfigUserHome.efaUserDirectory.equals(newUserDir)) {
-      if (!Daten.efaConfigUserHome.efaCanWrite(newUserDir,true)) {
+    if (newUserDir.length()>0 && !Daten.efaBaseConfig.efaUserDirectory.equals(newUserDir)) {
+      if (!Daten.efaBaseConfig.efaCanWrite(newUserDir,true)) {
         Dialog.error(International.getMessage("efa kann in das Nutzerdaten-Verzeichnis '{directory}' nicht schreiben. Bitte wähle ein anderes Verzeichnis aus.",newUserDir));
         userdatadir.requestFocus();
         userdatadir.setCaretPosition(userdatadir.getText().length());
         return;
       } else {
-        Daten.efaConfigUserHome.efaUserDirectory = newUserDir;
-        Daten.efaConfigUserHome.writeFile();
+        Daten.efaBaseConfig.efaUserDirectory = newUserDir;
+        Daten.efaBaseConfig.writeFile();
         Dialog.infoDialog(International.getString("Neues Nutzerdaten-Verzeichnis"),
                           International.getMessage("Das neue Nutzerdaten-Verzeichnis '{directory}' "+
                           "wird erst nach einem Neustart von efa benutzt. "+
@@ -1850,14 +1861,20 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
   void bakdirButton_actionPerformed(ActionEvent e) {
     String dir = bakDir.getText().trim();
     if (dir.length() == 0 || !new File(dir).isDirectory()) dir = Daten.efaMainDirectory;
-    dir = Dialog.dateiDialog(this,International.getString("Backup-Verzeichnis auswählen"),null,null,dir,null,
+    dir = Dialog.dateiDialog(this,
+            International.getMessage("{item} auswählen",
+            International.getString("Backup-Verzeichnis")),
+            null,null,dir,null,
             International.getString("auswählen"),false,true);
     if (dir != null)
       bakDir.setText(dir);
   }
 
   void colorButton_actionPerformed(ActionEvent e) {
-    Color color = JColorChooser.showDialog(this,International.getString("Farbe wählen"),((JButton)e.getSource()).getBackground());
+    Color color = JColorChooser.showDialog(this,
+            International.getMessage("{item} auswählen",
+            International.getString("Farbe")),
+            ((JButton)e.getSource()).getBackground());
     if (color != null) ((JButton)e.getSource()).setBackground(color);
   }
 
@@ -1894,12 +1911,14 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
   void efaDirekt_logoSelectButton_actionPerformed(ActionEvent e) {
     String dir = Daten.efaMainDirectory;
     if (efaDirekt_vereinsLogo != null && efaDirekt_vereinsLogo.length()>0) EfaUtil.getPathOfFile(efaDirekt_vereinsLogo);
-    String datei = Dialog.dateiDialog(this,International.getString("Vereinslogo auswählen"),
+    String datei = Dialog.dateiDialog(this,
+            International.getMessage("{item} auswählen",
+            International.getString("Vereinslogo")),
             International.getString("Bild-Datei")+" (*.gif, *.jpg)","gif|jpg",dir,efaDirekt_vereinsLogo,
             International.getString("auswählen"),false,false);
     if (datei == null) return;
     if (!EfaUtil.canOpenFile(datei)) {
-      Dialog.error(International.getMessage("Datei '{file}' kann nicht geöffnet werden!",datei));
+        Dialog.error(LogString.logstring_fileOpenFailed(datei, International.getString("Datei")));
       return;
     }
     setVereinsLogo(datei);
@@ -1929,7 +1948,10 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
   void exec1FileSelectButton_actionPerformed(ActionEvent e) {
     String dat = efaDirekt_execOnEfaExit.getText().trim();
     if (dat.length() == 0 || !new File(dat).isFile()) dat = Daten.efaMainDirectory;
-    dat = Dialog.dateiDialog(this,International.getString("Programm auswählen"),null,null,dat,null,
+    dat = Dialog.dateiDialog(this,
+            International.getMessage("{item} auswählen",
+            International.getString("Programm")),
+            null,null,dat,null,
             International.getString("auswählen"),false,false);
     if (dat != null) efaDirekt_execOnEfaExit.setText(dat);
   }
@@ -1937,7 +1959,10 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
   void exec2FileSelectButton_actionPerformed(ActionEvent e) {
     String dat = efaDirekt_execOnEfaAutoExit.getText().trim();
     if (dat.length() == 0 || !new File(dat).isFile()) dat = Daten.efaMainDirectory;
-    dat = Dialog.dateiDialog(this,International.getString("Programm auswählen"),null,null,dat,null,
+    dat = Dialog.dateiDialog(this,
+            International.getMessage("{item} auswählen",
+            International.getString("Programm")),
+            null,null,dat,null,
             International.getString("auswählen"),false,false);
     if (dat != null) efaDirekt_execOnEfaAutoExit.setText(dat);
   }
@@ -1961,23 +1986,23 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     if (Dialog.screenSize != null) {
       if ((Dialog.screenSize.getWidth()<=800 || Dialog.screenSize.getHeight()<=600) && size>14) {
         Dialog.infoDialog(International.getString("Warnung"),
-                          International.getMessage("Für eine Auflösung von 800x600 wird eine maximale Schriftgröße "+
+                          International.getMessage("Für eine Auflösung von {dimension} wird eine maximale Schriftgröße "+
                           "von {size} empfohlen. Eine größere Schriftgröße kann dazu führen, "+
-                          "daß einige Fenster von efa nicht korrekt dargestellt werden.",14));
+                          "daß einige Fenster von efa nicht korrekt dargestellt werden.","800x600",14));
         return;
       }
       if ((Dialog.screenSize.getWidth()<=1024 || Dialog.screenSize.getHeight()<=768) && size>16) {
         Dialog.infoDialog(International.getString("Warnung"),
-                          International.getMessage("Für eine Auflösung von 1024x768 wird eine maximale Schriftgröße "+
+                          International.getMessage("Für eine Auflösung von {dimension} wird eine maximale Schriftgröße "+
                           "von {size} empfohlen. Eine größere Schriftgröße kann dazu führen, "+
-                          "daß einige Fenster von efa nicht korrekt dargestellt werden.",16));
+                          "daß einige Fenster von efa nicht korrekt dargestellt werden.","1024x768",16));
         return;
       }
       if ((Dialog.screenSize.getWidth()<=1280 || Dialog.screenSize.getHeight()<=1024) && size>18) {
         Dialog.infoDialog(International.getString("Warnung"),
-                          International.getMessage("Für eine Auflösung von 1280x1024 wird eine maximale Schriftgröße "+
+                          International.getMessage("Für eine Auflösung von {dimension} wird eine maximale Schriftgröße "+
                           "von {size} empfohlen. Eine größere Schriftgröße kann dazu führen, "+
-                          "daß einige Fenster von efa nicht korrekt dargestellt werden.",18));
+                          "daß einige Fenster von efa nicht korrekt dargestellt werden.","1280x1024",18));
         return;
       }
       if ((Dialog.screenSize.getWidth()>1280 && Dialog.screenSize.getHeight()>1024) && size>20) {

@@ -108,7 +108,7 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
       nachricht.setNextFocusableComponent(okButton);
       nachricht.setEditable(false);
       this.setTitle(International.getString("Nachrichten an Admin"));
-      jLabel1.setText(International.getString("Anzeigen")+":");
+      jLabel1.setText(International.getString("anzeigen")+":");
       gelesenMarkierenCheckBox.setNextFocusableComponent(forwardButton);
       Mnemonics.setButton(this, gelesenMarkierenCheckBox, International.getStringWithMnemonic("Nachricht als gelesen markieren"));
       gelesenMarkierenCheckBox.addActionListener(new java.awt.event.ActionListener() {
@@ -335,9 +335,8 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
     Nachricht nfwd = new Nachricht(weiterAn,n.datum,n.name,"Fwd: "+n.betreff,n.nachricht);
     nachrichten.add(nfwd);
     if (!nachrichten.writeFile()) {
-      Dialog.error(International.getString("Fehler beim Schreiben der Nachrichtendatei."));
-      Logger.log(Logger.ERROR,Logger.MSG_CSVFILE_ERRORWRITEFILE,
-              International.getString("Nachrichtendatei konnte nicht gespeichert werden (Weiterleiten einer Nachricht)."));
+      LogString.logError_fileWritingFailed(nachrichten.getFileName(), International.getString("Nachrichtendatei"));
+      Dialog.error(LogString.logstring_fileWritingFailed(nachrichten.getFileName(), International.getString("Nachrichtendatei")));
     }
   }
 

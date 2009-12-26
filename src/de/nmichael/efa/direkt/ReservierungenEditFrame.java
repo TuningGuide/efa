@@ -107,10 +107,14 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
         }
     });
       jPanel2.setLayout(gridBagLayout1);
-      Mnemonics.setLabel(this, vonTagLabel, International.getStringWithMnemonic("Von (Tag)")+": ");
-      Mnemonics.setLabel(this, vonZeitLabel, International.getStringWithMnemonic("Von (Zeit)")+": ");
-      Mnemonics.setLabel(this, bisTagLabel, International.getStringWithMnemonic("Bis (Tag)")+": ");
-      Mnemonics.setLabel(this, bisZeitLabel, International.getStringWithMnemonic("Bis (Zeit)")+": ");
+      Mnemonics.setLabel(this, vonTagLabel, International.getStringWithMnemonic("Von")+
+              " (" + International.getString("Tag") + "): ");
+      Mnemonics.setLabel(this, vonZeitLabel, International.getStringWithMnemonic("Von")+
+              " (" + International.getString("Zeit") + "): ");
+      Mnemonics.setLabel(this, bisTagLabel, International.getStringWithMnemonic("Bis")+
+              " (" + International.getString("Tag") + "): ");
+      Mnemonics.setLabel(this, bisZeitLabel, International.getStringWithMnemonic("Bis")+
+              " (" + International.getString("Zeit") + "): ");
       Mnemonics.setLabel(this, nameLabel, International.getStringWithMnemonic("Reserviert für")+": ");
       Mnemonics.setLabel(this, grundLabel, International.getStringWithMnemonic("Reservierungsgrund")+": ");
       this.setTitle(International.getString("Reservierung"));
@@ -319,7 +323,8 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
 
   boolean validateNotEmpty(JTextField field, String name) {
     if (field.getText().trim().length()>0) return true;
-    Dialog.error(International.getMessage("Das Feld '{field_name}' ist leer. Bitte gib einen Wert ein!",name));
+    Dialog.error(International.getMessage("Das Feld '{field_name}' ist leer.",name) + " " +
+            International.getString("Bitte gib einen Wert ein!"));
     field.requestFocus();
     return false;
   }
@@ -328,12 +333,16 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
     bisTag_focusLost(null);
     boolean einmalig = this.resEinmalig.isSelected();
     if (einmalig) {
-      if (!validateNotEmpty(vonTag,International.getString("Von (Tag)"))) return;
-      if (!validateNotEmpty(bisTag,International.getString("Bis (Tag)"))) return;
+      if (!validateNotEmpty(vonTag,International.getString("Von") +
+              " (" + International.getString("Tag") + ")")) return;
+      if (!validateNotEmpty(bisTag,International.getString("Bis") +
+              " (" + International.getString("Tag") + ")")) return;
     } else {
     }
-    if (!validateNotEmpty(vonZeit,International.getString("Von (Zeit)"))) return;
-    if (!validateNotEmpty(bisZeit,International.getString("Bis (Zeit)"))) return;
+    if (!validateNotEmpty(vonZeit,International.getString("Von") +
+              " (" + International.getString("Zeit") + ")")) return;
+    if (!validateNotEmpty(bisZeit,International.getString("Bis") +
+              " (" + International.getString("Zeit") + ")")) return;
     if (!validateNotEmpty(name,International.getString("Name"))) return;
     if (grund.getText().trim().length()==0) grund.setText(International.getString("k.A."));
 

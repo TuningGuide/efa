@@ -14,6 +14,8 @@ import de.nmichael.efa.*;
 import java.io.*;
 import java.util.*;
 
+// @i18n complete
+
 public class Backup {
 
   public final static int SAVE = 0; // Typen von Aktionen, die ein Backup.create()
@@ -48,8 +50,10 @@ public class Backup {
 
     if (typ == SAVE && save) {
       if (!backupFile(fname,fbak)) {
-        Logger.log(Logger.ERROR,"Backup: Backup von "+fname+" fehlgeschlagen.");
-        success = false;
+          LogString.logError_fileBackupFailed(fname, 
+                  International.getString("Datei") +
+                  " [" + International.getString("Backup beim Speichern") + "]");
+          success = false;
       }
     }
 
@@ -59,7 +63,9 @@ public class Backup {
       String bakname = fbak + cal.get(GregorianCalendar.YEAR)+"-"+(monat<10 ? "0"+monat : ""+monat);
       if (! new File(bakname).isFile()) {
         if (!backupFile(fname,bakname)) {
-          Logger.log(Logger.ERROR,"Backup: monatliches Backup von "+fname+" fehlgeschlagen.");
+          LogString.logError_fileBackupFailed(fname,
+                  International.getString("Datei") +
+                  " [" + International.getString("monatliches Backup") + "]");
           success = false;
         }
       }
@@ -72,7 +78,9 @@ public class Backup {
       String bakname = fbak + cal.get(GregorianCalendar.YEAR)+"-"+(monat<10 ? "0"+monat : ""+monat)+"-"+(tag<10 ? "0"+tag : ""+tag);
       if (! new File(bakname).isFile()) {
         if (!backupFile(fname,bakname)) {
-          Logger.log(Logger.ERROR,"Backup: tägliches Backup von "+fname+" fehlgeschlagen.");
+          LogString.logError_fileBackupFailed(fname,
+                  International.getString("Datei") +
+                  " [" + International.getString("tägliches Backup") + "]");
           success = false;
         }
       }
@@ -81,7 +89,9 @@ public class Backup {
     if (typ == CONV && conv && version != null) {
       String bakname = fbak + "_v" + version;
       if (!backupFile(fname,bakname)) {
-        Logger.log(Logger.ERROR,"Backup: Backup beim Konvertieren von "+fname+" fehlgeschlagen.");
+          LogString.logError_fileBackupFailed(fname,
+                  International.getString("Datei") +
+                  " [" + International.getString("Backup beim Konvertieren") + "]");
         success = false;
       }
     }

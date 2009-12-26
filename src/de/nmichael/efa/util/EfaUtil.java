@@ -11,6 +11,7 @@
 package de.nmichael.efa.util;
 
 import de.nmichael.efa.core.*;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.Dialog;
 import java.text.SimpleDateFormat;
@@ -27,6 +28,8 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JComponent;
 import java.security.*;
+
+// @i18n complete
 
 public class EfaUtil {
 
@@ -54,7 +57,7 @@ public class EfaUtil {
       cal.setTime(d);
       if ( (tag = cal.get(Calendar.DAY_OF_WEEK)) == Calendar.SATURDAY || tag == Calendar.SUNDAY) return true;
     } catch (Exception e) {
-      Logger.log(Logger.ERROR,"Parse error");
+      Logger.log(Logger.ERROR, Logger.MSG_GENERIC_ERROR, "Parse error");
     }
     return false;
   }
@@ -359,18 +362,18 @@ public class EfaUtil {
     if (s == null) return null;
     s = correctStatusList(s);
     String[] stati = kommaList2Arr(s.trim(),',');
-    if (Daten.bezeichnungen == null ||
-        Daten.bezeichnungen.gast == null || Daten.bezeichnungen.gast.length() == 0 ||
-        Daten.bezeichnungen.andere == null || Daten.bezeichnungen.andere.length() == 0) return stati;
+    if (Daten.efaTypes == null ||
+        !Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST) ||
+        !Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_OTHER)) return stati;
     Vector stati2 = new Vector();
     for (int i=0; i<stati.length; i++) {
-      if (!stati[i].toLowerCase().equals(Daten.bezeichnungen.gast.toLowerCase()) &&
-          !stati[i].toLowerCase().equals(Daten.bezeichnungen.andere.toLowerCase())) {
+      if (!stati[i].toLowerCase().equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST).toLowerCase()) &&
+          !stati[i].toLowerCase().equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_OTHER).toLowerCase())) {
         stati2.add(stati[i]);
       }
     }
-    stati2.add(Daten.bezeichnungen.gast);
-    stati2.add(Daten.bezeichnungen.andere);
+    stati2.add(Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST));
+    stati2.add(Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_OTHER));
     String[] a = new String[stati2.size()];
     for (int i=0; i<stati2.size(); i++) {
       a[i] = (String)stati2.get(i);
@@ -704,7 +707,9 @@ public class EfaUtil {
       BrowserFrame b = new BrowserFrame();
       return b.runDownload(frame,conn,remote,local,wait);
     } catch(Exception e) {
-      Dialog.error("Download fehlgeschlagen: "+e.toString()+"\nEventuell wurde efa durch eine Firewall blockiert.");
+      Dialog.error(International.getString("Download fehlgeschlagen") +
+              ": "+e.toString()+"\n" +
+              International.getString("Eventuell wird efa durch eine Firewall blockiert."));
       return false;
     }
   }
@@ -715,7 +720,9 @@ public class EfaUtil {
       BrowserFrame b = new BrowserFrame();
       return b.runDownload(frame,conn,remote,local,wait);
     } catch(Exception e) {
-      Dialog.error("Download fehlgeschlagen: "+e.toString()+"\nEventuell wurde efa durch eine Firewall blockiert.");
+      Dialog.error(International.getString("Download fehlgeschlagen") +
+              ": "+e.toString()+"\n" +
+              International.getString("Eventuell wird efa durch eine Firewall blockiert."));
       return false;
     }
   }
@@ -726,7 +733,9 @@ public class EfaUtil {
       BrowserFrame b = new BrowserFrame();
       return b.runDownload(frame,conn,remote,local,afterDownload);
     } catch(Exception e) {
-      Dialog.error("Download fehlgeschlagen: "+e.toString()+"\nEventuell wurde efa durch eine Firewall blockiert.");
+      Dialog.error(International.getString("Download fehlgeschlagen") +
+              ": "+e.toString()+"\n" +
+              International.getString("Eventuell wird efa durch eine Firewall blockiert."));
       return false;
     }
   }
@@ -737,7 +746,9 @@ public class EfaUtil {
       BrowserFrame b = new BrowserFrame();
       return b.runDownload(frame,conn,remote,local,afterDownload);
     } catch(Exception e) {
-      Dialog.error("Download fehlgeschlagen: "+e.toString()+"\nEventuell wurde efa durch eine Firewall blockiert.");
+      Dialog.error(International.getString("Download fehlgeschlagen") +
+              ": "+e.toString()+"\n" +
+              International.getString("Eventuell wird efa durch eine Firewall blockiert."));
       return false;
     }
   }
@@ -935,13 +946,13 @@ public class EfaUtil {
     Calendar cal = new GregorianCalendar();
     cal.set(tmj.jahr,tmj.monat-1,tmj.tag);
     switch (cal.get(GregorianCalendar.DAY_OF_WEEK)) {
-      case Calendar.MONDAY:    return "Montag";
-      case Calendar.TUESDAY:   return "Dienstag";
-      case Calendar.WEDNESDAY: return "Mittwoch";
-      case Calendar.THURSDAY:  return "Donnerstag";
-      case Calendar.FRIDAY:    return "Freitag";
-      case Calendar.SATURDAY:  return "Samstag";
-      case Calendar.SUNDAY:    return "Sonntag";
+      case Calendar.MONDAY:    return International.getString("Montag");
+      case Calendar.TUESDAY:   return International.getString("Dienstag");
+      case Calendar.WEDNESDAY: return International.getString("Mittwoch");
+      case Calendar.THURSDAY:  return International.getString("Donnerstag");
+      case Calendar.FRIDAY:    return International.getString("Freitag");
+      case Calendar.SATURDAY:  return International.getString("Samstag");
+      case Calendar.SUNDAY:    return International.getString("Sonntag");
       default: return "";
     }
   }
@@ -989,13 +1000,14 @@ public class EfaUtil {
     w.start();
     System.gc();
     w.stop();
-    Dialog.infoDialog("GarbageCollection","GarbageCollection ausgeführt in "+w.diff()+"ms.\n"+
-                      "Vor GarbageCollection:\n"+
-                      "    gesamter VM Speicher: "+totalMem+" Bytes\n"+
-                      "    freier Speicher: "+freeMem+" Bytes\n"+
-                      "Nach GarbageCollection:\n"+
-                      "    gesamter VM Speicher: "+Runtime.getRuntime().totalMemory()+" Bytes\n"+
-                      "    freier Speicher: "+Runtime.getRuntime().freeMemory()+" Bytes");
+    // do not translate!
+    Dialog.infoDialog("GarbageCollection","GarbageCollection finished in "+w.diff()+"ms.\n"+
+                      "Before GarbageCollection:\n"+
+                      "    total VM Heap: "+totalMem+" Bytes\n"+
+                      "    free  VM Heap: "+freeMem+" Bytes\n"+
+                      "After GarbageCollection:\n"+
+                      "    total VM Heap: "+Runtime.getRuntime().totalMemory()+" Bytes\n"+
+                      "    free  VM Heap: "+Runtime.getRuntime().freeMemory()+" Bytes");
   }
 
   static class Stopwatch {
@@ -1012,8 +1024,12 @@ public class EfaUtil {
   // Entpacken eines Ziparchivs zipFile in einem Verzeichnis destDir
   // Rückgabe: null, wenn erfolgreich; String != null mit Fehlermeldungen, sonst
   public static String unzip(String zipFile, String destDir) {
-    if ( !(new File(zipFile)).isFile() ) return "ZIP-Datei "+zipFile+" nicht gefunden!";
-    if ( !(new File(destDir)).isDirectory() ) return "Ziel-Verzeichnis "+destDir+" existiert nicht!";
+    if ( !(new File(zipFile)).isFile() ) {
+        return LogString.logstring_fileNotFound(zipFile, International.getString("ZIP-Datei"));
+    }
+    if ( !(new File(destDir)).isDirectory() ) {
+        return LogString.logstring_directoryDoesNotExist(destDir, International.getString("Ziel-Verzeichnis"));
+    }
 
     if (!destDir.endsWith(Daten.fileSep)) destDir += Daten.fileSep;
     String result = null;
@@ -1027,8 +1043,12 @@ public class EfaUtil {
         if (file.isDirectory()) {
           // Verzeichnis
           if (!(new File(destDir + filename)).isDirectory()) {
-            if (!(new File(destDir + filename)).mkdirs())
-              result = (result == null ? "" : result+"\n") + "Fehler beim Entpacken: Erstellen des Verzeichnisses "+destDir+filename+" fehlgeschlagen!\nEntpacken abgebrochen.";
+            if (!(new File(destDir + filename)).mkdirs()) {
+              result = (result == null ? "" : result+"\n") + 
+                      International.getString("Fehler beim Entpacken") + ": " +
+                      International.getMessage("Erstellen des Verzeichnisses {dirname} fehlgeschlagen!",destDir+filename) + "\n" +
+                      International.getString("Entpacken abgebrochen.");
+            }
           }
         } else {
           // normale Datei
@@ -1038,8 +1058,13 @@ public class EfaUtil {
             if (filename.lastIndexOf("/")>=0) dir = filename.substring(0,filename.lastIndexOf("/"));
             if (dir == null && filename.lastIndexOf("\\")>=0) dir = filename.substring(0,filename.lastIndexOf("\\"));
             if (dir != null && !(new File(destDir + dir)).isDirectory()) {
-              if (!(new File(destDir + dir)).mkdirs())
-                result = (result == null ? "" : result+"\n") + "Fehler beim Entpacken: Erstellen des Verzeichnisses "+destDir+filename+" fehlgeschlagen!\nEntpacken abgebrochen.";
+              if (!(new File(destDir + dir)).mkdirs()) {
+              result = (result == null ? "" : result+"\n") +
+                      International.getString("Fehler beim Entpacken") + ": " +
+                      International.getMessage("Erstellen des Verzeichnisses {dirname} fehlgeschlagen!",destDir+dir) + "\n" +
+                      International.getString("Entpacken abgebrochen.");
+
+              }
             }
 
             // jetzt die Datei entpacken
@@ -1053,13 +1078,19 @@ public class EfaUtil {
             f.close();
             stream.close();
           } catch(Exception e) {
-            result = (result == null ? "" : result+"\n") + "Fehler beim Entpacken: Entpacken der Datei "+filename+" fehlgeschlagen: "+e.toString();
+              result = (result == null ? "" : result+"\n") +
+                      International.getString("Fehler beim Entpacken") + ": " +
+                      International.getMessage("Entpacken der Datei {filename} fehlgeschlagen!",filename) + "\n" +
+                      e.toString();
           }
         }
         file = (files.hasMoreElements() ? (ZipEntry)files.nextElement() : null);
       }
     } catch(Exception ee) {
-      result = (result == null ? "" : result+"\n") + "Fehler beim Entpacken: "+ee.toString()+"\nEntpacken abgebrochen.";
+      result = (result == null ? "" : result+"\n") + 
+                      International.getString("Fehler beim Entpacken") + ": " +
+                      ee.toString() + "\n" +
+                      International.getString("Entpacken abgebrochen.");
     }
     return result;
   }
@@ -1112,7 +1143,7 @@ public class EfaUtil {
       }
       out.close();
       if (warnings.length()>0) {
-        return "Folgende Dateien konnten nicht gesichert werden:\n"+warnings;
+        return International.getMessage("Folgende Dateien konnten nicht gesichert werden: {files}",warnings) + "\n";
       }
     } catch(Exception e) {
       return e.toString();
@@ -1244,7 +1275,8 @@ public class EfaUtil {
     while (i<aliasFormat.length()) {
       if (aliasFormat.charAt(i) == '{') {
         if (aliasFormat.length() < i+4 || aliasFormat.charAt(i+3) != '}') {
-          Logger.log(Logger.INFO,"NeuesMitgliedFrame: Fehler beim Parsen des Eingabe-Kürzel-Formats!");
+          Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GENERIC,
+                  "NeuesMitgliedFrame: Fehler beim Parsen des Eingabe-Kürzel-Formats!"); // no need to translate
           return "";
         }
         String feld=null;

@@ -64,7 +64,7 @@ public class EfaErrorPrintStream extends PrintStream {
           };
         };
         if (stack != null) {
-          text += "\n"+International.getString("Stack Trace")+":\n";
+          text += "\nStack Trace:\n";
           for (int i=0; stack != null && i<stack.length; i++) stacktrace += stack[i].toString() + "\n";
           text += stacktrace;
         }

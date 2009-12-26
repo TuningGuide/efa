@@ -22,10 +22,9 @@ import java.io.*;
 
 // @i18n complete
 
-public class SimpleInputFrame extends JDialog implements ActionListener {
-  private static String input;
-
-  DatenListe d;
+public class SimpleSelectFrame extends JDialog implements ActionListener {
+  private static String result;
+  private static int resultID;
 
   JPanel jPanel1 = new JPanel();
   BorderLayout borderLayout1 = new BorderLayout();
@@ -33,26 +32,36 @@ public class SimpleInputFrame extends JDialog implements ActionListener {
   JPanel jPanel2 = new JPanel();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
   JLabel label = new JLabel();
-  JTextField text = new JTextField();
+  JComboBox select = new JComboBox();
 
 
-  public SimpleInputFrame(String title, String message, DatenListe d) {
-    iniFrame(title,message,d);
+  public SimpleSelectFrame(String title, String message, String[] items, int preselect) {
+    iniFrame(title,message,items,preselect);
   }
-  public SimpleInputFrame(JFrame parent, String title, String message, DatenListe d) {
+  public SimpleSelectFrame(JFrame parent, String title, String message, String[] items, int preselect) {
     super(parent);
-    iniFrame(title,message,d);
+    iniFrame(title,message,items,preselect);
   }
-  public SimpleInputFrame(JDialog parent, String title, String message, DatenListe d) {
+  public SimpleSelectFrame(JDialog parent, String title, String message, String[] items, int preselect) {
     super(parent);
-    iniFrame(title,message,d);
+    iniFrame(title,message,items,preselect);
   }
 
-  void iniFrame(String title, String message, DatenListe d) {
+  void iniFrame(String title, String message, String[] items, int preselect) {
     enableEvents(AWTEvent.WINDOW_EVENT_MASK);
     Dialog.frameOpened(this);
     try {
       jbInit();
+      for (int i=0; i<items.length; i++) {
+          select.addItem(items[i]);
+      }
+      if (items.length > 0) {
+          if (preselect >= 0 && preselect < items.length) {
+              select.setSelectedIndex(preselect);
+          } else {
+              select.setSelectedIndex(0);
+          }
+      }
       this.setTitle(title);
       label.setText(message);
     }
@@ -60,9 +69,7 @@ public class SimpleInputFrame extends JDialog implements ActionListener {
       e.printStackTrace();
     }
     EfaUtil.pack(this);
-//    this.parent = parent;
-    text.requestFocus();
-    this.d = d;
+    select.requestFocus();
   }
 
 
@@ -70,7 +77,8 @@ public class SimpleInputFrame extends JDialog implements ActionListener {
   public void keyAction(ActionEvent evt) {
     if (evt == null || evt.getActionCommand() == null) return;
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_0")) { // Escape
-      input = null;
+      result = null;
+      resultID = -1;
       cancel();
     }
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
@@ -87,7 +95,7 @@ public class SimpleInputFrame extends JDialog implements ActionListener {
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
       jPanel1.setLayout(borderLayout1);
       Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("OK"));
-      okButton.setNextFocusableComponent(text);
+      okButton.setNextFocusableComponent(select);
       okButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           okButton_actionPerformed(e);
@@ -95,25 +103,15 @@ public class SimpleInputFrame extends JDialog implements ActionListener {
     });
       jPanel2.setLayout(gridBagLayout1);
       label.setText("jLabel1");
-      text.setNextFocusableComponent(okButton);
-      Dialog.setPreferredSize(text,400,17);
-      text.addKeyListener(new java.awt.event.KeyAdapter() {
-        public void keyReleased(KeyEvent e) {
-          text_keyReleased(e);
-        }
-      });
-      text.addFocusListener(new java.awt.event.FocusAdapter() {
-        public void focusLost(FocusEvent e) {
-          text_focusLost(e);
-        }
-      });
+      select.setNextFocusableComponent(okButton);
+      Dialog.setPreferredSize(select,400,17);
       this.setTitle(International.getString("Eingabe"));
       this.getContentPane().add(jPanel1, BorderLayout.CENTER);
       jPanel1.add(okButton, BorderLayout.SOUTH);
       jPanel1.add(jPanel2, BorderLayout.CENTER);
       jPanel2.add(label,    new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(10, 10, 0, 10), 0, 0));
-      jPanel2.add(text,   new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+      jPanel2.add(select,   new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 10, 10, 10), 0, 0));
     } catch(NoSuchMethodException e) {
       System.err.println("Error setting up ActionHandler");
@@ -123,7 +121,8 @@ public class SimpleInputFrame extends JDialog implements ActionListener {
   /**Overridden so we can exit when window is closed*/
   protected void processWindowEvent(WindowEvent e) {
     if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-      input = null;
+      result = null;
+      resultID = -1;
       cancel();
     }
     super.processWindowEvent(e);
@@ -139,37 +138,35 @@ public class SimpleInputFrame extends JDialog implements ActionListener {
   public void actionPerformed(ActionEvent e) {
   }
 
-  void text_keyReleased(KeyEvent e) {
-    if (d == null) return;
-    EfaFrame.vervollstaendige(text,null,d,e,null,true);
-    if (e != null && e.getKeyCode() == KeyEvent.VK_ENTER) okButton_actionPerformed(null);
-  }
-
   void okButton_actionPerformed(ActionEvent e) {
-    input = text.getText().trim();
+    if (select.getSelectedIndex()>=0) {
+        result = (String)select.getSelectedItem();
+        resultID = select.getSelectedIndex();
+    }
     cancel();
   }
 
-  public static String showInputDialog(String title, String message, DatenListe d) {
+  public static int showInputDialog(String title, String message, String[] items, int preselect) {
     try {
       JDialog parent = (JDialog)Dialog.frameCurrent();
-      if (parent != null) return showInputDialog(title, message, d, parent);
+      if (parent != null) return showInputDialog(title, message, items, parent,preselect);
     } catch(Exception e) {
       try {
         JFrame parent = (JFrame)Dialog.frameCurrent();
-        if (parent != null) showInputDialog(title, message, d, parent);
+        if (parent != null) showInputDialog(title, message, items, parent,preselect);
       } catch(Exception ee) {
       }
     }
-    return showInputDialog(title, message, d, (JDialog)null);
+    return showInputDialog(title, message, items, (JDialog)null,preselect);
   }
 
-  public static String showInputDialog(String title, String message, DatenListe d, JDialog parent) {
-    input = null;
+  public static int showInputDialog(String title, String message, String[] items, JDialog parent, int preselect) {
+    result = null;
+    resultID = -1;
 
-    SimpleInputFrame dlg;
-    if (parent != null) dlg = new SimpleInputFrame(parent,title,message,d);
-    else dlg = new SimpleInputFrame(title,message,d);
+    SimpleSelectFrame dlg;
+    if (parent != null) dlg = new SimpleSelectFrame(parent,title,message,items,preselect);
+    else dlg = new SimpleSelectFrame(title,message,items,preselect);
 
     Dialog.setDlgLocation(dlg);
     dlg.setModal(true);
@@ -177,15 +174,16 @@ public class SimpleInputFrame extends JDialog implements ActionListener {
     dlg.toFront();
     dlg.show();
 
-    return input;
+    return resultID;
   }
 
-  public static String showInputDialog(String title, String message, DatenListe d, JFrame parent) {
-    input = null;
+  public static int showInputDialog(String title, String message, String[] items, JFrame parent, int preselect) {
+    result = null;
+    resultID = -1;
 
-    SimpleInputFrame dlg;
-    if (parent != null) dlg = new SimpleInputFrame(parent,title,message,d);
-    else dlg = new SimpleInputFrame(title,message,d);
+    SimpleSelectFrame dlg;
+    if (parent != null) dlg = new SimpleSelectFrame(parent,title,message,items,preselect);
+    else dlg = new SimpleSelectFrame(title,message,items,preselect);
 
     Dialog.setDlgLocation(dlg);
     dlg.setModal(true);
@@ -193,12 +191,15 @@ public class SimpleInputFrame extends JDialog implements ActionListener {
     dlg.toFront();
     dlg.show();
 
-    return input;
+    return resultID;
   }
 
+  public static String getLastResult() {
+      return result;
+  }
 
-  void text_focusLost(FocusEvent e) {
-    if (Daten.efaConfig != null && Daten.efaConfig.popupComplete) AutoCompletePopupWindow.hideWindow();
+  public static int getLastResultID() {
+      return resultID;
   }
 
 }

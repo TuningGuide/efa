@@ -445,7 +445,7 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
   void okButton_actionPerformed(ActionEvent e) {
     if (saveButton.isEnabled()) saveButton_actionPerformed(null);
     if (!Daten.efaConfig.writeFile()) {
-      Dialog.error(International.getString("Die Konfigurationsdatei konnte nicht geschrieben werden!"));
+      Dialog.error(LogString.logstring_fileWritingFailed(Daten.efaConfig.getFileName(), International.getString("Konfigurationsdatei")));;
     } else {
       Logger.log(Logger.INFO,Logger.MSG_ADMIN_ACTION_ADMINSMODIFIED,International.getString("Änderungen an Liste der Admins gespeichert."));
     }
@@ -485,19 +485,20 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
     if (!neuerEintrag && adminList.getSelectedIndex()>=0) altername = (String)adminList.getSelectedValue();
 
     if (name.length() == 0) {
-      Dialog.error(International.getString("Bitte gib einen Namen für den Admin an!"));
+      Dialog.error(International.getString("Bitte gib einen Namen für den Admin ein!"));
       this.name.requestFocus();
       return;
     }
 
     if (!name.equals(altername) && Daten.efaConfig.admins.get(name) != null) {
-      Dialog.error(International.getString("Es gibt bereits einen Admin mit diesem Namen. Bitte wähle einen anderen Namen!"));
+      Dialog.error(International.getString("Es gibt bereits einen Admin mit diesem Namen.") + " " +
+              International.getString("Bitte wähle einen anderen Namen."));
       this.name.requestFocus();
       return;
     }
 
     if (_password == null) {
-      Dialog.error(International.getString("Bitte gib zunächst ein Paßwort für den Admin an!"));
+      Dialog.error(International.getString("Bitte gib zunächst ein Paßwort für den Admin ein!"));
       this.passwordButton.requestFocus();
       return;
     }

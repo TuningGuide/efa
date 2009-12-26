@@ -19,6 +19,8 @@ import javax.swing.*;
 import java.util.*;
 import de.nmichael.efa.*;
 
+// @i18n complete
+
 public class ElwizFrame extends JFrame {
   Vector optionsHTML, optionsPDF;
   Hashtable colorTextfields = new Hashtable();
@@ -54,12 +56,12 @@ public class ElwizFrame extends JFrame {
     }
     optionsHTML = XSLTReader.run(Daten.efaAusgabeDirectory+"layout"+Daten.fileSep+"html"+Daten.fileSep+"elwiz.xml");
     if (optionsHTML == null) {
-      Dialog.error("Es konnte kein XML-Parser geladen werden (siehe 'elwiz.log').");
+      Dialog.error(International.getMessage("Es konnte kein XML-Parser geladen werden (siehe '{logfile}').","elwiz.log"));
       System.exit(0);
     }
     optionsPDF  = XSLTReader.run(Daten.efaAusgabeDirectory+"layout"+Daten.fileSep+"pdf"+Daten.fileSep+"elwiz.xml");
     if (optionsPDF == null) {
-      Dialog.error("Es konnte kein XML-Parser geladen werden (siehe 'elwiz.log').");
+      Dialog.error(International.getMessage("Es konnte kein XML-Parser geladen werden (siehe '{logfile}').","elwiz.log"));
       System.exit(0);
     }
     iniItems(optionsHTML,optionHTMLPanel);
@@ -96,39 +98,34 @@ public class ElwizFrame extends JFrame {
     this.setSize(new Dimension(600, 600));
     this.setTitle("elwiz - efa Layout Wizard");
     optionHTMLPanel.setLayout(gridBagLayout1);
-    createButton.setText("Stylesheet erstellen");
+    Mnemonics.setButton(this, createButton, International.getStringWithMnemonic("Stylesheet erstellen"));
     createButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         createButton_actionPerformed(e);
       }
     });
     optionPDFPanel.setLayout(gridBagLayout2);
-    jMenu1.setMnemonic('D');
-    jMenu1.setText("Datei");
-    jMenuItem1.setMnemonic('S');
-    jMenuItem1.setText("Stylesheet erstellen");
+    Mnemonics.setButton(this, jMenu1, International.getStringWithMnemonic("Datei"));
+    Mnemonics.setButton(this, jMenuItem1, International.getStringWithMnemonic("Stylesheet erstellen"));
     jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem1_actionPerformed(e);
       }
     });
-    jMenuItem2.setMnemonic('B');
-    jMenuItem2.setText("Beenden");
+    Mnemonics.setButton(this, jMenuItem2, International.getStringWithMnemonic("Beenden"));
     jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem2_actionPerformed(e);
       }
     });
-    jMenu2.setMnemonic('I');
-    jMenu2.setText("Info");
-    jMenuItem3.setMnemonic('B');
-    jMenuItem3.setText("Über");
+    Mnemonics.setButton(this, jMenu2, International.getStringWithMnemonic("Info"));
+    Mnemonics.setButton(this, jMenuItem3, International.getStringWithMnemonic("Über"));
     jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem3_actionPerformed(e);
       }
     });
-    jMenuItem4.setText("Hilfe");
+    Mnemonics.setButton(this, jMenuItem4, International.getStringWithMnemonic("Hilfe"));
     jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuItem4_actionPerformed(e);
@@ -277,7 +274,10 @@ public class ElwizFrame extends JFrame {
     try {
       cint = Integer.parseInt(cstr.substring(0,6),16);
     } catch(Exception ee) { cint = 0; }
-    Color color = JColorChooser.showDialog(this,"Farbe wählen",new Color(cint));
+    Color color = JColorChooser.showDialog(this,
+            International.getMessage("{item} auswählen",
+            International.getString("Farbe")),
+            new Color(cint));
     if (color != null) {
       cstr = "";
       float[] rgb = color.getRGBColorComponents(null);
@@ -343,11 +343,15 @@ public class ElwizFrame extends JFrame {
     String outfile;
     if (optionHTMLPanel.isShowing()) {
       infile = Daten.efaAusgabeDirectory+"layout/html/elwiz.xml";
-      outfile = Dialog.dateiDialog(this,"HTML-Layout erstellen","XSLT-Stylesheets (*.xsl)","xsl",Daten.efaAusgabeDirectory+"layout/html/",true);
+      outfile = Dialog.dateiDialog(this,
+              International.getString("HTML-Layout erstellen"),
+              "XSLT-Stylesheets (*.xsl)","xsl",Daten.efaAusgabeDirectory+"layout/html/",true);
       if (outfile != null) XSLTWriter.run(infile,outfile,optionsHTML);
     } else {
       infile = Daten.efaAusgabeDirectory+"layout/pdf/elwiz.xml";
-      outfile = Dialog.dateiDialog(this,"PDF-Layout erstellen","XSLT-Stylesheets (*.xsl)","xsl",Daten.efaAusgabeDirectory+"layout/pdf/",true);
+      outfile = Dialog.dateiDialog(this,
+              International.getString("PDF-Layout erstellen"),
+              "XSLT-Stylesheets (*.xsl)","xsl",Daten.efaAusgabeDirectory+"layout/pdf/",true);
       if (outfile != null) XSLTWriter.run(infile,outfile,optionsPDF);
     }
   }

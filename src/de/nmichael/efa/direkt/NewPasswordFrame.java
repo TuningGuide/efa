@@ -102,9 +102,11 @@ public class NewPasswordFrame extends JDialog implements ActionListener {
         }
     });
       jPanel2.setLayout(gridBagLayout1);
-      Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Paßwort (mind. 6 Zeichen)")+": ");
+      Mnemonics.setLabel(this, jLabel1, International.getStringWithMnemonic("Paßwort") +
+              " (" + International.getString("mind. 6 Zeichen") + "): ");
       jLabel1.setLabelFor(pwd1);
-      Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Paßwort (Wiederholung)")+": ");
+      Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Paßwort") +
+              " (" + International.getString("Wiederholung") + "): ");
       jLabel2.setLabelFor(pwd2);
       titleLabel.setText(International.getString("Bitte gib ein neues Paßwort ein!"));
       pwd1.setNextFocusableComponent(pwd2);

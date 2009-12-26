@@ -198,7 +198,11 @@ public class DatensicherungFrame extends JDialog implements ActionListener {
   void dirSelectButton_actionPerformed(ActionEvent e) {
     String dir = backupVerzeichnis.getText().trim();
     if (dir.length() == 0 || !new File(dir).isDirectory()) dir = Daten.efaMainDirectory;
-    dir = Dialog.dateiDialog(this,International.getString("Backup-Verzeichnis auswählen"),null,null,dir,null,International.getString("auswählen"),false,true);
+    dir = Dialog.dateiDialog(this,
+            International.getMessage("{item} auswählen",
+            International.getString("Backup-Verzeichnis")),
+            null,null,dir,null,
+            International.getString("auswählen"),false,true);
     if (dir != null) backupVerzeichnis.setText(dir);
   }
 
@@ -213,7 +217,7 @@ public class DatensicherungFrame extends JDialog implements ActionListener {
     }
     String zipdir = (efaBackupRadioButton.isSelected() ? Daten.efaBakDirectory : backupVerzeichnis.getText().trim());
     if (!(new File(zipdir)).isDirectory()) {
-      Dialog.error(International.getMessage("Backup-Verzeichnis {dir} nicht gefunden!",zipdir));
+      Dialog.error(LogString.logstring_directoryDoesNotExist(zipdir, International.getString("Backup-Verzeichnis")));
       return;
     }
     String zipfile = zipdir + (zipdir.endsWith(Daten.fileSep) ? "" : Daten.fileSep)
@@ -225,7 +229,7 @@ public class DatensicherungFrame extends JDialog implements ActionListener {
       Dialog.infoDialog(International.getMessage("Daten erfolgreich in der Datei {file} gesichert.",zipfile));
       cancel();
     } else {
-      Dialog.error(International.getString("Bei der Datensicherung trat ein Fehler auf:")+result);
+      Dialog.error(International.getString("Bei der Datensicherung trat ein Fehler auf")+": "+result);
     }
   }
 

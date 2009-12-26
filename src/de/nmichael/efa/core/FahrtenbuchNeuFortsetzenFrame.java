@@ -157,10 +157,10 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
     erklaerung.setEditable(false);
     erklaerung.setFont(new java.awt.Font("Dialog", 1, 12));
     erklaerung.append(
-            International.getString("Soll ein neues, unabhängiges Fahrtenbuch (mit neuen, leeren Datenlisten)\n"+
-                                    "erstellt werden, das keinen Bezug zu bestehenden Fahrtenbüchern hat?\n\n"+
-                                     "Oder soll ein neues Fahrtenbuch erstellt werden, das ein bestehendes Fahrtenbuch\n"+
-                                     "fortsetzt und die existierende Datenlisten übernimmt (z.B. beim Jahreswechsel)?\n"));
+            International.getString("Soll ein neues, unabhängiges Fahrtenbuch (mit neuen, leeren Datenlisten) "+
+                                    "erstellt werden, das keinen Bezug zu bestehenden Fahrtenbüchern hat? "+
+                                     "Oder soll ein neues Fahrtenbuch erstellt werden, das ein bestehendes Fahrtenbuch "+
+                                     "fortsetzt und die existierende Datenlisten übernimmt (z.B. beim Jahreswechsel)?")+"\n");
     weiterButton.setVisible(false);
     dateiLabel.setVisible(false);
     dateiEfb.setVisible(false);
@@ -204,11 +204,11 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
   // Auswahl: Fahrtenbuch fortsetzen (Datenbanken übernehmen)
   void FortsetzenButton_actionPerformed(ActionEvent e) {
     erklaerungClear();
-    erklaerung.append(International.getString("Schritt 1")+":\n\n");
+    erklaerung.append(International.getMessage("Schritt {n}",1)+":\n\n");
     erklaerung.append(
-            International.getString("Bitte wähle jetzt ein bestehendes Fahrtenbuch aus, das\n"+
-                                    "fortgesetzt werden soll!\n"+
-                                    "Die Datenlisten aus diesem Fahrtenbuch werden dann\nautomatisch übernommen."));
+            International.getString("Bitte wähle jetzt ein bestehendes Fahrtenbuch aus, das "+
+                                    "fortgesetzt werden soll! "+
+                                    "Die Datenlisten aus diesem Fahrtenbuch werden dann automatisch übernommen."));
     neuButton.setVisible(false);
     FortsetzenButton.setVisible(false);
     openButton.setVisible(true);
@@ -253,7 +253,7 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
           altesFb = new Fahrtenbuch(dateiEfb.getText().trim());
           altesFb.readFile();
           erklaerungClear();
-          erklaerung.append(International.getString("Schritt 2")+":\n\n");
+          erklaerung.append(International.getMessage("Schritt {n}",2)+":\n\n");
           erklaerung.append(International.getString("Folgende Datenlisten werden übernommen:")+"\n");
           erklaerung.append(International.getString("Mitgliederliste")+": "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(altesFb.getFileName()),altesFb.getDaten().mitgliederDatei)+"\n");
           erklaerung.append(International.getString("Bootsliste")+": "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(altesFb.getFileName()),altesFb.getDaten().bootDatei)+"\n");
@@ -277,7 +277,7 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
           dateiEfb.setText(neuesFbName);
         } else {
           Dialog.infoDialog(International.getString("Fehler"),
-                  International.getMessage("Datei {file} konnte nicht geöffnet werden!",dateiEfb.getText().trim()));
+                  LogString.logstring_fileOpenFailed(dateiEfb.getText().trim(), International.getString("Fahrtenbuch")));
           dateiEfb.requestFocus();
           return;
         }
@@ -289,7 +289,8 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
         neuesFb = new Fahrtenbuch(s);
         if (EfaUtil.canOpenFile(neuesFb.getFileName())) {
           if (!(Dialog.yesNoDialog(International.getString("Warnung"),
-                      International.getMessage("Datei {file} existiert bereits! Überschreiben?",neuesFb.getFileName())) == Dialog.YES)) return;
+                  LogString.logstring_fileNotFound(neuesFb.getFileName(), International.getString("neues Fahrtenbuch")))
+                  == Dialog.YES)) return;
         }
         FBDaten neu = new FBDaten(altesFb.getDaten());
         neu.mitgliederDatei = createFilename(neuesFb.getFileName().substring(0,neuesFb.getFileName().toUpperCase().lastIndexOf(".EFB")),".efbm");
@@ -298,7 +299,7 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
         neu.statistikDatei = createFilename(neuesFb.getFileName().substring(0,neuesFb.getFileName().toUpperCase().lastIndexOf(".EFB")),".efbs");
         neuesFb.setDaten(neu);
         erklaerungClear();
-        erklaerung.append(International.getString("Schritt 3")+":\n\n");
+        erklaerung.append(International.getMessage("Schritt {n}",3)+":\n\n");
         erklaerung.append(International.getString("Folgende Datenlisten werden neu erstellt:")+"\n");
         erklaerung.append(International.getString("Mitgliederliste")+": "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(neuesFb.getFileName()),neu.mitgliederDatei)+"\n");
         erklaerung.append(International.getString("Bootsliste")+": "+EfaUtil.makeFullPath(EfaUtil.getPathOfFile(neuesFb.getFileName()),neu.bootDatei)+"\n");
@@ -354,18 +355,24 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
 
   // Dateiauswahl
   void saveButton_actionPerformed(ActionEvent e) {
-    String dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuchdatei auswählen"),
-            International.getString("efa Fahrtenbuch")+" (*.efb)","efb",altesFb.getFileName(),true);
+    String dat = Dialog.dateiDialog(this,
+            International.getMessage("{item} auswählen",
+            International.getString("Fahrtenbuch")),
+            International.getString("Fahrtenbuch")+" (*.efb)","efb",altesFb.getFileName(),true);
     if (dat != null) {
       dateiEfb.setText(dat);
     }
   }
   void openButton_actionPerformed(ActionEvent e) {
     String dat;
-    if (!dateiEfb.getText().trim().equals("")) dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuchdatei auswählen"),
-            International.getString("efa Fahrtenbuch")+" (*.efb)","efb",dateiEfb.getText().trim(),false);
-    else dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuchdatei auswählen"),
-            International.getString("efa Fahrtenbuch")+" (*.efb)","efb",null,false);
+    if (!dateiEfb.getText().trim().equals("")) dat = Dialog.dateiDialog(this,
+            International.getMessage("{item} auswählen",
+            International.getString("Fahrtenbuch")),
+            International.getString("Fahrtenbuch")+" (*.efb)","efb",dateiEfb.getText().trim(),false);
+    else dat = Dialog.dateiDialog(this,
+            International.getMessage("{item} auswählen",
+            International.getString("Fahrtenbuch")),
+            International.getString("Fahrtenbuch")+" (*.efb)","efb",null,false);
     if (dat != null) {
       dateiEfb.setText(dat);
     }

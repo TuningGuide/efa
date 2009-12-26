@@ -216,7 +216,7 @@ public class NachrichtenAnAdmin extends DatenListe {
       success = writeFile();
     } else {
       if (errorCount > 0) {
-        Logger.log(Logger.WARNING, Logger.MSG_BHWARN_ERRORCNTMSGEXCEEDED,
+        Logger.log(Logger.WARNING, Logger.MSG_WARN_ERRORCNTMSGEXCEEDED,
                 International.getMessage("Anzahl von Fehlermeldungen überschritten: {errorcount}. "+
                 "Weitere Fehlermeldungen werden vorerst nicht per Nachricht an den Admin zugestellt.",errorCount));
         errorCount = -5; // try again after 5 more attempts
@@ -225,7 +225,7 @@ public class NachrichtenAnAdmin extends DatenListe {
     if (!success) {
       errorCount++;
       if (errorCount == 0) {
-        Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_ERRORCNTMSGCLEAR,
+        Logger.log(Logger.INFO, Logger.MSG_EVT_ERRORCNTMSGCLEAR,
                 International.getString("Fehlermeldungen werden ab jetzt wieder als Nachricht dem Admin zugestellt."));
       }
     } else {

@@ -13,6 +13,7 @@ package de.nmichael.efa.core;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import java.io.IOException;
 
@@ -50,17 +51,20 @@ public class Mannschaften extends DatenListe {
   public static final int FAHRTART  = 27; // vor 1.4.0: 19
   public static final int OBMANN    = 28; // neu in v1.7.3
 
-  public static final String NO_FAHRTART = International.getString("--- keine Auswahl ---");
-  public static final String NO_OBMANN   = International.getString("--- keine Auswahl ---");
+  public static       String NO_FAHRTART = "--- keine Auswahl ---"; // wird im Konstruktor gesetzt
+  public static       String NO_OBMANN   = "--- keine Auswahl ---"; // wird im Konstruktor gesetzt
 
   public static final String KENNUNG120 = "##EFA.120.MANNSCHAFTEN##";
   public static final String KENNUNG135 = "##EFA.135.MANNSCHAFTEN##";
   public static final String KENNUNG173 = "##EFA.173.MANNSCHAFTEN##";
+  public static final String KENNUNG190 = "##EFA.190.MANNSCHAFTEN##";
 
   // Konstruktor
   public Mannschaften(String pdat) {
     super(pdat,29,1,false);
-    kennung = KENNUNG173;
+    kennung = KENNUNG190;
+    NO_FAHRTART = "--- " + International.getString("keine Auswahl") + " ---";
+    NO_OBMANN   = "--- " + International.getString("keine Auswahl") + " ---";
   }
 
 
@@ -122,6 +126,38 @@ public class Mannschaften extends DatenListe {
           } else errConvertingFile(dat,kennung);
         }
 
+        // KONVERTIEREN 173 -> 190
+        if ( s != null && s.trim().startsWith(KENNUNG173)) {
+          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"173");
+          iniList(this.dat,29,1,true); // Rahmenbedingungen von v1.9.0 schaffen
+          try {
+            while ((s = freadLine()) != null) {
+              s = s.trim();
+              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              DatenFelder d = constructFields(s);
+              String fa = d.get(FAHRTART);
+              if (fa.length() == 0) {
+                  // noting to do (no default fahrtart selected)
+              } else {
+                  fa = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_TRIP, d.get(FAHRTART));
+                  if (fa == null) {
+                      fa = "";
+                  }
+              }
+              d.set(FAHRTART, fa);
+              add(d);
+            }
+
+          } catch(IOException e) {
+             errReadingFile(dat,e.getMessage());
+             return false;
+          }
+          kennung = KENNUNG190;
+          if (closeFile() && writeFile(true) && openFile()) {
+            infSuccessfullyConverted(dat,kennung);
+            s = kennung;
+          } else errConvertingFile(dat,kennung);
+        }
 
         // FERTIG MIT KONVERTIEREN
         if (s == null || !s.trim().startsWith(kennung)) {

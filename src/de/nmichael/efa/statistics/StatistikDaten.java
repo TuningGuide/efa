@@ -11,6 +11,7 @@
 package de.nmichael.efa.statistics;
 
 import de.nmichael.efa.core.StatistikFrame;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.TMJ;
 import de.nmichael.efa.*;
 import java.util.GregorianCalendar;
@@ -143,14 +144,14 @@ public class StatistikDaten implements Cloneable {
   public boolean vorjahresvergleich = false;
   public String[] nurFb;
 
-  public boolean[] geschlecht = new boolean[Daten.bezeichnungen.geschlecht.size()];
+  public boolean[] geschlecht = new boolean[Daten.efaTypes.size(EfaTypes.CATEGORY_GENDER)];
   public boolean[] status; // Initialisierung im Konstruktor
   public String[]  statusNames; // Initialisierung im Konstruktor
-  public boolean[] fahrtart = new boolean[Daten.bezeichnungen.fahrtart.size()];
-  public boolean[] bArt = new boolean[Daten.bezeichnungen.bArt.size()];
-  public boolean[] bAnzahl = new boolean[Daten.bezeichnungen.bAnzahl.size()];
-  public boolean[] bRigger = new boolean[Daten.bezeichnungen.bRigger.size()];
-  public boolean[] bStm = new boolean[Daten.bezeichnungen.bStm.size()];
+  public boolean[] fahrtart = new boolean[Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP)];
+  public boolean[] bArt = new boolean[Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT)];
+  public boolean[] bAnzahl = new boolean[Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS)];
+  public boolean[] bRigger = new boolean[Daten.efaTypes.size(EfaTypes.CATEGORY_RIGGING)];
+  public boolean[] bStm = new boolean[Daten.efaTypes.size(EfaTypes.CATEGORY_COXING)];
   public boolean[] bVerein = new boolean[2];
 
   public String name = "";

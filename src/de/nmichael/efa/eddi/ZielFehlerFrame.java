@@ -21,6 +21,8 @@ import java.io.*;
 import java.util.*;
 import de.nmichael.efa.*;
 
+// @i18n complete
+
 public class ZielFehlerFrame extends JDialog implements ActionListener {
   String[] felder;
   Hashtable replStegziel;
@@ -101,32 +103,28 @@ public class ZielFehlerFrame extends JDialog implements ActionListener {
     }
 
     this.setSize(new Dimension(700,520));
-    this.setTitle("Fehler in zu importierendem Eintrag");
+    this.setTitle(International.getString("Fehler in zu importierendem Eintrag"));
     this.getContentPane().setLayout(borderLayout1);
     jPanel1.setLayout(gridBagLayout1);
-    jLabel1.setText("Zu importierender Eintrag:");
+    jLabel1.setText(International.getString("Zu importierender Eintrag")+":");
     eintragLabel.setBackground(Color.blue);
     eintragLabel.setForeground(Color.white);
     eintragLabel.setOpaque(true);
-    eintragLabel.setText("---Eintrag---");
+    eintragLabel.setText("---"+International.getString("Eintrag")+"---");
     okButton.setNextFocusableComponent(name);
-    okButton.setMnemonic('O');
-    okButton.setText("OK");
+    Mnemonics.setButton(this, okButton, International.getStringWithMnemonic("OK"));
     okButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         okButton_actionPerformed(e);
       }
     });
     jPanel2.setLayout(gridBagLayout2);
-    jLabel2.setDisplayedMnemonic('Z');
+    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Ziel")+": ");
     jLabel2.setLabelFor(name);
-    jLabel2.setText("Zielbezeichnung: ");
-    jLabel3.setDisplayedMnemonic('K');
+    Mnemonics.setLabel(this, jLabel3, International.getStringWithMnemonic("Kilometer")+": ");
     jLabel3.setLabelFor(kilometer);
-    jLabel3.setText("Kilometer: ");
-    jLabel4.setDisplayedMnemonic('B');
+    Mnemonics.setLabel(this, jLabel4, International.onlyFor("Zielbereiche","de")+": ");
     jLabel4.setLabelFor(zielbereiche);
-    jLabel4.setText("Zielbereiche: ");
     name.setNextFocusableComponent(kilometer);
     name.setPreferredSize(new Dimension(300, 17));
     kilometer.setNextFocusableComponent(zielbereiche);
@@ -137,9 +135,11 @@ public class ZielFehlerFrame extends JDialog implements ActionListener {
     fehlerText.setEditable(false);
     zielbereiche.setNextFocusableComponent(okButton);
     zielbereiche.setPreferredSize(new Dimension(300, 17));
-    jLabel5.setText("Start/Ziel ist Bootshaus: ");
-    jLabel6.setText("Gewässer: ");
-    skipButton.setText("Eintrag überspringen");
+    Mnemonics.setLabel(this, jLabel5, International.getStringWithMnemonic("Start und Ziel ist eigenes Bootshaus")+": ");
+    jLabel5.setLabelFor(stegziel);
+    Mnemonics.setLabel(this, jLabel6, International.getStringWithMnemonic("Gewässer")+": ");
+    jLabel5.setLabelFor(gewaesser);
+    Mnemonics.setButton(this, skipButton, International.getStringWithMnemonic("Eintrag überspringen"));
     skipButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         skipButton_actionPerformed(e);
@@ -183,9 +183,9 @@ public class ZielFehlerFrame extends JDialog implements ActionListener {
         stegziel_actionPerformed(e);
       }
     });
-    stegziel.addItem("ungültiger Wert");
-    stegziel.addItem("ja");
-    stegziel.addItem("nein");
+    stegziel.addItem(International.getString("ungültiger Wert"));
+    stegziel.addItem(International.getString("ja"));
+    stegziel.addItem(International.getString("nein"));
   }
 
   /**Overridden so we can exit when window is closed*/
@@ -228,7 +228,10 @@ public class ZielFehlerFrame extends JDialog implements ActionListener {
   void stegziel_actionPerformed(ActionEvent e) {
     if (stegziel.getSelectedIndex()==0) this.stegzielReplBox.setEnabled(false);
     else this.stegzielReplBox.setEnabled(true);
-    if (stegziel.getSelectedIndex()>0) this.stegzielReplBox.setText("'"+felder[Ziele.STEGZIEL]+"' immer durch '"+stegziel.getSelectedItem()+"' ersetzen");
+    if (stegziel.getSelectedIndex()>0) {
+        this.stegzielReplBox.setText(International.getMessage("'{original_text}' immer durch '{new_text}' ersetzen",
+                felder[Ziele.STEGZIEL],stegziel.getSelectedItem().toString()));
+    }
   }
 
   void skipButton_actionPerformed(ActionEvent e) {

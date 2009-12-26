@@ -324,7 +324,7 @@ public class RestoreBackupFrame extends JDialog implements ActionListener {
       if (old.isFile()) {
         if (new File(restoreDir+filename+".org").isFile()) new File(restoreDir+filename+".org").delete();
         old.renameTo(new File(restoreDir+filename+".org"));
-        info += International.getMessage("Originaldatei nach '{filename}.org' umbenannt.",restoreDir+filename)+"\n";
+        info += International.getMessage("Originaldatei nach '{filename}' umbenannt.",restoreDir+filename+".org")+"\n";
       }
 
       if (EfaUtil.copyFile(Daten.efaBakDirectory+fileInfo[table2fileInfo[fileList.getSelectedRow()]].orgname, restoreDir+filename)) {

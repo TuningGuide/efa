@@ -25,6 +25,7 @@ public class Ziele extends DatenListe {
   public static final int BEREICH = 2;
   public static final int STEGZIEL = 3; // neu in v1.2.0
   public static final int GEWAESSER = 4; // neu in v1.4.1
+  public static final int _ANZFELDER = 5;
 
 
   public static final String KENNUNG060 = "##EFA.060.ZIELE##";
@@ -35,7 +36,7 @@ public class Ziele extends DatenListe {
 
   // Konstruktor
   public Ziele(String pdat) {
-    super(pdat,5,1,false);
+    super(pdat,_ANZFELDER,1,false);
     kennung = KENNUNG174;
   }
 

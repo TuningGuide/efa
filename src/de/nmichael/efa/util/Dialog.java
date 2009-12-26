@@ -17,6 +17,8 @@ import java.awt.*;
 import java.util.*;
 import java.io.File;
 
+// @i18n complete
+
 public class Dialog {
 
   public static final int INVALID = 0;
@@ -83,8 +85,10 @@ public class Dialog {
 
 
   public static int DateiErstellen(String dat) {
-    switch (Dialog.yesNoDialog("Fehler","Datei '"+dat+"' nicht gefunden!\n"+
-            "Soll die Datei neu erstellt werden?")) {
+    switch (Dialog.yesNoDialog(
+            International.getString("Fehler"),
+            LogString.logstring_fileNotFound(dat, International.getString("Datei")) + "\n"+
+            International.getString("Soll die Datei neu erstellt werden?"))) {
       case Dialog.YES: return YES;
       case Dialog.NO: return NO;
       default: return INVALID;
@@ -127,7 +131,7 @@ public class Dialog {
   }
   public static String neuBrowserDlg(JDialog parent, String title, String url, int closingTimeout) {
     BrowserFrame browser;
-    boolean modal = !(title != null && title.equals("Online-Hilfe"));
+    boolean modal = !(title != null && title.equals(International.getString("Online-Hilfe")));
     if (parent != null) browser = new BrowserFrame(parent, title, url, !modal);
     else browser = new BrowserFrame(title, url);
     browser.setClosingTimeout(closingTimeout);
@@ -142,7 +146,7 @@ public class Dialog {
     return ( browser.out.getPage() != null ? browser.out.getPage().toString() : null);
   }
   public static String neuBrowserDlg(JFrame parent, String title, String url) {
-    boolean modal = !(title != null && title.equals("Online-Hilfe"));
+    boolean modal = !(title != null && title.equals(International.getString("Online-Hilfe")));
     BrowserFrame browser = new BrowserFrame(parent, title, url, !modal);
     int width = (int)screenSize.getWidth()-100;
     int height = (int)screenSize.getHeight()-150;
@@ -166,7 +170,7 @@ public class Dialog {
   }
 
   public static void startTour(JFrame parent) {
-    String title = "efa Tour";
+    String title = International.getString("efa-Tour");
     String url = "file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"tour.html";
     tourRunning = true;
     openBrowser(new BrowserFrame(parent, title, url, true),title,url,220,740,0,0,false);
@@ -178,27 +182,27 @@ public class Dialog {
       try {
         Runtime.getRuntime().exec(Daten.efaConfig.browser+" "+url);
       } catch(Exception ee) {
-        Logger.log(Logger.ERROR,"Kann '"+Daten.efaConfig.browser+"' nicht starten!\nInterner Browser wird geöffnet.");
-        neuBrowserDlg(parent,"Browser",url);
+        LogString.logWarning_cantExecCommand(Daten.efaConfig.browser, International.getString("für Browser"), ee.toString());
+        neuBrowserDlg(parent,International.getString("Browser"),url);
       }
-    else neuBrowserDlg(parent,"Browser",url);
+    else neuBrowserDlg(parent,International.getString("Browser"),url);
   }
   public static void startBrowser(JFrame parent, String url) {
     if (!Daten.efaConfig.browser.equals("") && !Daten.efaConfig.browser.equals("INTERN"))
       try {
         Runtime.getRuntime().exec(Daten.efaConfig.browser+" "+url);
       } catch(Exception ee) {
-        Logger.log(Logger.ERROR,"Kann '"+Daten.efaConfig.browser+"' nicht starten!\nInterner Browser wird geöffnet.");
-        neuBrowserDlg(parent,"Browser",url);
+        LogString.logWarning_cantExecCommand(Daten.efaConfig.browser, International.getString("für Browser"), ee.toString());
+        neuBrowserDlg(parent,International.getString("Browser"),url);
       }
-    else neuBrowserDlg(parent,"Browser",url);
+    else neuBrowserDlg(parent,International.getString("Browser"),url);
   }
 
   public static void error(String s) {
     if (!Main.cmdmode) {
-      Dialog.infoDialog("Fehler",s);
+      Dialog.infoDialog(International.getString("Fehler"),s);
     } else {
-      System.out.println("ERROR: "+s);
+      System.out.println(International.getString("ERROR")+": "+s);
     }
   }
 
@@ -206,7 +210,7 @@ public class Dialog {
     if (!Main.cmdmode) {
       Dialog.infoDialog(title,s);
     } else {
-      System.out.println("INFO: "+s);
+      System.out.println(International.getString("INFO")+": "+s);
     }
   }
 
@@ -275,7 +279,7 @@ public class Dialog {
   }
 
   public static void meldung(String s) {
-    Dialog.infoDialog("Information",s);
+    Dialog.infoDialog(International.getString("Information"),s);
   }
 
   public static int yesNoDialog(String title, String s) {
@@ -326,10 +330,10 @@ public class Dialog {
     return JOptionPane.showOptionDialog(frame,chopDialogString(s),title,0,JOptionPane.QUESTION_MESSAGE,null,auswahl,option1);
   }
   public static int auswahlDialog(String title, String s, String option1, String option2) {
-    return auswahlDialog(title,s,option1,option2,"Abbruch");
+    return auswahlDialog(title,s,option1,option2,International.getString("Abbruch"));
   }
   public static int auswahlDialog(String title, String s, String option1, String option2, boolean abbrButton) {
-    return auswahlDialog(title,s,option1,option2,(abbrButton ? "Abbruch" : null));
+    return auswahlDialog(title,s,option1,option2,(abbrButton ? International.getString("Abbruch") : null));
   }
 
 
@@ -345,7 +349,7 @@ public class Dialog {
     JOptionPane.showConfirmDialog(frame,chopDialogString(s),title,-1);
   }
   public static void infoDialog(String s) {
-    Dialog.infoDialog("Information",s);
+    Dialog.infoDialog(International.getString("Information"),s);
   }
 
   public static String inputDialog(String title, String s) {
@@ -363,22 +367,26 @@ public class Dialog {
   // Fragen, ob Schreibschutz aufgehoben werden soll
   public static int removeWriteProtection(String datei, boolean beimKonvertieren) {
     Object[] auswahl = new String[3];
-    auswahl[0] = "Schreibschutz übergehen";
-    auswahl[1] = "Schreibschutz entfernen";
-    auswahl[2] = "Abbruch";
+    auswahl[0] = International.getString("Schreibschutz übergehen");
+    auswahl[1] = International.getString("Schreibschutz deaktivieren");
+    auswahl[2] = International.getString("Abbruch");
     if (!beimKonvertieren)
-      return JOptionPane.showOptionDialog(null,"Die Datei '"+datei+"'\nist schreibgeschützt.",
-                                          "Datei schreibgeschützt",0,JOptionPane.QUESTION_MESSAGE,null,auswahl,auswahl[0]);
+      return JOptionPane.showOptionDialog(null,
+              International.getMessage("Die Datei '{file}' ist schreibgeschützt.",datei),
+              International.getString("Datei schreibgeschützt"),
+              0,JOptionPane.QUESTION_MESSAGE,null,auswahl,auswahl[0]);
     else
-      return JOptionPane.showOptionDialog(null,"Die Datei '"+datei+"'\n muß in ein neues Format konvertiert werden, "+
-                                               "aber sie ist schreibgeschützt.",
-                                          "Datei schreibgeschützt",0,JOptionPane.QUESTION_MESSAGE,null,auswahl,auswahl[0]);
+      return JOptionPane.showOptionDialog(null,
+              International.getMessage("Die Datei '{file}' muß in ein neues Format konvertiert werden, ist aber schreibgeschützt.",datei),
+              International.getString("Datei schreibgeschützt"),
+              0,JOptionPane.QUESTION_MESSAGE,null,auswahl,auswahl[0]);
     }
 
   // Liefert Paßwort für Datei oder null, wenn Dialog abgebrochen wurde
   public static String getWriteProtectionPasswort(String datei, boolean firstTry) {
-    return Dialog.inputDialog("Paßwort für Schreibschutz", (firstTry ? "" : "Das angegebene Paßwort war falsch!\n") +
-                                           "Bitte gib das Paßwort zum Aufheben des Schreibschutzes der Datei\n'"+datei+"' an:");
+    return Dialog.inputDialog(International.getString("Paßwort für Schreibschutz"),
+            (firstTry ? "" : International.getString("Ungültiges Paßwort!")+"\n") +
+                             International.getMessage("Bitte gib das Paßwort zum Aufheben des Schreibschutzes der Datei '{file}' an:",datei));
   }
 
 
@@ -405,9 +413,9 @@ public class Dialog {
     if (frameStack == null) return;
     if (frameStack.isEmpty()) {
       if (Daten.watchWindowStack)  {
-        Logger.log(Logger.ERROR,
-                   "Stack-Inkonsistenz: geschlossenes Fenster: " +
-                   w.getClass().toString() + ", aber Stack leer.");
+        Logger.log(Logger.ERROR, Logger.MSG_ERR_WINDOWSTACK,
+                   "Stack Inconsistency: closed Window: " +
+                   w.getClass().toString() + " but stack was empty.");
         Thread.dumpStack();
         (new Exception("Watch Stack Exception")).printStackTrace();
       }
@@ -420,10 +428,10 @@ public class Dialog {
         for (int i=0; i<frameStack.size(); i++) s += (s.length()>0 ? "; " : "") + frameStack.elementAt(i).getClass().toString();
       } catch(Exception e) { EfaUtil.foo(); }
       if (Daten.watchWindowStack) {
-        Logger.log(Logger.ERROR,
-                   "Stack-Inkonsistenz: geschlossenes Fenster: " +
-                   w.getClass().toString() + ", aber auf dem Stack: " +
-                   wtop.getClass().toString() + " (Stack: " + s + ")");
+        Logger.log(Logger.ERROR, Logger.MSG_ERR_WINDOWSTACK,
+                   "Stack Inconsistency: closed Window: " +
+                   w.getClass().toString() + " but top of stack is: " +
+                   wtop.getClass().toString() + " (stack: " + s + ")");
         Thread.dumpStack();
         (new Exception("Watch Stack Exception")).printStackTrace();
       }
@@ -484,8 +492,7 @@ public class Dialog {
     } catch(Exception e) {
       String input =
         (String)JOptionPane.showInputDialog(frame,
-                                    "Beim Öffnen des Java-'Datei öffnen'-Dialogs trat ein Fehler auf:\n"+
-                                    e.toString()+"\n\nBitte gib einen Dateinamen für '"+typen+"' ein:",
+                                    International.getMessage("Bitte gib einen Dateinamen für '{types}' ein",typen) + ":",
                                     titel,JOptionPane.QUESTION_MESSAGE,
                                     null,null,startdir);
       if (input != null && input.trim().length() == 0) input = null;
@@ -533,7 +540,8 @@ public class Dialog {
   public static void setFontSize(String font, int size, int style) {
     Font orgFont = UIManager.getFont(font);
     if (orgFont == null) {
-      Logger.log(Logger.WARNING,"Schrift "+font+" exisitert nicht; ihre Größe kann nicht geändert werden!");
+      Logger.log(Logger.WARNING, Logger.MSG_WARN_FONTDOESNOTEXIST,
+              International.getMessage("Schriftart {font} exisitert nicht; ihre Größe kann nicht geändert werden!",font));
       return;
     }
     if (!FONT_SIZE_CHANGED) {

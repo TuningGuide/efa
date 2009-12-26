@@ -92,7 +92,7 @@ public class WriteProtectFrame extends JDialog implements ActionListener {
     }
 
     allPanel.setLayout(borderLayout1);
-    Mnemonics.setButton(this, closeButton, International.getStringWithMnemonic("Schliessen"));
+    Mnemonics.setButton(this, closeButton, International.getStringWithMnemonic("Schließen"));
     closeButton.setNextFocusableComponent(defaultPw);
     closeButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -146,7 +146,7 @@ public class WriteProtectFrame extends JDialog implements ActionListener {
     Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("bis zum Beenden von efa für alle Paßwortfragen folgendes Paßwort verwenden")+": ");
     jLabel2.setLabelFor(defaultPw);
     filesPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-    Mnemonics.setButton(this, selectFbButton, International.getStringWithMnemonic("Fahrtenbuchdateien auswählen"));
+    Mnemonics.setButton(this, selectFbButton, International.getStringWithMnemonic("Fahrtenbuch auswählen"));
     selectFbButton.setNextFocusableComponent(setWriteProtectButton);
     selectFbButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -218,11 +218,11 @@ public class WriteProtectFrame extends JDialog implements ActionListener {
         case  2: dateityp[i].setText(International.getString("Mitgliederliste")+": "); break;
         case  3: dateityp[i].setText(International.getString("Zielliste")+": "); break;
         case  4: dateityp[i].setText(International.getString("Statistikeinstellungen")+": "); break;
-        case  5: dateityp[i].setText(International.getString("Synonymliste Boote")+": "); break;
-        case  6: dateityp[i].setText(International.getString("Synonymliste Mitglieder")+": "); break;
-        case  7: dateityp[i].setText(International.getString("Synonymliste Ziele")+": "); break;
+        case  5: dateityp[i].setText(International.getString("Boots-Synonymliste")+": "); break;
+        case  6: dateityp[i].setText(International.getString("Mitglieder-Synonymliste")+": "); break;
+        case  7: dateityp[i].setText(International.getString("Ziel-Synonymliste")+": "); break;
         case  8: dateityp[i].setText(International.getString("Vereinskonfiguration")+": "); break;
-        case  9: dateityp[i].setText(International.getString("Adreßdatei")+": "); break;
+        case  9: dateityp[i].setText(International.getString("Adreßliste")+": "); break;
         case 10: dateityp[i].setText(International.getString("efa-Konfiguration")+": "); break;
       }
       filesPanel.add(dateityp[i],  new GridBagConstraints(1, i, 1, 1, 0.0, 0.0
@@ -329,7 +329,8 @@ public class WriteProtectFrame extends JDialog implements ActionListener {
     }
 
     String pwd = Dialog.inputDialog(International.getString("Paßwort für Schreibschutz"),
-            International.getString("Paßwort für den Schreibschutz (kann leergelassen werden)")+":");
+            International.getString("Paßwort für Schreibschutz") +
+            " (" + International.getString("kann leergelassen werden") + "):");
     if (pwd == null) return;
 
     for (int i=0; i<files.length; i++)

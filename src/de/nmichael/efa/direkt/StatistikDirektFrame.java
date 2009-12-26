@@ -177,7 +177,7 @@ public class StatistikDirektFrame extends JDialog implements ActionListener {
     } catch(Exception ee) {
     }
     if (d == null) {
-      Logger.log(Logger.ERROR, Logger.MSG_BHERR_STATISTICNOTFOUND,
+      Logger.log(Logger.ERROR, Logger.MSG_ERR_STATISTICNOTFOUND,
               International.getString("Fehler beim Erstellen der Statistik!") + " " +
               International.getString("Statistik nicht gefunden!"));
       Dialog.error(International.getString("Statistik nicht gefunden!")); // sollte nie passieren
@@ -191,7 +191,7 @@ public class StatistikDirektFrame extends JDialog implements ActionListener {
       StatistikFrame.allgStatistikDaten(sd[0]);
       sd[0].parent = this;
     } catch(StringIndexOutOfBoundsException ee) {
-      Logger.log(Logger.ERROR, Logger.MSG_BHERR_ERRORCREATINGSTATISTIC,
+      Logger.log(Logger.ERROR, Logger.MSG_ERR_ERRORCREATINGSTATISTIC,
               International.getString("Fehler beim Erstellen der Statistik!") + " " +
               International.getString("Fehler beim Lesen der gespeicherten Konfiguration!"));
       Dialog.error(International.getString("Fehler beim Lesen der gespeicherten Konfiguration!"));
@@ -200,7 +200,7 @@ public class StatistikDirektFrame extends JDialog implements ActionListener {
     try {
       startStatistik(sd);
     } catch(Exception ee) {
-      Logger.log(Logger.ERROR, Logger.MSG_BHERR_ERRORCREATINGSTATISTIC,
+      Logger.log(Logger.ERROR, Logger.MSG_ERR_ERRORCREATINGSTATISTIC,
               International.getString("Fehler beim Erstellen der Statistik!") + " " +
               ee.toString());
       Dialog.error(International.getString("Fehler beim Erstellen der Statistik!"));

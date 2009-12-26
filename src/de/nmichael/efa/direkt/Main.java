@@ -64,10 +64,10 @@ public class Main {
 
     // Look&Feel
     try {
-      if (Daten.efaConfig.lookAndFeel.equals(EfaConfig.LOOKANDFEEL_STANDARD)) UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+      if (Daten.efaConfig.lookAndFeel.equals(EfaConfig.DEFAULT)) UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
       else UIManager.setLookAndFeel(Daten.efaConfig.lookAndFeel);
     } catch(Exception e) {
-      Logger.log(Logger.WARNING, Logger.MSG_BHWARN_CANTSETLOOKANDFEEL,
+      Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTSETLOOKANDFEEL,
               International.getString("Konnte Look&Feel nicht setzen")+": "+e.toString());
     }
 
@@ -76,7 +76,7 @@ public class Main {
       if (Daten.efaConfig.efaDirekt_fontSize != 0 || Daten.efaConfig.efaDirekt_fontStyle != -1)
         Dialog.setGlobalFontSize(Daten.efaConfig.efaDirekt_fontSize,Daten.efaConfig.efaDirekt_fontStyle);
     } catch(Exception e) {
-      Logger.log(Logger.WARNING, Logger.MSG_BHWARN_CANTSETFONTSIZE,
+      Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTSETFONTSIZE,
               International.getString("Schriftgröße konnte nicht geändert werden")+": "+e.toString());
     }
 
@@ -130,7 +130,7 @@ public class Main {
       // Wenn Logdatei zu groß ist, die alte Logdatei verschieben
       File log = new File(Daten.efaLogfile);
       if (log.exists() && log.length()>1048576) {
-        baklog = EfaUtil.moveAndEmptyFile(Daten.efaLogfile,Daten.efaConfigUserHome.efaUserDirectory+"backup"+Daten.fileSep);
+        baklog = EfaUtil.moveAndEmptyFile(Daten.efaLogfile,Daten.efaBaseConfig.efaUserDirectory+"backup"+Daten.fileSep);
       }
     } catch (Exception e) {
         LogString.logError_fileArchivingFailed(Daten.efaLogfile, International.getString("Logdatei"));
@@ -138,7 +138,7 @@ public class Main {
 
     Logger.ini("efadirekt.log",true);
 
-    Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_EFASTART, 
+    Logger.log(Logger.INFO, Logger.MSG_EVT_EFASTART, 
             International.getString("PROGRAMMSTART"));
     Logger.log(Logger.INFO, Logger.MSG_INFO_VERSION,
             "Version efa: "+Daten.VERSIONID+" -- Java: "+Daten.javaVersion+" (JVM "+Daten.jvmVersion+") -- OS: "+Daten.osName+" "+Daten.osVersion);
@@ -147,13 +147,13 @@ public class Main {
       Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GENERIC,
               Daten.EFA_JAVA_ARGUMENTS + "=" + Daten.efa_java_arguments);
     } catch(Error e) {
-      Logger.log(Logger.WARNING, Logger.MSG_BHWARN_CANTGETEFAJAVAARGS,
+      Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTGETEFAJAVAARGS,
               International.getMessage("Abfragen der Environment-Variable {name} nicht möglich: {msg}",
               Daten.EFA_JAVA_ARGUMENTS,e.toString()));
     }
 
     if (baklog != null) {
-      Logger.log(Logger.INFO, Logger.MSG_BHEVENTS_LOGFILEARCHIVED,
+      Logger.log(Logger.INFO, Logger.MSG_EVT_LOGFILEARCHIVED,
               International.getMessage("Alte Logdatei wurde nach '{filename}' verschoben.",baklog));
     }
   }

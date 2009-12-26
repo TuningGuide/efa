@@ -13,6 +13,7 @@ package de.nmichael.efa.core;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.AuswahlFrame;
 import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -119,8 +120,12 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
     nachname.setText(d.get(Mitglieder.NACHNAME));
     alias.setText(d.get(Mitglieder.ALIAS));
     jahrgang.setText(d.get(Mitglieder.JAHRGANG));
-    geschlecht.setSelectedItem(d.get(Mitglieder.GESCHLECHT));
-    status1.setSelectedItem(d.get(Mitglieder.STATUS));
+    try {
+        geschlecht.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, d.get(Mitglieder.GESCHLECHT)));
+    } catch(Exception e1) {}
+    try {
+        status1.setSelectedItem(d.get(Mitglieder.STATUS));
+    } catch(Exception e2) {}
     verein.setText(d.get(Mitglieder.VEREIN));
     behinderung.setSelected(d.get(Mitglieder.BEHINDERUNG).equals("+"));
     mitgliedsnummer.setText(d.get(Mitglieder.MITGLNR));
@@ -294,9 +299,9 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
     passwort.setNextFocusableComponent(wettbewerbe);
     Dialog.setPreferredSize(passwort,200,19);
     weitereDatenPanel.setLayout(gridBagLayout2);
-    Mnemonics.setLabel(this, jLabel11, International.getStringWithMnemonic("Freie Verwendung 1")+": ");
-    Mnemonics.setLabel(this, jLabel12, International.getStringWithMnemonic("Freie Verwendung 2")+": ");
-    Mnemonics.setLabel(this, jLabel13, International.getStringWithMnemonic("Freie Verwendung 3")+": ");
+    Mnemonics.setLabel(this, jLabel11, International.getStringWithMnemonic("Freie Verwendung")+" 1: ");
+    Mnemonics.setLabel(this, jLabel12, International.getStringWithMnemonic("Freie Verwendung")+" 2: ");
+    Mnemonics.setLabel(this, jLabel13, International.getStringWithMnemonic("Freie Verwendung")+" 3: ");
     jLabel11.setLabelFor(frei1);
     jLabel12.setLabelFor(frei2);
     jLabel13.setLabelFor(frei3);
@@ -382,8 +387,8 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
     gruppenPanel.add(weitereGruppeButton,    new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
-    for (int i=0; i<Daten.bezeichnungen.geschlecht.size(); i++)
-      geschlecht.addItem(Daten.bezeichnungen.geschlecht.get(i));
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_GENDER); i++)
+      geschlecht.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, i));
     for (int i=0; i<Daten.fahrtenbuch.getDaten().status.length; i++)
       status1.addItem(Daten.fahrtenbuch.getDaten().status[i]);
   }
@@ -415,7 +420,7 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
     String nachname=this.nachname.getText().trim();
     String verein=this.verein.getText().trim();
     gruppen = Daten.gruppen.getGruppen();
-    gruppen.insertElementAt(International.getString("--- keine Gruppe ---"),0);
+    gruppen.insertElementAt("--- " + International.getString("keine Gruppe") + " ---",0);
     for (int i=0; i<gruppen.size(); i++) {
       if (Daten.gruppen.isInGroup((String)gruppen.get(i),vorname,nachname,verein)) {
         addGruppenFeld((String)gruppen.get(i));
@@ -586,7 +591,7 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
     d.set(Mitglieder.NACHNAME,EfaUtil.removeSepFromString(nachname.getText().trim()));
     d.set(Mitglieder.ALIAS,EfaUtil.removeSepFromString(alias.getText().trim()));
     d.set(Mitglieder.JAHRGANG,EfaUtil.removeSepFromString(jahrgang.getText().trim()));
-    d.set(Mitglieder.GESCHLECHT,(String)geschlecht.getSelectedItem());
+    d.set(Mitglieder.GESCHLECHT, Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_GENDER, (String)geschlecht.getSelectedItem()));
     d.set(Mitglieder.STATUS,(String)status1.getSelectedItem());
     d.set(Mitglieder.VEREIN,EfaUtil.removeSepFromString(verein.getText().trim()));
     d.set(Mitglieder.BEHINDERUNG,(behinderung.isSelected() ? "+" : "-"));

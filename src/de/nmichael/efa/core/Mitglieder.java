@@ -13,6 +13,7 @@ package de.nmichael.efa.core;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.io.*;
@@ -44,6 +45,7 @@ public class Mitglieder extends DatenListe {
   public static final String KENNUNG110 = "##EFA.110.MITGLIEDER##";
   public static final String KENNUNG170 = "##EFA.170.MITGLIEDER##";
   public static final String KENNUNG173 = "##EFA.173.MITGLIEDER##";
+  public static final String KENNUNG190 = "##EFA.190.MITGLIEDER##";
 
   Hashtable aliases=null;       // Alias-Namen der Mitglieder
 
@@ -51,7 +53,7 @@ public class Mitglieder extends DatenListe {
   // Konstruktor
   public Mitglieder(String pdat) {
     super(pdat,_ANZAHL,1,false);
-    kennung = KENNUNG173;
+    kennung = KENNUNG190;
   }
 
 
@@ -161,6 +163,39 @@ public class Mitglieder extends DatenListe {
              return false;
           }
           kennung = KENNUNG173;
+          if (closeFile() && writeFile(true) && openFile()) {
+            infSuccessfullyConverted(dat,kennung);
+            s = kennung;
+          } else errConvertingFile(dat,kennung);
+        }
+
+        // KONVERTIEREN: 173 -> 190
+        if (s != null && s.trim().startsWith(KENNUNG173)) {
+          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"173");
+          iniList(this.dat,14,1,false); // Rahmenbedingungen von v1.9.0 schaffen
+          // Datei lesen
+          try {
+            while ((s = freadLine()) != null) {
+              s = s.trim();
+              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              DatenFelder d = constructFields(s);
+              String gender = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_GENDER, d.get(GESCHLECHT));
+              if (gender == null) {
+                  gender = EfaTypes.TYPE_GENDER_MALE;
+                  Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORCONVERTING,
+                          getFileName() + ": " +
+                          International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!",constructKey(d)) + " " +
+                          International.getMessage("Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
+                          d.get(GESCHLECHT), Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, gender)));
+              }
+              d.set(GESCHLECHT, gender);
+              add(d);
+            }
+          } catch(IOException e) {
+             errReadingFile(dat,e.getMessage());
+             return false;
+          }
+          kennung = KENNUNG190;
           if (closeFile() && writeFile(true) && openFile()) {
             infSuccessfullyConverted(dat,kennung);
             s = kennung;

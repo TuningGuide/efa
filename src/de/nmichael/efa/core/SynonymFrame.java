@@ -99,7 +99,7 @@ public class SynonymFrame extends JDialog implements ActionListener {
       }
     });
     jPanel1.setLayout(borderLayout1);
-    Mnemonics.setButton(this, neuButton, International.getStringWithMnemonic("Neu ..."));
+    Mnemonics.setButton(this, neuButton, International.getStringWithMnemonic("Neu") + " ...");
     neuButton.setNextFocusableComponent(delButton);
     neuButton.setPreferredSize(new Dimension(100, 23));
     neuButton.addActionListener(new java.awt.event.ActionListener() {
@@ -207,7 +207,7 @@ public class SynonymFrame extends JDialog implements ActionListener {
   void cancel() {
     if (changed) {
       int c = Dialog.yesNoCancelDialog(International.getString("Änderungen speichern"),
-              International.getString("Sollen alle Änderungen gespeichert werden?"));
+              International.getString("Möchtest Du die Änderungen jetzt speichern?"));
       if (c == Dialog.CANCEL) return;
       if (c == Dialog.YES) {
         synList.removeAllSyns();
@@ -294,7 +294,8 @@ public class SynonymFrame extends JDialog implements ActionListener {
 
   void saveButton_actionPerformed(ActionEvent e) {
     if (orgFeld.getText().trim().length() == 0) {
-      Dialog.error(International.getString("Der Hauptname darf nicht leer sein!"));
+      Dialog.error(International.getMessage("Das Feld '{fieldname}' darf nicht leer sein!",
+                   International.getString("Hauptname")));
       return;
     }
 
@@ -329,7 +330,8 @@ public class SynonymFrame extends JDialog implements ActionListener {
     }
     String org = (String)synonymList.getSelectedValue();
     if (syn.get(org) == null) { // sollte eigentlich nicht möglich sein..... ;-)
-      Dialog.error(International.getMessage("Oops! Der Eintrag '{record}' existiert gar nicht ...",org));
+      Dialog.error(International.getString("Oops!") + " " +
+              International.getMessage("Der Eintrag '{record}' existiert gar nicht!",org));
       return;
     }
 

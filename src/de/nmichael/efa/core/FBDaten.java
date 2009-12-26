@@ -13,6 +13,7 @@ package de.nmichael.efa.core;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.Boote;
+import de.nmichael.efa.core.config.EfaTypes;
 
 // @i18n complete
 
@@ -41,17 +42,10 @@ public class FBDaten {
     ziele=null;
     statistik=null;
     erstVorname=true;
+    // @todo handle status with keys independent of language!
     status = new String[2];
-    if (Daten.bezeichnungen != null && Daten.bezeichnungen.gast != null && Daten.bezeichnungen.gast.length()>0) {
-      status[0] = Daten.bezeichnungen.gast;
-    } else {
-      status[0] = International.getString("Gast");
-    }
-    if (Daten.bezeichnungen != null && Daten.bezeichnungen.andere != null && Daten.bezeichnungen.andere.length()>0) {
-      status[1] = Daten.bezeichnungen.andere;
-    } else {
-      status[1] = International.getString("andere");
-    }
+    status[0] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST);
+    status[1] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_OTHER);
     anzMitglieder=0;
   }
 

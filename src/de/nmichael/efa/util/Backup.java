@@ -102,8 +102,8 @@ public class Backup {
 
   private boolean backupFile(String orgName, String bakName) {
     try {
-      BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(orgName),Daten.ENCODING));
-      BufferedWriter ff = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(bakName),Daten.ENCODING));
+      BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(orgName),Daten.ENCODING_UTF));
+      BufferedWriter ff = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(bakName),Daten.ENCODING_UTF));
 
       int c = 0;
       String s;
@@ -115,7 +115,7 @@ public class Backup {
       f.close();
       ff.close();
       String hash = EfaUtil.getSHA(new File(bakName));
-      ff = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(bakName,true),Daten.ENCODING));
+      ff = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(bakName,true),Daten.ENCODING_UTF));
       ff.write("##CHECKSUM="+hash);
       ff.close();
       return true;

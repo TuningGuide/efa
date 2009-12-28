@@ -8,7 +8,7 @@
  * @version 2
  */
 
-package de.nmichael.efa.direkt;
+package de.nmichael.efa.core;
 
 import de.nmichael.efa.util.*;
 import java.io.*;
@@ -67,7 +67,7 @@ public class EfaRunning {
 
     // Running-Info mit Port-Information erstellen
     try {
-      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Daten.efaProgramDirectory+Daten.EFA_RUNNUNG),Daten.ENCODING));
+      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Daten.efaProgramDirectory+Daten.EFA_RUNNUNG),Daten.ENCODING_UTF));
       f.write(Integer.toString(port) + " ("+EfaUtil.getCurrentTimeStamp()+")\n");
       f.close();
     } catch(Exception e) {
@@ -101,7 +101,7 @@ public class EfaRunning {
       trace("Found "+Daten.EFA_RUNNUNG+"!");
       BufferedReader f = null;
       try {
-        f = new BufferedReader(new InputStreamReader(new FileInputStream(Daten.efaProgramDirectory+Daten.EFA_RUNNUNG),Daten.ENCODING));
+        f = new BufferedReader(new InputStreamReader(new FileInputStream(Daten.efaProgramDirectory+Daten.EFA_RUNNUNG),Daten.ENCODING_UTF));
         port = EfaUtil.string2date(f.readLine(),DEFAULT_PORT,0,0).tag;
         trace("Data read from port "+port+"!");
       } catch(Exception e) {

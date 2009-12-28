@@ -112,14 +112,8 @@ public class SunRiseSet {
   }
 
   public static void main(String[] args) {
-    Daten.ini(Daten.APPL_EFADIREKT);
-    Daten.mainDirIni();
-    Daten.dirsIni(false);
-    Daten.efaConfig = new EfaConfig(Daten.efaCfgDirectory+Daten.CONFIGFILE);
-    if (Daten.efaConfig.readFile()) {
+      Daten.initialize(Daten.APPL_CLI);
       printAllDays(2009);
-    }
-
   }
 
 }

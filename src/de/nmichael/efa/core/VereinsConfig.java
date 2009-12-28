@@ -22,6 +22,7 @@ public class VereinsConfig extends DatenListe {
 
   public static final String KENNUNG090 = "##EFA.090.VEREIN##";
   public static final String KENNUNG150 = "##EFA.150.VEREIN##";
+  public static final String KENNUNG190 = "##EFA.190.VEREIN##";
 
   public static final String VEREINSNAME="VEREINSNAME";
   public static final String VEREINSORT="VEREINSORT";
@@ -73,7 +74,7 @@ public class VereinsConfig extends DatenListe {
   // Konstruktor
   public VereinsConfig(String pdat) {
     super(pdat,0,0,true);
-    kennung = KENNUNG150;
+    kennung = KENNUNG190;
   }
 
   // Einstellungen aus dem Fahrtenbuch auslesen
@@ -242,6 +243,18 @@ public class VereinsConfig extends DatenListe {
              return false;
           }
           kennung = KENNUNG150;
+          if (closeFile() && writeFile(true) && openFile()) {
+            infSuccessfullyConverted(dat,kennung);
+            s = kennung;
+          } else errConvertingFile(dat,kennung);
+        }
+
+        // KONVERTIEREN: 150 -> 190
+        if (s != null && s.trim().startsWith(KENNUNG150)) {
+          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"150");
+          // Datei lesen
+          readEinstellungen();
+          kennung = KENNUNG190;
           if (closeFile() && writeFile(true) && openFile()) {
             infSuccessfullyConverted(dat,kennung);
             s = kennung;

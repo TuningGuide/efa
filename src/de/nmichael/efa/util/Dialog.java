@@ -59,7 +59,16 @@ public class Dialog {
     } else {
       Dialog.screenSize = screenSize;
     }
+    if (Daten.efaConfig != null && Daten.efaConfig.screenWidth>0) {
+      Dialog.screenSize.width = Daten.efaConfig.screenWidth;
+    }
+    if (Daten.efaConfig != null && Daten.efaConfig.screenHeight>0) {
+      Dialog.screenSize.height = Daten.efaConfig.screenHeight;
+    }
     initializeMaxDialogSizes();
+    if (Daten.efaConfig != null && Daten.efaConfig.maxDialogWidth>0 || Daten.efaConfig.maxDialogHeight>0) {
+      Dialog.setMaxDialogSizes(Daten.efaConfig.maxDialogWidth,Daten.efaConfig.maxDialogHeight);
+    }
   }
 
   // max size that a dialog may have, depending on screen size
@@ -199,7 +208,7 @@ public class Dialog {
   }
 
   public static void error(String s) {
-    if (!Main.cmdmode) {
+    if (Daten.isGuiAppl()) {
       Dialog.infoDialog(International.getString("Fehler"),s);
     } else {
       System.out.println(International.getString("ERROR")+": "+s);
@@ -207,7 +216,7 @@ public class Dialog {
   }
 
   public static void meldung(String title, String s) {
-    if (!Main.cmdmode) {
+    if (Daten.isGuiAppl()) {
       Dialog.infoDialog(title,s);
     } else {
       System.out.println(International.getString("INFO")+": "+s);
@@ -404,7 +413,6 @@ public class Dialog {
         EfaUtil.foo();
       }
     }
-//    System.out.println(w.getClass().toString()+" geöffnet"); // !!!
   }
 
   // muß von jedem Frame gerufen werden, das geschlossen wird!!
@@ -438,13 +446,11 @@ public class Dialog {
     } else {
         frameStack.pop();
     }
-//    System.out.println(w.getClass().toString()+" geschlossen"); // !!!
   }
 
   // liefert das aktuell geöffnete Frame
   public static Window frameCurrent() {
     if (frameStack == null || frameStack.isEmpty()) return null;
-    // System.out.println(((Window)(frameStack.peek())).getClass().toString()+" ist aktuelles Frame");
     return (Window)frameStack.peek();
   }
 

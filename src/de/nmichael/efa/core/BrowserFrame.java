@@ -12,6 +12,7 @@ package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.SwingWorker;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
@@ -226,7 +227,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
     enableEvents(AWTEvent.WINDOW_EVENT_MASK);
     try {
       jbInit();
-      out.setContentType("text/html; charset="+Daten.ENCODING);
+      out.setContentType("text/html; charset="+Daten.ENCODING_UTF); // @todo what happens with ISO files??
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -605,7 +606,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
         BufferedReader f=null;
         try {
           // Quelldatei lesen
-          f = new BufferedReader(new InputStreamReader(new FileInputStream(quelle),Daten.ENCODING));
+          f = new BufferedReader(new InputStreamReader(new FileInputStream(quelle),Daten.ENCODING_UTF));
           String s;
           // Zeilenweise lesen
           while ( (s=f.readLine()) != null) {

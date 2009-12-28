@@ -114,7 +114,6 @@ public class SimpleFilePrinter implements Printable {
     pane.doLayout();
     out.doLayout();
     try { Thread.sleep(250); } catch(Exception eqwe) {}
-//      System.out.println(out.getPreferredSize().getWidth()+" x "+out.getPreferredSize().getHeight());
     double height = out.getPreferredSize().getHeight() + 50;
     out.setSize(new Dimension(1000,(int)height));
   }

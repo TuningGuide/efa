@@ -12,6 +12,8 @@ package de.nmichael.efa.core;
 
 import java.io.*;
 import java.util.Hashtable;
+import de.nmichael.efa.*;
+import de.nmichael.efa.util.*;
 
 // @i18n complete
 
@@ -22,12 +24,13 @@ public class Adressen extends DatenListe {
   public static final int ADRESSE = 1;
 
   public static final String KENNUNG091 = "##EFA.091.ADRESSEN##";
+  public static final String KENNUNG190 = "##EFA.190.ADRESSEN##";
 
 
   // Konstruktor
   public Adressen(String pdat) {
     super(pdat,2,1,false);
-    kennung = KENNUNG091;
+    kennung = KENNUNG190;
   }
 
 
@@ -36,6 +39,46 @@ public class Adressen extends DatenListe {
     return d.get(NAME);
   }
 
+  public boolean checkFileFormat() {
+    String s;
+    try {
+      s = freadLine();
+      if ( s == null || !s.trim().startsWith(kennung) ) {
+        // KONVERTIEREN: 091 -> 190
+        if (s != null && s.trim().startsWith(KENNUNG091)) {
+          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"091");
+          iniList(this.dat,2,1,false); // Rahmenbedingungen von v1.9.0 schaffen
+          // Datei lesen
+          try {
+            while ((s = freadLine()) != null) {
+              s = s.trim();
+              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              add(constructFields(s));
+            }
+          } catch(IOException e) {
+             errReadingFile(dat,e.getMessage());
+             return false;
+          }
+          kennung = KENNUNG190;
+          if (closeFile() && writeFile(true) && openFile()) {
+            infSuccessfullyConverted(dat,kennung);
+            s = kennung;
+          } else errConvertingFile(dat,kennung);
+        }
+
+        // FERTIG MIT KONVERTIEREN
+        if (s == null || !s.trim().startsWith(kennung)) {
+          errInvalidFormat(dat, EfaUtil.trimto(s, 20));
+          fclose(false);
+          return false;
+        }
+      }
+    } catch(IOException e) {
+      errReadingFile(dat,e.getMessage());
+      return false;
+    }
+    return true;
+  }
 
 
 }

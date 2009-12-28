@@ -22,6 +22,7 @@ public class WettDefs extends DatenListe {
 
   public static final String KENNUNG150 = "##EFA.150.VEREIN##";
   public static final String KENNUNG170 = "##EFA.170.WETTDEFS##";
+  public static final String KENNUNG190 = "##EFA.190.WETTDEFS##";
 
 
   public static final int ANZWETT = 8; // Anzahl der Wettbewerbe (s. folgende Konstanten)
@@ -105,7 +106,7 @@ public class WettDefs extends DatenListe {
 
   public WettDefs(String pdat) {
     super(pdat,0,0,true);
-    kennung = KENNUNG170;
+    kennung = KENNUNG190;
   }
 
   // Einstellungen aus dem Fahrtenbuch auslesen
@@ -360,6 +361,17 @@ public class WettDefs extends DatenListe {
           // Datei lesen
           readEinstellungen();
           kennung = KENNUNG170;
+          if (closeFile() && writeFile(true) && openFile()) {
+            infSuccessfullyConverted(dat,kennung);
+            s = kennung;
+          } else errConvertingFile(dat,kennung);
+        }
+
+        // KONVERTIEREN: 170 -> 190
+        if (s != null && s.trim().startsWith(KENNUNG170)) {
+          // Datei lesen
+          readEinstellungen();
+          kennung = KENNUNG190;
           if (closeFile() && writeFile(true) && openFile()) {
             infSuccessfullyConverted(dat,kennung);
             s = kennung;

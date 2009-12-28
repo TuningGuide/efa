@@ -45,11 +45,12 @@ public class MeldungenIndex extends DatenListe {
 
   public static final String KENNUNG150 = "##EFA.150.DRVMELDUNGENINDEX##";
   public static final String KENNUNG160 = "##EFA.160.DRVMELDUNGENINDEX##";
+  public static final String KENNUNG190 = "##EFA.190.DRVMELDUNGENINDEX##";
 
   // Konstruktor
   public MeldungenIndex(String pdat) {
     super(pdat,_ANZFELDER,1,false);
-    kennung = KENNUNG160;
+    kennung = KENNUNG190;
   }
 
   // Dateiformat überprüfen, ggf. konvertieren
@@ -58,7 +59,6 @@ public class MeldungenIndex extends DatenListe {
     try {
       s = freadLine();
       if ( s == null || !s.trim().startsWith(kennung) ) {
-
 
         // KONVERTIEREN: 150 -> 160
         if (s != null && s.trim().startsWith(KENNUNG150)) {
@@ -85,6 +85,27 @@ public class MeldungenIndex extends DatenListe {
           } else errConvertingFile(dat,kennung);
         }
 
+        // KONVERTIEREN: 160 -> 190
+        if (s != null && s.trim().startsWith(KENNUNG160)) {
+          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"160");
+          iniList(this.dat,7,1,false); // Rahmenbedingungen von v1.9.0 schaffen
+          // Datei lesen
+          try {
+            while ((s = freadLine()) != null) {
+              s = s.trim();
+              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              add(constructFields(s));
+            }
+          } catch(IOException e) {
+             errReadingFile(dat,e.getMessage());
+             return false;
+          }
+          kennung = KENNUNG190;
+          if (closeFile() && writeFile(true) && openFile()) {
+            infSuccessfullyConverted(dat,kennung);
+            s = kennung;
+          } else errConvertingFile(dat,kennung);
+        }
 
         // FERTIG MIT KONVERTIEREN
         if (s == null || !s.trim().startsWith(kennung)) {

@@ -33,6 +33,7 @@ public class Fahrtenabzeichen extends DatenListe {
 
   public static final String KENNUNG150 = "##EFA.150.FAHRTENABZEICHEN##";
   public static final String KENNUNG151 = "##EFA.151.FAHRTENABZEICHEN##";
+  public static final String KENNUNG190 = "##EFA.190.FAHRTENABZEICHEN##";
 
   // globale Werte für die Datei
   private String quittungsnummer = null;                     // Quittungsnummer der letzten Meldung
@@ -43,7 +44,7 @@ public class Fahrtenabzeichen extends DatenListe {
   // Konstruktor
   public Fahrtenabzeichen(String pdat) {
     super(pdat,_ANZ,1,false);
-    kennung = KENNUNG151;
+    kennung = KENNUNG190;
   }
 
 
@@ -86,6 +87,29 @@ public class Fahrtenabzeichen extends DatenListe {
             s = kennung;
           } else errConvertingFile(dat,kennung);
         }
+
+        // KONVERTIEREN: 151 -> 190
+        if (s != null && s.trim().startsWith(KENNUNG151)) {
+          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"151");
+          iniList(this.dat,8,1,false); // Rahmenbedingungen von v1.9.0 schaffen
+          // Datei lesen
+          try {
+            while ((s = freadLine()) != null) {
+              s = s.trim();
+              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              add(constructFields(s));
+            }
+          } catch(IOException e) {
+             errReadingFile(dat,e.getMessage());
+             return false;
+          }
+          kennung = KENNUNG190;
+          if (closeFile() && writeFile(true) && openFile()) {
+            infSuccessfullyConverted(dat,kennung);
+            s = kennung;
+          } else errConvertingFile(dat,kennung);
+        }
+
         // FERTIG MIT KONVERTIEREN
         if (s == null || !s.trim().startsWith(kennung)) {
           errInvalidFormat(dat, EfaUtil.trimto(s, 20));

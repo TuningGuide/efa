@@ -112,7 +112,7 @@ public class AuswahlFrame extends JDialog implements ActionListener {
     }
     if (daten == FAHRTENABZEICHEN) {
       if (Daten.javaVersion.startsWith("1.3")) {
-        Daten.checkJavaVersion(false);
+        Daten.checkJavaVersion();
       }
     }
 

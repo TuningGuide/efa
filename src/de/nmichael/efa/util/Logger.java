@@ -23,6 +23,8 @@ import de.nmichael.efa.direkt.Nachricht;
 
 public class Logger {
 
+  private static final int LOGGING_THRESHOLD = 1000; // max LOGGING_THRESHOLD logging messages per second
+
   // Message Types
   public static final String ERROR   = "ERROR  ";
   public static final String INFO    = "INFO   ";
@@ -39,10 +41,22 @@ public class Logger {
   public static final String MSG_INFO_VERSION                = "INF002";
 
   // Core Functionality (multiple source files)
-  public static final String MSG_CORE_SETUPDIRS              = "COR001";
-  public static final String MSG_CORE_INFOFAILED             = "COR002";
-  public static final String MSG_CORE_USERHOME               = "COR003";
-  public static final String MSG_CORE_LANGUAGESUPPORT        = "COR004";
+  public static final String MSG_CORE_HALT                   = "COR001";
+  public static final String MSG_CORE_SETUPDIRS              = "COR002";
+  public static final String MSG_CORE_INFOFAILED             = "COR003";
+  public static final String MSG_CORE_BASICCONFIG            = "COR004";
+  public static final String MSG_CORE_BASICCONFIGFAILEDCREATE= "COR005";
+  public static final String MSG_CORE_BASICCONFIGFAILEDOPEN  = "COR006";
+  public static final String MSG_CORE_LANGUAGESUPPORT        = "COR007";
+  public static final String MSG_CORE_EFACONFIGCREATEDNEW    = "COR008";
+  public static final String MSG_CORE_EFACONFIGFAILEDCREATE  = "COR009";
+  public static final String MSG_CORE_EFACONFIGFAILEDOPEN    = "COR010";
+  public static final String MSG_CORE_EFATYPESCREATEDNEW     = "COR011";
+  public static final String MSG_CORE_EFATYPESFAILEDCREATE   = "COR012";
+  public static final String MSG_CORE_EFATYPESFAILEDOPEN     = "COR013";
+  public static final String MSG_CORE_EFASECCORRUPTED        = "COR014";
+  public static final String MSG_CORE_CONFBACKUPDIRNOTEXIST  = "COR015";
+  public static final String MSG_CORE_EFAALREADYRUNNING      = "COR016";
 
   // Activities performed in Admin Mode
   public static final String MSG_ADMIN_LOGIN                 = "ADM001";
@@ -80,7 +94,6 @@ public class Logger {
   public static final String MSG_ADMIN_ALLBOATSTATECHANGED   = "ADM033";
   public static final String MSG_ADMIN_NOBOATSTATECHANGED    = "ADM034";
 
-
   // Data Administration (not only Admin Mode)
   public static final String MSG_DATA_NEWMEMBERADDED         = "DAT001";
 
@@ -88,6 +101,7 @@ public class Logger {
   public static final String MSG_LOGGER_ACTIVATING           = "LOG001";
   public static final String MSG_LOGGER_FAILEDCREATELOG      = "LOG002";
   public static final String MSG_LOGGER_DEBUGACTIVATED       = "LOG003";
+  public static final String MSG_LOGGER_THRESHOLDEXCEEDED    = "LOG004";
 
   // de.nmichael.efa.EfaErrorPrintStream
   public static final String MSG_ERROR_EXCEPTION             = "EXC001";
@@ -115,6 +129,8 @@ public class Logger {
   public static final String MSG_CSVFILE_BACKUPERROR         = "CSV014";
   public static final String MSG_CSVFILE_OOMSAVEERROR        = "CSV015";
   public static final String MSG_CSVFILE_ERRORINVALIDRECORD  = "CSV016";
+  public static final String MSG_CSVFILE_EXITONERROR         = "CSV017";
+  public static final String MSG_CSVFILE_ERRORENCODING       = "CSV018";
 
   // efa in the Boat House - Events (multiple source files)
   public static final String MSG_EVT_EFASTART                = "EVT001";
@@ -217,32 +233,54 @@ public class Logger {
   public static final String MSG_DEBUG_EFACONFIG             = "DBG009";
   public static final String MSG_DEBUG_TYPES                 = "DBG010";
 
-
   public static boolean debugLogging = false;
+
+  private static volatile long lastLog;
+  private static volatile long[] logCount;
+  private static volatile boolean doNotLog = false;
 
   private static NachrichtenAnAdmin nachrichten = null;
 
-  public static String getLogfileName(String logfile) {
+  private static String createLogfileName(String logfile) {
     return Daten.efaBaseConfig.efaUserDirectory+logfile;
   }
 
-  public static void ini(String logfile, boolean append) {
-    try {
-      Daten.efaLogfile = getLogfileName(logfile);
-      Logger.log(Logger.DEBUG,
-              Logger.MSG_LOGGER_ACTIVATING,
-              "Logfile being set to: " + Daten.efaLogfile);
-      System.setErr(new EfaErrorPrintStream(new FileOutputStream(Daten.efaLogfile,append)));
-    } catch (FileNotFoundException e) {
-      Logger.log(Logger.ERROR,
-              Logger.MSG_LOGGER_FAILEDCREATELOG,
-              International.getString("Fehler") + ": " +
-              LogString.logstring_fileCreationFailed(Daten.efaLogfile, International.getString("Logdatei")));
-    }
+  public static String ini(String logfile, boolean append) {
+      lastLog = 0;
+      logCount = new long[2];
+      for (int i=0; i<logCount.length; i++) {
+          logCount[i] = 0;
+      }
 
-    if (debugLogging) log(Logger.INFO,
-            Logger.MSG_LOGGER_DEBUGACTIVATED,
-            "Debug Logging activated."); // do not internationalize!
+      Daten.efaLogfile = (logfile != null ? createLogfileName(logfile) : null);
+
+      String baklog = null;
+      if (logfile != null) {
+          try {
+              // ggf. alte, zu große Logdatei archivieren
+              try {
+                  // Wenn Logdatei zu groß ist, die alte Logdatei verschieben
+                  File log = new File(Daten.efaLogfile);
+                  if (log.exists() && log.length() > 1048576) {
+                      baklog = EfaUtil.moveAndEmptyFile(Daten.efaLogfile, Daten.efaBaseConfig.efaUserDirectory + "backup" + Daten.fileSep);
+                  }
+              } catch (Exception e) {
+                  LogString.logError_fileArchivingFailed(Daten.efaLogfile, International.getString("Logdatei"));
+              }
+
+              Logger.log(Logger.DEBUG, Logger.MSG_LOGGER_ACTIVATING,
+                      "Logfile being set to: " + Daten.efaLogfile);
+
+              System.setErr(new EfaErrorPrintStream(new FileOutputStream(Daten.efaLogfile, append)));
+          } catch (FileNotFoundException e) {
+              Logger.log(Logger.ERROR,
+                      Logger.MSG_LOGGER_FAILEDCREATELOG,
+                      International.getString("Fehler") + ": " +
+                      LogString.logstring_fileCreationFailed(Daten.efaLogfile, International.getString("Logdatei")));
+          }
+      }
+
+      return baklog;
   }
 
   /**
@@ -255,8 +293,28 @@ public class Logger {
   public static void log(String type, String key, String msg) {
     if (type != null && type.equals(DEBUG) && !debugLogging) return;
 
+    // Error Threshold exceeded?
+    if (logCount != null) {
+        long now = System.currentTimeMillis() / 1000;
+        if (now != lastLog) {
+            logCount[(int)(lastLog % logCount.length)] = 0;
+            doNotLog = false;
+        }
+        logCount[(int)(now % logCount.length)]++;
+        lastLog = now;
+        if (logCount[(int)(now % logCount.length)] >= LOGGING_THRESHOLD) {
+            if (doNotLog) {
+                // nothing
+            } else {
+                doNotLog = true;
+                Logger.log(ERROR, MSG_LOGGER_THRESHOLDEXCEEDED, "Logging Threshold exceeded.");
+                return;
+            }
+        }
+    }
+
     Calendar cal = new GregorianCalendar();
-    String t = "[" + EfaUtil.getCurrentTimeStamp() + "] - " + type + " - " + key +  " - " + msg;
+    String t = "[" + EfaUtil.getCurrentTimeStamp() + "] - " + Daten.applPID + " - " + type + " - " + key +  " - " + msg;
     EfaErrorPrintStream.ignoreExceptions = true; // Damit Exception-Ausschriften nicht versehentlich als echte Exceptions gemeldet werden
     System.err.println(EfaUtil.replace(t,"\n"," ",true));
     EfaErrorPrintStream.ignoreExceptions = false;
@@ -297,7 +355,7 @@ public class Logger {
   }
 
   public static boolean isWarningLine(String s) {
-    return (s != null && s.indexOf(Logger.WARNING) == 24);
+    return (s != null && s.indexOf(Logger.WARNING) == 32);
   }
 
   public static long getLineTimestamp(String s) {

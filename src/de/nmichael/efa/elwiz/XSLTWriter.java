@@ -34,13 +34,13 @@ public class XSLTWriter extends DefaultHandler {
   public XSLTWriter(Vector options, String fileto) throws IOException {
     super();
     this.options = options;
-    f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileto),Daten.ENCODING));
+    f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileto),Daten.ENCODING_UTF));
   }
 
 
   // Anfang des Dokuments
   public void startDocument() {
-    try { f.write("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"); } catch(IOException e) { EfaUtil.foo(); }
+    try { f.write("<?xml version=\"1.0\" encoding=\""+Daten.ENCODING_UTF+"\"?>\n"); } catch(IOException e) { EfaUtil.foo(); }
   }
 
 

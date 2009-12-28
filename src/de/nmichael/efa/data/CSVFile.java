@@ -12,7 +12,9 @@ package de.nmichael.efa.data;
 
 // @i18n complete
 
+/*
 public class CSVFile extends DataAccess {
 
 
 }
+*/

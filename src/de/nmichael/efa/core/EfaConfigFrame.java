@@ -1627,16 +1627,6 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     checkBakDir();
   }
 
-  // Backup-Verzeichnis setzen
-  public static void setBakDir(String dir) {
-    Daten.efaBakDirectory = dir;
-    if (Daten.efaBakDirectory == null || Daten.efaBakDirectory.equals("") || !new File(Daten.efaBakDirectory).isDirectory())
-      if (new File(Daten.efaMainDirectory+"backup"+Daten.fileSep).isDirectory())
-        Daten.efaBakDirectory = Daten.efaMainDirectory+"backup"+Daten.fileSep;
-        else Daten.efaBakDirectory = Daten.efaMainDirectory;
-    if (!Daten.efaBakDirectory.endsWith(Daten.fileSep)) Daten.efaBakDirectory += Daten.fileSep;
-  }
-
   void browser_focusLost(FocusEvent e) {
     if (!browser.getText().trim().equals("") && !new File(browser.getText().trim()).isFile())
       Dialog.infoDialog(International.getMessage("{program} nicht gefunden",
@@ -1838,8 +1828,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
               Daten.efaConfig.dat));
     }
 
-    setBakDir(Daten.efaConfig.bakDir);
-    Daten.backup = new Backup(Daten.efaBakDirectory,Daten.efaConfig.bakSave,Daten.efaConfig.bakMonat,Daten.efaConfig.bakTag,Daten.efaConfig.bakKonv);
+    Daten.iniBackup();
 
     if (this.parent != null) {
       parent.obmannLabel.setVisible(showObmann.isSelected());

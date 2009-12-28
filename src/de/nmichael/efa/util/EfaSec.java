@@ -29,7 +29,7 @@ public class EfaSec {
 
   private String read() {
     try {
-      BufferedReader fsec = new BufferedReader(new InputStreamReader(new FileInputStream(filename),Daten.ENCODING));
+      BufferedReader fsec = new BufferedReader(new InputStreamReader(new FileInputStream(filename),Daten.ENCODING_UTF));
       String efaSecSHA = fsec.readLine(); fsec.close();
       return efaSecSHA;
     } catch(Exception e) {
@@ -56,7 +56,7 @@ public class EfaSec {
 
   public boolean writeSecFile(String sha, boolean dontDelete) {
     try {
-      BufferedWriter fsec = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename),Daten.ENCODING));
+      BufferedWriter fsec = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename),Daten.ENCODING_UTF));
       fsec.write( (dontDelete ? "#" : "") + sha);
       fsec.close();
       return true;

@@ -36,7 +36,6 @@ public class EfaErrorPrintStream extends PrintStream {
   }
 
   private void errorPrint(Object o) {
-    if (Daten.verbose) System.out.println(o);
     if (!ignoreExceptions &&
         (o.getClass().toString().indexOf("Exception")>0 ||
          o.getClass().toString().indexOf("java.lang.NoSuchMethodError")>0 ||
@@ -86,7 +85,6 @@ public class EfaErrorPrintStream extends PrintStream {
   }
 
   public void print(String s) {
-    if (Daten.verbose) System.out.println(s);
     super.print(s);
   }
 

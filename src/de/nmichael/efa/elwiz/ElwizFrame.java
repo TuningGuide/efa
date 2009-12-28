@@ -57,12 +57,12 @@ public class ElwizFrame extends JFrame {
     optionsHTML = XSLTReader.run(Daten.efaAusgabeDirectory+"layout"+Daten.fileSep+"html"+Daten.fileSep+"elwiz.xml");
     if (optionsHTML == null) {
       Dialog.error(International.getMessage("Es konnte kein XML-Parser geladen werden (siehe '{logfile}').","elwiz.log"));
-      System.exit(0);
+      Daten.haltProgram(Daten.HALT_MISCONFIG);
     }
     optionsPDF  = XSLTReader.run(Daten.efaAusgabeDirectory+"layout"+Daten.fileSep+"pdf"+Daten.fileSep+"elwiz.xml");
     if (optionsPDF == null) {
       Dialog.error(International.getMessage("Es konnte kein XML-Parser geladen werden (siehe '{logfile}').","elwiz.log"));
-      System.exit(0);
+      Daten.haltProgram(Daten.HALT_MISCONFIG);
     }
     iniItems(optionsHTML,optionHTMLPanel);
     iniItems(optionsPDF,optionPDFPanel);
@@ -155,7 +155,7 @@ public class ElwizFrame extends JFrame {
   }
 
   void cancel() {
-    System.exit(0);
+    Daten.haltProgram(0);;
   }
 
 

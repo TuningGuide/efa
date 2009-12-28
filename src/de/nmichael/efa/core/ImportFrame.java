@@ -377,7 +377,7 @@ public class ImportFrame extends JDialog implements ActionListener {
   }
 
 
-  static String doImport(Fahrtenbuch quellFb, Fahrtenbuch zielFb,
+  public static String doImport(Fahrtenbuch quellFb, Fahrtenbuch zielFb,
                          String lfdNrAdd, String characterAdd,
                          String lfdNrVon, String lfdNrBis,
                          String datumVon, String datumBis,

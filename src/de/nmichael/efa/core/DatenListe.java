@@ -72,9 +72,30 @@ public class DatenListe {
   }
 
 
+  // check whether file should be opened with ISO encoding
+  protected synchronized boolean checkIfIsoEncoding(BufferedReader f) throws IOException{
+      f.mark(8192);
+      String s = freadLine();
+      f.reset();
+      if (s != null && s.trim().startsWith("##EFA.") && EfaUtil.stringFindInt(s, 0) < 190) {
+          // file format previous to version 1.9.0 --> open with ISO encoding
+          return true;
+      }
+      return false;
+  }
+
   protected synchronized void openf() throws FileNotFoundException {
     try {
-      f = new BufferedReader(new InputStreamReader(new FileInputStream(dat),Daten.ENCODING));
+      f = new BufferedReader(new InputStreamReader(new FileInputStream(dat),Daten.ENCODING_UTF));
+      try {
+          if (checkIfIsoEncoding(f)) {
+              f.close();
+              f = new BufferedReader(new InputStreamReader(new FileInputStream(dat),Daten.ENCODING_ISO));
+          }
+      } catch(IOException ee) {
+          Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORENCODING,
+                  International.getString("Fehler beim Feststellen des Encodings") + ": " + dat);
+      }
     } catch(UnsupportedEncodingException e) {
       f = new BufferedReader(new FileReader(dat));
     }
@@ -130,8 +151,8 @@ public class DatenListe {
           Logger.log(Logger.ERROR,Logger.MSG_CSVFILE_INCONSISTENTDATA,
                   International.getString("Möglicherweise laufen zwei Instanzen von efa zeitgleich. Um Inkonsistenzen zu vermeiden, beendet sich efa JETZT."));
           Logger.log(Logger.INFO,Logger.MSG_ERR_PANIC,
-                  International.getMessage("PROGRAMMENDE durch {originator}",Daten.EFA_SHORTNAME) + " (PANIC)");
-          System.exit(7);
+                  International.getMessage("PANIC durch {originator}",Daten.EFA_SHORTNAME));
+          Daten.haltProgram(Daten.HALT_PANIC);
           break;
       }
     }
@@ -143,7 +164,8 @@ public class DatenListe {
   }
   private synchronized void openfW(boolean append) throws IOException {
     try {
-      ff = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dat,append),Daten.ENCODING));
+      boolean utf = EfaUtil.stringFindInt(kennung, 0) >= 190;
+      ff = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dat,append), (utf ? Daten.ENCODING_UTF : Daten.ENCODING_ISO)));
     } catch(UnsupportedEncodingException e) {
       ff = new BufferedWriter(new FileWriter(dat,append));
     }
@@ -193,7 +215,10 @@ public class DatenListe {
                                         "wieder freigeschaltet wird."));
                Admin admin = AdminLoginFrame.login(Dialog.frameCurrent(),International.getString("Datei-Prüfsummenfehler") + ": " +
                        International.getString("Freischalten von efa"),EfaConfig.SUPERADMIN);
-               if (admin == null) EfaDirektFrame.haltProgram(International.getString("Programmende, da Datei-Prüfsummenfehler vorliegt und Admin-Login nicht erfolgreich war."));
+               if (admin == null) {
+                   Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_EXITONERROR, International.getString("Programmende, da Datei-Prüfsummenfehler vorliegt und Admin-Login nicht erfolgreich war."));
+                   Daten.haltProgram(Daten.HALT_FILEERROR);
+               }
                String oldChecksum = checksum;
                if (writeFile(false,true)) {
                  Dialog.meldung(International.getString("Hinweis"),
@@ -224,13 +249,13 @@ public class DatenListe {
                Logger.log(Logger.ERROR,Logger.MSG_CSVFILE_CHECKSUMERROR,
                        International.getMessage("Die Prüfsumme {checksum} der Datei {file} stimmt nicht.",checksum,dat) + " " +
                             International.getString("Das Programm wurde angehalten."));
-               System.exit(7);
+               Daten.haltProgram(Daten.HALT_FILEERROR);
                break;
           default:
                Logger.log(Logger.ERROR,Logger.MSG_CSVFILE_CHECKSUMERROR,
                        International.getMessage("Die Prüfsumme {checksum} der Datei {file} stimmt nicht.",checksum,dat) + " " +
                             International.getString("Das Programm wurde angehalten."));
-               System.exit(7);
+               Daten.haltProgram(Daten.HALT_FILEERROR);
                break;
         }
 //      }
@@ -241,7 +266,8 @@ public class DatenListe {
     ff.close();
     String hash = EfaUtil.getSHA(new File(dat));
     try {
-      ff = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dat,true),Daten.ENCODING));
+      boolean utf = EfaUtil.stringFindInt(kennung, 0) >= 190;
+      ff = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dat,true), (utf ? Daten.ENCODING_UTF : Daten.ENCODING_ISO)));
     } catch(UnsupportedEncodingException e) {
       ff = new BufferedWriter(new FileWriter(dat,true));
     }
@@ -402,6 +428,12 @@ public class DatenListe {
     return true;
   }
 
+  public boolean createNewIfDoesntExist() {
+      // to be implemented by subclass, if required
+      int i = (1 / 0);
+      return i == 0;
+  }
+
   public void infSuccessfullyConverted(String file, String format) {
       Logger.log(Logger.INFO,
               Logger.MSG_CSVFILE_FILECONVERTED,
@@ -520,7 +552,8 @@ public class DatenListe {
                   International.getMessage("Backupdatei {file} benutzen?",dat),
                   EfaConfig.SUPERADMIN);
           if (admin == null) {
-              EfaDirektFrame.haltProgram(International.getMessage("Programmende, da Datenliste {file} eine Sicherungskopie (Backup) ist und die Verwendung eines Backups durch den Administrator genehmigt werden muß.",dat));
+              Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_EXITONERROR, International.getMessage("Programmende, da Datenliste {file} eine Sicherungskopie (Backup) ist und die Verwendung eines Backups durch den Administrator genehmigt werden muß.",dat));
+              Daten.haltProgram(Daten.HALT_FILEERROR);
           }
         }
         resetf();
@@ -532,7 +565,10 @@ public class DatenListe {
         case Dialog.YES: {
           if (Daten.actionOnDatenlisteNotFound == Daten.DATENLISTE_FRAGE_REQUIRE_ADMIN_EXIT_ON_NEIN) {
             Admin admin = AdminLoginFrame.login(Dialog.frameCurrent(),International.getString("Datenliste neu erstellen"),EfaConfig.SUPERADMIN);
-            if (admin == null) EfaDirektFrame.haltProgram(International.getMessage("Programmende, da Datenliste {file} nicht gefunden und Admin-Login nicht erfolgreich war.",dat));
+            if (admin == null) {
+                Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_EXITONERROR, International.getMessage("Programmende, da Datenliste {file} nicht gefunden und Admin-Login nicht erfolgreich war.",dat));
+                Daten.haltProgram(Daten.HALT_FILEERROR);
+            }
             Logger.log(Logger.INFO,Logger.MSG_CSVFILE_FILENEWCREATED,
                     International.getMessage("Datenliste {file} neu erstellt.",dat));
           }
@@ -545,7 +581,8 @@ public class DatenListe {
           break; }
         default: {
           if (Daten.actionOnDatenlisteNotFound == Daten.DATENLISTE_FRAGE_REQUIRE_ADMIN_EXIT_ON_NEIN) {
-            EfaDirektFrame.haltProgram(International.getMessage("Programmende, da Datenliste {file} nicht gefunden wurde.",dat));
+            Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_EXITONERROR, International.getMessage("Programmende, da Datenliste {file} nicht gefunden wurde.",dat));
+            Daten.haltProgram(Daten.HALT_FILEERROR);
           }
           Dialog.error(LogString.logstring_fileNotFound(dat, International.getString("Datei")));
           return false;

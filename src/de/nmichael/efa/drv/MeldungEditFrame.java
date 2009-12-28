@@ -2720,9 +2720,9 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
   void printStoffBestellButton_actionPerformed(ActionEvent e) {
     String tmpdatei = Daten.efaTmpDirectory+"stoffabzeichen.html";
     try {
-      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpdatei),Daten.ENCODING));
+      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpdatei),Daten.ENCODING_UTF));
       f.write("<html>\n");
-      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"></head>\n");
+      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=\""+Daten.ENCODING_UTF+"\"></head>\n");
       f.write("<body>\n");
       f.write("<h1 align=\"center\">Bestellung von Stoffabzeichen</h1>\n");
       f.write("<h2 align=\"center\">"+ew.verein_name+"</h2>\n");
@@ -2749,7 +2749,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       f.write("</body></html>\n");
       f.close();
       JEditorPane out = new JEditorPane();
-      out.setContentType("text/html; charset="+Daten.ENCODING);
+      out.setContentType("text/html; charset="+Daten.ENCODING_UTF);
       out.setPage("file:"+tmpdatei);
       out.setSize(600,800);
       out.doLayout();
@@ -2843,9 +2843,9 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
 
     String tmpdatei = Daten.efaTmpDirectory+"aequator.html";
     try {
-      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpdatei),Daten.ENCODING));
+      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpdatei),Daten.ENCODING_UTF));
       f.write("<html>\n");
-      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"></head>\n");
+      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=\""+Daten.ENCODING_UTF+"\"></head>\n");
       f.write("<body>\n");
       f.write("<h1 align=\"center\">Äquatorpreisträger</h1>\n");
       f.write("<p><b>Verein: "+ew.verein_name+"</b><br>Mitgliedsnummer: "+ew.verein_mitglnr+"<br><br>Anschrift:<br>"+ew.versand_name+"<br>"+ew.versand_strasse+"<br>"+ew.versand_ort+"</p>\n");
@@ -2855,7 +2855,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       f.write("</body></html>\n");
       f.close();
       JEditorPane out = new JEditorPane();
-      out.setContentType("text/html; charset="+Daten.ENCODING);
+      out.setContentType("text/html; charset="+Daten.ENCODING_UTF);
       out.setPage("file:"+tmpdatei);
       SimpleFilePrinter.sizeJEditorPane(out);
       SimpleFilePrinter sfp = new SimpleFilePrinter(out);

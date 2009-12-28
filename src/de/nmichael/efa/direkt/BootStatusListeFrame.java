@@ -212,7 +212,6 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
 
   // komisch, manchmal scheine diese Methode irgendwie nicht zu ziehen.....
   void tabelle_propertyChange(PropertyChangeEvent e) {
-     // System.out.println("hi");
     if (tabelle.isEditing()) {
       if (firstclick) editButton_actionPerformed(null);
       firstclick=false;

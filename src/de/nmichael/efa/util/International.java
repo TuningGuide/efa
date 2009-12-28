@@ -33,6 +33,7 @@ public class International {
     private static MessageFormat msgFormat = null;
     private static NumberFormat numberFormat = null;
     private static char decimalSeparator = '.';
+    private static boolean initializationFailed = false;
 
     private static void initializeData() {
         try {
@@ -50,15 +51,19 @@ public class International {
             msgFormat = new MessageFormat("",locale);
             numberFormat = NumberFormat.getNumberInstance(locale);
             decimalSeparator = ((DecimalFormat)numberFormat).getDecimalFormatSymbols().getDecimalSeparator();
+            Daten.EFA_SHORTNAME = International.getString("efa");
+            Daten.EFA_LONGNAME = International.getString("efa - elektronisches Fahrtenbuch");
         } catch(Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_INTERNATIONAL_FAILEDSETUP, "Failed to set up internationalization: "+e.toString()); // no need for translation
+            initializationFailed = true;
         }
-
-        Daten.EFA_SHORTNAME = International.getString("efa");
-        Daten.EFA_LONGNAME = International.getString("efa - elektronisches Fahrtenbuch");
     }
 
     public static void initialize() {
+        if (initializationFailed) {
+            return;
+        }
+        
         Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Initializing Language Support ...");
         try {
             StackTraceElement[] stack = Thread.currentThread().getStackTrace();

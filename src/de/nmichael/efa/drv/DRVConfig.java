@@ -13,7 +13,8 @@ package de.nmichael.efa.drv;
 import java.io.*;
 import java.util.Hashtable;
 import de.nmichael.efa.core.DatenListe;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.*;
+import de.nmichael.efa.*;
 
 // @i18n complete (needs no internationalization -- only relevant for Germany)
 
@@ -21,6 +22,7 @@ public class DRVConfig extends DatenListe {
 
 
   public static final String KENNUNG150 = "##EFA.150.DRVKONFIGURATION##";
+  public static final String KENNUNG190 = "##EFA.190.DRVKONFIGURATION##";
 
   public static final byte VERSION = 3;
 
@@ -68,7 +70,7 @@ public class DRVConfig extends DatenListe {
   // Konstruktor
   public DRVConfig(String pdat) {
     super(pdat,0,0,false);
-    kennung = KENNUNG150;
+    kennung = KENNUNG190;
     reset();
     this.backupEnabled = true;
   }
@@ -228,5 +230,36 @@ public class DRVConfig extends DatenListe {
     return s;
   }
 
+  public boolean checkFileFormat() {
+    String s;
+    try {
+      s = freadLine();
+      if ( s == null || !s.trim().startsWith(kennung) ) {
+        // KONVERTIEREN: 150 -> 190
+        if (s != null && s.trim().startsWith(KENNUNG150)) {
+          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"150");
+          iniList(this.dat,0,0,false); // Rahmenbedingungen von v1.9.0 schaffen
+          // Datei lesen
+          readEinstellungen();
+          kennung = KENNUNG190;
+          if (closeFile() && writeFile(true) && openFile()) {
+            infSuccessfullyConverted(dat,kennung);
+            s = kennung;
+          } else errConvertingFile(dat,kennung);
+        }
+
+        // FERTIG MIT KONVERTIEREN
+        if (s == null || !s.trim().startsWith(kennung)) {
+          errInvalidFormat(dat, EfaUtil.trimto(s, 20));
+          fclose(false);
+          return false;
+        }
+      }
+    } catch(IOException e) {
+      errReadingFile(dat,e.getMessage());
+      return false;
+    }
+    return true;
+  }
 
 }

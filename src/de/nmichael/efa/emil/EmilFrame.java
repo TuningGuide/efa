@@ -164,8 +164,7 @@ public class EmilFrame extends JFrame {
 
     // WettDefs.cfg
     wettDefs = new WettDefs(Daten.efaCfgDirectory+Daten.WETTDEFS);
-    wettDefs.createNewIfDoesntExist();
-    wettDefs.readFile();
+    Daten.iniDataFile(wettDefs, true, International.onlyFor("Wettbewerbskonfiguration", "de"));
   }
 
 
@@ -890,7 +889,7 @@ public class EmilFrame extends JFrame {
 
   public void menuItemBeenden_actionPerformed(ActionEvent e) {
     if (efw != null && !dateiAenderungenGespeichert()) return;
-    System.exit(0);
+    Daten.haltProgram(0);
   }
 
   void menuitemEinstellungen_actionPerformed(ActionEvent e) {
@@ -1189,7 +1188,6 @@ public class EmilFrame extends JFrame {
             }
 
     currentTeilnehmer = m;
-//    System.out.println("Nr: "+this.currentTeilnehmerNummer);
     geaendertEintrag = false;
 
     checkErfuellt();
@@ -1404,7 +1402,6 @@ public class EmilFrame extends JFrame {
 
   void checkErfuellt() {
     if (efw == null || currentTeilnehmer == null) return;
-//    System.out.println("checking erfüllt...");
     String gr;
     setErfuellt( (gr = isErfuellt(wett.getSelectedIndex(),wettJahr.getText().trim(),getTeilnehmer())) != null);
     gruppe.setText(gr);
@@ -1458,7 +1455,6 @@ public class EmilFrame extends JFrame {
     if (wett.getSelectedIndex()<1) return 0;
     int c=0; // Zähler für die Fahrten
 
-//    System.out.println("zähle Fahrten...");
     for (int i=0; i<fahrtDatum.length; i++) {
 
       // Fahrt vollständig
@@ -1472,30 +1468,25 @@ public class EmilFrame extends JFrame {
       GregorianCalendar dateCal = new GregorianCalendar(dateF.jahr,dateF.monat-1,dateF.tag);
       dateCal.set(dateF.jahr,dateF.monat-1+dateCal.getMinimum(GregorianCalendar.MONTH),dateF.tag);
       if (dateCal.before(vonCal) || dateCal.after(bisCal)) {
-//        System.out.println("Fahrt "+(i+1)+" liegt außerhalb des Zeitraums!");
         continue;
       }
 
       // Tag doppelt?
       String s = ""+dateF.tag+"-"+dateF.monat+"-"+dateF.jahr;
       if (tage.indexOf(" "+s+" ")>=0)  {
-//        System.out.println("Fahrt "+(i+1)+" an einem Tag, an dem es schon eine Fahrt gibt!");
         continue;
       }
       tage = tage + s + " ";
 
       // LRVSOMMER: Zielfahrt mind. 20 Km lang?
       if (wett.getSelectedIndex() == WettDefs.LRVBERLIN_SOMMER && EfaUtil.string2date(fahrtKm[i].getText(),0,0,0).tag < 20) {
-//        System.out.println("Fahrt "+(i+1)+" muß mindestens 20 Km lang sein!");
         continue;
       }
 
       zf = Statistik.makeZf(zf,fahrtZf[i].getText().trim());
       c++;
     }
-//    System.out.println(c+" Fahrten!");
     int zfc = EfaUtil.countCharInString(zf,';') + 1;
-//    System.out.println(zfc+" Zielfahrten");
     if (wett.getSelectedIndex() == WettDefs.LRVBERLIN_SOMMER && zfc < c) c = zfc;
     return c;
   }
@@ -1517,7 +1508,6 @@ public class EmilFrame extends JFrame {
     if (wettbewerb<1) return 0;
     int c=0; // Zähler für die Fahrten
 
-//    System.out.println("zähle Fahrten...");
     for (int i=0; i<m.fahrt.length; i++) {
 
       // Fahrt vollständig
@@ -1531,31 +1521,26 @@ public class EmilFrame extends JFrame {
       GregorianCalendar dateCal = new GregorianCalendar(dateF.jahr,dateF.monat-1,dateF.tag);
       dateCal.set(dateF.jahr,dateF.monat-1+dateCal.getMinimum(GregorianCalendar.MONTH),dateF.tag);
       if (dateCal.before(vonCal) || dateCal.after(bisCal)) {
-//        System.out.println("Fahrt "+(i+1)+" liegt außerhalb des Zeitraums!");
         continue;
       }
 
       // Tag doppelt?
       String s = ""+dateF.tag+"-"+dateF.monat+"-"+dateF.jahr;
       if (tage.indexOf(" "+s+" ")>=0)  {
-//        System.out.println("Fahrt "+(i+1)+" an einem Tag, an dem es schon eine Fahrt gibt!");
         continue;
       }
       tage = tage + s + " ";
 
       // LRVSOMMER: Zielfahrt mind. 20 Km lang?
       if (wettbewerb == WettDefs.LRVBERLIN_SOMMER && EfaUtil.string2date(m.fahrt[i][2],0,0,0).tag < 20) {
-//        System.out.println("Fahrt "+(i+1)+" muß mindestens 20 Km lang sein!");
         continue;
       }
 
       zf.addZielfahrten(m.fahrt[i][3]);
       c++;
     }
-//    System.out.println(c+" Fahrten!");
     zf.reduceToMinimun();
     int zfc = zf.getAnzZielfahrten();
-//    System.out.println(zfc+" Zielfahrten");
     if (wettbewerb == WettDefs.LRVBERLIN_SOMMER && zfc < c) c = zfc;
     return c;
   }

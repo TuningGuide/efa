@@ -380,7 +380,7 @@ public class EddiFrame extends JFrame {
   // close
   void cancel() {
     Dialog.frameClosed(this);
-    System.exit(0);
+    Daten.haltProgram(0);
   }
 
 

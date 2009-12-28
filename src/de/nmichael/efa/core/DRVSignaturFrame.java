@@ -534,9 +534,9 @@ public class DRVSignaturFrame extends JDialog implements ActionListener {
     }
     String tmpdatei = Daten.efaTmpDirectory+"eFahrtenheft.html";
     try {
-      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpdatei),Daten.ENCODING));
+      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpdatei),Daten.ENCODING_ISO));
       f.write("<html>\n");
-      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"></head>\n");
+      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=\""+Daten.ENCODING_ISO+"\"></head>\n");
       f.write("<body>\n");
       f.write("<h1 align=\"center\">elektronisches Fahrtenheft<br>für "+drvSignatur.getVorname()+" "+drvSignatur.getNachname()+"</h1>\n");
       f.write("<table align=\"center\" border=\"3\" width=\"100%\">\n");
@@ -561,7 +561,7 @@ public class DRVSignaturFrame extends JDialog implements ActionListener {
       f.write("</body></html>\n");
       f.close();
       JEditorPane out = new JEditorPane();
-      out.setContentType("text/html; charset="+Daten.ENCODING);
+      out.setContentType("text/html; charset="+Daten.ENCODING_ISO);
       out.setPage("file:"+tmpdatei);
       out.setSize(600,800);
       out.doLayout();
@@ -619,7 +619,7 @@ public class DRVSignaturFrame extends JDialog implements ActionListener {
           return false;
         }
         try {
-          BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(localFile),Daten.ENCODING));
+          BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(localFile),Daten.ENCODING_ISO));
           String s;
           String[] qnr = null;
           String[] wett = null;
@@ -709,7 +709,7 @@ public class DRVSignaturFrame extends JDialog implements ActionListener {
       return false;
     }
     try {
-      BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(localFile),Daten.ENCODING));
+      BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(localFile),Daten.ENCODING_ISO));
       String s = f.readLine();
       if (s != null && s.startsWith("ERROR")) {
         Dialog.error(s);

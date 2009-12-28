@@ -24,6 +24,7 @@ public class NachrichtenAnAdmin extends DatenListe {
   private int errorCount = 0; // to avoid stack overflow when recursively running into errors when writing files, mailing this to the admin and then writing the message file to disk, failing doing so, mailing this to the admin, ...
 
   public static final String KENNUNG130 = "##EFA.130.NACHRICHTEN##";
+  public static final String KENNUNG190 = "##EFA.190.NACHRICHTEN##";
 
   private static final int MAXSIZE = 262144;
   private static final int MAXMAXSIZE = 2 * MAXSIZE;
@@ -31,7 +32,7 @@ public class NachrichtenAnAdmin extends DatenListe {
   // Konstruktor
   public NachrichtenAnAdmin(String pdat) {
     super(pdat,0,0,false);
-    kennung = KENNUNG130;
+    kennung = KENNUNG190;
     reset();
     checkIfSizeExceeded();
   }
@@ -237,6 +238,38 @@ public class NachrichtenAnAdmin extends DatenListe {
     }
 
     return success;
+  }
+
+  public boolean checkFileFormat() {
+    String s;
+    try {
+      s = freadLine();
+      if ( s == null || !s.trim().startsWith(kennung) ) {
+        // KONVERTIEREN: 130 -> 190
+        if (s != null && s.trim().startsWith(KENNUNG130)) {
+          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"130");
+          iniList(this.dat,0,0,false); // Rahmenbedingungen von v1.9.0 schaffen
+          // Datei lesen
+          readEinstellungen();
+          kennung = KENNUNG190;
+          if (closeFile() && writeFile(true) && openFile()) {
+            infSuccessfullyConverted(dat,kennung);
+            s = kennung;
+          } else errConvertingFile(dat,kennung);
+        }
+
+        // FERTIG MIT KONVERTIEREN
+        if (s == null || !s.trim().startsWith(kennung)) {
+          errInvalidFormat(dat, EfaUtil.trimto(s, 20));
+          fclose(false);
+          return false;
+        }
+      }
+    } catch(IOException e) {
+      errReadingFile(dat,e.getMessage());
+      return false;
+    }
+    return true;
   }
 
 }

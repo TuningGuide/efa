@@ -69,7 +69,7 @@ public class XMLChecker extends DefaultHandler {
     System.out.println("      -validate   validate XML document using a DTD (DTD declaration required!)");
     System.out.println("      -verbose    print out all elements and attributes");
     System.out.println("      -help       print this help screen");
-    System.exit(-1);
+    System.exit(0);
   }
 
 

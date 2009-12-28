@@ -176,10 +176,14 @@ public class DownloadFrame extends JDialog implements ActionListener {
     if (ok) {
       Dialog.infoDialog(International.getMessage("Das {plugin} wurde erfolgreich installiert. "+
                         "Bitte starte nun {program} neu, um die neuen Funktionen nutzen zu können!",plugname,progname));
-      if (exit) System.exit(0);
+      if (exit) {
+          Daten.haltProgram(0);
+      }
     } else {
       Dialog.error(International.getMessage("Das {plugin} konnte NICHT erfolgreich installiert werden!",plugname)+"\n"+s);
-      if (exit) System.exit(1);
+      if (exit) {
+          Daten.haltProgram(Daten.HALT_INSTALLATION);
+      }
     }
   }
 
@@ -242,7 +246,7 @@ public class DownloadFrame extends JDialog implements ActionListener {
       String infoFile = Daten.efaTmpDirectory+"plugins.url";
       if (!EfaUtil.getFile(frame,Daten.PLUGIN_WWW_URL,infoFile,true)) return false;
       try {
-        BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(infoFile),Daten.ENCODING));
+        BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(infoFile),Daten.ENCODING_ISO));
         String s;
         if ( (s = f.readLine()) != null) {
           Daten.pluginWWWdirectory = s.trim(); // dies ist die aktuelle Plugin-URL
@@ -269,7 +273,7 @@ public class DownloadFrame extends JDialog implements ActionListener {
       Vector _fnames = new Vector();
       Vector _sizes  = new Vector();
       try {
-        BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(infoFile),Daten.ENCODING));
+        BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(infoFile),Daten.ENCODING_ISO));
         String s;
         while ( (s = f.readLine()) != null) {
           s = s.trim();

@@ -52,7 +52,7 @@ public class ESigFahrtenhefte {
 
   public boolean writeFile() throws IOException {
       if (datei == null) return false;
-      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(datei),Daten.ENCODING));
+      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(datei),Daten.ENCODING_ISO));
       f.write(KENNUNG+"\n");
 
       f.write("\n[VEREIN]\n");
@@ -80,7 +80,7 @@ public class ESigFahrtenhefte {
   // Lesen der Datei "datei"
   public boolean readFile() throws IOException {
     if (datei == null) return false;
-    BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(datei),Daten.ENCODING));
+    BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(datei),Daten.ENCODING_ISO));
 
     // Dateiformat prüfen
     String s = f.readLine();

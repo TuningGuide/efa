@@ -5116,11 +5116,11 @@ public class Statistik {
       if (sd.tabelleHTML) {
         File bak = new File(sd.ausgabeDatei);
         bak.renameTo(new File(tempdatei));
-        fo = new BufferedReader(new InputStreamReader(new FileInputStream(tempdatei),Daten.ENCODING));
+        fo = new BufferedReader(new InputStreamReader(new FileInputStream(tempdatei),Daten.ENCODING_UTF));
       }
 
       // Datei erstellen und Kopf schreiben
-      f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sd.ausgabeDatei),Daten.ENCODING));
+      f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sd.ausgabeDatei),Daten.ENCODING_UTF));
       if (sd.tabelleHTML) {
         String zz;
         while ( (zz = fo.readLine()) != null && !zz.trim().equals("<!--EFA-START-->") )
@@ -5128,7 +5128,7 @@ public class Statistik {
       } else {
         f.write("<html>\n");
         f.write("<head>\n");
-        f.write("<meta http-equiv=\"content-type\" content=\"text/html; charset="+Daten.ENCODING+"\">\n");
+        f.write("<meta http-equiv=\"content-type\" content=\"text/html; charset=\""+Daten.ENCODING_UTF+"\">\n");
         f.write("<title>"+ad.titel+"</title>\n");
         f.write("</head>\n");
         f.write("<body>\n");
@@ -5425,9 +5425,9 @@ public class Statistik {
       bak.renameTo(new File(tempdatei));
 
       // Dateien öffnen und neue Datei erstellen
-      fo = new BufferedReader(new InputStreamReader(new FileInputStream(tempdatei),Daten.ENCODING));
-      fn = new BufferedReader(new InputStreamReader(new FileInputStream(sd.ausgabeDateiTmp),Daten.ENCODING));
-      f =  new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sd.ausgabeDatei),Daten.ENCODING));
+      fo = new BufferedReader(new InputStreamReader(new FileInputStream(tempdatei),Daten.ENCODING_UTF));
+      fn = new BufferedReader(new InputStreamReader(new FileInputStream(sd.ausgabeDateiTmp),Daten.ENCODING_UTF));
+      f =  new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sd.ausgabeDatei),Daten.ENCODING_UTF));
 
       // Dateikopf von fo nach f kopieren
       while ( (zz = fo.readLine()) != null && !zz.equals("<!--EFA-START-->") )
@@ -6108,7 +6108,7 @@ public class Statistik {
     try {
       if (! new File(dir+Daten.WETTFILE).isFile() && new File(Daten.efaProgramDirectory+Daten.WETTFILE).isFile())
         dir=Daten.efaProgramDirectory;
-      f = new BufferedReader(new InputStreamReader(new FileInputStream(dir+Daten.WETTFILE),Daten.ENCODING));
+      f = new BufferedReader(new InputStreamReader(new FileInputStream(dir+Daten.WETTFILE),Daten.ENCODING_UTF));
       while ((s = f.readLine()) != null) {
         if (s.startsWith("["+bezeich+"]")) {
           while ((s = f.readLine()) != null) {

@@ -256,17 +256,14 @@ import java.util.*;
      catch (IllegalArgumentException e)
      {
        e.printStackTrace();
-       System.out.println(e.getMessage());
      }
      catch (IllegalAccessException e)
      {
        e.printStackTrace();
-       System.out.println(e.getMessage());
      }
      catch (InvocationTargetException e)
      {
        e.printStackTrace();
-       System.out.println(e.getMessage());
      }
    }//actionPerformed
 

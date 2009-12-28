@@ -605,7 +605,6 @@ public class BootStatusFrame extends JDialog implements ActionListener {
 
   // komisch, manchmal scheine diese Methode irgendwie nicht zu ziehen.....
   void reservierungen_propertyChange(PropertyChangeEvent e) {
-     // System.out.println("hi");
     if (reservierungen.isEditing()) {
       if (firstclick) editResButton_actionPerformed(null);
       firstclick=false;

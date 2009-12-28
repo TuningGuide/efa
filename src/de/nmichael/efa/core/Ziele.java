@@ -33,11 +33,12 @@ public class Ziele extends DatenListe {
   public static final String KENNUNG141 = "##EFA.141.ZIELE##";
   public static final String KENNUNG152 = "##EFA.152.ZIELE##";
   public static final String KENNUNG174 = "##EFA.174.ZIELE##";
+  public static final String KENNUNG190 = "##EFA.190.ZIELE##";
 
   // Konstruktor
   public Ziele(String pdat) {
     super(pdat,_ANZFELDER,1,false);
-    kennung = KENNUNG174;
+    kennung = KENNUNG190;
   }
 
 
@@ -146,6 +147,27 @@ public class Ziele extends DatenListe {
           } else errConvertingFile(dat,kennung);
         }
 
+        // KONVERTIEREN: 174 -> 190
+        if (s != null && s.trim().startsWith(KENNUNG174)) {
+          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"174");
+          iniList(this.dat,5,1,false); // Rahmenbedingungen von v1.9.0 schaffen
+          // Datei lesen
+          try {
+            while ((s = freadLine()) != null) {
+              s = s.trim();
+              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              add(constructFields(s));
+            }
+          } catch(IOException e) {
+             errReadingFile(dat,e.getMessage());
+             return false;
+          }
+          kennung = KENNUNG190;
+          if (closeFile() && writeFile(true) && openFile()) {
+            infSuccessfullyConverted(dat,kennung);
+            s = kennung;
+          } else errConvertingFile(dat,kennung);
+        }
 
         // FERTIG MIT KONVERTIEREN
         if (s == null || !s.trim().startsWith(kennung)) {

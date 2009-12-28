@@ -45,7 +45,7 @@ public class EmilConfig {
 
     // Datei öffnen
     try {
-      f = new BufferedReader(new InputStreamReader(new FileInputStream(dat),Daten.ENCODING));
+      f = new BufferedReader(new InputStreamReader(new FileInputStream(dat),Daten.ENCODING_ISO));
     } catch(IOException e) {
       return false;
     }
@@ -95,7 +95,7 @@ public class EmilConfig {
 
     // Versuchen, die Datei zu öffnen
     try {
-      f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dat),Daten.ENCODING));
+      f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dat),Daten.ENCODING_ISO));
     } catch(IOException e) {
       return false;
     }

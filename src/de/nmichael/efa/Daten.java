@@ -11,6 +11,7 @@
 package de.nmichael.efa;
 
 import de.nmichael.efa.core.config.EfaBaseConfig;
+import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.core.WettDefs;
 import de.nmichael.efa.core.Gruppen;
 import de.nmichael.efa.core.Fahrtenabzeichen;
@@ -20,9 +21,12 @@ import de.nmichael.efa.core.EfaConfig;
 import de.nmichael.efa.core.Fahrtenbuch;
 import de.nmichael.efa.core.Mannschaften;
 import de.nmichael.efa.core.Adressen;
+import de.nmichael.efa.core.EfaRunning;
 import de.nmichael.efa.core.config.EfaTypes;
+import de.nmichael.efa.util.EfaSec;
 import de.nmichael.efa.util.TMJ;
 import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.LogString;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.EfaKeyStore;
@@ -34,7 +38,9 @@ import de.nmichael.efa.statistics.XMLWriter;
 import java.io.*;
 import java.util.jar.*;
 import java.util.*;
-import java.awt.Color;
+import java.awt.*;
+import javax.swing.UIManager;
+import java.lang.management.*;
 
 // @i18n complete
 
@@ -58,7 +64,7 @@ public class Daten {
 
   public final static String EFA_JAVA_ARGUMENTS = "EFA_JAVA_ARGUMENTS"; // Environment Variable Name containing all arguments passed to the "java" command
   public       static String efa_java_arguments = null;                 // Environment Variable Contents containing all arguments passed to the "java" command
-  public final static String EFADIREKT_MAINCLASS = "de.nmichael.efa.direkt.EfaDirekt";
+  public final static String EFADIREKT_MAINCLASS = "de.nmichael.efa.direkt.Main";
 
   public final static String EFAURL = "http://efa.nmichael.de/";
   public final static String EFAWETTURL = "http://efa.rudern.de/";
@@ -89,8 +95,27 @@ public class Daten {
 
   public static final String CLUBLOGO = "clublogo.gif";             // ./program/clublogo.gif   Clublogo für efaDirekt
 
-  public static String efaUserHome = null;
-  public static String efaLogfile = null; // Logdatei für Java-Konsole
+  // efa exit codes
+  public static final int HALT_BASICCONFIG  =   1;
+  public static final int HALT_DIRECTORIES  =   2;
+  public static final int HALT_EFACONFIG    =   3;
+  public static final int HALT_EFATYPES     =   4;
+  public static final int HALT_EFASEC       =   5;
+  public static final int HALT_EFARUNNING   =   6;
+  public static final int HALT_FILEOPEN     =   7;
+  public static final int HALT_EFASECADMIN  =   8;
+  public static final int HALT_FILEERROR    =   9;
+  public static final int HALT_ERROR        =  10;
+  public static final int HALT_INSTALLATION =  11;
+  public static final int HALT_ADMIN        =  12;
+  public static final int HALT_MISCONFIG    =  12;
+  public static final int HALT_PANIC        =  13;
+  public static final int HALT_SHELLRESTART =  99;
+  public static final int HALT_JAVARESTART  = 199;
+
+  public static Program program = null;            // this Program
+  public static String efaUserHome = null;         // User Home Directory
+  public static String efaLogfile = null;          // Logdatei für Java-Konsole
   public static String efaMainDirectory = null;    // Efa-Hauptverzeichnis, immer mit "/" am Ende
   public static String efaProgramDirectory = null; // Programmverzeichnis, immer mit "/" am Ende     ("./program/")
   public static String efaPluginDirectory = null;  // Programmverzeichnis, immer mit "/" am Ende     ("./program/plugins")
@@ -159,6 +184,9 @@ public class Daten {
   public static WettDefs wettDefs;           // WettDefs
   public static de.nmichael.efa.direkt.NachrichtenAnAdmin nachrichten; // Nachrichten an Admin
   public static EfaKeyStore keyStore;        // KeyStore
+  public static EfaSec efaSec;               // efa Security File
+  public static EfaRunning efaRunning;       // efa Running (Doppelstarts verhindern)
+  private static StartLogo splashScreen;     // Efa Splash Screen
 
   public static String dateiHTML = "";
   public static String dateiTXT = "";
@@ -167,11 +195,13 @@ public class Daten {
   public static Color colorOrange = new Color(255,100,0);
 
 
+  public static String defaultWriteProtectPw = null;
+
+  // move as static variables to SuchFrame!
   public static final int SUCH_NORMAL = 1;
   public static final int SUCH_ERROR = 2;
   public static int suchMode = SUCH_NORMAL;
   public static String such = "";
-  public static String defaultWriteProtectPw = null;
   public static boolean such_lfdnr=true, such_datum=true, such_stm=true, such_mannsch=true,
                         such_boot=true, such_ziel=true, such_abfahrt=true, such_ankunft=true,
                         such_bootskm=true, such_mannschkm=true, such_bemerk=true, such_fahrtart=true;
@@ -185,7 +215,6 @@ public class Daten {
   public static Backup backup=null;
   public static long efaStartTime;
 
-  public static boolean verbose=false; // wenn true, wird stderr (Datei) auch auf stdout ausgegeben
   public static boolean exceptionTest = false; // Exceptions beim Drücken von F1 produzieren (für Exception-Test)
   public static boolean watchWindowStack  = false; // Window-Stack überwachen
 
@@ -214,7 +243,8 @@ public class Daten {
   public static int actionOnDatenlisteIsBackup = BACKUP_LOAD_WITHOUT_QUESTION;
 
   // Encoding zum Lesen und Schreiben von Dateien
-  public static final String ENCODING = "ISO-8859-1";
+  public static final String ENCODING_ISO = "ISO-8859-1";
+  public static final String ENCODING_UTF = "UTF-8";
 
   // Applikations-IDs
   public static int applID = -1;
@@ -224,24 +254,472 @@ public class Daten {
   public static final int APPL_ELWIZ = 4;
   public static final int APPL_EDDI = 5;
   public static final int APPL_DRV = 6;
+  public static final int APPL_CLI = 7;
 
   // Applikations-Mode
   public static final int APPL_MODE_NORMAL = 1;
   public static final int APPL_MODE_ADMIN = 2;
   public static int applMode = APPL_MODE_NORMAL;
 
-  // Daten initialisieren; Frame setzen
-  public static void ini(int _applID) {
-    fahrtenbuch = null;
-    fileSep = System.getProperty("file.separator");
-    javaVersion = System.getProperty("java.version");
-    jvmVersion = System.getProperty("java.vm.version");
-    osName = System.getProperty("os.name");
-    osVersion = System.getProperty("os.version");
-    efaUserHome = System.getProperty("user.home");
-    applID = _applID;
-    efaStartTime = System.currentTimeMillis();
+  // Applikations-PID
+  public static String applPID;
+
+
+  public static void initialize(int applID) {
+      iniBase(applID);
+      iniMainDirectory();
+      iniEfaBaseConfig();
+      iniLanguageSupport();
+      iniLogging();
+      iniSplashScreen(true);
+      iniEnvironmentSettings();
+      iniDirectories();
+      iniEfaSec();
+      iniFileSettings(1);
+      iniEfaConfig();
+      iniFileSettings(2);
+      iniEfaRunning();
+      iniBackup();
+      iniEfaTypes();
+      iniGUI();
+}
+
+  public static void haltProgram(int exitCode) {
+      if (exitCode != 0) {
+          if (exitCode < 99) {
+              Logger.log(Logger.ERROR, Logger.MSG_CORE_HALT,
+                      International.getString("PROGRAMMENDE") + " (Error Code " + exitCode + ")");
+          } else {
+              Logger.log(Logger.INFO, Logger.MSG_CORE_HALT,
+                      International.getString("PROGRAMMENDE") + " (Exit Code " + exitCode + ")");
+          }
+      } else {
+          Logger.log(Logger.INFO, Logger.MSG_CORE_HALT,
+                  International.getString("PROGRAMMENDE"));
+      }
+      if (program != null) {
+          program.exit(exitCode);
+      } else {
+          System.exit(exitCode);
+      }
   }
+
+  private static void iniBase(int _applID) {
+      fahrtenbuch = null;
+      fileSep = System.getProperty("file.separator");
+      javaVersion = System.getProperty("java.version");
+      jvmVersion = System.getProperty("java.vm.version");
+      osName = System.getProperty("os.name");
+      osVersion = System.getProperty("os.version");
+      efaUserHome = System.getProperty("user.home");
+      applID = _applID;
+      efaStartTime = System.currentTimeMillis();
+
+      try {
+          // ManagementFactory.getRuntimeMXBean().getName() == "12345@localhost" or similar (not guaranteed by VM Spec!)
+          applPID = EfaUtil.int2String(EfaUtil.stringFindInt(ManagementFactory.getRuntimeMXBean().getName(), 0), 5);
+      } catch(Exception e) {
+          applPID = "00000";
+      }
+  }
+
+  private static void iniMainDirectory() {
+      Daten.efaMainDirectory = System.getProperty("user.dir");
+      if (!Daten.efaMainDirectory.endsWith(Daten.fileSep)) {
+          Daten.efaMainDirectory += Daten.fileSep;
+      }
+      if (Daten.efaMainDirectory.endsWith("/program/") && !new File(Daten.efaMainDirectory+"program/").isDirectory()) {
+          Daten.efaMainDirectory = Daten.efaMainDirectory.substring(0,Daten.efaMainDirectory.length()-8);
+      }
+      if (Daten.efaMainDirectory.endsWith("/classes/") && !new File(Daten.efaMainDirectory+"program/").isDirectory()) {
+          Daten.efaMainDirectory = Daten.efaMainDirectory.substring(0,Daten.efaMainDirectory.length()-8);
+      }
+  }
+
+  private static void iniEfaBaseConfig() {
+      String efaBaseConfigFile = Daten.efaUserHome + (Daten.fileSep != null && !Daten.efaUserHome.endsWith(Daten.fileSep) ? Daten.fileSep : "");
+      EfaBaseConfig.setEfaConfigUserHomeFilename(efaBaseConfigFile);
+      Daten.efaBaseConfig = new EfaBaseConfig();
+      if (!EfaUtil.canOpenFile(Daten.efaBaseConfig.getFileName())) {
+          if (!Daten.efaBaseConfig.writeFile()) {
+              String msg = International.getString("efa can't start") + ": " +
+                           International.getMessage("Basic Configuration File '{filename}' could not be created.", Daten.efaBaseConfig.getFileName());
+              Logger.log(Logger.ERROR, Logger.MSG_CORE_BASICCONFIGFAILEDCREATE, msg);
+              if (isGuiAppl()) {
+                  Dialog.error(msg);
+              }
+              haltProgram(HALT_BASICCONFIG);
+          }
+      }
+      if (!Daten.efaBaseConfig.readFile()) {
+          String msg = International.getString("efa can't start") + ": " +
+                       International.getMessage("Basic Configuration File '{filename}' could not be opened.", Daten.efaBaseConfig.getFileName());
+          Logger.log(Logger.ERROR, Logger.MSG_CORE_BASICCONFIGFAILEDOPEN, msg);
+          if (isGuiAppl()) {
+              Dialog.error(msg);
+          }
+          haltProgram(HALT_BASICCONFIG);
+      }
+  }
+
+  private static void iniLanguageSupport() {
+      Daten.efaProgramDirectory = Daten.efaMainDirectory+"program"+Daten.fileSep; // just temporary, will be overwritten by iniDirectories()
+      International.initialize();
+  }
+
+  private static void iniLogging() {
+      String baklog = null; // backup'ed logfile
+      switch(applID) {
+          case APPL_EFA:
+              baklog = Logger.ini("efa_base.log",false);
+              break;
+          case APPL_EFADIREKT:
+              baklog = Logger.ini("efa.log",true);
+              break;
+          case APPL_EMIL:
+              baklog = Logger.ini("emil.log",false);
+              break;
+          case APPL_ELWIZ:
+              baklog = Logger.ini("elwiz.log",false);
+              break;
+          case APPL_EDDI:
+              baklog = Logger.ini("eddi.log",false);
+              break;
+          case APPL_DRV:
+              baklog = Logger.ini("drv.log",true);
+              break;
+          case APPL_CLI:
+              baklog = Logger.ini(null,true);
+              break;
+          default:
+              baklog = Logger.ini(null,true);
+              break;
+      }
+
+      Logger.log(Logger.INFO, Logger.MSG_EVT_EFASTART,
+              International.getString("PROGRAMMSTART"));
+      Logger.log(Logger.INFO, Logger.MSG_INFO_VERSION,
+              "Version efa: " + Daten.VERSIONID + " -- Java: " + Daten.javaVersion + " (JVM " + Daten.jvmVersion + ") -- OS: " + Daten.osName + " " + Daten.osVersion);
+
+      if (Logger.debugLogging) {
+          Logger.log(Logger.INFO, Logger.MSG_LOGGER_DEBUGACTIVATED,
+                  "Debug Logging activated."); // do not internationalize!
+      }
+
+      if (baklog != null) {
+          Logger.log(Logger.INFO, Logger.MSG_EVT_LOGFILEARCHIVED,
+                  International.getMessage("Alte Logdatei wurde nach '{filename}' verschoben.", baklog));
+      }
+  }
+
+  private static void iniEnvironmentSettings() {
+      try {
+          if (applID == APPL_EFADIREKT) {
+              Daten.efa_java_arguments = System.getenv(Daten.EFA_JAVA_ARGUMENTS);
+              Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GENERIC,
+                      Daten.EFA_JAVA_ARGUMENTS + "=" + Daten.efa_java_arguments);
+          }
+      } catch (Error e) {
+          Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTGETEFAJAVAARGS,
+                  International.getMessage("Abfragen der Environment-Variable {name} nicht möglich: {msg}",
+                  Daten.EFA_JAVA_ARGUMENTS, e.toString()));
+      }
+  }
+
+  private static void iniDirectories() {
+      // ./program
+      Daten.efaProgramDirectory = Daten.efaMainDirectory+"program"+Daten.fileSep;
+      if (!checkAndCreateDirectory(Daten.efaProgramDirectory) ) {
+          haltProgram(HALT_DIRECTORIES);
+      }
+
+      // ./program/plugins
+      Daten.efaPluginDirectory = Daten.efaProgramDirectory + "plugins" + Daten.fileSep;
+      if (!checkAndCreateDirectory(Daten.efaPluginDirectory) ) {
+          haltProgram(HALT_DIRECTORIES);
+      }
+
+      // ./daten
+      Daten.efaDataDirectory = Daten.efaBaseConfig.efaUserDirectory + "data" + Daten.fileSep;
+      if (!checkAndCreateDirectory(Daten.efaDataDirectory) ) {
+          haltProgram(HALT_DIRECTORIES);
+      }
+
+      // ./cfg
+      Daten.efaCfgDirectory = Daten.efaBaseConfig.efaUserDirectory + "cfg" + Daten.fileSep;
+      if (!checkAndCreateDirectory(Daten.efaCfgDirectory) ) {
+          haltProgram(HALT_DIRECTORIES);
+      }
+
+      // ./doc
+      Daten.efaDocDirectory = Daten.efaMainDirectory + "doc" + Daten.fileSep;
+      if (!checkAndCreateDirectory(Daten.efaDocDirectory) ) {
+          haltProgram(HALT_DIRECTORIES);
+      }
+
+      // ./ausgabe
+      Daten.efaAusgabeDirectory = Daten.efaMainDirectory + "formatting" + Daten.fileSep;
+      if (!checkAndCreateDirectory(Daten.efaAusgabeDirectory) ) {
+          haltProgram(HALT_DIRECTORIES);
+      }
+
+      // ./ausgabe/layout
+      Daten.efaStyleDirectory = Daten.efaAusgabeDirectory + "layout" + Daten.fileSep;
+      if (!checkAndCreateDirectory(Daten.efaStyleDirectory) ) {
+          haltProgram(HALT_DIRECTORIES);
+      }
+
+      // ./bak
+      Daten.efaBakDirectory = Daten.efaBaseConfig.efaUserDirectory + "backup" + Daten.fileSep;
+      if (!checkAndCreateDirectory(Daten.efaBakDirectory) ) {
+          haltProgram(HALT_DIRECTORIES);
+      }
+
+      // ./tmp
+      Daten.efaTmpDirectory = Daten.efaBaseConfig.efaUserDirectory + "tmp" + Daten.fileSep;
+      if (!checkAndCreateDirectory(Daten.efaTmpDirectory) ) {
+          haltProgram(HALT_DIRECTORIES);
+      }
+  }
+
+  public static void iniSplashScreen(boolean show) {
+      if (!isGuiAppl()) {
+          return;
+      }
+      if (show) {
+          splashScreen = new StartLogo("/de/nmichael/efa/img/efaIntro.gif");
+          splashScreen.show();
+          try {
+              Thread.sleep(1000); // Damit nach automatischem Restart genügend Zeit vergeht
+          } catch(InterruptedException e) {
+          }
+      } else {
+          if (splashScreen != null) {
+              splashScreen.remove();
+          }
+      }
+  }
+
+  public static void iniEfaSec() {
+      efaSec = new EfaSec(Daten.efaProgramDirectory+Daten.EFA_SECFILE);
+      if (efaSec.secFileExists() && !efaSec.secValueValid()) {
+          String msg = International.getString("Die Sicherheitsdatei ist korrupt! Aus Gründen der Sicherheit verweigert efa daher den Dienst. " +
+                                               "Um efa zu reaktivieren, wende Dich bitte an den Entwickler: ") + Daten.EFAEMAIL;
+          Logger.log(Logger.ERROR, Logger.MSG_CORE_EFASECCORRUPTED, msg);
+          if (isGuiAppl()) {
+              Dialog.error(msg);
+          }
+          haltProgram(HALT_EFASEC);
+      }
+  }
+
+  public static void iniFileSettings(int stage) {
+      switch(applID) {
+          case APPL_EFA:
+              switch (stage) {
+                  case 1: // before EfaConfig is opened
+                      if (!efaSec.secFileExists()) { // efa Secure Mode
+                          // Stop on Checksum Errors
+                          // Eigentlich darf efa bei fehlerhafter Konfigurationsdatei überhaupt nicht mehr Starten, denn ein
+                          // Angreifer könnte ja das Paßwort der admins ausgetauscht haben. Wenn efa dann beim Start die
+                          // modifizierte Konfigurationsdatei einliest, wird das Abnicken der geänderten Datei durch das
+                          // geänderte Paßwort möglich!
+                          // Gleiches gilt für efa im Bootshaus.
+                          // Um sicher zu sein, muß efa jegliche Änderungen an der Konfigurationsdatei künftig verbieten.
+                          //      Daten.actionOnChecksumError = Daten.CHECKSUM_HALT_PROGRAM;
+                          Daten.actionOnChecksumLoadError = Daten.CHECKSUM_LOAD_REQUIRE_ADMIN;
+                          // Admin erforderlich, um nicht vorhandene Datenliste neu zu erstellen
+                          Daten.actionOnDatenlisteNotFound = Daten.DATENLISTE_FRAGE_REQUIRE_ADMIN_EXIT_ON_NEIN;
+                          // Admin erforderlich, wenn Backupdatei geladen werden soll
+                          Daten.actionOnDatenlisteIsBackup = Daten.BACKUP_FRAGE_REQUIRE_ADMIN_EXIT_ON_NEIN;
+                      }
+                      break;
+                  case 2: // after EfaConfig is opened
+                      if (!efaSec.secFileExists()) { // efa Secure Mode: Jetzt, da Config gelesen wurde: Nur noch require Admin
+                          // Admit on Checksum Errors
+                          Daten.actionOnChecksumLoadError = Daten.CHECKSUM_LOAD_REQUIRE_ADMIN;
+                      }
+                      break;
+              }
+              break;
+          case APPL_EFADIREKT:
+              switch (stage) {
+                  case 1: // before EfaConfig is opened
+                      // Stop on Checksum Errors
+                      Daten.actionOnChecksumLoadError = Daten.CHECKSUM_LOAD_REQUIRE_ADMIN;
+                      Daten.actionOnChecksumSaveError = Daten.CHECKSUM_SAVE_HALT_PROGRAM;
+                      // Admin erforderlich, um nicht vorhandene Datenliste neu zu erstellen
+                      Daten.actionOnDatenlisteNotFound = Daten.DATENLISTE_FRAGE_REQUIRE_ADMIN_EXIT_ON_NEIN;
+                      // Admin erforderlich, wenn Backupdatei geladen werden soll
+                      Daten.actionOnDatenlisteIsBackup = Daten.BACKUP_FRAGE_REQUIRE_ADMIN_EXIT_ON_NEIN;
+                      break;
+                  case 2: // after EfaConfig is opened
+                      // nothing to do
+                      break;
+              }
+              break;
+      }
+  }
+
+    public static void iniEfaConfig() {
+        if (applID != APPL_DRV) {
+            Daten.efaConfig = new EfaConfig(Daten.efaCfgDirectory + Daten.CONFIGFILE);
+            if (!EfaUtil.canOpenFile(Daten.efaConfig.getFileName())) {
+                if (!Daten.efaConfig.writeFile()) {
+                    String msg = LogString.logstring_fileCreationFailed(Daten.efaConfig.getFileName(),
+                            International.getString("Konfigurationsdatei"));
+                    Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDCREATE, msg);
+                    if (isGuiAppl()) {
+                        Dialog.error(msg);
+                    }
+                    haltProgram(HALT_EFACONFIG);
+                }
+                String msg = LogString.logstring_fileNewCreated(Daten.efaConfig.getFileName(),
+                        International.getString("Konfigurationsdatei"));
+                Logger.log(Logger.WARNING, Logger.MSG_CORE_EFACONFIGCREATEDNEW, msg);
+            }
+            if (!Daten.efaConfig.readFile()) {
+                String msg = LogString.logstring_fileOpenFailed(Daten.efaConfig.getFileName(),
+                        International.getString("Konfigurationsdatei"));
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDOPEN, msg);
+                if (isGuiAppl()) {
+                    Dialog.error(msg);
+                }
+                haltProgram(HALT_EFACONFIG);
+            }
+        } else {
+            // @todo: load DRVConfig instead!
+        }
+    }
+
+    public static void iniEfaTypes() {
+        Daten.efaTypes = new EfaTypes(Daten.efaCfgDirectory + Daten.EFATYPESFILE);
+        if (!EfaUtil.canOpenFile(Daten.efaTypes.getFileName())) {
+            if (!Daten.efaTypes.createNewIfDoesntExist()) {
+                String msg = LogString.logstring_fileCreationFailed(Daten.efaTypes.getFileName(),
+                        International.getString("Bezeichnungen"));
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFATYPESFAILEDCREATE, msg);
+                if (isGuiAppl()) {
+                    Dialog.error(msg);
+                }
+                haltProgram(HALT_EFATYPES);
+            }
+            String msg = LogString.logstring_fileNewCreated(Daten.efaTypes.getFileName(),
+                    International.getString("Bezeichnungen"));
+            Logger.log(Logger.WARNING, Logger.MSG_CORE_EFATYPESCREATEDNEW, msg);
+        }
+        if (!Daten.efaTypes.readFile()) {
+            String msg = LogString.logstring_fileOpenFailed(Daten.efaTypes.getFileName(),
+                    International.getString("Bezeichnungen"));
+            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFATYPESFAILEDOPEN, msg);
+            if (isGuiAppl()) {
+                Dialog.error(msg);
+            }
+            haltProgram(HALT_EFATYPES);
+        }
+    }
+
+    public static void iniEfaRunning() {
+        if (Daten.efaConfig.efaDirekt_checkRunning) {
+            efaRunning = new EfaRunning();
+            if (efaRunning.isRunning()) {
+                String msg = International.getString("efa läuft bereits und kann nicht zeitgleich zweimal gestartet werden!");
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFAALREADYRUNNING, msg);
+                if (isGuiAppl()) {
+                    Dialog.error(msg);
+                }
+                haltProgram(Daten.HALT_EFARUNNING);
+            }
+            efaRunning.run();
+        }
+    }
+
+    public static void iniBackup() {
+        if (efaConfig.bakDir != null && efaConfig.bakDir.length() > 0) {
+            String dir = efaConfig.bakDir;
+            if (!dir.endsWith(Daten.fileSep)) {
+                dir = dir + Daten.fileSep;
+            }
+            if (new File(dir).isDirectory()) {
+                Daten.efaBakDirectory = dir;
+            } else {
+                Logger.log(Logger.WARNING, Logger.MSG_CORE_CONFBACKUPDIRNOTEXIST,
+                        LogString.logstring_directoryDoesNotExist(International.getString("Backup-Verzeichnis"), dir));
+                Logger.log(Logger.INFO, Logger.MSG_CORE_CONFBACKUPDIRNOTEXIST,
+                        International.getString("Backup-Verzeichnis") + ": " + Daten.efaBakDirectory);
+            }
+        }
+        Daten.backup = new Backup(Daten.efaBakDirectory,Daten.efaConfig.bakSave,Daten.efaConfig.bakMonat,Daten.efaConfig.bakTag,Daten.efaConfig.bakKonv);
+    }
+
+  public static void iniGUI() {
+      if (!isGuiAppl()) {
+          return;
+      }
+      Dialog.initializeScreenSize();
+
+      // Look&Feel
+      try {
+          if (Daten.efaConfig.lookAndFeel.equals(EfaConfig.DEFAULT)) {
+              UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+          } else {
+              UIManager.setLookAndFeel(Daten.efaConfig.lookAndFeel);
+          }
+      } catch (Exception e) {
+          Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTSETLOOKANDFEEL,
+                     International.getString("Konnte Look&Feel nicht setzen") + ": " + e.toString());
+      }
+  }
+
+    public static void iniDataFile(DatenListe f, boolean autoNewIfDoesntExist, String s) {
+        if (autoNewIfDoesntExist) {
+            f.createNewIfDoesntExist();
+        } else {
+            if (!EfaUtil.canOpenFile(f.getFileName())) {
+                if (f.writeFile()) {
+                    LogString.logInfo_fileNewCreated(f.getFileName(), s);
+                } else {
+                    LogString.logError_fileCreationFailed(f.getFileName(), s);
+                }
+            }
+        }
+        if (!f.readFile()) {
+            LogString.logError_fileOpenFailed(f.getFileName(), s);
+        }
+
+
+    }
+
+    public static void iniAllDataFiles() {
+        Daten.wettDefs = new WettDefs(Daten.efaCfgDirectory + Daten.WETTDEFS);
+        iniDataFile(Daten.wettDefs, true, International.onlyFor("Wettbewerbskonfiguration", "de"));
+
+        Daten.vereinsConfig = new VereinsConfig(Daten.efaDataDirectory + Daten.VEREINSCONFIG);
+        iniDataFile(Daten.vereinsConfig, false, International.getString("Vereinskonfiguration"));
+
+        Daten.adressen = new Adressen(Daten.efaDataDirectory + Daten.ADRESSENFILE);
+        iniDataFile(Daten.adressen, false, International.getString("Adreßliste"));
+
+        Daten.synMitglieder = new Synonyme(Daten.efaDataDirectory + Daten.MITGLIEDER_SYNONYM);
+        iniDataFile(Daten.synMitglieder, false, International.getString("Mitglieder-Synonymliste"));
+
+        Daten.synBoote = new Synonyme(Daten.efaDataDirectory + Daten.BOOTE_SYNONYM);
+        iniDataFile(Daten.synBoote, false, International.getString("Boots-Synonymliste"));
+
+        Daten.synZiele = new Synonyme(Daten.efaDataDirectory + Daten.ZIELE_SYNONYM);
+        iniDataFile(Daten.synZiele, false, International.getString("Ziel-Synonymliste"));
+
+        Daten.mannschaften = new Mannschaften(Daten.efaDataDirectory + Daten.MANNSCHAFTENFILE);
+        iniDataFile(Daten.mannschaften, false, International.getString("Mannschaften-Liste"));
+
+        Daten.fahrtenabzeichen = new Fahrtenabzeichen(Daten.efaDataDirectory + Daten.FAHRTENABZEICHEN);
+        iniDataFile(Daten.fahrtenabzeichen, false, International.getString("Fahrtenabzeichen-Liste"));
+
+        Daten.gruppen = new Gruppen(Daten.efaDataDirectory + Daten.GRUPPEN);
+        iniDataFile(Daten.gruppen, false, International.getString("Gruppenliste"));
+
+        Daten.keyStore = new EfaKeyStore(Daten.efaDataDirectory+Daten.PUBKEYSTORE,"efa".toCharArray());
+    }
 
   public static boolean isGuiAppl() {
       return (applID == APPL_EFA ||
@@ -252,95 +730,22 @@ public class Daten {
               applID == APPL_DRV);
   }
 
-  private static boolean checkAndCreateDirectory(String dir, Vector errors) {
-    File f = new File(dir);
-    if (!f.isDirectory()) {
-      boolean result = f.mkdirs();
-      if (result == true) {
-          errors.add(International.getString("Warnung") + ": " +
-                  International.getMessage("Verzeichnis '{directory}' konnte nicht gefunden werden und wurde neu erstellt.",dir));
-      } else {
-          errors.add(International.getString("Fehler") + ": " +
-                  International.getMessage("Verzeichnis '{directory}' konnte weder gefunden, noch neu erstellt werden.",dir));
+  private static boolean checkAndCreateDirectory(String dir) {
+      File f = new File(dir);
+      if (!f.isDirectory()) {
+          boolean result = f.mkdirs();
+          if (result == true) {
+              Logger.log(Logger.WARNING, Logger.MSG_CORE_SETUPDIRS,
+                         International.getMessage("Verzeichnis '{directory}' konnte nicht gefunden werden und wurde neu erstellt.", dir));
+          } else {
+              Logger.log(Logger.ERROR, Logger.MSG_CORE_SETUPDIRS,
+                         International.getMessage("Verzeichnis '{directory}' konnte weder gefunden, noch neu erstellt werden.", dir));
+          }
+          return result;
       }
-      return result;
-    }
-    return true;
+      return true;
   }
 
-  public static void mainDirIni() {
-    // ./
-    Daten.efaMainDirectory = System.getProperty("user.dir");
-    if (!Daten.efaMainDirectory.endsWith(Daten.fileSep)) Daten.efaMainDirectory += Daten.fileSep;
-    if (Daten.efaMainDirectory.endsWith("/program/") && !new File(Daten.efaMainDirectory+"program/").isDirectory())
-      Daten.efaMainDirectory = Daten.efaMainDirectory.substring(0,Daten.efaMainDirectory.length()-8);
-    if (Daten.efaMainDirectory.endsWith("/classes/") && !new File(Daten.efaMainDirectory+"program/").isDirectory())
-      Daten.efaMainDirectory = Daten.efaMainDirectory.substring(0,Daten.efaMainDirectory.length()-8);
-
-    String efaBaseConfigFile = (Daten.efaUserHome != null ? Daten.efaUserHome : "") + (Daten.fileSep != null && !Daten.efaUserHome.endsWith(Daten.fileSep) ? Daten.fileSep : "");
-    EfaBaseConfig.setEfaConfigUserHomeFilename(efaBaseConfigFile);
-    Daten.efaBaseConfig = new EfaBaseConfig();
-    if (!EfaUtil.canOpenFile(Daten.efaBaseConfig.getFileName())) {
-      Daten.efaBaseConfig.writeFile();
-    }
-    Daten.efaBaseConfig.readFile();
-    Daten.efaProgramDirectory = Daten.efaMainDirectory+"program"+Daten.fileSep; // same as below in dirsIni() (is required by International.initialize()!!)
-    International.initialize();
-  }
-
-  public static boolean dirsIni(boolean showMsg) {
-    boolean dirs_ok = true;
-    Vector errors = new Vector();
-
-    // ./program
-    Daten.efaProgramDirectory = Daten.efaMainDirectory+"program"+Daten.fileSep;
-    if ( !checkAndCreateDirectory(Daten.efaProgramDirectory,errors) ) { dirs_ok = false; Daten.efaProgramDirectory=Daten.efaMainDirectory; }
-
-    // ./program/plugins
-    Daten.efaPluginDirectory = Daten.efaProgramDirectory+"plugins"+Daten.fileSep;
-    if ( !checkAndCreateDirectory(Daten.efaPluginDirectory,errors) ) { dirs_ok = false; Daten.efaPluginDirectory=Daten.efaMainDirectory; }
-
-    // ./daten
-    Daten.efaDataDirectory = Daten.efaBaseConfig.efaUserDirectory+"daten"+Daten.fileSep;
-    if ( !checkAndCreateDirectory(Daten.efaDataDirectory,errors) ) { dirs_ok = false; Daten.efaDataDirectory=Daten.efaMainDirectory; }
-
-    // ./cfg
-    Daten.efaCfgDirectory = Daten.efaBaseConfig.efaUserDirectory+"cfg"+Daten.fileSep;
-    if ( !checkAndCreateDirectory(Daten.efaCfgDirectory,errors) ) { dirs_ok = false; Daten.efaCfgDirectory=Daten.efaMainDirectory; }
-
-    // ./doc
-    Daten.efaDocDirectory = Daten.efaMainDirectory+"doc"+Daten.fileSep;
-    if ( !checkAndCreateDirectory(Daten.efaDocDirectory,errors) ) { dirs_ok = false; Daten.efaDocDirectory=Daten.efaMainDirectory; }
-
-    // ./ausgabe
-    Daten.efaAusgabeDirectory = Daten.efaMainDirectory+"ausgabe"+Daten.fileSep;
-    if ( !checkAndCreateDirectory(Daten.efaAusgabeDirectory,errors) ) { dirs_ok = false; Daten.efaAusgabeDirectory=Daten.efaMainDirectory; }
-
-    // ./ausgabe/layout
-    Daten.efaStyleDirectory = Daten.efaAusgabeDirectory+"layout"+Daten.fileSep;
-    if ( !checkAndCreateDirectory(Daten.efaStyleDirectory,errors) ) { dirs_ok = false; Daten.efaStyleDirectory=Daten.efaMainDirectory; }
-
-    // ./bak
-    Daten.efaBakDirectory = Daten.efaBaseConfig.efaUserDirectory+"backup"+Daten.fileSep;
-    if ( !checkAndCreateDirectory(Daten.efaBakDirectory,errors) ) { dirs_ok = false; Daten.efaBakDirectory=Daten.efaMainDirectory; }
-
-    // ./tmp
-    Daten.efaTmpDirectory = Daten.efaBaseConfig.efaUserDirectory+"tmp"+Daten.fileSep;
-    if ( !checkAndCreateDirectory(Daten.efaTmpDirectory,errors) ) { dirs_ok = false; Daten.efaTmpDirectory=Daten.efaMainDirectory; }
-
-    if (showMsg && errors.size()>0) {
-      String s = "";
-      for (int i=0; i<errors.size(); i++) s += (s.length()>0 ? "\n" : "") + errors.get(i);
-      Dialog.meldung( (dirs_ok ? 
-          International.getString("Warnung") :
-          International.getString("Fehler")), s);
-    }
-
-    for (int i=0; i<errors.size(); i++) { Logger.log(Logger.WARNING,Logger.MSG_CORE_SETUPDIRS,(String)errors.get(i)); }
-    if (!dirs_ok) Logger.log(Logger.ERROR,Logger.MSG_CORE_SETUPDIRS,International.getString("Ein oder mehrere Verzeichnisse konnten weder gefunden, noch neu erstellt werden!"));
-
-    return dirs_ok;
-  }
 
   public static Vector getEfaInfos() {
     Vector infos = new Vector();
@@ -421,7 +826,7 @@ public class Daten {
     }
 
     // JAR methods
-    if (Daten.verbose) {
+    if (Logger.debugLogging) {
       try {
         String cp = System.getProperty("java.class.path");
         while (cp != null && cp.length() > 0) {
@@ -460,7 +865,9 @@ public class Daten {
 
   public static void printEfaInfos() {
     Vector infos = getEfaInfos();
-    for (int i=0; infos != null && i<infos.size(); i++) Logger.log(Logger.INFO,Logger.MSG_INFO_CONFIGURATION,(String)infos.get(i));
+    for (int i=0; infos != null && i<infos.size(); i++) {
+        Logger.log(Logger.INFO,Logger.MSG_INFO_CONFIGURATION,(String)infos.get(i));
+    }
   }
 
   public static String getEfaImage(int size) {
@@ -473,15 +880,36 @@ public class Daten {
     }
   }
 
-  public static void checkJavaVersion(boolean alsoCheckForOptimalVersion) {
+  public static void checkEfaVersion() {
+    // @todo: how to best implement this in efa2??
+/*
+    // Bei 1 Jahr alten Versionen alle 90 Tage prüfen, ob eine neue Version vorliegt
+    if (EfaUtil.getDateDiff(Daten.VERSIONRELEASEDATE,EfaUtil.getCurrentTimeStampDD_MM_YYYY()) > 365 &&
+        (Daten.efaConfig.efaVersionLastCheck == null || Daten.efaConfig.efaVersionLastCheck.length() == 0 ||
+         EfaUtil.getDateDiff(Daten.efaConfig.efaVersionLastCheck,EfaUtil.getCurrentTimeStampDD_MM_YYYY()) > 90) ) {
+      if (Dialog.yesNoDialog(InternationalXX.getString("Prüfen, ob neue efa-Version verfügbar"),
+                             InternationalXX.getMessage("Die von Dir verwendete Version von efa ({versionid}) ist bereits "+
+                             "über ein Jahr alt. Soll efa jetzt für Dich prüfen, ob eine "+
+                             "neue Version von efa vorliegt?",Daten.VERSIONID)) == Dialog.YES) {
+        OnlineUpdateFrame.runOnlineUpdate(this,Daten.ONLINEUPDATE_INFO);
+      }
+      Daten.efaConfig.efaVersionLastCheck = EfaUtil.getCurrentTimeStampDD_MM_YYYY();
+    }
+
+*/
+  }
+
+  public static void checkJavaVersion( /* boolean alsoCheckForOptimalVersion */ ) {
+    // @todo: how to best implement this in efa2??
+/*
     if (Daten.javaVersion == null) return;
 
     TMJ tmj = EfaUtil.string2date(Daten.javaVersion,0,0,0);
     int version = tmj.tag*100 + tmj.monat*10 + tmj.jahr;
 
     if (version < 140) {
-      if (Dialog.yesNoDialog(International.getString("Java-Version zu alt"),
-              International.getMessage("Die von Dir verwendete Java-Version {version} wird von efa "+
+      if (Dialog.yesNoDialog(InternationalXX.getString("Java-Version zu alt"),
+              InternationalXX.getMessage("Die von Dir verwendete Java-Version {version} wird von efa "+
                              "offiziell nicht mehr unterstützt. Einige Funktionen von efa stehen "+
                              "unter dieser Java-Version nicht zur Verfügung oder funktionieren nicht "+
                              "richtig. Vom Einsatz von efa mit dieser Java-Version wird dringend abgeraten. "+
@@ -496,8 +924,8 @@ public class Daten {
     if (!alsoCheckForOptimalVersion) return;
 
     if (version < 150) {
-      if (Dialog.yesNoDialog(International.getString("Java-Version alt"),
-              International.getMessage("Die von Dir verwendete Java-Version {version} ist bereits relativ alt. "+
+      if (Dialog.yesNoDialog(InternationalXX.getString("Java-Version alt"),
+              InternationalXX.getMessage("Die von Dir verwendete Java-Version {version} ist bereits relativ alt. "+
                              "Für den optimalen Einsatz von efa wird Java 5 (Version 1.5.0) oder neuer empfohlen. "+
                              "efa funktioniert zwar auch mit älteren Java-Versionen weiterhin, jedoch gibt es einige "+
                              "Funktionen, die nur unter neueren Java-Versionen unterstützt werden. Außerdem werden "+
@@ -508,6 +936,7 @@ public class Daten {
         showJavaDownloadHints();
       }
     }
+ */
   }
 
   private static void showJavaDownloadHints() {

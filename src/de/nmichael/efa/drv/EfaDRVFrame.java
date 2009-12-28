@@ -12,6 +12,7 @@ package de.nmichael.efa.drv;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.core.WettDefs;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -57,8 +58,7 @@ public class EfaDRVFrame extends JFrame {
 
   void cancel() {
     Dialog.frameClosed(this);
-    Logger.log(Logger.INFO,"PROGRAMMENDE");
-    System.exit(0);
+    Daten.haltProgram(0);
   }
 
   // ActionHandler Events
@@ -74,6 +74,11 @@ public class EfaDRVFrame extends JFrame {
 
 
   private void appIni() {
+    // WettDefs.cfg
+    Daten.wettDefs = new WettDefs(Daten.efaCfgDirectory+Daten.WETTDEFS);
+    Daten.wettDefs.createNewIfDoesntExist();
+    Daten.wettDefs.readFile();
+
     this.meldungenFAButton.setEnabled(false);
     this.meldungenWSButton.setEnabled(false);
     if (drvConfig.aktJahr != 0) {
@@ -190,7 +195,7 @@ public class EfaDRVFrame extends JFrame {
   protected void processWindowEvent(WindowEvent e) {
     super.processWindowEvent(e);
     if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-      System.exit(0);
+      cancel();
     }
   }
 

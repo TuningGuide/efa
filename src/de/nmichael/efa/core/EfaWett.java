@@ -118,7 +118,7 @@ public class EfaWett {
       Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_EFAWETT,"EfaWett.writeFile() - START");
       Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_EFAWETT,"EfaWett.writeFile(): datei == "+datei);
       if (datei == null) return false;
-      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(datei),Daten.ENCODING));
+      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(datei),Daten.ENCODING_ISO));
       kennung = EfaWett.EFAWETT;
       Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_EFAWETT,"EfaWett.writeFile(): Start writing Header and Common Data ...");
       f.write(kennung+"\n");
@@ -264,7 +264,7 @@ public class EfaWett {
   // Lesen der Datei "datei"
   public boolean readFile() throws IOException {
     if (datei == null) return false;
-    BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(datei),Daten.ENCODING));
+    BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(datei),Daten.ENCODING_ISO));
 
     // Dateiformat prüfen
     String s = f.readLine();

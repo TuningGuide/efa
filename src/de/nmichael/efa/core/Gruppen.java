@@ -13,7 +13,9 @@ package de.nmichael.efa.core;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.util.*;
 import java.util.Vector;
+import java.io.*;
 
 // @i18n complete
 
@@ -39,11 +41,12 @@ public class Gruppen extends DatenListe {
   public static final int _ANZ_FELDER = 4;
 
   public static final String KENNUNG170 = "##EFA.170.GRUPPEN##";
+  public static final String KENNUNG190 = "##EFA.190.GRUPPEN##";
 
   // Konstruktor
   public Gruppen(String pdat) {
     super(pdat,_ANZ_FELDER,1,false);
-    kennung = KENNUNG170;
+    kennung = KENNUNG190;
   }
 
   // Key-Wert ermitteln
@@ -135,6 +138,47 @@ public class Gruppen extends DatenListe {
 
   public boolean isInGroup(String gruppe, String vorname, String nachname, String verein) {
     return getExact(gruppe+"#"+nachname+"#"+vorname+"#"+verein) != null;
+  }
+
+  public boolean checkFileFormat() {
+    String s;
+    try {
+      s = freadLine();
+      if ( s == null || !s.trim().startsWith(kennung) ) {
+        // KONVERTIEREN: 170 -> 190
+        if (s != null && s.trim().startsWith(KENNUNG170)) {
+          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"170");
+          iniList(this.dat,4,1,false); // Rahmenbedingungen von v1.9.0 schaffen
+          // Datei lesen
+          try {
+            while ((s = freadLine()) != null) {
+              s = s.trim();
+              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              add(constructFields(s));
+            }
+          } catch(IOException e) {
+             errReadingFile(dat,e.getMessage());
+             return false;
+          }
+          kennung = KENNUNG190;
+          if (closeFile() && writeFile(true) && openFile()) {
+            infSuccessfullyConverted(dat,kennung);
+            s = kennung;
+          } else errConvertingFile(dat,kennung);
+        }
+
+        // FERTIG MIT KONVERTIEREN
+        if (s == null || !s.trim().startsWith(kennung)) {
+          errInvalidFormat(dat, EfaUtil.trimto(s, 20));
+          fclose(false);
+          return false;
+        }
+      }
+    } catch(IOException e) {
+      errReadingFile(dat,e.getMessage());
+      return false;
+    }
+    return true;
   }
 
 }

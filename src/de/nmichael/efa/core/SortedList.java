@@ -126,16 +126,6 @@ public class SortedList {
   }
 
 
-  // Alle Listenelemente ausgeben
-  public void printAll() {
-    Element e = head.next;
-    while (e != null) {
-       System.out.println(e.key+"  --  "+e.value);
-       e = e.next;
-    }
-  }
-
-
   // Anzahl der Elemente ermitteln
   public int countElements() {
     /*

@@ -29,7 +29,7 @@ public class XMLTransformer {
     System.out.println("      -out filename    name of output file (stdout, if not specified)");
     System.out.println("      -trans filename  name of transformation stylesheet file (mandatory)");
     System.out.println("      -help            print this help screen");
-    System.exit(-1);
+    System.exit(0);
   }
 
   public static void main(String[] args) {

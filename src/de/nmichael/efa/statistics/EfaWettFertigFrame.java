@@ -304,7 +304,7 @@ public class EfaWettFertigFrame extends JDialog implements ActionListener {
 
 
      try {
-       BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(ew.datei),Daten.ENCODING));
+       BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(ew.datei),Daten.ENCODING_ISO));
        String z;
        while ( (z = f.readLine()) != null) {
          wettDatei.append(z+"\n");
@@ -336,16 +336,16 @@ public class EfaWettFertigFrame extends JDialog implements ActionListener {
         break;
     }
     try {
-      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpdatei),Daten.ENCODING));
+      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpdatei),Daten.ENCODING_ISO));
       f.write("<html>\n");
-      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"></head>\n");
+      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=\""+Daten.ENCODING_ISO+"\"></head>\n");
       f.write("<body>\n");
       f.write("<h1 align=\"center\">Wettbewerbsmeldung einsenden</h1>\n");
       f.write("<table bgcolor=\"#eeeeee\" align=\"center\"><tr><td>\n");
       f.write("<form action=\""+Daten.wettDefs.efw_url_einsenden+"\" method=\"post\">\n");
       f.write("<input name=\"verband\" type=\"hidden\" value=\""+verband+"\">\n");
       f.write("<input name=\"datei_inline\" type=\"hidden\" value=\"");
-      BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(ew.datei),Daten.ENCODING));
+      BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(ew.datei),Daten.ENCODING_ISO));
       String z;
       while ( (z = r.readLine()) != null) {
         // Zeilenumbrüche als %#% maskieren, Anführungszeichen als %2% maskieren!
@@ -391,7 +391,7 @@ public class EfaWettFertigFrame extends JDialog implements ActionListener {
         break;
     }
     try {
-      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fname),Daten.ENCODING));
+      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fname),Daten.ENCODING_ISO));
       f.write("<html>\n");
       f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"></head>\n");
       f.write("<body>\n");

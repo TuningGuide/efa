@@ -440,7 +440,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
     int count = 0;
     BufferedReader f = null;
     try {
-      f = new BufferedReader(new InputStreamReader(new FileInputStream(listFile),Daten.ENCODING));
+      f = new BufferedReader(new InputStreamReader(new FileInputStream(listFile),Daten.ENCODING_ISO));
       String s;
       while ( (s = f.readLine()) != null) {
         if (s.startsWith("ERROR")) {
@@ -850,7 +850,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
         String data = "";
 
         if (MELDTYP == MELD_FAHRTENABZEICHEN) {
-          BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(filename),Daten.ENCODING));
+          BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(filename),Daten.ENCODING_ISO));
           String z;
           while ( (z = f.readLine()) != null) {
             z = EfaUtil.replace(z,"\"","**2**",true); // " als **2** maskieren
@@ -1035,7 +1035,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       Hashtable mitglnr_hash = new Hashtable();
       String stat_complete = Daten.efaDataDirectory+drvConfig.aktJahr+Daten.fileSep+"meldestatistik_komplett.csv";
       BufferedWriter f;
-      f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(stat_complete),Daten.ENCODING));
+      f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(stat_complete),Daten.ENCODING_ISO));
       f.write("Verein;Vorname;Nachname;Jahrgang;Geschlecht;Kilometer;Gruppe;AnzAbzeichen(ges);AnzAbzeichen(AB);Äquator\n");
       for (DatenFelder d = drvConfig.meldestatistik.getCompleteFirst(); d != null; d = drvConfig.meldestatistik.getCompleteNext()) {
         f.write(d.get(Meldestatistik.VEREIN)+";"+d.get(Meldestatistik.VORNAME)+";"+d.get(Meldestatistik.NACHNAME)+";"+
@@ -1047,7 +1047,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       f.close();
 
       String stat_div = Daten.efaDataDirectory+drvConfig.aktJahr+Daten.fileSep+"meldestatistik_einzeln.csv";
-      f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(stat_div),Daten.ENCODING));
+      f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(stat_div),Daten.ENCODING_ISO));
 
       // Tabelle 2: Übersicht Männer Frauen Junioren Juniorinnen
       f.write("Statistik 2: Übersicht Männer / Frauen / Junioren / Junioninnen\n");
@@ -1209,7 +1209,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
     try {
       String stat_complete = Daten.efaDataDirectory+drvConfig.aktJahr+Daten.fileSep+"wanderruderstatistik.csv";
       BufferedWriter f;
-      f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(stat_complete),Daten.ENCODING));
+      f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(stat_complete),Daten.ENCODING_ISO));
       f.write("Vereinsnummer;Verein;Bundesland;SRV/ADH;Befahrene Gewässer;Teilnehmer insg.;Mannschafts-Km;Männer Km; Junioren Km; Frauen Km; Juniorinnen Km; Aktive M bis 18; Aktive M ab 19; Aktive W bis 18; Aktive W ab 19\n");
       Hashtable mitglnr_hash = new Hashtable();
       for (DatenFelder d = drvConfig.meldestatistik.getCompleteFirst(); d != null; d = drvConfig.meldestatistik.getCompleteNext()) {
@@ -1285,9 +1285,9 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
   void printOverviewButton_actionPerformed(ActionEvent e) {
     String tmpdatei = Daten.efaTmpDirectory+"uebersicht.html";
     try {
-      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpdatei),Daten.ENCODING));
+      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpdatei),Daten.ENCODING_ISO));
       f.write("<html>\n");
-      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"></head>\n");
+      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=\""+Daten.ENCODING_ISO+"\"></head>\n");
       f.write("<body>\n");
       f.write("<h1 align=\"center\">Meldeübersicht</h1>\n");
       f.write("<table align=\"center\" border=\"3\" width=\"100%\">\n");
@@ -1318,7 +1318,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       f.write("</body></html>\n");
       f.close();
       JEditorPane out = new JEditorPane();
-      out.setContentType("text/html; charset="+Daten.ENCODING);
+      out.setContentType("text/html; charset="+Daten.ENCODING_ISO);
       out.setPage("file:"+tmpdatei);
       SimpleFilePrinter.sizeJEditorPane(out);
       SimpleFilePrinter sfp = new SimpleFilePrinter(out);

@@ -52,11 +52,12 @@ public class Meldestatistik extends DatenListe {
   public static final String KENNUNG151 = "##EFA.151.MELDESTATISTIK##";
   public static final String KENNUNG160 = "##EFA.160.MELDESTATISTIK##";
   public static final String KENNUNG183 = "##EFA.183.MELDESTATISTIK##";
+  public static final String KENNUNG190 = "##EFA.190.MELDESTATISTIK##";
 
   // Konstruktor
   public Meldestatistik(String pdat) {
     super(pdat,_ANZFELDER,1,false);
-    kennung = KENNUNG183;
+    kennung = KENNUNG190;
   }
 
 
@@ -105,6 +106,27 @@ public class Meldestatistik extends DatenListe {
              return false;
           }
           kennung = KENNUNG183;
+          if (closeFile() && writeFile(true) && openFile()) {
+            infSuccessfullyConverted(dat,kennung);
+            s = kennung;
+          } else errConvertingFile(dat,kennung);
+        }
+
+        // KONVERTIEREN: 182 -> 190
+        if (s != null && s.trim().startsWith(KENNUNG183)) {
+          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"183");
+          iniList(this.dat,26,1,true); // Rahmenbedingungen von v190 schaffen
+          try {
+            while ((s = freadLine()) != null) {
+              s = s.trim();
+              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
+              add(constructFields(s));
+            }
+          } catch(IOException e) {
+             errReadingFile(dat,e.getMessage());
+             return false;
+          }
+          kennung = KENNUNG190;
           if (closeFile() && writeFile(true) && openFile()) {
             infSuccessfullyConverted(dat,kennung);
             s = kennung;

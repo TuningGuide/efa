@@ -59,7 +59,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   String startOpenFb=null;      // Fahrtenbuch, das beim Starten von efa geöffnet werden soll (per -fb <name> angegeben)
   int datumErrorCount=0;        // zum Zählen der Fehler, die beim Setzen des Datums aufgetreten sind
   int currentObmann=-1;         // aktuell ausgewählter Obmann
-  boolean openWelcome = false;  // true, beim ersten Start von efa
   int lfdNrForNewEntry = -1;    // LfdNr (zzgl. 1), die für den nächsten per "Neu" erzeugten Datensatz verwendet werden soll; wenn <0, dann wird "last+1" verwendet
   Mannschaften mannschaften = null; // Liste von Standardmannschaften, die Ruderer oder Steuerleute enthalten
 
@@ -184,17 +183,15 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
   public void packFrame(String traceInfo) {
     this.pack();
-//    System.out.println("pack(): "+traceInfo);
   }
 
 
   /**Construct the frame from Efa */
-  public EfaFrame(String fb, boolean openWelcome) {
+  public EfaFrame(String fb) {
     this.mode = MODE_FULL;
     enableEvents(AWTEvent.WINDOW_EVENT_MASK);
     try {
       this.startOpenFb = fb;
-      this.openWelcome = openWelcome;
       iniFrameData();
       jbInit();
       infoLabel.setVisible(false);
@@ -998,13 +995,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     jMenu_startTour.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenu_startTour_actionPerformed(e);
-      }
-    });
-    jMenu_Willkommen.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_welcome.gif")));
-    Mnemonics.setMenuButton(this, jMenu_Willkommen, International.getStringWithMnemonic("Willkommen"));
-    jMenu_Willkommen.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        jMenu_Willkommen_actionPerformed(e);
       }
     });
     Mnemonics.setMenuButton(this, jMenu1, International.getStringWithMnemonic("Synonymlisten"));
@@ -2061,12 +2051,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     Dialog.startTour(this);
   }
 
-  // Willkommen-Dialog
-  void jMenu_Willkommen_actionPerformed(ActionEvent e) {
-    if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
-    startWillkommen();
-  }
-
   // Menü Hilfe->efa-Homepage
   void jMenu_efaHomepage_actionPerformed(ActionEvent e) {
     if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
@@ -2942,159 +2926,24 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     aktBoot = null;
     continueMTour = false;
 
-    if (Daten.efaMainDirectory == null || Daten.efaProgramDirectory == null || Daten.efaDataDirectory == null || Daten.efaCfgDirectory == null) return;
-
     // Prüfen, ob efa gestartet werden darf
-    EfaSec efaSec = new EfaSec(Daten.efaProgramDirectory+Daten.EFA_SECFILE);
-    if (!efaSec.secFileExists() && admin == null) {
+    if (!Daten.efaSec.secFileExists() && admin == null) {
       admin = null;
       do {
         admin = AdminLoginFrame.login(null,International.getString("Zugang nur für Administratoren"));
-        if (admin == null) System.exit(100);
+        if (admin == null) {
+            Daten.haltProgram(Daten.HALT_ADMIN);
+        }
         if (!admin.allowedFahrtenbuchBearbeiten && !admin.allowedVollzugriff) {
             Dialog.error(International.getMessage("Du hast als Admin {name} keine Berechtigung, das Fahrtenbuch zu bearbeiten!", admin.name));
         }
       } while (!admin.allowedFahrtenbuchBearbeiten && !admin.allowedVollzugriff);
     }
 
-    // types.cfg
-    Daten.efaTypes = new EfaTypes(Daten.efaCfgDirectory+Daten.EFATYPESFILE);
-    Daten.efaTypes.createNewIfDoesntExist();
-    Daten.efaTypes.readFile();
+    Daten.iniAllDataFiles();
 
-    // WettDefs.cfg
-    Daten.wettDefs = new WettDefs(Daten.efaCfgDirectory+Daten.WETTDEFS);
-    Daten.wettDefs.createNewIfDoesntExist();
-    Daten.wettDefs.readFile();
-
-    // BackupVerzeichnis bestimmen
-    EfaConfigFrame.setBakDir(Daten.efaConfig.bakDir);
-    Daten.backup = new Backup(Daten.efaBakDirectory,Daten.efaConfig.bakSave,Daten.efaConfig.bakMonat,Daten.efaConfig.bakTag,Daten.efaConfig.bakKonv);
-
-    Daten.vereinsConfig = new VereinsConfig(Daten.efaDataDirectory+Daten.VEREINSCONFIG);
-    boolean editVerein=false;
-    if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.VEREINSCONFIG)) {
-      Daten.vereinsConfig.writeFile();
-//      editVerein=true; // Nein, lieber nicht schon beim ersten Start!!
-    }
-    if (!Daten.vereinsConfig.readFile()) {
-        LogString.logError_fileOpenFailed(Daten.vereinsConfig.getFileName(),
-                International.getString("Vereinskonfiguration"));
-    } else if (editVerein) {
-      // Fenster zum Eingeben der Daten öffnen
-      VereinsConfigFrame dlg = new VereinsConfigFrame(this,Daten.vereinsConfig);
-      Dialog.setDlgLocation(dlg);
-      dlg.setModal(!Dialog.tourRunning);
-      dlg.show();
-      startBringToFront(false); // efaDirekt im BRC -- Workaround
-    }
-
-    Daten.adressen = new Adressen(Daten.efaDataDirectory+Daten.ADRESSENFILE);
-    if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.ADRESSENFILE)) {
-      if (Daten.adressen.writeFile()) {
-          LogString.logInfo_fileNewCreated(Daten.adressen.getFileName(), International.getString("Adreßliste"));
-      } else {
-          LogString.logError_fileCreationFailed(Daten.adressen.getFileName(), International.getString("Adreßliste"));
-      }
-    }
-    if (!Daten.adressen.readFile()) {
-        LogString.logError_fileOpenFailed(Daten.adressen.getFileName(), International.getString("Adreßliste"));
-    }
-
-    Daten.synMitglieder = new Synonyme(Daten.efaDataDirectory+Daten.MITGLIEDER_SYNONYM);
-    if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.MITGLIEDER_SYNONYM)) {
-      if (Daten.synMitglieder.writeFile()) {
-          LogString.logInfo_fileNewCreated(Daten.synMitglieder.getFileName(), International.getString("Mitglieder-Synonymliste"));
-      }
-      else {
-          LogString.logError_fileCreationFailed(Daten.synMitglieder.getFileName(), International.getString("Mitglieder-Synonymliste"));
-      }
-    }
-    if (!Daten.synMitglieder.readFile()) {
-        LogString.logError_fileOpenFailed(Daten.synMitglieder.getFileName(), International.getString("Mitglieder-Synonymliste"));
-    }
-    Daten.synBoote = new Synonyme(Daten.efaDataDirectory+Daten.BOOTE_SYNONYM);
-    if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.BOOTE_SYNONYM)) {
-      if (Daten.synBoote.writeFile()) {
-          LogString.logInfo_fileNewCreated(Daten.synBoote.getFileName(), International.getString("Boots-Synonymliste"));
-      } else {
-          LogString.logError_fileCreationFailed(Daten.synBoote.getFileName(), International.getString("Boots-Synonymliste"));
-      }
-    }
-    if (!Daten.synBoote.readFile()) {
-        LogString.logError_fileOpenFailed(Daten.synBoote.getFileName(), International.getString("Boots-Synonymliste"));
-    }
-    Daten.synZiele = new Synonyme(Daten.efaDataDirectory+Daten.ZIELE_SYNONYM);
-    if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.ZIELE_SYNONYM)) {
-      if (Daten.synZiele.writeFile()) {
-          LogString.logInfo_fileNewCreated(Daten.synZiele.getFileName(), International.getString("Ziel-Synonymliste"));
-      } else {
-          LogString.logError_fileCreationFailed(Daten.synZiele.getFileName(), International.getString("Ziel-Synonymliste"));
-      }
-    }
-    if (!Daten.synZiele.readFile()) {
-        LogString.logError_fileOpenFailed(Daten.synZiele.getFileName(), International.getString("Ziel-Synonymliste"));
-    }
-
-    Daten.mannschaften = new Mannschaften(Daten.efaDataDirectory+Daten.MANNSCHAFTENFILE);
-    if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.MANNSCHAFTENFILE)) {
-      if (Daten.mannschaften.writeFile()) {
-          LogString.logInfo_fileNewCreated(Daten.mannschaften.getFileName(), International.getString("Mannschaften-Liste"));
-      } else {
-          LogString.logError_fileCreationFailed(Daten.mannschaften.getFileName(), International.getString("Mannschaften-Liste"));
-      }
-    }
-    if (!Daten.mannschaften.readFile()) {
-        LogString.logError_fileOpenFailed(Daten.mannschaften.getFileName(), International.getString("Mannschaften-Liste"));
-    }
-
-    Daten.fahrtenabzeichen = new Fahrtenabzeichen(Daten.efaDataDirectory+Daten.FAHRTENABZEICHEN);
-    if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.FAHRTENABZEICHEN)) {
-      if (Daten.fahrtenabzeichen.writeFile()) {
-          LogString.logInfo_fileNewCreated(Daten.fahrtenabzeichen.getFileName(), International.onlyFor("Fahrtenabzeichen-Liste","de"));
-      } else {
-          LogString.logError_fileCreationFailed(Daten.fahrtenabzeichen.getFileName(), International.onlyFor("Fahrtenabzeichen-Liste","de"));
-      }
-    }
-    if (!Daten.fahrtenabzeichen.readFile()) {
-        LogString.logError_fileOpenFailed(Daten.fahrtenabzeichen.getFileName(), International.onlyFor("Fahrtenabzeichen-Liste","de"));
-    }
-
-    Daten.gruppen = new Gruppen(Daten.efaDataDirectory+Daten.GRUPPEN);
-    if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.GRUPPEN)) {
-      if (Daten.gruppen.writeFile()) {
-          LogString.logInfo_fileNewCreated(Daten.gruppen.getFileName(), International.getString("Gruppenliste"));
-      } else {
-          LogString.logError_fileCreationFailed(Daten.gruppen.getFileName(), International.getString("Gruppenliste"));
-      }
-    }
-    if (!Daten.gruppen.readFile()) {
-        LogString.logError_fileOpenFailed(Daten.gruppen.getFileName(), International.getString("Gruppenliste"));
-    }
-
-    Daten.keyStore = new EfaKeyStore(Daten.efaDataDirectory+Daten.PUBKEYSTORE,"efa".toCharArray());
-
-    // nach Webbrowser suchen
-    if (Daten.efaConfig.browser.equals("")) {
-      String[] browsers = { "/opt/netscape/netscape", "/usr/X11R6/bin/netscape", "/usr/bin/netscape", "/usr/local/bin/netscape",
-                            "/usr/local/mozilla/mozilla",
-                            "/opt/kde2/bin/konqueror/",
-                            "c:\\programme\\netscape\\communicator\\program\\netscape.exe",
-                            "c:\\Programme\\\\Mozilla Firefox\\firefox.exe",
-                            "c:\\programme\\internet explorer\\iexplore.exe",
-                            "c:\\windows\\explorer.exe",
-                            "c:\\win\\explorer.exe",
-                            "c:\\winnt\\explorer.exe"};
-      for (int i=0; i<browsers.length && Daten.efaConfig.browser.equals(""); i++)
-        if (new File(browsers[i]).isFile()) Daten.efaConfig.browser = browsers[i];
-    }
-
-
-    if (openWelcome) {
-      startWillkommen();
-      startEfaTour = true;
-    }
-
+/*
+ * @todo: how to best implement this in efa2??
     // Nutzer nach Name und Verein fragen
     try {
         ++Daten.efaConfig.countEfaStarts;
@@ -3106,36 +2955,18 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     } catch(Exception e) {
         //nothing to do
     }
+*/
 
-    // Neuerungen von efa anzeigen
-    // System.out.println("Daten.efaConfig.version = >>"+Daten.efaConfig.version+"<<");
-    // System.out.println("DatenPROGRAMMID =         >>"+Daten.PROGRAMMID+"<<");
-    // System.out.println("Daten.efaConfig.version.equals(Daten.PROGRAMMID) = "+Daten.efaConfig.version.equals(Daten.PROGRAMMID));
-    // System.out.println("Daten.efaConfig.version.compareTo(Daten.PROGRAMMID) = "+Daten.efaConfig.version.compareTo(Daten.PROGRAMMID));
-    // folgende Zeile liefert manchmal (?) für den equals-Vergleich "false", obwohl die Strings identisch sind; daher doppelter Boden:
-    // der Dialog wird nur angezeigt, wenn auch compareTo != 0 liefert!
+/*
+ * @todo: how to best implement this in efa2??
     if (!startEfaTour && !Daten.efaConfig.version.equals(Daten.PROGRAMMID) && Daten.efaConfig.version.compareTo(Daten.PROGRAMMID) != 0) {
       Dialog.neuBrowserDlg(this,Daten.EFA_SHORTNAME,
               "file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"tour"+Daten.fileSep+"k06-001.html", // @todo: How to internationalize the tour?
               750,600,(int)Dialog.screenSize.getWidth()/2-375,(int)Dialog.screenSize.getHeight()/2-300);
-      Daten.checkJavaVersion(true);
-    } else {
-      Daten.checkJavaVersion(false);
-    }
+ */
 
-
-    // Bei 1 Jahr alten Versionen alle 90 Tage prüfen, ob eine neue Version vorliegt
-    if (EfaUtil.getDateDiff(Daten.VERSIONRELEASEDATE,EfaUtil.getCurrentTimeStampDD_MM_YYYY()) > 365 &&
-        (Daten.efaConfig.efaVersionLastCheck == null || Daten.efaConfig.efaVersionLastCheck.length() == 0 ||
-         EfaUtil.getDateDiff(Daten.efaConfig.efaVersionLastCheck,EfaUtil.getCurrentTimeStampDD_MM_YYYY()) > 90) ) {
-      if (Dialog.yesNoDialog(International.getString("Prüfen, ob neue efa-Version verfügbar"),
-                             International.getMessage("Die von Dir verwendete Version von efa ({versionid}) ist bereits "+
-                             "über ein Jahr alt. Soll efa jetzt für Dich prüfen, ob eine "+
-                             "neue Version von efa vorliegt?",Daten.VERSIONID)) == Dialog.YES) {
-        OnlineUpdateFrame.runOnlineUpdate(this,Daten.ONLINEUPDATE_INFO);
-      }
-      Daten.efaConfig.efaVersionLastCheck = EfaUtil.getCurrentTimeStampDD_MM_YYYY();
-    }
+    Daten.checkEfaVersion();
+    Daten.checkJavaVersion();
 
     if (startOpenFb != null && EfaUtil.canOpenFile(startOpenFb)) fahrtenbuchOeffnen(startOpenFb);
     else if (!Daten.efaConfig.letzteDatei.equals("") && EfaUtil.canOpenFile(Daten.efaConfig.letzteDatei)) fahrtenbuchOeffnen(Daten.efaConfig.letzteDatei);
@@ -3146,6 +2977,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         askForOpenNewFb = true;
       }
 
+/*
+ * @todo: how to best implement this in efa2??
     // ggf. fragen, ob es sich um einen Berliner Verein handelt
     if (Daten.efaConfig.version.compareTo("EFA.141")<0 || openWelcome) {
       Daten.efaConfig.showBerlinOptions =
@@ -3159,10 +2992,14 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
                                false) != 1;
       Daten.efaConfig.writeFile();
     }
+ */
 
+/*
+ * @todo: how to best implement this in efa2??
     // ggf. nach Zielbereich, in dem der Verein liegt, fragen (wenn zum ersten Mal eine Version neuer/gleich 1.3.5 gestartet wird)
     if (Daten.efaConfig.showBerlinOptions && Daten.vereinsConfig != null &&
         (Daten.efaConfig.version.compareTo("EFA.135")<0 || openWelcome)) Daten.vereinsConfig.askForZielbereichOnStart();
+*/
 
     // bei entspr. Einstellung Obmann-Auswahlliste ausblenden
     if (Daten.efaConfig != null && !Daten.efaConfig.showObmann) {
@@ -3919,17 +3756,12 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     datensatzGeaendert = false;
   }
 
-  public void checkStartTour() {
+  public void userInteractionsUponStart() {
     if (startEfaTour)
       Dialog.startTour(this);
     if (askForOpenNewFb) {
       neuesFahrtenbuchDialog(true);
     }
-  }
-
-  public void startWillkommen() {
-    Dialog.neuBrowserDlg(this,International.getString("Willkommen"),
-            "file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"welcome.html"); // @todo: HOw to internationlize HTML files?
   }
 
 
@@ -3954,7 +3786,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (!Daten.efaConfig.writeFile()) {
         LogString.logError_fileWritingFailed(Daten.efaConfig.getFileName(), International.getString("Konfigurationsdatei"));
     }
-    System.exit(0);
+    Daten.haltProgram(0);
   }
 
   void efaButton_actionPerformed(ActionEvent e) {

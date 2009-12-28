@@ -217,6 +217,12 @@ public class EfaUtil {
     return new TMJ(a[0],a[1],a[2]);
   }
 
+  public static int stringFindInt(String s, int def) {
+      return string2date(s, def, 0, 0).tag;
+  }
+
+
+
   // aus einem TMJ einen Datumsstring machen
   public static String tmj2datestring(TMJ tmj) {
     return tmj.tag+"."+tmj.monat+"."+tmj.jahr;
@@ -626,6 +632,14 @@ public class EfaUtil {
     } catch (Exception e) {
       return vorgabe;
     }
+  }
+
+  public static String int2String(int i, int digits) {
+      String s = Integer.toString(i);
+      while (s.length() < digits) {
+          s = "0" + s;
+      }
+      return s;
   }
 
 

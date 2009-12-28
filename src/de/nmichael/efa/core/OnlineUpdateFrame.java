@@ -203,7 +203,7 @@ public class OnlineUpdateFrame extends JDialog implements ActionListener {
     }
     BufferedReader versionInfo = null;
     try {
-      versionInfo = new BufferedReader(new InputStreamReader(new FileInputStream(versionFile),Daten.ENCODING));
+      versionInfo = new BufferedReader(new InputStreamReader(new FileInputStream(versionFile),Daten.ENCODING_ISO));
       if ( (newVersion = versionInfo.readLine()) != null) {
         newVersion = newVersion.trim();
       }
@@ -355,7 +355,7 @@ class ExecuteAfterDownloadImpl implements ExecuteAfterDownload {
                       International.getString("Die Installation des Updates wurde erfolgreich abgeschlossen.")+"\n"+
                       International.getString("efa wird nun beendet.")+"\n"+
                       International.getString("Beim nächsten Start von efa wird automatisch die neue Version gestartet."));
-    System.exit(0);
+    Daten.haltProgram(0);
   }
 
   public void failure(String text) {

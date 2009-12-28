@@ -40,7 +40,7 @@ public class EfaBaseConfig extends DatenListe {
   // Konstruktor
   public EfaBaseConfig() {
     super(_filename,0,0,false);
-    Logger.log(Logger.DEBUG, Logger.MSG_CORE_USERHOME, "EfaBaseConfig="+_filename);
+    Logger.log(Logger.DEBUG, Logger.MSG_CORE_BASICCONFIG, "EfaBaseConfig="+_filename);
     kennung = KENNUNG190;
     reset();
     this.backupEnabled = false; // Aus Sicherheitsgründen kein Backup von .efa.cfg anlegen!!
@@ -58,7 +58,7 @@ public class EfaBaseConfig extends DatenListe {
       f.close();
       EfaUtil.deleteFile(path+testfile);
     } catch(Exception e) {
-      Logger.log(Logger.DEBUG,Logger.MSG_CORE_USERHOME,"efaCanWrite("+path+") = false: "+e.toString());
+      Logger.log(Logger.DEBUG,Logger.MSG_CORE_BASICCONFIG,"efaCanWrite("+path+") = false: "+e.toString());
       return false;
     }
     return true;
@@ -69,14 +69,14 @@ public class EfaBaseConfig extends DatenListe {
     efaUserDirectory = Daten.efaMainDirectory;
     language = null;
     if (efaCanWrite(efaUserDirectory,false)) {
-      Logger.log(Logger.DEBUG,Logger.MSG_CORE_USERHOME,"efa.dir.user="+efaUserDirectory);
+      Logger.log(Logger.DEBUG,Logger.MSG_CORE_BASICCONFIG,"efa.dir.user="+efaUserDirectory);
     } else {
       efaUserDirectory = Daten.efaUserHome + (!Daten.efaUserHome.endsWith(Daten.fileSep) ? Daten.fileSep : "") + "efa" + Daten.fileSep;
       if (efaCanWrite(efaUserDirectory,true)) {
-        Logger.log(Logger.DEBUG,Logger.MSG_CORE_USERHOME,"efa.dir.user="+efaUserDirectory);
+        Logger.log(Logger.DEBUG,Logger.MSG_CORE_BASICCONFIG,"efa.dir.user="+efaUserDirectory);
       } else {
         efaUserDirectory = null;
-        Logger.log(Logger.DEBUG,Logger.MSG_CORE_USERHOME,"efa.dir.user=<null>");
+        Logger.log(Logger.DEBUG,Logger.MSG_CORE_BASICCONFIG,"efa.dir.user=<null>");
       }
     }
   }

@@ -205,14 +205,25 @@ public class EfaConfig extends DatenListe {
 
 
   public static final String KENNUNG100 = "##EFA.100.KONFIGURATION##";
+  public static final String KENNUNG190 = "##EFA.190.KONFIGURATION##";
 
   // Konstruktor
   public EfaConfig(String pdat) {
     super(pdat,0,0,false);
-    kennung = KENNUNG100;
+    kennung = KENNUNG190;
     reset();
     this.backupEnabled = false; // Aus Sicherheitsgründen kein Backup von efa.cfg anlegen!!
     Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFACONFIG, "EfaConfig("+pdat+")");
+  }
+
+
+  private String searchForProgram(String[] programs) {
+      for (int i = 0; i < programs.length; i++) {
+          if (new File(programs[i]).isFile()) {
+              return programs[i];
+          }
+      }
+      return "";
   }
 
   // Einstellungen zurücksetzen
@@ -227,8 +238,23 @@ public class EfaConfig extends DatenListe {
     bakMonat = true;
     bakTag = false;
     bakKonv = true;
-    browser = "";
-    acrobat = "";
+
+    String[] browsers = {
+        "/usr/bin/firefox",
+        "/usr/bin/mozilla",
+        "/usr/bin/netscape",
+        "c:\\Programme\\Mozilla Firefox\\firefox.exe",
+        "c:\\Programme\\Internet Explorer\\iexplore.exe",
+        "c:\\Program Files\\Mozilla Firefox\\firefox.exe",
+        "c:\\Program Files\\Internet Explorer\\iexplore.exe"
+    };
+    browser = searchForProgram(browsers);
+    String[] readers = {
+        "/usr/bin/acroread",
+        "c:\\Programme\\Adobe\\Reader 9.0\\Reader\\AcroRd32.exe",
+        "c:\\Program Files\\Adobe\\Reader 9.0\\Reader\\AcroRd32.exe"
+    };
+    acrobat = searchForProgram(readers);
     printPageWidth   = 210;
     printPageHeight  = 297;
     printLeftMargin  = 15;
@@ -680,21 +706,7 @@ public class EfaConfig extends DatenListe {
         return false;
       }
     }
-    if ((screenWidth>0 || screenHeight>0) && Dialog.screenSize == null) {
-      Dialog.initializeScreenSize();
-    }
-    if (screenWidth>0) {
-      Dialog.screenSize.width = screenWidth;
-    }
-    if (screenHeight>0) {
-      Dialog.screenSize.height = screenHeight;
-    }
-    if (screenWidth>0 || screenHeight>0) {
-      Dialog.initializeMaxDialogSizes();
-    }
-    if (maxDialogWidth>0 || maxDialogHeight>0) {
-      Dialog.setMaxDialogSizes(maxDialogWidth,maxDialogHeight);
-    }
+  
     return true;
   }
 
@@ -964,6 +976,37 @@ public class EfaConfig extends DatenListe {
     return a;
   }
 
+  public boolean checkFileFormat() {
+    String s;
+    try {
+      s = freadLine();
+      if ( s == null || !s.trim().startsWith(kennung) ) {
+        // KONVERTIEREN: 100 -> 190
+        if (s != null && s.trim().startsWith(KENNUNG100)) {
+          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"100");
+          iniList(this.dat,0,0,false); // Rahmenbedingungen von v1.9.0 schaffen
+          // Datei lesen
+          readEinstellungen();
+          kennung = KENNUNG190;
+          if (closeFile() && writeFile(true) && openFile()) {
+            infSuccessfullyConverted(dat,kennung);
+            s = kennung;
+          } else errConvertingFile(dat,kennung);
+        }
+
+        // FERTIG MIT KONVERTIEREN
+        if (s == null || !s.trim().startsWith(kennung)) {
+          errInvalidFormat(dat, EfaUtil.trimto(s, 20));
+          fclose(false);
+          return false;
+        }
+      }
+    } catch(IOException e) {
+      errReadingFile(dat,e.getMessage());
+      return false;
+    }
+    return true;
+  }
 
 
 }

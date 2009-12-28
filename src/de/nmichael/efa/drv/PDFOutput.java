@@ -34,8 +34,8 @@ public class PDFOutput {
     String xslfo = Daten.efaTmpDirectory+"esigfahrtenhefte.fo";
 
     try {
-      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(xslfo),Daten.ENCODING));
-      f.write("<?xml version=\"1.0\" encoding=\""+Daten.ENCODING+"\"?>\n");
+      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(xslfo),Daten.ENCODING_UTF));
+      f.write("<?xml version=\"1.0\" encoding=\""+Daten.ENCODING_UTF+"\"?>\n");
       f.write("<fo:root xmlns:fo=\"http://www.w3.org/1999/XSL/Format\">\n");
       f.write("  <fo:layout-master-set>\n");
       f.write("    <fo:simple-page-master page-height=\"297mm\" page-width=\"210mm\" master-name=\"titelseite\">\n");

@@ -867,8 +867,8 @@ public class EfaDirektFrame extends JFrame {
 
     iniBootsListen();
 
-    Daten.checkEfaVersion();
-    Daten.checkJavaVersion();
+    Daten.checkEfaVersion(false);
+    Daten.checkJavaVersion(false);
 
     Logger.log(Logger.INFO, Logger.MSG_EVT_EFAREADY,
             International.getString("BEREIT"));

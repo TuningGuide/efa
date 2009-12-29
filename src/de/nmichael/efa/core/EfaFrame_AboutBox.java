@@ -275,7 +275,7 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
 
   void emailLabel_mouseClicked(MouseEvent e) {
     if (Daten.applID == Daten.APPL_EFADIREKT) return;
-    Dialog.neuBrowserDlg(this,"Browser","file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"mailto.html",700,600,(int)Dialog.screenSize.getWidth()/2-350,(int)Dialog.screenSize.getHeight()/2-300);
+    Dialog.neuBrowserDlg(this,"Browser","file:"+HtmlFactory.createMailto(),700,600,(int)Dialog.screenSize.getWidth()/2-350,(int)Dialog.screenSize.getHeight()/2-300);
   }
 
   void gplLabel_mouseClicked(MouseEvent e) {

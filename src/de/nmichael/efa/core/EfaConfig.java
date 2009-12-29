@@ -43,6 +43,8 @@ public class EfaConfig extends DatenListe {
   public String letzteDatei="";             // zuletzt bearbeitete Fahrtenbuchdatei
   public String version = "100";            // efa Versionsnummer
   public int countEfaStarts=0;              // Wie oft wurde efa schon gestartet
+  public String registeredProgramID="";     // zuletzt registrierte efa PROGRAMID
+  public int registrationChecks=0;          // Anzahl der Checks, ob schon registriert wurde seit letzter Registrierung (falls noch nicht registriert wurde)
   public String direkt_letzteDatei;         // zuletzt bearbeitete Fahrtenbuchdatei
   public Hashtable admins;                  // Liste von Administratoren (Hash of String(Name)->Admin)
   public static final String SUPERADMIN = "admin";// Name des Super-Administrators
@@ -262,6 +264,8 @@ public class EfaConfig extends DatenListe {
     printPageOverlap = 5;
     keys = new Hashtable();
     countEfaStarts=0;
+    registeredProgramID="";
+    registrationChecks=0;
     autoStandardmannsch=false;
     showObmann=true;
     autoObmann=true;
@@ -500,6 +504,11 @@ public class EfaConfig extends DatenListe {
             countEfaStarts= EfaUtil.string2int(s.substring(10,s.length()).trim(),0);
         if (s.startsWith("EFAVERSIONLASTCHECK="))
             efaVersionLastCheck= s.substring(20,s.length()).trim();
+        if (s.startsWith("REGISTEREDPROGRAMID="))
+            registeredProgramID= s.substring(20,s.length()).trim();
+        if (s.startsWith("REGISTRATIONCHECKS="))
+            registrationChecks= EfaUtil.string2int(s.substring(19,s.length()).trim(),0);
+
 
 
         // ------------------- EFA DIREKT -------------------
@@ -771,6 +780,8 @@ public class EfaConfig extends DatenListe {
 
       fwrite("EFASTARTS=" + Integer.toString(countEfaStarts) + "\n");
       fwrite("EFAVERSIONLASTCHECK=" + efaVersionLastCheck + "\n");
+      fwrite("REGISTEREDPROGRAMID=" + registeredProgramID + "\n");
+      fwrite("REGISTRATIONCHECKS=" + Integer.toString(registrationChecks) + "\n");
 
 
       // ------------------- EFA DIREKT -------------------

@@ -180,7 +180,7 @@ public class Dialog {
 
   public static void startTour(JFrame parent) {
     String title = International.getString("efa-Tour");
-    String url = "file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"tour.html";
+    String url = "file:"+HtmlFactory.createTour();
     tourRunning = true;
     openBrowser(new BrowserFrame(parent, title, url, true),title,url,220,740,0,0,false);
   }

@@ -79,6 +79,11 @@ public class AdminFrame extends JDialog implements ActionListener {
 
     Daten.applMode = Daten.APPL_MODE_ADMIN;
 
+    Daten.checkEfaVersion(true);
+    Daten.checkJavaVersion(true);
+    Daten.checkRegister();
+
+
     if (!admin.allowedAdminsVerwalten) {
         Mnemonics.setButton(this, adminsButton, International.getStringWithMnemonic("Paßwort ändern"));
         this.adminsButton.setVisible(admin.allowedPasswortAendern);

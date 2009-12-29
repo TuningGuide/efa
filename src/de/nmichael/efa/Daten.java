@@ -32,6 +32,7 @@ import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.EfaKeyStore;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.Backup;
+import de.nmichael.efa.util.HtmlFactory;
 import de.nmichael.efa.statistics.FTPWriter;
 import de.nmichael.efa.statistics.PDFWriter;
 import de.nmichael.efa.statistics.XMLWriter;
@@ -70,6 +71,7 @@ public class Daten {
   public final static String EFAWETTURL = "http://efa.rudern.de/";
   public final static String NICOLASURL = "http://www.nmichael.de/";
   public final static String EFAEMAIL = "software@nmichael.de";
+  public final static String EFAEMAILNAME = "Nicolas Michael";
 
   public final static String CONFIGFILE = "efa.cfg";                // ./cfg/efa.cfg            Konfigurationsdatei
   public final static String DRVCONFIGFILE = "drv.cfg";             // ./cfg/drv.cfg            DRV-Konfigurationsdatei
@@ -86,10 +88,8 @@ public class Daten {
   public static final String WETTDEFS = "wettdefs.cfg";             // ./cfg/wettdefs.cfg       Wettbewerbs-Definitionen
   public static final String EFA_LICENSE = "lizenz.html";           // ./doc/lizenz.html
   public static final String PUBKEYSTORE = "keystore_pub.dat";      // ./daten/keystore_pub.dat
-
   public final static String DIREKTBOOTSTATUS = "bootstatus.efdb";  // ./daten/bootstatus.efdb  Status der Boote
   public final static String DIREKTNACHRICHTEN= "nachrichten.efdn"; // ./daten/nachrichten.efdn Nachrichten an Admin
-
   public static final String EFA_SECFILE = "efa.sec";               // ./program/efa.sec        Hash von efa.jar: für Erstellen des Admins
   public static final String EFA_RUNNUNG = "efa.run";               // ./program/efa.run        Indiz, daß efaDirekt läuft (enthält Port#)
 
@@ -155,9 +155,10 @@ public class Daten {
   public final static String PLUGIN_JSUNTIMES_FILE = "jsuntimes.plugin";
   public final static String PLUGIN_JSUNTIMES_HTML = "jsuntimes.html";
 
-  public final static String ONLINEUPDATE_INFO = "http://efa.nmichael.de/efa.eou";
+  public final static String ONLINEUPDATE_INFO = "http://efa.nmichael.de/efa2.eou";
   public final static String ONLINEUPDATE_INFO_DRV = "http://efa.nmichael.de/efadrv.eou";
   public final static String EFW_UPDATE_DATA = "http://efa.nmichael.de/efw.data";
+  public final static String INTERNET_EFAMAIL = "http://cgi.snafu.de/nmichael/user-cgi-bin/efamail.pl";
 
   public final static int AUTO_EXIT_MIN_RUNTIME = 60; // Minuten, die efa mindestens gelaufen sein muß, damit es zu einem automatischen Beenden/Restart kommt (60)
   public final static int AUTO_EXIT_MIN_LAST_USED = 5; // Minuten, die efa mindestens nicht benutzt wurde, damit Beenden/Neustart nicht verzögert wird (muß kleiner als AUTO_EXIT_MIN_RUNTIME sein!!!) (5)
@@ -458,7 +459,7 @@ public class Daten {
       }
 
       // ./ausgabe
-      Daten.efaAusgabeDirectory = Daten.efaMainDirectory + "formatting" + Daten.fileSep;
+      Daten.efaAusgabeDirectory = Daten.efaMainDirectory + "fmt" + Daten.fileSep;
       if (!checkAndCreateDirectory(Daten.efaAusgabeDirectory) ) {
           haltProgram(HALT_DIRECTORIES);
       }
@@ -880,7 +881,7 @@ public class Daten {
     }
   }
 
-  public static void checkEfaVersion() {
+  public static void checkEfaVersion(boolean interactive) {
     // @todo: how to best implement this in efa2??
 /*
     // Bei 1 Jahr alten Versionen alle 90 Tage prüfen, ob eine neue Version vorliegt
@@ -899,7 +900,7 @@ public class Daten {
 */
   }
 
-  public static void checkJavaVersion( /* boolean alsoCheckForOptimalVersion */ ) {
+  public static void checkJavaVersion(boolean interactive) {
     // @todo: how to best implement this in efa2??
 /*
     if (Daten.javaVersion == null) return;
@@ -938,6 +939,50 @@ public class Daten {
     }
  */
   }
+
+  public static void checkRegister() {
+      if (PROGRAMMID.equals(Daten.efaConfig.registeredProgramID)) {
+          return; // already registered
+      }
+      Daten.efaConfig.registrationChecks++;
+
+      boolean promptForRegistration = false;
+      if (Daten.efaConfig.registeredProgramID == null || Daten.efaConfig.registeredProgramID.length() == 0) {
+          // never before registered
+          if (Daten.efaConfig.registrationChecks <= 30 && Daten.efaConfig.registrationChecks % 10 == 0) {
+              promptForRegistration = true;
+          }
+      } else {
+          // previous version already registered
+          if (Daten.efaConfig.registrationChecks <= 10 && Daten.efaConfig.registrationChecks % 10 == 0) {
+              promptForRegistration = true;
+          }
+      }
+
+      if (promptForRegistration) {
+          if (Dialog.neuBrowserDlg((javax.swing.JDialog)null, Daten.EFA_SHORTNAME,
+                  "file:" + HtmlFactory.createRegister(),
+                  750, 600, (int) Dialog.screenSize.getWidth() / 2 - 375, (int) Dialog.screenSize.getHeight() / 2 - 300).endsWith(".pl")) {
+              // registration complete
+              Daten.efaConfig.registeredProgramID = Daten.PROGRAMMID;
+              Daten.efaConfig.registrationChecks = 0;
+              Daten.efaConfig.writeEinstellungen();
+          }
+
+      }
+  /*
+ * @todo: how to best implement this in efa2??
+    // Nutzer nach Name und Verein fragen
+    try {
+        ++Daten.efaConfig.countEfaStarts;
+        if (Daten.efaConfig.countEfaStarts <31 && Daten.efaConfig.countEfaStarts % 10 == 0)
+            Daten.efaConfig.countEfaStarts += 100000;
+    } catch(Exception e) {
+        //nothing to do
+    }
+*/
+  }
+
 
   private static void showJavaDownloadHints() {
     if (Daten.efaDocDirectory == null) return;

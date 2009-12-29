@@ -2944,29 +2944,15 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
 /*
  * @todo: how to best implement this in efa2??
-    // Nutzer nach Name und Verein fragen
-    try {
-        ++Daten.efaConfig.countEfaStarts;
-        if (Daten.efaConfig.countEfaStarts <31 && Daten.efaConfig.countEfaStarts % 10 == 0)
-          if (Dialog.neuBrowserDlg(this,Daten.EFA_SHORTNAME,
-                     "file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"users.html", // @todo: How to internationalize such an HTML file?
-                     750,600,(int)Dialog.screenSize.getWidth()/2-375,(int)Dialog.screenSize.getHeight()/2-300).endsWith(".pl"))
-            Daten.efaConfig.countEfaStarts += 100000;
-    } catch(Exception e) {
-        //nothing to do
-    }
-*/
-
-/*
- * @todo: how to best implement this in efa2??
     if (!startEfaTour && !Daten.efaConfig.version.equals(Daten.PROGRAMMID) && Daten.efaConfig.version.compareTo(Daten.PROGRAMMID) != 0) {
       Dialog.neuBrowserDlg(this,Daten.EFA_SHORTNAME,
               "file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"tour"+Daten.fileSep+"k06-001.html", // @todo: How to internationalize the tour?
               750,600,(int)Dialog.screenSize.getWidth()/2-375,(int)Dialog.screenSize.getHeight()/2-300);
  */
 
-    Daten.checkEfaVersion();
-    Daten.checkJavaVersion();
+    Daten.checkEfaVersion(true);
+    Daten.checkJavaVersion(true);
+    Daten.checkRegister();
 
     if (startOpenFb != null && EfaUtil.canOpenFile(startOpenFb)) fahrtenbuchOeffnen(startOpenFb);
     else if (!Daten.efaConfig.letzteDatei.equals("") && EfaUtil.canOpenFile(Daten.efaConfig.letzteDatei)) fahrtenbuchOeffnen(Daten.efaConfig.letzteDatei);

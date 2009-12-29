@@ -155,7 +155,9 @@ public class BrowserFrame extends JDialog implements ActionListener {
           }
           String surl = e.getURL().toString();
           if (conn.getContentType().equals("text/html") || conn.getContentType().equals("text/plain")) {
-            if (surl.toLowerCase().equals("mailto:"+Daten.EFAEMAIL)) surl = "file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"mailto.html";
+            if (surl.toLowerCase().equals("mailto:"+Daten.EFAEMAIL)) {
+                surl = HtmlFactory.createMailto();
+            }
             if (surl.toLowerCase().startsWith("mailto:"))
               Dialog.error(International.getString("Bitte benutze ein externes email-Programm, um eine email an {receiver} zu verschicken!",
                       surl.substring(7,surl.length())));
@@ -519,7 +521,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
     if (current.prev != null) {
       if (nopage) {
         try {
-          out.setPage("file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"reload.html");
+          out.setPage("file:"+HtmlFactory.createReload());
         } catch (IOException ee) {
         }
       }
@@ -538,7 +540,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
   void reloadButton_actionPerformed(ActionEvent e) {
     String pageShowing = url.getText().trim();
     try {
-      out.setPage("file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"reload.html");
+      out.setPage("file:"+HtmlFactory.createReload());
     } catch (IOException ee) {
     }
     setPage(pageShowing);

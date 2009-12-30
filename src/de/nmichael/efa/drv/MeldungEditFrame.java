@@ -32,7 +32,6 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
   private static boolean _hasBeenSaved = false;
 
   JDialog parent;
-  DRVConfig drvConfig;
   EfaWett ew;
   String qnr;
   int MELDTYP;
@@ -257,12 +256,11 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
   JTextField vAktiveWab19 = new JTextField();
 
 
-  public MeldungEditFrame(JDialog parent, DRVConfig drvConfig, EfaWett ew, String qnr, int meldTyp) {
+  public MeldungEditFrame(JDialog parent, EfaWett ew, String qnr, int meldTyp) {
     super(parent);
     enableEvents(AWTEvent.WINDOW_EVENT_MASK);
     Dialog.frameOpened(this);
     this.parent = parent;
-    this.drvConfig = drvConfig;
     this.ew = ew;
     this.qnr = qnr;
     this.MELDTYP = meldTyp;
@@ -1377,9 +1375,9 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
             ewm.drv_anzAbzeichenAB = Integer.toString(ewm.drvSignatur.getAnzAbzeichenAB());
             ewm.drv_gesKmAB = Integer.toString(ewm.drvSignatur.getGesKmAB());
             ewm.drv_teilnNr = ewm.drvSignatur.getTeilnNr();
-            if (ewm.drvSignatur.getJahr() >= drvConfig.aktJahr) {
+            if (ewm.drvSignatur.getJahr() >= Daten.drvConfig.aktJahr) {
               ewm.sigError = (ewm.sigError == null ? "" : ewm.sigError+"\n") +
-                             "Fahrtenheft des Teilnehmers wurde für eine Meldung des Jahres "+ewm.drvSignatur.getJahr()+" ausgestellt und kann daher im aktuellen Meldejahr "+drvConfig.aktJahr+" nicht bearbeitet werden.";
+                             "Fahrtenheft des Teilnehmers wurde für eine Meldung des Jahres "+ewm.drvSignatur.getJahr()+" ausgestellt und kann daher im aktuellen Meldejahr "+Daten.drvConfig.aktJahr+" nicht bearbeitet werden.";
               ewm.sigValid = false;
             } else {
               ewm.sigValid = true;
@@ -1563,7 +1561,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     if (ewm.gruppe != null && ewm.gruppe.startsWith("3")) erwachsen = false;
     int anzAbzeichen = EfaUtil.string2int(ewm.drv_anzAbzeichen,0);
     int anzAbzeichenAB = EfaUtil.string2int(ewm.drv_anzAbzeichenAB,0);
-    String abzeichen = WettDefs.getDRVAbzeichen(erwachsen,anzAbzeichen,anzAbzeichenAB,drvConfig.aktJahr);
+    String abzeichen = WettDefs.getDRVAbzeichen(erwachsen,anzAbzeichen,anzAbzeichenAB,Daten.drvConfig.aktJahr);
     if (abzeichen != null && ewm.abzeichen != null && !abzeichen.equals(ewm.abzeichen)) {
       if (ewm.abzeichen.length()==2 && abzeichen.startsWith(ewm.abzeichen)) {
         // ok (altes Format), nothing to do
@@ -1860,8 +1858,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     switch(MELDTYP) {
       case MeldungenIndexFrame.MELD_FAHRTENABZEICHEN:
         // Teilnnr überprüfen
-        if (mTeilnNr.getText().trim().length() > 0 && drvConfig.teilnehmer != null) {
-          DatenFelder d = drvConfig.teilnehmer.getExactComplete(mTeilnNr.getText().trim());
+        if (mTeilnNr.getText().trim().length() > 0 && Daten.drvConfig.teilnehmer != null) {
+          DatenFelder d = Daten.drvConfig.teilnehmer.getExactComplete(mTeilnNr.getText().trim());
           if (d != null) {
             if (!d.get(Teilnehmer.VORNAME).equals(mVorname.getText().trim()) ||
                 !d.get(Teilnehmer.NACHNAME).equals(mNachname.getText().trim()) ||
@@ -1980,8 +1978,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       if (isErfuellt(ewm,false)) {
         erfuellt++;
         if (ewm.gruppe != null) {
-          if(ewm.gruppe.startsWith("1") || ewm.gruppe.startsWith("2")) meldegeld += drvConfig.eur_meld_erw;
-          if(ewm.gruppe.startsWith("3")) meldegeld += drvConfig.eur_meld_jug;
+          if(ewm.gruppe.startsWith("1") || ewm.gruppe.startsWith("2")) meldegeld += Daten.drvConfig.eur_meld_erw;
+          if(ewm.gruppe.startsWith("3")) meldegeld += Daten.drvConfig.eur_meld_jug;
         }
       }
       if (ewm.drv_fahrtenheft == null || ewm.drv_fahrtenheft.length()==0) {
@@ -2002,13 +2000,13 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
 
     switch(MELDTYP) {
       case MeldungenIndexFrame.MELD_FAHRTENABZEICHEN:
-        meldegeld += EfaUtil.string2int(ew.drv_nadel_erw_silber,0) * drvConfig.eur_nadel_erw_silber;
-        meldegeld += EfaUtil.sumUpArray(EfaUtil.kommaList2IntArr(ew.drv_nadel_erw_gold,','))  * drvConfig.eur_nadel_erw_gold;
-        meldegeld += EfaUtil.string2int(ew.drv_nadel_jug_silber,0) * drvConfig.eur_nadel_jug_silber;
-        meldegeld += EfaUtil.sumUpArray(EfaUtil.kommaList2IntArr(ew.drv_nadel_jug_gold,','))  * drvConfig.eur_nadel_jug_gold;
+        meldegeld += EfaUtil.string2int(ew.drv_nadel_erw_silber,0) * Daten.drvConfig.eur_nadel_erw_silber;
+        meldegeld += EfaUtil.sumUpArray(EfaUtil.kommaList2IntArr(ew.drv_nadel_erw_gold,','))  * Daten.drvConfig.eur_nadel_erw_gold;
+        meldegeld += EfaUtil.string2int(ew.drv_nadel_jug_silber,0) * Daten.drvConfig.eur_nadel_jug_silber;
+        meldegeld += EfaUtil.sumUpArray(EfaUtil.kommaList2IntArr(ew.drv_nadel_jug_gold,','))  * Daten.drvConfig.eur_nadel_jug_gold;
 
-        stoffabzeichen += EfaUtil.string2int(ew.drv_stoff_erw,0) * drvConfig.eur_stoff_erw;
-        stoffabzeichen += EfaUtil.string2int(ew.drv_stoff_jug,0) * drvConfig.eur_stoff_jug;
+        stoffabzeichen += EfaUtil.string2int(ew.drv_stoff_erw,0) * Daten.drvConfig.eur_stoff_erw;
+        stoffabzeichen += EfaUtil.string2int(ew.drv_stoff_jug,0) * Daten.drvConfig.eur_stoff_jug;
 
         if (stoffabzeichen == 0) this.printStoffBestellButton.setVisible(false);
 
@@ -2094,20 +2092,20 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       wafaAnzTage = 99999;
       jumAnz = 99999;
     }
-    return Daten.wettDefs.erfuellt(WettDefs.DRV_FAHRTENABZEICHEN,drvConfig.aktJahr,jahrgang,geschlecht,behind,km,wafaKm/10,wafaAnzTage,jumAnz,0);
+    return Daten.wettDefs.erfuellt(WettDefs.DRV_FAHRTENABZEICHEN,Daten.drvConfig.aktJahr,jahrgang,geschlecht,behind,km,wafaKm/10,wafaAnzTage,jumAnz,0);
   }
 
   void bestaetigenButton_actionPerformed(ActionEvent e) {
     if (data == null) return;
     if (!checkAndSaveChangedMeldung()) return;
-    if (MELDTYP == MeldungenIndexFrame.MELD_FAHRTENABZEICHEN && drvConfig.teilnehmer == null) {
+    if (MELDTYP == MeldungenIndexFrame.MELD_FAHRTENABZEICHEN && Daten.drvConfig.teilnehmer == null) {
       Dialog.error("Keine Teilnehmerdatei geladen!");
       return;
     }
 
-    if (MELDTYP == MeldungenIndexFrame.MELD_FAHRTENABZEICHEN && !drvConfig.readOnlyMode) {
-      if (drvConfig.keyPassword == null) KeysAdminFrame.enterKeyPassword(drvConfig);
-      if (drvConfig.keyPassword == null) return;
+    if (MELDTYP == MeldungenIndexFrame.MELD_FAHRTENABZEICHEN && !Daten.drvConfig.readOnlyMode) {
+      if (Daten.drvConfig.keyPassword == null) KeysAdminFrame.enterKeyPassword();
+      if (Daten.drvConfig.keyPassword == null) return;
       if (!loadKeys()) return;
     }
 
@@ -2117,7 +2115,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     int teilnJug = 0;
     for (int i=0; i<data.size(); i++) {
       EfaWettMeldung ewm = (EfaWettMeldung)data.get(i);
-      if (!ewm.drvint_geprueft && !drvConfig.readOnlyMode) {
+      if (!ewm.drvint_geprueft && !Daten.drvConfig.readOnlyMode) {
         Dialog.error("Meldung "+(i+1)+" wurde noch nicht geprüft! Es müssen zuerst alle Meldungen geprüft werden!");
         setMFields(i,false);
         this.jTabbedPane1.setSelectedIndex(1);
@@ -2140,8 +2138,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     }
 
     // Alle Meldungen dieses Vereins vorsichtshalber aus der Meldestatistik entfernen
-    for (DatenFelder d = drvConfig.meldestatistik.getCompleteFirst(); d != null; d = drvConfig.meldestatistik.getCompleteNext()) {
-      if (d.get(Meldestatistik.VEREINSMITGLNR).equals(ew.verein_mitglnr)) drvConfig.meldestatistik.delete(d.get(Meldestatistik.KEY));
+    for (DatenFelder d = Daten.drvConfig.meldestatistik.getCompleteFirst(); d != null; d = Daten.drvConfig.meldestatistik.getCompleteNext()) {
+      if (d.get(Meldestatistik.VEREINSMITGLNR).equals(ew.verein_mitglnr)) Daten.drvConfig.meldestatistik.delete(d.get(Meldestatistik.KEY));
     }
 
     String errors = "";
@@ -2150,14 +2148,14 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     ESigFahrtenhefte f = null;
     Vector nichtGewerteteTeilnehmer = null;
     if (MELDTYP == MeldungenIndexFrame.MELD_FAHRTENABZEICHEN) {
-      if (!drvConfig.readOnlyMode) {
+      if (!Daten.drvConfig.readOnlyMode) {
         f = new ESigFahrtenhefte(ew.datei+"sig");
         f.verein_user = ew.verein_user;
         f.verein_name = ew.verein_name;
         f.verein_mitglnr = ew.verein_mitglnr;
         f.quittungsnr = this.qnr;
 
-        int itmp = EfaUtil.string2date(drvConfig.schluessel,0,0,0).tag;
+        int itmp = EfaUtil.string2date(Daten.drvConfig.schluessel,0,0,0).tag;
         String pubkey_alias = "drv"+(itmp < 10 ? "0" : "")+itmp;
         String certFile = Daten.efaDataDirectory+pubkey_alias+".cert";
         if (EfaUtil.canOpenFile(certFile)) {
@@ -2225,7 +2223,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
           continue;
         }
 
-        if (!drvConfig.readOnlyMode) {
+        if (!Daten.drvConfig.readOnlyMode) {
           // ggf. neue Teilnehmernummer generieren
           if (m.drv_teilnNr == null || m.drv_teilnNr.length() == 0) {
             long l = EfaUtil.getSHAlong((m.vorname+"#"+m.nachname+"#"+m.jahrgang).getBytes(),3);
@@ -2234,24 +2232,24 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
               nichtGewerteteTeilnehmer.add(m.vorname+" "+m.nachname+" (Grund: Es konnte keine Teilnehmernummer berechnet werden)");
               continue;
             }
-            while (drvConfig.teilnehmer.getExact(Long.toString(l)) != null) l++;
+            while (Daten.drvConfig.teilnehmer.getExact(Long.toString(l)) != null) l++;
             m.drv_teilnNr = Long.toString(l);
           }
         }
 
-        int jahr = drvConfig.aktJahr;
-        byte keynr = (byte)EfaUtil.string2date(drvConfig.schluessel,0,0,0).tag;
+        int jahr = Daten.drvConfig.aktJahr;
+        byte keynr = (byte)EfaUtil.string2date(Daten.drvConfig.schluessel,0,0,0).tag;
 
         boolean opSuccess = false;
-        if (!drvConfig.readOnlyMode) {
+        if (!Daten.drvConfig.readOnlyMode) {
           try {
-            PrivateKey privKey = Daten.keyStore.getPrivateKey(drvConfig.schluessel);
+            PrivateKey privKey = Daten.keyStore.getPrivateKey(Daten.drvConfig.schluessel);
             if (privKey == null) {
-              errors += "Privater Schlüssel "+drvConfig.schluessel+" nicht gefunden: "+Daten.keyStore.getLastError()+"\n";
+              errors += "Privater Schlüssel "+Daten.drvConfig.schluessel+" nicht gefunden: "+Daten.keyStore.getLastError()+"\n";
             }
             DRVSignatur sig = new DRVSignatur(m.drv_teilnNr,m.vorname,m.nachname,m.jahrgang,
                                               anzAbz,gesKm,anzAbzAB,gesKmAB,jahr,EfaUtil.string2int(m.kilometer,0),null,
-                                              drvConfig.VERSION,keynr,
+                                              DRVConfig.VERSION,keynr,
                                               privKey);
             sig.checkSignature();
             if (sig.getSignatureState() != DRVSignatur.SIG_VALID) {
@@ -2261,14 +2259,14 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
             } else {
               // elektronisches Fahrtenheft
               f.addFahrtenheft(sig);
-              drvConfig.teilnehmer.delete(m.drv_teilnNr);
+              Daten.drvConfig.teilnehmer.delete(m.drv_teilnNr);
               DatenFelder d = new DatenFelder(Teilnehmer._ANZFELDER);
               d.set(Teilnehmer.TEILNNR,m.drv_teilnNr);
               d.set(Teilnehmer.VORNAME,m.vorname);
               d.set(Teilnehmer.NACHNAME,m.nachname);
               d.set(Teilnehmer.JAHRGANG,m.jahrgang);
               d.set(Teilnehmer.FAHRTENHEFT,sig.toString());
-              drvConfig.teilnehmer.add(d);
+              Daten.drvConfig.teilnehmer.add(d);
               log(false,"Elektronisches Fahrtenheft erstellt: "+sig.toString());
               opSuccess = true;
             }
@@ -2297,7 +2295,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
           d.set(Meldestatistik.ANZABZEICHENAB,Integer.toString(anzAbzAB));
           d.set(Meldestatistik.GESKM,Integer.toString(gesKm));
           if (m.drv_aequatorpreis != null && (m.drv_aequatorpreis.equals("1") || m.drv_aequatorpreis.equals("3"))) d.set(Meldestatistik.AEQUATOR,m.drv_aequatorpreis);
-          drvConfig.meldestatistik.add(d);
+          Daten.drvConfig.meldestatistik.add(d);
         }
       }
     }
@@ -2361,20 +2359,20 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       d.set(Meldestatistik.WS_AKT19M,ew.aktive_M_ab19);
       d.set(Meldestatistik.WS_AKT18W,ew.aktive_W_bis18);
       d.set(Meldestatistik.WS_AKT19W,ew.aktive_W_ab19);
-      drvConfig.meldestatistik.add(d);
+      Daten.drvConfig.meldestatistik.add(d);
     }
 
     try {
       if (c <= 0) {
         errors += "Es wurden keine " + (MELDTYP == MeldungenIndexFrame.MELD_FAHRTENABZEICHEN ? "Teilnehmer" : "Fahrten") + " gewertet!\n";
       } else {
-        if (MELDTYP == MeldungenIndexFrame.MELD_FAHRTENABZEICHEN && !drvConfig.readOnlyMode) f.writeFile();
+        if (MELDTYP == MeldungenIndexFrame.MELD_FAHRTENABZEICHEN && !Daten.drvConfig.readOnlyMode) f.writeFile();
       }
     } catch(Exception ee) {
       errors += "Fehler beim Erstellen der Bestätigungsdatei: "+e.toString()+"\n";
       c = 0;
     }
-    if (MELDTYP == MeldungenIndexFrame.MELD_FAHRTENABZEICHEN && !drvConfig.teilnehmer.writeFile()) {
+    if (MELDTYP == MeldungenIndexFrame.MELD_FAHRTENABZEICHEN && !Daten.drvConfig.teilnehmer.writeFile()) {
       errors += "DRV-Teilnehmerdatei konnte nicht geschrieben werden!\n";
     }
 
@@ -2386,13 +2384,13 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     }
 
     if (c > 0) {
-      if (MELDTYP == MeldungenIndexFrame.MELD_FAHRTENABZEICHEN && !drvConfig.readOnlyMode) {
+      if (MELDTYP == MeldungenIndexFrame.MELD_FAHRTENABZEICHEN && !Daten.drvConfig.readOnlyMode) {
         Dialog.infoDialog("Es wurden "+c+" von "+data.size()+" Teilnehmern gewertet und ein elektronisches Fahrtenbuch\n"+
                           "für sie generiert.\n"+
                           "Bestätigungsdatei: "+f.getDateiname()+
                           "\n\nEs wird nun ein PDF-Dokument mit den elektronischen Fahrtenheften erzeugt.");
         try {
-          PDFOutput.printPDFbestaetigung(drvConfig,ew,qnr,meldegeld,data.size(),c,teilnErw,teilnJug,f,nichtGewerteteTeilnehmer);
+          PDFOutput.printPDFbestaetigung(Daten.drvConfig,ew,qnr,meldegeld,data.size(),c,teilnErw,teilnJug,f,nichtGewerteteTeilnehmer);
         } catch (NoClassDefFoundError ee) {
           Dialog.error("Das PDF-Plugin ist nicht installiert.\n"+
                        "Die Meldung kann nicht bestätigt werden.");
@@ -2408,7 +2406,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         Dialog.error("Fehler beim Aktualisieren des Status für die vorliegende Meldedatei");
         return;
       }
-      if (!drvConfig.meldestatistik.writeFile()) {
+      if (!Daten.drvConfig.meldestatistik.writeFile()) {
         Logger.log(Logger.ERROR,"Speichern der Meldestatistik ist fehlgeschlagen!");
         Dialog.error("Speichern der Meldesatistik ist fehlgeschlagen!");
       }
@@ -2438,11 +2436,11 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
   }
 
   boolean setMeldedateiBearbeitet(String bestaetigungsdatei) {
-    DatenFelder d = drvConfig.meldungenIndex.getExactComplete(this.qnr);
+    DatenFelder d = Daten.drvConfig.meldungenIndex.getExactComplete(this.qnr);
     if (d == null) return false;
     d.set(MeldungenIndex.STATUS,Integer.toString(MeldungenIndex.ST_BEARBEITET));
     d.set(MeldungenIndex.BESTAETIGUNGSDATEI,bestaetigungsdatei);
-    if (drvConfig.meldungenIndex.writeFile()) {
+    if (Daten.drvConfig.meldungenIndex.writeFile()) {
       log(false,"Status für Meldung auf 'Bearbeitet' gesetzt.");
       return true;
     }
@@ -2622,7 +2620,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
 
   boolean loadKeys() {
     if (Daten.keyStore != null && Daten.keyStore.isKeyStoreReady()) return true;
-    Daten.keyStore = new EfaKeyStore(Daten.efaDataDirectory+drvConfig.KEYSTORE_FILE,drvConfig.keyPassword);
+    Daten.keyStore = new EfaKeyStore(Daten.efaDataDirectory+DRVConfig.KEYSTORE_FILE,Daten.drvConfig.keyPassword);
     if (!Daten.keyStore.isKeyStoreReady()) {
       Dialog.error("KeyStore kann nicht geladen werden:\n"+Daten.keyStore.getLastError());
     }
@@ -2683,7 +2681,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
   }
 
   void mTeilnSuchenButton_actionPerformed(ActionEvent e) {
-    if (drvConfig.teilnehmer == null) {
+    if (Daten.drvConfig.teilnehmer == null) {
       Dialog.error("Es wurde keine Teilnehmer-Datei geladen!");
       return;
     }
@@ -2697,7 +2695,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     }
 
     Vector teilnnr = new Vector();
-    for (DatenFelder d = drvConfig.teilnehmer.getCompleteFirst(); d != null; d = drvConfig.teilnehmer.getCompleteNext()) {
+    for (DatenFelder d = Daten.drvConfig.teilnehmer.getCompleteFirst(); d != null; d = Daten.drvConfig.teilnehmer.getCompleteNext()) {
       if (vorname.equals(d.get(Teilnehmer.VORNAME)) &&
           nachname.equals(d.get(Teilnehmer.NACHNAME)) &&
           jahrgang.equals(d.get(Teilnehmer.JAHRGANG))) teilnnr.add(d.get(Teilnehmer.TEILNNR));
@@ -2722,7 +2720,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     try {
       BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpdatei),Daten.ENCODING_UTF));
       f.write("<html>\n");
-      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=\""+Daten.ENCODING_UTF+"\"></head>\n");
+      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset="+Daten.ENCODING_UTF+"\"></head>\n");
       f.write("<body>\n");
       f.write("<h1 align=\"center\">Bestellung von Stoffabzeichen</h1>\n");
       f.write("<h2 align=\"center\">"+ew.verein_name+"</h2>\n");
@@ -2742,8 +2740,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       f.write("<tr><td colspan=\"2\" align=\"center\"><big>Bestellung</big></tt></td></tr>\n");
       f.write("<tr><td>Stoffabzeichen Jugend:</td><td><tt><b>"+ew.drv_stoff_jug+"</b></tt></td></tr>\n");
       f.write("<tr><td>Stoffabzeichen Erwachsene gold:</td><td><tt><b>"+ew.drv_stoff_erw+"</b></tt></td></tr>\n");
-      int cent = EfaUtil.string2int(ew.drv_stoff_erw,0)*drvConfig.eur_stoff_erw +
-                 EfaUtil.string2int(ew.drv_stoff_jug,0)*drvConfig.eur_stoff_jug;
+      int cent = EfaUtil.string2int(ew.drv_stoff_erw,0)*Daten.drvConfig.eur_stoff_erw +
+                 EfaUtil.string2int(ew.drv_stoff_jug,0)*Daten.drvConfig.eur_stoff_jug;
       f.write("<tr><td>Bestellwert:</td><td><tt><b>"+EfaUtil.cent2euro(cent,true)+"</b></tt></td></tr>\n");
       f.write("</table>\n");
       f.write("</body></html>\n");
@@ -2845,7 +2843,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     try {
       BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpdatei),Daten.ENCODING_UTF));
       f.write("<html>\n");
-      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=\""+Daten.ENCODING_UTF+"\"></head>\n");
+      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset="+Daten.ENCODING_UTF+"\"></head>\n");
       f.write("<body>\n");
       f.write("<h1 align=\"center\">Äquatorpreisträger</h1>\n");
       f.write("<p><b>Verein: "+ew.verein_name+"</b><br>Mitgliedsnummer: "+ew.verein_mitglnr+"<br><br>Anschrift:<br>"+ew.versand_name+"<br>"+ew.versand_strasse+"<br>"+ew.versand_ort+"</p>\n");

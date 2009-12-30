@@ -193,7 +193,7 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
     panelMain.add(panel2, BorderLayout.CENTER);
     this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
     this.getContentPane().add(okButton, BorderLayout.SOUTH);
-    versionLabel.setText(International.getString("Version")+" "+Daten.VERSION);
+    versionLabel.setText(International.getString("Version")+" "+Daten.VERSION + " (" + Daten.VERSIONID + ")");
   }
 
 

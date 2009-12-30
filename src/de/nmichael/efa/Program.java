@@ -29,7 +29,7 @@ public class Program {
     }
 
     public void printUsage(String wrongArgument) {
-        System.out.println(Daten.EFA_SHORTNAME + " " + Daten.VERSION + "\n");
+        System.out.println(Daten.EFA_SHORTNAME + " " + Daten.VERSION + " (" + Daten.VERSIONID + ")\n");
         if (wrongArgument != null) {
             System.out.println(International.getString("Unbekanntes Argument") + ": " + wrongArgument);
         }
@@ -42,6 +42,7 @@ public class Program {
         System.out.println("    [option]:");
         printOption("-help",International.getString("diese Hilfemeldung anzeigen"));
         printOption("-debug",International.getString("Debug-Logging aktivieren"));
+        printOption("-javaRestart", International.getString("Neustart von efa durch Java statt Shell"));
     }
 
     public void checkArgs(String[] args) {
@@ -65,6 +66,16 @@ public class Program {
                 Daten.exceptionTest = true;
                 args[i] = null;
                 continue;
+            }
+            if (args[i].equals("-javaRestart")) {
+                Daten.javaRestart = true;
+                args[i] = null;
+                continue;
+            }
+            if (args[i].equals("-emulateWin")) {
+                System.setProperty("os.name","Windows XP");
+                System.setProperty("os.arch","x86");
+                System.setProperty("os.version","5.1");
             }
         }
     }

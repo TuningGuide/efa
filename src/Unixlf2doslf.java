@@ -36,8 +36,15 @@ public class Unixlf2doslf {
 
 
   public static void main(String[] args) {
-    if (args.length != 2) System.err.println("usage: Unix2doslf <in> <out>");
-    else if (copyFile(args[0],args[1])) System.out.println("done");
-    else System.err.println("error");
+    if (args.length != 2) {
+        System.err.println("usage: Unix2doslf <in> <out>");
+        System.exit(1);
+    } else if (copyFile(args[0],args[1])) {
+        System.out.println("done");
+        System.exit(0);
+    } else {
+        System.err.println("error");
+        System.exit(2);
+    }
   }
 }

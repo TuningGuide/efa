@@ -33,6 +33,7 @@ import de.nmichael.efa.util.EfaKeyStore;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.Backup;
 import de.nmichael.efa.util.HtmlFactory;
+import de.nmichael.efa.drv.DRVConfig;
 import de.nmichael.efa.statistics.FTPWriter;
 import de.nmichael.efa.statistics.PDFWriter;
 import de.nmichael.efa.statistics.XMLWriter;
@@ -51,12 +52,12 @@ public class Daten {
   public       static String EFA_SHORTNAME = "efa";                              // dummy, will be set in International.ininitalize()
   public       static String EFA_LONGNAME  = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
 
-  public final static String VERSION = "v1.9.0_dev01"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
+  public final static String VERSION = "v2_dev01"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
   public final static String VERSIONID = "1.9.0_#1";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "26.12.2009";  // Release Date: TT.MM.JJJJ
+  public final static String VERSIONRELEASEDATE = "01.01.2010";  // Release Date: TT.MM.JJJJ
   public final static String PROGRAMMID = "EFA.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.190"; // Versions-ID für Wettbewerbsmeldungen
-  public final static String COPYRIGHTYEAR = "09";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
+  public final static String COPYRIGHTYEAR = "10";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
 
   public final static String EMIL_VERSION = VERSION; // Version
   public final static String EMIL_KENNUNG = "EMIL.190";
@@ -119,13 +120,14 @@ public class Daten {
   public static String efaMainDirectory = null;    // Efa-Hauptverzeichnis, immer mit "/" am Ende
   public static String efaProgramDirectory = null; // Programmverzeichnis, immer mit "/" am Ende     ("./program/")
   public static String efaPluginDirectory = null;  // Programmverzeichnis, immer mit "/" am Ende     ("./program/plugins")
-  public static String efaDataDirectory = null;    // Efa-Datenverzeichnis, immer mit "/" am Ende    ("./daten/")
+  public static String efaDataDirectory = null;    // Efa-Datenverzeichnis, immer mit "/" am Ende    ("./data/")
+  public static String efaLogDirectory = null;     // Efa-Log-Verzeichnis, immer mit "/" am Ende     ("./log/")
   public static String efaCfgDirectory = null;     // Efa-Configverzeichnis, immer mit "/" am Ende   ("./cfg/")
   public static String efaDocDirectory = null;     // Efa-Doku-Verzeichnis,  immer mit "/" am Ende   ("./doc/")
-  public static String efaAusgabeDirectory = null; // Efa-Ausgabe-Verzeichnis, immer mit "/" am Ende ("./ausgabe/")
+  public static String efaAusgabeDirectory = null; // Efa-Ausgabe-Verzeichnis, immer mit "/" am Ende ("./fmt/")
   public static String efaBakDirectory = null;     // Efa-Backupverzeichnis, immer mit "/" am Ende   ("./backup/")
   public static String efaTmpDirectory = null;     // Efa-Tempverzeichnis,   immer mit "/" am Ende   ("./tmp/")
-  public static String efaStyleDirectory = null;   // Efa-Stylesheetverzeichnis,   mit "/" am Ende   ("./ausgabe/layout/")
+  public static String efaStyleDirectory = null;   // Efa-Stylesheetverzeichnis,   mit "/" am Ende   ("./fmt/layout/")
   public static String fileSep = "/"; // Verzeichnis-Separator (wird in ini() ermittelt)
   public static String javaVersion = "";
   public static String jvmVersion = "";
@@ -172,6 +174,7 @@ public class Daten {
 
   public static EfaBaseConfig efaBaseConfig; // efa Base Config
   public static EfaConfig efaConfig;         // Konfigurationsdatei
+  public static DRVConfig drvConfig;         // Konfigurationsdatei
   public static EfaTypes efaTypes;           // EfaTypes (Bezeichnungen)
   public static VereinsConfig vereinsConfig; // Konfigurationsdatei für Vereinseinstellungen
   public static Adressen adressen;           // gespeicherte Teilnehmer-Adressen
@@ -268,6 +271,7 @@ public class Daten {
 
   public static void initialize(int applID) {
       iniBase(applID);
+      iniScreenSize();
       iniMainDirectory();
       iniEfaBaseConfig();
       iniLanguageSupport();
@@ -369,13 +373,17 @@ public class Daten {
   }
 
   private static void iniLogging() {
+      Daten.efaLogDirectory = Daten.efaMainDirectory+"log"+Daten.fileSep;
+      if (!checkAndCreateDirectory(Daten.efaLogDirectory) ) {
+          haltProgram(HALT_DIRECTORIES);
+      }
       String baklog = null; // backup'ed logfile
       switch(applID) {
           case APPL_EFA:
               baklog = Logger.ini("efa_base.log",false);
               break;
           case APPL_EFADIREKT:
-              baklog = Logger.ini("efa.log",true);
+              baklog = Logger.ini("efa_bh.log",true);
               break;
           case APPL_EMIL:
               baklog = Logger.ini("emil.log",false);
@@ -589,7 +597,30 @@ public class Daten {
                 haltProgram(HALT_EFACONFIG);
             }
         } else {
-            // @todo: load DRVConfig instead!
+            Daten.drvConfig = new DRVConfig(Daten.efaCfgDirectory + Daten.DRVCONFIGFILE);
+            if (!EfaUtil.canOpenFile(Daten.drvConfig.getFileName())) {
+                if (!Daten.drvConfig.writeFile()) {
+                    String msg = LogString.logstring_fileCreationFailed(Daten.drvConfig.getFileName(),
+                            International.getString("Konfigurationsdatei"));
+                    Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDCREATE, msg);
+                    if (isGuiAppl()) {
+                        Dialog.error(msg);
+                    }
+                    haltProgram(HALT_EFACONFIG);
+                }
+                String msg = LogString.logstring_fileNewCreated(Daten.drvConfig.getFileName(),
+                        International.getString("Konfigurationsdatei"));
+                Logger.log(Logger.WARNING, Logger.MSG_CORE_EFACONFIGCREATEDNEW, msg);
+            }
+            if (!Daten.drvConfig.readFile()) {
+                String msg = LogString.logstring_fileOpenFailed(Daten.drvConfig.getFileName(),
+                        International.getString("Konfigurationsdatei"));
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDOPEN, msg);
+                if (isGuiAppl()) {
+                    Dialog.error(msg);
+                }
+                haltProgram(HALT_EFACONFIG);
+            }
         }
     }
 
@@ -653,11 +684,18 @@ public class Daten {
         Daten.backup = new Backup(Daten.efaBakDirectory,Daten.efaConfig.bakSave,Daten.efaConfig.bakMonat,Daten.efaConfig.bakTag,Daten.efaConfig.bakKonv);
     }
 
-  public static void iniGUI() {
+  public static void iniScreenSize() {
       if (!isGuiAppl()) {
           return;
       }
       Dialog.initializeScreenSize();
+  }
+
+  public static void iniGUI() {
+      if (!isGuiAppl()) {
+          return;
+      }
+      iniScreenSize();
 
       // Look&Feel
       try {
@@ -970,17 +1008,6 @@ public class Daten {
           }
 
       }
-  /*
- * @todo: how to best implement this in efa2??
-    // Nutzer nach Name und Verein fragen
-    try {
-        ++Daten.efaConfig.countEfaStarts;
-        if (Daten.efaConfig.countEfaStarts <31 && Daten.efaConfig.countEfaStarts % 10 == 0)
-            Daten.efaConfig.countEfaStarts += 100000;
-    } catch(Exception e) {
-        //nothing to do
-    }
-*/
   }
 
 

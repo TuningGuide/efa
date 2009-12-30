@@ -142,62 +142,62 @@ public class LogString {
 
   public static void logInfo_fileNewCreated(String filename, String description) {
       Logger.log(Logger.INFO, Logger.MSG_FILE_FILENEWCREATED,
-                 logstring_fileNewCreated(description,filename));
+                 logstring_fileNewCreated(filename,description));
   }
 
   public static void logWarning_fileNewCreated(String filename, String description) {
       Logger.log(Logger.WARNING, Logger.MSG_FILE_FILENEWCREATED,
-                 logstring_fileNewCreated(description,filename));
+                 logstring_fileNewCreated(filename,description));
   }
 
   public static void logError_fileCreationFailed(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_FILECREATEFAILED,
-              logstring_fileCreationFailed(description,filename));
+              logstring_fileCreationFailed(filename,description));
   }
 
   public static void logError_fileOpenFailed(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_FILEOPENFAILED,
-              logstring_fileOpenFailed(description,filename));
+              logstring_fileOpenFailed(filename,description));
   }
 
   public static void logError_fileReadFailed(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_FILEREADFAILED,
-              logstring_fileReadFailed(description,filename));
+              logstring_fileReadFailed(filename,description));
   }
 
   public static void logError_fileNotFound(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_FILENOTFOUND,
-              logstring_fileNotFound(description,filename));
+              logstring_fileNotFound(filename,description));
   }
 
   public static void logError_fileAlreadyExists(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_FILEALREADYEXISTS,
-              logstring_fileAlreadyExists(description,filename));
+              logstring_fileAlreadyExists(filename,description));
   }
 
   public static void logError_fileWritingFailed(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_FILEWRITEFAILED,
-              logstring_fileWritingFailed(description,filename));
+              logstring_fileWritingFailed(filename,description));
   }
 
   public static void logError_fileCloseFailed(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_FILECLOSEFAILED,
-              logstring_fileCloseFailed(description,filename));
+              logstring_fileCloseFailed(filename,description));
   }
 
   public static void logError_fileArchivingFailed(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_ARCHIVINGFAILED,
-              logstring_fileArchivingFailed(description,filename));
+              logstring_fileArchivingFailed(filename,description));
   }
 
    public static void logError_fileBackupFailed(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_BACKUPFAILED,
-              logstring_fileBackupFailed(description,filename));
+              logstring_fileBackupFailed(filename,description));
   }
  
    public static void logError_directoryDoesNotExist(String dirname, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_DIRECTORYNOTFOUND,
-              logstring_directoryDoesNotExist(description,dirname));
+              logstring_directoryDoesNotExist(dirname,description));
   }
   
   public static void logWarning_cantExecCommand(String command, String description, String error) {

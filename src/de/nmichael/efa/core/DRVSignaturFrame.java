@@ -536,7 +536,7 @@ public class DRVSignaturFrame extends JDialog implements ActionListener {
     try {
       BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpdatei),Daten.ENCODING_ISO));
       f.write("<html>\n");
-      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=\""+Daten.ENCODING_ISO+"\"></head>\n");
+      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset="+Daten.ENCODING_ISO+"\"></head>\n");
       f.write("<body>\n");
       f.write("<h1 align=\"center\">elektronisches Fahrtenheft<br>für "+drvSignatur.getVorname()+" "+drvSignatur.getNachname()+"</h1>\n");
       f.write("<table align=\"center\" border=\"3\" width=\"100%\">\n");

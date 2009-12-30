@@ -26,7 +26,7 @@ public class Main extends Program {
         super(args);
         Daten.initialize(Daten.APPL_DRV);
 
-        EfaDRVFrame frame = new EfaDRVFrame(null); // drvConfig
+        EfaDRVFrame frame = new EfaDRVFrame();
         frame.pack();
         //Center the window
         Dimension frameSize = frame.getSize();

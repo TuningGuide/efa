@@ -25,7 +25,6 @@ import java.util.Vector;
 
 public class DRVAdminFrame extends JDialog implements ActionListener {
   Frame parent;
-  DRVConfig drvConfig;
   JPanel jPanel1 = new JPanel();
   BorderLayout borderLayout1 = new BorderLayout();
   JPanel jPanel2 = new JPanel();
@@ -38,7 +37,7 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
   JButton datensicherungButton = new JButton();
 
 
-  public DRVAdminFrame(Frame parent, DRVConfig drvConfig) {
+  public DRVAdminFrame(Frame parent) {
     super(parent);
     enableEvents(AWTEvent.WINDOW_EVENT_MASK);
     Dialog.frameOpened(this);
@@ -50,7 +49,6 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
     }
     EfaUtil.pack(this);
     this.parent = parent;
-    this.drvConfig = drvConfig;
     // this.requestFocus();
   }
 
@@ -234,13 +232,13 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
       }
       Logger.log(Logger.INFO,"Vorhandenes Wettbewerbsjahr "+j+" ausgewählt.");
     }
-    drvConfig.aktJahr = j;
-    drvConfig.writeFile();
+    Daten.drvConfig.aktJahr = j;
+    Daten.drvConfig.writeFile();
     Dialog.infoDialog("Wettbewerbsjahr ausgewählt","Das ausgewählte Jahr für die Erfassung von Meldungen ist jetzt "+j+".");
   }
 
   void configButton_actionPerformed(ActionEvent e) {
-    DRVConfigFrame dlg = new DRVConfigFrame(this,drvConfig);
+    DRVConfigFrame dlg = new DRVConfigFrame(this);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(true);
     dlg.show();
@@ -250,7 +248,7 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
   void keysButton_actionPerformed(ActionEvent e) {
     KeysAdminFrame dlg;
     try {
-      dlg = new KeysAdminFrame(this,drvConfig);
+      dlg = new KeysAdminFrame(this);
     } catch(Exception ee) {
       return;
     }
@@ -275,8 +273,8 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
       Vector inclSubdirs = new Vector();
       directories.add(Daten.efaMainDirectory); selected.add(new Boolean(true)); inclSubdirs.add(new Boolean(false));
       directories.add(Daten.efaDataDirectory); selected.add(new Boolean(true)); inclSubdirs.add(new Boolean(false));
-      if (drvConfig.aktJahr != 0) {
-        directories.add(Daten.efaDataDirectory+drvConfig.aktJahr+Daten.fileSep); selected.add(new Boolean(true)); inclSubdirs.add(new Boolean(true));
+      if (Daten.drvConfig.aktJahr != 0) {
+        directories.add(Daten.efaDataDirectory+Daten.drvConfig.aktJahr+Daten.fileSep); selected.add(new Boolean(true)); inclSubdirs.add(new Boolean(true));
       }
       if ((new File(Daten.efaDataDirectory+"CA"+Daten.fileSep)).isDirectory()) {
         directories.add(Daten.efaDataDirectory+"CA"+Daten.fileSep); selected.add(new Boolean(true)); inclSubdirs.add(new Boolean(true));

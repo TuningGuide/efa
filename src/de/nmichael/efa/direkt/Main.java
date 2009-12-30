@@ -59,7 +59,6 @@ public class Main extends Program {
 
     public void printUsage(String wrongArgument) {
         super.printUsage(wrongArgument);
-        printOption("-javaRestart", International.getString("Neustart von efa durch Java statt Shell"));
         System.exit(0);
     }
 
@@ -68,16 +67,6 @@ public class Main extends Program {
         for (int i = 0; i < args.length; i++) {
             if (args[i] == null) {
                 continue; // argument already handled by super class
-            }
-            if (args[i].equals("-javaRestart")) {
-                Daten.javaRestart = true;
-                args[i] = null;
-                continue;
-            }
-            if (args[i].equals("-emulateWin")) {
-                System.setProperty("os.name","Windows XP");
-                System.setProperty("os.arch","x86");
-                System.setProperty("os.version","5.1");
             }
         }
         checkRemainingArgs(args);

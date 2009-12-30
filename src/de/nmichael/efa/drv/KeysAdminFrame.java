@@ -29,7 +29,6 @@ import java.net.*;
 
 public class KeysAdminFrame extends JDialog implements ActionListener {
   JDialog parent;
-  DRVConfig drvConfig;
   Object[] keys;
   JPanel jPanel1 = new JPanel();
   BorderLayout borderLayout1 = new BorderLayout();
@@ -48,12 +47,11 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
   JButton importCertButton = new JButton();
 
 
-  public KeysAdminFrame(JDialog parent, DRVConfig drvConfig) throws Exception {
+  public KeysAdminFrame(JDialog parent) throws Exception {
     super(parent);
     enableEvents(AWTEvent.WINDOW_EVENT_MASK);
     Dialog.frameOpened(this);
     this.parent = parent;
-    this.drvConfig = drvConfig;
     try {
       jbInit();
     }
@@ -61,17 +59,17 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
       e.printStackTrace();
     }
 
-    if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+drvConfig.KEYSTORE_FILE)) {
-      enterNewKeyPassword(drvConfig);
-      if (drvConfig.keyPassword == null) {
+    if (!EfaUtil.canOpenFile(Daten.efaDataDirectory+Daten.drvConfig.KEYSTORE_FILE)) {
+      enterNewKeyPassword();
+      if (Daten.drvConfig.keyPassword == null) {
         cancel();
         throw new Exception("Falsches Paßwort!");
       }
     }
-    if (drvConfig.keyPassword == null) enterKeyPassword(drvConfig);
-    if (drvConfig.keyPassword == null || !loadKeys()) {
+    if (Daten.drvConfig.keyPassword == null) enterKeyPassword();
+    if (Daten.drvConfig.keyPassword == null || !loadKeys()) {
       cancel();
-      drvConfig.keyPassword = null;
+      Daten.drvConfig.keyPassword = null;
       throw new Exception("Falsches Paßwort!");
     }
     displayKeys();
@@ -80,12 +78,12 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
     // this.requestFocus();
   }
 
-  public static void enterKeyPassword(DRVConfig drvConfig) {
-    drvConfig.keyPassword = EnterPasswordFrame.enterPassword(Dialog.frameCurrent(),"Bitte Schlüssel-Paßwort eingeben:");
+  public static void enterKeyPassword() {
+    Daten.drvConfig.keyPassword = EnterPasswordFrame.enterPassword(Dialog.frameCurrent(),"Bitte Schlüssel-Paßwort eingeben:");
   }
 
-  public static void enterNewKeyPassword(DRVConfig drvConfig) {
-    drvConfig.keyPassword = EnterPasswordFrame.enterNewPassword(Dialog.frameCurrent(),
+  public static void enterNewKeyPassword() {
+    Daten.drvConfig.keyPassword = EnterPasswordFrame.enterNewPassword(Dialog.frameCurrent(),
                             "Damit die erstellten Schlüssel vor unbefugten Zugriffen sicher sind,\n"+
                             "werden sie durch ein Paßwort geschützt. Dieses Paßwort muß unter\n"+
                             "allen Umständen geheim bleiben, da von ihm die Sicherheit des\n"+
@@ -95,12 +93,12 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
                             "Das Paßwort muß mindestens 8 Zeichen lang sein und muß von den vier\n"+
                             "Zeichengruppen 'Kleinbuchstaben', 'Großbuchstaben', 'Ziffern' und\n"+
                             "'sonstige Zeichen' mindestens drei Gruppen enthalten.");
-    if (drvConfig.keyPassword != null) Logger.log(Logger.INFO,"Neues Paßwort für Schlüsselspeicher festgelegt.");
+    if (Daten.drvConfig.keyPassword != null) Logger.log(Logger.INFO,"Neues Paßwort für Schlüsselspeicher festgelegt.");
   }
 
   boolean loadKeys() {
     if (Daten.keyStore != null && Daten.keyStore.isKeyStoreReady()) return true;
-    Daten.keyStore = new EfaKeyStore(Daten.efaDataDirectory+drvConfig.KEYSTORE_FILE,drvConfig.keyPassword);
+    Daten.keyStore = new EfaKeyStore(Daten.efaDataDirectory+Daten.drvConfig.KEYSTORE_FILE,Daten.drvConfig.keyPassword);
     if (!Daten.keyStore.isKeyStoreReady()) {
       Dialog.error("KeyStore kann nicht geladen werden:\n"+Daten.keyStore.getLastError());
     }
@@ -126,7 +124,7 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
         tableData[i][1] = CertInfos.getValidityYears(cert);
         tableData[i][2] = EfaUtil.date2String(cert.getNotBefore());
         tableData[i][3] = EfaUtil.date2String(cert.getNotAfter());
-        tableData[i][4] = (drvConfig.schluessel.equals(keys[i]) ? "Standard" : "");
+        tableData[i][4] = (Daten.drvConfig.schluessel.equals(keys[i]) ? "Standard" : "");
       }
       String[] tableHeader = new String[5];
       tableHeader[0] = "Schlüssel-ID";
@@ -157,10 +155,10 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
       return;
     }
 
-    drvConfig.schluessel = alias;
-    if (!drvConfig.writeFile()) {
-      Dialog.error("Konfigurationsdatei\n"+drvConfig.getFileName()+"\nkann nicht geschrieben werden!");
-      drvConfig.schluessel = "";
+    Daten.drvConfig.schluessel = alias;
+    if (!Daten.drvConfig.writeFile()) {
+      Dialog.error("Konfigurationsdatei\n"+Daten.drvConfig.getFileName()+"\nkann nicht geschrieben werden!");
+      Daten.drvConfig.schluessel = "";
       Logger.log(Logger.WARNING,"Kein Schlüssel als Standardschlüssel ausgewählt.");
     } else {
       Logger.log(Logger.INFO,"Schlüssel "+alias+" als neuer Standardschlüssel ausgewählt.");
@@ -317,7 +315,7 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
       CA ca;
 
       try {
-        ca = new CA(drvConfig);
+        ca = new CA();
       } catch(Exception ee) {
         Dialog.error(ee.toString());
         return;
@@ -327,16 +325,16 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
                     " -alias "+alias+"_priv"+
                     " -keyalg DSA -keysize 1024 -sigalg SHA1withDSA"+
                     " -validity "+tage+
-                    " -dname CN=Deutscher\\sRuderverband,O="+cn+",C=DE\"",drvConfig.keyPassword);
+                    " -dname CN=Deutscher\\sRuderverband,O="+cn+",C=DE\"",Daten.drvConfig.keyPassword);
 
       ca.runKeytool("-certreq -alias "+alias+"_priv"+
-                    " -file "+Daten.efaTmpDirectory+"certreq.csr",drvConfig.keyPassword);
+                    " -file "+Daten.efaTmpDirectory+"certreq.csr",Daten.drvConfig.keyPassword);
 
       if (!ca.signRequest(Daten.efaTmpDirectory+"certreq.csr",Daten.efaTmpDirectory+"certreq.pem",tage)) {
         Dialog.error("Fehler beim Signieren des Zertifikats durch die CA.");
         Dialog.infoDialog("Der erstellte Schlüssel wird nun wieder gelöscht.");
         ca.runKeytool("-delete"+
-                      " -alias "+alias+"_priv",drvConfig.keyPassword);
+                      " -alias "+alias+"_priv",Daten.drvConfig.keyPassword);
         Dialog.infoDialog("Schlüssel wurde gelöscht","Der erstellte Schlüssel wurde erfolgreich gelöscht.");
         return;
       }
@@ -413,7 +411,7 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
                            "Soll sie überschrieben werden?") != Dialog.YES) return;
     CA ca;
     try {
-      ca = new CA(drvConfig);
+      ca = new CA();
     } catch(Exception ee) {
       Dialog.error(ee.toString());
       return;
@@ -437,7 +435,7 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
       String data = Base64.encodeBytes(buf);
       data = EfaUtil.replace(data,"=","**0**",true); // "=" als "**0**" maskieren
 
-      String request = drvConfig.makeScriptRequestString(DRVConfig.ACTION_UPLCERT,"cert="+alias+".cert64","data="+data,null,null);
+      String request = Daten.drvConfig.makeScriptRequestString(DRVConfig.ACTION_UPLCERT,"cert="+alias+".cert64","data="+data,null,null);
       int pos = request.indexOf("?");
       if (pos < 0) {
         Dialog.error("efaWett-Anfrage zum Hochladen des Zertifikats konnte nicht erstellt werden.");

@@ -22,11 +22,7 @@ public class CA {
 
   public static final String DRVCA = "drvca";
 
-  DRVConfig drvConfig;
-
-  public CA(DRVConfig drvConfig) throws Exception {
-    this.drvConfig = drvConfig;
-
+  public CA() throws Exception {
     if (!(new File(Daten.efaDataDirectory+"CA").isDirectory())) throw new Exception("Verzeichnis "+Daten.efaDataDirectory+"CA existiert nicht. Bitte erstelle zunächst eine CA!");
 
     if (Daten.keyStore.getCertificate(DRVCA) == null) {
@@ -38,12 +34,12 @@ public class CA {
   }
 
   public boolean runKeytool(String cmd, char[] keypass) {
-    String showCmd = cmd + " -keystore "+Daten.efaDataDirectory+drvConfig.KEYSTORE_FILE +
+    String showCmd = cmd + " -keystore "+Daten.efaDataDirectory+Daten.drvConfig.KEYSTORE_FILE +
            (keypass != null ? " -keypass ***" : "") +
            " -storepass ***";
-    cmd += " -keystore "+Daten.efaDataDirectory+drvConfig.KEYSTORE_FILE +
+    cmd += " -keystore "+Daten.efaDataDirectory+Daten.drvConfig.KEYSTORE_FILE +
            (keypass != null ? " -keypass " + new String(keypass) : "") +
-           " -storepass " + new String(drvConfig.keyPassword);
+           " -storepass " + new String(Daten.drvConfig.keyPassword);
     Logger.log(Logger.INFO,"Starte Keytool: "+showCmd);
     String[] cmdarr = EfaUtil.kommaList2Arr(cmd,' ');
     for (int i=0; i<cmdarr.length; i++) cmdarr[i] = EfaUtil.replace(cmdarr[i],"\\s"," ",true);
@@ -69,14 +65,14 @@ public class CA {
   }
 
   public boolean signRequest(String req, String sigReq, int tage) {
-    if (drvConfig.openssl == null || drvConfig.openssl.length() == 0) {
+    if (Daten.drvConfig.openssl == null || Daten.drvConfig.openssl.length() == 0) {
       Dialog.error("Openssl ist nicht konfiguriert!");
       return false;
     }
     try {
       char[] pwd = EnterPasswordFrame.enterPassword(Dialog.frameCurrent(),"Bitte Schlüssel-Paßwort für CA eingeben:");
       if (pwd == null) return false;
-      String openssl = drvConfig.openssl;
+      String openssl = Daten.drvConfig.openssl;
       String sigReqTmp = sigReq+".tmp";
       String cmd = openssl + " ca -config "+Daten.efaDataDirectory+"CA"+Daten.fileSep+"openssl.cnf -policy policy_anything -in "+req+" -out "+sigReqTmp+" -batch -days "+tage+" -key ";
       Logger.log(Logger.INFO,"Starte OpenSSL: "+cmd+"***");

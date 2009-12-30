@@ -21,7 +21,7 @@ public class HtmlFactory {
     public static void writeHeader(BufferedWriter f, String title, boolean withH1) throws IOException {
         f.write("<html>\n");
         f.write("<head>\n");
-        f.write("<meta http-equiv=\"content-type\" content=\"text/html; charset=\"" + Daten.ENCODING_UTF + "\">\n");
+        f.write("<meta http-equiv=\"content-type\" content=\"text/html; charset=" + Daten.ENCODING_UTF + "\">\n");
         f.write("<title>" + title + "</title>\n");
         f.write("</head>\n");
         f.write("<body>\n");
@@ -109,7 +109,7 @@ public class HtmlFactory {
                     "abgestimmt werden können.") +
                     "</p>\n");
             f.write("<form method=\"post\" action=\"" + Daten.INTERNET_EFAMAIL + "\">\n");
-            f.write("<input type=\"hidden\" name=\"betreff\" value=\"User efa " + Daten.VERSION + "\">\n");
+            f.write("<input type=\"hidden\" name=\"betreff\" value=\"User efa " + Daten.VERSIONID + "\">\n");
             f.write("<table align=\"center\">\n");
             f.write("<tr><td><b>" + International.getString("Name") +
                     ":</b></td><td><input type=\"text\" name=\"absender\" size=\"30\"></td></tr>\n");

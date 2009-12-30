@@ -55,7 +55,7 @@ public class Dialog {
     if ("Linux".equals(System.getProperty("os.name"))) {
       // Workaround für Linux: Fenster verschwinden oder werden falsch positioniert, wenn die die
       // volle Bildschirmgröße haben
-       Dialog.screenSize = new Dimension(screenSize.width-1, screenSize.height-1);
+      Dialog.screenSize = new Dimension(screenSize.width-1, screenSize.height-1);
     } else {
       Dialog.screenSize = screenSize;
     }
@@ -66,7 +66,7 @@ public class Dialog {
       Dialog.screenSize.height = Daten.efaConfig.screenHeight;
     }
     initializeMaxDialogSizes();
-    if (Daten.efaConfig != null && Daten.efaConfig.maxDialogWidth>0 || Daten.efaConfig.maxDialogHeight>0) {
+    if (Daten.efaConfig != null && (Daten.efaConfig.maxDialogWidth>0 || Daten.efaConfig.maxDialogHeight>0)) {
       Dialog.setMaxDialogSizes(Daten.efaConfig.maxDialogWidth,Daten.efaConfig.maxDialogHeight);
     }
   }

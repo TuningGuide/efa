@@ -41,6 +41,9 @@ public class Main extends Program {
 
     public Main(String[] args) {
         super(args);
+        if (args.length == 0) {
+            printUsage(null);
+        }
         Daten.initialize(Daten.APPL_CLI);
         if (stat != null || importFb != null) {
             if (fb == null || fb.equals("efa") || fb.equals("efadirekt")) {
@@ -65,6 +68,7 @@ public class Main extends Program {
                 doImportFb();
             }
         }
+        Daten.haltProgram(0);
     }
 
     public void printUsage(String wrongArgument) {

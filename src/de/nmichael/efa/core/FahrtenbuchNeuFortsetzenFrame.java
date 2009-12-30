@@ -156,11 +156,11 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
     erklaerung.setBackground(UIManager.getColor("control"));
     erklaerung.setEditable(false);
     erklaerung.setFont(new java.awt.Font("Dialog", 1, 12));
-    erklaerung.append(
+    erklaerung.append(Dialog.chopDialogString(
             International.getString("Soll ein neues, unabhängiges Fahrtenbuch (mit neuen, leeren Datenlisten) "+
                                     "erstellt werden, das keinen Bezug zu bestehenden Fahrtenbüchern hat? "+
                                      "Oder soll ein neues Fahrtenbuch erstellt werden, das ein bestehendes Fahrtenbuch "+
-                                     "fortsetzt und die existierende Datenlisten übernimmt (z.B. beim Jahreswechsel)?")+"\n");
+                                     "fortsetzt und die existierende Datenlisten übernimmt (z.B. beim Jahreswechsel)?")+"\n"));
     weiterButton.setVisible(false);
     dateiLabel.setVisible(false);
     dateiEfb.setVisible(false);

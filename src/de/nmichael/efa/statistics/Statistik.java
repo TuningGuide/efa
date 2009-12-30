@@ -5128,7 +5128,7 @@ public class Statistik {
       } else {
         f.write("<html>\n");
         f.write("<head>\n");
-        f.write("<meta http-equiv=\"content-type\" content=\"text/html; charset=\""+Daten.ENCODING_UTF+"\">\n");
+        f.write("<meta http-equiv=\"content-type\" content=\"text/html; charset="+Daten.ENCODING_UTF+"\">\n");
         f.write("<title>"+ad.titel+"</title>\n");
         f.write("</head>\n");
         f.write("<body>\n");
@@ -6108,7 +6108,7 @@ public class Statistik {
     try {
       if (! new File(dir+Daten.WETTFILE).isFile() && new File(Daten.efaProgramDirectory+Daten.WETTFILE).isFile())
         dir=Daten.efaProgramDirectory;
-      f = new BufferedReader(new InputStreamReader(new FileInputStream(dir+Daten.WETTFILE),Daten.ENCODING_UTF));
+      f = new BufferedReader(new InputStreamReader(new FileInputStream(dir+Daten.WETTFILE),Daten.ENCODING_ISO));
       while ((s = f.readLine()) != null) {
         if (s.startsWith("["+bezeich+"]")) {
           while ((s = f.readLine()) != null) {

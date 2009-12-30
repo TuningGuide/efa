@@ -242,7 +242,7 @@ public class Logger {
   private static NachrichtenAnAdmin nachrichten = null;
 
   private static String createLogfileName(String logfile) {
-    return Daten.efaBaseConfig.efaUserDirectory+logfile;
+    return Daten.efaLogDirectory+logfile;
   }
 
   public static String ini(String logfile, boolean append) {

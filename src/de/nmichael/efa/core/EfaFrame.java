@@ -2954,14 +2954,16 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     Daten.checkJavaVersion(true);
     Daten.checkRegister();
 
-    if (startOpenFb != null && EfaUtil.canOpenFile(startOpenFb)) fahrtenbuchOeffnen(startOpenFb);
-    else if (!Daten.efaConfig.letzteDatei.equals("") && EfaUtil.canOpenFile(Daten.efaConfig.letzteDatei)) fahrtenbuchOeffnen(Daten.efaConfig.letzteDatei);
-    else if (Daten.efaConfig.letzteDatei.equals("") && Daten.efaConfig.countEfaStarts == 1)
-      if (Dialog.yesNoDialog(International.getString("Neues Fahrtenbuch anlegen"),
-	  International.getString("Du startest efa heute zum ersten Mal. Möchtest Du ein neues Fahrtenbuch anlegen?")
-                                        ) == Dialog.YES) {
-        askForOpenNewFb = true;
-      }
+    if (startOpenFb != null && EfaUtil.canOpenFile(startOpenFb)) {
+        fahrtenbuchOeffnen(startOpenFb);
+    } else if (!Daten.efaConfig.letzteDatei.equals("") && EfaUtil.canOpenFile(Daten.efaConfig.letzteDatei)) {
+        fahrtenbuchOeffnen(Daten.efaConfig.letzteDatei);
+    } else if (Daten.efaConfig.letzteDatei.equals("")) {
+        if (Dialog.yesNoDialog(International.getString("Neues Fahrtenbuch anlegen"),
+	    International.getString("Du startest efa heute zum ersten Mal. Möchtest Du ein neues Fahrtenbuch anlegen?")) == Dialog.YES) {
+            askForOpenNewFb = true;
+        }
+    }
 
 /*
  * @todo: how to best implement this in efa2??

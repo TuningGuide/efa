@@ -23,7 +23,6 @@ import de.nmichael.efa.*;
 
 public class DRVConfigFrame extends JDialog implements ActionListener {
   JDialog parent;
-  DRVConfig drvConfig;
   JPanel jPanel1 = new JPanel();
   BorderLayout borderLayout1 = new BorderLayout();
   JButton saveButton = new JButton();
@@ -85,9 +84,8 @@ public class DRVConfigFrame extends JDialog implements ActionListener {
   JTextField userDirectory = new JTextField();
 
 
-  public DRVConfigFrame(JDialog parent, DRVConfig drvConfig) {
+  public DRVConfigFrame(JDialog parent) {
     super(parent);
-    this.drvConfig = drvConfig;
     enableEvents(AWTEvent.WINDOW_EVENT_MASK);
     Dialog.frameOpened(this);
     try {
@@ -376,25 +374,25 @@ public class DRVConfigFrame extends JDialog implements ActionListener {
 
   void frameIni() {
     this.userDirectory.setText(Daten.efaBaseConfig.efaUserDirectory);
-    this.datenDirectory.setText(drvConfig.datenDirectory);
-    this.darfFAbearbeitenCheckBox.setSelected(drvConfig.darfFAbearbeiten);
-    this.darfWSbearbeitenCheckBox.setSelected(drvConfig.darfWSbearbeiten);
+    this.datenDirectory.setText(Daten.drvConfig.datenDirectory);
+    this.darfFAbearbeitenCheckBox.setSelected(Daten.drvConfig.darfFAbearbeiten);
+    this.darfWSbearbeitenCheckBox.setSelected(Daten.drvConfig.darfWSbearbeiten);
 
-    this.meld_erw.setText(Integer.toString(drvConfig.eur_meld_erw));
-    this.meld_jug.setText(Integer.toString(drvConfig.eur_meld_jug));
-    this.nadel_erw_silber.setText(Integer.toString(drvConfig.eur_nadel_erw_silber));
-    this.nadel_erw_gold.setText(Integer.toString(drvConfig.eur_nadel_erw_gold));
-    this.nadel_jug_silber.setText(Integer.toString(drvConfig.eur_nadel_jug_silber));
-    this.nadel_jug_gold.setText(Integer.toString(drvConfig.eur_nadel_jug_gold));
-    this.stoff_erw.setText(Integer.toString(drvConfig.eur_stoff_erw));
-    this.stoff_jug.setText(Integer.toString(drvConfig.eur_stoff_jug));
+    this.meld_erw.setText(Integer.toString(Daten.drvConfig.eur_meld_erw));
+    this.meld_jug.setText(Integer.toString(Daten.drvConfig.eur_meld_jug));
+    this.nadel_erw_silber.setText(Integer.toString(Daten.drvConfig.eur_nadel_erw_silber));
+    this.nadel_erw_gold.setText(Integer.toString(Daten.drvConfig.eur_nadel_erw_gold));
+    this.nadel_jug_silber.setText(Integer.toString(Daten.drvConfig.eur_nadel_jug_silber));
+    this.nadel_jug_gold.setText(Integer.toString(Daten.drvConfig.eur_nadel_jug_gold));
+    this.stoff_erw.setText(Integer.toString(Daten.drvConfig.eur_stoff_erw));
+    this.stoff_jug.setText(Integer.toString(Daten.drvConfig.eur_stoff_jug));
 
-    this.efw_script.setText(drvConfig.efw_script);
-    this.efw_username.setText(drvConfig.efw_user);
-    this.efw_password.setText(drvConfig.efw_password);
+    this.efw_script.setText(Daten.drvConfig.efw_script);
+    this.efw_username.setText(Daten.drvConfig.efw_user);
+    this.efw_password.setText(Daten.drvConfig.efw_password);
 
-    this.prog_openssl.setText(drvConfig.openssl);
-    this.prog_acrobat.setText(drvConfig.acrobat);
+    this.prog_openssl.setText(Daten.drvConfig.openssl);
+    this.prog_acrobat.setText(Daten.drvConfig.acrobat);
   }
 
   void saveButton_actionPerformed(ActionEvent e) {
@@ -404,27 +402,27 @@ public class DRVConfigFrame extends JDialog implements ActionListener {
       Daten.efaBaseConfig.writeFile();
     }
 
-    drvConfig.datenDirectory = this.datenDirectory.getText().trim();
-    drvConfig.darfFAbearbeiten = this.darfFAbearbeitenCheckBox.isSelected();
-    drvConfig.darfWSbearbeiten = this.darfWSbearbeitenCheckBox.isSelected();
+    Daten.drvConfig.datenDirectory = this.datenDirectory.getText().trim();
+    Daten.drvConfig.darfFAbearbeiten = this.darfFAbearbeitenCheckBox.isSelected();
+    Daten.drvConfig.darfWSbearbeiten = this.darfWSbearbeitenCheckBox.isSelected();
 
-    drvConfig.eur_meld_erw = EfaUtil.string2int(this.meld_erw.getText().trim(),0);
-    drvConfig.eur_meld_jug = EfaUtil.string2int(this.meld_jug.getText().trim(),0);
-    drvConfig.eur_nadel_erw_silber = EfaUtil.string2int(this.nadel_erw_silber.getText().trim(),0);
-    drvConfig.eur_nadel_erw_gold = EfaUtil.string2int(this.nadel_erw_gold.getText().trim(),0);
-    drvConfig.eur_nadel_jug_silber = EfaUtil.string2int(this.nadel_jug_silber.getText().trim(),0);
-    drvConfig.eur_nadel_jug_gold = EfaUtil.string2int(this.nadel_jug_gold.getText().trim(),0);
-    drvConfig.eur_stoff_erw = EfaUtil.string2int(this.stoff_erw.getText().trim(),0);
-    drvConfig.eur_stoff_jug = EfaUtil.string2int(this.stoff_jug.getText().trim(),0);
+    Daten.drvConfig.eur_meld_erw = EfaUtil.string2int(this.meld_erw.getText().trim(),0);
+    Daten.drvConfig.eur_meld_jug = EfaUtil.string2int(this.meld_jug.getText().trim(),0);
+    Daten.drvConfig.eur_nadel_erw_silber = EfaUtil.string2int(this.nadel_erw_silber.getText().trim(),0);
+    Daten.drvConfig.eur_nadel_erw_gold = EfaUtil.string2int(this.nadel_erw_gold.getText().trim(),0);
+    Daten.drvConfig.eur_nadel_jug_silber = EfaUtil.string2int(this.nadel_jug_silber.getText().trim(),0);
+    Daten.drvConfig.eur_nadel_jug_gold = EfaUtil.string2int(this.nadel_jug_gold.getText().trim(),0);
+    Daten.drvConfig.eur_stoff_erw = EfaUtil.string2int(this.stoff_erw.getText().trim(),0);
+    Daten.drvConfig.eur_stoff_jug = EfaUtil.string2int(this.stoff_jug.getText().trim(),0);
 
-    drvConfig.efw_script = this.efw_script.getText().trim();
-    drvConfig.efw_user = this.efw_username.getText().trim();
-    drvConfig.efw_password = this.efw_password.getText().trim();
+    Daten.drvConfig.efw_script = this.efw_script.getText().trim();
+    Daten.drvConfig.efw_user = this.efw_username.getText().trim();
+    Daten.drvConfig.efw_password = this.efw_password.getText().trim();
 
-    drvConfig.openssl = this.prog_openssl.getText().trim();
-    drvConfig.acrobat = this.prog_acrobat.getText().trim();
+    Daten.drvConfig.openssl = this.prog_openssl.getText().trim();
+    Daten.drvConfig.acrobat = this.prog_acrobat.getText().trim();
 
-    if (!drvConfig.writeFile()) {
+    if (!Daten.drvConfig.writeFile()) {
       Dialog.error("Das Speichern der Konfiguration ist fehlgeschlagen!");
       return;
     }

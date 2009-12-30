@@ -252,7 +252,7 @@ public class ListenausgabeFrame extends JDialog implements ActionListener {
       BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename),Daten.ENCODING_UTF));
       f.write("<html>\n");
       f.write("<head>\n");
-      f.write("<meta http-equiv=\"content-type\" content=\"text/html; charset=\""+Daten.ENCODING_UTF+"\">\n");
+      f.write("<meta http-equiv=\"content-type\" content=\"text/html; charset="+Daten.ENCODING_UTF+"\">\n");
       f.write("<title>"+title+"</title>\n");
       f.write("</head>\n");
       f.write("<body>\n");

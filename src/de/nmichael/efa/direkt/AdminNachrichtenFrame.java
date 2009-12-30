@@ -351,7 +351,7 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
     try {
       BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpdatei),Daten.ENCODING_UTF));
       f.write("<html>\n");
-      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=\""+Daten.ENCODING_UTF+"\"></head>\n");
+      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset="+Daten.ENCODING_UTF+"\"></head>\n");
       f.write("<body>\n");
       f.write("<table>\n");
       f.write("<tr><td>##</td><td colspan=\"2\">"+International.getString("Nachricht")+" "+(nID+1)+"/"+nachrichten.size()+"</td></tr>\n");

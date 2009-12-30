@@ -338,7 +338,7 @@ public class EfaWettFertigFrame extends JDialog implements ActionListener {
     try {
       BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpdatei),Daten.ENCODING_ISO));
       f.write("<html>\n");
-      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset=\""+Daten.ENCODING_ISO+"\"></head>\n");
+      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset="+Daten.ENCODING_ISO+"\"></head>\n");
       f.write("<body>\n");
       f.write("<h1 align=\"center\">Wettbewerbsmeldung einsenden</h1>\n");
       f.write("<table bgcolor=\"#eeeeee\" align=\"center\"><tr><td>\n");

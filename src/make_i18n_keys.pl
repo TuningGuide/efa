@@ -16,8 +16,14 @@ if (length($properties) == 0) {
   printf("       s   sort all keys independent of source file\n");
   printf("       S   sort all keys independent of source file (case-insentivive)\n");
   printf("       f   print file name as a comment after each key\n");
+  printf("       d   print DEBUG messages on stderr\n");
   exit(1);
 }
+
+# some global variables
+my $_filename;
+my $_linenr;
+my $_line;
 
 # read existing properties
 readProps($properties);
@@ -112,25 +118,33 @@ sub searchdir {
 
 sub parsefile {
   my $file = shift;
-  # printf STDERR ("INFO   : File %s ...\n",$file);
+  printf STDERR ("#DEBUG: File %s ...\n",$file) unless $options !~ /d/;;
   open(JAVA,$file) || die "cannot open source file: $file\n";
-  my $isMessage = 0;
-  my $linenr = 0;
+  $_filename = $file;
+  $_linenr = 0;
   while(<JAVA>) {
+    $_line = $_;
+    $_linenr++;
+    parseLine($_line);
+  }
+  close(JAVA);
+}
 
+sub parseLine {
+  my $line = shift;
+  my $remaining = $line;
+  my $isMessage = 0;
+
+  while (length($remaining) > 0) {
+    $line = $remaining;
+    $remaining = "";
     my $txt = "";
     my $discr = "";
-    $linenr++;
-
-    # warn if multiple international strings are found in one source code line
-    if (/International.get(.*)International.get/) {
-      printf STDERR ("WARNING: Multiple Strings: %-60s line %4d: %s",$file,$linenr,$_);
-    }
 
     # getString(...) or getStringWithMnemonic(...)
-    if (/International.getString[^\(]*\s*\((.*)/) {
+    if ($line =~ /International.getString[^\(]*\s*\((.*)/) {
       $isMessage = 0;
-      getStrings($1);
+      $remaining = getStrings($1,2);
       if ($#strings <= 1) {
         $txt = $strings[0];
       }
@@ -140,9 +154,9 @@ sub parsefile {
     }
 
     # getMessage(...)
-    if (/International.getMessage[^\(]*\s*\((.*)/) {
+    if ($line =~ /International.getMessage[^\(]*\s*\((.*)/) {
       $isMessage = 1;
-      getStrings($1);
+      $remaining = getStrings($1,1);
       if ($#strings >= 0) {
         $txt = $strings[0];
       }
@@ -184,35 +198,51 @@ sub parsefile {
 
       # print key and text
       if (exists $keys{$key}) {
-        # printf("#DEBUG: Duplicate Key $key=$txt\n");
+        printf(stderr "#DEBUG: Duplicate Key $key=$txt\n") unless $options !~ /d/;
       } else {
-        # printf("#DEBUG: New Key $key=$txt\n");
+        printf(stderr "#DEBUG: New Key $key=$txt\n") unless $options !~ /d/;
         $keys{$key}{txt} = $txt;
         $keys{$key}{file} = $file;
         $keys{$key}{new} = 1;
       }
     }
-
   }
-
-  close(JAVA);
 }
 
 sub getStrings {
   my $line = shift;
-  # printf("#DEBUG: getStrings(%s)\n",$line);
+  my $nrOfStrings = shift; # number of strings to look for
+  printf(stderr "#DEBUG: getStrings(%s)\n",$line) unless $options !~ /d/;
   my $str = "";
   my $i = 0;
-  my $inString = 0;  # 0 = before string; 1 = in string; 2 = after string, search for concatenated strings; 98 = search for next string; 99 = strings complete
-  my $inComment = 0; # 0 = no comment; 1 = in comment
+  my $remaining = "";
+
+  # 0 = before string
+  # 1 = in string
+  # 2 = after string, search for concatenated strings
+  # 98 = search for next string
+  # 99 = strings complete
+  my $inString = 0;
+
+  # 0 = no comment
+  # 1 = in comment
+  my $inComment = 0;
+
   @strings = ();
   while($inString != 100) {
 
     if ($inString == 98 || $inString == 99) {
       $strings[$#strings+1] = $str;
-      # printf("#DEBUG: String complete: >>%s<<\n",$str);
+      printf(stderr "#DEBUG: String complete: >>%s<<\n",$str) unless $options !~ /d/;
       if ($inString == 98) {
-        $inString = 0;
+        my $foundStrings = $#strings + 1;
+        if ($foundStrings == $nrOfStrings) {
+          printf(stderr "#DEBUG: $nrOfStrings Strings found, we're done!\n",$str) unless $options !~ /d/;
+          $inString = 100;
+        } else {
+          printf(stderr "#DEBUG: $foundStrings Strings found, searching for furhter strings ...\n",$str) unless $options !~ /d/;
+          $inString = 0;
+        }
       } else {
         $inString = 100;
       }
@@ -220,10 +250,13 @@ sub getStrings {
       next;
     }
 
-    my $remaining = substr($line,$i++);
-    # printf("#DEBUG: remaining string is >>%s<<\n",$remaining);
+    $remaining = substr($line,$i++);
+    printf(stderr "#DEBUG: remaining string is >>%s<<\n",$remaining) unless $options !~ /d/;
     if (length($remaining) == 0) {
       $line = <JAVA>;
+      chomp($line);
+      $_line = $line;
+      $_linenr++;
       $i = 0;
       next;
     }
@@ -234,15 +267,18 @@ sub getStrings {
 
         # comment until end of line?
         if ($remaining =~ /^\/\//) {
-          # printf("#DEBUG: Comment until EOL found: %s\n",$remaining);
+          printf(stderr "#DEBUG: Comment until EOL found: %s\n",$remaining) unless $options !~ /d/;
           $line = <JAVA>;
+          chomp($line);
+          $_line = $line;
+          $_linenr++;
           $i = 0;
           next;
         }
 
         # start of a comment?
         if ($remaining =~ /^\/\*/) {
-          # printf("#DEBUG: Beginning of a Comment found: %s\n",$remaining);
+          printf(stderr "#DEBUG: Beginning of a Comment found: %s\n",$remaining) unless $options !~ /d/;
           $inComment = 1;
           $i++;
           next;
@@ -250,37 +286,42 @@ sub getStrings {
 
         # start of a string?
         if ($remaining =~ /^"/) {
-          # printf("#DEBUG: Beginning of a String found: %s\n",$remaining);
+          printf(stderr "#DEBUG: Beginning of a String found: %s\n",$remaining) unless $options !~ /d/;
           $inString = 1;
           next;
         }
 
         # concatenated string?
         if ($remaining =~ /^\+/) {
-          # printf("#DEBUG: Concatenation found: %s\n",$remaining);
+          printf(stderr "#DEBUG: Concatenation found: %s\n",$remaining) unless $options !~ /d/;
           $inString = 2;
           next;
         }
 
         # next parameter?
         if ($remaining =~ /^,/) {
-          # printf("#DEBUG: Next Method Parameter found: %s\n",$remaining);
+          printf(stderr "#DEBUG: Next Method Parameter found: %s\n",$remaining) unless $options !~ /d/;
           $inString = 98;
           next;
         }
 
         # method finished?
         if ($remaining =~ /^\)/) {
-          # printf("#DEBUG: End of Method found: %s\n",$remaining);
+          printf(stderr "#DEBUG: End of Method found: %s\n",$remaining) unless $options !~ /d/;
           $inString = 99;
           next;
+        }
+        if ($remaining !~ /^[ \t]/) {
+          printf(stderr "#WARNING: %s:%d: unexpected international string will be ignored (dynamic key?): >>%s<<\n %s\n",
+                         $_filename,$_linenr,$remaining,$_line);
+          $inString = 100;
         }
 
       } else { # we're inside a comment
 
         # end of a comment?
         if ($remaining =~ /^\*\//) {
-          # printf("#DEBUG: End of a Comment found: %s\n",$remaining);
+          printf(stderr "#DEBUG: End of a Comment found: %s\n",$remaining) unless $options !~ /d/;
           $inComment = 0;
           $i++;
           next;
@@ -291,10 +332,10 @@ sub getStrings {
     }
 
     if ($inString == 1) { # we're inside a string, adding characters to the current string
-      # printf("#DEBUG: in string: >>%s<<\n",$remaining);
+      printf(stderr "#DEBUG: in string: >>%s<<\n",$remaining) unless $options !~ /d/;
 
       if ($remaining =~ /^"/) {
-        # printf("#DEBUG: end of part of string found, string is now: >>%s<<\n",$str);
+        printf(stderr "#DEBUG: end of part of string found, string is now: >>%s<<\n",$str) unless $options !~ /d/;
         $inString = 2;
         next;
       }
@@ -309,5 +350,8 @@ sub getStrings {
     }
 
   }
+
+  printf(stderr "#DEBUG: done getting strings, remaining line: >>%s<<\n",$remaining) unless $options !~ /d/;
+  return $remaining;
 }
 

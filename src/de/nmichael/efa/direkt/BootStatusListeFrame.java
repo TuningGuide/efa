@@ -221,8 +221,9 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
   public void editDone(DatenFelder boot) {
     Logger.log(Logger.INFO,Logger.MSG_ADMIN_BOATSTATECHANGED,
             International.getString("Admin")+": "+
-            International.getMessage("Bootsstatus für Boot '{name}' auf '{new_status}' gesetzt (LfdNr=#{record})."+
-                           boot.get(BootStatus.NAME),BootStatus.getStatusName(EfaUtil.string2int(boot.get(BootStatus.STATUS),0)),
+            International.getMessage("Bootsstatus für Boot '{name}' auf '{new_status}' gesetzt (LfdNr=#{record}).",
+                           boot.get(BootStatus.NAME),
+                           BootStatus.getStatusName(EfaUtil.string2int(boot.get(BootStatus.STATUS),0)),
                            boot.get(BootStatus.LFDNR)));
     firstclick=false;
     this.bootStatus.delete(boot.get(BootStatus.NAME));

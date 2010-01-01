@@ -289,7 +289,8 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
         neuesFb = new Fahrtenbuch(s);
         if (EfaUtil.canOpenFile(neuesFb.getFileName())) {
           if (!(Dialog.yesNoDialog(International.getString("Warnung"),
-                  LogString.logstring_fileNotFound(neuesFb.getFileName(), International.getString("neues Fahrtenbuch")))
+                  LogString.logstring_fileAlreadyExists(neuesFb.getFileName(), International.getString("Neues Fahrtenbuch")) + "\n" +
+                  International.getString("Soll die Datei überschrieben werden?"))
                   == Dialog.YES)) return;
         }
         FBDaten neu = new FBDaten(altesFb.getDaten());

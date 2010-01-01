@@ -57,6 +57,7 @@ public class Logger {
   public static final String MSG_CORE_EFASECCORRUPTED        = "COR014";
   public static final String MSG_CORE_CONFBACKUPDIRNOTEXIST  = "COR015";
   public static final String MSG_CORE_EFAALREADYRUNNING      = "COR016";
+  public static final String MSG_CORE_EFACONFIGUNKNOWNPARAM  = "COR017";
 
   // Activities performed in Admin Mode
   public static final String MSG_ADMIN_LOGIN                 = "ADM001";
@@ -220,6 +221,9 @@ public class Logger {
   public static final String MSG_FILE_ARCHIVINGFAILED        = "FLE009";
   public static final String MSG_FILE_BACKUPFAILED           = "FLE010";
   public static final String MSG_FILE_DIRECTORYNOTFOUND      = "FLE011";
+
+  // GUI Events & Errors
+  public static final String MSG_GUI_ERRORACTIONHANDLER      = "GUI001";
 
   // Debug Logging
   public static final String MSG_DEBUG_GENERIC               = "DBG001";

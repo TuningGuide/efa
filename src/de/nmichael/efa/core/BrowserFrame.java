@@ -159,7 +159,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
                 surl = HtmlFactory.createMailto();
             }
             if (surl.toLowerCase().startsWith("mailto:"))
-              Dialog.error(International.getString("Bitte benutze ein externes email-Programm, um eine email an {receiver} zu verschicken!",
+              Dialog.error(International.getMessage("Bitte benutze ein externes email-Programm, um eine email an {receiver} zu verschicken!",
                       surl.substring(7,surl.length())));
             else setNewPage(surl);
           } else downloadUrl(conn,e.getURL().toString());

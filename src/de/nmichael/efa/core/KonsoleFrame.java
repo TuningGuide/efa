@@ -121,7 +121,7 @@ public class KonsoleFrame extends JDialog implements ActionListener {
       f.close();
     } catch(FileNotFoundException e) {
     } catch(IOException e) {
-      out.append("\n"+International.getString("FEHLER beim Lesen der Logdatei '{logfile}'.",logfile));
+      out.append("\n"+International.getMessage("FEHLER beim Lesen der Logdatei '{logfile}'.",logfile));
     }
     out.setCaretPosition(0);
   }

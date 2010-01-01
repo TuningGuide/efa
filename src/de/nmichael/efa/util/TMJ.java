@@ -27,6 +27,14 @@ public class TMJ implements Cloneable {
   public GregorianCalendar toCalendar() {
     return new GregorianCalendar(jahr,monat-1,tag);
   }
+  
+  public static TMJ parseTMJ(String s) {
+      return EfaUtil.string2date(s, 0, 0, 0);
+  }
+
+  public String toString() {
+      return tag + "." + monat + "." + jahr;
+  }
 
 
 

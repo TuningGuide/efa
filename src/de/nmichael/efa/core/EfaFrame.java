@@ -2280,11 +2280,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       for (Iterator j = neighbours.iterator(); j.hasNext();) {
         DatenFelder d = (DatenFelder)j.next();
         suggestedName = dl.constructKey(d);
-        if (Dialog.yesNoDialog(International.getMessage("{art} unbekannt (Tippfehler?)",
-                               International.getString(art)),
+        if (Dialog.yesNoDialog(International.getMessage("{art} unbekannt (Tippfehler?)", art),
                                International.getMessage("Der Name '{name}' "+
                                "konnte in der {liste} nicht gefunden werden.",
-                               name, International.getString(liste)) + "\n" +
+                               name,liste) + "\n" +
                                International.getMessage("Meintest Du '{suggestedName}'?", suggestedName)) == Dialog.YES) {
           field.setText(suggestedName);
           vervollstaendige(field,button,dl,null,this,false);
@@ -2355,14 +2354,14 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         if (Daten.efaConfig.correctMisspelledBoote) {
             checkNeighbours(boot,bootButton,Daten.fahrtenbuch.getDaten().boote,
                 International.getString("Boot"),
-                International.getString("Bootsliste"),false); // the explicit string parameters are passed through Int'l.getString by checkNeighbours()
+                International.getString("Bootsliste"),false);
         }
       }
       if (Daten.efaConfig.correctMisspelledMitglieder) {
           checkNeighbours(stm,stmButton,Daten.fahrtenbuch.getDaten().mitglieder,
                   International.getString("Mitglied"),
                   International.getString("Mitgliederliste"),true);
-      } // the explicit string parameters are passed through International.getString by checkNeighbours()
+      }
       if (Daten.efaConfig.correctMisspelledMitglieder) {
           for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++) {
               checkNeighbours(mannsch[i],mannschButton[i % 8],Daten.fahrtenbuch.getDaten().mitglieder,
@@ -2861,6 +2860,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (oldFahrtDauerSelectedIndex<0) { oldFahrtDauerSelectedIndex = 9999; return; }
     if (Daten.fahrtenbuch == null) { oldFahrtDauerSelectedIndex = 9999; return; }
     if (fahrtDauer.getSelectedIndex() == oldFahrtDauerSelectedIndex) { oldFahrtDauerSelectedIndex = 9999; return; } // doppelte Aufrufe verhindern
+    if (fahrtDauer.getSelectedItem() == null) { return; }
 
     if (!isFahrtDauerMehrtagesfahrtAction((String)fahrtDauer.getSelectedItem())) {
         datensatzGeaendert = true;

@@ -335,9 +335,10 @@ public class FahrtenbuchNeuFortsetzenFrame extends JDialog implements ActionList
               } else Dialog.infoDialog(International.getString("Warnung"),
                       International.getMessage("Das ursprüngliche Fahrtenbuch {oldLogbook} "+
                                                "enthält bereits einen Verweis auf {nextLogbookFromOld} "+
-                                               "als 'nächstes Fahrtenbuch'. Dies führt zu Problemen bei der fahrtenbuchübergreifenden "+
+                                               "als '{nextLogbook}'. Dies führt zu Problemen bei der fahrtenbuchübergreifenden "+
                                                "Auswertung. Um den Verweis zu ändern, öffne im ursprünglichen Fahrtenbuch die "+
-                                               "'Einstellungen zum Fahrtenbuch'.",altesFb.getFileName(),altesFb.getNextFb(false)));
+                                               "'{LogbookSettings}'.",altesFb.getFileName(),altesFb.getNextFb(false),
+                                               International.getString("nächstes Fahrtenbuch"),International.getString("Einstellungen zum Fahrtenbuch")));
               neuesFb.setPrevFb(EfaUtil.makeRelativePath(altesFb.getFileName(),neuesFb.getFileName()));  // Verweis auf altes FB
             } else neuesFb.setPrevFb("");
             neuesFb.setNextFb("");

@@ -74,7 +74,7 @@ public class EfaErrorPrintStream extends PrintStream {
       // if the stack trace concerns classes from efa, ask for bug reports
       // (some other purely java (especially awt/swing) related bugs do not necessarily need to be reported...
       if (stacktrace.indexOf("de.nmichael.efa") >= 0) {
-          text += "\n"+International.getString("Bitte melde diesen Fehler an")+": "+Daten.EFAEMAIL;
+          text += "\n"+International.getMessage("Bitte melde diesen Fehler an: {efaemail}", Daten.EFAEMAIL);
       } else {
           text += "\n"+International.getString("Dieser Fehler ist möglicherweise ein Fehler in Java, der durch ein Java-Update behoben werden kann.");
       }

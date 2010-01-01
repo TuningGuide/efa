@@ -1792,7 +1792,7 @@ public class EfaDirektFrame extends JFrame {
       EfaUtil.foo();// list.getSelectedValue() wirft bei Frederik Hoppe manchmal eine Exception (Java-Bug?)
     }
     if (boot == null) {
-      Dialog.error(International.getMessage("Bitte wähle zuerst {from_the_right_list} ein Boot aus, welches unterwegs ist!",
+      Dialog.error(International.getMessage("Bitte wähle zuerst {from_the_right_list} ein Boot aus, welches unterwegs ist!", // @todo: Should probably use ChoiceFormat to make translation of this without looking at the code possible...
               (Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar ? 
                   International.getString("aus einer der rechten Listen") : 
                   International.getString("aus der rechten oberen Liste"))));

@@ -195,8 +195,8 @@ public class NachrichtenAnAdmin extends DatenListe {
                     International.getString("Alte Nachrichten aussortiert"),
                     International.getMessage("Da die Nachrichtendatei ihre maximale Größe erreicht hat, "+
                     "hat efa soeben alle alten Nachrichten aussortiert.\n"+
-                    "{count} alte Nachrichten wurden in die Datei "+
-                    bakdat+" verschoben.",nArchive.size()));
+                    "{count} alte Nachrichten wurden in die Datei {bakfilename}"+
+                    " verschoben.",nArchive.size(), bakdat));
       add(n);
       writeFile(false,true);
       return true;

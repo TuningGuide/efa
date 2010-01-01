@@ -179,8 +179,14 @@ sub parseLine {
       # create message text for compound messages
       if ($isMessage) {
         my $i = 1;
-        while ($txt =~ /{[^\}]+}/) {
-          $txt =~ s/{[^\}]+}/%_1_%$i%_2_%/;
+        while ($txt =~ /{([^\}]+)}/) {
+          my $keystr = $1;
+          if ($keystr =~ /, *choice *,/) {
+            $keystr =~ s/[^,]+,/,/;
+          } else {
+            $keystr = "";
+          }
+          $txt =~ s/{[^\}]+}/%_1_%${i}${keystr}%_2_%/;
           $i++;
         }
         $txt =~ s/%_1_%/{/g;

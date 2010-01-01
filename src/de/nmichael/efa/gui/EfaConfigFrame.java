@@ -135,14 +135,15 @@ public class EfaConfigFrame extends BaseDialog {
         Object[] keys = configItems.keySet().toArray();
         for (int i=0; i<keys.length; i++) {
             ConfigValue item = configItems.get(keys[i]);
-            item.setValue(((JTextField)keys[i]).getText().trim());
+            item.setValueFromString(((JTextField)keys[i]).getText().trim());
         }
         efaConfig.writeFile();
         super.closeButton_actionPerformed(e);
     }
+
     // @todo remove again, just for test purposes!!
     public static void main(String[] args) {
-        Daten.initialize(Daten.APPL_EFA);
+        Daten.initialize(Daten.APPL_CLI);
         efaConfig = new EfaConfig(Daten.efaCfgDirectory + "efa2.cfg");
         if (!EfaUtil.canOpenFile(efaConfig.getFileName())) {
             if (!efaConfig.writeFile()) {
@@ -159,6 +160,9 @@ public class EfaConfigFrame extends BaseDialog {
                     International.getString("Konfigurationsdatei"));
             Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDOPEN, msg);
         }
+        efaConfig.keys.getValue().put("F6", "teste mich!");
+        efaConfig.keys.getValue().put("F7", "mich bitte auch!");
+        efaConfig.keys.getValue().put("F8", "und hoffentlich geht's bei mir auch trotz Sonderzeichen wie @@@ und -->!");
         EfaConfigFrame dlg = new EfaConfigFrame(null);
         Dialog.setDlgLocation(dlg,null);
         dlg.setModal(true);

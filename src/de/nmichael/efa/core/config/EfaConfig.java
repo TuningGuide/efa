@@ -60,7 +60,7 @@ public class EfaConfig extends DatenListe {
     public ConfigValue<Integer> printLeftMargin;
     public ConfigValue<Integer> printTopMargin;
     public ConfigValue<Integer> printPageOverlap;
-    public ConfigValue<Hashtable> keys;
+    public ConfigValue<ConfigTypeHashtable<String>> keys;
     public ConfigValue<Integer> countEfaStarts;
     public ConfigValue<String> registeredProgramID;
     public ConfigValue<Integer> registrationChecks;
@@ -273,10 +273,14 @@ public class EfaConfig extends DatenListe {
         addParameter(printPageOverlap = new ConfigValue<Integer>("PRINT_PAGEOVERLAP", 5,
                 TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_PRINTING),
                 International.getString("Seitenüberlappung")));
-
-        addParameter(countEfaStarts = new ConfigValue<Integer>("COUNT_EFA_STARTS", 0,
+        addParameter(keys = new ConfigValue<ConfigTypeHashtable<String>>("HOTKEYS", new ConfigTypeHashtable<String>("foobar"),
+                TYPE_PUBLIC, makeCategory(CATEGORY_COMMON),
+                International.getString("Tastenbelegungen für Bemerkungs-Feld")));
+        addParameter(countEfaStarts = new ConfigValue<Integer>("EFA_STARTS_COUNTER", 0,
                 TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
                 International.getString("Anzahl der Starts von efa")));
+
+
 /*
         addParameter( = new ConfigValue<>("", "",
                 TYPE_, makeCategory(CATEGORY_),
@@ -352,44 +356,8 @@ public class EfaConfig extends DatenListe {
                     continue;
                 }
 
-                Class c = configValue.getValue().getClass();
-                Object v = null;
-                for (int i = 0; i < 5; i++) {
-                    switch (i) {
-                        case 0:
-                            v = value;
-                            break;
-                        case 1:
-                            try {
-                                v = Integer.parseInt(value);
-                            } catch (Exception e) {
-                            }
-                            break;
-                        case 2:
-                            try {
-                                v = Long.parseLong(value);
-                            } catch (Exception e) {
-                            }
-                            break;
-                        case 3:
-                            try {
-                                v = Boolean.getBoolean(value);
-                            } catch (Exception e) {
-                            }
-                            break;
-                        case 4:
-                            try {
-                                v = TMJ.parseTMJ(value);
-                            } catch (Exception e) {
-                            }
-                            break;
-                            // @todo: add types Hashtable and int[] ???
-                    }
-                    if (c.isInstance(v)) {
-                        configValue.setValue(v);
-                        break;
-                    }
-                }
+                configValue.setValueFromString(value);
+
             }
         } catch (IOException e) {
             try {
@@ -430,21 +398,6 @@ public class EfaConfig extends DatenListe {
             }
         }
         return "";
-    }
-
-
-
-    // for test purposes only
-    public static void main(String[] args) {
-        EfaConfig efaConfig = new EfaConfig("dummy");
-        System.out.println("writing initial config file:");
-        efaConfig.writeFile();
-        System.out.println("reading config file:");
-        efaConfig.readFile();
-        System.out.println("writing config file:");
-        efaConfig.writeFile();
-        System.out.println("letzteDatei = " + efaConfig.letzteDatei.getValue());
-        System.out.println("countEfaStarts = " + efaConfig.countEfaStarts.getValue());
     }
 
 }

@@ -445,7 +445,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
         if (Dialog.yesNoDialog(International.getString("Bootsstatus für Kombiboote übernehmen"),
                                International.getMessage("Der Bootsstatus wurde geändert. Soll der neue Bootsstatus auch für "+
                                "{number_of_boats,choice,1#das Boot|2#:die Boote}" +
-                               " {names} übernommen werden?",
+                               " '{names}' übernommen werden?",
                                syn.size(),EfaUtil.vector2string(syn,","))) == Dialog.YES) {
           // neuen Bootsstatus für alle Kombiboote übernehmen
           for (int i=0; i<syn.size(); i++) {

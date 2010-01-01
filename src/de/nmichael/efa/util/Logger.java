@@ -58,6 +58,8 @@ public class Logger {
   public static final String MSG_CORE_CONFBACKUPDIRNOTEXIST  = "COR015";
   public static final String MSG_CORE_EFAALREADYRUNNING      = "COR016";
   public static final String MSG_CORE_EFACONFIGUNKNOWNPARAM  = "COR017";
+  public static final String MSG_CORE_EFACONFIGUNSUPPPARMTYPE= "COR018";
+  public static final String MSG_CORE_EFACONFIGINVALIDVALUE  = "COR019";
 
   // Activities performed in Admin Mode
   public static final String MSG_ADMIN_LOGIN                 = "ADM001";

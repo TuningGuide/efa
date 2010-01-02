@@ -1824,7 +1824,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     if (!Daten.efaConfig.writeFile()) {
 
       Dialog.infoDialog(International.getString("Fehler"),
-              International.getMessage("Die Einstellungen konnten nicht gespeichert werden, da die Datei '' nicht geschrieben werden konnte.",
+              International.getMessage("Die Einstellungen konnten nicht gespeichert werden, da die Datei '{filename}' nicht geschrieben werden konnte.",
               Daten.efaConfig.dat));
     }
 

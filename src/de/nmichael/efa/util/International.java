@@ -159,19 +159,21 @@ public class International {
         if (s == null) return "null";
         
         // @todo: To be extended by further characters? And maybe some performance optimization needed.
-        String key = s;
-        for (int i=0; i<key.length(); i++) {
-            switch(key.charAt(i)) {
+        char[] key = s.toCharArray();
+        for (int i=0; i<key.length; i++) {
+            switch(key[i]) {
                 case ' ':
                 case '=':
                 case ':':
                 case '#':
                 case '\'':
-                    key = key.substring(0,i) + "_" + (i+1 < key.length() ? key.substring(i+1,key.length()) : "");
+                case '\\':
+                case '\n':
+                    key[i] = '_';
                     break;
             }
         }
-        return key;
+        return new String(key);
     }
 
     private static String getString(String s, boolean defaultIfNotFound, boolean includingMnemonics) {

@@ -143,8 +143,8 @@ public class StatAddFrame extends JDialog implements ActionListener {
     if (s.equals("")) return;
     if ( (t = Daten.fahrtenbuch.getDaten().statistik.getExact(s)) != null) {
       if (s.equals(DEFAULT) ||
-          Dialog.yesNoDialog(International.getString("Bezeichnung bereits vergeben"),
-          International.getString("Diese Bezeichnung ist bereits vergeben! Soll der alte Eintrag überschrieben werden?")
+          Dialog.yesNoDialog(International.getString("Name bereits vergeben"),
+          International.getString("Dieser Name ist bereits vergeben! Soll der alte Eintrag überschrieben werden?")
           ) == Dialog.YES) {
         if (!Daten.fahrtenbuch.getDaten().statistik.delete(t)) return;
       } else return;

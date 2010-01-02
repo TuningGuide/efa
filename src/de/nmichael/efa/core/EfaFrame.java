@@ -161,7 +161,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   JMenuItem jMenuDokumentation = new JMenuItem();
   JMenuItem jMenu_efaHomepage = new JMenuItem();
   JMenuItem jMenu_startTour = new JMenuItem();
-  JMenuItem jMenu_Willkommen = new JMenuItem();
   JMenu jMenu1 = new JMenu();
   JMenuItem jMenuItem8 = new JMenuItem();
   JMenuItem jMenuBackup = new JMenuItem();
@@ -1116,7 +1115,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     jMenuFile.add(jMenuFileExit);
     jMenuHelp.add(jMenuDokumentation);
     jMenuHelp.add(jMenu_startTour);
-    jMenuHelp.add(jMenu_Willkommen);
     jMenuHelp.addSeparator();
     jMenuHelp.add(jMenu_efaHomepage);
     jMenuHelp.addSeparator();
@@ -1831,9 +1829,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   void jMenuOnlineUpdate_actionPerformed(ActionEvent e) {
     if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
     if (this.mode != MODE_FULL) {
-      Dialog.error(International.getString("Diese Funktion steht nur im normalen efa-Modus zur Verfügung.\n"+
-                   "Bitte starte efa im normalen Modus (nicht in der Bootshausvariante), "+
-                   "um ein Online-Update durchzuführen."));
+      Dialog.error(International.getString("Diese Funktion steht nur im Basis-Modus von efa zur Verfügung.") + "\n" +
+                   International.getString("Bitte starte efa im Basis-Modus, um ein Online-Update durchzuführen."));
       startBringToFront(false); // efaDirekt im BRC -- Workaround
       return;
     }
@@ -3233,11 +3230,12 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if ( (Daten.fahrtenbuch.getExact(neu) != null && (neuerDatensatz || !neu.equals(aktDatensatz.get(Fahrtenbuch.LFDNR))) )
          || neu.equals("")) {
       Dialog.infoDialog(International.getString("Ungültige laufende Nummer"),
-	                                     International.getString("Diese Laufende Nummer ist bereits vergeben! Jede Laufende "+
-                                         "Nummer darf nur einmal verwendet werden werden. "+
-                                         "Bitte korrigiere die laufende Nummer des Eintrags!\n\n"+
-                                         "Hinweis: Um mehrere Einträge unter 'derselben' Nummer hinzuzufügen, "+
-                                         "füge einen Buchstaben von A bis Z direkt an die Nummer an!"));
+	                International.getString("Diese Laufende Nummer ist bereits vergeben! Jede Laufende "+
+                                                "Nummer darf nur einmal verwendet werden werden.") + " " +
+                        International.getString("Bitte korrigiere die laufende Nummer des Eintrags!") + "\n\n"+
+                        International.getString("Hinweis") + ": " +
+                        International.getString("Um mehrere Einträge unter 'derselben' Nummer hinzuzufügen, "+
+                                                "füge einen Buchstaben von A bis Z direkt an die Nummer an!"));
       lfdnr.requestFocus();
       startBringToFront(false); // efaDirekt im BRC -- Workaround
       return false;

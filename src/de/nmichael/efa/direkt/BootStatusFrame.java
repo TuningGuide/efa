@@ -344,7 +344,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
                                      International.getString("Möchtest Du wirklich fortfahren?")
                                                ) != Dialog.YES) return false;
         Logger.log(Logger.WARNING,Logger.MSG_ADMIN_BOATSTATECHANGED,
-                International.getMessage("Der Status der Bootes {name} wird geändert, obwohl das Boot auf Fahrt #{record} "+
+                International.getMessage("Der Status des Bootes {name} wird geändert, obwohl das Boot auf Fahrt #{record} "+
                                   "unterwegs ist! Der angefangene Eintrag #{record} "+
                                   "bleibt im Fahrtenbuch stehen.",
                                   boot.get(BootStatus.NAME),boot.get(BootStatus.LFDNR),boot.get(BootStatus.LFDNR)));
@@ -357,15 +357,17 @@ public class BootStatusFrame extends JDialog implements ActionListener {
         // keine LfdNr
         if (Dialog.yesNoCancelDialog(International.getString("Warnung"),
                 International.getMessage("Dem Boot {name} wird kein Fahrtenbucheintrag zugeordnet (LfdNr ist leer), "+
-                                               "obwohl der Status des Boots 'unterwegs' sein soll!",name) + " " +
-                  International.getString("Wenn Du den Status jetzt auf 'unterwegs' setzt, wird das Boot zwar in der "+
+                                               "obwohl der Status des Boots '{status}' sein soll!",
+                                               name,BootStatus.getStatusName(BootStatus.STAT_UNTERWEGS)) + " " +
+                  International.getMessage("Wenn Du den Status jetzt auf '{new_status}' setzt, wird das Boot zwar in der "+
                                           "Liste der Boote auf Fahrt angezeigt, kann jedoch nicht 'zurückgetragen' werden, "+
-                                          "da kein zugeordneter Eintrag im Fahrtenbuch existiert.") + "\n" +
+                                          "da kein zugeordneter Eintrag im Fahrtenbuch existiert.",
+                                          BootStatus.getStatusName(BootStatus.STAT_UNTERWEGS)) + "\n" +
                   International.getString("Möchtest Du wirklich fortfahren?")
                                                ) != Dialog.YES) return false;
         Logger.log(Logger.WARNING,Logger.MSG_ADMIN_BOATSTATECHANGED,
-                International.getMessage("Der Status des Bootes {name} wird auf 'unterwegs' gesetzt, obwohl dem Boot kein "+
-                "Fahrtenbuch-Eintrag zugeordnet ist.",name));
+                International.getMessage("Der Status des Bootes {name} wird auf '{new_status}' gesetzt, obwohl dem Boot kein "+
+                "Fahrtenbuch-Eintrag zugeordnet ist.",name,BootStatus.getStatusName(BootStatus.STAT_UNTERWEGS)));
       } else {
         // LfdNr vorhanden
         DatenFelder d = Daten.fahrtenbuch.getExactComplete(newLfdNr);
@@ -373,14 +375,16 @@ public class BootStatusFrame extends JDialog implements ActionListener {
           // LfdNr existiert nicht
           if (Dialog.yesNoCancelDialog(International.getString("Warnung"),
                   International.getMessage("Dem Boot {name} wird ein Fahrtenbucheintrag (#{record}) zugeordnet, welcher nicht existiert!",name,newLfdNr) + " " +
-                  International.getString("Wenn Du den Status jetzt auf 'unterwegs' setzt, wird das Boot zwar in der "+
+                  International.getMessage("Wenn Du den Status jetzt auf '{new_status}' setzt, wird das Boot zwar in der "+
                                           "Liste der Boote auf Fahrt angezeigt, kann jedoch nicht 'zurückgetragen' werden, "+
-                                          "da kein zugeordneter Eintrag im Fahrtenbuch existiert.") + "\n" +
+                                          "da kein zugeordneter Eintrag im Fahrtenbuch existiert.",
+                                          BootStatus.getStatusName(BootStatus.STAT_UNTERWEGS)) + "\n" +
                   International.getString("Möchtest Du wirklich fortfahren?")
                                                ) != Dialog.YES) return false;
           Logger.log(Logger.WARNING,Logger.MSG_ADMIN_BOATSTATECHANGED,
-                  International.getMessage("Der Status des Bootes {name} wird auf 'unterwegs' gesetzt, aber der zugewiesene "+
-                  "Fahrtenbuch-Eintrag #{record} existiert nicht.",name,newLfdNr));
+                  International.getMessage("Der Status des Bootes {name} wird auf '{new_status}' gesetzt, aber der zugewiesene "+
+                  "Fahrtenbuch-Eintrag #{record} existiert nicht.",
+                  name,BootStatus.getStatusName(BootStatus.STAT_UNTERWEGS),newLfdNr));
         } else {
           // LfdNr existiert
           if (d.get(Fahrtenbuch.BOOTSKM).equals("0") && d.get(Fahrtenbuch.MANNSCHKM).equals("0") &&
@@ -390,7 +394,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
             if (!altstatus.equals(BootStatus.getStatusKey(BootStatus.STAT_UNTERWEGS))) {
               // Änderung von != unterwegs auf unterwegs
               Logger.log(Logger.INFO,Logger.MSG_ADMIN_BOATSTATECHANGED,
-                      International.getMessage("Der Status der Bootes {name} wird von '{old_status}' "+
+                      International.getMessage("Der Status des Bootes {name} wird von '{old_status}' "+
                                      "auf '{new_status}' geändert mit gültiger LfdNr=#{record}.",
                                      name,
                                      BootStatus.getStatusName(BootStatus.getStatusID(altstatus)),
@@ -402,13 +406,15 @@ public class BootStatusFrame extends JDialog implements ActionListener {
             if (Dialog.yesNoCancelDialog(International.getString("Warnung"),
                     International.getMessage("Dem Boot {name} wird ein Fahrtenbucheintrag (#{record}) zugeordnet, welcher " +
                                              "bereits vollständig ist, d.h. schon zurückgetragen wurde!",name,newLfdNr) + " " +
-                    International.getMessage("Wenn Du den Status jetzt auf 'unterwegs' setzt und das Boot zurückgetragen wird, "+
-                                            "wird der Fahrtenbuch-Eintrag #{record} damit überschrieben.",newLfdNr) + "\n" +
+                    International.getMessage("Wenn Du den Status jetzt auf '{new_status}' setzt und das Boot zurückgetragen wird, "+
+                                            "wird der Fahrtenbuch-Eintrag #{record} damit überschrieben.",
+                                            BootStatus.getStatusName(BootStatus.STAT_UNTERWEGS),newLfdNr) + "\n" +
                     International.getString("Möchtest Du wirklich fortfahren?")
                                                  ) != Dialog.YES) return false;
             Logger.log(Logger.WARNING,Logger.MSG_ADMIN_BOATSTATECHANGED,
-                    International.getMessage("Der Status des Bootes {name} wird auf 'unterwegs' gesetzt, aber der zugewiesene "+
-                    "Fahrtenbuch-Eintrag #{record} ist bereits vollständig.",name,newLfdNr));
+                    International.getMessage("Der Status des Bootes {name} wird auf '{new_status}' gesetzt, aber der zugewiesene "+
+                    "Fahrtenbuch-Eintrag #{record} ist bereits vollständig.",
+                    name,BootStatus.getStatusName(BootStatus.STAT_UNTERWEGS),newLfdNr));
           }
         }
       }

@@ -1,5 +1,16 @@
 #!/usr/bin/perl
 
+# This script needs to be run in an environment with the same encoding as the
+# Java source code!
+# However, since the Java Properties Files are stored in ISO-8859-1 encoding
+# with escaped Unicode letters, the Encode-Escape module is required to read
+# and write Java Properties Files.
+# You can download this module from CPAN at:
+# http://search.cpan.org/perldoc?Encode::Escape::Unicode
+use Encode::Escape;
+Encode::Escape::demode 'unicode-escape', 'python';
+Encode::Escape::enmode 'unicode-escape', 'python';
+
 my $properties = shift;
 my $options = "";
 if ($properties =~ /^-/) {
@@ -24,6 +35,11 @@ if (length($properties) == 0) {
 my $_filename;
 my $_linenr;
 my $_line;
+
+# values for $keys{$key}{new}
+# 0 = old (and still exisiting in current source code)
+# 1 = new
+# 2 = removed (old, but not existing in current source code any more)
 
 # read existing properties
 readProps($properties);
@@ -58,18 +74,26 @@ foreach $key (sort %keys) {
 
 foreach $file (sort keys %data) {
   printf("# file: $file\n");
-  my $old = 1;
+  my $header = -1;
   foreach $new (sort keys %{$data{$file}}) {
-    if ($old==1 && $new==1) {
-      printf("# new keys in $file:\n");
-      $old = 0;
+    if ($header == -1) {
+      if ($new == 1) {
+        printf("# new keys in $file:\n");
+      }
+      if ($new == 2) {
+        printf("# removed keys in $file (these keys do not exist in the source code any more):\n");
+      }
+      $header = -1;
     }
     foreach $key (sort keys %{$data{$file}{$new}}) {
-      printf("%s=%s%s\n",
+      my $line = sprintf("%s=%s%s",
                  $data{$file}{$new}{$key}{key},
                  $data{$file}{$new}{$key}{value},
                  ($options =~ /f/ ? "\t\t### " . $keys{$key}{file} : "")
                  );
+      $line = encode 'unicode-escape', decode 'utf8', $line;
+      $line =~ s/\\\\n/\\n/g;
+      print $line;
     }
   }
 }
@@ -81,18 +105,19 @@ exit(0);
 sub readProps {
   my $properties = shift;
   open(PROPS,$properties) || die "cannot open property file: $properties\n";
-  my $file = "unknown";
+  my $file = "global";
   while(<PROPS>) {
-    if (/^# file: (.+)/) {
+    my $line = encode 'utf8', decode 'unicode-escape', $_;
+    if ($line =~ /^# file: (.+)/) {
       $file = $1;
     }
-    next if /^#/;
-    if (/([^=]+)=(.+)/) {
+    next if $line =~ /^#/;
+    if ($line =~ /([^=]+)=(.+)/) {
       my $key = $1;
       my $txt = $2;
       $keys{$key}{txt} = $txt;
       $keys{$key}{file} = $file;
-      $keys{$key}{new} = 0;
+      $keys{$key}{new} = 2; # set to 0 if found while parsing source code
     }
   }
   close(PROPS);
@@ -174,6 +199,9 @@ sub parseLine {
       $key =~ s/=/_/g;
       $key =~ s/:/_/g;
       $key =~ s/#/_/g;
+      $key =~ s/\\n/_/g;
+      $key =~ s/\\([^\\])/\1/g; # replace something as \' or \" by ' or "
+      $key =~ s/\\/_/g;
       $key =~ s/'/_/g;
 
       # create message text for compound messages
@@ -191,11 +219,12 @@ sub parseLine {
         }
         $txt =~ s/%_1_%/{/g;
         $txt =~ s/%_2_%/}/g;
+        $txt =~ s/'{([^}]+)}'/''{\1}''/g;  # replace '{1}' by ''{1}''
       }
 
       # handle special characters in translated text
       $txt =~ s/&/&&/g;
-      $txt =~ s/'/''/g;
+      $txt =~ s/\\([^\\n])/\1/g; # replace something as \' or \" by ' or ", but do not replace \\ or \n!!
 
       # handle special English strings from International.java (keys must remain English, but translation should be German)
       if ($txt =~ /^Default$/) { $txt = "Standard"; }
@@ -205,6 +234,9 @@ sub parseLine {
       # print key and text
       if (exists $keys{$key}) {
         printf(stderr "#DEBUG: Duplicate Key $key=$txt\n") unless $options !~ /d/;
+        if ($keys{$key}{new} == 2) { # if this is a key read from the original properties file ...
+          $keys{$key}{new} = 0;      # set it's status to "0" (meaning "old and found in current source")
+        }
       } else {
         printf(stderr "#DEBUG: New Key $key=$txt\n") unless $options !~ /d/;
         $keys{$key}{txt} = $txt;

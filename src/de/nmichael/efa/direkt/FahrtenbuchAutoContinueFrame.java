@@ -127,11 +127,12 @@ public class FahrtenbuchAutoContinueFrame extends JDialog implements ActionListe
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
       String t = International.getString("Diese Funktion ist dafür gedacht, zu einem bestimmten Datum (z.B. Neujahr) "+
-              "die zur Zeit geöffnete Fahrtenbuchdatei abzuschließen und eine neue zu "+
-              "beginnen.\n"+
-              "Hinweis: Sollten zu dem Zeitpunkt des Wechsels noch Boote auf dem Wasser sein, "+
-              "so werden diese Fahrten abgebrochen und der Administrator per Nachricht über "+
-              "den Abbruch der Fahrten informiert.");
+                                         "die zur Zeit geöffnete Fahrtenbuchdatei abzuschließen und eine neue zu "+
+                                         "beginnen.") + "\n"+
+                 International.getString("Hinweis") + ": " +
+                 International.getString("Sollten zu dem Zeitpunkt des Fahrtenbuchwechsels noch Boote auf dem Wasser sein, "+
+                                         "so werden diese Fahrten abgebrochen und der Administrator per Nachricht über "+
+                                         "den Abbruch der Fahrten informiert.");
       info.append(Dialog.chopDialogString(t));
 
     } catch(NoSuchMethodException e) {

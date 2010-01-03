@@ -560,7 +560,7 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
 
     if (neu && Daten.fahrtenbuch.getDaten().boote.getExact(k) != null && !newKombi) {
       Dialog.infoDialog(International.getString("Fehler"),
-              International.getString("Es existiert bereits ein Boot gleichen Namens")+"!");
+              International.getString("Es existiert bereits ein Boot gleichen Namens!"));
       return;
     }
 
@@ -645,7 +645,8 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
 
     if (Daten.fahrtenbuch.getDaten().boote.getExact(nameMitVerein) != null) {
       Dialog.infoDialog(International.getString("Fehler"),
-              International.getString("Es existiert bereits ein Boot gleichen Namens")+":\n"+nameMitVerein);
+              International.getString("Es existiert bereits ein Boot gleichen Namens!")+":\n"+
+              International.getString("Name") + ": " + nameMitVerein);
     } else {
       DatenFelder d = new DatenFelder(Boote._ANZFELDER);
       d.set(Boote.NAME,EfaUtil.removeSepFromString(name));

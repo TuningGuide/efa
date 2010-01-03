@@ -2489,11 +2489,15 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     TMJ ref = EfaUtil.correctDate(refDate,cal.get(GregorianCalendar.DAY_OF_MONTH),cal.get(GregorianCalendar.MONTH)+1-cal.getMinimum(GregorianCalendar.MONTH),cal.get(GregorianCalendar.YEAR));
     if (tmj.jahr != ref.jahr && !Daten.fahrtenbuch.isEmpty()) {
       Dialog.infoDialog(International.getString("Warnung"),
-		            International.getString("Ein Fahrtenbuch sollte immer nur die Fahrten EINES Jahres enthalten! "+
-                            "Bitte lösche die eben hinzugefügte Fahrt und beginne für die Fahrten "+
-                            "des neuen Jahren ein neues Fahrtenbuch!\n"+
-                            "Um ein neues Fahrtenbuch zu beginnen, wähle aus dem Menü 'Datei' den Punkt "+
-                            "'Neues Fahrtenbuch erstellen' und dort die Option 'Fahrtenbuch fortsetzen'."));
+		        International.getString("Ein Fahrtenbuch sollte immer nur die Fahrten EINES Jahres enthalten! "+
+                                                "Bitte lösche die eben hinzugefügte Fahrt und beginne für die Fahrten "+
+                                                "des neuen Jahren ein neues Fahrtenbuch!") + "\n"+
+                        International.getMessage("Um ein neues Fahrtenbuch zu beginnen, wähle aus dem Menü '{menu}' den Punkt "+
+                                                 "'{create_new_logbook}' und dort die Option '{continue_logbook}'.",
+                                                 International.getString("Datei"),
+                                                 International.getString("Neues Fahrtenbuch erstellen"),
+                                                 International.getString("Fahrtenbuch fortsetzen")
+                        ));
       startBringToFront(false); // efaDirekt im BRC -- Workaround
     }
 
@@ -3498,18 +3502,21 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       try {
         datum.setText(s);
       } catch(Exception ee) {
+          // solche schwachsinnigen Fehlermeldungen wollen wir lieber nicht in andere Sprachen übersetzen! ;-)
+/*
         try {
           if (datumErrorCount++ == 0 && !datum.getText().equals(s))
-            Dialog.error(International.getString("Ein Java-Fehler beim Setzen des Datums ist aufgetreten!\n"+
+            Dialog.error(International.getStringXX("Ein Java-Fehler beim Setzen des Datums ist aufgetreten!\n"+
                          "Bitte setze den Cursor von Hand ins Datums-Feld (einfach "+
                          "einmal mit der Maus ins Datums-Feld klicken) und setze "+
                          "die Arbeit dann fort."));
         } catch(Exception eeee) {
-          Dialog.error(International.getString("Ein Java-Fehler beim Setzen des Datums ist aufgetreten!\n"+
+          Dialog.error(International.getStringXXX("Ein Java-Fehler beim Setzen des Datums ist aufgetreten!\n"+
                        "Bitte setze den Cursor von Hand ins Datums-Feld (einfach "+
                        "einmal mit der Maus ins Datums-Feld klicken) und setze "+
                        "die Arbeit dann fort."));
         }
+*/
       }
     }
   }
@@ -3978,7 +3985,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   public void direktFahrtAnfangKorrektur(String boot, String lfdnr) {
     this.mode = MODE_START_KORREKTUR;
     this.direkt_boot = boot;
-    this.setTitle(International.getString("Eintrag für neue Fahrt korrigieren"));
+    this.setTitle(International.getString("Eintrag korrigieren"));
     DatenFelder d = (DatenFelder)Daten.fahrtenbuch.getExactComplete(lfdnr);
     if (d == null) {
       Logger.log(Logger.ERROR, Logger.MSG_ERR_NOLOGENTRYFORBOAT,

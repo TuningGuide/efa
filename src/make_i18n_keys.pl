@@ -230,6 +230,9 @@ sub parseLine {
       if ($txt =~ /^Default$/) { $txt = "Standard"; }
       if ($txt =~ /^Select Language$/) { $txt = "Sprache wählen"; }
       if ($txt =~ /^Please select your language$/) { $txt = "Bitte wähle Deine Sprache"; }
+      if ($txt =~ /^efa can't start$/) { $txt = "efa kann nicht starten"; }
+      if ($txt =~ /^Basic Configuration File ''\{1\}'' could not be created.$/) { $txt = "Basis-Konfigurationsdatei ''{1}'' konnte nicht erstellt werden."; }
+      if ($txt =~ /^Basic Configuration File ''\{1\}'' could not be opened.$/) { $txt = "Basis-Konfigurationsdatei ''{1}'' konnte nicht geöffnet werden."; }
 
       # print key and text
       if (exists $keys{$key}) {

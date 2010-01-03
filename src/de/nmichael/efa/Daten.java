@@ -87,7 +87,7 @@ public class Daten {
   public static final String FAHRTENABZEICHEN ="fahrtenabzeichen.eff"; // ./daten/fahrtenabzeichen.eff DRV Fahrtenabzeichen
   public static final String GRUPPEN ="gruppen.efg";                // ./daten/gruppen.efg      Gruppendatei
   public static final String WETTDEFS = "wettdefs.cfg";             // ./cfg/wettdefs.cfg       Wettbewerbs-Definitionen
-  public static final String EFA_LICENSE = "lizenz.html";           // ./doc/lizenz.html
+  public static final String EFA_LICENSE = "license.html";          // ./doc/license.html
   public static final String PUBKEYSTORE = "keystore_pub.dat";      // ./daten/keystore_pub.dat
   public final static String DIREKTBOOTSTATUS = "bootstatus.efdb";  // ./daten/bootstatus.efdb  Status der Boote
   public final static String DIREKTNACHRICHTEN= "nachrichten.efdn"; // ./daten/nachrichten.efdn Nachrichten an Admin

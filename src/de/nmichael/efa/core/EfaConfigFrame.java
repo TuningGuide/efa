@@ -661,9 +661,9 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     efaDirekt_sortBooteByAnzahl.setNextFocusableComponent(efaDirekt_showEingabeInfos);
     Mnemonics.setButton(this, autoObmann, International.getStringWithMnemonic("Obmann bei Eingabe automatisch auswählen"));
     autoObmann.setNextFocusableComponent(defaultObmann);
-    Mnemonics.setLabel(this, jLabel35, International.getStringWithMnemonic("efa automatisch um")+" ");
+    Mnemonics.setLabel(this, jLabel35, International.getStringWithMnemonic("efa automatisch um")+" "); // das ist Scheiße zum Übersetzen! Egal, EfaConfig wird eh ersetzt!
     jLabel35.setLabelFor(efaDirekt_exitTime);
-    jLabel36.setText(" "+International.getString("Uhr beenden"));
+    jLabel36.setText(" "+International.getString("Uhr beenden")); // das ist Scheiße zum Übersetzen! Egal, EfaConfig wird eh ersetzt!
     Mnemonics.setLabel(this, jLabel37, International.getStringWithMnemonic("Folgendes Kommando beim automatischen Beenden von efa ausführen")+": ");
     jLabel37.setLabelFor(efaDirekt_execOnEfaAutoExit);
     efaDirekt_exitTime.setNextFocusableComponent(efaDirekt_execOnEfaAutoExit);
@@ -889,9 +889,9 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     efaDirekt_nurBekannteRuderer.setNextFocusableComponent(efaDirekt_nurBekannteZiele);
     Mnemonics.setButton(this, efaDirekt_nurBekannteZiele, International.getStringWithMnemonic("Ziele"));
     efaDirekt_nurBekannteZiele.setNextFocusableComponent(saveButton);
-    Mnemonics.setLabel(this, jLabel62, International.getStringWithMnemonic("efa automatisch um")+" ");
+    Mnemonics.setLabel(this, jLabel62, International.getStringWithMnemonic("efa automatisch um")+" ");// das ist Scheiße zum Übersetzen! Egal, EfaConfig wird eh ersetzt!
     jLabel62.setLabelFor(efaDirekt_restartTime);
-    jLabel63.setText(" "+International.getString("Uhr neu starten"));
+    jLabel63.setText(" "+International.getString("Uhr neu starten"));// das ist Scheiße zum Übersetzen! Egal, EfaConfig wird eh ersetzt!
     efaDirekt_restartTime.setNextFocusableComponent(saveButton);
     efaDirekt_restartTime.setText("");
     Dialog.setPreferredSize(efaDirekt_restartTime,80,19);

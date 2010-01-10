@@ -87,7 +87,7 @@ public class WanderfahrtSelectFrame extends JDialog implements ActionListener {
     try {
       ah.addKeyActions(getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW,
                        new String[] {"ESCAPE","F1"}, new String[] {"keyAction","keyAction"});
-      this.setTitle(International.getString("Wanderfahrt auswählen"));
+      this.setTitle(International.getString("Mehrtagesfahrt auswählen"));
       jPanel1.setLayout(borderLayout1);
       jPanel3.setLayout(gridBagLayout1);
       jPanel2.setLayout(gridBagLayout2);
@@ -105,17 +105,17 @@ public class WanderfahrtSelectFrame extends JDialog implements ActionListener {
           abortButton_actionPerformed(e);
         }
     });
-    Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Neue Wanderfahrt"));
+    Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Neue Mehrtagesfahrt"));
       addButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           addButton_actionPerformed(e);
         }
     });
       info.setWrapStyleWord(true);
-      info.setText(International.getString("Bitte ordne den Fahrtenbucheintrag einer Wanderfahrt aus der "+
+      info.setText(International.getString("Bitte ordne den Fahrtenbucheintrag einer Mehrtagesfahrt aus der "+
                    "angezeigten Liste zu und klicke 'OK'.") + "\n" +
-                   International.getString("Wenn es sich um eine neue Wanderfahrt handelt, die in der Liste "+
-                   "nicht aufgeführt ist, klicke bitte 'Neue Wanderfahrt'."));
+                   International.getString("Wenn es sich um eine neue Mehrtagesfahrt handelt, die in der Liste "+
+                   "nicht aufgeführt ist, klicke bitte 'Neue Mehrtagesfahrt'."));
       info.setEditable(false);
       info.setEnabled(false);
       info.setFont(info.getFont().deriveFont(Font.BOLD));
@@ -184,7 +184,7 @@ public class WanderfahrtSelectFrame extends JDialog implements ActionListener {
   void okButton_actionPerformed(ActionEvent e) {
     if (list.getSelectedIndex()<0 || wafaNamen == null || wafaNamen.length == 0 ||
         list.getSelectedIndex() >= wafaNamen.length) {
-      Dialog.error(International.getString("Bitte wähle zunächst aus der Liste der Wanderfahrt eine Fahrt aus "+
+      Dialog.error(International.getString("Bitte wähle zunächst aus der Liste der Mehrtagesfahrten eine Fahrt aus "+
                    "oder erstelle einen neuen Eintrag."));
       return;
     }
@@ -221,12 +221,12 @@ public class WanderfahrtSelectFrame extends JDialog implements ActionListener {
     if (Daten.nachrichten != null && selectedWafa != null) {
       Nachricht n = new Nachricht();
       n.empfaenger = Nachricht.ADMIN;
-      n.betreff = International.getString("Neue Wanderfahrt");
+      n.betreff = International.getString("Neue Mehrtagesfahrt");
       n.name = Daten.EFA_SHORTNAME;
       if (neueFahrt) {
-        n.nachricht = International.getString("Eine neue Wanderfahrt wurde eingetragen")+":\n\n";
+        n.nachricht = International.getString("Eine neue Mehrtagesfahrt wurde eingetragen")+":\n\n";
       } else {
-        n.nachricht = International.getString("Ein Eintrag wurde einer vorhandenen Wanderfahrt zugeordnet")+":\n\n";
+        n.nachricht = International.getString("Ein Eintrag wurde einer vorhandenen Mehrtagesfahrt zugeordnet")+":\n\n";
       }
       Mehrtagesfahrt m = Daten.fahrtenbuch.getMehrtagesfahrt(selectedWafa);
       n.nachricht = n.nachricht +
@@ -236,9 +236,9 @@ public class WanderfahrtSelectFrame extends JDialog implements ActionListener {
                     International.getString("Boot")+": "+boot+"\n"+
                     International.getString("Mannschaft")+": "+mannschaft+"\n"+
                     International.getString("Ziel")+": "+ziel+"\n\n"+
-                    International.getString("Wanderfahrt")+":\n"+
+                    International.getString("Mehrtagesfahrt")+":\n"+
                     International.getString("Name")+": "+selectedWafa+"\n"+
-                    (m == null ? "*** "+International.getString("Wanderfahrt nicht gefunden")+" ***\n" :
+                    (m == null ? "*** "+International.getString("Mehrtagesfahrt nicht gefunden")+" ***\n" :
                     International.getString("Startdatum")+": "+m.start+"\n"+
                     International.getString("Enddatum")+": "+m.ende+"\n"+
                     International.getString("Rudertage")+": "+m.rudertage+"\n"+

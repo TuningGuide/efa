@@ -408,7 +408,7 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
     fileExecAfter.setPreferredSize(new Dimension(200, 17));
     Mnemonics.setButton(this, mitglnrStattName, International.getStringWithMnemonic("Mitgliedsnummern anstelle von Namen ausgeben"));
     mitglnrStattName.setNextFocusableComponent(okButton);
-    Mnemonics.setButton(this, fbZielbereichInBemerkungenCheckBox, International.getStringWithMnemonic("Im Feld Bemerkungen auch den Zielbereich ausgeben"));
+    Mnemonics.setButton(this, fbZielbereichInBemerkungenCheckBox, International.onlyFor("Im Feld Bemerkungen auch den Zielbereich ausgeben","de"));
     fbZielbereichInBemerkungenCheckBox.setNextFocusableComponent(okButton);
     fbZielbereichInBemerkungenCheckBox.setSelected(true);
     Mnemonics.setLabel(this, jLabel16, International.getStringWithMnemonic("nur die folgenden Fahrtenbücher auswerten")+": ");

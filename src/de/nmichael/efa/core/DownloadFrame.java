@@ -293,7 +293,7 @@ public class DownloadFrame extends JDialog implements ActionListener {
         f.close();
         new File(infoFile).delete();
       } catch(IOException ee) {
-        Dialog.error(International.getMessage("Lesen der Plugin-Infodatei schlug fehl: {error}",ee.toString()));
+        Dialog.error(LogString.logstring_fileReadFailed(infoFile,International.getString("Plugin-Infordatei"),ee.toString()));
         return false;
       }
 //      String[] fnames = (String[])_fnames.toArray();

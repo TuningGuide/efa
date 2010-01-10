@@ -902,7 +902,8 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     });
     Mnemonics.setLabel(this, standardFahrtartLabel, International.getStringWithMnemonic("Standard-Fahrtart")+": ");
     standardFahrtart.setNextFocusableComponent(showObmann);
-    Mnemonics.setButton(this, efaDirekt_showFahrtzielInBooteAufFahrt, International.getStringWithMnemonic("Fahrtziel in der Liste \'Boote auf Fahrt\' anzeigen"));
+    Mnemonics.setButton(this, efaDirekt_showFahrtzielInBooteAufFahrt, International.getMessage("Fahrtziel in der Liste \'{list}\' anzeigen",
+                                                                      International.getString("Boote auf Fahrt")));
     efaDirekt_showFahrtzielInBooteAufFahrt.setNextFocusableComponent(efaDirekt_logoSelectButton);
     Mnemonics.setButton(this, efaDirekt_mitgliederNamenHinzufuegen, International.getStringWithMnemonic("Mitglieder dürfen Namen zur Mitgliederliste hinzufügen"));
     efaDirekt_mitgliederNamenHinzufuegen.setNextFocusableComponent(efaDirekt_resBooteNichtVerfuegbar);

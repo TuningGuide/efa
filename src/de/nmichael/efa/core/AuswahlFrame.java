@@ -410,11 +410,11 @@ public class AuswahlFrame extends JDialog implements ActionListener {
     zeigeTabelle();
 
     if (datenArt == FAHRTENABZEICHEN && mitglError.length() > 0) {
-      Dialog.error(International.getString("Folgende Personen sind in der Fahrtenabzeichenliste eingetragen, "+
+      Dialog.error(International.onlyFor("Folgende Personen sind in der Fahrtenabzeichenliste eingetragen, "+
                    "können aber in der aktuellen Mitgliederliste nicht gefunden werden "+
                    "oder sind dort mit anderen Daten eingetragen. "+
                    "Für diese Mitglieder ist keine korrekte Auswertung der DRV-Fahrtenabzeichen möglich!\n"+
-                   "Bitte überprüfe die Namen und Jahrgänge der angegebenen Personen:")+"\n\n"+mitglError);
+                   "Bitte überprüfe die Namen und Jahrgänge der angegebenen Personen:","de")+"\n\n"+mitglError);
     }
   }
 

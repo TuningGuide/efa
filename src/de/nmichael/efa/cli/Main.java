@@ -53,7 +53,7 @@ public class Main extends Program {
                     fb = Daten.efaConfig.direkt_letzteDatei;
                 }
                 if (fb == null) {
-                    Logger.log(Logger.ERROR, Logger.MSG_GENERIC_ERROR, International.getString("Kein Fahrtenbuch angegeben."));
+                    Logger.log(Logger.ERROR, Logger.MSG_GENERIC_ERROR, International.getString("Kein Fahrtenbuch ausgewählt"));
                     printUsage(null);
                 }
             }
@@ -208,7 +208,7 @@ public class Main extends Program {
 
     void doImportFb() {
         if (importFb == null) {
-            Logger.log(Logger.ERROR, Logger.MSG_GENERIC_ERROR, International.getString("Kein zu importierendes Fahrtenbuch angegeben."));
+            Logger.log(Logger.ERROR, Logger.MSG_GENERIC_ERROR, International.getString("Kein zu importierendes Fahrtenbuch ausgewählt"));
             printUsage(null);
         }
         if (lfdNrAdd == null) {

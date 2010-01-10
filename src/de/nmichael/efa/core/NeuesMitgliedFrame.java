@@ -545,13 +545,13 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
           }
 
         switch(Dialog.yesNoCancelDialog(International.getString("Einträge anpassen"),
-                International.getString("Sollen Einträge im Fahrtenbuch an den neuen Namen angepaßt werden?"))) {
+                International.getString("Sollen Einträge im Fahrtenbuch an die Änderungen angepaßt werden?"))) {
           case Dialog.YES: updateFb(oldKey,k); break;
           case Dialog.CANCEL: return;
           default: break;
         }
         switch(Dialog.yesNoCancelDialog(International.getString("Gruppenliste anpassen"),
-                International.getString("Sollen Einträge in der Gruppenliste an den neuen Namen angepaßt werden?"))) {
+                International.getString("Sollen Einträge in der Gruppenliste an die Änderungen angepaßt werden?"))) {
           case Dialog.YES: updateGruppen(oldKey,k); break;
           case Dialog.CANCEL: return;
           default: break;

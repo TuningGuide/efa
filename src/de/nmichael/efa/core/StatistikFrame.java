@@ -2237,8 +2237,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     boolean empty = true;
     for (int i=0; i<b.length; i++) if (b[i]) empty = false;
     if (empty)
-      Dialog.infoDialog(International.getString("Ungenügende Auswahl"),
-              International.getMessage("In der Auswahl {selection} wurde kein Eintrag ausgewählt. Bitte wähle zumindest einen Eintrag aus!",s));
+      Dialog.error(International.getMessage("In der Auswahl {selection} wurde kein Eintrag ausgewählt. Bitte wähle zumindest einen Eintrag aus!",s));
     return empty;
   }
 
@@ -3051,8 +3050,8 @@ public class StatistikFrame extends JDialog implements ActionListener {
   public void efaWettVervollständigen(EfaWett efaWett) {
     Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...) - START");
     if (efaWett.meldung == null) {
-      Dialog.infoDialog(International.getString("Keine Meldungen"),
-              International.getString("Im gewählten Zeitraum haben keine Teilnehmer die Bedingungen erfüllt!"));
+      Dialog.infoDialog(International.onlyFor("Keine Meldungen","de"),
+              International.onlyFor("Im gewählten Zeitraum haben keine Teilnehmer die Bedingungen erfüllt!","de"));
       return;
     }
     String dat = Daten.fahrtenbuch.getFileName();

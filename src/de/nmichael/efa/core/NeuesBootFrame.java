@@ -575,7 +575,7 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
           }
 
         switch(Dialog.yesNoCancelDialog(International.getString("Einträge anpassen"),
-                International.getString("Sollen Einträge im Fahrtenbuch an die Änderung angepaßt werden?"))) {
+                International.getString("Sollen Einträge im Fahrtenbuch an die Änderungen angepaßt werden?"))) {
           case Dialog.YES: updateFb(oldKey,k); break;
           case Dialog.CANCEL: return;
           default: break;

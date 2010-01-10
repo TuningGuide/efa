@@ -900,7 +900,8 @@ public class EfaDirektFrame extends JFrame {
   public void readFahrtenbuch() {
     if (Daten.efaConfig == null || Daten.efaConfig.direkt_letzteDatei == null || Daten.efaConfig.direkt_letzteDatei.length()==0) {
       haltProgram(International.getString("Oops!") + " " +
-              International.getString("Kein Fahrtenbuch zum Öffnen da!"), Daten.HALT_FILEOPEN);
+              "No logbook found to open!", // nicht übersetzen, das passiert eh nie ... ;-)
+              Daten.HALT_FILEOPEN);
     } else {
       Daten.fahrtenbuch = new Fahrtenbuch(Daten.efaConfig.direkt_letzteDatei);
       int sveAction = Daten.actionOnDatenlisteNotFound;

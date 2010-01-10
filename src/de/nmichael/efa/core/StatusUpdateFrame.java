@@ -238,7 +238,7 @@ public class StatusUpdateFrame extends JDialog implements ActionListener {
       }
     }
     Dialog.infoDialog(International.getString("Fertig"),
-                      International.getMessage("Von insgesamt {total} Mitgliedern wurden {count} aktualisiert:",ges,anz)+"\n"+mitgl);
+                      International.getMessage("Von insgesamt {total} Mitgliedern wurden {count} aktualisiert",ges,anz)+":\n"+mitgl);
     if (anz>0) Daten.fahrtenbuch.getDaten().mitglieder.setChanged();
     parent.update();
     cancel();

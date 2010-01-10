@@ -237,7 +237,7 @@ public class SuchFrame extends JDialog implements ActionListener {
     err_zielfahrten.setSelected(true);
     Mnemonics.setButton(this, err_unbekRudererOhneGast, International.getStringWithMnemonic("Unbekannte Einträge mit \'Gast\' ignorieren"));
     err_unbekRudererOhneGast.setNextFocusableComponent(err_unbekBoot);
-    Mnemonics.setButton(this, err_wafa, International.getStringWithMnemonic("Potentielle Wanderfahrten") +
+    Mnemonics.setButton(this, err_wafa, International.onlyFor("Potentielle Wanderfahrten","de") +
             " (" + International.getString("normale Fahrt") + ", >= 30 Km)");
     err_wafa.setNextFocusableComponent(err_zielfahrten);
     err_wafa.setSelected(true);

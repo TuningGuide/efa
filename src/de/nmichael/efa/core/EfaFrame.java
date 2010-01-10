@@ -418,7 +418,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     PrevButton.setMargin(new Insets(3,5,3,5));
     PrevButton.setNextFocusableComponent(NextButton);
-    PrevButton.setToolTipText(International.getString("zum vorherigen Eintrag springen"));
     Mnemonics.setButton(this, PrevButton, "<< "+International.getStringWithMnemonic("Vorheriger"));
     PrevButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -427,7 +426,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     NextButton.setMargin(new Insets(3,5,3,5));
     NextButton.setNextFocusableComponent(LastButton);
-    NextButton.setToolTipText(International.getString("zum nächsten Eintrag springen"));
     Mnemonics.setButton(this, NextButton, International.getStringWithMnemonic("Nächster")+" >>");
     NextButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -436,7 +434,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     NewButton.setMargin(new Insets(3,5,3,5));
     NewButton.setNextFocusableComponent(InsertButton);
-    NewButton.setToolTipText(International.getString("neuen Eintrag erstellen"));
     Mnemonics.setButton(this, NewButton, International.getStringWithMnemonic("Neu"));
     NewButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -530,7 +527,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       mannschButton[i].setNextFocusableComponent( (i<7 ? mannsch[i+1] : abfahrt) );
       Dialog.setPreferredSize(mannschButton[i],15,11);
 //      mannschButton[i].setPreferredSize(new Dimension(15, 11));
-      mannschButton[i].setToolTipText(International.getString("Ruderer in die Mitgliederliste aufnehmen"));
+      mannschButton[i].setToolTipText(International.getMessage("in die {list} aufnehmen",
+              International.getString("Mitgliederliste")));
       mannschButton[i].addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           mannschButton_actionPerformed(e);
@@ -571,7 +569,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     zielLabel.setLabelFor(ziel);
     Mnemonics.setLabel(this, bootskmLabel, International.getStringWithMnemonic("Boots-Km")+": ");
     bootskmLabel.setLabelFor(bootskm);
-    mannschkmLabel.setToolTipText("");
     Mnemonics.setLabel(this, mannschkmLabel, International.getStringWithMnemonic("Mannsch.-Km")+": ");
     mannschkmLabel.setLabelFor(mannschkm);
     Mnemonics.setLabel(this, bemerkLabel, International.getStringWithMnemonic("Bemerkungen")+": ");
@@ -774,7 +771,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     });
     addButton.setNextFocusableComponent(FirstButton);
-    addButton.setToolTipText(International.getString("aktuell angezeigten Eintrag zum Fahrtenbuch hinzufügen"));
     Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Eintrag zum Fahrtenbuch hinzufügen"));
     addButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -792,7 +788,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     FirstButton.setMargin(new Insets(3,5,3,5));
     FirstButton.setNextFocusableComponent(PrevButton);
-    FirstButton.setToolTipText(International.getString("zum ersten Eintrag springen"));
     Mnemonics.setButton(this, FirstButton, International.getStringWithMnemonic("Erster"));
     FirstButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -801,7 +796,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     LastButton.setMargin(new Insets(3,5,3,5));
     LastButton.setNextFocusableComponent(NewButton);
-    LastButton.setToolTipText(International.getString("zum letzten Eintrag springen"));
     Mnemonics.setButton(this, LastButton, International.getStringWithMnemonic("Letzter"));
     LastButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -818,7 +812,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     bootButton.setNextFocusableComponent(stm);
     Dialog.setPreferredSize(bootButton,15,11);
 //    bootButton.setPreferredSize(new Dimension(15, 11));
-    bootButton.setToolTipText(International.getString("Boot in die Bootsliste aufnehmen"));
+    bootButton.setToolTipText(International.getMessage("in die {list} aufnehmen",
+              International.getString("Bootsliste")));
     bootButton.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         bootButton_focusLost(e);
@@ -833,7 +828,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     stmButton.setNextFocusableComponent(mannsch[0]);
     Dialog.setPreferredSize(stmButton,15,11);
 //    stmButton.setPreferredSize(new Dimension(15, 11));
-    stmButton.setToolTipText(International.getString("Steuermann in die Mitgliederliste aufnehmen"));
+    stmButton.setToolTipText(International.getMessage("in die {list} aufnehmen",
+              International.getString("Mitgliederliste")));
     stmButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         stmButton_actionPerformed(e);
@@ -843,7 +839,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     zielButton.setNextFocusableComponent(bootskm);
     Dialog.setPreferredSize(zielButton,15,11);
 //    zielButton.setPreferredSize(new Dimension(15, 11));
-    zielButton.setToolTipText(International.getString("Ziele in die Zielliste aufnehmen"));
+    zielButton.setToolTipText(International.getMessage("in die {list} aufnehmen",
+              International.getString("Zielliste")));
     zielButton.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         zielButton_focusLost(e);
@@ -864,7 +861,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     SuchButton.setMargin(new Insets(3,5,3,5));
     SuchButton.setNextFocusableComponent(ButtonDelete);
-    SuchButton.setToolTipText(International.getString("nach einem Eintrag suchen"));
     Mnemonics.setButton(this, SuchButton, International.getStringWithMnemonic("Suchen"));
     SuchButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -873,7 +869,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     jLabel22.setText("     ");
     ButtonDelete.setMargin(new Insets(3,5,3,5));
-    ButtonDelete.setToolTipText(International.getString("aktuellen Eintrag löschen"));
     Mnemonics.setButton(this, ButtonDelete, International.getStringWithMnemonic("Löschen"));
     ButtonDelete.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -900,7 +895,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     artDerFahrtLabel.setLabelFor(fahrtDauer);
     Dialog.setPreferredSize(weitereMannschButton,200,19);
 //    weitereMannschButton.setPreferredSize(new Dimension(200, Dialog.TEXTFIELD_HEIGHT));
-    weitereMannschButton.setToolTipText(International.getString("weitere Mannschaftsfelder anzeigen"));
     Mnemonics.setButton(this, weitereMannschButton, International.getStringWithMnemonic("restliche Mannschaft anzeigen"));
     weitereMannschButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -945,7 +939,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     gehezuLabel.setLabelFor(geheZu);
     Dialog.setPreferredSize(geheZu,50,19);
 //    geheZu.setPreferredSize(new Dimension(50, Dialog.TEXTFIELD_HEIGHT));
-    geheZu.setToolTipText(International.getString("direkt zu einer Laufenden Nummer springen"));
     geheZu.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyReleased(KeyEvent e) {
         geheZu_keyReleased(e);
@@ -973,7 +966,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     });
     wotag.setForeground(Color.black);
-    wotag.setToolTipText("");
     wotag.setText("-");
     jMenuDokumentation.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_doc.gif")));
     Mnemonics.setMenuButton(this, jMenuDokumentation, International.getStringWithMnemonic("Dokumentation"));
@@ -1025,7 +1017,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     jLabel5.setText("     ");
     InsertButton.setNextFocusableComponent(SuchButton);
-    InsertButton.setToolTipText(International.getString("neuen Eintrag vor dem aktuellen einfügen"));
     InsertButton.setMargin(new Insets(3,5,3,5));
     Mnemonics.setButton(this, InsertButton, International.getStringWithMnemonic("Einf."));
     InsertButton.addActionListener(new java.awt.event.ActionListener() {
@@ -2960,7 +2951,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     } else if (!Daten.efaConfig.letzteDatei.equals("") && EfaUtil.canOpenFile(Daten.efaConfig.letzteDatei)) {
         fahrtenbuchOeffnen(Daten.efaConfig.letzteDatei);
     } else if (Daten.efaConfig.letzteDatei.equals("")) {
-        if (Dialog.yesNoDialog(International.getString("Neues Fahrtenbuch anlegen"),
+        if (Dialog.yesNoDialog(International.getString("Neues Fahrtenbuch erstellen"),
 	    International.getString("Du startest efa heute zum ersten Mal. Möchtest Du ein neues Fahrtenbuch anlegen?")) == Dialog.YES) {
             askForOpenNewFb = true;
         }
@@ -3409,7 +3400,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
 
       if (unter && success) {
-        if (Dialog.yesNoDialog(International.getString("Gespeichertes Fahrtenbuch öffnen?"),
+        if (Dialog.yesNoDialog(International.getString("Fahrtenbuch öffnen") + "?",
                                International.getMessage("Soll das soeben gespeicherte Fahrtenbuch '{filename}' jetzt benutzt werden?",Daten.fahrtenbuch.getFileName())) == Dialog.YES) {
           if (mode == MODE_FULL) Daten.efaConfig.letzteDatei = Daten.fahrtenbuch.getFileName();
           this.setTitle(Daten.EFA_SHORTNAME + " - " + Daten.fahrtenbuch.getFileName());
@@ -3506,12 +3497,12 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 /*
         try {
           if (datumErrorCount++ == 0 && !datum.getText().equals(s))
-            Dialog.error(International.getStringXX("Ein Java-Fehler beim Setzen des Datums ist aufgetreten!\n"+
+            Dialog.error(International.getXXXString("Ein Java-Fehler beim Setzen des Datums ist aufgetreten!\n"+
                          "Bitte setze den Cursor von Hand ins Datums-Feld (einfach "+
                          "einmal mit der Maus ins Datums-Feld klicken) und setze "+
                          "die Arbeit dann fort."));
         } catch(Exception eeee) {
-          Dialog.error(International.getStringXXX("Ein Java-Fehler beim Setzen des Datums ist aufgetreten!\n"+
+          Dialog.error(International.getXXXString("Ein Java-Fehler beim Setzen des Datums ist aufgetreten!\n"+
                        "Bitte setze den Cursor von Hand ins Datums-Feld (einfach "+
                        "einmal mit der Maus ins Datums-Feld klicken) und setze "+
                        "die Arbeit dann fort."));
@@ -4275,7 +4266,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
         if (gefunden == 0) {
           switch (Dialog.auswahlDialog(International.getString("Boot erfordert bestimmte Berechtigung"),
-                                 International.getMessage("In diesem Boot muß mindestens ein Mitglied der Gruppe {groupname} sitzen.\n",gruppe)+
+                                 International.getMessage("In diesem Boot muß mindestens ein Mitglied der Gruppe {groupname} sitzen.",gruppe) + "\n" +
                                  International.getString("Was möchtest Du tun?"),
                                  International.getString("Anderes Boot wählen"),
                                  International.getString("Mannschaft ändern"),

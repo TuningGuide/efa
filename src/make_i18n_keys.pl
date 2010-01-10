@@ -27,6 +27,7 @@ if (length($properties) == 0) {
   printf("       s   sort all keys independent of source file\n");
   printf("       S   sort all keys independent of source file (case-insentivive)\n");
   printf("       f   print file name as a comment after each key\n");
+  printf("       i   write output as ISO-8859-1\n");
   printf("       d   print DEBUG messages on stderr\n");
   exit(1);
 }
@@ -91,7 +92,11 @@ foreach $file (sort keys %data) {
                  $data{$file}{$new}{$key}{value},
                  ($options =~ /f/ ? "\t\t### " . $keys{$key}{file} : "")
                  );
-      $line = encode 'unicode-escape', decode 'utf8', $line;
+      if ($options =~ /i/) {
+        $line = encode 'iso-8859-1', decode 'utf8', $line;
+      } else {
+        $line = encode 'unicode-escape', decode 'utf8', $line;
+      }
       $line =~ s/\\\\n/\\n/g;
       print $line;
     }

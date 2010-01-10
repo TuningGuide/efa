@@ -752,7 +752,7 @@ public class Daten {
         iniDataFile(Daten.mannschaften, false, International.getString("Mannschaften-Liste"));
 
         Daten.fahrtenabzeichen = new Fahrtenabzeichen(Daten.efaDataDirectory + Daten.FAHRTENABZEICHEN);
-        iniDataFile(Daten.fahrtenabzeichen, false, International.getString("Fahrtenabzeichen-Liste"));
+        iniDataFile(Daten.fahrtenabzeichen, false, International.onlyFor("Fahrtenabzeichen-Liste","de"));
 
         Daten.gruppen = new Gruppen(Daten.efaDataDirectory + Daten.GRUPPEN);
         iniDataFile(Daten.gruppen, false, International.getString("Gruppenliste"));

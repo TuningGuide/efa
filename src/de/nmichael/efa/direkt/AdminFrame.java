@@ -421,7 +421,7 @@ public class AdminFrame extends JDialog implements ActionListener {
       return;
     }
 
-    int ret = Dialog.auswahlDialog(International.getString("Fahrtenbuch festlegen"),
+    int ret = Dialog.auswahlDialog(International.getString("Fahrtenbuch auswählen"),
                               International.getString("Möchtest Du jetzt sofort ein neues Fahrtenbuch auswählen/anlegen, "+
                               "oder das automatische Erstellen eines neuen Fahrtenbuchs (z.B. zum "+
                               "Jahreswechsel) vorbereiten?"),

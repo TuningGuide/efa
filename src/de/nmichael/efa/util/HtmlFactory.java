@@ -123,15 +123,15 @@ public class HtmlFactory {
                     ":</b></td><td><input type=\"text\" name=\"bundesland\" size=\"30\"></td></tr>\n");
             f.write("<tr><td colspan=\"2\">" + International.getString("Bitte wähle alle zutreffenden Punkte aus:") + "<<br>\n");
             f.write("<input type=\"checkbox\" name=\"useEvaluate\" value=\"ja\"> " +
-                    International.getString("Ich/wir evaluieren efa.\n") + "<br>\n");
+                    International.getString("Ich/wir evaluieren efa.") + "<br>\n");
             f.write("<input type=\"checkbox\" name=\"usePrivate\" value=\"ja\"> " +
-                    International.getString("Ich benutze efa privat, um meine eigenen Fahrten zu erfassen.\n") + "<br>\n");
+                    International.getString("Ich benutze efa privat, um meine eigenen Fahrten zu erfassen.") + "<br>\n");
             f.write("<input type=\"checkbox\" name=\"useClubHome\" value=\"ja\"> " +
-                    International.getString("Ich benutze efa für meinen Ruderverein, um unsere Fahrten nachträglich auszuwerten.\n") + "<br>\n");
+                    International.getString("Ich benutze efa für meinen Ruderverein, um unsere Fahrten nachträglich auszuwerten.") + "<br>\n");
             f.write("<input type=\"checkbox\" name=\"useClubEvaluate\" value=\"ja\"> " +
-                    International.getString("Wir haben efa testweise im Bootshaus installiert.\n") + "<br>\n");
+                    International.getString("Wir haben efa testweise im Bootshaus installiert.") + "<br>\n");
             f.write("<input type=\"checkbox\" name=\"useClubDirect\" value=\"ja\"> " +
-                    International.getString("Wir haben efa im Bootshaus installiert. Die Mitglieder tragen alle ihre Fahrten direkt in efa ein.\n") + "<br>\n");
+                    International.getString("Wir haben efa im Bootshaus installiert. Die Mitglieder tragen alle ihre Fahrten direkt in efa ein.") + "<br>\n");
             f.write("</td></tr>\n");
             f.write("<tr><td colspan=\"2\"><b>" + International.getString("Bemerkungen") +
                     ":</b><br><textarea name=\"nachricht\" cols=\"40\" rows=\"5\" wrap=\"physical\"></textarea></td></tr>\n");

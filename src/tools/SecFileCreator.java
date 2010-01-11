@@ -1,3 +1,5 @@
+package tools;
+
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
  * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael

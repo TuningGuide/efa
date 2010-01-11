@@ -230,7 +230,7 @@ public class EfaConfig extends DatenListe {
     private void iniParameters() {
         addParameter(letzteDatei = new ConfigValue<String>("LAST_EFABASE_FILE", "",
                 TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
-                International.getString("zuletzt von efa geöffnete Datei")));
+                International.getString("zuletzt geöffnetes Fahrtenbuch")));
         addParameter(autogenAlias = new ConfigValue<Boolean>("ALIAS_AUTO_GENERATE", true,
                 TYPE_PUBLIC, makeCategory(CATEGORY_COMMON),
                 International.getString("Eingabe-Kürzel automatisch beim Anlegen neuer Mitglieder generieren")));

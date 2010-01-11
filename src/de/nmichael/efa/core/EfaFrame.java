@@ -3391,7 +3391,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         if (success) {
           Logger.log(Logger.INFO, Logger.MSG_ADMIN_LOGBOOK_CHANGESSAVED,
               International.getString("Admin") + ": " +
-              International.getString("Änderungen am Fahrtenbuch wurden erfolgreich gespeichert."));
+              International.getString("Änderungen am Fahrtenbuch gespeichert."));
         } else {
           Logger.log(Logger.ERROR, Logger.MSG_ADMIN_LOGBOOK_CHANGESNOTSVD,
               International.getString("Admin") + ": " +
@@ -3430,7 +3430,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         if (isAdminMode()) {
           Logger.log(Logger.INFO, Logger.MSG_ADMIN_LOGBOOK_CHANGESSAVED,
                 International.getString("Admin") + ": " +
-                International.getMessage("Änderungen an der {listname} wurden gespeichert.",
+                International.getMessage("Änderungen an {listname} gespeichert.",
                 International.getString("Bootsliste")));
         }
       }
@@ -3450,7 +3450,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       } else {
           Logger.log(Logger.INFO, Logger.MSG_ADMIN_LOGBOOK_CHANGESSAVED,
                 International.getString("Admin") + ": " +
-                International.getMessage("Änderungen an der {listname} wurden gespeichert.",
+                International.getMessage("Änderungen an {listname} gespeichert.",
                 International.getString("Mitgliederliste")));
       }
     }
@@ -3462,7 +3462,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       } else {
           Logger.log(Logger.INFO, Logger.MSG_ADMIN_LOGBOOK_CHANGESSAVED,
                 International.getString("Admin") + ": " +
-                International.getMessage("Änderungen an der {listname} wurden gespeichert.",
+                International.getMessage("Änderungen an {listname} gespeichert.",
                 International.getString("Zielliste")));
       }
     }

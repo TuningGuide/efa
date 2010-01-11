@@ -447,7 +447,8 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
     if (!Daten.efaConfig.writeFile()) {
       Dialog.error(LogString.logstring_fileWritingFailed(Daten.efaConfig.getFileName(), International.getString("Konfigurationsdatei")));;
     } else {
-      Logger.log(Logger.INFO,Logger.MSG_ADMIN_ACTION_ADMINSMODIFIED,International.getString("Änderungen an Liste der Admins gespeichert."));
+      Logger.log(Logger.INFO,Logger.MSG_ADMIN_ACTION_ADMINSMODIFIED,
+              International.getMessage("Änderungen an {listname} gespeichert.",International.getString("Admins")));
     }
     cancel();
   }

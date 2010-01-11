@@ -1271,7 +1271,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     art.addItem(International.getString("Fahrtenbuch"));
     art.addItem(International.getString("Jahre"));
     art.addItem(International.getString("Monatsübersicht"));
-    art.addItem(International.getString("Wer Unerlaubt"));
+    art.addItem(International.getString("Wer unerlaubt"));
     art.addItem(International.getString("Wer mit Fahrtart"));
     art.setSelectedIndex(0);
 

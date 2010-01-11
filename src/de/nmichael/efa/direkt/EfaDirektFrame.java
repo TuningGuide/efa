@@ -728,7 +728,7 @@ public class EfaDirektFrame extends JFrame {
         haltProgram(s, Daten.HALT_EFASECADMIN);
       }
       String pwd = "";
-      Dialog.infoDialog(International.getString("Willkommen bei der Bootshaus-Version von efa"),
+      Dialog.infoDialog(International.getString("Willkommen bei efa Bootshaus"),
                         International.getString("Mitglieder dürfen in efa nur Fahrten eintragen. Alle weiteren "+
                         "Aktionen dürfen nur von einem Administrator ausgeführt werden. "+
                         "Der Super-Administrator (Haupt-Administrator) hat uneingeschränkte "+
@@ -746,7 +746,7 @@ public class EfaDirektFrame extends JFrame {
       Admin root = new Admin(EfaConfig.SUPERADMIN,EfaUtil.getSHA(pwd));
       Daten.efaConfig.admins.put(EfaConfig.SUPERADMIN,root);
       if (!Daten.efaConfig.writeFile()) {
-          haltProgram(International.getMessage("{filename} konnte nicht geschrieben werden!",Daten.efaConfig.getFileName()),
+          haltProgram(LogString.logstring_fileWritingFailed(Daten.efaConfig.getFileName(), International.getString("Konfigurationsdatei")),
                   Daten.HALT_EFASECADMIN);
       }
       Logger.log(Logger.INFO, Logger.MSG_EVT_SUPERADMINCREATED,
@@ -2432,7 +2432,7 @@ public class EfaDirektFrame extends JFrame {
           throw new Exception("Level 5");
       }
       Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLB_LX,
-              "L5-DONE: " + International.getString("Änderungen an Fahrtenbuch gespeichert."));
+              "L5-DONE: " + International.getString("Änderungen am Fahrtenbuch gespeichert."));
 
       level = 6;
       Daten.fahrtenbuch = neuesFb;

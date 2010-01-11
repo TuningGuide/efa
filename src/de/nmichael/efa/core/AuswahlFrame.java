@@ -480,7 +480,7 @@ public class AuswahlFrame extends JDialog implements ActionListener {
       if (!Daten.gruppen.writeFile())
           listError = International.getString("Gruppenliste");
     if (listError != null) {
-        Dialog.error(International.getMessage("Änderungen an der {list} konnten nicht gespeichert werden!",listError));
+        Dialog.error(International.getMessage("Änderungen an der {listname} konnten nicht gespeichert werden!",listError));
 
     }
   }

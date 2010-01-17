@@ -950,7 +950,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     });
     jMenuHilfeJavaKonsole.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_konsole.gif")));
-    Mnemonics.setMenuButton(this, jMenuHilfeJavaKonsole, International.getStringWithMnemonic("Java-Konsole"));
+    Mnemonics.setMenuButton(this, jMenuHilfeJavaKonsole, International.getStringWithMnemonic("efa-Konsole"));
     jMenuHilfeJavaKonsole.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jMenuHilfeJavaKonsole_actionPerformed(e);
@@ -2631,7 +2631,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     int _anzRud = Fahrtenbuch.ANZ_MANNSCH;
     if (aktBoot != null && Daten.efaTypes != null) {
       _stm = aktBoot.get(Boote.STM).equals(EfaTypes.TYPE_COXING_COXED);
-      _anzRud = EfaUtil.string2date(aktBoot.get(Boote.ANZAHL),Fahrtenbuch.ANZ_MANNSCH,0,0).tag;
+      _anzRud = EfaTypes.getNumberOfRowers(aktBoot.get(Boote.ANZAHL));
     }
 
     if (_stm && d.get(Mannschaften.STM).length()>0) stm.setText(d.get(Mannschaften.STM));
@@ -3877,7 +3877,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     int anz = Fahrtenbuch.ANZ_MANNSCH;
     if (d != null) {
       isstm = d.get(Boote.STM).equals(EfaTypes.TYPE_COXING_COXED);
-      anz = EfaUtil.string2date(d.get(Boote.ANZAHL),Fahrtenbuch.ANZ_MANNSCH,0,0).tag;
+      anz = EfaTypes.getNumberOfRowers(d.get(Boote.ANZAHL));
     }
     // Steuermann wird bei steuermannslosen Booten immer disabled (unabhängig von Konfigurationseinstellung)
     setFieldEnabled(isstm,stm,stmLabel);

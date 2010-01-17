@@ -29,6 +29,11 @@ public class Program {
     }
 
     public void printUsage(String wrongArgument) {
+        boolean showHelpDev = false;
+        if (wrongArgument != null && wrongArgument.equals("-helpdev")) {
+            wrongArgument = null;
+            showHelpDev = true;
+        }
         System.out.println(Daten.EFA_SHORTNAME + " " + Daten.VERSION + " (" + Daten.VERSIONID + ")\n");
         if (wrongArgument != null) {
             System.out.println(International.getString("Unbekanntes Argument") + ": " + wrongArgument);
@@ -43,17 +48,24 @@ public class Program {
         printOption("-help",International.getString("diese Hilfemeldung anzeigen"));
         printOption("-debug",International.getString("Debug-Logging aktivieren"));
         printOption("-javaRestart", International.getString("Neustart von efa durch Java statt Shell"));
+        if (showHelpDev) {
+            System.out.println("    Parameters for development use:");
+            printOption("-wws", "Watch Window Stack (report window stack inconsistencies)");
+            printOption("-exc", "Exception Test (press [F1] in main window)");
+            printOption("-emulateWin", "Emulate Windows Environment");
+            printOption("-i18nMarkMissing", "i18n: Mark Missing Keys");
+            printOption("-i18nLogMissing", "i18n: Log Missing Keys (requires flag -debug as well)");
+            printOption("-i18nTraceMissing", "i18n: Stack Trace Missing Keys");
+            printOption("-i18nShowKeys", "i18n: Show Keys instead of Translation");
+        }
     }
 
     public void checkArgs(String[] args) {
         for (int i = 0; i < args.length; i++) {
+
+            // "official" options
             if (args[i].equals("-help")) {
                 printUsage(null);
-                args[i] = null;
-                continue;
-            }
-            if (args[i].equals("-wws")) {
-                Daten.watchWindowStack = true;
                 args[i] = null;
                 continue;
             }
@@ -62,13 +74,25 @@ public class Program {
                 args[i] = null;
                 continue;
             }
-            if (args[i].equals("-exc")) {
-                Daten.exceptionTest = true;
+            if (args[i].equals("-javaRestart")) {
+                Daten.javaRestart = true;
                 args[i] = null;
                 continue;
             }
-            if (args[i].equals("-javaRestart")) {
-                Daten.javaRestart = true;
+
+            // developer options
+            if (args[i].equals("-helpdev")) {
+                printUsage(args[i]);
+                args[i] = null;
+                continue;
+            }
+            if (args[i].equals("-wws")) {
+                Daten.watchWindowStack = true;
+                args[i] = null;
+                continue;
+            }
+            if (args[i].equals("-exc")) {
+                Daten.exceptionTest = true;
                 args[i] = null;
                 continue;
             }
@@ -76,6 +100,26 @@ public class Program {
                 System.setProperty("os.name","Windows XP");
                 System.setProperty("os.arch","x86");
                 System.setProperty("os.version","5.1");
+            }
+            if (args[i].equals("-i18nMarkMissing")) {
+                International.setMarkMissingKeys(true);
+                args[i] = null;
+                continue;
+            }
+            if (args[i].equals("-i18nLogMissing")) {
+                International.setLogMissingKeys(true);
+                args[i] = null;
+                continue;
+            }
+            if (args[i].equals("-i18nTraceMissing")) {
+                International.setTraceMissingKeys(true);
+                args[i] = null;
+                continue;
+            }
+            if (args[i].equals("-i18nShowKeys")) {
+                International.setShowKeys(true);
+                args[i] = null;
+                continue;
             }
         }
     }

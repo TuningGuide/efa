@@ -76,7 +76,7 @@ public class KonsoleFrame extends JDialog implements ActionListener {
     jPanel1.setLayout(borderLayout1);
     jScrollPane1.setMinimumSize(new Dimension(200, 100));
     jScrollPane1.setPreferredSize(new Dimension(600, 200));
-    this.setTitle(International.getString("Java-Konsole"));
+    this.setTitle(International.getString("efa-Konsole"));
     out.setNextFocusableComponent(okButton);
     out.setDisabledTextColor(Color.black);
     out.setEditable(false);

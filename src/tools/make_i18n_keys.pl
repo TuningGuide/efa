@@ -246,6 +246,9 @@ sub parseLine {
           $keys{$key}{new} = 0;      # set it's status to "0" (meaning "old and found in current source")
         }
       } else {
+        if ($key =~ /^\+\+\+/) {
+          $txt = ""; # keys starting with "+++" are internal keys which should not have a "default translation"
+        }
         printf(stderr "#DEBUG: New Key $key=$txt\n") unless $options !~ /d/;
         $keys{$key}{txt} = $txt;
         $keys{$key}{file} = $file;

@@ -53,8 +53,8 @@ public class Daten {
   public       static String EFA_LONGNAME  = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
 
   public final static String VERSION = "v2.0_dev01"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSIONID = "1.9.0_#1";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "01.01.2010";  // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "1.9.0_00";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+  public final static String VERSIONRELEASEDATE = "17.01.2010";  // Release Date: TT.MM.JJJJ
   public final static String PROGRAMMID = "EFA.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String COPYRIGHTYEAR = "10";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
@@ -68,9 +68,10 @@ public class Daten {
   public       static String efa_java_arguments = null;                 // Environment Variable Contents containing all arguments passed to the "java" command
   public final static String EFADIREKT_MAINCLASS = "de.nmichael.efa.direkt.Main";
 
-  public final static String EFAURL = "http://efa.nmichael.de/";
-  public final static String EFAWETTURL = "http://efa.rudern.de/";
-  public final static String NICOLASURL = "http://www.nmichael.de/";
+  public final static String EFAURL = "http://efa.nmichael.de";
+  public final static String EFADEVURL = "http://kenai.com/projects/efa";
+  public final static String EFAWETTURL = "http://efa.rudern.de";
+  public final static String NICOLASURL = "http://www.nmichael.de";
   public final static String EFAEMAIL = "software@nmichael.de";
   public final static String EFAEMAILNAME = "Nicolas Michael";
 
@@ -116,7 +117,7 @@ public class Daten {
 
   public static Program program = null;            // this Program
   public static String efaUserHome = null;         // User Home Directory
-  public static String efaLogfile = null;          // Logdatei für Java-Konsole
+  public static String efaLogfile = null;          // Logdatei für efa-Konsole
   public static String efaMainDirectory = null;    // Efa-Hauptverzeichnis, immer mit "/" am Ende
   public static String efaProgramDirectory = null; // Programmverzeichnis, immer mit "/" am Ende     ("./program/")
   public static String efaPluginDirectory = null;  // Programmverzeichnis, immer mit "/" am Ende     ("./program/plugins")

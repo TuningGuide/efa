@@ -509,8 +509,8 @@ public class StatistikFrame extends JDialog implements ActionListener {
     numLabel.setLabelFor(numerierung);
     numPanel.setBorder(BorderFactory.createLineBorder(Color.black));
     numPanel.setPreferredSize(new Dimension(163, 65));
-    numScrollPane.setMinimumSize(new Dimension(100, 40));
-    numScrollPane.setPreferredSize(new Dimension(100, 40));
+    numScrollPane.setMinimumSize(new Dimension(200, 40));
+    numScrollPane.setPreferredSize(new Dimension(200, 40));
     art.addItemListener(new java.awt.event.ItemListener() {
       public void itemStateChanged(ItemEvent e) {
         art_itemStateChanged(e);
@@ -574,7 +574,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     mGraAusLabel.setLabelFor(mGraPanel);
     mAusgabePanel.setLayout(gridBagLayout8);
     mGraPanel.setLayout(gridBagLayout9);
-    Mnemonics.setButton(this, mAusName, International.getStringWithMnemonic("Bootsname"));
+    Mnemonics.setButton(this, mAusName, International.getStringWithMnemonic("Name"));
     mAusName.setNextFocusableComponent(mAusArt);
     mAusName.setSelected(true);
     Mnemonics.setButton(this, mAusArt, International.getStringWithMnemonic("Art"));
@@ -987,13 +987,13 @@ public class StatistikFrame extends JDialog implements ActionListener {
     rest1Panel.add(rest2Panel, BorderLayout.CENTER);
     rudererOptionenPanel.add(ausgabePanel, BorderLayout.WEST);
     ausgabePanel.add(ausName,   new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     ausgabePanel.add(ausJahrgang,   new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     ausgabePanel.add(ausStatus1,   new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     ausgabePanel.add(ausZielfahrten,   new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     ausgabePanel.add(ausgabeLabel,   new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     ausgabePanel.add(ausKm,   new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0

@@ -2936,7 +2936,11 @@ public class Statistik {
           Hashtable ww = null;
           if (sd.art == StatistikDaten.BART_WELCHESWOHIN) ww = new Hashtable();
           if (!ignoreBoot(sd,d))
-            if (!h.containsKey(key=EfaUtil.syn2org(Daten.synBoote,fullname))) h.put(key,new HashEl(d.get(Boote.ANZAHL),d.get(Boote.ART),d.get(Boote.RIGGER) + "-" + d.get(Boote.ANZAHL) + " " + d.get(Boote.STM),0,0,0,0,0,new ZielfahrtFolge(),ww,null,null));
+            if (!h.containsKey(key=EfaUtil.syn2org(Daten.synBoote,fullname))) h.put(key,new HashEl(
+                    Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, d.get(Boote.ANZAHL)),
+                    Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, d.get(Boote.ART)),
+                    Boote.getDetailBezeichnung(d),
+                    0,0,0,0,0,new ZielfahrtFolge(),ww,null,null));
         } while ( (d = (DatenFelder)Daten.fahrtenbuch.getDaten().boote.getCompleteNext()) != null);
         break;
       case StatistikDaten.ART_STATUS:
@@ -2945,22 +2949,22 @@ public class Statistik {
         break;
       case StatistikDaten.BART_ART: case StatistikDaten.ART_BOOTSART:
         for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT); i++)
-          if (!h.containsKey(Daten.efaTypes.getType(EfaTypes.CATEGORY_BOAT,i))) h.put(Daten.efaTypes.getType(EfaTypes.CATEGORY_BOAT,i),new HashEl("",Daten.efaTypes.getType(EfaTypes.CATEGORY_BOAT,i),"",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+          if (!h.containsKey(Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,i))) h.put(Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,i),new HashEl("",Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,i),"",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.ART_FAHRTART:
         for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++)
-          if (!h.containsKey(Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP,i))) h.put(Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP,i),new HashEl("",Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP,i),"",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+          if (!h.containsKey(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP,i))) h.put(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP,i),new HashEl("",Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP,i),"",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.ART_JAHRGANG:
         // nichts zu tun
         break;
       case StatistikDaten.BART_PLAETZE:
         for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS); i++)
-          if (!h.containsKey(Daten.efaTypes.getType(EfaTypes.CATEGORY_NUMROWERS,i))) h.put(Daten.efaTypes.getType(EfaTypes.CATEGORY_NUMROWERS,i),new HashEl(Daten.efaTypes.getType(EfaTypes.CATEGORY_NUMROWERS,i),"","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+          if (!h.containsKey(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS,i))) h.put(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS,i),new HashEl(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS,i),"","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.ART_GESCHLECHT:
         for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_GENDER); i++)
-          if (!h.containsKey(Daten.efaTypes.getType(EfaTypes.CATEGORY_GENDER,i))) h.put(Daten.efaTypes.getType(EfaTypes.CATEGORY_GENDER,i),new HashEl("","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+          if (!h.containsKey(Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER,i))) h.put(Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER,i),new HashEl("","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.ART_FAHRTENBUCH: case StatistikDaten.BART_FAHRTENBUCH:
         // nichts zu tun
@@ -3258,11 +3262,11 @@ public class Statistik {
 
       if (sd.art != StatistikDaten.BART_RUDERER) {
         // relevante Bootsdaten speichern
-        if (boot != null) status = boot.get(Boote.ART);
+        if (boot != null) status = Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, boot.get(Boote.ART));
         if (boot != null) {
           bezeichnung = Boote.getDetailBezeichnung(boot);
         }
-        if (boot != null) jahrgang = boot.get(Boote.ANZAHL);
+        if (boot != null) jahrgang = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, boot.get(Boote.ANZAHL));
       }
     }
 
@@ -3569,8 +3573,8 @@ public class Statistik {
         if (sd.art == StatistikDaten.ART_BOOTSART) {
           DatenFelder b = Daten.fahrtenbuch.getDaten().boote.getExactComplete(d.get(Fahrtenbuch.BOOT));
           if (b != null) {
-            status = b.get(Boote.ART);
-            jahrgang = b.get(Boote.ANZAHL);
+            status = Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, b.get(Boote.ART));
+            jahrgang = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, b.get(Boote.ANZAHL));
             bezeichnung = Boote.getDetailBezeichnung(b);
           } else {
             status = "";
@@ -3584,15 +3588,15 @@ public class Statistik {
         else h.put(name,new HashEl(jahrgang,status,bezeichnung,rudKm + ges.rudKm, stmKm + ges.stmKm, ges.mannschKm + mannschKm, ges.dauer + dauer,eins*anzRuderTage + ges.anz, ges.zf.addZielfahrten(zf),null,null,null));
         break;
       case StatistikDaten.ART_GESCHLECHT:
-        name = geschlecht;
+        name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, geschlecht);
         if (name.equals("")) name=International.getString("unbekannt");
         if ( (ges = (HashEl)h.get(name)) == null) h.put(name,new HashEl("","","",rudKm,stmKm,mannschKm,dauer,eins*anzRuderTage,new ZielfahrtFolge(zf),null,null,null));
         else h.put(name,new HashEl("","","",rudKm + ges.rudKm, stmKm + ges.stmKm, ges.mannschKm + mannschKm, ges.dauer + dauer,eins*anzRuderTage + ges.anz, ges.zf.addZielfahrten(zf),null,null,null));
         break;
       case StatistikDaten.ART_FAHRTART:
-        name = mtour;
+        if (mtour.equals("")) mtour = EfaTypes.TYPE_TRIP_NORMAL;
+        name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, mtour);
         if (!mtourfound) name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_MULTIDAY);
-        if (name.equals("")) name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_NORMAL);
         if ( (ges = (HashEl)h.get(name)) == null) h.put(name,new HashEl("","","",rudKm,stmKm,mannschKm,dauer,eins*anzRuderTage,new ZielfahrtFolge(zf),null,null,null));
         else h.put(name,new HashEl("","","",rudKm + ges.rudKm, stmKm + ges.stmKm, ges.mannschKm + mannschKm, ges.dauer + dauer,eins*anzRuderTage + ges.anz, ges.zf.addZielfahrten(zf),null,null,null));
         break;

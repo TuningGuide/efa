@@ -272,7 +272,7 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
 
   void deleteButton_actionPerformed(ActionEvent e) {
     if (uebersicht.getSelectedRowCount() > 1) {
-      if (Dialog.yesNoDialog(International.getString("Wirklich löschen"),
+      if (Dialog.yesNoDialog(International.getString("Wirklich löschen?"),
               International.getMessage("Möchtest Du {count} ausgewählte Nachrichten wirklich löschen?",uebersicht.getSelectedRowCount()))
               != Dialog.YES) return;
       int[] selected = uebersicht.getSelectedRows();
@@ -285,7 +285,7 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
         Dialog.error(International.getString("Bitte wähle zuerst eine zu löschende Nachricht aus!"));
         return;
       }
-      if (Dialog.yesNoDialog(International.getString("Wirklich löschen"),
+      if (Dialog.yesNoDialog(International.getString("Wirklich löschen?"),
               International.getMessage("Möchtest Du die Nachricht '{message_subject}' wirklich löschen?",nachrichten.get(nID).betreff))
               != Dialog.YES) return;
       nachrichten.delete(nID);
@@ -301,7 +301,7 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
       Dialog.error(International.getString("Es gibt keine gelesenen Nachrichten!"));
       return;
     }
-    if (Dialog.yesNoDialog(International.getString("Wirklich löschen"),
+    if (Dialog.yesNoDialog(International.getString("Wirklich löschen?"),
             International.getMessage("Möchtest Du {count} gelesene Nachrichten wirklich löschen?",c)) != Dialog.YES) return;
     for (int i=nachrichten.size()-1; i>=0; i--) if (nachrichten.get(i).gelesen) nachrichten.delete(i);
     zeigeNachrichten();

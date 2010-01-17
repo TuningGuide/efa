@@ -22,12 +22,12 @@ import java.text.*;
 
 public class International {
 
-    private static final boolean MARK_MISSING_KEYS = true; // default for production: false
-    private static final boolean LOG_MISSING_KEYS = true; // default for production: false (requires "-debug" flag for debug logging)
-    private static final boolean STACKTRACE_MISSING_KEYS = false; // default for production: false
-    private static final boolean SHOW_KEY_INSTEAD_OF_TRANSLATION = false;  // default for production: false
+    private static boolean MARK_MISSING_KEYS = false; // default for production: false
+    private static boolean LOG_MISSING_KEYS = false; // default for production: false (requires "-debug" flag for debug logging)
+    private static boolean STACKTRACE_MISSING_KEYS = false; // default for production: false
+    private static boolean SHOW_KEY_INSTEAD_OF_TRANSLATION = false;  // default for production: false
 
-    private static final String BUNDLE_NAME = "efa";
+    public static final String BUNDLE_NAME = "efa";
     private static Locale locale = null;
     private static ResourceBundle bundle = null;
     private static MessageFormat msgFormat = null;
@@ -84,20 +84,7 @@ public class International {
             if (Daten.efaBaseConfig != null && Daten.efaBaseConfig.language == null) {
                 Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "No preferred Language configured!");
                 Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Available Languages:");
-                File dir = new File(Daten.efaProgramDirectory);
-                File[] files = dir.listFiles();
-                Vector<String> bundles = new Vector<String>();
-                for (File f: files) {
-                    String name = f.getName();
-                    if (name.startsWith(BUNDLE_NAME + "_")  && name.endsWith(".properties")) {
-                        int pos = name.indexOf(".properties");
-                        String lang = name.substring(BUNDLE_NAME.length()+1, pos);
-                        if (lang.length()>0) {
-                            Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "    " + lang);
-                            bundles.add(lang);
-                        }
-                    }
-                }
+                Vector<String> bundles = getLanguageBundles();
                 if (Daten.isGuiAppl() && bundles.size() > 0) {
                     String[] items = new String[bundles.size() + 1];
                     items[0] = International.getString("Default"); // must be in English (in case user's language is not supported)
@@ -143,6 +130,24 @@ public class International {
             Logger.log(Logger.ERROR, Logger.MSG_CORE_LANGUAGESUPPORT,
                     "Failed to determine available languages: "+e.toString());
         }
+    }
+
+    public static Vector<String> getLanguageBundles() {
+        File dir = new File(Daten.efaProgramDirectory);
+        File[] files = dir.listFiles();
+        Vector<String> bundles = new Vector<String>();
+        for (File f : files) {
+            String name = f.getName();
+            if (name.startsWith(BUNDLE_NAME + "_") && name.endsWith(".properties")) {
+                int pos = name.indexOf(".properties");
+                String lang = name.substring(BUNDLE_NAME.length() + 1, pos);
+                if (lang.length() > 0) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "    " + lang);
+                    bundles.add(lang);
+                }
+            }
+        }
+        return bundles;
     }
 
     private static String getArrayStrings(Object[] a) {
@@ -224,7 +229,8 @@ public class International {
         if (getLanguageID().startsWith(lang)) {
             return s;
         }
-        return "<" + getMessage("nur relevant für Sprache [{language}]",lang) + ">";
+//        return "<" + getMessage("only [{language}]",lang) + ">";
+        return International.getMessage("nur [{language}]",lang);
     }
 
     /**
@@ -412,6 +418,19 @@ public class International {
         } catch(Exception e) {
             return "";
         }
+    }
+
+    public static void setMarkMissingKeys(boolean enabled) {
+        MARK_MISSING_KEYS = enabled;
+    }
+    public static void setLogMissingKeys(boolean enabled) {
+        LOG_MISSING_KEYS = enabled;
+    }
+    public static void setTraceMissingKeys(boolean enabled) {
+        STACKTRACE_MISSING_KEYS = enabled;
+    }
+    public static void setShowKeys(boolean enabled) {
+        SHOW_KEY_INSTEAD_OF_TRANSLATION = enabled;
     }
 
 }

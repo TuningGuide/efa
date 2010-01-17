@@ -1169,32 +1169,6 @@ public class EfaDirektFrame extends JFrame {
       vv.add(a[i].name);
     }
     return vv;
-/*
-    if (Daten.efaConfig == null || !Daten.efaConfig.efaDirekt_sortByAnzahl) return v;
-
-    String[] a = new String[v.size()];
-    for (int i=0; i<v.size(); i++) {
-      DatenFelder d = Daten.fahrtenbuch.getDaten().boote.getExactComplete(removeDoppeleintragFromBootsname((String)v.get(i)));
-      int anz = 99;
-      if (d != null) anz = EfaUtil.string2date(d.get(Boote.ANZAHL),99,0,0).tag;
-      if (anz<0) anz = 0;
-      if (anz>99) anz = 99;
-      a[i] = (anz<10 ? "0" : "") + anz + v.get(i);
-    }
-    Arrays.sort(a);
-
-    Vector vv = new Vector();
-    int anz = -1;
-    for (int i=0; i<a.length; i++) {
-      int ii = EfaUtil.string2int(a[i].substring(0,2),99);
-      if (ii != anz) {
-        vv.add("---------- " + (ii != 99 ? ii+"er" : "andere") + " ----------");
-        anz = ii;
-      }
-      vv.add(a[i].substring(2,a[i].length()));
-    }
-    return vv;
-*/
   }
 
   void updateBootsListen() {

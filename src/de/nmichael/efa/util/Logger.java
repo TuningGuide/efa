@@ -54,12 +54,13 @@ public class Logger {
   public static final String MSG_CORE_EFATYPESCREATEDNEW     = "COR011";
   public static final String MSG_CORE_EFATYPESFAILEDCREATE   = "COR012";
   public static final String MSG_CORE_EFATYPESFAILEDOPEN     = "COR013";
-  public static final String MSG_CORE_EFASECCORRUPTED        = "COR014";
-  public static final String MSG_CORE_CONFBACKUPDIRNOTEXIST  = "COR015";
-  public static final String MSG_CORE_EFAALREADYRUNNING      = "COR016";
-  public static final String MSG_CORE_EFACONFIGUNKNOWNPARAM  = "COR017";
-  public static final String MSG_CORE_EFACONFIGUNSUPPPARMTYPE= "COR018";
-  public static final String MSG_CORE_EFACONFIGINVALIDVALUE  = "COR019";
+  public static final String MSG_CORE_EFATYPESFAILEDSETVALUES= "COR014";
+  public static final String MSG_CORE_EFASECCORRUPTED        = "COR015";
+  public static final String MSG_CORE_CONFBACKUPDIRNOTEXIST  = "COR016";
+  public static final String MSG_CORE_EFAALREADYRUNNING      = "COR017";
+  public static final String MSG_CORE_EFACONFIGUNKNOWNPARAM  = "COR018";
+  public static final String MSG_CORE_EFACONFIGUNSUPPPARMTYPE= "COR019";
+  public static final String MSG_CORE_EFACONFIGINVALIDVALUE  = "COR020";
 
   // Activities performed in Admin Mode
   public static final String MSG_ADMIN_LOGIN                 = "ADM001";

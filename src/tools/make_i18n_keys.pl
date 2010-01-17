@@ -24,8 +24,8 @@ if (length($properties) == 0) {
          "directory and any subdirectories for internationalized strings and\n" .
          "creates a new property file (based on the original one) on stdout.\n");
   printf("\nOptions:\n");
-  printf("       s   sort all keys independent of source file\n");
-  printf("       S   sort all keys independent of source file (case-insentivive)\n");
+  printf("       u   update existing properties file <properties>\n");
+  printf("       s   sort all keys by source file\n");
   printf("       f   print file name as a comment after each key\n");
   printf("       i   write output as ISO-8859-1\n");
   printf("       d   print DEBUG messages on stderr\n");
@@ -49,59 +49,10 @@ readProps($properties);
 searchdir(".");
 
 # print new properties file
-printf("# Property File created by make_i18n_keys.pl:\n# ------------------------------------------\n");
-my %data;
-foreach $key (sort %keys) {
-  if (exists $keys{$key}{txt}) {
-    my $txt = $keys{$key}{txt};
-    my $file = $keys{$key}{file};
-    my $new = $keys{$key}{new};
-
-    my $sortkey = $key;
-    if ($options =~ /s/ || $options =~ /S/) {
-      $file = "global";
-    }
-    if ($options =~ /S/) {
-      $sortkey = lc($sortkey);
-      while ($data{$file}{$new}{$sortkey}{key}) {
-        $sortkey .= "X";
-      }
-    }
-
-    $data{$file}{$new}{$sortkey}{key} = $key;
-    $data{$file}{$new}{$sortkey}{value} = $txt;
-  }
+if ($options !~ /u/) {
+  $properties = "";
 }
-
-foreach $file (sort keys %data) {
-  printf("# file: $file\n");
-  my $header = -1;
-  foreach $new (sort keys %{$data{$file}}) {
-    if ($header == -1) {
-      if ($new == 1) {
-        printf("# new keys in $file:\n");
-      }
-      if ($new == 2) {
-        printf("# removed keys in $file (these keys do not exist in the source code any more):\n");
-      }
-      $header = -1;
-    }
-    foreach $key (sort keys %{$data{$file}{$new}}) {
-      my $line = sprintf("%s=%s%s",
-                 $data{$file}{$new}{$key}{key},
-                 $data{$file}{$new}{$key}{value},
-                 ($options =~ /f/ ? "\t\t### " . $keys{$key}{file} : "")
-                 );
-      if ($options =~ /i/) {
-        $line = encode 'iso-8859-1', decode 'utf8', $line;
-      } else {
-        $line = encode 'unicode-escape', decode 'utf8', $line;
-      }
-      $line =~ s/\\\\n/\\n/g;
-      print $line;
-    }
-  }
-}
+writeProps($properties);
 
 exit(0);
 
@@ -404,3 +355,66 @@ sub getStrings {
   return $remaining;
 }
 
+sub writeProps {
+  my $properties = shift;
+
+  if (length($properties) > 0) {
+    open(OUTPROPS,">$properties") || die "cannot create $properties!\n";
+  } else {
+    open(OUTPROPS,">&STDOUT") || die "cannot open stdout!\n";
+  }
+
+  printf OUTPROPS ("# Property File created by make_i18n_keys.pl:\n# ------------------------------------------\n");
+  my %data;
+  foreach $key (sort %keys) {
+    if (exists $keys{$key}{txt}) {
+      my $txt = $keys{$key}{txt};
+      my $file = $keys{$key}{file};
+      my $new = $keys{$key}{new};
+
+      my $sortkey = $key;
+      if ($options !~ /s/) {
+        $file = "global";
+        $sortkey = lc($sortkey);
+        while ($data{$file}{$new}{$sortkey}{key}) {
+          $sortkey .= "X";
+        }
+      }
+
+      $data{$file}{$new}{$sortkey}{key} = $key;
+      $data{$file}{$new}{$sortkey}{value} = $txt;
+    }
+  }
+
+  foreach $file (sort keys %data) {
+    printf OUTPROPS ("# file: $file\n");
+    my $header = -1;
+    foreach $new (sort keys %{$data{$file}}) {
+      if ($header == -1) {
+        if ($new == 1) {
+          printf OUTPROPS ("# new keys in $file:\n");
+        }
+        if ($new == 2) {
+          printf OUTPROPS ("# removed keys in $file (these keys do not exist in the source code any more):\n");
+        }
+        $header = -1;
+      }
+      foreach $key (sort keys %{$data{$file}{$new}}) {
+        my $line = sprintf("%s=%s%s",
+                   $data{$file}{$new}{$key}{key},
+                   $data{$file}{$new}{$key}{value},
+                   ($options =~ /f/ ? "\t\t### " . $keys{$key}{file} : "")
+                   );
+        if ($options =~ /i/) {
+          $line = encode 'iso-8859-1', decode 'utf8', $line;
+        } else {
+          $line = encode 'unicode-escape', decode 'utf8', $line;
+        }
+        $line =~ s/\\\\n/\\n/g;
+        print OUTPROPS $line;
+      }
+    }
+  }
+
+  close(OUTPROPS);
+}

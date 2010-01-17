@@ -114,12 +114,12 @@ System.out.println(e);
         if (cur == feld[i]) {
           if (button[i].getBackground() == Color.red && !efaFrame.isDirectMode()) goTo(button[i],e);
           else if (feld[i].getText().trim().equals("")) goTo(efaFrame.abfahrt,e);
-          else if (efaFrame.aktBoot != null && i==1 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMROWERS_1)) goTo(efaFrame.abfahrt,e);
-          else if (efaFrame.aktBoot != null && i==2 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMROWERS_2)) goTo(efaFrame.abfahrt,e);
-          else if (efaFrame.aktBoot != null && i==3 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMROWERS_3)) goTo(efaFrame.abfahrt,e);
-          else if (efaFrame.aktBoot != null && i==4 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMROWERS_4)) goTo(efaFrame.abfahrt,e);
-          else if (efaFrame.aktBoot != null && i==5 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMROWERS_5)) goTo(efaFrame.abfahrt,e);
-          else if (efaFrame.aktBoot != null && i==6 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMROWERS_6)) goTo(efaFrame.abfahrt,e);
+          else if (efaFrame.aktBoot != null && i==1 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMSEATS_1)) goTo(efaFrame.abfahrt,e);
+          else if (efaFrame.aktBoot != null && i==2 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMSEATS_2)) goTo(efaFrame.abfahrt,e);
+          else if (efaFrame.aktBoot != null && i==3 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMSEATS_3)) goTo(efaFrame.abfahrt,e);
+          else if (efaFrame.aktBoot != null && i==4 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMSEATS_4)) goTo(efaFrame.abfahrt,e);
+          else if (efaFrame.aktBoot != null && i==5 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMSEATS_5)) goTo(efaFrame.abfahrt,e);
+          else if (efaFrame.aktBoot != null && i==6 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMSEATS_6)) goTo(efaFrame.abfahrt,e);
 //          else if (efaFrame.aktBoot != null && i<=6 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(Daten.bAnzahl[i-1])) goTo(efaFrame.abfahrt);
           else if (i<8) goTo(feld[i+1],e);
           else goTo(efaFrame.abfahrt,e);
@@ -182,12 +182,12 @@ System.out.println(e);
       for (int i=1; i<9; i++)
         if (efaFrame.mannschAuswahl == 0) {// Mannsch 1-8
           if (cur == button[i]) {
-            if (efaFrame.aktBoot != null && i==1 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMROWERS_1)) goTo(efaFrame.abfahrt,e);
-            else if (efaFrame.aktBoot != null && i==2 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMROWERS_2)) goTo(efaFrame.abfahrt,e);
-            else if (efaFrame.aktBoot != null && i==3 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMROWERS_3)) goTo(efaFrame.abfahrt,e);
-            else if (efaFrame.aktBoot != null && i==4 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMROWERS_4)) goTo(efaFrame.abfahrt,e);
-            else if (efaFrame.aktBoot != null && i==5 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMROWERS_5)) goTo(efaFrame.abfahrt,e);
-            else if (efaFrame.aktBoot != null && i==6 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMROWERS_6)) goTo(efaFrame.abfahrt,e);
+            if (efaFrame.aktBoot != null && i==1 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMSEATS_1)) goTo(efaFrame.abfahrt,e);
+            else if (efaFrame.aktBoot != null && i==2 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMSEATS_2)) goTo(efaFrame.abfahrt,e);
+            else if (efaFrame.aktBoot != null && i==3 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMSEATS_3)) goTo(efaFrame.abfahrt,e);
+            else if (efaFrame.aktBoot != null && i==4 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMSEATS_4)) goTo(efaFrame.abfahrt,e);
+            else if (efaFrame.aktBoot != null && i==5 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMSEATS_5)) goTo(efaFrame.abfahrt,e);
+            else if (efaFrame.aktBoot != null && i==6 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(EfaTypes.TYPE_NUMSEATS_6)) goTo(efaFrame.abfahrt,e);
 //            if (efaFrame.aktBoot != null && i<=6 && efaFrame.aktBoot.get(Boote.ANZAHL).equals(Daten.bAnzahl[i-1])) goTo(efaFrame.abfahrt);
             else if (i<8) goTo(feld[i+1],e);
             else goTo(efaFrame.abfahrt,e);

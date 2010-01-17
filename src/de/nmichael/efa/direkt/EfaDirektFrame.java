@@ -1145,23 +1145,23 @@ public class EfaDirektFrame extends JFrame {
       if (a[i].anzahl != anz) {
           String s = null;
           switch(a[i].anzahl) {
-              case 1: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_1);
+              case 1: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_1);
                       break;
-              case 2: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_2);
+              case 2: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_2);
                       break;
-              case 3: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_3);
+              case 3: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_3);
                       break;
-              case 4: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_4);
+              case 4: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_4);
                       break;
-              case 5: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_5);
+              case 5: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_5);
                       break;
-              case 6: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_6);
+              case 6: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_6);
                       break;
-              case 8: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_8);
+              case 8: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_8);
                       break;
           }
           if (s == null) {
-              s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_OTHER);
+              s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_OTHER);
           }
         vv.add("---------- " + s + " ----------");
         anz = a[i].anzahl;
@@ -1433,6 +1433,22 @@ public class EfaDirektFrame extends JFrame {
       int start = 0;
       if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_sortByAnzahl) {
         if (such.charAt(0)>='0' && such.charAt(0)<='9') {
+          switch(such.charAt(0)) {
+              case '1': such = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_1);
+                        break;
+              case '2': such = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_2);
+                        break;
+              case '3': such = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_3);
+                        break;
+              case '4': such = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_4);
+                        break;
+              case '5': such = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_5);
+                        break;
+              case '6': such = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_6);
+                        break;
+              case '8': such = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_8);
+                        break;
+          }
           such = "---------- "+such;
         } else {
           start = list.getSelectedIndex();
@@ -1440,6 +1456,7 @@ public class EfaDirektFrame extends JFrame {
           while (start>0 && !((String)boote.get(start)).startsWith("---------- ")) start--;
         }
       }
+      such = such.toLowerCase();
 
       int index = -1;
       for (int i=start; i<boote.size(); i++) {
@@ -1453,19 +1470,6 @@ public class EfaDirektFrame extends JFrame {
       list.setSelectedIndex(index);
       list.scrollRectToVisible(list.getCellBounds(index, (index+plus >= boote.size() ? boote.size()-1 : index+plus) ));
     } catch(Exception ee) { /* just to be sure */ }
-
-
-/*    try {
-      bootStatus.ignoreCase(true);
-      String boot;
-      for (boot = bootStatus.getFirst(such); boot != null && !boote.contains(boot); boot = bootStatus.getNext(such));
-      if (boot != null && boote.contains(boot)) {
-        int i = boote.indexOf(boot)+increment;
-        list.setSelectedIndex(i);
-        list.scrollRectToVisible(list.getCellBounds(i, (i+plus >= boote.size()+increment ? boote.size()+increment-1 : i+plus) ));
-      }
-    } catch(Exception ee) {}
-    bootStatus.ignoreCase(false);*/
   }
 
   private String listGetSelectedValue(JList list) {
@@ -1611,21 +1615,21 @@ public class EfaDirektFrame extends JFrame {
   private String createStatusString(String fahrttype, String ziel, String datum, String zeit, String person) {
     String aufFahrtart = "";
     if (Daten.efaTypes != null && fahrttype != null) {
-      if (fahrttype.equals(EfaTypes.TYPE_TRIP_REGATTA)) {
+      if (fahrttype.equals(EfaTypes.TYPE_SESSION_REGATTA)) {
           aufFahrtart = " " + 
-          International.getMessage("auf {trip_type}",Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_REGATTA));
+          International.getMessage("auf {trip_type}",Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_REGATTA));
       }
-      if (fahrttype.equals(EfaTypes.TYPE_TRIP_JUMREGATTA)) {
+      if (fahrttype.equals(EfaTypes.TYPE_SESSION_JUMREGATTA)) {
           aufFahrtart = " " +
-          International.getMessage("auf {trip_type}",Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_JUMREGATTA));
+          International.getMessage("auf {trip_type}",Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_JUMREGATTA));
       }
-      if (fahrttype.equals(EfaTypes.TYPE_TRIP_TRAININGCAMP)) {
+      if (fahrttype.equals(EfaTypes.TYPE_SESSION_TRAININGCAMP)) {
           aufFahrtart = " " +
-          International.getMessage("auf {trip_type}",Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_TRAININGCAMP));
+          International.getMessage("auf {trip_type}",Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_TRAININGCAMP));
       }
-      if (fahrttype.startsWith(EfaTypes.TYPE_TRIP_MULTIDAY)) {
+      if (fahrttype.startsWith(EfaTypes.TYPE_SESSION_MULTIDAY)) {
           aufFahrtart = " " +
-          International.getMessage("auf {trip_type}",Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_MULTIDAY));
+          International.getMessage("auf {trip_type}",Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_MULTIDAY));
       }
     }
     String nachZiel = "";
@@ -1639,10 +1643,10 @@ public class EfaDirektFrame extends JFrame {
   }
 
   private boolean isMultiDayFahrtart(String fahrttype) {
-      if (fahrttype.equals(EfaTypes.TYPE_TRIP_REGATTA)) return true;
-      if (fahrttype.equals(EfaTypes.TYPE_TRIP_JUMREGATTA)) return true;
-      if (fahrttype.equals(EfaTypes.TYPE_TRIP_TRAININGCAMP)) return true;
-      if (fahrttype.startsWith(EfaTypes.TYPE_TRIP_MULTIDAY)) return true;
+      if (fahrttype.equals(EfaTypes.TYPE_SESSION_REGATTA)) return true;
+      if (fahrttype.equals(EfaTypes.TYPE_SESSION_JUMREGATTA)) return true;
+      if (fahrttype.equals(EfaTypes.TYPE_SESSION_TRAININGCAMP)) return true;
+      if (fahrttype.startsWith(EfaTypes.TYPE_SESSION_MULTIDAY)) return true;
       return false;
   }
 
@@ -2649,7 +2653,7 @@ public class EfaDirektFrame extends JFrame {
                 d.set(BootStatus.BEMERKUNG,BootStatus.getStatusName(BootStatus.STAT_VERFUEGBAR));
                 d.set(BootStatus.LFDNR,"");
                 Logger.log(Logger.INFO, Logger.MSG_EVT_RESCHECK_AVAIL,
-                        "ReservatioChecker: "+
+                        "ReservationChecker: "+
                         International.getMessage("Boot {boat} auf '{status}' gesetzt: {notes}",
                                        d.get(BootStatus.NAME),BootStatus.getStatusName(BootStatus.STAT_VERFUEGBAR),
                                        International.getString("Alte Reservierungen gelöscht")));
@@ -2670,7 +2674,7 @@ public class EfaDirektFrame extends JFrame {
                         reservierung.name,reservierung.grund,BootStatus.makeReservierungText(reservierung)));
                 d.set(BootStatus.LFDNR,BootStatus.RES_LFDNR); // Kennzeichnung dafür, daß es sich um eine *Reservierung* handelt (und nicht Sperrung des Bootes o.ä.)
                 Logger.log(Logger.INFO, Logger.MSG_EVT_RESCHECK_RESFOUND,
-                        "ReservatioChecker: "+
+                        "ReservationChecker: "+
                         International.getMessage("Für Boot {boat} wurde eine Reservierung gefunden (neuer Status: '{status}')",
                                        d.get(BootStatus.NAME),BootStatus.getStatusName(BootStatus.getStatusID(d.get(BootStatus.STATUS))))+
                                        ": " + d.get(BootStatus.BEMERKUNG));
@@ -2686,7 +2690,7 @@ public class EfaDirektFrame extends JFrame {
                 d.set(BootStatus.BEMERKUNG,BootStatus.getStatusName(BootStatus.STAT_VERFUEGBAR));
                 d.set(BootStatus.LFDNR,"");
                 Logger.log(Logger.INFO, Logger.MSG_EVT_RESCHECK_AVAIL,
-                        "ReservatioChecker: "+
+                        "ReservationChecker: "+
                         International.getMessage("Boot {boat} auf '{status}' gesetzt: {notes}",
                         d.get(BootStatus.NAME),BootStatus.getStatusName(BootStatus.STAT_VERFUEGBAR),
                         International.getString("Reservierungszeitraum beendet.")));

@@ -246,13 +246,13 @@ public class Statistik {
         }
       } else ad.auswertungFuer[1] += International.getString("alle");
       alle=true;
-      for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++)
+      for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION); i++)
         if (!sd.fahrtart[i]) alle=false;
       if (!alle) {
-        for (int i=j=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++) {
+        for (int i=j=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION); i++) {
           if (sd.fahrtart[i]) {
             if (j++>0) ad.auswertungFuer[2] += ", ";
-            ad.auswertungFuer[2] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP,i);
+            ad.auswertungFuer[2] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION,i);
           }
         }
       } else ad.auswertungFuer[2] += International.getString("alle Arten von Fahrten");
@@ -271,13 +271,13 @@ public class Statistik {
         }
       } else ad.auswertungFuer[0] += International.getString("alle Bootsarten");
       alle=true;
-      for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS); i++)
+      for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMSEATS); i++)
         if (!sd.bAnzahl[i]) alle=false;
       if (!alle) {
-        for (int i=j=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS); i++) {
+        for (int i=j=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMSEATS); i++) {
           if (sd.bAnzahl[i]) {
             if (j++>0) ad.auswertungFuer[1] += ", ";
-            ad.auswertungFuer[1] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS,i);
+            ad.auswertungFuer[1] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,i);
           }
         }
       } else ad.auswertungFuer[1] += International.getString("alle Bootsgrößen");
@@ -2613,15 +2613,15 @@ public class Statistik {
     lastCol.next = col; lastCol = col;
     txt = new String[4];
     color = new String[4];
-    txt[0] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_NORMAL); color[0] = "88ff88"; // grün
-    txt[1] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_INSTRUCTION); color[1] = "88ffff"; // türkis
-    txt[2] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_JUMREGATTA); color[2] = "ff8888"; // rot
-    txt[3] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_REGATTA); color[3] = "ff8888"; // rot
+    txt[0] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_NORMAL); color[0] = "88ff88"; // grün
+    txt[1] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_INSTRUCTION); color[1] = "88ffff"; // türkis
+    txt[2] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_JUMREGATTA); color[2] = "ff8888"; // rot
+    txt[3] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_REGATTA); color[3] = "ff8888"; // rot
     col = new TabellenFolgenEintrag(4,1,txt,color,noneBold7);
     lastCol.next = col; lastCol = col;
     txt = new String[4];
     color = new String[4];
-    txt[0] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_TRAINING); color[0] = "ff88ff"; // lila
+    txt[0] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_TRAINING); color[0] = "ff88ff"; // lila
     txt[1] = International.getString("mehrere Fahrtarten"); color[1] = "ffff88"; // gelb
     txt[2] = International.getString("Mehrtagesfahrt") + " & " +
             International.getString("andere"); color[2] = "8888ff"; // blau
@@ -2702,10 +2702,10 @@ public class Statistik {
                   String c = "0000ff"; // blau
                   if (fahrtart[j-start+1] == null || fahrtart[j-start+1].equals("")) c = "00ff00"; // grün
                   else if (fahrtart[j-start+1].equals("MEHRERE_FAHRTARTEN")) c = "ffff00"; // gelb
-                  else if (fahrtart[j-start+1].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_INSTRUCTION))) c = "00ffff"; // türkis
-                  else if (fahrtart[j-start+1].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_JUMREGATTA))) c = "ff0000"; // rot
-                  else if (fahrtart[j-start+1].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_REGATTA))) c = "ff0000"; // rot
-                  else if (fahrtart[j-start+1].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_TRAINING))) c = "ff00ff"; // lila
+                  else if (fahrtart[j-start+1].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_INSTRUCTION))) c = "00ffff"; // türkis
+                  else if (fahrtart[j-start+1].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_JUMREGATTA))) c = "ff0000"; // rot
+                  else if (fahrtart[j-start+1].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_REGATTA))) c = "ff0000"; // rot
+                  else if (fahrtart[j-start+1].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_TRAINING))) c = "ff00ff"; // lila
 //                  int intens = 9 - (monat[j-start+1] / 100);
 //                  if (intens<0) intens = 0;
                   int intens = 8; // alle Fahrten mit gleicher Intensität färben!
@@ -2847,8 +2847,8 @@ public class Statistik {
     }
     for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT); i++)
       if (!sd.bArt[i] && (boot.get(Boote.ART).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_BOAT,i)))) return true;
-    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS); i++)
-      if (!sd.bAnzahl[i] && (boot.get(Boote.ANZAHL).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_NUMROWERS,i)))) return true;
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMSEATS); i++)
+      if (!sd.bAnzahl[i] && (boot.get(Boote.ANZAHL).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_NUMSEATS,i)))) return true;
     for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_COXING); i++)
       if (!sd.bStm[i] && (boot.get(Boote.STM).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_COXING,i)))) return true;
     for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_RIGGING); i++)
@@ -2937,7 +2937,7 @@ public class Statistik {
           if (sd.art == StatistikDaten.BART_WELCHESWOHIN) ww = new Hashtable();
           if (!ignoreBoot(sd,d))
             if (!h.containsKey(key=EfaUtil.syn2org(Daten.synBoote,fullname))) h.put(key,new HashEl(
-                    Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, d.get(Boote.ANZAHL)),
+                    Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, d.get(Boote.ANZAHL)),
                     Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, d.get(Boote.ART)),
                     Boote.getDetailBezeichnung(d),
                     0,0,0,0,0,new ZielfahrtFolge(),ww,null,null));
@@ -2952,15 +2952,15 @@ public class Statistik {
           if (!h.containsKey(Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,i))) h.put(Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,i),new HashEl("",Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,i),"",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.ART_FAHRTART:
-        for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++)
-          if (!h.containsKey(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP,i))) h.put(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP,i),new HashEl("",Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP,i),"",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION); i++)
+          if (!h.containsKey(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION,i))) h.put(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION,i),new HashEl("",Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION,i),"",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.ART_JAHRGANG:
         // nichts zu tun
         break;
       case StatistikDaten.BART_PLAETZE:
-        for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS); i++)
-          if (!h.containsKey(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS,i))) h.put(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS,i),new HashEl(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS,i),"","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+        for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMSEATS); i++)
+          if (!h.containsKey(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,i))) h.put(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,i),new HashEl(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,i),"","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.ART_GESCHLECHT:
         for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_GENDER); i++)
@@ -3073,7 +3073,7 @@ public class Statistik {
     // Art der Fahrt überprüfen
     String mtour = d.get(Fahrtenbuch.FAHRTART);
     boolean mtourfound = false; // true, wenn Mehrtagestour in Liste gefunden und in SD auf true gesetzt ist
-    if (mtour.equals(EfaTypes.TYPE_TRIP_NORMAL)) {
+    if (mtour.equals(EfaTypes.TYPE_SESSION_NORMAL)) {
       mtourfound = true;
       if (!sd.fahrtart[0]) return; // normale Fahrt == false
     }
@@ -3083,22 +3083,22 @@ public class Statistik {
       if (boot != null &&
           boot.get(Boote.ART).equals(EfaTypes.TYPE_BOAT_MOTORBOAT)) {
         if (sd.stat == StatistikDaten.STAT_WETT) return; // zur Sicherheit (falls Bezeichnungen.FAHRT_MOTORBOOT == -1)
-        if (Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_MOTORBOAT)) mtour = EfaTypes.TYPE_TRIP_MOTORBOAT;
+        if (Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_MOTORBOAT)) mtour = EfaTypes.TYPE_SESSION_MOTORBOAT;
       }
       if (boot != null &&
           boot.get(Boote.ART).equals(EfaTypes.TYPE_BOAT_ERG)) {
         if (sd.stat == StatistikDaten.STAT_WETT) return; // zur Sicherheit (falls Bezeichnungen.FAHRT_MOTORBOOT == -1)
-        if (Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_ERG)) mtour = EfaTypes.TYPE_TRIP_ERG;
+        if (Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_ERG)) mtour = EfaTypes.TYPE_SESSION_ERG;
       }
     }
 
-    for (int i=1; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP)-1; i++)
-      if (mtour.equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP,i))) {
+    for (int i=1; i<Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION)-1; i++)
+      if (mtour.equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION,i))) {
         mtourfound = true;
         if (!sd.fahrtart[i]) return; // Fahrtart[1..length-1] == false
         break;
       }
-    if (!mtourfound && !sd.fahrtart[Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP)-1]) return; // Wanderfahrt == false
+    if (!mtourfound && !sd.fahrtart[Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION)-1]) return; // Wanderfahrt == false
 
     // Infos zu Mehrtagesfahrt holen
     Mehrtagesfahrt mehrtagesfahrt = null;
@@ -3266,7 +3266,7 @@ public class Statistik {
         if (boot != null) {
           bezeichnung = Boote.getDetailBezeichnung(boot);
         }
-        if (boot != null) jahrgang = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, boot.get(Boote.ANZAHL));
+        if (boot != null) jahrgang = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, boot.get(Boote.ANZAHL));
       }
     }
 
@@ -3574,7 +3574,7 @@ public class Statistik {
           DatenFelder b = Daten.fahrtenbuch.getDaten().boote.getExactComplete(d.get(Fahrtenbuch.BOOT));
           if (b != null) {
             status = Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, b.get(Boote.ART));
-            jahrgang = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, b.get(Boote.ANZAHL));
+            jahrgang = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, b.get(Boote.ANZAHL));
             bezeichnung = Boote.getDetailBezeichnung(b);
           } else {
             status = "";
@@ -3594,9 +3594,9 @@ public class Statistik {
         else h.put(name,new HashEl("","","",rudKm + ges.rudKm, stmKm + ges.stmKm, ges.mannschKm + mannschKm, ges.dauer + dauer,eins*anzRuderTage + ges.anz, ges.zf.addZielfahrten(zf),null,null,null));
         break;
       case StatistikDaten.ART_FAHRTART:
-        if (mtour.equals("")) mtour = EfaTypes.TYPE_TRIP_NORMAL;
-        name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, mtour);
-        if (!mtourfound) name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_MULTIDAY);
+        if (mtour.equals("")) mtour = EfaTypes.TYPE_SESSION_NORMAL;
+        name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, mtour);
+        if (!mtourfound) name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_MULTIDAY);
         if ( (ges = (HashEl)h.get(name)) == null) h.put(name,new HashEl("","","",rudKm,stmKm,mannschKm,dauer,eins*anzRuderTage,new ZielfahrtFolge(zf),null,null,null));
         else h.put(name,new HashEl("","","",rudKm + ges.rudKm, stmKm + ges.stmKm, ges.mannschKm + mannschKm, ges.dauer + dauer,eins*anzRuderTage + ges.anz, ges.zf.addZielfahrten(zf),null,null,null));
         break;
@@ -3720,8 +3720,8 @@ public class Statistik {
         break;
       case StatistikDaten.ART_WERMITFAHRTART:
         String fahrtart = mtour;
-        if (!mtourfound) name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_MULTIDAY);
-        if (name.equals("")) name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_NORMAL);
+        if (!mtourfound) name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_MULTIDAY);
+        if (name.equals("")) name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_NORMAL);
 
         if ( (ges = (HashEl)h.get(name)) == null) { // schauen, ob für akt. Person bereits Eintrag vorhanden
           Hashtable ww = new Hashtable(); // --> nein, neue Person --> dann auch alles neue Ziele
@@ -4185,12 +4185,12 @@ public class Statistik {
 
   static boolean mayBeWafa(String mTour, int bootskm) {
     if (mTour == null) return false;
-    if (mTour.equals(EfaTypes.TYPE_TRIP_TRAINING) ||
-        mTour.equals(EfaTypes.TYPE_TRIP_TRAININGCAMP) ||
-        mTour.equals(EfaTypes.TYPE_TRIP_LATEENTRY) ||
-        mTour.equals(EfaTypes.TYPE_TRIP_REGATTA) ||
-        mTour.equals(EfaTypes.TYPE_TRIP_JUMREGATTA)) return false; // Trainings-Fahrten und Regatten zählen nicht
-    if (Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_TRIP, mTour)) mTour=""; // vordefinierte Fahrtarten sind keine Mehrtagesfahrten
+    if (mTour.equals(EfaTypes.TYPE_SESSION_TRAINING) ||
+        mTour.equals(EfaTypes.TYPE_SESSION_TRAININGCAMP) ||
+        mTour.equals(EfaTypes.TYPE_SESSION_LATEENTRY) ||
+        mTour.equals(EfaTypes.TYPE_SESSION_REGATTA) ||
+        mTour.equals(EfaTypes.TYPE_SESSION_JUMREGATTA)) return false; // Trainings-Fahrten und Regatten zählen nicht
+    if (Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, mTour)) mTour=""; // vordefinierte Fahrtarten sind keine Mehrtagesfahrten
     if (mTour.equals("") && bootskm < Daten.WAFAKM) return false; // Eintagestour
     return true; // könnte eine Mehrtagesfahrt sein (bei Mehrtagesfahrten aber nur ab 40 Km!)
   }
@@ -4199,7 +4199,7 @@ public class Statistik {
   // Wanderfahrt für DRV-Wettbewerb hinzufügen
   static void wettAddWafa(KmWettInfo kmwett, String lfdnr, String datum, String ziel, String km, String bemerk, int bootskm, String mtourName, Mehrtagesfahrt mtour) {
     if (kmwett == null) return;
-    boolean jum = mtourName.equals(EfaTypes.TYPE_TRIP_JUMREGATTA);
+    boolean jum = mtourName.equals(EfaTypes.TYPE_SESSION_JUMREGATTA);
 
     if (!mayBeWafa(mtourName,bootskm) && !jum) return;
 
@@ -4247,7 +4247,7 @@ public class Statistik {
         fahrt.jum = false;
 
         if (jum) {
-          fahrt.ziel = ziel + " ("+Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_JUMREGATTA)+")";
+          fahrt.ziel = ziel + " ("+Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_JUMREGATTA)+")";
           fahrt.anzTage = 1;
           fahrt.ok = false; // denn: ok wird als gültige Mehrtagesfahrt gewertet...
           fahrt.jum = true;
@@ -4688,8 +4688,8 @@ public class Statistik {
       // bei Wettbewerben Motorboote und Ergos ignorieren
       if (sd[i].stat == StatistikDaten.STAT_WETT) {
         for (int fi = 0; fi < sd[i].fahrtart.length; fi++) {
-          if (EfaTypes.TYPE_TRIP_MOTORBOAT.equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP, fi)) ||
-              EfaTypes.TYPE_TRIP_ERG.equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP, fi)))
+          if (EfaTypes.TYPE_SESSION_MOTORBOAT.equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, fi)) ||
+              EfaTypes.TYPE_SESSION_ERG.equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, fi)))
             sd[i].fahrtart[fi] = false;
         }
       }

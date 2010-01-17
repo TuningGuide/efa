@@ -160,7 +160,7 @@ public class International {
         return s;
     }
 
-    private static String makeKey(String s) {
+    public static String makeKey(String s) {
         if (s == null) return "null";
         
         // @todo: To be extended by further characters? And maybe some performance optimization needed.
@@ -230,7 +230,7 @@ public class International {
             return s;
         }
 //        return "<" + getMessage("only [{language}]",lang) + ">";
-        return International.getMessage("nur [{language}]",lang);
+        return International.getMessage("nur für [{language}]",lang);
     }
 
     /**
@@ -418,6 +418,10 @@ public class International {
         } catch(Exception e) {
             return "";
         }
+    }
+
+    public static ResourceBundle getResourceBundle() {
+        return bundle;
     }
 
     public static void setMarkMissingKeys(boolean enabled) {

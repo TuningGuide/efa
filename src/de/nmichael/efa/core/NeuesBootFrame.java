@@ -43,6 +43,18 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
   DatenListe gruppen = null;
   BootStatus bootstatus;
 
+  private String _kombiRig_Rig = null;
+  private String _kombiRig_Anz = null;
+  private String _kombiRig_Stm = null;
+  private String _kombiAnz_Rig = null;
+  private String _kombiAnz_Anz = null;
+  private String _kombiAnz_Stm = null;
+
+  private String[] typesArt = null;
+  private String[] typesAnz = null;
+  private String[] typesRig = null;
+  private String[] typesStm = null;
+
   JCheckBox kombiAnzahlBoot = new JCheckBox();
   JLabel kombiBootSyn = new JLabel();
   JPanel mainPanel = new JPanel();
@@ -117,7 +129,7 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
 
     name.setText(d.get(Boote.NAME));
     verein.setText(d.get(Boote.VEREIN));
-    anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, d.get(Boote.ANZAHL)));
+    anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, d.get(Boote.ANZAHL)));
     rigger.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, d.get(Boote.RIGGER)));
     stm.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, d.get(Boote.STM)));
     art.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, d.get(Boote.ART)));
@@ -287,6 +299,11 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
     rigger.addItemListener(new java.awt.event.ItemListener() {
       public void itemStateChanged(ItemEvent e) {
         rigger_itemStateChanged(e);
+      }
+    });
+    rigger.addFocusListener(new java.awt.event.FocusAdapter() {
+      public void focusLost(FocusEvent e) {
+        rigger_focusLost(e);
       }
     });
     art.setNextFocusableComponent(anzahl);
@@ -479,10 +496,26 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
     // Initialisierung der Auswahllisten (rückwärts, da sonst ItemStateChanged von anzahl und art zuschlägt
-    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_COXING); i++) stm.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, i));
-    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_RIGGING); i++) rigger.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, i));
-    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS); i++) anzahl.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, i));
-    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT); i++) art.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, i));
+    typesArt = new String[Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT)];
+    typesAnz = new String[Daten.efaTypes.size(EfaTypes.CATEGORY_NUMSEATS)];
+    typesRig = new String[Daten.efaTypes.size(EfaTypes.CATEGORY_RIGGING)];
+    typesStm = new String[Daten.efaTypes.size(EfaTypes.CATEGORY_COXING)];
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT); i++) {
+        art.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, i));
+        typesArt[i] = Daten.efaTypes.getType(EfaTypes.CATEGORY_BOAT, i);
+    }
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMSEATS); i++) {
+        anzahl.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, i));
+        typesAnz[i] = Daten.efaTypes.getType(EfaTypes.CATEGORY_NUMSEATS, i);
+    }
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_RIGGING); i++) {
+        rigger.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, i));
+        typesRig[i] = Daten.efaTypes.getType(EfaTypes.CATEGORY_RIGGING, i);
+    }
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_COXING); i++) {
+        stm.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, i));
+        typesStm[i] = Daten.efaTypes.getType(EfaTypes.CATEGORY_COXING, i);
+    }
   }
   /**Overridden so we can exit when window is closed*/
   protected void processWindowEvent(WindowEvent e) {
@@ -609,10 +642,10 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
       DatenFelder d = new DatenFelder(Boote._ANZFELDER);
       d.set(Boote.NAME,EfaUtil.removeSepFromString(bname));
       d.set(Boote.VEREIN,EfaUtil.removeSepFromString(vname));
-      d.set(Boote.ART,Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_BOAT, (String)art.getSelectedItem()));
-      d.set(Boote.ANZAHL,Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_NUMROWERS, (String)anzahl.getSelectedItem()));
-      d.set(Boote.RIGGER,Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_RIGGING, (String)rigger.getSelectedItem()));
-      d.set(Boote.STM,Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_COXING, (String)stm.getSelectedItem()));
+      d.set(Boote.ART, typesArt[art.getSelectedIndex()]);
+      d.set(Boote.ANZAHL, typesAnz[anzahl.getSelectedIndex()]);
+      d.set(Boote.RIGGER, typesRig[rigger.getSelectedIndex()]);
+      d.set(Boote.STM, typesStm[stm.getSelectedIndex()]);
       d.set(Boote.GRUPPEN,Boote.makeGruppen(gruppe1.getText(),gruppe2.getText(),gruppe3.getText(),gruppe4.getText(),gruppe5.getText()));
       d.set(Boote.MAX_NICHT_IN_GRUPPE,Integer.toString(EfaUtil.string2int(maxAnzahlNichtInGruppe.getText(),0)));
       d.set(Boote.MIND_1_IN_GRUPPE,EfaUtil.removeSepFromString(gruppeMind1.getText().trim()));
@@ -634,12 +667,13 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
   }
 
 
-  void addKombiBoot(String orgName, String art, String anzahl, String rigger, String stm) {
+  void addKombiBoot(String orgName, String tArt, String tAnz, String tRig, String tStm) {
     String name, nameMitVerein;
 
     name = EfaUtil.removeSepFromString(this.name.getText().trim());
-    if (kombiRiggerBoot.isSelected()) name += " - " + rigger;
-    if (kombiAnzahlBoot.isSelected()) name += " - " + anzahl + " " + stm;
+    if (kombiRiggerBoot.isSelected()) name += " - " + Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, tRig);
+    if (kombiAnzahlBoot.isSelected()) name += " - " + Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, tAnz) + " " +
+                                                      Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, tStm);
     nameMitVerein = name;
     if (!verein.getText().trim().equals("")) nameMitVerein += " ("+EfaUtil.removeSepFromString(verein.getText().trim())+")";
 
@@ -651,10 +685,10 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
       DatenFelder d = new DatenFelder(Boote._ANZFELDER);
       d.set(Boote.NAME,EfaUtil.removeSepFromString(name));
       d.set(Boote.VEREIN,EfaUtil.removeSepFromString(EfaUtil.removeSepFromString(verein.getText().trim())));
-      d.set(Boote.ART,art);
-      d.set(Boote.ANZAHL,anzahl);
-      d.set(Boote.RIGGER,rigger);
-      d.set(Boote.STM,stm);
+      d.set(Boote.ART,tArt);
+      d.set(Boote.ANZAHL,tAnz);
+      d.set(Boote.RIGGER,tRig);
+      d.set(Boote.STM,tStm);
       d.set(Boote.GRUPPEN,Boote.makeGruppen(gruppe1.getText(),gruppe2.getText(),gruppe3.getText(),gruppe4.getText(),gruppe5.getText()));
       d.set(Boote.MAX_NICHT_IN_GRUPPE,Integer.toString(EfaUtil.string2int(maxAnzahlNichtInGruppe.getText(),0)));
       d.set(Boote.MIND_1_IN_GRUPPE,EfaUtil.removeSepFromString(gruppeMind1.getText().trim()));
@@ -672,10 +706,10 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
 
 
   void addKombi() {
-    String tArt = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_BOAT, (String)art.getSelectedItem());
-    String tAnz = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_NUMROWERS, (String)anzahl.getSelectedItem());
-    String tRig = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_RIGGING, (String)rigger.getSelectedItem());
-    String tStm = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_COXING, (String)stm.getSelectedItem());
+    String tArt = typesArt[art.getSelectedIndex()];
+    String tAnz = typesAnz[anzahl.getSelectedIndex()];
+    String tRig = typesRig[rigger.getSelectedIndex()];
+    String tStm = typesStm[stm.getSelectedIndex()];
 
     int anz = EfaTypes.getNumberOfRowers(tAnz);
 
@@ -687,21 +721,13 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
     addKombiBoot(orgname,tArt,tAnz,tRig,tStm);
 
     // Kombi-Boot (Anzahl)
-    if (kombiAnzahlBoot.isSelected()) {
-      addKombiBoot(orgname,
-              tArt,
-              anzahlString(tStm.equals(EfaTypes.TYPE_COXING_COXED) ? ++anz : --anz),
-              tRig,
-              (tStm.equals(EfaTypes.TYPE_COXING_COXED) ? EfaTypes.TYPE_COXING_COXLESS : EfaTypes.TYPE_COXING_COXED) );
+    if (kombiAnzahlBoot.isSelected() && _kombiAnz_Anz != null && _kombiAnz_Rig != null && _kombiAnz_Stm != null) {
+      addKombiBoot(orgname, tArt, _kombiAnz_Anz, _kombiAnz_Rig, _kombiAnz_Stm);
     }
 
     // Kombi-Boot (Rigger)
-    if (kombiRiggerBoot.isSelected()) {
-      addKombiBoot(orgname,
-              tArt,
-              tAnz,
-              (tRig.equals(EfaTypes.TYPE_RIGGING_SCULL) ? EfaTypes.TYPE_RIGGING_SWEEP : EfaTypes.TYPE_RIGGING_SCULL),
-              tStm);
+    if (kombiRiggerBoot.isSelected() && _kombiRig_Anz != null && _kombiRig_Rig != null && _kombiRig_Stm != null) {
+      addKombiBoot(orgname, tArt, _kombiRig_Anz, _kombiRig_Rig, _kombiRig_Stm);
     }
   }
 
@@ -711,27 +737,26 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
             return;
         }
         try {
-            String tArt = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_BOAT, (String) art.getSelectedItem());
-            if (tArt.equals(EfaTypes.TYPE_BOAT_SINGLERACING) ||
-                    tArt.equals(EfaTypes.TYPE_BOAT_WHERRY) ||
-                    tArt.equals(EfaTypes.TYPE_BOAT_TRIMMY)) {
-                anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_1));
+            String tArt = typesArt[art.getSelectedIndex()];
+            if (tArt.equals(EfaTypes.TYPE_BOAT_WHERRY) ||
+                tArt.equals(EfaTypes.TYPE_BOAT_TRIMMY)) {
+                anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_1));
                 rigger.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, EfaTypes.TYPE_RIGGING_SCULL));
                 stm.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, EfaTypes.TYPE_COXING_COXLESS));
             }
-            if (tArt.equals(EfaTypes.TYPE_BOAT_BARKE) ||
-                    tArt.equals(EfaTypes.TYPE_BOAT_KIRCHBOOT)) {
-                anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_OTHER));
+            if (tArt.equals(EfaTypes.TYPE_BOAT_BARQUE) ||
+                    tArt.equals(EfaTypes.TYPE_BOAT_CHURCHBOAT)) {
+                anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_OTHER));
                 rigger.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, EfaTypes.TYPE_RIGGING_SWEEP));
                 stm.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, EfaTypes.TYPE_COXING_COXED));
             }
             if (tArt.equals(EfaTypes.TYPE_BOAT_MOTORBOAT)) {
-                anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_OTHER));
+                anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_OTHER));
                 rigger.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, EfaTypes.TYPE_RIGGING_OTHER));
                 stm.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, EfaTypes.TYPE_COXING_OTHER));
             }
             if (tArt.equals(EfaTypes.TYPE_BOAT_ERG)) {
-                anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, EfaTypes.TYPE_NUMROWERS_1));
+                anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_1));
                 rigger.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, EfaTypes.TYPE_RIGGING_OTHER));
                 stm.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, EfaTypes.TYPE_COXING_OTHER));
             }
@@ -742,14 +767,75 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
 
     void anzahl_focusLost(FocusEvent e) {
         if (anzahl.getSelectedIndex()<0) return;
+        if (rigger.getSelectedIndex()<0) return;
         try {
-            String tAnz = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_NUMROWERS, (String) anzahl.getSelectedItem());
-            if (tAnz.equals(EfaTypes.TYPE_NUMROWERS_1)) {
+            String tAnz = typesAnz[anzahl.getSelectedIndex()];
+            String tRig = typesRig[rigger.getSelectedIndex()];
+
+            if (tAnz.equals(EfaTypes.TYPE_NUMSEATS_1)) {
                 rigger.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, EfaTypes.TYPE_RIGGING_SCULL));
                 stm.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, EfaTypes.TYPE_COXING_COXLESS));
             }
-            if (tAnz.equals(EfaTypes.TYPE_NUMROWERS_8)) {
+            if (tAnz.equals(EfaTypes.TYPE_NUMSEATS_8) ||
+                tAnz.equals(EfaTypes.TYPE_NUMSEATS_8X)) {
                 stm.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, EfaTypes.TYPE_COXING_COXED));
+            }
+            if (tAnz.equals(EfaTypes.TYPE_NUMSEATS_2X) ||
+                tAnz.equals(EfaTypes.TYPE_NUMSEATS_3) ||
+                tAnz.equals(EfaTypes.TYPE_NUMSEATS_4X) ||
+                tAnz.equals(EfaTypes.TYPE_NUMSEATS_5) ||
+                tAnz.equals(EfaTypes.TYPE_NUMSEATS_6X) ||
+                tAnz.equals(EfaTypes.TYPE_NUMSEATS_8X)) {
+                if (tRig.equals(EfaTypes.TYPE_RIGGING_SWEEP)) {
+                    rigger.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, EfaTypes.TYPE_RIGGING_SCULL));
+                }
+            }
+            if (tAnz.equals(EfaTypes.TYPE_NUMSEATS_2) ||
+                tAnz.equals(EfaTypes.TYPE_NUMSEATS_4) ||
+                tAnz.equals(EfaTypes.TYPE_NUMSEATS_6) ||
+                tAnz.equals(EfaTypes.TYPE_NUMSEATS_8)) {
+                if (tRig.equals(EfaTypes.TYPE_RIGGING_SCULL)) {
+                    rigger.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, EfaTypes.TYPE_RIGGING_SWEEP));
+                }
+            }
+        } catch (Exception ee) {
+            // nothing to do
+        }
+    }
+
+    void rigger_focusLost(FocusEvent e) {
+        if (anzahl.getSelectedIndex()<0) return;
+        if (rigger.getSelectedIndex()<0) return;
+        try {
+            String tAnz = typesAnz[anzahl.getSelectedIndex()];
+            String tRig = typesRig[rigger.getSelectedIndex()];
+            if (tRig.equals(EfaTypes.TYPE_RIGGING_SCULL)) {
+                if (tAnz.equals(EfaTypes.TYPE_NUMSEATS_2)) {
+                    anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_2X));
+                }
+                if (tAnz.equals(EfaTypes.TYPE_NUMSEATS_4)) {
+                    anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_4X));
+                }
+                if (tAnz.equals(EfaTypes.TYPE_NUMSEATS_6)) {
+                    anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_6X));
+                }
+                if (tAnz.equals(EfaTypes.TYPE_NUMSEATS_8)) {
+                    anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_8X));
+                }
+            }
+            if (tRig.equals(EfaTypes.TYPE_RIGGING_SWEEP)) {
+                if (tAnz.equals(EfaTypes.TYPE_NUMSEATS_2X)) {
+                    anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_2));
+                }
+                if (tAnz.equals(EfaTypes.TYPE_NUMSEATS_4X)) {
+                    anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_4));
+                }
+                if (tAnz.equals(EfaTypes.TYPE_NUMSEATS_6X)) {
+                    anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_6));
+                }
+                if (tAnz.equals(EfaTypes.TYPE_NUMSEATS_8X)) {
+                    anzahl.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_8));
+                }
             }
         } catch (Exception ee) {
             // nothing to do
@@ -764,53 +850,86 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
     }
 
     if (anzahl.getSelectedIndex()<0 || stm.getSelectedIndex()<0 || rigger.getSelectedIndex()<0) return;
-    String tAnz = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_NUMROWERS, (String)anzahl.getSelectedItem());
-    String tRig = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_RIGGING, (String)rigger.getSelectedItem());
-    String tStm = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_COXING, (String)stm.getSelectedItem());
+    String tArt = typesArt[art.getSelectedIndex()];
+    String tAnz = typesAnz[anzahl.getSelectedIndex()];
+    String tRig = typesRig[rigger.getSelectedIndex()];
+    String tStm = typesStm[stm.getSelectedIndex()];
 
     int anz = EfaTypes.getNumberOfRowers(tAnz);
-    String s = null;
 
+    // Kombi-Boot Skull/Riemen??
+    _kombiRig_Rig = null;
+    _kombiRig_Anz = null;
+    _kombiRig_Stm = null;
     if (anz != 0 && anz % 2 == 0 &&
         (tRig.equals(EfaTypes.TYPE_RIGGING_SCULL) || tRig.equals(EfaTypes.TYPE_RIGGING_SWEEP))) {
-      if (tRig.equals(EfaTypes.TYPE_RIGGING_SCULL)) {
-          s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, EfaTypes.TYPE_RIGGING_SWEEP);
-      } else {
-          s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, EfaTypes.TYPE_RIGGING_SCULL);
-      }
+      _kombiRig_Rig = (tRig.equals(EfaTypes.TYPE_RIGGING_SCULL) ? EfaTypes.TYPE_RIGGING_SWEEP : EfaTypes.TYPE_RIGGING_SCULL);
+      _kombiRig_Anz = anzahlString(anz, _kombiRig_Rig);
+      _kombiRig_Stm = tStm;
       kombiRiggerBoot.setText(International.getString("Kombi-Boot") +
-              " (" + International.getMessage("auch ruderbar als {rigtype}-Boot",s) + ")");
+              " (" + International.getMessage("auch ruderbar als {boattype}",Boote.getDetailBezeichnung(tArt, _kombiRig_Anz, _kombiRig_Stm)) + ")");
       kombiRiggerBoot.setVisible(true);
     } else {
         kombiRiggerBoot.setVisible(false);
     }
 
+    // Kombi-Boot Anzahl Ruderer/Steuermann??
+    _kombiAnz_Rig = null;
+    _kombiAnz_Anz = null;
+    _kombiAnz_Stm = null;
+    int kombi_anz = 0;
     if (anz != 0 && tStm.equals(EfaTypes.TYPE_COXING_COXED)) {
-        s = anzahlString(++anz) + " " + Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, EfaTypes.TYPE_COXING_COXLESS);
+        kombi_anz = anz + 1;
     } 
     if (anz != 0 && tStm.equals(EfaTypes.TYPE_COXING_COXLESS)) {
-        s = anzahlString(--anz) + " " + Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, EfaTypes.TYPE_COXING_COXED);
+        kombi_anz = anz - 1;
     }
-    if (anz==7 || anz>8 || s == null) {
+    if (kombi_anz==7 || kombi_anz>8 || kombi_anz<1) {
         kombiAnzahlBoot.setVisible(false);
     } else {
+      _kombiAnz_Anz = anzahlString(kombi_anz, tRig);
+      _kombiAnz_Stm = (tStm.equals(EfaTypes.TYPE_COXING_COXED) ? EfaTypes.TYPE_COXING_COXLESS : EfaTypes.TYPE_COXING_COXED);
+      _kombiAnz_Rig = (kombi_anz % 2 == 1 ? EfaTypes.TYPE_RIGGING_SCULL : tRig);
       kombiAnzahlBoot.setText(International.getString("Kombi-Boot") +
-              " (" + International.getMessage("auch ruderbar als {rigtype} {boattypenumber}",
-              Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, tRig),s) + ")");
+              " (" + International.getMessage("auch ruderbar als {boattype}",Boote.getDetailBezeichnung(tArt, _kombiAnz_Anz, _kombiAnz_Stm)) + ")");
       kombiAnzahlBoot.setVisible(true);
     }
   }
 
-  String anzahlString(int anz) {
+  String anzahlString(int anz, String tRig) {
     switch(anz) {
-      case 1: return EfaTypes.TYPE_NUMROWERS_1;
-      case 2: return EfaTypes.TYPE_NUMROWERS_2;
-      case 3: return EfaTypes.TYPE_NUMROWERS_3;
-      case 4: return EfaTypes.TYPE_NUMROWERS_4;
-      case 5: return EfaTypes.TYPE_NUMROWERS_5;
-      case 6: return EfaTypes.TYPE_NUMROWERS_6;
-      case 8: return EfaTypes.TYPE_NUMROWERS_8;
-      default: return EfaTypes.TYPE_NUMROWERS_OTHER;
+      case 1: 
+          return EfaTypes.TYPE_NUMSEATS_1;
+      case 2:
+          if (tRig.equals(EfaTypes.TYPE_RIGGING_SCULL)) {
+              return EfaTypes.TYPE_NUMSEATS_2X;
+          } else {
+              return EfaTypes.TYPE_NUMSEATS_2;
+          }
+      case 3:
+          return EfaTypes.TYPE_NUMSEATS_3;
+      case 4:
+          if (tRig.equals(EfaTypes.TYPE_RIGGING_SCULL)) {
+              return EfaTypes.TYPE_NUMSEATS_4X;
+          } else {
+              return EfaTypes.TYPE_NUMSEATS_4;
+          }
+      case 5:
+          return EfaTypes.TYPE_NUMSEATS_5;
+      case 6:
+          if (tRig.equals(EfaTypes.TYPE_RIGGING_SCULL)) {
+              return EfaTypes.TYPE_NUMSEATS_6X;
+          } else {
+              return EfaTypes.TYPE_NUMSEATS_6;
+          }
+      case 8:
+          if (tRig.equals(EfaTypes.TYPE_RIGGING_SCULL)) {
+              return EfaTypes.TYPE_NUMSEATS_8X;
+          } else {
+              return EfaTypes.TYPE_NUMSEATS_8;
+          }
+      default:
+          return EfaTypes.TYPE_NUMSEATS_OTHER;
     }
   }
 
@@ -831,6 +950,7 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
   }
 
   void rigger_itemStateChanged(ItemEvent e) {
+    this.rigger_focusLost(null); // weil focuslost irgendwie nicht funktioniert...
     kombiBootLabel();
   }
 

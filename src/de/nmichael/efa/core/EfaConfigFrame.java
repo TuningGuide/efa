@@ -20,6 +20,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
+import java.util.*;
 
 // @i18n complete
 
@@ -33,6 +34,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
   String efaDirekt_vereinsLogo; // Dateiname für Vereins-Logo für efaDirekt
 
   String[] lookAndFeelArray;
+  String[] languagesArray;
 
   JPanel allgemeinPanel = new JPanel();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
@@ -158,6 +160,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
   JButton exec2FileSelectButton = new JButton();
   JLabel jLabel38 = new JLabel();
   JComboBox lookAndFeel = new JComboBox();
+  JComboBox languages = new JComboBox();
   JCheckBox efaDirekt_fensterNichtVerschiebbar = new JCheckBox();
   JCheckBox efaDirekt_immerImVordergrund = new JCheckBox();
   JPanel efaDirektErscheinungsbildWeiterePanel = new JPanel();
@@ -256,6 +259,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
   JLabel jLabel70 = new JLabel();
   JLabel jLabel71 = new JLabel();
   JLabel jLabel72 = new JLabel();
+  JLabel jLabel73 = new JLabel();
   JCheckBox efaDirekt_bnrError_admin = new JCheckBox();
   JCheckBox efaDirekt_bnrError_bootswart = new JCheckBox();
   JCheckBox efaDirekt_bnrWarning_admin = new JCheckBox();
@@ -902,7 +906,7 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     });
     Mnemonics.setLabel(this, standardFahrtartLabel, International.getStringWithMnemonic("Standard-Fahrtart")+": ");
     standardFahrtart.setNextFocusableComponent(showObmann);
-    Mnemonics.setButton(this, efaDirekt_showFahrtzielInBooteAufFahrt, International.getMessage("Fahrtziel in der Liste \'{list}\' anzeigen",
+    Mnemonics.setButton(this, efaDirekt_showFahrtzielInBooteAufFahrt, International.getMessage("Fahrtziel in der Liste {list} anzeigen",
                                                                       International.getString("Boote auf Fahrt")));
     efaDirekt_showFahrtzielInBooteAufFahrt.setNextFocusableComponent(efaDirekt_logoSelectButton);
     Mnemonics.setButton(this, efaDirekt_mitgliederNamenHinzufuegen, International.getStringWithMnemonic("Mitglieder dürfen Namen zur Mitgliederliste hinzufügen"));
@@ -931,6 +935,8 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     jLabel71.setText(International.getString("bei Warnungen (WARNING) einmal pro Woche")+":");
     jLabel72.setText(International.getString("bei Bootsstatus-Änderungen")+":");
     Mnemonics.setLabel(this, efaDirekt_newsTextLabel, International.getStringWithMnemonic("News-Text")+": ");
+    Mnemonics.setLabel(this, jLabel73, International.getStringWithMnemonic("Sprache")+": ");
+    jLabel73.setLabelFor(languages);
     efaDirekt_newsTextLabel.setLabelFor(efaDirekt_newsText);
     efaDirekt_newsText.setNextFocusableComponent(efaDirekt_fontSize);
     Allgemein.add(allgemeinPanel,   International.getString("Allgemein"));
@@ -991,7 +997,11 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
     allgemeinPanel.add(lookAndFeel,              new GridBagConstraints(1, 23, 3, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(8, 0, 0, 0), 0, 0));
-    allgemeinPanel.add(showBerlinOptions,          new GridBagConstraints(0, 24, 4, 1, 0.0, 0.0
+    allgemeinPanel.add(jLabel73,              new GridBagConstraints(0, 24, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
+    allgemeinPanel.add(languages,              new GridBagConstraints(1, 24, 3, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(8, 0, 0, 0), 0, 0));
+    allgemeinPanel.add(showBerlinOptions,          new GridBagConstraints(0, 25, 4, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
     allgemeinPanel.add(jLabel41,         new GridBagConstraints(0, 8, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
@@ -1376,8 +1386,8 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
     autogenAlias.setSelected(Daten.efaConfig.autogenAlias);
     aliasFormat.setText(Daten.efaConfig.aliasFormat);
     autoStandardmannsch.setSelected(Daten.efaConfig.autoStandardmannsch);
-    for(int i=0; Daten.efaTypes != null && i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++) {
-       standardFahrtart.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, i));
+    for(int i=0; Daten.efaTypes != null && i<Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION); i++) {
+       standardFahrtart.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, i));
     }
     standardFahrtart.setSelectedItem(Daten.efaConfig.standardFahrtart);
 
@@ -1433,6 +1443,23 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
             }
         }
     }
+
+    // Sprachen
+    Vector<String> lang = International.getLanguageBundles();
+    languagesArray = new String[lang.size()+1];
+    languagesArray[0] = "";
+    languages.addItem(International.getString("Default")); // must be in English (in case user's language is not supported)
+    int langPreselect = 0;
+    for (int i=0; i<lang.size(); i++) {
+        Locale loc = new Locale(lang.get(i));
+        languagesArray[i+1] = lang.get(i);
+        languages.addItem(loc.getDisplayName());
+        if (Daten.efaBaseConfig.language != null &&  Daten.efaBaseConfig.language.equals(languagesArray[i+1])) {
+            langPreselect = i+1;
+        }
+    }
+    languages.setSelectedIndex(langPreselect);
+
     efaDirekt_latComboBox.addItem(International.getString("Nord"));
     efaDirekt_latComboBox.addItem(International.getString("Süd"));
     efaDirekt_lonComboBox.addItem(International.getString("West"));
@@ -1679,6 +1706,15 @@ public class EfaConfigFrame extends JDialog implements ActionListener {
                           "efa kopiert keinerlei bestehende Daten von dem alten in das neue Verzeichnis "+
                           "und löscht auch keinerlei Daten in dem alten Verzeichnis.",newUserDir));
       }
+    }
+
+    String newLang = languagesArray[languages.getSelectedIndex()];
+    if (Daten.efaBaseConfig.language == null || !Daten.efaBaseConfig.language.equals(newLang)) {
+        Daten.efaBaseConfig.language = newLang;
+        Daten.efaBaseConfig.writeFile();
+        Daten.efaTypes.setToLanguage(newLang);
+        Dialog.infoDialog(International.getString("Sprache"),
+                International.getString("Die geänderten Spracheinstellungen werden erst nach einem Neustart von efa wirksam."));
     }
 
     if (!checkAliasFormat()) {

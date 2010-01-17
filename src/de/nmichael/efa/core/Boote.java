@@ -54,14 +54,31 @@ public class Boote extends DatenListe {
   }
 
 
+  public static String getDetailBezeichnung(String tBoatType, String tNumSeats, String tCoxing) {
+    return International.getMessage("{boattype} {numseats} {coxedornot}",
+            Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,     tBoatType),
+            Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, tNumSeats),
+            Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING,   tCoxing));
+  }
+
+
   public static String getDetailBezeichnung(DatenFelder boot) {
     if (boot == null || Daten.efaTypes == null) return null;
-    String bezeichnung = International.getMessage("{boattype} {riggering}-{numrowers} {coxedornot}", 
-            Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,      boot.get(Boote.ART)),
-            Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING,   boot.get(Boote.RIGGER)),
-            Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, boot.get(Boote.ANZAHL)),
-            Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING,    boot.get(Boote.STM)));
-    return bezeichnung;
+    return getDetailBezeichnung(boot.get(Boote.ART), boot.get(Boote.ANZAHL), boot.get(Boote.STM));
+  }
+
+  public static String getGeneralNumberOfSeatsType(DatenFelder boot) {
+      if (boot == null) return null;
+      String numSeats = boot.get(Boote.ANZAHL);
+      if (numSeats.equals(EfaTypes.TYPE_NUMSEATS_2X)) { return EfaTypes.TYPE_NUMSEATS_2; }
+      if (numSeats.equals(EfaTypes.TYPE_NUMSEATS_4X)) { return EfaTypes.TYPE_NUMSEATS_4; }
+      if (numSeats.equals(EfaTypes.TYPE_NUMSEATS_6X)) { return EfaTypes.TYPE_NUMSEATS_6; }
+      if (numSeats.equals(EfaTypes.TYPE_NUMSEATS_8X)) { return EfaTypes.TYPE_NUMSEATS_8; }
+      return numSeats;
+  }
+
+  public static String getGeneralNumberOfSeatsValue(DatenFelder boot) {
+      return Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, getGeneralNumberOfSeatsType(boot));
   }
 
   // Einträge auf Gültigkeit prüfen
@@ -130,10 +147,30 @@ public class Boote extends DatenListe {
               s = s.trim();
               if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
               DatenFelder d = constructFields(s);
+              String numseats = d.get(ANZAHL);
+              if (d.get(ANZAHL).equals("andere")) { numseats = EfaTypes.TYPE_NUMSEATS_OTHER; }
+              if (d.get(RIGGER).equals("Skull")) {
+                  if (d.get(ANZAHL).equals("1er")) { numseats = EfaTypes.TYPE_NUMSEATS_1; }
+                  if (d.get(ANZAHL).equals("2er")) { numseats = EfaTypes.TYPE_NUMSEATS_2X; }
+                  if (d.get(ANZAHL).equals("3er")) { numseats = EfaTypes.TYPE_NUMSEATS_3; }
+                  if (d.get(ANZAHL).equals("4er")) { numseats = EfaTypes.TYPE_NUMSEATS_4X; }
+                  if (d.get(ANZAHL).equals("5er")) { numseats = EfaTypes.TYPE_NUMSEATS_5; }
+                  if (d.get(ANZAHL).equals("6er")) { numseats = EfaTypes.TYPE_NUMSEATS_6X; }
+                  if (d.get(ANZAHL).equals("8er")) { numseats = EfaTypes.TYPE_NUMSEATS_8X; }
+              }
+              if (d.get(RIGGER).equals("Riemen")) {
+                  if (d.get(ANZAHL).equals("2er")) { numseats = EfaTypes.TYPE_NUMSEATS_2; }
+                  if (d.get(ANZAHL).equals("4er")) { numseats = EfaTypes.TYPE_NUMSEATS_4; }
+                  if (d.get(ANZAHL).equals("6er")) { numseats = EfaTypes.TYPE_NUMSEATS_6; }
+                  if (d.get(ANZAHL).equals("8er")) { numseats = EfaTypes.TYPE_NUMSEATS_8; }
+              }
               String art = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_BOAT, d.get(ART));
-              String anz = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_NUMROWERS, d.get(ANZAHL));
+              String anz = numseats;
               String rig = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_RIGGING, d.get(RIGGER));
               String stm = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_COXING, d.get(STM));
+              if (art == null && d.get(ART).equals("Skiff")) {
+                  art = EfaTypes.TYPE_BOAT_RACING;
+              }
               if (art == null) {
                   art = EfaTypes.TYPE_BOAT_OTHER;
                   Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORCONVERTING,
@@ -143,12 +180,12 @@ public class Boote extends DatenListe {
                           d.get(ART), Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, art)));
               }
               if (anz == null) {
-                  anz = EfaTypes.TYPE_NUMROWERS_OTHER;
+                  anz = EfaTypes.TYPE_NUMSEATS_OTHER;
                   Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORCONVERTING,
                           getFileName() + ": " +
                           International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!",constructKey(d)) + " " +
                           International.getMessage("Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
-                          d.get(ANZAHL), Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, art)));
+                          d.get(ANZAHL), Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, anz)));
               }
               if (rig == null) {
                   rig = EfaTypes.TYPE_RIGGING_OTHER;
@@ -156,7 +193,7 @@ public class Boote extends DatenListe {
                           getFileName() + ": " +
                           International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!",constructKey(d)) + " " +
                           International.getMessage("Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
-                          d.get(RIGGER), Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, art)));
+                          d.get(RIGGER), Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, rig)));
               }
               if (stm == null) {
                   stm = EfaTypes.TYPE_COXING_OTHER;
@@ -164,7 +201,7 @@ public class Boote extends DatenListe {
                           getFileName() + ": " +
                           International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!",constructKey(d)) + " " +
                           International.getMessage("Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
-                          d.get(STM), Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, art)));
+                          d.get(STM), Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, stm)));
               }
               d.set(ART, art);
               d.set(ANZAHL, anz);

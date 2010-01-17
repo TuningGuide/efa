@@ -409,24 +409,24 @@ public class Fahrtenbuch extends DatenListe {
               DatenFelder d = constructFields(s);
               String fa = d.get(FAHRTART);
               if (fa.length() == 0) {
-                  fa = EfaTypes.TYPE_TRIP_NORMAL;
+                  fa = EfaTypes.TYPE_SESSION_NORMAL;
               } else {
-                  fa = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_TRIP, d.get(FAHRTART));
-                  if (fa == null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_MULTIDAY)) {
+                  fa = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, d.get(FAHRTART));
+                  if (fa == null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_MULTIDAY)) {
                       if (d.get(FAHRTART).startsWith("Mehrtagesfahrt: konfigurieren!!")) {
                           fa = CONFIGURE_MTOUR + d.get(FAHRTART).substring("Mehrtagesfahrt: konfigurieren!!".length());
                       } else {
-                          fa = EfaTypes.TYPE_TRIP_MULTIDAY + ":" + d.get(FAHRTART);
+                          fa = EfaTypes.TYPE_SESSION_MULTIDAY + ":" + d.get(FAHRTART);
                       }
                   }
               }
               if (fa == null) {
-                  fa = EfaTypes.TYPE_TRIP_NORMAL;
+                  fa = EfaTypes.TYPE_SESSION_NORMAL;
                   Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORCONVERTING,
                           getFileName() + ": " +
                           International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!",constructKey(d)) + " " +
                           International.getMessage("Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
-                          d.get(FAHRTART), Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, fa)));
+                          d.get(FAHRTART), Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, fa)));
               }
               d.set(FAHRTART, fa);
               add(d);

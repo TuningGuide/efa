@@ -139,7 +139,7 @@ public class Mannschaften extends DatenListe {
               if (fa.length() == 0) {
                   // noting to do (no default fahrtart selected)
               } else {
-                  fa = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_TRIP, d.get(FAHRTART));
+                  fa = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, d.get(FAHRTART));
                   if (fa == null) {
                       fa = "";
                   }

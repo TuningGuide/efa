@@ -147,9 +147,9 @@ public class StatistikDaten implements Cloneable {
   public boolean[] geschlecht = new boolean[Daten.efaTypes.size(EfaTypes.CATEGORY_GENDER)];
   public boolean[] status; // Initialisierung im Konstruktor
   public String[]  statusNames; // Initialisierung im Konstruktor
-  public boolean[] fahrtart = new boolean[Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP)];
+  public boolean[] fahrtart = new boolean[Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION)];
   public boolean[] bArt = new boolean[Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT)];
-  public boolean[] bAnzahl = new boolean[Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS)];
+  public boolean[] bAnzahl = new boolean[Daten.efaTypes.size(EfaTypes.CATEGORY_NUMSEATS)];
   public boolean[] bRigger = new boolean[Daten.efaTypes.size(EfaTypes.CATEGORY_RIGGING)];
   public boolean[] bStm = new boolean[Daten.efaTypes.size(EfaTypes.CATEGORY_COXING)];
   public boolean[] bVerein = new boolean[2];

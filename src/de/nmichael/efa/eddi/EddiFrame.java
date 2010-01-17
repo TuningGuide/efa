@@ -831,7 +831,7 @@ public class EddiFrame extends JFrame {
                       International.getString("Bootsart")) + ": "+feld[Boote.ART]+"\n";
         }
         ok = false;
-        for (int k=0; k<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS); k++) if (feld[Boote.ANZAHL].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS, k))) ok = true;
+        for (int k=0; k<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMSEATS); k++) if (feld[Boote.ANZAHL].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, k))) ok = true;
         if (!ok) {
             fehler += International.getMessage("Ungültiger Wert im Feld '{fieldname}'",
                       International.getString("Anzahl Ruderplätze")) + ": "+feld[Boote.ANZAHL]+"\n";
@@ -868,7 +868,7 @@ public class EddiFrame extends JFrame {
           d.set(Boote.NAME, feld[0]);
           d.set(Boote.VEREIN, feld[1]);
           d.set(Boote.ART, Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_BOAT, feld[2]));
-          d.set(Boote.ANZAHL, Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_NUMROWERS, feld[3]));
+          d.set(Boote.ANZAHL, Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_NUMSEATS, feld[3]));
           d.set(Boote.RIGGER, Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_RIGGING, feld[4]));
           d.set(Boote.STM, Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_COXING, feld[5]));
           d.set(Boote.GRUPPEN, feld[6]);

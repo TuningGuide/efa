@@ -47,8 +47,8 @@ public class Mehrtagesfahrt {
   // prüft, ob es sich bei "s" um eine vordefinierte Fahrtart handelt, d.h. eine, die in dem Daten.fahrtart-Array steht
   public static boolean isVordefinierteFahrtart(String s) {
     if (Daten.efaTypes == null) return false;
-    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++) {
-        if (Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, i).equals(s)) {
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION); i++) {
+        if (Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, i).equals(s)) {
             return true;
         }
     }

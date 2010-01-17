@@ -186,33 +186,33 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
     languagePanel.setLayout(borderLayout5);
     insetsPanel3.add(logoLabel,  new GridBagConstraints(0, 0, 1, 7, 0.0, 0.0
             ,GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(0, 0, 0, 20), 0, 0));
-    insetsPanel3.add(nameLabel,   new GridBagConstraints(1, 0, 3, 1, 0.0, 0.0
+    insetsPanel3.add(nameLabel,   new GridBagConstraints(1, 0, 4, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 93, 0));
-    insetsPanel3.add(versionLabel,   new GridBagConstraints(1, 1, 3, 1, 0.0, 0.0
+    insetsPanel3.add(versionLabel,   new GridBagConstraints(1, 1, 4, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 5, 0), 230, 0));
-    insetsPanel3.add(languageLabel,   new GridBagConstraints(1, 2, 3, 1, 0.0, 0.0
+    insetsPanel3.add(languageLabel,   new GridBagConstraints(1, 2, 4, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 230, 0));
-    insetsPanel3.add(copyLabel,   new GridBagConstraints(1, 3, 3, 1, 0.0, 0.0
+    insetsPanel3.add(copyLabel,   new GridBagConstraints(1, 3, 4, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 65, 0));
     insetsPanel3.add(urlLabel0,   new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 1, 0));
-    insetsPanel3.add(urlLabel,   new GridBagConstraints(2, 4, 2, 1, 0.0, 0.0
+    insetsPanel3.add(urlLabel,   new GridBagConstraints(2, 4, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 1, 0));
     insetsPanel3.add(emailLabel0,   new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
-    insetsPanel3.add(emailLabel,   new GridBagConstraints(2, 5, 2, 1, 0.0, 0.0
+    insetsPanel3.add(emailLabel,   new GridBagConstraints(2, 5, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
     insetsPanel3.add(gpl1Label,    new GridBagConstraints(1, 6, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
-    insetsPanel3.add(gplLabel,     new GridBagConstraints(3, 6, 1, 1, 0.0, 0.0
+    insetsPanel3.add(gplLabel,     new GridBagConstraints(3, 6, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 20), 0, 0));
-    insetsPanel3.add(devNoteLabel,     new GridBagConstraints(1, 7, 3, 1, 0.0, 0.0
+    insetsPanel3.add(devNoteLabel,     new GridBagConstraints(1, 7, 4, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 20), 0, 0));
-    insetsPanel3.add(devNote2Label,     new GridBagConstraints(1, 8, 2, 1, 0.0, 0.0
+    insetsPanel3.add(devNote2Label,     new GridBagConstraints(1, 8, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    insetsPanel3.add(devNoteUrlLabel,     new GridBagConstraints(3, 8, 1, 1, 0.0, 0.0
+    insetsPanel3.add(devNoteUrlLabel,     new GridBagConstraints(4, 8, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 20), 0, 0));
-    insetsPanel3.add(efaBirthdayLabel,  new GridBagConstraints(0, 10, 3, 1, 0.0, 0.0
+    insetsPanel3.add(efaBirthdayLabel,  new GridBagConstraints(0, 10, 4, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     tabbedPane.add(panelMain,     International.getString("Über efa"));
     tabbedPane.add(detailPanel,   International.getString("Systeminformationen"));

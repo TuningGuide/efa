@@ -261,7 +261,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   }
 
   private void iniFrameData() {
-      if (Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_MULTIDAY)) {
+      if (Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_MULTIDAY)) {
           fahrtArt_neueMehrtagesfahrt = ">>> " + International.getString("neue Mehrtagesfahrt");
           if (mode == MODE_ADMIN_NUR_FAHRTEN) {
               fahrtArt_mehrtagesfahrtBearbeiten = ">>> " + International.getString("Mehrtagesfahrten bearbeiten");
@@ -2455,8 +2455,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     // Prüfen, ob Eintrag einer Mehrtagesfahrt vorliegt und das Datum in den Zeitraum der Mehrtagesfahrt fällt
     Mehrtagesfahrt mtour = null;
     if (Daten.efaTypes != null &&
-        (Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP, fahrtDauer.getSelectedIndex()) == null ||
-         Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP, fahrtDauer.getSelectedIndex()).equals(EfaTypes.TYPE_TRIP_MULTIDAY))) {
+        (Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, fahrtDauer.getSelectedIndex()) == null ||
+         Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, fahrtDauer.getSelectedIndex()).equals(EfaTypes.TYPE_SESSION_MULTIDAY))) {
         mtour = Daten.fahrtenbuch.getMehrtagesfahrt((String)fahrtDauer.getSelectedItem());
     }
     if (mtour != null) {
@@ -2640,8 +2640,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     }
     if (d.get(Mannschaften.ZIEL).length()>0) ziel.setText(d.get(Mannschaften.ZIEL));
     try {
-        if (Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_TRIP, d.get(Mannschaften.FAHRTART))) {
-            fahrtDauer.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, (String)d.get(Mannschaften.FAHRTART)));
+        if (Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, d.get(Mannschaften.FAHRTART))) {
+            fahrtDauer.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, (String)d.get(Mannschaften.FAHRTART)));
         }
     } catch(Exception e) { }
 
@@ -2826,11 +2826,11 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
   void setFahrtDauerDefault() {
     if (Daten.efaConfig != null && Daten.efaConfig.standardFahrtart != null && Daten.efaConfig.standardFahrtart.length() > 0 &&
-        Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_TRIP, Daten.efaConfig.standardFahrtart)) {
-            fahrtDauer.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, Daten.efaConfig.standardFahrtart));
+        Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, Daten.efaConfig.standardFahrtart)) {
+            fahrtDauer.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, Daten.efaConfig.standardFahrtart));
     } else {
-        if (Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_NORMAL)) {
-            fahrtDauer.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_NORMAL));
+        if (Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_NORMAL)) {
+            fahrtDauer.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_NORMAL));
         } else {
             fahrtDauer.setSelectedIndex(0);
         }
@@ -2895,8 +2895,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       if (aktDatensatz != null) try {
         String fa = aktDatensatz.get(Fahrtenbuch.FAHRTART);
         getAllFahrtDauer();
-        if (fa.length()>0 && fa.startsWith(EfaTypes.TYPE_TRIP_MULTIDAY+":")) {
-            fa = fa.substring(EfaTypes.TYPE_TRIP_MULTIDAY.length()+1);
+        if (fa.length()>0 && fa.startsWith(EfaTypes.TYPE_SESSION_MULTIDAY+":")) {
+            fa = fa.substring(EfaTypes.TYPE_SESSION_MULTIDAY.length()+1);
             fahrtDauer.setSelectedItem(fa);
             fahrtDauer.setSelectedItem(fa);
         } else {
@@ -3045,12 +3045,12 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
   void fahrtDauerAddItems(boolean withMehrtagesfahrt) {
       if (Daten.efaTypes != null) {
-          for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++) {
+          for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION); i++) {
               if (!withMehrtagesfahrt &&
-                  Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP, i).equals(EfaTypes.TYPE_TRIP_MULTIDAY)) {
+                  Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, i).equals(EfaTypes.TYPE_SESSION_MULTIDAY)) {
                   // nothing to do
               } else {
-                  fahrtDauer.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, i));
+                  fahrtDauer.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, i));
               }
           }
       }
@@ -3106,11 +3106,11 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   private String createFahrtartKey(String fahrtart) {
     if (Daten.efaTypes != null && fahrtart != null &&
         !this.isFahrtDauerMehrtagesfahrtAction(fahrtart)) {
-        String key = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_TRIP, fahrtart);
+        String key = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, fahrtart);
         if (key != null) {
            return key;
         } else {
-           key = EfaTypes.TYPE_TRIP_MULTIDAY + ":" + Mehrtagesfahrt.getNameFromDisplayName(fahrtart);
+           key = EfaTypes.TYPE_SESSION_MULTIDAY + ":" + Mehrtagesfahrt.getNameFromDisplayName(fahrtart);
         }
     }
     return "";
@@ -3120,9 +3120,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     String fd = createFahrtartKey((String)(fahrtDauer.getSelectedIndex() >= 0 ? fahrtDauer.getSelectedItem() : null));
 
     if (Daten.efaTypes != null && (mode == MODE_ENDE || mode == MODE_NACHTRAG) &&
-        fd.startsWith(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_MULTIDAY))) {
+        fd.startsWith(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_MULTIDAY))) {
       if (mtourName != null) {
-        fd = EfaTypes.TYPE_TRIP_MULTIDAY + ":" + mtourName;
+        fd = EfaTypes.TYPE_SESSION_MULTIDAY + ":" + mtourName;
       } else {
         fd = Fahrtenbuch.CONFIGURE_MTOUR +
              (mtourEnddatum != null || mtourRudertage != null ? "@@" + (mtourEnddatum != null ? mtourEnddatum : "") +
@@ -3312,7 +3312,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     // Mehrtagestour fortsetzen (d.h. Fahrtart beim neuen Eintrag beibehalten)??
     // -> nur, wenn es sich um eine wirkliche Wanderfahrt handelt, die in Form mehrerer Etappen eingegeben wird
     if (Daten.efaTypes != null &&
-        Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_TRIP, fahrtDauer.getSelectedItem().toString()) == null &&
+        Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, fahrtDauer.getSelectedItem().toString()) == null &&
         !isFahrtDauerMehrtagesfahrtAction(fahrtDauer.getSelectedItem().toString()) &&
         Daten.fahrtenbuch.getMehrtagesfahrt((String)fahrtDauer.getSelectedItem()) != null &&
         Daten.fahrtenbuch.getMehrtagesfahrt((String)fahrtDauer.getSelectedItem()).isEtappen) {
@@ -3544,15 +3544,15 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     mannschkm.setText(d.get(Fahrtenbuch.MANNSCHKM));
     bemerk.setText(d.get(Fahrtenbuch.BEMERK));
     Mehrtagesfahrt mtour = null;
-    if (Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_MULTIDAY) &&
-        d.get(Fahrtenbuch.FAHRTART).startsWith(EfaTypes.TYPE_TRIP_MULTIDAY+":")) {
-        mtour = Daten.fahrtenbuch.getMehrtagesfahrt(d.get(Fahrtenbuch.FAHRTART).substring(EfaTypes.TYPE_TRIP_MULTIDAY.length()+1));
+    if (Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_MULTIDAY) &&
+        d.get(Fahrtenbuch.FAHRTART).startsWith(EfaTypes.TYPE_SESSION_MULTIDAY+":")) {
+        mtour = Daten.fahrtenbuch.getMehrtagesfahrt(d.get(Fahrtenbuch.FAHRTART).substring(EfaTypes.TYPE_SESSION_MULTIDAY.length()+1));
     }
     if (fahrtDauer.getItemCount()>0) {
       if (mtour != null) {
         fahrtDauer.setSelectedItem(mtour.getDisplayName());
       } else if (Mehrtagesfahrt.isVordefinierteFahrtart(d.get(Fahrtenbuch.FAHRTART))) {
-        fahrtDauer.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, d.get(Fahrtenbuch.FAHRTART)));
+        fahrtDauer.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, d.get(Fahrtenbuch.FAHRTART)));
       } else if (d.get(Fahrtenbuch.FAHRTART).startsWith(Fahrtenbuch.CONFIGURE_MTOUR) &&
               (mode == MODE_ADMIN || mode == MODE_ADMIN_NUR_FAHRTEN)) {
         fahrtDauer.setSelectedItem(fahrtArt_mehrtagesfahrtKonfigurieren);
@@ -4359,8 +4359,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
 
       // Mehrtagesfahrt?
-      if (Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_TRIP, EfaTypes.TYPE_TRIP_MULTIDAY) &&
-              EfaTypes.TYPE_TRIP_MULTIDAY.equals(Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_TRIP, fahrtDauer.getSelectedItem().toString()))) {
+      if (Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_MULTIDAY) &&
+              EfaTypes.TYPE_SESSION_MULTIDAY.equals(Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, fahrtDauer.getSelectedItem().toString()))) {
         mtourName = WanderfahrtSelectFrame.selectWanderfahrt(this,lfdnr.getText().trim(),datum.getText().trim(),boot.getText().trim(),stmMannsch2String(),ziel.getText().trim());
         if (mtourName == null) return;
         Mehrtagesfahrt mf = Daten.fahrtenbuch.getMehrtagesfahrt(mtourName);

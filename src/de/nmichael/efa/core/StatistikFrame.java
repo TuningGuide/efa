@@ -1281,10 +1281,10 @@ public class StatistikFrame extends JDialog implements ActionListener {
     nurStatus1.setListData(Daten.fahrtenbuch.getDaten().status);
     nurStatus1.setSelectionInterval(0,Daten.fahrtenbuch.getDaten().status.length-2);
 
-    nurFahrtart.setListData(Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_TRIP));
-    nurFahrtart.setSelectionInterval(0,Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP)-1);
-    mNurFahrtart.setListData(Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_TRIP));
-    mNurFahrtart.setSelectionInterval(0,Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP)-1);
+    nurFahrtart.setListData(Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_SESSION));
+    nurFahrtart.setSelectionInterval(0,Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION)-1);
+    mNurFahrtart.setListData(Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_SESSION));
+    mNurFahrtart.setSelectionInterval(0,Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION)-1);
 
     for (int i=0; i<ausgabeArten.length; i++)
       ausgabeArt.addItem(ausgabeArten[i]);
@@ -1312,8 +1312,8 @@ public class StatistikFrame extends JDialog implements ActionListener {
     mNurArt.setListData(Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_BOAT));
     mNurArt.setSelectionInterval(0,Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT)-1);
 
-    mNurAnzahl.setListData(Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_NUMROWERS));
-    mNurAnzahl.setSelectionInterval(0,Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS)-1);
+    mNurAnzahl.setListData(Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_NUMSEATS));
+    mNurAnzahl.setSelectionInterval(0,Daten.efaTypes.size(EfaTypes.CATEGORY_NUMSEATS)-1);
 
     if (Daten.wettDefs != null) {
       for (int i=0; i<WettDefs.ANZWETT; i++) {
@@ -2448,7 +2448,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     for (int i=0; i<Daten.fahrtenbuch.getDaten().status.length; i++) {
       d.status[i] = nurStatus1.isSelectedIndex(i);
     }
-    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++) {
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION); i++) {
       d.fahrtart[i] = nurFahrtart.isSelectedIndex(i);
     }
 
@@ -2521,10 +2521,10 @@ public class StatistikFrame extends JDialog implements ActionListener {
     for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT); i++) {
       d.bArt[i] = mNurArt.isSelectedIndex(i);
     }
-    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS); i++) {
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMSEATS); i++) {
       d.bAnzahl[i] = mNurAnzahl.isSelectedIndex(i);
     }
-    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++) {
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION); i++) {
       d.fahrtart[i] = mNurFahrtart.isSelectedIndex(i);
     }
     d.bRigger[0] = mNurSkull.isSelected();
@@ -2621,10 +2621,10 @@ public class StatistikFrame extends JDialog implements ActionListener {
             Daten.fahrtenbuch.getDaten().status[i].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_OTHER))) d.status[i] = false;
       }
     }
-    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++) {
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION); i++) {
       d.fahrtart[i] = nurFahrtart.isSelectedIndex(i);
-      if (Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP, i).equals(EfaTypes.TYPE_BOAT_MOTORBOAT) ||
-          Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP, i).equals(EfaTypes.TYPE_BOAT_ERG)) d.fahrtart[i] = false;
+      if (Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, i).equals(EfaTypes.TYPE_BOAT_MOTORBOAT) ||
+          Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, i).equals(EfaTypes.TYPE_BOAT_ERG)) d.fahrtart[i] = false;
     }
 
     d.name = nurName.getText().trim();

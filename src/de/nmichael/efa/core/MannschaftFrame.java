@@ -187,9 +187,9 @@ public class MannschaftFrame extends JDialog implements ActionListener {
 
     fahrtart.addItem(Mannschaften.NO_FAHRTART);
     if (Daten.efaTypes != null) {
-      for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_TRIP); i++) {
-          if (!Daten.efaTypes.getType(EfaTypes.CATEGORY_TRIP, i).endsWith(EfaTypes.TYPE_TRIP_MULTIDAY)) {
-              fahrtart.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_TRIP, i));
+      for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION); i++) {
+          if (!Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, i).endsWith(EfaTypes.TYPE_SESSION_MULTIDAY)) {
+              fahrtart.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, i));
           }
       }
     }

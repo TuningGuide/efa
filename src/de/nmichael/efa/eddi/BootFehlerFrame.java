@@ -301,8 +301,8 @@ public class BootFehlerFrame extends JDialog implements ActionListener {
         art.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,i));
     }
     anzahl.addItem(International.getString("ungültiger Wert"));
-    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMROWERS); i++) {
-        anzahl.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMROWERS,i));
+    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMSEATS); i++) {
+        anzahl.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,i));
     }
     rigger.addItem(International.getString("ungültiger Wert"));
     for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_RIGGING); i++) {

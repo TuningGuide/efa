@@ -838,7 +838,7 @@ public class AuswahlFrame extends JDialog implements ActionListener {
          };
          String[] nur2 = createArray(tmp,
                  Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_BOAT),
-                 Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_NUMROWERS),
+                 Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_NUMSEATS),
                  Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_RIGGING),
                  Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_COXING));
          int[] nurCheck2 = { 1, 2, 3, 4 , 5 };

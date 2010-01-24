@@ -526,7 +526,10 @@ public class DatenListe {
       if (password != null)
         fwrite(" %%PASSWORD="+password+"%%");
     }
-    fwrite(" - " + International.getString("Bitte nicht von Hand bearbeiten!") + "\n");
+    fwrite(" - " + 
+            ( International.isInitialized() ? // for writing of EfaBaseConfig Language Support may not yet be initialized!
+              International.getString("Bitte nicht von Hand bearbeiten!") : "") +
+              "\n");
   }
 
   // Datei zum Lesen öffnen

@@ -53,8 +53,8 @@ public class Daten {
   public       static String EFA_LONGNAME  = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
 
   public final static String VERSION = "v2.0_dev01"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSIONID = "1.9.0_00";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "17.01.2010";  // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "1.9.0_01";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+  public final static String VERSIONRELEASEDATE = "24.01.2010";  // Release Date: TT.MM.JJJJ
   public final static String PROGRAMMID = "EFA.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String COPYRIGHTYEAR = "10";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
@@ -653,18 +653,16 @@ public class Daten {
     }
 
     public static void iniEfaRunning() {
-        if (Daten.efaConfig.efaDirekt_checkRunning) {
-            efaRunning = new EfaRunning();
-            if (efaRunning.isRunning()) {
-                String msg = International.getString("efa läuft bereits und kann nicht zeitgleich zweimal gestartet werden!");
-                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFAALREADYRUNNING, msg);
-                if (isGuiAppl()) {
-                    Dialog.error(msg);
-                }
-                haltProgram(Daten.HALT_EFARUNNING);
+        efaRunning = new EfaRunning();
+        if (efaRunning.isRunning()) {
+            String msg = International.getString("efa läuft bereits und kann nicht zeitgleich zweimal gestartet werden!");
+            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFAALREADYRUNNING, msg);
+            if (isGuiAppl()) {
+                Dialog.error(msg);
             }
-            efaRunning.run();
+            haltProgram(Daten.HALT_EFARUNNING);
         }
+        efaRunning.run();
     }
 
     public static void iniBackup() {

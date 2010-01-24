@@ -85,7 +85,7 @@ public class International {
                 Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "No preferred Language configured!");
                 Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Available Languages:");
                 Vector<String> bundles = getLanguageBundles();
-                if (Daten.isGuiAppl() && bundles.size() > 0) {
+                if (Daten.isGuiAppl() && bundles != null && bundles.size() > 0) {
                     String[] items = new String[bundles.size() + 1];
                     items[0] = International.getString("Default"); // must be in English (in case user's language is not supported)
                     int preselect = 0;
@@ -114,15 +114,20 @@ public class International {
                         Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Selected Language: <none>");
                     }
                     
-                    if (lang != null) {
+                    if (lang != null && Daten.efaBaseConfig != null) {
                         Daten.efaBaseConfig.language = lang;
                         Daten.efaBaseConfig.writeFile();
                         initializeData();
                     }
 
                 } else {
-                    Logger.log(Logger.WARNING, Logger.MSG_CORE_LANGUAGESUPPORT,
-                    "No Language Bundles found in "+Daten.efaProgramDirectory+"!");
+                    if (Daten.efaProgramDirectory != null) {
+                        Logger.log(Logger.WARNING, Logger.MSG_CORE_LANGUAGESUPPORT,
+                                   "No Language Bundles found in "+Daten.efaProgramDirectory+"!");
+                    } else {
+                        Logger.log(Logger.INFO, Logger.MSG_CORE_LANGUAGESUPPORT,
+                                   "Currently no Language Bundles available at this stage of initialization.");
+                    }
                 }
             }
 
@@ -133,6 +138,11 @@ public class International {
     }
 
     public static Vector<String> getLanguageBundles() {
+        if (Daten.efaProgramDirectory == null) {
+            // not yet initialized
+            // This can happen when we try to translate something before Daten.initialize() calls iniLanguageSupport()
+            return null;
+        }
         File dir = new File(Daten.efaProgramDirectory);
         File[] files = dir.listFiles();
         Vector<String> bundles = new Vector<String>();
@@ -418,6 +428,10 @@ public class International {
         } catch(Exception e) {
             return "";
         }
+    }
+
+    public static boolean isInitialized() {
+        return bundle != null;
     }
 
     public static ResourceBundle getResourceBundle() {

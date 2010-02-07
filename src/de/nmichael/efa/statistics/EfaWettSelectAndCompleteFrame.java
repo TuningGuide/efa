@@ -370,6 +370,12 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
         this.teiln3Anz.setVisible(false);
         this.teiln4Label.setVisible(false);
         this.teiln4Anz.setVisible(false);
+      } else if (ew.wettId == WettDefs.DRV_WANDERRUDERSTATISTIK) {
+        this.teilnLabel.setText("Anzahl der aktiven Mitglieder: ");
+        this.teiln1Label.setText("Aktive Mitglieder (männlich ab 19): ");
+        this.teiln2Label.setText("Aktive Mitglieder (männlich bis 18): ");
+        this.teiln3Label.setText("Aktive Mitglieder (weiblich ab 19): ");
+        this.teiln4Label.setText("Aktive Mitglieder (weiblich bis 18): ");
       } else if (ew.wettId == WettDefs.LRVBERLIN_BLAUERWIMPEL) {
         this.meldungenLabel.setText("Ergebnisse für 'Blauer Wimpel'");
         this.teilnLabel.setText("Anzahl der Mitglieder im Verein: ");
@@ -787,6 +793,16 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
       this.teiln1Anz.setText(Integer.toString(anzMelden1));
       this.teiln2Anz.setText(EfaUtil.zehntelInt2String(anzMelden2));
       this.teiln3Anz.setText(EfaUtil.zehntelInt2String(EfaUtil.intdiv(anzMelden2,anzMelden1)));
+    }
+    if (ew.wettId == WettDefs.DRV_WANDERRUDERSTATISTIK) {
+      this.teilnAnz.setText(Integer.toString(
+          EfaUtil.string2int(ew.aktive_M_ab19,0) + EfaUtil.string2int(ew.aktive_M_bis18,0) +
+          EfaUtil.string2int(ew.aktive_W_ab19,0) + EfaUtil.string2int(ew.aktive_W_bis18,0)
+          ));
+      this.teiln1Anz.setText(ew.aktive_M_ab19);
+      this.teiln2Anz.setText(ew.aktive_M_bis18);
+      this.teiln3Anz.setText(ew.aktive_W_ab19);
+      this.teiln4Anz.setText(ew.aktive_W_bis18);
     }
 
     // Label für Teilnehmer-Gebühren

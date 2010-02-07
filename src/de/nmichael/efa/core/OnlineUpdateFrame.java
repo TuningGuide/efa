@@ -274,6 +274,27 @@ public class OnlineUpdateFrame extends JDialog implements ActionListener {
     dlg.show();
     if (!startDownload) return false;
 
+    // Ok, jetzt pruefen, ob Benutzer Schreibrechte im efa-Directory hat
+    String writeTestFile = Daten.efaMainDirectory + "writetest.tmp";
+    boolean canWrite = true;
+    try {
+      EfaUtil.deleteFile(writeTestFile); // just to make sure there is no such file
+      if (!(new File(writeTestFile)).createNewFile()) {
+        canWrite = false;
+      }
+    } catch(Exception e) {
+      canWrite = false;
+    } finally {
+      EfaUtil.deleteFile(writeTestFile);
+    }
+    if (!canWrite) {
+      Dialog.error(International.getMessage("efa kann in das Verzeichnis {directory} nicht schreiben. "+
+                   "Möglicherweise hast Du dort keine Schreibrechte. "+
+                   "Bitte wiederhole das Online-Update als {osname}-Administrator.",
+                   Daten.efaMainDirectory,Daten.osName));
+      return false;
+    }
+
     // Download des Updates
     String zipFile = Daten.efaTmpDirectory + "update.zip";
     ExecuteAfterDownload afterDownload = new ExecuteAfterDownloadImpl((parentFrame != null ? (Window)parentFrame : (Window)parentDialog),zipFile,downloadSize);

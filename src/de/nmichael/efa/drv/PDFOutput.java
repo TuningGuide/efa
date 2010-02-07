@@ -166,14 +166,13 @@ public class PDFOutput {
           f.write("            <fo:list-item-body start-indent=\"50mm\"><fo:block>"+ew.drv_nadel_jug_silber+"</fo:block></fo:list-item-body>\n");
           f.write("          </fo:list-item>\n");
         }
-        s = " sowie das Geld für die bestellten Anstecknadeln";
+        s = " und die bestellten Anstecknadeln";
       }
       f.write("      </fo:list-block>\n");
 
-      f.write("      <fo:block space-before=\"4mm\">Das Meldegeld"+s+" in Höhe von "+EfaUtil.cent2euro(meldegeld,true)+
-              " ist auf unserem Konto "+(ew.drvint_meldegeldEingegangen ? "" : "noch nicht ")+"eingegangen."+
-              (ew.drvint_meldegeldEingegangen ? "" : " Bitte überweisen Sie den fälligen Betrag auf das Konto 8290 305 "+
-              "bei der Postbank Hannover, BLZ 250 100 30.")+"</fo:block>\n");
+      f.write("      <fo:block space-before=\"4mm\">Für das Meldegeld"+s+" ergibt sich eine Summe in Höhe von "+EfaUtil.cent2euro(meldegeld,true)+". "+
+              "Der Betrag ist innerhalb von 14 Tagen unter Angabe der Vereins-Nr. und dem Hinweis \"Fahrtenwettbewerb\" auf das Konto Nr. 123 862,"+
+              "BLZ 250 501 80, Sparkasse Hannover zu überweisen. Ist dies bereits erfolgt, betrachten Sie diese Rechnung als gegenstandslos.</fo:block>\n");
 
       f.write("      <fo:block space-before=\"4mm\">Zusätzlich zu den ausgedruckten Nachweisen liegen im Meldesystem efaWett"+
               " elektronische Fahrtenhefte für Sie zum Abruf bereit. Bitte rufen Sie diese ab und speichern Sie sie in Ihrer"+

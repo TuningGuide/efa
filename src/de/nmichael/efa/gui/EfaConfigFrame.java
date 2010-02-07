@@ -24,15 +24,20 @@ import java.util.*;
 public class EfaConfigFrame extends BaseDialog {
 
     private static EfaConfig efaConfig; // @todo remove again, just for test purposes!! --> replace by Daten.efaConfig
-    private Hashtable<Component,ConfigValue> configItems;
+    private JTabbedPane tabbedPane;
+    private JCheckBox expertMode;
+
+    private Hashtable<String,Hashtable> categories;
+    private Hashtable<String,Vector<ConfigValue>> items;
+    private Vector<ConfigValue> configItems;
 
     public EfaConfigFrame(Frame parent) {
         super(parent, International.getString("Konfiguration"), International.getStringWithMnemonic("Speichern"));
     }
 
     protected void iniDialog() throws Exception {
-        Hashtable<String,Hashtable> categories = new Hashtable<String,Hashtable>();                // category          -> sub-categories
-        Hashtable<String,Vector<ConfigValue>> items = new Hashtable<String,Vector<ConfigValue>>(); // categoryhierarchy -> config items
+        categories = new Hashtable<String,Hashtable>();                // category          -> sub-categories
+        items = new Hashtable<String,Vector<ConfigValue>>(); // categoryhierarchy -> config items
 
         // build category hierarchy
         String[] names = efaConfig.getParameterNames();
@@ -86,11 +91,28 @@ public class EfaConfigFrame extends BaseDialog {
         }
 
         // create GUI items
-        JTabbedPane tabbedPane = new JTabbedPane();
         mainPanel.setLayout(new BorderLayout());
-        configItems = new Hashtable<Component,ConfigValue>();
+        expertMode = new JCheckBox();
+        expertMode.setText("Expertenmodus (alle Parameter anzeigen)");
+        expertMode.setSelected(false);
+        expertMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) { expertModeChanged(e); }
+        });
+        mainPanel.add(expertMode,BorderLayout.NORTH);
+        updateGui();
+    }
+
+    private void updateGui() {
+        // @todo: if configItems != null get current values!!
+        // @todo: remember selected tabbed pane and restore
+        configItems = new Vector<ConfigValue>();
+        if (tabbedPane != null) {
+            mainPanel.remove(tabbedPane);
+        }
+        tabbedPane = new JTabbedPane();
         recursiveBuildGui(categories,items,"",tabbedPane);
         mainPanel.add(tabbedPane, BorderLayout.CENTER);
+        this.validate();
     }
 
     private void recursiveBuildGui(Hashtable<String,Hashtable> categories, 
@@ -112,30 +134,28 @@ public class EfaConfigFrame extends BaseDialog {
                 JPanel panel = new JPanel();
                 panel.setLayout(new GridBagLayout());
                 Vector<ConfigValue> v = items.get(thisCatKey);
+                int y = 0;
                 for (int j=0; v != null && j<v.size(); j++) {
                     ConfigValue itm = v.get(j);
-                    JLabel label = new JLabel();
-                    JTextField field = new JTextField();
-                    Mnemonics.setLabel(this, label, itm.getDescription() + ": ");
-                    label.setLabelFor(field);
-                    field.setText(itm.getValue().toString());
-                    Dialog.setPreferredSize(field, 200, 19);
-                    panel.add(label, new GridBagConstraints(0, j, 1, 1, 0.0, 0.0,
-                              GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-                    panel.add(field, new GridBagConstraints(1, j, 1, 1, 0.0, 0.0,
-                              GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-                    configItems.put(field, itm);
+                    if (itm.getType() == EfaConfig.TYPE_PUBLIC ||
+                        (itm.getType() == EfaConfig.TYPE_EXPERT && expertMode.isSelected())) {
+                        y += itm.displayOnGui(this,panel,y);
+                        configItems.add(itm);
+                    }
                 }
                 tabbedPane.add(panel, catName);
             }
         }
     }
 
+    void expertModeChanged(ActionEvent e) {
+        updateGui();
+    }
+
     void closeButton_actionPerformed(ActionEvent e) {
-        Object[] keys = configItems.keySet().toArray();
-        for (int i=0; i<keys.length; i++) {
-            ConfigValue item = configItems.get(keys[i]);
-            item.setValueFromString(((JTextField)keys[i]).getText().trim());
+        for (int i=0; i<configItems.size(); i++) {
+            ConfigValue item = configItems.get(i);
+            item.getValueFromGui();
         }
         efaConfig.writeFile();
         super.closeButton_actionPerformed(e);
@@ -160,9 +180,9 @@ public class EfaConfigFrame extends BaseDialog {
                     International.getString("Konfigurationsdatei"));
             Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDOPEN, msg);
         }
-        efaConfig.keys.getValue().put("F6", "teste mich!");
-        efaConfig.keys.getValue().put("F7", "mich bitte auch!");
-        efaConfig.keys.getValue().put("F8", "und hoffentlich geht's bei mir auch trotz Sonderzeichen wie @@@ und -->!");
+        efaConfig.keys.put("F6", "teste mich!");
+        efaConfig.keys.put("F7", "mich bitte auch!");
+        efaConfig.keys.put("F8", "und hoffentlich geht's bei mir auch trotz Sonderzeichen wie @@@ und -->!");
         EfaConfigFrame dlg = new EfaConfigFrame(null);
         Dialog.setDlgLocation(dlg,null);
         dlg.setModal(true);

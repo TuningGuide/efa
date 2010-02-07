@@ -50,6 +50,9 @@ public class Statistik {
   protected static final String AKTIV_W_AB19  = "W19";
   protected static final String AKTIV_W_BIS18 = "W18";
 
+  // sonstige Konstanten für Wettbewerbe
+  private static final int LRVMVP_NEU = 2009; // neue Bedingungen ab 2009 gültig!
+
   protected static Hashtable alleWW;
   protected static AlleWWArrEl[] alleWWArr;
   protected static Hashtable alleAktive;
@@ -2404,7 +2407,9 @@ public class Statistik {
     int geskm=0;
     int gesanz=0;
 
-    ad.wett_zeitraumWarnung = "Es haben nur Personen diesen Wettbewerb erfüllt, die NICHT das Fahrtenabzeichen des DRV erfüllen. Diese Zusatzbedingung wird von efa NICHT überprüft. Die von efa erstellte Liste enthällt alle potentiellen Erfüller.";
+    if (sd.wettJahr < LRVMVP_NEU) {
+      ad.wett_zeitraumWarnung = "Es haben nur Personen diesen Wettbewerb erfüllt, die NICHT das Fahrtenabzeichen des DRV erfüllen. Diese Zusatzbedingung wird von efa NICHT überprüft. Die von efa erstellte Liste enthällt alle potentiellen Erfüller.";
+    }
 
     if (sd.ausgebenWettBedingung) ad.wett_bedingungen = createAusgabeBedingungen(sd,wett.key,ad.wett_bedingungen_fett,ad.wett_bedingungen_kursiv);
 
@@ -2416,11 +2421,12 @@ public class Statistik {
 
     for (int g=0; g<gruppen.length; g++) {
         ad.wett_gruppennamen[g][0] = gruppen[g].bezeichnung+")";
-        ad.wett_gruppennamen[g][1] = "Jahrgänge "+makeJahrgang(sd.wettJahr-gruppen[g].hoechstalter)+
+        ad.wett_gruppennamen[g][1] = "Jahrg�nge "+makeJahrgang(sd.wettJahr-gruppen[g].hoechstalter)+
                                      " - "+makeJahrgang(sd.wettJahr-gruppen[g].mindalter)+
                                      " ("+makeGeschlecht(gruppen[g].geschlecht)+")";
         ad.wett_gruppennamen[g][2] = gruppen[g].km+" Kilometer"+
-                            "; davon "+gruppen[g].zusatz+" Gigboot-Kilometer in mind. "+gruppen[g].zusatz2+" Fahrten"+
+                            (gruppen[g].zusatz > 0 ? "; davon "+gruppen[g].zusatz+" Gigboot-Kilometer in mind. "+gruppen[g].zusatz2+" Fahrten" : // bis 2008
+                                                     " in mind. "+gruppen[g].zusatz2+" Fahrten" ) +                                              // ab 2009
                             (gruppen[g].zusatz3 > 0 ? " mit "+gruppen[g].zusatz3+" Fahrten von mind. 20 Km" : "") +
                             (gruppen[g].zusatz3 > 0 && gruppen[g].zusatz4 > 0 ? " und" : (gruppen[g].zusatz4 > 0 ? " mit" : "") ) +
                             (gruppen[g].zusatz4 > 0 ? " "+gruppen[g].zusatz4+" Fahrten von mind. 30 Km" : "");
@@ -2435,41 +2441,45 @@ public class Statistik {
             // Teilnehmer ist in der Gruppe!
 
 
-            /*
             // Überprüfung, ob der Teilnehmer den DRV-Wettbewerb erfüllt hat
-            // Der folgende Code ist auskommentiert, da der DRV-Wettbewerb einen anderen Zeitraum als der Landeswettbewerb
-            // hat und efa daher keinen Abgleich zwischen beiden Wettbewerben machen kann. Sollte der LRV seine Ausschreibung
-            // ändern und denselben Zeitraum wie der DRV verwenden, so kann dieser Block wieder eingefügt werden.
-            // Wanderfahrten zusammenstellen
             int wafaKm = 0;
             int wafaAnzMTour = 0;
             int jumAnz = 0;
-            Object[] keys = a[i].kmwett.wafa.keySet().toArray(); // Keys ermitteln
-            for (int nr=0; nr<keys.length; nr++) {
-              DRVFahrt drvel = (DRVFahrt)a[i].kmwett.wafa.get(keys[nr]);
-              // wenn ein Ruderer an einer Mehrtagesfahrt (als einzelne Etappen eingetragen) nur einen Tag
-              // mitgerudert ist, werden nur 30 Km gefordert (Dennis, 02.05.03)
-              if (drvel != null && drvel.jum == false && drvel.km >= Daten.WAFAKM && drvel.anzTage == 1) drvel.ok = true;
-              if (drvel != null && drvel.ok) {
-                wafaKm += drvel.km;
-                if (drvel.jum) jumAnz++;
-                else wafaAnzMTour++;
+            if (sd.wettJahr >= LRVMVP_NEU) { // erst ab 2009 haben LRV und DRV den gleichen Zeitraum, sonst ist dieser Abgleich nicht möglich!
+              Object[] keys = a[i].kmwett.wafa.keySet().toArray(); // Keys ermitteln
+              for (int nr = 0; nr < keys.length; nr++) {
+                DRVFahrt drvel = (DRVFahrt) a[i].kmwett.wafa.get(keys[nr]);
+                // wenn ein Ruderer an einer Mehrtagesfahrt (als einzelne Etappen eingetragen) nur einen Tag
+                // mitgerudert ist, werden nur 30 Km gefordert (Dennis, 02.05.03)
+                if (drvel != null && drvel.jum == false &&
+                    drvel.km >= Daten.WAFAKM && drvel.anzTage == 1)
+                  drvel.ok = true;
+                if (drvel != null && drvel.ok) {
+                  wafaKm += drvel.km;
+                  if (drvel.jum)
+                    jumAnz++;
+                  else
+                    wafaAnzMTour++;
+                }
               }
             }
-            */
 
             // sollen für den Teilnehmer Daten ausgegeben werden?
             boolean erfuellt = Daten.wettDefs.erfuelltGruppe(WettDefs.LRVMVP_WANDERRUDERWETT,sd.wettJahr,g,jahrgang,a[i].kmwett.geschlecht,a[i].kmwett.behinderung,a[i].rudKm+a[i].stmKm,a[i].kmwett.gigbootkm/10,a[i].kmwett.gigbootanz,a[i].kmwett.gigboot20plus,a[i].kmwett.gigboot30plus);
             if (!erfuellt && a[i].kmwett.gigboot30plus>1) {
               erfuellt = Daten.wettDefs.erfuelltGruppe(WettDefs.LRVMVP_WANDERRUDERWETT,sd.wettJahr,g,jahrgang,a[i].kmwett.geschlecht,a[i].kmwett.behinderung,a[i].rudKm+a[i].stmKm,a[i].kmwett.gigbootkm/10,a[i].kmwett.gigbootanz,a[i].kmwett.gigboot20plus+a[i].kmwett.gigboot30plus-1,1);
             }
-            /*
-            // Folgenden Block nur aktivieren, wenn der Block der Zusammenstellung der Fahrten für DRV oben aktiviert ist
-            // Wenn der DRV-Wettbewerb erfüllt ist, dann ist der LRV-Wettbewerb nicht erfüllt
-            if (Daten.wettDefs.erfuellt(WettDefs.DRV_FAHRTENABZEICHEN,sd.wettJahr,jahrgang,a[i].kmwett.geschlecht,a[i].kmwett.behinderung,a[i].rudKm+a[i].stmKm,wafaKm/10,wafaAnzMTour,jumAnz,0) != null) {
-              erfuellt = false;
+
+            if (sd.wettJahr >= LRVMVP_NEU) {
+              if (Daten.wettDefs.erfuellt(WettDefs.DRV_FAHRTENABZEICHEN,
+                                          sd.wettJahr, jahrgang,
+                                          a[i].kmwett.geschlecht,
+                                          a[i].kmwett.behinderung,
+                                          a[i].rudKm + a[i].stmKm, wafaKm / 10,
+                                          wafaAnzMTour, jumAnz, 0) != null) {
+                erfuellt = false;
+              }
             }
-            */
 
             if (erfuellt) {
               gesanz++;
@@ -2489,8 +2499,9 @@ public class Statistik {
                 if (!erfuellt && sd.zusatzWettMitAnforderung) ae.w_kilometer+="/"+gruppen[g].km;
                 if (!sd.wettOhneDetail && erfuellt) {
                   ae.w_jahrgang = a[i].jahrgang;
-                  ae.w_additional = "davon "+EfaUtil.zehntelInt2String(a[i].kmwett.gigbootkm)+" Gigboot-Km in "+a[i].kmwett.gigbootanz+
-                                    " Fahrten mit "+a[i].kmwett.gigboot20plus+" Fahrten >= 20 Km und "+a[i].kmwett.gigboot30plus+" Fahrten >= 30 Km";
+                  ae.w_additional = "davon "+
+                                    (sd.wettJahr < LRVMVP_NEU ? EfaUtil.zehntelInt2String(a[i].kmwett.gigbootkm)+" Gigboot-Km in "+a[i].kmwett.gigbootanz+" Fahrten mit " : "") +
+                                    a[i].kmwett.gigboot20plus+" Fahrten >= 20 Km und "+a[i].kmwett.gigboot30plus+" Fahrten >= 30 Km";
 
                   // Gig-Fahrten ausgeben (exakt gruppen[g].zusatz2 Fahrten ausgeben)
                   // Dazu die n Fahrten mit den meisten Kilometern raussuchen
@@ -2528,14 +2539,15 @@ public class Statistik {
 
                 } else {
                   if (sd.wettKurzAusgabe) {
-                    if (sd.zusatzWettMitAnforderung) ae.w_additional = EfaUtil.zehntelInt2String(a[i].kmwett.gigbootkm)+"/"+gruppen[g].zusatz+" Gig-Km; "+
-                                                                       a[i].kmwett.gigbootanz+"/"+gruppen[g].zusatz2+" Gig-Fahrten; "+
+                    if (sd.zusatzWettMitAnforderung) ae.w_additional = (sd.wettJahr < LRVMVP_NEU ?
+                                                                       EfaUtil.zehntelInt2String(a[i].kmwett.gigbootkm)+"/"+gruppen[g].zusatz+" Gig-Km; " : "") +
+                                                                       a[i].kmwett.gigbootanz+"/"+gruppen[g].zusatz2+" Fahrten; "+
                                                                        a[i].kmwett.gigboot20plus+"/"+gruppen[g].zusatz3+" >= 20 Km; "+
                                                                        a[i].kmwett.gigboot30plus+"/"+gruppen[g].zusatz4+" >= 30 Km";
-                    else ae.w_additional = EfaUtil.zehntelInt2String(a[i].kmwett.gigbootkm)+" Gig-Km; "+a[i].kmwett.gigbootanz+" Gig-Fahrten; "+
+                    else ae.w_additional = (sd.wettJahr < LRVMVP_NEU ? EfaUtil.zehntelInt2String(a[i].kmwett.gigbootkm)+" Gig-Km; " : "") +a[i].kmwett.gigbootanz+" Fahrten; " +
                                                                        a[i].kmwett.gigboot20plus+" >= 20 Km; "+
                                                                        a[i].kmwett.gigboot30plus+" >= 30 Km";
-                  } else ae.w_additional = "davon "+EfaUtil.zehntelInt2String(a[i].kmwett.gigbootkm)+" Gigboot-Km  in "+a[i].kmwett.gigbootanz+
+                  } else ae.w_additional = "davon "+ (sd.wettJahr < LRVMVP_NEU ? EfaUtil.zehntelInt2String(a[i].kmwett.gigbootkm)+" Gigboot-Km in " : "") +a[i].kmwett.gigbootanz+
                                     " Fahrten mit "+a[i].kmwett.gigboot20plus+" Fahrten >= 20 Km und "+a[i].kmwett.gigboot30plus+" Fahrten >= 30 Km";
                 }
                 ae.w_erfuellt = erfuellt;
@@ -4036,24 +4048,28 @@ public class Statistik {
         int gigboot20plus = 0;
         int gigboot30plus = 0;
         String[] gigfahrt = null;
+        boolean isGigFahrt = false;
         if (Daten.fahrtenbuch.getDaten().boote != null) {
           DatenFelder b = Daten.fahrtenbuch.getDaten().boote.getExactComplete(d.get(Fahrtenbuch.BOOT));
-          if (b != null && EfaTypes.isGigBoot(b.get(Boote.ART))) {
-            gigbootkm2 += rudKm+stmKm;
-            gigbootanz++;
-            if (gigbootkm2 >= 300) {
-              gigboot30plus++;
-            } else if (gigbootkm2 >= 200) {
-              gigboot20plus++;
-            }
-            gigfahrt = new String[6];
-            gigfahrt[0] = d.get(Fahrtenbuch.LFDNR);
-            gigfahrt[1] = d.get(Fahrtenbuch.DATUM);
-            gigfahrt[2] = d.get(Fahrtenbuch.BOOT);
-            gigfahrt[3] = d.get(Fahrtenbuch.ZIEL);
-            gigfahrt[4] = d.get(Fahrtenbuch.BOOTSKM);
-            gigfahrt[5] = d.get(Fahrtenbuch.BEMERK);
+          if (b != null && Daten.efaTypes.isGigBoot(b.get(Boote.ART))) {
+            isGigFahrt = true;
           }
+        }
+        if (isGigFahrt || sd.wettJahr >= LRVMVP_NEU) {
+          gigbootkm2 += rudKm+stmKm;
+          gigbootanz++;
+          if (gigbootkm2 >= 300) {
+            gigboot30plus++;
+          } else if (gigbootkm2 >= 200) {
+            gigboot20plus++;
+          }
+          gigfahrt = new String[6];
+          gigfahrt[0] = d.get(Fahrtenbuch.LFDNR);
+          gigfahrt[1] = d.get(Fahrtenbuch.DATUM);
+          gigfahrt[2] = d.get(Fahrtenbuch.BOOT);
+          gigfahrt[3] = d.get(Fahrtenbuch.ZIEL);
+          gigfahrt[4] = d.get(Fahrtenbuch.BOOTSKM);
+          gigfahrt[5] = d.get(Fahrtenbuch.BEMERK);
         }
 
         if ( (ges = (HashEl)h.get(name)) == null) {

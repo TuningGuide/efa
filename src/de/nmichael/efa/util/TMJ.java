@@ -29,7 +29,7 @@ public class TMJ implements Cloneable {
   }
   
   public static TMJ parseTMJ(String s) {
-      return EfaUtil.string2date(s, 0, 0, 0);
+      return EfaUtil.string2date(s, -1, -1, -1);
   }
 
   public String toString() {

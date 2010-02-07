@@ -9,8 +9,9 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
+import de.nmichael.efa.direkt.Admin;
 
-public class ConfigTypeHashtable<E> {
+public class ConfigTypeHashtable<E> extends ConfigTypeLabelValue { // @todo change Superclass!!
 
     public static int TYPE_STRING = 0;
     public static int TYPE_ADMIN = 1;
@@ -22,8 +23,13 @@ public class ConfigTypeHashtable<E> {
     private Hashtable<String,E> hash;
     private E e;
     
-    public ConfigTypeHashtable(E e) {
-        this.e = e;
+    public ConfigTypeHashtable(String name, E value, int type,
+            String category, String description) {
+        this.name = name;
+        this.e = value;
+        this.type = type;
+        this.category = category;
+        this.description = description;
         iniHash();
     }
 
@@ -46,48 +52,47 @@ public class ConfigTypeHashtable<E> {
         return hash.size();
     }
 
-    public ConfigTypeHashtable parseHashtable(String s) throws Exception {
+    public void parseValue(String value) {
         iniHash();
-        StringTokenizer tok = new StringTokenizer(s,DELIM_ELEMENTS);
-        while(tok.hasMoreTokens()) {
-            String t = tok.nextToken();
-            int pos = t.indexOf(DELIM_KEYVALUE);
-            String key = t.substring(0,pos);
-            key = new String(Base64.decode(key), Daten.ENCODING_UTF);
-            String val = t.substring(pos+DELIM_KEYVALUE.length());
-            val = new String(Base64.decode(val), Daten.ENCODING_UTF);
-            E e = hash.get(DUMMY);
-            Class c = e.getClass();
-            Object v = null;
-            boolean matchingTypeFound = false;
-            for (int i = 0; i < NUMBER_OF_TYPES; i++) {
-                switch (i) {
-                    case 0: // TYPE_STRING
-                        v = val;
+        try {
+            StringTokenizer tok = new StringTokenizer(value, DELIM_ELEMENTS);
+            while (tok.hasMoreTokens()) {
+                String t = tok.nextToken();
+                int pos = t.indexOf(DELIM_KEYVALUE);
+                String key = t.substring(0, pos);
+                key = new String(Base64.decode(key), Daten.ENCODING_UTF);
+                String val = t.substring(pos + DELIM_KEYVALUE.length());
+                val = new String(Base64.decode(val), Daten.ENCODING_UTF);
+                E e = hash.get(DUMMY);
+                Class c = e.getClass();
+                Object v = null;
+                boolean matchingTypeFound = false;
+                for (int i = 0; i < NUMBER_OF_TYPES; i++) {
+                    switch (i) {
+                        case 0: // TYPE_STRING
+                            v = val;
+                            break;
+                        case 1: // TYPE_ADMIN
+                            v = Admin.parseAdmin(val);
+                            break;
+                    }
+                    if (v != null && c.isInstance(v)) {
+                        hash.put(key, (E) v);
+                        matchingTypeFound = true;
                         break;
-                    case 1: // TYPE_ADMIN
-/*
-                        try {
-                        v = Admin.parseAdmin(val);
-                        } catch (Exception e) {
-                        }
-                         */
-                        break;
+                    }
                 }
-                if (c.isInstance(v)) {
-                    hash.put(key, (E) v);
-                    matchingTypeFound = true;
-                    break;
+                if (!matchingTypeFound) {
+                    // should never happen (program error); no need to translate
+                    Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
+                            "ConfigTypesHashtable: unsupported value type for key " + key + ": " + c.getCanonicalName());
                 }
             }
-            if (!matchingTypeFound) {
-                // should never happen (program error); no need to translate
-                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
-                        "ConfigTypesHashtable: unsupported value type for key " + key + ": " + c.getCanonicalName());
-            }
-        }
+        } catch (Exception e) {
+            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
+                    "EfaConfig: Invalid value for parameter " + name + ": " + value);
 
-        return this;
+        }
     }
 
     public String toString() {

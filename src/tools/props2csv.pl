@@ -19,7 +19,7 @@ while(<INFILE>) {
     $linetxt = $1;
   } else {
     if (/([^=]+)=(.*)/) {
-      $linecsv = sprintf("%s|%s",$1,$2);
+      $linecsv = sprintf("%s=%s",$1,$2);
       $linetxt = sprintf("%s=%s",$1,$2);
     }
   }

@@ -67,12 +67,12 @@ public class EfaRunning {
 
     // Running-Info mit Port-Information erstellen
     try {
-      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Daten.efaProgramDirectory+Daten.EFA_RUNNUNG),Daten.ENCODING_UTF));
+      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Daten.efaBaseConfig.efaUserDirectory+Daten.EFA_RUNNING),Daten.ENCODING_UTF));
       f.write(Integer.toString(port) + " ("+EfaUtil.getCurrentTimeStamp()+")\n");
       f.close();
     } catch(Exception e) {
       Logger.log(Logger.ERROR,Logger.MSG_ERR_EFARUNNING_FAILED,
-              LogString.logstring_fileCreationFailed(Daten.efaProgramDirectory+Daten.EFA_RUNNUNG, International.getString("Datei"))+
+              LogString.logstring_fileCreationFailed(Daten.efaBaseConfig.efaUserDirectory+Daten.EFA_RUNNING, International.getString("Datei"))+
               "  " + e.toString());
     }
 
@@ -89,7 +89,7 @@ public class EfaRunning {
     if (thread == null) return true;
     try {
       thread.closeSocket();
-      if (!new File(Daten.efaProgramDirectory+Daten.EFA_RUNNUNG).delete()) return false;
+      if (!new File(Daten.efaBaseConfig.efaUserDirectory+Daten.EFA_RUNNING).delete()) return false;
     } catch(Exception e) { return false; }
     return true;
   }
@@ -97,11 +97,11 @@ public class EfaRunning {
 
   private boolean checkIfRunning() {
     int port = DEFAULT_PORT;
-    if (EfaUtil.canOpenFile(Daten.efaProgramDirectory+Daten.EFA_RUNNUNG)) {
-      trace("Found "+Daten.EFA_RUNNUNG+"!");
+    if (EfaUtil.canOpenFile(Daten.efaBaseConfig.efaUserDirectory+Daten.EFA_RUNNING)) {
+      trace("Found "+Daten.EFA_RUNNING+"!");
       BufferedReader f = null;
       try {
-        f = new BufferedReader(new InputStreamReader(new FileInputStream(Daten.efaProgramDirectory+Daten.EFA_RUNNUNG),Daten.ENCODING_UTF));
+        f = new BufferedReader(new InputStreamReader(new FileInputStream(Daten.efaBaseConfig.efaUserDirectory+Daten.EFA_RUNNING),Daten.ENCODING_UTF));
         port = EfaUtil.string2date(f.readLine(),DEFAULT_PORT,0,0).tag;
         trace("Data read from port "+port+"!");
       } catch(Exception e) {
@@ -246,7 +246,7 @@ public class EfaRunning {
 
   // nur zu Testzwecken
   public static void main(String[] args) {
-    Daten.efaProgramDirectory = "./";
+    Daten.efaBaseConfig.efaUserDirectory = "./";
     EfaRunning r = new EfaRunning();
 
     if (args[0].equals("SERVER")) {

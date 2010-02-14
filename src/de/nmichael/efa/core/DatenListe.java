@@ -661,7 +661,7 @@ public class DatenListe {
     }
 
     // ggf. ein Backup erzeugen
-    if (Daten.backup != null && this.backupEnabled) {
+    if (Daten.backup != null && this.backupEnabled && (new File(dat)).exists()) {
       if (backupFailures < 10) {
         backupFailures += 10; // weil sonst rekursiver Aufruf dazu führt, daß backupFailures nie erhöht wird
         if (Daten.backup.create(dat, Backup.SAVE, null)) backupFailures=0;

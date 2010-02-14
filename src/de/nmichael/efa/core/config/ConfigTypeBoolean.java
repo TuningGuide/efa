@@ -12,6 +12,8 @@ package de.nmichael.efa.core.config;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.gui.EfaConfigFrame;
+
 import java.awt.*;
 import javax.swing.*;
 
@@ -44,10 +46,13 @@ public class ConfigTypeBoolean extends ConfigValue {
         return value.toString();
     }
 
-    public int displayOnGui(JDialog dlg, JPanel panel, int y) {
+    public int displayOnGui(EfaConfigFrame dlg, JPanel panel, int y) {
         checkbox = new JCheckBox();
         Mnemonics.setButton(dlg, checkbox, getDescription());
         checkbox.setSelected(value);
+        if (type == EfaConfig.TYPE_EXPERT) {
+            checkbox.setForeground(Color.red);
+        }
         panel.add(checkbox, new GridBagConstraints(0, y, 2, 1, 0.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         return 1;

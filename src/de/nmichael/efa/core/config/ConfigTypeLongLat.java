@@ -12,63 +12,75 @@ package de.nmichael.efa.core.config;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
-import java.util.StringTokenizer;
 
 // @i18n complete
 
-public class ConfigTypeLongLat extends ConfigTypeLabelValue { // @todo change Superclass!!
+public class ConfigTypeLongLat extends ConfigTypeLabelValue {
 
-    public static int TYPE_LONGITUDE = 0;
-    public static int TYPE_LATITUDE = 1;
+    private static final int TYPE_LATITUDE  = 0;
+    private static final int TYPE_LONGITUDE = 1;
 
-    public static int ORIENTATION_NORTH = 0;
-    public static int ORIENTATION_SOUTH = 1;
-    public static int ORIENTATION_WEST = 2;
-    public static int ORIENTATION_EAST = 3;
+    public static final int ORIENTATION_NORTH = 0; // TYPE_LATITUDE
+    public static final int ORIENTATION_SOUTH = 1; // TYPE_LATITUDE
+    public static final int ORIENTATION_WEST  = 2; // TYPE_LONGITUDE
+    public static final int ORIENTATION_EAST  = 3; // TYPE_LONGITUDE
+
+    public static final String[] ORIENTATION = { "N", "S", "W", "E" };
 
     private static final String DELIM = ",";
 
-    private int longLatType;
-    private int orientation;
+    private int typeLongLat = -1;
+    private int orientation = -1;
     private int[] coordinates = new int[3];
     
-    public ConfigTypeLongLat(String name, int longLatType, int orientation, int c1, int c2, int c3, int type,
-            String category, String description) {
+    public ConfigTypeLongLat(String name, int orientation, int c1, int c2, int c3,
+            int type, String category, String description) {
         this.name = name;
-        this.longLatType = type;
-        this.orientation = orientation;
-        coordinates[0] = c1;
-        coordinates[1] = c2;
-        coordinates[2] = c3;
         this.type = type;
         this.category = category;
         this.description = description;
+        try {
+            iniValue(orientation, c1, c2, c3);
+        } catch(Exception e) {
+            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
+                    "EfaConfig: Invalid values for parameter " + name + "!");
+        }
+    }
+
+    private void iniValue(int orientation, int c1, int c2, int c3) throws Exception {
+        switch(orientation) {
+            case ORIENTATION_NORTH:
+            case ORIENTATION_SOUTH:
+                typeLongLat = TYPE_LATITUDE;
+                break;
+            case ORIENTATION_WEST:
+            case ORIENTATION_EAST:
+                typeLongLat = TYPE_LONGITUDE;
+                break;
+        }
+        this.orientation = orientation;
+        if (typeLongLat == -1) {
+            throw new Exception("Invalid value!");
+        }
+        coordinates[0] = c1;
+        coordinates[1] = c2;
+        coordinates[2] = c3;
     }
 
     public void parseValue(String value) {
         try {
-            StringTokenizer tok = new StringTokenizer(value, DELIM);
-            int i = 0;
-            while (tok.hasMoreTokens()) {
-                String t = tok.nextToken();
-                switch (i) {
-                    case 0:
-                        type = EfaUtil.string2int(t, 0);
-                        break;
-                    case 1:
-                        orientation = EfaUtil.string2int(t, 0);
-                        break;
-                    case 2:
-                        coordinates[0] = EfaUtil.string2int(t, 0);
-                        break;
-                    case 3:
-                        coordinates[1] = EfaUtil.string2int(t, 0);
-                        break;
-                    case 4:
-                        coordinates[2] = EfaUtil.string2int(t, 0);
-                        break;
+            value = value.trim().toUpperCase();
+            TMJ tmj = EfaUtil.string2date(value, 0, 0, 0);
+            int orientation = -1;
+            for (int i=0; i<ORIENTATION.length; i++) {
+                if (value.endsWith(ORIENTATION[i])) {
+                    orientation = i;
                 }
             }
+            if (orientation != this.orientation) {
+                throw new Exception("Invalid value! typeLongLat changed!");
+            }
+            iniValue(orientation, tmj.tag, tmj.monat, tmj.jahr);
         } catch (Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
                     "EfaConfig: Invalid value for parameter " + name + ": " + value);
@@ -76,7 +88,7 @@ public class ConfigTypeLongLat extends ConfigTypeLabelValue { // @todo change Su
     }
 
     public String toString() {
-        return type + DELIM + orientation + DELIM + coordinates[0] + DELIM + coordinates[1] + DELIM + coordinates[2];
+        return coordinates[0] + "° " + coordinates[1] + "' " + coordinates[2] + "\" " + ORIENTATION[orientation];
     }
 
 }

@@ -28,6 +28,7 @@ public class Backup {
   private boolean month = false;
   private boolean day   = false;
   private boolean conv  = false;
+  private String lastError = null;
 
   public Backup(String dir, boolean save, boolean month, boolean day, boolean conv) {
     this.dir = dir;
@@ -52,7 +53,8 @@ public class Backup {
       if (!backupFile(fname,fbak)) {
           LogString.logError_fileBackupFailed(fname, 
                   International.getString("Datei") +
-                  " [" + International.getString("Backup beim Speichern") + "]");
+                  " [" + International.getString("Backup beim Speichern") + "]",
+                  lastError);
           success = false;
       }
     }
@@ -65,7 +67,8 @@ public class Backup {
         if (!backupFile(fname,bakname)) {
           LogString.logError_fileBackupFailed(fname,
                   International.getString("Datei") +
-                  " [" + International.getString("monatliches Backup") + "]");
+                  " [" + International.getString("monatliches Backup") + "]",
+                  lastError);
           success = false;
         }
       }
@@ -80,7 +83,8 @@ public class Backup {
         if (!backupFile(fname,bakname)) {
           LogString.logError_fileBackupFailed(fname,
                   International.getString("Datei") +
-                  " [" + International.getString("tägliches Backup") + "]");
+                  " [" + International.getString("tägliches Backup") + "]",
+                  lastError);
           success = false;
         }
       }
@@ -91,7 +95,8 @@ public class Backup {
       if (!backupFile(fname,bakname)) {
           LogString.logError_fileBackupFailed(fname,
                   International.getString("Datei") +
-                  " [" + International.getString("Backup beim Konvertieren") + "]");
+                  " [" + International.getString("Backup beim Konvertieren") + "]",
+                  lastError);
         success = false;
       }
     }
@@ -120,6 +125,7 @@ public class Backup {
       ff.close();
       return true;
     } catch(Exception e) {
+      lastError = e.toString();
       return false;
     }
   }

@@ -71,7 +71,7 @@ public class EfaBaseConfig extends DatenListe {
     if (efaCanWrite(efaUserDirectory,false)) {
       Logger.log(Logger.DEBUG,Logger.MSG_CORE_BASICCONFIG,"efa.dir.user="+efaUserDirectory);
     } else {
-      efaUserDirectory = Daten.efaUserHome + (!Daten.efaUserHome.endsWith(Daten.fileSep) ? Daten.fileSep : "") + "efa" + Daten.fileSep;
+      efaUserDirectory = Daten.efaUserHome + (!Daten.efaUserHome.endsWith(Daten.fileSep) ? Daten.fileSep : "") + Daten.EFA_USERDATA_DIR + Daten.fileSep;
       if (efaCanWrite(efaUserDirectory,true)) {
         Logger.log(Logger.DEBUG,Logger.MSG_CORE_BASICCONFIG,"efa.dir.user="+efaUserDirectory);
       } else {

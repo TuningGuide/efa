@@ -194,6 +194,10 @@ public class LogString {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_BACKUPFAILED,
               logstring_fileBackupFailed(filename,description));
   }
+  public static void logError_fileBackupFailed(String filename, String description, String error) {
+      Logger.log(Logger.ERROR, Logger.MSG_FILE_BACKUPFAILED,
+              logstring_fileBackupFailed(filename,description,error));
+  }
  
    public static void logError_directoryDoesNotExist(String dirname, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_DIRECTORYNOTFOUND,

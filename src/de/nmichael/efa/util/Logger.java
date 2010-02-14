@@ -43,24 +43,25 @@ public class Logger {
   // Core Functionality (multiple source files)
   public static final String MSG_CORE_HALT                   = "COR001";
   public static final String MSG_CORE_SETUPDIRS              = "COR002";
-  public static final String MSG_CORE_INFOFAILED             = "COR003";
-  public static final String MSG_CORE_BASICCONFIG            = "COR004";
-  public static final String MSG_CORE_BASICCONFIGFAILEDCREATE= "COR005";
-  public static final String MSG_CORE_BASICCONFIGFAILEDOPEN  = "COR006";
-  public static final String MSG_CORE_LANGUAGESUPPORT        = "COR007";
-  public static final String MSG_CORE_EFACONFIGCREATEDNEW    = "COR008";
-  public static final String MSG_CORE_EFACONFIGFAILEDCREATE  = "COR009";
-  public static final String MSG_CORE_EFACONFIGFAILEDOPEN    = "COR010";
-  public static final String MSG_CORE_EFATYPESCREATEDNEW     = "COR011";
-  public static final String MSG_CORE_EFATYPESFAILEDCREATE   = "COR012";
-  public static final String MSG_CORE_EFATYPESFAILEDOPEN     = "COR013";
-  public static final String MSG_CORE_EFATYPESFAILEDSETVALUES= "COR014";
-  public static final String MSG_CORE_EFASECCORRUPTED        = "COR015";
-  public static final String MSG_CORE_CONFBACKUPDIRNOTEXIST  = "COR016";
-  public static final String MSG_CORE_EFAALREADYRUNNING      = "COR017";
-  public static final String MSG_CORE_EFACONFIGUNKNOWNPARAM  = "COR018";
-  public static final String MSG_CORE_EFACONFIGUNSUPPPARMTYPE= "COR019";
-  public static final String MSG_CORE_EFACONFIGINVALIDVALUE  = "COR020";
+  public static final String MSG_CORE_SETUPFILES             = "COR003";
+  public static final String MSG_CORE_INFOFAILED             = "COR004";
+  public static final String MSG_CORE_BASICCONFIG            = "COR005";
+  public static final String MSG_CORE_BASICCONFIGFAILEDCREATE= "COR006";
+  public static final String MSG_CORE_BASICCONFIGFAILEDOPEN  = "COR007";
+  public static final String MSG_CORE_LANGUAGESUPPORT        = "COR008";
+  public static final String MSG_CORE_EFACONFIGCREATEDNEW    = "COR009";
+  public static final String MSG_CORE_EFACONFIGFAILEDCREATE  = "COR010";
+  public static final String MSG_CORE_EFACONFIGFAILEDOPEN    = "COR011";
+  public static final String MSG_CORE_EFATYPESCREATEDNEW     = "COR012";
+  public static final String MSG_CORE_EFATYPESFAILEDCREATE   = "COR013";
+  public static final String MSG_CORE_EFATYPESFAILEDOPEN     = "COR014";
+  public static final String MSG_CORE_EFATYPESFAILEDSETVALUES= "COR015";
+  public static final String MSG_CORE_EFASECCORRUPTED        = "COR016";
+  public static final String MSG_CORE_CONFBACKUPDIRNOTEXIST  = "COR017";
+  public static final String MSG_CORE_EFAALREADYRUNNING      = "COR018";
+  public static final String MSG_CORE_EFACONFIGUNKNOWNPARAM  = "COR019";
+  public static final String MSG_CORE_EFACONFIGUNSUPPPARMTYPE= "COR020";
+  public static final String MSG_CORE_EFACONFIGINVALIDVALUE  = "COR021";
 
   // Activities performed in Admin Mode
   public static final String MSG_ADMIN_LOGIN                 = "ADM001";

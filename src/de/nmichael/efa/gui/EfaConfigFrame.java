@@ -19,6 +19,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.util.*;
+import javax.swing.event.ChangeEvent;
 
 // @i18n complete
 public class EfaConfigFrame extends BaseDialog {
@@ -30,6 +31,7 @@ public class EfaConfigFrame extends BaseDialog {
     private Hashtable<String,Hashtable> categories;
     private Hashtable<String,Vector<ConfigValue>> items;
     private Vector<ConfigValue> configItems;
+    private Hashtable<JPanel,String> panels;
 
     public EfaConfigFrame(Frame parent) {
         super(parent, International.getString("Konfiguration"), International.getStringWithMnemonic("Speichern"));
@@ -102,17 +104,20 @@ public class EfaConfigFrame extends BaseDialog {
         updateGui();
     }
 
-    private void updateGui() {
-        // @todo: if configItems != null get current values!!
-        // @todo: remember selected tabbed pane and restore
+    public void updateGui() {
+        getValuesFromGui();
+        String selectedPanel = getSelectedPanel(tabbedPane);
+
         configItems = new Vector<ConfigValue>();
         if (tabbedPane != null) {
             mainPanel.remove(tabbedPane);
         }
         tabbedPane = new JTabbedPane();
+        panels = new Hashtable<JPanel,String>();
         recursiveBuildGui(categories,items,"",tabbedPane);
         mainPanel.add(tabbedPane, BorderLayout.CENTER);
         this.validate();
+        // @todo: restore selectedPanel as currently visible panel
     }
 
     private void recursiveBuildGui(Hashtable<String,Hashtable> categories, 
@@ -132,6 +137,7 @@ public class EfaConfigFrame extends BaseDialog {
                 recursiveBuildGui(subCat, items, thisCatKey, subTabbedPane);
             } else {
                 JPanel panel = new JPanel();
+                panels.put(panel, thisCatKey);
                 panel.setLayout(new GridBagLayout());
                 Vector<ConfigValue> v = items.get(thisCatKey);
                 int y = 0;
@@ -143,8 +149,20 @@ public class EfaConfigFrame extends BaseDialog {
                         configItems.add(itm);
                     }
                 }
-                tabbedPane.add(panel, catName);
+                if (y > 0) {
+                    tabbedPane.add(panel, catName);
+                }
             }
+        }
+    }
+
+    void getValuesFromGui() {
+        if (configItems == null) {
+            return;
+        }
+        for (int i=0; i<configItems.size(); i++) {
+            ConfigValue item = configItems.get(i);
+            item.getValueFromGui();
         }
     }
 
@@ -152,11 +170,28 @@ public class EfaConfigFrame extends BaseDialog {
         updateGui();
     }
 
-    void closeButton_actionPerformed(ActionEvent e) {
-        for (int i=0; i<configItems.size(); i++) {
-            ConfigValue item = configItems.get(i);
-            item.getValueFromGui();
+    private String getSelectedPanel(JTabbedPane pane) {
+        if (pane == null) {
+            return null;
         }
+        Component c = pane.getSelectedComponent();
+        if (c == null) {
+            return null;
+        }
+        try {
+            JPanel panel = (JPanel)c;
+            return panels.get(panel);
+        } catch(Exception e) {
+            try {
+                return getSelectedPanel((JTabbedPane)c);
+            } catch(Exception ee) {
+                return null;
+            }
+        }
+    }
+
+    void closeButton_actionPerformed(ActionEvent e) {
+        getValuesFromGui();
         efaConfig.writeFile();
         super.closeButton_actionPerformed(e);
     }

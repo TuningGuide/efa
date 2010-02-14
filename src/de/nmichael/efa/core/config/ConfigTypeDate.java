@@ -40,10 +40,11 @@ public class ConfigTypeDate extends ConfigTypeLabelValue {
     }
 
     public String toString() {
+
         if (value.tag < 0 || value.monat < 0 || value.jahr < 0) {
             return "";
         }
-        return value.tag + "." + value.monat + "." + value.jahr;
+        return EfaUtil.int2String(value.tag,2) + "." + EfaUtil.int2String(value.monat,2) + "." + value.jahr;
     }
 
 }

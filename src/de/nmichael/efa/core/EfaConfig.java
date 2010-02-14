@@ -233,9 +233,7 @@ public class EfaConfig extends DatenListe {
     letzteDatei="";
     autogenAlias = true;
     aliasFormat = "{V1}{V2}-{N1}"; // @todo: Internationalize?!? How?!
-    if (new File(Daten.efaMainDirectory + "backup").isDirectory())
-      bakDir = Daten.efaMainDirectory + "backup" + Daten.fileSep;
-    else bakDir = Daten.efaMainDirectory;
+    bakDir = "";
     bakSave = true;
     bakMonat = true;
     bakTag = false;

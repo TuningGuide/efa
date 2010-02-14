@@ -980,9 +980,15 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
     }
 
     if (Dialog.yesNoDialog("Meldung zurückweisen","Möchtest Du die Meldung "+qnr+" des Vereins "+verein+" wirklich zurückweisen?") != Dialog.YES) return;
-    String grund = Dialog.inputDialog("Grund für Zurückweisen","Bitte gib einen Grund ein, aus dem die Meldung zurückgewiesen wurde.\n"+
-                                                               "Dieser wird dem Verein per email mitgeteilt.");
-    if (grund == null) return;
+    String grund;
+    do {
+      grund = Dialog.inputDialog("Grund für Zurückweisen",
+          "Bitte gib den Grund ein, warum die Meldung zurückgewiesen wurde.\n" +
+                                 "Dieser wird dem Verein per email mitgeteilt.");
+      if (grund == null) {
+        return;
+      }
+    } while(grund.length() == 0);
     if (d == null) {
       Dialog.error("Meldung mit Quittungsnummer "+qnr+" nicht gefunden.");
       return;

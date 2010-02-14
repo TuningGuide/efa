@@ -12,6 +12,7 @@ package de.nmichael.efa.core.config;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.gui.EfaConfigFrame;
 import java.awt.*;
 import javax.swing.*;
 
@@ -19,15 +20,21 @@ import javax.swing.*;
 
 public abstract class ConfigTypeLabelValue extends ConfigValue {
 
-    private JTextField textfield;
+    protected EfaConfigFrame efaConfigFrame;
+    protected JTextField textfield;
 
-    public int displayOnGui(JDialog dlg, JPanel panel, int y) {
+    public int displayOnGui(EfaConfigFrame dlg, JPanel panel, int y) {
+        efaConfigFrame = dlg;
+        
         textfield = new JTextField();
         textfield.setText(toString());
         Dialog.setPreferredSize(textfield, 200, 19);
         JLabel label = new JLabel();
         Mnemonics.setLabel(dlg, label, getDescription() + ": ");
         label.setLabelFor(textfield);
+        if (type == EfaConfig.TYPE_EXPERT) {
+            label.setForeground(Color.red);
+        }
         panel.add(label, new GridBagConstraints(0, y, 1, 1, 0.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         panel.add(textfield, new GridBagConstraints(1, y, 1, 1, 0.0, 0.0,

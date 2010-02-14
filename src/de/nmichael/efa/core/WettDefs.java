@@ -327,9 +327,9 @@ public class WettDefs extends DatenListe {
   public void iniDefaultsForEFW() {
     efw_letzte_aktualisierung = "unbekannt";
     efw_stand_der_daten = "unbekannt";
-    efw_url_einsenden = "http://cgi.snafu.de/nmichael/user-cgi-bin/efw_einsenden.pl";
-    efw_url_abrufen = "http://cgi.snafu.de/nmichael/user-cgi-bin/efw_status.pl";
-    efw_drv_url_pubkeys = "http://home.snafu.de/nmichael/efaWett/drv/pubkeys/";
+    efw_url_einsenden = "https://ssl.webpack.de/efa.rudern.de/efw_einsenden.pl";
+    efw_url_abrufen = "https://ssl.webpack.de/efa.rudern.de/efw_status.pl";
+    efw_drv_url_pubkeys = "http://efa.rudern.de/drv/pubkeys/";
     efw_drv_fa_meld_erw = 200;
     efw_drv_fa_meld_jug = 150;
     efw_drv_fa_nadel_erw_silber = 360;
@@ -338,15 +338,15 @@ public class WettDefs extends DatenListe {
     efw_drv_fa_nadel_jug_gold = 300;
     efw_drv_fa_stoff_erw = 481;
     efw_drv_fa_stoff_jug = 348;
-    efw_drv_konto = "Postbank Hannover, Kto. 8290 305, BLZ 250 100 30";
+    efw_drv_konto = "Sparkasse Hannover, Kto. 123 862, BLZ 250 501 80";
     efw_drv_anschrift = "Deutscher Ruderverband, Ferdinand-Wilhelm-Fricke-Weg 10, 30169 Hannover";
     efw_lrvbln_somm_meld_erw = 850;
     efw_lrvbln_somm_meld_jug = 850;
-    efw_lrvbln_wint_meld_erw = 0;
-    efw_lrvbln_wint_meld_jug = 0;
+    efw_lrvbln_wint_meld_erw = 100;
+    efw_lrvbln_wint_meld_jug = 100;
     efw_lrvbln_blwi_meld_erw = 0;
     efw_lrvbln_blwi_meld_jug = 0;
-    efw_lrvbln_konto = "Postbank Berlin, Kto. 578 00 106, BLZ 100 100 10";
+    efw_lrvbln_konto = "Berliner Volksbank, Kto. 777 999 7000, BLZ 100 900 00";
   }
 
   // Dateiformat überprüfen, ggf. konvertieren

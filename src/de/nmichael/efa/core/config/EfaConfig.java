@@ -31,20 +31,21 @@ public class EfaConfig extends DatenListe {
     public static final int TYPE_PUBLIC = 2;
 
     // Parameter Categories
-    public static final String CATEGORY_INTERNAL      = "INTERNAL";
-    public static final String CATEGORY_BASE          = "BASE";
-    public static final String CATEGORY_BOATHOUSE     = "BOATHOUSE";
-    public static final String CATEGORY_GUI           = "GUI";
-    public static final String CATEGORY_GUIBUTTONS    = "GUIBUTTONS";
-    public static final String CATEGORY_COMMON        = "COMMON";
-    public static final String CATEGORY_BACKUP        = "BACKUP";
-    public static final String CATEGORY_EXTTOOLS      = "EXTTOOLS";
-    public static final String CATEGORY_PRINTING      = "PRINTING";
-    public static final String CATEGORY_INPUT         = "INPUT";
-    public static final String CATEGORY_LOCALE        = "LOCALE";
-    public static final String CATEGORY_STARTSTOP     = "STARTSTOP";
-    public static final String CATEGORY_PERMISSIONS   = "PERMISSIONS";
-    public static final String CATEGORY_NOTIFICATIONS = "NOTIFICATIONS";
+    public static final String CATEGORY_INTERNAL      = "00INTERNAL";
+
+    public static final String CATEGORY_COMMON        = "01COMMON";
+    public static final String CATEGORY_INPUT         = "02INPUT";
+    public static final String CATEGORY_BASE          = "03BASE";
+    public static final String CATEGORY_BOATHOUSE     = "04BOATHOUSE";
+    public static final String CATEGORY_GUI           = "05GUI";
+    public static final String CATEGORY_GUIBUTTONS    = "06GUIBUTTONS";
+    public static final String CATEGORY_BACKUP        = "07BACKUP";
+    public static final String CATEGORY_EXTTOOLS      = "08EXTTOOLS";
+    public static final String CATEGORY_PRINTING      = "09PRINTING";
+    public static final String CATEGORY_STARTSTOP     = "10STARTSTOP";
+    public static final String CATEGORY_PERMISSIONS   = "11PERMISSIONS";
+    public static final String CATEGORY_NOTIFICATIONS = "12NOTIFICATIONS";
+    public static final String CATEGORY_LOCALE        = "13LOCALE";
 
     // private internal data
     private HashMap<String,String> categories;
@@ -264,10 +265,16 @@ public class EfaConfig extends DatenListe {
         addParameter(registrationChecks = new ConfigTypeInteger("EFA_REGISTRATION_CHECKS", 0,
                 TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
                 "efa registration checks counter"));
-        addParameter(letzteDatei = new ConfigTypeString("LASTFILE_EFABASE", "",
+        addParameter(letzteDatei = new ConfigTypeFile("LASTFILE_EFABASE", "",
+                International.getString("Fahrtenbuch"),
+                International.getString("Fahrtenbuch")+" (*.efb)",
+                "efb",ConfigTypeFile.MODE_OPEN,ConfigTypeFile.TYPE_FILE,
                 TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
                 "Last logbook opened by efa Base"));
-        addParameter(direkt_letzteDatei = new ConfigTypeString("LASTFILE_EFABOATHOUSE", "",
+        addParameter(direkt_letzteDatei = new ConfigTypeFile("LASTFILE_EFABOATHOUSE", "",
+                International.getString("Fahrtenbuch"),
+                International.getString("Fahrtenbuch")+" (*.efb)",
+                "efb",ConfigTypeFile.MODE_OPEN,ConfigTypeFile.TYPE_FILE,
                 TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
                 "Last logbook opened by efa Boathouse"));
 
@@ -277,7 +284,10 @@ public class EfaConfig extends DatenListe {
         addParameter(aliasFormat = new ConfigTypeString("ALIAS_FORMAT", "{V1}{V2}-{N1}",
                 TYPE_PUBLIC, makeCategory(CATEGORY_COMMON),
                 International.getString("Format der Eingabe-Kürzel")));
-        addParameter(bakDir = new ConfigTypeString("BACKUP_DIRECTORY", Daten.efaMainDirectory + "backup" + Daten.fileSep,
+        addParameter(bakDir = new ConfigTypeFile("BACKUP_DIRECTORY", "",
+                International.getString("Backup-Verzeichnis"),
+                International.getString("Verzeichnis"),
+                null,ConfigTypeFile.MODE_OPEN,ConfigTypeFile.TYPE_DIR,
                 TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_BACKUP),
                 International.getString("Backup-Verzeichnis")));
         addParameter(bakSave = new ConfigTypeBoolean("BACKUP_ON_SAVE", true,
@@ -292,10 +302,16 @@ public class EfaConfig extends DatenListe {
         addParameter(bakKonv = new ConfigTypeBoolean("BACKUP_ON_CONVERTING", true,
                 TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_BACKUP),
                 International.getString("Backup beim Konvertieren")));
-        addParameter(browser = new ConfigTypeString("WEBBROWSER", searchForProgram(DEFAULT_BROWSER),
+        addParameter(browser = new ConfigTypeFile("WEBBROWSER", searchForProgram(DEFAULT_BROWSER),
+                International.getString("Webbrowser"),
+                International.getString("Windows-Programme")+" (*.exe)",
+                "exe",ConfigTypeFile.MODE_OPEN,ConfigTypeFile.TYPE_FILE,
                 TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_EXTTOOLS),
                 International.getString("Webbrowser")));
-        addParameter(acrobat = new ConfigTypeString("ACROBAT_READER", searchForProgram(DEFAULT_ACROBAT),
+        addParameter(acrobat = new ConfigTypeFile("ACROBAT_READER", searchForProgram(DEFAULT_ACROBAT),
+                International.getString("Acrobat Reader"),
+                International.getString("Windows-Programme")+" (*.exe)",
+                "exe",ConfigTypeFile.MODE_OPEN,ConfigTypeFile.TYPE_FILE,
                 TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_EXTTOOLS),
                 International.getString("Acrobat Reader")));
         addParameter(printPageWidth = new ConfigTypeInteger("PRINT_PAGEWIDTH", 210,
@@ -313,7 +329,7 @@ public class EfaConfig extends DatenListe {
         addParameter(printPageOverlap = new ConfigTypeInteger("PRINT_PAGEOVERLAP", 5,
                 TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_PRINTING),
                 International.getString("Seitenüberlappung")));
-        addParameter(keys = new ConfigTypeHashtable<String>("HOTKEYS", "foobar",
+        addParameter(keys = new ConfigTypeHashtable<String>("HOTKEYS", "",
                 TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
                 International.getString("Tastenbelegungen für Bemerkungs-Feld")));
         addParameter(autoStandardmannsch = new ConfigTypeBoolean("DEFAULTCREW_AUTOSELECT", false,
@@ -344,19 +360,19 @@ public class EfaConfig extends DatenListe {
                 International.getMessage("Fahrtenbucheinträge auf Tippfehler prüfen für {types}",
                 International.getString("Ziele"))));
         addParameter(skipUhrzeit = new ConfigTypeBoolean("INPUT_SKIPTIME", false,
-                TYPE_PUBLIC, makeCategory(CATEGORY_BASE,CATEGORY_INPUT),
+                TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
                 International.getMessage("Eingabefeld '{field}' überspringen",
                 International.getString("Uhrzeit"))));
         addParameter(skipZiel = new ConfigTypeBoolean("INPUT_SKIPDESTINATION", false,
-                TYPE_PUBLIC, makeCategory(CATEGORY_BASE,CATEGORY_INPUT),
+                TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
                 International.getMessage("Eingabefeld '{field}' überspringen",
                 International.getString("Ziel"))));
         addParameter(skipMannschKm = new ConfigTypeBoolean("INPUT_SKIPCREWKM", false,
-                TYPE_PUBLIC, makeCategory(CATEGORY_BASE,CATEGORY_INPUT),
+                TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
                 International.getMessage("Eingabefeld '{field}' überspringen",
                 International.getString("Mannschafts-Km"))));
         addParameter(skipBemerk = new ConfigTypeBoolean("INPUT_SKIPCOMMENTS", false,
-                TYPE_PUBLIC, makeCategory(CATEGORY_BASE,CATEGORY_INPUT),
+                TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
                 International.getMessage("Eingabefeld '{field}' überspringen",
                 International.getString("Bemerkungen"))));
         addParameter(fensterZentriert = new ConfigTypeBoolean("WINDOW_CENTERED", false,
@@ -405,7 +421,7 @@ public class EfaConfig extends DatenListe {
         addParameter(debugLogging = new ConfigTypeBoolean("DEBUG_LOGGING", false,
                 TYPE_EXPERT, makeCategory(CATEGORY_COMMON),
                 International.getString("Debug-Logging aktivieren")));
-        addParameter(admins = new ConfigTypeHashtable<Admin>("ADMINS", new Admin("foobar","foobar"),
+        addParameter(admins = new ConfigTypeHashtable<Admin>("ADMINS", new Admin("name","password"),
                 TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
                 International.getString("Administratoren")));
         addParameter(efaDirekt_zielBeiFahrtbeginnPflicht = new ConfigTypeBoolean("MUST_DESTINATION_AT_SESSIONSTART", false,
@@ -568,11 +584,11 @@ public class EfaConfig extends DatenListe {
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("Sonnenaufgangs- und -untergangszeit anzeigen")));
         addParameter(efaDirekt_sunRiseSet_latitude = new ConfigTypeLongLat("SUNRISESET_LATITUDE",
-                ConfigTypeLongLat.TYPE_LATITUDE,ConfigTypeLongLat.ORIENTATION_NORTH,52,25,9,
+                ConfigTypeLongLat.ORIENTATION_NORTH,52,25,9,
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("geographische Breite")));
         addParameter(efaDirekt_sunRiseSet_longitude = new ConfigTypeLongLat("SUNRISESET_LONGITUDE", 
-                ConfigTypeLongLat.TYPE_LONGITUDE,ConfigTypeLongLat.ORIENTATION_EAST,13,10,15,
+                ConfigTypeLongLat.ORIENTATION_EAST,13,10,15,
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("geographische Länge")));
         addParameter(efaDirekt_sortByAnzahl = new ConfigTypeBoolean("BOATLIST_SORTBYSEATS", true,
@@ -596,7 +612,10 @@ public class EfaConfig extends DatenListe {
         addParameter(efaDirekt_autoNewFb_datum = new ConfigTypeString("NEWLOGBOOK_DATE", "", // @todo: was null before
                 TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
                 International.getString("Neues Fahrtenbuch erstellen am")));
-        addParameter(efaDirekt_autoNewFb_datei = new ConfigTypeString("NEWLOGBOOK_FILE", "",
+        addParameter(efaDirekt_autoNewFb_datei = new ConfigTypeFile("NEWLOGBOOK_FILE", "",
+                International.getString("Fahrtenbuch"),
+                International.getString("Fahrtenbuch")+" (*.efb)",
+                "efb",ConfigTypeFile.MODE_SAVE,ConfigTypeFile.TYPE_FILE,
                 TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
                 International.getString("Dateiname des neuen Fahrtenbuchs")));
         addParameter(efaDirekt_fontSize = new ConfigTypeInteger("FONT_SIZE", 0,

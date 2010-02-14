@@ -5,13 +5,17 @@
 
 package de.nmichael.efa.core.config;
 
-import java.util.Hashtable;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
+import de.nmichael.efa.gui.EfaConfigFrame;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.direkt.Admin;
 
-public class ConfigTypeHashtable<E> extends ConfigTypeLabelValue { // @todo change Superclass!!
+public class ConfigTypeHashtable<E> extends ConfigValue {
 
     public static int TYPE_STRING = 0;
     public static int TYPE_ADMIN = 1;
@@ -23,6 +27,10 @@ public class ConfigTypeHashtable<E> extends ConfigTypeLabelValue { // @todo chan
     private Hashtable<String,E> hash;
     private E e;
     
+    private JTextField[] textfield;
+    private Hashtable<JButton,String> delButtons;
+    private EfaConfigFrame efaConfigFrame;
+
     public ConfigTypeHashtable(String name, E value, int type,
             String category, String description) {
         this.name = name;
@@ -49,7 +57,47 @@ public class ConfigTypeHashtable<E> extends ConfigTypeLabelValue { // @todo chan
     }
 
     public int size() {
-        return hash.size();
+        return hash.size() - 1; // without dummy element
+    }
+
+    public String[] getKeysArray() {
+        String[] keys = new String[size()];
+        Object[] a = hash.keySet().toArray();
+        Arrays.sort(a);
+        int j=0;
+        for (int i=0; i<a.length; i++) {
+            if (!((String)a[i]).equals(DUMMY)) {
+                keys[j++] = (String)a[i];
+            }
+        }
+        return keys;
+    }
+
+    private void addToHash(String key, String val) {
+        E e = hash.get(DUMMY);
+        Class c = e.getClass();
+        Object v = null;
+        boolean matchingTypeFound = false;
+        for (int i = 0; i < NUMBER_OF_TYPES; i++) {
+            switch (i) {
+                case 0: // TYPE_STRING
+                    v = val;
+                    break;
+                case 1: // TYPE_ADMIN
+                    v = Admin.parseAdmin(val);
+                    break;
+            }
+            if (v != null && c.isInstance(v)) {
+                hash.put(key, (E) v);
+                matchingTypeFound = true;
+                break;
+            }
+        }
+        if (!matchingTypeFound) {
+            // should never happen (program error); no need to translate
+            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
+                    "ConfigTypesHashtable: unsupported value type for key " + key + ": " + c.getCanonicalName());
+        }
     }
 
     public void parseValue(String value) {
@@ -63,30 +111,7 @@ public class ConfigTypeHashtable<E> extends ConfigTypeLabelValue { // @todo chan
                 key = new String(Base64.decode(key), Daten.ENCODING_UTF);
                 String val = t.substring(pos + DELIM_KEYVALUE.length());
                 val = new String(Base64.decode(val), Daten.ENCODING_UTF);
-                E e = hash.get(DUMMY);
-                Class c = e.getClass();
-                Object v = null;
-                boolean matchingTypeFound = false;
-                for (int i = 0; i < NUMBER_OF_TYPES; i++) {
-                    switch (i) {
-                        case 0: // TYPE_STRING
-                            v = val;
-                            break;
-                        case 1: // TYPE_ADMIN
-                            v = Admin.parseAdmin(val);
-                            break;
-                    }
-                    if (v != null && c.isInstance(v)) {
-                        hash.put(key, (E) v);
-                        matchingTypeFound = true;
-                        break;
-                    }
-                }
-                if (!matchingTypeFound) {
-                    // should never happen (program error); no need to translate
-                    Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
-                            "ConfigTypesHashtable: unsupported value type for key " + key + ": " + c.getCanonicalName());
-                }
+                addToHash(key,val);
             }
         } catch (Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
@@ -118,5 +143,101 @@ public class ConfigTypeHashtable<E> extends ConfigTypeLabelValue { // @todo chan
         }
         return s;
     }
+
+    public int displayOnGui(EfaConfigFrame dlg, JPanel panel, int y) {
+        efaConfigFrame = dlg;
+
+        JLabel titlelabel = new JLabel();
+        Mnemonics.setLabel(dlg, titlelabel, getDescription() + ": ");
+        if (type == EfaConfig.TYPE_EXPERT) {
+            titlelabel.setForeground(Color.red);
+        }
+        JButton addButton = new JButton();
+        addButton.setIcon(new ImageIcon(EfaConfigFrame.class.getResource("/de/nmichael/efa/img/menu_plus.gif")));
+        addButton.setMargin(new Insets(0,0,0,0));
+        Dialog.setPreferredSize(addButton, 19, 19);
+        addButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) { addButtonHit(e); }
+        });
+        panel.add(titlelabel, new GridBagConstraints(0, y, 2, 1, 0.0, 0.0,
+                  GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(20, 0, 0, 0), 0, 0));
+        panel.add(addButton, new GridBagConstraints(2, y, 2, 1, 0.0, 0.0,
+                  GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(20, 0, 0, 0), 0, 0));
+
+        textfield = new JTextField[size()];
+        delButtons = new Hashtable();
+        String[] keys = getKeysArray();
+        for (int i=0; i<keys.length; i++) {
+            textfield[i] = new JTextField();
+            textfield[i].setText(get(keys[i]).toString());
+            Dialog.setPreferredSize(textfield[i], 200, 19);
+            JLabel label = new JLabel();
+            Mnemonics.setLabel(dlg, label, keys[i] + ": ");
+            label.setLabelFor(textfield[i]);
+            if (type == EfaConfig.TYPE_EXPERT) {
+                label.setForeground(Color.red);
+            }
+            JButton delButton = new JButton();
+            delButton.setIcon(new ImageIcon(EfaConfigFrame.class.getResource("/de/nmichael/efa/img/menu_minus.gif")));
+            delButton.setMargin(new Insets(0,0,0,0));
+            Dialog.setPreferredSize(delButton, 19, 19);
+            delButton.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) { delButtonHit(e); }
+            });
+            int padBottom = 0;
+            if (i+1 == keys.length) {
+                padBottom = 20;
+            }
+            panel.add(label, new GridBagConstraints(0, y+i+1, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, padBottom, 0), 0, 0));
+            panel.add(textfield[i], new GridBagConstraints(1, y+i+1, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, padBottom, 0), 0, 0));
+            panel.add(delButton, new GridBagConstraints(2, y+i+1, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, padBottom, 0), 0, 0));
+
+            delButtons.put(delButton, keys[i]);
+        }
+        return keys.length+1;
+    }
+
+    private void addButtonHit(ActionEvent e) {
+        String key = null;
+        key = Dialog.inputDialog(International.getString("Neuen Eintrag hinzufügen"),
+                                 International.getString("Bezeichnung") + ": ");
+        if (key == null || key.length() == 0 || efaConfigFrame == null) {
+            return;
+        }
+        if (hash.get(key) != null) {
+            Dialog.error(International.getString("Name bereits vergeben"+"!"));
+            return;
+        }
+        hash.put(key, hash.get(DUMMY));
+        efaConfigFrame.updateGui();
+    }
+
+    private void delButtonHit(ActionEvent e) {
+        String key = delButtons.get(e.getSource());
+        if (key == null || efaConfigFrame == null) {
+            return;
+        }
+        if (Dialog.yesNoDialog(International.getString("Eintrag löschen"),
+                               International.getMessage("Möchtest Du den Eintrag '{entry}' wirklich löschen?",key)) == Dialog.YES) {
+            hash.remove(key);
+            efaConfigFrame.updateGui();
+        }
+    }
+
+    public void getValueFromGui() {
+        Hashtable<String,E> newHash = new Hashtable<String,E>();
+        newHash.put(DUMMY, hash.get(DUMMY));
+        String[] keys = getKeysArray();
+        for (int i=0; i<keys.length; i++) {
+            if (textfield[i] != null) {
+                addToHash(keys[i],textfield[i].getText().trim());
+            }
+        }
+        hash = newHash;
+    }
+
 
 }

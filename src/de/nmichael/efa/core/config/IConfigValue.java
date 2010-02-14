@@ -12,6 +12,8 @@ package de.nmichael.efa.core.config;
 
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import de.nmichael.efa.gui.EfaConfigFrame;
+
 
 // @i18n complete
 
@@ -24,7 +26,7 @@ public interface IConfigValue {
     public void parseValue(String value);
     public String toString();
     
-    public int displayOnGui(JDialog dlg, JPanel panel, int y);
+    public int displayOnGui(EfaConfigFrame dlg, JPanel panel, int y);
     public void getValueFromGui();
 
 }

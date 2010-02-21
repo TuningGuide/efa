@@ -9,12 +9,14 @@
  */
 package de.nmichael.efa.direkt;
 
-import de.nmichael.efa.core.EfaConfig;
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
 import java.util.Vector;
 
 // @i18n complete
 public class Admin {
+
+    public static final String SUPERADMIN = "admin";// Name des Super-Administrators
 
     public String name = null;
     public String password = null;
@@ -48,7 +50,7 @@ public class Admin {
         this.password = pwd;
         this.email = "";
 
-        boolean superAdmin = name.equals(EfaConfig.SUPERADMIN);
+        boolean superAdmin = name.equals(SUPERADMIN);
 
         this.allowedAdminsVerwalten = this.allowedPasswortAendern =
                 this.allowedVollzugriff = this.allowedBootsstatusBearbeiten =
@@ -148,4 +150,21 @@ public class Admin {
                (allowedBootsreservierung ? "+" : "-") +
                (allowedPasswortAendern ? "+" : "-");
     }
+
+    // Login eines Admin;
+    // @return Admin, wenn erfolgreich eingeloggt oder null, wenn falsch
+    public static Admin login(String admin, String pwd) {
+        if (admin == null || admin.length() == 0 || pwd == null || pwd.length() == 0) {
+            return null;
+        }
+        if (Daten.efaConfig == null || Daten.efaConfig.admins.get(admin) == null) {
+            return null;
+        }
+        Admin a = (Admin) Daten.efaConfig.admins.get(admin);
+        if (a.password != null && a.password.equals(EfaUtil.getSHA(pwd))) {
+            return a;
+        }
+        return null;
+    }
+
 }

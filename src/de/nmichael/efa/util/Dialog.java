@@ -11,6 +11,7 @@
 package de.nmichael.efa.util;
 
 import de.nmichael.efa.core.*;
+import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.*;
 import javax.swing.*;
 import java.awt.*;
@@ -59,15 +60,18 @@ public class Dialog {
     } else {
       Dialog.screenSize = screenSize;
     }
-    if (Daten.efaConfig != null && Daten.efaConfig.screenWidth>0) {
-      Dialog.screenSize.width = Daten.efaConfig.screenWidth;
+    if (Daten.efaConfig == null) {
+        return;
     }
-    if (Daten.efaConfig != null && Daten.efaConfig.screenHeight>0) {
-      Dialog.screenSize.height = Daten.efaConfig.screenHeight;
+    if (Daten.efaConfig.screenWidth.getValue()>0) {
+      Dialog.screenSize.width = Daten.efaConfig.screenWidth.getValue();
+    }
+    if (Daten.efaConfig.screenHeight.getValue()>0) {
+      Dialog.screenSize.height = Daten.efaConfig.screenHeight.getValue();
     }
     initializeMaxDialogSizes();
-    if (Daten.efaConfig != null && (Daten.efaConfig.maxDialogWidth>0 || Daten.efaConfig.maxDialogHeight>0)) {
-      Dialog.setMaxDialogSizes(Daten.efaConfig.maxDialogWidth,Daten.efaConfig.maxDialogHeight);
+    if ((Daten.efaConfig.maxDialogWidth.getValue()>0 || Daten.efaConfig.maxDialogHeight.getValue()>0)) {
+      Dialog.setMaxDialogSizes(Daten.efaConfig.maxDialogWidth.getValue(),Daten.efaConfig.maxDialogHeight.getValue());
     }
   }
 
@@ -109,7 +113,7 @@ public class Dialog {
     else programDlg = new AusgabeFrame(); // Parameter-Aufruf aus Efa
     Dimension dlgSize = programDlg.getPreferredSize();
     if (Daten.applID == Daten.APPL_EFADIREKT &&
-            Daten.efaConfig != null && Daten.efaConfig.efaDirekt_startMaximized) {
+            Daten.efaConfig.efaDirekt_startMaximized.getValue()) {
           int width = (int)screenSize.getWidth();
           int height = (int)screenSize.getHeight();
           programDlg.setSize(width, height);
@@ -147,7 +151,7 @@ public class Dialog {
     int width = (int)screenSize.getWidth()-100;
     int height = (int)screenSize.getHeight()-150;
     if (Daten.applID == Daten.APPL_EFADIREKT &&
-        Daten.efaConfig != null && Daten.efaConfig.efaDirekt_startMaximized) {
+        Daten.efaConfig.efaDirekt_startMaximized.getValue()) {
       width = (int)screenSize.getWidth();
       height = (int)screenSize.getHeight();
     }
@@ -160,7 +164,7 @@ public class Dialog {
     int width = (int)screenSize.getWidth()-100;
     int height = (int)screenSize.getHeight()-150;
     if (Daten.applID == Daten.APPL_EFADIREKT &&
-        Daten.efaConfig != null && Daten.efaConfig.efaDirekt_startMaximized) {
+        Daten.efaConfig.efaDirekt_startMaximized.getValue()) {
       width = (int)screenSize.getWidth();
       height = (int)screenSize.getHeight();
     }
@@ -187,21 +191,21 @@ public class Dialog {
 
   // einen externen Browser starten; wurde keiner konfiguriert, wird der interne verwendet
   public static void startBrowser(JDialog parent, String url) {
-    if (!Daten.efaConfig.browser.equals("") && !Daten.efaConfig.browser.equals("INTERN"))
+    if (Daten.efaConfig.browser.getValue().length() > 0 && !Daten.efaConfig.browser.equals("INTERN"))
       try {
-        Runtime.getRuntime().exec(Daten.efaConfig.browser+" "+url);
+        Runtime.getRuntime().exec(Daten.efaConfig.browser.getValue()+" "+url);
       } catch(Exception ee) {
-        LogString.logWarning_cantExecCommand(Daten.efaConfig.browser, International.getString("für Browser"), ee.toString());
+        LogString.logWarning_cantExecCommand(Daten.efaConfig.browser.getValue(), International.getString("für Browser"), ee.toString());
         neuBrowserDlg(parent,International.getString("Browser"),url);
       }
     else neuBrowserDlg(parent,International.getString("Browser"),url);
   }
   public static void startBrowser(JFrame parent, String url) {
-    if (!Daten.efaConfig.browser.equals("") && !Daten.efaConfig.browser.equals("INTERN"))
+    if (Daten.efaConfig.browser.getValue().length() > 0 && !Daten.efaConfig.browser.getValue().equals("INTERN"))
       try {
-        Runtime.getRuntime().exec(Daten.efaConfig.browser+" "+url);
+        Runtime.getRuntime().exec(Daten.efaConfig.browser.getValue()+" "+url);
       } catch(Exception ee) {
-        LogString.logWarning_cantExecCommand(Daten.efaConfig.browser, International.getString("für Browser"), ee.toString());
+        LogString.logWarning_cantExecCommand(Daten.efaConfig.browser.getValue(), International.getString("für Browser"), ee.toString());
         neuBrowserDlg(parent,International.getString("Browser"),url);
       }
     else neuBrowserDlg(parent,International.getString("Browser"),url);
@@ -404,7 +408,7 @@ public class Dialog {
     if (frameStack == null) frameStack = new Stack();
     frameStack.push(w);
     if (Daten.applID == Daten.APPL_EFADIREKT &&
-        Daten.efaConfig != null && Daten.efaConfig.efaDirekt_immerImVordergrund) {
+        Daten.efaConfig.efaDirekt_immerImVordergrund.getValue()) {
       try {
         de.nmichael.efa.java15.Java15.setAlwaysOnTop(w,true);
       } catch(UnsupportedClassVersionError e) {
@@ -528,7 +532,7 @@ public class Dialog {
     if (dlgSize.width > screenSize.width) {
       dlgSize.width = screenSize.width;
     }
-    if (parentSize != null && loc != null && Daten.efaConfig != null && !Daten.efaConfig.fensterZentriert) {
+    if (parentSize != null && loc != null && !Daten.efaConfig.fensterZentriert.getValue()) {
       x = (parentSize.width - dlgSize.width) / 2 + loc.x;
       y = (parentSize.height - dlgSize.height) / 2 + loc.y;
     } else {
@@ -538,8 +542,8 @@ public class Dialog {
 
     if (x<0) x = 0;
     if (y<0) y = 0;
-    if (Daten.efaConfig != null && x<Daten.efaConfig.windowXOffset) x = Daten.efaConfig.windowXOffset;
-    if (Daten.efaConfig != null && y<Daten.efaConfig.windowYOffset) y = Daten.efaConfig.windowYOffset;
+    if (x<Daten.efaConfig.windowXOffset.getValue()) x = Daten.efaConfig.windowXOffset.getValue();
+    if (y<Daten.efaConfig.windowYOffset.getValue()) y = Daten.efaConfig.windowYOffset.getValue();
     return new Point(x,y);
   }
 
@@ -585,6 +589,17 @@ public class Dialog {
       }
     }
     initializeMaxDialogSizes();
+
+  }
+  public static void setGlobalFontSize(int size, String style) {
+    int _style = -1;
+    if (style.equals(EfaConfig.FONT_PLAIN)) {
+        _style = Font.PLAIN;
+    }
+    if (style.equals(EfaConfig.FONT_BOLD)) {
+        _style = Font.BOLD;
+    }
+    setGlobalFontSize(size,_style);
   }
 
   public static void setPreferredSize(JComponent comp, int width, int height) {

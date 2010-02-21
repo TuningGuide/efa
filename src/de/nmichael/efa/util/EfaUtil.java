@@ -263,25 +263,33 @@ public class EfaUtil {
   }
 
   // Aus einem String s eine korrekte (gültige) Zeit machen
-  public static String correctTime(String s) {
+  public static String correctTime(String s, boolean withSeconds) {
     if (s.length()==0) return "";
-    TMJ hhmm = EfaUtil.string2date(s,0,0,0); // TMJ mißbraucht für die Auswertung von Uhrzeiten
-    int hh = hhmm.tag;
-    int mm = hhmm.monat;
-    String std,min;
+    TMJ hhmmss = EfaUtil.string2date(s,0,0,0); // TMJ mißbraucht für die Auswertung von Uhrzeiten
+    int hh = hhmmss.tag;
+    int mm = hhmmss.monat;
+    int ss = hhmmss.jahr;
     if (hh>100 && mm==0) {
       mm = hh % 100;
       hh = hh / 100;
     }
+    if (hh<0) hh=0;
+    if (mm<0) mm=0;
+    if (ss<0) ss=0;
     if (hh>23) hh=23;
     if (mm>59) mm=59;
-    if (hh>9) std = Integer.toString(hh);
-    else std = "0"+hh;
-    if (mm>9) min = Integer.toString(mm);
-    else min = "0"+mm;
-    return std+":"+min;
+    if (ss>59) ss=59;
+    if (withSeconds) {
+        return int2String(hh,2) + ":" + int2String(mm,2) + ":" + int2String(ss,2);
+    } else {
+        return int2String(hh,2) + ":" + int2String(mm,2);
+    }
   }
 
+  // Aus einem String s eine korrekte (gültige) Zeit machen
+  public static String correctTime(String s) {
+    return correctTime(s,false);
+  }
 
 
   // Aus einer Nachkommazahl eine Ziffer machen, so daß faktisch nur noch eine

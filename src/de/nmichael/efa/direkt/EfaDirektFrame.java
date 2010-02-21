@@ -11,6 +11,7 @@
 package de.nmichael.efa.direkt;
 
 import de.nmichael.efa.core.*;
+import de.nmichael.efa.gui.EfaConfigFrame;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -104,7 +105,7 @@ public class EfaDirektFrame extends JFrame {
     }
 
     // Fenster nicht verschiebbar
-    if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_fensterNichtVerschiebbar) try {
+    if (Daten.efaConfig.efaDirekt_fensterNichtVerschiebbar.getValue()) try {
       this.setUndecorated(true);
       TitledBorder b = new TitledBorder(Daten.EFA_LONGNAME);
       b.setTitleColor(Color.white);
@@ -117,7 +118,7 @@ public class EfaDirektFrame extends JFrame {
 
     // Fenster immer im Vordergrund
     try {
-      if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_immerImVordergrund) {
+      if (Daten.efaConfig.efaDirekt_immerImVordergrund.getValue()) {
         if (!de.nmichael.efa.java15.Java15.setAlwaysOnTop(this,true)) {
 //          Logger.log(Logger.WARNING,"Fenstereigenschaft 'immer im Vordergrund' wird erst ab Java 1.5 unterstützt.");
 //          Hier muß keine Warnung mehr ausgegeben werden, da ab v1.6.0 die Funktionalität auch für Java < 1.5
@@ -140,7 +141,7 @@ public class EfaDirektFrame extends JFrame {
     this.booteVerfuegbar.requestFocus();
 
     // Fenster maximiert
-    if (Daten.efaConfig.efaDirekt_startMaximized) try {
+    if (Daten.efaConfig.efaDirekt_startMaximized.getValue()) try {
       this.setSize(Dialog.screenSize);
 
       Dimension newsize = this.getSize();
@@ -170,7 +171,7 @@ public class EfaDirektFrame extends JFrame {
       EfaUtil.foo();
     }
 
-    if (Daten.efaConfig.efaDirekt_locked) {
+    if (Daten.efaConfig.efaDirekt_locked.getValue()) {
       // lock efa NOW
       try {
         new Thread() {
@@ -186,8 +187,8 @@ public class EfaDirektFrame extends JFrame {
       }
     } else {
       // lock efa later
-      if (Daten.efaConfig.efaDirekt_lockEfaFromDatum != null) {
-        lockEfaAt(Daten.efaConfig.efaDirekt_lockEfaFromDatum,Daten.efaConfig.efaDirekt_lockEfaFromZeit);
+      if (Daten.efaConfig.efaDirekt_lockEfaFromDatum.isSet()) {
+        lockEfaAt(Daten.efaConfig.efaDirekt_lockEfaFromDatum.getDate(),Daten.efaConfig.efaDirekt_lockEfaFromZeit.getTime());
       }
     }
 
@@ -501,7 +502,7 @@ public class EfaDirektFrame extends JFrame {
     // Logo-Label
     int logoTop = (int)(20.0f * (Dialog.getFontSize() < 10 ? 12 : Dialog.getFontSize()) / Dialog.getDefaultFontSize());
     int logoBottom = 5;
-    if (Daten.efaConfig.efaDirekt_startMaximized && Daten.efaConfig.efaDirekt_vereinsLogo != null) {
+    if (Daten.efaConfig.efaDirekt_startMaximized.getValue() && Daten.efaConfig.efaDirekt_vereinsLogo.getValue().length() > 0) {
       logoBottom += (int)((Dialog.screenSize.getHeight()-825)/5);
       if (logoBottom < 0) {
           logoBottom = 0;
@@ -586,7 +587,7 @@ public class EfaDirektFrame extends JFrame {
     switch(reason) {
      case EFA_EXIT_REASON_USER: // manuelles Beenden von efa
        boolean durchMitglied;
-       if (!Daten.efaConfig.efaDirekt_mitgliederDuerfenEfaBeenden) {
+       if (!Daten.efaConfig.efaDirekt_mitgliederDuerfenEfaBeenden.getValue()) {
          Admin admin = null;
          do {
            admin = AdminLoginFrame.login(this,International.getString("Beenden von efa"));
@@ -600,27 +601,27 @@ public class EfaDirektFrame extends JFrame {
          wer = International.getString("Nutzer");
          durchMitglied = true;
        }
-       if (Daten.efaConfig.efaDirekt_execOnEfaExit.length()>0 && durchMitglied) {
+       if (Daten.efaConfig.efaDirekt_execOnEfaExit.getValue().length()>0 && durchMitglied) {
          Logger.log(Logger.INFO, Logger.MSG_EVT_EFAEXITEXECCMD,
-                 International.getMessage("Programmende veranlaßt; versuche, Kommando '{cmd}' auszuführen...", Daten.efaConfig.efaDirekt_execOnEfaExit));
+                 International.getMessage("Programmende veranlaßt; versuche, Kommando '{cmd}' auszuführen...", Daten.efaConfig.efaDirekt_execOnEfaExit.getValue()));
          try {
-           Runtime.getRuntime().exec(Daten.efaConfig.efaDirekt_execOnEfaExit);
+           Runtime.getRuntime().exec(Daten.efaConfig.efaDirekt_execOnEfaExit.getValue());
          } catch(Exception ee) {
            Logger.log(Logger.ERROR, Logger.MSG_ERR_EFAEXITEXECCMD_FAILED,
-                   LogString.logstring_cantExecCommand(Daten.efaConfig.efaDirekt_execOnEfaExit, International.getString("Kommando")));
+                   LogString.logstring_cantExecCommand(Daten.efaConfig.efaDirekt_execOnEfaExit.getValue(), International.getString("Kommando")));
          }
        }
        break;
      case EFA_EXIT_REASON_TIME:
        wer = International.getString("Zeitsteuerung");
-       if (Daten.efaConfig.efaDirekt_execOnEfaAutoExit.length()>0) {
+       if (Daten.efaConfig.efaDirekt_execOnEfaAutoExit.getValue().length()>0) {
          Logger.log(Logger.INFO, Logger.MSG_EVT_EFAEXITEXECCMD,
-                 International.getMessage("Programmende veranlaßt; versuche, Kommando '{cmd}' auszuführen...",Daten.efaConfig.efaDirekt_execOnEfaAutoExit));
+                 International.getMessage("Programmende veranlaßt; versuche, Kommando '{cmd}' auszuführen...",Daten.efaConfig.efaDirekt_execOnEfaAutoExit.getValue()));
          try {
-           Runtime.getRuntime().exec(Daten.efaConfig.efaDirekt_execOnEfaAutoExit);
+           Runtime.getRuntime().exec(Daten.efaConfig.efaDirekt_execOnEfaAutoExit.getValue());
          } catch(Exception ee) {
            Logger.log(Logger.ERROR, Logger.MSG_ERR_EFAEXITEXECCMD_FAILED,
-                   LogString.logstring_cantExecCommand(Daten.efaConfig.efaDirekt_execOnEfaAutoExit, International.getString("Kommando")));
+                   LogString.logstring_cantExecCommand(Daten.efaConfig.efaDirekt_execOnEfaAutoExit.getValue(), International.getString("Kommando")));
          }
        }
        break;
@@ -710,7 +711,7 @@ public class EfaDirektFrame extends JFrame {
 
     // Admin-Paßwort vorhanden?
     boolean neuerSuperAdmin = false;
-    if (Daten.efaConfig.admins.get(EfaConfig.SUPERADMIN) == null) {
+    if (Daten.efaConfig.admins.get(Admin.SUPERADMIN) == null) {
       Logger.log(Logger.INFO, Logger.MSG_ERR_NOSUPERADMIN,
               International.getString("Kein Super-Admin gefunden."));
       try {
@@ -738,13 +739,13 @@ public class EfaDirektFrame extends JFrame {
                         "noch kein Paßwort für 'admin'. Du wirst nun gleich aufgefordert, ein "+
                         "neues Paßwort für den Super-Administrator 'admin' einzugeben."));
 
-      pwd = NewPasswordFrame.getNewPassword(this,EfaConfig.SUPERADMIN);
+      pwd = NewPasswordFrame.getNewPassword(this,Admin.SUPERADMIN);
       if (pwd == null) {
         haltProgram(International.getString("Paßworteingabe für Super-Admin abgebrochen."), Daten.HALT_EFASECADMIN);
       }
 
-      Admin root = new Admin(EfaConfig.SUPERADMIN,EfaUtil.getSHA(pwd));
-      Daten.efaConfig.admins.put(EfaConfig.SUPERADMIN,root);
+      Admin root = new Admin(Admin.SUPERADMIN,EfaUtil.getSHA(pwd));
+      Daten.efaConfig.admins.put(Admin.SUPERADMIN,root);
       if (!Daten.efaConfig.writeFile()) {
           haltProgram(LogString.logstring_fileWritingFailed(Daten.efaConfig.getFileName(), International.getString("Konfigurationsdatei")),
                   Daten.HALT_EFASECADMIN);
@@ -777,13 +778,6 @@ public class EfaDirektFrame extends JFrame {
               haltProgram(International.getMessage("efa konnte die Datei {filename} nicht löschen und wird daher beendet!",
                       Daten.efaSec.getFilename()), Daten.HALT_EFASEC);
           }
-          // Standardwerte für Backups ändern
-          Daten.efaConfig.bakSave = false;
-          Daten.efaConfig.bakKonv = true;
-          Daten.efaConfig.bakMonat = false;
-          Daten.efaConfig.bakTag = true;
-          Daten.efaConfig.writeFile();
-          Daten.backup = new Backup(Daten.efaBakDirectory,Daten.efaConfig.bakSave,Daten.efaConfig.bakMonat,Daten.efaConfig.bakTag,Daten.efaConfig.bakKonv);
           break;
         case 1:
           if (Daten.efaSec.writeSecFile(Daten.efaSec.getSecValue(),true)) {
@@ -807,7 +801,7 @@ public class EfaDirektFrame extends JFrame {
     }
 
     // Fahrtenbuch öffnen, falls keines angegeben
-    if (Daten.efaConfig.direkt_letzteDatei == null || Daten.efaConfig.direkt_letzteDatei.length()==0) {
+    if (Daten.efaConfig.direkt_letzteDatei.getValue().length() == 0) {
 
       if (neuerSuperAdmin) Dialog.infoDialog(International.getString("Fahrtenbuch auswählen"),
                                              International.getString("Bisher wurde noch kein Fahrtenbuch ausgewählt, mit dem "+
@@ -850,7 +844,7 @@ public class EfaDirektFrame extends JFrame {
       if (dat == null || dat.length()==0) {
           haltProgram(International.getString("Kein Fahrtenbuch ausgewählt"), Daten.HALT_FILEOPEN);
       }
-      Daten.efaConfig.direkt_letzteDatei = dat;
+      Daten.efaConfig.direkt_letzteDatei.setValue(dat);
       Logger.log(Logger.INFO, Logger.MSG_EVT_NEWLOGBOOKOPENED,
               International.getMessage("Neue Fahrtenbuchdatei '{filename}' ausgewählt.",dat));
       if (!Daten.efaConfig.writeFile()) {
@@ -884,30 +878,30 @@ public class EfaDirektFrame extends JFrame {
     efaDirektBackgroundTask.start();
 
     // Uhr-Thread starten
-    efaUhrUpdater = new EfaUhrUpdater(this.uhr,this.srSRtext,this.srSStext,Daten.efaConfig.efaDirekt_sunRiseSet_show);
+    efaUhrUpdater = new EfaUhrUpdater(this.uhr,this.srSRtext,this.srSStext,Daten.efaConfig.efaDirekt_sunRiseSet_show.getValue());
     efaUhrUpdater.start();
-    uhr.setVisible(Daten.efaConfig.efaDirekt_showUhr);
+    uhr.setVisible(Daten.efaConfig.efaDirekt_showUhr.getValue());
 
     // News Text anzeigen
     updateNews();
 
     // Sunrise anzeigen oder nicht
-    sunrisePanel.setVisible(Daten.efaConfig.efaDirekt_sunRiseSet_show);
+    sunrisePanel.setVisible(Daten.efaConfig.efaDirekt_sunRiseSet_show.getValue());
   }
 
 
   // Fahrtenbuch einlesen
   public void readFahrtenbuch() {
-    if (Daten.efaConfig == null || Daten.efaConfig.direkt_letzteDatei == null || Daten.efaConfig.direkt_letzteDatei.length()==0) {
+    if (Daten.efaConfig.direkt_letzteDatei.getValue().length()==0) {
       haltProgram(International.getString("Oops!") + " " +
               "No logbook found to open!", // nicht übersetzen, das passiert eh nie ... ;-)
               Daten.HALT_FILEOPEN);
     } else {
-      Daten.fahrtenbuch = new Fahrtenbuch(Daten.efaConfig.direkt_letzteDatei);
+      Daten.fahrtenbuch = new Fahrtenbuch(Daten.efaConfig.direkt_letzteDatei.getValue());
       int sveAction = Daten.actionOnDatenlisteNotFound;
       Daten.actionOnDatenlisteNotFound = Daten.DATENLISTE_FRAGE_REQUIRE_ADMIN_RETURN_FALSE_ON_NEIN;
       while (!Daten.fahrtenbuch.readFile()) {
-        Dialog.error(LogString.logstring_fileOpenFailed(Daten.efaConfig.direkt_letzteDatei, International.getString("Fahrtenbuch")));
+        Dialog.error(LogString.logstring_fileOpenFailed(Daten.efaConfig.direkt_letzteDatei.getValue(), International.getString("Fahrtenbuch")));
 
         Admin admin = null;
         do {
@@ -923,11 +917,11 @@ public class EfaDirektFrame extends JFrame {
         String dat = Dialog.dateiDialog(this,International.getString("Fahrtenbuch öffnen"),
                 International.getString("efa Fahrtenbuch")+" (*.efb)","efb",Daten.efaDataDirectory,false);
         if (dat == null || dat.length()==0) haltProgram(International.getString("Kein Fahrtenbuch ausgewählt")+".", Daten.HALT_FILEOPEN);
-        Daten.efaConfig.direkt_letzteDatei = dat;
+        Daten.efaConfig.direkt_letzteDatei.setValue(dat);
         if (!Daten.efaConfig.writeFile()) {
             haltProgram(LogString.logstring_fileCreationFailed(Daten.efaConfig.getFileName(), International.getString("Konfigurationsdatei")), Daten.HALT_FILEOPEN);
         }
-        Daten.fahrtenbuch = new Fahrtenbuch(Daten.efaConfig.direkt_letzteDatei);
+        Daten.fahrtenbuch = new Fahrtenbuch(Daten.efaConfig.direkt_letzteDatei.getValue());
       }
       Daten.actionOnDatenlisteNotFound = sveAction;
       if (Daten.fahrtenbuch != null && Daten.fahrtenbuch.getDaten().mitglieder != null)
@@ -954,8 +948,8 @@ public class EfaDirektFrame extends JFrame {
 
   void setButtonsLookAndFeel() {
     // VereinsLogo setzen
-    if (Daten.efaConfig.efaDirekt_vereinsLogo.length()>0) try {
-      logoLabel.setIcon(new ImageIcon(Daten.efaConfig.efaDirekt_vereinsLogo));
+    if (Daten.efaConfig.efaDirekt_vereinsLogo.getValue().length()>0) try {
+      logoLabel.setIcon(new ImageIcon(Daten.efaConfig.efaDirekt_vereinsLogo.getValue()));
       logoLabel.setMinimumSize(new Dimension(200, 80));
       logoLabel.setPreferredSize(new Dimension(200, 80));
       logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -963,22 +957,22 @@ public class EfaDirektFrame extends JFrame {
     } catch(Exception e) {}
 
     // Look & Feel (Buttonfarben, Text) setzen
-    this.fahrtbeginnButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butFahrtBeginnenFarbe));
-    this.fahrtendeButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butFahrtBeendenFarbe));
-    this.fahrtabbruchButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butFahrtAbbrechenFarbe));
-    this.nachtragButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butNachtragFarbe));
-    this.bootsstatusButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butBootsreservierungenFarbe));
-    this.showFbButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butFahrtenbuchAnzeigenFarbe));
-    this.statButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butStatistikErstellenFarbe));
-    this.adminHinweisButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butNachrichtAnAdminFarbe));
-    this.adminButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butAdminModusFarbe));
-    this.spezialButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butSpezialFarbe));
-    this.bootsstatusButton.setVisible(Daten.efaConfig.efaDirekt_butBootsreservierungenAnzeigen);
-    this.showFbButton.setVisible(Daten.efaConfig.efaDirekt_butFahrtenbuchAnzeigenAnzeigen);
-    this.statButton.setVisible(Daten.efaConfig.efaDirekt_butStatistikErstellenAnzeigen);
-    this.adminHinweisButton.setVisible(Daten.efaConfig.efaDirekt_butNachrichtAnAdminAnzeigen);
-    this.adminButton.setVisible(Daten.efaConfig.efaDirekt_butAdminModusAnzeigen);
-    this.spezialButton.setVisible(Daten.efaConfig.efaDirekt_butSpezialAnzeigen);
+    this.fahrtbeginnButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butFahrtBeginnen.getValueColor()));
+    this.fahrtendeButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butFahrtBeenden.getValueColor()));
+    this.fahrtabbruchButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butFahrtAbbrechen.getValueColor()));
+    this.nachtragButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butNachtrag.getValueColor()));
+    this.bootsstatusButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butBootsreservierungen.getValueColor()));
+    this.showFbButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butFahrtenbuchAnzeigen.getValueColor()));
+    this.statButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butStatistikErstellen.getValueColor()));
+    this.adminHinweisButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butNachrichtAnAdmin.getValueColor()));
+    this.adminButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butAdminModus.getValueColor()));
+    this.spezialButton.setBackground(EfaUtil.getColor(Daten.efaConfig.efaDirekt_butSpezial.getValueColor()));
+    this.bootsstatusButton.setVisible(Daten.efaConfig.efaDirekt_butBootsreservierungen.getValueShow());
+    this.showFbButton.setVisible(Daten.efaConfig.efaDirekt_butFahrtenbuchAnzeigen.getValueShow());
+    this.statButton.setVisible(Daten.efaConfig.efaDirekt_butStatistikErstellen.getValueShow());
+    this.adminHinweisButton.setVisible(Daten.efaConfig.efaDirekt_butNachrichtAnAdmin.getValueShow());
+    this.adminButton.setVisible(Daten.efaConfig.efaDirekt_butAdminModus.getValueShow());
+    this.spezialButton.setVisible(Daten.efaConfig.efaDirekt_butSpezial.getValueShow());
 
     setButtonText();
   }
@@ -986,9 +980,9 @@ public class EfaDirektFrame extends JFrame {
 
   public void setButtonText() {
     if (Daten.efaConfig == null) return;
-    boolean fkey = Daten.efaConfig.efaDirekt_showButtonHotkey;
-    this.fahrtbeginnButton.setText(Daten.efaConfig.efaDirekt_butFahrtBeginnenText             + (fkey ? " [F2]" : ""));
-    this.fahrtendeButton.setText(Daten.efaConfig.efaDirekt_butFahrtBeendenText                + (fkey ? " [F3]" : ""));
+    boolean fkey = Daten.efaConfig.efaDirekt_showButtonHotkey.getValue();
+    this.fahrtbeginnButton.setText(Daten.efaConfig.efaDirekt_butFahrtBeginnen.getValueText()  + (fkey ? " [F2]" : ""));
+    this.fahrtendeButton.setText(Daten.efaConfig.efaDirekt_butFahrtBeenden.getValueText()     + (fkey ? " [F3]" : ""));
     this.fahrtabbruchButton.setText(International.getString("Fahrt abbrechen")                + (fkey ? " [F4]" : ""));
     this.nachtragButton.setText(International.getString("Nachtrag")                           + (fkey ? " [F5]" : ""));
     this.bootsstatusButton.setText(International.getString("Bootsreservierungen")             + (fkey ? " [F6]" : ""));
@@ -996,11 +990,11 @@ public class EfaDirektFrame extends JFrame {
     this.statButton.setText(International.getString("Statistik erstellen")                    + (fkey ? " [F8]" : ""));
     this.adminHinweisButton.setText(International.getString("Nachricht an Admin")             + (fkey ? " [F9]" : ""));
     this.adminButton.setText(International.getString("Admin-Modus")                           + (fkey ? " [Alt-F10]" : ""));
-    this.spezialButton.setText(Daten.efaConfig.efaDirekt_butSpezialText                       + (fkey ? " [Alt-F11]" : ""));
+    this.spezialButton.setText(Daten.efaConfig.efaDirekt_butSpezial.getValueText()            + (fkey ? " [Alt-F11]" : ""));
     this.verfuegbareBooteLabel.setText(International.getString("verfügbare Boote")            + (fkey ? " [F10]" : ""));
     this.aufFahrtBooteLabel.setText(International.getString("Boote auf Fahrt")                + (fkey ? " [F11]" : ""));
     this.nichtVerfuegbareBooteLabel.setText(International.getString("nicht verfügbare Boote") + (fkey ? " [F12]" : ""));
-    if (!Daten.efaConfig.efaDirekt_startMaximized) packFrame("setButtonText()");
+    if (!Daten.efaConfig.efaDirekt_startMaximized.getValue()) packFrame("setButtonText()");
   }
 
 
@@ -1135,7 +1129,7 @@ public class EfaDirektFrame extends JFrame {
       if (anz>99) anz = 99;
       a[i].anzahl = anz;
       a[i].name = (String)v.get(i);
-      a[i].sortByAnzahl = (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_sortByAnzahl);
+      a[i].sortByAnzahl = (Daten.efaConfig.efaDirekt_sortByAnzahl.getValue());
     }
     Arrays.sort(a);
 
@@ -1177,7 +1171,7 @@ public class EfaDirektFrame extends JFrame {
     booteAufFahrtListData = sortBootsList(bootStatus.getBoote(BootStatus.STAT_UNTERWEGS));
     booteNichtVerfuegbarListData = sortBootsList(bootStatus.getBoote(BootStatus.STAT_NICHT_VERFUEGBAR));
 
-    if (Daten.efaConfig != null && bootStatus != null && Daten.fahrtenbuch != null && Daten.efaConfig.efaDirekt_showZielnameFuerBooteUnterwegs) {
+    if (bootStatus != null && Daten.fahrtenbuch != null && Daten.efaConfig.efaDirekt_showZielnameFuerBooteUnterwegs.getValue()) {
       for (int i=0; booteAufFahrtListData != null && i<booteAufFahrtListData.size(); i++) {
         String b = (String)booteAufFahrtListData.get(i);
         if (b != null) {
@@ -1310,7 +1304,7 @@ public class EfaDirektFrame extends JFrame {
       if (pos>0) fahrtBeginnen = fahrtBeginnen.substring(0,pos-1);
       int auswahl = -1;
       if (listnr == 1) {
-        if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren) {
+        if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) {
           auswahl = Dialog.auswahlDialog(International.getString("Boot")+" "+boot,
                   International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",boot),
                                    fahrtBeginnen,
@@ -1332,7 +1326,7 @@ public class EfaDirektFrame extends JFrame {
       }
       switch (auswahl) {
         case 0: this.fahrtbeginnButton_actionPerformed(null); break;
-        case 1: if (listnr != 1 || Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren) {
+        case 1: if (listnr != 1 || Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) {
                   this.bootsstatusButton_actionPerformed(null);
                 } // else: nothing to do!
                 break;
@@ -1344,7 +1338,7 @@ public class EfaDirektFrame extends JFrame {
       int pos = fahrtBeenden.indexOf(" [");
       if (pos>0) fahrtBeenden = fahrtBeenden.substring(0,pos);
       int auswahl = -1;
-      if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren) {
+      if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) {
         auswahl = Dialog.auswahlDialog(International.getString("Boot")+" "+boot,
                 International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",boot),
                                    fahrtBeenden,
@@ -1364,7 +1358,7 @@ public class EfaDirektFrame extends JFrame {
         case 0: this.fahrtendeButton_actionPerformed(null); break;
         case 1: this.eintragAendern(boot); break;
         case 2: this.fahrtabbruchButton_actionPerformed(null); break;
-        case 3: if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren) {
+        case 3: if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) {
                   this.bootsstatusButton_actionPerformed(null);
                 } // else: nothing to do!
                 break;
@@ -1431,7 +1425,7 @@ public class EfaDirektFrame extends JFrame {
     if (list == null || boote == null || such == null || such.length()==0) return;
     try {
       int start = 0;
-      if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_sortByAnzahl) {
+      if (Daten.efaConfig.efaDirekt_sortByAnzahl.getValue()) {
         if (such.charAt(0)>='0' && such.charAt(0)<='9') {
           switch(such.charAt(0)) {
               case '1': such = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_1);
@@ -1585,8 +1579,8 @@ public class EfaDirektFrame extends JFrame {
 
 
     DatenFelder d2 = bootStatus.getExactComplete(removeDoppeleintragFromBootsname(boot));
-    Reservierung res = BootStatus.getReservierung(d,System.currentTimeMillis(),Daten.efaConfig.efaDirekt_resLookAheadTime);
-    if (res == null && d2 != null) res = BootStatus.getReservierung(d2,System.currentTimeMillis(),Daten.efaConfig.efaDirekt_resLookAheadTime);
+    Reservierung res = BootStatus.getReservierung(d,System.currentTimeMillis(),Daten.efaConfig.efaDirekt_resLookAheadTime.getValue());
+    if (res == null && d2 != null) res = BootStatus.getReservierung(d2,System.currentTimeMillis(),Daten.efaConfig.efaDirekt_resLookAheadTime.getValue());
     if (res != null) {
       if (Dialog.yesNoCancelDialog(International.getString("Boot reserviert"),
               International.getMessage("Das Boot {boat} ist {currently_or_in_x_minutes} für {name} reserviert.",
@@ -1695,7 +1689,7 @@ public class EfaDirektFrame extends JFrame {
 
     bootStatus.delete(boot);
     d.set(BootStatus.LFDNR,lfdNr);
-    if (Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar && isMultiDayFahrtart(fahrttype)) {
+    if (Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar.getValue() && isMultiDayFahrtart(fahrttype)) {
         d.set(BootStatus.STATUS,BootStatus.getStatusKey(BootStatus.STAT_NICHT_VERFUEGBAR));
     } else {
         d.set(BootStatus.STATUS,BootStatus.getStatusKey(BootStatus.STAT_UNTERWEGS));
@@ -1739,7 +1733,7 @@ public class EfaDirektFrame extends JFrame {
     }
     bootStatus.delete(boot);
     d.set(BootStatus.LFDNR,lfdNr);
-    if (Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar && isMultiDayFahrtart(fahrttype)) {
+    if (Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar.getValue() && isMultiDayFahrtart(fahrttype)) {
         d.set(BootStatus.STATUS,BootStatus.getStatusKey(BootStatus.STAT_NICHT_VERFUEGBAR));
     } else {
         d.set(BootStatus.STATUS,BootStatus.getStatusKey(BootStatus.STAT_UNTERWEGS));
@@ -1759,7 +1753,7 @@ public class EfaDirektFrame extends JFrame {
     String boot = null;
     try {
       if (!booteAufFahrt.isSelectionEmpty()) boot = listGetSelectedValue(booteAufFahrt);
-      if (boot == null && Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar && !booteNichtVerfuegbar.isSelectionEmpty()) {
+      if (boot == null && Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar.getValue() && !booteNichtVerfuegbar.isSelectionEmpty()) {
         // prüfen, ob vielleicht ein Boot in der Liste "nicht verfügbar" auf Regatta oder Wanderfahrt unterwegs ist
         boot = listGetSelectedValue(booteNichtVerfuegbar);
         if (boot != null  && bootStatus.getExact(boot) != null) {
@@ -1772,7 +1766,7 @@ public class EfaDirektFrame extends JFrame {
     }
     if (boot == null) {
       Dialog.error(International.getMessage("Bitte wähle zuerst {from_the_right_list} ein Boot aus, welches unterwegs ist!", // @todo: Should probably use ChoiceFormat to make translation of this without looking at the code possible...
-              (Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar ? 
+              (Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar.getValue() ?
                   International.getString("aus einer der rechten Listen") : 
                   International.getString("aus der rechten oberen Liste"))));
       this.booteAufFahrt.requestFocus();
@@ -1861,7 +1855,7 @@ public class EfaDirektFrame extends JFrame {
     String boot = null;
     try {
       if (!booteAufFahrt.isSelectionEmpty()) boot = listGetSelectedValue(booteAufFahrt);
-      if (boot == null && Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar && !booteNichtVerfuegbar.isSelectionEmpty()) {
+      if (boot == null && Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar.getValue() && !booteNichtVerfuegbar.isSelectionEmpty()) {
         // prüfen, ob vielleicht ein Boot in der Liste "nicht verfügbar" auf Regatta oder Wanderfahrt unterwegs ist
         boot = listGetSelectedValue(booteNichtVerfuegbar);
         if (boot != null  && bootStatus.getExact(boot) != null) {
@@ -1874,7 +1868,7 @@ public class EfaDirektFrame extends JFrame {
     }
     if (boot == null) {
       Dialog.error(International.getMessage("Bitte wähle zuerst {from_the_right_list} ein Boot aus, welches unterwegs ist!",
-              (Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar ?
+              (Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar.getValue() ?
                   International.getString("aus einer der rechten Listen") :
                   International.getString("aus der rechten oberen Liste"))));
       this.booteAufFahrt.requestFocus();
@@ -2080,7 +2074,7 @@ public class EfaDirektFrame extends JFrame {
 
   void spezialButton_actionPerformed(ActionEvent e) {
     alive();
-    String cmd = Daten.efaConfig.efaDirekt_butSpezialCmd.trim();
+    String cmd = Daten.efaConfig.efaDirekt_butSpezialCmd.getValue().trim();
     if (cmd.length() > 0) {
       try {
         if (cmd.toLowerCase().startsWith("browser:")) {
@@ -2143,7 +2137,7 @@ public class EfaDirektFrame extends JFrame {
       default: adminButton.setIcon(null);
     }
     } catch(Exception e) { EfaUtil.foo(); }
-    if (!Daten.efaConfig.efaDirekt_startMaximized) packFrame("updateUnredMessages()");
+    if (!Daten.efaConfig.efaDirekt_startMaximized.getValue()) packFrame("updateUnredMessages()");
   }
 
 
@@ -2173,13 +2167,11 @@ public class EfaDirektFrame extends JFrame {
   public void lockEfa() {
     if (Daten.efaConfig == null) return;
 
-    String endeDerSperrung = (Daten.efaConfig.efaDirekt_lockEfaUntilDatum != null ? " "+International.getString("Ende der Sperrung")+": "+
-                Daten.efaConfig.efaDirekt_lockEfaUntilDatum.tag+"."+Daten.efaConfig.efaDirekt_lockEfaUntilDatum.monat+"."+Daten.efaConfig.efaDirekt_lockEfaUntilDatum.jahr+
-                (Daten.efaConfig.efaDirekt_lockEfaUntilZeit != null ? " "+
-                 (Daten.efaConfig.efaDirekt_lockEfaUntilZeit.tag < 10 ? "0" : "") + Daten.efaConfig.efaDirekt_lockEfaUntilZeit.tag+":"+
-                 (Daten.efaConfig.efaDirekt_lockEfaUntilZeit.monat < 10 ? "0" : "") + Daten.efaConfig.efaDirekt_lockEfaUntilZeit.monat : "") : "");
+    String endeDerSperrung = (Daten.efaConfig.efaDirekt_lockEfaUntilDatum.isSet() ? " "+International.getString("Ende der Sperrung")+": "+
+                Daten.efaConfig.efaDirekt_lockEfaUntilDatum.toString() +
+                (Daten.efaConfig.efaDirekt_lockEfaUntilZeit.isSet() ? " "+Daten.efaConfig.efaDirekt_lockEfaUntilZeit.toString() : "") : "");
 
-    String html = Daten.efaConfig.efaDirekt_lockEfaShowHtml;
+    String html = Daten.efaConfig.efaDirekt_lockEfaShowHtml.getValue();
     if (html == null || !EfaUtil.canOpenFile(html)) {
       html = Daten.efaTmpDirectory+"locked.html";
       try {
@@ -2194,19 +2186,19 @@ public class EfaDirektFrame extends JFrame {
       }
     }
     BrowserFrame browser = new BrowserFrame(this,
-                                            Daten.efaConfig.efaDirekt_lockEfaVollbild,
+                                            Daten.efaConfig.efaDirekt_lockEfaVollbild.getValue(),
                                             "file:" + html);
     browser.setModal(true);
-    if (Daten.efaConfig.efaDirekt_lockEfaVollbild) {
+    if (Daten.efaConfig.efaDirekt_lockEfaVollbild.getValue()) {
       browser.setSize(Dialog.screenSize);
     }
     Dialog.setDlgLocation(browser, this);
     browser.setClosingTimeout(10); // nur um Lock-Ende zu überwachen
     Logger.log(Logger.INFO, Logger.MSG_EVT_LOCKED,
             International.getString("efa wurde vom Administrator vorübergehend für die Benutzung gesperrt.")+endeDerSperrung);
-    Daten.efaConfig.efaDirekt_lockEfaFromDatum = null; // damit nach Entsperren nicht wiederholt gelockt wird
-    Daten.efaConfig.efaDirekt_lockEfaFromZeit = null;  // damit nach Entsperren nicht wiederholt gelockt wird
-    Daten.efaConfig.efaDirekt_locked = true;
+    Daten.efaConfig.efaDirekt_lockEfaFromDatum.unset(); // damit nach Entsperren nicht wiederholt gelockt wird
+    Daten.efaConfig.efaDirekt_lockEfaFromZeit.unset();  // damit nach Entsperren nicht wiederholt gelockt wird
+    Daten.efaConfig.efaDirekt_locked.setValue(true);
     Daten.efaConfig.writeFile();
     browser.show();
   }
@@ -2281,9 +2273,9 @@ public class EfaDirektFrame extends JFrame {
   }
 
   void autoCreateNewFb() {
-    String fnameEfb = Daten.efaConfig.efaDirekt_autoNewFb_datei.trim();
-    Daten.efaConfig.efaDirekt_autoNewFb_datum = null;
-    Daten.efaConfig.efaDirekt_autoNewFb_datei = "";
+    String fnameEfb = Daten.efaConfig.efaDirekt_autoNewFb_datei.getValue().trim();
+    Daten.efaConfig.efaDirekt_autoNewFb_datum.unset();
+    Daten.efaConfig.efaDirekt_autoNewFb_datei.setValue("");
 
     fnameEfb = EfaUtil.makeFullPath(EfaUtil.getPathOfFile(Daten.fahrtenbuch.getFileName()),fnameEfb);
     Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLOGBOOK,
@@ -2414,7 +2406,7 @@ public class EfaDirektFrame extends JFrame {
 
       level = 6;
       Daten.fahrtenbuch = neuesFb;
-      Daten.efaConfig.direkt_letzteDatei = Daten.fahrtenbuch.getFileName();
+      Daten.efaConfig.direkt_letzteDatei.setValue(Daten.fahrtenbuch.getFileName());
       Daten.efaConfig.writeFile();
 
       level = 7;
@@ -2538,9 +2530,9 @@ public class EfaDirektFrame extends JFrame {
     if (efaNewsUpdater != null) {
       efaNewsUpdater.stopRunning();
     }
-    efaNewsUpdater = new EfaNewsUpdater(this.newsLabel,Daten.efaConfig.efaDirekt_newsText);
+    efaNewsUpdater = new EfaNewsUpdater(this.newsLabel,Daten.efaConfig.efaDirekt_newsText.getValue());
     efaNewsUpdater.start();
-    newsLabel.setVisible(Daten.efaConfig.efaDirekt_newsText.length()>0);
+    newsLabel.setVisible(Daten.efaConfig.efaDirekt_newsText.getValue().length()>0);
   }
 
 
@@ -2586,35 +2578,35 @@ public class EfaDirektFrame extends JFrame {
         String s;
         Vector warnings = new Vector();
         while ( (s = f.readLine()) != null) {
-          if (Logger.isWarningLine(s) && Logger.getLineTimestamp(s) > Daten.efaConfig.efaDirekt_bnrWarning_lasttime) {
+          if (Logger.isWarningLine(s) && Logger.getLineTimestamp(s) > Daten.efaConfig.efaDirekt_bnrWarning_lasttime.getValue()) {
             warnings.add(s);
           }
         }
         f.close();
         if (warnings.size() == 0) {
           Logger.log(Logger.INFO, Logger.MSG_EVT_CHECKFORWARNINGS,
-                  International.getMessage("Seit {date} sind keinerlei Warnungen in efa verzeichnet worden.",EfaUtil.getTimeStamp(Daten.efaConfig.efaDirekt_bnrWarning_lasttime)));
+                  International.getMessage("Seit {date} sind keinerlei Warnungen in efa verzeichnet worden.",EfaUtil.getTimeStamp(Daten.efaConfig.efaDirekt_bnrWarning_lasttime.getValue())));
         } else {
           Logger.log(Logger.INFO, Logger.MSG_EVT_CHECKFORWARNINGS,
                   International.getMessage("Seit {date} sind {n} Warnungen in efa verzeichnet worden.",
-                  EfaUtil.getTimeStamp(Daten.efaConfig.efaDirekt_bnrWarning_lasttime),warnings.size()));
+                  EfaUtil.getTimeStamp(Daten.efaConfig.efaDirekt_bnrWarning_lasttime.getValue()),warnings.size()));
           String txt = International.getMessage("Folgende Warnungen sind seit {date} in efa verzeichnet worden:",
-                  EfaUtil.getTimeStamp(Daten.efaConfig.efaDirekt_bnrWarning_lasttime))+"\n"+
+                  EfaUtil.getTimeStamp(Daten.efaConfig.efaDirekt_bnrWarning_lasttime.getValue()))+"\n"+
                   International.getMessage("{n} Warnungen",warnings.size())+"\n\n";
           for (int i=0; i<warnings.size(); i++) {
             txt += ((String)warnings.get(i)) + "\n";
           }
           if (Daten.nachrichten != null && Daten.efaConfig != null) {
-            if (Daten.efaConfig.efaDirekt_bnrWarning_admin) {
+            if (Daten.efaConfig.efaDirekt_bnrWarning_admin.getValue()) {
               Daten.nachrichten.createNachricht(Daten.EFA_SHORTNAME, Nachricht.ADMIN,International.getString("Warnungen"), txt);
             }
-            if (Daten.efaConfig.efaDirekt_bnrWarning_bootswart) {
+            if (Daten.efaConfig.efaDirekt_bnrWarning_bootswart.getValue()) {
               Daten.nachrichten.createNachricht(Daten.EFA_SHORTNAME, Nachricht.BOOTSWART,International.getString("Warnungen"), txt);
             }
           }
         }
         if (Daten.efaConfig != null) {
-          Daten.efaConfig.efaDirekt_bnrWarning_lasttime = System.currentTimeMillis();
+          Daten.efaConfig.efaDirekt_bnrWarning_lasttime.setValue(System.currentTimeMillis());
           Daten.efaConfig.writeFile();
         }
 
@@ -2666,7 +2658,7 @@ public class EfaDirektFrame extends JFrame {
               // in diesem Fall kommt die gefundene Reservierung zum Tragen
               if (BootStatus.getStatusID(d.get(BootStatus.STATUS)) == BootStatus.STAT_VERFUEGBAR &&
                   !d.get(BootStatus.LFDNR).equals(BootStatus.RES_LFDNR)) {
-                if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_resBooteNichtVerfuegbar) {
+                if (Daten.efaConfig.efaDirekt_resBooteNichtVerfuegbar.getValue()) {
                   d.set(BootStatus.STATUS,BootStatus.getStatusKey(BootStatus.STAT_NICHT_VERFUEGBAR));
                 }
                 d.set(BootStatus.BEMERKUNG,
@@ -2710,13 +2702,13 @@ public class EfaDirektFrame extends JFrame {
         updateUnreadMessages();
 
         // automatisches, zeitgesteuertes Beenden von efa ?
-        if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_exitTime != null && Daten.efaConfig.efaDirekt_exitTime.tag>=0
+        if (Daten.efaConfig.efaDirekt_exitTime.isSet()
             && System.currentTimeMillis() > Daten.efaStartTime + (Daten.AUTO_EXIT_MIN_RUNTIME+1)*60*1000
             ) {
           date.setTime(System.currentTimeMillis());
           cal.setTime(date);
           int now = cal.get(Calendar.HOUR_OF_DAY)*60 + cal.get(Calendar.MINUTE);
-          int exitTime = Daten.efaConfig.efaDirekt_exitTime.tag*60 + Daten.efaConfig.efaDirekt_exitTime.monat;
+          int exitTime = Daten.efaConfig.efaDirekt_exitTime.getValueHour()*60 + Daten.efaConfig.efaDirekt_exitTime.getValueMinute();
           if ( (now >= exitTime && now < exitTime+Daten.AUTO_EXIT_MIN_RUNTIME) || (now+(24*60) >= exitTime && now+(24*60) < exitTime+Daten.AUTO_EXIT_MIN_RUNTIME) ) {
             Logger.log(Logger.INFO, Logger.MSG_EVT_TIMEBASEDEXIT,
                     International.getString("Eingestellte Uhrzeit zum Beenden von efa erreicht!"));
@@ -2731,13 +2723,13 @@ public class EfaDirektFrame extends JFrame {
         }
 
         // automatischer, zeitgesteuerter Neustart von efa ?
-        if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_restartTime != null && Daten.efaConfig.efaDirekt_restartTime.tag>=0
+        if (Daten.efaConfig.efaDirekt_restartTime.isSet()
             && System.currentTimeMillis() > Daten.efaStartTime + (Daten.AUTO_EXIT_MIN_RUNTIME +1)*60*1000
             ) {
           date.setTime(System.currentTimeMillis());
           cal.setTime(date);
           int now = cal.get(Calendar.HOUR_OF_DAY)*60 + cal.get(Calendar.MINUTE);
-          int restartTime = Daten.efaConfig.efaDirekt_restartTime.tag*60 + Daten.efaConfig.efaDirekt_restartTime.monat;
+          int restartTime = Daten.efaConfig.efaDirekt_restartTime.getValueHour()*60 + Daten.efaConfig.efaDirekt_restartTime.getValueMinute();
           if ( (now >= restartTime && now < restartTime+Daten.AUTO_EXIT_MIN_RUNTIME) || (now+(24*60) >= restartTime && now+(24*60) < restartTime+Daten.AUTO_EXIT_MIN_RUNTIME) ) {
             Logger.log(Logger.INFO,"Automatischer Neustart von efa (einmal täglich).");
             if (System.currentTimeMillis() - efaDirektFrame.lastUserInteraction < Daten.AUTO_EXIT_MIN_LAST_USED*60*1000) {
@@ -2760,15 +2752,15 @@ public class EfaDirektFrame extends JFrame {
 
         // automatisches Beginnen eines neuen Fahrtenbuchs (z.B. zum Jahreswechsel)
         if (Daten.applMode == Daten.APPL_MODE_NORMAL &&
-            Daten.efaConfig != null && Daten.efaConfig.efaDirekt_autoNewFb_datum != null &&
-            Daten.efaConfig.efaDirekt_autoNewFb_datei.length() > 0) {
-          if (EfaUtil.secondDateIsEqualOrAfterFirst(EfaUtil.tmj2datestring(Daten.efaConfig.efaDirekt_autoNewFb_datum),EfaUtil.getCurrentTimeStampDD_MM_YYYY())) {
+            Daten.efaConfig.efaDirekt_autoNewFb_datum.isSet() &&
+            Daten.efaConfig.efaDirekt_autoNewFb_datei.getValue().length() > 0) {
+          if (EfaUtil.secondDateIsEqualOrAfterFirst(Daten.efaConfig.efaDirekt_autoNewFb_datum.toString(),EfaUtil.getCurrentTimeStampDD_MM_YYYY())) {
             efaDirektFrame.autoCreateNewFb();
           }
         }
 
         // immer im Vordergrund
-        if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_immerImVordergrund && this.efaDirektFrame != null &&
+        if (Daten.efaConfig.efaDirekt_immerImVordergrund.getValue() && this.efaDirektFrame != null &&
             Dialog.frameCurrent() == this.efaDirektFrame) {
           Window[] windows = this.efaDirektFrame.getOwnedWindows();
           boolean topWindow = true;
@@ -2777,7 +2769,7 @@ public class EfaDirektFrame extends JFrame {
               if (windows[i] != null && windows[i].isVisible()) topWindow = false;
             }
           }
-          if (topWindow && Daten.efaConfig.efaDirekt_immerImVordergrundBringToFront) {
+          if (topWindow && Daten.efaConfig.efaDirekt_immerImVordergrundBringToFront.getValue()) {
             this.efaDirektFrame.bringFrameToFront();
           }
         }
@@ -2799,8 +2791,8 @@ public class EfaDirektFrame extends JFrame {
                   "EfaDirektBackgroundTask: alive!");
 
           // WARNINGs aus Logfile an Admins verschicken
-          if (Daten.efaConfig != null && System.currentTimeMillis() >= Daten.efaConfig.efaDirekt_bnrWarning_lasttime + 7l*24l*60l*60l*1000l &&
-              (Daten.efaConfig.efaDirekt_bnrWarning_admin || Daten.efaConfig.efaDirekt_bnrWarning_bootswart) && Daten.efaLogfile != null) {
+          if (System.currentTimeMillis() >= Daten.efaConfig.efaDirekt_bnrWarning_lasttime.getValue() + 7l*24l*60l*60l*1000l &&
+              (Daten.efaConfig.efaDirekt_bnrWarning_admin.getValue() || Daten.efaConfig.efaDirekt_bnrWarning_bootswart.getValue()) && Daten.efaLogfile != null) {
             mailWarnings();
           }
         }
@@ -2829,7 +2821,7 @@ public class EfaDirektFrame extends JFrame {
           if (!framePacked) {
             if (/*Daten.javaVersion.startsWith("1.3")  && */ efaDirektFrame != null) {
               if (Daten.efaConfig != null) {
-                if (!Daten.efaConfig.efaDirekt_startMaximized) efaDirektFrame.packFrame("EfaDirektBackgroundTask");
+                if (!Daten.efaConfig.efaDirekt_startMaximized.getValue()) efaDirektFrame.packFrame("EfaDirektBackgroundTask");
                 else {
                   if (efaDirektFrame.jScrollPane1 != null && efaDirektFrame.westPanel != null && efaDirektFrame.contentPane != null) {
                     efaDirektFrame.jScrollPane1.setSize(efaDirektFrame.jScrollPane1.getPreferredSize());

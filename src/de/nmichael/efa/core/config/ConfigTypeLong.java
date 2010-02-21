@@ -16,12 +16,16 @@ import de.nmichael.efa.util.*;
 
 public class ConfigTypeLong extends ConfigTypeLabelValue {
 
-    Long value;
+    private long value;
+    private long min;
+    private long max;
 
-    public ConfigTypeLong(String name, Long value, int type,
-            String category, String description) {
+    public ConfigTypeLong(String name, long value, long min, long max,
+            int type, String category, String description) {
         this.name = name;
         this.value = value;
+        this.min = min;
+        this.max = max;
         this.type = type;
         this.category = category;
         this.description = description;
@@ -30,15 +34,30 @@ public class ConfigTypeLong extends ConfigTypeLabelValue {
     public void parseValue(String value) {
         try {
             this.value = Long.parseLong(value);
+            if (this.value < min) {
+                this.value = min;
+            }
+            if (this.value > max) {
+                this.value = max;
+            }
         } catch (Exception e) {
-            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
-                       "EfaConfig: Invalid value for parameter "+name+": "+value);
+            if (efaConfigFrame == null) {
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
+                           "EfaConfig: Invalid value for parameter "+name+": "+value);
+            }
         }
     }
 
     public String toString() {
-        return value.toString();
+        return Long.toString(value);
     }
 
+    public long getValue() {
+        return value;
+    }
+
+    public void setValue(long value) {
+        this.value = value;
+    }
 
 }

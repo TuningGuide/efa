@@ -218,8 +218,8 @@ public class BrowserFrame extends JDialog implements ActionListener {
     if (timeout > 0) {
       timeoutThread = new TimeoutThread(this,timeout,
                                         locked,
-                                        (Daten.efaConfig != null ? Daten.efaConfig.efaDirekt_lockEfaUntilDatum : null),
-                                        (Daten.efaConfig != null ? Daten.efaConfig.efaDirekt_lockEfaUntilZeit : null));
+                                        Daten.efaConfig.efaDirekt_lockEfaUntilDatum.getDate(),
+                                        Daten.efaConfig.efaDirekt_lockEfaUntilZeit.getTime());
       timeoutThread.start();
     }
   }
@@ -436,7 +436,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
       efaDirektFrame.lockEfaAt(null,null);
     }
     if (Daten.efaConfig != null) {
-      Daten.efaConfig.efaDirekt_locked = false;
+      Daten.efaConfig.efaDirekt_locked.setValue(false);
       Daten.efaConfig.writeFile();
       Logger.log(Logger.INFO,
               Logger.MSG_EVT_UNLOCKED,

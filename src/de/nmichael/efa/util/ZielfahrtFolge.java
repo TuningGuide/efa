@@ -33,9 +33,8 @@ public class ZielfahrtFolge {
 
   private void ini() {
     zff = new Vector();
-    if (Daten.efaConfig != null && Daten.efaConfig.zielfahrtSeparatorFahrten != null &&
-        Daten.efaConfig.zielfahrtSeparatorFahrten.length() == 1) {
-      SEPARATOR = Daten.efaConfig.zielfahrtSeparatorFahrten;
+    if (Daten.efaConfig.zielfahrtSeparatorFahrten.getValue().length() == 1) {
+      SEPARATOR = Daten.efaConfig.zielfahrtSeparatorFahrten.getValue();
     } else {
       SEPARATOR = "/";
     }

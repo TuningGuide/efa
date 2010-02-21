@@ -23,8 +23,8 @@ import java.awt.Font;
 
 // @i18n complete
 
-public class EfaConfig extends DatenListe {
-
+public class EfaConfig { //extends DatenListe {
+/*
   // Default-Obmann für ungesteuerte Boote
   public static final int OBMANN_NR1 = 1;
   public static final int OBMANN_SCHLAG = 2;
@@ -1017,5 +1017,5 @@ public class EfaConfig extends DatenListe {
     return true;
   }
 
-
+*/
 }

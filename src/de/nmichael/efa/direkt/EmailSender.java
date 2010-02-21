@@ -68,12 +68,12 @@ class EmailSenderThread extends Thread {
 
   public void run() {
     if (Daten.efaConfig == null) return;
-    if (Daten.efaConfig.efaDirekt_emailServer == null || Daten.efaConfig.efaDirekt_emailServer.length() == 0) {
+    if (Daten.efaConfig.efaDirekt_emailServer.getValue().length() == 0) {
       Logger.log(Logger.ERROR,Logger.MSG_ERR_SENDMAILFAILED_CFG,
               International.getString("Nachricht als email versenden nicht möglich, da kein SMTP-Server konfiguriert ist."));
       return;
     }
-    if (Daten.efaConfig.efaDirekt_emailAbsender == null || Daten.efaConfig.efaDirekt_emailAbsender.length() == 0) {
+    if (Daten.efaConfig.efaDirekt_emailAbsender.getValue().length() == 0) {
       Logger.log(Logger.ERROR,Logger.MSG_ERR_SENDMAILFAILED_CFG,
               International.getString("Nachricht als email versenden nicht möglich, da keine Absender-Adresse konfiguriert ist."));
       return;
@@ -82,15 +82,15 @@ class EmailSenderThread extends Thread {
     do {
       retryCount++;
       try {
-        boolean auth = (Daten.efaConfig.efaDirekt_emailUsername != null && Daten.efaConfig.efaDirekt_emailUsername.length()>0 &&
-                        Daten.efaConfig.efaDirekt_emailPassword != null && Daten.efaConfig.efaDirekt_emailPassword.length()>0);
+        boolean auth = (Daten.efaConfig.efaDirekt_emailUsername.getValue().length()>0 &&
+                        Daten.efaConfig.efaDirekt_emailPassword.getValue().length()>0);
         Properties props = new Properties();
-        props.put("mail.smtp.host",Daten.efaConfig.efaDirekt_emailServer);
+        props.put("mail.smtp.host",Daten.efaConfig.efaDirekt_emailServer.getValue());
         if (auth) props.put("mail.smtp.auth","true");
 //      props.put("mail.debug", "true");
         MailAuthenticator ma = null;
         if (auth) {
-          ma = new MailAuthenticator(Daten.efaConfig.efaDirekt_emailUsername,Daten.efaConfig.efaDirekt_emailPassword);
+          ma = new MailAuthenticator(Daten.efaConfig.efaDirekt_emailUsername.getValue(),Daten.efaConfig.efaDirekt_emailPassword.getValue());
         }
         String charset = "ISO-8859-1";
         javax.mail.Session session = javax.mail.Session.getInstance(props,ma);
@@ -98,18 +98,24 @@ class EmailSenderThread extends Thread {
         mail.setAllow8bitMIME(true);
         mail.setHeader("X-Mailer",Daten.EFA_SHORTNAME+" "+Daten.VERSION);
         mail.setHeader("Content-Type","text/plain; charset="+charset);
-        mail.setFrom(new javax.mail.internet.InternetAddress( (Daten.efaConfig.efaDirekt_emailAbsenderName.length()>0 ? Daten.efaConfig.efaDirekt_emailAbsenderName : "efa") + " <"+Daten.efaConfig.efaDirekt_emailAbsender+">"));
+        mail.setFrom(new javax.mail.internet.InternetAddress( 
+                (Daten.efaConfig.efaDirekt_emailAbsenderName.getValue().length()>0 ?
+                    Daten.efaConfig.efaDirekt_emailAbsenderName.getValue() :
+                    "efa") + " <"+Daten.efaConfig.efaDirekt_emailAbsender.getValue()+">"));
         mail.setRecipients(com.sun.mail.smtp.SMTPMessage.RecipientType.TO,javax.mail.internet.InternetAddress.parse(adressen));
-        mail.setSubject( (Daten.efaConfig.efaDirekt_emailBetreffPraefix.length()>0 ? "["+Daten.efaConfig.efaDirekt_emailBetreffPraefix+"] " : "") + n.betreff, charset);
+        mail.setSubject( (Daten.efaConfig.efaDirekt_emailBetreffPraefix.getValue().length()>0 ?
+            "["+Daten.efaConfig.efaDirekt_emailBetreffPraefix.getValue()+"] " : "") + n.betreff, charset);
         mail.setSentDate(new Date());
         mail.setText("## "+International.getString("Absender")+": "+n.name+"\n"+
                      "## "+International.getString("Betreff")+" : "+n.betreff+"\n\n"+
                      n.nachricht+
-                     (Daten.efaConfig.efaDirekt_emailSignatur.length()>0 ? "\n\n-- \n"+
-                     EfaUtil.replace(Daten.efaConfig.efaDirekt_emailSignatur,"$$","\n",true) : ""), charset);
+                     (Daten.efaConfig.efaDirekt_emailSignatur.getValue().length()>0 ? "\n\n-- \n"+
+                     EfaUtil.replace(Daten.efaConfig.efaDirekt_emailSignatur.getValue(),"$$","\n",true) : ""), charset);
         com.sun.mail.smtp.SMTPTransport t = (com.sun.mail.smtp.SMTPTransport)session.getTransport("smtp");
         if (auth) {
-          t.connect(Daten.efaConfig.efaDirekt_emailServer,Daten.efaConfig.efaDirekt_emailUsername,Daten.efaConfig.efaDirekt_emailPassword);
+          t.connect(Daten.efaConfig.efaDirekt_emailServer.getValue(),
+                  Daten.efaConfig.efaDirekt_emailUsername.getValue(),
+                  Daten.efaConfig.efaDirekt_emailPassword.getValue());
         } else {
           t.connect();
         }

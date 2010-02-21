@@ -418,7 +418,7 @@ public class Base64
      */
     public static String encodeBytes( byte[] source )
     {
-        return encodeBytes( source, 0, source.length, NO_OPTIONS );
+        return encodeBytes( source, 0, source.length, DONT_BREAK_LINES );
     }   // end encodeBytes
 
 

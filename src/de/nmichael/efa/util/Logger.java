@@ -328,10 +328,10 @@ public class Logger {
     EfaErrorPrintStream.ignoreExceptions = false;
 
     if (type != null && type.equals(ERROR) && nachrichten != null) {
-      if (Daten.efaConfig == null || Daten.efaConfig.efaDirekt_bnrError_admin) {
+      if (Daten.efaConfig == null || Daten.efaConfig.efaDirekt_bnrError_admin.getValue()) {
         mailError(key, t, Nachricht.ADMIN);
       }
-      if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_bnrError_bootswart) {
+      if (Daten.efaConfig.efaDirekt_bnrError_bootswart.getValue()) {
         mailError(key, t, Nachricht.BOOTSWART);
       }
     }

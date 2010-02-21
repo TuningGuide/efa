@@ -5611,15 +5611,15 @@ public class Statistik {
     if (!new File(sd.ausgabeDatei).isFile()) {
         Dialog.error(LogString.logstring_fileNotFound(sd.ausgabeDatei, International.getString("Ausgabedatei")));
     } else {
-      if (Daten.efaConfig == null || !new File(Daten.efaConfig.browser).isFile()) {
-          Dialog.error(LogString.logstring_cantExecCommand(Daten.efaConfig.browser, International.getString("für Browser"), ""));
+      if (!new File(Daten.efaConfig.browser.getValue()).isFile()) {
+          Dialog.error(LogString.logstring_cantExecCommand(Daten.efaConfig.browser.getValue(), International.getString("für Browser"), ""));
       } else try {
         String[] cmd = new String[2];
-        cmd[0] = Daten.efaConfig.browser;
+        cmd[0] = Daten.efaConfig.browser.getValue();
         cmd[1] = sd.ausgabeDatei;
         Runtime.getRuntime().exec(cmd);
       } catch(Exception ee) {
-          Dialog.error(LogString.logstring_cantExecCommand(Daten.efaConfig.browser, International.getString("für Browser"), ee.toString()));
+          Dialog.error(LogString.logstring_cantExecCommand(Daten.efaConfig.browser.getValue(), International.getString("für Browser"), ee.toString()));
       }
     }
   }
@@ -5648,18 +5648,18 @@ public class Statistik {
         Dialog.error(LogString.logstring_fileCreationFailed(sd.ausgabeDatei, International.getString("Ausgabedatei")));
         return false;
       } else {
-        if (Daten.efaConfig != null && Daten.efaConfig.acrobat.length()>0 && sd.statistikFrame != null) {
+        if (Daten.efaConfig.acrobat.getValue().length()>0 && sd.statistikFrame != null) {
           if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(true,null,false);
           try {
             String[] cmd = new String[2];
-            cmd[0] = Daten.efaConfig.acrobat;
+            cmd[0] = Daten.efaConfig.acrobat.getValue();
             cmd[1] = sd.ausgabeDatei;
             if (sd.statistikFrame != null) {
                 sd.statistikFrame.enableFrame(false,International.getString("Starte Acrobat ..."),false);
             }
             Runtime.getRuntime().exec(cmd);
           } catch(Exception ee) {
-            Dialog.error(LogString.logstring_cantExecCommand(Daten.efaConfig.acrobat, International.getString("für Acrobat Reader"), ee.toString()));
+            Dialog.error(LogString.logstring_cantExecCommand(Daten.efaConfig.acrobat.getValue(), International.getString("für Acrobat Reader"), ee.toString()));
           }
         }
         if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(true,

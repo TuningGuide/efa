@@ -104,12 +104,12 @@ public class BootStatusFrame extends JDialog implements ActionListener {
       jbInit();
       frameIni();
       okButton.setText(International.getString("Schließen"));
-      if (!Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierungenEditieren) {
+      if (!Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierungenEditieren.getValue()) {
         this.delResButton.setEnabled(false);
         this.editResButton.setEnabled(false);
       }
-      if (!Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren &&
-          !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch) {
+      if (!Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue() &&
+          !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch.getValue()) {
         this.addResButton.setEnabled(false);
       }
       this.bootRepariertCheckBox.setVisible(false);
@@ -489,16 +489,16 @@ public class BootStatusFrame extends JDialog implements ActionListener {
 
     // Bei Status-Änderungen durch Admin ggf. Benachrichtigung an Bootswarte (und Admins)
     if (_status != orgStatus) {
-      if (Daten.efaConfig != null && Daten.nachrichten != null) {
+      if (Daten.nachrichten != null) {
         String txt = International.getMessage("Der Status des Bootes {boatname} wurde von {name} geändert.",
                                               name,(admin.name != null ? admin.name : International.getString("Mitglied")))+ " " +
                      International.getString("alter Status") + ": " + BootStatus.getStatusName(orgStatus) + "; " +
                      International.getString("neuer Status") + ": " + BootStatus.getStatusName(_status);
-        if (Daten.efaConfig.efaDirekt_bnrBootsstatus_admin) {
+        if (Daten.efaConfig.efaDirekt_bnrBootsstatus_admin.getValue()) {
           Daten.nachrichten.createNachricht(Daten.EFA_SHORTNAME,Nachricht.ADMIN,
                   International.getString("Bootsstatus-Änderung"),txt);
         }
-        if (Daten.efaConfig.efaDirekt_bnrBootsstatus_bootswart) {
+        if (Daten.efaConfig.efaDirekt_bnrBootsstatus_bootswart.getValue()) {
           Daten.nachrichten.createNachricht(Daten.EFA_SHORTNAME,Nachricht.BOOTSWART,
                   International.getString("Bootsstatus-Änderung"),txt);
         }
@@ -534,7 +534,8 @@ public class BootStatusFrame extends JDialog implements ActionListener {
   }
 
   void addResButton_actionPerformed(ActionEvent e) {
-    if (admin == null && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch) return;
+    if (admin == null && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue() &&
+       !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch.getValue()) return;
     ReservierungenEditFrame dlg = new ReservierungenEditFrame(this,admin != null,boot.get(BootStatus.NAME),null,-1,BootStatus.getReservierungen(this.boot));
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(true);
@@ -542,7 +543,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
   }
 
   void editResButton_actionPerformed(ActionEvent e) {
-    if (admin == null && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierungenEditieren) return;
+    if (admin == null && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierungenEditieren.getValue()) return;
     if (reservierungen.getSelectedRow()<0) {
       Dialog.error(International.getString("Bitte wähle zunächst eine Reservierung aus!"));
       return;
@@ -550,8 +551,8 @@ public class BootStatusFrame extends JDialog implements ActionListener {
     try {
       Reservierung res = (Reservierung)BootStatus.getReservierungen(this.boot).get(reservierungen.getSelectedRow());
       if ( admin == null &&
-           ((res.einmalig && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren) ||
-            (!res.einmalig && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch) )) {
+           ((res.einmalig && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) ||
+            (!res.einmalig && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch.getValue()) )) {
           if (res.einmalig) {
               Dialog.error(International.getString("Du darfst einmalige Reservierungen nicht bearbeiten."));
           } else {
@@ -574,7 +575,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
   }
 
   void delResButton_actionPerformed(ActionEvent e) {
-    if (admin == null && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierungenEditieren) return;
+    if (admin == null && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierungenEditieren.getValue()) return;
     if (reservierungen.getSelectedRow()<0) {
       Dialog.error(International.getString("Bitte wähle zunächst eine Reservierung aus!"));
       return;
@@ -582,8 +583,8 @@ public class BootStatusFrame extends JDialog implements ActionListener {
 
     Reservierung res = (Reservierung)BootStatus.getReservierungen(this.boot).get(reservierungen.getSelectedRow());
     if (admin == null &&
-         ( (res.einmalig && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren) ||
-           (!res.einmalig && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch) )) {
+         ( (res.einmalig && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) ||
+           (!res.einmalig && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch.getValue()) )) {
           if (res.einmalig) {
               Dialog.error(International.getString("Du darfst einmalige Reservierungen nicht bearbeiten."));
           } else {

@@ -313,13 +313,13 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
 
 
   void listAdmins() {
-    if (Daten.efaConfig.admins == null) { cancel(); return; }
-    Object[] k = Daten.efaConfig.admins.keySet().toArray();
+    if (Daten.efaConfig.admins.size() == 0) { cancel(); return; }
+    String[] k = Daten.efaConfig.admins.getKeysArray();
     Arrays.sort(k,0,k.length);
     if (k == null || k.length == 0) { cancel(); return; }
     Vector adminNames = new Vector();
     for (int i=0; i<k.length; i++) {
-      Admin a = (Admin)Daten.efaConfig.admins.get(k[i]);
+      Admin a = Daten.efaConfig.admins.get(k[i]);
       adminNames.add(a.name);
     }
     adminList.setListData(adminNames);
@@ -330,7 +330,7 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
   void showAdmin(String name) {
     Admin admin;
     if (name != null) {
-      admin = (Admin)Daten.efaConfig.admins.get(name);
+      admin = Daten.efaConfig.admins.get(name);
       password.setText(International.getString("verschlüsselt"));
       _password = admin.password;
       neuerEintrag = false;
@@ -364,7 +364,7 @@ public class AdminVerwaltenFrame extends JDialog implements ActionListener {
     statistikErstellenCheckBox.setSelected(admin.allowedStatistikErstellen);
     logdateiAnzeigenCheckBox.setSelected(admin.allowedLogdateiAnzeigen);
     efaBeendenCheckBox.setSelected(admin.allowedEfaBeenden);
-    if (admin.name.equals(EfaConfig.SUPERADMIN)) { // SuperAdmin
+    if (admin.name.equals(Admin.SUPERADMIN)) { // SuperAdmin
       // bestimmte Felder des Super-Admins dürfen nicht verändert werden
       this.name.setEditable(false);
       adminsVerwaltenCheckBox.setEnabled(false);

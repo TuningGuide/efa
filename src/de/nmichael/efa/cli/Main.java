@@ -48,9 +48,9 @@ public class Main extends Program {
         if (stat != null || importFb != null) {
             if (fb == null || fb.equals("efa") || fb.equals("efadirekt")) {
                 if (fb == null || fb.equals("efa")) {
-                    fb = Daten.efaConfig.letzteDatei;
+                    fb = Daten.efaConfig.letzteDatei.getValue();
                 } else if (fb != null && fb.equals("efadirekt")) {
-                    fb = Daten.efaConfig.direkt_letzteDatei;
+                    fb = Daten.efaConfig.direkt_letzteDatei.getValue();
                 }
                 if (fb == null) {
                     Logger.log(Logger.ERROR, Logger.MSG_GENERIC_ERROR, International.getString("Kein Fahrtenbuch ausgewählt"));

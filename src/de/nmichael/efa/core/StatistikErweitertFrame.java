@@ -668,8 +668,7 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
   }
 
   void nurBemerk_keyPressed(KeyEvent e) {
-    if (Daten.efaConfig != null && Daten.efaConfig.keys != null) {
-      Object[] k = Daten.efaConfig.keys.keySet().toArray();
+      String[] k = Daten.efaConfig.keys.getKeysArray();
       if (k != null && k.length>0) {
         for (int i=0; i<k.length; i++) {
           if (((String)k[i]).equals("F6")  && e.getKeyCode() == KeyEvent.VK_F6  && Daten.efaConfig.keys.get(k[i]) != null) nurBemerk.setText(nurBemerk.getText()+Daten.efaConfig.keys.get(k[i]));
@@ -681,12 +680,10 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
           if (((String)k[i]).equals("F12") && e.getKeyCode() == KeyEvent.VK_F12 && Daten.efaConfig.keys.get(k[i]) != null) nurBemerk.setText(nurBemerk.getText()+Daten.efaConfig.keys.get(k[i]));
         }
       }
-    }
   }
 
   void nurBemerkNicht_keyPressed(KeyEvent e) {
-    if (Daten.efaConfig != null && Daten.efaConfig.keys != null) {
-      Object[] k = Daten.efaConfig.keys.keySet().toArray();
+      String[] k = Daten.efaConfig.keys.getKeysArray();
       if (k != null && k.length>0) {
         for (int i=0; i<k.length; i++) {
           if (((String)k[i]).equals("F6")  && e.getKeyCode() == KeyEvent.VK_F6  && Daten.efaConfig.keys.get(k[i]) != null) nurBemerkNicht.setText(nurBemerkNicht.getText()+Daten.efaConfig.keys.get(k[i]));
@@ -698,7 +695,6 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
           if (((String)k[i]).equals("F12") && e.getKeyCode() == KeyEvent.VK_F12 && Daten.efaConfig.keys.get(k[i]) != null) nurBemerkNicht.setText(nurBemerkNicht.getText()+Daten.efaConfig.keys.get(k[i]));
         }
       }
-    }
   }
 
   void wettChanged(JComboBox wett, JTextField wettjahr) {
@@ -819,7 +815,7 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
   }
 
   void gruppe_focusLost(FocusEvent e) {
-    if (Daten.efaConfig != null && Daten.efaConfig.popupComplete) AutoCompletePopupWindow.hideWindow();
+    if (Daten.efaConfig.popupComplete.getValue()) AutoCompletePopupWindow.hideWindow();
   }
 
 }

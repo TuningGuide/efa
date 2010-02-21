@@ -233,8 +233,8 @@ public class NachrichtenAnAdmin extends DatenListe {
       errorCount=0; // reset errorCount upon first successful write
     }
 
-    if (Daten.efaConfig != null && Daten.efaConfig.admins != null) {
-      n.sendEmail(Daten.efaConfig.admins);
+    if (Daten.efaConfig.admins.size() > 0) {
+      n.sendEmail(Daten.efaConfig.admins.getKeysArray());
     }
 
     return success;

@@ -3170,11 +3170,11 @@ public class StatistikFrame extends JDialog implements ActionListener {
   }
 
   void nurName_focusLost(FocusEvent e) {
-    if (Daten.efaConfig != null && Daten.efaConfig.popupComplete) AutoCompletePopupWindow.hideWindow();
+    if (Daten.efaConfig.popupComplete.getValue()) AutoCompletePopupWindow.hideWindow();
   }
 
   void mNurBoot_focusLost(FocusEvent e) {
-    if (Daten.efaConfig != null && Daten.efaConfig.popupComplete) AutoCompletePopupWindow.hideWindow();
+    if (Daten.efaConfig.popupComplete.getValue()) AutoCompletePopupWindow.hideWindow();
   }
 
 

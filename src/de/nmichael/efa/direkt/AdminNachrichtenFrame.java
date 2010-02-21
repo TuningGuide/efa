@@ -63,8 +63,8 @@ public class AdminNachrichtenFrame extends JDialog implements ActionListener {
     this.nachrichten = nachrichten;
     this.admin = admin;
     nurUngelesenCheckBox.setSelected(true);
-    deleteButton.setVisible(admin.name.equals(EfaConfig.SUPERADMIN));
-    deleteAllButton.setVisible(admin.name.equals(EfaConfig.SUPERADMIN));
+    deleteButton.setVisible(admin.name.equals(Admin.SUPERADMIN));
+    deleteAllButton.setVisible(admin.name.equals(Admin.SUPERADMIN));
     zeigeNachrichten();
   }
 

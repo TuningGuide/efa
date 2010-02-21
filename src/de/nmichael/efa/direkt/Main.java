@@ -33,9 +33,7 @@ public class Main extends Program {
 
         // Schriftgröße
         try {
-            if (Daten.efaConfig.efaDirekt_fontSize != 0 || Daten.efaConfig.efaDirekt_fontStyle != -1) {
-                Dialog.setGlobalFontSize(Daten.efaConfig.efaDirekt_fontSize, Daten.efaConfig.efaDirekt_fontStyle);
-            }
+            Dialog.setGlobalFontSize(Daten.efaConfig.efaDirekt_fontSize.getValue(), Daten.efaConfig.efaDirekt_fontStyle.getValue());
         } catch (Exception e) {
             Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTSETFONTSIZE,
                     International.getString("Schriftgröße konnte nicht geändert werden") + ": " + e.toString());

@@ -230,7 +230,7 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 10), 0, 0));
 
 
-   if (Daten.efaConfig != null && !Daten.efaConfig.showBerlinOptions) {
+   if (!Daten.efaConfig.showBerlinOptions.getValue()) {
      this.bereich.setVisible(false);
      this.bereichLabel.setVisible(false);
      this.stegziel.setVisible(false);
@@ -304,12 +304,12 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
       return;
     }
 
-    if (Daten.efaConfig != null && Daten.efaConfig.showBerlinOptions) {
+    if (Daten.efaConfig.showBerlinOptions.getValue()) {
       if (new ZielfahrtFolge(bereich.getText()).getAnzZielfahrten() > 1 && stegziel.isSelected()) {
         // no need to translate!
         Dialog.error("Die Eigenschaft 'Start und Ziel ist eigenes Bootshaus' ist nur für "+
                      "eintägige Fahrten gedacht. Du hast aber Zielbereiche für mehrere Tage "+
-                     "(getrennt durch '"+Daten.efaConfig.zielfahrtSeparatorFahrten+"') eingegeben.\n"+
+                     "(getrennt durch '"+Daten.efaConfig.zielfahrtSeparatorFahrten.getValue()+"') eingegeben.\n"+
                      "Bitte deaktiviere die Option 'Start und Ziel ist eigenes Bootshaus'.");
         stegziel.requestFocus();
         return;
@@ -432,9 +432,10 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
     String s = bereich.getText().trim();
 
     // Eingabekorrektur, falls noch aus Gewohnheit der alte Trenner "/" eingegeben wurde
-    if (Daten.efaConfig != null && Daten.efaConfig.zielfahrtSeparatorFahrten != null &&
-        Daten.efaConfig.zielfahrtSeparatorFahrten.length() == 1 &&
-        !Daten.efaConfig.zielfahrtSeparatorFahrten.equals("/")) s = EfaUtil.replace(s,"/",Daten.efaConfig.zielfahrtSeparatorFahrten,true);
+    if (Daten.efaConfig.zielfahrtSeparatorFahrten.getValue().length() == 1 &&
+        !Daten.efaConfig.zielfahrtSeparatorFahrten.getValue().equals("/")) {
+        s = EfaUtil.replace(s,"/",Daten.efaConfig.zielfahrtSeparatorFahrten.getValue(),true);
+    }
     if (kilometer()<Daten.ZIELFAHRTKM) bereich.setText(""); // nur Zielfahrten mit >= 20 Km zulassen
     bereich.setText(new ZielfahrtFolge(s).toString());
     if (new ZielfahrtFolge(bereich.getText()).getAnzZielfahrten() > 1) this.stegziel.setSelected(false);

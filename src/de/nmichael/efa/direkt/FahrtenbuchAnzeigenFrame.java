@@ -137,12 +137,12 @@ public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener 
       e.printStackTrace();
     }
     pack();
-    if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_startMaximized) {
+    if (Daten.efaConfig.efaDirekt_startMaximized.getValue()) {
       this.setSize(Dialog.screenSize.width,Dialog.screenSize.height);
     } else {
       this.setSize((Dialog.screenSize.width*98)/100,(Dialog.screenSize.height*95)/100);
     }
-    if (Daten.efaConfig != null) auchUnvollstaendige.setSelected(Daten.efaConfig.efaDirekt_FBAnzeigenAuchUnvollstaendige);
+    auchUnvollstaendige.setSelected(Daten.efaConfig.efaDirekt_FBAnzeigenAuchUnvollstaendige.getValue());
     showFahrten(getAnzahlFromField());
     tableRequestFocus();
 
@@ -185,8 +185,12 @@ public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener 
       jLabel1.setLabelFor(anzahl);
       anzahl.setNextFocusableComponent(auchUnvollstaendige);
       Dialog.setPreferredSize(anzahl,50,17);
-      if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_anzFBAnzeigenFahrten > 0) anz = Daten.efaConfig.efaDirekt_anzFBAnzeigenFahrten;
-      if (Daten.efaConfig != null && anz > Daten.efaConfig.efaDirekt_maxFBAnzeigenFahrten) anz = Daten.efaConfig.efaDirekt_maxFBAnzeigenFahrten;
+      if (Daten.efaConfig.efaDirekt_anzFBAnzeigenFahrten.getValue() > 0) {
+          anz = Daten.efaConfig.efaDirekt_anzFBAnzeigenFahrten.getValue();
+      }
+      if (anz > Daten.efaConfig.efaDirekt_maxFBAnzeigenFahrten.getValue()) {
+          anz = Daten.efaConfig.efaDirekt_maxFBAnzeigenFahrten.getValue();
+      }
       anzahl.setText(Integer.toString(anz));
       anzahl.addKeyListener(new java.awt.event.KeyAdapter() {
         public void keyReleased(KeyEvent e) {
@@ -390,8 +394,8 @@ public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener 
 
   int getAnzahlFromField() {
     int anz = Math.abs(EfaUtil.string2int(anzahl.getText().trim(),1));
-    if (Daten.efaConfig != null && anz > Daten.efaConfig.efaDirekt_maxFBAnzeigenFahrten) {
-      anz = Daten.efaConfig.efaDirekt_maxFBAnzeigenFahrten;
+    if (anz > Daten.efaConfig.efaDirekt_maxFBAnzeigenFahrten.getValue()) {
+      anz = Daten.efaConfig.efaDirekt_maxFBAnzeigenFahrten.getValue();
       anzahl.setText(Integer.toString(anz));
     }
     return anz;

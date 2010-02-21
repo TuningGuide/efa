@@ -29,10 +29,15 @@ public class ConfigTypeTime extends ConfigTypeLabelValue {
 
     public void parseValue(String value) {
         try {
+            if (value != null && value.trim().length()>0) {
+                value = EfaUtil.correctTime(value,true);
+            }
             this.value = TMJ.parseTMJ(value);
         } catch (Exception e) {
-            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
-                       "EfaConfig: Invalid value for parameter "+name+": "+value);
+            if (efaConfigFrame == null) {
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
+                           "EfaConfig: Invalid value for parameter "+name+": "+value);
+            }
         }
     }
 
@@ -43,5 +48,60 @@ public class ConfigTypeTime extends ConfigTypeLabelValue {
         return EfaUtil.int2String(value.tag,2) + ":" + EfaUtil.int2String(value.monat,2) + ":" + EfaUtil.int2String(value.jahr,2);
     }
 
+    public boolean isSet() {
+        return value.tag != -1 && value.monat != -1 && value.jahr != -1;
+    }
+
+    public int getValueHour() {
+        return value.tag;
+    }
+
+    public int getValueMinute() {
+        return value.monat;
+    }
+
+    public int getValueSecond() {
+        return value.jahr;
+    }
+
+    public TMJ getTime() {
+        return new TMJ(value.tag, value.monat, value.jahr);
+    }
+
+    public void setValueHour(int hour) {
+        if (hour < 0) {
+            hour = 0;
+        }
+        if (hour > 23) {
+            hour = 23;
+        }
+        value.tag = hour;
+    }
+
+    public void setValueMinute(int minute) {
+        if (minute < 0) {
+            minute = 0;
+        }
+        if (minute > 59) {
+            minute = 59;
+        }
+        value.monat = minute;
+    }
+
+    public void setValueSecond(int second) {
+        if (second < 0) {
+            second = 0;
+        }
+        if (second > 59) {
+            second = 59;
+        }
+        value.jahr = second;
+    }
+
+    public void unset() {
+        value.tag = -1;
+        value.monat = -1;
+        value.jahr = -1;
+    }
 
 }

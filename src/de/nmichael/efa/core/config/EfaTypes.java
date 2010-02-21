@@ -88,10 +88,29 @@ public class EfaTypes extends DatenListe {
     private Vector<String> categories;
     private Hashtable<String,Vector<EfaType>> values;
 
-    // Construktor
+    // Default Construktor
     public EfaTypes(String pdat) {
         super(pdat,0,0,false);
         kennung = KENNUNG190;
+        iniCategories();
+    }
+
+    // Copy Constructor
+    public EfaTypes(EfaTypes efaTypes) {
+        super(efaTypes.getFileName(),0,0,false);
+        kennung = efaTypes.kennung;
+        iniCategories();
+        reset();
+        for (int c=0; c<categories.size(); c++) {
+            Vector<EfaType> types = efaTypes.getItems(categories.get(c));
+            for (int i=0; i<types.size(); i++) {
+                EfaType type = types.get(i);
+                setValue(type.category, type.type, type.value);
+            }
+        }
+    }
+
+    private void iniCategories() {
         categories = new Vector<String>();
         categories.add(CATEGORY_GENDER);
         categories.add(CATEGORY_BOAT);
@@ -101,6 +120,7 @@ public class EfaTypes extends DatenListe {
         categories.add(CATEGORY_SESSION);
         categories.add(CATEGORY_STATUS);
     }
+
 
     private void reset() {
         values = new Hashtable<String,Vector<EfaType>>();
@@ -130,6 +150,20 @@ public class EfaTypes extends DatenListe {
         }
 
         values.put(cat, types);
+    }
+
+    public void removeValue(String cat, String typ) {
+        if (!isConfigured(cat, typ)) {
+            return;
+        }
+        Vector<EfaType> types = values.get(cat);
+        for (int i=0; i<types.size(); i++) {
+            EfaType t = types.get(i);
+            if (typ.equals(t.type)) {
+                types.remove(t);
+                return;
+            }
+        }
     }
 
     public boolean isConfigured(String cat, String typ) {
@@ -221,6 +255,18 @@ public class EfaTypes extends DatenListe {
             return 0;
         }
         return types.size();
+    }
+
+    public String[] getTypesArray(String cat) {
+        Vector<EfaType> types = getItems(cat);
+        if (types == null) {
+            return new String[0];
+        }
+        String[] a = new String[types.size()];
+        for (int i=0; i<types.size(); i++) {
+            a[i] = types.get(i).type;
+        }
+        return a;
     }
 
     public String[] getValueArray(String cat) {

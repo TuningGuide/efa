@@ -260,12 +260,12 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
     wochentagList.addItem(International.getString("Sonntag"));
 
     if (!admin && Daten.efaConfig != null) {
-      if (!Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren ||
-          !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch) {
+      if (!Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue() ||
+          !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch.getValue()) {
         this.resEinmalig.setEnabled(false);
         this.resZyklisch.setEnabled(false);
-        this.resEinmalig.setSelected(Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren);
-        this.resZyklisch.setSelected(Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch);
+        this.resEinmalig.setSelected(Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue());
+        this.resZyklisch.setSelected(Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch.getValue());
       }
     }
 
@@ -318,7 +318,7 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
   }
 
   void name_focusLost(FocusEvent e) {
-    if (Daten.efaConfig != null && Daten.efaConfig.popupComplete) AutoCompletePopupWindow.hideWindow();
+    if (Daten.efaConfig.popupComplete.getValue()) AutoCompletePopupWindow.hideWindow();
   }
 
   boolean validateNotEmpty(JTextField field, String name) {

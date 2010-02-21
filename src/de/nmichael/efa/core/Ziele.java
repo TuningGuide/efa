@@ -129,10 +129,9 @@ public class Ziele extends DatenListe {
               s = s.trim();
               if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
               DatenFelder d = constructFields(s);
-              if (Daten.efaConfig != null && Daten.efaConfig.zielfahrtSeparatorFahrten != null &&
-                  Daten.efaConfig.zielfahrtSeparatorFahrten.length() == 1 &&
-                  !Daten.efaConfig.zielfahrtSeparatorFahrten.equals("/")) {
-                d.set(BEREICH,EfaUtil.replace(d.get(BEREICH),"/",Daten.efaConfig.zielfahrtSeparatorFahrten,true));
+              if (Daten.efaConfig.zielfahrtSeparatorFahrten.getValue().length() == 1 &&
+                  !Daten.efaConfig.zielfahrtSeparatorFahrten.getValue().equals("/")) {
+                d.set(BEREICH,EfaUtil.replace(d.get(BEREICH),"/",Daten.efaConfig.zielfahrtSeparatorFahrten.getValue(),true));
               }
               add(d);
             }
@@ -189,9 +188,8 @@ public class Ziele extends DatenListe {
   // Einträge auf Gültigkeit prüfen
   public void validateValues(DatenFelder d) {
     d.set(KM,EfaUtil.zehntelInt2String(EfaUtil.zehntelString2Int(d.get(KM))));
-    if (Daten.efaConfig != null && Daten.efaConfig.zielfahrtSeparatorFahrten != null &&
-        Daten.efaConfig.zielfahrtSeparatorFahrten.length() == 1 &&
-        d.get(BEREICH).indexOf(Daten.efaConfig.zielfahrtSeparatorFahrten)>=0) d.set(STEGZIEL,"-");
+    if (Daten.efaConfig.zielfahrtSeparatorFahrten.getValue().length() == 1 &&
+        d.get(BEREICH).indexOf(Daten.efaConfig.zielfahrtSeparatorFahrten.getValue())>=0) d.set(STEGZIEL,"-");
   }
 
 

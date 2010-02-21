@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.gui.EfaConfigFrame;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -125,12 +126,10 @@ public class AdminFrame extends JDialog implements ActionListener {
         default: nachrichtenButton.setIcon(null);
       }
 
-      if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_autoNewFb_datei != null &&
-          Daten.efaConfig.efaDirekt_autoNewFb_datei.length()>0 &&
-          Daten.efaConfig.efaDirekt_autoNewFb_datum != null) {
-        autoNewFbLabel.setText(Daten.efaConfig.efaDirekt_autoNewFb_datum.tag+"."+
-                               Daten.efaConfig.efaDirekt_autoNewFb_datum.monat+"."+Daten.efaConfig.efaDirekt_autoNewFb_datum.jahr+": "+
-                               Daten.efaConfig.efaDirekt_autoNewFb_datei);
+      if (Daten.efaConfig.efaDirekt_autoNewFb_datei.getValue().length()>0 &&
+          Daten.efaConfig.efaDirekt_autoNewFb_datum.isSet()) {
+        autoNewFbLabel.setText(Daten.efaConfig.efaDirekt_autoNewFb_datum.toString()+": "+
+                               Daten.efaConfig.efaDirekt_autoNewFb_datei.getValue());
       } else {
         autoNewFbLabel.setText("");
       }
@@ -348,11 +347,11 @@ public class AdminFrame extends JDialog implements ActionListener {
       this.parent.efaDirektBackgroundTask.interrupt();
       this.parent.setButtonsLookAndFeel();
       this.parent.updateUnreadMessages();
-      this.parent.uhr.setVisible(Daten.efaConfig.efaDirekt_showUhr);
-      if (!this.parent.sunrisePanel.isVisible() && Daten.efaConfig.efaDirekt_sunRiseSet_show) {
+      this.parent.uhr.setVisible(Daten.efaConfig.efaDirekt_showUhr.getValue());
+      if (!this.parent.sunrisePanel.isVisible() && Daten.efaConfig.efaDirekt_sunRiseSet_show.getValue()) {
         this.parent.efaUhrUpdater.updateSunriseNow();
       }
-      this.parent.sunrisePanel.setVisible(Daten.efaConfig.efaDirekt_sunRiseSet_show);
+      this.parent.sunrisePanel.setVisible(Daten.efaConfig.efaDirekt_sunRiseSet_show.getValue());
       this.parent.updateNews();
       this.parent.efaFrame.updateMannschaftenAndShowButton();
       this.parent.setEnabled(true);
@@ -465,7 +464,7 @@ public class AdminFrame extends JDialog implements ActionListener {
         return;
     }
     if (dat == null || dat.length()==0) return;
-    Daten.efaConfig.direkt_letzteDatei = dat;
+    Daten.efaConfig.direkt_letzteDatei.setValue(dat);
     if (!Daten.efaConfig.writeFile()) {
       Dialog.error(LogString.logstring_fileWritingFailed(Daten.efaConfig.getFileName(), International.getString("Konfigurationsdatei")));
       LogString.logError_fileWritingFailed(Daten.efaConfig.getFileName(), International.getString("Konfigurationsdatei"));
@@ -557,8 +556,8 @@ public class AdminFrame extends JDialog implements ActionListener {
     dlg.show();
 
     if (parent != null && parent.efaFrame != null && Daten.efaConfig != null) {
-      parent.efaFrame.obmannLabel.setVisible(Daten.efaConfig.showObmann);
-      parent.efaFrame.obmann.setVisible(Daten.efaConfig.showObmann);
+      parent.efaFrame.obmannLabel.setVisible(Daten.efaConfig.showObmann.getValue());
+      parent.efaFrame.obmann.setVisible(Daten.efaConfig.showObmann.getValue());
     }
 
   }
@@ -675,12 +674,12 @@ public class AdminFrame extends JDialog implements ActionListener {
     dlg.setModal(!Dialog.tourRunning);
     dlg.show();
     if (Daten.efaConfig != null) {
-      if (Daten.efaConfig.efaDirekt_locked) {
+      if (Daten.efaConfig.efaDirekt_locked.getValue()) {
         cancel();
         parent.lockEfa();
       } else {
         // efaBackgroundTask updaten (auch, falls Datum == null)
-        parent.lockEfaAt(Daten.efaConfig.efaDirekt_lockEfaFromDatum,Daten.efaConfig.efaDirekt_lockEfaFromZeit);
+        parent.lockEfaAt(Daten.efaConfig.efaDirekt_lockEfaFromDatum.getDate(),Daten.efaConfig.efaDirekt_lockEfaFromZeit.getTime());
       }
     }
   }
@@ -691,14 +690,14 @@ public class AdminFrame extends JDialog implements ActionListener {
       return;
     }
     String cmd = Dialog.inputDialog(International.getString("Betriebssystemkommando ausführen"),
-            International.getString("Betriebssystemkommando")+":",Daten.efaConfig.efadirekt_adminLastOsCommand);
+            International.getString("Betriebssystemkommando")+":",Daten.efaConfig.efadirekt_adminLastOsCommand.getValue());
     if (cmd == null || cmd.length()==0) {
       return;
     }
     try {
       logAction(Logger.MSG_ADMIN_ACTION_EXECCMD,International.getString("Starte Kommando")+": "+cmd);
       Runtime.getRuntime().exec(cmd);
-      Daten.efaConfig.efadirekt_adminLastOsCommand = cmd;
+      Daten.efaConfig.efadirekt_adminLastOsCommand.setValue(cmd);
     } catch(Exception ee) {
       Logger.log(Logger.ERROR,Logger.MSG_ADMIN_ACTION_EXECCMDFAILED,
               International.getString("Admin")+": "+

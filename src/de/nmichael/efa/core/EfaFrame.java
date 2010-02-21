@@ -13,6 +13,8 @@ package de.nmichael.efa.core;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.core.config.*;
+import de.nmichael.efa.core.config.EfaConfig;
+import de.nmichael.efa.gui.EfaConfigFrame;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -213,8 +215,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     try {
       iniFrameData();
       jbInit();
-      infoLabel.setVisible(Daten.efaConfig != null && Daten.efaConfig.efaDirekt_showEingabeInfos);
-      bootsschadenButton.setVisible(Daten.efaConfig != null && Daten.efaConfig.efaDirekt_showBootsschadenButton);
+      infoLabel.setVisible(Daten.efaConfig.efaDirekt_showEingabeInfos.getValue());
+      bootsschadenButton.setVisible(Daten.efaConfig.efaDirekt_showBootsschadenButton.getValue());
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -227,7 +229,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     this.efaButton.setVisible(false);
 
     // bei entspr. Einstellung Obmann-Auswahlliste ausblenden
-    if (Daten.efaConfig != null && !Daten.efaConfig.showObmann) {
+    if (!Daten.efaConfig.showObmann.getValue()) {
       this.obmannLabel.setVisible(false);
       this.obmann.setVisible(false);
     }
@@ -1372,7 +1374,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       else anf = feld.getText().toLowerCase();
 
       if (e != null && e.getKeyCode() == KeyEvent.VK_DOWN) {
-        if (withPopup && Daten.efaConfig != null && Daten.efaConfig.popupComplete && AutoCompletePopupWindow.isShowingAt(feld)) {
+        if (withPopup && Daten.efaConfig.popupComplete.getValue() && AutoCompletePopupWindow.isShowingAt(feld)) {
           ges = liste.getNext();
         } else {
           ges = liste.getNext(anf);
@@ -1410,14 +1412,14 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       } else {
         if (button != null) setButtonColor(button,Color.red);
       }
-      if (withPopup && Daten.efaConfig != null && Daten.efaConfig.popupComplete && e != null) AutoCompletePopupWindow.showAndSelect((JTextField)feld,liste,(ges != null ? ges : ""),efaFrame);
+      if (withPopup && Daten.efaConfig.popupComplete.getValue() && e != null) AutoCompletePopupWindow.showAndSelect((JTextField)feld,liste,(ges != null ? ges : ""),efaFrame);
     }
 
     if (variante == 2) {
       if (feld.getSelectedText() != null)
         anf = feld.getText().toLowerCase().substring(0,feld.getSelectionStart());
       else anf = feld.getText().toLowerCase();
-      if (withPopup && Daten.efaConfig != null && Daten.efaConfig.popupComplete && AutoCompletePopupWindow.isShowingAt(feld)) {
+      if (withPopup && Daten.efaConfig.popupComplete.getValue() && AutoCompletePopupWindow.isShowingAt(feld)) {
         ges = liste.getPrev();
       } else {
         ges = liste.getPrev(anf);
@@ -1432,7 +1434,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       } else {
         if (button != null) setButtonColor(button,Color.red);
       }
-      if (withPopup && Daten.efaConfig != null && Daten.efaConfig.popupComplete) AutoCompletePopupWindow.showAndSelect((JTextField)feld,liste,(ges != null ? ges : ""),efaFrame);
+      if (withPopup && Daten.efaConfig.popupComplete.getValue()) AutoCompletePopupWindow.showAndSelect((JTextField)feld,liste,(ges != null ? ges : ""),efaFrame);
     }
     if (variante == 3) {
       if ( (ges = liste.getFirst(feld.getText().toLowerCase().trim())) == null ||
@@ -1442,10 +1444,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     }
     if (variante == 4) {
       feld.select(-1,-1);
-      if (withPopup && Daten.efaConfig != null && Daten.efaConfig.popupComplete) AutoCompletePopupWindow.hideWindow();
+      if (withPopup && Daten.efaConfig.popupComplete.getValue()) AutoCompletePopupWindow.hideWindow();
     }
     if (variante == 5) {
-      if (withPopup && Daten.efaConfig != null && Daten.efaConfig.popupComplete) AutoCompletePopupWindow.hideWindow();
+      if (withPopup && Daten.efaConfig.popupComplete.getValue()) AutoCompletePopupWindow.hideWindow();
     }
     if (feld.getText().equals("") && button != null) setButtonColor(button,Color.lightGray);
 
@@ -1571,8 +1573,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   void bemerk_keyPressed(KeyEvent e) {
     insetLastValue(e,Fahrtenbuch.BEMERK,null,null);
 
-    if (e != null && this.getFocusOwner() == this.bemerk && Daten.efaConfig != null && Daten.efaConfig.keys != null) {
-      Object[] k = Daten.efaConfig.keys.keySet().toArray();
+    if (e != null && this.getFocusOwner() == this.bemerk) {
+      String[] k = Daten.efaConfig.keys.getKeysArray();
       if (k != null && k.length>0) {
         for (int i=0; i<k.length; i++) {
           if (((String)k[i]).equals("F6")  && e.getKeyCode() == KeyEvent.VK_F6  && Daten.efaConfig.keys.get(k[i]) != null) { bemerk.setText(bemerk.getText()+Daten.efaConfig.keys.get(k[i])); datensatzGeaendert = true; }
@@ -1588,19 +1590,19 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   }
 
   void stm_focusLost(FocusEvent e) {
-    if (Daten.efaConfig != null && Daten.efaConfig.popupComplete) AutoCompletePopupWindow.hideWindow();
-    if (Daten.efaConfig != null && Daten.efaConfig.autoObmann && neuerDatensatz &&
+    if (Daten.efaConfig.popupComplete.getValue()) AutoCompletePopupWindow.hideWindow();
+    if (Daten.efaConfig.autoObmann.getValue() && neuerDatensatz &&
         stm.getText().trim().length()>0 && getObmann()==-1) setObmann(0,true);
   }
   void mannsch1_focusLost(FocusEvent e) {
-    if (Daten.efaConfig != null && Daten.efaConfig.autoObmann && neuerDatensatz && e != null && getObmann()==-1) {
-      if (Daten.efaConfig.defaultObmann == EfaConfig.OBMANN_NR1 && e.getSource() == mannsch[0] && mannsch[0].getText().trim().length()>0) {
+    if (Daten.efaConfig.autoObmann.getValue() && neuerDatensatz && e != null && getObmann()==-1) {
+      if (Daten.efaConfig.defaultObmann.getValue().equals(EfaConfig.OBMANN_BOW) && e.getSource() == mannsch[0] && mannsch[0].getText().trim().length()>0) {
         setObmann(1,true);
       }
     }
   }
   void mannsch_focusLost(FocusEvent e) {
-    if (Daten.efaConfig != null && Daten.efaConfig.popupComplete) AutoCompletePopupWindow.hideWindow();
+    if (Daten.efaConfig.popupComplete.getValue()) AutoCompletePopupWindow.hideWindow();
   }
   void abfahrt_focusGained(FocusEvent e) {
     if (e != null) autoSetObmann();
@@ -1648,9 +1650,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   }
 
   void autoSetObmann() {
-    if (Daten.efaConfig != null && Daten.efaConfig.autoObmann && neuerDatensatz &&
+    if (Daten.efaConfig.autoObmann.getValue() && neuerDatensatz &&
         getObmann() == -1) {
-      if (Daten.efaConfig.defaultObmann == EfaConfig.OBMANN_SCHLAG) {
+      if (Daten.efaConfig.defaultObmann.getValue().equals(EfaConfig.OBMANN_STROKE)) {
         try {
           int anzRud = getAnzahlRuderer();
           if (anzRud > 0)
@@ -1664,8 +1666,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
     // Wenn Angabe eines Obmanns Pflicht ist, soll auch im Einer immer der Obmann automatisch selektiert werden,
     // unabhängig davon, ob Daten.efaConfig.autoObmann aktiviert ist oder nicht
-    if (Daten.efaConfig != null &&
-        Daten.efaConfig.efaDirekt_eintragErzwingeObmann &&
+    if (Daten.efaConfig.efaDirekt_eintragErzwingeObmann.getValue() &&
         neuerDatensatz && getObmann() == -1 &&
         stm.getText().trim().length() == 0 &&
         getAnzahlRuderer() == 1) {
@@ -2339,29 +2340,29 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     // Check auf Tippfehler (Code-Spende von Thilo Coblenzer)
     if (Daten.efaConfig != null) {
       if (mode != MODE_ENDE) {
-        if (Daten.efaConfig.correctMisspelledBoote) {
+        if (Daten.efaConfig.correctMisspelledBoote.getValue()) {
             checkNeighbours(boot,bootButton,Daten.fahrtenbuch.getDaten().boote,
                 International.getString("Boot"),
                 International.getString("Bootsliste"),false);
         }
       }
-      if (Daten.efaConfig.correctMisspelledMitglieder) {
+      if (Daten.efaConfig.correctMisspelledMitglieder.getValue()) {
           checkNeighbours(stm,stmButton,Daten.fahrtenbuch.getDaten().mitglieder,
                   International.getString("Mitglied"),
                   International.getString("Mitgliederliste"),true);
       }
-      if (Daten.efaConfig.correctMisspelledMitglieder) {
+      if (Daten.efaConfig.correctMisspelledMitglieder.getValue()) {
           for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++) {
               checkNeighbours(mannsch[i],mannschButton[i % 8],Daten.fahrtenbuch.getDaten().mitglieder,
                       International.getString("Mitglied"),
                       International.getString("Mitgliederliste"),true);
           }
       }
-      if (Daten.efaConfig.correctMisspelledZiele) {
+      if (Daten.efaConfig.correctMisspelledZiele.getValue()) {
         checkNeighbours(ziel, zielButton, Daten.fahrtenbuch.getDaten().ziele,
                         International.getString("Ziel"),
                         International.getString("Zielliste"), false);
-        if (isDirectMode() && Daten.efaConfig.efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen &&
+        if (isDirectMode() && Daten.efaConfig.efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen.getValue() &&
             ziel.getText().trim().length() > 0) {
           DatenFelder d = Daten.fahrtenbuch.getDaten().ziele.getExactComplete(ziel.getText().trim());
           if (d != null && !bootskm.getText().trim().equals(d.get(Ziele.KM))) {
@@ -2517,7 +2518,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   void neuesMitglied(JTextField feld, JButton button) {
     boolean directMode = false;
     if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) {
-      if (Daten.efaConfig == null || !Daten.efaConfig.efaDirekt_mitgliederDuerfenNamenHinzufuegen) return;
+      if (!Daten.efaConfig.efaDirekt_mitgliederDuerfenNamenHinzufuegen.getValue()) return;
       if (button.getBackground() != Color.red) return; // nur neue Mitglieder hinzufügen, keine Mitglieder bearbeiten!
       directMode = true;
     }
@@ -2659,10 +2660,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     } catch(Exception e) { }
 
-    if (obm == -1 && Daten.efaConfig != null && Daten.efaConfig.autoObmann) {
+    if (obm == -1 && Daten.efaConfig.autoObmann.getValue()) {
       if (stm.getText().trim().length()>0) setObmann(0,true);
-      else if (Daten.efaConfig.defaultObmann == EfaConfig.OBMANN_NR1) setObmann(1,true);
-           else if (Daten.efaConfig.defaultObmann == EfaConfig.OBMANN_SCHLAG) try {
+      else if (Daten.efaConfig.defaultObmann.getValue().equals(EfaConfig.OBMANN_BOW)) setObmann(1,true);
+           else if (Daten.efaConfig.defaultObmann.getValue().equals(EfaConfig.OBMANN_STROKE)) try {
              int anzRud = getAnzahlRuderer();
              if (anzRud > 0) setObmann(anzRud,true);
            } catch(Exception ee) { EfaUtil.foo(); }
@@ -2677,7 +2678,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
   // wird von boot_focusLost aufgerufen, sowie vom FocusManager! (irgendwie unsauber, da bei <Tab> doppelt...
   void boot_focusLostGetBoot() {
-    if (Daten.efaConfig != null && Daten.efaConfig.popupComplete) AutoCompletePopupWindow.hideWindow();
+    if (Daten.efaConfig.popupComplete.getValue()) AutoCompletePopupWindow.hideWindow();
     aktBoot = null;
     if (Daten.fahrtenbuch != null && Daten.fahrtenbuch.getDaten().boote != null && bootButton.getBackground() == Color.green) {
       aktBoot = Daten.fahrtenbuch.getDaten().boote.getExactComplete(boot.getText().trim());
@@ -2692,7 +2693,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     }
     if (aktDatensatz == null && Daten.mannschaften != null &&
-        Daten.efaConfig != null && Daten.efaConfig.autoStandardmannsch &&
+        Daten.efaConfig.autoStandardmannsch.getValue() &&
         boot.getText().trim().length()!=0 &&
         Daten.mannschaften.getExact(boot.getText().trim())!= null) {
       // Bugfix 1.7.1: nur Standardmannschaft eintragen, wenn alle Eingabefelder (Mannschaft und Ziel) noch leer sind
@@ -2714,7 +2715,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
 
   void ziel_focusLost(FocusEvent e) {
-    if (Daten.efaConfig != null && Daten.efaConfig.popupComplete) AutoCompletePopupWindow.hideWindow();
+    if (Daten.efaConfig.popupComplete.getValue()) AutoCompletePopupWindow.hideWindow();
     if (isDirectMode() && ziel.getText().trim().length()>0 && bootskm.getText().trim().length()==0) { altesZiel = ""; setZielKm(); }
   }
 
@@ -2825,9 +2826,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   }
 
   void setFahrtDauerDefault() {
-    if (Daten.efaConfig != null && Daten.efaConfig.standardFahrtart != null && Daten.efaConfig.standardFahrtart.length() > 0 &&
-        Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, Daten.efaConfig.standardFahrtart)) {
-            fahrtDauer.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, Daten.efaConfig.standardFahrtart));
+    if (Daten.efaConfig.standardFahrtart.getValue().length() > 0 &&
+        Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, Daten.efaConfig.standardFahrtart.getValue())) {
+            fahrtDauer.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, Daten.efaConfig.standardFahrtart.getValue()));
     } else {
         if (Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_NORMAL)) {
             fahrtDauer.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_NORMAL));
@@ -2948,9 +2949,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
     if (startOpenFb != null && EfaUtil.canOpenFile(startOpenFb)) {
         fahrtenbuchOeffnen(startOpenFb);
-    } else if (!Daten.efaConfig.letzteDatei.equals("") && EfaUtil.canOpenFile(Daten.efaConfig.letzteDatei)) {
-        fahrtenbuchOeffnen(Daten.efaConfig.letzteDatei);
-    } else if (Daten.efaConfig.letzteDatei.equals("")) {
+    } else if (Daten.efaConfig.letzteDatei.getValue().length() != 0 && EfaUtil.canOpenFile(Daten.efaConfig.letzteDatei.getValue())) {
+        fahrtenbuchOeffnen(Daten.efaConfig.letzteDatei.getValue());
+    } else if (Daten.efaConfig.letzteDatei.getValue().length() == 0) {
         if (Dialog.yesNoDialog(International.getString("Neues Fahrtenbuch erstellen"),
 	    International.getString("Du startest efa heute zum ersten Mal. Möchtest Du ein neues Fahrtenbuch anlegen?")) == Dialog.YES) {
             askForOpenNewFb = true;
@@ -2982,7 +2983,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 */
 
     // bei entspr. Einstellung Obmann-Auswahlliste ausblenden
-    if (Daten.efaConfig != null && !Daten.efaConfig.showObmann) {
+    if (!Daten.efaConfig.showObmann.getValue()) {
       this.obmannLabel.setVisible(false);
       this.obmann.setVisible(false);
     }
@@ -3099,7 +3100,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       Daten.fahrtenbuch.getDaten().mitglieder.getAliases();
     DatenFelder d = (DatenFelder)Daten.fahrtenbuch.getCompleteFirst();
     SetFields(d);
-    if (mode == MODE_FULL) Daten.efaConfig.letzteDatei = datei;
+    if (mode == MODE_FULL) Daten.efaConfig.letzteDatei.setValue(datei);
     lfdNrForNewEntry = -1;
   }
 
@@ -3402,7 +3403,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       if (unter && success) {
         if (Dialog.yesNoDialog(International.getString("Fahrtenbuch öffnen") + "?",
                                International.getMessage("Soll das soeben gespeicherte Fahrtenbuch '{filename}' jetzt benutzt werden?",Daten.fahrtenbuch.getFileName())) == Dialog.YES) {
-          if (mode == MODE_FULL) Daten.efaConfig.letzteDatei = Daten.fahrtenbuch.getFileName();
+          if (mode == MODE_FULL) Daten.efaConfig.letzteDatei.setValue(Daten.fahrtenbuch.getFileName());
           this.setTitle(Daten.EFA_SHORTNAME + " - " + Daten.fahrtenbuch.getFileName());
         } else {
           // ursprüngliches Fahrtenbuch wieder laden
@@ -3733,7 +3734,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     SetBlankFields();
     lfdnr.setText("1");
     this.setTitle(Daten.EFA_SHORTNAME + " - " + Daten.fahrtenbuch.getFileName());
-    if (mode == MODE_FULL) Daten.efaConfig.letzteDatei = Daten.fahrtenbuch.getFileName();
+    if (mode == MODE_FULL) Daten.efaConfig.letzteDatei.setValue(Daten.fahrtenbuch.getFileName());
     getAllFahrtDauer();
     if (Daten.fahrtenbuch != null && Daten.fahrtenbuch.getDaten().mitglieder != null)
       Daten.fahrtenbuch.getDaten().mitglieder.getAliases();
@@ -3812,8 +3813,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   }
 
   private void showEfaFrame(Component focusComponent) {
-    if (Daten.efaConfig != null && infoLabel.isVisible() != Daten.efaConfig.efaDirekt_showEingabeInfos) {
-      infoLabel.setVisible(Daten.efaConfig.efaDirekt_showEingabeInfos);
+    if (infoLabel.isVisible() != Daten.efaConfig.efaDirekt_showEingabeInfos.getValue()) {
+      infoLabel.setVisible(Daten.efaConfig.efaDirekt_showEingabeInfos.getValue());
       packFrame("showEfaFrame()");
     }
     setFixedLocation(-1,-1);
@@ -3868,7 +3869,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         return; // Zielabhängiges Enabled der BootsKm nur bei "Fahrt beenden" und "Nachtrag"
     }
     boolean enabled = !(zielButton.getBackground() == Color.green) ||
-            Daten.efaConfig == null || !Daten.efaConfig.efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen;
+            !Daten.efaConfig.efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen.getValue();
     setFieldEnabled(enabled,bootskm,bootskmLabel);
   }
 
@@ -3885,7 +3886,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       stm.setText("");
       if (getObmann() == 0) setObmann(-1,true);
     }
-    if (Daten.efaConfig != null && Daten.efaConfig.efaDirekt_eintragErlaubeNurMaxRudererzahl) {
+    if (Daten.efaConfig.efaDirekt_eintragErlaubeNurMaxRudererzahl.getValue()) {
       for (int i=1; i<=Fahrtenbuch.ANZ_MANNSCH; i++) {
         JLabel label = null;
         if (i > (mannschAuswahl*8) && i <= ((mannschAuswahl+1)*8)) {
@@ -3936,14 +3937,14 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     setDateFromRefDate();
     if (boot != null) this.boot.setText(boot);
     vervollstaendige(this.boot,bootButton,Daten.fahrtenbuch.getDaten().boote,null,this,false);
-    setTime(abfahrt,Daten.efaConfig.efaDirekt_plusMinutenAbfahrt);
+    setTime(abfahrt,Daten.efaConfig.efaDirekt_plusMinutenAbfahrt.getValue());
     Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Fahrt beginnen"));
 
     setFieldEnabled(false,lfdnr,lfdnrLabel);
     setFieldEnabled(true ,datum,datumLabel);
     setFieldEnabled(boot == null,this.boot,bootLabel);
     setFieldEnabled(true,stm,stmLabel);
-    if (Daten.efaConfig.efaDirekt_eintragNichtAenderbarUhrzeit) {
+    if (Daten.efaConfig.efaDirekt_eintragNichtAenderbarUhrzeit.getValue()) {
       setFieldEnabled(false,abfahrt,abfahrtLabel);
       setFieldEnabled(false,ankunft,ankunftLabel);
     } else {
@@ -3957,7 +3958,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (boot != null) {
       DatenFelder d = Daten.fahrtenbuch.getDaten().boote.getExactComplete(boot);
       setFieldEnabledStmUndMannsch(d);
-      if (Daten.mannschaften != null && Daten.efaConfig != null && Daten.efaConfig.autoStandardmannsch &&
+      if (Daten.mannschaften != null && Daten.efaConfig.autoStandardmannsch.getValue() &&
           boot.length()!=0 &&
           Daten.mannschaften.getExact(boot)!= null) {
         setStandardMannschaft((DatenFelder)Daten.mannschaften.getComplete());
@@ -3995,7 +3996,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     setFieldEnabled(false,this.lfdnr,lfdnrLabel);
     setFieldEnabled(true ,datum,datumLabel);
     setFieldEnabled(true ,this.boot,bootLabel);
-    if (Daten.efaConfig.efaDirekt_eintragNichtAenderbarUhrzeit) {
+    if (Daten.efaConfig.efaDirekt_eintragNichtAenderbarUhrzeit.getValue()) {
       setFieldEnabled(false,abfahrt,abfahrtLabel);
       setFieldEnabled(false,ankunft,ankunftLabel);
     } else {
@@ -4033,7 +4034,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       return;
     }
     SetFields(d);
-    setTime(ankunft,-Daten.efaConfig.efaDirekt_minusMinutenAnkunft);
+    setTime(ankunft,-Daten.efaConfig.efaDirekt_minusMinutenAnkunft.getValue());
     if (d.get(Fahrtenbuch.BOOTSKM).equals("0")) bootskm.setText("");
     if (d.get(Fahrtenbuch.ZIEL).length()>0 && bootskm.getText().length() == 0) {
       DatenFelder ziel = Daten.fahrtenbuch.getDaten().ziele.getExactComplete(d.get(Fahrtenbuch.ZIEL));
@@ -4048,7 +4049,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     setFieldEnabled(false,this.lfdnr,lfdnrLabel);
     setFieldEnabled(false,datum,datumLabel);
     setFieldEnabled(false,this.boot,bootLabel);
-    if (Daten.efaConfig.efaDirekt_eintragNichtAenderbarUhrzeit) {
+    if (Daten.efaConfig.efaDirekt_eintragNichtAenderbarUhrzeit.getValue()) {
       setFieldEnabled(false,abfahrt,abfahrtLabel);
       setFieldEnabled(false,ankunft,ankunftLabel);
     } else {
@@ -4138,7 +4139,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     }
 
     // falls noch nicht geschehen, ggf. automatisch Obmann auswählen
-    if (Daten.efaConfig.autoObmann && getObmann() < 0) {
+    if (Daten.efaConfig.autoObmann.getValue() && getObmann() < 0) {
       autoSetObmann();
     }
 
@@ -4154,31 +4155,31 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       return;
     }
 
-    if (Daten.efaConfig.efaDirekt_eintragErzwingeObmann && getObmann() < 0) {
+    if (Daten.efaConfig.efaDirekt_eintragErzwingeObmann.getValue() && getObmann() < 0) {
       Dialog.error(International.getString("Bitte wähle einen Obmann aus!"));
       obmann.requestFocus();
       return;
     }
 
     // Prüfen, ob ggf. nur bekannte Boote/Ruderer/Ziele eingetragen wurden
-    if (Daten.efaConfig.efaDirekt_eintragNurBekannteBoote && unbekannterName(boot,Daten.fahrtenbuch.getDaten().boote)) {
+    if (Daten.efaConfig.efaDirekt_eintragNurBekannteBoote.getValue() && unbekannterName(boot,Daten.fahrtenbuch.getDaten().boote)) {
       Dialog.error(International.getMessage("Das Boot '{bootsname}' ist unbekannt. Bitte trage ein bekanntes Boot ein!", boot.getText().trim()));
       boot.requestFocus();
       return;
     }
-    if (Daten.efaConfig.efaDirekt_eintragNurBekannteRuderer && unbekannterName(stm,Daten.fahrtenbuch.getDaten().mitglieder)) {
+    if (Daten.efaConfig.efaDirekt_eintragNurBekannteRuderer.getValue() && unbekannterName(stm,Daten.fahrtenbuch.getDaten().mitglieder)) {
       Dialog.error(International.getMessage("Person '{name}' ist unbekannt. Bitte trage eine bekannte Person ein!", stm.getText().trim()));
       stm.requestFocus();
       return;
     }
     for (int i=0; i<mannsch.length; i++) {
-      if (Daten.efaConfig.efaDirekt_eintragNurBekannteRuderer && unbekannterName(mannsch[i],Daten.fahrtenbuch.getDaten().mitglieder)) {
+      if (Daten.efaConfig.efaDirekt_eintragNurBekannteRuderer.getValue() && unbekannterName(mannsch[i],Daten.fahrtenbuch.getDaten().mitglieder)) {
         Dialog.error(International.getMessage("Person '{name}' ist unbekannt. Bitte trage eine bekannte Person ein!", mannsch[i].getText().trim()));
         mannsch[i].requestFocus();
         return;
       }
     }
-    if (Daten.efaConfig.efaDirekt_eintragNurBekannteZiele && unbekannterName(ziel,Daten.fahrtenbuch.getDaten().ziele)) {
+    if (Daten.efaConfig.efaDirekt_eintragNurBekannteZiele.getValue() && unbekannterName(ziel,Daten.fahrtenbuch.getDaten().ziele)) {
       Dialog.error(International.getMessage("Das Ziel '{ziel}' ist unbekannt. Bitte trage ein bekanntes Ziel ein!", ziel.getText().trim()));
       ziel.requestFocus();
       return;
@@ -4189,7 +4190,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     String enddatum=null,rudertage=null;
 
     if (mode == MODE_START || mode == MODE_START_KORREKTUR) {
-      if (ziel.getText().trim().length()==0 && Daten.efaConfig.efaDirekt_zielBeiFahrtbeginnPflicht) {
+      if (ziel.getText().trim().length()==0 && Daten.efaConfig.efaDirekt_zielBeiFahrtbeginnPflicht.getValue()) {
         Dialog.error(International.getString("Bitte trage ein voraussichtliches Fahrtziel ein!"));
         ziel.requestFocus();
         return;
@@ -4346,7 +4347,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         }
       }
     } else { // MODE_ENDE oder MODE_NACHTRAG
-      if (ziel.getText().trim().length()==0 && !Daten.efaConfig.skipZiel) {
+      if (ziel.getText().trim().length()==0 && !Daten.efaConfig.skipZiel.getValue()) {
         Dialog.error(International.getString("Bitte trage ein Fahrtziel ein!"));
         ziel.requestFocus();
         return;
@@ -4483,7 +4484,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   private void _colorize(FocusEvent e, Color col) {
     if (e == null) return;
     if (!isDirectMode()) return;
-    if (Daten.efaConfig == null || !Daten.efaConfig.efaDirekt_colorizeInputField) return;
+    if (!Daten.efaConfig.efaDirekt_colorizeInputField.getValue()) return;
     Component c = e.getComponent();
     if (c == null) return;
     if (col == null) col = Color.white;

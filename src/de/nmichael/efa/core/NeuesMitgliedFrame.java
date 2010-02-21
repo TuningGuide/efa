@@ -621,8 +621,8 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
   void alias_focusGained(FocusEvent e) {
     if (!alias.getText().equals("")) return;
     String s="";
-    if (Daten.efaConfig.autogenAlias) {
-      s = EfaUtil.genAlias(Daten.efaConfig.aliasFormat,vorname.getText(),nachname.getText(),verein.getText());
+    if (Daten.efaConfig.autogenAlias.getValue()) {
+      s = EfaUtil.genAlias(Daten.efaConfig.aliasFormat.getValue(),vorname.getText(),nachname.getText(),verein.getText());
     }
     alias.setText(s);
   }

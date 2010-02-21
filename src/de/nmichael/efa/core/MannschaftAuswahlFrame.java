@@ -129,7 +129,7 @@ public class MannschaftAuswahlFrame extends JDialog implements ActionListener {
   }
 
   void mannschaft_focusLost(FocusEvent e) {
-    if (Daten.efaConfig != null && Daten.efaConfig.popupComplete) AutoCompletePopupWindow.hideWindow();
+    if (Daten.efaConfig.popupComplete.getValue()) AutoCompletePopupWindow.hideWindow();
   }
 
   void okButton_actionPerformed(ActionEvent e) {

@@ -227,6 +227,7 @@ public class DRVConfig extends DatenListe {
     if (param2 != null) s += "&"+param2;
     if (param3 != null) s += "&"+param3;
     if (param4 != null) s += "&"+param4;
+    if (testmode) s+= "&testmode=true";
     return s;
   }
 

@@ -160,12 +160,12 @@ public class FahrtenbuchAutoContinueFrame extends JDialog implements ActionListe
 
   void dataIni() {
     if (Daten.efaConfig == null) return;
-    if (Daten.efaConfig.efaDirekt_autoNewFb_datum == null) {
+    if (!Daten.efaConfig.efaDirekt_autoNewFb_datum.isSet()) {
       datum.setText("");
     } else {
-      datum.setText(Daten.efaConfig.efaDirekt_autoNewFb_datum.tag+"."+Daten.efaConfig.efaDirekt_autoNewFb_datum.monat+"."+Daten.efaConfig.efaDirekt_autoNewFb_datum.jahr);
+      datum.setText(Daten.efaConfig.efaDirekt_autoNewFb_datum.toString());
     }
-    filename.setText(Daten.efaConfig.efaDirekt_autoNewFb_datei);
+    filename.setText(Daten.efaConfig.efaDirekt_autoNewFb_datei.getValue());
   }
 
   void filename_focusGained(FocusEvent e) {
@@ -211,10 +211,9 @@ public class FahrtenbuchAutoContinueFrame extends JDialog implements ActionListe
         }
       }
       if (tmp.length() > 0) {
-        Daten.efaConfig.efaDirekt_autoNewFb_datum = EfaUtil.string2date(tmp,-1,-1,-1);
-        if (Daten.efaConfig.efaDirekt_autoNewFb_datum.tag == -1 || Daten.efaConfig.efaDirekt_autoNewFb_datum.monat == -1 || Daten.efaConfig.efaDirekt_autoNewFb_datum.jahr == -1) Daten.efaConfig.efaDirekt_autoNewFb_datum = null;
-      } else Daten.efaConfig.efaDirekt_autoNewFb_datum = null;
-      Daten.efaConfig.efaDirekt_autoNewFb_datei = filename.getText().trim();
+        Daten.efaConfig.efaDirekt_autoNewFb_datum.parseValue(tmp);
+      } else Daten.efaConfig.efaDirekt_autoNewFb_datum.unset();
+      Daten.efaConfig.efaDirekt_autoNewFb_datei.setValue(filename.getText().trim());
       Daten.efaConfig.writeFile();
     }
     cancel();

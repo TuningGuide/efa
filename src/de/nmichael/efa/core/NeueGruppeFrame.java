@@ -221,7 +221,7 @@ public class NeueGruppeFrame extends JDialog implements ActionListener {
   }
 
   void mitglied_focusLost(FocusEvent e) {
-    if (Daten.efaConfig != null && Daten.efaConfig.popupComplete) AutoCompletePopupWindow.hideWindow();
+    if (Daten.efaConfig.popupComplete.getValue()) AutoCompletePopupWindow.hideWindow();
   }
 
   void saveButton_actionPerformed(ActionEvent e) {

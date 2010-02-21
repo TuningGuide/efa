@@ -211,7 +211,7 @@ public class AdminLoginFrame extends JDialog implements ActionListener {
       return;
     }
     Admin admin = null;
-    if ( (admin = Daten.efaConfig.login(name.getText().trim(),pwd)) == null) {
+    if ( (admin = Admin.login(name.getText().trim(),pwd)) == null) {
       Dialog.error(International.getString("Admin-Name oder Paßwort ungültig!"));
       Logger.log(Logger.WARNING,Logger.MSG_ADMIN_LOGINFAILURE,International.getString("Admin-Login")+": "+
               International.getMessage("Name {name} oder Paßwort ungültig!",name.getText().trim()));

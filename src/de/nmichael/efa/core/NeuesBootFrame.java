@@ -1000,7 +1000,7 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
   }
 
   void gruppe_focusLost(FocusEvent e) {
-    if (Daten.efaConfig != null && Daten.efaConfig.popupComplete) AutoCompletePopupWindow.hideWindow();
+    if (Daten.efaConfig.popupComplete.getValue()) AutoCompletePopupWindow.hideWindow();
   }
 
 }

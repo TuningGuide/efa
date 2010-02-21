@@ -75,7 +75,7 @@ public class SuchFrame extends JDialog implements ActionListener {
     Dialog.frameOpened(this);
     try {
       jbInit();
-      if (Daten.efaConfig != null && !Daten.efaConfig.showBerlinOptions) err_zielfahrten.setVisible(false);
+      if (!Daten.efaConfig.showBerlinOptions.getValue()) err_zielfahrten.setVisible(false);
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -471,7 +471,7 @@ public class SuchFrame extends JDialog implements ActionListener {
           if (Daten.such_errUnbekZiel && Daten.fahrtenbuch.getDaten() != null && Daten.fahrtenbuch.getDaten().ziele != null &&
               d.get(Fahrtenbuch.ZIEL).length()>0 && Daten.fahrtenbuch.getDaten().ziele.getExact(d.get(Fahrtenbuch.ZIEL)) == null) { gefunden(parent,d,parent.ziel); return true; }
           if (Daten.such_errWafa && EfaUtil.zehntelString2Int(d.get(Fahrtenbuch.BOOTSKM))>=Daten.WAFAKM && d.get(Fahrtenbuch.FAHRTART).length()==0) { gefunden(parent,d,parent.ziel); return true; }
-          if (Daten.efaConfig != null && Daten.efaConfig.showBerlinOptions &&
+          if (Daten.efaConfig.showBerlinOptions.getValue() &&
               Daten.such_errZielfahrten && Daten.fahrtenbuch.getDaten() != null && Daten.fahrtenbuch.getDaten().ziele != null &&
               d.get(Fahrtenbuch.ZIEL).length()>0 && Daten.fahrtenbuch.getDaten().ziele.getExact(d.get(Fahrtenbuch.ZIEL)) == null &&
               d.get(Fahrtenbuch.BOOTSKM).length()>0 && EfaUtil.zehntelString2Int(d.get(Fahrtenbuch.BOOTSKM))>=Daten.ZIELFAHRTKM) { gefunden(parent,d,parent.ziel); return true; }

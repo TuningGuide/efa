@@ -24,10 +24,10 @@ import javax.swing.event.ChangeEvent;
 // @i18n complete
 public class EfaConfigFrame extends BaseDialog {
 
-    private static EfaConfig efaConfig; // @todo remove again, just for test purposes!! --> replace by Daten.efaConfig
     private JTabbedPane tabbedPane;
     private JCheckBox expertMode;
 
+    private EfaConfig myEfaConfig;
     private Hashtable<String,Hashtable> categories;
     private Hashtable<String,Vector<ConfigValue>> items;
     private Vector<ConfigValue> configItems;
@@ -37,15 +37,20 @@ public class EfaConfigFrame extends BaseDialog {
         super(parent, International.getString("Konfiguration"), International.getStringWithMnemonic("Speichern"));
     }
 
+    public EfaConfigFrame(JDialog parent) {
+        super(parent, International.getString("Konfiguration"), International.getStringWithMnemonic("Speichern"));
+    }
+
     protected void iniDialog() throws Exception {
+        myEfaConfig = new EfaConfig(Daten.efaConfig);
         categories = new Hashtable<String,Hashtable>();                // category          -> sub-categories
         items = new Hashtable<String,Vector<ConfigValue>>(); // categoryhierarchy -> config items
 
         // build category hierarchy
-        String[] names = efaConfig.getParameterNames();
+        String[] names = myEfaConfig.getParameterNames();
         for (int i=0; i<names.length; i++) {
-            ConfigValue cfg = efaConfig.getParameter(names[i]);
-            String[] cats = EfaConfig.getCategoryKeyArray(cfg.getCategory());
+            ConfigValue cfg = myEfaConfig.getParameter(names[i]);
+            String[] cats = myEfaConfig.getCategoryKeyArray(cfg.getCategory());
             Hashtable<String,Hashtable> h = categories;
             for (int j=0; j<cats.length; j++) {
                 Hashtable hnext = h.get(cats[j]);
@@ -59,7 +64,7 @@ public class EfaConfigFrame extends BaseDialog {
 
         // build config items per category
         for (int i=0; i<names.length; i++) {
-            ConfigValue cfg = efaConfig.getParameter(names[i]);
+            ConfigValue cfg = myEfaConfig.getParameter(names[i]);
             String cat = cfg.getCategory();
             String[] cats = EfaConfig.getCategoryKeyArray(cat);
             Hashtable<String,Hashtable> h = categories;
@@ -114,27 +119,34 @@ public class EfaConfigFrame extends BaseDialog {
         }
         tabbedPane = new JTabbedPane();
         panels = new Hashtable<JPanel,String>();
-        recursiveBuildGui(categories,items,"",tabbedPane);
+        recursiveBuildGui(categories,items,"",tabbedPane, selectedPanel);
         mainPanel.add(tabbedPane, BorderLayout.CENTER);
         this.validate();
-        // @todo: restore selectedPanel as currently visible panel
     }
 
     private void recursiveBuildGui(Hashtable<String,Hashtable> categories, 
                                    Hashtable<String,Vector<ConfigValue>> items,
                                    String catKey,
-                                   JTabbedPane tabbedPane) {
+                                   JTabbedPane tabbedPane,
+                                   String selectedPanel) {
+        int pos = (selectedPanel != null && selectedPanel.length() > 0 ? selectedPanel.indexOf(EfaConfig.CATEGORY_SEPARATOR) : -1);
+        String selectThisCat = (pos < 0 ? selectedPanel : selectedPanel.substring(0,pos));
+        String selectNextCat = (pos < 0 ? null : selectedPanel.substring(pos+1));
+
         Object[] cats = categories.keySet().toArray();
         Arrays.sort(cats);
         for (int i=0; i<cats.length; i++) {
             String key = (String)cats[i];
             String thisCatKey = (catKey.length() == 0 ? key : EfaConfig.makeCategory(catKey, key));
-            String catName = efaConfig.getCategoryName(key);
+            String catName = myEfaConfig.getCategoryName(key);
             Hashtable<String,Hashtable> subCat = categories.get(key);
             if (subCat.size() != 0) {
                 JTabbedPane subTabbedPane = new JTabbedPane();
                 tabbedPane.add(subTabbedPane, catName);
-                recursiveBuildGui(subCat, items, thisCatKey, subTabbedPane);
+                if (key.equals(selectThisCat)) {
+                    tabbedPane.setSelectedComponent(subTabbedPane);
+                }
+                recursiveBuildGui(subCat, items, thisCatKey, subTabbedPane, selectNextCat);
             } else {
                 JPanel panel = new JPanel();
                 panels.put(panel, thisCatKey);
@@ -151,6 +163,9 @@ public class EfaConfigFrame extends BaseDialog {
                 }
                 if (y > 0) {
                     tabbedPane.add(panel, catName);
+                    if (key.equals(selectThisCat)) {
+                        tabbedPane.setSelectedComponent(panel);
+                    }
                 }
             }
         }
@@ -167,6 +182,11 @@ public class EfaConfigFrame extends BaseDialog {
     }
 
     void expertModeChanged(ActionEvent e) {
+        if (expertMode.isSelected()) {
+            expertMode.setForeground(Color.red);
+        } else {
+            expertMode.setForeground(Color.black);
+        }
         updateGui();
     }
 
@@ -192,33 +212,35 @@ public class EfaConfigFrame extends BaseDialog {
 
     void closeButton_actionPerformed(ActionEvent e) {
         getValuesFromGui();
-        efaConfig.writeFile();
+        Daten.efaConfig = myEfaConfig;
+        Daten.efaConfig.writeFile();
+        Daten.efaConfig.setExternalParameters();
         super.closeButton_actionPerformed(e);
     }
 
     // @todo remove again, just for test purposes!!
     public static void main(String[] args) {
         Daten.initialize(Daten.APPL_CLI);
-        efaConfig = new EfaConfig(Daten.efaCfgDirectory + "efa2.cfg");
-        if (!EfaUtil.canOpenFile(efaConfig.getFileName())) {
-            if (!efaConfig.writeFile()) {
-                String msg = LogString.logstring_fileCreationFailed(efaConfig.getFileName(),
+        Daten.efaConfig = new EfaConfig(Daten.efaCfgDirectory + "efa2.cfg");
+        if (!EfaUtil.canOpenFile(Daten.efaConfig.getFileName())) {
+            if (!Daten.efaConfig.writeFile()) {
+                String msg = LogString.logstring_fileCreationFailed(Daten.efaConfig.getFileName(),
                         International.getString("Konfigurationsdatei"));
                 Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDCREATE, msg);
             }
-            String msg = LogString.logstring_fileNewCreated(efaConfig.getFileName(),
+            String msg = LogString.logstring_fileNewCreated(Daten.efaConfig.getFileName(),
                     International.getString("Konfigurationsdatei"));
             Logger.log(Logger.WARNING, Logger.MSG_CORE_EFACONFIGCREATEDNEW, msg);
         }
-        if (!efaConfig.readFile()) {
-            String msg = LogString.logstring_fileOpenFailed(efaConfig.getFileName(),
+        if (!Daten.efaConfig.readFile()) {
+            String msg = LogString.logstring_fileOpenFailed(Daten.efaConfig.getFileName(),
                     International.getString("Konfigurationsdatei"));
             Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDOPEN, msg);
         }
-        efaConfig.keys.put("F6", "teste mich!");
-        efaConfig.keys.put("F7", "mich bitte auch!");
-        efaConfig.keys.put("F8", "und hoffentlich geht's bei mir auch trotz Sonderzeichen wie @@@ und -->!");
-        EfaConfigFrame dlg = new EfaConfigFrame(null);
+        Daten.efaConfig.keys.put("F6", "teste mich!");
+        Daten.efaConfig.keys.put("F7", "mich bitte auch!");
+        Daten.efaConfig.keys.put("F8", "und hoffentlich geht's bei mir auch trotz Sonderzeichen wie @@@ und -->!");
+        EfaConfigFrame dlg = new EfaConfigFrame((Frame)null);
         Dialog.setDlgLocation(dlg,null);
         dlg.setModal(true);
         Daten.iniSplashScreen(false);

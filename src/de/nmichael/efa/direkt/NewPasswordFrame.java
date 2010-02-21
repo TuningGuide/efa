@@ -63,7 +63,7 @@ public class NewPasswordFrame extends JDialog implements ActionListener {
 
     if (admin != null) {
       titleLabel.setText(International.getMessage("Bitte gib ein neues Paßwort für den {admin_description} '{admin_name}' ein!",
-              (admin.equals(EfaConfig.SUPERADMIN) ? International.getString("Super-Administrator") :
+              (admin.equals(Admin.SUPERADMIN) ? International.getString("Super-Administrator") :
                   International.getString("Administrator")),admin));
     } else {
       titleLabel.setText(International.getString("Bitte gib ein neues Paßwort ein!"));

@@ -29,7 +29,7 @@ public class EfaRunning {
   }
 
   private void trace(String s) {
-    if (Daten.efaConfig != null && Daten.efaConfig.debugLogging) {
+    if (Daten.efaConfig.debugLogging.getValue()) {
         Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_EFARUNNING,"EfaRunning: "+s);
     }
   }

@@ -461,7 +461,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
         String qnr = (String)v.get(1);
         DatenFelder dtmp = Daten.drvConfig.meldungenIndex.getExactComplete(qnr);
         if (dtmp == null || dtmp.get(MeldungenIndex.STATUS).equals(Integer.toString(MeldungenIndex.ST_GELOESCHT))) {
-          url = Daten.drvConfig.makeScriptRequestString(DRVConfig.ACTION_GET,"item="+qnr,"verein="+(String)v.get(5),(Daten.drvConfig.testmode ? "testmode=true" : null),null);
+          url = Daten.drvConfig.makeScriptRequestString(DRVConfig.ACTION_GET,"item="+qnr,"verein="+(String)v.get(5),null,null);
           String localFile = Daten.efaDataDirectory+Daten.drvConfig.aktJahr+Daten.fileSep+qnr+".efw";
           Logger.log(Logger.INFO,"Download der neuen Meldung "+qnr+" ...");
           if (!EfaUtil.getFile(this,url,localFile,true) || !EfaUtil.canOpenFile(localFile)) {
@@ -686,7 +686,28 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
         Dialog.error("Die gewählte Meldung wurde bereits gelöscht und kann nicht mehr bearbeitet werden.");
         return;
       case MeldungenIndex.ST_ZURUECKGEWIESEN:
-        Dialog.error("Die gewählte Meldung wurde bereits zurückgewiesen und kann nicht mehr bearbeitet werden.");
+        if (Dialog.yesNoCancelDialog("Meldung bereits zurückgewiesen",
+                                     "Die gewählte Meldung wurde bereits zurückgewiesen.\n"+
+                                     "Nur in Ausnahmefällen, etwa bei dem versehentlichen Zurückweisen einer Meldung, sollte dies rückgängig\n"+
+                                     "gemacht werden. Anschließend kann die Meldung neu bearbeitet oder bestätigt werden.\n"+
+                                     "Möchtest Du das Zurückweisen der Meldung jetzt rückgängig machen?") == Dialog.YES) {
+          if ((new File(Daten.efaDataDirectory+Daten.drvConfig.aktJahr+Daten.fileSep+qnr+".efwsig")).exists()) {
+            d.set(MeldungenIndex.STATUS,Integer.toString(MeldungenIndex.ST_BEARBEITET));
+            d.set(MeldungenIndex.BESTAETIGUNGSDATEI,Daten.efaDataDirectory+Daten.drvConfig.aktJahr+Daten.fileSep+qnr+".efwsig");
+            Logger.log(Logger.INFO,"Zurückweisen von Meldung "+qnr+" rückgängig gemacht. Meldung hat jetzt den Status 'bearbeitet'!");
+            Dialog.infoDialog("Zurückweisen rückgängig gemacht",
+                              "Die Meldung hat jetzt den Status 'bearbeitet' und sollte erneut bestätigt werden!");
+          } else {
+            d.set(MeldungenIndex.STATUS,Integer.toString(MeldungenIndex.ST_UNBEARBEITET));
+            Logger.log(Logger.INFO,"Zurückweisen von Meldung "+qnr+" rückgängig gemacht. Meldung hat jetzt den Status 'unbearbeitet'!");
+            Dialog.infoDialog("Zurückweisen rückgängig gemacht",
+                        "Die Meldung hat jetzt den Status 'unbearbeitet' und kann neu bearbeitet werden!");
+          }
+          if (!Daten.drvConfig.meldungenIndex.writeFile()) {
+            Logger.log(Logger.ERROR,"Meldungen-Indexdatei konnte nicht geschrieben werden!");
+          }
+          showMeldungen();
+        }
         return;
     }
 

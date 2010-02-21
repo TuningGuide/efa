@@ -11,7 +11,7 @@
 package de.nmichael.efa.direkt;
 
 import java.util.*;
-import de.nmichael.efa.core.EfaConfig;
+import de.nmichael.efa.core.config.ConfigTypeLongLat;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.EfaUtil;
 
@@ -42,29 +42,26 @@ public class SunRiseSet {
   }
 
   public static String[] getSunRiseSet(Calendar cal) throws Exception {
-    if (Daten.efaConfig == null) return null;
-    if (Daten.efaConfig.efaDirekt_sunRiseSet_ll == null || Daten.efaConfig.efaDirekt_sunRiseSet_ll.length != 8) return null;
-
     int lat = uk.me.jstott.coordconv.LatitudeLongitude.NORTH;
     int lon = uk.me.jstott.coordconv.LatitudeLongitude.EAST;
-    switch(Daten.efaConfig.efaDirekt_sunRiseSet_ll[0]) {
-      case EfaConfig.LL_NORTH: lat = uk.me.jstott.coordconv.LatitudeLongitude.NORTH; break;
-      case EfaConfig.LL_SOUTH: lat = uk.me.jstott.coordconv.LatitudeLongitude.SOUTH; break;
+    switch(Daten.efaConfig.efaDirekt_sunRiseSet_latitude.getValueOrientation()) {
+      case ConfigTypeLongLat.ORIENTATION_NORTH: lat = uk.me.jstott.coordconv.LatitudeLongitude.NORTH; break;
+      case ConfigTypeLongLat.ORIENTATION_SOUTH: lat = uk.me.jstott.coordconv.LatitudeLongitude.SOUTH; break;
     }
-    switch(Daten.efaConfig.efaDirekt_sunRiseSet_ll[4]) {
-      case EfaConfig.LL_WEST:  lon = uk.me.jstott.coordconv.LatitudeLongitude.WEST;  break;
-      case EfaConfig.LL_EAST:  lon = uk.me.jstott.coordconv.LatitudeLongitude.EAST;  break;
+    switch(Daten.efaConfig.efaDirekt_sunRiseSet_longitude.getValueOrientation()) {
+      case ConfigTypeLongLat.ORIENTATION_WEST:  lon = uk.me.jstott.coordconv.LatitudeLongitude.WEST;  break;
+      case ConfigTypeLongLat.ORIENTATION_EAST:  lon = uk.me.jstott.coordconv.LatitudeLongitude.EAST;  break;
     }
 
     uk.me.jstott.coordconv.LatitudeLongitude ll =
       new uk.me.jstott.coordconv.LatitudeLongitude(lat,
-                                                   Daten.efaConfig.efaDirekt_sunRiseSet_ll[1],
-                                                   Daten.efaConfig.efaDirekt_sunRiseSet_ll[2],
-                                                   Daten.efaConfig.efaDirekt_sunRiseSet_ll[3],
+                                                   Daten.efaConfig.efaDirekt_sunRiseSet_latitude.getValueCoordinates()[0],
+                                                   Daten.efaConfig.efaDirekt_sunRiseSet_latitude.getValueCoordinates()[1],
+                                                   Daten.efaConfig.efaDirekt_sunRiseSet_latitude.getValueCoordinates()[2],
                                                    lon,
-                                                   Daten.efaConfig.efaDirekt_sunRiseSet_ll[5],
-                                                   Daten.efaConfig.efaDirekt_sunRiseSet_ll[6],
-                                                   Daten.efaConfig.efaDirekt_sunRiseSet_ll[7]);
+                                                   Daten.efaConfig.efaDirekt_sunRiseSet_longitude.getValueCoordinates()[0],
+                                                   Daten.efaConfig.efaDirekt_sunRiseSet_longitude.getValueCoordinates()[1],
+                                                   Daten.efaConfig.efaDirekt_sunRiseSet_longitude.getValueCoordinates()[2]);
 
     TimeZone gmt = TimeZone.getDefault();
     double julian = uk.me.jstott.util.JulianDateConverter.dateToJulian(cal);
@@ -82,12 +79,7 @@ public class SunRiseSet {
   }
 
   public static String getLonLat() {
-    if (Daten.efaConfig == null) return null;
-    if (Daten.efaConfig.efaDirekt_sunRiseSet_ll == null || Daten.efaConfig.efaDirekt_sunRiseSet_ll.length != 8) return null;
-    return Daten.efaConfig.efaDirekt_sunRiseSet_ll[1]+"°"+Daten.efaConfig.efaDirekt_sunRiseSet_ll[2]+"'"+
-           Daten.efaConfig.efaDirekt_sunRiseSet_ll[3]+"\" "+(Daten.efaConfig.efaDirekt_sunRiseSet_ll[0] == EfaConfig.LL_NORTH ? "north" : "south")+" / "+
-           Daten.efaConfig.efaDirekt_sunRiseSet_ll[5]+"°"+Daten.efaConfig.efaDirekt_sunRiseSet_ll[6]+"'"+
-           Daten.efaConfig.efaDirekt_sunRiseSet_ll[7]+"\" "+(Daten.efaConfig.efaDirekt_sunRiseSet_ll[4] == EfaConfig.LL_WEST  ? "west" : "east");
+    return Daten.efaConfig.efaDirekt_sunRiseSet_latitude.toString()+" / "+Daten.efaConfig.efaDirekt_sunRiseSet_longitude.toString();
   }
 
   public static void printAllDays(int year) {

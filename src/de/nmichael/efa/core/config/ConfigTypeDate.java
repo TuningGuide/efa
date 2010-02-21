@@ -32,19 +32,61 @@ public class ConfigTypeDate extends ConfigTypeLabelValue {
 
     public void parseValue(String value) {
         try {
+            if (value != null && value.trim().length()>0) {
+                value = EfaUtil.correctDate(value);
+            }
             this.value = TMJ.parseTMJ(value);
         } catch (Exception e) {
-            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
-                       "EfaConfig: Invalid value for parameter "+name+": "+value);
+            if (efaConfigFrame == null) {
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
+                           "EfaConfig: Invalid value for parameter "+name+": "+value);
+            }
         }
     }
 
     public String toString() {
-
         if (value.tag < 0 || value.monat < 0 || value.jahr < 0) {
             return "";
         }
         return EfaUtil.int2String(value.tag,2) + "." + EfaUtil.int2String(value.monat,2) + "." + value.jahr;
+    }
+
+    public boolean isSet() {
+        return value.tag != -1 && value.monat != -1 && value.jahr != -1;
+    }
+
+    public int getValueDay() {
+        return value.tag;
+    }
+
+    public int getValueMonth() {
+        return value.monat;
+    }
+
+    public int getValueYear() {
+        return value.jahr;
+    }
+
+    public TMJ getDate() {
+        return new TMJ(value.tag, value.monat, value.jahr);
+    }
+
+    public void setValueDay(int day) {
+        value.tag = EfaUtil.correctDate(day+"."+value.monat+"."+value.jahr, value.tag, value.monat, value.jahr).tag;
+    }
+
+    public void setValueMonth(int month) {
+        value.monat = EfaUtil.correctDate(value.tag+"."+month+"."+value.jahr, value.tag, value.monat, value.jahr).monat;
+    }
+
+    public void setValueYear(int year) {
+        value.jahr = EfaUtil.correctDate(value.tag+"."+value.monat+"."+year, value.tag, value.monat, value.jahr).jahr;
+    }
+
+    public void unset() {
+        value.tag = -1;
+        value.monat = -1;
+        value.jahr = -1;
     }
 
 }

@@ -52,6 +52,10 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
         hash.put(s, value);
     }
 
+    public void remove(String s) {
+        hash.remove(s);
+    }
+
     public E get(String s) {
         return hash.get(s);
     }
@@ -73,7 +77,7 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
         return keys;
     }
 
-    private void addToHash(String key, String val) {
+    private void addToHash(Hashtable<String,E> hash, String key, String val) {
         E e = hash.get(DUMMY);
         Class c = e.getClass();
         Object v = null;
@@ -111,11 +115,13 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
                 key = new String(Base64.decode(key), Daten.ENCODING_UTF);
                 String val = t.substring(pos + DELIM_KEYVALUE.length());
                 val = new String(Base64.decode(val), Daten.ENCODING_UTF);
-                addToHash(key,val);
+                addToHash(hash, key,val);
             }
         } catch (Exception e) {
-            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
-                    "EfaConfig: Invalid value for parameter " + name + ": " + value);
+            if (efaConfigFrame == null) {
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
+                        "EfaConfig: Invalid value for parameter " + name + ": " + value);
+            }
 
         }
     }
@@ -146,6 +152,7 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
 
     public int displayOnGui(EfaConfigFrame dlg, JPanel panel, int y) {
         efaConfigFrame = dlg;
+        int padBottom = 0;
 
         JLabel titlelabel = new JLabel();
         Mnemonics.setLabel(dlg, titlelabel, getDescription() + ": ");
@@ -159,14 +166,19 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
         addButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { addButtonHit(e); }
         });
+
+        String[] keys = getKeysArray();
+        if (keys.length == 0) {
+            padBottom = 20;
+        }
+
         panel.add(titlelabel, new GridBagConstraints(0, y, 2, 1, 0.0, 0.0,
-                  GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(20, 0, 0, 0), 0, 0));
+                  GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(20, 0, padBottom, 0), 0, 0));
         panel.add(addButton, new GridBagConstraints(2, y, 2, 1, 0.0, 0.0,
-                  GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(20, 0, 0, 0), 0, 0));
+                  GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(20, 0, padBottom, 0), 0, 0));
 
         textfield = new JTextField[size()];
         delButtons = new Hashtable();
-        String[] keys = getKeysArray();
         for (int i=0; i<keys.length; i++) {
             textfield[i] = new JTextField();
             textfield[i].setText(get(keys[i]).toString());
@@ -184,7 +196,7 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
             delButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) { delButtonHit(e); }
             });
-            int padBottom = 0;
+
             if (i+1 == keys.length) {
                 padBottom = 20;
             }
@@ -211,6 +223,7 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
             Dialog.error(International.getString("Name bereits vergeben"+"!"));
             return;
         }
+        getValueFromGui();
         hash.put(key, hash.get(DUMMY));
         efaConfigFrame.updateGui();
     }
@@ -222,6 +235,7 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
         }
         if (Dialog.yesNoDialog(International.getString("Eintrag löschen"),
                                International.getMessage("Möchtest Du den Eintrag '{entry}' wirklich löschen?",key)) == Dialog.YES) {
+            getValueFromGui();
             hash.remove(key);
             efaConfigFrame.updateGui();
         }
@@ -231,13 +245,21 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
         Hashtable<String,E> newHash = new Hashtable<String,E>();
         newHash.put(DUMMY, hash.get(DUMMY));
         String[] keys = getKeysArray();
+        if (keys.length != textfield.length) {
+            // This happens when an element has been added or removed from the hash.
+            // Therefore, in addButtonHit(e) resp. delButtonHit(e), we first call getValueFromGui()
+            // before we add or remove an item, in order to retrieve all current values, then add
+            // or remove an item, and then call efaConfigFrame.updateGui(). After that, updateGui()
+            // will invoke getValueFromGui() again, this time with a mismatch of keys.length and
+            // textfield.length. Since we already got the values, we can abort here.
+            return;
+        }
         for (int i=0; i<keys.length; i++) {
             if (textfield[i] != null) {
-                addToHash(keys[i],textfield[i].getText().trim());
+                addToHash(newHash,keys[i],textfield[i].getText().trim());
             }
         }
         hash = newHash;
     }
-
 
 }

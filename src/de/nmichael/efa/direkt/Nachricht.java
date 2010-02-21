@@ -50,12 +50,11 @@ public class Nachricht {
     return null;
   }
 
-  public void sendEmail(Hashtable admins) {
+  public void sendEmail(String[] admins) {
     try {
-      Object[] keys = admins.keySet().toArray();
       String adressen = "";
-      for (int i=0; i<keys.length; i++) {
-        Admin admin = (Admin)admins.get(keys[i]);
+      for (int i=0; i<admins.length; i++) {
+        Admin admin = Daten.efaConfig.admins.get(admins[i]);
         if ( (this.empfaenger == Nachricht.ADMIN && admin.allowedNachrichtenAnzeigenAdmin) ||
              (this.empfaenger == Nachricht.BOOTSWART && admin.allowedNachrichtenAnzeigenBootswart) ) {
           if (admin.email != null && admin.email.length()>0) adressen += (adressen.length() > 0 ? ", " : "") + admin.name + " <" + admin.email + ">";

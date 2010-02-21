@@ -16,6 +16,7 @@ import de.nmichael.efa.gui.EfaConfigFrame;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.io.File;
 
 // @i18n complete
 
@@ -64,6 +65,9 @@ public class ConfigTypeFile extends ConfigTypeString {
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { buttonHit(e); }
         });
+        textfield.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(FocusEvent e) { textfield_focusLost(e); }
+        });
         panel.add(label, new GridBagConstraints(0, y, 1, 1, 0.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         panel.add(textfield, new GridBagConstraints(1, y, 1, 1, 0.0, 0.0,
@@ -91,6 +95,22 @@ public class ConfigTypeFile extends ConfigTypeString {
             textfield.setText(file);
         }
         
+    }
+
+    protected void textfield_focusLost(FocusEvent e) {
+        getValueFromGui();
+        String filename = toString().trim();
+        if (fileOpenSave == MODE_OPEN && filename.length() > 0) {
+            if (fileOrDir == TYPE_FILE && !(new File(filename)).isFile()) {
+                Dialog.error(International.getMessage("{filedescription} '{filename}' existiert nicht",
+                        International.getString("Datei"),filename)+".");
+            }
+            if (fileOrDir == TYPE_DIR && !(new File(filename)).isDirectory()) {
+                Dialog.error(International.getMessage("{directorydescription} '{directoryname}' existiert nicht",
+                        International.getString("Verzeichnis"),filename)+".");
+            }
+        }
+        textfield.setText(filename);
     }
 
 }

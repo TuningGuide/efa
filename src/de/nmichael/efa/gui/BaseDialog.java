@@ -20,13 +20,28 @@ import javax.swing.border.*;
 // @i18n complete
 public abstract class BaseDialog extends JDialog implements ActionListener {
 
-    Frame parent;
+    Window parent;
     JPanel basePanel = new JPanel();
     JScrollPane mainScrollPane = new JScrollPane();
     JPanel mainPanel = new JPanel();
     JButton closeButton;
 
     public BaseDialog(Frame parent, String title, String closeButtonText) {
+        super(parent);
+        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+        Dialog.frameOpened(this);
+        try {
+            iniDialogCommon(title, closeButtonText);
+            iniDialog();
+            iniDialogCommonFinish();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        EfaUtil.pack(this);
+        this.parent = parent;
+    }
+
+    public BaseDialog(JDialog parent, String title, String closeButtonText) {
         super(parent);
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         Dialog.frameOpened(this);

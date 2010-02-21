@@ -20,12 +20,12 @@ public class ConfigTypeLongLat extends ConfigTypeLabelValue {
     private static final int TYPE_LATITUDE  = 0;
     private static final int TYPE_LONGITUDE = 1;
 
-    public static final int ORIENTATION_NORTH = 0; // TYPE_LATITUDE
-    public static final int ORIENTATION_SOUTH = 1; // TYPE_LATITUDE
-    public static final int ORIENTATION_WEST  = 2; // TYPE_LONGITUDE
-    public static final int ORIENTATION_EAST  = 3; // TYPE_LONGITUDE
+    public static final int ORIENTATION_NORTH = 0; // TYPE_LATITUDE  (even number)
+    public static final int ORIENTATION_WEST  = 1; // TYPE_LONGITUDE (odd number)
+    public static final int ORIENTATION_SOUTH = 2; // TYPE_LATITUDE  (even number)
+    public static final int ORIENTATION_EAST  = 3; // TYPE_LONGITUDE (odd number)
 
-    public static final String[] ORIENTATION = { "N", "S", "W", "E" };
+    public static final String[] ORIENTATION = { "N", "W", "S", "E" };
 
     private static final String DELIM = ",";
 
@@ -77,13 +77,15 @@ public class ConfigTypeLongLat extends ConfigTypeLabelValue {
                     orientation = i;
                 }
             }
-            if (orientation != this.orientation) {
+            if (orientation % 2 != this.orientation % 2) {
                 throw new Exception("Invalid value! typeLongLat changed!");
             }
             iniValue(orientation, tmj.tag, tmj.monat, tmj.jahr);
         } catch (Exception e) {
-            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
-                    "EfaConfig: Invalid value for parameter " + name + ": " + value);
+            if (efaConfigFrame == null) {
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
+                        "EfaConfig: Invalid value for parameter " + name + ": " + value);
+            } 
         }
     }
 
@@ -91,4 +93,29 @@ public class ConfigTypeLongLat extends ConfigTypeLabelValue {
         return coordinates[0] + "° " + coordinates[1] + "' " + coordinates[2] + "\" " + ORIENTATION[orientation];
     }
 
+    public int getValueOrientation() {
+        return orientation;
+    }
+
+    public int[] getValueCoordinates() {
+        int[] c = new int[coordinates.length];
+        for (int i=0; i<c.length; i++) {
+            c[i] = coordinates[i];
+        }
+        return c;
+    }
+
+    public void setValueOrientation(int orientation) {
+        if (orientation % 2 == this.orientation % 2) {
+            this.orientation = orientation;
+        }
+    }
+
+    public void setValueCoordinates(int[] coordinates) {
+        for (int i=0; i<this.coordinates.length; i++) {
+            if (i < coordinates.length) {
+                this.coordinates[i] = coordinates[i];
+            }
+        }
+    }
 }

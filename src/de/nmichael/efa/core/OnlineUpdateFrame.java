@@ -219,7 +219,7 @@ public class OnlineUpdateFrame extends JDialog implements ActionListener {
     }
 
     if (Daten.efaConfig != null) {
-      Daten.efaConfig.efaVersionLastCheck = EfaUtil.getCurrentTimeStampDD_MM_YYYY();
+      Daten.efaConfig.efaVersionLastCheck.setValue(EfaUtil.getCurrentTimeStampDD_MM_YYYY());
     }
 
     // ist die installierte Version aktuell?

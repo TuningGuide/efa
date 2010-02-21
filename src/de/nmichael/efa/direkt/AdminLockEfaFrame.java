@@ -23,7 +23,7 @@ import de.nmichael.efa.util.Dialog;
 // @i18n complete
 
 public class AdminLockEfaFrame extends JDialog implements ActionListener {
-  private TMJ _datumAnfang,_zeitAnfang,_datumEnde,_zeitEnde;
+  private String _datumAnfang,_zeitAnfang,_datumEnde,_zeitEnde;
 
   JDialog parent;
   JPanel jPanel1 = new JPanel();
@@ -157,21 +157,19 @@ public class AdminLockEfaFrame extends JDialog implements ActionListener {
   }
 
   void ini() {
-    if (Daten.efaConfig != null) {
-      if (Daten.efaConfig.efaDirekt_lockEfaShowHtml != null)
-        html.setText(Daten.efaConfig.efaDirekt_lockEfaShowHtml);
-      vollbild.setSelected(Daten.efaConfig.efaDirekt_lockEfaVollbild);
-      if (Daten.efaConfig.efaDirekt_lockEfaFromDatum != null) {
+      if (Daten.efaConfig.efaDirekt_lockEfaShowHtml.getValue().length() > 0)
+        html.setText(Daten.efaConfig.efaDirekt_lockEfaShowHtml.getValue());
+      vollbild.setSelected(Daten.efaConfig.efaDirekt_lockEfaVollbild.getValue());
+      if (Daten.efaConfig.efaDirekt_lockEfaFromDatum.isSet()) {
         setDatumZeit(anfangSperrung,
-                     Daten.efaConfig.efaDirekt_lockEfaFromDatum,
-                     Daten.efaConfig.efaDirekt_lockEfaFromZeit);
+                     Daten.efaConfig.efaDirekt_lockEfaFromDatum.getDate(),
+                     Daten.efaConfig.efaDirekt_lockEfaFromZeit.getTime());
       }
-      if (Daten.efaConfig.efaDirekt_lockEfaUntilDatum != null) {
+      if (Daten.efaConfig.efaDirekt_lockEfaUntilDatum.isSet()) {
         setDatumZeit(endeSperrung,
-                     Daten.efaConfig.efaDirekt_lockEfaUntilDatum,
-                     Daten.efaConfig.efaDirekt_lockEfaUntilZeit);
+                     Daten.efaConfig.efaDirekt_lockEfaUntilDatum.getDate(),
+                     Daten.efaConfig.efaDirekt_lockEfaUntilZeit.getTime());
       }
-    }
   }
 
   void htmlButton_actionPerformed(ActionEvent e) {
@@ -187,13 +185,29 @@ public class AdminLockEfaFrame extends JDialog implements ActionListener {
   void okButton_actionPerformed(ActionEvent e) {
     endeSperrung_focusLost(null);
     if (Daten.efaConfig != null) {
-      Daten.efaConfig.efaDirekt_lockEfaShowHtml = html.getText().trim();
-      Daten.efaConfig.efaDirekt_lockEfaVollbild = vollbild.isSelected();
-      Daten.efaConfig.efaDirekt_lockEfaFromDatum = _datumAnfang;
-      Daten.efaConfig.efaDirekt_lockEfaFromZeit = _zeitAnfang;
-      Daten.efaConfig.efaDirekt_lockEfaUntilDatum = _datumEnde;
-      Daten.efaConfig.efaDirekt_lockEfaUntilZeit = _zeitEnde;
-      Daten.efaConfig.efaDirekt_locked = (_datumAnfang == null);
+      Daten.efaConfig.efaDirekt_lockEfaShowHtml.setValue(html.getText().trim());
+      Daten.efaConfig.efaDirekt_lockEfaVollbild.setValue(vollbild.isSelected());
+      if (_datumAnfang != null) {
+          Daten.efaConfig.efaDirekt_lockEfaFromDatum.parseValue(_datumAnfang);
+      } else {
+          Daten.efaConfig.efaDirekt_lockEfaFromDatum.unset();
+      }
+      if (_zeitAnfang != null) {
+          Daten.efaConfig.efaDirekt_lockEfaFromZeit.parseValue(_zeitAnfang);
+      } else {
+          Daten.efaConfig.efaDirekt_lockEfaFromZeit.unset();
+      }
+      if (_datumEnde != null) {
+          Daten.efaConfig.efaDirekt_lockEfaUntilDatum.parseValue(_datumEnde);
+      } else {
+          Daten.efaConfig.efaDirekt_lockEfaUntilDatum.unset();
+      }
+      if (_zeitEnde != null) {
+          Daten.efaConfig.efaDirekt_lockEfaUntilZeit.parseValue(_zeitEnde);
+      } else {
+          Daten.efaConfig.efaDirekt_lockEfaUntilZeit.unset();
+      }
+      Daten.efaConfig.efaDirekt_locked.setValue(!Daten.efaConfig.efaDirekt_lockEfaFromDatum.isSet());
       Daten.efaConfig.writeFile();
     }
     cancel();
@@ -233,8 +247,8 @@ public class AdminLockEfaFrame extends JDialog implements ActionListener {
     }
     setDatumZeit(endeSperrung,datum,zeit);
 
-    this._datumEnde = datum;
-    this._zeitEnde = zeit;
+    this._datumEnde = (datum != null ? datum.toString() : null);
+    this._zeitEnde = (zeit != null ? zeit.toString() : null);
   }
 
   void anfangSperrung_focusLost(FocusEvent e) {
@@ -264,9 +278,8 @@ public class AdminLockEfaFrame extends JDialog implements ActionListener {
     }
     setDatumZeit(anfangSperrung,datum,zeit);
 
-    this._datumAnfang = datum;
-    this._zeitAnfang = zeit;
-
+    this._datumAnfang = (datum != null ? datum.toString() : null);
+    this._zeitAnfang = (zeit != null ? zeit.toString() : null);
   }
 
 

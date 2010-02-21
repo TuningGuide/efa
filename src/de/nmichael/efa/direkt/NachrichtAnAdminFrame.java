@@ -219,8 +219,8 @@ public class NachrichtAnAdminFrame extends JDialog implements ActionListener {
     this.gesendet = true;
     this.message = n;
 
-    if (Daten.efaConfig != null && Daten.efaConfig.admins != null) {
-      n.sendEmail(Daten.efaConfig.admins);
+    if (Daten.efaConfig.admins.size() > 0) {
+      n.sendEmail(Daten.efaConfig.admins.getKeysArray());
     }
 
     cancel();
@@ -233,7 +233,7 @@ public class NachrichtAnAdminFrame extends JDialog implements ActionListener {
   }
 
   void name_focusLost(FocusEvent e) {
-    if (Daten.efaConfig != null && Daten.efaConfig.popupComplete) AutoCompletePopupWindow.hideWindow();
+    if (Daten.efaConfig.popupComplete.getValue()) AutoCompletePopupWindow.hideWindow();
   }
 
   public boolean isGesendet() {

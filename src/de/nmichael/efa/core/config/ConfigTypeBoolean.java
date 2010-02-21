@@ -21,10 +21,10 @@ import javax.swing.*;
 
 public class ConfigTypeBoolean extends ConfigValue {
 
-    private Boolean value;
+    private boolean value;
     private JCheckBox checkbox;
 
-    public ConfigTypeBoolean(String name, Boolean value, int type,
+    public ConfigTypeBoolean(String name, boolean value, int type,
             String category, String description) {
         this.name = name;
         this.value = value;
@@ -43,7 +43,7 @@ public class ConfigTypeBoolean extends ConfigValue {
     }
 
     public String toString() {
-        return value.toString();
+        return Boolean.toString(value);
     }
 
     public int displayOnGui(EfaConfigFrame dlg, JPanel panel, int y) {
@@ -62,6 +62,14 @@ public class ConfigTypeBoolean extends ConfigValue {
         if (checkbox != null) {
             value = checkbox.isSelected();
         }
+    }
+
+    public boolean getValue() {
+        return value;
+    }
+
+    public void setValue(boolean value) {
+        this.value = value;
     }
 
 }

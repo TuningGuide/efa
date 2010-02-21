@@ -11,18 +11,18 @@
 package de.nmichael.efa;
 
 import de.nmichael.efa.core.config.EfaBaseConfig;
+import de.nmichael.efa.core.config.EfaTypes;
+import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.core.WettDefs;
 import de.nmichael.efa.core.Gruppen;
 import de.nmichael.efa.core.Fahrtenabzeichen;
 import de.nmichael.efa.core.VereinsConfig;
 import de.nmichael.efa.core.Synonyme;
-import de.nmichael.efa.core.EfaConfig;
 import de.nmichael.efa.core.Fahrtenbuch;
 import de.nmichael.efa.core.Mannschaften;
 import de.nmichael.efa.core.Adressen;
 import de.nmichael.efa.core.EfaRunning;
-import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.EfaSec;
 import de.nmichael.efa.util.TMJ;
 import de.nmichael.efa.util.Logger;
@@ -667,8 +667,8 @@ public class Daten {
     }
 
     public static void iniBackup() {
-        if (efaConfig.bakDir != null && efaConfig.bakDir.length() > 0) {
-            String dir = efaConfig.bakDir;
+        if (efaConfig.bakDir.getValue().length() > 0) {
+            String dir = efaConfig.bakDir.getValue();
             if (!dir.endsWith(Daten.fileSep)) {
                 dir = dir + Daten.fileSep;
             }
@@ -681,7 +681,11 @@ public class Daten {
                         International.getString("Backup-Verzeichnis") + ": " + Daten.efaBakDirectory);
             }
         }
-        Daten.backup = new Backup(Daten.efaBakDirectory, Daten.efaConfig.bakSave, Daten.efaConfig.bakMonat, Daten.efaConfig.bakTag, Daten.efaConfig.bakKonv);
+        Daten.backup = new Backup(Daten.efaBakDirectory, 
+                Daten.efaConfig.bakSave.getValue(),
+                Daten.efaConfig.bakMonat.getValue(),
+                Daten.efaConfig.bakTag.getValue(),
+                Daten.efaConfig.bakKonv.getValue());
     }
 
     public static void iniCopiedFiles() {
@@ -705,10 +709,10 @@ public class Daten {
 
         // Look&Feel
         try {
-            if (Daten.efaConfig.lookAndFeel.equals(EfaConfig.DEFAULT)) {
+            if (Daten.efaConfig.lookAndFeel.getValue().length() == 0) {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } else {
-                UIManager.setLookAndFeel(Daten.efaConfig.lookAndFeel);
+                UIManager.setLookAndFeel(Daten.efaConfig.lookAndFeel.getValue());
             }
         } catch (Exception e) {
             Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTSETLOOKANDFEEL,
@@ -1014,20 +1018,22 @@ public class Daten {
     }
 
     public static void checkRegister() {
-        if (PROGRAMMID.equals(Daten.efaConfig.registeredProgramID)) {
+        if (PROGRAMMID.equals(Daten.efaConfig.registeredProgramID.getValue())) {
             return; // already registered
         }
-        Daten.efaConfig.registrationChecks++;
+        Daten.efaConfig.registrationChecks.setValue(Daten.efaConfig.registrationChecks.getValue() + 1);
 
         boolean promptForRegistration = false;
-        if (Daten.efaConfig.registeredProgramID == null || Daten.efaConfig.registeredProgramID.length() == 0) {
+        if (Daten.efaConfig.registeredProgramID.getValue().length() == 0) {
             // never before registered
-            if (Daten.efaConfig.registrationChecks <= 30 && Daten.efaConfig.registrationChecks % 10 == 0) {
+            if (Daten.efaConfig.registrationChecks.getValue() <= 30 &&
+                Daten.efaConfig.registrationChecks.getValue() % 10 == 0) {
                 promptForRegistration = true;
             }
         } else {
             // previous version already registered
-            if (Daten.efaConfig.registrationChecks <= 10 && Daten.efaConfig.registrationChecks % 10 == 0) {
+            if (Daten.efaConfig.registrationChecks.getValue() <= 10 &&
+                Daten.efaConfig.registrationChecks.getValue() % 10 == 0) {
                 promptForRegistration = true;
             }
         }
@@ -1037,8 +1043,8 @@ public class Daten {
                     "file:" + HtmlFactory.createRegister(),
                     750, 600, (int) Dialog.screenSize.getWidth() / 2 - 375, (int) Dialog.screenSize.getHeight() / 2 - 300).endsWith(".pl")) {
                 // registration complete
-                Daten.efaConfig.registeredProgramID = Daten.PROGRAMMID;
-                Daten.efaConfig.registrationChecks = 0;
+                Daten.efaConfig.registeredProgramID.setValue(Daten.PROGRAMMID);
+                Daten.efaConfig.registrationChecks.setValue(0);
                 Daten.efaConfig.writeEinstellungen();
             }
 

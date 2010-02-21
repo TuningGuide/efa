@@ -41,14 +41,14 @@ public class EfaFrameFocusManager extends DefaultFocusManager {
 
 
   void goTo(JComponent c, KeyEvent e) {
-    if (Daten.efaConfig != null && efaFrame.abfahrt.equals(c) && Daten.efaConfig.skipUhrzeit) goTo(efaFrame.ziel, e);
-    else if (Daten.efaConfig != null && efaFrame.ankunft.equals(c) && Daten.efaConfig.skipUhrzeit) goTo(efaFrame.ziel,e);
-    else if (Daten.efaConfig != null && efaFrame.ziel.equals(c) && Daten.efaConfig.skipZiel) goTo(efaFrame.bootskm,e);
-    else if (Daten.efaConfig != null && efaFrame.mannschkm.equals(c) && Daten.efaConfig.skipMannschKm) {
+    if (efaFrame.abfahrt.equals(c) && Daten.efaConfig.skipUhrzeit.getValue()) goTo(efaFrame.ziel, e);
+    else if (efaFrame.ankunft.equals(c) && Daten.efaConfig.skipUhrzeit.getValue()) goTo(efaFrame.ziel,e);
+    else if (efaFrame.ziel.equals(c) && Daten.efaConfig.skipZiel.getValue()) goTo(efaFrame.bootskm,e);
+    else if (efaFrame.mannschkm.equals(c) && Daten.efaConfig.skipMannschKm.getValue()) {
       efaFrame.mannschkm_focusGained(null);
       goTo(efaFrame.bemerk,e);
     }
-    else if (Daten.efaConfig != null && efaFrame.bemerk.equals(c) && Daten.efaConfig.skipBemerk) goTo(efaFrame.addButton,e);
+    else if (efaFrame.bemerk.equals(c) && Daten.efaConfig.skipBemerk.getValue()) goTo(efaFrame.addButton,e);
     else if (c.isEnabled() && c.isVisible()) c.requestFocus();
     else processKeyEvent(c, e);
   }

@@ -246,8 +246,8 @@ public class WanderfahrtSelectFrame extends JDialog implements ActionListener {
       Daten.nachrichten.add(n);
       Daten.nachrichten.writeFile();
 
-      if (Daten.efaConfig != null && Daten.efaConfig.admins != null) {
-        n.sendEmail(Daten.efaConfig.admins);
+      if (Daten.efaConfig.admins.size() > 0) {
+        n.sendEmail(Daten.efaConfig.admins.getKeysArray());
       }
     }
 

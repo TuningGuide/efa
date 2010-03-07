@@ -134,6 +134,8 @@ public class International {
         } catch (Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_CORE_LANGUAGESUPPORT,
                     "Failed to determine available languages: "+e.toString());
+            e.printStackTrace(); // this stack trace should stay in here (we don't have a logger yet,
+                                 // so we don't have to worry about an ExceptionFrame here)
         }
     }
 

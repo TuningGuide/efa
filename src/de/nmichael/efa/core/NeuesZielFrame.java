@@ -179,8 +179,17 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
     jLabel1.setLabelFor(ziel);
     Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Kilometer")+": ");
     jLabel2.setLabelFor(kilometer);
-    Mnemonics.setLabel(this, bereichLabel, International.onlyFor("Zielbereiche","de")+": ");
-    bereichLabel.setLabelFor(bereich);
+    if (Daten.efaConfig.showBerlinOptions.getValue()) {
+        Mnemonics.setLabel(this, bereichLabel, International.onlyFor("Zielbereiche","de")+": ");
+        bereichLabel.setLabelFor(bereich);
+        bereich.setNextFocusableComponent(stegziel);
+        Dialog.setPreferredSize(bereich,200,19);
+        bereich.addFocusListener(new java.awt.event.FocusAdapter() {
+          public void focusLost(FocusEvent e) {
+            bereich_focusLost(e);
+          }
+        });
+    }
     ziel.setNextFocusableComponent(kilometer);
     Dialog.setPreferredSize(ziel,200,19);
     kilometer.setNextFocusableComponent(gewaesser);
@@ -190,18 +199,11 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
         kilometer_focusLost(e);
       }
     });
-    bereich.setNextFocusableComponent(stegziel);
-    Dialog.setPreferredSize(bereich,200,19);
-    bereich.addFocusListener(new java.awt.event.FocusAdapter() {
-      public void focusLost(FocusEvent e) {
-        bereich_focusLost(e);
-      }
-    });
     stegziel.setNextFocusableComponent(SaveButton);
     stegziel.setSelected(true);
     Mnemonics.setButton(this, stegziel, International.getStringWithMnemonic("Start und Ziel ist eigenes Bootshaus"));
     Mnemonics.setLabel(this, gewaesserLabel, International.getStringWithMnemonic("Gewässer")+": ");
-    gewaesser.setNextFocusableComponent(bereich);
+    gewaesser.setNextFocusableComponent( (Daten.efaConfig.showBerlinOptions.getValue() ? bereich : stegziel) );
     Dialog.setPreferredSize(gewaesser,200,19);
     gewaesser.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
@@ -210,14 +212,18 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
     });
     this.getContentPane().add(SaveButton, BorderLayout.SOUTH);
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
-    jPanel1.add(bereichLabel,    new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
+    if (Daten.efaConfig.showBerlinOptions.getValue()) {
+        jPanel1.add(bereichLabel,    new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
             ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 10, 0, 0), 0, 0));
+    }
     jPanel1.add(ziel,    new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 0, 0, 10), 0, 0));
     jPanel1.add(kilometer,       new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 10), 0, 0));
-    jPanel1.add(bereich,    new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
+    if (Daten.efaConfig.showBerlinOptions.getValue()) {
+        jPanel1.add(bereich,    new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 10), 0, 0));
+    }
     jPanel1.add(jLabel2,     new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 10, 0, 0), 0, 0));
     jPanel1.add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -228,14 +234,6 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     jPanel1.add(gewaesser,     new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 10), 0, 0));
-
-
-   if (!Daten.efaConfig.showBerlinOptions.getValue()) {
-     this.bereich.setVisible(false);
-     this.bereichLabel.setVisible(false);
-     this.stegziel.setVisible(false);
-   }
-
   }
   /**Overridden so we can exit when window is closed*/
   protected void processWindowEvent(WindowEvent e) {

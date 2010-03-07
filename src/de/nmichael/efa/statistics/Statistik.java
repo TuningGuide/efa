@@ -1150,7 +1150,7 @@ public class Statistik {
     for (int i=0; i<a.length; i++) {
       // suche vier passende Zielfahrten
       a[i].kmwett.zielfahrtenFinal = getBestZf(a[i].kmwett.zielfahrten);
-      if (sd.alleZielfahrten) a[i].kmwett.zielfahrtenAdditional = getAdditionalZf(a[i].kmwett.zielfahrten,a[i].kmwett.zielfahrtenFinal);
+      a[i].kmwett.zielfahrtenAdditional = getAdditionalZf(a[i].kmwett.zielfahrten,a[i].kmwett.zielfahrtenFinal);
     }
 
       if (sd.ausgebenWettBedingung) ad.wett_bedingungen = createAusgabeBedingungen(sd,wett.key,ad.wett_bedingungen_fett,ad.wett_bedingungen_kursiv);
@@ -1244,14 +1244,16 @@ public class Statistik {
                 if (!erfuellt && sd.zusatzWettMitAnforderung) ae.w_kilometer+="/"+gruppen[g].km;
                 if (!sd.wettOhneDetail && erfuellt) {
                   ae.w_jahrgang = a[i].jahrgang;
-                  int _ausgabeZfAnzahl = (a[i].kmwett.zielfahrtenFinal != null ? a[i].kmwett.zielfahrtenFinal.length : 0) + (a[i].kmwett.zielfahrtenAdditional != null ? a[i].kmwett.zielfahrtenAdditional.length : 0);
+                  int _ausgabeZfAnzahl = (a[i].kmwett.zielfahrtenFinal != null ? a[i].kmwett.zielfahrtenFinal.length : 0) + 
+                                         (a[i].kmwett.zielfahrtenAdditional != null && a[i].kmwett.zielfahrtenAdditional.length > 0 ?
+                                             (sd.alleZielfahrten ? a[i].kmwett.zielfahrtenAdditional.length : 1) : 0);
                   ae.w_detail   = new String[_ausgabeZfAnzahl][4];
                   for (int j=0; a[i].kmwett.zielfahrtenFinal != null && j<a[i].kmwett.zielfahrtenFinal.length; j++) {
                     if (a[i].kmwett.zielfahrtenFinal[j] != null) {
                       ae.w_detail[j] = a[i].kmwett.zielfahrtenFinal[j].toStringArray();
                     }
                   }
-                  for (int j=0; a[i].kmwett.zielfahrtenAdditional != null && j<a[i].kmwett.zielfahrtenAdditional.length; j++) {
+                  for (int j=0; sd.alleZielfahrten && a[i].kmwett.zielfahrtenAdditional != null && j<a[i].kmwett.zielfahrtenAdditional.length; j++) {
                     if (a[i].kmwett.zielfahrtenAdditional[j] != null) {
                       ae.w_detail[j + (a[i].kmwett.zielfahrtenFinal != null ? a[i].kmwett.zielfahrtenFinal.length : 0)] = a[i].kmwett.zielfahrtenAdditional[j].toStringArray();
                     }
@@ -1374,7 +1376,8 @@ public class Statistik {
               if (!erfuellt && sd.zusatzWettMitAnforderung) ae.w_kilometer+="/"+gruppen[g].km;
               if (!sd.wettOhneDetail && erfuellt) {
                 ae.w_jahrgang = a[i].jahrgang;
-                ae.w_detail   = new String[gruppen[g].zusatz][3];
+                ae.w_detail   = new String[gruppen[g].zusatz + 
+                        (a[i].kmwett.winterAnz > gruppen[g].zusatz ? 1 : 0)][3]; // eine Fahrt mehr für den Hinweis "weitere Fahrten"
               } else {
                 // Warnung, wenn Fahrten nicht gewertet wurden
                 boolean warnung = !erfuellt && a[i].anz > a[i].kmwett.winterAnz;
@@ -1511,6 +1514,7 @@ public class Statistik {
             // Teilnehmer ist in der Gruppe!
 
             // Wanderfahrten zusammenstellen
+            boolean mehrFahrten = false;
             String[][] wafa = new String[7][6]; // 7 Einträge mit jeweils LfdNr/Abfahrt/Ankunft/Ziel/Km/Bemerk
             Object[] keys = a[i].kmwett.wafa.keySet().toArray(); // Keys ermitteln
             boolean[] ausg = new boolean[keys.length]; // merken, welche Fahrt schon zur Ausgabe markiert wurde
@@ -1520,7 +1524,7 @@ public class Statistik {
             int wafaAnzMTour=0; // für Gruppe 3: Anzahl der Tage durch Mehrtagestouren
             int jumAnz=0;       // für Gruppe 3 a/b: Anzahl der JuM-Regatten
             DRVFahrt drvel=null,bestEl=null;
-            for (int nr=0; nr<7; nr++) { // max. für 7 auszufüllende Felder Fahrten suchen
+            for (int nr=0; nr<wafa.length+1; nr++) { // max. für 7 auszufüllende Felder Fahrten suchen (plus 1 weitere, die aber nicht gemerkt wird)
               hoechst=0; // höchste verbleibende KmZahl oder Tagezahl
 
               // nächste geeignete Fahrt heraussuchen (meiste Km (Gruppe<3) oder längste Tour (Gruppe 3))
@@ -1544,6 +1548,10 @@ public class Statistik {
                   else hoechst = drvel.anzTage;
                   hoechstEl = k;
                 }
+              }
+              if (hoechst != 0 && nr >= wafa.length) {
+                  hoechst = 0;
+                  mehrFahrten = true; // merken, daß es mehr Fahrten als die ausgegebenen gibt
               }
               if (hoechst>0 && // was gefunden?
                   (nr<5 ||     // weniger als 5 Einträge, oder ...
@@ -1679,9 +1687,10 @@ public class Statistik {
                 if (!erfuellt && sd.zusatzWettMitAnforderung) ae.w_kilometer+="/"+gruppen[g].km;
                 if (!sd.wettOhneDetail && erfuellt) {
                   ae.w_jahrgang = a[i].jahrgang;
-                  ae.w_detail   = new String[wafaLength][6];
-                  for (int j=0; j<wafaLength; j++)
+                  ae.w_detail   = new String[wafaLength + (mehrFahrten ? 1 : 0)][6]; // ein zusätzliches Arrayelement (nicht gefüllt), wenn weitere Fahrten vorliegen
+                  for (int j=0; j<wafaLength; j++) {
                     ae.w_detail[j] = wafa[j];
+                  }
                 } else {
                   if (gruppen[g].gruppe<3) {
                     if (sd.wettKurzAusgabe) {
@@ -5262,8 +5271,13 @@ public class Statistik {
               if (ae.w_detail.length>0)
                 for (int j=0; j<ae.w_detail.length; j++) {
                   f.write("<tr>");
-                  for (int k=0; k<ae.w_detail[j].length; k++)
-                    f.write("<td>"+ae.w_detail[j][k]+"</td>");
+                  if (ae.w_detail[j] != null && ae.w_detail[j][0] != null) {
+                      for (int k=0; k<ae.w_detail[j].length; k++) {
+                          f.write("<td>"+ae.w_detail[j][k]+"</td>");
+                      }
+                  } else {
+                      f.write("<td colspan=\""+colspan+"\">und weitere Fahrten</td>");
+                  }
                   f.write("</tr>\n");
                 }
               f.write("</table>\n</td>\n");
@@ -5768,6 +5782,9 @@ public class Statistik {
   static void outTXT(BufferedWriter f, String indent, String[][] t, boolean hrAfter1stRow, boolean hrBeforeLastRow) throws IOException {
     int lineLength = normalizeAusgabeTabelle(t) + (t[0].length-1)*2; // (t[0].length-1)*2 == Anzahl der Trennzeichen zwischen den Feldern!
     for (int x=0; x<t.length; x++) {
+      if (t[x] == null || t[x][0] == null) {
+          continue;
+      }
       f.write(indent);
       if ( (x == 1 && hrAfter1stRow) || (x == t.length-1 && hrBeforeLastRow) ) {
         for (int y=0; y<lineLength; y++) f.write("-");
@@ -5894,6 +5911,9 @@ public class Statistik {
     normalizeAusgabeTabelle(t);
     for (int x=0; x<t.length; x++) {
       Dialog.programOutText.append(indent);
+      if (t[x] == null || t[x][0] == null) {
+          continue;
+      }
       for (int y=0; y<t[x].length; y++) {
         Dialog.programOutText.append(t[x][y]);
         if (y+1 < t[x].length) Dialog.programOutText.append("  ");
@@ -6105,10 +6125,12 @@ public class Statistik {
     for (int x=0; x<t[0].length; x++) maxBreite[x] = 0;
     for (int x=0; x<t[0].length; x++)
       for (int y=0; y<t.length; y++)
-        if (t[y][x].length() > maxBreite[x]) maxBreite[x] = t[y][x].length();
+        if (t[y] != null && t[y][x] != null && t[y][x].length() > maxBreite[x]) maxBreite[x] = t[y][x].length();
     for (int x=0; x<t[0].length; x++)
       for (int y=0; y<t.length; y++)
-        while (t[y][x].length() < maxBreite[x]) t[y][x] += " ";
+        if (t[y] != null && t[y][x] != null) {
+            while (t[y][x].length() < maxBreite[x]) t[y][x] += " ";
+        }
     int totalLength = 0;
     for (int x=0; x<t[0].length; x++) totalLength += maxBreite[x];
     return totalLength;

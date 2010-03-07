@@ -44,6 +44,13 @@ public class EfaConfig extends DatenListe {
     public static final String CATEGORY_PERMISSIONS   = "11PERMISSIONS";
     public static final String CATEGORY_NOTIFICATIONS = "12NOTIFICATIONS";
     public static final String CATEGORY_TYPES         = "13TYPES";
+    public static final String CATEGORY_TYPES_SESS    = "131TYPES_SESS";
+    public static final String CATEGORY_TYPES_BOAT    = "132TYPES_BOAT";
+    public static final String CATEGORY_TYPES_SEAT    = "133TYPES_SEAT";
+    public static final String CATEGORY_TYPES_RIGG    = "134TYPES_RIGG";
+    public static final String CATEGORY_TYPES_COXD    = "135TYPES_COXD";
+    public static final String CATEGORY_TYPES_GEND    = "136TYPES_GEND";
+    public static final String CATEGORY_TYPES_STAT    = "137TYPES_STAT";
     public static final String CATEGORY_LOCALE        = "14LOCALE";
 
     // Default-Obmann für ungesteuerte Boote
@@ -264,6 +271,13 @@ public class EfaConfig extends DatenListe {
         categories.put(CATEGORY_PERMISSIONS,   International.getString("Berechtigungen"));
         categories.put(CATEGORY_NOTIFICATIONS, International.getString("Benachrichtigungen"));
         categories.put(CATEGORY_TYPES,         International.getString("Bezeichnungen"));
+        categories.put(CATEGORY_TYPES_SESS,    International.getString("Fahrtart"));
+        categories.put(CATEGORY_TYPES_BOAT,    International.getString("Bootsart"));
+        categories.put(CATEGORY_TYPES_SEAT,    International.getString("Anzahl Ruderplätze"));
+        categories.put(CATEGORY_TYPES_RIGG,    International.getString("Riggerung"));
+        categories.put(CATEGORY_TYPES_COXD,    International.getString("mit/ohne Stm."));
+        categories.put(CATEGORY_TYPES_GEND,    International.getString("Geschlecht"));
+        categories.put(CATEGORY_TYPES_STAT,    International.getString("Status"));
     }
 
     // initialize all configuration parameters with their default values
@@ -763,11 +777,11 @@ public class EfaConfig extends DatenListe {
                 makeLanguageArray(STRINGLIST_VALUES), makeLanguageArray(STRINGLIST_DISPLAY),
                 TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
                 International.getString("Sprache")));
-        addParameter(showGermanOptions = new ConfigTypeBoolean("REGIONAL_GERMANY", false,
+        addParameter(showGermanOptions = new ConfigTypeBoolean("REGIONAL_GERMANY", International.getLanguageID().startsWith("de"),
                 TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
                 International.getMessage("Regionale Funktionalitäten aktivieren für {region}.",
                 International.getString("Deutschland"))));
-        addParameter(showBerlinOptions = new ConfigTypeBoolean("REGIONAL_BERLIN", false,
+        addParameter(showBerlinOptions = new ConfigTypeBoolean("REGIONAL_BERLIN", International.getLanguageID().startsWith("de"),
                 TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
                 International.getMessage("Regionale Funktionalitäten aktivieren für {region}.",
                 International.getString("Berlin"))));
@@ -886,16 +900,6 @@ public class EfaConfig extends DatenListe {
     }
 
     public void setExternalParameters() {
-        // Language
-        String newLang = language.toString();
-        if (Daten.efaBaseConfig.language == null || !Daten.efaBaseConfig.language.equals(newLang)) {
-            Daten.efaBaseConfig.language = newLang;
-            Daten.efaBaseConfig.writeFile();
-            Daten.efaTypes.setToLanguage(newLang);
-            Dialog.infoDialog(International.getString("Sprache"),
-                    International.getString("Die geänderten Spracheinstellungen werden erst nach einem Neustart von efa wirksam."));
-        }
-
         // Types
         if (Daten.efaTypes != null) {
             EfaTypes efaTypes = new EfaTypes(Daten.efaTypes);
@@ -927,6 +931,17 @@ public class EfaConfig extends DatenListe {
                         International.getString("Die geänderten Bezeichnungen werden erst nach einem Neustart von efa wirksam."));
             }
         }
+
+        // Language
+        String newLang = language.toString();
+        if (Daten.efaBaseConfig.language == null || !Daten.efaBaseConfig.language.equals(newLang)) {
+            Daten.efaBaseConfig.language = newLang;
+            Daten.efaBaseConfig.writeFile();
+            Daten.efaTypes.setToLanguage(newLang);
+            Dialog.infoDialog(International.getString("Sprache"),
+                    International.getString("Die geänderten Spracheinstellungen werden erst nach einem Neustart von efa wirksam."));
+        }
+
     }
 
     private String searchForProgram(String[] programs) {
@@ -1014,25 +1029,25 @@ public class EfaConfig extends DatenListe {
             return;
         }
         addParameter(typesGender = new ConfigTypeHashtable<String>("_TYPES_GENDER", "",
-                TYPE_EXPERT, makeCategory(CATEGORY_TYPES),
+                TYPE_EXPERT, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_GEND),
                 International.getString("Geschlecht")));
         addParameter(typesBoat = new ConfigTypeHashtable<String>("_TYPES_BOAT", "",
-                TYPE_EXPERT, makeCategory(CATEGORY_TYPES),
+                TYPE_EXPERT, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_BOAT),
                 International.getString("Bootsart")));
         addParameter(typesNumSeats = new ConfigTypeHashtable<String>("_TYPES_NUMSEATS", "",
-                TYPE_EXPERT, makeCategory(CATEGORY_TYPES),
+                TYPE_EXPERT, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_SEAT),
                 International.getString("Anzahl Ruderplätze")));
         addParameter(typesRigging = new ConfigTypeHashtable<String>("_TYPES_RIGGING", "",
-                TYPE_EXPERT, makeCategory(CATEGORY_TYPES),
+                TYPE_EXPERT, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_RIGG),
                 International.getString("Riggerung")));
         addParameter(typesCoxing = new ConfigTypeHashtable<String>("_TYPES_COXING", "",
-                TYPE_EXPERT, makeCategory(CATEGORY_TYPES),
+                TYPE_EXPERT, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_COXD),
                 International.getString("mit/ohne Stm.")));
         addParameter(typesSession = new ConfigTypeHashtable<String>("_TYPES_SESSION", "",
-                TYPE_EXPERT, makeCategory(CATEGORY_TYPES),
+                TYPE_EXPERT, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_SESS),
                 International.getString("Fahrtart")));
         addParameter(typesStatus = new ConfigTypeHashtable<String>("_TYPES_STATUS", "",
-                TYPE_EXPERT, makeCategory(CATEGORY_TYPES),
+                TYPE_EXPERT, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_STAT),
                 International.getString("Status")));
         iniTypes(typesGender, EfaTypes.CATEGORY_GENDER);
         iniTypes(typesBoat, EfaTypes.CATEGORY_BOAT);

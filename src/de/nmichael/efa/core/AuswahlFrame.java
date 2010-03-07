@@ -14,6 +14,7 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.config.EfaTypes;
+import de.nmichael.efa.core.config.EfaConfig;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -278,13 +279,15 @@ public class AuswahlFrame extends JDialog implements ActionListener {
         tabelleTitel[1]=International.getString("Art");
         break;
       case ZIELE:
-        tabelleBreite=4;
+        tabelleBreite= (Daten.efaConfig.showBerlinOptions.getValue() ? 4 : 3);
         anz = Daten.fahrtenbuch.getDaten().ziele.countElements();
         tabelleTitel = new String[tabelleBreite];
         tabelleTitel[0]=International.getString("Ziel");
         tabelleTitel[1]=International.getString("Kilometer");
         tabelleTitel[2]=International.getString("Gewässer");
-        tabelleTitel[3]=International.onlyFor("Zielbereiche","de");
+        if (Daten.efaConfig.showBerlinOptions.getValue()) {
+            tabelleTitel[3]=International.onlyFor("Zielbereiche","de");
+        }
         break;
       case MEHRTAGESFAHRTEN:
         tabelleBreite=4;
@@ -450,35 +453,37 @@ public class AuswahlFrame extends JDialog implements ActionListener {
   // Alle geänderten Dateien speichern
   void speichern() {
       String listError = null;
-    if (this.datenArt == this.MITGLIEDER && Daten.fahrtenbuch.getDaten().mitglieder.isChanged())
+    if (datenArt == MITGLIEDER && Daten.fahrtenbuch.getDaten().mitglieder.isChanged())
       if (!Daten.fahrtenbuch.getDaten().mitglieder.writeFile())
           listError = International.getString("Mitgliederliste");
-    if (this.datenArt == this.BOOTE && Daten.fahrtenbuch.getDaten().boote.isChanged())
+    if (datenArt == BOOTE && Daten.fahrtenbuch.getDaten().boote.isChanged())
       if (!Daten.fahrtenbuch.getDaten().boote.writeFile())
           listError = International.getString("Bootsliste");
-    if (this.datenArt == this.BOOTE && Daten.synBoote.isChanged())
+    if (datenArt == BOOTE && Daten.synBoote.isChanged())
       if (!Daten.synBoote.writeFile())
           listError = International.getString("Boots-Synonymliste");
-    if (this.datenArt == this.ZIELE && Daten.fahrtenbuch.getDaten().ziele.isChanged()) {
-      if (Daten.vereinsConfig != null) Daten.fahrtenbuch.getDaten().ziele.checkAllZielbereiche(Daten.vereinsConfig.zielbereich);
+    if (datenArt == ZIELE && Daten.fahrtenbuch.getDaten().ziele.isChanged()) {
+      if (Daten.vereinsConfig != null && Daten.efaConfig.showBerlinOptions.getValue()) {
+          Daten.fahrtenbuch.getDaten().ziele.checkAllZielbereiche(Daten.vereinsConfig.zielbereich);
+      }
       if (!Daten.fahrtenbuch.getDaten().ziele.writeFile())
           listError = International.getString("Zielliste");
     }
-    if (this.datenArt == this.FAHRTENABZEICHEN && Daten.fahrtenabzeichen.isChanged())
+    if (datenArt == FAHRTENABZEICHEN && Daten.fahrtenabzeichen.isChanged())
       if (!Daten.fahrtenabzeichen.writeFile())
           listError = "DRV-Fahrtenabzeichenliste";
+    if (datenArt == MANNSCHAFTEN && Daten.mannschaften.isChanged())
+      if (!Daten.mannschaften.writeFile())
+          listError = International.getString("Liste der Standardmannschaften");
+    if ((datenArt == GRUPPEN || datenArt == MITGLIEDER) && Daten.gruppen.isChanged())
+      if (!Daten.gruppen.writeFile())
+          listError = International.getString("Gruppenliste");
     if (Daten.fahrtenbuch.isChanged()) {
       if (!Daten.fahrtenbuch.writeFile())
           listError = International.getString("Fahrtenbuch");
-      if (this.datenArt == this.MEHRTAGESFAHRTEN && efaFrame != null) efaFrame.getAllFahrtDauer();
+      if (this.datenArt == MEHRTAGESFAHRTEN && efaFrame != null) efaFrame.getAllFahrtDauer();
       if (efaFrame != null) efaFrame.datensatzGeaendert=false;
     }
-    if (this.datenArt == this.MANNSCHAFTEN && Daten.mannschaften.isChanged())
-      if (!Daten.mannschaften.writeFile())
-          listError = International.getString("Liste der Standardmannschaften");
-    if (this.datenArt == this.GRUPPEN && Daten.gruppen.isChanged())
-      if (!Daten.gruppen.writeFile())
-          listError = International.getString("Gruppenliste");
     if (listError != null) {
         Dialog.error(International.getMessage("Änderungen an der {listname} konnten nicht gespeichert werden!",listError));
 
@@ -848,11 +853,11 @@ public class AuswahlFrame extends JDialog implements ActionListener {
       case ZIELE:
          String[] felder3 = { International.getString("Ziel"),
                               International.getString("Kilometer"),
-                              International.onlyFor("Zielbereich","de"),
+                              International.onlyFor("Zielbereich","de"), // muß angezeigt werden (derzeitige Implementierung: alle Felder der Datenliste)
                               International.getString("Steg-Ziel"),
                               International.getString("Gewässer")
          };
-         boolean[] select3 = { true ,  true      ,  true        ,  false     ,  true};
+         boolean[] select3 = { true , true , (Daten.efaConfig.showBerlinOptions.getValue()) ,  false ,  true};
          if (Daten.fahrtenbuch.getDaten().ziele != null)
            dlg = new ListenausgabeFrame(this,International.getString("Zielliste"),Daten.fahrtenbuch.getDaten().ziele,felder3,select3,0,null,null);
          break;

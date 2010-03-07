@@ -25,6 +25,9 @@ import de.nmichael.efa.*;
 // @i18n complete
 
 public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener {
+
+  public static final String BOLD = "[B]";
+
   static boolean wirdBereitsAngezeigt = false;
 
   JPanel jPanel1 = new JPanel();
@@ -285,10 +288,11 @@ public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener 
       if (d.get(Fahrtenbuch.BOOTSKM).equals("0") && !auchUnvollstaendige.isSelected()) continue;
       c--;
 
+      int obmann = EfaUtil.string2int(d.get(Fahrtenbuch.OBMANN),-1);
       fahrten[c][0] = d.get(Fahrtenbuch.LFDNR);
       fahrten[c][1] = d.get(Fahrtenbuch.DATUM);
       fahrten[c][2] = d.get(Fahrtenbuch.BOOT);
-      fahrten[c][3] = d.get(Fahrtenbuch.STM);
+      fahrten[c][3] = new TableItem(d.get(Fahrtenbuch.STM), obmann == 0); // (obmann == 0 ? BOLD : "") + d.get(Fahrtenbuch.STM);
 
       int mRowCount = 0;
       for (int i=Fahrtenbuch.MANNSCH1; i<=Fahrtenbuch.MANNSCH24; i++) {
@@ -298,7 +302,8 @@ public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener 
       Object[][] mRowData = new Object[mRowCount][1];
       for (int i=Fahrtenbuch.MANNSCH1, ii=0; i<=Fahrtenbuch.MANNSCH24; i++) {
         if (!d.get(i).equals("")) {
-          mRowData[ii++][0] = d.get(i);
+          mRowData[ii][0] = new TableItem(d.get(i), obmann == ii+1); // (obmann == ii+1 ? BOLD : "") + d.get(i);
+          ii++;
         }
       }
       Object[] mRowTitle = new Object[1];
@@ -306,6 +311,7 @@ public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener 
       MyNestedJTable mTable = new MyNestedJTable(mRowData,mRowTitle) {
         public boolean isCellEditable(int row, int column) { return false; }
       };
+      mTable.getColumn("foo").setCellRenderer(new HighlightTableCellRenderer());
       mTable.setShowGrid(false);
       fahrten[c][4] = mTable;
 
@@ -324,6 +330,7 @@ public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener 
 
     TableSorter sorter = new TableSorter(new DefaultTableModel(fahrten,title));
     table = new MyJTable(sorter);
+    table.getColumn(International.getString("Steuermann")).setCellRenderer(new HighlightTableCellRenderer());
     table.getColumn(International.getString("Mannschaft")).setCellRenderer(new TableInTableRenderer());
 //table.getColumn("Mannschaft").setCellEditor(new TableInTableEditor(new JCheckBox()));
 
@@ -389,6 +396,7 @@ public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener 
       table.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
     }
 
+    table.validate();
 
   }
 
@@ -424,12 +432,59 @@ public class FahrtenbuchAnzeigenFrame extends JDialog implements ActionListener 
 
 }
 
+class TableItem {
+
+    private String txt;
+    private boolean bold;
+
+    public TableItem(String txt, boolean bold) {
+        this.txt = txt;
+        this.bold = bold;
+    }
+
+    public String toString() {
+        return txt;
+    }
+
+    public boolean isBold() {
+        return bold;
+    }
+
+}
+
 class TableInTableRenderer implements TableCellRenderer {
-  public Component getTableCellRendererComponent(JTable table, Object value,
-                   boolean isSelected, boolean hasFocus, int row, int column) {
-    try {
-      if (value==null) return null;
-      return (Component)value;
-    } catch(Exception e) { return null; }
-  }
+
+    public Component getTableCellRendererComponent(JTable table, Object value,
+            boolean isSelected, boolean hasFocus, int row, int column) {
+        try {
+            if (value == null) {
+                return null;
+            }
+            return (Component) value;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+}
+
+class HighlightTableCellRenderer extends DefaultTableCellRenderer {
+
+    public Component getTableCellRendererComponent(JTable table, Object value,
+            boolean isSelected, boolean hasFocus, int row, int column) {
+        try {
+            if (value == null) {
+                return null;
+            }
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            String txt = value.toString();
+//            if (txt.startsWith(FahrtenbuchAnzeigenFrame.BOLD)) {
+            if (((TableItem)value).isBold()) {
+                c.setFont(c.getFont().deriveFont(Font.BOLD));
+//                table.setValueAt(txt.substring(FahrtenbuchAnzeigenFrame.BOLD.length()), row, column);
+            }
+            return this;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

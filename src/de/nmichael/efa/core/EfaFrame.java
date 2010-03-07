@@ -917,13 +917,15 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
 
     contentPane.setMinimumSize(new Dimension(590, 350));
-    jMenuItem2.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_efawett.gif")));
-    Mnemonics.setMenuButton(this, jMenuItem2, International.getStringWithMnemonic("Elektronische Wettbewerbsmeldung"));
-    jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        jMenuItem2_actionPerformed(e);
-      }
-    });
+    if (Daten.efaConfig.showGermanOptions.getValue()) {
+        jMenuItem2.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_efawett.gif")));
+        Mnemonics.setMenuButton(this, jMenuItem2, International.getStringWithMnemonic("Elektronische Wettbewerbsmeldung"));
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            jMenuItem2_actionPerformed(e);
+          }
+        });
+    }
     jMenuImport.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_import.gif")));
     Mnemonics.setMenuButton(this, jMenuImport, International.getStringWithMnemonic("Fahrtenbuch importieren"));
     jMenuImport.addActionListener(new java.awt.event.ActionListener() {
@@ -1072,13 +1074,15 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         decolorize(e);
       }
     });
-    Mnemonics.setMenuButton(this, jMenuItem13, "DRV-Fahrtenabzeichen");
-    jMenuItem13.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_fahrtenabzeichen.gif")));
-    jMenuItem13.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        jMenuItem13_actionPerformed(e);
-      }
-    });
+    if (Daten.efaConfig.showGermanOptions.getValue()) {
+        Mnemonics.setMenuButton(this, jMenuItem13, "DRV-Fahrtenabzeichen");
+        jMenuItem13.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_fahrtenabzeichen.gif")));
+        jMenuItem13.addActionListener(new java.awt.event.ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            jMenuItem13_actionPerformed(e);
+          }
+        });
+    }
     Mnemonics.setMenuButton(this, jMenuFileDatensicherung, International.getStringWithMnemonic("Datensicherung"));
     jMenuFileDatensicherung.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_datensicherung.gif")));
     jMenuFileDatensicherung.addActionListener(new java.awt.event.ActionListener() {
@@ -1269,8 +1273,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     jMenuFahrtenbuch.add(jMenuItem1);
     jMenuKonfiguration.add(jMenuItem12);
     jMenuKonfiguration.add(jMenuItem14);
-    jMenuKonfiguration.add(jMenuItem13);
-    jMenuKonfiguration.add(jMenuItem2);
+    if (Daten.efaConfig.showGermanOptions.getValue()) {
+        jMenuKonfiguration.add(jMenuItem13);
+        jMenuKonfiguration.add(jMenuItem2);
+    }
     jMenuKonfiguration.add(jMenuItem11);
     jMenuKonfiguration.add(jMenuItem3);
     jMenuStatistik.add(jMenuItemKilometerliste);

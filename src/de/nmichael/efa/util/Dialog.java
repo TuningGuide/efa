@@ -408,7 +408,7 @@ public class Dialog {
     if (frameStack == null) frameStack = new Stack();
     frameStack.push(w);
     if (Daten.applID == Daten.APPL_EFADIREKT &&
-        Daten.efaConfig.efaDirekt_immerImVordergrund.getValue()) {
+        Daten.efaConfig != null && Daten.efaConfig.efaDirekt_immerImVordergrund.getValue()) {
       try {
         de.nmichael.efa.java15.Java15.setAlwaysOnTop(w,true);
       } catch(UnsupportedClassVersionError e) {
@@ -532,7 +532,8 @@ public class Dialog {
     if (dlgSize.width > screenSize.width) {
       dlgSize.width = screenSize.width;
     }
-    if (parentSize != null && loc != null && !Daten.efaConfig.fensterZentriert.getValue()) {
+    if (parentSize != null && loc != null && Daten.efaConfig != null &&
+            !Daten.efaConfig.fensterZentriert.getValue()) {
       x = (parentSize.width - dlgSize.width) / 2 + loc.x;
       y = (parentSize.height - dlgSize.height) / 2 + loc.y;
     } else {
@@ -542,8 +543,8 @@ public class Dialog {
 
     if (x<0) x = 0;
     if (y<0) y = 0;
-    if (x<Daten.efaConfig.windowXOffset.getValue()) x = Daten.efaConfig.windowXOffset.getValue();
-    if (y<Daten.efaConfig.windowYOffset.getValue()) y = Daten.efaConfig.windowYOffset.getValue();
+    if (Daten.efaConfig != null && x<Daten.efaConfig.windowXOffset.getValue()) x = Daten.efaConfig.windowXOffset.getValue();
+    if (Daten.efaConfig != null && y<Daten.efaConfig.windowYOffset.getValue()) y = Daten.efaConfig.windowYOffset.getValue();
     return new Point(x,y);
   }
 

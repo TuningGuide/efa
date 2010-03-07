@@ -124,11 +124,12 @@ public class EfaConfigFrame extends BaseDialog {
         this.validate();
     }
 
-    private void recursiveBuildGui(Hashtable<String,Hashtable> categories, 
+    private int recursiveBuildGui(Hashtable<String,Hashtable> categories,
                                    Hashtable<String,Vector<ConfigValue>> items,
                                    String catKey,
                                    JTabbedPane tabbedPane,
                                    String selectedPanel) {
+        int itmcnt = 0;
         int pos = (selectedPanel != null && selectedPanel.length() > 0 ? selectedPanel.indexOf(EfaConfig.CATEGORY_SEPARATOR) : -1);
         String selectThisCat = (pos < 0 ? selectedPanel : selectedPanel.substring(0,pos));
         String selectNextCat = (pos < 0 ? null : selectedPanel.substring(pos+1));
@@ -142,11 +143,12 @@ public class EfaConfigFrame extends BaseDialog {
             Hashtable<String,Hashtable> subCat = categories.get(key);
             if (subCat.size() != 0) {
                 JTabbedPane subTabbedPane = new JTabbedPane();
-                tabbedPane.add(subTabbedPane, catName);
-                if (key.equals(selectThisCat)) {
-                    tabbedPane.setSelectedComponent(subTabbedPane);
+                if (recursiveBuildGui(subCat, items, thisCatKey, subTabbedPane, selectNextCat) > 0) {
+                    tabbedPane.add(subTabbedPane, catName);
+                    if (key.equals(selectThisCat)) {
+                        tabbedPane.setSelectedComponent(subTabbedPane);
+                    }
                 }
-                recursiveBuildGui(subCat, items, thisCatKey, subTabbedPane, selectNextCat);
             } else {
                 JPanel panel = new JPanel();
                 panels.put(panel, thisCatKey);
@@ -159,6 +161,7 @@ public class EfaConfigFrame extends BaseDialog {
                         (itm.getType() == EfaConfig.TYPE_EXPERT && expertMode.isSelected())) {
                         y += itm.displayOnGui(this,panel,y);
                         configItems.add(itm);
+                        itmcnt++;
                     }
                 }
                 if (y > 0) {
@@ -169,6 +172,7 @@ public class EfaConfigFrame extends BaseDialog {
                 }
             }
         }
+        return itmcnt;
     }
 
     void getValuesFromGui() {

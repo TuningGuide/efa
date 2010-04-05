@@ -55,6 +55,12 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
         EfaUtil.pack(this);
         this.parent = parent;
     }
+    
+    public void showDialog() {
+        Dialog.setDlgLocation(this,parent);
+        setModal(!Dialog.tourRunning);
+        show();
+    }
 
     public void keyAction(ActionEvent evt) {
         if (evt == null || evt.getActionCommand() == null) {
@@ -97,7 +103,21 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     protected void iniDialogCommonFinish() {
         getContentPane().add(basePanel, null);
         basePanel.add(mainScrollPane, BorderLayout.CENTER);
-        mainScrollPane.setPreferredSize(new Dimension(800, 600)); // @todo
+
+        // intelligent sizing of this Dialog:
+        // make it as big as necessary for display without scrollbars (plus some margin),
+        // as long as it does not exceed the configured screen size.
+        Dimension dim = mainPanel.getPreferredSize();
+        if (dim.width < 100) {
+            dim.width = 100;
+        }
+        if (dim.height < 50) {
+            dim.height = 50;
+        }
+        dim.width  += mainScrollPane.getVerticalScrollBar().getPreferredSize().getWidth() + 40;
+        dim.height += mainScrollPane.getHorizontalScrollBar().getPreferredSize().getHeight() + 20;
+        mainScrollPane.setPreferredSize(Dialog.getMaxSize(dim));
+
         mainScrollPane.getViewport().add(mainPanel, null);
     }
 

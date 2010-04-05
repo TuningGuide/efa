@@ -2849,6 +2849,7 @@ public class EfaDirektFrame extends JFrame {
     JLabel sunset;
     boolean updateSunrise;
     int sunriseUpdated;
+    boolean pluginError = false;
 
     public EfaUhrUpdater(JLabel uhr, JLabel sunrise, JLabel sunset, boolean updateSunrise) {
       this.uhr = uhr;
@@ -2881,6 +2882,13 @@ public class EfaDirektFrame extends JFrame {
       } catch (NoClassDefFoundError e) {
         sunrise.setText("--:--");
         sunset.setText("--:--");
+        if (!pluginError) {
+            Logger.log(Logger.WARNING, Logger.MSG_CORE_MISSINGPLUGIN,
+                    International.getString("Fehlendes Plugin")+": " + Daten.PLUGIN_JSUNTIMES_NAME + " - " +
+                    International.getString("Die Sonnenaufgangs- und Untergangszeiten können nicht angezeigt werden.") + " " +
+                    International.getMessage("Bitte lade das fehlende Plugin unter der Adresse {url} herunter.", Daten.pluginWWWdirectory));
+        }
+        pluginError = true;
       } catch (Exception ee) {
         sunrise.setText("--:--");
         sunset.setText("--:--");

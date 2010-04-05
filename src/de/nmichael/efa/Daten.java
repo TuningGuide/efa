@@ -13,6 +13,7 @@ package de.nmichael.efa;
 import de.nmichael.efa.core.config.EfaBaseConfig;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.core.config.EfaConfig;
+import de.nmichael.efa.core.config.CustSettings;
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.core.WettDefs;
 import de.nmichael.efa.core.Gruppen;
@@ -37,6 +38,7 @@ import de.nmichael.efa.drv.DRVConfig;
 import de.nmichael.efa.statistics.FTPWriter;
 import de.nmichael.efa.statistics.PDFWriter;
 import de.nmichael.efa.statistics.XMLWriter;
+import de.nmichael.efa.gui.EfaCustomizationFrame;
 import java.io.*;
 import java.util.jar.*;
 import java.util.*;
@@ -52,9 +54,9 @@ public class Daten {
   public       static String EFA_SHORTNAME = "efa";                              // dummy, will be set in International.ininitalize()
   public       static String EFA_LONGNAME  = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
 
-  public final static String VERSION = "v2.0_dev02"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSIONID = "1.9.0_04";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "07.03.2010";  // Release Date: TT.MM.JJJJ
+  public final static String VERSION = "v2.0_dev03"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
+  public final static String VERSIONID = "1.9.0_05";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+  public final static String VERSIONRELEASEDATE = "05.04.2010";  // Release Date: TT.MM.JJJJ
   public final static String PROGRAMMID = "EFA.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String COPYRIGHTYEAR = "10";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
@@ -192,6 +194,7 @@ public class Daten {
   public static EfaSec efaSec;               // efa Security File
   public static EfaRunning efaRunning;       // efa Running (Doppelstarts verhindern)
   private static StartLogo splashScreen;     // Efa Splash Screen
+  public static boolean firstEfaStart=false; // true wenn efa das erste Mal gestartet wurde und EfaBaseConfig neu erzeugt wurde
 
   public static String dateiHTML = "";
   public static String dateiTXT = "";
@@ -280,19 +283,37 @@ public class Daten {
         iniEnvironmentSettings();
         iniDirectories();
         iniEfaSec();
+        CustSettings cust = iniEfaCustomization();
         iniFileSettings(1);
-        iniEfaConfig();
+        iniEfaConfig(cust);
         iniFileSettings(2);
         iniEfaRunning();
         iniBackup();
-        iniEfaTypes();
+        iniEfaTypes(cust);
         iniCopiedFiles();
         iniGUI();
+    }
+
+    public static String getCurrentStack() {
+        try {
+            StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+            String trace = "";
+            for (int i=stack.length-1; i>=0; i--) {
+                trace = trace + " -> " + stack[i].toString();
+                if (stack[i].toString().startsWith(International.class.getCanonicalName())) {
+                    break;
+                }
+            }
+            return trace;
+        } catch(Exception e) {
+            return "";
+        }
     }
 
     public static void haltProgram(int exitCode) {
         if (exitCode != 0) {
             if (exitCode < 99) {
+                Logger.log(Logger.INFO, Logger.MSG_CORE_HALT, getCurrentStack());
                 Logger.log(Logger.ERROR, Logger.MSG_CORE_HALT,
                         International.getString("PROGRAMMENDE") + " (Error Code " + exitCode + ")");
             } else {
@@ -356,6 +377,7 @@ public class Daten {
                 }
                 haltProgram(HALT_BASICCONFIG);
             }
+            firstEfaStart = true;
         }
         if (!Daten.efaBaseConfig.readFile()) {
             String msg = International.getString("efa can't start") + ": " +
@@ -507,6 +529,7 @@ public class Daten {
         } else {
             if (splashScreen != null) {
                 splashScreen.remove();
+                splashScreen = null;
             }
         }
     }
@@ -522,6 +545,15 @@ public class Daten {
             }
             haltProgram(HALT_EFASEC);
         }
+    }
+
+    public static CustSettings iniEfaCustomization() {
+        if (!firstEfaStart) {
+            return null;
+        }
+        EfaCustomizationFrame dlg = new EfaCustomizationFrame((javax.swing.JFrame)null);
+        dlg.showDialog();
+        return dlg.getCustSettings();
     }
 
     public static void iniFileSettings(int stage) {
@@ -572,9 +604,9 @@ public class Daten {
         }
     }
 
-    public static void iniEfaConfig() {
+    public static void iniEfaConfig(CustSettings custSettings) {
         if (applID != APPL_DRV) {
-            Daten.efaConfig = new EfaConfig(Daten.efaCfgDirectory + Daten.CONFIGFILE);
+            Daten.efaConfig = new EfaConfig(Daten.efaCfgDirectory + Daten.CONFIGFILE, custSettings);
             if (!EfaUtil.canOpenFile(Daten.efaConfig.getFileName())) {
                 if (!Daten.efaConfig.writeFile()) {
                     String msg = LogString.logstring_fileCreationFailed(Daten.efaConfig.getFileName(),
@@ -626,10 +658,10 @@ public class Daten {
         }
     }
 
-    public static void iniEfaTypes() {
+    public static void iniEfaTypes(CustSettings custSettings) {
         Daten.efaTypes = new EfaTypes(Daten.efaCfgDirectory + Daten.EFATYPESFILE);
         if (!EfaUtil.canOpenFile(Daten.efaTypes.getFileName())) {
-            if (!Daten.efaTypes.createNewIfDoesntExist()) {
+            if (!Daten.efaTypes.createNewIfDoesntExist(custSettings)) {
                 String msg = LogString.logstring_fileCreationFailed(Daten.efaTypes.getFileName(),
                         International.getString("Bezeichnungen"));
                 Logger.log(Logger.ERROR, Logger.MSG_CORE_EFATYPESFAILEDCREATE, msg);

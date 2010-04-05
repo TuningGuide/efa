@@ -216,9 +216,11 @@ public class EfaConfigFrame extends BaseDialog {
 
     void closeButton_actionPerformed(ActionEvent e) {
         getValuesFromGui();
+        Daten.efaConfig.checkNewConfigValues(myEfaConfig);
         Daten.efaConfig = myEfaConfig;
         Daten.efaConfig.writeFile();
         Daten.efaConfig.setExternalParameters();
+        Daten.efaConfig.checkForRequiredPlugins();
         super.closeButton_actionPerformed(e);
     }
 
@@ -250,6 +252,10 @@ public class EfaConfigFrame extends BaseDialog {
         Daten.iniSplashScreen(false);
         dlg.show();
         System.exit(0);
+    }
+
+    public EfaConfig getWorkingConfig() {
+        return myEfaConfig;
     }
 
 }

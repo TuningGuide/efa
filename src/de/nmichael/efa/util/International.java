@@ -65,19 +65,7 @@ public class International {
         }
         
         Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Initializing Language Support ...");
-        try {
-            StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-            String trace = "";
-            for (int i=stack.length-1; i>=0; i--) {
-                trace = trace + " -> " + stack[i].toString();
-                if (stack[i].toString().startsWith(International.class.getCanonicalName())) {
-                    break;
-                }
-            }
-            Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, trace);
-        } catch(Exception e) {
-            // nothing to do
-        }
+        Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, Daten.getCurrentStack());
         initializeData();
 
         try {

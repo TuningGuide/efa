@@ -26,15 +26,17 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
     private static final String DELIM_ELEMENTS = "@@@";
     private Hashtable<String,E> hash;
     private E e;
+    private boolean fieldsEditable;
     
     private JTextField[] textfield;
     private Hashtable<JButton,String> delButtons;
     private EfaConfigFrame efaConfigFrame;
 
-    public ConfigTypeHashtable(String name, E value, int type,
-            String category, String description) {
+    public ConfigTypeHashtable(String name, E value, boolean fieldsEditable,
+            int type, String category, String description) {
         this.name = name;
         this.e = value;
+        this.fieldsEditable = fieldsEditable;
         this.type = type;
         this.category = category;
         this.description = description;
@@ -45,8 +47,6 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
         hash = new Hashtable<String,E>();
         hash.put(DUMMY, e);
     }
-
-
 
     public void put(String s, E value) {
         hash.put(s, value);
@@ -89,6 +89,7 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
                     break;
                 case 1: // TYPE_ADMIN
                     v = Admin.parseAdmin(val);
+                    ((Admin)v).name = key; // make sure that Admin's name always equals the key!!
                     break;
             }
             if (v != null && c.isInstance(v)) {
@@ -182,6 +183,7 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
         for (int i=0; i<keys.length; i++) {
             textfield[i] = new JTextField();
             textfield[i].setText(get(keys[i]).toString());
+            textfield[i].setEditable(fieldsEditable);
             Dialog.setPreferredSize(textfield[i], 200, 19);
             JLabel label = new JLabel();
             Mnemonics.setLabel(dlg, label, keys[i] + ": ");
@@ -224,7 +226,13 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
             return;
         }
         getValueFromGui();
-        hash.put(key, hash.get(DUMMY));
+
+        // instead of simply using hash.put(key, hash.get(DUMMY)), we
+        // need to invoke addToHash(...) instead because of some special handling
+        // implemented there (i.e. making sure for Admin data that the admin's name
+        // equals the key value!).
+        addToHash(hash, key, hash.get(DUMMY).toString());
+
         efaConfigFrame.updateGui();
     }
 

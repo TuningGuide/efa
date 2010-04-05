@@ -14,6 +14,7 @@ import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.DatenListe;
 import de.nmichael.efa.direkt.Admin;
+import de.nmichael.efa.core.DownloadFrame;
 import java.util.*;
 import java.io.*;
 import java.text.*;
@@ -86,6 +87,7 @@ public class EfaConfig extends DatenListe {
     private HashMap<String,String> categories;
     private HashMap<String,ConfigValue> configValues;
     private Vector<String> configValueNames;
+    private CustSettings custSettings = null;
     
     // public configuration data
     public ConfigTypeString letzteDatei;
@@ -217,6 +219,8 @@ public class EfaConfig extends DatenListe {
     public ConfigTypeBoolean showGermanOptions;
     public ConfigTypeBoolean showBerlinOptions;
     public ConfigTypeStringList language;
+    public ConfigTypeAction typesAddAllDefaultRowingBoats;
+    public ConfigTypeAction typesAddAllDefaultCanoeingBoats;
     public ConfigTypeHashtable<String> typesGender;
     public ConfigTypeHashtable<String> typesBoat;
     public ConfigTypeHashtable<String> typesNumSeats;
@@ -225,7 +229,16 @@ public class EfaConfig extends DatenListe {
     public ConfigTypeHashtable<String> typesSession;
     public ConfigTypeHashtable<String> typesStatus;
 
-    // Default Contructor
+    // Default Contructor (with Customization Settings)
+    public EfaConfig(String filename, CustSettings custSettings) {
+        super(filename, 0, 0, false);
+        kennung = KENNUNG190;
+        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFACONFIG, "EfaConfig("+filename+")");
+        this.custSettings = custSettings;
+        initialize();
+    }
+
+    // Default Contructor (without Customization Settings)
     public EfaConfig(String filename) {
         super(filename, 0, 0, false);
         kennung = KENNUNG190;
@@ -363,7 +376,7 @@ public class EfaConfig extends DatenListe {
                 TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
                 International.getMessage("Eingabefeld '{field}' überspringen",
                 International.getString("Bemerkungen"))));
-        addParameter(keys = new ConfigTypeHashtable<String>("HOTKEYS", "",
+        addParameter(keys = new ConfigTypeHashtable<String>("HOTKEYS", "", true,
                 TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
                 International.getString("Tastenbelegungen für Bemerkungs-Feld")));
         addParameter(zielfahrtSeparatorBereiche = new ConfigTypeString("ZIELFAHRT_SEPARATORBEREICHE", ",",
@@ -467,7 +480,7 @@ public class EfaConfig extends DatenListe {
                 "efb",ConfigTypeFile.MODE_OPEN,ConfigTypeFile.TYPE_FILE,
                 TYPE_INTERNAL, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
                 "Last logbook opened by efa Boathouse"));
-        addParameter(admins = new ConfigTypeHashtable<Admin>("ADMINS", new Admin("name","password"),
+        addParameter(admins = new ConfigTypeHashtable<Admin>("ADMINS", new Admin("name","password"), false,
                 TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
                 International.getString("Administratoren")));
         addParameter(efaDirekt_resBooteNichtVerfuegbar = new ConfigTypeBoolean("SHOWASNOTAVAILABLE_RESERVEDBOATS", false,
@@ -671,7 +684,7 @@ public class EfaConfig extends DatenListe {
                 International.getMessage("Button '{button}'",
                 International.getString("Admin-Modus"))));
         addParameter(efaDirekt_butSpezial = new ConfigTypeButton("BUTTON_SPECIAL",
-                International.getString("Spezial-Button"), "CCCCCC", true, true, true, true,
+                International.getString("Spezial-Button"), "CCCCCC", false, true, true, true,
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUIBUTTONS),
                 International.getMessage("Button '{button}'",
                 International.getString("Spezial-Button"))));
@@ -777,16 +790,26 @@ public class EfaConfig extends DatenListe {
                 makeLanguageArray(STRINGLIST_VALUES), makeLanguageArray(STRINGLIST_DISPLAY),
                 TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
                 International.getString("Sprache")));
-        addParameter(showGermanOptions = new ConfigTypeBoolean("REGIONAL_GERMANY", International.getLanguageID().startsWith("de"),
+        addParameter(showGermanOptions = new ConfigTypeBoolean("REGIONAL_GERMANY",
+                (custSettings != null ? custSettings.activateGermanOptions : International.getLanguageID().startsWith("de") ),
                 TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
                 International.getMessage("Regionale Funktionalitäten aktivieren für {region}.",
                 International.getString("Deutschland"))));
-        addParameter(showBerlinOptions = new ConfigTypeBoolean("REGIONAL_BERLIN", International.getLanguageID().startsWith("de"),
+        addParameter(showBerlinOptions = new ConfigTypeBoolean("REGIONAL_BERLIN", 
+                (custSettings != null ? custSettings.activateBerlinOptions : International.getLanguageID().startsWith("de") ),
                 TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
                 International.getMessage("Regionale Funktionalitäten aktivieren für {region}.",
                 International.getString("Berlin"))));
 
         // ============================= TYPES =============================
+        addParameter(typesAddAllDefaultRowingBoats = new ConfigTypeAction("ACTION_ADDTYPES_ROWING", ConfigTypeAction.ACTION_GENERATE_ROWING_BOAT_TYPES,
+                TYPE_PUBLIC, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_BOAT),
+                International.getMessage("Alle Standard-Bootstypen für {rowing_or_canoeing} neu hinzufügen",
+                International.getString("Rudern"))));
+        addParameter(typesAddAllDefaultCanoeingBoats = new ConfigTypeAction("ACTION_ADDTYPES_CANOEING", ConfigTypeAction.ACTION_GENERATE_CANOEING_BOAT_TYPES,
+                TYPE_PUBLIC, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_BOAT),
+                International.getMessage("Alle Standard-Bootstypen für {rowing_or_canoeing} neu hinzufügen",
+                International.getString("Kanufahren"))));
         buildTypes();
 
     }
@@ -899,34 +922,49 @@ public class EfaConfig extends DatenListe {
         return true;
     }
 
+    public void checkNewConfigValues(EfaConfig newConfig) {
+        String changedSettings = null;
+        if (newConfig.efaDirekt_fontSize.getValue() != this.efaDirekt_fontSize.getValue() ||
+            !newConfig.efaDirekt_fontStyle.getValue().equals(this.efaDirekt_fontStyle.getValue())) {
+            changedSettings = (changedSettings == null ? "" : changedSettings + "\n") +
+                    International.getString("Schriftgröße");
+        }
+        if (changedSettings != null) {
+            Dialog.infoDialog(International.getString("Geänderte Einstellungen"),
+                    International.getString("Folgende geänderte Einstellungen werden erst nach einem Neustart von efa wirksam:") +
+                    "\n" + changedSettings);
+        }
+    }
+
     public void setExternalParameters() {
         // Types
+        EfaTypes newEfaTypes = null;
         if (Daten.efaTypes != null) {
-            EfaTypes efaTypes = new EfaTypes(Daten.efaTypes);
+            newEfaTypes = new EfaTypes(Daten.efaTypes);
             boolean changed = false;
-            if (updateTypes(efaTypes, EfaTypes.CATEGORY_GENDER, typesGender)) {
+            if (updateTypes(newEfaTypes, EfaTypes.CATEGORY_GENDER, typesGender)) {
                 changed = true;
             }
-            if (updateTypes(efaTypes, EfaTypes.CATEGORY_BOAT, typesBoat)) {
+            if (updateTypes(newEfaTypes, EfaTypes.CATEGORY_BOAT, typesBoat)) {
                 changed = true;
             }
-            if (updateTypes(efaTypes, EfaTypes.CATEGORY_NUMSEATS, typesNumSeats)) {
+            if (updateTypes(newEfaTypes, EfaTypes.CATEGORY_NUMSEATS, typesNumSeats)) {
                 changed = true;
             }
-            if (updateTypes(efaTypes, EfaTypes.CATEGORY_RIGGING, typesRigging)) {
+            if (updateTypes(newEfaTypes, EfaTypes.CATEGORY_RIGGING, typesRigging)) {
                 changed = true;
             }
-            if (updateTypes(efaTypes, EfaTypes.CATEGORY_COXING, typesCoxing)) {
+            if (updateTypes(newEfaTypes, EfaTypes.CATEGORY_COXING, typesCoxing)) {
                 changed = true;
             }
-            if (updateTypes(efaTypes, EfaTypes.CATEGORY_SESSION, typesSession)) {
+            if (updateTypes(newEfaTypes, EfaTypes.CATEGORY_SESSION, typesSession)) {
                 changed = true;
             }
-            if (updateTypes(efaTypes, EfaTypes.CATEGORY_STATUS, typesStatus)) {
+            if (updateTypes(newEfaTypes, EfaTypes.CATEGORY_STATUS, typesStatus)) {
                 changed = true;
             }
             if (changed) {
-                efaTypes.writeFile();
+                newEfaTypes.writeFile();
                 Dialog.infoDialog(International.getString("Bezeichnungen"),
                         International.getString("Die geänderten Bezeichnungen werden erst nach einem Neustart von efa wirksam."));
             }
@@ -937,11 +975,20 @@ public class EfaConfig extends DatenListe {
         if (Daten.efaBaseConfig.language == null || !Daten.efaBaseConfig.language.equals(newLang)) {
             Daten.efaBaseConfig.language = newLang;
             Daten.efaBaseConfig.writeFile();
-            Daten.efaTypes.setToLanguage(newLang);
+            if (newEfaTypes == null) {
+                newEfaTypes = new EfaTypes(Daten.efaTypes);
+            }
+            newEfaTypes.setToLanguage(newLang);
             Dialog.infoDialog(International.getString("Sprache"),
                     International.getString("Die geänderten Spracheinstellungen werden erst nach einem Neustart von efa wirksam."));
         }
 
+    }
+
+    public void checkForRequiredPlugins() {
+        if (efaDirekt_sunRiseSet_show.getValue() && !de.nmichael.efa.direkt.SunRiseSet.sunrisePluginInstalled()) {
+            DownloadFrame.getPlugin("efa", Daten.PLUGIN_JSUNTIMES_NAME, Daten.PLUGIN_JSUNTIMES_FILE, Daten.PLUGIN_JSUNTIMES_HTML, "NoClassDefFoundError", null, false);
+        }
     }
 
     private String searchForProgram(String[] programs) {
@@ -1028,25 +1075,25 @@ public class EfaConfig extends DatenListe {
         if (Daten.efaTypes == null) {
             return;
         }
-        addParameter(typesGender = new ConfigTypeHashtable<String>("_TYPES_GENDER", "",
+        addParameter(typesGender = new ConfigTypeHashtable<String>("_TYPES_GENDER", "", true,
                 TYPE_EXPERT, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_GEND),
                 International.getString("Geschlecht")));
-        addParameter(typesBoat = new ConfigTypeHashtable<String>("_TYPES_BOAT", "",
+        addParameter(typesBoat = new ConfigTypeHashtable<String>("_TYPES_BOAT", "", true,
                 TYPE_EXPERT, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_BOAT),
                 International.getString("Bootsart")));
-        addParameter(typesNumSeats = new ConfigTypeHashtable<String>("_TYPES_NUMSEATS", "",
+        addParameter(typesNumSeats = new ConfigTypeHashtable<String>("_TYPES_NUMSEATS", "", true,
                 TYPE_EXPERT, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_SEAT),
                 International.getString("Anzahl Ruderplätze")));
-        addParameter(typesRigging = new ConfigTypeHashtable<String>("_TYPES_RIGGING", "",
+        addParameter(typesRigging = new ConfigTypeHashtable<String>("_TYPES_RIGGING", "", true,
                 TYPE_EXPERT, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_RIGG),
                 International.getString("Riggerung")));
-        addParameter(typesCoxing = new ConfigTypeHashtable<String>("_TYPES_COXING", "",
+        addParameter(typesCoxing = new ConfigTypeHashtable<String>("_TYPES_COXING", "", true,
                 TYPE_EXPERT, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_COXD),
                 International.getString("mit/ohne Stm.")));
-        addParameter(typesSession = new ConfigTypeHashtable<String>("_TYPES_SESSION", "",
+        addParameter(typesSession = new ConfigTypeHashtable<String>("_TYPES_SESSION", "", true,
                 TYPE_EXPERT, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_SESS),
                 International.getString("Fahrtart")));
-        addParameter(typesStatus = new ConfigTypeHashtable<String>("_TYPES_STATUS", "",
+        addParameter(typesStatus = new ConfigTypeHashtable<String>("_TYPES_STATUS", "", true,
                 TYPE_EXPERT, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_STAT),
                 International.getString("Status")));
         iniTypes(typesGender, EfaTypes.CATEGORY_GENDER);

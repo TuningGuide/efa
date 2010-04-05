@@ -549,6 +549,13 @@ public class Fahrtenbuch extends DatenListe {
  }
 
 
+ public static String getMehrtagesfahrtName(String key) {
+   if (key.startsWith(EfaTypes.TYPE_SESSION_MULTIDAY+":")) {
+       key = key.substring(EfaTypes.TYPE_SESSION_MULTIDAY.length()+1);
+   }
+   return key;
+ }
+
  public void addMehrtagesfahrt(String name, String start, String ende, int rudertage, String gewaesser, boolean isEtappen) {
    Mehrtagesfahrt m = new Mehrtagesfahrt(name,start,ende,rudertage,gewaesser,isEtappen);
    mehrtagesfahrten.put(m.name,m);
@@ -565,6 +572,7 @@ public class Fahrtenbuch extends DatenListe {
 
  public Mehrtagesfahrt getMehrtagesfahrt(String key) {
    if (key == null) return null;
+   key = getMehrtagesfahrtName(key);
    return (Mehrtagesfahrt)mehrtagesfahrten.get(key);
  }
 

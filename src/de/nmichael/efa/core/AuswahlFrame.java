@@ -367,7 +367,9 @@ public class AuswahlFrame extends JDialog implements ActionListener {
             tabelle[i][0] = f.get(Ziele.NAME);
             tabelle[i][1] = f.get(Ziele.KM);
             tabelle[i][2] = f.get(Ziele.GEWAESSER);
-            tabelle[i][3] = f.get(Ziele.BEREICH);
+            if (tabelle[i].length > 3) {
+                tabelle[i][3] = f.get(Ziele.BEREICH); // only if Daten.efaConfig.showBerlinOptions == true
+            }
             break;
           case MANNSCHAFTEN:
             tabelle[i][0] = f.get(Mannschaften.BOOT);

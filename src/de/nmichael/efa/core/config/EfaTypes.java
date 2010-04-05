@@ -45,6 +45,12 @@ public class EfaTypes extends DatenListe {
     public static final String TYPE_BOAT_CHURCHBOAT       = "CHURCHBOAT";   // KIRCHBOOT
     public static final String TYPE_BOAT_MOTORBOAT        = "MOTORBOAT";    // MOTORBOOT
     public static final String TYPE_BOAT_ERG              = "ERG";          // ERGO
+    public static final String TYPE_BOAT_SEAKAYAK         = "SEAKAYAK";     // neu für Kanuten: Seekajak
+    public static final String TYPE_BOAT_RACINGKAYAK      = "RACINGKAYAK";  // neu für Kanuten: Rennkajak
+    public static final String TYPE_BOAT_WHITEWATERKAYAK  = "WHITEWATERKAYAK"; // neu für Kanuten: Wildwasserkajak
+    public static final String TYPE_BOAT_CANADIANTOURINGCANOE = "CANADIANTOURINGCANOE"; // neu für Kanuten: Tourenkanadier
+    public static final String TYPE_BOAT_CANADIANTEAMCANOE= "CANADIANTEAMCANOE"; // neu für Kanuten: Mannschaftskanadier
+    public static final String TYPE_BOAT_DRAGONBOAT       = "DRAGONBOAT";   // neu für Kanuten: Drachenboot
     public static final String TYPE_BOAT_OTHER            = "OTHER";        // other
 
     public static final String TYPE_NUMSEATS_1            = "1";            // 1
@@ -62,6 +68,7 @@ public class EfaTypes extends DatenListe {
 
     public static final String TYPE_RIGGING_SCULL         = "SCULL";        // SKULL
     public static final String TYPE_RIGGING_SWEEP         = "SWEEP";        // RIEMEN
+    public static final String TYPE_RIGGING_PADDLE        = "PADDLE";       // neu für Kanuten: Paddel
     public static final String TYPE_RIGGING_OTHER         = "OTHER";        // other
 
     public static final String TYPE_COXING_COXED          = "COXED";        // MIT
@@ -82,17 +89,22 @@ public class EfaTypes extends DatenListe {
     public static final String TYPE_STATUS_GUEST          = "GUEST";        // Gast
     public static final String TYPE_STATUS_OTHER          = "OTHER";        // andere
 
+    public static final int SELECTION_ROWING = 1;
+    public static final int SELECTION_CANOEING = 2;
+
 
     public static final String KENNUNG190 = "##EFA.190.TYPES##";
 
     private Vector<String> categories;
     private Hashtable<String,Vector<EfaType>> values;
+    private CustSettings custSettings = null;
 
     // Default Construktor
     public EfaTypes(String pdat) {
         super(pdat,0,0,false);
         kennung = KENNUNG190;
         iniCategories();
+        reset();
     }
 
     // Copy Constructor
@@ -333,6 +345,9 @@ public class EfaTypes extends DatenListe {
             key.equals(EfaTypes.TYPE_NUMSEATS_8X)) {
             return 8;
         }
+        if (key.equals(EfaTypes.TYPE_NUMSEATS_OTHER)) {
+            return Fahrtenbuch.ANZ_MANNSCH;
+        }
         return 0;
     }
 
@@ -434,9 +449,16 @@ public class EfaTypes extends DatenListe {
         return true;
     }
 
-    public boolean createNewIfDoesntExist() {
+    public boolean createNewIfDoesntExist(CustSettings custSettings) {
         if ((new File(dat)).exists()) {
             return true;
+        }
+
+        // make sure that this.custSettings != null when creating from scratch!
+        if (custSettings != null) {
+            this.custSettings = custSettings;
+        } else {
+            this.custSettings = new CustSettings();
         }
 
         // Datei existiert noch nicht: Neu erstellen mit Default-Werten
@@ -448,17 +470,80 @@ public class EfaTypes extends DatenListe {
         return writeFile(false);
     }
 
-    private void setToLanguage(String cat, String typ, String itxt, String otxt, ResourceBundle bundle) {
-        if (!isConfigured(cat, typ) || getValue(cat, typ).equals(itxt)) {
+    private int setToLanguage(String cat, String typ, String itxt, String otxt, ResourceBundle bundle, boolean createNewIfNotExists) {
+        if ((!isConfigured(cat, typ) && createNewIfNotExists) ||
+            (isConfigured(cat, typ) && getValue(cat, typ).equals(itxt))) {
             // value not yet configured or unchanged (has default value for current language)
             String key = International.makeKey(otxt);
             try {
                 String val = bundle.getString(key);
                 setValue(cat, typ, val);
             } catch(Exception e) {
-                setValue(cat, typ, International.getString("unbekannt"));
+                setValue(cat, typ, itxt); // use itxt as value if target language bundle does not contain translation
             }
+            return 1;
         }
+        return 0;
+    }
+
+    public int setToLanguage_Boats(ResourceBundle bundle, int typeSelection, boolean createNew) {
+        int count = 0;
+        switch(typeSelection) {
+            case SELECTION_ROWING:
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_RACING, International.getString("Rennboot"),"Rennboot",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_WHERRY, International.getString("Wherry"),"Wherry",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_TRIMMY, International.getString("Trimmy"),"Trimmy",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_AGIG, International.getString("A-Gig"),"A-Gig",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_BGIG, International.getString("B-Gig"),"B-Gig",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_CGIG, International.getString("C-Gig"),"C-Gig",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_DGIG, International.getString("D-Gig"),"D-Gig",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_EGIG, International.getString("E-Gig"),"E-Gig",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_INRIGGER, International.getString("Inrigger"),"Inrigger",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_BARQUE, International.getString("Barke"),"Barke",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_CHURCHBOAT, International.getString("Kirchboot"),"Kirchboot",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_ERG, International.getString("Ergo"),"Ergo",bundle,createNew);
+
+                count += setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_1, International.getString("Einer"),"Einer",bundle,createNew);
+                count += setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_2, International.getString("Zweier"),"Zweier",bundle,createNew);
+                count += setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_2X, International.getString("Doppelzweier"),"Doppelzweier",bundle,createNew);
+                count += setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_3, International.getString("Dreier"),"Dreier",bundle,createNew);
+                count += setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_4, International.getString("Vierer"),"Vierer",bundle,createNew);
+                count += setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_4X, International.getString("Doppelvierer"),"Doppelvierer",bundle,createNew);
+                count += setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_5, International.getString("Fünfer"),"Fünfer",bundle,createNew);
+                count += setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_6, International.getString("Sechser"),"Sechser",bundle,createNew);
+                count += setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_6X, International.getString("Doppelsechser"),"Doppelsechser",bundle,createNew);
+                count += setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_8, International.getString("Achter"),"Achter",bundle,createNew);
+                count += setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_8X, International.getString("Doppelachter"),"Doppelachter",bundle,createNew);
+
+                count += setToLanguage(CATEGORY_RIGGING, TYPE_RIGGING_SCULL, International.getString("Skull"),"Skull",bundle,createNew);
+                count += setToLanguage(CATEGORY_RIGGING, TYPE_RIGGING_SWEEP, International.getString("Riemen"),"Riemen",bundle,createNew);
+                break;
+            case SELECTION_CANOEING:
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_SEAKAYAK, International.getString("Seekajak"),"Seekajak",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_RACINGKAYAK, International.getString("Rennkajak"),"Rennkajak",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_WHITEWATERKAYAK, International.getString("Wildwasserkajak"),"Wildwasserkajak",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_CANADIANTOURINGCANOE, International.getString("Tourenkanadier"),"Tourenkanadier",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_CANADIANTEAMCANOE, International.getString("Mannschaftskanadier"),"Mannschaftskanadier",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_DRAGONBOAT, International.getString("Drachenboot"),"Drachenboot",bundle,createNew);
+
+                count += setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_1, International.getString("Einer"),"Einer",bundle,createNew);
+                count += setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_2, International.getString("Zweier"),"Zweier",bundle,createNew);
+                count += setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_3, International.getString("Dreier"),"Dreier",bundle,createNew);
+                count += setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_4, International.getString("Vierer"),"Vierer",bundle,createNew);
+
+                count += setToLanguage(CATEGORY_RIGGING, TYPE_RIGGING_PADDLE, International.getString("Paddel"),"Paddel",bundle,createNew);
+                break;
+        }
+
+        count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_MOTORBOAT, International.getString("Motorboot"),"Motorboot",bundle,createNew);
+        count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_OTHER, International.getString("andere"),"andere",bundle,createNew);
+        count += setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_OTHER, International.getString("andere"),"andere",bundle,createNew);
+        count += setToLanguage(CATEGORY_RIGGING, TYPE_RIGGING_OTHER, International.getString("andere"),"andere",bundle,createNew);
+        count += setToLanguage(CATEGORY_COXING, TYPE_COXING_COXED, International.getString("mit Stm."),"mit Stm.",bundle,createNew);
+        count += setToLanguage(CATEGORY_COXING, TYPE_COXING_COXLESS, International.getString("ohne Stm."),"ohne Stm.",bundle,createNew);
+        count += setToLanguage(CATEGORY_COXING, TYPE_COXING_OTHER, International.getString("andere"),"andere",bundle,createNew);
+
+        return count;
     }
 
     public boolean setToLanguage(String lang) {
@@ -474,58 +559,28 @@ public class EfaTypes extends DatenListe {
         } else {
             bundle = International.getResourceBundle();
         }
-        setToLanguage(CATEGORY_GENDER, TYPE_GENDER_MALE, International.getString("männlich"),"männlich",bundle);
-        setToLanguage(CATEGORY_GENDER, TYPE_GENDER_FEMALE, International.getString("weiblich"),"weiblich",bundle);
 
-        setToLanguage(CATEGORY_BOAT, TYPE_BOAT_RACING, International.getString("Rennboot"),"Rennboot",bundle);
-        setToLanguage(CATEGORY_BOAT, TYPE_BOAT_WHERRY, International.getString("Wherry"),"Wherry",bundle);
-        setToLanguage(CATEGORY_BOAT, TYPE_BOAT_TRIMMY, International.getString("Trimmy"),"Trimmy",bundle);
-        setToLanguage(CATEGORY_BOAT, TYPE_BOAT_AGIG, International.getString("A-Gig"),"A-Gig",bundle);
-        setToLanguage(CATEGORY_BOAT, TYPE_BOAT_BGIG, International.getString("B-Gig"),"B-Gig",bundle);
-        setToLanguage(CATEGORY_BOAT, TYPE_BOAT_CGIG, International.getString("C-Gig"),"C-Gig",bundle);
-        setToLanguage(CATEGORY_BOAT, TYPE_BOAT_DGIG, International.getString("D-Gig"),"D-Gig",bundle);
-        setToLanguage(CATEGORY_BOAT, TYPE_BOAT_EGIG, International.getString("E-Gig"),"E-Gig",bundle);
-        setToLanguage(CATEGORY_BOAT, TYPE_BOAT_INRIGGER, International.getString("Inrigger"),"Inrigger",bundle);
-        setToLanguage(CATEGORY_BOAT, TYPE_BOAT_BARQUE, International.getString("Barke"),"Barke",bundle);
-        setToLanguage(CATEGORY_BOAT, TYPE_BOAT_CHURCHBOAT, International.getString("Kirchboot"),"Kirchboot",bundle);
-        setToLanguage(CATEGORY_BOAT, TYPE_BOAT_MOTORBOAT, International.getString("Motorboot"),"Motorboot",bundle);
-        setToLanguage(CATEGORY_BOAT, TYPE_BOAT_ERG, International.getString("Ergo"),"Ergo",bundle);
-        setToLanguage(CATEGORY_BOAT, TYPE_BOAT_OTHER, International.getString("andere"),"andere",bundle);
+        boolean createNew = (custSettings != null ? true : false);
 
-        setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_1, International.getString("Einer"),"Einer",bundle);
-        setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_2, International.getString("Zweier"),"Zweier",bundle);
-        setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_2X, International.getString("Doppelzweier"),"Doppelzweier",bundle);
-        setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_3, International.getString("Dreier"),"Dreier",bundle);
-        setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_4, International.getString("Vierer"),"Vierer",bundle);
-        setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_4X, International.getString("Doppelvierer"),"Doppelvierer",bundle);
-        setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_5, International.getString("Fünfer"),"Fünfer",bundle);
-        setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_6, International.getString("Sechser"),"Sechser",bundle);
-        setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_6X, International.getString("Doppelsechser"),"Doppelsechser",bundle);
-        setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_8, International.getString("Achter"),"Achter",bundle);
-        setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_8X, International.getString("Doppelachter"),"Doppelachter",bundle);
-        setToLanguage(CATEGORY_NUMSEATS, TYPE_NUMSEATS_OTHER, International.getString("andere"),"andere",bundle);
+        setToLanguage(CATEGORY_GENDER, TYPE_GENDER_MALE, International.getString("männlich"),"männlich",bundle,createNew);
+        setToLanguage(CATEGORY_GENDER, TYPE_GENDER_FEMALE, International.getString("weiblich"),"weiblich",bundle,createNew);
 
-        setToLanguage(CATEGORY_RIGGING, TYPE_RIGGING_SCULL, International.getString("Skull"),"Skull",bundle);
-        setToLanguage(CATEGORY_RIGGING, TYPE_RIGGING_SWEEP, International.getString("Riemen"),"Riemen",bundle);
-        setToLanguage(CATEGORY_RIGGING, TYPE_RIGGING_OTHER, International.getString("andere"),"andere",bundle);
+        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_NORMAL, International.getString("normale Fahrt"),"normale Fahrt",bundle,createNew);
+        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_TRAINING, International.getString("Training"),"Training",bundle,createNew);
+        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_REGATTA, International.getString("Regatta"),"Regatta",bundle,createNew);
+        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_JUMREGATTA, International.getString("JuM-Regatta"),"JuM-Regatta",bundle,createNew);
+        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_TRAININGCAMP, International.getString("Trainingslager"),"Trainingslager",bundle,createNew);
+        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_INSTRUCTION, International.getString("Ausbildung"),"Ausbildung",bundle,createNew);
+        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_LATEENTRY, International.getString("Kilometernachtrag"),"Kilometernachtrag",bundle,createNew);
+        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_MOTORBOAT, International.getString("Motorboot"),"Motorboot",bundle,createNew);
+        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_ERG, International.getString("Ergo"),"Ergo",bundle,createNew);
+        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_MULTIDAY, International.getString("Mehrtagesfahrt"),"Mehrtagesfahrt",bundle,createNew);
 
-        setToLanguage(CATEGORY_COXING, TYPE_COXING_COXED, International.getString("mit Stm."),"mit Stm.",bundle);
-        setToLanguage(CATEGORY_COXING, TYPE_COXING_COXLESS, International.getString("ohne Stm."),"ohne Stm.",bundle);
-        setToLanguage(CATEGORY_COXING, TYPE_COXING_OTHER, International.getString("andere"),"andere",bundle);
+        setToLanguage(CATEGORY_STATUS, TYPE_STATUS_GUEST, International.getString("Gast"),"Gast",bundle,createNew);
+        setToLanguage(CATEGORY_STATUS, TYPE_STATUS_OTHER, International.getString("andere"),"andere",bundle,createNew);
 
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_NORMAL, International.getString("normale Fahrt"),"normale Fahrt",bundle);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_TRAINING, International.getString("Training"),"Training",bundle);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_REGATTA, International.getString("Regatta"),"Regatta",bundle);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_JUMREGATTA, International.getString("JuM-Regatta"),"JuM-Regatta",bundle);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_TRAININGCAMP, International.getString("Trainingslager"),"Trainingslager",bundle);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_INSTRUCTION, International.getString("Ausbildung"),"Ausbildung",bundle);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_LATEENTRY, International.getString("Kilometernachtrag"),"Kilometernachtrag",bundle);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_MOTORBOAT, International.getString("Motorboot"),"Motorboot",bundle);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_ERG, International.getString("Ergo"),"Ergo",bundle);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_MULTIDAY, International.getString("Mehrtagesfahrt"),"Mehrtagesfahrt",bundle);
-
-        setToLanguage(CATEGORY_STATUS, TYPE_STATUS_GUEST, International.getString("Gast"),"Gast",bundle);
-        setToLanguage(CATEGORY_STATUS, TYPE_STATUS_OTHER, International.getString("andere"),"andere",bundle);
+        setToLanguage_Boats(bundle, SELECTION_ROWING, (custSettings != null ? custSettings.activateRowingOptions : false));
+        setToLanguage_Boats(bundle, SELECTION_CANOEING, (custSettings != null ? custSettings.activateCanoeingOptions : false));
 
         return writeFile(false);
     }

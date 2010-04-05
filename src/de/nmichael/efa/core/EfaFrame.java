@@ -3859,14 +3859,14 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     try {
       if (UIManager.getLookAndFeel().getName().equals("Metal")) {
         field.setDisabledTextColor(Color.darkGray);
-        field.setBackground( (enable ? this.mannsch[0].getBackground() : this.getBackground()) );
+        field.setBackground( (enable ? (new JTextField()).getBackground() : new Color(234,234,234)) );
       }
     } catch(Exception e) {
       EfaUtil.foo();
     }
     field.setEnabled(enable);
     if (label != null) {
-      label.setForeground( (enable ? artDerFahrtLabel.getForeground() : Color.gray) ); // mannsch1_label als Referenzfarbe
+      label.setForeground( (enable ? (new JLabel()).getForeground() : Color.gray) );
     }
   }
 
@@ -3883,7 +3883,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     boolean isstm = true;
     int anz = Fahrtenbuch.ANZ_MANNSCH;
     if (d != null) {
-      isstm = d.get(Boote.STM).equals(EfaTypes.TYPE_COXING_COXED);
+      isstm = d.get(Boote.STM).equals(EfaTypes.TYPE_COXING_COXED) ||
+              d.get(Boote.STM).equals(EfaTypes.TYPE_COXING_OTHER);
       anz = EfaTypes.getNumberOfRowers(d.get(Boote.ANZAHL));
     }
     // Steuermann wird bei steuermannslosen Booten immer disabled (unabhängig von Konfigurationseinstellung)
@@ -4099,6 +4100,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (bootPreselected != null) {
       boot.setText(bootPreselected);
       vervollstaendige(boot,bootButton,Daten.fahrtenbuch.getDaten().boote,null,this,false);
+      DatenFelder db = Daten.fahrtenbuch.getDaten().boote.getExactComplete(bootPreselected);
+      setFieldEnabledStmUndMannsch(db);
+    } else {
+        setFieldEnabledStmUndMannsch(null);
     }
     showEfaFrame(datum);
   }

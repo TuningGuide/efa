@@ -62,6 +62,7 @@ public class Logger {
   public static final String MSG_CORE_EFACONFIGUNKNOWNPARAM  = "COR019";
   public static final String MSG_CORE_EFACONFIGUNSUPPPARMTYPE= "COR020";
   public static final String MSG_CORE_EFACONFIGINVALIDVALUE  = "COR021";
+  public static final String MSG_CORE_MISSINGPLUGIN          = "COR022";
 
   // Activities performed in Admin Mode
   public static final String MSG_ADMIN_LOGIN                 = "ADM001";

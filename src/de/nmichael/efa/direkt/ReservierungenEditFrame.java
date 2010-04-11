@@ -26,7 +26,7 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
 
   BootStatusFrame parent;
   boolean admin; // Admin-Modus oder normales Mitglied
-  Reservierung data;
+  BoatReservation data;
   int nr;
   Vector alleRes;
 
@@ -55,9 +55,10 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
   ButtonGroup buttonGroup = new ButtonGroup();
   JLabel wochentagLabel = new JLabel();
   JComboBox wochentagList = new JComboBox();
+  Vector wochentagKeys = new Vector();
 
 
-  public ReservierungenEditFrame(BootStatusFrame parent, boolean admin, String boot, Reservierung data, int nr, Vector alleRes) {
+  public ReservierungenEditFrame(BootStatusFrame parent, boolean admin, String boot, BoatReservation data, int nr, Vector alleRes) {
     super(parent);
     enableEvents(AWTEvent.WINDOW_EVENT_MASK);
     Dialog.frameOpened(this);
@@ -251,13 +252,39 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
 
   void frIni() {
     // @todo change order depending on locale
-    wochentagList.addItem(International.getString("Montag"));
-    wochentagList.addItem(International.getString("Dienstag"));
-    wochentagList.addItem(International.getString("Mittwoch"));
-    wochentagList.addItem(International.getString("Donnerstag"));
-    wochentagList.addItem(International.getString("Freitag"));
-    wochentagList.addItem(International.getString("Samstag"));
-    wochentagList.addItem(International.getString("Sonntag"));
+      String[] weekdays = new String[7];
+      weekdays[0] = International.getString("Montag");
+      weekdays[1] = International.getString("Dienstag");
+      weekdays[2] = International.getString("Mittwoch");
+      weekdays[3] = International.getString("Donnerstag");
+      weekdays[4] = International.getString("Freitag");
+      weekdays[5] = International.getString("Samstag");
+      weekdays[6] = International.getString("Sonntag");
+      
+      int firstDayOfWeek = (new GregorianCalendar(International.getResourceBundle().getLocale())).getFirstDayOfWeek();
+      int idx = 0;
+      switch(firstDayOfWeek) {
+          case GregorianCalendar.MONDAY: idx = 0;
+              break;
+          case GregorianCalendar.TUESDAY: idx = 1;
+              break;
+          case GregorianCalendar.WEDNESDAY: idx = 2;
+              break;
+          case GregorianCalendar.THURSDAY: idx = 3;
+              break;
+          case GregorianCalendar.FRIDAY: idx = 4;
+              break;
+          case GregorianCalendar.SATURDAY: idx = 5;
+              break;
+          case GregorianCalendar.SUNDAY: idx = 6;
+              break;
+      }
+
+      for (int i=0; i<7; i++) {
+          wochentagList.addItem(weekdays[idx]);
+          wochentagKeys.add(BoatReservation.WEEKDAYKEYS[idx]);
+          idx = (idx+1) % 7;
+      }
 
     if (!admin && Daten.efaConfig != null) {
       if (!Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue() ||
@@ -270,18 +297,18 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
     }
 
     if (data == null) return;
-    if (data.einmalig) {
-      vonTag.setText(data.vonTag);
-      bisTag.setText(data.bisTag);
+    if (data.isOneTimeReservation()) {
+      vonTag.setText(data.getDateFrom());
+      bisTag.setText(data.getDateTo());
       resEinmalig.setSelected(true);
     } else {
-      wochentagList.setSelectedItem(data.vonTag);
+      wochentagList.setSelectedItem(data.getWeekdayFrom());
       resZyklisch.setSelected(true);
     }
-    vonZeit.setText(data.vonZeit);
-    bisZeit.setText(data.bisZeit);
-    name.setText(data.name);
-    grund.setText(data.grund);
+    vonZeit.setText(data.getTimeFrom());
+    bisZeit.setText(data.getTimeTo());
+    name.setText(data.getForName());
+    grund.setText(data.getReason());
     vonTag_focusLost(null);
     bisTag_focusLost(null);
     vonZeit_focusLost(null);
@@ -370,19 +397,19 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
     }
 
 
-    Reservierung r = new Reservierung();
-    r.einmalig = einmalig;
+    BoatReservation r = new BoatReservation();
+    r.setOneTimeReservation(einmalig);
     if (einmalig) {
-      r.vonTag = vonTag.getText().trim();
-      r.bisTag = bisTag.getText().trim();
+      r.setDateFrom(vonTag.getText().trim());
+      r.setDateTo(bisTag.getText().trim());
     } else {
-      r.vonTag = (String)wochentagList.getSelectedItem();
-      r.bisTag = r.vonTag;
+      r.setDateFrom((String)wochentagKeys.get(wochentagList.getSelectedIndex()));
+      r.setDateTo(r.getDateFrom());
     }
-    r.vonZeit = vonZeit.getText().trim();
-    r.bisZeit = bisZeit.getText().trim();
-    r.name = name.getText().trim();
-    r.grund = grund.getText().trim();
+    r.setTimeFrom(vonZeit.getText().trim());
+    r.setTimeTo(bisZeit.getText().trim());
+    r.setForName(name.getText().trim());
+    r.setReason(grund.getText().trim());
 
     if (!BootStatusFrame.keineUeberschneidung(alleRes,r,nr)) {
       Dialog.error(International.getString("Die Reservierung überschneidet sich mit einer anderen Reservierung!"));

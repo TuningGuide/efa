@@ -48,6 +48,20 @@ public class EfaSec {
     return (efaSecSHA != null && efaSecSHA.startsWith("#"));
   }
 
+  public boolean isSecFileWritable() {
+    try {
+      BufferedReader fsecr = new BufferedReader(new InputStreamReader(new FileInputStream(filename),Daten.ENCODING_UTF));
+      String efaSecSHA = fsecr.readLine();
+      fsecr.close();
+      BufferedWriter fsecw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename),Daten.ENCODING_UTF));
+      fsecw.write(efaSecSHA);
+      fsecw.close();
+      return true;
+    } catch(Exception e) {
+      return false;
+    }
+  }
+
   public boolean secValueValid() {
     String efaJarSHA = EfaUtil.getSHA(new File(Daten.efaProgramDirectory+"efa.jar"));
     String efaSecSHA = getSecValue();

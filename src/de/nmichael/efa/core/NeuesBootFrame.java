@@ -406,7 +406,7 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
     weiterePanel.setLayout(gridBagLayout4);
     Mnemonics.setLabel(this, jLabel10, International.getStringWithMnemonic("Freie Verwendung")+" 1: ");
     Mnemonics.setLabel(this, jLabel11, International.getStringWithMnemonic("Freie Verwendung")+" 2: ");
-    Mnemonics.setLabel(this, jLabel12, International.getStringWithMnemonic("Freie Verwendung")+" 3gr: ");
+    Mnemonics.setLabel(this, jLabel12, International.getStringWithMnemonic("Freie Verwendung")+" 3: ");
     jLabel10.setLabelFor(frei1);
     jLabel11.setLabelFor(frei2);
     jLabel12.setLabelFor(frei3);

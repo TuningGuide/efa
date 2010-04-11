@@ -295,12 +295,17 @@ public class BootStatusFrame extends JDialog implements ActionListener {
     Vector v = BootStatus.getReservierungen(this.boot);
     Vector resData = new Vector();
     for (int i=0; i<v.size(); i++) {
-      Reservierung r = (Reservierung)v.get(i);
+      BoatReservation r = (BoatReservation)v.get(i);
       Vector data = new Vector();
-      data.add(r.vonTag+" "+r.vonZeit);
-      data.add(r.bisTag+" "+r.bisZeit);
-      data.add(r.name);
-      data.add(r.grund);
+      if (r.isOneTimeReservation()) {
+          data.add(r.getDateFrom()+" "+r.getTimeFrom());
+          data.add(r.getDateTo()+" "+r.getTimeTo());
+      } else {
+          data.add(r.getWeekdayFrom()+" "+r.getTimeFrom());
+          data.add(r.getWeekdayTo()+" "+r.getTimeTo());
+      }
+      data.add(r.getForName());
+      data.add(r.getReason());
       resData.add(data);
     }
     Vector titel = new Vector();
@@ -549,11 +554,11 @@ public class BootStatusFrame extends JDialog implements ActionListener {
       return;
     }
     try {
-      Reservierung res = (Reservierung)BootStatus.getReservierungen(this.boot).get(reservierungen.getSelectedRow());
+      BoatReservation res = (BoatReservation)BootStatus.getReservierungen(this.boot).get(reservierungen.getSelectedRow());
       if ( admin == null &&
-           ((res.einmalig && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) ||
-            (!res.einmalig && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch.getValue()) )) {
-          if (res.einmalig) {
+           ((res.isOneTimeReservation() && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) ||
+            (!res.isOneTimeReservation() && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch.getValue()) )) {
+          if (res.isOneTimeReservation()) {
               Dialog.error(International.getString("Du darfst einmalige Reservierungen nicht bearbeiten."));
           } else {
               Dialog.error(International.getString("Du darfst wöchentliche Reservierungen nicht bearbeiten."));
@@ -581,11 +586,11 @@ public class BootStatusFrame extends JDialog implements ActionListener {
       return;
     }
 
-    Reservierung res = (Reservierung)BootStatus.getReservierungen(this.boot).get(reservierungen.getSelectedRow());
+    BoatReservation res = (BoatReservation)BootStatus.getReservierungen(this.boot).get(reservierungen.getSelectedRow());
     if (admin == null &&
-         ( (res.einmalig && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) ||
-           (!res.einmalig && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch.getValue()) )) {
-          if (res.einmalig) {
+         ( (res.isOneTimeReservation() && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) ||
+           (!res.isOneTimeReservation() && !Daten.efaConfig.efaDirekt_mitgliederDuerfenReservierenZyklisch.getValue()) )) {
+          if (res.isOneTimeReservation()) {
               Dialog.error(International.getString("Du darfst einmalige Reservierungen nicht bearbeiten."));
           } else {
               Dialog.error(International.getString("Du darfst wöchentliche Reservierungen nicht bearbeiten."));
@@ -620,17 +625,17 @@ public class BootStatusFrame extends JDialog implements ActionListener {
 
 
   // true, wenn *keine* Überschneidungen; false, wenn Überschneidung
-  public static boolean keineUeberschneidung(Vector v, Reservierung r, int exclude) {
+  public static boolean keineUeberschneidung(Vector v, BoatReservation r, int exclude) {
     if (v == null || r == null) return true;
-    long v1 = EfaUtil.dateTime2Cal(r.vonTag,r.vonZeit).getTimeInMillis()+1;
-    long b1 = EfaUtil.dateTime2Cal(r.bisTag,r.bisZeit).getTimeInMillis();
+    long v1 = EfaUtil.dateTime2Cal(r.getDateFrom(),r.getTimeFrom()).getTimeInMillis()+1;
+    long b1 = EfaUtil.dateTime2Cal(r.getDateTo(),r.getTimeTo()).getTimeInMillis();
     for (int i=0; i<v.size(); i++) {
       if (i == exclude) continue;
-      Reservierung rr = (Reservierung)v.get(i);
-      if (r.einmalig != rr.einmalig) continue; // Überschneidungen von einmaligen mit wöchentlichen Reservierungen zulassen
-      if (!r.einmalig && !rr.einmalig && !r.vonTag.equals(rr.vonTag)) continue; // zyklische Reservierungen nur prüfen, wenn am selben Tag
-      long v2 = EfaUtil.dateTime2Cal(rr.vonTag,rr.vonZeit).getTimeInMillis()+1;
-      long b2 = EfaUtil.dateTime2Cal(rr.bisTag,rr.bisZeit).getTimeInMillis();
+      BoatReservation rr = (BoatReservation)v.get(i);
+      if (r.isOneTimeReservation() != rr.isOneTimeReservation()) continue; // Überschneidungen von einmaligen mit wöchentlichen Reservierungen zulassen
+      if (!r.isOneTimeReservation() && !rr.isOneTimeReservation() && !r.getDateFrom().equals(rr.getDateFrom())) continue; // zyklische Reservierungen nur prüfen, wenn am selben Tag
+      long v2 = EfaUtil.dateTime2Cal(rr.getDateFrom(),rr.getTimeFrom()).getTimeInMillis()+1;
+      long b2 = EfaUtil.dateTime2Cal(rr.getDateTo(),rr.getTimeTo()).getTimeInMillis();
 
       if ( (v1 >= v2 && v1 <= b2) ||
            (b1 >= v2 && b1 <= b2) ||
@@ -640,7 +645,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
   }
 
 
-  public void addNewReservierung(Reservierung r) {
+  public void addNewReservierung(BoatReservation r) {
     Vector v = BootStatus.getReservierungen(this.boot);
     if (!keineUeberschneidung(v,r,-1)) {
       Dialog.error(International.getString("Die Reservierung überschneidet sich mit einer anderen Reservierung!"));
@@ -652,7 +657,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
     updateReservierungen();
   }
 
-  public void updateReservierung(Reservierung r, int nr) {
+  public void updateReservierung(BoatReservation r, int nr) {
     try {
       Vector v = BootStatus.getReservierungen(this.boot);
       if (!keineUeberschneidung(v,r,nr)) {

@@ -251,8 +251,8 @@ public class BootStatusListeFrame extends JDialog implements ActionListener {
         String s = "";
         Vector res = BootStatus.getReservierungen(d);
         for (int i=0; i<res.size(); i++) {
-          Reservierung r = (Reservierung)res.get(i);
-          s += (s.length() > 0 ? "<br>" : "") + BootStatus.makeReservierungText(r) + ": "+r.name+" ("+r.grund+")";
+          BoatReservation r = (BoatReservation)res.get(i);
+          s += (s.length() > 0 ? "<br>" : "") + BootStatus.makeReservierungText(r) + ": "+r.getForName()+" ("+r.getReason()+")";
         }
         DatenFelder df = new DatenFelder(2);
         df.set(0,d.get(BootStatus.NAME));

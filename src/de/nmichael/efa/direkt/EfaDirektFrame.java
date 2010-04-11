@@ -756,7 +756,9 @@ public class EfaDirektFrame extends JFrame {
     }
 
 
-    if (Daten.efaSec.secFileExists() && !Daten.efaSec.isDontDeleteSet()) {
+    if (Daten.efaSec.secFileExists() && 
+            Daten.efaSec.isSecFileWritable() && // if we cannot write efaSec, this Security Check is currently not possible
+            !Daten.efaSec.isDontDeleteSet()) {
       switch (Dialog.auswahlDialog(International.getString("Sicherheits-Frage"),
               International.getString("Aus Gründen der Sicherheit sollte es im Bootshaus nicht möglich sein, "+
                                    "das herkömmliche efa ohne Paßwort zu starten, da dort jeder Benutzer auch ohne "+
@@ -795,7 +797,9 @@ public class EfaDirektFrame extends JFrame {
     }
 
     // efaSec löschen (außer, wenn DontDelete-Flag gesetzt ist)
-    if (Daten.efaSec.secFileExists() && !Daten.efaSec.delete(false)) {
+    if (Daten.efaSec.secFileExists() && 
+            Daten.efaSec.isSecFileWritable() && // if we cannot write efaSec, this Security Check is currently not possible
+            !Daten.efaSec.delete(false)) {
       String s = International.getMessage("efa konnte die Datei {filename} nicht löschen und wird daher beendet!",Daten.efaSec.getFilename());
       haltProgram(s, Daten.HALT_EFASEC);
     }
@@ -1579,17 +1583,17 @@ public class EfaDirektFrame extends JFrame {
 
 
     DatenFelder d2 = bootStatus.getExactComplete(removeDoppeleintragFromBootsname(boot));
-    Reservierung res = BootStatus.getReservierung(d,System.currentTimeMillis(),Daten.efaConfig.efaDirekt_resLookAheadTime.getValue());
+    BoatReservation res = BootStatus.getReservierung(d,System.currentTimeMillis(),Daten.efaConfig.efaDirekt_resLookAheadTime.getValue());
     if (res == null && d2 != null) res = BootStatus.getReservierung(d2,System.currentTimeMillis(),Daten.efaConfig.efaDirekt_resLookAheadTime.getValue());
     if (res != null) {
       if (Dialog.yesNoCancelDialog(International.getString("Boot reserviert"),
               International.getMessage("Das Boot {boat} ist {currently_or_in_x_minutes} für {name} reserviert.",
                                        bootsname,
-                                       (res.gueltigInMinuten == 0 ? 
+                                       (res.validInMinutes == 0 ?
                                            International.getString("zur Zeit") :
-                                           International.getMessage("in {x} Minuten",(int)res.gueltigInMinuten)),
-                                           res.name)+"\n"+
-              (res.grund.length()>0 ? " ("+International.getString("Grund")+": "+res.grund+")\n" : "") +
+                                           International.getMessage("in {x} Minuten",(int)res.validInMinutes)),
+                                           res.getForName())+"\n"+
+              (res.getReason().length()>0 ? " ("+International.getString("Grund")+": "+res.getReason()+")\n" : "") +
               International.getMessage("Die Reservierung liegt {from_time_to_time} vor.",BootStatus.makeReservierungText(res))+"\n"+
               International.getString("Möchtest Du trotzdem mit dem Boot rudern?"))
                     != Dialog.YES) return false;
@@ -2631,7 +2635,7 @@ public class EfaDirektFrame extends JFrame {
             if (d.get(BootStatus.UNBEKANNTESBOOT).equals("+")) continue;
 
             // derzeit gültige Reservierungen finden
-            Reservierung reservierung = BootStatus.getReservierung(d,System.currentTimeMillis(),0);
+            BoatReservation reservierung = BootStatus.getReservierung(d,System.currentTimeMillis(),0);
 
             // verfallene Reservierungen löschen
             if (BootStatus.deleteObsoleteReservierungen(d)) {
@@ -2663,7 +2667,7 @@ public class EfaDirektFrame extends JFrame {
                 }
                 d.set(BootStatus.BEMERKUNG,
                         International.getMessage("reserviert für {name} ({reason}) {from_to}",
-                        reservierung.name,reservierung.grund,BootStatus.makeReservierungText(reservierung)));
+                        reservierung.getForName(),reservierung.getReason(),BootStatus.makeReservierungText(reservierung)));
                 d.set(BootStatus.LFDNR,BootStatus.RES_LFDNR); // Kennzeichnung dafür, daß es sich um eine *Reservierung* handelt (und nicht Sperrung des Bootes o.ä.)
                 Logger.log(Logger.INFO, Logger.MSG_EVT_RESCHECK_RESFOUND,
                         "ReservationChecker: "+

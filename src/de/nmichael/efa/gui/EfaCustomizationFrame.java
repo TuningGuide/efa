@@ -24,8 +24,8 @@ import java.util.*;
 public class EfaCustomizationFrame extends BaseDialog {
 
     private CustSettings custSettings = null;
-    private JCheckBox activateGermanOptions;
-    private JCheckBox activateBerlinOptions;
+    private JCheckBox activateGermanRowingOptions;
+    private JCheckBox activateBerlinRowingOptions;
     private JCheckBox activateRowingOptions;
     private JCheckBox activateCanoeingOptions;
 
@@ -78,12 +78,14 @@ public class EfaCustomizationFrame extends BaseDialog {
         JLabel custRegionalLabel = new JLabel();
         custRegionalLabel.setText(International.getString("Regionale Anpassung") + ": " +
                 International.getString("Funktionalitäten aktivieren für ..."));
-        activateGermanOptions = new JCheckBox();
-        activateGermanOptions.setText(International.getString("Deutschland"));
-        activateGermanOptions.setSelected(International.getLanguageID().startsWith("de"));
-        activateBerlinOptions = new JCheckBox();
-        activateBerlinOptions.setText(International.getString("Berlin"));
-        activateBerlinOptions.setSelected(International.getLanguageID().startsWith("de"));
+        activateGermanRowingOptions = new JCheckBox();
+        activateGermanRowingOptions.setText(International.getString("Deutschland") +
+                " (" + International.getString("Rudern") + ")");
+        activateGermanRowingOptions.setSelected(International.getLanguageID().startsWith("de"));
+        activateBerlinRowingOptions = new JCheckBox();
+        activateBerlinRowingOptions.setText(International.getString("Berlin") +
+                " (" + International.getString("Rudern") + ")");
+        activateBerlinRowingOptions.setSelected(International.getLanguageID().startsWith("de"));
 
         // Customization: Sport
         JLabel custSportsLabel = new JLabel();
@@ -101,9 +103,9 @@ public class EfaCustomizationFrame extends BaseDialog {
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 5, 0), 0, 0));
         custPanel.add(custRegionalLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0));
-        custPanel.add(activateGermanOptions,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+        custPanel.add(activateGermanRowingOptions,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-        custPanel.add(activateBerlinOptions,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
+        custPanel.add(activateBerlinRowingOptions,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         custPanel.add(custSportsLabel,  new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0));
@@ -121,8 +123,8 @@ public class EfaCustomizationFrame extends BaseDialog {
 
     void closeButton_actionPerformed(ActionEvent e) {
         custSettings = new CustSettings();
-        custSettings.activateGermanOptions = activateGermanOptions.isSelected();
-        custSettings.activateBerlinOptions = activateBerlinOptions.isSelected();
+        custSettings.activateGermanRowingOptions = activateGermanRowingOptions.isSelected();
+        custSettings.activateBerlinRowingOptions = activateBerlinRowingOptions.isSelected();
         custSettings.activateRowingOptions = activateRowingOptions.isSelected();
         custSettings.activateCanoeingOptions = activateCanoeingOptions.isSelected();
         super.closeButton_actionPerformed(e);

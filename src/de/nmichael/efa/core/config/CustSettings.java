@@ -14,8 +14,8 @@ package de.nmichael.efa.core.config;
 
 public class CustSettings {
 
-    public boolean activateGermanOptions = true;
-    public boolean activateBerlinOptions = true;
+    public boolean activateGermanRowingOptions = true;
+    public boolean activateBerlinRowingOptions = true;
     public boolean activateRowingOptions = true;
     public boolean activateCanoeingOptions = false;
 

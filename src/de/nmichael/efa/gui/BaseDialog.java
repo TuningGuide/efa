@@ -80,7 +80,8 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
             ah.addKeyActions(getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW,
                     new String[]{"ESCAPE", "F1"}, new String[]{"keyAction", "keyAction"});
         } catch (NoSuchMethodException e) {
-            Logger.log(Logger.ERROR, Logger.MSG_GUI_ERRORACTIONHANDLER, "Error setting up ActionHandler"); // no need to translate
+            // @todo: Not working: throws a NoSuchMethodException!
+//            Logger.log(Logger.ERROR, Logger.MSG_GUI_ERRORACTIONHANDLER, "Error setting up ActionHandler"); // no need to translate
         }
 
         if (title != null) {

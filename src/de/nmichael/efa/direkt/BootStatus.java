@@ -19,34 +19,6 @@ import java.io.IOException;
 
 // @i18n complete
 
-class Reservierung implements Comparable {
-  boolean einmalig;
-  String vonTag,vonZeit,bisTag,bisZeit,name,grund;
-  long gueltigInMinuten = 0; // internes Feld, wird nicht gespeichert, sondern nur von getReservierung(...) verwendet
-
-  public int compareTo(Object o) throws ClassCastException {
-    Reservierung b = (Reservierung)o;
-    if (this.einmalig != b.einmalig) return (this.einmalig ? -1 : 1);
-    if (this.einmalig) { // beides einmalige Reservierungen
-      if (!this.vonTag.equals(b.vonTag)) return (EfaUtil.secondDateIsAfterFirst(this.vonTag,b.vonTag) ? -1 : 1);
-      if (!this.vonZeit.equals(b.vonZeit)) return (EfaUtil.secondTimeIsAfterFirst(this.vonZeit,b.vonZeit) ? -1 : 1);
-      if (!this.bisTag.equals(b.bisTag)) return (EfaUtil.secondDateIsAfterFirst(this.bisTag,b.bisTag) ? -1 : 1);
-      if (!this.bisZeit.equals(b.bisZeit)) return (EfaUtil.secondTimeIsAfterFirst(this.bisZeit,b.bisZeit) ? -1 : 1);
-      return 0;
-    }
-    // beide Reservierungen wöchentlich
-    if (!this.vonTag.equals(b.vonTag)) {
-        for (int i=0; i<BootStatus.WEEKDAYKEYS.length; i++) {
-            if (this.vonTag.equals(BootStatus.WEEKDAYKEYS[i])) return -1;
-            if (   b.vonTag.equals(BootStatus.WEEKDAYKEYS[i])) return  1;
-        }
-    }
-    if (!this.vonZeit.equals(b.vonZeit)) return (EfaUtil.secondTimeIsAfterFirst(this.vonZeit,b.vonZeit) ? -1 : 1);
-    if (!this.bisZeit.equals(b.bisZeit)) return (EfaUtil.secondTimeIsAfterFirst(this.bisZeit,b.bisZeit) ? -1 : 1);
-    return 0;
-  }
-
-}
 
 public class BootStatus extends DatenListe {
 
@@ -67,7 +39,6 @@ public class BootStatus extends DatenListe {
   public static final int STAT_VORUEBERGEHEND_VERSTECKEN = 4; // wird intern für Kombiboote verwendet
   private static final String[] STATUSKEYS  = { "HIDE", "AVAILABLE", "ONTHEWATER", "NOTAVAILABLE", "CURRENTLYHIDDEN" };
   private static String[] STATUSDESCR;
-  public static final String[] WEEKDAYKEYS  = { "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN" };
 
   public static final String KENNUNG120 = "##EFA.120.BOOTSTATUS##";
   public static final String KENNUNG160 = "##EFA.160.BOOTSTATUS##";
@@ -106,39 +77,39 @@ public class BootStatus extends DatenListe {
     if (s == null) return v;
     StringTokenizer tok = new StringTokenizer(s,";");
     int pos=0;
-    Reservierung r = null;
+    BoatReservation r = null;
     while (tok.hasMoreTokens()) {
       if (pos == 0) {
-        r = new Reservierung();
-        r.einmalig = true;
+        r = new BoatReservation();
+        r.setOneTimeReservation(true);
       }
       switch(pos) {
-        case 0: r.vonTag  = tok.nextToken(); break;
-        case 1: r.vonZeit = tok.nextToken(); break;
-        case 2: r.bisTag  = tok.nextToken(); break;
-        case 3: r.bisZeit = tok.nextToken(); break;
-        case 4: r.name    = tok.nextToken(); break;
-        case 5: r.grund   = tok.nextToken(); break;
-        case 6: r.einmalig= tok.nextToken().equals("+"); break;
+        case 0: r.setDateFrom(tok.nextToken()); break;
+        case 1: r.setTimeFrom(tok.nextToken()); break;
+        case 2: r.setDateTo(tok.nextToken()); break;
+        case 3: r.setTimeTo(tok.nextToken()); break;
+        case 4: r.setForName(tok.nextToken()); break;
+        case 5: r.setReason(tok.nextToken()); break;
+        case 6: r.setOneTimeReservation(tok.nextToken().equals("+")); break;
       }
       pos++;
       if ((version == 160 && pos>5) || (version >= 170 && pos>6)) {
           if (version == 170) {
               // do not translate (these are the former keys for version <= 170)
-              if (r.vonTag.equals("Montag"))     r.vonTag = WEEKDAYKEYS[0];
-              if (r.vonTag.equals("Dienstag"))   r.vonTag = WEEKDAYKEYS[1];
-              if (r.vonTag.equals("Mittwoch"))   r.vonTag = WEEKDAYKEYS[2];
-              if (r.vonTag.equals("Donnerstag")) r.vonTag = WEEKDAYKEYS[3];
-              if (r.vonTag.equals("Freitag"))    r.vonTag = WEEKDAYKEYS[4];
-              if (r.vonTag.equals("Samstag"))    r.vonTag = WEEKDAYKEYS[5];
-              if (r.vonTag.equals("Sonntag"))    r.vonTag = WEEKDAYKEYS[6];
-              if (r.bisTag.equals("Montag"))     r.bisTag = WEEKDAYKEYS[0];
-              if (r.bisTag.equals("Dienstag"))   r.bisTag = WEEKDAYKEYS[1];
-              if (r.bisTag.equals("Mittwoch"))   r.bisTag = WEEKDAYKEYS[2];
-              if (r.bisTag.equals("Donnerstag")) r.bisTag = WEEKDAYKEYS[3];
-              if (r.bisTag.equals("Freitag"))    r.bisTag = WEEKDAYKEYS[4];
-              if (r.bisTag.equals("Samstag"))    r.bisTag = WEEKDAYKEYS[5];
-              if (r.bisTag.equals("Sonntag"))    r.bisTag = WEEKDAYKEYS[6];
+              if (r.getDateFrom().equals("Montag"))     r.setDateFrom(BoatReservation.WEEKDAYKEYS[0]);
+              if (r.getDateFrom().equals("Dienstag"))   r.setDateFrom(BoatReservation.WEEKDAYKEYS[1]);
+              if (r.getDateFrom().equals("Mittwoch"))   r.setDateFrom(BoatReservation.WEEKDAYKEYS[2]);
+              if (r.getDateFrom().equals("Donnerstag")) r.setDateFrom(BoatReservation.WEEKDAYKEYS[3]);
+              if (r.getDateFrom().equals("Freitag"))    r.setDateFrom(BoatReservation.WEEKDAYKEYS[4]);
+              if (r.getDateFrom().equals("Samstag"))    r.setDateFrom(BoatReservation.WEEKDAYKEYS[5]);
+              if (r.getDateFrom().equals("Sonntag"))    r.setDateFrom(BoatReservation.WEEKDAYKEYS[6]);
+              if (r.getDateTo().equals("Montag"))       r.setDateTo(BoatReservation.WEEKDAYKEYS[0]);
+              if (r.getDateTo().equals("Dienstag"))     r.setDateTo(BoatReservation.WEEKDAYKEYS[1]);
+              if (r.getDateTo().equals("Mittwoch"))     r.setDateTo(BoatReservation.WEEKDAYKEYS[2]);
+              if (r.getDateTo().equals("Donnerstag"))   r.setDateTo(BoatReservation.WEEKDAYKEYS[3]);
+              if (r.getDateTo().equals("Freitag"))      r.setDateTo(BoatReservation.WEEKDAYKEYS[4]);
+              if (r.getDateTo().equals("Samstag"))      r.setDateTo(BoatReservation.WEEKDAYKEYS[5]);
+              if (r.getDateTo().equals("Sonntag"))      r.setDateTo(BoatReservation.WEEKDAYKEYS[6]);
           }
           v.add(r);
           pos = 0;
@@ -153,7 +124,7 @@ public class BootStatus extends DatenListe {
 
   // gibt die Reservierung zurück, die zum Zeitpunkt now gültig ist oder max. minutesAhead beginnt
   // null, wenn keine Reservierung diese Kriterien erfüllt
-  public static Reservierung getReservierung(DatenFelder boot, long now, long minutesAhead) {
+  public static BoatReservation getReservierung(DatenFelder boot, long now, long minutesAhead) {
     if (boot == null) return null;
     Vector res = getReservierungen(boot);
     if (res.size() == 0) return null;
@@ -163,20 +134,20 @@ public class BootStatus extends DatenListe {
     int weekday = cal.get(Calendar.DAY_OF_WEEK);
 
     for (int i=0; i<res.size(); i++) {
-      Reservierung r = (Reservierung)res.get(i);
-      TMJ vonTag  = EfaUtil.string2date(r.vonTag,0,0,0);
-      TMJ vonZeit = EfaUtil.string2date(r.vonZeit,0,0,0);
-      TMJ bisTag  = EfaUtil.string2date(r.bisTag,0,0,0);
-      TMJ bisZeit = EfaUtil.string2date(r.bisZeit,0,0,0);
-      if (!r.einmalig) {
+      BoatReservation r = (BoatReservation)res.get(i);
+      TMJ vonTag  = EfaUtil.string2date(r.getDateFrom(),0,0,0);
+      TMJ vonZeit = EfaUtil.string2date(r.getTimeFrom(),0,0,0);
+      TMJ bisTag  = EfaUtil.string2date(r.getDateTo(),0,0,0);
+      TMJ bisZeit = EfaUtil.string2date(r.getTimeTo(),0,0,0);
+      if (!r.isOneTimeReservation()) {
         switch(weekday) {
-          case Calendar.MONDAY:    if (!r.vonTag.equals(WEEKDAYKEYS[0])) continue; break;
-          case Calendar.TUESDAY:   if (!r.vonTag.equals(WEEKDAYKEYS[1])) continue; break;
-          case Calendar.WEDNESDAY: if (!r.vonTag.equals(WEEKDAYKEYS[2])) continue; break;
-          case Calendar.THURSDAY:  if (!r.vonTag.equals(WEEKDAYKEYS[3])) continue; break;
-          case Calendar.FRIDAY:    if (!r.vonTag.equals(WEEKDAYKEYS[4])) continue; break;
-          case Calendar.SATURDAY:  if (!r.vonTag.equals(WEEKDAYKEYS[5])) continue; break;
-          case Calendar.SUNDAY:    if (!r.vonTag.equals(WEEKDAYKEYS[6])) continue; break;
+          case Calendar.MONDAY:    if (!r.getDateFrom().equals(BoatReservation.WEEKDAYKEYS[0])) continue; break;
+          case Calendar.TUESDAY:   if (!r.getDateFrom().equals(BoatReservation.WEEKDAYKEYS[1])) continue; break;
+          case Calendar.WEDNESDAY: if (!r.getDateFrom().equals(BoatReservation.WEEKDAYKEYS[2])) continue; break;
+          case Calendar.THURSDAY:  if (!r.getDateFrom().equals(BoatReservation.WEEKDAYKEYS[3])) continue; break;
+          case Calendar.FRIDAY:    if (!r.getDateFrom().equals(BoatReservation.WEEKDAYKEYS[4])) continue; break;
+          case Calendar.SATURDAY:  if (!r.getDateFrom().equals(BoatReservation.WEEKDAYKEYS[5])) continue; break;
+          case Calendar.SUNDAY:    if (!r.getDateFrom().equals(BoatReservation.WEEKDAYKEYS[6])) continue; break;
         }
         vonTag.tag   = bisTag.tag   = cal.get(Calendar.DAY_OF_MONTH);
         vonTag.monat = bisTag.monat = cal.get(Calendar.MONTH)+1;
@@ -188,29 +159,29 @@ public class BootStatus extends DatenListe {
 
       // ist die vorliegende Reservierung jetzt gültig
       if (now >= von && now <= bis) {
-        r.gueltigInMinuten = 0;
+        r.validInMinutes = 0;
         return r;
       }
 
       // ist die vorliegende Reservierung innerhalb von minutesAhead gültig
       if (now < von && now + minutesAhead*60*1000 >= von) {
-        r.gueltigInMinuten = (von-now)/(60*1000);
+        r.validInMinutes = (von-now)/(60*1000);
         return r;
       }
     }
     return null;
   }
 
-  public static String makeReservierungText(Reservierung r) {
+  public static String makeReservierungText(BoatReservation r) {
     String s = null;
-    if (r.einmalig) {
-      if (r.vonTag.equals(r.bisTag)) {
-          s = International.getMessage("am {day} von {time_from} bis {time_to}",r.vonTag,r.vonZeit,r.bisZeit);
+    if (r.isOneTimeReservation()) {
+      if (r.getDateFrom().equals(r.getDateTo())) {
+          s = International.getMessage("am {day} von {time_from} bis {time_to}",r.getDateFrom(),r.getTimeFrom(),r.getTimeTo());
       } else {
-          s = International.getMessage("vom {day_from} {time_from} bis {day_to} {time_to}",r.vonTag,r.vonZeit,r.bisTag,r.bisZeit);
+          s = International.getMessage("vom {day_from} {time_from} bis {day_to} {time_to}",r.getDateFrom(),r.getTimeFrom(),r.getDateTo(),r.getTimeTo());
       }
     } else {
-        s = International.getMessage("jeden {day_from} von {time_from} bis {time_to}",r.vonTag,r.vonZeit,r.bisZeit);
+        s = International.getMessage("jeden {day_from} von {time_from} bis {time_to}",r.getWeekdayFrom(),r.getTimeFrom(),r.getTimeTo());
     }
     return s;
   }
@@ -226,11 +197,11 @@ public class BootStatus extends DatenListe {
 
     boolean geloscht = false;
     for (int i=0; i<res.size(); i++) {
-      Reservierung r = (Reservierung)res.get(i);
-      if (!r.einmalig) continue; // zyklische Reservierungen werden nicht gelöscht
+      BoatReservation r = (BoatReservation)res.get(i);
+      if (!r.isOneTimeReservation()) continue; // zyklische Reservierungen werden nicht gelöscht
 
-      TMJ bisTag  = EfaUtil.string2date(r.bisTag,0,0,0);
-      TMJ bisZeit = EfaUtil.string2date(r.bisZeit,0,0,0);
+      TMJ bisTag  = EfaUtil.string2date(r.getDateTo(),0,0,0);
+      TMJ bisZeit = EfaUtil.string2date(r.getTimeTo(),0,0,0);
       long bis = EfaUtil.dateTime2Cal(bisTag,bisZeit).getTimeInMillis();
 
       // ist die vorliegende Reservierung verfallen?
@@ -248,7 +219,7 @@ public class BootStatus extends DatenListe {
     boot.set(RESERVIERUNGEN,"");
   }
 
-  public static void addReservierung(DatenFelder boot, Reservierung r) {
+  public static void addReservierung(DatenFelder boot, BoatReservation r) {
     Vector v = getReservierungen(boot);
     v.add(r);
     setReservierungen(boot,v);
@@ -256,19 +227,19 @@ public class BootStatus extends DatenListe {
 
   public static void setReservierungen(DatenFelder boot, Vector v) {
     String s = "";
-    Reservierung[] a = new Reservierung[v.size()];
-    for (int i=0; i<v.size(); i++) a[i] = (Reservierung)v.get(i);
+    BoatReservation[] a = new BoatReservation[v.size()];
+    for (int i=0; i<v.size(); i++) a[i] = (BoatReservation)v.get(i);
     Arrays.sort(a);
     for (int i=0; i<a.length; i++) {
-      Reservierung r = a[i];
+      BoatReservation r = a[i];
       s += EfaUtil.removeSepFromString(
-             EfaUtil.removeSepFromString(r.vonTag,";")+";"+
-             EfaUtil.removeSepFromString(r.vonZeit,";")+";"+
-             EfaUtil.removeSepFromString(r.bisTag,";")+";"+
-             EfaUtil.removeSepFromString(r.bisZeit,";")+";"+
-             EfaUtil.removeSepFromString(r.name,";")+";"+
-             EfaUtil.removeSepFromString(r.grund,";")+";"+
-             (r.einmalig ? "+" : "-")+";"
+             EfaUtil.removeSepFromString(r.getDateFrom(),";")+";"+
+             EfaUtil.removeSepFromString(r.getTimeFrom(),";")+";"+
+             EfaUtil.removeSepFromString(r.getDateTo(),";")+";"+
+             EfaUtil.removeSepFromString(r.getTimeTo(),";")+";"+
+             EfaUtil.removeSepFromString(r.getForName(),";")+";"+
+             EfaUtil.removeSepFromString(r.getReason(),";")+";"+
+             (r.isOneTimeReservation() ? "+" : "-")+";"
            );
     }
     boot.set(RESERVIERUNGEN,s);

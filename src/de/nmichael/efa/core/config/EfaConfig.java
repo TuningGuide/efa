@@ -791,15 +791,17 @@ public class EfaConfig extends DatenListe {
                 TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
                 International.getString("Sprache")));
         addParameter(showGermanOptions = new ConfigTypeBoolean("REGIONAL_GERMANY",
-                (custSettings != null ? custSettings.activateGermanOptions : International.getLanguageID().startsWith("de") ),
+                (custSettings != null ? custSettings.activateGermanRowingOptions : International.getLanguageID().startsWith("de") ),
                 TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
                 International.getMessage("Regionale Funktionalitäten aktivieren für {region}.",
-                International.getString("Deutschland"))));
+                International.getString("Deutschland") +
+                " (" + International.getString("Rudern") + ")")));
         addParameter(showBerlinOptions = new ConfigTypeBoolean("REGIONAL_BERLIN", 
-                (custSettings != null ? custSettings.activateBerlinOptions : International.getLanguageID().startsWith("de") ),
+                (custSettings != null ? custSettings.activateBerlinRowingOptions : International.getLanguageID().startsWith("de") ),
                 TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
                 International.getMessage("Regionale Funktionalitäten aktivieren für {region}.",
-                International.getString("Berlin"))));
+                International.getString("Berlin") +
+                " (" + International.getString("Rudern") + ")")));
 
         // ============================= TYPES =============================
         addParameter(typesAddAllDefaultRowingBoats = new ConfigTypeAction("ACTION_ADDTYPES_ROWING", ConfigTypeAction.ACTION_GENERATE_ROWING_BOAT_TYPES,

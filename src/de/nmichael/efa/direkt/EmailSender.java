@@ -86,8 +86,13 @@ class EmailSenderThread extends Thread {
                         Daten.efaConfig.efaDirekt_emailPassword.getValue().length()>0);
         Properties props = new Properties();
         props.put("mail.smtp.host",Daten.efaConfig.efaDirekt_emailServer.getValue());
-        if (auth) props.put("mail.smtp.auth","true");
-//      props.put("mail.debug", "true");
+        props.put("mail.smtp.port", Integer.toString(Daten.efaConfig.efaDirekt_emailPort.getValue()));
+        if (auth) {
+            props.put("mail.smtp.auth","true");
+        }
+        if (Logger.debugLogging) {
+            props.put("mail.debug", "true");
+        }
         MailAuthenticator ma = null;
         if (auth) {
           ma = new MailAuthenticator(Daten.efaConfig.efaDirekt_emailUsername.getValue(),Daten.efaConfig.efaDirekt_emailPassword.getValue());

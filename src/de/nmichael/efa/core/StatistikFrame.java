@@ -2063,31 +2063,37 @@ public class StatistikFrame extends JDialog implements ActionListener {
   }
 
 
-  // gespeicherte Statistikeinstellungen verwenden
-  void createSavedStatistik() {
-    String[] s = new String[statList.getSelectedValues().length];
-    StatistikDaten[] sd = new StatistikDaten[statList.getSelectedValues().length];
-    for (int i=0; i<statList.getSelectedValues().length; i++)
-      s[i] = (String)statList.getSelectedValues()[i];
-    for (int i=0; i<s.length; i++) {
-      Daten.fahrtenbuch.getDaten().statistik.getFirst(s[i].substring(0,s[i].lastIndexOf(" (")));
-      DatenFelder f = (DatenFelder)Daten.fahrtenbuch.getDaten().statistik.getComplete();
-      if (f != null) {
-        try {
-          sd[i] = getSavedValues(f);
-          sd[i].statistikFrame = this;
-          sd[i].parent = this;
-          allgStatistikDaten(sd[i]);
-        } catch(StringIndexOutOfBoundsException e) {
-          Dialog.error(International.getString("Fehler beim Lesen der gespeicherten Konfiguration!"));
+    // gespeicherte Statistikeinstellungen verwenden
+    void createSavedStatistik() {
+        String[] s = new String[statList.getSelectedValues().length];
+        StatistikDaten[] sd = new StatistikDaten[statList.getSelectedValues().length];
+        for (int i = 0; i < statList.getSelectedValues().length; i++) {
+            s[i] = (String) statList.getSelectedValues()[i];
         }
-      } else {
-        Dialog.error(International.getString("Fehler beim Lesen der gespeicherten Konfiguration!"));
-        return;
-      }
+        for (int i = 0; i < s.length; i++) {
+            try {
+                Daten.fahrtenbuch.getDaten().statistik.getFirst(s[i].substring(0, s[i].lastIndexOf(" (")));
+                DatenFelder f = (DatenFelder) Daten.fahrtenbuch.getDaten().statistik.getComplete();
+                if (f != null) {
+                    try {
+                        sd[i] = getSavedValues(f);
+                        sd[i].statistikFrame = this;
+                        sd[i].parent = this;
+                        allgStatistikDaten(sd[i]);
+                    } catch (StringIndexOutOfBoundsException e) {
+                        Dialog.error(International.getString("Fehler beim Lesen der gespeicherten Konfiguration!"));
+                    }
+                } else {
+                    Dialog.error(International.getString("Fehler beim Lesen der gespeicherten Konfiguration!"));
+                    return;
+                }
+            } catch (Exception ee) {
+                Dialog.error(International.getString("Fehler beim Lesen der gespeicherten Konfiguration!"));
+                return;
+            }
+        }
+        startStatistik(sd);
     }
-    startStatistik(sd);
-  }
 
 
 

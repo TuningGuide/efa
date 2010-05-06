@@ -472,7 +472,7 @@ public class SuchFrame extends JDialog implements ActionListener {
           if (Daten.such_bootskm && d.get(Fahrtenbuch.BOOTSKM).toUpperCase().equals(s)) { gefunden(parent,d,parent.bootskm); return true; }
           if (Daten.such_mannschkm && d.get(Fahrtenbuch.MANNSCHKM).toUpperCase().equals(s)) { gefunden(parent,d,parent.mannschkm); return true; }
           if (Daten.such_bemerk && d.get(Fahrtenbuch.BEMERK).toUpperCase().indexOf(s) >= 0) { gefunden(parent,d,parent.bemerk); return true; }
-          if (Daten.such_fahrtart && d.get(Fahrtenbuch.FAHRTART).toUpperCase().indexOf(s) >= 0) { gefunden(parent,d,parent.fahrtDauer); return true; }
+          if (Daten.such_fahrtart && d.get(Fahrtenbuch.FAHRTART).toUpperCase().indexOf(s) >= 0) { gefunden(parent,d,parent.fahrtart); return true; }
         } else {
           if (Daten.such_errUnvollst && d.get(Fahrtenbuch.BOOTSKM).length()==0) { gefunden(parent,d,parent.bootskm); return true; }
           if (Daten.such_errUnvollst && d.get(Fahrtenbuch.MANNSCHKM).length()==0) { gefunden(parent,d,parent.mannschkm); parent.mannschkm.setText(d.get(Fahrtenbuch.MANNSCHKM)); return true; }
@@ -516,7 +516,7 @@ public class SuchFrame extends JDialog implements ActionListener {
               }
           }
           if (Daten.such_errNichtZurueckgetragen && d.get(Fahrtenbuch.BOOTSKM).equals("0")) { gefunden(parent,d,parent.bootskm); return true; }
-          if (Daten.such_errNichtKonfMTours && d.get(Fahrtenbuch.FAHRTART).startsWith(Fahrtenbuch.CONFIGURE_MTOUR))  { gefunden(parent,d,parent.fahrtDauer); return true; }
+          if (Daten.such_errNichtKonfMTours && d.get(Fahrtenbuch.FAHRTART).startsWith(Fahrtenbuch.CONFIGURE_MTOUR))  { gefunden(parent,d,parent.fahrtart); return true; }
         }
       }
     }

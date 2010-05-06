@@ -225,7 +225,7 @@ public class MehrtagestourFrame extends JDialog implements ActionListener {
   /**Overridden so we can exit when window is closed*/
   protected void processWindowEvent(WindowEvent e) {
     if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-      if (auswahlFrame == null && efaFrame != null) efaFrame.fahrtDauer.setSelectedIndex(0);
+      if (auswahlFrame == null && efaFrame != null) efaFrame.fahrtart.setSelectedIndex(0);
       cancel();
     }
     super.processWindowEvent(e);
@@ -277,7 +277,7 @@ public class MehrtagestourFrame extends JDialog implements ActionListener {
 
   void okButton_actionPerformed(ActionEvent e) {
     if (fahrt.getText().trim().equals("")) {
-      if (auswahlFrame == null && efaFrame != null) efaFrame.fahrtDauer.setSelectedIndex(0);
+      if (auswahlFrame == null && efaFrame != null) efaFrame.fahrtart.setSelectedIndex(0);
       cancel(); return;
     }
     this.start_focusLost(null);

@@ -604,7 +604,7 @@ public class NeuesMitgliedFrame extends JDialog implements ActionListener {
     Daten.fahrtenbuch.getDaten().mitglieder.add(d);
 
     if (directMode && Daten.fahrtenbuch.getDaten().mitglieder.writeFile()) {
-      Logger.log(Logger.INFO,Logger.MSG_DATA_NEWMEMBERADDED,
+      Logger.log(Logger.INFO,Logger.MSG_DATAADM_NEWMEMBERADDED,
               International.getString("Ein neues Mitglied wurde zur Mitgliederliste hinzugefügt")+": "+EfaUtil.getFullName(d.get(Mitglieder.VORNAME),d.get(Mitglieder.NACHNAME),d.get(Mitglieder.VEREIN)));
     }
 

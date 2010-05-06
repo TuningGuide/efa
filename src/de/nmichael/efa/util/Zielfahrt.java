@@ -18,7 +18,7 @@ import java.util.*;
 
 public class Zielfahrt {
 
-  public static final int ANZ_ZIELBEREICHE = 13;
+  public static final int ANZ_ZIELBEREICHE = 15;
   public static String SEPARATOR;
 
   private String datum;

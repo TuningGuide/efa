@@ -110,6 +110,7 @@ public class EfaConfig extends DatenListe {
     public ConfigTypeString registeredProgramID;
     public ConfigTypeInteger registrationChecks;
     public ConfigTypeBoolean autoStandardmannsch;
+    public ConfigTypeBoolean manualStandardmannsch;
     public ConfigTypeBoolean showObmann;
     public ConfigTypeBoolean autoObmann;
     public ConfigTypeStringList defaultObmann;
@@ -145,6 +146,7 @@ public class EfaConfig extends DatenListe {
     public ConfigTypeBoolean efaDirekt_eintragNurBekannteBoote;
     public ConfigTypeBoolean efaDirekt_eintragNurBekannteRuderer;
     public ConfigTypeBoolean efaDirekt_eintragNurBekannteZiele;
+    public ConfigTypeBoolean efaDirekt_eintragHideUnnecessaryInputFields;
     public ConfigTypeInteger efaDirekt_plusMinutenAbfahrt;
     public ConfigTypeInteger efaDirekt_minusMinutenAnkunft;
     public ConfigTypeBoolean efaDirekt_mitgliederDuerfenReservieren;
@@ -177,6 +179,7 @@ public class EfaConfig extends DatenListe {
     public ConfigTypeLongLat efaDirekt_sunRiseSet_latitude;
     public ConfigTypeLongLat efaDirekt_sunRiseSet_longitude;
     public ConfigTypeBoolean efaDirekt_sortByAnzahl;
+    public ConfigTypeBoolean efaDirekt_listAllowToggleBoatsPersons;
     public ConfigTypeBoolean efaDirekt_showEingabeInfos;
     public ConfigTypeBoolean efaDirekt_showBootsschadenButton;
     public ConfigTypeInteger efaDirekt_maxFBAnzeigenFahrten;
@@ -203,6 +206,7 @@ public class EfaConfig extends DatenListe {
     public ConfigTypeBoolean efaDirekt_bnrBootsstatus_bootswart;
     public ConfigTypeLong efaDirekt_bnrWarning_lasttime;
     public ConfigTypeString efaDirekt_emailServer;
+    public ConfigTypeInteger efaDirekt_emailPort;
     public ConfigTypeString efaDirekt_emailAbsender;
     public ConfigTypeString efaDirekt_emailUsername;
     public ConfigTypeString efaDirekt_emailPassword;
@@ -348,6 +352,9 @@ public class EfaConfig extends DatenListe {
         addParameter(autoStandardmannsch = new ConfigTypeBoolean("DEFAULTCREW_AUTOSELECT", false,
                 TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
                 International.getString("Standardmannschaft automatisch eintragen")));
+        addParameter(manualStandardmannsch = new ConfigTypeBoolean("DEFAULTCREW_MANUALSELECT", false,
+                TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
+                International.getString("Manuelle Auswahl einer Standardmannschaft erlauben")));
         addParameter(correctMisspelledMitglieder = new ConfigTypeBoolean("SPELLING_CHECKMEMBERS", true,
                 TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
                 International.getMessage("Fahrtenbucheinträge auf Tippfehler prüfen für {types}",
@@ -570,6 +577,9 @@ public class EfaConfig extends DatenListe {
         addParameter(efaDirekt_zielBeiFahrtbeginnPflicht = new ConfigTypeBoolean("MUST_DESTINATION_AT_SESSIONSTART", false,
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
                 International.getString("Ziel muß bereits bei Fahrtbeginn angegeben werden")));
+        addParameter(efaDirekt_eintragHideUnnecessaryInputFields = new ConfigTypeBoolean("HIDE_UNNECESSARY_INPUTFIELDS", true,
+                TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
+                International.getString("Beim Eintrag von Fahrten unnötige Eingabefelder ausblenden")));
         addParameter(efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen = new ConfigTypeBoolean("NOTEDITABLE_KMFORKNOWNDESTINATIONS", false,
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
                 International.getString("Vorgeschlagene Kilometer bei bekannten Zielen können nicht geändert werden")));
@@ -604,6 +614,9 @@ public class EfaConfig extends DatenListe {
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getMessage("Fahrtziel in der Liste {list} anzeigen",
                 International.getString("Boote auf Fahrt"))));
+        addParameter(efaDirekt_listAllowToggleBoatsPersons = new ConfigTypeBoolean("LISTS_TOGGLE_BOATSPERSONS", false,
+                TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
+                International.getString("erlaube Auswahl in Bootslisten alternativ auch über Personennamen")));
         addParameter(efaDirekt_sortByAnzahl = new ConfigTypeBoolean("BOATLIST_SORTBYSEATS", true,
                 TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("sortiere Boote nach Anzahl der Ruderplätze")));
@@ -760,6 +773,10 @@ public class EfaConfig extends DatenListe {
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
                 International.getString("email")+": "+
                 International.getString("SMTP-Server")));
+        addParameter(efaDirekt_emailPort = new ConfigTypeInteger("EMAIL_PORT", 25, 0, 65535,
+                TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
+                International.getString("email")+": "+
+                International.getString("SMTP-Port")));
         addParameter(efaDirekt_emailUsername = new ConfigTypeString("EMAIL_USERNAME", "",
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
                 International.getString("email")+": "+

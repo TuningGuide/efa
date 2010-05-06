@@ -147,8 +147,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   JLabel jLabel22 = new JLabel();
   JButton ButtonDelete = new JButton();
   JLabel jLabel23 = new JLabel();
-  JComboBox fahrtDauer = new JComboBox();
-  JLabel artDerFahrtLabel = new JLabel();
+  JComboBox fahrtart = new JComboBox();
+  JLabel fahrtartLabel = new JLabel();
   JButton weitereMannschButton = new JButton();
   JButton mannschaftSelectButton = new JButton();
   JMenuItem jMenuItem2 = new JMenuItem();
@@ -449,7 +449,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     datumLabel.setLabelFor(datum);
     datum.setNextFocusableComponent(boot);
     Dialog.setPreferredSize(datum,100,19);
-//    datum.setPreferredSize(new Dimension(100, Dialog.TEXTFIELD_HEIGHT));
     datum.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         decolorize(e);
@@ -487,7 +486,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++) {
       mannsch[i].setNextFocusableComponent( ( (i+1) % 8 == 0 ? abfahrt : mannsch[i+1]));
       Dialog.setPreferredSize(mannsch[i],200,19);
-//      mannsch[i].setPreferredSize(new Dimension(200, Dialog.TEXTFIELD_HEIGHT));
       mannsch[i].addKeyListener(new java.awt.event.KeyAdapter() {
         public void keyReleased(KeyEvent e) {
           mannsch_keyReleased(e);
@@ -528,7 +526,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       mannschButton[i] = new JButton();
       mannschButton[i].setNextFocusableComponent( (i<7 ? mannsch[i+1] : abfahrt) );
       Dialog.setPreferredSize(mannschButton[i],15,11);
-//      mannschButton[i].setPreferredSize(new Dimension(15, 11));
       mannschButton[i].setToolTipText(International.getMessage("in die {list} aufnehmen",
               International.getString("Mitgliederliste")));
       mannschButton[i].addActionListener(new java.awt.event.ActionListener() {
@@ -577,7 +574,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     bemerkLabel.setLabelFor(bemerk);
     stm.setNextFocusableComponent(mannsch[1]);
     Dialog.setPreferredSize(stm,200,19);
-//    stm.setPreferredSize(new Dimension(200, Dialog.TEXTFIELD_HEIGHT));
     stm.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyReleased(KeyEvent e) {
         stm_keyReleased(e);
@@ -601,7 +597,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     abfahrt.setNextFocusableComponent(ankunft);
     Dialog.setPreferredSize(abfahrt,200,19);
-//    abfahrt.setPreferredSize(new Dimension(200, Dialog.TEXTFIELD_HEIGHT));
     abfahrt.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         decolorize(e);
@@ -623,7 +618,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     ankunft.setNextFocusableComponent(ziel);
     Dialog.setPreferredSize(ankunft,200,19);
-//    ankunft.setPreferredSize(new Dimension(200, Dialog.TEXTFIELD_HEIGHT));
     ankunft.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         decolorize(e);
@@ -643,9 +637,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     });
     ziel.setNextFocusableComponent(bootskm);
-    ziel.setMinimumSize(new Dimension(4, 19));
     Dialog.setPreferredSize(ziel,400,19);
-//    ziel.setPreferredSize(new Dimension(400, Dialog.TEXTFIELD_HEIGHT));
     ziel.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         decolorize(e);
@@ -670,7 +662,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     bootskm.setNextFocusableComponent(mannschkm);
     Dialog.setPreferredSize(bootskm,200,19);
-//    bootskm.setPreferredSize(new Dimension(200, Dialog.TEXTFIELD_HEIGHT));
     bootskm.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         decolorize(e);
@@ -691,7 +682,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     mannschkm.setNextFocusableComponent(bemerk);
     Dialog.setPreferredSize(mannschkm,200,19);
-//    mannschkm.setPreferredSize(new Dimension(200, Dialog.TEXTFIELD_HEIGHT));
     mannschkm.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusGained(FocusEvent e) {
         colorize(e);
@@ -711,8 +701,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     });
     bemerk.setNextFocusableComponent(addButton);
-    Dialog.setPreferredSize(bemerk,200,19);
-//    bemerk.setPreferredSize(new Dimension(200, Dialog.TEXTFIELD_HEIGHT));
+    Dialog.setPreferredSize(bemerk,400,19);
     bemerk.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyTyped(KeyEvent e) {
         eintragGeaendert(e);
@@ -734,7 +723,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
     lfdnr.setNextFocusableComponent(datum);
     Dialog.setPreferredSize(lfdnr,200,19);
-//    lfdnr.setPreferredSize(new Dimension(200, Dialog.TEXTFIELD_HEIGHT));
     lfdnr.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         lfdnr_focusLost(e);
@@ -750,7 +738,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     boot.setNextFocusableComponent(stm);
     Dialog.setPreferredSize(boot,200,19);
-//    boot.setPreferredSize(new Dimension(200, Dialog.TEXTFIELD_HEIGHT));
     boot.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
         decolorize(e);
@@ -813,7 +800,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
     bootButton.setNextFocusableComponent(stm);
     Dialog.setPreferredSize(bootButton,15,11);
-//    bootButton.setPreferredSize(new Dimension(15, 11));
     bootButton.setToolTipText(International.getMessage("in die {list} aufnehmen",
               International.getString("Bootsliste")));
     bootButton.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -829,7 +815,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
     stmButton.setNextFocusableComponent(mannsch[0]);
     Dialog.setPreferredSize(stmButton,15,11);
-//    stmButton.setPreferredSize(new Dimension(15, 11));
     stmButton.setToolTipText(International.getMessage("in die {list} aufnehmen",
               International.getString("Mitgliederliste")));
     stmButton.addActionListener(new java.awt.event.ActionListener() {
@@ -840,7 +825,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
     zielButton.setNextFocusableComponent(bootskm);
     Dialog.setPreferredSize(zielButton,15,11);
-//    zielButton.setPreferredSize(new Dimension(15, 11));
     zielButton.setToolTipText(International.getMessage("in die {list} aufnehmen",
               International.getString("Zielliste")));
     zielButton.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -878,13 +862,13 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     });
     jLabel23.setText("     ");
-    Dialog.setPreferredSize(fahrtDauer,200,24);
-    fahrtDauer.addItemListener(new java.awt.event.ItemListener() {
+    Dialog.setPreferredSize(fahrtart,200,19);
+    fahrtart.addItemListener(new java.awt.event.ItemListener() {
       public void itemStateChanged(ItemEvent e) {
         fahrtDauer_itemStateChanged(e);
       }
     });
-    fahrtDauer.addFocusListener(new java.awt.event.FocusAdapter() {
+    fahrtart.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusGained(FocusEvent e) {
         colorize(e);
         showHint("fahrtDauer");
@@ -893,10 +877,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         decolorize(e);
       }
     });
-    Mnemonics.setLabel(this, artDerFahrtLabel, International.getStringWithMnemonic("Art der Fahrt")+": ");
-    artDerFahrtLabel.setLabelFor(fahrtDauer);
-    Dialog.setPreferredSize(weitereMannschButton,200,19);
-//    weitereMannschButton.setPreferredSize(new Dimension(200, Dialog.TEXTFIELD_HEIGHT));
+    Mnemonics.setLabel(this, fahrtartLabel, International.getStringWithMnemonic("Art der Fahrt")+": ");
+    fahrtartLabel.setLabelFor(fahrtart);
+    Dialog.setPreferredSize(weitereMannschButton,215,19);
+    weitereMannschButton.setMargin(new Insets(0,0,0,0));
     Mnemonics.setButton(this, weitereMannschButton, International.getStringWithMnemonic("restliche Mannschaft anzeigen"));
     weitereMannschButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -916,7 +900,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     });
 
-    contentPane.setMinimumSize(new Dimension(590, 350));
     if (Daten.efaConfig.showGermanOptions.getValue()) {
         jMenuItem2.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_efawett.gif")));
         Mnemonics.setMenuButton(this, jMenuItem2, International.getStringWithMnemonic("Elektronische Wettbewerbsmeldung"));
@@ -942,7 +925,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     Mnemonics.setLabel(this, gehezuLabel, International.getStringWithMnemonic("gehe zu")+": ");
     gehezuLabel.setLabelFor(geheZu);
     Dialog.setPreferredSize(geheZu,50,19);
-//    geheZu.setPreferredSize(new Dimension(50, Dialog.TEXTFIELD_HEIGHT));
     geheZu.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyReleased(KeyEvent e) {
         geheZu_keyReleased(e);
@@ -1035,7 +1017,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         jMenuItem11_actionPerformed(e);
       }
     });
-    efaButton.setPreferredSize(new Dimension(90, 23));
+    efaButton.setPreferredSize(new Dimension(10, 55));
     efaButton.setIcon(new ImageIcon(EfaFrame.class.getResource(Daten.getEfaImage(1))));
     efaButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -1135,114 +1117,20 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     toolBar.add(SuchButton, null);
     toolBar.add(jLabel22, null);
     toolBar.add(ButtonDelete, null);
-    contentPane.add(mainPanel, BorderLayout.CENTER);
+    JPanel _mainPanel = new JPanel();
+    _mainPanel.setLayout(new GridBagLayout());
+    _mainPanel.add(mainPanel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+            GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 20, 20, 20), 0, 0));
+    contentPane.add(_mainPanel, BorderLayout.CENTER);
     contentPane.add(addButton, BorderLayout.SOUTH);
-    mainPanel.add(lfdnr,     new GridBagConstraints(1, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
-    mainPanel.add(datum,   new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(stm,   new GridBagConstraints(1, 3, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(abfahrt,   new GridBagConstraints(1, 8, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(ankunft,   new GridBagConstraints(1, 9, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(ziel,   new GridBagConstraints(1, 10, 11, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(bootskm,   new GridBagConstraints(1, 11, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(mannschkm,   new GridBagConstraints(1, 12, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(bemerk,     new GridBagConstraints(1, 13, 2, 2, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 10, 0), 0, 0));
-
-    for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++) {
-      mainPanel.add(mannsch[i],  new GridBagConstraints((i>=0 && i<=3 || i>=8 && i<=11 || i>=16 && i<=19 ? 1 : 5), 4+ (i%4), (i>=0 && i<=3 || i>=8 && i<=11 || i>=16 && i<=19 ? 2 : 7), 1, 0.0, 0.0
-              ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    }
-
-    mainPanel.add(mannsch4_label,   new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(mannsch3_label,   new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(mannsch2_label,   new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(mannsch1_label,    new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
-    mainPanel.add(stmLabel,   new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(bootLabel,   new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(datumLabel,   new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(lfdnrLabel,     new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
-    mainPanel.add(abfahrtLabel,   new GridBagConstraints(0, 8, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(ankunftLabel,   new GridBagConstraints(0, 9, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(zielLabel,   new GridBagConstraints(0, 10, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(bootskmLabel,   new GridBagConstraints(0, 11, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(mannschkmLabel,    new GridBagConstraints(0, 12, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
-    mainPanel.add(bemerkLabel,     new GridBagConstraints(0, 13, 1, 2, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 20, 10, 0), 0, 0));
-    mainPanel.add(mannsch5_label,   new GridBagConstraints(4, 4, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(mannsch6_label,   new GridBagConstraints(4, 5, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(mannsch7_label,   new GridBagConstraints(4, 6, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(mannsch8_label,    new GridBagConstraints(4, 7, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(boot,   new GridBagConstraints(1, 2, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(bootButton,   new GridBagConstraints(3, 2, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 1, 0, 22), 0, 0));
-        mainPanel.add(stmButton,   new GridBagConstraints(3, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 1, 0, 0), 0, 0));
-
-    for (int i=0; i<8; i++)
-      mainPanel.add(mannschButton[i],  new GridBagConstraints( (i<4 ? 3 : 12) , 4+ i%4, 1, 1, 0.0, 0.0
-              ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 1, 0, 0), 0, 0));
-
-    mainPanel.add(zielButton,    new GridBagConstraints(12, 10, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 1, 0, 20), 0, 0));
-    mainPanel.add(fahrtDauer,     new GridBagConstraints(4, 13, 9, 2, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 20), 0, 0));
-    mainPanel.add(artDerFahrtLabel,   new GridBagConstraints(4, 12, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(mannschaftSelectButton,    new GridBagConstraints(5, 3, 7, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.CENTER, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(weitereMannschButton,    new GridBagConstraints(4, 8, 9, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 20), 0, 0));
-    mainPanel.add(gehezuLabel,     new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
-    mainPanel.add(geheZu,     new GridBagConstraints(6, 0, 5, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
-    mainPanel.add(wotag,   new GridBagConstraints(2, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 10, 0, 0), 0, 0));
-    mainPanel.add(efaButton,              new GridBagConstraints(11, 0, 1, 3, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(10, 5, 0, 0), 0, 0));
-    mainPanel.add(infoLabel,          new GridBagConstraints(0, 15, 7, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 20, 10, 10), 0, 0));
-    mainPanel.add(bootsschadenButton,            new GridBagConstraints(8, 15, 4, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
     if (isDirectMode() || true) { // ;-)
       Mnemonics.setLabel(this, obmannLabel, "  "+International.getStringWithMnemonic("Obmann")+": ");
       obmannLabel.setLabelFor(obmann);
       obmann.setMinimumSize(new Dimension( (isDirectMode() ? 80 : 50), 17));
       Dialog.setPreferredSize(obmann,(isDirectMode() ? 80 : 50),19);
-//      obmann.setPreferredSize(new Dimension( (isDirectMode() ? 80 : 50), Dialog.TEXTFIELD_HEIGHT));
-      mainPanel.add(obmannLabel,    new GridBagConstraints(4, 2, 2, 1, 0.0, 0.0
-              ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-      mainPanel.add(obmann,   new GridBagConstraints(10, 2, 2, 1, 0.0, 0.0
-              ,GridBagConstraints.WEST, (isDirectMode() ? GridBagConstraints.HORIZONTAL : GridBagConstraints.NONE ), new Insets(0, 0, 0, 0), 0, 0));
       obmann.addItem( (isDirectMode() ? International.getString("keine Angabe") : "--") );
-      obmann.addItem( (isDirectMode() ? 
+      obmann.addItem( (isDirectMode() ?
           International.getString("Steuermann") :
           International.getString("St")) );
       for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++) obmann.addItem( (isDirectMode() ? International.getString("Nummer")+" " : "") + (i+1));
@@ -1262,6 +1150,214 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         }
       });
     }
+
+    // =====================================================================================================
+    // Main Input Fields on GUI - BEGIN
+    // =====================================================================================================
+    mainPanel.add(lfdnrLabel,
+            new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(lfdnr,
+            new GridBagConstraints(1, 0, 2, 1, 0.0, 0.0,
+            GridBagConstraints.CENTER, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+
+    mainPanel.add(gehezuLabel,
+            new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(geheZu,
+            new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0,
+            GridBagConstraints.WEST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+
+    mainPanel.add(efaButton,
+            new GridBagConstraints(7, 0, 2, 3, 0.0, 0.0,
+            GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+            new Insets(0, 5, 0, 0), 0, 0));
+    
+    mainPanel.add(datumLabel,
+            new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(datum,
+            new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+            GridBagConstraints.CENTER, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(wotag,
+            new GridBagConstraints(2, 1, 2, 1, 0.0, 0.0,
+            GridBagConstraints.WEST, GridBagConstraints.NONE,
+            new Insets(0, 10, 0, 0), 0, 0));
+
+    mainPanel.add(bootLabel,
+            new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(boot,
+            new GridBagConstraints(1, 2, 2, 1, 0.0, 0.0,
+            GridBagConstraints.CENTER, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(bootButton,
+            new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0,
+            GridBagConstraints.WEST, GridBagConstraints.NONE,
+            new Insets(0, 1, 0, 0), 0, 0));
+
+    mainPanel.add(obmannLabel,
+            new GridBagConstraints(5, 2, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(obmann,
+            new GridBagConstraints(6, 2, 2, 1, 0.0, 0.0,
+            GridBagConstraints.WEST, (isDirectMode() ? GridBagConstraints.HORIZONTAL : GridBagConstraints.NONE ),
+            new Insets(0, 0, 0, 0), 0, 0));
+
+    mainPanel.add(stmLabel,
+            new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(stm,
+            new GridBagConstraints(1, 3, 2, 1, 0.0, 0.0,
+            GridBagConstraints.CENTER, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(stmButton,
+            new GridBagConstraints(3, 3, 1, 1, 0.0, 0.0,
+            GridBagConstraints.WEST, GridBagConstraints.NONE,
+            new Insets(0, 1, 0, 0), 0, 0));
+
+    mainPanel.add(mannschaftSelectButton,
+            new GridBagConstraints(5, 3, 3, 1, 0.0, 0.0,
+            GridBagConstraints.CENTER, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(mannsch1_label,
+            new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(mannsch2_label,
+            new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(mannsch3_label,
+            new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(mannsch4_label,
+            new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(mannsch5_label,
+            new GridBagConstraints(4, 4, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(mannsch6_label,
+            new GridBagConstraints(4, 5, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(mannsch7_label,
+            new GridBagConstraints(4, 6, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(mannsch8_label,
+            new GridBagConstraints(4, 7, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++) {
+      mainPanel.add(mannsch[i],
+            new GridBagConstraints((i>=0 && i<=3 || i>=8 && i<=11 || i>=16 && i<=19 ? 1 : 5), 4+ (i%4), (i>=0 && i<=3 || i>=8 && i<=11 || i>=16 && i<=19 ? 2 : 3), 1, 0.0, 0.0,
+            GridBagConstraints.CENTER, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    }
+    for (int i=0; i<8; i++) {
+      mainPanel.add(mannschButton[i],
+            new GridBagConstraints( (i<4 ? 3 : 8) , 4+ i%4, 1, 1, 0.0, 0.0,
+            GridBagConstraints.WEST, GridBagConstraints.NONE,
+            new Insets(0, 1, 0, 0), 0, 0));
+    }
+    mainPanel.add(weitereMannschButton,
+            new GridBagConstraints(5, 8, 4, 1, 0.0, 0.0,
+            GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+            new Insets(0, 0, 0, 0), 0, 0));
+
+    mainPanel.add(abfahrtLabel,
+            new GridBagConstraints(0, 8, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(abfahrt,
+            new GridBagConstraints(1, 8, 2, 1, 0.0, 0.0,
+            GridBagConstraints.CENTER, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+
+    mainPanel.add(ankunftLabel,
+            new GridBagConstraints(0, 9, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(ankunft,
+            new GridBagConstraints(1, 9, 2, 1, 0.0, 0.0,
+            GridBagConstraints.CENTER, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+
+    mainPanel.add(zielLabel,
+            new GridBagConstraints(0, 10, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(ziel,
+            new GridBagConstraints(1, 10, 7, 1, 0.0, 0.0,
+            GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(zielButton,
+            new GridBagConstraints(8, 10, 1, 1, 0.0, 0.0,
+            GridBagConstraints.WEST, GridBagConstraints.NONE,
+            new Insets(0, 1, 0, 0), 0, 0));
+
+    mainPanel.add(bootskmLabel,
+            new GridBagConstraints(0, 11, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(bootskm,
+            new GridBagConstraints(1, 11, 2, 1, 0.0, 0.0,
+            GridBagConstraints.CENTER, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+
+    mainPanel.add(mannschkmLabel,
+            new GridBagConstraints(0, 12, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(mannschkm,
+            new GridBagConstraints(1, 12, 2, 1, 0.0, 0.0,
+            GridBagConstraints.CENTER, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+
+    mainPanel.add(bemerkLabel,
+            new GridBagConstraints(0, 13, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(bemerk,
+            new GridBagConstraints(1, 13, 7, 1, 0.0, 0.0,
+            GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+            new Insets(0, 0, 0, 0), 0, 0));
+
+    mainPanel.add(fahrtartLabel,
+            new GridBagConstraints(0, 14, 1, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(fahrtart,
+            new GridBagConstraints(1, 14, 2, 1, 0.0, 0.0,
+            GridBagConstraints.CENTER, GridBagConstraints.NONE,
+            new Insets(0, 0, 0, 0), 0, 0));
+
+    mainPanel.add(infoLabel,
+            new GridBagConstraints(0, 15, 8, 1, 0.0, 0.0,
+            GridBagConstraints.WEST, GridBagConstraints.NONE,
+            new Insets(10, 20, 10, 20), 0, 0));
+
+    mainPanel.add(bootsschadenButton,
+            new GridBagConstraints(4, 16, 4, 1, 0.0, 0.0,
+            GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL,
+            new Insets(0, 0, 0, 0), 0, 0));
+
+    // =====================================================================================================
+    // Main Input Fields on GUI - END
+    // =====================================================================================================
 
     jMenuKonfiguration.add(jMenuFahrtenbuch);
     jMenuKonfiguration.add(jMenu1);
@@ -2462,9 +2558,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     // Prüfen, ob Eintrag einer Mehrtagesfahrt vorliegt und das Datum in den Zeitraum der Mehrtagesfahrt fällt
     Mehrtagesfahrt mtour = null;
     if (Daten.efaTypes != null &&
-        (Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, fahrtDauer.getSelectedIndex()) == null ||
-         Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, fahrtDauer.getSelectedIndex()).equals(EfaTypes.TYPE_SESSION_MULTIDAY))) {
-        mtour = Daten.fahrtenbuch.getMehrtagesfahrt((String)fahrtDauer.getSelectedItem());
+        (Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, fahrtart.getSelectedIndex()) == null ||
+         Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, fahrtart.getSelectedIndex()).equals(EfaTypes.TYPE_SESSION_MULTIDAY))) {
+        mtour = Daten.fahrtenbuch.getMehrtagesfahrt((String)fahrtart.getSelectedItem());
     }
     if (mtour != null) {
       if (EfaUtil.secondDateIsAfterFirst(datum.getText(),mtour.start) ||
@@ -2648,7 +2744,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (d.get(Mannschaften.ZIEL).length()>0) ziel.setText(d.get(Mannschaften.ZIEL));
     try {
         if (Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, d.get(Mannschaften.FAHRTART))) {
-            fahrtDauer.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, (String)d.get(Mannschaften.FAHRTART)));
+            fahrtart.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, (String)d.get(Mannschaften.FAHRTART)));
         }
     } catch(Exception e) { }
 
@@ -2691,11 +2787,13 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
       if (isDirectMode()) {
         setFieldEnabledStmUndMannsch(aktBoot);
+        packFrame("boot_focusLostGetBoot()");
       }
 
     } else {
       if (isDirectMode()) {
         setFieldEnabledStmUndMannsch(null);
+        packFrame("boot_focusLostGetBoot()");
       }
     }
     if (aktDatensatz == null && Daten.mannschaften != null &&
@@ -2834,12 +2932,12 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   void setFahrtDauerDefault() {
     if (Daten.efaConfig.standardFahrtart.getValue().length() > 0 &&
         Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, Daten.efaConfig.standardFahrtart.getValue())) {
-            fahrtDauer.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, Daten.efaConfig.standardFahrtart.getValue()));
+            fahrtart.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, Daten.efaConfig.standardFahrtart.getValue()));
     } else {
         if (Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_NORMAL)) {
-            fahrtDauer.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_NORMAL));
+            fahrtart.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_NORMAL));
         } else {
-            fahrtDauer.setSelectedIndex(0);
+            fahrtart.setSelectedIndex(0);
         }
     }
   }
@@ -2858,18 +2956,18 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (ignoreFahrtDauerItemStateChanges) return;
     if (oldFahrtDauerSelectedIndex<0) { oldFahrtDauerSelectedIndex = 9999; return; }
     if (Daten.fahrtenbuch == null) { oldFahrtDauerSelectedIndex = 9999; return; }
-    if (fahrtDauer.getSelectedIndex() == oldFahrtDauerSelectedIndex) { oldFahrtDauerSelectedIndex = 9999; return; } // doppelte Aufrufe verhindern
-    if (fahrtDauer.getSelectedItem() == null) { return; }
+    if (fahrtart.getSelectedIndex() == oldFahrtDauerSelectedIndex) { oldFahrtDauerSelectedIndex = 9999; return; } // doppelte Aufrufe verhindern
+    if (fahrtart.getSelectedItem() == null) { return; }
 
-    if (!isFahrtDauerMehrtagesfahrtAction((String)fahrtDauer.getSelectedItem())) {
+    if (!isFahrtDauerMehrtagesfahrtAction((String)fahrtart.getSelectedItem())) {
         datensatzGeaendert = true;
     }
-    oldFahrtDauerSelectedIndex = fahrtDauer.getSelectedIndex();
+    oldFahrtDauerSelectedIndex = fahrtart.getSelectedIndex();
 
     if (isDirectMode()) return;
 
     if (fahrtArt_neueMehrtagesfahrt != null &&
-        ((String)fahrtDauer.getSelectedItem()).equals(fahrtArt_neueMehrtagesfahrt)) {
+        ((String)fahrtart.getSelectedItem()).equals(fahrtArt_neueMehrtagesfahrt)) {
       String mtourEnddatum = null;
       String mtourRudertage = null;
       if (aktDatensatz != null && 
@@ -2892,20 +2990,20 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       startBringToFront(false); // efaDirekt im BRC -- Workaround
     }
     if (fahrtArt_mehrtagesfahrtBearbeiten != null &&
-        ((String)fahrtDauer.getSelectedItem()).equals(fahrtArt_mehrtagesfahrtBearbeiten)) {
+        ((String)fahrtart.getSelectedItem()).equals(fahrtArt_mehrtagesfahrtBearbeiten)) {
       if (isDirectMode()) return;
       if (Daten.fahrtenbuch == null) return;
       if (datensatzGeaendert && !sicherheitsabfrageDatensatz()) return;
       ignoreFahrtDauerItemStateChanges=true;
-      fahrtDauer.setPopupVisible(false);
+      fahrtart.setPopupVisible(false);
       oeffneAuswahl(AuswahlFrame.MEHRTAGESFAHRTEN);
       if (aktDatensatz != null) try {
         String fa = aktDatensatz.get(Fahrtenbuch.FAHRTART);
         getAllFahrtDauer();
         if (fa.length()>0 && fa.startsWith(EfaTypes.TYPE_SESSION_MULTIDAY+":")) {
             fa = fa.substring(EfaTypes.TYPE_SESSION_MULTIDAY.length()+1);
-            fahrtDauer.setSelectedItem(fa);
-            fahrtDauer.setSelectedItem(fa);
+            fahrtart.setSelectedItem(fa);
+            fahrtart.setSelectedItem(fa);
         } else {
             setFahrtDauerDefault();
         }
@@ -3001,6 +3099,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   }
 
   public void updateMannschaftenAndShowButton() {
+      if (!Daten.efaConfig.manualStandardmannsch.getValue()) {
+          mannschaftSelectButton.setVisible(false);
+          return;
+      }
     mannschaften = new Mannschaften(null);
     if (Daten.mannschaften != null) {
       DatenFelder d = Daten.mannschaften.getCompleteFirst();
@@ -3027,24 +3129,24 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     setFahrtDauerDefault();
     if (fahrtArt_mehrtagesfahrtBearbeiten != null) {
         oldFahrtDauerSelectedIndex=-1;
-        fahrtDauer.removeItem(fahrtArt_mehrtagesfahrtBearbeiten); // letztes Element ("Mehrtagesfahrten bearbeiten") entfernen
+        fahrtart.removeItem(fahrtArt_mehrtagesfahrtBearbeiten); // letztes Element ("Mehrtagesfahrten bearbeiten") entfernen
     }
     if (fahrtArt_neueMehrtagesfahrt != null) {
         oldFahrtDauerSelectedIndex=-1;
-        fahrtDauer.removeItem(fahrtArt_neueMehrtagesfahrt); // letztes Element ("neue Mehrtagesfahrt") entfernen
+        fahrtart.removeItem(fahrtArt_neueMehrtagesfahrt); // letztes Element ("neue Mehrtagesfahrt") entfernen
     }
     oldFahrtDauerSelectedIndex=-1; 
-    fahrtDauer.addItem(name);
+    fahrtart.addItem(name);
     if (fahrtArt_neueMehrtagesfahrt != null) {
         oldFahrtDauerSelectedIndex=-1;
-        fahrtDauer.addItem(fahrtArt_neueMehrtagesfahrt);
+        fahrtart.addItem(fahrtArt_neueMehrtagesfahrt);
     }
     if (fahrtArt_mehrtagesfahrtBearbeiten != null) {
          oldFahrtDauerSelectedIndex=-1;
-         fahrtDauer.addItem(fahrtArt_mehrtagesfahrtBearbeiten);
+         fahrtart.addItem(fahrtArt_mehrtagesfahrtBearbeiten);
     }
     oldFahrtDauerSelectedIndex=-1; 
-    fahrtDauer.setSelectedItem(name);
+    fahrtart.setSelectedItem(name);
     ignoreFahrtDauerItemStateChanges=false;
     datensatzGeaendert = true;
   }
@@ -3057,7 +3159,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
                   Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, i).equals(EfaTypes.TYPE_SESSION_MULTIDAY)) {
                   // nothing to do
               } else {
-                  fahrtDauer.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, i));
+                  fahrtart.addItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, i));
               }
           }
       }
@@ -3067,23 +3169,23 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   // Alle Angaben zu Mehrtagesfahrten zusammentragen
   // (nur nach FB öffnen aufrufen, da akt. Eintrag nicht gemerkt wird)
   void getAllFahrtDauer() {
-    fahrtDauer.removeAllItems();
+    fahrtart.removeAllItems();
     fahrtDauerAddItems(false);
     if (fahrtArt_mehrtagesfahrtKonfigurieren != null && (mode == MODE_ADMIN || mode == MODE_ADMIN_NUR_FAHRTEN)) {
-        fahrtDauer.addItem(fahrtArt_mehrtagesfahrtKonfigurieren);
+        fahrtart.addItem(fahrtArt_mehrtagesfahrtKonfigurieren);
     }
     if (Daten.fahrtenbuch != null) {
       String[] mtours = Daten.fahrtenbuch.getAllMehrtagesfahrtNamen();
       for (int i=0; mtours != null && i<mtours.length; i++)
-        fahrtDauer.addItem(Daten.fahrtenbuch.getMehrtagesfahrt(mtours[i]).getDisplayName());
+        fahrtart.addItem(Daten.fahrtenbuch.getMehrtagesfahrt(mtours[i]).getDisplayName());
     }
     if (fahrtArt_neueMehrtagesfahrt != null) {
-        fahrtDauer.addItem(fahrtArt_neueMehrtagesfahrt);
+        fahrtart.addItem(fahrtArt_neueMehrtagesfahrt);
     }
     if (fahrtArt_mehrtagesfahrtBearbeiten != null) {
-        fahrtDauer.addItem(fahrtArt_mehrtagesfahrtBearbeiten);
+        fahrtart.addItem(fahrtArt_mehrtagesfahrtBearbeiten);
     }
-    if (fahrtDauer.getItemCount()>0) {
+    if (fahrtart.getItemCount()>0) {
         setFahrtDauerDefault();
     }
   }
@@ -3124,7 +3226,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   }
 
   private DatenFelder getFields(String mtourEnddatum, String mtourRudertage, String mtourName) {
-    String fd = createFahrtartKey((String)(fahrtDauer.getSelectedIndex() >= 0 ? fahrtDauer.getSelectedItem() : null));
+    String fd = createFahrtartKey((String)(fahrtart.getSelectedIndex() >= 0 ? fahrtart.getSelectedItem() : null));
 
     if (Daten.efaTypes != null && (mode == MODE_ENDE || mode == MODE_NACHTRAG) &&
         fd.startsWith(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_MULTIDAY))) {
@@ -3281,11 +3383,11 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     }
 
     // Prüfen, ob im Fall einer Mehrtagesfahrt diese im angegebenen Zeitraum der ausgewählten (vorhandenen) Fahrt liegt
-    if (fahrtDauer.getSelectedIndex() >= 0 &&
-        !this.isFahrtDauerMehrtagesfahrtAction(fahrtDauer.getSelectedItem().toString())) {
-      String fahrtart = (String)this.fahrtDauer.getSelectedItem();
+    if (fahrtart.getSelectedIndex() >= 0 &&
+        !this.isFahrtDauerMehrtagesfahrtAction(fahrtart.getSelectedItem().toString())) {
+      String thisfahrtart = (String)this.fahrtart.getSelectedItem();
       Mehrtagesfahrt m = null;
-      if (fahrtart != null) m = Daten.fahrtenbuch.getMehrtagesfahrt(fahrtart);
+      if (thisfahrtart != null) m = Daten.fahrtenbuch.getMehrtagesfahrt(thisfahrtart);
       if (m != null) {
         String datum = this.datum.getText();
         if (EfaUtil.secondDateIsAfterFirst(m.ende,datum) || EfaUtil.secondDateIsAfterFirst(datum,m.start)) {
@@ -3319,10 +3421,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     // Mehrtagestour fortsetzen (d.h. Fahrtart beim neuen Eintrag beibehalten)??
     // -> nur, wenn es sich um eine wirkliche Wanderfahrt handelt, die in Form mehrerer Etappen eingegeben wird
     if (Daten.efaTypes != null &&
-        Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, fahrtDauer.getSelectedItem().toString()) == null &&
-        !isFahrtDauerMehrtagesfahrtAction(fahrtDauer.getSelectedItem().toString()) &&
-        Daten.fahrtenbuch.getMehrtagesfahrt((String)fahrtDauer.getSelectedItem()) != null &&
-        Daten.fahrtenbuch.getMehrtagesfahrt((String)fahrtDauer.getSelectedItem()).isEtappen) {
+        Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, fahrtart.getSelectedItem().toString()) == null &&
+        !isFahrtDauerMehrtagesfahrtAction(fahrtart.getSelectedItem().toString()) &&
+        Daten.fahrtenbuch.getMehrtagesfahrt((String)fahrtart.getSelectedItem()) != null &&
+        Daten.fahrtenbuch.getMehrtagesfahrt((String)fahrtart.getSelectedItem()).isEtappen) {
         continueMTour=true;
     } else {
         continueMTour=false;
@@ -3555,14 +3657,14 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         d.get(Fahrtenbuch.FAHRTART).startsWith(EfaTypes.TYPE_SESSION_MULTIDAY+":")) {
         mtour = Daten.fahrtenbuch.getMehrtagesfahrt(d.get(Fahrtenbuch.FAHRTART).substring(EfaTypes.TYPE_SESSION_MULTIDAY.length()+1));
     }
-    if (fahrtDauer.getItemCount()>0) {
+    if (fahrtart.getItemCount()>0) {
       if (mtour != null) {
-        fahrtDauer.setSelectedItem(mtour.getDisplayName());
+        fahrtart.setSelectedItem(mtour.getDisplayName());
       } else if (Mehrtagesfahrt.isVordefinierteFahrtart(d.get(Fahrtenbuch.FAHRTART))) {
-        fahrtDauer.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, d.get(Fahrtenbuch.FAHRTART)));
+        fahrtart.setSelectedItem(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, d.get(Fahrtenbuch.FAHRTART)));
       } else if (d.get(Fahrtenbuch.FAHRTART).startsWith(Fahrtenbuch.CONFIGURE_MTOUR) &&
               (mode == MODE_ADMIN || mode == MODE_ADMIN_NUR_FAHRTEN)) {
-        fahrtDauer.setSelectedItem(fahrtArt_mehrtagesfahrtKonfigurieren);
+        fahrtart.setSelectedItem(fahrtArt_mehrtagesfahrtKonfigurieren);
       }
     }
     setObmann(EfaUtil.string2int(d.get(Fahrtenbuch.OBMANN),-1),true);
@@ -3606,7 +3708,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     setActiveMannsch(mannschAuswahl);
     setColoredMannschButton();
 
-    if (fahrtDauer.getItemCount()>0 && !continueMTour) {
+    if (fahrtart.getItemCount()>0 && !continueMTour) {
       setFahrtDauerDefault();
     }
     DatenFelder d;
@@ -3821,8 +3923,8 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   private void showEfaFrame(Component focusComponent) {
     if (infoLabel.isVisible() != Daten.efaConfig.efaDirekt_showEingabeInfos.getValue()) {
       infoLabel.setVisible(Daten.efaConfig.efaDirekt_showEingabeInfos.getValue());
-      packFrame("showEfaFrame()");
     }
+    packFrame("showEfaFrame()");
     setFixedLocation(-1,-1);
     this.show();
     this.setVisible(true);
@@ -3855,16 +3957,31 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     Dialog.frameClosed(this);
   }
 
-  private void setFieldEnabled(boolean enable, JTextField field, JLabel label) {
+  private void setFieldEnabled(boolean enable, boolean show, JComponent field, JLabel label, JButton button) {
+    if (Daten.efaConfig.efaDirekt_eintragHideUnnecessaryInputFields.getValue()) {
+        if (field != null) {
+            field.setVisible(show);
+        }
+        if (label != null) {
+            label.setVisible(show);
+        }
+        if (button != null) {
+            button.setVisible(show);
+        }
+    }
     try {
-      if (UIManager.getLookAndFeel().getName().equals("Metal")) {
-        field.setDisabledTextColor(Color.darkGray);
-        field.setBackground( (enable ? (new JTextField()).getBackground() : new Color(234,234,234)) );
+      if (field != null && UIManager.getLookAndFeel().getName().equals("Metal")) {
+        if (field.getClass().isInstance(new JTextField())) {
+            ((JTextField)field).setDisabledTextColor(Color.darkGray);
+            ((JTextField)field).setBackground( (enable ? (new JTextField()).getBackground() : new Color(234,234,234)) );
+        }
       }
     } catch(Exception e) {
       EfaUtil.foo();
     }
-    field.setEnabled(enable);
+    if (field != null) {
+        field.setEnabled(enable);
+    }
     if (label != null) {
       label.setForeground( (enable ? (new JLabel()).getForeground() : Color.gray) );
     }
@@ -3876,7 +3993,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     }
     boolean enabled = !(zielButton.getBackground() == Color.green) ||
             !Daten.efaConfig.efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen.getValue();
-    setFieldEnabled(enabled,bootskm,bootskmLabel);
+    setFieldEnabled(enabled,true,bootskm,bootskmLabel,null);
   }
 
   private void setFieldEnabledStmUndMannsch(DatenFelder d) {
@@ -3888,7 +4005,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       anz = EfaTypes.getNumberOfRowers(d.get(Boote.ANZAHL));
     }
     // Steuermann wird bei steuermannslosen Booten immer disabled (unabhängig von Konfigurationseinstellung)
-    setFieldEnabled(isstm,stm,stmLabel);
+    setFieldEnabled(isstm,isstm,stm,stmLabel,stmButton);
     if (!isstm) {
       stm.setText("");
       if (getObmann() == 0) setObmann(-1,true);
@@ -3896,6 +4013,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (Daten.efaConfig.efaDirekt_eintragErlaubeNurMaxRudererzahl.getValue()) {
       for (int i=1; i<=Fahrtenbuch.ANZ_MANNSCH; i++) {
         JLabel label = null;
+        JButton button = null;
         if (i > (mannschAuswahl*8) && i <= ((mannschAuswahl+1)*8)) {
           switch(i % 8) {
             case 1: label = mannsch1_label; break;
@@ -3907,14 +4025,21 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
             case 7: label = mannsch7_label; break;
             case 0: label = mannsch8_label; break;
           }
+          button = mannschButton[(i-1) % 8];
         }
-        setFieldEnabled(i<=anz,mannsch[i-1],label);
+        setFieldEnabled(i<=anz, i<=anz, mannsch[i-1], label, button);
         if (i > anz) {
           mannsch[i-1].setText("");
           if (getObmann() == i) setObmann(-1,true);
         }
       }
     }
+
+    // "Weiterere Mannschaft"-Button ggf. ausblenden
+    setFieldEnabled(true, anz>8 || !Daten.efaConfig.efaDirekt_eintragErlaubeNurMaxRudererzahl.getValue(), null, null, weitereMannschButton);
+
+    // "Obmann" ggf. ausblenden
+    setFieldEnabled(true, isstm || anz > 1, obmann, obmannLabel, null);
   }
 
   private void setTime(JTextField field, int add) {
@@ -3932,7 +4057,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     field.select(0,field.getText().length());
   }
 
-  public void direktFahrtAnfang(String boot) {
+  public void direktFahrtAnfang(String boot, String person) {
     this.direkt_boot = boot;
     Component focusComponent = null;
     this.mode = MODE_START;
@@ -3947,21 +4072,21 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     setTime(abfahrt,Daten.efaConfig.efaDirekt_plusMinutenAbfahrt.getValue());
     Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Fahrt beginnen"));
 
-    setFieldEnabled(false,lfdnr,lfdnrLabel);
-    setFieldEnabled(true ,datum,datumLabel);
-    setFieldEnabled(boot == null,this.boot,bootLabel);
-    setFieldEnabled(true,stm,stmLabel);
+    setFieldEnabled(false, true, lfdnr, lfdnrLabel, null);
+    setFieldEnabled(true, true, datum, datumLabel, null);
+    setFieldEnabled(boot == null, true, this.boot, bootLabel, bootButton);
+    setFieldEnabled(true, true, stm, stmLabel, stmButton);
     if (Daten.efaConfig.efaDirekt_eintragNichtAenderbarUhrzeit.getValue()) {
-      setFieldEnabled(false,abfahrt,abfahrtLabel);
-      setFieldEnabled(false,ankunft,ankunftLabel);
+      setFieldEnabled(false, true, abfahrt, abfahrtLabel, null);
+      setFieldEnabled(false, false, ankunft, ankunftLabel, null);
     } else {
-      setFieldEnabled(true ,abfahrt,abfahrtLabel);
-      setFieldEnabled(false,ankunft,ankunftLabel);
+      setFieldEnabled(true, true, abfahrt,abfahrtLabel, null);
+      setFieldEnabled(false, false, ankunft, ankunftLabel, null);
     }
-    setFieldEnabled(true ,ziel,zielLabel);
-    setFieldEnabled(false,bootskm,bootskmLabel);
-    setFieldEnabled(false,mannschkm,mannschkmLabel);
-    setFieldEnabled(true ,bemerk,bemerkLabel);
+    setFieldEnabled(true, true, ziel, zielLabel, zielButton);
+    setFieldEnabled(false, false, bootskm, bootskmLabel, null);
+    setFieldEnabled(false, false, mannschkm, mannschkmLabel, null);
+    setFieldEnabled(true, true, bemerk, bemerkLabel, null);
     if (boot != null) {
       DatenFelder d = Daten.fahrtenbuch.getDaten().boote.getExactComplete(boot);
       setFieldEnabledStmUndMannsch(d);
@@ -3976,8 +4101,14 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       setFieldEnabledStmUndMannsch(null);
       focusComponent = this.boot;
     }
+    if (person != null) {
+        mannsch[0].setText(person);
+        vervollstaendige(mannsch[0],mannschButton[0],Daten.fahrtenbuch.getDaten().mitglieder,null,this,false);
+        mannsch1_focusLost(null);
+    }
     boot_focusLostGetBoot();
     bootskm.setText(""); // falls durch "Standardmannschaft" bereits ein Fahrtziel (und somit auch die Km) eingetragen wurden
+    setFieldEnabled(true, false, null, null, bootsschadenButton);
     showEfaFrame(focusComponent);
   }
 
@@ -4000,20 +4131,20 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Fahrt beginnen") +
             " (" + International.getString("Korrektur") +")");
     
-    setFieldEnabled(false,this.lfdnr,lfdnrLabel);
-    setFieldEnabled(true ,datum,datumLabel);
-    setFieldEnabled(true ,this.boot,bootLabel);
+    setFieldEnabled(false, true, this.lfdnr, lfdnrLabel, null);
+    setFieldEnabled(true, true, datum, datumLabel, null);
+    setFieldEnabled(true, true, this.boot, bootLabel, bootButton);
     if (Daten.efaConfig.efaDirekt_eintragNichtAenderbarUhrzeit.getValue()) {
-      setFieldEnabled(false,abfahrt,abfahrtLabel);
-      setFieldEnabled(false,ankunft,ankunftLabel);
+      setFieldEnabled(false, true, abfahrt, abfahrtLabel, null);
+      setFieldEnabled(false, false, ankunft, ankunftLabel, null);
     } else {
-      setFieldEnabled(true ,abfahrt,abfahrtLabel);
-      setFieldEnabled(false,ankunft,ankunftLabel);
+      setFieldEnabled(true, true, abfahrt, abfahrtLabel, null);
+      setFieldEnabled(false, false, ankunft, ankunftLabel, null);
     }
-    setFieldEnabled(true ,ziel,zielLabel);
-    setFieldEnabled(false,bootskm,bootskmLabel);
-    setFieldEnabled(false,mannschkm,mannschkmLabel);
-    setFieldEnabled(true ,bemerk,bemerkLabel);
+    setFieldEnabled(true, true, ziel, zielLabel, zielButton);
+    setFieldEnabled(false, false, bootskm, bootskmLabel, null);
+    setFieldEnabled(false, false, mannschkm, mannschkmLabel, null);
+    setFieldEnabled(true, true, bemerk, bemerkLabel, null);
 
     if (boot != null) {
       DatenFelder db = Daten.fahrtenbuch.getDaten().boote.getExactComplete(boot);
@@ -4022,6 +4153,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
     bootskm.setText(""); // falls durch "Standardmannschaft" bereits ein Fahrtziel (und somit auch die Km) eingetragen wurden
     mannschkm.setText("");
+    setFieldEnabled(true, false, null, null, bootsschadenButton);
     showEfaFrame(datum);
   }
 
@@ -4053,25 +4185,27 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     mannschkm.setText("");
     Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Fahrt abschließen"));
 
-    setFieldEnabled(false,this.lfdnr,lfdnrLabel);
-    setFieldEnabled(false,datum,datumLabel);
-    setFieldEnabled(false,this.boot,bootLabel);
+    setFieldEnabled(false, true, this.lfdnr, lfdnrLabel, null);
+    setFieldEnabled(false, true, datum, datumLabel, null);
+    setFieldEnabled(false, true, this.boot, bootLabel, bootButton);
     if (Daten.efaConfig.efaDirekt_eintragNichtAenderbarUhrzeit.getValue()) {
-      setFieldEnabled(false,abfahrt,abfahrtLabel);
-      setFieldEnabled(false,ankunft,ankunftLabel);
+      setFieldEnabled(false, true, abfahrt, abfahrtLabel, null);
+      setFieldEnabled(false, true, ankunft, ankunftLabel, null);
     } else {
-      setFieldEnabled(true ,abfahrt,abfahrtLabel);
-      setFieldEnabled(true ,ankunft,ankunftLabel);
+      setFieldEnabled(true, true, abfahrt, abfahrtLabel, null);
+      setFieldEnabled(true, true, ankunft, ankunftLabel, null);
     }
-    setFieldEnabled(true ,ziel,zielLabel);
+    setFieldEnabled(true, true, ziel, zielLabel, zielButton);
     setFieldEnabledBootsKm();
-    setFieldEnabled(false,mannschkm,mannschkmLabel);
-    setFieldEnabled(true ,bemerk,bemerkLabel);
+    setFieldEnabled(false, false, mannschkm, mannschkmLabel, null);
+    setFieldEnabled(true, true, bemerk, bemerkLabel, null);
 
     if (boot != null) {
       DatenFelder db = Daten.fahrtenbuch.getDaten().boote.getExactComplete(boot);
       setFieldEnabledStmUndMannsch(db);
     } else setFieldEnabledStmUndMannsch(null);
+
+    setFieldEnabled(true, true, null, null, bootsschadenButton);
 
     showEfaFrame(ziel);
   }
@@ -4087,16 +4221,16 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     setDateFromRefDate();
     Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Nachtrag speichern"));
 
-    setFieldEnabled(false,lfdnr,lfdnrLabel);
-    setFieldEnabled(true ,datum,datumLabel);
-    setFieldEnabled(true ,boot,bootLabel);
+    setFieldEnabled(false, true, lfdnr, lfdnrLabel, null);
+    setFieldEnabled(true, true, datum, datumLabel, null);
+    setFieldEnabled(true, true, boot, bootLabel, bootButton);
     setFieldEnabledStmUndMannsch(null);
-    setFieldEnabled(true ,abfahrt,abfahrtLabel);
-    setFieldEnabled(true ,ankunft,ankunftLabel);
-    setFieldEnabled(true ,ziel,zielLabel);
-    setFieldEnabled(true ,bootskm,bootskmLabel);
-    setFieldEnabled(false ,mannschkm,mannschkmLabel);
-    setFieldEnabled(true ,bemerk,bemerkLabel);
+    setFieldEnabled(true, true, abfahrt, abfahrtLabel, null);
+    setFieldEnabled(true, true, ankunft, ankunftLabel, null);
+    setFieldEnabled(true, true, ziel, zielLabel, zielButton);
+    setFieldEnabled(true, true, bootskm, bootskmLabel, null);
+    setFieldEnabled(false, false, mannschkm, mannschkmLabel, null);
+    setFieldEnabled(true, true, bemerk, bemerkLabel, null);
     if (bootPreselected != null) {
       boot.setText(bootPreselected);
       vervollstaendige(boot,bootButton,Daten.fahrtenbuch.getDaten().boote,null,this,false);
@@ -4105,6 +4239,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     } else {
         setFieldEnabledStmUndMannsch(null);
     }
+    setFieldEnabled(true, false, null, null, bootsschadenButton);
     showEfaFrame(datum);
   }
 
@@ -4243,7 +4378,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
                                  International.getString("Trotzdem rudern"),
                                  International.getString("Eintrag abbrechen"))) {
             case 0:
-              this.setFieldEnabled(true,this.boot,this.bootLabel);
+              this.setFieldEnabled(true, true, this.boot, this.bootLabel, bootButton);
               this.boot.setText("");
               this.boot.requestFocus();
               return;
@@ -4285,7 +4420,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
                                  International.getString("Trotzdem rudern"),
                                  International.getString("Eintrag abbrechen"))){
             case 0:
-              this.setFieldEnabled(true,this.boot,this.bootLabel);
+              this.setFieldEnabled(true, true, this.boot, this.bootLabel, bootButton);
               this.boot.setText("");
               this.boot.requestFocus();
               return;
@@ -4329,7 +4464,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
                 datum.getText().trim(),
                 abfahrt.getText().trim(),
                 pers,
-                createFahrtartKey((String)fahrtDauer.getSelectedItem()),
+                createFahrtartKey((String)fahrtart.getSelectedItem()),
                 ziel.getText().trim());
       } else {
         // Fahrtbeginn korrigiert
@@ -4341,7 +4476,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
                   datum.getText().trim(),
                   abfahrt.getText().trim(),
                   pers,
-                  createFahrtartKey((String)fahrtDauer.getSelectedItem()),
+                  createFahrtartKey((String)fahrtart.getSelectedItem()),
                   ziel.getText().trim(),
                   direkt_boot);
         } else {
@@ -4352,7 +4487,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
                   datum.getText().trim(),
                   abfahrt.getText().trim(),
                   pers,
-                  createFahrtartKey((String)fahrtDauer.getSelectedItem()),
+                  createFahrtartKey((String)fahrtart.getSelectedItem()),
                   ziel.getText().trim(),
                   direkt_boot);
         }
@@ -4372,7 +4507,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
       // Mehrtagesfahrt?
       if (Daten.efaTypes != null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_MULTIDAY) &&
-              EfaTypes.TYPE_SESSION_MULTIDAY.equals(Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, fahrtDauer.getSelectedItem().toString()))) {
+              EfaTypes.TYPE_SESSION_MULTIDAY.equals(Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, fahrtart.getSelectedItem().toString()))) {
         mtourName = WanderfahrtSelectFrame.selectWanderfahrt(this,lfdnr.getText().trim(),datum.getText().trim(),boot.getText().trim(),stmMannsch2String(),ziel.getText().trim());
         if (mtourName == null) return;
         Mehrtagesfahrt mf = Daten.fahrtenbuch.getMehrtagesfahrt(mtourName);

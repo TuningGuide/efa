@@ -63,6 +63,9 @@ public class EfaDirektFrame extends JFrame {
   JButton adminHinweisButton = new JButton();
   JButton adminButton = new JButton();
   JButton spezialButton = new JButton();
+  ButtonGroup toggleAvailableBoats = new ButtonGroup();
+  JRadioButton toggleAvailableBoatsToBoats = new JRadioButton();
+  JRadioButton toggleAvailableBoatsToPersons = new JRadioButton();
   JLabel verfuegbareBooteLabel = new JLabel();
   JLabel aufFahrtBooteLabel = new JLabel();
   JLabel nichtVerfuegbareBooteLabel = new JLabel();
@@ -74,6 +77,7 @@ public class EfaDirektFrame extends JFrame {
   JLabel logoLabel = new JLabel();
   JButton statButton = new JButton();
   JPanel westPanel = new JPanel();
+  JPanel westNorthPanel = new JPanel();
   JPanel eastPanel = new JPanel();
   BorderLayout borderLayout3 = new BorderLayout();
   BorderLayout borderLayout4 = new BorderLayout();
@@ -157,6 +161,9 @@ public class EfaDirektFrame extends JFrame {
       verfuegbareBooteLabel.setPreferredSize(new Dimension(width,height));
       aufFahrtBooteLabel.setPreferredSize(new Dimension(width,height));
       nichtVerfuegbareBooteLabel.setPreferredSize(new Dimension(width,height));
+      toggleAvailableBoatsToBoats.setPreferredSize(new Dimension(width/2,height));
+      toggleAvailableBoatsToPersons.setPreferredSize(new Dimension(width/2,height));
+
       validate();
     } catch(Exception e) { EfaUtil.foo(); }
 
@@ -356,6 +363,23 @@ public class EfaDirektFrame extends JFrame {
     Mnemonics.setLabel(this, verfuegbareBooteLabel, International.getStringWithMnemonic("verfügbare Boote"));
     verfuegbareBooteLabel.setHorizontalAlignment(SwingConstants.CENTER);
     verfuegbareBooteLabel.setLabelFor(booteVerfuegbar);
+    Mnemonics.setButton(this, toggleAvailableBoatsToBoats, International.getStringWithMnemonic("Boote"));
+    Mnemonics.setButton(this, toggleAvailableBoatsToPersons, International.getStringWithMnemonic("Personen"));
+    toggleAvailableBoatsToBoats.setHorizontalAlignment(SwingConstants.RIGHT);
+    toggleAvailableBoatsToPersons.setHorizontalAlignment(SwingConstants.LEFT);
+    toggleAvailableBoats.add(toggleAvailableBoatsToBoats);
+    toggleAvailableBoats.add(toggleAvailableBoatsToPersons);
+    toggleAvailableBoatsToBoats.setSelected(true);
+    toggleAvailableBoatsToBoats.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        toggleAvailableBoats_actionPerformed(e);
+      }
+    });
+    toggleAvailableBoatsToPersons.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        toggleAvailableBoats_actionPerformed(e);
+      }
+    });
     Mnemonics.setLabel(this, aufFahrtBooteLabel, International.getStringWithMnemonic("Boote auf Fahrt"));
     aufFahrtBooteLabel.setHorizontalAlignment(SwingConstants.CENTER);
     aufFahrtBooteLabel.setLabelFor(booteAufFahrt);
@@ -454,6 +478,7 @@ public class EfaDirektFrame extends JFrame {
     });
     eastPanel.setLayout(borderLayout4);
     westPanel.setLayout(borderLayout3);
+    westNorthPanel.setLayout(new GridBagLayout());
     eastSouthPanel.setLayout(borderLayout5);
     eastCenterPanel.setLayout(borderLayout6);
     uhr.setText("12:34");
@@ -535,9 +560,13 @@ public class EfaDirektFrame extends JFrame {
     centerPanel.add(newsLabel,  new GridBagConstraints(1, 17, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 0), 0, 0));
 
-
-
-    westPanel.add(verfuegbareBooteLabel, BorderLayout.NORTH);
+    westNorthPanel.add(verfuegbareBooteLabel, new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+    westNorthPanel.add(toggleAvailableBoatsToBoats, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 0, 0));
+    westNorthPanel.add(toggleAvailableBoatsToPersons, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
+    westPanel.add(westNorthPanel, BorderLayout.NORTH);
     westPanel.add(jScrollPane1, BorderLayout.CENTER);
     eastCenterPanel.add(aufFahrtBooteLabel, BorderLayout.NORTH);
     eastCenterPanel.add(jScrollPane2, BorderLayout.CENTER);
@@ -1064,6 +1093,11 @@ public class EfaDirektFrame extends JFrame {
     if (!bootStatus.writeFile()) {
         haltProgram(LogString.logstring_fileWritingFailed(bootStatus.getFileName(),International.getString("Bootsstatus-Liste")), Daten.HALT_FILEOPEN);
     }
+
+    // Update GUI Elements for Boat Lists
+    toggleAvailableBoatsToBoats.setVisible(Daten.efaConfig.efaDirekt_listAllowToggleBoatsPersons.getValue());
+    toggleAvailableBoatsToPersons.setVisible(Daten.efaConfig.efaDirekt_listAllowToggleBoatsPersons.getValue());
+
     updateBootsListen();
 
   }
@@ -1169,9 +1203,32 @@ public class EfaDirektFrame extends JFrame {
     return vv;
   }
 
+  Vector sortMemberList(Vector<String> v) {
+    if (v == null || v.size() == 0) return v;
+    Vector vv = new Vector();
+    char lastChar = ' ';
+    for (int i=0; i<v.size(); i++) {
+        String name = v.get(i).trim();
+        if (name.length() > 0) {
+            if (name.toUpperCase().charAt(0) != lastChar) {
+                lastChar = name.toUpperCase().charAt(0);
+                vv.add("---------- " + lastChar + " ----------");
+            }
+            vv.add(name);
+        }
+    }
+    return vv;
+  }
+
   void updateBootsListen() {
-    booteVerfuegbarListData = sortBootsList(bootStatus.getBoote(BootStatus.STAT_VERFUEGBAR));
-    booteVerfuegbarListData.add(0,"<"+International.getString("anderes Boot")+">");
+    if (!Daten.efaConfig.efaDirekt_listAllowToggleBoatsPersons.getValue() || toggleAvailableBoatsToBoats.isSelected()) {
+        booteVerfuegbarListData = sortBootsList(bootStatus.getBoote(BootStatus.STAT_VERFUEGBAR));
+        booteVerfuegbarListData.add(0,"<"+International.getString("anderes Boot")+">");
+    } else {
+        booteVerfuegbarListData = sortMemberList(Daten.fahrtenbuch.getDaten().mitglieder.getAllNames(true));
+        booteVerfuegbarListData.add(0,"<"+International.getString("andere Person")+">");
+    }
+    
     booteAufFahrtListData = sortBootsList(bootStatus.getBoote(BootStatus.STAT_UNTERWEGS));
     booteNichtVerfuegbarListData = sortBootsList(bootStatus.getBoote(BootStatus.STAT_NICHT_VERFUEGBAR));
 
@@ -1240,66 +1297,88 @@ public class EfaDirektFrame extends JFrame {
   }
 
 
-  void showBootStatus(int listnr, JList list, int direction) {
-    String boot = null;
+    void showBootStatus(int listnr, JList list, int direction) {
+        String name = null;
 
-    try { // list.getSelectedValue() wirft bei Frederik Hoppe manchmal eine Exception (Java-Bug?)
-      if (list != null && !list.isSelectionEmpty()) boot = listGetSelectedValue(list);
-    } catch(Exception e) {
-      EfaUtil.foo();
-    }
-
-    if (bootStatus != null && boot != null && list != null && boot.startsWith("---------- ")) {
-      try {
-        int i = list.getSelectedIndex() + direction;
-        if (i<0) i=1; // i<0 kann nur erreicht werden, wenn vorher i=0 und direction=-1; dann darf nicht auf i=0 gesprungen werden, da wir dort herkommen, sondern auf i=1
-        list.setSelectedIndex(i);
-        boot = listGetSelectedValue(list);
-      } catch(Exception e) { /* just to be sure */ }
-    }
-
-    if (bootStatus != null && boot != null) {
-      String stat;
-      if (bootStatus.getExact(boot) != null) {
-        stat = ((DatenFelder)(bootStatus.getComplete())).get(BootStatus.BEMERKUNG);
-      } else {
-        stat = International.getString("anderes oder fremdes Boot");
-      }
-      String bootstyp = "";
-      String rudererlaubnis = "";
-      if (listnr == 1) {
-        DatenFelder d = Daten.fahrtenbuch.getDaten().boote.getExactComplete(boot);
-        if (d != null) {
-          bootstyp = " ("+Boote.getDetailBezeichnung(d)+")";
-          Vector gr = Boote.getGruppen(d);
-          for (int i=0; i<gr.size(); i++)  {
-            rudererlaubnis = (rudererlaubnis.length()>0 ? rudererlaubnis + ", " : 
-                "; "+ International.getMessage("nur für {something}",(String)gr.get(i)));
-          }
+        try { // list.getSelectedValue() wirft bei Frederik Hoppe manchmal eine Exception (Java-Bug?)
+            if (list != null && !list.isSelectionEmpty()) {
+                name = listGetSelectedValue(list);
+            }
+        } catch (Exception e) {
+            EfaUtil.foo();
         }
-      }
-      statusLabelSetText(boot+": "+stat + bootstyp + rudererlaubnis);
+
+        if (listnr > 1 || !Daten.efaConfig.efaDirekt_listAllowToggleBoatsPersons.getValue() || toggleAvailableBoatsToBoats.isSelected()) {
+
+            if (bootStatus != null && name != null && list != null && name.startsWith("---------- ")) {
+                try {
+                    int i = list.getSelectedIndex() + direction;
+                    if (i < 0) {
+                        i = 1; // i<0 kann nur erreicht werden, wenn vorher i=0 und direction=-1; dann darf nicht auf i=0 gesprungen werden, da wir dort herkommen, sondern auf i=1
+                    }
+                    list.setSelectedIndex(i);
+                    name = listGetSelectedValue(list);
+                } catch (Exception e) { /* just to be sure */ }
+            }
+
+            if (bootStatus != null && name != null) {
+                String stat;
+                if (bootStatus.getExact(name) != null) {
+                    stat = ((DatenFelder) (bootStatus.getComplete())).get(BootStatus.BEMERKUNG);
+                } else {
+                    stat = International.getString("anderes oder fremdes Boot");
+                }
+                String bootstyp = "";
+                String rudererlaubnis = "";
+                if (listnr == 1) {
+                    DatenFelder d = Daten.fahrtenbuch.getDaten().boote.getExactComplete(name);
+                    if (d != null) {
+                        bootstyp = " (" + Boote.getDetailBezeichnung(d) + ")";
+                        Vector gr = Boote.getGruppen(d);
+                        for (int i = 0; i < gr.size(); i++) {
+                            rudererlaubnis = (rudererlaubnis.length() > 0 ? rudererlaubnis + ", "
+                                    : "; " + International.getMessage("nur für {something}", (String) gr.get(i)));
+                        }
+                    }
+                }
+                statusLabelSetText(name + ": " + stat + bootstyp + rudererlaubnis);
+            }
+        } else {
+            statusLabelSetText(name);
+        }
+        if (listnr != 1) {
+            booteVerfuegbar.setSelectedIndices(new int[0]);
+        }
+        if (listnr != 2) {
+            booteAufFahrt.setSelectedIndices(new int[0]);
+        }
+        if (listnr != 3) {
+            booteNichtVerfuegbar.setSelectedIndices(new int[0]);
+        }
     }
-    if (listnr != 1) booteVerfuegbar.setSelectedIndices(new int[0]);
-    if (listnr != 2) booteAufFahrt.setSelectedIndices(new int[0]);
-    if (listnr != 3) booteNichtVerfuegbar.setSelectedIndices(new int[0]);
-  }
 
 
   void doppelklick(int listnr, JList list) {
     if (list == null || list.getSelectedIndex() < 0) return;
 
-    String boot = null;
+    String name = null;
     try { // list.getSelectedValue() wirft bei Frederik Hoppe manchmal eine Exception (Java-Bug?)
-      if (list != null && !list.isSelectionEmpty()) boot = listGetSelectedValue(list);
+      if (list != null && !list.isSelectionEmpty()) name = listGetSelectedValue(list);
     } catch(Exception e) {
       EfaUtil.foo();
     }
 
-    if (boot == null) return;
+    if (name == null) return;
+
+    if (listnr == 1 &&
+        Daten.efaConfig.efaDirekt_listAllowToggleBoatsPersons.getValue() &&
+        toggleAvailableBoatsToPersons.isSelected()) {
+        fahrtbeginnButton_actionPerformed(null);
+        return;
+    }
 
     // Handelt es sich um ein Boot, das auf Fahrt ist, aber trotzdem bei "nicht verfügbar" angezeigt wird?
-    DatenFelder d = bootStatus.getExactComplete(boot);
+    DatenFelder d = bootStatus.getExactComplete(name);
     if (d != null && listnr == 3 && EfaUtil.string2date(d.get(BootStatus.LFDNR),0,0,0).tag>0) listnr = 2;
 
     if (listnr == 1 || listnr == 3) {
@@ -1309,21 +1388,21 @@ public class EfaDirektFrame extends JFrame {
       int auswahl = -1;
       if (listnr == 1) {
         if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) {
-          auswahl = Dialog.auswahlDialog(International.getString("Boot")+" "+boot,
-                  International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",boot),
+          auswahl = Dialog.auswahlDialog(International.getString("Boot")+" "+name,
+                  International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",name),
                                    fahrtBeginnen,
                                    International.getString("Boot reservieren"),
                                    International.getString("Nichts"));
         } else {
-          auswahl = Dialog.auswahlDialog(International.getString("Boot")+" "+boot,
-                  International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",boot),
+          auswahl = Dialog.auswahlDialog(International.getString("Boot")+" "+name,
+                  International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",name),
                                    fahrtBeginnen,
                                    International.getString("Nichts"),
                                    false);
         }
       } else {
-        auswahl = Dialog.auswahlDialog(International.getString("Boot")+" "+boot,
-                International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",boot),
+        auswahl = Dialog.auswahlDialog(International.getString("Boot")+" "+name,
+                International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",name),
                                    fahrtBeginnen,
                                    International.getString("Bootsreservierungen anzeigen"),
                                    International.getString("Nichts"));
@@ -1343,16 +1422,16 @@ public class EfaDirektFrame extends JFrame {
       if (pos>0) fahrtBeenden = fahrtBeenden.substring(0,pos);
       int auswahl = -1;
       if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) {
-        auswahl = Dialog.auswahlDialog(International.getString("Boot")+" "+boot,
-                International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",boot),
+        auswahl = Dialog.auswahlDialog(International.getString("Boot")+" "+name,
+                International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",name),
                                    fahrtBeenden,
                                    International.getString("Eintrag ändern"),
                                    International.getString("Fahrt abbrechen"),
                                    International.getString("Boot reservieren"),
                                    International.getString("Nichts"));
       } else {
-        auswahl = Dialog.auswahlDialog(International.getString("Boot")+" "+boot,
-                International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",boot),
+        auswahl = Dialog.auswahlDialog(International.getString("Boot")+" "+name,
+                International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",name),
                                    fahrtBeenden,
                                    International.getString("Eintrag ändern"),
                                    International.getString("Fahrt abbrechen"),
@@ -1360,7 +1439,7 @@ public class EfaDirektFrame extends JFrame {
       }
       switch (auswahl) {
         case 0: this.fahrtendeButton_actionPerformed(null); break;
-        case 1: this.eintragAendern(boot); break;
+        case 1: this.eintragAendern(name); break;
         case 2: this.fahrtabbruchButton_actionPerformed(null); break;
         case 3: if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) {
                   this.bootsstatusButton_actionPerformed(null);
@@ -1398,7 +1477,11 @@ public class EfaDirektFrame extends JFrame {
         doppelklick(1,booteVerfuegbar);
         return;
       }
-      scrollToBoot(booteVerfuegbar,booteVerfuegbarListData,String.valueOf(e.getKeyChar()),15);
+      if (!Daten.efaConfig.efaDirekt_listAllowToggleBoatsPersons.getValue() || toggleAvailableBoatsToBoats.isSelected()) {
+          scrollToBoot(booteVerfuegbar,booteVerfuegbarListData,String.valueOf(e.getKeyChar()),15);
+      } else {
+          scrollToPerson(booteVerfuegbar,booteVerfuegbarListData,String.valueOf(e.getKeyChar()),15);
+      }
     }
     showBootStatus(1,booteVerfuegbar,(e != null && e.getKeyCode() == 38 ? -1 : 1)); // KeyCode 38 == Cursor Up
   }
@@ -1470,6 +1553,25 @@ public class EfaDirektFrame extends JFrame {
     } catch(Exception ee) { /* just to be sure */ }
   }
 
+  // as scrollToBoot, but for Persons
+  private void scrollToPerson(JList list, Vector persons, String such, int plus) {
+    if (list == null || persons == null || such == null || such.length()==0) return;
+    try {
+      int start = 0;
+      such = such.toLowerCase();
+      int index = -1;
+      for (int i=start; i<persons.size(); i++) {
+        if (((String)persons.get(i)).toLowerCase().startsWith(such)) {
+          index = i;
+          break;
+        }
+      }
+      if (index < 0) return;
+      list.setSelectedIndex(index);
+      list.scrollRectToVisible(list.getCellBounds(index, (index+plus >= persons.size() ? persons.size()-1 : index+plus) ));
+    } catch(Exception ee) { /* just to be sure */ }
+  }
+
   private String listGetSelectedValue(JList list) {
     if (list == null || list.isSelectionEmpty()) return null;
     String boot = (String)list.getSelectedValue();
@@ -1493,6 +1595,8 @@ public class EfaDirektFrame extends JFrame {
     int status = BootStatus.STAT_VERFUEGBAR;
 
     String boot = null;
+    String person = null;
+
     try {
       if (!booteVerfuegbar.isSelectionEmpty()) boot = listGetSelectedValue(booteVerfuegbar);
       if (boot == null) {
@@ -1512,15 +1616,20 @@ public class EfaDirektFrame extends JFrame {
       return;
     }
 
-    if (booteVerfuegbar.getSelectedIndex()==0) { // <anderes Boot> ausgewählt!
-      boot = null;
+    if (booteVerfuegbar.getSelectedIndex()==0) { // <anderes Boot> oder <andere Person> ausgewählt!
+        boot = null;
     } else {
-      if (!checkFahrtbeginnFuerBoot(boot,1)) return;
-      boot = removeDoppeleintragFromBootsname(boot);
+        if (Daten.efaConfig.efaDirekt_listAllowToggleBoatsPersons.getValue() && toggleAvailableBoatsToPersons.isSelected()) {
+            person = boot;
+            boot = null;
+        } else {
+            if (!checkFahrtbeginnFuerBoot(boot,1)) return;
+            boot = removeDoppeleintragFromBootsname(boot);
+        }
     }
 
     setEnabled(false);
-    efaFrame.direktFahrtAnfang(boot);
+    efaFrame.direktFahrtAnfang(boot, person);
   }
 
   // mode bestimmt die Art der Checks
@@ -2106,6 +2215,13 @@ public class EfaDirektFrame extends JFrame {
     Help.getHelp(this,this.getClass());
   }
 
+  void toggleAvailableBoats_actionPerformed(ActionEvent e) {
+      updateBootsListen();
+      try {
+          booteVerfuegbar.scrollRectToVisible(booteVerfuegbar.getCellBounds(0, 0));
+      } catch(Exception ee) {
+      }
+  }
 
 
   public int checkUnreadMessages() {

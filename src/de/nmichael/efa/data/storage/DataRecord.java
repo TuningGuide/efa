@@ -8,7 +8,7 @@
  * @version 2
  */
 
-package de.nmichael.efa.data;
+package de.nmichael.efa.data.storage;
 
 import java.util.*;
 
@@ -16,7 +16,7 @@ import java.util.*;
 
 public class DataRecord {
 
-    private Hashtable data = new Hashtable();
+    private Hashtable<String,Object> data = new Hashtable<String,Object>();
 
     public void set(String fieldName, Object data) {
         this.data.put(fieldName, data);

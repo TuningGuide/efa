@@ -17,7 +17,7 @@ import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.io.*;
-import java.util.Hashtable;
+import java.util.*;
 
 // @i18n complete
 
@@ -266,6 +266,19 @@ public class Mitglieder extends DatenListe {
 
   public static void setKmwettMelden(DatenFelder d, boolean melden) {
     d.set(KMWETT_MELDEN, (melden ? "+" : "-") );
+  }
+
+  public Vector<String> getAllNames(boolean onlyMembers) {
+      Vector<String> names = new Vector<String>();
+      DatenFelder d = getCompleteFirst();
+      while (d != null) {
+          if (!onlyMembers || d.get(Mitglieder.VEREIN).length()==0) {
+              String name = EfaUtil.getFullName(d.get(Mitglieder.VORNAME), d.get(Mitglieder.NACHNAME), d.get(Mitglieder.VEREIN));
+              names.add(name);
+          }
+          d = getCompleteNext();
+      }
+      return names;
   }
 
 

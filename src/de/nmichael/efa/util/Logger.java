@@ -101,7 +101,7 @@ public class Logger {
   public static final String MSG_ADMIN_NOBOATSTATECHANGED    = "ADM034";
 
   // Data Administration (not only Admin Mode)
-  public static final String MSG_DATA_NEWMEMBERADDED         = "DAT001";
+  public static final String MSG_DATAADM_NEWMEMBERADDED      = "DAD001";
 
   // de.nmichael.efa.Logger
   public static final String MSG_LOGGER_ACTIVATING           = "LOG001";
@@ -213,6 +213,9 @@ public class Logger {
   public static final String MSG_WARN_CANTGETEFAJAVAARGS     = "WRN012";
   public static final String MSG_WARN_ERRORCNTMSGEXCEEDED    = "WRN013";
   public static final String MSG_WARN_FONTDOESNOTEXIST       = "WRN014";
+
+  // Data Operations
+  public static final String MSG_DATA_LOCKTIMEOUT            = "DAT001";
 
   // File Operations
   public static final String MSG_FILE_FILEOPENFAILED         = "FLE001";

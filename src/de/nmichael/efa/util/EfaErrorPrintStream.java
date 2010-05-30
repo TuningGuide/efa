@@ -18,6 +18,8 @@ import java.io.*;
 
 public class EfaErrorPrintStream extends PrintStream {
 
+  private static final int MAX_STACK_DEPTH_FOR_EFA_ERROR = 5;
+
   public static boolean ignoreExceptions = false;
   private Object lastErrorObject = null;
 
@@ -45,9 +47,10 @@ public class EfaErrorPrintStream extends PrintStream {
       if (o == lastErrorObject) return;
       lastErrorObject = o;
 
-      String text = International.getString("Unerwarteter Programmfehler")+": "+o.toString();
       String stacktrace = "";
+      boolean efaError = false; // set to true if this exception occurred within efa code (first n stack elements)
 
+      // get the stack trace
       try {
         StackTraceElement[] stack = null;
         try {
@@ -63,9 +66,13 @@ public class EfaErrorPrintStream extends PrintStream {
           };
         };
         if (stack != null) {
-          text += "\nStack Trace:\n";
-          for (int i=0; stack != null && i<stack.length; i++) stacktrace += stack[i].toString() + "\n";
-          text += stacktrace;
+          for (int i=0; stack != null && i<stack.length; i++) {
+              String s = stack[i].toString();
+              if (i<MAX_STACK_DEPTH_FOR_EFA_ERROR && s != null && s.indexOf("de.nmichael.efa") >= 0) {
+                  efaError = true;
+              }
+              stacktrace += s + "\n";
+          }
         }
       } catch(NoSuchMethodError j13) {
         EfaUtil.foo(); // StackTraceElement erst ab Java 1.4
@@ -73,14 +80,24 @@ public class EfaErrorPrintStream extends PrintStream {
       
       // if the stack trace concerns classes from efa, ask for bug reports
       // (some other purely java (especially awt/swing) related bugs do not necessarily need to be reported...
-      if (stacktrace.indexOf("de.nmichael.efa") >= 0) {
+      String text = International.getString("Unerwarteter Programmfehler")+": "+o.toString();
+      if (efaError) {
+          if (stacktrace.length() > 0) {
+              text += "\nStack Trace:\n" + stacktrace;
+          }
           text += "\n"+International.getMessage("Bitte melde diesen Fehler an: {efaemail}", Daten.EFAEMAIL);
+          Logger.log(Logger.ERROR,Logger.MSG_ERROR_EXCEPTION,text);
+          new ErrorThread(o.toString(),stacktrace).start();
       } else {
-          text += "\n"+International.getString("Dieser Fehler ist möglicherweise ein Fehler in Java, der durch ein Java-Update behoben werden kann.");
+          text += "\n"+International.getString("Dieser Fehler ist möglicherweise ein Fehler in Java, der durch ein Java-Update behoben werden kann. "+
+                  "Meistens führt diese Art von Fehlern nur zu vorübergehenden Darstellungsproblemen und hat keine Auswirkung auf efa und die Daten. "+
+                  "Sofern dieser Fehler nur selten auftritt und keine erkennbaren Folgen hat, kann er ignoriert werden.");
+          if (stacktrace.length() > 0) {
+              text += "\nStack Trace:\n" + stacktrace;
+          }
+          Logger.log(Logger.WARNING,Logger.MSG_ERROR_EXCEPTION,text);
       }
 
-      Logger.log(Logger.ERROR,Logger.MSG_ERROR_EXCEPTION,text);
-      new ErrorThread(o.toString(),stacktrace).start();
     }
   }
 

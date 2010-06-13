@@ -39,13 +39,19 @@ public class International {
         try {
             if (Daten.efaBaseConfig != null && Daten.efaBaseConfig.language != null &&
                 Daten.efaBaseConfig.language.length() > 0) {
-                Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Using configured language setting: "+Daten.efaBaseConfig.language);
+                if (Logger.isTraceOn(Logger.TT_INTERNATIONALIZATION)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Using configured language setting: "+Daten.efaBaseConfig.language);
+                }
                 locale = new Locale(Daten.efaBaseConfig.language);
             } else {
-                Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Using default language.");
+                if (Logger.isTraceOn(Logger.TT_INTERNATIONALIZATION)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Using default language.");
+                }
                 locale = Locale.getDefault();
             }
-            Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Language is now: "+locale.getDisplayName());
+            if (Logger.isTraceOn(Logger.TT_INTERNATIONALIZATION)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Language is now: "+locale.getDisplayName());
+            }
 
             bundle = ResourceBundle.getBundle(BUNDLE_NAME,locale);
             msgFormat = new MessageFormat("",locale);
@@ -63,15 +69,18 @@ public class International {
         if (initializationFailed) {
             return;
         }
-        
-        Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Initializing Language Support ...");
-        Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, Daten.getCurrentStack());
+
+        if (Logger.isTraceOn(Logger.TT_INTERNATIONALIZATION)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Initializing Language Support ...");
+            Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, Daten.getCurrentStack());
+        }
         initializeData();
 
         try {
             if (Daten.efaBaseConfig != null && Daten.efaBaseConfig.language == null) {
-                Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "No preferred Language configured!");
-                Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Available Languages:");
+                if (Logger.isTraceOn(Logger.TT_INTERNATIONALIZATION)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "No preferred Language configured!");
+                }
                 Vector<String> bundles = getLanguageBundles();
                 if (Daten.isGuiAppl() && bundles != null && bundles.size() > 0) {
                     String[] items = new String[bundles.size() + 1];
@@ -93,13 +102,19 @@ public class International {
                     if (selected >= 0) {
                         if (selected == 0) {
                             lang = ""; // auto default language
-                            Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Selected Language: <default>");
+                            if (Logger.isTraceOn(Logger.TT_INTERNATIONALIZATION)) {
+                                Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Selected Language: <default>");
+                            }
                         } else {
                             lang = bundles.get(selected - 1);
-                            Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Selected Language: " + lang);
+                            if (Logger.isTraceOn(Logger.TT_INTERNATIONALIZATION)) {
+                                Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Selected Language: " + lang);
+                            }
                         }
                     } else {
-                        Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Selected Language: <none>");
+                        if (Logger.isTraceOn(Logger.TT_INTERNATIONALIZATION)) {
+                            Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Selected Language: <none>");
+                        }
                     }
                     
                     if (lang != null && Daten.efaBaseConfig != null) {
@@ -133,6 +148,9 @@ public class International {
             // This can happen when we try to translate something before Daten.initialize() calls iniLanguageSupport()
             return null;
         }
+        if (Logger.isTraceOn(Logger.TT_INTERNATIONALIZATION)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Available Languages:");
+        }
         File dir = new File(Daten.efaProgramDirectory);
         File[] files = dir.listFiles();
         Vector<String> bundles = new Vector<String>();
@@ -142,7 +160,9 @@ public class International {
                 int pos = name.indexOf(".properties");
                 String lang = name.substring(BUNDLE_NAME.length() + 1, pos);
                 if (lang.length() > 0) {
-                    Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "    " + lang);
+                    if (Logger.isTraceOn(Logger.TT_INTERNATIONALIZATION)) {
+                        Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "    " + lang);
+                    }
                     bundles.add(lang);
                 }
             }
@@ -201,7 +221,7 @@ public class International {
         } catch(Exception e) {
             if (defaultIfNotFound) {
                 if (LOG_MISSING_KEYS) {
-                    Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_MISSINGKEY, "Missing Key: "+makeKey(s)); // no need for translation!
+                    Logger.log(Logger.WARNING, Logger.MSG_INTERNATIONAL_MISSINGKEY, "Missing Key: "+makeKey(s)); // no need for translation!
                 }
                 if (STACKTRACE_MISSING_KEYS) {
                     EfaErrorPrintStream.ignoreExceptions = true;
@@ -289,7 +309,7 @@ public class International {
             return msgFormat.format(args);
         } catch(Exception e) {
             if (LOG_MISSING_KEYS) {
-                Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_INCORRECTKEY,"Incorrect Compound Key: "+s); // no need for translation!
+                Logger.log(Logger.WARNING, Logger.MSG_INTERNATIONAL_INCORRECTKEY,"Incorrect Compound Key: "+s); // no need for translation!
             }
             if (STACKTRACE_MISSING_KEYS) {
                 EfaErrorPrintStream.ignoreExceptions = true;

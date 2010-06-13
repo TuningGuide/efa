@@ -28,6 +28,10 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JComponent;
 import java.security.*;
+import org.xml.sax.XMLReader;
+import org.xml.sax.Attributes;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 // @i18n complete
 
@@ -1297,8 +1301,10 @@ public class EfaUtil {
     while (i<aliasFormat.length()) {
       if (aliasFormat.charAt(i) == '{') {
         if (aliasFormat.length() < i+4 || aliasFormat.charAt(i+3) != '}') {
-          Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GENERIC,
+            if (Logger.isTraceOn(Logger.TT_OTHER)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GENERIC,
                   "NeuesMitgliedFrame: Fehler beim Parsen des Eingabe-Kürzel-Formats!"); // no need to translate
+            }
           return "";
         }
         String feld=null;
@@ -1331,6 +1337,61 @@ public class EfaUtil {
       if (s.length() <= maxchar) return s;
       return s.substring(0, maxchar);
   }
+
+    public static XMLReader tryToGetXMLReader(String classname) {
+        XMLReader parser = null;
+        try {
+            if (classname != null) {
+                if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_FILE_XMLPARSER,
+                            "Trying to load XML-Parser " + classname + " ...");
+                }
+                parser = XMLReaderFactory.createXMLReader(classname);
+            } else {
+                if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_FILE_XMLPARSER,
+                            "Trying to load default XML-Parser ...");
+                }
+                parser = XMLReaderFactory.createXMLReader();
+            }
+        } catch (Exception e) {
+            if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_FILE_XMLPARSER,
+                        "Parser Exception: " + e.toString());
+            }
+            if (e.getClass().toString().indexOf("java.lang.ClassNotFoundException") > 0) {
+                if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_FILE_XMLPARSER,
+                            classname + " not found.");
+                }
+                parser = null;
+            }
+        }
+        if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_FILE_XMLPARSER,
+                    "XML-Parser successfully loaded.");
+        }
+        return parser;
+    }
+
+    public static XMLReader getXMLReader() {
+        XMLReader parser = null;
+        parser = tryToGetXMLReader(null);
+        if (parser == null) {
+            parser = tryToGetXMLReader("org.apache.xerces.parsers.SAXParser");
+        }
+        if (parser == null) {
+            parser = tryToGetXMLReader("javax.xml.parsers.SAXParser"); // since Java 1.5
+        }
+        if (parser == null) {
+            parser = tryToGetXMLReader("org.apache.crimson.parser.XMLReaderImpl");
+        }
+        if (parser == null) {
+            Logger.log(Logger.ERROR, Logger.MSG_ERR_NOXMLPARSER,
+                    "No XML-Parser found!");
+        }
+        return parser;
+    }
 
           // just for test purpose
   public static void main(String[] args) {

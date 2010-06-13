@@ -14,16 +14,60 @@ import java.util.*;
 
 // @i18n complete
 
-public class DataRecord {
+public abstract class DataRecord implements Cloneable {
 
-    private Hashtable<String,Object> data = new Hashtable<String,Object>();
+    protected static String[] FIELDS;
+    protected static int[] TYPES;
+    protected static HashMap<String,Integer> FIELDIDX;
+    protected static String[] KEY;
 
-    public void set(String fieldName, Object data) {
-        this.data.put(fieldName, data);
+    protected Object[] data = new Object[FIELDS.length];
+
+    protected static void constructArrays(Vector<String> fields, Vector<Integer> types) {
+        FIELDS = new String[fields.size()];
+        TYPES = new int[types.size()];
+        FIELDIDX = new HashMap<String,Integer>();
+        for (int i=0; i<FIELDS.length; i++) {
+            FIELDS[i] = fields.get(i);
+            TYPES[i] = types.get(i).intValue();
+            FIELDIDX.put(FIELDS[i], i);
+        }
     }
 
-    public Object get(String fieldName) {
-        return this.data.get(fieldName);
+    public DataRecord clone()  {
+        try {
+            return this.getClass().getConstructor(this.getClass()).newInstance(this);
+        } catch (Exception e) {
+            throw new InternalError(e.toString());
+        }
+    }
+
+    protected static int getIndex(String fieldName) {
+        return FIELDIDX.get(fieldName).intValue();
+    }
+
+    public static int getFieldCount() {
+        return FIELDS.length;
+    }
+
+    public static String getFieldName(int i) {
+        return FIELDS[i];
+    }
+
+    public static int getFieldType(int i) {
+        return TYPES[i];
+    }
+
+    public static String[] getKey() {
+        return KEY;
+    }
+
+    protected void set(String fieldName, Object data) {
+        this.data[getIndex(fieldName)] = data;
+    }
+
+    protected Object get(String fieldName) {
+        return this.data[getIndex(fieldName)];
     }
 
 }

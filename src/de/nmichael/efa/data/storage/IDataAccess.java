@@ -28,6 +28,17 @@ public interface IDataAccess {
 
 
     /**
+     * Sets the associated Persistence object for this Data Access.
+     */
+    public void setPersistence(Persistence persistence);
+
+    /**
+     * Returns the associated Persistence object for this Data Access.
+     * @return the Persistence object
+     */
+    public Persistence getPersistence();
+
+    /**
      * Returns the storage type of this implementation (e.g. CSV file, XML file or SQL database)
      * @return one of the TYPE_xxx constants
      */
@@ -146,45 +157,38 @@ public interface IDataAccess {
     public void setStorageObjectVersion(String version) throws Exception;
 
     /**
-     * Locks the entire storage object for exclusive access and starts a transaction.
-     * Locking only affects DDL and DML operations. Storage Object operations
+     * Locks the entire storage object for exclusive write access.
+     * Locking only affects DML operations. Storage Object operations
      * (as for example closing the storage object) are still permitted.
      * Locking may time out depending on the implementation of the underlying storage object.
-     * @return a transaction ID
+     * @return a lock ID
      * @throws Exception if the storage object is already locked or cannot be
      * locked at the moment (e.g. because it has already been closed)
      */
-    public long lock() throws Exception;
+    public long acquireGlobalLock() throws Exception;
 
     /**
-     * Locks one data record in the storage object for exclusive access and starts a transaction.
-     * Locking only affects DDL and DML operations. Storage Object operations
+     * Locks one data record in the storage object for exclusive write access.
+     * Locking only affects DML operations. Storage Object operations
      * (as for example closing the storage object) are still permitted.
      * Locking may time out depending on the implementation of the underlying storage object.
-     * @return a transaction ID
+     * @return a lock ID
      * @throws Exception if the data record or the storage object is already locked or cannot be
      * locked at the moment (e.g. because it has already been closed)
      */
-    public long lock(DataKey key) throws Exception;
+    public long acquireLocalLock(DataKey key) throws Exception;
 
     /**
-     * Commits a previously started transaction.
-     * @param transactionID the transaction ID
-     * @return the number of successfully committed data records
-     * @throws Exception if the transaction ID is invalid, the lock has expired or
-     * the transaction cannot be completed for some other reason.
+     * Releases a previous acquired global lock.
+     * @param lockID the lock ID
      */
-    public long commit(long transactionID) throws Exception;
+    public void releaseGlobalLock(long lockID) throws Exception;
 
     /**
-     * Rolls back all modifications from a previously started transaction.
-     * Only DML operations can be rolled back.
-     * @param transactionID the transaction ID
-     * @return the number of successfully rolled back data records
-     * @throws Exception if the transaction ID is invalid, the lock has expired or
-     * the transaction cannot be completed for some other reason.
+     * Releases a previous acquired local lock.
+     * @param lockID the lock ID
      */
-    public long rollback(long transactionID) throws Exception;
+    public void releaseLocalLock(long lockID) throws Exception;
 
     /**
      * Returns the current SCN.
@@ -205,12 +209,10 @@ public interface IDataAccess {
     /**
      * Specifies the key fields for this storage object. The combination of key field
      * values must be unique in the storage object.
-     * The storage object must be locked through the lock() method previous to this operation.
-     * @param transactionID the transaction ID
      * @param fieldNames an array of existing fields to be used as key.
      * @throws Exception
      */
-    public void setKey(long transactionID, String[] fieldNames) throws Exception;
+    public void setKey(String[] fieldNames) throws Exception;
 
     /**
      * Returns the names of the key fields of this storage object.
@@ -236,56 +238,54 @@ public interface IDataAccess {
      * Constructs a key from a given (non-empty) DataRecord.
      * @param record the data record
      * @return the key
+     * @throws Exception
      */
-    public DataKey constructKey(DataRecord record);
+    public DataKey constructKey(DataRecord record) throws Exception;
 
     /**
      * Adds a new data record to this storage object.
-     * This is an atomic operation and requires no transaction.
      * @param record the data record to add
      * @throws Exception if the data record already exists or the operation fails for another reason
      */
     public void add(DataRecord record) throws Exception;
 
     /**
-     * Adds a new data record to this storage object.
-     * This operation is part of a previously opened transaction.
+     * Adds a new data record to this storage object with a previously acquired local or global lock.
      * @param record the data record to add
+     * @param lockID an ID of a previously acquired local or global lock
      * @throws Exception if the data record already exists or the operation fails for another reason
      */
-    public void add(long transactionID, DataRecord record) throws Exception;
+    public void add(DataRecord record, long lockID) throws Exception;
 
     /**
      * Adds a new data record to or updates an existing one in this storage object.
-     * This is an atomic operation and requires no transaction.
      * @param record the data record to add or update
      * @throws Exception if the data record is locked or the operation fails for another reason
      */
     public void addOrUpdate(DataRecord record) throws Exception;
 
     /**
-     * Adds a new data record to or updates an existing one in this storage object.
-     * This operation is part of a previously opened transaction.
+     * Adds a new data record to or updates an existing one in this storage object with a previously acquired local or global lock.
      * @param record the data record to add or update
+     * @param lockID an ID of a previously acquired local or global lock
      * @throws Exception if the data record is locked or the operation fails for another reason
      */
-    public void addOrUpdate(long transactionID, DataRecord record) throws Exception;
+    public void addOrUpdate(DataRecord record, long lockID) throws Exception;
 
     /**
      * Deletes an existing data record from this storage object.
-     * This is an atomic operation and requires no transaction.
      * @param key the key of the data record to delete
      * @throws Exception if the data record does not exist, is locked or the operation fails for another reason
      */
     public void delete(DataKey key) throws Exception;
 
     /**
-     * Deletes an existing data record from this storage object.
-     * This operation is part of a previously opened transaction.
+     * Deletes an existing data record from this storage object with a previously acquired local or global lock.
      * @param key the key of the data record to delete
+     * @param lockID an ID of a previously acquired local or global lock
      * @throws Exception if the data record does not exist, is locked or the operation fails for another reason
      */
-    public void delete(long transactionID, DataKey key) throws Exception;
+    public void delete(DataKey key, long lockID) throws Exception;
 
     /**
      * Retrieves an existing data record from this storage object.
@@ -295,26 +295,18 @@ public interface IDataAccess {
     public DataRecord get(DataKey key) throws Exception;
 
     /**
-     * Retrieves an existing data record from this storage object.
-     * This operation is part of a previously opened transaction.
-     * @param key the key of the data record to retrieve
-     * @throws Exception if the data record does not exist, is locked or the operation fails for another reason
-     */
-    public DataRecord get(long transactionID, DataKey key) throws Exception;
-
-    /**
      * Returns the number of data records in this storage object.
      * @return the number of data records
      * @throws Exception
      */
     public long getNumberOfRecords() throws Exception;
 
-    public long getIterator() throws Exception;
-    public DataRecord getExact(long iterator, DataKey key) throws Exception;
-    public DataRecord getFirst(long iterator) throws Exception;
-    public DataRecord getNext(long iterator) throws Exception;
-    public DataRecord getPrev(long iterator) throws Exception;
-    public DataRecord getLast(long iterator) throws Exception;
+    public DataKeyIterator getIterator() throws Exception;
+    public DataRecord getCurrent(DataKeyIterator it) throws Exception;
+    public DataRecord getFirst(DataKeyIterator it) throws Exception;
+    public DataRecord getLast(DataKeyIterator it) throws Exception;
+    public DataRecord getNext(DataKeyIterator it) throws Exception;
+    public DataRecord getPrev(DataKeyIterator it) throws Exception;
 
 
     /*

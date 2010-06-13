@@ -37,6 +37,7 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
   JRadioButton zeitAlle = new JRadioButton();
   JCheckBox artWarn = new JCheckBox();
   JCheckBox artErr = new JCheckBox();
+  JCheckBox artDbg = new JCheckBox();
   JScrollPane jScrollPane1 = new JScrollPane();
   JTextArea log = new JTextArea();
   ButtonGroup buttonGroupZeit = new ButtonGroup();
@@ -123,12 +124,20 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
           artWarn_actionPerformed(e);
         }
     });
-      artErr.setNextFocusableComponent(log);
+      artErr.setNextFocusableComponent(artDbg);
       Mnemonics.setButton(this, artErr, International.getStringWithMnemonic("Fehler")+" ("+Logger.ERROR+")");
       artErr.setSelected(true);
       artErr.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           artErr_actionPerformed(e);
+        }
+    });
+      artDbg.setNextFocusableComponent(log);
+      Mnemonics.setButton(this, artDbg, International.getStringWithMnemonic("Debug")+" ("+Logger.DEBUG+")");
+      artDbg.setSelected(true);
+      artDbg.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          artDbg_actionPerformed(e);
         }
     });
       jScrollPane1.setPreferredSize(new Dimension(600, 500));
@@ -153,6 +162,8 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
       jPanel2.add(artWarn,   new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
       jPanel2.add(artErr,   new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+      jPanel2.add(artDbg,   new GridBagConstraints(3, 3, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
       jPanel1.add(jScrollPane1, BorderLayout.CENTER);
       jScrollPane1.getViewport().add(log, null);
@@ -211,7 +222,7 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
         } else if (type.trim().equals(Logger.WARNING)) {
           if (artWarn.isSelected()) typeok=true;
         } else if (type.trim().equals(Logger.DEBUG)) {
-          typeok = false; // DEBUG nie anzeigen
+          if (artDbg.isSelected()) typeok=true;
         } else if (artErr.isSelected()) typeok=true;
 
         if (typeok) {
@@ -255,6 +266,10 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
   }
 
   void artErr_actionPerformed(ActionEvent e) {
+    updateLog();
+  }
+
+  void artDbg_actionPerformed(ActionEvent e) {
     updateLog();
   }
 

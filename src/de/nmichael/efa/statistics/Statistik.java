@@ -5786,18 +5786,25 @@ public class Statistik {
         }
   }
 
-
-  public static void schreibeEfaWett(EfaWett d) {
-    Logger.log(Logger.DEBUG,"Statistik.schreibeEfaWett(...) - START");
-    try {
-      d.writeFile();
-      Logger.log(Logger.DEBUG,"Statistik.schreibeEfaWett(...): Done with writing without Exception");
-    } catch(IOException e) {
-      Logger.log(Logger.DEBUG,"Statistik.schreibeEfaWett(...): Exception Handler: "+e.toString());
-      Dialog.error("Fehler beim Schreiben der Datei: "+d.datei);
+    public static void schreibeEfaWett(EfaWett d) {
+        if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_STATISTICS, "Statistik.schreibeEfaWett(...) - START");
+        }
+        try {
+            d.writeFile();
+            if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_STATISTICS, "Statistik.schreibeEfaWett(...): Done with writing without Exception");
+            }
+        } catch (IOException e) {
+            if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_STATISTICS, "Statistik.schreibeEfaWett(...): Exception Handler: " + e.toString());
+            }
+            Dialog.error("Fehler beim Schreiben der Datei: " + d.datei);
+        }
+        if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_STATISTICS, "Statistik.schreibeEfaWett(...) - END");
+        }
     }
-    Logger.log(Logger.DEBUG,"Statistik.schreibeEfaWett(...) - END");
-  }
 
 
 

@@ -55,8 +55,8 @@ public class Daten {
   public       static String EFA_LONGNAME  = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
 
   public final static String VERSION = "v2.0_dev03"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSIONID = "1.9.0_07";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "02.05.2010";  // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "1.9.0_08";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+  public final static String VERSIONRELEASEDATE = "13.06.2010";  // Release Date: TT.MM.JJJJ
   public final static String PROGRAMMID = "EFA.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String COPYRIGHTYEAR = "10";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
@@ -434,7 +434,7 @@ public class Daten {
         Logger.log(Logger.INFO, Logger.MSG_INFO_VERSION,
                 "Version efa: " + Daten.VERSIONID + " -- Java: " + Daten.javaVersion + " (JVM " + Daten.jvmVersion + ") -- OS: " + Daten.osName + " " + Daten.osVersion);
 
-        if (Logger.debugLogging) {
+        if (Logger.isDebugLoggin()) {
             Logger.log(Logger.INFO, Logger.MSG_LOGGER_DEBUGACTIVATED,
                     "Debug Logging activated."); // do not internationalize!
         }
@@ -449,8 +449,10 @@ public class Daten {
         try {
             if (applID == APPL_EFADIREKT) {
                 Daten.efa_java_arguments = System.getenv(Daten.EFA_JAVA_ARGUMENTS);
-                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GENERIC,
-                        Daten.EFA_JAVA_ARGUMENTS + "=" + Daten.efa_java_arguments);
+                if (Logger.isTraceOn(Logger.TT_CORE)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GENERIC,
+                               Daten.EFA_JAVA_ARGUMENTS + "=" + Daten.efa_java_arguments);
+                }
             }
         } catch (Error e) {
             Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTGETEFAJAVAARGS,
@@ -630,6 +632,7 @@ public class Daten {
                 }
                 haltProgram(HALT_EFACONFIG);
             }
+            Daten.efaConfig.setExternalParameters(false);
         } else {
             Daten.drvConfig = new DRVConfig(Daten.efaCfgDirectory + Daten.DRVCONFIGFILE);
             if (!EfaUtil.canOpenFile(Daten.drvConfig.getFileName())) {
@@ -712,6 +715,8 @@ public class Daten {
                 Logger.log(Logger.INFO, Logger.MSG_CORE_CONFBACKUPDIRNOTEXIST,
                         International.getString("Backup-Verzeichnis") + ": " + Daten.efaBakDirectory);
             }
+        } else {
+            efaConfig.bakDir.setValue(Daten.efaBakDirectory);
         }
         Daten.backup = new Backup(Daten.efaBakDirectory, 
                 Daten.efaConfig.bakSave.getValue(),
@@ -926,7 +931,7 @@ public class Daten {
         }
 
         // JAR methods
-        if (Logger.debugLogging) {
+        if (Logger.isDebugLoggin()) {
             try {
                 String cp = System.getProperty("java.class.path");
                 while (cp != null && cp.length() > 0) {

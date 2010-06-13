@@ -372,7 +372,9 @@ public class EfaTypes extends DatenListe {
                 String cat = s.substring(0, sepCatTyp);
                 String typ = s.substring(sepCatTyp + 1, sepKeyVal);
                 String val = s.substring(sepKeyVal + 1);
-                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_TYPES, "cat="+cat+" typ="+typ+" val="+val);
+                if (Logger.isTraceOn(Logger.TT_EFATYPES)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_TYPES, "cat="+cat+" typ="+typ+" val="+val);
+                }
                 if (cat.length() == 0 || typ.length() == 0 || val.length() == 0 || !categories.contains(cat) ||
                     typ.indexOf('_')>=0 || typ.indexOf('=')>=0 || typ.indexOf(':')>=0) {
                     Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORINVALIDRECORD,

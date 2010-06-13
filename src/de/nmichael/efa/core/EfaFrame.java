@@ -2524,21 +2524,30 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
           m += (m.length()>0 ? "; " : "") + v.get(i);
         }
         switch(Dialog.auswahlDialog(International.getString("Doppeleintrag?"),
-                                    International.getString("Es gibt bereits einen ähnlichen Eintrag im Fahrtenbuch") + ":\n\n"+
+                                    International.getString("efa hat einen ähnlichen Eintrag im Fahrtenbuch gefunden.") + "\n" +
+                                    International.getString("Eventuell hast Du oder jemand anderes die Fahrt bereits eingetragen.") + "\n\n" + 
+                                    International.getString("Vorhandener Eintrag:") + "\n"+
                                     International.getMessage("#{entry} vom {date} mit {boat}",
                                     dop.get(Fahrtenbuch.LFDNR), dop.get(Fahrtenbuch.DATUM), dop.get(Fahrtenbuch.BOOT)) + ":\n"+
                                     International.getString("Mannschaft") + ": " + m + "\n"+
                                     International.getString("Abfahrt") + ": " + dop.get(Fahrtenbuch.ABFAHRT) + "; " +
                                     International.getString("Ankunft") + ": " + dop.get(Fahrtenbuch.ANKUNFT) + "; " +
-                                    International.getString("Ziel") + ": " + dop.get(Fahrtenbuch.ZIEL) + "\n\n" +
-                                    International.getMessage("Möglicherweise handelt es sich bei dem aktuellen Eintrag #{neue_lfdnr} um einen Doppeleintrag.",
-                                    lfdnr.getText()) + "\n" +
+                                    International.getString("Ziel") + ": " + dop.get(Fahrtenbuch.ZIEL) + " (" + dop.get(Fahrtenbuch.BOOTSKM) + " Km)" + "\n\n" +
+                                    International.getString("Bitte füge den aktuellen Eintrag nur hinzu, falls es sich NICHT um einen Doppeleintrag handelt.") + "\n" +
                                     International.getString("Was möchtest Du tun?"),
                                     International.getString("Eintrag hinzufügen") +
                                     " (" + International.getString("kein Doppeleintrag") + ")",
-                                    International.getString("Abbrechen"),false)) {
-               case 0: break;
-               case 1: return;
+                                    International.getString("Eintrag NICHT hinzufügen") +
+                                    " (" + International.getString("Doppeleintrag") + ")",
+                                    International.getString("Zurück zum Eintrag"))) {
+            case 0: // kein Doppeleintrag: Hinzufügen
+                   break;
+            case 1: // Doppeleintrag: NICHT hinzufügen
+                   cancel();
+                   return;
+            default: // Zurück zum Eintrag
+                   startBringToFront(false); // efaDirekt im BRC -- Workaround
+                   return;
         }
       }
     }
@@ -3942,12 +3951,16 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       // nur im Admin-Mode nach vorne bringen
       if (!isAdminMode()) return;
       if (this.isActive()) {
-        Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_GENERIC,
-                "Dialog closed: EfaFrame is already active.");
+          if (Logger.isTraceOn(Logger.TT_GUI)) {
+              Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_GENERIC,
+                         "Dialog closed: EfaFrame is already active.");
+          }
         return;
       }
-      Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_GENERIC,
-              "Dialog closed: EfaFrame is inactive and will be brought to front.");
+      if (Logger.isTraceOn(Logger.TT_GUI)) {
+          Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_GENERIC,
+                     "Dialog closed: EfaFrame is inactive and will be brought to front.");
+      }
     }
     (new EfaFrameBringToFrontThread(this,100)).start();
   }
@@ -4108,7 +4121,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     }
     boot_focusLostGetBoot();
     bootskm.setText(""); // falls durch "Standardmannschaft" bereits ein Fahrtziel (und somit auch die Km) eingetragen wurden
-    setFieldEnabled(true, false, null, null, bootsschadenButton);
+    setFieldEnabled(false, false, null, null, bootsschadenButton);
     showEfaFrame(focusComponent);
   }
 
@@ -4153,7 +4166,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
     bootskm.setText(""); // falls durch "Standardmannschaft" bereits ein Fahrtziel (und somit auch die Km) eingetragen wurden
     mannschkm.setText("");
-    setFieldEnabled(true, false, null, null, bootsschadenButton);
+    setFieldEnabled(false, false, null, null, bootsschadenButton);
     showEfaFrame(datum);
   }
 
@@ -4205,7 +4218,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       setFieldEnabledStmUndMannsch(db);
     } else setFieldEnabledStmUndMannsch(null);
 
-    setFieldEnabled(true, true, null, null, bootsschadenButton);
+    setFieldEnabled(true, Daten.efaConfig.efaDirekt_showBootsschadenButton.getValue(), null, null, bootsschadenButton);
 
     showEfaFrame(ziel);
   }
@@ -4239,7 +4252,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     } else {
         setFieldEnabledStmUndMannsch(null);
     }
-    setFieldEnabled(true, false, null, null, bootsschadenButton);
+    setFieldEnabled(true, Daten.efaConfig.efaDirekt_showBootsschadenButton.getValue(), null, null, bootsschadenButton);
     showEfaFrame(datum);
   }
 

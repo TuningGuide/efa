@@ -14,23 +14,18 @@ package de.nmichael.efa.data.storage;
 
 public class DataLock {
 
-    public final static DataKey GLOBAL_LOCK = new DataKey<String,String,String>("%%%GLOBAL_LOCK%%%", null, null);
-    public final static DataKey NONEXCLUSIVE_LOCK = new DataKey<String,String,String>("%%%NONEXCLUSIVE_LOCK%%%", null, null);
+    public final static DataKey GLOBAL_EXCLUSIVE_LOCK = new DataKey<String,String,String>("%%%GLOBAL_LOCK%%%", null, null);
 
     private long lockID;
     private DataKey lockObject;
-    private boolean exclusive;
     private Thread lockOwner;
     private long lockTime;
 
-    public DataLock(long lockID, DataKey lockObject, boolean exclusive) {
-        this.lockObject = lockObject;
-        this.exclusive = exclusive;
-        this.lockTime = System.currentTimeMillis();
+    public DataLock(long lockID, DataKey lockObject) {
         this.lockID = lockID;
-        if (exclusive) {
-            this.lockOwner = Thread.currentThread();
-        }
+        this.lockObject = lockObject;
+        this.lockOwner = Thread.currentThread();
+        this.lockTime = System.currentTimeMillis();
     }
 
     public long getLockID() {
@@ -39,10 +34,6 @@ public class DataLock {
 
     public DataKey getLockObject() {
         return lockObject;
-    }
-
-    public boolean isExclusive() {
-        return exclusive;
     }
 
     public long getLockTime() {
@@ -54,12 +45,10 @@ public class DataLock {
         try {
             threadInfo = lockOwner.getName() + "[" + lockOwner.getId() + "]";
         } catch(Exception e) {
-            threadInfo = "<unknown";
+            threadInfo = "<unknown>";
         }
-        return (exclusive ?
-               "Lock[" + lockID + "] Type=" + (lockObject.equals(GLOBAL_LOCK) ? "global" : "local Object=" + lockObject) +
-               " acquired at " + lockTime + " owned by " + threadInfo :
-               "Nonexclusive Lock[" + lockID + "] last acquired at " + lockTime);
+        return ("Lock[" + lockID + "] Type=" + (lockObject.equals(GLOBAL_EXCLUSIVE_LOCK) ? "global" : "local Object=" + lockObject) +
+               " acquired at " + lockTime + " owned by " + threadInfo);
     }
 
 }

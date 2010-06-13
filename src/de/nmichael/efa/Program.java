@@ -46,10 +46,11 @@ public class Program {
         System.out.println("      " + International.getString("Optionen der Java Virtual Machine") + " ('java -help')");
         System.out.println("    [option]:");
         printOption("-help",International.getString("diese Hilfemeldung anzeigen"));
-        printOption("-debug",International.getString("Debug-Logging aktivieren"));
         printOption("-javaRestart", International.getString("Neustart von efa durch Java statt Shell"));
         if (showHelpDev) {
             System.out.println("    Parameters for development use:");
+            printOption("-debug","Activate Debug Logging");
+            printOption("-traceTopic <topic>","Set Trace Topic <topic> for Debug Logging");
             printOption("-wws", "Watch Window Stack (report window stack inconsistencies)");
             printOption("-exc", "Exception Test (press [F1] in main window)");
             printOption("-emulateWin", "Emulate Windows Environment");
@@ -69,11 +70,6 @@ public class Program {
                 args[i] = null;
                 continue;
             }
-            if (args[i].equals("-debug")) {
-                Logger.debugLogging = true;
-                args[i] = null;
-                continue;
-            }
             if (args[i].equals("-javaRestart")) {
                 Daten.javaRestart = true;
                 args[i] = null;
@@ -81,6 +77,19 @@ public class Program {
             }
 
             // developer options
+            if (args[i].equals("-debug")) {
+                Logger.setDebugLogging(true,true);
+                args[i] = null;
+                continue;
+            }
+            if (args[i].equals("-traceTopic")) {
+                if (args.length > i+1) {
+                    Logger.setTraceTopic(args[i+1],true);
+                    args[i] = null;
+                    args[++i] = null;
+                }
+                continue;
+            }
             if (args[i].equals("-helpdev")) {
                 printUsage(args[i]);
                 args[i] = null;

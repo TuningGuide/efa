@@ -3057,46 +3057,66 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
 
   public void efaWettVervollständigen(EfaWett efaWett) {
-    Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...) - START");
+    if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+        Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...) - START");
+    }
     if (efaWett.meldung == null) {
       Dialog.infoDialog(International.onlyFor("Keine Meldungen","de"),
               International.onlyFor("Im gewählten Zeitraum haben keine Teilnehmer die Bedingungen erfüllt!","de"));
       return;
     }
     String dat = Daten.fahrtenbuch.getFileName();
-    Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...): dat == "+dat);
+    if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+        Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...): dat == "+dat);
+    }
     int to;
     if ((to = dat.toUpperCase().lastIndexOf(Daten.fileSep)) >= 0) {
-      Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...): to == "+to);
+      if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+          Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...): to == "+to);
+      }
       dat = dat.substring(0,to+1);
-      Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...): dat == "+dat);
+      if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+          Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...): dat == "+dat);
+      }
       efaWett.datei = dat+EfaUtil.replace(efaWett.allg_wett,".","_",true)+"_"+EfaUtil.replace(efaWett.allg_wettjahr,"/","-",true)+".EFW";
-      Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...): efaWett.datei == "+efaWett.datei);
+      if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+          Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...): efaWett.datei == "+efaWett.datei);
+      }
     } // anderenfalls Standardwert (StatistikDaten.dateiEfaWett)
 
     VereinsConfigFrame dlg = new VereinsConfigFrame(this,efaWett);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
     dlg.show();
-    Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...) - END");
+    if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+        Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen(...) - END");
+    }
   }
   public void efaWettVervollständigen2(EfaWett efaWett) {
-    Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen2(...) - START");
+    if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+        Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen2(...) - START");
+    }
     EfaWettSelectAndCompleteFrame dlg = new EfaWettSelectAndCompleteFrame(this,efaWett);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
     dlg.show();
-    Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen2(...) - END");
+    if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+        Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen2(...) - END");
+    }
   }
   public void efaWettVervollständigen3(EfaWett efaWett, String meldegeld, Vector papierFahrtenhefte) {
-    Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen3(...) - START");
+    if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+        Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen3(...) - START");
+    }
     Statistik.schreibeEfaWett(efaWett);
 
     EfaWettFertigFrame dlg = new EfaWettFertigFrame(this,efaWett,meldegeld,papierFahrtenhefte);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
     dlg.show();
-    Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen3(...) - END");
+    if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+        Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS,"StatistikFrame.efaWettVervollständigen3(...) - END");
+    }
   }
 
 

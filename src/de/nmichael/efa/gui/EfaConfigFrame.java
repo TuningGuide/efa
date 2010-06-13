@@ -219,7 +219,7 @@ public class EfaConfigFrame extends BaseDialog {
         Daten.efaConfig.checkNewConfigValues(myEfaConfig);
         Daten.efaConfig = myEfaConfig;
         Daten.efaConfig.writeFile();
-        Daten.efaConfig.setExternalParameters();
+        Daten.efaConfig.setExternalParameters(true);
         Daten.efaConfig.checkForRequiredPlugins();
         super.closeButton_actionPerformed(e);
     }

@@ -94,18 +94,20 @@ public class Java15 {
       List pools = ManagementFactory.getMemoryPoolMXBeans();
       for (int i=0; i<pools.size(); i++) {
         MemoryPoolMXBean pool = (MemoryPoolMXBean)pools.get(i);
-        de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.DEBUG,
-                                        de.nmichael.efa.util.Logger.MSG_DEBUG_MEMORYSUPERVISOR,
-                                        "MemorySupervisor: Memory Pool: "+pool.getName());
-        de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.DEBUG,
-                                        de.nmichael.efa.util.Logger.MSG_DEBUG_MEMORYSUPERVISOR,
-                                        "MemorySupervisor:   Current Usage      : "+printMemUsage(pool.getUsage()));
-        de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.DEBUG,
-                                        de.nmichael.efa.util.Logger.MSG_DEBUG_MEMORYSUPERVISOR,
-                                        "MemorySupervisor:   Usage after last GC: "+printMemUsage(pool.getCollectionUsage()));
-        de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.DEBUG,
-                                        de.nmichael.efa.util.Logger.MSG_DEBUG_MEMORYSUPERVISOR,
-                                        "MemorySupervisor:   Peak Usage         : "+printMemUsage(pool.getPeakUsage()));
+        if (de.nmichael.efa.util.Logger.isTraceOn(de.nmichael.efa.util.Logger.TT_MEMORYSUPERVISION)) {
+            de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.DEBUG,
+                                            de.nmichael.efa.util.Logger.MSG_DEBUG_MEMORYSUPERVISOR,
+                                            "MemorySupervisor: Memory Pool: "+pool.getName());
+            de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.DEBUG,
+                                            de.nmichael.efa.util.Logger.MSG_DEBUG_MEMORYSUPERVISOR,
+                                            "MemorySupervisor:   Current Usage      : "+printMemUsage(pool.getUsage()));
+            de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.DEBUG,
+                                            de.nmichael.efa.util.Logger.MSG_DEBUG_MEMORYSUPERVISOR,
+                                            "MemorySupervisor:   Usage after last GC: "+printMemUsage(pool.getCollectionUsage()));
+            de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.DEBUG,
+                                            de.nmichael.efa.util.Logger.MSG_DEBUG_MEMORYSUPERVISOR,
+                                            "MemorySupervisor:   Peak Usage         : "+printMemUsage(pool.getPeakUsage()));
+        }
       
         if (pool.getName().toLowerCase().indexOf("tenured") >= 0 ||
             pool.getName().toLowerCase().indexOf("old") >= 0) {
@@ -171,14 +173,18 @@ public class Java15 {
   	}
       }
     } catch(Exception e) {
+        if (de.nmichael.efa.util.Logger.isTraceOn(de.nmichael.efa.util.Logger.TT_MEMORYSUPERVISION)) {
                 de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.DEBUG,
                                         de.nmichael.efa.util.Logger.MSG_DEBUG_MEMORYSUPERVISOR,
                                         "Could not determine Memory Usage: "+e.toString());
+        }
     }
     } catch(NoClassDefFoundError ee) {
+        if (de.nmichael.efa.util.Logger.isTraceOn(de.nmichael.efa.util.Logger.TT_MEMORYSUPERVISION)) {
             de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.DEBUG,
                                         de.nmichael.efa.util.Logger.MSG_DEBUG_MEMORYSUPERVISOR,
                                         "Could not determine Memory Usage: "+ee.toString()+" (only supported for Java 1.5 and higher)");
+        }
     }
     return memoryLow;
   }
@@ -196,9 +202,11 @@ public class Java15 {
           pool.getName().toLowerCase().indexOf("old") >= 0) {
         if (pool.isCollectionUsageThresholdSupported()) {
           long thr = pool.getUsage().getMax() * threshold / 100;
+          if (de.nmichael.efa.util.Logger.isTraceOn(de.nmichael.efa.util.Logger.TT_MEMORYSUPERVISION)) {
                     de.nmichael.efa.util.Logger.log(de.nmichael.efa.util.Logger.DEBUG,
                                         de.nmichael.efa.util.Logger.MSG_DEBUG_MEMORYSUPERVISOR,
                                         "Setting CollectionUsageThreshold of pool "+pool.getName()+" to "+thr+" ...");
+          }
           pool.setCollectionUsageThreshold(thr);
         }
       }

@@ -75,12 +75,16 @@ public class XSLTReader extends DefaultHandler {
     XMLReader parser = null;
     try {
       if (className != null) {
-        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_ELWIZ,
+          if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
+              Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_ELWIZ,
                 "Trying to load XML-Parser "+className+" ...");
+          }
         parser = XMLReaderFactory.createXMLReader(className);
       } else {
-        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_ELWIZ,
-                "Trying to load default XML-Parser ...");
+          if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
+              Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_ELWIZ,
+                      "Trying to load default XML-Parser ...");
+          }
         parser = XMLReaderFactory.createXMLReader();
       }
     } catch(Exception e) {
@@ -123,8 +127,10 @@ public class XSLTReader extends DefaultHandler {
       Logger.log(Logger.ERROR, Logger.MSG_DEBUG_ELWIZ,
               "PARSER EXCEPTION: "+e.toString());
     }
-    Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_ELWIZ,
+    if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
+        Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_ELWIZ,
             "XSLTReader: "+allOptions.size()+" elements read.");
+    }
 
 /*
     for (int i=0; i<allOptions.size(); i++) {

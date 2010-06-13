@@ -12,7 +12,7 @@ package de.nmichael.efa.data.storage;
 
 // @i18n complete
 
-public class CSVFile extends DataFile {
+public abstract class CSVFile extends DataFile {
 
     public CSVFile(String directory, String filename, String extension) {
         super(directory, filename, extension);
@@ -20,18 +20,6 @@ public class CSVFile extends DataFile {
 
     public int getStorageType() {
         return IDataAccess.TYPE_FILE_CSV;
-    }
-
-    public void createStorageObject() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void openStorageObject() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void closeStorageObject() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

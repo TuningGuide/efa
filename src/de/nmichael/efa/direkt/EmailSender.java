@@ -90,7 +90,7 @@ class EmailSenderThread extends Thread {
         if (auth) {
             props.put("mail.smtp.auth","true");
         }
-        if (Logger.debugLogging) {
+        if (Logger.isDebugLoggin()) {
             props.put("mail.debug", "true");
         }
         MailAuthenticator ma = null;

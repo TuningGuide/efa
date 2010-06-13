@@ -90,7 +90,8 @@ public class XMLChecker extends DefaultHandler {
     }
     if (fname == null) printHelp();
 
-    SaxErrorHandler eh = new SaxErrorHandler();
+    SaxErrorHandler eh = new SaxErrorHandler(fname);
+    int fatalErrors = 0;
     try {
       XMLReader parser = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
       if (validate) parser.setFeature("http://xml.org/sax/features/validation",true);
@@ -99,29 +100,10 @@ public class XMLChecker extends DefaultHandler {
       parser.parse(fname);
     } catch(Exception e) {
       System.err.println("[EXCEPTION]: "+e.toString());
-      if (eh.fatalErrors == 0) eh.fatalErrors++;
+      fatalErrors++;
     }
-    System.out.println("There were "+eh.fatalErrors+" fatal errors, "+eh.errors+" errors and "+eh.warnings+" warnings.");
-    System.exit(eh.fatalErrors+eh.errors+eh.warnings);
+    System.out.println("There were "+(eh.getNumberOfFatalErrors()+fatalErrors)+" fatal errors, "+eh.getNumberOfErrors()+" errors and "+eh.getNumberOfWarnings()+" warnings.");
+    System.exit(eh.getNumberOfFatalErrors()+fatalErrors+eh.getNumberOfErrors()+eh.getNumberOfWarnings());
   }
 
-}
-
-class SaxErrorHandler implements ErrorHandler {
-  public int fatalErrors = 0;
-  public int errors = 0;
-  public int warnings = 0;
-
-  public void fatalError(SAXParseException e) {
-    System.out.println(e.getSystemId()+":"+XMLChecker.number(e.getLineNumber())+":"+XMLChecker.number(e.getColumnNumber())+":\t[FATALERROR]: "+e.toString());
-    fatalErrors++;
-  }
-  public void error(SAXParseException e) {
-    System.out.println(e.getSystemId()+":"+XMLChecker.number(e.getLineNumber())+":"+XMLChecker.number(e.getColumnNumber())+":\t[ERROR]: "+e.toString());
-    errors++;
-  }
-  public void warning(SAXParseException e) {
-    System.out.println(e.getSystemId()+":"+XMLChecker.number(e.getLineNumber())+":"+XMLChecker.number(e.getColumnNumber())+":\t[WARNING]: "+e.toString());
-    warnings++;
-  }
 }

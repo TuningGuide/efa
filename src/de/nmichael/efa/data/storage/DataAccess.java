@@ -16,6 +16,7 @@ import java.util.*;
 
 public abstract class DataAccess implements IDataAccess {
 
+    protected Persistence persistence;
     protected String storageLocation;
     protected String storageObjectName;
     protected String storageObjectType;
@@ -26,16 +27,26 @@ public abstract class DataAccess implements IDataAccess {
     protected final LinkedHashMap<String,Integer> fieldTypes = new LinkedHashMap<String,Integer>();
     protected String[] keyFields;
 
-    public static IDataAccess createDataAccess(int type, String storageLocation, String storageObjectName, String storageObjectType) {
+    public static IDataAccess createDataAccess(Persistence persistence, int type, String storageLocation, String storageObjectName, String storageObjectType) {
         switch(type) {
             case IDataAccess.TYPE_FILE_CSV:
-                return (IDataAccess)new CSVFile(storageLocation, storageObjectName, storageObjectType);
+                return null; //(IDataAccess)new CSVFile(storageLocation, storageObjectName, storageObjectType);
             case IDataAccess.TYPE_FILE_XML:
-                return (IDataAccess)new XMLFile(storageLocation, storageObjectName, storageObjectType);
+                IDataAccess dataAccess = (IDataAccess)new XMLFile(storageLocation, storageObjectName, storageObjectType);
+                dataAccess.setPersistence(persistence);
+                return dataAccess;
             case IDataAccess.TYPE_DB_SQL:
                 return null; // @todo not yet implemented
         }
         return null;
+    }
+
+    public void setPersistence(Persistence persistence) {
+        this.persistence = persistence;
+    }
+
+    public Persistence getPersistence() {
+        return persistence;
     }
 
 
@@ -97,7 +108,7 @@ public abstract class DataAccess implements IDataAccess {
     }
 
 
-    public void setKey(long transactionID, String[] fieldNames) throws Exception {
+    public void setKey(String[] fieldNames) throws Exception {
         synchronized (fieldTypes) { // fieldTypes used for synchronization of fieldTypes and keyFields as well
             for (int i = 0; i < fieldNames.length; i++) {
                 getFieldType(fieldNames[i]); // just to check for existence
@@ -135,7 +146,7 @@ public abstract class DataAccess implements IDataAccess {
         return i.intValue();
     }
 
-    public DataKey constructKey(DataRecord record) {
+    public DataKey constructKey(DataRecord record) throws Exception {
         Object v1 = null;
         Object v2 = null;
         Object v3 = null;

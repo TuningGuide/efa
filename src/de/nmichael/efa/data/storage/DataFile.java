@@ -20,8 +20,11 @@ import java.io.*;
 public abstract class DataFile extends DataAccess {
 
     protected String filename;
-    protected final LinkedHashMap<DataKey,DataRecord> data = new LinkedHashMap<DataKey,DataRecord>();
+    protected final HashMap<DataKey,DataRecord> data = new HashMap<DataKey,DataRecord>();
     protected final DataLocks dataLocks = new DataLocks();
+    protected DataFileWriter fileWriter;
+    protected volatile boolean isOpen = false;
+    protected static final String ENCODING = Daten.ENCODING_UTF;
 
     public DataFile(String directory, String name, String extension) {
         setStorageLocation(directory);
@@ -43,117 +46,196 @@ public abstract class DataFile extends DataAccess {
         }
     }
 
-    public boolean isStorageObjectOpen() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void createStorageObject() throws Exception {
+        BufferedWriter fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename,false), ENCODING));
+        writeFile(fw);
+        fw.close();
+        isOpen = true;
+        fileWriter = new DataFileWriter(this);
+        fileWriter.start();
     }
+
+    public void openStorageObject() throws Exception {
+        BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(filename), ENCODING));
+        readFile(fr);
+        fr.close();
+        isOpen = true;
+        fileWriter = new DataFileWriter(this);
+        fileWriter.start();
+    }
+
+    public void closeStorageObject() throws Exception {
+        fileWriter.save(true);
+        isOpen = false;
+        fileWriter.exit();
+        fileWriter = null;
+    }
+
+    public void saveStorageObject() throws Exception {
+        if (!isStorageObjectOpen()) {
+            throw new Exception("Storage Object is not open");
+        }
+        BufferedWriter fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename, false), ENCODING));
+        writeFile(fw);
+        fw.close();
+    }
+
+    public boolean isStorageObjectOpen() {
+        return isOpen;
+    }
+
+    protected abstract void readFile(BufferedReader fr) throws Exception;
+    protected abstract void writeFile(BufferedWriter fw) throws Exception;
 
     private long getLock(DataKey object) throws Exception {
         if (!isStorageObjectOpen()) {
             throw new Exception("Storage Object is not open");
         }
-        long transactionID = (object == null ? dataLocks.getGlobalLock() :
-                                               dataLocks.getLocalLock(object) );
-        if (transactionID < 0) {
+        long lockID = (object == null ? dataLocks.getGlobalLock() :
+                                        dataLocks.getLocalLock(object) );
+        if (lockID < 0) {
             throw new Exception("Could not acquire " +
                     (object == null ? "global lock" :
                                       "local lock on "+object));
         }
-        return transactionID;
-
+        return lockID;
     }
 
-    public long lock() throws Exception {
+    public long acquireGlobalLock() throws Exception {
         return getLock(null);
     }
 
-    public long lock(DataKey key) throws Exception {
+    public long acquireLocalLock(DataKey key) throws Exception {
         return getLock(key);
     }
 
-    public long commit(long transactionID) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void releaseGlobalLock(long lockID) throws Exception {
+        dataLocks.releaseGlobalLock(lockID);
     }
 
-    public long rollback(long transactionID) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void releaseLocalLock(long lockID) throws Exception {
+        dataLocks.releaseLocalLock(lockID);
     }
 
     public long getSCN() throws Exception {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void add(DataRecord record) throws Exception {
-        if (dataLocks.getNonexclusiveAccess()) {
+    private void modifyRecord(DataRecord record, DataKey key, long lockID, boolean add, boolean update, boolean delete) throws Exception {
+        long myLock = -1;
+        if (key == null) {
+            key = constructKey(record);
+        }
+        if (lockID <= 0) {
+            // acquire a new local lock
+            myLock = acquireLocalLock(key);
+        } else {
+            // verify existing lock
+            myLock = (dataLocks.hasGlobalLock(lockID) || dataLocks.hasLocalLock(lockID, key) ? lockID : -1);
+        }
+        if (myLock > 0) {
             try {
-                DataKey key = constructKey(record);
                 synchronized (data) {
-                    if (data.get(key) != null) {
-                        throw new Exception("Data Record already exists");
+                    if (data.get(key) == null) {
+                        if ( (update && !add) || delete) {
+                            throw new Exception("Data Record does not exist");
+                        }
+                    } else {
+                        if ( (add && !update)) {
+                            throw new Exception("Data Record already exists");
+                        }
                     }
-                    data.put(key, record);
+                    if (add || update) {
+                        data.put(key, record.clone());
+                    } else {
+                        if (delete) {
+                            data.remove(key);
+                        }
+                    }
                 }
             } finally {
-                dataLocks.releaseNonexclusiveAccess();
+                if (lockID <= 0) {
+                    releaseLocalLock(myLock);
+                }
+            }
+            if (fileWriter != null) { // may be null while reading (opening) a file
+                fileWriter.save(false);
             }
         } else {
-            throw new Exception("Adding Data Record failed: No Access");
+            throw new Exception("Data Record Operation failed: No Write Access");
         }
     }
 
-    public void add(long transactionID, DataRecord record) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void add(DataRecord record) throws Exception {
+        modifyRecord(record, null, 0, true, false, false);
+    }
+
+    public void add(DataRecord record, long lockID) throws Exception {
+        modifyRecord(record, null, lockID, true, false, false);
     }
 
     public void addOrUpdate(DataRecord record) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        modifyRecord(record, null, 0, true, true, false);
     }
 
-    public void addOrUpdate(long transactionID, DataRecord record) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public DataRecord get(DataKey key) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public DataRecord get(long transactionID, DataKey key) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void addOrUpdate(DataRecord record, long lockID) throws Exception {
+        modifyRecord(record, null, lockID, true, true, false);
     }
 
     public void delete(DataKey key) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        modifyRecord(null, key, 0, false, false, true);
     }
 
-    public void delete(long transactionID, DataKey key) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void delete(DataKey key, long lockID) throws Exception {
+        modifyRecord(null, key, lockID, false, false, true);
+    }
+
+    public DataRecord get(DataKey key) throws Exception {
+        synchronized (data) {
+            return data.get(key);
+        }
     }
 
     public long getNumberOfRecords() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        synchronized(data) {
+            return data.size();
+        }
     }
 
-    public long getIterator() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public DataKeyIterator getIterator() throws Exception {
+        DataKey[] keys = new DataKey[data.size()];
+        keys = data.keySet().toArray(keys);
+        Arrays.sort(keys);
+        return new DataKeyIterator(keys);
     }
 
-    public DataRecord getExact(long iterator, DataKey key) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+    private DataRecord getIteratorDataRecord(DataKey key) throws Exception {
+        if (key != null) {
+            return get(key);
+        } else {
+            return null;
+        }
     }
 
-    public DataRecord getFirst(long iterator) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public DataRecord getCurrent(DataKeyIterator it) throws Exception {
+        return getIteratorDataRecord(it.getCurrent());
     }
 
-    public DataRecord getLast(long iterator) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public DataRecord getFirst(DataKeyIterator it) throws Exception {
+        return getIteratorDataRecord(it.getFirst());
     }
 
-    public DataRecord getNext(long iterator) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public DataRecord getLast(DataKeyIterator it) throws Exception {
+        return getIteratorDataRecord(it.getLast());
     }
 
-    public DataRecord getPrev(long iterator) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public DataRecord getNext(DataKeyIterator it) throws Exception {
+        return getIteratorDataRecord(it.getNext());
     }
+
+    public DataRecord getPrev(DataKeyIterator it) throws Exception {
+        return getIteratorDataRecord(it.getPrev());
+    }
+
 
 }

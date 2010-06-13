@@ -17,12 +17,42 @@ import de.nmichael.efa.util.Logger;
 
 public class DataLocks {
 
+    /**
+     * Lock Implementation
+     *
+     * There are two types of Locks:
+     * - Global Exclusive Locks
+     * - Local Exclusive Locks
+     *
+     * Global Exclusive Locks lock the entire Storage Object for exclusive (write) access.
+     * When a thread holds a Global Exclusive Lock, no other Thread will be able to acquire either a Global or Local Exclusive Lock.
+     * However, read access is possible at all times.
+     *
+     * Local Exclusive Locks lock a specific record identified by its key in the Storage Object for exclusive (write) access.
+     * When a thread holds a Local Exclusive Lock, no other Thread will be able to acquire a Local Exclusive Lock for the same record.
+     * Additionally, no other Tread will be able to aquire a Global Exclusive Lock.
+     * However, read access is possible at all times, to both other records as also the locked record itself.
+     *
+     * Usecase                   Lock Required                          Notes
+     * ======================================================================================
+     * Add Record                Local Exclusive Lock on Record         will be granted if there is no Global Exclusive Lock,
+     *                                                                  and if no other thread attempts to add a Record with
+     *                                                                  identical key information at the same time.
+     * Modify Record             Local Exclusive Lock on Record         will be granted if there is no Global Exclusive Lock,
+     *                                                                  and if no other thread holds a Local Exclusive Lock
+     *                                                                  on this record.
+     * Delete Record             Local Exclusive Lock on Record         will be granted if there is no Global Exclusive Lock,
+     *                                                                  and if no other thread holds a Local Exclusive Lock
+     *                                                                  on this record.
+     * Read Record               no Lock required                       reads will be possible at any time, but there is
+     *                                                                  no level of read consistency supported.
+     */
+
     public static final long LOCK_TIMEOUT = 10000; // 10,000 ms
     public static final long SLEEP_RETRY  =    10; //     10 ms
 
     private final Hashtable<DataKey,DataLock> locks = new Hashtable<DataKey,DataLock>();
-    private volatile long numberOfNonexclusiveAccesses = 0;
-    private volatile long transactionID = 0;
+    private volatile long lockID = 0;
 
     public int clearTimeouts() {
         int count = 0;
@@ -33,9 +63,6 @@ public class DataLocks {
                 if (now - lock.getLockTime() >= LOCK_TIMEOUT) {
                     Logger.log(Logger.WARNING, Logger.MSG_DATA_LOCKTIMEOUT,
                             "Lock Timeout [" + now + "]: " + lock.toString());
-                    if (!lock.isExclusive()) {
-                        numberOfNonexclusiveAccesses = 0;
-                    }
                     locks.remove(lock.getLockObject());
                     count++;
                 }
@@ -44,16 +71,17 @@ public class DataLocks {
         return count;
     }
 
-    private DataLock newDataLock(DataKey object, boolean exclusive) {
+    private DataLock newDataLock(DataKey object) {
         DataLock lock;
         synchronized (locks) {
-            lock = new DataLock(++transactionID, object, exclusive);
+            lock = new DataLock(++lockID, object);
             locks.put(object, lock);
         }
         return lock;
     }
 
-    private DataLock tryAcquireLock(boolean global, DataKey object) {
+    private DataLock tryAcquireLock(DataKey object) {
+        boolean global = (object == null);
         try {
             long startTimestamp = System.currentTimeMillis();
             do {
@@ -61,14 +89,13 @@ public class DataLocks {
                     if (global) {
                         // try to acquire a global lock
                         if (locks.size() == 0) {
-                            return newDataLock(DataLock.GLOBAL_LOCK, true);
+                            return newDataLock(DataLock.GLOBAL_EXCLUSIVE_LOCK);
                         }
                     } else {
                         // try to acquire a local lock
                         if (locks.get(object) == null &&
-                            locks.get(DataLock.GLOBAL_LOCK) == null &&
-                            locks.get(DataLock.NONEXCLUSIVE_LOCK) == null) {
-                            return newDataLock(object, true);
+                            locks.get(DataLock.GLOBAL_EXCLUSIVE_LOCK) == null) {
+                            return newDataLock(object);
                         }
                     }
                 }
@@ -85,7 +112,7 @@ public class DataLocks {
     }
 
     public long getGlobalLock() {
-        DataLock lock = tryAcquireLock(true, null);
+        DataLock lock = tryAcquireLock(null);
         if (lock != null) {
             return lock.getLockID();
         }
@@ -93,94 +120,50 @@ public class DataLocks {
     }
 
     public long getLocalLock(DataKey object) {
-        if (object == null || object.equals(DataLock.GLOBAL_LOCK)) {
+        if (object == null || object.equals(DataLock.GLOBAL_EXCLUSIVE_LOCK)) {
             return -1;
         }
-        DataLock lock = tryAcquireLock(false, object);
+        DataLock lock = tryAcquireLock(object);
         if (lock != null) {
             return lock.getLockID();
         }
         return -1;
     }
 
-    public boolean hasGlobalLock(long transactionID) {
+    public boolean hasGlobalLock(long lockID) {
         synchronized(locks) {
-            DataLock lock = locks.get(DataLock.GLOBAL_LOCK);
-            return lock != null && lock.getLockID() == transactionID;
+            DataLock lock = locks.get(DataLock.GLOBAL_EXCLUSIVE_LOCK);
+            return lock != null && lock.getLockID() == lockID;
         }
     }
 
-    public boolean hasLocalLock(long transactionID, DataKey object) {
+    public boolean hasLocalLock(long lockID, DataKey object) {
         synchronized(locks) {
             DataLock lock = locks.get(object);
-            return lock != null && lock.getLockID() == transactionID;
+            return lock != null && lock.getLockID() == lockID;
         }
     }
 
-    public boolean releaseGlobalLock(long transactionID) {
+    public boolean releaseGlobalLock(long lockID) {
         synchronized(locks) {
-            DataLock lock = locks.get(DataLock.GLOBAL_LOCK);
-            if (lock != null && lock.getLockID() == transactionID) {
-                locks.remove(DataLock.GLOBAL_LOCK);
+            DataLock lock = locks.get(DataLock.GLOBAL_EXCLUSIVE_LOCK);
+            if (lock != null && lock.getLockID() == lockID) {
+                locks.remove(DataLock.GLOBAL_EXCLUSIVE_LOCK);
                 return true;
             }
         }
         return false;
     }
 
-    public boolean releaseLocalLock(long transactionID) {
+    public boolean releaseLocalLock(long lockID) {
         synchronized (locks) {
             for (Iterator<DataKey> it = locks.keySet().iterator(); it.hasNext();) {
                 DataLock lock = locks.get(it.next());
-                if (lock.getLockID() == transactionID) {
+                if (lock.getLockID() == lockID) {
                     locks.remove(lock.getLockObject());
                     return true;
                 }
             }
-        }
-        return false;
-    }
-
-    public boolean getNonexclusiveAccess() {
-        try {
-            long startTimestamp = System.currentTimeMillis();
-            do {
-                synchronized(locks) {
-                    if (locks.size() == 0) {
-                        // first non-exclusive access
-                        newDataLock(DataLock.NONEXCLUSIVE_LOCK, false);
-                        numberOfNonexclusiveAccesses = 1;
-                        return true;
-                    }
-                    if (locks.size() == 1 &&
-                        locks.get(DataLock.NONEXCLUSIVE_LOCK) != null) {
-                        // another non-exclusive access
-                        numberOfNonexclusiveAccesses++;
-                        return true;
-                    }
-                }
-                try {
-                    Thread.sleep(SLEEP_RETRY);
-                } catch (InterruptedException ie) {
-                }
-                clearTimeouts();
-            } while (System.currentTimeMillis() >= startTimestamp
-                    && System.currentTimeMillis() - startTimestamp < LOCK_TIMEOUT);
-        } catch (Exception e) {
-        }
-        return false;
-    }
-
-    public boolean releaseNonexclusiveAccess() {
-        synchronized(locks) {
-            DataLock lock = locks.get(DataLock.NONEXCLUSIVE_LOCK);
-            if (lock != null) {
-                if (--numberOfNonexclusiveAccesses == 0) {
-                    locks.remove(DataLock.NONEXCLUSIVE_LOCK);
-                }
-                return true;
-            }
-            numberOfNonexclusiveAccesses = 0;
         }
         return false;
     }

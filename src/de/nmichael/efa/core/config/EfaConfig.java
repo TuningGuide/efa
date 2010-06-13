@@ -134,6 +134,7 @@ public class EfaConfig extends DatenListe {
     public ConfigTypeString zielfahrtSeparatorFahrten;
     public ConfigTypeStringList standardFahrtart;
     public ConfigTypeBoolean debugLogging;
+    public ConfigTypeString traceTopic;
     public ConfigTypeString efaVersionLastCheck;
     public ConfigTypeString version;
     public ConfigTypeString direkt_letzteDatei;
@@ -237,7 +238,9 @@ public class EfaConfig extends DatenListe {
     public EfaConfig(String filename, CustSettings custSettings) {
         super(filename, 0, 0, false);
         kennung = KENNUNG190;
-        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFACONFIG, "EfaConfig("+filename+")");
+        if (Logger.isTraceOn(Logger.TT_CORE)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFACONFIG, "EfaConfig("+filename+")");
+        }
         this.custSettings = custSettings;
         initialize();
     }
@@ -246,7 +249,9 @@ public class EfaConfig extends DatenListe {
     public EfaConfig(String filename) {
         super(filename, 0, 0, false);
         kennung = KENNUNG190;
-        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFACONFIG, "EfaConfig("+filename+")");
+        if (Logger.isTraceOn(Logger.TT_CORE)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFACONFIG, "EfaConfig("+filename+")");
+        }
         initialize();
     }
 
@@ -333,6 +338,9 @@ public class EfaConfig extends DatenListe {
         addParameter(debugLogging = new ConfigTypeBoolean("DEBUG_LOGGING", false,
                 TYPE_EXPERT, makeCategory(CATEGORY_COMMON),
                 International.getString("Debug-Logging aktivieren")));
+        addParameter(traceTopic = new ConfigTypeString("TRACE_TOPIC", "",
+                TYPE_EXPERT, makeCategory(CATEGORY_COMMON),
+                International.getString("Trace-Topic")));
 
         // ============================= COMMON:INPUT =============================
         addParameter(standardFahrtart = new ConfigTypeStringList("SESSIONTYPE_DEFAULT", EfaTypes.TYPE_SESSION_NORMAL,
@@ -349,7 +357,7 @@ public class EfaConfig extends DatenListe {
         addParameter(autoObmann = new ConfigTypeBoolean("CREWSHEAD_AUTOSELECT", true,
                 TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
                 International.getString("Obmann bei Eingabe automatisch auswählen")));
-        addParameter(autoStandardmannsch = new ConfigTypeBoolean("DEFAULTCREW_AUTOSELECT", false,
+        addParameter(autoStandardmannsch = new ConfigTypeBoolean("DEFAULTCREW_AUTOSELECT", true,
                 TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
                 International.getString("Standardmannschaft automatisch eintragen")));
         addParameter(manualStandardmannsch = new ConfigTypeBoolean("DEFAULTCREW_MANUALSELECT", false,
@@ -597,7 +605,7 @@ public class EfaConfig extends DatenListe {
         addParameter(efaDirekt_immerImVordergrundBringToFront = new ConfigTypeBoolean("WINDOW_ALWAYSONTOP_BRINGTOFRONT", false,
                 TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("efa immer im Vordergrund") + " (bringToFront)"));
-        addParameter(efaDirekt_fontSize = new ConfigTypeInteger("FONT_SIZE", 12, 6, 32,
+        addParameter(efaDirekt_fontSize = new ConfigTypeInteger("FONT_SIZE", (Dialog.screenSize.width >= 1024 ? 16 : 12), 6, 32,
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("Schriftgröße in Punkten (6 bis 32, Standard: 12)")));
         addParameter(efaDirekt_fontStyle = new ConfigTypeStringList("FONT_STYLE", "",
@@ -955,7 +963,18 @@ public class EfaConfig extends DatenListe {
         }
     }
 
-    public void setExternalParameters() {
+    public void setExternalParameters(boolean isGuiConfigChange) {
+        // first, set all external parameters that have to be set in any case, e.g. also if EfaConfig has been read after startup
+
+        // set Debug Logging and Trace Topic (will only take effect if it has not been set through command line previously!!)
+        Logger.setDebugLogging(debugLogging.getValue(),false);
+        Logger.setTraceTopic(traceTopic.getValue(),false);
+
+        // if isGuiConfigChange, i.e. if interactive changes have been made by the user, set other parameters as well
+        if (!isGuiConfigChange) {
+            return;
+        }
+        
         // Types
         EfaTypes newEfaTypes = null;
         if (Daten.efaTypes != null) {

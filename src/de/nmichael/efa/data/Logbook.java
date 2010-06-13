@@ -18,27 +18,19 @@ public class Logbook extends Persistence {
 
     public Logbook(int storageType, String storageLocation, String storageObjectName) {
         super(storageType, storageLocation, storageObjectName, "e2lb");
-
         try {
-            dataAccess.registerDataField("EntryNo", IDataAccess.DATA_STRING);
-            dataAccess.registerDataField("Date", IDataAccess.DATA_STRING);
-            dataAccess.registerDataField("Boat", IDataAccess.DATA_STRING);
-            dataAccess.registerDataField("BoatVariant", IDataAccess.DATA_STRING);
-            dataAccess.registerDataField("Cox", IDataAccess.DATA_STRING);
-            dataAccess.registerDataField("CrewList", IDataAccess.DATA_STRING);
-            dataAccess.registerDataField("CrewsHead", IDataAccess.DATA_STRING);
-            dataAccess.registerDataField("StartTime", IDataAccess.DATA_STRING);
-            dataAccess.registerDataField("EndTime", IDataAccess.DATA_STRING);
-            dataAccess.registerDataField("Destination", IDataAccess.DATA_STRING);
-            dataAccess.registerDataField("DistanceUnit", IDataAccess.DATA_STRING);
-            dataAccess.registerDataField("BoatDistance", IDataAccess.DATA_STRING);
-            dataAccess.registerDataField("CrewDistanceList", IDataAccess.DATA_STRING);
-            dataAccess.registerDataField("Comments", IDataAccess.DATA_STRING);
-            dataAccess.registerDataField("SessionType", IDataAccess.DATA_STRING);
-            dataAccess.registerDataField("MultiDayTour", IDataAccess.DATA_STRING);
+            LogbookRecord.initialize();
+            for (int i=0; i<LogbookRecord.getFieldCount(); i++) {
+                dataAccess.registerDataField(LogbookRecord.getFieldName(i), LogbookRecord.getFieldType(i));
+            }
+            dataAccess.setKey(LogbookRecord.getKey());
         } catch(Exception e) {
-
+            e.printStackTrace();
         }
+    }
+
+    public DataRecord createNewRecord() {
+        return new LogbookRecord();
     }
 
 }

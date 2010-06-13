@@ -2907,8 +2907,10 @@ public class EfaDirektFrame extends JFrame {
         if (--onceAnHour <= 0) {
           System.gc(); // Damit Speicherüberwachung funktioniert (anderenfalls wird CollectionUsage nicht aktualisiert; Java-Bug)
           onceAnHour = ONCE_AN_HOUR;
-          Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
-                  "EfaDirektBackgroundTask: alive!");
+          if (Logger.isTraceOn(Logger.TT_BACKGROUND)) {
+              Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                      "EfaDirektBackgroundTask: alive!");
+          }
 
           // WARNINGs aus Logfile an Admins verschicken
           if (System.currentTimeMillis() >= Daten.efaConfig.efaDirekt_bnrWarning_lasttime.getValue() + 7l*24l*60l*60l*1000l &&

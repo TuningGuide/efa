@@ -107,7 +107,9 @@ public class Logger {
   public static final String MSG_LOGGER_ACTIVATING           = "LOG001";
   public static final String MSG_LOGGER_FAILEDCREATELOG      = "LOG002";
   public static final String MSG_LOGGER_DEBUGACTIVATED       = "LOG003";
-  public static final String MSG_LOGGER_THRESHOLDEXCEEDED    = "LOG004";
+  public static final String MSG_LOGGER_DEBUGDEACTIVATED     = "LOG004";
+  public static final String MSG_LOGGER_THRESHOLDEXCEEDED    = "LOG005";
+  public static final String MSG_LOGGER_TRACETOPIC           = "LOG006";
 
   // de.nmichael.efa.EfaErrorPrintStream
   public static final String MSG_ERROR_EXCEPTION             = "EXC001";
@@ -197,6 +199,7 @@ public class Logger {
   public static final String MSG_ERR_STATISTICNOTFOUND       = "ERR020";
   public static final String MSG_ERR_ERRORCREATINGSTATISTIC  = "ERR021";
   public static final String MSG_ERR_WINDOWSTACK             = "ERR022";
+  public static final String MSG_ERR_NOXMLPARSER             = "ERR023";
 
   // efa in the Boat House - Warnings
   public static final String MSG_WARN_EFARUNNING_FAILED      = "WRN001";
@@ -229,6 +232,16 @@ public class Logger {
   public static final String MSG_FILE_ARCHIVINGFAILED        = "FLE009";
   public static final String MSG_FILE_BACKUPFAILED           = "FLE010";
   public static final String MSG_FILE_DIRECTORYNOTFOUND      = "FLE011";
+  public static final String MSG_FILE_WRITETHREAD_RUNNING    = "FLE101";
+  public static final String MSG_FILE_WRITETHREAD_SAVING     = "FLE102";
+  public static final String MSG_FILE_WRITETHREAD_ERROR      = "FLE103";
+  public static final String MSG_FILE_WRITETHREAD_EXIT       = "FLE104";
+  public static final String MSG_FILE_XMLTRACE               = "FLE105";
+  public static final String MSG_FILE_XMLWARNING             = "FLE106";
+  public static final String MSG_FILE_XMLERROR               = "FLE107";
+  public static final String MSG_FILE_XMLFALATERROR          = "FLE108";
+  public static final String MSG_FILE_XMLPARSER              = "FLE109";
+  public static final String MSG_FILE_PARSEERROR             = "FLE110";
 
   // GUI Events & Errors
   public static final String MSG_GUI_ERRORACTIONHANDLER      = "GUI001";
@@ -245,7 +258,24 @@ public class Logger {
   public static final String MSG_DEBUG_EFACONFIG             = "DBG009";
   public static final String MSG_DEBUG_TYPES                 = "DBG010";
 
-  public static boolean debugLogging = false;
+  // Trace Topics for Debug Logging
+  public static final long TT_CORE                 = Integer.parseInt("0000000000000001",2);
+  public static final long TT_OTHER                = Integer.parseInt("0000000000000010",2);
+  public static final long TT_INTERNATIONALIZATION = Integer.parseInt("0000000000000100",2);
+  public static final long TT_EFATYPES             = Integer.parseInt("0000000000001000",2);
+  public static final long TT_BACKGROUND           = Integer.parseInt("0000000000010000",2);
+  public static final long TT_MEMORYSUPERVISION    = Integer.parseInt("0000000000100000",2);
+  public static final long TT_FILEIO               = Integer.parseInt("0000000001000000",2);
+  public static final long TT_XMLFILE              = Integer.parseInt("0000000010000000",2);
+  public static final long TT_GUI                  = Integer.parseInt("0000000100000000",2);
+  public static final long TT_PRINTER              = Integer.parseInt("0000001000000000",2);
+  public static final long TT_STATISTICS           = Integer.parseInt("0000010000000000",2);
+
+  // Debug Logging and Trace Topics
+  private static boolean debugLogging = false;
+  private static long globalTraceTopic = 0;
+  private static boolean debugLoggingActivatedByCommandLine = false; // if set by Command Line, this overwrites any configuration in EfaConfig
+  private static boolean globalTraceTopicSetByCommandLine = false;   // if set by Command Line, this overwrites any configuration in EfaConfig
 
   private static volatile long lastLog;
   private static volatile long[] logCount;
@@ -349,6 +379,72 @@ public class Logger {
    */
   public static void log(String type, String msg) {
       log(type, Logger.MSG_GENERIC, msg);
+  }
+
+  public static boolean setDebugLogging(boolean activate, boolean setFromCommandLine) {
+      if (debugLogging == activate) {
+          return true; // nothing to do
+      }
+      if (debugLoggingActivatedByCommandLine) {
+          return false; // don't allow to change value if it has been set from command line
+      }
+      debugLogging = activate;
+      debugLoggingActivatedByCommandLine = setFromCommandLine;
+      if (debugLogging) {
+          Logger.log(Logger.INFO, Logger.MSG_LOGGER_DEBUGACTIVATED,
+                     "Debug Logging activated."); // do not internationalize!
+      } else {
+          Logger.log(Logger.INFO, Logger.MSG_LOGGER_DEBUGDEACTIVATED,
+                     "Debug Logging deactivated."); // do not internationalize!
+      }
+      return true;
+  }
+
+  public static boolean setTraceTopic(String topic, boolean setFromCommandLine) {
+      long newTraceTopic = -1;
+      if (globalTraceTopicSetByCommandLine) {
+          return false; // don't allow to change value if it has been set from command line
+      }
+      if (topic == null || topic.length() == 0) {
+          newTraceTopic = 0;
+      } else {
+          topic = topic.trim();
+          if (topic.startsWith("0x")) {
+              topic = topic.substring(2);
+          }
+          if (topic.length() == 0) {
+              return false;
+          }
+          try {
+              newTraceTopic = Long.parseLong(topic,16);
+          } catch(Exception e) {
+              return false;
+          }
+      }
+      if (newTraceTopic >= 0) {
+          globalTraceTopicSetByCommandLine = setFromCommandLine;
+          if (globalTraceTopic != newTraceTopic) {
+              globalTraceTopic = newTraceTopic;
+              if (debugLogging) {
+                  Logger.log(Logger.INFO, Logger.MSG_LOGGER_TRACETOPIC,
+                             "Trace Topic set to 0x" + Long.toString(globalTraceTopic,16) + "."); // do not internationalize!
+              }
+          }
+
+      }
+      return true;
+  }
+
+  public static boolean isDebugLoggin() {
+      return debugLogging;
+  }
+
+  public static long getTraceTopic() {
+      return globalTraceTopic;
+  }
+
+  public static boolean isTraceOn(long traceTopic) {
+      return debugLogging && (globalTraceTopic & traceTopic) != 0;
   }
 
   private static void mailError(String key, String msg, int to) {

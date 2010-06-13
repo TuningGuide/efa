@@ -14,7 +14,7 @@ import java.util.*;
 
 // @i18n complete
 
-public class DataKey<T1,T2,T3> {
+public class DataKey<T1,T2,T3> implements Comparable {
 
     private T1 v1;
     private T2 v2;
@@ -26,49 +26,56 @@ public class DataKey<T1,T2,T3> {
         this.v3 = v3;
     }
 
-    public boolean equals(Object o) {
+    private static int compare(Object x, Object y) throws ClassCastException {
+        if (x == null && y == null) {
+            return 0;
+        }
+        if (x == null) {
+            return -1;
+        }
+        if (y == null) {
+            return 1;
+        }
+        return ((Comparable)x).compareTo((Comparable)y);
+    }
+
+    public int compareTo(Object o) throws ClassCastException {
         if (o == null) {
-            return false;
+            return -1;
         }
         try {
             DataKey<T1, T2, T3> b = (DataKey<T1, T2, T3>) o;
 
-            // compare value 1
-            if (v1 == null && b.v1 == null) {
-                return true;
+            int cmp;
+            cmp = compare(v1,b.v1);
+            if (cmp != 0) {
+                return cmp;
             }
-            if (v1 == null || b.v1 == null) {
-                return false;
+            cmp = compare(v2,b.v2);
+            if (cmp != 0) {
+                return cmp;
             }
-            if (!v1.equals(b.v1)) {
-                return false;
-            }
-
-            // compare value 2
-            if (v2 == null && b.v2 == null) {
-                return true;
-            }
-            if (v2 == null || b.v2 == null) {
-                return false;
-            }
-            if (!v2.equals(b.v2)) {
-                return false;
-            }
-
-            // compare value 3
-            if (v3 == null && b.v3 == null) {
-                return true;
-            }
-            if (v3 == null || b.v3 == null) {
-                return false;
-            }
-            if (!v3.equals(b.v3)) {
-                return false;
+            cmp = compare(v3,b.v3);
+            if (cmp != 0) {
+                return cmp;
             }
         } catch(ClassCastException e) {
-            return false;
+            return -1;
         }
-        return true;
+        return 0;
+    }
+
+    public boolean equals(Object o) {
+        return compareTo(o) == 0;
+    }
+
+    public int hashCode() {
+        return (
+                v1 != null && v2 == null ? v1.hashCode() :
+                    v1 != null && v2 != null && v3 == null ? v1.hashCode() + v2.hashCode() :
+                        v1 != null && v2 != null && v3 != null ? v1.hashCode() + v2.hashCode() + v3.hashCode() :
+                            0
+            );
     }
 
     public String toString() {

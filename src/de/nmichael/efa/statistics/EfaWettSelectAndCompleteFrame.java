@@ -876,12 +876,16 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
 
 
   void okButton_actionPerformed(ActionEvent e) {
-    Logger.log(Logger.DEBUG,"EfaWettSelectAndCompleteFrame.okButton_actionPerformed(e) - START");
+    if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_STATISTICS, "EfaWettSelectAndCompleteFrame.okButton_actionPerformed(e) - START");
+    }
     Vector papierFahrtenhefte = new Vector();
 
     // nicht selektierte Meldungen löschen
     Hashtable gemeldete = getSelectedMeldungen();
-    Logger.log(Logger.DEBUG,"EfaWettSelectAndCompleteFrame.okButton_actionPerformed(e): gemeldete.size() == "+gemeldete.size());
+    if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+        Logger.log(Logger.DEBUG,Logger.MSG_DEBUG_STATISTICS, "EfaWettSelectAndCompleteFrame.okButton_actionPerformed(e): gemeldete.size() == "+gemeldete.size());
+    }
     if (gemeldete.size() == 0) {
       Dialog.error("Es wurden keine Teilnehmer zur Meldung markiert!");
       return;
@@ -898,7 +902,9 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
       } else {
         if (papierFahrtenheftErforderlich.get(m) != null) papierFahrtenhefte.add(m.vorname+" "+m.nachname);
         m_prev = m;
-        Logger.log(Logger.DEBUG,"EfaWettSelectAndCompleteFrame.okButton_actionPerformed(e): Meldung m == "+m.vorname+" "+m.nachname);
+        if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_STATISTICS, "EfaWettSelectAndCompleteFrame.okButton_actionPerformed(e): Meldung m == "+m.vorname+" "+m.nachname);
+        }
       }
       m=m.next;
     }
@@ -968,7 +974,9 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
     String mg = null;
     if (meldegeld > 0) mg = EfaUtil.cent2euro(meldegeld,true);
     Dialog.statistikFrame.efaWettVervollständigen3(ew,mg,papierFahrtenhefte);
-    Logger.log(Logger.DEBUG,"EfaWettSelectAndCompleteFrame.okButton_actionPerformed(e) - END");
+    if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
+        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_STATISTICS, "EfaWettSelectAndCompleteFrame.okButton_actionPerformed(e) - END");
+    }
   }
 
 

@@ -1011,6 +1011,18 @@ public class EfaDirektFrame extends JFrame {
   }
 
 
+  private void setButtonText_ListNames() {
+      boolean fkey = Daten.efaConfig.efaDirekt_showButtonHotkey.getValue();
+      if (!Daten.efaConfig.efaDirekt_listAllowToggleBoatsPersons.getValue() || toggleAvailableBoatsToBoats.isSelected()) {
+          this.verfuegbareBooteLabel.setText(International.getString("verfügbare Boote")        + (fkey ? " [F10]" : ""));
+      } else {
+          this.verfuegbareBooteLabel.setText(International.getString("Personen")                + (fkey ? " [F10]" : ""));
+      }
+      this.aufFahrtBooteLabel.setText(International.getString("Boote auf Fahrt")                + (fkey ? " [F11]" : ""));
+      this.nichtVerfuegbareBooteLabel.setText(International.getString("nicht verfügbare Boote") + (fkey ? " [F12]" : ""));
+  }
+
+
   public void setButtonText() {
     if (Daten.efaConfig == null) return;
     boolean fkey = Daten.efaConfig.efaDirekt_showButtonHotkey.getValue();
@@ -1024,9 +1036,7 @@ public class EfaDirektFrame extends JFrame {
     this.adminHinweisButton.setText(International.getString("Nachricht an Admin")             + (fkey ? " [F9]" : ""));
     this.adminButton.setText(International.getString("Admin-Modus")                           + (fkey ? " [Alt-F10]" : ""));
     this.spezialButton.setText(Daten.efaConfig.efaDirekt_butSpezial.getValueText()            + (fkey ? " [Alt-F11]" : ""));
-    this.verfuegbareBooteLabel.setText(International.getString("verfügbare Boote")            + (fkey ? " [F10]" : ""));
-    this.aufFahrtBooteLabel.setText(International.getString("Boote auf Fahrt")                + (fkey ? " [F11]" : ""));
-    this.nichtVerfuegbareBooteLabel.setText(International.getString("nicht verfügbare Boote") + (fkey ? " [F12]" : ""));
+    setButtonText_ListNames();
     if (!Daten.efaConfig.efaDirekt_startMaximized.getValue()) packFrame("setButtonText()");
   }
 
@@ -2216,6 +2226,7 @@ public class EfaDirektFrame extends JFrame {
   }
 
   void toggleAvailableBoats_actionPerformed(ActionEvent e) {
+      setButtonText_ListNames();
       updateBootsListen();
       try {
           booteVerfuegbar.scrollRectToVisible(booteVerfuegbar.getCellBounds(0, 0));

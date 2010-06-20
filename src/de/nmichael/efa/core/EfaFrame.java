@@ -63,6 +63,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   int currentObmann=-1;         // aktuell ausgewählter Obmann
   int lfdNrForNewEntry = -1;    // LfdNr (zzgl. 1), die für den nächsten per "Neu" erzeugten Datensatz verwendet werden soll; wenn <0, dann wird "last+1" verwendet
   Mannschaften mannschaften = null; // Liste von Standardmannschaften, die Ruderer oder Steuerleute enthalten
+  String mannsch1_label_defaultText = null; // der Standardtext, den das Label "Mannschaft 1: " normalerweise haben soll (wenn es nicht für Einer auf "Name: " gesetzt wird)
 
   int mode;                     // Modus, in dem dieses Frame betrieben wird (siehe MODE_...-Konstanten)
   String direkt_boot;           // Bootsname, mit dem EfaFrame aufgerufen wurde
@@ -535,6 +536,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       });
     }
 
+    mannsch1_label_defaultText = International.getString("Mannschaft")+": 1: ";
     Mnemonics.setLabel(this, mannsch1_label, International.getStringWithMnemonic("Mannschaft")+": 1: ");
     mannsch1_label.setLabelFor(mannsch[0]);
     mannsch2_label.setLabelFor(mannsch[1]);
@@ -2899,11 +2901,11 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
   }
   void abfahrt_focusLost(FocusEvent e) {
-  if (abfahrt.getText().trim().length()==0 && (isDirectMode())) setTime(abfahrt,0);
+  if (abfahrt.getText().trim().length()==0 && (isDirectMode())) setTime(abfahrt, 0, null);
     abfahrt.setText(EfaUtil.correctTime(abfahrt.getText().trim()));
   }
   void ankunft_focusLost(FocusEvent e) {
-  if (ankunft.getText().trim().length()==0 && (isDirectMode())) setTime(ankunft,0);
+  if (ankunft.getText().trim().length()==0 && (isDirectMode())) setTime(ankunft, 0, null);
     ankunft.setText(EfaUtil.correctTime(ankunft.getText().trim()));
   }
   void geheZu_focusLost(FocusEvent e) {
@@ -4053,22 +4055,64 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
     // "Obmann" ggf. ausblenden
     setFieldEnabled(true, isstm || anz > 1, obmann, obmannLabel, null);
+
+    // Bezeichnung für Mannschaftsfelder anpassen
+    if (anz != 1 || isstm) {
+        if (mannsch1_label_defaultText != null) {
+            this.mannsch1_label.setText(mannsch1_label_defaultText);
+        } else {
+            this.mannsch1_label.setText(International.getString("Mannschaft") + ": 1: "); // just in case
+        }
+    } else {
+        this.mannsch1_label.setText(International.getString("Name") + ": ");
+    }
   }
 
-  private void setTime(JTextField field, int add) {
-    Calendar cal = new GregorianCalendar();
-    int h = cal.get(Calendar.HOUR_OF_DAY);
-    int m = cal.get(Calendar.MINUTE);
-    m+=add;
-    if (add != 0 && m % 5 != 0) {
-      if (m % 5 < 3) m -= m % 5;
-      else m += (5 - m % 5);
+    private void setTime(JTextField field, int add, String notBefore) {
+        Calendar cal = new GregorianCalendar();
+        int h = cal.get(Calendar.HOUR_OF_DAY);
+        int m = cal.get(Calendar.MINUTE);
+        m += add;
+
+        if (notBefore != null && notBefore.length() > 0) {
+            TMJ notBeforeTime = EfaUtil.string2date(notBefore, -1, 0, 0);
+            // Test: EndTime < StartTime (where EndTime is at most the configured (add+substract)*2 times smaller)
+            if (h*60 + m < notBeforeTime.tag*60 + notBeforeTime.monat &&
+                h*60 + m + Daten.efaConfig.efaDirekt_plusMinutenAbfahrt.getValue()*2 +
+                Daten.efaConfig.efaDirekt_minusMinutenAnkunft.getValue()*2 >= notBeforeTime.tag*60 + notBeforeTime.monat) {
+                // use StartTime as EndTime instead (avoid overlapping times)
+                h = notBeforeTime.tag;
+                m = notBeforeTime.monat;
+            }
+        }
+
+
+        if (add != 0 && m % 5 != 0) {
+            if (m % 5 < 3) {
+                m -= m % 5;
+            } else {
+                m += (5 - m % 5);
+            }
+        }
+        if (m > 59) {
+            h++;
+            m -= 60;
+            if (h > 23) {
+                h = 23;
+                m = 59;
+            }
+        }
+        if (m < 0) {
+            h--;
+            m += 60;
+            if (h < 0) {
+                h = 0;
+                m = 0;
+            }
+        }
+        field.setText((h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m);
+        field.select(0, field.getText().length());
     }
-    if (m>59) { h++; m-=60; if (h>23) { h=23; m=59; } }
-    if (m< 0) { h--; m+=60; if (h< 0) { h= 0; m= 0; } }
-    field.setText( (h<10?"0":"") + h + ":" + (m<10?"0":"") + m);
-    field.select(0,field.getText().length());
-  }
 
   public void direktFahrtAnfang(String boot, String person) {
     this.direkt_boot = boot;
@@ -4082,7 +4126,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     setDateFromRefDate();
     if (boot != null) this.boot.setText(boot);
     vervollstaendige(this.boot,bootButton,Daten.fahrtenbuch.getDaten().boote,null,this,false);
-    setTime(abfahrt,Daten.efaConfig.efaDirekt_plusMinutenAbfahrt.getValue());
+    setTime(abfahrt,Daten.efaConfig.efaDirekt_plusMinutenAbfahrt.getValue(), null);
     Mnemonics.setButton(this, addButton, International.getStringWithMnemonic("Fahrt beginnen"));
 
     setFieldEnabled(false, true, lfdnr, lfdnrLabel, null);
@@ -4186,7 +4230,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       return;
     }
     SetFields(d);
-    setTime(ankunft,-Daten.efaConfig.efaDirekt_minusMinutenAnkunft.getValue());
+    setTime(ankunft,-Daten.efaConfig.efaDirekt_minusMinutenAnkunft.getValue(), abfahrt.getText().trim());
     if (d.get(Fahrtenbuch.BOOTSKM).equals("0")) bootskm.setText("");
     if (d.get(Fahrtenbuch.ZIEL).length()>0 && bootskm.getText().length() == 0) {
       DatenFelder ziel = Daten.fahrtenbuch.getDaten().ziele.getExactComplete(d.get(Fahrtenbuch.ZIEL));
@@ -4513,7 +4557,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
       String km = bootskm.getText().trim();
       if (km.length()==0 || EfaUtil.zehntelString2Int(km)==0) {
-        Dialog.error(International.getString("Bitte trage die geruderten Kilometer ein!"));
+        Dialog.error(International.getString("Bitte trage die gefahrenen Kilometer ein!"));
         bootskm.requestFocus();
         return;
       }

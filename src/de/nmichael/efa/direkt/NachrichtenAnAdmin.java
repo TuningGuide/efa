@@ -49,6 +49,7 @@ public class NachrichtenAnAdmin extends DatenListe {
     Nachricht nachricht = null;
 
     String s;
+    StringBuilder txt;
     try {
       while ((s = freadLine()) != null) {
         s = s.trim();

@@ -38,6 +38,8 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
   JCheckBox artWarn = new JCheckBox();
   JCheckBox artErr = new JCheckBox();
   JCheckBox artDbg = new JCheckBox();
+  JLabel filterLabel = new JLabel();
+  JTextField filter = new JTextField();
   JScrollPane jScrollPane1 = new JScrollPane();
   JTextArea log = new JTextArea();
   ButtonGroup buttonGroupZeit = new ButtonGroup();
@@ -94,7 +96,7 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
     });
       jLabel2.setText(International.getString("Art der Einträge")+": ");
       artInfo.setNextFocusableComponent(artWarn);
-      Mnemonics.setButton(this, artInfo, International.getStringWithMnemonic("Informationen")+" ("+Logger.INFO+")");
+      Mnemonics.setButton(this, artInfo, International.getStringWithMnemonic("Informationen")+" ("+Logger.INFO.trim()+")");
       artInfo.setSelected(true);
       artInfo.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
@@ -109,15 +111,24 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
           zeit7Tage_actionPerformed(e);
         }
     });
-      zeitAlle.setNextFocusableComponent(artInfo);
+      zeitAlle.setNextFocusableComponent(filter);
       Mnemonics.setButton(this, zeitAlle, International.getStringWithMnemonic("alle"));
       zeitAlle.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           zeitAlle_actionPerformed(e);
         }
     });
+      filterLabel.setLabelFor(filter);
+      filter.setNextFocusableComponent(artInfo);
+      Mnemonics.setLabel(this, filterLabel, International.getStringWithMnemonic("Filter") + ": ");
+      filter.addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyReleased(KeyEvent e) {
+          filterfor(e);
+        }
+      });
+      Dialog.setPreferredSize(filter, 200, 19);
       artWarn.setNextFocusableComponent(artErr);
-      Mnemonics.setButton(this, artWarn, International.getStringWithMnemonic("Warnungen")+" ("+Logger.WARNING+")");
+      Mnemonics.setButton(this, artWarn, International.getStringWithMnemonic("Warnungen")+" ("+Logger.WARNING.trim()+")");
       artWarn.setSelected(true);
       artWarn.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
@@ -125,7 +136,7 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
         }
     });
       artErr.setNextFocusableComponent(artDbg);
-      Mnemonics.setButton(this, artErr, International.getStringWithMnemonic("Fehler")+" ("+Logger.ERROR+")");
+      Mnemonics.setButton(this, artErr, International.getStringWithMnemonic("Fehler")+" ("+Logger.ERROR.trim()+")");
       artErr.setSelected(true);
       artErr.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
@@ -133,7 +144,7 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
         }
     });
       artDbg.setNextFocusableComponent(log);
-      Mnemonics.setButton(this, artDbg, International.getStringWithMnemonic("Debug")+" ("+Logger.DEBUG+")");
+      Mnemonics.setButton(this, artDbg, International.getStringWithMnemonic("Debug")+" ("+Logger.DEBUG.trim()+")");
       artDbg.setSelected(true);
       artDbg.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
@@ -159,6 +170,11 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
       jPanel2.add(zeitAlle,   new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+      jPanel2.add(filterLabel,    new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+      jPanel2.add(filter,     new GridBagConstraints(1, 3, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+
       jPanel2.add(artWarn,   new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
       jPanel2.add(artErr,   new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0
@@ -197,6 +213,10 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
 
   void updateLog() {
     String now = EfaUtil.getCurrentTimeStamp().substring(0,10);
+    String search = filter.getText().trim().toLowerCase();
+    if (search.length() == 0) {
+        search = null;
+    }
     BufferedReader f = null;
     try {
       log.setText("");
@@ -235,7 +255,11 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
             else if (diff<=1) timeok=true;
           }
 
-          if (timeok) log.append(s+"\n");
+          if (timeok) {
+              if (search == null || s.toLowerCase().indexOf(search)>=0) {
+                  log.append(s+"\n");
+              }
+          }
         }
       }
     } catch(Exception e) {
@@ -276,6 +300,11 @@ public class AdminShowLogFrame extends JDialog implements ActionListener {
   void okButton_actionPerformed(ActionEvent e) {
     cancel();
   }
+
+  void filterfor(KeyEvent e) {
+    updateLog();
+  }
+
 
 
 }

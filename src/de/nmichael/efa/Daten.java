@@ -55,8 +55,8 @@ public class Daten {
   public       static String EFA_LONGNAME  = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
 
   public final static String VERSION = "v2.0_dev03"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSIONID = "1.9.0_08";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "13.06.2010";  // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "1.9.0_09";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+  public final static String VERSIONRELEASEDATE = "18.07.2010";  // Release Date: TT.MM.JJJJ
   public final static String PROGRAMMID = "EFA.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String COPYRIGHTYEAR = "10";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
@@ -71,11 +71,14 @@ public class Daten {
   public final static String EFADIREKT_MAINCLASS = "de.nmichael.efa.direkt.Main";
 
   public final static String EFAURL = "http://efa.nmichael.de";
+  public final static String EFASUPPORTURL = "http://efa.nmichael.de/help";
   public final static String EFADEVURL = "http://kenai.com/projects/efa";
   public final static String EFAWETTURL = "http://efa.rudern.de";
   public final static String NICOLASURL = "http://www.nmichael.de";
-  public final static String EFAEMAIL = "software@nmichael.de";
-  public final static String EFAEMAILNAME = "Nicolas Michael";
+  public final static String EFAEMAILNAME = "efa";
+  public final static String EMAILINFO = "info@efa.nmichael.de";
+  public final static String EMAILBUGS = "bugs@efa.nmichael.de";
+  public final static String EMAILHELP = "help@efa.nmichael.de";
 
   public static final String EFA_USERDATA_DIR = "efa2";                // <efauser> = ~/efa2/              Directory for efauser data (if not efa program directory)
   public static final String EFA_RUNNING = "efa.run";                  // <efauser>/efa.run                Indiz, daß efaDirekt läuft (enthält Port#)
@@ -540,7 +543,7 @@ public class Daten {
         efaSec = new EfaSec(Daten.efaProgramDirectory + Daten.EFA_SECFILE);
         if (efaSec.secFileExists() && !efaSec.secValueValid()) {
             String msg = International.getString("Die Sicherheitsdatei ist korrupt! Aus Gründen der Sicherheit verweigert efa daher den Dienst. " +
-                    "Um efa zu reaktivieren, wende Dich bitte an den Entwickler: ") + Daten.EFAEMAIL;
+                    "Um efa zu reaktivieren, wende Dich bitte an den Entwickler: ") + Daten.EMAILHELP;
             Logger.log(Logger.ERROR, Logger.MSG_CORE_EFASECCORRUPTED, msg);
             if (isGuiAppl()) {
                 Dialog.error(msg);

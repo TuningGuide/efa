@@ -458,8 +458,8 @@ public class EfaWettFertigFrame extends JDialog implements ActionListener {
       }
 
       f.write("<h2>Fragen und Probleme</h2>\n");
-      f.write("<p>Bei technischen Fragen zum Vorgehen für die elektronische Meldung, schicke bitte eine email an\n");
-      f.write("<a href=\"mailto:"+Daten.EFAEMAIL+"\">"+Daten.EFAEMAIL+"</a>. Bei inhaltlichen Fragen zur Ausschreibung und dem Wettbewerb allgemein,\n");
+      f.write("<p>Bei technischen Fragen zum Vorgehen für die elektronische Meldung, benutze bitte das Support-Forum unter \n");
+      f.write("<a href=\""+Daten.EFASUPPORTURL+"\">"+Daten.EFASUPPORTURL+"</a>. Bei inhaltlichen Fragen zur Ausschreibung und dem Wettbewerb allgemein,\n");
       f.write("wende Dich bitte an den jeweiligen Ansprechpartner des Ruderverbandes.</p>");
 
       f.write("</body></html>\n");

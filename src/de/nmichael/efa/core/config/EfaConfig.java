@@ -180,6 +180,7 @@ public class EfaConfig extends DatenListe {
     public ConfigTypeLongLat efaDirekt_sunRiseSet_latitude;
     public ConfigTypeLongLat efaDirekt_sunRiseSet_longitude;
     public ConfigTypeBoolean efaDirekt_sortByAnzahl;
+    public ConfigTypeBoolean efaDirekt_autoPopupOnBoatLists;
     public ConfigTypeBoolean efaDirekt_listAllowToggleBoatsPersons;
     public ConfigTypeBoolean efaDirekt_showEingabeInfos;
     public ConfigTypeBoolean efaDirekt_showBootsschadenButton;
@@ -628,6 +629,9 @@ public class EfaConfig extends DatenListe {
         addParameter(efaDirekt_sortByAnzahl = new ConfigTypeBoolean("BOATLIST_SORTBYSEATS", true,
                 TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("sortiere Boote nach Anzahl der Ruderplätze")));
+        addParameter(efaDirekt_autoPopupOnBoatLists = new ConfigTypeBoolean("BOATLIST_AUTOPOPUP", true,
+                TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
+                International.getString("automatisches Popup-Menü für Mausclicks in den Bootslisten")));
         addParameter(efaDirekt_vereinsLogo = new ConfigTypeImage("CLUBLOGO", "", 192, 64,
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("Vereinslogo")));

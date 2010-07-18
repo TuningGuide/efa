@@ -12,9 +12,11 @@ package de.nmichael.efa.direkt;
 
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.gui.EfaConfigFrame;
+import de.nmichael.efa.gui.*;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.gui.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -26,7 +28,7 @@ import javax.swing.border.*;
 
 // @i18n complete
 
-public class EfaDirektFrame extends JFrame {
+public class EfaDirektFrame extends JFrame implements ActionListener {
   BootStatus bootStatus = null;
   Vector booteAlle = new Vector();
   EfaFrame efaFrame;
@@ -92,7 +94,12 @@ public class EfaDirektFrame extends JFrame {
   JLabel srSSimage = new JLabel();
   JLabel srSStext = new JLabel();
   JLabel newsLabel = new JLabel();
-
+  EfaMouseListener popupAvailableBoatsListener;
+  EfaMouseListener popupAvailablePersonsListener;
+  JPopupMenu popupAvailableBoats = new JPopupMenu();
+  JPopupMenu popupAvailablePersons = new JPopupMenu();
+  JPopupMenu popupBoatsOnTheWater = new JPopupMenu();
+  JPopupMenu popupNotAvailableBoats = new JPopupMenu();
 
   //Construct the frame
   public EfaDirektFrame() {
@@ -201,6 +208,48 @@ public class EfaDirektFrame extends JFrame {
 
     this.efaDirektBackgroundTask.interrupt(); // damit Frame nochmal gepackt werden kann (Bugfix)
   }
+
+  public void actionPerformed(ActionEvent e) {
+      try {
+          
+          // Event for one of the Boat Lists?
+          if (e.getSource() == booteVerfuegbar ||
+              e.getSource() == booteAufFahrt ||
+              e.getSource() == booteNichtVerfuegbar) {
+              if (e.getActionCommand().equals(EfaMouseListener.EVENT_MOUSECLICKED_1x) ||
+                  e.getActionCommand().equals(EfaMouseListener.EVENT_MOUSECLICKED_2x)) {
+                  boatList_mouseClicked(e);
+              }
+              if (e.getActionCommand().equals(EfaMouseListener.EVENT_POPUP)) {
+                  boatList_popup(e);
+              }
+          }
+
+          //
+          if (e.getActionCommand().startsWith(EfaMouseListener.EVENT_POPUP_CLICKED)) {
+              TMJ subCmd = EfaUtil.string2date(e.getActionCommand(), -1, -1, -1);
+              if (subCmd.tag >= 0 && subCmd.monat >= 0) {
+                  JList list = null;
+                  switch(subCmd.tag) {
+                      case 1:
+                          list = booteVerfuegbar;
+                          break;
+                      case 2:
+                          list = booteAufFahrt;
+                          break;
+                      case 3:
+                          list = booteNichtVerfuegbar;
+                          break;
+                  }
+                  if (list != null) {
+                      processListAction(listGetSelectedValue(list), subCmd.monat);
+                  }
+              }
+          }
+      } catch(Exception eignore) {
+      }
+  }
+
 
 
   public void packFrame(String source) {
@@ -400,11 +449,6 @@ public class EfaDirektFrame extends JFrame {
         booteVerfuegbar_keyReleased(e);
       }
     });
-    booteVerfuegbar.addMouseListener(new java.awt.event.MouseAdapter() {
-      public void mouseClicked(MouseEvent e) {
-        booteVerfuegbar_mouseClicked(e);
-      }
-    });
     booteAufFahrt.setNextFocusableComponent(booteNichtVerfuegbar);
     booteAufFahrt.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     // KeyListeners entfernen, damit unter Java 1.4.x nicht automatisch gescrollt wird, sondern durch den eigenen Algorithmus
@@ -417,11 +461,6 @@ public class EfaDirektFrame extends JFrame {
         booteAufFahrt_keyReleased(e);
       }
     });
-    booteAufFahrt.addMouseListener(new java.awt.event.MouseAdapter() {
-      public void mouseClicked(MouseEvent e) {
-        booteAufFahrt_mouseClicked(e);
-      }
-    });
     booteNichtVerfuegbar.setNextFocusableComponent(booteVerfuegbar);
     booteNichtVerfuegbar.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     // KeyListeners entfernen, damit unter Java 1.4.x nicht automatisch gescrollt wird, sondern durch den eigenen Algorithmus
@@ -432,11 +471,6 @@ public class EfaDirektFrame extends JFrame {
     booteNichtVerfuegbar.addKeyListener(new java.awt.event.KeyAdapter() {
       public void keyReleased(KeyEvent e) {
         booteNichtVerfuegbar_keyReleased(e);
-      }
-    });
-    booteNichtVerfuegbar.addMouseListener(new java.awt.event.MouseAdapter() {
-      public void mouseClicked(MouseEvent e) {
-        booteNichtVerfuegbar_mouseClicked(e);
       }
     });
     efaButton.setPreferredSize(new Dimension(90, 55));
@@ -476,6 +510,51 @@ public class EfaDirektFrame extends JFrame {
         statButton_actionPerformed(e);
       }
     });
+
+    // Popup Menus
+    JMenuItem popupMenuItem;
+    String[] actions;
+
+    // Popup for available Boats
+    actions = getListActions(1, null);
+    for (int i=0; i<actions.length; i++) {
+        JMenuItem menuItem = new JMenuItem(actions[i].substring(1));
+        menuItem.setActionCommand(EfaMouseListener.EVENT_POPUP_CLICKED + "_1_" + actions[i].substring(0, 1));
+        menuItem.addActionListener(this);
+        popupAvailableBoats.add(menuItem);
+    }
+    booteVerfuegbar.addMouseListener(popupAvailableBoatsListener = new EfaMouseListener(booteVerfuegbar, popupAvailableBoats, this, Daten.efaConfig.efaDirekt_autoPopupOnBoatLists.getValue()));
+
+    // Popup for available Boats Persons (is not being added right away, but only when user toggles to Persons)
+    for (int i=0; i<2; i++) { // only first two elements "start session" and "late entry"!
+        JMenuItem menuItem = new JMenuItem(actions[i].substring(1));
+        menuItem.setActionCommand(EfaMouseListener.EVENT_POPUP_CLICKED + "_1_" + actions[i].substring(0, 1));
+        menuItem.addActionListener(this);
+        popupAvailablePersons.add(menuItem);
+    }
+    popupAvailablePersonsListener = new EfaMouseListener(booteVerfuegbar, popupAvailablePersons, this, Daten.efaConfig.efaDirekt_autoPopupOnBoatLists.getValue());
+
+
+    // Popup for Boats on the Water
+    actions = getListActions(2, null);
+    for (int i=0; i<actions.length; i++) {
+        JMenuItem menuItem = new JMenuItem(actions[i].substring(1));
+        menuItem.setActionCommand(EfaMouseListener.EVENT_POPUP_CLICKED + "_2_" + actions[i].substring(0, 1));
+        menuItem.addActionListener(this);
+        popupBoatsOnTheWater.add(menuItem);
+    }
+    booteAufFahrt.addMouseListener(new EfaMouseListener(booteAufFahrt, popupBoatsOnTheWater, this, Daten.efaConfig.efaDirekt_autoPopupOnBoatLists.getValue()));
+
+    // Popup for not available Boats
+    actions = getListActions(3, null);
+    for (int i=0; i<actions.length; i++) {
+        JMenuItem menuItem = new JMenuItem(actions[i].substring(1));
+        menuItem.setActionCommand(EfaMouseListener.EVENT_POPUP_CLICKED + "_3_" + actions[i].substring(0, 1));
+        menuItem.addActionListener(this);
+        popupNotAvailableBoats.add(menuItem);
+    }
+    booteNichtVerfuegbar.addMouseListener(new EfaMouseListener(booteNichtVerfuegbar, popupNotAvailableBoats, this, Daten.efaConfig.efaDirekt_autoPopupOnBoatLists.getValue()));
+
     eastPanel.setLayout(borderLayout4);
     westPanel.setLayout(borderLayout3);
     westNorthPanel.setLayout(new GridBagLayout());
@@ -748,13 +827,13 @@ public class EfaDirektFrame extends JFrame {
         if (!Daten.efaSec.secFileExists()) {
           String s = International.getString("efa konnte kein Super-Admin Paßwort finden!") + " " +
                      International.getMessage("Aus Gründen der Sicherheit verweigert efa den Dienst. "+
-                     "Bitte installiere efa neu oder kontaktiere den Entwickler: {email}",Daten.EFAEMAIL);
+                     "Bitte installiere efa neu oder kontaktiere den Entwickler: {email}",Daten.EMAILHELP);
           haltProgram(s, Daten.HALT_EFASECADMIN);
         }
       } catch(Exception e) {
         String s = International.getMessage("efa konnte kein Super-Admin Paßwort finden, und bei den folgenden Tests trat ein Fehler auf: {error}",e.toString()) + " " +
                    International.getMessage("Aus Gründen der Sicherheit verweigert efa den Dienst. "+
-                   "Bitte installiere efa neu oder kontaktiere den Entwickler: {email}",Daten.EFAEMAIL);
+                   "Bitte installiere efa neu oder kontaktiere den Entwickler: {email}",Daten.EMAILHELP);
         haltProgram(s, Daten.HALT_EFASECADMIN);
       }
       String pwd = "";
@@ -1202,8 +1281,13 @@ public class EfaDirektFrame extends JFrame {
               case 8: s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_8);
                       break;
           }
-          if (s == null) {
-              s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_OTHER);
+          if (s == null || s.equals(EfaTypes.getStringUnknown())) {
+              DatenFelder d = Daten.fahrtenbuch.getDaten().boote.getExactComplete(removeDoppeleintragFromBootsname(a[i].name));
+              if (d != null) {
+                  s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, d.get(Boote.ANZAHL));
+              } else {
+                  s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_OTHER);
+              }
           }
         vv.add("---------- " + s + " ----------");
         anz = a[i].anzahl;
@@ -1367,17 +1451,103 @@ public class EfaDirektFrame extends JFrame {
         }
     }
 
+    /**
+     * Returns all possible actions for a list.
+     * Those actions are prefixed with the following numbers representing those actions, which may be processed by processListAction(String, int):
+     * 1 - start session
+     * 2 - finish session
+     * 3 - late entry
+     * 4 - change session
+     * 5 - cancel session
+     * 6 - boat reservations
+     * @param listnr
+     * @param list
+     * @param name
+     * @return
+     */
+    private String[] getListActions(int listnr, String name) {
+        if (name != null) {
+            // Handelt es sich um ein Boot, das auf Fahrt ist, aber trotzdem bei "nicht verfügbar" angezeigt wird?
+            DatenFelder d = bootStatus.getExactComplete(name);
+            if (d != null && listnr == 3 && EfaUtil.string2date(d.get(BootStatus.LFDNR), 0, 0, 0).tag > 0) {
+                listnr = 2;
+            }
+        }
+
+        if (listnr == 1 || listnr == 3) {
+            String fahrtBeginnen = EfaUtil.replace(Daten.efaConfig.efaDirekt_butFahrtBeginnen.getValueText(), ">>>", "").trim();
+            if (listnr == 1) {
+                if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) {
+                    return new String[] {
+                        "1" + fahrtBeginnen,
+                        "3" + International.getString("Nachtrag"),
+                        "6" + International.getString("Boot reservieren")
+                    };
+                } else {
+                    return new String[] {
+                        "1" + fahrtBeginnen,
+                        "3" + International.getString("Nachtrag")
+                    };
+                }
+            } else {
+                return new String[] {
+                    "1" + fahrtBeginnen,
+                    "3" + International.getString("Nachtrag"),
+                    "6" + International.getString("Bootsreservierungen anzeigen")
+                };
+            }
+        }
+        if (listnr == 2) {
+            String fahrtBeenden = EfaUtil.replace(Daten.efaConfig.efaDirekt_butFahrtBeenden.getValueText(), "<<<", "").trim();
+            if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) {
+                return new String[] {
+                        "2" + fahrtBeenden,
+                        "4" + International.getString("Eintrag ändern"),
+                        "5" + International.getString("Fahrt abbrechen"),
+                        "6" + International.getString("Boot reservieren")
+                };
+            } else {
+                return new String[] {
+                        "2" + fahrtBeenden,
+                        "4" + International.getString("Eintrag ändern"),
+                        "5" + International.getString("Fahrt abbrechen")
+                };
+            }
+        }
+        return null;
+    }
+
+    private void processListAction(String name, int action) {
+        if (name == null) {
+            return;
+        }
+        switch(action) {
+            case 1: // start session
+                fahrtbeginnButton_actionPerformed(null);
+                break;
+            case 2: // finish session
+                fahrtendeButton_actionPerformed(null);
+                break;
+            case 3: // late entry
+                nachtragButton_actionPerformed(null);
+                break;
+            case 4: // change session
+                eintragAendern(name);
+                break;
+            case 5: // cancel session
+                fahrtabbruchButton_actionPerformed(null);
+                break;
+            case 6: // boat reservations
+                bootsstatusButton_actionPerformed(null);
+                break;
+        }
+    }
+
 
   void doppelklick(int listnr, JList list) {
     if (list == null || list.getSelectedIndex() < 0) return;
 
-    String name = null;
-    try { // list.getSelectedValue() wirft bei Frederik Hoppe manchmal eine Exception (Java-Bug?)
-      if (list != null && !list.isSelectionEmpty()) name = listGetSelectedValue(list);
-    } catch(Exception e) {
-      EfaUtil.foo();
-    }
-
+    String name = listGetSelectedValue(list);
     if (name == null) return;
 
     if (listnr == 1 &&
@@ -1387,100 +1557,66 @@ public class EfaDirektFrame extends JFrame {
         return;
     }
 
-    // Handelt es sich um ein Boot, das auf Fahrt ist, aber trotzdem bei "nicht verfügbar" angezeigt wird?
-    DatenFelder d = bootStatus.getExactComplete(name);
-    if (d != null && listnr == 3 && EfaUtil.string2date(d.get(BootStatus.LFDNR),0,0,0).tag>0) listnr = 2;
-
-    if (listnr == 1 || listnr == 3) {
-      String fahrtBeginnen = EfaUtil.replace(this.fahrtbeginnButton.getText(),">>>","");
-      int pos = fahrtBeginnen.indexOf(" [");
-      if (pos>0) fahrtBeginnen = fahrtBeginnen.substring(0,pos-1);
-      int auswahl = -1;
-      if (listnr == 1) {
-        if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) {
-          auswahl = Dialog.auswahlDialog(International.getString("Boot")+" "+name,
-                  International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",name),
-                                   fahrtBeginnen,
-                                   International.getString("Boot reservieren"),
-                                   International.getString("Nichts"));
-        } else {
-          auswahl = Dialog.auswahlDialog(International.getString("Boot")+" "+name,
-                  International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",name),
-                                   fahrtBeginnen,
-                                   International.getString("Nichts"),
-                                   false);
-        }
-      } else {
-        auswahl = Dialog.auswahlDialog(International.getString("Boot")+" "+name,
-                International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",name),
-                                   fahrtBeginnen,
-                                   International.getString("Bootsreservierungen anzeigen"),
-                                   International.getString("Nichts"));
-      }
-      switch (auswahl) {
-        case 0: this.fahrtbeginnButton_actionPerformed(null); break;
-        case 1: if (listnr != 1 || Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) {
-                  this.bootsstatusButton_actionPerformed(null);
-                } // else: nothing to do!
-                break;
-        default: return;
-      }
+    String[] actions = getListActions(listnr, name);
+    if (actions == null || actions.length == 0) {
+        return;
     }
-    if (listnr == 2) {
-      String fahrtBeenden = EfaUtil.replace(this.fahrtendeButton.getText(),"<<<","");
-      int pos = fahrtBeenden.indexOf(" [");
-      if (pos>0) fahrtBeenden = fahrtBeenden.substring(0,pos);
-      int auswahl = -1;
-      if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) {
-        auswahl = Dialog.auswahlDialog(International.getString("Boot")+" "+name,
-                International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",name),
-                                   fahrtBeenden,
-                                   International.getString("Eintrag ändern"),
-                                   International.getString("Fahrt abbrechen"),
-                                   International.getString("Boot reservieren"),
-                                   International.getString("Nichts"));
-      } else {
-        auswahl = Dialog.auswahlDialog(International.getString("Boot")+" "+name,
-                International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",name),
-                                   fahrtBeenden,
-                                   International.getString("Eintrag ändern"),
-                                   International.getString("Fahrt abbrechen"),
-                                   International.getString("Nichts"));
-      }
-      switch (auswahl) {
-        case 0: this.fahrtendeButton_actionPerformed(null); break;
-        case 1: this.eintragAendern(name); break;
-        case 2: this.fahrtabbruchButton_actionPerformed(null); break;
-        case 3: if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) {
-                  this.bootsstatusButton_actionPerformed(null);
-                } // else: nothing to do!
-                break;
-        default: return;
-      }
+    String[] myActions = new String[actions.length + 1];
+    for (int i=0; i<actions.length; i++) {
+        myActions[i] = actions[i].substring(1);
+    }
+    myActions[myActions.length - 1] = International.getString("Nichts");
+    int selection = Dialog.auswahlDialog(International.getString("Boot")+" "+name,
+            International.getMessage("Was möchtest Du mit dem Boot {boat} machen?",name),
+            myActions);
+    if (selection >= 0 && selection < actions.length) {
+        processListAction(name, EfaUtil.string2int(actions[selection].substring(0, 1), -1));
     }
   }
 
-  void booteVerfuegbar_mouseClicked(MouseEvent e) {
-    showBootStatus(1,booteVerfuegbar,1);
-
-    if (e != null && e.getClickCount() == 2) { // Doppelklick
-      doppelklick(1,booteVerfuegbar);
-    }
+  private int getListIdFromEvent(ActionEvent e) {
+      try {
+          int listID = 0;
+          if (e.getSource() == booteVerfuegbar) {
+              listID = 1;
+          }
+          if (e.getSource() == booteAufFahrt) {
+              listID = 2;
+          }
+          if (e.getSource() == booteNichtVerfuegbar) {
+              listID = 3;
+          }
+          return listID;
+      } catch(Exception ex) {
+          return 0;
+      }
   }
-  void booteAufFahrt_mouseClicked(MouseEvent e) {
-    showBootStatus(2,booteAufFahrt,1);
 
-    if (e != null && e.getClickCount() == 2) { // Doppelklick
-      doppelklick(2,booteAufFahrt);
-    }
+  void boatList_mouseClicked(ActionEvent e) {
+      try {
+          int listID = getListIdFromEvent(e);
+          if (listID != 0) {
+              JList list = (JList)e.getSource();
+              showBootStatus(listID, list, 1);
+              if (e.getActionCommand().equals(EfaMouseListener.EVENT_MOUSECLICKED_2x)) {
+                  doppelklick(listID, list);
+              }
+          }
+      } catch(Exception eignore) {
+      }
   }
-  void booteNichtVerfuegbar_mouseClicked(MouseEvent e) {
-    showBootStatus(3,booteNichtVerfuegbar,1);
 
-    if (e != null && e.getClickCount() == 2) { // Doppelklick
-      doppelklick(3,booteNichtVerfuegbar);
-    }
+  void boatList_popup(ActionEvent e) {
+      try {
+          int listID = getListIdFromEvent(e);
+          if (listID != 0) {
+              JList list = (JList)e.getSource();
+              showBootStatus(listID, list, 1);
+          }
+      } catch(Exception eignore) {
+      }
   }
+
   void booteVerfuegbar_keyReleased(KeyEvent e) {
     if (e != null) {
       if (e.getKeyCode() == KeyEvent.VK_ENTER || e.getKeyCode() == KeyEvent.VK_SPACE) {
@@ -1582,15 +1718,21 @@ public class EfaDirektFrame extends JFrame {
     } catch(Exception ee) { /* just to be sure */ }
   }
 
-  private String listGetSelectedValue(JList list) {
-    if (list == null || list.isSelectionEmpty()) return null;
-    String boot = (String)list.getSelectedValue();
-    int pos = boot.indexOf("->");
-    if (pos > 0) {
-      boot = boot.substring(0,pos).trim();
+    private String listGetSelectedValue(JList list) {
+        try {
+            if (list == null || list.isSelectionEmpty()) {
+                return null;
+            }
+            String boot = (String) list.getSelectedValue();
+            int pos = boot.indexOf("->");
+            if (pos > 0) {
+                boot = boot.substring(0, pos).trim();
+            }
+            return boot;
+        } catch (Exception e) { // sometimes list.getSelectedValue() returns an Exception ... (Java Bug?)
+            return null;
+        }
     }
-    return boot;
-  }
 
   private static String removeDoppeleintragFromBootsname(String boot) {
     if (boot == null || boot.length()==0) return boot;
@@ -2230,6 +2372,15 @@ public class EfaDirektFrame extends JFrame {
       updateBootsListen();
       try {
           booteVerfuegbar.scrollRectToVisible(booteVerfuegbar.getCellBounds(0, 0));
+
+          if (!Daten.efaConfig.efaDirekt_listAllowToggleBoatsPersons.getValue() || toggleAvailableBoatsToBoats.isSelected()) {
+              booteVerfuegbar.removeMouseListener(popupAvailablePersonsListener);
+              booteVerfuegbar.addMouseListener(popupAvailableBoatsListener);
+          } else {
+              booteVerfuegbar.removeMouseListener(popupAvailableBoatsListener);
+              booteVerfuegbar.addMouseListener(popupAvailablePersonsListener);
+          }
+
       } catch(Exception ee) {
       }
   }

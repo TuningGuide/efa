@@ -312,6 +312,11 @@ public class Dialog {
     }
   }
 
+  public static int auswahlDialog(String title, String s, String[] options) {
+    Window frame = frameCurrent();
+    if (frame != null && !frame.isEnabled()) frame.setEnabled(true);
+    return JOptionPane.showOptionDialog(frame,chopDialogString(s),title,0,JOptionPane.QUESTION_MESSAGE,null,options,options[0]);
+  }
   public static int auswahlDialog(String title, String s, String option1, String option2, String option3) {
     Object[] auswahl = new String[ (option3 != null ? 3 : 2)];
     auswahl[0] = option1;

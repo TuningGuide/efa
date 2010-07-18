@@ -155,9 +155,18 @@ public class BrowserFrame extends JDialog implements ActionListener {
           }
           String surl = e.getURL().toString();
           if (conn.getContentType().equals("text/html") || conn.getContentType().equals("text/plain")) {
-            if (surl.toLowerCase().equals("mailto:"+Daten.EFAEMAIL)) {
-                surl = HtmlFactory.createMailto();
+
+            // check for various email addresses
+            if (surl.toLowerCase().equals("mailto:"+Daten.EMAILINFO)) {
+                surl = HtmlFactory.createMailto(Daten.EMAILINFO);
             }
+            if (surl.toLowerCase().equals("mailto:"+Daten.EMAILBUGS)) {
+                surl = HtmlFactory.createMailto(Daten.EMAILBUGS);
+            }
+            if (surl.toLowerCase().equals("mailto:"+Daten.EMAILHELP)) {
+                surl = HtmlFactory.createMailto(Daten.EMAILHELP);
+            }
+
             if (surl.toLowerCase().startsWith("mailto:"))
               Dialog.error(International.getMessage("Bitte benutze ein externes email-Programm, um eine email an {receiver} zu verschicken!",
                       surl.substring(7,surl.length())));

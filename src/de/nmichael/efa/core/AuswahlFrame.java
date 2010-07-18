@@ -819,7 +819,7 @@ public class AuswahlFrame extends JDialog implements ActionListener {
          };
          boolean[] select1 = {  true   ,  true     ,  false         ,  true     ,  true       ,  true   ,  true   ,  false       , true             , false    , false   , false   , false   , false};
          String[] nur1 = createArray(Daten.fahrtenbuch.getDaten().status,
-                 Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_GENDER),
+                 Daten.efaTypes.getTypesArray(EfaTypes.CATEGORY_GENDER),
                  null,null,null);
          int[] nurCheck1 = { 4 , 5 };
          if (Daten.fahrtenbuch.getDaten().mitglieder != null)
@@ -844,10 +844,10 @@ public class AuswahlFrame extends JDialog implements ActionListener {
                           International.getString("fremde Boote")
          };
          String[] nur2 = createArray(tmp,
-                 Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_BOAT),
-                 Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_NUMSEATS),
-                 Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_RIGGING),
-                 Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_COXING));
+                 Daten.efaTypes.getTypesArray(EfaTypes.CATEGORY_BOAT),
+                 Daten.efaTypes.getTypesArray(EfaTypes.CATEGORY_NUMSEATS),
+                 Daten.efaTypes.getTypesArray(EfaTypes.CATEGORY_RIGGING),
+                 Daten.efaTypes.getTypesArray(EfaTypes.CATEGORY_COXING));
          int[] nurCheck2 = { 1, 2, 3, 4 , 5 };
          if (Daten.fahrtenbuch.getDaten().boote != null)
            dlg = new ListenausgabeFrame(this,International.getString("Bootsliste"),Daten.fahrtenbuch.getDaten().boote,felder2,select2,0,nur2,nurCheck2);

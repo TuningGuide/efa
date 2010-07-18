@@ -35,6 +35,8 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
   JLabel copyLabel = new JLabel();
   JLabel urlLabel0 = new JLabel();
   JLabel urlLabel = new JLabel();
+  JLabel supportLabel0 = new JLabel();
+  JLabel supportLabel = new JLabel();
   BorderLayout borderLayout1 = new BorderLayout();
   BorderLayout borderLayout2 = new BorderLayout();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
@@ -119,10 +121,24 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
         urlLabel_mouseClicked(e);
       }
       public void mouseEntered(MouseEvent e) {
-        urlLabel_mouseEntered(e);
+        label_mouseEntered(e);
       }
       public void mouseExited(MouseEvent e) {
-        urlLabel_mouseExited(e);
+        label_mouseExited(e);
+      }
+    });
+    supportLabel0.setText(International.getString("Hilfe und Support")+": ");
+    supportLabel.setForeground(Color.blue);
+    supportLabel.setText(Daten.EFASUPPORTURL);
+    supportLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+      public void mouseClicked(MouseEvent e) {
+        supportLabel_mouseClicked(e);
+      }
+      public void mouseEntered(MouseEvent e) {
+        label_mouseEntered(e);
+      }
+      public void mouseExited(MouseEvent e) {
+        label_mouseExited(e);
       }
     });
     insetsPanel3.setLayout(gridBagLayout1);
@@ -131,13 +147,13 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
     okButton.addActionListener(this);
     emailLabel0.setText(International.getString("email")+": ");
     emailLabel.setForeground(Color.blue);
-    emailLabel.setText(Daten.EFAEMAIL);
+    emailLabel.setText(Daten.EMAILINFO);
     emailLabel.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseEntered(MouseEvent e) {
-        emailLabel_mouseEntered(e);
+        label_mouseEntered(e);
       }
       public void mouseExited(MouseEvent e) {
-        emailLabel_mouseExited(e);
+        label_mouseExited(e);
       }
       public void mouseClicked(MouseEvent e) {
         emailLabel_mouseClicked(e);
@@ -155,10 +171,10 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
         gplLabel_mouseClicked(e);
       }
       public void mouseEntered(MouseEvent e) {
-        gplLabel_mouseEntered(e);
+        label_mouseEntered(e);
       }
       public void mouseExited(MouseEvent e) {
-        gplLabel_mouseExited(e);
+        label_mouseExited(e);
       }
     });
     devNoteLabel.setText(International.getString("Diese Version ist eine Entwicklerversion in Alpha-Qualität!"));
@@ -172,10 +188,10 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
         devNoteUrlLabel_mouseClicked(e);
       }
       public void mouseEntered(MouseEvent e) {
-        devNoteUrlLabel_mouseEntered(e);
+        label_mouseEntered(e);
       }
       public void mouseExited(MouseEvent e) {
-        devNoteUrlLabel_mouseExited(e);
+        label_mouseExited(e);
       }
     });
     detailPanel.setLayout(borderLayout3);
@@ -198,21 +214,25 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 1, 0));
     insetsPanel3.add(urlLabel,   new GridBagConstraints(2, 4, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 1, 0));
-    insetsPanel3.add(emailLabel0,   new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0
+    insetsPanel3.add(supportLabel0,   new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 1, 0));
+    insetsPanel3.add(supportLabel,   new GridBagConstraints(2, 5, 3, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 1, 0));
+    insetsPanel3.add(emailLabel0,   new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
-    insetsPanel3.add(emailLabel,   new GridBagConstraints(2, 5, 3, 1, 0.0, 0.0
+    insetsPanel3.add(emailLabel,   new GridBagConstraints(2, 6, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
-    insetsPanel3.add(gpl1Label,    new GridBagConstraints(1, 6, 2, 1, 0.0, 0.0
+    insetsPanel3.add(gpl1Label,    new GridBagConstraints(1, 7, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
-    insetsPanel3.add(gplLabel,     new GridBagConstraints(3, 6, 2, 1, 0.0, 0.0
+    insetsPanel3.add(gplLabel,     new GridBagConstraints(3, 7, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 20), 0, 0));
-    insetsPanel3.add(devNoteLabel,     new GridBagConstraints(1, 7, 4, 1, 0.0, 0.0
+    insetsPanel3.add(devNoteLabel,     new GridBagConstraints(1, 8, 4, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 20), 0, 0));
-    insetsPanel3.add(devNote2Label,     new GridBagConstraints(1, 8, 3, 1, 0.0, 0.0
+    insetsPanel3.add(devNote2Label,     new GridBagConstraints(1, 9, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    insetsPanel3.add(devNoteUrlLabel,     new GridBagConstraints(4, 8, 1, 1, 0.0, 0.0
+    insetsPanel3.add(devNoteUrlLabel,     new GridBagConstraints(4, 9, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 20), 0, 0));
-    insetsPanel3.add(efaBirthdayLabel,  new GridBagConstraints(0, 10, 4, 1, 0.0, 0.0
+    insetsPanel3.add(efaBirthdayLabel,  new GridBagConstraints(0, 11, 4, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     tabbedPane.add(panelMain,     International.getString("Über efa"));
     tabbedPane.add(detailPanel,   International.getString("Systeminformationen"));
@@ -306,55 +326,44 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
     }
   }
 
+  void label_mouseEntered(MouseEvent e) {
+      try {
+          JLabel label = (JLabel)e.getSource();
+          label.setForeground(Color.red);
+      } catch(Exception eignore) {
+      }
+  }
+
+  void label_mouseExited(MouseEvent e) {
+      try {
+          JLabel label = (JLabel)e.getSource();
+          label.setForeground(Color.blue);
+      } catch(Exception eignore) {
+      }
+  }
+
   void urlLabel_mouseClicked(MouseEvent e) {
     if (Daten.applID == Daten.APPL_EFADIREKT) return;
-    Dialog.startBrowser(this,Daten.NICOLASURL);
+    Dialog.startBrowser(this,Daten.EFAURL);
   }
 
-  void urlLabel_mouseEntered(MouseEvent e) {
-    urlLabel.setForeground(Color.red);
-  }
-
-  void urlLabel_mouseExited(MouseEvent e) {
-    urlLabel.setForeground(Color.blue);
-  }
-
-  void emailLabel_mouseEntered(MouseEvent e) {
-    emailLabel.setForeground(Color.red);
-  }
-
-  void emailLabel_mouseExited(MouseEvent e) {
-    emailLabel.setForeground(Color.blue);
+  void supportLabel_mouseClicked(MouseEvent e) {
+    if (Daten.applID == Daten.APPL_EFADIREKT) return;
+    Dialog.startBrowser(this,Daten.EFASUPPORTURL);
   }
 
   void emailLabel_mouseClicked(MouseEvent e) {
     if (Daten.applID == Daten.APPL_EFADIREKT) return;
-    Dialog.neuBrowserDlg(this,"Browser","file:"+HtmlFactory.createMailto(),700,600,(int)Dialog.screenSize.getWidth()/2-350,(int)Dialog.screenSize.getHeight()/2-300);
+    Dialog.neuBrowserDlg(this,"Browser","file:"+HtmlFactory.createMailto(Daten.EMAILINFO),700,600,(int)Dialog.screenSize.getWidth()/2-350,(int)Dialog.screenSize.getHeight()/2-300);
   }
 
   void gplLabel_mouseClicked(MouseEvent e) {
     Dialog.neuBrowserDlg(this,"Browser","file:"+Daten.efaDocDirectory+Daten.EFA_LICENSE,700,600,(int)Dialog.screenSize.getWidth()/2-350,(int)Dialog.screenSize.getHeight()/2-300);
   }
 
-  void gplLabel_mouseEntered(MouseEvent e) {
-    gplLabel.setForeground(Color.red);
-  }
-
-  void gplLabel_mouseExited(MouseEvent e) {
-    gplLabel.setForeground(Color.blue);
-  }
-
   void devNoteUrlLabel_mouseClicked(MouseEvent e) {
+      if (Daten.applID == Daten.APPL_EFADIREKT) return;
       Dialog.startBrowser(this, Daten.EFADEVURL);
-//    Dialog.neuBrowserDlg(this,"Browser",,700,600,(int)Dialog.screenSize.getWidth()/2-350,(int)Dialog.screenSize.getHeight()/2-300);
-  }
-
-  void devNoteUrlLabel_mouseEntered(MouseEvent e) {
-    devNoteUrlLabel.setForeground(Color.red);
-  }
-
-  void devNoteUrlLabel_mouseExited(MouseEvent e) {
-    devNoteUrlLabel.setForeground(Color.blue);
   }
 
 }

@@ -348,7 +348,18 @@ public class EfaTypes extends DatenListe {
         if (key.equals(EfaTypes.TYPE_NUMSEATS_OTHER)) {
             return Fahrtenbuch.ANZ_MANNSCH;
         }
-        return 0;
+
+        // ok, no key found. Now try to extract some numbers from the key itself (as in "6X")
+        int num = EfaUtil.stringFindInt(key, 0);
+        if (num > 0 && num <= Fahrtenbuch.ANZ_MANNSCH) {
+            return num;
+        }
+
+        return Fahrtenbuch.ANZ_MANNSCH;
+    }
+
+    public static String getStringUnknown() {
+        return International.getString("unbekannt");
     }
 
     public synchronized boolean readEinstellungen() {

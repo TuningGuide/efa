@@ -1748,13 +1748,13 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       case MeldungenIndexFrame.MELD_FAHRTENABZEICHEN:
         if (ewmCur.sigError != null) warnung(ewmCur.sigError);
         if (isErfuellt(ewmCur,true)) {
-          if (bestimmeWirdGewertetNeu) {
+          if (bestimmeWirdGewertetNeu && !ewmCur.drvint_wirdGewertetExplizitGesetzt) {
             ewmCur.drvint_wirdGewertet = true;
             tmpefw.drvint_wirdGewertet = true;
             mNichtGewertetGrund.setText("");
           }
         } else {
-          if (bestimmeWirdGewertetNeu) {
+          if (bestimmeWirdGewertetNeu && !ewmCur.drvint_wirdGewertetExplizitGesetzt) {
             ewmCur.drvint_wirdGewertet = false;
             tmpefw.drvint_wirdGewertet = false;
           }
@@ -2627,22 +2627,36 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     return Daten.keyStore.isKeyStoreReady();
   }
 
-  void mWirdGewertet_actionPerformed(ActionEvent e) {
-    if (ewmCur != null) ewmCur.drvint_wirdGewertet = mWirdGewertet.isSelected();
+  void mWirdGewertet_actionPerformed(ActionEvent e) { //@@@!!!
+    if (ewmCur != null) {
+      ewmCur.drvint_wirdGewertet = mWirdGewertet.isSelected();
+      ewmCur.drvint_wirdGewertetExplizitGesetzt = true;
+    }
     if (data != null && ewmNr >= 0 && ewmNr < data.size()) {
       EfaWettMeldung m = (EfaWettMeldung)data.get(ewmNr);
-      if (m != null) m.drvint_wirdGewertet = mWirdGewertet.isSelected();
+      if (m != null) {
+        m.drvint_wirdGewertet = mWirdGewertet.isSelected();
+        m.drvint_wirdGewertetExplizitGesetzt = true;
+      }
     }
     updateStatusNichtGewertetGrund();
+    changed = true;
   }
 
-  void fWirdGewertet_actionPerformed(ActionEvent e) {
-    if (ewmCur != null) ewmCur.drvint_wirdGewertet = fWirdGewertet.isSelected();
+  void fWirdGewertet_actionPerformed(ActionEvent e) { //@@@!!!
+    if (ewmCur != null) {
+      ewmCur.drvint_wirdGewertet = fWirdGewertet.isSelected();
+      ewmCur.drvint_wirdGewertetExplizitGesetzt = true;
+    }
     if (data != null && ewmNr >= 0 && ewmNr < data.size()) {
       EfaWettMeldung m = (EfaWettMeldung)data.get(ewmNr);
-      if (m != null) m.drvint_wirdGewertet = fWirdGewertet.isSelected();
+      if (m != null) {
+        m.drvint_wirdGewertet = fWirdGewertet.isSelected();
+        m.drvint_wirdGewertetExplizitGesetzt = true;
+      }
     }
     updateStatusNichtGewertetGrund();
+    changed = true;
   }
 
   void mNichtGewertetGrund_focusLost(FocusEvent e) {

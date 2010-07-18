@@ -35,11 +35,11 @@ public class HtmlFactory {
         f.write("</html>\n");
     }
 
-    public static String createMailto() {
+    public static String createMailto(String email) {
         String filename = Daten.efaTmpDirectory+"mailto.html";
         try {
             BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename),Daten.ENCODING_UTF));
-            writeHeader(f, International.getMessage("email an {receiver}", Daten.EFAEMAIL), true);
+            writeHeader(f, International.getMessage("email an {receiver}", email), true);
             f.write("<form method=\"post\" action=\"" + Daten.INTERNET_EFAMAIL + "\">\n");
             f.write("<table align=\"center\">\n");
             f.write("<tr><td><b>" + International.getString("Von") +
@@ -49,7 +49,7 @@ public class HtmlFactory {
             f.write("<tr><td><b>" + International.getString("Von") +
                     " (" + International.getString("Verein") + "):</b></td><td><input type=\"text\" name=\"verein\" size=\"30\"></td></tr>\n");
             f.write("<tr><td><b>" + International.getString("An") +
-                    ":</b></td><td><tt>" + Daten.EFAEMAILNAME + " &lt;" + Daten.EFAEMAIL + "&gt;</tt></td></tr>\n");
+                    ":</b></td><td><tt>" + Daten.EFAEMAILNAME + " &lt;" +email + "&gt;</tt></td></tr>\n");
             f.write("<tr><td><b>" + International.getString("Betreff") +
                     ":</b></td><td><input type=\"text\" name=\"betreff\" size=\"30\"></td></tr>\n");
             f.write("<tr><td colspan=\"2\"><textarea name=\"nachricht\" cols=\"50\" rows=\"10\" wrap=\"physical\"></textarea></td></tr>\n");

@@ -116,7 +116,7 @@ public class HelpGenerator {
     f.write("<br clear=\"all\"><hr>\n");
     f.write("<small><a href=\"index.html\">efa - elektronisches Fahrtenbuch</a>,\n");
     f.write("Copyright &copy; 2001-09 by <a href=\"http://www.nmichael.de/\" target=\"_new\">Nicolas Michael</a>\n");
-    f.write("&lt;<a href=\"mailto:software@nmichael.de\">software@nmichael.de</a>&gt;</small>\n");
+    f.write("&lt;<a href=\"mailto:info@efa.nmichael.de\">info@efa.nmichael.de</a>&gt;</small>\n");
     f.write("</body>\n");
     f.write("</html>\n");
     f.close();
@@ -222,7 +222,7 @@ public class HelpGenerator {
     f.write("<br><hr>\n");
     f.write("<small><a href=\"index.html\">efa - elektronisches Fahrtenbuch</a>,\n");
     f.write("Copyright &copy; 2001-09 by <a href=\"http://www.nmichael.de/\" target=\"_new\">Nicolas Michael</a>\n");
-    f.write("&lt;<a href=\"mailto:software@nmichael.de\">software@nmichael.de</a>&gt;</small>\n");
+    f.write("&lt;<a href=\"mailto:info@efa.nmichael.de\">info@efa.nmichael.de</a>&gt;</small>\n");
     f.write("</body>\n");
     f.write("</html>\n");
     f.close();

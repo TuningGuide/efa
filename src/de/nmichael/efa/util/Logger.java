@@ -257,6 +257,7 @@ public class Logger {
   public static final String MSG_DEBUG_ELWIZ                 = "DBG008";
   public static final String MSG_DEBUG_EFACONFIG             = "DBG009";
   public static final String MSG_DEBUG_TYPES                 = "DBG010";
+  public static final String MSG_DEBUG_GUI_CONTEXTMENU       = "DBG011";
 
   // Trace Topics for Debug Logging
   public static final long TT_CORE                 = Integer.parseInt("0000000000000001",2);

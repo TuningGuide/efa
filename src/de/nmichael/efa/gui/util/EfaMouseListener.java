@@ -46,7 +46,18 @@ public class EfaMouseListener extends MouseAdapter {
 
     private void showPopup(MouseEvent e) {
         if (popupsEnabled) {
+
+            // if this is a JList, check whether there are any items currently selected
+            try {
+                JList list = (JList)myComponent;
+                if (list.getSelectedIndex() < 0) {
+                    return; // don't show popup on empty list or list without any selected items
+                }
+            } catch(Exception eignore0) {
+            }
+
             popup.show(e.getComponent(), e.getX() + 10, e.getY() + 5);
+            myComponent.requestFocus();
         }
     }
 

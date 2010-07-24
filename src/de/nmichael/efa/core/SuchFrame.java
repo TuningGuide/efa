@@ -220,7 +220,7 @@ public class SuchFrame extends JDialog implements ActionListener {
     Mnemonics.setButton(this, err_km, International.getStringWithMnemonic("Einträge mit widersprüchlichen Kilometerangaben"));
     err_km.setNextFocusableComponent(err_unbekRuderer);
     err_km.setSelected(true);
-    Mnemonics.setButton(this, err_unbekRuderer, International.getStringWithMnemonic("Einträge mit unbekannten Ruderern"));
+    Mnemonics.setButton(this, err_unbekRuderer, International.getStringWithMnemonic("Einträge mit unbekannten Personen"));
     err_unbekRuderer.setNextFocusableComponent(err_unbekRudererOhneGast);
     err_unbekRuderer.setSelected(true);
     Mnemonics.setButton(this, err_unbekBoot, International.getStringWithMnemonic("Einträge mit unbekannten Booten"));

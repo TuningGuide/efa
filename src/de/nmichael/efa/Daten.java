@@ -55,8 +55,8 @@ public class Daten {
   public       static String EFA_LONGNAME  = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
 
   public final static String VERSION = "v2.0_dev03"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSIONID = "1.9.0_09";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "18.07.2010";  // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "1.9.0_10";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+  public final static String VERSIONRELEASEDATE = "24.07.2010";  // Release Date: TT.MM.JJJJ
   public final static String PROGRAMMID = "EFA.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String COPYRIGHTYEAR = "10";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
@@ -121,7 +121,8 @@ public class Daten {
   public static final int HALT_JAVARESTART  = 199;
 
   public static Program program = null;            // this Program
-  public static String efaUserHome = null;         // User Home Directory (NOT the efa userdata directoy!! see EfaBaseConfig!)
+  public static String userHomeDir = null;         // User Home Directory (NOT the efa userdata directoy!! see EfaBaseConfig!)
+  public static String userName = null;            // User Name
   public static String efaLogfile = null;          // Logdatei für efa-Konsole
   public static String efaMainDirectory = null;    // Efa-Hauptverzeichnis, immer mit "/" am Ende
   public static String efaProgramDirectory = null; // Programmverzeichnis, immer mit "/" am Ende     ("./program/")
@@ -341,7 +342,8 @@ public class Daten {
         jvmVersion = System.getProperty("java.vm.version");
         osName = System.getProperty("os.name");
         osVersion = System.getProperty("os.version");
-        efaUserHome = System.getProperty("user.home");
+        userHomeDir = System.getProperty("user.home");
+        userName = System.getProperty("user.name");
         applID = _applID;
         efaStartTime = System.currentTimeMillis();
 
@@ -367,7 +369,7 @@ public class Daten {
     }
 
     private static void iniEfaBaseConfig() {
-        String efaBaseConfigFile = Daten.efaUserHome + (Daten.fileSep != null && !Daten.efaUserHome.endsWith(Daten.fileSep) ? Daten.fileSep : "");
+        String efaBaseConfigFile = Daten.userHomeDir + (Daten.fileSep != null && !Daten.userHomeDir.endsWith(Daten.fileSep) ? Daten.fileSep : "");
         EfaBaseConfig.setEfaConfigUserHomeFilename(efaBaseConfigFile);
         Daten.efaBaseConfig = new EfaBaseConfig();
         if (!EfaUtil.canOpenFile(Daten.efaBaseConfig.getFileName())) {

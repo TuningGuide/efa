@@ -339,7 +339,7 @@ public class EddiFrame extends JFrame {
         International.getString("Bootsname"),
         International.getString("Verein"),
         International.getString("Bootsart"),
-        International.getString("Anzahl Ruderplätze"),
+        International.getString("Anzahl Bootsplätze"),
         International.getString("Riggerung"),
         International.getString("mit/ohne Stm."),
         International.getString("Gruppen"),
@@ -836,7 +836,7 @@ public class EddiFrame extends JFrame {
         for (int k=0; k<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMSEATS); k++) if (feld[Boote.ANZAHL].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, k))) ok = true;
         if (!ok) {
             fehler += International.getMessage("Ungültiger Wert im Feld '{fieldname}'",
-                      International.getString("Anzahl Ruderplätze")) + ": "+feld[Boote.ANZAHL]+"\n";
+                      International.getString("Anzahl Bootsplätze")) + ": "+feld[Boote.ANZAHL]+"\n";
         }
         ok = false;
         for (int k=0; k<Daten.efaTypes.size(EfaTypes.CATEGORY_RIGGING); k++) if (feld[Boote.RIGGER].equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, k))) ok = true;

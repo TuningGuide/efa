@@ -59,7 +59,7 @@ public class ConfigTypeStringList extends ConfigValue {
             }
         }
         
-        Dialog.setPreferredSize(combobox, 200, 19);
+        Dialog.setPreferredSize(combobox, 300, 19);
         JLabel label = new JLabel();
         Mnemonics.setLabel(dlg, label, getDescription() + ": ");
         label.setLabelFor(combobox);

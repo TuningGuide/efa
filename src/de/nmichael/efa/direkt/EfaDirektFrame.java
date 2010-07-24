@@ -40,6 +40,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
   Vector booteNichtVerfuegbarListData = null;
   long lastUserInteraction = 0;
   byte[] largeChunkOfMemory = new byte[1024*1024];
+  Hashtable<JList,String> incrementalSearch = new Hashtable<JList,String>();
 
   public static final int EFA_EXIT_REASON_USER = 0;
   public static final int EFA_EXIT_REASON_TIME = 1;
@@ -449,6 +450,11 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
         booteVerfuegbar_keyReleased(e);
       }
     });
+    booteVerfuegbar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                booteVerfuegbar.setToolTipText(null); // remove tool tip from scrolling/searching
+            }
+    });
     booteAufFahrt.setNextFocusableComponent(booteNichtVerfuegbar);
     booteAufFahrt.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     // KeyListeners entfernen, damit unter Java 1.4.x nicht automatisch gescrollt wird, sondern durch den eigenen Algorithmus
@@ -461,6 +467,11 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
         booteAufFahrt_keyReleased(e);
       }
     });
+    booteAufFahrt.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                booteAufFahrt.setToolTipText(null); // remove tool tip from scrolling/searching
+            }
+    });
     booteNichtVerfuegbar.setNextFocusableComponent(booteVerfuegbar);
     booteNichtVerfuegbar.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     // KeyListeners entfernen, damit unter Java 1.4.x nicht automatisch gescrollt wird, sondern durch den eigenen Algorithmus
@@ -472,6 +483,11 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
       public void keyReleased(KeyEvent e) {
         booteNichtVerfuegbar_keyReleased(e);
       }
+    });
+    booteNichtVerfuegbar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                booteNichtVerfuegbar.setToolTipText(null); // remove tool tip from scrolling/searching
+            }
     });
     efaButton.setPreferredSize(new Dimension(90, 55));
     efaButton.setIcon(new ImageIcon(EfaFrame.class.getResource(Daten.getEfaImage(1))));
@@ -1322,7 +1338,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
         booteVerfuegbarListData = sortMemberList(Daten.fahrtenbuch.getDaten().mitglieder.getAllNames(true));
         booteVerfuegbarListData.add(0,"<"+International.getString("andere Person")+">");
     }
-    
+
     booteAufFahrtListData = sortBootsList(bootStatus.getBoote(BootStatus.STAT_UNTERWEGS));
     booteNichtVerfuegbarListData = sortBootsList(bootStatus.getBoote(BootStatus.STAT_NICHT_VERFUEGBAR));
 
@@ -1343,6 +1359,8 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
         }
       }
     }
+
+    clearIncrementalSearch(null);
 
     // es gibt einen komischen Bug, der manchmal aufzutreten scheint, wenn in gerade selektiertes Boot aus
     // der Statusliste verschwindet. Der Bug läßt sich manchmal reproduzieren, indem als Mitglied ein Boot
@@ -1546,6 +1564,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
 
   void doppelklick(int listnr, JList list) {
     if (list == null || list.getSelectedIndex() < 0) return;
+    clearAllPopups();
 
     String name = listGetSelectedValue(list);
     if (name == null) return;
@@ -1618,105 +1637,147 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
   }
 
   void booteVerfuegbar_keyReleased(KeyEvent e) {
+    clearAllPopups();
     if (e != null) {
       if (e.getKeyCode() == KeyEvent.VK_ENTER || e.getKeyCode() == KeyEvent.VK_SPACE) {
         doppelklick(1,booteVerfuegbar);
         return;
       }
       if (!Daten.efaConfig.efaDirekt_listAllowToggleBoatsPersons.getValue() || toggleAvailableBoatsToBoats.isSelected()) {
-          scrollToBoot(booteVerfuegbar,booteVerfuegbarListData,String.valueOf(e.getKeyChar()),15);
+          scrollToEntry(booteVerfuegbar,booteVerfuegbarListData,String.valueOf(e.getKeyChar()),15);
       } else {
-          scrollToPerson(booteVerfuegbar,booteVerfuegbarListData,String.valueOf(e.getKeyChar()),15);
+          //scrollToPerson(booteVerfuegbar,booteVerfuegbarListData,String.valueOf(e.getKeyChar()),15);
+          scrollToEntry(booteVerfuegbar,booteVerfuegbarListData,String.valueOf(e.getKeyChar()),15);
       }
     }
     showBootStatus(1,booteVerfuegbar,(e != null && e.getKeyCode() == 38 ? -1 : 1)); // KeyCode 38 == Cursor Up
   }
   void booteAufFahrt_keyReleased(KeyEvent e) {
+    clearAllPopups();
     if (e != null) {
       if (e.getKeyCode() == KeyEvent.VK_ENTER || e.getKeyCode() == KeyEvent.VK_SPACE) {
         doppelklick(2,booteAufFahrt);
         return;
       }
-      scrollToBoot(booteAufFahrt,booteAufFahrtListData,String.valueOf(e.getKeyChar()),10);
+      scrollToEntry(booteAufFahrt,booteAufFahrtListData,String.valueOf(e.getKeyChar()),10);
     }
     showBootStatus(2,booteAufFahrt,(e != null && e.getKeyCode() == 38 ? -1 : 1)); // KeyCode 38 == Cursor Up
   }
   void booteNichtVerfuegbar_keyReleased(KeyEvent e) {
+    clearAllPopups();
     if (e != null) {
       if (e.getKeyCode() == KeyEvent.VK_ENTER || e.getKeyCode() == KeyEvent.VK_SPACE) {
         doppelklick(3,booteNichtVerfuegbar);
         return;
       }
-      scrollToBoot(booteNichtVerfuegbar,booteNichtVerfuegbarListData,String.valueOf(e.getKeyChar()),5);
+      scrollToEntry(booteNichtVerfuegbar,booteNichtVerfuegbarListData,String.valueOf(e.getKeyChar()),5);
     }
     showBootStatus(3,booteNichtVerfuegbar,(e != null && e.getKeyCode() == 38 ? -1 : 1)); // KeyCode 38 == Cursor Up
   }
 
-  // scrolle in der Liste list (deren Inhalt der Vector boote ist), zu dem Eintrag
-  // mit dem Namen such und selektiere ihn. Zeige unterhalb des Boote bis zu plus weitere Einträge.
-  private void scrollToBoot(JList list, Vector boote, String such, int plus) {
-    if (list == null || boote == null || such == null || such.length()==0) return;
-    try {
-      int start = 0;
-      if (Daten.efaConfig.efaDirekt_sortByAnzahl.getValue()) {
-        if (such.charAt(0)>='0' && such.charAt(0)<='9') {
-          switch(such.charAt(0)) {
-              case '1': such = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_1);
-                        break;
-              case '2': such = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_2);
-                        break;
-              case '3': such = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_3);
-                        break;
-              case '4': such = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_4);
-                        break;
-              case '5': such = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_5);
-                        break;
-              case '6': such = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_6);
-                        break;
-              case '8': such = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, EfaTypes.TYPE_NUMSEATS_8);
-                        break;
-          }
-          such = "---------- "+such;
+    private void clearIncrementalSearch(JList list) {
+        if (list != null) {
+            incrementalSearch.put(list, "");
+            list.setToolTipText(null);
         } else {
-          start = list.getSelectedIndex();
-          if (start<0) start = 0;
-          while (start>0 && !((String)boote.get(start)).startsWith("---------- ")) start--;
+            incrementalSearch.put(booteVerfuegbar, "");
+            incrementalSearch.put(booteAufFahrt, "");
+            incrementalSearch.put(booteNichtVerfuegbar, "");
+            booteVerfuegbar.setToolTipText(null);
+            booteAufFahrt.setToolTipText(null);
+            booteNichtVerfuegbar.setToolTipText(null);
         }
-      }
-      such = such.toLowerCase();
+    }
 
-      int index = -1;
-      for (int i=start; i<boote.size(); i++) {
-        if (((String)boote.get(i)).toLowerCase().startsWith(such)) {
-          index = i;
-          break;
+    // scrolle in der Liste list (deren Inhalt der Vector entries ist), zu dem Eintrag
+    // mit dem Namen such und selektiere ihn. Zeige unterhalb des Boote bis zu plus weitere Einträge.
+    private void scrollToEntry(JList list, Vector entries, String such, int plus) {
+        if (list == null || entries == null || such == null || such.length() == 0) {
+            return;
         }
-      }
-      if (index < 0) return;
+        try {
+            int start = 0;
 
-      list.setSelectedIndex(index);
-      list.scrollRectToVisible(list.getCellBounds(index, (index+plus >= boote.size() ? boote.size()-1 : index+plus) ));
-    } catch(Exception ee) { /* just to be sure */ }
-  }
+            if (Daten.efaConfig.efaDirekt_sortByAnzahl.getValue() && such.charAt(0) >= '0' && such.charAt(0) <= '9') {
+                // jump to boats with the given number of seats
+                int seats = EfaUtil.string2int(such.substring(0, 1), 0);
+                String[] seatTypes = Daten.efaTypes.getTypesArray(EfaTypes.CATEGORY_NUMSEATS);
+                for (int i = 0; i < seatTypes.length; i++) {
+                    if (seats == EfaTypes.getNumberOfRowers(seatTypes[i])) {
+                        such = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, seatTypes[i]);
+                        break;
+                    }
+                }
+                such = "---------- " + such;
+                incrementalSearch.put(list, "");
+            } else {
+                // search for names within the list
+                start = Math.max(list.getSelectedIndex(), 0);
 
-  // as scrollToBoot, but for Persons
-  private void scrollToPerson(JList list, Vector persons, String such, int plus) {
-    if (list == null || persons == null || such == null || such.length()==0) return;
-    try {
-      int start = 0;
-      such = such.toLowerCase();
-      int index = -1;
-      for (int i=start; i<persons.size(); i++) {
-        if (((String)persons.get(i)).toLowerCase().startsWith(such)) {
-          index = i;
-          break;
-        }
-      }
-      if (index < 0) return;
-      list.setSelectedIndex(index);
-      list.scrollRectToVisible(list.getCellBounds(index, (index+plus >= persons.size() ? persons.size()-1 : index+plus) ));
-    } catch(Exception ee) { /* just to be sure */ }
-  }
+                String incrSearch = incrementalSearch.get(list);
+                if (incrSearch == null || incrSearch.length() == 0) {
+                    // if we haven't searched for anything before, jump to the start of this section
+                    while (start > 0 && !((String) entries.get(start)).startsWith("---------- ")) {
+                        start--;
+                    }
+                }
+                // build new search string depending of previous search
+                char c = such.charAt(0);
+                if (Character.isLetter(c) || Character.isSpaceChar(c) || c == '.' || c == '-' || c == '_' || c == ':') {
+                    such = (incrSearch != null ? incrSearch : "") + such;
+                } else {
+                    if (c == 0x8) {
+                        such = (incrSearch != null && incrSearch.length() > 0 ?
+                            incrSearch.substring(0, incrSearch.length() - 1) :
+                            "");
+                    } else {
+                        return; // no valid search character
+                    }
+                }
+                incrementalSearch.put(list, such);
+            }
+            such = such.toLowerCase();
+
+            int index = -1;
+            boolean startsWith = such.length() == 1; // for single-character search, match strings starting with this search string; otherwise, match somewhere
+            for (int run = 0; run < 2; run++) { // 2 search runs: 1st - start from "start"; 2nd - if no result, restart from 0
+                for (int i = start; i < entries.size(); i++) {
+                    String item = ((String) entries.get(i)).toLowerCase();
+                    if (startsWith && item.startsWith(such) || !startsWith && item.contains(such)) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index != -1) {
+                    break;
+                } else {
+                    start = 0;
+                }
+            }
+            if (index < 0) {
+                return;
+            }
+
+            list.setSelectedIndex(index);
+            Rectangle rect = list.getCellBounds(index, (index + plus >= entries.size() ? entries.size() - 1 : index + plus));
+            list.scrollRectToVisible(rect);
+
+            rect = list.getVisibleRect();
+            if (such.startsWith("---")) {
+                list.setToolTipText(null);
+            } else {
+                list.setToolTipText(such);
+                int origDelay = ToolTipManager.sharedInstance().getInitialDelay();
+                ToolTipManager.sharedInstance().setInitialDelay(0);
+                ToolTipManager.sharedInstance().mouseMoved(
+                        new MouseEvent(list, 0, 0, 0,
+                        10, rect.y + rect.height - 50,
+                        0, false));
+                ToolTipManager.sharedInstance().setInitialDelay(origDelay);
+            }
+
+        } catch (Exception ee) { /* just to be sure */ }
+    }
 
     private String listGetSelectedValue(JList list) {
         try {
@@ -1742,8 +1803,16 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
     return boot.substring(0,anf);
   }
 
+  void clearAllPopups() {
+      this.popupAvailableBoats.setVisible(false);
+      this.popupAvailablePersons.setVisible(false);
+      this.popupBoatsOnTheWater.setVisible(false);
+      this.popupNotAvailableBoats.setVisible(false);
+  }
+
   void fahrtbeginnButton_actionPerformed(ActionEvent e) {
     alive();
+    clearAllPopups();
     int status = BootStatus.STAT_VERFUEGBAR;
 
     String boot = null;
@@ -1829,7 +1898,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
                                      International.getMessage("Das Boot {boat} ist laut Liste bereits unterwegs.",bootsname) + "\n" +
                                      (d != null ? International.getString("Bemerkung")+": " + d.get(BootStatus.BEMERKUNG) + "\n" : "") +
                                      "\n" +
-                                     International.getString("Möchtest Du trotzdem mit dem Boot rudern?"))
+                                     International.getString("Möchtest Du trotzdem das Boot benutzen?"))
                       != Dialog.YES) return false;
       }
     }
@@ -1838,7 +1907,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
                                      International.getMessage("Das Boot {boat} ist laut Liste nicht verfügbar.",bootsname) + "\n" +
                                      (d != null ? International.getString("Bemerkung")+": " + d.get(BootStatus.BEMERKUNG) + "\n" : "") +
                                      "\n" +
-                                             International.getString("Möchtest Du trotzdem mit dem Boot rudern?"))
+                                             International.getString("Möchtest Du trotzdem das Boot benutzen?"))
                     != Dialog.YES) return false;
     }
 
@@ -1856,7 +1925,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
                                            res.getForName())+"\n"+
               (res.getReason().length()>0 ? " ("+International.getString("Grund")+": "+res.getReason()+")\n" : "") +
               International.getMessage("Die Reservierung liegt {from_time_to_time} vor.",BootStatus.makeReservierungText(res))+"\n"+
-              International.getString("Möchtest Du trotzdem mit dem Boot rudern?"))
+              International.getString("Möchtest Du trotzdem das Boot benutzen?"))
                     != Dialog.YES) return false;
     }
     if (d.get(BootStatus.BOOTSSCHAEDEN).trim().length() > 0 || (d2 != null && d2.get(BootStatus.BOOTSSCHAEDEN).trim().length() > 0)) {
@@ -1865,7 +1934,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
               "\""+
               (d.get(BootStatus.BOOTSSCHAEDEN).trim().length() > 0 ? d.get(BootStatus.BOOTSSCHAEDEN).trim() : d2.get(BootStatus.BOOTSSCHAEDEN).trim())
               +"\"\n\n"+
-              International.getString("Möchtest Du trotzdem mit dem Boot rudern?"))
+              International.getString("Möchtest Du trotzdem das Boot benutzen?"))
                              != Dialog.YES) return false;
     }
     return true;
@@ -2015,6 +2084,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
 
   void fahrtendeButton_actionPerformed(ActionEvent e) {
     alive();
+    clearAllPopups();
     String boot = null;
     try {
       if (!booteAufFahrt.isSelectionEmpty()) boot = listGetSelectedValue(booteAufFahrt);
@@ -2117,6 +2187,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
 
   void fahrtabbruchButton_actionPerformed(ActionEvent e) {
     alive();
+    clearAllPopups();
     String boot = null;
     try {
       if (!booteAufFahrt.isSelectionEmpty()) boot = listGetSelectedValue(booteAufFahrt);
@@ -2189,6 +2260,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
 
   void nachtragButton_actionPerformed(ActionEvent e) {
     alive();
+    clearAllPopups();
     setEnabled(false);
 
     String boot = null;
@@ -2210,6 +2282,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
 
   void bootsstatusButton_actionPerformed(ActionEvent e) {
     alive();
+    clearAllPopups();
     String boot = null;
     try {
       if (!booteVerfuegbar.isSelectionEmpty()) boot = listGetSelectedValue(booteVerfuegbar);
@@ -2253,6 +2326,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
 
   void showFbButton_actionPerformed(ActionEvent e) {
     alive();
+    clearAllPopups();
     if (FahrtenbuchAnzeigenFrame.wirdBereitsAngezeigt) return;
     FahrtenbuchAnzeigenFrame dlg = new FahrtenbuchAnzeigenFrame(this);
     Dialog.setDlgLocation(dlg,this);
@@ -2263,6 +2337,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
 
   void statButton_actionPerformed(ActionEvent e) {
     alive();
+    clearAllPopups();
     if (Daten.fahrtenbuch == null || Daten.fahrtenbuch.getDaten().statistik == null) {
       Dialog.error(International.getString("Es sind keine Statistiken verfügbar!")+"\n\n"+
                    International.getString("Hinweis für Administratoren")+":\n"+
@@ -2301,6 +2376,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
 
   void adminHinweisButton_actionPerformed(ActionEvent e) {
     alive();
+    clearAllPopups();
     NachrichtAnAdminFrame dlg = new NachrichtAnAdminFrame(this,Daten.nachrichten);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(true);
@@ -2310,6 +2386,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
 
   void adminButton_actionPerformed(ActionEvent e) {
     alive();
+    clearAllPopups();
 
     // Prüfe, ob bereits ein Admin-Modus-Fenster offen ist
     Stack s = Dialog.frameStack;
@@ -2339,6 +2416,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
 
   void spezialButton_actionPerformed(ActionEvent e) {
     alive();
+    clearAllPopups();
     String cmd = Daten.efaConfig.efaDirekt_butSpezialCmd.getValue().trim();
     if (cmd.length() > 0) {
       try {
@@ -2357,6 +2435,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
 
   void efaButton_actionPerformed(ActionEvent e) {
     alive();
+    clearAllPopups();
     EfaFrame_AboutBox dlg = new EfaFrame_AboutBox(this);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(true);
@@ -2364,6 +2443,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
   }
 
   void hilfeButton_actionPerformed(ActionEvent e) {
+    clearAllPopups();
     Help.getHelp(this,this.getClass());
   }
 
@@ -2438,6 +2518,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
       if (list == this.booteAufFahrt) nr = 2;
       if (list == this.booteNichtVerfuegbar) nr = 3;
       showBootStatus(nr,list,1);
+      clearIncrementalSearch(list);
     }
   }
 

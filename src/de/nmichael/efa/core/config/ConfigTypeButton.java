@@ -96,7 +96,7 @@ public class ConfigTypeButton extends ConfigValue {
         efaConfigFrame = dlg;
 
         button = new JButton();
-        Dialog.setPreferredSize(button, 200, 21);
+        Dialog.setPreferredSize(button, 300, 21);
         button.setText(text);
         button.setBackground(EfaUtil.getColor(color));
         button.addActionListener(new java.awt.event.ActionListener() {

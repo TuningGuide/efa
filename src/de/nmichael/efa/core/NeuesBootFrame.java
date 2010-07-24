@@ -318,7 +318,7 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
       }
     });
     rudererlaubnisPanel.setLayout(gridBagLayout3);
-    Mnemonics.setLabel(this, jLabel3, International.getStringWithMnemonic("Dieses Boot darf nur von Mitgliedern der folgenden Gruppen gerudert werden")+": ");
+    Mnemonics.setLabel(this, jLabel3, International.getStringWithMnemonic("Dieses Boot darf nur von Mitgliedern der folgenden Gruppen genutzt werden")+": ");
     Mnemonics.setLabel(this, jLabel4, International.getStringWithMnemonic("Gruppe")+" 1: ");
     Mnemonics.setLabel(this, jLabel5, International.getStringWithMnemonic("Gruppe")+" 2: ");
     Mnemonics.setLabel(this, jLabel6, International.getStringWithMnemonic("Gruppe")+" 3: ");
@@ -329,7 +329,7 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
     jLabel6.setLabelFor(gruppe3);
     jLabel7.setLabelFor(gruppe4);
     jLabel8.setLabelFor(gruppe5);
-    Mnemonics.setLabel(this, jLabel9, International.getStringWithMnemonic("Max. erlaubte Anzahl an Ruderern, die NICHT einer der Gruppen angehören")+": ");
+    Mnemonics.setLabel(this, jLabel9, International.getStringWithMnemonic("Max. erlaubte Anzahl an Personen, die NICHT einer der Gruppen angehören")+": ");
     jLabel9.setLabelFor(maxAnzahlNichtInGruppe);
     maxAnzahlNichtInGruppe.setNextFocusableComponent(gruppeMind1);
     Dialog.setPreferredSize(maxAnzahlNichtInGruppe,50,19);
@@ -416,14 +416,14 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
     Dialog.setPreferredSize(frei3, 400, 19);
     frei1.setNextFocusableComponent(frei2);
     Dialog.setPreferredSize(frei1, 400, 19);
-    jLabel13.setText(International.getString("Mindestens ein Ruderer (oder der Steuermann) muß folgender Gruppe angehören")+": ");
+    jLabel13.setText(International.getString("Mindestens eine Person muß folgender Gruppe angehören")+": ");
     Mnemonics.setLabel(this, jLabel14, International.getStringWithMnemonic("Gruppe")+": ");
     jLabel14.setLabelFor(gruppeMind1);
     gruppeMind1.setNextFocusableComponent(SaveButton);
     mainPanel.add(SaveButton, BorderLayout.SOUTH);
     mainPanel.add(tabbedPane, BorderLayout.CENTER);
     tabbedPane.add(bootDataPanel, International.getString("Bootsdaten"));
-    tabbedPane.add(rudererlaubnisPanel, International.getString("Rudererlaubnis"));
+    tabbedPane.add(rudererlaubnisPanel, International.getString("Bootsbenutzung"));
     rudererlaubnisPanel.add(jLabel3,  new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     rudererlaubnisPanel.add(jLabel4,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
@@ -867,7 +867,7 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
       _kombiRig_Anz = anzahlString(anz, _kombiRig_Rig);
       _kombiRig_Stm = tStm;
       kombiRiggerBoot.setText(International.getString("Kombi-Boot") +
-              " (" + International.getMessage("auch ruderbar als {boattype}",Boote.getDetailBezeichnung(tArt, _kombiRig_Anz, _kombiRig_Stm)) + ")");
+              " (" + International.getMessage("auch nutzbar als {boattype}",Boote.getDetailBezeichnung(tArt, _kombiRig_Anz, _kombiRig_Stm)) + ")");
       kombiRiggerBoot.setVisible(true);
     } else {
         kombiRiggerBoot.setVisible(false);
@@ -891,7 +891,7 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
       _kombiAnz_Stm = (tStm.equals(EfaTypes.TYPE_COXING_COXED) ? EfaTypes.TYPE_COXING_COXLESS : EfaTypes.TYPE_COXING_COXED);
       _kombiAnz_Rig = (kombi_anz % 2 == 1 ? EfaTypes.TYPE_RIGGING_SCULL : tRig);
       kombiAnzahlBoot.setText(International.getString("Kombi-Boot") +
-              " (" + International.getMessage("auch ruderbar als {boattype}",Boote.getDetailBezeichnung(tArt, _kombiAnz_Anz, _kombiAnz_Stm)) + ")");
+              " (" + International.getMessage("auch nutzbar als {boattype}",Boote.getDetailBezeichnung(tArt, _kombiAnz_Anz, _kombiAnz_Stm)) + ")");
       kombiAnzahlBoot.setVisible(true);
     }
   }

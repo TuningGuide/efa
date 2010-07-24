@@ -3230,7 +3230,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         if (key != null) {
            return key;
         } else {
-           key = EfaTypes.TYPE_SESSION_MULTIDAY + ":" + Mehrtagesfahrt.getNameFromDisplayName(fahrtart);
+           return EfaTypes.TYPE_SESSION_MULTIDAY + ":" + Mehrtagesfahrt.getNameFromDisplayName(fahrtart);
         }
     }
     return "";
@@ -3240,7 +3240,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     String fd = createFahrtartKey((String)(fahrtart.getSelectedIndex() >= 0 ? fahrtart.getSelectedItem() : null));
 
     if (Daten.efaTypes != null && (mode == MODE_ENDE || mode == MODE_NACHTRAG) &&
-        fd.startsWith(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_MULTIDAY))) {
+        fd.startsWith(EfaTypes.TYPE_SESSION_MULTIDAY)) {
       if (mtourName != null) {
         fd = EfaTypes.TYPE_SESSION_MULTIDAY + ":" + mtourName;
       } else {
@@ -4426,13 +4426,13 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
                     International.getString("und") + " " + g.get(j)) ); // @todo: for some languages it might be necessary to translate ", " as well, or even use a ChoiceFormat here
           }
           switch (Dialog.auswahlDialog(International.getString("Boot nur für bestimmte Gruppen freigegeben"),
-                                 International.getMessage("Dieses Boot dürfen nur {list_of_valid_groups} rudern.",erlaubteGruppen) + "\n" +
-                                 International.getMessage("{nichtErlaubtAnz,choice,1#Folgender Ruderer gehört diesen Gruppen nicht an und darf das Boot daher nicht rudern:|2#Folgende Ruderer gehören diesen Gruppen nicht an und dürfen das Boot daher nicht rudern:}",
+                                 International.getMessage("Dieses Boot dürfen nur {list_of_valid_groups} nutzen.",erlaubteGruppen) + "\n" +
+                                 International.getMessage("{nichtErlaubtAnz,choice,1#Folgende Person gehört diesen Gruppen nicht an und darf das Boot daher nicht nutzen:|2#Folgende Personen gehören diesen Gruppen nicht an und dürfen das Boot daher nicht nutzen:}",
                                  nichtErlaubtAnz) + " \n" + nichtErlaubt + "\n" +
                                  International.getString("Was möchtest Du tun?"),
                                  International.getString("Anderes Boot wählen"),
                                  International.getString("Mannschaft ändern"),
-                                 International.getString("Trotzdem rudern"),
+                                 International.getString("Trotzdem benutzen"),
                                  International.getString("Eintrag abbrechen"))) {
             case 0:
               this.setFieldEnabled(true, true, this.boot, this.bootLabel, bootButton);
@@ -4474,7 +4474,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
                                  International.getString("Was möchtest Du tun?"),
                                  International.getString("Anderes Boot wählen"),
                                  International.getString("Mannschaft ändern"),
-                                 International.getString("Trotzdem rudern"),
+                                 International.getString("Trotzdem benutzen"),
                                  International.getString("Eintrag abbrechen"))){
             case 0:
               this.setFieldEnabled(true, true, this.boot, this.bootLabel, bootButton);

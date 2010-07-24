@@ -127,7 +127,7 @@ public class HtmlFactory {
             f.write("<input type=\"checkbox\" name=\"usePrivate\" value=\"ja\"> " +
                     International.getString("Ich benutze efa privat, um meine eigenen Fahrten zu erfassen.") + "<br>\n");
             f.write("<input type=\"checkbox\" name=\"useClubHome\" value=\"ja\"> " +
-                    International.getString("Ich benutze efa für meinen Ruderverein, um unsere Fahrten nachträglich auszuwerten.") + "<br>\n");
+                    International.getString("Ich benutze efa für meinen Verein, um unsere Fahrten nachträglich auszuwerten.") + "<br>\n");
             f.write("<input type=\"checkbox\" name=\"useClubEvaluate\" value=\"ja\"> " +
                     International.getString("Wir haben efa testweise im Bootshaus installiert.") + "<br>\n");
             f.write("<input type=\"checkbox\" name=\"useClubDirect\" value=\"ja\"> " +

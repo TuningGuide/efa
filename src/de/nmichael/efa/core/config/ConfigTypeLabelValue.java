@@ -29,7 +29,7 @@ public abstract class ConfigTypeLabelValue extends ConfigValue {
         
         textfield = new JTextField();
         textfield.setText(toString());
-        Dialog.setPreferredSize(textfield, 200, 19);
+        Dialog.setPreferredSize(textfield, 300, 19);
         JLabel label = new JLabel();
         Mnemonics.setLabel(dlg, label, getDescription() + ": ");
         label.setLabelFor(textfield);

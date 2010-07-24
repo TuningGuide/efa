@@ -534,7 +534,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     bNurLabel.setText(International.getString("nur Fahrten berechnen für")+":");
     Mnemonics.setLabel(this, bNurArtLabel, International.getStringWithMnemonic("Art")+": ");
     bNurArtLabel.setLabelFor(mNurArt);
-    Mnemonics.setLabel(this, bNurAnzahlLabel, International.getStringWithMnemonic("Ruderplätze")+": ");
+    Mnemonics.setLabel(this, bNurAnzahlLabel, International.getStringWithMnemonic("Bootsplätze")+": ");
     bNurAnzahlLabel.setLabelFor(mNurAnzahl);
     jScrollPane1.setMinimumSize(new Dimension(100, 131));
     jScrollPane1.setPreferredSize(new Dimension(100, 131));
@@ -1255,7 +1255,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     sortFolge.addItem(International.getString("aufsteigend"));
     sortFolge.addItem(International.getString("absteigend"));
 
-    art.addItem(International.getString("Ruderer/Innen"));
+    art.addItem(International.getString("Personen"));
     art.addItem(International.getString("Status"));
     art.addItem(International.getString("Jahrgang"));
     art.addItem(International.getString("Geschlecht"));
@@ -1267,7 +1267,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     art.addItem(International.getString("Boote"));
     art.addItem(International.getString("Bootsart"));
     art.addItem(International.getString("Fahrtart"));
-    art.addItem(International.getString("Mitruderer/Innen"));
+    art.addItem(International.getString("Mannschaft"));
     art.addItem(International.getString("Wer mit Wem"));
     art.addItem(International.getString("Wer Wohin"));
     art.addItem(International.getString("Wer mit Bootsart"));
@@ -1298,7 +1298,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
     bArt.addItem(International.getString("Boote"));
     bArt.addItem(International.getString("Art"));
-    bArt.addItem(International.getString("Ruderplätze"));
+    bArt.addItem(International.getString("Bootsplätze"));
     bArt.addItem(International.getString("Art") + " - " +
             International.getString("Detail"));
     bArt.addItem(International.getString("Ziele"));
@@ -1306,7 +1306,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     bArt.addItem(International.getString("Monate"));
     bArt.addItem(International.getString("Wochentage"));
     bArt.addItem(International.getString("Tageszeit"));
-    bArt.addItem(International.getString("Ruderer"));
+    bArt.addItem(International.getString("Personen"));
     bArt.addItem(International.getString("Welches Boot Wohin"));
     bArt.addItem(International.getString("Fahrtenbuch"));
     bArt.addItem(International.getString("Jahre"));
@@ -1406,7 +1406,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
       case StatistikDaten.ART_BOOTSART:
         sortKrit.addItem(International.getString("Bootsart"));
         sortKrit.addItem(International.getString("Art"));
-        sortKrit.addItem(International.getString("Ruderplätze"));
+        sortKrit.addItem(International.getString("Bootsplätze"));
         break;
       case StatistikDaten.ART_FAHRTART:
         sortKrit.addItem(International.getString("Fahrtart"));
@@ -1591,7 +1591,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
       case StatistikDaten.BART_BOOTE: case StatistikDaten.BART_WELCHESWOHIN:
         mSortKrit.addItem(International.getString("Bootsname"));
         mSortKrit.addItem(International.getString("Art"));
-        mSortKrit.addItem(International.getString("Ruderplätze"));
+        mSortKrit.addItem(International.getString("Bootsplätze"));
         break;
       case StatistikDaten.BART_ART:
         mSortKrit.addItem(International.getString("Art"));
@@ -1599,7 +1599,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
         mSortKrit.addItem("---");
         break;
       case StatistikDaten.BART_PLAETZE:
-        mSortKrit.addItem(International.getString("Ruderplätze"));
+        mSortKrit.addItem(International.getString("Bootsplätze"));
         mSortKrit.addItem("---");
         mSortKrit.addItem("---");
         break;
@@ -1607,7 +1607,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
         mSortKrit.addItem(International.getString("Art") + " - " +
                 International.getString("Detail"));
         mSortKrit.addItem(International.getString("Art"));
-        mSortKrit.addItem(International.getString("Ruderplätze"));
+        mSortKrit.addItem(International.getString("Bootsplätze"));
         break;
       case StatistikDaten.BART_ZIELE:
         mSortKrit.addItem(International.getString("Ziel"));
@@ -2150,7 +2150,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
 
 
         switch (art = EfaUtil.string2int(f.get(StatSave.ART),StatistikDaten.ART_MITGLIEDER)) {
-            case StatistikDaten.ART_MITGLIEDER: case StatistikDaten.BART_RUDERER: felder[i] = felder[i] + International.getString("Ruderer/Innen")+")"; break;
+            case StatistikDaten.ART_MITGLIEDER: case StatistikDaten.BART_RUDERER: felder[i] = felder[i] + International.getString("Personen")+")"; break;
             case StatistikDaten.ART_ZIELE: case StatistikDaten.BART_ZIELE: felder[i] = felder[i] + International.getString("Ziele")+")"; break;
             case StatistikDaten.ART_MONATE: case StatistikDaten.BART_MONATE: felder[i] = felder[i] + International.getString("Monate")+")"; break;
             case StatistikDaten.ART_WOTAGE: case StatistikDaten.BART_WOTAGE: felder[i] = felder[i] + International.getString("Wochentage")+")"; break;
@@ -2159,7 +2159,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
             case StatistikDaten.ART_BOOTSART: felder[i] = felder[i] + International.getString("Bootsart")+")"; break;
             case StatistikDaten.ART_FAHRTART: felder[i] = felder[i] + International.getString("Fahrtart")+")"; break;
             case StatistikDaten.ART_JAHRE: case StatistikDaten.BART_JAHRE: felder[i] = felder[i] + International.getString("Jahre")+")"; break;
-            case StatistikDaten.ART_MITRUDERER: felder[i] = felder[i] + International.getString("Mitruderer")+")"; break;
+            case StatistikDaten.ART_MITRUDERER: felder[i] = felder[i] + International.getString("Mannschaft")+")"; break;
             case StatistikDaten.ART_STATUS: felder[i] = felder[i] + International.getString("Status")+")"; break;
             case StatistikDaten.ART_JAHRGANG: felder[i] = felder[i] + International.getString("Jahrgang")+")"; break;
             case StatistikDaten.ART_GESCHLECHT: felder[i] = felder[i] + International.getString("Geschlecht")+")"; break;
@@ -2269,7 +2269,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     }
     if (d[0].stat == StatistikDaten.STAT_BOOTE) {
       if (errorIfEmpty(d[0].bArt,International.getString("Art"))) return;
-      if (errorIfEmpty(d[0].bAnzahl,International.getString("Ruderplätze"))) return;
+      if (errorIfEmpty(d[0].bAnzahl,International.getString("Bootsplätze"))) return;
       if (errorIfEmpty(d[0].fahrtart,International.getString("Art der Fahrt"))) return;
       if (errorIfEmpty(d[0].bRigger,International.getString("Riggerung"))) return;
       if (errorIfEmpty(d[0].bStm,International.getString("mit/ohne Stm."))) return;
@@ -2442,7 +2442,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     if (art.getSelectedIndex() == StatistikDaten.ART_MITRUDERER &&
         (nurName.getText().trim().equals("") || nameTeil.isSelected()) ) {
       Dialog.infoDialog(International.getString("Fehler"),
-              International.getString("Wenn Statistikart 'Mitruderer' gewählt ist, muß bei 'nur Name' "+
+              International.getString("Wenn Statistikart 'Mannschaft' gewählt ist, muß bei 'nur Name' "+
                                          "ein konkreter Name angegeben werden, und 'als Teil eines Namens' "+
                                          "darf nicht aktiviert sein."));
       return false;

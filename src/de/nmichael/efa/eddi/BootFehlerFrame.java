@@ -154,7 +154,7 @@ public class BootFehlerFrame extends JDialog implements ActionListener {
     jLabel3.setLabelFor(verein);
     Mnemonics.setLabel(this, jLabel4, International.getStringWithMnemonic("Bootsart")+": ");
     jLabel4.setLabelFor(art);
-    Mnemonics.setLabel(this, jLabel5, International.getStringWithMnemonic("Anzahl Ruderplätze")+": ");
+    Mnemonics.setLabel(this, jLabel5, International.getStringWithMnemonic("Anzahl Bootsplätze")+": ");
     jLabel5.setLabelFor(anzahl);
     Mnemonics.setLabel(this, jLabel6, International.getStringWithMnemonic("Riggerung")+": ");
     jLabel6.setLabelFor(rigger);

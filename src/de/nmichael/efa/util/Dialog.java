@@ -295,16 +295,21 @@ public class Dialog {
     Dialog.infoDialog(International.getString("Information"),s);
   }
 
+  private static void prepareWindow(Window frame) {
+      Daten.iniSplashScreen(false);
+      if (frame != null &&  !frame.isEnabled()) frame.setEnabled(true);
+  }
+
   public static int yesNoDialog(String title, String s) {
     Window frame = frameCurrent();
-    if (frame != null && !frame.isEnabled()) frame.setEnabled(true);
+    prepareWindow(frame);
     if (JOptionPane.showConfirmDialog(frame,chopDialogString(s),title,JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
       return YES;
     else return NO;
   }
   public static int yesNoCancelDialog(String title, String s) {
     Window frame = frameCurrent();
-    if (frame != null && !frame.isEnabled()) frame.setEnabled(true);
+    prepareWindow(frame);
     switch (JOptionPane.showConfirmDialog(frame,chopDialogString(s),title,JOptionPane.YES_NO_CANCEL_OPTION)) {
       case JOptionPane.YES_OPTION: return YES;
       case JOptionPane.NO_OPTION:  return NO;
@@ -314,7 +319,7 @@ public class Dialog {
 
   public static int auswahlDialog(String title, String s, String[] options) {
     Window frame = frameCurrent();
-    if (frame != null && !frame.isEnabled()) frame.setEnabled(true);
+    prepareWindow(frame);
     return JOptionPane.showOptionDialog(frame,chopDialogString(s),title,0,JOptionPane.QUESTION_MESSAGE,null,options,options[0]);
   }
   public static int auswahlDialog(String title, String s, String option1, String option2, String option3) {
@@ -323,7 +328,7 @@ public class Dialog {
     auswahl[1] = option2;
     if (option3 != null) auswahl[2] = option3;
     Window frame = frameCurrent();
-    if (frame != null && !frame.isEnabled()) frame.setEnabled(true);
+    prepareWindow(frame);
     return JOptionPane.showOptionDialog(frame,chopDialogString(s),title,0,JOptionPane.QUESTION_MESSAGE,null,auswahl,option1);
   }
   public static int auswahlDialog(String title, String s, String option1, String option2, String option3, String option4) {
@@ -333,7 +338,7 @@ public class Dialog {
     auswahl[2] = option3;
     if (option4 != null) auswahl[3] = option4;
     Window frame = frameCurrent();
-    if (frame != null && !frame.isEnabled()) frame.setEnabled(true);
+    prepareWindow(frame);
     return JOptionPane.showOptionDialog(frame,chopDialogString(s),title,0,JOptionPane.QUESTION_MESSAGE,null,auswahl,option1);
   }
   public static int auswahlDialog(String title, String s, String option1, String option2, String option3, String option4, String option5) {
@@ -344,7 +349,7 @@ public class Dialog {
     auswahl[3] = option4;
     auswahl[4] = option5;
     Window frame = frameCurrent();
-    if (frame != null && !frame.isEnabled()) frame.setEnabled(true);
+    prepareWindow(frame);
     return JOptionPane.showOptionDialog(frame,chopDialogString(s),title,0,JOptionPane.QUESTION_MESSAGE,null,auswahl,option1);
   }
   public static int auswahlDialog(String title, String s, String option1, String option2) {
@@ -357,13 +362,13 @@ public class Dialog {
 
   public static boolean okAbbrDialog(String title, String s) {
     Window frame = frameCurrent();
-    if (frame != null && !frame.isEnabled()) frame.setEnabled(true);
+    prepareWindow(frame);
     return JOptionPane.showConfirmDialog(frame,chopDialogString(s),title,JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
   }
 
   public static void infoDialog(String title, String s) {
     Window frame = frameCurrent();
-    if (frame != null && !frame.isEnabled()) frame.setEnabled(true);
+    prepareWindow(frame);
     JOptionPane.showConfirmDialog(frame,chopDialogString(s),title,-1);
   }
   public static void infoDialog(String s) {
@@ -372,12 +377,12 @@ public class Dialog {
 
   public static String inputDialog(String title, String s) {
     Window frame = frameCurrent();
-    if (frame != null && !frame.isEnabled()) frame.setEnabled(true);
+    prepareWindow(frame);
     return JOptionPane.showInputDialog(frame,chopDialogString(s),title,JOptionPane.PLAIN_MESSAGE);
   }
   public static String inputDialog(String title, String s, String vorbelegung) {
     Window frame = frameCurrent();
-    if (frame != null && !frame.isEnabled()) frame.setEnabled(true);
+    prepareWindow(frame);
     return (String)JOptionPane.showInputDialog(frame,chopDialogString(s),title,JOptionPane.PLAIN_MESSAGE,null,null,vorbelegung);
   }
 

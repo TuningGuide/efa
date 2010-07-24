@@ -109,7 +109,7 @@ public class Statistik {
     switch (sd.art) {
       case StatistikDaten.ART_MITGLIEDER:
       case StatistikDaten.BART_RUDERER:
-        ad.auswertungsArt += International.getString("Ruderer/Innen"); break;
+        ad.auswertungsArt += International.getString("Personen"); break;
       case StatistikDaten.ART_ZIELE:
       case StatistikDaten.BART_ZIELE:
         ad.auswertungsArt += International.getString("Ziele");
@@ -135,7 +135,7 @@ public class Statistik {
       case StatistikDaten.ART_FAHRTART:
         ad.auswertungsArt += International.getString("Fahrtart"); break;
       case StatistikDaten.ART_MITRUDERER:
-        ad.auswertungsArt += International.getString("Mitruderer"); break;
+        ad.auswertungsArt += International.getString("Mannschaft"); break;
       case StatistikDaten.ART_STATUS:
         ad.auswertungsArt += International.getString("Status"); break;
       case StatistikDaten.ART_JAHRGANG:

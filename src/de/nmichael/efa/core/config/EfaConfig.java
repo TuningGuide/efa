@@ -98,8 +98,8 @@ public class EfaConfig extends DatenListe {
     public ConfigTypeBoolean bakMonat;
     public ConfigTypeBoolean bakTag;
     public ConfigTypeBoolean bakKonv;
-    public ConfigTypeString browser;
-    public ConfigTypeString acrobat;
+    public ConfigTypeFile browser;
+    public ConfigTypeFile acrobat;
     public ConfigTypeInteger printPageWidth;
     public ConfigTypeInteger printPageHeight;
     public ConfigTypeInteger printLeftMargin;
@@ -224,6 +224,7 @@ public class EfaConfig extends DatenListe {
     public ConfigTypeBoolean efaDirekt_locked;
     public ConfigTypeBoolean showGermanOptions;
     public ConfigTypeBoolean showBerlinOptions;
+    public ConfigTypeFile efaUserDirectory;
     public ConfigTypeStringList language;
     public ConfigTypeAction typesAddAllDefaultRowingBoats;
     public ConfigTypeAction typesAddAllDefaultCanoeingBoats;
@@ -296,7 +297,7 @@ public class EfaConfig extends DatenListe {
         categories.put(CATEGORY_TYPES,         International.getString("Bezeichnungen"));
         categories.put(CATEGORY_TYPES_SESS,    International.getString("Fahrtart"));
         categories.put(CATEGORY_TYPES_BOAT,    International.getString("Bootsart"));
-        categories.put(CATEGORY_TYPES_SEAT,    International.getString("Anzahl Ruderplätze"));
+        categories.put(CATEGORY_TYPES_SEAT,    International.getString("Anzahl Bootsplätze"));
         categories.put(CATEGORY_TYPES_RIGG,    International.getString("Riggerung"));
         categories.put(CATEGORY_TYPES_COXD,    International.getString("mit/ohne Stm."));
         categories.put(CATEGORY_TYPES_GEND,    International.getString("Geschlecht"));
@@ -324,6 +325,12 @@ public class EfaConfig extends DatenListe {
                 "efa registration checks counter"));
 
         // ============================= COMMON:COMMON =============================
+        addParameter(efaUserDirectory = new ConfigTypeFile("_EFAUSERDIRECTORY", Daten.efaBaseConfig.efaUserDirectory,
+                International.getString("Verzeichnis für Nutzerdaten"),
+                International.getString("Verzeichnisse"),
+                null,ConfigTypeFile.MODE_OPEN,ConfigTypeFile.TYPE_DIR,
+                TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_COMMON),
+                International.getString("Verzeichnis für Nutzerdaten")));
         addParameter(letzteDatei = new ConfigTypeFile("LASTFILE_EFABASE", "",
                 International.getString("Fahrtenbuch"),
                 International.getString("Fahrtenbuch")+" (*.efb)",
@@ -570,7 +577,7 @@ public class EfaConfig extends DatenListe {
                 International.getString("Ziele"))));
         addParameter(efaDirekt_eintragErlaubeNurMaxRudererzahl = new ConfigTypeBoolean("ALLOW_ONLY_MAXCREWNUMBER", false,
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
-                International.getString("Nur für das Boot maximal mögliche Anzahl an Ruderern erlauben")));
+                International.getString("Nur für das Boot maximal mögliche Anzahl an Personen erlauben")));
         addParameter(efaDirekt_eintragErzwingeObmann = new ConfigTypeBoolean("MUST_SELECT_CREWSHEAD", false,
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
                 International.getString("Obmann muß ausgewählt werden")));
@@ -628,9 +635,9 @@ public class EfaConfig extends DatenListe {
                 International.getString("erlaube Auswahl in Bootslisten alternativ auch über Personennamen")));
         addParameter(efaDirekt_sortByAnzahl = new ConfigTypeBoolean("BOATLIST_SORTBYSEATS", true,
                 TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("sortiere Boote nach Anzahl der Ruderplätze")));
+                International.getString("sortiere Boote nach Anzahl der Bootsplätze")));
         addParameter(efaDirekt_autoPopupOnBoatLists = new ConfigTypeBoolean("BOATLIST_AUTOPOPUP", true,
-                TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
+                TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("automatisches Popup-Menü für Mausclicks in den Bootslisten")));
         addParameter(efaDirekt_vereinsLogo = new ConfigTypeImage("CLUBLOGO", "", 192, 64,
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
@@ -1012,17 +1019,42 @@ public class EfaConfig extends DatenListe {
             }
         }
 
-        // Language
+        // Language & efa User Data
         String newLang = language.toString();
-        if (Daten.efaBaseConfig.language == null || !Daten.efaBaseConfig.language.equals(newLang)) {
-            Daten.efaBaseConfig.language = newLang;
-            Daten.efaBaseConfig.writeFile();
-            if (newEfaTypes == null) {
-                newEfaTypes = new EfaTypes(Daten.efaTypes);
+        String newUserData = efaUserDirectory.toString();
+        if (!newUserData.endsWith(Daten.fileSep)) {
+            newUserData += Daten.fileSep;
+        }
+        boolean changedLang = Daten.efaBaseConfig.language == null || !Daten.efaBaseConfig.language.equals(newLang);
+        boolean changedUserDir = Daten.efaBaseConfig.efaUserDirectory == null || !Daten.efaBaseConfig.efaUserDirectory.equals(newUserData);
+        if (changedLang || changedUserDir) {
+            if (changedLang) {
+                Daten.efaBaseConfig.language = newLang;
             }
-            newEfaTypes.setToLanguage(newLang);
-            Dialog.infoDialog(International.getString("Sprache"),
-                    International.getString("Die geänderten Spracheinstellungen werden erst nach einem Neustart von efa wirksam."));
+            if (changedUserDir) {
+                if (Daten.efaBaseConfig.efaCanWrite(newUserData, false)) {
+                    Daten.efaBaseConfig.efaUserDirectory = newUserData;
+                } else {
+                    Dialog.infoDialog(International.getString("Verzeichnis für Nutzerdaten"),
+                    International.getString("efa kann in dem geänderten Verzeichnis für Nutzerdaten nicht schreiben. Die Änderung wird ignoriert."));
+                    changedUserDir = false;
+                }
+            }
+            if (changedLang || changedUserDir) {
+                Daten.efaBaseConfig.writeFile();
+            }
+            if (changedLang) {
+                if (newEfaTypes == null) {
+                    newEfaTypes = new EfaTypes(Daten.efaTypes);
+                }
+                newEfaTypes.setToLanguage(newLang);
+                Dialog.infoDialog(International.getString("Sprache"),
+                        International.getString("Die geänderten Spracheinstellungen werden erst nach einem Neustart von efa wirksam."));
+            }
+            if (changedUserDir) {
+                Dialog.infoDialog(International.getString("Verzeichnis für Nutzerdaten"),
+                        International.getString("Das geänderte Verzeichnis für Nutzerdaten wird erst nach einem Neustart von efa wirksam."));
+            }
         }
 
     }
@@ -1125,7 +1157,7 @@ public class EfaConfig extends DatenListe {
                 International.getString("Bootsart")));
         addParameter(typesNumSeats = new ConfigTypeHashtable<String>("_TYPES_NUMSEATS", "", true,
                 TYPE_EXPERT, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_SEAT),
-                International.getString("Anzahl Ruderplätze")));
+                International.getString("Anzahl Bootsplätze")));
         addParameter(typesRigging = new ConfigTypeHashtable<String>("_TYPES_RIGGING", "", true,
                 TYPE_EXPERT, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_RIGG),
                 International.getString("Riggerung")));

@@ -172,7 +172,7 @@ public class ImportFrame extends JDialog implements ActionListener {
     jPanel1.setPreferredSize(new Dimension(700, 260));
     this.setTitle(International.getString("Fahrten importieren"));
     doppelteLfdNr.setNextFocusableComponent(zusatzImport);
-    Mnemonics.setLabel(this, jLabel9, International.getStringWithMnemonic("Ruderern der Gruppe")+": ");
+    Mnemonics.setLabel(this, jLabel9, International.getStringWithMnemonic("Personen der Gruppe")+": ");
     jLabel9.setLabelFor(gruppe);
     gruppe.setNextFocusableComponent(lfdNrAdd);
     gruppe.addKeyListener(new java.awt.event.KeyAdapter() {

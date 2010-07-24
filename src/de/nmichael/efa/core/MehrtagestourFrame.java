@@ -155,7 +155,7 @@ public class MehrtagestourFrame extends JDialog implements ActionListener {
     jLabel1.setLabelFor(fahrt);
     fahrt.setNextFocusableComponent(start);
     Dialog.setPreferredSize(fahrt, 250, 19);
-    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Beginn der Ruderfahrt") +
+    Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Beginn der Mehrtagesfahrt") +
             " (" + International.getString("Datum") + "): ");
     jLabel2.setLabelFor(start);
     start.setNextFocusableComponent(ende);
@@ -171,7 +171,7 @@ public class MehrtagestourFrame extends JDialog implements ActionListener {
       }
     });
     this.setTitle(International.getString("Mehrtagesfahrt"));
-    Mnemonics.setLabel(this, anzTageLabel, International.getStringWithMnemonic("Anzahl der Rudertage")+": ");
+    Mnemonics.setLabel(this, anzTageLabel, International.getStringWithMnemonic("Anzahl der Ruder-/Paddel-Tage")+": ");
     anzTageLabel.setLabelFor(anzTage);
     anzTage.setNextFocusableComponent(gewaesser);
     Dialog.setPreferredSize(anzTage, 250, 19);
@@ -180,7 +180,7 @@ public class MehrtagestourFrame extends JDialog implements ActionListener {
         anzTage_focusLost(e);
       }
     });
-    Mnemonics.setLabel(this, jLabel3, International.getStringWithMnemonic("Ende der Ruderfahrt") + 
+    Mnemonics.setLabel(this, jLabel3, International.getStringWithMnemonic("Ende der Mehrtagesfahrt") +
             " (" + International.getString("Datum") + "): ");
     jLabel3.setLabelFor(ende);
     Mnemonics.setLabel(this, jLabel4, International.getStringWithMnemonic("Befahrene Gewässer (durch Kommata getrennt)")+": ");

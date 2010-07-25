@@ -9,102 +9,58 @@
  */
 package de.nmichael.efa.util;
 
-import de.nmichael.efa.*;
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.Daten;
+import de.nmichael.efa.util.Logger;
 import de.nmichael.efa.util.Dialog;
-import javax.swing.*;
+import de.nmichael.efa.util.International;
+import javax.help.*;
+import java.net.URL;
+import java.util.Locale;
 
 // @i18n complete
 public class Help {
 
-    private static String getURL(String name) {
-        String file;
+    private static HelpSet helpSet;
+    private static HelpBroker helpBroker;
 
-        // this is just for test purposes!!!
-        if (Daten.exceptionTest) {
-            file = null;
-            if (file.length() > 0) {
-                EfaUtil.foo();
+    public static HelpSet getHelpSet() {
+        if (helpSet == null) {
+            try {
+                ClassLoader cl = Help.class.getClassLoader();
+                URL helpUrl = HelpSet.findHelpSet(cl, Daten.EFA_HELPSET, International.getLocale());
+                helpSet = new HelpSet(null, helpUrl);
+            } catch(Exception e) {
+                Logger.log(Logger.ERROR, Logger.MSG_HELP_ERRORHELPSET, "Cannot create HelpSet: "+e.toString());
             }
         }
+        return helpSet;
+    }
 
-        // now get the file name for the help page!
-        String lang = International.getLanguageID();
-        while (lang != null && lang.length() > 0) {
-            file = Daten.efaDocDirectory + name + "_" + lang + ".html";
-            if (EfaUtil.canOpenFile(file)) {
-                return "file:" + file;
-            }
-            int pos = lang.indexOf("_");
-            if (pos > 0) {
-                lang = lang.substring(0, pos);
-            } else {
-                break;
+    public static HelpBroker getHelpBroker() {
+        getHelpSet();
+        if (helpBroker == null && helpSet != null) {
+            try {
+                helpBroker = helpSet.createHelpBroker();
+            } catch(Exception e) {
+                Logger.log(Logger.ERROR, Logger.MSG_HELP_ERRORHELPBROKER, "Cannot create HelpBroker: "+e.toString());
             }
         }
-        file = Daten.efaDocDirectory + name + ".html";
-        if (EfaUtil.canOpenFile(file)) {
-            return "file:" + file;
-        }
-        file = Daten.efaDocDirectory + "index.html";
-        if (EfaUtil.canOpenFile(file)) {
-            return "file:" + file;
-        }
-        return null;
+        return helpBroker;
     }
 
-    private static void nohelp() {
-        Dialog.infoDialog(International.getString("Hilfe"),
-                          International.getString("Keine Hilfe verfügbar."));
-    }
-
-    public static void getHelp(JFrame frame, String name) {
-        String url = getURL(name);
-        if (url == null) {
-            nohelp();
-        } else {
-            Dialog.neuBrowserDlg(frame, International.getString("Online-Hilfe"), url);
+    public static void showHelp(String topic) {
+        try {
+            ((javax.help.DefaultHelpBroker)Help.getHelpBroker()).setActivationWindow(Dialog.frameCurrent());
+            try {
+                Help.getHelpBroker().setCurrentID(topic);
+            } catch(Exception e) {
+                Help.getHelpBroker().setCurrentID("default");
+            }
+            Help.getHelpBroker().setDisplayed(true);
+        } catch(Exception e) {
+            Dialog.infoDialog(International.getString("Hilfe"),
+                              International.getString("Keine Hilfe verfügbar."));
         }
     }
 
-    public static void getHelp(JDialog frame, String name) {
-        String url = getURL(name);
-        if (url == null) {
-            nohelp();
-        } else {
-            Dialog.neuBrowserDlg(frame, International.getString("Online-Hilfe"), url);
-        }
-    }
-
-    public static void getHelp(JFrame frame, Class c) {
-        String name = c.toString();
-        if (name == null) {
-            return;
-        }
-        if (name.lastIndexOf(".") >= 0) {
-            name = name.substring(name.lastIndexOf(".") + 1, name.length());
-        }
-        String url = getURL(name);
-        if (url == null) {
-            nohelp();
-        } else {
-            Dialog.neuBrowserDlg(frame, International.getString("Online-Hilfe"), url);
-        }
-    }
-
-    public static void getHelp(JDialog frame, Class c) {
-        String name = c.toString();
-        if (name == null) {
-            return;
-        }
-        if (name.lastIndexOf(".") >= 0) {
-            name = name.substring(name.lastIndexOf(".") + 1, name.length());
-        }
-        String url = getURL(name);
-        if (url == null) {
-            nohelp();
-        } else {
-            Dialog.neuBrowserDlg(frame, International.getString("Online-Hilfe"), url);
-        }
-    }
 }

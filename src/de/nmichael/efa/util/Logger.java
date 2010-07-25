@@ -246,6 +246,11 @@ public class Logger {
   // GUI Events & Errors
   public static final String MSG_GUI_ERRORACTIONHANDLER      = "GUI001";
 
+  // Help System
+  public static final String MSG_HELP_ERRORHELPSET           = "HLP001";
+  public static final String MSG_HELP_ERRORHELPBROKER        = "HLP002";
+  public static final String MSG_HELP_DEBUGHELPTOPIC         = "HLP003";
+
   // Debug Logging
   public static final String MSG_DEBUG_GENERIC               = "DBG001";
   public static final String MSG_DEBUG_EFAWETT               = "DBG002";

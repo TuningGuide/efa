@@ -25,6 +25,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     JScrollPane mainScrollPane = new JScrollPane();
     JPanel mainPanel = new JPanel();
     JButton closeButton;
+    String helpTopic;
 
     public BaseDialog(Frame parent, String title, String closeButtonText) {
         super(parent);
@@ -70,18 +71,21 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
             cancel();
         }
         if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
-            Help.getHelp(this, this.getClass());
+            Help.showHelp(helpTopic);
         }
     }
 
     protected void iniDialogCommon(String title, String closeButtonText) throws Exception {
+        helpTopic = getClass().getCanonicalName();
+        if (Logger.isDebugLoggin()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_HELP_DEBUGHELPTOPIC, "Help Topic: "+helpTopic);
+        }
         ActionHandler ah = new ActionHandler(this);
         try {
             ah.addKeyActions(getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW,
                     new String[]{"ESCAPE", "F1"}, new String[]{"keyAction", "keyAction"});
         } catch (NoSuchMethodException e) {
-            // @todo: Not working: throws a NoSuchMethodException!
-//            Logger.log(Logger.ERROR, Logger.MSG_GUI_ERRORACTIONHANDLER, "Error setting up ActionHandler"); // no need to translate
+            Logger.log(Logger.ERROR, Logger.MSG_GUI_ERRORACTIONHANDLER, "Error setting up ActionHandler for "+getClass().getCanonicalName()+": "+e.toString()); // no need to translate
         }
 
         if (title != null) {

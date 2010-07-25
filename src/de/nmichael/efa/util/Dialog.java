@@ -558,8 +558,21 @@ public class Dialog {
     return new Point(x,y);
   }
 
-  public static void setFontSize(String font, int size, int style) {
-    Font orgFont = UIManager.getFont(font);
+  public static UIDefaults getUiDefaults() {
+      try {
+          String laf = UIManager.getLookAndFeel().getClass().getCanonicalName();
+          if (laf.endsWith("NimbusLookAndFeel")) {
+              return UIManager.getLookAndFeelDefaults();
+          } else {
+              return UIManager.getDefaults();
+          }
+      } catch(Exception eignore) {
+          return null;
+      }
+  }
+
+  public static void setFontSize(UIDefaults uid, String font, int size, int style) {
+    Font orgFont = uid.getFont(font);
     if (orgFont == null) {
       Logger.log(Logger.WARNING, Logger.MSG_WARN_FONTDOESNOTEXIST,
               International.getMessage("Schriftart {font} exisitert nicht; ihre Größe kann nicht geändert werden!",font));
@@ -578,7 +591,7 @@ public class Dialog {
     } else {
       newFont = orgFont.deriveFont(style,(float)size);
     }
-    UIManager.put(font,newFont);
+    uid.put(font,newFont);
     FONT_SIZE_CHANGED = true;
   }
 
@@ -586,7 +599,8 @@ public class Dialog {
     FONT_SIZE = size;
     FONT_STYLE = style;
 
-    UIDefaults uid = UIManager.getDefaults();
+    UIDefaults uid = getUiDefaults();
+
     java.util.Enumeration keys = uid.keys();
     while (keys.hasMoreElements()) {
       Object key = keys.nextElement();
@@ -596,7 +610,7 @@ public class Dialog {
           (font.endsWith(".font") ||
            (font.startsWith("OptionPane") && font.endsWith("Font"))
           )) {
-        if (!font.equals("TableHeader.font") && !font.equals("Table.font")) setFontSize(font,size,style);
+        if (!font.equals("TableHeader.font") && !font.equals("Table.font")) setFontSize(uid, font,size,style);
       }
     }
     initializeMaxDialogSizes();
@@ -617,12 +631,35 @@ public class Dialog {
     setPreferredSize(comp,width,height,1);
   }
   public static void setPreferredSize(JComponent comp, int width, int height, float corr) {
-    if (FONT_SIZE<0) comp.setPreferredSize(new Dimension(width,height));
-    else {
-      float factor = ((float)FONT_SIZE) / 12.0f;
-      factor = (factor-1.0f)*corr + 1.0f;
-      comp.setPreferredSize(new Dimension((int)(((float)width) * factor),(int)(((float)height) * factor)));
-    }
+      float factor = 1.0f;
+
+      // calculate sizing factor depending on font size
+      if (FONT_SIZE > 0) {
+          // scale everything based on 12pt font size (default)
+          factor = ((float)FONT_SIZE) / 12.0f;
+          factor = (factor-1.0f)*corr + 1.0f;
+          width  = (int)(((float)width) * factor);
+          height = (int)(((float)height) * factor);
+      }
+
+      Insets insets = comp.getInsets();
+
+      // workaround for some special components (i.e. JComboBox in NimbusLookAndFeel)
+      if (insets != null && (insets.top < 2 || insets.bottom < 2) && comp instanceof javax.swing.JComboBox) {
+          insets.top = 6; insets.bottom = 6;
+      }
+
+      // calculate sizing factor depending of look&feel
+      if (insets != null && (insets.top > 2 || insets.bottom > 2)) {
+          // scale everything based on 2pt insets (based on MetalLookAndFeel)
+          int add = ((insets.top + insets.bottom) - 4) / 2;
+          if (add < 0) {
+              add = 0;
+          }
+          height += add;
+      }
+
+      comp.setPreferredSize(new Dimension(width, height));
   }
 
   public static int getFontSize() {

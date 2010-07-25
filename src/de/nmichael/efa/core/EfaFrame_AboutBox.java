@@ -88,7 +88,7 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
       cancel();
     }
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
-      Help.getHelp(this,this.getClass());
+      Help.showHelp(getClass().getCanonicalName());
     }
   }
 
@@ -269,21 +269,27 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
     }
 
     danke.setEditable(false);
-    danke.append(International.getString("Folgenden Personen gilt Dank für die Unterstützung, Weiterentwicklung oder das Beisteuern von Code zu efa:")+"\n"+
+    danke.append(International.getString("Folgenden Personen und Organisationen gilt Dank für die Unterstützung von efa:")+"\n"+
                  "\n"+
-                 "* Apache Software Foundation (FOP-Plugin, XML-Plugin)\n"+
-                 "* Dennis Klopke\n"+
-                 "* Deutscher Ruderverband\n"+
-                 "* Enterprise Distributed Technologies (FTP-Plugin)\n"+
-                 "* Jonas Binding\n"+
-                 "* Jonathan Stott (JSunrise-Plugin)\n"+
-                 "* Kay Hannay\n"+
-                 "* KDE-Team\n"+
-                 "* Landesruderverband Berlin\n"+
-                 "* Ralf Ludwig\n"+
-                 "* Robert Harder (Base64)\n"+
-                 "* Thilo Coblenzer\n"+
-                 "* World Wide Web Consortium (XML-Plugin)"
+                 International.getString("Mitwirkende")+":\n"+
+                 "* Dennis Klopke (efa Logo)\n"+
+                 "* Jonas Binding (Development)\n"+
+                 "* Kay Hannay (efaLive)\n"+
+                 "* Martin Grüning (Documentation)\n"+
+                 "* Thilo Coblenzer (efa Kiosk Howto)\n"+
+                 "\n"+
+                 International.getString("Unterstützung, Zusammenarbeit und Technologie")+":\n"+
+                 "* Apache Software Foundation (FOP Plugin, XML Plugin)\n"+
+                 "* Deutscher Kanu-Verband (Kanu-Efb)\n"+
+                 "* Deutscher Ruderverband (Fahrtenwettbewerbe)\n"+
+                 "* Enterprise Distributed Technologies (FTP Plugin)\n"+
+                 "* Jonathan Stott (JSunrise Plugin)\n"+
+                 "* KDE-Team (Icons)\n"+
+                 "* Landesruderverband Berlin (Fahrtenwettbewerbe)\n"+
+                 "* Ralf Ludwig (efa Evangelist)\n"+
+                 "* Robert Harder (Base64 Implementation)\n"+
+                 "* Sun Microsystems (Java Technology)\n"+
+                 "* World Wide Web Consortium (XML Plugin)"
                  );
 
       String translations = "";

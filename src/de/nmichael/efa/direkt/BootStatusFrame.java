@@ -133,7 +133,7 @@ public class BootStatusFrame extends JDialog implements ActionListener {
       this.okButton_actionPerformed(null);
     }
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
-      Help.getHelp(this,this.getClass());
+      Help.showHelp(getClass().getCanonicalName());
     }
   }
 

@@ -15,7 +15,10 @@ fi
 # ##########################################
 
 # efa
-CP=program/efa.jar:program
+CP=program/efa.jar:program/efahelp.jar:program
+
+# OnlineHelp-Plugin
+CP=$CP:program/plugins/jh.jar
 
 # JAXP-Plugin
 CP=$CP:program/plugins/dom.jar

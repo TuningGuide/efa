@@ -102,7 +102,7 @@ public class EddiFrame extends JFrame {
       // nothing
 //    }
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
-      Help.getHelp(this,this.getClass());
+      Help.showHelp(getClass().getCanonicalName());
     }
   }
 
@@ -577,7 +577,7 @@ public class EddiFrame extends JFrame {
 
   // Menü: Info->Hilfe
   void jMenuItem4_actionPerformed(ActionEvent e) {
-    Help.getHelp(this,"EddiFrame");
+    Help.showHelp(getClass().getCanonicalName());
   }
 
 

@@ -41,6 +41,10 @@ public class EfaConfigFrame extends BaseDialog {
         super(parent, International.getString("Konfiguration"), International.getStringWithMnemonic("Speichern"));
     }
 
+    public void keyAction(ActionEvent evt) {
+        super.keyAction(evt);
+    }
+    
     protected void iniDialog() throws Exception {
         myEfaConfig = new EfaConfig(Daten.efaConfig);
         categories = new Hashtable<String,Hashtable>();                // category          -> sub-categories

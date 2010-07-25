@@ -300,7 +300,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       cancel();
     }
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
-      Help.getHelp(this,this.getClass());
+      Help.showHelp(getClass().getCanonicalName());
     }
   }
 

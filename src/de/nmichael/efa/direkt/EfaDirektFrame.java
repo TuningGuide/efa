@@ -268,7 +268,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
       // nothing
 //    }
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
-      Help.getHelp(this,this.getClass());
+      Help.showHelp(getClass().getCanonicalName());
     }
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_2")) { // F2
       this.fahrtbeginnButton_actionPerformed(null);
@@ -583,13 +583,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
     int fahrtbeginnTop = (int)(20.0f * (Dialog.getFontSize() < 10 ? 12 : Dialog.getFontSize()) / Dialog.getDefaultFontSize());
     centerPanel.add(fahrtbeginnButton,            new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(fahrtbeginnTop, 0, 0, 0), 0, 0));
-//    centerPanel.add(jScrollPane1,               new GridBagConstraints(0, 1, 1, 13, 0.0, 0.0
-//            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     jScrollPane1.getViewport().add(booteVerfuegbar, null);
-//    centerPanel.add(jScrollPane2,            new GridBagConstraints(2, 1, 1, 9, 0.0, 0.0
-//            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-//    centerPanel.add(jScrollPane3,            new GridBagConstraints(2, 11, 1, 3, 0.0, 0.0
-//            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     jScrollPane3.getViewport().add(booteNichtVerfuegbar, null);
     centerPanel.add(fahrtendeButton,           new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
@@ -655,12 +649,13 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
     centerPanel.add(newsLabel,  new GridBagConstraints(1, 17, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 0), 0, 0));
 
+    JPanel togglePanel = new JPanel();
+    togglePanel.add(toggleAvailableBoatsToBoats, null);
+    togglePanel.add(toggleAvailableBoatsToPersons, null);
+    westNorthPanel.add(togglePanel, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     westNorthPanel.add(verfuegbareBooteLabel, new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    westNorthPanel.add(toggleAvailableBoatsToBoats, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 0, 0));
-    westNorthPanel.add(toggleAvailableBoatsToPersons, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
     westPanel.add(westNorthPanel, BorderLayout.NORTH);
     westPanel.add(jScrollPane1, BorderLayout.CENTER);
     eastCenterPanel.add(aufFahrtBooteLabel, BorderLayout.NORTH);
@@ -1375,7 +1370,10 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
     booteAufFahrt.setSelectedIndex(-1);
     booteNichtVerfuegbar.setSelectedIndex(-1);
 
+    Dimension dim = jScrollPane1.getSize();
     booteVerfuegbar.setListData(booteVerfuegbarListData);
+    jScrollPane1.setPreferredSize(dim); // to make sure jScrollPane1 is not resized when toggled between persons and boats
+    jScrollPane1.setSize(dim);          // to make sure jScrollPane1 is not resized when toggled between persons and boats
     booteAufFahrt.setListData(booteAufFahrtListData);
     booteNichtVerfuegbar.setListData(booteNichtVerfuegbarListData);
 
@@ -1723,7 +1721,8 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
                 }
                 // build new search string depending of previous search
                 char c = such.charAt(0);
-                if (Character.isLetter(c) || Character.isSpaceChar(c) || c == '.' || c == '-' || c == '_' || c == ':') {
+                if (Character.isLetter(c) || Character.isSpaceChar(c) || 
+                        c == '.' || c == '-' || c == '_' || c == ':' || c == ',' || c == ';') {
                     such = (incrSearch != null ? incrSearch : "") + such;
                 } else {
                     if (c == 0x8) {
@@ -1754,19 +1753,19 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
                     start = 0;
                 }
             }
-            if (index < 0) {
-                return;
+
+            // Item found?
+            if (index >= 0) {
+                list.setSelectedIndex(index);
+                Rectangle rect = list.getCellBounds(index, (index + plus >= entries.size() ? entries.size() - 1 : index + plus));
+                list.scrollRectToVisible(rect);
             }
 
-            list.setSelectedIndex(index);
-            Rectangle rect = list.getCellBounds(index, (index + plus >= entries.size() ? entries.size() - 1 : index + plus));
-            list.scrollRectToVisible(rect);
-
-            rect = list.getVisibleRect();
+            Rectangle rect = list.getVisibleRect();
             if (such.startsWith("---")) {
                 list.setToolTipText(null);
             } else {
-                list.setToolTipText(such);
+                list.setToolTipText( (such.length() > 0 ? such : null) );
                 int origDelay = ToolTipManager.sharedInstance().getInitialDelay();
                 ToolTipManager.sharedInstance().setInitialDelay(0);
                 ToolTipManager.sharedInstance().mouseMoved(
@@ -2444,7 +2443,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
 
   void hilfeButton_actionPerformed(ActionEvent e) {
     clearAllPopups();
-    Help.getHelp(this,this.getClass());
+    Help.showHelp(getClass().getCanonicalName());
   }
 
   void toggleAvailableBoats_actionPerformed(ActionEvent e) {

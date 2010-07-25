@@ -175,7 +175,7 @@ public class EmilFrame extends JFrame {
       // nothing
 //    }
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
-      Help.getHelp(this,this.getClass());
+      Help.showHelp(getClass().getCanonicalName());
     }
   }
 
@@ -908,7 +908,7 @@ public class EmilFrame extends JFrame {
   }
 
   void menuItemHelp_actionPerformed(ActionEvent e) {
-    Help.getHelp(this,"EmilFrame");
+    Help.showHelp(getClass().getCanonicalName());
   }
 
 

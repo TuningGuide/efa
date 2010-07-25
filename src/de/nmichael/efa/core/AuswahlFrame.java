@@ -132,13 +132,13 @@ public class AuswahlFrame extends JDialog implements ActionListener {
     }
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
       switch (datenArt) {
-        case MITGLIEDER:       Help.getHelp(this,"AuswahlFrame_Mitglieder"); break;
-        case BOOTE:            Help.getHelp(this,"AuswahlFrame_Boote"); break;
-        case ZIELE:            Help.getHelp(this,"AuswahlFrame_Ziele"); break;
-        case MEHRTAGESFAHRTEN: Help.getHelp(this,"AuswahlFrame_Mehrtagesfahrten"); break;
-        case MANNSCHAFTEN:     Help.getHelp(this,"AuswahlFrame_Standardmannschaften"); break;
-        case FAHRTENABZEICHEN: Help.getHelp(this,"AuswahlFrame_Fahrtenabzeichen"); break;
-        case GRUPPEN:          Help.getHelp(this,"AuswahlFrame_Gruppen"); break;
+        case MITGLIEDER:       Help.showHelp("AuswahlFrame_Mitglieder"); break;
+        case BOOTE:            Help.showHelp("AuswahlFrame_Boote"); break;
+        case ZIELE:            Help.showHelp("AuswahlFrame_Ziele"); break;
+        case MEHRTAGESFAHRTEN: Help.showHelp("AuswahlFrame_Mehrtagesfahrten"); break;
+        case MANNSCHAFTEN:     Help.showHelp("AuswahlFrame_Standardmannschaften"); break;
+        case FAHRTENABZEICHEN: Help.showHelp("AuswahlFrame_Fahrtenabzeichen"); break;
+        case GRUPPEN:          Help.showHelp("AuswahlFrame_Gruppen"); break;
       }
 
     }
@@ -692,7 +692,7 @@ public class AuswahlFrame extends JDialog implements ActionListener {
     if (d == null) return;
     do {
       // gefundene Mehrtagesfahrten aus dem Vector entfernen
-      if (alleMtours.contains(d.get(Daten.fahrtenbuch.FAHRTART))) alleMtours.remove(d.get(Daten.fahrtenbuch.FAHRTART));
+      if (alleMtours.contains(Fahrtenbuch.getMehrtagesfahrtName(d.get(Daten.fahrtenbuch.FAHRTART)))) alleMtours.remove(d.get(Daten.fahrtenbuch.FAHRTART));
     } while( (d = (DatenFelder)Daten.fahrtenbuch.getCompleteNext()) != null);
 
     // unreferenzierte Mehrtagesfahrten löschen

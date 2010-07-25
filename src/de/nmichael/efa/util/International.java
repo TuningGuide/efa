@@ -440,6 +440,13 @@ public class International {
         }
     }
 
+    public static Locale getLocale() {
+        if (locale == null) {
+            initialize();
+        }
+        return locale;
+    }
+
     public static boolean isInitialized() {
         return bundle != null;
     }

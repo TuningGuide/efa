@@ -290,11 +290,11 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     }
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
       switch(mode) {
-        case MODE_START:    Help.getHelp(this,"EfaFrame_Start"); break;
-        case MODE_START_KORREKTUR:    Help.getHelp(this,"EfaFrame_Start"); break;
-        case MODE_ENDE:     Help.getHelp(this,"EfaFrame_Ende"); break;
-        case MODE_NACHTRAG: Help.getHelp(this,"EfaFrame_Nachtrag"); break;
-        default:            Help.getHelp(this,this.getClass());
+        case MODE_START:           Help.showHelp("EfaFrame_Start"); break;
+        case MODE_START_KORREKTUR: Help.showHelp("EfaFrame_Start"); break;
+        case MODE_ENDE:            Help.showHelp("EfaFrame_Ende"); break;
+        case MODE_NACHTRAG:        Help.showHelp("EfaFrame_Nachtrag"); break;
+        default:                   Help.showHelp(getClass().getCanonicalName());
       }
     }
 

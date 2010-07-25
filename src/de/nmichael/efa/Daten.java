@@ -54,9 +54,9 @@ public class Daten {
   public       static String EFA_SHORTNAME = "efa";                              // dummy, will be set in International.ininitalize()
   public       static String EFA_LONGNAME  = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
 
-  public final static String VERSION = "v2.0_dev03"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSIONID = "1.9.0_10";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "24.07.2010";  // Release Date: TT.MM.JJJJ
+  public final static String VERSION = "v2.0_dev04"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
+  public final static String VERSIONID = "1.9.0_11";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+  public final static String VERSIONRELEASEDATE = "25.07.2010";  // Release Date: TT.MM.JJJJ
   public final static String PROGRAMMID = "EFA.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String COPYRIGHTYEAR = "10";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
@@ -100,6 +100,7 @@ public class Daten {
   public static final String WETTDEFS = "wettdefs.cfg";                // <efauser>/cfg/wettdefs.cfg       Wettbewerbs-Definitionen
   public static final String EFA_LICENSE = "license.html";             // <efa>/doc/license.html
   public static final String EFA_SECFILE = "efa.sec";                  // <efa>/program/efa.sec            Hash von efa.jar: für Erstellen des Admins
+  public static final String EFA_HELPSET = "help/efaHelp";
                              // @todo: EFA_SECFILE in "read-only" program directory causes removal of this file to fail!!
 
   // efa exit codes
@@ -759,6 +760,18 @@ public class Daten {
         } catch (Exception e) {
             Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTSETLOOKANDFEEL,
                     International.getString("Konnte Look&Feel nicht setzen") + ": " + e.toString());
+        }
+
+        // Look&Feel specific Work-Arounds
+        try {
+            String laf = UIManager.getLookAndFeel().getClass().toString();
+            if (!laf.endsWith("MetalLookAndFeel")) {
+                // to make PopupMenu's work properly and not swallow the next MousePressed Event, see: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6753637
+                Dialog.getUiDefaults().put("PopupMenu.consumeEventOnClose", false);
+            }
+        } catch(Exception e) {
+            Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTSETLOOKANDFEEL,
+                    "Failed to apply LookAndFeel Workarounds: " + e.toString());
         }
     }
 

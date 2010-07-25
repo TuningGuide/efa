@@ -76,7 +76,7 @@ public class AdminLoginFrame extends JDialog implements ActionListener {
       cancel();
     }
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
-      Help.getHelp(this,this.getClass());
+      Help.showHelp(getClass().getCanonicalName());
     }
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_2")) { // ENTER
       okButton.dispatchEvent(evt);
@@ -108,7 +108,7 @@ public class AdminLoginFrame extends JDialog implements ActionListener {
     Mnemonics.setLabel(this, passwortLabel, International.getStringWithMnemonic("Paßwort")+": ");
     passwortLabel.setLabelFor(passwort);
     name.setNextFocusableComponent(passwort);
-    Dialog.setPreferredSize(name,100,17);
+    Dialog.setPreferredSize(name,100,19);
     name.setMinimumSize(name.getPreferredSize()); // neu (Bugfix 1.7.0_03)
     name.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
@@ -116,7 +116,7 @@ public class AdminLoginFrame extends JDialog implements ActionListener {
       }
     });
     passwort.setNextFocusableComponent(okButton);
-    Dialog.setPreferredSize(passwort,100,17);
+    Dialog.setPreferredSize(passwort,100,19);
     passwort.setMinimumSize(passwort.getPreferredSize()); // neu (Bugfix 1.7.0_03)
     this.setTitle(International.getString("Admin-Login"));
     jLabel1.setHorizontalAlignment(SwingConstants.CENTER);

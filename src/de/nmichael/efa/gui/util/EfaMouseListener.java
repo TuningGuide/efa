@@ -61,11 +61,23 @@ public class EfaMouseListener extends MouseAdapter {
         }
     }
 
+    private void selectListItem(MouseEvent e) {
+        // if this is a JList, try to select the item that was right-clicked on
+        try {
+            JList list = (JList)myComponent;
+            list.requestFocus();
+            list.setSelectedIndex(list.locationToIndex(new Point(e.getX(), e.getY())));
+        } catch(Exception eignore0) {
+        }
+    }
+
     public void mousePressed(MouseEvent e) {
+        selectListItem(e);
         maybeShowPopup(e);
     }
 
     public void mouseReleased(MouseEvent e) {
+        selectListItem(e);
         if (e != null && e.getButton() == 1) {
             if (e.getClickCount() == 1) {
                 if (showPopupOnLeftMouseClick) {
@@ -84,17 +96,7 @@ public class EfaMouseListener extends MouseAdapter {
     private void maybeShowPopup(MouseEvent e) {
         try {
             if (popupsEnabled && e.isPopupTrigger()) {
-
-                // if this is a JList, try to select the item that was right-clicked on
-                try {
-                    JList list = (JList)myComponent;
-                    list.requestFocus();
-                    list.setSelectedIndex(list.locationToIndex(new Point(e.getX(), e.getY())));
-                } catch(Exception eignore0) {
-                }
-
                 showPopup(e);
-
                 if (actionListener != null) {
                     actionListener.actionPerformed(new ActionEvent(e.getSource(), e.getID(), EVENT_POPUP));
                 } 

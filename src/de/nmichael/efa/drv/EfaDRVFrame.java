@@ -64,7 +64,7 @@ public class EfaDRVFrame extends JFrame {
       cancel();
     }
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
-      Help.getHelp(this,"NOHELP!!!");
+      Help.showHelp("NOHELP!!!");
     }
   }
 

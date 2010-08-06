@@ -769,6 +769,13 @@ public class Daten {
                 // to make PopupMenu's work properly and not swallow the next MousePressed Event, see: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6753637
                 Dialog.getUiDefaults().put("PopupMenu.consumeEventOnClose", false);
             }
+            // allow users to press buttons by hitting ENTER (and not just SPACE)
+            Dialog.getUiDefaults().put("Button.focusInputMap",
+                    new javax.swing.UIDefaults.LazyInputMap(new Object[]{"ENTER", "pressed",
+                        "released ENTER", "released",
+                        "SPACE", "pressed",
+                        "released SPACE", "released"
+                    }));
         } catch(Exception e) {
             Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTSETLOOKANDFEEL,
                     "Failed to apply LookAndFeel Workarounds: " + e.toString());

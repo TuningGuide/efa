@@ -56,7 +56,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   int mannschAuswahl = 0;       // 0: 1-8 sichtbar; 1: 9-16 sichtbar; 2: 17-24 sichtbar
   boolean continueMTour;        // legt fest, ob nächster neuer Eintrag mit unverändertem MTour-Feld (d.h. gleiches Element ausgewählt) begonnen werden soll
   String refDate="";            // Referenzdatum
-  boolean startEfaTour=false;   // nach dem Aufbau des Frames die efa-Tour starten
   boolean askForOpenNewFb=false;// fragen, ob ein neues FB angelegt werden soll (nur beim ersten Start)
   String startOpenFb=null;      // Fahrtenbuch, das beim Starten von efa geöffnet werden soll (per -fb <name> angegeben)
   int datumErrorCount=0;        // zum Zählen der Fehler, die beim Setzen des Datums aufgetreten sind
@@ -163,7 +162,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   JLabel wotag = new JLabel();
   JMenuItem jMenuDokumentation = new JMenuItem();
   JMenuItem jMenu_efaHomepage = new JMenuItem();
-  JMenuItem jMenu_startTour = new JMenuItem();
+  JMenuItem jMenu_supportForum = new JMenuItem();
   JMenu jMenu1 = new JMenu();
   JMenuItem jMenuItem8 = new JMenuItem();
   JMenuItem jMenuBackup = new JMenuItem();
@@ -969,11 +968,11 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         jMenu_efaHomepage_actionPerformed(e);
       }
     });
-    jMenu_startTour.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_tour.gif")));
-    Mnemonics.setMenuButton(this, jMenu_startTour, International.getStringWithMnemonic("Tour"));
-    jMenu_startTour.addActionListener(new java.awt.event.ActionListener() {
+    jMenu_supportForum.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_www.gif")));
+    Mnemonics.setMenuButton(this, jMenu_supportForum, International.getStringWithMnemonic("Hilfe und Support"));
+    jMenu_supportForum.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        jMenu_startTour_actionPerformed(e);
+        jMenu_supportForum_actionPerformed(e);
       }
     });
     Mnemonics.setMenuButton(this, jMenu1, International.getStringWithMnemonic("Synonymlisten"));
@@ -1095,9 +1094,9 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     jMenuFile.addSeparator();
     jMenuFile.add(jMenuFileExit);
     jMenuHelp.add(jMenuDokumentation);
-    jMenuHelp.add(jMenu_startTour);
     jMenuHelp.addSeparator();
     jMenuHelp.add(jMenu_efaHomepage);
+    jMenuHelp.add(jMenu_supportForum);
     jMenuHelp.addSeparator();
     jMenuHelp.add(jMenuHilfeJavaKonsole);
     jMenuHelp.addSeparator();
@@ -2129,19 +2128,13 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   // Menü Hilfe->Dokumentation
   void jMenuDokumentation_actionPerformed(ActionEvent e) {
     if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
-    if (!EfaUtil.canOpenFile(Daten.efaDocDirectory+"index.html")) {
-      Dialog.infoDialog(International.getString("Fehler"),
-              LogString.logstring_fileNotFound(Daten.efaDocDirectory+"index.html", International.getString("Hilfedatei")));
-      return;
-    }
-    Dialog.neuBrowserDlg(this,International.getString("Dokumentation"),"file:"+Daten.efaDocDirectory+"index.html");
-    startBringToFront(false); // efaDirekt im BRC -- Workaround
+    Help.showHelp(null);
   }
 
   // efa-Tour starten
-  void jMenu_startTour_actionPerformed(ActionEvent e) {
+  void jMenu_supportForum_actionPerformed(ActionEvent e) {
     if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
-    Dialog.startTour(this);
+    Dialog.startBrowser(this,Daten.EFASUPPORTURL);
   }
 
   // Menü Hilfe->efa-Homepage
@@ -3861,8 +3854,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   }
 
   public void userInteractionsUponStart() {
-    if (startEfaTour)
-      Dialog.startTour(this);
     if (askForOpenNewFb) {
       neuesFahrtenbuchDialog(true);
     }

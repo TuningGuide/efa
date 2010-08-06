@@ -60,7 +60,7 @@ public class EfaCustomizationFrame extends BaseDialog {
         logoPanel.add(logoLabel,  new GridBagConstraints(0, 0, 1, 3, 0.0, 0.0
             ,GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(0, 0, 0, 20), 0, 0));
         logoPanel.add(welcomeLabel,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 10, 0), 0, 0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 25, 0), 0, 0));
         logoPanel.add(efaLabel,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         logoPanel.add(versionLabel,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
@@ -72,12 +72,11 @@ public class EfaCustomizationFrame extends BaseDialog {
         JLabel custLabel = new JLabel();
         custLabel.setText(International.getString("Welche Funktionen von efa möchtest Du verwenden?"));
         JLabel custNoteLabel = new JLabel();
-        custNoteLabel.setText(International.getString("Du kannst jederzeit nachträglich in der efa-Konfiguration diese Funktionen aktivieren oder deaktivieren."));
+        custNoteLabel.setText(International.getString("Du kannst diese Einstellungen jederzeit in der efa-Konfiguration ändern."));
 
         // Customization: Regional
         JLabel custRegionalLabel = new JLabel();
-        custRegionalLabel.setText(International.getString("Regionale Anpassung") + ": " +
-                International.getString("Funktionalitäten aktivieren für ..."));
+        custRegionalLabel.setText(International.getString("Für welche Regionen möchtest Du efa verwenden?"));
         activateGermanRowingOptions = new JCheckBox();
         activateGermanRowingOptions.setText(International.getString("Deutschland") +
                 " (" + International.getString("Rudern") + ")");
@@ -89,8 +88,7 @@ public class EfaCustomizationFrame extends BaseDialog {
 
         // Customization: Sport
         JLabel custSportsLabel = new JLabel();
-        custSportsLabel.setText(International.getString("Anpassung an Sportarten") + ": " +
-                International.getString("Funktionalitäten aktivieren für ..."));
+        custSportsLabel.setText(International.getString("Für welche Sportarten möchtest Du efa verwenden?"));
         activateRowingOptions = new JCheckBox();
         activateRowingOptions.setText(International.getString("Rudern"));
         activateRowingOptions.setSelected(true);

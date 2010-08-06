@@ -54,8 +54,8 @@ public class International {
             }
 
             bundle = ResourceBundle.getBundle(BUNDLE_NAME,locale);
-            msgFormat = new MessageFormat("",locale);
             numberFormat = NumberFormat.getNumberInstance(locale);
+            msgFormat = new MessageFormat("",locale);
             decimalSeparator = ((DecimalFormat)numberFormat).getDecimalFormatSymbols().getDecimalSeparator();
             Daten.EFA_SHORTNAME = International.getString("efa");
             Daten.EFA_LONGNAME = International.getString("efa - elektronisches Fahrtenbuch");
@@ -367,47 +367,47 @@ public class International {
 
     // ========================= Integer only arguments =========================
     public static String getMessage(String s, int arg1) {
-        Object[] args = {"dummy", new Integer(arg1)};
+        Object[] args = {"dummy", Integer.toString(arg1)};
         return getMessage(s, args);
     }
 
     public static String getMessage(String s, int arg1, int arg2) {
-        Object[] args = { "dummy", new Integer(arg1), new Integer(arg2) };
+        Object[] args = { "dummy", Integer.toString(arg1), Integer.toString(arg2) };
         return getMessage(s,args);
     }
 
     public static String getMessage(String s, int arg1, int arg2, int arg3) {
-        Object[] args = { "dummy", new Integer(arg1), new Integer(arg2), new Integer(arg3) };
+        Object[] args = { "dummy", Integer.toString(arg1), Integer.toString(arg2), Integer.toString(arg3) };
         return getMessage(s,args);
     }
 
     public static String getMessage(String s, int arg1, int arg2, int arg3, int arg4) {
-        Object[] args = { "dummy", new Integer(arg1), new Integer(arg2), new Integer(arg3), new Integer(arg4) };
+        Object[] args = { "dummy", Integer.toString(arg1), Integer.toString(arg2), Integer.toString(arg3), Integer.toString(arg4) };
         return getMessage(s,args);
     }
 
     public static String getMessage(String s, int arg1, int arg2, int arg3, int arg4, int arg5) {
-        Object[] args = { "dummy", new Integer(arg1), new Integer(arg2), new Integer(arg3), new Integer(arg4), new Integer(arg5) };
+        Object[] args = { "dummy", Integer.toString(arg1), Integer.toString(arg2), Integer.toString(arg3), Integer.toString(arg4), Integer.toString(arg5) };
         return getMessage(s,args);
     }
     public static String getMessage(String s, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6) {
-        Object[] args = { "dummy", new Integer(arg1), new Integer(arg2), new Integer(arg3), new Integer(arg4), new Integer(arg5), new Integer(arg6) };
+        Object[] args = { "dummy", Integer.toString(arg1), Integer.toString(arg2), Integer.toString(arg3), Integer.toString(arg4), Integer.toString(arg5), Integer.toString(arg6) };
         return getMessage(s,args);
     }
 
     // ========================= mixed Type arguments =========================
     public static String getMessage(String s, int arg1, String arg2) {
-        Object[] args = {"dummy", new Integer(arg1), arg2};
+        Object[] args = {"dummy", Integer.toString(arg1), arg2};
         return getMessage(s, args);
     }
 
     public static String getMessage(String s, String arg1, int arg2) {
-        Object[] args = { "dummy", arg1, new Integer(arg2) };
+        Object[] args = { "dummy", arg1, Integer.toString(arg2) };
         return getMessage(s,args);
     }
 
     public static String getMessage(String s, String arg1, int arg2, String arg3) {
-        Object[] args = {"dummy", arg1, new Integer(arg2), arg3};
+        Object[] args = {"dummy", arg1, Integer.toString(arg2), arg3};
         return getMessage(s, args);
     }
 

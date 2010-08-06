@@ -20,6 +20,8 @@ import java.util.Locale;
 // @i18n complete
 public class Help {
 
+    public static final String DEFAULT_TOPIC = "default";
+
     private static HelpSet helpSet;
     private static HelpBroker helpBroker;
 
@@ -49,12 +51,15 @@ public class Help {
     }
 
     public static void showHelp(String topic) {
+        if (topic == null) {
+            topic = DEFAULT_TOPIC;
+        }
         try {
             ((javax.help.DefaultHelpBroker)Help.getHelpBroker()).setActivationWindow(Dialog.frameCurrent());
             try {
                 Help.getHelpBroker().setCurrentID(topic);
             } catch(Exception e) {
-                Help.getHelpBroker().setCurrentID("default");
+                Help.getHelpBroker().setCurrentID(DEFAULT_TOPIC);
             }
             Help.getHelpBroker().setDisplayed(true);
         } catch(Exception e) {

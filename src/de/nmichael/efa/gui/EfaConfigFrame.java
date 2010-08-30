@@ -104,7 +104,7 @@ public class EfaConfigFrame extends BaseDialog {
         // create GUI items
         mainPanel.setLayout(new BorderLayout());
         expertMode = new JCheckBox();
-        expertMode.setText("Expertenmodus (alle Parameter anzeigen)");
+        expertMode.setText(International.getString("Expertenmodus (alle Parameter anzeigen)"));
         expertMode.setSelected(false);
         expertMode.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { expertModeChanged(e); }

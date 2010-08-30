@@ -80,6 +80,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
   JLabel logoLabel = new JLabel();
   JButton statButton = new JButton();
   JPanel westPanel = new JPanel();
+  JPanel togglePanel = new JPanel();
   JPanel westNorthPanel = new JPanel();
   JPanel eastPanel = new JPanel();
   BorderLayout borderLayout3 = new BorderLayout();
@@ -649,7 +650,6 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
     centerPanel.add(newsLabel,  new GridBagConstraints(1, 17, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 0), 0, 0));
 
-    JPanel togglePanel = new JPanel();
     togglePanel.add(toggleAvailableBoatsToBoats, null);
     togglePanel.add(toggleAvailableBoatsToPersons, null);
     westNorthPanel.add(togglePanel, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
@@ -1195,6 +1195,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
     }
 
     // Update GUI Elements for Boat Lists
+    togglePanel.setVisible(Daten.efaConfig.efaDirekt_listAllowToggleBoatsPersons.getValue());
     toggleAvailableBoatsToBoats.setVisible(Daten.efaConfig.efaDirekt_listAllowToggleBoatsPersons.getValue());
     toggleAvailableBoatsToPersons.setVisible(Daten.efaConfig.efaDirekt_listAllowToggleBoatsPersons.getValue());
 
@@ -1490,44 +1491,52 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
             }
         }
 
-        if (listnr == 1 || listnr == 3) {
-            String fahrtBeginnen = EfaUtil.replace(Daten.efaConfig.efaDirekt_butFahrtBeginnen.getValueText(), ">>>", "").trim();
-            if (listnr == 1) {
-                if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) {
-                    return new String[] {
-                        "1" + fahrtBeginnen,
-                        "3" + International.getString("Nachtrag"),
-                        "6" + International.getString("Boot reservieren")
-                    };
-                } else {
-                    return new String[] {
-                        "1" + fahrtBeginnen,
-                        "3" + International.getString("Nachtrag")
-                    };
-                }
+        String fahrtBeginnen = EfaUtil.replace(Daten.efaConfig.efaDirekt_butFahrtBeginnen.getValueText(), ">>>", "").trim();
+        String fahrtBeenden = EfaUtil.replace(Daten.efaConfig.efaDirekt_butFahrtBeenden.getValueText(), "<<<", "").trim();
+        if (listnr == 1) { // verfügbare Boote
+            if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) {
+                return new String[]{
+                            "1" + fahrtBeginnen,
+                            "3" + International.getString("Nachtrag"),
+                            "6" + International.getString("Boot reservieren")
+                        };
             } else {
-                return new String[] {
-                    "1" + fahrtBeginnen,
-                    "3" + International.getString("Nachtrag"),
-                    "6" + International.getString("Bootsreservierungen anzeigen")
-                };
+                return new String[]{
+                            "1" + fahrtBeginnen,
+                            "3" + International.getString("Nachtrag")
+                        };
             }
         }
-        if (listnr == 2) {
-            String fahrtBeenden = EfaUtil.replace(Daten.efaConfig.efaDirekt_butFahrtBeenden.getValueText(), "<<<", "").trim();
+        if (listnr == 2) { // Boote auf Fahrt
             if (Daten.efaConfig.efaDirekt_mitgliederDuerfenReservieren.getValue()) {
-                return new String[] {
-                        "2" + fahrtBeenden,
-                        "4" + International.getString("Eintrag ändern"),
-                        "5" + International.getString("Fahrt abbrechen"),
-                        "6" + International.getString("Boot reservieren")
-                };
+                return new String[]{
+                            "2" + fahrtBeenden,
+                            "4" + International.getString("Eintrag ändern"),
+                            "5" + International.getString("Fahrt abbrechen"),
+                            "6" + International.getString("Boot reservieren")
+                        };
             } else {
-                return new String[] {
-                        "2" + fahrtBeenden,
-                        "4" + International.getString("Eintrag ändern"),
-                        "5" + International.getString("Fahrt abbrechen")
-                };
+                return new String[]{
+                            "2" + fahrtBeenden,
+                            "4" + International.getString("Eintrag ändern"),
+                            "5" + International.getString("Fahrt abbrechen")
+                        };
+            }
+        }
+        if (listnr == 3) { // nicht verfügbare Boote
+            if (Daten.efaConfig.efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar.getValue()) {
+                return new String[]{
+                            "1" + fahrtBeginnen,
+                            "2" + fahrtBeenden,
+                            "3" + International.getString("Nachtrag"),
+                            "6" + International.getString("Bootsreservierungen anzeigen")
+                        };
+            } else {
+                return new String[]{
+                            "1" + fahrtBeginnen,
+                            "3" + International.getString("Nachtrag"),
+                            "6" + International.getString("Bootsreservierungen anzeigen")
+                        };
             }
         }
         return null;

@@ -47,6 +47,7 @@ public class NachrichtenAnAdmin extends DatenListe {
 
     // Nachrichten lesen
     Nachricht nachricht = null;
+    StringBuilder txt = null;
 
     String s;
     try {
@@ -55,11 +56,13 @@ public class NachrichtenAnAdmin extends DatenListe {
 
         if (nachricht == null && s.equals("@START")) {
           nachricht = new Nachricht();
+          txt = null;
           continue;
         }
 
         if (nachricht != null) {
           if (s.equals("@ENDE")) {
+            nachricht.nachricht = (txt == null ? "" : txt.toString() );
             nachrichten.add(nachricht);
             nachricht = null;
             continue;
@@ -84,8 +87,10 @@ public class NachrichtenAnAdmin extends DatenListe {
             nachricht.gelesen = s.substring(9,s.length()).trim().equals("ja");
             continue;
           }
-          if (nachricht.nachricht == null) nachricht.nachricht = "";
-          nachricht.nachricht += s+"\n";
+          if (txt == null) {
+              txt = new StringBuilder(10*1024);
+          }
+          txt.append(s+"\n");
         }
 
       }

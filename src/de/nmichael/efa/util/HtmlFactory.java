@@ -41,6 +41,8 @@ public class HtmlFactory {
             BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename),Daten.ENCODING_UTF));
             writeHeader(f, International.getMessage("email an {receiver}", email), true);
             f.write("<form method=\"post\" action=\"" + Daten.INTERNET_EFAMAIL + "\">\n");
+            f.write("<input type=\"hidden\" name=\"reply_thanks\" value=\"" + International.getString("Danke") + "\">\n");
+            f.write("<input type=\"hidden\" name=\"reply_mailsent\" value=\"" + International.getString("Deine email ist erfolgreich verschickt worden.") + "\">\n");
             f.write("<table align=\"center\">\n");
             f.write("<tr><td><b>" + International.getString("Von") +
                     " (" + International.getString("Name") + "):</b></td><td><input type=\"text\" name=\"absender\" size=\"30\"></td></tr>\n");
@@ -109,6 +111,8 @@ public class HtmlFactory {
                     "abgestimmt werden können.") +
                     "</p>\n");
             f.write("<form method=\"post\" action=\"" + Daten.INTERNET_EFAMAIL + "\">\n");
+            f.write("<input type=\"hidden\" name=\"reply_thanks\" value=\"" + International.getString("Danke") + "\">\n");
+            f.write("<input type=\"hidden\" name=\"reply_clubdata\" value=\"" + International.getString("Deine Daten werden überprüft und demnächst aktualisiert.") + "\">\n");
             f.write("<input type=\"hidden\" name=\"betreff\" value=\"User efa " + Daten.VERSIONID + "\">\n");
             f.write("<table align=\"center\">\n");
             f.write("<tr><td><b>" + International.getString("Name") +

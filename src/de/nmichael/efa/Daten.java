@@ -275,7 +275,7 @@ public class Daten {
   public static int applMode = APPL_MODE_NORMAL;
 
   // Applikations-PID
-  public static String applPID;
+  public static String applPID = "XXXXX"; // will be set in iniBase(...)
 
     public static void initialize(int applID) {
         iniBase(applID);

@@ -699,7 +699,8 @@ public class Statistik {
             sd.art == StatistikDaten.ART_WERUNERLAUBT ||
             sd.art == StatistikDaten.ART_WERWOHIN ||
             sd.art == StatistikDaten.BART_RUDERER ) &&
-          Daten.fahrtenbuch != null && Daten.fahrtenbuch.getDaten().mitglieder != null) {
+          Daten.fahrtenbuch != null && Daten.fahrtenbuch.getDaten().mitglieder != null &&
+          ae.name != null) {
         DatenFelder mitgl = Daten.fahrtenbuch.getDaten().mitglieder.getExactComplete(ae.name);
         if (mitgl != null && mitgl.get(Mitglieder.MITGLNR).length() > 0) ae.name = mitgl.get(Mitglieder.MITGLNR);
 //        else ae.name = "ohne Mitglnr.";

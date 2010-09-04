@@ -116,7 +116,7 @@ public class ListenausgabeFrame extends JDialog implements ActionListener {
       System.err.println("Error setting up ActionHandler");
     }
 
-    createButton.setText(listenname+" " + International.getString("erstellen"));
+    createButton.setText(International.getMessage("{listname} erstellen",listenname));
     createButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         createButton_actionPerformed(e);

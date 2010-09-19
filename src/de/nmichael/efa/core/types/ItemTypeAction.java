@@ -8,11 +8,14 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.config;
+package de.nmichael.efa.core.types;
 
+import de.nmichael.efa.core.config.EfaConfig;
+import de.nmichael.efa.core.config.EfaTypes;
+import de.nmichael.efa.gui.BaseDialog;
+import de.nmichael.efa.gui.EfaConfigFrame;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.gui.EfaConfigFrame;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -20,17 +23,17 @@ import javax.swing.*;
 
 // @i18n complete
 
-public class ConfigTypeAction extends ConfigValue {
+public class ItemTypeAction extends ItemType {
 
     public static final int ACTION_GENERATE_ROWING_BOAT_TYPES = 1;
     public static final int ACTION_GENERATE_CANOEING_BOAT_TYPES = 2;
 
     private int action;
-    protected EfaConfigFrame efaConfigFrame;
+    protected BaseDialog dlg;
     protected JButton button;
 
 
-    public ConfigTypeAction(String name, int action,
+    public ItemTypeAction(String name, int action,
             int type, String category, String description) {
         this.name = name;
         this.action = action;
@@ -47,8 +50,8 @@ public class ConfigTypeAction extends ConfigValue {
         return ""; // this ConfigType does not store any values
     }
 
-    public int displayOnGui(EfaConfigFrame dlg, JPanel panel, int y) {
-        efaConfigFrame = dlg;
+    public int displayOnGui(BaseDialog dlg, JPanel panel, int y) {
+        this.dlg = dlg;
 
         button = new JButton();
         Dialog.setPreferredSize(button, 500, 21);
@@ -96,6 +99,17 @@ public class ConfigTypeAction extends ConfigValue {
             return;
         }
 
+        // generateTypes(int) is only called from buttonHit(ActionEvent) if the configured action is
+        // ACTION_GENERATE_ROWING_BOAT_TYPES or ACTION_GENERATE_CANOEING_BOAT_TYPES.
+        // This is (and must!) only be the case if dlg is a EfaConfigFrame!
+        EfaConfigFrame efaConfigFrame = null;
+        try {
+            efaConfigFrame = (EfaConfigFrame)dlg;
+        } catch(ClassCastException ee) {
+            return;
+        }
+
+
         EfaTypes newTypes = new EfaTypes((String)null);
         newTypes.setToLanguage_Boats(International.getResourceBundle(), selection, true);
         EfaConfig myEfaConfig = efaConfigFrame.getWorkingConfig();
@@ -107,10 +121,10 @@ public class ConfigTypeAction extends ConfigValue {
         count += addNewTypes(newTypes,myEfaConfig,myEfaConfig.typesCoxing,EfaTypes.CATEGORY_COXING);
 
         Dialog.infoDialog(International.getMessage("Es wurden {count} Bootstypen neu generiert (sichtbar im Expertenmodus).", count));
-        efaConfigFrame.updateGui();
+        dlg.updateGui();
     }
 
-    private int addNewTypes(EfaTypes types, EfaConfig config, ConfigTypeHashtable<String> cfgTypes, String cat) {
+    private int addNewTypes(EfaTypes types, EfaConfig config, ItemTypeHashtable<String> cfgTypes, String cat) {
         int count = 0;
         for (int i=0; i<types.size(cat); i++) {
             String key = types.getType(cat, i);
@@ -122,6 +136,10 @@ public class ConfigTypeAction extends ConfigValue {
         }
         return count;
 
+    }
+
+    public void requestFocus() {
+        button.requestFocus();
     }
 
 }

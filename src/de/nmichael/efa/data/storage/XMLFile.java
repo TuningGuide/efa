@@ -46,7 +46,7 @@ public class XMLFile extends DataFile {
         return xmltagStart(tag) + value + xmltagEnd(tag);
     }
 
-    protected void readFile(BufferedReader fr) throws Exception {
+    protected synchronized void readFile(BufferedReader fr) throws Exception {
         isOpen = true;
         long lock = -1;
         try {
@@ -79,11 +79,11 @@ public class XMLFile extends DataFile {
         return "";
     }
 
-    protected void write(BufferedWriter fw, int indent, String s) throws Exception {
+    protected synchronized void write(BufferedWriter fw, int indent, String s) throws Exception {
         fw.write(space(indent) + s + "\n");
     }
 
-    protected void writeFile(BufferedWriter fw) throws Exception {
+    protected synchronized void writeFile(BufferedWriter fw) throws Exception {
         write(fw,0,"<?xml version=\"1.0\" encoding=\""+ENCODING+"\"?>");
         write(fw,indent,xmltagStart("efa"));
         write(fw,indent,xmltagStart("header"));
@@ -96,7 +96,7 @@ public class XMLFile extends DataFile {
         write(fw,indent,xmltagEnd("efa"));
     }
 
-    private void writeData(BufferedWriter fw) throws Exception {
+    private synchronized void writeData(BufferedWriter fw) throws Exception {
         write(fw,indent,xmltagStart("data"));
 
         String[] fields = getFieldNames();

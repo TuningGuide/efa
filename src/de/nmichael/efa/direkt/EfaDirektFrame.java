@@ -13,6 +13,7 @@ package de.nmichael.efa.direkt;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.gui.EfaConfigFrame;
 import de.nmichael.efa.gui.*;
+import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -2531,7 +2532,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
   }
 
 
-  public void lockEfaAt(TMJ datum, TMJ zeit) {
+  public void lockEfaAt(DataTypeDate datum, DataTypeTime zeit) {
     efaDirektBackgroundTask.setEfaLockBegin(datum,zeit);
   }
 
@@ -2934,12 +2935,12 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
       }.start();
     }
 
-    public void setEfaLockBegin(TMJ datum, TMJ zeit) {
+    public void setEfaLockBegin(DataTypeDate datum, DataTypeTime zeit) {
       if (datum == null) {
         lockEfa = null;
       } else {
-        if (zeit != null) lockEfa = new GregorianCalendar(datum.jahr,datum.monat-1,datum.tag,zeit.tag,zeit.monat);
-        else lockEfa = new GregorianCalendar(datum.jahr,datum.monat-1,datum.tag);
+        if (zeit != null) lockEfa = new GregorianCalendar(datum.getYear(),datum.getMonth()-1,datum.getDay(),zeit.getHour(),zeit.getMinute());
+        else lockEfa = new GregorianCalendar(datum.getYear(),datum.getMonth()-1,datum.getDay());
       }
     }
 

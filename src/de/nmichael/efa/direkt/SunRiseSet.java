@@ -11,7 +11,7 @@
 package de.nmichael.efa.direkt;
 
 import java.util.*;
-import de.nmichael.efa.core.config.ConfigTypeLongLat;
+import de.nmichael.efa.core.types.ItemTypeLongLat;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.EfaUtil;
 
@@ -45,12 +45,12 @@ public class SunRiseSet {
     int lat = uk.me.jstott.coordconv.LatitudeLongitude.NORTH;
     int lon = uk.me.jstott.coordconv.LatitudeLongitude.EAST;
     switch(Daten.efaConfig.efaDirekt_sunRiseSet_latitude.getValueOrientation()) {
-      case ConfigTypeLongLat.ORIENTATION_NORTH: lat = uk.me.jstott.coordconv.LatitudeLongitude.NORTH; break;
-      case ConfigTypeLongLat.ORIENTATION_SOUTH: lat = uk.me.jstott.coordconv.LatitudeLongitude.SOUTH; break;
+      case ItemTypeLongLat.ORIENTATION_NORTH: lat = uk.me.jstott.coordconv.LatitudeLongitude.NORTH; break;
+      case ItemTypeLongLat.ORIENTATION_SOUTH: lat = uk.me.jstott.coordconv.LatitudeLongitude.SOUTH; break;
     }
     switch(Daten.efaConfig.efaDirekt_sunRiseSet_longitude.getValueOrientation()) {
-      case ConfigTypeLongLat.ORIENTATION_WEST:  lon = uk.me.jstott.coordconv.LatitudeLongitude.WEST;  break;
-      case ConfigTypeLongLat.ORIENTATION_EAST:  lon = uk.me.jstott.coordconv.LatitudeLongitude.EAST;  break;
+      case ItemTypeLongLat.ORIENTATION_WEST:  lon = uk.me.jstott.coordconv.LatitudeLongitude.WEST;  break;
+      case ItemTypeLongLat.ORIENTATION_EAST:  lon = uk.me.jstott.coordconv.LatitudeLongitude.EAST;  break;
     }
 
     uk.me.jstott.coordconv.LatitudeLongitude ll =

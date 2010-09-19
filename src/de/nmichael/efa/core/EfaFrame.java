@@ -14,6 +14,7 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.core.config.EfaConfig;
+import de.nmichael.efa.gui.*;
 import de.nmichael.efa.gui.EfaConfigFrame;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -85,6 +86,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   JPanel contentPane;
   JMenuBar jMenuBar1 = new JMenuBar();
   JMenu jMenuFile = new JMenu();
+  JMenuItem jMenuFile_newProject = new JMenuItem();
   JMenuItem jMenuFileOpen = new JMenuItem();
   JMenu jMenuHelp = new JMenu();
   JMenuItem jMenuHelpAbout = new JMenuItem();
@@ -357,6 +359,13 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     });
 
     Mnemonics.setButton(this, jMenuFile, International.getStringWithMnemonic("Datei"));
+    Mnemonics.setMenuButton(this, jMenuFile_newProject, International.getStringWithMnemonic("Neues Projekt"));
+    jMenuFile_newProject.addActionListener(new ActionListener()  {
+      public void actionPerformed(ActionEvent e) {
+        jMenuFile_newProject_actionPerformed(e);
+      }
+    });
+
     jMenuFileOpen.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_open.gif")));
     Mnemonics.setMenuButton(this, jMenuFileOpen, International.getStringWithMnemonic("Fahrtenbuch öffnen"));
     jMenuFileOpen.addActionListener(new ActionListener()  {
@@ -1081,6 +1090,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     });
     jMenuFile.add(jMenuNew);
+    // jMenuFile.add(jMenuFile_newProject); // @todo in efa2
     jMenuFile.add(jMenuFileOpen);
     jMenuFile.add(jMenuFileSave);
     jMenuFile.add(jMenuFileSaveAs);
@@ -1793,6 +1803,15 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
     dlg.show();
+    startBringToFront(false); // efaDirekt im BRC -- Workaround
+  }
+
+  // Menu: File -> New Project
+  public void jMenuFile_newProject_actionPerformed(ActionEvent e) {
+    if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
+    if (!sicherheitsabfrage()) return;
+    NewProjectDialog dlg = new NewProjectDialog(this);
+    dlg.showDialog();
     startBringToFront(false); // efaDirekt im BRC -- Workaround
   }
 

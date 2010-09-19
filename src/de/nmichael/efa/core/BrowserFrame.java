@@ -14,6 +14,7 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.SwingWorker;
 import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.data.types.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -80,10 +81,10 @@ public class BrowserFrame extends JDialog implements ActionListener {
     private BrowserFrame frame;
     private int timeout;
     private boolean locked;
-    private TMJ lockDatum;
-    private TMJ lockZeit;
+    private DataTypeDate lockDatum;
+    private DataTypeTime lockZeit;
 
-    public TimeoutThread(BrowserFrame frame, int timeout, boolean locked, TMJ lockDatum, TMJ lockZeit) {
+    public TimeoutThread(BrowserFrame frame, int timeout, boolean locked, DataTypeDate lockDatum, DataTypeTime lockZeit) {
       this.frame = frame;
       this.timeout = timeout;
       this.locked = locked;
@@ -98,8 +99,8 @@ public class BrowserFrame extends JDialog implements ActionListener {
         } else {
           if (lockDatum == null) return;
           GregorianCalendar unlock;
-          if (lockZeit != null) unlock = new GregorianCalendar(lockDatum.jahr,lockDatum.monat-1,lockDatum.tag,lockZeit.tag,lockZeit.monat);
-          else unlock = new GregorianCalendar(lockDatum.jahr,lockDatum.monat-1,lockDatum.tag);
+          if (lockZeit != null) unlock = new GregorianCalendar(lockDatum.getYear(),lockDatum.getMonth()-1,lockDatum.getDay(),lockZeit.getHour(),lockZeit.getMinute());
+          else unlock = new GregorianCalendar(lockDatum.getYear(),lockDatum.getMonth()-1,lockDatum.getDay());
           GregorianCalendar now;
           do {
             Thread.sleep(60*1000);

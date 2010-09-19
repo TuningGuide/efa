@@ -8,14 +8,15 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.config;
+package de.nmichael.efa.core.types;
 
+import de.nmichael.efa.core.types.ItemTypeLabelValue;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 
 // @i18n complete
 
-public class ConfigTypeLongLat extends ConfigTypeLabelValue {
+public class ItemTypeLongLat extends ItemTypeLabelValue {
 
     private static final int TYPE_LATITUDE  = 0;
     private static final int TYPE_LONGITUDE = 1;
@@ -33,7 +34,7 @@ public class ConfigTypeLongLat extends ConfigTypeLabelValue {
     private int orientation = -1;
     private int[] coordinates = new int[3];
     
-    public ConfigTypeLongLat(String name, int orientation, int c1, int c2, int c3,
+    public ItemTypeLongLat(String name, int orientation, int c1, int c2, int c3,
             int type, String category, String description) {
         this.name = name;
         this.type = type;
@@ -42,8 +43,8 @@ public class ConfigTypeLongLat extends ConfigTypeLabelValue {
         try {
             iniValue(orientation, c1, c2, c3);
         } catch(Exception e) {
-            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
-                    "EfaConfig: Invalid values for parameter " + name + "!");
+            Logger.log(Logger.ERROR, Logger.MSG_CORE_UNSUPPORTEDDATATYPE,
+                    "Invalid values for parameter " + name + "!");
         }
     }
 
@@ -82,9 +83,9 @@ public class ConfigTypeLongLat extends ConfigTypeLabelValue {
             }
             iniValue(orientation, tmj.tag, tmj.monat, tmj.jahr);
         } catch (Exception e) {
-            if (efaConfigFrame == null) {
-                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
-                        "EfaConfig: Invalid value for parameter " + name + ": " + value);
+            if (dlg == null) {
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_UNSUPPORTEDDATATYPE,
+                        "Invalid value for parameter " + name + ": " + value);
             } 
         }
     }

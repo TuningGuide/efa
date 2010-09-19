@@ -8,16 +8,21 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.config;
+package de.nmichael.efa.core.types;
 
 import javax.swing.JDialog;
 import javax.swing.JPanel;
-import de.nmichael.efa.gui.EfaConfigFrame;
+import de.nmichael.efa.gui.BaseDialog;
 
 
 // @i18n complete
 
-public interface IConfigValue {
+public interface IItemType {
+
+    // Parameter Types (*must* match those in de.nmichael.efa.core.config.EfaConfig!)
+    public static final int TYPE_INTERNAL = 0;
+    public static final int TYPE_EXPERT = 1;
+    public static final int TYPE_PUBLIC = 2;
 
     public String getName();
     public int getType();
@@ -25,8 +30,10 @@ public interface IConfigValue {
     public String getDescription();
     public void parseValue(String value);
     public String toString();
+    public boolean isValidInput();
     
-    public int displayOnGui(EfaConfigFrame dlg, JPanel panel, int y);
+    public int displayOnGui(BaseDialog dlg, JPanel panel, int y);
     public void getValueFromGui();
+    public void requestFocus();
 
 }

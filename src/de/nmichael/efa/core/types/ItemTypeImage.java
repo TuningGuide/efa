@@ -8,27 +8,27 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.config;
+package de.nmichael.efa.core.types;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.gui.EfaConfigFrame;
+import de.nmichael.efa.gui.BaseDialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
 // @i18n complete
 
-public class ConfigTypeImage extends ConfigValue {
+public class ItemTypeImage extends ItemType {
 
     private String value;
     private int maxX, maxY;
 
-    protected EfaConfigFrame efaConfigFrame;
+    protected BaseDialog dlg;
     protected JLabel image;
 
 
-    public ConfigTypeImage(String name, String value, int maxX, int maxY,
+    public ItemTypeImage(String name, String value, int maxX, int maxY,
             int type, String category, String description) {
         this.name = name;
         this.value = value;
@@ -47,8 +47,8 @@ public class ConfigTypeImage extends ConfigValue {
         return value;
     }
 
-    public int displayOnGui(EfaConfigFrame dlg, JPanel panel, int y) {
-        efaConfigFrame = dlg;
+    public int displayOnGui(BaseDialog dlg, JPanel panel, int y) {
+        this.dlg = dlg;
 
         image = new JLabel();
         image.setBorder(BorderFactory.createEtchedBorder());
@@ -60,18 +60,18 @@ public class ConfigTypeImage extends ConfigValue {
         JLabel label = new JLabel();
         Mnemonics.setLabel(dlg, label, getDescription() + ": ");
         label.setLabelFor(image);
-        if (type == EfaConfig.TYPE_EXPERT) {
+        if (type == IItemType.TYPE_EXPERT) {
             label.setForeground(Color.red);
         }
         JButton selectButton = new JButton();
-        selectButton.setIcon(new ImageIcon(EfaConfigFrame.class.getResource("/de/nmichael/efa/img/menu_open.gif")));
+        selectButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_open.gif")));
         selectButton.setMargin(new Insets(0,0,0,0));
         Dialog.setPreferredSize(selectButton, 19, 19);
         selectButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { selectButtonHit(e); }
         });
         JButton removeButton = new JButton();
-        removeButton.setIcon(new ImageIcon(EfaConfigFrame.class.getResource("/de/nmichael/efa/img/menu_minus.gif")));
+        removeButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_minus.gif")));
         removeButton.setMargin(new Insets(0,0,0,0));
         Dialog.setPreferredSize(removeButton, 19, 19);
         removeButton.addActionListener(new java.awt.event.ActionListener() {
@@ -118,7 +118,7 @@ public class ConfigTypeImage extends ConfigValue {
             selectedFile = EfaUtil.getNameOfFile(value);
         }
 
-        String file = Dialog.dateiDialog(efaConfigFrame,
+        String file = Dialog.dateiDialog(dlg,
                 International.getMessage("{item} auswählen",
                 getDescription()),
                 International.getString("Bild-Datei")+" (*.gif, *.jpg)",
@@ -149,4 +149,8 @@ public class ConfigTypeImage extends ConfigValue {
         this.value = filename;
     }
 
+    public void requestFocus() {
+        // nothing to do
+    }
+    
 }

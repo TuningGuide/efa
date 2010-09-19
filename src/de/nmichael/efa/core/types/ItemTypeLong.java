@@ -8,19 +8,20 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.config;
+package de.nmichael.efa.core.types;
 
+import de.nmichael.efa.core.types.ItemTypeLabelValue;
 import de.nmichael.efa.util.*;
 
 // @i18n complete
 
-public class ConfigTypeLong extends ConfigTypeLabelValue {
+public class ItemTypeLong extends ItemTypeLabelValue {
 
     private long value;
     private long min;
     private long max;
 
-    public ConfigTypeLong(String name, long value, long min, long max,
+    public ItemTypeLong(String name, long value, long min, long max,
             int type, String category, String description) {
         this.name = name;
         this.value = value;
@@ -41,9 +42,9 @@ public class ConfigTypeLong extends ConfigTypeLabelValue {
                 this.value = max;
             }
         } catch (Exception e) {
-            if (efaConfigFrame == null) {
-                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
-                           "EfaConfig: Invalid value for parameter "+name+": "+value);
+            if (dlg == null) {
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_UNSUPPORTEDDATATYPE,
+                           "Invalid value for parameter "+name+": "+value);
             }
         }
     }

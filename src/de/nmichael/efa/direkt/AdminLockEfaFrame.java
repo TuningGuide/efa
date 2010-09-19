@@ -11,6 +11,7 @@
 package de.nmichael.efa.direkt;
 
 import de.nmichael.efa.util.*;
+import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
@@ -213,11 +214,10 @@ public class AdminLockEfaFrame extends JDialog implements ActionListener {
     cancel();
   }
 
-  void setDatumZeit(JTextField field, TMJ datum, TMJ zeit) {
+  void setDatumZeit(JTextField field, DataTypeDate datum, DataTypeTime zeit) {
     if (datum == null) return;
-    field.setText(datum.tag+"."+datum.monat+"."+datum.jahr+" "+
-                         (zeit != null ?
-                           (zeit.tag<10 ? "0" : "")+zeit.tag+":"+(zeit.monat<10 ? "0" : "")+zeit.monat : "") );
+    field.setText(datum.toString()+" "+
+                         (zeit != null ? zeit.toString() : "") );
   }
 
   void endeSperrung_focusLost(FocusEvent e) {
@@ -237,13 +237,13 @@ public class AdminLockEfaFrame extends JDialog implements ActionListener {
       }
       if (c == 4) break;
     }
-    TMJ datum = null;
+    DataTypeDate datum = null;
     if (s.length() > 0) {
-      datum = EfaUtil.correctDate(s, 0, 0, 0);
+      datum = DataTypeDate.parseDate(s);
     }
-    TMJ zeit = null;
+    DataTypeTime zeit = null;
     if (c == 4) {
-      zeit = EfaUtil.string2date(s.substring(dateTimeSep), 0, 0, 0);
+      zeit = DataTypeTime.parseTime(s);
     }
     setDatumZeit(endeSperrung,datum,zeit);
 
@@ -268,13 +268,13 @@ public class AdminLockEfaFrame extends JDialog implements ActionListener {
       }
       if (c == 4) break;
     }
-    TMJ datum = null;
+    DataTypeDate datum = null;
     if (s.length() > 0) {
-      datum = EfaUtil.correctDate(s, 0, 0, 0);
+      datum = DataTypeDate.parseDate(s);
     }
-    TMJ zeit = null;
+    DataTypeTime zeit = null;
     if (c == 4) {
-      zeit = EfaUtil.string2date(s.substring(dateTimeSep), 0, 0, 0);
+      zeit = DataTypeTime.parseTime(s);
     }
     setDatumZeit(anfangSperrung,datum,zeit);
 

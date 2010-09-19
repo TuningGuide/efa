@@ -59,9 +59,9 @@ public class Logger {
   public static final String MSG_CORE_EFASECCORRUPTED        = "COR016";
   public static final String MSG_CORE_CONFBACKUPDIRNOTEXIST  = "COR017";
   public static final String MSG_CORE_EFAALREADYRUNNING      = "COR018";
-  public static final String MSG_CORE_EFACONFIGUNKNOWNPARAM  = "COR019";
-  public static final String MSG_CORE_EFACONFIGUNSUPPPARMTYPE= "COR020";
-  public static final String MSG_CORE_EFACONFIGINVALIDVALUE  = "COR021";
+  public static final String MSG_CORE_UNKNOWNDATAFIELD       = "COR019";
+  public static final String MSG_CORE_UNSUPPORTEDDATATYPE    = "COR020";
+  public static final String MSG_CORE_DATATYPEINVALIDVALUE   = "COR021";
   public static final String MSG_CORE_MISSINGPLUGIN          = "COR022";
 
   // Activities performed in Admin Mode

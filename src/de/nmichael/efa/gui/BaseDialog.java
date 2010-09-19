@@ -96,7 +96,6 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
             closeButton = new JButton();
             Mnemonics.setButton(this, closeButton, closeButtonText);
             closeButton.addActionListener(new java.awt.event.ActionListener() {
-
                 public void actionPerformed(ActionEvent e) {
                     closeButton_actionPerformed(e);
                 }
@@ -112,7 +111,16 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
         // intelligent sizing of this Dialog:
         // make it as big as necessary for display without scrollbars (plus some margin),
         // as long as it does not exceed the configured screen size.
+System.out.println("getPreferredSize: "+mainPanel.getPreferredSize());
+System.out.println("getMinimumSize: "+mainPanel.getMinimumSize());
         Dimension dim = mainPanel.getPreferredSize();
+        Dimension minDim = mainPanel.getMinimumSize();
+        if (minDim.width > dim.width) {
+            dim.width = minDim.width;
+        }
+        if (minDim.height > dim.height) {
+            dim.height = minDim.height;
+        }
         if (dim.width < 100) {
             dim.width = 100;
         }
@@ -145,6 +153,10 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
+    }
+
+    // may be implemented by subclasses to take action when GUI needs to be set up new
+    public void updateGui() {
     }
 
 }

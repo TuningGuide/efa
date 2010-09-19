@@ -8,11 +8,11 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.config;
+package de.nmichael.efa.core.types;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.gui.EfaConfigFrame;
+import de.nmichael.efa.gui.BaseDialog;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -20,7 +20,7 @@ import javax.swing.*;
 
 // @i18n complete
 
-public class ConfigTypeButton extends ConfigValue {
+public class ItemTypeButton extends ItemType {
 
     private String text;
     private String color;
@@ -29,12 +29,11 @@ public class ConfigTypeButton extends ConfigValue {
     private boolean isChangeableColor;
     private boolean isChangeableShow;
 
-    protected EfaConfigFrame efaConfigFrame;
     protected JButton button;
     protected JCheckBox checkbox;
 
 
-    public ConfigTypeButton(String name, String text, String color, boolean show,
+    public ItemTypeButton(String name, String text, String color, boolean show,
             boolean isChangeableText, boolean isChangeableColor, boolean isChangeableShow,
             int type, String category, String description) {
         this.name = name;
@@ -78,8 +77,8 @@ public class ConfigTypeButton extends ConfigValue {
                 i++;
             }
         } catch (Exception e) {
-            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
-                    "EfaConfig: Invalid value for parameter " + name + ": " + value);
+            Logger.log(Logger.ERROR, Logger.MSG_CORE_UNSUPPORTEDDATATYPE,
+                    "Invalid value for parameter " + name + ": " + value);
 
         }
     }
@@ -92,8 +91,8 @@ public class ConfigTypeButton extends ConfigValue {
                 (isChangeableShow ? (show ? "+" : "-") : "#");
     }
 
-    public int displayOnGui(EfaConfigFrame dlg, JPanel panel, int y) {
-        efaConfigFrame = dlg;
+    public int displayOnGui(BaseDialog dlg, JPanel panel, int y) {
+        this.dlg = dlg;
 
         button = new JButton();
         Dialog.setPreferredSize(button, 300, 21);
@@ -110,7 +109,7 @@ public class ConfigTypeButton extends ConfigValue {
         JLabel label = new JLabel();
         Mnemonics.setLabel(dlg, label, getDescription() + ": ");
         label.setLabelFor(button);
-        if (type == EfaConfig.TYPE_EXPERT) {
+        if (type == IItemType.TYPE_EXPERT) {
             label.setForeground(Color.red);
         }
 
@@ -172,7 +171,7 @@ public class ConfigTypeButton extends ConfigValue {
 
     private void chooseColor() {
         if (!isChangeableColor) return;
-        Color color = JColorChooser.showDialog(efaConfigFrame,
+        Color color = JColorChooser.showDialog(dlg,
                 International.getMessage("{item} auswählen",
                 International.getString("Farbe")),
                 button.getBackground());
@@ -204,6 +203,10 @@ public class ConfigTypeButton extends ConfigValue {
 
     public void setValueShow(boolean show) {
         this.show = show;
+    }
+
+    public void requestFocus() {
+        button.requestFocus();
     }
 
 }

@@ -18,13 +18,15 @@ public interface IDataAccess {
     public static final int TYPE_FILE_XML = 1;
     public static final int TYPE_DB_SQL = 2;
 
-    public static final int DATA_STRING = 0;
-    public static final int DATA_INTEGER = 1;
-    public static final int DATA_LONGINT = 2;
-    public static final int DATA_DECIMAL = 3;
-    public static final int DATA_BOOLEAN = 4;
-    public static final int DATA_DATE = 5;
-    public static final int DATA_TIME = 6;
+    // Data Types supported by IDataAccess
+    //                      Data Type            Internal Java Type
+    public static final int DATA_STRING = 0;  // String
+    public static final int DATA_INTEGER = 1; // int, Integer
+    public static final int DATA_LONGINT = 2; // long, Long
+    public static final int DATA_DECIMAL = 3; // DataTypeDecimal
+    public static final int DATA_BOOLEAN = 4; // boolean, Boolean
+    public static final int DATA_DATE = 5;    // DataTypeDate
+    public static final int DATA_TIME = 6;    // DataTypeTime
 
 
     /**
@@ -117,6 +119,14 @@ public interface IDataAccess {
     public String getStoragePassword();
 
     /**
+     * Tests whether a storage object already exists.
+     * For file systems, this tests whether the associated file in the file system exists.
+     * In order to succeed, the storage object location, object name and objecet type must have been specified before.
+     * @throws Exception if the existance of the storage object could not be verified.
+     */
+    public boolean existsStorageObject() throws Exception;
+
+    /**
      * Creates a new storage object (overwrites existing objects).
      * For file systems, this method may imply recursive creation of directories as well.
      * In order to succeed, the storage object location, object name and objecet type must have been specified before.
@@ -125,7 +135,7 @@ public interface IDataAccess {
     public void createStorageObject() throws Exception;
 
     /**
-     * Opens an exisiting storage object.
+     * Opens an existing storage object.
      * @throws Exception if the opening of the object failed.
      */
     public void openStorageObject() throws Exception;
@@ -300,6 +310,12 @@ public interface IDataAccess {
      * @throws Exception
      */
     public long getNumberOfRecords() throws Exception;
+
+    /**
+     * Truncates (deletes) all data records in this storage object.
+     * @throws Exception
+     */
+    public void truncateAllData() throws Exception;
 
     public DataKeyIterator getIterator() throws Exception;
     public DataRecord getCurrent(DataKeyIterator it) throws Exception;

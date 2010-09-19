@@ -46,7 +46,14 @@ public abstract class DataFile extends DataAccess {
         }
     }
 
-    public void createStorageObject() throws Exception {
+    public synchronized boolean existsStorageObject() throws Exception {
+        if (filename == null) {
+            throw new Exception("No StorageObject name specified.");
+        }
+        return (new File(filename).exists());
+    }
+
+    public synchronized void createStorageObject() throws Exception {
         BufferedWriter fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename,false), ENCODING));
         writeFile(fw);
         fw.close();
@@ -55,7 +62,7 @@ public abstract class DataFile extends DataAccess {
         fileWriter.start();
     }
 
-    public void openStorageObject() throws Exception {
+    public synchronized void openStorageObject() throws Exception {
         BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(filename), ENCODING));
         readFile(fr);
         fr.close();
@@ -64,6 +71,8 @@ public abstract class DataFile extends DataAccess {
         fileWriter.start();
     }
 
+    // This method must *not* be synchronized;
+    // that would result in a deadlock between fileWriter running save(true) and the thread calling closeStorageObject()
     public void closeStorageObject() throws Exception {
         fileWriter.save(true);
         isOpen = false;
@@ -71,7 +80,7 @@ public abstract class DataFile extends DataAccess {
         fileWriter = null;
     }
 
-    public void saveStorageObject() throws Exception {
+    public synchronized void saveStorageObject() throws Exception {
         if (!isStorageObjectOpen()) {
             throw new Exception("Storage Object is not open");
         }
@@ -202,9 +211,24 @@ public abstract class DataFile extends DataAccess {
         }
     }
 
+    public void truncateAllData() throws Exception {
+        long lockID = acquireGlobalLock();
+        try {
+            synchronized (data) {
+                data.clear();
+            }
+            fileWriter.save(false);
+        } finally {
+            this.releaseGlobalLock(lockID);
+        }
+    }
+
     public DataKeyIterator getIterator() throws Exception {
-        DataKey[] keys = new DataKey[data.size()];
-        keys = data.keySet().toArray(keys);
+        DataKey[] keys;
+        synchronized(data) {
+            keys = new DataKey[data.size()];
+            keys = data.keySet().toArray(keys);
+        }
         Arrays.sort(keys);
         return new DataKeyIterator(keys);
     }

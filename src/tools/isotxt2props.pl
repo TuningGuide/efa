@@ -18,6 +18,7 @@ while(<INFILE>) {
       $line = sprintf("%s=%s",$1,$2);
     }
   }
+  chomp $line;
   print OUTFILE encode 'unicode-escape', decode 'iso-8859-1', $line;
 }
 close(INFILE);

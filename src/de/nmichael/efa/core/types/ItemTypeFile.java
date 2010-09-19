@@ -8,11 +8,11 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.config;
+package de.nmichael.efa.core.types;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.gui.EfaConfigFrame;
+import de.nmichael.efa.gui.BaseDialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -20,7 +20,7 @@ import java.io.File;
 
 // @i18n complete
 
-public class ConfigTypeFile extends ConfigTypeString {
+public class ItemTypeFile extends ItemTypeString {
     
     public static final int MODE_OPEN = 1;
     public static final int MODE_SAVE = 2;
@@ -33,7 +33,7 @@ public class ConfigTypeFile extends ConfigTypeString {
     private int fileOpenSave;
     private int fileOrDir;
 
-    public ConfigTypeFile(String name, String value,
+    public ItemTypeFile(String name, String value,
             String fileItem, String fileTypes, String fileExtensions, int fileOpenSave, int fileOrDir,
             int type, String category, String description) {
         super(name,value,type,category,description);
@@ -44,21 +44,23 @@ public class ConfigTypeFile extends ConfigTypeString {
         this.fileOrDir = fileOrDir;
     }
 
-    public int displayOnGui(EfaConfigFrame dlg, JPanel panel, int y) {
+    public int displayOnGui(BaseDialog dlg, JPanel panel, int y) {
+        this.dlg = dlg;
+
         textfield = new JTextField();
         textfield.setText(toString());
         Dialog.setPreferredSize(textfield, 300, 19);
         JLabel label = new JLabel();
         Mnemonics.setLabel(dlg, label, getDescription() + ": ");
         label.setLabelFor(textfield);
-        if (type == EfaConfig.TYPE_EXPERT) {
+        if (type == IItemType.TYPE_EXPERT) {
             label.setForeground(Color.red);
         }
         JButton button = new JButton();
         if (fileOpenSave == MODE_OPEN) {
-            button.setIcon(new ImageIcon(EfaConfigFrame.class.getResource("/de/nmichael/efa/img/menu_open.gif")));
+            button.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_open.gif")));
         } else {
-            button.setIcon(new ImageIcon(EfaConfigFrame.class.getResource("/de/nmichael/efa/img/menu_save.gif")));
+            button.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_save.gif")));
         }
         button.setMargin(new Insets(0,0,0,0));
         Dialog.setPreferredSize(button, 19, 19);
@@ -87,7 +89,7 @@ public class ConfigTypeFile extends ConfigTypeString {
             selectedFile = EfaUtil.getNameOfFile(currentValue);
         }
 
-        String file = Dialog.dateiDialog(efaConfigFrame,
+        String file = Dialog.dateiDialog(dlg,
                 International.getMessage("{item} auswählen", fileItem),
                 fileTypes, fileExtensions, startDirectory, selectedFile, null, 
                 fileOpenSave == MODE_SAVE, fileOrDir == TYPE_DIR);

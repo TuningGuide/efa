@@ -8,21 +8,23 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.config;
+package de.nmichael.efa.core.types;
 
 import java.util.Vector;
 import java.util.Hashtable;
 import de.nmichael.efa.util.TMJ;
 import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.gui.BaseDialog;
 
 // @i18n complete
 
-public abstract class ConfigValue implements IConfigValue {
+public abstract class ItemType implements IItemType {
 
     protected String name;
     protected int type;
     protected String category;
     protected String description;
+    protected BaseDialog dlg;
 
     public String getName() {
         return name;
@@ -38,6 +40,10 @@ public abstract class ConfigValue implements IConfigValue {
 
     public String getDescription() {
         return description;
+    }
+
+    public boolean isValidInput() {
+        return true;
     }
 
 }

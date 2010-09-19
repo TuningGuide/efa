@@ -8,25 +8,26 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.config;
+package de.nmichael.efa.core.types;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.gui.EfaConfigFrame;
+import de.nmichael.efa.gui.BaseDialog;
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 
 // @i18n complete
 
-public class ConfigTypeStringList extends ConfigValue {
+public class ItemTypeStringList extends ItemType {
 
     private String value;
     private String[] valueList;
     private String[] displayList;
-    protected EfaConfigFrame efaConfigFrame;
+    protected BaseDialog dlg;
     protected JComboBox combobox;
 
-    public ConfigTypeStringList(String name, String value, 
+    public ItemTypeStringList(String name, String value,
             String[] valueList, String[] displayList,
             int type, String category, String description) {
         this.name = name;
@@ -46,24 +47,23 @@ public class ConfigTypeStringList extends ConfigValue {
         return value;
     }
 
-    public int displayOnGui(EfaConfigFrame dlg, JPanel panel, int y) {
-        efaConfigFrame = dlg;
+    public int displayOnGui(BaseDialog dlg, JPanel panel, int y) {
+        this.dlg = dlg;
 
         combobox = new JComboBox();
         for (int i=0; displayList != null && i<displayList.length; i++) {
             combobox.addItem(displayList[i]);
         }
-        for (int i=0; valueList != null && i<valueList.length; i++) {
-            if (value != null && value.equals(valueList[i])) {
-                combobox.setSelectedIndex(i);
-            }
-        }
+        selectValue();
+        combobox.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(FocusEvent e) { combobox_focusLost(e); }
+        });
         
         Dialog.setPreferredSize(combobox, 300, 19);
         JLabel label = new JLabel();
         Mnemonics.setLabel(dlg, label, getDescription() + ": ");
         label.setLabelFor(combobox);
-        if (type == EfaConfig.TYPE_EXPERT) {
+        if (type == IItemType.TYPE_EXPERT) {
             label.setForeground(Color.red);
         }
         panel.add(label, new GridBagConstraints(0, y, 1, 1, 0.0, 0.0,
@@ -89,6 +89,23 @@ public class ConfigTypeStringList extends ConfigValue {
                 this.value = value;
             }
         }
+    }
+
+    private void selectValue() {
+        for (int i=0; valueList != null && i<valueList.length; i++) {
+            if (value != null && value.equals(valueList[i])) {
+                combobox.setSelectedIndex(i);
+            }
+        }
+    }
+
+    private void combobox_focusLost(FocusEvent e) {
+        getValueFromGui();
+        selectValue();
+    }
+
+    public void requestFocus() {
+        combobox.requestFocus();
     }
 
 }

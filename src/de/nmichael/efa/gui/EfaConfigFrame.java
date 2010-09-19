@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.gui;
 
+import de.nmichael.efa.core.types.ItemType;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -29,8 +30,8 @@ public class EfaConfigFrame extends BaseDialog {
 
     private EfaConfig myEfaConfig;
     private Hashtable<String,Hashtable> categories;
-    private Hashtable<String,Vector<ConfigValue>> items;
-    private Vector<ConfigValue> configItems;
+    private Hashtable<String,Vector<ItemType>> items;
+    private Vector<ItemType> configItems;
     private Hashtable<JPanel,String> panels;
 
     public EfaConfigFrame(Frame parent) {
@@ -48,12 +49,12 @@ public class EfaConfigFrame extends BaseDialog {
     protected void iniDialog() throws Exception {
         myEfaConfig = new EfaConfig(Daten.efaConfig);
         categories = new Hashtable<String,Hashtable>();                // category          -> sub-categories
-        items = new Hashtable<String,Vector<ConfigValue>>(); // categoryhierarchy -> config items
+        items = new Hashtable<String,Vector<ItemType>>(); // categoryhierarchy -> config items
 
         // build category hierarchy
         String[] names = myEfaConfig.getParameterNames();
         for (int i=0; i<names.length; i++) {
-            ConfigValue cfg = myEfaConfig.getParameter(names[i]);
+            ItemType cfg = myEfaConfig.getParameter(names[i]);
             String[] cats = myEfaConfig.getCategoryKeyArray(cfg.getCategory());
             Hashtable<String,Hashtable> h = categories;
             for (int j=0; j<cats.length; j++) {
@@ -68,7 +69,7 @@ public class EfaConfigFrame extends BaseDialog {
 
         // build config items per category
         for (int i=0; i<names.length; i++) {
-            ConfigValue cfg = myEfaConfig.getParameter(names[i]);
+            ItemType cfg = myEfaConfig.getParameter(names[i]);
             String cat = cfg.getCategory();
             String[] cats = EfaConfig.getCategoryKeyArray(cat);
             Hashtable<String,Hashtable> h = categories;
@@ -93,9 +94,9 @@ public class EfaConfigFrame extends BaseDialog {
             }
 
             // build config items per category
-            Vector<ConfigValue> v = items.get(cat);
+            Vector<ItemType> v = items.get(cat);
             if (v == null) {
-                v = new Vector<ConfigValue>();
+                v = new Vector<ItemType>();
             }
             v.add(cfg);
             items.put(cat, v);
@@ -117,7 +118,7 @@ public class EfaConfigFrame extends BaseDialog {
         getValuesFromGui();
         String selectedPanel = getSelectedPanel(tabbedPane);
 
-        configItems = new Vector<ConfigValue>();
+        configItems = new Vector<ItemType>();
         if (tabbedPane != null) {
             mainPanel.remove(tabbedPane);
         }
@@ -129,7 +130,7 @@ public class EfaConfigFrame extends BaseDialog {
     }
 
     private int recursiveBuildGui(Hashtable<String,Hashtable> categories,
-                                   Hashtable<String,Vector<ConfigValue>> items,
+                                   Hashtable<String,Vector<ItemType>> items,
                                    String catKey,
                                    JTabbedPane tabbedPane,
                                    String selectedPanel) {
@@ -157,10 +158,10 @@ public class EfaConfigFrame extends BaseDialog {
                 JPanel panel = new JPanel();
                 panels.put(panel, thisCatKey);
                 panel.setLayout(new GridBagLayout());
-                Vector<ConfigValue> v = items.get(thisCatKey);
+                Vector<ItemType> v = items.get(thisCatKey);
                 int y = 0;
                 for (int j=0; v != null && j<v.size(); j++) {
-                    ConfigValue itm = v.get(j);
+                    ItemType itm = v.get(j);
                     if (itm.getType() == EfaConfig.TYPE_PUBLIC ||
                         (itm.getType() == EfaConfig.TYPE_EXPERT && expertMode.isSelected())) {
                         y += itm.displayOnGui(this,panel,y);
@@ -184,7 +185,7 @@ public class EfaConfigFrame extends BaseDialog {
             return;
         }
         for (int i=0; i<configItems.size(); i++) {
-            ConfigValue item = configItems.get(i);
+            ItemType item = configItems.get(i);
             item.getValueFromGui();
         }
     }

@@ -8,24 +8,24 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.config;
+package de.nmichael.efa.core.types;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.gui.EfaConfigFrame;
+import de.nmichael.efa.gui.BaseDialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
 // @i18n complete
 
-public abstract class ConfigTypeLabelValue extends ConfigValue {
+public abstract class ItemTypeLabelValue extends ItemType {
 
-    protected EfaConfigFrame efaConfigFrame;
+    protected BaseDialog dlg;
     protected JTextField textfield;
 
-    public int displayOnGui(EfaConfigFrame dlg, JPanel panel, int y) {
-        efaConfigFrame = dlg;
+    public int displayOnGui(BaseDialog dlg, JPanel panel, int y) {
+        this.dlg = dlg;
         
         textfield = new JTextField();
         textfield.setText(toString());
@@ -33,7 +33,7 @@ public abstract class ConfigTypeLabelValue extends ConfigValue {
         JLabel label = new JLabel();
         Mnemonics.setLabel(dlg, label, getDescription() + ": ");
         label.setLabelFor(textfield);
-        if (type == EfaConfig.TYPE_EXPERT) {
+        if (type == IItemType.TYPE_EXPERT) {
             label.setForeground(Color.red);
         }
         textfield.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -55,6 +55,10 @@ public abstract class ConfigTypeLabelValue extends ConfigValue {
     protected void textfield_focusLost(FocusEvent e) {
         getValueFromGui();
         textfield.setText(toString());
+    }
+
+    public void requestFocus() {
+        textfield.requestFocus();
     }
 
 }

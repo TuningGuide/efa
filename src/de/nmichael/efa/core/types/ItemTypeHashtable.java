@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package de.nmichael.efa.core.config;
+package de.nmichael.efa.core.types;
 
 import java.util.*;
 import java.awt.*;
@@ -11,11 +11,11 @@ import java.awt.event.*;
 import javax.swing.*;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.gui.EfaConfigFrame;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.direkt.Admin;
+import de.nmichael.efa.gui.BaseDialog;
 
-public class ConfigTypeHashtable<E> extends ConfigValue {
+public class ItemTypeHashtable<E> extends ItemType {
 
     public static int TYPE_STRING = 0;
     public static int TYPE_ADMIN = 1;
@@ -30,9 +30,8 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
     
     private JTextField[] textfield;
     private Hashtable<JButton,String> delButtons;
-    private EfaConfigFrame efaConfigFrame;
 
-    public ConfigTypeHashtable(String name, E value, boolean fieldsEditable,
+    public ItemTypeHashtable(String name, E value, boolean fieldsEditable,
             int type, String category, String description) {
         this.name = name;
         this.e = value;
@@ -100,7 +99,7 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
         }
         if (!matchingTypeFound) {
             // should never happen (program error); no need to translate
-            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
+            Logger.log(Logger.ERROR, Logger.MSG_CORE_UNSUPPORTEDDATATYPE,
                     "ConfigTypesHashtable: unsupported value type for key " + key + ": " + c.getCanonicalName());
         }
     }
@@ -119,9 +118,9 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
                 addToHash(hash, key,val);
             }
         } catch (Exception e) {
-            if (efaConfigFrame == null) {
-                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
-                        "EfaConfig: Invalid value for parameter " + name + ": " + value);
+            if (dlg == null) {
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_UNSUPPORTEDDATATYPE,
+                        "Invalid value for parameter " + name + ": " + value);
             }
 
         }
@@ -144,24 +143,24 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
                      key + DELIM_KEYVALUE + val;
             } catch(Exception e) {
                 // should never happen (program error); no need to translate
-                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGINVALIDVALUE,
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_DATATYPEINVALIDVALUE,
                          "ConfigTypesHashtable: cannot create string for value '"+keys[i]+"': "+e.toString());
             }
         }
         return s;
     }
 
-    public int displayOnGui(EfaConfigFrame dlg, JPanel panel, int y) {
-        efaConfigFrame = dlg;
+    public int displayOnGui(BaseDialog dlg, JPanel panel, int y) {
+        this.dlg = dlg;
         int padBottom = 0;
 
         JLabel titlelabel = new JLabel();
         Mnemonics.setLabel(dlg, titlelabel, getDescription() + ": ");
-        if (type == EfaConfig.TYPE_EXPERT) {
+        if (type == IItemType.TYPE_EXPERT) {
             titlelabel.setForeground(Color.red);
         }
         JButton addButton = new JButton();
-        addButton.setIcon(new ImageIcon(EfaConfigFrame.class.getResource("/de/nmichael/efa/img/menu_plus.gif")));
+        addButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_plus.gif")));
         addButton.setMargin(new Insets(0,0,0,0));
         Dialog.setPreferredSize(addButton, 19, 19);
         addButton.addActionListener(new java.awt.event.ActionListener() {
@@ -188,11 +187,11 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
             JLabel label = new JLabel();
             Mnemonics.setLabel(dlg, label, keys[i] + ": ");
             label.setLabelFor(textfield[i]);
-            if (type == EfaConfig.TYPE_EXPERT) {
+            if (type == IItemType.TYPE_EXPERT) {
                 label.setForeground(Color.red);
             }
             JButton delButton = new JButton();
-            delButton.setIcon(new ImageIcon(EfaConfigFrame.class.getResource("/de/nmichael/efa/img/menu_minus.gif")));
+            delButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_minus.gif")));
             delButton.setMargin(new Insets(0,0,0,0));
             Dialog.setPreferredSize(delButton, 19, 19);
             delButton.addActionListener(new java.awt.event.ActionListener() {
@@ -218,7 +217,7 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
         String key = null;
         key = Dialog.inputDialog(International.getString("Neuen Eintrag hinzufügen"),
                                  International.getString("Bezeichnung") + ": ");
-        if (key == null || key.length() == 0 || efaConfigFrame == null) {
+        if (key == null || key.length() == 0 || dlg == null) {
             return;
         }
         if (hash.get(key) != null) {
@@ -233,19 +232,19 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
         // equals the key value!).
         addToHash(hash, key, hash.get(DUMMY).toString());
 
-        efaConfigFrame.updateGui();
+        dlg.updateGui();
     }
 
     private void delButtonHit(ActionEvent e) {
         String key = delButtons.get(e.getSource());
-        if (key == null || efaConfigFrame == null) {
+        if (key == null || dlg == null) {
             return;
         }
         if (Dialog.yesNoDialog(International.getString("Eintrag löschen"),
                                International.getMessage("Möchtest Du den Eintrag '{entry}' wirklich löschen?",key)) == Dialog.YES) {
             getValueFromGui();
             hash.remove(key);
-            efaConfigFrame.updateGui();
+            dlg.updateGui();
         }
     }
 
@@ -268,6 +267,12 @@ public class ConfigTypeHashtable<E> extends ConfigValue {
             }
         }
         hash = newHash;
+    }
+
+    public void requestFocus() {
+        if (textfield != null && textfield.length > 0) {
+            textfield[0].requestFocus();
+        }
     }
 
 }

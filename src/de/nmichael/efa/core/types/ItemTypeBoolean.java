@@ -8,23 +8,23 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.config;
+package de.nmichael.efa.core.types;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.gui.EfaConfigFrame;
+import de.nmichael.efa.gui.BaseDialog;
 
 import java.awt.*;
 import javax.swing.*;
 
 // @i18n complete
 
-public class ConfigTypeBoolean extends ConfigValue {
+public class ItemTypeBoolean extends ItemType {
 
     private boolean value;
     private JCheckBox checkbox;
 
-    public ConfigTypeBoolean(String name, boolean value, int type,
+    public ItemTypeBoolean(String name, boolean value, int type,
             String category, String description) {
         this.name = name;
         this.value = value;
@@ -37,8 +37,8 @@ public class ConfigTypeBoolean extends ConfigValue {
         try {
             this.value = Boolean.parseBoolean(value);
         } catch (Exception e) {
-            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGUNSUPPPARMTYPE,
-                       "EfaConfig: Invalid value for parameter "+name+": "+value);
+            Logger.log(Logger.ERROR, Logger.MSG_CORE_UNSUPPORTEDDATATYPE,
+                       "Invalid value for parameter "+name+": "+value);
         }
     }
 
@@ -46,11 +46,13 @@ public class ConfigTypeBoolean extends ConfigValue {
         return Boolean.toString(value);
     }
 
-    public int displayOnGui(EfaConfigFrame dlg, JPanel panel, int y) {
+    public int displayOnGui(BaseDialog dlg, JPanel panel, int y) {
+        this.dlg = dlg;
+        
         checkbox = new JCheckBox();
         Mnemonics.setButton(dlg, checkbox, getDescription());
         checkbox.setSelected(value);
-        if (type == EfaConfig.TYPE_EXPERT) {
+        if (type == IItemType.TYPE_EXPERT) {
             checkbox.setForeground(Color.red);
         }
         panel.add(checkbox, new GridBagConstraints(0, y, 2, 1, 0.0, 0.0,
@@ -70,6 +72,10 @@ public class ConfigTypeBoolean extends ConfigValue {
 
     public void setValue(boolean value) {
         this.value = value;
+    }
+
+    public void requestFocus() {
+        checkbox.requestFocus();
     }
 
 }

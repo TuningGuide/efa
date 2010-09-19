@@ -17,13 +17,13 @@ import de.nmichael.efa.data.storage.*;
 public class Logbook extends Persistence {
 
     public Logbook(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, "e2lb");
+        super(storageType, storageLocation, storageObjectName, "e2log");
         try {
             LogbookRecord.initialize();
             for (int i=0; i<LogbookRecord.getFieldCount(); i++) {
                 dataAccess.registerDataField(LogbookRecord.getFieldName(i), LogbookRecord.getFieldType(i));
             }
-            dataAccess.setKey(LogbookRecord.getKey());
+            dataAccess.setKey(LogbookRecord.getKeyFields());
         } catch(Exception e) {
             e.printStackTrace();
         }

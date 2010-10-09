@@ -10,7 +10,7 @@
 
 package de.nmichael.efa.util;
 
-import de.nmichael.efa.core.DatenListe;
+import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.*;
 import javax.swing.*;
 import java.awt.*;

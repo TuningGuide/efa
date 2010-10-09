@@ -21,6 +21,7 @@ import javax.swing.*;
 public class ItemTypeDate extends ItemTypeLabelValue {
 
     private DataTypeDate value;
+    private boolean notNull = false;
 
     public ItemTypeDate(String name, DataTypeDate value, int type,
             String category, String description) {
@@ -83,6 +84,21 @@ public class ItemTypeDate extends ItemTypeLabelValue {
 
     public void unset() {
         value.unset();
+    }
+
+    public void setNotNull(boolean notNull) {
+        this.notNull = notNull;
+    }
+
+    public boolean isNotNullSet() {
+        return notNull;
+    }
+
+    public boolean isValidInput() {
+        if (isNotNullSet()) {
+            return isSet();
+        }
+        return true;
     }
 
 }

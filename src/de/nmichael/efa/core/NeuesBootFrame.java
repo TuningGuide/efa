@@ -10,6 +10,11 @@
 
 package de.nmichael.efa.core;
 
+import de.nmichael.efa.efa1.Synonyme;
+import de.nmichael.efa.efa1.Fahrtenbuch;
+import de.nmichael.efa.efa1.DatenListe;
+import de.nmichael.efa.efa1.DatenFelder;
+import de.nmichael.efa.efa1.Boote;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.core.config.EfaTypes;
@@ -22,7 +27,7 @@ import javax.swing.border.*;
 import javax.swing.filechooser.FileFilter;
 import java.io.*;
 import java.util.*;
-import de.nmichael.efa.direkt.BootStatus;
+import de.nmichael.efa.efa1.BootStatus;
 
 // @i18n complete
 

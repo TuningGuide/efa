@@ -10,6 +10,8 @@
 
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.efa1.BootStatus;
+import de.nmichael.efa.efa1.Fahrtenbuch;
 import de.nmichael.efa.gui.EfaConfigFrame;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.util.*;

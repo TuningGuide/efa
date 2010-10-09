@@ -8,12 +8,15 @@
  * @version 2
  */
 
-package de.nmichael.efa.direkt;
+package de.nmichael.efa.efa1;
 
+import de.nmichael.efa.efa1.DatenListe;
+import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
+import de.nmichael.efa.direkt.BoatReservation;
 import java.util.*;
 import java.io.IOException;
 

@@ -12,6 +12,7 @@ package de.nmichael.efa.data.storage;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
+import de.nmichael.efa.ex.EfaException;
 import java.util.*;
 import java.io.*;
 import org.xml.sax.*;
@@ -24,8 +25,8 @@ public class XMLFile extends DataFile {
     private static final boolean doIndent = true;
     private int indent = 0;
 
-    public XMLFile(String directory, String filename, String extension) {
-        super(directory, filename, extension);
+    public XMLFile(String directory, String filename, String extension, String description) {
+        super(directory, filename, extension, description);
     }
 
     public int getStorageType() {
@@ -46,7 +47,7 @@ public class XMLFile extends DataFile {
         return xmltagStart(tag) + value + xmltagEnd(tag);
     }
 
-    protected synchronized void readFile(BufferedReader fr) throws Exception {
+    protected synchronized void readFile(BufferedReader fr) throws EfaException {
         isOpen = true;
         long lock = -1;
         try {
@@ -55,7 +56,7 @@ public class XMLFile extends DataFile {
             isOpen = false;
         }
         if (lock < 0) {
-            throw new Exception("Cannot get Global Lock for File Reading");
+            throw new EfaException(Logger.MSG_DATA_READFAILED, LogString.logstring_fileReadFailed(filename, storageLocation, "Cannot get Global Lock for File Reading"));
         }
         try {
             SaxErrorHandler eh = new SaxErrorHandler(filename);
@@ -63,6 +64,8 @@ public class XMLFile extends DataFile {
             parser.setContentHandler(new XMLFileReader(this, lock));
             parser.setErrorHandler(eh);
             parser.parse(filename);
+        } catch(Exception e) {
+            throw new EfaException(Logger.MSG_DATA_READFAILED, LogString.logstring_fileReadFailed(filename, storageLocation, e.toString()));
         } finally {
             releaseGlobalLock(lock);
         }
@@ -79,11 +82,15 @@ public class XMLFile extends DataFile {
         return "";
     }
 
-    protected synchronized void write(BufferedWriter fw, int indent, String s) throws Exception {
-        fw.write(space(indent) + s + "\n");
+    protected synchronized void write(BufferedWriter fw, int indent, String s) throws EfaException {
+        try {
+            fw.write(space(indent) + s + "\n");
+        } catch(Exception e) {
+            throw new EfaException(Logger.MSG_DATA_WRITEFAILED, LogString.logstring_fileWritingFailed(filename, storageLocation, e.toString()));
+        }
     }
 
-    protected synchronized void writeFile(BufferedWriter fw) throws Exception {
+    protected synchronized void writeFile(BufferedWriter fw) throws EfaException {
         write(fw,0,"<?xml version=\"1.0\" encoding=\""+ENCODING+"\"?>");
         write(fw,indent,xmltagStart("efa"));
         write(fw,indent,xmltagStart("header"));
@@ -96,7 +103,7 @@ public class XMLFile extends DataFile {
         write(fw,indent,xmltagEnd("efa"));
     }
 
-    private synchronized void writeData(BufferedWriter fw) throws Exception {
+    private synchronized void writeData(BufferedWriter fw) throws EfaException {
         write(fw,indent,xmltagStart("data"));
 
         String[] fields = getFieldNames();

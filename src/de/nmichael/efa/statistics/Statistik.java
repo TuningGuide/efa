@@ -10,6 +10,14 @@
 
 package de.nmichael.efa.statistics;
 
+import de.nmichael.efa.efa1.Ziele;
+import de.nmichael.efa.efa1.Mitglieder;
+import de.nmichael.efa.efa1.Fahrtenbuch;
+import de.nmichael.efa.efa1.Fahrtenabzeichen;
+import de.nmichael.efa.efa1.DatenListe;
+import de.nmichael.efa.efa1.DatenFelder;
+import de.nmichael.efa.efa1.Boote;
+import de.nmichael.efa.efa1.Adressen;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;

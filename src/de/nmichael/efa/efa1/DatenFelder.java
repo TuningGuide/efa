@@ -8,7 +8,7 @@
  * @version 2
  */
 
-package de.nmichael.efa.core;
+package de.nmichael.efa.efa1;
 
 // @i18n complete
 

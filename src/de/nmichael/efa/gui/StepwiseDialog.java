@@ -25,6 +25,7 @@ public abstract class StepwiseDialog extends BaseDialog {
     JPanel controlPanel;
     JPanel descriptionPanel;
     JPanel inputPanelWrapper;
+    JScrollPane inputScrollPane;
     JPanel inputPanel;
     JTextArea descriptionText;
     JButton backButton;
@@ -72,14 +73,14 @@ public abstract class StepwiseDialog extends BaseDialog {
         controlPanel = new JPanel();
         controlPanel.setLayout(new GridBagLayout());
         backButton = new JButton();
-        Mnemonics.setButton(this, backButton, International.getStringWithMnemonic("Zurück"));
+        Mnemonics.setButton(this, backButton, "<< " + International.getStringWithMnemonic("Zurück"));
         backButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 backButton_actionPerformed(e);
             }
         });
         nextButton = new JButton();
-        Mnemonics.setButton(this, nextButton, International.getStringWithMnemonic("Weiter"));
+        Mnemonics.setButton(this, nextButton, International.getStringWithMnemonic("Weiter") + " >>");
         nextButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 nextButton_actionPerformed(e);
@@ -130,6 +131,8 @@ public abstract class StepwiseDialog extends BaseDialog {
         descriptionPanel.add(descriptionScrollPane, BorderLayout.CENTER);
         descriptionText = new JTextArea();
         descriptionText.setEditable(false);
+        descriptionText.setWrapStyleWord(true);
+        descriptionText.setLineWrap(true);
         descriptionScrollPane.getViewport().add(descriptionText, null);
 
         // Input Panel
@@ -137,6 +140,9 @@ public abstract class StepwiseDialog extends BaseDialog {
         inputPanelWrapper.setLayout(new BorderLayout());
         inputPanelWrapper.setBorder(new javax.swing.border.EmptyBorder(20,20,20,20));
         inputPanelWrapper.setMinimumSize(new Dimension(600,300));
+        inputScrollPane = new JScrollPane();
+        inputScrollPane.setPreferredSize(new Dimension(600,300));
+        inputPanelWrapper.add(inputScrollPane, BorderLayout.CENTER);
 
         // Add Panels to basePanel and mainPanel
         stepPanelWrapper.add(stepPanel, BorderLayout.NORTH);
@@ -145,7 +151,6 @@ public abstract class StepwiseDialog extends BaseDialog {
         mainPanel.add(stepPanelWrapper, BorderLayout.WEST);
         mainPanel.add(descriptionPanel,BorderLayout.SOUTH);
         mainPanel.add(inputPanelWrapper, BorderLayout.CENTER);
-        //mainPanel.setMinimumSize(new Dimension(600,300));
     }
 
     public void updateGui() {
@@ -158,7 +163,8 @@ public abstract class StepwiseDialog extends BaseDialog {
 
         descriptionText.setText(getDescription(step));
         if (inputPanel != null) {
-            inputPanelWrapper.remove(inputPanel);
+            // inputPanelWrapper.remove(inputPanel);
+            inputScrollPane.getViewport().remove(inputPanel);
         }
 
         inputPanel = new JPanel();
@@ -177,7 +183,8 @@ public abstract class StepwiseDialog extends BaseDialog {
                 y += item.displayOnGui(this, inputPanel, y);
             }
             inputPanel.setBorder(new javax.swing.border.LineBorder(Color.black));
-            inputPanelWrapper.add(inputPanel, BorderLayout.CENTER);
+            // inputPanelWrapper.add(inputPanel, BorderLayout.CENTER);
+            inputScrollPane.getViewport().add(inputPanel, null);
         }
         this.validate();
     }
@@ -216,7 +223,7 @@ public abstract class StepwiseDialog extends BaseDialog {
     abstract String getDescription(int step);
     abstract void initializeItems();
 
-    boolean checkInput() {
+    boolean checkInput(int direction) {
         if (_thisStepItems == null) {
             return true;
         }
@@ -225,13 +232,15 @@ public abstract class StepwiseDialog extends BaseDialog {
                 Dialog.error(International.getMessage("Ungültiger Wert im Feld '{fieldname}'",item.getDescription()));
                 item.requestFocus();
                 return false;
+            } else {
+                item.getValueFromGui();
             }
         }
         return true;
     }
 
     void backButton_actionPerformed(ActionEvent e) {
-        if (!checkInput()) {
+        if (!checkInput(-1)) {
             return;
         }
         if (step > 0) {
@@ -241,7 +250,7 @@ public abstract class StepwiseDialog extends BaseDialog {
     }
 
     void nextButton_actionPerformed(ActionEvent e) {
-        if (!checkInput()) {
+        if (!checkInput(+1)) {
             return;
         }
         if (steps != null && step+1 < steps.length) {
@@ -251,7 +260,7 @@ public abstract class StepwiseDialog extends BaseDialog {
     }
 
     void finishButton_actionPerformed(ActionEvent e) {
-        if (!checkInput()) {
+        if (!checkInput(0)) {
             return;
         }
         cancel();

@@ -10,9 +10,12 @@
 
 package de.nmichael.efa.core;
 
+import de.nmichael.efa.efa1.Mitglieder;
+import de.nmichael.efa.efa1.GruppenMitglied;
+import de.nmichael.efa.efa1.Fahrtenbuch;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.AuswahlFrame;
-import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;

@@ -8,8 +8,9 @@
  * @version 2
  */
 
-package de.nmichael.efa.core;
+package de.nmichael.efa.efa1;
 
+import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -44,6 +45,7 @@ public class DatenListe {
   protected boolean backupEnabled = true; // ob von dieser Datei Backups angelegt werden sollen oder nicht
   protected int backupFailures = 0; // Anzahl der in Folge fehlgeschlagenen Backups
   private int scn;            // Change Number: Wird am Konstruktion bei jeder verändernden Operation hochgezählt
+  private boolean DONTEVERWRITE = false;
 
   private   String checksum;  // String, der als Checksumme in der Datei gefunden wurde
   private static final int HASHLENGTH = 11+40; // ##CHECKSUM=<40 Characters Hash>
@@ -69,6 +71,14 @@ public class DatenListe {
     l = new SortedList(numeric);
     changeType = CT_UNCHANGED;
     scn++;
+  }
+
+  /**
+   * Deactivate all writing of this file in all situations.
+   * To be used by efa2 when reading efa1 files to avoid any data conversion or corruption.
+   */
+  public void dontEverWrite() {
+      DONTEVERWRITE = true;
   }
 
 
@@ -160,9 +170,11 @@ public class DatenListe {
   }
 
   protected synchronized void openfW() throws IOException {
+    if (DONTEVERWRITE) { return; }
     openfW(false);
   }
   private synchronized void openfW(boolean append) throws IOException {
+    if (DONTEVERWRITE) { return; }
     try {
       boolean utf = EfaUtil.stringFindInt(kennung, 0) >= 190;
       ff = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dat,append), (utf ? Daten.ENCODING_UTF : Daten.ENCODING_ISO)));
@@ -182,6 +194,7 @@ public class DatenListe {
   }
 
   protected synchronized void fwrite(String s) throws IOException {
+    if (DONTEVERWRITE) { return; }
     ff.write(s);
   }
 
@@ -263,6 +276,7 @@ public class DatenListe {
   }
 
   protected synchronized void fcloseW() throws IOException {
+    if (DONTEVERWRITE) { return; }
     ff.close();
     String hash = EfaUtil.getSHA(new File(dat));
     try {
@@ -520,6 +534,7 @@ public class DatenListe {
 
   // Schreibschutz-Informationen in die Datei schreiben (wird direkt in openWFile() aufgerufen)
   public synchronized void writeHeader() throws IOException {
+    if (DONTEVERWRITE) { return; }
     fwrite(kennung);
     if (writeProtect) {
       fwrite(" %%WRITEPROTECT%%");
@@ -649,12 +664,15 @@ public class DatenListe {
 
   // Datei zum Schreiben öffnen
   public synchronized final boolean openWFile(boolean fuerKonvertieren) {
+    if (DONTEVERWRITE) { return false; }
     return openWFile(fuerKonvertieren,false,false);
   }
   private synchronized final boolean openWFile(boolean fuerKonvertieren, boolean append) {
+    if (DONTEVERWRITE) { return false; }
     return openWFile(fuerKonvertieren,append,false);
   }
   private synchronized final boolean openWFile(boolean fuerKonvertieren, boolean append, boolean force) {
+    if (DONTEVERWRITE) { return false; }
     if (!writeAllowed(fuerKonvertieren)) {
       errWritingFile(dat);
       return false;
@@ -715,6 +733,7 @@ public class DatenListe {
 
   // gesamnten Inhalt der Datei schreiben
   public synchronized boolean _writeFile() {
+    if (DONTEVERWRITE) { return false; }
     DatenFelder d;
     String s;
     d = (DatenFelder)l.getCompleteFirst();
@@ -739,6 +758,7 @@ public class DatenListe {
 
   // Datei (schreiben) schließen
   public synchronized boolean closeWFile() {
+    if (DONTEVERWRITE) { return false; }
     try {
       fcloseW();
       return true;
@@ -766,6 +786,7 @@ public class DatenListe {
 
   // Datei öffnen und schreiben
   public synchronized boolean writeFile(boolean fuerKonvertieren, boolean force) {
+    if (DONTEVERWRITE) { return false; }
     if (Daten.DONT_SAVE_ANY_FILES_DUE_TO_OOME) {
       Logger.log(Logger.WARNING,Logger.MSG_CSVFILE_OOMSAVEERROR,
               International.getMessage("Änderungen an der Datei {file} konnten wegen Speicherknappheit NICHT gesichert werden.",getFileName()));
@@ -786,6 +807,7 @@ public class DatenListe {
   // Diese Methode dient der Performance-Steigerung für efaDirekt, da dort i.d.R. immer nur
   // jeweils ein Datensatz angefügt wird
   public synchronized boolean writeFileOnlyLastRecordChanged() {
+    if (DONTEVERWRITE) { return false; }
     if (!writeAllowed(false)) {
       errWritingFile(dat);
       return false;

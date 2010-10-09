@@ -10,7 +10,7 @@
 
 package de.nmichael.efa.eddi;
 
-import de.nmichael.efa.core.Mitglieder;
+import de.nmichael.efa.efa1.Mitglieder;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;

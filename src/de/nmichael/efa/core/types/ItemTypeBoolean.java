@@ -13,7 +13,6 @@ package de.nmichael.efa.core.types;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.gui.BaseDialog;
-
 import java.awt.*;
 import javax.swing.*;
 
@@ -55,8 +54,11 @@ public class ItemTypeBoolean extends ItemType {
         if (type == IItemType.TYPE_EXPERT) {
             checkbox.setForeground(Color.red);
         }
+        if (color != null) {
+            checkbox.setForeground(color);
+        }
         panel.add(checkbox, new GridBagConstraints(0, y, 2, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, padX, padYafter, 0), 0, 0));
         return 1;
     }
 

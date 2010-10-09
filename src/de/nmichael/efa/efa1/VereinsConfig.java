@@ -8,10 +8,11 @@
  * @version 2
  */
 
-package de.nmichael.efa.core;
+package de.nmichael.efa.efa1;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.DatenListe;
+import de.nmichael.efa.core.EnterPasswordFrame;
+import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.io.*;

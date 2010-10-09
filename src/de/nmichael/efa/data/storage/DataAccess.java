@@ -10,6 +10,8 @@
 
 package de.nmichael.efa.data.storage;
 
+import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.util.Logger;
 import java.util.*;
 
 // @i18n complete
@@ -20,6 +22,7 @@ public abstract class DataAccess implements IDataAccess {
     protected String storageLocation;
     protected String storageObjectName;
     protected String storageObjectType;
+    protected String storageObjectDescription;
     protected String storageUsername;
     protected String storagePassword;
     protected String storageObjectVersion;
@@ -27,12 +30,11 @@ public abstract class DataAccess implements IDataAccess {
     protected final LinkedHashMap<String,Integer> fieldTypes = new LinkedHashMap<String,Integer>();
     protected String[] keyFields;
 
-    public static IDataAccess createDataAccess(Persistence persistence, int type, String storageLocation, String storageObjectName, String storageObjectType) {
+    public static IDataAccess createDataAccess(Persistence persistence, int type, String storageLocation, String storageObjectName, 
+            String storageObjectType, String storageObjectDescription) {
         switch(type) {
-            case IDataAccess.TYPE_FILE_CSV:
-                return null; //(IDataAccess)new CSVFile(storageLocation, storageObjectName, storageObjectType);
             case IDataAccess.TYPE_FILE_XML:
-                IDataAccess dataAccess = (IDataAccess)new XMLFile(storageLocation, storageObjectName, storageObjectType);
+                IDataAccess dataAccess = (IDataAccess)new XMLFile(storageLocation, storageObjectName, storageObjectType, storageObjectDescription);
                 dataAccess.setPersistence(persistence);
                 return dataAccess;
             case IDataAccess.TYPE_DB_SQL:
@@ -74,6 +76,14 @@ public abstract class DataAccess implements IDataAccess {
         return this.storageObjectType;
     }
 
+    public void setStorageObjectDescription(String description) {
+        this.storageObjectDescription = description;
+    }
+
+    public String getStorageObjectDescription() {
+        return this.storageObjectDescription;
+    }
+
     public void setStorageUsername(String username) {
         this.storageUsername = username;
     }
@@ -98,9 +108,9 @@ public abstract class DataAccess implements IDataAccess {
         this.storageObjectVersion = version;
     }
 
-    public void registerDataField(String fieldName, int dataType) throws Exception {
+    public void registerDataField(String fieldName, int dataType) throws EfaException {
         if (fieldTypes.containsKey(fieldName)) {
-            throw new Exception("Field Name is already in use: "+fieldName);
+            throw new EfaException(Logger.MSG_DATA_GENERICEXCEPTION,getUID() + ": Field Name is already in use: "+fieldName);
         }
         synchronized(fieldTypes) { // fieldTypes used for synchronization of fieldTypes and keyFields as well
             fieldTypes.put(fieldName, dataType);
@@ -108,7 +118,7 @@ public abstract class DataAccess implements IDataAccess {
     }
 
 
-    public void setKey(String[] fieldNames) throws Exception {
+    public void setKey(String[] fieldNames) throws EfaException {
         synchronized (fieldTypes) { // fieldTypes used for synchronization of fieldTypes and keyFields as well
             for (int i = 0; i < fieldNames.length; i++) {
                 getFieldType(fieldNames[i]); // just to check for existence
@@ -135,18 +145,18 @@ public abstract class DataAccess implements IDataAccess {
         }
     }
 
-    public int getFieldType(String fieldName) throws Exception {
+    public int getFieldType(String fieldName) throws EfaException {
         Integer i = null;
         synchronized (fieldTypes) { // fieldTypes used for synchronization of fieldTypes and keyFields as well
             i = fieldTypes.get(fieldName);
         }
         if (i == null) {
-            throw new Exception("Field Name does not exist: "+fieldName);
+            throw new EfaException(Logger.MSG_DATA_FIELDDOESNOTEXIST, getUID() + ": Field Name does not exist: "+fieldName);
         }
         return i.intValue();
     }
 
-    public DataKey constructKey(DataRecord record) throws Exception {
+    public DataKey constructKey(DataRecord record) throws EfaException {
         Object v1 = null;
         Object v2 = null;
         Object v3 = null;

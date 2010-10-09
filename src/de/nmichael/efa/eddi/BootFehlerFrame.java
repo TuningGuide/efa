@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.eddi;
 
+import de.nmichael.efa.efa1.Boote;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;

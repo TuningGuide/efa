@@ -10,8 +10,13 @@
 
 package de.nmichael.efa.core;
 
+import de.nmichael.efa.efa1.StatSave;
+import de.nmichael.efa.efa1.Ziele;
+import de.nmichael.efa.efa1.Mitglieder;
+import de.nmichael.efa.efa1.Fahrtenbuch;
+import de.nmichael.efa.efa1.FBDaten;
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.Boote;
+import de.nmichael.efa.efa1.Boote;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;

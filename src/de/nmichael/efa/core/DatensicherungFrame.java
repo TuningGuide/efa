@@ -139,7 +139,7 @@ public class DatensicherungFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
       jPanel2.add(dirSelectButton,   new GridBagConstraints(2, 4, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-      dirSelectButton.setIcon(new ImageIcon(EfaConfigFrame.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
+      dirSelectButton.setIcon(new ImageIcon(Daten.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
     } catch(NoSuchMethodException e) {
       System.err.println("Error setting up ActionHandler");
     }

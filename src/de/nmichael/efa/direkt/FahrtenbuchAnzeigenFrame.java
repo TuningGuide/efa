@@ -10,6 +10,8 @@
 
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.efa1.Fahrtenbuch;
+import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;

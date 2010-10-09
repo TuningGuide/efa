@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.core;
 
+import de.nmichael.efa.efa1.GruppenMitglied;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.AuswahlFrame;
 import de.nmichael.efa.util.*;

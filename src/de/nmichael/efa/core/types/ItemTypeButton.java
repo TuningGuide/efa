@@ -23,7 +23,7 @@ import javax.swing.*;
 public class ItemTypeButton extends ItemType {
 
     private String text;
-    private String color;
+    private String bcolor;
     private boolean show;
     private boolean isChangeableText;
     private boolean isChangeableColor;
@@ -33,12 +33,12 @@ public class ItemTypeButton extends ItemType {
     protected JCheckBox checkbox;
 
 
-    public ItemTypeButton(String name, String text, String color, boolean show,
+    public ItemTypeButton(String name, String text, String bcolor, boolean show,
             boolean isChangeableText, boolean isChangeableColor, boolean isChangeableShow,
             int type, String category, String description) {
         this.name = name;
         this.text = text;
-        this.color = color;
+        this.bcolor = bcolor;
         this.show = show;
         this.isChangeableText = isChangeableText;
         this.isChangeableColor = isChangeableColor;
@@ -64,7 +64,7 @@ public class ItemTypeButton extends ItemType {
                             break;
                         case 1:
                             if (isChangeableColor) {
-                                color = t;
+                                bcolor = t;
                             }
                             break;
                         case 2:
@@ -86,7 +86,7 @@ public class ItemTypeButton extends ItemType {
     public String toString() {
         return  (isChangeableText ? EfaUtil.removeSepFromString(text, "|") : "#") +
                 "|" +
-                (isChangeableColor ? color : "#") +
+                (isChangeableColor ? bcolor : "#") +
                 "|" +
                 (isChangeableShow ? (show ? "+" : "-") : "#");
     }
@@ -97,7 +97,7 @@ public class ItemTypeButton extends ItemType {
         button = new JButton();
         Dialog.setPreferredSize(button, 300, 21);
         button.setText(text);
-        button.setBackground(EfaUtil.getColor(color));
+        button.setBackground(EfaUtil.getColor(bcolor));
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { buttonHit(e); }
         });
@@ -112,14 +112,17 @@ public class ItemTypeButton extends ItemType {
         if (type == IItemType.TYPE_EXPERT) {
             label.setForeground(Color.red);
         }
+        if (color != null) {
+            label.setForeground(color);
+        }
 
         panel.add(label, new GridBagConstraints(0, y, 1, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, padX, padYafter, 0), 0, 0));
         panel.add(button, new GridBagConstraints(1, y, 1, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, padYafter, 0), 0, 0));
         if (checkbox != null) {
             panel.add(checkbox, new GridBagConstraints(2, y, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, padYafter, 0), 0, 0));
         }
         return 1;
     }
@@ -129,7 +132,7 @@ public class ItemTypeButton extends ItemType {
             text = button.getText();
         }
         if (isChangeableColor) {
-            color = EfaUtil.getColor(button.getBackground());
+            bcolor = EfaUtil.getColor(button.getBackground());
         }
         if (isChangeableShow) {
             show = checkbox.isSelected();
@@ -186,7 +189,7 @@ public class ItemTypeButton extends ItemType {
     }
 
     public String getValueColor() {
-        return color;
+        return bcolor;
     }
 
     public boolean getValueShow() {
@@ -198,7 +201,7 @@ public class ItemTypeButton extends ItemType {
     }
 
     public void setValueColor(String color) {
-        this.color = color;
+        this.bcolor = color;
     }
 
     public void setValueShow(boolean show) {

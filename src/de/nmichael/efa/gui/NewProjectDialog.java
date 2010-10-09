@@ -15,6 +15,7 @@ import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.types.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.*;
 import java.util.*;
 import java.awt.*;
@@ -35,7 +36,7 @@ public class NewProjectDialog extends StepwiseDialog {
         super(parent, International.getString("Neues Projekt"));
     }
 
-    public NewProjectDialog(JFrame parent) {
+    public NewProjectDialog(Frame parent) {
         super(parent, International.getString("Neues Projekt"));
     }
 
@@ -48,7 +49,18 @@ public class NewProjectDialog extends StepwiseDialog {
     }
     
     String getDescription(int step) {
-        return "Das hier ist ein Beschreibungstext.";
+        switch(step) {
+            case 0:
+                return International.getString("In efa2 werden alle Daten in Projekten zusammengefaßt. Üblicherweise solltest Du für einen Verein "+
+                        "genau ein Projekt erstellen, welches dann sämtliche Fahrtenbücher, Mitglieder-, Boots- und Ziellisten sowie sonstige Daten enthält.");
+            case 1:
+                return International.getString("Bitte wähle, wo die Daten des Projekts gespeichert werden sollen:\n"+
+                        "  lokales Dateisystem - speichert die Daten lokal auf Deinem Computer\n"+
+                        "  SQL-Datenbank - speichert die Daten in einer beliebigen SQL-Datenbank");
+            case 2:
+                return International.getString("Bitte vervollständige die Angaben zu Deinem Verein.");
+        }
+        return "";
     }
 
     void initializeItems() {
@@ -73,8 +85,8 @@ public class NewProjectDialog extends StepwiseDialog {
         items.add(item);
     }
 
-    boolean checkInput() {
-        boolean ok = super.checkInput();
+    boolean checkInput(int direction) {
+        boolean ok = super.checkInput(direction);
         if (!ok) {
             return false;
         }
@@ -85,7 +97,7 @@ public class NewProjectDialog extends StepwiseDialog {
             Project prj = new Project(IDataAccess.TYPE_FILE_XML, Daten.efaDataDirectory, name);
             try {
                 if (prj.data().existsStorageObject()) {
-                    Dialog.error(International.getMessage("Das Projekt '{project}' existiert bereits.",
+                    Dialog.error(International.getMessage("Das Projekt {project} existiert bereits.",
                             name));
                     item.requestFocus();
                     return false;
@@ -124,9 +136,49 @@ public class NewProjectDialog extends StepwiseDialog {
             prj.open(true);
             prj.setEmptyProject(prjName.getValue());
             prj.close();
-        } catch(Exception ee) {
-            Dialog.error(ee.toString());
+            prj.open(false);
+            Daten.project = prj;
+            Dialog.infoDialog(International.getString("Das Projekt wurde erfolgreich angelegt."));
+            setDialogResult(true);
+        } catch(EfaException ee) {
+            Dialog.error(ee.getMessage());
+            ee.log();
+            setDialogResult(false);
         }
+    }
+
+    public boolean createNewProjectAndLogbook() {
+        showDialog();
+        if (!getDialogResult()) {
+            return false;
+        }
+        switch(Dialog.auswahlDialog(International.getString("Fahrtenbuch erstellen"),
+                International.getString("Das Projekt enthält noch keine Daten.") + " " +
+                International.getString("Was möchtest Du tun?"),
+                International.getString("Neues (leeres) Fahrtenbuch erstellen"),
+                International.getString("Daten aus efa 1.x importieren"))) {
+            case 0:
+                NewLogbookDialog dlg0 = null;
+                if (getParentJDialog() != null) {
+                    dlg0 = new NewLogbookDialog(getParentJDialog());
+                }
+                if (getParentFrame() != null) {
+                    dlg0 = new NewLogbookDialog(getParentFrame());
+                }
+                dlg0.showDialog();
+                break;
+            case 1:
+                ImportEfa1DataDialog dlg1 = null;
+                if (getParentJDialog() != null) {
+                    dlg1 = new ImportEfa1DataDialog(getParentJDialog());
+                }
+                if (getParentFrame() != null) {
+                    dlg1 = new ImportEfa1DataDialog(getParentFrame());
+                }
+                dlg1.showDialog();
+                break;
+        }
+        return true;
     }
 
 }

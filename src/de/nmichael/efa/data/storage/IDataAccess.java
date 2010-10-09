@@ -10,11 +10,12 @@
 
 package de.nmichael.efa.data.storage;
 
+import de.nmichael.efa.ex.EfaException;
+
 // @i18n complete
 
 public interface IDataAccess {
 
-    public static final int TYPE_FILE_CSV = 0;
     public static final int TYPE_FILE_XML = 1;
     public static final int TYPE_DB_SQL = 2;
 
@@ -95,6 +96,24 @@ public interface IDataAccess {
     public String getStorageObjectType();
 
     /**
+     * Sets an informal description of this storage object, e.g. "Logbook", to be displayed on GUI items or in logfiles
+     * @param description the storage object description
+     */
+    public void setStorageObjectDescription(String description);
+
+    /**
+     * Returns an informal description of this storage object, e.g. "Logbook", to be displayed on GUI items or in logfiles
+     * @return the storage object description
+     */
+    public String getStorageObjectDescription();
+
+    /**
+     * Returns a unique ID for this Storage Object
+     * @return an ID
+     */
+    public String getUID();
+
+    /**
      * Sets the username to access the storage object.
      * @param username the username to access the storage object
      */
@@ -124,7 +143,7 @@ public interface IDataAccess {
      * In order to succeed, the storage object location, object name and objecet type must have been specified before.
      * @throws Exception if the existance of the storage object could not be verified.
      */
-    public boolean existsStorageObject() throws Exception;
+    public boolean existsStorageObject() throws EfaException;
 
     /**
      * Creates a new storage object (overwrites existing objects).
@@ -132,19 +151,19 @@ public interface IDataAccess {
      * In order to succeed, the storage object location, object name and objecet type must have been specified before.
      * @throws Exception if the creation of the object failed.
      */
-    public void createStorageObject() throws Exception;
+    public void createStorageObject() throws EfaException;
 
     /**
      * Opens an existing storage object.
      * @throws Exception if the opening of the object failed.
      */
-    public void openStorageObject() throws Exception;
+    public void openStorageObject() throws EfaException;
 
     /**
      * Closes this storage object. Uncommitted changes to this object will be lost.
      * @throws Exception if the closing of this object failed.
      */
-    public void closeStorageObject() throws Exception;
+    public void closeStorageObject() throws EfaException;
 
     /**
      * Checks whether the storage object is currently open.
@@ -157,14 +176,14 @@ public interface IDataAccess {
      * @return the version identifier
      * @throws Exception
      */
-    public String getStorageObjectVersion() throws Exception;
+    public String getStorageObjectVersion() throws EfaException;
 
     /**
      * Sets the current version of the storage object.
      * @param version the version identifier
      * @throws Exception
      */
-    public void setStorageObjectVersion(String version) throws Exception;
+    public void setStorageObjectVersion(String version) throws EfaException;
 
     /**
      * Locks the entire storage object for exclusive write access.
@@ -175,7 +194,7 @@ public interface IDataAccess {
      * @throws Exception if the storage object is already locked or cannot be
      * locked at the moment (e.g. because it has already been closed)
      */
-    public long acquireGlobalLock() throws Exception;
+    public long acquireGlobalLock() throws EfaException;
 
     /**
      * Locks one data record in the storage object for exclusive write access.
@@ -186,26 +205,26 @@ public interface IDataAccess {
      * @throws Exception if the data record or the storage object is already locked or cannot be
      * locked at the moment (e.g. because it has already been closed)
      */
-    public long acquireLocalLock(DataKey key) throws Exception;
+    public long acquireLocalLock(DataKey key) throws EfaException;
 
     /**
      * Releases a previous acquired global lock.
      * @param lockID the lock ID
      */
-    public void releaseGlobalLock(long lockID) throws Exception;
+    public void releaseGlobalLock(long lockID) throws EfaException;
 
     /**
      * Releases a previous acquired local lock.
      * @param lockID the lock ID
      */
-    public void releaseLocalLock(long lockID) throws Exception;
+    public void releaseLocalLock(long lockID) throws EfaException;
 
     /**
      * Returns the current SCN.
      * @return the SCN
      * @throws Exception
      */
-    public long getSCN() throws Exception;
+    public long getSCN() throws EfaException;
 
     /**
      * Registers a new data field.
@@ -213,7 +232,7 @@ public interface IDataAccess {
      * @param dataType the type of the new field
      * @throws Exception
      */
-    public void registerDataField(String fieldName, int dataType) throws Exception;
+    public void registerDataField(String fieldName, int dataType) throws EfaException;
 
 
     /**
@@ -222,7 +241,7 @@ public interface IDataAccess {
      * @param fieldNames an array of existing fields to be used as key.
      * @throws Exception
      */
-    public void setKey(String[] fieldNames) throws Exception;
+    public void setKey(String[] fieldNames) throws EfaException;
 
     /**
      * Returns the names of the key fields of this storage object.
@@ -242,7 +261,7 @@ public interface IDataAccess {
      * @return the field type
      * @throws Exception
      */
-    public int getFieldType(String fieldName) throws Exception;
+    public int getFieldType(String fieldName) throws EfaException;
 
     /**
      * Constructs a key from a given (non-empty) DataRecord.
@@ -250,14 +269,14 @@ public interface IDataAccess {
      * @return the key
      * @throws Exception
      */
-    public DataKey constructKey(DataRecord record) throws Exception;
+    public DataKey constructKey(DataRecord record) throws EfaException;
 
     /**
      * Adds a new data record to this storage object.
      * @param record the data record to add
      * @throws Exception if the data record already exists or the operation fails for another reason
      */
-    public void add(DataRecord record) throws Exception;
+    public void add(DataRecord record) throws EfaException;
 
     /**
      * Adds a new data record to this storage object with a previously acquired local or global lock.
@@ -265,14 +284,14 @@ public interface IDataAccess {
      * @param lockID an ID of a previously acquired local or global lock
      * @throws Exception if the data record already exists or the operation fails for another reason
      */
-    public void add(DataRecord record, long lockID) throws Exception;
+    public void add(DataRecord record, long lockID) throws EfaException;
 
     /**
      * Adds a new data record to or updates an existing one in this storage object.
      * @param record the data record to add or update
      * @throws Exception if the data record is locked or the operation fails for another reason
      */
-    public void addOrUpdate(DataRecord record) throws Exception;
+    public void addOrUpdate(DataRecord record) throws EfaException;
 
     /**
      * Adds a new data record to or updates an existing one in this storage object with a previously acquired local or global lock.
@@ -280,14 +299,14 @@ public interface IDataAccess {
      * @param lockID an ID of a previously acquired local or global lock
      * @throws Exception if the data record is locked or the operation fails for another reason
      */
-    public void addOrUpdate(DataRecord record, long lockID) throws Exception;
+    public void addOrUpdate(DataRecord record, long lockID) throws EfaException;
 
     /**
      * Deletes an existing data record from this storage object.
      * @param key the key of the data record to delete
      * @throws Exception if the data record does not exist, is locked or the operation fails for another reason
      */
-    public void delete(DataKey key) throws Exception;
+    public void delete(DataKey key) throws EfaException;
 
     /**
      * Deletes an existing data record from this storage object with a previously acquired local or global lock.
@@ -295,34 +314,34 @@ public interface IDataAccess {
      * @param lockID an ID of a previously acquired local or global lock
      * @throws Exception if the data record does not exist, is locked or the operation fails for another reason
      */
-    public void delete(DataKey key, long lockID) throws Exception;
+    public void delete(DataKey key, long lockID) throws EfaException;
 
     /**
      * Retrieves an existing data record from this storage object.
      * @param key the key of the data record to retrieve
      * @throws Exception if the data record does not exist, is locked or the operation fails for another reason
      */
-    public DataRecord get(DataKey key) throws Exception;
+    public DataRecord get(DataKey key) throws EfaException;
 
     /**
      * Returns the number of data records in this storage object.
      * @return the number of data records
      * @throws Exception
      */
-    public long getNumberOfRecords() throws Exception;
+    public long getNumberOfRecords() throws EfaException;
 
     /**
      * Truncates (deletes) all data records in this storage object.
      * @throws Exception
      */
-    public void truncateAllData() throws Exception;
+    public void truncateAllData() throws EfaException;
 
-    public DataKeyIterator getIterator() throws Exception;
-    public DataRecord getCurrent(DataKeyIterator it) throws Exception;
-    public DataRecord getFirst(DataKeyIterator it) throws Exception;
-    public DataRecord getLast(DataKeyIterator it) throws Exception;
-    public DataRecord getNext(DataKeyIterator it) throws Exception;
-    public DataRecord getPrev(DataKeyIterator it) throws Exception;
+    public DataKeyIterator getIterator() throws EfaException;
+    public DataRecord getCurrent(DataKeyIterator it) throws EfaException;
+    public DataRecord getFirst(DataKeyIterator it) throws EfaException;
+    public DataRecord getLast(DataKeyIterator it) throws EfaException;
+    public DataRecord getNext(DataKeyIterator it) throws EfaException;
+    public DataRecord getPrev(DataKeyIterator it) throws EfaException;
 
 
     /*

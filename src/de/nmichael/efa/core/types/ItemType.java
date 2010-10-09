@@ -12,6 +12,7 @@ package de.nmichael.efa.core.types;
 
 import java.util.Vector;
 import java.util.Hashtable;
+import java.awt.Color;
 import de.nmichael.efa.util.TMJ;
 import de.nmichael.efa.util.Logger;
 import de.nmichael.efa.gui.BaseDialog;
@@ -25,6 +26,11 @@ public abstract class ItemType implements IItemType {
     protected String category;
     protected String description;
     protected BaseDialog dlg;
+
+    protected Color color = null;
+    protected int padX = 0;
+    protected int padYbefore = 0;
+    protected int padYafter = 0;
 
     public String getName() {
         return name;
@@ -44,6 +50,16 @@ public abstract class ItemType implements IItemType {
 
     public boolean isValidInput() {
         return true;
+    }
+
+    public void setColor(Color c) {
+        this.color = c;
+    }
+
+    public void setPadding(int padX, int padYbefore, int padYafter) {
+        this.padX = padX;
+        this.padYbefore = padYbefore;
+        this.padYafter = padYafter;
     }
 
 }

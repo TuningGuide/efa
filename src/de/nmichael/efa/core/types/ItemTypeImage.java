@@ -63,6 +63,9 @@ public class ItemTypeImage extends ItemType {
         if (type == IItemType.TYPE_EXPERT) {
             label.setForeground(Color.red);
         }
+        if (color != null) {
+            label.setForeground(color);
+        }
         JButton selectButton = new JButton();
         selectButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_open.gif")));
         selectButton.setMargin(new Insets(0,0,0,0));
@@ -79,11 +82,11 @@ public class ItemTypeImage extends ItemType {
         });
 
         panel.add(label, new GridBagConstraints(0, y, 1, 2, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, padX, 0, 0), 0, 0));
         panel.add(image, new GridBagConstraints(1, y, 1, 2, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, padYafter, 0), 0, 0));
         panel.add(selectButton, new GridBagConstraints(2, y+0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, 0, 0), 0, 0));
         panel.add(removeButton, new GridBagConstraints(2, y+1, 1, 1, 0.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         return 2;

@@ -8,11 +8,11 @@
  * @version 2
  */
 
-package de.nmichael.efa.core;
+package de.nmichael.efa.efa1;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.core.Boote;
+import de.nmichael.efa.efa1.Boote;
 import de.nmichael.efa.core.config.EfaTypes;
 
 // @i18n complete

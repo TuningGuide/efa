@@ -14,16 +14,17 @@ import de.nmichael.efa.core.config.EfaBaseConfig;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.core.config.CustSettings;
-import de.nmichael.efa.core.DatenListe;
+import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.core.WettDefs;
-import de.nmichael.efa.core.Gruppen;
-import de.nmichael.efa.core.Fahrtenabzeichen;
-import de.nmichael.efa.core.VereinsConfig;
-import de.nmichael.efa.core.Synonyme;
-import de.nmichael.efa.core.Fahrtenbuch;
-import de.nmichael.efa.core.Mannschaften;
-import de.nmichael.efa.core.Adressen;
+import de.nmichael.efa.efa1.Gruppen;
+import de.nmichael.efa.efa1.Fahrtenabzeichen;
+import de.nmichael.efa.efa1.VereinsConfig;
+import de.nmichael.efa.efa1.Synonyme;
+import de.nmichael.efa.efa1.Fahrtenbuch;
+import de.nmichael.efa.efa1.Mannschaften;
+import de.nmichael.efa.efa1.Adressen;
 import de.nmichael.efa.core.EfaRunning;
+import de.nmichael.efa.data.Project;
 import de.nmichael.efa.util.EfaSec;
 import de.nmichael.efa.util.TMJ;
 import de.nmichael.efa.util.Logger;
@@ -184,6 +185,8 @@ public class Daten {
   public static EfaConfig efaConfig;         // Konfigurationsdatei
   public static DRVConfig drvConfig;         // Konfigurationsdatei
   public static EfaTypes efaTypes;           // EfaTypes (Bezeichnungen)
+  public static Project project;             // Efa Project
+
   public static VereinsConfig vereinsConfig; // Konfigurationsdatei für Vereinseinstellungen
   public static Adressen adressen;           // gespeicherte Teilnehmer-Adressen
   public static Synonyme synMitglieder;      // Synonymliste für Mitglieder
@@ -194,7 +197,7 @@ public class Daten {
   public static Fahrtenabzeichen fahrtenabzeichen; // DRV Fahrtenabzeichen
   public static Gruppen gruppen;             // Gruppen
   public static WettDefs wettDefs;           // WettDefs
-  public static de.nmichael.efa.direkt.NachrichtenAnAdmin nachrichten; // Nachrichten an Admin
+  public static de.nmichael.efa.efa1.NachrichtenAnAdmin nachrichten; // Nachrichten an Admin
   public static EfaKeyStore keyStore;        // KeyStore
   public static EfaSec efaSec;               // efa Security File
   public static EfaRunning efaRunning;       // efa Running (Doppelstarts verhindern)
@@ -316,6 +319,16 @@ public class Daten {
     }
 
     public static void haltProgram(int exitCode) {
+        if ((exitCode == 0 || exitCode >= 100) &&
+            Daten.project != null && Daten.project.isOpen()) {
+            try {
+                project.close();
+            } catch(Exception e) {
+                Logger.log(Logger.ERROR, Logger.MSG_DATA_CLOSEFAILED,
+                        e.toString());
+            }
+        }
+
         if (exitCode != 0) {
             if (exitCode < 99) {
                 Logger.log(Logger.INFO, Logger.MSG_CORE_HALT, getCurrentStack());

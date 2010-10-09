@@ -39,6 +39,8 @@ public class ItemTypeHashtable<E> extends ItemType {
         this.type = type;
         this.category = category;
         this.description = description;
+        this.padYbefore = 20;
+        this.padYafter = 20;
         iniHash();
     }
 
@@ -152,12 +154,14 @@ public class ItemTypeHashtable<E> extends ItemType {
 
     public int displayOnGui(BaseDialog dlg, JPanel panel, int y) {
         this.dlg = dlg;
-        int padBottom = 0;
 
         JLabel titlelabel = new JLabel();
         Mnemonics.setLabel(dlg, titlelabel, getDescription() + ": ");
         if (type == IItemType.TYPE_EXPERT) {
             titlelabel.setForeground(Color.red);
+        }
+        if (color != null) {
+            titlelabel.setForeground(color);
         }
         JButton addButton = new JButton();
         addButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_plus.gif")));
@@ -168,14 +172,11 @@ public class ItemTypeHashtable<E> extends ItemType {
         });
 
         String[] keys = getKeysArray();
-        if (keys.length == 0) {
-            padBottom = 20;
-        }
 
         panel.add(titlelabel, new GridBagConstraints(0, y, 2, 1, 0.0, 0.0,
-                  GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(20, 0, padBottom, 0), 0, 0));
+                  GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, padX, (keys.length == 0 ? padYafter : 0), 0), 0, 0));
         panel.add(addButton, new GridBagConstraints(2, y, 2, 1, 0.0, 0.0,
-                  GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(20, 0, padBottom, 0), 0, 0));
+                  GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, (keys.length == 0 ? padYafter : 0), 0), 0, 0));
 
         textfield = new JTextField[size()];
         delButtons = new Hashtable();
@@ -190,6 +191,9 @@ public class ItemTypeHashtable<E> extends ItemType {
             if (type == IItemType.TYPE_EXPERT) {
                 label.setForeground(Color.red);
             }
+            if (color != null) {
+                label.setForeground(color);
+            }
             JButton delButton = new JButton();
             delButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_minus.gif")));
             delButton.setMargin(new Insets(0,0,0,0));
@@ -198,15 +202,12 @@ public class ItemTypeHashtable<E> extends ItemType {
                 public void actionPerformed(ActionEvent e) { delButtonHit(e); }
             });
 
-            if (i+1 == keys.length) {
-                padBottom = 20;
-            }
             panel.add(label, new GridBagConstraints(0, y+i+1, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, padBottom, 0), 0, 0));
+                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, padX, (i+1 == keys.length ? padYafter : 0), 0), 0, 0));
             panel.add(textfield[i], new GridBagConstraints(1, y+i+1, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, padBottom, 0), 0, 0));
+                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, (i+1 == keys.length ? padYafter : 0), 0), 0, 0));
             panel.add(delButton, new GridBagConstraints(2, y+i+1, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, padBottom, 0), 0, 0));
+                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, (i+1 == keys.length ? padYafter : 0), 0), 0, 0));
 
             delButtons.put(delButton, keys[i]);
         }

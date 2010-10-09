@@ -10,7 +10,7 @@
 
 package de.nmichael.efa.drv;
 
-import de.nmichael.efa.core.DatenListe;
+import de.nmichael.efa.efa1.DatenListe;
 import java.io.*;
 import java.util.Hashtable;
 import de.nmichael.efa.*;

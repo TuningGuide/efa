@@ -32,7 +32,6 @@ public class ItemTypeAction extends ItemType {
     protected BaseDialog dlg;
     protected JButton button;
 
-
     public ItemTypeAction(String name, int action,
             int type, String category, String description) {
         this.name = name;
@@ -62,8 +61,11 @@ public class ItemTypeAction extends ItemType {
         if (type == EfaConfig.TYPE_EXPERT) {
             button.setForeground(Color.red);
         }
+        if (color != null) {
+            button.setForeground(color);
+        }
         panel.add(button, new GridBagConstraints(0, y, 3, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+                GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(padYbefore, padX, padYafter, 0), 0, 0));
         return 1;
     }
 

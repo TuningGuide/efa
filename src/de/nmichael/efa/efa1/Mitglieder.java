@@ -8,11 +8,11 @@
  * @version 2
  */
 
-package de.nmichael.efa.core;
+package de.nmichael.efa.efa1;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.DatenListe;
-import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.efa1.DatenListe;
+import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -47,7 +47,7 @@ public class Mitglieder extends DatenListe {
   public static final String KENNUNG173 = "##EFA.173.MITGLIEDER##";
   public static final String KENNUNG190 = "##EFA.190.MITGLIEDER##";
 
-  Hashtable aliases=null;       // Alias-Namen der Mitglieder
+  public Hashtable aliases=null;       // Alias-Namen der Mitglieder
 
 
   // Konstruktor
@@ -233,7 +233,7 @@ public class Mitglieder extends DatenListe {
 
 
   // testet, ob der angegebene Alias bereits verwendet wird
-  boolean isAlias(String alias) {
+  public boolean isAlias(String alias) {
     if (aliases != null) return aliases.get(alias) != null;
     return false;
   }

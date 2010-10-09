@@ -10,7 +10,7 @@
 
 package de.nmichael.efa.eddi;
 
-import de.nmichael.efa.core.Ziele;
+import de.nmichael.efa.efa1.Ziele;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;

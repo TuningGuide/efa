@@ -10,24 +10,26 @@
 
 package de.nmichael.efa.data.storage;
 
+import de.nmichael.efa.ex.EfaException;
+
 // @i18n complete
 
 public abstract class Persistence {
 
     protected IDataAccess dataAccess;
 
-    public Persistence(int storageType, String storageLocation, String storageObjectName, String storageObjectType) {
-        dataAccess = DataAccess.createDataAccess(this, storageType, storageLocation, storageObjectName, storageObjectType);
+    public Persistence(int storageType, String storageLocation, String storageObjectName, String storageObjectType, String storageObjectDescription) {
+        dataAccess = DataAccess.createDataAccess(this, storageType, storageLocation, storageObjectName, storageObjectType, storageObjectDescription);
     }
 
-    public void open(boolean createNewIfNotExists) throws Exception {
+    public void open(boolean createNewIfNotExists) throws EfaException {
         try {
             dataAccess.openStorageObject();
-        } catch(Exception eOpen) {
+        } catch(EfaException eOpen) {
             if (createNewIfNotExists) {
                 try {
                     dataAccess.createStorageObject();
-                } catch(Exception eCreate) {
+                } catch(EfaException eCreate) {
                     throw eCreate;
                 }
             } else {
@@ -36,8 +38,12 @@ public abstract class Persistence {
         }
     }
 
-    public void close() throws Exception {
+    public void close() throws EfaException {
         dataAccess.closeStorageObject();
+    }
+
+    public boolean isOpen() {
+        return dataAccess.isStorageObjectOpen();
     }
 
     public IDataAccess data() {

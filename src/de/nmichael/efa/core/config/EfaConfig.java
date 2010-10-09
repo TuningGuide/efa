@@ -14,7 +14,7 @@ import de.nmichael.efa.core.types.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.core.DatenListe;
+import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.direkt.Admin;
 import de.nmichael.efa.core.DownloadFrame;
 import java.util.*;

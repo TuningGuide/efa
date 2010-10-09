@@ -201,14 +201,14 @@ public class International {
         return new String(key);
     }
 
-    private static String getString(String s, boolean defaultIfNotFound, boolean includingMnemonics) {
+    private static String getString(String s, boolean defaultIfNotFound, boolean includingMnemonics, boolean messageString) {
         if (bundle == null) {
             initialize();
         }
         try {
             String key = makeKey(s);
             if (SHOW_KEY_INSTEAD_OF_TRANSLATION) {
-                return (MARK_MISSING_KEYS ? "#" : "") + key + (MARK_MISSING_KEYS ? "#" : "");
+                return (MARK_MISSING_KEYS ? "#"+key+"#" : key);
             } else {
                 String t = bundle.getString(key);
                 if (!includingMnemonics) {
@@ -227,8 +227,22 @@ public class International {
                     EfaErrorPrintStream.ignoreExceptions = true;
                     e.printStackTrace();
                     EfaErrorPrintStream.ignoreExceptions = false;
+
                 }
-                return (MARK_MISSING_KEYS ? "#" : "") + s + (MARK_MISSING_KEYS ? "#" : "");
+                if (messageString) {
+                    // This is a message that has not been translated: --> substitute {variable} by {index}
+                    int p1,p2;
+                    int i=1;
+                    while ( (p1 = s.indexOf("{")) >= 0 && (p2 = s.indexOf("}")) >= 0) {
+                        if (p1 >= p2) {
+                            break;
+                        }
+                        s = s.substring(0, p1) + "@@[@@" + i++ + "@@]@@" + s.substring(p2+1);
+                    }
+                    s = EfaUtil.replace(s, "@@[@@", "{", true);
+                    s = EfaUtil.replace(s, "@@]@@", "}", true);
+                }
+                return (MARK_MISSING_KEYS ? "#"+s+"#" : s);
             } else {
                 return null;
             }
@@ -242,7 +256,7 @@ public class International {
      * @return translated string
      */
     public static String getString(String s) {
-        return getString(s, true, false);
+        return getString(s, true, false, false);
     }
 
     public static String onlyFor(String s, String lang) {
@@ -267,11 +281,11 @@ public class International {
      * @return the translation for "s___variant", if existing; translation for "s" otherwise.
      */
     public static String getString(String s, String variant) {
-        String t = getString(s + "___" + variant, false, false);
+        String t = getString(s + "___" + variant, false, false, false);
         if (t != null) {
             return t;
         }
-        return getString(s, true, false);
+        return getString(s, true, false, false);
     }
 
     /**
@@ -281,7 +295,7 @@ public class International {
      * @return translated string including mnemonics marked with "&"
      */
     public static String getStringWithMnemonic(String s) {
-        return getString(s, true, true);
+        return getString(s, true, true, false);
     }
 
     /**
@@ -293,11 +307,11 @@ public class International {
      * @return the translation for "s___variant", if existing; translation for "s" otherwise -- including mnemonics marked with "&".
      */
     public static String getStringWithMnemonic(String s, String variant) {
-        String t = getString(s + "___" + variant, false, true);
+        String t = getString(s + "___" + variant, false, true, false);
         if (t != null) {
             return t;
         }
-        return getString(s, true, true);
+        return getString(s, true, true, false);
     }
 
     private static String getMessage(String s, Object[] args) {
@@ -305,7 +319,7 @@ public class International {
             initialize();
         }
         try {
-            msgFormat.applyPattern(getString(s));
+            msgFormat.applyPattern(getString(s, true, false, true));
             return msgFormat.format(args);
         } catch(Exception e) {
             if (LOG_MISSING_KEYS) {
@@ -398,6 +412,11 @@ public class International {
     // ========================= mixed Type arguments =========================
     public static String getMessage(String s, int arg1, String arg2) {
         Object[] args = {"dummy", Integer.toString(arg1), arg2};
+        return getMessage(s, args);
+    }
+
+    public static String getMessage(String s, int arg1, String arg2, String arg3) {
+        Object[] args = {"dummy", Integer.toString(arg1), arg2, arg3};
         return getMessage(s, args);
     }
 

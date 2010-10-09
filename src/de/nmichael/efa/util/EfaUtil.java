@@ -10,6 +10,8 @@
 
 package de.nmichael.efa.util;
 
+import de.nmichael.efa.efa1.Synonyme;
+import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.*;
@@ -947,6 +949,11 @@ public class EfaUtil {
     return        makeTimeString(cal.get(Calendar.DAY_OF_MONTH),2)+"."+
                   makeTimeString(cal.get(Calendar.MONTH)+1,2)+"."+
                   makeTimeString(cal.get(Calendar.YEAR),4);
+  }
+
+  public static String getCurrentTimeStampYYYY() {
+    Calendar cal = new GregorianCalendar();
+    return        makeTimeString(cal.get(Calendar.YEAR),4);
   }
 
   public static String date2String(Date date) {

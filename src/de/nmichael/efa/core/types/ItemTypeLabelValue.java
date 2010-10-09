@@ -36,13 +36,16 @@ public abstract class ItemTypeLabelValue extends ItemType {
         if (type == IItemType.TYPE_EXPERT) {
             label.setForeground(Color.red);
         }
+        if (color != null) {
+            label.setForeground(color);
+        }
         textfield.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(FocusEvent e) { textfield_focusLost(e); }
         });
         panel.add(label, new GridBagConstraints(0, y, 1, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, padX, padYafter, 0), 0, 0));
         panel.add(textfield, new GridBagConstraints(1, y, 1, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, padYafter, 0), 0, 0));
         return 1;
     }
 

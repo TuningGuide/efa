@@ -11,8 +11,8 @@
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.DatenListe;
-import de.nmichael.efa.core.DatenFelder;
+import de.nmichael.efa.efa1.DatenListe;
+import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -431,10 +431,10 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
     });
     nurFb1Button.setMinimumSize(new Dimension(40, 19));
     nurFb1Button.setPreferredSize(new Dimension(40, 19));
-    nurFb1Button.setIcon(new ImageIcon(EfaConfigFrame.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
+    nurFb1Button.setIcon(new ImageIcon(Daten.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
     nurFb2Button.setMinimumSize(new Dimension(40, 19));
     nurFb2Button.setPreferredSize(new Dimension(40, 19));
-    nurFb2Button.setIcon(new ImageIcon(EfaConfigFrame.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
+    nurFb2Button.setIcon(new ImageIcon(Daten.class.getResource("/de/nmichael/efa/img/prog_open.gif")));
 
     nurFb1.setNextFocusableComponent(nurFb2);
     nurFb2.setNextFocusableComponent(okButton);

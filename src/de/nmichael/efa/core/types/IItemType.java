@@ -12,6 +12,7 @@ package de.nmichael.efa.core.types;
 
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import java.awt.Color;
 import de.nmichael.efa.gui.BaseDialog;
 
 
@@ -35,5 +36,8 @@ public interface IItemType {
     public int displayOnGui(BaseDialog dlg, JPanel panel, int y);
     public void getValueFromGui();
     public void requestFocus();
+
+    public void setColor(Color c);
+    public void setPadding(int padX, int padYbefore, int padYafter);
 
 }

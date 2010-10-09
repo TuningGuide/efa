@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.efa1.NachrichtenAnAdmin;
 import de.nmichael.efa.core.EfaFrame;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;

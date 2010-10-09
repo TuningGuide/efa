@@ -8,9 +8,8 @@
  * @version 2
  */
 
-package de.nmichael.efa.core;
+package de.nmichael.efa.efa1;
 
-import de.nmichael.efa.core.DatenListe;
 import java.io.*;
 import java.util.Hashtable;
 import de.nmichael.efa.*;
@@ -18,26 +17,26 @@ import de.nmichael.efa.util.*;
 
 // @i18n complete
 
-public class Synonyme extends DatenListe {
+public class Adressen extends DatenListe {
 
-  public static final int _FELDERANZAHL = 2; // Anzahl der Felder für DatenListe
 
-  public static final int SYNONYM = 0;
-  public static final int ORIGINAL = 1;
+  public static final int NAME = 0;
+  public static final int ADRESSE = 1;
 
-  public static final String KENNUNG091 = "##EFA.091.SYNONYME##";
-  public static final String KENNUNG190 = "##EFA.190.SYNONYME##";
+  public static final String KENNUNG091 = "##EFA.091.ADRESSEN##";
+  public static final String KENNUNG190 = "##EFA.190.ADRESSEN##";
+
 
   // Konstruktor
-  public Synonyme(String pdat) {
-    super(pdat,_FELDERANZAHL,1,false);
+  public Adressen(String pdat) {
+    super(pdat,2,1,false);
     kennung = KENNUNG190;
   }
 
 
-  // alle Einträge löschen
-  public void removeAllSyns() {
-    this.l = new SortedList(false);
+  // Key-Wert ermitteln
+  public String constructKey(DatenFelder d) {
+    return d.get(NAME);
   }
 
   public boolean checkFileFormat() {
@@ -80,5 +79,6 @@ public class Synonyme extends DatenListe {
     }
     return true;
   }
+
 
 }

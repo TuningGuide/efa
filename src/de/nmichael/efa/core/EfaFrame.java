@@ -10,6 +10,15 @@
 
 package de.nmichael.efa.core;
 
+import de.nmichael.efa.efa1.Ziele;
+import de.nmichael.efa.efa1.Synonyme;
+import de.nmichael.efa.efa1.Mitglieder;
+import de.nmichael.efa.efa1.Mannschaften;
+import de.nmichael.efa.efa1.Fahrtenbuch;
+import de.nmichael.efa.efa1.FBDaten;
+import de.nmichael.efa.efa1.DatenListe;
+import de.nmichael.efa.efa1.DatenFelder;
+import de.nmichael.efa.efa1.Boote;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.core.config.*;
@@ -32,7 +41,7 @@ import de.nmichael.efa.direkt.EfaDirektFrame;
 import de.nmichael.efa.direkt.AdminFrame;
 import de.nmichael.efa.direkt.Admin;
 import de.nmichael.efa.direkt.AdminLoginFrame;
-import de.nmichael.efa.direkt.NachrichtenAnAdmin;
+import de.nmichael.efa.efa1.NachrichtenAnAdmin;
 import de.nmichael.efa.direkt.Nachricht;
 import de.nmichael.efa.direkt.NachrichtAnAdminFrame;
 
@@ -1090,7 +1099,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     });
     jMenuFile.add(jMenuNew);
-    // jMenuFile.add(jMenuFile_newProject); // @todo in efa2
+    jMenuFile.add(jMenuFile_newProject); // @todo in efa2
     jMenuFile.add(jMenuFileOpen);
     jMenuFile.add(jMenuFileSave);
     jMenuFile.add(jMenuFileSaveAs);
@@ -1811,7 +1820,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
     if (!sicherheitsabfrage()) return;
     NewProjectDialog dlg = new NewProjectDialog(this);
-    dlg.showDialog();
+    dlg.createNewProjectAndLogbook();
     startBringToFront(false); // efaDirekt im BRC -- Workaround
   }
 

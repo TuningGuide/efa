@@ -10,6 +10,10 @@
 
 package de.nmichael.efa.eddi;
 
+import de.nmichael.efa.efa1.Ziele;
+import de.nmichael.efa.efa1.Mitglieder;
+import de.nmichael.efa.efa1.DatenFelder;
+import de.nmichael.efa.efa1.Boote;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.core.config.EfaTypes;

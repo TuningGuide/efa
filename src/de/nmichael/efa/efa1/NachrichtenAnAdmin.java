@@ -8,12 +8,13 @@
  * @version 2
  */
 
-package de.nmichael.efa.direkt;
+package de.nmichael.efa.efa1;
 
 import java.io.*;
 import java.util.Vector;
-import de.nmichael.efa.core.DatenListe;
+import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.direkt.Nachricht;
 import de.nmichael.efa.util.*;
 
 // @i18n complete

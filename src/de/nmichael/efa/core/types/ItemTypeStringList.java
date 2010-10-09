@@ -26,6 +26,8 @@ public class ItemTypeStringList extends ItemType {
     private String[] displayList;
     protected BaseDialog dlg;
     protected JComboBox combobox;
+    protected int width = 300;
+    protected boolean twoRows = false;
 
     public ItemTypeStringList(String name, String value,
             String[] valueList, String[] displayList,
@@ -59,18 +61,37 @@ public class ItemTypeStringList extends ItemType {
             public void focusLost(FocusEvent e) { combobox_focusLost(e); }
         });
         
-        Dialog.setPreferredSize(combobox, 300, 19);
+        Dialog.setPreferredSize(combobox, width, 19);
         JLabel label = new JLabel();
         Mnemonics.setLabel(dlg, label, getDescription() + ": ");
         label.setLabelFor(combobox);
         if (type == IItemType.TYPE_EXPERT) {
             label.setForeground(Color.red);
         }
-        panel.add(label, new GridBagConstraints(0, y, 1, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-        panel.add(combobox, new GridBagConstraints(1, y, 1, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-        return 1;
+        if (color != null) {
+            label.setForeground(color);
+        }
+        if (!twoRows) {
+            panel.add(label, new GridBagConstraints(0, y, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, padX, padYafter, 0), 0, 0));
+            panel.add(combobox, new GridBagConstraints(1, y, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, padYafter, 0), 0, 0));
+            return 1;
+        } else {
+            panel.add(label, new GridBagConstraints(0, y, 2, 1, 0.0, 0.0,
+                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, padX, 0, 0), 0, 0));
+            panel.add(combobox, new GridBagConstraints(0, y+1, 2, 1, 0.0, 0.0,
+                    GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, padX, padYafter, 0), 0, 0));
+            return 2;
+        }
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public void setTwoRows(boolean twoRows) {
+        this.twoRows = twoRows;
     }
 
     public void getValueFromGui() {

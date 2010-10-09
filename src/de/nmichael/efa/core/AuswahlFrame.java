@@ -10,6 +10,15 @@
 
 package de.nmichael.efa.core;
 
+import de.nmichael.efa.efa1.Ziele;
+import de.nmichael.efa.efa1.Mitglieder;
+import de.nmichael.efa.efa1.Mannschaften;
+import de.nmichael.efa.efa1.GruppenMitglied;
+import de.nmichael.efa.efa1.Fahrtenbuch;
+import de.nmichael.efa.efa1.Fahrtenabzeichen;
+import de.nmichael.efa.efa1.DatenListe;
+import de.nmichael.efa.efa1.DatenFelder;
+import de.nmichael.efa.efa1.Boote;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -24,7 +33,7 @@ import java.io.*;
 import java.util.Hashtable;
 import java.beans.*;
 import java.util.Vector;
-import de.nmichael.efa.direkt.BootStatus;
+import de.nmichael.efa.efa1.BootStatus;
 
 // @i18n complete
 

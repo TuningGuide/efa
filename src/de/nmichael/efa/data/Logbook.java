@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
 
 // @i18n complete
@@ -17,7 +18,7 @@ import de.nmichael.efa.data.storage.*;
 public class Logbook extends Persistence {
 
     public Logbook(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, "e2log");
+        super(storageType, storageLocation, storageObjectName, "e2log", International.getString("Fahrtenbuch"));
         try {
             LogbookRecord.initialize();
             for (int i=0; i<LogbookRecord.getFieldCount(); i++) {

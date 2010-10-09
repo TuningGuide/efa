@@ -13,6 +13,7 @@ package de.nmichael.efa.data;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.core.types.*;
+import de.nmichael.efa.ex.EfaException;
 import java.util.*;
 
 // @i18n complete
@@ -20,7 +21,7 @@ import java.util.*;
 public class Project extends Persistence {
 
     public Project(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, "e2prj");
+        super(storageType, storageLocation, storageObjectName, "e2prj", International.getString("Projekt"));
         try {
             ProjectRecord.initialize();
             for (int i=0; i<ProjectRecord.getFieldCount(); i++) {
@@ -34,6 +35,10 @@ public class Project extends Persistence {
 
     public DataRecord createNewRecord() {
         return new ProjectRecord();
+    }
+
+    public ProjectRecord createNewLogbookRecord(String logbookName) {
+        return new ProjectRecord(ProjectRecord.TYPE_LOGBOOK, logbookName);
     }
 
     public void setEmptyProject(String name) {
@@ -56,6 +61,21 @@ public class Project extends Persistence {
         } catch(Exception e) {
             return null;
         }
+    }
+
+    public ProjectRecord getLoogbookRecord(String logbookName) {
+        try {
+            return (ProjectRecord)dataAccess.get(ProjectRecord.getDataKey(ProjectRecord.TYPE_LOGBOOK, logbookName));
+        } catch(Exception e) {
+            return null;
+        }
+    }
+
+    public void addLogbookRecord(ProjectRecord rec) throws EfaException {
+        if (!rec.getType().equals(ProjectRecord.TYPE_LOGBOOK)) {
+            throw new EfaException(Logger.MSG_DATA_GENERICEXCEPTION, dataAccess.getUID()+": Attempt to add a Record as a Logbook Record which is not a Logbook Record");
+        }
+        dataAccess.add(rec);
     }
 
     public Vector<DataItem> getGuiItems() {

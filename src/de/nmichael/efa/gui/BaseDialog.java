@@ -26,6 +26,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     JPanel mainPanel = new JPanel();
     JButton closeButton;
     String helpTopic;
+    boolean resultSuccess = false;
 
     public BaseDialog(Frame parent, String title, String closeButtonText) {
         super(parent);
@@ -61,6 +62,20 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
         Dialog.setDlgLocation(this,parent);
         setModal(!Dialog.tourRunning);
         show();
+    }
+
+    public JDialog getParentJDialog() {
+        if (parent instanceof JDialog) {
+            return (JDialog)parent;
+        }
+        return null;
+    }
+
+    public Frame getParentFrame() {
+        if (parent instanceof Frame) {
+            return (Frame)parent;
+        }
+        return null;
     }
 
     public void keyAction(ActionEvent evt) {
@@ -111,8 +126,6 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
         // intelligent sizing of this Dialog:
         // make it as big as necessary for display without scrollbars (plus some margin),
         // as long as it does not exceed the configured screen size.
-System.out.println("getPreferredSize: "+mainPanel.getPreferredSize());
-System.out.println("getMinimumSize: "+mainPanel.getMinimumSize());
         Dimension dim = mainPanel.getPreferredSize();
         Dimension minDim = mainPanel.getMinimumSize();
         if (minDim.width > dim.width) {
@@ -157,6 +170,14 @@ System.out.println("getMinimumSize: "+mainPanel.getMinimumSize());
 
     // may be implemented by subclasses to take action when GUI needs to be set up new
     public void updateGui() {
+    }
+
+    void setDialogResult(boolean success) {
+        this.resultSuccess = success;
+    }
+
+    public boolean getDialogResult() {
+        return resultSuccess;
     }
 
 }

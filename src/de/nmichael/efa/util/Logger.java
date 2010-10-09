@@ -16,7 +16,7 @@ import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.EfaErrorPrintStream;
 import java.io.*;
 import java.util.*;
-import de.nmichael.efa.direkt.NachrichtenAnAdmin;
+import de.nmichael.efa.efa1.NachrichtenAnAdmin;
 import de.nmichael.efa.direkt.Nachricht;
 
 // @i18n complete
@@ -120,6 +120,21 @@ public class Logger {
   public static final String MSG_INTERNATIONAL_MISSINGKEY    = "INT003";
   public static final String MSG_INTERNATIONAL_INCORRECTKEY  = "INT004";
 
+  // de.nmichael.data
+  public static final String MSG_DATA_GENERICEXCEPTION       = "DAT001";
+  public static final String MSG_DATA_FIELDDOESNOTEXIST      = "DAT002";
+  public static final String MSG_DATA_CREATEFAILED           = "DAT003";
+  public static final String MSG_DATA_OPENFAILED             = "DAT004";
+  public static final String MSG_DATA_CLOSEFAILED            = "DAT005";
+  public static final String MSG_DATA_SAVEFAILED             = "DAT006";
+  public static final String MSG_DATA_READFAILED             = "DAT007";
+  public static final String MSG_DATA_WRITEFAILED            = "DAT008";
+  public static final String MSG_DATA_GETLOCKFAILED          = "DAT009";
+  public static final String MSG_DATA_LOCKTIMEOUT            = "DAT010";
+  public static final String MSG_DATA_RECORDNOTFOUND         = "DAT011";
+  public static final String MSG_DATA_DUPLICATERECORD        = "DAT012";
+  public static final String MSG_DATA_MODIFICATIONFAILED     = "DAT013";
+
   // de.nmichael.efa.core.DatenListe (and subclasses)
   public static final String MSG_CSVFILE_FILECONVERTED       = "CSV001";
   public static final String MSG_CSVFILE_ERRORCONVERTING     = "CSV002";
@@ -216,9 +231,6 @@ public class Logger {
   public static final String MSG_WARN_CANTGETEFAJAVAARGS     = "WRN012";
   public static final String MSG_WARN_ERRORCNTMSGEXCEEDED    = "WRN013";
   public static final String MSG_WARN_FONTDOESNOTEXIST       = "WRN014";
-
-  // Data Operations
-  public static final String MSG_DATA_LOCKTIMEOUT            = "DAT001";
 
   // File Operations
   public static final String MSG_FILE_FILEOPENFAILED         = "FLE001";

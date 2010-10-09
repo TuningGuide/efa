@@ -12,6 +12,7 @@ package de.nmichael.efa.data.storage;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
+import de.nmichael.efa.ex.EfaException;
 import java.util.*;
 import java.io.*;
 
@@ -26,10 +27,11 @@ public abstract class DataFile extends DataAccess {
     protected volatile boolean isOpen = false;
     protected static final String ENCODING = Daten.ENCODING_UTF;
 
-    public DataFile(String directory, String name, String extension) {
+    public DataFile(String directory, String name, String extension, String description) {
         setStorageLocation(directory);
         setStorageObjectName(name);
         setStorageObjectType(extension);
+        setStorageObjectDescription(description);
         filename = directory + (directory.endsWith(Daten.fileSep) ? "" : Daten.fileSep) +
                 name + "." + extension;
     }
@@ -46,91 +48,114 @@ public abstract class DataFile extends DataAccess {
         }
     }
 
-    public synchronized boolean existsStorageObject() throws Exception {
+    public String getUID() {
+        return "file:" + filename;
+    }
+
+    public synchronized boolean existsStorageObject() throws EfaException {
         if (filename == null) {
-            throw new Exception("No StorageObject name specified.");
+            throw new EfaException(Logger.MSG_DATA_GENERICEXCEPTION, "No StorageObject name specified.");
         }
         return (new File(filename).exists());
     }
 
-    public synchronized void createStorageObject() throws Exception {
-        BufferedWriter fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename,false), ENCODING));
-        writeFile(fw);
-        fw.close();
-        isOpen = true;
-        fileWriter = new DataFileWriter(this);
-        fileWriter.start();
+    public synchronized void createStorageObject() throws EfaException {
+        try {
+            BufferedWriter fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename,false), ENCODING));
+            writeFile(fw);
+            fw.close();
+            isOpen = true;
+            fileWriter = new DataFileWriter(this);
+            fileWriter.start();
+        } catch(Exception e) {
+            throw new EfaException(Logger.MSG_DATA_CREATEFAILED, LogString.logstring_fileCreationFailed(filename, storageLocation, e.toString()));
+        }
     }
 
-    public synchronized void openStorageObject() throws Exception {
-        BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(filename), ENCODING));
-        readFile(fr);
-        fr.close();
-        isOpen = true;
-        fileWriter = new DataFileWriter(this);
-        fileWriter.start();
+    public synchronized void openStorageObject() throws EfaException {
+        try {
+            BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(filename), ENCODING));
+            readFile(fr);
+            fr.close();
+            isOpen = true;
+            fileWriter = new DataFileWriter(this);
+            fileWriter.start();
+        } catch(Exception e) {
+            throw new EfaException(Logger.MSG_DATA_OPENFAILED, LogString.logstring_fileOpenFailed(filename, storageLocation, e.toString()));
+        }
     }
 
     // This method must *not* be synchronized;
     // that would result in a deadlock between fileWriter running save(true) and the thread calling closeStorageObject()
-    public void closeStorageObject() throws Exception {
-        fileWriter.save(true);
-        isOpen = false;
-        fileWriter.exit();
-        fileWriter = null;
+    public void closeStorageObject() throws EfaException {
+        try {
+            fileWriter.save(true);
+            synchronized(data) {
+                data.clear();
+            }
+            isOpen = false;
+            fileWriter.exit();
+            fileWriter = null;
+        } catch(Exception e) {
+            throw new EfaException(Logger.MSG_DATA_CLOSEFAILED, LogString.logstring_fileCloseFailed(filename, storageLocation, e.toString()));
+        }
     }
 
-    public synchronized void saveStorageObject() throws Exception {
+    public synchronized void saveStorageObject() throws EfaException {
         if (!isStorageObjectOpen()) {
-            throw new Exception("Storage Object is not open");
+            throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed(filename, storageLocation, "Storage Object is not open"));
         }
-        BufferedWriter fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename, false), ENCODING));
-        writeFile(fw);
-        fw.close();
+        try {
+            BufferedWriter fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename, false), ENCODING));
+            writeFile(fw);
+            fw.close();
+        } catch(Exception e) {
+            throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed(filename, storageLocation, e.toString()));
+        }
     }
 
     public boolean isStorageObjectOpen() {
         return isOpen;
     }
 
-    protected abstract void readFile(BufferedReader fr) throws Exception;
-    protected abstract void writeFile(BufferedWriter fw) throws Exception;
+    protected abstract void readFile(BufferedReader fr) throws EfaException;
+    protected abstract void writeFile(BufferedWriter fw) throws EfaException;
 
-    private long getLock(DataKey object) throws Exception {
+    private long getLock(DataKey object) throws EfaException {
         if (!isStorageObjectOpen()) {
-            throw new Exception("Storage Object is not open");
+            throw new EfaException(Logger.MSG_DATA_GETLOCKFAILED, getUID() + ": Storage Object is not open");
         }
         long lockID = (object == null ? dataLocks.getGlobalLock() :
                                         dataLocks.getLocalLock(object) );
         if (lockID < 0) {
-            throw new Exception("Could not acquire " +
+            throw new EfaException(Logger.MSG_DATA_GETLOCKFAILED, getUID() + ": Could not acquire " +
                     (object == null ? "global lock" :
                                       "local lock on "+object));
         }
         return lockID;
     }
 
-    public long acquireGlobalLock() throws Exception {
+    public long acquireGlobalLock() throws EfaException {
         return getLock(null);
     }
 
-    public long acquireLocalLock(DataKey key) throws Exception {
+    public long acquireLocalLock(DataKey key) throws EfaException {
         return getLock(key);
     }
 
-    public void releaseGlobalLock(long lockID) throws Exception {
+    public void releaseGlobalLock(long lockID) throws EfaException {
         dataLocks.releaseGlobalLock(lockID);
     }
 
-    public void releaseLocalLock(long lockID) throws Exception {
+    public void releaseLocalLock(long lockID) throws EfaException {
         dataLocks.releaseLocalLock(lockID);
     }
 
-    public long getSCN() throws Exception {
+    public long getSCN() throws EfaException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    private void modifyRecord(DataRecord record, DataKey key, long lockID, boolean add, boolean update, boolean delete) throws Exception {
+    private void modifyRecord(DataRecord record, DataKey key, long lockID, boolean add, boolean update, boolean delete) throws EfaException {
         long myLock = -1;
         if (key == null) {
             key = constructKey(record);
@@ -147,11 +172,11 @@ public abstract class DataFile extends DataAccess {
                 synchronized (data) {
                     if (data.get(key) == null) {
                         if ( (update && !add) || delete) {
-                            throw new Exception("Data Record does not exist");
+                            throw new EfaException(Logger.MSG_DATA_RECORDNOTFOUND, getUID() + ": Data Record '"+key.toString()+"' does not exist");
                         }
                     } else {
                         if ( (add && !update)) {
-                            throw new Exception("Data Record already exists");
+                            throw new EfaException(Logger.MSG_DATA_DUPLICATERECORD, getUID() + ": Data Record '"+key.toString()+"' already exists");
                         }
                     }
                     if (add || update) {
@@ -171,47 +196,47 @@ public abstract class DataFile extends DataAccess {
                 fileWriter.save(false);
             }
         } else {
-            throw new Exception("Data Record Operation failed: No Write Access");
+            throw new EfaException(Logger.MSG_DATA_MODIFICATIONFAILED, getUID() + ": Data Record Operation failed: No Write Access");
         }
     }
 
-    public void add(DataRecord record) throws Exception {
+    public void add(DataRecord record) throws EfaException {
         modifyRecord(record, null, 0, true, false, false);
     }
 
-    public void add(DataRecord record, long lockID) throws Exception {
+    public void add(DataRecord record, long lockID) throws EfaException {
         modifyRecord(record, null, lockID, true, false, false);
     }
 
-    public void addOrUpdate(DataRecord record) throws Exception {
+    public void addOrUpdate(DataRecord record) throws EfaException {
         modifyRecord(record, null, 0, true, true, false);
     }
 
-    public void addOrUpdate(DataRecord record, long lockID) throws Exception {
+    public void addOrUpdate(DataRecord record, long lockID) throws EfaException {
         modifyRecord(record, null, lockID, true, true, false);
     }
 
-    public void delete(DataKey key) throws Exception {
+    public void delete(DataKey key) throws EfaException {
         modifyRecord(null, key, 0, false, false, true);
     }
 
-    public void delete(DataKey key, long lockID) throws Exception {
+    public void delete(DataKey key, long lockID) throws EfaException {
         modifyRecord(null, key, lockID, false, false, true);
     }
 
-    public DataRecord get(DataKey key) throws Exception {
+    public DataRecord get(DataKey key) throws EfaException {
         synchronized (data) {
             return data.get(key);
         }
     }
 
-    public long getNumberOfRecords() throws Exception {
+    public long getNumberOfRecords() throws EfaException {
         synchronized(data) {
             return data.size();
         }
     }
 
-    public void truncateAllData() throws Exception {
+    public void truncateAllData() throws EfaException {
         long lockID = acquireGlobalLock();
         try {
             synchronized (data) {
@@ -223,7 +248,7 @@ public abstract class DataFile extends DataAccess {
         }
     }
 
-    public DataKeyIterator getIterator() throws Exception {
+    public DataKeyIterator getIterator() throws EfaException {
         DataKey[] keys;
         synchronized(data) {
             keys = new DataKey[data.size()];
@@ -233,7 +258,7 @@ public abstract class DataFile extends DataAccess {
         return new DataKeyIterator(keys);
     }
 
-    private DataRecord getIteratorDataRecord(DataKey key) throws Exception {
+    private DataRecord getIteratorDataRecord(DataKey key) throws EfaException {
         if (key != null) {
             return get(key);
         } else {
@@ -241,23 +266,23 @@ public abstract class DataFile extends DataAccess {
         }
     }
 
-    public DataRecord getCurrent(DataKeyIterator it) throws Exception {
+    public DataRecord getCurrent(DataKeyIterator it) throws EfaException {
         return getIteratorDataRecord(it.getCurrent());
     }
 
-    public DataRecord getFirst(DataKeyIterator it) throws Exception {
+    public DataRecord getFirst(DataKeyIterator it) throws EfaException {
         return getIteratorDataRecord(it.getFirst());
     }
 
-    public DataRecord getLast(DataKeyIterator it) throws Exception {
+    public DataRecord getLast(DataKeyIterator it) throws EfaException {
         return getIteratorDataRecord(it.getLast());
     }
 
-    public DataRecord getNext(DataKeyIterator it) throws Exception {
+    public DataRecord getNext(DataKeyIterator it) throws EfaException {
         return getIteratorDataRecord(it.getNext());
     }
 
-    public DataRecord getPrev(DataKeyIterator it) throws Exception {
+    public DataRecord getPrev(DataKeyIterator it) throws EfaException {
         return getIteratorDataRecord(it.getPrev());
     }
 

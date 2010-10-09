@@ -10,6 +10,8 @@
 
 package de.nmichael.efa.core.config;
 
+import de.nmichael.efa.efa1.Fahrtenbuch;
+import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.*;

@@ -16,14 +16,24 @@ public class DataTypeDate implements Cloneable {
 
     private int day, month, year;
 
+    // Default Constructor
     public DataTypeDate() {
         unset();
     }
 
+    // Regular Constructor
     public DataTypeDate(int day, int month, int year) {
         this.day = day;
         this.month = month;
         this.year = year;
+        ensureCorrectDate();
+    }
+
+    // Copy Constructor
+    public DataTypeDate(DataTypeDate date) {
+        this.day = date.day;
+        this.month = date.month;
+        this.year = date.year;
         ensureCorrectDate();
     }
 
@@ -53,6 +63,9 @@ public class DataTypeDate implements Cloneable {
     }
 
     public void ensureCorrectDate() {
+        if (!isSet()) {
+            return;
+        }
         boolean fourdigit = year >= 1000 && year <= 9999;
         if (year < 0 || year > 9999) {
             year = 0;

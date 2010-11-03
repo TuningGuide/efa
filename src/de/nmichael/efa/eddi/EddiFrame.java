@@ -337,7 +337,8 @@ public class EddiFrame extends JFrame {
         International.getString("Paßwort"),
         International.getString("Frei")+" 1",
         International.getString("Frei")+" 2",
-        International.getString("Frei")+" 3"
+        International.getString("Frei")+" 3",
+        International.getString("von Wettbewerbsmeldungen ausnehmen")
     };
     String[] boote = { 
         International.getString("Bootsname"),
@@ -683,7 +684,7 @@ public class EddiFrame extends JFrame {
     }
     if (!datei.toUpperCase().endsWith(".EFBM")) datei+=".efbm";
     Mitglieder f = new Mitglieder(datei);
-    String[] feld = new String[13];
+    String[] feld = new String[14];
     int i;
     abort = false;
     skip = false;
@@ -699,7 +700,6 @@ public class EddiFrame extends JFrame {
     if (status == null) return;
     status = EfaUtil.removeSepFromString(status);
     String[] statusList = EfaUtil.statusList2Arr(status.trim());
-
     for (int l=lineNr; l<lines.size(); l++) {
       fields = EfaUtil.split((String)lines.get(l),sep);
       removeQuotes(fields);

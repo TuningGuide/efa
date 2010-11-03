@@ -119,7 +119,7 @@ public class EfaCustomizationFrame extends BaseDialog {
         mainPanel.add(custPanel, BorderLayout.CENTER);
     }
 
-    void closeButton_actionPerformed(ActionEvent e) {
+    public void closeButton_actionPerformed(ActionEvent e) {
         custSettings = new CustSettings();
         custSettings.activateGermanRowingOptions = activateGermanRowingOptions.isSelected();
         custSettings.activateBerlinRowingOptions = activateBerlinRowingOptions.isSelected();

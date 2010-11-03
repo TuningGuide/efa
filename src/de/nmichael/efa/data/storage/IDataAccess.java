@@ -29,6 +29,9 @@ public interface IDataAccess {
     public static final int DATA_DATE = 5;    // DataTypeDate
     public static final int DATA_TIME = 6;    // DataTypeTime
 
+    public static final int  UNDEFINED_INT  = Integer.MIN_VALUE + 1;
+    public static final long UNDEFINED_LONG = Long.MIN_VALUE + 1;
+
 
     /**
      * Sets the associated Persistence object for this Data Access.

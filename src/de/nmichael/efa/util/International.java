@@ -81,13 +81,13 @@ public class International {
                 if (Logger.isTraceOn(Logger.TT_INTERNATIONALIZATION)) {
                     Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "No preferred Language configured!");
                 }
-                Vector<String> bundles = getLanguageBundles();
-                if (Daten.isGuiAppl() && bundles != null && bundles.size() > 0) {
-                    String[] items = new String[bundles.size() + 1];
+                String[] bundles = getLanguageBundles();
+                if (Daten.isGuiAppl() && bundles != null && bundles.length > 0) {
+                    String[] items = new String[bundles.length + 1];
                     items[0] = International.getString("Default"); // must be in English (in case user's language is not supported)
                     int preselect = 0;
-                    for (int i=0; i<bundles.size(); i++) {
-                        Locale loc = new Locale(bundles.get(i));
+                    for (int i=0; i<bundles.length; i++) {
+                        Locale loc = new Locale(bundles[i]);
                         items[i+1] = loc.getDisplayName();
                         if (Locale.getDefault().getLanguage().equals(loc.getLanguage())) {
                             preselect = i+1;
@@ -106,7 +106,7 @@ public class International {
                                 Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Selected Language: <default>");
                             }
                         } else {
-                            lang = bundles.get(selected - 1);
+                            lang = bundles[selected - 1];
                             if (Logger.isTraceOn(Logger.TT_INTERNATIONALIZATION)) {
                                 Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Selected Language: " + lang);
                             }
@@ -142,7 +142,7 @@ public class International {
         }
     }
 
-    public static Vector<String> getLanguageBundles() {
+    public static String[] getLanguageBundles() {
         if (Daten.efaProgramDirectory == null) {
             // not yet initialized
             // This can happen when we try to translate something before Daten.initialize() calls iniLanguageSupport()
@@ -153,7 +153,7 @@ public class International {
         }
         File dir = new File(Daten.efaProgramDirectory);
         File[] files = dir.listFiles();
-        Vector<String> bundles = new Vector<String>();
+        ArrayList<String> bundles = new ArrayList<String>();
         for (File f : files) {
             String name = f.getName();
             if (name.startsWith(BUNDLE_NAME + "_") && name.endsWith(".properties")) {
@@ -167,7 +167,9 @@ public class International {
                 }
             }
         }
-        return bundles;
+        String[] ba = bundles.toArray(new String[0]);
+        Arrays.sort(ba);
+        return ba;
     }
 
     private static String getArrayStrings(Object[] a) {

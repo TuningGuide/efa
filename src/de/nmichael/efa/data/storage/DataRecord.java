@@ -133,4 +133,77 @@ public abstract class DataRecord implements Cloneable {
         return get(getIndex(fieldName));
     }
 
+
+    // =========================================================================
+    // DataType specific get and set functions
+    // =========================================================================
+
+    protected void setString(String fieldName, String s) {
+        set(fieldName, s);
+    }
+
+    protected void setDate(String fieldName, DataTypeDate date) {
+        set(fieldName, new DataTypeDate(date));
+    }
+
+    protected void setTime(String fieldName, DataTypeTime time) {
+        set(fieldName, new DataTypeTime(time));
+    }
+
+    protected void setInt(String fieldName, int i) {
+        set(fieldName, new Integer(i));
+    }
+
+    protected void setLong(String fieldName, long l) {
+        set(fieldName, new Long(l));
+    }
+
+    protected void setBool(String fieldName, boolean b) {
+        set(fieldName, new Boolean(b));
+    }
+
+    protected String getString(String fieldName) {
+        return (String)get(fieldName);
+    }
+
+    protected DataTypeDate getDate(String fieldName) {
+        DataTypeDate date = (DataTypeDate)get(fieldName);
+        if (date == null) {
+            return null;
+        }
+        return new DataTypeDate(date);
+    }
+
+    protected DataTypeTime getTime(String fieldName) {
+        DataTypeTime time = (DataTypeTime)get(fieldName);
+        if (time == null) {
+            return null;
+        }
+        return new DataTypeTime(time);
+    }
+
+    protected int getInt(String fieldName) {
+        Integer i = (Integer)get(fieldName);
+        if (i == null) {
+            return IDataAccess.UNDEFINED_INT;
+        }
+        return i.intValue();
+    }
+
+    protected long getLong(String fieldName) {
+        Long l = (Long)get(fieldName);
+        if (l == null) {
+            return IDataAccess.UNDEFINED_LONG;
+        }
+        return l.longValue();
+    }
+
+    protected Boolean getBool(String fieldName) {
+        Boolean bool = (Boolean)get(fieldName);
+        if (bool == null) {
+            return null;
+        }
+        return new Boolean(bool);
+    }
+
 }

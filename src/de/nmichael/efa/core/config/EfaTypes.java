@@ -51,6 +51,8 @@ public class EfaTypes extends DatenListe {
     public static final String TYPE_BOAT_RACINGKAYAK      = "RACINGKAYAK";  // neu für Kanuten: Rennkajak
     public static final String TYPE_BOAT_WHITEWATERKAYAK  = "WHITEWATERKAYAK"; // neu für Kanuten: Wildwasserkajak
     public static final String TYPE_BOAT_CANADIANTOURINGCANOE = "CANADIANTOURINGCANOE"; // neu für Kanuten: Tourenkanadier
+    public static final String TYPE_BOAT_POLOBOAT         = "POLOBOAT"; // neu für Kanuten: Tourenkanadier
+    public static final String TYPE_BOAT_FOLDINGCANOE     = "FOLDINGCANOE"; // neu für Kanuten: Tourenkanadier
     public static final String TYPE_BOAT_CANADIANTEAMCANOE= "CANADIANTEAMCANOE"; // neu für Kanuten: Mannschaftskanadier
     public static final String TYPE_BOAT_DRAGONBOAT       = "DRAGONBOAT";   // neu für Kanuten: Drachenboot
     public static final String TYPE_BOAT_OTHER            = "OTHER";        // other
@@ -538,6 +540,8 @@ public class EfaTypes extends DatenListe {
                 count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_RACINGKAYAK, International.getString("Rennkajak"),"Rennkajak",bundle,createNew);
                 count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_WHITEWATERKAYAK, International.getString("Wildwasserkajak"),"Wildwasserkajak",bundle,createNew);
                 count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_CANADIANTOURINGCANOE, International.getString("Tourenkanadier"),"Tourenkanadier",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_POLOBOAT, International.getString("Poloboot"),"Poloboot",bundle,createNew);
+                count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_FOLDINGCANOE, International.getString("Faltboot"),"Faltboot",bundle,createNew);
                 count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_CANADIANTEAMCANOE, International.getString("Mannschaftskanadier"),"Mannschaftskanadier",bundle,createNew);
                 count += setToLanguage(CATEGORY_BOAT, TYPE_BOAT_DRAGONBOAT, International.getString("Drachenboot"),"Drachenboot",bundle,createNew);
 

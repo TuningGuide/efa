@@ -219,7 +219,7 @@ public class EfaConfigFrame extends BaseDialog {
         }
     }
 
-    void closeButton_actionPerformed(ActionEvent e) {
+    public void closeButton_actionPerformed(ActionEvent e) {
         getValuesFromGui();
         Daten.efaConfig.checkNewConfigValues(myEfaConfig);
         Daten.efaConfig = myEfaConfig;

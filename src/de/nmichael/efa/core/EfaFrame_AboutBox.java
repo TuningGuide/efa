@@ -294,9 +294,9 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
 
       String translations = "";
       try {
-          Vector<String> bundles = International.getLanguageBundles();
-          for (int i = 0; bundles != null && i < bundles.size(); i++) {
-              Locale loc = new Locale(bundles.get(i));
+          String[] bundles = International.getLanguageBundles();
+          for (int i = 0; bundles != null && i < bundles.length; i++) {
+              Locale loc = new Locale(bundles[i]);
               ResourceBundle bundle = ResourceBundle.getBundle(International.BUNDLE_NAME, loc);
               International.getString("+++TRANSLATED_BY+++"); // dummy, just to make make_i18n_keys.pl find this key ;)
               try {

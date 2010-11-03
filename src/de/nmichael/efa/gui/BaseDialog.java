@@ -151,18 +151,23 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
 
     protected void processWindowEvent(WindowEvent e) {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-            cancel();
+            if (cancel()) {
+                super.processWindowEvent(e);
+            } else {
+                return;
+            }
         }
         super.processWindowEvent(e);
     }
 
-    void closeButton_actionPerformed(ActionEvent e) {
+    public void closeButton_actionPerformed(ActionEvent e) {
         cancel();
     }
 
-    void cancel() {
+    public boolean cancel() {
         Dialog.frameClosed(this);
         dispose();
+        return true;
     }
 
     public void actionPerformed(ActionEvent e) {

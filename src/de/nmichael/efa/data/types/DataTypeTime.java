@@ -16,14 +16,24 @@ public class DataTypeTime implements Cloneable {
 
     private int hour, minute, second;
 
+    // Default Constructor
     public DataTypeTime() {
         unset();
     }
 
+    // Regular Constructor
     public DataTypeTime(int hour, int minute, int second) {
         this.hour = hour;
         this.minute = minute;
         this.second = second;
+        ensureCorrectTime();
+    }
+
+    // Copy Constructor
+    public DataTypeTime(DataTypeTime time) {
+        this.hour = time.hour;
+        this.minute = time.minute;
+        this.second = time.second;
         ensureCorrectTime();
     }
 
@@ -49,6 +59,9 @@ public class DataTypeTime implements Cloneable {
     }
 
     public void ensureCorrectTime() {
+        if (!isSet()) {
+            return;
+        }
         if (hour < 0) {
             hour = 0;
         }

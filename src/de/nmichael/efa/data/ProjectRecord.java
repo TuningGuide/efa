@@ -86,8 +86,8 @@ public class ProjectRecord extends DataRecord {
     }
 
     public ProjectRecord(String type, String name) {
-        set(TYPE, type);
-        set(NAME, name);
+        setString(TYPE, type);
+        setString(NAME, name);
     }
 
     public ProjectRecord(ProjectRecord orig) {
@@ -107,53 +107,53 @@ public class ProjectRecord extends DataRecord {
     }
 
     public void setType(String type) {
-        set(TYPE, type);
+        setString(TYPE, type);
     }
     public void setName(String name) {
-        set(NAME, name);
+        setString(NAME, name);
     }
     public void setDescription(String description) {
-        set(DESCRIPTION, description);
+        setString(DESCRIPTION, description);
     }
     public void setAdminName(String adminName) {
-        set(ADMINNAME, adminName);
+        setString(ADMINNAME, adminName);
     }
     public void setAdminEmail(String adminEmail) {
-        set(ADMINEMAIL, adminEmail);
+        setString(ADMINEMAIL, adminEmail);
     }
     public void setStartDate(DataTypeDate startDate) {
-        set(STARTDATE, startDate);
+        setDate(STARTDATE, startDate);
     }
     public void setEndDate(DataTypeDate endDate) {
-        set(ENDDATE, endDate);
+        setDate(ENDDATE, endDate);
     }
 
     public String getType() {
-        return (String)get(TYPE);
+        return getString(TYPE);
     }
     public String getName() {
-        return (String)get(NAME);
+        return getString(NAME);
     }
     public String getDescription() {
-        return (String)get(DESCRIPTION);
+        return getString(DESCRIPTION);
     }
     public String getAdminName() {
-        return (String)get(ADMINNAME);
+        return getString(ADMINNAME);
     }
     public String getAdminEmail() {
-        return (String)get(ADMINEMAIL);
+        return getString(ADMINEMAIL);
     }
     public String getAddressStreet() {
-        return (String)get(ADDRESSSTREET);
+        return getString(ADDRESSSTREET);
     }
     public String getAddressCity() {
-        return (String)get(ADDRESSCITY);
+        return getString(ADDRESSCITY);
     }
     public DataTypeDate getStartDate() {
-        return (DataTypeDate)get(STARTDATE);
+        return getDate(STARTDATE);
     }
     public DataTypeDate getEndDate() {
-        return (DataTypeDate)get(ENDDATE);
+        return getDate(ENDDATE);
     }
 
 

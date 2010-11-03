@@ -120,7 +120,7 @@ public class DataEditFrame extends BaseDialog {
         }
     }
 
-    void closeButton_actionPerformed(ActionEvent e) {
+    public void closeButton_actionPerformed(ActionEvent e) {
         getValuesFromGui();
         super.closeButton_actionPerformed(e);
     }

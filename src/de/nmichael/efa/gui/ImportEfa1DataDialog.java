@@ -16,6 +16,7 @@ import de.nmichael.efa.core.types.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.importefa1.*;
 import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.efa1.*;
 import de.nmichael.efa.*;
@@ -28,82 +29,6 @@ import javax.swing.border.*;
 
 public class ImportEfa1DataDialog extends StepwiseDialog {
 
-    class ImportMetadata {
-        static final int TYPE_ADRESSEN = 1;
-        static final int TYPE_SYNONYME_BOOTE = 2;
-        static final int TYPE_SYNONYME_MITGLIEDER = 3;
-        static final int TYPE_SYNONYME_ZIELE = 4;
-        static final int TYPE_BOOTSTATUS = 5;
-        static final int TYPE_FAHRTENABZEICHEN = 6;
-        static final int TYPE_GRUPPEN = 7;
-        static final int TYPE_MANNSCHAFTEN = 8;
-        static final int TYPE_NACHRICHTEN = 9;
-        static final int TYPE_FAHRTENBUCH = 10;
-
-        int type;
-        DatenListe datenListe;
-        String description;
-        int numRecords = -1;
-        // for Logbooks
-        String firstDate = null;
-        String lastDate = null;
-        int numRecBoats = -1;
-        int numRecMembers = -1;
-        int numRecDests = -1;
-        int numRecStats = -1;
-
-        public ImportMetadata(int type, DatenListe datenListe, String description) {
-            this.type = type;
-            this.datenListe = datenListe;
-            this.description = description;
-        }
-
-        public String toString(boolean longtext) {
-            if (numRecords < 0) {
-                return International.getMessage("{datalist} nicht gefunden", description);
-            }
-            String s = International.getMessage("{datalist} mit {number} Einträgen", description, numRecords);
-            if (type == TYPE_FAHRTENBUCH) {
-                s += " " + International.getMessage("vom {day_from} bis {day_to}", firstDate, lastDate);
-                if (longtext) {
-                    if (numRecBoats >= 0) {
-                        s += "\n" + International.getMessage("{datalist} mit {number} Einträgen",
-                                International.getString("Bootsliste"), numRecBoats);
-                    } else {
-                        s += "\n" + International.getMessage("{datalist} nicht gefunden",
-                                International.getString("Bootsliste"));
-                    }
-                    if (numRecMembers >= 0) {
-                        s += "\n" + International.getMessage("{datalist} mit {number} Einträgen",
-                                International.getString("Mitgliederliste"), numRecMembers);
-                    } else {
-                        s += "\n" + International.getMessage("{datalist} nicht gefunden",
-                                International.getString("Mitgliederliste"));
-                    }
-                    if (numRecDests >= 0) {
-                        s += "\n" + International.getMessage("{datalist} mit {number} Einträgen",
-                                International.getString("Zielliste"), numRecDests);
-                    } else {
-                        s += "\n" + International.getMessage("{datalist} nicht gefunden",
-                                International.getString("Zielliste"));
-                    }
-                    if (numRecStats >= 0) {
-                        s += "\n" + International.getMessage("{datalist} mit {number} Einträgen",
-                                International.getString("Statistikeinstellungen"), numRecStats);
-                    } else {
-                        s += "\n" + International.getMessage("{datalist} nicht gefunden",
-                                International.getString("Statistikeinstellungen"));
-                    }
-                }
-            }
-            return s;
-        }
-
-        public String toString() {
-            return toString(true);
-        }
-
-    }
 
     private static final String OLDEFADATADIR        = "OLDEFADATADIR";
     private static final String IMPORTDATA           = "IMPORTDATA";
@@ -436,7 +361,10 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
 
     void finishButton_actionPerformed(ActionEvent e) {
         super.finishButton_actionPerformed(e);
-
+        ImportTask importTask = new ImportTask(importData);
+        ProgressDialog progressDialog = new ProgressDialog(this, International.getString("Daten importieren"), importTask);
+        importTask.start();
+        progressDialog.showDialog();
     }
 
 }

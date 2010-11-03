@@ -1106,12 +1106,12 @@ public class EfaConfig extends DatenListe {
     }
 
     private String[] makeLanguageArray(int type) {
-        Vector<String> lang = International.getLanguageBundles();
-        String[] languages = new String[lang.size() + 1];
+        String[] lang = International.getLanguageBundles();
+        String[] languages = new String[lang.length + 1];
         languages[0] = (type == STRINGLIST_VALUES ? "" : International.getString("Default") );
-        for (int i = 0; i < lang.size(); i++) {
-            Locale loc = new Locale(lang.get(i));
-            languages[i + 1] = (type == STRINGLIST_VALUES ? lang.get(i) : loc.getDisplayName() );
+        for (int i = 0; i < lang.length; i++) {
+            Locale loc = new Locale(lang[i]);
+            languages[i + 1] = (type == STRINGLIST_VALUES ? lang[i] : loc.getDisplayName() );
         }
         return languages;
     }

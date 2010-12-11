@@ -10,6 +10,8 @@
 
 package de.nmichael.efa.core.config;
 
+import de.nmichael.efa.core.config.EfaConfig;
+
 // @i18n complete
 
 public class CustSettings {
@@ -18,5 +20,16 @@ public class CustSettings {
     public boolean activateBerlinRowingOptions = true;
     public boolean activateRowingOptions = true;
     public boolean activateCanoeingOptions = false;
+
+    public CustSettings() {
+    }
+
+    public CustSettings(EfaConfig efaConfig) {
+        activateGermanRowingOptions = efaConfig.showGermanOptions.getValue();
+        activateBerlinRowingOptions = efaConfig.showBerlinOptions.getValue();
+        activateRowingOptions = efaConfig.useForRowing.getValue();
+        activateCanoeingOptions = efaConfig.useForCanoeing.getValue();
+    }
+
 
 }

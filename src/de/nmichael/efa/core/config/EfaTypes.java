@@ -1,5 +1,4 @@
-/**
- * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+/* Title:        efa - elektronisches Fahrtenbuch für Ruderer
  * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
@@ -61,9 +60,9 @@ public class EfaTypes extends DatenListe {
     public static final String TYPE_NUMSEATS_2            = "2";            // 2
     public static final String TYPE_NUMSEATS_2X           = "2X";           // 2
     public static final String TYPE_NUMSEATS_3            = "3";            // 3
-    public static final String TYPE_NUMSEATS_4            = "4X";           // 4
-    public static final String TYPE_NUMSEATS_4X           = "4";            // 4
-    public static final String TYPE_NUMSEATS_5            = "5X";           // 5
+    public static final String TYPE_NUMSEATS_4            = "4";            // 4
+    public static final String TYPE_NUMSEATS_4X           = "4X";           // 4
+    public static final String TYPE_NUMSEATS_5            = "5";            // 5
     public static final String TYPE_NUMSEATS_6            = "6";            // 6
     public static final String TYPE_NUMSEATS_6X           = "6X";           // 6
     public static final String TYPE_NUMSEATS_8            = "8";            // 8
@@ -466,17 +465,21 @@ public class EfaTypes extends DatenListe {
         return true;
     }
 
+    public void setCustSettings(CustSettings custSettings) {
+        if (custSettings != null) {
+            this.custSettings = custSettings;
+        } else {
+            this.custSettings = new CustSettings();
+        }
+    }
+
     public boolean createNewIfDoesntExist(CustSettings custSettings) {
         if ((new File(dat)).exists()) {
             return true;
         }
 
         // make sure that this.custSettings != null when creating from scratch!
-        if (custSettings != null) {
-            this.custSettings = custSettings;
-        } else {
-            this.custSettings = new CustSettings();
-        }
+        setCustSettings(custSettings);
 
         // Datei existiert noch nicht: Neu erstellen mit Default-Werten
         reset();
@@ -601,7 +604,7 @@ public class EfaTypes extends DatenListe {
         setToLanguage_Boats(bundle, SELECTION_ROWING, (custSettings != null ? custSettings.activateRowingOptions : false));
         setToLanguage_Boats(bundle, SELECTION_CANOEING, (custSettings != null ? custSettings.activateCanoeingOptions : false));
 
-        return writeFile(false);
+        return true;
     }
 
 }

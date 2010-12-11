@@ -33,6 +33,8 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
     private static final String OLDEFADATADIR        = "OLDEFADATADIR";
     private static final String IMPORTDATA           = "IMPORTDATA";
     private static final String IMPORTDATALABEL      = "IMPORTDATALABEL";
+    private static final String LOGBOOKNAME          = "LOGBOOKNAME";
+    private static final String LOGBOOKDESCRIPTION   = "LOGBOOKDESCRIPTION";
     private static final String LOGBOOKRANGEFROM     = "LOGBOOKRANGEFROM";
     private static final String LOGBOOKRANGETO       = "LOGBOOKRANGETO";
     private static final String LOGBOOKRANGELABEL    = "LOGBOOKRANGELABEL";
@@ -90,7 +92,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                                 }
                             }
                             efa1.close();
-                            File fcfg = new File(dataDir+Daten.fileSep+"cfg/efa.cfg");
+                            File fcfg = new File(dataDir+Daten.fileSep+"cfg" + Daten.fileSep + "efa.cfg");
                             if (fcfg.isFile()) {
                                 lastUsed = EfaUtil.getTimeStamp(fcfg.lastModified());
                             }
@@ -204,17 +206,28 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
 
             String[] keys  = importData.keySet().toArray(new String[0]);
             Arrays.sort(keys);
+            HashMap logNames = new HashMap<String,String>();
             for (String fname : keys) {
                 ImportMetadata meta = importData.get(fname);
                 if (meta.type == ImportMetadata.TYPE_FAHRTENBUCH) {
                     DataTypeDate dateFrom = new DataTypeDate();
-                    dateFrom.setDate(meta.firstDate);
+                    dateFrom.setDate(meta.firstDate.toString());
                     dateFrom.setDay(1);
                     dateFrom.setMonth(1);
                     DataTypeDate dateTo = new DataTypeDate();
-                    dateTo.setDate(meta.lastDate);
+                    dateTo.setDate(meta.lastDate.toString());
                     dateTo.setDay(31);
                     dateTo.setMonth(12);
+
+                    String name = Integer.toString(dateFrom.getYear());
+                    int ikey = 1;
+                    String skey = name;
+                    while (logNames.get(skey) != null) {
+                        skey = name + "_" + (++ikey);
+                    }
+                    name = skey;
+                    logNames.put(name, name);
+
                     item = new ItemTypeLabel(LOGBOOKRANGELABEL + "l0" + fname,
                             IItemType.TYPE_PUBLIC, "3",
                             fname);
@@ -225,6 +238,20 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                             meta.toString(false));
                     item.setPadding(25, 0, 0);
                     items.add(item);
+
+                    item = new ItemTypeString(LOGBOOKNAME + fname,
+                            name,
+                            IItemType.TYPE_PUBLIC, "3",
+                            International.getString("Name des Fahrtenbuchs"));
+                    item.setPadding(25, 0, 0);
+                    items.add(item);
+                    item = new ItemTypeString(LOGBOOKDESCRIPTION + fname,
+                            "",
+                            IItemType.TYPE_PUBLIC, "3",
+                            International.getString("Beschreibung"));
+                    item.setPadding(25, 0, 0);
+                    items.add(item);
+
                     item = new ItemTypeDate(LOGBOOKRANGEFROM + fname,
                             dateFrom,
                             IItemType.TYPE_PUBLIC, "3",
@@ -247,13 +274,13 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
         datenListe.dontEverWrite();
         ImportMetadata meta = new ImportMetadata(type, datenListe, description);
         String fname = datenListe.getFileName();
-        if (EfaUtil.canOpenFile(dir+"daten/"+fname)) {
-            datenListe.setFileName(dir+"daten/"+fname);
+        if (EfaUtil.canOpenFile(dir+"daten"+Daten.fileSep+fname)) {
+            datenListe.setFileName(dir+"daten"+Daten.fileSep+fname);
             if (datenListe.readFile()) {
                 meta.numRecords = datenListe.countElements();
             }
-        } else if (EfaUtil.canOpenFile(dir+"data/"+fname)) {
-            datenListe.setFileName(dir+"data/"+fname);
+        } else if (EfaUtil.canOpenFile(dir+"data"+Daten.fileSep+fname)) {
+            datenListe.setFileName(dir+"data"+Daten.fileSep+fname);
             if (datenListe.readFile()) {
                 meta.numRecords = datenListe.countElements();
             }
@@ -290,12 +317,12 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
             while (d != null) {
                 meta.numRecords++;
                 if (d.get(Fahrtenbuch.DATUM).length() > 0
-                        && (meta.firstDate == null || EfaUtil.secondDateIsAfterFirst(d.get(Fahrtenbuch.DATUM), meta.firstDate))) {
-                    meta.firstDate = d.get(Fahrtenbuch.DATUM);
+                        && (meta.firstDate == null || EfaUtil.secondDateIsAfterFirst(d.get(Fahrtenbuch.DATUM), meta.firstDate.toString()))) {
+                    meta.firstDate = DataTypeDate.parseDate(d.get(Fahrtenbuch.DATUM));
                 }
                 if (d.get(Fahrtenbuch.DATUM).length() > 0
-                        && (meta.lastDate == null || EfaUtil.secondDateIsAfterFirst(meta.lastDate, d.get(Fahrtenbuch.DATUM)))) {
-                    meta.lastDate = d.get(Fahrtenbuch.DATUM);
+                        && (meta.lastDate == null || EfaUtil.secondDateIsAfterFirst(meta.lastDate.toString(), d.get(Fahrtenbuch.DATUM)))) {
+                    meta.lastDate = DataTypeDate.parseDate(d.get(Fahrtenbuch.DATUM));
                 }
                 d = fb.getCompleteNext();
             }
@@ -335,7 +362,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
             return false;
         }
 
-        if (step == 0) {
+        if (step == 0) { // get efa1 installation directory for import
             IItemType item = getItemByName(OLDEFADATADIR);
             String dir;
             if (item instanceof ItemTypeStringList) {
@@ -349,6 +376,39 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                 return false;
             } else {
                 reinitializeItems();
+            }
+        }
+
+        if (step == 2) { // get data from step 1 and 2
+            String[] datakeys = importData.keySet().toArray(new String[0]);
+            for (String fname : datakeys) {
+                ImportMetadata meta = importData.get(fname);
+
+                // get selected data files for import
+                IItemType item = getItemByName(IMPORTDATA + fname);
+                if (item != null && item instanceof ItemTypeBoolean) {
+                    meta.selected = ((ItemTypeBoolean)item).getValue();
+                }
+
+                // get logbool metadata
+                if (meta.type == ImportMetadata.TYPE_FAHRTENBUCH) {
+                    item = getItemByName(LOGBOOKNAME + fname);
+                    if (item != null && item instanceof ItemTypeString) {
+                        meta.name = ((ItemTypeString)item).getValue();
+                    }
+                    item = getItemByName(LOGBOOKDESCRIPTION + fname);
+                    if (item != null && item instanceof ItemTypeString) {
+                        meta.description = ((ItemTypeString)item).getValue();
+                    }
+                    item = getItemByName(LOGBOOKRANGEFROM + fname);
+                    if (item != null && item instanceof ItemTypeDate) {
+                        meta.firstDate = DataTypeDate.parseDate(((ItemTypeDate)item).toString());
+                    }
+                    item = getItemByName(LOGBOOKRANGETO + fname);
+                    if (item != null && item instanceof ItemTypeDate) {
+                        meta.lastDate = DataTypeDate.parseDate(((ItemTypeDate)item).toString());
+                    }
+                }
             }
         }
 

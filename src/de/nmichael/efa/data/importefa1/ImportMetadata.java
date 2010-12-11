@@ -12,6 +12,8 @@ package de.nmichael.efa.data.importefa1;
 
 import de.nmichael.efa.efa1.*;
 import de.nmichael.efa.util.*;
+import de.nmichael.efa.core.types.*;
+import de.nmichael.efa.data.types.*;
 
 public class ImportMetadata {
 
@@ -27,12 +29,15 @@ public class ImportMetadata {
     public static final int TYPE_FAHRTENBUCH = 10;
     
     public int type;
+    public String typedescription;
+    public boolean selected = true;
+    public String name = null;
+    public String description = null;
     public DatenListe datenListe;
-    public String description;
     public int numRecords = -1;
     // for Logbooks
-    public String firstDate = null;
-    public String lastDate = null;
+    public DataTypeDate firstDate = null;
+    public DataTypeDate lastDate = null;
     public int numRecBoats = -1;
     public int numRecMembers = -1;
     public int numRecDests = -1;
@@ -41,16 +46,16 @@ public class ImportMetadata {
     public ImportMetadata(int type, DatenListe datenListe, String description) {
         this.type = type;
         this.datenListe = datenListe;
-        this.description = description;
+        this.typedescription = description;
     }
 
     public String toString(boolean longtext) {
         if (numRecords < 0) {
-            return International.getMessage("{datalist} nicht gefunden", description);
+            return International.getMessage("{datalist} nicht gefunden", typedescription);
         }
-        String s = International.getMessage("{datalist} mit {number} Einträgen", description, numRecords);
+        String s = International.getMessage("{datalist} mit {number} Einträgen", typedescription, numRecords);
         if (type == TYPE_FAHRTENBUCH) {
-            s += " " + International.getMessage("vom {day_from} bis {day_to}", firstDate, lastDate);
+            s += " " + International.getMessage("vom {day_from} bis {day_to}", firstDate.toString(), lastDate.toString());
             if (longtext) {
                 if (numRecBoats >= 0) {
                     s += "\n" + International.getMessage("{datalist} mit {number} Einträgen",

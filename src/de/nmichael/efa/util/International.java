@@ -203,7 +203,7 @@ public class International {
         return new String(key);
     }
 
-    private static String getString(String s, boolean defaultIfNotFound, boolean includingMnemonics, boolean messageString) {
+    private static String getString(String s, boolean defaultIfNotFound, boolean includingMnemonics, boolean messageString, ResourceBundle useBundle) {
         if (bundle == null) {
             initialize();
         }
@@ -212,7 +212,12 @@ public class International {
             if (SHOW_KEY_INSTEAD_OF_TRANSLATION) {
                 return (MARK_MISSING_KEYS ? "#"+key+"#" : key);
             } else {
-                String t = bundle.getString(key);
+                String t;
+                if (useBundle == null) {
+                    t = bundle.getString(key);
+                } else {
+                    t = useBundle.getString(key);
+                }
                 if (!includingMnemonics) {
                     if (Mnemonics.containsMnemonics(t)) {
                         t = Mnemonics.stripMnemonics(t);
@@ -258,7 +263,10 @@ public class International {
      * @return translated string
      */
     public static String getString(String s) {
-        return getString(s, true, false, false);
+        return getString(s, true, false, false, null);
+    }
+    public static String getString(String s, ResourceBundle bundle) {
+        return getString(s, true, false, false, bundle);
     }
 
     public static String onlyFor(String s, String lang) {
@@ -283,11 +291,11 @@ public class International {
      * @return the translation for "s___variant", if existing; translation for "s" otherwise.
      */
     public static String getString(String s, String variant) {
-        String t = getString(s + "___" + variant, false, false, false);
+        String t = getString(s + "___" + variant, false, false, false, null);
         if (t != null) {
             return t;
         }
-        return getString(s, true, false, false);
+        return getString(s, true, false, false, null);
     }
 
     /**
@@ -297,7 +305,7 @@ public class International {
      * @return translated string including mnemonics marked with "&"
      */
     public static String getStringWithMnemonic(String s) {
-        return getString(s, true, true, false);
+        return getString(s, true, true, false, null);
     }
 
     /**
@@ -309,11 +317,11 @@ public class International {
      * @return the translation for "s___variant", if existing; translation for "s" otherwise -- including mnemonics marked with "&".
      */
     public static String getStringWithMnemonic(String s, String variant) {
-        String t = getString(s + "___" + variant, false, true, false);
+        String t = getString(s + "___" + variant, false, true, false, null);
         if (t != null) {
             return t;
         }
-        return getString(s, true, true, false);
+        return getString(s, true, true, false, null);
     }
 
     private static String getMessage(String s, Object[] args) {
@@ -321,7 +329,7 @@ public class International {
             initialize();
         }
         try {
-            msgFormat.applyPattern(getString(s, true, false, true));
+            msgFormat.applyPattern(getString(s, true, false, true, null));
             return msgFormat.format(args);
         } catch(Exception e) {
             if (LOG_MISSING_KEYS) {

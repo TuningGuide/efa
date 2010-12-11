@@ -311,10 +311,14 @@ sub getStrings {
           $inString = 99;
           next;
         }
-        if ($remaining !~ /^[ \t]/) {
-          printf(stderr "#WARNING: %s:%d: unexpected international string will be ignored (dynamic key?): >>%s<<\n %s\n",
-                         $_filename,$_linenr,$remaining,$_line);
-          $inString = 100;
+        if ($remaining !~ /^[ \t]/) { # instead of a string constant, a variable has been found
+          if ($#strings < 0) { # only print a warning, if this is the first string!
+            printf(stderr "#WARNING: %s:%d: unexpected international string will be ignored (dynamic key?): >>%s<<\n %s\n",
+                           $_filename,$_linenr,$remaining,$_line);
+            $inString = 100;
+          } else { # if this is the second parameter to the function, as in International.getString("Fahrt beginnen", bundle), ignore this
+            $inString = 99;
+          }
         }
 
       } else { # we're inside a comment

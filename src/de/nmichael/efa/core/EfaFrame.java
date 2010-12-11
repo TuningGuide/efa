@@ -1099,7 +1099,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     });
     jMenuFile.add(jMenuNew);
-    jMenuFile.add(jMenuFile_newProject); // @todo in efa2
+//    jMenuFile.add(jMenuFile_newProject); // @todo in efa2
     jMenuFile.add(jMenuFileOpen);
     jMenuFile.add(jMenuFileSave);
     jMenuFile.add(jMenuFileSaveAs);
@@ -1487,9 +1487,28 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     else if (e.getKeyCode() == KeyEvent.VK_ENTER) variante = 4;
     else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) variante = 5;
 
+    if (e == null  || variante == 4 || variante == 5) {
+      feld.setText(feld.getText().trim());
+    }
 
 
-    if (variante == 1) {
+
+    if (variante == 1 || 
+        ((variante == 4 || variante == 5) && feld.getText().length()>0) ) {
+
+      // remove leading spaces
+      String spc = feld.getText();
+      if (spc.startsWith(" ")) {
+        int i=0;
+        do {
+            i++;
+        } while (i < spc.length() && spc.charAt(i) == ' ');
+        if (i >= spc.length()) {
+            feld.setText("");
+        } else {
+            feld.setText(spc.substring(i));
+        }
+      }
 
       if (feld.getSelectedText() != null)
         anf = feld.getText().toLowerCase().substring(0,feld.getSelectionStart());

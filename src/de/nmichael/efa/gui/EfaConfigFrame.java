@@ -115,7 +115,13 @@ public class EfaConfigFrame extends BaseDialog {
     }
 
     public void updateGui() {
-        getValuesFromGui();
+        updateGui(true);
+    }
+
+    public void updateGui(boolean readValuesFromGui) {
+        if (readValuesFromGui) {
+            getValuesFromGui();
+        }
         String selectedPanel = getSelectedPanel(tabbedPane);
 
         configItems = new Vector<ItemType>();

@@ -20,6 +20,10 @@ public class LogString {
                                        description,filename) + ".";
   }
 
+  public static String logstring_fileSuccessfullyCreated(String filename, String description) {
+      return International.getMessage("{filedescription} '{filename}' wurde erfolgreich erstellt",
+                                       description,filename) + ".";
+  }
 
 
   public static String logstring_fileCreationFailed(String filename, String description, String error) {
@@ -143,6 +147,11 @@ public class LogString {
   public static void logInfo_fileNewCreated(String filename, String description) {
       Logger.log(Logger.INFO, Logger.MSG_FILE_FILENEWCREATED,
                  logstring_fileNewCreated(filename,description));
+  }
+
+  public static void logInfo_fileSuccessfullyCreated(String filename, String description) {
+      Logger.log(Logger.INFO, Logger.MSG_FILE_FILESUCCESSFULLYCREATED,
+                 logstring_fileSuccessfullyCreated(filename,description));
   }
 
   public static void logWarning_fileNewCreated(String filename, String description) {

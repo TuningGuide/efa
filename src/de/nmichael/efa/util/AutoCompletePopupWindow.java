@@ -177,6 +177,22 @@ public class AutoCompletePopupWindow extends JWindow {
   public static void hideWindow() {
     try {
       if (window != null) {
+
+        // try to trim text if necessary
+        if (window.showingAt != null) {
+            String s = window.showingAt.getText();
+            int l = s.length();
+            if (l > 0) {
+                s = s.trim();
+                if (s.length() < l) {
+                    window.showingAt.setText(s);
+                    if (window.callback != null) {
+                        window.callback.acpwCallback(window.showingAt);
+                    }
+                }
+            }
+        }
+
         window.hideWindowThread = new HideWindowThread(window);
         window.hideWindowThread.start();
       }

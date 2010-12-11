@@ -12,10 +12,12 @@ package de.nmichael.efa.core.types;
 
 import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.core.config.EfaTypes;
+import de.nmichael.efa.core.config.CustSettings;
 import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.EfaConfigFrame;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.Daten;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -25,8 +27,9 @@ import javax.swing.*;
 
 public class ItemTypeAction extends ItemType {
 
-    public static final int ACTION_GENERATE_ROWING_BOAT_TYPES = 1;
-    public static final int ACTION_GENERATE_CANOEING_BOAT_TYPES = 2;
+    public static final int ACTION_TYPES_RESETTODEFAULT = 1;
+    public static final int ACTION_GENERATE_ROWING_BOAT_TYPES = 2;
+    public static final int ACTION_GENERATE_CANOEING_BOAT_TYPES = 3;
 
     private int action;
     protected BaseDialog dlg;
@@ -76,6 +79,9 @@ public class ItemTypeAction extends ItemType {
 
     private void buttonHit(ActionEvent e) {
         switch(action) {
+            case ACTION_TYPES_RESETTODEFAULT:
+                resetTypesToDefault();
+                break;
             case ACTION_GENERATE_ROWING_BOAT_TYPES:
                 generateTypes(EfaTypes.SELECTION_ROWING);
                 break;
@@ -83,6 +89,41 @@ public class ItemTypeAction extends ItemType {
                 generateTypes(EfaTypes.SELECTION_CANOEING);
                 break;
         }
+    }
+
+    private void resetTypesToDefault() {
+        if (Dialog.yesNoDialog(International.getString("Frage"),
+                International.getString("Möchtest Du alle Typen auf die Standard-Einstellungen zurücksetzen? "+
+                "Manuell hinzugefügte Typen bleiben dabei bestehen.")) != Dialog.YES) {
+            return;
+        }
+
+        // resetTypesToDefault() is only called from buttonHit(ActionEvent) if the configured action is
+        // ACTION_TYPES_RESETTODEFAULT.
+        // This is (and must!) only be the case if dlg is a EfaConfigFrame!
+        EfaConfigFrame efaConfigFrame = null;
+        try {
+            efaConfigFrame = (EfaConfigFrame)dlg;
+        } catch(ClassCastException ee) {
+            return;
+        }
+
+        EfaTypes newTypes = new EfaTypes((String)null);
+        EfaConfig myEfaConfig = efaConfigFrame.getWorkingConfig();
+        newTypes.setCustSettings(new CustSettings(myEfaConfig));
+        newTypes.setToLanguage(null);
+
+        int count = 0;
+        count += addNewTypes(newTypes,myEfaConfig,myEfaConfig.typesBoat,EfaTypes.CATEGORY_BOAT, true);
+        count += addNewTypes(newTypes,myEfaConfig,myEfaConfig.typesNumSeats,EfaTypes.CATEGORY_NUMSEATS, true);
+        count += addNewTypes(newTypes,myEfaConfig,myEfaConfig.typesRigging,EfaTypes.CATEGORY_RIGGING, true);
+        count += addNewTypes(newTypes,myEfaConfig,myEfaConfig.typesCoxing,EfaTypes.CATEGORY_COXING, true);
+        count += addNewTypes(newTypes,myEfaConfig,myEfaConfig.typesGender,EfaTypes.CATEGORY_GENDER, true);
+        count += addNewTypes(newTypes,myEfaConfig,myEfaConfig.typesSession,EfaTypes.CATEGORY_SESSION, true);
+        count += addNewTypes(newTypes,myEfaConfig,myEfaConfig.typesStatus,EfaTypes.CATEGORY_STATUS, true);
+
+        Dialog.infoDialog(International.getMessage("Es wurden {count} Typen neu generiert (sichtbar im Expertenmodus).", count));
+        efaConfigFrame.updateGui(false);
     }
 
     private void generateTypes(int selection) {
@@ -111,27 +152,26 @@ public class ItemTypeAction extends ItemType {
             return;
         }
 
-
         EfaTypes newTypes = new EfaTypes((String)null);
-        newTypes.setToLanguage_Boats(International.getResourceBundle(), selection, true);
         EfaConfig myEfaConfig = efaConfigFrame.getWorkingConfig();
+        newTypes.setToLanguage_Boats(International.getResourceBundle(), selection, true);
 
         int count = 0;
-        count += addNewTypes(newTypes,myEfaConfig,myEfaConfig.typesBoat,EfaTypes.CATEGORY_BOAT);
-        count += addNewTypes(newTypes,myEfaConfig,myEfaConfig.typesNumSeats,EfaTypes.CATEGORY_NUMSEATS);
-        count += addNewTypes(newTypes,myEfaConfig,myEfaConfig.typesRigging,EfaTypes.CATEGORY_RIGGING);
-        count += addNewTypes(newTypes,myEfaConfig,myEfaConfig.typesCoxing,EfaTypes.CATEGORY_COXING);
+        count += addNewTypes(newTypes,myEfaConfig,myEfaConfig.typesBoat,EfaTypes.CATEGORY_BOAT, false);
+        count += addNewTypes(newTypes,myEfaConfig,myEfaConfig.typesNumSeats,EfaTypes.CATEGORY_NUMSEATS, false);
+        count += addNewTypes(newTypes,myEfaConfig,myEfaConfig.typesRigging,EfaTypes.CATEGORY_RIGGING, false);
+        count += addNewTypes(newTypes,myEfaConfig,myEfaConfig.typesCoxing,EfaTypes.CATEGORY_COXING, false);
 
         Dialog.infoDialog(International.getMessage("Es wurden {count} Bootstypen neu generiert (sichtbar im Expertenmodus).", count));
-        dlg.updateGui();
+        efaConfigFrame.updateGui(false);
     }
 
-    private int addNewTypes(EfaTypes types, EfaConfig config, ItemTypeHashtable<String> cfgTypes, String cat) {
+    private int addNewTypes(EfaTypes types, EfaConfig config, ItemTypeHashtable<String> cfgTypes, String cat, boolean overwrite) {
         int count = 0;
         for (int i=0; i<types.size(cat); i++) {
             String key = types.getType(cat, i);
             String val = types.getValue(cat, i);
-            if (cfgTypes.get(key) == null) {
+            if (cfgTypes.get(key) == null || overwrite) {
                 cfgTypes.put(key, val);
                 count++;
             }

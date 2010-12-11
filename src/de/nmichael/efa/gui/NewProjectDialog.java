@@ -97,8 +97,7 @@ public class NewProjectDialog extends StepwiseDialog {
             Project prj = new Project(IDataAccess.TYPE_FILE_XML, Daten.efaDataDirectory, name);
             try {
                 if (prj.data().existsStorageObject()) {
-                    Dialog.error(International.getMessage("Das Projekt {project} existiert bereits.",
-                            name));
+                    Dialog.error(LogString.logstring_fileAlreadyExists(name, International.getString("Projekt")));
                     item.requestFocus();
                     return false;
                 }
@@ -138,7 +137,8 @@ public class NewProjectDialog extends StepwiseDialog {
             prj.close();
             prj.open(false);
             Daten.project = prj;
-            Dialog.infoDialog(International.getString("Das Projekt wurde erfolgreich angelegt."));
+            Dialog.infoDialog(LogString.logstring_fileSuccessfullyCreated(prjName.getValue(),
+                    International.getString("Projekt")));
             setDialogResult(true);
         } catch(EfaException ee) {
             Dialog.error(ee.getMessage());

@@ -92,8 +92,7 @@ public class NewLogbookDialog extends StepwiseDialog {
             ItemTypeString item = (ItemTypeString)getItemByName(LOGBOOKNAME);
             String name = item.getValue();
             if (Daten.project.getLoogbookRecord(name) != null) {
-                    Dialog.error(International.getMessage("Das Fahrtenbuch {logbook} existiert bereits.",
-                            name));
+                    Dialog.error(LogString.logstring_fileAlreadyExists(name, International.getString("Fahrtenbuch")));
                     item.requestFocus();
                     return false;
             }
@@ -117,7 +116,8 @@ public class NewLogbookDialog extends StepwiseDialog {
 
         try {
             Daten.project.addLogbookRecord(rec);
-            Dialog.infoDialog(International.getString("Das Fahrtenbuch wurde erfolgreich angelegt."));
+            Dialog.infoDialog(LogString.logstring_fileSuccessfullyCreated(logName.getValue(),
+                    International.getString("Fahrtenbuch")));
             setDialogResult(true);
         } catch(EfaException ee) {
             Dialog.error(ee.getMessage());

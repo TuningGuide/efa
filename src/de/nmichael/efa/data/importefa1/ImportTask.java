@@ -25,10 +25,21 @@ public class ImportTask extends ProgressTask {
 
     public void run() {
         setRunning(true);
-        for (int i=0; i<importData.size() && running; i++) {
-            try { Thread.sleep(1000); } catch(InterruptedException e) {}
-            setCurrentWorkDone(i);
-            this.logInfo("Step "+i+" done.\n");
+        int i = 0;
+        for (String key : importData.keySet()) {
+            ImportMetadata meta = importData.get(key);
+            if (!meta.selected) {
+                continue;
+            }
+            logInfo(International.getMessage("Importiere {file} ...", meta.toString()));
+
+            switch (meta.type) {
+                case ImportMetadata.TYPE_FAHRTENBUCH:
+                    ImportLogbook.importData(meta);
+                    break;
+            }
+
+            setCurrentWorkDone(i++);
         }
         setDone();
     }

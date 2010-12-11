@@ -226,8 +226,11 @@ public class EfaConfig extends DatenListe {
     public ItemTypeBoolean efaDirekt_locked;
     public ItemTypeBoolean showGermanOptions;
     public ItemTypeBoolean showBerlinOptions;
+    public ItemTypeBoolean useForRowing;
+    public ItemTypeBoolean useForCanoeing;
     public ItemTypeFile efaUserDirectory;
     public ItemTypeStringList language;
+    public ItemTypeAction typesResetToDefault;
     public ItemTypeAction typesAddAllDefaultRowingBoats;
     public ItemTypeAction typesAddAllDefaultCanoeingBoats;
     public ItemTypeHashtable<String> typesGender;
@@ -840,8 +843,21 @@ public class EfaConfig extends DatenListe {
                 International.getMessage("Regionale Funktionalitäten aktivieren für {region}.",
                 International.getString("Berlin") +
                 " (" + International.getString("Rudern") + ")")));
+        addParameter(useForRowing = new ItemTypeBoolean("CUSTUSAGE_ROWING",
+                (custSettings != null ? custSettings.activateRowingOptions : true ),
+                TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
+                International.getMessage("Funktionalitäten aktivieren für {sport}.",
+                International.getString("Rudern"))));
+        addParameter(useForCanoeing = new ItemTypeBoolean("CUSTUSAGE_CANOEING",
+                (custSettings != null ? custSettings.activateCanoeingOptions : false ),
+                TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
+                International.getMessage("Funktionalitäten aktivieren für {sport}.",
+                International.getString("Kanufahren"))));
 
         // ============================= TYPES =============================
+        addParameter(typesResetToDefault = new ItemTypeAction("ACTION_TYPES_RESETTODEFAULT", ItemTypeAction.ACTION_TYPES_RESETTODEFAULT,
+                TYPE_PUBLIC, makeCategory(CATEGORY_TYPES,CATEGORY_COMMON),
+                International.getString("Alle Standard-Typen zurücksetzen")));
         addParameter(typesAddAllDefaultRowingBoats = new ItemTypeAction("ACTION_ADDTYPES_ROWING", ItemTypeAction.ACTION_GENERATE_ROWING_BOAT_TYPES,
                 TYPE_PUBLIC, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_BOAT),
                 International.getMessage("Alle Standard-Bootstypen für {rowing_or_canoeing} neu hinzufügen",
@@ -1049,7 +1065,9 @@ public class EfaConfig extends DatenListe {
                 if (newEfaTypes == null) {
                     newEfaTypes = new EfaTypes(Daten.efaTypes);
                 }
+                this.setToLanguate(newLang);
                 newEfaTypes.setToLanguage(newLang);
+                newEfaTypes.writeFile(false);
                 Dialog.infoDialog(International.getString("Sprache"),
                         International.getString("Die geänderten Spracheinstellungen werden erst nach einem Neustart von efa wirksam."));
             }
@@ -1059,6 +1077,24 @@ public class EfaConfig extends DatenListe {
             }
         }
 
+    }
+
+    public boolean setToLanguate(String lang) {
+        ResourceBundle bundle = null;
+        if (lang != null) {
+            try {
+                bundle = ResourceBundle.getBundle(International.BUNDLE_NAME, new Locale(lang));
+            } catch (Exception e) {
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDSTVALUES,
+                        "Failed to set EfaConfig values for language " + lang + ".");
+                return false;
+            }
+        } else {
+            bundle = International.getResourceBundle();
+        }
+        efaDirekt_butFahrtBeginnen.setValueText(International.getString("Fahrt beginnen", bundle) + " >>>");
+        efaDirekt_butFahrtBeenden.setValueText("<<< " + International.getString("Fahrt beenden", bundle));
+        return true;
     }
 
     public void checkForRequiredPlugins() {

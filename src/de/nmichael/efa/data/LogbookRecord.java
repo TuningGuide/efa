@@ -93,7 +93,6 @@ public class LogbookRecord extends DataRecord {
     private static final String DESTINATIONNAME  = "DestinationName";
 
     private static final String DISTANCEUNIT     = "DistanceUnit"; // default: "km"
-    private static final String DISTANCEFRACTION = "DistanceFraction"; // default: 1000
     private static final String BOATDISTANCE     = "BoatDistance";
     private static final String COMMENTS         = "Comments";
     private static final String SESSIONTYPE      = "SessionType";
@@ -181,23 +180,33 @@ public class LogbookRecord extends DataRecord {
         f.add(DESTINATIONID);       t.add(IDataAccess.DATA_INTEGER);
         f.add(DESTINATIONNAME);     t.add(IDataAccess.DATA_STRING);
         f.add(DISTANCEUNIT);        t.add(IDataAccess.DATA_STRING);
-        f.add(DISTANCEFRACTION);    t.add(IDataAccess.DATA_INTEGER);
-        f.add(BOATDISTANCE);        t.add(IDataAccess.DATA_INTEGER);
+        f.add(BOATDISTANCE);        t.add(IDataAccess.DATA_DECIMAL);
         f.add(COMMENTS);            t.add(IDataAccess.DATA_STRING);
         f.add(SESSIONTYPE);         t.add(IDataAccess.DATA_STRING);
         f.add(MULTIDAYTOURID);      t.add(IDataAccess.DATA_INTEGER);
-        constructArrays(f, t, false);
-
-        KEY = new String[] { ENTRYID };
+        MetaData metaData = constructMetaData(Logbook.DATATYPE, f, t, false);
+        metaData.setKey(new String[] { ENTRYID });
     }
 
-    public LogbookRecord() {
+    public LogbookRecord(MetaData metaData) {
+        super(metaData);
     }
 
-    public LogbookRecord(String entryId) {
-        setString(ENTRYID, entryId);
+    public DataRecord createDataRecord() { // used for cloning
+        return LogbookRecord.createLogbookRecord();
     }
 
+    public static LogbookRecord createLogbookRecord() {
+        return new LogbookRecord(MetaData.getMetaData(Logbook.DATATYPE));
+    }
+
+    public static LogbookRecord createLogbookRecord(String entryId) {
+        LogbookRecord rec = new LogbookRecord(MetaData.getMetaData(Logbook.DATATYPE));
+        rec.setString(ENTRYID, entryId);
+        return rec;
+    }
+
+    /*
     public LogbookRecord(LogbookRecord orig) {
         synchronized(orig.data) {
             for (int i = 0; i < data.length; i++) {
@@ -205,6 +214,7 @@ public class LogbookRecord extends DataRecord {
             }
         }
     }
+    */
 
     public DataKey getKey() {
         return new DataKey<String,String,String>(getEntryId(),null,null);
@@ -320,38 +330,24 @@ public class LogbookRecord extends DataRecord {
         return getString(DISTANCEUNIT);
     }
 
-    public void setDistanceFraction(int frac) {
-        if (frac < 1) {
-            setInt(DISTANCEFRACTION, IDataAccess.UNDEFINED_INT);
-        } else {
-            setInt(DISTANCEFRACTION, frac);
-        }
-    }
-    public int getDistanceFraction() {
-        int frac = getInt(DISTANCEFRACTION);
-        if (frac < 1) {
-            return IDataAccess.UNDEFINED_INT;
-        }
-        return frac;
-    }
-
-    public void setBoatDistance(int dist, String distUnit, int distFraction) {
+    public void setBoatDistance(int distance, int decimalPlaces, String distUnit) {
         setString(DISTANCEUNIT, distUnit);
-        setInt(DISTANCEFRACTION, distFraction);
-        setInt(BOATDISTANCE, dist);
+        setDecimal(BOATDISTANCE, new DataTypeDecimal(distance, decimalPlaces));
     }
-    public int getBoatDistanceAsIs() {
-        return getInt(BOATDISTANCE);
+    public long getBoatDistance(int decimalPlaces) {
+        DataTypeDecimal d = getDecimal(BOATDISTANCE);
+        if (d == null) {
+            return IDataAccess.UNDEFINED_LONG;
+        }
+        return d.getValue(decimalPlaces);
     }
 
-    public void setBoatDistanceMeters(int dist) {
-        setString(DISTANCEUNIT, null);                       // default: km
-        setInt(DISTANCEFRACTION, IDataAccess.UNDEFINED_INT); // default: 1000
-        setInt(BOATDISTANCE, dist);
+    public void setBoatDistanceMeters(int distance) {
+        setBoatDistance(distance, 3, null);
     }
-    public int getBoatDistanceMeters() {
-        if (getDistanceUnit() == null && getDistanceFraction() == IDataAccess.UNDEFINED_INT) {
-            return getInt(BOATDISTANCE);
+    public long getBoatDistanceMeters() {
+        if (getDistanceUnit() == null) {
+            return getBoatDistance(3);
         } else {
             throw new UnsupportedOperationException("Boat Distance Unit Conversion");
         }

@@ -12,71 +12,76 @@ package de.nmichael.efa.data.storage;
 
 import java.util.*;
 import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.util.*;
 
 // @i18n complete
 
 public abstract class DataRecord implements Cloneable {
 
-    private static final String LASTMODIFIED     = "LastModified";
-    private static final String VALIDFROM        = "ValidFrom";
-    private static final String INVALIDFROM      = "InvalidFrom";
+    protected static final String LASTMODIFIED     = "LastModified";
+    protected static final String VALIDFROM        = "ValidFrom";
+    protected static final String INVALIDFROM      = "InvalidFrom";
 
-    protected static String[] FIELDS;
-    protected static int[] TYPES;
-    protected static HashMap<String,Integer> FIELDIDX;
-    protected static String[] KEY;
+    protected MetaData metaData;
+    protected Object[] data;
 
-    protected final Object[] data = new Object[FIELDS.length];
-
-    protected static void constructArrays(Vector<String> fields, Vector<Integer> types, boolean versionized) {
-        fields.add(LASTMODIFIED);        types.add(IDataAccess.DATA_LONGINT);
-        if (versionized) {
-            fields.add(VALIDFROM);       types.add(IDataAccess.DATA_LONGINT);
-            fields.add(INVALIDFROM);     types.add(IDataAccess.DATA_LONGINT);
-        }
-        FIELDS = new String[fields.size()];
-        TYPES = new int[types.size()];
-        FIELDIDX = new HashMap<String,Integer>();
-        for (int i=0; i<FIELDS.length; i++) {
-            FIELDS[i] = fields.get(i);
-            TYPES[i] = types.get(i).intValue();
-            FIELDIDX.put(FIELDS[i], i);
-        }
+    public DataRecord(MetaData metaData) {
+        this.metaData = metaData;
+        data = new Object[metaData.getNumberOfFields()];
     }
 
+    protected static MetaData constructMetaData(String dataType, Vector<String> fields, Vector<Integer> types, boolean versionized) {
+        fields.add(DataRecord.LASTMODIFIED);        types.add(IDataAccess.DATA_LONGINT);
+        if (versionized) {
+            fields.add(DataRecord.VALIDFROM);       types.add(IDataAccess.DATA_LONGINT);
+            fields.add(DataRecord.INVALIDFROM);     types.add(IDataAccess.DATA_LONGINT);
+        }
+        return MetaData.constructMetaData(dataType, fields, types);
+    }
+
+/*
     public DataRecord clone()  {
         try {
-            return this.getClass().getConstructor(this.getClass()).newInstance(this);
+            return this.getClass().getConstructor(this.getClass(), metaData.getClass()).newInstance(this, metaData);
         } catch (Exception e) {
             throw new InternalError(e.toString());
         }
     }
+ */
 
-    protected static int getIndex(String fieldName) {
-        return FIELDIDX.get(fieldName).intValue();
+    public abstract DataRecord createDataRecord();
+
+    public DataRecord cloneRecord() {
+        DataRecord rec = createDataRecord();
+        synchronized(this.data) {
+            for (int i = 0; i < this.data.length; i++) {
+                rec.data[i] = this.data[i];
+            }
+        }
+        return rec;
     }
 
-    public static int getFieldCount() {
-        return FIELDS.length;
+    public int getFieldCount() {
+        return metaData.getNumberOfFields();
     }
 
-    public static String getFieldName(int i) {
-        return FIELDS[i];
+    public String getFieldName(int i) {
+        return metaData.getFieldName(i);
     }
 
-    public static int getFieldType(int i) {
-        return TYPES[i];
+    public int getFieldType(int i) {
+        return metaData.getFieldType(i);
     }
 
-    public static String[] getKeyFields() {
-        return Arrays.copyOf(KEY, KEY.length);
+    public String[] getKeyFields() {
+        return metaData.getKeyFields();
     }
 
     public abstract DataKey getKey();
     
     protected void set(int fieldIdx, Object data) {
         if (data != null) {
-            switch (TYPES[fieldIdx]) {
+            switch (getFieldType(fieldIdx)) {
                 case IDataAccess.DATA_STRING:
                     if (!(data instanceof String)) {
                         throw new IllegalArgumentException("Data Type DATA_STRING expected for Data Field " + fieldIdx + ".");
@@ -120,7 +125,7 @@ public abstract class DataRecord implements Cloneable {
     }
 
     protected void set(String fieldName, Object data) {
-        set(getIndex(fieldName), data);
+        set(metaData.getIndex(fieldName), data);
     }
 
     protected Object get(int fieldIdx) {
@@ -130,7 +135,7 @@ public abstract class DataRecord implements Cloneable {
     }
 
     protected Object get(String fieldName) {
-        return get(getIndex(fieldName));
+        return get(metaData.getIndex(fieldName));
     }
 
 
@@ -148,6 +153,10 @@ public abstract class DataRecord implements Cloneable {
 
     protected void setTime(String fieldName, DataTypeTime time) {
         set(fieldName, new DataTypeTime(time));
+    }
+
+    protected void setDecimal(String fieldName, DataTypeDecimal decimal) {
+        set(fieldName, new DataTypeDecimal(decimal));
     }
 
     protected void setInt(String fieldName, int i) {
@@ -180,6 +189,14 @@ public abstract class DataRecord implements Cloneable {
             return null;
         }
         return new DataTypeTime(time);
+    }
+
+    protected DataTypeDecimal getDecimal(String fieldName) {
+        DataTypeDecimal d = (DataTypeDecimal)get(fieldName);
+        if (d == null) {
+            return null;
+        }
+        return new DataTypeDecimal(d);
     }
 
     protected int getInt(String fieldName) {

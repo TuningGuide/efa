@@ -209,7 +209,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
             HashMap logNames = new HashMap<String,String>();
             for (String fname : keys) {
                 ImportMetadata meta = importData.get(fname);
-                if (meta.type == ImportMetadata.TYPE_FAHRTENBUCH) {
+                if (meta.type == ImportMetadata.TYPE_FAHRTENBUCH && meta.selected) {
                     DataTypeDate dateFrom = new DataTypeDate();
                     dateFrom.setDate(meta.firstDate.toString());
                     dateFrom.setDay(1);
@@ -389,8 +389,15 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                 if (item != null && item instanceof ItemTypeBoolean) {
                     meta.selected = ((ItemTypeBoolean)item).getValue();
                 }
+            }
+        }
 
+        if (step == 2 || step == 3) { // get data from step 1 and 2
+            String[] datakeys = importData.keySet().toArray(new String[0]);
+            for (String fname : datakeys) {
+                ImportMetadata meta = importData.get(fname);
                 // get logbool metadata
+                IItemType item = getItemByName(IMPORTDATA + fname);
                 if (meta.type == ImportMetadata.TYPE_FAHRTENBUCH) {
                     item = getItemByName(LOGBOOKNAME + fname);
                     if (item != null && item instanceof ItemTypeString) {

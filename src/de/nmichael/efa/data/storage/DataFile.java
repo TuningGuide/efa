@@ -61,6 +61,10 @@ public abstract class DataFile extends DataAccess {
 
     public synchronized void createStorageObject() throws EfaException {
         try {
+            File f = new File(storageLocation);
+            if (!f.exists()) {
+                f.mkdirs();
+            }
             BufferedWriter fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename,false), ENCODING));
             writeFile(fw);
             fw.close();
@@ -110,6 +114,7 @@ public abstract class DataFile extends DataAccess {
             writeFile(fw);
             fw.close();
         } catch(Exception e) {
+            Logger.log(e);
             throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed(filename, storageLocation, e.toString()));
         }
     }
@@ -180,7 +185,7 @@ public abstract class DataFile extends DataAccess {
                         }
                     }
                     if (add || update) {
-                        data.put(key, record.clone());
+                        data.put(key, record.cloneRecord());
                     } else {
                         if (delete) {
                             data.remove(key);

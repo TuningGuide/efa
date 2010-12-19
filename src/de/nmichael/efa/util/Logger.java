@@ -401,6 +401,22 @@ public class Logger {
       log(type, Logger.MSG_GENERIC, msg);
   }
 
+  public static void log(Exception e) {
+      if (e == null) {
+          return;
+      }
+      StringBuilder s = new StringBuilder();
+      s.append(e.toString());
+      StackTraceElement[] stack = e.getStackTrace();
+      for (int i = 0; stack != null && i < stack.length; i++) {
+          s.append("\n"+ stack[i].toString());
+      }
+      log(ERROR, MSG_ERROR_EXCEPTION, s.toString());
+      EfaErrorPrintStream.ignoreExceptions = true;
+      e.printStackTrace();
+      EfaErrorPrintStream.ignoreExceptions = false;
+  }
+
   public static boolean setDebugLogging(boolean activate, boolean setFromCommandLine) {
       if (debugLogging == activate) {
           return true; // nothing to do

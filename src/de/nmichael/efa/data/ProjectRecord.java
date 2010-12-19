@@ -18,40 +18,43 @@ import java.util.*;
 
 public class ProjectRecord extends DataRecord {
 
-    protected static final String TYPE_PROJECT = "Project";
-    protected static final String TYPE_CLUB    = "Club";
-    protected static final String TYPE_LOGBOOK = "Logbook";
+    public static final String TYPE_PROJECT = "Project";
+    public static final String TYPE_CLUB    = "Club";
+    public static final String TYPE_LOGBOOK = "Logbook";
 
-    protected static final String TYPE                         = "Type"; // one of TYPE_XXX constants
-    protected static final String NAME                         = "Name"; // Project Name, Logbook Name
-    protected static final String DESCRIPTION                  = "Description";
+    public static final String TYPE                         = "Type"; // one of TYPE_XXX constants
+    public static final String PROJECTNAME                  = "ProjectName";
+    public static final String LOGBOOKNAME                  = "LogbookName";
+    public static final String DESCRIPTION                  = "Description";
 
     // Fields for Type=Project
-    // NAME
+    // PROJECTNAME
     // DESCRIPTION
-    protected static final String ADMINNAME                    = "AdminName";
-    protected static final String ADMINEMAIL                   = "AdminEmail";
+    public static final String STORAGETYPE                  = "StorageType";
+    public static final String STORAGELOCATION              = "StorageLocation";
+    public static final String ADMINNAME                    = "AdminName";
+    public static final String ADMINEMAIL                   = "AdminEmail";
 
     // Fields for Type=Club
-    protected static final String CLUBNAME                     = "ClubName";
-    protected static final String ADDRESSSTREET                = "AddressStreet";
-    protected static final String ADDRESSCITY                  = "AddressCity";
-    protected static final String ASSOCIATIONREGIONALNAME      = "RegionalAssociationName";
-    protected static final String ASSOCIATIONREGIONALMEMBERNO  = "RegionalAssociationMemberNo";
-    protected static final String ASSOCIATIONREGIONALLOGIN     = "RegionalAssociationLogin";
-    protected static final String ASSOCIATIONGLOBALNAME        = "GlobalAssociationName";
-    protected static final String ASSOCIATIONGLOBALMEMBERNO    = "GlobalAssociationMemberNo";
-    protected static final String ASSOCIATIONGLOBALLOGIN       = "GlobalAssociationLogin";
-    protected static final String MEMBEROFDRV                  = "MemberOfDRV";
-    protected static final String MEMBEROFSRV                  = "MemberOfSRV";
-    protected static final String MEMBEROFADH                  = "MemberOfADH";
-    protected static final String AREAID                       = "AreaID"; // Zielbereich
+    public static final String CLUBNAME                     = "ClubName";
+    public static final String ADDRESSSTREET                = "AddressStreet";
+    public static final String ADDRESSCITY                  = "AddressCity";
+    public static final String ASSOCIATIONREGIONALNAME      = "RegionalAssociationName";
+    public static final String ASSOCIATIONREGIONALMEMBERNO  = "RegionalAssociationMemberNo";
+    public static final String ASSOCIATIONREGIONALLOGIN     = "RegionalAssociationLogin";
+    public static final String ASSOCIATIONGLOBALNAME        = "GlobalAssociationName";
+    public static final String ASSOCIATIONGLOBALMEMBERNO    = "GlobalAssociationMemberNo";
+    public static final String ASSOCIATIONGLOBALLOGIN       = "GlobalAssociationLogin";
+    public static final String MEMBEROFDRV                  = "MemberOfDRV";
+    public static final String MEMBEROFSRV                  = "MemberOfSRV";
+    public static final String MEMBEROFADH                  = "MemberOfADH";
+    public static final String AREAID                       = "AreaID"; // Zielbereich
 
     // Fields for Type=Logbook
-    // NAME (StorageObject Name)
+    // LOGBOOKNAME (StorageObject Name)
     // DESCRIPTION
-    protected static final String STARTDATE                    = "StartDate";
-    protected static final String ENDDATE                      = "EndDate";
+    public static final String STARTDATE                    = "StartDate";
+    public static final String ENDDATE                      = "EndDate";
 
 
     public static void initialize() {
@@ -59,10 +62,14 @@ public class ProjectRecord extends DataRecord {
         Vector<Integer> t = new Vector<Integer>();
 
         f.add(TYPE);                          t.add(IDataAccess.DATA_STRING);
-        f.add(NAME);                          t.add(IDataAccess.DATA_STRING);
+        f.add(PROJECTNAME);                   t.add(IDataAccess.DATA_STRING);
+        f.add(LOGBOOKNAME);                   t.add(IDataAccess.DATA_STRING);
         f.add(DESCRIPTION);                   t.add(IDataAccess.DATA_STRING);
+        f.add(STORAGETYPE);                   t.add(IDataAccess.DATA_STRING);
+        f.add(STORAGELOCATION);               t.add(IDataAccess.DATA_STRING);
         f.add(ADMINNAME);                     t.add(IDataAccess.DATA_STRING);
         f.add(ADMINEMAIL);                    t.add(IDataAccess.DATA_STRING);
+        f.add(CLUBNAME);                      t.add(IDataAccess.DATA_STRING);
         f.add(ADDRESSSTREET);                 t.add(IDataAccess.DATA_STRING);
         f.add(ADDRESSCITY);                   t.add(IDataAccess.DATA_STRING);
         f.add(ASSOCIATIONREGIONALNAME);       t.add(IDataAccess.DATA_STRING);
@@ -77,49 +84,79 @@ public class ProjectRecord extends DataRecord {
         f.add(AREAID);                        t.add(IDataAccess.DATA_INTEGER);
         f.add(STARTDATE);                     t.add(IDataAccess.DATA_DATE);
         f.add(ENDDATE);                       t.add(IDataAccess.DATA_DATE);
-        constructArrays(f, t, false);
-
-        KEY = new String[] { TYPE, NAME };
+        MetaData metaData = constructMetaData(Project.DATATYPE, f, t, false);
+        metaData.setKey(new String[] { TYPE, LOGBOOKNAME });
     }
 
-    public ProjectRecord() {
+    public ProjectRecord(MetaData metaData) {
+        super(metaData);
     }
 
-    public ProjectRecord(String type, String name) {
-        setString(TYPE, type);
-        setString(NAME, name);
+    public DataRecord createDataRecord() { // used for cloning
+        return ProjectRecord.createProjectRecord();
     }
 
-    public ProjectRecord(ProjectRecord orig) {
-        synchronized(orig.data) {
-            for (int i = 0; i < data.length; i++) {
-                data[i] = orig.data[i];
-            }
-        }
+    public static ProjectRecord createProjectRecord() {
+        return new ProjectRecord(MetaData.getMetaData(Project.DATATYPE));
     }
 
-    public static DataKey getDataKey(String type, String name) {
-        return new DataKey<String,String,String>(type,name,null);
+    public static ProjectRecord createProjectRecord(String type, String logbookName) {
+        ProjectRecord rec = new ProjectRecord(MetaData.getMetaData(Project.DATATYPE));
+        rec.setString(TYPE, type);
+        rec.setString(LOGBOOKNAME, logbookName);
+        return rec;
+    }
+
+    public static DataKey getDataKey(String type, String logbookName) {
+        return new DataKey<String,String,String>(type,logbookName,null);
     }
 
     public DataKey getKey() {
-        return new DataKey<String,String,String>(getType(),getName(),null);
+        return new DataKey<String,String,String>(getType(),getLogbookName(),null);
     }
 
     public void setType(String type) {
         setString(TYPE, type);
     }
-    public void setName(String name) {
-        setString(NAME, name);
+    public void setProjectName(String projectName) {
+        setString(PROJECTNAME, projectName);
+    }
+    public void setLogbookName(String logbookName) {
+        setString(LOGBOOKNAME, logbookName);
     }
     public void setDescription(String description) {
         setString(DESCRIPTION, description);
+    }
+    public void setStorageType(int storageType) {
+        switch(storageType) {
+            case IDataAccess.TYPE_FILE_XML:
+                setString(STORAGETYPE, IDataAccess.TYPESTRING_FILE_XML);
+                break;
+            case IDataAccess.TYPE_DB_SQL:
+                setString(STORAGETYPE, IDataAccess.TYPESTRING_DB_SQL);
+                break;
+        }
+    }
+    public void setStorageLocation(String storageLocation) {
+        setString(STORAGELOCATION, storageLocation);
     }
     public void setAdminName(String adminName) {
         setString(ADMINNAME, adminName);
     }
     public void setAdminEmail(String adminEmail) {
         setString(ADMINEMAIL, adminEmail);
+    }
+    public void setClubName(String clubName) {
+        setString(CLUBNAME, clubName);
+    }
+    public void setAddressStreet(String addressStreet) {
+        setString(ADDRESSSTREET, addressStreet);
+    }
+    public void setAddressCity(String addressCity) {
+        setString(ADDRESSCITY, addressCity);
+    }
+    public void setAreaId(int areaId) {
+        setInt(AREAID, areaId);
     }
     public void setStartDate(DataTypeDate startDate) {
         setDate(STARTDATE, startDate);
@@ -131,11 +168,27 @@ public class ProjectRecord extends DataRecord {
     public String getType() {
         return getString(TYPE);
     }
-    public String getName() {
-        return getString(NAME);
+    public String getProjectName() {
+        return getString(PROJECTNAME);
+    }
+    public String getLogbookName() {
+        return getString(LOGBOOKNAME);
     }
     public String getDescription() {
         return getString(DESCRIPTION);
+    }
+    public int getStorageType() {
+        String s = getString(STORAGETYPE);
+        if (s != null && s.equals(IDataAccess.TYPESTRING_FILE_XML)) {
+            return IDataAccess.TYPE_FILE_XML;
+        }
+        if (s != null && s.equals(IDataAccess.TYPESTRING_DB_SQL)) {
+            return IDataAccess.TYPE_DB_SQL;
+        }
+        return -1;
+    }
+    public String getStorageLocation() {
+        return getString(STORAGELOCATION);
     }
     public String getAdminName() {
         return getString(ADMINNAME);
@@ -143,11 +196,17 @@ public class ProjectRecord extends DataRecord {
     public String getAdminEmail() {
         return getString(ADMINEMAIL);
     }
+    public String getClubName() {
+        return getString(CLUBNAME);
+    }
     public String getAddressStreet() {
         return getString(ADDRESSSTREET);
     }
     public String getAddressCity() {
         return getString(ADDRESSCITY);
+    }
+    public int getAreaId() {
+        return getInt(AREAID);
     }
     public DataTypeDate getStartDate() {
         return getDate(STARTDATE);

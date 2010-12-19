@@ -15,14 +15,14 @@ import de.nmichael.efa.data.storage.*;
 
 // @i18n complete
 
-public class Logbook extends Persistence {
+public class Boats extends Persistence {
 
-    public static final String DATATYPE = "e2logbook";
+    public static final String DATATYPE = "e2boats";
 
-    public Logbook(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Fahrtenbuch"));
+    public Boats(int storageType, String storageLocation, String storageObjectName) {
+        super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Boote"));
         try {
-            LogbookRecord.initialize();
+            BoatRecord.initialize();
             MetaData meta = MetaData.getMetaData(DATATYPE);
             for (int i=0; i<meta.getNumberOfFields(); i++) {
                 dataAccess.registerDataField(meta.getFieldName(i), meta.getFieldType(i));
@@ -34,7 +34,7 @@ public class Logbook extends Persistence {
     }
 
     public DataRecord createNewRecord() {
-        return LogbookRecord.createLogbookRecord();
+        return BoatRecord.createBoatRecord();
     }
 
 }

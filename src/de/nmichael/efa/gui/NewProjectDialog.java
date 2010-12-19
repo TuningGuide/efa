@@ -25,13 +25,6 @@ import javax.swing.border.*;
 
 public class NewProjectDialog extends StepwiseDialog {
 
-    private static final String STORAGETYPE_LOCAL  = "LOCAL";
-    private static final String STORAGETYPE_SQL    = "SQL";
-
-    private static final String PROJECTNAME        = "PROJECTNAME";
-    private static final String PROJECTDESCRIPTION = "PROJECTDESCRIPTION";
-    private static final String STORAGETYPE        = "STORAGETYPE";
-
     public NewProjectDialog(JDialog parent) {
         super(parent, International.getString("Neues Projekt"));
     }
@@ -68,21 +61,32 @@ public class NewProjectDialog extends StepwiseDialog {
         IItemType item;
 
         // Items for Step 0
-        item = new ItemTypeString(PROJECTNAME, "", IItemType.TYPE_PUBLIC, "0", International.getString("Name des Projekts"));
+        item = new ItemTypeString(ProjectRecord.PROJECTNAME, "", IItemType.TYPE_PUBLIC, "0", International.getString("Name des Projekts"));
         ((ItemTypeString)item).setAllowedCharacters("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
         ((ItemTypeString)item).setReplacementCharacter('_');
         ((ItemTypeString)item).setNotNull(true);
         items.add(item);
-        item = new ItemTypeString(PROJECTDESCRIPTION, "", IItemType.TYPE_PUBLIC, "0", International.getString("Beschreibung"));
-        items.add(item);
+        items.add(new ItemTypeString(ProjectRecord.DESCRIPTION, "", IItemType.TYPE_PUBLIC, "0", International.getString("Beschreibung")));
+        items.add(new ItemTypeString(ProjectRecord.ADMINNAME, "", IItemType.TYPE_PUBLIC, "0", International.getString("Dein Name")));
+        items.add(new ItemTypeString(ProjectRecord.ADMINEMAIL, "", IItemType.TYPE_PUBLIC, "0", International.getString("Deine email-Adresse")));
 
         // Items for Step 1
-        item = new ItemTypeStringList(STORAGETYPE, STORAGETYPE_LOCAL,
-                new String[] { STORAGETYPE_LOCAL, STORAGETYPE_SQL },
+        item = new ItemTypeStringList(ProjectRecord.STORAGETYPE, IDataAccess.TYPESTRING_FILE_XML,
+                new String[] { IDataAccess.TYPESTRING_FILE_XML, IDataAccess.TYPESTRING_DB_SQL },
                 new String[] { International.getString("lokales Dateisystem"),
                                International.getString("SQL-Datenbank") },
                 IItemType.TYPE_PUBLIC, "1", International.getString("Speicherort"));
         items.add(item);
+
+        // Items for Step 2
+        items.add(new ItemTypeString(ProjectRecord.CLUBNAME, "", IItemType.TYPE_PUBLIC, "2", International.getString("Vereinsname")));
+        items.add(new ItemTypeString(ProjectRecord.ADDRESSSTREET, "", IItemType.TYPE_PUBLIC, "2", International.getString("Anschrift") + " - " +
+                International.getString("Straße")));
+        items.add(new ItemTypeString(ProjectRecord.ADDRESSCITY, "", IItemType.TYPE_PUBLIC, "2", International.getString("Anschrift") + " - " +
+                International.getString("Postleitzahl und Ort")));
+        if (Daten.efaConfig.showBerlinOptions.getValue()) {
+            items.add(new ItemTypeInteger(ProjectRecord.AREAID, 0, 0, Zielfahrt.ANZ_ZIELBEREICHE, IItemType.TYPE_PUBLIC, "2", International.onlyFor("Zielbereich", "de")));
+        }
     }
 
     boolean checkInput(int direction) {
@@ -92,7 +96,7 @@ public class NewProjectDialog extends StepwiseDialog {
         }
         
         if (step == 0) {
-            ItemTypeString item = (ItemTypeString)getItemByName(PROJECTNAME);
+            ItemTypeString item = (ItemTypeString)getItemByName(ProjectRecord.PROJECTNAME);
             String name = item.getValue();
             Project prj = new Project(IDataAccess.TYPE_FILE_XML, Daten.efaDataDirectory, name);
             try {
@@ -107,8 +111,8 @@ public class NewProjectDialog extends StepwiseDialog {
 
 
         if (step == 1) {
-            ItemTypeStringList item = (ItemTypeStringList)getItemByName(STORAGETYPE);
-            if (!item.getValue().equals(STORAGETYPE_LOCAL)) {
+            ItemTypeStringList item = (ItemTypeStringList)getItemByName(ProjectRecord.STORAGETYPE);
+            if (!item.getValue().equals(IDataAccess.TYPESTRING_FILE_XML)) {
                 Dialog.error(International.getMessage("Die ausgewählte Option '{option}' wird zur Zeit noch nicht unterstützt.",
                         International.getString("SQL-Datenbank")));
                 item.requestFocus();
@@ -121,19 +125,34 @@ public class NewProjectDialog extends StepwiseDialog {
     void finishButton_actionPerformed(ActionEvent e) {
         super.finishButton_actionPerformed(e);
 
-        ItemTypeString prjName = (ItemTypeString)getItemByName(PROJECTNAME);
-        ItemTypeStringList storType = (ItemTypeStringList)getItemByName(STORAGETYPE);
+        ItemTypeString prjName = (ItemTypeString)getItemByName(ProjectRecord.PROJECTNAME);
+
+        ItemTypeStringList storType = (ItemTypeStringList)getItemByName(ProjectRecord.STORAGETYPE);
         int storageType = -1;
-        if (storType.getValue().equals(STORAGETYPE_LOCAL)) {
+        if (storType.getValue().equals(IDataAccess.TYPESTRING_FILE_XML)) {
             storageType = IDataAccess.TYPE_FILE_XML;
         }
-        if (storType.getValue().equals(STORAGETYPE_SQL)) {
+        if (storType.getValue().equals(IDataAccess.TYPESTRING_DB_SQL)) {
             storageType = IDataAccess.TYPE_DB_SQL;
         }
-        Project prj = new Project(storageType, Daten.efaDataDirectory, prjName.getValue());
+        // Note: The storageType of the project file itself is always TYPE_FILE_XML.
+        // The storageType of the project's content (set through prj.setProjectStorageType(storageType)) may differ.
+        Project prj = new Project(IDataAccess.TYPE_FILE_XML, Daten.efaDataDirectory, prjName.getValue());
         try {
             prj.open(true);
             prj.setEmptyProject(prjName.getValue());
+            // Project Properties
+            prj.setProjectDescription(((ItemTypeString)getItemByName(ProjectRecord.DESCRIPTION)).getValue());
+            prj.setProjectStorageType(storageType);
+            prj.setAdminName(((ItemTypeString)getItemByName(ProjectRecord.ADMINNAME)).getValue());
+            prj.setAdminEmail(((ItemTypeString)getItemByName(ProjectRecord.ADMINEMAIL)).getValue());
+            // Club Properties
+            prj.setClubName(((ItemTypeString)getItemByName(ProjectRecord.CLUBNAME)).getValue());
+            prj.setClubAddressStreet(((ItemTypeString)getItemByName(ProjectRecord.ADDRESSSTREET)).getValue());
+            prj.setClubAddressCity(((ItemTypeString)getItemByName(ProjectRecord.ADDRESSCITY)).getValue());
+            if (getItemByName(ProjectRecord.AREAID) != null) {
+                prj.setClubAreaId(((ItemTypeInteger)getItemByName(ProjectRecord.AREAID)).getValue());
+            }
             prj.close();
             prj.open(false);
             Daten.project = prj;

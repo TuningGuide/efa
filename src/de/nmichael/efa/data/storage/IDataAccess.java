@@ -19,6 +19,9 @@ public interface IDataAccess {
     public static final int TYPE_FILE_XML = 1;
     public static final int TYPE_DB_SQL = 2;
 
+    public static final String TYPESTRING_FILE_XML = "file/xml";
+    public static final String TYPESTRING_DB_SQL = "db/sql";
+
     // Data Types supported by IDataAccess
     //                      Data Type            Internal Java Type
     public static final int DATA_STRING = 0;  // String

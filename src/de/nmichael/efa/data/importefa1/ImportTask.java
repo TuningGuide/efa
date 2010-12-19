@@ -26,20 +26,32 @@ public class ImportTask extends ProgressTask {
     public void run() {
         setRunning(true);
         int i = 0;
+        int errorCnt = 0;
         for (String key : importData.keySet()) {
             ImportMetadata meta = importData.get(key);
             if (!meta.selected) {
                 continue;
             }
-            logInfo(International.getMessage("Importiere {file} ...", meta.toString()));
+            logInfo(International.getMessage("Importiere {file} ...", meta.toString()) + "\n");
 
+            ImportBase importJob = null;
             switch (meta.type) {
                 case ImportMetadata.TYPE_FAHRTENBUCH:
-                    ImportLogbook.importData(meta);
+                    importJob = new ImportLogbook(this, key, meta);
                     break;
+            }
+            boolean result = false;
+            if (importJob != null) {
+                importJob.runImport();
+            }
+            if (!result) {
+                errorCnt++;
             }
 
             setCurrentWorkDone(i++);
+        }
+        if (errorCnt > 0) {
+            Dialog.error(International.getMessage("Es traten {count} Fehler auf.", errorCnt));
         }
         setDone();
     }

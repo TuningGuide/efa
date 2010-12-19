@@ -44,7 +44,7 @@ public class Test {
             logbook.data().add(new LogbookRecord("9"));
             Thread.sleep(300);
 */
-            logbook.data().add(new LogbookRecord("99"));
+            logbook.data().add(LogbookRecord.createLogbookRecord("99"));
             Thread.sleep(300);
 
             logbook.close();

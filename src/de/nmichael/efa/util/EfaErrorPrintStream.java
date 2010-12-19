@@ -20,7 +20,7 @@ public class EfaErrorPrintStream extends PrintStream {
 
   private static final int MAX_STACK_DEPTH_FOR_EFA_ERROR = 5;
 
-  public static boolean ignoreExceptions = false;
+  public static volatile boolean ignoreExceptions = false;
   private Object lastErrorObject = null;
 
   public EfaErrorPrintStream(FileOutputStream f) {

@@ -244,7 +244,11 @@ public class International {
                         if (p1 >= p2) {
                             break;
                         }
-                        s = s.substring(0, p1) + "@@[@@" + i++ + "@@]@@" + s.substring(p2+1);
+                        if (p1 > 0 && s.charAt(p1-1) == '\'' && p2+1 < s.length() && s.charAt(p2+1) == '\'') {
+                            s = s.substring(0, p1) + "'@@[@@" + i++ + "@@]@@'" + s.substring(p2+1); // substitute '{varname}' by ''{1}''
+                        } else {
+                            s = s.substring(0, p1) + "@@[@@" + i++ + "@@]@@" + s.substring(p2+1); // substitute {varname} by {1}
+                        }
                     }
                     s = EfaUtil.replace(s, "@@[@@", "{", true);
                     s = EfaUtil.replace(s, "@@]@@", "}", true);

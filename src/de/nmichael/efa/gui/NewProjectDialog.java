@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -31,6 +31,10 @@ public class NewProjectDialog extends StepwiseDialog {
 
     public NewProjectDialog(Frame parent) {
         super(parent, International.getString("Neues Projekt"));
+    }
+
+    public void keyAction(ActionEvent evt) {
+        _keyAction(evt);
     }
 
     String[] getSteps() {
@@ -143,6 +147,7 @@ public class NewProjectDialog extends StepwiseDialog {
             prj.setEmptyProject(prjName.getValue());
             // Project Properties
             prj.setProjectDescription(((ItemTypeString)getItemByName(ProjectRecord.DESCRIPTION)).getValue());
+
             prj.setProjectStorageType(storageType);
             prj.setAdminName(((ItemTypeString)getItemByName(ProjectRecord.ADMINNAME)).getValue());
             prj.setAdminEmail(((ItemTypeString)getItemByName(ProjectRecord.ADMINEMAIL)).getValue());

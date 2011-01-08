@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -121,69 +121,69 @@ public class LogbookRecord extends DataRecord {
 
         f.add(ENTRYID);             t.add(IDataAccess.DATA_STRING);
         f.add(DATE);                t.add(IDataAccess.DATA_DATE);
-        f.add(BOATID);              t.add(IDataAccess.DATA_INTEGER);
-        f.add(BOATVARIANTID);       t.add(IDataAccess.DATA_INTEGER);
+        f.add(BOATID);              t.add(IDataAccess.DATA_UUID);
+        f.add(BOATVARIANTID);       t.add(IDataAccess.DATA_UUID);
         f.add(BOATNAME);            t.add(IDataAccess.DATA_STRING);
-        f.add(COXID);               t.add(IDataAccess.DATA_INTEGER);
+        f.add(COXID);               t.add(IDataAccess.DATA_UUID);
         f.add(COXNAME);             t.add(IDataAccess.DATA_STRING);
-        f.add(CREW1ID);             t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW1ID);             t.add(IDataAccess.DATA_UUID);
         f.add(CREW1NAME);           t.add(IDataAccess.DATA_STRING);
-        f.add(CREW2ID);             t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW2ID);             t.add(IDataAccess.DATA_UUID);
         f.add(CREW2NAME);           t.add(IDataAccess.DATA_STRING);
-        f.add(CREW3ID);             t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW3ID);             t.add(IDataAccess.DATA_UUID);
         f.add(CREW3NAME);           t.add(IDataAccess.DATA_STRING);
-        f.add(CREW4ID);             t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW4ID);             t.add(IDataAccess.DATA_UUID);
         f.add(CREW4NAME);           t.add(IDataAccess.DATA_STRING);
-        f.add(CREW5ID);             t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW5ID);             t.add(IDataAccess.DATA_UUID);
         f.add(CREW5NAME);           t.add(IDataAccess.DATA_STRING);
-        f.add(CREW6ID);             t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW6ID);             t.add(IDataAccess.DATA_UUID);
         f.add(CREW6NAME);           t.add(IDataAccess.DATA_STRING);
-        f.add(CREW7ID);             t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW7ID);             t.add(IDataAccess.DATA_UUID);
         f.add(CREW7NAME);           t.add(IDataAccess.DATA_STRING);
-        f.add(CREW8ID);             t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW8ID);             t.add(IDataAccess.DATA_UUID);
         f.add(CREW8NAME);           t.add(IDataAccess.DATA_STRING);
-        f.add(CREW9ID);             t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW9ID);             t.add(IDataAccess.DATA_UUID);
         f.add(CREW9NAME);           t.add(IDataAccess.DATA_STRING);
-        f.add(CREW10ID);            t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW10ID);            t.add(IDataAccess.DATA_UUID);
         f.add(CREW10NAME);          t.add(IDataAccess.DATA_STRING);
-        f.add(CREW11ID);            t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW11ID);            t.add(IDataAccess.DATA_UUID);
         f.add(CREW11NAME);          t.add(IDataAccess.DATA_STRING);
-        f.add(CREW12ID);            t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW12ID);            t.add(IDataAccess.DATA_UUID);
         f.add(CREW12NAME);          t.add(IDataAccess.DATA_STRING);
-        f.add(CREW13ID);            t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW13ID);            t.add(IDataAccess.DATA_UUID);
         f.add(CREW13NAME);          t.add(IDataAccess.DATA_STRING);
-        f.add(CREW14ID);            t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW14ID);            t.add(IDataAccess.DATA_UUID);
         f.add(CREW14NAME);          t.add(IDataAccess.DATA_STRING);
-        f.add(CREW15ID);            t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW15ID);            t.add(IDataAccess.DATA_UUID);
         f.add(CREW15NAME);          t.add(IDataAccess.DATA_STRING);
-        f.add(CREW16ID);            t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW16ID);            t.add(IDataAccess.DATA_UUID);
         f.add(CREW16NAME);          t.add(IDataAccess.DATA_STRING);
-        f.add(CREW17ID);            t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW17ID);            t.add(IDataAccess.DATA_UUID);
         f.add(CREW17NAME);          t.add(IDataAccess.DATA_STRING);
-        f.add(CREW18ID);            t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW18ID);            t.add(IDataAccess.DATA_UUID);
         f.add(CREW18NAME);          t.add(IDataAccess.DATA_STRING);
-        f.add(CREW19ID);            t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW19ID);            t.add(IDataAccess.DATA_UUID);
         f.add(CREW19NAME);          t.add(IDataAccess.DATA_STRING);
-        f.add(CREW20ID);            t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW20ID);            t.add(IDataAccess.DATA_UUID);
         f.add(CREW20NAME);          t.add(IDataAccess.DATA_STRING);
-        f.add(CREW21ID);            t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW21ID);            t.add(IDataAccess.DATA_UUID);
         f.add(CREW21NAME);          t.add(IDataAccess.DATA_STRING);
-        f.add(CREW22ID);            t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW22ID);            t.add(IDataAccess.DATA_UUID);
         f.add(CREW22NAME);          t.add(IDataAccess.DATA_STRING);
-        f.add(CREW23ID);            t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW23ID);            t.add(IDataAccess.DATA_UUID);
         f.add(CREW23NAME);          t.add(IDataAccess.DATA_STRING);
-        f.add(CREW24ID);            t.add(IDataAccess.DATA_INTEGER);
+        f.add(CREW24ID);            t.add(IDataAccess.DATA_UUID);
         f.add(CREW24NAME);          t.add(IDataAccess.DATA_STRING);
         f.add(BOATCAPTAIN);         t.add(IDataAccess.DATA_INTEGER);
         f.add(STARTTIME);           t.add(IDataAccess.DATA_TIME);
         f.add(ENDTIME);             t.add(IDataAccess.DATA_TIME);
-        f.add(DESTINATIONID);       t.add(IDataAccess.DATA_INTEGER);
+        f.add(DESTINATIONID);       t.add(IDataAccess.DATA_UUID);
         f.add(DESTINATIONNAME);     t.add(IDataAccess.DATA_STRING);
         f.add(DISTANCEUNIT);        t.add(IDataAccess.DATA_STRING);
         f.add(BOATDISTANCE);        t.add(IDataAccess.DATA_DECIMAL);
         f.add(COMMENTS);            t.add(IDataAccess.DATA_STRING);
         f.add(SESSIONTYPE);         t.add(IDataAccess.DATA_STRING);
-        f.add(MULTIDAYTOURID);      t.add(IDataAccess.DATA_INTEGER);
+        f.add(MULTIDAYTOURID);      t.add(IDataAccess.DATA_UUID);
         MetaData metaData = constructMetaData(Logbook.DATATYPE, f, t, false);
         metaData.setKey(new String[] { ENTRYID });
     }
@@ -231,18 +231,18 @@ public class LogbookRecord extends DataRecord {
         return getDate(DATE);
     }
 
-    public void setBoatId(int id) {
-        setInt(BOATID, id);
+    public void setBoatId(UUID id) {
+        setUUID(BOATID, id);
     }
-    public int getBoatId() {
-        return getInt(BOATID);
+    public UUID getBoatId() {
+        return getUUID(BOATID);
     }
 
-    public void setBoatVariantId(int id) {
-        setInt(BOATVARIANTID, id);
+    public void setBoatVariantId(UUID id) {
+        setUUID(BOATVARIANTID, id);
     }
-    public int getBoatVariantId() {
-        return getInt(BOATVARIANTID);
+    public UUID getBoatVariantId() {
+        return getUUID(BOATVARIANTID);
     }
 
     public void setBoatName(String name) {
@@ -252,11 +252,11 @@ public class LogbookRecord extends DataRecord {
         return getString(BOATNAME);
     }
 
-    public void setCoxId(int id) {
-        setInt(COXID, id);
+    public void setCoxId(UUID id) {
+        setUUID(COXID, id);
     }
-    public int getCoxId() {
-        return getInt(COXID);
+    public UUID getCoxId() {
+        return getUUID(COXID);
     }
 
     public void setCoxName(String name) {
@@ -266,11 +266,11 @@ public class LogbookRecord extends DataRecord {
         return getString(COXNAME);
     }
 
-    public void setCrewId(int pos, int id) {
-        setInt(getCrewFieldNameId(pos), id);
+    public void setCrewId(int pos, UUID id) {
+        setUUID(getCrewFieldNameId(pos), id);
     }
-    public int getCrewId(int pos) {
-        return getInt(getCrewFieldNameId(pos));
+    public UUID getCrewId(int pos) {
+        return getUUID(getCrewFieldNameId(pos));
     }
 
     public void setCrewName(int pos, String name) {
@@ -280,8 +280,8 @@ public class LogbookRecord extends DataRecord {
         return getString(getCrewFieldNameName(pos));
     }
 
-    public void setBoatCaptainPosition(int id) {
-        setInt(BOATCAPTAIN, id);
+    public void setBoatCaptainPosition(int pos) {
+        setInt(BOATCAPTAIN, pos);
     }
     public int getBoatCaptainPosition() {
         return getInt(BOATCAPTAIN);
@@ -301,11 +301,11 @@ public class LogbookRecord extends DataRecord {
         return getTime(ENDTIME);
     }
 
-    public void setDestinationId(int id) {
-        setInt(DESTINATIONID, id);
+    public void setDestinationId(UUID id) {
+        setUUID(DESTINATIONID, id);
     }
-    public int getDestinationId() {
-        return getInt(DESTINATIONID);
+    public UUID getDestinationId() {
+        return getUUID(DESTINATIONID);
     }
 
     public void setDestinationName(String name) {
@@ -367,11 +367,11 @@ public class LogbookRecord extends DataRecord {
         return getString(SESSIONTYPE);
     }
 
-    public void setMultiDayTourId(int id) {
-        setInt(MULTIDAYTOURID, id);
+    public void setMultiDayTourId(UUID id) {
+        setUUID(MULTIDAYTOURID, id);
     }
-    public int getMultiDayTourId() {
-        return getInt(MULTIDAYTOURID);
+    public UUID getMultiDayTourId() {
+        return getUUID(MULTIDAYTOURID);
     }
 
 }

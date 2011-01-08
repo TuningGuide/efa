@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -78,7 +78,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
         return null;
     }
 
-    public void keyAction(ActionEvent evt) {
+    public void _keyAction(ActionEvent evt) {
         if (evt == null || evt.getActionCommand() == null) {
             return;
         }
@@ -89,6 +89,8 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
             Help.showHelp(helpTopic);
         }
     }
+
+    public abstract void keyAction(ActionEvent evt);
 
     protected void iniDialogCommon(String title, String closeButtonText) throws Exception {
         helpTopic = getClass().getCanonicalName();

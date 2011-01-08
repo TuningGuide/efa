@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -14,6 +14,7 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
 public class ProgressDialog extends BaseDialog {
 
@@ -21,16 +22,16 @@ public class ProgressDialog extends BaseDialog {
     private JTextArea loggingTextArea;
     private JProgressBar progressBar;
 
-    public ProgressDialog(Frame parent, String title, ProgressTask progressTask) {
+    public ProgressDialog(Frame parent, String title, ProgressTask progressTask, boolean autoCloseDialogWhenDone) {
         super(parent, title, International.getStringWithMnemonic("Schließen"));
         this.progressTask = progressTask;
-        progressTask.setProgressDialog(this);
+        progressTask.setProgressDialog(this, autoCloseDialogWhenDone);
     }
 
-    public ProgressDialog(JDialog parent, String title, ProgressTask progressTask) {
+    public ProgressDialog(JDialog parent, String title, ProgressTask progressTask, boolean autoCloseDialogWhenDone) {
         super(parent, title, International.getStringWithMnemonic("Schließen"));
         this.progressTask = progressTask;
-        progressTask.setProgressDialog(this);
+        progressTask.setProgressDialog(this, autoCloseDialogWhenDone);
     }
 
     protected void iniDialog() throws Exception {
@@ -41,8 +42,8 @@ public class ProgressDialog extends BaseDialog {
         loggingScrollPane.setMinimumSize(new Dimension(550,200));
         loggingTextArea = new JTextArea();
         loggingTextArea.setEditable(false);
-        loggingTextArea.setWrapStyleWord(true);
-        loggingTextArea.setLineWrap(true);
+        //loggingTextArea.setWrapStyleWord(true);
+        //loggingTextArea.setLineWrap(true);
         loggingScrollPane.getViewport().add(loggingTextArea, null);
         mainPanel.add(loggingScrollPane, BorderLayout.CENTER);
 
@@ -57,6 +58,10 @@ public class ProgressDialog extends BaseDialog {
         progressPanel.add(progressBar,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
                     ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 10, 5, 10), 0, 0));
         mainPanel.add(progressPanel, BorderLayout.SOUTH);
+    }
+
+    public void keyAction(ActionEvent evt) {
+        _keyAction(evt);
     }
 
     public void logInfo(String s) {

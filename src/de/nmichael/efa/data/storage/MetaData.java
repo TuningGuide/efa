@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -20,6 +20,8 @@ public class MetaData {
     protected int[] TYPES;
     protected HashMap<String,Integer> FIELDIDX;
     protected String[] KEY;
+    protected ArrayList<String[]> indices = new ArrayList<String[]>();
+    protected boolean versionized;
 
     private static Hashtable<String,MetaData> metaData = new Hashtable<String,MetaData>();
 
@@ -27,7 +29,7 @@ public class MetaData {
         this.dataType = dataType;
     }
 
-    public static MetaData constructMetaData(String dataType, Vector<String> fields, Vector<Integer> types) {
+    public static MetaData constructMetaData(String dataType, Vector<String> fields, Vector<Integer> types, boolean versionized) {
         MetaData m = metaData.get(dataType);
         if (m != null) {
             metaData.remove(dataType);
@@ -41,6 +43,7 @@ public class MetaData {
             m.TYPES[i] = types.get(i).intValue();
             m.FIELDIDX.put(m.FIELDS[i], i);
         }
+        m.versionized = versionized;
         metaData.put(dataType, m);
         return m;
     }
@@ -56,14 +59,43 @@ public class MetaData {
     }
 
     public void setKey(String[] key) {
-        KEY = key;
+        int l = 0;
+        for (int i=0; i<key.length && key[i] != null; i++) {
+            l++;
+        }
+        if (versionized) {
+            l++;
+        }
+        if (l >= 3) {
+            throw new IllegalArgumentException("Too many KEY fields for Data Type: "+dataType);
+        }
+        KEY = new String[l];
+        for (int i=0; i<l; i++) {
+            if (i < key.length) {
+                KEY[i] = key[i];
+            } else {
+                KEY[i] = DataRecord.VALIDFROM;
+            }
+        }
+    }
+
+    public void addIndex(String[] fieldNames) {
+        indices.add(fieldNames);
+    }
+
+    public String[][] getIndices() {
+        String[][] idx = new String[indices.size()][];
+        for (int i=0; i<idx.length; i++) {
+            idx[i] = indices.get(i);
+        }
+        return idx;
     }
 
     public int getNumberOfFields() {
         return FIELDS.length;
     }
     
-    public int getIndex(String fieldName) {
+    public int getFieldIndex(String fieldName) {
         try {
             return FIELDIDX.get(fieldName).intValue();
         } catch(Exception e) {
@@ -83,6 +115,19 @@ public class MetaData {
 
     public String[] getKeyFields() {
         return Arrays.copyOf(KEY, KEY.length);
+    }
+
+    public boolean isKeyField(int fieldIdx) {
+        return isKeyField(FIELDS[fieldIdx]);
+    }
+
+    public boolean isKeyField(String fieldName) {
+        for (int i=0; i<KEY.length; i++) {
+            if(KEY[i].equals(fieldName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -24,13 +24,15 @@ public interface IDataAccess {
 
     // Data Types supported by IDataAccess
     //                      Data Type            Internal Java Type
-    public static final int DATA_STRING = 0;  // String
-    public static final int DATA_INTEGER = 1; // int, Integer
-    public static final int DATA_LONGINT = 2; // long, Long
-    public static final int DATA_DECIMAL = 3; // DataTypeDecimal
-    public static final int DATA_BOOLEAN = 4; // boolean, Boolean
-    public static final int DATA_DATE = 5;    // DataTypeDate
-    public static final int DATA_TIME = 6;    // DataTypeTime
+    public static final int DATA_STRING = 0;     // String
+    public static final int DATA_INTEGER = 1;    // int, Integer
+    public static final int DATA_LONGINT = 2;    // long, Long
+    public static final int DATA_DECIMAL = 3;    // DataTypeDecimal
+    public static final int DATA_BOOLEAN = 4;    // boolean, Boolean
+    public static final int DATA_DATE = 5;       // DataTypeDate
+    public static final int DATA_TIME = 6;       // DataTypeTime
+    public static final int DATA_UUID = 7;       // java.util.UUID
+    public static final int DATA_LIST = 8;       // String-based list
 
     public static final int  UNDEFINED_INT  = Integer.MIN_VALUE + 1;
     public static final long UNDEFINED_LONG = Long.MIN_VALUE + 1;
@@ -217,13 +219,13 @@ public interface IDataAccess {
      * Releases a previous acquired global lock.
      * @param lockID the lock ID
      */
-    public void releaseGlobalLock(long lockID) throws EfaException;
+    public boolean releaseGlobalLock(long lockID);
 
     /**
      * Releases a previous acquired local lock.
      * @param lockID the lock ID
      */
-    public void releaseLocalLock(long lockID) throws EfaException;
+    public boolean releaseLocalLock(long lockID);
 
     /**
      * Returns the current SCN.
@@ -240,6 +242,13 @@ public interface IDataAccess {
      */
     public void registerDataField(String fieldName, int dataType) throws EfaException;
 
+    /**
+     * Creates an index on the specified fields.
+     * @param fieldNames the fields to create the index on.
+     * @throws EfaException
+     */
+    public void createIndex(String[] fieldNames) throws EfaException;
+
 
     /**
      * Specifies the key fields for this storage object. The combination of key field
@@ -248,6 +257,13 @@ public interface IDataAccess {
      * @throws Exception
      */
     public void setKey(String[] fieldNames) throws EfaException;
+
+    /**
+     * Sets the meta data associated with this data access.
+     * This must be done prior to using the data access.
+     * @param meta the meta data
+     */
+    public void setMetaData(MetaData meta);
 
     /**
      * Returns the names of the key fields of this storage object.
@@ -293,19 +309,42 @@ public interface IDataAccess {
     public void add(DataRecord record, long lockID) throws EfaException;
 
     /**
-     * Adds a new data record to or updates an existing one in this storage object.
-     * @param record the data record to add or update
-     * @throws Exception if the data record is locked or the operation fails for another reason
+     * Adds a new data record to this storage object.
+     * This data record will be valid from timestamp t. If another data record is already valid around t,
+     * its validity range will be automatically adapted to end at t-1.
+     * Note: This method requires a global lock!
+     * @param record the data record to add
+     * @param t the ValidFrom timestamp
+     * @throws Exception if the data record already exists or the operation fails for another reason
      */
-    public void addOrUpdate(DataRecord record) throws EfaException;
+    public void addValidAt(DataRecord record, long t) throws EfaException;
 
     /**
-     * Adds a new data record to or updates an existing one in this storage object with a previously acquired local or global lock.
-     * @param record the data record to add or update
+     * Adds a new data record to this storage object with a previously acquired global lock.
+     * This data record will be valid from timestamp t. If another data record is already valid around t,
+     * its validity range will be automatically adapted to end at t-1.
+     * Note: This method requires a global lock!
+     * @param record the data record to add
+     * @param t the ValidFrom timestamp
+     * @param lockID an ID of a previously acquired local or global lock
+     * @throws Exception if the data record already exists or the operation fails for another reason
+     */
+    public void addValidAt(DataRecord record, long t, long lockID) throws EfaException;
+
+    /**
+     * Updates an existing one in this storage object.
+     * @param record the data record to update
+     * @throws Exception if the data record is locked or the operation fails for another reason
+     */
+    public void update(DataRecord record) throws EfaException;
+
+    /**
+     * Updates an existing one in this storage object with a previously acquired local or global lock.
+     * @param record the data record to update
      * @param lockID an ID of a previously acquired local or global lock
      * @throws Exception if the data record is locked or the operation fails for another reason
      */
-    public void addOrUpdate(DataRecord record, long lockID) throws EfaException;
+    public void update(DataRecord record, long lockID) throws EfaException;
 
     /**
      * Deletes an existing data record from this storage object.
@@ -323,11 +362,69 @@ public interface IDataAccess {
     public void delete(DataKey key, long lockID) throws EfaException;
 
     /**
-     * Retrieves an existing data record from this storage object.
-     * @param key the key of the data record to retrieve
+     * Deletes an existing data record from this storage object.
+     * This method will adapt other data records with adjacent validity ranges, depending on the value of merge:
+     * merge = 0: Don't merge, leave a "hole" where no records are valid
+     * merge = -1: Merge left record, i.e. extend InvalidFrom from previous record to the InvalidFrom of the record to be deleted.
+     * merge = 1: Merge right record, i.e. lower ValidFrom from next record to the ValidFrom of the record to be deleted.
+     * Note: This method requires a global lock!
+     * @param key the key of the data record to delete
+     * @param merge specifies how to merge adjacent record's validity ranges
      * @throws Exception if the data record does not exist, is locked or the operation fails for another reason
      */
+    public void deleteVersionized(DataKey key, int merge) throws EfaException;
+
+    /**
+     * Deletes an existing data record from this storage object with a previously acquired global lock.
+     * This method will adapt other data records with adjacent validity ranges, depending on the value of merge:
+     * merge = 0: Don't merge, leave a "hole" where no records are valid
+     * merge = -1: Merge left record, i.e. extend InvalidFrom from previous record to the InvalidFrom of the record to be deleted.
+     * merge = 1: Merge right record, i.e. lower ValidFrom from next record to the ValidFrom of the record to be deleted.
+     * Note: This method requires a global lock!
+     * @param key the key of the data record to delete
+     * @param merge specifies how to merge adjacent record's validity ranges
+     * @param lockID an ID of a previously acquired local or global lock
+     * @throws Exception if the data record does not exist, is locked or the operation fails for another reason
+     */
+    public void deleteVersionized(DataKey key, int merge, long lockID) throws EfaException;
+
+    /**
+     * Retrieves an existing data record from this storage object.
+     * @param key the key of the data record to retrieve
+     * @throws Exception if the data record is locked or the operation fails for another reason
+     */
     public DataRecord get(DataKey key) throws EfaException;
+
+    /**
+     * Retrieves all existing data records valid at any point in time from this storage object.
+     * @param key the key of the data record to retrieve (with or without the validity information)
+     * @throws Exception if the data record is locked or the operation fails for another reason
+     */
+    public DataRecord[] getValidAny(DataKey key) throws EfaException;
+
+    /**
+     * Retrieves an existing data record valid at a specified point in time from this storage object.
+     * @param key the key of the data record to retrieve (with or without the validity information)
+     * @param t the time at which this record is valid
+     * @throws Exception if the data record does not exist, is locked or the operation fails for another reason
+     */
+    public DataRecord getValidAt(DataKey key, long t) throws EfaException;
+
+    /**
+     * Returns true if there are any data records valid at any point in time from this storage object.
+     * @param key the key of the data record to retrieve (with or without the validity information)
+     * @throws Exception if the data record is locked or the operation fails for another reason
+     */
+    public boolean isValidAny(DataKey key) throws EfaException;
+
+    /**
+     * Retrieves all keys for data records specified through fieldNames and values
+     * @param fieldNames the field names for the corresponding values
+     * @param values the values to search for
+     * @return all matching keys
+     * @throws EfaException
+     */
+    public DataKey[] getByFields(String[] fieldNames, Object[] values) throws EfaException;
 
     /**
      * Returns the number of data records in this storage object.

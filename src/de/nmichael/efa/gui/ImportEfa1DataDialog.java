@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -46,6 +46,10 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
 
     public ImportEfa1DataDialog(Frame parent) {
         super(parent, International.getString("Daten aus efa 1.x importieren"));
+    }
+
+    public void keyAction(ActionEvent evt) {
+        _keyAction(evt);
     }
 
     String[] getSteps() {
@@ -272,6 +276,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
 
     private void checkImportData(HashMap<String,ImportMetadata> importData, String dir, DatenListe datenListe, int type, String description) {
         datenListe.dontEverWrite();
+        Dialog.SUPPRESS_DIALOGS = true;
         ImportMetadata meta = new ImportMetadata(type, datenListe, description);
         String fname = datenListe.getFileName();
         if (EfaUtil.canOpenFile(dir+"daten"+Daten.fileSep+fname)) {
@@ -286,6 +291,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
             }
         }
         importData.put(datenListe.getFileName(), meta);
+        Dialog.SUPPRESS_DIALOGS = false;
     }
 
     private void getAllLogbooks(HashMap<String,ImportMetadata> importData, String dirname) {
@@ -311,6 +317,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
         }
         Fahrtenbuch fb = new Fahrtenbuch(fname);
         fb.dontEverWrite();
+        Dialog.SUPPRESS_DIALOGS = true;
         if (EfaUtil.canOpenFile(fb.getFileName()) && fb.readFile()) {
             ImportMetadata meta = new ImportMetadata(ImportMetadata.TYPE_FAHRTENBUCH, fb, International.getString("Fahrtenbuch"));
             DatenFelder d = fb.getCompleteFirst();
@@ -353,7 +360,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
             recursiveAddLogbook(importData, fb.getPrevFb(true));
             recursiveAddLogbook(importData, fb.getNextFb(true));
         }
-
+        Dialog.SUPPRESS_DIALOGS = false;
     }
 
     boolean checkInput(int direction) {
@@ -429,7 +436,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
     void finishButton_actionPerformed(ActionEvent e) {
         super.finishButton_actionPerformed(e);
         ImportTask importTask = new ImportTask(importData);
-        ProgressDialog progressDialog = new ProgressDialog(this, International.getString("Daten importieren"), importTask);
+        ProgressDialog progressDialog = new ProgressDialog(this, International.getString("Daten importieren"), importTask, false);
         importTask.start();
         progressDialog.showDialog();
     }

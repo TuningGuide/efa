@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -58,8 +58,26 @@ public class DataTypeDate implements Cloneable {
         ensureCorrectDate();
     }
 
+    public void setMonthAndYear(String s) {
+        TMJ tmj = EfaUtil.string2date(s, -1, -1, -1);
+        this.day = 0;
+        this.month = tmj.tag;
+        this.year = tmj.monat;
+        ensureCorrectDate();
+    }
+
+    public void setYear(String s) {
+        TMJ tmj = EfaUtil.string2date(s, -1, -1, -1);
+        this.day = 0;
+        this.month = 0;
+        this.year = tmj.tag;
+        ensureCorrectDate();
+    }
+
     public GregorianCalendar toCalendar() {
-        return new GregorianCalendar(year, month - 1, day);
+        int _day = (day > 0 ? day : 1);       // if day is not specified (day==0), assume first of month
+        int _month = (month > 0 ? month : 1); // if month is not specified (month==0), assume first of year
+        return new GregorianCalendar(year, _month - 1, _day);
     }
 
     public void ensureCorrectDate() {
@@ -76,10 +94,10 @@ public class DataTypeDate implements Cloneable {
         if (!fourdigit && year < 1920) {
             year += 100;
         }
-        if (month < 1 || month > 12) {
+        if (month < 0 || month > 12) { // treat month==0 as "unset month" and don't correct it
             month = 1;
         }
-        if (day < 1 || day > 31) {
+        if (day < 0 || day > 31) { // treat day==0 as "unset day" and don't correct it
             day = 1;
         }
         switch (month) {
@@ -106,6 +124,12 @@ public class DataTypeDate implements Cloneable {
     public String toString() {
         if (day < 0 || month < 0 || year < 0) {
             return "";
+        }
+        if (month == 0) {
+            return EfaUtil.int2String(year,4);
+        }
+        if (day == 0) {
+            return EfaUtil.int2String(month,2) + "/" + EfaUtil.int2String(year,4);
         }
         return EfaUtil.int2String(day,2) + "." + EfaUtil.int2String(month,2) + "." + EfaUtil.int2String(year,4);
     }

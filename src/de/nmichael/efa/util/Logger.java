@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -135,6 +135,8 @@ public class Logger {
   public static final String MSG_DATA_RECORDNOTFOUND         = "DAT011";
   public static final String MSG_DATA_DUPLICATERECORD        = "DAT012";
   public static final String MSG_DATA_MODIFICATIONFAILED     = "DAT013";
+  public static final String MSG_DATA_INVALIDVERSIONIZEDDATA = "DAT014";
+  public static final String MSG_DATA_VERSIONIZEDDATACONFLICT= "DAT015";
 
   // de.nmichael.efa.core.DatenListe (and subclasses)
   public static final String MSG_CSVFILE_FILECONVERTED       = "CSV001";

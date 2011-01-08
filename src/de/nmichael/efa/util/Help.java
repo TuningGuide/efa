@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -51,6 +51,10 @@ public class Help {
     }
 
     public static void showHelp(String topic) {
+        if (Daten.exceptionTest) {
+            String x = null;
+            System.out.println(x.length());
+        }
         if (topic == null) {
             topic = DEFAULT_TOPIC;
         }

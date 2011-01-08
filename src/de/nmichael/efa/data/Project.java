@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -30,16 +30,8 @@ public class Project extends Persistence {
     // the project's content may differ.
     public Project(int storageType, String storageLocation, String storageObjectName) {
         super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Projekt"));
-        try {
-            ProjectRecord.initialize();
-            MetaData meta = MetaData.getMetaData(DATATYPE);
-            for (int i=0; i<meta.getNumberOfFields(); i++) {
-                dataAccess.registerDataField(meta.getFieldName(i), meta.getFieldType(i));
-            }
-            dataAccess.setKey(meta.getKeyFields());
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+        ProjectRecord.initialize();
+        dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
 
     public DataRecord createNewRecord() {
@@ -65,9 +57,21 @@ public class Project extends Persistence {
         }
     }
 
+    public DataKey getProjectRecordKey() {
+        return ProjectRecord.getDataKey(ProjectRecord.TYPE_PROJECT, null);
+    }
+
+    public DataKey getClubRecordKey() {
+        return ProjectRecord.getDataKey(ProjectRecord.TYPE_CLUB, null);
+    }
+
+    public DataKey getLoogbookRecordKey(String logbookName) {
+        return ProjectRecord.getDataKey(ProjectRecord.TYPE_LOGBOOK, logbookName);
+    }
+
     public ProjectRecord getProjectRecord() {
         try {
-            return (ProjectRecord)dataAccess.get(ProjectRecord.getDataKey(ProjectRecord.TYPE_PROJECT, null));
+            return (ProjectRecord)dataAccess.get(getProjectRecordKey());
         } catch(Exception e) {
             return null;
         }
@@ -75,7 +79,7 @@ public class Project extends Persistence {
 
     public ProjectRecord getClubRecord() {
         try {
-            return (ProjectRecord)dataAccess.get(ProjectRecord.getDataKey(ProjectRecord.TYPE_CLUB, null));
+            return (ProjectRecord)dataAccess.get(getClubRecordKey());
         } catch(Exception e) {
             return null;
         }
@@ -83,7 +87,7 @@ public class Project extends Persistence {
 
     public ProjectRecord getLoogbookRecord(String logbookName) {
         try {
-            return (ProjectRecord)dataAccess.get(ProjectRecord.getDataKey(ProjectRecord.TYPE_LOGBOOK, logbookName));
+            return (ProjectRecord)dataAccess.get(getLoogbookRecordKey(logbookName));
         } catch(Exception e) {
             return null;
         }
@@ -91,7 +95,7 @@ public class Project extends Persistence {
 
     public void addLogbookRecord(ProjectRecord rec) throws EfaException {
         if (!rec.getType().equals(ProjectRecord.TYPE_LOGBOOK)) {
-            throw new EfaException(Logger.MSG_DATA_GENERICEXCEPTION, dataAccess.getUID()+": Attempt to add a Record as a Logbook Record which is not a Logbook Record");
+            throw new EfaException(Logger.MSG_DATA_GENERICEXCEPTION, dataAccess.getUID()+": Attempt to add a Record as a Logbook Record which is not a Logbook Record", Thread.currentThread().getStackTrace());
         }
         dataAccess.add(rec);
     }
@@ -132,34 +136,119 @@ public class Project extends Persistence {
                 createNewIfDoesntExist, International.getString("Boote"));
     }
 
+    public Persons getPersons(boolean createNewIfDoesntExist) {
+        return (Persons)getPersistence(Persons.class, "persons",
+                createNewIfDoesntExist, International.getString("Personen"));
+    }
+
     public void setProjectDescription(String description) {
-        getProjectRecord().setDescription(description);
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getProjectRecordKey());
+            ProjectRecord r = getProjectRecord();
+            r.setDescription(description);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
     }
 
     // set the storageType for this project's content
     public void setProjectStorageType(int storageType) {
-        getProjectRecord().setStorageType(storageType);
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getProjectRecordKey());
+            ProjectRecord r = getProjectRecord();
+            r.setStorageType(storageType);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
     }
 
     public void setAdminName(String adminName) {
-        getProjectRecord().setAdminName(adminName);
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getProjectRecordKey());
+            ProjectRecord r = getProjectRecord();
+            r.setAdminName(adminName);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
     }
 
     public void setAdminEmail(String adminEmail) {
-        getProjectRecord().setAdminEmail(adminEmail);
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getProjectRecordKey());
+            ProjectRecord r = getProjectRecord();
+            r.setAdminEmail(adminEmail);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
     }
 
     public void setClubName(String clubName) {
-        getClubRecord().setClubName(clubName);
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getProjectRecordKey());
+            ProjectRecord r = getProjectRecord();
+            r.setClubName(clubName);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
     }
     public void setClubAddressStreet(String street) {
-        getClubRecord().setAddressStreet(street);
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getProjectRecordKey());
+            ProjectRecord r = getProjectRecord();
+            r.setAddressStreet(street);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
     }
     public void setClubAddressCity(String city) {
-        getClubRecord().setAddressCity(city);
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getProjectRecordKey());
+            ProjectRecord r = getProjectRecord();
+            r.setAddressCity(city);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
     }
     public void setClubAreaId(int areaId) {
-        getClubRecord().setAreaId(areaId);
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getProjectRecordKey());
+            ProjectRecord r = getProjectRecord();
+            r.setAreaId(areaId);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
     }
 
 
@@ -167,9 +256,18 @@ public class Project extends Persistence {
     public void setProjectStorageLocation(String storageLocation) {
         if (getProjectStorageType() == IDataAccess.TYPE_FILE_XML) {
             // for file-based projects: storageLocation of content is always relative to this project file!
-            getProjectRecord().setStorageLocation(null);
-        } else {
-            getProjectRecord().setStorageLocation(storageLocation);
+            storageLocation = null;
+        }
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getProjectRecordKey());
+            ProjectRecord r = getProjectRecord();
+            r.setStorageLocation(storageLocation);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
         }
     }
 
@@ -267,6 +365,27 @@ public class Project extends Persistence {
         } catch(Exception e) {
         }
         return v;
+    }
+
+    private void closePersistence(Persistence p) {
+        try {
+            if (p.isOpen()) {
+                p.close();
+            }
+        } catch(Exception e) {
+            Logger.log(Logger.ERROR,Logger.MSG_DATA_CLOSEFAILED,
+            LogString.logstring_fileCloseFailed(persistence.toString(), p.getDescription(), e.toString()));
+        }
+    }
+
+    public void closeAllStorageObjects() throws Exception {
+        // close all of this project's storage objects
+        Set<String> keys = persistence.keySet();
+        for (String key: keys) {
+            closePersistence(persistence.get(key));
+        }
+        // close the project storage object itself
+        closePersistence(this);
     }
 
 }

@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -56,11 +56,11 @@ public class Daten {
   public       static String EFA_LONGNAME  = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
 
   public final static String VERSION = "v2.0_dev05"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSIONID = "1.9.0_14";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "11.12.2010";  // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "1.9.0_15";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+  public final static String VERSIONRELEASEDATE = "08.01.2011";  // Release Date: TT.MM.JJJJ
   public final static String PROGRAMMID = "EFA.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.190"; // Versions-ID für Wettbewerbsmeldungen
-  public final static String COPYRIGHTYEAR = "10";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
+  public final static String COPYRIGHTYEAR = "11";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
 
   public final static String EMIL_VERSION = VERSION; // Version
   public final static String EMIL_KENNUNG = "EMIL.190";
@@ -322,10 +322,10 @@ public class Daten {
         if ((exitCode == 0 || exitCode >= 100) &&
             Daten.project != null && Daten.project.isOpen()) {
             try {
-                project.close();
+                project.closeAllStorageObjects();
             } catch(Exception e) {
                 Logger.log(Logger.ERROR, Logger.MSG_DATA_CLOSEFAILED,
-                        e.toString());
+                        LogString.logstring_fileCloseFailed(project.toString(), International.getString("Projekt"), e.toString()));
             }
         }
 

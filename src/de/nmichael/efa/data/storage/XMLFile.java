@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -56,7 +56,7 @@ public class XMLFile extends DataFile {
             isOpen = false;
         }
         if (lock < 0) {
-            throw new EfaException(Logger.MSG_DATA_READFAILED, LogString.logstring_fileReadFailed(filename, storageLocation, "Cannot get Global Lock for File Reading"));
+            throw new EfaException(Logger.MSG_DATA_READFAILED, LogString.logstring_fileReadFailed(filename, storageLocation, "Cannot get Global Lock for File Reading"), Thread.currentThread().getStackTrace());
         }
         try {
             SaxErrorHandler eh = new SaxErrorHandler(filename);
@@ -65,7 +65,7 @@ public class XMLFile extends DataFile {
             parser.setErrorHandler(eh);
             parser.parse(filename);
         } catch(Exception e) {
-            throw new EfaException(Logger.MSG_DATA_READFAILED, LogString.logstring_fileReadFailed(filename, storageLocation, e.toString()));
+            throw new EfaException(Logger.MSG_DATA_READFAILED, LogString.logstring_fileReadFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         } finally {
             releaseGlobalLock(lock);
         }
@@ -86,7 +86,7 @@ public class XMLFile extends DataFile {
         try {
             fw.write(space(indent) + s + "\n");
         } catch(Exception e) {
-            throw new EfaException(Logger.MSG_DATA_WRITEFAILED, LogString.logstring_fileWritingFailed(filename, storageLocation, e.toString()));
+            throw new EfaException(Logger.MSG_DATA_WRITEFAILED, LogString.logstring_fileWritingFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         }
     }
 

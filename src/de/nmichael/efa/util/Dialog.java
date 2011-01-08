@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -28,6 +28,8 @@ public class Dialog {
   public static final int CANCEL = 3;
   public static final int WRITE_IGNORE = 0;
   public static final int WRITE_REMOVE = 1;
+
+  public static volatile boolean SUPPRESS_DIALOGS = false;
 
 
   public static Stack frameStack=null;
@@ -212,7 +214,7 @@ public class Dialog {
   }
 
   public static void error(String s) {
-    if (Daten.isGuiAppl()) {
+    if (Daten.isGuiAppl() && !SUPPRESS_DIALOGS) {
       Dialog.infoDialog(International.getString("Fehler"),s);
     } else {
       System.out.println(International.getString("ERROR")+": "+s);
@@ -220,30 +222,34 @@ public class Dialog {
   }
 
   public static void meldung(String title, String s) {
-    if (Daten.isGuiAppl()) {
+    if (Daten.isGuiAppl() && !SUPPRESS_DIALOGS) {
       Dialog.infoDialog(title,s);
     } else {
       System.out.println(International.getString("INFO")+": "+s);
     }
   }
 
-  public static void exceptionError(String error, String stacktrace) {
-    int px=-1,py=-1;
-    Window w = frameCurrent();
-    ExceptionFrame dlg;
-    if (w != null && w.getClass().getSuperclass().isInstance(new JFrame())) dlg = new ExceptionFrame((JFrame)w,error,stacktrace);
-    else if (w != null && w.getClass().getSuperclass().isInstance(new JDialog())) dlg = new ExceptionFrame((JDialog)w,error,stacktrace);
-    else dlg = new ExceptionFrame(error,stacktrace);
-    Dimension dlgSize = dlg.getPreferredSize();
-    int width = (int)dlgSize.getWidth()+50;
-    int height= (int)dlgSize.getHeight()+50;
-    dlg.setSize(width,height);
-    Dialog.setDlgLocation(dlg);
-    dlg.setModal(false);
-    dlg.show();
-    dlg.toFront();
+    public static void exceptionError(String error, String stacktrace) {
+        int px = -1, py = -1;
+        Window w = frameCurrent();
+        ExceptionFrame dlg;
+        if (w != null && new JFrame().getClass().isAssignableFrom(w.getClass())) {
+            dlg = new ExceptionFrame((JFrame) w, error, stacktrace);
+        } else if (w != null && new JDialog().getClass().isAssignableFrom(w.getClass())) {
+            dlg = new ExceptionFrame((JDialog) w, error, stacktrace);
+        } else {
+            dlg = new ExceptionFrame(error, stacktrace);
+        }
+        Dimension dlgSize = dlg.getPreferredSize();
+        int width = (int) dlgSize.getWidth() + 50;
+        int height = (int) dlgSize.getHeight() + 50;
+        dlg.setSize(width, height);
+        Dialog.setDlgLocation(dlg);
+        dlg.setModal(false);
+        dlg.show();
+        dlg.toFront();
 
-  }
+    }
 
   public static String chopDialogString(String s) {
     if (s == null) return s;

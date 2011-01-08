@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -34,6 +34,8 @@ public class PDFOutput {
     String xslfo = Daten.efaTmpDirectory+"esigfahrtenhefte.fo";
 
     try {
+      int netto = (int)((meldegeld * 100) / 1.07);
+      int mwst = meldegeld - netto;
       BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(xslfo),Daten.ENCODING_UTF));
       f.write("<?xml version=\"1.0\" encoding=\""+Daten.ENCODING_UTF+"\"?>\n");
       f.write("<fo:root xmlns:fo=\"http://www.w3.org/1999/XSL/Format\">\n");
@@ -77,7 +79,7 @@ public class PDFOutput {
       f.write("      <fo:block space-before=\"3mm\" font-size=\"12pt\" font-weight=\"bold\">Meldung für das DRV-Fahrtenabzeichen "+drvConfig.aktJahr+"</fo:block>\n");
       f.write("      <fo:block font-size=\"12pt\" font-weight=\"bold\">Verein: "+ew.verein_name+"</fo:block>\n");
       f.write("      <fo:block font-size=\"12pt\" font-weight=\"bold\">Mitgliedsnummer: "+ew.verein_mitglnr+"</fo:block>\n");
-      f.write("      <fo:block font-size=\"12pt\" font-weight=\"bold\">Quittungsnummer: "+qnr+"</fo:block>\n");
+      f.write("      <fo:block font-size=\"12pt\" font-weight=\"bold\">Rechnungsnummer und -Bestätigung: "+qnr+"</fo:block>\n");
 
       f.write("      <fo:block space-before=\"10mm\">Sehr geehrte Damen und Herren,</fo:block>\n");
       f.write("      <fo:block space-before=\"4mm\">zu der erfolgreichen Teilnahme "+(gewertet == 1 ? "Ihres Mitglieds" : "Ihrer Mitglieder")+
@@ -170,9 +172,11 @@ public class PDFOutput {
       }
       f.write("      </fo:list-block>\n");
 
-      f.write("      <fo:block space-before=\"4mm\">Für das Meldegeld"+s+" ergibt sich eine Summe in Höhe von "+EfaUtil.cent2euro(meldegeld,true)+". "+
+      f.write("      <fo:block space-before=\"4mm\">Für das Meldegeld"+s+" ergibt sich eine Summe in Höhe von "+EfaUtil.cent2euro(meldegeld,true)+
+              " (Nettobetrag " + EfaUtil.cent2euro(netto, true) + " zzgl. " + EfaUtil.cent2euro(mwst, true) + " gesetzl. MwSt. 7% gem. § 12 Abs. 8 UStG). "+
               "Der Betrag ist innerhalb von 14 Tagen unter Angabe der Vereins-Nr. und dem Hinweis \"Fahrtenwettbewerb\" auf das Konto Nr. 123 862,"+
-              "BLZ 250 501 80, Sparkasse Hannover zu überweisen. Ist dies bereits erfolgt, betrachten Sie diese Rechnung als gegenstandslos.</fo:block>\n");
+              "BLZ 250 501 80, Sparkasse Hannover zu überweisen. Ist dies bereits erfolgt, betrachten Sie diese Rechnung als gegenstandslos. " +
+              "Unsere UID lautet DE 115665464 / St.-Nr. 25/206/21626.</fo:block>\n");
 
       f.write("      <fo:block space-before=\"4mm\">Zusätzlich zu den ausgedruckten Nachweisen liegen im Meldesystem efaWett"+
               " elektronische Fahrtenhefte für Sie zum Abruf bereit. Bitte rufen Sie diese ab und speichern Sie sie in Ihrer"+

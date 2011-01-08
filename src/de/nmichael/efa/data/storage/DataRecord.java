@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -28,15 +28,19 @@ public abstract class DataRecord implements Cloneable {
     public DataRecord(MetaData metaData) {
         this.metaData = metaData;
         data = new Object[metaData.getNumberOfFields()];
+        if (metaData.versionized) {
+            setAlwaysValid();
+        }
     }
 
     protected static MetaData constructMetaData(String dataType, Vector<String> fields, Vector<Integer> types, boolean versionized) {
-        fields.add(DataRecord.LASTMODIFIED);        types.add(IDataAccess.DATA_LONGINT);
         if (versionized) {
             fields.add(DataRecord.VALIDFROM);       types.add(IDataAccess.DATA_LONGINT);
             fields.add(DataRecord.INVALIDFROM);     types.add(IDataAccess.DATA_LONGINT);
         }
-        return MetaData.constructMetaData(dataType, fields, types);
+        // LastModified must always be the last field; this class's set(int, Object) method implicitly uses this to update the timestamp!
+        fields.add(DataRecord.LASTMODIFIED);        types.add(IDataAccess.DATA_LONGINT);
+        return MetaData.constructMetaData(dataType, fields, types, versionized);
     }
 
 /*
@@ -77,55 +81,76 @@ public abstract class DataRecord implements Cloneable {
         return metaData.getKeyFields();
     }
 
+    public boolean isKeyField(int fieldIdx) {
+        return metaData.isKeyField(fieldIdx);
+    }
+
+    public boolean isKeyField(String fieldName) {
+        return metaData.isKeyField(fieldName);
+    }
+
     public abstract DataKey getKey();
     
     protected void set(int fieldIdx, Object data) {
         if (data != null) {
-            switch (getFieldType(fieldIdx)) {
+            int type = getFieldType(fieldIdx);
+            if (data instanceof String && type != IDataAccess.DATA_STRING) {
+                data = transformDataStringToType((String)data, type);
+                if (data == null) {
+                    throw new IllegalArgumentException("Data of Type String could not be transformed to Type " + type + " for Data Field " + fieldIdx + ".");
+                }
+            }
+            switch (type) {
                 case IDataAccess.DATA_STRING:
                     if (!(data instanceof String)) {
-                        throw new IllegalArgumentException("Data Type DATA_STRING expected for Data Field " + fieldIdx + ".");
+                        throw new IllegalArgumentException("Data Type STRING expected for Data Field " + fieldIdx + ".");
                     }
                     break;
                 case IDataAccess.DATA_INTEGER:
                     if (!(data instanceof Integer)) {
-                        throw new IllegalArgumentException("Data Type DATA_INTEGER expected for Data Field " + fieldIdx + ".");
+                        throw new IllegalArgumentException("Data Type INTEGER expected for Data Field " + fieldIdx + ".");
                     }
                     break;
                 case IDataAccess.DATA_LONGINT:
                     if (!(data instanceof Long)) {
-                        throw new IllegalArgumentException("Data Type DATA_LONGINT expected for Data Field " + fieldIdx + ".");
+                        throw new IllegalArgumentException("Data Type LONGINT expected for Data Field " + fieldIdx + ".");
                     }
                     break;
                 case IDataAccess.DATA_DECIMAL:
                     if (!(data instanceof DataTypeDecimal)) {
-                        throw new IllegalArgumentException("Data Type DATA_DECIMAL expected for Data Field " + fieldIdx + ".");
+                        throw new IllegalArgumentException("Data Type DECIMAL expected for Data Field " + fieldIdx + ".");
                     }
                     break;
                 case IDataAccess.DATA_BOOLEAN:
                     if (!(data instanceof Boolean)) {
-                        throw new IllegalArgumentException("Data Type DATA_BOOLEAN expected for Data Field " + fieldIdx + ".");
+                        throw new IllegalArgumentException("Data Type BOOLEAN expected for Data Field " + fieldIdx + ".");
                     }
                     break;
                 case IDataAccess.DATA_DATE:
                     if (!(data instanceof DataTypeDate)) {
-                        throw new IllegalArgumentException("Data Type DATA_DATE expected for Data Field " + fieldIdx + ".");
+                        throw new IllegalArgumentException("Data Type DATE expected for Data Field " + fieldIdx + ".");
                     }
                     break;
                 case IDataAccess.DATA_TIME:
                     if (!(data instanceof DataTypeTime)) {
-                        throw new IllegalArgumentException("Data Type DATA_TIME expected for Data Field " + fieldIdx + ".");
+                        throw new IllegalArgumentException("Data Type TIME expected for Data Field " + fieldIdx + ".");
+                    }
+                    break;
+                case IDataAccess.DATA_UUID:
+                    if (!(data instanceof UUID)) {
+                        throw new IllegalArgumentException("Data Type UUID expected for Data Field " + fieldIdx + ".");
                     }
                     break;
             }
         }
         synchronized (this.data) {
             this.data[fieldIdx] = data;
+            this.data[getFieldCount() - 1] = (Long)System.currentTimeMillis(); // LastModified timestamp
         }
     }
 
     protected void set(String fieldName, Object data) {
-        set(metaData.getIndex(fieldName), data);
+        set(metaData.getFieldIndex(fieldName), data);
     }
 
     protected Object get(int fieldIdx) {
@@ -135,9 +160,63 @@ public abstract class DataRecord implements Cloneable {
     }
 
     protected Object get(String fieldName) {
-        return get(metaData.getIndex(fieldName));
+        return get(metaData.getFieldIndex(fieldName));
     }
 
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append("[");
+        for (int i=0; i<getFieldCount(); i++) {
+            Object v = get(i);
+            if (v == null && !isKeyField(i)) {
+                continue;
+            }
+            if (b.length() > 0) {
+                b.append(";");
+            }
+            if (isKeyField(i)) { // Output for Key Field
+                b.append("#" + getFieldName(i) + "#" + "=" + 
+                        (v != null ? v.toString() : "<UNSET>") );
+            } else { // Output for normal Field
+                b.append(getFieldName(i) + "=" + v.toString());
+            }
+        }
+        b.append("]");
+        return b.toString();
+    }
+
+    // =========================================================================
+    // Methods for versionized data
+    // =========================================================================
+
+    protected void setValidFrom(long t) {
+        setLong(VALIDFROM, t);
+    }
+
+    protected void setInvalidFrom(long t) {
+        setLong(INVALIDFROM, t);
+    }
+
+    protected void setAlwaysValid() {
+        setValidFrom(0);
+        setInvalidFrom(Long.MAX_VALUE);
+    }
+    
+    protected long getValidFrom() {
+        long t = getLong(VALIDFROM);
+        if (t == IDataAccess.UNDEFINED_LONG || t < 0) {
+            return 0;
+        }
+        return t;
+    }
+
+    protected long getInvalidFrom() {
+        long t = getLong(INVALIDFROM);
+        if (t == IDataAccess.UNDEFINED_LONG || t < 0) {
+            return Long.MAX_VALUE;
+        }
+        return t;
+    }
 
     // =========================================================================
     // DataType specific get and set functions
@@ -169,6 +248,14 @@ public abstract class DataRecord implements Cloneable {
 
     protected void setBool(String fieldName, boolean b) {
         set(fieldName, new Boolean(b));
+    }
+
+    protected void setUUID(String fieldName, UUID uuid) {
+        set(fieldName, uuid);
+    }
+
+    protected void setList(String fieldName, DataTypeList list) {
+        set(fieldName, list.toString());
     }
 
     protected String getString(String fieldName) {
@@ -218,9 +305,47 @@ public abstract class DataRecord implements Cloneable {
     protected Boolean getBool(String fieldName) {
         Boolean bool = (Boolean)get(fieldName);
         if (bool == null) {
-            return null;
+            return false; // default is false
         }
         return new Boolean(bool);
+    }
+
+    protected UUID getUUID(String fieldName) {
+        UUID uuid = (UUID)get(fieldName);
+        if (uuid == null) {
+            return null;
+        }
+        return uuid;
+    }
+
+    protected DataTypeList getList(String fieldName, int dataType) {
+        String s = (String)get(fieldName);
+        if (s == null) {
+            return null;
+        }
+        return DataTypeList.parseList(s, dataType);
+    }
+
+    public static Object transformDataStringToType(String s, int type) {
+        switch (type) {
+            case IDataAccess.DATA_STRING:
+                return s;
+            case IDataAccess.DATA_INTEGER:
+                return Integer.parseInt(s);
+            case IDataAccess.DATA_LONGINT:
+                return Long.parseLong(s);
+            case IDataAccess.DATA_DECIMAL:
+                return DataTypeDecimal.parseDecimal(s);
+            case IDataAccess.DATA_BOOLEAN:
+                return Boolean.parseBoolean(s);
+            case IDataAccess.DATA_DATE:
+                return DataTypeDate.parseDate(s);
+            case IDataAccess.DATA_TIME:
+                return DataTypeTime.parseTime(s);
+            case IDataAccess.DATA_UUID:
+                return UUID.fromString(s);
+        }
+        return null;
     }
 
 }

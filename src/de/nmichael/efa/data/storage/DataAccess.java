@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data.storage;
 
+import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.util.Logger;
 import java.util.*;
@@ -29,6 +30,7 @@ public abstract class DataAccess implements IDataAccess {
 
     protected final LinkedHashMap<String,Integer> fieldTypes = new LinkedHashMap<String,Integer>();
     protected String[] keyFields;
+    protected MetaData meta;
 
     public static IDataAccess createDataAccess(Persistence persistence, int type, String storageLocation, String storageObjectName, 
             String storageObjectType, String storageObjectDescription) {
@@ -110,7 +112,7 @@ public abstract class DataAccess implements IDataAccess {
 
     public void registerDataField(String fieldName, int dataType) throws EfaException {
         if (fieldTypes.containsKey(fieldName)) {
-            throw new EfaException(Logger.MSG_DATA_GENERICEXCEPTION,getUID() + ": Field Name is already in use: "+fieldName);
+            throw new EfaException(Logger.MSG_DATA_GENERICEXCEPTION,getUID() + ": Field Name is already in use: "+fieldName, Thread.currentThread().getStackTrace());
         }
         synchronized(fieldTypes) { // fieldTypes used for synchronization of fieldTypes and keyFields as well
             fieldTypes.put(fieldName, dataType);
@@ -124,6 +126,22 @@ public abstract class DataAccess implements IDataAccess {
                 getFieldType(fieldNames[i]); // just to check for existence
             }
             this.keyFields = fieldNames;
+        }
+    }
+
+    public void setMetaData(MetaData meta) {
+        this.meta = meta;
+        try {
+            for (int i=0; i<meta.getNumberOfFields(); i++) {
+                registerDataField(meta.getFieldName(i), meta.getFieldType(i));
+            }
+            setKey(meta.getKeyFields());
+            String[][] indexFields = meta.getIndices();
+            for (int i=0; i<indexFields.length; i++) {
+                createIndex(indexFields[i]);
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -151,7 +169,7 @@ public abstract class DataAccess implements IDataAccess {
             i = fieldTypes.get(fieldName);
         }
         if (i == null) {
-            throw new EfaException(Logger.MSG_DATA_FIELDDOESNOTEXIST, getUID() + ": Field Name does not exist: "+fieldName);
+            throw new EfaException(Logger.MSG_DATA_FIELDDOESNOTEXIST, getUID() + ": Field Name does not exist: "+fieldName, Thread.currentThread().getStackTrace());
         }
         return i.intValue();
     }
@@ -172,6 +190,21 @@ public abstract class DataAccess implements IDataAccess {
         }
 
         return new DataKey(v1, v2, v3);
+    }
+
+    public DataKey getUnversionizedKey(DataKey key) {
+        boolean[] bUnversionized = new boolean[keyFields.length];
+        for (int i=0; i<keyFields.length; i++) {
+            bUnversionized[i] = !keyFields[i].equals(DataRecord.VALIDFROM);
+        }
+        return new DataKey(key,bUnversionized); // this is the corresponding "unversionized" key (i.e. key with only unversionized fields)
+    }
+
+    public static long getTimestampFromDate(DataTypeDate date) {
+        GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        cal.clear();
+        cal.set(date.getYear(), date.getMonth()-1, date.getDay());
+        return cal.getTimeInMillis();
     }
 
 }

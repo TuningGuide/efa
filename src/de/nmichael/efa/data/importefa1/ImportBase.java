@@ -1,6 +1,6 @@
 /**
  * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2009 by Nicolas Michael
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
@@ -13,27 +13,24 @@ package de.nmichael.efa.data.importefa1;
 public abstract class ImportBase {
 
     protected ImportTask task;
-    protected String efa1fname;
-    protected ImportMetadata meta;
 
-    public ImportBase(ImportTask task, String efa1fname, ImportMetadata meta) {
+    public ImportBase(ImportTask task) {
         this.task = task;
-        this.efa1fname = efa1fname;
-        this.meta = meta;
     }
 
+    public abstract String getDescription();
     public abstract boolean runImport();
 
-    private void logInfo(String s) {
-        task.logInfo("INFO  - " + meta.toString(false)+ ": " + s);
+    protected void logInfo(String s) {
+        task.logInfo("INFO  - " + getDescription()+ " - " + s + "\n");
     }
 
-    private void logWarning(String s) {
-        task.logInfo("WARN  - " + meta.toString(false)+ ": " + s);
+    protected void logWarning(String s) {
+        task.logInfo("WARN  - " + getDescription()+ " - " + s + "\n");
     }
 
-    private void logError(String s) {
-        task.logInfo("ERROR - " + meta.toString(false)+ ": " + s);
+    protected void logError(String s) {
+        task.logInfo("ERROR - " + getDescription()+ " - " + s + "\n");
     }
 
 }

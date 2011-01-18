@@ -1099,7 +1099,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     });
     jMenuFile.add(jMenuNew);
-    //jMenuFile.add(jMenuFile_newProject); // @@@todo in efa2
+    jMenuFile.add(jMenuFile_newProject); // @@@todo in efa2
     jMenuFile.add(jMenuFileOpen);
     jMenuFile.add(jMenuFileSave);
     jMenuFile.add(jMenuFileSaveAs);

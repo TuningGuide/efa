@@ -171,7 +171,7 @@ public abstract class DataRecord implements Cloneable {
             if (v == null && !isKeyField(i)) {
                 continue;
             }
-            if (b.length() > 0) {
+            if (b.length() > 1) {
                 b.append(";");
             }
             if (isKeyField(i)) { // Output for Key Field
@@ -255,7 +255,7 @@ public abstract class DataRecord implements Cloneable {
     }
 
     protected void setList(String fieldName, DataTypeList list) {
-        set(fieldName, list.toString());
+        set(fieldName, list);
     }
 
     protected String getString(String fieldName) {

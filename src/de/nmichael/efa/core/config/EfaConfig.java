@@ -162,6 +162,7 @@ public class EfaConfig extends DatenListe {
     public ItemTypeInteger efaDirekt_resLookAheadTime;
     public ItemTypeString efaDirekt_execOnEfaExit;
     public ItemTypeTime efaDirekt_exitTime;
+    public ItemTypeInteger efaDirekt_exitIdleTime;
     public ItemTypeString efaDirekt_execOnEfaAutoExit;
     public ItemTypeTime efaDirekt_restartTime;
     public ItemTypeBoolean efaDirekt_checkRunning;
@@ -319,13 +320,13 @@ public class EfaConfig extends DatenListe {
         addParameter(efaVersionLastCheck = new ItemTypeString("EFA_VERSION_LASTCHECK", "",
                 TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
                 "efa last checked for new version"));
-        addParameter(countEfaStarts = new ItemTypeInteger("EFA_STARTS_COUNTER", 0, 0, Integer.MAX_VALUE,
+        addParameter(countEfaStarts = new ItemTypeInteger("EFA_STARTS_COUNTER", 0, 0, Integer.MAX_VALUE, false,
                 TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
                 "efa start counter"));
         addParameter(registeredProgramID = new ItemTypeString("EFA_REGISTRATION_PROGRAMMID", "",
                 TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
                 "efa registered programm ID"));
-        addParameter(registrationChecks = new ItemTypeInteger("EFA_REGISTRATION_CHECKS", 0, 0, Integer.MAX_VALUE,
+        addParameter(registrationChecks = new ItemTypeInteger("EFA_REGISTRATION_CHECKS", 0, 0, Integer.MAX_VALUE, false,
                 TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
                 "efa registration checks counter"));
 
@@ -425,27 +426,27 @@ public class EfaConfig extends DatenListe {
         addParameter(fensterZentriert = new ItemTypeBoolean("WINDOW_CENTERED", false,
                 TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_GUI),
                 International.getString("Alle Fenster in Bildschirmmitte zentrieren")));
-        addParameter(windowXOffset = new ItemTypeInteger("WINDOW_OFFSETX", 0, Integer.MIN_VALUE, Integer.MAX_VALUE,
+        addParameter(windowXOffset = new ItemTypeInteger("WINDOW_OFFSETX", 0, Integer.MIN_VALUE, Integer.MAX_VALUE, false,
                 TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_GUI),
                 International.getString("Fenster-Offset")+ " X" +
                 " (" + International.getString("Pixel") + ")"));
-        addParameter(windowYOffset = new ItemTypeInteger("WINDOW_OFFSETY", 0, Integer.MIN_VALUE, Integer.MAX_VALUE,
+        addParameter(windowYOffset = new ItemTypeInteger("WINDOW_OFFSETY", 0, Integer.MIN_VALUE, Integer.MAX_VALUE, false,
                 TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_GUI),
                 International.getString("Fenster-Offset")+ " Y" +
                 " (" + International.getString("Pixel") + ")"));
-        addParameter(screenWidth = new ItemTypeInteger("SCREEN_WIDTH", 0, 0, Integer.MAX_VALUE,
+        addParameter(screenWidth = new ItemTypeInteger("SCREEN_WIDTH", 0, 0, Integer.MAX_VALUE, false,
                 TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_GUI),
                 International.getString("Bildschirmbreite") +
                 " (" + International.getString("Pixel") + ")"));
-        addParameter(screenHeight = new ItemTypeInteger("SCREEN_HEIGHT", 0, 0, Integer.MAX_VALUE,
+        addParameter(screenHeight = new ItemTypeInteger("SCREEN_HEIGHT", 0, 0, Integer.MAX_VALUE, false,
                 TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_GUI),
                 International.getString("Bildschirmhöhe") +
                 " (" + International.getString("Pixel") + ")"));
-        addParameter(maxDialogHeight = new ItemTypeInteger("DIALOG_MAXHEIGHT", 0, 0, Integer.MAX_VALUE,
+        addParameter(maxDialogHeight = new ItemTypeInteger("DIALOG_MAXHEIGHT", 0, 0, Integer.MAX_VALUE, false,
                 TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_GUI),
                 International.getString("maximale Dialog-Höhe") +
                 " (" + International.getString("Pixel") + ")"));
-        addParameter(maxDialogWidth = new ItemTypeInteger("DIALOG_MAXWIDTH", 0, 0, Integer.MAX_VALUE,
+        addParameter(maxDialogWidth = new ItemTypeInteger("DIALOG_MAXWIDTH", 0, 0, Integer.MAX_VALUE, false,
                 TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_GUI),
                 International.getString("maximale Dialog-Breite") +
                 " (" + International.getString("Pixel") + ")"));
@@ -485,19 +486,19 @@ public class EfaConfig extends DatenListe {
                 International.getString("Acrobat Reader")));
 
         // ============================= COMMON:PRINT =============================
-        addParameter(printPageWidth = new ItemTypeInteger("PRINT_PAGEWIDTH", 210, 1, Integer.MAX_VALUE,
+        addParameter(printPageWidth = new ItemTypeInteger("PRINT_PAGEWIDTH", 210, 1, Integer.MAX_VALUE, false,
                 TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_PRINTING),
                 International.getString("Seitenbreite")));
-        addParameter(printPageHeight = new ItemTypeInteger("PRINT_PAGEHEIGHT", 297, 1, Integer.MAX_VALUE,
+        addParameter(printPageHeight = new ItemTypeInteger("PRINT_PAGEHEIGHT", 297, 1, Integer.MAX_VALUE, false,
                 TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_PRINTING),
                 International.getString("Seitenhöhe")));
-        addParameter(printLeftMargin = new ItemTypeInteger("PRINT_PAGEMARGIN_LEFTRIGHT", 15, 0, Integer.MAX_VALUE,
+        addParameter(printLeftMargin = new ItemTypeInteger("PRINT_PAGEMARGIN_LEFTRIGHT", 15, 0, Integer.MAX_VALUE, false,
                 TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_PRINTING),
                 International.getString("linker und rechter Rand")));
-        addParameter(printTopMargin = new ItemTypeInteger("PRINT_PAGEMARGIN_TOPBOTTOM", 15, 0, Integer.MAX_VALUE,
+        addParameter(printTopMargin = new ItemTypeInteger("PRINT_PAGEMARGIN_TOPBOTTOM", 15, 0, Integer.MAX_VALUE, false,
                 TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_PRINTING),
                 International.getString("oberer und unterer Rand")));
-        addParameter(printPageOverlap = new ItemTypeInteger("PRINT_PAGEOVERLAP", 5, 0, Integer.MAX_VALUE,
+        addParameter(printPageOverlap = new ItemTypeInteger("PRINT_PAGEOVERLAP", 5, 0, Integer.MAX_VALUE, false,
                 TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_PRINTING),
                 International.getString("Seitenüberlappung")));
 
@@ -517,7 +518,7 @@ public class EfaConfig extends DatenListe {
         addParameter(efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar = new ItemTypeBoolean("SHOWASNOTAVAILABLE_MULTIDAY_REGATTA", true,
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
                 International.getString("Boote auf Regatta, Trainingslager oder Mehrtagesfahrt als 'nicht verfügbar' anzeigen")));
-        addParameter(efaDirekt_resLookAheadTime = new ItemTypeInteger("RESERVATION_LOOKAHEADTIME", 120, 0, Integer.MAX_VALUE,
+        addParameter(efaDirekt_resLookAheadTime = new ItemTypeInteger("RESERVATION_LOOKAHEADTIME", 120, 0, Integer.MAX_VALUE, false,
                 TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
                 International.getString("Bei Fahrtbeginn auf Reservierungen bis zu x Minuten in der Zukunft prüfen")));
         addParameter(efaDirekt_showBootsschadenButton = new ItemTypeBoolean("BOATDAMAGE_ENABLEREPORTING", true,
@@ -589,10 +590,10 @@ public class EfaConfig extends DatenListe {
         addParameter(efaDirekt_eintragNichtAenderbarUhrzeit = new ItemTypeBoolean("NOTEDITABLE_TIME", false,
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
                 International.getString("Vorgeschlagene Uhrzeiten können nicht geändert werden")));
-        addParameter(efaDirekt_plusMinutenAbfahrt = new ItemTypeInteger("TIME_SESSIONSTART_ADD", 10, 0, Integer.MAX_VALUE,
+        addParameter(efaDirekt_plusMinutenAbfahrt = new ItemTypeInteger("TIME_SESSIONSTART_ADD", 10, 0, Integer.MAX_VALUE, false,
                 TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
                 International.getString("Für Abfahrt x Minuten zur aktuellen Zeit hinzuaddieren")));
-        addParameter(efaDirekt_minusMinutenAnkunft = new ItemTypeInteger("TIME_SESSIONEND_SUBSTRACT", 10, 0, Integer.MAX_VALUE,
+        addParameter(efaDirekt_minusMinutenAnkunft = new ItemTypeInteger("TIME_SESSIONEND_SUBSTRACT", 10, 0, Integer.MAX_VALUE, false,
                 TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
                 International.getString("Für Ankunft x Minuten von aktueller Zeit abziehen")));
         addParameter(efaDirekt_zielBeiFahrtbeginnPflicht = new ItemTypeBoolean("MUST_DESTINATION_AT_SESSIONSTART", false,
@@ -618,7 +619,7 @@ public class EfaConfig extends DatenListe {
         addParameter(efaDirekt_immerImVordergrundBringToFront = new ItemTypeBoolean("WINDOW_ALWAYSONTOP_BRINGTOFRONT", false,
                 TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("efa immer im Vordergrund") + " (bringToFront)"));
-        addParameter(efaDirekt_fontSize = new ItemTypeInteger("FONT_SIZE", (Dialog.screenSize.width >= 1024 ? 16 : 12), 6, 32,
+        addParameter(efaDirekt_fontSize = new ItemTypeInteger("FONT_SIZE", (Dialog.screenSize.width >= 1024 ? 16 : 12), 6, 32, false,
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("Schriftgröße in Punkten (6 bis 32, Standard: 12)")));
         addParameter(efaDirekt_fontStyle = new ItemTypeStringList("FONT_STYLE", "",
@@ -664,10 +665,10 @@ public class EfaConfig extends DatenListe {
         addParameter(efaDirekt_newsText = new ItemTypeString("NEWS_TEXT", "",
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("News-Text")));
-        addParameter(efaDirekt_maxFBAnzeigenFahrten = new ItemTypeInteger("LOGBOOK_DISPLAYEDENTRIES_MAXNUMBER", 100, 1, Integer.MAX_VALUE,
+        addParameter(efaDirekt_maxFBAnzeigenFahrten = new ItemTypeInteger("LOGBOOK_DISPLAYEDENTRIES_MAXNUMBER", 100, 1, Integer.MAX_VALUE, false,
                 TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("Fahrtenbuch anzeigen")+": "+International.getString("maximale Anzahl von Fahrten")));
-        addParameter(efaDirekt_anzFBAnzeigenFahrten = new ItemTypeInteger("LOGBOOK_DISPLAYEDENTRIES_DEFAULTNUMBER", 50, 1, Integer.MAX_VALUE,
+        addParameter(efaDirekt_anzFBAnzeigenFahrten = new ItemTypeInteger("LOGBOOK_DISPLAYEDENTRIES_DEFAULTNUMBER", 50, 1, Integer.MAX_VALUE, false,
                 TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("Fahrtenbuch anzeigen")+": "+International.getString("Anzahl von Fahrten")));
         addParameter(efaDirekt_FBAnzeigenAuchUnvollstaendige = new ItemTypeBoolean("LOGBOOK_DISPLAYEDENTRIES_DEFAULTALSOINCOMPLETE", false,
@@ -740,6 +741,10 @@ public class EfaConfig extends DatenListe {
         addParameter(efaDirekt_exitTime = new ItemTypeTime("EFAEXIT_TIME", new DataTypeTime(-1,-1,-1),
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_STARTSTOP),
                 International.getString("Uhrzeit zum automatischen Beenden von efa")));
+        addParameter(efaDirekt_exitIdleTime = new ItemTypeInteger("EFAEXIT_IDLETIME", ItemTypeInteger.UNSET, 0, Integer.MAX_VALUE, true,
+                TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_STARTSTOP),
+                International.getString("efa automatisch nach Inaktivität beenden") +
+                " [" + International.getString("Minuten") + "]"));
         addParameter(efaDirekt_execOnEfaAutoExit = new ItemTypeString("EFAEXIT_EXECONAUTOEXIT", "",
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_STARTSTOP),
                 International.getString("Folgendes Kommando beim automatischen Beenden von efa ausführen")));
@@ -797,7 +802,7 @@ public class EfaConfig extends DatenListe {
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
                 International.getString("email")+": "+
                 International.getString("SMTP-Server")));
-        addParameter(efaDirekt_emailPort = new ItemTypeInteger("EMAIL_PORT", 25, 0, 65535,
+        addParameter(efaDirekt_emailPort = new ItemTypeInteger("EMAIL_PORT", 25, 0, 65535, false,
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
                 International.getString("email")+": "+
                 International.getString("SMTP-Port")));

@@ -26,8 +26,10 @@ public class ImportLogbook extends ImportBase {
     private Logbook logbook;
     private Boats boats;
     private Persons persons;
+    private Destinations destinations;
     private String[] boatIdx = new String[] { BoatRecord.NAME, BoatRecord.OWNER };
     private String[] personIdx = new String[] { PersonRecord.FIRSTNAME, PersonRecord.LASTNAME, PersonRecord.ASSOCIATION };
+    private String[] destinationIdx = new String[] { DestinationRecord.NAME };
     
     public ImportLogbook(ImportTask task, String efa1fname, ImportMetadata meta) {
         super(task);
@@ -83,6 +85,19 @@ public class ImportLogbook extends ImportBase {
         return null;
     }
 
+    private UUID findDestination(String name) {
+        if (name != null && name.length() > 0) {
+            try {
+                DataKey[] keys = destinations.data().getByFields(destinationIdx, new String[]{name});
+                if (keys != null && keys.length > 0) {
+                    return (UUID) (keys[0].getKeyPart1());
+                }
+            } catch (Exception e) {
+            }
+        }
+        return null;
+    }
+
     public boolean runImport() {
         Fahrtenbuch origFahrtenbuch = Daten.fahrtenbuch;
         try {
@@ -114,9 +129,17 @@ public class ImportLogbook extends ImportBase {
                 return false;
             }
 
+            ImportDestinations destinationsImport = new ImportDestinations(task, fahrtenbuch.getDaten().ziele, logbookRec);
+            if (!destinationsImport.runImport()) {
+                logError(International.getMessage("Import von {list} aus {file} ist fehlgeschlagen.", destinationsImport.getDescription(), fahrtenbuch.getDaten().zieleDatei));
+                logError(International.getMessage("Import von {list} aus {file} wird abgebrochen.", getDescription(), efa1fname));
+                return false;
+            }
+
             logbook = Daten.project.getLogbook(meta.name, true);
             boats = Daten.project.getBoats(false);
             persons = Daten.project.getPersons(false);
+            destinations = Daten.project.getDestinations(false);
 
 
             DatenFelder d = fahrtenbuch.getCompleteFirst();
@@ -155,8 +178,16 @@ public class ImportLogbook extends ImportBase {
                 r.setBoatCaptainPosition(EfaUtil.string2int(d.get(Fahrtenbuch.OBMANN),-1));
                 r.setStartTime(DataTypeTime.parseTime(d.get(Fahrtenbuch.ABFAHRT)));
                 r.setEndTime(DataTypeTime.parseTime(d.get(Fahrtenbuch.ANKUNFT)));
-                r.setDestinationName(d.get(Fahrtenbuch.ZIEL));
-                r.setBoatDistance(EfaUtil.string2int(d.get(Fahrtenbuch.BOOTSKM), 0), 1, null); //@todo stimmt nicht
+                if (d.get(Fahrtenbuch.ZIEL).length() > 0) {
+                    UUID id = findDestination(d.get(Fahrtenbuch.ZIEL));
+                    if (id != null) {
+                        r.setDestinationId(id);
+                    } else {
+                        r.setDestinationName(d.get(Fahrtenbuch.ZIEL));
+                    }
+                }
+                
+                r.setBoatDistance(EfaUtil.zehntelString2Int(d.get(Fahrtenbuch.BOOTSKM)), 1, null);
                 if (d.get(Fahrtenbuch.BEMERK).length() > 0) {
                     r.setComments(d.get(Fahrtenbuch.BEMERK));
                 }

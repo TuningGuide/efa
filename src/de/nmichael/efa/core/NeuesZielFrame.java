@@ -63,8 +63,6 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
     this.ziel.setText(ziel);
     this.setTitle(International.getString("Neues Ziel hinzufügen"));
     Mnemonics.setButton(this, SaveButton, International.getStringWithMnemonic("Ziel hinzufügen"));
-    this.gewaesser.setVisible(false);
-    this.gewaesserLabel.setVisible(false);
   }
 
   void editiereZiel(DatenFelder d) {
@@ -89,13 +87,6 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
     stegziel.setSelected(d.get(Ziele.STEGZIEL).equals("+"));
     this.setTitle(International.getString("Ziel bearbeiten"));
     Mnemonics.setButton(this, SaveButton, International.getStringWithMnemonic("Eintrag übernehmen"));
-    if (EfaUtil.zehntelString2Int(d.get(Ziele.KM))>=Daten.WAFAKM) {
-      this.gewaesser.setVisible(true);
-      this.gewaesserLabel.setVisible(true);
-    } else {
-      this.gewaesser.setVisible(false);
-      this.gewaesserLabel.setVisible(false);
-    }
   }
 
   // Konstruktor (aus EfaFrame)
@@ -414,17 +405,9 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
   void kilometer_focusLost(FocusEvent e) {
     boolean packme = false;
     if (kilometer()<Daten.ZIELFAHRTKM) bereich.setText(""); // nur Zielfahrten mit >= 20 Km zulassen
-    if (kilometer()<Daten.WAFAKM) {
-      if (this.gewaesser.isVisible()) packme = true;
-      this.gewaesser.setVisible(false);
-      this.gewaesserLabel.setVisible(false);
-      if (packme) this.bereich.requestFocus();
-    } else {
-      if (!this.gewaesser.isVisible()) packme = true;
-      this.gewaesser.setVisible(true);
-      this.gewaesserLabel.setVisible(true);
-      if (packme) this.gewaesser.requestFocus();
-    }
+    this.gewaesser.setVisible(true);
+    this.gewaesserLabel.setVisible(true);
+    this.gewaesser.requestFocus();
     if (packme) EfaUtil.pack(this);
   }
 

@@ -46,7 +46,7 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
   Vector booteVerfuegbarListData = null;
   Vector booteAufFahrtListData = null;
   Vector booteNichtVerfuegbarListData = null;
-  long lastUserInteraction = 0;
+  volatile long lastUserInteraction = 0;
   byte[] largeChunkOfMemory = new byte[1024*1024];
   Hashtable<JList,String> incrementalSearch = new Hashtable<JList,String>();
 
@@ -3099,6 +3099,15 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
               EfaExitFrame.exitEfa(International.getString("Zeitgesteuertes Beenden von efa"),false,EFA_EXIT_REASON_TIME);
             }
           }
+        }
+
+        // automatisches Beenden nach Inaktivität ?
+        if (Daten.efaConfig.efaDirekt_exitIdleTime.isSet() && Daten.efaConfig.efaDirekt_exitIdleTime.getValue() > 0
+            && System.currentTimeMillis() - efaDirektFrame.lastUserInteraction > Daten.efaConfig.efaDirekt_exitIdleTime.getValue()*60*1000
+            ) {
+            Logger.log(Logger.INFO, Logger.MSG_EVT_INACTIVITYBASEDEXIT,
+                    International.getString("Eingestellte Inaktivitätsdauer zum Beenden von efa erreicht!"));
+            EfaExitFrame.exitEfa(International.getString("Zeitgesteuertes Beenden von efa"),false,EFA_EXIT_REASON_TIME);
         }
 
         // automatischer, zeitgesteuerter Neustart von efa ?

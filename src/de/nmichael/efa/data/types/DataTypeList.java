@@ -93,4 +93,23 @@ public class DataTypeList<T> {
         list = null;
     }
 
+    public void add(T item) {
+        if (list == null) {
+            list = new ArrayList<T>();
+        }
+        synchronized(list) {
+            list.add(item);
+        }
+    }
+
+    public int length() {
+        if (list == null) {
+            return 0;
+        }
+        synchronized(list) {
+            return list.size();
+        }
+
+    }
+
 }

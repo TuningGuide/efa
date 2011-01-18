@@ -89,7 +89,8 @@ public class NewProjectDialog extends StepwiseDialog {
         items.add(new ItemTypeString(ProjectRecord.ADDRESSCITY, "", IItemType.TYPE_PUBLIC, "2", International.getString("Anschrift") + " - " +
                 International.getString("Postleitzahl und Ort")));
         if (Daten.efaConfig.showBerlinOptions.getValue()) {
-            items.add(new ItemTypeInteger(ProjectRecord.AREAID, 0, 0, Zielfahrt.ANZ_ZIELBEREICHE, IItemType.TYPE_PUBLIC, "2", International.onlyFor("Zielbereich", "de")));
+            items.add(new ItemTypeInteger(ProjectRecord.AREAID, ItemTypeInteger.UNSET, 1, Zielfahrt.ANZ_ZIELBEREICHE, true,
+                    IItemType.TYPE_PUBLIC, "2", International.onlyFor("Zielbereich", "de")));
         }
     }
 

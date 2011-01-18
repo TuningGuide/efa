@@ -190,9 +190,10 @@ public class Logger {
   public static final String MSG_EVT_RESCHECK_RESFOUND       = "EVT029";
   public static final String MSG_EVT_TIMEBASEDEXIT           = "EVT030";
   public static final String MSG_EVT_TIMEBASEDEXITDELAY      = "EVT031";
-  public static final String MSG_EVT_MEMORYSUPERVISOR        = "EVT032";
-  public static final String MSG_EVT_LOGFILEARCHIVED         = "EVT033";
-  public static final String MSG_EVT_ERRORCNTMSGCLEAR        = "EVT034";
+  public static final String MSG_EVT_INACTIVITYBASEDEXIT     = "EVT032";
+  public static final String MSG_EVT_MEMORYSUPERVISOR        = "EVT033";
+  public static final String MSG_EVT_LOGFILEARCHIVED         = "EVT034";
+  public static final String MSG_EVT_ERRORCNTMSGCLEAR        = "EVT035";
 
   // efa in the Boat House - Errors
   public static final String MSG_ERR_GENERIC                 = "ERR001";

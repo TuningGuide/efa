@@ -141,6 +141,16 @@ public class Project extends Persistence {
                 createNewIfDoesntExist, International.getString("Personen"));
     }
 
+    public Destinations getDestinations(boolean createNewIfDoesntExist) {
+        return (Destinations)getPersistence(Destinations.class, "destinations",
+                createNewIfDoesntExist, International.getString("Ziele"));
+    }
+
+    public Waters getWaters(boolean createNewIfDoesntExist) {
+        return (Waters)getPersistence(Waters.class, "waters",
+                createNewIfDoesntExist, International.getString("Gewässer"));
+    }
+
     public void setProjectDescription(String description) {
         long l = 0;
         try {

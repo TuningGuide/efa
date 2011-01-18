@@ -154,7 +154,7 @@ public class DataTypeDecimal {
             return value;
         }
         long myValue = value;
-        int myDecimalPlaces = decimalPlaces;
+        int myDecimalPlaces = this.decimalPlaces;
         while (decimalPlaces > myDecimalPlaces) {
             myValue *= 10l;
             myDecimalPlaces++;

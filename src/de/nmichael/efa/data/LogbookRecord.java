@@ -103,8 +103,8 @@ public class LogbookRecord extends DataRecord {
     // =========================================================================
 
     // Distance Units
-    private static final String DIST_KILOMETERS  = "km"; // default if not otherwise specified
-    private static final String DIST_MILES       = "mi";
+    protected static final String DIST_KILOMETERS  = "km"; // default if not otherwise specified
+    protected static final String DIST_MILES       = "mi";
 
 
     private static String getCrewFieldNameId(int pos) {

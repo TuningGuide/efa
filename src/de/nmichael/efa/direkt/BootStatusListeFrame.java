@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.efa1.BoatReservation;
 import de.nmichael.efa.efa1.BootStatus;
 import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.efa1.DatenFelder;

@@ -316,8 +316,9 @@ public interface IDataAccess {
      * @param record the data record to add
      * @param t the ValidFrom timestamp
      * @throws Exception if the data record already exists or the operation fails for another reason
+     * @returns the key of the just added record
      */
-    public void addValidAt(DataRecord record, long t) throws EfaException;
+    public DataKey addValidAt(DataRecord record, long t) throws EfaException;
 
     /**
      * Adds a new data record to this storage object with a previously acquired global lock.
@@ -328,8 +329,9 @@ public interface IDataAccess {
      * @param t the ValidFrom timestamp
      * @param lockID an ID of a previously acquired local or global lock
      * @throws Exception if the data record already exists or the operation fails for another reason
+     * @returns the key of the just added record
      */
-    public void addValidAt(DataRecord record, long t, long lockID) throws EfaException;
+    public DataKey addValidAt(DataRecord record, long t, long lockID) throws EfaException;
 
     /**
      * Updates an existing one in this storage object.

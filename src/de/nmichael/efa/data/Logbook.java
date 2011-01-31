@@ -26,7 +26,13 @@ public class Logbook extends Persistence {
     }
 
     public DataRecord createNewRecord() {
-        return LogbookRecord.createLogbookRecord();
+        return new LogbookRecord(this, MetaData.getMetaData(DATATYPE));
+    }
+
+    public LogbookRecord createLogbookRecord(String entryNo) {
+        LogbookRecord r = new LogbookRecord(this, MetaData.getMetaData(DATATYPE));
+        r.setEntryId(entryNo);
+        return r;
     }
 
 }

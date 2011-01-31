@@ -12,6 +12,7 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.Daten;
 import java.util.*;
 
 // @i18n complete
@@ -28,7 +29,6 @@ public class BoatRecord extends DataRecord {
     // TYPES stored in BoatTypes
     // RESERVATIONS stored in BoatReservations
     // DAMAGES stored in BoatDamages
-    public static final String DEFAULTCREWID         = "DefaultCrewId";
     public static final String ALLOWEDGROUPIDLIST    = "AllowedGroupIdList";
     public static final String MAXNOTINGROUP         = "MaxNotInGroup";
     public static final String REQUIREDGROUPID       = "RequiredGroupId";
@@ -39,6 +39,9 @@ public class BoatRecord extends DataRecord {
     public static final String PURCHASEDATE          = "PurchaseDate";
     public static final String PURCHASEPRICE         = "PurchasePrice";
     public static final String PURCHASEPRICECURRENCY = "PurchasePriceCurrency";
+    public static final String DEFAULTCREWID         = "DefaultCrewId";
+    public static final String DEFAULTSESSIONTYPE    = "DefaultSessionType";
+    public static final String DEFAULTDESTINATIONID  = "DefaultDestinationId";
     public static final String FREEUSE1              = "FreeUse1";
     public static final String FREEUSE2              = "FreeUse2";
     public static final String FREEUSE3              = "FreeUse3";
@@ -50,7 +53,6 @@ public class BoatRecord extends DataRecord {
         f.add(ID);                                t.add(IDataAccess.DATA_UUID);
         f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
         f.add(OWNER);                             t.add(IDataAccess.DATA_STRING);
-        f.add(DEFAULTCREWID);                     t.add(IDataAccess.DATA_UUID);
         f.add(ALLOWEDGROUPIDLIST);                t.add(IDataAccess.DATA_LIST);
         f.add(MAXNOTINGROUP);                     t.add(IDataAccess.DATA_INTEGER);
         f.add(REQUIREDGROUPID);                   t.add(IDataAccess.DATA_UUID);
@@ -61,6 +63,9 @@ public class BoatRecord extends DataRecord {
         f.add(PURCHASEDATE);                      t.add(IDataAccess.DATA_DATE);
         f.add(PURCHASEPRICE);                     t.add(IDataAccess.DATA_DECIMAL);
         f.add(PURCHASEPRICECURRENCY);             t.add(IDataAccess.DATA_STRING);
+        f.add(DEFAULTCREWID);                     t.add(IDataAccess.DATA_UUID);
+        f.add(DEFAULTSESSIONTYPE);                t.add(IDataAccess.DATA_STRING);
+        f.add(DEFAULTDESTINATIONID);              t.add(IDataAccess.DATA_UUID);
         f.add(FREEUSE1);                          t.add(IDataAccess.DATA_STRING);
         f.add(FREEUSE2);                          t.add(IDataAccess.DATA_STRING);
         f.add(FREEUSE3);                          t.add(IDataAccess.DATA_STRING);
@@ -69,26 +74,20 @@ public class BoatRecord extends DataRecord {
         metaData.addIndex(new String[] { NAME, OWNER });
     }
 
-    public BoatRecord(MetaData metaData) {
-        super(metaData);
+    public BoatRecord(Boats boats, MetaData metaData) {
+        super(boats, metaData);
     }
 
     public DataRecord createDataRecord() { // used for cloning
-        return BoatRecord.createBoatRecord();
-    }
-
-    public static BoatRecord createBoatRecord() {
-        return new BoatRecord(MetaData.getMetaData(Boats.DATATYPE));
-    }
-
-    public static BoatRecord createBoatRecord(UUID id) {
-        BoatRecord rec = new BoatRecord(MetaData.getMetaData(Boats.DATATYPE));
-        rec.setUUID(ID, id);
-        return rec;
+        return getPersistence().createNewRecord();
     }
 
     public DataKey getKey() {
         return new DataKey<UUID,Long,String>(getId(),getValidFrom(),null);
+    }
+
+    public static DataKey getKey(UUID id, long validFrom) {
+        return new DataKey<UUID,Long,String>(id,validFrom,null);
     }
 
     public void setId(UUID id) {
@@ -111,14 +110,6 @@ public class BoatRecord extends DataRecord {
     public String getOwner() {
         return getString(OWNER);
     }
-
-    public void setDefaultCrewId(UUID id) {
-        setUUID(DEFAULTCREWID, id);
-    }
-    public UUID getDefaultCrewId() {
-        return getUUID(DEFAULTCREWID);
-    }
-
 
     public void setAllowedGroupIdList(DataTypeList<UUID> list) {
         setList(ALLOWEDGROUPIDLIST, list);
@@ -191,6 +182,27 @@ public class BoatRecord extends DataRecord {
         return getString(PURCHASEPRICECURRENCY);
     }
 
+    public void setDefaultCrewId(UUID id) {
+        setUUID(DEFAULTCREWID, id);
+    }
+    public UUID getDefaultCrewId() {
+        return getUUID(DEFAULTCREWID);
+    }
+
+    public void setDefaultSessionType(String type) {
+        setString(DEFAULTSESSIONTYPE, type);
+    }
+    public String getDefaultSessionType() {
+        return getString(DEFAULTSESSIONTYPE);
+    }
+
+    public void setDefaultDestinationId(UUID id) {
+        setUUID(DEFAULTDESTINATIONID, id);
+    }
+    public UUID getDefaultDestinationId() {
+        return getUUID(DEFAULTDESTINATIONID);
+    }
+
     public void setFreeUse1(String s) {
         setString(FREEUSE1, s);
     }
@@ -210,6 +222,23 @@ public class BoatRecord extends DataRecord {
     }
     public String getFreeUse3() {
         return getString(FREEUSE3);
+    }
+
+    public BoatTypeRecord[] getAllBoatTypes(boolean anyValidity) {
+        try {
+            BoatTypes boatTypes = getPersistence().getProject().getBoatTypes(false);
+            DataKey[] keys = boatTypes.data().getByFields(new String[] { BoatTypeRecord.BOATID }, new UUID[] { getId() });
+            ArrayList<BoatTypeRecord> list = new ArrayList<BoatTypeRecord>();
+            for (DataKey key : keys) {
+                BoatTypeRecord r = (BoatTypeRecord)boatTypes.data().get(key);
+                if (r != null && (anyValidity || (getValidFrom() == r.getValidFrom() && getInvalidFrom() == r.getInvalidFrom()))) {
+                    list.add(r);
+                }
+            }
+            return list.toArray(new BoatTypeRecord[0]);
+        } catch(Exception e) {
+        }
+        return null;
     }
 
 }

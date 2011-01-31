@@ -16,22 +16,22 @@ import java.util.*;
 
 // @i18n complete
 
-public class Persons extends Persistence {
+public class Crews extends Persistence {
 
-    public static final String DATATYPE = "e2persons";
+    public static final String DATATYPE = "e2crews";
 
-    public Persons(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Personen"));
-        PersonRecord.initialize();
+    public Crews(int storageType, String storageLocation, String storageObjectName) {
+        super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Mannschaften"));
+        CrewRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
 
     public DataRecord createNewRecord() {
-        return new PersonRecord(this, MetaData.getMetaData(DATATYPE));
+        return new CrewRecord(this, MetaData.getMetaData(DATATYPE));
     }
 
-    public PersonRecord createPersonRecord(UUID id) {
-        PersonRecord r = new PersonRecord(this, MetaData.getMetaData(DATATYPE));
+    public CrewRecord createCrewRecord(UUID id) {
+        CrewRecord r = new CrewRecord(this, MetaData.getMetaData(DATATYPE));
         r.setId(id);
         return r;
     }

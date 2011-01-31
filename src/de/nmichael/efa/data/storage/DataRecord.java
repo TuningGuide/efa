@@ -22,10 +22,12 @@ public abstract class DataRecord implements Cloneable {
     protected static final String VALIDFROM        = "ValidFrom";
     protected static final String INVALIDFROM      = "InvalidFrom";
 
+    protected Persistence persistence;
     protected MetaData metaData;
     protected Object[] data;
 
-    public DataRecord(MetaData metaData) {
+    public DataRecord(Persistence persistence, MetaData metaData) {
+        this.persistence = persistence;
         this.metaData = metaData;
         data = new Object[metaData.getNumberOfFields()];
         if (metaData.versionized) {
@@ -202,7 +204,7 @@ public abstract class DataRecord implements Cloneable {
         setInvalidFrom(Long.MAX_VALUE);
     }
     
-    protected long getValidFrom() {
+    public long getValidFrom() {
         long t = getLong(VALIDFROM);
         if (t == IDataAccess.UNDEFINED_LONG || t < 0) {
             return 0;
@@ -210,7 +212,7 @@ public abstract class DataRecord implements Cloneable {
         return t;
     }
 
-    protected long getInvalidFrom() {
+    public long getInvalidFrom() {
         long t = getLong(INVALIDFROM);
         if (t == IDataAccess.UNDEFINED_LONG || t < 0) {
             return Long.MAX_VALUE;
@@ -346,6 +348,10 @@ public abstract class DataRecord implements Cloneable {
                 return UUID.fromString(s);
         }
         return null;
+    }
+
+    public Persistence getPersistence() {
+        return persistence;
     }
 
 }

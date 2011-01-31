@@ -412,6 +412,10 @@ public class EfaTypes extends DatenListe {
             if (mtour != null) {
                 v.add(mtour);
             }
+            // add types "NORMAL"
+            if (!isConfigured(CATEGORY_SESSION, TYPE_SESSION_NORMAL)) {
+                setValue(CATEGORY_SESSION, TYPE_SESSION_NORMAL, International.getString("normale Fahrt"));
+            }
 
             // add types "OTHER"
             if (!isConfigured(CATEGORY_BOAT, TYPE_BOAT_OTHER)) {

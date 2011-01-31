@@ -36,7 +36,8 @@ public class ImportSynonyms extends ImportBase {
     public boolean runImport() {
         Synonyme syn = new Synonyme(efa1fname);
         try {
-            Hashtable<String,ArrayList<String>> h = new Hashtable<String,ArrayList<String>>();
+            //Hashtable<String,ArrayList<String>> h = new Hashtable<String,ArrayList<String>>();
+            Hashtable<String,String> h = new Hashtable<String,String>();
             logInfo(International.getMessage("Importiere {list} aus {file} ...", getDescription(), efa1fname));
             if (!syn.readFile()) {
                 logError(LogString.logstring_fileOpenFailed(efa1fname, getDescription()));
@@ -48,6 +49,8 @@ public class ImportSynonyms extends ImportBase {
                 String oname = d.get(Synonyme.ORIGINAL).trim();
                 String sname = d.get(Synonyme.SYNONYM).trim();
                 if (oname.length() > 0 && sname.length() > 0) {
+                    h.put(sname, oname);
+                    /*
                     ArrayList<String> list = h.get(oname);
                     if (list == null) {
                         list = new ArrayList<String>();
@@ -56,6 +59,7 @@ public class ImportSynonyms extends ImportBase {
                         list.add(sname);
                     }
                     h.put(oname, list);
+                     */
                     logInfo(International.getMessage("Importiere Eintrag: {entry}", sname + " -> " + oname));
                 }
                 d = syn.getCompleteNext();

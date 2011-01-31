@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.efa1.BoatReservation;
 import de.nmichael.efa.efa1.StatSave;
 import de.nmichael.efa.efa1.NachrichtenAnAdmin;
 import de.nmichael.efa.efa1.BootStatus;
@@ -2427,6 +2428,10 @@ public class EfaDirektFrame extends JFrame implements ActionListener {
     // keine Eingaben möglich sind. Dies scheint ein Bug in 1.5 zu sein. Da EfaDirektFrame aktiviert bleibt, ist
     // ein Navigieren im Admin-Modus im EfaDirektFrame möglich, was aber eine vertretbare Unschönheit ist... ;-)
     //    this.setEnabled(false); //!!!
+    if (Daten.getJavaVersion() > 5) {
+        this.setEnabled(false);
+    }
+
     dlg.show();
   }
 

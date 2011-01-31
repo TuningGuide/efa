@@ -35,11 +35,18 @@ public class Project extends Persistence {
     }
 
     public DataRecord createNewRecord() {
-        return ProjectRecord.createProjectRecord();
+        return new ProjectRecord(this, MetaData.getMetaData(DATATYPE));
+    }
+
+    public ProjectRecord createProjectRecord(String type, String logbookName) {
+        ProjectRecord p = new ProjectRecord(this, MetaData.getMetaData(DATATYPE));
+        p.setType(type);
+        p.setLogbookName(logbookName);
+        return p;
     }
 
     public ProjectRecord createNewLogbookRecord(String logbookName) {
-        return ProjectRecord.createProjectRecord(ProjectRecord.TYPE_LOGBOOK, logbookName);
+        return createProjectRecord(ProjectRecord.TYPE_LOGBOOK, logbookName);
     }
 
     public void setEmptyProject(String name) {
@@ -107,16 +114,17 @@ public class Project extends Persistence {
             p = persistence.get(key);
             if (p == null) {
                 p = (Persistence)c.getConstructor(int.class, String.class, String.class).newInstance(getProjectStorageType(), getProjectStorageLocation(), name);
+                p.setProject(this);
             }
             if (!p.isOpen()) {
                 p.open(createNewIfDoesntExist);
             }
-            if (p != null && p.isOpen()) {
+            if (p.isOpen()) {
                 persistence.put(key, p);
             }
         } catch(Exception e) {
             Logger.log(Logger.ERROR,Logger.MSG_DATA_OPENFAILED,
-                    LogString.logstring_fileOpenFailed(p.toString(), description, e.toString()));
+                    LogString.logstring_fileOpenFailed( (p != null ? p.toString(): "<?>"), description, e.toString()));
             return null;
         }
         return p;
@@ -131,14 +139,54 @@ public class Project extends Persistence {
                 createNewIfDoesntExist, International.getString("Fahrtenbuch"));
     }
 
-    public Boats getBoats(boolean createNewIfDoesntExist) {
-        return (Boats)getPersistence(Boats.class, "boats",
-                createNewIfDoesntExist, International.getString("Boote"));
+    public SessionGroups getSessionGroups(boolean createNewIfDoesntExist) {
+        return (SessionGroups)getPersistence(SessionGroups.class, "sessiongroups",
+                createNewIfDoesntExist, International.getString("Fahrtengruppen"));
     }
 
     public Persons getPersons(boolean createNewIfDoesntExist) {
         return (Persons)getPersistence(Persons.class, "persons",
                 createNewIfDoesntExist, International.getString("Personen"));
+    }
+
+    public Groups getGroups(boolean createNewIfDoesntExist) {
+        return (Groups)getPersistence(Groups.class, "groups",
+                createNewIfDoesntExist, International.getString("Gruppen"));
+    }
+
+    public Fahrtenabzeichen getFahrtenabzeichen(boolean createNewIfDoesntExist) {
+        return (Fahrtenabzeichen)getPersistence(Crews.class, "fahrtenabzeichen",
+                createNewIfDoesntExist, International.onlyFor("Fahrtenabzeichen","de"));
+    }
+
+    public Boats getBoats(boolean createNewIfDoesntExist) {
+        return (Boats)getPersistence(Boats.class, "boats",
+                createNewIfDoesntExist, International.getString("Boote"));
+    }
+
+    public BoatTypes getBoatTypes(boolean createNewIfDoesntExist) {
+        return (BoatTypes)getPersistence(BoatTypes.class, "boattypes",
+                createNewIfDoesntExist, International.getString("Bootstypen"));
+    }
+
+    public Crews getCrews(boolean createNewIfDoesntExist) {
+        return (Crews)getPersistence(Crews.class, "crews",
+                createNewIfDoesntExist, International.getString("Mannschaften"));
+    }
+
+    public BoatStatus getBoatStatus(boolean createNewIfDoesntExist) {
+        return (BoatStatus)getPersistence(BoatStatus.class, "boatstatus",
+                createNewIfDoesntExist, International.getString("Bootsstatus"));
+    }
+
+    public BoatReservations getBoatReservations(boolean createNewIfDoesntExist) {
+        return (BoatReservations)getPersistence(BoatReservations.class, "boatreservations",
+                createNewIfDoesntExist, International.getString("Bootsreservierungen"));
+    }
+
+    public BoatDamages getBoatDamages(boolean createNewIfDoesntExist) {
+        return (BoatDamages)getPersistence(BoatDamages.class, "boatdamages",
+                createNewIfDoesntExist, International.getString("Bootsschäden"));
     }
 
     public Destinations getDestinations(boolean createNewIfDoesntExist) {

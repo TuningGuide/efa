@@ -12,6 +12,7 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
+import java.util.*;
 
 // @i18n complete
 
@@ -26,7 +27,20 @@ public class Boats extends Persistence {
     }
 
     public DataRecord createNewRecord() {
-        return BoatRecord.createBoatRecord();
+        return new BoatRecord(this, MetaData.getMetaData(DATATYPE));
     }
 
+    public BoatRecord createBoatRecord(UUID id) {
+        BoatRecord r = new BoatRecord(this, MetaData.getMetaData(DATATYPE));
+        r.setId(id);
+        return r;
+    }
+
+    public BoatRecord getBoat(UUID id, long validAt) {
+        try {
+            return (BoatRecord)data().getValidAt(BoatRecord.getKey(id, validAt), validAt);
+        } catch(Exception e) {
+            return null;
+        }
+    }
 }

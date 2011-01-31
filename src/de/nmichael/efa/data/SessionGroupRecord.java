@@ -12,12 +12,11 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
-import de.nmichael.efa.core.config.EfaTypes;
 import java.util.*;
 
 // @i18n complete
 
-public class DestinationRecord extends DataRecord {
+public class SessionGroupRecord extends DataRecord {
 
     // =========================================================================
     // Field Names
@@ -25,15 +24,12 @@ public class DestinationRecord extends DataRecord {
 
     public static final String ID                  = "Id";
     public static final String NAME                = "Name";
-    public static final String START               = "Start";
-    public static final String END                 = "End";
-    public static final String STARTISBOATHOUSE    = "StartIsBoathouse";
-    public static final String ROUNDTRIP           = "Roundtrip";
-    public static final String DESTINATIONAREA     = "DestinationArea";
-    public static final String PASSEDLOCKS         = "PassedLocks";
-    public static final String DISTANCEUNIT        = "DistanceUnit";
+    public static final String SESSIONTYPE         = "SessionType";
+    public static final String STARTDATE           = "StartDate";
+    public static final String ENDDATE             = "EndDate";
+    public static final String ACTIVEDAYS          = "ActiveDays";
+    public static final String DISTANCEUNIT        = "DistanceUnit"; // default: "km"
     public static final String DISTANCE            = "Distance";
-    public static final String WATERSIDLIST        = "WatersIdList";
 
     public static void initialize() {
         Vector<String> f = new Vector<String>();
@@ -41,22 +37,20 @@ public class DestinationRecord extends DataRecord {
 
         f.add(ID);                                t.add(IDataAccess.DATA_UUID);
         f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
-        f.add(START);                             t.add(IDataAccess.DATA_STRING);
-        f.add(END);                               t.add(IDataAccess.DATA_STRING);
-        f.add(STARTISBOATHOUSE);                  t.add(IDataAccess.DATA_BOOLEAN);
-        f.add(ROUNDTRIP);                         t.add(IDataAccess.DATA_BOOLEAN);
-        f.add(DESTINATIONAREA);                   t.add(IDataAccess.DATA_INTEGER);
-        f.add(PASSEDLOCKS);                       t.add(IDataAccess.DATA_INTEGER);
+        f.add(SESSIONTYPE);                       t.add(IDataAccess.DATA_STRING);
+        f.add(STARTDATE);                         t.add(IDataAccess.DATA_DATE);
+        f.add(ENDDATE);                           t.add(IDataAccess.DATA_DATE);
+        f.add(ACTIVEDAYS);                        t.add(IDataAccess.DATA_INTEGER);
         f.add(DISTANCEUNIT);                      t.add(IDataAccess.DATA_STRING);
         f.add(DISTANCE);                          t.add(IDataAccess.DATA_DECIMAL);
-        f.add(WATERSIDLIST);                      t.add(IDataAccess.DATA_LIST);
-        MetaData metaData = constructMetaData(Destinations.DATATYPE, f, t, true);
-        metaData.setKey(new String[] { ID }); // plus VALID_FROM
+
+        MetaData metaData = constructMetaData(SessionGroups.DATATYPE, f, t, false);
+        metaData.setKey(new String[] { ID });
         metaData.addIndex(new String[] { NAME });
     }
 
-    public DestinationRecord(Destinations destinations, MetaData metaData) {
-        super(destinations, metaData);
+    public SessionGroupRecord(SessionGroups sessionGroups, MetaData metaData) {
+        super(sessionGroups, metaData);
     }
 
     public DataRecord createDataRecord() { // used for cloning
@@ -64,7 +58,7 @@ public class DestinationRecord extends DataRecord {
     }
 
     public DataKey getKey() {
-        return new DataKey<UUID,Long,String>(getId(),getValidFrom(),null);
+        return new DataKey<UUID,String,String>(getId(),null,null);
     }
 
     public void setId(UUID id) {
@@ -81,46 +75,32 @@ public class DestinationRecord extends DataRecord {
         return getString(NAME);
     }
 
-    public void setStart(String name) {
-        setString(START, name);
+    public void setSessionType(String type) {
+        setString(SESSIONTYPE, type);
     }
-    public String getStart() {
-        return getString(START);
-    }
-
-    public void setEnd(String name) {
-        setString(END, name);
-    }
-    public String getEnd() {
-        return getString(END);
+    public String getSessionType() {
+        return getString(SESSIONTYPE);
     }
 
-    public void setStartIsBoathouse(boolean startIsBoathouse) {
-        setBool(STARTISBOATHOUSE, startIsBoathouse);
+    public void setStartDate(DataTypeDate date) {
+        setDate(STARTDATE, date);
     }
-    public boolean getStartIsBoathouse() {
-        return getBool(STARTISBOATHOUSE);
-    }
-
-    public void setRoundtrip(boolean roundtrip) {
-        setBool(ROUNDTRIP, roundtrip);
-    }
-    public boolean getRoundtrip() {
-        return getBool(ROUNDTRIP);
+    public DataTypeDate getStartDate() {
+        return getDate(STARTDATE);
     }
 
-    public void setDestinationArea(int destinationArea) {
-        setInt(DESTINATIONAREA, destinationArea);
+    public void setEndDate(DataTypeDate date) {
+        setDate(ENDDATE, date);
     }
-    public int getDestinationArea() {
-        return getInt(DESTINATIONAREA);
+    public DataTypeDate getEndDate() {
+        return getDate(ENDDATE);
     }
 
-    public void setPassedLocks(int passedLocks) {
-        setInt(PASSEDLOCKS, passedLocks);
+    public void setActiveDays(int days) {
+        setInt(ACTIVEDAYS, days);
     }
-    public int getPassedLocks() {
-        return getInt(PASSEDLOCKS);
+    public int getActiveDays() {
+        return getInt(ACTIVEDAYS);
     }
 
     public void setDistanceUnit(String name) {
@@ -157,15 +137,8 @@ public class DestinationRecord extends DataRecord {
         if (getDistanceUnit() == null) {
             return getDistance(3);
         } else {
-            throw new UnsupportedOperationException("Boat Distance Unit Conversion");
+            throw new UnsupportedOperationException("Distance Unit Conversion");
         }
-    }
-
-    public void setWatersIdList(DataTypeList<UUID> list) {
-        setList(WATERSIDLIST, list);
-    }
-    public DataTypeList<UUID> getWatersIdList() {
-        return getList(WATERSIDLIST, IDataAccess.DATA_UUID);
     }
 
 }

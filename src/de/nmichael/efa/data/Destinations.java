@@ -12,6 +12,7 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
+import java.util.*;
 
 // @i18n complete
 
@@ -26,7 +27,13 @@ public class Destinations extends Persistence {
     }
 
     public DataRecord createNewRecord() {
-        return DestinationRecord.createDestinationRecord();
+        return new DestinationRecord(this, MetaData.getMetaData(DATATYPE));
+    }
+
+    public DestinationRecord createDestinationRecord(UUID id) {
+        DestinationRecord r = new DestinationRecord(this, MetaData.getMetaData(DATATYPE));
+        r.setId(id);
+        return r;
     }
 
 }

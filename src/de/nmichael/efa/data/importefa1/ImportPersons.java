@@ -116,7 +116,7 @@ public class ImportPersons extends ImportBase {
                 }
 
                 if (r == null || isChanged(r, d)) {
-                    r = PersonRecord.createPersonRecord( (r != null ? r.getId() : UUID.randomUUID()) );
+                    r = persons.createPersonRecord((r != null ? r.getId() : UUID.randomUUID()));
 
                     if (d.get(Mitglieder.VORNAME).length() > 0) {
                         r.setFirstName(d.get(Mitglieder.VORNAME));
@@ -169,8 +169,12 @@ public class ImportPersons extends ImportBase {
                     if (d.get(Mitglieder.FREI3).length() > 0) {
                         r.setFreeUse1(d.get(Mitglieder.FREI3));
                     }
-                    persons.data().addValidAt(r, validFrom);
-                    logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
+                    try {
+                        persons.data().addValidAt(r, validFrom);
+                        logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
+                    } catch(Exception e) {
+                        logError(International.getMessage("Import von Eintrag fehlgeschlagen (Duplikat?): {entry}", r.toString()));
+                    }
                 } else {
                     logInfo(International.getMessage("Identischer Eintrag: {entry}", r.toString()));
                 }

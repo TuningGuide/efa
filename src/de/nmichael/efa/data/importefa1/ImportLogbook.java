@@ -11,6 +11,7 @@
 package de.nmichael.efa.data.importefa1;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
@@ -27,6 +28,7 @@ public class ImportLogbook extends ImportBase {
     private Boats boats;
     private Persons persons;
     private Destinations destinations;
+    private SessionGroups sessionGroups;
     private String[] boatIdx = new String[] { BoatRecord.NAME, BoatRecord.OWNER };
     private String[] personIdx = new String[] { PersonRecord.FIRSTNAME, PersonRecord.LASTNAME, PersonRecord.ASSOCIATION };
     private String[] destinationIdx = new String[] { DestinationRecord.NAME };
@@ -39,63 +41,6 @@ public class ImportLogbook extends ImportBase {
 
     public String getDescription() {
         return International.getString("Fahrtenbuch");
-    }
-
-    private UUID findBoat(String name) {
-        String boat = EfaUtil.getName(name);
-        String owner = EfaUtil.getVerein(name);
-        if (owner != null && owner.length() == 0) {
-            owner = null;
-        }
-        if (boat != null && boat.length() > 0) {
-            try {
-                DataKey[] keys = boats.data().getByFields(boatIdx, new String[]{boat, owner});
-                if (keys != null && keys.length > 0) {
-                    return (UUID) (keys[0].getKeyPart1());
-                }
-            } catch (Exception e) {
-            }
-        }
-        return null;
-    }
-
-    private UUID findPerson(String name) {
-        String firstName = EfaUtil.getVorname(name);
-        String lastName = EfaUtil.getNachname(name);
-        String association = EfaUtil.getVerein(name);
-        if (firstName != null && firstName.length() == 0) {
-            firstName = null;
-        }
-        if (lastName != null && lastName.length() == 0) {
-            lastName = null;
-        }
-        if (association != null && association.length() == 0) {
-            association = null;
-        }
-        if ((firstName != null && firstName.length() > 0) ||
-            (lastName != null && lastName.length() > 0)) {
-            try {
-                DataKey[] keys = persons.data().getByFields(personIdx, new String[]{firstName, lastName, association});
-                if (keys != null && keys.length > 0) {
-                    return (UUID) (keys[0].getKeyPart1());
-                }
-            } catch (Exception e) {
-            }
-        }
-        return null;
-    }
-
-    private UUID findDestination(String name) {
-        if (name != null && name.length() > 0) {
-            try {
-                DataKey[] keys = destinations.data().getByFields(destinationIdx, new String[]{name});
-                if (keys != null && keys.length > 0) {
-                    return (UUID) (keys[0].getKeyPart1());
-                }
-            } catch (Exception e) {
-            }
-        }
-        return null;
     }
 
     public boolean runImport() {
@@ -114,6 +59,7 @@ public class ImportLogbook extends ImportBase {
             logbookRec.setStartDate(meta.firstDate);
             logbookRec.setEndDate(meta.lastDate);
             Daten.project.addLogbookRecord(logbookRec);
+            long validAt = DataAccess.getTimestampFromDate(logbookRec.getStartDate());
 
             ImportBoats boatsImport = new ImportBoats(task, fahrtenbuch.getDaten().boote, logbookRec);
             if (!boatsImport.runImport()) {
@@ -137,28 +83,47 @@ public class ImportLogbook extends ImportBase {
             }
 
             logbook = Daten.project.getLogbook(meta.name, true);
+            sessionGroups = Daten.project.getSessionGroups(true);
             boats = Daten.project.getBoats(false);
             persons = Daten.project.getPersons(false);
             destinations = Daten.project.getDestinations(false);
 
+            Hashtable<String,UUID> sessionGroupMapping = new Hashtable<String,UUID>();
 
             DatenFelder d = fahrtenbuch.getCompleteFirst();
             while (d != null) {
-                LogbookRecord r = LogbookRecord.createLogbookRecord(d.get(Fahrtenbuch.LFDNR));
+                LogbookRecord r = logbook.createLogbookRecord(d.get(Fahrtenbuch.LFDNR));
                 r.setDate(DataTypeDate.parseDate(d.get(Fahrtenbuch.DATUM)));
 
 
                 if (d.get(Fahrtenbuch.BOOT).length() > 0) {
-                    UUID id = findBoat(d.get(Fahrtenbuch.BOOT));
+                    String b = task.synBoote_genMainName(d.get(Fahrtenbuch.BOOT));
+                    UUID id = findBoat(boats, boatIdx, b);
                     if (id != null) {
                         r.setBoatId(id);
-                        // @todo set BoatVariantId
+                        BoatRecord boat = boats.getBoat(id, validAt);
+                        if (boat != null) {
+                            BoatTypeRecord[] types = boat.getAllBoatTypes(false);
+                            if (types != null) {
+                                if (types.length == 1) {
+                                    r.setBoatVariant(types[0].getVariant());
+                                } else {
+                                    for (BoatTypeRecord type : types) {
+                                        if (type.getDescription().equals(d.get(Fahrtenbuch.BOOT))) {
+                                            r.setBoatVariant(type.getVariant());
+                                            break;
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
                     } else {
-                        r.setBoatName(d.get(Fahrtenbuch.BOOT));
+                        r.setBoatName(b);
                     }
                 }
                 if (d.get(Fahrtenbuch.STM).length() > 0) {
-                    UUID id = findPerson(d.get(Fahrtenbuch.STM));
+                    UUID id = findPerson(persons, personIdx, d.get(Fahrtenbuch.STM));
                     if (id != null) {
                         r.setCoxId(id);
                     } else {
@@ -167,7 +132,7 @@ public class ImportLogbook extends ImportBase {
                 }
                 for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++) {
                     if (d.get(Fahrtenbuch.MANNSCH1 + i).length() > 0) {
-                        UUID id = findPerson(d.get(Fahrtenbuch.MANNSCH1 + i));
+                        UUID id = findPerson(persons, personIdx, d.get(Fahrtenbuch.MANNSCH1 + i));
                         if (id != null) {
                             r.setCrewId(i+1, id);
                         } else {
@@ -179,7 +144,7 @@ public class ImportLogbook extends ImportBase {
                 r.setStartTime(DataTypeTime.parseTime(d.get(Fahrtenbuch.ABFAHRT)));
                 r.setEndTime(DataTypeTime.parseTime(d.get(Fahrtenbuch.ANKUNFT)));
                 if (d.get(Fahrtenbuch.ZIEL).length() > 0) {
-                    UUID id = findDestination(d.get(Fahrtenbuch.ZIEL));
+                    UUID id = findDestination(destinations, destinationIdx, d.get(Fahrtenbuch.ZIEL));
                     if (id != null) {
                         r.setDestinationId(id);
                     } else {
@@ -191,10 +156,74 @@ public class ImportLogbook extends ImportBase {
                 if (d.get(Fahrtenbuch.BEMERK).length() > 0) {
                     r.setComments(d.get(Fahrtenbuch.BEMERK));
                 }
-                // @todo set SessionType
-                // @todo set MultiDay
-                logbook.data().add(r);
-                logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
+
+                if (d.get(Fahrtenbuch.FAHRTART).length() > 0) {
+                    String fahrtArt = d.get(Fahrtenbuch.FAHRTART).trim();
+                    String mtourName = null;
+                    Mehrtagesfahrt mtour = null;
+                    if (fahrtArt.startsWith(EfaTypes.TYPE_SESSION_MULTIDAY+":")) {
+                        mtourName = Fahrtenbuch.getMehrtagesfahrtName(fahrtArt);
+                        mtour = (mtourName != null && mtourName.length() > 0 ? fahrtenbuch.getMehrtagesfahrt(mtourName) : null);
+                        fahrtArt = EfaTypes.TYPE_SESSION_MULTIDAY;
+                    }
+                    if (Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, fahrtArt)) {
+                        r.setSessionType(fahrtArt);
+                        if (mtour != null) {
+                            // if all in one entry: update fields in LogbookRecord
+                            if (!mtour.isEtappen) {
+                                if (mtour.ende != null && mtour.ende.length() > 0) {
+                                    r.setEndDate(DataTypeDate.parseDate(mtour.ende));
+                                }
+                                if (mtour.rudertage > 0) {
+                                    r.setActiveDays(mtour.rudertage);
+                                }
+                            }
+                            // set/update SessionGroup
+                            UUID id = sessionGroupMapping.get(mtourName);
+                            if (id == null) {
+                                SessionGroupRecord sg = sessionGroups.createSessionGroupRecord(UUID.randomUUID());
+                                id = sg.getId();
+                                sg.setName(mtourName);
+                                sg.setSessionType(EfaTypes.TYPE_SESSION_MULTIDAY);
+                                if (mtour.start != null && mtour.start.length() > 0) {
+                                    sg.setStartDate(DataTypeDate.parseDate(mtour.start));
+                                }
+                                if (mtour.ende != null && mtour.ende.length() > 0) {
+                                    sg.setEndDate(DataTypeDate.parseDate(mtour.ende));
+                                }
+                                if (mtour.rudertage > 0) {
+                                    sg.setActiveDays(mtour.rudertage);
+                                }
+                                if (!mtour.isEtappen) {
+                                    sg.setDistance((int)r.getBoatDistance(1), 1, null);
+                                }
+                                // @todo: Waters from MultiDayTour's are not imported, but get lost during import.
+                                // Should this be fixed? It's only relevant for DRV-Wanderruderstatistik, so it only
+                                // matters for years to come, not for any logbooks in the past.
+                                // Currently, Waters are only stored in Destinations, but not in SessionGroups, which
+                                // is better from a modeling perspective, but incompatible to efa1.
+                                try {
+                                    sessionGroups.data().add(sg);
+                                    sessionGroupMapping.put(mtourName, id);
+                                } catch(Exception e) {
+                                    logError(International.getMessage("Import von Eintrag fehlgeschlagen (Duplikat?): {entry}", sg.toString()));
+                                }
+                            }
+                            r.setSessionGroupId(id);
+                        }
+                    } else {
+                        r.setSessionType(EfaTypes.TYPE_SESSION_NORMAL);
+                    }
+                } else {
+                    r.setSessionType(EfaTypes.TYPE_SESSION_NORMAL);
+                }
+
+                try {
+                    logbook.data().add(r);
+                    logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
+                } catch(Exception e) {
+                    logError(International.getMessage("Import von Eintrag fehlgeschlagen (Duplikat?): {entry}", r.toString()));
+                }
                 d = fahrtenbuch.getCompleteNext();
             }
             logbook.close();

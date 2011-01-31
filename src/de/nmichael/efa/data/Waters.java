@@ -12,6 +12,7 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
+import java.util.*;
 
 // @i18n complete
 
@@ -26,7 +27,13 @@ public class Waters extends Persistence {
     }
 
     public DataRecord createNewRecord() {
-        return WatersRecord.createWatersRecord();
+        return new WatersRecord(this, MetaData.getMetaData(DATATYPE));
+    }
+
+    public WatersRecord createWatersRecord(UUID id) {
+        WatersRecord r = new WatersRecord(this, MetaData.getMetaData(DATATYPE));
+        r.setId(id);
+        return r;
     }
 
 }

@@ -277,11 +277,11 @@ public abstract class DataFile extends DataAccess {
         }
     }
 
-    public void addValidAt(DataRecord record, long t) throws EfaException {
-        addValidAt(record, t, 0);
+    public DataKey addValidAt(DataRecord record, long t) throws EfaException {
+        return addValidAt(record, t, 0);
     }
 
-    public void addValidAt(DataRecord record, long t, long lockID) throws EfaException {
+    public DataKey addValidAt(DataRecord record, long t, long lockID) throws EfaException {
         if (!meta.versionized) {
             throw new EfaException(Logger.MSG_DATA_INVALIDVERSIONIZEDDATA, getUID() + ": Attempt to add versionized data to an unversionized storage object", Thread.currentThread().getStackTrace());
         }
@@ -303,7 +303,7 @@ public abstract class DataFile extends DataAccess {
                         DataRecord r1 = getValidAt(record.getKey(), t);
                         if (r1 != null) {
                             if (t == r1.getValidFrom()) {
-                                throw new EfaException(Logger.MSG_DATA_VERSIONIZEDDATACONFLICT, getUID() + ": Versionized Data Conflict for Record " + record.toString() + " at ValidFrom=" + t, Thread.currentThread().getStackTrace());
+                                throw new EfaException(Logger.MSG_DATA_VERSIONIZEDDATACONFLICT, getUID() + ": Versionized Data Conflict (Duplicate?) for Record " + record.toString() + " at ValidFrom=" + t, Thread.currentThread().getStackTrace());
                             }
                             // add new record
                             record.setValidFrom(t);
@@ -328,6 +328,7 @@ public abstract class DataFile extends DataAccess {
                 }
             }
         }
+        return record.getKey();
     }
 
     public void update(DataRecord record) throws EfaException {

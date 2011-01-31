@@ -1126,6 +1126,27 @@ public class Daten {
         }
     }
 
+    /**
+     * Returns the Java version as an integer number representing the "official" Java *minor* version.
+     * Newer Versions are guaranteed to have higher numbers than previous versions.
+     * e.g.
+     * for Java 1.4, this will return "4"
+     * for Java 1.5, this will return "5"
+     * for Java 1.6, this will return "6"
+     * for Java 1.7, this will return "7"
+     * @return the Java version
+     */
+    public static int getJavaVersion() {
+        try {
+            if (Daten.javaVersion.startsWith("1.")) {
+                return Integer.parseInt(Daten.javaVersion.substring(2, 3));
+            }
+            return 99;
+        } catch(Exception e) {
+            return 0;
+        }
+    }
+
     private static void showJavaDownloadHints() {
         if (Daten.efaDocDirectory == null) {
             return;

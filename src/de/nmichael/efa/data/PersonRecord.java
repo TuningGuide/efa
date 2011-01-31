@@ -77,22 +77,12 @@ public class PersonRecord extends DataRecord {
         metaData.addIndex(new String[] { FIRSTNAME, LASTNAME, ASSOCIATION });
     }
 
-    public PersonRecord(MetaData metaData) {
-        super(metaData);
+    public PersonRecord(Persons persons, MetaData metaData) {
+        super(persons, metaData);
     }
 
     public DataRecord createDataRecord() { // used for cloning
-        return PersonRecord.createPersonRecord();
-    }
-
-    public static PersonRecord createPersonRecord() {
-        return new PersonRecord(MetaData.getMetaData(Persons.DATATYPE));
-    }
-
-    public static PersonRecord createPersonRecord(UUID id) {
-        PersonRecord rec = new PersonRecord(MetaData.getMetaData(Persons.DATATYPE));
-        rec.setUUID(ID, id);
-        return rec;
+        return getPersistence().createNewRecord();
     }
 
     public DataKey getKey() {

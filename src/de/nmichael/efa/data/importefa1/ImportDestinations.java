@@ -77,7 +77,7 @@ public class ImportDestinations extends ImportBase {
                 DataKey[] keys = destinations.data().getByFields(IDXD,
                         new String[] { d.get(Boote.NAME) });
                 if (keys != null && keys.length > 0) {
-                    // We've found one or more destinations with same Name and Owner.
+                    // We've found one or more destinations with same Name.
                     // Since we're importing data from efa1, these destinations are all identical, i.e. have the same ID.
                     // Therefore their key is identical, so we can just retrieve one destination record with keys[0], which
                     // is valid for this logbook.
@@ -85,7 +85,7 @@ public class ImportDestinations extends ImportBase {
                 }
 
                 if (r == null || isChanged(r, d)) {
-                    r = DestinationRecord.createDestinationRecord( (r != null ? r.getId() : UUID.randomUUID()) );
+                    r = destinations.createDestinationRecord((r != null ? r.getId() : UUID.randomUUID()));
                     r.setName(d.get(Ziele.NAME));
                     r.setDistance(EfaUtil.zehntelString2Int(d.get(Ziele.KM)), 1, null);
                     if (d.get(Ziele.BEREICH).length() > 0) {
@@ -107,12 +107,12 @@ public class ImportDestinations extends ImportBase {
                             DataKey[] wkeys = waters.data().getByFields(IDXW,
                                               new String[] { name });
                             if (wkeys != null && wkeys.length > 0) {
-                                w = (WatersRecord)waters.data().getValidAt(wkeys[0], validFrom);
+                                w = (WatersRecord)waters.data().get(wkeys[0]);
                             }
                             if (w == null || !name.equals(w.getName())) {
-                                w = WatersRecord.createWatersRecord( (w != null ? w.getId() : UUID.randomUUID()) );
+                                w = waters.createWatersRecord((w != null ? w.getId() : UUID.randomUUID()));
                                 w.setName(name);
-                                waters.data().addValidAt(w, validFrom);
+                                waters.data().add(w);
                                 logInfo(International.getMessage("Importiere Eintrag: {entry}", w.toString()));
                             }
                             watersList.add(w.getId());
@@ -121,8 +121,12 @@ public class ImportDestinations extends ImportBase {
                             r.setWatersIdList(watersList);
                         }
                     }
-                    destinations.data().addValidAt(r, validFrom);
-                    logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
+                    try {
+                        destinations.data().addValidAt(r, validFrom);
+                        logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
+                    } catch(Exception e) {
+                        logError(International.getMessage("Import von Eintrag fehlgeschlagen (Duplikat?): {entry}", r.toString()));
+                    }
                 } else {
                     logInfo(International.getMessage("Identischer Eintrag: {entry}", r.toString()));
                 }

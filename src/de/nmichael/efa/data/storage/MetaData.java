@@ -66,7 +66,7 @@ public class MetaData {
         if (versionized) {
             l++;
         }
-        if (l >= 3) {
+        if (l > 3) {
             throw new IllegalArgumentException("Too many KEY fields for Data Type: "+dataType);
         }
         KEY = new String[l];

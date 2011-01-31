@@ -8,7 +8,7 @@
  * @version 2
  */
 
-package de.nmichael.efa.direkt;
+package de.nmichael.efa.efa1;
 
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.util.*;

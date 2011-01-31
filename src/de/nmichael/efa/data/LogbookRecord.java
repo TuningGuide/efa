@@ -24,10 +24,12 @@ public class LogbookRecord extends DataRecord {
 
     private static final String ENTRYID          = "EntryId";
     private static final String DATE             = "Date";
+    private static final String ENDDATE          = "EndDate";
+    private static final String ACTIVEDAYS       = "ActiveDays";
 
-    // Boat is either represented by BOATID,BOATVARIANTID or by BOATNAME
+    // Boat is either represented by BOATID,BOATVARIANT or by BOATNAME
     private static final String BOATID           = "BoatId";
-    private static final String BOATVARIANTID    = "BoatVariantId";
+    private static final String BOATVARIANT      = "BoatVariant";
     private static final String BOATNAME         = "BoatName";
 
     // each person is either represented by xxxID or xxxNAME
@@ -96,7 +98,7 @@ public class LogbookRecord extends DataRecord {
     private static final String BOATDISTANCE     = "BoatDistance";
     private static final String COMMENTS         = "Comments";
     private static final String SESSIONTYPE      = "SessionType";
-    private static final String MULTIDAYTOURID   = "MultiDayTourId";
+    private static final String SESSIONGROUPID   = "SessionGroupId";
 
     // =========================================================================
     // Supplementary Constants
@@ -121,8 +123,10 @@ public class LogbookRecord extends DataRecord {
 
         f.add(ENTRYID);             t.add(IDataAccess.DATA_STRING);
         f.add(DATE);                t.add(IDataAccess.DATA_DATE);
+        f.add(ENDDATE);             t.add(IDataAccess.DATA_DATE);
+        f.add(ACTIVEDAYS);          t.add(IDataAccess.DATA_INTEGER);
         f.add(BOATID);              t.add(IDataAccess.DATA_UUID);
-        f.add(BOATVARIANTID);       t.add(IDataAccess.DATA_UUID);
+        f.add(BOATVARIANT);         t.add(IDataAccess.DATA_INTEGER);
         f.add(BOATNAME);            t.add(IDataAccess.DATA_STRING);
         f.add(COXID);               t.add(IDataAccess.DATA_UUID);
         f.add(COXNAME);             t.add(IDataAccess.DATA_STRING);
@@ -183,43 +187,26 @@ public class LogbookRecord extends DataRecord {
         f.add(BOATDISTANCE);        t.add(IDataAccess.DATA_DECIMAL);
         f.add(COMMENTS);            t.add(IDataAccess.DATA_STRING);
         f.add(SESSIONTYPE);         t.add(IDataAccess.DATA_STRING);
-        f.add(MULTIDAYTOURID);      t.add(IDataAccess.DATA_UUID);
+        f.add(SESSIONGROUPID);      t.add(IDataAccess.DATA_UUID);
         MetaData metaData = constructMetaData(Logbook.DATATYPE, f, t, false);
         metaData.setKey(new String[] { ENTRYID });
     }
 
-    public LogbookRecord(MetaData metaData) {
-        super(metaData);
+    public LogbookRecord(Logbook logbook, MetaData metaData) {
+        super(logbook, metaData);
     }
 
     public DataRecord createDataRecord() { // used for cloning
-        return LogbookRecord.createLogbookRecord();
+        return getPersistence().createNewRecord();
     }
-
-    public static LogbookRecord createLogbookRecord() {
-        return new LogbookRecord(MetaData.getMetaData(Logbook.DATATYPE));
-    }
-
-    public static LogbookRecord createLogbookRecord(String entryId) {
-        LogbookRecord rec = new LogbookRecord(MetaData.getMetaData(Logbook.DATATYPE));
-        rec.setString(ENTRYID, entryId);
-        return rec;
-    }
-
-    /*
-    public LogbookRecord(LogbookRecord orig) {
-        synchronized(orig.data) {
-            for (int i = 0; i < data.length; i++) {
-                data[i] = orig.data[i];
-            }
-        }
-    }
-    */
 
     public DataKey getKey() {
         return new DataKey<String,String,String>(getEntryId(),null,null);
     }
 
+    public void setEntryId(String entryId) {
+        setString(ENTRYID, entryId);
+    }
     public String getEntryId() {
         return getString(ENTRYID);
     }
@@ -231,6 +218,20 @@ public class LogbookRecord extends DataRecord {
         return getDate(DATE);
     }
 
+    public void setEndDate(DataTypeDate date) {
+        setDate(ENDDATE, date);
+    }
+    public DataTypeDate getEndDate() {
+        return getDate(ENDDATE);
+    }
+
+    public void setActiveDays(int days) {
+        setInt(ACTIVEDAYS, days);
+    }
+    public int getActiveDays() {
+        return getInt(ACTIVEDAYS);
+    }
+
     public void setBoatId(UUID id) {
         setUUID(BOATID, id);
     }
@@ -238,11 +239,11 @@ public class LogbookRecord extends DataRecord {
         return getUUID(BOATID);
     }
 
-    public void setBoatVariantId(UUID id) {
-        setUUID(BOATVARIANTID, id);
+    public void setBoatVariant(int variant) {
+        setInt(BOATVARIANT, variant);
     }
-    public UUID getBoatVariantId() {
-        return getUUID(BOATVARIANTID);
+    public int getBoatVariant() {
+        return getInt(BOATVARIANT);
     }
 
     public void setBoatName(String name) {
@@ -367,11 +368,11 @@ public class LogbookRecord extends DataRecord {
         return getString(SESSIONTYPE);
     }
 
-    public void setMultiDayTourId(UUID id) {
-        setUUID(MULTIDAYTOURID, id);
+    public void setSessionGroupId(UUID id) {
+        setUUID(SESSIONGROUPID, id);
     }
-    public UUID getMultiDayTourId() {
-        return getUUID(MULTIDAYTOURID);
+    public UUID getSessionGroupId() {
+        return getUUID(SESSIONGROUPID);
     }
 
 }

@@ -16,22 +16,22 @@ import java.util.*;
 
 // @i18n complete
 
-public class Persons extends Persistence {
+public class Groups extends Persistence {
 
-    public static final String DATATYPE = "e2persons";
+    public static final String DATATYPE = "e2groups";
 
-    public Persons(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Personen"));
-        PersonRecord.initialize();
+    public Groups(int storageType, String storageLocation, String storageObjectName) {
+        super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Gruppen"));
+        GroupRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
 
     public DataRecord createNewRecord() {
-        return new PersonRecord(this, MetaData.getMetaData(DATATYPE));
+        return new GroupRecord(this, MetaData.getMetaData(DATATYPE));
     }
 
-    public PersonRecord createPersonRecord(UUID id) {
-        PersonRecord r = new PersonRecord(this, MetaData.getMetaData(DATATYPE));
+    public GroupRecord createGroupRecord(UUID id) {
+        GroupRecord r = new GroupRecord(this, MetaData.getMetaData(DATATYPE));
         r.setId(id);
         return r;
     }

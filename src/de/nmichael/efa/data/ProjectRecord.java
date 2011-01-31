@@ -88,23 +88,12 @@ public class ProjectRecord extends DataRecord {
         metaData.setKey(new String[] { TYPE, LOGBOOKNAME });
     }
 
-    public ProjectRecord(MetaData metaData) {
-        super(metaData);
+    public ProjectRecord(Project project, MetaData metaData) {
+        super(project, metaData);
     }
 
     public DataRecord createDataRecord() { // used for cloning
-        return ProjectRecord.createProjectRecord();
-    }
-
-    public static ProjectRecord createProjectRecord() {
-        return new ProjectRecord(MetaData.getMetaData(Project.DATATYPE));
-    }
-
-    public static ProjectRecord createProjectRecord(String type, String logbookName) {
-        ProjectRecord rec = new ProjectRecord(MetaData.getMetaData(Project.DATATYPE));
-        rec.setString(TYPE, type);
-        rec.setString(LOGBOOKNAME, logbookName);
-        return rec;
+        return getPersistence().createNewRecord();
     }
 
     public static DataKey getDataKey(String type, String logbookName) {

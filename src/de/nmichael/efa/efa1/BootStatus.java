@@ -16,7 +16,6 @@ import de.nmichael.efa.core.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
-import de.nmichael.efa.direkt.BoatReservation;
 import java.util.*;
 import java.io.IOException;
 

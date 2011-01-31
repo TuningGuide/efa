@@ -168,7 +168,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
             checkImportData(importData, dir, new Synonyme("mitglieder.efs"), ImportMetadata.TYPE_SYNONYME_MITGLIEDER, International.getString("Mitglieder-Synonymliste"));
             checkImportData(importData, dir, new Synonyme("ziele.efs"), ImportMetadata.TYPE_SYNONYME_ZIELE, International.getString("Ziel-Synonymliste"));
             checkImportData(importData, dir, new BootStatus("bootstatus.efdb"), ImportMetadata.TYPE_BOOTSTATUS, International.getString("Bootsstatus-Liste"));
-            checkImportData(importData, dir, new Fahrtenabzeichen("fahrtenabzeichen.eff"), ImportMetadata.TYPE_FAHRTENABZEICHEN, International.onlyFor("Fahrtenabzeichen", "de"));
+            checkImportData(importData, dir, new de.nmichael.efa.efa1.Fahrtenabzeichen("fahrtenabzeichen.eff"), ImportMetadata.TYPE_FAHRTENABZEICHEN, International.onlyFor("Fahrtenabzeichen", "de"));
             checkImportData(importData, dir, new Gruppen("gruppen.efg"), ImportMetadata.TYPE_GRUPPEN, International.getString("Gruppenliste"));
             checkImportData(importData, dir, new Mannschaften("mannschaften.efm"), ImportMetadata.TYPE_MANNSCHAFTEN, International.getString("Mannschaften-Liste"));
 

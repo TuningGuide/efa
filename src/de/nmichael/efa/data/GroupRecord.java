@@ -16,7 +16,7 @@ import java.util.*;
 
 // @i18n complete
 
-public class WatersRecord extends DataRecord {
+public class GroupRecord extends DataRecord {
 
     // =========================================================================
     // Field Names
@@ -24,6 +24,7 @@ public class WatersRecord extends DataRecord {
 
     public static final String ID                  = "Id";
     public static final String NAME                = "Name";
+    public static final String MEMBERIDLIST        = "MemberIdList";
 
     public static void initialize() {
         Vector<String> f = new Vector<String>();
@@ -31,13 +32,14 @@ public class WatersRecord extends DataRecord {
 
         f.add(ID);                                t.add(IDataAccess.DATA_UUID);
         f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
-        MetaData metaData = constructMetaData(Waters.DATATYPE, f, t, false);
-        metaData.setKey(new String[] { ID });
+        f.add(MEMBERIDLIST);                      t.add(IDataAccess.DATA_LIST);
+        MetaData metaData = constructMetaData(Groups.DATATYPE, f, t, true);
+        metaData.setKey(new String[] { ID }); // plus VALID_FROM
         metaData.addIndex(new String[] { NAME });
     }
 
-    public WatersRecord(Waters waters, MetaData metaData) {
-        super(waters, metaData);
+    public GroupRecord(Groups groups, MetaData metaData) {
+        super(groups, metaData);
     }
 
     public DataRecord createDataRecord() { // used for cloning
@@ -45,7 +47,7 @@ public class WatersRecord extends DataRecord {
     }
 
     public DataKey getKey() {
-        return new DataKey<UUID,String,String>(getId(),null,null);
+        return new DataKey<UUID,Long,String>(getId(),getValidFrom(),null);
     }
 
     public void setId(UUID id) {
@@ -61,5 +63,14 @@ public class WatersRecord extends DataRecord {
     public String getName() {
         return getString(NAME);
     }
+
+    public void setMemberIdList(DataTypeList<UUID> list) {
+        setList(MEMBERIDLIST, list);
+    }
+    public DataTypeList<UUID> getMemberIdListp() {
+        return getList(MEMBERIDLIST, IDataAccess.DATA_UUID);
+    }
+
+    
 
 }

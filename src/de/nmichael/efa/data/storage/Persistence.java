@@ -11,12 +11,14 @@
 package de.nmichael.efa.data.storage;
 
 import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.data.*;
 
 // @i18n complete
 
 public abstract class Persistence {
 
     protected IDataAccess dataAccess;
+    protected Project project;
 
     public Persistence(int storageType, String storageLocation, String storageObjectName, String storageObjectType, String storageObjectDescription) {
         dataAccess = DataAccess.createDataAccess(this, storageType, storageLocation, storageObjectName, storageObjectType, storageObjectDescription);
@@ -62,6 +64,14 @@ public abstract class Persistence {
 
     public String getDescription() {
         return dataAccess.getStorageObjectDescription();
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
+    public Project getProject() {
+        return project;
     }
 
 }

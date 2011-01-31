@@ -22,4 +22,10 @@ public class GruppenMitglied {
   public String vorname;
   public String nachname;
   public String verein;
+
+  public String toString() {
+      return (vorname != null && vorname.length() > 0 ? vorname : "") +
+             (nachname != null && nachname.length() > 0 ? " " + nachname : "") +
+             (verein != null && verein.length() > 0 ? " (" + verein + ")" : "");
+  }
 }

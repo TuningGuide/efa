@@ -1039,6 +1039,7 @@ public class Statistik {
   // Prüfen, ob gewählter Zeitraum tatsächlich den Wettbewerbsbedingungen entspricht; true, falls korrekt
   public static boolean checkWettZeitraum(int wettJahr, TMJ von, TMJ bis, int wettnr) {
     WettDef wett = Daten.wettDefs.getWettDef(wettnr,wettJahr);
+    if (wett == null) return false;
     return (von.tag == wett.von.tag &&
             von.monat == wett.von.monat &&
             bis.tag == wett.bis.tag &&

@@ -581,7 +581,7 @@ public class EfaConfig extends DatenListe {
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
                 International.getMessage("Beim Eintrag von Fahrten nur bekannte Namen erlauben für {type}",
                 International.getString("Ziele"))));
-        addParameter(efaDirekt_eintragErlaubeNurMaxRudererzahl = new ItemTypeBoolean("ALLOW_ONLY_MAXCREWNUMBER", false,
+        addParameter(efaDirekt_eintragErlaubeNurMaxRudererzahl = new ItemTypeBoolean("ALLOW_ONLY_MAXCREWNUMBER", true,
                 TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
                 International.getString("Nur für das Boot maximal mögliche Anzahl an Personen erlauben")));
         addParameter(efaDirekt_eintragErzwingeObmann = new ItemTypeBoolean("MUST_SELECT_CREWSHEAD", false,

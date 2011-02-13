@@ -39,12 +39,12 @@ public class ProjectRecord extends DataRecord {
     public static final String CLUBNAME                     = "ClubName";
     public static final String ADDRESSSTREET                = "AddressStreet";
     public static final String ADDRESSCITY                  = "AddressCity";
-    public static final String ASSOCIATIONREGIONALNAME      = "RegionalAssociationName";
-    public static final String ASSOCIATIONREGIONALMEMBERNO  = "RegionalAssociationMemberNo";
-    public static final String ASSOCIATIONREGIONALLOGIN     = "RegionalAssociationLogin";
     public static final String ASSOCIATIONGLOBALNAME        = "GlobalAssociationName";
     public static final String ASSOCIATIONGLOBALMEMBERNO    = "GlobalAssociationMemberNo";
     public static final String ASSOCIATIONGLOBALLOGIN       = "GlobalAssociationLogin";
+    public static final String ASSOCIATIONREGIONALNAME      = "RegionalAssociationName";
+    public static final String ASSOCIATIONREGIONALMEMBERNO  = "RegionalAssociationMemberNo";
+    public static final String ASSOCIATIONREGIONALLOGIN     = "RegionalAssociationLogin";
     public static final String MEMBEROFDRV                  = "MemberOfDRV";
     public static final String MEMBEROFSRV                  = "MemberOfSRV";
     public static final String MEMBEROFADH                  = "MemberOfADH";
@@ -72,12 +72,12 @@ public class ProjectRecord extends DataRecord {
         f.add(CLUBNAME);                      t.add(IDataAccess.DATA_STRING);
         f.add(ADDRESSSTREET);                 t.add(IDataAccess.DATA_STRING);
         f.add(ADDRESSCITY);                   t.add(IDataAccess.DATA_STRING);
-        f.add(ASSOCIATIONREGIONALNAME);       t.add(IDataAccess.DATA_STRING);
-        f.add(ASSOCIATIONREGIONALMEMBERNO);   t.add(IDataAccess.DATA_STRING);
-        f.add(ASSOCIATIONREGIONALLOGIN);      t.add(IDataAccess.DATA_STRING);
         f.add(ASSOCIATIONGLOBALNAME);         t.add(IDataAccess.DATA_STRING);
         f.add(ASSOCIATIONGLOBALMEMBERNO);     t.add(IDataAccess.DATA_STRING);
         f.add(ASSOCIATIONGLOBALLOGIN);        t.add(IDataAccess.DATA_STRING);
+        f.add(ASSOCIATIONREGIONALNAME);       t.add(IDataAccess.DATA_STRING);
+        f.add(ASSOCIATIONREGIONALMEMBERNO);   t.add(IDataAccess.DATA_STRING);
+        f.add(ASSOCIATIONREGIONALLOGIN);      t.add(IDataAccess.DATA_STRING);
         f.add(MEMBEROFDRV);                   t.add(IDataAccess.DATA_BOOLEAN);
         f.add(MEMBEROFSRV);                   t.add(IDataAccess.DATA_BOOLEAN);
         f.add(MEMBEROFADH);                   t.add(IDataAccess.DATA_BOOLEAN);
@@ -144,6 +144,33 @@ public class ProjectRecord extends DataRecord {
     public void setAddressCity(String addressCity) {
         setString(ADDRESSCITY, addressCity);
     }
+    public void setRegionalAssociationName(String name) {
+        setString(ASSOCIATIONREGIONALNAME, name);
+    }
+    public void setRegionalAssociationMemberNo(String memberNo) {
+        setString(ASSOCIATIONREGIONALMEMBERNO, memberNo);
+    }
+    public void setRegionalAssociationLogin(String login) {
+        setString(ASSOCIATIONREGIONALLOGIN, login);
+    }
+    public void setGlobalAssociationName(String name) {
+        setString(ASSOCIATIONGLOBALNAME, name);
+    }
+    public void setGlobalAssociationMemberNo(String memberNo) {
+        setString(ASSOCIATIONGLOBALMEMBERNO, memberNo);
+    }
+    public void setGlobalAssociationLogin(String login) {
+        setString(ASSOCIATIONGLOBALLOGIN, login);
+    }
+    public void setMemberOfDRV(boolean member) {
+        setBool(MEMBEROFDRV, member);
+    }
+    public void setMemberOfSRV(boolean member) {
+        setBool(MEMBEROFSRV, member);
+    }
+    public void setMemberOfADH(boolean member) {
+        setBool(MEMBEROFADH, member);
+    }
     public void setAreaId(int areaId) {
         setInt(AREAID, areaId);
     }
@@ -193,6 +220,33 @@ public class ProjectRecord extends DataRecord {
     }
     public String getAddressCity() {
         return getString(ADDRESSCITY);
+    }
+    public String getRegionalAssociationName() {
+        return getString(ASSOCIATIONREGIONALNAME);
+    }
+    public String getRegionalAssociationMemberNo() {
+        return getString(ASSOCIATIONREGIONALMEMBERNO);
+    }
+    public String getRegionalAssociationLogin() {
+        return getString(ASSOCIATIONREGIONALLOGIN);
+    }
+    public String getGlobalAssociationName() {
+        return getString(ASSOCIATIONGLOBALNAME);
+    }
+    public String getGlobalAssociationMemberNo() {
+        return getString(ASSOCIATIONGLOBALMEMBERNO);
+    }
+    public String getGlobalAssociationLogin() {
+        return getString(ASSOCIATIONGLOBALLOGIN);
+    }
+    public boolean getMemberOfDRV() {
+        return getBool(MEMBEROFDRV);
+    }
+    public boolean getMemberOfSRV() {
+        return getBool(MEMBEROFSRV);
+    }
+    public boolean getMemberOfADH() {
+        return getBool(MEMBEROFADH);
     }
     public int getAreaId() {
         return getInt(AREAID);

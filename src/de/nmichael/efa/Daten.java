@@ -56,8 +56,8 @@ public class Daten {
   public       static String EFA_LONGNAME  = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
 
   public final static String VERSION = "v2.0_dev05"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSIONID = "1.9.0_15";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "08.01.2011";  // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "1.9.0_16";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+  public final static String VERSIONRELEASEDATE = "13.02.2011";  // Release Date: TT.MM.JJJJ
   public final static String PROGRAMMID = "EFA.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.190"; // Versions-ID für Wettbewerbsmeldungen
   public final static String COPYRIGHTYEAR = "11";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
@@ -1115,7 +1115,7 @@ public class Daten {
 
         if (promptForRegistration) {
             if (Dialog.neuBrowserDlg((javax.swing.JDialog) null, Daten.EFA_SHORTNAME,
-                    "file:" + HtmlFactory.createRegister(),
+                    "file:" + HtmlFactory.createRegister(), 
                     750, 600, (int) Dialog.screenSize.getWidth() / 2 - 375, (int) Dialog.screenSize.getHeight() / 2 - 300).endsWith(".pl")) {
                 // registration complete
                 Daten.efaConfig.registeredProgramID.setValue(Daten.PROGRAMMID);
@@ -1154,6 +1154,7 @@ public class Daten {
         Dialog.infoDialog(International.getString("Download-Anleitung"),
                 International.getString("Bitte folge in der folgenden Anleitung den Hinweisen unter Punkt 5, " +
                 "um eine neue Java-Version zu installieren."));
-        Dialog.neuBrowserDlg((javax.swing.JFrame) null, International.getString("Java-Installation"), "file:" + Daten.efaDocDirectory + "installation.html");
+        Dialog.neuBrowserDlg((javax.swing.JFrame) null, International.getString("Java-Installation"), 
+                "file:" + Daten.efaDocDirectory + "installation.html");
     }
 }

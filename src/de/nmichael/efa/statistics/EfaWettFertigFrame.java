@@ -344,14 +344,16 @@ public class EfaWettFertigFrame extends JDialog implements ActionListener {
       f.write("<table bgcolor=\"#eeeeee\" align=\"center\"><tr><td>\n");
       f.write("<form action=\""+Daten.wettDefs.efw_url_einsenden+"\" method=\"post\">\n");
       f.write("<input name=\"verband\" type=\"hidden\" value=\""+verband+"\">\n");
-      f.write("<input name=\"datei_inline\" type=\"hidden\" value=\"");
+      f.write("<input name=\"datei_base64\" type=\"hidden\" value=\"");
       BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(ew.datei),Daten.ENCODING_ISO));
+      StringBuilder s = new StringBuilder();
       String z;
       while ( (z = r.readLine()) != null) {
         // Zeilenumbrüche als %#% maskieren, Anführungszeichen als %2% maskieren!
-        f.write(EfaUtil.replace(z,"\"","**2**",true)+"**#**");
+        s.append(EfaUtil.replace(z,"\"","**2**",true)+"**#**");
       }
       r.close();
+      f.write(Base64.encodeBytes(s.toString().getBytes(Daten.ENCODING_ISO)));
       f.write("\">\n");
       f.write("<table>\n");
       f.write("<tr><td>Wettbewerb:</td><td><tt>"+ew.allg_wett+" "+ew.allg_wettjahr+"</tt></td></tr>\n");

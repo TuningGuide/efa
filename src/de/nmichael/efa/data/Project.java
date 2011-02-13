@@ -107,6 +107,27 @@ public class Project extends Persistence {
         dataAccess.add(rec);
     }
 
+    private void closePersistence(Persistence p) {
+        try {
+            if (p.isOpen()) {
+                p.close();
+            }
+        } catch(Exception e) {
+            Logger.log(Logger.ERROR,Logger.MSG_DATA_CLOSEFAILED,
+            LogString.logstring_fileCloseFailed(persistence.toString(), p.getDescription(), e.toString()));
+        }
+    }
+
+    public void closeAllStorageObjects() throws Exception {
+        // close all of this project's storage objects
+        Set<String> keys = persistence.keySet();
+        for (String key: keys) {
+            closePersistence(persistence.get(key));
+        }
+        // close the project storage object itself
+        closePersistence(this);
+    }
+
     private Persistence getPersistence(Class c, String name, boolean createNewIfDoesntExist, String description) {
         Persistence p = null;
         try {
@@ -259,8 +280,8 @@ public class Project extends Persistence {
     public void setClubName(String clubName) {
         long l = 0;
         try {
-            l = data().acquireLocalLock(getProjectRecordKey());
-            ProjectRecord r = getProjectRecord();
+            l = data().acquireLocalLock(getClubRecordKey());
+            ProjectRecord r = getClubRecord();
             r.setClubName(clubName);
             data().update(r, l);
         } catch(Exception e) {
@@ -272,8 +293,8 @@ public class Project extends Persistence {
     public void setClubAddressStreet(String street) {
         long l = 0;
         try {
-            l = data().acquireLocalLock(getProjectRecordKey());
-            ProjectRecord r = getProjectRecord();
+            l = data().acquireLocalLock(getClubRecordKey());
+            ProjectRecord r = getClubRecord();
             r.setAddressStreet(street);
             data().update(r, l);
         } catch(Exception e) {
@@ -285,9 +306,126 @@ public class Project extends Persistence {
     public void setClubAddressCity(String city) {
         long l = 0;
         try {
-            l = data().acquireLocalLock(getProjectRecordKey());
-            ProjectRecord r = getProjectRecord();
+            l = data().acquireLocalLock(getClubRecordKey());
+            ProjectRecord r = getClubRecord();
             r.setAddressCity(city);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
+    }
+    public void setClubRegionalAssociationName(String name) {
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getClubRecordKey());
+            ProjectRecord r = getClubRecord();
+            r.setRegionalAssociationName(name);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
+    }
+    public void setClubRegionalAssociationMemberNo(String memberNo) {
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getClubRecordKey());
+            ProjectRecord r = getClubRecord();
+            r.setRegionalAssociationMemberNo(memberNo);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
+    }
+    public void setClubRegionalAssociationLogin(String login) {
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getClubRecordKey());
+            ProjectRecord r = getClubRecord();
+            r.setRegionalAssociationLogin(login);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
+    }
+    public void setClubGlobalAssociationName(String name) {
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getClubRecordKey());
+            ProjectRecord r = getClubRecord();
+            r.setGlobalAssociationName(name);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
+    }
+    public void setClubGlobalAssociationMemberNo(String memberNo) {
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getClubRecordKey());
+            ProjectRecord r = getClubRecord();
+            r.setGlobalAssociationMemberNo(memberNo);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
+    }
+    public void setClubGlobalAssociationLogin(String login) {
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getClubRecordKey());
+            ProjectRecord r = getClubRecord();
+            r.setGlobalAssociationLogin(login);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
+    }
+    public void setClubMemberOfDRV(boolean member) {
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getClubRecordKey());
+            ProjectRecord r = getClubRecord();
+            r.setMemberOfDRV(member);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
+    }
+    public void setClubMemberOfSRV(boolean member) {
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getClubRecordKey());
+            ProjectRecord r = getClubRecord();
+            r.setMemberOfSRV(member);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
+    }
+    public void setClubMemberOfADH(boolean member) {
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getClubRecordKey());
+            ProjectRecord r = getClubRecord();
+            r.setMemberOfADH(member);
             data().update(r, l);
         } catch(Exception e) {
             e.printStackTrace();
@@ -298,8 +436,8 @@ public class Project extends Persistence {
     public void setClubAreaId(int areaId) {
         long l = 0;
         try {
-            l = data().acquireLocalLock(getProjectRecordKey());
-            ProjectRecord r = getProjectRecord();
+            l = data().acquireLocalLock(getClubRecordKey());
+            ProjectRecord r = getClubRecord();
             r.setAreaId(areaId);
             data().update(r, l);
         } catch(Exception e) {
@@ -351,9 +489,65 @@ public class Project extends Persistence {
         return getProjectRecord().getStorageLocation();
     }
 
+    public String getAdminName() {
+        return getProjectRecord().getAdminName();
+    }
 
+    public String getAdminEmail() {
+        return getProjectRecord().getAdminEmail();
+    }
 
+    public String getClubName() {
+        return getClubRecord().getClubName();
+    }
 
+    public String getClubAddressStreet() {
+        return getClubRecord().getAddressStreet();
+    }
+
+    public String getClubAddressCity() {
+        return getClubRecord().getAddressCity();
+    }
+
+    public String getClubRegionalAssociationName() {
+        return getClubRecord().getRegionalAssociationName();
+    }
+
+    public String getClubRegionalAssociationMemberNo() {
+        return getClubRecord().getRegionalAssociationMemberNo();
+    }
+
+    public String getClubRegionalAssociationLogin() {
+        return getClubRecord().getRegionalAssociationLogin();
+    }
+
+    public String getClubGlobalAssociationName() {
+        return getClubRecord().getGlobalAssociationName();
+    }
+
+    public String getClubGlobalAssociationMemberNo() {
+        return getClubRecord().getGlobalAssociationMemberNo();
+    }
+
+    public String getClubGlobalAssociationLogin() {
+        return getClubRecord().getGlobalAssociationLogin();
+    }
+
+    public boolean getClubMemberOfDRV() {
+        return getClubRecord().getMemberOfDRV();
+    }
+
+    public boolean getClubMemberOfSRV() {
+        return getClubRecord().getMemberOfSRV();
+    }
+
+    public boolean getClubMemberOfADH() {
+        return getClubRecord().getMemberOfADH();
+    }
+
+    public int getClubAreaID() {
+        return getClubRecord().getAreaId();
+    }
 
     public Vector<DataItem> getGuiItems() {
         Vector<DataItem> v = new Vector<DataItem>();
@@ -423,27 +617,6 @@ public class Project extends Persistence {
         } catch(Exception e) {
         }
         return v;
-    }
-
-    private void closePersistence(Persistence p) {
-        try {
-            if (p.isOpen()) {
-                p.close();
-            }
-        } catch(Exception e) {
-            Logger.log(Logger.ERROR,Logger.MSG_DATA_CLOSEFAILED,
-            LogString.logstring_fileCloseFailed(persistence.toString(), p.getDescription(), e.toString()));
-        }
-    }
-
-    public void closeAllStorageObjects() throws Exception {
-        // close all of this project's storage objects
-        Set<String> keys = persistence.keySet();
-        for (String key: keys) {
-            closePersistence(persistence.get(key));
-        }
-        // close the project storage object itself
-        closePersistence(this);
     }
 
 }

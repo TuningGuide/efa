@@ -143,7 +143,11 @@ public class ImportPersons extends ImportBase {
                     if (d.get(Mitglieder.STATUS).length() > 0) {
                         r.setStatus(d.get(Mitglieder.STATUS));
                     }
-                    // @todo set Address fields
+                    String address = task.getAddress(r.getFirstName() + " " + r.getLastName());
+                    if (address != null && address.length() > 0) {
+                        r.setAddressAdditional(address); // there is no such thing as an address format in efa1,
+                                                         // so we just put the data into the additional address field.
+                    }
                     if (d.get(Mitglieder.MITGLNR).length() > 0) {
                         r.setMembershipNo(d.get(Mitglieder.MITGLNR));
                     }

@@ -81,6 +81,7 @@ public class ImportLogbook extends ImportBase {
                 logError(International.getMessage("Import von {list} aus {file} wird abgebrochen.", getDescription(), efa1fname));
                 return false;
             }
+            // @todo: StatisticSettings
 
             logbook = Daten.project.getLogbook(meta.name, true);
             sessionGroups = Daten.project.getSessionGroups(true);
@@ -197,7 +198,7 @@ public class ImportLogbook extends ImportBase {
                                 if (!mtour.isEtappen) {
                                     sg.setDistance((int)r.getBoatDistance(1), 1, null);
                                 }
-                                // @todo: Waters from MultiDayTour's are not imported, but get lost during import.
+                                // Waters from MultiDayTour's are not imported, but get lost during import.
                                 // Should this be fixed? It's only relevant for DRV-Wanderruderstatistik, so it only
                                 // matters for years to come, not for any logbooks in the past.
                                 // Currently, Waters are only stored in Destinations, but not in SessionGroups, which

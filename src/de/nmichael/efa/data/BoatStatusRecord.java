@@ -24,6 +24,7 @@ public class BoatStatusRecord extends DataRecord {
 
     public static final String BOATID              = "BoatId";
     public static final String STATUS              = "Status";
+    public static final String LOGBOOK             = "Logbook"; // the name of the logbook EntryNo is pointing to
     public static final String ENTRYNO             = "EntryNo";
     public static final String COMMENT             = "Comment";
 
@@ -33,6 +34,7 @@ public class BoatStatusRecord extends DataRecord {
 
         f.add(BOATID);                   t.add(IDataAccess.DATA_UUID);
         f.add(STATUS);                   t.add(IDataAccess.DATA_STRING);
+        f.add(LOGBOOK);                  t.add(IDataAccess.DATA_STRING);
         f.add(ENTRYNO);                  t.add(IDataAccess.DATA_STRING);
         f.add(COMMENT);                  t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(BoatStatus.DATATYPE, f, t, false);
@@ -64,6 +66,13 @@ public class BoatStatusRecord extends DataRecord {
     }
     public String getStatus() {
         return getString(STATUS);
+    }
+
+    public void setLogbook(String logbook) {
+        setString(LOGBOOK, logbook);
+    }
+    public String getLogbook() {
+        return getString(LOGBOOK);
     }
 
     public void setEntryNo(String entryNo) {

@@ -475,9 +475,38 @@ public abstract class DataFile extends DataAccess {
             return idx.search(values);
         } else {
             // Search without index
-            // @todo
+            
+            // transfer field names to indices
+            int[] fieldIdx = new int[fieldNames.length];
+            for (int i=0; i<fieldNames.length; i++) {
+                fieldIdx[i] = (values[i] != null ? meta.getFieldIndex(fieldNames[i]) : -1);
+            }
+            
+            // now search all records for matching ones
+            ArrayList<DataKey> matches = new ArrayList<DataKey>();
+            DataKeyIterator it = getIterator();
+            DataKey key = it.getFirst();
+            while (key != null) {
+                DataRecord rec = this.get(key);
+                if (rec != null) {
+                    boolean matching = true;
+                    for (int i=0; matching && i<fieldIdx.length; i++) {
+                        if (fieldIdx[i] >= 0 && !values[i].equals(rec.get(fieldIdx[i]))) {
+                            matching = false;
+                        }
+                    }
+                    if (matching) {
+                        matches.add(key);
+                    }
+                }
+                key = it.getNext();
+            }
+            if (matches.size() > 0) {
+                return matches.toArray(new DataKey[0]);
+            } else {
+                return null;
+            }
         }
-        return null;
     }
 
     public long getNumberOfRecords() throws EfaException {

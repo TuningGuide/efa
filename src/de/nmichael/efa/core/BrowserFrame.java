@@ -239,7 +239,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
     enableEvents(AWTEvent.WINDOW_EVENT_MASK);
     try {
       jbInit();
-      out.setContentType("text/html; charset="+Daten.ENCODING_UTF); // @todo what happens with ISO files??
+      out.setContentType("text/html");
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -618,7 +618,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
         BufferedReader f=null;
         try {
           // Quelldatei lesen
-          f = new BufferedReader(new InputStreamReader(new FileInputStream(quelle),Daten.ENCODING_UTF));
+          f = new BufferedReader(new InputStreamReader(new FileInputStream(quelle),Daten.ENCODING_UTF)); // @todo get proper encoding???
           String s;
           // Zeilenweise lesen
           while ( (s=f.readLine()) != null) {

@@ -235,36 +235,6 @@ public class EfaConfigFrame extends BaseDialog {
         super.closeButton_actionPerformed(e);
     }
 
-    // @todo remove again, just for test purposes!!
-    public static void main(String[] args) {
-        Daten.initialize(Daten.APPL_CLI);
-        Daten.efaConfig = new EfaConfig(Daten.efaCfgDirectory + "efa2.cfg");
-        if (!EfaUtil.canOpenFile(Daten.efaConfig.getFileName())) {
-            if (!Daten.efaConfig.writeFile()) {
-                String msg = LogString.logstring_fileCreationFailed(Daten.efaConfig.getFileName(),
-                        International.getString("Konfigurationsdatei"));
-                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDCREATE, msg);
-            }
-            String msg = LogString.logstring_fileNewCreated(Daten.efaConfig.getFileName(),
-                    International.getString("Konfigurationsdatei"));
-            Logger.log(Logger.WARNING, Logger.MSG_CORE_EFACONFIGCREATEDNEW, msg);
-        }
-        if (!Daten.efaConfig.readFile()) {
-            String msg = LogString.logstring_fileOpenFailed(Daten.efaConfig.getFileName(),
-                    International.getString("Konfigurationsdatei"));
-            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDOPEN, msg);
-        }
-        Daten.efaConfig.keys.put("F6", "teste mich!");
-        Daten.efaConfig.keys.put("F7", "mich bitte auch!");
-        Daten.efaConfig.keys.put("F8", "und hoffentlich geht's bei mir auch trotz Sonderzeichen wie @@@ und -->!");
-        EfaConfigFrame dlg = new EfaConfigFrame((Frame)null);
-        Dialog.setDlgLocation(dlg,null);
-        dlg.setModal(true);
-        Daten.iniSplashScreen(false);
-        dlg.show();
-        System.exit(0);
-    }
-
     public EfaConfig getWorkingConfig() {
         return myEfaConfig;
     }

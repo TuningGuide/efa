@@ -3257,7 +3257,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     getAllFahrtDauer();
     if (Daten.fahrtenbuch != null && Daten.fahrtenbuch.getDaten().mitglieder != null)
       Daten.fahrtenbuch.getDaten().mitglieder.getAliases();
-    DatenFelder d = (DatenFelder)Daten.fahrtenbuch.getCompleteFirst();
+    DatenFelder d = (DatenFelder)Daten.fahrtenbuch.getCompleteLast();
     SetFields(d);
     if (mode == MODE_FULL) Daten.efaConfig.letzteDatei.setValue(datei);
     lfdNrForNewEntry = -1;

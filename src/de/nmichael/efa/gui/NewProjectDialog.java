@@ -41,7 +41,8 @@ public class NewProjectDialog extends StepwiseDialog {
         return new String[] {
             International.getString("Name und Beschreibung"),
             International.getString("Speicherort festlegen"),
-            International.getString("Angaben zum Verein")
+            International.getString("Angaben zum Verein"),
+            International.getString("Verbände")
         };
     }
     
@@ -51,11 +52,14 @@ public class NewProjectDialog extends StepwiseDialog {
                 return International.getString("In efa2 werden alle Daten in Projekten zusammengefaßt. Üblicherweise solltest Du für einen Verein "+
                         "genau ein Projekt erstellen, welches dann sämtliche Fahrtenbücher, Mitglieder-, Boots- und Ziellisten sowie sonstige Daten enthält.");
             case 1:
-                return International.getString("Bitte wähle, wo die Daten des Projekts gespeichert werden sollen:\n"+
-                        "  lokales Dateisystem - speichert die Daten lokal auf Deinem Computer\n"+
-                        "  SQL-Datenbank - speichert die Daten in einer beliebigen SQL-Datenbank");
+                return International.getString("Bitte wähle, wo die Daten des Projekts gespeichert werden sollen") + ":\n"+
+                        "  "+International.getString("lokales Dateisystem - speichert die Daten lokal auf Deinem Computer")+"\n"+
+                        "  "+International.getString("SQL-Datenbank - speichert die Daten in einer beliebigen SQL-Datenbank");
             case 2:
                 return International.getString("Bitte vervollständige die Angaben zu Deinem Verein.");
+            case 3:
+                return International.getString("Bitte gib an, in welchen Dachverbänden Dein Verein Mitglied ist, und (falls vorhanden) die Benutzernamen "+
+                        "für elektronische Meldung und ähnliche Dienste.");
         }
         return "";
     }
@@ -91,6 +95,44 @@ public class NewProjectDialog extends StepwiseDialog {
         if (Daten.efaConfig.showBerlinOptions.getValue()) {
             items.add(new ItemTypeInteger(ProjectRecord.AREAID, ItemTypeInteger.UNSET, 1, Zielfahrt.ANZ_ZIELBEREICHE, true,
                     IItemType.TYPE_PUBLIC, "2", International.onlyFor("Zielbereich", "de")));
+        }
+
+        // Items for Step 3
+        items.add(new ItemTypeString(ProjectRecord.ASSOCIATIONGLOBALNAME,
+                (International.getLanguageID().startsWith("de") ?
+                    (Daten.efaConfig.useForRowing.getValue() ? 
+                        International.onlyFor("Deutscher Ruderverband","de") :
+                        International.onlyFor("Deutscher Kanuverband","de")) : ""),
+                IItemType.TYPE_PUBLIC, "3",
+                International.getString("Dachverband") + " - " +
+                International.getString("Name")));
+        items.add(new ItemTypeString(ProjectRecord.ASSOCIATIONGLOBALMEMBERNO, "", IItemType.TYPE_PUBLIC, "3",
+                International.getString("Dachverband") + " - " +
+                International.getString("Mitgliedsnummer")));
+        items.add(new ItemTypeString(ProjectRecord.ASSOCIATIONGLOBALLOGIN, "", IItemType.TYPE_PUBLIC, "3",
+                International.getString("Dachverband") + " - " +
+                International.getString("Benutzername")));
+        items.add(new ItemTypeString(ProjectRecord.ASSOCIATIONREGIONALNAME,
+                (International.getLanguageID().startsWith("de") ?
+                    (Daten.efaConfig.useForRowing.getValue() ? 
+                        International.onlyFor("Landesruderverband Berlin","de") :
+                        International.onlyFor("Landes-Kanu-Verband Berlin","de")) : ""),
+                IItemType.TYPE_PUBLIC, "3",
+                International.getString("Regionalverband") + " - " +
+                International.getString("Name")));
+        items.add(new ItemTypeString(ProjectRecord.ASSOCIATIONREGIONALMEMBERNO, "", IItemType.TYPE_PUBLIC, "3",
+                International.getString("Regionalverband") + " - " +
+                International.getString("Mitgliedsnummer")));
+        items.add(new ItemTypeString(ProjectRecord.ASSOCIATIONREGIONALLOGIN, "", IItemType.TYPE_PUBLIC, "3",
+                International.getString("Regionalverband") + " - " +
+                International.getString("Benutzername")));
+        if (Daten.efaConfig.useForRowing.getValue() && International.getLanguageID().startsWith("de")) {
+            items.add(new ItemTypeBoolean(ProjectRecord.MEMBEROFDRV, true, IItemType.TYPE_PUBLIC, "3",
+                    International.onlyFor("Mitglied im Deutschen Ruderverband (DRV)","de")));
+            items.add(new ItemTypeBoolean(ProjectRecord.MEMBEROFSRV, false, IItemType.TYPE_PUBLIC, "3",
+                    International.onlyFor("Mitglied in einem Schülerruderverband (SRV)","de")));
+            items.add(new ItemTypeBoolean(ProjectRecord.MEMBEROFADH, false, IItemType.TYPE_PUBLIC, "3",
+                    International.onlyFor("Mitglied im Allgemeinen Deutschen Hochschulsportverband (ADH)","de")));
         }
     }
 
@@ -148,17 +190,33 @@ public class NewProjectDialog extends StepwiseDialog {
             prj.setEmptyProject(prjName.getValue());
             // Project Properties
             prj.setProjectDescription(((ItemTypeString)getItemByName(ProjectRecord.DESCRIPTION)).getValue());
-
             prj.setProjectStorageType(storageType);
             prj.setAdminName(((ItemTypeString)getItemByName(ProjectRecord.ADMINNAME)).getValue());
             prj.setAdminEmail(((ItemTypeString)getItemByName(ProjectRecord.ADMINEMAIL)).getValue());
-            // Club Properties
+            // Club Properties (1)
             prj.setClubName(((ItemTypeString)getItemByName(ProjectRecord.CLUBNAME)).getValue());
             prj.setClubAddressStreet(((ItemTypeString)getItemByName(ProjectRecord.ADDRESSSTREET)).getValue());
             prj.setClubAddressCity(((ItemTypeString)getItemByName(ProjectRecord.ADDRESSCITY)).getValue());
             if (getItemByName(ProjectRecord.AREAID) != null) {
                 prj.setClubAreaId(((ItemTypeInteger)getItemByName(ProjectRecord.AREAID)).getValue());
             }
+            // Club Properties (2)
+            prj.setClubGlobalAssociationName(((ItemTypeString)getItemByName(ProjectRecord.ASSOCIATIONGLOBALNAME)).getValue());
+            prj.setClubGlobalAssociationMemberNo(((ItemTypeString)getItemByName(ProjectRecord.ASSOCIATIONGLOBALMEMBERNO)).getValue());
+            prj.setClubGlobalAssociationLogin(((ItemTypeString)getItemByName(ProjectRecord.ASSOCIATIONGLOBALLOGIN)).getValue());
+            prj.setClubRegionalAssociationName(((ItemTypeString)getItemByName(ProjectRecord.ASSOCIATIONREGIONALNAME)).getValue());
+            prj.setClubRegionalAssociationMemberNo(((ItemTypeString)getItemByName(ProjectRecord.ASSOCIATIONREGIONALMEMBERNO)).getValue());
+            prj.setClubRegionalAssociationLogin(((ItemTypeString)getItemByName(ProjectRecord.ASSOCIATIONREGIONALLOGIN)).getValue());
+            if (getItemByName(ProjectRecord.MEMBEROFDRV) != null) {
+                prj.setClubMemberOfDRV(((ItemTypeBoolean)getItemByName(ProjectRecord.MEMBEROFDRV)).getValue());
+            }
+            if (getItemByName(ProjectRecord.MEMBEROFSRV) != null) {
+                prj.setClubMemberOfSRV(((ItemTypeBoolean)getItemByName(ProjectRecord.MEMBEROFSRV)).getValue());
+            }
+            if (getItemByName(ProjectRecord.MEMBEROFADH) != null) {
+                prj.setClubMemberOfADH(((ItemTypeBoolean)getItemByName(ProjectRecord.MEMBEROFADH)).getValue());
+            }
+
             prj.close();
             prj.open(false);
             Daten.project = prj;

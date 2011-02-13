@@ -23,6 +23,7 @@ public class ImportTask extends ProgressTask {
     private Hashtable<String,String> synMitglieder;
     private Hashtable<String,String> synBoote;
     private Hashtable<String,String> synZiele;
+    private Hashtable<String,String> addresses;
     private Hashtable<DataKey,String> boatsAllowedGroups;
     private Hashtable<DataKey,String> boatsRequiredGroup;
     private Hashtable<String,UUID> groupMapping;
@@ -60,6 +61,9 @@ public class ImportTask extends ProgressTask {
                         case ImportMetadata.TYPE_SYNONYME_ZIELE:
                             importJob = new ImportSynonyms(this, key, meta);
                             break;
+                        case ImportMetadata.TYPE_ADRESSEN:
+                            importJob = new ImportAddresses(this, key, meta);
+                            break;
                     }
                 }
                 if (run == 2) {
@@ -80,7 +84,10 @@ public class ImportTask extends ProgressTask {
                         case ImportMetadata.TYPE_BOOTSTATUS:
                             importJob = new ImportBoatStatus(this, key, meta);
                             break;
-                        // @todo everything else
+                        case ImportMetadata.TYPE_FAHRTENABZEICHEN:
+                            importJob = new ImportFahrtenabzeichen(this, key, meta);
+                            break;
+                        // @todo TYPE_NACHRICHTEN
                     }
                 }
                 if (run == 4) {
@@ -136,6 +143,14 @@ public class ImportTask extends ProgressTask {
 
     public String synZiele_genMainName(String syn) {
         return ( synZiele.get(syn) != null ? synZiele.get(syn) : syn);
+    }
+
+    public void setAddresses(Hashtable<String,String> addr) {
+        this.addresses = addr;
+    }
+
+    public String getAddress(String name) {
+        return addresses.get(name);
     }
 
     public void setBoatsAllowedGroups(Hashtable<DataKey,String> boatsAllowedGroups) {

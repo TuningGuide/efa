@@ -12,7 +12,7 @@ package de.nmichael.efa.data.types;
 import java.util.*;
 import de.nmichael.efa.util.*;
 
-public class DataTypeDate implements Cloneable {
+public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
 
     private int day, month, year;
 
@@ -40,6 +40,15 @@ public class DataTypeDate implements Cloneable {
     public static DataTypeDate parseDate(String s) {
         DataTypeDate date = new DataTypeDate();
         date.setDate(s);
+        return date;
+    }
+
+    public static DataTypeDate today() {
+        DataTypeDate date = new DataTypeDate();
+        Calendar cal = new GregorianCalendar();
+        date.setDay(cal.get(Calendar.DAY_OF_MONTH));
+        date.setMonth(cal.get(Calendar.MONTH)+1);
+        date.setYear(cal.get(Calendar.YEAR));
         return date;
     }
 
@@ -165,10 +174,58 @@ public class DataTypeDate implements Cloneable {
         ensureCorrectDate();
     }
 
+    public void setDayMonth(int day, int month) {
+        this.day = day;
+        this.month = month;
+        ensureCorrectDate();
+    }
+
     public void unset() {
         day = -1;
         month = -1;
         year = -1;
     }
 
+    public boolean equals(Object o) {
+        try {
+            return compareTo((DataTypeDate)o) == 0;
+        } catch(Exception e) {
+            return false;
+        }
+    }
+
+    public int compareTo(DataTypeDate o) {
+        if (year < o.year) {
+            return -1;
+        }
+        if (year > o.year) {
+            return 1;
+        }
+        if (month < o.month) {
+            return -1;
+        }
+        if (month > o.month) {
+            return 1;
+        }
+        if (day < o.day) {
+            return -1;
+        }
+        if (day > o.day) {
+            return 1;
+        }
+        return 0;
+    }
+
+    public int hashCode() {
+        return (new Integer(year*10000 + month*100 + day)).hashCode();
+    }
+    
+    public boolean isBefore(DataTypeDate o) {
+        return compareTo(o) < 0;
+    }
+
+    public boolean isAfter(DataTypeDate o) {
+        return compareTo(o) > 0;
+    }
+    
 }

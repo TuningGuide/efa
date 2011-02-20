@@ -75,7 +75,7 @@ public class ImportGroups extends ImportBase {
                     groupMapping.put(r.getName(), r.getId());
                     logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                 } catch(Exception e) {
-                    logError(International.getMessage("Import von Eintrag fehlgeschlagen (Duplikat?): {entry}", r.toString()));
+                    logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
                 }
             }
             task.setGroupMapping(groupMapping);

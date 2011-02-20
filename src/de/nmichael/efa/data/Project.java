@@ -176,7 +176,7 @@ public class Project extends Persistence {
     }
 
     public Fahrtenabzeichen getFahrtenabzeichen(boolean createNewIfDoesntExist) {
-        return (Fahrtenabzeichen)getPersistence(Crews.class, "fahrtenabzeichen",
+        return (Fahrtenabzeichen)getPersistence(Fahrtenabzeichen.class, "fahrtenabzeichen",
                 createNewIfDoesntExist, International.onlyFor("Fahrtenabzeichen","de"));
     }
 

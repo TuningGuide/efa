@@ -125,7 +125,7 @@ public class ImportDestinations extends ImportBase {
                         destinations.data().addValidAt(r, validFrom);
                         logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                     } catch(Exception e) {
-                        logError(International.getMessage("Import von Eintrag fehlgeschlagen (Duplikat?): {entry}", r.toString()));
+                        logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
                     }
                 } else {
                     logInfo(International.getMessage("Identischer Eintrag: {entry}", r.toString()));

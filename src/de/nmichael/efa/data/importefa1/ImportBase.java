@@ -20,6 +20,9 @@ import java.util.*;
 public abstract class ImportBase {
 
     protected ImportTask task;
+    private int cntInfo = 0;
+    private int cntWarning = 0;
+    private int cntError = 0;
 
     public ImportBase(ImportTask task) {
         this.task = task;
@@ -30,17 +33,28 @@ public abstract class ImportBase {
 
     protected void logInfo(String s) {
         task.logInfo("INFO  - " + getDescription()+ " - " + s + "\n");
+        cntInfo++;
     }
 
     protected void logWarning(String s) {
         task.logInfo("WARN  - " + getDescription()+ " - " + s + "\n");
+        cntWarning++;
     }
 
     protected void logError(String s) {
         task.logInfo("ERROR - " + getDescription()+ " - " + s + "\n");
+        cntError++;
     }
 
-    protected UUID findPerson(Persons persons, String[] IDX, String name) {
+    public int getWarningCount() {
+        return cntWarning;
+    }
+
+    public int getErrorCount() {
+        return cntError;
+    }
+
+    protected UUID findPerson(Persons persons, String[] IDX, String name, boolean warnIfNotFound) {
         name = name.trim();
         if (name.length() == 0) {
             return null;
@@ -48,10 +62,10 @@ public abstract class ImportBase {
         String firstName = EfaUtil.getVorname(name);
         String lastName = EfaUtil.getNachname(name);
         String club = EfaUtil.getVerein(name);
-        return findPerson(persons, IDX, firstName, lastName, club);
+        return findPerson(persons, IDX, firstName, lastName, club, warnIfNotFound);
     }
 
-    protected UUID findPerson(Persons persons, String[] IDX, String firstName, String lastName, String club) {
+    protected UUID findPerson(Persons persons, String[] IDX, String firstName, String lastName, String club, boolean warnIfNotFound) {
         try {
             DataKey[] keys = persons.data().getByFields(IDX,
                     new String[]{
@@ -63,22 +77,24 @@ public abstract class ImportBase {
             }
         } catch(Exception e) {
         }
-        logWarning(International.getMessage("Person {person} nicht in der Mitgliederliste gefunden.",
-                                EfaUtil.getFullName(firstName, lastName, club, true)));
+        if (warnIfNotFound) {
+            logWarning(International.getMessage("Person {person} nicht in der Mitgliederliste gefunden.",
+                                    EfaUtil.getFullName(firstName, lastName, club, true)));
+        }
         return null;
     }
 
-    protected UUID findBoat(Boats boats, String[] IDX, String name) {
+    protected UUID findBoat(Boats boats, String[] IDX, String name, boolean warnIfNotFound) {
         name = name.trim();
         if (name.length() == 0) {
             return null;
         }
         String boatName = EfaUtil.getName(name);
         String clubName = EfaUtil.getVerein(name);
-        return findBoat(boats, IDX, boatName, clubName);
+        return findBoat(boats, IDX, boatName, clubName, warnIfNotFound);
     }
 
-    protected UUID findBoat(Boats boats, String[] IDX, String boatName, String clubName) {
+    protected UUID findBoat(Boats boats, String[] IDX, String boatName, String clubName, boolean warnIfNotFound) {
         try {
             DataKey[] keys = boats.data().getByFields(IDX,
                     new String[]{
@@ -89,12 +105,14 @@ public abstract class ImportBase {
             }
         } catch(Exception e) {
         }
-        logWarning(International.getMessage("Boot {boat} nicht in der Bootsliste gefunden.",
-                                boatName + (clubName.length() > 0 ? " ("+clubName+")" : "")));
+        if (warnIfNotFound) {
+            logWarning(International.getMessage("Boot {boat} nicht in der Bootsliste gefunden.",
+                                    boatName + (clubName.length() > 0 ? " ("+clubName+")" : "")));
+        }
         return null;
     }
 
-    protected UUID findDestination(Destinations destinations, String[] IDX, String name) {
+    protected UUID findDestination(Destinations destinations, String[] IDX, String name, boolean warnIfNotFound) {
         name = name.trim();
         if (name.length() == 0) {
             return null;
@@ -107,8 +125,10 @@ public abstract class ImportBase {
             }
         } catch(Exception e) {
         }
-        logWarning(International.getMessage("Ziel {destination} nicht in der Zielliste gefunden.",
-                                name));
+        if (warnIfNotFound) {
+            logWarning(International.getMessage("Ziel {destination} nicht in der Zielliste gefunden.",
+                                    name));
+        }
         return null;
     }
 

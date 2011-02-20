@@ -55,7 +55,9 @@ public class ImportMetadata {
         }
         String s = International.getMessage("{datalist} mit {number} Einträgen", typedescription, numRecords);
         if (type == TYPE_FAHRTENBUCH) {
-            s += " " + International.getMessage("vom {day_from} bis {day_to}", firstDate.toString(), lastDate.toString());
+            if (firstDate != null && lastDate != null) {
+                s += " " + International.getMessage("vom {day_from} bis {day_to}", firstDate.toString(), lastDate.toString());
+            }
             if (longtext) {
                 if (numRecBoats >= 0) {
                     s += "\n" + International.getMessage("{datalist} mit {number} Einträgen",

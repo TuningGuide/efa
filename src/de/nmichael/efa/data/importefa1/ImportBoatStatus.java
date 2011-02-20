@@ -51,9 +51,11 @@ public class ImportBoatStatus extends ImportBase {
             String[] IDXP = new String[] { PersonRecord.FIRSTNAME, PersonRecord.LASTNAME, PersonRecord.ASSOCIATION };
 
             DatenFelder d = bootStatus.getCompleteFirst();
+            Hashtable<UUID,String> imported = new Hashtable<UUID,String>();
             while (d != null) {
-                UUID boatID = findBoat(boats, IDXB, d.get(BootStatus.NAME));
-                if (boatID != null) {
+                String b = task.synBoote_genMainName(d.get(BootStatus.NAME));
+                UUID boatID = findBoat(boats, IDXB, b, true);
+                if (boatID != null && imported.get(boatID) != null) {
                     // create new BoatStatusRecord
                     BoatStatusRecord rs = boatStatus.createBoatStatusRecord(boatID);
                     try {
@@ -70,9 +72,10 @@ public class ImportBoatStatus extends ImportBase {
                             rs.setComment(d.get(BootStatus.BEMERKUNG));
                         }
                         boatStatus.data().add(rs);
+                        imported.put(boatID, b); // to avoid importing duplicates because of synonyms/Kombiboote
                         logInfo(International.getMessage("Importiere Eintrag: {entry}", rs.toString()));
                     } catch(Exception e) {
-                        logError(International.getMessage("Import von Eintrag fehlgeschlagen (Duplikat?): {entry}", rs.toString()));
+                        logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", rs.toString(), e.toString()));
                     }
 
                     // BoatReservations
@@ -102,7 +105,7 @@ public class ImportBoatStatus extends ImportBase {
                                 }
                             }
                             if (r.getForName() != null && r.getForName().length() > 0) {
-                                UUID id = findPerson(persons, IDXP, r.getForName());
+                                UUID id = findPerson(persons, IDXP, r.getForName(), false);
                                 if (id != null) {
                                     rr.setPersonId(id);
                                 } else {
@@ -115,7 +118,7 @@ public class ImportBoatStatus extends ImportBase {
                             boatReservations.data().add(rr);
                             logInfo(International.getMessage("Importiere Eintrag: {entry}", rr.toString()));
                         } catch (Exception e) {
-                            logError(International.getMessage("Import von Eintrag fehlgeschlagen (Duplikat?): {entry}", rr.toString()));
+                            logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", rr.toString(), e.toString()));
                         }
                     }
 
@@ -127,8 +130,14 @@ public class ImportBoatStatus extends ImportBase {
                             boatReservations.data().add(rd);
                             logInfo(International.getMessage("Importiere Eintrag: {entry}", rd.toString()));
                         } catch (Exception e) {
-                            logError(International.getMessage("Import von Eintrag fehlgeschlagen (Duplikat?): {entry}", rd.toString()));
+                            logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", rd.toString(), e.toString()));
                         }
+                    }
+                } else {
+                    if (boatID == null) {
+                        logWarning(International.getMessage("{type_of_entry} {entry} nicht in {list} gefunden.",
+                                International.getString("Boot"), b,
+                                International.getString("Bootsliste")));
                     }
                 }
                 d = bootStatus.getCompleteNext();

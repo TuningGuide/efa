@@ -52,7 +52,7 @@ public class ImportFahrtenabzeichen extends ImportBase {
                 UUID personID = findPerson(persons, IDXP,
                         d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.VORNAME),
                         d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.NACHNAME),
-                        "");
+                        "", true);
                 if (personID != null) {
                     // create new FahrtenabzeichenRecord
                     FahrtenabzeichenRecord r = fahrtenabzeichen.createFahrtenabzeichenRecord(personID);
@@ -70,13 +70,18 @@ public class ImportFahrtenabzeichen extends ImportBase {
                             r.setKilometerAB(EfaUtil.string2int(d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.GESKMAB), 0));
                         }
                         if (d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.LETZTEMELDUNG).length() > 0) {
-                            r.setFahrtenabzeichen(d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.LETZTEMELDUNG));
+                            r.setFahrtenheft(d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.LETZTEMELDUNG));
                         }
                         fahrtenabzeichen.data().add(r);
                         logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                     } catch(Exception e) {
-                        logError(International.getMessage("Import von Eintrag fehlgeschlagen (Duplikat?): {entry}", r.toString()));
+                        logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
                     }
+                } else {
+                    logWarning(International.getMessage("{type_of_entry} {entry} nicht in {list} gefunden.",
+                            International.getString("Person"), d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.VORNAME) + " " + d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.NACHNAME),
+                            International.getString("Mitgliederliste")));
+
                 }
                 d = fahrtenabzeichen1.getCompleteNext();
             }

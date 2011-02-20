@@ -60,12 +60,12 @@ public class ImportCrews extends ImportBase {
                 CrewRecord r = crews.createCrewRecord(UUID.randomUUID());
                 r.setName(d.get(Mannschaften.BOOT));
                 UUID id;
-                id = findPerson(persons, IDXP, d.get(Mannschaften.STM));
+                id = findPerson(persons, IDXP, d.get(Mannschaften.STM), true);
                 if (id != null) {
                     r.setCoxId(id);
                 }
                 for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++) {
-                    id = findPerson(persons, IDXP, d.get(Mannschaften.MANNSCH1 + i));
+                    id = findPerson(persons, IDXP, d.get(Mannschaften.MANNSCH1 + i), true);
                     if (id != null) {
                         r.setCrewId(i+1, id);
                     }
@@ -78,7 +78,7 @@ public class ImportCrews extends ImportBase {
                     crews.data().add(r);
                     logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                 } catch(Exception e) {
-                    logError(International.getMessage("Import von Eintrag fehlgeschlagen (Duplikat?): {entry}", r.toString()));
+                    logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
                 }
 
                 // update BoatRecord
@@ -96,7 +96,7 @@ public class ImportCrews extends ImportBase {
                             if (d.get(Mannschaften.FAHRTART).length() > 0) {
                                 b.setDefaultSessionType(d.get(Mannschaften.FAHRTART));
                             }
-                            id = findDestination(destinations, IDXD, d.get(Mannschaften.ZIEL));
+                            id = findDestination(destinations, IDXD, d.get(Mannschaften.ZIEL), true);
                             if (id != null) {
                                 b.setDefaultDestinationId(id);
                             }

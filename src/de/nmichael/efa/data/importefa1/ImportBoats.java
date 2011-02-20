@@ -171,7 +171,7 @@ public class ImportBoats extends ImportBase {
                         }
                         logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                     } catch(Exception e) {
-                        logError(International.getMessage("Import von Eintrag fehlgeschlagen (Duplikat?): {entry}", r.toString()));
+                        logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
                     }
                     
                 } else {

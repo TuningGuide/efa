@@ -96,10 +96,15 @@ public class ImportLogbook extends ImportBase {
                 LogbookRecord r = logbook.createLogbookRecord(d.get(Fahrtenbuch.LFDNR));
                 r.setDate(DataTypeDate.parseDate(d.get(Fahrtenbuch.DATUM)));
 
+                if (r.getDate().isBefore(meta.firstDate) ||
+                    r.getDate().isAfter(meta.lastDate)) {
+                    logWarning(International.getMessage("Eintrag {entry} wurde nicht importiert, da sein Datum {date} außerhalb des festgelegten Zeitraums ({fromDate} - {toDate}) liegt.",
+                            r.getEntryId(),r.getDate().toString(),meta.firstDate.toString(),meta.lastDate.toString()));
+                }
 
                 if (d.get(Fahrtenbuch.BOOT).length() > 0) {
                     String b = task.synBoote_genMainName(d.get(Fahrtenbuch.BOOT));
-                    UUID id = findBoat(boats, boatIdx, b);
+                    UUID id = findBoat(boats, boatIdx, b, false);
                     if (id != null) {
                         r.setBoatId(id);
                         BoatRecord boat = boats.getBoat(id, validAt);
@@ -110,7 +115,7 @@ public class ImportLogbook extends ImportBase {
                                     r.setBoatVariant(types[0].getVariant());
                                 } else {
                                     for (BoatTypeRecord type : types) {
-                                        if (type.getDescription().equals(d.get(Fahrtenbuch.BOOT))) {
+                                        if (type.getDescription() != null && type.getDescription().equals(d.get(Fahrtenbuch.BOOT))) {
                                             r.setBoatVariant(type.getVariant());
                                             break;
                                         }
@@ -124,7 +129,7 @@ public class ImportLogbook extends ImportBase {
                     }
                 }
                 if (d.get(Fahrtenbuch.STM).length() > 0) {
-                    UUID id = findPerson(persons, personIdx, d.get(Fahrtenbuch.STM));
+                    UUID id = findPerson(persons, personIdx, d.get(Fahrtenbuch.STM), false);
                     if (id != null) {
                         r.setCoxId(id);
                     } else {
@@ -133,7 +138,7 @@ public class ImportLogbook extends ImportBase {
                 }
                 for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++) {
                     if (d.get(Fahrtenbuch.MANNSCH1 + i).length() > 0) {
-                        UUID id = findPerson(persons, personIdx, d.get(Fahrtenbuch.MANNSCH1 + i));
+                        UUID id = findPerson(persons, personIdx, d.get(Fahrtenbuch.MANNSCH1 + i), false);
                         if (id != null) {
                             r.setCrewId(i+1, id);
                         } else {
@@ -145,7 +150,7 @@ public class ImportLogbook extends ImportBase {
                 r.setStartTime(DataTypeTime.parseTime(d.get(Fahrtenbuch.ABFAHRT)));
                 r.setEndTime(DataTypeTime.parseTime(d.get(Fahrtenbuch.ANKUNFT)));
                 if (d.get(Fahrtenbuch.ZIEL).length() > 0) {
-                    UUID id = findDestination(destinations, destinationIdx, d.get(Fahrtenbuch.ZIEL));
+                    UUID id = findDestination(destinations, destinationIdx, d.get(Fahrtenbuch.ZIEL), false);
                     if (id != null) {
                         r.setDestinationId(id);
                     } else {
@@ -207,7 +212,7 @@ public class ImportLogbook extends ImportBase {
                                     sessionGroups.data().add(sg);
                                     sessionGroupMapping.put(mtourName, id);
                                 } catch(Exception e) {
-                                    logError(International.getMessage("Import von Eintrag fehlgeschlagen (Duplikat?): {entry}", sg.toString()));
+                                    logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", sg.toString(), e.toString()));
                                 }
                             }
                             r.setSessionGroupId(id);
@@ -223,7 +228,7 @@ public class ImportLogbook extends ImportBase {
                     logbook.data().add(r);
                     logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                 } catch(Exception e) {
-                    logError(International.getMessage("Import von Eintrag fehlgeschlagen (Duplikat?): {entry}", r.toString()));
+                    logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
                 }
                 d = fahrtenbuch.getCompleteNext();
             }

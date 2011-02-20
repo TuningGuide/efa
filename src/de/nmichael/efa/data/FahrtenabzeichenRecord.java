@@ -90,11 +90,11 @@ public class FahrtenabzeichenRecord extends DataRecord {
         return getInt(KILOMETERAB);
     }
 
-    public void setFahrtenabzeichen(String data) {
-        setString(ABZEICHEN, data);
+    public void setFahrtenheft(String data) {
+        setString(FAHRTENHEFT, data);
     }
-    public String getFahrtenabzeichen() {
-        return getString(ABZEICHEN);
+    public String getFahrtenheft() {
+        return getString(FAHRTENHEFT);
     }
 
 }

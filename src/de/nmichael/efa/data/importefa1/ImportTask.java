@@ -43,6 +43,8 @@ public class ImportTask extends ProgressTask {
         logInfo(International.getString("Protokoll") + ": " + logfile + "\n");
         String[] keys = importData.keySet().toArray(new String[0]);
         Arrays.sort(keys);
+        int totalWarnings = 0;
+        int totalErrors = 0;
         for (int run = 1; run <= 4; run++) {
             for (String key : keys) {
                 ImportMetadata meta = importData.get(key);
@@ -106,15 +108,16 @@ public class ImportTask extends ProgressTask {
                         errorCnt++;
                     }
                     setCurrentWorkDone(i++);
+                    totalWarnings += importJob.getWarningCount();
+                    totalErrors += importJob.getErrorCount();
                 }
             }
         }
-        String msg = International.getMessage("{count} Dateien wurden erfolgreich importiert.", successCnt);
+        String msg = International.getMessage("{count} Dateien wurden importiert.", successCnt);
         if (errorCnt > 0) {
-            msg += "\n" + International.getMessage("Es traten {count} Fehler auf.", errorCnt);
-        } else {
-            msg += "\n" + International.getString("Es traten keine Fehler auf.");
+            msg += "\n" + International.getMessage("Der Import von {count} Dateien wurde wegen Fehlern abgebrochen.", errorCnt);
         }
+        msg += "\n" + International.getMessage("Es traten {count} Warnungen und {count} Fehler auf.", totalWarnings, totalErrors);
         logInfo(International.getString("Import beendet.\n"));
         logInfo(msg+"\n");
         Dialog.infoDialog(msg);

@@ -93,9 +93,12 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
   public static final int MODE_ADMIN_NUR_FAHRTEN = 6;
 
   JPanel contentPane;
-  JMenuBar jMenuBar1 = new JMenuBar();
-  JMenu jMenuFile = new JMenu();
-  JMenuItem jMenuFile_newProject = new JMenuItem();
+  JMenuBar menuBar = new JMenuBar();
+  JMenu menuFile = new JMenu();
+  JMenuItem menuFile_newProject = new JMenuItem();
+  JMenuItem menuFile_openProject = new JMenuItem();
+  JMenuItem menuFile_logbooks = new JMenuItem();
+
   JMenuItem jMenuFileOpen = new JMenuItem();
   JMenu jMenuHelp = new JMenu();
   JMenuItem jMenuHelpAbout = new JMenuItem();
@@ -367,13 +370,29 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     });
 
-    Mnemonics.setButton(this, jMenuFile, International.getStringWithMnemonic("Datei"));
-    Mnemonics.setMenuButton(this, jMenuFile_newProject, International.getStringWithMnemonic("Neues Projekt"));
-    jMenuFile_newProject.addActionListener(new ActionListener()  {
+    // File Menu
+    Mnemonics.setButton(this, menuFile, International.getStringWithMnemonic("Datei"));
+    Mnemonics.setMenuButton(this, menuFile_newProject, International.getStringWithMnemonic("Neues Projekt"));
+    menuFile_newProject.addActionListener(new ActionListener()  {
       public void actionPerformed(ActionEvent e) {
-        jMenuFile_newProject_actionPerformed(e);
+        menuFile_newProject_actionPerformed(e);
       }
     });
+    menuFile_newProject.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_new.gif")));
+    Mnemonics.setMenuButton(this, menuFile_openProject, International.getStringWithMnemonic("Projekt öffnen"));
+    menuFile_openProject.addActionListener(new ActionListener()  {
+      public void actionPerformed(ActionEvent e) {
+        menuFile_openProject_actionPerformed(e);
+      }
+    });
+    menuFile_openProject.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_open.gif")));
+    Mnemonics.setMenuButton(this, menuFile_logbooks, International.getStringWithMnemonic("Fahrtenbücher") + " ...");
+    menuFile_logbooks.addActionListener(new ActionListener()  {
+      public void actionPerformed(ActionEvent e) {
+        menuFile_logbooks_actionPerformed(e);
+      }
+    });
+    menuFile_logbooks.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_files.gif")));
 
     jMenuFileOpen.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_open.gif")));
     Mnemonics.setMenuButton(this, jMenuFileOpen, International.getStringWithMnemonic("Fahrtenbuch öffnen"));
@@ -1098,20 +1117,24 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         jMenuItem14_actionPerformed(e);
       }
     });
-    jMenuFile.add(jMenuNew);
-    jMenuFile.add(jMenuFile_newProject); // @@@todo in efa2
-    jMenuFile.add(jMenuFileOpen);
-    jMenuFile.add(jMenuFileSave);
-    jMenuFile.add(jMenuFileSaveAs);
-    jMenuFile.addSeparator();
-    jMenuFile.add(jMenuBackup);
-    jMenuFile.add(jMenuFileDatensicherung);
-    jMenuFile.addSeparator();
-    jMenuFile.add(jMenuImport);
-    jMenuFile.addSeparator();
-    jMenuFile.add(jMenuOnlineUpdate);
-    jMenuFile.addSeparator();
-    jMenuFile.add(jMenuFileExit);
+    // menuFile.add(menuFile_newProject); // @@@todo in efa2
+    // menuFile.add(menuFile_openProject); // @@@todo in efa2
+    menuFile.addSeparator();
+    // menuFile.add(menuFile_logbooks); // @@@todo in efa2
+    menuFile.addSeparator();
+    menuFile.add(jMenuNew);
+    menuFile.add(jMenuFileOpen);
+    menuFile.add(jMenuFileSave);
+    menuFile.add(jMenuFileSaveAs);
+    menuFile.addSeparator();
+    menuFile.add(jMenuBackup);
+    menuFile.add(jMenuFileDatensicherung);
+    menuFile.addSeparator();
+    menuFile.add(jMenuImport);
+    menuFile.addSeparator();
+    menuFile.add(jMenuOnlineUpdate);
+    menuFile.addSeparator();
+    menuFile.add(jMenuFileExit);
     jMenuHelp.add(jMenuDokumentation);
     jMenuHelp.addSeparator();
     jMenuHelp.add(jMenu_efaHomepage);
@@ -1120,11 +1143,11 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     jMenuHelp.add(jMenuHilfeJavaKonsole);
     jMenuHelp.addSeparator();
     jMenuHelp.add(jMenuHelpAbout);
-    jMenuBar1.add(jMenuFile);
-    jMenuBar1.add(jMenuKonfiguration);
-    jMenuBar1.add(jMenuStatistik);
-    jMenuBar1.add(jMenuHelp);
-    this.setJMenuBar(jMenuBar1);
+    menuBar.add(menuFile);
+    menuBar.add(jMenuKonfiguration);
+    menuBar.add(jMenuStatistik);
+    menuBar.add(jMenuHelp);
+    this.setJMenuBar(menuBar);
     contentPane.add(toolBar, BorderLayout.NORTH);
     toolBar.add(FirstButton, null);
     toolBar.add(PrevButton, null);
@@ -1822,6 +1845,33 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
 // ==================== Menüs und Buttons ======================================
 
+  // Menu: File -> New Project
+  public void menuFile_newProject_actionPerformed(ActionEvent e) {
+    if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
+    if (!sicherheitsabfrage()) return;
+    NewProjectDialog dlg = new NewProjectDialog(this);
+    dlg.createNewProjectAndLogbook();
+    startBringToFront(false); // efaDirekt im BRC -- Workaround
+  }
+
+  // Menu: File -> Open Project
+  public void menuFile_openProject_actionPerformed(ActionEvent e) {
+    if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
+    if (!sicherheitsabfrage()) return;
+//    NewProjectDialog dlg = new NewProjectDialog(this);
+//    dlg.createNewProjectAndLogbook();
+    startBringToFront(false); // efaDirekt im BRC -- Workaround
+  }
+
+  // Menu: File -> Logbooks ...
+  public void menuFile_logbooks_actionPerformed(ActionEvent e) {
+    if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
+    if (!sicherheitsabfrage()) return;
+//    NewProjectDialog dlg = new NewProjectDialog(this);
+//    dlg.createNewProjectAndLogbook();
+    startBringToFront(false); // efaDirekt im BRC -- Workaround
+  }
+
   // Menü Datei->Neu
   void jMenuNew_actionPerformed(ActionEvent e) {
     if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
@@ -1834,14 +1884,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     startBringToFront(false); // efaDirekt im BRC -- Workaround
   }
 
-  // Menu: File -> New Project
-  public void jMenuFile_newProject_actionPerformed(ActionEvent e) {
-    if (isDirectMode() || mode == MODE_ADMIN_NUR_FAHRTEN) return;
-    if (!sicherheitsabfrage()) return;
-    NewProjectDialog dlg = new NewProjectDialog(this);
-    dlg.createNewProjectAndLogbook();
-    startBringToFront(false); // efaDirekt im BRC -- Workaround
-  }
 
 
   // Menü Datei->Öffnen

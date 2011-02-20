@@ -12,7 +12,7 @@ package de.nmichael.efa.data.types;
 import java.util.*;
 import de.nmichael.efa.util.*;
 
-public class DataTypeTime implements Cloneable {
+public class DataTypeTime implements Cloneable, Comparable<DataTypeTime> {
 
     private int hour, minute, second;
 
@@ -40,6 +40,15 @@ public class DataTypeTime implements Cloneable {
     public static DataTypeTime parseTime(String s) {
         DataTypeTime time = new DataTypeTime();
         time.setTime(s);
+        return time;
+    }
+
+    public static DataTypeTime now() {
+        DataTypeTime time = new DataTypeTime();
+        Calendar cal = new GregorianCalendar();
+        time.setHour(cal.get(Calendar.HOUR_OF_DAY));
+        time.setMinute(cal.get(Calendar.MINUTE));
+        time.setSecond(cal.get(Calendar.SECOND));
         return time;
     }
 
@@ -127,6 +136,48 @@ public class DataTypeTime implements Cloneable {
         hour = -1;
         minute = -1;
         second = -1;
+    }
+
+    public boolean equals(Object o) {
+        try {
+            return compareTo((DataTypeTime)o) == 0;
+        } catch(Exception e) {
+            return false;
+        }
+    }
+
+    public int compareTo(DataTypeTime o) {
+        if (hour < o.hour) {
+            return -1;
+        }
+        if (hour > o.hour) {
+            return 1;
+        }
+        if (minute < o.minute) {
+            return -1;
+        }
+        if (minute > o.minute) {
+            return 1;
+        }
+        if (second < o.second) {
+            return -1;
+        }
+        if (second > o.second) {
+            return 1;
+        }
+        return 0;
+    }
+
+    public int hashCode() {
+        return (new Integer(hour*10000 + minute*100 + second)).hashCode();
+    }
+
+    public boolean isBefore(DataTypeTime o) {
+        return compareTo(o) < 0;
+    }
+
+    public boolean isAfter(DataTypeTime o) {
+        return compareTo(o) > 0;
     }
 
 }

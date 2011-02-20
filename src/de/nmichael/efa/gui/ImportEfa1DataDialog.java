@@ -63,7 +63,13 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
 
     String getDescription(int step) {
         switch(step) {
-        }
+            case 0: return International.getString("Mit der Import-Funktion werden alle Daten von efa 1.x nach efa 2.x importiert. "+
+                    "Falls Du mehrere efa-Installationen parallel genutzt hast, wähle bitte diejenige aus, aus der Du die Daten importieren möchtest.");
+            case 1: return International.getString("Bitte wähle aus, welche Daten importiert werden sollen.");
+            case 2: return International.getString("Bitte wähle aus, welche Fahrtenbücher, Mitglieder-, Boots- und Ziellisten importiert werden sollen.");
+            case 3: return International.getString("In efa 2.x hat jedes Fahrtenbuch einen (beliebigen) eindeutigen Namen, eine optionale Beschreibung und einen Zeitraum. Alle Fahrten des Fahrtenbuchs müssen in diesem Zeitraum liegen.") +" \n" +
+                    International.getString("Üblicherweise solltest Du pro Jahr genau ein Fahrtenbuch anlegen. Vereine mit mehreren Bootshäusern sollten pro Bootshaus ein Fahrtenbuch pro Jahr verwenden.");
+       }
         return "";
     }
 
@@ -215,13 +221,11 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                 ImportMetadata meta = importData.get(fname);
                 if (meta.type == ImportMetadata.TYPE_FAHRTENBUCH && meta.selected) {
                     DataTypeDate dateFrom = new DataTypeDate();
-                    dateFrom.setDate(meta.firstDate.toString());
-                    dateFrom.setDay(1);
-                    dateFrom.setMonth(1);
+                    dateFrom.setDate( (meta.firstDate != null ? meta.firstDate.toString() : DataTypeDate.today().toString()) );
+                    dateFrom.setDayMonth(1, 1);
                     DataTypeDate dateTo = new DataTypeDate();
-                    dateTo.setDate(meta.lastDate.toString());
-                    dateTo.setDay(31);
-                    dateTo.setMonth(12);
+                    dateTo.setDate( (meta.lastDate != null ? meta.lastDate.toString() : DataTypeDate.today().toString()) );
+                    dateTo.setDayMonth(31, 12);
 
                     String name = Integer.toString(dateFrom.getYear());
                     int ikey = 1;
@@ -320,6 +324,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
         Dialog.SUPPRESS_DIALOGS = true;
         if (EfaUtil.canOpenFile(fb.getFileName()) && fb.readFile()) {
             ImportMetadata meta = new ImportMetadata(ImportMetadata.TYPE_FAHRTENBUCH, fb, International.getString("Fahrtenbuch"));
+            meta.numRecords = 0;
             DatenFelder d = fb.getCompleteFirst();
             while (d != null) {
                 meta.numRecords++;

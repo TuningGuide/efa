@@ -11,7 +11,7 @@
 package de.nmichael.efa.direkt;
 
 import java.util.*;
-import de.nmichael.efa.core.types.ItemTypeLongLat;
+import de.nmichael.efa.core.items.ItemTypeLongLat;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.EfaUtil;
 

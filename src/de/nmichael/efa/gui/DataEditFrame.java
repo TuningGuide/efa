@@ -13,7 +13,7 @@ package de.nmichael.efa.gui;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.types.*;
+import de.nmichael.efa.core.items.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;

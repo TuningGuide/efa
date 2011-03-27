@@ -58,6 +58,10 @@ public class BoatTypeRecord extends DataRecord {
         return new DataKey<UUID,Integer,Long>(getBoatId(),getVariant(),getValidFrom());
     }
 
+    public static DataKey getKey(UUID id, int variant, long validFrom) {
+        return new DataKey<UUID,Integer,Long>(id,variant,validFrom);
+    }
+
     public void setBoatId(UUID id) {
         setUUID(BOATID, id);
     }

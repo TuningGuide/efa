@@ -123,6 +123,11 @@ public abstract class DataRecord implements Cloneable {
                         throw new IllegalArgumentException("Data Type DECIMAL expected for Data Field " + fieldIdx + ".");
                     }
                     break;
+                case IDataAccess.DATA_DISTANCE:
+                    if (!(data instanceof DataTypeDistance)) {
+                        throw new IllegalArgumentException("Data Type DISTANCE expected for Data Field " + fieldIdx + ".");
+                    }
+                    break;
                 case IDataAccess.DATA_BOOLEAN:
                     if (!(data instanceof Boolean)) {
                         throw new IllegalArgumentException("Data Type BOOLEAN expected for Data Field " + fieldIdx + ".");
@@ -141,6 +146,11 @@ public abstract class DataRecord implements Cloneable {
                 case IDataAccess.DATA_UUID:
                     if (!(data instanceof UUID)) {
                         throw new IllegalArgumentException("Data Type UUID expected for Data Field " + fieldIdx + ".");
+                    }
+                    break;
+                case IDataAccess.DATA_INTSTRING:
+                    if (!(data instanceof DataTypeIntString)) {
+                        throw new IllegalArgumentException("Data Type INTSTRING expected for Data Field " + fieldIdx + ".");
                     }
                     break;
             }
@@ -187,6 +197,10 @@ public abstract class DataRecord implements Cloneable {
         return b.toString();
     }
 
+    public String getQualifiedName() {
+        return toString();
+    }
+
     // =========================================================================
     // Methods for versionized data
     // =========================================================================
@@ -225,27 +239,59 @@ public abstract class DataRecord implements Cloneable {
     // =========================================================================
 
     protected void setString(String fieldName, String s) {
-        set(fieldName, s);
+        if (s != null && s.length() > 0) {
+            set(fieldName, s);
+        } else {
+            set(fieldName, null);
+        }
     }
 
     protected void setDate(String fieldName, DataTypeDate date) {
-        set(fieldName, new DataTypeDate(date));
+        if (date != null && date.isSet()) {
+            set(fieldName, new DataTypeDate(date));
+        } else {
+            set(fieldName, null);
+        }
     }
 
     protected void setTime(String fieldName, DataTypeTime time) {
-        set(fieldName, new DataTypeTime(time));
+        if (time != null && time.isSet()) {
+            set(fieldName, new DataTypeTime(time));
+        } else {
+            set(fieldName, null);
+        }
     }
 
     protected void setDecimal(String fieldName, DataTypeDecimal decimal) {
-        set(fieldName, new DataTypeDecimal(decimal));
+        if (decimal != null && decimal.isSet()) {
+            set(fieldName, new DataTypeDecimal(decimal));
+        } else {
+            set(fieldName, null);
+        }
+}
+
+    protected void setDistance(String fieldName, DataTypeDistance distance) {
+        if (distance != null && distance.isSet()) {
+            set(fieldName, new DataTypeDistance(distance));
+        } else {
+            set(fieldName, null);
+        }
     }
 
     protected void setInt(String fieldName, int i) {
-        set(fieldName, new Integer(i));
+        if (i != IDataAccess.UNDEFINED_INT) {
+            set(fieldName, new Integer(i));
+        } else {
+            set(fieldName, null);
+        }
     }
 
     protected void setLong(String fieldName, long l) {
-        set(fieldName, new Long(l));
+        if (l != IDataAccess.UNDEFINED_LONG) {
+            set(fieldName, new Long(l));
+        } else {
+            set(fieldName, null);
+        }
     }
 
     protected void setBool(String fieldName, boolean b) {
@@ -257,7 +303,19 @@ public abstract class DataRecord implements Cloneable {
     }
 
     protected void setList(String fieldName, DataTypeList list) {
-        set(fieldName, list);
+        if (list != null && list.isSet()) {
+            set(fieldName, list);
+        } else {
+            set(fieldName, null);
+        }
+    }
+
+    protected void setIntString(String fieldName, DataTypeIntString s) {
+        if (s != null && s.length() > 0) {
+            set(fieldName, s);
+        } else {
+            set(fieldName, null);
+        }
     }
 
     protected String getString(String fieldName) {
@@ -286,6 +344,14 @@ public abstract class DataRecord implements Cloneable {
             return null;
         }
         return new DataTypeDecimal(d);
+    }
+
+    protected DataTypeDistance getDistance(String fieldName) {
+        DataTypeDistance d = (DataTypeDistance)get(fieldName);
+        if (d == null) {
+            return null;
+        }
+        return new DataTypeDistance(d);
     }
 
     protected int getInt(String fieldName) {
@@ -328,6 +394,14 @@ public abstract class DataRecord implements Cloneable {
         return DataTypeList.parseList(s, dataType);
     }
 
+    protected DataTypeIntString getIntString(String fieldName) {
+        DataTypeIntString s = (DataTypeIntString)get(fieldName);
+        if (s == null) {
+            return null;
+        }
+        return s;
+    }
+
     public static Object transformDataStringToType(String s, int type) {
         switch (type) {
             case IDataAccess.DATA_STRING:
@@ -338,6 +412,8 @@ public abstract class DataRecord implements Cloneable {
                 return Long.parseLong(s);
             case IDataAccess.DATA_DECIMAL:
                 return DataTypeDecimal.parseDecimal(s);
+            case IDataAccess.DATA_DISTANCE:
+                return DataTypeDistance.parseDistance(s);
             case IDataAccess.DATA_BOOLEAN:
                 return Boolean.parseBoolean(s);
             case IDataAccess.DATA_DATE:
@@ -346,6 +422,8 @@ public abstract class DataRecord implements Cloneable {
                 return DataTypeTime.parseTime(s);
             case IDataAccess.DATA_UUID:
                 return UUID.fromString(s);
+            case IDataAccess.DATA_INTSTRING:
+                return DataTypeIntString.parseString(s);
         }
         return null;
     }

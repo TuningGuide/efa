@@ -13,6 +13,7 @@ package de.nmichael.efa.data;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.Daten;
+import java.util.regex.*;
 import java.util.*;
 
 // @i18n complete
@@ -46,6 +47,10 @@ public class BoatRecord extends DataRecord {
     public static final String FREEUSE2              = "FreeUse2";
     public static final String FREEUSE3              = "FreeUse3";
 
+    public static final String[] IDX_NAME_OWNER = new String[] { NAME, OWNER };
+
+    private static Pattern qnamePattern = Pattern.compile("(.+) (\\([^\\(\\)]+\\))");
+
     public static void initialize() {
         Vector<String> f = new Vector<String>();
         Vector<Integer> t = new Vector<Integer>();
@@ -71,7 +76,7 @@ public class BoatRecord extends DataRecord {
         f.add(FREEUSE3);                          t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(Boats.DATATYPE, f, t, true);
         metaData.setKey(new String[] { ID }); // plus VALID_FROM
-        metaData.addIndex(new String[] { NAME, OWNER });
+        metaData.addIndex(IDX_NAME_OWNER);
     }
 
     public BoatRecord(Boats boats, MetaData metaData) {
@@ -224,6 +229,17 @@ public class BoatRecord extends DataRecord {
         return getString(FREEUSE3);
     }
 
+    public BoatTypeRecord getBoatType(int variant, long validAt) {
+        try {
+            UUID id = getId();
+            if (id != null) {
+                return getPersistence().getProject().getBoatTypes(false).getBoatType(id, variant, validAt);
+            }
+        } catch(Exception e) {
+        }
+        return null;
+    }
+
     public BoatTypeRecord[] getAllBoatTypes(boolean anyValidity) {
         try {
             BoatTypes boatTypes = getPersistence().getProject().getBoatTypes(false);
@@ -239,6 +255,43 @@ public class BoatRecord extends DataRecord {
         } catch(Exception e) {
         }
         return null;
+    }
+
+    public String getQualifiedName(int variant, long validAt) {
+        String name = getName();
+        if (name != null && name.length() > 0 && variant > 0) {
+            BoatTypeRecord t = getBoatType(variant, validAt);
+            if (t != null && t.getDescription() != null && t.getDescription().length() > 0) {
+                name = name + " - " + t.getDescription();
+            }
+        }
+        if (name != null & name.length() > 0 && getOwner() != null && getOwner().length() > 0) {
+            name = name + " (" + getOwner() + ")";
+        }
+        return (name != null ? name : "");
+    }
+
+    public String getQualifiedName() {
+        String name = getName();
+        if (name != null & name.length() > 0 && getOwner() != null && getOwner().length() > 0) {
+            name = name + " (" + getOwner() + ")";
+        }
+        return (name != null ? name : "");
+    }
+
+    public static String[] getValuesForIndexFromQualifiedName(String qname) {
+        Matcher m = qnamePattern.matcher(qname);
+        if (m.matches()) {
+            return new String[] {
+                m.group(1).trim(),
+                m.group(2).trim()
+            };
+        } else {
+            return new String[] {
+                qname.trim(),
+                null
+            };
+        }
     }
 
 }

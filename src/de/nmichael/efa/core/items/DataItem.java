@@ -8,7 +8,7 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.types;
+package de.nmichael.efa.core.items;
 
 import de.nmichael.efa.data.storage.DataKey;
 

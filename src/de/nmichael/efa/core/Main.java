@@ -10,9 +10,11 @@
 
 package de.nmichael.efa.core;
 
+import de.nmichael.efa.gui.*;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.util.*;
+import de.nmichael.efa.data.*;
 import de.nmichael.efa.util.Dialog;
 import javax.swing.UIManager;
 import java.awt.*;
@@ -20,31 +22,26 @@ import java.awt.*;
 // @i18n complete
 public class Main extends Program {
 
-    private String fb = null;
+    private String project = null;
 
     public Main(String[] args) {
         super(args);
         Daten.initialize(Daten.APPL_EFA);
 
-        EfaFrame frame = new EfaFrame(fb);
-        frame.pack();
-        //Center the window
-        Dimension frameSize = frame.getSize();
-        if (frameSize.height > Dialog.screenSize.height) {
-            frameSize.height = Dialog.screenSize.height;
+        if (project != null) {
+            Project.openProject(project);
         }
-        if (frameSize.width > Dialog.screenSize.width) {
-            frameSize.width = Dialog.screenSize.width;
-        }
-        Dialog.setDlgLocation(frame);
-        frame.setVisible(true);
+
+        EfaBaseFrame frame = new EfaBaseFrame(EfaBaseFrame.MODE_BASE);
+        frame.showFrame();
         Daten.iniSplashScreen(false);
-        frame.userInteractionsUponStart();
+        // @todo frame.userInteractionsUponStart();
+        // @todo frame.setProject(project);
     }
 
     public void printUsage(String wrongArgument) {
         super.printUsage(wrongArgument);
-        printOption("-open <file>", International.getString("Fahrtenbuch <file> öffnen"));
+        printOption("-open <project>", International.getString("Projekt <project> öffnen"));
         System.exit(0);
     }
 
@@ -56,7 +53,7 @@ public class Main extends Program {
             }
             if (args[i].equals("-open") && i + 1 < args.length) {
                 args[i] = null;
-                fb = args[++i];
+                project = args[++i];
                 args[i] = null;
                 continue;
             }

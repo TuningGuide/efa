@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package de.nmichael.efa.core.types;
+package de.nmichael.efa.core.items;
 
 import java.util.*;
 import java.awt.*;
@@ -27,7 +27,9 @@ public class ItemTypeHashtable<E> extends ItemType {
     private Hashtable<String,E> hash;
     private E e;
     private boolean fieldsEditable;
-    
+
+    private JLabel titlelabel;
+    private JButton addButton;
     private JTextField[] textfield;
     private Hashtable<JButton,String> delButtons;
 
@@ -152,10 +154,14 @@ public class ItemTypeHashtable<E> extends ItemType {
         return s;
     }
 
-    public int displayOnGui(BaseDialog dlg, JPanel panel, int y) {
+    protected void iniDisplay() {
+        // not used, everything done in displayOnGui(...)
+    }
+
+    public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
         this.dlg = dlg;
 
-        JLabel titlelabel = new JLabel();
+        titlelabel = new JLabel();
         Mnemonics.setLabel(dlg, titlelabel, getDescription() + ": ");
         if (type == IItemType.TYPE_EXPERT) {
             titlelabel.setForeground(Color.red);
@@ -163,7 +169,7 @@ public class ItemTypeHashtable<E> extends ItemType {
         if (color != null) {
             titlelabel.setForeground(color);
         }
-        JButton addButton = new JButton();
+        addButton = new JButton();
         addButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_plus.gif")));
         addButton.setMargin(new Insets(0,0,0,0));
         Dialog.setPreferredSize(addButton, 19, 19);
@@ -173,10 +179,10 @@ public class ItemTypeHashtable<E> extends ItemType {
 
         String[] keys = getKeysArray();
 
-        panel.add(titlelabel, new GridBagConstraints(0, y, 2, 1, 0.0, 0.0,
-                  GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, padX, (keys.length == 0 ? padYafter : 0), 0), 0, 0));
-        panel.add(addButton, new GridBagConstraints(2, y, 2, 1, 0.0, 0.0,
-                  GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, (keys.length == 0 ? padYafter : 0), 0), 0, 0));
+        panel.add(titlelabel, new GridBagConstraints(x, y, 2, 1, 0.0, 0.0,
+                  GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, padXbefore, (keys.length == 0 ? padYafter : 0), 0), 0, 0));
+        panel.add(addButton, new GridBagConstraints(x+2, y, 2, 1, 0.0, 0.0,
+                  GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, (keys.length == 0 ? padYafter : 0), padXafter), 0, 0));
 
         textfield = new JTextField[size()];
         delButtons = new Hashtable();
@@ -202,11 +208,11 @@ public class ItemTypeHashtable<E> extends ItemType {
                 public void actionPerformed(ActionEvent e) { delButtonHit(e); }
             });
 
-            panel.add(label, new GridBagConstraints(0, y+i+1, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, padX, (i+1 == keys.length ? padYafter : 0), 0), 0, 0));
-            panel.add(textfield[i], new GridBagConstraints(1, y+i+1, 1, 1, 0.0, 0.0,
+            panel.add(label, new GridBagConstraints(x, y+i+1, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, padXbefore, (i+1 == keys.length ? padYafter : 0), 0), 0, 0));
+            panel.add(textfield[i], new GridBagConstraints(x+1, y+i+1, 1, 1, 0.0, 0.0,
                     GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, (i+1 == keys.length ? padYafter : 0), 0), 0, 0));
-            panel.add(delButton, new GridBagConstraints(2, y+i+1, 1, 1, 0.0, 0.0,
+            panel.add(delButton, new GridBagConstraints(x+2, y+i+1, 1, 1, 0.0, 0.0,
                     GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, (i+1 == keys.length ? padYafter : 0), 0), 0, 0));
 
             delButtons.put(delButton, keys[i]);
@@ -233,7 +239,9 @@ public class ItemTypeHashtable<E> extends ItemType {
         // equals the key value!).
         addToHash(hash, key, hash.get(DUMMY).toString());
 
-        dlg.updateGui();
+        if (dlg instanceof BaseDialog) {
+            ((BaseDialog)dlg).updateGui();
+        }
     }
 
     private void delButtonHit(ActionEvent e) {
@@ -245,7 +253,9 @@ public class ItemTypeHashtable<E> extends ItemType {
                                International.getMessage("Möchtest Du den Eintrag '{entry}' wirklich löschen?",key)) == Dialog.YES) {
             getValueFromGui();
             hash.remove(key);
-            dlg.updateGui();
+            if (dlg instanceof BaseDialog) {
+                ((BaseDialog)dlg).updateGui();
+            }
         }
     }
 
@@ -276,4 +286,38 @@ public class ItemTypeHashtable<E> extends ItemType {
         }
     }
 
+    public boolean isValidInput() {
+        return true;
+    }
+
+    public String getValueFromField() {
+        return null;
+    }
+
+    public void showValue() {
+    }
+
+    public void setVisible(boolean visible) {
+        titlelabel.setVisible(visible);
+        addButton.setVisible(visible);
+        for (int i=0; i<textfield.length; i++) {
+            textfield[i].setVisible(visible);
+        }
+        JButton[] b = delButtons.keySet().toArray(new JButton[0]);
+        for (int i=0; i<b.length; i++) {
+            b[i].setVisible(visible);
+        }
+    }
+
+    public void setEnabled(boolean enabled) {
+        titlelabel.setForeground((enabled ? (new JLabel()).getForeground() : Color.gray));
+        addButton.setEnabled(enabled);
+        for (int i=0; i<textfield.length; i++) {
+            textfield[i].setEnabled(enabled);
+        }
+        JButton[] b = delButtons.keySet().toArray(new JButton[0]);
+        for (int i=0; i<b.length; i++) {
+            b[i].setEnabled(enabled);
+        }
+    }
 }

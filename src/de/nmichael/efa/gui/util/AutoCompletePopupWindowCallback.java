@@ -8,7 +8,7 @@
  * @version 2
  */
 
-package de.nmichael.efa.util;
+package de.nmichael.efa.gui.util;
 
 import javax.swing.JTextField;
 

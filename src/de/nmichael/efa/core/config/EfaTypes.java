@@ -95,6 +95,8 @@ public class EfaTypes extends DatenListe {
     public static final int SELECTION_ROWING = 1;
     public static final int SELECTION_CANOEING = 2;
 
+    public static final int ARRAY_STRINGLIST_VALUES  = 1;
+    public static final int ARRAY_STRINGLIST_DISPLAY = 2;
 
     public static final String KENNUNG190 = "##EFA.190.TYPES##";
 
@@ -609,6 +611,22 @@ public class EfaTypes extends DatenListe {
         setToLanguage_Boats(bundle, SELECTION_CANOEING, (custSettings != null ? custSettings.activateCanoeingOptions : false));
 
         return true;
+    }
+
+    public static String[] makeSessionTypeArray(int type) {
+        if (Daten.efaTypes == null) {
+            // EfaTypes are not available when efa is started (will be initialized after EfaConfig).
+            // This doesn't matter ... when EfaConfigFrame is opened, a new EfaConfig instance will be created
+            // (as a copy from the static instance). This will also initialize all lists, including this one.
+            return null;
+        }
+        String[] sessions = new String[Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION)];
+        for(int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION); i++) {
+            sessions[i] = (type == ARRAY_STRINGLIST_VALUES ?
+                Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, i) :
+                Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, i));
+        }
+        return sessions;
     }
 
 }

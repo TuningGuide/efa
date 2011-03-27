@@ -20,7 +20,11 @@ import javax.swing.border.*;
 // @i18n complete
 public abstract class BaseDialog extends JDialog implements ActionListener {
 
-    Window parent;
+    Window _parent;
+    String _title;
+    String _closeButtonText;
+    boolean _prepared = false;
+
     JPanel basePanel = new JPanel();
     JScrollPane mainScrollPane = new JScrollPane();
     JPanel mainPanel = new JPanel();
@@ -30,50 +34,53 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
 
     public BaseDialog(Frame parent, String title, String closeButtonText) {
         super(parent);
-        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-        Dialog.frameOpened(this);
-        try {
-            iniDialogCommon(title, closeButtonText);
-            iniDialog();
-            iniDialogCommonFinish();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        EfaUtil.pack(this);
-        this.parent = parent;
+        this._parent = parent;
+        this._title = title;
+        this._closeButtonText = closeButtonText;
     }
 
     public BaseDialog(JDialog parent, String title, String closeButtonText) {
         super(parent);
+        this._parent = parent;
+        this._title = title;
+        this._closeButtonText = closeButtonText;
+    }
+
+    public boolean prepareDialog() {
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-        Dialog.frameOpened(this);
         try {
-            iniDialogCommon(title, closeButtonText);
+            iniDialogCommon(_title, _closeButtonText);
             iniDialog();
             iniDialogCommonFinish();
+            EfaUtil.pack(this);
+            _prepared = true;
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
-        EfaUtil.pack(this);
-        this.parent = parent;
     }
     
     public void showDialog() {
-        Dialog.setDlgLocation(this,parent);
+        if (!_prepared && !prepareDialog()) {
+            return;
+        }
+        Dialog.setDlgLocation(this, _parent);
         setModal(!Dialog.tourRunning);
-        show();
+        Dialog.frameOpened(this);
+        this.setVisible(true);
     }
 
     public JDialog getParentJDialog() {
-        if (parent instanceof JDialog) {
-            return (JDialog)parent;
+        if (_parent instanceof JDialog) {
+            return (JDialog)_parent;
         }
         return null;
     }
 
     public Frame getParentFrame() {
-        if (parent instanceof Frame) {
-            return (Frame)parent;
+        if (_parent instanceof Frame) {
+            return (Frame)_parent;
         }
         return null;
     }

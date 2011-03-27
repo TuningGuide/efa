@@ -8,11 +8,10 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.types;
+package de.nmichael.efa.core.items;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.gui.BaseDialog;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -20,7 +19,7 @@ import javax.swing.*;
 
 // @i18n complete
 
-public class ItemTypeButton extends ItemType {
+public class ItemTypeConfigButton extends ItemType {
 
     private String text;
     private String bcolor;
@@ -29,11 +28,11 @@ public class ItemTypeButton extends ItemType {
     private boolean isChangeableColor;
     private boolean isChangeableShow;
 
-    protected JButton button;
+    protected JLabel label;
     protected JCheckBox checkbox;
 
 
-    public ItemTypeButton(String name, String text, String bcolor, boolean show,
+    public ItemTypeConfigButton(String name, String text, String bcolor, boolean show,
             boolean isChangeableText, boolean isChangeableColor, boolean isChangeableShow,
             int type, String category, String description) {
         this.name = name;
@@ -91,10 +90,8 @@ public class ItemTypeButton extends ItemType {
                 (isChangeableShow ? (show ? "+" : "-") : "#");
     }
 
-    public int displayOnGui(BaseDialog dlg, JPanel panel, int y) {
-        this.dlg = dlg;
-
-        button = new JButton();
+    protected void iniDisplay() {
+        JButton button = new JButton();
         Dialog.setPreferredSize(button, 300, 21);
         button.setText(text);
         button.setBackground(EfaUtil.getColor(bcolor));
@@ -106,7 +103,7 @@ public class ItemTypeButton extends ItemType {
             checkbox.setText(International.getString("anzeigen"));
             checkbox.setSelected(show);
         }
-        JLabel label = new JLabel();
+        label = new JLabel();
         Mnemonics.setLabel(dlg, label, getDescription() + ": ");
         label.setLabelFor(button);
         if (type == IItemType.TYPE_EXPERT) {
@@ -115,28 +112,40 @@ public class ItemTypeButton extends ItemType {
         if (color != null) {
             label.setForeground(color);
         }
+        this.field = button;
+    }
 
+    public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
+        this.dlg = dlg;
+        iniDisplay();
         panel.add(label, new GridBagConstraints(0, y, 1, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, padX, padYafter, 0), 0, 0));
-        panel.add(button, new GridBagConstraints(1, y, 1, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, padYafter, 0), 0, 0));
+                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, padXbefore, padYafter, 0), 0, 0));
+        panel.add(field, new GridBagConstraints(1, y, 1, 1, 0.0, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, padYafter, (checkbox == null ? padXafter : 0)), 0, 0));
         if (checkbox != null) {
             panel.add(checkbox, new GridBagConstraints(2, y, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, padYafter, 0), 0, 0));
+                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, padYafter, padXafter), 0, 0));
         }
         return 1;
     }
 
     public void getValueFromGui() {
         if (isChangeableText) {
-            text = button.getText();
+            text = ((JButton)field).getText();
         }
         if (isChangeableColor) {
-            bcolor = EfaUtil.getColor(button.getBackground());
+            bcolor = EfaUtil.getColor(field.getBackground());
         }
         if (isChangeableShow) {
             show = checkbox.isSelected();
         }
+    }
+
+    public String getValueFromField() {
+        return null;
+    }
+
+    public void showValue() {
     }
 
     private void buttonHit(ActionEvent e) {
@@ -166,9 +175,9 @@ public class ItemTypeButton extends ItemType {
         if (!isChangeableText) return;
         String s = Dialog.inputDialog(getDescription(),
                 International.getString("Bitte Text für Button eingeben") + ":",
-                button.getText());
+                ((JButton)field).getText());
         if (s != null) {
-            button.setText(s.trim());
+            ((JButton)field).setText(s.trim());
         }
     }
 
@@ -177,9 +186,9 @@ public class ItemTypeButton extends ItemType {
         Color color = JColorChooser.showDialog(dlg,
                 International.getMessage("{item} auswählen",
                 International.getString("Farbe")),
-                button.getBackground());
+                field.getBackground());
         if (color != null) {
-            button.setBackground(color);
+            field.setBackground(color);
         }
 
     }
@@ -208,8 +217,24 @@ public class ItemTypeButton extends ItemType {
         this.show = show;
     }
 
-    public void requestFocus() {
-        button.requestFocus();
+    public boolean isValidInput() {
+        return true;
+    }
+
+    public void setVisible(boolean visible) {
+        label.setVisible(visible);
+        field.setVisible(visible);
+        if (checkbox != null) {
+            checkbox.setVisible(visible);
+        }
+    }
+
+    public void setEnabled(boolean enabled) {
+        label.setForeground((enabled ? (new JLabel()).getForeground() : Color.gray));
+        field.setEnabled(enabled);
+        if (checkbox != null) {
+            checkbox.setEnabled(enabled);
+        }
     }
 
 }

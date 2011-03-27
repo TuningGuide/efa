@@ -10,9 +10,11 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
-import de.nmichael.efa.core.config.EfaTypes;
+import de.nmichael.efa.core.config.*;
+import de.nmichael.efa.util.*;
 import java.util.*;
 
 // @i18n complete
@@ -87,6 +89,10 @@ public class PersonRecord extends DataRecord {
 
     public DataKey getKey() {
         return new DataKey<UUID,Long,String>(getId(),getValidFrom(),null);
+    }
+
+    public static DataKey getKey(UUID id, long validFrom) {
+        return new DataKey<UUID,Long,String>(id,validFrom,null);
     }
 
     public void setId(UUID id) {
@@ -241,6 +247,14 @@ public class PersonRecord extends DataRecord {
     }
     public String getFreeUse3() {
         return getString(FREEUSE3);
+    }
+
+    public String getQualifiedName() {
+        if (Daten.efaConfig.nameFormat.getValue().equals(EfaConfig.NAMEFORMAT_FIRSTLAST)) {
+            return EfaUtil.getFullName(getFirstName(), getLastName(), getAssocitation(), true);
+        } else {
+            return EfaUtil.getFullName(getFirstName(), getLastName(), getAssocitation(), false);
+        }
     }
 
 }

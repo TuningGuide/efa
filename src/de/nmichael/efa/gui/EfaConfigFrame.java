@@ -10,7 +10,7 @@
 
 package de.nmichael.efa.gui;
 
-import de.nmichael.efa.core.types.ItemType;
+import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -168,8 +168,8 @@ public class EfaConfigFrame extends BaseDialog {
                 int y = 0;
                 for (int j=0; v != null && j<v.size(); j++) {
                     ItemType itm = v.get(j);
-                    if (itm.getType() == EfaConfig.TYPE_PUBLIC ||
-                        (itm.getType() == EfaConfig.TYPE_EXPERT && expertMode.isSelected())) {
+                    if (itm.getType() == IItemType.TYPE_PUBLIC ||
+                        (itm.getType() == IItemType.TYPE_EXPERT && expertMode.isSelected())) {
                         y += itm.displayOnGui(this,panel,y);
                         configItems.add(itm);
                         itmcnt++;

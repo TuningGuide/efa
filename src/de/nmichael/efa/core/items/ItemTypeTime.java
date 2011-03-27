@@ -8,17 +8,18 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.types;
+package de.nmichael.efa.core.items;
 
-import de.nmichael.efa.core.types.ItemTypeLabelValue;
+import de.nmichael.efa.core.items.ItemTypeLabelValue;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.util.*;
 
 // @i18n complete
 
-public class ItemTypeTime extends ItemTypeLabelValue {
+public class ItemTypeTime extends ItemTypeLabelTextfield {
 
     DataTypeTime value;
+    boolean withSeconds = true;
 
     public ItemTypeTime(String name, DataTypeTime value, int type,
             String category, String description) {
@@ -29,12 +30,20 @@ public class ItemTypeTime extends ItemTypeLabelValue {
         this.description = description;
     }
 
+    public void enableSeconds(boolean withSeconds) {
+        this.withSeconds = withSeconds;
+        if (value != null) {
+            value.enableSeconds(withSeconds);
+        }
+    }
+
     public void parseValue(String value) {
         try {
             if (value != null && value.trim().length()>0) {
                 value = EfaUtil.correctTime(value,true);
             }
             this.value = DataTypeTime.parseTime(value);
+            this.value.enableSeconds(withSeconds);
         } catch (Exception e) {
             if (dlg == null) {
                 Logger.log(Logger.ERROR, Logger.MSG_CORE_UNSUPPORTEDDATATYPE,
@@ -81,6 +90,13 @@ public class ItemTypeTime extends ItemTypeLabelValue {
 
     public void unset() {
         value.unset();
+    }
+
+    public boolean isValidInput() {
+        if (isNotNullSet()) {
+            return isSet();
+        }
+        return true;
     }
 
 }

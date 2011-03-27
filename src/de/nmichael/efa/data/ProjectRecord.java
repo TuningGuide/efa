@@ -34,6 +34,8 @@ public class ProjectRecord extends DataRecord {
     public static final String STORAGELOCATION              = "StorageLocation";
     public static final String ADMINNAME                    = "AdminName";
     public static final String ADMINEMAIL                   = "AdminEmail";
+    public static final String CURRENTLOGBOOKEFABASE        = "CurrentLogbookEfaBase";
+    public static final String CURRENTLOGBOOKEFABOATHOUSE   = "CurrentLogbookEfaBoathouse";
 
     // Fields for Type=Club
     public static final String CLUBNAME                     = "ClubName";
@@ -69,6 +71,8 @@ public class ProjectRecord extends DataRecord {
         f.add(STORAGELOCATION);               t.add(IDataAccess.DATA_STRING);
         f.add(ADMINNAME);                     t.add(IDataAccess.DATA_STRING);
         f.add(ADMINEMAIL);                    t.add(IDataAccess.DATA_STRING);
+        f.add(CURRENTLOGBOOKEFABASE);         t.add(IDataAccess.DATA_STRING);
+        f.add(CURRENTLOGBOOKEFABOATHOUSE);    t.add(IDataAccess.DATA_STRING);
         f.add(CLUBNAME);                      t.add(IDataAccess.DATA_STRING);
         f.add(ADDRESSSTREET);                 t.add(IDataAccess.DATA_STRING);
         f.add(ADDRESSCITY);                   t.add(IDataAccess.DATA_STRING);
@@ -134,6 +138,12 @@ public class ProjectRecord extends DataRecord {
     }
     public void setAdminEmail(String adminEmail) {
         setString(ADMINEMAIL, adminEmail);
+    }
+    public void setCurrentLogbookEfaBase(String currentLogbook) {
+        setString(CURRENTLOGBOOKEFABASE, currentLogbook);
+    }
+    public void setCurrentLogbookEfaBoathouse(String currentLogbook) {
+        setString(CURRENTLOGBOOKEFABOATHOUSE, currentLogbook);
     }
     public void setClubName(String clubName) {
         setString(CLUBNAME, clubName);
@@ -211,6 +221,12 @@ public class ProjectRecord extends DataRecord {
     }
     public String getAdminEmail() {
         return getString(ADMINEMAIL);
+    }
+    public String getCurrentLogbookEfaBase() {
+        return getString(CURRENTLOGBOOKEFABASE);
+    }
+    public String getCurrentLogbookEfaBoathouse() {
+        return getString(CURRENTLOGBOOKEFABOATHOUSE);
     }
     public String getClubName() {
         return getString(CLUBNAME);

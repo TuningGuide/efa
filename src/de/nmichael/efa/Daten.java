@@ -10,36 +10,16 @@
 
 package de.nmichael.efa;
 
-import de.nmichael.efa.core.config.EfaBaseConfig;
-import de.nmichael.efa.core.config.EfaTypes;
-import de.nmichael.efa.core.config.EfaConfig;
-import de.nmichael.efa.core.config.CustSettings;
-import de.nmichael.efa.efa1.DatenListe;
-import de.nmichael.efa.core.WettDefs;
-import de.nmichael.efa.efa1.Gruppen;
-import de.nmichael.efa.efa1.Fahrtenabzeichen;
-import de.nmichael.efa.efa1.VereinsConfig;
-import de.nmichael.efa.efa1.Synonyme;
-import de.nmichael.efa.efa1.Fahrtenbuch;
-import de.nmichael.efa.efa1.Mannschaften;
-import de.nmichael.efa.efa1.Adressen;
-import de.nmichael.efa.core.EfaRunning;
-import de.nmichael.efa.data.Project;
-import de.nmichael.efa.util.EfaSec;
-import de.nmichael.efa.util.TMJ;
-import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.LogString;
-import de.nmichael.efa.util.International;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.EfaKeyStore;
+import de.nmichael.efa.core.config.*;
+import de.nmichael.efa.core.*;
+import de.nmichael.efa.data.*;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.Backup;
-import de.nmichael.efa.util.HtmlFactory;
 import de.nmichael.efa.drv.DRVConfig;
 import de.nmichael.efa.statistics.FTPWriter;
 import de.nmichael.efa.statistics.PDFWriter;
 import de.nmichael.efa.statistics.XMLWriter;
-import de.nmichael.efa.gui.EfaCustomizationFrame;
+import de.nmichael.efa.gui.*;
 import java.io.*;
 import java.util.jar.*;
 import java.util.*;
@@ -142,6 +122,7 @@ public class Daten {
   public static String jvmVersion = "";
   public static String osName = "";
   public static String osVersion = "";
+  public static String lookAndFeel = "";
 
   public static final int ZIELFAHRTKM = 200; // nötige Kilometer für eine Zielfahrt (in 100m)
   public static final int WAFAKM = 300;      // nötige Kilometer für eine Eintages-DRV-Wanderfahrt (in 100m)
@@ -181,23 +162,25 @@ public class Daten {
   public static boolean DONT_SAVE_ANY_FILES_DUE_TO_OOME = false;
   public static boolean javaRestart = false;
 
+  // @todo remove in efa2
+  public static de.nmichael.efa.efa1.VereinsConfig vereinsConfig; // Konfigurationsdatei für Vereinseinstellungen
+  public static de.nmichael.efa.efa1.Adressen adressen;           // gespeicherte Teilnehmer-Adressen
+  public static de.nmichael.efa.efa1.Synonyme synMitglieder;      // Synonymliste für Mitglieder
+  public static de.nmichael.efa.efa1.Synonyme synBoote;           // Synonymliste für Boote
+  public static de.nmichael.efa.efa1.Synonyme synZiele;           // Synonymliste für Ziele
+  public static de.nmichael.efa.efa1.Mannschaften mannschaften;   // Standardmannschaften
+  public static de.nmichael.efa.efa1.Fahrtenbuch fahrtenbuch;     // Fahrtenbuch
+  public static de.nmichael.efa.efa1.Fahrtenabzeichen fahrtenabzeichen; // DRV Fahrtenabzeichen
+  public static de.nmichael.efa.efa1.Gruppen gruppen;             // Gruppen
+  public static de.nmichael.efa.efa1.NachrichtenAnAdmin nachrichten; // Nachrichten an Admin
+
   public static EfaBaseConfig efaBaseConfig; // efa Base Config
   public static EfaConfig efaConfig;         // Konfigurationsdatei
   public static DRVConfig drvConfig;         // Konfigurationsdatei
   public static EfaTypes efaTypes;           // EfaTypes (Bezeichnungen)
   public static Project project;             // Efa Project
 
-  public static VereinsConfig vereinsConfig; // Konfigurationsdatei für Vereinseinstellungen
-  public static Adressen adressen;           // gespeicherte Teilnehmer-Adressen
-  public static Synonyme synMitglieder;      // Synonymliste für Mitglieder
-  public static Synonyme synBoote;           // Synonymliste für Boote
-  public static Synonyme synZiele;           // Synonymliste für Ziele
-  public static Mannschaften mannschaften;   // Standardmannschaften
-  public static Fahrtenbuch fahrtenbuch;     // Fahrtenbuch
-  public static Fahrtenabzeichen fahrtenabzeichen; // DRV Fahrtenabzeichen
-  public static Gruppen gruppen;             // Gruppen
   public static WettDefs wettDefs;           // WettDefs
-  public static de.nmichael.efa.efa1.NachrichtenAnAdmin nachrichten; // Nachrichten an Admin
   public static EfaKeyStore keyStore;        // KeyStore
   public static EfaSec efaSec;               // efa Security File
   public static EfaRunning efaRunning;       // efa Running (Doppelstarts verhindern)
@@ -350,7 +333,7 @@ public class Daten {
     }
 
     private static void iniBase(int _applID) {
-        fahrtenbuch = null;
+        project = null;
         fileSep = System.getProperty("file.separator");
         javaVersion = System.getProperty("java.version");
         jvmVersion = System.getProperty("java.vm.version");
@@ -777,8 +760,8 @@ public class Daten {
 
         // Look&Feel specific Work-Arounds
         try {
-            String laf = UIManager.getLookAndFeel().getClass().toString();
-            if (!laf.endsWith("MetalLookAndFeel")) {
+            lookAndFeel = UIManager.getLookAndFeel().getClass().toString();
+            if (!lookAndFeel.endsWith("MetalLookAndFeel")) {
                 // to make PopupMenu's work properly and not swallow the next MousePressed Event, see: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6753637
                 Dialog.getUiDefaults().put("PopupMenu.consumeEventOnClose", false);
             }
@@ -795,7 +778,7 @@ public class Daten {
         }
     }
 
-    public static void iniDataFile(DatenListe f, boolean autoNewIfDoesntExist, String s) {
+    public static void iniDataFile(de.nmichael.efa.efa1.DatenListe f, boolean autoNewIfDoesntExist, String s) {
         if (autoNewIfDoesntExist) {
             f.createNewIfDoesntExist();
         } else {
@@ -817,31 +800,6 @@ public class Daten {
     public static void iniAllDataFiles() {
         Daten.wettDefs = new WettDefs(Daten.efaCfgDirectory + Daten.WETTDEFS);
         iniDataFile(Daten.wettDefs, true, International.onlyFor("Wettbewerbskonfiguration", "de"));
-
-        Daten.vereinsConfig = new VereinsConfig(Daten.efaDataDirectory + Daten.VEREINSCONFIG);
-        iniDataFile(Daten.vereinsConfig, false, International.getString("Vereinskonfiguration"));
-
-        Daten.adressen = new Adressen(Daten.efaDataDirectory + Daten.ADRESSENFILE);
-        iniDataFile(Daten.adressen, false, International.getString("Adreßliste"));
-
-        Daten.synMitglieder = new Synonyme(Daten.efaDataDirectory + Daten.MITGLIEDER_SYNONYM);
-        iniDataFile(Daten.synMitglieder, false, International.getString("Mitglieder-Synonymliste"));
-
-        Daten.synBoote = new Synonyme(Daten.efaDataDirectory + Daten.BOOTE_SYNONYM);
-        iniDataFile(Daten.synBoote, false, International.getString("Boots-Synonymliste"));
-
-        Daten.synZiele = new Synonyme(Daten.efaDataDirectory + Daten.ZIELE_SYNONYM);
-        iniDataFile(Daten.synZiele, false, International.getString("Ziel-Synonymliste"));
-
-        Daten.mannschaften = new Mannschaften(Daten.efaDataDirectory + Daten.MANNSCHAFTENFILE);
-        iniDataFile(Daten.mannschaften, false, International.getString("Mannschaften-Liste"));
-
-        Daten.fahrtenabzeichen = new Fahrtenabzeichen(Daten.efaDataDirectory + Daten.FAHRTENABZEICHEN);
-        iniDataFile(Daten.fahrtenabzeichen, false, International.onlyFor("Fahrtenabzeichen-Liste", "de"));
-
-        Daten.gruppen = new Gruppen(Daten.efaDataDirectory + Daten.GRUPPEN);
-        iniDataFile(Daten.gruppen, false, International.getString("Gruppenliste"));
-
         Daten.keyStore = new EfaKeyStore(Daten.efaDataDirectory + Daten.PUBKEYSTORE, "efa".toCharArray());
     }
 

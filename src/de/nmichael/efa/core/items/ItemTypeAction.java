@@ -8,12 +8,11 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.types;
+package de.nmichael.efa.core.items;
 
 import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.core.config.CustSettings;
-import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.EfaConfigFrame;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -25,59 +24,25 @@ import javax.swing.*;
 
 // @i18n complete
 
-public class ItemTypeAction extends ItemType {
+public class ItemTypeAction extends ItemTypeButton {
 
     public static final int ACTION_TYPES_RESETTODEFAULT = 1;
     public static final int ACTION_GENERATE_ROWING_BOAT_TYPES = 2;
     public static final int ACTION_GENERATE_CANOEING_BOAT_TYPES = 3;
 
     private int action;
-    protected BaseDialog dlg;
-    protected JButton button;
 
     public ItemTypeAction(String name, int action,
             int type, String category, String description) {
-        this.name = name;
+        super(name, type, category, description);
         this.action = action;
-        this.type = type;
-        this.category = category;
-        this.description = description;
+        fieldGridWidth = 3;
+        fieldGridFill = GridBagConstraints.HORIZONTAL;
+        fieldWidth = 500;
+        fieldHeight = 21;
     }
 
-    public void parseValue(String value) {
-        return; // this ConfigType does not store any values
-    }
-
-    public String toString() {
-        return ""; // this ConfigType does not store any values
-    }
-
-    public int displayOnGui(BaseDialog dlg, JPanel panel, int y) {
-        this.dlg = dlg;
-
-        button = new JButton();
-        Dialog.setPreferredSize(button, 500, 21);
-        button.setText(description);
-        button.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) { buttonHit(e); }
-        });
-        if (type == EfaConfig.TYPE_EXPERT) {
-            button.setForeground(Color.red);
-        }
-        if (color != null) {
-            button.setForeground(color);
-        }
-        panel.add(button, new GridBagConstraints(0, y, 3, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(padYbefore, padX, padYafter, 0), 0, 0));
-        return 1;
-    }
-
-    public void getValueFromGui() {
-        // nothing to do
-        // this ConfigType does not store any values
-    }
-
-    private void buttonHit(ActionEvent e) {
+    protected void buttonHit(ActionEvent e) {
         switch(action) {
             case ACTION_TYPES_RESETTODEFAULT:
                 resetTypesToDefault();
@@ -89,6 +54,7 @@ public class ItemTypeAction extends ItemType {
                 generateTypes(EfaTypes.SELECTION_CANOEING);
                 break;
         }
+        super.actionEvent(e);
     }
 
     private void resetTypesToDefault() {
@@ -178,10 +144,6 @@ public class ItemTypeAction extends ItemType {
         }
         return count;
 
-    }
-
-    public void requestFocus() {
-        button.requestFocus();
     }
 
 }

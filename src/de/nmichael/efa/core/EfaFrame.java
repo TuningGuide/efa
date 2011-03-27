@@ -10,19 +10,13 @@
 
 package de.nmichael.efa.core;
 
-import de.nmichael.efa.efa1.Ziele;
-import de.nmichael.efa.efa1.Synonyme;
-import de.nmichael.efa.efa1.Mitglieder;
-import de.nmichael.efa.efa1.Mannschaften;
-import de.nmichael.efa.efa1.Fahrtenbuch;
-import de.nmichael.efa.efa1.FBDaten;
-import de.nmichael.efa.efa1.DatenListe;
-import de.nmichael.efa.efa1.DatenFelder;
-import de.nmichael.efa.efa1.Boote;
+import de.nmichael.efa.gui.util.AutoCompletePopupWindowCallback;
+import de.nmichael.efa.efa1.*;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.core.config.EfaConfig;
+import de.nmichael.efa.data.*;
 import de.nmichael.efa.gui.*;
 import de.nmichael.efa.gui.EfaConfigFrame;
 import de.nmichael.efa.util.*;
@@ -1117,10 +1111,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         jMenuItem14_actionPerformed(e);
       }
     });
-    // menuFile.add(menuFile_newProject); // @@@todo in efa2
-    // menuFile.add(menuFile_openProject); // @@@todo in efa2
+    menuFile.add(menuFile_newProject); // @@@todo in efa2
+    menuFile.add(menuFile_openProject); // @@@todo in efa2
     menuFile.addSeparator();
-    // menuFile.add(menuFile_logbooks); // @@@todo in efa2
+    menuFile.add(menuFile_logbooks); // @@@todo in efa2
     menuFile.addSeparator();
     menuFile.add(jMenuNew);
     menuFile.add(jMenuFileOpen);

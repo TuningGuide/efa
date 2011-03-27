@@ -12,7 +12,6 @@ package de.nmichael.efa.data.importefa1;
 
 import de.nmichael.efa.efa1.*;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.core.types.*;
 import de.nmichael.efa.data.types.*;
 
 public class ImportMetadata {

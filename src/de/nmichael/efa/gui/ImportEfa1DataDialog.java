@@ -12,7 +12,7 @@ package de.nmichael.efa.gui;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.types.*;
+import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.DataTypeDate;
@@ -29,7 +29,6 @@ import javax.swing.border.*;
 
 public class ImportEfa1DataDialog extends StepwiseDialog {
 
-
     private static final String OLDEFADATADIR        = "OLDEFADATADIR";
     private static final String IMPORTDATA           = "IMPORTDATA";
     private static final String IMPORTDATALABEL      = "IMPORTDATALABEL";
@@ -39,6 +38,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
     private static final String LOGBOOKRANGETO       = "LOGBOOKRANGETO";
     private static final String LOGBOOKRANGELABEL    = "LOGBOOKRANGELABEL";
     private HashMap<String, ImportMetadata> importData;
+    private ImportTask importTask;
 
     public ImportEfa1DataDialog(JDialog parent) {
         super(parent, International.getString("Daten aus efa 1.x importieren"));
@@ -123,8 +123,8 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                     oldEfaDataDir.toArray(new String[0]),
                     oldEfaDescription.toArray(new String[0]),
                 IItemType.TYPE_PUBLIC, "0", International.getString("Daten importieren von"));
-            ((ItemTypeStringList)item).setWidth(600);
-            ((ItemTypeStringList)item).setTwoRows(true);
+            ((ItemTypeStringList)item).setFieldSize(600, 19); // setWidth(600);
+            ((ItemTypeStringList)item).setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE); // setTwoRows(true);
         } else {
             item = new ItemTypeFile(OLDEFADATADIR, "",
                     International.getString("Verzeichnis für Nutzerdaten"),
@@ -194,7 +194,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                         IItemType.TYPE_PUBLIC, (meta.type != ImportMetadata.TYPE_FAHRTENBUCH ? "1" : "2"),
                         meta.toString());
                 item.setColor(meta.numRecords < 0 ? Color.red : Color.black);
-                item.setPadding(25, 0, 5);
+                item.setPadding(25, 0, 0, 5);
                 items.add(item);
             }
         }
@@ -239,39 +239,39 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                     item = new ItemTypeLabel(LOGBOOKRANGELABEL + "l0" + fname,
                             IItemType.TYPE_PUBLIC, "3",
                             fname);
-                    item.setPadding(0, 5, 0);
+                    item.setPadding(0, 0, 5, 0);
                     items.add(item);
                     item = new ItemTypeLabel(LOGBOOKRANGELABEL + "l1" + fname,
                             IItemType.TYPE_PUBLIC, "3",
                             meta.toString(false));
-                    item.setPadding(25, 0, 0);
+                    item.setPadding(25, 0, 0, 0);
                     items.add(item);
 
                     item = new ItemTypeString(LOGBOOKNAME + fname,
                             name,
                             IItemType.TYPE_PUBLIC, "3",
                             International.getString("Name des Fahrtenbuchs"));
-                    item.setPadding(25, 0, 0);
+                    item.setPadding(25, 0, 0, 0);
                     items.add(item);
                     item = new ItemTypeString(LOGBOOKDESCRIPTION + fname,
                             "",
                             IItemType.TYPE_PUBLIC, "3",
                             International.getString("Beschreibung"));
-                    item.setPadding(25, 0, 0);
+                    item.setPadding(25, 0, 0, 0);
                     items.add(item);
 
                     item = new ItemTypeDate(LOGBOOKRANGEFROM + fname,
                             dateFrom,
                             IItemType.TYPE_PUBLIC, "3",
                             International.getString("Fahrtenbuch gültig für Fahrten ab"));
-                    item.setPadding(25, 0, 0);
+                    item.setPadding(25, 0, 0, 0);
                     items.add(item);
                     item = new ItemTypeDate(LOGBOOKRANGETO + fname,
                             dateTo,
                             IItemType.TYPE_PUBLIC, "3",
                             International.getString("Fahrtenbuch gültig für Fahrten bis"));
                     items.add(item);
-                    item.setPadding(25, 0, 0);
+                    item.setPadding(25, 0, 0, 0);
                 }
             }
             
@@ -440,10 +440,14 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
 
     void finishButton_actionPerformed(ActionEvent e) {
         super.finishButton_actionPerformed(e);
-        ImportTask importTask = new ImportTask(importData);
+        importTask = new ImportTask(importData);
         ProgressDialog progressDialog = new ProgressDialog(this, International.getString("Daten importieren"), importTask, false);
         importTask.start();
         progressDialog.showDialog();
+    }
+
+    public String getNewestLogbookName() {
+        return (importTask != null && !importTask.isRunning() ? importTask.getNewestLogbookName() : null);
     }
 
 }

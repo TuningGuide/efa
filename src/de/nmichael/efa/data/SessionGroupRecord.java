@@ -28,7 +28,6 @@ public class SessionGroupRecord extends DataRecord {
     public static final String STARTDATE           = "StartDate";
     public static final String ENDDATE             = "EndDate";
     public static final String ACTIVEDAYS          = "ActiveDays";
-    public static final String DISTANCEUNIT        = "DistanceUnit"; // default: "km"
     public static final String DISTANCE            = "Distance";
 
     public static void initialize() {
@@ -41,8 +40,7 @@ public class SessionGroupRecord extends DataRecord {
         f.add(STARTDATE);                         t.add(IDataAccess.DATA_DATE);
         f.add(ENDDATE);                           t.add(IDataAccess.DATA_DATE);
         f.add(ACTIVEDAYS);                        t.add(IDataAccess.DATA_INTEGER);
-        f.add(DISTANCEUNIT);                      t.add(IDataAccess.DATA_STRING);
-        f.add(DISTANCE);                          t.add(IDataAccess.DATA_DECIMAL);
+        f.add(DISTANCE);                          t.add(IDataAccess.DATA_DISTANCE);
 
         MetaData metaData = constructMetaData(SessionGroups.DATATYPE, f, t, false);
         metaData.setKey(new String[] { ID });
@@ -103,42 +101,10 @@ public class SessionGroupRecord extends DataRecord {
         return getInt(ACTIVEDAYS);
     }
 
-    public void setDistanceUnit(String name) {
-        if (name != null && name.equals(LogbookRecord.DIST_KILOMETERS)) {
-            setString(DISTANCEUNIT, LogbookRecord.DIST_KILOMETERS);
-            return;
-        }
-        if (name != null && name.equals(LogbookRecord.DIST_MILES)) {
-            setString(DISTANCEUNIT, LogbookRecord.DIST_MILES);
-            return;
-        }
-        setString(DISTANCEUNIT, null);
+    public void setDistance(DataTypeDistance distance) {
+        setDistance(DISTANCE, distance);
     }
-    public String getDistanceUnit() {
-        return getString(DISTANCEUNIT);
+    public DataTypeDistance getDistance() {
+        return getDistance(DISTANCE);
     }
-
-    public void setDistance(int distance, int decimalPlaces, String distUnit) {
-        setString(DISTANCEUNIT, distUnit);
-        setDecimal(DISTANCE, new DataTypeDecimal(distance, decimalPlaces));
-    }
-    public long getDistance(int decimalPlaces) {
-        DataTypeDecimal d = getDecimal(DISTANCE);
-        if (d == null) {
-            return IDataAccess.UNDEFINED_LONG;
-        }
-        return d.getValue(decimalPlaces);
-    }
-
-    public void setDistanceMeters(int distance) {
-        setDistance(distance, 3, null);
-    }
-    public long getDistanceMeters() {
-        if (getDistanceUnit() == null) {
-            return getDistance(3);
-        } else {
-            throw new UnsupportedOperationException("Distance Unit Conversion");
-        }
-    }
-
 }

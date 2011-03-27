@@ -8,15 +8,15 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.types;
+package de.nmichael.efa.core.items;
 
-import de.nmichael.efa.core.types.ItemTypeLabelValue;
+import de.nmichael.efa.core.items.ItemTypeLabelValue;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 
 // @i18n complete
 
-public class ItemTypeLongLat extends ItemTypeLabelValue {
+public class ItemTypeLongLat extends ItemTypeLabelTextfield {
 
     private static final int TYPE_LATITUDE  = 0;
     private static final int TYPE_LONGITUDE = 1;
@@ -119,4 +119,16 @@ public class ItemTypeLongLat extends ItemTypeLabelValue {
             }
         }
     }
+
+    public boolean isSet() {
+        return coordinates != null && coordinates[0] >= 0 && coordinates[1] >= 0 && coordinates[2] >= 0;
+    }
+
+    public boolean isValidInput() {
+        if (isNotNullSet()) {
+            return isSet();
+        }
+        return true;
+    }
+
 }

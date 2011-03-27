@@ -12,7 +12,7 @@ package de.nmichael.efa.gui;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.types.*;
+import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.storage.*;
@@ -32,6 +32,7 @@ public class NewLogbookDialog extends StepwiseDialog {
     private static final String DATETO             = "DATETO";
 
     private String year = EfaUtil.getCurrentTimeStampYYYY();
+    private String newLogbookName;
 
     public NewLogbookDialog(JDialog parent) {
         super(parent, International.getString("Neues Fahrtenbuch"));
@@ -120,14 +121,26 @@ public class NewLogbookDialog extends StepwiseDialog {
 
         try {
             Daten.project.addLogbookRecord(rec);
+            newLogbookName = logName.getValue();
+            Daten.project.getLogbook(newLogbookName, true);
             Dialog.infoDialog(LogString.logstring_fileSuccessfullyCreated(logName.getValue(),
                     International.getString("Fahrtenbuch")));
             setDialogResult(true);
         } catch(EfaException ee) {
+            newLogbookName = null;
             Dialog.error(ee.getMessage());
             ee.log();
             setDialogResult(false);
         }
+    }
+
+    public String getNewLogbookName() {
+        return newLogbookName;
+    }
+
+    public String newLogbookDialog() {
+        showDialog();
+        return getNewLogbookName();
     }
 
 }

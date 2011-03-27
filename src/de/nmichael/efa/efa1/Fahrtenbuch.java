@@ -150,7 +150,7 @@ public class Fahrtenbuch extends DatenListe {
       readZusatzdatenbanken(false);
       return true;
     }
-    Daten.fahrtenbuch = null;
+    // @old from efa1: Daten.fahrtenbuch = null;
     return false;
   }
 

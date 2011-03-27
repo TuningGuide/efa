@@ -15,39 +15,97 @@ import java.util.*;
 // @i18n complete
 
 public class DataKeyIterator {
-    
-    private DataKey[] keys;
-    private int i = 0;
 
-    public DataKeyIterator(DataKey[] keys) {
+    private IDataAccess dataAccess;
+    private DataKey[] keys;
+    private boolean dynamic;
+    private long scn;
+    private int i = 0;
+    private Hashtable<DataKey,Integer> keyHash;
+
+    public DataKeyIterator(IDataAccess dataAccess, DataKey[] keys, boolean dynamic) {
+        this.dataAccess = dataAccess;
         this.keys = keys;
+        this.dynamic = dynamic;
+        try {
+            scn = dataAccess.getSCN();
+        } catch(Exception e) {
+        }
     }
 
-    public DataKey getCurrent() {
-        if (i >= 0 && i < keys.length) {
+    private void updateKeys() {
+        if (!dynamic) {
+            return;
+        }
+        try {
+            if (dataAccess.getSCN() != scn) {
+                keys = dataAccess.getAllKeys();
+                scn = dataAccess.getSCN();
+                keyHash = null;
+            }
+        } catch(Exception e) {
+        }
+    }
+
+    public synchronized DataKey getCurrent() {
+        updateKeys();
+        if (i < -1) {
+            i = -1;
+        }
+        if (keys != null && i > keys.length) {
+            i = keys.length;
+        }
+        if (keys != null && i >= 0 && i < keys.length) {
             return keys[i];
         }
         return null;
     }
 
-    public DataKey getFirst() {
+    public synchronized DataKey getFirst() {
         i = 0;
         return getCurrent();
     }
 
-    public DataKey getLast() {
-        i = keys.length - 1;
+    public synchronized DataKey getLast() {
+        updateKeys();
+        i = (keys != null ? keys.length - 1 : 0);
         return getCurrent();
     }
 
-    public DataKey getNext() {
+    public synchronized DataKey getNext() {
         i++;
         return getCurrent();
     }
 
-    public DataKey getPrev() {
+    public synchronized DataKey getPrev() {
         i--;
         return getCurrent();
+    }
+
+    public synchronized DataKey goTo(int idx) {
+        updateKeys();
+        if (keys != null && idx >= 0 && idx < keys.length) {
+            i = idx;
+        }
+        return getCurrent();
+    }
+
+    public synchronized DataKey goTo(DataKey key) {
+        updateKeys();
+        if (keys == null || key == null) {
+            return null;
+        }
+        if (keyHash == null) {
+            keyHash = new Hashtable<DataKey,Integer>();
+            for (int i=0; i<keys.length; i++) {
+                keyHash.put(keys[i], i);
+            }
+        }
+        return goTo(keyHash.get(key).intValue());
+    }
+
+    public synchronized int getPosition() {
+        return i;
     }
 
 }

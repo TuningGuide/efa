@@ -210,8 +210,11 @@ public class VereinsConfig extends DatenListe {
     writeFile();
 
     // testen, ob alle Zielbereiche korrekt eingetragen sind
+    // @old from efa1
+    /*
     if (Daten.fahrtenbuch != null && Daten.fahrtenbuch.getDaten().ziele != null)
       Daten.fahrtenbuch.getDaten().ziele.checkAllZielbereiche(zielbereich);
+    */
   }
 
 

@@ -124,7 +124,7 @@ public class DataTypeDecimal {
             for (int i=0; i<decimalPlaces; i++) {
                 precision *= 10;
             }
-            return Long.toString(value / precision) + "." + Long.toString(value % precision);
+            return Long.toString(value / precision) + "." + EfaUtil.long2String(value % precision, decimalPlaces);
         }
         return "";
     }

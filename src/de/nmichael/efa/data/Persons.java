@@ -36,4 +36,12 @@ public class Persons extends Persistence {
         return r;
     }
 
+    public PersonRecord getPerson(UUID id, long validAt) {
+        try {
+            return (PersonRecord)data().getValidAt(PersonRecord.getKey(id, validAt), validAt);
+        } catch(Exception e) {
+            return null;
+        }
+    }
+
 }

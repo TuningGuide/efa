@@ -22,98 +22,96 @@ public class LogbookRecord extends DataRecord {
     // Field Names
     // =========================================================================
 
-    private static final String ENTRYID          = "EntryId";
-    private static final String DATE             = "Date";
-    private static final String ENDDATE          = "EndDate";
-    private static final String ACTIVEDAYS       = "ActiveDays";
+    public static final String ENTRYID          = "EntryId";
+    public static final String DATE             = "Date";
+    public static final String ENDDATE          = "EndDate";
+    public static final String ACTIVEDAYS       = "ActiveDays";
 
     // Boat is either represented by BOATID,BOATVARIANT or by BOATNAME
-    private static final String BOATID           = "BoatId";
-    private static final String BOATVARIANT      = "BoatVariant";
-    private static final String BOATNAME         = "BoatName";
+    public static final String BOATID           = "BoatId";
+    public static final String BOATVARIANT      = "BoatVariant";
+    public static final String BOATNAME         = "BoatName";
 
     // each person is either represented by xxxID or xxxNAME
-    private static final String COXID            = "CoxId";
-    private static final String COXNAME          = "CoxName";
-    private static final String CREW1ID          = "Crew1Id";
-    private static final String CREW1NAME        = "Crew1Name";
-    private static final String CREW2ID          = "Crew2Id";
-    private static final String CREW2NAME        = "Crew2Name";
-    private static final String CREW3ID          = "Crew3Id";
-    private static final String CREW3NAME        = "Crew3Name";
-    private static final String CREW4ID          = "Crew4Id";
-    private static final String CREW4NAME        = "Crew4Name";
-    private static final String CREW5ID          = "Crew5Id";
-    private static final String CREW5NAME        = "Crew5Name";
-    private static final String CREW6ID          = "Crew6Id";
-    private static final String CREW6NAME        = "Crew6Name";
-    private static final String CREW7ID          = "Crew7Id";
-    private static final String CREW7NAME        = "Crew7Name";
-    private static final String CREW8ID          = "Crew8Id";
-    private static final String CREW8NAME        = "Crew8Name";
-    private static final String CREW9ID          = "Crew9Id";
-    private static final String CREW9NAME        = "Crew9Name";
-    private static final String CREW10ID         = "Crew10Id";
-    private static final String CREW10NAME       = "Crew10Name";
-    private static final String CREW11ID         = "Crew11Id";
-    private static final String CREW11NAME       = "Crew11Name";
-    private static final String CREW12ID         = "Crew12Id";
-    private static final String CREW12NAME       = "Crew12Name";
-    private static final String CREW13ID         = "Crew13Id";
-    private static final String CREW13NAME       = "Crew13Name";
-    private static final String CREW14ID         = "Crew14Id";
-    private static final String CREW14NAME       = "Crew14Name";
-    private static final String CREW15ID         = "Crew15Id";
-    private static final String CREW15NAME       = "Crew15Name";
-    private static final String CREW16ID         = "Crew16Id";
-    private static final String CREW16NAME       = "Crew16Name";
-    private static final String CREW17ID         = "Crew17Id";
-    private static final String CREW17NAME       = "Crew17Name";
-    private static final String CREW18ID         = "Crew18Id";
-    private static final String CREW18NAME       = "Crew18Name";
-    private static final String CREW19ID         = "Crew19Id";
-    private static final String CREW19NAME       = "Crew19Name";
-    private static final String CREW20ID         = "Crew20Id";
-    private static final String CREW20NAME       = "Crew20Name";
-    private static final String CREW21ID         = "Crew21Id";
-    private static final String CREW21NAME       = "Crew21Name";
-    private static final String CREW22ID         = "Crew22Id";
-    private static final String CREW22NAME       = "Crew22Name";
-    private static final String CREW23ID         = "Crew23Id";
-    private static final String CREW23NAME       = "Crew23Name";
-    private static final String CREW24ID         = "Crew24Id";
-    private static final String CREW24NAME       = "Crew24Name";
+    public static final String COXID            = "CoxId";
+    public static final String COXNAME          = "CoxName";
+    public static final String CREW1ID          = "Crew1Id";
+    public static final String CREW1NAME        = "Crew1Name";
+    public static final String CREW2ID          = "Crew2Id";
+    public static final String CREW2NAME        = "Crew2Name";
+    public static final String CREW3ID          = "Crew3Id";
+    public static final String CREW3NAME        = "Crew3Name";
+    public static final String CREW4ID          = "Crew4Id";
+    public static final String CREW4NAME        = "Crew4Name";
+    public static final String CREW5ID          = "Crew5Id";
+    public static final String CREW5NAME        = "Crew5Name";
+    public static final String CREW6ID          = "Crew6Id";
+    public static final String CREW6NAME        = "Crew6Name";
+    public static final String CREW7ID          = "Crew7Id";
+    public static final String CREW7NAME        = "Crew7Name";
+    public static final String CREW8ID          = "Crew8Id";
+    public static final String CREW8NAME        = "Crew8Name";
+    public static final String CREW9ID          = "Crew9Id";
+    public static final String CREW9NAME        = "Crew9Name";
+    public static final String CREW10ID         = "Crew10Id";
+    public static final String CREW10NAME       = "Crew10Name";
+    public static final String CREW11ID         = "Crew11Id";
+    public static final String CREW11NAME       = "Crew11Name";
+    public static final String CREW12ID         = "Crew12Id";
+    public static final String CREW12NAME       = "Crew12Name";
+    public static final String CREW13ID         = "Crew13Id";
+    public static final String CREW13NAME       = "Crew13Name";
+    public static final String CREW14ID         = "Crew14Id";
+    public static final String CREW14NAME       = "Crew14Name";
+    public static final String CREW15ID         = "Crew15Id";
+    public static final String CREW15NAME       = "Crew15Name";
+    public static final String CREW16ID         = "Crew16Id";
+    public static final String CREW16NAME       = "Crew16Name";
+    public static final String CREW17ID         = "Crew17Id";
+    public static final String CREW17NAME       = "Crew17Name";
+    public static final String CREW18ID         = "Crew18Id";
+    public static final String CREW18NAME       = "Crew18Name";
+    public static final String CREW19ID         = "Crew19Id";
+    public static final String CREW19NAME       = "Crew19Name";
+    public static final String CREW20ID         = "Crew20Id";
+    public static final String CREW20NAME       = "Crew20Name";
+    public static final String CREW21ID         = "Crew21Id";
+    public static final String CREW21NAME       = "Crew21Name";
+    public static final String CREW22ID         = "Crew22Id";
+    public static final String CREW22NAME       = "Crew22Name";
+    public static final String CREW23ID         = "Crew23Id";
+    public static final String CREW23NAME       = "Crew23Name";
+    public static final String CREW24ID         = "Crew24Id";
+    public static final String CREW24NAME       = "Crew24Name";
 
     // BoatCaptain is the Number of the Boats's Captain (0 = Cox, 1 = Crew1, ...)
-    private static final String BOATCAPTAIN      = "BoatCaptain";
+    public static final String BOATCAPTAIN      = "BoatCaptain";
 
-    private static final String STARTTIME        = "StartTime";
-    private static final String ENDTIME          = "EndTime";
+    public static final String STARTTIME        = "StartTime";
+    public static final String ENDTIME          = "EndTime";
 
     // Destination is either represented as DestinationId or DestinationName
-    private static final String DESTINATIONID    = "DestinationId";
-    private static final String DESTINATIONNAME  = "DestinationName";
+    public static final String DESTINATIONID    = "DestinationId";
+    public static final String DESTINATIONNAME  = "DestinationName";
 
-    private static final String DISTANCEUNIT     = "DistanceUnit"; // default: "km"
-    private static final String BOATDISTANCE     = "BoatDistance";
-    private static final String COMMENTS         = "Comments";
-    private static final String SESSIONTYPE      = "SessionType";
-    private static final String SESSIONGROUPID   = "SessionGroupId";
+    public static final String DISTANCE         = "Distance";
+    public static final String COMMENTS         = "Comments";
+    public static final String SESSIONTYPE      = "SessionType";
+    public static final String SESSIONGROUPID   = "SessionGroupId";
 
     // =========================================================================
     // Supplementary Constants
     // =========================================================================
 
-    // Distance Units
-    protected static final String DIST_KILOMETERS  = "km"; // default if not otherwise specified
-    protected static final String DIST_MILES       = "mi";
+    // General
+    public static final int CREW_MAX = 24;
 
 
-    private static String getCrewFieldNameId(int pos) {
+    public static String getCrewFieldNameId(int pos) {
         return "Crew"+pos+"Id";
     }
 
-    private static String getCrewFieldNameName(int pos) {
+    public static String getCrewFieldNameName(int pos) {
         return "Crew"+pos+"Name";
     }
 
@@ -121,7 +119,7 @@ public class LogbookRecord extends DataRecord {
         Vector<String> f = new Vector<String>();
         Vector<Integer> t = new Vector<Integer>();
 
-        f.add(ENTRYID);             t.add(IDataAccess.DATA_STRING);
+        f.add(ENTRYID);             t.add(IDataAccess.DATA_INTSTRING);
         f.add(DATE);                t.add(IDataAccess.DATA_DATE);
         f.add(ENDDATE);             t.add(IDataAccess.DATA_DATE);
         f.add(ACTIVEDAYS);          t.add(IDataAccess.DATA_INTEGER);
@@ -183,8 +181,7 @@ public class LogbookRecord extends DataRecord {
         f.add(ENDTIME);             t.add(IDataAccess.DATA_TIME);
         f.add(DESTINATIONID);       t.add(IDataAccess.DATA_UUID);
         f.add(DESTINATIONNAME);     t.add(IDataAccess.DATA_STRING);
-        f.add(DISTANCEUNIT);        t.add(IDataAccess.DATA_STRING);
-        f.add(BOATDISTANCE);        t.add(IDataAccess.DATA_DECIMAL);
+        f.add(DISTANCE);            t.add(IDataAccess.DATA_DISTANCE);
         f.add(COMMENTS);            t.add(IDataAccess.DATA_STRING);
         f.add(SESSIONTYPE);         t.add(IDataAccess.DATA_STRING);
         f.add(SESSIONGROUPID);      t.add(IDataAccess.DATA_UUID);
@@ -201,14 +198,18 @@ public class LogbookRecord extends DataRecord {
     }
 
     public DataKey getKey() {
-        return new DataKey<String,String,String>(getEntryId(),null,null);
+        return new DataKey<DataTypeIntString,String,String>(getEntryId(),null,null);
     }
 
-    public void setEntryId(String entryId) {
-        setString(ENTRYID, entryId);
+    public static DataKey getKey(DataTypeIntString entryNo) {
+        return new DataKey<DataTypeIntString,String,String>(entryNo,null,null);
     }
-    public String getEntryId() {
-        return getString(ENTRYID);
+
+    public void setEntryId(DataTypeIntString entryId) {
+        setIntString(ENTRYID, entryId);
+    }
+    public DataTypeIntString getEntryId() {
+        return getIntString(ENTRYID);
     }
 
     public void setDate(DataTypeDate date) {
@@ -316,42 +317,11 @@ public class LogbookRecord extends DataRecord {
         return getString(DESTINATIONNAME);
     }
 
-    public void setDistanceUnit(String name) {
-        if (name != null && name.equals(DIST_KILOMETERS)) {
-            setString(DISTANCEUNIT, DIST_KILOMETERS);
-            return;
-        }
-        if (name != null && name.equals(DIST_MILES)) {
-            setString(DISTANCEUNIT, DIST_MILES);
-            return;
-        }
-        setString(DISTANCEUNIT, null);
+    public void setDistance(DataTypeDistance distance) {
+        setDistance(DISTANCE, distance);
     }
-    public String getDistanceUnit() {
-        return getString(DISTANCEUNIT);
-    }
-
-    public void setBoatDistance(int distance, int decimalPlaces, String distUnit) {
-        setString(DISTANCEUNIT, distUnit);
-        setDecimal(BOATDISTANCE, new DataTypeDecimal(distance, decimalPlaces));
-    }
-    public long getBoatDistance(int decimalPlaces) {
-        DataTypeDecimal d = getDecimal(BOATDISTANCE);
-        if (d == null) {
-            return IDataAccess.UNDEFINED_LONG;
-        }
-        return d.getValue(decimalPlaces);
-    }
-
-    public void setBoatDistanceMeters(int distance) {
-        setBoatDistance(distance, 3, null);
-    }
-    public long getBoatDistanceMeters() {
-        if (getDistanceUnit() == null) {
-            return getBoatDistance(3);
-        } else {
-            throw new UnsupportedOperationException("Boat Distance Unit Conversion");
-        }
+    public DataTypeDistance getDistance() {
+        return getDistance(DISTANCE);
     }
 
     public void setComments(String comments) {
@@ -373,6 +343,201 @@ public class LogbookRecord extends DataRecord {
     }
     public UUID getSessionGroupId() {
         return getUUID(SESSIONGROUPID);
+    }
+    
+    public BoatRecord getBoatRecord(long validAt) {
+        try {
+            UUID id = getBoatId();
+            if (id != null) {
+                return getPersistence().getProject().getBoats(false).getBoat(id, validAt);
+            }
+        } catch(Exception e) {
+        }
+        return null;
+    }
+
+    private PersonRecord getPersonRecord(int pos, long validAt) {
+        try {
+            UUID id = null;
+            if (pos == 0) {
+                id = getCoxId();
+            }
+            if (pos >= 1 && pos <= CREW_MAX) {
+                id = getCrewId(pos);
+            }
+            if (id != null) {
+                return getPersistence().getProject().getPersons(false).getPerson(id, validAt);
+            }
+        } catch(Exception e) {
+        }
+        return null;
+    }
+
+    public PersonRecord getCoxRecord(long validAt) {
+        return getPersonRecord(0, validAt);
+    }
+
+    public PersonRecord getCrewRecord(int pos, long validAt) {
+        return getPersonRecord(pos, validAt);
+    }
+
+    public DestinationRecord getDestinationRecord(long validAt) {
+        try {
+            UUID id = getDestinationId();
+            if (id != null) {
+                return getPersistence().getProject().getDestinations(false).getDestination(id, validAt);
+            }
+        } catch(Exception e) {
+        }
+        return null;
+    }
+
+    public String getGuiBoatName(long validAt) {
+        String name = null;
+        BoatRecord b = getBoatRecord(validAt);
+        if (b != null) {
+            name = b.getQualifiedName(getBoatVariant(), validAt);
+        }
+        if (name == null || name.length() == 0) {
+            name = getBoatName();
+        }
+        if (name != null) {
+            return name;
+        }
+        return "";
+    }
+
+    private String getGuiPersonName(int pos, long validAt) {
+        String name = null;
+        PersonRecord p = getPersonRecord(pos, validAt);
+        if (p != null) {
+            name = p.getQualifiedName();
+        }
+        if (name == null || name.length() == 0) {
+            if (pos == 0) {
+                name = getCoxName();
+            }
+            if (pos >= 1 && pos <= CREW_MAX) {
+                name = getCrewName(pos);
+            }
+        }
+        if (name != null) {
+            return name;
+        }
+        return "";
+    }
+
+    public String getGuiCoxName(long validAt) {
+        return getGuiPersonName(0, validAt);
+    }
+
+    public String getGuiCrewName(int pos, long validAt) {
+        return getGuiPersonName(pos, validAt);
+    }
+
+    public String getGuiDestinationName(long validAt) {
+        String name = null;
+        DestinationRecord d = getDestinationRecord(validAt);
+        if (d != null) {
+            name = d.getName();
+        }
+        if (name == null || name.length() == 0) {
+            name = getDestinationName();
+        }
+        if (name != null) {
+            return name;
+        }
+        return "";
+    }
+
+    public long getValidAtTimestamp() {
+        DataTypeDate d = getDate();
+        if (d != null && d.isSet()) {
+            return d.getTimestamp(getStartTime());
+        }
+        return 0;
+    }
+
+    public static int getCrewNoFromFieldName(String field) {
+        if (field == null) {
+            return -1;
+        }
+        if (field.equals(COXID) || field.equals(COXNAME)) {
+            return 0;
+        }
+        if (field.equals(CREW1ID) || field.equals(CREW1NAME)) {
+            return 1;
+        }
+        if (field.equals(CREW2ID) || field.equals(CREW2NAME)) {
+            return 2;
+        }
+        if (field.equals(CREW3ID) || field.equals(CREW3NAME)) {
+            return 3;
+        }
+        if (field.equals(CREW4ID) || field.equals(CREW4NAME)) {
+            return 4;
+        }
+        if (field.equals(CREW5ID) || field.equals(CREW5NAME)) {
+            return 5;
+        }
+        if (field.equals(CREW6ID) || field.equals(CREW6NAME)) {
+            return 6;
+        }
+        if (field.equals(CREW7ID) || field.equals(CREW7NAME)) {
+            return 7;
+        }
+        if (field.equals(CREW8ID) || field.equals(CREW8NAME)) {
+            return 8;
+        }
+        if (field.equals(CREW9ID) || field.equals(CREW9NAME)) {
+            return 9;
+        }
+        if (field.equals(CREW10ID) || field.equals(CREW10NAME)) {
+            return 10;
+        }
+        if (field.equals(CREW11ID) || field.equals(CREW11NAME)) {
+            return 11;
+        }
+        if (field.equals(CREW12ID) || field.equals(CREW12NAME)) {
+            return 12;
+        }
+        if (field.equals(CREW13ID) || field.equals(CREW13NAME)) {
+            return 13;
+        }
+        if (field.equals(CREW14ID) || field.equals(CREW14NAME)) {
+            return 14;
+        }
+        if (field.equals(CREW15ID) || field.equals(CREW15NAME)) {
+            return 15;
+        }
+        if (field.equals(CREW16ID) || field.equals(CREW16NAME)) {
+            return 16;
+        }
+        if (field.equals(CREW17ID) || field.equals(CREW17NAME)) {
+            return 17;
+        }
+        if (field.equals(CREW18ID) || field.equals(CREW18NAME)) {
+            return 18;
+        }
+        if (field.equals(CREW19ID) || field.equals(CREW19NAME)) {
+            return 19;
+        }
+        if (field.equals(CREW20ID) || field.equals(CREW20NAME)) {
+            return 20;
+        }
+        if (field.equals(CREW21ID) || field.equals(CREW21NAME)) {
+            return 21;
+        }
+        if (field.equals(CREW22ID) || field.equals(CREW22NAME)) {
+            return 22;
+        }
+        if (field.equals(CREW23ID) || field.equals(CREW23NAME)) {
+            return 23;
+        }
+        if (field.equals(CREW24ID) || field.equals(CREW24NAME)) {
+            return 24;
+        }
+        return -1;
     }
 
 }

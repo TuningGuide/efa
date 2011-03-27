@@ -98,6 +98,7 @@ public class XMLFile extends DataFile {
         write(fw,indent,xmltag("version",Daten.VERSIONID));
         write(fw,indent,xmltag("name",getStorageObjectName()));
         write(fw,indent,xmltag("type",getStorageObjectType()));
+        write(fw,indent,xmltag("scn",Long.toString(getSCN())));
         write(fw,indent,xmltagEnd("header"));
         writeData(fw);
         write(fw,indent,xmltagEnd("efa"));
@@ -107,7 +108,7 @@ public class XMLFile extends DataFile {
         write(fw,indent,xmltagStart("data"));
 
         String[] fields = getFieldNames();
-        DataKeyIterator it = getIterator();
+        DataKeyIterator it = getStaticIterator();
         DataRecord d = getFirst(it);
         while(d != null) {
             write(fw,indent,xmltagStart("record"));

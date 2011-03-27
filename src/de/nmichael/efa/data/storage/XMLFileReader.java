@@ -24,6 +24,7 @@ public class XMLFileReader extends DefaultHandler {
     private Locator locator;
 
     private boolean inDataSection = false;
+    private boolean inHeaderSection = false;
     private boolean inRecord = false;
     private String currentField = null;
     private DataRecord dataRecord = null;
@@ -67,12 +68,15 @@ public class XMLFileReader extends DefaultHandler {
             }
         }
 
-        if (inRecord) {
+        if (inHeaderSection || inRecord) {
             currentField = localName;
         }
         if (inDataSection && localName.equals("record")) {
             inRecord = true;
             dataRecord = data.getPersistence().createNewRecord();
+        }
+        if (localName.equals("header")) {
+            inHeaderSection = true;
         }
         if (localName.equals("data")) {
             inDataSection = true;
@@ -85,9 +89,20 @@ public class XMLFileReader extends DefaultHandler {
             Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "characters("+s+")");
         }
 
-        if (currentField != null) {
+        if (inDataSection && currentField != null) {
             try {
                 dataRecord.set(currentField, s);
+            } catch(Exception e) {
+                Logger.log(Logger.ERROR,Logger.MSG_FILE_PARSEERROR,"Parse Error for Field "+currentField+" = "+s+": "+e.toString());
+            }
+            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"Field "+currentField+" = "+s);
+        }
+        if (inHeaderSection && currentField != null) {
+            try {
+                if (currentField.equals("scn")) {
+                    data.setSCN(Long.parseLong(s));
+                }
+                // @todo all other header fields
             } catch(Exception e) {
                 Logger.log(Logger.ERROR,Logger.MSG_FILE_PARSEERROR,"Parse Error for Field "+currentField+" = "+s+": "+e.toString());
             }
@@ -100,6 +115,9 @@ public class XMLFileReader extends DefaultHandler {
             Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "endElement(" + uri + "," + localName + "," + qname + ")");
         }
 
+        if (localName.equals("header")) {
+            inHeaderSection = false;
+        }
         if (localName.equals("data")) {
             inDataSection = false;
         }

@@ -81,6 +81,9 @@ public class EfaErrorPrintStream extends PrintStream {
       // if the stack trace concerns classes from efa, ask for bug reports
       // (some other purely java (especially awt/swing) related bugs do not necessarily need to be reported...
       String text = International.getString("Unerwarteter Programmfehler")+": "+o.toString();
+      if (stacktrace.length() == 0) {
+          efaError = true; // assume this is an efa error (e.g. java.lang.ExceptionInInitializerError don't have a stack trace...)
+      }
       if (efaError) {
           if (stacktrace.length() > 0) {
               text += "\nStack Trace:\n" + stacktrace;

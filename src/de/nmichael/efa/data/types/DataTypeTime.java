@@ -15,6 +15,7 @@ import de.nmichael.efa.util.*;
 public class DataTypeTime implements Cloneable, Comparable<DataTypeTime> {
 
     private int hour, minute, second;
+    private boolean withSeconds = true;
 
     // Default Constructor
     public DataTypeTime() {
@@ -50,6 +51,10 @@ public class DataTypeTime implements Cloneable, Comparable<DataTypeTime> {
         time.setMinute(cal.get(Calendar.MINUTE));
         time.setSecond(cal.get(Calendar.SECOND));
         return time;
+    }
+
+    public void enableSeconds(boolean withSeconds) {
+        this.withSeconds = withSeconds;
     }
 
     public void setTime(int hour, int minute, int second) {
@@ -89,16 +94,19 @@ public class DataTypeTime implements Cloneable, Comparable<DataTypeTime> {
         if (second > 59) {
             second = 59;
         }
+        if (!withSeconds) {
+            second = -1;
+        }
     }
 
     public String toString() {
         if (hour < 0 || minute < 0) {
             return "";
         }
-        if (second < 0) {
+        if (second < 0 || !withSeconds) {
             return EfaUtil.int2String(hour,2) + ":" + EfaUtil.int2String(minute,2);
         }
-        return EfaUtil.int2String(hour,2) + ":" + EfaUtil.int2String(minute,2) + ":" + EfaUtil.int2String(second,4);
+        return EfaUtil.int2String(hour,2) + ":" + EfaUtil.int2String(minute,2) + ":" + EfaUtil.int2String(second,2);
     }
 
     public boolean isSet() {
@@ -106,15 +114,15 @@ public class DataTypeTime implements Cloneable, Comparable<DataTypeTime> {
     }
 
     public int getHour() {
-        return hour;
+        return (hour < 0 ? 0 : hour);
     }
 
     public int getMinute() {
-        return minute;
+        return (minute < 0 ? 0 : minute);
     }
 
     public int getSecond() {
-        return second;
+        return (second < 0 ? 0 : second);
     }
 
     public void setHour(int hour) {
@@ -178,6 +186,56 @@ public class DataTypeTime implements Cloneable, Comparable<DataTypeTime> {
 
     public boolean isAfter(DataTypeTime o) {
         return compareTo(o) > 0;
+    }
+
+    public void add(int seconds) {
+        if (seconds >= 0) {
+            if (second >= 0) {
+                second += seconds;
+            } else {
+                minute += seconds/60;
+            }
+            while(second >= 60) {
+                second -= 60;
+                minute++;
+            }
+            while(minute >= 60) {
+                minute -= 60;
+                hour++;
+            }
+            hour = hour % 24;
+        } else {
+            delete(seconds * (-1));
+        }
+    }
+
+    public void delete(int seconds) {
+        if (seconds >= 0) {
+            if (second >= 0) {
+                second -= seconds;
+            } else {
+                minute -= seconds/60;
+            }
+            while(second < 0) {
+                second += 60;
+                minute--;
+            }
+            while(minute < 0) {
+                minute += 60;
+                hour--;
+            }
+            hour = hour % 24;
+        } else {
+            add(seconds * (-1));
+        }
+    }
+
+    public int getTimeAsSeconds() {
+        if (isSet()) {
+            return hour*3600 + minute*60 + (second >= 0 ? second : 0);
+        } else {
+            return -1;
+        }
     }
 
 }

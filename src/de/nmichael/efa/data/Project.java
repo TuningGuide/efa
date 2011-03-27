@@ -13,7 +13,7 @@ package de.nmichael.efa.data;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.core.types.*;
+import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.ex.EfaException;
 import java.util.*;
 
@@ -32,6 +32,23 @@ public class Project extends Persistence {
         super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Projekt"));
         ProjectRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
+    }
+
+    public Project(String projectName) {
+        super(IDataAccess.TYPE_FILE_XML, Daten.efaDataDirectory, projectName, DATATYPE, International.getString("Projekt"));
+        ProjectRecord.initialize();
+        dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
+    }
+
+    public static boolean openProject(String projectName) {
+        try {
+            Project p = new Project(projectName);
+            p.open(false);
+            Daten.project = p;
+        } catch (Exception ee) {
+            return false;
+        }
+        return true;
     }
 
     public DataRecord createNewRecord() {
@@ -133,6 +150,9 @@ public class Project extends Persistence {
         try {
             String key = c.getCanonicalName()+":"+name;
             p = persistence.get(key);
+            if (p != null && p.isOpen()) {
+                return p; // fast path (would happen anyhow a few lines further down, but let's optimize for the most frequent use-case
+            }
             if (p == null) {
                 p = (Persistence)c.getConstructor(int.class, String.class, String.class).newInstance(getProjectStorageType(), getProjectStorageLocation(), name);
                 p.setProject(this);
@@ -156,8 +176,32 @@ public class Project extends Persistence {
         if (rec == null) {
             return null;
         }
-        return (Logbook)getPersistence(Logbook.class, logbookName,
+        Logbook logbook = (Logbook)getPersistence(Logbook.class, logbookName,
                 createNewIfDoesntExist, International.getString("Fahrtenbuch"));
+        if (logbook != null) {
+            logbook.setName(logbookName);
+        }
+        return logbook;
+    }
+
+    public String[] getAllLogbookNames() {
+        try {
+            DataKeyIterator it = data().getStaticIterator();
+            ArrayList<String> a = new ArrayList<String>();
+            DataKey k = it.getFirst();
+            while (k != null) {
+                ProjectRecord r = (ProjectRecord)data().get(k);
+                if (r != null && r.getType() != null &&
+                        r.getType().equals(ProjectRecord.TYPE_LOGBOOK) &&
+                        r.getLogbookName() != null && r.getLogbookName().length() > 0) {
+                    a.add(r.getLogbookName());
+                }
+                k = it.getNext();
+            }
+            return a.toArray(new String[0]);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public SessionGroups getSessionGroups(boolean createNewIfDoesntExist) {
@@ -269,6 +313,34 @@ public class Project extends Persistence {
             l = data().acquireLocalLock(getProjectRecordKey());
             ProjectRecord r = getProjectRecord();
             r.setAdminEmail(adminEmail);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
+    }
+
+    public void setCurrentLogbookEfaBase(String currentLogbook) {
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getProjectRecordKey());
+            ProjectRecord r = getProjectRecord();
+            r.setCurrentLogbookEfaBase(currentLogbook);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
+    }
+
+    public void setCurrentLogbookEfaBoathouse(String currentLogbook) {
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getProjectRecordKey());
+            ProjectRecord r = getProjectRecord();
+            r.setCurrentLogbookEfaBoathouse(currentLogbook);
             data().update(r, l);
         } catch(Exception e) {
             e.printStackTrace();
@@ -497,6 +569,14 @@ public class Project extends Persistence {
         return getProjectRecord().getAdminEmail();
     }
 
+    public String getCurrentLogbookEfaBase() {
+        return getProjectRecord().getCurrentLogbookEfaBase();
+    }
+
+    public String getCurrentLogbookEfaBoathouse() {
+        return getProjectRecord().getCurrentLogbookEfaBoathouse();
+    }
+
     public String getClubName() {
         return getClubRecord().getClubName();
     }
@@ -552,7 +632,7 @@ public class Project extends Persistence {
     public Vector<DataItem> getGuiItems() {
         Vector<DataItem> v = new Vector<DataItem>();
         try {
-            DataKeyIterator it = dataAccess.getIterator();
+            DataKeyIterator it = dataAccess.getStaticIterator();
             ProjectRecord rec = (ProjectRecord)dataAccess.getFirst(it);
             while (rec != null) {
                 String type = rec.getType();

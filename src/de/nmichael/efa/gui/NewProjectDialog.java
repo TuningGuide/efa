@@ -12,7 +12,7 @@ package de.nmichael.efa.gui;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.types.*;
+import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.ex.EfaException;
@@ -184,7 +184,7 @@ public class NewProjectDialog extends StepwiseDialog {
         }
         // Note: The storageType of the project file itself is always TYPE_FILE_XML.
         // The storageType of the project's content (set through prj.setProjectStorageType(storageType)) may differ.
-        Project prj = new Project(IDataAccess.TYPE_FILE_XML, Daten.efaDataDirectory, prjName.getValue());
+        Project prj = new Project(prjName.getValue());
         try {
             prj.open(true);
             prj.setEmptyProject(prjName.getValue());
@@ -230,11 +230,12 @@ public class NewProjectDialog extends StepwiseDialog {
         }
     }
 
-    public boolean createNewProjectAndLogbook() {
+    public String createNewProjectAndLogbook() {
         showDialog();
         if (!getDialogResult()) {
-            return false;
+            return null;
         }
+        String logbookName = null;
         switch(Dialog.auswahlDialog(International.getString("Fahrtenbuch erstellen"),
                 International.getString("Das Projekt enthält noch keine Daten.") + " " +
                 International.getString("Was möchtest Du tun?"),
@@ -248,7 +249,7 @@ public class NewProjectDialog extends StepwiseDialog {
                 if (getParentFrame() != null) {
                     dlg0 = new NewLogbookDialog(getParentFrame());
                 }
-                dlg0.showDialog();
+                logbookName = dlg0.newLogbookDialog();
                 break;
             case 1:
                 ImportEfa1DataDialog dlg1 = null;
@@ -259,9 +260,10 @@ public class NewProjectDialog extends StepwiseDialog {
                     dlg1 = new ImportEfa1DataDialog(getParentFrame());
                 }
                 dlg1.showDialog();
+                logbookName = dlg1.getNewestLogbookName();
                 break;
         }
-        return true;
+        return logbookName;
     }
 
 }

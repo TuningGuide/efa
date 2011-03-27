@@ -93,13 +93,13 @@ public class ImportLogbook extends ImportBase {
 
             DatenFelder d = fahrtenbuch.getCompleteFirst();
             while (d != null) {
-                LogbookRecord r = logbook.createLogbookRecord(d.get(Fahrtenbuch.LFDNR));
+                LogbookRecord r = logbook.createLogbookRecord(DataTypeIntString.parseString(d.get(Fahrtenbuch.LFDNR)));
                 r.setDate(DataTypeDate.parseDate(d.get(Fahrtenbuch.DATUM)));
 
                 if (r.getDate().isBefore(meta.firstDate) ||
                     r.getDate().isAfter(meta.lastDate)) {
                     logWarning(International.getMessage("Eintrag {entry} wurde nicht importiert, da sein Datum {date} außerhalb des festgelegten Zeitraums ({fromDate} - {toDate}) liegt.",
-                            r.getEntryId(),r.getDate().toString(),meta.firstDate.toString(),meta.lastDate.toString()));
+                            r.getEntryId().toString(),r.getDate().toString(),meta.firstDate.toString(),meta.lastDate.toString()));
                 }
 
                 if (d.get(Fahrtenbuch.BOOT).length() > 0) {
@@ -158,7 +158,7 @@ public class ImportLogbook extends ImportBase {
                     }
                 }
                 
-                r.setBoatDistance(EfaUtil.zehntelString2Int(d.get(Fahrtenbuch.BOOTSKM)), 1, null);
+                r.setDistance(DataTypeDistance.parseDistance(d.get(Fahrtenbuch.BOOTSKM) + DataTypeDistance.KILOMETERS));
                 if (d.get(Fahrtenbuch.BEMERK).length() > 0) {
                     r.setComments(d.get(Fahrtenbuch.BEMERK));
                 }
@@ -201,7 +201,7 @@ public class ImportLogbook extends ImportBase {
                                     sg.setActiveDays(mtour.rudertage);
                                 }
                                 if (!mtour.isEtappen) {
-                                    sg.setDistance((int)r.getBoatDistance(1), 1, null);
+                                    sg.setDistance(r.getDistance());
                                 }
                                 // Waters from MultiDayTour's are not imported, but get lost during import.
                                 // Should this be fixed? It's only relevant for DRV-Wanderruderstatistik, so it only

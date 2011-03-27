@@ -31,7 +31,6 @@ public class DestinationRecord extends DataRecord {
     public static final String ROUNDTRIP           = "Roundtrip";
     public static final String DESTINATIONAREA     = "DestinationArea";
     public static final String PASSEDLOCKS         = "PassedLocks";
-    public static final String DISTANCEUNIT        = "DistanceUnit";
     public static final String DISTANCE            = "Distance";
     public static final String WATERSIDLIST        = "WatersIdList";
 
@@ -47,8 +46,7 @@ public class DestinationRecord extends DataRecord {
         f.add(ROUNDTRIP);                         t.add(IDataAccess.DATA_BOOLEAN);
         f.add(DESTINATIONAREA);                   t.add(IDataAccess.DATA_INTEGER);
         f.add(PASSEDLOCKS);                       t.add(IDataAccess.DATA_INTEGER);
-        f.add(DISTANCEUNIT);                      t.add(IDataAccess.DATA_STRING);
-        f.add(DISTANCE);                          t.add(IDataAccess.DATA_DECIMAL);
+        f.add(DISTANCE);                          t.add(IDataAccess.DATA_DISTANCE);
         f.add(WATERSIDLIST);                      t.add(IDataAccess.DATA_LIST);
         MetaData metaData = constructMetaData(Destinations.DATATYPE, f, t, true);
         metaData.setKey(new String[] { ID }); // plus VALID_FROM
@@ -65,6 +63,10 @@ public class DestinationRecord extends DataRecord {
 
     public DataKey getKey() {
         return new DataKey<UUID,Long,String>(getId(),getValidFrom(),null);
+    }
+
+    public static DataKey getKey(UUID id, long validFrom) {
+        return new DataKey<UUID,Long,String>(id,validFrom,null);
     }
 
     public void setId(UUID id) {
@@ -123,42 +125,11 @@ public class DestinationRecord extends DataRecord {
         return getInt(PASSEDLOCKS);
     }
 
-    public void setDistanceUnit(String name) {
-        if (name != null && name.equals(LogbookRecord.DIST_KILOMETERS)) {
-            setString(DISTANCEUNIT, LogbookRecord.DIST_KILOMETERS);
-            return;
-        }
-        if (name != null && name.equals(LogbookRecord.DIST_MILES)) {
-            setString(DISTANCEUNIT, LogbookRecord.DIST_MILES);
-            return;
-        }
-        setString(DISTANCEUNIT, null);
+    public void setDistance(DataTypeDistance distance) {
+        setDistance(DISTANCE, distance);
     }
-    public String getDistanceUnit() {
-        return getString(DISTANCEUNIT);
-    }
-
-    public void setDistance(int distance, int decimalPlaces, String distUnit) {
-        setString(DISTANCEUNIT, distUnit);
-        setDecimal(DISTANCE, new DataTypeDecimal(distance, decimalPlaces));
-    }
-    public long getDistance(int decimalPlaces) {
-        DataTypeDecimal d = getDecimal(DISTANCE);
-        if (d == null) {
-            return IDataAccess.UNDEFINED_LONG;
-        }
-        return d.getValue(decimalPlaces);
-    }
-
-    public void setDistanceMeters(int distance) {
-        setDistance(distance, 3, null);
-    }
-    public long getDistanceMeters() {
-        if (getDistanceUnit() == null) {
-            return getDistance(3);
-        } else {
-            throw new UnsupportedOperationException("Boat Distance Unit Conversion");
-        }
+    public DataTypeDistance getDistance() {
+        return getDistance(DISTANCE);
     }
 
     public void setWatersIdList(DataTypeList<UUID> list) {
@@ -166,6 +137,11 @@ public class DestinationRecord extends DataRecord {
     }
     public DataTypeList<UUID> getWatersIdList() {
         return getList(WATERSIDLIST, IDataAccess.DATA_UUID);
+    }
+
+    public String getQualifiedName() {
+        String name = getName();
+        return (name != null ? name : "");
     }
 
 }

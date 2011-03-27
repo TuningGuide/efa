@@ -28,11 +28,13 @@ public interface IDataAccess {
     public static final int DATA_INTEGER = 1;    // int, Integer
     public static final int DATA_LONGINT = 2;    // long, Long
     public static final int DATA_DECIMAL = 3;    // DataTypeDecimal
-    public static final int DATA_BOOLEAN = 4;    // boolean, Boolean
-    public static final int DATA_DATE = 5;       // DataTypeDate
-    public static final int DATA_TIME = 6;       // DataTypeTime
-    public static final int DATA_UUID = 7;       // java.util.UUID
-    public static final int DATA_LIST = 8;       // String-based list
+    public static final int DATA_DISTANCE = 4;   // DataTypeDistance
+    public static final int DATA_BOOLEAN = 5;    // boolean, Boolean
+    public static final int DATA_DATE = 6;       // DataTypeDate
+    public static final int DATA_TIME = 7;       // DataTypeTime
+    public static final int DATA_UUID = 8;       // java.util.UUID
+    public static final int DATA_LIST = 9;       // String-based list
+    public static final int DATA_INTSTRING = 10; // Number-String mixed String
 
     public static final int  UNDEFINED_INT  = Integer.MIN_VALUE + 1;
     public static final long UNDEFINED_LONG = Long.MIN_VALUE + 1;
@@ -233,6 +235,7 @@ public interface IDataAccess {
      * @throws Exception
      */
     public long getSCN() throws EfaException;
+    public void setSCN(long scn) throws EfaException;
 
     /**
      * Registers a new data field.
@@ -441,12 +444,16 @@ public interface IDataAccess {
      */
     public void truncateAllData() throws EfaException;
 
-    public DataKeyIterator getIterator() throws EfaException;
+    public DataKey[] getAllKeys() throws EfaException;
+    public DataKeyIterator getStaticIterator() throws EfaException;
+    public DataKeyIterator getDynamicIterator() throws EfaException;
     public DataRecord getCurrent(DataKeyIterator it) throws EfaException;
     public DataRecord getFirst(DataKeyIterator it) throws EfaException;
     public DataRecord getLast(DataKeyIterator it) throws EfaException;
     public DataRecord getNext(DataKeyIterator it) throws EfaException;
     public DataRecord getPrev(DataKeyIterator it) throws EfaException;
+    public DataRecord getFirst() throws EfaException;
+    public DataRecord getLast() throws EfaException;
 
 
     /*

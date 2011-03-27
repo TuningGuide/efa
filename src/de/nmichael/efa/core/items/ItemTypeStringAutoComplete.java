@@ -1,0 +1,317 @@
+/**
+ * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+ * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
+ * Website:      http://efa.nmichael.de/
+ * License:      GNU General Public License v2
+ *
+ * @author Nicolas Michael
+ * @version 2
+ */
+
+package de.nmichael.efa.core.items;
+
+import de.nmichael.efa.*;
+import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.gui.util.*;
+import de.nmichael.efa.gui.util.AutoCompletePopupWindow;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
+public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCompletePopupWindowCallback {
+
+    private enum Mode {
+        none,
+        normal,
+        up,
+        delete,
+        enter,
+        escape
+    }
+
+    protected boolean showButton;
+    protected JButton button;
+    protected Color originalButtonColor;
+    protected AutoCompleteList autoCompleteList;
+    protected boolean withPopup = true;
+    protected boolean valueIsKnown = false;
+
+    public ItemTypeStringAutoComplete(String name, String value, int type,
+            String category, String description, boolean showButton) {
+        super(name, value, type, category, description);
+        this.showButton = showButton;
+    }
+
+    public void iniDisplay() {
+        super.iniDisplay();
+        if (showButton) {
+            button = new JButton();
+            originalButtonColor = button.getBackground();
+            Dialog.setPreferredSize(button, fieldHeight-4, fieldHeight-8);
+            button.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) { actionEvent(e); }
+            });
+        }
+        ((JTextField)field).addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(KeyEvent e) { autoComplete(e); }
+        });
+    }
+
+    public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
+        int plusy = super.displayOnGui(dlg, panel, x, y);
+        if (button != null) {
+            panel.add(button, new GridBagConstraints(x+labelGridWidth+fieldGridWidth, y, 1, fieldGridHeight, 0.0, 0.0,
+                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, padYafter, 0), 0, 0));
+        }
+        return plusy;
+    }
+
+    public void setAutoCompleteData(AutoCompleteList autoCompleteList) {
+        this.autoCompleteList = autoCompleteList;
+    }
+
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        if (button != null) {
+            button.setVisible(visible);
+        };
+    }
+
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        if (button != null) {
+            button.setEnabled(enabled);
+        };
+    }
+
+    public void showValue() {
+        super.showValue();
+        autoComplete(null);
+    }
+
+    protected void field_focusLost(FocusEvent e) {
+        if (Daten.efaConfig.popupComplete.getValue()) {
+            AutoCompletePopupWindow.hideWindow();
+        }
+        super.field_focusLost(e);
+    }
+
+    private void autoComplete(KeyEvent e) {
+        if (field == null) {
+            return;
+        }
+        JTextField field = (JTextField)this.field;
+
+        AutoCompleteList list = getAutoCompleteList();
+        if (list == null) {
+            //setButtonColor(Color.lightGray);
+            setButtonColor(null);
+            return;
+        } else {
+            list.update();
+        }
+
+        if (e != null && e.getKeyCode() == -23) {
+            return; // dieses Key-Event wurde von AutoCompletePopupWindow generiert
+        }
+
+        if (field.getText().trim().length() == 0) {
+            setButtonColor(null);
+        }
+
+        String complete, prefix;
+
+        Mode mode = Mode.none; // 0
+        if (e == null || (EfaUtil.isRealChar(e) && e.getKeyCode() != KeyEvent.VK_ENTER) || e.getKeyCode() == KeyEvent.VK_DOWN) {
+            mode = Mode.normal; // 1
+        } else if (e.getKeyCode() == KeyEvent.VK_UP) {
+            mode = Mode.up; // 2
+        } else if (e.getKeyCode() == KeyEvent.VK_DELETE || e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+            mode = Mode.delete; // 3
+        } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            mode = Mode.enter; // 4
+        } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            mode = Mode.escape; // 5
+        }
+
+        if (e == null || mode == Mode.enter || mode == Mode.escape) {
+            field.setText(field.getText().trim());
+        }
+
+        if (mode == Mode.normal
+                || ((mode == Mode.enter || mode == Mode.escape) && field.getText().length() > 0)) {
+
+            // remove leading spaces
+            String spc = field.getText();
+            if (spc.startsWith(" ")) {
+                int i = 0;
+                do {
+                    i++;
+                } while (i < spc.length() && spc.charAt(i) == ' ');
+                if (i >= spc.length()) {
+                    field.setText("");
+                } else {
+                    field.setText(spc.substring(i));
+                }
+            }
+
+            if (field.getSelectedText() != null) {
+                prefix = field.getText().toLowerCase().substring(0, field.getSelectionStart());
+            } else {
+                prefix = field.getText().toLowerCase();
+            }
+
+            if (e != null && e.getKeyCode() == KeyEvent.VK_DOWN) {
+                if (withPopup && Daten.efaConfig.popupComplete.getValue() && AutoCompletePopupWindow.isShowingAt(field)) {
+                    complete = list.getNext();
+                } else {
+                    complete = list.getNext(prefix);
+                }
+                if (complete == null) {
+                    complete = list.getFirst(prefix);
+                }
+            } else {
+
+                if (e != null) {
+                    complete = list.getFirst(prefix); // Taste gedrückt --> OK, Wortanfang genügt
+                } else {
+                    complete = list.getExact(field.getText().toLowerCase()); // keine Taste gedrückt --> nur richtig, wenn gesamtes Feld exakt vorhanden!
+                }
+                // prüfen (falls Mitglieder), ob Anfangsstück ein Alias ist //@todo
+                /* @todo
+                if (isMitgliederliste && ((Mitglieder) liste).aliases != null) {
+                    String s;
+                    if ((s = (String) ((Mitglieder) liste).aliases.get(prefix.toLowerCase())) != null) {
+                        complete = s;
+                    }
+                }
+                 */
+
+                // jetzt prüfen, ob Person (falls liste == mitglieder) schon in einem anderen Feld eingetragen
+                // wurde; wenn ja, dann nächsten passenden Eintrag nehmen, falls vorhanden
+                /* @todo
+                if (efaFrame != null && isMitgliederliste && complete != null && button != null) {
+                    String tmp = "";
+                    while (eingetragenInAnderemFeld(complete, feld, efaFrame) && tmp != null) {
+                        tmp = liste.getNext(prefix);
+                        if (tmp != null) {
+                            complete = tmp;
+                        }
+                    }
+                }
+                 */
+            }
+            if (e == null && complete != null) {
+                complete = list.getExact(complete);
+            }
+            if (complete != null) {
+                if (e != null) { // nur bei wirklichen Eingaben
+                    field.setText(complete);
+                    field.select(prefix.length(), complete.length());
+                }
+                setButtonColor(Color.green);
+            } else {
+                setButtonColor(Color.red);
+            }
+            if (withPopup && Daten.efaConfig.popupComplete.getValue() && e != null) {
+                AutoCompletePopupWindow.showAndSelect(field, list, (complete != null ? complete : ""), null);
+            }
+        }
+
+        if (mode == Mode.up) {
+            if (field.getSelectedText() != null) {
+                prefix = field.getText().toLowerCase().substring(0, field.getSelectionStart());
+            } else {
+                prefix = field.getText().toLowerCase();
+            }
+
+            if (withPopup && Daten.efaConfig.popupComplete.getValue() && AutoCompletePopupWindow.isShowingAt(field)) {
+                complete = list.getPrev();
+            } else {
+                complete = list.getPrev(prefix);
+            }
+
+            if (complete == null) {
+                complete = list.getLast(prefix); // liste.getFirst(anf);
+            }
+            if (complete != null) {
+                field.setText(complete);
+                field.select(prefix.length(), complete.length());
+                setButtonColor(Color.green);
+            } else {
+                setButtonColor(Color.red);
+            }
+            if (withPopup && Daten.efaConfig.popupComplete.getValue()) {
+                AutoCompletePopupWindow.showAndSelect(field, list, (complete != null ? complete : ""), null);
+            }
+        }
+        
+        if (mode == Mode.delete) {
+            if ((complete = list.getFirst(field.getText().toLowerCase().trim())) == null
+                    || !(complete.equals(field.getText()))) {
+                setButtonColor(Color.red);
+            } else {
+                setButtonColor(Color.green);
+            }
+        }
+        
+        if (mode == Mode.enter) {
+            field.select(-1, -1);
+            if (withPopup && Daten.efaConfig.popupComplete.getValue()) {
+                AutoCompletePopupWindow.hideWindow();
+            }
+        }
+
+        if (mode == Mode.escape) {
+            if (withPopup && Daten.efaConfig.popupComplete.getValue()) {
+                AutoCompletePopupWindow.hideWindow();
+            }
+        }
+
+        if (field.getText().length() == 0) {
+            setButtonColor(null);
+        }
+    }
+
+    public void acpwCallback(JTextField field) {
+        autoComplete(null);
+    }
+
+    private AutoCompleteList getAutoCompleteList() {
+        return autoCompleteList;
+    }
+
+    private void setButtonColor(Color color) {
+        valueIsKnown = (color == Color.green);
+        if (button != null) {
+            if (color != null) {
+                if (!Daten.lookAndFeel.endsWith("MetalLookAndFeel")) {
+                    button.setContentAreaFilled(true);
+                }
+                button.setBackground(color);
+            } else {
+                button.setBackground(originalButtonColor);
+            }
+        }
+    }
+
+    public boolean isKnown() {
+        return valueIsKnown;
+    }
+
+/*
+  public void acpwCallback(JTextField field) {
+    try {
+      eintragGeaendert(null);
+      vervollstaendigeForField(field);
+      if (field == ziel) setZielKm();
+    } catch(Exception e) {
+    }
+  }
+
+
+ */
+
+}

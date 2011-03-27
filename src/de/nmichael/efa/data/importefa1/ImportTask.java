@@ -28,6 +28,8 @@ public class ImportTask extends ProgressTask {
     private Hashtable<DataKey,String> boatsRequiredGroup;
     private Hashtable<String,UUID> groupMapping;
 
+    private String newestLogbookName; // name of the logbook to be opened when this dialog is completed
+
     public ImportTask(HashMap<String, ImportMetadata> importData) {
         super();
         this.importData = importData;
@@ -72,6 +74,7 @@ public class ImportTask extends ProgressTask {
                     switch (meta.type) {
                         case ImportMetadata.TYPE_FAHRTENBUCH:
                             importJob = new ImportLogbook(this, key, meta);
+                            newestLogbookName = meta.name;
                             break;
                     }
                 }
@@ -174,6 +177,10 @@ public class ImportTask extends ProgressTask {
 
     public String getSuccessfullyDoneMessage() {
         return International.getString("Import abgeschlossen.");
+    }
+
+    public String getNewestLogbookName() {
+        return newestLogbookName;
     }
 
 }

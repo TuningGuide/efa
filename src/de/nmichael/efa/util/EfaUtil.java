@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.zip.*;
 import java.io.*;
 import java.awt.event.*;
+import java.awt.Window;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -152,24 +153,37 @@ public class EfaUtil {
   }
 
 
-  // vollen Namen aus Teilnamen konstruieren
-  public static String getFullName(String vor, String nach, String ver, boolean erstVorname) {
-    String s = "";
-    if (erstVorname) {
-      if (!vor.equals("")) s = vor;
-      if (!nach.equals("")) s = s + " " + nach;
-      s = s.trim();
-      if (!ver.equals("")) s = s + " (" + ver + ")";
-    } else {
-      if (!nach.equals("")) s = nach;
-      if (!vor.equals(""))
-        if (!s.equals("")) s = s + ", " + vor;
-        else s = vor;
-      if (!ver.equals("")) s = s + " (" + ver + ")";
+    // vollen Namen aus Teilnamen konstruieren
+    public static String getFullName(String first, String last, String association, boolean firstFirst) {
+        String s = "";
+        if (firstFirst) {
+            if (first != null && first.length() > 0) {
+                s = first;
+            }
+            if (last != null && last.length() > 0) {
+                if (s.length() > 0) {
+                    s = s + " " + last;
+                } else {
+                    s = first;
+                }
+            }
+        } else {
+            if (last != null && last.length() > 0) {
+                s = last;
+            }
+            if (first != null && first.length() > 0) {
+                if (s.length() > 0) {
+                    s = s + ", " + first;
+                } else {
+                    s = first;
+                }
+            }
+        }
+        if (association != null && association.length() > 0) {
+            s = s + " (" + association + ")";
+        }
+        return s.trim();
     }
-    s = s.trim();
-    return s;
-  }
 
   // Integer-Division mit einer Nachf,ae,-Stelle (und Rundung)
   public static float div(int a, int b) {
@@ -224,6 +238,9 @@ public class EfaUtil {
   }
 
   public static int stringFindInt(String s, int def) {
+      if (s == null) {
+          return def;
+      }
       return string2date(s, def, 0, 0).tag;
   }
 
@@ -649,13 +666,22 @@ public class EfaUtil {
   }
 
   public static String int2String(int i, int digits) {
-      String s = Integer.toString(i);
+      StringBuilder s = new StringBuilder(digits);
+      s.append(Integer.toString(i));
       while (s.length() < digits) {
-          s = "0" + s;
+          s.insert(0, "0");
       }
-      return s;
+      return s.toString();
   }
 
+  public static String long2String(long l, int digits) {
+      StringBuilder s = new StringBuilder(digits);
+      s.append(Long.toString(l));
+      while (s.length() < digits) {
+          s.insert(0, "0");
+      }
+      return s.toString();
+  }
 
   // Einen String in ein long umwandeln und bei Fehler "vorgabe" zurückliefern
   public static long string2long(String s,int vorgabe) {
@@ -1273,7 +1299,7 @@ public class EfaUtil {
     else return -1;
   }
 
-  public static void pack(JDialog frame) {
+  public static void pack(Window frame) {
     // Bugfix/Workaround für Problem, daß Fenster manchmal zu klein
     try {
       setMinimumSize(frame);

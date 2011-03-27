@@ -8,22 +8,24 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.types;
+package de.nmichael.efa.core.items;
 
-import de.nmichael.efa.core.types.ItemTypeLabelValue;
+import de.nmichael.efa.core.items.ItemTypeLabelValue;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import javax.swing.*;
+import java.util.regex.*;
 
 // @i18n complete
 
-public class ItemTypeString extends ItemTypeLabelValue {
+public class ItemTypeString extends ItemTypeLabelTextfield {
 
-    private String value;
-    private String allowedCharacters;
-    private String replacementCharacter;
-    private boolean notNull = false;
+    protected String value;
+    protected String allowedCharacters;
+    protected String replacementCharacter;
+    protected Pattern pattern;
+    protected boolean toUpperCase = false;
 
     public ItemTypeString(String name, String value, int type,
             String category, String description) {
@@ -35,6 +37,9 @@ public class ItemTypeString extends ItemTypeLabelValue {
     }
 
     public void parseValue(String value) {
+        if (toUpperCase && value != null) {
+            value = value.toUpperCase();
+        }
         if (allowedCharacters != null && value != null) {
             int i = 0;
             while (i < value.length()) {
@@ -51,11 +56,21 @@ public class ItemTypeString extends ItemTypeLabelValue {
                 }
             }
         }
+        if (pattern != null && value != null) {
+            Matcher m = pattern.matcher(value);
+            if (!m.matches()) {
+                if (m.lookingAt()) {
+                    value = m.group(1);
+                } else {
+                    value = null;
+                }
+            }
+        }
         this.value = value;
     }
 
     public String toString() {
-        return value;
+        return (value != null ? value : "");
     }
 
     public String getValue() {
@@ -64,6 +79,7 @@ public class ItemTypeString extends ItemTypeLabelValue {
 
     public void setValue(String value) {
         this.value = value;
+        showValue();
     }
 
     public void setAllowedCharacters(String allowedCharacters) {
@@ -74,12 +90,20 @@ public class ItemTypeString extends ItemTypeLabelValue {
         this.replacementCharacter = Character.toString(replacementCharacter);
     }
 
-    public void setNotNull(boolean notNull) {
-        this.notNull = notNull;
+    public void setAllowedRegex(String regex) {
+        if (regex != null) {
+            pattern = Pattern.compile("(" + regex + ")");
+        } else {
+            pattern = null;
+        }
     }
 
-    public boolean isNotNullSet() {
-        return notNull;
+    public void setToUpperCase(boolean toUpperCase) {
+        this.toUpperCase = toUpperCase;
+    }
+
+    public boolean isToUpperCase() {
+        return toUpperCase;
     }
 
     public boolean isValidInput() {

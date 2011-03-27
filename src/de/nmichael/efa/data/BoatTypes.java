@@ -38,4 +38,12 @@ public class BoatTypes extends Persistence {
         return r;
     }
 
+    public BoatTypeRecord getBoatType(UUID id, int variant, long validAt) {
+        try {
+            return (BoatTypeRecord)data().getValidAt(BoatTypeRecord.getKey(id, variant, validAt), validAt);
+        } catch(Exception e) {
+            return null;
+        }
+    }
+
 }

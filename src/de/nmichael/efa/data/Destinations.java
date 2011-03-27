@@ -36,4 +36,12 @@ public class Destinations extends Persistence {
         return r;
     }
 
+    public DestinationRecord getDestination(UUID id, long validAt) {
+        try {
+            return (DestinationRecord)data().getValidAt(DestinationRecord.getKey(id, validAt), validAt);
+        } catch(Exception e) {
+            return null;
+        }
+    }
+
 }

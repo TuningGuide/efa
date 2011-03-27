@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.util;
 
+import de.nmichael.efa.gui.util.AutoCompletePopupWindowCallback;
 import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.*;
 import javax.swing.*;

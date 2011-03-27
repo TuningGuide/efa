@@ -47,7 +47,7 @@ public class ImportDestinations extends ImportBase {
         if (!isIdentical(r.getName(), d.get(Ziele.NAME))) {
             return true;
         }
-        if (!isIdentical(Long.toString(r.getDistance(1)), Integer.toString(EfaUtil.zehntelString2Int(d.get(Ziele.KM))))) {
+        if (!isIdentical(Long.toString(r.getDistance().getValueInMeters()), Integer.toString(EfaUtil.zehntelString2Int(d.get(Ziele.KM))*100))) {
             return true;
         }
         if (!isIdentical(Integer.toString(r.getDestinationArea()), Integer.toString(EfaUtil.string2int(d.get(Ziele.BEREICH), IDataAccess.UNDEFINED_INT)))) {
@@ -87,7 +87,7 @@ public class ImportDestinations extends ImportBase {
                 if (r == null || isChanged(r, d)) {
                     r = destinations.createDestinationRecord((r != null ? r.getId() : UUID.randomUUID()));
                     r.setName(d.get(Ziele.NAME));
-                    r.setDistance(EfaUtil.zehntelString2Int(d.get(Ziele.KM)), 1, null);
+                    r.setDistance(DataTypeDistance.parseDistance(d.get(Ziele.KM) + DataTypeDistance.KILOMETERS));
                     if (d.get(Ziele.BEREICH).length() > 0) {
                         r.setDestinationArea(EfaUtil.string2int(d.get(Ziele.BEREICH), 0));
                     }

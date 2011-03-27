@@ -26,6 +26,9 @@ public abstract class DataFile extends DataAccess {
     private final HashMap<DataKey,DataRecord> data = new HashMap<DataKey,DataRecord>();
     private final HashMap<DataKey,ArrayList<DataKey>> versionizedKeyList = new HashMap<DataKey,ArrayList<DataKey>>();
     private final ArrayList<DataIndex> indices = new ArrayList<DataIndex>();
+    private long scn = 0;
+    private DataKey[] cachedKeys; // are only updated by getAllKeys(), not automatically when data is changed!!
+    private long cachedKeysSCN = 0;
     private final DataLocks dataLocks = new DataLocks();
     private DataFileWriter fileWriter;
 
@@ -71,6 +74,7 @@ public abstract class DataFile extends DataAccess {
             writeFile(fw);
             fw.close();
             isOpen = true;
+            scn = 0;
             fileWriter = new DataFileWriter(this);
             fileWriter.start();
         } catch(Exception e) {
@@ -80,6 +84,7 @@ public abstract class DataFile extends DataAccess {
 
     public synchronized void openStorageObject() throws EfaException {
         try {
+            scn = 0;
             BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(filename), ENCODING));
             readFile(fr);
             fr.close();
@@ -163,7 +168,11 @@ public abstract class DataFile extends DataAccess {
     }
 
     public long getSCN() throws EfaException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return scn;
+    }
+
+    public void setSCN(long scn) throws EfaException {
+        this.scn = scn;
     }
 
     public void createIndex(String[] fieldNames) throws EfaException {
@@ -201,6 +210,7 @@ public abstract class DataFile extends DataAccess {
                     }
                     if (add || update) {
                         data.put(key, record.cloneRecord());
+                        scn++;
                         if (meta.versionized) {
                             modifyVersionizedKeys(key, add, update, delete);
                         }
@@ -210,6 +220,7 @@ public abstract class DataFile extends DataAccess {
                     } else {
                         if (delete) {
                             data.remove(key);
+                            scn++;
                             if (meta.versionized) {
                                 modifyVersionizedKeys(key, add, update, delete);
                             }
@@ -484,7 +495,7 @@ public abstract class DataFile extends DataAccess {
             
             // now search all records for matching ones
             ArrayList<DataKey> matches = new ArrayList<DataKey>();
-            DataKeyIterator it = getIterator();
+            DataKeyIterator it = getStaticIterator();
             DataKey key = it.getFirst();
             while (key != null) {
                 DataRecord rec = this.get(key);
@@ -521,6 +532,7 @@ public abstract class DataFile extends DataAccess {
             synchronized (data) {
                 data.clear();
                 versionizedKeyList.clear();
+                scn++;
             }
             fileWriter.save(false);
         } finally {
@@ -528,43 +540,55 @@ public abstract class DataFile extends DataAccess {
         }
     }
 
-    public DataKeyIterator getIterator() throws EfaException {
-        DataKey[] keys;
+    public DataKey[] getAllKeys() throws EfaException {
+        DataKey[] keys = null;
         synchronized(data) {
-            keys = new DataKey[data.size()];
-            keys = data.keySet().toArray(keys);
+            if (cachedKeys == null || getSCN() != cachedKeysSCN) {
+                keys = new DataKey[data.size()];
+                keys = data.keySet().toArray(keys);
+            }
         }
-        Arrays.sort(keys);
-        return new DataKeyIterator(keys);
+        if (keys != null) {
+            Arrays.sort(keys);
+            cachedKeys = keys;
+        }
+        return cachedKeys;
     }
 
-    private DataRecord getIteratorDataRecord(DataKey key) throws EfaException {
-        if (key != null) {
-            return get(key);
-        } else {
-            return null;
-        }
+    public DataKeyIterator getStaticIterator() throws EfaException {
+        return new DataKeyIterator(this, getAllKeys(), false);
+    }
+
+    public DataKeyIterator getDynamicIterator() throws EfaException {
+        return new DataKeyIterator(this, getAllKeys(), true);
     }
 
     public DataRecord getCurrent(DataKeyIterator it) throws EfaException {
-        return getIteratorDataRecord(it.getCurrent());
+        return get(it.getCurrent());
     }
 
     public DataRecord getFirst(DataKeyIterator it) throws EfaException {
-        return getIteratorDataRecord(it.getFirst());
+        return get(it.getFirst());
     }
 
     public DataRecord getLast(DataKeyIterator it) throws EfaException {
-        return getIteratorDataRecord(it.getLast());
+        return get(it.getLast());
     }
 
     public DataRecord getNext(DataKeyIterator it) throws EfaException {
-        return getIteratorDataRecord(it.getNext());
+        return get(it.getNext());
     }
 
     public DataRecord getPrev(DataKeyIterator it) throws EfaException {
-        return getIteratorDataRecord(it.getPrev());
+        return get(it.getPrev());
     }
 
+    public DataRecord getFirst() throws EfaException {
+        return getFirst(getStaticIterator());
+    }
+
+    public DataRecord getLast() throws EfaException {
+        return getLast(getStaticIterator());
+    }
 
 }

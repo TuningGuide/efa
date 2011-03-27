@@ -52,6 +52,20 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
         return date;
     }
 
+    public void setDate(DataTypeDate date) {
+        this.day = date.day;
+        this.month = date.month;
+        this.year = date.year;
+        ensureCorrectDate();
+    }
+
+    public void setDate(Calendar date) {
+        this.day = date.get(GregorianCalendar.DAY_OF_MONTH);
+        this.month = date.get(GregorianCalendar.MONTH) + 1;
+        this.year = date.get(GregorianCalendar.YEAR);
+        ensureCorrectDate();
+    }
+
     public void setDate(int day, int month, int year) {
         this.day = day;
         this.month = month;
@@ -180,6 +194,15 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
         ensureCorrectDate();
     }
 
+    public void addDays(int days) {
+        if (!isSet()) {
+            return;
+        }
+        Calendar cal = toCalendar();
+        cal.add(GregorianCalendar.DATE, days);
+        setDate(cal);
+    }
+
     public void unset() {
         day = -1;
         month = -1;
@@ -226,6 +249,19 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
 
     public boolean isAfter(DataTypeDate o) {
         return compareTo(o) > 0;
+    }
+
+    public long getTimestamp(DataTypeTime time) {
+        if (isSet()) {
+            Calendar cal = toCalendar();
+            if (time != null && time.isSet()) {
+                cal.set(Calendar.HOUR_OF_DAY, time.getHour());
+                cal.set(Calendar.MINUTE, time.getMinute());
+                cal.set(Calendar.SECOND, time.getSecond());
+            }
+            return cal.getTimeInMillis();
+        }
+        return 0;
     }
     
 }

@@ -8,11 +8,10 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.types;
+package de.nmichael.efa.core.items;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.gui.BaseDialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -24,9 +23,10 @@ public class ItemTypeImage extends ItemType {
     private String value;
     private int maxX, maxY;
 
-    protected BaseDialog dlg;
-    protected JLabel image;
-
+    JLabel image;
+    JLabel label;
+    JButton selectButton;
+    JButton removeButton;
 
     public ItemTypeImage(String name, String value, int maxX, int maxY,
             int type, String category, String description) {
@@ -47,8 +47,7 @@ public class ItemTypeImage extends ItemType {
         return value;
     }
 
-    public int displayOnGui(BaseDialog dlg, JPanel panel, int y) {
-        this.dlg = dlg;
+    protected void iniDisplay() {
 
         image = new JLabel();
         image.setBorder(BorderFactory.createEtchedBorder());
@@ -57,7 +56,7 @@ public class ItemTypeImage extends ItemType {
         image.setHorizontalAlignment(SwingConstants.CENTER);
         image.setHorizontalTextPosition(SwingConstants.CENTER);
         setImage(toString());
-        JLabel label = new JLabel();
+        label = new JLabel();
         Mnemonics.setLabel(dlg, label, getDescription() + ": ");
         label.setLabelFor(image);
         if (type == IItemType.TYPE_EXPERT) {
@@ -66,29 +65,34 @@ public class ItemTypeImage extends ItemType {
         if (color != null) {
             label.setForeground(color);
         }
-        JButton selectButton = new JButton();
+        selectButton = new JButton();
         selectButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_open.gif")));
         selectButton.setMargin(new Insets(0,0,0,0));
         Dialog.setPreferredSize(selectButton, 19, 19);
         selectButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { selectButtonHit(e); }
         });
-        JButton removeButton = new JButton();
+        removeButton = new JButton();
         removeButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_minus.gif")));
         removeButton.setMargin(new Insets(0,0,0,0));
         Dialog.setPreferredSize(removeButton, 19, 19);
         removeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { removeButtonHit(e); }
         });
+    }
 
-        panel.add(label, new GridBagConstraints(0, y, 1, 2, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, padX, 0, 0), 0, 0));
-        panel.add(image, new GridBagConstraints(1, y, 1, 2, 0.0, 0.0,
+    public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
+        this.dlg = dlg;
+        iniDisplay();
+        panel.add(label, new GridBagConstraints(x, y, 1, 2, 0.0, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, padXbefore, 0, 0), 0, 0));
+        panel.add(image, new GridBagConstraints(x+1, y, 1, 2, 0.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, padYafter, 0), 0, 0));
-        panel.add(selectButton, new GridBagConstraints(2, y+0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, 0, 0), 0, 0));
-        panel.add(removeButton, new GridBagConstraints(2, y+1, 1, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+        panel.add(selectButton, new GridBagConstraints(x+2, y+0, 1, 1, 0.0, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, 0, padXafter), 0, 0));
+        panel.add(removeButton, new GridBagConstraints(x+2, y+1, 1, 1, 0.0, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, padXafter), 0, 0));
+        this.field = image;
         return 2;
     }
 
@@ -99,13 +103,13 @@ public class ItemTypeImage extends ItemType {
     private void setImage(String filename) {
         value = null;
         if (filename == null || filename.length() == 0) {
-            image.setText(International.getMessage("max. {width} x {height} Pixel",maxX,maxY));
-            image.setIcon(null);
+            ((JLabel)field).setText(International.getMessage("max. {width} x {height} Pixel",maxX,maxY));
+            ((JLabel)field).setIcon(null);
             return;
         }
         try {
-            image.setText("");
-            image.setIcon(new ImageIcon(filename));
+            ((JLabel)field).setText("");
+            ((JLabel)field).setIcon(new ImageIcon(filename));
             value = filename;
         } catch (Exception ee) {
             EfaUtil.foo();
@@ -152,8 +156,38 @@ public class ItemTypeImage extends ItemType {
         this.value = filename;
     }
 
+    public String getValueFromField() {
+        return getValue();
+    }
+
+    public void showValue() {
+    }
+
     public void requestFocus() {
         // nothing to do
     }
     
+    public boolean isValidInput() {
+        if (isNotNullSet()) {
+            if (value == null || value.length() == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void setVisible(boolean visible) {
+        image.setVisible(visible);
+        label.setVisible(visible);
+        selectButton.setVisible(visible);
+        removeButton.setVisible(visible);
+    }
+
+    public void setEnabled(boolean enabled) {
+        image.setForeground((enabled ? (new JLabel()).getForeground() : Color.gray));
+        label.setForeground((enabled ? (new JLabel()).getForeground() : Color.gray));
+        selectButton.setEnabled(enabled);
+        removeButton.setEnabled(enabled);
+    }
+
 }

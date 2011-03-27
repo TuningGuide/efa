@@ -8,28 +8,28 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.types;
+package de.nmichael.efa.core.items;
 
+import de.nmichael.efa.data.storage.IDataAccess;
+import de.nmichael.efa.core.items.ItemTypeLabelValue;
 import de.nmichael.efa.util.*;
 
 // @i18n complete
 
-public class ItemTypeInteger extends ItemTypeLabelValue {
+public class ItemTypeLong extends ItemTypeLabelTextfield {
 
-    public static int UNSET = Integer.MIN_VALUE;
+    public static long UNSET = IDataAccess.UNDEFINED_LONG;
 
-    private int value;
-    private int min;
-    private int max;
-    private boolean allowUnset;
+    private long value;
+    private long min;
+    private long max;
 
-    public ItemTypeInteger(String name, int value, int min, int max, boolean allowUnset,
+    public ItemTypeLong(String name, long value, long min, long max,
             int type, String category, String description) {
         this.name = name;
         this.value = value;
         this.min = min;
         this.max = max;
-        this.allowUnset = allowUnset;
         this.type = type;
         this.category = category;
         this.description = description;
@@ -37,10 +37,10 @@ public class ItemTypeInteger extends ItemTypeLabelValue {
 
     public void parseValue(String value) {
         try {
-            if (value.length() == 0 && allowUnset) {
+            if (value.length() == 0 && !isNotNullSet()) {
                 this.value = UNSET;
             } else {
-                this.value = Integer.parseInt(value);
+                this.value = Long.parseLong(value);
                 if (this.value < min) {
                     this.value = min;
                 }
@@ -57,22 +57,29 @@ public class ItemTypeInteger extends ItemTypeLabelValue {
     }
 
     public String toString() {
-        if (allowUnset && value == UNSET) {
+        if (!isNotNullSet() && value == UNSET) {
             return "";
         }
-        return Integer.toString(value);
+        return Long.toString(value);
     }
 
-    public int getValue() {
+    public long getValue() {
         return value;
     }
 
-    public void setValue(int value) {
+    public void setValue(long value) {
         this.value = value;
     }
 
     public boolean isSet() {
-        return (!allowUnset) || value != UNSET;
+        return (isNotNullSet()) || value != UNSET;
+    }
+
+    public boolean isValidInput() {
+        if (isNotNullSet()) {
+            return isSet();
+        }
+        return true;
     }
 
 }

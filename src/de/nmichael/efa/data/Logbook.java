@@ -12,12 +12,15 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.data.types.*;
 
 // @i18n complete
 
 public class Logbook extends Persistence {
 
     public static final String DATATYPE = "e2logbook";
+
+    private String name;
 
     public Logbook(int storageType, String storageLocation, String storageObjectName) {
         super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Fahrtenbuch"));
@@ -28,11 +31,31 @@ public class Logbook extends Persistence {
     public DataRecord createNewRecord() {
         return new LogbookRecord(this, MetaData.getMetaData(DATATYPE));
     }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public LogbookRecord createLogbookRecord(String entryNo) {
+    public String getName() {
+        return name;
+    }
+
+    public LogbookRecord createLogbookRecord(DataTypeIntString entryNo) {
         LogbookRecord r = new LogbookRecord(this, MetaData.getMetaData(DATATYPE));
         r.setEntryId(entryNo);
         return r;
+    }
+
+    public LogbookRecord getLogbookRecord(DataTypeIntString entryNo) {
+        return getLogbookRecord(LogbookRecord.getKey(entryNo));
+    }
+
+    public LogbookRecord getLogbookRecord(DataKey key) {
+        try {
+            return (LogbookRecord)(data().get(key));
+        } catch(Exception e) {
+            return null;
+        }
     }
 
 }

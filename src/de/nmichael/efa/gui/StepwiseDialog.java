@@ -12,7 +12,7 @@ package de.nmichael.efa.gui;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.types.*;
+import de.nmichael.efa.core.items.*;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -151,6 +151,8 @@ public abstract class StepwiseDialog extends BaseDialog {
         mainPanel.add(stepPanelWrapper, BorderLayout.WEST);
         mainPanel.add(descriptionPanel,BorderLayout.SOUTH);
         mainPanel.add(inputPanelWrapper, BorderLayout.CENTER);
+
+        updateGui();
     }
 
     public void updateGui() {
@@ -187,11 +189,6 @@ public abstract class StepwiseDialog extends BaseDialog {
             inputScrollPane.getViewport().add(inputPanel, null);
         }
         this.validate();
-    }
-
-    public void showDialog() {
-        updateGui();
-        super.showDialog();
     }
 
     public IItemType[] getInputItems(int step) {

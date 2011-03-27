@@ -8,7 +8,7 @@
  * @version 2
  */
 
-package de.nmichael.efa.core.types;
+package de.nmichael.efa.core.items;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -44,18 +44,9 @@ public class ItemTypeFile extends ItemTypeString {
         this.fileOrDir = fileOrDir;
     }
 
-    public int displayOnGui(BaseDialog dlg, JPanel panel, int y) {
-        this.dlg = dlg;
+    public int displayOnGui(BaseDialog dlg, JPanel panel, int x, int y) {
+        super.displayOnGui(dlg, panel, x, y);
 
-        textfield = new JTextField();
-        textfield.setText(toString());
-        Dialog.setPreferredSize(textfield, 300, 19);
-        JLabel label = new JLabel();
-        Mnemonics.setLabel(dlg, label, getDescription() + ": ");
-        label.setLabelFor(textfield);
-        if (type == IItemType.TYPE_EXPERT) {
-            label.setForeground(Color.red);
-        }
         JButton button = new JButton();
         if (fileOpenSave == MODE_OPEN) {
             button.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_open.gif")));
@@ -67,14 +58,7 @@ public class ItemTypeFile extends ItemTypeString {
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { buttonHit(e); }
         });
-        textfield.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(FocusEvent e) { textfield_focusLost(e); }
-        });
-        panel.add(label, new GridBagConstraints(0, y, 1, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-        panel.add(textfield, new GridBagConstraints(1, y, 1, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-        panel.add(button, new GridBagConstraints(2, y, 1, 1, 0.0, 0.0,
+        panel.add(button, new GridBagConstraints(x+2, y, 1, 1, 0.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         return 1;
     }
@@ -82,7 +66,7 @@ public class ItemTypeFile extends ItemTypeString {
     private void buttonHit(ActionEvent e) {
         String startDirectory = null;
         String selectedFile = null;
-        String currentValue = textfield.getText().trim();
+        String currentValue = getValueFromField();
 
         if (currentValue.length() > 0) {
             startDirectory = EfaUtil.getPathOfFile(currentValue);
@@ -94,12 +78,13 @@ public class ItemTypeFile extends ItemTypeString {
                 fileTypes, fileExtensions, startDirectory, selectedFile, null, 
                 fileOpenSave == MODE_SAVE, fileOrDir == TYPE_DIR);
         if (file != null) {
-            textfield.setText(file);
+            value = file;
+            showValue();
         }
         
     }
 
-    protected void textfield_focusLost(FocusEvent e) {
+    protected void field_focusLost(FocusEvent e) {
         getValueFromGui();
         String filename = toString().trim();
         if (fileOpenSave == MODE_OPEN && filename.length() > 0) {
@@ -112,7 +97,8 @@ public class ItemTypeFile extends ItemTypeString {
                         International.getString("Verzeichnis"),filename)+".");
             }
         }
-        textfield.setText(filename);
+        value = filename;
+        showValue();
     }
 
 }

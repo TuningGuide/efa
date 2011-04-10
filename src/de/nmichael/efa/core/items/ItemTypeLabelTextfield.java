@@ -36,6 +36,7 @@ public abstract class ItemTypeLabelTextfield extends ItemTypeLabelValue {
     }
 
     public void showValue() {
+        super.showValue();
         if (field != null) {
             ((JTextField)field).setText(toString());
         }

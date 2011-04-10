@@ -28,7 +28,7 @@ public class ItemTypeBoolean extends ItemType {
         this.type = type;
         this.category = category;
         this.description = description;
-        this.fieldGridWidth = 2;
+        this.fieldGridWidth = 3;
     }
 
     public void parseValue(String value) {

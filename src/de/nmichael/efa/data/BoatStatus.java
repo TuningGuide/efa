@@ -36,4 +36,31 @@ public class BoatStatus extends Persistence {
         return r;
     }
 
+    public Vector<BoatStatusRecord> getBoats(String status) {
+        try {
+            Vector<BoatStatusRecord> v = new Vector<BoatStatusRecord>();
+            DataKeyIterator it = data().getStaticIterator();
+            DataKey k = it.getFirst();
+            while (k != null) {
+                BoatStatusRecord r = (BoatStatusRecord) data().get(k);
+                if (r != null) {
+                    String s = r.getStatus();
+                    if (s != null && s.equals(status)) {
+                        v.add(r);
+                    }
+                }
+                k = it.getNext();
+            }
+            return v;
+        } catch (Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
+    public boolean areBoatsOutOnTheWater() {
+        Vector v = getBoats(BoatStatusRecord.STATUS_ONTHEWATER);
+        return (v != null && v.size() > 0);
+    }
+
 }

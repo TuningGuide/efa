@@ -107,6 +107,7 @@ public class DataLocks {
             } while (System.currentTimeMillis() >= startTimestamp
                     && System.currentTimeMillis() - startTimestamp < LOCK_TIMEOUT);
         } catch (Exception e) {
+            Logger.logdebug(e);
         }
         return null;
     }

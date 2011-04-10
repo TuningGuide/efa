@@ -12,6 +12,7 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.util.*;
 import java.util.*;
 
 // @i18n complete
@@ -352,6 +353,7 @@ public class LogbookRecord extends DataRecord {
                 return getPersistence().getProject().getBoats(false).getBoat(id, validAt);
             }
         } catch(Exception e) {
+            Logger.logdebug(e);
         }
         return null;
     }
@@ -369,6 +371,7 @@ public class LogbookRecord extends DataRecord {
                 return getPersistence().getProject().getPersons(false).getPerson(id, validAt);
             }
         } catch(Exception e) {
+            Logger.logdebug(e);
         }
         return null;
     }
@@ -388,6 +391,7 @@ public class LogbookRecord extends DataRecord {
                 return getPersistence().getProject().getDestinations(false).getDestination(id, validAt);
             }
         } catch(Exception e) {
+            Logger.logdebug(e);
         }
         return null;
     }
@@ -396,7 +400,7 @@ public class LogbookRecord extends DataRecord {
         String name = null;
         BoatRecord b = getBoatRecord(validAt);
         if (b != null) {
-            name = b.getQualifiedName(getBoatVariant(), validAt);
+            name = b.getQualifiedName();
         }
         if (name == null || name.length() == 0) {
             name = getBoatName();
@@ -450,12 +454,15 @@ public class LogbookRecord extends DataRecord {
         return "";
     }
 
-    public long getValidAtTimestamp() {
-        DataTypeDate d = getDate();
+    public static long getValidAtTimestamp(DataTypeDate d, DataTypeTime t) {
         if (d != null && d.isSet()) {
-            return d.getTimestamp(getStartTime());
+            return d.getTimestamp(t);
         }
         return 0;
+    }
+
+    public long getValidAtTimestamp() {
+        return getValidAtTimestamp(getDate(), getStartTime());
     }
 
     public static int getCrewNoFromFieldName(String field) {

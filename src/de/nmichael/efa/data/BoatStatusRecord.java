@@ -18,6 +18,14 @@ import java.util.*;
 
 public class BoatStatusRecord extends DataRecord {
 
+    // Status Keys (identical to old efa 1.x BootStatus (if changed, make sure to adapt import!)
+    public static final String STATUS_HIDE  = "HIDE";
+    public static final String STATUS_AVAILABLE = "AVAILABLE";
+    public static final String STATUS_ONTHEWATER = "ONTHEWATER";
+    public static final String STATUS_NOTAVAILABLE = "NOTAVAILABLE";
+    public static final String STATUS_CURRENTLYHIDDEN = "CURRENTLYHIDDEN";
+
+
     // =========================================================================
     // Field Names
     // =========================================================================

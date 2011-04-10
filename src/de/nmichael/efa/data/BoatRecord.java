@@ -12,6 +12,7 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.util.*;
 import de.nmichael.efa.Daten;
 import java.util.regex.*;
 import java.util.*;
@@ -229,13 +230,14 @@ public class BoatRecord extends DataRecord {
         return getString(FREEUSE3);
     }
 
-    public BoatTypeRecord getBoatType(int variant, long validAt) {
+    public BoatTypeRecord getBoatType(int variant) {
         try {
             UUID id = getId();
             if (id != null) {
-                return getPersistence().getProject().getBoatTypes(false).getBoatType(id, variant, validAt);
+                return getPersistence().getProject().getBoatTypes(false).getBoatType(id, variant, getValidFrom());
             }
         } catch(Exception e) {
+            Logger.logdebug(e);
         }
         return null;
     }
@@ -247,28 +249,41 @@ public class BoatRecord extends DataRecord {
             ArrayList<BoatTypeRecord> list = new ArrayList<BoatTypeRecord>();
             for (DataKey key : keys) {
                 BoatTypeRecord r = (BoatTypeRecord)boatTypes.data().get(key);
-                if (r != null && (anyValidity || (getValidFrom() == r.getValidFrom() && getInvalidFrom() == r.getInvalidFrom()))) {
+                if (r != null && (anyValidity || getValidFrom() == r.getValidFrom())) {
                     list.add(r);
                 }
             }
             return list.toArray(new BoatTypeRecord[0]);
         } catch(Exception e) {
+            Logger.logdebug(e);
         }
         return null;
     }
 
-    public String getQualifiedName(int variant, long validAt) {
-        String name = getName();
-        if (name != null && name.length() > 0 && variant > 0) {
-            BoatTypeRecord t = getBoatType(variant, validAt);
-            if (t != null && t.getDescription() != null && t.getDescription().length() > 0) {
-                name = name + " - " + t.getDescription();
+    public String getVariantName(int variant) {
+        if (variant > 0) {
+            BoatTypeRecord t = getBoatType(variant);
+            if (t != null) {
+                String s = t.getDescription();
+                if (s != null) {
+                    return s;
+                }
             }
         }
-        if (name != null & name.length() > 0 && getOwner() != null && getOwner().length() > 0) {
-            name = name + " (" + getOwner() + ")";
+        return "";
+    }
+
+    public String getQualifiedVariantName(int variant) {
+        if (variant > 0) {
+            BoatTypeRecord t = getBoatType(variant);
+            if (t != null) {
+                String s = t.getQualifiedName();
+                if (s != null) {
+                    return s;
+                }
+            }
         }
-        return (name != null ? name : "");
+        return "";
     }
 
     public String getQualifiedName() {

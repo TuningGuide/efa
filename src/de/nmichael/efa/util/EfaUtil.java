@@ -153,7 +153,7 @@ public class EfaUtil {
   }
 
 
-    // vollen Namen aus Teilnamen konstruieren
+    // @todo remove, has been replaced by PersonRecord.getFullName(...)
     public static String getFullName(String first, String last, String association, boolean firstFirst) {
         String s = "";
         if (firstFirst) {
@@ -602,7 +602,7 @@ public class EfaUtil {
     String s = new File(fileName).getName();
     int wo;
     if (s != null && (wo =fileName.lastIndexOf(s)) >= 0)
-      if (wo != 0) {
+      if (wo > 0) {
         s = fileName.substring(0,wo-1);
         if (fileName.charAt(wo-1) == ':' && Daten.fileSep.equals("\\")) s += ":"; // Windows Fall "a:2002.efb"
       } else return "";
@@ -615,7 +615,7 @@ public class EfaUtil {
   public static String getNameOfFile(String fileName) {
     if (fileName == null) return null;
     int l = getPathOfFile(fileName).length();
-    return fileName.substring( (l == 0 ? 0 : l+1 ) );
+    return (l >= fileName.length() ? "" : fileName.substring( (l == 0 ? 0 : l+1 ) ) );
   }
 
   // Dateinamen ohne jegliche Pfadangaben erhalten

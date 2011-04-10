@@ -63,6 +63,10 @@ public abstract class ItemType implements IItemType {
         return description;
     }
 
+    public void setDescription(String s) {
+        description = s;
+    }
+
     public void setColor(Color c) {
         this.color = c;
     }

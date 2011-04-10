@@ -34,6 +34,8 @@ public class DestinationRecord extends DataRecord {
     public static final String DISTANCE            = "Distance";
     public static final String WATERSIDLIST        = "WatersIdList";
 
+    public static final String[] IDX_NAME = new String[] { NAME };
+
     public static void initialize() {
         Vector<String> f = new Vector<String>();
         Vector<Integer> t = new Vector<Integer>();
@@ -50,7 +52,7 @@ public class DestinationRecord extends DataRecord {
         f.add(WATERSIDLIST);                      t.add(IDataAccess.DATA_LIST);
         MetaData metaData = constructMetaData(Destinations.DATATYPE, f, t, true);
         metaData.setKey(new String[] { ID }); // plus VALID_FROM
-        metaData.addIndex(new String[] { NAME });
+        metaData.addIndex(IDX_NAME);
     }
 
     public DestinationRecord(Destinations destinations, MetaData metaData) {
@@ -142,6 +144,12 @@ public class DestinationRecord extends DataRecord {
     public String getQualifiedName() {
         String name = getName();
         return (name != null ? name : "");
+    }
+
+    public static String[] getValuesForIndexFromQualifiedName(String qname) {
+        return new String[] {
+                qname
+        };
     }
 
 }

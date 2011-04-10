@@ -98,15 +98,12 @@ public class ImportPersons extends ImportBase {
             long validFrom = DataAccess.getTimestampFromDate(logbookRec.getStartDate());
 
             DatenFelder d = mitglieder.getCompleteFirst();
-            String[] IDX = new String[] { PersonRecord.FIRSTNAME, PersonRecord.LASTNAME, PersonRecord.ASSOCIATION };
             while (d != null) {
                 // First search, whether we have imported this person already
                 PersonRecord r = null;
-                DataKey[] keys = persons.data().getByFields(IDX,
-                        new String[] {
-                                        (d.get(Mitglieder.VORNAME).length() > 0 ? d.get(Mitglieder.VORNAME) : null),
-                                        (d.get(Mitglieder.NACHNAME).length() > 0 ? d.get(Mitglieder.NACHNAME) : null),
-                                        (d.get(Mitglieder.VEREIN).length() > 0 ? d.get(Mitglieder.VEREIN) : null) });
+                DataKey[] keys = persons.data().getByFields(PersonRecord.IDX_NAME_ASSOC,
+                        PersonRecord.getValuesForIndexFromQualifiedName(
+                            PersonRecord.getFullName(d.get(Mitglieder.VORNAME), d.get(Mitglieder.NACHNAME), d.get(Mitglieder.VEREIN), true)));
                 if (keys != null && keys.length > 0) {
                     // We've found one or more persons with same Name and Association.
                     // Since we're importing data from efa1, these persons are all identical, i.e. have the same ID.

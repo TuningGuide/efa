@@ -50,6 +50,7 @@ public class DataFileWriter extends Thread {
                             }
                         } catch(Exception e) {
                             Logger.log(Logger.ERROR, Logger.MSG_FILE_WRITETHREAD_ERROR, "DataFileWriter["+dataFile.filename+"] failed to save data: "+e.toString());
+                            Logger.log(e);
                         } finally {
                             dataFile.releaseGlobalLock(lock);
                             if (Logger.isTraceOn(Logger.TT_FILEIO)) {
@@ -63,7 +64,7 @@ public class DataFileWriter extends Thread {
                     Thread.sleep(SLEEP_INTERVAL);
                 }
             } catch(Exception eglob) {
-                // nothing to do
+                // no logging, also not debug exception loggin (too many interrupted exceptions)
             }
         }
         if (Logger.isTraceOn(Logger.TT_FILEIO)) {

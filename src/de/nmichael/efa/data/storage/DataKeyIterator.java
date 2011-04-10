@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data.storage;
 
+import de.nmichael.efa.util.*;
 import java.util.*;
 
 // @i18n complete
@@ -30,6 +31,7 @@ public class DataKeyIterator {
         try {
             scn = dataAccess.getSCN();
         } catch(Exception e) {
+            Logger.logdebug(e);
         }
     }
 
@@ -44,6 +46,7 @@ public class DataKeyIterator {
                 keyHash = null;
             }
         } catch(Exception e) {
+            Logger.logdebug(e);
         }
     }
 

@@ -40,6 +40,21 @@ public class Persons extends Persistence {
         try {
             return (PersonRecord)data().getValidAt(PersonRecord.getKey(id, validAt), validAt);
         } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
+    public PersonRecord getPerson(String personName, long validAt) {
+        try {
+            DataKey[] keys = data().getByFields(
+                PersonRecord.IDX_NAME_ASSOC, PersonRecord.getValuesForIndexFromQualifiedName(personName), validAt);
+            if (keys == null || keys.length < 1) {
+                return null;
+            }
+            return (PersonRecord)data().get(keys[0]);
+        } catch(Exception e) {
+            Logger.logdebug(e);
             return null;
         }
     }

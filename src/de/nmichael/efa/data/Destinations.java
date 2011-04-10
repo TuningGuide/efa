@@ -40,6 +40,21 @@ public class Destinations extends Persistence {
         try {
             return (DestinationRecord)data().getValidAt(DestinationRecord.getKey(id, validAt), validAt);
         } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
+    public DestinationRecord getDestination(String destinationName, long validAt) {
+        try {
+            DataKey[] keys = data().getByFields(
+                DestinationRecord.IDX_NAME, DestinationRecord.getValuesForIndexFromQualifiedName(destinationName), validAt);
+            if (keys == null || keys.length < 1) {
+                return null;
+            }
+            return (DestinationRecord)data().get(keys[0]);
+        } catch(Exception e) {
+            Logger.logdebug(e);
             return null;
         }
     }

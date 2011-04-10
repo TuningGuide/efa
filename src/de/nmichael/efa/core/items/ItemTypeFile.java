@@ -44,7 +44,7 @@ public class ItemTypeFile extends ItemTypeString {
         this.fileOrDir = fileOrDir;
     }
 
-    public int displayOnGui(BaseDialog dlg, JPanel panel, int x, int y) {
+    public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
         super.displayOnGui(dlg, panel, x, y);
 
         JButton button = new JButton();

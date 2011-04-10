@@ -61,10 +61,14 @@ public class ItemTypeStringList extends ItemTypeLabelValue {
     }
 
     public void showValue() {
+        super.showValue();
         for (int i=0; valueList != null && value != null && field != null && i<valueList.length; i++) {
             if (value.equals(valueList[i])) {
                 ignoreItemStateChanges = true;
-                ((JComboBox)field).setSelectedIndex(i);
+                try {
+                    ((JComboBox)field).setSelectedIndex(i);
+                } catch(Exception e) {
+                }
                 ignoreItemStateChanges = false;
                 return;
             }
@@ -78,6 +82,21 @@ public class ItemTypeStringList extends ItemTypeLabelValue {
                 return;
             }
         }
+    }
+
+    public void setListData(String[] valueList, String[] displayList) {
+        this.valueList = valueList;
+        this.displayList = displayList;
+        ignoreItemStateChanges = true;
+        try {
+            ((JComboBox)field).removeAllItems();
+            for (int i=0; displayList != null && i<displayList.length; i++) {
+                ((JComboBox)field).addItem(displayList[i]);
+            }
+        } catch(Exception e) {
+        }
+        ignoreItemStateChanges = false;
+        showValue();
     }
 
     public String toString() {

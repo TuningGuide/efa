@@ -65,6 +65,7 @@ public class XMLFile extends DataFile {
             parser.setErrorHandler(eh);
             parser.parse(filename);
         } catch(Exception e) {
+            Logger.log(e);
             throw new EfaException(Logger.MSG_DATA_READFAILED, LogString.logstring_fileReadFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         } finally {
             releaseGlobalLock(lock);
@@ -86,6 +87,7 @@ public class XMLFile extends DataFile {
         try {
             fw.write(space(indent) + s + "\n");
         } catch(Exception e) {
+            Logger.log(e);
             throw new EfaException(Logger.MSG_DATA_WRITEFAILED, LogString.logstring_fileWritingFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         }
     }

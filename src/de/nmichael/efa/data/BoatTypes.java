@@ -42,6 +42,7 @@ public class BoatTypes extends Persistence {
         try {
             return (BoatTypeRecord)data().getValidAt(BoatTypeRecord.getKey(id, variant, validAt), validAt);
         } catch(Exception e) {
+            Logger.logdebug(e);
             return null;
         }
     }

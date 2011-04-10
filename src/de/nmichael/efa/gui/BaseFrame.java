@@ -100,7 +100,7 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
 
     protected void iniDialogCommon(String title) throws Exception {
         helpTopic = getClass().getCanonicalName();
-        if (Logger.isDebugLoggin()) {
+        if (Logger.isTraceOn(Logger.TT_BACKGROUND)) {
             Logger.log(Logger.DEBUG, Logger.MSG_HELP_DEBUGHELPTOPIC, "Help Topic: "+helpTopic);
         }
         ActionHandler ah = new ActionHandler(this);

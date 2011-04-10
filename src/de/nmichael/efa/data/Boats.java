@@ -40,6 +40,21 @@ public class Boats extends Persistence {
         try {
             return (BoatRecord)data().getValidAt(BoatRecord.getKey(id, validAt), validAt);
         } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
+    public BoatRecord getBoat(String boatName, long validAt) {
+        try {
+            DataKey[] keys = data().getByFields(
+                BoatRecord.IDX_NAME_OWNER, BoatRecord.getValuesForIndexFromQualifiedName(boatName), validAt);
+            if (keys == null || keys.length < 1) {
+                return null;
+            }
+            return (BoatRecord)data().get(keys[0]);
+        } catch(Exception e) {
+            Logger.logdebug(e);
             return null;
         }
     }

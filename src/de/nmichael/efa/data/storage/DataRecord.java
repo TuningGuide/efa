@@ -153,6 +153,9 @@ public abstract class DataRecord implements Cloneable {
                         throw new IllegalArgumentException("Data Type INTSTRING expected for Data Field " + fieldIdx + ".");
                     }
                     break;
+                case IDataAccess.DATA_VIRTUAL:
+                    // nothing to do
+                    return;
             }
         }
         synchronized (this.data) {
@@ -165,9 +168,18 @@ public abstract class DataRecord implements Cloneable {
         set(metaData.getFieldIndex(fieldName), data);
     }
 
+    protected Object getVirtualColumn(int fieldIdx) {
+        return null;
+    }
+
     protected Object get(int fieldIdx) {
+        int type = getFieldType(fieldIdx);
         synchronized(data) {
-            return this.data[fieldIdx];
+            if (type != IDataAccess.DATA_VIRTUAL) {
+                return this.data[fieldIdx];
+            } else {
+                return getVirtualColumn(fieldIdx);
+            }
         }
     }
 
@@ -424,6 +436,8 @@ public abstract class DataRecord implements Cloneable {
                 return UUID.fromString(s);
             case IDataAccess.DATA_INTSTRING:
                 return DataTypeIntString.parseString(s);
+            case IDataAccess.DATA_VIRTUAL:
+                return "";
         }
         return null;
     }

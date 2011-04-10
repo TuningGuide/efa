@@ -78,6 +78,7 @@ public abstract class DataFile extends DataAccess {
             fileWriter = new DataFileWriter(this);
             fileWriter.start();
         } catch(Exception e) {
+            Logger.log(e);
             throw new EfaException(Logger.MSG_DATA_CREATEFAILED, LogString.logstring_fileCreationFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         }
     }
@@ -92,6 +93,7 @@ public abstract class DataFile extends DataAccess {
             fileWriter = new DataFileWriter(this);
             fileWriter.start();
         } catch(Exception e) {
+            Logger.log(e);
             throw new EfaException(Logger.MSG_DATA_OPENFAILED, LogString.logstring_fileOpenFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         }
     }
@@ -112,6 +114,7 @@ public abstract class DataFile extends DataAccess {
             fileWriter.exit();
             fileWriter = null;
         } catch(Exception e) {
+            Logger.log(e);
             throw new EfaException(Logger.MSG_DATA_CLOSEFAILED, LogString.logstring_fileCloseFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         }
     }
@@ -476,6 +479,10 @@ public abstract class DataFile extends DataAccess {
     }
 
     public DataKey[] getByFields(String[] fieldNames, Object[] values) throws EfaException {
+        return getByFields(fieldNames, values, -1);
+    }
+
+    public DataKey[] getByFields(String[] fieldNames, Object[] values, long validAt) throws EfaException {
         int[] idxFields = new int[fieldNames.length];
         for (int i=0; i<idxFields.length; i++) {
             idxFields[i] = meta.getFieldIndex(fieldNames[i]);
@@ -483,7 +490,19 @@ public abstract class DataFile extends DataAccess {
         DataIndex idx = findIndex(idxFields);
         if (idx != null) {
             // Search by using index
-            return idx.search(values);
+            DataKey[] keys = idx.search(values);
+            if (keys == null || keys.length == 0 || validAt < 0) {
+                return keys;
+            }
+            // for versionized index search, now select only keys from the valid range
+            ArrayList<DataKey> keyList = new ArrayList<DataKey>();
+            for (int i=0; i<keys.length; i++) {
+                DataRecord r = this.get(keys[i]);
+                if (r != null && r.getValidFrom() <= validAt && r.getInvalidFrom() > validAt) {
+                    keyList.add(keys[i]);
+                }
+            }
+            return keyList.toArray(new DataKey[0]);
         } else {
             // Search without index
             
@@ -503,6 +522,9 @@ public abstract class DataFile extends DataAccess {
                     boolean matching = true;
                     for (int i=0; matching && i<fieldIdx.length; i++) {
                         if (fieldIdx[i] >= 0 && !values[i].equals(rec.get(fieldIdx[i]))) {
+                            matching = false;
+                        }
+                        if (validAt >= 0 && (rec.getValidFrom() > validAt || rec.getInvalidFrom() <= validAt)) {
                             matching = false;
                         }
                     }

@@ -46,6 +46,7 @@ public class Project extends Persistence {
             p.open(false);
             Daten.project = p;
         } catch (Exception ee) {
+            Logger.logdebug(ee);
             return false;
         }
         return true;
@@ -78,6 +79,7 @@ public class Project extends Persistence {
             rec.setType(ProjectRecord.TYPE_CLUB);
             dataAccess.add(rec);
         } catch(Exception e) {
+            Logger.logdebug(e);
         }
     }
 
@@ -97,6 +99,7 @@ public class Project extends Persistence {
         try {
             return (ProjectRecord)dataAccess.get(getProjectRecordKey());
         } catch(Exception e) {
+            Logger.logdebug(e);
             return null;
         }
     }
@@ -105,6 +108,7 @@ public class Project extends Persistence {
         try {
             return (ProjectRecord)dataAccess.get(getClubRecordKey());
         } catch(Exception e) {
+            Logger.logdebug(e);
             return null;
         }
     }
@@ -113,6 +117,7 @@ public class Project extends Persistence {
         try {
             return (ProjectRecord)dataAccess.get(getLoogbookRecordKey(logbookName));
         } catch(Exception e) {
+            Logger.logdebug(e);
             return null;
         }
     }
@@ -132,6 +137,7 @@ public class Project extends Persistence {
         } catch(Exception e) {
             Logger.log(Logger.ERROR,Logger.MSG_DATA_CLOSEFAILED,
             LogString.logstring_fileCloseFailed(persistence.toString(), p.getDescription(), e.toString()));
+            Logger.log(e);
         }
     }
 
@@ -166,6 +172,7 @@ public class Project extends Persistence {
         } catch(Exception e) {
             Logger.log(Logger.ERROR,Logger.MSG_DATA_OPENFAILED,
                     LogString.logstring_fileOpenFailed( (p != null ? p.toString(): "<?>"), description, e.toString()));
+            Logger.log(e);
             return null;
         }
         return p;
@@ -180,6 +187,7 @@ public class Project extends Persistence {
                 createNewIfDoesntExist, International.getString("Fahrtenbuch"));
         if (logbook != null) {
             logbook.setName(logbookName);
+            logbook.setProjectRecord(rec);
         }
         return logbook;
     }
@@ -200,6 +208,7 @@ public class Project extends Persistence {
             }
             return a.toArray(new String[0]);
         } catch (Exception e) {
+            Logger.logdebug(e);
             return null;
         }
     }

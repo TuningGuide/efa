@@ -95,7 +95,9 @@ public class XMLFileReader extends DefaultHandler {
             } catch(Exception e) {
                 Logger.log(Logger.ERROR,Logger.MSG_FILE_PARSEERROR,"Parse Error for Field "+currentField+" = "+s+": "+e.toString());
             }
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"Field "+currentField+" = "+s);
+            if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
+                Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"Field "+currentField+" = "+s);
+            }
         }
         if (inHeaderSection && currentField != null) {
             try {
@@ -106,7 +108,9 @@ public class XMLFileReader extends DefaultHandler {
             } catch(Exception e) {
                 Logger.log(Logger.ERROR,Logger.MSG_FILE_PARSEERROR,"Parse Error for Field "+currentField+" = "+s+": "+e.toString());
             }
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"Field "+currentField+" = "+s);
+            if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
+                Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"Field "+currentField+" = "+s);
+            }
         }
     }
 
@@ -130,8 +134,7 @@ public class XMLFileReader extends DefaultHandler {
             dataRecord = null;
             inRecord = false;
         }
-        if (inRecord) {
-            currentField = null;
-        }
-}
+        currentField = null;
+    }
+    
 }

@@ -16,6 +16,7 @@ import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.gui.util.AutoCompletePopupWindow;
+import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -37,6 +38,8 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
     protected AutoCompleteList autoCompleteList;
     protected boolean withPopup = true;
     protected boolean valueIsKnown = false;
+    protected boolean isCheckSpelling = false;
+    protected boolean isCheckPermutations = false;
 
     public ItemTypeStringAutoComplete(String name, String value, int type,
             String category, String description, boolean showButton) {
@@ -72,6 +75,11 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         this.autoCompleteList = autoCompleteList;
     }
 
+    public void setChecks(boolean checkSpelling, boolean checkPermutations) {
+        this.isCheckSpelling = checkSpelling;
+        this.isCheckPermutations = checkPermutations;
+    }
+
     public void setVisible(boolean visible) {
         super.setVisible(visible);
         if (button != null) {
@@ -94,6 +102,9 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
     protected void field_focusLost(FocusEvent e) {
         if (Daten.efaConfig.popupComplete.getValue()) {
             AutoCompletePopupWindow.hideWindow();
+        }
+        if (isCheckSpelling && Daten.efaConfig.correctMisspelledBoote.getValue()) {
+            checkSpelling();
         }
         super.field_focusLost(e);
     }
@@ -272,6 +283,33 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
 
         if (field.getText().length() == 0) {
             setButtonColor(null);
+        }
+    }
+
+    private void checkSpelling() {
+        String name = getValueFromField().trim();
+        if (name.length() == 0) {
+            return;
+        }
+        AutoCompleteList list = getAutoCompleteList();
+        if (list == null) {
+            return;
+        }
+
+        Vector<String> neighbours = null;
+        if (list.getExact(name.toLowerCase()) == null) {
+            neighbours = list.getNeighbours(name, 3, (isCheckPermutations ? 6 : 0));
+        }
+        if (neighbours != null) {
+            for (int i=0; i<neighbours.size(); i++) {
+                String suggestedName = neighbours.get(i);
+                if (Dialog.yesNoDialog(International.getString("Tippfehler?"),
+                        International.getMessage("Der Name '{name}' ist unbekannt.", name) + "\n"
+                        + International.getMessage("Meintest Du '{suggestedName}'?", suggestedName)) == Dialog.YES) {
+                    this.parseAndShowValue(suggestedName);
+                    break;
+                }
+            }
         }
     }
 

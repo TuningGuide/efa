@@ -16,6 +16,7 @@ import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.util.*;
 import java.util.*;
+import java.util.regex.*;
 
 // @i18n complete
 
@@ -28,6 +29,7 @@ public class PersonRecord extends DataRecord {
     public static final String ID                  = "Id";
     public static final String FIRSTNAME           = "FirstName";
     public static final String LASTNAME            = "LastName";
+    public static final String FIRSTLASTNAME       = "FirstLastName";
     public static final String TITLE               = "Title";
     public static final String GENDER              = "Gender";
     public static final String BIRTHDAY            = "Birthday";
@@ -48,6 +50,10 @@ public class PersonRecord extends DataRecord {
     public static final String FREEUSE2            = "FreeUse2";
     public static final String FREEUSE3            = "FreeUse3";
 
+    public static final String[] IDX_NAME_ASSOC = new String[] { FIRSTLASTNAME, ASSOCIATION };
+
+    private static Pattern qnamePattern = Pattern.compile("(.+) (\\([^\\(\\)]+\\))");
+
     public static void initialize() {
         Vector<String> f = new Vector<String>();
         Vector<Integer> t = new Vector<Integer>();
@@ -55,6 +61,7 @@ public class PersonRecord extends DataRecord {
         f.add(ID);                                t.add(IDataAccess.DATA_UUID);
         f.add(FIRSTNAME);                         t.add(IDataAccess.DATA_STRING);
         f.add(LASTNAME);                          t.add(IDataAccess.DATA_STRING);
+        f.add(FIRSTLASTNAME);                     t.add(IDataAccess.DATA_VIRTUAL);
         f.add(TITLE);                             t.add(IDataAccess.DATA_STRING);
         f.add(GENDER);                            t.add(IDataAccess.DATA_STRING);
         f.add(BIRTHDAY);                          t.add(IDataAccess.DATA_DATE);
@@ -76,7 +83,7 @@ public class PersonRecord extends DataRecord {
         f.add(FREEUSE3);                          t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(Persons.DATATYPE, f, t, true);
         metaData.setKey(new String[] { ID }); // plus VALID_FROM
-        metaData.addIndex(new String[] { FIRSTNAME, LASTNAME, ASSOCIATION });
+        metaData.addIndex(IDX_NAME_ASSOC);
     }
 
     public PersonRecord(Persons persons, MetaData metaData) {
@@ -114,6 +121,13 @@ public class PersonRecord extends DataRecord {
     }
     public String getLastName() {
         return getString(LASTNAME);
+    }
+
+    public void setFirstLastName(String name) {
+        // nothing to do (this column in virtual)
+    }
+    public String getFirstLastName() {
+        return getFullName(getString(FIRSTNAME), getString(LASTNAME), null, true);
     }
 
     public void setTitle(String title) {
@@ -249,11 +263,67 @@ public class PersonRecord extends DataRecord {
         return getString(FREEUSE3);
     }
 
-    public String getQualifiedName() {
-        if (Daten.efaConfig.nameFormat.getValue().equals(EfaConfig.NAMEFORMAT_FIRSTLAST)) {
-            return EfaUtil.getFullName(getFirstName(), getLastName(), getAssocitation(), true);
+    protected Object getVirtualColumn(int fieldIdx) {
+        if (getFieldName(fieldIdx).equals(FIRSTLASTNAME)) {
+            return getFirstLastName();
+        }
+        return null;
+    }
+
+    public static String getFullName(String first, String last, String association, boolean firstFirst) {
+        String s = "";
+        if (firstFirst) {
+            if (first != null && first.length() > 0) {
+                s = first.trim();
+            }
+            if (last != null && last.length() > 0) {
+                s = s + (s.length() > 0 ? " " : "") + last.trim();
+            }
         } else {
-            return EfaUtil.getFullName(getFirstName(), getLastName(), getAssocitation(), false);
+            if (last != null && last.length() > 0) {
+                s = last.trim() + ",";
+            }
+            if (first != null && first.length() > 0) {
+                s = s + (s.length() > 0 ? " " : "") + first.trim();
+            }
+        }
+        if (association != null && association.length() > 0) {
+            s = s + " (" + association + ")";
+        }
+        return s;
+    }
+
+    public static String getFirstLastName(String name) {
+        if (name == null || name.length() == 0) {
+            return "";
+        }
+        int pos = name.indexOf(", ");
+        if (pos < 0) {
+            return name;
+        }
+        return (name.substring(0, pos) + " " + name.substring(pos+2)).trim();
+    }
+
+    public String getQualifiedName(boolean firstFirst) {
+        return getFullName(getFirstName(), getLastName(), getAssocitation(), firstFirst);
+    }
+
+    public String getQualifiedName() {
+        return getQualifiedName(Daten.efaConfig.nameFormat.getValue().equals(EfaConfig.NAMEFORMAT_FIRSTLAST));
+    }
+
+    public static String[] getValuesForIndexFromQualifiedName(String qname) {
+        Matcher m = qnamePattern.matcher(qname);
+        if (m.matches()) {
+            return new String[] {
+                getFirstLastName(m.group(1).trim()),
+                m.group(2).trim()
+            };
+        } else {
+            return new String[] {
+                getFirstLastName(qname.trim()),
+                null
+            };
         }
     }
 

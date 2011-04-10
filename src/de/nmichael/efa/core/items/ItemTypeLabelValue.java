@@ -27,41 +27,64 @@ public abstract class ItemTypeLabelValue extends ItemType {
     protected int labelGridFill = GridBagConstraints.NONE;
     protected Font labelFont;
     protected Font fieldFont;
+    protected boolean isVisible = true;
+    protected boolean isShowOptional = false;
+    protected JButton expandButton;
 
     protected abstract JComponent initializeField();
 
     protected void iniDisplay() {
+        if (getDescription() != null) {
+            label = new JLabel();
+            Mnemonics.setLabel(dlg, label, getDescription() + ": ");
+            label.setLabelFor(field);
+            if (type == IItemType.TYPE_EXPERT) {
+                label.setForeground(Color.red);
+            }
+            if (color != null) {
+                label.setForeground(color);
+            }
+            labelFont = label.getFont();
+            label.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseClicked(MouseEvent e) { actionEvent(e); }
+            });
+        } else {
+            labelGridWidth = 0;
+        }
         field = initializeField();
         Dialog.setPreferredSize(field, fieldWidth, fieldHeight);
-        label = new JLabel();
-        Mnemonics.setLabel(dlg, label, getDescription() + ": ");
-        label.setLabelFor(field);
-        if (type == IItemType.TYPE_EXPERT) {
-            label.setForeground(Color.red);
-        }
-        if (color != null) {
-            label.setForeground(color);
-        }
         if (backgroundColor != null) {
             field.setBackground(backgroundColor);
         }
-        labelFont = label.getFont();
         fieldFont = field.getFont();
         field.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(FocusEvent e) { field_focusGained(e); }
             public void focusLost(FocusEvent e) { field_focusLost(e); }
         });
-        label.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(MouseEvent e) { actionEvent(e); }
-        });
+        if (isShowOptional) {
+            expandButton = new JButton();
+            Dialog.setPreferredSize(expandButton, 15, 15);
+            expandButton.setMargin(new Insets(0, 0, 0, 0));
+            expandButton.setText("+");
+            expandButton.setFont(expandButton.getFont().deriveFont(Font.PLAIN, 8));
+            expandButton.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) { expandButton_actionEvent(e); }
+            });
+        }
         showValue();
     }
 
     public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
         this.dlg = dlg;
         iniDisplay();
-        panel.add(label, new GridBagConstraints(x, y, labelGridWidth, fieldGridHeight, 0.0, 0.0,
-                labelGridAnchor, labelGridFill, new Insets(padYbefore, padXbefore, padYafter, 0), 0, 0));
+        if (label != null) {
+            panel.add(label, new GridBagConstraints(x, y, labelGridWidth, fieldGridHeight, 0.0, 0.0,
+                    labelGridAnchor, labelGridFill, new Insets(padYbefore, padXbefore, padYafter, 0), 0, 0));
+        }
+        if (expandButton != null) {
+            panel.add(expandButton, new GridBagConstraints(x, y, labelGridWidth, fieldGridHeight, 0.0, 0.0,
+                    labelGridAnchor, labelGridFill, new Insets(padYbefore, padXbefore, padYafter, 0), 0, 0));
+        }
         panel.add(field, new GridBagConstraints(x+labelGridWidth, y, fieldGridWidth, fieldGridHeight, 0.0, 0.0,
                 fieldGridAnchor, fieldGridFill, new Insets(padYbefore, 0, padYafter, padXafter), 0, 0));
         return 1;
@@ -89,15 +112,24 @@ public abstract class ItemTypeLabelValue extends ItemType {
     }
 
     public Font getLabelFont() {
-        return label.getFont();
+        return (label != null ? label.getFont() : null);
     }
 
     public void setLabelFont(Font font) {
-        label.setFont(font);
+        if (label != null) {
+            label.setFont(font);
+        }
     }
 
     public void restoreLabelFont() {
-        label.setFont(labelFont);
+        if (label != null) {
+            label.setFont(labelFont);
+        }
+    }
+
+    public void setDescription(String s) {
+        super.setDescription(s);
+        Mnemonics.setLabel(dlg, label, getDescription() + ": ");
     }
 
     public Font getFieldFont() {
@@ -112,13 +144,55 @@ public abstract class ItemTypeLabelValue extends ItemType {
         field.setFont(fieldFont);
     }
 
+    private boolean showExpandButton(boolean isExpandButtonHit, boolean calledForExpandButton) {
+        if (isShowOptional && toString().length() == 0 && !isExpandButtonHit) {
+            return (calledForExpandButton); // show expandButton
+        } else {
+            return (!calledForExpandButton); // show label
+        }
+    }
+
+    public void showValue() {
+        setVisibleInternal(false);
+    }
+
+    private void setVisibleInternal(boolean isExpandButtonHit) {
+        if (label != null) {
+            label.setVisible(isVisible && showExpandButton(isExpandButtonHit, false));
+        }
+        if (expandButton != null) {
+            expandButton.setVisible(isVisible && showExpandButton(isExpandButtonHit, true));
+        }
+        if (field != null) {
+            field.setVisible(isVisible && showExpandButton(isExpandButtonHit, false));
+        }
+    }
+    
     public void setVisible(boolean visible) {
-        label.setVisible(visible);
-        field.setVisible(visible);
+        isVisible = visible;
+        setVisibleInternal(false);
     }
 
     public void setEnabled(boolean enabled) {
-        label.setForeground((enabled ? (new JLabel()).getForeground() : Color.gray));
-        field.setEnabled(enabled);
+        if (label != null) {
+            label.setForeground((enabled ? (new JLabel()).getForeground() : Color.gray));
+        }
+        if (expandButton != null) {
+            expandButton.setEnabled(enabled);
+        }
+        if (field != null) {
+            field.setEnabled(enabled);
+        }
+    }
+
+    public void showOptional(boolean optional) {
+        isShowOptional = optional;
+    }
+
+    private void expandButton_actionEvent(ActionEvent e) {
+        setVisibleInternal(true);
+        if (field != null) {
+            field.requestFocus();
+        }
     }
 }

@@ -20,11 +20,11 @@ import java.io.*;
 
 public class DataIndex {
 
-    class IndexEntry {
+    class IndexKey {
         private Object[] data;
         int hash;
 
-        public IndexEntry(Object[] data) {
+        public IndexKey(Object[] data) {
             this.data = data;
             hash = 0;
             for (int i=0; i<data.length; i++) {
@@ -33,7 +33,7 @@ public class DataIndex {
         }
 
         public boolean equals(Object o) {
-            IndexEntry other = (IndexEntry)o;
+            IndexKey other = (IndexKey)o;
             if (data.length != other.data.length) {
                 return false;
             }
@@ -58,7 +58,7 @@ public class DataIndex {
     }
 
     private int[] indexFields;
-    private Hashtable<IndexEntry,ArrayList<DataKey>> index = new Hashtable<IndexEntry,ArrayList<DataKey>>();
+    private Hashtable<IndexKey,ArrayList<DataKey>> index = new Hashtable<IndexKey,ArrayList<DataKey>>();
 
     public DataIndex(int[] indexFields) {
         this.indexFields = Arrays.copyOf(indexFields, indexFields.length);
@@ -76,7 +76,7 @@ public class DataIndex {
             values[i] = r.get(indexFields[i]);
         }
         DataKey key = r.getKey();
-        IndexEntry entry = new IndexEntry(values);
+        IndexKey entry = new IndexKey(values);
 
         synchronized (index) {
             ArrayList<DataKey> list = index.get(entry);
@@ -98,7 +98,7 @@ public class DataIndex {
             values[i] = r.get(indexFields[i]);
         }
         DataKey key = r.getKey();
-        IndexEntry entry = new IndexEntry(values);
+        IndexKey entry = new IndexKey(values);
 
         synchronized (index) {
             ArrayList<DataKey> list = index.get(entry);
@@ -114,15 +114,15 @@ public class DataIndex {
     }
 
     public DataKey[] search(Object[] values) {
-        IndexEntry entry = new IndexEntry(values);
+        IndexKey entry = new IndexKey(values);
         synchronized (index) {
             ArrayList<DataKey> list = index.get(entry);
             if (list == null || list.size() == 0) {
                 return null;
             }
 
-            DataKey[] keys = new DataKey[list.size()];
-            for (int i=0; i<keys.length; i++) {
+           DataKey[] keys = new DataKey[list.size()];
+            for (int i = 0; i < keys.length; i++) {
                 keys[i] = list.get(i);
             }
             return keys;

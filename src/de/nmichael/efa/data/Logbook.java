@@ -21,6 +21,7 @@ public class Logbook extends Persistence {
     public static final String DATATYPE = "e2logbook";
 
     private String name;
+    private ProjectRecord projectRecord;
 
     public Logbook(int storageType, String storageLocation, String storageObjectName) {
         super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Fahrtenbuch"));
@@ -40,6 +41,18 @@ public class Logbook extends Persistence {
         return name;
     }
 
+    public void setProjectRecord(ProjectRecord r) {
+        this.projectRecord = r;
+    }
+
+    public DataTypeDate getStartDate() {
+        return (projectRecord != null ? projectRecord.getStartDate() : null);
+    }
+
+    public DataTypeDate getEndDate() {
+        return (projectRecord != null ? projectRecord.getEndDate() : null);
+    }
+
     public LogbookRecord createLogbookRecord(DataTypeIntString entryNo) {
         LogbookRecord r = new LogbookRecord(this, MetaData.getMetaData(DATATYPE));
         r.setEntryId(entryNo);
@@ -54,6 +67,7 @@ public class Logbook extends Persistence {
         try {
             return (LogbookRecord)(data().get(key));
         } catch(Exception e) {
+            Logger.logdebug(e);
             return null;
         }
     }

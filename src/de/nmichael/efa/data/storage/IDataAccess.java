@@ -35,6 +35,7 @@ public interface IDataAccess {
     public static final int DATA_UUID = 8;       // java.util.UUID
     public static final int DATA_LIST = 9;       // String-based list
     public static final int DATA_INTSTRING = 10; // Number-String mixed String
+    public static final int DATA_VIRTUAL = 99;   // Virtual String, will not be stored in file
 
     public static final int  UNDEFINED_INT  = Integer.MIN_VALUE + 1;
     public static final long UNDEFINED_LONG = Long.MIN_VALUE + 1;
@@ -430,6 +431,16 @@ public interface IDataAccess {
      * @throws EfaException
      */
     public DataKey[] getByFields(String[] fieldNames, Object[] values) throws EfaException;
+
+    /**
+     * Retrieves all keys valid at validAt for data records specified through fieldNames and values
+     * @param fieldNames the field names for the corresponding values
+     * @param values the values to search for
+     * @param validAt the time the record shall be valid
+     * @return all matching keys
+     * @throws EfaException
+     */
+    public DataKey[] getByFields(String[] fieldNames, Object[] values, long validAt) throws EfaException;
 
     /**
      * Returns the number of data records in this storage object.

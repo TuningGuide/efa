@@ -56,7 +56,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
             _prepared = true;
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.logdebug(e);
             return false;
         }
     }
@@ -192,6 +192,10 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
 
     public boolean getDialogResult() {
         return resultSuccess;
+    }
+
+    public JScrollPane getScrollPane() {
+        return mainScrollPane;
     }
 
 }

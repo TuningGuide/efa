@@ -19,7 +19,7 @@ import de.nmichael.efa.efa1.FBDaten;
 import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.efa1.Boote;
 import de.nmichael.efa.core.*;
-import de.nmichael.efa.gui.EfaConfigFrame;
+import de.nmichael.efa.gui.EfaConfigDialog;
 import de.nmichael.efa.gui.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.config.EfaTypes;

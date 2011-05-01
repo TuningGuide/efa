@@ -24,6 +24,8 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
 
     private DataTypeDate value;
     private DataTypeDate referenceDate;
+    private boolean allowYearOnly = false;
+    private boolean allowMonthAndYearOnly = false;
     protected boolean showWeekday;
     protected JLabel weekdayLabel;
     protected int weekdayGridWidth = 1;
@@ -37,8 +39,7 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
         this.type = type;
         this.category = category;
         this.description = description;
-        this.referenceDate = new DataTypeDate();
-        this.referenceDate.today();
+        this.referenceDate = (isSet() ? new DataTypeDate(value) : DataTypeDate.today());
     }
 
     public void showWeekday(boolean showWeekday) {
@@ -48,13 +49,20 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
     public void parseValue(String value) {
         try {
             if (value != null && value.trim().length()>0) {
-                if (referenceDate != null && referenceDate.isSet()) {
-                    value = EfaUtil.tmj2datestring(EfaUtil.correctDate(value, referenceDate.getDay(), referenceDate.getMonth(), referenceDate.getYear()));
-                } else {
-                    value = EfaUtil.correctDate(value);
+                if (allowYearOnly || allowMonthAndYearOnly) {
+                    TMJ tmj = EfaUtil.string2date(value, -1, -1, -1);
+                    if (tmj.tag >= 0 && tmj.monat == -1 && tmj.jahr == -1 && allowYearOnly) {
+                        this.value.setDate(0, 0, tmj.tag);
+                        return;
+                    }
+                    if (tmj.tag >= 0 && tmj.monat >= 0 && tmj.jahr == -1 && allowMonthAndYearOnly) {
+                        this.value.setDate(0, tmj.tag, tmj.monat);
+                        return;
+                    }
                 }
+                TMJ tmj = EfaUtil.correctDate(value, referenceDate.getDay(), referenceDate.getMonth(), referenceDate.getYear());
+                this.value.setDate(tmj.tag, tmj.monat, tmj.jahr);
             }
-            this.value = DataTypeDate.parseDate(value);
         } catch (Exception e) {
             if (dlg == null) {
                 Logger.log(Logger.ERROR, Logger.MSG_CORE_UNSUPPORTEDDATATYPE,
@@ -75,14 +83,14 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
 
     protected void field_focusLost(FocusEvent e) {
         super.field_focusLost(e);
-        if (value.isSet()) {
+        if (isSet()) {
             referenceDate.setDate(value);
         }
     }
 
     protected void updateWeekday() {
         if (showWeekday && weekdayLabel != null) {
-            if (value.isSet()) {
+            if (isSet()) {
                 switch(value.toCalendar().get(Calendar.DAY_OF_WEEK)) {
                     case Calendar.MONDAY:
                         weekdayLabel.setText(" (" + International.getString("Montag") + ")");
@@ -118,11 +126,11 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
     }
 
     public String toString() {
-        return value.toString();
+        return (value != null ? value.toString() : "");
     }
 
     public boolean isSet() {
-        return value.isSet();
+        return value != null && value.isSet();
     }
 
     public int getValueDay() {
@@ -157,6 +165,14 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
         value.unset();
     }
 
+    public void setAllowYearOnly(boolean allowYearOnly) {
+        this.allowYearOnly = allowYearOnly;
+    }
+
+    public void setAllowMonthAndYearOnly(boolean allowMonthAndYearOnly) {
+        this.allowMonthAndYearOnly = allowMonthAndYearOnly;
+    }
+
     public boolean isValidInput() {
         if (isNotNullSet()) {
             return isSet();
@@ -172,8 +188,8 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
 
     // @override
     protected void field_keyPressed(KeyEvent e) {
-        if (e != null && (value.isSet() || (referenceDate != null && referenceDate.isSet()))) {
-            if (!value.isSet()) {
+        if (e != null) {
+            if (!isSet()) {
                 value.setDate(referenceDate);
             }
             switch(e.getKeyCode()) {

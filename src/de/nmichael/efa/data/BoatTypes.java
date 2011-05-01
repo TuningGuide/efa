@@ -17,9 +17,9 @@ import java.util.*;
 
 // @i18n complete
 
-public class BoatTypes extends Persistence {
-
-    public static final String DATATYPE = "e2boattypes";
+public class BoatTypes { //extends Persistence {
+/*
+    public static final String DATATYPE = "efa2boattypes";
 
     public BoatTypes(int storageType, String storageLocation, String storageObjectName) {
         super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Bootstypen"));
@@ -47,4 +47,21 @@ public class BoatTypes extends Persistence {
         }
     }
 
+    public BoatTypeRecord[] getBoatTypes(UUID id, long validAt) {
+        try {
+            DataKey[] keys = data().getByFields(BoatTypeRecord.IDX_BOATID, new Object[] { id }, validAt);
+            if (keys == null || keys.length == 0) {
+                return null;
+            }
+            BoatTypeRecord[] recs = new BoatTypeRecord[keys.length];
+            for (int i=0; i<keys.length; i++) {
+                recs[i] = (BoatTypeRecord)data().get(keys[i]);
+            }
+            return recs;
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+*/
 }

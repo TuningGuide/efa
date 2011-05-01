@@ -18,7 +18,7 @@ import de.nmichael.efa.data.types.*;
 
 public class Logbook extends Persistence {
 
-    public static final String DATATYPE = "e2logbook";
+    public static final String DATATYPE = "efa2logbook";
 
     private String name;
     private ProjectRecord projectRecord;

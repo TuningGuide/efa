@@ -20,9 +20,8 @@ import java.util.*;
 public abstract class ImportBase {
 
     protected ImportTask task;
-    private int cntInfo = 0;
-    private int cntWarning = 0;
-    private int cntError = 0;
+    int cntWarning = 0;
+    int cntError = 0;
 
     public ImportBase(ImportTask task) {
         this.task = task;
@@ -32,17 +31,20 @@ public abstract class ImportBase {
     public abstract boolean runImport();
 
     protected void logInfo(String s) {
-        task.logInfo("INFO  - " + getDescription()+ " - " + s + "\n");
-        cntInfo++;
+        task.logInfo("INFO    - " + getDescription()+ " - " + s + "\n", true, true);
+    }
+
+    protected void logDetail(String s) {
+        task.logInfo("DETAIL  - " + getDescription()+ " - " + s + "\n", false, true);
     }
 
     protected void logWarning(String s) {
-        task.logInfo("WARN  - " + getDescription()+ " - " + s + "\n");
+        task.logInfo("WARNING - " + getDescription()+ " - " + s + "\n", true, true);
         cntWarning++;
     }
 
     protected void logError(String s) {
-        task.logInfo("ERROR - " + getDescription()+ " - " + s + "\n");
+        task.logInfo("ERROR   - " + getDescription()+ " - " + s + "\n", true, true);
         cntError++;
     }
 

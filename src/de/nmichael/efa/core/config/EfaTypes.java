@@ -92,6 +92,14 @@ public class EfaTypes extends DatenListe {
     public static final String TYPE_STATUS_GUEST          = "GUEST";        // Gast
     public static final String TYPE_STATUS_OTHER          = "OTHER";        // andere
 
+    public static final String TYPE_WEEKDAY_MONDAY        = "MONDAY";
+    public static final String TYPE_WEEKDAY_TUESDAY       = "TUESDAY";
+    public static final String TYPE_WEEKDAY_WEDNESDAY     = "WEDNESDAY";
+    public static final String TYPE_WEEKDAY_THURSDAY      = "THURSDAY";
+    public static final String TYPE_WEEKDAY_FRIDAY        = "FRIDAY";
+    public static final String TYPE_WEEKDAY_SATURDAY      = "SATURDAY";
+    public static final String TYPE_WEEKDAY_SUNDAY        = "SUNDAY";
+
     public static final int SELECTION_ROWING = 1;
     public static final int SELECTION_CANOEING = 2;
 
@@ -226,6 +234,34 @@ public class EfaTypes extends DatenListe {
             return International.getString("unbekannt");
         }
         return types.get(idx).value;
+    }
+
+    public String getValueWeekday(String type) {
+        if (type == null) {
+            return "";
+        }
+        if (type.endsWith(TYPE_WEEKDAY_MONDAY)) {
+            return International.getString("Montag");
+        }
+        if (type.endsWith(TYPE_WEEKDAY_TUESDAY)) {
+            return International.getString("Dienstag");
+        }
+        if (type.endsWith(TYPE_WEEKDAY_WEDNESDAY)) {
+            return International.getString("Mittwoch");
+        }
+        if (type.endsWith(TYPE_WEEKDAY_THURSDAY)) {
+            return International.getString("Donnerstag");
+        }
+        if (type.endsWith(TYPE_WEEKDAY_FRIDAY)) {
+            return International.getString("Freitag");
+        }
+        if (type.endsWith(TYPE_WEEKDAY_SATURDAY)) {
+            return International.getString("Samstag");
+        }
+        if (type.endsWith(TYPE_WEEKDAY_SUNDAY)) {
+            return International.getString("Sonntag");
+        }
+        return "";
     }
 
     public String getType(String cat, int idx) {
@@ -435,10 +471,10 @@ public class EfaTypes extends DatenListe {
 
             // add types GUEST and OTHER
             if (!isConfigured(CATEGORY_STATUS, TYPE_STATUS_GUEST)) {
-                setValue(CATEGORY_STATUS, TYPE_STATUS_GUEST, International.getString("Gast"));
+                setValue(CATEGORY_STATUS, TYPE_STATUS_GUEST, International.getString("Gast")); // @todo - remove: has been replaces by separate table
             }
             if (!isConfigured(CATEGORY_STATUS, TYPE_STATUS_OTHER)) {
-                setValue(CATEGORY_STATUS, TYPE_STATUS_OTHER, International.getString("andere"));
+                setValue(CATEGORY_STATUS, TYPE_STATUS_OTHER, International.getString("andere")); // @todo - remove: has been replaces by separate table
             }
 
         } catch (IOException e) {
@@ -613,6 +649,16 @@ public class EfaTypes extends DatenListe {
         return true;
     }
 
+    private static String[] makeTypeArray(int type, String cat) {
+        String[] list = new String[Daten.efaTypes.size(cat)];
+        for(int i=0; i<Daten.efaTypes.size(cat); i++) {
+            list[i] = (type == ARRAY_STRINGLIST_VALUES ?
+                Daten.efaTypes.getType(cat, i) :
+                Daten.efaTypes.getValue(cat, i));
+        }
+        return list;
+    }
+
     public static String[] makeSessionTypeArray(int type) {
         if (Daten.efaTypes == null) {
             // EfaTypes are not available when efa is started (will be initialized after EfaConfig).
@@ -620,13 +666,27 @@ public class EfaTypes extends DatenListe {
             // (as a copy from the static instance). This will also initialize all lists, including this one.
             return null;
         }
-        String[] sessions = new String[Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION)];
-        for(int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION); i++) {
-            sessions[i] = (type == ARRAY_STRINGLIST_VALUES ?
-                Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, i) :
-                Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, i));
-        }
-        return sessions;
+        return makeTypeArray(type, EfaTypes.CATEGORY_SESSION);
+    }
+
+    public static String[] makeGenderArray(int type) {
+        return makeTypeArray(type, EfaTypes.CATEGORY_GENDER);
+    }
+
+    public static String[] makeBoatTypeArray(int type) {
+        return makeTypeArray(type, EfaTypes.CATEGORY_BOAT);
+    }
+
+    public static String[] makeBoatSeatsArray(int type) {
+        return makeTypeArray(type, EfaTypes.CATEGORY_NUMSEATS);
+    }
+
+    public static String[] makeBoatRiggingArray(int type) {
+        return makeTypeArray(type, EfaTypes.CATEGORY_RIGGING);
+    }
+
+    public static String[] makeBoatCoxingArray(int type) {
+        return makeTypeArray(type, EfaTypes.CATEGORY_COXING);
     }
 
 }

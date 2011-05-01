@@ -12,23 +12,34 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.util.*;
+import de.nmichael.efa.gui.*;
+import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.Daten;
 import java.util.regex.*;
 import java.util.*;
+import javax.swing.*;
 
 // @i18n complete
 
-public class BoatRecord extends DataRecord {
+public class BoatRecord extends DataRecord implements IItemFactory, IItemListenerActionTable {
 
     // =========================================================================
     // Field Names
     // =========================================================================
 
-    public static final String ID                  = "Id";
-    public static final String NAME                = "Name";
-    public static final String OWNER               = "Owner";
-    // TYPES stored in BoatTypes
+    public static final String ID                    = "Id";
+    public static final String NAME                  = "Name";
+    public static final String OWNER                 = "Owner";
+    public static final String LASTVARIANT           = "LastVariant";
+    public static final String TYPEVARIANT           = "TypeVariant";
+    public static final String TYPEDESCRIPTION       = "TypeDescription";
+    public static final String TYPETYPE              = "TypeType";
+    public static final String TYPESEATS             = "TypeSeats";
+    public static final String TYPERIGGING           = "TypeRigging";
+    public static final String TYPECOXING            = "TypeCoxing";
     // RESERVATIONS stored in BoatReservations
     // DAMAGES stored in BoatDamages
     public static final String ALLOWEDGROUPIDLIST    = "AllowedGroupIdList";
@@ -37,6 +48,7 @@ public class BoatRecord extends DataRecord {
     public static final String ONLYWITHBOATCAPTAIN   = "OnlyWithBoatCaptain";
     public static final String MANUFACTURER          = "Manufacturer";
     public static final String MODEL                 = "Model";
+    public static final String MAXCREWWEIGHT         = "MaxCrewWeight";
     public static final String MANUFACTIONDATE       = "ManufactionDate";
     public static final String PURCHASEDATE          = "PurchaseDate";
     public static final String PURCHASEPRICE         = "PurchasePrice";
@@ -50,7 +62,12 @@ public class BoatRecord extends DataRecord {
 
     public static final String[] IDX_NAME_OWNER = new String[] { NAME, OWNER };
 
-    private static Pattern qnamePattern = Pattern.compile("(.+) (\\([^\\(\\)]+\\))");
+    private static String GUIITEM_BOATTYPES          = "GUIITEM_BOATTYPES";
+    private static String GUIITEM_ALLOWEDGROUPIDLIST = "GUIITEM_ALLOWEDGROUPIDLIST";
+    private static String GUIITEM_RESERVATIONS       = "GUIITEM_RESERVATIONS";
+    private static String GUIITEM_DAMAGES            = "GUIITEM_DAMAGES";
+
+    private static Pattern qnamePattern = Pattern.compile("(.+) \\(([^\\(\\)]+)\\)");
 
     public static void initialize() {
         Vector<String> f = new Vector<String>();
@@ -59,12 +76,20 @@ public class BoatRecord extends DataRecord {
         f.add(ID);                                t.add(IDataAccess.DATA_UUID);
         f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
         f.add(OWNER);                             t.add(IDataAccess.DATA_STRING);
-        f.add(ALLOWEDGROUPIDLIST);                t.add(IDataAccess.DATA_LIST);
+        f.add(LASTVARIANT);                       t.add(IDataAccess.DATA_INTEGER);
+        f.add(TYPEVARIANT);                       t.add(IDataAccess.DATA_LIST_INTEGER);
+        f.add(TYPEDESCRIPTION);                   t.add(IDataAccess.DATA_LIST_STRING);
+        f.add(TYPETYPE);                          t.add(IDataAccess.DATA_LIST_STRING);
+        f.add(TYPESEATS);                         t.add(IDataAccess.DATA_LIST_STRING);
+        f.add(TYPERIGGING);                       t.add(IDataAccess.DATA_LIST_STRING);
+        f.add(TYPECOXING);                        t.add(IDataAccess.DATA_LIST_STRING);
+        f.add(ALLOWEDGROUPIDLIST);                t.add(IDataAccess.DATA_LIST_UUID);
         f.add(MAXNOTINGROUP);                     t.add(IDataAccess.DATA_INTEGER);
         f.add(REQUIREDGROUPID);                   t.add(IDataAccess.DATA_UUID);
         f.add(ONLYWITHBOATCAPTAIN);               t.add(IDataAccess.DATA_BOOLEAN);
         f.add(MANUFACTURER);                      t.add(IDataAccess.DATA_STRING);
         f.add(MODEL);                             t.add(IDataAccess.DATA_STRING);
+        f.add(MAXCREWWEIGHT);                     t.add(IDataAccess.DATA_INTEGER);
         f.add(MANUFACTIONDATE);                   t.add(IDataAccess.DATA_DATE);
         f.add(PURCHASEDATE);                      t.add(IDataAccess.DATA_DATE);
         f.add(PURCHASEPRICE);                     t.add(IDataAccess.DATA_DECIMAL);
@@ -117,10 +142,234 @@ public class BoatRecord extends DataRecord {
         return getString(OWNER);
     }
 
+    public int getNumberOfVariants() {
+        DataTypeList l = getList(TYPEVARIANT, IDataAccess.DATA_INTEGER);
+        return (l != null ? l.length() : 0);
+    }
+    
+    public int getVariantIndex(int variant) {
+        DataTypeList l = getList(TYPEVARIANT, IDataAccess.DATA_INTEGER);
+        for (int i=0; l != null && i<l.length(); i++) {
+            Integer v = (Integer)l.get(i);
+            if (v.intValue() == variant) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public int getTypeVariant(int idx) {
+        DataTypeList l = getList(TYPEVARIANT, IDataAccess.DATA_INTEGER);
+        if (l == null || idx < 0 || idx >= l.length()) {
+            return -1;
+        } else {
+            return ((Integer)l.get(idx)).intValue();
+        }
+    }
+
+    public String getTypeDescription(int idx) {
+        DataTypeList l = getList(TYPEDESCRIPTION, IDataAccess.DATA_STRING);
+        if (l == null || idx < 0 || idx >= l.length()) {
+            return null;
+        } else {
+            return ((String)l.get(idx));
+        }
+    }
+
+    public String getTypeType(int idx) {
+        DataTypeList l = getList(TYPETYPE, IDataAccess.DATA_STRING);
+        if (l == null || idx < 0 || idx >= l.length()) {
+            return null;
+        } else {
+            return (String)l.get(idx);
+        }
+    }
+
+    public String getTypeSeats(int idx) {
+        DataTypeList l = getList(TYPESEATS, IDataAccess.DATA_STRING);
+        if (l == null || idx < 0 || idx >= l.length()) {
+            return null;
+        } else {
+            return (String)l.get(idx);
+        }
+    }
+
+    public String getTypeRigging(int idx) {
+        DataTypeList l = getList(TYPERIGGING, IDataAccess.DATA_STRING);
+        if (l == null || idx < 0 || idx >= l.length()) {
+            return null;
+        } else {
+            return (String)l.get(idx);
+        }
+    }
+
+    public String getTypeCoxing(int idx) {
+        DataTypeList l = getList(TYPECOXING, IDataAccess.DATA_STRING);
+        if (l == null || idx < 0 || idx >= l.length()) {
+            return null;
+        } else {
+            return (String)l.get(idx);
+        }
+    }
+
+    public int addTypeVariant(String description, String type, String seats, String rigging, String coxing) {
+        int variant = getInt(LASTVARIANT);
+        if (variant == IDataAccess.UNDEFINED_INT || variant < 0) {
+            variant = 0;
+        }
+        variant++; // start with 1 as first variant
+
+        if (description == null) {
+            description = "";
+        }
+        if (type == null) {
+            type = EfaTypes.TYPE_BOAT_OTHER;
+        }
+        if (seats == null) {
+            seats = EfaTypes.TYPE_NUMSEATS_OTHER;
+        }
+        if (rigging == null) {
+            rigging = EfaTypes.TYPE_RIGGING_OTHER;
+        }
+        if (coxing == null) {
+            coxing = EfaTypes.TYPE_COXING_OTHER;
+        }
+
+        DataTypeList lvariant = getList(TYPEVARIANT, IDataAccess.DATA_INTEGER);
+        DataTypeList ldescription = getList(TYPEDESCRIPTION, IDataAccess.DATA_STRING);
+        DataTypeList ltype = getList(TYPETYPE, IDataAccess.DATA_STRING);
+        DataTypeList lseats = getList(TYPESEATS, IDataAccess.DATA_STRING);
+        DataTypeList lrigging = getList(TYPERIGGING, IDataAccess.DATA_STRING);
+        DataTypeList lcoxing = getList(TYPECOXING, IDataAccess.DATA_STRING);
+
+        if (lvariant == null) {
+            lvariant = DataTypeList.parseList(Integer.toString(variant), IDataAccess.DATA_INTEGER);
+        } else {
+            lvariant.add(variant);
+        }
+        if (ldescription == null) {
+            ldescription = DataTypeList.parseList(description, IDataAccess.DATA_STRING);
+        } else {
+            ldescription.add(description);
+        }
+        if (ltype == null) {
+            ltype = DataTypeList.parseList(type, IDataAccess.DATA_STRING);
+        } else {
+            ltype.add(type);
+        }
+        if (lseats == null) {
+            lseats = DataTypeList.parseList(seats, IDataAccess.DATA_STRING);
+        } else {
+            lseats.add(seats);
+        }
+        if (lrigging == null) {
+            lrigging = DataTypeList.parseList(rigging, IDataAccess.DATA_STRING);
+        } else {
+            lrigging.add(rigging);
+        }
+        if (lcoxing == null) {
+            lcoxing = DataTypeList.parseList(coxing, IDataAccess.DATA_STRING);
+        } else {
+            lcoxing.add(coxing);
+        }
+
+        setInt(LASTVARIANT, variant);
+        setList(TYPEVARIANT, lvariant);
+        setList(TYPEDESCRIPTION, ldescription);
+        setList(TYPETYPE, ltype);
+        setList(TYPESEATS, lseats);
+        setList(TYPERIGGING, lrigging);
+        setList(TYPECOXING, lcoxing);
+
+        return variant;
+    }
+
+    public boolean setTypeVariant(int idx, String description, String type, String seats, String rigging, String coxing) {
+        if (description == null) {
+            description = "";
+        }
+        if (type == null) {
+            type = EfaTypes.TYPE_BOAT_OTHER;
+        }
+        if (seats == null) {
+            seats = EfaTypes.TYPE_NUMSEATS_OTHER;
+        }
+        if (rigging == null) {
+            rigging = EfaTypes.TYPE_RIGGING_OTHER;
+        }
+        if (coxing == null) {
+            coxing = EfaTypes.TYPE_COXING_OTHER;
+        }
+
+        DataTypeList ldescription = getList(TYPEDESCRIPTION, IDataAccess.DATA_STRING);
+        DataTypeList ltype = getList(TYPETYPE, IDataAccess.DATA_STRING);
+        DataTypeList lseats = getList(TYPESEATS, IDataAccess.DATA_STRING);
+        DataTypeList lrigging = getList(TYPERIGGING, IDataAccess.DATA_STRING);
+        DataTypeList lcoxing = getList(TYPECOXING, IDataAccess.DATA_STRING);
+
+        if (idx < 0 ||
+                ldescription == null || idx >= ldescription.length() ||
+                ltype == null || idx >= ltype.length() ||
+                lseats == null || idx >= lseats.length() ||
+                lrigging == null || idx >= lrigging.length() ||
+                lcoxing == null || idx >= lcoxing.length() ) {
+            return false;
+        }
+
+        ldescription.set(idx, description);
+        ltype.set(idx, type);
+        lseats.set(idx, seats);
+        lrigging.set(idx, rigging);
+        lcoxing.set(idx, coxing);
+
+        setList(TYPEDESCRIPTION, ldescription);
+        setList(TYPETYPE, ltype);
+        setList(TYPESEATS, lseats);
+        setList(TYPERIGGING, lrigging);
+        setList(TYPECOXING, lcoxing);
+
+        return true;
+    }
+
+    public boolean deleteTypeVariant(int idx) {
+        DataTypeList lvariant = getList(TYPEVARIANT, IDataAccess.DATA_INTEGER);
+        DataTypeList ldescription = getList(TYPEDESCRIPTION, IDataAccess.DATA_STRING);
+        DataTypeList ltype = getList(TYPETYPE, IDataAccess.DATA_STRING);
+        DataTypeList lseats = getList(TYPESEATS, IDataAccess.DATA_STRING);
+        DataTypeList lrigging = getList(TYPERIGGING, IDataAccess.DATA_STRING);
+        DataTypeList lcoxing = getList(TYPECOXING, IDataAccess.DATA_STRING);
+
+        if (idx < 0 ||
+                lvariant == null || idx >= lvariant.length() ||
+                ldescription == null || idx >= ldescription.length() ||
+                ltype == null || idx >= ltype.length() ||
+                lseats == null || idx >= lseats.length() ||
+                lrigging == null || idx >= lrigging.length() ||
+                lcoxing == null || idx >= lcoxing.length() ) {
+            return false;
+        }
+
+        lvariant.remove(idx);
+        ldescription.remove(idx);
+        ltype.remove(idx);
+        lseats.remove(idx);
+        lrigging.remove(idx);
+        lcoxing.remove(idx);
+
+        setList(TYPEVARIANT, lvariant);
+        setList(TYPEDESCRIPTION, ldescription);
+        setList(TYPETYPE, ltype);
+        setList(TYPESEATS, lseats);
+        setList(TYPERIGGING, lrigging);
+        setList(TYPECOXING, lcoxing);
+
+        return true;
+    }
+
     public void setAllowedGroupIdList(DataTypeList<UUID> list) {
         setList(ALLOWEDGROUPIDLIST, list);
     }
-    public DataTypeList<UUID> getAllowedGroupIdListp() {
+    public DataTypeList<UUID> getAllowedGroupIdList() {
         return getList(ALLOWEDGROUPIDLIST, IDataAccess.DATA_UUID);
     }
 
@@ -134,8 +383,8 @@ public class BoatRecord extends DataRecord {
     public void setRequiredGroupId(UUID id) {
         setUUID(REQUIREDGROUPID, id);
     }
-    public long getRequiredGroupId() {
-        return getLong(REQUIREDGROUPID);
+    public UUID getRequiredGroupId() {
+        return getUUID(REQUIREDGROUPID);
     }
 
     public void setOnlyWithBoatCaptain(boolean onlyWithBoatCaptain) {
@@ -157,6 +406,13 @@ public class BoatRecord extends DataRecord {
     }
     public String getModel() {
         return getString(MODEL);
+    }
+
+    public void setMaxCrewWeight(int weight) {
+        setInt(MAXCREWWEIGHT, weight);
+    }
+    public int getMaxCrewWeight() {
+        return getInt(MAXCREWWEIGHT);
     }
 
     public void setManufactionDate(DataTypeDate date) {
@@ -230,58 +486,11 @@ public class BoatRecord extends DataRecord {
         return getString(FREEUSE3);
     }
 
-    public BoatTypeRecord getBoatType(int variant) {
-        try {
-            UUID id = getId();
-            if (id != null) {
-                return getPersistence().getProject().getBoatTypes(false).getBoatType(id, variant, getValidFrom());
-            }
-        } catch(Exception e) {
-            Logger.logdebug(e);
-        }
-        return null;
-    }
-
-    public BoatTypeRecord[] getAllBoatTypes(boolean anyValidity) {
-        try {
-            BoatTypes boatTypes = getPersistence().getProject().getBoatTypes(false);
-            DataKey[] keys = boatTypes.data().getByFields(new String[] { BoatTypeRecord.BOATID }, new UUID[] { getId() });
-            ArrayList<BoatTypeRecord> list = new ArrayList<BoatTypeRecord>();
-            for (DataKey key : keys) {
-                BoatTypeRecord r = (BoatTypeRecord)boatTypes.data().get(key);
-                if (r != null && (anyValidity || getValidFrom() == r.getValidFrom())) {
-                    list.add(r);
-                }
-            }
-            return list.toArray(new BoatTypeRecord[0]);
-        } catch(Exception e) {
-            Logger.logdebug(e);
-        }
-        return null;
-    }
-
-    public String getVariantName(int variant) {
-        if (variant > 0) {
-            BoatTypeRecord t = getBoatType(variant);
-            if (t != null) {
-                String s = t.getDescription();
-                if (s != null) {
-                    return s;
-                }
-            }
-        }
-        return "";
-    }
-
     public String getQualifiedVariantName(int variant) {
-        if (variant > 0) {
-            BoatTypeRecord t = getBoatType(variant);
-            if (t != null) {
-                String s = t.getQualifiedName();
-                if (s != null) {
-                    return s;
-                }
-            }
+        int idx = getVariantIndex(variant);
+        String s = getTypeDescription(idx);
+        if (s != null) {
+            return s;
         }
         return "";
     }
@@ -294,7 +503,11 @@ public class BoatRecord extends DataRecord {
         return (name != null ? name : "");
     }
 
-    public static String[] getValuesForIndexFromQualifiedName(String qname) {
+    public String[] getQualifiedNameFields() {
+        return IDX_NAME_OWNER;
+    }
+
+    public String[] getQualifiedNameValues(String qname) {
         Matcher m = qnamePattern.matcher(qname);
         if (m.matches()) {
             return new String[] {
@@ -308,5 +521,361 @@ public class BoatRecord extends DataRecord {
             };
         }
     }
+    public Object getUniqueIdForRecord() {
+        return getId();
+    }
 
+    public int getNumberOfSeats(int idx) {
+        return EfaUtil.stringFindInt(getTypeSeats(idx), 0);
+    }
+
+    public static String getDetailedBoatType(String tBoatType, String tNumSeats, String tCoxing) {
+        return International.getMessage("{boattype} {numseats} {coxedornot}",
+                Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, tBoatType),
+                Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, tNumSeats),
+                Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, tCoxing));
+    }
+
+    public static String getDetailedBoatType(BoatRecord r, int idx) {
+        if (r == null || Daten.efaTypes == null) {
+            return null;
+        }
+        return getDetailedBoatType(r.getTypeType(idx), r.getTypeSeats(idx), r.getTypeCoxing(idx));
+    }
+
+    public String getDetailedBoatType(int idx) {
+        return getDetailedBoatType(this, idx);
+    }
+
+    public String getShortBoatType(int idx) {
+        int seats = getNumberOfSeats(idx);
+        String rig = getTypeRigging(idx);
+        String cox = getTypeCoxing(idx);
+        if (rig == null || cox == null || seats == 0) {
+            return getDetailedBoatType(idx);
+        }
+        if (!rig.equals(EfaTypes.TYPE_RIGGING_SCULL) &&
+            !rig.equals(EfaTypes.TYPE_RIGGING_SWEEP)) {
+            return getDetailedBoatType(idx);
+        }
+        if (!cox.equals(EfaTypes.TYPE_COXING_COXED) &&
+            !cox.equals(EfaTypes.TYPE_COXING_COXLESS)) {
+            return getDetailedBoatType(idx);
+        }
+        boolean skull = rig.equals(EfaTypes.TYPE_RIGGING_SCULL);
+        boolean coxed = rig.equals(EfaTypes.TYPE_COXING_COXED);
+        if (seats % 2 == 1 && !skull) {
+            return getDetailedBoatType(idx);
+        }
+        return Integer.toString(seats) + (skull ? "x" : "") + (coxed ? "+" : "-");
+    }
+
+    public String getGeneralNumberOfSeatsType(int idx) {
+        String numSeats = getTypeSeats(idx);
+        if (numSeats.equals(EfaTypes.TYPE_NUMSEATS_2X)) {
+            return EfaTypes.TYPE_NUMSEATS_2;
+        }
+        if (numSeats.equals(EfaTypes.TYPE_NUMSEATS_4X)) {
+            return EfaTypes.TYPE_NUMSEATS_4;
+        }
+        if (numSeats.equals(EfaTypes.TYPE_NUMSEATS_6X)) {
+            return EfaTypes.TYPE_NUMSEATS_6;
+        }
+        if (numSeats.equals(EfaTypes.TYPE_NUMSEATS_8X)) {
+            return EfaTypes.TYPE_NUMSEATS_8;
+        }
+        return numSeats;
+    }
+
+    public String getGeneralNumberOfSeatsValue(int idx) {
+        return Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, getGeneralNumberOfSeatsType(idx));
+    }
+
+    public String getQualifiedBoatTypeName(int idx) {
+        String name = getTypeDescription(idx);
+        String type = getDetailedBoatType(idx);
+        if (name == null || name.length() == 0) {
+            return (type != null && type.length() > 0 ? type : toString());
+        }
+        return name + (type != null && type.length() > 0 ? " (" + type + ")" : "");
+    }
+
+    public String getQualifiedBoatTypeShortName(int idx) {
+        String name = getTypeDescription(idx);
+        String type = getShortBoatType(idx);
+        if (name == null || name.length() == 0) {
+            return (type != null && type.length() > 0 ? type : toString());
+        }
+        return name + (type != null && type.length() > 0 ? " (" + type + ")" : "");
+    }
+
+
+    public IItemType[] getDefaultItems(String itemName) {
+        if (itemName.equals(BoatRecord.GUIITEM_BOATTYPES)) {
+            IItemType[] items = new IItemType[6];
+            String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
+            items[0] = new ItemTypeInteger(BoatRecord.TYPEVARIANT, 0, 0, Integer.MAX_VALUE,
+                    IItemType.TYPE_INTERNAL, CAT_BASEDATA, International.getString("Variante"));
+            items[1] = new ItemTypeString(BoatRecord.TYPEDESCRIPTION, "",
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Beschreibung"));
+            items[2] = new ItemTypeStringList(BoatRecord.TYPETYPE, Daten.efaTypes.TYPE_BOAT_OTHER,
+                    EfaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                    International.getString("Bootstyp"));
+            items[3] = new ItemTypeStringList(BoatRecord.TYPESEATS, Daten.efaTypes.TYPE_NUMSEATS_OTHER,
+                    EfaTypes.makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                    International.getString("Bootsplätze"));
+            items[4] = new ItemTypeStringList(BoatRecord.TYPERIGGING, Daten.efaTypes.TYPE_RIGGING_OTHER,
+                    EfaTypes.makeBoatRiggingArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeBoatRiggingArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                    International.getString("Riggerung"));
+            items[5] = new ItemTypeStringList(BoatRecord.TYPECOXING, Daten.efaTypes.TYPE_COXING_OTHER,
+                    EfaTypes.makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                    International.getString("Steuerung"));
+            return items;
+        }
+        if (itemName.equals(BoatRecord.GUIITEM_ALLOWEDGROUPIDLIST)) {
+            IItemType[] items = new IItemType[1];
+            String CAT_USAGE = "%03%" + International.getString("Benutzung");
+            items[0] = getGuiItemTypeStringAutoComplete(BoatRecord.ALLOWEDGROUPIDLIST, null,
+                    IItemType.TYPE_PUBLIC, CAT_USAGE,
+                    getPersistence().getProject().getGroups(false), getValidFrom(), getInvalidFrom()-1,
+                    International.getString("Gruppe"));
+            items[0].setFieldSize(300, -1);
+            return items;
+        }
+        if (itemName.equals(BoatRecord.GUIITEM_RESERVATIONS)) {
+            // @todo
+        }
+        return null;
+    }
+
+    public Hashtable<String,TableItem[]> getTableItems(String itemName, Hashtable<String,IItemType[]> data) {
+        if (itemName.equals(BoatRecord.GUIITEM_RESERVATIONS)) {
+            if (data == null) {
+                return null;
+            }
+            String[] keys = data.keySet().toArray(new String[0]);
+            Hashtable<String,TableItem[]> tableItems = new Hashtable<String,TableItem[]>();
+            for (int i=0; i<keys.length; i++) {
+                
+            }
+        }
+        return null;
+    }
+
+    public Vector<IItemType> getGuiItems() {
+        String CAT_BASEDATA     = "%01%" + International.getString("Basisdaten");
+        String CAT_MOREDATA     = "%02%" + International.getString("Weitere Daten");
+        String CAT_USAGE        = "%03%" + International.getString("Benutzung");
+        String CAT_RESERVATIONS = "%04%" + International.getString("Reservierungen");
+        String CAT_DAMAGES      = "%05%" + International.getString("Bootsschäden");
+        String CAT_FREEUSE      = "%07%" + International.getString("Freie Verwendung");
+
+        Groups groups = getPersistence().getProject().getGroups(false);
+        Crews crews = getPersistence().getProject().getCrews(false);
+        Destinations destinations = getPersistence().getProject().getDestinations(false);
+        BoatStatus boatStatus = getPersistence().getProject().getBoatStatus(false);
+        BoatReservations boatReservations = getPersistence().getProject().getBoatReservations(false);
+        BoatDamages boatDamages = getPersistence().getProject().getBoatDamages(false);
+        IItemType item;
+        Vector<IItemType> v = new Vector<IItemType>();
+        Vector<IItemType[]> itemList;
+
+        // CAT_BASEDATA
+        v.add(item = new ItemTypeString(BoatRecord.NAME, getName(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
+        v.add(item = new ItemTypeString(BoatRecord.OWNER, getOwner(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Eigentümer")));
+
+        itemList = new Vector<IItemType[]>();
+        for (int i=0; i<getNumberOfVariants(); i++) {
+            IItemType[] items = getDefaultItems(GUIITEM_BOATTYPES);
+            items[0].parseValue(Integer.toString(getTypeVariant(i)));
+            items[1].parseValue(getTypeDescription(i));
+            items[2].parseValue(getTypeType(i));
+            items[3].parseValue(getTypeSeats(i));
+            items[4].parseValue(getTypeRigging(i));
+            items[5].parseValue(getTypeCoxing(i));
+            itemList.add(items);
+        }
+        v.add(item = new ItemTypeItemList(GUIITEM_BOATTYPES, itemList, this,
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bootstyp")));
+        ((ItemTypeItemList)item).setMinNumberOfItems(1);
+        item.setPadding(0, 0, 20, 0);
+
+        v.add(item = new ItemTypeLabel(BoatRecord.LASTMODIFIED, IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                International.getMessage("zuletzt geändert am {datetime}", EfaUtil.date2String(new Date(this.getLastModified())))));
+        item.setPadding(0, 0, 20, 0);
+        
+        // CAT_MOREDATA
+        v.add(item = new ItemTypeString(BoatRecord.MANUFACTURER, getManufacturer(),
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Hersteller")));
+        v.add(item = new ItemTypeString(BoatRecord.MODEL, getModel(),
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Modell")));
+        v.add(item = new ItemTypeInteger(BoatRecord.MAXCREWWEIGHT, getMaxCrewWeight(), 0, Integer.MAX_VALUE, true,
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Maximales Mannschaftsgewicht")));
+        v.add(item = new ItemTypeDate(BoatRecord.MANUFACTIONDATE, getManufactionDate(),
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Herstellungsdatum")));
+        v.add(item = new ItemTypeDate(BoatRecord.PURCHASEDATE, getPurchaseDate(),
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Kaufdatum")));
+        v.add(item = new ItemTypeDecimal(BoatRecord.PURCHASEPRICE, getPurchasePrice(), 2, true,
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Kaufpreis")));
+        v.add(item = new ItemTypeString(BoatRecord.PURCHASEPRICECURRENCY, getPurchasePriceCurrency(),
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Währung")));
+
+        // CAT_USAGE
+        itemList = new Vector<IItemType[]>();
+        DataTypeList<UUID> agList = getAllowedGroupIdList();
+        for (int i=0; agList != null && i<agList.length(); i++) {
+            IItemType[] items = getDefaultItems(GUIITEM_ALLOWEDGROUPIDLIST);
+            ((ItemTypeStringAutoComplete)items[0]).setId(agList.get(i));
+            itemList.add(items);
+        }
+        v.add(item = new ItemTypeItemList(GUIITEM_ALLOWEDGROUPIDLIST, itemList, this,
+                IItemType.TYPE_PUBLIC, CAT_USAGE, International.getString("Gruppen, die dieses Boot benutzen dürfen")));
+        ((ItemTypeItemList)item).setXForAddDelButtons(3);
+        ((ItemTypeItemList)item).setPadYbetween(0);
+        ((ItemTypeItemList)item).setRepeatTitle(false);
+        ((ItemTypeItemList)item).setAppendPositionToEachElement(true);
+        v.add(item = new ItemTypeInteger(BoatRecord.MAXNOTINGROUP, getMaxNotInGroup(), 0, Integer.MAX_VALUE, true,
+                IItemType.TYPE_PUBLIC, CAT_USAGE, International.getString("Maxmimale Personenzahl nicht aus erlaubten Gruppen")));
+        v.add(item = getGuiItemTypeStringAutoComplete(BoatRecord.REQUIREDGROUPID, getRequiredGroupId(),
+                IItemType.TYPE_PUBLIC, CAT_USAGE, 
+                groups, getValidFrom(), getInvalidFrom()-1,
+                International.getString("Gruppe, der mindestens eine Person angehören muß")));
+        item.setFieldSize(300, -1);
+        v.add(item = new ItemTypeBoolean(BoatRecord.ONLYWITHBOATCAPTAIN, getOnlyWithBoatCaptain(),
+                IItemType.TYPE_PUBLIC, CAT_USAGE, International.getString("Boot darf nur mit Obmann genutzt werden")));
+        v.add(item = getGuiItemTypeStringAutoComplete(BoatRecord.DEFAULTCREWID, getDefaultCrewId(),
+                IItemType.TYPE_PUBLIC, CAT_USAGE,
+                crews, getValidFrom(), getInvalidFrom()-1,
+                International.getString("Standard-Mannschaft")));
+        item.setFieldSize(300, -1);
+        v.add(item = new ItemTypeStringList(BoatRecord.DEFAULTSESSIONTYPE, getDefaultSessionType(),
+                EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                IItemType.TYPE_PUBLIC, CAT_USAGE,
+                International.getString("Standard-Fahrtart")));
+        v.add(item = getGuiItemTypeStringAutoComplete(BoatRecord.DEFAULTDESTINATIONID, getDefaultDestinationId(),
+                IItemType.TYPE_PUBLIC, CAT_USAGE,
+                destinations, getValidFrom(), getInvalidFrom()-1,
+                International.getString("Standard-Ziel")));
+        item.setFieldSize(300, -1);
+
+        // CAT_RESERVATIONS
+        v.add(item = new ItemTypeDataRecordTable(GUIITEM_RESERVATIONS,
+            boatReservations.createNewRecord().getGuiTableHeader(),
+            boatReservations,
+            boatReservations.getBoatReservations(getId()),
+            null, this,
+            IItemType.TYPE_PUBLIC, CAT_RESERVATIONS, International.getString("Reservierungen")));
+        ((ItemTypeDataRecordTable)item).setPopupActions(new String[] {
+            International.getString("Auswählen"),
+            International.getString("Neu"),
+            International.getString("Löschen")
+        });
+        //((ItemTypeTable)item).registerItemListener(this);
+        // @todo
+
+        // CAT_DAMAGES
+        // @todo
+
+        // CAT_STATUS
+        BoatStatusRecord boatStatusRecord = boatStatus.getBoatStatus(getId());
+        if (boatStatusRecord != null) {
+            v.addAll(boatStatusRecord.getGuiItems());
+        }
+
+        // CAT_FREEUSE
+        v.add(item = new ItemTypeString(BoatRecord.FREEUSE1, getFreeUse1(),
+                IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 1"));
+        v.add(item = new ItemTypeString(BoatRecord.FREEUSE2, getFreeUse2(),
+                IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 2"));
+        v.add(item = new ItemTypeString(BoatRecord.FREEUSE3, getFreeUse3(),
+                IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 3"));
+  
+        return v;
+    }
+
+    public TableItemHeader[] getGuiTableHeader() {
+        TableItemHeader[] header = new TableItemHeader[2];
+        header[0] = new TableItemHeader(International.getString("Name"));
+        header[1] = new TableItemHeader(International.getString("Eigentümer"));
+        return header;
+    }
+
+    public TableItem[] getGuiTableItems() {
+        TableItem[] items = new TableItem[2];
+        items[0] = new TableItem(getName());
+        items[1] = new TableItem(getOwner());
+        return items;
+    }
+
+
+    public void saveGuiItems(Vector<IItemType> items) {
+        for(IItemType item : items) {
+            String name = item.getName();
+            if (name.equals(GUIITEM_BOATTYPES) && item.isChanged()) {
+                ItemTypeItemList list = (ItemTypeItemList)item;
+                for (int i=0; i<list.deletedSize(); i++) {
+                    IItemType[] typeItems = list.getDeletedItems(i);
+                    int variant = EfaUtil.stringFindInt(typeItems[0].toString(), -1);
+                    int idx = getVariantIndex(variant);
+                    deleteTypeVariant(idx);
+                }
+                for (int i=0; i<list.size(); i++) {
+                    IItemType[] typeItems = list.getItems(i);
+                    int variant = EfaUtil.stringFindInt(typeItems[0].toString(), -1);
+                    if (variant < 0) {
+                        continue;
+                    }
+                    if (variant == 0) {
+                        addTypeVariant(typeItems[1].toString(), typeItems[2].toString(), typeItems[3].toString(), typeItems[4].toString(), typeItems[5].toString());
+                    } else {
+                        int idx = getVariantIndex(variant);
+                        if (typeItems[1].isChanged() || typeItems[2].isChanged() || typeItems[3].isChanged() || typeItems[4].isChanged() || typeItems[5].isChanged()) {
+                            setTypeVariant(idx, typeItems[1].toString(), typeItems[2].toString(), typeItems[3].toString(), typeItems[4].toString(), typeItems[5].toString());
+                        }
+                    }
+                }
+            }
+            if (name.equals(GUIITEM_ALLOWEDGROUPIDLIST) && item.isChanged()) {
+                ItemTypeItemList list = (ItemTypeItemList)item;
+                Hashtable<String,UUID> uuidList = new Hashtable<String,UUID>();
+                for (int i=0; i<list.size(); i++) {
+                    IItemType[] typeItems = list.getItems(i);
+                    Object uuid = ((ItemTypeStringAutoComplete)typeItems[0]).getId(typeItems[0].toString());
+                    if (uuid != null && uuid.toString().length() > 0) {
+                        uuidList.put(uuid.toString(), (UUID)uuid);
+                    }
+                }
+                String[] uuidArr = uuidList.keySet().toArray(new String[0]);
+                DataTypeList<UUID> agList = new DataTypeList<UUID>();
+                for (String uuid : uuidArr) {
+                    agList.add(uuidList.get(uuid));
+                }
+                setAllowedGroupIdList(agList);
+            }
+        }
+        super.saveGuiItems(items);
+    }
+
+    public void itemListenerActionTable(int actionId, DataRecord[] records) {
+        // nothing to do
+    }
+
+    public DataEditDialog createNewDataEditDialog(JDialog parent, DataRecord record) {
+        if (record == null) {
+            BoatReservations boatReservations = getPersistence().getProject().getBoatReservations(false);
+            AutoIncrement autoIncrement = getPersistence().getProject().getAutoIncrement(false);
+            int val = autoIncrement.nextAutoIncrementValue(boatReservations.data().getStorageObjectType());
+            if (record instanceof BoatReservationRecord && val > 0) {
+                record = boatReservations.createBoatReservationsRecord(getId(), val);
+            }
+        }
+        return new BoatReservationEditDialog(parent, (BoatReservationRecord)record);
+    }
+    
 }

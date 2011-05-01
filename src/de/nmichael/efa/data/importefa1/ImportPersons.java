@@ -23,6 +23,7 @@ public class ImportPersons extends ImportBase {
 
     private Mitglieder mitglieder;
     private ProjectRecord logbookRec;
+    private Hashtable<String,UUID> statusKeys = new Hashtable<String,UUID>();
 
     public ImportPersons(ImportTask task, Mitglieder mitglieder, ProjectRecord logbookRec) {
         super(task);
@@ -32,6 +33,11 @@ public class ImportPersons extends ImportBase {
 
     public String getDescription() {
         return International.getString("Personen");
+    }
+
+    private String getStatusKey(String name) {
+        UUID id = statusKeys.get(name);
+        return (id != null ? id.toString(): "");
     }
 
     private boolean isIdentical(Object o, String s) {
@@ -60,7 +66,7 @@ public class ImportPersons extends ImportBase {
         if (!isIdentical(r.getAssocitation(), d.get(Mitglieder.VEREIN))) {
             return true;
         }
-        if (!isIdentical(r.getStatus(), d.get(Mitglieder.STATUS))) {
+        if (!isIdentical(r.getStatusId(), getStatusKey(d.get(Mitglieder.STATUS)))) {
             return true;
         }
         if (!isIdentical(r.getMembershipNo(), d.get(Mitglieder.MITGLNR))) {
@@ -95,14 +101,15 @@ public class ImportPersons extends ImportBase {
             logInfo(International.getMessage("Importiere {list} aus {file} ...", getDescription(), mitglieder.getFileName()));
 
             Persons persons = Daten.project.getPersons(true);
-            long validFrom = DataAccess.getTimestampFromDate(logbookRec.getStartDate());
+            Status status = Daten.project.getStatus(true);
+            long validFrom = logbookRec.getStartDate().getTimestamp(null);
 
             DatenFelder d = mitglieder.getCompleteFirst();
             while (d != null) {
                 // First search, whether we have imported this person already
                 PersonRecord r = null;
                 DataKey[] keys = persons.data().getByFields(PersonRecord.IDX_NAME_ASSOC,
-                        PersonRecord.getValuesForIndexFromQualifiedName(
+                        persons.staticPersonRecord.getQualifiedNameValues(
                             PersonRecord.getFullName(d.get(Mitglieder.VORNAME), d.get(Mitglieder.NACHNAME), d.get(Mitglieder.VEREIN), true)));
                 if (keys != null && keys.length > 0) {
                     // We've found one or more persons with same Name and Association.
@@ -137,9 +144,29 @@ public class ImportPersons extends ImportBase {
                     if (d.get(Mitglieder.VEREIN).length() > 0) {
                         r.setAssocitation(d.get(Mitglieder.VEREIN));
                     }
-                    if (d.get(Mitglieder.STATUS).length() > 0) {
-                        r.setStatus(d.get(Mitglieder.STATUS));
-                    }
+                    // always set status
+                        String s = d.get(Mitglieder.STATUS).trim();
+                        if (s.length() == 0) {
+                            s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_OTHER);
+                        }
+                        UUID statusId = statusKeys.get(s);
+                        if (statusId == null && s.equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST))) {
+                            statusId = status.getStatusGuest().getId();
+                        }
+                        if (statusId == null && s.equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_OTHER))) {
+                            statusId = status.getStatusOther().getId();
+                        }
+                        if (statusId == null) {
+                            statusId = (status.findStatusByName(s) != null ? status.findStatusByName(s).getId() : null);
+                        }
+                        if (statusId == null) {
+                            statusId = status.addStatus(s, StatusRecord.TYPE_USER);
+                        }
+                        if (statusId != null) {
+                            r.setStatusId(statusId);
+                            statusKeys.put(s, statusId);
+                        }
+                    
                     String address = task.getAddress(r.getFirstName() + " " + r.getLastName());
                     if (address != null && address.length() > 0) {
                         r.setAddressAdditional(address); // there is no such thing as an address format in efa1,
@@ -172,12 +199,12 @@ public class ImportPersons extends ImportBase {
                     }
                     try {
                         persons.data().addValidAt(r, validFrom);
-                        logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
+                        logDetail(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                     } catch(Exception e) {
                         logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
                     }
                 } else {
-                    logInfo(International.getMessage("Identischer Eintrag: {entry}", r.toString()));
+                    logDetail(International.getMessage("Identischer Eintrag: {entry}", r.toString()));
                 }
                 d = mitglieder.getCompleteNext();
             }

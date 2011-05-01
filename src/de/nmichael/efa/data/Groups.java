@@ -18,7 +18,7 @@ import java.util.*;
 
 public class Groups extends Persistence {
 
-    public static final String DATATYPE = "e2groups";
+    public static final String DATATYPE = "efa2groups";
 
     public Groups(int storageType, String storageLocation, String storageObjectName) {
         super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Gruppen"));

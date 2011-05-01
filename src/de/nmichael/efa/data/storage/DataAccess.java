@@ -10,7 +10,7 @@
 
 package de.nmichael.efa.data.storage;
 
-import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.util.Logger;
 import java.util.*;
@@ -31,6 +31,7 @@ public abstract class DataAccess implements IDataAccess {
     protected final LinkedHashMap<String,Integer> fieldTypes = new LinkedHashMap<String,Integer>();
     protected String[] keyFields;
     protected MetaData meta;
+    protected DataRecord referenceRecord;
 
     public static IDataAccess createDataAccess(Persistence persistence, int type, String storageLocation, String storageObjectName, 
             String storageObjectType, String storageObjectDescription) {
@@ -140,9 +141,14 @@ public abstract class DataAccess implements IDataAccess {
             for (int i=0; i<indexFields.length; i++) {
                 createIndex(indexFields[i]);
             }
+            referenceRecord = persistence.createNewRecord();
         } catch(Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public MetaData getMetaData() {
+        return meta;
     }
 
     public String[] getKeyFieldNames() {
@@ -200,11 +206,38 @@ public abstract class DataAccess implements IDataAccess {
         return new DataKey(key,bUnversionized); // this is the corresponding "unversionized" key (i.e. key with only unversionized fields)
     }
 
-    public static long getTimestampFromDate(DataTypeDate date) {
-        GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-        cal.clear();
-        cal.set(date.getYear(), date.getMonth()-1, date.getDay());
-        return cal.getTimeInMillis();
+    public String getTypeName(int type) {
+        switch(type) {
+            case DATA_STRING:
+                return "STRING";
+            case DATA_INTEGER:
+                return "INTEGER";
+            case DATA_LONGINT:
+                return "LONGINT";
+            case DATA_DECIMAL:
+                return "DECIMAL";
+            case DATA_DISTANCE:
+                return "DISTANCE";
+            case DATA_BOOLEAN:
+                return "BOOLEAN";
+            case DATA_DATE:
+                return "DATE";
+            case DATA_TIME:
+                return "TIME";
+            case DATA_UUID:
+                return "UUID";
+            case DATA_INTSTRING:
+                return "INTSTRING";
+            case DATA_LIST_STRING:
+                return "LIST_STRING";
+            case DATA_LIST_INTEGER:
+                return "LIST_INTEGER";
+            case DATA_LIST_UUID:
+                return "LIST_UUID";
+            case DATA_VIRTUAL:
+                return "VIRTUAL";
+            default: return "UNKNOWN";
+        }
     }
 
 }

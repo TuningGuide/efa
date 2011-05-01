@@ -12,6 +12,9 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.gui.util.*;
+import de.nmichael.efa.util.*;
 import java.util.*;
 
 // @i18n complete
@@ -273,6 +276,27 @@ public class ProjectRecord extends DataRecord {
     public DataTypeDate getEndDate() {
         return getDate(ENDDATE);
     }
+    
+    public Vector<IItemType> getGuiItems() {
+        String CAT_BASEDATA     = "%01%" + International.getString("Reservierung");
+        IItemType item;
+        Vector<IItemType> v = new Vector<IItemType>();
+        // @todo
+        //v.add(item = new ItemTypeString(BoatRecord.NAME, getName(),
+        //        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
+        return v;
+    }
 
+    public TableItemHeader[] getGuiTableHeader() {
+        TableItemHeader[] header = new TableItemHeader[4];
+        // @todo
+        return header;
+    }
+
+    public TableItem[] getGuiTableItems() {
+        TableItem[] items = new TableItem[4];
+        // @todo
+        return items;
+    }
 
 }

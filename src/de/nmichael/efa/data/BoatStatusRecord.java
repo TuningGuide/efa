@@ -12,6 +12,9 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.gui.util.*;
+import de.nmichael.efa.util.*;
 import java.util.*;
 
 // @i18n complete
@@ -25,6 +28,8 @@ public class BoatStatusRecord extends DataRecord {
     public static final String STATUS_NOTAVAILABLE = "NOTAVAILABLE";
     public static final String STATUS_CURRENTLYHIDDEN = "CURRENTLYHIDDEN";
 
+    public static final int ARRAY_STRINGLIST_VALUES  = 1;
+    public static final int ARRAY_STRINGLIST_DISPLAY = 2;
 
     // =========================================================================
     // Field Names
@@ -62,6 +67,10 @@ public class BoatStatusRecord extends DataRecord {
         return new DataKey<UUID,String,String>(getBoatId(),null,null);
     }
 
+    public static DataKey getKey(UUID id) {
+        return new DataKey<UUID,String,String>(id,null,null);
+    }
+
     public void setBoatId(UUID id) {
         setUUID(BOATID, id);
     }
@@ -95,6 +104,88 @@ public class BoatStatusRecord extends DataRecord {
     }
     public String getComment() {
         return getString(COMMENT);
+    }
+
+    public Vector<IItemType> getGuiItems() {
+        String CAT_STATUS       = "%06%" + International.getString("Bootsstatus");
+        IItemType item;
+        Vector<IItemType> v = new Vector<IItemType>();
+
+        v.add(item = new ItemTypeStringList(BoatStatusRecord.STATUS, getStatus(),
+                makeStatusTypeArray(ARRAY_STRINGLIST_VALUES), makeStatusTypeArray(ARRAY_STRINGLIST_DISPLAY),
+                IItemType.TYPE_PUBLIC, CAT_STATUS,
+                International.getString("Status")));
+        if (getStatus() != null && getStatus().equals(STATUS_ONTHEWATER)) {
+            v.add(item = new ItemTypeLabel(BoatStatusRecord.ENTRYNO,
+                    IItemType.TYPE_PUBLIC, CAT_STATUS,
+                    International.getMessage("Eintrag in Lfd. Nr. {entryNo} in Fahrtenbuch {logbook}", getEntryNo(), getLogbook())));
+        }
+        v.add(item = new ItemTypeString(BoatStatusRecord.COMMENT, getComment(),
+                IItemType.TYPE_PUBLIC, CAT_STATUS, International.getString("Bemerkung")));
+        
+        return v;
+    }
+
+    public TableItemHeader[] getGuiTableHeader() {
+        TableItemHeader[] header = new TableItemHeader[4];
+        // @todo
+        return header;
+    }
+
+    public TableItem[] getGuiTableItems() {
+        TableItem[] items = new TableItem[4];
+        // @todo
+        return items;
+    }
+
+    public static String getStatusDescription(String stype) {
+        if (stype == null) {
+            return null;
+        }
+        if (stype.equals(STATUS_HIDE)) {
+            return International.getString("nicht anzeigen");
+        }
+        if (stype.equals(STATUS_AVAILABLE)) {
+            return International.getString("verfügbar");
+        }
+        if (stype.equals(STATUS_ONTHEWATER)) {
+            return International.getString("unterwegs");
+        }
+        if (stype.equals(STATUS_NOTAVAILABLE)) {
+            return International.getString("nicht verfügbar");
+        }
+        if (stype.equals(STATUS_CURRENTLYHIDDEN)) {
+            return International.getString("vorübergehend verstecken");
+        }
+        return null;
+    }
+
+    public static String[] makeStatusTypeArray(int type) {
+        String[] status = new String[5];
+        for(int i=0; i<status.length; i++) {
+            String stype = null;
+            switch(i) {
+                case 0:
+                    stype = STATUS_HIDE;
+                    break;
+                case 1:
+                    stype = STATUS_AVAILABLE;
+                    break;
+                case 2:
+                    stype = STATUS_ONTHEWATER;
+                    break;
+                case 3:
+                    stype = STATUS_NOTAVAILABLE;
+                    break;
+                case 4:
+                    stype = STATUS_CURRENTLYHIDDEN;
+                    break;
+            }
+            status[i] = (type == ARRAY_STRINGLIST_VALUES ?
+                stype :
+                getStatusDescription(stype));
+        }
+        return status;
     }
 
 }

@@ -99,6 +99,17 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         autoComplete(null);
     }
 
+    public void setId(Object id) {
+        if (autoCompleteList != null && id != null) {
+            value = autoCompleteList.getValueForId(id.toString());
+        }
+    }
+
+    public Object getId(String qname) {
+        return (autoCompleteList != null ? autoCompleteList.getId(qname) : null);
+    }
+
+
     protected void field_focusLost(FocusEvent e) {
         if (Daten.efaConfig.popupComplete.getValue()) {
             AutoCompletePopupWindow.hideWindow();
@@ -338,18 +349,5 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
     public boolean isKnown() {
         return valueIsKnown;
     }
-
-/*
-  public void acpwCallback(JTextField field) {
-    try {
-      eintragGeaendert(null);
-      vervollstaendigeForField(field);
-      if (field == ziel) setZielKm();
-    } catch(Exception e) {
-    }
-  }
-
-
- */
 
 }

@@ -18,7 +18,7 @@ import java.util.*;
 
 public class BoatDamages extends Persistence {
 
-    public static final String DATATYPE = "e2boatdamages";
+    public static final String DATATYPE = "efa2boatdamages";
 
     public BoatDamages(int storageType, String storageLocation, String storageObjectName) {
         super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Bootsschäden"));

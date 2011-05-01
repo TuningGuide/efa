@@ -18,24 +18,28 @@ public interface IDataAccess {
 
     public static final int TYPE_FILE_XML = 1;
     public static final int TYPE_DB_SQL = 2;
+    public static final int TYPE_EFA_REMOTE = 3;
 
     public static final String TYPESTRING_FILE_XML = "file/xml";
     public static final String TYPESTRING_DB_SQL = "db/sql";
+    public static final String TYPESTRING_EFA_REMOTE = "efa/remote";
 
     // Data Types supported by IDataAccess
-    //                      Data Type            Internal Java Type
-    public static final int DATA_STRING = 0;     // String
-    public static final int DATA_INTEGER = 1;    // int, Integer
-    public static final int DATA_LONGINT = 2;    // long, Long
-    public static final int DATA_DECIMAL = 3;    // DataTypeDecimal
-    public static final int DATA_DISTANCE = 4;   // DataTypeDistance
-    public static final int DATA_BOOLEAN = 5;    // boolean, Boolean
-    public static final int DATA_DATE = 6;       // DataTypeDate
-    public static final int DATA_TIME = 7;       // DataTypeTime
-    public static final int DATA_UUID = 8;       // java.util.UUID
-    public static final int DATA_LIST = 9;       // String-based list
-    public static final int DATA_INTSTRING = 10; // Number-String mixed String
-    public static final int DATA_VIRTUAL = 99;   // Virtual String, will not be stored in file
+    //                      Data Type                Internal Java Type
+    public static final int DATA_STRING = 0;         // String
+    public static final int DATA_INTEGER = 1;        // int, Integer
+    public static final int DATA_LONGINT = 2;        // long, Long
+    public static final int DATA_DECIMAL = 3;        // DataTypeDecimal
+    public static final int DATA_DISTANCE = 4;       // DataTypeDistance
+    public static final int DATA_BOOLEAN = 5;        // boolean, Boolean
+    public static final int DATA_DATE = 6;           // DataTypeDate
+    public static final int DATA_TIME = 7;           // DataTypeTime
+    public static final int DATA_UUID = 8;           // java.util.UUID
+    public static final int DATA_INTSTRING = 9;      // Number-String mixed String
+    public static final int DATA_LIST_STRING = 100;  // String-based list
+    public static final int DATA_LIST_INTEGER = 101; // Integer-based list
+    public static final int DATA_LIST_UUID = 108;    // UUID-based list
+    public static final int DATA_VIRTUAL = 999;      // Virtual String, will not be stored in file
 
     public static final int  UNDEFINED_INT  = Integer.MIN_VALUE + 1;
     public static final long UNDEFINED_LONG = Long.MIN_VALUE + 1;
@@ -270,6 +274,13 @@ public interface IDataAccess {
     public void setMetaData(MetaData meta);
 
     /**
+     * Returns the meta data associated with this data access.
+     * @return the meta data
+     */
+    public MetaData getMetaData();
+
+
+    /**
      * Returns the names of the key fields of this storage object.
      * @return the key field names
      */
@@ -454,6 +465,8 @@ public interface IDataAccess {
      * @throws Exception
      */
     public void truncateAllData() throws EfaException;
+
+    public String getTypeName(int type);
 
     public DataKey[] getAllKeys() throws EfaException;
     public DataKeyIterator getStaticIterator() throws EfaException;

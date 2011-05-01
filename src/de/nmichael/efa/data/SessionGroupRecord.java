@@ -12,6 +12,9 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.gui.util.*;
+import de.nmichael.efa.util.*;
 import java.util.*;
 
 // @i18n complete
@@ -30,6 +33,8 @@ public class SessionGroupRecord extends DataRecord {
     public static final String ACTIVEDAYS          = "ActiveDays";
     public static final String DISTANCE            = "Distance";
 
+    public static final String[] IDX_NAME = new String[] { NAME };
+
     public static void initialize() {
         Vector<String> f = new Vector<String>();
         Vector<Integer> t = new Vector<Integer>();
@@ -44,7 +49,7 @@ public class SessionGroupRecord extends DataRecord {
 
         MetaData metaData = constructMetaData(SessionGroups.DATATYPE, f, t, false);
         metaData.setKey(new String[] { ID });
-        metaData.addIndex(new String[] { NAME });
+        metaData.addIndex(IDX_NAME);
     }
 
     public SessionGroupRecord(SessionGroups sessionGroups, MetaData metaData) {
@@ -107,4 +112,35 @@ public class SessionGroupRecord extends DataRecord {
     public DataTypeDistance getDistance() {
         return getDistance(DISTANCE);
     }
+
+    public String[] getQualifiedNameFields() {
+        return IDX_NAME;
+    }
+
+    public Object getUniqueIdForRecord() {
+        return getId();
+    }
+
+    public Vector<IItemType> getGuiItems() {
+        String CAT_BASEDATA     = "%01%" + International.getString("Reservierung");
+        IItemType item;
+        Vector<IItemType> v = new Vector<IItemType>();
+        // @todo
+        //v.add(item = new ItemTypeString(BoatRecord.NAME, getName(),
+        //        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
+        return v;
+    }
+
+    public TableItemHeader[] getGuiTableHeader() {
+        TableItemHeader[] header = new TableItemHeader[4];
+        // @todo
+        return header;
+    }
+
+    public TableItem[] getGuiTableItems() {
+        TableItem[] items = new TableItem[4];
+        // @todo
+        return items;
+    }
+    
 }

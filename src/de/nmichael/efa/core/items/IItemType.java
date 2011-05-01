@@ -27,8 +27,10 @@ public interface IItemType {
     public static final int TYPE_PUBLIC = 2;
 
     public String getName();
+    public void setName(String name);
     public int getType();
     public String getCategory();
+    public void setDescription(String description);
     public String getDescription();
 
     public void parseValue(String value);

@@ -10,7 +10,7 @@
 
 package de.nmichael.efa;
 
-import de.nmichael.efa.util.TableSorter;
+import de.nmichael.efa.gui.util.TableSorter;
 
 // @i18n complete
 

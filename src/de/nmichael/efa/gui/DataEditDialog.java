@@ -22,22 +22,22 @@ import java.util.*;
 import javax.swing.event.ChangeEvent;
 
 // @i18n complete
-public class DataEditFrame extends BaseDialog {
+public class DataEditDialog extends BaseDialog {
 
     private JTabbedPane tabbedPane;
 
-    private Vector<DataItem> items;
-    private Hashtable<String,Vector<DataItem>> cat2items; // items per category
+    private Vector<IItemType> items;
+    private Hashtable<String,Vector<IItemType>> cat2items; // items per category
     private Hashtable<JPanel,String> panels;
 
-    public DataEditFrame(Frame parent, String title, Vector<DataItem> items) {
+    public DataEditDialog(Frame parent, String title, Vector<IItemType> items) {
         super(parent, title, International.getStringWithMnemonic("Speichern"));
-        this.items = items;
+        setItems(items);
     }
 
-    public DataEditFrame(JDialog parent, String title, Vector<DataItem> items) {
+    public DataEditDialog(JDialog parent, String title, Vector<IItemType> items) {
         super(parent, title, International.getStringWithMnemonic("Speichern"));
-        this.items = items;
+        setItems(items);
     }
 
     public void keyAction(ActionEvent evt) {
@@ -45,26 +45,12 @@ public class DataEditFrame extends BaseDialog {
     }
 
     protected void iniDialog() throws Exception {
-        cat2items = new Hashtable<String,Vector<DataItem>>();
-
-        // build data item hierarchy across categories
-        for (DataItem item : items) {
-            String cat = item.item.getCategory();
-            Vector<DataItem> v = cat2items.get(cat);
-            if (v == null) {
-                v = new Vector<DataItem>();
-            }
-            v.add(item);
-            cat2items.put(cat, v);
-        }
-
         // create GUI items
         mainPanel.setLayout(new BorderLayout());
         updateGui();
     }
 
     public void updateGui() {
-        getValuesFromGui();
         String selectedPanel = getSelectedPanel(tabbedPane);
 
         if (tabbedPane != null) {
@@ -80,13 +66,21 @@ public class DataEditFrame extends BaseDialog {
             JPanel panel = new JPanel();
             panels.put(panel, cat);
             panel.setLayout(new GridBagLayout());
-            Vector<DataItem> v = cat2items.get(cat);
+            Vector<IItemType> v = cat2items.get(cat);
             int y = 0;
-            for (DataItem item : v) {
-                y += item.item.displayOnGui(this,panel,y);
+            for (IItemType item : v) {
+                y += item.displayOnGui(this,panel,y);
+                item.setUnchanged();
             }
             if (y > 0) {
-                tabbedPane.add(panel, cat);
+                String catname = cat;
+                if (catname.startsWith("%")) {
+                    int pos = catname.indexOf("%", 1);
+                    if (pos > 0) {
+                        catname = catname.substring(pos+1);
+                    }
+                }
+                tabbedPane.add(panel, catname);
                 if (cat.equals(selectedPanel)) {
                     tabbedPane.setSelectedComponent(panel);
                 }
@@ -96,12 +90,15 @@ public class DataEditFrame extends BaseDialog {
         this.validate();
     }
 
-    void getValuesFromGui() {
-        for (DataItem item : items) {
-            String oldVal = item.item.toString();
-            item.item.getValueFromGui();
-            item.changed = item.changed || !oldVal.equals(item.item.toString());
+    boolean getValuesFromGui() {
+        boolean changed = false;
+        for (IItemType item : items) {
+            item.getValueFromGui();
+            if (item.isChanged()) {
+                changed = true;
+            }
         }
+        return changed;
     }
 
     private String getSelectedPanel(JTabbedPane pane) {
@@ -122,11 +119,29 @@ public class DataEditFrame extends BaseDialog {
 
     public void closeButton_actionPerformed(ActionEvent e) {
         getValuesFromGui();
+        setDialogResult(true);
         super.closeButton_actionPerformed(e);
     }
 
-    public Vector<DataItem> getItems() {
+    public Vector<IItemType> getItems() {
         return items;
+    }
+
+    public void setItems(Vector<IItemType> items) {
+        this.items = items;
+        cat2items = new Hashtable<String,Vector<IItemType>>();
+
+        // build data item hierarchy across categories
+        for (IItemType item : items) {
+            String cat = item.getCategory();
+            Vector<IItemType> v = cat2items.get(cat);
+            if (v == null) {
+                v = new Vector<IItemType>();
+            }
+            v.add(item);
+            cat2items.put(cat, v);
+        }
+
     }
 
 }

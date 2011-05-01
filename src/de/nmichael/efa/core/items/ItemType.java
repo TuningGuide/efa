@@ -51,6 +51,10 @@ public abstract class ItemType implements IItemType {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public int getType() {
         return type;
     }
@@ -104,8 +108,8 @@ public abstract class ItemType implements IItemType {
     }
 
     public void setFieldSize(int width, int height) {
-        fieldWidth = width;
-        fieldHeight = height;
+        fieldWidth = (width > 0 ? width : fieldWidth);
+        fieldHeight = (height > 0 ? height : fieldHeight);
     }
 
     public void setFieldGrid(int gridWidth, int gridAnchor, int gridFill) {
@@ -167,6 +171,20 @@ public abstract class ItemType implements IItemType {
         if (listener != null && e != null) {
             listener.itemListenerAction(this, e);
         }
+    }
+
+    public JDialog getParentDialog() {
+        if (dlg != null && dlg instanceof JDialog) {
+            return (JDialog)dlg;
+        }
+        return null;
+    }
+
+    public JFrame getParentFrame() {
+        if (dlg != null && dlg instanceof JFrame) {
+            return (JFrame)dlg;
+        }
+        return null;
     }
 
 }

@@ -12,15 +12,18 @@ package de.nmichael.efa.data.storage;
 
 import java.util.*;
 import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.util.*;
 
 // @i18n complete
 
-public abstract class DataRecord implements Cloneable {
+public abstract class DataRecord implements Cloneable, Comparable {
 
     protected static final String LASTMODIFIED     = "LastModified";
     protected static final String VALIDFROM        = "ValidFrom";
     protected static final String INVALIDFROM      = "InvalidFrom";
+    protected static final String DELETED          = "Deleted";
 
     protected Persistence persistence;
     protected MetaData metaData;
@@ -39,6 +42,7 @@ public abstract class DataRecord implements Cloneable {
         if (versionized) {
             fields.add(DataRecord.VALIDFROM);       types.add(IDataAccess.DATA_LONGINT);
             fields.add(DataRecord.INVALIDFROM);     types.add(IDataAccess.DATA_LONGINT);
+            fields.add(DataRecord.DELETED);         types.add(IDataAccess.DATA_BOOLEAN);
         }
         // LastModified must always be the last field; this class's set(int, Object) method implicitly uses this to update the timestamp!
         fields.add(DataRecord.LASTMODIFIED);        types.add(IDataAccess.DATA_LONGINT);
@@ -67,6 +71,10 @@ public abstract class DataRecord implements Cloneable {
         return rec;
     }
 
+    public int compareTo(Object o)  {
+        return getKey().compareTo( (o != null ? ((DataRecord)o).getKey() : null) );
+    }
+
     public int getFieldCount() {
         return metaData.getNumberOfFields();
     }
@@ -93,64 +101,64 @@ public abstract class DataRecord implements Cloneable {
 
     public abstract DataKey getKey();
     
-    protected void set(int fieldIdx, Object data) {
+    protected void set(int fieldIdx, Object data, boolean updateTimestamp) {
         if (data != null) {
             int type = getFieldType(fieldIdx);
             if (data instanceof String && type != IDataAccess.DATA_STRING) {
                 data = transformDataStringToType((String)data, type);
                 if (data == null) {
-                    throw new IllegalArgumentException("Data of Type String could not be transformed to Type " + type + " for Data Field " + fieldIdx + ".");
+                    throw new IllegalArgumentException(persistence.toString() + ": Data could not be transformed to Type " + persistence.data().getTypeName(type) + " for Data Field " + metaData.getFieldName(fieldIdx) + ".");
                 }
             }
             switch (type) {
                 case IDataAccess.DATA_STRING:
                     if (!(data instanceof String)) {
-                        throw new IllegalArgumentException("Data Type STRING expected for Data Field " + fieldIdx + ".");
+                        throw new IllegalArgumentException(persistence.toString() + ": Data Type STRING expected for Data Field " + metaData.getFieldName(fieldIdx) + ".");
                     }
                     break;
                 case IDataAccess.DATA_INTEGER:
                     if (!(data instanceof Integer)) {
-                        throw new IllegalArgumentException("Data Type INTEGER expected for Data Field " + fieldIdx + ".");
+                        throw new IllegalArgumentException(persistence.toString() + ": Data Type INTEGER expected for Data Field " + metaData.getFieldName(fieldIdx) + ".");
                     }
                     break;
                 case IDataAccess.DATA_LONGINT:
                     if (!(data instanceof Long)) {
-                        throw new IllegalArgumentException("Data Type LONGINT expected for Data Field " + fieldIdx + ".");
+                        throw new IllegalArgumentException(persistence.toString() + ": Data Type LONGINT expected for Data Field " + metaData.getFieldName(fieldIdx) + ".");
                     }
                     break;
                 case IDataAccess.DATA_DECIMAL:
                     if (!(data instanceof DataTypeDecimal)) {
-                        throw new IllegalArgumentException("Data Type DECIMAL expected for Data Field " + fieldIdx + ".");
+                        throw new IllegalArgumentException(persistence.toString() + ": Data Type DECIMAL expected for Data Field " + metaData.getFieldName(fieldIdx) + ".");
                     }
                     break;
                 case IDataAccess.DATA_DISTANCE:
                     if (!(data instanceof DataTypeDistance)) {
-                        throw new IllegalArgumentException("Data Type DISTANCE expected for Data Field " + fieldIdx + ".");
+                        throw new IllegalArgumentException(persistence.toString() + ": Data Type DISTANCE expected for Data Field " + metaData.getFieldName(fieldIdx) + ".");
                     }
                     break;
                 case IDataAccess.DATA_BOOLEAN:
                     if (!(data instanceof Boolean)) {
-                        throw new IllegalArgumentException("Data Type BOOLEAN expected for Data Field " + fieldIdx + ".");
+                        throw new IllegalArgumentException(persistence.toString() + ": Data Type BOOLEAN expected for Data Field " + metaData.getFieldName(fieldIdx) + ".");
                     }
                     break;
                 case IDataAccess.DATA_DATE:
                     if (!(data instanceof DataTypeDate)) {
-                        throw new IllegalArgumentException("Data Type DATE expected for Data Field " + fieldIdx + ".");
+                        throw new IllegalArgumentException(persistence.toString() + ": Data Type DATE expected for Data Field " + metaData.getFieldName(fieldIdx) + ".");
                     }
                     break;
                 case IDataAccess.DATA_TIME:
                     if (!(data instanceof DataTypeTime)) {
-                        throw new IllegalArgumentException("Data Type TIME expected for Data Field " + fieldIdx + ".");
+                        throw new IllegalArgumentException(persistence.toString() + ": Data Type TIME expected for Data Field " + metaData.getFieldName(fieldIdx) + ".");
                     }
                     break;
                 case IDataAccess.DATA_UUID:
                     if (!(data instanceof UUID)) {
-                        throw new IllegalArgumentException("Data Type UUID expected for Data Field " + fieldIdx + ".");
+                        throw new IllegalArgumentException(persistence.toString() + ": Data Type UUID expected for Data Field " + metaData.getFieldName(fieldIdx) + ".");
                     }
                     break;
                 case IDataAccess.DATA_INTSTRING:
                     if (!(data instanceof DataTypeIntString)) {
-                        throw new IllegalArgumentException("Data Type INTSTRING expected for Data Field " + fieldIdx + ".");
+                        throw new IllegalArgumentException(persistence.toString() + ": Data Type INTSTRING expected for Data Field " + metaData.getFieldName(fieldIdx) + ".");
                     }
                     break;
                 case IDataAccess.DATA_VIRTUAL:
@@ -160,12 +168,15 @@ public abstract class DataRecord implements Cloneable {
         }
         synchronized (this.data) {
             this.data[fieldIdx] = data;
-            this.data[getFieldCount() - 1] = (Long)System.currentTimeMillis(); // LastModified timestamp
         }
     }
 
+    protected void set(String fieldName, Object data, boolean updateTimestamp) {
+        set(metaData.getFieldIndex(fieldName), data, updateTimestamp);
+    }
+
     protected void set(String fieldName, Object data) {
-        set(metaData.getFieldIndex(fieldName), data);
+        set(metaData.getFieldIndex(fieldName), data, true);
     }
 
     protected Object getVirtualColumn(int fieldIdx) {
@@ -187,12 +198,49 @@ public abstract class DataRecord implements Cloneable {
         return get(metaData.getFieldIndex(fieldName));
     }
 
+    protected boolean isDefaultValue(int fieldIdx) {
+        int type = getFieldType(fieldIdx);
+        Object o = get(fieldIdx);
+        switch(type) {
+            case IDataAccess.DATA_STRING:
+                return o == null || ((String)o).length() == 0;
+            case IDataAccess.DATA_INTEGER:
+                return o == null || ((Integer)o).intValue() == IDataAccess.UNDEFINED_INT;
+            case IDataAccess.DATA_LONGINT:
+                return o == null || ((Long)o).longValue() == IDataAccess.UNDEFINED_LONG;
+            case IDataAccess.DATA_DECIMAL:
+                return o == null || !((DataTypeDecimal)o).isSet();
+            case IDataAccess.DATA_DISTANCE:
+                return o == null || !((DataTypeDistance)o).isSet();
+            case IDataAccess.DATA_BOOLEAN:
+                return o == null || ((Boolean)o).booleanValue() == false;
+            case IDataAccess.DATA_DATE:
+                return o == null || !((DataTypeDate)o).isSet();
+            case IDataAccess.DATA_TIME:
+                return o == null || !((DataTypeTime)o).isSet();
+            case IDataAccess.DATA_UUID:
+                return o == null;
+            case IDataAccess.DATA_INTSTRING:
+                return o == null || !((DataTypeIntString)o).isSet();
+            case IDataAccess.DATA_VIRTUAL:
+                return false;
+        }
+        return false;
+    }
+
+    protected boolean isDefaultValue(String fieldName) {
+        return isDefaultValue(metaData.getFieldIndex(fieldName));
+    }
+
     public String toString() {
         StringBuilder b = new StringBuilder();
         b.append("[");
         for (int i=0; i<getFieldCount(); i++) {
             Object v = get(i);
             if (v == null && !isKeyField(i)) {
+                continue;
+            }
+            if (getFieldType(i) == IDataAccess.DATA_VIRTUAL) {
                 continue;
             }
             if (b.length() > 1) {
@@ -213,6 +261,28 @@ public abstract class DataRecord implements Cloneable {
         return toString();
     }
 
+    public String[] getQualifiedNameFields() {
+        return null; // not supported - no qualified name; to be overridden in subclass if necessary
+    }
+
+    public String[] getQualifiedNameValues(String qname) {
+        return new String[] { qname } ; // default is qname itself; to be overridden in subclass if necessary
+    }
+
+    public Object getUniqueIdForRecord() {
+        return null; // not supported - no qualified name; to be overridden in subclass if necessary
+    }
+
+    public void setLastModified() {
+        synchronized (this.data) {
+            this.data[getFieldCount() - 1] = (Long)System.currentTimeMillis(); // LastModified timestamp
+        }
+    }
+
+    public long getLastModified() {
+        return getLong(LASTMODIFIED);
+    }
+
     // =========================================================================
     // Methods for versionized data
     // =========================================================================
@@ -231,7 +301,7 @@ public abstract class DataRecord implements Cloneable {
     }
     
     public long getValidFrom() {
-        long t = getLong(VALIDFROM);
+        long t = (metaData.versionized ? getLong(VALIDFROM) : 0);
         if (t == IDataAccess.UNDEFINED_LONG || t < 0) {
             return 0;
         }
@@ -239,11 +309,60 @@ public abstract class DataRecord implements Cloneable {
     }
 
     public long getInvalidFrom() {
-        long t = getLong(INVALIDFROM);
+        long t = (metaData.versionized ? getLong(INVALIDFROM) : Long.MAX_VALUE);
         if (t == IDataAccess.UNDEFINED_LONG || t < 0) {
             return Long.MAX_VALUE;
         }
         return t;
+    }
+
+    public String getValidFromTimeString() {
+        long t = getValidFrom();
+        String s = (t == 0 ? "" : EfaUtil.getTimeStamp(t));
+        return s;
+    }
+
+    public String getValidUntilTimeString() {
+        long t = getInvalidFrom();
+        String s = (t == 0 || t == Long.MAX_VALUE ? "" : EfaUtil.getTimeStamp(t-1));
+        return s;
+    }
+
+    public String getValidRangeString() {
+        String from = getValidFromTimeString();
+        String to =   getValidUntilTimeString();
+        if (from.length() > 0 && to.length() > 0) {
+            return from + " - " + to;
+        }
+        if (from.length() == 0 && to.length() == 0) {
+            return International.getString("immer");
+        }
+        if (from.length() == 0) {
+            return International.getMessage("bis {timestamp}", to);
+        }
+        if (to.length() == 0) {
+            return International.getMessage("ab {timestamp}", from);
+        }
+        return "";
+    }
+
+    public boolean isInValidityRange(long validStart, long validEnd) {
+        long rValidFrom = getValidFrom();
+        long rValidUntil = getInvalidFrom() - 1;
+        if ( (rValidFrom >= validStart && rValidFrom <= validEnd) ||   // rValidFrom is in specified range
+             (rValidUntil >= validStart && rValidUntil <= validEnd) || // rValidUntil is in specified range
+             (rValidFrom < validStart && rValidUntil > validEnd) ) {   // rValidFrom is before specified range and rValidUntil is after specified range
+            return true;
+        }
+        return false;
+    }
+    
+    public void setDeleted(boolean deleted) {
+        setBool(DELETED, deleted);
+    }
+
+    public boolean getDeleted() {
+        return (metaData.versionized ? getBool(DELETED) : false);
     }
 
     // =========================================================================
@@ -399,11 +518,11 @@ public abstract class DataRecord implements Cloneable {
     }
 
     protected DataTypeList getList(String fieldName, int dataType) {
-        String s = (String)get(fieldName);
-        if (s == null) {
+        DataTypeList list = (DataTypeList)get(fieldName);
+        if (list == null) {
             return null;
         }
-        return DataTypeList.parseList(s, dataType);
+        return new DataTypeList(list);
     }
 
     protected DataTypeIntString getIntString(String fieldName) {
@@ -436,6 +555,12 @@ public abstract class DataRecord implements Cloneable {
                 return UUID.fromString(s);
             case IDataAccess.DATA_INTSTRING:
                 return DataTypeIntString.parseString(s);
+            case IDataAccess.DATA_LIST_STRING:
+                return DataTypeList.parseList(s, IDataAccess.DATA_STRING);
+            case IDataAccess.DATA_LIST_INTEGER:
+                return DataTypeList.parseList(s, IDataAccess.DATA_INTEGER);
+            case IDataAccess.DATA_LIST_UUID:
+                return DataTypeList.parseList(s, IDataAccess.DATA_UUID);
             case IDataAccess.DATA_VIRTUAL:
                 return "";
         }
@@ -444,6 +569,53 @@ public abstract class DataRecord implements Cloneable {
 
     public Persistence getPersistence() {
         return persistence;
+    }
+
+    protected ItemTypeStringAutoComplete getGuiItemTypeStringAutoComplete(String name, UUID value, int type, String category,
+            Persistence persistence, long validFrom, long validUntil,
+            String description) {
+        AutoCompleteList list = new AutoCompleteList();
+        list.setDataAccess(persistence.data(), validFrom, validUntil);
+        String svalue = (value != null ? list.getValueForId(value.toString()) : "");
+        ItemTypeStringAutoComplete item = new ItemTypeStringAutoComplete(name, svalue, type, category, description, true);
+        item.setFieldSize(200, 19);
+        item.setAutoCompleteData(list);
+        item.setChecks(true, true);
+        return item;
+    }
+
+    public abstract Vector<IItemType> getGuiItems();
+    public abstract TableItemHeader[] getGuiTableHeader();
+    public abstract TableItem[] getGuiTableItems();
+
+    public IItemType[] getGuiItemsAsArray() {
+        Vector<IItemType> items = getGuiItems();
+        return items.toArray(new IItemType[0]);
+    }
+
+    public void saveGuiItems(Vector<IItemType> items) {
+        for(IItemType item : items) {
+            String name = item.getName();
+            if (!metaData.isField(name)) {
+                continue; // skip this field - must be handled by subclass!
+            }
+            String value = item.getValueFromField();
+            if (value != null && value.length() > 0) {
+                if (item instanceof ItemTypeStringAutoComplete) {
+                    ItemTypeStringAutoComplete acItem = (ItemTypeStringAutoComplete)item;
+                    Object id = acItem.getId(value);
+                    if (id != null) {
+                        set(item.getName(), id.toString());
+                    } else {
+                        set(item.getName(), value);
+                    }
+                } else {
+                    set(item.getName(), value);
+                }
+            } else {
+                set(item.getName(), null);
+            }
+        }
     }
 
 }

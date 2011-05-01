@@ -14,6 +14,8 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.config.*;
+import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.util.*;
 import java.util.*;
 import java.util.regex.*;
@@ -34,7 +36,7 @@ public class PersonRecord extends DataRecord {
     public static final String GENDER              = "Gender";
     public static final String BIRTHDAY            = "Birthday";
     public static final String ASSOCIATION         = "Association";
-    public static final String STATUS              = "Status";
+    public static final String STATUSID            = "StatusId";
     public static final String ADDRESSSTREET       = "AddressStreet";
     public static final String ADDRESSADDITIONAL   = "AddressAdditional";
     public static final String ADDRESSCITY         = "AddressCity";
@@ -52,7 +54,7 @@ public class PersonRecord extends DataRecord {
 
     public static final String[] IDX_NAME_ASSOC = new String[] { FIRSTLASTNAME, ASSOCIATION };
 
-    private static Pattern qnamePattern = Pattern.compile("(.+) (\\([^\\(\\)]+\\))");
+    private static Pattern qnamePattern = Pattern.compile("(.+) \\(([^\\(\\)]+)\\)");
 
     public static void initialize() {
         Vector<String> f = new Vector<String>();
@@ -66,7 +68,7 @@ public class PersonRecord extends DataRecord {
         f.add(GENDER);                            t.add(IDataAccess.DATA_STRING);
         f.add(BIRTHDAY);                          t.add(IDataAccess.DATA_DATE);
         f.add(ASSOCIATION);                       t.add(IDataAccess.DATA_STRING);
-        f.add(STATUS);                            t.add(IDataAccess.DATA_STRING);
+        f.add(STATUSID);                          t.add(IDataAccess.DATA_UUID);
         f.add(ADDRESSSTREET);                     t.add(IDataAccess.DATA_STRING);
         f.add(ADDRESSADDITIONAL);                 t.add(IDataAccess.DATA_STRING);
         f.add(ADDRESSCITY);                       t.add(IDataAccess.DATA_STRING);
@@ -158,11 +160,21 @@ public class PersonRecord extends DataRecord {
         return getString(ASSOCIATION);
     }
 
-    public void setStatus(String name) {
-        setString(STATUS, name);
+    public void setStatusId(UUID id) {
+        setUUID(STATUSID, id);
     }
-    public String getStatus() {
-        return getString(STATUS);
+    public UUID getStatusId() {
+        return getUUID(STATUSID);
+    }
+    public String getStatusName() {
+        UUID id = getStatusId();
+        if (id != null) {
+            StatusRecord r = getPersistence().getProject().getStatus(false).getStatus(id);
+            if (r != null) {
+                return r.getName();
+            }
+        }
+        return null;
     }
 
     public void setAddressStreet(String street) {
@@ -196,7 +208,7 @@ public class PersonRecord extends DataRecord {
     public void setAddressCountry(String country) {
         setString(ADDRESSCOUNTRY, country);
     }
-    public String geAddressCountry() {
+    public String getAddressCountry() {
         return getString(ADDRESSCOUNTRY);
     }
 
@@ -301,7 +313,7 @@ public class PersonRecord extends DataRecord {
         if (pos < 0) {
             return name;
         }
-        return (name.substring(0, pos) + " " + name.substring(pos+2)).trim();
+        return (name.substring(pos+2) + " " + name.substring(0, pos)).trim();
     }
 
     public String getQualifiedName(boolean firstFirst) {
@@ -312,7 +324,11 @@ public class PersonRecord extends DataRecord {
         return getQualifiedName(Daten.efaConfig.nameFormat.getValue().equals(EfaConfig.NAMEFORMAT_FIRSTLAST));
     }
 
-    public static String[] getValuesForIndexFromQualifiedName(String qname) {
+    public String[] getQualifiedNameFields() {
+        return IDX_NAME_ASSOC;
+    }
+
+    public String[] getQualifiedNameValues(String qname) {
         Matcher m = qnamePattern.matcher(qname);
         if (m.matches()) {
             return new String[] {
@@ -327,4 +343,90 @@ public class PersonRecord extends DataRecord {
         }
     }
 
+    public Object getUniqueIdForRecord() {
+        return getId();
+    }
+
+    public Vector<IItemType> getGuiItems() {
+        String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
+        String CAT_MOREDATA = "%02%" + International.getString("Weitere Daten");
+        String CAT_ADDRESS  = "%03%" + International.getString("Adresse");
+        String CAT_FREEUSE  = "%04%" + International.getString("Freie Verwendung");
+
+        Status status = getPersistence().getProject().getStatus(false);
+        IItemType item;
+        Vector<IItemType> v = new Vector<IItemType>();
+        v.add(item = new ItemTypeString(PersonRecord.FIRSTNAME, getFirstName(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Vorname")));
+        v.add(item = new ItemTypeString(PersonRecord.LASTNAME, getLastName(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Nachname")));
+        v.add(item = new ItemTypeString(PersonRecord.TITLE, getTitle(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Titel")));
+        v.add(item = new ItemTypeStringList(PersonRecord.GENDER, getGender(),
+                EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Geschlecht")));
+        v.add(item = new ItemTypeDate(PersonRecord.BIRTHDAY, getBirthday(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Geburtstag")));
+        ((ItemTypeDate)item).setAllowYearOnly(true);
+        v.add(item = new ItemTypeStringList(PersonRecord.STATUSID, (getStatusId() != null ? getStatusId().toString() : status.getStatusOther().getId().toString()),
+                status.makeStatusArray(Status.ARRAY_STRINGLIST_VALUES), status.makeStatusArray(Status.ARRAY_STRINGLIST_DISPLAY),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Status")));
+        v.add(item = new ItemTypeLabel(PersonRecord.LASTMODIFIED, IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                International.getMessage("zuletzt geändert am {datetime}", EfaUtil.date2String(new Date(this.getLastModified())))));
+        item.setPadding(0, 0, 20, 0);
+
+        v.add(item = new ItemTypeString(PersonRecord.ASSOCIATION, getAssocitation(),
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Verein")));
+        v.add(item = new ItemTypeString(PersonRecord.MEMBERSHIPNO, getMembershipNo(),
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Mitgliedsnummer")));
+        v.add(item = new ItemTypeString(PersonRecord.PASSWORD, getPassword(),
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Paßwort")));
+        v.add(item = new ItemTypeBoolean(PersonRecord.DISABILITY, getDisability(),
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("50% oder mehr Behinderung")));
+        v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCOMPETE, getExcludeFromCompetition(),
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von Wettbewerbsmeldungen ausnehmen")));
+        v.add(item = new ItemTypeString(PersonRecord.INPUTSHORTCUT, getInputShortcut(),
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Eingabekürzel")));
+        v.add(item = new ItemTypeString(PersonRecord.EXTERNALID, getExternalId(),
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Externe ID")));
+
+        v.add(item = new ItemTypeString(PersonRecord.ADDRESSSTREET, getAddressStreet(),
+                IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Straße")));
+        v.add(item = new ItemTypeString(PersonRecord.ADDRESSADDITIONAL, getAddressAdditional(),
+                IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("weitere Adreßzeile")));
+        v.add(item = new ItemTypeString(PersonRecord.ADDRESSCITY, getAddressCity(),
+                IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Stadt")));
+        v.add(item = new ItemTypeString(PersonRecord.ADDRESSZIP, getAddressZip(),
+                IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Postleitzahl")));
+        v.add(item = new ItemTypeString(PersonRecord.ADDRESSCOUNTRY, getAddressCountry(),
+                IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Land")));
+
+        v.add(item = new ItemTypeString(PersonRecord.FREEUSE1, getFreeUse1(),
+                IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 1"));
+        v.add(item = new ItemTypeString(PersonRecord.FREEUSE2, getFreeUse2(),
+                IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 2"));
+        v.add(item = new ItemTypeString(PersonRecord.FREEUSE3, getFreeUse3(),
+                IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 3"));
+        
+        return v;
+    }
+
+    public TableItemHeader[] getGuiTableHeader() {
+        TableItemHeader[] header = new TableItemHeader[4];
+        header[0] = new TableItemHeader(International.getString("Vorname"));
+        header[1] = new TableItemHeader(International.getString("Nachname"));
+        header[2] = new TableItemHeader(International.getString("Geburtstag"));
+        header[3] = new TableItemHeader(International.getString("Status"));
+        return header;
+    }
+
+    public TableItem[] getGuiTableItems() {
+        TableItem[] items = new TableItem[4];
+        items[0] = new TableItem(getFirstName());
+        items[1] = new TableItem(getLastName());
+        items[2] = new TableItem(getBirthday());
+        items[3] = new TableItem(getStatusName());
+        return items;
+    }
+    
 }

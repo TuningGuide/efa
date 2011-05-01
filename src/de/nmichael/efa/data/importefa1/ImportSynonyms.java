@@ -60,7 +60,7 @@ public class ImportSynonyms extends ImportBase {
                     }
                     h.put(oname, list);
                      */
-                    logInfo(International.getMessage("Importiere Eintrag: {entry}", sname + " -> " + oname));
+                    logDetail(International.getMessage("Importiere Eintrag: {entry}", sname + " -> " + oname));
                 }
                 d = syn.getCompleteNext();
             }

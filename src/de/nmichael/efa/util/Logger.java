@@ -137,6 +137,9 @@ public class Logger {
   public static final String MSG_DATA_MODIFICATIONFAILED     = "DAT013";
   public static final String MSG_DATA_INVALIDVERSIONIZEDDATA = "DAT014";
   public static final String MSG_DATA_VERSIONIZEDDATACONFLICT= "DAT015";
+  public static final String MSG_DATA_PROJECTCHECK           = "DAT016";
+  public static final String MSG_DATA_INCONSISTENTDATA       = "DAT017";
+  public static final String MSG_DATA_RECORDWRONGTYPE        = "DAT018";
 
   // de.nmichael.efa.core.DatenListe (and subclasses)
   public static final String MSG_CSVFILE_FILECONVERTED       = "CSV001";
@@ -260,6 +263,7 @@ public class Logger {
   public static final String MSG_FILE_XMLFALATERROR          = "FLE120";
   public static final String MSG_FILE_XMLPARSER              = "FLE121";
   public static final String MSG_FILE_PARSEERROR             = "FLE122";
+  public static final String MSG_FILE_XMLFILEINCOMPLETE      = "FLE123";
 
   // GUI Events & Errors
   public static final String MSG_GUI_ERRORACTIONHANDLER      = "GUI001";

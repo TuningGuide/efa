@@ -105,6 +105,10 @@ public class MetaData {
         }
     }
 
+    public boolean isField(String fieldName) {
+        return FIELDIDX.get(fieldName) != null;
+    }
+
     public String getFieldName(int i) {
         return FIELDS[i];
     }
@@ -128,6 +132,10 @@ public class MetaData {
             }
         }
         return false;
+    }
+
+    public boolean isVersionized() {
+        return versionized;
     }
 
 }

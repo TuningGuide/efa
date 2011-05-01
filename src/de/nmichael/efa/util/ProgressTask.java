@@ -69,8 +69,14 @@ public abstract class ProgressTask extends Thread {
     }
 
     public void logInfo(String s) {
-        progressDialog.logInfo(s);
-        if (f != null) {
+        logInfo(s, true, true);
+    }
+
+    public void logInfo(String s, boolean toScreen, boolean toFile) {
+        if (toScreen) {
+            progressDialog.logInfo(s);
+        }
+        if (toFile && f != null) {
             try {
                 f.write(s);
             } catch(Exception e) {

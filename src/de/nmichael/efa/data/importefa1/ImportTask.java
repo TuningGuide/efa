@@ -43,6 +43,8 @@ public class ImportTask extends ProgressTask {
         String logfile = Daten.efaLogDirectory + Daten.fileSep + "import_" + EfaUtil.getCurrentTimeStampYYYYMMDD_HHMMSS() + ".log";
         setLogfile(logfile);
         logInfo(International.getString("Protokoll") + ": " + logfile + "\n");
+        logInfo(International.getString("Daten werden importiert ...") + "\n");
+        Daten.project.openAllData();
         String[] keys = importData.keySet().toArray(new String[0]);
         Arrays.sort(keys);
         int totalWarnings = 0;

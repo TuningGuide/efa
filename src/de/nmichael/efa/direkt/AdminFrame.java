@@ -12,7 +12,7 @@ package de.nmichael.efa.direkt;
 
 import de.nmichael.efa.efa1.BootStatus;
 import de.nmichael.efa.efa1.Fahrtenbuch;
-import de.nmichael.efa.gui.EfaConfigFrame;
+import de.nmichael.efa.gui.EfaConfigDialog;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -552,7 +552,7 @@ public class AdminFrame extends JDialog implements ActionListener {
       return;
     }
     logAction(Logger.MSG_ADMIN_ACTION_EDITCONFIG,efaConfigButton.getText());
-    EfaConfigFrame dlg = new EfaConfigFrame(this);
+    EfaConfigDialog dlg = new EfaConfigDialog(this);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
     dlg.show();

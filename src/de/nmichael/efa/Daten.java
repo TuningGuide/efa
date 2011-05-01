@@ -555,7 +555,7 @@ public class Daten {
         if (!firstEfaStart) {
             return null;
         }
-        EfaCustomizationFrame dlg = new EfaCustomizationFrame((javax.swing.JFrame)null);
+        EfaCustomizationDialog dlg = new EfaCustomizationDialog((javax.swing.JFrame)null);
         dlg.showDialog();
         return dlg.getCustSettings();
     }

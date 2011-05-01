@@ -11,15 +11,19 @@
 package de.nmichael.efa.data.importefa1;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.efa1.*;
 import de.nmichael.efa.util.*;
 import java.util.*;
 
 public class ImportBoats extends ImportBase {
 
+    private Boats boats;
+    private BoatTypes boatTypes;
     private Boote boote;
     private ProjectRecord logbookRec;
     private Hashtable<DataKey,String> boatsAllowedGroups;
@@ -74,49 +78,42 @@ public class ImportBoats extends ImportBase {
         return false;
     }
 
-    private boolean isChangedType(BoatTypeRecord r, DatenFelder d) {
-        if (!isIdentical(r.getSeats(), d.get(Boote.ANZAHL))) {
-            return true;
-        }
-        if (!isIdentical(r.getType(), d.get(Boote.ART))) {
-            return true;
-        }
-        if (!isIdentical(r.getRigging(), d.get(Boote.RIGGER))) {
-            return true;
-        }
-        if (!isIdentical(r.getCoxing(), d.get(Boote.STM))) {
+    private boolean findBoatType(BoatRecord r, DatenFelder d) {
+        for (int i=0; i<r.getNumberOfVariants(); i++) {
+            if (!isIdentical(r.getTypeType(i), d.get(Boote.ART))) {
+                continue;
+            }
+            if (!isIdentical(r.getTypeSeats(i), d.get(Boote.ANZAHL))) {
+                continue;
+            }
+            if (!isIdentical(r.getTypeRigging(i), d.get(Boote.RIGGER))) {
+                continue;
+            }
+            if (!isIdentical(r.getTypeCoxing(i), d.get(Boote.STM))) {
+                continue;
+            }
             return true;
         }
         return false;
     }
 
-    private BoatTypeRecord createBoatTypeRecord(BoatTypes boatTypes, BoatRecord boat, DatenFelder d, String description, int variant) {
-        BoatTypeRecord r = boatTypes.createBoatTypeRecord(boat.getId(), variant);
-        if (description != null && description.length() > 0) {
-            r.setDescription(description);
+    private void updateHashes(DataKey k, DatenFelder d) {
+        if (k != null) {
+            if (d.get(Boote.GRUPPEN).length() > 0) {
+                boatsAllowedGroups.put(k, d.get(Boote.GRUPPEN));
+            }
+            if (d.get(Boote.MIND_1_IN_GRUPPE).length() > 0) {
+                boatsRequiredGroup.put(k, d.get(Boote.MIND_1_IN_GRUPPE));
+            }
         }
-        if (d.get(Boote.ANZAHL).length() > 0) {
-            r.setSeats(d.get(Boote.ANZAHL));
-        }
-        if (d.get(Boote.ART).length() > 0) {
-            r.setType(d.get(Boote.ART));
-        }
-        if (d.get(Boote.RIGGER).length() > 0) {
-            r.setRigging(d.get(Boote.RIGGER));
-        }
-        if (d.get(Boote.STM).length() > 0) {
-            r.setCoxing(d.get(Boote.STM));
-        }
-        return r;
     }
 
     public boolean runImport() {
         try {
             logInfo(International.getMessage("Importiere {list} aus {file} ...", getDescription(), boote.getFileName()));
 
-            Boats boats = Daten.project.getBoats(true);
-            BoatTypes boatTypes = Daten.project.getBoatTypes(true);
-            long validFrom = DataAccess.getTimestampFromDate(logbookRec.getStartDate());
+            boats = Daten.project.getBoats(true);
+            long validFrom = logbookRec.getStartDate().getTimestamp(null);
 
             boatsAllowedGroups = new Hashtable<DataKey,String>();
             boatsRequiredGroup = new Hashtable<DataKey,String>();
@@ -126,8 +123,9 @@ public class ImportBoats extends ImportBase {
             while (d != null) {
                 String boatName = d.get(Boote.NAME);
                 String boatNameMain = task.synBoote_genMainName(d.get(Boote.NAME));
+
                 // First search, whether we have imported this boat already
-                BoatRecord r = null;
+                BoatRecord boatRecord = null;
                 DataKey[] keys = boats.data().getByFields(IDX, 
                         new String[] {
                                         boatNameMain,
@@ -137,72 +135,69 @@ public class ImportBoats extends ImportBase {
                     // Since we're importing data from efa1, these boats are all identical, i.e. have the same ID.
                     // Therefore their key is identical, so we can just retrieve one boat record with keys[0], which
                     // is valid for this logbook.
-                    r = (BoatRecord)boats.data().getValidAt(keys[0], validFrom);
+                    boatRecord = (BoatRecord)boats.data().getValidAt(keys[0], validFrom);
                 }
 
-                if (r == null || isChanged(r, d)) {
-                    r = boats.createBoatRecord((r != null ? r.getId() : UUID.randomUUID()));
-                     
-                    r.setName(task.synBoote_genMainName(d.get(Boote.NAME)));
-                    if (d.get(Boote.VEREIN).length() > 0) {
-                        r.setOwner(d.get(Boote.VEREIN));
-                    }
-                    if (d.get(Boote.MAX_NICHT_IN_GRUPPE).length() > 0) {
-                        r.setMaxNotInGroup(EfaUtil.string2int(d.get(Boote.MAX_NICHT_IN_GRUPPE), 99));
-                    }
-                    if (d.get(Boote.FREI1).length() > 0) {
-                        r.setFreeUse1(d.get(Boote.FREI1));
-                    }
-                    if (d.get(Boote.FREI2).length() > 0) {
-                        r.setFreeUse1(d.get(Boote.FREI2));
-                    }
-                    if (d.get(Boote.FREI3).length() > 0) {
-                        r.setFreeUse1(d.get(Boote.FREI3));
-                    }
-                    try {
-                        DataKey k = boats.data().addValidAt(r, validFrom);
-                        if (k != null) {
-                            if (d.get(Boote.GRUPPEN).length() > 0) {
-                                boatsAllowedGroups.put(k, d.get(Boote.GRUPPEN));
-                            }
-                            if (d.get(Boote.MIND_1_IN_GRUPPE).length() > 0) {
-                                boatsRequiredGroup.put(k, d.get(Boote.MIND_1_IN_GRUPPE));
-                            }
-                        }
-                        logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
-                    } catch(Exception e) {
-                        logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
-                    }
-                    
-                } else {
-                    logInfo(International.getMessage("Identischer Eintrag: {entry}", r.toString()));
-                }
-
-                BoatTypeRecord[] types = r.getAllBoatTypes(true);
                 String description = null;
                 if (!boatName.equals(boatNameMain)) {
                     description = boatName;
                 }
-                if (types == null || types.length == 0) {
-                    boatTypes.data().addValidAt(createBoatTypeRecord(boatTypes, r, d, description, 1), validFrom);
-                } else {
-                    boolean found = false;
-                    for (int i=0; i<types.length; i++) {
-                        if ( ((description == null && types[i].getDescription() == null) ||
-                             (description != null && description.equals(types[i].getDescription()))) &&
-                             types[i].getValidFrom() <= validFrom && types[i].getInvalidFrom() > validFrom) {
-                            if (isChangedType(types[i], d)) {
-                                boatTypes.data().addValidAt(createBoatTypeRecord(boatTypes, r, d, description, types.length+1), validFrom);
-                            }
-                            found = true;
-                            break;
-                        }
+                boolean newBoatRecord = false;
+                boolean changedBoatRecord = false;
+                if (boatRecord == null || isChanged(boatRecord, d)) {
+                    newBoatRecord = (boatRecord == null);
+                    changedBoatRecord = (boatRecord != null);
+                    boatRecord = boats.createBoatRecord((boatRecord != null ? boatRecord.getId() : UUID.randomUUID()));
+                     
+                    boatRecord.setName(task.synBoote_genMainName(d.get(Boote.NAME)));
+                    if (d.get(Boote.VEREIN).length() > 0) {
+                        boatRecord.setOwner(d.get(Boote.VEREIN));
                     }
-                    if (!found) {
-                        boatTypes.data().addValidAt(createBoatTypeRecord(boatTypes, r, d, description, types.length+1), validFrom);
+                    if (d.get(Boote.MAX_NICHT_IN_GRUPPE).length() > 0) {
+                        boatRecord.setMaxNotInGroup(EfaUtil.string2int(d.get(Boote.MAX_NICHT_IN_GRUPPE), 99));
                     }
+                    if (d.get(Boote.FREI1).length() > 0) {
+                        boatRecord.setFreeUse1(d.get(Boote.FREI1));
+                    }
+                    if (d.get(Boote.FREI2).length() > 0) {
+                        boatRecord.setFreeUse1(d.get(Boote.FREI2));
+                    }
+                    if (d.get(Boote.FREI3).length() > 0) {
+                        boatRecord.setFreeUse1(d.get(Boote.FREI3));
+                    }
+                    boatRecord.setDefaultSessionType(EfaTypes.TYPE_SESSION_NORMAL);
                 }
 
+                if (!findBoatType(boatRecord, d)) {
+                    boatRecord.addTypeVariant(description, d.get(Boote.ART), d.get(Boote.ANZAHL), d.get(Boote.RIGGER), d.get(Boote.STM));
+                    changedBoatRecord = true;
+                }
+
+                if (newBoatRecord) {
+                    try {
+                        DataKey k = boats.addNewBoatRecord(boatRecord, validFrom);
+                        updateHashes(k, d);
+                        logDetail(International.getMessage("Importiere Eintrag: {entry}", boatRecord.toString()));
+                    } catch(Exception e) {
+                        logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", boatRecord.toString(), e.toString()));
+                    }
+                } else {
+                    if (changedBoatRecord) {
+                        try {
+                            if (boatRecord.getValidFrom() == validFrom) {
+                                boats.data().update(boatRecord);
+                            } else {
+                                DataKey k = boats.data().addValidAt(boatRecord, validFrom);
+                                updateHashes(k, d);
+                            }
+                            logDetail(International.getMessage("Importiere Eintrag: {entry}", boatRecord.toString()));
+                        } catch (Exception e) {
+                            logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", boatRecord.toString(), e.toString()));
+                        }
+                    } else {
+                        logDetail(International.getMessage("Identischer Eintrag: {entry}", boatRecord.toString()));
+                    }
+                }
                 d = boote.getCompleteNext();
             }
             task.setBoatsAllowedGroups(boatsAllowedGroups);

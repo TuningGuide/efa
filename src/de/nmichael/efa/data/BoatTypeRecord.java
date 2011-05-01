@@ -12,6 +12,7 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.*;
@@ -19,8 +20,8 @@ import java.util.*;
 
 // @i18n complete
 
-public class BoatTypeRecord extends DataRecord {
-
+public class BoatTypeRecord { // extends DataRecord implements IItemFactory {
+/*
     // =========================================================================
     // Field Names
     // =========================================================================
@@ -31,6 +32,8 @@ public class BoatTypeRecord extends DataRecord {
     public static final String SEATS = "Seats";
     public static final String RIGGING = "Rigging";
     public static final String COXING = "Coxing";
+
+    public static final String[] IDX_BOATID = new String[] { BOATID };
 
     public static void initialize() {
         Vector<String> f = new Vector<String>();
@@ -52,7 +55,7 @@ public class BoatTypeRecord extends DataRecord {
         t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(BoatTypes.DATATYPE, f, t, true);
         metaData.setKey(new String[]{BOATID, VARIANT}); // plus VALID_FROM
-        metaData.addIndex(new String[]{BOATID});
+        metaData.addIndex(IDX_BOATID);
     }
 
     public BoatTypeRecord(BoatTypes boatTypes, MetaData metaData) {
@@ -211,4 +214,45 @@ public class BoatTypeRecord extends DataRecord {
         return name + (type != null && type.length() > 0 ? " (" + type + ")" : "");
     }
 
+    public Vector<IItemType> getGuiItems() {
+        IItemType[] items = getDefaultItems();
+        items[0].parseValue(Integer.toString(getVariant()));
+        items[1].parseValue(getDescription());
+        items[2].parseValue(getType());
+        items[3].parseValue(getSeats());
+        items[4].parseValue(getRigging());
+        items[5].parseValue(getCoxing());
+        Vector<IItemType> v = new Vector<IItemType>();
+        for (IItemType item : items) {
+            v.add(item);
+        }
+        return v;
+    }
+
+    public IItemType[] getDefaultItems() {
+        IItemType[] items = new IItemType[6];
+        String CAT_BASEDATA     = "%01%" + International.getString("Basisdaten");
+        items[0] = new ItemTypeInteger(BoatTypeRecord.VARIANT, 0, 0, Integer.MAX_VALUE,
+                IItemType.TYPE_INTERNAL, CAT_BASEDATA, International.getString("Variante"));
+        items[1] = new ItemTypeString(BoatTypeRecord.DESCRIPTION, "",
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Beschreibung"));
+        items[2] = new ItemTypeStringList(BoatTypeRecord.TYPE, Daten.efaTypes.TYPE_BOAT_OTHER,
+                EfaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                International.getString("Bootstyp"));
+        items[3] = new ItemTypeStringList(BoatTypeRecord.SEATS, Daten.efaTypes.TYPE_NUMSEATS_OTHER,
+                EfaTypes.makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                International.getString("Bootsplätze"));
+        items[4] = new ItemTypeStringList(BoatTypeRecord.RIGGING, Daten.efaTypes.TYPE_RIGGING_OTHER,
+                EfaTypes.makeBoatRiggingArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeBoatRiggingArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                International.getString("Riggerung"));
+        items[5] = new ItemTypeStringList(BoatTypeRecord.COXING, Daten.efaTypes.TYPE_COXING_OTHER,
+                EfaTypes.makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                International.getString("Steuerung"));
+        return items;
+    }
+*/
 }

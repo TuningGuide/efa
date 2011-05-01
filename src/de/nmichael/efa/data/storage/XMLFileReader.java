@@ -28,6 +28,7 @@ public class XMLFileReader extends DefaultHandler {
     private boolean inRecord = false;
     private String currentField = null;
     private DataRecord dataRecord = null;
+    private boolean documentComplete = false;
 
     public XMLFileReader(XMLFile data, long globalLock) {
         super();
@@ -50,11 +51,15 @@ public class XMLFileReader extends DefaultHandler {
         if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
             Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "startDocument()");
         }
+        documentComplete = false;
     }
 
     public void endDocument() {
         if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
             Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "endDocument()");
+        }
+        if (!documentComplete) {
+            Logger.log(Logger.ERROR,Logger.MSG_FILE_XMLFILEINCOMPLETE, International.getMessage("Unvollständige oder korrupte Daten gelesen: {data}", data.toString()));
         }
     }
 
@@ -91,7 +96,7 @@ public class XMLFileReader extends DefaultHandler {
 
         if (inDataSection && currentField != null) {
             try {
-                dataRecord.set(currentField, s);
+                dataRecord.set(currentField, s, false);
             } catch(Exception e) {
                 Logger.log(Logger.ERROR,Logger.MSG_FILE_PARSEERROR,"Parse Error for Field "+currentField+" = "+s+": "+e.toString());
             }
@@ -133,6 +138,9 @@ public class XMLFileReader extends DefaultHandler {
             }
             dataRecord = null;
             inRecord = false;
+        }
+        if (localName.equals("efa")) {
+            documentComplete = true;
         }
         currentField = null;
     }

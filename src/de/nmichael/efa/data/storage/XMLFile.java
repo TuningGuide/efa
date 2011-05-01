@@ -63,11 +63,13 @@ public class XMLFile extends DataFile {
             XMLReader parser = EfaUtil.getXMLReader();
             parser.setContentHandler(new XMLFileReader(this, lock));
             parser.setErrorHandler(eh);
+            setInReadFileMode(true); // don't update LastModified Timestamps!
             parser.parse(filename);
         } catch(Exception e) {
             Logger.log(e);
             throw new EfaException(Logger.MSG_DATA_READFAILED, LogString.logstring_fileReadFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         } finally {
+            setInReadFileMode(false);
             releaseGlobalLock(lock);
         }
     }
@@ -116,7 +118,7 @@ public class XMLFile extends DataFile {
             write(fw,indent,xmltagStart("record"));
             for (int i=0; i<fields.length; i++) {
                 Object o = d.get(fields[i]);
-                if (o != null) {
+                if (o != null && d.getFieldType(i) != IDataAccess.DATA_VIRTUAL && !d.isDefaultValue(i)) {
                     write(fw,indent,xmltag(fields[i],o.toString()));
                 }
             }

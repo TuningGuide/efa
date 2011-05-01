@@ -18,11 +18,13 @@ import java.util.*;
 
 public class Destinations extends Persistence {
 
-    public static final String DATATYPE = "e2destinations";
+    public static final String DATATYPE = "efa2destinations";
+    public DestinationRecord staticDestinationRecord;
 
     public Destinations(int storageType, String storageLocation, String storageObjectName) {
         super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Ziele"));
         DestinationRecord.initialize();
+        staticDestinationRecord = (DestinationRecord)createNewRecord();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
 
@@ -45,14 +47,42 @@ public class Destinations extends Persistence {
         }
     }
 
+    // find a record being valid at the specified time
     public DestinationRecord getDestination(String destinationName, long validAt) {
         try {
             DataKey[] keys = data().getByFields(
-                DestinationRecord.IDX_NAME, DestinationRecord.getValuesForIndexFromQualifiedName(destinationName), validAt);
+                staticDestinationRecord.getQualifiedNameFields(), staticDestinationRecord.getQualifiedNameValues(destinationName), validAt);
             if (keys == null || keys.length < 1) {
                 return null;
             }
             return (DestinationRecord)data().get(keys[0]);
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
+    // find any record being valid at least partially in the specified range
+    public DestinationRecord getDestination(String destinationName, long validFrom, long validUntil, long preferredValidAt) {
+        try {
+            DataKey[] keys = data().getByFields(
+                staticDestinationRecord.getQualifiedNameFields(), staticDestinationRecord.getQualifiedNameValues(destinationName));
+            if (keys == null || keys.length < 1) {
+                return null;
+            }
+            DestinationRecord candidate = null;
+            for (int i=0; i<keys.length; i++) {
+                DestinationRecord r = (DestinationRecord)data().get(keys[i]);
+                if (r != null) {
+                    if (r.isInValidityRange(validFrom, validUntil)) {
+                        candidate = r;
+                        if (preferredValidAt >= r.getValidFrom() && preferredValidAt < r.getInvalidFrom()) {
+                            return r;
+                        }
+                    }
+                }
+            }
+            return candidate;
         } catch(Exception e) {
             Logger.logdebug(e);
             return null;

@@ -21,7 +21,7 @@ import javax.swing.border.*;
 import java.util.*;
 
 // @i18n complete
-public class EfaCustomizationFrame extends BaseDialog {
+public class EfaCustomizationDialog extends BaseDialog {
 
     private CustSettings custSettings = null;
     private JCheckBox activateGermanRowingOptions;
@@ -29,11 +29,11 @@ public class EfaCustomizationFrame extends BaseDialog {
     private JCheckBox activateRowingOptions;
     private JCheckBox activateCanoeingOptions;
 
-    public EfaCustomizationFrame(Frame parent) {
+    public EfaCustomizationDialog(Frame parent) {
         super(parent, Daten.EFA_LONGNAME, International.getStringWithMnemonic("Speichern"));
     }
 
-    public EfaCustomizationFrame(JDialog parent) {
+    public EfaCustomizationDialog(JDialog parent) {
         super(parent, Daten.EFA_LONGNAME, International.getStringWithMnemonic("Speichern"));
     }
 
@@ -48,7 +48,7 @@ public class EfaCustomizationFrame extends BaseDialog {
         JLabel logoLabel = new JLabel();
         logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
         logoLabel.setHorizontalTextPosition(SwingConstants.CENTER);
-        logoLabel.setIcon(new ImageIcon(EfaCustomizationFrame.class.getResource(Daten.getEfaImage(2))));
+        logoLabel.setIcon(new ImageIcon(EfaCustomizationDialog.class.getResource(Daten.getEfaImage(2))));
         JLabel welcomeLabel = new JLabel();
         welcomeLabel.setFont(new java.awt.Font("Dialog", 1, (Dialog.getFontSize() > 0 ? Dialog.getFontSize()+12 : 24)));
         welcomeLabel.setForeground(Color.red);

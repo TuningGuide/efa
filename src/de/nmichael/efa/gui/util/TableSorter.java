@@ -25,10 +25,12 @@
  * @version 1.5 12/17/97
  * @author Philip Milne
  */
-
-package de.nmichael.efa.util;
+package de.nmichael.efa.gui.util;
 
 import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.TMJ;
+import de.nmichael.efa.util.TableMap;
 import java.util.Date;
 import java.util.Vector;
 
@@ -44,11 +46,11 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
 // @i18n complete
-
 public class TableSorter extends TableMap {
-    int             indexes[];
-    Vector          sortingColumns = new Vector();
-    boolean         ascending = true;
+
+    int indexes[];
+    Vector sortingColumns = new Vector();
+    boolean ascending = true;
     int compares;
 
     public TableSorter() {
@@ -92,9 +94,9 @@ public class TableSorter extends TableMap {
          */
 
         if (type.getSuperclass() == java.lang.Number.class) {
-            Number n1 = (Number)data.getValueAt(row1, column);
+            Number n1 = (Number) data.getValueAt(row1, column);
             double d1 = n1.doubleValue();
-            Number n2 = (Number)data.getValueAt(row2, column);
+            Number n2 = (Number) data.getValueAt(row2, column);
             double d2 = n2.doubleValue();
 
             if (d1 < d2) {
@@ -105,9 +107,9 @@ public class TableSorter extends TableMap {
                 return 0;
             }
         } else if (type == java.util.Date.class) {
-            Date d1 = (Date)data.getValueAt(row1, column);
+            Date d1 = (Date) data.getValueAt(row1, column);
             long n1 = d1.getTime();
-            Date d2 = (Date)data.getValueAt(row2, column);
+            Date d2 = (Date) data.getValueAt(row2, column);
             long n2 = d2.getTime();
 
             if (n1 < n2) {
@@ -118,37 +120,45 @@ public class TableSorter extends TableMap {
                 return 0;
             }
         } else if (type == String.class) {
-            String s1 = (String)data.getValueAt(row1, column);
-            String s2 = (String)data.getValueAt(row2, column);
+            String s1 = (String) data.getValueAt(row1, column);
+            String s2 = (String) data.getValueAt(row2, column);
 
             // added by Nicolas Michael, to compare Strings containing dates
-            TMJ t1 = EfaUtil.string2date(s1,0,0,0);
-            TMJ t2 = EfaUtil.string2date(s2,0,0,0);
-            if (t1.tag>0 && t1.monat>0 && t1.jahr>0 &&
-                t2.tag>0 && t2.monat>0 && t2.jahr>0 &&
-                EfaUtil.countCharInString(s1,'.')==2 &&
-                EfaUtil.countCharInString(s2,'.')==2) {
-              if (t1.jahr<t2.jahr) return -1;
-              else if (t1.jahr>t2.jahr) return 1;
-              else if (t1.monat<t2.monat) return -1;
-              else if (t1.monat>t2.monat) return 1;
-              else if (t1.tag<t2.tag) return -1;
-              else if (t1.tag>t2.tag) return 1;
-              else return 0;
+            TMJ t1 = EfaUtil.string2date(s1, 0, 0, 0);
+            TMJ t2 = EfaUtil.string2date(s2, 0, 0, 0);
+            if (t1.tag > 0 && t1.monat > 0 && t1.jahr > 0
+                    && t2.tag > 0 && t2.monat > 0 && t2.jahr > 0
+                    && EfaUtil.countCharInString(s1, '.') == 2
+                    && EfaUtil.countCharInString(s2, '.') == 2) {
+                if (t1.jahr < t2.jahr) {
+                    return -1;
+                } else if (t1.jahr > t2.jahr) {
+                    return 1;
+                } else if (t1.monat < t2.monat) {
+                    return -1;
+                } else if (t1.monat > t2.monat) {
+                    return 1;
+                } else if (t1.tag < t2.tag) {
+                    return -1;
+                } else if (t1.tag > t2.tag) {
+                    return 1;
+                } else {
+                    return 0;
+                }
             }
 
             // added by Nicolas Michael, to compare Strings containing numbers
-            if (s1.length()>0 && s1.charAt(0)>='0' && s1.charAt(0)<='9' &&
-                s2.length()>0 && s2.charAt(0)>='0' && s2.charAt(0)<='9') {
-              int i1 = t1.tag * 10000 + t1.monat * 100 + t1.jahr;
-              int i2 = t2.tag * 10000 + t2.monat * 100 + t2.jahr;
-              if (i1 < i2) {
-                  return -1;
-              } else if (i1 > i2) {
-                  return 1;
-              } else {
-                  return 0;
-              }
+            if (s1.length() > 0 && s1.charAt(0) >= '0' && s1.charAt(0) <= '9'
+                    && s2.length() > 0 && s2.charAt(0) >= '0' && s2.charAt(0) <= '9') {
+                int i1 = t1.tag * 10000 + t1.monat * 100 + t1.jahr;
+                int i2 = t2.tag * 10000 + t2.monat * 100 + t2.jahr;
+                if (i1 < i2) {
+                    return -1;
+                } else if (i1 > i2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
             }
 
             int result = s1.compareTo(s2);
@@ -162,9 +172,9 @@ public class TableSorter extends TableMap {
                 return 0;
             }
         } else if (type == Boolean.class) {
-            Boolean bool1 = (Boolean)data.getValueAt(row1, column);
+            Boolean bool1 = (Boolean) data.getValueAt(row1, column);
             boolean b1 = bool1.booleanValue();
-            Boolean bool2 = (Boolean)data.getValueAt(row2, column);
+            Boolean bool2 = (Boolean) data.getValueAt(row2, column);
             boolean b2 = bool2.booleanValue();
 
             if (b1 == b2) {
@@ -181,33 +191,41 @@ public class TableSorter extends TableMap {
             String s2 = v2.toString();
 
             // added by Nicolas Michael, to compare Strings containing dates
-            TMJ t1 = EfaUtil.string2date(s1,0,0,0);
-            TMJ t2 = EfaUtil.string2date(s2,0,0,0);
-            if (t1.tag>0 && t1.monat>0 && t1.jahr>0 &&
-                t2.tag>0 && t2.monat>0 && t2.jahr>0 &&
-                EfaUtil.countCharInString(s1,'.')==2 &&
-                EfaUtil.countCharInString(s2,'.')==2) {
-              if (t1.jahr<t2.jahr) return -1;
-              else if (t1.jahr>t2.jahr) return 1;
-              else if (t1.monat<t2.monat) return -1;
-              else if (t1.monat>t2.monat) return 1;
-              else if (t1.tag<t2.tag) return -1;
-              else if (t1.tag>t2.tag) return 1;
-              else return 0;
+            TMJ t1 = EfaUtil.string2date(s1, 0, 0, 0);
+            TMJ t2 = EfaUtil.string2date(s2, 0, 0, 0);
+            if (t1.tag > 0 && t1.monat > 0 && t1.jahr > 0
+                    && t2.tag > 0 && t2.monat > 0 && t2.jahr > 0
+                    && EfaUtil.countCharInString(s1, '.') == 2
+                    && EfaUtil.countCharInString(s2, '.') == 2) {
+                if (t1.jahr < t2.jahr) {
+                    return -1;
+                } else if (t1.jahr > t2.jahr) {
+                    return 1;
+                } else if (t1.monat < t2.monat) {
+                    return -1;
+                } else if (t1.monat > t2.monat) {
+                    return 1;
+                } else if (t1.tag < t2.tag) {
+                    return -1;
+                } else if (t1.tag > t2.tag) {
+                    return 1;
+                } else {
+                    return 0;
+                }
             }
 
             // added by Nicolas Michael, to compare Strings containing numbers
-            if (s1.length()>0 && s1.charAt(0)>='0' && s1.charAt(0)<='9' &&
-                s2.length()>0 && s2.charAt(0)>='0' && s2.charAt(0)<='9') {
-              int i1 = t1.tag * 10000 + t1.monat * 100 + t1.jahr;
-              int i2 = t2.tag * 10000 + t2.monat * 100 + t2.jahr;
-              if (i1 < i2) {
-                  return -1;
-              } else if (i1 > i2) {
-                  return 1;
-              } else {
-                  return 0;
-              }
+            if (s1.length() > 0 && s1.charAt(0) >= '0' && s1.charAt(0) <= '9'
+                    && s2.length() > 0 && s2.charAt(0) >= '0' && s2.charAt(0) <= '9') {
+                int i1 = t1.tag * 10000 + t1.monat * 100 + t1.jahr;
+                int i2 = t2.tag * 10000 + t2.monat * 100 + t2.jahr;
+                if (i1 < i2) {
+                    return -1;
+                } else if (i1 > i2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
             }
 
             int result = s1.compareTo(s2);
@@ -225,7 +243,7 @@ public class TableSorter extends TableMap {
     public int compare(int row1, int row2) {
         compares++;
         for (int level = 0; level < sortingColumns.size(); level++) {
-            Integer column = (Integer)sortingColumns.elementAt(level);
+            Integer column = (Integer) sortingColumns.elementAt(level);
             int result = compareRowsByColumn(row1, row2, column.intValue());
             if (result != 0) {
                 return ascending ? result : -result;
@@ -261,10 +279,14 @@ public class TableSorter extends TableMap {
 
     // work around for original code to avoid NoClassDefFoundError
     private int[] clone(int[] a) {
-      if (a == null) return null;
-      int[] b = new int[a.length];
-      for (int i=0; i<a.length; i++) b[i] = a[i];
-      return b;
+        if (a == null) {
+            return null;
+        }
+        int[] b = new int[a.length];
+        for (int i = 0; i < a.length; i++) {
+            b[i] = a[i];
+        }
+        return b;
     }
 
     public void sort(Object sender) {
@@ -283,7 +305,7 @@ public class TableSorter extends TableMap {
 
     public void n2sort() {
         for (int i = 0; i < getRowCount(); i++) {
-            for (int j = i+1; j < getRowCount(); j++) {
+            for (int j = i + 1; j < getRowCount(); j++) {
                 if (compare(indexes[i], indexes[j]) == -1) {
                     swap(i, j);
                 }
@@ -302,7 +324,7 @@ public class TableSorter extends TableMap {
         if (high - low < 2) {
             return;
         }
-        int middle = (low + high)/2;
+        int middle = (low + high) / 2;
         shuttlesort(to, from, low, middle);
         shuttlesort(to, from, middle, high);
 
@@ -324,7 +346,7 @@ public class TableSorter extends TableMap {
         find out how the performance drops to Nlog(N) as the initial
         order diminishes - it may drop very quickly.  */
 
-        if (high - low >= 4 && compare(from[middle-1], from[middle]) <= 0) {
+        if (high - low >= 4 && compare(from[middle - 1], from[middle]) <= 0) {
             for (int i = low; i < high; i++) {
                 to[i] = from[i];
             }
@@ -336,8 +358,7 @@ public class TableSorter extends TableMap {
         for (int i = low; i < high; i++) {
             if (q >= high || (p < middle && compare(from[p], from[q]) <= 0)) {
                 to[i] = from[p++];
-            }
-            else {
+            } else {
                 to[i] = from[q++];
             }
         }
@@ -351,7 +372,6 @@ public class TableSorter extends TableMap {
 
     // The mapping only affects the contents of the data rows.
     // Pass all requests to these rows through the mapping array: "indexes".
-
     public Object getValueAt(int aRow, int aColumn) {
         checkModel();
         return model.getValueAt(indexes[aRow], aColumn);
@@ -360,6 +380,10 @@ public class TableSorter extends TableMap {
     public void setValueAt(Object aValue, int aRow, int aColumn) {
         checkModel();
         model.setValueAt(aValue, indexes[aRow], aColumn);
+    }
+
+    public int getOriginalIndex(int row) {
+        return indexes[row];
     }
 
     public void sortByColumn(int column) {
@@ -382,12 +406,13 @@ public class TableSorter extends TableMap {
         final JTable tableView = table;
         tableView.setColumnSelectionAllowed(false);
         MouseAdapter listMouseListener = new MouseAdapter() {
+
             public void mouseClicked(MouseEvent e) {
                 TableColumnModel columnModel = tableView.getColumnModel();
                 int viewColumn = columnModel.getColumnIndexAtX(e.getX());
                 int column = tableView.convertColumnIndexToModel(viewColumn);
                 if (e.getClickCount() == 1 && column != -1) {
-                    int shiftPressed = e.getModifiers()&InputEvent.SHIFT_MASK;
+                    int shiftPressed = e.getModifiers() & InputEvent.SHIFT_MASK;
                     boolean ascending = (shiftPressed == 0);
                     sorter.sortByColumn(column, ascending);
                 }

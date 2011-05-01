@@ -77,7 +77,7 @@ public class ItemTypeButton extends ItemType {
     }
 
     public void parseValue(String value) {
-        description = value;
+        // nothing to do
     }
 
     public String toString() {

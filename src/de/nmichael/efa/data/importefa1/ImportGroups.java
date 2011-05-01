@@ -73,7 +73,7 @@ public class ImportGroups extends ImportBase {
                 try {
                     groups.data().add(r);
                     groupMapping.put(r.getName(), r.getId());
-                    logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
+                    logDetail(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                 } catch(Exception e) {
                     logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
                 }

@@ -18,7 +18,7 @@ import java.util.*;
 
 public class Fahrtenabzeichen extends Persistence {
 
-    public static final String DATATYPE = "e2fahrtenabzeichen";
+    public static final String DATATYPE = "efa2fahrtenabzeichen";
 
     public Fahrtenabzeichen(int storageType, String storageLocation, String storageObjectName) {
         super(storageType, storageLocation, storageObjectName, DATATYPE, International.onlyFor("Fahrtenabzeichen","de"));

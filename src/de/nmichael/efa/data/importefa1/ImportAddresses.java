@@ -49,7 +49,7 @@ public class ImportAddresses extends ImportBase {
                 String adresse = d.get(Adressen.ADRESSE).trim();
                 if (name.length() > 0 && adresse.length() > 0) {
                     h.put(name, adresse);
-                    logInfo(International.getMessage("Importiere Eintrag: {entry}", name + ": " + adresse));
+                    logDetail(International.getMessage("Importiere Eintrag: {entry}", name + ": " + adresse));
                 }
                 d = adr.getCompleteNext();
             }

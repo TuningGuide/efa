@@ -29,6 +29,15 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
         ensureCorrectDate();
     }
 
+    public DataTypeDate(long timestamp) {
+        Calendar cal = new GregorianCalendar();
+        cal.setTimeInMillis(timestamp);
+        this.day = cal.get(Calendar.DAY_OF_MONTH);
+        this.month = cal.get(Calendar.MONTH)+1;
+        this.year = cal.get(Calendar.YEAR);
+        ensureCorrectDate();
+    }
+
     // Copy Constructor
     public DataTypeDate(DataTypeDate date) {
         this.day = date.day;
@@ -78,6 +87,15 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
         this.day = tmj.tag;
         this.month = tmj.monat;
         this.year = tmj.jahr;
+        if (day > 0 && month == -1 && year == -1) { // String with year only
+            year = day;
+            day = month = 0;
+        }
+        if (day > 0 && month > 0 && year == -1) { // String with month and year only
+            year = month;
+            month = day;
+            day = 0;
+        }
         ensureCorrectDate();
     }
 

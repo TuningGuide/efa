@@ -18,7 +18,7 @@ import java.util.*;
 
 public class BoatStatus extends Persistence {
 
-    public static final String DATATYPE = "e2boatstatus";
+    public static final String DATATYPE = "efa2boatstatus";
 
     public BoatStatus(int storageType, String storageLocation, String storageObjectName) {
         super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Bootsstatus"));
@@ -33,7 +33,17 @@ public class BoatStatus extends Persistence {
     public BoatStatusRecord createBoatStatusRecord(UUID id) {
         BoatStatusRecord r = new BoatStatusRecord(this, MetaData.getMetaData(DATATYPE));
         r.setBoatId(id);
+        r.setStatus(BoatStatusRecord.STATUS_AVAILABLE);
         return r;
+    }
+
+    public BoatStatusRecord getBoatStatus(UUID id) {
+        try {
+            return (BoatStatusRecord)data().get(BoatStatusRecord.getKey(id));
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
     }
 
     public Vector<BoatStatusRecord> getBoats(String status) {

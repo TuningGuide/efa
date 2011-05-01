@@ -23,7 +23,7 @@ import java.util.*;
 import javax.swing.event.ChangeEvent;
 
 // @i18n complete
-public class EfaConfigFrame extends BaseDialog {
+public class EfaConfigDialog extends BaseDialog {
 
     private JTabbedPane tabbedPane;
     private JCheckBox expertMode;
@@ -34,11 +34,11 @@ public class EfaConfigFrame extends BaseDialog {
     private Vector<ItemType> configItems;
     private Hashtable<JPanel,String> panels;
 
-    public EfaConfigFrame(Frame parent) {
+    public EfaConfigDialog(Frame parent) {
         super(parent, International.getString("Konfiguration"), International.getStringWithMnemonic("Speichern"));
     }
 
-    public EfaConfigFrame(JDialog parent) {
+    public EfaConfigDialog(JDialog parent) {
         super(parent, International.getString("Konfiguration"), International.getStringWithMnemonic("Speichern"));
     }
 

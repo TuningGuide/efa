@@ -22,7 +22,7 @@ public class DataFileWriter extends Thread {
 
     private DataFile dataFile;
     private volatile boolean writedata = false;
-    private long lastSave = 0;
+    private volatile long lastSave = 0;
 
     public DataFileWriter(DataFile dataFile) {
         this.dataFile = dataFile;
@@ -72,21 +72,28 @@ public class DataFileWriter extends Thread {
         }
     }
 
-   synchronized public void save(boolean synchronous) {
-       if (Logger.isTraceOn(Logger.TT_FILEIO)) {
-           Logger.log(Logger.DEBUG, Logger.MSG_FILE_WRITETHREAD_SAVING, "DataFileWriter["+dataFile.filename+"] new save request queued" + (synchronous ? " (sync)" : "") + ".");
-       }
-       if (synchronous) {
-           lastSave = 0;
-       }
-        writedata = true;
+   synchronized public void save(boolean synchronous, boolean dataChanged) {
+        if ( (synchronous || (dataChanged && !writedata) ) && Logger.isTraceOn(Logger.TT_FILEIO)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_FILE_WRITETHREAD_SAVING, 
+                    "DataFileWriter[" + dataFile.filename + "] new " + (dataChanged ? "save" : "flush") + " request queued" + (synchronous ? " (sync)" : "") + ".");
+        }
+        if (synchronous) {
+            lastSave = 0;
+        }
+        if (dataChanged) {
+            writedata = true;
+        }
+        if (!writedata) {
+            Logger.log(Logger.DEBUG, Logger.MSG_FILE_WRITETHREAD_SAVING, 
+                    "DataFileWriter[" + dataFile.filename + "] no unsaved data.");
+        }
         if (System.currentTimeMillis() - lastSave > SAVE_INTERVAL) {
             this.interrupt();
         }
         while (synchronous && writedata) {
             try {
                 Thread.sleep(100);
-            } catch(InterruptedException e) {
+            } catch (InterruptedException e) {
                 // nothing to do
             }
         }

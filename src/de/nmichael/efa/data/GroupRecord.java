@@ -12,6 +12,9 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.gui.util.*;
+import de.nmichael.efa.util.*;
 import java.util.*;
 
 // @i18n complete
@@ -26,16 +29,18 @@ public class GroupRecord extends DataRecord {
     public static final String NAME                = "Name";
     public static final String MEMBERIDLIST        = "MemberIdList";
 
+    public static final String[] IDX_NAME = new String[] { NAME };
+
     public static void initialize() {
         Vector<String> f = new Vector<String>();
         Vector<Integer> t = new Vector<Integer>();
 
         f.add(ID);                                t.add(IDataAccess.DATA_UUID);
         f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
-        f.add(MEMBERIDLIST);                      t.add(IDataAccess.DATA_LIST);
+        f.add(MEMBERIDLIST);                      t.add(IDataAccess.DATA_LIST_UUID);
         MetaData metaData = constructMetaData(Groups.DATATYPE, f, t, true);
         metaData.setKey(new String[] { ID }); // plus VALID_FROM
-        metaData.addIndex(new String[] { NAME });
+        metaData.addIndex(IDX_NAME);
     }
 
     public GroupRecord(Groups groups, MetaData metaData) {
@@ -71,6 +76,39 @@ public class GroupRecord extends DataRecord {
         return getList(MEMBERIDLIST, IDataAccess.DATA_UUID);
     }
 
-    
+    public String getQualifiedName() {
+        String name = getName();
+        return (name != null ? name : "");
+    }
 
+    public String[] getQualifiedNameFields() {
+        return IDX_NAME;
+    }
+
+    public Object getUniqueIdForRecord() {
+        return getId();
+    }
+
+    public Vector<IItemType> getGuiItems() {
+        String CAT_BASEDATA     = "%01%" + International.getString("Reservierung");
+        IItemType item;
+        Vector<IItemType> v = new Vector<IItemType>();
+        // @todo
+        //v.add(item = new ItemTypeString(BoatRecord.NAME, getName(),
+        //        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
+        return v;
+    }
+
+    public TableItemHeader[] getGuiTableHeader() {
+        TableItemHeader[] header = new TableItemHeader[4];
+        // @todo
+        return header;
+    }
+
+    public TableItem[] getGuiTableItems() {
+        TableItem[] items = new TableItem[4];
+        // @todo
+        return items;
+    }
+    
 }

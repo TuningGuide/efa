@@ -13,7 +13,7 @@ package de.nmichael.efa.core.items;
 import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.core.config.CustSettings;
-import de.nmichael.efa.gui.EfaConfigFrame;
+import de.nmichael.efa.gui.EfaConfigDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.Daten;
@@ -67,9 +67,9 @@ public class ItemTypeAction extends ItemTypeButton {
         // resetTypesToDefault() is only called from buttonHit(ActionEvent) if the configured action is
         // ACTION_TYPES_RESETTODEFAULT.
         // This is (and must!) only be the case if dlg is a EfaConfigFrame!
-        EfaConfigFrame efaConfigFrame = null;
+        EfaConfigDialog efaConfigFrame = null;
         try {
-            efaConfigFrame = (EfaConfigFrame)dlg;
+            efaConfigFrame = (EfaConfigDialog)dlg;
         } catch(ClassCastException ee) {
             return;
         }
@@ -111,9 +111,9 @@ public class ItemTypeAction extends ItemTypeButton {
         // generateTypes(int) is only called from buttonHit(ActionEvent) if the configured action is
         // ACTION_GENERATE_ROWING_BOAT_TYPES or ACTION_GENERATE_CANOEING_BOAT_TYPES.
         // This is (and must!) only be the case if dlg is a EfaConfigFrame!
-        EfaConfigFrame efaConfigFrame = null;
+        EfaConfigDialog efaConfigFrame = null;
         try {
-            efaConfigFrame = (EfaConfigFrame)dlg;
+            efaConfigFrame = (EfaConfigDialog)dlg;
         } catch(ClassCastException ee) {
             return;
         }

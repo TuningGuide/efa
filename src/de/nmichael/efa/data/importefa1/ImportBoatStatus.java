@@ -73,7 +73,7 @@ public class ImportBoatStatus extends ImportBase {
                         }
                         boatStatus.data().add(rs);
                         imported.put(boatID, b); // to avoid importing duplicates because of synonyms/Kombiboote
-                        logInfo(International.getMessage("Importiere Eintrag: {entry}", rs.toString()));
+                        logDetail(International.getMessage("Importiere Eintrag: {entry}", rs.toString()));
                     } catch(Exception e) {
                         logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", rs.toString(), e.toString()));
                     }
@@ -116,7 +116,7 @@ public class ImportBoatStatus extends ImportBase {
                                 rr.setReason(r.getReason());
                             }
                             boatReservations.data().add(rr);
-                            logInfo(International.getMessage("Importiere Eintrag: {entry}", rr.toString()));
+                            logDetail(International.getMessage("Importiere Eintrag: {entry}", rr.toString()));
                         } catch (Exception e) {
                             logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", rr.toString(), e.toString()));
                         }
@@ -128,7 +128,7 @@ public class ImportBoatStatus extends ImportBase {
                         try {
                             rd.setDescription(d.get(BootStatus.BOOTSSCHAEDEN));
                             boatReservations.data().add(rd);
-                            logInfo(International.getMessage("Importiere Eintrag: {entry}", rd.toString()));
+                            logDetail(International.getMessage("Importiere Eintrag: {entry}", rd.toString()));
                         } catch (Exception e) {
                             logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", rd.toString(), e.toString()));
                         }

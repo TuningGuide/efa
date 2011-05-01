@@ -30,6 +30,15 @@ public class DataTypeTime implements Cloneable, Comparable<DataTypeTime> {
         ensureCorrectTime();
     }
 
+    public DataTypeTime(long timestamp) {
+        Calendar cal = new GregorianCalendar();
+        cal.setTimeInMillis(timestamp);
+        this.hour = cal.get(Calendar.HOUR_OF_DAY);
+        this.minute = cal.get(Calendar.MINUTE);
+        this.second = cal.get(Calendar.SECOND);
+        ensureCorrectTime();
+    }
+
     // Copy Constructor
     public DataTypeTime(DataTypeTime time) {
         this.hour = time.hour;
@@ -61,6 +70,13 @@ public class DataTypeTime implements Cloneable, Comparable<DataTypeTime> {
         this.hour = hour;
         this.minute = minute;
         this.second = second;
+        ensureCorrectTime();
+    }
+
+    public void setTime(DataTypeTime time) {
+        this.hour = time.hour;
+        this.minute = time.minute;
+        this.second = time.second;
         ensureCorrectTime();
     }
 

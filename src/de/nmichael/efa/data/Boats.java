@@ -11,6 +11,7 @@
 package de.nmichael.efa.data;
 
 import de.nmichael.efa.util.*;
+import de.nmichael.efa.ex.*;
 import de.nmichael.efa.data.storage.*;
 import java.util.*;
 
@@ -18,11 +19,13 @@ import java.util.*;
 
 public class Boats extends Persistence {
 
-    public static final String DATATYPE = "e2boats";
+    public static final String DATATYPE = "efa2boats";
+    public BoatRecord staticBoatRecord;
 
     public Boats(int storageType, String storageLocation, String storageObjectName) {
         super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Boote"));
         BoatRecord.initialize();
+        staticBoatRecord = (BoatRecord)createNewRecord();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
 
@@ -36,6 +39,12 @@ public class Boats extends Persistence {
         return r;
     }
 
+    public DataKey addNewBoatRecord(BoatRecord boat, long validFrom) throws EfaException {
+        DataKey k = data().addValidAt(boat, validFrom);
+        getProject().getBoatStatus(false).data().add(getProject().getBoatStatus(false).createBoatStatusRecord(boat.getId()));
+        return k;
+    }
+
     public BoatRecord getBoat(UUID id, long validAt) {
         try {
             return (BoatRecord)data().getValidAt(BoatRecord.getKey(id, validAt), validAt);
@@ -45,10 +54,11 @@ public class Boats extends Persistence {
         }
     }
 
+    // find a record being valid at the specified time
     public BoatRecord getBoat(String boatName, long validAt) {
         try {
             DataKey[] keys = data().getByFields(
-                BoatRecord.IDX_NAME_OWNER, BoatRecord.getValuesForIndexFromQualifiedName(boatName), validAt);
+                staticBoatRecord.getQualifiedNameFields(), staticBoatRecord.getQualifiedNameValues(boatName), validAt);
             if (keys == null || keys.length < 1) {
                 return null;
             }
@@ -59,4 +69,30 @@ public class Boats extends Persistence {
         }
     }
     
+    // find any record being valid at least partially in the specified range
+    public BoatRecord getBoat(String boatName, long validFrom, long validUntil, long preferredValidAt) {
+        try {
+            DataKey[] keys = data().getByFields(
+                    staticBoatRecord.getQualifiedNameFields(), staticBoatRecord.getQualifiedNameValues(boatName));
+            if (keys == null || keys.length < 1) {
+                return null;
+            }
+            BoatRecord candidate = null;
+            for (int i=0; i<keys.length; i++) {
+                BoatRecord r = (BoatRecord)data().get(keys[i]);
+                if (r != null) {
+                    if (r.isInValidityRange(validFrom, validUntil)) {
+                        candidate = r;
+                        if (preferredValidAt >= r.getValidFrom() && preferredValidAt < r.getInvalidFrom()) {
+                            return r;
+                        }
+                    }
+                }
+            }
+            return candidate;
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
 }

@@ -73,7 +73,7 @@ public class ImportFahrtenabzeichen extends ImportBase {
                             r.setFahrtenheft(d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.LETZTEMELDUNG));
                         }
                         fahrtenabzeichen.data().add(r);
-                        logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
+                        logDetail(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                     } catch(Exception e) {
                         logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
                     }

@@ -12,6 +12,11 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.core.config.*;
+import de.nmichael.efa.gui.util.*;
+import de.nmichael.efa.util.*;
+import de.nmichael.efa.*;
 import java.util.*;
 
 // @i18n complete
@@ -40,6 +45,8 @@ public class BoatReservationRecord extends DataRecord {
     public static final String PERSONNAME          = "PersonName";
     public static final String REASON              = "Reason";
 
+    public static final String[] IDX_BOATID = new String[] { BOATID };
+
     public static void initialize() {
         Vector<String> f = new Vector<String>();
         Vector<Integer> t = new Vector<Integer>();
@@ -57,6 +64,7 @@ public class BoatReservationRecord extends DataRecord {
         f.add(REASON);                   t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(BoatReservations.DATATYPE, f, t, false);
         metaData.setKey(new String[] { BOATID, RESERVATION });
+        metaData.addIndex(IDX_BOATID);
     }
 
     public BoatReservationRecord(BoatReservations boatReservation, MetaData metaData) {
@@ -148,4 +156,75 @@ public class BoatReservationRecord extends DataRecord {
         return getString(REASON);
     }
 
+    private String getDateDescription(DataTypeDate date, String weekday, DataTypeTime time) {
+        if (date == null && weekday == null) {
+            return "";
+        }
+        return (date != null ? date.toString() : Daten.efaTypes.getValueWeekday(weekday)) +
+                (time != null ? " " + time.toString() : "");
+    }
+
+    public String getDateTimeFromDescription() {
+        String type = getType();
+        if (type != null && type.equals(TYPE_ONETIME)) {
+            return getDateDescription(getDateFrom(), null, getTimeFrom());
+        }
+        if (type != null && type.equals(TYPE_WEEKLY)) {
+            return getDateDescription(null, getDayOfWeek(), getTimeFrom());
+        }
+        return "";
+    }
+
+    public String getDateTimeToDescription() {
+        String type = getType();
+        if (type != null && type.equals(TYPE_ONETIME)) {
+            return getDateDescription(getDateTo(), null, getTimeTo());
+        }
+        if (type != null && type.equals(TYPE_WEEKLY)) {
+            return getDateDescription(null, getDayOfWeek(), getTimeTo());
+        }
+        return "";
+    }
+
+    public String getPersonDescription() {
+        UUID id = getPersonId();
+        try {
+            PersonRecord p = getPersistence().getProject().getPersons(false).getPerson(id, System.currentTimeMillis());
+            if (p != null) {
+                return p.getQualifiedName();
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return getPersonName();
+    }
+
+    public Vector<IItemType> getGuiItems() {
+        String CAT_BASEDATA     = "%01%" + International.getString("Reservierung");
+        IItemType item;
+        Vector<IItemType> v = new Vector<IItemType>();
+        // @todo
+        //v.add(item = new ItemTypeString(BoatRecord.NAME, getName(),
+        //        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
+        return v;
+    }
+
+    public TableItemHeader[] getGuiTableHeader() {
+        TableItemHeader[] header = new TableItemHeader[4];
+        header[0] = new TableItemHeader(International.getString("Von"));
+        header[1] = new TableItemHeader(International.getString("Bis"));
+        header[2] = new TableItemHeader(International.getString("Reserviert für"));
+        header[3] = new TableItemHeader(International.getString("Grund"));
+        return header;
+    }
+
+    public TableItem[] getGuiTableItems() {
+        TableItem[] items = new TableItem[4];
+        items[0] = new TableItem(getDateTimeFromDescription());
+        items[1] = new TableItem(getDateTimeToDescription());
+        items[2] = new TableItem(getPersonDescription());
+        items[3] = new TableItem(getReason());
+        return items;
+    }
+    
 }

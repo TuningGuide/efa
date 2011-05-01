@@ -18,7 +18,7 @@ import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.gui.*;
-import de.nmichael.efa.gui.EfaConfigFrame;
+import de.nmichael.efa.gui.EfaConfigDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -2156,7 +2156,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       startBringToFront(false); // efaDirekt im BRC -- Workaround
       return;
     }
-    EfaConfigFrame dlg = new EfaConfigFrame(this);
+    EfaConfigDialog dlg = new EfaConfigDialog(this);
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(!Dialog.tourRunning);
     dlg.show();

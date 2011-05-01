@@ -18,7 +18,7 @@ import java.util.*;
 
 public class BoatReservations extends Persistence {
 
-    public static final String DATATYPE = "e2boatreservations";
+    public static final String DATATYPE = "efa2boatreservations";
 
     public BoatReservations(int storageType, String storageLocation, String storageObjectName) {
         super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Bootsreservierungen"));
@@ -35,6 +35,23 @@ public class BoatReservations extends Persistence {
         r.setBoatId(id);
         r.setReservation(reservation);
         return r;
+    }
+
+    public BoatReservationRecord[] getBoatReservations(UUID boatId) {
+        try {
+            DataKey[] keys = data().getByFields(BoatReservationRecord.IDX_BOATID, new Object[] { boatId });
+            if (keys == null || keys.length == 0) {
+                return null;
+            }
+            BoatReservationRecord[] recs = new BoatReservationRecord[keys.length];
+            for (int i=0; i<keys.length; i++) {
+                recs[i] = (BoatReservationRecord)data().get(keys[i]);
+            }
+            return recs;
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
     }
 
 }

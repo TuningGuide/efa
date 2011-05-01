@@ -31,6 +31,7 @@ public abstract class DataFile extends DataAccess {
     private long cachedKeysSCN = 0;
     private final DataLocks dataLocks = new DataLocks();
     private DataFileWriter fileWriter;
+    private boolean inReadFileMode = false;
 
     public DataFile(String directory, String name, String extension, String description) {
         setStorageLocation(directory);
@@ -78,7 +79,6 @@ public abstract class DataFile extends DataAccess {
             fileWriter = new DataFileWriter(this);
             fileWriter.start();
         } catch(Exception e) {
-            Logger.log(e);
             throw new EfaException(Logger.MSG_DATA_CREATEFAILED, LogString.logstring_fileCreationFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         }
     }
@@ -93,7 +93,6 @@ public abstract class DataFile extends DataAccess {
             fileWriter = new DataFileWriter(this);
             fileWriter.start();
         } catch(Exception e) {
-            Logger.log(e);
             throw new EfaException(Logger.MSG_DATA_OPENFAILED, LogString.logstring_fileOpenFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         }
     }
@@ -102,7 +101,7 @@ public abstract class DataFile extends DataAccess {
     // that would result in a deadlock between fileWriter running save(true) and the thread calling closeStorageObject()
     public void closeStorageObject() throws EfaException {
         try {
-            fileWriter.save(true);
+            fileWriter.save(true, false);
             synchronized(data) {
                 data.clear();
                 versionizedKeyList.clear();
@@ -112,10 +111,11 @@ public abstract class DataFile extends DataAccess {
             }
             isOpen = false;
             fileWriter.exit();
-            fileWriter = null;
+            fileWriter.join();
         } catch(Exception e) {
-            Logger.log(e);
             throw new EfaException(Logger.MSG_DATA_CLOSEFAILED, LogString.logstring_fileCloseFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+        } finally {
+            fileWriter = null;
         }
     }
 
@@ -128,7 +128,6 @@ public abstract class DataFile extends DataAccess {
             writeFile(fw);
             fw.close();
         } catch(Exception e) {
-            Logger.log(e);
             throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         }
     }
@@ -139,6 +138,10 @@ public abstract class DataFile extends DataAccess {
 
     protected abstract void readFile(BufferedReader fr) throws EfaException;
     protected abstract void writeFile(BufferedWriter fw) throws EfaException;
+
+    protected void setInReadFileMode(boolean inReadFileMode) {
+        this.inReadFileMode = inReadFileMode;
+    }
 
     private long getLock(DataKey object) throws EfaException {
         if (!isStorageObjectOpen()) {
@@ -191,6 +194,11 @@ public abstract class DataFile extends DataAccess {
         if (record == null) {
             throw new EfaException(Logger.MSG_DATA_RECORDNOTFOUND, getUID() + ": Data Record is 'null'", Thread.currentThread().getStackTrace());
         }
+        if (!referenceRecord.getClass().isAssignableFrom(record.getClass())) {
+            throw new EfaException(Logger.MSG_DATA_RECORDWRONGTYPE,
+                    getUID() + ": Data Record "+record.toString()+" has wrong Type: " + record.getClass().getCanonicalName() + ", expected: " + referenceRecord.getClass().getCanonicalName(),
+                    Thread.currentThread().getStackTrace());
+        }
         DataKey key = constructKey(record);
         if (lockID <= 0) {
             // acquire a new local lock
@@ -211,14 +219,18 @@ public abstract class DataFile extends DataAccess {
                             throw new EfaException(Logger.MSG_DATA_DUPLICATERECORD, getUID() + ": Data Record '"+key.toString()+"' already exists", Thread.currentThread().getStackTrace());
                         }
                     }
+                    if (!inReadFileMode) { // don't update LastModified timestamp when reading saved data from file!
+                        record.setLastModified();
+                    }
                     if (add || update) {
-                        data.put(key, record.cloneRecord());
+                        DataRecord myRecord = record.cloneRecord();
+                        data.put(key, myRecord);
                         scn++;
                         if (meta.versionized) {
                             modifyVersionizedKeys(key, add, update, delete);
                         }
                         for (DataIndex idx: indices) {
-                            idx.add(record);
+                            idx.add(myRecord);
                         }
                     } else {
                         if (delete) {
@@ -239,7 +251,7 @@ public abstract class DataFile extends DataAccess {
                 }
             }
             if (fileWriter != null) { // may be null while reading (opening) a file
-                fileWriter.save(false);
+                fileWriter.save(false, true);
             }
         } else {
             throw new EfaException(Logger.MSG_DATA_MODIFICATIONFAILED, getUID() + ": Data Record Operation failed: No Write Access", Thread.currentThread().getStackTrace());
@@ -312,10 +324,12 @@ public abstract class DataFile extends DataAccess {
                 synchronized (data) {
                     if (isValidAny(record.getKey())) {
                         if (t < 0) {
-                            t = System.currentTimeMillis();
+                            t = record.getValidFrom();
+                            //t = System.currentTimeMillis();
                         }
                         DataRecord r1 = getValidAt(record.getKey(), t);
                         if (r1 != null) {
+                            // record with (at least partially) overlapping validity (at validFrom of new record)
                             if (t == r1.getValidFrom()) {
                                 throw new EfaException(Logger.MSG_DATA_VERSIONIZEDDATACONFLICT, getUID() + ": Versionized Data Conflict (Duplicate?) for Record " + record.toString() + " at ValidFrom=" + t, Thread.currentThread().getStackTrace());
                             }
@@ -327,9 +341,17 @@ public abstract class DataFile extends DataAccess {
                             modifyRecord(r1, myLock, false, false, true);
                             r1.setInvalidFrom(t);
                             modifyRecord(r1, myLock, true, false, false);
+                        } else {
+                            // There are already records with the same key, but none that are valid at this new record's validFrom.
+                            // During normal operation of efa, the validity range is always complete, i.e. there are no "holes" in validity.
+                            // However, for reading data from file, holes may appear until the entire file is read.
+                            // We could now check against all other records returned from getValidAny() whether there is any overlap, but we
+                            // skip this as this could only happen if the file is externally modified (or if there is a bug in efa...)
+                            modifyRecord(record, myLock, true, false, false);
                         }
+
                     } else {
-                        record.setAlwaysValid();
+                        // record.setAlwaysValid(); (default when created)
                         if (t >= 0) {
                             record.setValidFrom(t);
                         }
@@ -556,7 +578,7 @@ public abstract class DataFile extends DataAccess {
                 versionizedKeyList.clear();
                 scn++;
             }
-            fileWriter.save(false);
+            fileWriter.save(false, true);
         } finally {
             this.releaseGlobalLock(lockID);
         }

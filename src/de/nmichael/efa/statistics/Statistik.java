@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.statistics;
 
+import de.nmichael.efa.gui.util.TableSorter;
 import de.nmichael.efa.efa1.Ziele;
 import de.nmichael.efa.efa1.Mitglieder;
 import de.nmichael.efa.efa1.Fahrtenbuch;

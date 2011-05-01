@@ -59,14 +59,16 @@ public class ImportLogbook extends ImportBase {
             logbookRec.setStartDate(meta.firstDate);
             logbookRec.setEndDate(meta.lastDate);
             Daten.project.addLogbookRecord(logbookRec);
-            long validAt = DataAccess.getTimestampFromDate(logbookRec.getStartDate());
-
+            long validAt = logbookRec.getStartDate().getTimestamp(null);
             ImportBoats boatsImport = new ImportBoats(task, fahrtenbuch.getDaten().boote, logbookRec);
             if (!boatsImport.runImport()) {
                 logError(International.getMessage("Import von {list} aus {file} ist fehlgeschlagen.", boatsImport.getDescription(), fahrtenbuch.getDaten().bootDatei));
                 logError(International.getMessage("Import von {list} aus {file} wird abgebrochen.", getDescription(), efa1fname));
                 return false;
             }
+            cntWarning += boatsImport.cntWarning;
+            cntError += boatsImport.cntError;
+            
 
             ImportPersons personsImport = new ImportPersons(task, fahrtenbuch.getDaten().mitglieder, logbookRec);
             if (!personsImport.runImport()) {
@@ -74,6 +76,8 @@ public class ImportLogbook extends ImportBase {
                 logError(International.getMessage("Import von {list} aus {file} wird abgebrochen.", getDescription(), efa1fname));
                 return false;
             }
+            cntWarning += personsImport.cntWarning;
+            cntError += personsImport.cntError;
 
             ImportDestinations destinationsImport = new ImportDestinations(task, fahrtenbuch.getDaten().ziele, logbookRec);
             if (!destinationsImport.runImport()) {
@@ -81,6 +85,9 @@ public class ImportLogbook extends ImportBase {
                 logError(International.getMessage("Import von {list} aus {file} wird abgebrochen.", getDescription(), efa1fname));
                 return false;
             }
+            cntWarning += destinationsImport.cntWarning;
+            cntError += destinationsImport.cntError;
+
             // @todo: StatisticSettings
 
             logbook = Daten.project.getLogbook(meta.name, true);
@@ -109,19 +116,18 @@ public class ImportLogbook extends ImportBase {
                         r.setBoatId(id);
                         BoatRecord boat = boats.getBoat(id, validAt);
                         if (boat != null) {
-                            BoatTypeRecord[] types = boat.getAllBoatTypes(false);
-                            if (types != null) {
-                                if (types.length == 1) {
-                                    r.setBoatVariant(types[0].getVariant());
-                                } else {
-                                    for (BoatTypeRecord type : types) {
-                                        if (type.getDescription() != null && type.getDescription().equals(d.get(Fahrtenbuch.BOOT))) {
-                                            r.setBoatVariant(type.getVariant());
-                                            break;
-                                        }
+                            int numberOfVariants = boat.getNumberOfVariants();
+                            if (numberOfVariants == 1) {
+                                r.setBoatVariant(boat.getTypeVariant(0));
+                            } else {
+                                for (int i = 0; i < numberOfVariants; i++) {
+                                    String description = boat.getTypeDescription(i);
+                                    if (description != null && description.equals(d.get(Fahrtenbuch.BOOT))) {
+                                        r.setBoatVariant(boat.getTypeVariant(i));
+                                        break;
                                     }
-
                                 }
+
                             }
                         }
                     } else {
@@ -226,7 +232,7 @@ public class ImportLogbook extends ImportBase {
 
                 try {
                     logbook.data().add(r);
-                    logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
+                    logDetail(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                 } catch(Exception e) {
                     logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
                 }

@@ -66,7 +66,7 @@ public class ImportDestinations extends ImportBase {
 
             Destinations destinations = Daten.project.getDestinations(true);
             Waters waters = Daten.project.getWaters(true);
-            long validFrom = DataAccess.getTimestampFromDate(logbookRec.getStartDate());
+            long validFrom = logbookRec.getStartDate().getTimestamp(null);
 
             DatenFelder d = ziele.getCompleteFirst();
             String[] IDXD = new String[] { DestinationRecord.NAME };
@@ -113,7 +113,7 @@ public class ImportDestinations extends ImportBase {
                                 w = waters.createWatersRecord((w != null ? w.getId() : UUID.randomUUID()));
                                 w.setName(name);
                                 waters.data().add(w);
-                                logInfo(International.getMessage("Importiere Eintrag: {entry}", w.toString()));
+                                logDetail(International.getMessage("Importiere Eintrag: {entry}", w.toString()));
                             }
                             watersList.add(w.getId());
                         }
@@ -123,12 +123,12 @@ public class ImportDestinations extends ImportBase {
                     }
                     try {
                         destinations.data().addValidAt(r, validFrom);
-                        logInfo(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
+                        logDetail(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                     } catch(Exception e) {
                         logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
                     }
                 } else {
-                    logInfo(International.getMessage("Identischer Eintrag: {entry}", r.toString()));
+                    logDetail(International.getMessage("Identischer Eintrag: {entry}", r.toString()));
                 }
                 d = ziele.getCompleteNext();
             }

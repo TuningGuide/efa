@@ -18,12 +18,16 @@ public class AutoCompleteList {
 
     private IDataAccess dataAccess;
     private long dataAccessSCN = -1;
-    private long validAt = -1;
-    private Vector<String> data = new Vector<String>();;
-    private Hashtable<String,String> lower2real = new Hashtable<String,String>();;
+    private long validFrom = -1;
+    private long validUntil = -1;
+    private Vector<String> dataVisible = new Vector<String>();;
+    private Hashtable<String,String> lower2realVisible = new Hashtable<String,String>();;
+    private Hashtable<String,String> lower2realInvisible = new Hashtable<String,String>();;
     private int pos = 0;
     private String lastPrefix;
     private long scn = 0;
+    private String _searchId;
+    private String _foundValue;
 
     public AutoCompleteList() {
     }
@@ -32,22 +36,23 @@ public class AutoCompleteList {
         setDataAccess(dataAccess);
     }
 
-    public AutoCompleteList(IDataAccess dataAccess, long validAt) {
-        setDataAccess(dataAccess, validAt);
+    public AutoCompleteList(IDataAccess dataAccess, long validFrom, long validUntil) {
+        setDataAccess(dataAccess, validFrom, validUntil);
     }
 
     public synchronized void setDataAccess(IDataAccess dataAccess) {
-        setDataAccess(dataAccess, -1);
+        setDataAccess(dataAccess, -1, -1);
     }
 
-    public synchronized void setValidAt(long validAt) {
-        setDataAccess(dataAccess, validAt);
+    public synchronized void setValidRange(long validFrom, long validUntil) {
+        setDataAccess(dataAccess, validFrom, validUntil);
     }
 
-    public synchronized void setDataAccess(IDataAccess dataAccess, long validAt) {
+    public synchronized void setDataAccess(IDataAccess dataAccess, long validFrom, long validUntil) {
         this.dataAccess = dataAccess;
         this.dataAccessSCN = -1;
-        this.validAt = validAt;
+        this.validFrom = validFrom;
+        this.validUntil = validUntil;
         scn++;
     }
 
@@ -56,20 +61,26 @@ public class AutoCompleteList {
      */
     public synchronized void update() {
         try {
+            _foundValue = null;
             if (dataAccess != null && dataAccess.isStorageObjectOpen() && dataAccess.getSCN() != dataAccessSCN) {
                 dataAccessSCN = dataAccess.getSCN();
-                data = new Vector<String>();
-                lower2real = new Hashtable<String,String>();
+                dataVisible = new Vector<String>();
+                lower2realVisible = new Hashtable<String,String>();
                 DataKeyIterator it = dataAccess.getStaticIterator();
                 DataKey k = it.getFirst();
                 while (k != null) {
                     DataRecord r = dataAccess.get(k);
-                    boolean valid = (r != null) &&
-                            (validAt < 0 || (validAt >= r.getValidFrom() && validAt < r.getInvalidFrom()));
-                    if (valid) {
+                    if (r != null) {
+                        if (_searchId != null && r.getUniqueIdForRecord() != null && _searchId.equals(r.getUniqueIdForRecord().toString())) {
+                            _foundValue = r.getQualifiedName();
+                        }
                         String s = r.getQualifiedName();
-                        if (s.length() > 0) {
-                            add(s);
+                        if (!r.getDeleted()) {
+                            if (s.length() > 0) {
+                                add(s, r.isInValidityRange(validFrom, validUntil));
+                            }
+                        } else {
+                            add(s, false);
                         }
                     }
                     k = it.getNext();
@@ -80,46 +91,63 @@ public class AutoCompleteList {
         }
     }
 
-    public synchronized void add(String s) {
-        data.add(s);
-        lower2real.put(s.toLowerCase(), s);
+    public synchronized String getValueForId(String id) {
+        _searchId = id;
+        update();
+        _searchId = null;
+        return _foundValue;
+    }
+
+    public synchronized void add(String s, boolean visibleInDropDown) {
+        String lowers = s.toLowerCase();
+        if (visibleInDropDown) {
+            if (lower2realVisible.get(lowers) == null) {
+                dataVisible.add(s);
+                lower2realVisible.put(lowers, s);
+            }
+        } else {
+            lower2realInvisible.put(lowers, s);
+        }
         scn++;
     }
 
     public synchronized void delete(String s) {
-        data.remove(s);
-        lower2real.remove(s.toLowerCase());
+        dataVisible.remove(s);
+        lower2realVisible.remove(s.toLowerCase());
         scn++;
     }
 
     public synchronized void sort() {
-        String[] a = data.toArray(new String[0]);
+        String[] a = dataVisible.toArray(new String[0]);
         Arrays.sort(a);
-        data = new Vector(a.length);
+        dataVisible = new Vector(a.length);
         for (int i=0; i<a.length; i++) {
-            data.add(a[i]);
+            dataVisible.add(a[i]);
         }
     }
 
     public synchronized String getExact(String s) {
         s = s.toLowerCase();
-        if (lower2real.containsKey(s)) {
-            return lower2real.get(s);
+        if (lower2realVisible.containsKey(s)) {
+            return lower2realVisible.get(s);
         } else {
+            if (lower2realInvisible.containsKey(s)) {
+                return lower2realInvisible.get(s);
+            }
             return null;
         }
     }
 
     public synchronized String getNext() {
-        if (pos < data.size() - 1) {
-            return data.get(++pos);
+        if (pos < dataVisible.size() - 1) {
+            return dataVisible.get(++pos);
         }
         return null;
     }
 
     public synchronized String getPrev() {
         if (pos > 0) {
-            return data.get(--pos);
+            return dataVisible.get(--pos);
         }
         return null;
     }
@@ -127,9 +155,9 @@ public class AutoCompleteList {
     public synchronized String getFirst(String prefix) {
         prefix = prefix.toLowerCase();
         lastPrefix = prefix;
-        for (pos = 0; pos < data.size(); pos++) {
-            if (data.get(pos).toLowerCase().startsWith(prefix)) {
-                return data.get(pos);
+        for (pos = 0; pos < dataVisible.size(); pos++) {
+            if (dataVisible.get(pos).toLowerCase().startsWith(prefix)) {
+                return dataVisible.get(pos);
             }
         }
         return null;
@@ -138,9 +166,9 @@ public class AutoCompleteList {
     public synchronized String getLast(String prefix) {
         prefix = prefix.toLowerCase();
         lastPrefix = prefix;
-        for (pos = data.size()-1; pos >= 0; pos--) {
-            if (data.get(pos).toLowerCase().startsWith(prefix)) {
-                return data.get(pos);
+        for (pos = dataVisible.size()-1; pos >= 0; pos--) {
+            if (dataVisible.get(pos).toLowerCase().startsWith(prefix)) {
+                return dataVisible.get(pos);
             }
         }
         return null;
@@ -151,8 +179,8 @@ public class AutoCompleteList {
         if (lastPrefix == null || !prefix.equals(lastPrefix)) {
             return getFirst(prefix);
         }
-        if (pos < data.size() - 1) {
-            String s = data.get(++pos);
+        if (pos < dataVisible.size() - 1) {
+            String s = dataVisible.get(++pos);
             if (s.toLowerCase().startsWith(prefix)) {
                 return s;
             }
@@ -166,7 +194,7 @@ public class AutoCompleteList {
             return getFirst(prefix);
         }
         if (pos > 0) {
-            String s = data.get(--pos);
+            String s = dataVisible.get(--pos);
             if (s.toLowerCase().startsWith(prefix)) {
                 return s;
             }
@@ -175,7 +203,23 @@ public class AutoCompleteList {
     }
 
     public String[] getData() {
-        return data.toArray(new String[0]);
+        return dataVisible.toArray(new String[0]);
+    }
+
+    public synchronized Object getId(String qname) {
+        try {
+            if (dataAccess != null && dataAccess.isStorageObjectOpen()) {
+                DataRecord dummyRec = dataAccess.getPersistence().createNewRecord();
+                DataKey[] keys = dataAccess.getByFields(dummyRec.getQualifiedNameFields(), dummyRec.getQualifiedNameValues(qname));
+                if (keys == null || keys.length < 1) {
+                    return null;
+                }
+                return dataAccess.get(keys[0]).getUniqueIdForRecord();
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return null;
     }
 
     public long getSCN() {
@@ -202,8 +246,8 @@ public class AutoCompleteList {
         }
 
         int lowestDist = Integer.MAX_VALUE;
-        for (int i=data.size()-1; i>=0; i--) {
-            String neighbour = data.get(i);
+        for (int i=dataVisible.size()-1; i>=0; i--) {
+            String neighbour = dataVisible.get(i);
             String neighbourlc = neighbour.toLowerCase();
 
             int dist = EditDistance.getDistance(neighbour.toLowerCase(), name);

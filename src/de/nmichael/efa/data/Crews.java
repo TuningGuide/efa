@@ -18,7 +18,7 @@ import java.util.*;
 
 public class Crews extends Persistence {
 
-    public static final String DATATYPE = "e2crews";
+    public static final String DATATYPE = "efa2crews";
 
     public Crews(int storageType, String storageLocation, String storageObjectName) {
         super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Mannschaften"));

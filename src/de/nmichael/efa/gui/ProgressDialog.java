@@ -66,6 +66,7 @@ public class ProgressDialog extends BaseDialog {
 
     public void logInfo(String s) {
         loggingTextArea.append(s);
+        loggingTextArea.setCaretPosition(loggingTextArea.getDocument().getLength());
     }
 
     public void setCurrentWorkDone(int i) {

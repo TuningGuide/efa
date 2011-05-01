@@ -63,6 +63,7 @@ public class ItemTypeHtmlList extends ItemType implements ActionListener {
             for (int i=0; keys != null && value != null && i<keys.length; i++) {
                 if (value.equals(keys[i])) {
                     list.setSelectedIndex(i);
+                    list.scrollRectToVisible(list.getCellBounds(i, i));
                     break;
                 }
             }
@@ -73,8 +74,8 @@ public class ItemTypeHtmlList extends ItemType implements ActionListener {
         list = new JList();
         list.setCellRenderer(new MyCellRenderer());
         scrollPane = new JScrollPane();
-        scrollPane.setPreferredSize(new Dimension(600, 300));
-        scrollPane.setMinimumSize(new Dimension(600, 300));
+        scrollPane.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
+        scrollPane.setMinimumSize(new Dimension(fieldWidth, fieldHeight));
         scrollPane.getViewport().add(list, null);
 
         if (popupActions != null) {

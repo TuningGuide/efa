@@ -12,7 +12,12 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
-import de.nmichael.efa.core.config.EfaTypes;
+import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.core.config.*;
+import de.nmichael.efa.core.config.EfaConfig;
+import de.nmichael.efa.gui.util.*;
+import de.nmichael.efa.util.*;
+import de.nmichael.efa.*;
 import java.util.*;
 
 // @i18n complete
@@ -49,7 +54,7 @@ public class DestinationRecord extends DataRecord {
         f.add(DESTINATIONAREA);                   t.add(IDataAccess.DATA_INTEGER);
         f.add(PASSEDLOCKS);                       t.add(IDataAccess.DATA_INTEGER);
         f.add(DISTANCE);                          t.add(IDataAccess.DATA_DISTANCE);
-        f.add(WATERSIDLIST);                      t.add(IDataAccess.DATA_LIST);
+        f.add(WATERSIDLIST);                      t.add(IDataAccess.DATA_LIST_UUID);
         MetaData metaData = constructMetaData(Destinations.DATATYPE, f, t, true);
         metaData.setKey(new String[] { ID }); // plus VALID_FROM
         metaData.addIndex(IDX_NAME);
@@ -146,10 +151,56 @@ public class DestinationRecord extends DataRecord {
         return (name != null ? name : "");
     }
 
-    public static String[] getValuesForIndexFromQualifiedName(String qname) {
-        return new String[] {
-                qname
-        };
+    public String[] getQualifiedNameFields() {
+        return IDX_NAME;
+    }
+
+    public Object getUniqueIdForRecord() {
+        return getId();
+    }
+
+    public Vector<IItemType> getGuiItems() {
+        String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
+        String CAT_WATERS   = "%02%" + International.getString("Gewässer");
+
+        Waters waters = getPersistence().getProject().getWaters(false);
+        IItemType item;
+        Vector<IItemType> v = new Vector<IItemType>();
+        v.add(item = new ItemTypeString(DestinationRecord.NAME, getName(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
+        v.add(item = new ItemTypeString(DestinationRecord.START, getStart(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Start")));
+        v.add(item = new ItemTypeString(DestinationRecord.END, getEnd(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Ende")));
+        v.add(item = new ItemTypeBoolean(DestinationRecord.STARTISBOATHOUSE, getStartIsBoathouse(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Start ist Bootshaus")));
+        v.add(item = new ItemTypeBoolean(DestinationRecord.ROUNDTRIP, getRoundtrip(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Start gleich Ziel")));
+        if (Daten.efaConfig.showBerlinOptions.getValue()) {
+            v.add(item = new ItemTypeInteger(DestinationRecord.DESTINATIONAREA, getDestinationArea(), 1, Zielfahrt.ANZ_ZIELBEREICHE, true,
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("Zielbereich","de")));
+        }
+        v.add(item = new ItemTypeInteger(DestinationRecord.PASSEDLOCKS, getPassedLocks(), 0, Integer.MAX_VALUE, true,
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Passierte Schleusen")));
+        v.add(item = new ItemTypeDistance(DestinationRecord.DISTANCE, getDistance(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Distanz")));
+
+        // @todo
+//        v.add(item = new ItemTypeString(DestinationRecord.WATERSIDLIST, getEnd(),
+//                IItemType.TYPE_PUBLIC, CAT_WATERS, International.getString("Titel")));
+        return v;
+    }
+
+    public TableItemHeader[] getGuiTableHeader() {
+        TableItemHeader[] header = new TableItemHeader[4];
+        // @todo
+        return header;
+    }
+
+    public TableItem[] getGuiTableItems() {
+        TableItem[] items = new TableItem[4];
+        // @todo
+        return items;
     }
 
 }

@@ -18,7 +18,7 @@ import java.util.*;
 
 public class SessionGroups extends Persistence {
 
-    public static final String DATATYPE = "e2sessiongroups";
+    public static final String DATATYPE = "efa2sessiongroups";
 
     public SessionGroups(int storageType, String storageLocation, String storageObjectName) {
         super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Fahrtengruppen"));

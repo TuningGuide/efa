@@ -53,11 +53,11 @@ public class ItemTypeTime extends ItemTypeLabelTextfield {
     }
 
     public String toString() {
-        return value.toString();
+        return (value != null ? value.toString() : "");
     }
 
     public boolean isSet() {
-        return value.isSet();
+        return value != null && value.isSet();
     }
 
     public int getValueHour() {

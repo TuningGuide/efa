@@ -111,4 +111,8 @@ public class DataKeyIterator {
         return i;
     }
 
+    public synchronized int size() {
+        return (keys != null ? keys.length : 0);
+    }
+
 }

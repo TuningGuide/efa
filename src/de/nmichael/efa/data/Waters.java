@@ -18,7 +18,7 @@ import java.util.*;
 
 public class Waters extends Persistence {
 
-    public static final String DATATYPE = "e2waters";
+    public static final String DATATYPE = "efa2waters";
 
     public Waters(int storageType, String storageLocation, String storageObjectName) {
         super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Gewässer"));

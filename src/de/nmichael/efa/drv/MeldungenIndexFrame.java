@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.gui.util.TableSorter;
 import de.nmichael.efa.efa1.DatenFelder;
 import java.awt.*;
 import java.awt.event.*;

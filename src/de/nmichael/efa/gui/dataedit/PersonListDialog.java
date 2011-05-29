@@ -8,8 +8,10 @@
  * @version 2
  */
 
-package de.nmichael.efa.gui;
+package de.nmichael.efa.gui.dataedit;
 
+import de.nmichael.efa.gui.dataedit.DataListDialog;
+import de.nmichael.efa.gui.dataedit.DataEditDialog;
 import de.nmichael.efa.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
@@ -36,10 +38,11 @@ public class PersonListDialog extends DataListDialog {
         _keyAction(evt);
     }
 
-    public DataEditDialog createNewDataEditDialog(JDialog parent, DataRecord record) {
+    public DataEditDialog createNewDataEditDialog(JDialog parent, Persistence persistence, DataRecord record) {
+        boolean newRecord = (record == null);
         if (record == null) {
             record = Daten.project.getPersons(false).createPersonRecord(UUID.randomUUID());
         }
-        return new PersonEditDialog(parent, (PersonRecord)record);
+        return new PersonEditDialog(parent, (PersonRecord)record, newRecord);
     }
 }

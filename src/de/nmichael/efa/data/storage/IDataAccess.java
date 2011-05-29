@@ -309,6 +309,14 @@ public interface IDataAccess {
     public DataKey constructKey(DataRecord record) throws EfaException;
 
     /**
+     * Constructs an unversionized key from a given key (by removing the validFrom field).
+     * @param key the versionized key
+     * @return the "unversionized" key
+     * @throws Exception
+     */
+    public DataKey getUnversionizedKey(DataKey key);
+
+    /**
      * Adds a new data record to this storage object.
      * @param record the data record to add
      * @throws Exception if the data record already exists or the operation fails for another reason
@@ -400,10 +408,51 @@ public interface IDataAccess {
      * Note: This method requires a global lock!
      * @param key the key of the data record to delete
      * @param merge specifies how to merge adjacent record's validity ranges
-     * @param lockID an ID of a previously acquired local or global lock
+     * @param lockID an ID of a previously acquired global lock
      * @throws Exception if the data record does not exist, is locked or the operation fails for another reason
      */
     public void deleteVersionized(DataKey key, int merge, long lockID) throws EfaException;
+
+    public void deleteVersionizedAll(DataKey key, long deleteAt) throws EfaException;
+
+    /**
+     * Deletes all versions of an existing data record from this storage object with a previously acquired global lock.
+     * Depending on the parameter deleteAt, this method will
+     * if deleteAt == -1: mark all versions of this record as deleted
+     * if deleteAt >= 0:
+     *   - leave all versions before deleteAt untouched
+     *   - change the validity of the version that is currently valid at deleteAt to become invalid at deleteAt
+     *   - physically delete all versions which become valid after deleteAt, unless this is the last version of this record
+     *     (in this case, it will only be marked deleted to make sure that at least one version still physically remains)
+     * Note: This method requires a global lock!
+     * @param key the key of the data record to delete
+     * @param deleteAt the time at which the records should be deleted
+     * @param lockID an ID of a previously acquired global lock
+     * @throws Exception if the data record does not exist, is locked or the operation fails for another reason
+     */
+    public void deleteVersionizedAll(DataKey key, long deleteAt, long lockID) throws EfaException;
+
+    /**
+     * Changes the validity range of an existing data record from this storage object.
+     * This method will adapt other data records with adjacent validity ranges, if necessary.
+     * @param record the record to be changed
+     * @param validFrom the new validFrom value
+     * @param invalidFrom the new invalidFrom value
+     * @throws Exception if the data record does not exist, is locked or the operation fails for another reason
+     */
+    public void changeValidity(DataRecord record, long validFrom, long invalidFrom) throws EfaException;
+
+    /**
+     * Changes the validity range of an existing data record from this storage object with a previously acquired global lock.
+     * This method will adapt other data records with adjacent validity ranges, if necessary.
+     * Note: This method requires a global lock!
+     * @param record the record to be changed
+     * @param validFrom the new validFrom value
+     * @param invalidFrom the new invalidFrom value
+     * @param lockID an ID of a previously acquired global lock
+     * @throws Exception if the data record does not exist, is locked or the operation fails for another reason
+     */
+    public void changeValidity(DataRecord record, long validFrom, long invalidFrom, long lockID) throws EfaException;
 
     /**
      * Retrieves an existing data record from this storage object.
@@ -426,6 +475,13 @@ public interface IDataAccess {
      * @throws Exception if the data record does not exist, is locked or the operation fails for another reason
      */
     public DataRecord getValidAt(DataKey key, long t) throws EfaException;
+
+    /**
+     * Retrieves the latest valid version of an existing data record from this storage object.
+     * @param key the key of the data record to retrieve (with or without the validity information)
+     * @throws Exception if the data record does not exist, is locked or the operation fails for another reason
+     */
+    public DataRecord getValidLatest(DataKey key) throws EfaException;
 
     /**
      * Returns true if there are any data records valid at any point in time from this storage object.
@@ -478,12 +534,5 @@ public interface IDataAccess {
     public DataRecord getPrev(DataKeyIterator it) throws EfaException;
     public DataRecord getFirst() throws EfaException;
     public DataRecord getLast() throws EfaException;
-
-
-    /*
-     * @todo
-     * - Callback Mechanism for Data Changes?
-     */
-
 
 }

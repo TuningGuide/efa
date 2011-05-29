@@ -53,6 +53,10 @@ public class WatersRecord extends DataRecord {
         return new DataKey<UUID,String,String>(getId(),null,null);
     }
 
+    public static DataKey getKey(UUID id) {
+        return new DataKey<UUID,String,String>(id,null,null);
+    }
+
     public void setId(UUID id) {
         setUUID(ID, id);
     }
@@ -75,25 +79,29 @@ public class WatersRecord extends DataRecord {
         return getId();
     }
 
+    public String getQualifiedName() {
+        String name = getName();
+        return (name != null ? name : "");
+    }
+
     public Vector<IItemType> getGuiItems() {
-        String CAT_BASEDATA     = "%01%" + International.getString("Reservierung");
+        String CAT_BASEDATA     = "%01%" + International.getString("Gewässer");
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
-        // @todo
-        //v.add(item = new ItemTypeString(BoatRecord.NAME, getName(),
-        //        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
+        v.add(item = new ItemTypeString(DestinationRecord.NAME, getName(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
         return v;
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        TableItemHeader[] header = new TableItemHeader[4];
-        // @todo
+        TableItemHeader[] header = new TableItemHeader[1];
+        header[0] = new TableItemHeader(International.getString("Name"));
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
-        TableItem[] items = new TableItem[4];
-        // @todo
+        TableItem[] items = new TableItem[1];
+        items[0] = new TableItem(getName());
         return items;
     }
 

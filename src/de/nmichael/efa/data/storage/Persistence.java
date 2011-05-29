@@ -10,7 +10,7 @@
 
 package de.nmichael.efa.data.storage;
 
-import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.ex.*;
 import de.nmichael.efa.data.*;
 
 // @i18n complete
@@ -72,6 +72,10 @@ public abstract class Persistence {
 
     public Project getProject() {
         return project;
+    }
+
+    public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
+        // to be implemented in subclass, if necessary
     }
 
 }

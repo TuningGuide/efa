@@ -46,6 +46,7 @@ public abstract class ItemType implements IItemType {
     protected int fieldGridHeight = 1;
     protected int fieldGridAnchor = GridBagConstraints.WEST;
     protected int fieldGridFill = GridBagConstraints.NONE;
+    protected boolean isVisible = true;
 
     public String getName() {
         return name;
@@ -160,7 +161,8 @@ public abstract class ItemType implements IItemType {
     }
 
     public boolean isChanged() {
-        return !toString().equals(lastValue);
+        String s = toString();
+        return s != null && !s.equals(lastValue);
     }
 
     public void registerItemListener(IItemListener listener) {
@@ -185,6 +187,14 @@ public abstract class ItemType implements IItemType {
             return (JFrame)dlg;
         }
         return null;
+    }
+
+    public void setVisible(boolean visible) {
+        isVisible = visible;
+    }
+
+    public boolean isVisible() {
+        return isVisible;
     }
 
 }

@@ -10,6 +10,9 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.gui.dataedit.DataEditDialog;
+import de.nmichael.efa.gui.dataedit.BoatReservationEditDialog;
+import de.nmichael.efa.gui.dataedit.BoatDamageEditDialog;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.items.*;
@@ -24,7 +27,7 @@ import javax.swing.*;
 
 // @i18n complete
 
-public class BoatRecord extends DataRecord implements IItemFactory, IItemListenerActionTable {
+public class BoatRecord extends DataRecord implements IItemFactory, IItemListenerDataRecordTable {
 
     // =========================================================================
     // Field Names
@@ -32,6 +35,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
 
     public static final String ID                    = "Id";
     public static final String NAME                  = "Name";
+    public static final String NAMEAFFIX             = "NameAffixow";
     public static final String OWNER                 = "Owner";
     public static final String LASTVARIANT           = "LastVariant";
     public static final String TYPEVARIANT           = "TypeVariant";
@@ -60,7 +64,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     public static final String FREEUSE2              = "FreeUse2";
     public static final String FREEUSE3              = "FreeUse3";
 
-    public static final String[] IDX_NAME_OWNER = new String[] { NAME, OWNER };
+    public static final String[] IDX_NAME_NAMEAFFIX = new String[] { NAME, NAMEAFFIX };
 
     private static String GUIITEM_BOATTYPES          = "GUIITEM_BOATTYPES";
     private static String GUIITEM_ALLOWEDGROUPIDLIST = "GUIITEM_ALLOWEDGROUPIDLIST";
@@ -75,6 +79,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
 
         f.add(ID);                                t.add(IDataAccess.DATA_UUID);
         f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
+        f.add(NAMEAFFIX);                         t.add(IDataAccess.DATA_STRING);
         f.add(OWNER);                             t.add(IDataAccess.DATA_STRING);
         f.add(LASTVARIANT);                       t.add(IDataAccess.DATA_INTEGER);
         f.add(TYPEVARIANT);                       t.add(IDataAccess.DATA_LIST_INTEGER);
@@ -102,7 +107,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         f.add(FREEUSE3);                          t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(Boats.DATATYPE, f, t, true);
         metaData.setKey(new String[] { ID }); // plus VALID_FROM
-        metaData.addIndex(IDX_NAME_OWNER);
+        metaData.addIndex(IDX_NAME_NAMEAFFIX);
     }
 
     public BoatRecord(Boats boats, MetaData metaData) {
@@ -133,6 +138,13 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     }
     public String getName() {
         return getString(NAME);
+    }
+
+    public void setNameAffix(String affix) {
+        setString(NAMEAFFIX, affix);
+    }
+    public String getNameAffix() {
+        return getString(NAMEAFFIX);
     }
 
     public void setOwner(String owner) {
@@ -497,14 +509,14 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
 
     public String getQualifiedName() {
         String name = getName();
-        if (name != null & name.length() > 0 && getOwner() != null && getOwner().length() > 0) {
-            name = name + " (" + getOwner() + ")";
+        if (name != null & name.length() > 0 && getNameAffix() != null && getNameAffix().length() > 0) {
+            name = name + " (" + getNameAffix() + ")";
         }
         return (name != null ? name : "");
     }
 
     public String[] getQualifiedNameFields() {
-        return IDX_NAME_OWNER;
+        return IDX_NAME_NAMEAFFIX;
     }
 
     public String[] getQualifiedNameValues(String qname) {
@@ -646,9 +658,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
             items[0].setFieldSize(300, -1);
             return items;
         }
-        if (itemName.equals(BoatRecord.GUIITEM_RESERVATIONS)) {
-            // @todo
-        }
         return null;
     }
 
@@ -687,8 +696,13 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         // CAT_BASEDATA
         v.add(item = new ItemTypeString(BoatRecord.NAME, getName(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
+        ((ItemTypeString)item).setNotAllowedCharacters("()");
+        v.add(item = new ItemTypeString(BoatRecord.NAMEAFFIX, getNameAffix(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Namenszusatz")));
+        ((ItemTypeString)item).setNotAllowedCharacters("()");
         v.add(item = new ItemTypeString(BoatRecord.OWNER, getOwner(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Eigentümer")));
+        ((ItemTypeString)item).setNotAllowedCharacters("()");
 
         itemList = new Vector<IItemType[]>();
         for (int i=0; i<getNumberOfVariants(); i++) {
@@ -767,20 +781,18 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         // CAT_RESERVATIONS
         v.add(item = new ItemTypeDataRecordTable(GUIITEM_RESERVATIONS,
             boatReservations.createNewRecord().getGuiTableHeader(),
-            boatReservations,
-            boatReservations.getBoatReservations(getId()),
-            null, this,
+            boatReservations, 0,
+            BoatReservationRecord.BOATID, getId().toString(),
+            null, null, this,
             IItemType.TYPE_PUBLIC, CAT_RESERVATIONS, International.getString("Reservierungen")));
-        ((ItemTypeDataRecordTable)item).setPopupActions(new String[] {
-            International.getString("Auswählen"),
-            International.getString("Neu"),
-            International.getString("Löschen")
-        });
-        //((ItemTypeTable)item).registerItemListener(this);
-        // @todo
 
         // CAT_DAMAGES
-        // @todo
+        v.add(item = new ItemTypeDataRecordTable(GUIITEM_DAMAGES,
+            boatDamages.createNewRecord().getGuiTableHeader(),
+            boatDamages, 0,
+            BoatDamageRecord.BOATID, getId().toString(),
+            null, null, this,
+            IItemType.TYPE_PUBLIC, CAT_DAMAGES, International.getString("Bootsschäden")));
 
         // CAT_STATUS
         BoatStatusRecord boatStatusRecord = boatStatus.getBoatStatus(getId());
@@ -800,23 +812,39 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        TableItemHeader[] header = new TableItemHeader[2];
+        TableItemHeader[] header = new TableItemHeader[3];
         header[0] = new TableItemHeader(International.getString("Name"));
-        header[1] = new TableItemHeader(International.getString("Eigentümer"));
+        header[1] = new TableItemHeader(International.getString("Bootstyp"));
+        header[2] = new TableItemHeader(International.getString("Eigentümer"));
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
-        TableItem[] items = new TableItem[2];
-        items[0] = new TableItem(getName());
-        items[1] = new TableItem(getOwner());
+        TableItem[] items = new TableItem[3];
+        items[0] = new TableItem(getQualifiedName());
+        String type = "";
+        if (getNumberOfVariants() > 0) {
+            type = getDetailedBoatType(0);
+        }
+        if (getNumberOfVariants() > 1) {
+            type = type + " ...";
+        }
+        items[1] = new TableItem(type);
+        items[2] = new TableItem(getOwner());
         return items;
     }
 
 
     public void saveGuiItems(Vector<IItemType> items) {
+        BoatStatus boatStatus = getPersistence().getProject().getBoatStatus(false);
+        BoatReservations boatReservations = getPersistence().getProject().getBoatReservations(false);
+        BoatDamages boatDamages = getPersistence().getProject().getBoatDamages(false);
+
+        Vector<IItemType> boatStatusItems = null; // changed BoatStatus items
+
         for(IItemType item : items) {
             String name = item.getName();
+            String cat = item.getCategory();
             if (name.equals(GUIITEM_BOATTYPES) && item.isChanged()) {
                 ItemTypeItemList list = (ItemTypeItemList)item;
                 for (int i=0; i<list.deletedSize(); i++) {
@@ -858,6 +886,23 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
                 }
                 setAllowedGroupIdList(agList);
             }
+            if (cat.equals(BoatStatusRecord.CAT_STATUS) && item.isChanged()) {
+                if (boatStatusItems == null) {
+                    boatStatusItems = new Vector<IItemType>();
+                }
+                boatStatusItems.add(item);
+            }
+        }
+        if (boatStatus != null && boatStatusItems != null) {
+            BoatStatusRecord boatStatusRecord = boatStatus.getBoatStatus(getId());
+            if (boatStatusRecord != null) {
+                boatStatusRecord.saveGuiItems(boatStatusItems);
+                try {
+                    boatStatus.data().update(boatStatusRecord);
+                } catch(Exception estatus) {
+                    Logger.logdebug(estatus);
+                }
+            }
         }
         super.saveGuiItems(items);
     }
@@ -866,16 +911,35 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         // nothing to do
     }
 
-    public DataEditDialog createNewDataEditDialog(JDialog parent, DataRecord record) {
-        if (record == null) {
-            BoatReservations boatReservations = getPersistence().getProject().getBoatReservations(false);
-            AutoIncrement autoIncrement = getPersistence().getProject().getAutoIncrement(false);
-            int val = autoIncrement.nextAutoIncrementValue(boatReservations.data().getStorageObjectType());
-            if (record instanceof BoatReservationRecord && val > 0) {
-                record = boatReservations.createBoatReservationsRecord(getId(), val);
+    public DataEditDialog createNewDataEditDialog(JDialog parent, Persistence persistence, DataRecord record) {
+        boolean newRecord = false;
+        if (persistence != null && persistence instanceof BoatReservations) {
+            if (record == null) {
+                BoatReservations boatReservations = (BoatReservations)persistence;
+                AutoIncrement autoIncrement = getPersistence().getProject().getAutoIncrement(false);
+                int val = autoIncrement.nextAutoIncrementValue(boatReservations.data().getStorageObjectType());
+                if (val > 0) {
+                    record = boatReservations.createBoatReservationsRecord(getId(), val);
+                }
+                newRecord = true;
             }
+            return new BoatReservationEditDialog(parent, (BoatReservationRecord) record, newRecord);
         }
-        return new BoatReservationEditDialog(parent, (BoatReservationRecord)record);
+
+        if (persistence != null && persistence instanceof BoatDamages) {
+            if (record == null) {
+                BoatDamages boatDamages = (BoatDamages)persistence;
+                AutoIncrement autoIncrement = getPersistence().getProject().getAutoIncrement(false);
+                int val = autoIncrement.nextAutoIncrementValue(boatDamages.data().getStorageObjectType());
+                if (val > 0) {
+                    record = boatDamages.createBoatDamageRecord(getId(), val);
+                }
+                newRecord = true;
+            }
+            return new BoatDamageEditDialog(parent, (BoatDamageRecord) record, newRecord);
+        }
+
+        return null;
     }
     
 }

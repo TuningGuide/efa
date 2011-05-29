@@ -32,6 +32,7 @@ public class PersonRecord extends DataRecord {
     public static final String FIRSTNAME           = "FirstName";
     public static final String LASTNAME            = "LastName";
     public static final String FIRSTLASTNAME       = "FirstLastName";
+    public static final String NAMEAFFIX           = "NameAffix";
     public static final String TITLE               = "Title";
     public static final String GENDER              = "Gender";
     public static final String BIRTHDAY            = "Birthday";
@@ -52,7 +53,7 @@ public class PersonRecord extends DataRecord {
     public static final String FREEUSE2            = "FreeUse2";
     public static final String FREEUSE3            = "FreeUse3";
 
-    public static final String[] IDX_NAME_ASSOC = new String[] { FIRSTLASTNAME, ASSOCIATION };
+    public static final String[] IDX_NAME_NAMEAFFIX = new String[] { FIRSTLASTNAME, NAMEAFFIX };
 
     private static Pattern qnamePattern = Pattern.compile("(.+) \\(([^\\(\\)]+)\\)");
 
@@ -64,6 +65,7 @@ public class PersonRecord extends DataRecord {
         f.add(FIRSTNAME);                         t.add(IDataAccess.DATA_STRING);
         f.add(LASTNAME);                          t.add(IDataAccess.DATA_STRING);
         f.add(FIRSTLASTNAME);                     t.add(IDataAccess.DATA_VIRTUAL);
+        f.add(NAMEAFFIX);                         t.add(IDataAccess.DATA_STRING);
         f.add(TITLE);                             t.add(IDataAccess.DATA_STRING);
         f.add(GENDER);                            t.add(IDataAccess.DATA_STRING);
         f.add(BIRTHDAY);                          t.add(IDataAccess.DATA_DATE);
@@ -85,7 +87,7 @@ public class PersonRecord extends DataRecord {
         f.add(FREEUSE3);                          t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(Persons.DATATYPE, f, t, true);
         metaData.setKey(new String[] { ID }); // plus VALID_FROM
-        metaData.addIndex(IDX_NAME_ASSOC);
+        metaData.addIndex(IDX_NAME_NAMEAFFIX);
     }
 
     public PersonRecord(Persons persons, MetaData metaData) {
@@ -132,6 +134,13 @@ public class PersonRecord extends DataRecord {
         return getFullName(getString(FIRSTNAME), getString(LASTNAME), null, true);
     }
 
+    public void setNameAffix(String affix) {
+        setString(NAMEAFFIX, affix);
+    }
+    public String getNameAffix() {
+        return getString(NAMEAFFIX);
+    }
+
     public void setTitle(String title) {
         setString(TITLE, title);
     }
@@ -171,7 +180,7 @@ public class PersonRecord extends DataRecord {
         if (id != null) {
             StatusRecord r = getPersistence().getProject().getStatus(false).getStatus(id);
             if (r != null) {
-                return r.getName();
+                return r.getStatusName();
             }
         }
         return null;
@@ -282,7 +291,7 @@ public class PersonRecord extends DataRecord {
         return null;
     }
 
-    public static String getFullName(String first, String last, String association, boolean firstFirst) {
+    public static String getFullName(String first, String last, String affix, boolean firstFirst) {
         String s = "";
         if (firstFirst) {
             if (first != null && first.length() > 0) {
@@ -299,8 +308,8 @@ public class PersonRecord extends DataRecord {
                 s = s + (s.length() > 0 ? " " : "") + first.trim();
             }
         }
-        if (association != null && association.length() > 0) {
-            s = s + " (" + association + ")";
+        if (affix != null && affix.length() > 0) {
+            s = s + " (" + affix + ")";
         }
         return s;
     }
@@ -317,7 +326,7 @@ public class PersonRecord extends DataRecord {
     }
 
     public String getQualifiedName(boolean firstFirst) {
-        return getFullName(getFirstName(), getLastName(), getAssocitation(), firstFirst);
+        return getFullName(getFirstName(), getLastName(), getNameAffix(), firstFirst);
     }
 
     public String getQualifiedName() {
@@ -325,7 +334,7 @@ public class PersonRecord extends DataRecord {
     }
 
     public String[] getQualifiedNameFields() {
-        return IDX_NAME_ASSOC;
+        return IDX_NAME_NAMEAFFIX;
     }
 
     public String[] getQualifiedNameValues(String qname) {
@@ -360,6 +369,8 @@ public class PersonRecord extends DataRecord {
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Vorname")));
         v.add(item = new ItemTypeString(PersonRecord.LASTNAME, getLastName(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Nachname")));
+        v.add(item = new ItemTypeString(PersonRecord.NAMEAFFIX, getNameAffix(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Namenszusatz")));
         v.add(item = new ItemTypeString(PersonRecord.TITLE, getTitle(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Titel")));
         v.add(item = new ItemTypeStringList(PersonRecord.GENDER, getGender(),
@@ -413,8 +424,8 @@ public class PersonRecord extends DataRecord {
 
     public TableItemHeader[] getGuiTableHeader() {
         TableItemHeader[] header = new TableItemHeader[4];
-        header[0] = new TableItemHeader(International.getString("Vorname"));
         header[1] = new TableItemHeader(International.getString("Nachname"));
+        header[0] = new TableItemHeader(International.getString("Vorname"));
         header[2] = new TableItemHeader(International.getString("Geburtstag"));
         header[3] = new TableItemHeader(International.getString("Status"));
         return header;
@@ -422,8 +433,8 @@ public class PersonRecord extends DataRecord {
 
     public TableItem[] getGuiTableItems() {
         TableItem[] items = new TableItem[4];
-        items[0] = new TableItem(getFirstName());
         items[1] = new TableItem(getLastName());
+        items[0] = new TableItem(getFirstName());
         items[2] = new TableItem(getBirthday());
         items[3] = new TableItem(getStatusName());
         return items;

@@ -18,13 +18,16 @@ import de.nmichael.efa.util.*;
 
 public class ItemTypeTime extends ItemTypeLabelTextfield {
 
-    DataTypeTime value;
-    boolean withSeconds = true;
+    protected DataTypeTime value;
+    protected boolean withSeconds = true;
+    protected ItemTypeTime mustBeBefore;
+    protected ItemTypeTime mustBeAfter;
+    protected boolean mustBeCanBeEqual = false;
 
     public ItemTypeTime(String name, DataTypeTime value, int type,
             String category, String description) {
         this.name = name;
-        this.value = value;
+        this.value = (value != null ? value : new DataTypeTime());
         this.type = type;
         this.category = category;
         this.description = description;
@@ -93,10 +96,26 @@ public class ItemTypeTime extends ItemTypeLabelTextfield {
     }
 
     public boolean isValidInput() {
+        if (mustBeBefore != null && isSet() && value.isSet() && !value.isBefore(mustBeBefore.value)) {
+            return mustBeCanBeEqual && value.equals(mustBeBefore.value);
+        }
+        if (mustBeAfter != null && isSet() && value.isSet() && !value.isAfter(mustBeAfter.value)) {
+            return mustBeCanBeEqual && value.equals(mustBeAfter.value);
+        }
         if (isNotNullSet()) {
             return isSet();
         }
         return true;
+    }
+
+    public void setMustBeBefore(ItemTypeTime item, boolean mayAlsoBeEqual) {
+        mustBeBefore = item;
+        mustBeCanBeEqual = mayAlsoBeEqual;
+    }
+
+    public void setMustBeAfter(ItemTypeTime item, boolean mayAlsoBeEqual) {
+        mustBeAfter = item;
+        mustBeCanBeEqual = mayAlsoBeEqual;
     }
 
 }

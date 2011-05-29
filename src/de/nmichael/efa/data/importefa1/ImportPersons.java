@@ -63,7 +63,7 @@ public class ImportPersons extends ImportBase {
         if (!isIdentical(r.getBirthday(), d.get(Mitglieder.JAHRGANG))) {
             return true;
         }
-        if (!isIdentical(r.getAssocitation(), d.get(Mitglieder.VEREIN))) {
+        if (!isIdentical(r.getNameAffix(), d.get(Mitglieder.VEREIN))) {
             return true;
         }
         if (!isIdentical(r.getStatusId(), getStatusKey(d.get(Mitglieder.STATUS)))) {
@@ -108,7 +108,7 @@ public class ImportPersons extends ImportBase {
             while (d != null) {
                 // First search, whether we have imported this person already
                 PersonRecord r = null;
-                DataKey[] keys = persons.data().getByFields(PersonRecord.IDX_NAME_ASSOC,
+                DataKey[] keys = persons.data().getByFields(PersonRecord.IDX_NAME_NAMEAFFIX,
                         persons.staticPersonRecord.getQualifiedNameValues(
                             PersonRecord.getFullName(d.get(Mitglieder.VORNAME), d.get(Mitglieder.NACHNAME), d.get(Mitglieder.VEREIN), true)));
                 if (keys != null && keys.length > 0) {
@@ -142,6 +142,7 @@ public class ImportPersons extends ImportBase {
                         r.setBirthday(birthday);
                     }
                     if (d.get(Mitglieder.VEREIN).length() > 0) {
+                        r.setNameAffix(d.get(Mitglieder.VEREIN));
                         r.setAssocitation(d.get(Mitglieder.VEREIN));
                     }
                     // always set status

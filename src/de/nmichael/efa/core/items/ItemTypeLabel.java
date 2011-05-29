@@ -79,7 +79,13 @@ public class ItemTypeLabel extends ItemType {
         for (int i=0; i<labels.length; i++) {
             labels[i].setVisible(visible);
         }
+        isVisible = visible;
     }
+
+    public boolean isVisible() {
+        return isVisible;
+    }
+
 
     public void setEnabled(boolean enabled) {
         for (int i=0; i<labels.length; i++) {

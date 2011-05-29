@@ -140,6 +140,7 @@ public class Logger {
   public static final String MSG_DATA_PROJECTCHECK           = "DAT016";
   public static final String MSG_DATA_INCONSISTENTDATA       = "DAT017";
   public static final String MSG_DATA_RECORDWRONGTYPE        = "DAT018";
+  public static final String MSG_DATA_MODIFYEXCEPTION        = "DAT019";
 
   // de.nmichael.efa.core.DatenListe (and subclasses)
   public static final String MSG_CSVFILE_FILECONVERTED       = "CSV001";

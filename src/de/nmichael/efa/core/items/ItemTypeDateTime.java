@@ -22,6 +22,10 @@ public class ItemTypeDateTime extends ItemTypeLabelTextfield {
     private DataTypeTime timeValue;
     private DataTypeDate referenceDate;
     private DataTypeTime referenceTime;
+    protected ItemTypeDateTime mustBeBefore;
+    protected ItemTypeDateTime mustBeAfter;
+    protected boolean mustBeCanBeEqual = false;
+    private String lastInvalidError = null;
 
     public ItemTypeDateTime(String name, DataTypeDate dateValue, DataTypeTime timeValue, int type,
             String category, String description) {
@@ -65,6 +69,9 @@ public class ItemTypeDateTime extends ItemTypeLabelTextfield {
                 timeValue.setTime( (ia[3] >= 0 ? ia[3] : referenceTime.getHour()),
                                    (ia[4] >= 0 ? ia[4] : referenceTime.getMinute()),
                                    (ia[5] >= 0 ? ia[5] : referenceTime.getSecond()) );
+            } else {
+                dateValue.unset();
+                timeValue.unset();
             }
         } catch (Exception e) {
             if (dlg == null) {
@@ -115,10 +122,47 @@ public class ItemTypeDateTime extends ItemTypeLabelTextfield {
     }
 
     public boolean isValidInput() {
-        if (isNotNullSet()) {
-            return isSet();
+        if (mustBeBefore != null && isSet() && mustBeBefore.isSet() &&
+                (
+                !dateValue.isBefore(mustBeBefore.dateValue) &&
+                !(dateValue.equals(mustBeBefore.dateValue) && timeValue.isBefore(mustBeBefore.timeValue)) &&
+                !(dateValue.equals(mustBeBefore.dateValue) && timeValue.equals(mustBeBefore.timeValue) && mustBeCanBeEqual)
+                ) ) {
+            lastInvalidError = International.getMessage("Der Zeitpunkt muß vor {timestamp} liegen.", mustBeBefore.toString());
+            return false;
         }
+        if (mustBeAfter != null && isSet() && mustBeAfter.isSet() &&
+                (
+                !dateValue.isAfter(mustBeAfter.dateValue) &&
+                !(dateValue.equals(mustBeAfter.dateValue) && timeValue.isAfter(mustBeAfter.timeValue)) &&
+                !(dateValue.equals(mustBeAfter.dateValue) && timeValue.equals(mustBeAfter.timeValue) && mustBeCanBeEqual)
+                ) ) {
+            lastInvalidError = International.getMessage("Der Zeitpunkt muß nach {timestamp} liegen.", mustBeAfter.toString());
+            return false;
+        }
+        if (isNotNullSet()) {
+            if (!isSet()) {
+                lastInvalidError = International.getMessage("Das Feld '{field}' darf nicht leer sein.", getDescription());
+                return false;
+            }
+        }
+        lastInvalidError = null;
         return true;
     }
+
+    public void setMustBeBefore(ItemTypeDateTime item, boolean mayAlsoBeEqual) {
+        mustBeBefore = item;
+        mustBeCanBeEqual = mayAlsoBeEqual;
+    }
+
+    public void setMustBeAfter(ItemTypeDateTime item, boolean mayAlsoBeEqual) {
+        mustBeAfter = item;
+        mustBeCanBeEqual = mayAlsoBeEqual;
+    }
+    
+    public String getLastInvalidError() {
+        return lastInvalidError;
+    }
+
 
 }

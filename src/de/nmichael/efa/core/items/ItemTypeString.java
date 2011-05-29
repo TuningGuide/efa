@@ -23,6 +23,7 @@ public class ItemTypeString extends ItemTypeLabelTextfield {
 
     protected String value;
     protected String allowedCharacters;
+    protected String notAllowedCharacters;
     protected String replacementCharacter;
     protected Pattern pattern;
     protected boolean toUpperCase = false;
@@ -37,14 +38,18 @@ public class ItemTypeString extends ItemTypeLabelTextfield {
     }
 
     public void parseValue(String value) {
+        if (value != null) {
+            value = value.trim();
+        }
         if (toUpperCase && value != null) {
             value = value.toUpperCase();
         }
-        if (allowedCharacters != null && value != null) {
+        if ((allowedCharacters != null || notAllowedCharacters != null) && value != null) {
             int i = 0;
             while (i < value.length()) {
                 char c = value.charAt(i);
-                if (allowedCharacters.indexOf(c) < 0) {
+                if ((allowedCharacters != null && allowedCharacters.indexOf(c) < 0) ||
+                    (notAllowedCharacters != null && notAllowedCharacters.indexOf(c) >= 0) ) {
                     value = (i > 0 ? value.substring(0, i) : "") +
                             (replacementCharacter != null ? replacementCharacter : "") +
                             (i+1 < value.length() ? value.substring(i+1) : "");
@@ -84,6 +89,10 @@ public class ItemTypeString extends ItemTypeLabelTextfield {
 
     public void setAllowedCharacters(String allowedCharacters) {
         this.allowedCharacters = allowedCharacters;
+    }
+
+    public void setNotAllowedCharacters(String notAllowedCharacters) {
+        this.notAllowedCharacters = notAllowedCharacters;
     }
 
     public void setReplacementCharacter(char replacementCharacter) {

@@ -41,6 +41,8 @@ public class BoatStatusRecord extends DataRecord {
     public static final String ENTRYNO             = "EntryNo";
     public static final String COMMENT             = "Comment";
 
+    protected static String CAT_STATUS       = "%06%" + International.getString("Bootsstatus");
+    
     public static void initialize() {
         Vector<String> f = new Vector<String>();
         Vector<Integer> t = new Vector<Integer>();
@@ -106,8 +108,19 @@ public class BoatStatusRecord extends DataRecord {
         return getString(COMMENT);
     }
 
+    private String getBoatName() {
+        Boats boats = getPersistence().getProject().getBoats(false);
+        String boatName = "?";
+        if (boats != null) {
+            BoatRecord r = boats.getBoat(getBoatId(), System.currentTimeMillis());
+            if (r != null) {
+                boatName = r.getQualifiedName();
+            }
+        }
+        return boatName;
+    }
+
     public Vector<IItemType> getGuiItems() {
-        String CAT_STATUS       = "%06%" + International.getString("Bootsstatus");
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
 
@@ -127,14 +140,18 @@ public class BoatStatusRecord extends DataRecord {
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        TableItemHeader[] header = new TableItemHeader[4];
-        // @todo
+        TableItemHeader[] header = new TableItemHeader[3];
+        header[0] = new TableItemHeader(International.getString("Boot"));
+        header[1] = new TableItemHeader(International.getString("Status"));
+        header[2] = new TableItemHeader(International.getString("Bemerkung"));
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
-        TableItem[] items = new TableItem[4];
-        // @todo
+        TableItem[] items = new TableItem[3];
+        items[0] = new TableItem(getBoatName());
+        items[1] = new TableItem(getStatusDescription(getStatus()));
+        items[2] = new TableItem(getComment());
         return items;
     }
 

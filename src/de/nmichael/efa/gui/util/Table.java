@@ -22,18 +22,23 @@ public class Table extends JTable {
 
     BaseDialog dlg;
     TableSorter sorter;
+    TableCellRenderer renderer;
     TableItemHeader[] header;
     TableItem[][] data;
     private boolean dontResize = false;
 
-    public Table(BaseDialog dlg, TableSorter sorter, TableItemHeader[] header, TableItem[][] data) {
+    public Table(BaseDialog dlg, TableSorter sorter, TableCellRenderer renderer, TableItemHeader[] header, TableItem[][] data) {
         super(sorter);
         this.dlg = dlg;
         this.sorter = sorter;
+        this.renderer = renderer;
         this.header = header;
         this.data = data;
 
-        setDefaultRenderer(Object.class, new de.nmichael.efa.gui.util.TableCellRenderer());
+        if (renderer == null) {
+            renderer = new TableCellRenderer();
+        }
+        setDefaultRenderer(Object.class, renderer);
         this.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         sorter.addMouseListenerToHeaderInTable(this);
         addKeyListener(new java.awt.event.KeyAdapter() {
@@ -107,14 +112,34 @@ public class Table extends JTable {
     }
     
     public static Table createTable(BaseDialog dlg, TableItemHeader[] header, TableItem[][] data) {
+        return createTable(dlg, null, header, data);
+    }
+
+    public static Table createTable(BaseDialog dlg, TableCellRenderer renderer, TableItemHeader[] header, TableItem[][] data) {
         for (int i=0; i<data.length; i++) {
             for (int j=0; j<data[i].length; j++) {
                 header[j].updateColumnWidth(data[i][j].toString());
             }
         }
         TableSorter sorter = new TableSorter(new DefaultTableModel(data, header));
-        Table t = new Table(dlg, sorter, header, data);
+        Table t = new Table(dlg, sorter, renderer, header, data);
         return t;
+    }
+
+    public void sortByColumn(int column) {
+        sortByColumn(column, true);
+    }
+
+    public void sortByColumn(int column, boolean ascending) {
+        sorter.sortByColumn(column, ascending);
+    }
+
+    public int getSortingColumn() {
+        return sorter.getSortingColumn();
+    }
+
+    public boolean getSortingAscending() {
+        return sorter.getSortingAscending();
     }
 
     class TableMouseListener extends MouseAdapter {

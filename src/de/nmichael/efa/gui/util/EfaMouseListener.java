@@ -83,10 +83,10 @@ public class EfaMouseListener extends MouseAdapter {
                 if (showPopupOnLeftMouseClick) {
                     showPopup(e);
                 }
-                actionListener.actionPerformed(new ActionEvent(e.getSource(), e.getID(), EVENT_MOUSECLICKED_1x));
+                actionListener.actionPerformed(new ActionEvent(e.getSource(), ActionEvent.ACTION_PERFORMED, EVENT_MOUSECLICKED_1x));
             }
             if (e.getClickCount() == 2) {
-                actionListener.actionPerformed(new ActionEvent(e.getSource(), e.getID(), EVENT_MOUSECLICKED_2x));
+                actionListener.actionPerformed(new ActionEvent(e.getSource(), ActionEvent.ACTION_PERFORMED, EVENT_MOUSECLICKED_2x));
             }
         } else {
             maybeShowPopup(e);
@@ -98,7 +98,7 @@ public class EfaMouseListener extends MouseAdapter {
             if (popupsEnabled && e.isPopupTrigger()) {
                 showPopup(e);
                 if (actionListener != null) {
-                    actionListener.actionPerformed(new ActionEvent(e.getSource(), e.getID(), EVENT_POPUP));
+                    actionListener.actionPerformed(new ActionEvent(e.getSource(), ActionEvent.ACTION_PERFORMED, EVENT_POPUP));
                 } 
             }
         } catch(Exception eignore) {

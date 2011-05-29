@@ -8,12 +8,14 @@
  * @version 2
  */
 
-package de.nmichael.efa.gui;
+package de.nmichael.efa.gui.dataedit;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.ex.*;
+import de.nmichael.efa.gui.BaseDialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -24,11 +26,11 @@ import javax.swing.event.ChangeEvent;
 // @i18n complete
 public class DataEditDialog extends BaseDialog {
 
-    private JTabbedPane tabbedPane;
+    protected JTabbedPane tabbedPane;
 
-    private Vector<IItemType> items;
-    private Hashtable<String,Vector<IItemType>> cat2items; // items per category
-    private Hashtable<JPanel,String> panels;
+    protected Vector<IItemType> items;
+    protected Hashtable<String,Vector<IItemType>> cat2items; // items per category
+    protected Hashtable<JPanel,String> panels;
 
     public DataEditDialog(Frame parent, String title, Vector<IItemType> items) {
         super(parent, title, International.getStringWithMnemonic("Speichern"));
@@ -70,7 +72,6 @@ public class DataEditDialog extends BaseDialog {
             int y = 0;
             for (IItemType item : v) {
                 y += item.displayOnGui(this,panel,y);
-                item.setUnchanged();
             }
             if (y > 0) {
                 String catname = cat;
@@ -88,9 +89,17 @@ public class DataEditDialog extends BaseDialog {
         }
         mainPanel.add(tabbedPane, BorderLayout.CENTER);
         this.validate();
+        Vector<IItemType> v = cat2items.get( (selectedPanel != null ? selectedPanel : cats[0]));
+        for (int i=0; v != null && i<v.size(); i++) {
+            if (!(v.get(i) instanceof ItemTypeLabel)) {
+                setRequestFocus(v.get(i));
+                break;
+            }
+            
+        }
     }
 
-    boolean getValuesFromGui() {
+    protected boolean getValuesFromGui() {
         boolean changed = false;
         for (IItemType item : items) {
             item.getValueFromGui();
@@ -138,6 +147,7 @@ public class DataEditDialog extends BaseDialog {
             if (v == null) {
                 v = new Vector<IItemType>();
             }
+            item.setUnchanged();
             v.add(item);
             cat2items.put(cat, v);
         }

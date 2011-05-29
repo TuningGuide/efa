@@ -19,6 +19,7 @@ import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.gui.*;
 import de.nmichael.efa.gui.util.*;
+import de.nmichael.efa.gui.dataedit.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -59,7 +60,17 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
     JMenuItem menuHelp_about = new JMenuItem();
     JMenu menuAdministration = new JMenu();
     JMenuItem menuAdministration_configuration = new JMenuItem();
+    JMenuItem menuAdministration_boats = new JMenuItem();
+    JMenuItem menuAdministration_boatStatus = new JMenuItem();
+    JMenuItem menuAdministration_boatReservations = new JMenuItem();
+    JMenuItem menuAdministration_boatDamages = new JMenuItem();
     JMenuItem menuAdministration_persons = new JMenuItem();
+    JMenuItem menuAdministration_status = new JMenuItem();
+    JMenuItem menuAdministration_groups = new JMenuItem();
+    JMenuItem menuAdministration_crews = new JMenuItem();
+    JMenuItem menuAdministration_fahrtenabzeichen = new JMenuItem();
+    JMenuItem menuAdministration_destinations = new JMenuItem();
+    JMenuItem menuAdministration_waters = new JMenuItem();
     JMenu menuStatistics = new JMenu();
     JMenuItem menuStatistics_createStatistics = new JMenuItem();
 
@@ -235,11 +246,91 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
             }
         });
 
+        Mnemonics.setMenuButton(this, menuAdministration_boats, International.getStringWithMnemonic("Boote"));
+        setIcon(menuAdministration_boats, getIcon("menu_boats.gif"));
+        menuAdministration_boats.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                menuAdministrationBoats_actionPerformed(e);
+            }
+        });
+
+        Mnemonics.setMenuButton(this, menuAdministration_boatStatus, International.getStringWithMnemonic("Bootsstatus"));
+        setIcon(menuAdministration_boatStatus, getIcon("menu_boatstatus.gif"));
+        menuAdministration_boatStatus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                menuAdministrationBoatStatus_actionPerformed(e);
+            }
+        });
+
+        Mnemonics.setMenuButton(this, menuAdministration_boatReservations, International.getStringWithMnemonic("Bootsreservierungen"));
+        setIcon(menuAdministration_boatReservations, getIcon("menu_boatreservations.gif"));
+        menuAdministration_boatReservations.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                menuAdministrationBoatReservations_actionPerformed(e);
+            }
+        });
+
+        Mnemonics.setMenuButton(this, menuAdministration_boatDamages, International.getStringWithMnemonic("Bootsschäden"));
+        setIcon(menuAdministration_boatDamages, getIcon("menu_boatdamages.gif"));
+        menuAdministration_boatDamages.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                menuAdministrationBoatDamages_actionPerformed(e);
+            }
+        });
+
         Mnemonics.setMenuButton(this, menuAdministration_persons, International.getStringWithMnemonic("Personen"));
         setIcon(menuAdministration_persons, getIcon("menu_persons.gif"));
         menuAdministration_persons.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 menuAdministrationPersons_actionPerformed(e);
+            }
+        });
+
+        Mnemonics.setMenuButton(this, menuAdministration_status, International.getStringWithMnemonic("Status"));
+        setIcon(menuAdministration_status, getIcon("menu_status.gif"));
+        menuAdministration_status.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                menuAdministrationStatus_actionPerformed(e);
+            }
+        });
+
+        Mnemonics.setMenuButton(this, menuAdministration_groups, International.getStringWithMnemonic("Gruppen"));
+        setIcon(menuAdministration_groups, getIcon("menu_groups.gif"));
+        menuAdministration_groups.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                menuAdministrationGroups_actionPerformed(e);
+            }
+        });
+
+        Mnemonics.setMenuButton(this, menuAdministration_crews, International.getStringWithMnemonic("Mannschaften"));
+        setIcon(menuAdministration_crews, getIcon("menu_crews.gif"));
+        menuAdministration_crews.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                menuAdministrationCrews_actionPerformed(e);
+            }
+        });
+
+        Mnemonics.setMenuButton(this, menuAdministration_fahrtenabzeichen, International.onlyFor("Fahrtenabzeichen", "de"));
+        setIcon(menuAdministration_fahrtenabzeichen, getIcon("menu_fahrtenabzeichen.gif"));
+        menuAdministration_fahrtenabzeichen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                menuAdministrationFahrtenabzeichen_actionPerformed(e);
+            }
+        });
+
+        Mnemonics.setMenuButton(this, menuAdministration_destinations, International.getStringWithMnemonic("Ziele"));
+        setIcon(menuAdministration_destinations, getIcon("menu_destinations.gif"));
+        menuAdministration_destinations.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                menuAdministrationDestinations_actionPerformed(e);
+            }
+        });
+
+        Mnemonics.setMenuButton(this, menuAdministration_waters, International.getStringWithMnemonic("Gewässer"));
+        setIcon(menuAdministration_waters, getIcon("menu_waters.gif"));
+        menuAdministration_waters.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                menuAdministrationWaters_actionPerformed(e);
             }
         });
 
@@ -291,7 +382,22 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
 
         // Menu: Administration
         menuAdministration.add(menuAdministration_configuration);
+        menuAdministration.addSeparator();
+        menuAdministration.add(menuAdministration_boats);
+        menuAdministration.add(menuAdministration_boatStatus);
+        menuAdministration.add(menuAdministration_boatReservations);
+        menuAdministration.add(menuAdministration_boatDamages);
+        menuAdministration.addSeparator();
         menuAdministration.add(menuAdministration_persons);
+        menuAdministration.add(menuAdministration_status);
+        menuAdministration.add(menuAdministration_groups);
+        menuAdministration.add(menuAdministration_crews);
+        if (Daten.efaConfig.showGermanOptions.getValue()) {
+            menuAdministration.add(menuAdministration_fahrtenabzeichen);
+        }
+        menuAdministration.addSeparator();
+        menuAdministration.add(menuAdministration_destinations);
+        menuAdministration.add(menuAdministration_waters);
 
         // Menu: Statistics
         menuStatistics.add(menuStatistics_createStatistics);
@@ -548,6 +654,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         destination.setFieldGrid(7, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL);
         destination.setAutoCompleteData(autoCompleteListDestinations);
         destination.setChecks(true, false);
+        destination.setIgnoreEverythingAfter('+');
         destination.displayOnGui(this, mainInputPanel, 0, 10);
         destination.registerItemListener(this);
 
@@ -752,6 +859,10 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         DestinationRecord d = null;
         try {
             String s = destination.toString().trim();
+            int variantPos = s.indexOf('+');
+            if (variantPos >= 0) {
+                s = s.substring(0, variantPos).trim();
+            }
             if (s.length() > 0) {
                 return Daten.project.getDestinations(false).getDestination(s, logbookValidFrom, logbookInvalidFrom-1, preferredValidAt);
             }
@@ -1013,6 +1124,9 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
             s = destination.toString().trim();
             r.setDestinationName( (s.length() == 0 ? null : s) );
         }
+
+        // DestinationVariant
+        // @todo DestinationVariant
 
         // Distance
         if (distance.isSet()) {
@@ -1287,10 +1401,11 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         if (!promptSaveChangesOk()) {
             return;
         }
+        boolean newRecord = (r == null);
         if (r == null) {
             r = Daten.project.getBoats(false).createBoatRecord(UUID.randomUUID());
         }
-        BoatEditDialog dlg = new BoatEditDialog(this, r);
+        BoatEditDialog dlg = new BoatEditDialog(this, r, newRecord);
         dlg.showDialog();
         setFields(this.currentRecord);
         startBringToFront(false);
@@ -1312,10 +1427,11 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         if (!promptSaveChangesOk()) {
             return;
         }
+        boolean newRecord = (r == null);
         if (r == null) {
             r = Daten.project.getPersons(false).createPersonRecord(UUID.randomUUID());
         }
-        PersonEditDialog dlg = new PersonEditDialog(this, r);
+        PersonEditDialog dlg = new PersonEditDialog(this, r, newRecord);
         dlg.showDialog();
         setFields(this.currentRecord);
         startBringToFront(false);
@@ -1337,10 +1453,11 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         if (!promptSaveChangesOk()) {
             return;
         }
+        boolean newRecord = (r == null);
         if (r == null) {
             r = Daten.project.getDestinations(false).createDestinationRecord(UUID.randomUUID());
         }
-        DestinationEditDialog dlg = new DestinationEditDialog(this, r);
+        DestinationEditDialog dlg = new DestinationEditDialog(this, r, newRecord);
         dlg.showDialog();
         setFields(this.currentRecord);
         startBringToFront(false);
@@ -1608,10 +1725,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
     // =========================================================================
 
     void menuFile_newProject_actionPerformed(ActionEvent e) {
-        if (!isModeFull()) {
-            return;
-        }
-        if (!promptSaveChangesOk()) {
+        if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
         Project oldProject = Daten.project;
@@ -1631,10 +1745,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
     }
 
     void menuFile_openProject_actionPerformed(ActionEvent e) {
-        if (!isModeFull()) {
-            return;
-        }
-        if (!promptSaveChangesOk()) {
+        if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
         OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.project);
@@ -1651,10 +1762,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
     }
 
     void menuFile_logbooks_actionPerformed(ActionEvent e) {
-        if (!isModeFull()) {
-            return;
-        }
-        if (!promptSaveChangesOk()) {
+        if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
         if (Daten.project == null) {
@@ -1673,10 +1781,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
     }
 
     void menuAdministrationConfiguration_actionPerformed(ActionEvent e) {
-        if (!isModeFull()) {
-            return;
-        }
-        if (!promptSaveChangesOk()) {
+        if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
         EfaConfigDialog dlg = new EfaConfigDialog(this);
@@ -1684,14 +1789,102 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         startBringToFront(false);
     }
 
-    void menuAdministrationPersons_actionPerformed(ActionEvent e) {
-        if (!isModeFull()) {
+    void menuAdministrationBoats_actionPerformed(ActionEvent e) {
+        if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
-        if (!promptSaveChangesOk()) {
+        BoatListDialog dlg = new BoatListDialog(this, -1);
+        dlg.showDialog();
+        startBringToFront(false);
+    }
+
+    void menuAdministrationBoatStatus_actionPerformed(ActionEvent e) {
+        if (!isModeFull() || !promptSaveChangesOk()) {
+            return;
+        }
+        BoatStatusListDialog dlg = new BoatStatusListDialog(this);
+        dlg.showDialog();
+        startBringToFront(false);
+    }
+
+    void menuAdministrationBoatReservations_actionPerformed(ActionEvent e) {
+        if (!isModeFull() || !promptSaveChangesOk()) {
+            return;
+        }
+        BoatReservationListDialog dlg = new BoatReservationListDialog(this);
+        dlg.showDialog();
+        startBringToFront(false);
+    }
+
+    void menuAdministrationBoatDamages_actionPerformed(ActionEvent e) {
+        if (!isModeFull() || !promptSaveChangesOk()) {
+            return;
+        }
+        BoatDamageListDialog dlg = new BoatDamageListDialog(this);
+        dlg.showDialog();
+        startBringToFront(false);
+    }
+
+    void menuAdministrationPersons_actionPerformed(ActionEvent e) {
+        if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
         PersonListDialog dlg = new PersonListDialog(this, -1);
+        dlg.showDialog();
+        startBringToFront(false);
+    }
+
+    void menuAdministrationStatus_actionPerformed(ActionEvent e) {
+        if (!isModeFull() || !promptSaveChangesOk()) {
+            return;
+        }
+        StatusListDialog dlg = new StatusListDialog(this);
+        dlg.showDialog();
+        startBringToFront(false);
+    }
+
+    void menuAdministrationGroups_actionPerformed(ActionEvent e) {
+        if (!isModeFull() || !promptSaveChangesOk()) {
+            return;
+        }
+        GroupListDialog dlg = new GroupListDialog(this, -1);
+        dlg.showDialog();
+        startBringToFront(false);
+    }
+
+    void menuAdministrationCrews_actionPerformed(ActionEvent e) {
+        if (!isModeFull() || !promptSaveChangesOk()) {
+            return;
+        }
+        CrewListDialog dlg = new CrewListDialog(this);
+        dlg.showDialog();
+        startBringToFront(false);
+    }
+
+    void menuAdministrationFahrtenabzeichen_actionPerformed(ActionEvent e) {
+        if (!isModeFull() || !promptSaveChangesOk()) {
+            return;
+        }
+        FahrtenabzeichenListDialog dlg = new FahrtenabzeichenListDialog(this);
+        dlg.showDialog();
+        startBringToFront(false);
+    }
+
+
+    void menuAdministrationDestinations_actionPerformed(ActionEvent e) {
+        if (!isModeFull() || !promptSaveChangesOk()) {
+            return;
+        }
+        DestinationListDialog dlg = new DestinationListDialog(this, -1);
+        dlg.showDialog();
+        startBringToFront(false);
+    }
+
+    void menuAdministrationWaters_actionPerformed(ActionEvent e) {
+        if (!isModeFull() || !promptSaveChangesOk()) {
+            return;
+        }
+        WatersListDialog dlg = new WatersListDialog(this);
         dlg.showDialog();
         startBringToFront(false);
     }

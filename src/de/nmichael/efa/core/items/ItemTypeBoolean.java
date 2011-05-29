@@ -13,6 +13,7 @@ package de.nmichael.efa.core.items;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import javax.swing.*;
 
 // @i18n complete
@@ -32,6 +33,9 @@ public class ItemTypeBoolean extends ItemType {
     }
 
     public void parseValue(String value) {
+        if (value != null) {
+            value = value.trim();
+        }
         try {
             this.value = Boolean.parseBoolean(value);
         } catch (Exception e) {
@@ -55,6 +59,11 @@ public class ItemTypeBoolean extends ItemType {
             checkbox.setForeground(color);
         }
         this.field = checkbox;
+        checkbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                actionEvent(e);
+            }
+        });
     }
 
     public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
@@ -100,9 +109,11 @@ public class ItemTypeBoolean extends ItemType {
 
     public void setVisible(boolean visible) {
         field.setVisible(visible);
+        super.setVisible(visible);
     }
 
     public void setEnabled(boolean enabled) {
         field.setEnabled(enabled);
     }
+
 }

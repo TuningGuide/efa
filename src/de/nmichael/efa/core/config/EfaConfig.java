@@ -1220,6 +1220,7 @@ public class EfaConfig extends DatenListe {
         addParameter(typesStatus = new ItemTypeHashtable<String>("_TYPES_STATUS", "", true,
                 IItemType.TYPE_EXPERT, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_STAT),
                 International.getString("Status")));
+        typesStatus.setAllowed(false, false);
         iniTypes(typesGender, EfaTypes.CATEGORY_GENDER);
         iniTypes(typesBoat, EfaTypes.CATEGORY_BOAT);
         iniTypes(typesNumSeats, EfaTypes.CATEGORY_NUMSEATS);

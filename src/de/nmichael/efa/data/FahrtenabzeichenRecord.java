@@ -65,6 +65,19 @@ public class FahrtenabzeichenRecord extends DataRecord {
         return getUUID(PERSONID);
     }
 
+    private String getPersonName() {
+        Persons persons = getPersistence().getProject().getPersons(false);
+        String personName = "?";
+        if (persons != null) {
+            PersonRecord r = persons.getPerson(getPersonId(), System.currentTimeMillis());
+            if (r != null) {
+                personName = r.getQualifiedName();
+            }
+        }
+        return personName;
+    }
+
+
     public void setAbzeichen(int abzeichen) {
         setInt(ABZEICHEN, abzeichen);
     }
@@ -100,25 +113,59 @@ public class FahrtenabzeichenRecord extends DataRecord {
         return getString(FAHRTENHEFT);
     }
 
+    public DRVSignatur getDRVSignatur() {
+        String s = getFahrtenheft();
+        if (s == null || s.length() == 0) {
+            return null;
+        }
+        return new DRVSignatur(s);
+    }
+
+    public String getLetzteMeldungDescription() {
+        DRVSignatur sig = getDRVSignatur();
+        if (sig == null) {
+            return "";
+        }
+        return sig.getJahr() + " (" + sig.getLetzteKm() + " Km)";
+    }
+
     public Vector<IItemType> getGuiItems() {
-        String CAT_BASEDATA     = "%01%" + International.getString("Reservierung");
+        String CAT_BASEDATA     = "%01%" + International.onlyFor("Fahrtenabzeichen","de");
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
-        // @todo
-        //v.add(item = new ItemTypeString(BoatRecord.NAME, getName(),
-        //        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
+        v.add(item = getGuiItemTypeStringAutoComplete(FahrtenabzeichenRecord.PERSONID, getPersonId(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                persistence.getProject().getPersons(false), 0, Long.MAX_VALUE,
+                International.getString("Person")));
+        v.add(item = new ItemTypeInteger(FahrtenabzeichenRecord.ABZEICHEN, getAbzeichen(), 0, 99,
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("Anzahl der bereits erfüllten Abzeichen","de")));
+        v.add(item = new ItemTypeInteger(FahrtenabzeichenRecord.KILOMETER, getKilometer(), 0, Integer.MAX_VALUE,
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("Insgesamt bereits nachgewiesene Kilometer","de")));
+        v.add(item = new ItemTypeInteger(FahrtenabzeichenRecord.ABZEICHENAB, getAbzeichenAB(), 0, 99,
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("... davon Abzeichen in den Jugend-Gruppen A/B","de")));
+        v.add(item = new ItemTypeInteger(FahrtenabzeichenRecord.KILOMETERAB, getKilometerAB(), 0, Integer.MAX_VALUE,
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("... davon Kilometer in den Jugend-Gruppen A/B","de")));
+        v.add(item = new ItemTypeString(FahrtenabzeichenRecord.FAHRTENHEFT, getFahrtenheft(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("Letztes elektronisches Fahrtenheft","de")));
+        // @todo Fahrtenheft Signatur prüfen, bearbeiten usw.
         return v;
     }
 
     public TableItemHeader[] getGuiTableHeader() {
         TableItemHeader[] header = new TableItemHeader[4];
-        // @todo
+        header[0] = new TableItemHeader(International.getString("Name"));
+        header[1] = new TableItemHeader(International.getString("Abzeichen"));
+        header[2] = new TableItemHeader(International.getString("Kilometer"));
+        header[3] = new TableItemHeader(International.getString("letzte elektr. Meldung"));
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
         TableItem[] items = new TableItem[4];
-        // @todo
+        items[0] = new TableItem(getPersonName());
+        items[1] = new TableItem(getAbzeichen());
+        items[2] = new TableItem(getKilometer());
+        items[3] = new TableItem(getLetzteMeldungDescription());
         return items;
     }
 

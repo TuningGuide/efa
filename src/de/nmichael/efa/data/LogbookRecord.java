@@ -96,7 +96,7 @@ public class LogbookRecord extends DataRecord {
     // Destination is either represented as DestinationId or DestinationName
     public static final String DESTINATIONID    = "DestinationId";
     public static final String DESTINATIONNAME  = "DestinationName";
-    // @todo Destination Variant
+    public static final String DESTINATIONVARIANTNAME = "DestinationVariantName";
 
     public static final String DISTANCE         = "Distance";
     public static final String COMMENTS         = "Comments";
@@ -185,6 +185,7 @@ public class LogbookRecord extends DataRecord {
         f.add(ENDTIME);             t.add(IDataAccess.DATA_TIME);
         f.add(DESTINATIONID);       t.add(IDataAccess.DATA_UUID);
         f.add(DESTINATIONNAME);     t.add(IDataAccess.DATA_STRING);
+        f.add(DESTINATIONVARIANTNAME); t.add(IDataAccess.DATA_STRING);
         f.add(DISTANCE);            t.add(IDataAccess.DATA_DISTANCE);
         f.add(COMMENTS);            t.add(IDataAccess.DATA_STRING);
         f.add(SESSIONTYPE);         t.add(IDataAccess.DATA_STRING);
@@ -321,6 +322,13 @@ public class LogbookRecord extends DataRecord {
         return getString(DESTINATIONNAME);
     }
 
+    public void setDestinationVariantName(String name) {
+        setString(DESTINATIONVARIANTNAME, name);
+    }
+    public String getDestinationVariantName() {
+        return getString(DESTINATIONVARIANTNAME);
+    }
+
     public void setDistance(DataTypeDistance distance) {
         setDistance(DISTANCE, distance);
     }
@@ -451,6 +459,10 @@ public class LogbookRecord extends DataRecord {
         if (name == null || name.length() == 0) {
             name = getDestinationName();
         }
+        String variant = getDestinationVariantName();
+        if (variant != null && variant.length() > 0) {
+            name = name + " + " + variant;
+        }
         if (name != null) {
             return name;
         }
@@ -551,25 +563,15 @@ public class LogbookRecord extends DataRecord {
     }
 
     public Vector<IItemType> getGuiItems() {
-        String CAT_BASEDATA     = "%01%" + International.getString("Reservierung");
-        IItemType item;
-        Vector<IItemType> v = new Vector<IItemType>();
-        // @todo
-        //v.add(item = new ItemTypeString(BoatRecord.NAME, getName(),
-        //        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
-        return v;
+        return null; // not supported for LogbokRecord
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        TableItemHeader[] header = new TableItemHeader[4];
-        // @todo
-        return header;
+        return null; // not supported for LogbokRecord
     }
 
     public TableItem[] getGuiTableItems() {
-        TableItem[] items = new TableItem[4];
-        // @todo
-        return items;
+        return null; // not supported for LogbokRecord
     }
 
 }

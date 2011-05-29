@@ -31,11 +31,14 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
     protected int weekdayGridWidth = 1;
     protected int weekdayGridAnchor = GridBagConstraints.WEST;
     protected int weekdayGridFill = GridBagConstraints.NONE;
+    protected ItemTypeDate mustBeBefore;
+    protected ItemTypeDate mustBeAfter;
+    protected boolean mustBeCanBeEqual = false;
 
     public ItemTypeDate(String name, DataTypeDate value, int type,
             String category, String description) {
         this.name = name;
-        this.value = value;
+        this.value = (value != null ? value : new DataTypeDate());
         this.type = type;
         this.category = category;
         this.description = description;
@@ -174,10 +177,26 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
     }
 
     public boolean isValidInput() {
+        if (mustBeBefore != null && isSet() && value.isSet() && !value.isBefore(mustBeBefore.value)) {
+            return mustBeCanBeEqual && value.equals(mustBeBefore.value);
+        }
+        if (mustBeAfter != null && isSet() && value.isSet() && !value.isAfter(mustBeAfter.value)) {
+            return mustBeCanBeEqual && value.equals(mustBeAfter.value);
+        }
         if (isNotNullSet()) {
             return isSet();
         }
         return true;
+    }
+
+    public void setMustBeBefore(ItemTypeDate item, boolean mayAlsoBeEqual) {
+        mustBeBefore = item;
+        mustBeCanBeEqual = mayAlsoBeEqual;
+    }
+
+    public void setMustBeAfter(ItemTypeDate item, boolean mayAlsoBeEqual) {
+        mustBeAfter = item;
+        mustBeCanBeEqual = mayAlsoBeEqual;
     }
 
     public void setWeekdayGrid(int gridWidth, int gridAnchor, int gridFill) {

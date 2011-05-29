@@ -40,6 +40,9 @@ public class ItemTypeImage extends ItemType {
     }
 
     public void parseValue(String value) {
+        if (value != null) {
+            value = value.trim();
+        }
         this.value = value;
     }
 
@@ -181,6 +184,7 @@ public class ItemTypeImage extends ItemType {
         label.setVisible(visible);
         selectButton.setVisible(visible);
         removeButton.setVisible(visible);
+        super.setVisible(visible);
     }
 
     public void setEnabled(boolean enabled) {

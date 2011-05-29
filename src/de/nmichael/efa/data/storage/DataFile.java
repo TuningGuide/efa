@@ -199,6 +199,8 @@ public abstract class DataFile extends DataAccess {
                     getUID() + ": Data Record "+record.toString()+" has wrong Type: " + record.getClass().getCanonicalName() + ", expected: " + referenceRecord.getClass().getCanonicalName(),
                     Thread.currentThread().getStackTrace());
         }
+        getPersistence().preModifyRecordCallback(record, add, update, delete);
+
         DataKey key = constructKey(record);
         if (lockID <= 0) {
             // acquire a new local lock
@@ -347,11 +349,13 @@ public abstract class DataFile extends DataAccess {
                             // However, for reading data from file, holes may appear until the entire file is read.
                             // We could now check against all other records returned from getValidAny() whether there is any overlap, but we
                             // skip this as this could only happen if the file is externally modified (or if there is a bug in efa...)
+                            if (t >= 0) {
+                                record.setValidFrom(t);
+                            }
                             modifyRecord(record, myLock, true, false, false);
                         }
 
                     } else {
-                        // record.setAlwaysValid(); (default when created)
                         if (t >= 0) {
                             record.setValidFrom(t);
                         }
@@ -389,7 +393,7 @@ public abstract class DataFile extends DataAccess {
 
     public void deleteVersionized(DataKey key, int merge, long lockID) throws EfaException {
         if (!meta.versionized) {
-            throw new EfaException(Logger.MSG_DATA_INVALIDVERSIONIZEDDATA, getUID() + ": Attempt to add versionized data to an unversionized storage object", Thread.currentThread().getStackTrace());
+            throw new EfaException(Logger.MSG_DATA_INVALIDVERSIONIZEDDATA, getUID() + ": Attempt to delete versionized data from an unversionized storage object", Thread.currentThread().getStackTrace());
         }
         long myLock = -1;
         if (lockID <= 0) {
@@ -420,6 +424,116 @@ public abstract class DataFile extends DataAccess {
                                 modifyRecord(r2, myLock, true, false, false);
                             }
                         }
+                    }
+                }
+            } finally {
+                if (lockID <= 0) {
+                    releaseGlobalLock(myLock);
+                }
+            }
+        }
+    }
+
+    public void deleteVersionizedAll(DataKey key, long deleteAt) throws EfaException {
+        deleteVersionizedAll(key, deleteAt, 0);
+    }
+
+    public void deleteVersionizedAll(DataKey key, long deleteAt, long lockID) throws EfaException {
+        if (!meta.versionized) {
+            throw new EfaException(Logger.MSG_DATA_INVALIDVERSIONIZEDDATA, getUID() + ": Attempt to delete versionized data from an unversionized storage object", Thread.currentThread().getStackTrace());
+        }
+        long myLock = -1;
+        if (lockID <= 0) {
+            // acquire a new global lock
+            myLock = acquireGlobalLock();
+        } else {
+            // verify existing lock
+            myLock = (dataLocks.hasGlobalLock(lockID) ? lockID : -1);
+        }
+        if (myLock > 0) {
+            try {
+                synchronized (data) {
+                    DataRecord[] records = persistence.data().getValidAny(key);
+                    if (deleteAt < 0) {
+                        // delete all versions of this record
+                        for (int i = 0; records != null && i < records.length; i++) {
+                            if (!records[i].getDeleted()) {
+                                records[i].setDeleted(true);
+                                modifyRecord(records[i], myLock, false, true, false);
+                            }
+                        }
+                    } else {
+                        // only mark "delete" (or mark invalid) starting at deleteAt
+                        for (int i = 0; records != null && i < records.length; i++) {
+                            if (records[i].getValidFrom() < deleteAt) {
+                                if (records[i].getInvalidFrom() <= deleteAt) {
+                                    // nothing to do
+                                } else {
+                                    records[i].setInvalidFrom(deleteAt);
+                                    modifyRecord(records[i], myLock, false, true, false);
+                                }
+                            } else {
+                                if (records.length == 1) {
+                                    records[i].setDeleted(true);
+                                    modifyRecord(records[i], myLock, false, true, false);
+                                } else {
+                                    modifyRecord(records[i], myLock, false, false, true);
+                                }
+                            }
+                        }
+                    }
+                }
+            } finally {
+                if (lockID <= 0) {
+                    releaseGlobalLock(myLock);
+                }
+            }
+        }
+    }
+
+    public void changeValidity(DataRecord record, long validFrom, long invalidFrom) throws EfaException {
+        changeValidity(record, validFrom, invalidFrom, 0);
+    }
+
+    public void changeValidity(DataRecord record, long validFrom, long invalidFrom, long lockID) throws EfaException {
+        if (!meta.versionized) {
+            throw new EfaException(Logger.MSG_DATA_INVALIDVERSIONIZEDDATA, getUID() + ": Attempt to change versionized data in an unversionized storage object", Thread.currentThread().getStackTrace());
+        }
+        if (validFrom < 0 || invalidFrom <= validFrom) {
+            throw new EfaException(Logger.MSG_DATA_VERSIONIZEDDATACONFLICT, getUID() + ": Attempt to change versionized data with incorrect validity", Thread.currentThread().getStackTrace());
+        }
+        long myLock = -1;
+        if (lockID <= 0) {
+            // acquire a new global lock
+            myLock = acquireGlobalLock();
+        } else {
+            // verify existing lock
+            myLock = (dataLocks.hasGlobalLock(lockID) ? lockID : -1);
+        }
+        if (myLock > 0) {
+            try {
+                synchronized (data) {
+                    DataRecord rNext = null;
+                    if (invalidFrom != record.getInvalidFrom()) {
+                        rNext = getValidAt(record.getKey(), record.getInvalidFrom());
+                        if (rNext != null) {
+                            // there is a record to the right, so we first delete this right record, and
+                            // later add it again with a new validFrom value, which will automatically set
+                            // this record's invalidFrom accordingly
+                            deleteVersionized(rNext.getKey(), -1, myLock);
+                        } else {
+                            // there is no record to the right, so we just change this record's invalidFrom
+                            // to the new value
+                            record.setInvalidFrom(invalidFrom);
+                            update(record, myLock);
+                        }
+                    }
+                    if (validFrom != record.getValidFrom()) {
+                        deleteVersionized(record.getKey(), -1, myLock);
+                        addValidAt(record, validFrom, myLock);
+                    }
+                    if (rNext != null) {
+                        addValidAt(rNext, invalidFrom, myLock);
                     }
                 }
             } finally {
@@ -476,6 +590,32 @@ public abstract class DataFile extends DataAccess {
                         return rec;
                     }
                 }
+            }
+        }
+        return null;
+    }
+
+    public DataRecord getValidLatest(DataKey key) throws EfaException {
+        int validFromField;
+        if (meta.versionized) {
+            validFromField = keyFields.length - 1; // VALID_FROM is always the last key field!
+        } else {
+            return null;
+        }
+        synchronized(data) { // always synchronize on data to ensure integrity!
+            ArrayList<DataKey> list = versionizedKeyList.get(getUnversionizedKey(key));
+            if (list == null) {
+                return null;
+            }
+            DataKey latestVersion = null;
+            for (DataKey k : list) {
+                long validFrom = (Long)k.getKeyPart(validFromField);
+                if (latestVersion == null || validFrom > (Long)latestVersion.getKeyPart(validFromField)) {
+                    latestVersion = k;
+                }
+            }
+            if (latestVersion != null) {
+                return get(latestVersion);
             }
         }
         return null;

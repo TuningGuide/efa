@@ -12,6 +12,7 @@ package de.nmichael.efa.gui;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.core.items.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -20,17 +21,19 @@ import javax.swing.border.*;
 // @i18n complete
 public abstract class BaseDialog extends JDialog implements ActionListener {
 
-    Window _parent;
-    String _title;
-    String _closeButtonText;
-    boolean _prepared = false;
+    protected Window _parent;
+    protected String _title;
+    protected String _closeButtonText;
+    protected boolean _prepared = false;
+    protected boolean _inCancel = false;
 
-    JPanel basePanel = new JPanel();
-    JScrollPane mainScrollPane = new JScrollPane();
-    JPanel mainPanel = new JPanel();
-    JButton closeButton;
-    String helpTopic;
-    boolean resultSuccess = false;
+    protected JPanel basePanel = new JPanel();
+    protected JScrollPane mainScrollPane = new JScrollPane();
+    protected JPanel mainPanel = new JPanel();
+    protected JButton closeButton;
+    protected String helpTopic;
+    protected IItemType focusItem;
+    protected boolean resultSuccess = false;
 
     public BaseDialog(Frame parent, String title, String closeButtonText) {
         super(parent);
@@ -68,7 +71,17 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
         Dialog.setDlgLocation(this, _parent);
         setModal(!Dialog.tourRunning);
         Dialog.frameOpened(this);
+        if (focusItem != null) {
+            focusItem.requestFocus();
+        }
         this.setVisible(true);
+    }
+
+    public void setRequestFocus(IItemType item) {
+        if (item != null && isShowing()) {
+            item.requestFocus();
+        }
+        focusItem = item;
     }
 
     public JDialog getParentJDialog() {
@@ -174,6 +187,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     }
 
     public boolean cancel() {
+        _inCancel = true;
         Dialog.frameClosed(this);
         dispose();
         return true;
@@ -186,7 +200,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     public void updateGui() {
     }
 
-    void setDialogResult(boolean success) {
+    protected void setDialogResult(boolean success) {
         this.resultSuccess = success;
     }
 

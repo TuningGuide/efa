@@ -43,6 +43,10 @@ public class ItemTypeItemList extends ItemType {
             int type, String category, String description) {
         this.name = name;
         for (int i=0; items != null && i < items.size(); i++) {
+            IItemType[] myItems = items.get(i);
+            for (IItemType item : myItems) {
+                item.setUnchanged();
+            }
             addItems(items.get(i));
         }
         this.itemFactory = itemFactory;
@@ -200,7 +204,6 @@ public class ItemTypeItemList extends ItemType {
                     }
                     myY += item.displayOnGui(dlg, panel, x, y+myY);
                 }
-                item.setUnchanged();
             }
 
         }
@@ -282,6 +285,7 @@ public class ItemTypeItemList extends ItemType {
         for (int i=0; i<b.length; i++) {
             b[i].setVisible(visible);
         }
+        super.setVisible(visible);
     }
 
     public void setEnabled(boolean enabled) {

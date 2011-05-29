@@ -53,7 +53,7 @@ public class ImportBoats extends ImportBase {
         if (!isIdentical(r.getName(), task.synBoote_genMainName(d.get(Boote.NAME)))) {
             return true;
         }
-        if (!isIdentical(r.getOwner(), d.get(Boote.VEREIN))) {
+        if (!isIdentical(r.getNameAffix(), d.get(Boote.VEREIN))) {
             return true;
         }
         if (!isIdentical(boatsAllowedGroups.get(r.getKey()) , d.get(Boote.GRUPPEN))) {
@@ -119,7 +119,7 @@ public class ImportBoats extends ImportBase {
             boatsRequiredGroup = new Hashtable<DataKey,String>();
 
             DatenFelder d = boote.getCompleteFirst();
-            String[] IDX = new String[] { BoatRecord.NAME, BoatRecord.OWNER };
+            String[] IDX = BoatRecord.IDX_NAME_NAMEAFFIX;
             while (d != null) {
                 String boatName = d.get(Boote.NAME);
                 String boatNameMain = task.synBoote_genMainName(d.get(Boote.NAME));
@@ -151,6 +151,7 @@ public class ImportBoats extends ImportBase {
                      
                     boatRecord.setName(task.synBoote_genMainName(d.get(Boote.NAME)));
                     if (d.get(Boote.VEREIN).length() > 0) {
+                        boatRecord.setNameAffix(d.get(Boote.VEREIN));
                         boatRecord.setOwner(d.get(Boote.VEREIN));
                     }
                     if (d.get(Boote.MAX_NICHT_IN_GRUPPE).length() > 0) {

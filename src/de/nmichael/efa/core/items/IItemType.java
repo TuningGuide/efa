@@ -51,6 +51,7 @@ public interface IItemType {
     public void restoreBackgroundColor();
     public void setVisible(boolean visible);
     public void setEnabled(boolean enabled);
+    public boolean isVisible();
 
     public void setPadding(int padXbefore, int padXafter, int padYbefore, int padYafter);
     public void setFieldSize(int width, int height);

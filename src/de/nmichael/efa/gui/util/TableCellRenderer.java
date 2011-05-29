@@ -19,7 +19,11 @@ import java.util.Vector;
 
 public class TableCellRenderer extends DefaultTableCellRenderer {
 
-    private static Color markedColor = new Color(0xff,0xff,0xaa);
+    private boolean markedBold = true;
+    private Color markedBkgColor = new Color(0xff,0xff,0xaa);
+    private Color markedFgColor = null;
+    private Color disabledBkgColor = null;
+    private Color disabledFgColor = Color.gray;
 
     public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int row, int column) {
@@ -29,24 +33,57 @@ public class TableCellRenderer extends DefaultTableCellRenderer {
             }
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             boolean isMarked = value instanceof TableItem && ((TableItem)value).isMarked();
+            boolean isDisabled = value instanceof TableItem && ((TableItem)value).isDisabled();
             String txt = value.toString();
-            if (isMarked) {
+            if (isMarked && markedBold) {
                 c.setFont(c.getFont().deriveFont(Font.BOLD));
             }
-            Color color = Color.white;
+            Color bkgColor = Color.white;
+            Color fgColor = Color.black;
             if (isSelected) {
-                color = table.getSelectionBackground();
+                bkgColor = table.getSelectionBackground();
             } else {
-                if (isMarked) {
-                    color = markedColor;
+                if (isDisabled && disabledBkgColor != null) {
+                    bkgColor = disabledBkgColor;
+                }
+                if (isMarked && markedBkgColor != null) {
+                    bkgColor = markedBkgColor;
                 }
             }
+            if (isDisabled && disabledFgColor != null) {
+                fgColor = disabledFgColor;
+            }
+            if (isMarked && markedFgColor != null) {
+                fgColor = markedFgColor;
+            }
 
-            c.setBackground(color);
+            c.setBackground(bkgColor);
+            c.setForeground(fgColor);
             return this;
         } catch (Exception e) {
             return null;
         }
     }
+
+    public void setMarkedBold(boolean bold) {
+        this.markedBold = bold;
+    }
+
+    public void setMarkedForegroundColor(Color c) {
+        this.markedFgColor = c;
+    }
+
+    public void setMarkedBackgroundColor(Color c) {
+        this.markedBkgColor = c;
+    }
+
+    public void setDisabledForegroundColor(Color c) {
+        this.disabledFgColor = c;
+    }
+
+    public void setDisabledBackgroundColor(Color c) {
+        this.disabledBkgColor = c;
+    }
+
 }
 

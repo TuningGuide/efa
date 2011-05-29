@@ -21,10 +21,10 @@ public class TableItem {
 
     private String txt;
     private boolean marked = false;
+    private boolean disabled = false;
 
     public TableItem(String txt) {
         this.txt = (txt != null ? txt : "");
-        this.marked = false;
     }
 
     public TableItem(String txt, boolean marked) {
@@ -34,7 +34,6 @@ public class TableItem {
 
     public TableItem(Object o) {
         this.txt = (o != null && o.toString() != null ? o.toString() : "");
-        this.marked = false;
     }
 
     public String toString() {
@@ -45,4 +44,15 @@ public class TableItem {
         return marked;
     }
 
+    public void setMarked(boolean marked) {
+        this.marked = marked;
+    }
+
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+    }
 }

@@ -12,13 +12,14 @@ package de.nmichael.efa.core.items;
 
 // @i18n complete
 
+import de.nmichael.efa.gui.dataedit.DataEditDialog;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.gui.*;
 import javax.swing.*;
 
-public interface IItemListenerActionTable {
+public interface IItemListenerDataRecordTable {
 
     public void itemListenerActionTable(int actionId, DataRecord[] records);
-    public DataEditDialog createNewDataEditDialog(JDialog parent, DataRecord record);
+    public DataEditDialog createNewDataEditDialog(JDialog parent, Persistence persistence, DataRecord record);
 
 }

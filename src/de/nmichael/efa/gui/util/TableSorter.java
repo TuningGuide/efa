@@ -61,6 +61,14 @@ public class TableSorter extends TableMap {
         setModel(model);
     }
 
+    public int getSortingColumn() {
+        return (sortingColumns.size() < 1 ? -1 : ((Integer)sortingColumns.get(0)).intValue());
+    }
+    
+    public boolean getSortingAscending() {
+        return ascending;
+    }
+
     public void setModel(TableModel model) {
         super.setModel(model);
         reallocateIndexes();

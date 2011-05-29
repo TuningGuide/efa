@@ -37,4 +37,21 @@ public class BoatDamages extends Persistence {
         return r;
     }
 
+    public BoatDamageRecord[] getBoatDamages(UUID boatId) {
+        try {
+            DataKey[] keys = data().getByFields(BoatDamageRecord.IDX_BOATID, new Object[] { boatId });
+            if (keys == null || keys.length == 0) {
+                return null;
+            }
+            BoatDamageRecord[] recs = new BoatDamageRecord[keys.length];
+            for (int i=0; i<keys.length; i++) {
+                recs[i] = (BoatDamageRecord)data().get(keys[i]);
+            }
+            return recs;
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
 }

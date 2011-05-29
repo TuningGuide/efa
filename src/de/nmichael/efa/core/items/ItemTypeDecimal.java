@@ -25,10 +25,7 @@ public class ItemTypeDecimal extends ItemTypeLabelTextfield {
     public ItemTypeDecimal(String name, DataTypeDecimal value, int decimalPlaces, boolean onlyPositiveOrNull,
             int type, String category, String description) {
         this.name = name;
-        this.value = value;
-        if (value == null) {
-            this.value = new DataTypeDecimal();
-        }
+        this.value = (value != null ? value : new DataTypeDecimal());
         this.decimalPlaces = decimalPlaces;
         this.onlyPositiveOrNull = onlyPositiveOrNull;
         this.type = type;
@@ -37,6 +34,9 @@ public class ItemTypeDecimal extends ItemTypeLabelTextfield {
     }
 
     public void parseValue(String value) {
+        if (value != null) {
+            value = value.trim();
+        }
         try {
             if (value.length() == 0 && !isNotNullSet()) {
                 this.value.unset();

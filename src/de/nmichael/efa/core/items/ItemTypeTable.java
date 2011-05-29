@@ -25,6 +25,7 @@ public class ItemTypeTable extends ItemType implements ActionListener {
     protected String value;
 
     protected Table table;
+    protected TableCellRenderer renderer;
     protected JScrollPane scrollPane;
     protected EfaMouseListener mouseListener;
     protected JPopupMenu popup;
@@ -82,6 +83,15 @@ public class ItemTypeTable extends ItemType implements ActionListener {
     }
 
     public void showValue() {
+        Rectangle currentVisibleRect = null;
+        int currentSortingColumn = -1;
+        boolean currentSortingAscending = true;
+        if (table != null) {
+            currentVisibleRect = table.getVisibleRect();
+            currentSortingColumn = table.getSortingColumn();
+            currentSortingAscending = table.getSortingAscending();
+        }
+
         if (keys != null && items != null) {
             TableItem[][] data = new TableItem[keys.length][];
             for (int i = 0; i < keys.length; i++) {
@@ -90,7 +100,12 @@ public class ItemTypeTable extends ItemType implements ActionListener {
             if (scrollPane != null && table != null) {
                 scrollPane.remove(table);
             }
-            table = Table.createTable(null, header, data);
+            table = Table.createTable(null, renderer, header, data);
+            if (currentSortingColumn < 0) {
+                table.sortByColumn(0);
+            } else {
+                table.sortByColumn(currentSortingColumn, currentSortingAscending);
+            }
         }
         if (scrollPane != null && table != null) {
             scrollPane.getViewport().add(table, null);
@@ -127,6 +142,10 @@ public class ItemTypeTable extends ItemType implements ActionListener {
             });
 
             this.field = table;
+        }
+
+        if (value == null && table != null && currentVisibleRect != null) {
+            table.scrollRectToVisible(currentVisibleRect);
         }
     }
 
@@ -166,6 +185,9 @@ public class ItemTypeTable extends ItemType implements ActionListener {
     }
 
     public void parseValue(String value) {
+        if (value != null) {
+            value = value.trim();
+        }
         this.value = value;
     }
 
@@ -197,6 +219,7 @@ public class ItemTypeTable extends ItemType implements ActionListener {
     public void setVisible(boolean visible) {
         table.setVisible(visible);
         scrollPane.setVisible(visible);
+        super.setVisible(visible);
     }
 
     public void setEnabled(boolean enabled) {

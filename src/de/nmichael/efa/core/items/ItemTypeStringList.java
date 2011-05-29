@@ -76,6 +76,9 @@ public class ItemTypeStringList extends ItemTypeLabelValue {
     }
 
     public void parseValue(String value) {
+        if (value != null) {
+            value = value.trim();
+        }
         for (int i=0; valueList != null && i<valueList.length; i++) {
             if (valueList[i].equals(value)) {
                 this.value = value;

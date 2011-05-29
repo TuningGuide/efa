@@ -8,7 +8,7 @@
  * @version 2
  */
 
-package de.nmichael.efa.gui;
+package de.nmichael.efa.gui.dataedit;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
@@ -23,14 +23,14 @@ import java.util.*;
 import javax.swing.event.ChangeEvent;
 
 // @i18n complete
-public class BoatEditDialog extends VersionizedDataEditDialog {
+public class BoatStatusEditDialog extends UnversionizedDataEditDialog {
 
-    public BoatEditDialog(Frame parent, BoatRecord r) {
-        super(parent, International.getString("Boot"), r);
+    public BoatStatusEditDialog(Frame parent, BoatStatusRecord r, boolean newRecord) {
+        super(parent, International.getString("Bootsstatus"), r, newRecord);
     }
 
-    public BoatEditDialog(JDialog parent, BoatRecord r) {
-        super(parent, International.getString("Boot"), r);
+    public BoatStatusEditDialog(JDialog parent, BoatStatusRecord r, boolean newRecord) {
+        super(parent, International.getString("Bootsstatus"), r, newRecord);
     }
 
     public void keyAction(ActionEvent evt) {

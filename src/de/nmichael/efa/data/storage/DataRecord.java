@@ -198,6 +198,12 @@ public abstract class DataRecord implements Cloneable, Comparable {
         return get(metaData.getFieldIndex(fieldName));
     }
 
+    public String getAsString(String fieldName) {
+        Object o = get(metaData.getFieldIndex(fieldName));
+        return (o != null ? o.toString() : null);
+    }
+
+
     protected boolean isDefaultValue(int fieldIdx) {
         int type = getFieldType(fieldIdx);
         Object o = get(fieldIdx);
@@ -357,6 +363,10 @@ public abstract class DataRecord implements Cloneable, Comparable {
         return false;
     }
     
+    public boolean isValidAt(long validAt) {
+        return (validAt >= getValidFrom() && validAt < getInvalidFrom());
+    }
+
     public void setDeleted(boolean deleted) {
         setBool(DELETED, deleted);
     }
@@ -604,10 +614,19 @@ public abstract class DataRecord implements Cloneable, Comparable {
                 if (item instanceof ItemTypeStringAutoComplete) {
                     ItemTypeStringAutoComplete acItem = (ItemTypeStringAutoComplete)item;
                     Object id = acItem.getId(value);
+                    String alternateField = ((ItemTypeStringAutoComplete)item).getAlternateFieldNameForPlainText();
                     if (id != null) {
                         set(item.getName(), id.toString());
+                        if (alternateField != null) {
+                            set(alternateField, null);
+                        }
                     } else {
-                        set(item.getName(), value);
+                        if (alternateField != null) {
+                            set(alternateField, value);
+                        } else {
+                            set(item.getName(), value);
+                        }
+                        set(item.getName(), null);
                     }
                 } else {
                     set(item.getName(), value);

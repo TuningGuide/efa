@@ -125,6 +125,9 @@ public class ItemTypeHtmlList extends ItemType implements ActionListener {
     }
 
     public void parseValue(String value) {
+        if (value != null) {
+            value = value.trim();
+        }
         this.value = value;
     }
 
@@ -182,6 +185,7 @@ public class ItemTypeHtmlList extends ItemType implements ActionListener {
     public void setVisible(boolean visible) {
         list.setVisible(visible);
         scrollPane.setVisible(visible);
+        super.setVisible(visible);
     }
 
     public void setEnabled(boolean enabled) {

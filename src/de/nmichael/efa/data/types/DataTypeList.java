@@ -166,4 +166,13 @@ public class DataTypeList<T> {
         }
     }
 
+    public boolean contains(T value) {
+        if (list == null) {
+            return false;
+        }
+        synchronized (list) {
+            return list.contains(value);
+        }
+    }
+
 }

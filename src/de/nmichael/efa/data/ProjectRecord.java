@@ -278,25 +278,15 @@ public class ProjectRecord extends DataRecord {
     }
     
     public Vector<IItemType> getGuiItems() {
-        String CAT_BASEDATA     = "%01%" + International.getString("Reservierung");
-        IItemType item;
-        Vector<IItemType> v = new Vector<IItemType>();
-        // @todo
-        //v.add(item = new ItemTypeString(BoatRecord.NAME, getName(),
-        //        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
-        return v;
+        return null; // not supported for ProjectRecord
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        TableItemHeader[] header = new TableItemHeader[4];
-        // @todo
-        return header;
+        return null; // not supported for ProjectRecord
     }
 
     public TableItem[] getGuiTableItems() {
-        TableItem[] items = new TableItem[4];
-        // @todo
-        return items;
+        return null; // not supported for ProjectRecord
     }
 
 }

@@ -281,5 +281,16 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
         }
         return 0;
     }
+
+    public static String getDateTimeString(DataTypeDate date, DataTypeTime time) {
+        String s = null;
+        if (date != null && date.isSet()) {
+            s = date.toString();
+        }
+        if (time != null && time.isSet()) {
+            s = (s == null ? time.toString() : s + " " + time.toString());
+        }
+        return s;
+    }
     
 }

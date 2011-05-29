@@ -47,6 +47,9 @@ public class ItemTypeInteger extends ItemTypeLabelTextfield {
     }
 
     public void parseValue(String value) {
+        if (value != null) {
+            value = value.trim();
+        }
         try {
             if (value.length() == 0 && !isNotNullSet()) {
                 this.value = UNSET;

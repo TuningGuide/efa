@@ -191,6 +191,13 @@ public class EfaTypes extends DatenListe {
         }
     }
 
+    public void removeAllValues(String cat) {
+        Vector<EfaType> types = values.get(cat);
+        for (int i=0; types != null && i<types.size(); i++) {
+            types.remove(types.get(i));
+        }
+    }
+
     public boolean isConfigured(String cat, String typ) {
         if (cat == null || typ == null || cat.length() == 0 || typ.length() == 0) {
             return false;
@@ -236,7 +243,7 @@ public class EfaTypes extends DatenListe {
         return types.get(idx).value;
     }
 
-    public String getValueWeekday(String type) {
+    public static String getValueWeekday(String type) {
         if (type == null) {
             return "";
         }
@@ -470,11 +477,12 @@ public class EfaTypes extends DatenListe {
             }
 
             // add types GUEST and OTHER
+            removeAllValues(CATEGORY_STATUS); // we just want to have GUEST and OTHER in here; a project's status types are defined in the status table
             if (!isConfigured(CATEGORY_STATUS, TYPE_STATUS_GUEST)) {
-                setValue(CATEGORY_STATUS, TYPE_STATUS_GUEST, International.getString("Gast")); // @todo - remove: has been replaces by separate table
+                setValue(CATEGORY_STATUS, TYPE_STATUS_GUEST, International.getString("Gast")); // this is just the default to be used for guests; actual values will come from Status table
             }
             if (!isConfigured(CATEGORY_STATUS, TYPE_STATUS_OTHER)) {
-                setValue(CATEGORY_STATUS, TYPE_STATUS_OTHER, International.getString("andere")); // @todo - remove: has been replaces by separate table
+                setValue(CATEGORY_STATUS, TYPE_STATUS_OTHER, International.getString("andere")); // this is just the default to be used for guests; actual values will come from Status table
             }
 
         } catch (IOException e) {
@@ -687,6 +695,35 @@ public class EfaTypes extends DatenListe {
 
     public static String[] makeBoatCoxingArray(int type) {
         return makeTypeArray(type, EfaTypes.CATEGORY_COXING);
+    }
+
+    public static String[] makeDayOfWeekArray(int type) {
+        int shift = (International.getLanguageID().startsWith("de") ? 0 : -1);
+        String[] list = new String[7];
+        for(int i=0; i<list.length; i++) {
+            int nrOfDay = (i + shift) % 7;
+            String day = null;
+            switch(nrOfDay) {
+                case 0: day = TYPE_WEEKDAY_MONDAY;
+                        break;
+                case 1: day = TYPE_WEEKDAY_TUESDAY;
+                        break;
+                case 2: day = TYPE_WEEKDAY_WEDNESDAY;
+                        break;
+                case 3: day = TYPE_WEEKDAY_THURSDAY;
+                        break;
+                case 4: day = TYPE_WEEKDAY_FRIDAY;
+                        break;
+                case 5: day = TYPE_WEEKDAY_SATURDAY;
+                        break;
+                case 6: day = TYPE_WEEKDAY_SUNDAY;
+                        break;
+            }
+            list[i] = (type == ARRAY_STRINGLIST_VALUES ?
+                day :
+                getValueWeekday(day));
+        }
+        return list;
     }
 
 }

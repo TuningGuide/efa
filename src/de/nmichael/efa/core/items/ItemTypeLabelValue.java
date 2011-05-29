@@ -27,7 +27,6 @@ public abstract class ItemTypeLabelValue extends ItemType {
     protected int labelGridFill = GridBagConstraints.NONE;
     protected Font labelFont;
     protected Font fieldFont;
-    protected boolean isVisible = true;
     protected boolean isShowOptional = false;
     protected JButton expandButton;
 
@@ -169,7 +168,7 @@ public abstract class ItemTypeLabelValue extends ItemType {
     }
     
     public void setVisible(boolean visible) {
-        isVisible = visible;
+        super.setVisible(visible);
         setVisibleInternal(false);
     }
 

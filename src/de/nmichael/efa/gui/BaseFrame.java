@@ -20,16 +20,16 @@ import javax.swing.border.*;
 // @i18n complete
 public abstract class BaseFrame extends JFrame implements ActionListener {
 
-    Window _parent;
-    String _title;
-    boolean _prepared = false;
+    protected Window _parent;
+    protected String _title;
+    protected boolean _prepared = false;
     
-    JPanel basePanel = new JPanel();
-    JScrollPane mainScrollPane = new JScrollPane();
-    JPanel mainPanel = new JPanel();
-    JButton closeButton;
-    String helpTopic;
-    boolean resultSuccess = false;
+    protected JPanel basePanel = new JPanel();
+    protected JScrollPane mainScrollPane = new JScrollPane();
+    protected JPanel mainPanel = new JPanel();
+    protected JButton closeButton;
+    protected String helpTopic;
+    protected boolean resultSuccess = false;
 
     public BaseFrame(Window parent, String title) {
         this._parent = parent;
@@ -174,7 +174,7 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
     public void updateGui() {
     }
 
-    void setDialogResult(boolean success) {
+    protected void setDialogResult(boolean success) {
         this.resultSuccess = success;
     }
 

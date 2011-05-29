@@ -22,7 +22,7 @@ import java.util.*;
 
 // @i18n complete
 
-public class DestinationRecord extends DataRecord {
+public class DestinationRecord extends DataRecord implements IItemFactory {
 
     // =========================================================================
     // Field Names
@@ -34,12 +34,15 @@ public class DestinationRecord extends DataRecord {
     public static final String END                 = "End";
     public static final String STARTISBOATHOUSE    = "StartIsBoathouse";
     public static final String ROUNDTRIP           = "Roundtrip";
-    public static final String DESTINATIONAREA     = "DestinationArea";
+    public static final String DESTINATIONAREAS    = "DestinationAreas";
     public static final String PASSEDLOCKS         = "PassedLocks";
     public static final String DISTANCE            = "Distance";
     public static final String WATERSIDLIST        = "WatersIdList";
 
     public static final String[] IDX_NAME = new String[] { NAME };
+
+    private static String GUIITEM_DESTINATIONAREAS = "GUIITEM_DESTINATIONAREAS";
+    private static String GUIITEM_WATERSIDLIST = "GUIITEM_WATERSIDLIST";
 
     public static void initialize() {
         Vector<String> f = new Vector<String>();
@@ -51,7 +54,7 @@ public class DestinationRecord extends DataRecord {
         f.add(END);                               t.add(IDataAccess.DATA_STRING);
         f.add(STARTISBOATHOUSE);                  t.add(IDataAccess.DATA_BOOLEAN);
         f.add(ROUNDTRIP);                         t.add(IDataAccess.DATA_BOOLEAN);
-        f.add(DESTINATIONAREA);                   t.add(IDataAccess.DATA_INTEGER);
+        f.add(DESTINATIONAREAS);                  t.add(IDataAccess.DATA_STRING);
         f.add(PASSEDLOCKS);                       t.add(IDataAccess.DATA_INTEGER);
         f.add(DISTANCE);                          t.add(IDataAccess.DATA_DISTANCE);
         f.add(WATERSIDLIST);                      t.add(IDataAccess.DATA_LIST_UUID);
@@ -118,11 +121,16 @@ public class DestinationRecord extends DataRecord {
         return getBool(ROUNDTRIP);
     }
 
-    public void setDestinationArea(int destinationArea) {
-        setInt(DESTINATIONAREA, destinationArea);
+    public void setDestinationAreas(ZielfahrtFolge zf) {
+        setString(DESTINATIONAREAS, zf.toString());
     }
-    public int getDestinationArea() {
-        return getInt(DESTINATIONAREA);
+    public ZielfahrtFolge getDestinationAreas() {
+        String s = getString(DESTINATIONAREAS);
+        if (s == null || s.length() == 0) {
+            return null;
+        }
+        ZielfahrtFolge zf = new ZielfahrtFolge(s);
+        return zf;
     }
 
     public void setPassedLocks(int passedLocks) {
@@ -145,6 +153,26 @@ public class DestinationRecord extends DataRecord {
     public DataTypeList<UUID> getWatersIdList() {
         return getList(WATERSIDLIST, IDataAccess.DATA_UUID);
     }
+    public String getWatersNamesStringList() {
+        StringBuilder s = new StringBuilder();
+        try {
+            DataTypeList<UUID> wlist = getWatersIdList();
+            if (wlist == null || wlist.length() == 0) {
+                return "";
+            }
+            Waters waters = getPersistence().getProject().getWaters(false);
+            for (int i=0; i<wlist.length(); i++) {
+                WatersRecord w = waters.getWaters(wlist.get(i));
+                if (w != null && w.getName() != null && w.getName().length() > 0) {
+                    s.append( (s.length() > 0 ? ", " : "") + w.getName());
+                }
+            }
+            return s.toString();
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return "";
+        }
+    }
 
     public String getQualifiedName() {
         String name = getName();
@@ -159,6 +187,20 @@ public class DestinationRecord extends DataRecord {
         return getId();
     }
 
+    public IItemType[] getDefaultItems(String itemName) {
+        if (itemName.equals(GUIITEM_WATERSIDLIST)) {
+            IItemType[] items = new IItemType[1];
+            String CAT_WATERS   = "%02%" + International.getString("Gewässer");
+            items[0] = getGuiItemTypeStringAutoComplete(DestinationRecord.WATERSIDLIST, null,
+                    IItemType.TYPE_PUBLIC, CAT_WATERS,
+                    getPersistence().getProject().getWaters(false), getValidFrom(), getInvalidFrom()-1,
+                    International.getString("Gewässer"));
+            items[0].setFieldSize(300, -1);
+            return items;
+        }
+        return null;
+    }
+
     public Vector<IItemType> getGuiItems() {
         String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
         String CAT_WATERS   = "%02%" + International.getString("Gewässer");
@@ -166,8 +208,11 @@ public class DestinationRecord extends DataRecord {
         Waters waters = getPersistence().getProject().getWaters(false);
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
+
+        // CAT_BASEDATA
         v.add(item = new ItemTypeString(DestinationRecord.NAME, getName(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
+        ((ItemTypeString)item).setNotAllowedCharacters("+");
         v.add(item = new ItemTypeString(DestinationRecord.START, getStart(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Start")));
         v.add(item = new ItemTypeString(DestinationRecord.END, getEnd(),
@@ -177,29 +222,89 @@ public class DestinationRecord extends DataRecord {
         v.add(item = new ItemTypeBoolean(DestinationRecord.ROUNDTRIP, getRoundtrip(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Start gleich Ziel")));
         if (Daten.efaConfig.showBerlinOptions.getValue()) {
-            v.add(item = new ItemTypeInteger(DestinationRecord.DESTINATIONAREA, getDestinationArea(), 1, Zielfahrt.ANZ_ZIELBEREICHE, true,
-                    IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("Zielbereich","de")));
+            v.add(item = new ItemTypeString(DestinationRecord.GUIITEM_DESTINATIONAREAS, (getDestinationAreas() == null ? "" : getDestinationAreas().toString()),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("Zielbereiche","de")));
         }
+        ((ItemTypeString)item).setAllowedCharacters("0123456789,;");
         v.add(item = new ItemTypeInteger(DestinationRecord.PASSEDLOCKS, getPassedLocks(), 0, Integer.MAX_VALUE, true,
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Passierte Schleusen")));
         v.add(item = new ItemTypeDistance(DestinationRecord.DISTANCE, getDistance(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Distanz")));
 
-        // @todo
-//        v.add(item = new ItemTypeString(DestinationRecord.WATERSIDLIST, getEnd(),
-//                IItemType.TYPE_PUBLIC, CAT_WATERS, International.getString("Titel")));
+        // CAT_WATERS
+        Vector<IItemType[]>itemList = new Vector<IItemType[]>();
+        DataTypeList<UUID> watersList = getWatersIdList();
+        for (int i=0; watersList != null && i<watersList.length(); i++) {
+            IItemType[] items = getDefaultItems(GUIITEM_WATERSIDLIST);
+            ((ItemTypeStringAutoComplete)items[0]).setId(watersList.get(i));
+            itemList.add(items);
+        }
+        v.add(item = new ItemTypeItemList(GUIITEM_WATERSIDLIST, itemList, this,
+                IItemType.TYPE_PUBLIC, CAT_WATERS, International.getString("Gewässer")));
+        ((ItemTypeItemList)item).setXForAddDelButtons(3);
+        ((ItemTypeItemList)item).setPadYbetween(0);
+        ((ItemTypeItemList)item).setRepeatTitle(false);
+        ((ItemTypeItemList)item).setAppendPositionToEachElement(true);
+
         return v;
     }
 
+    public void saveGuiItems(Vector<IItemType> items) {
+        Waters waters = getPersistence().getProject().getWaters(false);
+
+        for(IItemType item : items) {
+            String name = item.getName();
+            String cat = item.getCategory();
+            if (name.equals(GUIITEM_DESTINATIONAREAS) && item.isChanged()) {
+                String s = item.toString().trim();
+                if (s.length() == 0) {
+                    setDestinationAreas(null);
+                } else {
+                    setDestinationAreas(new ZielfahrtFolge(s));
+                }
+            }
+            if (name.equals(GUIITEM_WATERSIDLIST) && item.isChanged()) {
+                ItemTypeItemList list = (ItemTypeItemList)item;
+                Hashtable<String,UUID> uuidList = new Hashtable<String,UUID>();
+                for (int i=0; i<list.size(); i++) {
+                    IItemType[] typeItems = list.getItems(i);
+                    Object uuid = ((ItemTypeStringAutoComplete)typeItems[0]).getId(typeItems[0].toString());
+                    if (uuid != null && uuid.toString().length() > 0) {
+                        uuidList.put(uuid.toString(), (UUID)uuid);
+                    }
+                }
+                String[] uuidArr = uuidList.keySet().toArray(new String[0]);
+                DataTypeList<UUID> watersList = new DataTypeList<UUID>();
+                for (String uuid : uuidArr) {
+                    watersList.add(uuidList.get(uuid));
+                }
+                this.setWatersIdList(watersList);
+            }
+        }
+        super.saveGuiItems(items);
+    }
+
     public TableItemHeader[] getGuiTableHeader() {
-        TableItemHeader[] header = new TableItemHeader[4];
-        // @todo
+        int col = (Daten.efaConfig.showBerlinOptions.getValue() ? 4 : 3);
+        TableItemHeader[] header = new TableItemHeader[col];
+        header[0] = new TableItemHeader(International.getString("Name"));
+        header[1] = new TableItemHeader(International.getString("Entfernung"));
+        header[2] = new TableItemHeader(International.getString("Gewässer"));
+        if (col > 3) {
+            header[3] = new TableItemHeader(International.onlyFor("Zielbereiche","de"));
+        }
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
-        TableItem[] items = new TableItem[4];
-        // @todo
+        int col = (Daten.efaConfig.showBerlinOptions.getValue() ? 4 : 3);
+        TableItem[] items = new TableItem[col];
+        items[0] = new TableItem(getName());
+        items[1] = new TableItem(getDistance());
+        items[2] = new TableItem(getWatersNamesStringList());
+        if (col > 3) {
+            items[3] = new TableItem(getDestinationAreas());
+        }
         return items;
     }
 

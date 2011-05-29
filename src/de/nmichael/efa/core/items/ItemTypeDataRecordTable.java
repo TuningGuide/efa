@@ -10,11 +10,15 @@
 
 package de.nmichael.efa.core.items;
 
+import de.nmichael.efa.gui.dataedit.VersionizedDataDeleteDialog;
+import de.nmichael.efa.gui.dataedit.DataEditDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.gui.*;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.ex.*;
+import de.nmichael.efa.*;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -26,19 +30,32 @@ import java.util.*;
 
 public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListener {
 
-    private static final int ACTION_NEW    = 0;
-    private static final int ACTION_EDIT   = 1;
-    private static final int ACTION_DELETE = 2;
+    public static final int ACTION_NEW    = 0;
+    public static final int ACTION_EDIT   = 1;
+    public static final int ACTION_DELETE = 2;
+    public static final int ACTION_OTHER = -1;
+
+    public static final String ACTIONTEXT_NEW    = International.getString("Neu");
+    public static final String ACTIONTEXT_EDIT   = International.getString("Bearbeiten");
+    public static final String ACTIONTEXT_DELETE = International.getString("Löschen");
+
     private static final String[] DEFAULT_ACTIONS = new String[] {
-        International.getString("Neu"),
-        International.getString("Bearbeiten"),
-        International.getString("Löschen")
+        ACTIONTEXT_NEW,
+        ACTIONTEXT_EDIT,
+        ACTIONTEXT_DELETE
     };
 
     protected Persistence persistence;
+    protected long validAt = -1; // configured validAt
+    protected long myValidAt = -1; // actually used validAt in updateData(); if validAt == -1, then myValidAt is "now" each time the data is updated
+    protected boolean showAll = false;
+    protected boolean showDeleted = false;
+    protected String filterFieldName;
+    protected String filterFieldValue;
+    
     protected Vector<DataRecord> data;
     protected Hashtable<String,DataRecord> mappingKeyToRecord;
-    protected IItemListenerActionTable itemListenerActionTable;
+    protected IItemListenerDataRecordTable itemListenerActionTable;
 
     protected JPanel myPanel;
     protected JPanel tablePanel;
@@ -46,58 +63,47 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
     protected Hashtable<ItemTypeButton,String> actionButtons;
     protected static final String ACTION_BUTTON = "ACTION_BUTTON";
-    protected boolean isDefaultActions = true;
+    protected int[] actionTypes;
 
     public ItemTypeDataRecordTable(String name,
             TableItemHeader[] tableHeader, 
             Persistence persistence,
-            Vector<DataRecord> data,
-            String[] actions,
-            IItemListenerActionTable itemListenerActionTable,
+            long validAt,
+            String filterFieldName, String filterFieldValue,
+            String[] actions, int[] actionTypes,
+            IItemListenerDataRecordTable itemListenerActionTable,
             int type, String category, String description) {
         super(name, tableHeader, null, null, type, category, description);
-        setData(persistence, data);
-        setPopupActions(actions);
+        setData(persistence, validAt, filterFieldName, filterFieldValue);
+        setActions(actions, actionTypes);
         this.itemListenerActionTable = itemListenerActionTable;
+        renderer = new de.nmichael.efa.gui.util.TableCellRenderer();
+        renderer.setMarkedBold(false);
+        renderer.setMarkedForegroundColor(Color.red);
+        renderer.setMarkedBackgroundColor(null);
     }
 
-    public ItemTypeDataRecordTable(String name,
-            TableItemHeader[] tableHeader,
-            Persistence persistence,
-            DataRecord[] data,
-            String[] actions,
-            IItemListenerActionTable itemListenerActionTable,
-            int type, String category, String description) {
-        super(name, tableHeader, null, null, type, category, description);
-        setData(persistence, data);
-        setPopupActions(actions);
-        this.itemListenerActionTable = itemListenerActionTable;
-    }
-
-    protected void setData(Persistence persistence, Vector<DataRecord> data) {
+    protected void setData(Persistence persistence, long validAt, String filterFieldName, String filterFieldValue) {
         this.persistence = persistence;
-        this.data = data;
+        this.validAt = validAt;
+        this.filterFieldName = filterFieldName;
+        this.filterFieldValue = filterFieldValue;
     }
 
-    protected void setData(Persistence persistence, DataRecord[] data) {
-        this.persistence = persistence;
-        if (data != null) {
-            this.data = new Vector<DataRecord>();
-            for (int i=0; i<data.length; i++) {
-                this.data.add(data[i]);
-            }
-        } else {
-            this.data = null;
-        }
+    public void setAndUpdateData(long validAt, boolean showAll, boolean showDeleted) {
+        this.validAt = validAt;
+        this.showAll = showAll;
+        this.showDeleted = showDeleted;
+        updateData();
     }
 
-    public void setPopupActions(String[] actions) {
-        if (actions == null) {
+    public void setActions(String[] actions, int[] actionTypes) {
+        if (actions == null || actionTypes == null) {
             super.setPopupActions(DEFAULT_ACTIONS);
-            isDefaultActions = true;
+            this.actionTypes = new int[] { ACTION_NEW, ACTION_EDIT, ACTION_DELETE };
         } else {
             super.setPopupActions(actions);
-            isDefaultActions = false;
+            this.actionTypes = actionTypes;
         }
     }
 
@@ -114,10 +120,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         myPanel.add(buttonPanel, BorderLayout.EAST);
         actionButtons = new Hashtable<ItemTypeButton,String>();
         for (int i=0; popupActions != null && i<popupActions.length; i++) {
-            String action = ACTION_BUTTON + "_" + i;
+            String action = ACTION_BUTTON + "_" + actionTypes[i];
             ItemTypeButton button = new ItemTypeButton(action, IItemType.TYPE_PUBLIC, "BUTTON_CAT", popupActions[i]);
             button.registerItemListener(this);
-            button.setPadding(20, 0, 0, 5);
+            button.setPadding(20, 20, 0, 5);
             button.setFieldSize(200, -1);
             button.displayOnGui(dlg, buttonPanel, 0, i);
             actionButtons.put(button, action);
@@ -142,9 +148,28 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     public void showValue() {
         items = new Hashtable<String,TableItem[]>();
         mappingKeyToRecord = new Hashtable<String,DataRecord>();
+        if (data == null && persistence != null) {
+            updateData();
+        }
+        boolean isVersionized = persistence.data().getMetaData().isVersionized();
         for (int i=0; data != null && i<data.size(); i++) {
             DataRecord r = data.get(i);
-            items.put(r.getKey().toString(), r.getGuiTableItems());
+            TableItem[] content = r.getGuiTableItems();
+
+            // mark deleted records
+            if (r.getDeleted()) {
+                for (TableItem it : content) {
+                    it.setMarked(true);
+                }
+            }
+
+            // mark invalid records
+            if (isVersionized && !r.isValidAt(myValidAt)) {
+                for (TableItem it : content) {
+                    it.setDisabled(true);
+                }
+            }
+            items.put(r.getKey().toString(), content);
             mappingKeyToRecord.put(r.getKey().toString(), r);
         }
         keys = items.keySet().toArray(new String[0]);
@@ -158,10 +183,18 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             String cmd = e.getActionCommand();
             int actionId = -1;
             if (cmd != null && cmd.startsWith(EfaMouseListener.EVENT_POPUP_CLICKED)) {
-                actionId = EfaUtil.stringFindInt(cmd, -1);
+                try {
+                    actionId = actionTypes[EfaUtil.stringFindInt(cmd, -1)];
+                } catch(Exception eignore) {}
+            }
+            if (cmd != null && cmd.startsWith(EfaMouseListener.EVENT_MOUSECLICKED_2x)) {
+                actionId = ACTION_EDIT;
             }
             if (itemType != null && itemType instanceof ItemTypeButton) {
                 actionId = EfaUtil.stringFindInt(actionButtons.get((ItemTypeButton)itemType), -1);
+            }
+            if (actionId == -1) {
+                return;
             }
             int[] rows = table.getSelectedRows();
             DataRecord[] records = null;
@@ -171,18 +204,44 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                     records[i] = mappingKeyToRecord.get(keys[rows[i]]);
                 }
             }
-            System.out.println("ActionId="+actionId);
-            if (isDefaultActions && persistence != null && itemListenerActionTable != null) {
+            if (persistence != null && itemListenerActionTable != null) {
                 DataEditDialog dlg;
                 switch(actionId) {
                     case ACTION_NEW:
-                        dlg = itemListenerActionTable.createNewDataEditDialog(getParentDialog(), null);
+                        dlg = itemListenerActionTable.createNewDataEditDialog(getParentDialog(), persistence, null);
+                        if (dlg == null) {
+                            return;
+                        }
                         dlg.showDialog();
                         break;
                     case ACTION_EDIT:
                         for (int i=0; records != null && i<records.length; i++) {
                             if (records[i] != null) {
-                                dlg = itemListenerActionTable.createNewDataEditDialog(getParentDialog(), records[i]);
+                                if (records[i].getDeleted()) {
+                                    switch(Dialog.yesNoCancelDialog(International.getString("Datensatz wiederherstellen"),
+                                            International.getMessage("Der Datensatz '{record}' wurde gelöscht. Möchtest Du ihn wiederherstellen?", records[i].getQualifiedName()))) {
+                                        case Dialog.YES:
+                                            try {
+                                                DataRecord[] rall = persistence.data().getValidAny(records[i].getKey());
+                                                for (int j=0; rall != null && j<rall.length; j++) {
+                                                    rall[j].setDeleted(false);
+                                                    persistence.data().update(rall[j]);
+                                                }
+                                            } catch(Exception exr) {
+                                                Dialog.error(exr.toString());
+                                                return;
+                                            }
+                                            break;
+                                        case Dialog.NO:
+                                            continue;
+                                        case Dialog.CANCEL:
+                                            return;
+                                    }
+                                }
+                                dlg = itemListenerActionTable.createNewDataEditDialog(getParentDialog(), persistence, records[i]);
+                                if (dlg == null) {
+                                    return;
+                                }
                                 dlg.showDialog();
                                 if (!dlg.getDialogResult()) {
                                     break;
@@ -191,13 +250,98 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                         }
                         break;
                     case ACTION_DELETE:
+                        if (records == null || records.length == 0) {
+                            return;
+                        }
+                        int res = -1;
+                        if (records.length == 1) {
+                            res = Dialog.yesNoDialog(International.getString("Wirklich löschen?"),
+                                    International.getMessage("Möchtest Du den Datensatz '{record}' wirklich löschen?", records[0].getQualifiedName()));
+                        } else {
+                            res = Dialog.yesNoDialog(International.getString("Wirklich löschen?"),
+                                    International.getMessage("Möchtest Du {count} ausgewählte Datensätze wirklich löschen?", records.length));
+                        }
+                        if (res != Dialog.YES) {
+                            return;
+                        }
+                        long deleteAt = Long.MAX_VALUE;
+                        if (persistence.data().getMetaData().isVersionized()) {
+                            VersionizedDataDeleteDialog ddlg = new VersionizedDataDeleteDialog(getParentDialog());
+                            ddlg.showDialog();
+                            deleteAt = ddlg.getDeleteAtResult();
+                            if (deleteAt == Long.MAX_VALUE || deleteAt < -1) {
+                                return;
+                            }
+                        }
+                        try {
+                            for (int i = 0; records != null && i < records.length; i++) {
+                                if (records[i] != null) {
+                                    if (persistence.data().getMetaData().isVersionized()) {
+                                        persistence.data().deleteVersionizedAll(records[i].getKey(), deleteAt);
+                                    } else {
+                                        persistence.data().delete(records[i].getKey());
+                                    }
+                                }
+                            }
+                        } catch (EfaModifyException exmodify) {
+                            exmodify.displayMessage();
+                        } catch (Exception ex) {
+                            Logger.logdebug(ex);
+                            Dialog.error(ex.toString());
+                        }
                         break;
                 }
-                showValue();
             }
             if (itemListenerActionTable != null) {
                 itemListenerActionTable.itemListenerActionTable(actionId, records);
             }
+            updateData();
+            showValue();
+        }
+    }
+
+    protected void updateData() {
+        if (persistence == null) {
+            return;
+        }
+        try {
+            myValidAt = (validAt >= 0 ? validAt : System.currentTimeMillis());
+            data = new Vector<DataRecord>();
+            IDataAccess dataAccess = persistence.data();
+            boolean isVersionized = dataAccess.getMetaData().isVersionized();
+            DataKeyIterator it = dataAccess.getStaticIterator();
+            DataKey key = it.getFirst();
+            Hashtable<DataKey,String> uniqueHash = new Hashtable<DataKey,String>();
+            while (key != null) {
+                // avoid duplicate versionized keys for the same record
+                if (isVersionized) {
+                    DataKey ukey = dataAccess.getUnversionizedKey(key);
+                    if (uniqueHash.get(ukey) != null) {
+                        key = it.getNext();
+                        continue;
+                    }
+                    uniqueHash.put(ukey, "");
+                }
+
+                DataRecord r;
+                if (isVersionized) {
+                    r = dataAccess.getValidAt(key, myValidAt);
+                    if (r == null && showAll) {
+                        r = dataAccess.getValidLatest(key);
+                    }
+                } else {
+                    r = dataAccess.get(key);
+                }
+                if (r != null && (!r.getDeleted() || showDeleted)) {
+                    if (filterFieldName == null || filterFieldValue == null ||
+                        filterFieldValue.equals(r.getAsString(filterFieldName))) {
+                        data.add(r);
+                    }
+                }
+                key = it.getNext();
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
         }
     }
 

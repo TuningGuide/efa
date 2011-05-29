@@ -69,7 +69,7 @@ public class StatusRecord extends DataRecord {
         }
         StatusRecord or = (StatusRecord)o;
         if (getType().equals(or.getType())) {
-            return getName().compareTo(or.getName());
+            return getStatusName().compareTo(or.getStatusName());
         } else {
             if (getType().equals(TYPE_OTHER)) { // OTHER type is always last
                 return 1;
@@ -96,10 +96,10 @@ public class StatusRecord extends DataRecord {
         return getUUID(ID);
     }
 
-    public void setName(String name) {
+    public void setStatusName(String name) {
         setString(NAME, name);
     }
-    public String getName() {
+    public String getStatusName() {
         return getString(NAME);
     }
 
@@ -117,6 +117,16 @@ public class StatusRecord extends DataRecord {
         }
         return type;
     }
+    public String getTypeDescription() {
+        String type = getType();
+        if (type.equals(TYPE_GUEST)) {
+            return International.getString("Gast");
+        }
+        if (type.equals(TYPE_OTHER)) {
+            return International.getString("andere");
+        }
+        return International.getString("benutzerdefiniert");
+    }
 
     public String[] getQualifiedNameFields() {
         return IDX_NAME;
@@ -126,25 +136,32 @@ public class StatusRecord extends DataRecord {
         return getId();
     }
 
+    public String getQualifiedName() {
+        return getStatusName();
+    }
+
     public Vector<IItemType> getGuiItems() {
-        String CAT_BASEDATA     = "%01%" + International.getString("Reservierung");
+        String CAT_BASEDATA     = "%01%" + International.getString("Status");
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
-        // @todo
-        //v.add(item = new ItemTypeString(BoatRecord.NAME, getName(),
-        //        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
+        v.add(item = new ItemTypeLabel("LABEL", 
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Typ") + ": " + getTypeDescription()));
+        v.add(item = new ItemTypeString(StatusRecord.NAME, getStatusName(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Status")));
         return v;
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        TableItemHeader[] header = new TableItemHeader[4];
-        // @todo
+        TableItemHeader[] header = new TableItemHeader[2];
+        header[0] = new TableItemHeader(International.getString("Status"));
+        header[1] = new TableItemHeader(International.getString("Typ"));
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
-        TableItem[] items = new TableItem[4];
-        // @todo
+        TableItem[] items = new TableItem[2];
+        items[0] = new TableItem(getStatusName());
+        items[1] = new TableItem(getTypeDescription());
         return items;
     }
 

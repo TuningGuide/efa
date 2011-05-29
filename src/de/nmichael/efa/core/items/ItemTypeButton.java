@@ -97,7 +97,8 @@ public class ItemTypeButton extends ItemType {
 
     public void setVisible(boolean visible) {
         button.setVisible(visible);
-    }
+        super.setVisible(visible);
+}
 
     public void setEnabled(boolean enabled) {
         button.setEnabled(enabled);

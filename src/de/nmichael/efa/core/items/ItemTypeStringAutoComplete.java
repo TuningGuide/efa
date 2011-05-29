@@ -40,6 +40,8 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
     protected boolean valueIsKnown = false;
     protected boolean isCheckSpelling = false;
     protected boolean isCheckPermutations = false;
+    protected char ignoreEverythingAfter = 0x0;
+    protected String alternateFieldNameForPlainText = null;
 
     public ItemTypeStringAutoComplete(String name, String value, int type,
             String category, String description, boolean showButton) {
@@ -78,6 +80,10 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
     public void setChecks(boolean checkSpelling, boolean checkPermutations) {
         this.isCheckSpelling = checkSpelling;
         this.isCheckPermutations = checkPermutations;
+    }
+
+    public void setIgnoreEverythingAfter(char c) {
+        ignoreEverythingAfter = c;
     }
 
     public void setVisible(boolean visible) {
@@ -128,7 +134,6 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
 
         AutoCompleteList list = getAutoCompleteList();
         if (list == null) {
-            //setButtonColor(Color.lightGray);
             setButtonColor(null);
             return;
         } else {
@@ -143,7 +148,9 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             setButtonColor(null);
         }
 
-        String complete, prefix;
+        String complete = null;
+        String prefix = null;
+        String base = null;
 
         Mode mode = Mode.none; // 0
         if (e == null || (EfaUtil.isRealChar(e) && e.getKeyCode() != KeyEvent.VK_ENTER) || e.getKeyCode() == KeyEvent.VK_DOWN) {
@@ -161,6 +168,8 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         if (e == null || mode == Mode.enter || mode == Mode.escape) {
             field.setText(field.getText().trim());
         }
+
+        boolean matching = false;
 
         if (mode == Mode.normal
                 || ((mode == Mode.enter || mode == Mode.escape) && field.getText().length() > 0)) {
@@ -201,8 +210,8 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
                 } else {
                     complete = list.getExact(field.getText().toLowerCase()); // keine Taste gedrückt --> nur richtig, wenn gesamtes Feld exakt vorhanden!
                 }
-                // prüfen (falls Mitglieder), ob Anfangsstück ein Alias ist //@todo
-                /* @todo
+                // prüfen (falls Mitglieder), ob Anfangsstück ein Alias ist
+                /* @todo Aliases
                 if (isMitgliederliste && ((Mitglieder) liste).aliases != null) {
                     String s;
                     if ((s = (String) ((Mitglieder) liste).aliases.get(prefix.toLowerCase())) != null) {
@@ -213,7 +222,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
 
                 // jetzt prüfen, ob Person (falls liste == mitglieder) schon in einem anderen Feld eingetragen
                 // wurde; wenn ja, dann nächsten passenden Eintrag nehmen, falls vorhanden
-                /* @todo
+                /* @todo Duplicate Persons
                 if (efaFrame != null && isMitgliederliste && complete != null && button != null) {
                     String tmp = "";
                     while (eingetragenInAnderemFeld(complete, feld, efaFrame) && tmp != null) {
@@ -233,9 +242,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
                     field.setText(complete);
                     field.select(prefix.length(), complete.length());
                 }
-                setButtonColor(Color.green);
-            } else {
-                setButtonColor(Color.red);
+                matching = true;
             }
             if (withPopup && Daten.efaConfig.popupComplete.getValue() && e != null) {
                 AutoCompletePopupWindow.showAndSelect(field, list, (complete != null ? complete : ""), null);
@@ -261,9 +268,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             if (complete != null) {
                 field.setText(complete);
                 field.select(prefix.length(), complete.length());
-                setButtonColor(Color.green);
-            } else {
-                setButtonColor(Color.red);
+                matching = true;
             }
             if (withPopup && Daten.efaConfig.popupComplete.getValue()) {
                 AutoCompletePopupWindow.showAndSelect(field, list, (complete != null ? complete : ""), null);
@@ -271,12 +276,35 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         }
         
         if (mode == Mode.delete) {
-            if ((complete = list.getFirst(field.getText().toLowerCase().trim())) == null
-                    || !(complete.equals(field.getText()))) {
-                setButtonColor(Color.red);
-            } else {
-                setButtonColor(Color.green);
+            if ((complete = list.getFirst(field.getText().toLowerCase().trim())) != null
+                    && (complete.equals(field.getText()))) {
+                matching = true;
             }
+        }
+
+        // make sure to accept value as known which have a known base part (everything before ignoreEverythingAfter)
+        int ignorePos = (prefix != null ? prefix.indexOf(ignoreEverythingAfter) : field.getText().indexOf(ignoreEverythingAfter));
+        if (ignorePos >= 0) {
+            String s = (prefix != null ? prefix : field.getText());
+            base = s.substring(0, ignorePos).trim();
+        }
+        if (base != null && !matching) {
+            if (field.getText().startsWith(list.getFirst(base.trim()))) {
+                matching = true;
+            }
+        }
+
+        // make sure to accept any values with trailing spaces as well
+        if (prefix != null && !matching && prefix.endsWith(" ")) {
+            if (field.getText().startsWith(list.getFirst(prefix.trim()))) {
+                matching = true;
+            }
+        }
+
+        if (matching) {
+            setButtonColor(Color.green);
+        } else {
+            setButtonColor(Color.red);
         }
         
         if (mode == Mode.enter) {
@@ -302,6 +330,12 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         if (name.length() == 0) {
             return;
         }
+
+        int ignorePos = name.indexOf(ignoreEverythingAfter);
+        if (ignorePos >= 0) {
+            name = name.substring(0, ignorePos).trim();
+        }
+
         AutoCompleteList list = getAutoCompleteList();
         if (list == null) {
             return;
@@ -313,6 +347,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         }
         if (neighbours != null) {
             for (int i=0; i<neighbours.size(); i++) {
+                // @todo provide a better dialog to select recommended replacements
                 String suggestedName = neighbours.get(i);
                 if (Dialog.yesNoDialog(International.getString("Tippfehler?"),
                         International.getMessage("Der Name '{name}' ist unbekannt.", name) + "\n"
@@ -348,6 +383,14 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
 
     public boolean isKnown() {
         return valueIsKnown;
+    }
+
+    public void setAlternateFieldNameForPlainText(String fieldName) {
+        alternateFieldNameForPlainText = fieldName;
+    }
+
+    public String getAlternateFieldNameForPlainText() {
+        return alternateFieldNameForPlainText;
     }
 
 }

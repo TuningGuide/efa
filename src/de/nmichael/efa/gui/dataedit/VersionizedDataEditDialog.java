@@ -8,7 +8,7 @@
  * @version 2
  */
 
-package de.nmichael.efa.gui;
+package de.nmichael.efa.gui.dataedit;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
@@ -16,6 +16,7 @@ import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.gui.util.*;
+import de.nmichael.efa.ex.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -24,23 +25,20 @@ import java.util.*;
 import javax.swing.event.ChangeEvent;
 
 // @i18n complete
-public class VersionizedDataEditDialog extends DataEditDialog implements IItemListener {
+public class VersionizedDataEditDialog extends UnversionizedDataEditDialog implements IItemListener {
 
     // private ItemTypeHtmlList versionList;
     private ItemTypeTable versionList;
     private Hashtable<Integer,DataRecord> versions;
     private JLabel selectedVersionLabel;
-    protected DataRecord dataRecord;
     protected int thisVersion;
 
-    public VersionizedDataEditDialog(Frame parent, String title, DataRecord dataRecord) {
-        super(parent, title, dataRecord.getGuiItems());
-        this.dataRecord = dataRecord;
+    public VersionizedDataEditDialog(Frame parent, String title, DataRecord dataRecord, boolean newRecord) {
+        super(parent, title, dataRecord, newRecord);
     }
 
-    public VersionizedDataEditDialog(JDialog parent, String title, DataRecord dataRecord) {
-        super(parent, title, dataRecord.getGuiItems());
-        this.dataRecord = dataRecord;
+    public VersionizedDataEditDialog(JDialog parent, String title, DataRecord dataRecord, boolean newRecord) {
+        super(parent, title, dataRecord, newRecord);
     }
     
     protected void iniDialog() throws Exception {
@@ -67,7 +65,7 @@ public class VersionizedDataEditDialog extends DataEditDialog implements IItemLi
         };
         versionList.setPopupActions(actions);
         versionList.registerItemListener(this);
-        versionList.setFieldGrid(1, 3, GridBagConstraints.CENTER, GridBagConstraints.NONE);
+        versionList.setFieldGrid(2, 3, GridBagConstraints.CENTER, GridBagConstraints.NONE);
         versionList.setPadding(10, 10, 0, 10);
         versionList.setFieldSize(500, 100);
         versionList.displayOnGui(_parent, versionPanel, 0, 1);
@@ -79,7 +77,7 @@ public class VersionizedDataEditDialog extends DataEditDialog implements IItemLi
                 selectButton_actionPerformed(e, false);
             }
         });
-        versionPanel.add(selectButton, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+        versionPanel.add(selectButton, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
                                     GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
 
         JButton newButton = new JButton();
@@ -89,7 +87,7 @@ public class VersionizedDataEditDialog extends DataEditDialog implements IItemLi
                 newButton_actionPerformed(e, false);
             }
         });
-        versionPanel.add(newButton, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
+        versionPanel.add(newButton, new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0,
                                     GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
 
         JButton deleteButton = new JButton();
@@ -99,14 +97,23 @@ public class VersionizedDataEditDialog extends DataEditDialog implements IItemLi
                 deleteButton_actionPerformed(e, false);
             }
         });
-        versionPanel.add(deleteButton, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
+        versionPanel.add(deleteButton, new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0,
                                     GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
 
         selectedVersionLabel = new JLabel();
         Mnemonics.setLabel(this, selectedVersionLabel, International.getString("Version"));
         versionPanel.add(selectedVersionLabel, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
-                                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 0, 5, 0), 0, 0));
+                                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(30, 0, 5, 0), 0, 0));
 
+        JButton versionValidityChangeButton = new JButton();
+        Mnemonics.setButton(this, versionValidityChangeButton, International.getString("Gültigkeitszeitraum ändern"));
+        versionValidityChangeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                versionValidityChangeButton_actionPerformed(e);
+            }
+        });
+        versionPanel.add(versionValidityChangeButton, new GridBagConstraints(1, 4, 2, 1, 0.0, 0.0,
+                                    GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(20, 5, 5, 10), 0, 0));
 
         mainPanel.add(versionPanel, BorderLayout.NORTH);
         updateGui();
@@ -203,38 +210,6 @@ public class VersionizedDataEditDialog extends DataEditDialog implements IItemLi
             item.setUnchanged();
         }
         updateGui();
-    }
-
-    boolean saveRecord() {
-        try {
-            dataRecord.saveGuiItems(getItems());
-            dataRecord.getPersistence().data().update(dataRecord);
-            for(IItemType item : getItems()) {
-                item.setUnchanged();
-            }
-            return true;
-        } catch(Exception e) {
-            Logger.logdebug(e);
-            Dialog.error("Die Änderungen konnten nicht gespeichert werden." + "\n" + e.toString());
-            return false;
-        }
-    }
-
-    boolean checkAndSaveChanges() {
-        if (getValuesFromGui()) {
-            switch (Dialog.yesNoCancelDialog(International.getString("Änderungen speichern"),
-                                             International.getString("Die Daten wurden verändert.")+"\n"+
-                                             International.getString("Möchtest Du die Änderungen jetzt speichern?"))) {
-                case Dialog.YES:
-                    return saveRecord();
-                case Dialog.NO:
-                    return true;
-                default:
-                    return false;
-            }
-        } else {
-            return true;
-        }
     }
 
     boolean createRecord(DataRecord r, long newValidFrom) {
@@ -380,7 +355,12 @@ public class VersionizedDataEditDialog extends DataEditDialog implements IItemLi
                             }
                             // don't delete last reference to a record, but just mark it as deleted
                             dataRecord.setDeleted(true);
-                            saveRecord();
+                            try {
+                                saveRecord();
+                            } catch (InvalidValueException einv) {
+                                einv.displayMessage();
+                            }
+                            cancel();
                             return;
                         }
 
@@ -400,19 +380,30 @@ public class VersionizedDataEditDialog extends DataEditDialog implements IItemLi
         }
     }
 
-    public void closeButton_actionPerformed(ActionEvent e) {
-        if (getValuesFromGui()) {
-            saveRecord();
+    void versionValidityChangeButton_actionPerformed(ActionEvent e) {
+        DataRecord rPrev = (thisVersion > 0 ? versions.get(thisVersion - 1) : null);
+        DataRecord rNext = (thisVersion+1 < versions.size() ? versions.get(thisVersion + 1) : null);
+        if (dataRecord != null) {
+            VersionizedDataChangeValidityDialog dlg = new VersionizedDataChangeValidityDialog(this, thisVersion, dataRecord, rPrev, rNext);
+            dlg.showDialog();
+            long newValidFrom = dlg.getValidFromResult();
+            long newInvalidFrom = dlg.getInvalidFromResult();
+            if (newValidFrom < 0) {
+                newValidFrom = dataRecord.getValidFrom();
+            }
+            if (newInvalidFrom < 0) {
+                newInvalidFrom = dataRecord.getInvalidFrom();
+            }
+            if (newValidFrom != dataRecord.getValidFrom() || newInvalidFrom != dataRecord.getInvalidFrom()) {
+                try {
+                    dataRecord.getPersistence().data().changeValidity(dataRecord, newValidFrom, newInvalidFrom);
+                } catch(EfaException ex) {
+                    ex.log();
+                    Dialog.error("Der Datensatz konnte nicht geändert werden." + "\n" + ex.toString());
+                }
+            }
+            showRecord(dataRecord);
         }
-        super.closeButton_actionPerformed(e);
     }
-
-    public boolean cancel() {
-        if (!checkAndSaveChanges()) {
-            return false;
-        }
-        return super.cancel();
-    }
-    
 
 }

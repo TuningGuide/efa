@@ -49,6 +49,7 @@ public class ItemTypeConfigButton extends ItemType {
 
     public void parseValue(String value) {
         if (value == null) return;
+        value = value.trim();
         try {
             StringTokenizer tok = new StringTokenizer(value, "|");
             int i = 0;
@@ -227,6 +228,7 @@ public class ItemTypeConfigButton extends ItemType {
         if (checkbox != null) {
             checkbox.setVisible(visible);
         }
+        super.setVisible(visible);
     }
 
     public void setEnabled(boolean enabled) {

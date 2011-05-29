@@ -37,6 +37,8 @@ public class ItemTypeHashtable<E> extends ItemType {
     private JButton addButton;
     private JTextField[] textfield;
     private Hashtable<JButton,String> delButtons;
+    private boolean allowedAdd = true;
+    private boolean allowedDelete = true;
 
     public ItemTypeHashtable(String name, E value, boolean fieldsEditable,
             int type, String category, String description) {
@@ -49,6 +51,11 @@ public class ItemTypeHashtable<E> extends ItemType {
         this.padYbefore = 20;
         this.padYafter = 20;
         iniHash();
+    }
+
+    public void setAllowed(boolean allowedAdd, boolean allowedDelete) {
+        this.allowedAdd = allowedAdd;
+        this.allowedDelete = allowedDelete;
     }
 
     private void iniHash() {
@@ -114,6 +121,9 @@ public class ItemTypeHashtable<E> extends ItemType {
     }
 
     public void parseValue(String value) {
+        if (value != null) {
+            value = value.trim();
+        }
         iniHash();
         try {
             StringTokenizer tok = new StringTokenizer(value, DELIM_ELEMENTS);
@@ -174,20 +184,25 @@ public class ItemTypeHashtable<E> extends ItemType {
         if (color != null) {
             titlelabel.setForeground(color);
         }
-        addButton = new JButton();
-        addButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_plus.gif")));
-        addButton.setMargin(new Insets(0,0,0,0));
-        Dialog.setPreferredSize(addButton, 19, 19);
-        addButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) { addButtonHit(e); }
-        });
-
+        
         String[] keys = getKeysArray();
 
         panel.add(titlelabel, new GridBagConstraints(x, y, 2, 1, 0.0, 0.0,
                   GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, padXbefore, (keys.length == 0 ? padYafter : 0), 0), 0, 0));
-        panel.add(addButton, new GridBagConstraints(x+2, y, 2, 1, 0.0, 0.0,
-                  GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, (keys.length == 0 ? padYafter : 0), padXafter), 0, 0));
+        if (allowedAdd) {
+            addButton = new JButton();
+            addButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_plus.gif")));
+            addButton.setMargin(new Insets(0, 0, 0, 0));
+            Dialog.setPreferredSize(addButton, 19, 19);
+            addButton.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    addButtonHit(e);
+                }
+            });
+            panel.add(addButton, new GridBagConstraints(x + 2, y, 2, 1, 0.0, 0.0,
+                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, (keys.length == 0 ? padYafter : 0), padXafter), 0, 0));
+        }
+
 
         textfield = new JTextField[size()];
         delButtons = new Hashtable();
@@ -205,27 +220,33 @@ public class ItemTypeHashtable<E> extends ItemType {
             if (color != null) {
                 label.setForeground(color);
             }
-            JButton delButton = new JButton();
-            delButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_minus.gif")));
-            delButton.setMargin(new Insets(0,0,0,0));
-            Dialog.setPreferredSize(delButton, 19, 19);
-            delButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) { delButtonHit(e); }
-            });
-
             panel.add(label, new GridBagConstraints(x, y+i+1, 1, 1, 0.0, 0.0,
                     GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, padXbefore, (i+1 == keys.length ? padYafter : 0), 0), 0, 0));
             panel.add(textfield[i], new GridBagConstraints(x+1, y+i+1, 1, 1, 0.0, 0.0,
                     GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, (i+1 == keys.length ? padYafter : 0), 0), 0, 0));
-            panel.add(delButton, new GridBagConstraints(x+2, y+i+1, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, (i+1 == keys.length ? padYafter : 0), 0), 0, 0));
-
-            delButtons.put(delButton, keys[i]);
+            if (allowedDelete) {
+                JButton delButton = new JButton();
+                delButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_minus.gif")));
+                delButton.setMargin(new Insets(0, 0, 0, 0));
+                Dialog.setPreferredSize(delButton, 19, 19);
+                delButton.addActionListener(new java.awt.event.ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        delButtonHit(e);
+                    }
+                });
+                panel.add(delButton, new GridBagConstraints(x + 2, y + i + 1, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, (i + 1 == keys.length ? padYafter : 0), 0), 0, 0));
+                delButtons.put(delButton, keys[i]);
+            }
         }
         return keys.length+1;
     }
 
     private void addButtonHit(ActionEvent e) {
+        if (!allowedAdd) {
+            return;
+        }
+
         String key = null;
         key = Dialog.inputDialog(International.getString("Neuen Eintrag hinzufügen"),
                                  International.getString("Bezeichnung") + ": ");
@@ -250,6 +271,9 @@ public class ItemTypeHashtable<E> extends ItemType {
     }
 
     private void delButtonHit(ActionEvent e) {
+        if (!allowedDelete) {
+            return;
+        }
         String key = delButtons.get(e.getSource());
         if (key == null || dlg == null) {
             return;
@@ -312,6 +336,7 @@ public class ItemTypeHashtable<E> extends ItemType {
         for (int i=0; i<b.length; i++) {
             b[i].setVisible(visible);
         }
+        super.setVisible(visible);
     }
 
     public void setEnabled(boolean enabled) {

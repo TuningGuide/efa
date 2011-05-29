@@ -10,7 +10,7 @@
 
 package de.nmichael.efa.data;
 
-import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.ex.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
 import java.util.*;
@@ -121,7 +121,7 @@ public class Status extends Persistence {
                 return null;
             }
             StatusRecord r = createStatusRecord(id);
-            r.setName(name);
+            r.setStatusName(name);
             r.setType(type);
             data().add(r);
         } catch(Exception e) {
@@ -149,7 +149,7 @@ public class Status extends Persistence {
         if (r == null) {
             return false;
         }
-        r.setName(newName);
+        r.setStatusName(newName);
         try {
             data().update(r);
             return true;
@@ -181,7 +181,7 @@ public class Status extends Persistence {
         for(int i=0; i<status.length; i++) {
             status[i] = (type == ARRAY_STRINGLIST_VALUES ?
                 sr[i].getId().toString() :
-                sr[i].getName());
+                sr[i].getStatusName());
         }
         return status;
     }
@@ -192,6 +192,55 @@ public class Status extends Persistence {
             // make sure GUEST and OTHER status types are always present
             addStatus(International.getString("Gast"), StatusRecord.TYPE_GUEST);
             addStatus(International.getString("andere"), StatusRecord.TYPE_OTHER);
+        }
+    }
+
+    public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
+        StatusRecord sr = (StatusRecord) record;
+        if (add || update) {
+            if (sr.getStatusName() == null || sr.getStatusName().trim().length() == 0) {
+                throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                        International.getMessage("Das Feld '{field}' darf nicht leer sein.", StatusRecord.NAME),
+                        Thread.currentThread().getStackTrace());
+            }
+            StatusRecord sr0 = findStatusByName(sr.getStatusName());
+            if (sr0 != null && !sr0.getId().equals(sr.getId())) {
+                throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                        International.getString("Es gibt bereits einen gleichnamigen Eintrag.") + " "  +
+                        International.getMessage("Das Feld '{field}' muß eindeutig sein.", StatusRecord.NAME),
+                        Thread.currentThread().getStackTrace());
+            }
+        }
+        if (delete) {
+            if (sr.getType() != null && !sr.getType().equals(StatusRecord.TYPE_USER)) {
+                throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                        International.getMessage("Vordefinierter Status vom Typ '{type}' kann nicht gelöscht werden.", sr.getTypeDescription()),
+                        Thread.currentThread().getStackTrace());
+            }
+            String refRec = null;
+            try {
+                Persons persons = getProject().getPersons(false);
+                DataKeyIterator it = persons.data().getStaticIterator();
+                DataKey key = it.getFirst();
+                while (key != null) {
+                    PersonRecord r = (PersonRecord)persons.data().get(key);
+                    if (r != null && !r.getDeleted() && r.getStatusId() != null && r.getStatusId().equals(sr.getId())) {
+                        refRec = r.getQualifiedName();
+                        break;
+                    }
+                    key = it.getNext();
+                }
+            } catch(Exception e) {
+                throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                        e.toString(),
+                        Thread.currentThread().getStackTrace());
+            }
+            if (refRec != null) {
+                throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                        International.getMessage("Der Datensatz kann nicht gelöscht werden, da er noch von {listtype} '{record}' genutzt wird.",
+                        International.getString("Person"), refRec),
+                        Thread.currentThread().getStackTrace());
+            }
         }
     }
 

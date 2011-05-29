@@ -109,10 +109,6 @@ public class CrewRecord extends DataRecord {
         return "Crew"+pos+"Id";
     }
 
-    private static String getCrewFieldNameName(int pos) {
-        return "Crew"+pos+"Name";
-    }
-
     public void setId(UUID id) {
         setUUID(ID, id);
     }
@@ -150,7 +146,7 @@ public class CrewRecord extends DataRecord {
 
     public String getQualifiedName() {
         String name = getName();
-        return (name != null ? name : "");
+        return (name != null ? International.getString("Mannschaft") + " " + name : "");
     }
 
     public String[] getQualifiedNameFields() {
@@ -163,23 +159,50 @@ public class CrewRecord extends DataRecord {
 
     public Vector<IItemType> getGuiItems() {
         String CAT_BASEDATA     = "%01%" + International.getString("Reservierung");
+
+        Persons persons = getPersistence().getProject().getPersons(false);
+
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
-        // @todo
-        //v.add(item = new ItemTypeString(BoatRecord.NAME, getName(),
-        //        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
+        v.add(item = new ItemTypeString(CrewRecord.NAME, getName(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Mannschaftsname")));
+        v.add(item = getGuiItemTypeStringAutoComplete(CrewRecord.COXID, getCoxId(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                persons, getValidFrom(), getInvalidFrom()-1,
+                International.getString("Steuermann")));
+        for (int i=1; i<=LogbookRecord.CREW_MAX; i++) {
+            v.add(item = getGuiItemTypeStringAutoComplete(getCrewFieldNameId(i), getCrewId(i),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                    persons, getValidFrom(), getInvalidFrom() - 1,
+                    International.getString("Mannschaft") + " " + i));
+        }
+
+        String[] cptType = new String[LogbookRecord.CREW_MAX + 2];
+        String[] cptValue = new String[LogbookRecord.CREW_MAX + 2];
+        for (int i=0; i<cptType.length; i++) {
+            cptType[i] = (i == 0 ? "" : Integer.toString(i-1));
+            cptValue[i] = (i == 0 ? "- " + International.getString("keine Auswahl") + " -" :
+                                 (i == 1 ? International.getString("Steuermann") :
+                                           International.getString("Mannschaft") + " " + (i-1)));
+        }
+        String cpt = (getBoatCaptainPosition() >= 0 ? Integer.toString(getBoatCaptainPosition()) : "");
+        v.add(item = new ItemTypeStringList(CrewRecord.BOATCAPTAIN, cpt,
+                cptType, cptValue,
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                International.getString("Standard-Obmann")));
+
         return v;
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        TableItemHeader[] header = new TableItemHeader[4];
-        // @todo
+        TableItemHeader[] header = new TableItemHeader[1];
+        header[0] = new TableItemHeader(International.getString("Mannschaftsname"));
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
-        TableItem[] items = new TableItem[4];
-        // @todo
+        TableItem[] items = new TableItem[1];
+        items[0] = new TableItem(getName());
         return items;
     }
 

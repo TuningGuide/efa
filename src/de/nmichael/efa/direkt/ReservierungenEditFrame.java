@@ -252,7 +252,7 @@ public class ReservierungenEditFrame extends JDialog implements ActionListener {
   }
 
   void frIni() {
-    // @todo change order depending on locale
+      // @todo (P5) use weekdays according to order from Types.java
       String[] weekdays = new String[7];
       weekdays[0] = International.getString("Montag");
       weekdays[1] = International.getString("Dienstag");

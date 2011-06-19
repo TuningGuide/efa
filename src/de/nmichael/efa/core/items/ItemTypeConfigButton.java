@@ -232,6 +232,7 @@ public class ItemTypeConfigButton extends ItemType {
     }
 
     public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
         label.setForeground((enabled ? (new JLabel()).getForeground() : Color.gray));
         field.setEnabled(enabled);
         if (checkbox != null) {

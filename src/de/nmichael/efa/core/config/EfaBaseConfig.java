@@ -16,6 +16,8 @@ import de.nmichael.efa.util.EfaUtil;
 import java.io.*;
 
 // @i18n complete
+
+// @todo (P3) make EfaBaseConfig a Persistence implementation
 public class EfaBaseConfig extends DatenListe {
 
     public static final String KENNUNG183 = "##EFA.183.USERHOME##";
@@ -73,21 +75,29 @@ public class EfaBaseConfig extends DatenListe {
         return true;
     }
 
+    public boolean trySetUserDir(String dir, boolean createDir) {
+        if (dir == null || dir.length() == 0) {
+            return false;
+        }
+        dir = dir.trim();
+        if (!dir.endsWith(Daten.fileSep)) {
+            dir = dir + Daten.fileSep;
+        }
+        if (efaCanWrite(dir, false)) {
+            efaUserDirectory = dir;
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_BASICCONFIG, "efa.dir.user=" + efaUserDirectory);
+            return true;
+        }
+        return false;
+    }
+
     // Einstellungen zurücksetzen
     void reset() {
         efaUserDirectory = Daten.efaMainDirectory;
         language = null;
-        if (efaCanWrite(efaUserDirectory, false)) {
-            if (Logger.isTraceOn(Logger.TT_CORE)) {
-                Logger.log(Logger.DEBUG, Logger.MSG_CORE_BASICCONFIG, "efa.dir.user=" + efaUserDirectory);
-            }
-        } else {
+        if (!trySetUserDir(efaUserDirectory, false)) {
             efaUserDirectory = Daten.userHomeDir + (!Daten.userHomeDir.endsWith(Daten.fileSep) ? Daten.fileSep : "") + Daten.EFA_USERDATA_DIR + Daten.fileSep;
-            if (efaCanWrite(efaUserDirectory, true)) {
-                if (Logger.isTraceOn(Logger.TT_CORE)) {
-                    Logger.log(Logger.DEBUG, Logger.MSG_CORE_BASICCONFIG, "efa.dir.user=" + efaUserDirectory);
-                }
-            } else {
+            if (!trySetUserDir(efaUserDirectory, false)) {
                 efaUserDirectory = null;
                 if (Logger.isTraceOn(Logger.TT_CORE)) {
                     Logger.log(Logger.DEBUG, Logger.MSG_CORE_BASICCONFIG, "efa.dir.user=<null>");

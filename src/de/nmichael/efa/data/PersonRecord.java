@@ -29,6 +29,7 @@ public class PersonRecord extends DataRecord {
     // =========================================================================
 
     public static final String ID                  = "Id";
+    public static final String EFBID                 = "EfbId";
     public static final String FIRSTNAME           = "FirstName";
     public static final String LASTNAME            = "LastName";
     public static final String FIRSTLASTNAME       = "FirstLastName";
@@ -62,6 +63,7 @@ public class PersonRecord extends DataRecord {
         Vector<Integer> t = new Vector<Integer>();
 
         f.add(ID);                                t.add(IDataAccess.DATA_UUID);
+        f.add(EFBID);                             t.add(IDataAccess.DATA_STRING);
         f.add(FIRSTNAME);                         t.add(IDataAccess.DATA_STRING);
         f.add(LASTNAME);                          t.add(IDataAccess.DATA_STRING);
         f.add(FIRSTLASTNAME);                     t.add(IDataAccess.DATA_VIRTUAL);
@@ -111,6 +113,13 @@ public class PersonRecord extends DataRecord {
     }
     public UUID getId() {
         return getUUID(ID);
+    }
+
+    public void setEfbId(String id) {
+        setString(EFBID, id);
+    }
+    public String getEfbId() {
+        return getString(EFBID);
     }
 
     public void setFirstName(String name) {
@@ -352,6 +361,42 @@ public class PersonRecord extends DataRecord {
         }
     }
 
+    public static String[] tryGetFirstLastNameAndAffix(String s) {
+        Matcher m = qnamePattern.matcher(s);
+        String name = s.trim();
+        String affix = null;
+        if (m.matches()) {
+            name = m.group(1).trim();
+            affix = m.group(2).trim();
+        }
+
+        String firstName = null;
+        String lastName = null;
+        int pos = name.indexOf(", ");
+        if (pos < 0) {
+            pos = name.indexOf(" ");
+            if (pos >= 0) {
+                firstName = name.substring(0, pos).trim();
+                lastName  = name.substring(pos+1).trim();
+            }
+        } else {
+            firstName = name.substring(pos+2);
+            lastName = name.substring(0, pos).trim();
+        }
+        return new String[] { firstName, lastName, affix };
+    }
+
+    public static String[] tryGetNameAndAffix(String s) {
+        Matcher m = qnamePattern.matcher(s);
+        String name = s.trim();
+        String affix = null;
+        if (m.matches()) {
+            name = m.group(1).trim();
+            affix = m.group(2).trim();
+        }
+        return new String[] { name, affix };
+    }
+
     public Object getUniqueIdForRecord() {
         return getId();
     }
@@ -424,8 +469,8 @@ public class PersonRecord extends DataRecord {
 
     public TableItemHeader[] getGuiTableHeader() {
         TableItemHeader[] header = new TableItemHeader[4];
-        header[1] = new TableItemHeader(International.getString("Nachname"));
-        header[0] = new TableItemHeader(International.getString("Vorname"));
+        header[0] = new TableItemHeader(International.getString("Nachname"));
+        header[1] = new TableItemHeader(International.getString("Vorname"));
         header[2] = new TableItemHeader(International.getString("Geburtstag"));
         header[3] = new TableItemHeader(International.getString("Status"));
         return header;
@@ -433,8 +478,8 @@ public class PersonRecord extends DataRecord {
 
     public TableItem[] getGuiTableItems() {
         TableItem[] items = new TableItem[4];
-        items[1] = new TableItem(getLastName());
-        items[0] = new TableItem(getFirstName());
+        items[0] = new TableItem(getLastName());
+        items[1] = new TableItem(getFirstName());
         items[2] = new TableItem(getBirthday());
         items[3] = new TableItem(getStatusName());
         return items;

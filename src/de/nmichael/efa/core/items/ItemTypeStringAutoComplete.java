@@ -131,6 +131,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             return;
         }
         JTextField field = (JTextField)this.field;
+        //System.out.println("autoComplete("+e+") on "+getName()+" with text '"+field.getText()+"'");
 
         AutoCompleteList list = getAutoCompleteList();
         if (list == null) {
@@ -165,6 +166,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             mode = Mode.escape; // 5
         }
 
+        //System.out.println("autoComplete("+e+") on "+getName()+" with text '"+field.getText()+"' in mode "+mode);
         if (e == null || mode == Mode.enter || mode == Mode.escape) {
             field.setText(field.getText().trim());
         }
@@ -172,7 +174,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         boolean matching = false;
 
         if (mode == Mode.normal
-                || ((mode == Mode.enter || mode == Mode.escape) && field.getText().length() > 0)) {
+                || ((mode == Mode.enter || mode == Mode.escape || mode == Mode.none) && field.getText().length() > 0)) {
 
             // remove leading spaces
             String spc = field.getText();
@@ -210,29 +212,10 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
                 } else {
                     complete = list.getExact(field.getText().toLowerCase()); // keine Taste gedrückt --> nur richtig, wenn gesamtes Feld exakt vorhanden!
                 }
-                // prüfen (falls Mitglieder), ob Anfangsstück ein Alias ist
-                /* @todo Aliases
-                if (isMitgliederliste && ((Mitglieder) liste).aliases != null) {
-                    String s;
-                    if ((s = (String) ((Mitglieder) liste).aliases.get(prefix.toLowerCase())) != null) {
-                        complete = s;
-                    }
+                if (list.getAlias(prefix) != null) {
+                    complete = list.getAlias(prefix);
                 }
-                 */
 
-                // jetzt prüfen, ob Person (falls liste == mitglieder) schon in einem anderen Feld eingetragen
-                // wurde; wenn ja, dann nächsten passenden Eintrag nehmen, falls vorhanden
-                /* @todo Duplicate Persons
-                if (efaFrame != null && isMitgliederliste && complete != null && button != null) {
-                    String tmp = "";
-                    while (eingetragenInAnderemFeld(complete, feld, efaFrame) && tmp != null) {
-                        tmp = liste.getNext(prefix);
-                        if (tmp != null) {
-                            complete = tmp;
-                        }
-                    }
-                }
-                 */
             }
             if (e == null && complete != null) {
                 complete = list.getExact(complete);
@@ -244,7 +227,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
                 }
                 matching = true;
             }
-            if (withPopup && Daten.efaConfig.popupComplete.getValue() && e != null) {
+            if (withPopup && Daten.efaConfig.popupComplete.getValue() && e != null && mode != Mode.none) {
                 AutoCompletePopupWindow.showAndSelect(field, list, (complete != null ? complete : ""), null);
             }
         }
@@ -289,14 +272,16 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             base = s.substring(0, ignorePos).trim();
         }
         if (base != null && !matching) {
-            if (field.getText().startsWith(list.getFirst(base.trim()))) {
+            String firstInList = list.getFirst(base.trim());
+            if (firstInList != null && field.getText().startsWith(firstInList)) {
                 matching = true;
             }
         }
 
         // make sure to accept any values with trailing spaces as well
         if (prefix != null && !matching && prefix.endsWith(" ")) {
-            if (field.getText().startsWith(list.getFirst(prefix.trim()))) {
+            String firstInList = list.getFirst(prefix.trim());
+            if (firstInList != null && field.getText().startsWith(firstInList)) {
                 matching = true;
             }
         }
@@ -306,9 +291,11 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         } else {
             setButtonColor(Color.red);
         }
+        //System.out.println("autoComplete("+e+") on "+getName()+" with text '"+field.getText()+"' -> matching="+matching);
         
         if (mode == Mode.enter) {
             field.select(-1, -1);
+            field.setCaretPosition(field.getText().length());
             if (withPopup && Daten.efaConfig.popupComplete.getValue()) {
                 AutoCompletePopupWindow.hideWindow();
             }
@@ -347,7 +334,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         }
         if (neighbours != null) {
             for (int i=0; i<neighbours.size(); i++) {
-                // @todo provide a better dialog to select recommended replacements
+                // @todo (P3) provide a better dialog to select recommended replacements
                 String suggestedName = neighbours.get(i);
                 if (Dialog.yesNoDialog(International.getString("Tippfehler?"),
                         International.getMessage("Der Name '{name}' ist unbekannt.", name) + "\n"
@@ -391,6 +378,16 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
 
     public String getAlternateFieldNameForPlainText() {
         return alternateFieldNameForPlainText;
+    }
+
+    public void requestButtonFocus() {
+        if (button != null) {
+            button.requestFocus();
+        }
+    }
+
+    public JButton getButton() {
+        return button;
     }
 
 }

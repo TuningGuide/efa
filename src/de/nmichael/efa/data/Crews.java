@@ -36,4 +36,13 @@ public class Crews extends Persistence {
         return r;
     }
 
+    public CrewRecord getCrew(UUID id) {
+        try {
+            return (CrewRecord)data().get(CrewRecord.getDataKey(id));
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
 }

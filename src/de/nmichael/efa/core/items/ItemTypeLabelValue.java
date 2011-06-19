@@ -86,6 +86,9 @@ public abstract class ItemTypeLabelValue extends ItemType {
         }
         panel.add(field, new GridBagConstraints(x+labelGridWidth, y, fieldGridWidth, fieldGridHeight, 0.0, 0.0,
                 fieldGridAnchor, fieldGridFill, new Insets(padYbefore, 0, padYafter, padXafter), 0, 0));
+        if (!isEnabled) {
+            setEnabled(isEnabled);
+        }
         return 1;
     }
 
@@ -173,6 +176,7 @@ public abstract class ItemTypeLabelValue extends ItemType {
     }
 
     public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
         if (label != null) {
             label.setForeground((enabled ? (new JLabel()).getForeground() : Color.gray));
         }

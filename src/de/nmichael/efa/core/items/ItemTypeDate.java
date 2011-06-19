@@ -65,6 +65,8 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
                 }
                 TMJ tmj = EfaUtil.correctDate(value, referenceDate.getDay(), referenceDate.getMonth(), referenceDate.getYear());
                 this.value.setDate(tmj.tag, tmj.monat, tmj.jahr);
+            } else {
+                unset();
             }
         } catch (Exception e) {
             if (dlg == null) {

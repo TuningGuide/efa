@@ -290,14 +290,14 @@ public class ImportFrame extends JDialog implements ActionListener {
     if (datumVon.getText().trim().equals("")) return;
     Calendar cal = GregorianCalendar.getInstance();
     TMJ c = EfaUtil.correctDate(datumVon.getText().trim(),cal.get(GregorianCalendar.DAY_OF_MONTH),cal.get(GregorianCalendar.MONTH)+1-cal.getMinimum(GregorianCalendar.MONTH),cal.get(GregorianCalendar.YEAR));
-    datumVon.setText(c.tag+"."+c.monat+"."+c.jahr); // @todo: internationalize date
+    datumVon.setText(c.tag+"."+c.monat+"."+c.jahr);
   }
 
   void datumBis_focusLost(FocusEvent e) {
     if (datumBis.getText().trim().equals("")) return;
     Calendar cal = GregorianCalendar.getInstance();
     TMJ c = EfaUtil.correctDate(datumBis.getText().trim(),cal.get(GregorianCalendar.DAY_OF_MONTH),cal.get(GregorianCalendar.MONTH)+1-cal.getMinimum(GregorianCalendar.MONTH),cal.get(GregorianCalendar.YEAR));
-    datumBis.setText(c.tag+"."+c.monat+"."+c.jahr); // @todo: internationalize date
+    datumBis.setText(c.tag+"."+c.monat+"."+c.jahr);
   }
 
   void lfdNrAdd_focusLost(FocusEvent e) {

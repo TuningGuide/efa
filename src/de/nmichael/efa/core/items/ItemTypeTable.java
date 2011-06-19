@@ -223,6 +223,7 @@ public class ItemTypeTable extends ItemType implements ActionListener {
     }
 
     public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
         table.setEnabled(enabled);
         scrollPane.setEnabled(enabled);
     }

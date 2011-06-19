@@ -125,7 +125,7 @@ public class SessionGroupRecord extends DataRecord {
         String CAT_BASEDATA     = "%01%" + International.getString("Reservierung");
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
-        // @todo
+        // @todo (P2) implement Session Groups!!
         //v.add(item = new ItemTypeString(BoatRecord.NAME, getName(),
         //        IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
         return v;
@@ -133,13 +133,13 @@ public class SessionGroupRecord extends DataRecord {
 
     public TableItemHeader[] getGuiTableHeader() {
         TableItemHeader[] header = new TableItemHeader[4];
-        // @todo
+        // @todo (P2) implement Session Groups!!
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
         TableItem[] items = new TableItem[4];
-        // @todo
+        // @todo (P2) implement Session Groups!!
         return items;
     }
     

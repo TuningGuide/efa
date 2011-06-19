@@ -15,6 +15,8 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.gui.*;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.ex.*;
 import java.awt.*;
@@ -132,6 +134,10 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
         if (dataRecord != null) {
             try {
                 DataRecord[] recs = dataRecord.getPersistence().data().getValidAny(dataRecord.getKey());
+                if (recs == null && newRecord) {
+                    recs = new DataRecord[1];
+                    recs[0] = dataRecord;
+                }
                 Arrays.sort(recs);
                 versions = new Hashtable<Integer,DataRecord>();
                 for (int i=0; i<recs.length; i++) {
@@ -404,6 +410,32 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
             }
             showRecord(dataRecord);
         }
+    }
+
+    boolean saveRecord() throws InvalidValueException {
+        if (newRecord) {
+            long validFromTs = 0;
+            ItemTypeDateTime validFrom = new ItemTypeDateTime("VALID_FROM", DataTypeDate.today(), DataTypeTime.now(),
+                IItemType.TYPE_PUBLIC, "", International.getString("neue Version gültig ab") );
+            if (SimpleInputDialog.showInputDialog(this, International.getString("Gültigkeitsbeginn festlegen"), validFrom)) {
+                validFromTs = validFrom.getTimeStamp();
+            }
+            if (super.saveRecord()) {
+                if (validFromTs > 0) {
+                    try {
+                        dataRecord.getPersistence().data().changeValidity(dataRecord, validFromTs, Long.MAX_VALUE);
+                    } catch (EfaException ex) {
+                        ex.log();
+                        Dialog.error("Der Datensatz konnte nicht geändert werden." + "\n" + ex.toString());
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return super.saveRecord();
     }
 
 }

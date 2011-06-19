@@ -10,7 +10,9 @@
 
 package de.nmichael.efa.data.storage;
 
+import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
+import de.nmichael.efa.ex.*;
 import java.util.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
@@ -28,7 +30,9 @@ public class XMLFileReader extends DefaultHandler {
     private boolean inRecord = false;
     private String currentField = null;
     private DataRecord dataRecord = null;
+    private StringBuilder charBuffer = null;
     private boolean documentComplete = false;
+    private String documentReadError = null;
 
     public XMLFileReader(XMLFile data, long globalLock) {
         super();
@@ -76,16 +80,17 @@ public class XMLFileReader extends DefaultHandler {
         if (inHeaderSection || inRecord) {
             currentField = localName;
         }
-        if (inDataSection && localName.equals("record")) {
+        if (inDataSection && localName.equals(XMLFile.FIELD_DATA_RECORD)) {
             inRecord = true;
             dataRecord = data.getPersistence().createNewRecord();
         }
-        if (localName.equals("header")) {
+        if (localName.equals(XMLFile.FIELD_HEADER)) {
             inHeaderSection = true;
         }
-        if (localName.equals("data")) {
+        if (localName.equals(XMLFile.FIELD_DATA)) {
             inDataSection = true;
         }
+        charBuffer = new StringBuilder();
     }
 
     public void characters(char[] ch, int start, int length) {
@@ -96,6 +101,8 @@ public class XMLFileReader extends DefaultHandler {
 
         if (inDataSection && currentField != null) {
             try {
+                charBuffer.append(s);
+                s = charBuffer.toString();
                 dataRecord.set(currentField, s, false);
             } catch(Exception e) {
                 Logger.log(Logger.ERROR,Logger.MSG_FILE_PARSEERROR,"Parse Error for Field "+currentField+" = "+s+": "+e.toString());
@@ -106,12 +113,30 @@ public class XMLFileReader extends DefaultHandler {
         }
         if (inHeaderSection && currentField != null) {
             try {
-                if (currentField.equals("scn")) {
+                if (currentField.equals(XMLFile.FIELD_HEADER_PROGRAM)) {
+                    if (!s.equals(Daten.EFA)) {
+                        documentReadError = "Unexpected Value for Header Field " + currentField + ": " + s;
+                    }
+                }
+                if (currentField.equals(XMLFile.FIELD_HEADER_VERSION)) {
+                    // version handling, if necessary
+                }
+                if (currentField.equals(XMLFile.FIELD_HEADER_NAME)) {
+                    if (!s.equals(data.getStorageObjectName())) {
+                        documentReadError = "Unexpected Value for Header Field " + currentField + ": " + s;
+                    }
+                }
+                if (currentField.equals(XMLFile.FIELD_HEADER_TYPE)) {
+                    if (!s.equals(data.getStorageObjectType())) {
+                        documentReadError = "Unexpected Value for Header Field " + currentField + ": " + s;
+                    }
+                }
+                if (currentField.equals(XMLFile.FIELD_HEADER_SCN)) {
                     data.setSCN(Long.parseLong(s));
                 }
-                // @todo all other header fields
-            } catch(Exception e) {
-                Logger.log(Logger.ERROR,Logger.MSG_FILE_PARSEERROR,"Parse Error for Field "+currentField+" = "+s+": "+e.toString());
+            } catch (Exception e) {
+                documentReadError = "Parse Error for Header Field " + currentField + ": " + s;
+                Logger.log(Logger.ERROR, Logger.MSG_FILE_PARSEERROR, "Parse Error for Field " + currentField + " = " + s + ": " + e.toString());
             }
             if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
                 Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"Field "+currentField+" = "+s);
@@ -124,13 +149,13 @@ public class XMLFileReader extends DefaultHandler {
             Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "endElement(" + uri + "," + localName + "," + qname + ")");
         }
 
-        if (localName.equals("header")) {
+        if (localName.equals(XMLFile.FIELD_HEADER)) {
             inHeaderSection = false;
         }
-        if (localName.equals("data")) {
+        if (localName.equals(XMLFile.FIELD_DATA)) {
             inDataSection = false;
         }
-        if (inDataSection && localName.equals("record")) {
+        if (inDataSection && localName.equals(XMLFile.FIELD_DATA_RECORD)) {
             try {
                 data.add(dataRecord,globalLock);
             } catch(Exception e) {
@@ -139,10 +164,14 @@ public class XMLFileReader extends DefaultHandler {
             dataRecord = null;
             inRecord = false;
         }
-        if (localName.equals("efa")) {
+        if (localName.equals(XMLFile.FIELD_GLOBAL)) {
             documentComplete = true;
         }
         currentField = null;
+    }
+
+    public String getDocumentReadError() {
+        return documentReadError;
     }
     
 }

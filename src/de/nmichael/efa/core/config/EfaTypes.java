@@ -20,6 +20,7 @@ import java.text.*;
 
 // @i18n complete
 
+// @todo (P3) make EfaTypes a Persistence implementation
 public class EfaTypes extends DatenListe {
 
     public static final String CATEGORY_GENDER            = "GENDER";       // GESCHLECHT
@@ -368,6 +369,9 @@ public class EfaTypes extends DatenListe {
     }
 
     public static int getNumberOfRowers(String key) {
+        if (key == null) {
+            return Fahrtenbuch.ANZ_MANNSCH;
+        }
         if (key.equals(EfaTypes.TYPE_NUMSEATS_1)) {
             return 1;
         }
@@ -484,6 +488,20 @@ public class EfaTypes extends DatenListe {
             if (!isConfigured(CATEGORY_STATUS, TYPE_STATUS_OTHER)) {
                 setValue(CATEGORY_STATUS, TYPE_STATUS_OTHER, International.getString("andere")); // this is just the default to be used for guests; actual values will come from Status table
             }
+
+            // make sure types "OTHER" are always the last type
+            s = getValue(CATEGORY_BOAT, TYPE_BOAT_OTHER);
+            removeValue(CATEGORY_BOAT, TYPE_BOAT_OTHER);
+            setValue(CATEGORY_BOAT, TYPE_BOAT_OTHER, s);
+            s = getValue(CATEGORY_NUMSEATS, TYPE_NUMSEATS_OTHER);
+            removeValue(CATEGORY_NUMSEATS, TYPE_NUMSEATS_OTHER);
+            setValue(CATEGORY_NUMSEATS, TYPE_NUMSEATS_OTHER, s);
+            s = getValue(CATEGORY_RIGGING, TYPE_RIGGING_OTHER);
+            removeValue(CATEGORY_RIGGING, TYPE_RIGGING_OTHER);
+            setValue(CATEGORY_RIGGING, TYPE_RIGGING_OTHER, s);
+            s = getValue(CATEGORY_COXING, TYPE_COXING_OTHER);
+            removeValue(CATEGORY_COXING, TYPE_COXING_OTHER);
+            setValue(CATEGORY_COXING, TYPE_COXING_OTHER, s);
 
         } catch (IOException e) {
             try {

@@ -932,7 +932,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
       }
     });
 
-    if (Daten.efaConfig.showGermanOptions.getValue()) {
+    if (Daten.efaConfig.useFunctionalityRowingGermany.getValue()) {
         jMenuItem2.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_efawett.gif")));
         Mnemonics.setMenuButton(this, jMenuItem2, International.getStringWithMnemonic("Elektronische Wettbewerbsmeldung"));
         jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
@@ -1088,7 +1088,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         decolorize(e);
       }
     });
-    if (Daten.efaConfig.showGermanOptions.getValue()) {
+    if (Daten.efaConfig.useFunctionalityRowingGermany.getValue()) {
         Mnemonics.setMenuButton(this, jMenuItem13, "DRV-Fahrtenabzeichen");
         jMenuItem13.setIcon(new ImageIcon(EfaFrame.class.getResource("/de/nmichael/efa/img/menu_fahrtenabzeichen.gif")));
         jMenuItem13.addActionListener(new java.awt.event.ActionListener() {
@@ -1111,10 +1111,10 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
         jMenuItem14_actionPerformed(e);
       }
     });
-    menuFile.add(menuFile_newProject); // @@@todo in efa2
-    menuFile.add(menuFile_openProject); // @@@todo in efa2
+    menuFile.add(menuFile_newProject);
+    menuFile.add(menuFile_openProject);
     menuFile.addSeparator();
-    menuFile.add(menuFile_logbooks); // @@@todo in efa2
+    menuFile.add(menuFile_logbooks);
     menuFile.addSeparator();
     menuFile.add(jMenuNew);
     menuFile.add(jMenuFileOpen);
@@ -1406,7 +1406,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
     jMenuFahrtenbuch.add(jMenuItem1);
     jMenuKonfiguration.add(jMenuItem12);
     jMenuKonfiguration.add(jMenuItem14);
-    if (Daten.efaConfig.showGermanOptions.getValue()) {
+    if (Daten.efaConfig.useFunctionalityRowingGermany.getValue()) {
         jMenuKonfiguration.add(jMenuItem13);
         jMenuKonfiguration.add(jMenuItem2);
     }
@@ -3126,14 +3126,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
 
     Daten.iniAllDataFiles();
 
-/*
- * @todo: how to best implement this in efa2??
-    if (!startEfaTour && !Daten.efaConfig.version.equals(Daten.PROGRAMMID) && Daten.efaConfig.version.compareTo(Daten.PROGRAMMID) != 0) {
-      Dialog.neuBrowserDlg(this,Daten.EFA_SHORTNAME,
-              "file:"+Daten.efaProgramDirectory+"html"+Daten.fileSep+"tour"+Daten.fileSep+"k06-001.html", // @todo: How to internationalize the tour?
-              750,600,(int)Dialog.screenSize.getWidth()/2-375,(int)Dialog.screenSize.getHeight()/2-300);
- */
-
     Daten.checkEfaVersion(true);
     Daten.checkJavaVersion(true);
     Daten.checkRegister();
@@ -3148,30 +3140,6 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
             askForOpenNewFb = true;
         }
     }
-
-/*
- * @todo: how to best implement this in efa2??
-    // ggf. fragen, ob es sich um einen Berliner Verein handelt
-    if (Daten.efaConfig.version.compareTo("EFA.141")<0 || openWelcome) {
-      Daten.efaConfig.showBerlinOptions =
-          Dialog.auswahlDialog(International.onlyFor("Berliner Vereine","de"),
-                               International.onlyFor("efa verfügt über Funktionen (bzgl. Zielbereichen), die speziell für Berliner Vereine "+
-                               "gedacht sind. Die entsprechenden Optionen sind für Nicht-Berliner Vereine nicht "+
-                               "relevant und können, um die Übersichtlichkeit zu erhöhen, verborgen werden.\n"+
-                               "Bitte wähle aus:","de"),
-                               International.onlyFor("Optionen für Berliner Vereine anzeigen","de"),
-                               International.onlyFor("Nur-Berlin-relevante Optionen verbergen","de"),
-                               false) != 1;
-      Daten.efaConfig.writeFile();
-    }
- */
-
-/*
- * @todo: how to best implement this in efa2??
-    // ggf. nach Zielbereich, in dem der Verein liegt, fragen (wenn zum ersten Mal eine Version neuer/gleich 1.3.5 gestartet wird)
-    if (Daten.efaConfig.showBerlinOptions && Daten.vereinsConfig != null &&
-        (Daten.efaConfig.version.compareTo("EFA.135")<0 || openWelcome)) Daten.vereinsConfig.askForZielbereichOnStart();
-*/
 
     // bei entspr. Einstellung Obmann-Auswahlliste ausblenden
     if (!Daten.efaConfig.showObmann.getValue()) {
@@ -4497,7 +4465,7 @@ public class EfaFrame extends JFrame implements AutoCompletePopupWindowCallback 
           String erlaubteGruppen = null;
           for (int j=0; j<g.size(); j++) {
             erlaubteGruppen = (erlaubteGruppen == null ? (String)g.get(j) : erlaubteGruppen + (j+1<g.size() ? ", "+g.get(j) : " " +
-                    International.getString("und") + " " + g.get(j)) ); // @todo: for some languages it might be necessary to translate ", " as well, or even use a ChoiceFormat here
+                    International.getString("und") + " " + g.get(j)) );
           }
           switch (Dialog.auswahlDialog(International.getString("Boot nur für bestimmte Gruppen freigegeben"),
                                  International.getMessage("Dieses Boot dürfen nur {list_of_valid_groups} nutzen.",erlaubteGruppen) + "\n" +

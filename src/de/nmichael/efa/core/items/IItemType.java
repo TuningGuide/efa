@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Window;
 import java.awt.AWTEvent;
+import javax.swing.*;
 import de.nmichael.efa.gui.BaseDialog;
 
 
@@ -52,6 +53,7 @@ public interface IItemType {
     public void setVisible(boolean visible);
     public void setEnabled(boolean enabled);
     public boolean isVisible();
+    public boolean isEnabled();
 
     public void setPadding(int padXbefore, int padXafter, int padYbefore, int padYafter);
     public void setFieldSize(int width, int height);
@@ -63,10 +65,13 @@ public interface IItemType {
     public boolean isNotNullSet();
 
     public void setUnchanged();
+    public void setChanged();
     public boolean isChanged();
 
     public void registerItemListener(IItemListener listener);
     public void actionEvent(AWTEvent e);
+
+    public JComponent getComponent();
 
 
 }

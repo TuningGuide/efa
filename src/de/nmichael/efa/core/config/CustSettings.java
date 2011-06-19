@@ -25,10 +25,10 @@ public class CustSettings {
     }
 
     public CustSettings(EfaConfig efaConfig) {
-        activateGermanRowingOptions = efaConfig.showGermanOptions.getValue();
-        activateBerlinRowingOptions = efaConfig.showBerlinOptions.getValue();
-        activateRowingOptions = efaConfig.useForRowing.getValue();
-        activateCanoeingOptions = efaConfig.useForCanoeing.getValue();
+        activateGermanRowingOptions = efaConfig.useFunctionalityRowingGermany.getValue();
+        activateBerlinRowingOptions = efaConfig.useFunctionalityRowingBerlin.getValue();
+        activateRowingOptions = efaConfig.useFunctionalityRowing.getValue();
+        activateCanoeingOptions = efaConfig.useFunctionalityCanoeing.getValue();
     }
 
 

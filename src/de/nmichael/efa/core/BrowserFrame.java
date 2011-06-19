@@ -618,7 +618,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
         BufferedReader f=null;
         try {
           // Quelldatei lesen
-          f = new BufferedReader(new InputStreamReader(new FileInputStream(quelle),Daten.ENCODING_UTF)); // @todo get proper encoding???
+          f = new BufferedReader(new InputStreamReader(new FileInputStream(quelle),Daten.ENCODING_UTF)); // @todo (P5) get proper encoding???
           String s;
           // Zeilenweise lesen
           while ( (s=f.readLine()) != null) {

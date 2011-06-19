@@ -37,6 +37,16 @@ public class LogString {
   }
 
 
+  public static String logstring_fileDeletionFailed(String filename, String description, String error) {
+      return International.getMessage("{filedescription} '{filename}' konnte nicht gelöscht werden",
+                                       description,filename) +
+                                       (error == null ? "." : ": " + error);
+  }
+
+  public static String logstring_fileDeletionFailed(String filename, String description) {
+      return logstring_fileDeletionFailed(filename, description, null);
+  }
+
 
   public static String logstring_fileOpenFailed(String filename, String description, String error) {
       return International.getMessage("{filedescription} '{filename}' konnte nicht geöffnet werden",
@@ -130,6 +140,11 @@ public class LogString {
   }
 
 
+  public static String logstring_directoryNoWritePermission(String dirname, String description) {
+      return International.getMessage("Keine Schreibberechtigung in {directorydescription} '{directoryname}'",
+                                       description,dirname) + ".";
+  }
+
 
   public static String logstring_cantExecCommand(String command, String description, String error) {
       return International.getMessage("{commanddescription} '{command}' kann nicht ausgeführt werden",
@@ -162,6 +177,11 @@ public class LogString {
   public static void logError_fileCreationFailed(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_FILECREATEFAILED,
               logstring_fileCreationFailed(filename,description));
+  }
+
+  public static void logError_fileDeletionFailed(String filename, String description) {
+      Logger.log(Logger.ERROR, Logger.MSG_FILE_FILECREATEFAILED,
+              logstring_fileDeletionFailed(filename,description));
   }
 
   public static void logError_fileOpenFailed(String filename, String description) {
@@ -213,6 +233,11 @@ public class LogString {
               logstring_directoryDoesNotExist(dirname,description));
   }
   
+   public static void logError_directoryNoWritePermission(String dirname, String description) {
+      Logger.log(Logger.ERROR, Logger.MSG_FILE_DIRECTORYNOTFOUND,
+              logstring_directoryNoWritePermission(dirname,description));
+  }
+
   public static void logWarning_cantExecCommand(String command, String description, String error) {
       Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTEXECCOMMAND,
               logstring_cantExecCommand(command,description,error));

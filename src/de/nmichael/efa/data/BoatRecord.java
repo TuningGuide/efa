@@ -34,6 +34,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     // =========================================================================
 
     public static final String ID                    = "Id";
+    public static final String EFBID                 = "EfbId";
     public static final String NAME                  = "Name";
     public static final String NAMEAFFIX             = "NameAffixow";
     public static final String OWNER                 = "Owner";
@@ -78,6 +79,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         Vector<Integer> t = new Vector<Integer>();
 
         f.add(ID);                                t.add(IDataAccess.DATA_UUID);
+        f.add(EFBID);                             t.add(IDataAccess.DATA_STRING);
         f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
         f.add(NAMEAFFIX);                         t.add(IDataAccess.DATA_STRING);
         f.add(OWNER);                             t.add(IDataAccess.DATA_STRING);
@@ -131,6 +133,13 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     }
     public UUID getId() {
         return getUUID(ID);
+    }
+
+    public void setEfbId(String id) {
+        setString(EFBID, id);
+    }
+    public String getEfbId() {
+        return getString(EFBID);
     }
 
     public void setName(String name) {
@@ -533,6 +542,22 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
             };
         }
     }
+
+    public static String[] tryGetNameAndAffix(String s) {
+        Matcher m = qnamePattern.matcher(s);
+        if (m.matches()) {
+            return new String[] {
+                m.group(1).trim(),
+                m.group(2).trim()
+            };
+        } else {
+            return new String[] {
+                s.trim(),
+                null
+            };
+        }
+    }
+
     public Object getUniqueIdForRecord() {
         return getId();
     }

@@ -36,7 +36,7 @@ public class Statistik {
                                                  // Bugfix 13.02.2006 für MG
 
   // Farbdefinitionen für die Balken (entsprechen den Dateinamen der *.gif-Dateien)
-  // @todo: change names for files??
+  // @todo (P4) change names for image files??
   protected static final String COLORKM      = "km";
   protected static final String COLORRUDKM   = "rudkm";
   protected static final String COLORSTMKM   = "stmkm";

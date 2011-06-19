@@ -88,6 +88,7 @@ public class ItemTypeLabel extends ItemType {
 
 
     public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
         for (int i=0; i<labels.length; i++) {
             labels[i].setForeground((enabled ? (new JLabel()).getForeground() : Color.gray));
         }

@@ -92,7 +92,7 @@ public class NewProjectDialog extends StepwiseDialog {
                 International.getString("Straße")));
         items.add(new ItemTypeString(ProjectRecord.ADDRESSCITY, "", IItemType.TYPE_PUBLIC, "2", International.getString("Anschrift") + " - " +
                 International.getString("Postleitzahl und Ort")));
-        if (Daten.efaConfig.showBerlinOptions.getValue()) {
+        if (Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
             items.add(new ItemTypeInteger(ProjectRecord.AREAID, ItemTypeInteger.UNSET, 1, Zielfahrt.ANZ_ZIELBEREICHE, true,
                     IItemType.TYPE_PUBLIC, "2", International.onlyFor("Zielbereich", "de")));
         }
@@ -100,7 +100,7 @@ public class NewProjectDialog extends StepwiseDialog {
         // Items for Step 3
         items.add(new ItemTypeString(ProjectRecord.ASSOCIATIONGLOBALNAME,
                 (International.getLanguageID().startsWith("de") ?
-                    (Daten.efaConfig.useForRowing.getValue() ? 
+                    (Daten.efaConfig.useFunctionalityRowing.getValue() ?
                         International.onlyFor("Deutscher Ruderverband","de") :
                         International.onlyFor("Deutscher Kanuverband","de")) : ""),
                 IItemType.TYPE_PUBLIC, "3",
@@ -114,7 +114,7 @@ public class NewProjectDialog extends StepwiseDialog {
                 International.getString("Benutzername")));
         items.add(new ItemTypeString(ProjectRecord.ASSOCIATIONREGIONALNAME,
                 (International.getLanguageID().startsWith("de") ?
-                    (Daten.efaConfig.useForRowing.getValue() ? 
+                    (Daten.efaConfig.useFunctionalityRowing.getValue() ?
                         International.onlyFor("Landesruderverband Berlin","de") :
                         International.onlyFor("Landes-Kanu-Verband Berlin","de")) : ""),
                 IItemType.TYPE_PUBLIC, "3",
@@ -126,7 +126,7 @@ public class NewProjectDialog extends StepwiseDialog {
         items.add(new ItemTypeString(ProjectRecord.ASSOCIATIONREGIONALLOGIN, "", IItemType.TYPE_PUBLIC, "3",
                 International.getString("Regionalverband") + " - " +
                 International.getString("Benutzername")));
-        if (Daten.efaConfig.useForRowing.getValue() && International.getLanguageID().startsWith("de")) {
+        if (Daten.efaConfig.useFunctionalityRowing.getValue() && International.getLanguageID().startsWith("de")) {
             items.add(new ItemTypeBoolean(ProjectRecord.MEMBEROFDRV, true, IItemType.TYPE_PUBLIC, "3",
                     International.onlyFor("Mitglied im Deutschen Ruderverband (DRV)","de")));
             items.add(new ItemTypeBoolean(ProjectRecord.MEMBEROFSRV, false, IItemType.TYPE_PUBLIC, "3",

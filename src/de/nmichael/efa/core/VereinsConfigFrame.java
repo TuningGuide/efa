@@ -425,7 +425,7 @@ public class VereinsConfigFrame extends JDialog implements ActionListener {
 
 
    void iniFelder(VereinsConfig vc) {
-     if (!Daten.efaConfig.showBerlinOptions.getValue()) {
+     if (!Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
        this.zielbereich.setVisible(false);
        this.zielbereichLabel.setVisible(false);
      }

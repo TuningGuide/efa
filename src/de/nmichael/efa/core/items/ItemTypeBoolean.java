@@ -113,6 +113,7 @@ public class ItemTypeBoolean extends ItemType {
     }
 
     public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
         field.setEnabled(enabled);
     }
 

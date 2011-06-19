@@ -17,6 +17,7 @@ import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.util.Dialog;
 import java.util.*;
+import java.io.*;
 
 // @i18n complete
 
@@ -24,7 +25,7 @@ public class Project extends Persistence {
 
 
     public static final String DATATYPE = "efa2project";
-    private Hashtable<String,Persistence> persistence = new Hashtable<String,Persistence>();
+    private Hashtable<String,Persistence> persistenceCache = new Hashtable<String,Persistence>();
 
     // Note: storageType and storageLocation are only type and location for the project file itself
     // (which is always being stored in the file system). The storageType and storageLocation for
@@ -80,6 +81,51 @@ public class Project extends Persistence {
         }
     }
 
+    public boolean deleteProject() {
+        try {
+            openAllData(); // just to make sure that persistenceCache is filled properly
+            if (getProjectStorageType() == IDataAccess.TYPE_FILE_XML) {
+                String[] keys = persistenceCache.keySet().toArray(new String[0]);
+                for (String key : keys) {
+                    Persistence p = persistenceCache.get(key);
+                    try {
+                        p.data().deleteStorageObject();
+                    } catch(Exception eignore) {
+                        Logger.logdebug(eignore);
+                        try {
+                            (new File(((DataFile)p.data()).getFilename())).delete();
+                        } catch(Exception eignore2) {}
+                    }
+                }
+                String[] logbookNames = getAllLogbookNames();
+                for (String logbookName : logbookNames) {
+                    Persistence p = null;
+                    try {
+                        p = getLogbook(logbookName, false);
+                        p.data().deleteStorageObject();
+                    } catch(Exception eignore) {
+                        Logger.logdebug(eignore);
+                        try {
+                            (new File(((DataFile)p.data()).getFilename())).delete();
+                        } catch(Exception eignore2) {}
+                    }
+                }
+            }
+            String projectDir = getProjectStorageLocation();
+            data().deleteStorageObject();
+            (new File(projectDir)).delete(); // delete project directory
+            if ((new File(projectDir)).exists()) {
+                Dialog.error(International.getMessage("Das Projekt konnte nicht vollständig gelöscht werden. Es befinden sich noch Daten in {directory}.",
+                        projectDir));
+            }
+        } catch(Exception e) {
+            Logger.log(e);
+            Dialog.error(LogString.logstring_fileDeletionFailed(getProjectName(), International.getString("Projekt"), e.toString()));
+            return false;
+        }
+        return true;
+    }
+
     public DataRecord createNewRecord() {
         return new ProjectRecord(this, MetaData.getMetaData(DATATYPE));
     }
@@ -93,6 +139,16 @@ public class Project extends Persistence {
 
     public ProjectRecord createNewLogbookRecord(String logbookName) {
         return createProjectRecord(ProjectRecord.TYPE_LOGBOOK, logbookName);
+    }
+
+    public boolean deleteLogbookRecord(String logbookName) {
+        try {
+            data().delete(createProjectRecord(ProjectRecord.TYPE_LOGBOOK, logbookName).getKey());
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return false;
+        }
+        return true;
     }
 
     public void setEmptyProject(String name) {
@@ -164,16 +220,16 @@ public class Project extends Persistence {
             }
         } catch(Exception e) {
             Logger.log(Logger.ERROR,Logger.MSG_DATA_CLOSEFAILED,
-            LogString.logstring_fileCloseFailed(persistence.toString(), p.getDescription(), e.toString()));
+            LogString.logstring_fileCloseFailed(persistenceCache.toString(), p.getDescription(), e.toString()));
             Logger.log(e);
         }
     }
 
     public void closeAllStorageObjects() throws Exception {
         // close all of this project's storage objects
-        Set<String> keys = persistence.keySet();
+        Set<String> keys = persistenceCache.keySet();
         for (String key: keys) {
-            closePersistence(persistence.get(key));
+            closePersistence(persistenceCache.get(key));
         }
         // close the project storage object itself
         closePersistence(this);
@@ -183,7 +239,7 @@ public class Project extends Persistence {
         Persistence p = null;
         try {
             String key = c.getCanonicalName()+":"+name;
-            p = persistence.get(key);
+            p = persistenceCache.get(key);
             if (p != null && p.isOpen()) {
                 return p; // fast path (would happen anyhow a few lines further down, but let's optimize for the most frequent use-case
             }
@@ -195,7 +251,7 @@ public class Project extends Persistence {
                 p.open(createNewIfDoesntExist);
             }
             if (p.isOpen()) {
-                persistence.put(key, p);
+                persistenceCache.put(key, p);
             }
         } catch(Exception e) {
             Logger.log(Logger.ERROR,Logger.MSG_DATA_OPENFAILED,
@@ -848,6 +904,7 @@ public class Project extends Persistence {
             errors += runAuditPersistence(getWaters(false), Waters.DATATYPE);
 
             errors += runAuditBoats();
+            // @todo (P3) AuditLogbook: check whether any name has a matching ID and replace by ID; also, check for deleted entries
         } catch(Exception e) {
             Logger.logdebug(e);
             Logger.log(Logger.ERROR,Logger.MSG_DATA_PROJECTCHECK,"runAudit() Caught Exception: " + e.toString());

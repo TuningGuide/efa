@@ -102,6 +102,7 @@ public class LogbookRecord extends DataRecord {
     public static final String COMMENTS         = "Comments";
     public static final String SESSIONTYPE      = "SessionType";
     public static final String SESSIONGROUPID   = "SessionGroupId";
+    public static final String SYNCSTATE        = "SyncState";
 
     // =========================================================================
     // Supplementary Constants
@@ -112,10 +113,16 @@ public class LogbookRecord extends DataRecord {
 
 
     public static String getCrewFieldNameId(int pos) {
+        if (pos == 0) {
+            return COXID;
+        }
         return "Crew"+pos+"Id";
     }
 
     public static String getCrewFieldNameName(int pos) {
+        if (pos == 0) {
+            return COXNAME;
+        }
         return "Crew"+pos+"Name";
     }
 
@@ -190,6 +197,7 @@ public class LogbookRecord extends DataRecord {
         f.add(COMMENTS);            t.add(IDataAccess.DATA_STRING);
         f.add(SESSIONTYPE);         t.add(IDataAccess.DATA_STRING);
         f.add(SESSIONGROUPID);      t.add(IDataAccess.DATA_UUID);
+        f.add(SYNCSTATE);           t.add(IDataAccess.DATA_INTEGER);
         MetaData metaData = constructMetaData(Logbook.DATATYPE, f, t, false);
         metaData.setKey(new String[] { ENTRYID });
     }
@@ -329,6 +337,14 @@ public class LogbookRecord extends DataRecord {
         return getString(DESTINATIONVARIANTNAME);
     }
 
+    public static String[] getDestinationNameAndVariantFromString(String s) {
+        int pos = s.indexOf(DestinationRecord.DESTINATION_VARIANT_SEPARATOR);
+        String[] names = new String[2];
+        names[0] = (pos < 0 ? s.trim() : s.substring(0, pos).trim());
+        names[1] = (pos >= 0 ? s.substring(pos+1).trim() : "");
+        return names;
+    }
+
     public void setDistance(DataTypeDistance distance) {
         setDistance(DISTANCE, distance);
     }
@@ -356,7 +372,14 @@ public class LogbookRecord extends DataRecord {
     public UUID getSessionGroupId() {
         return getUUID(SESSIONGROUPID);
     }
-    
+
+    public void setSyncState(int syncState) {
+        setInt(SYNCSTATE, syncState);
+    }
+    public int getSyncState() {
+        return getInt(SYNCSTATE);
+    }
+
     public BoatRecord getBoatRecord(long validAt) {
         try {
             UUID id = getBoatId();
@@ -407,7 +430,11 @@ public class LogbookRecord extends DataRecord {
         return null;
     }
 
-    public String getGuiBoatName(long validAt) {
+    public String getBoatAsName() {
+        return getBoatAsName(getValidAtTimestamp());
+    }
+
+    public String getBoatAsName(long validAt) {
         String name = null;
         BoatRecord b = getBoatRecord(validAt);
         if (b != null) {
@@ -422,8 +449,11 @@ public class LogbookRecord extends DataRecord {
         return "";
     }
 
-    private String getGuiPersonName(int pos, long validAt) {
+    private String getPersonAsName(int pos, long validAt) {
         String name = null;
+        if (validAt < 0) {
+            validAt = getValidAtTimestamp();
+        }
         PersonRecord p = getPersonRecord(pos, validAt);
         if (p != null) {
             name = p.getQualifiedName();
@@ -442,16 +472,60 @@ public class LogbookRecord extends DataRecord {
         return "";
     }
 
-    public String getGuiCoxName(long validAt) {
-        return getGuiPersonName(0, validAt);
+    public String getCoxAsName() {
+        return getCoxAsName(getValidAtTimestamp());
     }
 
-    public String getGuiCrewName(int pos, long validAt) {
-        return getGuiPersonName(pos, validAt);
+    public String getCoxAsName(long validAt) {
+        return getPersonAsName(0, validAt);
     }
 
-    public String getGuiDestinationName(long validAt) {
+    public String getCrewAsName(int pos) {
+        return getCrewAsName(pos, getValidAtTimestamp());
+    }
+
+    public String getCrewAsName(int pos, long validAt) {
+        return getPersonAsName(pos, validAt);
+    }
+
+    public Vector<String> getAllCoxAndCrewAsNames() {
+        return getAllCoxAndCrewAsNames(getValidAtTimestamp());
+    }
+
+    public Vector<String> getAllCoxAndCrewAsNames(long validAt) {
+        Vector<String> v = new Vector<String>();
+        String s;
+        if ( (s = getCoxAsName(validAt)).length() > 0) {
+            v.add(s);
+        }
+        for (int i=0; i<CREW_MAX; i++) {
+            if ( (s = getPersonAsName(i, validAt)).length() > 0) {
+                v.add(s);
+            }
+        }
+        return v;
+    }
+
+    public int getNumberOfCrewMembers() {
+        int c = 0;
+        long validAt = getValidAtTimestamp();
+        for (int i=0; i<CREW_MAX; i++) {
+            if (getPersonAsName(i, validAt).length() > 0) {
+                c++;
+            }
+        }
+        return c;
+    }
+
+    public String getDestinationAndVariantName() {
+        return getDestinationAndVariantName(getValidAtTimestamp());
+    }
+
+    public String getDestinationAndVariantName(long validAt) {
         String name = null;
+        if (validAt < 0) {
+            validAt = getValidAtTimestamp();
+        }
         DestinationRecord d = getDestinationRecord(validAt);
         if (d != null) {
             name = d.getName();
@@ -461,7 +535,7 @@ public class LogbookRecord extends DataRecord {
         }
         String variant = getDestinationVariantName();
         if (variant != null && variant.length() > 0) {
-            name = name + " + " + variant;
+            name = name + " " + DestinationRecord.DESTINATION_VARIANT_SEPARATOR + " " + variant;
         }
         if (name != null) {
             return name;

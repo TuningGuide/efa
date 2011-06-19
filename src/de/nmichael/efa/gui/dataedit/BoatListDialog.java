@@ -11,6 +11,7 @@
 package de.nmichael.efa.gui.dataedit;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.util.*;
@@ -40,6 +41,7 @@ public class BoatListDialog extends DataListDialog {
         boolean newRecord = (record == null);
         if (record == null) {
             record = Daten.project.getBoats(false).createBoatRecord(UUID.randomUUID());
+            ((BoatRecord)record).addTypeVariant("", EfaTypes.TYPE_BOAT_OTHER, EfaTypes.TYPE_NUMSEATS_OTHER, EfaTypes.TYPE_RIGGING_OTHER, EfaTypes.TYPE_COXING_OTHER);
         }
         return new BoatEditDialog(parent, (BoatRecord)record, newRecord);
     }

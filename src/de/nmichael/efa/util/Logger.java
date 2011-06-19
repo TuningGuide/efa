@@ -26,11 +26,11 @@ public class Logger {
   private static final int LOGGING_THRESHOLD = 1000; // max LOGGING_THRESHOLD logging messages per second
 
   // Message Types
-  public static final String ERROR   = "ERROR  ";
-  public static final String INFO    = "INFO   ";
+  public static final String ERROR   = "ERROR";
+  public static final String INFO    = "INFO";
   public static final String WARNING = "WARNING";
-  public static final String ACTION  = "ACTION ";
-  public static final String DEBUG   = "DEBUG  ";
+  public static final String ACTION  = "ACTION";
+  public static final String DEBUG   = "DEBUG";
 
   // Message Keys
   public static final String MSG_GENERIC                     = "GEN001";
@@ -57,13 +57,15 @@ public class Logger {
   public static final String MSG_CORE_EFATYPESFAILEDCREATE   = "COR014";
   public static final String MSG_CORE_EFATYPESFAILEDOPEN     = "COR015";
   public static final String MSG_CORE_EFATYPESFAILEDSETVALUES= "COR016";
-  public static final String MSG_CORE_EFASECCORRUPTED        = "COR017";
-  public static final String MSG_CORE_CONFBACKUPDIRNOTEXIST  = "COR018";
-  public static final String MSG_CORE_EFAALREADYRUNNING      = "COR019";
-  public static final String MSG_CORE_UNKNOWNDATAFIELD       = "COR020";
-  public static final String MSG_CORE_UNSUPPORTEDDATATYPE    = "COR021";
-  public static final String MSG_CORE_DATATYPEINVALIDVALUE   = "COR022";
-  public static final String MSG_CORE_MISSINGPLUGIN          = "COR023";
+  public static final String MSG_CORE_EFASECCREATED          = "COR017";
+  public static final String MSG_CORE_EFASECFAILEDCREATE     = "COR018";
+  public static final String MSG_CORE_EFASECCORRUPTED        = "COR019";
+  public static final String MSG_CORE_CONFBACKUPDIRNOTEXIST  = "COR020";
+  public static final String MSG_CORE_EFAALREADYRUNNING      = "COR021";
+  public static final String MSG_CORE_UNKNOWNDATAFIELD       = "COR022";
+  public static final String MSG_CORE_UNSUPPORTEDDATATYPE    = "COR023";
+  public static final String MSG_CORE_DATATYPEINVALIDVALUE   = "COR024";
+  public static final String MSG_CORE_MISSINGPLUGIN          = "COR025";
 
   // Activities performed in Admin Mode
   public static final String MSG_ADMIN_LOGIN                 = "ADM001";
@@ -130,17 +132,19 @@ public class Logger {
   public static final String MSG_DATA_SAVEFAILED             = "DAT006";
   public static final String MSG_DATA_READFAILED             = "DAT007";
   public static final String MSG_DATA_WRITEFAILED            = "DAT008";
-  public static final String MSG_DATA_GETLOCKFAILED          = "DAT009";
-  public static final String MSG_DATA_LOCKTIMEOUT            = "DAT010";
-  public static final String MSG_DATA_RECORDNOTFOUND         = "DAT011";
-  public static final String MSG_DATA_DUPLICATERECORD        = "DAT012";
-  public static final String MSG_DATA_MODIFICATIONFAILED     = "DAT013";
-  public static final String MSG_DATA_INVALIDVERSIONIZEDDATA = "DAT014";
-  public static final String MSG_DATA_VERSIONIZEDDATACONFLICT= "DAT015";
-  public static final String MSG_DATA_PROJECTCHECK           = "DAT016";
-  public static final String MSG_DATA_INCONSISTENTDATA       = "DAT017";
-  public static final String MSG_DATA_RECORDWRONGTYPE        = "DAT018";
-  public static final String MSG_DATA_MODIFYEXCEPTION        = "DAT019";
+  public static final String MSG_DATA_DELETEFAILED           = "DAT009";
+  public static final String MSG_DATA_GETLOCKFAILED          = "DAT010";
+  public static final String MSG_DATA_LOCKTIMEOUT            = "DAT011";
+  public static final String MSG_DATA_RECORDNOTFOUND         = "DAT012";
+  public static final String MSG_DATA_DUPLICATERECORD        = "DAT013";
+  public static final String MSG_DATA_MODIFICATIONFAILED     = "DAT014";
+  public static final String MSG_DATA_INVALIDVERSIONIZEDDATA = "DAT015";
+  public static final String MSG_DATA_VERSIONIZEDDATACONFLICT= "DAT016";
+  public static final String MSG_DATA_PROJECTCHECK           = "DAT017";
+  public static final String MSG_DATA_INCONSISTENTDATA       = "DAT018";
+  public static final String MSG_DATA_RECORDWRONGTYPE        = "DAT019";
+  public static final String MSG_DATA_MODIFYEXCEPTION        = "DAT020";
+  public static final String MSG_DATA_INVALIDHEADER          = "DAT021";
 
   // de.nmichael.efa.core.DatenListe (and subclasses)
   public static final String MSG_CSVFILE_FILECONVERTED       = "CSV001";
@@ -268,11 +272,20 @@ public class Logger {
 
   // GUI Events & Errors
   public static final String MSG_GUI_ERRORACTIONHANDLER      = "GUI001";
+  public static final String MSG_GUI_DEBUGGUI                = "GUI002";
 
   // Help System
   public static final String MSG_HELP_ERRORHELPSET           = "HLP001";
   public static final String MSG_HELP_ERRORHELPBROKER        = "HLP002";
   public static final String MSG_HELP_DEBUGHELPTOPIC         = "HLP003";
+
+  // Synchronization
+  public static final String MSG_SYNC_SYNCINFO               = "SNC001";
+  public static final String MSG_SYNC_ERRORLOGIN             = "SNC002";
+  public static final String MSG_SYNC_ERRORINVALIDRESPONSE   = "SNC003";
+  public static final String MSG_SYNC_ERRORABORTSYNC         = "SNC004";
+  public static final String MSG_SYNC_WARNINCORRECTRESPONSE  = "SNC005";
+  public static final String MSG_SYNC_SYNCDEBUG              = "SNC006";
 
   // Debug Logging
   public static final String MSG_DEBUG_GENERIC               = "DBG001";
@@ -302,6 +315,7 @@ public class Logger {
   public static final long TT_STATISTICS           = Integer.parseInt("0000010000000000",2); // 0x0400
   public static final long TT_EXCEPTIONS           = Integer.parseInt("0000100000000000",2); // 0x0800
   public static final long TT_HELP                 = Integer.parseInt("0001000000000000",2); // 0x1000
+  public static final long TT_SYNC                 = Integer.parseInt("0010000000000000",2); // 0x2000
 
   // Debug Logging and Trace Topics
   private static boolean debugLogging = false;
@@ -388,7 +402,7 @@ public class Logger {
     }
 
     Calendar cal = new GregorianCalendar();
-    String t = "[" + EfaUtil.getCurrentTimeStamp() + "] - " + Daten.applPID + " - " + type + " - " + key +  " - " + msg;
+    String t = "[" + EfaUtil.getCurrentTimeStamp() + "] - " + getString(Daten.applName,7) + " - " + Daten.applPID + " - " + getString(type,7) + " - " + key +  " - " + msg;
     EfaErrorPrintStream.ignoreExceptions = true; // Damit Exception-Ausschriften nicht versehentlich als echte Exceptions gemeldet werden
     System.err.println(EfaUtil.replace(t,"\n"," ",true));
     EfaErrorPrintStream.ignoreExceptions = false;
@@ -438,6 +452,13 @@ public class Logger {
       EfaErrorPrintStream.ignoreExceptions = true;
       e.printStackTrace();
       EfaErrorPrintStream.ignoreExceptions = false;
+  }
+
+  private static String getString(String s, int length) {
+      while(s.length() < length) {
+          s = s + " ";
+      }
+      return s;
   }
 
   public static boolean setDebugLogging(boolean activate, boolean setFromCommandLine) {

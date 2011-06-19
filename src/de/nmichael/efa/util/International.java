@@ -185,7 +185,7 @@ public class International {
     public static String makeKey(String s) {
         if (s == null) return "null";
         
-        // @todo: To be extended by further characters? And maybe some performance optimization needed.
+        // To be extended by further characters? And maybe some performance optimization needed.
         char[] key = s.toCharArray();
         for (int i=0; i<key.length; i++) {
             switch(key[i]) {

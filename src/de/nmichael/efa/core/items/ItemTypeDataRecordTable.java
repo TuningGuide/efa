@@ -63,6 +63,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
     protected Hashtable<ItemTypeButton,String> actionButtons;
     protected static final String ACTION_BUTTON = "ACTION_BUTTON";
+    protected String[] actionText;
     protected int[] actionTypes;
 
     public ItemTypeDataRecordTable(String name,
@@ -100,9 +101,25 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     public void setActions(String[] actions, int[] actionTypes) {
         if (actions == null || actionTypes == null) {
             super.setPopupActions(DEFAULT_ACTIONS);
+            this.actionText = DEFAULT_ACTIONS;
             this.actionTypes = new int[] { ACTION_NEW, ACTION_EDIT, ACTION_DELETE };
         } else {
-            super.setPopupActions(actions);
+            int popupActionCnt = 0;
+            for (int i=0; i<actionTypes.length; i++) {
+                if (actionTypes[i] >= 0) {
+                    popupActionCnt++;
+                } else {
+                    break; // first action with type < 0 (and all others after this) won't be shows as popup actions
+                }
+            }
+            String[] myPopupActions = new String[popupActionCnt];
+            for (int i=0; i<actionTypes.length; i++) {
+                if (actionTypes[i] >= 0) {
+                    myPopupActions[i] = actions[i];
+                }
+            }
+            super.setPopupActions(myPopupActions);
+            this.actionText = actions;
             this.actionTypes = actionTypes;
         }
     }
@@ -119,11 +136,11 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         myPanel.add(tablePanel, BorderLayout.CENTER);
         myPanel.add(buttonPanel, BorderLayout.EAST);
         actionButtons = new Hashtable<ItemTypeButton,String>();
-        for (int i=0; popupActions != null && i<popupActions.length; i++) {
+        for (int i=0; actionText != null && i<actionText.length; i++) {
             String action = ACTION_BUTTON + "_" + actionTypes[i];
-            ItemTypeButton button = new ItemTypeButton(action, IItemType.TYPE_PUBLIC, "BUTTON_CAT", popupActions[i]);
+            ItemTypeButton button = new ItemTypeButton(action, IItemType.TYPE_PUBLIC, "BUTTON_CAT", actionText[i]);
             button.registerItemListener(this);
-            button.setPadding(20, 20, 0, 5);
+            button.setPadding(20, 20, (i>0 && actionTypes[i]<0 && actionTypes[i-1] >=0 ? 20 : 0), 5);
             button.setFieldSize(200, -1);
             button.displayOnGui(dlg, buttonPanel, 0, i);
             actionButtons.put(button, action);
@@ -163,8 +180,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                 }
             }
 
-            // mark invalid records
-            if (isVersionized && !r.isValidAt(myValidAt)) {
+            // mark invalid and invisible records
+            if (isVersionized && (!r.isValidAt(myValidAt) || r.getInvisible())) {
                 for (TableItem it : content) {
                     it.setDisabled(true);
                 }

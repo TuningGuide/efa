@@ -11,6 +11,7 @@
 package de.nmichael.efa.gui.util;
 
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.data.*;
 import de.nmichael.efa.util.*;
 import java.util.*;
 
@@ -23,6 +24,7 @@ public class AutoCompleteList {
     private Vector<String> dataVisible = new Vector<String>();;
     private Hashtable<String,String> lower2realVisible = new Hashtable<String,String>();;
     private Hashtable<String,String> lower2realInvisible = new Hashtable<String,String>();;
+    private Hashtable<String,String> aliases2realVisible = new Hashtable<String,String>();;
     private int pos = 0;
     private String lastPrefix;
     private long scn = 0;
@@ -66,6 +68,8 @@ public class AutoCompleteList {
                 dataAccessSCN = dataAccess.getSCN();
                 dataVisible = new Vector<String>();
                 lower2realVisible = new Hashtable<String,String>();
+                lower2realInvisible = new Hashtable<String,String>();
+                aliases2realVisible = new Hashtable<String,String>();
                 DataKeyIterator it = dataAccess.getStaticIterator();
                 DataKey k = it.getFirst();
                 while (k != null) {
@@ -75,12 +79,13 @@ public class AutoCompleteList {
                             _foundValue = r.getQualifiedName();
                         }
                         String s = r.getQualifiedName();
-                        if (!r.getDeleted()) {
+                        String alias = (r instanceof PersonRecord ? ((PersonRecord)r).getInputShortcut() : null);
+                        if (!r.getDeleted() && !r.getInvisible()) {
                             if (s.length() > 0) {
-                                add(s, r.isInValidityRange(validFrom, validUntil));
+                                add(s, alias, r.isInValidityRange(validFrom, validUntil));
                             }
                         } else {
-                            add(s, false);
+                            add(s, alias, false);
                         }
                     }
                     k = it.getNext();
@@ -98,12 +103,15 @@ public class AutoCompleteList {
         return _foundValue;
     }
 
-    public synchronized void add(String s, boolean visibleInDropDown) {
+    public synchronized void add(String s, String alias, boolean visibleInDropDown) {
         String lowers = s.toLowerCase();
         if (visibleInDropDown) {
             if (lower2realVisible.get(lowers) == null) {
                 dataVisible.add(s);
                 lower2realVisible.put(lowers, s);
+                if (alias != null && alias.length() > 0) {
+                    aliases2realVisible.put(alias.toLowerCase(), s);
+                }
             }
         } else {
             lower2realInvisible.put(lowers, s);
@@ -114,6 +122,8 @@ public class AutoCompleteList {
     public synchronized void delete(String s) {
         dataVisible.remove(s);
         lower2realVisible.remove(s.toLowerCase());
+        lower2realInvisible.remove(s.toLowerCase());
+        aliases2realVisible.remove(s.toLowerCase());
         scn++;
     }
 
@@ -198,6 +208,14 @@ public class AutoCompleteList {
             if (s.toLowerCase().startsWith(prefix)) {
                 return s;
             }
+        }
+        return null;
+    }
+
+    public synchronized String getAlias(String s) {
+        s = s.toLowerCase();
+        if (aliases2realVisible.containsKey(s)) {
+            return aliases2realVisible.get(s);
         }
         return null;
     }

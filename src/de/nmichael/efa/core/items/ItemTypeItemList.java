@@ -289,6 +289,7 @@ public class ItemTypeItemList extends ItemType {
     }
 
     public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
         titlelabel.setForeground((enabled ? (new JLabel()).getForeground() : Color.gray));
         addButton.setEnabled(enabled);
         for (int i=0; i<items.size(); i++) {

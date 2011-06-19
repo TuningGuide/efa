@@ -33,8 +33,9 @@ public abstract class ItemType implements IItemType {
     protected String lastValue;
 
     protected Color color = null;
+    protected Color savedFgColor = null;
     protected Color backgroundColor = null;
-    protected Color savedColor = null;
+    protected Color savedBkgColor = null;
     protected int padXbefore = 0;
     protected int padXafter = 0;
     protected int padYbefore = 0;
@@ -47,6 +48,7 @@ public abstract class ItemType implements IItemType {
     protected int fieldGridAnchor = GridBagConstraints.WEST;
     protected int fieldGridFill = GridBagConstraints.NONE;
     protected boolean isVisible = true;
+    protected boolean isEnabled = true;
 
     public String getName() {
         return name;
@@ -74,6 +76,21 @@ public abstract class ItemType implements IItemType {
 
     public void setColor(Color c) {
         this.color = c;
+        if (field != null) {
+            field.setForeground(c);
+        }
+    }
+
+    public void saveColor() {
+        if (field != null) {
+            savedFgColor = field.getForeground();
+        }
+    }
+
+    public void restoreColor() {
+        if (field != null && savedFgColor != null) {
+            field.setForeground(savedFgColor);
+        }
     }
 
     public void setBackgroundColor(Color c) {
@@ -85,13 +102,13 @@ public abstract class ItemType implements IItemType {
 
     public void saveBackgroundColor() {
         if (field != null) {
-            savedColor = field.getBackground();
+            savedBkgColor = field.getBackground();
         }
     }
 
     public void restoreBackgroundColor() {
-        if (field != null && savedColor != null) {
-            field.setBackground(savedColor);
+        if (field != null && savedBkgColor != null) {
+            field.setBackground(savedBkgColor);
         }
     }
 
@@ -156,6 +173,10 @@ public abstract class ItemType implements IItemType {
         actionEvent(e);
     }
 
+    public void setChanged() {
+        lastValue = null;
+    }
+
     public void setUnchanged() {
         lastValue = toString();
     }
@@ -195,6 +216,18 @@ public abstract class ItemType implements IItemType {
 
     public boolean isVisible() {
         return isVisible;
+    }
+
+    public void setEnabled(boolean enabled) {
+        isEnabled = enabled;
+    }
+
+    public boolean isEnabled() {
+        return isEnabled;
+    }
+
+    public JComponent getComponent() {
+        return field;
     }
 
 }

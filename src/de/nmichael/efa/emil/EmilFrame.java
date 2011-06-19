@@ -366,7 +366,7 @@ public class EmilFrame extends JFrame {
     jLabel13.setText("Meldegeld: ");
     meldegeld.setForeground(Color.black);
     meldegeld.setText("0,- EUR");
-    jLabel13.setVisible(false); meldegeld.setVisible(false); // @todo (deaktiviert)
+    jLabel13.setVisible(false); meldegeld.setVisible(false); // @todo (P9) Emil Meldegeld (deaktiviert)
     jPanel6.setBorder(BorderFactory.createEtchedBorder());
     jPanel6.setPreferredSize(new Dimension(306, 60));
     jPanel6.setLayout(gridBagLayout6);
@@ -1206,7 +1206,7 @@ public class EmilFrame extends JFrame {
     int anz = getAnzTeilnehmerErfuellt();
     setTeilnehmerAnz(anz,getAnzTeilnehmer());
     if (efw != null && efw.wettId >= 0)
-      geld = 0; // @todo wettDefs.getWettDef(efw.wettId,year).meldegeld_grund + anz*wettDefs.getWettDef(efw.wettId,year).meldegeld_teiln;
+      geld = 0; // @todo (P9) Emil: wettDefs.getWettDef(efw.wettId,year).meldegeld_grund + anz*wettDefs.getWettDef(efw.wettId,year).meldegeld_teiln;
     else geld = 0;
     meldegeld.setText(geld / 100 + "," + (geld % 100 < 10 ? "0"+geld%100 : ""+geld%100) + " EUR");
 

@@ -165,6 +165,11 @@ public class DataTypeDistance {
         return 0;
     }
 
+    public String getValueInKilometers() {
+        DataTypeDecimal d = new DataTypeDecimal(getValueInMeters(), 3);
+        return d.toString();
+    }
+
     public long getValueInDefaultUnit() {
         if (getDefaultUnit() == UnitType.km) {
             return getValueInMeters();

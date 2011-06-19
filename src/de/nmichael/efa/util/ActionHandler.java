@@ -219,6 +219,27 @@ import java.util.*;
      }//for
    }//addKeyActions
 
+     // modified version by Nicolas Michael
+     public String addKeyAction(JComponent comp, int inputcondition, String keystroke, String methodName)
+             throws IllegalArgumentException, NoSuchMethodException {
+         if (!(inputcondition == JComponent.WHEN_IN_FOCUSED_WINDOW
+                 || inputcondition == JComponent.WHEN_FOCUSED
+                 || inputcondition == JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)) {
+             throw new IllegalArgumentException("Unknown input condition for keys");
+         }
+
+         AbstractAction a = new KeyAction(this);
+         StringBuffer identifier = new StringBuffer("KEYSTROKE_ACTION_");
+         identifier.append(Integer.toString(keyIndex++));
+         String id = identifier.toString();
+         a.putValue(Action.ACTION_COMMAND_KEY, id);
+         comp.getInputMap(inputcondition).put(KeyStroke.getKeyStroke(keystroke), id);
+         comp.getActionMap().put(id, a);
+         Method m = methodObject.getClass().getDeclaredMethod(methodName, new Class[]{ActionEvent.class});
+         methods.put(id, m);
+         return id;
+     }
+
    /**
     * Action listener interface which invoke the stored matching method.
     * Bugfix: 1.1 no return in KEYSTROKE_ACTION if-branch

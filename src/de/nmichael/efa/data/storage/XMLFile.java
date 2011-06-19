@@ -22,6 +22,16 @@ import org.xml.sax.helpers.*;
 
 public class XMLFile extends DataFile {
 
+    public static final String FIELD_GLOBAL = "efa";
+    public static final String FIELD_HEADER = "header";
+    public static final String FIELD_HEADER_PROGRAM = "program";
+    public static final String FIELD_HEADER_VERSION = "version";
+    public static final String FIELD_HEADER_NAME = "name";
+    public static final String FIELD_HEADER_TYPE = "type";
+    public static final String FIELD_HEADER_SCN = "scn";
+    public static final String FIELD_DATA = "data";
+    public static final String FIELD_DATA_RECORD = "record";
+
     private static final boolean doIndent = true;
     private int indent = 0;
 
@@ -44,7 +54,53 @@ public class XMLFile extends DataFile {
     }
 
     private String xmltag(String tag, String value) {
-        return xmltagStart(tag) + value + xmltagEnd(tag);
+        return xmltagStart(tag) + escapeXml(value) + xmltagEnd(tag);
+    }
+
+    private String escapeXml(String str) {
+        str = replaceString(str,"&","&amp;");
+        str = replaceString(str,"<","&lt;");
+        str = replaceString(str,">","&gt;");
+        str = replaceString(str,"\"","&quot;");
+        str = replaceString(str,"'","&apos;");
+        return str;
+    } 
+    
+    // from StringW
+    private String replaceString(String text, String repl, String with) {
+        return replaceString(text, repl, with, -1);
+    }
+
+    /**
+     * Replace a string with another string inside a larger string, for
+     * the first n values of the search string.
+     *
+     * @param text String to do search and replace in
+     * @param repl String to search for
+     * @param with String to replace with
+     * @param n    int    values to replace
+     *
+     * @return String with n values replacEd
+     */
+    private String replaceString(String text, String repl, String with, int max) {
+        if (text == null) {
+            return null;
+        }
+
+        StringBuffer buffer = new StringBuffer(text.length());
+        int start = 0;
+        int end = 0;
+        while ((end = text.indexOf(repl, start)) != -1) {
+            buffer.append(text.substring(start, end)).append(with);
+            start = end + repl.length();
+
+            if (--max == 0) {
+                break;
+            }
+        }
+        buffer.append(text.substring(start));
+
+        return buffer.toString();
     }
 
     protected synchronized void readFile(BufferedReader fr) throws EfaException {
@@ -61,10 +117,14 @@ public class XMLFile extends DataFile {
         try {
             SaxErrorHandler eh = new SaxErrorHandler(filename);
             XMLReader parser = EfaUtil.getXMLReader();
-            parser.setContentHandler(new XMLFileReader(this, lock));
+            XMLFileReader xmlFileReader = new XMLFileReader(this, lock);
+            parser.setContentHandler(xmlFileReader);
             parser.setErrorHandler(eh);
             setInReadFileMode(true); // don't update LastModified Timestamps!
             parser.parse(filename);
+            if (xmlFileReader.getDocumentReadError() != null) {
+                throw new EfaException(Logger.MSG_DATA_INVALIDHEADER, xmlFileReader.getDocumentReadError(), Thread.currentThread().getStackTrace());
+            }
         } catch(Exception e) {
             Logger.log(e);
             throw new EfaException(Logger.MSG_DATA_READFAILED, LogString.logstring_fileReadFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
@@ -96,36 +156,36 @@ public class XMLFile extends DataFile {
 
     protected synchronized void writeFile(BufferedWriter fw) throws EfaException {
         write(fw,0,"<?xml version=\"1.0\" encoding=\""+ENCODING+"\"?>");
-        write(fw,indent,xmltagStart("efa"));
-        write(fw,indent,xmltagStart("header"));
-        write(fw,indent,xmltag("program","efa"));
-        write(fw,indent,xmltag("version",Daten.VERSIONID));
-        write(fw,indent,xmltag("name",getStorageObjectName()));
-        write(fw,indent,xmltag("type",getStorageObjectType()));
-        write(fw,indent,xmltag("scn",Long.toString(getSCN())));
-        write(fw,indent,xmltagEnd("header"));
+        write(fw,indent,xmltagStart(FIELD_GLOBAL));
+        write(fw,indent,xmltagStart(FIELD_HEADER));
+        write(fw,indent,xmltag(FIELD_HEADER_PROGRAM,Daten.EFA));
+        write(fw,indent,xmltag(FIELD_HEADER_VERSION,Daten.VERSIONID));
+        write(fw,indent,xmltag(FIELD_HEADER_NAME,getStorageObjectName()));
+        write(fw,indent,xmltag(FIELD_HEADER_TYPE,getStorageObjectType()));
+        write(fw,indent,xmltag(FIELD_HEADER_SCN,Long.toString(getSCN())));
+        write(fw,indent,xmltagEnd(FIELD_HEADER));
         writeData(fw);
-        write(fw,indent,xmltagEnd("efa"));
+        write(fw,indent,xmltagEnd(FIELD_GLOBAL));
     }
 
     private synchronized void writeData(BufferedWriter fw) throws EfaException {
-        write(fw,indent,xmltagStart("data"));
+        write(fw,indent,xmltagStart(FIELD_DATA));
 
         String[] fields = getFieldNames();
         DataKeyIterator it = getStaticIterator();
         DataRecord d = getFirst(it);
         while(d != null) {
-            write(fw,indent,xmltagStart("record"));
+            write(fw,indent,xmltagStart(FIELD_DATA_RECORD));
             for (int i=0; i<fields.length; i++) {
                 Object o = d.get(fields[i]);
                 if (o != null && d.getFieldType(i) != IDataAccess.DATA_VIRTUAL && !d.isDefaultValue(i)) {
                     write(fw,indent,xmltag(fields[i],o.toString()));
                 }
             }
-            write(fw,indent,xmltagEnd("record"));
+            write(fw,indent,xmltagEnd(FIELD_DATA_RECORD));
             d = getNext(it);
         }
 
-        write(fw,indent,xmltagEnd("data"));
+        write(fw,indent,xmltagEnd(FIELD_DATA));
     }
 }

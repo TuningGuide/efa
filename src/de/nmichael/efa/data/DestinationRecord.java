@@ -24,6 +24,8 @@ import java.util.*;
 
 public class DestinationRecord extends DataRecord implements IItemFactory {
 
+    public static final String DESTINATION_VARIANT_SEPARATOR = "+";
+
     // =========================================================================
     // Field Names
     // =========================================================================
@@ -183,6 +185,18 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
         return IDX_NAME;
     }
 
+    public static String[] tryGetNameAndVariant(String s) {
+        if (s == null) {
+            return null;
+        }
+        int pos = s.indexOf(DESTINATION_VARIANT_SEPARATOR);
+        if (pos < 0) {
+            return new String[] { s.trim(), null };
+        } else {
+            return new String[] { s.substring(0, pos).trim(), s.substring(pos+1).trim() };
+        }
+    }
+
     public Object getUniqueIdForRecord() {
         return getId();
     }
@@ -212,7 +226,7 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
         // CAT_BASEDATA
         v.add(item = new ItemTypeString(DestinationRecord.NAME, getName(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
-        ((ItemTypeString)item).setNotAllowedCharacters("+");
+        ((ItemTypeString)item).setNotAllowedCharacters(DESTINATION_VARIANT_SEPARATOR);
         v.add(item = new ItemTypeString(DestinationRecord.START, getStart(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Start")));
         v.add(item = new ItemTypeString(DestinationRecord.END, getEnd(),
@@ -221,7 +235,7 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Start ist Bootshaus")));
         v.add(item = new ItemTypeBoolean(DestinationRecord.ROUNDTRIP, getRoundtrip(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Start gleich Ziel")));
-        if (Daten.efaConfig.showBerlinOptions.getValue()) {
+        if (Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
             v.add(item = new ItemTypeString(DestinationRecord.GUIITEM_DESTINATIONAREAS, (getDestinationAreas() == null ? "" : getDestinationAreas().toString()),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("Zielbereiche","de")));
         }
@@ -285,7 +299,7 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        int col = (Daten.efaConfig.showBerlinOptions.getValue() ? 4 : 3);
+        int col = (Daten.efaConfig.useFunctionalityRowingBerlin.getValue() ? 4 : 3);
         TableItemHeader[] header = new TableItemHeader[col];
         header[0] = new TableItemHeader(International.getString("Name"));
         header[1] = new TableItemHeader(International.getString("Entfernung"));
@@ -297,7 +311,7 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
     }
 
     public TableItem[] getGuiTableItems() {
-        int col = (Daten.efaConfig.showBerlinOptions.getValue() ? 4 : 3);
+        int col = (Daten.efaConfig.useFunctionalityRowingBerlin.getValue() ? 4 : 3);
         TableItem[] items = new TableItem[col];
         items[0] = new TableItem(getName());
         items[1] = new TableItem(getDistance());

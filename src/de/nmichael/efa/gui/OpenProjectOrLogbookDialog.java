@@ -13,6 +13,7 @@ package de.nmichael.efa.gui;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.*;
+import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.gui.util.*;
@@ -230,7 +231,73 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
     }
 
     void deleteButton_actionPerformed(ActionEvent e) {
-        Dialog.error("Not yet implemented"); // @todo
+        String name = list.getValueFromField();
+        if (name == null) {
+            return;
+        }
+        String message = null;
+        Project prj = null;
+        if (type == Type.project) {
+            try {
+                prj = new Project(name);
+                prj.open(false);
+            } catch(Exception ex) {
+                Logger.logdebug(ex);
+                Dialog.error(ex.toString());
+                return;
+            }
+            message = International.getMessage("Möchtest Du das Projekt '{name}' wirklich löschen?", name) + "\n" +
+                    (prj.getProjectStorageType() == IDataAccess.TYPE_FILE_XML ?
+                        International.getString("Alle Daten des Projekts gehen damit unwiederbringlich verloren!") :
+                        International.getString("Es wird nur die Projektkonfiguration gelöscht. Die Daten selbst bleiben erhalten.") );
+        }
+        if (type == Type.logbook) {
+            message = International.getMessage("Möchtest Du das Fahrtenbuch '{name}' wirklich löschen?", name) + "\n" +
+                    International.getString("Alle Fahrten des Fahrtenbuchs gehen damit unwiederbringlich verloren!");
+        }
+        if (message == null) {
+            return;
+        }
+        int res = Dialog.yesNoDialog(International.getString("Wirklich löschen?"), message);
+        if (res != Dialog.YES) {
+            return;
+        }
+
+        if (type == Type.project) {
+            try {
+                if (prj.getProjectStorageType() == IDataAccess.TYPE_FILE_XML) {
+                    res = Dialog.yesNoDialog(International.getString("Bist Du sicher?"),
+                            International.getString("Sämtliche Daten dieses Projekts (Fahrtenbücher, Mitglieder, Boote, Ziele etc.) werden unwiederbringlich gelöscht!") + "\n"+
+                            International.getString("Möchtest Du wirklich fortfahren?"));
+                    if (res != Dialog.YES) {
+                        return;
+                    }
+                }
+                boolean success = false;
+                if (Daten.project.getProjectName().equals(prj.getProjectName())) {
+                    success = Daten.project.deleteProject();
+                    Daten.project = null;
+                } else {
+                    success = prj.deleteProject();
+                }
+                updateGui();
+            } catch(Exception ex) {
+                Dialog.error(ex.toString());
+                Logger.logdebug(ex);
+            }
+        }
+
+        if (type == Type.logbook) {
+            try {
+                Logbook logbook = Daten.project.getLogbook(name, false);
+                logbook.data().deleteStorageObject();
+                Daten.project.deleteLogbookRecord(name);
+                updateGui();
+            } catch(Exception ex) {
+                Dialog.error(ex.toString());
+                Logger.logdebug(ex);
+            }
+        }
     }
 
     public void closeButton_actionPerformed(ActionEvent e) {

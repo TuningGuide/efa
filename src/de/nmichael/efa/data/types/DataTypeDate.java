@@ -292,5 +292,27 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
         }
         return s;
     }
+
+    /**
+     * formats the date as a string
+     * @param format the format, which *must* contain DD, MM and YYYY, e.g. "DD.MM.YYYY" or "YYYY-MM-DD"
+     * @return
+     */
+    public String getDateString(String format) {
+        if (format == null) {
+            return null;
+        }
+        int posDay = format.indexOf("DD");
+        int posMonth = format.indexOf("MM");
+        int posYear = format.indexOf("YYYY");
+        if (posDay < 0 || posMonth < 0 || posYear < 0) {
+            return null;
+        }
+        String s = format;
+        s = EfaUtil.replace(s, "DD", EfaUtil.int2String(day,2));
+        s = EfaUtil.replace(s, "MM", EfaUtil.int2String(month,2));
+        s = EfaUtil.replace(s, "YYYY", EfaUtil.int2String(year,4));
+        return s;
+    }
     
 }

@@ -288,13 +288,13 @@ public class AuswahlFrame extends JDialog implements ActionListener {
         tabelleTitel[1]=International.getString("Art");
         break;
       case ZIELE:
-        tabelleBreite= (Daten.efaConfig.showBerlinOptions.getValue() ? 4 : 3);
+        tabelleBreite= (Daten.efaConfig.useFunctionalityRowingBerlin.getValue() ? 4 : 3);
         anz = Daten.fahrtenbuch.getDaten().ziele.countElements();
         tabelleTitel = new String[tabelleBreite];
         tabelleTitel[0]=International.getString("Ziel");
         tabelleTitel[1]=International.getString("Kilometer");
         tabelleTitel[2]=International.getString("Gewässer");
-        if (Daten.efaConfig.showBerlinOptions.getValue()) {
+        if (Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
             tabelleTitel[3]=International.onlyFor("Zielbereiche","de");
         }
         break;
@@ -474,7 +474,7 @@ public class AuswahlFrame extends JDialog implements ActionListener {
       if (!Daten.synBoote.writeFile())
           listError = International.getString("Boots-Synonymliste");
     if (datenArt == ZIELE && Daten.fahrtenbuch.getDaten().ziele.isChanged()) {
-      if (Daten.vereinsConfig != null && Daten.efaConfig.showBerlinOptions.getValue()) {
+      if (Daten.vereinsConfig != null && Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
           Daten.fahrtenbuch.getDaten().ziele.checkAllZielbereiche(Daten.vereinsConfig.zielbereich);
       }
       if (!Daten.fahrtenbuch.getDaten().ziele.writeFile())
@@ -868,7 +868,7 @@ public class AuswahlFrame extends JDialog implements ActionListener {
                               International.getString("Steg-Ziel"),
                               International.getString("Gewässer")
          };
-         boolean[] select3 = { true , true , (Daten.efaConfig.showBerlinOptions.getValue()) ,  false ,  true};
+         boolean[] select3 = { true , true , (Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) ,  false ,  true};
          if (Daten.fahrtenbuch.getDaten().ziele != null)
            dlg = new ListenausgabeFrame(this,International.getString("Zielliste"),Daten.fahrtenbuch.getDaten().ziele,felder3,select3,0,null,null);
          break;

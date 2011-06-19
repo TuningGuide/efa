@@ -45,13 +45,12 @@ public class ImportFahrtenabzeichen extends ImportBase {
             Fahrtenabzeichen fahrtenabzeichen = Daten.project.getFahrtenabzeichen(true);
             Persons persons = Daten.project.getPersons(false); // must be imported first!
 
-            String[] IDXP = new String[] { PersonRecord.FIRSTNAME, PersonRecord.LASTNAME, PersonRecord.ASSOCIATION };
+            String[] IDXP = PersonRecord.IDX_NAME_NAMEAFFIX;
 
             de.nmichael.efa.efa1.DatenFelder d = fahrtenabzeichen1.getCompleteFirst();
             while (d != null) {
                 UUID personID = findPerson(persons, IDXP,
-                        d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.VORNAME),
-                        d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.NACHNAME),
+                        d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.VORNAME) + " " + d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.NACHNAME),
                         "", true);
                 if (personID != null) {
                     // create new FahrtenabzeichenRecord

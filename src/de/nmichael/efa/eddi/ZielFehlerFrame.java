@@ -62,7 +62,7 @@ public class ZielFehlerFrame extends JDialog implements ActionListener {
 
     try {
       jbInit();
-      if (!Daten.efaConfig.showBerlinOptions.getValue()) {
+      if (!Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
           jLabel4.setVisible(false);
           zielbereiche.setVisible(false);
       }

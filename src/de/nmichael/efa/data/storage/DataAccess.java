@@ -41,7 +41,9 @@ public abstract class DataAccess implements IDataAccess {
                 dataAccess.setPersistence(persistence);
                 return dataAccess;
             case IDataAccess.TYPE_DB_SQL:
-                return null; // @todo TYPE_DB_SQL not yet implemented
+                return null; // @todo (P4) TYPE_DB_SQL not yet implemented
+            case IDataAccess.TYPE_EFA_REMOTE:
+                return null; // @todo (P4) TYPE_EFA_REMOTE not yet implemented
         }
         return null;
     }

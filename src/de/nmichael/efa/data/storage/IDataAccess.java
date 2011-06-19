@@ -187,6 +187,12 @@ public interface IDataAccess {
     public boolean isStorageObjectOpen();
 
     /**
+     * Deletes an existing storage object.
+     * @throws Exception if the deletion of the object failed.
+     */
+    public void deleteStorageObject() throws EfaException;
+
+    /**
      * Returns the current version of the storage object.
      * @return the version identifier
      * @throws Exception

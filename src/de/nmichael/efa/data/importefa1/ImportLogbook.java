@@ -29,9 +29,9 @@ public class ImportLogbook extends ImportBase {
     private Persons persons;
     private Destinations destinations;
     private SessionGroups sessionGroups;
-    private String[] boatIdx = new String[] { BoatRecord.NAME, BoatRecord.OWNER };
-    private String[] personIdx = new String[] { PersonRecord.FIRSTNAME, PersonRecord.LASTNAME, PersonRecord.ASSOCIATION };
-    private String[] destinationIdx = new String[] { DestinationRecord.NAME };
+    private String[] boatIdx = BoatRecord.IDX_NAME_NAMEAFFIX;
+    private String[] personIdx = PersonRecord.IDX_NAME_NAMEAFFIX;
+    private String[] destinationIdx = DestinationRecord.IDX_NAME;
     
     public ImportLogbook(ImportTask task, String efa1fname, ImportMetadata meta) {
         super(task);
@@ -87,8 +87,6 @@ public class ImportLogbook extends ImportBase {
             }
             cntWarning += destinationsImport.cntWarning;
             cntError += destinationsImport.cntError;
-
-            // @todo: StatisticSettings
 
             logbook = Daten.project.getLogbook(meta.name, true);
             sessionGroups = Daten.project.getSessionGroups(true);

@@ -23,6 +23,7 @@ public abstract class DataRecord implements Cloneable, Comparable {
     protected static final String LASTMODIFIED     = "LastModified";
     protected static final String VALIDFROM        = "ValidFrom";
     protected static final String INVALIDFROM      = "InvalidFrom";
+    protected static final String INVISIBLE        = "Invisible";
     protected static final String DELETED          = "Deleted";
 
     protected Persistence persistence;
@@ -42,6 +43,7 @@ public abstract class DataRecord implements Cloneable, Comparable {
         if (versionized) {
             fields.add(DataRecord.VALIDFROM);       types.add(IDataAccess.DATA_LONGINT);
             fields.add(DataRecord.INVALIDFROM);     types.add(IDataAccess.DATA_LONGINT);
+            fields.add(DataRecord.INVISIBLE);       types.add(IDataAccess.DATA_BOOLEAN);
             fields.add(DataRecord.DELETED);         types.add(IDataAccess.DATA_BOOLEAN);
         }
         // LastModified must always be the last field; this class's set(int, Object) method implicitly uses this to update the timestamp!
@@ -341,7 +343,7 @@ public abstract class DataRecord implements Cloneable, Comparable {
             return from + " - " + to;
         }
         if (from.length() == 0 && to.length() == 0) {
-            return International.getString("immer");
+            return International.getString("unbegrenzt gültig");
         }
         if (from.length() == 0) {
             return International.getMessage("bis {timestamp}", to);
@@ -373,6 +375,14 @@ public abstract class DataRecord implements Cloneable, Comparable {
 
     public boolean getDeleted() {
         return (metaData.versionized ? getBool(DELETED) : false);
+    }
+
+    public void setInvisible(boolean invisible) {
+        setBool(INVISIBLE, invisible);
+    }
+
+    public boolean getInvisible() {
+        return (metaData.versionized ? getBool(INVISIBLE) : false);
     }
 
     // =========================================================================

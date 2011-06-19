@@ -58,6 +58,10 @@ public abstract class DataFile extends DataAccess {
         return "file:" + filename;
     }
 
+    public String getFilename() {
+        return filename;
+    }
+
     public synchronized boolean existsStorageObject() throws EfaException {
         if (filename == null) {
             throw new EfaException(Logger.MSG_DATA_GENERICEXCEPTION, "No StorageObject name specified.", Thread.currentThread().getStackTrace());
@@ -134,6 +138,22 @@ public abstract class DataFile extends DataAccess {
 
     public boolean isStorageObjectOpen() {
         return isOpen;
+    }
+
+    public synchronized void deleteStorageObject() throws EfaException {
+        try {
+            try {
+                closeStorageObject();
+            } catch(Exception eignore) {
+                Logger.logdebug(eignore);
+            }
+            File f = new File(filename);
+            if (!f.delete()) {
+                throw new Exception(LogString.logstring_fileDeletionFailed(filename, getStorageObjectDescription()));
+            }
+        } catch(Exception e) {
+            throw new EfaException(Logger.MSG_DATA_DELETEFAILED, LogString.logstring_fileDeletionFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+        }
     }
 
     protected abstract void readFile(BufferedReader fr) throws EfaException;

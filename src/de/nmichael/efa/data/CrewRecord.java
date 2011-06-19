@@ -105,6 +105,10 @@ public class CrewRecord extends DataRecord {
         return new DataKey<UUID,String,String>(getId(),null,null);
     }
 
+    public static DataKey getDataKey(UUID id) {
+        return new DataKey<UUID,String,String>(id,null,null);
+    }
+
     private static String getCrewFieldNameId(int pos) {
         return "Crew"+pos+"Id";
     }
@@ -145,8 +149,7 @@ public class CrewRecord extends DataRecord {
     }
 
     public String getQualifiedName() {
-        String name = getName();
-        return (name != null ? International.getString("Mannschaft") + " " + name : "");
+        return getName();
     }
 
     public String[] getQualifiedNameFields() {

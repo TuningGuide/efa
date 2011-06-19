@@ -35,8 +35,6 @@ public class Main extends Program {
         EfaBaseFrame frame = new EfaBaseFrame(EfaBaseFrame.MODE_BASE);
         frame.showFrame();
         Daten.iniSplashScreen(false);
-        // @todo frame.userInteractionsUponStart();
-        // @todo frame.setProject(project);
     }
 
     public void printUsage(String wrongArgument) {

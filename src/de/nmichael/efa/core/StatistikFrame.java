@@ -295,7 +295,7 @@ public class StatistikFrame extends JDialog implements ActionListener {
     try {
       jbInit();
       Statistik.isCreateRunning = false; // nur zur Sicherheit, falls durch eine Exception dieser Wert noch auf "true" steht
-      if (!Daten.efaConfig.showBerlinOptions.getValue()) {
+      if (!Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
           ausZielfahrten.setVisible(false);
       }
     }

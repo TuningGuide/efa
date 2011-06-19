@@ -26,12 +26,14 @@ public class ProgressDialog extends BaseDialog {
         super(parent, title, International.getStringWithMnemonic("Schließen"));
         this.progressTask = progressTask;
         progressTask.setProgressDialog(this, autoCloseDialogWhenDone);
+        loggingTextArea = new JTextArea();
     }
 
     public ProgressDialog(JDialog parent, String title, ProgressTask progressTask, boolean autoCloseDialogWhenDone) {
         super(parent, title, International.getStringWithMnemonic("Schließen"));
         this.progressTask = progressTask;
         progressTask.setProgressDialog(this, autoCloseDialogWhenDone);
+        loggingTextArea = new JTextArea();
     }
 
     protected void iniDialog() throws Exception {
@@ -40,7 +42,6 @@ public class ProgressDialog extends BaseDialog {
         JScrollPane loggingScrollPane = new JScrollPane();
         loggingScrollPane.setPreferredSize(new Dimension(550,200));
         loggingScrollPane.setMinimumSize(new Dimension(550,200));
-        loggingTextArea = new JTextArea();
         loggingTextArea.setEditable(false);
         //loggingTextArea.setWrapStyleWord(true);
         //loggingTextArea.setLineWrap(true);

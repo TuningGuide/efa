@@ -42,7 +42,6 @@ public class FBDaten {
     ziele=null;
     statistik=null;
     erstVorname=true;
-    // @todo handle status with keys independent of language!
     status = new String[2];
     status[0] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST);
     status[1] = Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_OTHER);

@@ -153,7 +153,7 @@ public class EfaUtil {
   }
 
 
-    // @todo remove, has been replaced by PersonRecord.getFullName(...)
+    // @todo (P5) remove old efa1 functionality, has been replaced by PersonRecord.getFullName(...)
     public static String getFullName(String first, String last, String association, boolean firstFirst) {
         String s = "";
         if (firstFirst) {
@@ -988,6 +988,9 @@ public class EfaUtil {
   public static String date2String(Date date, boolean printTime) {
     Calendar cal = new GregorianCalendar();
     cal.setTime(date);
+    if (cal.get(Calendar.YEAR) > 10000) {
+        return "---";
+    }
     return        makeTimeString(cal.get(Calendar.DAY_OF_MONTH),2)+"."+
                   makeTimeString(cal.get(Calendar.MONTH)+1,2)+"."+
                   makeTimeString(cal.get(Calendar.YEAR),4)+

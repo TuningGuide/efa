@@ -105,6 +105,9 @@ public class DataEditDialog extends BaseDialog {
             item.getValueFromGui();
             if (item.isChanged()) {
                 changed = true;
+                if (Logger.isTraceOn(Logger.TT_GUI)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI, this.getClass().getCanonicalName()+".getValuesFromGui(): "+item.getName()+" has changed");
+                }
             }
         }
         return changed;

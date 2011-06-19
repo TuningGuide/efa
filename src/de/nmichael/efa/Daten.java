@@ -11,6 +11,7 @@
 package de.nmichael.efa;
 
 import de.nmichael.efa.core.config.*;
+import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.util.*;
@@ -31,7 +32,7 @@ import java.lang.management.*;
 
 public class Daten {
 
-
+  public final static String EFA = "efa"; // efa program name/ID
   public       static String EFA_SHORTNAME = "efa";                              // dummy, will be set in International.ininitalize()
   public       static String EFA_LONGNAME  = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
 
@@ -80,9 +81,9 @@ public class Daten {
   public static final String WETTFILE = "wett.cfg";                    // <efauser>/cfg/wett.cfg           Konfiguration für Wettbewerbe
   public static final String WETTDEFS = "wettdefs.cfg";                // <efauser>/cfg/wettdefs.cfg       Wettbewerbs-Definitionen
   public static final String EFA_LICENSE = "license.html";             // <efa>/doc/license.html
+  public static final String EFA_JAR = "efa.jar";                      // <efa>/program/efa.jar            
   public static final String EFA_SECFILE = "efa.sec";                  // <efa>/program/efa.sec            Hash von efa.jar: für Erstellen des Admins
   public static final String EFA_HELPSET = "help/efaHelp";
-                             // @todo: EFA_SECFILE in "read-only" program directory causes removal of this file to fail!!
 
   // efa exit codes
   public static final int HALT_BASICCONFIG  =   1;
@@ -162,7 +163,7 @@ public class Daten {
   public static boolean DONT_SAVE_ANY_FILES_DUE_TO_OOME = false;
   public static boolean javaRestart = false;
 
-  // @todo remove in efa2
+  // @todo (P5) remove old data lists in efa2
   public static de.nmichael.efa.efa1.VereinsConfig vereinsConfig; // Konfigurationsdatei für Vereinseinstellungen
   public static de.nmichael.efa.efa1.Adressen adressen;           // gespeicherte Teilnehmer-Adressen
   public static de.nmichael.efa.efa1.Synonyme synMitglieder;      // Synonymliste für Mitglieder
@@ -247,21 +248,29 @@ public class Daten {
 
   // Applikations-IDs
   public static int applID = -1;
+  public static String applName = "Unknown"; // will be set in iniBase(...)
   public static final int APPL_EFA = 1;
   public static final int APPL_EFADIREKT = 2;
-  public static final int APPL_EMIL = 3;
-  public static final int APPL_ELWIZ = 4;
-  public static final int APPL_EDDI = 5;
-  public static final int APPL_DRV = 6;
-  public static final int APPL_CLI = 7;
+  public static final int APPL_CLI = 3;
+  public static final int APPL_DRV = 4;
+  public static final int APPL_EMIL = 5;
+  public static final int APPL_ELWIZ = 6;
+  public static final int APPL_EDDI = 7;
+  public static final String APPLNAME_EFA = "efaBase";
+  public static final String APPLNAME_EFADIREKT = "efaBths";
+  public static final String APPLNAME_CLI = "efaCLI";
+  public static final String APPLNAME_DRV = "efaDRV";
+  public static final String APPLNAME_EMIL = "emil";
+  public static final String APPLNAME_ELWIZ = "elwiz";
+  public static final String APPLNAME_EDDI = "eddi";
 
   // Applikations-Mode
   public static final int APPL_MODE_NORMAL = 1;
   public static final int APPL_MODE_ADMIN = 2;
   public static int applMode = APPL_MODE_NORMAL;
 
-  // Applikations-PID
-  public static String applPID = "XXXXX"; // will be set in iniBase(...)
+  // Applikations- PID
+  public static String applPID  = "XXXXX"; // will be set in iniBase(...)
 
     public static void initialize(int applID) {
         iniBase(applID);
@@ -269,6 +278,7 @@ public class Daten {
         iniMainDirectory();
         iniEfaBaseConfig();
         iniLanguageSupport();
+        iniUserDirectory();
         iniLogging();
         iniSplashScreen(true);
         iniEnvironmentSettings();
@@ -282,7 +292,9 @@ public class Daten {
         iniBackup();
         iniEfaTypes(cust);
         iniCopiedFiles();
+        iniAllDataFiles();
         iniGUI();
+        iniChecks();
     }
 
     public static String getCurrentStack() {
@@ -342,6 +354,29 @@ public class Daten {
         userHomeDir = System.getProperty("user.home");
         userName = System.getProperty("user.name");
         applID = _applID;
+        switch(applID) {
+            case APPL_EFA:
+                applName = APPLNAME_EFA;
+                break;
+            case APPL_EFADIREKT:
+                applName = APPLNAME_EFADIREKT;
+                break;
+            case APPL_CLI:
+                applName = APPLNAME_CLI;
+                break;
+            case APPL_DRV:
+                applName = APPLNAME_DRV;
+                break;
+            case APPL_EMIL:
+                applName = APPLNAME_EMIL;
+                break;
+            case APPL_ELWIZ:
+                applName = APPLNAME_ELWIZ;
+                break;
+            case APPL_EDDI:
+                applName = APPLNAME_EDDI;
+                break;
+        }
         efaStartTime = System.currentTimeMillis();
 
         try {
@@ -363,6 +398,7 @@ public class Daten {
         if (Daten.efaMainDirectory.endsWith("/classes/") && !new File(Daten.efaMainDirectory + "program/").isDirectory()) {
             Daten.efaMainDirectory = Daten.efaMainDirectory.substring(0, Daten.efaMainDirectory.length() - 8);
         }
+        Daten.efaProgramDirectory = Daten.efaMainDirectory + "program" + Daten.fileSep; // just temporary, will be overwritten by iniDirectories()
     }
 
     private static void iniEfaBaseConfig() {
@@ -394,8 +430,32 @@ public class Daten {
     }
 
     private static void iniLanguageSupport() {
-        Daten.efaProgramDirectory = Daten.efaMainDirectory + "program" + Daten.fileSep; // just temporary, will be overwritten by iniDirectories()
         International.initialize();
+    }
+
+    private static void iniUserDirectory() {
+        if (firstEfaStart && isGuiAppl()) {
+            ItemTypeFile dir = new ItemTypeFile("USERDIR", Daten.efaBaseConfig.efaUserDirectory,
+                    International.getString("Verzeichnis für Nutzerdaten"),
+                    International.getString("Verzeichnisse"),
+                    null,ItemTypeFile.MODE_OPEN,ItemTypeFile.TYPE_DIR,
+                    IItemType.TYPE_PUBLIC, "",
+                    International.getString("In welchem Verzeichnis soll efa sämtliche Benutzerdaten ablegen?"));
+            dir.setFieldSize(600, 19);
+            while (true) {
+                SimpleInputDialog dlg = new SimpleInputDialog((Frame) null, International.getString("Verzeichnis für Nutzerdaten"), dir);
+                dlg.showDialog();
+                if (dlg.getDialogResult()) {
+                    dir.getValueFromGui();
+                    if (!efaBaseConfig.trySetUserDir(dir.getValue(), javaRestart)) {
+                        Dialog.error(LogString.logstring_directoryNoWritePermission(dir.getValue(), International.getString("Verzeichnis")));
+                    } else {
+                        efaBaseConfig.writeFile();
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     private static void iniLogging() {
@@ -406,10 +466,9 @@ public class Daten {
         String baklog = null; // backup'ed logfile
         switch (applID) {
             case APPL_EFA:
-                baklog = Logger.ini("efa_base.log", false);
-                break;
             case APPL_EFADIREKT:
-                baklog = Logger.ini("efa_bh.log", true);
+            case APPL_CLI:
+                baklog = Logger.ini("efa.log", true);
                 break;
             case APPL_EMIL:
                 baklog = Logger.ini("emil.log", false);
@@ -422,9 +481,6 @@ public class Daten {
                 break;
             case APPL_DRV:
                 baklog = Logger.ini("drv.log", true);
-                break;
-            case APPL_CLI:
-                baklog = Logger.ini(null, true);
                 break;
             default:
                 baklog = Logger.ini(null, true);
@@ -539,7 +595,10 @@ public class Daten {
     }
 
     public static void iniEfaSec() {
-        efaSec = new EfaSec(Daten.efaProgramDirectory + Daten.EFA_SECFILE);
+        if (firstEfaStart) {
+            EfaSec.createNewSecFile(Daten.efaBaseConfig.efaUserDirectory + Daten.EFA_SECFILE, Daten.efaProgramDirectory + Daten.EFA_JAR);
+        }
+        efaSec = new EfaSec(Daten.efaBaseConfig.efaUserDirectory + Daten.EFA_SECFILE);
         if (efaSec.secFileExists() && !efaSec.secValueValid()) {
             String msg = International.getString("Die Sicherheitsdatei ist korrupt! Aus Gründen der Sicherheit verweigert efa daher den Dienst. " +
                     "Um efa zu reaktivieren, wende Dich bitte an den Entwickler: ") + Daten.EMAILHELP;
@@ -733,6 +792,12 @@ public class Daten {
       tryCopy(distribCfgDirectory+Daten.WETTDEFS, Daten.efaCfgDirectory+Daten.WETTDEFS);
     }
 
+    public static void iniAllDataFiles() {
+        Daten.wettDefs = new WettDefs(Daten.efaCfgDirectory + Daten.WETTDEFS);
+        iniDataFile(Daten.wettDefs, true, International.onlyFor("Wettbewerbskonfiguration", "de"));
+        Daten.keyStore = new EfaKeyStore(Daten.efaDataDirectory + Daten.PUBKEYSTORE, "efa".toCharArray());
+    }
+
     public static void iniScreenSize() {
         if (!isGuiAppl()) {
             return;
@@ -778,6 +843,14 @@ public class Daten {
         }
     }
 
+    public static void iniChecks() {
+        checkEfaVersion(true);
+        checkJavaVersion(true);
+        if (applID == APPL_EFA) {
+            checkRegister();
+        }
+    }
+
     public static void iniDataFile(de.nmichael.efa.efa1.DatenListe f, boolean autoNewIfDoesntExist, String s) {
         if (autoNewIfDoesntExist) {
             f.createNewIfDoesntExist();
@@ -795,12 +868,6 @@ public class Daten {
         }
 
 
-    }
-
-    public static void iniAllDataFiles() {
-        Daten.wettDefs = new WettDefs(Daten.efaCfgDirectory + Daten.WETTDEFS);
-        iniDataFile(Daten.wettDefs, true, International.onlyFor("Wettbewerbskonfiguration", "de"));
-        Daten.keyStore = new EfaKeyStore(Daten.efaDataDirectory + Daten.PUBKEYSTORE, "efa".toCharArray());
     }
 
     public static boolean isGuiAppl() {
@@ -977,22 +1044,22 @@ public class Daten {
         int birthday = EfaUtil.getEfaBirthday();
         switch (size) {
             case 1:
-                if (birthday == 5) {
-                    return "/de/nmichael/efa/img/efa_small_5jahre.gif";
-                } else {
-                    return "/de/nmichael/efa/img/efa_small.gif";
-                }
+                //if (birthday == 5) {
+                //    return "/de/nmichael/efa/img/efa_small_5jahre.gif";
+                //} else {
+                    return "/de/nmichael/efa/img/efa_small.png";
+                //}
             default:
-                if (birthday == 5) {
-                    return "/de/nmichael/efa/img/efa_logo_5jahre.gif";
-                } else {
-                    return "/de/nmichael/efa/img/efa_logo.gif";
-                }
+                //if (birthday == 5) {
+                //    return "/de/nmichael/efa/img/efa_logo_5jahre.gif";
+                //} else {
+                    return "/de/nmichael/efa/img/efa_logo.png";
+                //}
         }
     }
 
     public static void checkEfaVersion(boolean interactive) {
-        // @todo: how to best implement this in efa2??
+        // @todo (P5) check for outdated efa version
 /*
         // Bei 1 Jahr alten Versionen alle 90 Tage prüfen, ob eine neue Version vorliegt
         if (EfaUtil.getDateDiff(Daten.VERSIONRELEASEDATE,EfaUtil.getCurrentTimeStampDD_MM_YYYY()) > 365 &&
@@ -1011,7 +1078,7 @@ public class Daten {
     }
 
     public static void checkJavaVersion(boolean interactive) {
-        // @todo: how to best implement this in efa2??
+        // @todo (P5) check for outdated java version
 /*
         if (Daten.javaVersion == null) return;
 

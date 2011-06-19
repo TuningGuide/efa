@@ -78,12 +78,12 @@ public class CertInfos {
 
   // prüft, ob der Schlüssel, der durch das Zertifikat cert angegeben ist, zum Signierzeitpunkt gesperrt ist
   public static boolean isRevokedForDate(X509Certificate cert, Date date) {
-    return false; // @todo
+    return false; // @todo (P9) implement revoked certificates
   }
 
   // prüft, ob der Schlüssel, der durch das Zertifikat cert angegeben ist, für das Jahr this.jahr gesperrt ist
   public static boolean isRevokedForYear(X509Certificate cert, int jahr) {
-    return false; // @todo
+    return false; // @todo (P9) implement revoked certificates
   }
 
   // prüft, ob das Zertifikat zum Signierzeitpunkt this.sigDatum gültig ist

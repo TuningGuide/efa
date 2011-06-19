@@ -675,12 +675,6 @@ public class EddiFrame extends JFrame {
   // Mitgliederliste importieren
   void importMitgliederliste(String datei) {
     if (aliasCheckBox.isSelected()) {
-/* //@todo
-      if (EfaConfigFrame.parseAlias(this.alias.getText().trim()) >= 0) {
-        Dialog.error(International.getString("Ungültiges Format des Eingabekürzels")+":\n"+EfaConfigFrame.parseError);
-        return;
-      }
- */
     }
     if (!datei.toUpperCase().endsWith(".EFBM")) datei+=".efbm";
     Mitglieder f = new Mitglieder(datei);

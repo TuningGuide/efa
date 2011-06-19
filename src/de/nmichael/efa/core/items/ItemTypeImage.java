@@ -86,6 +86,7 @@ public class ItemTypeImage extends ItemType {
 
     public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
         this.dlg = dlg;
+        this.field = image;
         iniDisplay();
         panel.add(label, new GridBagConstraints(x, y, 1, 2, 0.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, padXbefore, 0, 0), 0, 0));
@@ -95,7 +96,6 @@ public class ItemTypeImage extends ItemType {
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, 0, padXafter), 0, 0));
         panel.add(removeButton, new GridBagConstraints(x+2, y+1, 1, 1, 0.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, padXafter), 0, 0));
-        this.field = image;
         return 2;
     }
 
@@ -105,6 +105,9 @@ public class ItemTypeImage extends ItemType {
 
     private void setImage(String filename) {
         value = null;
+        if (field == null) {
+            return;
+        }
         if (filename == null || filename.length() == 0) {
             ((JLabel)field).setText(International.getMessage("max. {width} x {height} Pixel",maxX,maxY));
             ((JLabel)field).setIcon(null);
@@ -188,6 +191,7 @@ public class ItemTypeImage extends ItemType {
     }
 
     public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
         image.setForeground((enabled ? (new JLabel()).getForeground() : Color.gray));
         label.setForeground((enabled ? (new JLabel()).getForeground() : Color.gray));
         selectButton.setEnabled(enabled);

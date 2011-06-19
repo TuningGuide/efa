@@ -61,19 +61,16 @@ public abstract class ImportBase {
         if (name.length() == 0) {
             return null;
         }
-        String firstName = EfaUtil.getVorname(name);
-        String lastName = EfaUtil.getNachname(name);
-        String club = EfaUtil.getVerein(name);
-        return findPerson(persons, IDX, firstName, lastName, club, warnIfNotFound);
+        String[] qname = PersonRecord.tryGetNameAndAffix(name);
+        return findPerson(persons, IDX, qname[0], qname[1], warnIfNotFound);
     }
 
-    protected UUID findPerson(Persons persons, String[] IDX, String firstName, String lastName, String club, boolean warnIfNotFound) {
+    protected UUID findPerson(Persons persons, String[] IDX, String name, String affix, boolean warnIfNotFound) {
         try {
             DataKey[] keys = persons.data().getByFields(IDX,
                     new String[]{
-                        (firstName.length() > 0 ? firstName : null),
-                        (lastName.length() > 0 ? lastName : null),
-                        (club.length() > 0 ? club : null)});
+                        (name != null && name.length() > 0 ? name : null),
+                        (affix != null && affix.length() > 0 ? affix : null)});
             if (keys != null && keys.length > 0) {
                 return (UUID) keys[0].getKeyPart1();
             }
@@ -81,7 +78,7 @@ public abstract class ImportBase {
         }
         if (warnIfNotFound) {
             logWarning(International.getMessage("Person {person} nicht in der Mitgliederliste gefunden.",
-                                    EfaUtil.getFullName(firstName, lastName, club, true)));
+                                    name + (affix.length() > 0 ? " ("+affix+")" : "")));
         }
         return null;
     }
@@ -91,17 +88,16 @@ public abstract class ImportBase {
         if (name.length() == 0) {
             return null;
         }
-        String boatName = EfaUtil.getName(name);
-        String clubName = EfaUtil.getVerein(name);
-        return findBoat(boats, IDX, boatName, clubName, warnIfNotFound);
+        String[] qname = BoatRecord.tryGetNameAndAffix(name);
+        return findBoat(boats, IDX, qname[0], qname[1], warnIfNotFound);
     }
 
-    protected UUID findBoat(Boats boats, String[] IDX, String boatName, String clubName, boolean warnIfNotFound) {
+    protected UUID findBoat(Boats boats, String[] IDX, String boatName, String nameAffix, boolean warnIfNotFound) {
         try {
             DataKey[] keys = boats.data().getByFields(IDX,
                     new String[]{
-                        (boatName.length() > 0 ? boatName : null),
-                        (clubName.length() > 0 ? clubName : null)});
+                        (boatName != null && boatName.length() > 0 ? boatName : null),
+                        (nameAffix != null && nameAffix.length() > 0 ? nameAffix : null)});
             if (keys != null && keys.length > 0) {
                 return (UUID) keys[0].getKeyPart1();
             }
@@ -109,7 +105,7 @@ public abstract class ImportBase {
         }
         if (warnIfNotFound) {
             logWarning(International.getMessage("Boot {boat} nicht in der Bootsliste gefunden.",
-                                    boatName + (clubName.length() > 0 ? " ("+clubName+")" : "")));
+                                    boatName + (nameAffix != null && nameAffix.length() > 0 ? " ("+nameAffix+")" : "")));
         }
         return null;
     }

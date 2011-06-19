@@ -45,7 +45,7 @@ public class Mnemonics {
   }
 
   private static boolean allowedMnemonic(char c) {
-      // @todo: which characters are allowed to contain mnemonics?
+      // which characters are allowed to contain mnemonics?
       // e.g. Character.isLetter('ä')==true, but 'ä' cannot be a mnemonic!
       // probably use KeyCode instead of char for mnemonics (preferred way)
       return (c != '&' &&
@@ -185,7 +185,7 @@ public class Mnemonics {
    * @return the string with stripped mnemonics
    */
   public static String stripMnemonics(String s) {
-      // @todo: That's a hack! Maybe use a regex to replace?
+      // That's a hack! Maybe use a regex to replace?
       s = EfaUtil.replace(s, "&&", "§$$§", true);
       s = EfaUtil.replace(s, "&", "", true);
       s = EfaUtil.replace(s, "§$$§", "&", true);

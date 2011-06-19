@@ -18,6 +18,7 @@ import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.util.*;
+import de.nmichael.efa.ex.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -25,6 +26,10 @@ import javax.swing.border.*;
 import java.util.*;
 
 public abstract class DataListDialog extends BaseDialog implements IItemListener, IItemListenerDataRecordTable {
+
+    public static final int ACTION_HIDE    =  100;
+    public static final int ACTION_IMPORT  = -100; // negative actions will not be shown as popup actions
+    public static final int ACTION_EXPORT  = -101; // negative actions will not be shown as popup actions
 
     private Persistence persistence;
     private long validAt;
@@ -58,6 +63,28 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
         
         JPanel mainTablePanel = new JPanel();
         mainTablePanel.setLayout(new BorderLayout());
+
+        if (persistence.data().getMetaData().isVersionized()) {
+            actionText = new String[] {
+                ItemTypeDataRecordTable.ACTIONTEXT_NEW,
+                ItemTypeDataRecordTable.ACTIONTEXT_EDIT,
+                ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
+                International.getString("Verstecken"),
+                International.getString("Importieren"),
+                International.getString("Exportieren")
+            };
+            actionType = new int[] {
+                ItemTypeDataRecordTable.ACTION_NEW,
+                ItemTypeDataRecordTable.ACTION_EDIT,
+                ItemTypeDataRecordTable.ACTION_DELETE,
+                ACTION_HIDE,
+                ACTION_IMPORT,
+                ACTION_EXPORT
+            };
+        } else {
+
+        }
+
         table = new ItemTypeDataRecordTable("TABLE",
                 persistence.createNewRecord().getGuiTableHeader(),
                 persistence, validAt,
@@ -108,6 +135,54 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
     public void itemListenerActionTable(int actionId, DataRecord[] records) {
         // usually nothing to be done (handled in ItemTypeDataRecordTable itself).
         // override if necessary
+        switch(actionId) {
+            case ACTION_HIDE:
+                if (records == null || records.length == 0 || records[0] == null || !persistence.data().getMetaData().isVersionized()) {
+                    return;
+                }
+                boolean currentlyVisible = !records[0].getInvisible();
+                int res = -1;
+                if (currentlyVisible) {
+                    if (records.length == 1) {
+                        res = Dialog.yesNoDialog(International.getString("Wirklich verstecken?"),
+                                International.getMessage("Möchtest Du den Datensatz '{record}' wirklich verstecken?", records[0].getQualifiedName()));
+                    } else {
+                        res = Dialog.yesNoDialog(International.getString("Wirklich verstecken?"),
+                                International.getMessage("Möchtest Du {count} ausgewählte Datensätze wirklich verstecken?", records.length));
+                    }
+                } else {
+                    if (records.length == 1) {
+                        res = Dialog.yesNoDialog(International.getString("Wirklich sichtbar machen?"),
+                                International.getMessage("Möchtest Du den Datensatz '{record}' wirklich sichtbar machen?", records[0].getQualifiedName()));
+                    } else {
+                        res = Dialog.yesNoDialog(International.getString("Wirklich sichtbar machen?"),
+                                International.getMessage("Möchtest Du {count} ausgewählte Datensätze wirklich sichtbar machen?", records.length));
+                    }
+                }
+                if (res != Dialog.YES) {
+                    return;
+                }
+                try {
+                    for (int i = 0; records != null && i < records.length; i++) {
+                        if (records[i] != null) {
+                            records[i].setInvisible(currentlyVisible);
+                            persistence.data().update(records[i]);
+                        }
+                    }
+                } catch (EfaModifyException exmodify) {
+                    exmodify.displayMessage();
+                } catch (Exception ex) {
+                    Logger.logdebug(ex);
+                    Dialog.error(ex.toString());
+                }
+                break;
+            case ACTION_IMPORT:
+                Dialog.infoDialog("Datenimport noch nicht implementiert!"); // @todo (P3) implement Data Import
+                break;
+            case ACTION_EXPORT:
+                Dialog.infoDialog("Datenexport noch nicht implementiert!"); // @todo (P3) implement Data Export
+                break;
+        }
     }
 
     public void itemListenerAction(IItemType itemType, AWTEvent event) {
@@ -130,6 +205,18 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
             if (event.getID() == ActionEvent.ACTION_PERFORMED) {
                 showAll.getValueFromGui();
                 showDeleted.getValueFromGui();
+                if (showAll.getValue()) {
+                    showAll.saveColor();
+                    showAll.setColor(Color.gray);
+                } else {
+                    showAll.restoreColor();
+                }
+                if (showDeleted.getValue()) {
+                    showDeleted.saveColor();
+                    showDeleted.setColor(Color.red);
+                } else {
+                    showDeleted.restoreColor();
+                }
                 table.setAndUpdateData(validAt, showAll.getValue(), showDeleted.getValue());
                 table.showValue();
             }

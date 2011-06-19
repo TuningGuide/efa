@@ -107,10 +107,10 @@ public class SuchFrame extends JDialog implements ActionListener {
       err_unbekRudererOhneGast.setSelected(Daten.such_errUnbekRudererOhneGast);
       err_unbekBoot.setSelected(Daten.such_errUnbekBoot);
       err_unbekZiel.setSelected(Daten.such_errUnbekZiel);
-      if (Daten.efaConfig.showGermanOptions.getValue()) {
+      if (Daten.efaConfig.useFunctionalityRowingGermany.getValue()) {
           err_wafa.setSelected(Daten.such_errWafa);
       }
-      if (Daten.efaConfig.showBerlinOptions.getValue()) {
+      if (Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
           err_zielfahrten.setSelected(Daten.such_errZielfahrten);
       }
       err_vieleKm.setSelected(Daten.such_errVieleKm);
@@ -236,14 +236,14 @@ public class SuchFrame extends JDialog implements ActionListener {
     err_nichtZurueckgetragen.setSelected(true);
     Mnemonics.setButton(this, err_zuUebertragendeMehrtagesfahrten, International.getStringWithMnemonic("noch nicht konfigurierte Mehrtagesfahrten"));
     err_zuUebertragendeMehrtagesfahrten.setSelected(true);
-    if (Daten.efaConfig.showBerlinOptions.getValue()) {
+    if (Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
         Mnemonics.setButton(this, err_zielfahrten, International.onlyFor("Potentielle Zielfahrten (unbek. Ziel, >= 20 Km)","de"));
         err_zielfahrten.setNextFocusableComponent(err_vieleKm);
         err_zielfahrten.setSelected(true);
     }
     Mnemonics.setButton(this, err_unbekRudererOhneGast, International.getStringWithMnemonic("Unbekannte Einträge mit \'Gast\' ignorieren"));
     err_unbekRudererOhneGast.setNextFocusableComponent(err_unbekBoot);
-    if (Daten.efaConfig.showGermanOptions.getValue()) {
+    if (Daten.efaConfig.useFunctionalityRowingGermany.getValue()) {
         Mnemonics.setButton(this, err_wafa, International.onlyFor("Potentielle Wanderfahrten","de") +
                 " (" + International.getString("normale Fahrt") + ", >= 30 Km)");
         err_wafa.setNextFocusableComponent(err_zielfahrten);
@@ -325,13 +325,13 @@ public class SuchFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     fehlersuchPanel.add(err_zuUebertragendeMehrtagesfahrten,          new GridBagConstraints(0, 11, 4, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    if (Daten.efaConfig.showBerlinOptions.getValue()) {
+    if (Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
         fehlersuchPanel.add(err_zielfahrten,         new GridBagConstraints(1, 8, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     }
     fehlersuchPanel.add(err_unbekRudererOhneGast,        new GridBagConstraints(1, 4, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 20, 0, 0), 0, 0));
-    if (Daten.efaConfig.showGermanOptions.getValue()) {
+    if (Daten.efaConfig.useFunctionalityRowingGermany.getValue()) {
         fehlersuchPanel.add(err_wafa,       new GridBagConstraints(1, 7, 3, 1, 0.0, 0.0
                 ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     }
@@ -410,12 +410,12 @@ public class SuchFrame extends JDialog implements ActionListener {
       Daten.such_errUnbekRudererOhneGast = err_unbekRudererOhneGast.isSelected();
       Daten.such_errUnbekBoot = err_unbekBoot.isSelected();
       Daten.such_errUnbekZiel = err_unbekZiel.isSelected();
-      if (Daten.efaConfig.showGermanOptions.getValue()) {
+      if (Daten.efaConfig.useFunctionalityRowingGermany.getValue()) {
           Daten.such_errWafa = err_wafa.isSelected();
       } else {
           Daten.such_errWafa = false;
       }
-      if (Daten.efaConfig.showBerlinOptions.getValue()) {
+      if (Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
           Daten.such_errZielfahrten = err_zielfahrten.isSelected();
       } else {
           Daten.such_errZielfahrten = false;
@@ -491,7 +491,7 @@ public class SuchFrame extends JDialog implements ActionListener {
           if (Daten.such_errUnbekZiel && Daten.fahrtenbuch.getDaten() != null && Daten.fahrtenbuch.getDaten().ziele != null &&
               d.get(Fahrtenbuch.ZIEL).length()>0 && Daten.fahrtenbuch.getDaten().ziele.getExact(d.get(Fahrtenbuch.ZIEL)) == null) { gefunden(parent,d,parent.ziel); return true; }
           if (Daten.such_errWafa && EfaUtil.zehntelString2Int(d.get(Fahrtenbuch.BOOTSKM))>=Daten.WAFAKM && d.get(Fahrtenbuch.FAHRTART).length()==0) { gefunden(parent,d,parent.ziel); return true; }
-          if (Daten.efaConfig.showBerlinOptions.getValue() &&
+          if (Daten.efaConfig.useFunctionalityRowingBerlin.getValue() &&
               Daten.such_errZielfahrten && Daten.fahrtenbuch.getDaten() != null && Daten.fahrtenbuch.getDaten().ziele != null &&
               d.get(Fahrtenbuch.ZIEL).length()>0 && Daten.fahrtenbuch.getDaten().ziele.getExact(d.get(Fahrtenbuch.ZIEL)) == null &&
               d.get(Fahrtenbuch.BOOTSKM).length()>0 && EfaUtil.zehntelString2Int(d.get(Fahrtenbuch.BOOTSKM))>=Daten.ZIELFAHRTKM) { gefunden(parent,d,parent.ziel); return true; }
@@ -573,10 +573,10 @@ public class SuchFrame extends JDialog implements ActionListener {
     this.err_unbekRudererOhneGast.setSelected(true);
     this.err_unbekBoot.setSelected(true);
     this.err_unbekZiel.setSelected(true);
-    if (Daten.efaConfig.showGermanOptions.getValue()) {
+    if (Daten.efaConfig.useFunctionalityRowingGermany.getValue()) {
         this.err_wafa.setSelected(true);
     }
-    if (Daten.efaConfig.showBerlinOptions.getValue()) {
+    if (Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
         this.err_zielfahrten.setSelected(true);
     }
     this.err_vieleKm.setSelected(true);
@@ -591,10 +591,10 @@ public class SuchFrame extends JDialog implements ActionListener {
     this.err_unbekRudererOhneGast.setSelected(false);
     this.err_unbekBoot.setSelected(false);
     this.err_unbekZiel.setSelected(false);
-    if (Daten.efaConfig.showGermanOptions.getValue()) {
+    if (Daten.efaConfig.useFunctionalityRowingGermany.getValue()) {
         this.err_wafa.setSelected(false);
     }
-    if (Daten.efaConfig.showBerlinOptions.getValue()) {
+    if (Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
         this.err_zielfahrten.setSelected(false);
     }
     this.err_vieleKm.setSelected(false);

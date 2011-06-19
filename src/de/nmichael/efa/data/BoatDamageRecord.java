@@ -44,6 +44,8 @@ public class BoatDamageRecord extends DataRecord {
     private static final String GUIITEM_REPORTDATETIME = "GUIITEM_REPORTDATETIME";
     private static final String GUIITEM_FIXDATETIME    = "GUIITEM_FIXDATETIME";
 
+    private boolean showOnlyAddDamageFields = false;
+
     public static void initialize() {
         Vector<String> f = new Vector<String>();
         Vector<Integer> t = new Vector<Integer>();
@@ -185,26 +187,34 @@ public class BoatDamageRecord extends DataRecord {
         String CAT_BASEDATA     = "%01%" + International.getString("Bootsschaden");
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
+        v.add(item = new ItemTypeLabel("GUI_BOAT_NAME",
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getMessage("Bootsschaden für {boat}", getBoatName())));
+        item.setPadding(0, 0, 0, 10);
         v.add(item = new ItemTypeString(BoatDamageRecord.DESCRIPTION, getDescription(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Beschreibung")));
         v.add(item = new ItemTypeDateTime(GUIITEM_REPORTDATETIME, getReportDate(), getReportTime(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("gemeldet am")));
+        if (showOnlyAddDamageFields) {
+            item.setEnabled(false);
+        }
         v.add(item = getGuiItemTypeStringAutoComplete(BoatDamageRecord.REPORTEDBYPERSONID, null,
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                     getPersistence().getProject().getPersons(false), System.currentTimeMillis(), System.currentTimeMillis(),
                     International.getString("gemeldet von")));
         ((ItemTypeStringAutoComplete)item).setAlternateFieldNameForPlainText(BoatDamageRecord.REPORTEDBYPERSONNAME);
-        v.add(item = new ItemTypeDateTime(GUIITEM_FIXDATETIME, getFixDate(), getFixTime(),
-                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("behoben am")));
-        v.add(item = getGuiItemTypeStringAutoComplete(BoatDamageRecord.FIXEDBYPERSONID, null,
+        if (!showOnlyAddDamageFields) {
+            v.add(item = new ItemTypeDateTime(GUIITEM_FIXDATETIME, getFixDate(), getFixTime(),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("behoben am")));
+            v.add(item = getGuiItemTypeStringAutoComplete(BoatDamageRecord.FIXEDBYPERSONID, null,
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                     getPersistence().getProject().getPersons(false), System.currentTimeMillis(), System.currentTimeMillis(),
                     International.getString("behoben von")));
-        ((ItemTypeStringAutoComplete)item).setAlternateFieldNameForPlainText(BoatDamageRecord.FIXEDBYPERSONNAME);
-        v.add(item = new ItemTypeString(BoatDamageRecord.NOTES, getNotes(),
-                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bemerkungen")));
-        v.add(item = new ItemTypeBoolean(BoatDamageRecord.FIXED, getFixed(),
-                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Schaden wurde behoben")));
+            ((ItemTypeStringAutoComplete) item).setAlternateFieldNameForPlainText(BoatDamageRecord.FIXEDBYPERSONNAME);
+            v.add(item = new ItemTypeString(BoatDamageRecord.NOTES, getNotes(),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bemerkungen")));
+            v.add(item = new ItemTypeBoolean(BoatDamageRecord.FIXED, getFixed(),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Schaden wurde behoben")));
+        }
         return v;
     }
 
@@ -245,6 +255,10 @@ public class BoatDamageRecord extends DataRecord {
 
     public String getQualifiedName() {
         return International.getMessage("Schaden für {boat}", getBoatName());
+    }
+
+    public void setShowOnlyAddDamageFields(boolean showOnlyAddDamageFields) {
+        this.showOnlyAddDamageFields = showOnlyAddDamageFields;
     }
 
 }

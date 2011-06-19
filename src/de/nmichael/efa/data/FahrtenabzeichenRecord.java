@@ -147,7 +147,7 @@ public class FahrtenabzeichenRecord extends DataRecord {
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("... davon Kilometer in den Jugend-Gruppen A/B","de")));
         v.add(item = new ItemTypeString(FahrtenabzeichenRecord.FAHRTENHEFT, getFahrtenheft(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("Letztes elektronisches Fahrtenheft","de")));
-        // @todo Fahrtenheft Signatur prüfen, bearbeiten usw.
+        // @todo (P4) Fahrtenheft Signatur prüfen, bearbeiten usw.
         return v;
     }
 

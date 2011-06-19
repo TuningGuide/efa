@@ -13,6 +13,7 @@ package de.nmichael.efa.data;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
+import java.util.*;
 
 // @i18n complete
 
@@ -70,6 +71,43 @@ public class Logbook extends Persistence {
             Logger.logdebug(e);
             return null;
         }
+    }
+
+    public LogbookRecord findDuplicateEntry(LogbookRecord r, int rangeFromEnd) {
+        if (r == null || r.getEntryId() == null ||
+            r.getDate() == null || !r.getDate().isSet() ||
+            r.getBoatAsName().length() == 0) {
+            return null;
+        }
+        Vector<String> p = r.getAllCoxAndCrewAsNames();
+        try {
+            DataKeyIterator it = data().getStaticIterator();
+            DataKey k = it.getLast();
+            while (k != null && rangeFromEnd-- > 0) {
+                LogbookRecord r0 = getLogbookRecord(k);
+                if (r0 != null &&
+                    !r.getEntryId().equals(r0.getEntryId()) &&
+                    r.getDate().equals(r0.getDate()) &&
+                    r.getBoatAsName().equals(r0.getBoatAsName())) {
+                    // Records are identical in Data and BoatName
+                    Vector<String> p0 = r0.getAllCoxAndCrewAsNames();
+                    int matches = 0;
+                    for (int i=0; i<p0.size(); i++) {
+                        if (p.contains(p0.get(i))) {
+                            matches++;
+                        }
+                    }
+                    if (matches > 0 && p.size() - matches <=2) {
+                        // at least one crew member identical, and less than 2 crew members different
+                        // --> this is a potentially duplicate record
+                        return r0;
+                    }
+                }
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return null;
     }
 
 }

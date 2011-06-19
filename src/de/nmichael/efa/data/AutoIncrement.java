@@ -41,7 +41,7 @@ public class AutoIncrement extends Persistence {
         try {
             DataKey k = AutoIncrementRecord.getKey(sequence);
             lock = data().acquireLocalLock(k);
-            AutoIncrementRecord r = (AutoIncrementRecord)data().get(k); // @todo not safe since read is without lock!!! concurrent read possible
+            AutoIncrementRecord r = (AutoIncrementRecord)data().get(k);
             if (r != null) {
                 int seq = r.getValue() + 1;
                 r.setValue(seq);

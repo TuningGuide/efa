@@ -94,7 +94,6 @@ public class ImportTask extends ProgressTask {
                         case ImportMetadata.TYPE_FAHRTENABZEICHEN:
                             importJob = new ImportFahrtenabzeichen(this, key, meta);
                             break;
-                        // @todo TYPE_NACHRICHTEN
                     }
                 }
                 if (run == 4) {
@@ -118,12 +117,18 @@ public class ImportTask extends ProgressTask {
                 }
             }
         }
+        try {
+            Daten.project.close();
+            Daten.project.open(false);
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
         String msg = International.getMessage("{count} Dateien wurden importiert.", successCnt);
         if (errorCnt > 0) {
             msg += "\n" + International.getMessage("Der Import von {count} Dateien wurde wegen Fehlern abgebrochen.", errorCnt);
         }
         msg += "\n" + International.getMessage("Es traten {count} Warnungen und {count} Fehler auf.", totalWarnings, totalErrors);
-        logInfo(International.getString("Import beendet.\n"));
+        logInfo(International.getString("Import beendet.")+"\n");
         logInfo(msg+"\n");
         Dialog.infoDialog(msg);
         setDone();

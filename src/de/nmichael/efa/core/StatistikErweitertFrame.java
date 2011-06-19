@@ -128,7 +128,7 @@ public class StatistikErweitertFrame extends JDialog implements ActionListener {
 //    Dialog.frameOpened(this); // hier nicht, da Frame konstruiert wird, ohne sichtbar zu sein
     try {
       jbInit();
-      if (!Daten.efaConfig.showBerlinOptions.getValue()) {
+      if (!Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
           fbZielbereichInBemerkungenCheckBox.setVisible(false);
           alleZielfahrtenAusgeben.setVisible(false);
       }

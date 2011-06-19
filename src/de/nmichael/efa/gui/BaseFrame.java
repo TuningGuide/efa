@@ -23,7 +23,10 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
     protected Window _parent;
     protected String _title;
     protected boolean _prepared = false;
-    
+
+    private ActionHandler ah;
+    private String KEYACTION_ESCAPE;
+    private String KEYACTION_F1;
     protected JPanel basePanel = new JPanel();
     protected JScrollPane mainScrollPane = new JScrollPane();
     protected JPanel mainPanel = new JPanel();
@@ -86,23 +89,36 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
         if (evt == null || evt.getActionCommand() == null) {
             return;
         }
-        /*
-        if (evt.getActionCommand().equals("KEYSTROKE_ACTION_0")) { // Escape
+        
+        if (evt.getActionCommand().equals(KEYACTION_ESCAPE)) {
             cancel();
         }
-        */
-        if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
+        
+        if (evt.getActionCommand().equals(KEYACTION_F1)) {
             Help.showHelp(helpTopic);
         }
     }
 
     public abstract void keyAction(ActionEvent evt);
 
+    public String addKeyAction(String key) {
+        if (ah == null) {
+            ah = new ActionHandler(this);
+        }
+        try {
+            return ah.addKeyAction(getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW, key, "keyAction");
+        } catch (NoSuchMethodException e) {
+            Logger.log(Logger.ERROR, Logger.MSG_GUI_ERRORACTIONHANDLER, "Error setting up ActionHandler for "+getClass().getCanonicalName()+": "+e.toString()); // no need to translate
+            return null;
+        }
+    }
+
     protected void iniDialogCommon(String title) throws Exception {
         helpTopic = getClass().getCanonicalName();
         if (Logger.isTraceOn(Logger.TT_BACKGROUND)) {
             Logger.log(Logger.DEBUG, Logger.MSG_HELP_DEBUGHELPTOPIC, "Help Topic: "+helpTopic);
         }
+        /*
         ActionHandler ah = new ActionHandler(this);
         try {
             ah.addKeyActions(getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW,
@@ -110,6 +126,9 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
         } catch (NoSuchMethodException e) {
             Logger.log(Logger.ERROR, Logger.MSG_GUI_ERRORACTIONHANDLER, "Error setting up ActionHandler for "+getClass().getCanonicalName()+": "+e.toString()); // no need to translate
         }
+        */
+        KEYACTION_ESCAPE = addKeyAction("ESCAPE");
+        KEYACTION_F1 = addKeyAction("F1");
 
         if (title != null) {
             setTitle(title);

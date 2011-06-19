@@ -24,7 +24,10 @@ import javax.swing.*;
 
 // @i18n complete
 
+// @todo (P3) make EfaConfig a Persistence implementation
 public class EfaConfig extends DatenListe {
+
+    // @todo (P3) make EfaConfig an XML file and "improve" the config parameter's names (and remove obsolete ones)
 
     // Parameter Categories
     public static final char CATEGORY_SEPARATOR = ':';
@@ -49,7 +52,9 @@ public class EfaConfig extends DatenListe {
     public static final String CATEGORY_TYPES_COXD    = "135TYPES_COXD";
     public static final String CATEGORY_TYPES_GEND    = "136TYPES_GEND";
     public static final String CATEGORY_TYPES_STAT    = "137TYPES_STAT";
-    public static final String CATEGORY_LOCALE        = "14LOCALE";
+    public static final String CATEGORY_SYNC          = "14SYNC";
+    public static final String CATEGORY_KANUEFB       = "15KANUEFB";
+    public static final String CATEGORY_LOCALE        = "16LOCALE";
 
     private static final int STRINGLIST_VALUES  = 1;
     private static final int STRINGLIST_DISPLAY = 2;
@@ -91,8 +96,8 @@ public class EfaConfig extends DatenListe {
     private CustSettings custSettings = null;
     
     // public configuration data
-    public ItemTypeFile letzteDatei; // @todo remove efa1
-    public ItemTypeFile direkt_letzteDatei; // @todo remove efa1
+    public ItemTypeFile letzteDatei; // @todo (P5) remove efa1
+    public ItemTypeFile direkt_letzteDatei; // @todo (P5) remove efa1
     public ItemTypeString lastProjectEfaBase;
     public ItemTypeString lastProjectEfaBoathouse;
     public ItemTypeBoolean autogenAlias;
@@ -228,10 +233,10 @@ public class EfaConfig extends DatenListe {
     public ItemTypeDate efaDirekt_lockEfaUntilDatum;
     public ItemTypeTime efaDirekt_lockEfaUntilZeit;
     public ItemTypeBoolean efaDirekt_locked;
-    public ItemTypeBoolean showGermanOptions;
-    public ItemTypeBoolean showBerlinOptions;
-    public ItemTypeBoolean useForRowing;
-    public ItemTypeBoolean useForCanoeing;
+    public ItemTypeBoolean useFunctionalityRowing;
+    public ItemTypeBoolean useFunctionalityRowingGermany;
+    public ItemTypeBoolean useFunctionalityRowingBerlin;
+    public ItemTypeBoolean useFunctionalityCanoeing;
     public ItemTypeFile efaUserDirectory;
     public ItemTypeStringList language;
     public ItemTypeAction typesResetToDefault;
@@ -244,6 +249,11 @@ public class EfaConfig extends DatenListe {
     public ItemTypeHashtable<String> typesCoxing;
     public ItemTypeHashtable<String> typesSession;
     public ItemTypeHashtable<String> typesStatus;
+    public ItemTypeString kanuEfb_urlLogin;
+    public ItemTypeString kanuEfb_urlRequest;
+    public ItemTypeString kanuEfb_username;
+    public ItemTypeString kanuEfb_password;
+    public ItemTypeLong kanuEfb_lastSync;
 
     // Default Contructor (with Customization Settings)
     public EfaConfig(String filename, CustSettings custSettings) {
@@ -299,6 +309,8 @@ public class EfaConfig extends DatenListe {
         categories.put(CATEGORY_EXTTOOLS,      International.getString("externe Programme"));
         categories.put(CATEGORY_PRINTING,      International.getString("Drucken"));
         categories.put(CATEGORY_INPUT,         International.getString("Eingabe"));
+        categories.put(CATEGORY_SYNC,          International.getString("Synchronisation"));
+        categories.put(CATEGORY_KANUEFB,       International.onlyFor("Kanu-Efb","de"));
         categories.put(CATEGORY_LOCALE,        International.getString("Regionale Anpassung"));
         categories.put(CATEGORY_STARTSTOP,     International.getString("Starten und Beenden"));
         categories.put(CATEGORY_PERMISSIONS,   International.getString("Berechtigungen"));
@@ -850,6 +862,23 @@ public class EfaConfig extends DatenListe {
                 International.getString("email")+": "+
                 International.getString("Signatur")));
 
+        // ============================= SYNC =============================
+        addParameter(kanuEfb_urlLogin = new ItemTypeString("KANUEFB_URLLOGIN", "http://sid.kanu-efb.de/services/login",
+                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_SYNC,CATEGORY_KANUEFB),
+                "Login URL"));
+        addParameter(kanuEfb_urlRequest = new ItemTypeString("KANUEFB_URLREQUEST", "http://sid.kanu-efb.de/services",
+                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_SYNC,CATEGORY_KANUEFB),
+                "Request URL"));
+        addParameter(kanuEfb_username = new ItemTypeString("KANUEFB_USERNAME", "",
+                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_SYNC,CATEGORY_KANUEFB),
+                International.getString("Benutzername")));
+        addParameter(kanuEfb_password = new ItemTypeString("KANUEFB_PASSWORD", "",
+                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_SYNC,CATEGORY_KANUEFB),
+                International.getString("Paßwort")));
+        addParameter(kanuEfb_lastSync = new ItemTypeLong("KANUEFB_LASTSYNC", 0, 0, Long.MAX_VALUE,
+                IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_SYNC,CATEGORY_KANUEFB),
+                "Last Synchronization"));
+
         // ============================= LOCALE =============================
         addParameter(language = new ItemTypeStringList("_LANGUAGE", Daten.efaBaseConfig.language,
                 makeLanguageArray(STRINGLIST_VALUES), makeLanguageArray(STRINGLIST_DISPLAY),
@@ -859,27 +888,29 @@ public class EfaConfig extends DatenListe {
                 DataTypeDistance.makeDistanceUnitValueArray(), DataTypeDistance.makeDistanceUnitNamesArray(),
                 IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
                 International.getString("Standardeinheit für Entfernungen")));
-        addParameter(showGermanOptions = new ItemTypeBoolean("REGIONAL_GERMANY",
-                (custSettings != null ? custSettings.activateGermanRowingOptions : International.getLanguageID().startsWith("de") ),
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
-                International.getMessage("Regionale Funktionalitäten aktivieren für {region}.",
-                International.getString("Deutschland") +
-                " (" + International.getString("Rudern") + ")")));
-        addParameter(showBerlinOptions = new ItemTypeBoolean("REGIONAL_BERLIN",
-                (custSettings != null ? custSettings.activateBerlinRowingOptions : International.getLanguageID().startsWith("de") ),
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
-                International.getMessage("Regionale Funktionalitäten aktivieren für {region}.",
-                International.getString("Berlin") +
-                " (" + International.getString("Rudern") + ")")));
-        addParameter(useForRowing = new ItemTypeBoolean("CUSTUSAGE_ROWING",
+        addParameter(useFunctionalityRowing = new ItemTypeBoolean("CUSTUSAGE_ROWING",
                 (custSettings != null ? custSettings.activateRowingOptions : true ),
                 IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
-                International.getMessage("Funktionalitäten aktivieren für {sport}.",
+                International.getMessage("Funktionalitäten aktivieren für {sport}",
                 International.getString("Rudern"))));
-        addParameter(useForCanoeing = new ItemTypeBoolean("CUSTUSAGE_CANOEING",
+        addParameter(useFunctionalityRowingGermany = new ItemTypeBoolean("REGIONAL_GERMANY",
+                (custSettings != null ? custSettings.activateGermanRowingOptions : International.getLanguageID().startsWith("de") ),
+                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
+                International.getMessage("Funktionalitäten aktivieren für {sport} in {region}",
+                International.getString("Rudern")) + " " +
+                International.getMessage("in {region}",
+                International.getString("Deutschland"))));
+        addParameter(useFunctionalityRowingBerlin = new ItemTypeBoolean("REGIONAL_BERLIN",
+                (custSettings != null ? custSettings.activateBerlinRowingOptions : International.getLanguageID().startsWith("de") ),
+                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
+                International.getMessage("Funktionalitäten aktivieren für {sport} in {region}",
+                International.getString("Rudern")) + " " +
+                International.getMessage("in {region}",
+                International.getString("Berlin"))));
+        addParameter(useFunctionalityCanoeing = new ItemTypeBoolean("CUSTUSAGE_CANOEING",
                 (custSettings != null ? custSettings.activateCanoeingOptions : false ),
                 IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
-                International.getMessage("Funktionalitäten aktivieren für {sport}.",
+                International.getMessage("Funktionalitäten aktivieren für {sport}",
                 International.getString("Kanufahren"))));
 
         // ============================= TYPES =============================
@@ -1080,6 +1111,7 @@ public class EfaConfig extends DatenListe {
             if (changedUserDir) {
                 if (Daten.efaBaseConfig.efaCanWrite(newUserData, false)) {
                     Daten.efaBaseConfig.efaUserDirectory = newUserData;
+                    EfaSec.createNewSecFile(Daten.efaBaseConfig.efaUserDirectory + Daten.EFA_SECFILE, Daten.efaProgramDirectory + Daten.EFA_JAR);
                 } else {
                     Dialog.infoDialog(International.getString("Verzeichnis für Nutzerdaten"),
                     International.getString("efa kann in dem geänderten Verzeichnis für Nutzerdaten nicht schreiben. Die Änderung wird ignoriert."));

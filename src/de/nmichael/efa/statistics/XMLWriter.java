@@ -16,7 +16,6 @@ import de.nmichael.efa.*;
 import java.io.File;
 
 // @i18n complete
-// @todo: change XML format to english keys!
 
 public class XMLWriter {
 

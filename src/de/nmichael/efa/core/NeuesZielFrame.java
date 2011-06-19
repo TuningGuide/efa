@@ -172,7 +172,7 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
     jLabel1.setLabelFor(ziel);
     Mnemonics.setLabel(this, jLabel2, International.getStringWithMnemonic("Kilometer")+": ");
     jLabel2.setLabelFor(kilometer);
-    if (Daten.efaConfig.showBerlinOptions.getValue()) {
+    if (Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
         Mnemonics.setLabel(this, bereichLabel, International.onlyFor("Zielbereiche","de")+": ");
         bereichLabel.setLabelFor(bereich);
         bereich.setNextFocusableComponent(stegziel);
@@ -196,7 +196,7 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
     stegziel.setSelected(true);
     Mnemonics.setButton(this, stegziel, International.getStringWithMnemonic("Start und Ziel ist eigenes Bootshaus"));
     Mnemonics.setLabel(this, gewaesserLabel, International.getStringWithMnemonic("Gewässer")+": ");
-    gewaesser.setNextFocusableComponent( (Daten.efaConfig.showBerlinOptions.getValue() ? bereich : stegziel) );
+    gewaesser.setNextFocusableComponent( (Daten.efaConfig.useFunctionalityRowingBerlin.getValue() ? bereich : stegziel) );
     Dialog.setPreferredSize(gewaesser,200,19);
     gewaesser.addFocusListener(new java.awt.event.FocusAdapter() {
       public void focusLost(FocusEvent e) {
@@ -205,7 +205,7 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
     });
     this.getContentPane().add(SaveButton, BorderLayout.SOUTH);
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
-    if (Daten.efaConfig.showBerlinOptions.getValue()) {
+    if (Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
         jPanel1.add(bereichLabel,    new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
             ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 10, 0, 0), 0, 0));
     }
@@ -213,7 +213,7 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 0, 0, 10), 0, 0));
     jPanel1.add(kilometer,       new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 10), 0, 0));
-    if (Daten.efaConfig.showBerlinOptions.getValue()) {
+    if (Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
         jPanel1.add(bereich,    new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 10), 0, 0));
     }
@@ -295,7 +295,7 @@ public class NeuesZielFrame extends JDialog implements ActionListener {
       return;
     }
 
-    if (Daten.efaConfig.showBerlinOptions.getValue()) {
+    if (Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
       if (new ZielfahrtFolge(bereich.getText()).getAnzZielfahrten() > 1 && stegziel.isSelected()) {
         // no need to translate!
         Dialog.error("Die Eigenschaft 'Start und Ziel ist eigenes Bootshaus' ist nur für "+

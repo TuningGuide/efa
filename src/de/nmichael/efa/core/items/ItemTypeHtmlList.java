@@ -189,6 +189,7 @@ public class ItemTypeHtmlList extends ItemType implements ActionListener {
     }
 
     public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
         list.setEnabled(enabled);
         scrollPane.setEnabled(enabled);
     }

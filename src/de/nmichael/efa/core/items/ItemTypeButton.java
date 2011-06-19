@@ -101,6 +101,7 @@ public class ItemTypeButton extends ItemType {
 }
 
     public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
         button.setEnabled(enabled);
     }
 }

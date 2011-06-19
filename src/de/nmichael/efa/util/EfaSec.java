@@ -7,90 +7,107 @@
  * @author Nicolas Michael
  * @version 2
  */
-
 package de.nmichael.efa.util;
 
 import de.nmichael.efa.*;
 import java.io.*;
 
 // @i18n complete
-
 public class EfaSec {
 
-  private String filename;
+    private String filename;
 
-  public EfaSec(String filename) {
-    this.filename = filename;
-  }
-
-  public boolean secFileExists() {
-    return (new File(filename)).isFile();
-  }
-
-  private String read() {
-    try {
-      BufferedReader fsec = new BufferedReader(new InputStreamReader(new FileInputStream(filename),Daten.ENCODING_UTF));
-      String efaSecSHA = fsec.readLine(); fsec.close();
-      return efaSecSHA;
-    } catch(Exception e) {
-      return null;
+    public EfaSec(String filename) {
+        this.filename = filename;
     }
-  }
 
-  public String getSecValue() {
-    String efaSecSHA = read();
-    if (efaSecSHA != null && efaSecSHA.startsWith("#")) efaSecSHA = efaSecSHA.substring(1,efaSecSHA.length());
-    return efaSecSHA;
-  }
-
-  public boolean isDontDeleteSet() {
-    String efaSecSHA = read();
-    return (efaSecSHA != null && efaSecSHA.startsWith("#"));
-  }
-
-  public boolean isSecFileWritable() {
-    try {
-      BufferedReader fsecr = new BufferedReader(new InputStreamReader(new FileInputStream(filename),Daten.ENCODING_UTF));
-      String efaSecSHA = fsecr.readLine();
-      fsecr.close();
-      BufferedWriter fsecw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename),Daten.ENCODING_UTF));
-      fsecw.write(efaSecSHA);
-      fsecw.close();
-      return true;
-    } catch(Exception e) {
-      return false;
+    public boolean secFileExists() {
+        return (new File(filename)).isFile();
     }
-  }
 
-  public boolean secValueValid() {
-    String efaJarSHA = EfaUtil.getSHA(new File(Daten.efaProgramDirectory+"efa.jar"));
-    String efaSecSHA = getSecValue();
-    return efaJarSHA != null && efaSecSHA != null && efaJarSHA.equals(efaSecSHA);
-  }
-
-  public boolean writeSecFile(String sha, boolean dontDelete) {
-    try {
-      BufferedWriter fsec = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename),Daten.ENCODING_UTF));
-      fsec.write( (dontDelete ? "#" : "") + sha);
-      fsec.close();
-      return true;
-    } catch(Exception e) {
-      return false;
+    private String read() {
+        try {
+            BufferedReader fsec = new BufferedReader(new InputStreamReader(new FileInputStream(filename), Daten.ENCODING_UTF));
+            String efaSecSHA = fsec.readLine();
+            fsec.close();
+            return efaSecSHA;
+        } catch (Exception e) {
+            return null;
+        }
     }
-  }
 
-  public boolean delete(boolean force) {
-    if (force || !isDontDeleteSet()) {
-      boolean secDeleted = false;
-      try {
-        secDeleted = (new File(filename)).delete();
-      } catch(Exception e) { secDeleted = false; }
-      return secDeleted;
+    public String getSecValue() {
+        String efaSecSHA = read();
+        if (efaSecSHA != null && efaSecSHA.startsWith("#")) {
+            efaSecSHA = efaSecSHA.substring(1, efaSecSHA.length());
+        }
+        return efaSecSHA;
     }
-    return true;
-  }
 
-  public String getFilename() {
-    return filename;
-  }
+    public boolean isDontDeleteSet() {
+        String efaSecSHA = read();
+        return (efaSecSHA != null && efaSecSHA.startsWith("#"));
+    }
+
+    public boolean isSecFileWritable() {
+        try {
+            BufferedReader fsecr = new BufferedReader(new InputStreamReader(new FileInputStream(filename), Daten.ENCODING_UTF));
+            String efaSecSHA = fsecr.readLine();
+            fsecr.close();
+            BufferedWriter fsecw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), Daten.ENCODING_UTF));
+            fsecw.write(efaSecSHA);
+            fsecw.close();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean secValueValid() {
+        String efaJarSHA = EfaUtil.getSHA(new File(Daten.efaProgramDirectory + Daten.EFA_JAR));
+        String efaSecSHA = getSecValue();
+        return efaJarSHA != null && efaSecSHA != null && efaJarSHA.equals(efaSecSHA);
+    }
+
+    public boolean writeSecFile(String sha, boolean dontDelete) {
+        try {
+            BufferedWriter fsec = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), Daten.ENCODING_UTF));
+            fsec.write((dontDelete ? "#" : "") + sha);
+            fsec.close();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean delete(boolean force) {
+        if (force || !isDontDeleteSet()) {
+            boolean secDeleted = false;
+            try {
+                secDeleted = (new File(filename)).delete();
+            } catch (Exception e) {
+                secDeleted = false;
+            }
+            return secDeleted;
+        }
+        return true;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public static boolean createNewSecFile(String secFile, String jarFile) {
+        EfaSec efaSec = null;
+        try {
+            String sha = EfaUtil.getSHA(new File(jarFile));
+            efaSec = new EfaSec(secFile);
+            efaSec.writeSecFile(sha, false);
+            Logger.log(Logger.INFO, Logger.MSG_CORE_EFASECCREATED, LogString.logstring_fileNewCreated(efaSec.getFilename(), International.getString("Sicherheitsdatei")));
+            return true;
+        } catch (Exception e) {
+            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFASECFAILEDCREATE, LogString.logstring_fileCreationFailed(efaSec.getFilename(), International.getString("Sicherheitsdatei"), e.toString()));
+            return false;
+        }
+    }
 }

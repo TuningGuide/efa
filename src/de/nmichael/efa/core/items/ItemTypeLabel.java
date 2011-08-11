@@ -19,6 +19,7 @@ import javax.swing.*;
 public class ItemTypeLabel extends ItemType {
 
     private JLabel[] labels;
+    private ImageIcon icon;
     
     public ItemTypeLabel(String name, int type,
             String category, String description) {
@@ -36,11 +37,19 @@ public class ItemTypeLabel extends ItemType {
     }
 
     protected void iniDisplay() {
-        Vector v = EfaUtil.split(description, '\n');
+        Vector<String> v = EfaUtil.split(description, '\n');
+        if (v.size() == 0) {
+            v.add("");
+        }
         labels = new JLabel[v.size()];
         for (int i=0; i<v.size(); i++) {
             JLabel l = new JLabel();
             l.setText((String)v.get(i));
+            if (i == 0 && icon != null) {
+                l.setHorizontalAlignment(SwingConstants.CENTER);
+                l.setHorizontalTextPosition(SwingConstants.CENTER);
+                l.setIcon(icon);
+            }
             if (color != null) {
                 l.setForeground(color);
             }
@@ -93,4 +102,9 @@ public class ItemTypeLabel extends ItemType {
             labels[i].setForeground((enabled ? (new JLabel()).getForeground() : Color.gray));
         }
     }
+
+    public void setImage(ImageIcon icon) {
+        this.icon = icon;
+    }
+
 }

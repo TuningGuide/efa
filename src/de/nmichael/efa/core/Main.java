@@ -26,7 +26,7 @@ public class Main extends Program {
 
     public Main(String[] args) {
         super(args);
-        Daten.initialize(Daten.APPL_EFA);
+        Daten.initialize(Daten.APPL_EFABASE);
 
         if (project != null) {
             Project.openProject(project);

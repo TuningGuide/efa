@@ -114,7 +114,7 @@ public class Dialog {
     if (parent != null) programDlg = new AusgabeFrame(parent);
     else programDlg = new AusgabeFrame(); // Parameter-Aufruf aus Efa
     Dimension dlgSize = programDlg.getPreferredSize();
-    if (Daten.applID == Daten.APPL_EFADIREKT &&
+    if (Daten.applID == Daten.APPL_EFABH &&
             Daten.efaConfig.efaDirekt_startMaximized.getValue()) {
           int width = (int)screenSize.getWidth();
           int height = (int)screenSize.getHeight();
@@ -152,7 +152,7 @@ public class Dialog {
     browser.setClosingTimeout(closingTimeout);
     int width = (int)screenSize.getWidth()-100;
     int height = (int)screenSize.getHeight()-150;
-    if (Daten.applID == Daten.APPL_EFADIREKT &&
+    if (Daten.applID == Daten.APPL_EFABH &&
         Daten.efaConfig.efaDirekt_startMaximized.getValue()) {
       width = (int)screenSize.getWidth();
       height = (int)screenSize.getHeight();
@@ -165,7 +165,7 @@ public class Dialog {
     BrowserFrame browser = new BrowserFrame(parent, title, url, !modal);
     int width = (int)screenSize.getWidth()-100;
     int height = (int)screenSize.getHeight()-150;
-    if (Daten.applID == Daten.APPL_EFADIREKT &&
+    if (Daten.applID == Daten.APPL_EFABH &&
         Daten.efaConfig.efaDirekt_startMaximized.getValue()) {
       width = (int)screenSize.getWidth();
       height = (int)screenSize.getHeight();
@@ -423,7 +423,7 @@ public class Dialog {
   public static void frameOpened(Window w) {
     if (frameStack == null) frameStack = new Stack();
     frameStack.push(w);
-    if (Daten.applID == Daten.APPL_EFADIREKT &&
+    if (Daten.applID == Daten.APPL_EFABH &&
         Daten.efaConfig != null && Daten.efaConfig.efaDirekt_immerImVordergrund.getValue()) {
       try {
         de.nmichael.efa.java15.Java15.setAlwaysOnTop(w,true);

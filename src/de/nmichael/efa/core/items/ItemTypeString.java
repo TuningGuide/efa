@@ -27,6 +27,7 @@ public class ItemTypeString extends ItemTypeLabelTextfield {
     protected String replacementCharacter;
     protected Pattern pattern;
     protected boolean toUpperCase = false;
+    protected int minChar = 0;
 
     public ItemTypeString(String name, String value, int type,
             String category, String description) {
@@ -115,9 +116,19 @@ public class ItemTypeString extends ItemTypeLabelTextfield {
         return toUpperCase;
     }
 
+    public void setMinCharacters(int minChar) {
+        this.minChar = minChar;
+        if (minChar > 0) {
+            setNotNull(true);
+        }
+    }
+
     public boolean isValidInput() {
         if (isNotNullSet()) {
             if (value == null || value.length() == 0) {
+                return false;
+            }
+            if (value.length() < minChar) {
                 return false;
             }
         }

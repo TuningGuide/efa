@@ -50,7 +50,7 @@ public class BoatStatusRecord extends DataRecord {
         f.add(BOATID);                   t.add(IDataAccess.DATA_UUID);
         f.add(STATUS);                   t.add(IDataAccess.DATA_STRING);
         f.add(LOGBOOK);                  t.add(IDataAccess.DATA_STRING);
-        f.add(ENTRYNO);                  t.add(IDataAccess.DATA_STRING);
+        f.add(ENTRYNO);                  t.add(IDataAccess.DATA_INTSTRING);
         f.add(COMMENT);                  t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(BoatStatus.DATATYPE, f, t, false);
         metaData.setKey(new String[] { BOATID });
@@ -80,11 +80,25 @@ public class BoatStatusRecord extends DataRecord {
         return getUUID(BOATID);
     }
 
+    public String getBoatNameAsString(long validAt) {
+        Boats b = getPersistence().getProject().getBoats(false);
+        if (b != null) {
+            BoatRecord r = b.getBoat(getBoatId(), validAt);
+            if (r != null) {
+                return r.getQualifiedName();
+            }
+        }
+        return null;
+    }
+
     public void setStatus(String status) {
         setString(STATUS, status);
     }
     public String getStatus() {
         return getString(STATUS);
+    }
+    public String getStatusDescription() {
+        return getStatusDescription(getStatus());
     }
 
     public void setLogbook(String logbook) {
@@ -94,11 +108,11 @@ public class BoatStatusRecord extends DataRecord {
         return getString(LOGBOOK);
     }
 
-    public void setEntryNo(String entryNo) {
-        setString(ENTRYNO, entryNo);
+    public void setEntryNo(DataTypeIntString entryNo) {
+        setIntString(ENTRYNO, entryNo);
     }
-    public String getEntryNo() {
-        return getString(ENTRYNO);
+    public DataTypeIntString getEntryNo() {
+        return getIntString(ENTRYNO);
     }
 
     public void setComment(String comment) {
@@ -131,7 +145,7 @@ public class BoatStatusRecord extends DataRecord {
         if (getStatus() != null && getStatus().equals(STATUS_ONTHEWATER)) {
             v.add(item = new ItemTypeLabel(BoatStatusRecord.ENTRYNO,
                     IItemType.TYPE_PUBLIC, CAT_STATUS,
-                    International.getMessage("Eintrag in Lfd. Nr. {entryNo} in Fahrtenbuch {logbook}", getEntryNo(), getLogbook())));
+                    International.getMessage("Eintrag in Lfd. Nr. {entryNo} in Fahrtenbuch {logbook}", getEntryNo().toString(), getLogbook())));
         }
         v.add(item = new ItemTypeString(BoatStatusRecord.COMMENT, getComment(),
                 IItemType.TYPE_PUBLIC, CAT_STATUS, International.getString("Bemerkung")));

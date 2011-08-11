@@ -89,4 +89,23 @@ public class Persons extends Persistence {
         }
     }
 
+    public Vector<PersonRecord> getAllPersons(long validAt, boolean alsoDeleted, boolean alsoInvisible) {
+        try {
+            Vector<PersonRecord> v = new Vector<PersonRecord>();
+            DataKeyIterator it = data().getStaticIterator();
+            DataKey k = it.getFirst();
+            while (k != null) {
+                PersonRecord r = (PersonRecord) data().get(k);
+                if (r != null && r.isValidAt(validAt) && (!r.getDeleted() || alsoDeleted) && (!r.getInvisible() || alsoInvisible)) {
+                    v.add(r);
+                }
+                k = it.getNext();
+            }
+            return v;
+        } catch (Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
 }

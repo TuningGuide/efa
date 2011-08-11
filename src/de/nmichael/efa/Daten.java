@@ -14,6 +14,7 @@ import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.data.*;
+import de.nmichael.efa.data.storage.DataFile;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.drv.DRVConfig;
@@ -152,6 +153,7 @@ public class Daten {
   public final static String ONLINEUPDATE_INFO_DRV = "http://efa.nmichael.de/efadrv.eou";
   public final static String EFW_UPDATE_DATA = "http://efa.nmichael.de/efw.data";
   public final static String INTERNET_EFAMAIL = "http://cgi.snafu.de/nmichael/user-cgi-bin/efamail.pl";
+  public final static String IMAGEPATH = "/de/nmichael/efa/img/";
 
   public final static int AUTO_EXIT_MIN_RUNTIME = 60; // Minuten, die efa mindestens gelaufen sein muß, damit es zu einem automatischen Beenden/Restart kommt (60)
   public final static int AUTO_EXIT_MIN_LAST_USED = 5; // Minuten, die efa mindestens nicht benutzt wurde, damit Beenden/Neustart nicht verzögert wird (muß kleiner als AUTO_EXIT_MIN_RUNTIME sein!!!) (5)
@@ -179,6 +181,7 @@ public class Daten {
   public static EfaConfig efaConfig;         // Konfigurationsdatei
   public static DRVConfig drvConfig;         // Konfigurationsdatei
   public static EfaTypes efaTypes;           // EfaTypes (Bezeichnungen)
+  public static Admins admins;               // Admins
   public static Project project;             // Efa Project
 
   public static WettDefs wettDefs;           // WettDefs
@@ -249,8 +252,8 @@ public class Daten {
   // Applikations-IDs
   public static int applID = -1;
   public static String applName = "Unknown"; // will be set in iniBase(...)
-  public static final int APPL_EFA = 1;
-  public static final int APPL_EFADIREKT = 2;
+  public static final int APPL_EFABASE = 1;
+  public static final int APPL_EFABH = 2;
   public static final int APPL_CLI = 3;
   public static final int APPL_DRV = 4;
   public static final int APPL_EMIL = 5;
@@ -284,7 +287,8 @@ public class Daten {
         iniEnvironmentSettings();
         iniDirectories();
         iniEfaSec();
-        CustSettings cust = iniEfaCustomization();
+        boolean createNewAdmin = iniAdmins();
+        CustSettings cust = iniEfaFirstSetup(createNewAdmin);
         iniFileSettings(1);
         iniEfaConfig(cust);
         iniFileSettings(2);
@@ -355,10 +359,10 @@ public class Daten {
         userName = System.getProperty("user.name");
         applID = _applID;
         switch(applID) {
-            case APPL_EFA:
+            case APPL_EFABASE:
                 applName = APPLNAME_EFA;
                 break;
-            case APPL_EFADIREKT:
+            case APPL_EFABH:
                 applName = APPLNAME_EFADIREKT;
                 break;
             case APPL_CLI:
@@ -465,8 +469,8 @@ public class Daten {
         }
         String baklog = null; // backup'ed logfile
         switch (applID) {
-            case APPL_EFA:
-            case APPL_EFADIREKT:
+            case APPL_EFABASE:
+            case APPL_EFABH:
             case APPL_CLI:
                 baklog = Logger.ini("efa.log", true);
                 break;
@@ -505,7 +509,7 @@ public class Daten {
 
     private static void iniEnvironmentSettings() {
         try {
-            if (applID == APPL_EFADIREKT) {
+            if (applID == APPL_EFABH) {
                 Daten.efa_java_arguments = System.getenv(Daten.EFA_JAVA_ARGUMENTS);
                 if (Logger.isTraceOn(Logger.TT_CORE)) {
                     Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GENERIC,
@@ -580,7 +584,7 @@ public class Daten {
             return;
         }
         if (show) {
-            splashScreen = new StartLogo("/de/nmichael/efa/img/efaIntro.gif");
+            splashScreen = new StartLogo(IMAGEPATH + "efaIntro.gif");
             splashScreen.show();
             try {
                 Thread.sleep(1000); // Damit nach automatischem Restart genügend Zeit vergeht
@@ -600,7 +604,8 @@ public class Daten {
         }
         efaSec = new EfaSec(Daten.efaBaseConfig.efaUserDirectory + Daten.EFA_SECFILE);
         if (efaSec.secFileExists() && !efaSec.secValueValid()) {
-            String msg = International.getString("Die Sicherheitsdatei ist korrupt! Aus Gründen der Sicherheit verweigert efa daher den Dienst. " +
+            String msg = International.getString("Die Sicherheitsdatei ist korrupt!") + "\n" +
+                    International.getString("Aus Gründen der Sicherheit verweigert efa den Dienst. " +
                     "Um efa zu reaktivieren, wende Dich bitte an den Entwickler: ") + Daten.EMAILHELP;
             Logger.log(Logger.ERROR, Logger.MSG_CORE_EFASECCORRUPTED, msg);
             if (isGuiAppl()) {
@@ -610,18 +615,94 @@ public class Daten {
         }
     }
 
-    public static CustSettings iniEfaCustomization() {
-        if (!firstEfaStart) {
-            return null;
+    // returns true if we need to create a new super admin (and are allowed to do so)
+    // returns false if we have a super admin and don't need to create one
+    // halts efa if there is no super admin, but we're not allowed to create one either
+    public static boolean iniAdmins() {
+        if (applID == APPL_DRV) {
+            return false;
         }
-        EfaCustomizationDialog dlg = new EfaCustomizationDialog((javax.swing.JFrame)null);
-        dlg.showDialog();
-        return dlg.getCustSettings();
+        Daten.admins = new Admins();
+        try {
+            // try to open admin file
+            Daten.admins.open(false);
+        } catch (Exception e) {
+            if (!isGuiAppl()) {
+                // if this is not a GUI appl, then stop here!
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_ADMINSFAILEDOPEN,
+                        LogString.logstring_fileOpenFailed(((DataFile) Daten.admins.data()).getFilename(),
+                        International.getString("Administratoren")));
+                haltProgram(HALT_ADMIN);
+            }
+            // check whether admin file exists, and only could not be opened
+            boolean exists = true;
+            try {
+                exists = Daten.admins.data().existsStorageObject();
+            } catch (Exception ee) {
+                Logger.logdebug(ee);
+            }
+            if (exists) {
+                // admin file exists, but could not be opened. we exit here.
+                String msg = LogString.logstring_fileOpenFailed(((DataFile) Daten.admins.data()).getFilename(),
+                        International.getString("Administratoren"));
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_ADMINSFAILEDOPEN, msg);
+                if (isGuiAppl()) {
+                    Dialog.error(msg);
+                }
+                haltProgram(HALT_ADMIN);
+            }
+            // no admin file there, we need to create a new one
+            if (Daten.efaSec.secFileExists() && Daten.efaSec.secValueValid()) {
+                // ok, sec file is there: we're allowed to create a new one
+                return true;
+            } else {
+                // no sec file there: exit and don't create new admin
+                String msg = International.getString("Kein Admin gefunden.") + "\n"
+                        + International.getString("Aus Gründen der Sicherheit verweigert efa den Dienst. "
+                        + "Um efa zu reaktivieren, wende Dich bitte an den Entwickler: ") + Daten.EMAILHELP;
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_ADMINSFAILEDNOSEC, msg);
+                if (isGuiAppl()) {
+                    Dialog.error(msg);
+                }
+                haltProgram(HALT_EFASEC);
+            }
+            return false; // we never reach here, but just to be sure... ;-)
+        }
+        // we do have a admin file already that we can open. now check whether there's a super admin configured as well
+        if (admins.getAdmin(Admins.SUPERADMIN) == null) {
+            // we don't have a super admin yet
+            if (Daten.efaSec.secFileExists() && Daten.efaSec.secValueValid()) {
+                // ok, sec file is there: we're allowed to create a new one
+                return true;
+            }
+            // no sec file there: exit and don't create new admin
+            String msg = International.getString("Kein Admin gefunden.") + "\n"
+                    + International.getString("Aus Gründen der Sicherheit verweigert efa den Dienst. "
+                    + "Um efa zu reaktivieren, wende Dich bitte an den Entwickler: ") + Daten.EMAILHELP;
+            Logger.log(Logger.ERROR, Logger.MSG_CORE_ADMINSFAILEDNOSEC, msg);
+            if (isGuiAppl()) {
+                Dialog.error(msg);
+            }
+            haltProgram(HALT_EFASEC);
+            return false; // we never reach here, but just to be sure... ;-)
+        } else  {
+            // ok, we do have a super admin already
+            return false;
+        }
+    }
+
+    public static CustSettings iniEfaFirstSetup(boolean createNewAdmin) {
+        if (firstEfaStart || createNewAdmin) {
+            EfaFirstSetupDialog dlg = new EfaFirstSetupDialog(createNewAdmin, firstEfaStart);
+            dlg.showDialog();
+            return dlg.getCustSettings();
+        }
+        return null;
     }
 
     public static void iniFileSettings(int stage) {
         switch (applID) {
-            case APPL_EFA:
+            case APPL_EFABASE:
                 switch (stage) {
                     case 1: // before EfaConfig is opened
                         if (!efaSec.secFileExists()) { // efa Secure Mode
@@ -648,7 +729,7 @@ public class Daten {
                         break;
                 }
                 break;
-            case APPL_EFADIREKT:
+            case APPL_EFABH:
                 switch (stage) {
                     case 1: // before EfaConfig is opened
                         // Stop on Checksum Errors
@@ -841,12 +922,22 @@ public class Daten {
             Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTSETLOOKANDFEEL,
                     "Failed to apply LookAndFeel Workarounds: " + e.toString());
         }
+
+        // Font Size
+        if (applID == APPL_EFABH) {
+            try {
+                Dialog.setGlobalFontSize(Daten.efaConfig.efaDirekt_fontSize.getValue(), Daten.efaConfig.efaDirekt_fontStyle.getValue());
+            } catch (Exception e) {
+                Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTSETFONTSIZE,
+                        International.getString("Schriftgröße konnte nicht geändert werden") + ": " + e.toString());
+            }
+        }
     }
 
     public static void iniChecks() {
         checkEfaVersion(true);
         checkJavaVersion(true);
-        if (applID == APPL_EFA) {
+        if (applID == APPL_EFABASE) {
             checkRegister();
         }
     }
@@ -871,8 +962,8 @@ public class Daten {
     }
 
     public static boolean isGuiAppl() {
-        return (applID == APPL_EFA ||
-                applID == APPL_EFADIREKT ||
+        return (applID == APPL_EFABASE ||
+                applID == APPL_EFABH ||
                 applID == APPL_EMIL ||
                 applID == APPL_ELWIZ ||
                 applID == APPL_EDDI ||
@@ -918,7 +1009,7 @@ public class Daten {
 
         // efa-Infos
         infos.add("efa.version=" + Daten.VERSIONID);
-        if (applID != APPL_EFADIREKT) {
+        if (applID != APPL_EFABH) {
             infos.add("efa.dir.main=" + Daten.efaMainDirectory);
             infos.add("efa.dir.user=" + Daten.efaBaseConfig.efaUserDirectory);
             infos.add("efa.dir.program=" + Daten.efaProgramDirectory);
@@ -935,7 +1026,7 @@ public class Daten {
         // efa Plugin-Infos
         try {
             File dir = new File(Daten.efaPluginDirectory);
-            if (applID != APPL_EFADIREKT) {
+            if (applID != APPL_EFABH) {
                 File[] files = dir.listFiles();
                 for (int i = 0; i < files.length; i++) {
                     if (files[i].isFile()) {
@@ -968,7 +1059,7 @@ public class Daten {
                 infos.add("efa.plugin.email=NOT INSTALLED");
             }
             try {
-                de.nmichael.efa.direkt.SunRiseSet tmp = new de.nmichael.efa.direkt.SunRiseSet();
+                de.nmichael.efa.util.SunRiseSet tmp = new de.nmichael.efa.util.SunRiseSet();
                 infos.add("efa.plugin.jsuntimes=INSTALLED");
             } catch (NoClassDefFoundError e) {
                 infos.add("efa.plugin.jsuntimes=NOT INSTALLED");
@@ -988,7 +1079,7 @@ public class Daten {
         infos.add("os.name=" + System.getProperty("os.name"));
         infos.add("os.arch=" + System.getProperty("os.arch"));
         infos.add("os.version=" + System.getProperty("os.version"));
-        if (applID != APPL_EFADIREKT) {
+        if (applID != APPL_EFABH) {
             infos.add("user.dir=" + System.getProperty("user.dir"));
             infos.add("java.class.path=" + System.getProperty("java.class.path"));
         }
@@ -1047,13 +1138,13 @@ public class Daten {
                 //if (birthday == 5) {
                 //    return "/de/nmichael/efa/img/efa_small_5jahre.gif";
                 //} else {
-                    return "/de/nmichael/efa/img/efa_small.png";
+                    return IMAGEPATH + "efa_small.png";
                 //}
             default:
                 //if (birthday == 5) {
                 //    return "/de/nmichael/efa/img/efa_logo_5jahre.gif";
                 //} else {
-                    return "/de/nmichael/efa/img/efa_logo.png";
+                    return IMAGEPATH + "efa_logo.png";
                 //}
         }
     }

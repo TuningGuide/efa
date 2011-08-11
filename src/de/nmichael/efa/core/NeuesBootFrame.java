@@ -619,7 +619,7 @@ public class NeuesBootFrame extends JDialog implements ActionListener {
           default: break;
         }
 
-        if (Daten.applID == Daten.APPL_EFADIREKT && bootstatus != null) {
+        if (Daten.applID == Daten.APPL_EFABH && bootstatus != null) {
           switch(Dialog.yesNoCancelDialog(International.getString("Statusliste anpassen"),
                   International.getString("Soll die Bootsstatusliste an die Änderung angepaßt werden?"))) {
             case Dialog.YES: updateBootstatus(oldKey,k); break;

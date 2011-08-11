@@ -19,15 +19,20 @@ import java.util.*;
 
 class OOMEListener implements javax.management.NotificationListener {
 
-  private de.nmichael.efa.direkt.EfaDirektFrame frame;
+  private de.nmichael.efa.direkt.EfaDirektFrame frameOld; // @todo - remove efa1
+  private de.nmichael.efa.gui.EfaBoathouseFrame frame;
 
-  public OOMEListener(de.nmichael.efa.direkt.EfaDirektFrame frame) {
+  public OOMEListener(de.nmichael.efa.direkt.EfaDirektFrame frame) { // @todo - remove efa1
+    this.frameOld = frame;
+  }
+
+  public OOMEListener(de.nmichael.efa.gui.EfaBoathouseFrame frame) {
     this.frame = frame;
   }
 
   public void handleNotification(Notification notification, Object handback)  {
     de.nmichael.efa.Daten.DONT_SAVE_ANY_FILES_DUE_TO_OOME = true;
-    frame.exitOnLowMemory("OOMEListener:"+notification.getType(),true);
+    frameOld.exitOnLowMemory("OOMEListener:"+notification.getType(),true);
   }
 }
 
@@ -190,9 +195,16 @@ public class Java15 {
   }
   
   public static void setMemUsageListener(de.nmichael.efa.direkt.EfaDirektFrame frame, long threshold) {
+    setMemUsageListener(new OOMEListener(frame), threshold);
+  }
+
+  public static void setMemUsageListener(de.nmichael.efa.gui.EfaBoathouseFrame frame, long threshold) {
+    setMemUsageListener(new OOMEListener(frame), threshold);
+  }
+
+  public static void setMemUsageListener(OOMEListener listener, long threshold) {
     MemoryMXBean mbean = ManagementFactory.getMemoryMXBean();
     NotificationEmitter emitter = (NotificationEmitter) mbean;
-    OOMEListener listener = new OOMEListener(frame);
     emitter.addNotificationListener(listener, null, null);
 
     List pools = ManagementFactory.getMemoryPoolMXBeans();

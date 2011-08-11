@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.gui;
 
+import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -25,8 +26,8 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
     protected boolean _prepared = false;
 
     private ActionHandler ah;
-    private String KEYACTION_ESCAPE;
-    private String KEYACTION_F1;
+    protected String KEYACTION_ESCAPE;
+    protected String KEYACTION_F1;
     protected JPanel basePanel = new JPanel();
     protected JScrollPane mainScrollPane = new JScrollPane();
     protected JPanel mainPanel = new JPanel();
@@ -118,15 +119,7 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
         if (Logger.isTraceOn(Logger.TT_BACKGROUND)) {
             Logger.log(Logger.DEBUG, Logger.MSG_HELP_DEBUGHELPTOPIC, "Help Topic: "+helpTopic);
         }
-        /*
-        ActionHandler ah = new ActionHandler(this);
-        try {
-            ah.addKeyActions(getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW,
-                    new String[]{"ESCAPE", "F1"}, new String[]{"keyAction", "keyAction"});
-        } catch (NoSuchMethodException e) {
-            Logger.log(Logger.ERROR, Logger.MSG_GUI_ERRORACTIONHANDLER, "Error setting up ActionHandler for "+getClass().getCanonicalName()+": "+e.toString()); // no need to translate
-        }
-        */
+
         KEYACTION_ESCAPE = addKeyAction("ESCAPE");
         KEYACTION_F1 = addKeyAction("F1");
 
@@ -201,9 +194,13 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
         return resultSuccess;
     }
 
-    protected ImageIcon getIcon(String name) {
+    public JScrollPane getScrollPane() {
+        return mainScrollPane;
+    }
+
+    public static ImageIcon getIcon(String name) {
         try {
-            return new ImageIcon(BaseFrame.class.getResource("/de/nmichael/efa/img/" + name));
+            return new ImageIcon(BaseFrame.class.getResource(Daten.IMAGEPATH + name));
         } catch(Exception e) {
             return null;
         }
@@ -213,6 +210,10 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
         if (icon != null) {
             button.setIcon(icon);
         }
+    }
+
+    public String getHelpTopic() {
+        return helpTopic;
     }
 
 }

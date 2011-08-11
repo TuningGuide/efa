@@ -22,6 +22,8 @@ import javax.swing.*;
 public class ItemTypeButton extends ItemType {
 
     protected JButton button;
+    protected ImageIcon icon;
+    protected int hAlignment = -1;
 
     public ItemTypeButton(String name, 
             int type, String category, String description) {
@@ -43,6 +45,13 @@ public class ItemTypeButton extends ItemType {
         }
         if (color != null) {
             button.setForeground(color);
+        }
+        if (icon != null) {
+            button.setIcon(icon);
+            button.setIconTextGap(10);
+        }
+        if (hAlignment != -1) {
+            button.setHorizontalAlignment(hAlignment);
         }
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { actionEvent(e); }
@@ -104,4 +113,13 @@ public class ItemTypeButton extends ItemType {
         super.setEnabled(enabled);
         button.setEnabled(enabled);
     }
+
+    public void setIcon(ImageIcon icon) {
+        this.icon = icon;
+    }
+
+    public void setHorizontalAlignment(int hAlignment) {
+        this.hAlignment = hAlignment;
+    }
+
 }

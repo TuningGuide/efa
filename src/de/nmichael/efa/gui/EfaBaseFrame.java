@@ -50,30 +50,6 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
 
     // Menu Bar
     JMenuBar menuBar = new JMenuBar();
-    JMenu menuFile = new JMenu();
-    JMenuItem menuFile_projects = new JMenuItem();
-    JMenuItem menuFile_logbooks = new JMenuItem();
-    JMenuItem menuFile_exit = new JMenuItem();
-    JMenu menuHelp = new JMenu();
-    JMenuItem menuHelp_help = new JMenuItem();
-    JMenuItem menuHelp_logfile = new JMenuItem();
-    JMenuItem menuHelp_about = new JMenuItem();
-    JMenu menuAdministration = new JMenu();
-    JMenuItem menuAdministration_configuration = new JMenuItem();
-    JMenuItem menuAdministration_boats = new JMenuItem();
-    JMenuItem menuAdministration_boatStatus = new JMenuItem();
-    JMenuItem menuAdministration_boatReservations = new JMenuItem();
-    JMenuItem menuAdministration_boatDamages = new JMenuItem();
-    JMenuItem menuAdministration_persons = new JMenuItem();
-    JMenuItem menuAdministration_status = new JMenuItem();
-    JMenuItem menuAdministration_groups = new JMenuItem();
-    JMenuItem menuAdministration_crews = new JMenuItem();
-    JMenuItem menuAdministration_fahrtenabzeichen = new JMenuItem();
-    JMenuItem menuAdministration_destinations = new JMenuItem();
-    JMenuItem menuAdministration_waters = new JMenuItem();
-    JMenu menuStatistics = new JMenu();
-    JMenuItem menuStatistics_createStatistics = new JMenuItem();
-    JMenuItem menuStatistics_syncWithEfb = new JMenuItem();
 
     // Toolbar
     JToolBar toolBar = new JToolBar();
@@ -221,218 +197,37 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
 
 
     private void iniGuiMenu() {
-        // Menu: File
-        Mnemonics.setButton(this, menuFile, International.getStringWithMnemonic("Datei"));
-
-        Mnemonics.setMenuButton(this, menuFile_projects, International.getStringWithMnemonic("Projekte") + " ...");
-        setIcon(menuFile_projects, getIcon("menu_projects.png"));
-        menuFile_projects.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menuFileProjects_actionPerformed(e);
+        Vector<EfaMenuButton> menuButtons = EfaMenuButton.getAllMenuButtons(null); // @todo - provide real admin name here
+        String lastMenuName = null;
+        JMenu menu = null;
+        for (EfaMenuButton menuButton : menuButtons) {
+            if (!menuButton.getMenuName().equals(lastMenuName)) {
+                if (menu != null) {
+                    menuBar.add(menu);
+                }
+                // New Menu
+                menu = new JMenu();
+                Mnemonics.setButton(this, menu, menuButton.getMenuText());
+                lastMenuName = menuButton.getMenuName();
             }
-        });
-
-        Mnemonics.setMenuButton(this, menuFile_logbooks, International.getStringWithMnemonic("Fahrtenbücher") + " ...");
-        setIcon(menuFile_logbooks, getIcon("menu_logbooks.png"));
-        menuFile_logbooks.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menuFile_logbooks_actionPerformed(e);
+            if (menuButton.getButtonName().equals(EfaMenuButton.SEPARATOR)) {
+                menu.addSeparator();
+            } else {
+                JMenuItem menuItem = new JMenuItem();
+                Mnemonics.setMenuButton(this, menuItem, menuButton.getButtonText());
+                if (menuButton.getIcon() != null) {
+                    setIcon(menuItem, menuButton.getIcon());
+                }
+                menuItem.setActionCommand(menuButton.getButtonName());
+                menuItem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        menuActionPerformed(e);
+                    }
+                });
+                menu.add(menuItem);
             }
-        });
-
-        Mnemonics.setMenuButton(this, menuFile_exit, International.getStringWithMnemonic("Programm beenden"));
-        setIcon(menuFile_exit, getIcon("menu_exit.png"));
-        menuFile_exit.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                cancel();
-            }
-        });
-
-        // Menu: Administration
-        Mnemonics.setMenuButton(this, menuAdministration, International.getStringWithMnemonic("Administration"));
-
-        Mnemonics.setMenuButton(this, menuAdministration_configuration, International.getStringWithMnemonic("Konfiguration"));
-        setIcon(menuAdministration_configuration, getIcon("menu_configuration.png"));
-        menuAdministration_configuration.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menuAdministrationConfiguration_actionPerformed(e);
-            }
-        });
-
-        Mnemonics.setMenuButton(this, menuAdministration_boats, International.getStringWithMnemonic("Boote"));
-        setIcon(menuAdministration_boats, getIcon("menu_boats.png"));
-        menuAdministration_boats.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menuAdministrationBoats_actionPerformed(e);
-            }
-        });
-
-        Mnemonics.setMenuButton(this, menuAdministration_boatStatus, International.getStringWithMnemonic("Bootsstatus"));
-        setIcon(menuAdministration_boatStatus, getIcon("menu_boatstatus.png"));
-        menuAdministration_boatStatus.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menuAdministrationBoatStatus_actionPerformed(e);
-            }
-        });
-
-        Mnemonics.setMenuButton(this, menuAdministration_boatReservations, International.getStringWithMnemonic("Bootsreservierungen"));
-        setIcon(menuAdministration_boatReservations, getIcon("menu_boatreservations.png"));
-        menuAdministration_boatReservations.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menuAdministrationBoatReservations_actionPerformed(e);
-            }
-        });
-
-        Mnemonics.setMenuButton(this, menuAdministration_boatDamages, International.getStringWithMnemonic("Bootsschäden"));
-        setIcon(menuAdministration_boatDamages, getIcon("menu_boatdamages.png"));
-        menuAdministration_boatDamages.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menuAdministrationBoatDamages_actionPerformed(e);
-            }
-        });
-
-        Mnemonics.setMenuButton(this, menuAdministration_persons, International.getStringWithMnemonic("Personen"));
-        setIcon(menuAdministration_persons, getIcon("menu_persons.png"));
-        menuAdministration_persons.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menuAdministrationPersons_actionPerformed(e);
-            }
-        });
-
-        Mnemonics.setMenuButton(this, menuAdministration_status, International.getStringWithMnemonic("Status"));
-        setIcon(menuAdministration_status, getIcon("menu_status.png"));
-        menuAdministration_status.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menuAdministrationStatus_actionPerformed(e);
-            }
-        });
-
-        Mnemonics.setMenuButton(this, menuAdministration_groups, International.getStringWithMnemonic("Gruppen"));
-        setIcon(menuAdministration_groups, getIcon("menu_groups.png"));
-        menuAdministration_groups.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menuAdministrationGroups_actionPerformed(e);
-            }
-        });
-
-        Mnemonics.setMenuButton(this, menuAdministration_crews, International.getStringWithMnemonic("Mannschaften"));
-        setIcon(menuAdministration_crews, getIcon("menu_crews2.png"));
-        menuAdministration_crews.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menuAdministrationCrews_actionPerformed(e);
-            }
-        });
-
-        Mnemonics.setMenuButton(this, menuAdministration_fahrtenabzeichen, International.onlyFor("Fahrtenabzeichen", "de"));
-        setIcon(menuAdministration_fahrtenabzeichen, getIcon("menu_fahrtenabzeichen.png"));
-        menuAdministration_fahrtenabzeichen.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menuAdministrationFahrtenabzeichen_actionPerformed(e);
-            }
-        });
-
-        Mnemonics.setMenuButton(this, menuAdministration_destinations, International.getStringWithMnemonic("Ziele"));
-        setIcon(menuAdministration_destinations, getIcon("menu_destinations.png"));
-        menuAdministration_destinations.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menuAdministrationDestinations_actionPerformed(e);
-            }
-        });
-
-        Mnemonics.setMenuButton(this, menuAdministration_waters, International.getStringWithMnemonic("Gewässer"));
-        setIcon(menuAdministration_waters, getIcon("menu_waters.png"));
-        menuAdministration_waters.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menuAdministrationWaters_actionPerformed(e);
-            }
-        });
-
-        // Menu: Statistics
-        Mnemonics.setButton(this, menuStatistics, International.getStringWithMnemonic("Ausgabe"));
-
-        Mnemonics.setMenuButton(this, menuStatistics_createStatistics, International.getStringWithMnemonic("Statistiken und Meldedateien erstellen"));
-        setIcon(menuStatistics_createStatistics, getIcon("menu_statistics.png"));
-        menuStatistics_createStatistics.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                // menuItemKilometerliste_actionPerformed(e);
-            }
-        });
-
-        Mnemonics.setMenuButton(this, menuStatistics_syncWithEfb, International.onlyFor("Mit Kanu-Efb synchronisieren","de"));
-        setIcon(menuStatistics_syncWithEfb, getIcon("menu_efbsync.png"));
-        menuStatistics_syncWithEfb.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menuStatisticsSyncWithEfb_actionPerformed(e);
-            }
-        });
-
-        // Menu: Help
-        Mnemonics.setButton(this, menuHelp, International.getStringWithMnemonic("Info"));
-
-        Mnemonics.setMenuButton(this, menuHelp_help, International.getStringWithMnemonic("Hilfe"));
-        setIcon(menuHelp_help, getIcon("menu_help.png"));
-        menuHelp_help.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Help.showHelp(null);
-            }
-        });
-
-        Mnemonics.setMenuButton(this, menuHelp_logfile, International.getStringWithMnemonic("Logdatei"));
-        setIcon(menuHelp_logfile, getIcon("menu_logfile.png"));
-        menuHelp_logfile.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menuHelpLogfile_actionPerformed(e);
-            }
-        });
-
-        Mnemonics.setMenuButton(this, menuHelp_about, International.getStringWithMnemonic("Über"));
-        setIcon(menuHelp_about, getIcon("menu_about.png"));
-        menuHelp_about.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menuHelpAbout_actionPerformed(e);
-            }
-        });
-
-        // Menu: File
-        menuFile.add(menuFile_projects);
-        menuFile.add(menuFile_logbooks);
-        menuFile.addSeparator();
-        menuFile.add(menuFile_exit);
-
-        // Menu: Administration
-        menuAdministration.add(menuAdministration_configuration);
-        menuAdministration.addSeparator();
-        menuAdministration.add(menuAdministration_boats);
-        menuAdministration.add(menuAdministration_boatStatus);
-        menuAdministration.add(menuAdministration_boatReservations);
-        menuAdministration.add(menuAdministration_boatDamages);
-        menuAdministration.addSeparator();
-        menuAdministration.add(menuAdministration_persons);
-        menuAdministration.add(menuAdministration_status);
-        menuAdministration.add(menuAdministration_groups);
-        menuAdministration.add(menuAdministration_crews);
-        if (Daten.efaConfig.useFunctionalityRowingGermany.getValue()) {
-            menuAdministration.add(menuAdministration_fahrtenabzeichen);
         }
-        menuAdministration.addSeparator();
-        menuAdministration.add(menuAdministration_destinations);
-        menuAdministration.add(menuAdministration_waters);
-
-        // Menu: Statistics
-        menuStatistics.add(menuStatistics_createStatistics);
-        menuStatistics.add(menuStatistics_syncWithEfb);
-
-        // Menu: Help
-        menuHelp.add(menuHelp_help);
-        menuHelp.add(menuHelp_logfile);
-        menuHelp.addSeparator();
-        menuHelp.add(menuHelp_about);
-
-        // Menu Bar
-        menuBar.add(menuFile);
-        menuBar.add(menuAdministration);
-        menuBar.add(menuStatistics);
-        menuBar.add(menuHelp);
+        menuBar.add(menu);
         this.setJMenuBar(menuBar);
     }
 
@@ -747,20 +542,11 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
     }
 
     void iniApplication() {
-        if (Daten.project == null) {
-            if (isModeBoathouse()) {
-                if (Daten.efaConfig.lastProjectEfaBoathouse.getValue().length() > 0) {
-                    Project.openProject(Daten.efaConfig.lastProjectEfaBoathouse.getValue());
-                    if (Daten.project != null) {
-                        Daten.project.runAudit();
-                    }
-                }
-            } else {
-                if (Daten.efaConfig.lastProjectEfaBase.getValue().length() > 0) {
-                    Project.openProject(Daten.efaConfig.lastProjectEfaBase.getValue());
-                    if (Daten.project != null) {
-                        Daten.project.runAudit();
-                    }
+        if (Daten.project == null && !isModeBoathouse()) {
+            if (Daten.efaConfig.lastProjectEfaBase.getValue().length() > 0) {
+                Project.openProject(Daten.efaConfig.lastProjectEfaBase.getValue());
+                if (Daten.project != null) {
+                    Daten.project.runAudit();
                 }
             }
         }
@@ -1759,8 +1545,71 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
     // Menu Actions
     // =========================================================================
 
+    void menuActionPerformed(ActionEvent e) {
+        String cmd = e.getActionCommand();
+        if (cmd == null) {
+            return;
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_PROJECTS)) {
+            menuFileProjects(e);
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_LOGBOOKS)) {
+            menuFileLogbooks(e);
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_CONFIGURATION)) {
+            menuAdministrationConfiguration(e);
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_BOATS)) {
+            menuAdministrationBoats(e);
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_BOATSTATUS)) {
+            menuAdministrationBoatStatus(e);
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_BOATRESERVATIONS)) {
+            menuAdministrationBoatReservations(e);
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_BOATDAMAGES)) {
+            menuAdministrationBoatDamages(e);
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_PERSONS)) {
+            menuAdministrationPersons(e);
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_STATUS)) {
+            menuAdministrationStatus(e);
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_GROUPS)) {
+            menuAdministrationGroups(e);
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_CREWS)) {
+            menuAdministrationCrews(e);
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_FAHRTENABZEICHEN)) {
+            menuAdministrationFahrtenabzeichen(e);
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_DESTINATIONS)) {
+            menuAdministrationDestinations(e);
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_WATERS)) {
+            menuAdministrationWaters(e);
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_STATISTICS)) {
+            // @todo statistics window
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_SYNCKANUEFB)) {
+            menuStatisticsSyncWithEfb(e);
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_HELP)) {
+            Help.showHelp(helpTopic);
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_LOGFILE)) {
+            menuHelpLogfile(e);
+        }
+        if (cmd.equals(EfaMenuButton.BUTTON_ABOUT)) {
+            menuHelpAbout(e);
+        }
+    }
 
-    void menuFileProjects_actionPerformed(ActionEvent e) {
+    void menuFileProjects(ActionEvent e) {
         if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
@@ -1777,19 +1626,19 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
             if (Daten.project.getCurrentLogbookEfaBase() != null) {
                 openLogbook(Daten.project.getCurrentLogbookEfaBase());
             } else {
-                menuFile_logbooks_actionPerformed(null);
+                menuFileLogbooks(null);
             }
         }
         setTitle();
         startBringToFront(false);
     }
 
-    void menuFile_logbooks_actionPerformed(ActionEvent e) {
+    void menuFileLogbooks(ActionEvent e) {
         if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
         if (Daten.project == null) {
-            menuFileProjects_actionPerformed(e);
+            menuFileProjects(e);
             if (Daten.project == null) {
                 return;
             }
@@ -1803,7 +1652,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         startBringToFront(false);
     }
 
-    void menuAdministrationConfiguration_actionPerformed(ActionEvent e) {
+    void menuAdministrationConfiguration(ActionEvent e) {
         if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
@@ -1812,7 +1661,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         startBringToFront(false);
     }
 
-    void menuAdministrationBoats_actionPerformed(ActionEvent e) {
+    void menuAdministrationBoats(ActionEvent e) {
         if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
@@ -1821,7 +1670,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         startBringToFront(false);
     }
 
-    void menuAdministrationBoatStatus_actionPerformed(ActionEvent e) {
+    void menuAdministrationBoatStatus(ActionEvent e) {
         if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
@@ -1830,7 +1679,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         startBringToFront(false);
     }
 
-    void menuAdministrationBoatReservations_actionPerformed(ActionEvent e) {
+    void menuAdministrationBoatReservations(ActionEvent e) {
         if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
@@ -1839,7 +1688,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         startBringToFront(false);
     }
 
-    void menuAdministrationBoatDamages_actionPerformed(ActionEvent e) {
+    void menuAdministrationBoatDamages(ActionEvent e) {
         if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
@@ -1848,7 +1697,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         startBringToFront(false);
     }
 
-    void menuAdministrationPersons_actionPerformed(ActionEvent e) {
+    void menuAdministrationPersons(ActionEvent e) {
         if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
@@ -1857,7 +1706,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         startBringToFront(false);
     }
 
-    void menuAdministrationStatus_actionPerformed(ActionEvent e) {
+    void menuAdministrationStatus(ActionEvent e) {
         if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
@@ -1866,7 +1715,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         startBringToFront(false);
     }
 
-    void menuAdministrationGroups_actionPerformed(ActionEvent e) {
+    void menuAdministrationGroups(ActionEvent e) {
         if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
@@ -1875,7 +1724,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         startBringToFront(false);
     }
 
-    void menuAdministrationCrews_actionPerformed(ActionEvent e) {
+    void menuAdministrationCrews(ActionEvent e) {
         if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
@@ -1884,7 +1733,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         startBringToFront(false);
     }
 
-    void menuAdministrationFahrtenabzeichen_actionPerformed(ActionEvent e) {
+    void menuAdministrationFahrtenabzeichen(ActionEvent e) {
         if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
@@ -1894,7 +1743,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
     }
 
 
-    void menuAdministrationDestinations_actionPerformed(ActionEvent e) {
+    void menuAdministrationDestinations(ActionEvent e) {
         if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
@@ -1903,7 +1752,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         startBringToFront(false);
     }
 
-    void menuAdministrationWaters_actionPerformed(ActionEvent e) {
+    void menuAdministrationWaters(ActionEvent e) {
         if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
@@ -1912,7 +1761,7 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         startBringToFront(false);
     }
 
-    void menuStatisticsSyncWithEfb_actionPerformed(ActionEvent e) {
+    void menuStatisticsSyncWithEfb(ActionEvent e) {
         if (!isModeFull() || !promptSaveChangesOk()) {
             return;
         }
@@ -1922,12 +1771,12 @@ public class EfaBaseFrame extends BaseFrame implements IItemListener {
         progressDialog.showDialog();
     }
 
-    void menuHelpLogfile_actionPerformed(ActionEvent e) {
+    void menuHelpLogfile(ActionEvent e) {
         LogViewDialog dlg = new LogViewDialog(this);
         dlg.showDialog();
     }
 
-    void menuHelpAbout_actionPerformed(ActionEvent e) {
+    void menuHelpAbout(ActionEvent e) {
         EfaAboutDialog dlg = new EfaAboutDialog(this);
         dlg.showDialog();
     }

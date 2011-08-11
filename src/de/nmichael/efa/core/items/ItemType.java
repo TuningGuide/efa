@@ -66,6 +66,10 @@ public abstract class ItemType implements IItemType {
         return category;
     }
 
+    public void setCategory(String s) {
+        category = s;
+    }
+
     public String getDescription() {
         return description;
     }

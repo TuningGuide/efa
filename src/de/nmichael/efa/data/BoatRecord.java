@@ -394,6 +394,30 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         return getList(ALLOWEDGROUPIDLIST, IDataAccess.DATA_UUID);
     }
 
+    public Vector<String> getAllowedGroupsAsNameVector(long validAt) {
+        DataTypeList<UUID> list = getAllowedGroupIdList();
+        if (list == null || list.length() == 0) {
+            return new Vector<String>();
+        }
+        Vector<String> v = new Vector<String>();
+        Persons p = this.getPersistence().getProject().getPersons(false);
+        for (int i=0; p != null && i < list.length(); i++) {
+            PersonRecord r = p.getPerson(list.get(i), validAt);
+            if (r != null) {
+                v.add(r.getQualifiedName());
+            }
+        }
+        return v;
+    }
+
+    public String getAllowedGroupsAsNameString(long validAt) {
+        Vector<String> v = getAllowedGroupsAsNameVector(validAt);
+        if (v == null || v.size() == 0) {
+            return "";
+        }
+        return EfaUtil.vector2string(v, ", ");
+    }
+
     public void setMaxNotInGroup(int maxNotInGroup) {
         setInt(MAXNOTINGROUP, maxNotInGroup);
     }

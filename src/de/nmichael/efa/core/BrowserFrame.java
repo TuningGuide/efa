@@ -127,11 +127,11 @@ public class BrowserFrame extends JDialog implements ActionListener {
     public void hyperlinkUpdate(HyperlinkEvent e) {
       if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
         if ((e.getURL().toString().toLowerCase().startsWith("http://") || e.getURL().toString().toLowerCase().startsWith("https://")) &&
-            Daten.applID == Daten.APPL_EFADIREKT && Daten.applMode == Daten.APPL_MODE_NORMAL) {
+            Daten.applID == Daten.APPL_EFABH && Daten.applMode == Daten.APPL_MODE_NORMAL) {
           return;
         }
         if (e.getURL().toString().toLowerCase().startsWith("mailto:") &&
-            Daten.applID == Daten.APPL_EFADIREKT && Daten.applMode == Daten.APPL_MODE_NORMAL) {
+            Daten.applID == Daten.APPL_EFABH && Daten.applMode == Daten.APPL_MODE_NORMAL) {
           return;
         }
 
@@ -391,7 +391,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     jPanel2.add(reloadButton,   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    if (Daten.applID != Daten.APPL_EFADIREKT || Daten.applMode == Daten.APPL_MODE_ADMIN) {
+    if (Daten.applID != Daten.APPL_EFABH || Daten.applMode == Daten.APPL_MODE_ADMIN) {
       jPanel2.add(printButton,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
               ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
       jPanel2.add(pageButton,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
@@ -580,7 +580,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
   }
 
   void saveButton_actionPerformed(ActionEvent e) {
-    if (Daten.applID == Daten.APPL_EFADIREKT && Daten.applMode == Daten.APPL_MODE_NORMAL) return;
+    if (Daten.applID == Daten.APPL_EFABH && Daten.applMode == Daten.APPL_MODE_NORMAL) return;
     String quelle = this.url.getText();
     if (!quelle.startsWith("file:")) {
       Dialog.infoDialog(International.getString("Fehler"),

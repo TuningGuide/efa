@@ -63,7 +63,7 @@ public class ImportBoatStatus extends ImportBase {
                             rs.setStatus(d.get(BootStatus.STATUS));
                         }
                         if (d.get(BootStatus.LFDNR).length() > 0) {
-                            rs.setEntryNo(d.get(BootStatus.LFDNR));
+                            rs.setEntryNo(new DataTypeIntString(d.get(BootStatus.LFDNR)));
                             // Actually, we would have to set BootStatus.LOGBOOK as well.
                             // However, we don't know which the current logbook in efa1 is (unless we would read the efa1 config file as well).
                             // So we leave this empty. If logbook is null, efa boathouse will at runtime assume the then opened logbook as the one.

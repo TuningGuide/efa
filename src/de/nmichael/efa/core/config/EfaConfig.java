@@ -17,6 +17,7 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.direkt.Admin;
 import de.nmichael.efa.core.DownloadFrame;
+import de.nmichael.efa.gui.widgets.*;
 import java.util.*;
 import java.io.*;
 import java.text.*;
@@ -55,6 +56,7 @@ public class EfaConfig extends DatenListe {
     public static final String CATEGORY_SYNC          = "14SYNC";
     public static final String CATEGORY_KANUEFB       = "15KANUEFB";
     public static final String CATEGORY_LOCALE        = "16LOCALE";
+    public static final String CATEGORY_WIDGETS       = "17WIDGETS";
 
     private static final int STRINGLIST_VALUES  = 1;
     private static final int STRINGLIST_DISPLAY = 2;
@@ -91,7 +93,7 @@ public class EfaConfig extends DatenListe {
 
     // private internal data
     private HashMap<String,String> categories;
-    private HashMap<String,ItemType> configValues;
+    private HashMap<String,IItemType> configValues;
     private Vector<String> configValueNames;
     private CustSettings custSettings = null;
     
@@ -186,7 +188,6 @@ public class EfaConfig extends DatenListe {
     public ItemTypeConfigButton efaDirekt_butSpezial;
     public ItemTypeString efaDirekt_butSpezialCmd;
     public ItemTypeBoolean efaDirekt_showButtonHotkey;
-    public ItemTypeBoolean efaDirekt_showUhr;
     public ItemTypeBoolean efaDirekt_sunRiseSet_show;
     public ItemTypeLongLat efaDirekt_sunRiseSet_latitude;
     public ItemTypeLongLat efaDirekt_sunRiseSet_longitude;
@@ -206,7 +207,10 @@ public class EfaConfig extends DatenListe {
     public ItemTypeBoolean efaDirekt_showZielnameFuerBooteUnterwegs;
     public ItemTypeString efadirekt_adminLastOsCommand;
     public ItemTypeImage efaDirekt_vereinsLogo;
+    public ItemTypeBoolean efaDirekt_showUhr;
+    public ItemTypeBoolean efaDirekt_showNews;
     public ItemTypeString efaDirekt_newsText;
+    public ItemTypeInteger efaDirekt_newsScrollSpeed;
     public ItemTypeBoolean efaDirekt_startMaximized;
     public ItemTypeBoolean efaDirekt_fensterNichtVerschiebbar;
     public ItemTypeBoolean efaDirekt_immerImVordergrund;
@@ -233,10 +237,16 @@ public class EfaConfig extends DatenListe {
     public ItemTypeDate efaDirekt_lockEfaUntilDatum;
     public ItemTypeTime efaDirekt_lockEfaUntilZeit;
     public ItemTypeBoolean efaDirekt_locked;
+    public ItemTypeFile htmlWidgetUrl;
+    public ItemTypeStringList htmlWidgetPosition;
+    public ItemTypeInteger htmlWidgetWidth;
+    public ItemTypeInteger htmlWidgetHeight;
+    public ItemTypeInteger htmlWidgetReloadInterval;
     public ItemTypeBoolean useFunctionalityRowing;
     public ItemTypeBoolean useFunctionalityRowingGermany;
     public ItemTypeBoolean useFunctionalityRowingBerlin;
     public ItemTypeBoolean useFunctionalityCanoeing;
+    public ItemTypeBoolean useFunctionalityCanoeingGermany;
     public ItemTypeFile efaUserDirectory;
     public ItemTypeStringList language;
     public ItemTypeAction typesResetToDefault;
@@ -254,6 +264,7 @@ public class EfaConfig extends DatenListe {
     public ItemTypeString kanuEfb_username;
     public ItemTypeString kanuEfb_password;
     public ItemTypeLong kanuEfb_lastSync;
+    public Vector<IWidget> widgets;
 
     // Default Contructor (with Customization Settings)
     public EfaConfig(String filename, CustSettings custSettings) {
@@ -283,7 +294,7 @@ public class EfaConfig extends DatenListe {
         initialize();
         String[] pnames = efaConfig.getParameterNames();
         for (int i=0; i<pnames.length; i++) {
-            ItemType configValue = getParameter(pnames[i]);
+            IItemType configValue = getParameter(pnames[i]);
             configValue.parseValue(efaConfig.getParameter(pnames[i]).toString());
         }
     }
@@ -291,7 +302,7 @@ public class EfaConfig extends DatenListe {
     // clean-up and re-initialize data structures
     private void initialize() {
         categories   = new HashMap<String,String>();
-        configValues = new HashMap<String,ItemType>();
+        configValues = new HashMap<String,IItemType>();
         configValueNames = new Vector<String>();
         iniCategories();
         iniParameters();
@@ -323,6 +334,7 @@ public class EfaConfig extends DatenListe {
         categories.put(CATEGORY_TYPES_COXD,    International.getString("mit/ohne Stm."));
         categories.put(CATEGORY_TYPES_GEND,    International.getString("Geschlecht"));
         categories.put(CATEGORY_TYPES_STAT,    International.getString("Status"));
+        categories.put(CATEGORY_WIDGETS,       International.getString("Widgets"));
     }
 
     // initialize all configuration parameters with their default values
@@ -679,9 +691,6 @@ public class EfaConfig extends DatenListe {
         addParameter(efaDirekt_vereinsLogo = new ItemTypeImage("CLUBLOGO", "", 192, 64,
                 IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("Vereinslogo")));
-        addParameter(efaDirekt_showUhr = new ItemTypeBoolean("SHOW_TIME", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("Uhr anzeigen")));
         addParameter(efaDirekt_sunRiseSet_show = new ItemTypeBoolean("SUNRISESET_SHOW", false,
                 IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("Sonnenaufgangs- und -untergangszeit anzeigen")));
@@ -693,9 +702,6 @@ public class EfaConfig extends DatenListe {
                 ItemTypeLongLat.ORIENTATION_EAST,13,10,15,
                 IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("geographische Länge")));
-        addParameter(efaDirekt_newsText = new ItemTypeString("NEWS_TEXT", "",
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("News-Text")));
         addParameter(efaDirekt_maxFBAnzeigenFahrten = new ItemTypeInteger("LOGBOOK_DISPLAYEDENTRIES_MAXNUMBER", 100, 1, Integer.MAX_VALUE, false,
                 IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
                 International.getString("Fahrtenbuch anzeigen")+": "+International.getString("maximale Anzahl von Fahrten")));
@@ -893,14 +899,14 @@ public class EfaConfig extends DatenListe {
                 IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
                 International.getMessage("Funktionalitäten aktivieren für {sport}",
                 International.getString("Rudern"))));
-        addParameter(useFunctionalityRowingGermany = new ItemTypeBoolean("REGIONAL_GERMANY",
+        addParameter(useFunctionalityRowingGermany = new ItemTypeBoolean("CUSTUSAGE_ROWINGGERMANY",
                 (custSettings != null ? custSettings.activateGermanRowingOptions : International.getLanguageID().startsWith("de") ),
                 IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
                 International.getMessage("Funktionalitäten aktivieren für {sport} in {region}",
                 International.getString("Rudern")) + " " +
                 International.getMessage("in {region}",
                 International.getString("Deutschland"))));
-        addParameter(useFunctionalityRowingBerlin = new ItemTypeBoolean("REGIONAL_BERLIN",
+        addParameter(useFunctionalityRowingBerlin = new ItemTypeBoolean("CUSTUSAGE_ROWINGBERLIN",
                 (custSettings != null ? custSettings.activateBerlinRowingOptions : International.getLanguageID().startsWith("de") ),
                 IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
                 International.getMessage("Funktionalitäten aktivieren für {sport} in {region}",
@@ -912,6 +918,13 @@ public class EfaConfig extends DatenListe {
                 IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
                 International.getMessage("Funktionalitäten aktivieren für {sport}",
                 International.getString("Kanufahren"))));
+        addParameter(useFunctionalityCanoeingGermany = new ItemTypeBoolean("CUSTUSAGE_CANOEINGGERMANY",
+                (custSettings != null ? custSettings.activateGermanCanoeingOptions : International.getLanguageID().startsWith("de") ),
+                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
+                International.getMessage("Funktionalitäten aktivieren für {sport} in {region}",
+                International.getString("Kanufahren")) + " " +
+                International.getMessage("in {region}",
+                International.getString("Deutschland"))));
 
         // ============================= TYPES =============================
         addParameter(typesResetToDefault = new ItemTypeAction("ACTION_TYPES_RESETTODEFAULT", ItemTypeAction.ACTION_TYPES_RESETTODEFAULT,
@@ -927,6 +940,37 @@ public class EfaConfig extends DatenListe {
                 International.getString("Kanufahren"))));
         buildTypes();
 
+        // ============================= WIDGETS =============================
+        addParameter(efaDirekt_showUhr = new ItemTypeBoolean("WIDGET_CLOCK_ENABLED", true,
+                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_WIDGETS, "CLOCK"),
+                International.getMessage("{item} anzeigen",
+                International.getString("Uhr"))
+                ));
+        categories.put("CLOCK", International.getString("Uhr"));
+        addParameter(efaDirekt_showNews = new ItemTypeBoolean("WIDGET_NEWS_ENABLED", true,
+                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_WIDGETS, "NEWS"),
+                International.getMessage("{item} anzeigen",
+                International.getString("News"))
+                ));
+        addParameter(efaDirekt_newsText = new ItemTypeString("WIDGET_NEWS_TEXT", "",
+                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_WIDGETS, "NEWS"),
+                International.getString("News-Text")));
+        addParameter(efaDirekt_newsScrollSpeed = new ItemTypeInteger("WIDGET_NEWS_SCROLLSPEED", 250, 100, Integer.MAX_VALUE,
+                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_WIDGETS, "NEWS"),
+                "Scroll Speed"));
+        categories.put("NEWS", International.getString("News"));
+
+        widgets = Widget.getAllWidgets();
+        for (int i=0; widgets != null && i<widgets.size(); i++) {
+            IWidget w = widgets.get(i);
+            IItemType[] params = w.getParameters();
+            for (int j = 0; params != null && j < params.length; j++) {
+                params[j].setCategory(makeCategory(CATEGORY_BOATHOUSE, CATEGORY_WIDGETS, w.getName()));
+                categories.put(w.getName(), w.getDescription());
+                addParameter(params[j]);
+            }
+        }
+
     }
 
     public static String makeCategory(String c1) {
@@ -940,7 +984,7 @@ public class EfaConfig extends DatenListe {
     }
 
 
-    private void addParameter(ItemType configValue) {
+    private void addParameter(IItemType configValue) {
         if (configValues.get(configValue.getName()) != null) {
             // should never happen (program error); no need to translate
             Logger.log(Logger.ERROR, Logger.MSG_ERROR_EXCEPTION, "EfaConfig: duplicate parameter: "+configValue.getName());
@@ -950,7 +994,7 @@ public class EfaConfig extends DatenListe {
         }
     }
 
-    public ItemType getParameter(String name) {
+    public IItemType getParameter(String name) {
         return configValues.get(name);
     }
 
@@ -993,7 +1037,7 @@ public class EfaConfig extends DatenListe {
                 String name = s.substring(0, pos);
                 String value = s.substring(pos + 1);
 
-                ItemType configValue = getParameter(name);
+                IItemType configValue = getParameter(name);
                 if (configValue == null) {
                     Logger.log(Logger.WARNING, Logger.MSG_CORE_UNKNOWNDATAFIELD, "EfaConfig(" + getFileName() + "): "+
                             International.getString("Unbekannter Parameter") + ": " + name);
@@ -1021,7 +1065,7 @@ public class EfaConfig extends DatenListe {
             keys = configValues.keySet().toArray(keys);
             Arrays.sort(keys);
             for (int i = 0; i < keys.length; i++) {
-                ItemType configValue = configValues.get(keys[i]);
+                IItemType configValue = configValues.get(keys[i]);
                 if (!configValue.getName().startsWith("_") ) { // parameter names starting with "_" are not stored in config file!
                     fwrite(configValue.getName() + "=" + configValue.toString() + "\n");
                 }
@@ -1158,7 +1202,7 @@ public class EfaConfig extends DatenListe {
     }
 
     public void checkForRequiredPlugins() {
-        if (efaDirekt_sunRiseSet_show.getValue() && !de.nmichael.efa.direkt.SunRiseSet.sunrisePluginInstalled()) {
+        if (efaDirekt_sunRiseSet_show.getValue() && !de.nmichael.efa.util.SunRiseSet.sunrisePluginInstalled()) {
             DownloadFrame.getPlugin("efa", Daten.PLUGIN_JSUNTIMES_NAME, Daten.PLUGIN_JSUNTIMES_FILE, Daten.PLUGIN_JSUNTIMES_HTML, "NoClassDefFoundError", null, false);
         }
     }

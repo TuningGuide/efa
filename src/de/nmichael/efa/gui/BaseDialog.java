@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.gui;
 
+import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
@@ -27,6 +28,9 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     protected boolean _prepared = false;
     protected boolean _inCancel = false;
 
+    private ActionHandler ah;
+    protected String KEYACTION_ESCAPE;
+    protected String KEYACTION_F1;
     protected JPanel basePanel = new JPanel();
     protected JScrollPane mainScrollPane = new JScrollPane();
     protected JPanel mainPanel = new JPanel();
@@ -102,28 +106,38 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
         if (evt == null || evt.getActionCommand() == null) {
             return;
         }
-        if (evt.getActionCommand().equals("KEYSTROKE_ACTION_0")) { // Escape
+
+        if (evt.getActionCommand().equals(KEYACTION_ESCAPE)) {
             cancel();
         }
-        if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
+
+        if (evt.getActionCommand().equals(KEYACTION_F1)) {
             Help.showHelp(helpTopic);
         }
     }
 
     public abstract void keyAction(ActionEvent evt);
 
+    public String addKeyAction(String key) {
+        if (ah == null) {
+            ah = new ActionHandler(this);
+        }
+        try {
+            return ah.addKeyAction(getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW, key, "keyAction");
+        } catch (NoSuchMethodException e) {
+            Logger.log(Logger.ERROR, Logger.MSG_GUI_ERRORACTIONHANDLER, "Error setting up ActionHandler for "+getClass().getCanonicalName()+": "+e.toString()); // no need to translate
+            return null;
+        }
+    }
+
     protected void iniDialogCommon(String title, String closeButtonText) throws Exception {
         helpTopic = getClass().getCanonicalName();
         if (Logger.isTraceOn(Logger.TT_BACKGROUND)) {
             Logger.log(Logger.DEBUG, Logger.MSG_HELP_DEBUGHELPTOPIC, "Help Topic: "+helpTopic);
         }
-        ActionHandler ah = new ActionHandler(this);
-        try {
-            ah.addKeyActions(getRootPane(), JComponent.WHEN_IN_FOCUSED_WINDOW,
-                    new String[]{"ESCAPE", "F1"}, new String[]{"keyAction", "keyAction"});
-        } catch (NoSuchMethodException e) {
-            Logger.log(Logger.ERROR, Logger.MSG_GUI_ERRORACTIONHANDLER, "Error setting up ActionHandler for "+getClass().getCanonicalName()+": "+e.toString()); // no need to translate
-        }
+
+        KEYACTION_ESCAPE = addKeyAction("ESCAPE");
+        KEYACTION_F1 = addKeyAction("F1");
 
         if (title != null) {
             setTitle(title);
@@ -210,6 +224,24 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
 
     public JScrollPane getScrollPane() {
         return mainScrollPane;
+    }
+
+    public static ImageIcon getIcon(String name) {
+        try {
+            return new ImageIcon(BaseFrame.class.getResource(Daten.IMAGEPATH + name));
+        } catch(Exception e) {
+            return null;
+        }
+    }
+
+    protected void setIcon(AbstractButton button, ImageIcon icon) {
+        if (icon != null) {
+            button.setIcon(icon);
+        }
+    }
+
+    public String getHelpTopic() {
+        return helpTopic;
     }
 
 }

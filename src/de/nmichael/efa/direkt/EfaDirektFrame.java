@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.direkt;
 
+import de.nmichael.efa.util.SunRiseSet;
 import de.nmichael.efa.efa1.BoatReservation;
 import de.nmichael.efa.efa1.StatSave;
 import de.nmichael.efa.efa1.NachrichtenAnAdmin;

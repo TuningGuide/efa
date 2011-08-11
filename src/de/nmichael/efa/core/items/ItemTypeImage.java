@@ -58,6 +58,7 @@ public class ItemTypeImage extends ItemType {
         image.setToolTipText(getDescription());
         image.setHorizontalAlignment(SwingConstants.CENTER);
         image.setHorizontalTextPosition(SwingConstants.CENTER);
+        this.field = image;
         setImage(toString());
         label = new JLabel();
         Mnemonics.setLabel(dlg, label, getDescription() + ": ");
@@ -82,12 +83,13 @@ public class ItemTypeImage extends ItemType {
         removeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { removeButtonHit(e); }
         });
+        field = image;
     }
 
     public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
         this.dlg = dlg;
-        this.field = image;
         iniDisplay();
+        this.field = image;
         panel.add(label, new GridBagConstraints(x, y, 1, 2, 0.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, padXbefore, 0, 0), 0, 0));
         panel.add(image, new GridBagConstraints(x+1, y, 1, 2, 0.0, 0.0,
@@ -167,6 +169,12 @@ public class ItemTypeImage extends ItemType {
     }
 
     public void showValue() {
+        try {
+            ((JLabel)field).setText("");
+            ((JLabel)field).setIcon(new ImageIcon(value));
+        } catch (Exception ee) {
+            EfaUtil.foo();
+        }
     }
 
     public void requestFocus() {

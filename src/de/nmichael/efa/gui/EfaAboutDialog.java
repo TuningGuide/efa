@@ -282,21 +282,21 @@ public class EfaAboutDialog extends BaseDialog {
     }
 
     void urlLabel_mouseClicked(MouseEvent e) {
-        if (Daten.applID == Daten.APPL_EFADIREKT) {
+        if (Daten.applID == Daten.APPL_EFABH) {
             return;
         }
         Dialog.startBrowser(this, Daten.EFAURL);
     }
 
     void supportLabel_mouseClicked(MouseEvent e) {
-        if (Daten.applID == Daten.APPL_EFADIREKT) {
+        if (Daten.applID == Daten.APPL_EFABH) {
             return;
         }
         Dialog.startBrowser(this, Daten.EFASUPPORTURL);
     }
 
     void emailLabel_mouseClicked(MouseEvent e) {
-        if (Daten.applID == Daten.APPL_EFADIREKT) {
+        if (Daten.applID == Daten.APPL_EFABH) {
             return;
         }
         Dialog.neuBrowserDlg(this, "Browser", "file:" + HtmlFactory.createMailto(Daten.EMAILINFO), 700, 600, (int) Dialog.screenSize.getWidth() / 2 - 350, (int) Dialog.screenSize.getHeight() / 2 - 300);
@@ -307,7 +307,7 @@ public class EfaAboutDialog extends BaseDialog {
     }
 
     void devNoteUrlLabel_mouseClicked(MouseEvent e) {
-        if (Daten.applID == Daten.APPL_EFADIREKT) {
+        if (Daten.applID == Daten.APPL_EFABH) {
             return;
         }
         Dialog.startBrowser(this, Daten.EFADEVURL);

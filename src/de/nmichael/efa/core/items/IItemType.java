@@ -30,6 +30,7 @@ public interface IItemType {
     public String getName();
     public void setName(String name);
     public int getType();
+    public void setCategory(String s);
     public String getCategory();
     public void setDescription(String description);
     public String getDescription();

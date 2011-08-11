@@ -16,19 +16,21 @@ import de.nmichael.efa.core.config.EfaConfig;
 
 public class CustSettings {
 
+    public boolean activateRowingOptions = true;
     public boolean activateGermanRowingOptions = true;
     public boolean activateBerlinRowingOptions = true;
-    public boolean activateRowingOptions = true;
     public boolean activateCanoeingOptions = false;
+    public boolean activateGermanCanoeingOptions = false;
 
     public CustSettings() {
     }
 
     public CustSettings(EfaConfig efaConfig) {
+        activateRowingOptions = efaConfig.useFunctionalityRowing.getValue();
         activateGermanRowingOptions = efaConfig.useFunctionalityRowingGermany.getValue();
         activateBerlinRowingOptions = efaConfig.useFunctionalityRowingBerlin.getValue();
-        activateRowingOptions = efaConfig.useFunctionalityRowing.getValue();
         activateCanoeingOptions = efaConfig.useFunctionalityCanoeing.getValue();
+        activateGermanCanoeingOptions = efaConfig.useFunctionalityCanoeingGermany.getValue();
     }
 
 

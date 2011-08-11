@@ -66,6 +66,10 @@ public class Logger {
   public static final String MSG_CORE_UNSUPPORTEDDATATYPE    = "COR023";
   public static final String MSG_CORE_DATATYPEINVALIDVALUE   = "COR024";
   public static final String MSG_CORE_MISSINGPLUGIN          = "COR025";
+  public static final String MSG_CORE_ADMINSCREATEDNEW       = "COR026";
+  public static final String MSG_CORE_ADMINSFAILEDCREATE     = "COR027";
+  public static final String MSG_CORE_ADMINSFAILEDOPEN       = "COR028";
+  public static final String MSG_CORE_ADMINSFAILEDNOSEC      = "COR029";
 
   // Activities performed in Admin Mode
   public static final String MSG_ADMIN_LOGIN                 = "ADM001";
@@ -244,6 +248,7 @@ public class Logger {
   public static final String MSG_WARN_CANTGETEFAJAVAARGS     = "WRN012";
   public static final String MSG_WARN_ERRORCNTMSGEXCEEDED    = "WRN013";
   public static final String MSG_WARN_FONTDOESNOTEXIST       = "WRN014";
+  public static final String MSG_WARN_WEATHERUPDATEFAILED    = "WRN015";
 
   // File Operations
   public static final String MSG_FILE_FILEOPENFAILED         = "FLE001";

@@ -12,6 +12,7 @@ package de.nmichael.efa.direkt;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.gui.*;
 import javax.swing.UIManager;
 import java.awt.*;
 import de.nmichael.efa.*;
@@ -26,31 +27,10 @@ public class Main extends Program {
     //Construct the application
     public Main(String[] args) {
         super(args);
-        Daten.initialize(Daten.APPL_EFADIREKT);
+        Daten.initialize(Daten.APPL_EFABH);
 
-
-
-        // Schriftgröße
-        try {
-            Dialog.setGlobalFontSize(Daten.efaConfig.efaDirekt_fontSize.getValue(), Daten.efaConfig.efaDirekt_fontStyle.getValue());
-        } catch (Exception e) {
-            Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTSETFONTSIZE,
-                    International.getString("Schriftgröße konnte nicht geändert werden") + ": " + e.toString());
-        }
-
-        EfaDirektFrame frame = new EfaDirektFrame();
-        frame.validate();
-        //Center the window
-        Dimension frameSize = frame.getSize();
-        if (frameSize.height > Dialog.screenSize.height) {
-            frameSize.height = Dialog.screenSize.height;
-        }
-        if (frameSize.width > Dialog.screenSize.width) {
-            frameSize.width = Dialog.screenSize.width;
-        }
-        Dialog.setDlgLocation(frame);
-        frame.setVisible(true);
-
+        EfaBoathouseFrame frame = new EfaBoathouseFrame();
+        frame.showFrame();
         Daten.iniSplashScreen(false);
     }
 

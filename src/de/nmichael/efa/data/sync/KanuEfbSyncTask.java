@@ -76,7 +76,7 @@ public class KanuEfbSyncTask extends ProgressTask {
         out.close();
 
         
-        if (request.contains("SyncTrips")) {
+        if (request.contains("DEBUGDEBUG")) {
             InputStream in = connection.getInputStream();
             System.out.println("-- HEADER START --");
             Map<String, List<String>> m = connection.getHeaderFields();
@@ -455,7 +455,7 @@ public class KanuEfbSyncTask extends ProgressTask {
 
             logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Sending Synchronization Request for " + reqCnt + " Trips ...");
             KanuEfbXmlResponse response = sendRequest(request.toString());
-            if (response != null && response.isResponseOk("SyncBoats")) {
+            if (response != null && response.isResponseOk("SyncTrips")) {
                 logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Got Synchronization Response for " + response.getNumberOfRecords() + " Trips ...");
                 for (int i=0; i<response.getNumberOfRecords(); i++) {
                     Hashtable<String,String> fields = response.getFields(i);

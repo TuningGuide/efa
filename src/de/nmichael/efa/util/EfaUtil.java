@@ -924,6 +924,19 @@ public class EfaUtil {
                   makeTimeString(cal.get(Calendar.SECOND),2);
   }
 
+  public static String getCurrentTimeStampHHMMSS() {
+    Calendar cal = new GregorianCalendar();
+    return        makeTimeString(cal.get(Calendar.HOUR_OF_DAY),2)+":"+
+                  makeTimeString(cal.get(Calendar.MINUTE),2)+":"+
+                  makeTimeString(cal.get(Calendar.SECOND),2);
+  }
+
+  public static String getCurrentTimeStampHHMM() {
+    Calendar cal = new GregorianCalendar();
+    return        makeTimeString(cal.get(Calendar.HOUR_OF_DAY),2)+":"+
+                  makeTimeString(cal.get(Calendar.MINUTE),2);
+  }
+
   public static String getTimeStamp(long l) {
     Calendar cal = new GregorianCalendar();
     cal.setTimeInMillis(l);

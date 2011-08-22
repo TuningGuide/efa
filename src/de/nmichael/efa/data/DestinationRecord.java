@@ -14,7 +14,6 @@ import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.core.config.*;
-import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.*;
@@ -235,7 +234,7 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Start ist Bootshaus")));
         v.add(item = new ItemTypeBoolean(DestinationRecord.ROUNDTRIP, getRoundtrip(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Start gleich Ziel")));
-        if (Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
+        if (Daten.efaConfig.getValueUseFunctionalityRowingBerlin()) {
             v.add(item = new ItemTypeString(DestinationRecord.GUIITEM_DESTINATIONAREAS, (getDestinationAreas() == null ? "" : getDestinationAreas().toString()),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("Zielbereiche","de")));
         }
@@ -299,7 +298,7 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        int col = (Daten.efaConfig.useFunctionalityRowingBerlin.getValue() ? 4 : 3);
+        int col = (Daten.efaConfig.getValueUseFunctionalityRowingBerlin() ? 4 : 3);
         TableItemHeader[] header = new TableItemHeader[col];
         header[0] = new TableItemHeader(International.getString("Name"));
         header[1] = new TableItemHeader(International.getString("Entfernung"));
@@ -311,7 +310,7 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
     }
 
     public TableItem[] getGuiTableItems() {
-        int col = (Daten.efaConfig.useFunctionalityRowingBerlin.getValue() ? 4 : 3);
+        int col = (Daten.efaConfig.getValueUseFunctionalityRowingBerlin() ? 4 : 3);
         TableItem[] items = new TableItem[col];
         items[0] = new TableItem(getName());
         items[1] = new TableItem(getDistance());

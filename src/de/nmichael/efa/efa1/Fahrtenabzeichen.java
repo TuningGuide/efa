@@ -61,33 +61,6 @@ public class Fahrtenabzeichen extends DatenListe {
       if ( s == null || !s.trim().startsWith(kennung) ) {
 
 
-        // KONVERTIEREN: 150 -> 151
-        if (s != null && s.trim().startsWith(KENNUNG150)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"150");
-          iniList(this.dat,8,1,false); // Rahmenbedingungen von v1.5.1 schaffen
-          // Datei lesen
-          try {
-            while ((s = freadLine()) != null) {
-              s= s.trim();
-              s = s+"||";
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              DatenFelder d = constructFields(s);
-              d.set(7,d.get(5));
-              d.set(5,"0");
-              d.set(6,"0");
-              add(d);
-            }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG151;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
         // KONVERTIEREN: 151 -> 190
         if (s != null && s.trim().startsWith(KENNUNG151)) {
           if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"151");
@@ -104,14 +77,14 @@ public class Fahrtenabzeichen extends DatenListe {
              return false;
           }
           kennung = KENNUNG190;
-          if (closeFile() && writeFile(true) && openFile()) {
+          if (closeFile()) {
             infSuccessfullyConverted(dat,kennung);
             s = kennung;
           } else errConvertingFile(dat,kennung);
         }
 
         // FERTIG MIT KONVERTIEREN
-        if (s == null || !s.trim().startsWith(kennung)) {
+        if (s == null || !s.trim().startsWith(KENNUNG190)) {
           errInvalidFormat(dat, EfaUtil.trimto(s, 20));
           fclose(false);
           return false;

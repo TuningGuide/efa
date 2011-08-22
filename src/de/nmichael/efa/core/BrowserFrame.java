@@ -15,12 +15,11 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.SwingWorker;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.gui.BaseFrame;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.border.*;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.text.*;
 import java.io.*;
 import java.awt.print.*;
@@ -33,7 +32,6 @@ import java.util.*;
 public class BrowserFrame extends JDialog implements ActionListener {
   final static int PROGRESS_TIMETOPOPUP   = 1;
   final static int PROGRESS_TIMERINTERVAL = 20;
-  de.nmichael.efa.direkt.EfaDirektFrame efaDirektFrame;
 
   BorderLayout borderLayout1 = new BorderLayout();
   JButton closeButton = new JButton();
@@ -206,6 +204,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
     Dialog.frameOpened(this);
     frIni(title,url);
   }
+  /* @todo (P4) lock efa
   public BrowserFrame(de.nmichael.efa.direkt.EfaDirektFrame parent, boolean vollbild, String url) { // für Aufruf zum Locken von efa durch Browser-Frame
     super(parent);
     this.efaDirektFrame = parent;
@@ -220,6 +219,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
     this.remove(this.northPanel);
     this.remove(this.southPanel);
   }
+  */
 
   public BrowserFrame() { // Objekt, wenn nur die Download-Funktionalität genutzt werden soll
   }
@@ -228,8 +228,8 @@ public class BrowserFrame extends JDialog implements ActionListener {
     if (timeout > 0) {
       timeoutThread = new TimeoutThread(this,timeout,
                                         locked,
-                                        Daten.efaConfig.efaDirekt_lockEfaUntilDatum.getDate(),
-                                        Daten.efaConfig.efaDirekt_lockEfaUntilZeit.getTime());
+                                        Daten.efaConfig.getValueEfaDirekt_lockEfaUntilDatum(),
+                                        Daten.efaConfig.getValueEfaDirekt_lockEfaUntilZeit());
       timeoutThread.start();
     }
   }
@@ -287,7 +287,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
     reloadButton.setNextFocusableComponent(saveButton);
     reloadButton.setPreferredSize(new Dimension(45, 22));
     reloadButton.setToolTipText(International.getString("Neu laden"));
-    reloadButton.setIcon(new ImageIcon(BrowserFrame.class.getResource("/de/nmichael/efa/img/browser_reload.gif")));
+    reloadButton.setIcon(BaseFrame.getIcon("browser_reload.gif"));
     reloadButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         reloadButton_actionPerformed(e);
@@ -296,7 +296,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
     nextButton.setNextFocusableComponent(reloadButton);
     nextButton.setPreferredSize(new Dimension(45, 22));
     nextButton.setToolTipText(International.getString("Vorwärts"));
-    nextButton.setIcon(new ImageIcon(BrowserFrame.class.getResource("/de/nmichael/efa/img/browser_forward.gif")));
+    nextButton.setIcon(BaseFrame.getIcon("browser_forward.gif"));
     nextButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         nextButton_actionPerformed(e);
@@ -305,7 +305,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
     backButton.setNextFocusableComponent(nextButton);
     backButton.setPreferredSize(new Dimension(45, 22));
     backButton.setToolTipText(International.getString("Zurück"));
-    backButton.setIcon(new ImageIcon(BrowserFrame.class.getResource("/de/nmichael/efa/img/browser_back.gif")));
+    backButton.setIcon(BaseFrame.getIcon("browser_back.gif"));
     backButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         backButton_actionPerformed(e);
@@ -329,11 +329,11 @@ public class BrowserFrame extends JDialog implements ActionListener {
     printButton.setNextFocusableComponent(pageButton);
     printButton.setPreferredSize(new Dimension(45, 22));
     printButton.setToolTipText(International.getString("Drucken"));
-    printButton.setIcon(new ImageIcon(BrowserFrame.class.getResource("/de/nmichael/efa/img/browser_print.gif")));
+    printButton.setIcon(BaseFrame.getIcon("browser_print.gif"));
     pageButton.setNextFocusableComponent(out);
     pageButton.setPreferredSize(new Dimension(45, 22));
     pageButton.setToolTipText(International.getString("Seite einrichten"));
-    pageButton.setIcon(new ImageIcon(BrowserFrame.class.getResource("/de/nmichael/efa/img/browser_printsetup.gif")));
+    pageButton.setIcon(BaseFrame.getIcon("browser_printsetup.gif"));
     pageButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         pageButton_actionPerformed(e);
@@ -342,7 +342,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
     saveButton.setNextFocusableComponent(printButton);
     saveButton.setPreferredSize(new Dimension(45, 22));
     saveButton.setToolTipText(International.getString("Seite speichern"));
-    saveButton.setIcon(new ImageIcon(BrowserFrame.class.getResource("/de/nmichael/efa/img/browser_save.gif")));
+    saveButton.setIcon(BaseFrame.getIcon("browser_save.gif"));
     saveButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         saveButton_actionPerformed(e);
@@ -366,7 +366,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
     }
     });
     searchNextButton.setPreferredSize(new Dimension(45, 22));
-    searchNextButton.setIcon(new ImageIcon(BrowserFrame.class.getResource("/de/nmichael/efa/img/browser_forward.gif")));
+    searchNextButton.setIcon(BaseFrame.getIcon("browser_forward.gif"));
     searchNextButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         search_next(e);
@@ -374,14 +374,14 @@ public class BrowserFrame extends JDialog implements ActionListener {
     });
 
     searchPrevButton.setPreferredSize(new Dimension(45, 22));
-    searchPrevButton.setIcon(new ImageIcon(BrowserFrame.class.getResource("/de/nmichael/efa/img/browser_back.gif")));
+    searchPrevButton.setIcon(BaseFrame.getIcon("browser_back.gif"));
     searchPrevButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         search_prev(e);
       }
     });
 
-    sslLabel.setIcon(new ImageIcon(BrowserFrame.class.getResource("/de/nmichael/efa/img/browser_secure.gif")));
+    sslLabel.setIcon(BaseFrame.getIcon("browser_secure.gif"));
     sslLabel.setVisible(false);
     this.getContentPane().add(northPanel,  BorderLayout.NORTH);
     northPanel.add(jPanel2, BorderLayout.WEST);
@@ -442,12 +442,13 @@ public class BrowserFrame extends JDialog implements ActionListener {
 
   void unlock() {
     locked = false;
-    if (efaDirektFrame != null) {
-      efaDirektFrame.lockEfaAt(null,null);
-    }
+    // @todo (P4) lock efa
+    //if (efaDirektFrame != null) {
+    //  efaDirektFrame.lockEfaAt(null,null);
+    //}
     if (Daten.efaConfig != null) {
-      Daten.efaConfig.efaDirekt_locked.setValue(false);
-      Daten.efaConfig.writeFile();
+      Daten.efaConfig.setValueEfaDirekt_locked(false);
+      //@efaconfig Daten.efaConfig.writeFile();
       Logger.log(Logger.INFO,
               Logger.MSG_EVT_UNLOCKED,
               International.getString("efa ist wieder entsperrt und für die Benutzung freigegeben."));
@@ -456,6 +457,8 @@ public class BrowserFrame extends JDialog implements ActionListener {
 
   /**Close the dialog*/
   void cancel(boolean timeout) {
+    // @todo (P4) lock efa
+    /*
     if (locked) {
       de.nmichael.efa.direkt.Admin admin = null;
       do {
@@ -466,6 +469,7 @@ public class BrowserFrame extends JDialog implements ActionListener {
       if (admin == null) return;
       unlock();
     }
+    */
     if (tour) Dialog.tourRunning = false;
     if (!tour) Dialog.frameClosed(this);
 

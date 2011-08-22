@@ -40,7 +40,7 @@ public class AutoCompletePopupWindow extends JWindow {
       jbInit();
       setListSize(200,100);
       // Bugfix: AutoCompletePopupWindow muß unter Windows ebenfalls alwaysOnTop sein, wenn EfaDirektFrame alwaysOnTop ist, da sonst die Popup-Liste nicht erscheint
-      if (Daten.osName.startsWith("Windows") && Daten.efaConfig.efaDirekt_immerImVordergrund.getValue()) de.nmichael.efa.java15.Java15.setAlwaysOnTop(this,true);
+      if (Daten.osName.startsWith("Windows") && Daten.efaConfig.getValueEfaDirekt_immerImVordergrund()) de.nmichael.efa.java15.Java15.setAlwaysOnTop(this,true);
     }
     catch(Exception e) {
       e.printStackTrace();

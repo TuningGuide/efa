@@ -94,7 +94,7 @@ public class XMLFileReader extends DefaultHandler {
     }
 
     public void characters(char[] ch, int start, int length) {
-        String s = new String(ch, start, length).trim();
+        String s = new String(ch, start, length);
         if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
             Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "characters("+s+")");
         }
@@ -102,10 +102,11 @@ public class XMLFileReader extends DefaultHandler {
         if (inDataSection && currentField != null) {
             try {
                 charBuffer.append(s);
-                s = charBuffer.toString();
+                s = charBuffer.toString().trim();
                 dataRecord.set(currentField, s, false);
             } catch(Exception e) {
-                Logger.log(Logger.ERROR,Logger.MSG_FILE_PARSEERROR,"Parse Error for Field "+currentField+" = "+s+": "+e.toString());
+                Logger.log(Logger.ERROR,Logger.MSG_FILE_PARSEERROR,getLocation() + "Parse Error for Field "+currentField+" = "+s+": "+e.toString());
+                currentField = null;
             }
             if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
                 Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"Field "+currentField+" = "+s);
@@ -115,7 +116,7 @@ public class XMLFileReader extends DefaultHandler {
             try {
                 if (currentField.equals(XMLFile.FIELD_HEADER_PROGRAM)) {
                     if (!s.equals(Daten.EFA)) {
-                        documentReadError = "Unexpected Value for Header Field " + currentField + ": " + s;
+                        documentReadError = getLocation() + "Unexpected Value for Header Field " + currentField + ": " + s;
                     }
                 }
                 if (currentField.equals(XMLFile.FIELD_HEADER_VERSION)) {
@@ -123,19 +124,19 @@ public class XMLFileReader extends DefaultHandler {
                 }
                 if (currentField.equals(XMLFile.FIELD_HEADER_NAME)) {
                     if (!s.equals(data.getStorageObjectName())) {
-                        documentReadError = "Unexpected Value for Header Field " + currentField + ": " + s;
+                        documentReadError = getLocation() + "Unexpected Value for Header Field " + currentField + ": " + s;
                     }
                 }
                 if (currentField.equals(XMLFile.FIELD_HEADER_TYPE)) {
                     if (!s.equals(data.getStorageObjectType())) {
-                        documentReadError = "Unexpected Value for Header Field " + currentField + ": " + s;
+                        documentReadError = getLocation() + "Unexpected Value for Header Field " + currentField + ": " + s;
                     }
                 }
                 if (currentField.equals(XMLFile.FIELD_HEADER_SCN)) {
                     data.setSCN(Long.parseLong(s));
                 }
             } catch (Exception e) {
-                documentReadError = "Parse Error for Header Field " + currentField + ": " + s;
+                documentReadError = getLocation() + "Parse Error for Header Field " + currentField + ": " + s;
                 Logger.log(Logger.ERROR, Logger.MSG_FILE_PARSEERROR, "Parse Error for Field " + currentField + " = " + s + ": " + e.toString());
             }
             if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
@@ -159,7 +160,8 @@ public class XMLFileReader extends DefaultHandler {
             try {
                 data.add(dataRecord,globalLock);
             } catch(Exception e) {
-                Logger.log(Logger.ERROR,Logger.MSG_FILE_PARSEERROR,"Parse Error for Data Record "+dataRecord.toString()+": "+e.toString());
+                Logger.log(Logger.ERROR,Logger.MSG_FILE_PARSEERROR,getLocation() + "Parse Error for Data Record "+dataRecord.toString()+": "+e.toString());
+                Logger.logdebug(e);
             }
             dataRecord = null;
             inRecord = false;

@@ -48,12 +48,6 @@ public class SunRiseSet {
     }
 
     public static String[] getSunRiseSet(ItemTypeLongLat latitude, ItemTypeLongLat longitude, Calendar cal) throws Exception {
-        if (latitude == null) {
-            latitude = Daten.efaConfig.efaDirekt_sunRiseSet_latitude;
-        }
-        if (longitude == null) {
-            longitude = Daten.efaConfig.efaDirekt_sunRiseSet_longitude;
-        }
         int lat = uk.me.jstott.coordconv.LatitudeLongitude.NORTH;
         int lon = uk.me.jstott.coordconv.LatitudeLongitude.EAST;
         switch (latitude.getValueOrientation()) {
@@ -98,13 +92,9 @@ public class SunRiseSet {
         return riseset;
     }
 
-    public static String getLonLat() {
-        return Daten.efaConfig.efaDirekt_sunRiseSet_latitude.toString() + " / " + Daten.efaConfig.efaDirekt_sunRiseSet_longitude.toString();
-    }
-
     public static void printAllDays(int year) {
         Calendar cal = Calendar.getInstance();
-        System.out.println("efa - Sunrise and Sunset for " + getLonLat() + "\n=============================================================\n");
+        System.out.println("efa - Sunrise and Sunset for " + "\n=============================================================\n");
         System.out.println("Day          Sunrise    Sunset\n------------------------------");
         for (int month = 1; month <= 12; month++) {
             for (int day = 1; day <= 31; day++) {

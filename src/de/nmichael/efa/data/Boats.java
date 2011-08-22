@@ -42,7 +42,7 @@ public class Boats extends Persistence {
 
     public DataKey addNewBoatRecord(BoatRecord boat, long validFrom) throws EfaException {
         DataKey k = data().addValidAt(boat, validFrom);
-        getProject().getBoatStatus(false).data().add(getProject().getBoatStatus(false).createBoatStatusRecord(boat.getId()));
+        getProject().getBoatStatus(false).data().add(getProject().getBoatStatus(false).createBoatStatusRecord(boat.getId(), boat.getQualifiedName()));
         return k;
     }
 
@@ -96,4 +96,59 @@ public class Boats extends Persistence {
             return null;
         }
     }
+
+    public boolean isBoatDeleted(UUID boatId) {
+        try {
+            DataRecord[] records = data().getValidAny(BoatRecord.getKey(boatId, -1));
+            if (records != null && records.length > 0) {
+                return records[0].getDeleted();
+
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return false;
+    }
+
+    public boolean isBoatInvisible(UUID boatId) {
+        try {
+            DataRecord[] records = data().getValidAny(BoatRecord.getKey(boatId, -1));
+            if (records != null && records.length > 0) {
+                return records[0].getInvisible();
+
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return false;
+    }
+
+    public boolean isBoatDeletedOrInvisible(UUID boatId) {
+        try {
+            DataRecord[] records = data().getValidAny(BoatRecord.getKey(boatId, -1));
+            if (records != null && records.length > 0) {
+                return records[0].getDeleted() || records[0].getInvisible();
+
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return false;
+    }
+
+    public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
+        if (add || update) {
+            assertFieldNotEmpty(record, BoatRecord.NAME);
+        }
+        if (delete) {
+            assertNotReferenced(record, getProject().getBoatDamages(false), new String[] { BoatDamageRecord.BOATID } );
+            assertNotReferenced(record, getProject().getBoatReservations(false), new String[] { BoatReservationRecord.BOATID } );
+            assertNotReferenced(record, getProject().getBoatStatus(false), new String[] { BoatStatusRecord.BOATID } );
+            String[] logbooks = getProject().getAllLogbookNames();
+            for (int i=0; logbooks != null && i<logbooks.length; i++) {
+                assertNotReferenced(record, getProject().getLogbook(logbooks[i], false), new String[] { LogbookRecord.BOATID } );
+            }
+        }
+    }
+
 }

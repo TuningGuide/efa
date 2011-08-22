@@ -26,14 +26,16 @@ public class AutoIncrementRecord extends DataRecord {
     // =========================================================================
 
     public static final String SEQUENCE             = "Sequence";
-    public static final String VALUE                = "Value";
+    public static final String INTVALUE             = "IntValue";
+    public static final String LONGVALUE            = "LongValue";
 
     public static void initialize() {
         Vector<String> f = new Vector<String>();
         Vector<Integer> t = new Vector<Integer>();
 
         f.add(SEQUENCE);                 t.add(IDataAccess.DATA_STRING);
-        f.add(VALUE);                    t.add(IDataAccess.DATA_INTEGER);
+        f.add(INTVALUE);                 t.add(IDataAccess.DATA_INTEGER);
+        f.add(LONGVALUE);                t.add(IDataAccess.DATA_LONGINT);
         MetaData metaData = constructMetaData(AutoIncrement.DATATYPE, f, t, false);
         metaData.setKey(new String[] { SEQUENCE });
     }
@@ -61,13 +63,19 @@ public class AutoIncrementRecord extends DataRecord {
         return getString(SEQUENCE);
     }
 
-    protected void setValue(int value) {
-        setInt(VALUE, value);
+    protected void setIntValue(int value) {
+        setInt(INTVALUE, value);
     }
-    public int getValue() {
-        return getInt(VALUE);
+    public int getIntValue() {
+        return getInt(INTVALUE);
     }
 
+    protected void setLongValue(long value) {
+        setLong(LONGVALUE, value);
+    }
+    public long getLongValue() {
+        return getLong(LONGVALUE);
+    }
 
     public Vector<IItemType> getGuiItems() {
         return null; // not supported

@@ -65,8 +65,10 @@ public class ImportGroups extends ImportBase {
                     if (pr != null) {
                         list.add(pr.getId());
                     } else {
-                        logWarning(International.getMessage("Gruppenmitglied {person} für Gruppe {group} nicht in der Mitgliederliste gefunden.",
-                                m.toString(), g));
+                        logWarning(International.getMessage("{type_of_entry} {entry} nicht in {list} gefunden.",
+                            International.getString("Person"),
+                            m.toString(),
+                            International.getString("Mitgliederliste")));
                     }
                 }
                 r.setMemberIdList(list);
@@ -76,13 +78,14 @@ public class ImportGroups extends ImportBase {
                     logDetail(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                 } catch(Exception e) {
                     logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
+                    Logger.logdebug(e);
                 }
             }
             task.setGroupMapping(groupMapping);
         } catch(Exception e) {
             logError(International.getMessage("Import von {list} aus {file} ist fehlgeschlagen.", getDescription(), efa1fname));
             logError(e.toString());
-            e.printStackTrace();
+            Logger.logdebug(e);
             return false;
         }
         return true;

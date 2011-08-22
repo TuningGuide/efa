@@ -10,15 +10,9 @@
 
 package de.nmichael.efa;
 
+import de.nmichael.efa.util.Logger;
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import java.util.*;
-import javax.swing.event.*;
-import java.text.SimpleDateFormat;
-import java.io.*;
-import javax.swing.border.*;
-import java.beans.*;
 
 // @i18n complete
 
@@ -35,8 +29,12 @@ public class StartLogo {
   public void show() {
     try {
       JLabel l = new JLabel();
-      ImageIcon i = new ImageIcon(StartLogo.class.getResource(logoFile));
-      l.setIcon(i);
+      try {
+          ImageIcon i = new ImageIcon(StartLogo.class.getResource(logoFile));
+          l.setIcon(i);
+      } catch(Exception e) {
+          Logger.logdebug(e);
+      }
       JPanel p = new JPanel();
       p.setBackground(new Color(0,0,150));
       p.setBorder(BorderFactory.createEtchedBorder());

@@ -17,16 +17,13 @@ import java.io.*;
 
 // @i18n complete
 
-// @todo (P3) make EfaBaseConfig a Persistence implementation
-public class EfaBaseConfig extends DatenListe {
+public class EfaBaseConfig {
 
-    public static final String KENNUNG183 = "##EFA.183.USERHOME##";
-    public static final String KENNUNG190 = "##EFA.190.BASECONFIG##";
-    private static String _filename;
+    private String filename;
     public String efaUserDirectory; // Verzeichnis für alle User-Daten von efa (daten, cfg, tmp)
     public String language;         // Sprache
 
-    private static String normalize(String sin) {
+    private String normalize(String sin) {
         String sout = "";
         for (int i = 0; sin != null && i < sin.length(); i++) {
             char c = sin.charAt(i);
@@ -37,19 +34,17 @@ public class EfaBaseConfig extends DatenListe {
         return sout;
     }
 
-    public static void setEfaConfigUserHomeFilename(String dir) {
-        _filename = dir + ".efa_" + normalize(Daten.efaMainDirectory);
+    public void setEfaConfigUserHomeFilename(String dir) {
+        filename = dir + ".efa_" + normalize(Daten.efaMainDirectory);
     }
 
     // Konstruktor
-    public EfaBaseConfig() {
-        super(_filename, 0, 0, false);
+    public EfaBaseConfig(String dir) {
+        setEfaConfigUserHomeFilename(dir);
         if (Logger.isTraceOn(Logger.TT_CORE)) {
-            Logger.log(Logger.DEBUG, Logger.MSG_CORE_BASICCONFIG, "EfaBaseConfig=" + _filename);
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_BASICCONFIG, "EfaBaseConfig=" + filename);
         }
-        kennung = KENNUNG190;
         reset();
-        this.backupEnabled = false; // Aus Sicherheitsgründen kein Backup von .efa.cfg anlegen!!
     }
 
     public boolean efaCanWrite(String path, boolean createDir) {
@@ -91,6 +86,10 @@ public class EfaBaseConfig extends DatenListe {
         return false;
     }
 
+    public String getFileName() {
+        return filename;
+    }
+
     // Einstellungen zurücksetzen
     void reset() {
         efaUserDirectory = Daten.efaMainDirectory;
@@ -106,13 +105,15 @@ public class EfaBaseConfig extends DatenListe {
         }
     }
 
-    public synchronized boolean readEinstellungen() {
+    public synchronized boolean readFile() {
         reset();
 
         // Konfiguration lesen
+        BufferedReader f = null;
         String s;
         try {
-            while ((s = freadLine()) != null) {
+            f = new BufferedReader(new InputStreamReader(new FileInputStream(filename),Daten.ENCODING_UTF));
+            while ((s = f.readLine()) != null) {
                 s = s.trim();
                 if (s.startsWith("USERHOME=")) {
                     String newUserHome = s.substring(9, s.length()).trim();
@@ -127,9 +128,11 @@ public class EfaBaseConfig extends DatenListe {
                     language = s.substring(9).trim();
                 }
             }
+            f.close();
         } catch (IOException e) {
+            Logger.log(e);
             try {
-                fclose(false);
+                f.close();
             } catch (Exception ee) {
                 return false;
             }
@@ -138,18 +141,22 @@ public class EfaBaseConfig extends DatenListe {
     }
 
     // Konfigurationsdatei speichern
-    public synchronized boolean writeEinstellungen() {
+    public synchronized boolean writeFile() {
         // Datei schreiben
+        BufferedWriter f = null;
         try {
+            f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename,false), Daten.ENCODING_UTF ));
             if (efaUserDirectory != null && efaUserDirectory.length() > 0) {
-                fwrite("USERHOME=" + efaUserDirectory + "\n");
+                f.write("USERHOME=" + efaUserDirectory + "\n");
             }
             if (language != null) {
-                fwrite("LANGUAGE=" + language + "\n");
+                f.write("LANGUAGE=" + language + "\n");
             }
+            f.close();
         } catch (Exception e) {
+            Logger.log(e);
             try {
-                fcloseW();
+                f.close();
             } catch (Exception ee) {
                 return false;
             }
@@ -158,21 +165,4 @@ public class EfaBaseConfig extends DatenListe {
         return true;
     }
 
-    // Dateiformat überprüfen (ggf. überschrieben durch Unterklassen)
-    public synchronized boolean checkFileFormat() {
-        String s;
-        try {
-            s = freadLine();
-            if (s == null
-                    || (!s.trim().startsWith(KENNUNG183) && !s.trim().startsWith(KENNUNG190))) {
-                errInvalidFormat(dat, EfaUtil.trimto(s, 50));
-                fclose(false);
-                return false;
-            }
-        } catch (IOException e) {
-            this.errReadingFile(dat, e.toString());
-            return false;
-        }
-        return true;
-    }
 }

@@ -66,11 +66,17 @@ public class ProgressDialog extends BaseDialog {
     }
 
     public void logInfo(String s) {
+        for (int tryi=1; loggingTextArea == null && tryi<=10; tryi++) {
+            try { Thread.sleep(100*tryi); } catch(Exception e) {} // Dialog may not have been fully initialized when progress thread starts running
+        }
         loggingTextArea.append(s);
         loggingTextArea.setCaretPosition(loggingTextArea.getDocument().getLength());
     }
 
     public void setCurrentWorkDone(int i) {
+        for (int tryi=1; progressBar == null && tryi<=10; tryi++) {
+            try { Thread.sleep(100*tryi); } catch(Exception e) {} // Dialog may not have been fully initialized when progress thread starts running
+        }
         progressBar.setMaximum(progressTask.getAbsoluteWork());
         progressBar.setValue(i);
     }

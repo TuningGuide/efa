@@ -189,6 +189,10 @@ public class Status extends Persistence {
     public void open(boolean createNewIfNotExists) throws EfaException {
         super.open(createNewIfNotExists);
         if (isOpen()) {
+            if (data().getNumberOfRecords() == 0) {
+                addStatus(International.getString("Junior(in)"), StatusRecord.TYPE_USER);
+                addStatus(International.getString("Senior(in)"), StatusRecord.TYPE_USER);
+            }
             // make sure GUEST and OTHER status types are always present
             addStatus(International.getString("Gast"), StatusRecord.TYPE_GUEST);
             addStatus(International.getString("andere"), StatusRecord.TYPE_OTHER);
@@ -196,51 +200,18 @@ public class Status extends Persistence {
     }
 
     public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
-        StatusRecord sr = (StatusRecord) record;
         if (add || update) {
-            if (sr.getStatusName() == null || sr.getStatusName().trim().length() == 0) {
-                throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
-                        International.getMessage("Das Feld '{field}' darf nicht leer sein.", StatusRecord.NAME),
-                        Thread.currentThread().getStackTrace());
-            }
-            StatusRecord sr0 = findStatusByName(sr.getStatusName());
-            if (sr0 != null && !sr0.getId().equals(sr.getId())) {
-                throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
-                        International.getString("Es gibt bereits einen gleichnamigen Eintrag.") + " "  +
-                        International.getMessage("Das Feld '{field}' muß eindeutig sein.", StatusRecord.NAME),
-                        Thread.currentThread().getStackTrace());
-            }
+            assertFieldNotEmpty(record, StatusRecord.NAME);
+            assertUnique(record, StatusRecord.NAME);
         }
         if (delete) {
+            StatusRecord sr = (StatusRecord) record;
             if (sr.getType() != null && !sr.getType().equals(StatusRecord.TYPE_USER)) {
                 throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
                         International.getMessage("Vordefinierter Status vom Typ '{type}' kann nicht gelöscht werden.", sr.getTypeDescription()),
                         Thread.currentThread().getStackTrace());
             }
-            String refRec = null;
-            try {
-                Persons persons = getProject().getPersons(false);
-                DataKeyIterator it = persons.data().getStaticIterator();
-                DataKey key = it.getFirst();
-                while (key != null) {
-                    PersonRecord r = (PersonRecord)persons.data().get(key);
-                    if (r != null && !r.getDeleted() && r.getStatusId() != null && r.getStatusId().equals(sr.getId())) {
-                        refRec = r.getQualifiedName();
-                        break;
-                    }
-                    key = it.getNext();
-                }
-            } catch(Exception e) {
-                throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
-                        e.toString(),
-                        Thread.currentThread().getStackTrace());
-            }
-            if (refRec != null) {
-                throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
-                        International.getMessage("Der Datensatz kann nicht gelöscht werden, da er noch von {listtype} '{record}' genutzt wird.",
-                        International.getString("Person"), refRec),
-                        Thread.currentThread().getStackTrace());
-            }
+            assertNotReferenced(record, getProject().getPersons(false), new String[] { PersonRecord.STATUSID });
         }
     }
 

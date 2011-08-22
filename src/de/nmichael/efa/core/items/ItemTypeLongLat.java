@@ -48,6 +48,10 @@ public class ItemTypeLongLat extends ItemTypeLabelTextfield {
         }
     }
 
+    public IItemType copyOf() {
+        return new ItemTypeLongLat(name, orientation, coordinates[0], coordinates[1], coordinates[2], type, category, description);
+    }
+
     private void iniValue(int orientation, int c1, int c2, int c3) throws Exception {
         switch(orientation) {
             case ORIENTATION_NORTH:

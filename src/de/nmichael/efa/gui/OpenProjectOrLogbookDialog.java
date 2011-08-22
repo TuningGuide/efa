@@ -16,11 +16,11 @@ import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.gui.dataedit.*;
 import de.nmichael.efa.gui.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import java.util.*;
 import java.io.*;
 
@@ -103,9 +103,10 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
             for (int i=0; logbooks != null && i<logbooks.length; i++) {
                 ProjectRecord r = Daten.project.getLoogbookRecord(logbooks[i]);
                 if (r != null) {
-                    String description = "<b>" + International.getString("Fahrtenbuch") + ":</b> <b style=\"color:blue\">" + logbooks[i] + "</b><br>" +
-                            (r.getDescription() != null ? r.getDescription() : "");
-                    items.put(logbooks[i], description);
+                    String name = "<b>" + International.getString("Fahrtenbuch") + ":</b> <b style=\"color:blue\">" + logbooks[i] + "</b><br>";
+                    String description = (r.getDescription() != null && r.getDescription().length()>0 ? r.getDescription() + " " : "");
+                    description += "(" + r.getStartDate().toString() + " - " + r.getEndDate() + ")";
+                    items.put(logbooks[i], name+description);
                 }
             }
         }
@@ -129,11 +130,12 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         list = new ItemTypeHtmlList("LIST", null, null, null, IItemType.TYPE_PUBLIC, null, label.getText());
         String[] actions = {
             International.getString("Öffnen"),
+            International.getString("Einstellungen"),
             International.getString("Löschen")
         };
         list.setPopupActions(actions);
         list.registerItemListener(this);
-        list.setFieldGrid(1, 4, GridBagConstraints.CENTER, GridBagConstraints.NONE);
+        list.setFieldGrid(1, 5, GridBagConstraints.CENTER, GridBagConstraints.NONE);
         list.setPadding(10, 10, 0, 10);
         list.displayOnGui(_parent, mainPanel, 0, 1);
 
@@ -155,6 +157,17 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         });
         mainPanel.add(openButton, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
                                     GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
+
+        JButton configureButton = new JButton();
+        Mnemonics.setButton(this, configureButton, International.getString("Einstellungen"));
+        configureButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                configureButton_actionPerformed(e);
+            }
+        });
+        mainPanel.add(configureButton, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
+                                    GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
+
         JButton deleteButton = new JButton();
         Mnemonics.setButton(this, deleteButton, International.getString("Löschen"));
         deleteButton.addActionListener(new ActionListener() {
@@ -162,7 +175,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
                 deleteButton_actionPerformed(e);
             }
         });
-        mainPanel.add(deleteButton, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
+        mainPanel.add(deleteButton, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
                                     GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
 
         updateGui();
@@ -199,6 +212,9 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
                             openButton_actionPerformed(e);
                             break;
                         case 1:
+                            configureButton_actionPerformed(e);
+                            break;
+                        case 2:
                             deleteButton_actionPerformed(e);
                             break;
                     }
@@ -227,6 +243,39 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         name = list.getValueFromField();
         if (name != null) {
             closeButton_actionPerformed(e);
+        }
+    }
+
+    void configureButton_actionPerformed(ActionEvent e) {
+        String name = list.getValueFromField();
+        if (name == null) {
+            return;
+        }
+
+        if (type == Type.project) {
+            Project prj = null;
+            try {
+                if (Daten.project != null && Daten.project.getProjectName().equals(name)) {
+                    prj = Daten.project;
+                } else {
+                    prj = new Project(name);
+                    prj.open(false);
+                }
+            } catch (Exception ex) {
+                Logger.logdebug(ex);
+                Dialog.error(ex.toString());
+                return;
+            }
+            ProjectEditDialog dlg = new ProjectEditDialog(this, prj, null, ProjectRecord.GUIITEMS_SUBTYPE_ALL);
+            dlg.showDialog();
+        }
+
+        if (type == Type.logbook) {
+            if (Daten.project == null || Daten.project.getLogbook(name, false) == null) {
+                return;
+            }
+            ProjectEditDialog dlg = new ProjectEditDialog(this, Daten.project, name, ProjectRecord.GUIITEMS_SUBTYPE_ALL);
+            dlg.showDialog();
         }
     }
 

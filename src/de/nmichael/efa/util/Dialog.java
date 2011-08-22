@@ -33,7 +33,6 @@ public class Dialog {
 
 
   public static Stack frameStack=null;
-  public static StatistikFrame statistikFrame=null;
   public static TextField appletOut = null;
   public static JTable programOut = null;
   public static JTextArea programOutText = null;
@@ -65,15 +64,15 @@ public class Dialog {
     if (Daten.efaConfig == null) {
         return;
     }
-    if (Daten.efaConfig.screenWidth.getValue()>0) {
-      Dialog.screenSize.width = Daten.efaConfig.screenWidth.getValue();
+    if (Daten.efaConfig.getValueScreenWidth()>0) {
+      Dialog.screenSize.width = Daten.efaConfig.getValueScreenWidth();
     }
-    if (Daten.efaConfig.screenHeight.getValue()>0) {
-      Dialog.screenSize.height = Daten.efaConfig.screenHeight.getValue();
+    if (Daten.efaConfig.getValueScreenHeight()>0) {
+      Dialog.screenSize.height = Daten.efaConfig.getValueScreenHeight();
     }
     initializeMaxDialogSizes();
-    if ((Daten.efaConfig.maxDialogWidth.getValue()>0 || Daten.efaConfig.maxDialogHeight.getValue()>0)) {
-      Dialog.setMaxDialogSizes(Daten.efaConfig.maxDialogWidth.getValue(),Daten.efaConfig.maxDialogHeight.getValue());
+    if ((Daten.efaConfig.getValueMaxDialogWidth()>0 || Daten.efaConfig.getValueMaxDialogHeight()>0)) {
+      Dialog.setMaxDialogSizes(Daten.efaConfig.getValueMaxDialogWidth(),Daten.efaConfig.getValueMaxDialogHeight());
     }
   }
 
@@ -115,7 +114,7 @@ public class Dialog {
     else programDlg = new AusgabeFrame(); // Parameter-Aufruf aus Efa
     Dimension dlgSize = programDlg.getPreferredSize();
     if (Daten.applID == Daten.APPL_EFABH &&
-            Daten.efaConfig.efaDirekt_startMaximized.getValue()) {
+            Daten.efaConfig.getValueEfaDirekt_startMaximized()) {
           int width = (int)screenSize.getWidth();
           int height = (int)screenSize.getHeight();
           programDlg.setSize(width, height);
@@ -153,7 +152,7 @@ public class Dialog {
     int width = (int)screenSize.getWidth()-100;
     int height = (int)screenSize.getHeight()-150;
     if (Daten.applID == Daten.APPL_EFABH &&
-        Daten.efaConfig.efaDirekt_startMaximized.getValue()) {
+        Daten.efaConfig.getValueEfaDirekt_startMaximized()) {
       width = (int)screenSize.getWidth();
       height = (int)screenSize.getHeight();
     }
@@ -166,7 +165,7 @@ public class Dialog {
     int width = (int)screenSize.getWidth()-100;
     int height = (int)screenSize.getHeight()-150;
     if (Daten.applID == Daten.APPL_EFABH &&
-        Daten.efaConfig.efaDirekt_startMaximized.getValue()) {
+        Daten.efaConfig.getValueEfaDirekt_startMaximized()) {
       width = (int)screenSize.getWidth();
       height = (int)screenSize.getHeight();
     }
@@ -193,21 +192,21 @@ public class Dialog {
 
   // einen externen Browser starten; wurde keiner konfiguriert, wird der interne verwendet
   public static void startBrowser(JDialog parent, String url) {
-    if (Daten.efaConfig.browser.getValue().length() > 0 && !Daten.efaConfig.browser.equals("INTERN"))
+    if (Daten.efaConfig.getValueBrowser().length() > 0 && !Daten.efaConfig.getValueBrowser().equals("INTERN"))
       try {
-        Runtime.getRuntime().exec(Daten.efaConfig.browser.getValue()+" "+url);
+        Runtime.getRuntime().exec(Daten.efaConfig.getValueBrowser()+" "+url);
       } catch(Exception ee) {
-        LogString.logWarning_cantExecCommand(Daten.efaConfig.browser.getValue(), International.getString("für Browser"), ee.toString());
+        LogString.logWarning_cantExecCommand(Daten.efaConfig.getValueBrowser(), International.getString("für Browser"), ee.toString());
         neuBrowserDlg(parent,International.getString("Browser"),url);
       }
     else neuBrowserDlg(parent,International.getString("Browser"),url);
   }
   public static void startBrowser(JFrame parent, String url) {
-    if (Daten.efaConfig.browser.getValue().length() > 0 && !Daten.efaConfig.browser.getValue().equals("INTERN"))
+    if (Daten.efaConfig.getValueBrowser().length() > 0 && !Daten.efaConfig.getValueBrowser().equals("INTERN"))
       try {
-        Runtime.getRuntime().exec(Daten.efaConfig.browser.getValue()+" "+url);
+        Runtime.getRuntime().exec(Daten.efaConfig.getValueBrowser()+" "+url);
       } catch(Exception ee) {
-        LogString.logWarning_cantExecCommand(Daten.efaConfig.browser.getValue(), International.getString("für Browser"), ee.toString());
+        LogString.logWarning_cantExecCommand(Daten.efaConfig.getValueBrowser(), International.getString("für Browser"), ee.toString());
         neuBrowserDlg(parent,International.getString("Browser"),url);
       }
     else neuBrowserDlg(parent,International.getString("Browser"),url);
@@ -419,60 +418,76 @@ public class Dialog {
   }
 
 
-  // muß von jedem Frame gerufen werden, das geöffnet wird!!
-  public static void frameOpened(Window w) {
-    if (frameStack == null) frameStack = new Stack();
-    frameStack.push(w);
-    if (Daten.applID == Daten.APPL_EFABH &&
-        Daten.efaConfig != null && Daten.efaConfig.efaDirekt_immerImVordergrund.getValue()) {
-      try {
-        de.nmichael.efa.java15.Java15.setAlwaysOnTop(w,true);
-      } catch(UnsupportedClassVersionError e) {
-        EfaUtil.foo();
-      } catch(NoClassDefFoundError e) {
-        EfaUtil.foo();
-      }
+    // muß von jedem Frame gerufen werden, das geöffnet wird!!
+    public static void frameOpened(Window w) {
+        if (frameStack == null) {
+            frameStack = new Stack();
+        }
+        frameStack.push(w);
+        if (Daten.applID == Daten.APPL_EFABH
+                && Daten.efaConfig != null && Daten.efaConfig.getValueEfaDirekt_immerImVordergrund()) {
+            try {
+                de.nmichael.efa.java15.Java15.setAlwaysOnTop(w, true);
+            } catch (UnsupportedClassVersionError e) {
+                EfaUtil.foo();
+            } catch (NoClassDefFoundError e) {
+                EfaUtil.foo();
+            }
+        }
+        if (Logger.isDebugLoggin() && Logger.isTraceOn(Logger.TT_GUI)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_WINDOWS, "Dialog.frameOpened("+w.getClass().getCanonicalName()+")");
+        }
     }
-  }
 
-  // muß von jedem Frame gerufen werden, das geschlossen wird!!
-  public static void frameClosed(Window w) {
-    Mnemonics.clearCache(w);
-    if (frameStack == null) return;
-    if (frameStack.isEmpty()) {
-      if (Daten.watchWindowStack)  {
-        Logger.log(Logger.ERROR, Logger.MSG_ERR_WINDOWSTACK,
-                   "Stack Inconsistency: closed Window: " +
-                   w.getClass().toString() + " but stack was empty.");
-        Thread.dumpStack();
-        (new Exception("Watch Stack Exception")).printStackTrace();
-      }
-      return;
+    // muß von jedem Frame gerufen werden, das geschlossen wird!!
+    public static void frameClosed(Window w) {
+        Mnemonics.clearCache(w);
+        if (frameStack == null) {
+            return;
+        }
+        if (Logger.isDebugLoggin() && Logger.isTraceOn(Logger.TT_GUI)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_WINDOWS, "Dialog.frameClosed("+w.getClass().getCanonicalName()+")");
+        }
+        if (frameStack.isEmpty()) {
+            Logger.log(Logger.WARNING, Logger.MSG_ERR_WINDOWSTACK,
+                    "Stack Inconsistency: closed Window: "
+                    + w.getClass().toString() + " but stack was empty.");
+            if (Daten.watchWindowStack) {
+                Thread.dumpStack();
+                (new Exception("Watch Stack Exception")).printStackTrace();
+            }
+            return;
+        }
+        Window wtop = (Window) frameStack.peek();
+        if (wtop != w) {
+            String s = "";
+            try {
+                for (int i = 0; i < frameStack.size(); i++) {
+                    s += (s.length() > 0 ? "; " : "") + frameStack.elementAt(i).getClass().toString();
+                }
+            } catch (Exception e) {
+                EfaUtil.foo();
+            }
+            Logger.log(Logger.WARNING, Logger.MSG_ERR_WINDOWSTACK,
+                    "Stack Inconsistency: closed Window: "
+                    + w.getClass().toString() + " but top of stack is: "
+                    + wtop.getClass().toString() + " (stack: " + s + ")");
+            if (Daten.watchWindowStack) {
+                Thread.dumpStack();
+                (new Exception("Watch Stack Exception")).printStackTrace();
+            }
+        } else {
+            frameStack.pop();
+        }
     }
-    Window wtop = (Window)frameStack.peek();
-    if (wtop != w) {
-      String s = "";
-      try {
-        for (int i=0; i<frameStack.size(); i++) s += (s.length()>0 ? "; " : "") + frameStack.elementAt(i).getClass().toString();
-      } catch(Exception e) { EfaUtil.foo(); }
-      if (Daten.watchWindowStack) {
-        Logger.log(Logger.ERROR, Logger.MSG_ERR_WINDOWSTACK,
-                   "Stack Inconsistency: closed Window: " +
-                   w.getClass().toString() + " but top of stack is: " +
-                   wtop.getClass().toString() + " (stack: " + s + ")");
-        Thread.dumpStack();
-        (new Exception("Watch Stack Exception")).printStackTrace();
-      }
-    } else {
-        frameStack.pop();
-    }
-  }
 
-  // liefert das aktuell geöffnete Frame
-  public static Window frameCurrent() {
-    if (frameStack == null || frameStack.isEmpty()) return null;
-    return (Window)frameStack.peek();
-  }
+    // liefert das aktuell geöffnete Frame
+    public static Window frameCurrent() {
+        if (frameStack == null || frameStack.isEmpty()) {
+            return null;
+        }
+        return (Window) frameStack.peek();
+    }
 
 
 
@@ -527,42 +542,71 @@ public class Dialog {
   }
 
 
-  // Methoden zum Setzen der Position eines neuen JDialogs
-  public static void setDlgLocation(JDialog dlg, Frame parent) {
-    dlg.setLocation(getLocation(dlg.getSize(), (parent != null ? parent.getSize() : null), (parent != null ? parent.getLocation() : null)));
-  }
-  public static void setDlgLocation(JDialog dlg, Window parent) {
-    dlg.setLocation(getLocation(dlg.getSize(), (parent != null ? parent.getSize() : null), (parent != null ? parent.getLocation() : null)));
-  }
-  public static void setDlgLocation(JDialog dlg) {
-    dlg.setLocation(getLocation(dlg.getSize(), null, null));
-  }
-  public static void setDlgLocation(JFrame dlg) {
-    dlg.setLocation(getLocation(dlg.getSize(), null, null));
-  }
-  private static Point getLocation(Dimension dlgSize, Dimension parentSize, Point loc) {
-    int x,y;
-    if (dlgSize.height > screenSize.height) {
-      dlgSize.height = screenSize.height;
-    }
-    if (dlgSize.width > screenSize.width) {
-      dlgSize.width = screenSize.width;
-    }
-    if (parentSize != null && loc != null && Daten.efaConfig != null &&
-            !Daten.efaConfig.fensterZentriert.getValue()) {
-      x = (parentSize.width - dlgSize.width) / 2 + loc.x;
-      y = (parentSize.height - dlgSize.height) / 2 + loc.y;
-    } else {
-      x = (screenSize.width - dlgSize.width) / 2;
-      y = (screenSize.height - dlgSize.height) / 2;
+    // Methoden zum Setzen der Position eines neuen JDialogs
+    public static void setDlgLocation(JDialog dlg, Frame parent) {
+        dlg.setLocation(getLocation(dlg.getSize(), (parent != null ? parent.getSize() : null), (parent != null ? parent.getLocation() : null)));
     }
 
-    if (x<0) x = 0;
-    if (y<0) y = 0;
-    if (Daten.efaConfig != null && x<Daten.efaConfig.windowXOffset.getValue()) x = Daten.efaConfig.windowXOffset.getValue();
-    if (Daten.efaConfig != null && y<Daten.efaConfig.windowYOffset.getValue()) y = Daten.efaConfig.windowYOffset.getValue();
-    return new Point(x,y);
-  }
+    public static void setDlgLocation(JDialog dlg, Window parent) {
+        dlg.setLocation(getLocation(dlg.getSize(), (parent != null ? parent.getSize() : null), (parent != null ? parent.getLocation() : null)));
+    }
+
+    public static void setDlgLocation(JDialog dlg) {
+        dlg.setLocation(getLocation(dlg.getSize(), null, null));
+    }
+
+    public static void setDlgLocation(JFrame dlg) {
+        dlg.setLocation(getLocation(dlg.getSize(), null, null));
+    }
+
+    private static Point getLocation(Dimension dlgSize, Dimension parentSize, Point loc) {
+        int x, y;
+
+        // fix dlgSize, if necessary
+        if (dlgSize.height > screenSize.height) {
+            dlgSize.height = screenSize.height;
+        }
+        if (dlgSize.width > screenSize.width) {
+            dlgSize.width = screenSize.width;
+        }
+
+        // calculate position
+        if (parentSize != null && loc != null && Daten.efaConfig != null
+                && !Daten.efaConfig.getValueFensterZentriert()) {
+            // calculate position based on parent dialog
+            if (parentSize.width == 0) {
+                parentSize.width = screenSize.width;
+            }
+            if (parentSize.height == 0) {
+                parentSize.height = screenSize.height;
+            }
+
+            // add offset
+            x = (parentSize.width - dlgSize.width) / 2 + loc.x;
+            y = (parentSize.height - dlgSize.height) / 2 + loc.y;
+        } else {
+            // calculate position based on screen size
+            x = (screenSize.width - dlgSize.width) / 2;
+            y = (screenSize.height - dlgSize.height) / 2;
+
+            // add offset
+            if (Daten.efaConfig != null && Daten.efaConfig.getValueWindowXOffset() > 0) {
+                x += Daten.efaConfig.getValueWindowXOffset();
+            }
+            if (Daten.efaConfig != null && Daten.efaConfig.getValueWindowYOffset() > 0) {
+                y += Daten.efaConfig.getValueWindowYOffset();
+            }
+        }
+
+        if (x < 0) {
+            x = 0;
+        }
+        if (y < 0) {
+            y = 0;
+        }
+        
+        return new Point(x, y);
+    }
 
   public static UIDefaults getUiDefaults() {
       try {

@@ -1,5 +1,4 @@
-/**
- * Title:        efa - elektronisches Fahrtenbuch für Ruderer
+/* Title:        efa - elektronisches Fahrtenbuch für Ruderer
  * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
@@ -13,8 +12,8 @@ package de.nmichael.efa.data;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.util.Dialog;
 import java.util.*;
 import java.io.*;
@@ -26,6 +25,7 @@ public class Project extends Persistence {
 
     public static final String DATATYPE = "efa2project";
     private Hashtable<String,Persistence> persistenceCache = new Hashtable<String,Persistence>();
+    private boolean _inDeleteProject = false;
 
     // Note: storageType and storageLocation are only type and location for the project file itself
     // (which is always being stored in the file system). The storageType and storageLocation for
@@ -51,6 +51,7 @@ public class Project extends Persistence {
         } catch (Exception ee) {
             Logger.log(ee);
             Dialog.error(LogString.logstring_fileOpenFailed(projectName, International.getString("Projekt"), ee.toString()));
+            Daten.project = null;
             return false;
         }
         return true;
@@ -74,34 +75,34 @@ public class Project extends Persistence {
             getBoatDamages(true);
             getDestinations(true);
             getWaters(true);
+            getMessages(true);
             return true;
         } catch(Exception e) {
-            Logger.logdebug(e);
+            Logger.log(e);
             return false;
         }
     }
 
     public boolean deleteProject() {
         try {
-            openAllData(); // just to make sure that persistenceCache is filled properly
+            // make sure that persistenceCache is filled properly
+            try {
+                openAllData();
+                String[] logbookNames = getAllLogbookNames();
+                for (String logbookName : logbookNames) {
+                    getLogbook(logbookName, false);
+                }
+            } catch (Exception eignore) {
+                Logger.logdebug(eignore);
+            }
+
+            setPreModifyRecordCallbackEnabled(false);
+            _inDeleteProject = true;
             if (getProjectStorageType() == IDataAccess.TYPE_FILE_XML) {
                 String[] keys = persistenceCache.keySet().toArray(new String[0]);
                 for (String key : keys) {
                     Persistence p = persistenceCache.get(key);
                     try {
-                        p.data().deleteStorageObject();
-                    } catch(Exception eignore) {
-                        Logger.logdebug(eignore);
-                        try {
-                            (new File(((DataFile)p.data()).getFilename())).delete();
-                        } catch(Exception eignore2) {}
-                    }
-                }
-                String[] logbookNames = getAllLogbookNames();
-                for (String logbookName : logbookNames) {
-                    Persistence p = null;
-                    try {
-                        p = getLogbook(logbookName, false);
                         p.data().deleteStorageObject();
                     } catch(Exception eignore) {
                         Logger.logdebug(eignore);
@@ -119,11 +120,20 @@ public class Project extends Persistence {
                         projectDir));
             }
         } catch(Exception e) {
+            _inDeleteProject = false;
             Logger.log(e);
             Dialog.error(LogString.logstring_fileDeletionFailed(getProjectName(), International.getString("Projekt"), e.toString()));
             return false;
         }
+        _inDeleteProject = false;
         return true;
+    }
+
+    public static ProjectRecord createNewRecordFromStatic(String type) {
+        if (MetaData.getMetaData(DATATYPE) == null) {
+            ProjectRecord.initialize();
+        }
+        return new ProjectRecord(null, MetaData.getMetaData(DATATYPE), type);
     }
 
     public DataRecord createNewRecord() {
@@ -131,9 +141,10 @@ public class Project extends Persistence {
     }
 
     public ProjectRecord createProjectRecord(String type, String logbookName) {
-        ProjectRecord p = new ProjectRecord(this, MetaData.getMetaData(DATATYPE));
-        p.setType(type);
-        p.setLogbookName(logbookName);
+        ProjectRecord p = new ProjectRecord(this, MetaData.getMetaData(DATATYPE), type);
+        if (type.equals(ProjectRecord.TYPE_LOGBOOK)) {
+            p.setLogbookName(logbookName);
+        }
         return p;
     }
 
@@ -163,7 +174,7 @@ public class Project extends Persistence {
             rec.setType(ProjectRecord.TYPE_CLUB);
             dataAccess.add(rec);
         } catch(Exception e) {
-            Logger.logdebug(e);
+            Logger.log(e);
         }
     }
 
@@ -179,31 +190,25 @@ public class Project extends Persistence {
         return ProjectRecord.getDataKey(ProjectRecord.TYPE_LOGBOOK, logbookName);
     }
 
-    public ProjectRecord getProjectRecord() {
+    public ProjectRecord getRecord(DataKey k) {
         try {
-            return (ProjectRecord)dataAccess.get(getProjectRecordKey());
+            return (ProjectRecord)dataAccess.get(k);
         } catch(Exception e) {
             Logger.logdebug(e);
             return null;
         }
+    }
+
+    public ProjectRecord getProjectRecord() {
+        return getRecord(getProjectRecordKey());
     }
 
     public ProjectRecord getClubRecord() {
-        try {
-            return (ProjectRecord)dataAccess.get(getClubRecordKey());
-        } catch(Exception e) {
-            Logger.logdebug(e);
-            return null;
-        }
+        return getRecord(getClubRecordKey());
     }
 
     public ProjectRecord getLoogbookRecord(String logbookName) {
-        try {
-            return (ProjectRecord)dataAccess.get(getLoogbookRecordKey(logbookName));
-        } catch(Exception e) {
-            Logger.logdebug(e);
-            return null;
-        }
+        return getRecord(getLoogbookRecordKey(logbookName));
     }
 
     public void addLogbookRecord(ProjectRecord rec) throws EfaException {
@@ -236,6 +241,9 @@ public class Project extends Persistence {
     }
 
     private Persistence getPersistence(Class c, String name, boolean createNewIfDoesntExist, String description) {
+        if (_inDeleteProject) {
+            return null;
+        }
         Persistence p = null;
         try {
             String key = c.getCanonicalName()+":"+name;
@@ -253,6 +261,8 @@ public class Project extends Persistence {
             if (p.isOpen()) {
                 persistenceCache.put(key, p);
             }
+            // we only have to do this in the slow path (usually when a new persistence object is created which hasn't been there before)
+            p.data().setPreModifyRecordCallbackEnabled(data().isPreModifyRecordCallbackEnabled());
         } catch(Exception e) {
             Logger.log(Logger.ERROR,Logger.MSG_DATA_OPENFAILED,
                     LogString.logstring_fileOpenFailed( (p != null ? p.toString(): "<?>"), description, e.toString()));
@@ -360,6 +370,11 @@ public class Project extends Persistence {
     public Waters getWaters(boolean createNewIfDoesntExist) {
         return (Waters)getPersistence(Waters.class, "waters",
                 createNewIfDoesntExist, International.getString("Gewässer"));
+    }
+
+    public Messages getMessages(boolean createNewIfDoesntExist) {
+        return (Messages)getPersistence(Messages.class, "messages",
+                createNewIfDoesntExist, International.getString("Nachrichten"));
     }
 
     public void setProjectDescription(String description) {
@@ -617,6 +632,19 @@ public class Project extends Persistence {
         }
     }
 
+    public void setClubKanuEfbLastSync(long lastSync) {
+        long l = 0;
+        try {
+            l = data().acquireLocalLock(getClubRecordKey());
+            ProjectRecord r = getClubRecord();
+            r.setKanuEfbLastSync(lastSync);
+            data().update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            data().releaseLocalLock(l);
+        }
+    }
 
     // set the storageLocation for this project's content
     public void setProjectStorageLocation(String storageLocation) {
@@ -648,6 +676,18 @@ public class Project extends Persistence {
     // get the storageType for this project's content
     public int getProjectStorageType() {
         return getProjectRecord().getStorageType();
+    }
+
+    public String getProjectStorageTypeTypeString() {
+        switch(getProjectStorageType()) {
+            case IDataAccess.TYPE_FILE_XML:
+                return IDataAccess.TYPESTRING_FILE_XML;
+            case IDataAccess.TYPE_EFA_REMOTE:
+                return IDataAccess.TYPESTRING_EFA_REMOTE;
+            case IDataAccess.TYPE_DB_SQL:
+                return IDataAccess.TYPESTRING_DB_SQL;
+        }
+        return null;
     }
 
     // get the storageLocation for this project's content
@@ -727,76 +767,18 @@ public class Project extends Persistence {
         return getClubRecord().getAreaId();
     }
 
-    public Vector<DataItem> getGuiItems() {
-        Vector<DataItem> v = new Vector<DataItem>();
-        try {
-            DataKeyIterator it = dataAccess.getStaticIterator();
-            ProjectRecord rec = (ProjectRecord)dataAccess.getFirst(it);
-            while (rec != null) {
-                String type = rec.getType();
-                if (type == null) {
-                    continue;
-                }
-                if (type.equals(ProjectRecord.TYPE_PROJECT)) {
-                    // Name
-                    v.add(new DataItem(rec.getKey(),new ItemTypeString(rec.getKey().toString()+":"+ProjectRecord.PROJECTNAME,
-                            rec.getProjectName(),
-                            IItemType.TYPE_PUBLIC, International.getString("Projekt"),
-                            International.getString("Name"))));
-
-                    // Description
-                    v.add(new DataItem(rec.getKey(),new ItemTypeString(rec.getKey().toString()+":"+ProjectRecord.DESCRIPTION,
-                            rec.getDescription(),
-                            IItemType.TYPE_PUBLIC, International.getString("Projekt"),
-                            International.getString("Beschreibung"))));
-
-                    // AdminName
-                    v.add(new DataItem(rec.getKey(),new ItemTypeString(rec.getKey().toString()+":"+ProjectRecord.ADMINNAME,
-                            rec.getAdminName(),
-                            IItemType.TYPE_PUBLIC, International.getString("Projekt"),
-                            International.getString("Dein Name"))));
-
-                    // AdminEmail
-                    v.add(new DataItem(rec.getKey(),new ItemTypeString(rec.getKey().toString()+":"+ProjectRecord.ADMINEMAIL,
-                            rec.getAdminEmail(),
-                            IItemType.TYPE_PUBLIC, International.getString("Projekt"),
-                            International.getString("Deine email-Adresse"))));
-                }
-
-                if (type.equals(ProjectRecord.TYPE_LOGBOOK)) {
-                    // Name
-                    v.add(new DataItem(rec.getKey(),new ItemTypeString(rec.getKey().toString()+":"+ProjectRecord.LOGBOOKNAME,
-                            rec.getLogbookName(),
-                            IItemType.TYPE_PUBLIC, International.getString("Fahrtenbuch"),
-                            International.getString("Name"))));
-
-                    // Description
-                    v.add(new DataItem(rec.getKey(),new ItemTypeString(rec.getKey().toString()+":"+ProjectRecord.DESCRIPTION,
-                            rec.getDescription(),
-                            IItemType.TYPE_PUBLIC, International.getString("Fahrtenbuch"),
-                            International.getString("Beschreibung"))));
-
-                    // StartDate
-                    v.add(new DataItem(rec.getKey(),new ItemTypeDate(rec.getKey().toString()+":"+ProjectRecord.STARTDATE,
-                            rec.getStartDate(),
-                            IItemType.TYPE_PUBLIC, International.getString("Fahrtenbuch"),
-                            International.getString("Beginn des Zeitraums"))));
-
-                    // EndDate
-                    v.add(new DataItem(rec.getKey(),new ItemTypeDate(rec.getKey().toString()+":"+ProjectRecord.ENDDATE,
-                            rec.getEndDate(),
-                            IItemType.TYPE_PUBLIC, International.getString("Fahrtenbuch"),
-                            International.getString("Ende des Zeitraums"))));
-
-                }
-
-                rec = (ProjectRecord)dataAccess.getNext(it);
-            }
-        } catch(Exception e) {
-        }
-        return v;
+    public String getClubKanuEfbUsername() {
+        return getClubRecord().getKanuEfbUsername();
     }
     
+    public String getClubKanuEfbPassword() {
+        return getClubRecord().getKanuEfbPassword();
+    }
+
+    public long getClubKanuEfbLastSync() {
+        return getClubRecord().getKanuEfbLastSync();
+    }
+
     private int runAuditPersistence(Persistence p, String dataType) {
         if (p != null && p.isOpen()) {
             Logger.log(Logger.INFO, Logger.MSG_DATA_PROJECTCHECK, dataType + " open (" + p.toString() + ")");
@@ -837,6 +819,8 @@ public class Project extends Persistence {
                 BoatStatusRecord status = boatStatus.getBoatStatus(boat.getId());
                 if (status == null) {
                     Logger.log(Logger.WARNING,Logger.MSG_DATA_PROJECTCHECK,"No Boat Status found for Boat "+boat.getQualifiedName()+": " + boat.toString());
+                    boatStatus.data().add(boatStatus.createBoatStatusRecord(boat.getId(), ""));
+                    Logger.log(Logger.INFO,Logger.MSG_DATA_PROJECTCHECK,"New Boat Status added for Boat "+boat.getQualifiedName());
                 }
 
                 k = it.getNext();
@@ -902,6 +886,7 @@ public class Project extends Persistence {
             errors += runAuditPersistence(getBoatDamages(false), BoatDamages.DATATYPE);
             errors += runAuditPersistence(getDestinations(false), Destinations.DATATYPE);
             errors += runAuditPersistence(getWaters(false), Waters.DATATYPE);
+            errors += runAuditPersistence(getMessages(false), Messages.DATATYPE); // @todo (P3) make sure to truncate message file once in a while
 
             errors += runAuditBoats();
             // @todo (P3) AuditLogbook: check whether any name has a matching ID and replace by ID; also, check for deleted entries
@@ -911,6 +896,21 @@ public class Project extends Persistence {
         }
         Logger.log( (errors == 0 ? Logger.INFO : Logger.ERROR) ,Logger.MSG_DATA_PROJECTCHECK,"Project Audit completed with " + errors + " Errors.");
         return errors == 0;
+    }
+
+    public void setPreModifyRecordCallbackEnabled(boolean enabled) {
+        this.data().setPreModifyRecordCallbackEnabled(enabled);
+        Set<String> keys = persistenceCache.keySet();
+        for (String key: keys) {
+            persistenceCache.get(key).data().setPreModifyRecordCallbackEnabled(enabled);
+        }
+    }
+
+    public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
+        if (add || update) {
+            assertUnique(record, ProjectRecord.PROJECTNAME);
+            assertUnique(record, ProjectRecord.LOGBOOKNAME);
+        }
     }
 
 }

@@ -219,7 +219,7 @@ public class DownloadFrame extends JDialog implements ActionListener {
 
 
 
-  public static boolean getPlugin(String progname, String pname, String pfile, String phtml, String classError, StatistikFrame frame, boolean exit) {
+  public static boolean getPlugin(String progname, String pname, String pfile, String phtml, String classError, JDialog frame, boolean exit) {
       if (Dialog.yesNoDialog(International.getString("Fehlendes Plugin"),
               International.getMessage("Das erforderliche {plugin} konnte nicht gefunden werden",pname) +
               ":\n" + classError + "\n"+

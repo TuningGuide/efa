@@ -32,6 +32,10 @@ public class ItemTypeBoolean extends ItemType {
         this.fieldGridWidth = 3;
     }
 
+    public IItemType copyOf() {
+        return new ItemTypeBoolean(name, value, type, category, description);
+    }
+
     public void parseValue(String value) {
         if (value != null) {
             value = value.trim();
@@ -58,6 +62,7 @@ public class ItemTypeBoolean extends ItemType {
         if (color != null) {
             checkbox.setForeground(color);
         }
+        checkbox.setEnabled(isEnabled);
         this.field = checkbox;
         checkbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -84,7 +89,7 @@ public class ItemTypeBoolean extends ItemType {
         if (field != null) {
             return Boolean.toString(((JCheckBox)field).isSelected());
         } else {
-            return null;
+            return toString(); // otherwise a hidden field in expert mode might return null
         }
     }
 
@@ -108,13 +113,17 @@ public class ItemTypeBoolean extends ItemType {
     }
 
     public void setVisible(boolean visible) {
-        field.setVisible(visible);
+        if (field != null) {
+            field.setVisible(visible);
+        }
         super.setVisible(visible);
     }
 
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        field.setEnabled(enabled);
+        if (field != null) {
+            field.setEnabled(enabled);
+        }
     }
 
 }

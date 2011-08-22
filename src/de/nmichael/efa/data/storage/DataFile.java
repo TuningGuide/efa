@@ -31,7 +31,7 @@ public abstract class DataFile extends DataAccess {
     private long cachedKeysSCN = 0;
     private final DataLocks dataLocks = new DataLocks();
     private DataFileWriter fileWriter;
-    private boolean inReadFileMode = false;
+    private Journal journal;
 
     public DataFile(String directory, String name, String extension, String description) {
         setStorageLocation(directory);
@@ -62,6 +62,16 @@ public abstract class DataFile extends DataAccess {
         return filename;
     }
 
+    private void setupJournal() {
+        journal = new Journal(getStorageObjectName()+"."+getStorageObjectType(), filename, 1000, 3);
+    }
+
+    private void closeJournal() {
+        if (journal != null) {
+            journal.close();
+        }
+    }
+
     public synchronized boolean existsStorageObject() throws EfaException {
         if (filename == null) {
             throw new EfaException(Logger.MSG_DATA_GENERICEXCEPTION, "No StorageObject name specified.", Thread.currentThread().getStackTrace());
@@ -78,8 +88,9 @@ public abstract class DataFile extends DataAccess {
             BufferedWriter fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename,false), ENCODING));
             writeFile(fw);
             fw.close();
-            isOpen = true;
             scn = 0;
+            setupJournal();
+            isOpen = true;
             fileWriter = new DataFileWriter(this);
             fileWriter.start();
         } catch(Exception e) {
@@ -93,6 +104,7 @@ public abstract class DataFile extends DataAccess {
             BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(filename), ENCODING));
             readFile(fr);
             fr.close();
+            setupJournal();
             isOpen = true;
             fileWriter = new DataFileWriter(this);
             fileWriter.start();
@@ -114,6 +126,7 @@ public abstract class DataFile extends DataAccess {
                 }
             }
             isOpen = false;
+            closeJournal();
             fileWriter.exit();
             fileWriter.join();
         } catch(Exception e) {
@@ -151,17 +164,14 @@ public abstract class DataFile extends DataAccess {
             if (!f.delete()) {
                 throw new Exception(LogString.logstring_fileDeletionFailed(filename, getStorageObjectDescription()));
             }
+            journal.deleteAllJournals();
         } catch(Exception e) {
-            throw new EfaException(Logger.MSG_DATA_DELETEFAILED, LogString.logstring_fileDeletionFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+            throw new EfaException(Logger.MSG_DATA_DELETEFAILED, LogString.logstring_fileDeletionFailed(filename, getStorageObjectDescription(), e.toString()), Thread.currentThread().getStackTrace());
         }
     }
 
     protected abstract void readFile(BufferedReader fr) throws EfaException;
     protected abstract void writeFile(BufferedWriter fw) throws EfaException;
-
-    protected void setInReadFileMode(boolean inReadFileMode) {
-        this.inReadFileMode = inReadFileMode;
-    }
 
     private long getLock(DataKey object) throws EfaException {
         if (!isStorageObjectOpen()) {
@@ -197,7 +207,7 @@ public abstract class DataFile extends DataAccess {
         return scn;
     }
 
-    public void setSCN(long scn) throws EfaException {
+    void setSCN(long scn) throws EfaException {
         this.scn = scn;
     }
 
@@ -214,12 +224,18 @@ public abstract class DataFile extends DataAccess {
         if (record == null) {
             throw new EfaException(Logger.MSG_DATA_RECORDNOTFOUND, getUID() + ": Data Record is 'null'", Thread.currentThread().getStackTrace());
         }
+        if ( (add && update) || (add && delete) || (update && delete) ) {
+            throw new EfaException(Logger.MSG_DATA_INVALIDPARAMETER, getUID() + ": Invalid Parameter: "+add+","+update+","+delete, Thread.currentThread().getStackTrace());
+        }
         if (!referenceRecord.getClass().isAssignableFrom(record.getClass())) {
             throw new EfaException(Logger.MSG_DATA_RECORDWRONGTYPE,
                     getUID() + ": Data Record "+record.toString()+" has wrong Type: " + record.getClass().getCanonicalName() + ", expected: " + referenceRecord.getClass().getCanonicalName(),
                     Thread.currentThread().getStackTrace());
         }
-        getPersistence().preModifyRecordCallback(record, add, update, delete);
+
+        if (!inOpeningStorageObject() && isPreModifyRecordCallbackEnabled()) {
+                getPersistence().preModifyRecordCallback(record, add, update, delete);
+        }
 
         DataKey key = constructKey(record);
         if (lockID <= 0) {
@@ -241,13 +257,19 @@ public abstract class DataFile extends DataAccess {
                             throw new EfaException(Logger.MSG_DATA_DUPLICATERECORD, getUID() + ": Data Record '"+key.toString()+"' already exists", Thread.currentThread().getStackTrace());
                         }
                     }
-                    if (!inReadFileMode) { // don't update LastModified timestamp when reading saved data from file!
+                    if (!inOpeningStorageObject) { // don't update LastModified timestamp when reading saved data from file!
                         record.setLastModified();
                     }
                     if (add || update) {
                         DataRecord myRecord = record.cloneRecord();
-                        data.put(key, myRecord);
-                        scn++;
+                        if (inOpeningStorageObject || journal.log(scn+1, (add ? Journal.Operation.add : Journal.Operation.update), record)) {
+                            data.put(key, myRecord);
+                            if (!inOpeningStorageObject) {
+                                scn++;
+                            }
+                        } else {
+                            throw new EfaException(Logger.MSG_DATA_JOURNALLOGFAILED, getUID() + ": Operation failed for Data Record '"+record.toString()+"'", Thread.currentThread().getStackTrace());
+                        }
                         if (meta.versionized) {
                             modifyVersionizedKeys(key, add, update, delete);
                         }
@@ -256,8 +278,12 @@ public abstract class DataFile extends DataAccess {
                         }
                     } else {
                         if (delete) {
-                            data.remove(key);
-                            scn++;
+                            if (journal.log(scn + 1, Journal.Operation.delete, record)) {
+                                data.remove(key);
+                                scn++;
+                            } else {
+                                throw new EfaException(Logger.MSG_DATA_JOURNALLOGFAILED, getUID() + ": Operation failed for Data Record '" + record.toString() + "'", Thread.currentThread().getStackTrace());
+                            }
                             if (meta.versionized) {
                                 modifyVersionizedKeys(key, add, update, delete);
                             }
@@ -734,9 +760,13 @@ public abstract class DataFile extends DataAccess {
         long lockID = acquireGlobalLock();
         try {
             synchronized (data) {
-                data.clear();
-                versionizedKeyList.clear();
-                scn++;
+                if (journal.log(scn + 1, Journal.Operation.truncate, null)) {
+                    data.clear();
+                    versionizedKeyList.clear();
+                    scn++;
+                } else {
+                    throw new EfaException(Logger.MSG_DATA_JOURNALLOGFAILED, getUID() + ": Truncate failed", Thread.currentThread().getStackTrace());
+                }
             }
             fileWriter.save(false, true);
         } finally {

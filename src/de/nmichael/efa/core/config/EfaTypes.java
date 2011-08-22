@@ -9,19 +9,19 @@
 
 package de.nmichael.efa.core.config;
 
-import de.nmichael.efa.efa1.Fahrtenbuch;
-import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.*;
+import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.core.*;
-import java.io.*;
+import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.ex.EfaModifyException;
 import java.util.*;
-import java.text.*;
 
 // @i18n complete
 
-// @todo (P3) make EfaTypes a Persistence implementation
-public class EfaTypes extends DatenListe {
+public class EfaTypes extends Persistence {
+
+    public static final String DATATYPE = "efa2types";
 
     public static final String CATEGORY_GENDER            = "GENDER";       // GESCHLECHT
     public static final String CATEGORY_BOAT              = "BOAT";         // BART
@@ -88,7 +88,7 @@ public class EfaTypes extends DatenListe {
     public static final String TYPE_SESSION_LATEENTRY     = "LATEENTRY";    // KILOMETERNACHTRAG
     public static final String TYPE_SESSION_MOTORBOAT     = "MOTORBOAT";    // MOTORBOOT
     public static final String TYPE_SESSION_ERG           = "ERG";          // ERGO
-    public static final String TYPE_SESSION_MULTIDAY      = "MULTIDAY";     // MEHRTAGESFAHRT
+    public static final String TYPE_SESSION_TOUR          = "TOUR";         // MEHRTAGESFAHRT
 
     public static final String TYPE_STATUS_GUEST          = "GUEST";        // Gast
     public static final String TYPE_STATUS_OTHER          = "OTHER";        // andere
@@ -107,32 +107,79 @@ public class EfaTypes extends DatenListe {
     public static final int ARRAY_STRINGLIST_VALUES  = 1;
     public static final int ARRAY_STRINGLIST_DISPLAY = 2;
 
-    public static final String KENNUNG190 = "##EFA.190.TYPES##";
-
     private Vector<String> categories;
-    private Hashtable<String,Vector<EfaType>> values;
-    private CustSettings custSettings = null;
+    //private Hashtable<String,Vector<EfaTypeRecord>> values;
+    private CustSettings custSettings;
 
     // Default Construktor
-    public EfaTypes(String pdat) {
-        super(pdat,0,0,false);
-        kennung = KENNUNG190;
+    public EfaTypes(CustSettings custSettings) {
+        super(IDataAccess.TYPE_FILE_XML, Daten.efaCfgDirectory, "types", DATATYPE, International.getString("Bezeichnungen"));
+        EfaTypeRecord.initialize();
+        dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
+        this.custSettings = custSettings;
         iniCategories();
-        reset();
     }
 
-    // Copy Constructor
-    public EfaTypes(EfaTypes efaTypes) {
-        super(efaTypes.getFileName(),0,0,false);
-        kennung = efaTypes.kennung;
-        iniCategories();
-        reset();
-        for (int c=0; c<categories.size(); c++) {
-            Vector<EfaType> types = efaTypes.getItems(categories.get(c));
-            for (int i=0; i<types.size(); i++) {
-                EfaType type = types.get(i);
-                setValue(type.category, type.type, type.value);
+    public void open(boolean createNewIfNotExists) throws EfaException {
+        super.open(createNewIfNotExists);
+        try {
+            if (createNewIfNotExists && (data().getAllKeys() == null || data().getAllKeys().length == 0)) {
+                // empty EfaTypes newly created
+                // make sure that this.custSettings != null when creating from scratch!
+                setCustSettings(custSettings);
+                setToLanguage(null);
             }
+        } catch(Exception e) {
+            Logger.log(e);
+        }
+    }
+
+    public DataRecord createNewRecord() {
+        return new EfaTypeRecord(this, MetaData.getMetaData(DATATYPE));
+    }
+
+    public EfaTypeRecord createEfaTypeRecord(String category, String type, String value) {
+        EfaTypeRecord r = new EfaTypeRecord(this, MetaData.getMetaData(DATATYPE));
+        r.setCategory(category);
+        r.setType(type);
+        r.setPosition(getHighestPosition(category) + 1);
+        r.setValue(value);
+        return r;
+    }
+
+    public EfaTypeRecord getRecord(String category, String type) {
+        try {
+            return ((EfaTypeRecord)data().get(EfaTypeRecord.getKey(category, type)));
+        } catch(Exception e) {
+            return null;
+        }
+    }
+
+    public void addRecord(EfaTypeRecord r) {
+        try {
+            data().add(r);
+        } catch(Exception e) {
+            Logger.log(e);
+        }
+    }
+
+    public void updateRecord(String category, String type, String value) {
+        try {
+            DataKey k = EfaTypeRecord.getKey(category, type);
+            EfaTypeRecord r = (EfaTypeRecord)data().get(k);
+            r.setValue(value);
+            data().update(r);
+        } catch(Exception e) {
+            Logger.log(e);
+        }
+    }
+
+    public void deleteRecord(String category, String type) {
+        try {
+            DataKey k = EfaTypeRecord.getKey(category, type);
+            data().delete(k);
+        } catch(Exception e) {
+            Logger.log(e);
         }
     }
 
@@ -147,11 +194,6 @@ public class EfaTypes extends DatenListe {
         categories.add(CATEGORY_STATUS);
     }
 
-
-    private void reset() {
-        values = new Hashtable<String,Vector<EfaType>>();
-    }
-
     public void setValue(String cat, String typ, String val) {
         if (cat == null || typ == null || val == null ||
                 cat.length() == 0 || typ.length() == 0 || val.length() == 0 ||
@@ -159,43 +201,28 @@ public class EfaTypes extends DatenListe {
             return;
         }
 
-        EfaType type = new EfaType(cat,typ,val);
-        Vector<EfaType> types = values.get(cat);
-        if (types == null) {
-            types = new Vector<EfaType>();
-        }
-        
         if (!isConfigured(cat, typ)) {
-            types.add(type);
+            addRecord(createEfaTypeRecord(cat,typ,val));
         } else {
-            for (int i=0; i<types.size(); i++) {
-                if (types.get(i).type.equals(typ)) {
-                    types.get(i).value = val;
-                }
-            }
+            updateRecord(cat, typ, val);
         }
-
-        values.put(cat, types);
     }
 
     public void removeValue(String cat, String typ) {
         if (!isConfigured(cat, typ)) {
             return;
         }
-        Vector<EfaType> types = values.get(cat);
-        for (int i=0; i<types.size(); i++) {
-            EfaType t = types.get(i);
-            if (typ.equals(t.type)) {
-                types.remove(t);
-                return;
-            }
-        }
+        deleteRecord(cat, typ);
     }
 
     public void removeAllValues(String cat) {
-        Vector<EfaType> types = values.get(cat);
-        for (int i=0; types != null && i<types.size(); i++) {
-            types.remove(types.get(i));
+        try {
+            DataKey[] keys = data().getByFields(new String[] { EfaTypeRecord.CATEGORY }, new String[] { cat });
+            for (DataKey key : keys) {
+                data().delete(key);
+            }
+        } catch(Exception e) {
+            Logger.log(e);
         }
     }
 
@@ -203,45 +230,18 @@ public class EfaTypes extends DatenListe {
         if (cat == null || typ == null || cat.length() == 0 || typ.length() == 0) {
             return false;
         }
-        Vector<EfaType> types = values.get(cat);
-        if (types == null) {
-            return false;
-        }
-        for (int i=0; i<types.size(); i++) {
-            EfaType t = types.get(i);
-            if (typ.equals(t.type)) {
-                return true;
-            }
-        }
-        return false;
+        return getRecord(cat, typ) != null;
     }
 
     public String getValue(String cat, String typ) {
         if (cat == null || typ == null || cat.length() == 0 || typ.length() == 0) {
             return International.getString("unbekannt");
         }
-        Vector<EfaType> types = values.get(cat);
-        if (types == null) {
-            return International.getString("unbekannt");
-        }
-        for (int i=0; i<types.size(); i++) {
-            EfaType t = types.get(i);
-            if (typ.equals(t.type)) {
-                return t.value;
-            }
+        EfaTypeRecord r = getRecord(cat, typ);
+        if (r != null && r.getValue() != null) {
+            return r.getValue();
         }
         return International.getString("unbekannt");
-    }
-
-    public String getValue(String cat, int idx) {
-        if (cat == null || cat.length() == 0 || idx < 0) {
-            return International.getString("unbekannt");
-        }
-        Vector<EfaType> types = values.get(cat);
-        if (types == null || idx >= types.size()) {
-            return International.getString("unbekannt");
-        }
-        return types.get(idx).value;
     }
 
     public static String getValueWeekday(String type) {
@@ -272,72 +272,88 @@ public class EfaTypes extends DatenListe {
         return "";
     }
 
-    public String getType(String cat, int idx) {
-        if (cat == null || cat.length() == 0 || idx < 0) {
-            return null;
-        }
-        Vector<EfaType> types = values.get(cat);
-        if (types == null || idx >= types.size()) {
-            return null;
-        }
-        return types.get(idx).type;
-    }
-
     public String getTypeForValue(String cat, String val) {
         if (cat == null || cat.length() == 0 || val == null || val.length() == 0) {
             return null;
         }
-        Vector<EfaType> types = values.get(cat);
-        if (types == null) {
-            return null;
-        }
-        for (int i=0; i<types.size(); i++) {
-            if (val.equals(types.get(i).value)) {
-                return types.get(i).type;
+        try {
+            DataKey[] keys = data().getByFields(new String[] { EfaTypeRecord.CATEGORY }, new String[] { cat });
+            for (DataKey key : keys) {
+                EfaTypeRecord r = (EfaTypeRecord)data().get(key);
+                if (r.getValue() != null && r.getValue().equals(val)) {
+                    return r.getType();
+                }
             }
+        } catch(Exception e) {
+            Logger.log(e);
         }
         return null;
     }
 
-    private Vector<EfaType> getItems(String cat) {
+    private EfaTypeRecord[] getItems(String cat) {
         if (cat == null || cat.length() == 0) {
             return null;
         }
-        Vector<EfaType> types = values.get(cat);
-        if (types == null) {
-            return new Vector<EfaType>();
+        try {
+            Vector<EfaTypeRecord> types = new Vector<EfaTypeRecord>();
+            DataKey[] keys = data().getByFields(new String[] { EfaTypeRecord.CATEGORY }, new String[] { cat });
+            for (DataKey key : keys) {
+                EfaTypeRecord r = (EfaTypeRecord)data().get(key);
+                if (r.getCategory() != null && r.getCategory().equals(cat)) {
+                    types.add(r);
+                }
+            }
+            EfaTypeRecord[] ra = new EfaTypeRecord[types.size()];
+            for (int i=0; i<ra.length; i++) {
+                ra[i] = types.get(i);
+            }
+            Arrays.sort(ra);
+            return ra;
+        } catch(Exception e) {
+            Logger.log(e);
         }
-        return types;
+        return null;
+    }
+
+    public int getHighestPosition(String cat) {
+        int max = -1;
+        EfaTypeRecord[] items = getItems(cat);
+        for (int i=0; items != null && i<items.length; i++) {
+            if (items[i].getPosition() > max) {
+                max = items[i].getPosition();
+            }
+        }
+        return max;
     }
 
     public int size(String cat) {
-        Vector<EfaType> types = getItems(cat);
+        EfaTypeRecord[] types = getItems(cat);
         if (types == null) {
             return 0;
         }
-        return types.size();
+        return types.length;
     }
 
     public String[] getTypesArray(String cat) {
-        Vector<EfaType> types = getItems(cat);
+        EfaTypeRecord[] types = getItems(cat);
         if (types == null) {
             return new String[0];
         }
-        String[] a = new String[types.size()];
-        for (int i=0; i<types.size(); i++) {
-            a[i] = types.get(i).type;
+        String[] a = new String[types.length];
+        for (int i=0; i<types.length; i++) {
+            a[i] = types[i].getType();
         }
         return a;
     }
 
     public String[] getValueArray(String cat) {
-        Vector<EfaType> types = getItems(cat);
+        EfaTypeRecord[] types = getItems(cat);
         if (types == null) {
             return new String[0];
         }
-        String[] a = new String[types.size()];
-        for (int i=0; i<types.size(); i++) {
-            a[i] = types.get(i).value;
+        String[] a = new String[types.length];
+        for (int i=0; i<types.length; i++) {
+            a[i] = types[i].getValue();
         }
         return a;
     }
@@ -370,7 +386,7 @@ public class EfaTypes extends DatenListe {
 
     public static int getNumberOfRowers(String key) {
         if (key == null) {
-            return Fahrtenbuch.ANZ_MANNSCH;
+            return LogbookRecord.CREW_MAX;
         }
         if (key.equals(EfaTypes.TYPE_NUMSEATS_1)) {
             return 1;
@@ -398,139 +414,20 @@ public class EfaTypes extends DatenListe {
             return 8;
         }
         if (key.equals(EfaTypes.TYPE_NUMSEATS_OTHER)) {
-            return Fahrtenbuch.ANZ_MANNSCH;
+            return LogbookRecord.CREW_MAX;
         }
 
         // ok, no key found. Now try to extract some numbers from the key itself (as in "6X")
         int num = EfaUtil.stringFindInt(key, 0);
-        if (num > 0 && num <= Fahrtenbuch.ANZ_MANNSCH) {
+        if (num > 0 && num <= LogbookRecord.CREW_MAX) {
             return num;
         }
 
-        return Fahrtenbuch.ANZ_MANNSCH;
+        return LogbookRecord.CREW_MAX;
     }
 
     public static String getStringUnknown() {
         return International.getString("unbekannt");
-    }
-
-    public synchronized boolean readEinstellungen() {
-        reset();
-
-        // Konfiguration lesen
-        String s;
-        try {
-            while ((s = freadLine()) != null) {
-                s = s.trim();
-                if (s.length() == 0 || s.startsWith("#")) {
-                    continue; // Kommentare ignorieren
-                }
-                int sepCatTyp = s.indexOf("_");
-                int sepKeyVal = s.indexOf("=");
-                if (sepCatTyp <= 0 || sepKeyVal <= 0) {
-                    Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORINVALIDRECORD,
-                            getFileName() + ": " + International.getString("Ungültiges Format für Bezeichnung") + ": " + s);
-                    continue;
-                }
-                String cat = s.substring(0, sepCatTyp);
-                String typ = s.substring(sepCatTyp + 1, sepKeyVal);
-                String val = s.substring(sepKeyVal + 1);
-                if (Logger.isTraceOn(Logger.TT_EFATYPES)) {
-                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_TYPES, "cat="+cat+" typ="+typ+" val="+val);
-                }
-                if (cat.length() == 0 || typ.length() == 0 || val.length() == 0 || !categories.contains(cat) ||
-                    typ.indexOf('_')>=0 || typ.indexOf('=')>=0 || typ.indexOf(':')>=0) {
-                    Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORINVALIDRECORD,
-                            getFileName() + ": " + International.getString("Ungültiges Format für Bezeichnung") + ": " + s);
-                    continue;
-                }
-
-                setValue(cat, typ, val);
-            }
-
-            // move TYPE_TRIP_MULTIDAY to the last position (if it exists)
-            Vector<EfaType> v = getItems(CATEGORY_SESSION);
-            EfaType mtour = null;
-            for (int i=0; i<v.size(); i++) {
-                if (v.get(i).type.equals(TYPE_SESSION_MULTIDAY)) {
-                    mtour = v.get(i);
-                    v.removeElementAt(i);
-                    i--;
-                }
-            }
-            if (mtour != null) {
-                v.add(mtour);
-            }
-            // add types "NORMAL"
-            if (!isConfigured(CATEGORY_SESSION, TYPE_SESSION_NORMAL)) {
-                setValue(CATEGORY_SESSION, TYPE_SESSION_NORMAL, International.getString("normale Fahrt"));
-            }
-
-            // add types "OTHER"
-            if (!isConfigured(CATEGORY_BOAT, TYPE_BOAT_OTHER)) {
-                setValue(CATEGORY_BOAT, TYPE_BOAT_OTHER, International.getString("andere"));
-            }
-            if (!isConfigured(CATEGORY_NUMSEATS, TYPE_NUMSEATS_OTHER)) {
-                setValue(CATEGORY_NUMSEATS, TYPE_NUMSEATS_OTHER, International.getString("andere"));
-            }
-            if (!isConfigured(CATEGORY_RIGGING, TYPE_RIGGING_OTHER)) {
-                setValue(CATEGORY_RIGGING, TYPE_RIGGING_OTHER, International.getString("andere"));
-            }
-            if (!isConfigured(CATEGORY_COXING, TYPE_COXING_OTHER)) {
-                setValue(CATEGORY_COXING, TYPE_COXING_OTHER, International.getString("andere"));
-            }
-
-            // add types GUEST and OTHER
-            removeAllValues(CATEGORY_STATUS); // we just want to have GUEST and OTHER in here; a project's status types are defined in the status table
-            if (!isConfigured(CATEGORY_STATUS, TYPE_STATUS_GUEST)) {
-                setValue(CATEGORY_STATUS, TYPE_STATUS_GUEST, International.getString("Gast")); // this is just the default to be used for guests; actual values will come from Status table
-            }
-            if (!isConfigured(CATEGORY_STATUS, TYPE_STATUS_OTHER)) {
-                setValue(CATEGORY_STATUS, TYPE_STATUS_OTHER, International.getString("andere")); // this is just the default to be used for guests; actual values will come from Status table
-            }
-
-            // make sure types "OTHER" are always the last type
-            s = getValue(CATEGORY_BOAT, TYPE_BOAT_OTHER);
-            removeValue(CATEGORY_BOAT, TYPE_BOAT_OTHER);
-            setValue(CATEGORY_BOAT, TYPE_BOAT_OTHER, s);
-            s = getValue(CATEGORY_NUMSEATS, TYPE_NUMSEATS_OTHER);
-            removeValue(CATEGORY_NUMSEATS, TYPE_NUMSEATS_OTHER);
-            setValue(CATEGORY_NUMSEATS, TYPE_NUMSEATS_OTHER, s);
-            s = getValue(CATEGORY_RIGGING, TYPE_RIGGING_OTHER);
-            removeValue(CATEGORY_RIGGING, TYPE_RIGGING_OTHER);
-            setValue(CATEGORY_RIGGING, TYPE_RIGGING_OTHER, s);
-            s = getValue(CATEGORY_COXING, TYPE_COXING_OTHER);
-            removeValue(CATEGORY_COXING, TYPE_COXING_OTHER);
-            setValue(CATEGORY_COXING, TYPE_COXING_OTHER, s);
-
-        } catch (IOException e) {
-            try {
-                fclose(false);
-            } catch (Exception ee) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public synchronized boolean writeEinstellungen() {
-        try {
-            for (int i = 0; i < categories.size(); i++) {
-                Vector<EfaType> items = values.get(categories.get(i));
-                if (items == null) {
-                    continue;
-                }
-                for (int j = 0; j < items.size(); j++) {
-                    EfaType item = items.get(j);
-                    fwrite(item.category + "_" + item.type + "=" + item.value + "\n");
-                }
-            }
-        } catch (IOException e) {
-            LogString.logError_fileWritingFailed(dat, International.getString("Datei"));
-            Dialog.error(LogString.logstring_fileWritingFailed(dat, International.getString("Datei")));
-            return false;
-        }
-        return true;
     }
 
     public void setCustSettings(CustSettings custSettings) {
@@ -539,23 +436,6 @@ public class EfaTypes extends DatenListe {
         } else {
             this.custSettings = new CustSettings();
         }
-    }
-
-    public boolean createNewIfDoesntExist(CustSettings custSettings) {
-        if ((new File(dat)).exists()) {
-            return true;
-        }
-
-        // make sure that this.custSettings != null when creating from scratch!
-        setCustSettings(custSettings);
-
-        // Datei existiert noch nicht: Neu erstellen mit Default-Werten
-        reset();
-        if (!setToLanguage(null)) {
-            return false;
-        }
-
-        return writeFile(false);
     }
 
     private int setToLanguage(String cat, String typ, String itxt, String otxt, ResourceBundle bundle, boolean createNewIfNotExists) {
@@ -656,15 +536,15 @@ public class EfaTypes extends DatenListe {
         setToLanguage(CATEGORY_GENDER, TYPE_GENDER_FEMALE, International.getString("weiblich"),"weiblich",bundle,createNew);
 
         setToLanguage(CATEGORY_SESSION, TYPE_SESSION_NORMAL, International.getString("normale Fahrt"),"normale Fahrt",bundle,createNew);
+        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_TOUR, International.getString("Wanderfahrt"),"Wanderfahrt",bundle,createNew);
         setToLanguage(CATEGORY_SESSION, TYPE_SESSION_TRAINING, International.getString("Training"),"Training",bundle,createNew);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_REGATTA, International.getString("Regatta"),"Regatta",bundle,createNew);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_JUMREGATTA, International.getString("JuM-Regatta"),"JuM-Regatta",bundle,createNew);
         setToLanguage(CATEGORY_SESSION, TYPE_SESSION_TRAININGCAMP, International.getString("Trainingslager"),"Trainingslager",bundle,createNew);
         setToLanguage(CATEGORY_SESSION, TYPE_SESSION_INSTRUCTION, International.getString("Ausbildung"),"Ausbildung",bundle,createNew);
+        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_REGATTA, International.getString("Regatta"),"Regatta",bundle,createNew);
+        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_JUMREGATTA, International.getString("JuM-Regatta"),"JuM-Regatta",bundle,createNew);
         setToLanguage(CATEGORY_SESSION, TYPE_SESSION_LATEENTRY, International.getString("Kilometernachtrag"),"Kilometernachtrag",bundle,createNew);
         setToLanguage(CATEGORY_SESSION, TYPE_SESSION_MOTORBOAT, International.getString("Motorboot"),"Motorboot",bundle,createNew);
         setToLanguage(CATEGORY_SESSION, TYPE_SESSION_ERG, International.getString("Ergo"),"Ergo",bundle,createNew);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_MULTIDAY, International.getString("Mehrtagesfahrt"),"Mehrtagesfahrt",bundle,createNew);
 
         setToLanguage(CATEGORY_STATUS, TYPE_STATUS_GUEST, International.getString("Gast"),"Gast",bundle,createNew);
         setToLanguage(CATEGORY_STATUS, TYPE_STATUS_OTHER, International.getString("andere"),"andere",bundle,createNew);
@@ -676,13 +556,13 @@ public class EfaTypes extends DatenListe {
     }
 
     private static String[] makeTypeArray(int type, String cat) {
-        String[] list = new String[Daten.efaTypes.size(cat)];
-        for(int i=0; i<Daten.efaTypes.size(cat); i++) {
-            list[i] = (type == ARRAY_STRINGLIST_VALUES ?
-                Daten.efaTypes.getType(cat, i) :
-                Daten.efaTypes.getValue(cat, i));
+        if (type == ARRAY_STRINGLIST_VALUES) {
+            return Daten.efaTypes.getTypesArray(cat);
         }
-        return list;
+        if (type == ARRAY_STRINGLIST_DISPLAY) {
+            return Daten.efaTypes.getValueArray(cat);
+        }
+        return null;
     }
 
     public static String[] makeSessionTypeArray(int type) {
@@ -742,6 +622,16 @@ public class EfaTypes extends DatenListe {
                 getValueWeekday(day));
         }
         return list;
+    }
+
+    public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
+        if (add || update) {
+            assertFieldNotEmpty(record, EfaTypeRecord.CATEGORY);
+            assertFieldNotEmpty(record, EfaTypeRecord.TYPE);
+            assertFieldNotEmpty(record, EfaTypeRecord.VALUE);
+            assertUnique(record, new String[] { EfaTypeRecord.CATEGORY, EfaTypeRecord.TYPE } );
+            assertUnique(record, new String[] { EfaTypeRecord.CATEGORY, EfaTypeRecord.VALUE } );
+        }
     }
 
 }

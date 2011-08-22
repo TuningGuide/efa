@@ -262,7 +262,7 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
   }
 
   void updateButton_actionPerformed(ActionEvent e) {
-    OnlineUpdateFrame.runOnlineUpdate(this,Daten.ONLINEUPDATE_INFO_DRV);
+    // @todo (P3) OnlineUpdateFrame.runOnlineUpdate(this,Daten.ONLINEUPDATE_INFO_DRV);
   }
 
   void datensicherungButton_actionPerformed(ActionEvent e) {

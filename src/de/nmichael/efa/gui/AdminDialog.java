@@ -10,10 +10,13 @@
 
 package de.nmichael.efa.gui;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.gui.util.*;
+import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -21,16 +24,17 @@ import java.util.*;
 
 public class AdminDialog extends BaseDialog implements IItemListener {
 
+    private EfaBoathouseFrame efaBoathouseFrame;
     private AdminRecord admin;
+    private Logbook logbook;
+    private JLabel projectName;
+    private JLabel logbookName;
 
-    public AdminDialog(Frame parent, AdminRecord admin) {
-        super(parent, International.getStringWithMnemonic("Admin-Modus"), International.getStringWithMnemonic("Logout"));
+    public AdminDialog(EfaBoathouseFrame parent, AdminRecord admin, Logbook logbook) {
+        super(parent, International.getStringWithMnemonic("Admin-Modus") + " [" + admin.getName() + "]", International.getStringWithMnemonic("Logout"));
+        this.efaBoathouseFrame = parent;
         this.admin = admin;
-    }
-
-    public AdminDialog(JDialog parent, AdminRecord admin) {
-        super(parent, International.getStringWithMnemonic("Admin-Modus"), International.getStringWithMnemonic("Logout"));
-        this.admin = admin;
+        this.logbook = logbook;
     }
 
     protected void iniDialog() throws Exception {
@@ -52,7 +56,7 @@ public class AdminDialog extends BaseDialog implements IItemListener {
         menuInfo.setLayout(new GridBagLayout());
         JPanel panel = null;
 
-        Vector<EfaMenuButton> menuButtons = EfaMenuButton.getAllMenuButtons(admin);
+        Vector<EfaMenuButton> menuButtons = EfaMenuButton.getAllMenuButtons(admin, true);
         String lastMenuName = null;
         int y = 0;
         int space = 0;
@@ -106,20 +110,20 @@ public class AdminDialog extends BaseDialog implements IItemListener {
                 space = 0;
             }
         }
-        centerPanel.add(menuAdministration,
-                new GridBagConstraints(0, 0, 1, 3, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(10, 10, 10, 10), 0, 0));
         centerPanel.add(menuFile,
-                new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                 new Insets(10, 10, 10, 10), 0, 0));
         centerPanel.add(menuOutput,
-                new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+                new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                 new Insets(10, 10, 10, 10), 0, 0));
         centerPanel.add(menuInfo,
-                new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
+                new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(10, 10, 10, 10), 0, 0));
+        centerPanel.add(menuAdministration,
+                new GridBagConstraints(1, 0, 1, 3, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                 new Insets(10, 10, 10, 10), 0, 0));
         mainPanel.add(centerPanel, BorderLayout.CENTER);
@@ -129,14 +133,26 @@ public class AdminDialog extends BaseDialog implements IItemListener {
         JPanel northPanel = new JPanel();
         northPanel.setLayout(new GridBagLayout());
 
-        JLabel adminName = new JLabel();
-        adminName.setText(International.getString("Admin") + ": " + admin.getName());
-        northPanel.add(adminName,
+        projectName = new JLabel();
+        northPanel.add(projectName,
                 new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(10, 10, 10, 10), 0, 0));
+                new Insets(10, 10, 0, 10), 0, 0));
+        logbookName = new JLabel();
+        northPanel.add(logbookName,
+                new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(0, 10, 10, 10), 0, 0));
 
+        updateInfos();
         mainPanel.add(northPanel, BorderLayout.NORTH);
+    }
+
+    private void updateInfos() {
+        projectName.setText(International.getString("Projekt") + ": " +
+                (Daten.project != null ? Daten.project.getProjectName() : "- " + International.getString("kein Projekt geöffnet") + " -"));
+        logbookName.setText(International.getString("Fahrtenbuch") + ": " +
+                (logbook != null ? logbook.getName() : "- " + International.getString("kein Fahrtenbuch geöffnet") + " -"));
     }
 
     public void keyAction(ActionEvent evt) {
@@ -145,8 +161,37 @@ public class AdminDialog extends BaseDialog implements IItemListener {
 
     public void itemListenerAction(IItemType itemType, AWTEvent event) {
         if (event != null && event instanceof ActionEvent) {
-            EfaMenuButton.menuAction(this, itemType.getName(), admin, null);
+            String action = itemType.getName();
+
+            if (action.equals(EfaMenuButton.BUTTON_EXIT)) {
+                if (admin.isAllowedExitEfa() &&
+                    Dialog.yesNoDialog(International.getString("Beenden"),
+                                       International.getString("Möchtest Du efa wirklich beenden?")) == Dialog.YES) {
+                    cancel();
+                    efaBoathouseFrame.cancel(null, EfaBoathouseFrame.EFA_EXIT_REASON_USER, admin, false);
+                }
+                return;
+            }
+
+            // now check permissions and perform the menu action
+            boolean permission = EfaMenuButton.menuAction(this, action, admin, logbook);
+
+            // Projects and Logbooks are *not* handled within EfaMenuButton
+            if (action.equals(EfaMenuButton.BUTTON_PROJECTS) && permission) {
+                efaBoathouseFrame.openProject(admin);
+                updateInfos();
+            }
+            if ((action.equals(EfaMenuButton.BUTTON_PROJECTS) || action.equals(EfaMenuButton.BUTTON_LOGBOOKS)) && permission) {
+                if (Daten.project == null) {
+                    Dialog.error(International.getString("Kein Projekt geöffnet."));
+                    return;
+                }
+                logbook = efaBoathouseFrame.openLogbook(admin);
+                updateInfos();
+            }
+
         }
+        
     }
 
 }

@@ -46,6 +46,10 @@ public class ItemTypeInteger extends ItemTypeLabelTextfield {
         this.setNotNull(!allowUnset);
     }
 
+    public IItemType copyOf() {
+        return new ItemTypeInteger(name, value, min, max, !isNotNullSet(), type, category, description);
+    }
+
     public void parseValue(String value) {
         if (value != null) {
             value = value.trim();

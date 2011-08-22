@@ -45,6 +45,7 @@ public class ImportTask extends ProgressTask {
         logInfo(International.getString("Protokoll") + ": " + logfile + "\n");
         logInfo(International.getString("Daten werden importiert ...") + "\n");
         Daten.project.openAllData();
+        Daten.project.setPreModifyRecordCallbackEnabled(false);
         String[] keys = importData.keySet().toArray(new String[0]);
         Arrays.sort(keys);
         int totalWarnings = 0;
@@ -123,6 +124,7 @@ public class ImportTask extends ProgressTask {
         } catch(Exception e) {
             Logger.logdebug(e);
         }
+        Daten.project.setPreModifyRecordCallbackEnabled(true);
         String msg = International.getMessage("{count} Dateien wurden importiert.", successCnt);
         if (errorCnt > 0) {
             msg += "\n" + International.getMessage("Der Import von {count} Dateien wurde wegen Fehlern abgebrochen.", errorCnt);

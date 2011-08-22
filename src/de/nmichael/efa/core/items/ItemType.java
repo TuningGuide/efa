@@ -10,13 +10,11 @@
 
 package de.nmichael.efa.core.items;
 
-import java.util.Vector;
-import java.util.Hashtable;
+import de.nmichael.efa.data.storage.DataKey;
+import de.nmichael.efa.util.International;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import de.nmichael.efa.util.TMJ;
-import de.nmichael.efa.util.Logger;
 
 // @i18n complete
 
@@ -31,11 +29,14 @@ public abstract class ItemType implements IItemType {
     protected JComponent field;
     protected IItemListener listener;
     protected String lastValue;
+    protected String lastInvalidErrorText = "";
+    protected DataKey dataKey; // no purpose other than storing it inside an ItemType, if needed by external class
 
     protected Color color = null;
     protected Color savedFgColor = null;
     protected Color backgroundColor = null;
     protected Color savedBkgColor = null;
+    protected Color backgroundColorWhenFocused = null;
     protected int padXbefore = 0;
     protected int padXafter = 0;
     protected int padYbefore = 0;
@@ -47,8 +48,10 @@ public abstract class ItemType implements IItemType {
     protected int fieldGridHeight = 1;
     protected int fieldGridAnchor = GridBagConstraints.WEST;
     protected int fieldGridFill = GridBagConstraints.NONE;
+    protected int hAlignment = -1;
     protected boolean isVisible = true;
     protected boolean isEnabled = true;
+    protected boolean isEditable = true;
 
     public String getName() {
         return name;
@@ -104,8 +107,8 @@ public abstract class ItemType implements IItemType {
         }
     }
 
-    public void saveBackgroundColor() {
-        if (field != null) {
+    public void saveBackgroundColor(boolean force) {
+        if (field != null && (savedBkgColor == null || force)) {
             savedBkgColor = field.getBackground();
         }
     }
@@ -114,6 +117,10 @@ public abstract class ItemType implements IItemType {
         if (field != null && savedBkgColor != null) {
             field.setBackground(savedBkgColor);
         }
+    }
+
+    public void setBackgroundColorWhenFocused(Color color) {
+        backgroundColorWhenFocused = color;
     }
 
     public void requestFocus() {
@@ -135,16 +142,34 @@ public abstract class ItemType implements IItemType {
     }
 
     public void setFieldGrid(int gridWidth, int gridAnchor, int gridFill) {
-        fieldGridWidth = gridWidth;
-        fieldGridAnchor = gridAnchor;
-        fieldGridFill = gridFill;
+        if (gridWidth >= 0) {
+            fieldGridWidth = gridWidth;
+        }
+        if (gridAnchor >= 0) {
+            fieldGridAnchor = gridAnchor;
+        }
+        if (gridFill >= 0) {
+            fieldGridFill = gridFill;
+        }
     }
 
     public void setFieldGrid(int gridWidth, int gridHeight, int gridAnchor, int gridFill) {
-        fieldGridWidth = gridWidth;
-        fieldGridHeight = gridHeight;
-        fieldGridAnchor = gridAnchor;
-        fieldGridFill = gridFill;
+        if (gridWidth >= 0) {
+            fieldGridWidth = gridWidth;
+        }
+        if (gridHeight >= 0) {
+            fieldGridHeight = gridHeight;
+        }
+        if (gridAnchor >= 0) {
+            fieldGridAnchor = gridAnchor;
+        }
+        if (gridFill >= 0) {
+            fieldGridFill = gridFill;
+        }
+    }
+
+    public void setHorizontalAlignment(int hAlignment) {
+        this.hAlignment = hAlignment;
     }
 
     protected abstract void iniDisplay();
@@ -171,9 +196,16 @@ public abstract class ItemType implements IItemType {
     }
 
     protected void field_focusGained(FocusEvent e) {
+        if (backgroundColorWhenFocused != null) {
+            saveBackgroundColor(false);
+            setBackgroundColor(backgroundColorWhenFocused);
+        }
         actionEvent(e);
     }
     protected void field_focusLost(FocusEvent e) {
+        if (backgroundColorWhenFocused != null) {
+            restoreBackgroundColor();
+        }
         actionEvent(e);
     }
 
@@ -230,8 +262,29 @@ public abstract class ItemType implements IItemType {
         return isEnabled;
     }
 
+    public void setEditable(boolean editable) {
+        isEditable = editable;
+    }
+
+    public boolean isEditable() {
+        return isEditable;
+    }
+
+    // methods which allow to store a DataKey inside an IItemType (only for special purposes)
+    public void setDataKey(DataKey k) {
+        this.dataKey = k;
+    }
+    public DataKey getDataKey() {
+        return this.dataKey;
+    }
+
     public JComponent getComponent() {
         return field;
+    }
+
+    public String getInvalidErrorText() {
+        return International.getMessage("Ungültige Eingabe im Feld '{field}': {error}",
+                        getDescription(), lastInvalidErrorText);
     }
 
 }

@@ -47,6 +47,10 @@ public class ItemTypeHtmlList extends ItemType implements ActionListener {
         fieldGridFill = GridBagConstraints.NONE;
     }
 
+    public IItemType copyOf() {
+        return new ItemTypeHtmlList(name, keys.clone(), (Hashtable<String,String>)items.clone(), value, type, category, description);
+    }
+
     public void showValue() {
         if (list != null) {
             if (keys != null && items != null) {
@@ -145,7 +149,7 @@ public class ItemTypeHtmlList extends ItemType implements ActionListener {
         if (list != null && keys != null && list.getSelectedIndex() >= 0) {
             return keys[list.getSelectedIndex()];
         }
-        return null;
+        return toString(); // otherwise a hidden field in expert mode might return null
     }
 
     public boolean isValidInput() {

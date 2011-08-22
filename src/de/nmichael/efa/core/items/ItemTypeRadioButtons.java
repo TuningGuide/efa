@@ -38,6 +38,10 @@ public class ItemTypeRadioButtons extends ItemTypeLabelValue {
         this.description = description;
     }
 
+    public IItemType copyOf() {
+        return new ItemTypeRadioButtons(name, value, valueList.clone(), displayList.clone(), type, category, description);
+    }
+
     protected JComponent initializeField() {
         JPanel groupPanel = new JPanel();
         groupPanel.setLayout(new GridBagLayout());
@@ -70,7 +74,7 @@ public class ItemTypeRadioButtons extends ItemTypeLabelValue {
                 }
             }
         }
-        return null;
+        return toString(); // otherwise a hidden field in expert mode might return null
     }
 
     public void showValue() {

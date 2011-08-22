@@ -32,13 +32,13 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
     protected boolean newRecord;
 
     public UnversionizedDataEditDialog(Frame parent, String title, DataRecord dataRecord, boolean newRecord) {
-        super(parent, title, dataRecord.getGuiItems());
+        super(parent, title, (dataRecord != null ? dataRecord.getGuiItems() : null));
         this.dataRecord = dataRecord;
         this.newRecord = newRecord;
     }
 
     public UnversionizedDataEditDialog(JDialog parent, String title, DataRecord dataRecord, boolean newRecord) {
-        super(parent, title, dataRecord.getGuiItems());
+        super(parent, title, (dataRecord != null ? dataRecord.getGuiItems() : null));
         this.dataRecord = dataRecord;
         this.newRecord = newRecord;
     }
@@ -46,7 +46,7 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
     boolean saveRecord() throws InvalidValueException {
         for (IItemType item : getItems()) {
             if (!item.isValidInput() && item.isVisible()) {
-                throw new InvalidValueException(item, International.getMessage("Ungültige oder fehlende Eingabe im Feld '{field}'.", item.getDescription()));
+                throw new InvalidValueException(item, item.getInvalidErrorText());
             }
         }
         try {

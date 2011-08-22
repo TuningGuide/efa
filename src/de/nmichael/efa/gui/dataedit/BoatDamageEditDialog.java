@@ -38,15 +38,17 @@ public class BoatDamageEditDialog extends UnversionizedDataEditDialog {
         _keyAction(evt);
     }
 
-    public static void newBoatDamage(JFrame parent, BoatRecord boat) {
+    public static void newBoatDamage(Window parent, BoatRecord boat) {
         BoatDamages boatDamages = Daten.project.getBoatDamages(false);
         AutoIncrement autoIncrement = Daten.project.getAutoIncrement(false);
-        int val = autoIncrement.nextAutoIncrementValue(boatDamages.data().getStorageObjectType());
+        int val = autoIncrement.nextAutoIncrementIntValue(boatDamages.data().getStorageObjectType());
         BoatDamageRecord r = boatDamages.createBoatDamageRecord(boat.getId(), val);
         r.setReportDate(DataTypeDate.today());
         r.setReportTime(DataTypeTime.now());
         r.setShowOnlyAddDamageFields(true);
-        BoatDamageEditDialog dlg = new BoatDamageEditDialog(parent, r, true);
+        BoatDamageEditDialog dlg = (parent instanceof JDialog ? 
+            new BoatDamageEditDialog((JDialog)parent, r, true) :
+            new BoatDamageEditDialog((JFrame)parent, r, true));
         dlg.showDialog();
         if (dlg.getDialogResult()) {
             /* @todo (P3) send boat damage message to admin for

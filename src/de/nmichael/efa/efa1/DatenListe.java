@@ -18,9 +18,6 @@ import java.io.*;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.StringTokenizer;
-import de.nmichael.efa.direkt.Admin;
-import de.nmichael.efa.direkt.AdminLoginFrame;
-import de.nmichael.efa.direkt.EfaDirektFrame;
 
 // @i18n complete
 
@@ -46,6 +43,7 @@ public class DatenListe {
   protected int backupFailures = 0; // Anzahl der in Folge fehlgeschlagenen Backups
   private int scn;            // Change Number: Wird am Konstruktion bei jeder verändernden Operation hochgezählt
   private boolean DONTEVERWRITE = false;
+  private boolean fileHasBeenConverted = false; // efa2
 
   private   String checksum;  // String, der als Checksumme in der Datei gefunden wurde
   private static final int HASHLENGTH = 11+40; // ##CHECKSUM=<40 Characters Hash>
@@ -226,12 +224,6 @@ public class DatenListe {
                               International.getString("Um nicht mit unbefugt manipulierten Daten weiterzuarbeiten, "+
                                         "stellt efa hiermit den Dienst ein, bis es vom Super-Admin "+
                                         "wieder freigeschaltet wird."));
-               Admin admin = AdminLoginFrame.login(Dialog.frameCurrent(),International.getString("Datei-Prüfsummenfehler") + ": " +
-                       International.getString("Freischalten von efa"),Admin.SUPERADMIN);
-               if (admin == null) {
-                   Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_EXITONERROR, International.getString("Programmende, da Datei-Prüfsummenfehler vorliegt und Admin-Login nicht erfolgreich war."));
-                   Daten.haltProgram(Daten.HALT_FILEERROR);
-               }
                String oldChecksum = checksum;
                if (writeFile(false,true)) {
                  Dialog.meldung(International.getString("Hinweis"),
@@ -449,9 +441,7 @@ public class DatenListe {
   }
 
   public void infSuccessfullyConverted(String file, String format) {
-      Logger.log(Logger.INFO,
-              Logger.MSG_CSVFILE_FILECONVERTED,
-              International.getMessage("{file} wurde in das neue Format {format} konvertiert.", file, format));
+      fileHasBeenConverted = true; // efa2
   }
 
   public void errWritingFile(String file) {
@@ -566,13 +556,6 @@ public class DatenListe {
           Logger.log(Logger.WARNING,Logger.MSG_CSVFILE_FILEISBACKUP, msg);
           Dialog.error(msg +
                   International.getString("Um die Datei wieder zu benutzen, ist die Zustimmung des Administrators notwendig."));
-          Admin admin = AdminLoginFrame.login(Dialog.frameCurrent(),
-                  International.getMessage("Backupdatei {file} benutzen?",dat),
-                  Admin.SUPERADMIN);
-          if (admin == null) {
-              Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_EXITONERROR, International.getMessage("Programmende, da Datenliste {file} eine Sicherungskopie (Backup) ist und die Verwendung eines Backups durch den Administrator genehmigt werden muß.",dat));
-              Daten.haltProgram(Daten.HALT_FILEERROR);
-          }
         }
         resetf();
       } catch(IOException e) {
@@ -582,11 +565,6 @@ public class DatenListe {
       switch (Dialog.DateiErstellen(dat)) {
         case Dialog.YES: {
           if (Daten.actionOnDatenlisteNotFound == Daten.DATENLISTE_FRAGE_REQUIRE_ADMIN_EXIT_ON_NEIN) {
-            Admin admin = AdminLoginFrame.login(Dialog.frameCurrent(),International.getString("Datenliste neu erstellen"),Admin.SUPERADMIN);
-            if (admin == null) {
-                Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_EXITONERROR, International.getMessage("Programmende, da Datenliste {file} nicht gefunden und Admin-Login nicht erfolgreich war.",dat));
-                Daten.haltProgram(Daten.HALT_FILEERROR);
-            }
             Logger.log(Logger.INFO,Logger.MSG_CSVFILE_FILENEWCREATED,
                     International.getMessage("Datenliste {file} neu erstellt.",dat));
           }
@@ -779,8 +757,8 @@ public class DatenListe {
 
   // Datei öffnen und lesen
   public synchronized boolean readFile() {
-    if (openFile() && readEinstellungen() && _readFile() && closeFile()) return true;
-    return false;
+    if (openFile() && !fileHasBeenConverted && readEinstellungen() && _readFile() && closeFile()) return true;
+    return fileHasBeenConverted; // efa2
   }
 
 

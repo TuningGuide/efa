@@ -10,6 +10,8 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.items.*;
@@ -22,11 +24,10 @@ import java.util.*;
 public class BoatStatusRecord extends DataRecord {
 
     // Status Keys (identical to old efa 1.x BootStatus (if changed, make sure to adapt import!)
-    public static final String STATUS_HIDE  = "HIDE";
-    public static final String STATUS_AVAILABLE = "AVAILABLE";
-    public static final String STATUS_ONTHEWATER = "ONTHEWATER";
-    public static final String STATUS_NOTAVAILABLE = "NOTAVAILABLE";
-    public static final String STATUS_CURRENTLYHIDDEN = "CURRENTLYHIDDEN";
+    public static final String STATUS_HIDE            = "HIDE";             // BaseStatus                CurrentStatus
+    public static final String STATUS_AVAILABLE       = "AVAILABLE";        // BaseStatus   StatusList   CurrentStatus
+    public static final String STATUS_NOTAVAILABLE    = "NOTAVAILABLE";     // BaseStatus   StatusList   CurrentStatus
+    public static final String STATUS_ONTHEWATER      = "ONTHEWATER";       //              StatusList   CurrentStatus
 
     public static final int ARRAY_STRINGLIST_VALUES  = 1;
     public static final int ARRAY_STRINGLIST_DISPLAY = 2;
@@ -35,10 +36,14 @@ public class BoatStatusRecord extends DataRecord {
     // Field Names
     // =========================================================================
 
-    public static final String BOATID              = "BoatId";
-    public static final String STATUS              = "Status";
-    public static final String LOGBOOK             = "Logbook"; // the name of the logbook EntryNo is pointing to
-    public static final String ENTRYNO             = "EntryNo";
+    public static final String BOATID              = "BoatId";        // most point to an exisiting boat, unless UNKNOWNBOAT=true
+    public static final String BOATTEXT            = "BoatText";      // Boat Name copied from BoatRecord or set explicitly for unknown boats
+    public static final String UNKNOWNBOAT         = "UnknownBoat";   // must be set to "true" if this boat does not appear in the boat list
+    public static final String BASESTATUS          = "BaseStatus";    // the base status that this boat falls back to if it's not on the water
+    public static final String CURRENTSTATUS       = "CurrentStatus"; // current status - may be on the water
+    public static final String SHOWINLIST          = "ShowInList";    // the status list this boat appears in
+    public static final String LOGBOOK             = "Logbook";       // the name of the logbook EntryNo is pointing to
+    public static final String ENTRYNO             = "EntryNo";       // the EntryNo if this boat in ONTHEWATER
     public static final String COMMENT             = "Comment";
 
     protected static String CAT_STATUS       = "%06%" + International.getString("Bootsstatus");
@@ -48,13 +53,18 @@ public class BoatStatusRecord extends DataRecord {
         Vector<Integer> t = new Vector<Integer>();
 
         f.add(BOATID);                   t.add(IDataAccess.DATA_UUID);
-        f.add(STATUS);                   t.add(IDataAccess.DATA_STRING);
+        f.add(BOATTEXT);                 t.add(IDataAccess.DATA_STRING);
+        f.add(UNKNOWNBOAT);              t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(BASESTATUS);               t.add(IDataAccess.DATA_STRING);
+        f.add(CURRENTSTATUS);            t.add(IDataAccess.DATA_STRING);
+        f.add(SHOWINLIST);               t.add(IDataAccess.DATA_STRING);
         f.add(LOGBOOK);                  t.add(IDataAccess.DATA_STRING);
         f.add(ENTRYNO);                  t.add(IDataAccess.DATA_INTSTRING);
         f.add(COMMENT);                  t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(BoatStatus.DATATYPE, f, t, false);
         metaData.setKey(new String[] { BOATID });
-        metaData.addIndex(new String[] { STATUS });
+        metaData.addIndex(new String[] { CURRENTSTATUS });
+        metaData.addIndex(new String[] { SHOWINLIST });
     }
 
     public BoatStatusRecord(BoatStatus boatStatus, MetaData metaData) {
@@ -71,6 +81,18 @@ public class BoatStatusRecord extends DataRecord {
 
     public static DataKey getKey(UUID id) {
         return new DataKey<UUID,String,String>(id,null,null);
+    }
+
+    public boolean getDeleted() {
+        return getPersistence().getProject().getBoats(false).isBoatDeleted(getBoatId());
+    }
+
+    public boolean getInvisible() {
+        return getPersistence().getProject().getBoats(false).isBoatInvisible(getBoatId());
+    }
+
+    public boolean getDeletedOrInvisible() {
+        return getPersistence().getProject().getBoats(false).isBoatDeletedOrInvisible(getBoatId());
     }
 
     public void setBoatId(UUID id) {
@@ -91,14 +113,69 @@ public class BoatStatusRecord extends DataRecord {
         return null;
     }
 
-    public void setStatus(String status) {
-        setString(STATUS, status);
+    public BoatRecord getBoatRecord(long validAt) {
+        Boats b = getPersistence().getProject().getBoats(false);
+        if (b != null) {
+            return b.getBoat(getBoatId(), validAt);
+        }
+        return null;
     }
-    public String getStatus() {
-        return getString(STATUS);
+
+    public void setBoatText(String text) {
+        setString(BOATTEXT, text);
     }
-    public String getStatusDescription() {
-        return getStatusDescription(getStatus());
+    public String getBoatText() {
+        return getString(BOATTEXT);
+    }
+
+    public void setUnknownBoat(boolean unknown) {
+        setBool(UNKNOWNBOAT, unknown);
+    }
+    public boolean getUnknownBoat() {
+        return getBool(UNKNOWNBOAT);
+    }
+
+    public void setBaseStatus(String status) {
+        if (status.equals(STATUS_HIDE) ||
+            status.equals(STATUS_AVAILABLE) ||
+            status.equals(STATUS_NOTAVAILABLE)) {
+            setString(BASESTATUS, status);
+        }
+    }
+    public String getBaseStatus() {
+        return getString(BASESTATUS);
+    }
+
+    public void setCurrentStatus(String status) {
+        if (status.equals(STATUS_HIDE) ||
+            status.equals(STATUS_AVAILABLE) ||
+            status.equals(STATUS_NOTAVAILABLE) ||
+            status.equals(STATUS_ONTHEWATER)) {
+            setString(CURRENTSTATUS, status);
+        }
+    }
+    public String getCurrentStatus() {
+        return getString(CURRENTSTATUS);
+    }
+
+    public void setShowInList(String status) {
+        if (status == null ||
+            status.equals(STATUS_AVAILABLE) ||
+            status.equals(STATUS_NOTAVAILABLE) ||
+            status.equals(STATUS_ONTHEWATER)) {
+            setString(SHOWINLIST, status);
+        }
+    }
+
+    public String getShowInList() {
+        String s = getString(SHOWINLIST);
+        if (s == null || s.length() == 0) {
+            s = getCurrentStatus();
+        }
+        if (s == null || s.length() == 0 || s.equals(STATUS_HIDE)) {
+            return null;
+        }
+        return s;
     }
 
     public void setLogbook(String logbook) {
@@ -134,15 +211,33 @@ public class BoatStatusRecord extends DataRecord {
         return boatName;
     }
 
+    public String getQualifiedName() {
+        return getBoatName() + ": " + getStatusDescription(this.getCurrentStatus());
+    }
+
     public Vector<IItemType> getGuiItems() {
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
 
-        v.add(item = new ItemTypeStringList(BoatStatusRecord.STATUS, getStatus(),
-                makeStatusTypeArray(ARRAY_STRINGLIST_VALUES), makeStatusTypeArray(ARRAY_STRINGLIST_DISPLAY),
+        v.add(item = new ItemTypeString(BoatStatusRecord.BOATTEXT, getBoatText(),
+                IItemType.TYPE_EXPERT, CAT_STATUS,
+                International.getString("Bootsname")));
+        v.add(item = new ItemTypeBoolean(BoatStatusRecord.UNKNOWNBOAT, getUnknownBoat(),
+                IItemType.TYPE_EXPERT, CAT_STATUS,
+                International.getString("unbekanntes Boot")));
+        v.add(item = new ItemTypeStringList(BoatStatusRecord.BASESTATUS, getBaseStatus(),
+                makeStatusTypeArray(BASESTATUS, ARRAY_STRINGLIST_VALUES), makeStatusTypeArray(BASESTATUS, ARRAY_STRINGLIST_DISPLAY),
                 IItemType.TYPE_PUBLIC, CAT_STATUS,
-                International.getString("Status")));
-        if (getStatus() != null && getStatus().equals(STATUS_ONTHEWATER)) {
+                International.getString("Basis-Status")));
+        v.add(item = new ItemTypeStringList(BoatStatusRecord.CURRENTSTATUS, getCurrentStatus(),
+                makeStatusTypeArray(CURRENTSTATUS, ARRAY_STRINGLIST_VALUES), makeStatusTypeArray(CURRENTSTATUS, ARRAY_STRINGLIST_DISPLAY),
+                IItemType.TYPE_EXPERT, CAT_STATUS,
+                International.getString("aktueller Status")));
+        v.add(item = new ItemTypeStringList(BoatStatusRecord.SHOWINLIST, getShowInList(),
+                makeStatusTypeArray(SHOWINLIST, ARRAY_STRINGLIST_VALUES), makeStatusTypeArray(SHOWINLIST, ARRAY_STRINGLIST_DISPLAY),
+                IItemType.TYPE_EXPERT, CAT_STATUS,
+                International.getString("anzeigen in Liste")));
+        if (getCurrentStatus() != null && getCurrentStatus().equals(STATUS_ONTHEWATER)) {
             v.add(item = new ItemTypeLabel(BoatStatusRecord.ENTRYNO,
                     IItemType.TYPE_PUBLIC, CAT_STATUS,
                     International.getMessage("Eintrag in Lfd. Nr. {entryNo} in Fahrtenbuch {logbook}", getEntryNo().toString(), getLogbook())));
@@ -154,18 +249,20 @@ public class BoatStatusRecord extends DataRecord {
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        TableItemHeader[] header = new TableItemHeader[3];
+        TableItemHeader[] header = new TableItemHeader[4];
         header[0] = new TableItemHeader(International.getString("Boot"));
-        header[1] = new TableItemHeader(International.getString("Status"));
-        header[2] = new TableItemHeader(International.getString("Bemerkung"));
+        header[1] = new TableItemHeader(International.getString("Basis-Status"));
+        header[2] = new TableItemHeader(International.getString("aktueller Status"));
+        header[3] = new TableItemHeader(International.getString("Bemerkung"));
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
-        TableItem[] items = new TableItem[3];
+        TableItem[] items = new TableItem[4];
         items[0] = new TableItem(getBoatName());
-        items[1] = new TableItem(getStatusDescription(getStatus()));
-        items[2] = new TableItem(getComment());
+        items[1] = new TableItem(getStatusDescription(getBaseStatus()));
+        items[2] = new TableItem(getStatusDescription(getCurrentStatus()));
+        items[3] = new TableItem(getComment());
         return items;
     }
 
@@ -179,44 +276,83 @@ public class BoatStatusRecord extends DataRecord {
         if (stype.equals(STATUS_AVAILABLE)) {
             return International.getString("verfügbar");
         }
-        if (stype.equals(STATUS_ONTHEWATER)) {
-            return International.getString("unterwegs");
-        }
         if (stype.equals(STATUS_NOTAVAILABLE)) {
             return International.getString("nicht verfügbar");
         }
-        if (stype.equals(STATUS_CURRENTLYHIDDEN)) {
-            return International.getString("vorübergehend verstecken");
+        if (stype.equals(STATUS_ONTHEWATER)) {
+            return International.getString("unterwegs");
         }
         return null;
     }
 
-    public static String[] makeStatusTypeArray(int type) {
-        String[] status = new String[5];
+    public static String[] makeStatusTypeArray(String stype, int type) {
+        int cnt = -1;
+        int offset = 0;
+        if (stype.equals(BoatStatusRecord.BASESTATUS)) {
+            cnt = 3;
+        }
+        if (stype.equals(BoatStatusRecord.CURRENTSTATUS)) {
+            cnt = 4;
+        }
+        if (stype.equals(BoatStatusRecord.SHOWINLIST)) {
+            cnt = 3;
+            offset = 1;
+        }
+        if (cnt < 0) {
+            return null;
+        }
+        String[] status = new String[cnt];
         for(int i=0; i<status.length; i++) {
-            String stype = null;
-            switch(i) {
+            String sname = null;
+            switch(i+offset) {
                 case 0:
-                    stype = STATUS_HIDE;
+                    sname = STATUS_HIDE;
                     break;
                 case 1:
-                    stype = STATUS_AVAILABLE;
+                    sname = STATUS_AVAILABLE;
                     break;
                 case 2:
-                    stype = STATUS_ONTHEWATER;
+                    sname = STATUS_NOTAVAILABLE;
                     break;
                 case 3:
-                    stype = STATUS_NOTAVAILABLE;
-                    break;
-                case 4:
-                    stype = STATUS_CURRENTLYHIDDEN;
+                    sname = STATUS_ONTHEWATER;
                     break;
             }
             status[i] = (type == ARRAY_STRINGLIST_VALUES ?
-                stype :
-                getStatusDescription(stype));
+                sname :
+                getStatusDescription(sname));
         }
         return status;
+    }
+
+    public static String createStatusString(String fahrttype, String ziel, String datum, String zeit, String person) {
+        String aufFahrtart = "";
+        if (Daten.efaTypes != null && fahrttype != null) {
+            if (fahrttype.equals(EfaTypes.TYPE_SESSION_REGATTA)) {
+                aufFahrtart = " "
+                        + International.getMessage("auf {trip_type}", Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_REGATTA));
+            }
+            if (fahrttype.equals(EfaTypes.TYPE_SESSION_JUMREGATTA)) {
+                aufFahrtart = " "
+                        + International.getMessage("auf {trip_type}", Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_JUMREGATTA));
+            }
+            if (fahrttype.equals(EfaTypes.TYPE_SESSION_TRAININGCAMP)) {
+                aufFahrtart = " "
+                        + International.getMessage("auf {trip_type}", Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_TRAININGCAMP));
+            }
+            if (fahrttype.startsWith(EfaTypes.TYPE_SESSION_TOUR)) {
+                aufFahrtart = " "
+                        + International.getMessage("auf {trip_type}", Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_TOUR));
+            }
+        }
+        String nachZiel = "";
+        if (aufFahrtart.length() == 0 && ziel.length() > 0) {
+            nachZiel = " " + International.getMessage("nach {destination}", ziel);
+        }
+        return International.getString("unterwegs") + aufFahrtart + nachZiel
+                + " " + International.getMessage("seit {date}", datum)
+                + (zeit.trim().length() > 0 ? " " + International.getMessage("um {time}", zeit) : "")
+                + " " + International.getMessage("mit {crew}", person);
     }
 
 }

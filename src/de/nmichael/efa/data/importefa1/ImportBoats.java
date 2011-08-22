@@ -181,6 +181,7 @@ public class ImportBoats extends ImportBase {
                         logDetail(International.getMessage("Importiere Eintrag: {entry}", boatRecord.toString()));
                     } catch(Exception e) {
                         logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", boatRecord.toString(), e.toString()));
+                        Logger.logdebug(e);
                     }
                 } else {
                     if (changedBoatRecord) {
@@ -194,7 +195,8 @@ public class ImportBoats extends ImportBase {
                             logDetail(International.getMessage("Importiere Eintrag: {entry}", boatRecord.toString()));
                         } catch (Exception e) {
                             logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", boatRecord.toString(), e.toString()));
-                        }
+                            Logger.logdebug(e);
+}
                     } else {
                         logDetail(International.getMessage("Identischer Eintrag: {entry}", boatRecord.toString()));
                     }
@@ -206,7 +208,7 @@ public class ImportBoats extends ImportBase {
         } catch(Exception e) {
             logError(International.getMessage("Import von {list} aus {file} ist fehlgeschlagen.", getDescription(), boote.getFileName()));
             logError(e.toString());
-            e.printStackTrace();
+            Logger.logdebug(e);
             return false;
         }
         return true;

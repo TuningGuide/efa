@@ -33,6 +33,7 @@ public class ItemTypeTable extends ItemType implements ActionListener {
     protected String[] keys;
     protected Hashtable<String,TableItem[]> items; // keys -> columns for key
     protected String[] popupActions;
+    protected int selectionMode = ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 
     public ItemTypeTable(String name, TableItemHeader[] header, Hashtable<String,TableItem[]> items, String value,
             int type, String category, String description) {
@@ -43,6 +44,11 @@ public class ItemTypeTable extends ItemType implements ActionListener {
             int type, String category, String description) {
         ini(name, createTableHeader(header), items, value, type, category, description);
     }
+
+    public IItemType copyOf() {
+        return new ItemTypeTable(name, header.clone(), (Hashtable<String,TableItem[]>)items.clone(), value, type, category, description);
+    }
+
 
     private void ini(String name, TableItemHeader[] header, Hashtable<String,TableItem[]> items, String value,
             int type, String category, String description) {
@@ -101,6 +107,7 @@ public class ItemTypeTable extends ItemType implements ActionListener {
                 scrollPane.remove(table);
             }
             table = Table.createTable(null, renderer, header, data);
+            table.setSelectionMode(selectionMode);
             if (currentSortingColumn < 0) {
                 table.sortByColumn(0);
             } else {
@@ -124,8 +131,7 @@ public class ItemTypeTable extends ItemType implements ActionListener {
 
             for (int i = 0; keys != null && value != null && i < keys.length; i++) {
                 if (value.equals(keys[i])) {
-                    table.setRowSelectionInterval(i, i);
-                    table.scrollRectToVisible(table.getCellRect(i, 0, true));
+                    scrollToRow(i);
                     break;
                 }
             }
@@ -147,6 +153,11 @@ public class ItemTypeTable extends ItemType implements ActionListener {
         if (value == null && table != null && currentVisibleRect != null) {
             table.scrollRectToVisible(currentVisibleRect);
         }
+    }
+
+    public void scrollToRow(int i) {
+        table.setRowSelectionInterval(i, i);
+        table.scrollRectToVisible(table.getCellRect(i, 0, true));
     }
 
     protected void iniDisplay() {
@@ -205,7 +216,7 @@ public class ItemTypeTable extends ItemType implements ActionListener {
         if (table != null && keys != null && table.getSelectedRow() >= 0) {
             return keys[table.getSelectedRow()];
         }
-        return null;
+        return toString(); // otherwise a hidden field in expert mode might return null
     }
 
     public boolean isValidInput() {
@@ -226,6 +237,10 @@ public class ItemTypeTable extends ItemType implements ActionListener {
         super.setEnabled(enabled);
         table.setEnabled(enabled);
         scrollPane.setEnabled(enabled);
+    }
+
+    public void setSelectionMode(int selectionMode) {
+        this.selectionMode = selectionMode;
     }
 
 }

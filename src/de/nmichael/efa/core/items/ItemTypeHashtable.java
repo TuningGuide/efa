@@ -17,21 +17,19 @@ import javax.swing.*;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.direkt.Admin;
 import de.nmichael.efa.gui.BaseDialog;
+import de.nmichael.efa.gui.BaseFrame;
 
 public class ItemTypeHashtable<E> extends ItemType {
 
     public static int TYPE_STRING = 0;
-    public static int TYPE_ADMIN = 1;
-    public static int NUMBER_OF_TYPES = 2;
+    public static int NUMBER_OF_TYPES = 1;
 
     private static final String DUMMY = "%%%DUMMY%%%";
     private static final String DELIM_KEYVALUE = "-->";
     private static final String DELIM_ELEMENTS = "@@@";
     private Hashtable<String,E> hash;
     private E e;
-    private boolean fieldsEditable;
 
     private JLabel titlelabel;
     private JButton addButton;
@@ -44,13 +42,23 @@ public class ItemTypeHashtable<E> extends ItemType {
             int type, String category, String description) {
         this.name = name;
         this.e = value;
-        this.fieldsEditable = fieldsEditable;
+        setEditable(fieldsEditable);
         this.type = type;
         this.category = category;
         this.description = description;
         this.padYbefore = 20;
         this.padYafter = 20;
         iniHash();
+    }
+
+    public IItemType copyOf() {
+        ItemTypeHashtable item = new ItemTypeHashtable(name, e, isEditable, type, category, description);
+        String[] myKeys = this.getKeysArray();
+        for (int i=0; i<myKeys.length; i++) {
+            E e = get(myKeys[i]);
+            item.put(myKeys[i],e);
+        }
+        return item;
     }
 
     public void setAllowed(boolean allowedAdd, boolean allowedDelete) {
@@ -101,10 +109,6 @@ public class ItemTypeHashtable<E> extends ItemType {
             switch (i) {
                 case 0: // TYPE_STRING
                     v = val;
-                    break;
-                case 1: // TYPE_ADMIN
-                    v = Admin.parseAdmin(val);
-                    ((Admin)v).name = key; // make sure that Admin's name always equals the key!!
                     break;
             }
             if (v != null && c.isInstance(v)) {
@@ -191,7 +195,7 @@ public class ItemTypeHashtable<E> extends ItemType {
                   GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, padXbefore, (keys.length == 0 ? padYafter : 0), 0), 0, 0));
         if (allowedAdd) {
             addButton = new JButton();
-            addButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_plus.gif")));
+            addButton.setIcon(BaseFrame.getIcon("menu_plus.gif"));
             addButton.setMargin(new Insets(0, 0, 0, 0));
             Dialog.setPreferredSize(addButton, 19, 19);
             addButton.addActionListener(new java.awt.event.ActionListener() {
@@ -209,7 +213,7 @@ public class ItemTypeHashtable<E> extends ItemType {
         for (int i=0; i<keys.length; i++) {
             textfield[i] = new JTextField();
             textfield[i].setText(get(keys[i]).toString());
-            textfield[i].setEditable(fieldsEditable);
+            textfield[i].setEditable(isEditable);
             Dialog.setPreferredSize(textfield[i], 200, 19);
             JLabel label = new JLabel();
             Mnemonics.setLabel(dlg, label, keys[i] + ": ");
@@ -226,7 +230,7 @@ public class ItemTypeHashtable<E> extends ItemType {
                     GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, (i+1 == keys.length ? padYafter : 0), 0), 0, 0));
             if (allowedDelete) {
                 JButton delButton = new JButton();
-                delButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_minus.gif")));
+                delButton.setIcon(BaseFrame.getIcon("menu_minus.gif"));
                 delButton.setMargin(new Insets(0, 0, 0, 0));
                 Dialog.setPreferredSize(delButton, 19, 19);
                 delButton.addActionListener(new java.awt.event.ActionListener() {

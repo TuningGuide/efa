@@ -161,7 +161,7 @@ public class CrewRecord extends DataRecord {
     }
 
     public Vector<IItemType> getGuiItems() {
-        String CAT_BASEDATA     = "%01%" + International.getString("Reservierung");
+        String CAT_BASEDATA     = "%01%" + International.getString("Mannschaft");
 
         Persons persons = getPersistence().getProject().getPersons(false);
 

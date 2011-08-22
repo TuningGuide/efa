@@ -15,6 +15,11 @@ package de.nmichael.efa.util;
 public class LogString {
 
 
+  public static String logstring_fileOpened(String filename, String description) {
+      return International.getMessage("{filedescription} '{filename}' geöffnet",
+                                       description,filename) + ".";
+  }
+
   public static String logstring_fileNewCreated(String filename, String description) {
       return International.getMessage("{filedescription} '{filename}' wurde neu erzeugt",
                                        description,filename) + ".";
@@ -158,6 +163,11 @@ public class LogString {
 
 
 
+
+  public static void logInfo_fileOpened(String filename, String description) {
+      Logger.log(Logger.INFO, Logger.MSG_FILE_FILENEWCREATED,
+                 logstring_fileOpened(filename,description));
+  }
 
   public static void logInfo_fileNewCreated(String filename, String description) {
       Logger.log(Logger.INFO, Logger.MSG_FILE_FILENEWCREATED,

@@ -130,7 +130,7 @@ public class EfaAboutDialog extends BaseDialog {
         versionLabel.setForeground(Color.black);
         logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
         logoLabel.setHorizontalTextPosition(SwingConstants.CENTER);
-        logoLabel.setIcon(new ImageIcon(EfaAboutDialog.class.getResource(Daten.getEfaImage(2))));
+        logoLabel.setIcon(getIcon(Daten.getEfaImage(2)));
         gpl1Label.setText(International.getString("efa unterliegt den") + " ");
         gplLabel.setForeground(Color.blue);
         gplLabel.setText(International.getMessage("Lizenzbestimmungen der {license}", "GPL v2"));
@@ -239,9 +239,10 @@ public class EfaAboutDialog extends BaseDialog {
                 + "* Jonathan Stott (JSunrise Plugin)\n"
                 + "* KDE-Team (Icons)\n"
                 + "* Landesruderverband Berlin (Fahrtenwettbewerbe)\n"
+                + "* Open Icon Library (Icons)\n"
                 + "* Ralf Ludwig (efa Evangelist)\n"
                 + "* Robert Harder (Base64 Implementation)\n"
-                + "* Sun Microsystems (Java Technology)\n"
+                + "* Sun Microsystems & Oracle (Java Technology)\n"
                 + "* World Wide Web Consortium (XML Plugin)");
 
         String translations = "";

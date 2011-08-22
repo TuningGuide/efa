@@ -102,7 +102,9 @@ public class LogbookRecord extends DataRecord {
     public static final String COMMENTS         = "Comments";
     public static final String SESSIONTYPE      = "SessionType";
     public static final String SESSIONGROUPID   = "SessionGroupId";
-    public static final String SYNCSTATE        = "SyncState";
+
+    public static final String OPEN             = "Open";
+    public static final String EFBSYNCSTATE     = "EfbSyncState";
 
     // =========================================================================
     // Supplementary Constants
@@ -197,7 +199,8 @@ public class LogbookRecord extends DataRecord {
         f.add(COMMENTS);            t.add(IDataAccess.DATA_STRING);
         f.add(SESSIONTYPE);         t.add(IDataAccess.DATA_STRING);
         f.add(SESSIONGROUPID);      t.add(IDataAccess.DATA_UUID);
-        f.add(SYNCSTATE);           t.add(IDataAccess.DATA_INTEGER);
+        f.add(EFBSYNCSTATE);           t.add(IDataAccess.DATA_INTEGER);
+        f.add(OPEN);                t.add(IDataAccess.DATA_BOOLEAN);
         MetaData metaData = constructMetaData(Logbook.DATATYPE, f, t, false);
         metaData.setKey(new String[] { ENTRYID });
     }
@@ -374,10 +377,17 @@ public class LogbookRecord extends DataRecord {
     }
 
     public void setSyncState(int syncState) {
-        setInt(SYNCSTATE, syncState);
+        setInt(EFBSYNCSTATE, syncState);
     }
     public int getSyncState() {
-        return getInt(SYNCSTATE);
+        return getInt(EFBSYNCSTATE);
+    }
+
+    public void setSessionIsOpen(boolean open) {
+        setBool(OPEN, open);
+    }
+    public boolean getSessionIsOpen() {
+        return getBool(OPEN);
     }
 
     public BoatRecord getBoatRecord(long validAt) {
@@ -504,6 +514,19 @@ public class LogbookRecord extends DataRecord {
             }
         }
         return v;
+    }
+
+    public String getAllCoxAndCrewAsNameString() {
+        return getAllCoxAndCrewAsNameString(getValidAtTimestamp());
+    }
+
+    public String getAllCoxAndCrewAsNameString(long validAt) {
+        Vector<String> v = getAllCoxAndCrewAsNames(validAt);
+        StringBuffer s = new StringBuffer();
+        for (int i=0; v != null && i < v.size(); i++) {
+            s.append( (s.length() > 0 ? ", " : "") + v.get(i));
+        }
+        return s.toString();
     }
 
     public int getNumberOfCrewMembers() {

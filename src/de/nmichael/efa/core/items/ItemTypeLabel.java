@@ -27,6 +27,11 @@ public class ItemTypeLabel extends ItemType {
         this.type = type;
         this.category = category;
         this.description = description;
+        this.fieldGridWidth = 2;
+    }
+
+    public IItemType copyOf() {
+        return new ItemTypeLabel(name, type, category, description);
     }
 
     public void parseValue(String value) {
@@ -50,6 +55,10 @@ public class ItemTypeLabel extends ItemType {
                 l.setHorizontalTextPosition(SwingConstants.CENTER);
                 l.setIcon(icon);
             }
+            if (hAlignment != -1) {
+                l.setHorizontalAlignment(hAlignment);
+                l.setHorizontalTextPosition(hAlignment);
+            }
             if (color != null) {
                 l.setForeground(color);
             }
@@ -61,8 +70,8 @@ public class ItemTypeLabel extends ItemType {
         this.dlg = dlg;
         iniDisplay();
         for (int i=0; i<labels.length; i++) {
-            panel.add(labels[i], new GridBagConstraints(x, y + i, 2, 1, 0.0, 0.0,
-                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets((i == 0 ? padYbefore : 0), padXbefore, (i+1 == labels.length ? padYafter : 0), padXafter), 0, 0));
+            panel.add(labels[i], new GridBagConstraints(x, y + i, fieldGridWidth, fieldGridHeight, 0.0, 0.0,
+                    fieldGridAnchor, fieldGridFill, new Insets((i == 0 ? padYbefore : 0), padXbefore, (i+1 == labels.length ? padYafter : 0), padXafter), 0, 0));
         }
         return labels.length;
     }
@@ -101,6 +110,10 @@ public class ItemTypeLabel extends ItemType {
         for (int i=0; i<labels.length; i++) {
             labels[i].setForeground((enabled ? (new JLabel()).getForeground() : Color.gray));
         }
+    }
+
+    public boolean isEditable() {
+        return false;
     }
 
     public void setImage(ImageIcon icon) {

@@ -58,6 +58,10 @@ public class GroupRecord extends DataRecord implements IItemFactory {
         return new DataKey<UUID,Long,String>(getId(),getValidFrom(),null);
     }
 
+    public static DataKey getKey(UUID id, long validFrom) {
+        return new DataKey<UUID,Long,String>(id ,validFrom, null);
+    }
+
     public void setId(UUID id) {
         setUUID(ID, id);
     }

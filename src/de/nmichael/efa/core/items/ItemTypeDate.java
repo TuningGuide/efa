@@ -45,6 +45,10 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
         this.referenceDate = (isSet() ? new DataTypeDate(value) : DataTypeDate.today());
     }
 
+    public IItemType copyOf() {
+        return new ItemTypeDate(name, new DataTypeDate(value), type, category, description);
+    }
+
     public void showWeekday(boolean showWeekday) {
         this.showWeekday = showWeekday;
     }
@@ -88,6 +92,14 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
 
     protected void field_focusLost(FocusEvent e) {
         super.field_focusLost(e);
+        if (!isSet() && isNotNullSet()) {
+            if (referenceDate.isSet()) {
+                parseValue(referenceDate.toString());
+            } else {
+                parseValue(DataTypeDate.today().toString());
+            }
+            showValue();
+        }
         if (isSet()) {
             referenceDate.setDate(value);
         }

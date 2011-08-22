@@ -21,9 +21,9 @@ import javax.swing.border.*;
 
 public abstract class Widget implements IWidget {
 
-    public static final String PARAM_ENABLED        = "ENABLED";
-    public static final String PARAM_POSITION       = "POSITION";
-    public static final String PARAM_UPDATEINTERVAL = "UPDATEINTERVAL";
+    public static final String PARAM_ENABLED        = "Enabled";
+    public static final String PARAM_POSITION       = "Position";
+    public static final String PARAM_UPDATEINTERVAL = "UpdateInterval";
 
     String name;
     String description;
@@ -56,7 +56,7 @@ public abstract class Widget implements IWidget {
     }
 
     public String getParameterName(String internalName) {
-        return "WIDGET_" + this.name + "_" + internalName;
+        return "Widget" + this.name + internalName;
     }
 
     void addParameterInternal(IItemType p) {

@@ -88,6 +88,10 @@ public class Table extends JTable {
         }
     }
 
+    public int getCurrentRowIndex(int originalIndex) {
+        return sorter.getCurrentIndex(originalIndex);
+    }
+
     public int getSelectedRow() {
         int row = super.getSelectedRow();
         if (row >= 0) {

@@ -118,7 +118,7 @@ public class AdminLoginDialog extends BaseDialog {
         return adminRecord;
     }
 
-    public static AdminRecord login(Frame parent, String reason) {
+    public static AdminRecord login(Window parent, String reason) {
         return login(parent, reason, null);
     }
 
@@ -143,7 +143,6 @@ public class AdminLoginDialog extends BaseDialog {
         } else {
             dlg = new AdminLoginDialog((JFrame)null, grund);
         }
-        Dialog.setDlgLocation(dlg, parent);
         return login(dlg, grund, admin);
     }
 

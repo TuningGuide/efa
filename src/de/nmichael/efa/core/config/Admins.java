@@ -44,34 +44,8 @@ public class Admins extends Persistence {
         AdminRecord r = new AdminRecord(this, MetaData.getMetaData(DATATYPE));
         r.setName(name);
         r.setPassword(password);
-        boolean superAdmin = name != null && name.equals(SUPERADMIN);
-        r.setAllowedAdministerProjectLogbook(superAdmin);
-        r.setAllowedFullAccess(superAdmin);
-        r.setAllowedEditLogbook(superAdmin);
-        r.setAllowedExitEfa(superAdmin);
-        r.setAllowedEditBoats(superAdmin);
-        r.setAllowedEditBoatStatus(superAdmin);
-        r.setAllowedEditBoatReservation(superAdmin);
-        r.setAllowedEditBoatDamages(superAdmin);
-        r.setAllowedEditPersons(superAdmin);
-        r.setAllowedEditGroups(superAdmin);
-        r.setAllowedEditCrews(superAdmin);
-        r.setAllowedEditFahrtenabzeichen(superAdmin);
-        r.setAllowedEditDestinations(superAdmin);
-        r.setAllowedConfiguration(superAdmin);
-        r.setAllowedEditAdmins(superAdmin);
-        r.setAllowedChangePassword(superAdmin);
-        r.setAllowedEditStatistics(superAdmin);
-        r.setAllowedSyncKanuEfb(superAdmin);
-        r.setAllowedShowLogfile(superAdmin);
-        r.setAllowedLockEfa(superAdmin);
-        r.setAllowedExecCommand(superAdmin);
-        r.setAllowedMsgReadAdmin(superAdmin);
-        r.setAllowedMsgReadBoatMaintenance(superAdmin);
-        r.setAllowedMsgMarkReadAdmin(superAdmin);
-        r.setAllowedMsgMarkReadBoatMaintenance(superAdmin);
-        r.setAllowedMsgAutoMarkReadAdmin(superAdmin);
-        r.setAllowedMsgAutoMarkReadBoatMaintenance(superAdmin);
+        r.makeSurePermissionsAreCorrect();
+        r.setAllowedChangePassword(true);
         return r;
     }
 
@@ -95,6 +69,30 @@ public class Admins extends Persistence {
             return admin;
         }
         return null;
+    }
+
+    public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
+        AdminRecord ar = (AdminRecord) record;
+        if (add || update) {
+            if (ar.getName() == null || ar.getName().trim().length() == 0) {
+                throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                        International.getMessage("Das Feld '{field}' darf nicht leer sein.", AdminRecord.NAME),
+                        Thread.currentThread().getStackTrace());
+            }
+            if (ar.getPassword() == null || ar.getPassword().trim().length() == 0) {
+                throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                        International.getMessage("Das Feld '{field}' darf nicht leer sein.", AdminRecord.PASSWORD),
+                        Thread.currentThread().getStackTrace());
+            }
+            ar.makeSurePermissionsAreCorrect();
+        }
+        if (delete) {
+            if (ar.getName() != null && ar.getName().equals(SUPERADMIN)) {
+                throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                        International.getString("Dieser Datensatz kann nicht gelöscht werden."),
+                        Thread.currentThread().getStackTrace());
+            }
+        }
     }
 
 }

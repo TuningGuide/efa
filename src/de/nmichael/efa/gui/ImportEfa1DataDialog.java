@@ -251,6 +251,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                             name,
                             IItemType.TYPE_PUBLIC, "3",
                             International.getString("Name des Fahrtenbuchs"));
+                    ((ItemTypeString)item).setNotNull(true);
                     item.setPadding(25, 0, 0, 0);
                     items.add(item);
                     item = new ItemTypeString(LOGBOOKDESCRIPTION + fname,
@@ -264,12 +265,14 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                             dateFrom,
                             IItemType.TYPE_PUBLIC, "3",
                             International.getString("Fahrtenbuch gültig für Fahrten ab"));
+                    ItemTypeDate logbookFrom = (ItemTypeDate)item;
                     item.setPadding(25, 0, 0, 0);
                     items.add(item);
                     item = new ItemTypeDate(LOGBOOKRANGETO + fname,
                             dateTo,
                             IItemType.TYPE_PUBLIC, "3",
                             International.getString("Fahrtenbuch gültig für Fahrten bis"));
+                    ((ItemTypeDate)item).setMustBeAfter(logbookFrom, false);
                     items.add(item);
                     item.setPadding(25, 0, 0, 0);
                 }
@@ -280,7 +283,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
 
     private void checkImportData(HashMap<String,ImportMetadata> importData, String dir, DatenListe datenListe, int type, String description) {
         datenListe.dontEverWrite();
-        Dialog.SUPPRESS_DIALOGS = true;
+        Dialog.SUPPRESS_DIALOGS = false;
         ImportMetadata meta = new ImportMetadata(type, datenListe, description);
         String fname = datenListe.getFileName();
         if (EfaUtil.canOpenFile(dir+"daten"+Daten.fileSep+fname)) {
@@ -321,7 +324,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
         }
         Fahrtenbuch fb = new Fahrtenbuch(fname);
         fb.dontEverWrite();
-        Dialog.SUPPRESS_DIALOGS = true;
+        Dialog.SUPPRESS_DIALOGS = false;
         if (EfaUtil.canOpenFile(fb.getFileName()) && fb.readFile()) {
             ImportMetadata meta = new ImportMetadata(ImportMetadata.TYPE_FAHRTENBUCH, fb, International.getString("Fahrtenbuch"));
             meta.numRecords = 0;
@@ -404,8 +407,9 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
             }
         }
 
-        if (step == 2 || step == 3) { // get data from step 1 and 2
+        if (step == 2 || step == 3) { // get data from step 2 and 3
             String[] datakeys = importData.keySet().toArray(new String[0]);
+            Hashtable<String,String> uniqueLogbooks = new Hashtable<String,String>();
             for (String fname : datakeys) {
                 ImportMetadata meta = importData.get(fname);
                 // get logbool metadata
@@ -414,6 +418,13 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                     item = getItemByName(LOGBOOKNAME + fname);
                     if (item != null && item instanceof ItemTypeString) {
                         meta.name = ((ItemTypeString)item).getValue();
+                        if (uniqueLogbooks.get(meta.name) != null) {
+                            Dialog.error(International.getMessage("Das Feld '{field}' muß eindeutig sein.",
+                                    International.getString("Name des Fahrtenbuchs")));
+                            item.requestFocus();
+                            return false;
+                        }
+                        uniqueLogbooks.put(meta.name, "foo");
                     }
                     item = getItemByName(LOGBOOKDESCRIPTION + fname);
                     if (item != null && item instanceof ItemTypeString) {
@@ -438,12 +449,15 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
         return true;
     }
 
-    void finishButton_actionPerformed(ActionEvent e) {
-        super.finishButton_actionPerformed(e);
+    boolean finishButton_actionPerformed(ActionEvent e) {
+        if (!super.finishButton_actionPerformed(e)) {
+            return false;
+        }
         importTask = new ImportTask(importData);
         ProgressDialog progressDialog = new ProgressDialog(this, International.getString("Daten importieren"), importTask, false);
         importTask.start();
         progressDialog.showDialog();
+        return true;
     }
 
     public String getNewestLogbookName() {

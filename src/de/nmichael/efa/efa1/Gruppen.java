@@ -148,14 +148,14 @@ public class Gruppen extends DatenListe {
              return false;
           }
           kennung = KENNUNG190;
-          if (closeFile() && writeFile(true) && openFile()) {
+          if (closeFile()) {
             infSuccessfullyConverted(dat,kennung);
             s = kennung;
           } else errConvertingFile(dat,kennung);
         }
 
         // FERTIG MIT KONVERTIEREN
-        if (s == null || !s.trim().startsWith(kennung)) {
+        if (s == null || !s.trim().startsWith(KENNUNG190)) {
           errInvalidFormat(dat, EfaUtil.trimto(s, 20));
           fclose(false);
           return false;

@@ -17,12 +17,12 @@ import de.nmichael.efa.ex.EfaException;
 public interface IDataAccess {
 
     public static final int TYPE_FILE_XML = 1;
-    public static final int TYPE_DB_SQL = 2;
-    public static final int TYPE_EFA_REMOTE = 3;
+    public static final int TYPE_EFA_REMOTE = 2;
+    public static final int TYPE_DB_SQL = 3;
 
     public static final String TYPESTRING_FILE_XML = "file/xml";
-    public static final String TYPESTRING_DB_SQL = "db/sql";
     public static final String TYPESTRING_EFA_REMOTE = "efa/remote";
+    public static final String TYPESTRING_DB_SQL = "db/sql";
 
     // Data Types supported by IDataAccess
     //                      Data Type                Internal Java Type
@@ -187,6 +187,12 @@ public interface IDataAccess {
     public boolean isStorageObjectOpen();
 
     /**
+     * Checks whether the storage object is currently being opened (i.e. within openStorageObject(), which has not yet finished)
+     * @return true if the storage object is currently being opened
+     */
+    public boolean inOpeningStorageObject();
+
+    /**
      * Deletes an existing storage object.
      * @throws Exception if the deletion of the object failed.
      */
@@ -246,7 +252,6 @@ public interface IDataAccess {
      * @throws Exception
      */
     public long getSCN() throws EfaException;
-    public void setSCN(long scn) throws EfaException;
 
     /**
      * Registers a new data field.
@@ -540,5 +545,8 @@ public interface IDataAccess {
     public DataRecord getPrev(DataKeyIterator it) throws EfaException;
     public DataRecord getFirst() throws EfaException;
     public DataRecord getLast() throws EfaException;
+
+    public void setPreModifyRecordCallbackEnabled(boolean enabled);
+    public boolean isPreModifyRecordCallbackEnabled();
 
 }

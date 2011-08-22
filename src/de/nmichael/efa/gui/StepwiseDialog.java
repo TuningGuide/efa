@@ -179,16 +179,29 @@ public abstract class StepwiseDialog extends BaseDialog {
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 20, 0), 0, 0));
 
         _thisStepItems = getInputItems(step);
+        IItemType itemToBeFocused = null;
         if (_thisStepItems != null) {
             int y = 1;
             for (IItemType item : _thisStepItems) {
                 y += item.displayOnGui(this, inputPanel, y);
+                if (item.isVisible() && item.isEnabled() && item.isEditable() && itemToBeFocused == null) {
+                    itemToBeFocused = item;
+                }
             }
             inputPanel.setBorder(new javax.swing.border.LineBorder(Color.black));
             // inputPanelWrapper.add(inputPanel, BorderLayout.CENTER);
             inputScrollPane.getViewport().add(inputPanel, null);
         }
         this.validate();
+        if (itemToBeFocused != null) {
+            itemToBeFocused.requestFocus();
+        } else {
+            if (nextButton.isEnabled()) {
+                nextButton.requestFocus();
+            } else {
+                finishButton.requestFocus();
+            }
+        }
     }
 
     public IItemType[] getInputItems(int step) {
@@ -236,31 +249,34 @@ public abstract class StepwiseDialog extends BaseDialog {
         return true;
     }
 
-    void backButton_actionPerformed(ActionEvent e) {
+    boolean backButton_actionPerformed(ActionEvent e) {
         if (!checkInput(-1)) {
-            return;
+            return false;
         }
         if (step > 0) {
             step--;
             updateGui();
         }
+        return true;
     }
 
-    void nextButton_actionPerformed(ActionEvent e) {
+    boolean nextButton_actionPerformed(ActionEvent e) {
         if (!checkInput(+1)) {
-            return;
+            return false;
         }
         if (steps != null && step+1 < steps.length) {
             step++;
             updateGui();
         }
+        return true;
     }
 
-    void finishButton_actionPerformed(ActionEvent e) {
+    boolean finishButton_actionPerformed(ActionEvent e) {
         if (!checkInput(0)) {
-            return;
+            return false;
         }
         cancel();
+        return true;
     }
 
     void cancelButton_actionPerformed(ActionEvent e) {

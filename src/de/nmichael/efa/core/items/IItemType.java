@@ -10,13 +10,11 @@
 
 package de.nmichael.efa.core.items;
 
-import javax.swing.JDialog;
-import javax.swing.JPanel;
+import de.nmichael.efa.data.storage.DataKey;
 import java.awt.Color;
 import java.awt.Window;
 import java.awt.AWTEvent;
 import javax.swing.*;
-import de.nmichael.efa.gui.BaseDialog;
 
 
 // @i18n complete
@@ -26,6 +24,17 @@ public interface IItemType {
     public static final int TYPE_INTERNAL = 0;
     public static final int TYPE_EXPERT = 1;
     public static final int TYPE_PUBLIC = 2;
+
+    /**
+     * Perform a copy of this Item.
+     * This is not really a deep copy. For most items, this copy method will only copy those
+     * values which are passed to the object in the constructor.
+     * Other properties may not be copied.
+     * The only purpose of this method is to copy GUI items used in EfaConfig, to
+     * be displayed in the EfaConfigDialog.
+     * @return
+     */
+    public IItemType copyOf();
 
     public String getName();
     public void setName(String name);
@@ -49,12 +58,14 @@ public interface IItemType {
 
     public void setColor(Color c);
     public void setBackgroundColor(Color c);
-    public void saveBackgroundColor();
+    public void saveBackgroundColor(boolean force);
     public void restoreBackgroundColor();
     public void setVisible(boolean visible);
     public void setEnabled(boolean enabled);
-    public boolean isVisible();
     public boolean isEnabled();
+    public void setEditable(boolean editable);
+    public boolean isEditable();
+    public boolean isVisible();
 
     public void setPadding(int padXbefore, int padXafter, int padYbefore, int padYafter);
     public void setFieldSize(int width, int height);
@@ -62,6 +73,7 @@ public interface IItemType {
     public void setFieldGrid(int gridWidth, int gridHeight, int gridAnchor, int gridFill);
 
     public boolean isValidInput();
+    public String getInvalidErrorText();
     public void setNotNull(boolean notNull);
     public boolean isNotNullSet();
 
@@ -71,6 +83,10 @@ public interface IItemType {
 
     public void registerItemListener(IItemListener listener);
     public void actionEvent(AWTEvent e);
+
+    // methods which allow to store a DataKey inside an IItemType (only for special purposes)
+    public void setDataKey(DataKey k);
+    public DataKey getDataKey();
 
     public JComponent getComponent();
 

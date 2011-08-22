@@ -10,9 +10,9 @@
 
 package de.nmichael.efa.core.items;
 
-import de.nmichael.efa.core.items.ItemTypeLabelValue;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.util.*;
+import java.awt.event.FocusEvent;
 
 // @i18n complete
 
@@ -31,6 +31,10 @@ public class ItemTypeTime extends ItemTypeLabelTextfield {
         this.type = type;
         this.category = category;
         this.description = description;
+    }
+
+    public IItemType copyOf() {
+        return new ItemTypeTime(name, new DataTypeTime(value), type, category, description);
     }
 
     public void enableSeconds(boolean withSeconds) {
@@ -61,6 +65,14 @@ public class ItemTypeTime extends ItemTypeLabelTextfield {
 
     public boolean isSet() {
         return value != null && value.isSet();
+    }
+
+    protected void field_focusLost(FocusEvent e) {
+        super.field_focusLost(e);
+        if (!isSet() && isNotNullSet()) {
+            parseValue("00:00:00");
+            showValue();
+        }
     }
 
     public int getValueHour() {

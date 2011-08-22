@@ -26,16 +26,16 @@ import java.io.*;
 
 public class HTMLWidget extends Widget {
 
-    public static final String PARAM_WIDTH          = "WIDTH";
-    public static final String PARAM_HEIGHT         = "HEIGHT";
-    public static final String PARAM_URL            = "URL";
+    public static final String PARAM_WIDTH          = "Width";
+    public static final String PARAM_HEIGHT         = "Height";
+    public static final String PARAM_URL            = "Url";
 
     private JScrollPane scrollPane = new JScrollPane();
     private JEditorPane htmlPane = new JEditorPane();
     private HTMLUpdater htmlUpdater;
 
     public HTMLWidget() {
-        super("HTMLWIDGET", International.getString("HTML-Widget"));
+        super("Html", International.getString("HTML-Widget"));
 
         addParameterInternal(new ItemTypeInteger(PARAM_WIDTH, 200, 1, Integer.MAX_VALUE, false,
                 IItemType.TYPE_PUBLIC, "",

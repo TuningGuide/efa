@@ -15,11 +15,10 @@ import java.util.regex.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.direkt.Admin;
 import de.nmichael.efa.gui.BaseDialog;
+import de.nmichael.efa.gui.BaseFrame;
 
 public class ItemTypeItemList extends ItemType {
 
@@ -53,6 +52,10 @@ public class ItemTypeItemList extends ItemType {
         this.type = type;
         this.category = category;
         this.description = description;
+    }
+
+    public IItemType copyOf() {
+        return new ItemTypeItemList(name, (Vector<IItemType[]>)items.clone(), itemFactory, type, category, description);
     }
 
     public void addItems(IItemType[] items) {
@@ -145,7 +148,7 @@ public class ItemTypeItemList extends ItemType {
             titlelabel.setForeground(color);
         }
         addButton = new JButton();
-        addButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_plus.gif")));
+        addButton.setIcon(BaseFrame.getIcon("menu_plus.gif"));
         addButton.setMargin(new Insets(0,0,0,0));
         Dialog.setPreferredSize(addButton, 19, 19);
         addButton.addActionListener(new java.awt.event.ActionListener() {
@@ -172,7 +175,7 @@ public class ItemTypeItemList extends ItemType {
                 }
             }
             JButton delButton = new JButton();
-            delButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_minus.gif")));
+            delButton.setIcon(BaseFrame.getIcon("menu_minus.gif"));
             delButton.setMargin(new Insets(0,0,0,0));
             Dialog.setPreferredSize(delButton, 19, 19);
             delButton.addActionListener(new java.awt.event.ActionListener() {

@@ -10,7 +10,6 @@
 
 package de.nmichael.efa.statistics;
 
-import de.nmichael.efa.core.StatistikFrame;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.TMJ;
 import de.nmichael.efa.*;
@@ -112,7 +111,7 @@ public class StatistikDaten implements Cloneable {
   public int stat = STAT_MITGLIEDER;
 
   public int ausgabe=AUSGABE_APPLICATION;
-  public StatistikFrame statistikFrame;
+  public JDialog statistikFrame;
   public JDialog parent;
 
   public String ausgabeDatei = null;

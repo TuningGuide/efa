@@ -622,21 +622,25 @@ public abstract class DataRecord implements Cloneable, Comparable {
             String value = item.getValueFromField();
             if (value != null && value.length() > 0) {
                 if (item instanceof ItemTypeStringAutoComplete) {
-                    ItemTypeStringAutoComplete acItem = (ItemTypeStringAutoComplete)item;
-                    Object id = acItem.getId(value);
-                    String alternateField = ((ItemTypeStringAutoComplete)item).getAlternateFieldNameForPlainText();
-                    if (id != null) {
-                        set(item.getName(), id.toString());
-                        if (alternateField != null) {
-                            set(alternateField, null);
-                        }
+                    ItemTypeStringAutoComplete acItem = (ItemTypeStringAutoComplete) item;
+                    if (acItem.getAlwaysReturnPlainText()) {
+                        set(item.getName(), value);
                     } else {
-                        if (alternateField != null) {
-                            set(alternateField, value);
+                        Object id = acItem.getId(value);
+                        String alternateField = acItem.getAlternateFieldNameForPlainText();
+                        if (id != null) {
+                            set(item.getName(), id.toString());
+                            if (alternateField != null) {
+                                set(alternateField, null);
+                            }
                         } else {
-                            set(item.getName(), value);
+                            if (alternateField != null) {
+                                set(alternateField, value);
+                            } else {
+                                set(item.getName(), value);
+                            }
+                            set(item.getName(), null);
                         }
-                        set(item.getName(), null);
                     }
                 } else {
                     set(item.getName(), value);

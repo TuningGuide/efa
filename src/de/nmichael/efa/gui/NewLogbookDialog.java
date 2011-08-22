@@ -106,8 +106,10 @@ public class NewLogbookDialog extends StepwiseDialog {
         return true;
     }
 
-    void finishButton_actionPerformed(ActionEvent e) {
-        super.finishButton_actionPerformed(e);
+    boolean finishButton_actionPerformed(ActionEvent e) {
+        if (!super.finishButton_actionPerformed(e)) {
+            return false;
+        }
 
         ItemTypeString logName = (ItemTypeString)getItemByName(LOGBOOKNAME);
         ItemTypeString logDescription = (ItemTypeString)getItemByName(LOGBOOKDESCRIPTION);
@@ -132,6 +134,7 @@ public class NewLogbookDialog extends StepwiseDialog {
             ee.log();
             setDialogResult(false);
         }
+        return true;
     }
 
     public String getNewLogbookName() {

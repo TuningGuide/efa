@@ -79,7 +79,7 @@ public class ImportSynonyms extends ImportBase {
         } catch(Exception e) {
             logError(International.getMessage("Import von {list} aus {file} ist fehlgeschlagen.", getDescription(), syn.getFileName()));
             logError(e.toString());
-            e.printStackTrace();
+            Logger.logdebug(e);
             return false;
         }
         return true;

@@ -63,17 +63,21 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
             _prepared = true;
             return true;
         } catch (Exception e) {
-            Logger.logdebug(e);
+            Logger.log(e);
             return false;
         }
     }
     
+    public void showMe() {
+        showDialog();
+    }
+
     public void showDialog() {
         if (!_prepared && !prepareDialog()) {
             return;
         }
         Dialog.setDlgLocation(this, _parent);
-        setModal(!Dialog.tourRunning);
+        setModal(true);
         Dialog.frameOpened(this);
         if (focusItem != null) {
             focusItem.requestFocus();
@@ -188,7 +192,10 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     protected void processWindowEvent(WindowEvent e) {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
             if (cancel()) {
-                super.processWindowEvent(e);
+                // we don't need to call super.processWindowEvent(e) here!
+                // otherwise we risk invoking cancel() a second time
+                // super.processWindowEvent(e);
+                return;
             } else {
                 return;
             }
@@ -228,8 +235,18 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
 
     public static ImageIcon getIcon(String name) {
         try {
-            return new ImageIcon(BaseFrame.class.getResource(Daten.IMAGEPATH + name));
+            if (name.indexOf("/") < 0) {
+                name = Daten.IMAGEPATH + name;
+            }
+            if (Logger.isTraceOn(Logger.TT_GUI)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_ICONS, "getIcon("+name+")");
+            }
+            return new ImageIcon(BaseDialog.class.getResource(name));
         } catch(Exception e) {
+            if (Logger.isTraceOn(Logger.TT_GUI)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_ICONS, "getIcon("+name+"): no icon found!");
+            }
+            Logger.logdebug(e);
             return null;
         }
     }

@@ -11,14 +11,13 @@
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.gui.BaseFrame;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import java.util.*;
-import java.text.*;
 
 // @i18n complete
 
@@ -162,7 +161,7 @@ public class EfaFrame_AboutBox extends JDialog implements ActionListener {
     versionLabel.setForeground(Color.black);
     logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
     logoLabel.setHorizontalTextPosition(SwingConstants.CENTER);
-    logoLabel.setIcon(new ImageIcon(EfaFrame_AboutBox.class.getResource(Daten.getEfaImage(2))));
+    logoLabel.setIcon(BaseFrame.getIcon(Daten.getEfaImage(2)));
     gpl1Label.setText(International.getString("efa unterliegt den")+" ");
     gplLabel.setForeground(Color.blue);
     gplLabel.setText(International.getMessage("Lizenzbestimmungen der {license}","GPL v2"));

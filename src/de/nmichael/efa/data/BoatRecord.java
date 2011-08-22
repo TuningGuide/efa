@@ -36,7 +36,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     public static final String ID                    = "Id";
     public static final String EFBID                 = "EfbId";
     public static final String NAME                  = "Name";
-    public static final String NAMEAFFIX             = "NameAffixow";
+    public static final String NAMEAFFIX             = "NameAffix";
     public static final String OWNER                 = "Owner";
     public static final String LASTVARIANT           = "LastVariant";
     public static final String TYPEVARIANT           = "TypeVariant";
@@ -670,6 +670,15 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         return name + (type != null && type.length() > 0 ? " (" + type + ")" : "");
     }
 
+    public BoatStatusRecord getBoatStatus() {
+        try {
+            return getPersistence().getProject().getBoatStatus(false).getBoatStatus(this.getId());
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return null;
+    }
+
 
     public IItemType[] getDefaultItems(String itemName) {
         if (itemName.equals(BoatRecord.GUIITEM_BOATTYPES)) {
@@ -788,6 +797,10 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Kaufpreis")));
         v.add(item = new ItemTypeString(BoatRecord.PURCHASEPRICECURRENCY, getPurchasePriceCurrency(),
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Währung")));
+        if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
+            v.add(item = new ItemTypeString(BoatRecord.EFBID, getEfbId(),
+                    IItemType.TYPE_EXPERT, CAT_MOREDATA, International.onlyFor("Kanu-Efb ID","de")));
+        }
 
         // CAT_USAGE
         itemList = new Vector<IItemType[]>();
@@ -965,25 +978,23 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         if (persistence != null && persistence instanceof BoatReservations) {
             if (record == null) {
                 BoatReservations boatReservations = (BoatReservations)persistence;
-                AutoIncrement autoIncrement = getPersistence().getProject().getAutoIncrement(false);
-                int val = autoIncrement.nextAutoIncrementValue(boatReservations.data().getStorageObjectType());
-                if (val > 0) {
-                    record = boatReservations.createBoatReservationsRecord(getId(), val);
-                }
+                record = boatReservations.createBoatReservationsRecord(getId());
                 newRecord = true;
             }
-            return new BoatReservationEditDialog(parent, (BoatReservationRecord) record, newRecord);
+            if (record == null) {
+                return null;
+            }
+            return new BoatReservationEditDialog(parent, (BoatReservationRecord) record, newRecord, true);
         }
 
         if (persistence != null && persistence instanceof BoatDamages) {
             if (record == null) {
                 BoatDamages boatDamages = (BoatDamages)persistence;
-                AutoIncrement autoIncrement = getPersistence().getProject().getAutoIncrement(false);
-                int val = autoIncrement.nextAutoIncrementValue(boatDamages.data().getStorageObjectType());
-                if (val > 0) {
-                    record = boatDamages.createBoatDamageRecord(getId(), val);
-                }
+                record = boatDamages.createBoatDamageRecord(getId());
                 newRecord = true;
+            }
+            if (record == null) {
+                return null;
             }
             return new BoatDamageEditDialog(parent, (BoatDamageRecord) record, newRecord);
         }

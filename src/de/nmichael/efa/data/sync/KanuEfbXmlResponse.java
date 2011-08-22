@@ -153,17 +153,17 @@ public class KanuEfbXmlResponse extends DefaultHandler {
     }
 
     public void printAll() {
-        Logger.log(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO, "-- RESPONSE START --");
-        Logger.log(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO, "  ResponseName="+responseName);
+        Logger.log(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO, "-- XML RESPONSE START --");
+        Logger.log(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO, "    ResponseName="+responseName);
         for (int i=0; data != null && i<data.size(); i++) {
             Hashtable<String,String> fields = data.get(i);
             String[] fieldNames = fields.keySet().toArray(new String[0]);
             for (int j=0; fieldNames != null && j<fieldNames.length; j++) {
                 String value = fields.get(fieldNames[j]);
-                Logger.log(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO, "  " + EfaUtil.int2String(i, 4)+":"+fieldNames[j]+"="+value);
+                Logger.log(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO, "    " + EfaUtil.int2String(i, 4)+":"+fieldNames[j]+"="+value);
             }
         }
-        Logger.log(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO, "-- RESPONSE END --");
+        Logger.log(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO, "-- XML RESPONSE END --");
     }
 
     public boolean isResponseOk(String requestType) {

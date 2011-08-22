@@ -13,14 +13,18 @@ package de.nmichael.efa.core.config;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.gui.AdminPasswordChangeDialog;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.util.*;
+import java.awt.AWTEvent;
 import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
 import java.util.*;
+import javax.swing.JDialog;
 
 // @i18n complete
 
-public class AdminRecord extends DataRecord {
+public class AdminRecord extends DataRecord implements IItemListener {
 
     // =========================================================================
     // Field Names
@@ -31,7 +35,6 @@ public class AdminRecord extends DataRecord {
     public static final String EMAIL                 = "Email";
     public static final String EDITADMINS            = "EditAdmins";
     public static final String CHANGEPASSWORD        = "ChangePassword";
-    public static final String FULLACCESS            = "FullAccess";
     public static final String CONFIGURATION         = "Configuration";
     public static final String ADMINPROJECTLOGBOOK   = "AdministerProjectLogbook";
     public static final String EDITLOGBOOK           = "EditLogbook";
@@ -55,6 +58,7 @@ public class AdminRecord extends DataRecord {
     public static final String SHOWLOGFILE           = "ShowLogfile";
     public static final String EXITEFA               = "ExitEfa";
     public static final String LOCKEFA               = "LockEfa";
+    public static final String UPDATEEFA             = "UpdateEfa";
     public static final String EXECCOMMAND           = "ExecCommand";
 
     public static void initialize() {
@@ -66,7 +70,6 @@ public class AdminRecord extends DataRecord {
         f.add(EMAIL);                             t.add(IDataAccess.DATA_STRING);
         f.add(EDITADMINS);                        t.add(IDataAccess.DATA_BOOLEAN);
         f.add(CHANGEPASSWORD);                    t.add(IDataAccess.DATA_BOOLEAN);
-        f.add(FULLACCESS);                        t.add(IDataAccess.DATA_BOOLEAN);
         f.add(CONFIGURATION);                     t.add(IDataAccess.DATA_BOOLEAN);
         f.add(ADMINPROJECTLOGBOOK);               t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EDITLOGBOOK);                       t.add(IDataAccess.DATA_BOOLEAN);
@@ -90,6 +93,7 @@ public class AdminRecord extends DataRecord {
         f.add(SHOWLOGFILE);                       t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EXITEFA);                           t.add(IDataAccess.DATA_BOOLEAN);
         f.add(LOCKEFA);                           t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(UPDATEEFA);                         t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EXECCOMMAND);                       t.add(IDataAccess.DATA_BOOLEAN);
         MetaData metaData = constructMetaData(Admins.DATATYPE, f, t, false);
         metaData.setKey(new String[] { NAME });
@@ -144,13 +148,6 @@ public class AdminRecord extends DataRecord {
     }
     public Boolean isAllowedChangePassword() {
         return getBool(CHANGEPASSWORD);
-    }
-
-    public void setAllowedFullAccess(boolean allowed) {
-        setBool(FULLACCESS, allowed);
-    }
-    public Boolean isAllowedFullAccess() {
-        return getBool(FULLACCESS);
     }
 
     public void setAllowedConfiguration(boolean allowed) {
@@ -314,6 +311,13 @@ public class AdminRecord extends DataRecord {
         return getBool(LOCKEFA);
     }
 
+    public void setAllowedUpdateEfa(boolean allowed) {
+        setBool(UPDATEEFA, allowed);
+    }
+    public Boolean isAllowedUpdateEfa() {
+        return getBool(UPDATEEFA);
+    }
+
     public void setAllowedExecCommand(boolean allowed) {
         setBool(EXECCOMMAND, allowed);
     }
@@ -329,7 +333,45 @@ public class AdminRecord extends DataRecord {
         return getName();
     }
 
+    public void makeSurePermissionsAreCorrect() {
+        if (getName() != null && getName().equals(Admins.SUPERADMIN)) {
+            setAllowedEditAdmins(true);
+            setAllowedChangePassword(true);
+            setAllowedConfiguration(true);
+            setAllowedAdministerProjectLogbook(true);
+            setAllowedEditLogbook(true);
+            setAllowedEditBoatStatus(true);
+            setAllowedEditBoatReservation(true);
+            setAllowedEditBoatDamages(true);
+            setAllowedEditBoats(true);
+            setAllowedEditPersons(true);
+            setAllowedEditDestinations(true);
+            setAllowedEditGroups(true);
+            setAllowedEditCrews(true);
+            setAllowedEditFahrtenabzeichen(true);
+            setAllowedMsgReadAdmin(true);
+            setAllowedMsgReadBoatMaintenance(true);
+            setAllowedMsgMarkReadAdmin(true);
+            setAllowedMsgMarkReadBoatMaintenance(true);
+            setAllowedEditStatistics(true);
+            setAllowedSyncKanuEfb(true);
+            setAllowedShowLogfile(true);
+            setAllowedExitEfa(true);
+            setAllowedLockEfa(true);
+            setAllowedUpdateEfa(true);
+            setAllowedExecCommand(true);
+        } else {
+            setAllowedEditAdmins(false);
+        }
+    }
+
+    public boolean isSuperAdmin() {
+        return getName() != null && getName().equals(Admins.SUPERADMIN);
+    }
+
     public Vector<IItemType> getGuiItems() {
+        makeSurePermissionsAreCorrect();
+        
         String CAT_BASEDATA     = "%01%" + International.getString("Administrator");
         String CAT_PERMISSIONS  = "%02%" + International.getString("Berechtigungen");
         String CAT_MESSAGES     = "%03%" + International.getString("Nachrichten");
@@ -345,6 +387,7 @@ public class AdminRecord extends DataRecord {
             v.add(item = new ItemTypeButton("PASSWORDBUTTON",
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Paßwort ändern")));
             ((ItemTypeButton)item).setFieldGrid(2, GridBagConstraints.EAST, GridBagConstraints.NONE);
+            ((ItemTypeButton)item).registerItemListener(this);
         } else {
             v.add(item = new ItemTypePassword(PASSWORD, "",
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Paßwort")));
@@ -361,66 +404,91 @@ public class AdminRecord extends DataRecord {
 
         v.add(item = new ItemTypeBoolean(EDITADMINS, isAllowedEditAdmins(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Admins verwalten")));
+        ((ItemTypeBoolean)item).setEnabled(false); // no one can ever change this: Super-Admin is always allowed, all others are not
         v.add(item = new ItemTypeBoolean(CHANGEPASSWORD, isAllowedChangePassword(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Paßwort ändern")));
-        v.add(item = new ItemTypeBoolean(FULLACCESS, isAllowedFullAccess(),
-                IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Vollzugriff")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(ADMINPROJECTLOGBOOK, isAllowedAdministerProjectLogbook(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Projekte und Fahrtenbücher administrieren")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(EDITLOGBOOK, isAllowedEditLogbook(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Fahrtenbuch bearbeiten")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(EDITBOATS, isAllowedEditBoats(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Boote bearbeiten")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(EDITBOATSTATUS, isAllowedEditBoatStatus(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Bootsstatus bearbeiten")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(EDITBOATRESERVATION, isAllowedEditBoatReservation(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Bootsreservierungen bearbeiten")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(EDITBOATDAMAGES, isAllowedEditBoatDamages(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Bootsschäden bearbeiten")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(EDITPERSONS, isAllowedEditPersons(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Personen und Status bearbeiten")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(EDITGROUPS, isAllowedEditGroups(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Gruppen bearbeiten")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(EDITCREWS, isAllowedEditCrews(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Mannschaften bearbeiten")));
-        if (Daten.efaConfig.useFunctionalityRowingGermany.getValue()) {
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
+        if (Daten.efaConfig.getValueUseFunctionalityRowingGermany()) {
             v.add(item = new ItemTypeBoolean(EDITFAHRTENABZEICHEN, isAllowedEditFahrtenabzeichen(),
                     IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.onlyFor("Fahrtenabzeichen bearbeiten","de")));
+            ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         }
         v.add(item = new ItemTypeBoolean(EDITDESTINATIONS, isAllowedEditDestinations(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Ziele und Gewässer bearbeiten")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(CONFIGURATION, isAllowedConfiguration(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("efa konfigurieren")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(EDITSTATISTICS, isAllowedEditStatistics(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Statistiken erstellen")));
-        if (Daten.efaConfig.useFunctionalityCanoeingGermany.getValue()) {
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
+        if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
             v.add(item = new ItemTypeBoolean(SYNCKANUEFB, isAllowedSyncKanuEfb(),
                     IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.onlyFor("mit KanuEfb synchonisieren","de")));
+            ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         }
         v.add(item = new ItemTypeBoolean(SHOWLOGFILE, isAllowedShowLogfile(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Logdatei anzeigen")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(EXITEFA, isAllowedExitEfa(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("efa beenden")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(LOCKEFA, isAllowedLockEfa(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("efa sperren")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
+        v.add(item = new ItemTypeBoolean(UPDATEEFA, isAllowedUpdateEfa(),
+                IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Online-Update")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(EXECCOMMAND, isAllowedExecCommand(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Betriebssystem-Kommando ausführen")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
 
         v.add(item = new ItemTypeBoolean(MSGREADADMIN, isAllowedMsgReadAdmin(),
                 IItemType.TYPE_PUBLIC, CAT_MESSAGES, International.getMessage("Nachrichten an {recipient} lesen",
                 International.getString("Admin"))));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(MSGMARKREADADMIN, isAllowedMsgMarkReadAdmin(),
                 IItemType.TYPE_PUBLIC, CAT_MESSAGES, International.getMessage("Nachrichten an {recipient} als gelesen markieren",
                 International.getString("Admin"))));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(MSGAUTOREADADMIN, isAllowedMsgAutoMarkReadAdmin(),
                 IItemType.TYPE_PUBLIC, CAT_MESSAGES, International.getMessage("Nachrichten an {recipient} automatisch als gelesen markieren",
                 International.getString("Admin"))));
         v.add(item = new ItemTypeBoolean(MSGREADBOATMAINT, isAllowedMsgReadBoatMaintenance(),
                 IItemType.TYPE_PUBLIC, CAT_MESSAGES, International.getMessage("Nachrichten an {recipient} lesen",
                 International.getString("Bootswart"))));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(MSGMARKREADBOATMAINT, isAllowedMsgMarkReadBoatMaintenance(),
                 IItemType.TYPE_PUBLIC, CAT_MESSAGES, International.getMessage("Nachrichten an {recipient} als gelesen markieren",
                 International.getString("Bootswart"))));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(MSGAUTOREADBOATMAINT, isAllowedMsgAutoMarkReadBoatMaintenance(),
                 IItemType.TYPE_PUBLIC, CAT_MESSAGES, International.getMessage("Nachrichten an {recipient} automatisch als gelesen markieren",
                 International.getString("Bootswart"))));
@@ -438,6 +506,14 @@ public class AdminRecord extends DataRecord {
         TableItem[] items = new TableItem[1];
         items[0] = new TableItem(getName());
         return items;
+    }
+
+    public void itemListenerAction(IItemType itemType, AWTEvent event) {
+        if (itemType != null && itemType.getName().equals("PASSWORDBUTTON") &&
+            event != null && event instanceof ActionEvent) {
+            AdminPasswordChangeDialog dlg = new AdminPasswordChangeDialog((JDialog)null, this, false);
+            dlg.showDialog();
+        }
     }
 
 }

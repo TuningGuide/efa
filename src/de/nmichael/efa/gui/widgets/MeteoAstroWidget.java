@@ -38,26 +38,26 @@ public class MeteoAstroWidget extends Widget {
     static final String LAYOUT_HORIZONTAL         = "HORIZONTAL";
     static final String LAYOUT_VERTICAL           = "VERTICAL";
 
-    static final String PARAM_LAYOUT              = "LAYOUT";
-    static final String PARAM_SHOWSUNRISE         = "SHOWSUNRISE";
-    static final String PARAM_LATITUDE            = "LATITUDE";
-    static final String PARAM_LONGITUDE           = "LONGITUDE";
+    static final String PARAM_LAYOUT              = "Layout";
+    static final String PARAM_SHOWSUNRISE         = "ShowSunrise";
+    static final String PARAM_LATITUDE            = "Latitude";
+    static final String PARAM_LONGITUDE           = "Longitude";
 
-    static final String PARAM_SHOWWEATHER         = "SHOWWEATHER";
-    static final String PARAM_WEATHERLOCATION     = "WEATHERLOCATION";
-    static final String PARAM_TEMPERATURESCALE    = "TEMPERATURESCALE";
-    static final String PARAM_SHOWWEATHERLOCATION = "SHOWWEATHERLOCATION";
-    static final String PARAM_SHOWWEATHERCURTEXT  = "SHOWWEATHERCURTEXT";
-    static final String PARAM_SHOWWEATHERCURIMG   = "SHOWWEATHERCURIMG";
-    static final String PARAM_SHOWWEATHERCURTEMP  = "SHOWWEATHERCURTEMP";
-    static final String PARAM_SHOWWEATHERCURWIND  = "SHOWWEATHERCURWIND";
-    static final String PARAM_SHOWWEATHERFCTEXT   = "SHOWWEATHERFCTEXT";
-    static final String PARAM_SHOWWEATHERFCIMG    = "SHOWWEATHERFCIMG";
-    static final String PARAM_SHOWWEATHERFCTEMP   = "SHOWWEATHERFCTEMP";
+    static final String PARAM_SHOWWEATHER         = "ShowWeather";
+    static final String PARAM_WEATHERLOCATION     = "WeatherLocation";
+    static final String PARAM_TEMPERATURESCALE    = "TemperatureScale";
+    static final String PARAM_SHOWWEATHERLOCATION = "ShowWeatherLocation";
+    static final String PARAM_SHOWWEATHERCURTEXT  = "ShowWeatherCurText";
+    static final String PARAM_SHOWWEATHERCURIMG   = "ShowWeatherCurImage";
+    static final String PARAM_SHOWWEATHERCURTEMP  = "ShowWeatherCurTemp";
+    static final String PARAM_SHOWWEATHERCURWIND  = "ShowWeatherCurWind";
+    static final String PARAM_SHOWWEATHERFCTEXT   = "ShowWeatherFcText";
+    static final String PARAM_SHOWWEATHERFCIMG    = "ShowWeatherFcImg";
+    static final String PARAM_SHOWWEATHERFCTEMP   = "ShowWeatherFcTemp";
 
-    static final String PARAM_HTMLPOPUPURL        = "HTMLPOPUPURL";
-    static final String PARAM_HTMLPOPWIDTH        = "HTMLPOPUPWIDTH";
-    static final String PARAM_HTMLPOPHEIGHT       = "HTMLPOPUPHEIGHT";
+    static final String PARAM_HTMLPOPUPURL        = "HtmlPopupUrl";
+    static final String PARAM_HTMLPOPWIDTH        = "HtmlPopupWidth";
+    static final String PARAM_HTMLPOPHEIGHT       = "HtmlPopupHeight";
 
     static final String GOOGLE_API = "http://www.google.com/ig/api";
     static final String GOOGLE_URL = "http://www.google.com";
@@ -66,7 +66,7 @@ public class MeteoAstroWidget extends Widget {
     private HTMLUpdater htmlUpdater;
 
     public MeteoAstroWidget() {
-        super("METEOASTROWIDGET", International.getString("Meteo-Astro-Widget"));
+        super("MeteoAstro", International.getString("Meteo-Astro-Widget"));
         addParameterInternal(new ItemTypeStringList(PARAM_LAYOUT, LAYOUT_COMPACT,
                 new String[] { LAYOUT_COMPACT, LAYOUT_HORIZONTAL, LAYOUT_VERTICAL },
                 new String[] { International.getString("kompakt"),
@@ -502,6 +502,9 @@ public class MeteoAstroWidget extends Widget {
                 } catch (Exception e) {
                     Logger.logdebug(e);
                 }
+            }
+            if (Daten.fileSep.equals("\\")) {
+                fname = "/" + EfaUtil.replace(fname, "\\", "/", true);
             }
             return "file://" + fname;
         }

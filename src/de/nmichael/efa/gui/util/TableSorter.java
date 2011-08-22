@@ -394,6 +394,15 @@ public class TableSorter extends TableMap {
         return indexes[row];
     }
 
+    public int getCurrentIndex(int row) {
+        for (int i=0; i<indexes.length; i++) {
+            if (row == indexes[i]) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public void sortByColumn(int column) {
         sortByColumn(column, true);
     }

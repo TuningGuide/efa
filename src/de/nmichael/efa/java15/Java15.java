@@ -19,12 +19,7 @@ import java.util.*;
 
 class OOMEListener implements javax.management.NotificationListener {
 
-  private de.nmichael.efa.direkt.EfaDirektFrame frameOld; // @todo - remove efa1
   private de.nmichael.efa.gui.EfaBoathouseFrame frame;
-
-  public OOMEListener(de.nmichael.efa.direkt.EfaDirektFrame frame) { // @todo - remove efa1
-    this.frameOld = frame;
-  }
 
   public OOMEListener(de.nmichael.efa.gui.EfaBoathouseFrame frame) {
     this.frame = frame;
@@ -32,7 +27,6 @@ class OOMEListener implements javax.management.NotificationListener {
 
   public void handleNotification(Notification notification, Object handback)  {
     de.nmichael.efa.Daten.DONT_SAVE_ANY_FILES_DUE_TO_OOME = true;
-    frameOld.exitOnLowMemory("OOMEListener:"+notification.getType(),true);
   }
 }
 
@@ -194,10 +188,6 @@ public class Java15 {
     return memoryLow;
   }
   
-  public static void setMemUsageListener(de.nmichael.efa.direkt.EfaDirektFrame frame, long threshold) {
-    setMemUsageListener(new OOMEListener(frame), threshold);
-  }
-
   public static void setMemUsageListener(de.nmichael.efa.gui.EfaBoathouseFrame frame, long threshold) {
     setMemUsageListener(new OOMEListener(frame), threshold);
   }

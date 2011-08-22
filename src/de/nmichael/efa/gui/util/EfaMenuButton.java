@@ -19,6 +19,7 @@ import de.nmichael.efa.gui.dataedit.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.Help;
 import de.nmichael.efa.util.International;
+import java.awt.Dialog.ModalExclusionType;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ImageIcon;
@@ -30,9 +31,13 @@ public class EfaMenuButton {
     public final static String MENU_FILE                = "FILE";
     public final static String BUTTON_PROJECTS          = "PROJECTS";
     public final static String BUTTON_LOGBOOKS          = "LOGBOOKS";
+    public final static String BUTTON_UPDATE            = "UPDATE";
+    public final static String BUTTON_OSCOMMAND         = "OSCOMMAND";
     public final static String BUTTON_EXIT              = "EXIT";
 
     public final static String MENU_ADMINISTRATION      = "ADMINISTRATION";
+    public final static String BUTTON_LOGBOOK           = "LOGBOOK";
+    public final static String BUTTON_SESSIONGROUPS     = "SESSIONGROUPS";
     public final static String BUTTON_BOATS             = "BOATS";
     public final static String BUTTON_BOATSTATUS        = "BOATSTATUS";
     public final static String BUTTON_BOATRESERVATIONS  = "BOATRESERVATIONS";
@@ -47,6 +52,7 @@ public class EfaMenuButton {
     public final static String BUTTON_CONFIGURATION     = "CONFIGURATION";
     public final static String BUTTON_ADMINS            = "ADMINS";
     public final static String BUTTON_PASSWORD          = "PASSWORD";
+    public final static String BUTTON_LOCKEFA           = "LOCKEFA";
 
     public final static String MENU_OUTPUT              = "OUTPUT";
     public final static String BUTTON_STATISTICS        = "STATISTICS";
@@ -54,8 +60,16 @@ public class EfaMenuButton {
 
     public final static String MENU_INFO                = "INFO";
     public final static String BUTTON_HELP              = "HELP";
+    public final static String BUTTON_MESSAGES          = "MESSAGES";
     public final static String BUTTON_LOGFILE           = "LOGFILE";
     public final static String BUTTON_ABOUT             = "ABOUT";
+
+    public enum MenuMode {
+        all,
+        efaBaseGui,
+        efaBthsGui,
+        efaBthsLogbookGui
+    }
 
     private static Hashtable<String,String> actionMapping;
 
@@ -93,7 +107,11 @@ public class EfaMenuButton {
         return icon;
     }
 
-    public static synchronized Vector<EfaMenuButton> getAllMenuButtons(AdminRecord admin) {
+    public boolean isSeparator() {
+        return buttonName.equals(SEPARATOR);
+    }
+
+    public static synchronized Vector<EfaMenuButton> getAllMenuButtons(AdminRecord admin, boolean adminMode) {
         Vector<EfaMenuButton> v = new Vector<EfaMenuButton>();
 
         if (admin == null || admin.isAllowedAdministerProjectLogbook()) {
@@ -108,15 +126,61 @@ public class EfaMenuButton {
                     International.getStringWithMnemonic("Fahrtenbücher") + " ...",
                     BaseFrame.getIcon("menu_logbooks.png")));
         }
-        v.add(new EfaMenuButton(MENU_FILE, SEPARATOR,
-                null, null, null));
-        if (admin == null || admin.isAllowedExitEfa()) {
+        if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_FILE) && !v.get(v.size()-1).isSeparator()) {
+            v.add(new EfaMenuButton(MENU_FILE, SEPARATOR,
+                    null, null, null));
+        }
+        if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
+            if (admin == null || admin.isAllowedSyncKanuEfb()) {
+                v.add(new EfaMenuButton(MENU_FILE, BUTTON_SYNCKANUEFB,
+                        International.getStringWithMnemonic("Datei"),
+                        International.onlyFor("Mit Kanu-Efb synchronisieren", "de"),
+                        BaseFrame.getIcon("menu_efbsync.png")));
+            }
+        }
+        if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_FILE) && !v.get(v.size()-1).isSeparator()) {
+            v.add(new EfaMenuButton(MENU_FILE, SEPARATOR,
+                    null, null, null));
+        }
+        if (admin == null || admin.isAllowedUpdateEfa()) {
+            v.add(new EfaMenuButton(MENU_FILE, BUTTON_UPDATE,
+                    International.getStringWithMnemonic("Datei"),
+                    International.getStringWithMnemonic("Online-Update"),
+                    BaseFrame.getIcon("menu_update.png")));
+        }
+        if (admin == null || admin.isAllowedExecCommand()) {
+            v.add(new EfaMenuButton(MENU_FILE, BUTTON_OSCOMMAND,
+                    International.getStringWithMnemonic("Datei"),
+                    International.getStringWithMnemonic("Kommando ausführen"),
+                    BaseFrame.getIcon("menu_command.png")));
+        }
+        if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_FILE) && !v.get(v.size()-1).isSeparator()) {
+            v.add(new EfaMenuButton(MENU_FILE, SEPARATOR,
+                    null, null, null));
+        }
+        if (admin == null || admin.isAllowedExitEfa() || !adminMode) {
             v.add(new EfaMenuButton(MENU_FILE, BUTTON_EXIT,
                     International.getStringWithMnemonic("Datei"),
                     International.getStringWithMnemonic("Beenden"),
                     BaseFrame.getIcon("menu_exit.png")));
         }
 
+        if (admin == null || (admin.isAllowedEditLogbook() && adminMode)) {
+            v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_LOGBOOK,
+                    International.getStringWithMnemonic("Administration"),
+                    International.getStringWithMnemonic("Fahrtenbuch"),
+                    BaseFrame.getIcon("menu_logbook.png")));
+        }
+        if (admin == null || admin.isAllowedEditLogbook() && adminMode) { // we have the same menu again at the end for non-admin mode...
+            v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_SESSIONGROUPS,
+                    International.getStringWithMnemonic("Administration"),
+                    International.getStringWithMnemonic("Fahrtgruppen"),
+                    BaseFrame.getIcon("menu_sessiongroups.png")));
+        }
+        if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_ADMINISTRATION) && !v.get(v.size()-1).isSeparator()) {
+            v.add(new EfaMenuButton(MENU_ADMINISTRATION, SEPARATOR,
+                    null, null, null));
+        }
         if (admin == null || admin.isAllowedEditBoats()) {
             v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_BOATS,
                     International.getStringWithMnemonic("Administration"),
@@ -141,8 +205,10 @@ public class EfaMenuButton {
                     International.getStringWithMnemonic("Bootsschäden"),
                     BaseFrame.getIcon("menu_boatdamages.png")));
         }
-        v.add(new EfaMenuButton(MENU_ADMINISTRATION, SEPARATOR,
-                null, null, null));
+        if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_ADMINISTRATION) && !v.get(v.size()-1).isSeparator()) {
+            v.add(new EfaMenuButton(MENU_ADMINISTRATION, SEPARATOR,
+                    null, null, null));
+        }
         if (admin == null || admin.isAllowedEditPersons()) {
             v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_PERSONS,
                     International.getStringWithMnemonic("Administration"),
@@ -167,7 +233,7 @@ public class EfaMenuButton {
                     International.getStringWithMnemonic("Mannschaften"),
                     BaseFrame.getIcon("menu_crews2.png")));
         }
-        if (Daten.efaConfig.useFunctionalityRowingGermany.getValue()) {
+        if (Daten.efaConfig.getValueUseFunctionalityRowingGermany()) {
             if (admin == null || admin.isAllowedEditFahrtenabzeichen()) {
                 v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_FAHRTENABZEICHEN,
                         International.getStringWithMnemonic("Administration"),
@@ -175,12 +241,15 @@ public class EfaMenuButton {
                         BaseFrame.getIcon("menu_fahrtenabzeichen.png")));
             }
         }
-        v.add(new EfaMenuButton(MENU_ADMINISTRATION, SEPARATOR,
-                null, null, null));
+        if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_ADMINISTRATION) && !v.get(v.size()-1).isSeparator()) {
+            v.add(new EfaMenuButton(MENU_ADMINISTRATION, SEPARATOR,
+                    null, null, null));
+        }
         if (admin == null || admin.isAllowedEditDestinations()) {
             v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_DESTINATIONS,
                     International.getStringWithMnemonic("Administration"),
-                    International.getStringWithMnemonic("Ziele"),
+                    International.getStringWithMnemonic("Ziele") + " / " +
+                    International.getString("Strecken"),
                     BaseFrame.getIcon("menu_destinations.png")));
         }
         if (admin == null || admin.isAllowedEditDestinations()) {
@@ -189,8 +258,20 @@ public class EfaMenuButton {
                     International.getStringWithMnemonic("Gewässer"),
                     BaseFrame.getIcon("menu_waters.png")));
         }
-        v.add(new EfaMenuButton(MENU_ADMINISTRATION, SEPARATOR,
-                null, null, null));
+        if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_ADMINISTRATION) && !v.get(v.size()-1).isSeparator()) {
+            v.add(new EfaMenuButton(MENU_ADMINISTRATION, SEPARATOR,
+                    null, null, null));
+        }
+        if (admin == null || admin.isAllowedEditLogbook() && !adminMode) { // we have the same menu again at the beginning for admin mode...
+            v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_SESSIONGROUPS,
+                    International.getStringWithMnemonic("Administration"),
+                    International.getStringWithMnemonic("Fahrtgruppen"),
+                    BaseFrame.getIcon("menu_sessiongroups.png")));
+        }
+        if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_ADMINISTRATION) && !v.get(v.size()-1).isSeparator()) {
+            v.add(new EfaMenuButton(MENU_ADMINISTRATION, SEPARATOR,
+                    null, null, null));
+        }
         if (admin == null || admin.isAllowedConfiguration()) {
             v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_CONFIGURATION,
                     International.getStringWithMnemonic("Administration"),
@@ -209,6 +290,16 @@ public class EfaMenuButton {
                     International.getStringWithMnemonic("Paßwort ändern"),
                     BaseFrame.getIcon("menu_password.png")));
         }
+        if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_ADMINISTRATION) && !v.get(v.size()-1).isSeparator()) {
+            v.add(new EfaMenuButton(MENU_ADMINISTRATION, SEPARATOR,
+                    null, null, null));
+        }
+        if (admin == null || (admin.isAllowedLockEfa() && adminMode)) {
+            v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_LOCKEFA,
+                    International.getStringWithMnemonic("Administration"),
+                    International.getStringWithMnemonic("efa sperren"),
+                    BaseFrame.getIcon("menu_lockefa.png")));
+        }
 
         if (admin == null || admin.isAllowedEditStatistics()) {
             v.add(new EfaMenuButton(MENU_OUTPUT, BUTTON_STATISTICS,
@@ -216,27 +307,31 @@ public class EfaMenuButton {
                     International.getStringWithMnemonic("Statistiken"),
                     BaseFrame.getIcon("menu_statistics.png")));
         }
-        if (Daten.efaConfig.useFunctionalityCanoeing.getValue()) {
-            if (admin == null || admin.isAllowedSyncKanuEfb()) {
-                v.add(new EfaMenuButton(MENU_OUTPUT, BUTTON_SYNCKANUEFB,
-                        International.getStringWithMnemonic("Ausgabe"),
-                        International.onlyFor("Mit Kanu-Efb synchronisieren", "de"),
-                        BaseFrame.getIcon("menu_efbsync.png")));
-            }
-        }
 
         v.add(new EfaMenuButton(MENU_INFO, BUTTON_HELP,
                 International.getStringWithMnemonic("Info"),
                 International.getStringWithMnemonic("Hilfe"),
                 BaseFrame.getIcon("menu_help.png")));
+        if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_INFO) && !v.get(v.size()-1).isSeparator()) {
+            v.add(new EfaMenuButton(MENU_INFO, SEPARATOR,
+                    null, null, null));
+        }
+        if (admin == null || admin.isAllowedMsgReadAdmin() || admin.isAllowedMsgReadBoatMaintenance()) {
+            v.add(new EfaMenuButton(MENU_INFO, BUTTON_MESSAGES,
+                    International.getStringWithMnemonic("Info"),
+                    International.getStringWithMnemonic("Nachrichten"),
+                    BaseFrame.getIcon("menu_messages.png")));
+        }
         if (admin == null || admin.isAllowedShowLogfile()) {
             v.add(new EfaMenuButton(MENU_INFO, BUTTON_LOGFILE,
                     International.getStringWithMnemonic("Info"),
                     International.getStringWithMnemonic("Logdatei"),
                     BaseFrame.getIcon("menu_logfile.png")));
         }
-        v.add(new EfaMenuButton(MENU_INFO, SEPARATOR,
-                null, null, null));
+        if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_INFO) && !v.get(v.size()-1).isSeparator()) {
+            v.add(new EfaMenuButton(MENU_INFO, SEPARATOR,
+                    null, null, null));
+        }
         v.add(new EfaMenuButton(MENU_INFO, BUTTON_ABOUT,
                 International.getStringWithMnemonic("Info"),
                 International.getStringWithMnemonic("Über"),
@@ -254,192 +349,337 @@ public class EfaMenuButton {
         return v;
     }
 
-    public static void menuAction(BaseFrame parent, String action, AdminRecord admin, Logbook logbook) {
-        menuAction(parent, null, action, admin, logbook);
+    public static boolean menuAction(BaseFrame parent, String action, AdminRecord admin, Logbook logbook) {
+        return menuAction(parent, null, action, admin, logbook);
     }
 
-    public static void menuAction(BaseDialog parent, String action, AdminRecord admin, Logbook logbook) {
-        menuAction(null, parent, action, admin, logbook);
+    public static boolean menuAction(BaseDialog parent, String action, AdminRecord admin, Logbook logbook) {
+        return menuAction(null, parent, action, admin, logbook);
     }
 
-    private static void menuAction(BaseFrame parentFrame, BaseDialog parentDialog, String action, AdminRecord admin, Logbook logbook) {
+    private static boolean menuAction(BaseFrame parentFrame, BaseDialog parentDialog, String action, AdminRecord admin, Logbook logbook) {
         if (action == null) {
-            return;
+            return false;
         }
 
         if (action.equals(BUTTON_PROJECTS)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedAdministerProjectLogbook())) {
-                insufficientRights(admin, BUTTON_CONFIGURATION);
-                return;
+            if (admin == null || (!admin.isAllowedAdministerProjectLogbook())) {
+                insufficientRights(admin, action);
+                return false;
             }
-            // @todo
+            return true; // Projects have to handled individually by the caller
         }
+
         if (action.equals(BUTTON_LOGBOOKS)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedAdministerProjectLogbook())) {
-                insufficientRights(admin, BUTTON_CONFIGURATION);
-                return;
+            if (admin == null || (!admin.isAllowedAdministerProjectLogbook())) {
+                insufficientRights(admin, action);
+                return false;
             }
-            // @todo
+            return true; // Logbooks have to handled individually by the caller
         }
-        if (action.equals(BUTTON_EXIT)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedExitEfa())) {
-                insufficientRights(admin, BUTTON_CONFIGURATION);
-                return;
+
+        if (action.equals(BUTTON_UPDATE)) {
+            if (admin == null || (!admin.isAllowedUpdateEfa())) {
+                insufficientRights(admin, action);
+                return false;
             }
-            // @todo
+            Dialog.infoDialog("Not yet implemented!");
+            // @todo (P3) Implement Online Update
+        }
+
+        if (action.equals(BUTTON_OSCOMMAND)) {
+            if (admin == null || (!admin.isAllowedExecCommand())) {
+                insufficientRights(admin, action);
+                return false;
+            }
+            Dialog.infoDialog("Not yet implemented!");
+            // @todo (P3) Implement Exec OS Command
+        }
+
+        if (action.equals(BUTTON_EXIT)) {
+            if (admin == null || (!admin.isAllowedExitEfa())) {
+                insufficientRights(admin, action);
+                return false;
+            }
+            if (parentFrame != null) {
+                parentFrame.cancel();
+            }
+            if (parentDialog != null) {
+                parentDialog.cancel();
+            }
+        }
+
+        if (action.equals(BUTTON_LOGBOOK)) {
+            if (Daten.project == null || logbook == null) {
+                Dialog.error(International.getString("Kein Fahrtenbuch geöffnet."));
+                return false;
+            }
+            if (admin == null || (!admin.isAllowedEditLogbook())) {
+                insufficientRights(admin, action);
+                return false;
+            }
+            EfaBaseFrame dlg = new EfaBaseFrame(parentDialog, EfaBaseFrame.MODE_ADMIN);
+            dlg.setDataForAdminAction(logbook, admin, (AdminDialog)parentDialog);
+            dlg.efaBoathouseShowEfaFrame();
+        }
+
+        if (action.equals(BUTTON_SESSIONGROUPS)) {
+            if (Daten.project == null || logbook == null) {
+                Dialog.error(International.getString("Kein Fahrtenbuch geöffnet."));
+                return false;
+            }
+            if (admin == null || (!admin.isAllowedEditLogbook())) {
+                insufficientRights(admin, action);
+                return false;
+            }
+            SessionGroupListDialog dlg = (parentFrame != null ? new SessionGroupListDialog(parentFrame, logbook.getName()) : new SessionGroupListDialog(parentDialog, logbook.getName()));
+            dlg.showDialog();
         }
 
         if (action.equals(BUTTON_BOATS)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedEditBoats())) {
-                insufficientRights(admin, BUTTON_BOATS);
-                return;
+            if (Daten.project == null) {
+                Dialog.error(International.getString("Kein Projekt geöffnet."));
+                return false;
+            }
+            if (admin == null || (!admin.isAllowedEditBoats())) {
+                insufficientRights(admin, action);
+                return false;
             }
             BoatListDialog dlg = (parentFrame != null ? new BoatListDialog(parentFrame, -1) : new BoatListDialog(parentDialog, -1));
             dlg.showDialog();
         }
+
         if (action.equals(BUTTON_BOATSTATUS)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedEditBoatStatus())) {
-                insufficientRights(admin, BUTTON_BOATSTATUS);
-                return;
+            if (Daten.project == null) {
+                Dialog.error(International.getString("Kein Projekt geöffnet."));
+                return false;
+            }
+            if (admin == null || (!admin.isAllowedEditBoatStatus())) {
+                insufficientRights(admin, action);
+                return false;
             }
             BoatStatusListDialog dlg = (parentFrame != null ? new BoatStatusListDialog(parentFrame) : new BoatStatusListDialog(parentDialog));
             dlg.showDialog();
         }
+
         if (action.equals(BUTTON_BOATRESERVATIONS)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedEditBoatReservation())) {
-                insufficientRights(admin, BUTTON_BOATRESERVATIONS);
-                return;
+            if (Daten.project == null) {
+                Dialog.error(International.getString("Kein Projekt geöffnet."));
+                return false;
+            }
+            if (admin == null || (!admin.isAllowedEditBoatReservation())) {
+                insufficientRights(admin, action);
+                return false;
             }
             BoatReservationListDialog dlg = (parentFrame != null ? new BoatReservationListDialog(parentFrame) : new BoatReservationListDialog(parentDialog));
             dlg.showDialog();
         }
+
         if (action.equals(BUTTON_BOATDAMAGES)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedEditBoatDamages())) {
-                insufficientRights(admin, BUTTON_BOATDAMAGES);
-                return;
+            if (Daten.project == null) {
+                Dialog.error(International.getString("Kein Projekt geöffnet."));
+                return false;
+            }
+            if (admin == null || (!admin.isAllowedEditBoatDamages())) {
+                insufficientRights(admin, action);
+                return false;
             }
             BoatDamageListDialog dlg = (parentFrame != null ? new BoatDamageListDialog(parentFrame) : new BoatDamageListDialog(parentDialog));
             dlg.showDialog();
         }
+
         if (action.equals(BUTTON_PERSONS)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedEditPersons())) {
-                insufficientRights(admin, BUTTON_PERSONS);
-                return;
+            if (Daten.project == null) {
+                Dialog.error(International.getString("Kein Projekt geöffnet."));
+                return false;
+            }
+            if (admin == null || (!admin.isAllowedEditPersons())) {
+                insufficientRights(admin, action);
+                return false;
             }
             PersonListDialog dlg = (parentFrame != null ? new PersonListDialog(parentFrame, -1) : new PersonListDialog(parentDialog, -1));
             dlg.showDialog();
         }
+
         if (action.equals(BUTTON_STATUS)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedEditPersons())) {
-                insufficientRights(admin, BUTTON_STATUS);
-                return;
+            if (Daten.project == null) {
+                Dialog.error(International.getString("Kein Projekt geöffnet."));
+                return false;
+            }
+            if (admin == null || (!admin.isAllowedEditPersons())) {
+                insufficientRights(admin, action);
+                return false;
             }
             StatusListDialog dlg = (parentFrame != null ? new StatusListDialog(parentFrame) : new StatusListDialog(parentDialog));
             dlg.showDialog();
         }
+
         if (action.equals(BUTTON_GROUPS)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedEditGroups())) {
-                insufficientRights(admin, BUTTON_GROUPS);
-                return;
+            if (Daten.project == null) {
+                Dialog.error(International.getString("Kein Projekt geöffnet."));
+                return false;
+            }
+            if (admin == null || (!admin.isAllowedEditGroups())) {
+                insufficientRights(admin, action);
+                return false;
             }
             GroupListDialog dlg = (parentFrame != null ? new GroupListDialog(parentFrame, -1) : new GroupListDialog(parentDialog, -1));
             dlg.showDialog();
         }
+
         if (action.equals(BUTTON_CREWS)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedEditCrews())) {
-                insufficientRights(admin, BUTTON_CREWS);
-                return;
+            if (Daten.project == null) {
+                Dialog.error(International.getString("Kein Projekt geöffnet."));
+                return false;
+            }
+            if (admin == null || (!admin.isAllowedEditCrews())) {
+                insufficientRights(admin, action);
+                return false;
             }
             CrewListDialog dlg = (parentFrame != null ? new CrewListDialog(parentFrame) : new CrewListDialog(parentDialog));
             dlg.showDialog();
         }
+
         if (action.equals(BUTTON_FAHRTENABZEICHEN)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedEditFahrtenabzeichen())) {
-                insufficientRights(admin, BUTTON_FAHRTENABZEICHEN);
-                return;
+            if (Daten.project == null) {
+                Dialog.error(International.getString("Kein Projekt geöffnet."));
+                return false;
+            }
+            if (admin == null || (!admin.isAllowedEditFahrtenabzeichen())) {
+                insufficientRights(admin, action);
+                return false;
             }
             FahrtenabzeichenListDialog dlg = (parentFrame != null ? new FahrtenabzeichenListDialog(parentFrame) : new FahrtenabzeichenListDialog(parentDialog));
             dlg.showDialog();
         }
+
         if (action.equals(BUTTON_DESTINATIONS)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedEditDestinations())) {
-                insufficientRights(admin, BUTTON_DESTINATIONS);
-                return;
+            if (Daten.project == null) {
+                Dialog.error(International.getString("Kein Projekt geöffnet."));
+                return false;
+            }
+            if (admin == null || (!admin.isAllowedEditDestinations())) {
+                insufficientRights(admin, action);
+                return false;
             }
             DestinationListDialog dlg = (parentFrame != null ? new DestinationListDialog(parentFrame, -1) : new DestinationListDialog(parentDialog, -1));
             dlg.showDialog();
         }
+
         if (action.equals(BUTTON_WATERS)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedEditDestinations())) {
-                insufficientRights(admin, BUTTON_WATERS);
-                return;
+            if (Daten.project == null) {
+                Dialog.error(International.getString("Kein Projekt geöffnet."));
+                return false;
+            }
+            if (admin == null || (!admin.isAllowedEditDestinations())) {
+                insufficientRights(admin, action);
+                return false;
             }
             WatersListDialog dlg = (parentFrame != null ? new WatersListDialog(parentFrame) : new WatersListDialog(parentDialog));
             dlg.showDialog();
         }
+
         if (action.equals(BUTTON_CONFIGURATION)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedConfiguration())) {
-                insufficientRights(admin, BUTTON_CONFIGURATION);
-                return;
+            if (admin == null || (!admin.isAllowedConfiguration())) {
+                insufficientRights(admin, action);
+                return false;
             }
             EfaConfigDialog dlg = (parentFrame != null ? new EfaConfigDialog(parentFrame) : new EfaConfigDialog(parentDialog));
             dlg.showDialog();
         }
+
         if (action.equals(BUTTON_ADMINS)) {
             if (admin == null || !admin.isAllowedEditAdmins()) {
-                insufficientRights(admin, BUTTON_ADMINS);
-                return;
+                insufficientRights(admin, action);
+                return false;
             }
             AdminListDialog dlg = (parentFrame != null ? new AdminListDialog(parentFrame) : new AdminListDialog(parentDialog));
             dlg.showDialog();
         }
+
         if (action.equals(BUTTON_PASSWORD)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedChangePassword())) {
-                insufficientRights(admin, BUTTON_PASSWORD);
-                return;
+            if (admin == null || (!admin.isAllowedChangePassword())) {
+                insufficientRights(admin, action);
+                return false;
             }
-            // @todo
+            AdminPasswordChangeDialog dlg = (parentFrame != null ? new AdminPasswordChangeDialog(parentFrame, admin) : new AdminPasswordChangeDialog(parentDialog, admin));
+            dlg.showDialog();
+        }
+
+        if (action.equals(BUTTON_LOCKEFA)) {
+            if (admin == null || (!admin.isAllowedLockEfa())) {
+                insufficientRights(admin, action);
+                return false;
+            }
+            Dialog.infoDialog("Not yet implemented!");
+            // @todo (P3) Implement Lock Efa
         }
 
         if (action.equals(BUTTON_STATISTICS)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedEditStatistics())) {
-                insufficientRights(admin, BUTTON_STATISTICS);
-                return;
+            if (Daten.project == null) {
+                Dialog.error(International.getString("Kein Projekt geöffnet."));
+                return false;
             }
-            // @todo
+            if (admin == null || (!admin.isAllowedEditStatistics())) {
+                insufficientRights(admin, action);
+                return false;
+            }
+            Dialog.infoDialog("Not yet implemented!");
+            // @todo (P2) Implement Create Statistics
         }
+
         if (action.equals(BUTTON_SYNCKANUEFB)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedSyncKanuEfb())) {
-                insufficientRights(admin, BUTTON_SYNCKANUEFB);
-                return;
+            if (Daten.project == null) {
+                Dialog.error(International.getString("Kein Projekt geöffnet."));
+                return false;
+            }
+            if (admin == null || (!admin.isAllowedSyncKanuEfb())) {
+                insufficientRights(admin, action);
+                return false;
             }
             KanuEfbSyncTask syncTask = new KanuEfbSyncTask(logbook);
             ProgressDialog progressDialog = (parentFrame != null ?
                 new ProgressDialog(parentFrame, International.getString("Mit Kanu-Efb synchronisieren"), syncTask, false) :
                 new ProgressDialog(parentDialog, International.getString("Mit Kanu-Efb synchronisieren"), syncTask, false) );
-            syncTask.start();
-            progressDialog.showDialog();
+            syncTask.startSynchronization(progressDialog);
         }
 
         if (action.equals(BUTTON_HELP)) {
             Help.showHelp((parentFrame != null ? parentFrame.getHelpTopic() : parentDialog.getHelpTopic()));
         }
+
+        if (action.equals(BUTTON_MESSAGES)) {
+            if (Daten.project == null) {
+                Dialog.error(International.getString("Kein Projekt geöffnet."));
+                return false;
+            }
+            if (admin == null || (!admin.isAllowedMsgReadAdmin() && !admin.isAllowedMsgReadBoatMaintenance())) {
+                insufficientRights(admin, action);
+                return false;
+            }
+            MessageListDialog dlg = (parentFrame != null ? new MessageListDialog(parentFrame) : new MessageListDialog(parentDialog));
+            dlg.showDialog();
+        }
+
         if (action.equals(BUTTON_LOGFILE)) {
-            if (admin == null || (!admin.isAllowedFullAccess() && !admin.isAllowedShowLogfile())) {
-                insufficientRights(admin, BUTTON_LOGFILE);
-                return;
+            if (admin == null || (!admin.isAllowedShowLogfile())) {
+                insufficientRights(admin, action);
+                return false;
             }
             LogViewDialog dlg = (parentFrame != null ? new LogViewDialog(parentFrame) : new LogViewDialog(parentDialog));
             dlg.showDialog();
         }
+
         if (action.equals(BUTTON_ABOUT)) {
             EfaAboutDialog dlg = (parentFrame != null ? new EfaAboutDialog(parentFrame) : new EfaAboutDialog(parentDialog));
             dlg.showDialog();
         }
+        
+        return true;
     }
 
-    private static void insufficientRights(AdminRecord admin, String action) {
-        String actionText = (actionMapping != null ? actionMapping.get(action) : null);
+    public static void insufficientRights(AdminRecord admin, String action) {
+        String actionText = (actionMapping != null ? actionMapping.get(action) : action);
         String msg = International.getMessage("Du hast als {user} nicht die Berechtigung, um die Funktion '{function}' auszuführen.",
                 (admin != null ?
                     International.getString("Admin") + " '" + admin.getName() + "'" :

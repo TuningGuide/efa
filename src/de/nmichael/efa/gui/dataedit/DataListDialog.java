@@ -36,7 +36,9 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
 
     protected String[] actionText;
     protected int[] actionType;
-    private ItemTypeDataRecordTable table;
+    protected String filterFieldName;
+    protected String filterFieldValue;
+    protected ItemTypeDataRecordTable table;
     private ItemTypeDateTime validAtDateTime;
     private ItemTypeBoolean showAll;
     private ItemTypeBoolean showDeleted;
@@ -88,11 +90,11 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
         table = new ItemTypeDataRecordTable("TABLE",
                 persistence.createNewRecord().getGuiTableHeader(),
                 persistence, validAt,
-                null, null,
+                filterFieldName, filterFieldValue, // defaults are null
                 actionText, actionType, // default actions: new, edit, delete
                 this,
                 IItemType.TYPE_PUBLIC, "BASE_CAT", getTitle());
-        table.setFieldSize(800, 600);
+        table.setFieldSize(600, 500);
         table.setPadding(0, 0, 10, 0);
         table.displayOnGui(this, mainTablePanel, BorderLayout.CENTER);
 

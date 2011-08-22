@@ -64,6 +64,10 @@ public class VersionizedDataCreateVersionDialog extends BaseDialog implements II
                 (validFromTs == 0 ? null : new DataTypeDate(validFromTs)),
                 (validFromTs == 0 ? null : new DataTypeTime(validFromTs)),
                 IItemType.TYPE_PUBLIC, "", International.getString("Neue Version gültig ab") );
+        DataTypeDate rDate = new DataTypeDate(validFromTs);
+        rDate.setDay(1);
+        rDate.setMonth(1);
+        validFrom.setReferenceDate(rDate, new DataTypeTime(0, 0, 0));
         validFrom.registerItemListener(this);
         validFrom.displayOnGui(this, mainPanel, 0, 1);
         validFrom.requestFocus();

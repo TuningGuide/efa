@@ -30,6 +30,10 @@ public class ItemTypeDistance extends ItemTypeLabelTextfield {
         this.description = description;
     }
 
+    public IItemType copyOf() {
+        return new ItemTypeDistance(name, new  DataTypeDistance(value), type, category, description);
+    }
+
     public void parseValue(String value) {
         if (value != null) {
             value = value.trim();

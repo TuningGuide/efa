@@ -126,6 +126,7 @@ public class ImportDestinations extends ImportBase {
                         logDetail(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                     } catch(Exception e) {
                         logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
+                        Logger.logdebug(e);
                     }
                 } else {
                     logDetail(International.getMessage("Identischer Eintrag: {entry}", r.toString()));
@@ -135,7 +136,7 @@ public class ImportDestinations extends ImportBase {
         } catch(Exception e) {
             logError(International.getMessage("Import von {list} aus {file} ist fehlgeschlagen.", getDescription(), ziele.getFileName()));
             logError(e.toString());
-            e.printStackTrace();
+            Logger.logdebug(e);
             return false;
         }
         return true;

@@ -14,8 +14,9 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.gui.SimpleInputDialog;
+import de.nmichael.efa.gui.util.AutoCompleteList;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -27,14 +28,29 @@ public class BoatDamageListDialog extends DataListDialog {
 
     public BoatDamageListDialog(Frame parent) {
         super(parent, International.getString("Bootsschäden"), Daten.project.getBoatDamages(false), 0);
-        actionText = new String[] { ItemTypeDataRecordTable.ACTIONTEXT_EDIT, ItemTypeDataRecordTable.ACTIONTEXT_DELETE };
-        actionType = new int[] { ItemTypeDataRecordTable.ACTION_EDIT, ItemTypeDataRecordTable.ACTION_DELETE };
+        iniValues(null);
     }
 
     public BoatDamageListDialog(JDialog parent) {
         super(parent, International.getString("Bootsschäden"), Daten.project.getBoatDamages(false), 0);
-        actionText = new String[] { ItemTypeDataRecordTable.ACTIONTEXT_EDIT, ItemTypeDataRecordTable.ACTIONTEXT_DELETE };
-        actionType = new int[] { ItemTypeDataRecordTable.ACTION_EDIT, ItemTypeDataRecordTable.ACTION_DELETE };
+        iniValues(null);
+    }
+
+    public BoatDamageListDialog(Frame parent, UUID boatId) {
+        super(parent, International.getString("Bootsschäden"), Daten.project.getBoatDamages(false), 0);
+        iniValues(boatId);
+    }
+
+    public BoatDamageListDialog(JDialog parent, UUID boatId) {
+        super(parent, International.getString("Bootsschäden"), Daten.project.getBoatDamages(false), 0);
+        iniValues(boatId);
+    }
+
+    private void iniValues(UUID boatId) {
+        if (boatId != null) {
+            this.filterFieldName  = BoatReservationRecord.BOATID;
+            this.filterFieldValue = boatId.toString();
+        }
     }
 
     public void keyAction(ActionEvent evt) {
@@ -42,9 +58,30 @@ public class BoatDamageListDialog extends DataListDialog {
     }
 
     public DataEditDialog createNewDataEditDialog(JDialog parent, Persistence persistence, DataRecord record) {
+        boolean newRecord = (record == null);
+        if (record == null && persistence != null && filterFieldValue != null) {
+            record = ((BoatDamages)persistence).createBoatDamageRecord(UUID.fromString(filterFieldValue));
+        }
+        if (record == null) {
+            long now = System.currentTimeMillis();
+            ItemTypeStringAutoComplete boat = new ItemTypeStringAutoComplete("BOAT", "", IItemType.TYPE_PUBLIC,
+                    "", International.getString("Boot"), false);
+            boat.setAutoCompleteData(new AutoCompleteList(Daten.project.getBoats(false).data(), now, now));
+            if (SimpleInputDialog.showInputDialog(this, International.getString("Boot auswählen"), boat)) {
+                String s = boat.toString();
+                try {
+                    if (s != null && s.length() > 0) {
+                        Boats boats = Daten.project.getBoats(false);
+                        record = ((BoatDamages)persistence).createBoatDamageRecord(boats.getBoat(s, now).getId());
+                    }
+                } catch(Exception e) {
+                    Logger.logdebug(e);
+                }
+            }
+        }
         if (record == null) {
             return null;
         }
-        return new BoatDamageEditDialog(parent, (BoatDamageRecord)record, false);
+        return new BoatDamageEditDialog(parent, (BoatDamageRecord)record, newRecord);
     }
 }

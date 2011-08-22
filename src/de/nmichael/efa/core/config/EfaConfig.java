@@ -1,34 +1,29 @@
-/**
- * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
- * Website:      http://efa.nmichael.de/
- * License:      GNU General Public License v2
- *
- * @author Nicolas Michael
- * @version 2
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
  */
 
 package de.nmichael.efa.core.config;
 
-import de.nmichael.efa.core.items.*;
-import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.util.*;
-import de.nmichael.efa.efa1.DatenListe;
-import de.nmichael.efa.direkt.Admin;
 import de.nmichael.efa.core.DownloadFrame;
-import de.nmichael.efa.gui.widgets.*;
-import java.util.*;
-import java.io.*;
-import java.text.*;
-import javax.swing.*;
+import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.gui.widgets.IWidget;
+import de.nmichael.efa.gui.widgets.Widget;
+import de.nmichael.efa.util.*;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.Vector;
+import javax.swing.UIManager;
 
-// @i18n complete
+public class EfaConfig extends Persistence {
 
-// @todo (P3) make EfaConfig a Persistence implementation
-public class EfaConfig extends DatenListe {
-
-    // @todo (P3) make EfaConfig an XML file and "improve" the config parameter's names (and remove obsolete ones)
+    public static final String DATATYPE = "efa2config";
 
     // Parameter Categories
     public static final char CATEGORY_SEPARATOR = ':';
@@ -57,6 +52,8 @@ public class EfaConfig extends DatenListe {
     public static final String CATEGORY_KANUEFB       = "15KANUEFB";
     public static final String CATEGORY_LOCALE        = "16LOCALE";
     public static final String CATEGORY_WIDGETS       = "17WIDGETS";
+    public static final String CATEGORY_DATAACCESS    = "18DATAACCESS";
+    public static final String CATEGORY_DATAXML       = "181DATAXML";
 
     private static final int STRINGLIST_VALUES  = 1;
     private static final int STRINGLIST_DISPLAY = 2;
@@ -89,223 +86,250 @@ public class EfaConfig extends DatenListe {
         "c:\\Program Files\\Adobe\\Reader 9.0\\Reader\\AcroRd32.exe"
     };
 
-    public static final String KENNUNG190 = "##EFA.190.CONFIGURATION##";
+    // private configuration data
+    private ItemTypeString lastProjectEfaBase;
+    private ItemTypeString lastProjectEfaBoathouse;
+    private ItemTypeBoolean autogenAlias;
+    private ItemTypeString aliasFormat;
+    private ItemTypeFile browser;
+    private ItemTypeFile acrobat;
+    private ItemTypeInteger printPageWidth;
+    private ItemTypeInteger printPageHeight;
+    private ItemTypeInteger printLeftMargin;
+    private ItemTypeInteger printTopMargin;
+    private ItemTypeInteger printPageOverlap;
+    private ItemTypeHashtable<String> keys;
+    private ItemTypeInteger countEfaStarts;
+    private ItemTypeString registeredProgramID;
+    private ItemTypeInteger registrationChecks;
+    private ItemTypeBoolean autoStandardmannsch;
+    private ItemTypeBoolean manualStandardmannsch;
+    private ItemTypeBoolean showObmann;
+    private ItemTypeBoolean autoObmann;
+    private ItemTypeStringList defaultObmann;
+    private ItemTypeBoolean popupComplete;
+    private ItemTypeStringList nameFormat;
+    private ItemTypeBoolean correctMisspelledMitglieder;
+    private ItemTypeBoolean correctMisspelledBoote;
+    private ItemTypeBoolean correctMisspelledZiele;
+    private ItemTypeBoolean skipUhrzeit;
+    private ItemTypeBoolean skipZiel;
+    private ItemTypeBoolean skipBemerk;
+    private ItemTypeBoolean fensterZentriert;
+    private ItemTypeInteger windowXOffset;
+    private ItemTypeInteger windowYOffset;
+    private ItemTypeInteger screenWidth;
+    private ItemTypeInteger screenHeight;
+    private ItemTypeInteger maxDialogHeight;
+    private ItemTypeInteger maxDialogWidth;
+    private ItemTypeStringList lookAndFeel;
+    private ItemTypeStringList standardFahrtart;
+    private ItemTypeStringList defaultDistanceUnit;
+    private ItemTypeBoolean debugLogging;
+    private ItemTypeString traceTopic;
+    private ItemTypeString efaVersionLastCheck;
+    private ItemTypeString version;
+    private ItemTypeBoolean efaDirekt_zielBeiFahrtbeginnPflicht;
+    private ItemTypeBoolean efaDirekt_eintragErzwingeObmann;
+    private ItemTypeBoolean efaDirekt_eintragErlaubeNurMaxRudererzahl;
+    private ItemTypeBoolean efaDirekt_eintragNichtAenderbarUhrzeit;
+    private ItemTypeBoolean efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen;
+    private ItemTypeBoolean efaDirekt_eintragNurBekannteBoote;
+    private ItemTypeBoolean efaDirekt_eintragNurBekannteRuderer;
+    private ItemTypeBoolean efaDirekt_eintragNurBekannteZiele;
+    private ItemTypeBoolean efaDirekt_eintragHideUnnecessaryInputFields;
+    private ItemTypeInteger efaDirekt_plusMinutenAbfahrt;
+    private ItemTypeInteger efaDirekt_minusMinutenAnkunft;
+    private ItemTypeBoolean efaDirekt_mitgliederDuerfenReservieren;
+    private ItemTypeBoolean efaDirekt_mitgliederDuerfenReservierenZyklisch;
+    private ItemTypeBoolean efaDirekt_mitgliederDuerfenReservierungenEditieren;
+    private ItemTypeBoolean efaDirekt_mitgliederDuerfenEfaBeenden;
+    private ItemTypeBoolean efaDirekt_mitgliederDuerfenNamenHinzufuegen;
+    private ItemTypeBoolean efaDirekt_resBooteNichtVerfuegbar;
+    private ItemTypeBoolean efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar;
+    private ItemTypeInteger efaDirekt_resLookAheadTime;
+    private ItemTypeString efaDirekt_execOnEfaExit;
+    private ItemTypeTime efaDirekt_exitTime;
+    private ItemTypeInteger efaDirekt_exitIdleTime;
+    private ItemTypeString efaDirekt_execOnEfaAutoExit;
+    private ItemTypeTime efaDirekt_restartTime;
+    private ItemTypeBoolean efaDirekt_checkRunning;
+    private ItemTypeConfigButton efaDirekt_butFahrtBeginnen;
+    private ItemTypeConfigButton efaDirekt_butFahrtBeenden;
+    private ItemTypeConfigButton efaDirekt_butFahrtAbbrechen;
+    private ItemTypeConfigButton efaDirekt_butNachtrag;
+    private ItemTypeConfigButton efaDirekt_butBootsreservierungen;
+    private ItemTypeConfigButton efaDirekt_butFahrtenbuchAnzeigen;
+    private ItemTypeConfigButton efaDirekt_butStatistikErstellen;
+    private ItemTypeConfigButton efaDirekt_butNachrichtAnAdmin;
+    private ItemTypeConfigButton efaDirekt_butAdminModus;
+    private ItemTypeConfigButton efaDirekt_butSpezial;
+    private ItemTypeString efaDirekt_butSpezialCmd;
+    private ItemTypeBoolean efaDirekt_showButtonHotkey;
+    private ItemTypeBoolean efaDirekt_sortByAnzahl;
+    private ItemTypeBoolean efaDirekt_autoPopupOnBoatLists;
+    private ItemTypeBoolean efaDirekt_listAllowToggleBoatsPersons;
+    private ItemTypeBoolean efaDirekt_showEingabeInfos;
+    private ItemTypeBoolean efaDirekt_showBootsschadenButton;
+    private ItemTypeInteger efaDirekt_maxFBAnzeigenFahrten;
+    private ItemTypeInteger efaDirekt_anzFBAnzeigenFahrten;
+    private ItemTypeBoolean efaDirekt_FBAnzeigenAuchUnvollstaendige;
+    private ItemTypeDate efaDirekt_autoNewFb_datum;
+    private ItemTypeString efaDirekt_autoNewFb_datei;
+    private ItemTypeInteger efaDirekt_fontSize;
+    private ItemTypeStringList efaDirekt_fontStyle;
+    private ItemTypeBoolean efaDirekt_colorizeInputField;
+    private ItemTypeBoolean efaDirekt_showZielnameFuerBooteUnterwegs;
+    private ItemTypeString efadirekt_adminLastOsCommand;
+    private ItemTypeImage efaDirekt_vereinsLogo;
+    private ItemTypeBoolean efaDirekt_showUhr;
+    private ItemTypeBoolean efaDirekt_showNews;
+    private ItemTypeString efaDirekt_newsText;
+    private ItemTypeInteger efaDirekt_newsScrollSpeed;
+    private ItemTypeBoolean efaDirekt_startMaximized;
+    private ItemTypeBoolean efaDirekt_fensterNichtVerschiebbar;
+    private ItemTypeBoolean efaDirekt_immerImVordergrund;
+    private ItemTypeBoolean efaDirekt_immerImVordergrundBringToFront;
+    private ItemTypeBoolean efaDirekt_bnrError_admin;
+    private ItemTypeBoolean efaDirekt_bnrError_bootswart;
+    private ItemTypeBoolean efaDirekt_bnrWarning_admin;
+    private ItemTypeBoolean efaDirekt_bnrWarning_bootswart;
+    private ItemTypeBoolean efaDirekt_bnrBootsstatus_admin;
+    private ItemTypeBoolean efaDirekt_bnrBootsstatus_bootswart;
+    private ItemTypeLong efaDirekt_bnrWarning_lasttime;
+    private ItemTypeString efaDirekt_emailServer;
+    private ItemTypeInteger efaDirekt_emailPort;
+    private ItemTypeString efaDirekt_emailAbsender;
+    private ItemTypeString efaDirekt_emailUsername;
+    private ItemTypeString efaDirekt_emailPassword;
+    private ItemTypeString efaDirekt_emailAbsenderName;
+    private ItemTypeString efaDirekt_emailBetreffPraefix;
+    private ItemTypeString efaDirekt_emailSignatur;
+    private ItemTypeString efaDirekt_lockEfaShowHtml;
+    private ItemTypeBoolean efaDirekt_lockEfaVollbild;
+    private ItemTypeDate efaDirekt_lockEfaFromDatum;
+    private ItemTypeTime efaDirekt_lockEfaFromZeit;
+    private ItemTypeDate efaDirekt_lockEfaUntilDatum;
+    private ItemTypeTime efaDirekt_lockEfaUntilZeit;
+    private ItemTypeBoolean efaDirekt_locked;
+    private ItemTypeBoolean useFunctionalityRowing;
+    private ItemTypeBoolean useFunctionalityRowingGermany;
+    private ItemTypeBoolean useFunctionalityRowingBerlin;
+    private ItemTypeBoolean useFunctionalityCanoeing;
+    private ItemTypeBoolean useFunctionalityCanoeingGermany;
+    private ItemTypeFile efaUserDirectory;
+    private ItemTypeStringList language;
+    private ItemTypeAction typesResetToDefault;
+    private ItemTypeAction typesAddAllDefaultRowingBoats;
+    private ItemTypeAction typesAddAllDefaultCanoeingBoats;
+    private ItemTypeHashtable<String> typesGender;
+    private ItemTypeHashtable<String> typesBoat;
+    private ItemTypeHashtable<String> typesNumSeats;
+    private ItemTypeHashtable<String> typesRigging;
+    private ItemTypeHashtable<String> typesCoxing;
+    private ItemTypeHashtable<String> typesSession;
+    private ItemTypeHashtable<String> typesStatus;
+    private ItemTypeString kanuEfb_urlLogin;
+    private ItemTypeString kanuEfb_urlRequest;
+    private ItemTypeBoolean dataPreModifyRecordCallbackEnabled;
+    private Vector<IWidget> widgets;
 
     // private internal data
     private HashMap<String,String> categories;
-    private HashMap<String,IItemType> configValues;
+    private HashMap<String,IItemType> configValues; // always snychronize on this object!!
     private Vector<String> configValueNames;
-    private CustSettings custSettings = null;
-    
-    // public configuration data
-    public ItemTypeFile letzteDatei; // @todo (P5) remove efa1
-    public ItemTypeFile direkt_letzteDatei; // @todo (P5) remove efa1
-    public ItemTypeString lastProjectEfaBase;
-    public ItemTypeString lastProjectEfaBoathouse;
-    public ItemTypeBoolean autogenAlias;
-    public ItemTypeString aliasFormat;
-    public ItemTypeString bakDir;
-    public ItemTypeBoolean bakSave;
-    public ItemTypeBoolean bakMonat;
-    public ItemTypeBoolean bakTag;
-    public ItemTypeBoolean bakKonv;
-    public ItemTypeFile browser;
-    public ItemTypeFile acrobat;
-    public ItemTypeInteger printPageWidth;
-    public ItemTypeInteger printPageHeight;
-    public ItemTypeInteger printLeftMargin;
-    public ItemTypeInteger printTopMargin;
-    public ItemTypeInteger printPageOverlap;
-    public ItemTypeHashtable<String> keys;
-    public ItemTypeInteger countEfaStarts;
-    public ItemTypeString registeredProgramID;
-    public ItemTypeInteger registrationChecks;
-    public ItemTypeBoolean autoStandardmannsch;
-    public ItemTypeBoolean manualStandardmannsch;
-    public ItemTypeBoolean showObmann;
-    public ItemTypeBoolean autoObmann;
-    public ItemTypeStringList defaultObmann;
-    public ItemTypeBoolean popupComplete;
-    public ItemTypeStringList nameFormat;
-    public ItemTypeBoolean correctMisspelledMitglieder;
-    public ItemTypeBoolean correctMisspelledBoote;
-    public ItemTypeBoolean correctMisspelledZiele;
-    public ItemTypeBoolean skipUhrzeit;
-    public ItemTypeBoolean skipZiel;
-    public ItemTypeBoolean skipMannschKm;
-    public ItemTypeBoolean skipBemerk;
-    public ItemTypeBoolean fensterZentriert;
-    public ItemTypeInteger windowXOffset;
-    public ItemTypeInteger windowYOffset;
-    public ItemTypeInteger screenWidth;
-    public ItemTypeInteger screenHeight;
-    public ItemTypeInteger maxDialogHeight;
-    public ItemTypeInteger maxDialogWidth;
-    public ItemTypeStringList lookAndFeel;
-    public ItemTypeString zielfahrtSeparatorBereiche;
-    public ItemTypeString zielfahrtSeparatorFahrten;
-    public ItemTypeStringList standardFahrtart;
-    public ItemTypeStringList defaultDistanceUnit;
-    public ItemTypeBoolean debugLogging;
-    public ItemTypeString traceTopic;
-    public ItemTypeString efaVersionLastCheck;
-    public ItemTypeString version;
-    public ItemTypeHashtable<Admin> admins;
-    public ItemTypeBoolean efaDirekt_zielBeiFahrtbeginnPflicht;
-    public ItemTypeBoolean efaDirekt_eintragErzwingeObmann;
-    public ItemTypeBoolean efaDirekt_eintragErlaubeNurMaxRudererzahl;
-    public ItemTypeBoolean efaDirekt_eintragNichtAenderbarUhrzeit;
-    public ItemTypeBoolean efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen;
-    public ItemTypeBoolean efaDirekt_eintragNurBekannteBoote;
-    public ItemTypeBoolean efaDirekt_eintragNurBekannteRuderer;
-    public ItemTypeBoolean efaDirekt_eintragNurBekannteZiele;
-    public ItemTypeBoolean efaDirekt_eintragHideUnnecessaryInputFields;
-    public ItemTypeInteger efaDirekt_plusMinutenAbfahrt;
-    public ItemTypeInteger efaDirekt_minusMinutenAnkunft;
-    public ItemTypeBoolean efaDirekt_mitgliederDuerfenReservieren;
-    public ItemTypeBoolean efaDirekt_mitgliederDuerfenReservierenZyklisch;
-    public ItemTypeBoolean efaDirekt_mitgliederDuerfenReservierungenEditieren;
-    public ItemTypeBoolean efaDirekt_mitgliederDuerfenEfaBeenden;
-    public ItemTypeBoolean efaDirekt_mitgliederDuerfenNamenHinzufuegen;
-    public ItemTypeBoolean efaDirekt_resBooteNichtVerfuegbar;
-    public ItemTypeBoolean efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar;
-    public ItemTypeInteger efaDirekt_resLookAheadTime;
-    public ItemTypeString efaDirekt_execOnEfaExit;
-    public ItemTypeTime efaDirekt_exitTime;
-    public ItemTypeInteger efaDirekt_exitIdleTime;
-    public ItemTypeString efaDirekt_execOnEfaAutoExit;
-    public ItemTypeTime efaDirekt_restartTime;
-    public ItemTypeBoolean efaDirekt_checkRunning;
-    public ItemTypeConfigButton efaDirekt_butFahrtBeginnen;
-    public ItemTypeConfigButton efaDirekt_butFahrtBeenden;
-    public ItemTypeConfigButton efaDirekt_butFahrtAbbrechen;
-    public ItemTypeConfigButton efaDirekt_butNachtrag;
-    public ItemTypeConfigButton efaDirekt_butBootsreservierungen;
-    public ItemTypeConfigButton efaDirekt_butFahrtenbuchAnzeigen;
-    public ItemTypeConfigButton efaDirekt_butStatistikErstellen;
-    public ItemTypeConfigButton efaDirekt_butNachrichtAnAdmin;
-    public ItemTypeConfigButton efaDirekt_butAdminModus;
-    public ItemTypeConfigButton efaDirekt_butSpezial;
-    public ItemTypeString efaDirekt_butSpezialCmd;
-    public ItemTypeBoolean efaDirekt_showButtonHotkey;
-    public ItemTypeBoolean efaDirekt_sunRiseSet_show;
-    public ItemTypeLongLat efaDirekt_sunRiseSet_latitude;
-    public ItemTypeLongLat efaDirekt_sunRiseSet_longitude;
-    public ItemTypeBoolean efaDirekt_sortByAnzahl;
-    public ItemTypeBoolean efaDirekt_autoPopupOnBoatLists;
-    public ItemTypeBoolean efaDirekt_listAllowToggleBoatsPersons;
-    public ItemTypeBoolean efaDirekt_showEingabeInfos;
-    public ItemTypeBoolean efaDirekt_showBootsschadenButton;
-    public ItemTypeInteger efaDirekt_maxFBAnzeigenFahrten;
-    public ItemTypeInteger efaDirekt_anzFBAnzeigenFahrten;
-    public ItemTypeBoolean efaDirekt_FBAnzeigenAuchUnvollstaendige;
-    public ItemTypeDate efaDirekt_autoNewFb_datum;
-    public ItemTypeString efaDirekt_autoNewFb_datei;
-    public ItemTypeInteger efaDirekt_fontSize;
-    public ItemTypeStringList efaDirekt_fontStyle;
-    public ItemTypeBoolean efaDirekt_colorizeInputField;
-    public ItemTypeBoolean efaDirekt_showZielnameFuerBooteUnterwegs;
-    public ItemTypeString efadirekt_adminLastOsCommand;
-    public ItemTypeImage efaDirekt_vereinsLogo;
-    public ItemTypeBoolean efaDirekt_showUhr;
-    public ItemTypeBoolean efaDirekt_showNews;
-    public ItemTypeString efaDirekt_newsText;
-    public ItemTypeInteger efaDirekt_newsScrollSpeed;
-    public ItemTypeBoolean efaDirekt_startMaximized;
-    public ItemTypeBoolean efaDirekt_fensterNichtVerschiebbar;
-    public ItemTypeBoolean efaDirekt_immerImVordergrund;
-    public ItemTypeBoolean efaDirekt_immerImVordergrundBringToFront;
-    public ItemTypeBoolean efaDirekt_bnrError_admin;
-    public ItemTypeBoolean efaDirekt_bnrError_bootswart;
-    public ItemTypeBoolean efaDirekt_bnrWarning_admin;
-    public ItemTypeBoolean efaDirekt_bnrWarning_bootswart;
-    public ItemTypeBoolean efaDirekt_bnrBootsstatus_admin;
-    public ItemTypeBoolean efaDirekt_bnrBootsstatus_bootswart;
-    public ItemTypeLong efaDirekt_bnrWarning_lasttime;
-    public ItemTypeString efaDirekt_emailServer;
-    public ItemTypeInteger efaDirekt_emailPort;
-    public ItemTypeString efaDirekt_emailAbsender;
-    public ItemTypeString efaDirekt_emailUsername;
-    public ItemTypeString efaDirekt_emailPassword;
-    public ItemTypeString efaDirekt_emailAbsenderName;
-    public ItemTypeString efaDirekt_emailBetreffPraefix;
-    public ItemTypeString efaDirekt_emailSignatur;
-    public ItemTypeString efaDirekt_lockEfaShowHtml;
-    public ItemTypeBoolean efaDirekt_lockEfaVollbild;
-    public ItemTypeDate efaDirekt_lockEfaFromDatum;
-    public ItemTypeTime efaDirekt_lockEfaFromZeit;
-    public ItemTypeDate efaDirekt_lockEfaUntilDatum;
-    public ItemTypeTime efaDirekt_lockEfaUntilZeit;
-    public ItemTypeBoolean efaDirekt_locked;
-    public ItemTypeFile htmlWidgetUrl;
-    public ItemTypeStringList htmlWidgetPosition;
-    public ItemTypeInteger htmlWidgetWidth;
-    public ItemTypeInteger htmlWidgetHeight;
-    public ItemTypeInteger htmlWidgetReloadInterval;
-    public ItemTypeBoolean useFunctionalityRowing;
-    public ItemTypeBoolean useFunctionalityRowingGermany;
-    public ItemTypeBoolean useFunctionalityRowingBerlin;
-    public ItemTypeBoolean useFunctionalityCanoeing;
-    public ItemTypeBoolean useFunctionalityCanoeingGermany;
-    public ItemTypeFile efaUserDirectory;
-    public ItemTypeStringList language;
-    public ItemTypeAction typesResetToDefault;
-    public ItemTypeAction typesAddAllDefaultRowingBoats;
-    public ItemTypeAction typesAddAllDefaultCanoeingBoats;
-    public ItemTypeHashtable<String> typesGender;
-    public ItemTypeHashtable<String> typesBoat;
-    public ItemTypeHashtable<String> typesNumSeats;
-    public ItemTypeHashtable<String> typesRigging;
-    public ItemTypeHashtable<String> typesCoxing;
-    public ItemTypeHashtable<String> typesSession;
-    public ItemTypeHashtable<String> typesStatus;
-    public ItemTypeString kanuEfb_urlLogin;
-    public ItemTypeString kanuEfb_urlRequest;
-    public ItemTypeString kanuEfb_username;
-    public ItemTypeString kanuEfb_password;
-    public ItemTypeLong kanuEfb_lastSync;
-    public Vector<IWidget> widgets;
+    private ConfigValueUpdateThread configValueUpdateThread;
 
-    // Default Contructor (with Customization Settings)
-    public EfaConfig(String filename, CustSettings custSettings) {
-        super(filename, 0, 0, false);
-        kennung = KENNUNG190;
-        if (Logger.isTraceOn(Logger.TT_CORE)) {
-            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFACONFIG, "EfaConfig("+filename+")");
-        }
-        this.custSettings = custSettings;
-        initialize();
+    public EfaConfig() {
+        super(IDataAccess.TYPE_FILE_XML, Daten.efaCfgDirectory, "configuration", DATATYPE, International.getString("Konfiguration"));
+        initialize(null);
     }
 
-    // Default Contructor (without Customization Settings)
-    public EfaConfig(String filename) {
-        super(filename, 0, 0, false);
-        kennung = KENNUNG190;
-        if (Logger.isTraceOn(Logger.TT_CORE)) {
-            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFACONFIG, "EfaConfig("+filename+")");
-        }
-        initialize();
+    public EfaConfig(CustSettings custSettings) {
+        super(IDataAccess.TYPE_FILE_XML, Daten.efaCfgDirectory, "configuration", DATATYPE, International.getString("Konfiguration"));
+        initialize(custSettings);
     }
 
-    // Copy Constructor
-    public EfaConfig(EfaConfig efaConfig) {
-        super(efaConfig.getFileName(), 0, 0, false);
-        kennung = efaConfig.kennung;
-        initialize();
-        String[] pnames = efaConfig.getParameterNames();
-        for (int i=0; i<pnames.length; i++) {
-            IItemType configValue = getParameter(pnames[i]);
-            configValue.parseValue(efaConfig.getParameter(pnames[i]).toString());
-        }
-    }
-
-    // clean-up and re-initialize data structures
-    private void initialize() {
+    // initialize data structures (one-time only)
+    private void initialize(CustSettings custSettings) {
+        EfaConfigRecord.initialize();
+        dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
         categories   = new HashMap<String,String>();
         configValues = new HashMap<String,IItemType>();
         configValueNames = new Vector<String>();
         iniCategories();
-        iniParameters();
+        iniParameters(custSettings);
+    }
+
+    public DataRecord createNewRecord() {
+        return new EfaConfigRecord(this, MetaData.getMetaData(DATATYPE));
+    }
+
+    public EfaConfigRecord createEfaConfigRecord(String name, String value) {
+        EfaConfigRecord r = new EfaConfigRecord(this, MetaData.getMetaData(DATATYPE));
+        r.setName(name);
+        r.setValue(value);
+        return r;
+    }
+
+    public EfaConfigRecord getRecord(String name) {
+        try {
+            return ((EfaConfigRecord)data().get(EfaConfigRecord.getKey(name)));
+        } catch(Exception e) {
+            return null;
+        }
+    }
+
+    public String getValue(String name) {
+        try {
+            return ((EfaConfigRecord)data().get(EfaConfigRecord.getKey(name))).getValue();
+        } catch(Exception e) {
+            return null;
+        }
+    }
+
+    public boolean addValue(String name, String value) {
+        try {
+            EfaConfigRecord r = createEfaConfigRecord(name, value);
+            data().add(r);
+            return true;
+        } catch(Exception e) {
+            return false;
+        }
+    }
+
+    public boolean updateValue(String name, String value) {
+        try {
+            EfaConfigRecord r = (EfaConfigRecord)data().get(EfaConfigRecord.getKey(name));
+            r.setValue(value);
+            data().update(r);
+            return true;
+        } catch(Exception e) {
+            return false;
+        }
+    }
+
+    public void open(boolean createNewIfNotExists) throws EfaException {
+        super.open(createNewIfNotExists);
+        synchronized (configValues) {
+            for (int i = 0; i < configValueNames.size(); i++) {
+                String name = configValueNames.get(i);
+                if (!name.startsWith("_") && getValue(name) == null) {
+                    addValue(name, configValues.get(name).toString());
+                }
+            }
+        }
+        (configValueUpdateThread = new ConfigValueUpdateThread()).start();
+        updateConfigValuesWithPersistence();
+    }
+
+    public void close() throws EfaException {
+        configValueUpdateThread.stopConfigValueUpdateThread();
+        super.close();
+    }
+
+    public boolean updateConfigValuesWithPersistence() {
+        return configValueUpdateThread.updateConfigValuesWithPersistence();
     }
 
     // initializa all category strings
@@ -338,639 +362,578 @@ public class EfaConfig extends DatenListe {
     }
 
     // initialize all configuration parameters with their default values
-    private void iniParameters() {
+    private void iniParameters(CustSettings custSettings) {
+        synchronized (configValues) {
+            // ============================= INTERNAL =============================
+            addParameter(version = new ItemTypeString("EfaVersion", "100",
+                    IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
+                    "efa version"));
+            addParameter(efaVersionLastCheck = new ItemTypeString("EfaVersionLastCheck", "",
+                    IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
+                    "efa last checked for new version"));
+            addParameter(countEfaStarts = new ItemTypeInteger("EfaStartsCounter", 0, 0, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
+                    "efa start counter"));
+            addParameter(registeredProgramID = new ItemTypeString("EfaRegistrationProgramId", "",
+                    IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
+                    "efa registered programm ID"));
+            addParameter(registrationChecks = new ItemTypeInteger("EfaRegistrationChecks", 0, 0, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
+                    "efa registration checks counter"));
 
-        // ============================= INTERNAL =============================
-        addParameter(version = new ItemTypeString("EFA_VERSION", "100",
-                IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
-                "efa version"));
-        addParameter(efaVersionLastCheck = new ItemTypeString("EFA_VERSION_LASTCHECK", "",
-                IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
-                "efa last checked for new version"));
-        addParameter(countEfaStarts = new ItemTypeInteger("EFA_STARTS_COUNTER", 0, 0, Integer.MAX_VALUE, false,
-                IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
-                "efa start counter"));
-        addParameter(registeredProgramID = new ItemTypeString("EFA_REGISTRATION_PROGRAMMID", "",
-                IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
-                "efa registered programm ID"));
-        addParameter(registrationChecks = new ItemTypeInteger("EFA_REGISTRATION_CHECKS", 0, 0, Integer.MAX_VALUE, false,
-                IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_INTERNAL),
-                "efa registration checks counter"));
+            // ============================= COMMON:COMMON =============================
+            addParameter(efaUserDirectory = new ItemTypeFile("_EfaUserDirectory", Daten.efaBaseConfig.efaUserDirectory,
+                    International.getString("Verzeichnis für Nutzerdaten"),
+                    International.getString("Verzeichnisse"),
+                    null, ItemTypeFile.MODE_OPEN, ItemTypeFile.TYPE_DIR,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON, CATEGORY_COMMON),
+                    International.getString("Verzeichnis für Nutzerdaten")));
+            addParameter(lastProjectEfaBase = new ItemTypeString("LastProjectEfaBase", "",
+                    IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_COMMON, CATEGORY_COMMON),
+                    "Last project opened by efa Base"));
+            addParameter(debugLogging = new ItemTypeBoolean("DebugLogging", false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON),
+                    International.getString("Debug-Logging aktivieren")));
+            addParameter(traceTopic = new ItemTypeString("DebugTraceTopic", "",
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON),
+                    International.getString("Trace-Topic")));
 
-        // ============================= COMMON:COMMON =============================
-        addParameter(efaUserDirectory = new ItemTypeFile("_EFAUSERDIRECTORY", Daten.efaBaseConfig.efaUserDirectory,
-                International.getString("Verzeichnis für Nutzerdaten"),
-                International.getString("Verzeichnisse"),
-                null,ItemTypeFile.MODE_OPEN,ItemTypeFile.TYPE_DIR,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_COMMON),
-                International.getString("Verzeichnis für Nutzerdaten")));
-        addParameter(letzteDatei = new ItemTypeFile("LASTFILE_EFABASE", "",
-                International.getString("Fahrtenbuch"),
-                International.getString("Fahrtenbuch")+" (*.efb)",
-                "efb",ItemTypeFile.MODE_OPEN,ItemTypeFile.TYPE_FILE,
-                IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_COMMON,CATEGORY_COMMON),
-                "Last logbook opened by efa Base"));
-        addParameter(lastProjectEfaBase = new ItemTypeString("LASTPROJECT_EFABASE", "",
-                IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_COMMON,CATEGORY_COMMON),
-                "Last project opened by efa Base"));
-        addParameter(aliasFormat = new ItemTypeString("ALIAS_FORMAT", "{V1}{V2}-{N1}",
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_COMMON),
-                International.getString("Format der Eingabe-Kürzel")));
-        addParameter(autogenAlias = new ItemTypeBoolean("ALIAS_AUTOGENERATE", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_COMMON),
-                International.getString("Eingabe-Kürzel automatisch beim Anlegen neuer Mitglieder generieren")));
-        addParameter(debugLogging = new ItemTypeBoolean("DEBUG_LOGGING", false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON),
-                International.getString("Debug-Logging aktivieren")));
-        addParameter(traceTopic = new ItemTypeString("TRACE_TOPIC", "",
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON),
-                International.getString("Trace-Topic")));
+            // ============================= COMMON:INPUT =============================
+            addParameter(nameFormat = new ItemTypeStringList("NameFormat", NAMEFORMAT_LASTFIRST,
+                    new String[]{NAMEFORMAT_FIRSTLAST, NAMEFORMAT_LASTFIRST},
+                    new String[]{International.getString("Vorname") + " "
+                        + International.getString("Nachname"),
+                        International.getString("Nachname") + ", "
+                        + International.getString("Vorname"),},
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("Namensformat")));
 
-        // ============================= COMMON:INPUT =============================
-        addParameter(nameFormat = new ItemTypeStringList("NAMEFORMAT", NAMEFORMAT_LASTFIRST,
-                new String[] { NAMEFORMAT_FIRSTLAST, NAMEFORMAT_LASTFIRST },
-                new String[] { International.getString("Vorname") + " " +
-                               International.getString("Nachname"),
-                               International.getString("Nachname") + ", " +
-                               International.getString("Vorname"),
-                },
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
-                International.getString("Namensformat")));
+            addParameter(standardFahrtart = new ItemTypeStringList("SessionTypeDefault", EfaTypes.TYPE_SESSION_NORMAL,
+                    EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("Standard-Fahrtart")));
+            addParameter(defaultObmann = new ItemTypeStringList("BoatCaptainDefault", OBMANN_BOW,
+                    makeObmannArray(STRINGLIST_VALUES), makeObmannArray(STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("Standard-Obmann für ungesteuerte Boote")));
+            addParameter(showObmann = new ItemTypeBoolean("BoatCaptainShow", true,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("Obmann-Auswahlliste anzeigen")));
+            addParameter(autoObmann = new ItemTypeBoolean("BoatCaptainAutoSelect", true,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("Obmann bei Eingabe automatisch auswählen")));
+            addParameter(autoStandardmannsch = new ItemTypeBoolean("DefaultCrewAutoSelect", true,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("Standardmannschaft automatisch eintragen")));
+            addParameter(manualStandardmannsch = new ItemTypeBoolean("DefaultCrewManualSelect", false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("Manuelle Auswahl einer Standardmannschaft erlauben")));
+            addParameter(correctMisspelledMitglieder = new ItemTypeBoolean("SpellingCheckPersons", true,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getMessage("Fahrtenbucheinträge auf Tippfehler prüfen für {types}",
+                    International.getString("Mitglieder"))));
+            addParameter(correctMisspelledBoote = new ItemTypeBoolean("SpellingCheckBoats", true,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getMessage("Fahrtenbucheinträge auf Tippfehler prüfen für {types}",
+                    International.getString("Boote"))));
+            addParameter(correctMisspelledZiele = new ItemTypeBoolean("SpellingCheckDestinations", true,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getMessage("Fahrtenbucheinträge auf Tippfehler prüfen für {types}",
+                    International.getString("Ziele"))));
+            addParameter(skipUhrzeit = new ItemTypeBoolean("InputSkipTime", false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getMessage("Eingabefeld '{field}' überspringen",
+                    International.getString("Uhrzeit"))));
+            addParameter(skipZiel = new ItemTypeBoolean("InputSkipDestination", false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getMessage("Eingabefeld '{field}' überspringen",
+                    International.getString("Ziel"))));
+            addParameter(skipBemerk = new ItemTypeBoolean("InputSkipComments", false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getMessage("Eingabefeld '{field}' überspringen",
+                    International.getString("Bemerkungen"))));
+            addParameter(keys = new ItemTypeHashtable<String>("InputCommentsHotkeys", "", false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("Tastenbelegungen für Bemerkungs-Feld")));
+            addParameter(efaDirekt_colorizeInputField = new ItemTypeBoolean("InputColorizeFields", true,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("aktuelles Eingabefeld farblich hervorheben")));
+            addParameter(efaDirekt_showEingabeInfos = new ItemTypeBoolean("InputShowHints", true,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("Eingabehinweise anzeigen")));
+            addParameter(aliasFormat = new ItemTypeString("InputShortcutFormat", "{F1}{F2}-{N1}",
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("Format der Eingabe-Kürzel")));
+            addParameter(autogenAlias = new ItemTypeBoolean("InputShortcutAutoGenerate", false, // @todo (P5) inplement auto generation of input shortcuts
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("Eingabe-Kürzel automatisch beim Anlegen neuer Mitglieder generieren")));
 
-        addParameter(standardFahrtart = new ItemTypeStringList("SESSIONTYPE_DEFAULT", EfaTypes.TYPE_SESSION_NORMAL,
-                EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
-                International.getString("Standard-Fahrtart")));
-        addParameter(defaultObmann = new ItemTypeStringList("CREWSHEAD_DEFAULT", OBMANN_BOW,
-                makeObmannArray(STRINGLIST_VALUES), makeObmannArray(STRINGLIST_DISPLAY),
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
-                International.getString("Standard-Obmann für ungesteuerte Boote")));
-        addParameter(showObmann = new ItemTypeBoolean("CREWSHEAD_SHOW", true,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
-                International.getString("Obmann-Auswahlliste anzeigen")));
-        addParameter(autoObmann = new ItemTypeBoolean("CREWSHEAD_AUTOSELECT", true,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
-                International.getString("Obmann bei Eingabe automatisch auswählen")));
-        addParameter(autoStandardmannsch = new ItemTypeBoolean("DEFAULTCREW_AUTOSELECT", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
-                International.getString("Standardmannschaft automatisch eintragen")));
-        addParameter(manualStandardmannsch = new ItemTypeBoolean("DEFAULTCREW_MANUALSELECT", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
-                International.getString("Manuelle Auswahl einer Standardmannschaft erlauben")));
-        addParameter(correctMisspelledMitglieder = new ItemTypeBoolean("SPELLING_CHECKMEMBERS", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
-                International.getMessage("Fahrtenbucheinträge auf Tippfehler prüfen für {types}",
-                International.getString("Mitglieder"))));
-        addParameter(correctMisspelledBoote = new ItemTypeBoolean("SPELLING_CHECKBOATS", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
-                International.getMessage("Fahrtenbucheinträge auf Tippfehler prüfen für {types}",
-                International.getString("Boote"))));
-        addParameter(correctMisspelledZiele = new ItemTypeBoolean("SPELLING_CHECKDESTINATIONS", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
-                International.getMessage("Fahrtenbucheinträge auf Tippfehler prüfen für {types}",
-                International.getString("Ziele"))));
-        addParameter(skipUhrzeit = new ItemTypeBoolean("INPUT_SKIPTIME", false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
-                International.getMessage("Eingabefeld '{field}' überspringen",
-                International.getString("Uhrzeit"))));
-        addParameter(skipZiel = new ItemTypeBoolean("INPUT_SKIPDESTINATION", false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
-                International.getMessage("Eingabefeld '{field}' überspringen",
-                International.getString("Ziel"))));
-        addParameter(skipMannschKm = new ItemTypeBoolean("INPUT_SKIPCREWKM", false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
-                International.getMessage("Eingabefeld '{field}' überspringen",
-                International.getString("Mannschafts-Km"))));
-        addParameter(skipBemerk = new ItemTypeBoolean("INPUT_SKIPCOMMENTS", false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
-                International.getMessage("Eingabefeld '{field}' überspringen",
-                International.getString("Bemerkungen"))));
-        addParameter(keys = new ItemTypeHashtable<String>("HOTKEYS", "", true,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
-                International.getString("Tastenbelegungen für Bemerkungs-Feld")));
-        addParameter(zielfahrtSeparatorBereiche = new ItemTypeString("ZIELFAHRT_SEPARATORBEREICHE", ",",
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
-                International.onlyFor("Trennzeichen für Bereiche einer Zielfahrt","de")));
-        addParameter(zielfahrtSeparatorFahrten = new ItemTypeString("ZIELFAHRT_SEPARATORFAHRTEN", ";", // was "/" before
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_INPUT),
-                International.onlyFor("Trennzeichen für Zielfahrten","de")));
+            // ============================= COMMON:GUI =============================
+            addParameter(lookAndFeel = new ItemTypeStringList("LookAndFeel", getDefaultLookAndFeel(),
+                    makeLookAndFeelArray(STRINGLIST_VALUES), makeLookAndFeelArray(STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
+                    International.getString("Look & Feel")));
+            addParameter(popupComplete = new ItemTypeBoolean("AutoCompleteListShow", true,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
+                    International.getString("Beim Vervollständigen Popup-Liste anzeigen")));
+            addParameter(fensterZentriert = new ItemTypeBoolean("WindowCentered", false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
+                    International.getString("Alle Fenster in Bildschirmmitte zentrieren")));
+            addParameter(windowXOffset = new ItemTypeInteger("WindowOffsetX", 0, Integer.MIN_VALUE, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
+                    International.getString("Fenster-Offset") + " X"
+                    + " (" + International.getString("Pixel") + ")"));
+            addParameter(windowYOffset = new ItemTypeInteger("WindowOffsetY", 0, Integer.MIN_VALUE, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
+                    International.getString("Fenster-Offset") + " Y"
+                    + " (" + International.getString("Pixel") + ")"));
+            addParameter(screenWidth = new ItemTypeInteger("WindowScreenWidth", 0, 0, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
+                    International.getString("Bildschirmbreite")
+                    + " (" + International.getString("Pixel") + ")"));
+            addParameter(screenHeight = new ItemTypeInteger("WindowScreenHeight", 0, 0, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
+                    International.getString("Bildschirmhöhe")
+                    + " (" + International.getString("Pixel") + ")"));
+            addParameter(maxDialogWidth = new ItemTypeInteger("WindowDialogMaxWidth", 0, 0, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
+                    International.getString("maximale Dialog-Breite")
+                    + " (" + International.getString("Pixel") + ")"));
+            addParameter(maxDialogHeight = new ItemTypeInteger("WindowDialogMaxHeight", 0, 0, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
+                    International.getString("maximale Dialog-Höhe")
+                    + " (" + International.getString("Pixel") + ")"));
 
-        // ============================= COMMON:GUI =============================
-        addParameter(lookAndFeel = new ItemTypeStringList("LOOK_AND_FEEL", getDefaultLookAndFeel(),
-                makeLookAndFeelArray(STRINGLIST_VALUES), makeLookAndFeelArray(STRINGLIST_DISPLAY),
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_GUI),
-                International.getString("Look & Feel")));
-        addParameter(popupComplete = new ItemTypeBoolean("AUTOCOMPLETEPOPUP_SHOW", true,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_GUI),
-                International.getString("Beim Vervollständigen Popup-Liste anzeigen")));
-        addParameter(fensterZentriert = new ItemTypeBoolean("WINDOW_CENTERED", false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_GUI),
-                International.getString("Alle Fenster in Bildschirmmitte zentrieren")));
-        addParameter(windowXOffset = new ItemTypeInteger("WINDOW_OFFSETX", 0, Integer.MIN_VALUE, Integer.MAX_VALUE, false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_GUI),
-                International.getString("Fenster-Offset")+ " X" +
-                " (" + International.getString("Pixel") + ")"));
-        addParameter(windowYOffset = new ItemTypeInteger("WINDOW_OFFSETY", 0, Integer.MIN_VALUE, Integer.MAX_VALUE, false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_GUI),
-                International.getString("Fenster-Offset")+ " Y" +
-                " (" + International.getString("Pixel") + ")"));
-        addParameter(screenWidth = new ItemTypeInteger("SCREEN_WIDTH", 0, 0, Integer.MAX_VALUE, false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_GUI),
-                International.getString("Bildschirmbreite") +
-                " (" + International.getString("Pixel") + ")"));
-        addParameter(screenHeight = new ItemTypeInteger("SCREEN_HEIGHT", 0, 0, Integer.MAX_VALUE, false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_GUI),
-                International.getString("Bildschirmhöhe") +
-                " (" + International.getString("Pixel") + ")"));
-        addParameter(maxDialogHeight = new ItemTypeInteger("DIALOG_MAXHEIGHT", 0, 0, Integer.MAX_VALUE, false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_GUI),
-                International.getString("maximale Dialog-Höhe") +
-                " (" + International.getString("Pixel") + ")"));
-        addParameter(maxDialogWidth = new ItemTypeInteger("DIALOG_MAXWIDTH", 0, 0, Integer.MAX_VALUE, false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON,CATEGORY_GUI),
-                International.getString("maximale Dialog-Breite") +
-                " (" + International.getString("Pixel") + ")"));
+            // ============================= COMMON:EXTTOOLS =============================
+            addParameter(browser = new ItemTypeFile("ProgramWebbrowser", searchForProgram(DEFAULT_BROWSER),
+                    International.getString("Webbrowser"),
+                    International.getString("Windows-Programme") + " (*.exe)",
+                    "exe", ItemTypeFile.MODE_OPEN, ItemTypeFile.TYPE_FILE,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON, CATEGORY_EXTTOOLS),
+                    International.getString("Webbrowser")));
+            addParameter(acrobat = new ItemTypeFile("ProgramAcrobatReader", searchForProgram(DEFAULT_ACROBAT),
+                    International.getString("Acrobat Reader"),
+                    International.getString("Windows-Programme") + " (*.exe)",
+                    "exe", ItemTypeFile.MODE_OPEN, ItemTypeFile.TYPE_FILE,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON, CATEGORY_EXTTOOLS),
+                    International.getString("Acrobat Reader")));
 
-        // ============================= COMMON:BACKUP =============================
-        addParameter(bakDir = new ItemTypeFile("BACKUP_DIRECTORY", "",
-                International.getString("Backup-Verzeichnis"),
-                International.getString("Verzeichnis"),
-                null,ItemTypeFile.MODE_OPEN,ItemTypeFile.TYPE_DIR,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_BACKUP),
-                International.getString("Backup-Verzeichnis")));
-        addParameter(bakSave = new ItemTypeBoolean("BACKUP_ON_SAVE", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_BACKUP),
-                International.getString("Backup bei jedem Speichern")));
-        addParameter(bakMonat = new ItemTypeBoolean("BACKUP_ON_MONTHLY_SAVE", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_BACKUP),
-                International.getString("Backup beim ersten Speichern jeden Monat")));
-        addParameter(bakTag = new ItemTypeBoolean("BACKUP_ON_DAYLY_SAVE", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_BACKUP),
-                International.getString("Backup beim ersten Speichern jeden Tag")));
-        addParameter(bakKonv = new ItemTypeBoolean("BACKUP_ON_CONVERTING", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_BACKUP),
-                International.getString("Backup beim Konvertieren")));
+            // ============================= COMMON:PRINT =============================
+            addParameter(printPageWidth = new ItemTypeInteger("PrintPageWidth", 210, 1, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON, CATEGORY_PRINTING),
+                    International.getString("Seitenbreite")));
+            addParameter(printPageHeight = new ItemTypeInteger("PrintPageHeight", 297, 1, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON, CATEGORY_PRINTING),
+                    International.getString("Seitenhöhe")));
+            addParameter(printLeftMargin = new ItemTypeInteger("PrintPageMarginLeftRight", 15, 0, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON, CATEGORY_PRINTING),
+                    International.getString("linker und rechter Rand")));
+            addParameter(printTopMargin = new ItemTypeInteger("PrintPageMarginTopBottom", 15, 0, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON, CATEGORY_PRINTING),
+                    International.getString("oberer und unterer Rand")));
+            addParameter(printPageOverlap = new ItemTypeInteger("PrintPageOverlap", 5, 0, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON, CATEGORY_PRINTING),
+                    International.getString("Seitenüberlappung")));
 
-        // ============================= COMMON:EXTTOOLS =============================
-        addParameter(browser = new ItemTypeFile("WEBBROWSER", searchForProgram(DEFAULT_BROWSER),
-                International.getString("Webbrowser"),
-                International.getString("Windows-Programme")+" (*.exe)",
-                "exe",ItemTypeFile.MODE_OPEN,ItemTypeFile.TYPE_FILE,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_EXTTOOLS),
-                International.getString("Webbrowser")));
-        addParameter(acrobat = new ItemTypeFile("ACROBAT_READER", searchForProgram(DEFAULT_ACROBAT),
-                International.getString("Acrobat Reader"),
-                International.getString("Windows-Programme")+" (*.exe)",
-                "exe",ItemTypeFile.MODE_OPEN,ItemTypeFile.TYPE_FILE,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_EXTTOOLS),
-                International.getString("Acrobat Reader")));
+            // ============================= BOATHOUSE:COMMON =============================
+            addParameter(lastProjectEfaBoathouse = new ItemTypeString("LastProjectEfaBoathouse", "",
+                    IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_COMMON, CATEGORY_COMMON),
+                    "Last project opened by efa Boathouse"));
+            addParameter(efaDirekt_listAllowToggleBoatsPersons = new ItemTypeBoolean("BoatListToggleToPersons", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    International.getString("erlaube Auswahl in Bootslisten alternativ auch über Personennamen")));
+            addParameter(efaDirekt_resLookAheadTime = new ItemTypeInteger("ReservationLookAheadTime", 120, 0, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    International.getString("Bei Fahrtbeginn auf Reservierungen bis zu x Minuten in der Zukunft prüfen")));
+            addParameter(efaDirekt_showBootsschadenButton = new ItemTypeBoolean("BoatDamageEnableReporting", true,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    International.getString("Melden von Bootsschäden erlauben")));
+            addParameter(efaDirekt_lockEfaShowHtml = new ItemTypeString("LockEfaPage", "",
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    International.getString("efa sperren") + ": "
+                    + International.getString("HTML-Seite anzeigen")));
+            addParameter(efaDirekt_lockEfaVollbild = new ItemTypeBoolean("LockEfaFullScreen", false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    International.getString("efa sperren") + ": "
+                    + International.getString("Vollbild")));
+            addParameter(efaDirekt_lockEfaFromDatum = new ItemTypeDate("LockEfaFromDate", new DataTypeDate(-1, -1, -1),
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    International.getString("efa sperren") + ": "
+                    + International.getString("Sperrung automatisch beginnen") + " ("
+                    + International.getString("Datum") + ")"));
+            addParameter(efaDirekt_lockEfaFromZeit = new ItemTypeTime("LockEfaFromTime", new DataTypeTime(-1, -1, -1),
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    International.getString("efa sperren") + ": "
+                    + International.getString("Sperrung automatisch beginnen") + " ("
+                    + International.getString("Zeit") + ")"));
+            addParameter(efaDirekt_lockEfaUntilDatum = new ItemTypeDate("LockEfaToDate", new DataTypeDate(-1, -1, -1),
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    International.getString("efa sperren") + ": "
+                    + International.getString("Sperrung automatisch beenden") + " ("
+                    + International.getString("Datum") + ")"));
+            addParameter(efaDirekt_lockEfaUntilZeit = new ItemTypeTime("LockEfaToTime", new DataTypeTime(-1, -1, -1),
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    International.getString("efa sperren") + ": "
+                    + International.getString("Sperrung automatisch beenden") + " ("
+                    + International.getString("Zeit") + ")"));
+            addParameter(efaDirekt_locked = new ItemTypeBoolean("LockEfaLocked", false,
+                    IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    International.getString("efa ist für die Benutzung gesperrt")));
+            addParameter(efaDirekt_autoNewFb_datum = new ItemTypeDate("NewLogbookDate", new DataTypeDate(-1, -1, -1),
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    International.getString("Neues Fahrtenbuch erstellen am")));
+            addParameter(efaDirekt_autoNewFb_datei = new ItemTypeFile("NewLogbookFile", "",
+                    International.getString("Fahrtenbuch"),
+                    International.getString("Fahrtenbuch") + " (*.efb)",
+                    "efb", ItemTypeFile.MODE_SAVE, ItemTypeFile.TYPE_FILE,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    International.getString("Dateiname des neuen Fahrtenbuchs")));
+            addParameter(efadirekt_adminLastOsCommand = new ItemTypeString("AdminLastOsCommand", "",
+                    IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    International.getString("Betriebssystemkommando")));
 
-        // ============================= COMMON:PRINT =============================
-        addParameter(printPageWidth = new ItemTypeInteger("PRINT_PAGEWIDTH", 210, 1, Integer.MAX_VALUE, false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_PRINTING),
-                International.getString("Seitenbreite")));
-        addParameter(printPageHeight = new ItemTypeInteger("PRINT_PAGEHEIGHT", 297, 1, Integer.MAX_VALUE, false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_PRINTING),
-                International.getString("Seitenhöhe")));
-        addParameter(printLeftMargin = new ItemTypeInteger("PRINT_PAGEMARGIN_LEFTRIGHT", 15, 0, Integer.MAX_VALUE, false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_PRINTING),
-                International.getString("linker und rechter Rand")));
-        addParameter(printTopMargin = new ItemTypeInteger("PRINT_PAGEMARGIN_TOPBOTTOM", 15, 0, Integer.MAX_VALUE, false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_PRINTING),
-                International.getString("oberer und unterer Rand")));
-        addParameter(printPageOverlap = new ItemTypeInteger("PRINT_PAGEOVERLAP", 5, 0, Integer.MAX_VALUE, false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_COMMON,CATEGORY_PRINTING),
-                International.getString("Seitenüberlappung")));
+            // ============================= BOATHOUSE:INPUT =============================
+            addParameter(efaDirekt_eintragNurBekannteBoote = new ItemTypeBoolean("InputAllowOnlyKnownBoats", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+                    International.getMessage("Beim Eintrag von Fahrten nur bekannte Namen erlauben für {type}",
+                    International.getString("Boote"))));
+            addParameter(efaDirekt_eintragNurBekannteRuderer = new ItemTypeBoolean("InputAllowOnlyKnownPersons", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+                    International.getMessage("Beim Eintrag von Fahrten nur bekannte Namen erlauben für {type}",
+                    International.getString("Personen"))));
+            addParameter(efaDirekt_eintragNurBekannteZiele = new ItemTypeBoolean("InputAllowOnlyKnownDestinatins", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+                    International.getMessage("Beim Eintrag von Fahrten nur bekannte Namen erlauben für {type}",
+                    International.getString("Ziele"))));
+            addParameter(efaDirekt_eintragErlaubeNurMaxRudererzahl = new ItemTypeBoolean("InputAllowOnlyMaxCrewNumber", true,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+                    International.getString("Nur für das Boot maximal mögliche Anzahl an Personen erlauben")));
+            addParameter(efaDirekt_eintragErzwingeObmann = new ItemTypeBoolean("InputMustSelectBoatCaptain", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+                    International.getString("Obmann muß ausgewählt werden")));
+            addParameter(efaDirekt_eintragNichtAenderbarUhrzeit = new ItemTypeBoolean("InputNotEditableTime", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+                    International.getString("Vorgeschlagene Uhrzeiten können nicht geändert werden")));
+            addParameter(efaDirekt_plusMinutenAbfahrt = new ItemTypeInteger("StartSessionTimeAdd", 5, 0, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+                    International.getString("Für Abfahrt x Minuten zur aktuellen Zeit hinzuaddieren")));
+            addParameter(efaDirekt_minusMinutenAnkunft = new ItemTypeInteger("FinishSessionTimeSubstract", 5, 0, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+                    International.getString("Für Ankunft x Minuten von aktueller Zeit abziehen")));
+            addParameter(efaDirekt_zielBeiFahrtbeginnPflicht = new ItemTypeBoolean("StartSessionMustSelectDestination", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+                    International.getString("Ziel muß bereits bei Fahrtbeginn angegeben werden")));
+            addParameter(efaDirekt_eintragHideUnnecessaryInputFields = new ItemTypeBoolean("InputHideUnnecessaryFields", true,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+                    International.getString("Beim Eintrag von Fahrten unnötige Eingabefelder ausblenden")));
+            addParameter(efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen = new ItemTypeBoolean("InputDistanceNotEditableForKnownDestinations", false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+                    International.getString("Vorgeschlagene Kilometer bei bekannten Zielen können nicht geändert werden")));
 
-        // ============================= BOATHOUSE:COMMON =============================
-        addParameter(direkt_letzteDatei = new ItemTypeFile("LASTFILE_EFABOATHOUSE", "",
-                International.getString("Fahrtenbuch"),
-                International.getString("Fahrtenbuch")+" (*.efb)",
-                "efb",ItemTypeFile.MODE_OPEN,ItemTypeFile.TYPE_FILE,
-                IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
-                "Last logbook opened by efa Boathouse"));
-        addParameter(lastProjectEfaBoathouse = new ItemTypeString("LASTPROJECT_EFABOATHOUSE", "",
-                IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_COMMON,CATEGORY_COMMON),
-                "Last project opened by efa Boathouse"));
-        addParameter(admins = new ItemTypeHashtable<Admin>("ADMINS", new Admin("name","password"), false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
-                International.getString("Administratoren")));
-        addParameter(efaDirekt_resBooteNichtVerfuegbar = new ItemTypeBoolean("SHOWASNOTAVAILABLE_RESERVEDBOATS", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
-                International.getString("Reservierte Boote als 'nicht verfügbar' anzeigen")));
-        addParameter(efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar = new ItemTypeBoolean("SHOWASNOTAVAILABLE_MULTIDAY_REGATTA", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
-                International.getString("Boote auf Regatta, Trainingslager oder Mehrtagesfahrt als 'nicht verfügbar' anzeigen")));
-        addParameter(efaDirekt_resLookAheadTime = new ItemTypeInteger("RESERVATION_LOOKAHEADTIME", 120, 0, Integer.MAX_VALUE, false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
-                International.getString("Bei Fahrtbeginn auf Reservierungen bis zu x Minuten in der Zukunft prüfen")));
-        addParameter(efaDirekt_showBootsschadenButton = new ItemTypeBoolean("BOATDAMAGE_ENABLEREPORTING", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
-                International.getString("Melden von Bootsschäden erlauben")));
-        addParameter(efaDirekt_lockEfaShowHtml = new ItemTypeString("LOCKEFA_PAGE", "",
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
-                International.getString("efa sperren")+": "+
-                International.getString("HTML-Seite anzeigen")));
-        addParameter(efaDirekt_lockEfaVollbild = new ItemTypeBoolean("LOCKEFA_FULLSCREEN", false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
-                International.getString("efa sperren")+": "+
-                International.getString("Vollbild")));
-        addParameter(efaDirekt_lockEfaFromDatum = new ItemTypeDate("LOCKEFA_FROMDATE", new DataTypeDate(-1,-1,-1),
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
-                International.getString("efa sperren")+": "+
-                International.getString("Sperrung automatisch beginnen") + " ("+
-                International.getString("Datum")+")"));
-        addParameter(efaDirekt_lockEfaFromZeit = new ItemTypeTime("LOCKEFA_FROMTIME", new DataTypeTime(-1,-1,-1),
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
-                International.getString("efa sperren")+": "+
-                International.getString("Sperrung automatisch beginnen") + " ("+
-                International.getString("Zeit")+")"));
-        addParameter(efaDirekt_lockEfaUntilDatum = new ItemTypeDate("LOCKEFA_TODATE", new DataTypeDate(-1,-1,-1),
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
-                International.getString("efa sperren")+": "+
-                International.getString("Sperrung automatisch beenden") + " ("+
-                International.getString("Datum")+")"));
-        addParameter(efaDirekt_lockEfaUntilZeit = new ItemTypeTime("LOCKEFA_TOTIME", new DataTypeTime(-1,-1,-1),
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
-                International.getString("efa sperren")+": "+
-                International.getString("Sperrung automatisch beenden") + " ("+
-                International.getString("Zeit")+")"));
-        addParameter(efaDirekt_locked = new ItemTypeBoolean("LOCKEFA_LOCKED", false,
-                IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
-                International.getString("efa ist für die Benutzung gesperrt")));
-        addParameter(efaDirekt_autoNewFb_datum = new ItemTypeDate("NEWLOGBOOK_DATE", new DataTypeDate(-1,-1,-1),
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
-                International.getString("Neues Fahrtenbuch erstellen am")));
-        addParameter(efaDirekt_autoNewFb_datei = new ItemTypeFile("NEWLOGBOOK_FILE", "",
-                International.getString("Fahrtenbuch"),
-                International.getString("Fahrtenbuch")+" (*.efb)",
-                "efb",ItemTypeFile.MODE_SAVE,ItemTypeFile.TYPE_FILE,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
-                International.getString("Dateiname des neuen Fahrtenbuchs")));
-        addParameter(efadirekt_adminLastOsCommand = new ItemTypeString("ADMIN_LAST_OSCOMMAND", "",
-                IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_COMMON),
-                International.getString("Betriebssystemkommando")));
+            // ============================= BOATHOUSE:GUI =============================
+            addParameter(efaDirekt_startMaximized = new ItemTypeBoolean("EfaBoathouseWindowMaximized", true,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getString("efa maximiert starten")));
+            addParameter(efaDirekt_fensterNichtVerschiebbar = new ItemTypeBoolean("EfaBoathouseWindowFixedPosition", false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getString("Hauptfenster nicht verschiebbar")));
+            addParameter(efaDirekt_immerImVordergrund = new ItemTypeBoolean("EfaBoathouseWindowAlwaysOnTop", false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getString("efa immer im Vordergrund")));
+            addParameter(efaDirekt_immerImVordergrundBringToFront = new ItemTypeBoolean("EfaBoathouseWindowAlwaysOnTopBringToFront", false, // @todo (P5) EfaBoathouseWindowAlwaysOnTopBringToFront can be deleted (?)
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getString("efa immer im Vordergrund") + " (bringToFront)"));
+            addParameter(efaDirekt_fontSize = new ItemTypeInteger("EfaBoathouseFontSize", (Dialog.screenSize.width >= 1024 ? 16 : 12), 6, 32, false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getString("Schriftgröße in Punkten (6 bis 32, Standard: 12)")));
+            addParameter(efaDirekt_fontStyle = new ItemTypeStringList("EfaBoathouseFontStyle", "",
+                    makeFontStyleArray(STRINGLIST_VALUES), makeFontStyleArray(STRINGLIST_DISPLAY),
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getString("Schriftstil")));
+            addParameter(efaDirekt_resBooteNichtVerfuegbar = new ItemTypeBoolean("BoatListShowReservedBoatsAsNotAvailable", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getString("Reservierte Boote als 'nicht verfügbar' anzeigen")));
+            addParameter(efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar = new ItemTypeBoolean("BoatListShowOnMultiDayOrRegattaBoatsAsNotAvailable", true,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getString("Boote auf Regatta, Trainingslager oder Mehrtagesfahrt als 'nicht verfügbar' anzeigen")));
+            addParameter(efaDirekt_showZielnameFuerBooteUnterwegs = new ItemTypeBoolean("BoatListDisplayDestinationForBoatsOnTheWater", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getMessage("Fahrtziel in der Liste {list} anzeigen",
+                    International.getString("Boote auf Fahrt"))));
+            addParameter(efaDirekt_sortByAnzahl = new ItemTypeBoolean("BoatListSortBySeats", true,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getString("sortiere Boote nach Anzahl der Bootsplätze")));
+            addParameter(efaDirekt_autoPopupOnBoatLists = new ItemTypeBoolean("BoatListShowPopup", true,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getString("automatisches Popup-Menü für Mausclicks in den Bootslisten")));
+            addParameter(efaDirekt_vereinsLogo = new ItemTypeImage("ClubLogo", "", 192, 64,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getString("Vereinslogo")));
+            addParameter(efaDirekt_maxFBAnzeigenFahrten = new ItemTypeInteger("LogbookDisplayEntriesMaxNumber", 100, 1, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getString("Fahrtenbuch anzeigen") + ": " + International.getString("maximale Anzahl von Fahrten")));
+            addParameter(efaDirekt_anzFBAnzeigenFahrten = new ItemTypeInteger("LogbookDisplayEntriesDefaultNumber", 50, 1, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getString("Fahrtenbuch anzeigen") + ": " + International.getString("Anzahl von Fahrten")));
+            addParameter(efaDirekt_FBAnzeigenAuchUnvollstaendige = new ItemTypeBoolean("LogbookDisplayEntriesDefaultAlsoIncomplete", false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getString("Fahrtenbuch anzeigen") + ": " + International.getString("auch unvollständige Fahrten")));
 
-        // ============================= BOATHOUSE:INPUT =============================
-        addParameter(efaDirekt_eintragNurBekannteBoote = new ItemTypeBoolean("ONLY_KNOWNBOATS", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
-                International.getMessage("Beim Eintrag von Fahrten nur bekannte Namen erlauben für {type}",
-                International.getString("Boote"))));
-        addParameter(efaDirekt_eintragNurBekannteRuderer = new ItemTypeBoolean("ONLY_KNOWNPERSONS", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
-                International.getMessage("Beim Eintrag von Fahrten nur bekannte Namen erlauben für {type}",
-                International.getString("Personen"))));
-        addParameter(efaDirekt_eintragNurBekannteZiele = new ItemTypeBoolean("ONLY_KNOWNDESTINATIONS", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
-                International.getMessage("Beim Eintrag von Fahrten nur bekannte Namen erlauben für {type}",
-                International.getString("Ziele"))));
-        addParameter(efaDirekt_eintragErlaubeNurMaxRudererzahl = new ItemTypeBoolean("ALLOW_ONLY_MAXCREWNUMBER", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
-                International.getString("Nur für das Boot maximal mögliche Anzahl an Personen erlauben")));
-        addParameter(efaDirekt_eintragErzwingeObmann = new ItemTypeBoolean("MUST_SELECT_CREWSHEAD", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
-                International.getString("Obmann muß ausgewählt werden")));
-        addParameter(efaDirekt_eintragNichtAenderbarUhrzeit = new ItemTypeBoolean("NOTEDITABLE_TIME", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
-                International.getString("Vorgeschlagene Uhrzeiten können nicht geändert werden")));
-        addParameter(efaDirekt_plusMinutenAbfahrt = new ItemTypeInteger("TIME_SESSIONSTART_ADD", 10, 0, Integer.MAX_VALUE, false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
-                International.getString("Für Abfahrt x Minuten zur aktuellen Zeit hinzuaddieren")));
-        addParameter(efaDirekt_minusMinutenAnkunft = new ItemTypeInteger("TIME_SESSIONEND_SUBSTRACT", 10, 0, Integer.MAX_VALUE, false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
-                International.getString("Für Ankunft x Minuten von aktueller Zeit abziehen")));
-        addParameter(efaDirekt_zielBeiFahrtbeginnPflicht = new ItemTypeBoolean("MUST_DESTINATION_AT_SESSIONSTART", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
-                International.getString("Ziel muß bereits bei Fahrtbeginn angegeben werden")));
-        addParameter(efaDirekt_eintragHideUnnecessaryInputFields = new ItemTypeBoolean("HIDE_UNNECESSARY_INPUTFIELDS", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
-                International.getString("Beim Eintrag von Fahrten unnötige Eingabefelder ausblenden")));
-        addParameter(efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen = new ItemTypeBoolean("NOTEDITABLE_KMFORKNOWNDESTINATIONS", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_INPUT),
-                International.getString("Vorgeschlagene Kilometer bei bekannten Zielen können nicht geändert werden")));
+            // ============================= BOATHOUSE:GUIBUTTONS =============================
+            addParameter(efaDirekt_butFahrtBeginnen = new ItemTypeConfigButton("ButtonStartSession",
+                    International.getString("Fahrt beginnen"), "CCFFCC", true, true, true, false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
+                    International.getMessage("Button '{button}'",
+                    International.getString("Fahrt beginnen"))));
+            addParameter(efaDirekt_butFahrtBeenden = new ItemTypeConfigButton("ButtonFinishSession",
+                    International.getString("Fahrt beenden"), "CCFFCC", true, true, true, false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
+                    International.getMessage("Button '{button}'",
+                    International.getString("Fahrt beenden"))));
+            addParameter(efaDirekt_butFahrtAbbrechen = new ItemTypeConfigButton("ButtonCancelSession",
+                    International.getString("Fahrt abbrechen"), "FFCCCC", true, false, true, false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
+                    International.getMessage("Button '{button}'",
+                    International.getString("Fahrt abbrechen"))));
+            addParameter(efaDirekt_butNachtrag = new ItemTypeConfigButton("ButtonLateEntry",
+                    International.getString("Nachtrag"), "CCFFFF", true, false, true, false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
+                    International.getMessage("Button '{button}'",
+                    International.getString("Nachtrag"))));
+            addParameter(efaDirekt_butBootsreservierungen = new ItemTypeConfigButton("ButtonBoatReservations",
+                    International.getString("Bootsreservierungen"), "FFFFCC", true, false, true, true,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
+                    International.getMessage("Button '{button}'",
+                    International.getString("Bootsreservierungen"))));
+            addParameter(efaDirekt_butFahrtenbuchAnzeigen = new ItemTypeConfigButton("ButtonShowLogbook",
+                    International.getString("Fahrtenbuch anzeigen"), "CCCCFF", true, false, true, true,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
+                    International.getMessage("Button '{button}'",
+                    International.getString("Fahrtenbuch anzeigen"))));
+            addParameter(efaDirekt_butStatistikErstellen = new ItemTypeConfigButton("ButtonCreateStatistics",
+                    International.getString("Statistiken erstellen"), "CCCCFF", true, false, true, true,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
+                    International.getMessage("Button '{button}'",
+                    International.getString("Statistiken erstellen"))));
+            addParameter(efaDirekt_butNachrichtAnAdmin = new ItemTypeConfigButton("ButtonMessageToAdmin",
+                    International.getString("Nachricht an Admin"), "FFF197", true, false, true, true,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
+                    International.getMessage("Button '{button}'",
+                    International.getString("Nachricht an Admin"))));
+            addParameter(efaDirekt_butAdminModus = new ItemTypeConfigButton("ButtonAdminMode",
+                    International.getString("Admin-Modus"), "CCCCCC", true, false, true, true,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
+                    International.getMessage("Button '{button}'",
+                    International.getString("Admin-Modus"))));
+            addParameter(efaDirekt_butSpezial = new ItemTypeConfigButton("ButtonSpecial",
+                    International.getString("Spezial-Button"), "CCCCCC", false, true, true, true,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
+                    International.getMessage("Button '{button}'",
+                    International.getString("Spezial-Button"))));
+            addParameter(efaDirekt_butSpezialCmd = new ItemTypeString("ButtonSpecialCommand", "",
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
+                    International.getMessage("Auszuführendes Kommando für '{button}'",
+                    International.getString("Spezial-Button"))));
+            addParameter(efaDirekt_showButtonHotkey = new ItemTypeBoolean("ButtonShowHotkeys", false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
+                    International.getString("Hotkeys für Buttons anzeigen")));
 
-        // ============================= BOATHOUSE:GUI =============================
-        addParameter(efaDirekt_startMaximized = new ItemTypeBoolean("WINDOW_MAXIMIZED", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("efa maximiert starten")));
-        addParameter(efaDirekt_fensterNichtVerschiebbar = new ItemTypeBoolean("WINDOW_FIXED", false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("Hauptfenster nicht verschiebbar")));
-        addParameter(efaDirekt_immerImVordergrund = new ItemTypeBoolean("WINDOW_ALWAYSONTOP", false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("efa immer im Vordergrund")));
-        addParameter(efaDirekt_immerImVordergrundBringToFront = new ItemTypeBoolean("WINDOW_ALWAYSONTOP_BRINGTOFRONT", false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("efa immer im Vordergrund") + " (bringToFront)"));
-        addParameter(efaDirekt_fontSize = new ItemTypeInteger("FONT_SIZE", (Dialog.screenSize.width >= 1024 ? 16 : 12), 6, 32, false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("Schriftgröße in Punkten (6 bis 32, Standard: 12)")));
-        addParameter(efaDirekt_fontStyle = new ItemTypeStringList("FONT_STYLE", "",
-                makeFontStyleArray(STRINGLIST_VALUES), makeFontStyleArray(STRINGLIST_DISPLAY),
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("Schriftstil")));
-        addParameter(efaDirekt_colorizeInputField = new ItemTypeBoolean("COLORIZE_INPUTFIELDS", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("aktuelles Eingabefeld farblich hervorheben")));
-        addParameter(efaDirekt_showEingabeInfos = new ItemTypeBoolean("SHOW_INPUTHINTS", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("Eingabehinweise anzeigen")));
-        addParameter(efaDirekt_showZielnameFuerBooteUnterwegs = new ItemTypeBoolean("DISPLAY_DESTINATION_FORBOATSONWATER", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getMessage("Fahrtziel in der Liste {list} anzeigen",
-                International.getString("Boote auf Fahrt"))));
-        addParameter(efaDirekt_listAllowToggleBoatsPersons = new ItemTypeBoolean("LISTS_TOGGLE_BOATSPERSONS", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("erlaube Auswahl in Bootslisten alternativ auch über Personennamen")));
-        addParameter(efaDirekt_sortByAnzahl = new ItemTypeBoolean("BOATLIST_SORTBYSEATS", true,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("sortiere Boote nach Anzahl der Bootsplätze")));
-        addParameter(efaDirekt_autoPopupOnBoatLists = new ItemTypeBoolean("BOATLIST_AUTOPOPUP", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("automatisches Popup-Menü für Mausclicks in den Bootslisten")));
-        addParameter(efaDirekt_vereinsLogo = new ItemTypeImage("CLUBLOGO", "", 192, 64,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("Vereinslogo")));
-        addParameter(efaDirekt_sunRiseSet_show = new ItemTypeBoolean("SUNRISESET_SHOW", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("Sonnenaufgangs- und -untergangszeit anzeigen")));
-        addParameter(efaDirekt_sunRiseSet_latitude = new ItemTypeLongLat("SUNRISESET_LATITUDE",
-                ItemTypeLongLat.ORIENTATION_NORTH,52,25,9,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("geographische Breite")));
-        addParameter(efaDirekt_sunRiseSet_longitude = new ItemTypeLongLat("SUNRISESET_LONGITUDE",
-                ItemTypeLongLat.ORIENTATION_EAST,13,10,15,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("geographische Länge")));
-        addParameter(efaDirekt_maxFBAnzeigenFahrten = new ItemTypeInteger("LOGBOOK_DISPLAYEDENTRIES_MAXNUMBER", 100, 1, Integer.MAX_VALUE, false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("Fahrtenbuch anzeigen")+": "+International.getString("maximale Anzahl von Fahrten")));
-        addParameter(efaDirekt_anzFBAnzeigenFahrten = new ItemTypeInteger("LOGBOOK_DISPLAYEDENTRIES_DEFAULTNUMBER", 50, 1, Integer.MAX_VALUE, false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("Fahrtenbuch anzeigen")+": "+International.getString("Anzahl von Fahrten")));
-        addParameter(efaDirekt_FBAnzeigenAuchUnvollstaendige = new ItemTypeBoolean("LOGBOOK_DISPLAYEDENTRIES_DEFAULTALSOINCOMPLETE", false,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUI),
-                International.getString("Fahrtenbuch anzeigen")+": "+International.getString("auch unvollständige Fahrten")));
+            // ============================= BOATHOUSE:STARTSTOP =============================
+            addParameter(efaDirekt_restartTime = new ItemTypeTime("EfaExitRestartTime", new DataTypeTime(4, 0, 0),
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_STARTSTOP),
+                    International.getString("Uhrzeit zum automatischen Neustart von efa")));
+            addParameter(efaDirekt_exitTime = new ItemTypeTime("EfaExitExitTime", new DataTypeTime(-1, -1, -1),
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_STARTSTOP),
+                    International.getString("Uhrzeit zum automatischen Beenden von efa")));
+            addParameter(efaDirekt_exitIdleTime = new ItemTypeInteger("EfaExitIdleTime", ItemTypeInteger.UNSET, 0, Integer.MAX_VALUE, true,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_STARTSTOP),
+                    International.getString("efa automatisch nach Inaktivität beenden")
+                    + " [" + International.getString("Minuten") + "]"));
+            addParameter(efaDirekt_execOnEfaAutoExit = new ItemTypeString("EfaExitExecOnAutoExit", "",
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_STARTSTOP),
+                    International.getString("Folgendes Kommando beim automatischen Beenden von efa ausführen")));
+            addParameter(efaDirekt_execOnEfaExit = new ItemTypeString("EfaExitExecOnExit", "",
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_STARTSTOP),
+                    International.getString("Folgendes Kommando beim Beenden von efa durch Mitglieder ausführen")));
 
-        // ============================= BOATHOUSE:GUIBUTTONS =============================
-        addParameter(efaDirekt_butFahrtBeginnen = new ItemTypeConfigButton("BUTTON_STARTSESSION",
-                International.getString("Fahrt beginnen")+" >>>", "CCFFCC", true, true, true, false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUIBUTTONS),
-                International.getMessage("Button '{button}'",
-                International.getString("Fahrt beginnen"))));
-        addParameter(efaDirekt_butFahrtBeenden = new ItemTypeConfigButton("BUTTON_FINISHSESSION",
-                "<<< "+International.getString("Fahrt beenden"), "CCFFCC", true, true, true, false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUIBUTTONS),
-                International.getMessage("Button '{button}'",
-                International.getString("Fahrt beenden"))));
-        addParameter(efaDirekt_butFahrtAbbrechen = new ItemTypeConfigButton("BUTTON_CANCELSESSION",
-                International.getString("Fahrt abbrechen"), "FFCCCC", true, false, true, false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUIBUTTONS),
-                International.getMessage("Button '{button}'",
-                International.getString("Fahrt abbrechen"))));
-        addParameter(efaDirekt_butNachtrag = new ItemTypeConfigButton("BUTTON_LATEENTRY",
-                International.getString("Nachtrag"), "CCFFFF", true, false, true, false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUIBUTTONS),
-                International.getMessage("Button '{button}'",
-                International.getString("Nachtrag"))));
-        addParameter(efaDirekt_butBootsreservierungen = new ItemTypeConfigButton("BUTTON_BOATRESERVATIONS",
-                International.getString("Bootsreservierungen"), "FFFFCC", true, false, true, true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUIBUTTONS),
-                International.getMessage("Button '{button}'",
-                International.getString("Bootsreservierungen"))));
-        addParameter(efaDirekt_butFahrtenbuchAnzeigen = new ItemTypeConfigButton("BUTTON_SHOWLOGBOOK",
-                International.getString("Fahrtenbuch anzeigen"), "CCCCFF", true, false, true, true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUIBUTTONS),
-                International.getMessage("Button '{button}'",
-                International.getString("Fahrtenbuch anzeigen"))));
-        addParameter(efaDirekt_butStatistikErstellen = new ItemTypeConfigButton("BUTTON_CREATESTATISTICS",
-                International.getString("Statistiken erstellen"), "CCCCFF", true, false, true, true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUIBUTTONS),
-                International.getMessage("Button '{button}'",
-                International.getString("Statistiken erstellen"))));
-        addParameter(efaDirekt_butNachrichtAnAdmin = new ItemTypeConfigButton("BUTTON_MESSAGETOADMIN",
-                International.getString("Nachricht an Admin"), "FFF197", true, false, true, true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUIBUTTONS),
-                International.getMessage("Button '{button}'",
-                International.getString("Nachricht an Admin"))));
-        addParameter(efaDirekt_butAdminModus = new ItemTypeConfigButton("BUTTON_ADMINMODE",
-                International.getString("Admin-Modus"), "CCCCCC", true, false, true, true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUIBUTTONS),
-                International.getMessage("Button '{button}'",
-                International.getString("Admin-Modus"))));
-        addParameter(efaDirekt_butSpezial = new ItemTypeConfigButton("BUTTON_SPECIAL",
-                International.getString("Spezial-Button"), "CCCCCC", false, true, true, true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUIBUTTONS),
-                International.getMessage("Button '{button}'",
-                International.getString("Spezial-Button"))));
-        addParameter(efaDirekt_butSpezialCmd = new ItemTypeString("BUTTON_SPECIAL_COMMAND", "",
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUIBUTTONS),
-                International.getMessage("Auszuführendes Kommando für '{button}'",
-                International.getString("Spezial-Button"))));
-        addParameter(efaDirekt_showButtonHotkey = new ItemTypeBoolean("BUTTON_SHOWHOTKEYS", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_GUIBUTTONS),
-                International.getString("Hotkeys für Buttons anzeigen")));
+            // ============================= BOATHOUSE:PERMISSIONS =============================
+            addParameter(efaDirekt_mitgliederDuerfenReservieren = new ItemTypeBoolean("AllowMembersBoatReservation", true,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_PERMISSIONS),
+                    International.getString("Mitglieder dürfen Boote reservieren")));
+            addParameter(efaDirekt_mitgliederDuerfenReservierenZyklisch = new ItemTypeBoolean("AllowMembersBoatReservationWeekly", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_PERMISSIONS),
+                    International.getString("Mitglieder dürfen Boote reservieren")
+                    + " (" + International.getString("einmalige Reservierungen") + ")"));
+            addParameter(efaDirekt_mitgliederDuerfenReservierungenEditieren = new ItemTypeBoolean("AllowMembersBoatReservationEdit", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_PERMISSIONS),
+                    International.getString("Mitglieder dürfen Bootsreservierungen verändern und löschen")));
+            addParameter(efaDirekt_mitgliederDuerfenNamenHinzufuegen = new ItemTypeBoolean("AllowMembersAddNames", false,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_PERMISSIONS),
+                    International.getString("Mitglieder dürfen Namen zur Mitgliederliste hinzufügen")));
+            addParameter(efaDirekt_mitgliederDuerfenEfaBeenden = new ItemTypeBoolean("AllowMembersExitEfa", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_PERMISSIONS),
+                    International.getString("Mitglieder dürfen efa beenden")));
 
-        // ============================= BOATHOUSE:STARTSTOP =============================
-        addParameter(efaDirekt_restartTime = new ItemTypeTime("EFAEXIT_RESTARTTIME", new DataTypeTime(4,0,0),
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_STARTSTOP),
-                International.getString("Uhrzeit zum automatischen Neustart von efa")));
-        addParameter(efaDirekt_exitTime = new ItemTypeTime("EFAEXIT_TIME", new DataTypeTime(-1,-1,-1),
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_STARTSTOP),
-                International.getString("Uhrzeit zum automatischen Beenden von efa")));
-        addParameter(efaDirekt_exitIdleTime = new ItemTypeInteger("EFAEXIT_IDLETIME", ItemTypeInteger.UNSET, 0, Integer.MAX_VALUE, true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_STARTSTOP),
-                International.getString("efa automatisch nach Inaktivität beenden") +
-                " [" + International.getString("Minuten") + "]"));
-        addParameter(efaDirekt_execOnEfaAutoExit = new ItemTypeString("EFAEXIT_EXECONAUTOEXIT", "",
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_STARTSTOP),
-                International.getString("Folgendes Kommando beim automatischen Beenden von efa ausführen")));
-        addParameter(efaDirekt_execOnEfaExit = new ItemTypeString("EFAEXIT_EXEC", "",
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_STARTSTOP),
-                International.getString("Folgendes Kommando beim Beenden von efa durch Mitglieder ausführen")));
+            // ============================= BOATHOUSE:NOTIFICATIONS =============================
+            addParameter(efaDirekt_bnrError_admin = new ItemTypeBoolean("NotificationErrorAdmin", true,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
+                    International.getString("Admins"), International.getString("bei Fehlern") + " (ERROR)")));
+            addParameter(efaDirekt_bnrWarning_admin = new ItemTypeBoolean("NotificationWarningAdmin", true,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
+                    International.getString("Admins"), International.getString("bei Warnungen (WARNING) einmal pro Woche"))));
+            addParameter(efaDirekt_bnrBootsstatus_admin = new ItemTypeBoolean("NotificationBoatstatusAdmin", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
+                    International.getString("Admins"), International.getString("bei Bootsstatus-Änderungen"))));
+            addParameter(efaDirekt_bnrError_bootswart = new ItemTypeBoolean("NotificationErrorBoatMaintenance", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
+                    International.getString("Bootswarte"), International.getString("bei Fehlern") + " (ERROR)")));
+            addParameter(efaDirekt_bnrWarning_bootswart = new ItemTypeBoolean("NotificationWarningBoatMaintenance", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
+                    International.getString("Bootswarte"), International.getString("bei Warnungen (WARNING) einmal pro Woche"))));
+            addParameter(efaDirekt_bnrBootsstatus_bootswart = new ItemTypeBoolean("NotificationBoatstatusBoatMaintenance", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
+                    International.getString("Bootswarte"), International.getString("bei Bootsstatus-Änderungen"))));
+            addParameter(efaDirekt_bnrWarning_lasttime = new ItemTypeLong("NotificationLastWarnings", System.currentTimeMillis() - 7l * 24l * 60l * 60l * 1000l, 0, Long.MAX_VALUE, // one week ago
+                    IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    International.getString("letzte Benachrichtigungen")));
+            addParameter(efaDirekt_emailServer = new ItemTypeString("NotificationEmailServer", "",
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    International.getString("email") + ": "
+                    + International.getString("SMTP-Server")));
+            addParameter(efaDirekt_emailPort = new ItemTypeInteger("NotificationEmailPort", 25, 0, 65535, false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    International.getString("email") + ": "
+                    + International.getString("SMTP-Port")));
+            addParameter(efaDirekt_emailUsername = new ItemTypeString("NotificationEmailUsername", "",
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    International.getString("email") + ": "
+                    + International.getString("Username")));
+            addParameter(efaDirekt_emailPassword = new ItemTypeString("NotificationEmailPassword", "",
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    International.getString("email") + ": "
+                    + International.getString("Paßwort")));
+            addParameter(efaDirekt_emailAbsenderName = new ItemTypeString("NotificationEmailFromName", Daten.EFA_SHORTNAME,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    International.getString("email") + ": "
+                    + International.getString("Absender-Name")));
+            addParameter(efaDirekt_emailAbsender = new ItemTypeString("NotificationEmailFromEmail", "",
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    International.getString("email") + ": "
+                    + International.getString("Absender-Adresse")));
+            addParameter(efaDirekt_emailBetreffPraefix = new ItemTypeString("NotificationEmailSubjectPrefix", Daten.EFA_SHORTNAME,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    International.getString("email") + ": "
+                    + International.getString("Betreff (Präfix)")));
+            addParameter(efaDirekt_emailSignatur = new ItemTypeString("NotificationEmailSignature", International.getString("Diese Nachricht wurde von efa verschickt."),
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    International.getString("email") + ": "
+                    + International.getString("Signatur")));
 
-        // ============================= BOATHOUSE:PERMISSIONS =============================
-        addParameter(efaDirekt_mitgliederDuerfenReservieren = new ItemTypeBoolean("ALLOW_MEMBERS_BOATRESERVATION_ONCE", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_PERMISSIONS),
-                International.getString("Mitglieder dürfen Boote reservieren")));
-        addParameter(efaDirekt_mitgliederDuerfenReservierenZyklisch = new ItemTypeBoolean("ALLOW_MEMBERS_BOATRESERVATION_REOCCURRING", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_PERMISSIONS),
-                International.getString("Mitglieder dürfen Boote reservieren") +
-                " (" + International.getString("einmalige Reservierungen") + ")"));
-        addParameter(efaDirekt_mitgliederDuerfenReservierungenEditieren = new ItemTypeBoolean("ALLOW_MEMBERS_BOATRESERVATION_CHANGE", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_PERMISSIONS),
-                International.getString("Mitglieder dürfen Bootsreservierungen verändern und löschen")));
-        addParameter(efaDirekt_mitgliederDuerfenNamenHinzufuegen = new ItemTypeBoolean("ALLOW_MEMBERS_ADDNAMES", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_PERMISSIONS),
-                International.getString("Mitglieder dürfen Namen zur Mitgliederliste hinzufügen")));
-        addParameter(efaDirekt_mitgliederDuerfenEfaBeenden = new ItemTypeBoolean("ALLOW_MEMBERS_EXITEFA", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_PERMISSIONS),
-                International.getString("Mitglieder dürfen efa beenden")));
+            // ============================= SYNC =============================
+            addParameter(kanuEfb_urlLogin = new ItemTypeString("KanuEfbLoginUrl", "http://sid.kanu-efb.de/services/login",
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_SYNC, CATEGORY_KANUEFB),
+                    "Login URL"));
+            addParameter(kanuEfb_urlRequest = new ItemTypeString("KanuEfbRequestUrl", "http://sid.kanu-efb.de/services",
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_SYNC, CATEGORY_KANUEFB),
+                    "Request URL"));
 
-        // ============================= BOATHOUSE:NOTIFICATIONS =============================
-        addParameter(efaDirekt_bnrError_admin = new ItemTypeBoolean("NOTIFICATION_ERROR_ADMIN", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
-                International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
-                International.getString("Admins"),International.getString("bei Fehlern") + " (ERROR)")));
-        addParameter(efaDirekt_bnrWarning_admin = new ItemTypeBoolean("NOTIFICATION_WARNING_ADMIN", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
-                International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
-                International.getString("Admins"),International.getString("bei Warnungen (WARNING) einmal pro Woche"))));
-        addParameter(efaDirekt_bnrBootsstatus_admin = new ItemTypeBoolean("NOTIFICATION_BOATSTATUS_ADMIN", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
-                International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
-                International.getString("Admins"),International.getString("bei Bootsstatus-Änderungen"))));
-        addParameter(efaDirekt_bnrError_bootswart = new ItemTypeBoolean("NOTIFICATION_ERROR_BOATMAINTENANCE", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
-                International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
-                International.getString("Bootswarte"),International.getString("bei Fehlern") + " (ERROR)")));
-        addParameter(efaDirekt_bnrWarning_bootswart = new ItemTypeBoolean("NOTIFICATION_WARNING_BOATMAINTENANCE", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
-                International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
-                International.getString("Bootswarte"),International.getString("bei Warnungen (WARNING) einmal pro Woche"))));
-        addParameter(efaDirekt_bnrBootsstatus_bootswart = new ItemTypeBoolean("NOTIFICATION_BOATSTATUS_BOATMAINTENANCE", false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
-                International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
-                International.getString("Bootswarte"),International.getString("bei Bootsstatus-Änderungen"))));
-        addParameter(efaDirekt_bnrWarning_lasttime = new ItemTypeLong("NOTIFICATION_LASTWARNINGS", System.currentTimeMillis() - 7l*24l*60l*60l*1000l, 0, Long.MAX_VALUE, // one week ago
-                IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
-                International.getString("letzte Benachrichtigungen")));
-        addParameter(efaDirekt_emailServer = new ItemTypeString("EMAIL_SERVER", "",
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
-                International.getString("email")+": "+
-                International.getString("SMTP-Server")));
-        addParameter(efaDirekt_emailPort = new ItemTypeInteger("EMAIL_PORT", 25, 0, 65535, false,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
-                International.getString("email")+": "+
-                International.getString("SMTP-Port")));
-        addParameter(efaDirekt_emailUsername = new ItemTypeString("EMAIL_USERNAME", "",
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
-                International.getString("email")+": "+
-                International.getString("Username")));
-        addParameter(efaDirekt_emailPassword = new ItemTypeString("EMAIL_PASSWORD", "",
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
-                International.getString("email")+": "+
-                International.getString("Paßwort")));
-        addParameter(efaDirekt_emailAbsenderName = new ItemTypeString("EMAIL_FROMNAME", Daten.EFA_SHORTNAME,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
-                International.getString("email")+": "+
-                International.getString("Absender-Name")));
-        addParameter(efaDirekt_emailAbsender = new ItemTypeString("EMAIL_FROMEMAIL", "",
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
-                International.getString("email")+": "+
-                International.getString("Absender-Adresse")));
-        addParameter(efaDirekt_emailBetreffPraefix = new ItemTypeString("EMAIL_SUBJECTPREFIX", Daten.EFA_SHORTNAME,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
-                International.getString("email")+": "+
-                International.getString("Betreff (Präfix)")));
-        addParameter(efaDirekt_emailSignatur = new ItemTypeString("EMAIL_SIGNATURE", International.getString("Diese Nachricht wurde von efa verschickt."),
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE,CATEGORY_NOTIFICATIONS),
-                International.getString("email")+": "+
-                International.getString("Signatur")));
+            // ============================= LOCALE =============================
+            addParameter(language = new ItemTypeStringList("_Language", Daten.efaBaseConfig.language,
+                    makeLanguageArray(STRINGLIST_VALUES), makeLanguageArray(STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
+                    International.getString("Sprache")));
+            addParameter(defaultDistanceUnit = new ItemTypeStringList("LocaleDefaultDistanceUnit", DataTypeDistance.KILOMETERS,
+                    DataTypeDistance.makeDistanceUnitValueArray(), DataTypeDistance.makeDistanceUnitNamesArray(),
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
+                    International.getString("Standardeinheit für Entfernungen")));
+            addParameter(useFunctionalityRowing = new ItemTypeBoolean("CustUsageRowing",
+                    (custSettings != null ? custSettings.activateRowingOptions : true),
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
+                    International.getMessage("Funktionalitäten aktivieren für {sport}",
+                    International.getString("Rudern"))));
+            addParameter(useFunctionalityRowingGermany = new ItemTypeBoolean("CustUsageRowingGermany",
+                    (custSettings != null ? custSettings.activateGermanRowingOptions : International.getLanguageID().startsWith("de")),
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
+                    International.getMessage("Funktionalitäten aktivieren für {sport} in {region}",
+                    International.getString("Rudern")) + " "
+                    + International.getMessage("in {region}",
+                    International.getString("Deutschland"))));
+            addParameter(useFunctionalityRowingBerlin = new ItemTypeBoolean("CustUsageRowingBerlin",
+                    (custSettings != null ? custSettings.activateBerlinRowingOptions : false),
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
+                    International.getMessage("Funktionalitäten aktivieren für {sport} in {region}",
+                    International.getString("Rudern")) + " "
+                    + International.getMessage("in {region}",
+                    International.getString("Berlin"))));
+            addParameter(useFunctionalityCanoeing = new ItemTypeBoolean("CustUsageCanoeing",
+                    (custSettings != null ? custSettings.activateCanoeingOptions : false),
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
+                    International.getMessage("Funktionalitäten aktivieren für {sport}",
+                    International.getString("Kanufahren"))));
+            addParameter(useFunctionalityCanoeingGermany = new ItemTypeBoolean("CustUsageCanoeingGermany",
+                    (custSettings != null ? custSettings.activateGermanCanoeingOptions : false),
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
+                    International.getMessage("Funktionalitäten aktivieren für {sport} in {region}",
+                    International.getString("Kanufahren")) + " "
+                    + International.getMessage("in {region}",
+                    International.getString("Deutschland"))));
 
-        // ============================= SYNC =============================
-        addParameter(kanuEfb_urlLogin = new ItemTypeString("KANUEFB_URLLOGIN", "http://sid.kanu-efb.de/services/login",
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_SYNC,CATEGORY_KANUEFB),
-                "Login URL"));
-        addParameter(kanuEfb_urlRequest = new ItemTypeString("KANUEFB_URLREQUEST", "http://sid.kanu-efb.de/services",
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_SYNC,CATEGORY_KANUEFB),
-                "Request URL"));
-        addParameter(kanuEfb_username = new ItemTypeString("KANUEFB_USERNAME", "",
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_SYNC,CATEGORY_KANUEFB),
-                International.getString("Benutzername")));
-        addParameter(kanuEfb_password = new ItemTypeString("KANUEFB_PASSWORD", "",
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_SYNC,CATEGORY_KANUEFB),
-                International.getString("Paßwort")));
-        addParameter(kanuEfb_lastSync = new ItemTypeLong("KANUEFB_LASTSYNC", 0, 0, Long.MAX_VALUE,
-                IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_SYNC,CATEGORY_KANUEFB),
-                "Last Synchronization"));
+            // ============================= TYPES =============================
+            addParameter(typesResetToDefault = new ItemTypeAction("ACTION_TYPES_RESETTODEFAULT", ItemTypeAction.ACTION_TYPES_RESETTODEFAULT,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_TYPES, CATEGORY_COMMON),
+                    International.getString("Alle Standard-Typen zurücksetzen")));
+            addParameter(typesAddAllDefaultRowingBoats = new ItemTypeAction("ACTION_ADDTYPES_ROWING", ItemTypeAction.ACTION_GENERATE_ROWING_BOAT_TYPES,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_BOAT),
+                    International.getMessage("Alle Standard-Bootstypen für {rowing_or_canoeing} neu hinzufügen",
+                    International.getString("Rudern"))));
+            addParameter(typesAddAllDefaultCanoeingBoats = new ItemTypeAction("ACTION_ADDTYPES_CANOEING", ItemTypeAction.ACTION_GENERATE_CANOEING_BOAT_TYPES,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_BOAT),
+                    International.getMessage("Alle Standard-Bootstypen für {rowing_or_canoeing} neu hinzufügen",
+                    International.getString("Kanufahren"))));
+            buildTypes();
 
-        // ============================= LOCALE =============================
-        addParameter(language = new ItemTypeStringList("_LANGUAGE", Daten.efaBaseConfig.language,
-                makeLanguageArray(STRINGLIST_VALUES), makeLanguageArray(STRINGLIST_DISPLAY),
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
-                International.getString("Sprache")));
-        addParameter(defaultDistanceUnit = new ItemTypeStringList("DISTANCEUNIT_DEFAULT", DataTypeDistance.KILOMETERS,
-                DataTypeDistance.makeDistanceUnitValueArray(), DataTypeDistance.makeDistanceUnitNamesArray(),
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
-                International.getString("Standardeinheit für Entfernungen")));
-        addParameter(useFunctionalityRowing = new ItemTypeBoolean("CUSTUSAGE_ROWING",
-                (custSettings != null ? custSettings.activateRowingOptions : true ),
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
-                International.getMessage("Funktionalitäten aktivieren für {sport}",
-                International.getString("Rudern"))));
-        addParameter(useFunctionalityRowingGermany = new ItemTypeBoolean("CUSTUSAGE_ROWINGGERMANY",
-                (custSettings != null ? custSettings.activateGermanRowingOptions : International.getLanguageID().startsWith("de") ),
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
-                International.getMessage("Funktionalitäten aktivieren für {sport} in {region}",
-                International.getString("Rudern")) + " " +
-                International.getMessage("in {region}",
-                International.getString("Deutschland"))));
-        addParameter(useFunctionalityRowingBerlin = new ItemTypeBoolean("CUSTUSAGE_ROWINGBERLIN",
-                (custSettings != null ? custSettings.activateBerlinRowingOptions : International.getLanguageID().startsWith("de") ),
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
-                International.getMessage("Funktionalitäten aktivieren für {sport} in {region}",
-                International.getString("Rudern")) + " " +
-                International.getMessage("in {region}",
-                International.getString("Berlin"))));
-        addParameter(useFunctionalityCanoeing = new ItemTypeBoolean("CUSTUSAGE_CANOEING",
-                (custSettings != null ? custSettings.activateCanoeingOptions : false ),
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
-                International.getMessage("Funktionalitäten aktivieren für {sport}",
-                International.getString("Kanufahren"))));
-        addParameter(useFunctionalityCanoeingGermany = new ItemTypeBoolean("CUSTUSAGE_CANOEINGGERMANY",
-                (custSettings != null ? custSettings.activateGermanCanoeingOptions : International.getLanguageID().startsWith("de") ),
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_LOCALE),
-                International.getMessage("Funktionalitäten aktivieren für {sport} in {region}",
-                International.getString("Kanufahren")) + " " +
-                International.getMessage("in {region}",
-                International.getString("Deutschland"))));
+            // ============================= WIDGETS =============================
+            addParameter(efaDirekt_showUhr = new ItemTypeBoolean("WidgetClockEnabled", true,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_WIDGETS, "CLOCK"),
+                    International.getMessage("{item} anzeigen",
+                    International.getString("Uhr"))));
+            categories.put("CLOCK", International.getString("Uhr"));
+            addParameter(efaDirekt_showNews = new ItemTypeBoolean("WidgetNewsEnabled", true,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_WIDGETS, "NEWS"),
+                    International.getMessage("{item} anzeigen",
+                    International.getString("News"))));
+            addParameter(efaDirekt_newsText = new ItemTypeString("WidgetNewsText", "",
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_WIDGETS, "NEWS"),
+                    International.getString("News-Text")));
+            addParameter(efaDirekt_newsScrollSpeed = new ItemTypeInteger("WidgetNewsScrollSpeed", 250, 100, Integer.MAX_VALUE,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_WIDGETS, "NEWS"),
+                    "Scroll Speed"));
+            categories.put("NEWS", International.getString("News"));
 
-        // ============================= TYPES =============================
-        addParameter(typesResetToDefault = new ItemTypeAction("ACTION_TYPES_RESETTODEFAULT", ItemTypeAction.ACTION_TYPES_RESETTODEFAULT,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_TYPES,CATEGORY_COMMON),
-                International.getString("Alle Standard-Typen zurücksetzen")));
-        addParameter(typesAddAllDefaultRowingBoats = new ItemTypeAction("ACTION_ADDTYPES_ROWING", ItemTypeAction.ACTION_GENERATE_ROWING_BOAT_TYPES,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_BOAT),
-                International.getMessage("Alle Standard-Bootstypen für {rowing_or_canoeing} neu hinzufügen",
-                International.getString("Rudern"))));
-        addParameter(typesAddAllDefaultCanoeingBoats = new ItemTypeAction("ACTION_ADDTYPES_CANOEING", ItemTypeAction.ACTION_GENERATE_CANOEING_BOAT_TYPES,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_BOAT),
-                International.getMessage("Alle Standard-Bootstypen für {rowing_or_canoeing} neu hinzufügen",
-                International.getString("Kanufahren"))));
-        buildTypes();
-
-        // ============================= WIDGETS =============================
-        addParameter(efaDirekt_showUhr = new ItemTypeBoolean("WIDGET_CLOCK_ENABLED", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_WIDGETS, "CLOCK"),
-                International.getMessage("{item} anzeigen",
-                International.getString("Uhr"))
-                ));
-        categories.put("CLOCK", International.getString("Uhr"));
-        addParameter(efaDirekt_showNews = new ItemTypeBoolean("WIDGET_NEWS_ENABLED", true,
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_WIDGETS, "NEWS"),
-                International.getMessage("{item} anzeigen",
-                International.getString("News"))
-                ));
-        addParameter(efaDirekt_newsText = new ItemTypeString("WIDGET_NEWS_TEXT", "",
-                IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_WIDGETS, "NEWS"),
-                International.getString("News-Text")));
-        addParameter(efaDirekt_newsScrollSpeed = new ItemTypeInteger("WIDGET_NEWS_SCROLLSPEED", 250, 100, Integer.MAX_VALUE,
-                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_WIDGETS, "NEWS"),
-                "Scroll Speed"));
-        categories.put("NEWS", International.getString("News"));
-
-        widgets = Widget.getAllWidgets();
-        for (int i=0; widgets != null && i<widgets.size(); i++) {
-            IWidget w = widgets.get(i);
-            IItemType[] params = w.getParameters();
-            for (int j = 0; params != null && j < params.length; j++) {
-                params[j].setCategory(makeCategory(CATEGORY_BOATHOUSE, CATEGORY_WIDGETS, w.getName()));
-                categories.put(w.getName(), w.getDescription());
-                addParameter(params[j]);
+            widgets = Widget.getAllWidgets();
+            for (int i = 0; widgets != null && i < widgets.size(); i++) {
+                IWidget w = widgets.get(i);
+                IItemType[] params = w.getParameters();
+                for (int j = 0; params != null && j < params.length; j++) {
+                    params[j].setCategory(makeCategory(CATEGORY_BOATHOUSE, CATEGORY_WIDGETS, w.getName()));
+                    categories.put(w.getName(), w.getDescription());
+                    addParameter(params[j]);
+                }
             }
-        }
 
+            // ============================= DATA ACCESS =============================
+            addParameter(dataPreModifyRecordCallbackEnabled = new ItemTypeBoolean("DataPreModifyRecordCallbackEnabled", true,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_DATAACCESS, CATEGORY_COMMON),
+                    "PreModifyRecordCallbackEnabled"));
+
+
+        }
     }
 
     public static String makeCategory(String c1) {
@@ -983,19 +946,657 @@ public class EfaConfig extends DatenListe {
         return c1 + ":" + c2 + ":" + c3;
     }
 
-
     private void addParameter(IItemType configValue) {
-        if (configValues.get(configValue.getName()) != null) {
-            // should never happen (program error); no need to translate
-            Logger.log(Logger.ERROR, Logger.MSG_ERROR_EXCEPTION, "EfaConfig: duplicate parameter: "+configValue.getName());
-        } else {
-            configValues.put(configValue.getName(), configValue);
-            configValueNames.add(configValue.getName());
+        synchronized (configValues) {
+            if (configValues.get(configValue.getName()) != null) {
+                // should never happen (program error); no need to translate
+                Logger.log(Logger.ERROR, Logger.MSG_ERROR_EXCEPTION, "EfaConfig: duplicate parameter: " + configValue.getName());
+            } else {
+                configValues.put(configValue.getName(), configValue);
+                configValueNames.add(configValue.getName());
+            }
         }
     }
 
-    public IItemType getParameter(String name) {
-        return configValues.get(name);
+    public void setValue(String name, String newValue) {
+        synchronized (configValues) {
+            IItemType item = configValues.get(name);
+            if (item != null) {
+                setValue(item, newValue);
+            }
+        }
+    }
+
+    private void setValue(IItemType item, String newValue) {
+        item.parseValue(newValue);
+        updateValue(item.getName(), newValue);
+    }
+
+    public String getValueLastProjectEfaBase() {
+        return lastProjectEfaBase.getValue();
+    }
+
+    public void setValueLastProjectEfaBase(String name) {
+        setValue(lastProjectEfaBase, name);
+    }
+
+    public String getValueLastProjectEfaBoathouse() {
+        return lastProjectEfaBoathouse.getValue();
+    }
+
+    public void setValueLastProjectEfaBoathouse(String name) {
+        setValue(lastProjectEfaBoathouse, name);
+    }
+
+    public boolean getValueAutogenAlias() {
+        return autogenAlias.getValue();
+    }
+
+    public String getValueAliasFormat() {
+        return aliasFormat.getValue();
+    }
+
+    public String getValueBrowser() {
+        return browser.getValue();
+    }
+
+    public String getValueAcrobat() {
+        return acrobat.getValue();
+    }
+
+    public int getValuePrintPageWidth() {
+        return printPageWidth.getValue();
+    }
+
+    public int getValuePrintPageHeight() {
+        return printPageHeight.getValue();
+    }
+
+    public int getValuePrintLeftMargin() {
+        return printLeftMargin.getValue();
+    }
+
+    public int getValuePrintTopMargin() {
+        return printTopMargin.getValue();
+    }
+
+    public int getValuePrintPageOverlap() {
+        return printPageOverlap.getValue();
+    }
+
+    public ItemTypeHashtable<String> getValueKeys() {
+        return keys;
+    }
+
+    public int getValueCountEfaStarts() {
+        return countEfaStarts.getValue();
+    }
+
+    public String getValueRegisteredProgramID() {
+        return registeredProgramID.getValue();
+    }
+
+    public void setValueRegisteredProgramID(String id) {
+        setValue(registeredProgramID, id);
+    }
+
+    public int getValueRegistrationChecks() {
+        return registrationChecks.getValue();
+    }
+
+    public void setValueRegistrationChecks(int checks) {
+        setValue(registrationChecks, Integer.toString(checks));
+    }
+
+    public boolean getValueAutoStandardmannsch() {
+        return autoStandardmannsch.getValue();
+    }
+
+    public boolean getValueManualStandardmannsch() {
+        return manualStandardmannsch.getValue();
+    }
+
+    public boolean getValueShowObmann() {
+        return showObmann.getValue();
+    }
+
+    public boolean getValueAutoObmann() {
+        return autoObmann.getValue();
+    }
+
+    public String getValueDefaultObmann() {
+        return defaultObmann.getValue();
+    }
+
+    public boolean getValuePopupComplete() {
+        return popupComplete.getValue();
+    }
+
+    public String getValueNameFormat() {
+        return nameFormat.getValue();
+    }
+
+    public boolean getValueCorrectMisspelledMitglieder() {
+        return correctMisspelledMitglieder.getValue();
+    }
+
+    public boolean getValueCorrectMisspelledBoote() {
+        return correctMisspelledBoote.getValue();
+    }
+
+    public boolean getValueCorrectMisspelledZiele() {
+        return correctMisspelledZiele.getValue();
+    }
+
+    public boolean getValueSkipUhrzeit() {
+        return skipUhrzeit.getValue();
+    }
+
+    public boolean getValueSkipZiel() {
+        return skipZiel.getValue();
+    }
+
+    public boolean getValueSkipBemerk() {
+        return skipBemerk.getValue();
+    }
+
+    public boolean getValueFensterZentriert() {
+        return fensterZentriert.getValue();
+    }
+
+    public int getValueWindowXOffset() {
+        return windowXOffset.getValue();
+    }
+
+    public int getValueWindowYOffset() {
+        return windowYOffset.getValue();
+    }
+
+    public int getValueScreenWidth() {
+        return screenWidth.getValue();
+    }
+
+    public int getValueScreenHeight() {
+        return screenHeight.getValue();
+    }
+
+    public int getValueMaxDialogHeight() {
+        return maxDialogHeight.getValue();
+    }
+
+    public int getValueMaxDialogWidth() {
+        return maxDialogWidth.getValue();
+    }
+
+    public String getValueLookAndFeel() {
+        return lookAndFeel.getValue();
+    }
+
+    public String getValueStandardFahrtart() {
+        return standardFahrtart.getValue();
+    }
+
+    public String getValueDefaultDistanceUnit() {
+        return defaultDistanceUnit.getValue();
+    }
+
+    public boolean getValueDebugLogging() {
+        return debugLogging.getValue();
+    }
+
+    public String getValueTraceTopic() {
+        return traceTopic.getValue();
+    }
+
+    public String getValueEfaVersionLastCheck() {
+        return efaVersionLastCheck.getValue();
+    }
+
+    public String getValueVersion() {
+        return version.getValue();
+    }
+
+    public boolean getValueEfaDirekt_zielBeiFahrtbeginnPflicht() {
+        return efaDirekt_zielBeiFahrtbeginnPflicht.getValue();
+    }
+
+    public boolean getValueEfaDirekt_eintragErzwingeObmann() {
+        return efaDirekt_eintragErzwingeObmann.getValue();
+    }
+
+    public boolean getValueEfaDirekt_eintragErlaubeNurMaxRudererzahl() {
+        return efaDirekt_eintragErlaubeNurMaxRudererzahl.getValue();
+    }
+
+    public boolean getValueEfaDirekt_eintragNichtAenderbarUhrzeit() {
+        return efaDirekt_eintragNichtAenderbarUhrzeit.getValue();
+    }
+
+    public boolean getValueEfaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen() {
+        return efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen.getValue();
+    }
+
+    public boolean getValueEfaDirekt_eintragNurBekannteBoote() {
+        return efaDirekt_eintragNurBekannteBoote.getValue();
+    }
+
+    public boolean getValueEfaDirekt_eintragNurBekannteRuderer() {
+        return efaDirekt_eintragNurBekannteRuderer.getValue();
+    }
+
+    public boolean getValueEfaDirekt_eintragNurBekannteZiele() {
+        return efaDirekt_eintragNurBekannteZiele.getValue();
+    }
+
+    public boolean getValueEfaDirekt_eintragHideUnnecessaryInputFields() {
+        return efaDirekt_eintragHideUnnecessaryInputFields.getValue();
+    }
+
+    public int getValueEfaDirekt_plusMinutenAbfahrt() {
+        return efaDirekt_plusMinutenAbfahrt.getValue();
+    }
+
+    public int getValueEfaDirekt_minusMinutenAnkunft() {
+        return efaDirekt_minusMinutenAnkunft.getValue();
+    }
+
+    public boolean getValueEfaDirekt_mitgliederDuerfenReservieren() {
+        return efaDirekt_mitgliederDuerfenReservieren.getValue();
+    }
+
+    public boolean getValueEfaDirekt_mitgliederDuerfenReservierenZyklisch() {
+        return efaDirekt_mitgliederDuerfenReservierenZyklisch.getValue();
+    }
+
+    public boolean getValueEfaDirekt_mitgliederDuerfenReservierungenEditieren() {
+        return efaDirekt_mitgliederDuerfenReservierungenEditieren.getValue();
+    }
+
+    public boolean getValueEfaDirekt_mitgliederDuerfenEfaBeenden() {
+        return efaDirekt_mitgliederDuerfenEfaBeenden.getValue();
+    }
+
+    public boolean getValueEfaDirekt_mitgliederDuerfenNamenHinzufuegen() {
+        return efaDirekt_mitgliederDuerfenNamenHinzufuegen.getValue();
+    }
+
+    public boolean getValueEfaDirekt_resBooteNichtVerfuegbar() {
+        return efaDirekt_resBooteNichtVerfuegbar.getValue();
+    }
+
+    public boolean getValueEfaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar() {
+        return efaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar.getValue();
+    }
+
+    public int getValueEfaDirekt_resLookAheadTime() {
+        return efaDirekt_resLookAheadTime.getValue();
+    }
+
+    public String getValueEfaDirekt_execOnEfaExit() {
+        return efaDirekt_execOnEfaExit.getValue();
+    }
+
+    public DataTypeTime getValueEfaDirekt_exitTime() {
+        return efaDirekt_exitTime.getTime();
+    }
+
+    public int getValueEfaDirekt_exitIdleTime() {
+        return efaDirekt_exitIdleTime.getValue();
+    }
+
+    public String getValueEfaDirekt_execOnEfaAutoExit() {
+        return efaDirekt_execOnEfaAutoExit.getValue();
+    }
+
+    public DataTypeTime getValueEfaDirekt_restartTime() {
+        return efaDirekt_restartTime.getTime();
+    }
+
+    public boolean getValueEfaDirekt_checkRunning() {
+        return efaDirekt_checkRunning.getValue();
+    }
+
+    public ItemTypeConfigButton getValueEfaDirekt_butFahrtBeginnen() {
+        return efaDirekt_butFahrtBeginnen;
+    }
+
+    public ItemTypeConfigButton getValueEfaDirekt_butFahrtBeenden() {
+        return efaDirekt_butFahrtBeenden;
+    }
+
+    public ItemTypeConfigButton getValueEfaDirekt_butFahrtAbbrechen() {
+        return efaDirekt_butFahrtAbbrechen;
+    }
+
+    public ItemTypeConfigButton getValueEfaDirekt_butNachtrag() {
+        return efaDirekt_butNachtrag;
+    }
+
+    public ItemTypeConfigButton getValueEfaDirekt_butBootsreservierungen() {
+        return efaDirekt_butBootsreservierungen;
+    }
+
+    public ItemTypeConfigButton getValueEfaDirekt_butFahrtenbuchAnzeigen() {
+        return efaDirekt_butFahrtenbuchAnzeigen;
+    }
+
+    public ItemTypeConfigButton getValueEfaDirekt_butStatistikErstellen() {
+        return efaDirekt_butStatistikErstellen;
+    }
+
+    public ItemTypeConfigButton getValueEfaDirekt_butNachrichtAnAdmin() {
+        return efaDirekt_butNachrichtAnAdmin;
+    }
+
+    public ItemTypeConfigButton getValueEfaDirekt_butAdminModus() {
+        return efaDirekt_butAdminModus;
+    }
+
+    public ItemTypeConfigButton getValueEfaDirekt_butSpezial() {
+        return efaDirekt_butSpezial;
+    }
+
+    public String getValueEfaDirekt_butSpezialCmd() {
+        return efaDirekt_butSpezialCmd.getValue();
+    }
+
+    public boolean getValueEfaDirekt_showButtonHotkey() {
+        return efaDirekt_showButtonHotkey.getValue();
+    }
+
+    public boolean getValueEfaDirekt_sortByAnzahl() {
+        return efaDirekt_sortByAnzahl.getValue();
+    }
+
+    public boolean getValueEfaDirekt_autoPopupOnBoatLists() {
+        return efaDirekt_autoPopupOnBoatLists.getValue();
+    }
+
+    public boolean getValueEfaDirekt_listAllowToggleBoatsPersons() {
+        return efaDirekt_listAllowToggleBoatsPersons.getValue();
+    }
+
+    public boolean getValueEfaDirekt_showEingabeInfos() {
+        return efaDirekt_showEingabeInfos.getValue();
+    }
+
+    public boolean getValueEfaDirekt_showBootsschadenButton() {
+        return efaDirekt_showBootsschadenButton.getValue();
+    }
+
+    public int getValueEfaDirekt_maxFBAnzeigenFahrten() {
+        return efaDirekt_maxFBAnzeigenFahrten.getValue();
+    }
+
+    public int getValueEfaDirekt_anzFBAnzeigenFahrten() {
+        return efaDirekt_anzFBAnzeigenFahrten.getValue();
+    }
+
+    public boolean getValueEfaDirekt_FBAnzeigenAuchUnvollstaendige() {
+        return efaDirekt_FBAnzeigenAuchUnvollstaendige.getValue();
+    }
+
+    public DataTypeDate getValueEfaDirekt_autoNewFb_datum() {
+        return efaDirekt_autoNewFb_datum.getDate();
+    }
+
+    public String getValueEfaDirekt_autoNewFb_datei() {
+        return efaDirekt_autoNewFb_datei.getValue();
+    }
+
+    public int getValueEfaDirekt_fontSize() {
+        return efaDirekt_fontSize.getValue();
+    }
+
+    public String getValueEfaDirekt_fontStyle() {
+        return efaDirekt_fontStyle.getValue();
+    }
+
+    public boolean getValueEfaDirekt_colorizeInputField() {
+        return efaDirekt_colorizeInputField.getValue();
+    }
+
+    public boolean getValueEfaDirekt_showZielnameFuerBooteUnterwegs() {
+        return efaDirekt_showZielnameFuerBooteUnterwegs.getValue();
+    }
+
+    public String getValueEfadirekt_adminLastOsCommand() {
+        return efadirekt_adminLastOsCommand.getValue();
+    }
+
+    public String getValueEfaDirekt_vereinsLogo() {
+        return efaDirekt_vereinsLogo.getValue();
+    }
+
+    public boolean getValueEfaDirekt_showUhr() {
+        return efaDirekt_showUhr.getValue();
+    }
+
+    public boolean getValueEfaDirekt_showNews() {
+        return efaDirekt_showNews.getValue();
+    }
+
+    public String getValueEfaDirekt_newsText() {
+        return efaDirekt_newsText.getValue();
+    }
+
+    public int getValueEfaDirekt_newsScrollSpeed() {
+        return efaDirekt_newsScrollSpeed.getValue();
+    }
+
+    public boolean getValueEfaDirekt_startMaximized() {
+        return efaDirekt_startMaximized.getValue();
+    }
+
+    public boolean getValueEfaDirekt_fensterNichtVerschiebbar() {
+        return efaDirekt_fensterNichtVerschiebbar.getValue();
+    }
+
+    public boolean getValueEfaDirekt_immerImVordergrund() {
+        return efaDirekt_immerImVordergrund.getValue();
+    }
+
+    public boolean getValueEfaDirekt_immerImVordergrundBringToFront() {
+        return efaDirekt_immerImVordergrundBringToFront.getValue();
+    }
+
+    public boolean getValueEfaDirekt_bnrError_admin() {
+        return efaDirekt_bnrError_admin.getValue();
+    }
+
+    public boolean getValueEfaDirekt_bnrError_bootswart() {
+        return efaDirekt_bnrError_bootswart.getValue();
+    }
+
+    public boolean getValueEfaDirekt_bnrWarning_admin() {
+        return efaDirekt_bnrWarning_admin.getValue();
+    }
+
+    public boolean getValueEfaDirekt_bnrWarning_bootswart() {
+        return efaDirekt_bnrWarning_bootswart.getValue();
+    }
+
+    public boolean getValueEfaDirekt_bnrBootsstatus_admin() {
+        return efaDirekt_bnrBootsstatus_admin.getValue();
+    }
+
+    public boolean getValueEfaDirekt_bnrBootsstatus_bootswart() {
+        return efaDirekt_bnrBootsstatus_bootswart.getValue();
+    }
+
+    public long getValueEfaDirekt_bnrWarning_lasttime() {
+        return efaDirekt_bnrWarning_lasttime.getValue();
+    }
+
+    public void setValueEfaDirekt_bnrWarning_lasttime(long lasttime) {
+        setValue(efaDirekt_bnrWarning_lasttime, Long.toString(lasttime));
+    }
+
+    public String getValueEfaDirekt_emailServer() {
+        return efaDirekt_emailServer.getValue();
+    }
+
+    public int getValueEfaDirekt_emailPort() {
+        return efaDirekt_emailPort.getValue();
+    }
+
+    public String getValueEfaDirekt_emailAbsender() {
+        return efaDirekt_emailAbsender.getValue();
+    }
+
+    public String getValueEfaDirekt_emailUsername() {
+        return efaDirekt_emailUsername.getValue();
+    }
+
+    public String getValueEfaDirekt_emailPassword() {
+        return efaDirekt_emailPassword.getValue();
+    }
+
+    public String getValueEfaDirekt_emailAbsenderName() {
+        return efaDirekt_emailAbsenderName.getValue();
+    }
+
+    public String getValueEfaDirekt_emailBetreffPraefix() {
+        return efaDirekt_emailBetreffPraefix.getValue();
+    }
+
+    public String getValueEfaDirekt_emailSignatur() {
+        return efaDirekt_emailSignatur.getValue();
+    }
+
+    public String getValueEfaDirekt_lockEfaShowHtml() {
+        return efaDirekt_lockEfaShowHtml.getValue();
+    }
+
+    public boolean getValueEfaDirekt_lockEfaVollbild() {
+        return efaDirekt_lockEfaVollbild.getValue();
+    }
+
+    public DataTypeDate getValueEfaDirekt_lockEfaFromDatum() {
+        return efaDirekt_lockEfaFromDatum.getDate();
+    }
+
+    public void setValueEfaDirekt_lockEfaFromDatum(DataTypeDate date) {
+        setValue(efaDirekt_lockEfaFromDatum, date.toString());
+    }
+
+    public DataTypeTime getValueEfaDirekt_lockEfaFromZeit() {
+        return efaDirekt_lockEfaFromZeit.getTime();
+    }
+
+    public void setValueEfaDirekt_lockEfaFromZeit(DataTypeTime time) {
+        setValue(efaDirekt_lockEfaFromZeit, time.toString());
+    }
+
+    public DataTypeDate getValueEfaDirekt_lockEfaUntilDatum() {
+        return efaDirekt_lockEfaUntilDatum.getDate();
+    }
+
+    public DataTypeTime getValueEfaDirekt_lockEfaUntilZeit() {
+        return efaDirekt_lockEfaUntilZeit.getTime();
+    }
+
+    public boolean getValueEfaDirekt_locked() {
+        return efaDirekt_locked.getValue();
+    }
+
+    public void setValueEfaDirekt_locked(boolean locked) {
+        setValue(efaDirekt_locked, Boolean.toString(locked));
+    }
+
+    public boolean getValueUseFunctionalityRowing() {
+        return useFunctionalityRowing.getValue();
+    }
+
+    public boolean getValueUseFunctionalityRowingGermany() {
+        return useFunctionalityRowingGermany.getValue();
+    }
+
+    public boolean getValueUseFunctionalityRowingBerlin() {
+        return useFunctionalityRowingBerlin.getValue();
+    }
+
+    public boolean getValueUseFunctionalityCanoeing() {
+        return useFunctionalityCanoeing.getValue();
+    }
+
+    public boolean getValueUseFunctionalityCanoeingGermany() {
+        return useFunctionalityCanoeingGermany.getValue();
+    }
+
+    public String getValueEfaUserDirectory() {
+        return efaUserDirectory.getValue();
+    }
+
+    public String getValueLanguage() {
+        return language.getValue();
+    }
+
+    public ItemTypeAction getValueTypesResetToDefault() {
+        return typesResetToDefault;
+    }
+
+    public ItemTypeAction getValueTypesAddAllDefaultRowingBoats() {
+        return typesAddAllDefaultRowingBoats;
+    }
+
+    public ItemTypeAction getValueTypesAddAllDefaultCanoeingBoats() {
+        return typesAddAllDefaultCanoeingBoats;
+    }
+
+    public ItemTypeHashtable<String> getValueTypesGender() {
+        return typesGender;
+    }
+
+    public ItemTypeHashtable<String> getValueTypesBoat() {
+        return typesBoat;
+    }
+
+    public ItemTypeHashtable<String> getValueTypesNumSeats() {
+        return typesNumSeats;
+    }
+
+    public ItemTypeHashtable<String> getValueTypesRigging() {
+        return typesRigging;
+    }
+
+    public ItemTypeHashtable<String> getValueTypesCoxing() {
+        return typesCoxing;
+    }
+
+    public ItemTypeHashtable<String> getValueTypesSession() {
+        return typesSession;
+    }
+
+    public ItemTypeHashtable<String> getValueTypesStatus() {
+        return typesStatus;
+    }
+
+    public String getValueKanuEfb_urlLogin() {
+        return kanuEfb_urlLogin.getValue();
+    }
+
+    public String getValueKanuEfb_urlRequest() {
+        return kanuEfb_urlRequest.getValue();
+    }
+
+    public boolean getValueDataPreModifyRecordCallbackEnabled() {
+        return dataPreModifyRecordCallbackEnabled.getValue();
+    }
+
+    public Vector<IWidget> getWidgets() {
+        return widgets;
+    }
+
+
+    public IItemType getExternalGuiItem(String name) {
+        synchronized (configValues) {
+            IItemType item = configValues.get(name);
+            if (item == null) {
+                return null;
+            }
+            return item.copyOf();
+        }
     }
 
     public String[] getParameterNames() {
@@ -1019,74 +1620,26 @@ public class EfaConfig extends DatenListe {
         return a;
     }
 
-
-    public synchronized boolean readEinstellungen() {
-        initialize();
-        String s;
-        try {
-            while ((s = freadLine()) != null) {
-                s = s.trim();
-                if (s.startsWith("#")) {
-                    continue;
-                }
-                int pos = s.indexOf("=");
-                if (pos <= 0) {
-                    continue;
-                }
-
-                String name = s.substring(0, pos);
-                String value = s.substring(pos + 1);
-
-                IItemType configValue = getParameter(name);
-                if (configValue == null) {
-                    Logger.log(Logger.WARNING, Logger.MSG_CORE_UNKNOWNDATAFIELD, "EfaConfig(" + getFileName() + "): "+
-                            International.getString("Unbekannter Parameter") + ": " + name);
-                    continue;
-                }
-
-                configValue.parseValue(value);
-
-            }
-        } catch (IOException e) {
-            try {
-                fclose(false);
-            } catch (Exception ee) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public synchronized boolean writeEinstellungen() {
-        // Datei schreiben
-        try {
-            String[] keys = new String[configValues.size()];
-            keys = configValues.keySet().toArray(keys);
-            Arrays.sort(keys);
-            for (int i = 0; i < keys.length; i++) {
-                IItemType configValue = configValues.get(keys[i]);
-                if (!configValue.getName().startsWith("_") ) { // parameter names starting with "_" are not stored in config file!
-                    fwrite(configValue.getName() + "=" + configValue.toString() + "\n");
-                }
-            }
-        } catch (Exception e) {
-            try {
-                fcloseW();
-            } catch (Exception ee) {
-                return false;
-            }
-            return false;
-        }
-        return true;
-    }
-
-    public void checkNewConfigValues(EfaConfig newConfig) {
+    public void checkNewConfigValues() {
         String changedSettings = null;
-        if (newConfig.efaDirekt_fontSize.getValue() != this.efaDirekt_fontSize.getValue() ||
-            !newConfig.efaDirekt_fontStyle.getValue().equals(this.efaDirekt_fontStyle.getValue())) {
-            changedSettings = (changedSettings == null ? "" : changedSettings + "\n") +
-                    International.getString("Schriftgröße");
+        synchronized(configValues) {
+            for (int i=0; i<configValueNames.size(); i++) {
+                IItemType item = configValues.get(configValueNames.get(i));
+                if (item != null && item.isChanged()) {
+                    if (item == efaDirekt_fontSize || item == efaDirekt_fontStyle) {
+                        changedSettings = (changedSettings == null ? "" : changedSettings + "\n") +
+                                          International.getString("Schriftgröße");
+                    }
+                    if (item == useFunctionalityRowing ||
+                        item == useFunctionalityRowingGermany ||
+                        item == useFunctionalityRowingBerlin ||
+                        item == useFunctionalityCanoeing ||
+                        item == useFunctionalityCanoeingGermany) {
+                        changedSettings = (changedSettings == null ? "" : changedSettings + "\n") +
+                                          International.getString("Regionale Anpassung");
+                    }
+                }
+            }
         }
         if (changedSettings != null) {
             Dialog.infoDialog(International.getString("Geänderte Einstellungen"),
@@ -1106,37 +1659,35 @@ public class EfaConfig extends DatenListe {
         if (!isGuiConfigChange) {
             return;
         }
-        
+
         // Types
-        EfaTypes newEfaTypes = null;
         if (Daten.efaTypes != null) {
-            newEfaTypes = new EfaTypes(Daten.efaTypes);
             boolean changed = false;
-            if (updateTypes(newEfaTypes, EfaTypes.CATEGORY_GENDER, typesGender)) {
+            if (updateTypes(Daten.efaTypes, EfaTypes.CATEGORY_GENDER, typesGender)) {
                 changed = true;
             }
-            if (updateTypes(newEfaTypes, EfaTypes.CATEGORY_BOAT, typesBoat)) {
+            if (updateTypes(Daten.efaTypes, EfaTypes.CATEGORY_BOAT, typesBoat)) {
                 changed = true;
             }
-            if (updateTypes(newEfaTypes, EfaTypes.CATEGORY_NUMSEATS, typesNumSeats)) {
+            if (updateTypes(Daten.efaTypes, EfaTypes.CATEGORY_NUMSEATS, typesNumSeats)) {
                 changed = true;
             }
-            if (updateTypes(newEfaTypes, EfaTypes.CATEGORY_RIGGING, typesRigging)) {
+            if (updateTypes(Daten.efaTypes, EfaTypes.CATEGORY_RIGGING, typesRigging)) {
                 changed = true;
             }
-            if (updateTypes(newEfaTypes, EfaTypes.CATEGORY_COXING, typesCoxing)) {
+            if (updateTypes(Daten.efaTypes, EfaTypes.CATEGORY_COXING, typesCoxing)) {
                 changed = true;
             }
-            if (updateTypes(newEfaTypes, EfaTypes.CATEGORY_SESSION, typesSession)) {
+            if (updateTypes(Daten.efaTypes, EfaTypes.CATEGORY_SESSION, typesSession)) {
                 changed = true;
             }
-            if (updateTypes(newEfaTypes, EfaTypes.CATEGORY_STATUS, typesStatus)) {
+            if (updateTypes(Daten.efaTypes, EfaTypes.CATEGORY_STATUS, typesStatus)) {
                 changed = true;
             }
             if (changed) {
-                newEfaTypes.writeFile();
-                Dialog.infoDialog(International.getString("Bezeichnungen"),
-                        International.getString("Die geänderten Bezeichnungen werden erst nach einem Neustart von efa wirksam."));
+                Dialog.infoDialog(International.getString("Geänderte Einstellungen"),
+                        International.getString("Folgende geänderte Einstellungen werden erst nach einem Neustart von efa wirksam:") +
+                        "\n" + International.getString("Bezeichnungen"));
             }
         }
 
@@ -1166,14 +1717,10 @@ public class EfaConfig extends DatenListe {
                 Daten.efaBaseConfig.writeFile();
             }
             if (changedLang) {
-                if (newEfaTypes == null) {
-                    newEfaTypes = new EfaTypes(Daten.efaTypes);
-                }
-                this.setToLanguate(newLang);
-                newEfaTypes.setToLanguage(newLang);
-                newEfaTypes.writeFile(false);
-                Dialog.infoDialog(International.getString("Sprache"),
-                        International.getString("Die geänderten Spracheinstellungen werden erst nach einem Neustart von efa wirksam."));
+                Daten.efaTypes.setToLanguage(newLang);
+                Dialog.infoDialog(International.getString("Geänderte Einstellungen"),
+                        International.getString("Folgende geänderte Einstellungen werden erst nach einem Neustart von efa wirksam:") +
+                        "\n" + International.getString("Sprache"));
             }
             if (changedUserDir) {
                 Dialog.infoDialog(International.getString("Verzeichnis für Nutzerdaten"),
@@ -1196,15 +1743,12 @@ public class EfaConfig extends DatenListe {
         } else {
             bundle = International.getResourceBundle();
         }
-        efaDirekt_butFahrtBeginnen.setValueText(International.getString("Fahrt beginnen", bundle) + " >>>");
-        efaDirekt_butFahrtBeenden.setValueText("<<< " + International.getString("Fahrt beenden", bundle));
+        efaDirekt_butFahrtBeginnen.setValueText(International.getString("Fahrt beginnen", bundle));
+        efaDirekt_butFahrtBeenden.setValueText(International.getString("Fahrt beenden", bundle));
         return true;
     }
 
     public void checkForRequiredPlugins() {
-        if (efaDirekt_sunRiseSet_show.getValue() && !de.nmichael.efa.util.SunRiseSet.sunrisePluginInstalled()) {
-            DownloadFrame.getPlugin("efa", Daten.PLUGIN_JSUNTIMES_NAME, Daten.PLUGIN_JSUNTIMES_FILE, Daten.PLUGIN_JSUNTIMES_HTML, "NoClassDefFoundError", null, false);
-        }
     }
 
     private String searchForProgram(String[] programs) {
@@ -1235,7 +1779,7 @@ public class EfaConfig extends DatenListe {
 
     private String getDefaultLookAndFeel() {
         String[] laf = makeLookAndFeelArray(STRINGLIST_VALUES);
-        if (Daten.osName.equals("Linux")) {
+        if (true || Daten.osName.equals("Linux")) { // let's do this for all OS'es
             for (int i=0; i<laf.length; i++) {
                 if (laf[i].endsWith("MetalLookAndFeel")) {
                     return laf[i];
@@ -1271,7 +1815,7 @@ public class EfaConfig extends DatenListe {
         return obmann;
     }
 
-    private void buildTypes() {
+    public void buildTypes() {
         if (Daten.efaTypes == null) {
             return;
         }
@@ -1307,9 +1851,10 @@ public class EfaConfig extends DatenListe {
     }
 
     private void iniTypes(ItemTypeHashtable<String> types, String cat) {
-        for (int i=0; i<Daten.efaTypes.size(cat); i++) {
-            types.put(Daten.efaTypes.getType(cat, i),
-                      Daten.efaTypes.getValue(cat, i));
+        String[] t = Daten.efaTypes.getTypesArray(cat);
+        String[] v = Daten.efaTypes.getValueArray(cat);
+        for (int i=0; i<t.length && i<v.length; i++) {
+            types.put(t[i], v[i]);
         }
     }
 
@@ -1347,4 +1892,54 @@ public class EfaConfig extends DatenListe {
         return changed;
     }
 
+    class ConfigValueUpdateThread extends Thread {
+
+        private long lastScn = -1;
+        private volatile boolean keepRunning = true;
+
+        public void run() {
+            while (keepRunning) {
+                // sleep first, then update
+                try {
+                    Thread.sleep(60000);
+                } catch (Exception e) {
+                }
+                updateConfigValuesWithPersistence();
+            }
+        }
+
+        public boolean updateConfigValuesWithPersistence() {
+            try {
+                long scn = data().getSCN();
+                if (scn == lastScn) {
+                    return true;
+                }
+                DataKeyIterator it = data().getStaticIterator();
+                DataKey k = it.getFirst();
+                synchronized (configValues) {
+                    while (k != null) {
+                        EfaConfigRecord r = (EfaConfigRecord) data().get(k);
+                        if (r.getName().startsWith("_")) {
+                            continue; // it shouldn't happen that such a value actually made it into the file, but you never know...
+                        }
+                        IItemType item = configValues.get(r.getName());
+                        if (item != null) {
+                            item.parseValue(r.getValue());
+                            item.setUnchanged();
+                        }
+                        k = it.getNext();
+                    }
+                }
+                lastScn = scn;
+            } catch (Exception e) {
+                Logger.logdebug(e);
+                return false;
+            }
+            return true;
+        }
+
+        public void stopConfigValueUpdateThread() {
+            keepRunning = false;
+        }
+    }
 }

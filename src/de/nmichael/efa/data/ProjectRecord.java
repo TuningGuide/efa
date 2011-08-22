@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.items.*;
@@ -29,6 +30,9 @@ public class ProjectRecord extends DataRecord {
     public static final String PROJECTNAME                  = "ProjectName";
     public static final String LOGBOOKNAME                  = "LogbookName";
     public static final String DESCRIPTION                  = "Description";
+
+    public static final int GUIITEMS_SUBTYPE_ALL = 0;
+    public static final int GUIITEMS_SUBTYPE_KANUEFB = 100;
 
     // Fields for Type=Project
     // PROJECTNAME
@@ -54,6 +58,9 @@ public class ProjectRecord extends DataRecord {
     public static final String MEMBEROFSRV                  = "MemberOfSRV";
     public static final String MEMBEROFADH                  = "MemberOfADH";
     public static final String AREAID                       = "AreaID"; // Zielbereich
+    public static final String KANUEFBUSERNAME              = "KanuEfbUsername";
+    public static final String KANUEFBPASSWORD              = "KanuEfbPassword";
+    public static final String KANUEFBLASTSYNC              = "KanuEfbLastSync";
 
     // Fields for Type=Logbook
     // LOGBOOKNAME (StorageObject Name)
@@ -89,6 +96,9 @@ public class ProjectRecord extends DataRecord {
         f.add(MEMBEROFSRV);                   t.add(IDataAccess.DATA_BOOLEAN);
         f.add(MEMBEROFADH);                   t.add(IDataAccess.DATA_BOOLEAN);
         f.add(AREAID);                        t.add(IDataAccess.DATA_INTEGER);
+        f.add(KANUEFBUSERNAME);               t.add(IDataAccess.DATA_STRING);
+        f.add(KANUEFBPASSWORD);               t.add(IDataAccess.DATA_STRING);
+        f.add(KANUEFBLASTSYNC);               t.add(IDataAccess.DATA_LONGINT);
         f.add(STARTDATE);                     t.add(IDataAccess.DATA_DATE);
         f.add(ENDDATE);                       t.add(IDataAccess.DATA_DATE);
         MetaData metaData = constructMetaData(Project.DATATYPE, f, t, false);
@@ -97,6 +107,28 @@ public class ProjectRecord extends DataRecord {
 
     public ProjectRecord(Project project, MetaData metaData) {
         super(project, metaData);
+    }
+
+    public ProjectRecord(Project project, MetaData metaData, String type) {
+        super(project, metaData);
+        setType(type);
+
+        // initialize with default values
+        if (type.equals(TYPE_PROJECT)) {
+            setStorageType(IDataAccess.TYPE_FILE_XML);
+        }
+
+        if (type.equals(TYPE_CLUB)) {
+            if (Daten.efaConfig.getValueUseFunctionalityRowingGermany()) {
+                setGlobalAssociationName(International.onlyFor("Deutscher Ruderverband", "de"));
+                setRegionalAssociationName(International.onlyFor("Landesruderverband Berlin", "de"));
+                setMemberOfDRV(true);
+            }
+            if (Daten.efaConfig.getValueUseFunctionalityCanoeing()) {
+                setGlobalAssociationName(International.onlyFor("Deutscher Kanuverband", "de"));
+                setRegionalAssociationName(International.onlyFor("Landes-Kanu-Verband Berlin", "de"));
+            }
+        }
     }
 
     public DataRecord createDataRecord() { // used for cloning
@@ -127,6 +159,9 @@ public class ProjectRecord extends DataRecord {
         switch(storageType) {
             case IDataAccess.TYPE_FILE_XML:
                 setString(STORAGETYPE, IDataAccess.TYPESTRING_FILE_XML);
+                break;
+            case IDataAccess.TYPE_EFA_REMOTE:
+                setString(STORAGETYPE, IDataAccess.TYPESTRING_EFA_REMOTE);
                 break;
             case IDataAccess.TYPE_DB_SQL:
                 setString(STORAGETYPE, IDataAccess.TYPESTRING_DB_SQL);
@@ -187,6 +222,15 @@ public class ProjectRecord extends DataRecord {
     public void setAreaId(int areaId) {
         setInt(AREAID, areaId);
     }
+    public void setKanuEfbUsername(String username) {
+        setString(KANUEFBUSERNAME, username);
+    }
+    public void setKanuEfbPassword(String password) {
+        setString(KANUEFBPASSWORD, password);
+    }
+    public void setKanuEfbLastSync(long lastSync) {
+        setLong(KANUEFBLASTSYNC, lastSync);
+    }
     public void setStartDate(DataTypeDate startDate) {
         setDate(STARTDATE, startDate);
     }
@@ -211,10 +255,16 @@ public class ProjectRecord extends DataRecord {
         if (s != null && s.equals(IDataAccess.TYPESTRING_FILE_XML)) {
             return IDataAccess.TYPE_FILE_XML;
         }
+        if (s != null && s.equals(IDataAccess.TYPESTRING_EFA_REMOTE)) {
+            return IDataAccess.TYPE_EFA_REMOTE;
+        }
         if (s != null && s.equals(IDataAccess.TYPESTRING_DB_SQL)) {
             return IDataAccess.TYPE_DB_SQL;
         }
         return -1;
+    }
+    public String getStorageTypeTypeString() {
+        return getString(STORAGETYPE);
     }
     public String getStorageLocation() {
         return getString(STORAGELOCATION);
@@ -270,6 +320,17 @@ public class ProjectRecord extends DataRecord {
     public int getAreaId() {
         return getInt(AREAID);
     }
+    public String getKanuEfbUsername() {
+        return getString(KANUEFBUSERNAME);
+    }
+    public String getKanuEfbPassword() {
+        return getString(KANUEFBPASSWORD);
+    }
+    public long getKanuEfbLastSync() {
+        return getLong(KANUEFBLASTSYNC);
+    }
+
+
     public DataTypeDate getStartDate() {
         return getDate(STARTDATE);
     }
@@ -278,7 +339,175 @@ public class ProjectRecord extends DataRecord {
     }
     
     public Vector<IItemType> getGuiItems() {
-        return null; // not supported for ProjectRecord
+        return getGuiItems(0, null, false);
+    }
+
+    public Vector<IItemType> getGuiItems(int subtype, String category, boolean newProject) {
+        IItemType item;
+        Vector<IItemType> v = new Vector<IItemType>();
+
+        if (getType().equals(TYPE_PROJECT)) {
+            if (category == null) {
+                category = "%01%" + International.getString("Projekt");
+            }
+            if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 1) {
+                v.add(item = new ItemTypeString(ProjectRecord.PROJECTNAME, getProjectName(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Name des Projekts")));
+                ((ItemTypeString) item).setAllowedCharacters("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
+                ((ItemTypeString) item).setReplacementCharacter('_');
+                ((ItemTypeString) item).setNotNull(true);
+                ((ItemTypeString) item).setEditable(newProject);
+
+                v.add(item = new ItemTypeString(ProjectRecord.DESCRIPTION, getDescription(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Beschreibung")));
+
+                v.add(item = new ItemTypeString(ProjectRecord.ADMINNAME, getAdminName(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Dein Name")));
+
+                v.add(item = new ItemTypeString(ProjectRecord.ADMINEMAIL, getAdminEmail(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Deine email-Adresse")));
+            }
+
+            if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 2) {
+                v.add(item = new ItemTypeStringList(ProjectRecord.STORAGETYPE, getStorageTypeTypeString(),
+                        ProjectRecord.getStorageTypeTypeStrings(),
+                        ProjectRecord.getStorageTypeNameStrings(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Speichertyp")));
+                ((ItemTypeStringList) item).setEnabled(newProject);
+            }
+
+            if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 3) {
+                v.add(item = new ItemTypeString(ProjectRecord.STORAGELOCATION, getStorageLocation(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Speicherort")));
+                ((ItemTypeString) item).setVisible(newProject || getStorageType() != IDataAccess.TYPE_FILE_XML);
+            }
+        }
+
+        if (getType().equals(TYPE_CLUB)) {
+            if (category == null) {
+                category = "%02%" + International.getString("Club");
+            }
+            if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 1) {
+                v.add(item = new ItemTypeString(ProjectRecord.CLUBNAME, getClubName(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Vereinsname")));
+                v.add(item = new ItemTypeString(ProjectRecord.ADDRESSSTREET, getAddressStreet(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Anschrift") + " - "
+                        + International.getString("Straße")));
+                v.add(item = new ItemTypeString(ProjectRecord.ADDRESSCITY, getAddressCity(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Anschrift") + " - "
+                        + International.getString("Postleitzahl und Ort")));
+                if (Daten.efaConfig.getValueUseFunctionalityRowingBerlin()) {
+                    v.add(item = new ItemTypeInteger(ProjectRecord.AREAID, getAreaId(),
+                            1, Zielfahrt.ANZ_ZIELBEREICHE, true,
+                            IItemType.TYPE_PUBLIC, category,
+                            International.onlyFor("Zielbereich", "de")));
+                }
+
+            }
+            if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 2) {
+                v.add(item = new ItemTypeString(ProjectRecord.ASSOCIATIONGLOBALNAME, getGlobalAssociationName(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Dachverband") + " - "
+                        + International.getString("Name")));
+                v.add(item = new ItemTypeString(ProjectRecord.ASSOCIATIONGLOBALMEMBERNO, getGlobalAssociationMemberNo(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Dachverband") + " - "
+                        + International.getString("Mitgliedsnummer")));
+                v.add(item = new ItemTypeString(ProjectRecord.ASSOCIATIONGLOBALLOGIN, getGlobalAssociationLogin(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Dachverband") + " - "
+                        + International.getString("Benutzername") +
+                        (Daten.efaConfig.getValueUseFunctionalityRowingGermany() ? " (efaWett)" : "")));
+                v.add(item = new ItemTypeString(ProjectRecord.ASSOCIATIONREGIONALNAME, getRegionalAssociationName(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Regionalverband") + " - "
+                        + International.getString("Name")));
+                v.add(item = new ItemTypeString(ProjectRecord.ASSOCIATIONREGIONALMEMBERNO, getRegionalAssociationMemberNo(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Regionalverband") + " - "
+                        + International.getString("Mitgliedsnummer")));
+                v.add(item = new ItemTypeString(ProjectRecord.ASSOCIATIONREGIONALLOGIN, getRegionalAssociationLogin(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Regionalverband") + " - "
+                        + International.getString("Benutzername") +
+                        (Daten.efaConfig.getValueUseFunctionalityRowingGermany() ? " (efaWett)" : "")));
+                if (Daten.efaConfig.getValueUseFunctionalityRowingGermany()) {
+                    v.add(item = new ItemTypeBoolean(ProjectRecord.MEMBEROFDRV, getMemberOfDRV(),
+                            IItemType.TYPE_PUBLIC, category,
+                            International.onlyFor("Mitglied im Deutschen Ruderverband (DRV)", "de")));
+                    v.add(item = new ItemTypeBoolean(ProjectRecord.MEMBEROFSRV, getMemberOfSRV(),
+                            IItemType.TYPE_PUBLIC, category,
+                            International.onlyFor("Mitglied in einem Schülerruderverband (SRV)", "de")));
+                    v.add(item = new ItemTypeBoolean(ProjectRecord.MEMBEROFADH, getMemberOfADH(),
+                            IItemType.TYPE_PUBLIC, category,
+                            International.onlyFor("Mitglied im Allgemeinen Deutschen Hochschulsportverband (ADH)", "de")));
+                }
+            }
+            if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 2 || subtype == GUIITEMS_SUBTYPE_KANUEFB) {
+                if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany() || subtype == GUIITEMS_SUBTYPE_KANUEFB) {
+                    v.add(item = new ItemTypeString(ProjectRecord.KANUEFBUSERNAME, getKanuEfbUsername(),
+                            IItemType.TYPE_PUBLIC, category,
+                            International.getString("Benutzername") + " (Kanu-Efb)"));
+                    v.add(item = new ItemTypeString(ProjectRecord.KANUEFBPASSWORD, getKanuEfbPassword(),
+                            IItemType.TYPE_PUBLIC, category,
+                            International.getString("Paßwort") + " (Kanu-Efb)"));
+                    v.add(item = new ItemTypeLong(ProjectRecord.KANUEFBLASTSYNC, getKanuEfbLastSync(), 0, Long.MAX_VALUE,
+                            IItemType.TYPE_EXPERT, category,
+                            "Letzte Synchronisierung  (Kanu-Efb)"));
+                }
+
+            }
+        }
+
+        if (getType().equals(TYPE_LOGBOOK)) {
+            if (category == null) {
+                category = "%03%" + International.getString("Fahrtenbuch") + " " + getLogbookName();
+            }
+            if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 1) {
+                v.add(item = new ItemTypeString(ProjectRecord.LOGBOOKNAME, getLogbookName(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Name des Fahrtenbuchs")));
+                ((ItemTypeString) item).setAllowedCharacters("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
+                ((ItemTypeString) item).setReplacementCharacter('_');
+                ((ItemTypeString) item).setNotNull(true);
+                ((ItemTypeString) item).setEditable(newProject);
+
+                v.add(item = new ItemTypeString(ProjectRecord.DESCRIPTION, getDescription(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Beschreibung")));
+            }
+
+            if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 2) {
+                // @todo (P4) allow to change time range of logbook (and make sure in ProjectEditDialog that all sessions fit into that range)
+                v.add(item = new ItemTypeDate(ProjectRecord.STARTDATE, getStartDate(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Beginn des Zeitraums")));
+                ((ItemTypeDate) item).setNotNull(true);
+                ((ItemTypeDate) item).setEditable(newProject);
+                v.add(item = new ItemTypeDate(ProjectRecord.ENDDATE, getEndDate(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Ende des Zeitraums")));
+                ((ItemTypeDate) item).setNotNull(true);
+                ((ItemTypeDate) item).setEditable(newProject);
+            }
+        }
+
+        // store this record's key in all items to be able to later update the corresponging record
+        // (only used for ProjectEditDialog)
+        for (int i=0; i<v.size(); i++) {
+            v.get(i).setDataKey(getKey());
+        }
+
+        return v;
     }
 
     public TableItemHeader[] getGuiTableHeader() {
@@ -288,5 +517,22 @@ public class ProjectRecord extends DataRecord {
     public TableItem[] getGuiTableItems() {
         return null; // not supported for ProjectRecord
     }
+
+    public static String[] getStorageTypeTypeStrings() {
+        return new String[] {
+            IDataAccess.TYPESTRING_FILE_XML,
+            IDataAccess.TYPESTRING_EFA_REMOTE,
+            IDataAccess.TYPESTRING_DB_SQL
+        };
+    }
+
+    public static String[] getStorageTypeNameStrings() {
+        return new String[] {
+            International.getString("lokales Dateisystem"),
+            International.getString("Remote efa"),
+            International.getString("SQL-Datenbank")
+        };
+    }
+
 
 }

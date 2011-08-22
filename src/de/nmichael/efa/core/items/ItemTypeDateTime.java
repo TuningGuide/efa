@@ -39,6 +39,15 @@ public class ItemTypeDateTime extends ItemTypeLabelTextfield {
         this.description = description;
     }
 
+    public IItemType copyOf() {
+        return new ItemTypeDateTime(name, new DataTypeDate(dateValue), new DataTypeTime(timeValue), type, category, description);
+    }
+
+    public void setReferenceDate(DataTypeDate date, DataTypeTime time) {
+        referenceDate = date;
+        referenceTime = time;
+    }
+
     public void parseValue(String value) {
         try {
             if (value != null && value.trim().length()>0) {
@@ -83,6 +92,11 @@ public class ItemTypeDateTime extends ItemTypeLabelTextfield {
 
     protected void field_focusLost(FocusEvent e) {
         super.field_focusLost(e);
+        if (!isSet() && isNotNullSet()) {
+            parseValue( (referenceDate.isSet() ? referenceDate.toString() : DataTypeDate.today().toString()) + " " +
+                        (referenceTime.isSet() ? referenceTime.toString() : "00:00:00") );
+            showValue();
+        }
         if (dateValue.isSet()) {
             referenceDate.setDate(dateValue);
         }

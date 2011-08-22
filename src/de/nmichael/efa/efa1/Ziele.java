@@ -37,6 +37,9 @@ public class Ziele extends DatenListe {
   public static final String KENNUNG174 = "##EFA.174.ZIELE##";
   public static final String KENNUNG190 = "##EFA.190.ZIELE##";
 
+  public static final String zielfahrtSeparatorBereiche = ",";
+  public static final String zielfahrtSeparatorFahrten = ";";
+
   // Konstruktor
   public Ziele(String pdat) {
     super(pdat,_ANZFELDER,1,false);
@@ -50,103 +53,6 @@ public class Ziele extends DatenListe {
     try {
       s = freadLine();
       if ( s == null || !s.trim().startsWith(kennung) ) {
-
-
-        // KONVERTIEREN: 060 -> 120
-        if (s != null && s.trim().startsWith(KENNUNG060)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"060");
-          iniList(this.dat,4,1,false); // Rahmenbedingungen von v1.2.0 schaffen
-          // Datei lesen
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              add(constructFields(s+"|+"));
-            }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG120;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
-        // KONVERTIEREN: 120 -> 141
-        if (s != null && s.trim().startsWith(KENNUNG120)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"120");
-          iniList(this.dat,5,1,false); // Rahmenbedingungen von v1.4.1 schaffen
-          // Datei lesen
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              add(constructFields(s+"|"));
-            }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG141;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
-
-        // KONVERTIEREN: 141 -> 152
-        if (s != null && s.trim().startsWith(KENNUNG141)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"141");
-          iniList(this.dat,5,1,false); // Rahmenbedingungen von v1.5.2 schaffen
-          // Datei lesen
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              DatenFelder d = constructFields(s);
-              d.set(BEREICH,EfaUtil.replace(d.get(BEREICH),";","/",true));
-              add(d);
-            }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG152;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
-        // KONVERTIEREN: 152 -> 174
-        if (s != null && s.trim().startsWith(KENNUNG152)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"152");
-          iniList(this.dat,5,1,false); // Rahmenbedingungen von v1.7.4 schaffen
-          // Datei lesen
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              DatenFelder d = constructFields(s);
-              if (Daten.efaConfig.zielfahrtSeparatorFahrten.getValue().length() == 1 &&
-                  !Daten.efaConfig.zielfahrtSeparatorFahrten.getValue().equals("/")) {
-                d.set(BEREICH,EfaUtil.replace(d.get(BEREICH),"/",Daten.efaConfig.zielfahrtSeparatorFahrten.getValue(),true));
-              }
-              add(d);
-            }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG174;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
 
         // KONVERTIEREN: 174 -> 190
         if (s != null && s.trim().startsWith(KENNUNG174)) {
@@ -164,14 +70,14 @@ public class Ziele extends DatenListe {
              return false;
           }
           kennung = KENNUNG190;
-          if (closeFile() && writeFile(true) && openFile()) {
+          if (closeFile()) {
             infSuccessfullyConverted(dat,kennung);
             s = kennung;
           } else errConvertingFile(dat,kennung);
         }
 
         // FERTIG MIT KONVERTIEREN
-        if (s == null || !s.trim().startsWith(kennung)) {
+        if (s == null || !s.trim().startsWith(KENNUNG190)) {
           errInvalidFormat(dat, EfaUtil.trimto(s, 20));
           fclose(false);
           return false;
@@ -190,8 +96,8 @@ public class Ziele extends DatenListe {
   // Einträge auf Gültigkeit prüfen
   public void validateValues(DatenFelder d) {
     d.set(KM,EfaUtil.zehntelInt2String(EfaUtil.zehntelString2Int(d.get(KM))));
-    if (Daten.efaConfig.zielfahrtSeparatorFahrten.getValue().length() == 1 &&
-        d.get(BEREICH).indexOf(Daten.efaConfig.zielfahrtSeparatorFahrten.getValue())>=0) d.set(STEGZIEL,"-");
+    if (zielfahrtSeparatorFahrten.length() == 1 &&
+        d.get(BEREICH).indexOf(zielfahrtSeparatorFahrten)>=0) d.set(STEGZIEL,"-");
   }
 
 

@@ -31,7 +31,7 @@ public abstract class ItemTypeLabelTextfield extends ItemTypeLabelValue {
         if (field != null) {
             return ((JTextField)field).getText();
         } else {
-            return null;
+            return toString(); // otherwise a hidden field in expert mode might return null
         }
     }
 
@@ -45,8 +45,12 @@ public abstract class ItemTypeLabelTextfield extends ItemTypeLabelValue {
     protected void iniDisplay() {
         super.iniDisplay();
         JTextField f = (JTextField)field;
+        f.setEditable(isEditable);
+        f.setDisabledTextColor(Color.black);
+        f.setEnabled(isEnabled && isEditable);
         f.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(KeyEvent e) { actionEvent(e); }
+            public void keyReleased(KeyEvent e) { actionEvent(e); }
         });
     }
 
@@ -74,6 +78,14 @@ public abstract class ItemTypeLabelTextfield extends ItemTypeLabelValue {
             }
         } catch (Exception e) {
             EfaUtil.foo();
+        }
+    }
+
+    public void setEditable(boolean editable) {
+        super.setEditable(editable);
+        if (field != null) {
+            ((JTextField) field).setEditable(isEditable);
+            ((JTextField) field).setEnabled(isEnabled && isEditable);
         }
     }
 }

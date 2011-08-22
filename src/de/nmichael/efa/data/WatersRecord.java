@@ -10,8 +10,8 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.util.*;
@@ -97,8 +97,12 @@ public class WatersRecord extends DataRecord {
         String CAT_BASEDATA     = "%01%" + International.getString("Gewässer");
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
-        v.add(item = new ItemTypeString(DestinationRecord.NAME, getName(),
+        v.add(item = new ItemTypeString(WatersRecord.NAME, getName(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
+        if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
+            v.add(item = new ItemTypeString(WatersRecord.EFBID, getEfbId(),
+                    IItemType.TYPE_EXPERT, CAT_BASEDATA, International.onlyFor("Kanu-Efb ID","de")));
+        }
         return v;
     }
 

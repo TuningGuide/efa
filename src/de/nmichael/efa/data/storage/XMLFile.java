@@ -120,7 +120,7 @@ public class XMLFile extends DataFile {
             XMLFileReader xmlFileReader = new XMLFileReader(this, lock);
             parser.setContentHandler(xmlFileReader);
             parser.setErrorHandler(eh);
-            setInReadFileMode(true); // don't update LastModified Timestamps!
+            inOpeningStorageObject = true; // don't update LastModified Timestamps, don't increment SCN, don't check assertions!
             parser.parse(filename);
             if (xmlFileReader.getDocumentReadError() != null) {
                 throw new EfaException(Logger.MSG_DATA_INVALIDHEADER, xmlFileReader.getDocumentReadError(), Thread.currentThread().getStackTrace());
@@ -129,7 +129,7 @@ public class XMLFile extends DataFile {
             Logger.log(e);
             throw new EfaException(Logger.MSG_DATA_READFAILED, LogString.logstring_fileReadFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         } finally {
-            setInReadFileMode(false);
+            inOpeningStorageObject = false;
             releaseGlobalLock(lock);
         }
     }

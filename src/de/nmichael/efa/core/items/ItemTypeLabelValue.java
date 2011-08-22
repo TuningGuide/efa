@@ -28,6 +28,7 @@ public abstract class ItemTypeLabelValue extends ItemType {
     protected Font labelFont;
     protected Font fieldFont;
     protected boolean isShowOptional = false;
+    protected String optionalButtonText = "+";
     protected JButton expandButton;
 
     protected abstract JComponent initializeField();
@@ -62,10 +63,14 @@ public abstract class ItemTypeLabelValue extends ItemType {
         });
         if (isShowOptional) {
             expandButton = new JButton();
-            Dialog.setPreferredSize(expandButton, 15, 15);
-            expandButton.setMargin(new Insets(0, 0, 0, 0));
-            expandButton.setText("+");
-            expandButton.setFont(expandButton.getFont().deriveFont(Font.PLAIN, 8));
+            if (optionalButtonText.length() == 1) {
+                Dialog.setPreferredSize(expandButton, 15, 15);
+                expandButton.setFont(expandButton.getFont().deriveFont(Font.PLAIN, 8));
+                expandButton.setMargin(new Insets(0, 0, 0, 0));
+            } else {
+                expandButton.setMargin(new Insets(0, 10, 0, 10));
+            }
+            expandButton.setText(optionalButtonText);
             expandButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) { expandButton_actionEvent(e); }
             });
@@ -81,7 +86,8 @@ public abstract class ItemTypeLabelValue extends ItemType {
                     labelGridAnchor, labelGridFill, new Insets(padYbefore, padXbefore, padYafter, 0), 0, 0));
         }
         if (expandButton != null) {
-            panel.add(expandButton, new GridBagConstraints(x, y, labelGridWidth, fieldGridHeight, 0.0, 0.0,
+            int gridWidth = labelGridWidth + (optionalButtonText.length() > 1 ? fieldGridWidth : 0);
+            panel.add(expandButton, new GridBagConstraints(x, y, gridWidth, fieldGridHeight, 0.0, 0.0,
                     labelGridAnchor, labelGridFill, new Insets(padYbefore, padXbefore, padYafter, 0), 0, 0));
         }
         panel.add(field, new GridBagConstraints(x+labelGridWidth, y, fieldGridWidth, fieldGridHeight, 0.0, 0.0,
@@ -190,6 +196,10 @@ public abstract class ItemTypeLabelValue extends ItemType {
 
     public void showOptional(boolean optional) {
         isShowOptional = optional;
+    }
+
+    public void setOptionalButtonText(String text) {
+        this.optionalButtonText = text;
     }
 
     private void expandButton_actionEvent(ActionEvent e) {

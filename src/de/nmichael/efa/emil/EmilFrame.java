@@ -190,7 +190,7 @@ public class EmilFrame extends JFrame {
       System.err.println("Error setting up ActionHandler");
     }
 
-    setIconImage(Toolkit.getDefaultToolkit().createImage(EfaFrame.class.getResource("/de/nmichael/efa/img/efa_icon.gif")));
+    setIconImage(Toolkit.getDefaultToolkit().createImage(EmilFrame.class.getResource("/de/nmichael/efa/img/efa_icon.gif")));
     contentPane = (JPanel) this.getContentPane();
     titledBorder1 = new TitledBorder("");
     border1 = BorderFactory.createLineBorder(Color.black,2);

@@ -339,7 +339,7 @@ public class PersonRecord extends DataRecord {
     }
 
     public String getQualifiedName() {
-        return getQualifiedName(Daten.efaConfig.nameFormat.getValue().equals(EfaConfig.NAMEFORMAT_FIRSTLAST));
+        return getQualifiedName(Daten.efaConfig.getValueNameFormat().equals(EfaConfig.NAMEFORMAT_FIRSTLAST));
     }
 
     public String[] getQualifiedNameFields() {
@@ -445,6 +445,10 @@ public class PersonRecord extends DataRecord {
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Eingabekürzel")));
         v.add(item = new ItemTypeString(PersonRecord.EXTERNALID, getExternalId(),
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Externe ID")));
+        if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
+            v.add(item = new ItemTypeString(PersonRecord.EFBID, getEfbId(),
+                    IItemType.TYPE_EXPERT, CAT_MOREDATA, International.onlyFor("Kanu-Efb ID","de")));
+        }
 
         v.add(item = new ItemTypeString(PersonRecord.ADDRESSSTREET, getAddressStreet(),
                 IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Straße")));

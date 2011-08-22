@@ -30,6 +30,15 @@ public class BoatReservations extends Persistence {
         return new BoatReservationRecord(this, MetaData.getMetaData(DATATYPE));
     }
 
+    public BoatReservationRecord createBoatReservationsRecord(UUID id) {
+        AutoIncrement autoIncrement = getProject().getAutoIncrement(false);
+        int val = autoIncrement.nextAutoIncrementIntValue(data().getStorageObjectType());
+        if (val > 0) {
+            return createBoatReservationsRecord(id, val);
+        }
+        return null;
+    }
+
     public BoatReservationRecord createBoatReservationsRecord(UUID id, int reservation) {
         BoatReservationRecord r = new BoatReservationRecord(this, MetaData.getMetaData(DATATYPE));
         r.setBoatId(id);
@@ -52,6 +61,45 @@ public class BoatReservations extends Persistence {
             Logger.logdebug(e);
             return null;
         }
+    }
+
+    public BoatReservationRecord[] getBoatReservations(UUID boatId, long now, long lookAheadMinutes) {
+        BoatReservationRecord[] reservations = getBoatReservations(boatId);
+
+        Vector<BoatReservationRecord> activeReservations = new Vector<BoatReservationRecord>();
+        for (int i = 0; reservations != null && i < reservations.length; i++) {
+            BoatReservationRecord r = reservations[i];
+            if (r.getReservationValidInMinutes(now, lookAheadMinutes) >= 0) {
+                activeReservations.add(r);
+            }
+        }
+
+        if (activeReservations.size() == 0) {
+            return null;
+        }
+        BoatReservationRecord[] a = new BoatReservationRecord[activeReservations.size()];
+        for (int i=0; i<a.length; i++) {
+            a[i] = activeReservations.get(i);
+        }
+        return a;
+    }
+
+    public int purgeObsoleteReservations(UUID boatId, long now) {
+        BoatReservationRecord[] reservations = getBoatReservations(boatId);
+        int purged = 0;
+
+        for (int i = 0; reservations != null && i < reservations.length; i++) {
+            BoatReservationRecord r = reservations[i];
+            if (r.isObsolete(now)) {
+                try {
+                    data().delete(r.getKey());
+                    purged++;
+                } catch(Exception e) {
+                    Logger.log(e);
+                }
+            }
+        }
+        return purged;
     }
 
 }

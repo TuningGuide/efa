@@ -47,6 +47,10 @@ public class ItemTypeConfigButton extends ItemType {
         this.description = description;
     }
 
+    public IItemType copyOf() {
+        return new ItemTypeConfigButton(name, text, bcolor, show, isChangeableText, isChangeableColor, isChangeableShow, type, category, description);
+    }
+
     public void parseValue(String value) {
         if (value == null) return;
         value = value.trim();

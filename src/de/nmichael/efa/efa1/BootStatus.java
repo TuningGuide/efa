@@ -255,54 +255,6 @@ public class BootStatus extends DatenListe {
       s = freadLine();
       if ( s == null || !s.trim().startsWith(kennung) ) {
 
-        // KONVERTIEREN: 120 -> 160
-        if (s != null && s.trim().startsWith(KENNUNG120)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"120");
-          iniList(this.dat,7,1,false); // Rahmenbedingungen von v1.6.0 schaffen
-          // Datei lesen
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              s = s+"|";
-              DatenFelder d = constructFields(s);
-              add(d);
-            }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG160;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
-        // KONVERTIEREN: 160 -> 170
-        if (s != null && s.trim().startsWith(KENNUNG160)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"160");
-          iniList(this.dat,7,1,false); // Rahmenbedingungen von v1.7.0 schaffen
-          // Datei lesen
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              DatenFelder d = constructFields(s);
-              setReservierungen(d,getReservierungen(d,160)); // Reservierungen ins neue Format konvertieren
-              add(d);
-            }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG170;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
         // KONVERTIEREN: 170 -> 190
         if (s != null && s.trim().startsWith(KENNUNG170)) {
           if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"170");
@@ -338,14 +290,14 @@ public class BootStatus extends DatenListe {
              return false;
           }
           kennung = KENNUNG190;
-          if (closeFile() && writeFile(true) && openFile()) {
+          if (closeFile()) {
             infSuccessfullyConverted(dat,kennung);
             s = kennung;
           } else errConvertingFile(dat,kennung);
         }
 
         // FERTIG MIT KONVERTIEREN
-        if (s == null || !s.trim().startsWith(kennung)) {
+        if (s == null || !s.trim().startsWith(KENNUNG190)) {
           errInvalidFormat(dat, EfaUtil.trimto(s, 20));
           fclose(false);
           return false;

@@ -25,14 +25,16 @@ import javax.swing.event.ChangeEvent;
 // @i18n complete
 public class BoatReservationEditDialog extends UnversionizedDataEditDialog implements IItemListener {
 
-    public BoatReservationEditDialog(Frame parent, BoatReservationRecord r, boolean newRecord) {
+    public BoatReservationEditDialog(Frame parent, BoatReservationRecord r, boolean newRecord, boolean allowWeeklyReservation) {
         super(parent, International.getString("Reservierung"), r, newRecord);
         initListener();
+        setAllowWeeklyReservation(allowWeeklyReservation);
     }
 
-    public BoatReservationEditDialog(JDialog parent, BoatReservationRecord r, boolean newRecord) {
+    public BoatReservationEditDialog(JDialog parent, BoatReservationRecord r, boolean newRecord, boolean allowWeeklyReservation) {
         super(parent, International.getString("Reservierung"), r, newRecord);
         initListener();
+        setAllowWeeklyReservation(allowWeeklyReservation);
     }
 
     public void keyAction(ActionEvent evt) {
@@ -69,5 +71,20 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
             }
         }
     }
+
+    private void setAllowWeeklyReservation(boolean allowWeeklyReservation) {
+        if (!allowWeeklyReservation) {
+            for (IItemType it : items) {
+                if (it.getName().equals(BoatReservationRecord.TYPE)) {
+                    it.parseAndShowValue(BoatReservationRecord.TYPE_ONETIME);
+                    it.setVisible(false);
+                    it.setEditable(false);
+                    itemListenerAction(it, null);
+                    break;
+                }
+            }
+        }
+    }
+
 
 }

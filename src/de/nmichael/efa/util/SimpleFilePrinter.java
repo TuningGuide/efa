@@ -45,13 +45,13 @@ public class SimpleFilePrinter implements Printable {
 
     // Seitenlayout
     if (Daten.efaConfig != null) {
-      this.PAGE_WIDTH  = ((double)Daten.efaConfig.printPageWidth.getValue()) * MM;
-      this.PAGE_HEIGHT = ((double)Daten.efaConfig.printPageHeight.getValue()) * MM;
-      this.PAGE_X      = ((double)Daten.efaConfig.printLeftMargin.getValue()) * MM;
-      this.PAGE_Y      = ((double)Daten.efaConfig.printTopMargin.getValue()) * MM;
+      this.PAGE_WIDTH  = ((double)Daten.efaConfig.getValuePrintPageWidth()) * MM;
+      this.PAGE_HEIGHT = ((double)Daten.efaConfig.getValuePrintPageHeight()) * MM;
+      this.PAGE_X      = ((double)Daten.efaConfig.getValuePrintLeftMargin()) * MM;
+      this.PAGE_Y      = ((double)Daten.efaConfig.getValuePrintTopMargin()) * MM;
       this.PAGE_W      = PAGE_WIDTH  - 2 * PAGE_X;
       this.PAGE_H      = PAGE_HEIGHT - 2 * PAGE_Y;
-      this.OVERLAP     = ((double)Daten.efaConfig.printPageOverlap.getValue()) * MM;
+      this.OVERLAP     = ((double)Daten.efaConfig.getValuePrintPageOverlap()) * MM;
     }
   }
 

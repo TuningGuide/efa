@@ -13,6 +13,7 @@ package de.nmichael.efa.data;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.ex.EfaModifyException;
 import java.util.*;
 
 // @i18n complete
@@ -108,6 +109,13 @@ public class Logbook extends Persistence {
             Logger.logdebug(e);
         }
         return null;
+    }
+
+    public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
+        if (delete) {
+            assertNotReferenced(record, getProject().getBoatStatus(false), new String[] { BoatStatusRecord.ENTRYNO }, true,
+                    new String[] { BoatStatusRecord.LOGBOOK }, new String[] { getName() } );
+        }
     }
 
 }

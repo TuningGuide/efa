@@ -226,47 +226,20 @@ public class VereinsConfig extends DatenListe {
       s = freadLine();
       if ( s == null || !s.trim().startsWith(kennung) ) {
 
-        // KONVERTIEREN: 090 -> 150
-        if (s != null && s.trim().startsWith(KENNUNG090)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"090");
-          // Datei lesen
-          String verein="";
-          try {
-            while ((s = freadLine()) != null) {
-              s= s.trim();
-              if (s.startsWith("VEREIN=")) {
-                verein = s.substring(7,s.length());
-                break;
-              }
-            }
-            resetf();
-            readEinstellungen();
-            this.userLRV = verein;
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG150;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
         // KONVERTIEREN: 150 -> 190
         if (s != null && s.trim().startsWith(KENNUNG150)) {
           if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"150");
           // Datei lesen
           readEinstellungen();
           kennung = KENNUNG190;
-          if (closeFile() && writeFile(true) && openFile()) {
+          if (closeFile()) {
             infSuccessfullyConverted(dat,kennung);
             s = kennung;
           } else errConvertingFile(dat,kennung);
         }
 
         // FERTIG MIT KONVERTIEREN
-        if (s == null || !s.trim().startsWith(kennung)) {
+        if (s == null || !s.trim().startsWith(KENNUNG190)) {
           errInvalidFormat(dat, EfaUtil.trimto(s, 20));
           fclose(false);
           return false;

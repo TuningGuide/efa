@@ -75,19 +75,15 @@ public class ImportFahrtenabzeichen extends ImportBase {
                         logDetail(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                     } catch(Exception e) {
                         logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
+                        Logger.logdebug(e);
                     }
-                } else {
-                    logWarning(International.getMessage("{type_of_entry} {entry} nicht in {list} gefunden.",
-                            International.getString("Person"), d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.VORNAME) + " " + d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.NACHNAME),
-                            International.getString("Mitgliederliste")));
-
                 }
                 d = fahrtenabzeichen1.getCompleteNext();
             }
         } catch(Exception e) {
             logError(International.getMessage("Import von {list} aus {file} ist fehlgeschlagen.", getDescription(), efa1fname));
             logError(e.toString());
-            e.printStackTrace();
+            Logger.logdebug(e);
             return false;
         }
         return true;

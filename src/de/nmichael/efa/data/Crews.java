@@ -12,6 +12,7 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.ex.EfaModifyException;
 import java.util.*;
 
 // @i18n complete
@@ -42,6 +43,16 @@ public class Crews extends Persistence {
         } catch(Exception e) {
             Logger.logdebug(e);
             return null;
+        }
+    }
+
+    public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
+        if (add || update) {
+            assertFieldNotEmpty(record, CrewRecord.NAME);
+            assertUnique(record, CrewRecord.NAME);
+        }
+        if (delete) {
+            assertNotReferenced(record, getProject().getBoats(false), new String[] { BoatRecord.DEFAULTCREWID } );
         }
     }
 

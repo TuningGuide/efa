@@ -69,7 +69,7 @@ public class EfaWettFertigFrame extends JDialog implements ActionListener {
   JButton saveMeldedateiButton = new JButton();
   JButton anleitungButton = new JButton();
 
-  public EfaWettFertigFrame(StatistikFrame parent, EfaWett ew, String meldegeld, Vector papierFahrtenhefte) {
+  public EfaWettFertigFrame(JFrame parent, EfaWett ew, String meldegeld, Vector papierFahrtenhefte) {
     super(parent);
     this.ew = ew;
     this.meldegeld = meldegeld;

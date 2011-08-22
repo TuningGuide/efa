@@ -121,22 +121,43 @@ public class DataTypeDistance {
 
     public static UnitType getDefaultUnit() {
         if (Daten.efaConfig != null) {
-            if (Daten.efaConfig.defaultDistanceUnit.getValue().equals(KILOMETERS)) {
+            if (Daten.efaConfig.getValueDefaultDistanceUnit().equals(KILOMETERS)) {
                 return UnitType.km;
             }
-            if (Daten.efaConfig.defaultDistanceUnit.getValue().equals(KILOMETERS)) {
+            if (Daten.efaConfig.getValueDefaultDistanceUnit().equals(KILOMETERS)) {
                 return UnitType.mi;
             }
         }
         return UnitType.km;
     }
 
+    public static String getDefaultUnitName() {
+        if (Daten.efaConfig != null) {
+            if (Daten.efaConfig.getValueDefaultDistanceUnit().equals(KILOMETERS)) {
+                return International.getString("Kilometer");
+            }
+            if (Daten.efaConfig.getValueDefaultDistanceUnit().equals(KILOMETERS)) {
+                return International.getString("Meilen");
+            }
+        }
+        return International.getString("Kilometer");
+    }
+
+    public static String getAllUnitAbbrevationsAsString(boolean withWordOther) {
+        if (withWordOther) {
+            return International.getMessage("{a} oder {b}",
+                    "km, m, mi", "yd");
+        } else {
+            return "km, m, mi, yd";
+        }
+    }
+
+
     /**
      * 1 km = 1000m
      * 1 yd = 0.9144 m
      * 1 mi = 1.609344 km
      * 1 mi = 1760 yd
-     * @return
      */
 
     public long getValueInMeters() {

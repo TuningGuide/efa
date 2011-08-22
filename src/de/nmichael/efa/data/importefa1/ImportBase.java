@@ -77,8 +77,10 @@ public abstract class ImportBase {
         } catch(Exception e) {
         }
         if (warnIfNotFound) {
-            logWarning(International.getMessage("Person {person} nicht in der Mitgliederliste gefunden.",
-                                    name + (affix.length() > 0 ? " ("+affix+")" : "")));
+            logWarning(International.getMessage("{type_of_entry} {entry} nicht in {list} gefunden.",
+                            International.getString("Person"),
+                            name + (affix.length() > 0 ? " ("+affix+")" : ""),
+                            International.getString("Mitgliederliste")));
         }
         return null;
     }
@@ -104,8 +106,10 @@ public abstract class ImportBase {
         } catch(Exception e) {
         }
         if (warnIfNotFound) {
-            logWarning(International.getMessage("Boot {boat} nicht in der Bootsliste gefunden.",
-                                    boatName + (nameAffix != null && nameAffix.length() > 0 ? " ("+nameAffix+")" : "")));
+            logWarning(International.getMessage("{type_of_entry} {entry} nicht in {list} gefunden.",
+                            International.getString("Boot"),
+                            boatName + (nameAffix != null && nameAffix.length() > 0 ? " ("+nameAffix+")" : ""),
+                            International.getString("Bootsliste")));
         }
         return null;
     }
@@ -124,8 +128,10 @@ public abstract class ImportBase {
         } catch(Exception e) {
         }
         if (warnIfNotFound) {
-            logWarning(International.getMessage("Ziel {destination} nicht in der Zielliste gefunden.",
-                                    name));
+            logWarning(International.getMessage("{type_of_entry} {entry} nicht in {list} gefunden.",
+                            International.getString("Ziel"),
+                            name,
+                            International.getString("Zielliste")));
         }
         return null;
     }

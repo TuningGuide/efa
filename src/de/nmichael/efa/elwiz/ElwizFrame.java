@@ -10,7 +10,6 @@
 
 package de.nmichael.efa.elwiz;
 
-import de.nmichael.efa.core.EfaFrame;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -92,7 +91,7 @@ public class ElwizFrame extends JFrame {
       System.err.println("Error setting up ActionHandler");
     }
 
-    setIconImage(Toolkit.getDefaultToolkit().createImage(EfaFrame.class.getResource("/de/nmichael/efa/img/efa_icon.gif")));
+    setIconImage(Toolkit.getDefaultToolkit().createImage(ElwizFrame.class.getResource("/de/nmichael/efa/img/efa_icon.gif")));
     contentPane = (JPanel) this.getContentPane();
     contentPane.setLayout(borderLayout1);
     this.setSize(new Dimension(600, 600));

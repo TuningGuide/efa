@@ -23,7 +23,6 @@ public class ItemTypeButton extends ItemType {
 
     protected JButton button;
     protected ImageIcon icon;
-    protected int hAlignment = -1;
 
     public ItemTypeButton(String name, 
             int type, String category, String description) {
@@ -33,6 +32,10 @@ public class ItemTypeButton extends ItemType {
         this.description = description;
         fieldGridAnchor = GridBagConstraints.CENTER;
         fieldGridFill = GridBagConstraints.HORIZONTAL;
+    }
+
+    public IItemType copyOf() {
+        return new ItemTypeButton(name, type, category, description);
     }
 
     protected void iniDisplay() {
@@ -61,7 +64,7 @@ public class ItemTypeButton extends ItemType {
             public void focusLost(FocusEvent e) { field_focusLost(e); }
         });
         this.field = button;
-        saveBackgroundColor();
+        saveBackgroundColor(true);
     }
 
     public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
@@ -118,8 +121,10 @@ public class ItemTypeButton extends ItemType {
         this.icon = icon;
     }
 
-    public void setHorizontalAlignment(int hAlignment) {
-        this.hAlignment = hAlignment;
+    public void setDescription(String s) {
+        super.setDescription(s);
+        if (button != null) {
+            button.setText(s);
+        }
     }
-
 }

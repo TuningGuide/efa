@@ -1,18 +1,21 @@
 
 
-Item                                                              finished until
+Item                                                                 days  until
 ================================================================================
-EfaBoathouseFrame and EfaBaseFrame - interworking                       12.08.
-EfaBoathouseFrame Background Thread                                     13.08.
-MultiDay Sessions                                                       14.08.
-Individual Distance per Person for each Session                         15.08.
-DataLayer: DB Access                                                    18.08.
-DataLayer: Remote GUI Access                                            20.08.
-DataLayer: Remote CLI Access                                            22.08.
-Import/Export with standardized CSV/XML Format (Header Names)           23.08.
-Online Update                                                           24.08.
-Statistics - Framework                                                  28.08.
-Statistics - Basic Statistics                                           30.08.
+EfaConfig Parameter names
+DataLayer: Remote GUI Access                                         2.0  23.08.
+DataLayer: Remote CLI Access                                         2.0  25.08.
+efa Online Services                                                  1.0  26.08.
+Import/Export with standardized CSV/XML Format (Header Names)        1.0  27.08.
+
+DataLayer: DB Access                                                 4.0  28.08.
+Online Update                                                        0.5  29.08.
+Statistics - Framework                                               4.0  02.09.
+Statistics - Basic Statistics                                        1.0  03.09.
+Individual Distance per Person for each Session                      0.5  04.09.
+AutoComplete: match anything within input/change list content        0.5  04.09.
+Vorbereitung für Seminar: Installation & Test                        1.0  02.09.
+Audit
 --------------------------------------------------------------------------------
 Statistics - Advanced Statistics
 Statistics - Kilometerwettbewerbe
@@ -23,6 +26,20 @@ Data Safety and Concurrency: Optimistic Locking
 Data Safety and Concurrency: Journaling and File Copies
 Automatically add and purge names from Data Lists
 Widget Warnings (i.e. after sunset, flooding)
+Rewrite EfaConfig to use XML Files and remove old Config Parameters
+Rewrite remaining Dialogs/Frames
+Delete unused Classes
 Input of Regatta Results
 Help System
 Other new Functionality
+
+
+Item                                                                 days  until   finished
+===========================================================================================
+EfaBoathouseFrame Background Thread                                  0.5  13.08.     16.08.
+Messages                                                             0.5  13.08.     16.08.
+EfaBoathouseFrame and EfaBaseFrame - interworking                    1.0  12.08.     16.08.
+Show Logbook                                                         0.3  16.08.     16.08.
+Correct Misspelled Names                                             0.2  16.08.     16.08.
+MultiDay Sessions                                                    2.0  18.08.     18.08.
+

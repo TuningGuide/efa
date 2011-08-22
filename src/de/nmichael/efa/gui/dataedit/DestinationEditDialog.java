@@ -26,11 +26,17 @@ import javax.swing.event.ChangeEvent;
 public class DestinationEditDialog extends VersionizedDataEditDialog {
 
     public DestinationEditDialog(Frame parent, DestinationRecord r, boolean newRecord) {
-        super(parent, International.getString("Ziel"), r, newRecord);
+        super(parent, 
+                International.getString("Ziel") + " / " +
+                International.getString("Strecke"),
+                r, newRecord);
     }
 
     public DestinationEditDialog(JDialog parent, DestinationRecord r, boolean newRecord) {
-        super(parent, International.getString("Ziel"), r, newRecord);
+        super(parent,
+                International.getString("Ziel") + " / " +
+                International.getString("Strecke"),
+                r, newRecord);
     }
 
     public void keyAction(ActionEvent evt) {

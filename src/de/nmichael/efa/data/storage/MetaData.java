@@ -100,7 +100,7 @@ public class MetaData {
             return FIELDIDX.get(fieldName).intValue();
         } catch(Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_DATA_FIELDDOESNOTEXIST, "MetaData.getIndex(\""+fieldName+"\") - Field does not exist!");
-            Logger.log(e);
+            Logger.logdebug(e);
             return -1;
         }
     }
@@ -111,6 +111,10 @@ public class MetaData {
 
     public String getFieldName(int i) {
         return FIELDS[i];
+    }
+
+    public String getFieldName(String fieldName) {
+        return getFieldName(getFieldIndex(fieldName));
     }
 
     public int getFieldType(int i) {

@@ -192,211 +192,6 @@ public class Fahrtenbuch extends DatenListe {
       s = freadLine();
       if ( s == null || !s.trim().startsWith(kennung) ) {
 
-        // KONVERTIEREN v0.60 -> v0.70
-        if ( s != null && s.trim().startsWith(KENNUNG060)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"060");
-          iniList(this.dat,18,1,true); // Rahmenbedingungen von v0.70 schaffen
-
-          if (!readEinstellungen()) return false;
-          int to;
-          if ((to = this.dat.toUpperCase().lastIndexOf(".EFB")) >= 0) {
-            fbDaten.statistikDatei = this.dat.substring(0,to)+".efbs";
-          } else fbDaten.statistikDatei = this.dat+".efbs";
-
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              add(s);
-            }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG070;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
-        // KONVERTIEREN: 070 -> 085
-        if (s != null && s.trim().startsWith(KENNUNG070)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"070");
-          iniList(this.dat,23,1,true); // Rahmenbedingungen von v0.85 schaffen
-
-          if (!readEinstellungen()) return false;
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              int c=0;
-              for (int i=0; i<s.length(); i++) {
-                if (s.charAt(i) == '|') c++;
-                if (c-1 == MANNSCH8) { // 4 neue Felder hinter MANNSCH8 und eines am Ende...
-                  s = s.substring(0,i) + "||||" + s.substring(i,s.length())+"|"; // Mannsch9-12 und Fahrtdauer als neue Felder!
-                  break;
-                }
-              }
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              add(s);
-            }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG085;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
-
-        // KONVERTIEREN: 085 -> 090
-        if (s != null && s.trim().startsWith(KENNUNG085)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"085");
-          iniList(this.dat,23,1,true); // Rahmenbedingungen von v0.85 schaffen
-
-          if (!readEinstellungen()) return false;
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              add(s);
-            }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG090;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
-
-        // KONVERTIEREN: 090 -> 100
-        if (s != null && s.trim().startsWith(KENNUNG090)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"090");
-          iniList(this.dat,28,1,true); // Rahmenbedingungen von v1.00 schaffen
-
-          if (!readEinstellungen()) return false;
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              int c=0;
-              for (int i=0; i<s.length(); i++) {
-                if (s.charAt(i) == '|') c++;
-                if (c-1 == MANNSCH12) { // 4 neue Felder hinter MANNSCH12...
-                  s = s.substring(0,i) + "||||" + s.substring(i,s.length()); // Mannsch13-16 als neue Felder!
-                  s += "|"; // MTOURTAGE
-                  break;
-                }
-              }
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              add(s);
-            }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG100;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
-
-        // KONVERTIEREN: 100 -> 130
-        if (s != null && s.trim().startsWith(KENNUNG100)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"100");
-          iniList(this.dat,28,1,true); // Rahmenbedingungen von v1.3.0 schaffen
-
-          if (!readEinstellungen()) return false;
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              DatenFelder d = constructFields(s);
-
-              if (d.get(26).length()>0) { // MTOUR(26) vorhanden
-                String name = d.get(26).trim();
-                if (!Mehrtagesfahrt.isVordefinierteFahrtart(name)) {
-                  Mehrtagesfahrt m = null;
-                  String ende = null;
-                  int pos = name.indexOf("(bis ");
-                  if (pos >= 0) {
-                    ende = name.substring(pos+5,name.length()-1);
-                    name = name.substring(0,pos-1);
-                  }
-                  int rudertage = EfaUtil.string2int(d.get(27),1);
-
-                  m = (Mehrtagesfahrt)mehrtagesfahrten.get(name);
-                  if (m == null) { // neue Mehrtagesfahrt
-                    m = new Mehrtagesfahrt(name,
-                                           d.get(Fahrtenbuch.DATUM),
-                                           (ende == null ? d.get(Fahrtenbuch.DATUM) : ende),
-                                           rudertage,
-                                           "",
-                                           (ende == null ? true : false) );
-                  } else {
-                    if (ende == null) { // Etappe: Werte aktualisieren
-                      if (EfaUtil.secondDateIsAfterFirst(m.ende,d.get(Fahrtenbuch.DATUM))) {
-                        m.ende = d.get(Fahrtenbuch.DATUM);
-                        m.rudertage++;
-                      }
-                    }
-                  }
-                  mehrtagesfahrten.put(m.name,m);
-                  d.set(26,m.name);
-                  d.set(27,"");
-                }
-              }
-              add(d);
-            }
-
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG130;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
-
-        // KONVERTIEREN: 130 -> 135
-        if (s != null && s.trim().startsWith(KENNUNG130)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"130");
-          iniList(this.dat,36,1,true); // Rahmenbedingungen von v1.4.0 schaffen
-
-          if (!readEinstellungen()) return false;
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              DatenFelder d = constructFields(s);
-
-              for (int i=29; i<=35; i++) d.set(i,d.get(i-9)); // ABFAHRT bis FAHRTART um 9 nach hinten verschieben
-              for (int i=20; i<=28; i++) d.set(i,""); // neue Felder MANNSCH17 bis MANNSCH24 und OBMANN auf "" setzen
-
-              add(d);
-            }
-
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG135;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
         // KONVERTIEREN: 135 -> 190
         if (s != null && s.trim().startsWith(KENNUNG135)) {
           if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"135");
@@ -413,11 +208,11 @@ public class Fahrtenbuch extends DatenListe {
                   fa = EfaTypes.TYPE_SESSION_NORMAL;
               } else {
                   fa = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, d.get(FAHRTART));
-                  if (fa == null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_MULTIDAY)) {
+                  if (fa == null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_TOUR)) {
                       if (d.get(FAHRTART).startsWith("Mehrtagesfahrt: konfigurieren!!")) {
                           fa = CONFIGURE_MTOUR + d.get(FAHRTART).substring("Mehrtagesfahrt: konfigurieren!!".length());
                       } else {
-                          fa = EfaTypes.TYPE_SESSION_MULTIDAY + ":" + d.get(FAHRTART);
+                          fa = EfaTypes.TYPE_SESSION_TOUR + ":" + d.get(FAHRTART);
                       }
                   }
               }
@@ -438,17 +233,17 @@ public class Fahrtenbuch extends DatenListe {
              return false;
           }
           kennung = KENNUNG190;
-          if (closeFile() && writeFile(true) && openFile()) {
+          if (closeFile()) {
             infSuccessfullyConverted(dat,kennung);
             s = kennung;
           } else errConvertingFile(dat,kennung);
         }
 
         // FERTIG MIT KONVERTIEREN
-        if (s == null || !s.trim().startsWith(kennung)) {
+        if (s == null || !s.trim().startsWith(KENNUNG190)) {
           errInvalidFormat(dat, EfaUtil.trimto(s, 20));
           fclose(false);
-          return false;
+          return true;
         }
       }
     } catch(IOException e) {
@@ -551,8 +346,8 @@ public class Fahrtenbuch extends DatenListe {
 
 
  public static String getMehrtagesfahrtName(String key) {
-   if (key.startsWith(EfaTypes.TYPE_SESSION_MULTIDAY+":")) {
-       key = key.substring(EfaTypes.TYPE_SESSION_MULTIDAY.length()+1);
+   if (key.startsWith(EfaTypes.TYPE_SESSION_TOUR+":")) {
+       key = key.substring(EfaTypes.TYPE_SESSION_TOUR.length()+1);
    }
    return key;
  }

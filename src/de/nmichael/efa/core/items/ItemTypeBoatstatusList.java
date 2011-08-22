@@ -19,7 +19,6 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.direkt.Admin;
 import de.nmichael.efa.gui.*;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.data.*;
@@ -59,8 +58,8 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             BoatStatusRecord sr = v.get(i);
             a[i] = new BoatString();
             a[i].seats = 99;
-            a[i].name = "???";
-            a[i].sortBySeats = (Daten.efaConfig.efaDirekt_sortByAnzahl.getValue());
+            a[i].name = sr.getBoatText();
+            a[i].sortBySeats = (Daten.efaConfig.getValueEfaDirekt_sortByAnzahl());
             a[i].record = sr;
 
             BoatRecord r = boats.getBoat(sr.getBoatId(), now);
@@ -76,11 +75,12 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
                     seats = 99;
                 }
                 a[i].seats = seats;
-                a[i].name = r.getQualifiedName();
-                a[i].sortBySeats = (Daten.efaConfig.efaDirekt_sortByAnzahl.getValue());
+                // for BoatsOnTheWater, don't use the "real" boat name, but rather what's stored in the boat status as "BoatText"
+                a[i].name = (sr.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER) ? sr.getBoatText() : r.getQualifiedName());
+                a[i].sortBySeats = (Daten.efaConfig.getValueEfaDirekt_sortByAnzahl());
 
-                if (Daten.efaConfig.efaDirekt_showZielnameFuerBooteUnterwegs.getValue() &&
-                    BoatStatusRecord.STATUS_ONTHEWATER.equals(sr.getStatus()) &&
+                if (Daten.efaConfig.getValueEfaDirekt_showZielnameFuerBooteUnterwegs() &&
+                    BoatStatusRecord.STATUS_ONTHEWATER.equals(sr.getCurrentStatus()) &&
                     sr.getEntryNo() != null && sr.getEntryNo().length() > 0) {
                     LogbookRecord lr = logbook.getLogbookRecord(sr.getEntryNo());
                     if (lr != null) {
@@ -124,7 +124,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
                         break;
                 }
                 if (s == null || s.equals(EfaTypes.getStringUnknown())) {
-                    /* @todo how to handle Doppeleinträge???
+                    /* @todo (P4) Doppeleinträge currently not supported in efa2
                     DatenFelder d = Daten.fahrtenbuch.getDaten().boote.getExactComplete(removeDoppeleintragFromBootsname(a[i].name));
                     if (d != null) {
                         s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, d.get(Boote.ANZAHL));
@@ -186,6 +186,33 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         return vv;
     }
 
+    public BoatListItem getSelectedBoatListItem() {
+        if (list == null || list.isSelectionEmpty()) {
+            return null;
+        } else {
+            BoatListItem item = new BoatListItem();
+            item.list = this;
+            item.text = getSelectedText();
+            Object o = getSelectedValue();
+            if (o != null && o instanceof BoatStatusRecord) {
+                item.boatStatus = (BoatStatusRecord)o;
+            }
+            if (o != null && o instanceof PersonRecord) {
+                item.person = (PersonRecord)o;
+            }
+            return item;
+        }
+    }
+
+    public class BoatListItem {
+        public int mode;
+        public ItemTypeBoatstatusList list;
+        public String text;
+        public BoatRecord boat;
+        public BoatStatusRecord boatStatus;
+        public PersonRecord person;
+    }
+
     class BoatString implements Comparable {
 
         public String name;
@@ -194,6 +221,9 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         public Object record;
 
         private String normalizeString(String s) {
+            if (s == null) {
+                return "";
+            }
             s = s.toLowerCase();
             if (s.indexOf("ä") >= 0) {
                 s = EfaUtil.replace(s, "ä", "a", true);

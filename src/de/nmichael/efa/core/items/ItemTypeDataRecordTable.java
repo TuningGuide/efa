@@ -14,16 +14,12 @@ import de.nmichael.efa.gui.dataedit.VersionizedDataDeleteDialog;
 import de.nmichael.efa.gui.dataedit.DataEditDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.gui.*;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.ex.*;
-import de.nmichael.efa.*;
-import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import java.util.*;
 
 // @i18n complete
@@ -50,21 +46,27 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     protected long myValidAt = -1; // actually used validAt in updateData(); if validAt == -1, then myValidAt is "now" each time the data is updated
     protected boolean showAll = false;
     protected boolean showDeleted = false;
+
     protected String filterFieldName;
     protected String filterFieldValue;
     
     protected Vector<DataRecord> data;
     protected Hashtable<String,DataRecord> mappingKeyToRecord;
     protected IItemListenerDataRecordTable itemListenerActionTable;
+    protected ItemTypeString searchField;
+    protected ItemTypeBoolean filterBySearch;
+
 
     protected JPanel myPanel;
     protected JPanel tablePanel;
     protected JPanel buttonPanel;
+    protected JPanel searchPanel;
 
     protected Hashtable<ItemTypeButton,String> actionButtons;
     protected static final String ACTION_BUTTON = "ACTION_BUTTON";
     protected String[] actionText;
     protected int[] actionTypes;
+    protected int defaultActionForDoubleclick = ACTION_EDIT;
 
     public ItemTypeDataRecordTable(String name,
             TableItemHeader[] tableHeader, 
@@ -124,6 +126,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         }
     }
 
+    public void setDefaultActionForDoubleclick(int defaultAction) {
+        this.defaultActionForDoubleclick = defaultAction;
+    }
+
     protected void iniDisplayActionTable(Window dlg) {
         this.dlg = dlg;
         myPanel = new JPanel();
@@ -133,8 +139,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridBagLayout());
         buttonPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+        searchPanel = new JPanel();
+        searchPanel.setLayout(new GridBagLayout());
         myPanel.add(tablePanel, BorderLayout.CENTER);
         myPanel.add(buttonPanel, BorderLayout.EAST);
+        tablePanel.add(searchPanel, new GridBagConstraints(0, 10, 0, 0, 0.0, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
         actionButtons = new Hashtable<ItemTypeButton,String>();
         for (int i=0; actionText != null && i<actionText.length; i++) {
             String action = ACTION_BUTTON + "_" + actionTypes[i];
@@ -145,6 +155,13 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             button.displayOnGui(dlg, buttonPanel, 0, i);
             actionButtons.put(button, action);
         }
+        searchField = new ItemTypeString("SEARCH_FIELD","", IItemType.TYPE_PUBLIC, "SEARCH_CAT", International.getString("Suche"));
+        searchField.setFieldSize(300, -1);
+        searchField.registerItemListener(this);
+        searchField.displayOnGui(dlg, searchPanel, 0, 0);
+        filterBySearch = new ItemTypeBoolean("FILTERBYSEARCH", false, IItemType.TYPE_PUBLIC, "SEARCH_CAT", International.getString("filtern"));
+        filterBySearch.registerItemListener(this);
+        filterBySearch.displayOnGui(dlg, searchPanel, 10, 0);
     }
 
     public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
@@ -195,7 +212,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     }
 
     public void itemListenerAction(IItemType itemType, AWTEvent event) {
-        if (event != null && event instanceof ActionEvent && event.getID() == ActionEvent.ACTION_PERFORMED) {
+        if (event != null && event instanceof ActionEvent && event.getID() == ActionEvent.ACTION_PERFORMED &&
+                !(itemType instanceof ItemTypeBoolean)) {
             ActionEvent e = (ActionEvent)event;
             String cmd = e.getActionCommand();
             int actionId = -1;
@@ -205,7 +223,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                 } catch(Exception eignore) {}
             }
             if (cmd != null && cmd.startsWith(EfaMouseListener.EVENT_MOUSECLICKED_2x)) {
-                actionId = ACTION_EDIT;
+                actionId = defaultActionForDoubleclick;
             }
             if (itemType != null && itemType instanceof ItemTypeButton) {
                 actionId = EfaUtil.stringFindInt(actionButtons.get((ItemTypeButton)itemType), -1);
@@ -315,6 +333,83 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             updateData();
             showValue();
         }
+        if (event != null && event instanceof KeyEvent && event.getID() == KeyEvent.KEY_RELEASED && itemType == searchField) {
+            String s = searchField.getValueFromField();
+            if (s != null && s.length() > 0 && keys != null && items != null) {
+                s = s.toLowerCase();
+                Vector<String> sv = null;
+                boolean[] sb = null;
+                if (s.indexOf(" ") > 0) {
+                    sv = EfaUtil.split(s, ' ');
+                    if (sv != null && sv.size() == 0) {
+                        sv = null;
+                    } else {
+                        sb = new boolean[sv.size()];
+                    }
+                }
+                int rowFound = -1;
+                for (int i=0; rowFound < 0 && i<keys.length; i++) {
+                    // search in row i
+                    for (int j=0; sb != null && j<sb.length; j++) {
+                        sb[j] = false; // matched parts of substring
+                    }
+
+                    TableItem[] row = items.get(keys[i]);
+                    for (int j=0; row != null && rowFound < 0 && j<row.length; j++) {
+                        // search in row i, column j
+                        String t = (row[j] != null ? row[j].toString() : null);
+                        t = (t != null ? t.toLowerCase() : null);
+                        if (t == null) {
+                            continue;
+                        }
+
+                        // match entire search string against column
+                        if (t.indexOf(s) >= 0) {
+                            rowFound = i;
+                        }
+
+                        if (sv != null && rowFound < 0) {
+                            // match column agains substrings
+                            for (int k=0; k<sv.size(); k++) {
+                                if (t.indexOf(sv.get(k)) >= 0) {
+                                    sb[k] = true;
+                                }
+                            }
+                        }
+                    }
+                    if (sb != null && rowFound < 0) {
+                        rowFound = i;
+                        for (int j=0; j<sb.length; j++) {
+                            if (!sb[j]) {
+                                rowFound = -1;
+                            }
+                        }
+                    }
+                }
+                if (rowFound >= 0) {
+                    int currentIdx = table.getCurrentRowIndex(rowFound);
+                    if (currentIdx >= 0) {
+                        scrollToRow(currentIdx);
+                    }
+                }
+            }
+        }
+        if (event != null &&
+                (event instanceof KeyEvent && event.getID() == KeyEvent.KEY_RELEASED && itemType == searchField) ||
+                (event instanceof ActionEvent && event.getID() == ActionEvent.ACTION_PERFORMED && itemType == filterBySearch) ) {
+            updateFilter();
+        }
+    }
+
+    protected void updateFilter() {
+        searchField.getValueFromGui();
+        filterBySearch.getValueFromGui();
+        if (filterBySearch.isChanged() || (filterBySearch.getValue() && searchField.isChanged())) {
+            updateData();
+            showValue();
+        }
+        filterBySearch.setUnchanged();
+        searchField.setUnchanged();
     }
 
     protected void updateData() {
@@ -322,6 +417,14 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             return;
         }
         try {
+            String filterByAnyText = null;
+            if (filterBySearch != null && searchField != null) {
+                filterBySearch.getValueFromField();
+                searchField.getValueFromGui();
+                if (filterBySearch.getValue() && searchField.getValue() != null && searchField.getValue().length() > 0) {
+                    filterByAnyText = searchField.getValue().toLowerCase();
+                }
+            }
             myValidAt = (validAt >= 0 ? validAt : System.currentTimeMillis());
             data = new Vector<DataRecord>();
             IDataAccess dataAccess = persistence.data();
@@ -352,7 +455,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                 if (r != null && (!r.getDeleted() || showDeleted)) {
                     if (filterFieldName == null || filterFieldValue == null ||
                         filterFieldValue.equals(r.getAsString(filterFieldName))) {
-                        data.add(r);
+                        if (filterByAnyText == null || r.toString().toLowerCase().indexOf(filterByAnyText) >= 0) {
+                            data.add(r);
+                        }
                     }
                 }
                 key = it.getNext();

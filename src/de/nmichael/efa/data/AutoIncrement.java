@@ -36,20 +36,53 @@ public class AutoIncrement extends Persistence {
         return r;
     }
 
-    public int nextAutoIncrementValue(String sequence) {
+    public int nextAutoIncrementIntValue(String sequence) {
         long lock = -1;
         try {
             DataKey k = AutoIncrementRecord.getKey(sequence);
             lock = data().acquireLocalLock(k);
             AutoIncrementRecord r = (AutoIncrementRecord)data().get(k);
             if (r != null) {
-                int seq = r.getValue() + 1;
-                r.setValue(seq);
+                int seq = r.getIntValue() + 1;
+                if (seq < 1) {
+                    seq = 1;
+                }
+                r.setIntValue(seq);
                 data().update(r, lock);
                 return seq;
             } else {
                 r = createAutoIncrementRecord(sequence);
-                r.setValue(1);
+                r.setIntValue(1);
+                data().add(r, lock);
+                return 1;
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        } finally {
+            if (lock != -1) {
+                data().releaseLocalLock(lock);
+            }
+        }
+        return -1;
+    }
+
+    public long nextAutoIncrementLongValue(String sequence) {
+        long lock = -1;
+        try {
+            DataKey k = AutoIncrementRecord.getKey(sequence);
+            lock = data().acquireLocalLock(k);
+            AutoIncrementRecord r = (AutoIncrementRecord)data().get(k);
+            if (r != null) {
+                long seq = r.getLongValue() + 1;
+                if (seq < 1) {
+                    seq = 1;
+                }
+                r.setLongValue(seq);
+                data().update(r, lock);
+                return seq;
+            } else {
+                r = createAutoIncrementRecord(sequence);
+                r.setLongValue(1);
                 data().add(r, lock);
                 return 1;
             }

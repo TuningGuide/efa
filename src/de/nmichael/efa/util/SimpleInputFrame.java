@@ -142,7 +142,6 @@ public class SimpleInputFrame extends JDialog implements ActionListener {
 
   void text_keyReleased(KeyEvent e) {
     if (d == null) return;
-    EfaFrame.vervollstaendige(text,null,d,e,null,true);
     if (e != null && e.getKeyCode() == KeyEvent.VK_ENTER) okButton_actionPerformed(null);
   }
 
@@ -199,7 +198,7 @@ public class SimpleInputFrame extends JDialog implements ActionListener {
 
 
   void text_focusLost(FocusEvent e) {
-    if (Daten.efaConfig.popupComplete.getValue()) AutoCompletePopupWindow.hideWindow();
+    if (Daten.efaConfig.getValuePopupComplete()) AutoCompletePopupWindow.hideWindow();
   }
 
 }

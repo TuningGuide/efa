@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.core.items;
 
+import de.nmichael.efa.gui.BaseFrame;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -37,6 +38,10 @@ public class ItemTypeImage extends ItemType {
         this.type = type;
         this.category = category;
         this.description = description;
+    }
+
+    public IItemType copyOf() {
+        return new ItemTypeImage(name, value, maxX, maxY, type, category, description);
     }
 
     public void parseValue(String value) {
@@ -70,14 +75,14 @@ public class ItemTypeImage extends ItemType {
             label.setForeground(color);
         }
         selectButton = new JButton();
-        selectButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_open.gif")));
+        selectButton.setIcon(BaseFrame.getIcon("menu_open.gif"));
         selectButton.setMargin(new Insets(0,0,0,0));
         Dialog.setPreferredSize(selectButton, 19, 19);
         selectButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { selectButtonHit(e); }
         });
         removeButton = new JButton();
-        removeButton.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_minus.gif")));
+        removeButton.setIcon(BaseFrame.getIcon("menu_minus.gif"));
         removeButton.setMargin(new Insets(0,0,0,0));
         Dialog.setPreferredSize(removeButton, 19, 19);
         removeButton.addActionListener(new java.awt.event.ActionListener() {

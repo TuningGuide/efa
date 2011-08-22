@@ -79,6 +79,10 @@ public class BoatReservationRecord extends DataRecord {
         return new DataKey<UUID,Integer,String>(getBoatId(),getReservation(),null);
     }
 
+    public boolean getDeleted() {
+        return getPersistence().getProject().getBoats(false).isBoatDeleted(getBoatId());
+    }
+
     public void setBoatId(UUID id) {
         setUUID(BOATID, id);
     }
@@ -153,7 +157,11 @@ public class BoatReservationRecord extends DataRecord {
         setString(REASON, reason);
     }
     public String getReason() {
-        return getString(REASON);
+        String s = getString(REASON);
+        if (s == null || s.length() == 0) {
+            s = International.getString("k.A.");
+        }
+        return s;
     }
 
     private String getDateDescription(DataTypeDate date, String weekday, DataTypeTime time) {
@@ -186,7 +194,11 @@ public class BoatReservationRecord extends DataRecord {
         return "";
     }
 
-    public String getPersonDescription() {
+    public String getReservationTimeDescription() {
+        return getDateTimeFromDescription() + " - " + getDateTimeToDescription();
+    }
+
+    public String getPersonAsName() {
         UUID id = getPersonId();
         try {
             PersonRecord p = getPersistence().getProject().getPersons(false).getPerson(id, System.currentTimeMillis());
@@ -209,6 +221,100 @@ public class BoatReservationRecord extends DataRecord {
             }
         }
         return boatName;
+    }
+
+    /**
+     *
+     * @param now
+     * @param lookAheadMinutes
+     * @return 0 if valid now; n>0 in valid in n minutes; <0 if not valid within specified interval
+     */
+    public long getReservationValidInMinutes(long now, long lookAheadMinutes) {
+        try {
+            DataTypeDate dateFrom = null;
+            DataTypeDate dateTo = null;
+            DataTypeTime timeFrom = null;
+            DataTypeTime timeTo = null;
+            if (this.getType().equals(TYPE_ONETIME)) {
+                dateFrom = this.getDateFrom();
+                dateTo   = this.getDateTo();
+                timeFrom = this.getTimeFrom();
+                timeTo   = this.getTimeTo();
+            }
+            if (this.getType().equals(TYPE_WEEKLY)) {
+                GregorianCalendar cal = new GregorianCalendar();
+                cal.setTimeInMillis(now);
+                int weekday = cal.get(Calendar.DAY_OF_WEEK);
+                String dayOfWeek = getDayOfWeek();
+                // Note: lookAheadMinutes is not supported over midnight for weekly reservations
+                switch (weekday) {
+                    case Calendar.MONDAY:
+                        if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_MONDAY)) {
+                            return -1;
+                        }
+                    case Calendar.TUESDAY:
+                        if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_TUESDAY)) {
+                            return -1;
+                        }
+                    case Calendar.WEDNESDAY:
+                        if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_WEDNESDAY)) {
+                            return -1;
+                        }
+                    case Calendar.THURSDAY:
+                        if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_THURSDAY)) {
+                            return -1;
+                        }
+                    case Calendar.FRIDAY:
+                        if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_FRIDAY)) {
+                            return -1;
+                        }
+                    case Calendar.SATURDAY:
+                        if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_SATURDAY)) {
+                            return -1;
+                        }
+                    case Calendar.SUNDAY:
+                        if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_SUNDAY)) {
+                            return -1;
+                        }
+                }
+                // ok, this is our weekday!
+                dateFrom = new DataTypeDate(now);
+                dateTo   = new DataTypeDate(now);
+            }
+            long resStart = dateFrom.getTimestamp(timeFrom);
+            long resEnd   = dateTo.getTimestamp(timeTo);
+
+            // ist die vorliegende Reservierung jetzt gültig
+            if (now >= resStart && now <= resEnd) {
+                return 0;
+            }
+
+            // ist die vorliegende Reservierung innerhalb von minutesAhead gültig
+            if (now < resStart && now + lookAheadMinutes * 60 * 1000 >= resStart) {
+                return (resStart - now) / (60 * 1000);
+            }
+            
+        } catch (Exception e) {
+            Logger.logdebug(e);
+        }
+        return -1;
+    }
+
+    public boolean isObsolete(long now) {
+        try {
+            if (this.getType().equals(TYPE_WEEKLY)) {
+                return false;
+            }
+            if (this.getType().equals(TYPE_ONETIME)) {
+                DataTypeDate dateTo = this.getDateTo();
+                DataTypeTime timeTo = this.getTimeTo();
+                long resEnd   = dateTo.getTimestamp(timeTo);
+                return now > resEnd;
+            }
+        } catch (Exception e) {
+            Logger.logdebug(e);
+        }
+        return false;
     }
 
     public Vector<IItemType> getGuiItems() {
@@ -296,7 +402,7 @@ public class BoatReservationRecord extends DataRecord {
         items[0] = new TableItem(getBoatName());
         items[1] = new TableItem(getDateTimeFromDescription());
         items[2] = new TableItem(getDateTimeToDescription());
-        items[3] = new TableItem(getPersonDescription());
+        items[3] = new TableItem(getPersonAsName());
         items[4] = new TableItem(getReason());
         return items;
     }

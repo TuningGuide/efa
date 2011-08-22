@@ -27,11 +27,17 @@ import javax.swing.*;
 public class DestinationListDialog extends DataListDialog {
 
     public DestinationListDialog(Frame parent, long validAt) {
-        super(parent, International.getString("Ziele"), Daten.project.getDestinations(false), validAt);
+        super(parent,
+                International.getString("Ziele") + " / " +
+                International.getString("Strecken"),
+                Daten.project.getDestinations(false), validAt);
     }
 
     public DestinationListDialog(JDialog parent, long validAt) {
-        super(parent, International.getString("Ziele"), Daten.project.getDestinations(false), validAt);
+        super(parent,
+                International.getString("Ziele") + " / " +
+                International.getString("Strecken"),
+                Daten.project.getDestinations(false), validAt);
     }
 
     public void keyAction(ActionEvent evt) {

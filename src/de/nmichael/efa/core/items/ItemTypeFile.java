@@ -10,9 +10,9 @@
 
 package de.nmichael.efa.core.items;
 
+import de.nmichael.efa.gui.BaseFrame;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.gui.BaseDialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -49,9 +49,9 @@ public class ItemTypeFile extends ItemTypeString {
 
         JButton button = new JButton();
         if (fileOpenSave == MODE_OPEN) {
-            button.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_open.gif")));
+            button.setIcon(BaseFrame.getIcon("menu_open.gif"));
         } else {
-            button.setIcon(new ImageIcon(de.nmichael.efa.Daten.class.getResource("/de/nmichael/efa/img/menu_save.gif")));
+            button.setIcon(BaseFrame.getIcon("menu_save.gif"));
         }
         button.setMargin(new Insets(0,0,0,0));
         Dialog.setPreferredSize(button, 19, 19);

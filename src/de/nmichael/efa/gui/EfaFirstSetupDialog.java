@@ -35,6 +35,7 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
     private boolean createSuperAdmin;
     private boolean efaCustomization;
     private CustSettings custSettings = null;
+    private AdminRecord newSuperAdmin = null;
 
     public EfaFirstSetupDialog(boolean createSuperAdmin, boolean efaCustomization) {
         super((JFrame)null, International.getString(Daten.EFA_LONGNAME));
@@ -46,25 +47,43 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
         _keyAction(evt);
     }
 
+    private int getNumberOfSteps() {
+        return (createSuperAdmin && efaCustomization ? 3 : 2); // at least one of them is always activated, otherwise we wouldn't call this dialog
+    }
+
+    private int getCreateSuperAdminStep() {
+        return (createSuperAdmin ? 1 : 99);
+    }
+
+    private int getEfaCustomizationStep() {
+        return (efaCustomization ? (createSuperAdmin ? 2 : 1) : 99);
+    }
+
     String[] getSteps() {
-        return new String[] {
-            International.getString("Willkommen!"),
-            International.getString("Super-Admin anlegen"),
-            International.getString("Einstellungen")
-        };
+        int i=0;
+        String[] steps = new String[getNumberOfSteps()];
+        steps[i++] = International.getString("Willkommen!");
+        if (createSuperAdmin) {
+            steps[i++] = International.getString("Hauptadministrator anlegen");
+        }
+        if (efaCustomization) {
+            steps[i++] = International.getString("Einstellungen");
+        }
+        return steps;
     }
 
     String getDescription(int step) {
-        switch(step) {
-            case 0:
-                return International.getString("Willkommen bei efa, dem elektronischen Fahrtenbuch!") + "\n" +
-                       International.getString("Dieser Dialog führt Dich durch die ersten Schritte, um efa einzurichten.");
-            case 1:
-                return International.getString("Alle Administrationsaufgaben in efa erfordern Administratorrechte.") + "\n" +
-                       International.getString("Bitte lege ein Paßwort (mindestens 6 Zeichen) für den Hauptadministrator 'admin' fest.");
-            case 2:
-                return International.getString("Welche Funktionen von efa möchtest Du verwenden?") + "\n" +
-                       International.getString("Du kannst diese Einstellungen jederzeit in der efa-Konfiguration ändern.");
+        if (step == 0) {
+            return International.getString("Willkommen bei efa, dem elektronischen Fahrtenbuch!") + "\n"
+                 + International.getString("Dieser Dialog führt Dich durch die ersten Schritte, um efa einzurichten.");
+        }
+        if (step == getCreateSuperAdminStep()) {
+            return International.getString("Alle Administrationsaufgaben in efa erfordern Administratorrechte.") + "\n"
+                 + International.getString("Bitte lege ein Paßwort (mindestens 6 Zeichen) für den Hauptadministrator 'admin' fest.");
+        }
+        if (step == getEfaCustomizationStep()) {
+            return International.getString("Welche Funktionen von efa möchtest Du verwenden?") + "\n"
+                 + International.getString("Du kannst diese Einstellungen jederzeit in der efa-Konfiguration ändern.");
         }
         return "";
     }
@@ -75,44 +94,75 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
 
         // Items for Step 0
         items.add(item = new ItemTypeLabel("LOGO", IItemType.TYPE_PUBLIC, "0", ""));
-        ((ItemTypeLabel)item).setImage(new ImageIcon(EfaFirstSetupDialog.class.getResource(Daten.getEfaImage(2))));
-        ((ItemTypeLabel)item).setFieldGrid(1, GridBagConstants.CENTER, GridBagConstants.HORIZONTAL);
+        ((ItemTypeLabel)item).setImage(getIcon(Daten.getEfaImage(3)));
+        ((ItemTypeLabel)item).setFieldGrid(-1, GridBagConstants.CENTER, GridBagConstants.HORIZONTAL);
         ((ItemTypeLabel)item).setPadding(10, 10, 10, 10);
         items.add(item = new ItemTypeLabel("EFA", IItemType.TYPE_PUBLIC, "0", Daten.EFA_LONGNAME));
+        ((ItemTypeLabel)item).setHorizontalAlignment(SwingConstants.CENTER);
+        ((ItemTypeLabel)item).setFieldGrid(-1, GridBagConstants.CENTER, GridBagConstants.HORIZONTAL);
+        items.add(item = new ItemTypeLabel("VERSION", IItemType.TYPE_PUBLIC, "0", International.getString("Version") + " " + Daten.VERSION));
+        ((ItemTypeLabel)item).setHorizontalAlignment(SwingConstants.CENTER);
+        ((ItemTypeLabel)item).setFieldGrid(-1, GridBagConstants.CENTER, GridBagConstants.HORIZONTAL);
 
-        // Items for Step 1
-        items.add(item = new ItemTypeLabel("ADMIN_LABEL", IItemType.TYPE_PUBLIC, "1", International.getString("Neuer Hauptadministrator")+
-                " ('admin')"));
-        items.add(item = new ItemTypeString(ADMIN_NAME, Admins.SUPERADMIN, IItemType.TYPE_PUBLIC, "1", International.getString("Name")));
-        ((ItemTypeString)item).setEnabled(false);
-        items.add(item = new ItemTypePassword(ADMIN_PASSWORD, "", IItemType.TYPE_PUBLIC, "1", International.getString("Paßwort")));
+        // Items for Step 1 (CreateSuperAdmin)
+        items.add(item = new ItemTypeLabel("ADMIN_LABEL", IItemType.TYPE_PUBLIC,
+                Integer.toString(getCreateSuperAdminStep()), International.getString("Neuer Hauptadministrator")));
+        items.add(item = new ItemTypeString(ADMIN_NAME, Admins.SUPERADMIN, IItemType.TYPE_PUBLIC,
+                Integer.toString(getCreateSuperAdminStep()), International.getString("Name")));
+        ((ItemTypeString)item).setEditable(false);
+        items.add(item = new ItemTypePassword(ADMIN_PASSWORD, "", IItemType.TYPE_PUBLIC,
+                Integer.toString(getCreateSuperAdminStep()), International.getString("Paßwort")));
+        ((ItemTypePassword)item).setNotNull(true);
+        ((ItemTypePassword)item).setMinCharacters(6);
+        items.add(item = new ItemTypePassword(ADMIN_PASSWORD+"_REPEAT", "", IItemType.TYPE_PUBLIC,
+                Integer.toString(getCreateSuperAdminStep()), International.getString("Paßwort") +
+                " (" + International.getString("Wiederholung") + ")"));
         ((ItemTypePassword)item).setNotNull(true);
         ((ItemTypePassword)item).setMinCharacters(6);
 
-        // Items for Step 2
-        items.add(item = new ItemTypeLabel("CUST_LABEL", IItemType.TYPE_PUBLIC, "2",
+        // Items for Step 2 (EfaCustomization)
+        items.add(item = new ItemTypeLabel("CUST_LABEL", IItemType.TYPE_PUBLIC,
+                Integer.toString(getEfaCustomizationStep()),
                 International.getString("Welche Funktionen von efa möchtest Du verwenden?")));
-        items.add(item = new ItemTypeBoolean(CUST_ROWING, true, IItemType.TYPE_PUBLIC, "2",
-                International.getString("Rudern")));
-        items.add(item = new ItemTypeBoolean(CUST_ROWINGGERMANY, International.getLanguageID().startsWith("de"), IItemType.TYPE_PUBLIC, "2",
+        items.add(item = new ItemTypeBoolean(CUST_ROWING, true, IItemType.TYPE_PUBLIC,
+                Integer.toString(getEfaCustomizationStep()), International.getString("Rudern")));
+        items.add(item = new ItemTypeBoolean(CUST_ROWINGGERMANY, International.getLanguageID().startsWith("de"), IItemType.TYPE_PUBLIC,
+                Integer.toString(getEfaCustomizationStep()),
                 International.getString("Rudern") + " " +
                 International.getMessage("in {region}",
                 International.getString("Deutschland"))));
-        items.add(item = new ItemTypeBoolean(CUST_ROWINGBERLIN, International.getLanguageID().startsWith("de"), IItemType.TYPE_PUBLIC, "2",
+        items.add(item = new ItemTypeBoolean(CUST_ROWINGBERLIN, false, IItemType.TYPE_PUBLIC,
+                Integer.toString(getEfaCustomizationStep()),
                 International.getString("Rudern") + " " +
                 International.getMessage("in {region}",
                 International.getString("Berlin"))));
-        items.add(item = new ItemTypeBoolean(CUST_CANOEING, false, IItemType.TYPE_PUBLIC, "2",
+        items.add(item = new ItemTypeBoolean(CUST_CANOEING, false, IItemType.TYPE_PUBLIC,
+                Integer.toString(getEfaCustomizationStep()),
                 International.getString("Kanufahren")));
-        items.add(item = new ItemTypeBoolean(CUST_CANOEINGGERMANY, false, IItemType.TYPE_PUBLIC, "2",
+        items.add(item = new ItemTypeBoolean(CUST_CANOEINGGERMANY, false, IItemType.TYPE_PUBLIC,
+                Integer.toString(getEfaCustomizationStep()),
                 International.getString("Kanufahren") + " " +
                 International.getMessage("in {region}",
                 International.getString("Deutschland"))));
     }
 
-    void finishButton_actionPerformed(ActionEvent e) {
+    boolean checkInput(int direction) {
+        boolean ok = super.checkInput(direction);
+        if (ok && step == getCreateSuperAdminStep())  {
+            String pass1 = getItemByName(ADMIN_PASSWORD).toString();
+            String pass2 = getItemByName(ADMIN_PASSWORD+"_REPEAT").toString();
+            if (!pass1.equals(pass2)) {
+                Dialog.error(International.getMessage("Paßwort in Feld '{field}' nicht identisch.", getItemByName(ADMIN_PASSWORD+"_REPEAT").getDescription()));
+                return false;
+            }
+        }
+        return ok;
+    }
+
+
+    boolean finishButton_actionPerformed(ActionEvent e) {
         if (!checkInput(0)) {
-            return;
+            return false;
         }
         if (createSuperAdmin) {
             createNewSuperAdmin(((ItemTypePassword)getItemByName(ADMIN_PASSWORD)).getValue());
@@ -125,7 +175,9 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
             custSettings.activateCanoeingOptions = ((ItemTypeBoolean)getItemByName(CUST_CANOEING)).getValue();
             custSettings.activateGermanCanoeingOptions = ((ItemTypeBoolean)getItemByName(CUST_CANOEINGGERMANY)).getValue();
         }
+        setDialogResult(true);
         cancel();
+        return true;
     }
 
     void createNewSuperAdmin(String password) {
@@ -135,9 +187,11 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
         try {
             Daten.admins.open(true);
             // ok, new admin file created (or existing, empty one opened). Now add admin
-            Daten.admins.data().add(Daten.admins.createAdminRecord(Admins.SUPERADMIN, password));
+            AdminRecord r = Daten.admins.createAdminRecord(Admins.SUPERADMIN, password);
+            Daten.admins.data().add(r);
             //Now delete sec file
             Daten.efaSec.delete(true);
+            newSuperAdmin = r;
         } catch (Exception ee) {
             String msg = LogString.logstring_fileCreationFailed(((DataFile) Daten.admins.data()).getFilename(),
                     International.getString("Administratoren"));
@@ -156,5 +210,9 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
 
     public CustSettings getCustSettings() {
         return custSettings;
+    }
+
+    public AdminRecord getNewSuperAdmin() {
+        return newSuperAdmin;
     }
 }

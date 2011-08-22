@@ -14,7 +14,7 @@ import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.gui.widgets.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.*; // @todo remove again - currently only necessary for old BrowserFrame
+import de.nmichael.efa.core.*; // @todo (P4) remove again - currently only necessary for old BrowserFrame
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.direkt.*;
@@ -107,7 +107,7 @@ public class EfaExitFrame extends BaseFrame {
                     International.getString("efa beendet sich jetzt")
                     + (restart ? " " + International.getString("und wird anschließend neu gestartet") + "."
                     : "."));
-            efaBoathouseFrame.cancel(null, who, restart);
+            efaBoathouseFrame.cancel(null, who, null, restart);
         } else {
             thread = new CountdownThread(this); // Thread für's nächste Mal initialisieren
             Logger.log(Logger.WARNING, Logger.MSG_EVT_EFAEXITABORTED,

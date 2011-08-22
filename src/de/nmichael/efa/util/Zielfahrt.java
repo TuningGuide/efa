@@ -41,8 +41,8 @@ public class Zielfahrt {
   private void ini() {
     zb = new boolean[ANZ_ZIELBEREICHE + 1]; // Element 0 ist Dummy
     Arrays.fill(zb,false);
-    if (Daten.efaConfig.zielfahrtSeparatorBereiche.getValue().length() == 1) {
-      SEPARATOR = Daten.efaConfig.zielfahrtSeparatorBereiche.getValue();
+    if (de.nmichael.efa.efa1.Ziele.zielfahrtSeparatorBereiche.length() == 1) {
+      SEPARATOR = de.nmichael.efa.efa1.Ziele.zielfahrtSeparatorBereiche;
     } else {
       SEPARATOR = ",";
     }

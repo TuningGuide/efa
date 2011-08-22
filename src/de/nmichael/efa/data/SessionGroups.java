@@ -12,6 +12,7 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.ex.EfaModifyException;
 import java.util.*;
 
 // @i18n complete
@@ -30,10 +31,49 @@ public class SessionGroups extends Persistence {
         return new SessionGroupRecord(this, MetaData.getMetaData(DATATYPE));
     }
 
-    public SessionGroupRecord createSessionGroupRecord(UUID id) {
+    public SessionGroupRecord createSessionGroupRecord(UUID id, String logbook) {
         SessionGroupRecord r = new SessionGroupRecord(this, MetaData.getMetaData(DATATYPE));
         r.setId(id);
+        r.setLogbook(logbook);
         return r;
+    }
+
+    public SessionGroupRecord findSessionGroupRecord(UUID id) {
+        try {
+            return (SessionGroupRecord)data().get(SessionGroupRecord.getKey(id));
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
+    public DataKey[] findAllSessionGroupKeys(String logbookName) {
+        try {
+            return data().getByFields(SessionGroupRecord.IDX_LOGBOOK, new String[] { logbookName });
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
+    public String getSessionGroupName(UUID id) {
+        SessionGroupRecord r = findSessionGroupRecord(id);
+        if (r != null) {
+            return r.getName();
+        }
+        return null;
+    }
+
+    public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
+        if (add || update) {
+            assertFieldNotEmpty(record, SessionGroupRecord.NAME);
+            assertUnique(record, new String[] { SessionGroupRecord.NAME, SessionGroupRecord.LOGBOOK });
+            assertFieldNotEmpty(record, SessionGroupRecord.LOGBOOK);
+        }
+        if (delete) {
+            assertNotReferenced(record, getProject().getLogbook(((SessionGroupRecord)record).getLogbook(), false),
+                    new String[] { LogbookRecord.SESSIONGROUPID });
+        }
     }
 
 }

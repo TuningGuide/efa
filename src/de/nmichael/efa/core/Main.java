@@ -12,12 +12,9 @@ package de.nmichael.efa.core;
 
 import de.nmichael.efa.gui.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.*;
-import de.nmichael.efa.util.Dialog;
-import javax.swing.UIManager;
-import java.awt.*;
 
 // @i18n complete
 public class Main extends Program {
@@ -26,14 +23,17 @@ public class Main extends Program {
 
     public Main(String[] args) {
         super(args);
-        Daten.initialize(Daten.APPL_EFABASE);
+        AdminRecord admin = Daten.initialize(Daten.APPL_EFABASE);
 
         if (project != null) {
             Project.openProject(project);
         }
 
         EfaBaseFrame frame = new EfaBaseFrame(EfaBaseFrame.MODE_BASE);
-        frame.showFrame();
+        if (admin != null) {
+            frame.setAdmin(admin);
+        }
+        frame.showMe();
         Daten.iniSplashScreen(false);
     }
 

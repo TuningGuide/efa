@@ -17,7 +17,7 @@ public class BringToFrontThread extends Thread {
     private Frame frame;
     private int afterMs;
 
-    public BringToFrontThread(Frame frame, int afterMs) {
+    public BringToFrontThread(Window w, int afterMs) {
         this.frame = frame;
         this.afterMs = afterMs;
     }
@@ -34,8 +34,8 @@ public class BringToFrontThread extends Thread {
         }
     }
 
-    public static void bringToFront(Frame frame, int afterMs) {
-        BringToFrontThread thr = new BringToFrontThread(frame, afterMs);
+    public static void bringToFront(Window w, int afterMs) {
+        BringToFrontThread thr = new BringToFrontThread(w, afterMs);
         thr.start();
     }
 }

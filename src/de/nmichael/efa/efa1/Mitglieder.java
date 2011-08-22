@@ -71,104 +71,6 @@ public class Mitglieder extends DatenListe {
       if ( s == null || !s.trim().startsWith(kennung) ) {
 
 
-        // KONVERTIEREN: 060 -> 090
-        if (s != null && s.trim().startsWith(KENNUNG060)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"060");
-          iniList(this.dat,7,1,false); // Rahmenbedingungen von v0.90 schaffen
-          // Datei lesen
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              DatenFelder d = constructFields(s);
-
-              // following lines do not need to be internationalized, since they just concern converting files from very old versions!
-              s = d.get(0)+"|"+d.get(1)+"||"+d.get(2)+"|"+d.get(3)+"|"; // an Pos 2 "Alias" einfügen
-              if (d.get(5).equals("Gast")) s = s+"Gast"+"|";            // status2==Gast nach status übernehmen
-              else if (d.get(5).equals("andere")) s = s+"andere"+"|";   // status2==andere nach status übernehmen
-              else s = s+d.get(4)+"|";                                  // status1 nach status übernehmen
-              s = s+d.get(6);                                           // Vereinsnamen anhängen
-              add(s);
-            }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG090;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
-
-        // KONVERTIEREN: 090 -> 110
-        if (s != null && s.trim().startsWith(KENNUNG090)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"090");
-          iniList(this.dat,8,1,false); // Rahmenbedingungen von v1.1.0 schaffen
-          // Datei lesen
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              add(constructFields(s+"|"));
-            }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG110;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
-        // KONVERTIEREN: 110 -> 170
-        if (s != null && s.trim().startsWith(KENNUNG110)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"110");
-          iniList(this.dat,13,1,false); // Rahmenbedingungen von v1.7.0 schaffen
-          // Datei lesen
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              add(constructFields(s+"||||||"));
-            }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG170;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
-
-        // KONVERTIEREN: 170 -> 173
-        if (s != null && s.trim().startsWith(KENNUNG170)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"170");
-          iniList(this.dat,14,1,false); // Rahmenbedingungen von v1.7.3 schaffen
-          // Datei lesen
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              add(constructFields(s+"|+"));
-            }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG173;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
         // KONVERTIEREN: 173 -> 190
         if (s != null && s.trim().startsWith(KENNUNG173)) {
           if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"173");
@@ -196,7 +98,7 @@ public class Mitglieder extends DatenListe {
              return false;
           }
           kennung = KENNUNG190;
-          if (closeFile() && writeFile(true) && openFile()) {
+          if (closeFile()) {
             infSuccessfullyConverted(dat,kennung);
             s = kennung;
           } else errConvertingFile(dat,kennung);
@@ -204,7 +106,7 @@ public class Mitglieder extends DatenListe {
 
 
         // FERTIG MIT KONVERTIEREN
-        if (s == null || !s.trim().startsWith(kennung)) {
+        if (s == null || !s.trim().startsWith(KENNUNG190)) {
           errInvalidFormat(dat, EfaUtil.trimto(s, 20));
           fclose(false);
           return false;

@@ -171,10 +171,10 @@ public class ImportLogbook extends ImportBase {
                     String fahrtArt = d.get(Fahrtenbuch.FAHRTART).trim();
                     String mtourName = null;
                     Mehrtagesfahrt mtour = null;
-                    if (fahrtArt.startsWith(EfaTypes.TYPE_SESSION_MULTIDAY+":")) {
+                    if (fahrtArt.startsWith(EfaTypes.TYPE_SESSION_TOUR+":")) {
                         mtourName = Fahrtenbuch.getMehrtagesfahrtName(fahrtArt);
                         mtour = (mtourName != null && mtourName.length() > 0 ? fahrtenbuch.getMehrtagesfahrt(mtourName) : null);
-                        fahrtArt = EfaTypes.TYPE_SESSION_MULTIDAY;
+                        fahrtArt = EfaTypes.TYPE_SESSION_TOUR;
                     }
                     if (Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, fahrtArt)) {
                         r.setSessionType(fahrtArt);
@@ -191,10 +191,10 @@ public class ImportLogbook extends ImportBase {
                             // set/update SessionGroup
                             UUID id = sessionGroupMapping.get(mtourName);
                             if (id == null) {
-                                SessionGroupRecord sg = sessionGroups.createSessionGroupRecord(UUID.randomUUID());
+                                SessionGroupRecord sg = sessionGroups.createSessionGroupRecord(UUID.randomUUID(), meta.name);
                                 id = sg.getId();
                                 sg.setName(mtourName);
-                                sg.setSessionType(EfaTypes.TYPE_SESSION_MULTIDAY);
+                                sg.setSessionType(EfaTypes.TYPE_SESSION_TOUR);
                                 if (mtour.start != null && mtour.start.length() > 0) {
                                     sg.setStartDate(DataTypeDate.parseDate(mtour.start));
                                 }
@@ -217,6 +217,7 @@ public class ImportLogbook extends ImportBase {
                                     sessionGroupMapping.put(mtourName, id);
                                 } catch(Exception e) {
                                     logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", sg.toString(), e.toString()));
+                                    Logger.logdebug(e);
                                 }
                             }
                             r.setSessionGroupId(id);
@@ -233,6 +234,7 @@ public class ImportLogbook extends ImportBase {
                     logDetail(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                 } catch(Exception e) {
                     logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
+                    Logger.logdebug(e);
                 }
                 d = fahrtenbuch.getCompleteNext();
             }
@@ -240,7 +242,7 @@ public class ImportLogbook extends ImportBase {
         } catch(Exception e) {
             logError(International.getMessage("Import von {list} aus {file} ist fehlgeschlagen.", getDescription(), efa1fname));
             logError(e.toString());
-            e.printStackTrace();
+            Logger.logdebug(e);
             return false;
         } finally {
             Daten.fahrtenbuch = origFahrtenbuch;

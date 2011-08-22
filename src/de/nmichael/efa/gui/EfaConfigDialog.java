@@ -27,8 +27,9 @@ public class EfaConfigDialog extends BaseDialog {
 
     private JTabbedPane tabbedPane;
     private JCheckBox expertMode;
+    private String _selectedPanel; // selected panel specified in constructor
 
-    private EfaConfig myEfaConfig;
+    //private EfaConfig myEfaConfig;
     private Hashtable<String,Hashtable> categories;
     private Hashtable<String,Vector<IItemType>> items;
     private Vector<IItemType> configItems;
@@ -42,20 +43,25 @@ public class EfaConfigDialog extends BaseDialog {
         super(parent, International.getString("Konfiguration"), International.getStringWithMnemonic("Speichern"));
     }
 
+    public EfaConfigDialog(JDialog parent, String selectedPanel) {
+        super(parent, International.getString("Konfiguration"), International.getStringWithMnemonic("Speichern"));
+        this._selectedPanel = selectedPanel;
+    }
+
     public void keyAction(ActionEvent evt) {
         _keyAction(evt);
     }
     
     protected void iniDialog() throws Exception {
-        myEfaConfig = new EfaConfig(Daten.efaConfig);
+        //myEfaConfig = new EfaConfig(Daten.efaConfig);
         categories = new Hashtable<String,Hashtable>();                // category          -> sub-categories
         items = new Hashtable<String,Vector<IItemType>>(); // categoryhierarchy -> config items
 
         // build category hierarchy
-        String[] names = myEfaConfig.getParameterNames();
+        String[] names = Daten.efaConfig.getParameterNames();
         for (int i=0; i<names.length; i++) {
-            IItemType cfg = myEfaConfig.getParameter(names[i]);
-            String[] cats = myEfaConfig.getCategoryKeyArray(cfg.getCategory());
+            IItemType cfg = Daten.efaConfig.getExternalGuiItem(names[i]);
+            String[] cats = Daten.efaConfig.getCategoryKeyArray(cfg.getCategory());
             Hashtable<String,Hashtable> h = categories;
             for (int j=0; j<cats.length; j++) {
                 Hashtable hnext = h.get(cats[j]);
@@ -69,7 +75,8 @@ public class EfaConfigDialog extends BaseDialog {
 
         // build config items per category
         for (int i=0; i<names.length; i++) {
-            IItemType cfg = myEfaConfig.getParameter(names[i]);
+            IItemType cfg = Daten.efaConfig.getExternalGuiItem(names[i]);
+            cfg.setUnchanged();
             String cat = cfg.getCategory();
             String[] cats = EfaConfig.getCategoryKeyArray(cat);
             Hashtable<String,Hashtable> h = categories;
@@ -150,7 +157,7 @@ public class EfaConfigDialog extends BaseDialog {
         for (int i=0; i<cats.length; i++) {
             String key = (String)cats[i];
             String thisCatKey = (catKey.length() == 0 ? key : EfaConfig.makeCategory(catKey, key));
-            String catName = myEfaConfig.getCategoryName(key);
+            String catName = Daten.efaConfig.getCategoryName(key);
             Hashtable<String,Hashtable> subCat = categories.get(key);
             if (subCat.size() != 0) {
                 JTabbedPane subTabbedPane = new JTabbedPane();
@@ -206,6 +213,11 @@ public class EfaConfigDialog extends BaseDialog {
     }
 
     private String getSelectedPanel(JTabbedPane pane) {
+        if (_selectedPanel != null) {
+            String s = _selectedPanel;
+            _selectedPanel = null;
+            return s;
+        }
         if (pane == null) {
             return null;
         }
@@ -227,16 +239,60 @@ public class EfaConfigDialog extends BaseDialog {
 
     public void closeButton_actionPerformed(ActionEvent e) {
         getValuesFromGui();
-        Daten.efaConfig.checkNewConfigValues(myEfaConfig);
-        Daten.efaConfig = myEfaConfig;
-        Daten.efaConfig.writeFile();
+        for (int i=0; i<configItems.size(); i++) {
+            IItemType item = configItems.get(i);
+            if (item.isChanged()) {
+                Daten.efaConfig.setValue(item.getName(), item.toString());
+            }
+        }
+        Daten.efaConfig.checkNewConfigValues();
+        Daten.efaConfig.updateConfigValuesWithPersistence();
         Daten.efaConfig.setExternalParameters(true);
         Daten.efaConfig.checkForRequiredPlugins();
         super.closeButton_actionPerformed(e);
+        setDialogResult(true);
     }
 
-    public EfaConfig getWorkingConfig() {
-        return myEfaConfig;
+    public IItemType getItem(String name) {
+        for (int i=0; i<configItems.size(); i++) {
+            if (configItems.get(i).getName().equals(name)) {
+                return configItems.get(i);
+            }
+        }
+        return null;
+    }
+
+    /*
+     * The following methods will return the current working items (needed by ItemTypeAction to
+     * generate new types), by first fetching the name of the item from the real EfaConfig, and
+     * then find the current working item by this name.
+     */
+    public ItemTypeHashtable<String> getTypesBoat() {
+        return (ItemTypeHashtable<String>)getItem(Daten.efaConfig.getValueTypesBoat().getName());
+    }
+
+    public ItemTypeHashtable<String> getTypesNumSeats() {
+        return (ItemTypeHashtable<String>)getItem(Daten.efaConfig.getValueTypesNumSeats().getName());
+    }
+
+    public ItemTypeHashtable<String> getTypesRigging() {
+        return (ItemTypeHashtable<String>)getItem(Daten.efaConfig.getValueTypesRigging().getName());
+    }
+
+    public ItemTypeHashtable<String> getTypesCoxing() {
+        return (ItemTypeHashtable<String>)getItem(Daten.efaConfig.getValueTypesCoxing().getName());
+    }
+
+    public ItemTypeHashtable<String> getTypesGender() {
+        return (ItemTypeHashtable<String>)getItem(Daten.efaConfig.getValueTypesGender().getName());
+    }
+
+    public ItemTypeHashtable<String> getTypesSession() {
+        return (ItemTypeHashtable<String>)getItem(Daten.efaConfig.getValueTypesSession().getName());
+    }
+
+    public ItemTypeHashtable<String> getTypesStatus() {
+        return (ItemTypeHashtable<String>)getItem(Daten.efaConfig.getValueTypesStatus().getName());
     }
 
 }

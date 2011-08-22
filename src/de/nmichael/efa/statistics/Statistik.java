@@ -239,7 +239,7 @@ public class Statistik {
         for (int i=j=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_GENDER); i++) {
           if (sd.geschlecht[i]) {
             if (j++>0) ad.auswertungFuer[0] += ", ";
-            ad.auswertungFuer[0] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER,i);
+            // @todo (P5) statistics ad.auswertungFuer[0] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER,i);
           }
         }
       } else {
@@ -264,7 +264,7 @@ public class Statistik {
         for (int i=j=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION); i++) {
           if (sd.fahrtart[i]) {
             if (j++>0) ad.auswertungFuer[2] += ", ";
-            ad.auswertungFuer[2] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION,i);
+            // @todo (P5) statistics ad.auswertungFuer[2] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION,i);
           }
         }
       } else ad.auswertungFuer[2] += International.getString("alle Arten von Fahrten");
@@ -278,7 +278,7 @@ public class Statistik {
         for (int i=j=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT); i++) {
           if (sd.bArt[i]) {
             if (j++>0) ad.auswertungFuer[0] += ", ";
-            ad.auswertungFuer[0] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,i);
+            // @todo (P5) statistics ad.auswertungFuer[0] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,i);
           }
         }
       } else ad.auswertungFuer[0] += International.getString("alle Bootsarten");
@@ -289,7 +289,7 @@ public class Statistik {
         for (int i=j=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMSEATS); i++) {
           if (sd.bAnzahl[i]) {
             if (j++>0) ad.auswertungFuer[1] += ", ";
-            ad.auswertungFuer[1] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,i);
+            // @todo (P5) statistics ad.auswertungFuer[1] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,i);
           }
         }
       } else ad.auswertungFuer[1] += International.getString("alle Bootsgrößen");
@@ -300,7 +300,7 @@ public class Statistik {
         for (int i=j=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_RIGGING); i++) {
           if (sd.bRigger[i]) {
             if (j++>0) ad.auswertungFuer[2] += ", ";
-            ad.auswertungFuer[2] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING,i);
+            // @todo (P5) statistics ad.auswertungFuer[2] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING,i);
           }
         }
       } else ad.auswertungFuer[2] += International.getString("alle Riggertypen");
@@ -311,7 +311,7 @@ public class Statistik {
         for (int i=j=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_COXING); i++) {
           if (sd.bStm[i]) {
             if (j++>0) ad.auswertungFuer[3] += ", ";
-            ad.auswertungFuer[3] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING,i);
+            // @todo (P5) statistics ad.auswertungFuer[3] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING,i);
           }
         }
       } else ad.auswertungFuer[3] += Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, EfaTypes.TYPE_COXING_COXED) + ", " +
@@ -2820,8 +2820,8 @@ public class Statistik {
   static boolean ignorePerson(StatistikDaten sd, DatenFelder pers, String name, boolean mitruderer) {
     if (sd.art != StatistikDaten.BART_RUDERER) {
       for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_GENDER); i++) {
-        if (!sd.geschlecht[i] && (pers == null || 
-                pers.get(Mitglieder.GESCHLECHT).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_GENDER, i)))) return true;
+        // @todo (P5) statistics if (!sd.geschlecht[i] && (pers == null ||
+                // @todo (P5) statistics pers.get(Mitglieder.GESCHLECHT).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_GENDER, i)))) return true;
       }
 
       // folgender Code dient als Ersatz für die unten ausgeklammerten drei Zeilen!
@@ -2877,14 +2877,14 @@ public class Statistik {
       if (!sd.bVerein[sd.bVerein.length-1]) return true;
       return false;
     }
-    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT); i++)
-      if (!sd.bArt[i] && (boot.get(Boote.ART).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_BOAT,i)))) return true;
-    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMSEATS); i++)
-      if (!sd.bAnzahl[i] && (boot.get(Boote.ANZAHL).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_NUMSEATS,i)))) return true;
-    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_COXING); i++)
-      if (!sd.bStm[i] && (boot.get(Boote.STM).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_COXING,i)))) return true;
-    for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_RIGGING); i++)
-      if (!sd.bRigger[i] && (boot.get(Boote.RIGGER).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_RIGGING,i)))) return true;
+    // @todo (P5) statistics for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT); i++)
+      // @todo (P5) statistics if (!sd.bArt[i] && (boot.get(Boote.ART).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_BOAT,i)))) return true;
+    // @todo (P5) statistics for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMSEATS); i++)
+      // @todo (P5) statistics if (!sd.bAnzahl[i] && (boot.get(Boote.ANZAHL).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_NUMSEATS,i)))) return true;
+    // @todo (P5) statistics for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_COXING); i++)
+      // @todo (P5) statistics if (!sd.bStm[i] && (boot.get(Boote.STM).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_COXING,i)))) return true;
+    // @todo (P5) statistics for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_RIGGING); i++)
+      // @todo (P5) statistics if (!sd.bRigger[i] && (boot.get(Boote.RIGGER).equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_RIGGING,i)))) return true;
     if (!sd.bVerein[0] && (boot.get(Boote.VEREIN).equals(""))) return true;
     if (!sd.bVerein[1] && (!boot.get(Boote.VEREIN).equals(""))) return true;
     return false;
@@ -2981,22 +2981,22 @@ public class Statistik {
         break;
       case StatistikDaten.BART_ART: case StatistikDaten.ART_BOOTSART:
         for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_BOAT); i++)
-          if (!h.containsKey(Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,i))) h.put(Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,i),new HashEl("",Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,i),"",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+          // @todo (P5) statistics if (!h.containsKey(Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,i))) h.put(Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,i),new HashEl("",Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT,i),"",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.ART_FAHRTART:
         for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION); i++)
-          if (!h.containsKey(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION,i))) h.put(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION,i),new HashEl("",Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION,i),"",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+          // @todo (P5) statistics if (!h.containsKey(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION,i))) h.put(Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION,i),new HashEl("",Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION,i),"",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.ART_JAHRGANG:
         // nichts zu tun
         break;
       case StatistikDaten.BART_PLAETZE:
         for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_NUMSEATS); i++)
-          if (!h.containsKey(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,i))) h.put(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,i),new HashEl(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,i),"","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+          // @todo (P5) statistics if (!h.containsKey(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,i))) h.put(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,i),new HashEl(Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS,i),"","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.ART_GESCHLECHT:
         for (int i=0; i<Daten.efaTypes.size(EfaTypes.CATEGORY_GENDER); i++)
-          if (!h.containsKey(Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER,i))) h.put(Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER,i),new HashEl("","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
+          // @todo (P5) statistics if (!h.containsKey(Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER,i))) h.put(Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER,i),new HashEl("","","",0,0,0,0,0,new ZielfahrtFolge(),null,null,null));
         break;
       case StatistikDaten.ART_FAHRTENBUCH: case StatistikDaten.BART_FAHRTENBUCH:
         // nichts zu tun
@@ -3125,11 +3125,11 @@ public class Statistik {
     }
 
     for (int i=1; i<Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION)-1; i++)
-      if (mtour.equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION,i))) {
-        mtourfound = true;
-        if (!sd.fahrtart[i]) return; // Fahrtart[1..length-1] == false
-        break;
-      }
+      // @todo (P5) statistics if (mtour.equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION,i))) {
+      // @todo (P5) statistics   mtourfound = true;
+      // @todo (P5) statistics   if (!sd.fahrtart[i]) return; // Fahrtart[1..length-1] == false
+      // @todo (P5) statistics   break;
+      // @todo (P5) statistics }
     if (!mtourfound && !sd.fahrtart[Daten.efaTypes.size(EfaTypes.CATEGORY_SESSION)-1]) return; // Wanderfahrt == false
 
     // Infos zu Mehrtagesfahrt holen
@@ -3630,7 +3630,7 @@ public class Statistik {
       case StatistikDaten.ART_FAHRTART:
         if (mtour.equals("")) mtour = EfaTypes.TYPE_SESSION_NORMAL;
         name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, mtour);
-        if (!mtourfound) name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_MULTIDAY);
+        if (!mtourfound) name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_TOUR);
         if ( (ges = (HashEl)h.get(name)) == null) h.put(name,new HashEl("","","",rudKm,stmKm,mannschKm,dauer,eins*anzRuderTage,new ZielfahrtFolge(zf),null,null,null));
         else h.put(name,new HashEl("","","",rudKm + ges.rudKm, stmKm + ges.stmKm, ges.mannschKm + mannschKm, ges.dauer + dauer,eins*anzRuderTage + ges.anz, ges.zf.addZielfahrten(zf),null,null,null));
         break;
@@ -3754,7 +3754,7 @@ public class Statistik {
         break;
       case StatistikDaten.ART_WERMITFAHRTART:
         String fahrtart = mtour;
-        if (!mtourfound) name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_MULTIDAY);
+        if (!mtourfound) name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_TOUR);
         if (name.equals("")) name = Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_NORMAL);
 
         if ( (ges = (HashEl)h.get(name)) == null) { // schauen, ob für akt. Person bereits Eintrag vorhanden
@@ -4648,7 +4648,7 @@ public class Statistik {
         progressCurrent = progressLength; // Damit ProgressBar den Überschreiben-Dialog nicht verdeckt, sondern kurz verschwindet, da max>cur
         if (sd[i].statistikFrame != null) {
           sd[i].statistikFrame.setEnabled(true);
-          if (!sd[i].statistikFrame.allowedWriteFile(sd[i])) continue;
+          // @todo (P5) statistics if (!sd[i].statistikFrame.allowedWriteFile(sd[i])) continue;
           progressCurrent = 1;
         }
       }
@@ -4748,9 +4748,9 @@ public class Statistik {
       // bei Wettbewerben Motorboote und Ergos ignorieren
       if (sd[i].stat == StatistikDaten.STAT_WETT) {
         for (int fi = 0; fi < sd[i].fahrtart.length; fi++) {
-          if (EfaTypes.TYPE_SESSION_MOTORBOAT.equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, fi)) ||
-              EfaTypes.TYPE_SESSION_ERG.equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, fi)))
-            sd[i].fahrtart[fi] = false;
+          // @todo (P5) statistics if (EfaTypes.TYPE_SESSION_MOTORBOAT.equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, fi)) ||
+          // @todo (P5) statistics     EfaTypes.TYPE_SESSION_ERG.equals(Daten.efaTypes.getType(EfaTypes.CATEGORY_SESSION, fi)))
+          // @todo (P5) statistics   sd[i].fahrtart[fi] = false;
         }
       }
 
@@ -5017,7 +5017,7 @@ public class Statistik {
 
     // EFAWETT
     if (sd.ausgabeArtPrimaer == StatistikDaten.AUSGABE_EFAWETT)
-      if (!sd.abbruchEfaWett) Dialog.statistikFrame.efaWettVervollständigen(efaWett);
+      // @todo (P5) statistics if (!sd.abbruchEfaWett) Dialog.statistikFrame.efaWettVervollständigen(efaWett);
 
     // XML
     if (sd.ausgabeArtPrimaer == StatistikDaten.AUSGABE_XML)
@@ -5660,15 +5660,15 @@ public class Statistik {
     if (!new File(sd.ausgabeDatei).isFile()) {
         Dialog.error(LogString.logstring_fileNotFound(sd.ausgabeDatei, International.getString("Ausgabedatei")));
     } else {
-      if (!new File(Daten.efaConfig.browser.getValue()).isFile()) {
-          Dialog.error(LogString.logstring_cantExecCommand(Daten.efaConfig.browser.getValue(), International.getString("für Browser"), ""));
+      if (!new File(Daten.efaConfig.getValueBrowser()).isFile()) {
+          Dialog.error(LogString.logstring_cantExecCommand(Daten.efaConfig.getValueBrowser(), International.getString("für Browser"), ""));
       } else try {
         String[] cmd = new String[2];
-        cmd[0] = Daten.efaConfig.browser.getValue();
+        cmd[0] = Daten.efaConfig.getValueBrowser();
         cmd[1] = sd.ausgabeDatei;
         Runtime.getRuntime().exec(cmd);
       } catch(Exception ee) {
-          Dialog.error(LogString.logstring_cantExecCommand(Daten.efaConfig.browser.getValue(), International.getString("für Browser"), ee.toString()));
+          Dialog.error(LogString.logstring_cantExecCommand(Daten.efaConfig.getValueBrowser(), International.getString("für Browser"), ee.toString()));
       }
     }
   }
@@ -5683,11 +5683,11 @@ public class Statistik {
       PDFWriter pdf = new PDFWriter(sd,ad);
       String s;
       if (sd.fileExecBefore != null && sd.fileExecBefore.length() > 0) execCmd(sd.fileExecBefore);
-      if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(false,
-              International.getString("FOP erstellt die PDF Datei ..."),false);
+      // @todo (P5) statistics if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(false,
+              // @todo (P5) statistics International.getString("FOP erstellt die PDF Datei ..."),false);
       s = pdf.run();
       if (s != null) {
-        if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(true,null,false);
+        // @todo (P5) statistics if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(true,null,false);
         for (int i=0, c=0; i<s.length(); i++, c++) {
           if ( (c>70 && s.charAt(i)==' ') || c>100) {
             s = s.substring(0,i)+"\n"+s.substring(i+1,s.length());
@@ -5697,23 +5697,23 @@ public class Statistik {
         Dialog.error(LogString.logstring_fileCreationFailed(sd.ausgabeDatei, International.getString("Ausgabedatei")));
         return false;
       } else {
-        if (Daten.efaConfig.acrobat.getValue().length()>0 && sd.statistikFrame != null) {
-          if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(true,null,false);
+        if (Daten.efaConfig.getValueAcrobat().length()>0 && sd.statistikFrame != null) {
+          // @todo (P5) statistics if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(true,null,false);
           try {
             String[] cmd = new String[2];
-            cmd[0] = Daten.efaConfig.acrobat.getValue();
+            cmd[0] = Daten.efaConfig.getValueAcrobat();
             cmd[1] = sd.ausgabeDatei;
             if (sd.statistikFrame != null) {
-                sd.statistikFrame.enableFrame(false,International.getString("Starte Acrobat ..."),false);
+                // @todo (P5) statistics sd.statistikFrame.enableFrame(false,International.getString("Starte Acrobat ..."),false);
             }
             Runtime.getRuntime().exec(cmd);
           } catch(Exception ee) {
-            Dialog.error(LogString.logstring_cantExecCommand(Daten.efaConfig.acrobat.getValue(), International.getString("für Acrobat Reader"), ee.toString()));
+            Dialog.error(LogString.logstring_cantExecCommand(Daten.efaConfig.getValueAcrobat(), International.getString("für Acrobat Reader"), ee.toString()));
           }
         }
-        if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(true,
-                International.getString("PDF-Datei erfolgreich erstellt") +
-                " (" + International.getMessage("{n} Seiten",pdf.getPageCount()) + ")!",false);
+        // @todo (P5) statistics if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(true,
+        // @todo (P5) statistics         International.getString("PDF-Datei erfolgreich erstellt") +
+        // @todo (P5) statistics         " (" + International.getMessage("{n} Seiten",pdf.getPageCount()) + ")!",false);
       }
     } catch (NoClassDefFoundError e) {
       // Plugin-Dialoge
@@ -6064,12 +6064,12 @@ public class Statistik {
   static boolean schreibeFTP(StatistikDaten sd) {
     try {
       FTPWriter ftp = new FTPWriter(sd);
-      if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(false,
-              International.getMessage("FTP-Upload der Datei {filename} ...",sd.ftpFilename),false);
+      // @todo (P5) statistics if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(false,
+      // @todo (P5) statistics         International.getMessage("FTP-Upload der Datei {filename} ...",sd.ftpFilename),false);
       String s;
       s = ftp.run();
       if (s != null) {
-        if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(true,null,false);
+        // @todo (P5) statistics if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(true,null,false);
         for (int i=0, c=0; i<s.length(); i++, c++) {
           if ( (c>70 && s.charAt(i)==' ') || c>100) {
             s = s.substring(0,i)+"\n"+s.substring(i+1,s.length());
@@ -6079,7 +6079,7 @@ public class Statistik {
         Dialog.error(International.getString("Der FTP-Upload ist fehlgeschlagen.")+"\n"+s);
         return false;
       } else {
-        if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(true,null,false);
+        // @todo (P5) statistics if (sd.statistikFrame != null) sd.statistikFrame.enableFrame(true,null,false);
       }
     } catch (NoClassDefFoundError e) {
       // Plugin-Dialoge

@@ -11,12 +11,12 @@
 package de.nmichael.efa.gui;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
 
 // @i18n complete
 public abstract class BaseFrame extends JFrame implements ActionListener {
@@ -24,6 +24,7 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
     protected Window _parent;
     protected String _title;
     protected boolean _prepared = false;
+    protected boolean _inCancel = false;
 
     private ActionHandler ah;
     protected String KEYACTION_ESCAPE;
@@ -33,6 +34,7 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
     protected JPanel mainPanel = new JPanel();
     protected JButton closeButton;
     protected String helpTopic;
+    protected IItemType focusItem;
     protected boolean resultSuccess = false;
 
     public BaseFrame(Window parent, String title) {
@@ -41,6 +43,9 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
     }
 
     public boolean prepareDialog() {
+        if (_prepared) {
+            return false;
+        }
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             iniDialogCommon(_title);
@@ -54,22 +59,28 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
             return false;
         }
     }
+
+    public void showMe() {
+        showFrame();
+    }
     
     public void showFrame() {
         if (!_prepared && !prepareDialog()) {
             return;
         }
-        //Center the window
-        Dimension frameSize = this.getSize();
-        if (frameSize.height > Dialog.screenSize.height) {
-            frameSize.height = Dialog.screenSize.height;
-        }
-        if (frameSize.width > Dialog.screenSize.width) {
-            frameSize.width = Dialog.screenSize.width;
-        }
         Dialog.setDlgLocation(this);
         Dialog.frameOpened(this);
+        if (focusItem != null) {
+            focusItem.requestFocus();
+        }
         this.setVisible(true);
+    }
+
+    public void setRequestFocus(IItemType item) {
+        if (item != null && isShowing()) {
+            item.requestFocus();
+        }
+        focusItem = item;
     }
 
     public JDialog getParentJDialog() {
@@ -166,6 +177,7 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
             if (cancel()) {
                 super.processWindowEvent(e);
+                return;
             } else {
                 return;
             }
@@ -174,6 +186,7 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
     }
 
     public boolean cancel() {
+        _inCancel = true;
         Dialog.frameClosed(this);
         dispose();
         return true;
@@ -200,8 +213,18 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
 
     public static ImageIcon getIcon(String name) {
         try {
-            return new ImageIcon(BaseFrame.class.getResource(Daten.IMAGEPATH + name));
+            if (name.indexOf("/") < 0) {
+                name = Daten.IMAGEPATH + name;
+            }
+            if (Logger.isTraceOn(Logger.TT_GUI)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_ICONS, "getIcon("+name+")");
+            }
+            return new ImageIcon(BaseFrame.class.getResource(name));
         } catch(Exception e) {
+            if (Logger.isTraceOn(Logger.TT_GUI)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_ICONS, "getIcon("+name+"): no icon found!");
+            }
+            Logger.logdebug(e);
             return null;
         }
     }

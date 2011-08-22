@@ -12,6 +12,7 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.ex.EfaModifyException;
 import java.util.*;
 
 // @i18n complete
@@ -22,7 +23,9 @@ public class Destinations extends Persistence {
     public DestinationRecord staticDestinationRecord;
 
     public Destinations(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Ziele"));
+        super(storageType, storageLocation, storageObjectName, DATATYPE, 
+                International.getString("Ziele") + " / " +
+                International.getString("Strecken"));
         DestinationRecord.initialize();
         staticDestinationRecord = (DestinationRecord)createNewRecord();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
@@ -86,6 +89,31 @@ public class Destinations extends Persistence {
         } catch(Exception e) {
             Logger.logdebug(e);
             return null;
+        }
+    }
+
+    public boolean isDestinationDeleted(UUID destinationId) {
+        try {
+            DataRecord[] records = data().getValidAny(DestinationRecord.getKey(destinationId, -1));
+            if (records != null && records.length > 0) {
+                return records[0].getDeleted();
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return false;
+    }
+
+    public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
+        if (add || update) {
+            assertFieldNotEmpty(record, DestinationRecord.NAME);
+        }
+        if (delete) {
+            assertNotReferenced(record, getProject().getBoats(false), new String[] { BoatRecord.DEFAULTDESTINATIONID });
+            String[] logbooks = getProject().getAllLogbookNames();
+            for (int i=0; logbooks != null && i<logbooks.length; i++) {
+                assertNotReferenced(record, getProject().getLogbook(logbooks[i], false), new String[] { LogbookRecord.DESTINATIONID } );
+            }
         }
     }
 

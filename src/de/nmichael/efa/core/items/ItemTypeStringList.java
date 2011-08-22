@@ -37,6 +37,10 @@ public class ItemTypeStringList extends ItemTypeLabelValue {
         this.description = description;
     }
 
+    public IItemType copyOf() {
+        return new ItemTypeStringList(name, value, (valueList != null ? valueList.clone() : null), (displayList != null ? displayList.clone() : null), type, category, description);
+    }
+
     protected JComponent initializeField() {
         JComboBox f = new JComboBox();
         for (int i=0; displayList != null && i<displayList.length; i++) {
@@ -45,6 +49,8 @@ public class ItemTypeStringList extends ItemTypeLabelValue {
         f.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(ItemEvent e) { actionEvent(e); }
         });
+        f.setVisible(isVisible);
+        f.setEnabled(isEnabled);
         showValue();
         return f;
     }
@@ -57,7 +63,7 @@ public class ItemTypeStringList extends ItemTypeLabelValue {
                 return valueList[idx];
             }
         }
-        return null;
+        return toString(); // otherwise a hidden field in expert mode might return null
     }
 
     public void showValue() {

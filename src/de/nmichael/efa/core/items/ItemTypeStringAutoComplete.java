@@ -11,9 +11,9 @@
 package de.nmichael.efa.core.items;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.gui.SimpleInputDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.gui.util.AutoCompletePopupWindow;
 import java.util.*;
@@ -36,12 +36,15 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
     protected JButton button;
     protected Color originalButtonColor;
     protected AutoCompleteList autoCompleteList;
+    protected Object rememberedId;
     protected boolean withPopup = true;
     protected boolean valueIsKnown = false;
     protected boolean isCheckSpelling = false;
     protected boolean isCheckPermutations = false;
+    protected boolean isVisibleSticky = true;
     protected char ignoreEverythingAfter = 0x0;
     protected String alternateFieldNameForPlainText = null;
+    protected boolean alwaysReturnPlainText = false;
 
     public ItemTypeStringAutoComplete(String name, String value, int type,
             String category, String description, boolean showButton) {
@@ -87,10 +90,24 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
     }
 
     public void setVisible(boolean visible) {
+        if (visible == true && isVisibleSticky() == false) {
+            return;
+        }
         super.setVisible(visible);
         if (button != null) {
             button.setVisible(visible);
         };
+    }
+
+    // used to hide input fields in EfaBoathouseFrame that remain invisible, even if the
+    // setCrewRangeSelection(i) would want to make them visible again
+    public void setVisibleSticky(boolean visible) {
+        isVisibleSticky = visible;
+        setVisible(visible);
+    }
+
+    public boolean isVisibleSticky() {
+        return isVisibleSticky;
     }
 
     public void setEnabled(boolean enabled) {
@@ -116,11 +133,28 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
     }
 
 
+    // the following methods are for bypassing autoCompleteList and misusing
+    // ItemTypeStringAutoComplete as an item to store an id for the text it is
+    // displaying, without using any auto complete functionality
+    public void setRememberedId(Object id) {
+        rememberedId = id;
+    }
+
+    public Object getRememberedId() {
+        return rememberedId;
+    }
+
+
+
     protected void field_focusLost(FocusEvent e) {
-        if (Daten.efaConfig.popupComplete.getValue()) {
+        if (e != null && e.isTemporary()) {
+            // avoid that the popup window disappears when showing on a JDialog: with JDialog, we receive temporary focusLost events all the time...
+            return;
+        }
+        if (Daten.efaConfig.getValuePopupComplete()) {
             AutoCompletePopupWindow.hideWindow();
         }
-        if (isCheckSpelling && Daten.efaConfig.correctMisspelledBoote.getValue()) {
+        if (isCheckSpelling && Daten.efaConfig.getValueCorrectMisspelledBoote()) {
             checkSpelling();
         }
         super.field_focusLost(e);
@@ -197,7 +231,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             }
 
             if (e != null && e.getKeyCode() == KeyEvent.VK_DOWN) {
-                if (withPopup && Daten.efaConfig.popupComplete.getValue() && AutoCompletePopupWindow.isShowingAt(field)) {
+                if (withPopup && Daten.efaConfig.getValuePopupComplete() && AutoCompletePopupWindow.isShowingAt(field)) {
                     complete = list.getNext();
                 } else {
                     complete = list.getNext(prefix);
@@ -221,13 +255,13 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
                 complete = list.getExact(complete);
             }
             if (complete != null) {
-                if (e != null) { // nur bei wirklichen Eingaben
+                if (e != null && mode != Mode.none) { // nur bei wirklichen Eingaben
                     field.setText(complete);
                     field.select(prefix.length(), complete.length());
                 }
                 matching = true;
             }
-            if (withPopup && Daten.efaConfig.popupComplete.getValue() && e != null && mode != Mode.none) {
+            if (withPopup && Daten.efaConfig.getValuePopupComplete() && e != null && mode != Mode.none) {
                 AutoCompletePopupWindow.showAndSelect(field, list, (complete != null ? complete : ""), null);
             }
         }
@@ -239,7 +273,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
                 prefix = field.getText().toLowerCase();
             }
 
-            if (withPopup && Daten.efaConfig.popupComplete.getValue() && AutoCompletePopupWindow.isShowingAt(field)) {
+            if (withPopup && Daten.efaConfig.getValuePopupComplete() && AutoCompletePopupWindow.isShowingAt(field)) {
                 complete = list.getPrev();
             } else {
                 complete = list.getPrev(prefix);
@@ -253,7 +287,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
                 field.select(prefix.length(), complete.length());
                 matching = true;
             }
-            if (withPopup && Daten.efaConfig.popupComplete.getValue()) {
+            if (withPopup && Daten.efaConfig.getValuePopupComplete()) {
                 AutoCompletePopupWindow.showAndSelect(field, list, (complete != null ? complete : ""), null);
             }
         }
@@ -296,13 +330,13 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         if (mode == Mode.enter) {
             field.select(-1, -1);
             field.setCaretPosition(field.getText().length());
-            if (withPopup && Daten.efaConfig.popupComplete.getValue()) {
+            if (withPopup && Daten.efaConfig.getValuePopupComplete()) {
                 AutoCompletePopupWindow.hideWindow();
             }
         }
 
         if (mode == Mode.escape) {
-            if (withPopup && Daten.efaConfig.popupComplete.getValue()) {
+            if (withPopup && Daten.efaConfig.getValuePopupComplete()) {
                 AutoCompletePopupWindow.hideWindow();
             }
         }
@@ -332,15 +366,18 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         if (list.getExact(name.toLowerCase()) == null) {
             neighbours = list.getNeighbours(name, 3, (isCheckPermutations ? 6 : 0));
         }
-        if (neighbours != null) {
+        if (neighbours != null && neighbours.size() > 0) {
+            ItemTypeList item = new ItemTypeList("NAME", IItemType.TYPE_PUBLIC, "", International.getMessage("Der Name '{name}' ist unbekannt.", name) + "\n" +
+                   International.getString("Meintest Du ...?"));
             for (int i=0; i<neighbours.size(); i++) {
-                // @todo (P3) provide a better dialog to select recommended replacements
-                String suggestedName = neighbours.get(i);
-                if (Dialog.yesNoDialog(International.getString("Tippfehler?"),
-                        International.getMessage("Der Name '{name}' ist unbekannt.", name) + "\n"
-                        + International.getMessage("Meintest Du '{suggestedName}'?", suggestedName)) == Dialog.YES) {
+                item.addItem(neighbours.get(i), neighbours.get(i), false, '\0');
+            }
+            item.setFieldSize(300, 200);
+
+            if (SimpleInputDialog.showInputDialog(dlg, International.getString("Tippfehler?"), item)) {
+                String suggestedName = item.getSelectedText();
+                if (suggestedName != null && suggestedName.length() > 0) {
                     this.parseAndShowValue(suggestedName);
-                    break;
                 }
             }
         }
@@ -379,6 +416,15 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
     public String getAlternateFieldNameForPlainText() {
         return alternateFieldNameForPlainText;
     }
+
+    public void setAlwaysReturnPlainText(boolean alwaysReturnPlainText) {
+        this.alwaysReturnPlainText = alwaysReturnPlainText;
+    }
+
+    public boolean getAlwaysReturnPlainText() {
+        return alwaysReturnPlainText;
+    }
+
 
     public void requestButtonFocus() {
         if (button != null) {

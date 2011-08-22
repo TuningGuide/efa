@@ -113,34 +113,10 @@ public class Boote extends DatenListe {
       s = freadLine();
       if ( s == null || !s.trim().startsWith(kennung) ) {
 
-        // KONVERTIEREN: 060 -> 170
-        if (s != null && s.trim().startsWith(KENNUNG060)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"060");
-          iniList(this.dat,11,1,false); // Rahmenbedingungen von v1.7.0 schaffen
-          // Datei lesen
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              s = s+"||||||";
-              DatenFelder d = constructFields(s);
-              add(d);
-            }
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG170;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
         // KONVERTIEREN: 170 -> 190
         if (s != null && s.trim().startsWith(KENNUNG170)) {
           if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"170");
-          iniList(this.dat,11,1,false); // Rahmenbedingungen von v1.9.0 schaffen
+          iniList(this.dat,12,1,false); // Rahmenbedingungen von v1.9.0 schaffen
           // Datei lesen
           try {
             while ((s = freadLine()) != null) {
@@ -214,14 +190,14 @@ public class Boote extends DatenListe {
              return false;
           }
           kennung = KENNUNG190;
-          if (closeFile() && writeFile(true) && openFile()) {
+          if (closeFile()) {
             infSuccessfullyConverted(dat,kennung);
             s = kennung;
           } else errConvertingFile(dat,kennung);
         }
 
         // FERTIG MIT KONVERTIEREN
-        if (s == null || !s.trim().startsWith(kennung)) {
+        if (s == null || !s.trim().startsWith(KENNUNG190)) {
           errInvalidFormat(dat, EfaUtil.trimto(s, 20));
           fclose(false);
           return false;

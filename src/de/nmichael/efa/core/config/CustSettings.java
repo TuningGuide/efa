@@ -10,7 +10,7 @@
 
 package de.nmichael.efa.core.config;
 
-import de.nmichael.efa.core.config.EfaConfig;
+import de.nmichael.efa.core.config.*;
 
 // @i18n complete
 
@@ -18,7 +18,7 @@ public class CustSettings {
 
     public boolean activateRowingOptions = true;
     public boolean activateGermanRowingOptions = true;
-    public boolean activateBerlinRowingOptions = true;
+    public boolean activateBerlinRowingOptions = false;
     public boolean activateCanoeingOptions = false;
     public boolean activateGermanCanoeingOptions = false;
 
@@ -26,12 +26,23 @@ public class CustSettings {
     }
 
     public CustSettings(EfaConfig efaConfig) {
-        activateRowingOptions = efaConfig.useFunctionalityRowing.getValue();
-        activateGermanRowingOptions = efaConfig.useFunctionalityRowingGermany.getValue();
-        activateBerlinRowingOptions = efaConfig.useFunctionalityRowingBerlin.getValue();
-        activateCanoeingOptions = efaConfig.useFunctionalityCanoeing.getValue();
-        activateGermanCanoeingOptions = efaConfig.useFunctionalityCanoeingGermany.getValue();
+        activateRowingOptions = efaConfig.getValueUseFunctionalityRowing();
+        activateGermanRowingOptions = efaConfig.getValueUseFunctionalityRowingGermany();
+        activateBerlinRowingOptions = efaConfig.getValueUseFunctionalityRowingBerlin();
+        activateCanoeingOptions = efaConfig.getValueUseFunctionalityCanoeing();
+        activateGermanCanoeingOptions = efaConfig.getValueUseFunctionalityCanoeingGermany();
     }
 
+    public CustSettings(boolean activateRowingOptions,
+                        boolean activateGermanRowingOptions,
+                        boolean activateBerlinRowingOptions,
+                        boolean activateCanoeingOptions,
+                        boolean activateGermanCanoeingOptions) {
+        this.activateRowingOptions = activateRowingOptions;
+        this.activateGermanRowingOptions = activateGermanRowingOptions;
+        this.activateBerlinRowingOptions = activateBerlinRowingOptions;
+        this.activateCanoeingOptions = activateCanoeingOptions;
+        this.activateGermanCanoeingOptions = activateGermanCanoeingOptions;
+    }
 
 }

@@ -76,56 +76,6 @@ public class Mannschaften extends DatenListe {
       s = freadLine();
       if ( s == null || !s.trim().startsWith(kennung) ) {
 
-        // KONVERTIEREN 120 -> 135
-        if ( s != null && s.trim().startsWith(KENNUNG120)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"120");
-          iniList(this.dat,20,1,true); // Rahmenbedingungen von v1.2.0 schaffen
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              DatenFelder d = constructFields(s);
-              d.set(26,d.get(18)); // ZIEL kopieren
-              d.set(27,d.get(19)); // FAHRTART kopieren
-              for (int i=18; i<=25; i++) d.set(i,""); // neue MANNSCH-Felder initialisieren
-              add(d);
-            }
-
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG135;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
-        // KONVERTIEREN 135 -> 173
-        if ( s != null && s.trim().startsWith(KENNUNG135)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"135");
-          iniList(this.dat,29,1,true); // Rahmenbedingungen von v1.7.3 schaffen
-          try {
-            while ((s = freadLine()) != null) {
-              s = s.trim();
-              if (s.equals("") || s.startsWith("#")) continue; // Kommentare ignorieren
-              DatenFelder d = constructFields(s);
-              d.set(OBMANN,NO_OBMANN);
-              add(d);
-            }
-
-          } catch(IOException e) {
-             errReadingFile(dat,e.getMessage());
-             return false;
-          }
-          kennung = KENNUNG173;
-          if (closeFile() && writeFile(true) && openFile()) {
-            infSuccessfullyConverted(dat,kennung);
-            s = kennung;
-          } else errConvertingFile(dat,kennung);
-        }
-
         // KONVERTIEREN 173 -> 190
         if ( s != null && s.trim().startsWith(KENNUNG173)) {
           if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"173");
@@ -153,14 +103,14 @@ public class Mannschaften extends DatenListe {
              return false;
           }
           kennung = KENNUNG190;
-          if (closeFile() && writeFile(true) && openFile()) {
+          if (closeFile()) {
             infSuccessfullyConverted(dat,kennung);
             s = kennung;
           } else errConvertingFile(dat,kennung);
         }
 
         // FERTIG MIT KONVERTIEREN
-        if (s == null || !s.trim().startsWith(kennung)) {
+        if (s == null || !s.trim().startsWith(KENNUNG190)) {
           errInvalidFormat(dat, EfaUtil.trimto(s, 20));
           fclose(false);
           return false;

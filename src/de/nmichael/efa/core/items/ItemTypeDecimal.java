@@ -33,6 +33,10 @@ public class ItemTypeDecimal extends ItemTypeLabelTextfield {
         this.description = description;
     }
 
+    public IItemType copyOf() {
+        return new ItemTypeDecimal(name, new DataTypeDecimal(value), decimalPlaces, onlyPositiveOrNull, type, category, description);
+    }
+
     public void parseValue(String value) {
         if (value != null) {
             value = value.trim();

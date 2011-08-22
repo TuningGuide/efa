@@ -38,6 +38,10 @@ public class ItemTypeString extends ItemTypeLabelTextfield {
         this.description = description;
     }
 
+    public IItemType copyOf() {
+        return new ItemTypeString(name, value, type, category, description);
+    }
+
     public void parseValue(String value) {
         if (value != null) {
             value = value.trim();
@@ -126,11 +130,13 @@ public class ItemTypeString extends ItemTypeLabelTextfield {
     public boolean isValidInput() {
         if (isNotNullSet()) {
             if (value == null || value.length() == 0) {
+                lastInvalidErrorText = International.getString("Feld darf nicht leer sein");
                 return false;
             }
-            if (value.length() < minChar) {
-                return false;
-            }
+        }
+        if (minChar > 0 && (value == null || value.length() < minChar)) {
+            lastInvalidErrorText = International.getMessage("Eingabe muß mindestens {n} Zeichen lang sein", minChar);
+            return false;
         }
         return true;
     }

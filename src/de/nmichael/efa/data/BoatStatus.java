@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
 import java.util.*;
@@ -30,10 +31,12 @@ public class BoatStatus extends Persistence {
         return new BoatStatusRecord(this, MetaData.getMetaData(DATATYPE));
     }
 
-    public BoatStatusRecord createBoatStatusRecord(UUID id) {
+    public BoatStatusRecord createBoatStatusRecord(UUID id, String boatText) {
         BoatStatusRecord r = new BoatStatusRecord(this, MetaData.getMetaData(DATATYPE));
         r.setBoatId(id);
-        r.setStatus(BoatStatusRecord.STATUS_AVAILABLE);
+        r.setBoatText(boatText);
+        r.setBaseStatus(BoatStatusRecord.STATUS_AVAILABLE);
+        r.setCurrentStatus(BoatStatusRecord.STATUS_AVAILABLE);
         return r;
     }
 
@@ -47,14 +50,24 @@ public class BoatStatus extends Persistence {
     }
 
     public Vector<BoatStatusRecord> getBoats(String status) {
+        return getBoats(status, false);
+    }
+
+    /*
+     * @param getBoatsForLists - if true, this will return boats not necessarily according
+     * to their status, but rather which *list* they should appear in. It might be that
+     * some boats which have status ONTHEWATER are supposed to be displayed as NOTAVAILABLE
+     * and therefore returned for status=NOTAVAILABLE instead.
+     */
+    public Vector<BoatStatusRecord> getBoats(String status, boolean getBoatsForLists) {
         try {
             Vector<BoatStatusRecord> v = new Vector<BoatStatusRecord>();
             DataKeyIterator it = data().getStaticIterator();
             DataKey k = it.getFirst();
             while (k != null) {
                 BoatStatusRecord r = (BoatStatusRecord) data().get(k);
-                if (r != null) {
-                    String s = r.getStatus();
+                if (r != null && !r.getDeletedOrInvisible()) {
+                    String s = (getBoatsForLists ? r.getShowInList() : r.getCurrentStatus());
                     if (s != null && s.equals(status)) {
                         v.add(r);
                     }

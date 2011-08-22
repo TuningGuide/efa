@@ -19,7 +19,6 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.direkt.Admin;
 import de.nmichael.efa.gui.*;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.data.*;
@@ -60,6 +59,10 @@ public class ItemTypeList extends ItemType implements ActionListener {
         data = new Vector<ItemTypeListData>();
     }
 
+    public IItemType copyOf() {
+        return new ItemTypeList(name, type, category, description);
+    }
+
     public void addItem(String text, Object object, boolean separator, char separatorHotkey) {
         data.add(new ItemTypeListData(text, object, separator, separatorHotkey));
     }
@@ -75,10 +78,16 @@ public class ItemTypeList extends ItemType implements ActionListener {
     }
 
     public void setItems(Vector<ItemTypeListData> items) {
+        if (data == null) {
+            data = new Vector<ItemTypeListData>();
+        }
         data = items;
     }
 
     public int size() {
+        if (data == null) {
+            return 0;
+        }
         return data.size();
     }
 
@@ -112,33 +121,44 @@ public class ItemTypeList extends ItemType implements ActionListener {
     }
 
     public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
-        return displayOnGui(dlg, panel, BorderLayout.CENTER);
+        panel.add(setupPanel(dlg), new GridBagConstraints(x, y, fieldGridWidth, fieldGridHeight, 0.0, 0.0,
+                fieldGridAnchor, fieldGridFill, new Insets(padYbefore, 0, padYafter, padXafter), 0, 0));
+        showValue();
+        return 1;
     }
 
     public int displayOnGui(Window dlg, JPanel panel, String borderLayoutOrientation) {
+        panel.add(setupPanel(dlg), borderLayoutOrientation);
+        showValue();
+        return 1;
+    }
+
+    private JPanel setupPanel(Window dlg) {
         this.dlg = dlg;
 
-        label = new JLabel();
         list = new JList();
         popup = new JPopupMenu();
         scrollPane = new JScrollPane();
         mypanel = new JPanel();
         mypanel.setLayout(new BorderLayout());
 
-        Mnemonics.setLabel(dlg, label, getDescription() + ": ");
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-        if (type == IItemType.TYPE_EXPERT) {
-            label.setForeground(Color.red);
+        if (getDescription() != null) {
+            label = new JLabel();
+            Mnemonics.setLabel(dlg, label, getDescription() + ": ");
+            label.setHorizontalAlignment(SwingConstants.CENTER);
+            if (type == IItemType.TYPE_EXPERT) {
+                label.setForeground(Color.red);
+            }
+            if (color != null) {
+                label.setForeground(color);
+            }
+            label.setLabelFor(list);
+            Dialog.setPreferredSize(label, fieldWidth, 20);
         }
-        if (color != null) {
-            label.setForeground(color);
-        }
-        label.setLabelFor(list);
-        Dialog.setPreferredSize(label, fieldWidth, 20);
 
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         scrollPane.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
-        for (int i = 0; i < actions.length; i++) {
+        for (int i = 0; actions != null && i < actions.length; i++) {
             JMenuItem menuItem = new JMenuItem(actions[i].substring(1));
             menuItem.setActionCommand(EfaMouseListener.EVENT_POPUP_CLICKED + "_" + actions[i].substring(0, 1));
             menuItem.addActionListener(this);
@@ -162,7 +182,7 @@ public class ItemTypeList extends ItemType implements ActionListener {
             }
         });
 
-        EfaMouseListener listener = new EfaMouseListener(list, popup, this, Daten.efaConfig.efaDirekt_autoPopupOnBoatLists.getValue());
+        EfaMouseListener listener = new EfaMouseListener(list, popup, this, Daten.efaConfig.getValueEfaDirekt_autoPopupOnBoatLists());
         list.addMouseListener(listener);
 
         list.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -173,11 +193,12 @@ public class ItemTypeList extends ItemType implements ActionListener {
 
         scrollPane.getViewport().add(list, null);
         mypanel.setLayout(new BorderLayout());
-        mypanel.add(label, BorderLayout.NORTH);
+        if (getDescription() != null) {
+            mypanel.add(label, BorderLayout.NORTH);
+        }
         mypanel.add(scrollPane, BorderLayout.CENTER);
 
-        panel.add(mypanel, borderLayoutOrientation);
-        return 1;
+        return mypanel;
     }
 
     public void actionPerformed(ActionEvent e) {

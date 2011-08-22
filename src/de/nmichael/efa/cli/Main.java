@@ -48,11 +48,6 @@ public class Main extends Program {
         Daten.initialize(Daten.APPL_CLI);
         if (stat != null || importFb != null) {
             if (fb == null || fb.equals("efa") || fb.equals("efadirekt")) {
-                if (fb == null || fb.equals("efa")) {
-                    fb = Daten.efaConfig.letzteDatei.getValue();
-                } else if (fb != null && fb.equals("efadirekt")) {
-                    fb = Daten.efaConfig.direkt_letzteDatei.getValue();
-                }
                 if (fb == null) {
                     Logger.log(Logger.ERROR, Logger.MSG_GENERIC_ERROR, International.getString("Kein Fahrtenbuch ausgewählt"));
                     printUsage(null);
@@ -64,9 +59,9 @@ public class Main extends Program {
                 Daten.haltProgram(Daten.HALT_FILEOPEN);
             }
             if (stat != null) {
-                createStat();
+                //createStat();
             } else if (importFb != null) {
-                doImportFb();
+                //doImportFb();
             }
         }
         Daten.haltProgram(0);
@@ -175,6 +170,8 @@ public class Main extends Program {
         new Main(args);
     }
 
+    /*
+
     // Aufgrund von Aufruf-Parametern eine Statistik erstellen
     void createStat() {
         Daten.wettDefs = new WettDefs(Daten.efaCfgDirectory + Daten.WETTDEFS);
@@ -278,5 +275,6 @@ public class Main extends Program {
             Daten.haltProgram(Daten.HALT_ERROR);
         }
     }
+     */
 
 }

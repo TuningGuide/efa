@@ -12,6 +12,7 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.ex.EfaModifyException;
 import java.util.*;
 
 // @i18n complete
@@ -105,6 +106,88 @@ public class Persons extends Persistence {
         } catch (Exception e) {
             Logger.logdebug(e);
             return null;
+        }
+    }
+
+    public boolean isPersonDeleted(UUID personId) {
+        try {
+            DataRecord[] records = data().getValidAny(PersonRecord.getKey(personId, -1));
+            if (records != null && records.length > 0) {
+                return records[0].getDeleted();
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return false;
+    }
+
+    public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
+        if (add || update) {
+            assertFieldNotEmpty(record, PersonRecord.FIRSTLASTNAME);
+        }
+        if (delete) {
+            assertNotReferenced(record, getProject().getFahrtenabzeichen(false), new String[] { FahrtenabzeichenRecord.PERSONID });
+            assertNotReferenced(record, getProject().getGroups(false), new String[] { GroupRecord.MEMBERIDLIST });
+            assertNotReferenced(record, getProject().getCrews(false), new String[] { CrewRecord.COXID,
+                                                                                     CrewRecord.CREW1ID,
+                                                                                     CrewRecord.CREW2ID,
+                                                                                     CrewRecord.CREW3ID,
+                                                                                     CrewRecord.CREW4ID,
+                                                                                     CrewRecord.CREW5ID,
+                                                                                     CrewRecord.CREW6ID,
+                                                                                     CrewRecord.CREW7ID,
+                                                                                     CrewRecord.CREW8ID,
+                                                                                     CrewRecord.CREW9ID,
+                                                                                     CrewRecord.CREW10ID,
+                                                                                     CrewRecord.CREW11ID,
+                                                                                     CrewRecord.CREW12ID,
+                                                                                     CrewRecord.CREW14ID,
+                                                                                     CrewRecord.CREW11ID,
+                                                                                     CrewRecord.CREW16ID,
+                                                                                     CrewRecord.CREW11ID,
+                                                                                     CrewRecord.CREW17ID,
+                                                                                     CrewRecord.CREW18ID,
+                                                                                     CrewRecord.CREW19ID,
+                                                                                     CrewRecord.CREW20ID,
+                                                                                     CrewRecord.CREW21ID,
+                                                                                     CrewRecord.CREW22ID,
+                                                                                     CrewRecord.CREW23ID,
+                                                                                     CrewRecord.CREW24ID
+                                                                                   }, false);
+            assertNotReferenced(record, getProject().getBoatDamages(false), new String[] { BoatDamageRecord.REPORTEDBYPERSONID,
+                                                                                           BoatDamageRecord.FIXEDBYPERSONID},
+                                                                                           false);
+            assertNotReferenced(record, getProject().getBoatReservations(false), new String[] { BoatReservationRecord.PERSONID });
+            String[] logbooks = getProject().getAllLogbookNames();
+            for (int i=0; logbooks != null && i<logbooks.length; i++) {
+                assertNotReferenced(record, getProject().getLogbook(logbooks[i], false), new String[] {
+                                                                                       LogbookRecord.COXID,
+                                                                                       LogbookRecord.CREW1ID,
+                                                                                       LogbookRecord.CREW2ID,
+                                                                                       LogbookRecord.CREW3ID,
+                                                                                       LogbookRecord.CREW4ID,
+                                                                                       LogbookRecord.CREW5ID,
+                                                                                       LogbookRecord.CREW6ID,
+                                                                                       LogbookRecord.CREW7ID,
+                                                                                       LogbookRecord.CREW8ID,
+                                                                                       LogbookRecord.CREW9ID,
+                                                                                       LogbookRecord.CREW10ID,
+                                                                                       LogbookRecord.CREW11ID,
+                                                                                       LogbookRecord.CREW12ID,
+                                                                                       LogbookRecord.CREW13ID,
+                                                                                       LogbookRecord.CREW14ID,
+                                                                                       LogbookRecord.CREW15ID,
+                                                                                       LogbookRecord.CREW16ID,
+                                                                                       LogbookRecord.CREW17ID,
+                                                                                       LogbookRecord.CREW18ID,
+                                                                                       LogbookRecord.CREW19ID,
+                                                                                       LogbookRecord.CREW20ID,
+                                                                                       LogbookRecord.CREW21ID,
+                                                                                       LogbookRecord.CREW22ID,
+                                                                                       LogbookRecord.CREW23ID,
+                                                                                       LogbookRecord.CREW24ID,
+                                                                                      }, false );
+            }
         }
     }
 

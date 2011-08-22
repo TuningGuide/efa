@@ -35,6 +35,10 @@ public class ItemTypeLong extends ItemTypeLabelTextfield {
         this.description = description;
     }
 
+    public IItemType copyOf() {
+        return new ItemTypeLong(name, value, min, max, type, category, description);
+    }
+
     public void parseValue(String value) {
         if (value != null) {
             value = value.trim();

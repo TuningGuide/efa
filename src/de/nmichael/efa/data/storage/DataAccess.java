@@ -10,7 +10,7 @@
 
 package de.nmichael.efa.data.storage;
 
-import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.util.Logger;
 import java.util.*;
@@ -32,6 +32,8 @@ public abstract class DataAccess implements IDataAccess {
     protected String[] keyFields;
     protected MetaData meta;
     protected DataRecord referenceRecord;
+    protected boolean inOpeningStorageObject = false;
+    protected boolean isPreModifyRecordCallbackEnabled = true;
 
     public static IDataAccess createDataAccess(Persistence persistence, int type, String storageLocation, String storageObjectName, 
             String storageObjectType, String storageObjectDescription) {
@@ -240,6 +242,18 @@ public abstract class DataAccess implements IDataAccess {
                 return "VIRTUAL";
             default: return "UNKNOWN";
         }
+    }
+
+    public boolean inOpeningStorageObject() {
+        return this.inOpeningStorageObject;
+    }
+
+    public void setPreModifyRecordCallbackEnabled(boolean enabled) {
+        this.isPreModifyRecordCallbackEnabled = enabled;
+    }
+
+    public boolean isPreModifyRecordCallbackEnabled() {
+        return this.isPreModifyRecordCallbackEnabled && (Daten.efaConfig == null || Daten.efaConfig.getValueDataPreModifyRecordCallbackEnabled());
     }
 
 }

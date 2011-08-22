@@ -79,6 +79,7 @@ public class ImportCrews extends ImportBase {
                     logDetail(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                 } catch(Exception e) {
                     logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
+                    Logger.logdebug(e);
                 }
 
                 // update BoatRecord
@@ -104,6 +105,7 @@ public class ImportCrews extends ImportBase {
                         }
                     }
                 } catch (Exception e) {
+                    Logger.logdebug(e);
                 }
 
                 d = mannschaften.getCompleteNext();
@@ -111,7 +113,7 @@ public class ImportCrews extends ImportBase {
         } catch(Exception e) {
             logError(International.getMessage("Import von {list} aus {file} ist fehlgeschlagen.", getDescription(), efa1fname));
             logError(e.toString());
-            e.printStackTrace();
+            Logger.logdebug(e);
             return false;
         }
         return true;

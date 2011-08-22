@@ -144,7 +144,7 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
 
   }
 
-  public EfaWettSelectAndCompleteFrame(StatistikFrame parent, EfaWett ew) {
+  public EfaWettSelectAndCompleteFrame(JFrame parent, EfaWett ew) {
     super(parent);
     this.ew = ew;
     Dialog.frameOpened(this);
@@ -975,7 +975,7 @@ public class EfaWettSelectAndCompleteFrame extends JDialog implements ActionList
     cancel();
     String mg = null;
     if (meldegeld > 0) mg = EfaUtil.cent2euro(meldegeld,true);
-    Dialog.statistikFrame.efaWettVervollständigen3(ew,mg,papierFahrtenhefte);
+    // @todo (P5) statistics Dialog.statistikFrame.efaWettVervollständigen3(ew,mg,papierFahrtenhefte);
     if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
         Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_STATISTICS, "EfaWettSelectAndCompleteFrame.okButton_actionPerformed(e) - END");
     }

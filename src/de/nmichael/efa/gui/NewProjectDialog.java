@@ -68,72 +68,14 @@ public class NewProjectDialog extends StepwiseDialog {
         items = new ArrayList<IItemType>();
         IItemType item;
 
-        // Items for Step 0
-        item = new ItemTypeString(ProjectRecord.PROJECTNAME, "", IItemType.TYPE_PUBLIC, "0", International.getString("Name des Projekts"));
-        ((ItemTypeString)item).setAllowedCharacters("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
-        ((ItemTypeString)item).setReplacementCharacter('_');
-        ((ItemTypeString)item).setNotNull(true);
-        items.add(item);
-        items.add(new ItemTypeString(ProjectRecord.DESCRIPTION, "", IItemType.TYPE_PUBLIC, "0", International.getString("Beschreibung")));
-        items.add(new ItemTypeString(ProjectRecord.ADMINNAME, "", IItemType.TYPE_PUBLIC, "0", International.getString("Dein Name")));
-        items.add(new ItemTypeString(ProjectRecord.ADMINEMAIL, "", IItemType.TYPE_PUBLIC, "0", International.getString("Deine email-Adresse")));
+        ProjectRecord r;
 
-        // Items for Step 1
-        item = new ItemTypeStringList(ProjectRecord.STORAGETYPE, IDataAccess.TYPESTRING_FILE_XML,
-                new String[] { IDataAccess.TYPESTRING_FILE_XML, IDataAccess.TYPESTRING_DB_SQL },
-                new String[] { International.getString("lokales Dateisystem"),
-                               International.getString("SQL-Datenbank") },
-                IItemType.TYPE_PUBLIC, "1", International.getString("Speicherort"));
-        items.add(item);
-
-        // Items for Step 2
-        items.add(new ItemTypeString(ProjectRecord.CLUBNAME, "", IItemType.TYPE_PUBLIC, "2", International.getString("Vereinsname")));
-        items.add(new ItemTypeString(ProjectRecord.ADDRESSSTREET, "", IItemType.TYPE_PUBLIC, "2", International.getString("Anschrift") + " - " +
-                International.getString("Straße")));
-        items.add(new ItemTypeString(ProjectRecord.ADDRESSCITY, "", IItemType.TYPE_PUBLIC, "2", International.getString("Anschrift") + " - " +
-                International.getString("Postleitzahl und Ort")));
-        if (Daten.efaConfig.useFunctionalityRowingBerlin.getValue()) {
-            items.add(new ItemTypeInteger(ProjectRecord.AREAID, ItemTypeInteger.UNSET, 1, Zielfahrt.ANZ_ZIELBEREICHE, true,
-                    IItemType.TYPE_PUBLIC, "2", International.onlyFor("Zielbereich", "de")));
-        }
-
-        // Items for Step 3
-        items.add(new ItemTypeString(ProjectRecord.ASSOCIATIONGLOBALNAME,
-                (International.getLanguageID().startsWith("de") ?
-                    (Daten.efaConfig.useFunctionalityRowing.getValue() ?
-                        International.onlyFor("Deutscher Ruderverband","de") :
-                        International.onlyFor("Deutscher Kanuverband","de")) : ""),
-                IItemType.TYPE_PUBLIC, "3",
-                International.getString("Dachverband") + " - " +
-                International.getString("Name")));
-        items.add(new ItemTypeString(ProjectRecord.ASSOCIATIONGLOBALMEMBERNO, "", IItemType.TYPE_PUBLIC, "3",
-                International.getString("Dachverband") + " - " +
-                International.getString("Mitgliedsnummer")));
-        items.add(new ItemTypeString(ProjectRecord.ASSOCIATIONGLOBALLOGIN, "", IItemType.TYPE_PUBLIC, "3",
-                International.getString("Dachverband") + " - " +
-                International.getString("Benutzername")));
-        items.add(new ItemTypeString(ProjectRecord.ASSOCIATIONREGIONALNAME,
-                (International.getLanguageID().startsWith("de") ?
-                    (Daten.efaConfig.useFunctionalityRowing.getValue() ?
-                        International.onlyFor("Landesruderverband Berlin","de") :
-                        International.onlyFor("Landes-Kanu-Verband Berlin","de")) : ""),
-                IItemType.TYPE_PUBLIC, "3",
-                International.getString("Regionalverband") + " - " +
-                International.getString("Name")));
-        items.add(new ItemTypeString(ProjectRecord.ASSOCIATIONREGIONALMEMBERNO, "", IItemType.TYPE_PUBLIC, "3",
-                International.getString("Regionalverband") + " - " +
-                International.getString("Mitgliedsnummer")));
-        items.add(new ItemTypeString(ProjectRecord.ASSOCIATIONREGIONALLOGIN, "", IItemType.TYPE_PUBLIC, "3",
-                International.getString("Regionalverband") + " - " +
-                International.getString("Benutzername")));
-        if (Daten.efaConfig.useFunctionalityRowing.getValue() && International.getLanguageID().startsWith("de")) {
-            items.add(new ItemTypeBoolean(ProjectRecord.MEMBEROFDRV, true, IItemType.TYPE_PUBLIC, "3",
-                    International.onlyFor("Mitglied im Deutschen Ruderverband (DRV)","de")));
-            items.add(new ItemTypeBoolean(ProjectRecord.MEMBEROFSRV, false, IItemType.TYPE_PUBLIC, "3",
-                    International.onlyFor("Mitglied in einem Schülerruderverband (SRV)","de")));
-            items.add(new ItemTypeBoolean(ProjectRecord.MEMBEROFADH, false, IItemType.TYPE_PUBLIC, "3",
-                    International.onlyFor("Mitglied im Allgemeinen Deutschen Hochschulsportverband (ADH)","de")));
-        }
+        r = Project.createNewRecordFromStatic(ProjectRecord.TYPE_PROJECT);
+        items.addAll(r.getGuiItems(1, "0", true));
+        items.addAll(r.getGuiItems(2, "1", true));
+        r = Project.createNewRecordFromStatic(ProjectRecord.TYPE_CLUB);
+        items.addAll(r.getGuiItems(1, "2", true));
+        items.addAll(r.getGuiItems(2, "3", true));
     }
 
     boolean checkInput(int direction) {
@@ -161,7 +103,7 @@ public class NewProjectDialog extends StepwiseDialog {
             ItemTypeStringList item = (ItemTypeStringList)getItemByName(ProjectRecord.STORAGETYPE);
             if (!item.getValue().equals(IDataAccess.TYPESTRING_FILE_XML)) {
                 Dialog.error(International.getMessage("Die ausgewählte Option '{option}' wird zur Zeit noch nicht unterstützt.",
-                        International.getString("SQL-Datenbank")));
+                        item.getValue()));
                 item.requestFocus();
                 return false;
             }
@@ -169,8 +111,10 @@ public class NewProjectDialog extends StepwiseDialog {
         return true;
     }
 
-    void finishButton_actionPerformed(ActionEvent e) {
-        super.finishButton_actionPerformed(e);
+    boolean finishButton_actionPerformed(ActionEvent e) {
+        if (!super.finishButton_actionPerformed(e)) {
+            return false;
+        }
 
         ItemTypeString prjName = (ItemTypeString)getItemByName(ProjectRecord.PROJECTNAME);
 
@@ -218,16 +162,18 @@ public class NewProjectDialog extends StepwiseDialog {
             }
 
             prj.close();
-            prj.open(false);
-            Daten.project = prj;
-            Dialog.infoDialog(LogString.logstring_fileSuccessfullyCreated(prjName.getValue(),
-                    International.getString("Projekt")));
-            setDialogResult(true);
+            Project.openProject(prjName.getValue());
+            if (Daten.project != null) {
+                Dialog.infoDialog(LogString.logstring_fileSuccessfullyCreated(prjName.getValue(),
+                        International.getString("Projekt")));
+            }
+            setDialogResult(Daten.project != null);
         } catch(EfaException ee) {
             Dialog.error(ee.getMessage());
             ee.log();
             setDialogResult(false);
         }
+        return true;
     }
 
     public String createNewProjectAndLogbook() {

@@ -26,6 +26,8 @@ import javax.swing.event.ChangeEvent;
 // @i18n complete
 public class DataEditDialog extends BaseDialog {
 
+    protected JCheckBox expertMode;
+    protected JPanel dataPanel;
     protected JTabbedPane tabbedPane;
 
     protected Vector<IItemType> items;
@@ -49,14 +51,25 @@ public class DataEditDialog extends BaseDialog {
     protected void iniDialog() throws Exception {
         // create GUI items
         mainPanel.setLayout(new BorderLayout());
+        dataPanel = new JPanel();
+        dataPanel.setLayout(new BorderLayout());
+        expertMode = new JCheckBox();
+        Mnemonics.setButton(this, expertMode, International.getString("Expertenmodus"));
+        expertMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) { updateGui(); }
+        });
+        dataPanel.add(expertMode, BorderLayout.NORTH);
+        mainPanel.add(dataPanel, BorderLayout.CENTER);
         updateGui();
     }
 
     public void updateGui() {
         String selectedPanel = getSelectedPanel(tabbedPane);
+        boolean expertMode = this.expertMode.isSelected();
+        boolean expertModeItems = false;
 
         if (tabbedPane != null) {
-            mainPanel.remove(tabbedPane);
+            dataPanel.remove(tabbedPane);
         }
         tabbedPane = new JTabbedPane();
         panels = new Hashtable<JPanel,String>();
@@ -71,7 +84,12 @@ public class DataEditDialog extends BaseDialog {
             Vector<IItemType> v = cat2items.get(cat);
             int y = 0;
             for (IItemType item : v) {
-                y += item.displayOnGui(this,panel,y);
+                if (item.getType() == IItemType.TYPE_PUBLIC || expertMode) {
+                    y += item.displayOnGui(this,panel,y);
+                }
+                if (item.getType() == IItemType.TYPE_EXPERT) {
+                    expertModeItems = true;
+                }
             }
             if (y > 0) {
                 String catname = cat;
@@ -87,11 +105,13 @@ public class DataEditDialog extends BaseDialog {
                 }
             }
         }
-        mainPanel.add(tabbedPane, BorderLayout.CENTER);
+        dataPanel.add(tabbedPane, BorderLayout.CENTER);
+        this.expertMode.setVisible(expertModeItems);
+        this.expertMode.setForeground( (expertMode ? Color.red : Color.black) );
         this.validate();
         Vector<IItemType> v = cat2items.get( (selectedPanel != null ? selectedPanel : cats[0]));
         for (int i=0; v != null && i<v.size(); i++) {
-            if (!(v.get(i) instanceof ItemTypeLabel)) {
+            if (!(v.get(i) instanceof ItemTypeLabel) && v.get(i).isVisible() && v.get(i).isEnabled()) {
                 setRequestFocus(v.get(i));
                 break;
             }
@@ -144,6 +164,9 @@ public class DataEditDialog extends BaseDialog {
         cat2items = new Hashtable<String,Vector<IItemType>>();
 
         // build data item hierarchy across categories
+        if (items == null) {
+            return;
+        }
         for (IItemType item : items) {
             String cat = item.getCategory();
             Vector<IItemType> v = cat2items.get(cat);

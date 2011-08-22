@@ -57,10 +57,31 @@ public class ImportBoatStatus extends ImportBase {
                 UUID boatID = findBoat(boats, IDXB, b, true);
                 if (boatID != null && imported.get(boatID) != null) {
                     // create new BoatStatusRecord
-                    BoatStatusRecord rs = boatStatus.createBoatStatusRecord(boatID);
+                    BoatStatusRecord rs = boatStatus.createBoatStatusRecord(boatID, b);
+
+                    if ((d.get(BootStatus.STATUS) != null && d.get(BootStatus.STATUS).equals(BootStatus.STAT_VORUEBERGEHEND_VERSTECKEN)) ||
+                        (d.get(BootStatus.UNBEKANNTESBOOT) != null && d.get(BootStatus.UNBEKANNTESBOOT).equals("+"))) {
+                        logError("Bootsstatus für Boot '"+d.get(BootStatus.NAME)+"' kann nicht importiert werden. Bitte beende die Fahrt in efa1 vor dem Import.");
+                    }
+
                     try {
                         if (d.get(BootStatus.STATUS).length() > 0) {
-                            rs.setStatus(d.get(BootStatus.STATUS));
+                            String s = d.get(BootStatus.STATUS);
+                            if (s.equals(BoatStatusRecord.STATUS_HIDE) ||
+                                s.equals(BoatStatusRecord.STATUS_AVAILABLE) ||
+                                s.equals(BoatStatusRecord.STATUS_NOTAVAILABLE)) {
+                                rs.setBaseStatus(s);
+                            } else {
+                                rs.setBaseStatus(BoatStatusRecord.STATUS_AVAILABLE);
+                            }
+                            if (s.equals(BoatStatusRecord.STATUS_HIDE) ||
+                                s.equals(BoatStatusRecord.STATUS_AVAILABLE) ||
+                                s.equals(BoatStatusRecord.STATUS_ONTHEWATER) ||
+                                s.equals(BoatStatusRecord.STATUS_NOTAVAILABLE)) {
+                                rs.setCurrentStatus(s);
+                            } else {
+                                rs.setCurrentStatus(BoatStatusRecord.STATUS_AVAILABLE);
+                            }
                         }
                         if (d.get(BootStatus.LFDNR).length() > 0) {
                             rs.setEntryNo(new DataTypeIntString(d.get(BootStatus.LFDNR)));
@@ -76,6 +97,7 @@ public class ImportBoatStatus extends ImportBase {
                         logDetail(International.getMessage("Importiere Eintrag: {entry}", rs.toString()));
                     } catch(Exception e) {
                         logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", rs.toString(), e.toString()));
+                        Logger.logdebug(e);
                     }
 
                     // BoatReservations
@@ -119,6 +141,7 @@ public class ImportBoatStatus extends ImportBase {
                             logDetail(International.getMessage("Importiere Eintrag: {entry}", rr.toString()));
                         } catch (Exception e) {
                             logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", rr.toString(), e.toString()));
+                            Logger.logdebug(e);
                         }
                     }
 
@@ -131,6 +154,7 @@ public class ImportBoatStatus extends ImportBase {
                             logDetail(International.getMessage("Importiere Eintrag: {entry}", rd.toString()));
                         } catch (Exception e) {
                             logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", rd.toString(), e.toString()));
+                            Logger.logdebug(e);
                         }
                     }
                 } else {
@@ -145,7 +169,7 @@ public class ImportBoatStatus extends ImportBase {
         } catch(Exception e) {
             logError(International.getMessage("Import von {list} aus {file} ist fehlgeschlagen.", getDescription(), efa1fname));
             logError(e.toString());
-            e.printStackTrace();
+            Logger.logdebug(e);
             return false;
         }
         return true;

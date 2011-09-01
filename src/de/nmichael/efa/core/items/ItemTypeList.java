@@ -44,7 +44,7 @@ public class ItemTypeList extends ItemType implements ActionListener {
     JPanel mypanel;
     JLabel label;
     JScrollPane scrollPane;
-    JList list;
+    JList list = new JList();
     JPopupMenu popup;
     Vector<ItemTypeListData> data;
     String[] actions;
@@ -81,7 +81,11 @@ public class ItemTypeList extends ItemType implements ActionListener {
         if (data == null) {
             data = new Vector<ItemTypeListData>();
         }
-        data = items;
+        if (items != null) {
+            data = items;
+        } else {
+            data = new Vector<ItemTypeListData>();
+        }
     }
 
     public int size() {

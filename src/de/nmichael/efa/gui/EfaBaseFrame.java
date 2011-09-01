@@ -73,7 +73,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     ItemTypeDistance distance;
     ItemTypeString comments;
     ItemTypeStringList sessiontype;
-    ItemTypeStringAutoComplete sessiongroup;
+    ItemTypeStringAutoComplete sessiongroup; // @todo (P2) make sure all entries are within time range of session group; and active days must be checked!
 
     // Supplementary Elements
     ItemTypeButton remainingCrewUpButton;
@@ -1071,6 +1071,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             !checkBoatCaptain() ||
             !checkBoatStatus() ||
             !checkMultiDayTours() ||
+            !checkDate() ||
             !checkAllowedDateForLogbook() ||
             !checkAllDataEntered() ||
             !checkUnknownNames() ||
@@ -1640,11 +1641,21 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             DataTypeDate groupEndDate = g.getEndDate();
             if (entryStartDate.isBefore(groupStartDate) || entryStartDate.isAfter(groupEndDate) ||
                 (entryEndDate.isSet() && (entryEndDate.isBefore(groupStartDate) || entryEndDate.isAfter(groupEndDate))) ) {
-                Dialog.error(International.getMessage("Das Datum des Fahrtenbucheintrags {entry} liegt außerhalb des Zeitraums "
-                        + " ({date_from} - {date_to}), der für die ausgewählte Fahrtgruppe '{name}' angegeben wurde.",
-                        entryno.getValue(), groupStartDate.toString(), groupEndDate.toString(), g.getName()));
+                Dialog.error(International.getMessage("Das Datum des Fahrtenbucheintrags {entry} liegt außerhalb des Zeitraums, "
+                        + "der für die ausgewählte Fahrtgruppe '{name}' angegeben wurde.",
+                        entryno.getValue(), g.getName()));
                 return false;
             }
+        }
+        return true;
+    }
+
+    private boolean checkDate() {
+        if (date.isSet() && enddate.isSet() && !date.getDate().isBefore(enddate.getDate())) {
+            String msg = International.getString("Das Enddatum des Fahrtenbucheintrags nach vor dem Startdatum liegen.");
+            Dialog.error(msg);
+            enddate.requestFocus();
+            return false;
         }
         return true;
     }

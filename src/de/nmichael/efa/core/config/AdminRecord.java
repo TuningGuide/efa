@@ -498,7 +498,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Statistiken erstellen")));
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(REMOTEACCESS, isAllowedRemoteAccess(),
-                IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Remote-Zugriff über efa Remote")));
+                IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Remote-Zugriff über efaRemote")));
         ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
         if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
             v.add(item = new ItemTypeBoolean(SYNCKANUEFB, isAllowedSyncKanuEfb(),

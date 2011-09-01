@@ -33,6 +33,7 @@ public class SessionGroupRecord extends DataRecord {
     public static final String ID                  = "Id";
     public static final String LOGBOOK             = "Logbook";
     public static final String NAME                = "Name";
+    public static final String ROUTE               = "Route";
     public static final String SESSIONTYPE         = "SessionType";
     public static final String STARTDATE           = "StartDate";
     public static final String ENDDATE             = "EndDate";
@@ -48,6 +49,7 @@ public class SessionGroupRecord extends DataRecord {
         f.add(ID);                                t.add(IDataAccess.DATA_UUID);
         f.add(LOGBOOK);                           t.add(IDataAccess.DATA_STRING);
         f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
+        f.add(ROUTE);                             t.add(IDataAccess.DATA_STRING);
         f.add(SESSIONTYPE);                       t.add(IDataAccess.DATA_STRING);
         f.add(STARTDATE);                         t.add(IDataAccess.DATA_DATE);
         f.add(ENDDATE);                           t.add(IDataAccess.DATA_DATE);
@@ -88,12 +90,42 @@ public class SessionGroupRecord extends DataRecord {
     public String getLogbook() {
         return getString(LOGBOOK);
     }
+    public Vector<LogbookRecord> getAllReferencingLogbookRecords() {
+        String logbookName = getLogbook();
+        Logbook logbook = (logbookName != null ? getPersistence().getProject().getLogbook(logbookName, false) : null);
+        UUID id = getId();
+        if (logbook != null && id != null) {
+            try {
+                Vector<LogbookRecord> records = new Vector<LogbookRecord>();
+                DataKeyIterator it = logbook.data().getStaticIterator();
+                DataKey k = it.getFirst();
+                while (k != null) {
+                    LogbookRecord r = logbook.getLogbookRecord(k);
+                    if (r != null && r.getSessionGroupId() != null && id.equals(r.getSessionGroupId())) {
+                        records.add(r);
+                    }
+                    k = it.getNext();
+                }
+                return records;
+            } catch(Exception e) {
+                Logger.log(e);
+            }
+        }
+        return null;
+    }
 
     public void setName(String name) {
         setString(NAME, name);
     }
     public String getName() {
         return getString(NAME);
+    }
+
+    public void setRoute(String route) {
+        setString(ROUTE, route);
+    }
+    public String getRoute() {
+        return getString(ROUTE);
     }
 
     public void setSessionType(String type) {
@@ -150,6 +182,18 @@ public class SessionGroupRecord extends DataRecord {
         return getId();
     }
 
+    public boolean checkLogbookRecordFitsIntoRange(LogbookRecord r) {
+        if (getStartDate() != null && getEndDate() != null && getStartDate().isSet() && getEndDate().isSet()) {
+            if (r.getDate() != null && r.getDate().isSet() && (r.getDate().isBefore(getStartDate()) || r.getDate().isAfter(getEndDate()))) {
+                return false;
+            }
+            if (r.getEndDate() != null && r.getEndDate().isSet() && (r.getEndDate().isBefore(getStartDate()) || r.getEndDate().isAfter(getEndDate()))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public String getAsText(String fieldName) {
         if (fieldName.equals(SESSIONTYPE)) {
             String s = getAsString(fieldName);
@@ -185,6 +229,10 @@ public class SessionGroupRecord extends DataRecord {
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                 International.getString("Name")));
         item.setNotNull(true);
+        v.add(item = new ItemTypeString(ROUTE, getName(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                International.getString("Start & Ziel") + " / " +
+                International.getString("Strecke")));
         v.add(item = new ItemTypeStringList(SESSIONTYPE, getSessionType(),
                 EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Fahrtart")));

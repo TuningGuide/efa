@@ -282,6 +282,61 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
         return 0;
     }
 
+    private static long daysBetween(final Calendar startDate, final Calendar endDate) {
+        Calendar sDate = (Calendar) startDate.clone();
+        long daysBetween = 0;
+
+        int y1 = sDate.get(Calendar.YEAR);
+        int y2 = endDate.get(Calendar.YEAR);
+        int m1 = sDate.get(Calendar.MONTH);
+        int m2 = endDate.get(Calendar.MONTH);
+
+        //**year optimization**
+        while (((y2 - y1) * 12 + (m2 - m1)) > 12) {
+
+            //move to Jan 01
+            if (sDate.get(Calendar.MONTH) == Calendar.JANUARY
+                    && sDate.get(Calendar.DAY_OF_MONTH) == sDate.getActualMinimum(Calendar.DAY_OF_MONTH)) {
+
+                daysBetween += sDate.getActualMaximum(Calendar.DAY_OF_YEAR);
+                sDate.add(Calendar.YEAR, 1);
+            } else {
+                int diff = 1 + sDate.getActualMaximum(Calendar.DAY_OF_YEAR) - sDate.get(Calendar.DAY_OF_YEAR);
+                sDate.add(Calendar.DAY_OF_YEAR, diff);
+                daysBetween += diff;
+            }
+            y1 = sDate.get(Calendar.YEAR);
+        }
+
+        //** optimize for month **
+        //while the difference is more than a month, add a month to start month
+        while ((m2 - m1) % 12 > 1) {
+            daysBetween += sDate.getActualMaximum(Calendar.DAY_OF_MONTH);
+            sDate.add(Calendar.MONTH, 1);
+            m1 = sDate.get(Calendar.MONTH);
+        }
+
+        // process remainder date
+        while (sDate.before(endDate)) {
+            sDate.add(Calendar.DAY_OF_MONTH, 1);
+            daysBetween++;
+        }
+
+        return daysBetween;
+    }
+
+    public long getDifferenceDays(DataTypeDate o) {
+        Calendar c1 = toCalendar();
+        Calendar c2 = o.toCalendar();
+        if (c1.before(c2)) {
+            return daysBetween(c1, c2);
+        }
+        if (c2.before(c1)) {
+            return daysBetween(c2, c1);
+        }
+        return 0;
+    }
+
     public static String getDateTimeString(DataTypeDate date, DataTypeTime time) {
         String s = null;
         if (date != null && date.isSet()) {

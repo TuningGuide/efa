@@ -45,11 +45,11 @@ public class RemoteEfaServer {
             server.setExecutor(Executors.newCachedThreadPool());
             server.start();
             Logger.log(Logger.INFO, Logger.MSG_REFA_SERVERSTATUS,
-                    International.getMessage("Remote efa Server läuft auf Port {port}", serverPort));
+                    International.getMessage("efaRemote Server läuft auf Port {port}", serverPort));
             (new EfaOnlineThread()).start();
         } catch (Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_REFA_SERVERERROR,
-                    International.getString("Remote efa Server konnte nicht gestartet werden.") + " " + e.getMessage());
+                    International.getString("efaRemote Server konnte nicht gestartet werden.") + " " + e.getMessage());
             Logger.logdebug(e);
         }
     }
@@ -66,7 +66,7 @@ public class RemoteEfaServer {
                 OutputStream responseBody = exchange.getResponseBody();
                 responseBody.write(new String("<html><body>").getBytes());
                 responseBody.write(new String("<h1 align=\"center\">" + Daten.EFA_LONGNAME + "</h1>").getBytes());
-                responseBody.write(new String("<h2 align=\"center\">efa Remote Server running on port " + serverPort).getBytes());
+                responseBody.write(new String("<h2 align=\"center\">efaRemote Server running on port " + serverPort).getBytes());
                 responseBody.close();
             }
             if (requestMethod.equalsIgnoreCase("POST")) {
@@ -375,24 +375,24 @@ public class RemoteEfaServer {
         }
         if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 1)) {
             Logger.log(Logger.DEBUG, Logger.MSG_REFA_SERVERLOG,
-                    "Remote efa Login Attempt from " + peerAddress + ": Username=" + username + " Password=" + password);
+                    "efaRemote Login Attempt from " + peerAddress + ": Username=" + username + " Password=" + password);
         }
         if (Daten.admins != null && Daten.admins.isOpen()) {
             AdminRecord admin = Daten.admins.login(username, password);
             if (admin == null) {
                 Logger.log(Logger.WARNING, Logger.MSG_REFA_SERVERLOG,
-                    International.getMessage("Remote efa Login von {ipaddress} fehlgeschlagen", peerAddress.toString()) +
+                    International.getMessage("efaRemote Login von {ipaddress} fehlgeschlagen", peerAddress.toString()) +
                     ": " + International.getString("Admin") + "=" + username);
                 return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.ERROR_INVALIDLOGIN, "Invalid Login");
             } else {
                 if (!admin.isAllowedRemoteAccess()) {
                     Logger.log(Logger.WARNING, Logger.MSG_REFA_SERVERLOG,
-                            International.getMessage("Remote efa Login von {ipaddress} mit ungenügenden Rechten", peerAddress.toString())
+                            International.getMessage("efaRemote Login von {ipaddress} mit ungenügenden Rechten", peerAddress.toString())
                             + ": " + International.getString("Admin") + "=" + username);
                     return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.ERROR_NOPERMISSION, "No Permission");
                 }
                 Logger.log(Logger.INFO, Logger.MSG_REFA_SERVERLOG,
-                    International.getMessage("Remote efa Login von {ipaddress} erfolgreich", peerAddress.toString()) +
+                    International.getMessage("efaRemote Login von {ipaddress} erfolgreich", peerAddress.toString()) +
                     ": " + International.getString("Admin") + "=" + username);
                 RemoteEfaMessage response = RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_OK,
                         Daten.VERSIONID);

@@ -119,6 +119,25 @@ public class Logbook extends StorageObject {
         if (add || update) {
             assertFieldNotEmpty(record, LogbookRecord.ENTRYID);
             assertUnique(record, LogbookRecord.ENTRYID);
+            
+            LogbookRecord r = (LogbookRecord)record;
+
+            // make sure enddate is after startdate
+            if (r.getDate() != null && r.getDate().isSet() && r.getEndDate() != null && r.getEndDate().isSet() && !r.getDate().isBefore(r.getEndDate())) {
+                throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                        International.getString("Das Enddatum des Fahrtenbucheintrags muß nach dem Startdatum liegen."),
+                        Thread.currentThread().getStackTrace());
+            }
+
+            // make sure that the entry's date fits into the selected session group
+            SessionGroupRecord sg = r.getSessionGroup();
+            if (sg != null && !sg.checkLogbookRecordFitsIntoRange(r)) {
+                    throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                              International.getMessage("Das Datum des Fahrtenbucheintrags {entry} liegt außerhalb des Zeitraums, "
+                        + "der für die ausgewählte Fahrtgruppe '{name}' angegeben wurde.",
+                        r.getEntryId().toString(), sg.getName()),
+                    Thread.currentThread().getStackTrace());
+            }
         }
         if (delete) {
             assertNotReferenced(record, getProject().getBoatStatus(false), new String[] { BoatStatusRecord.ENTRYNO }, true,

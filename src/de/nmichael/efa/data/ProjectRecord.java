@@ -626,7 +626,7 @@ public class ProjectRecord extends DataRecord {
     public static String[] getStorageTypeNameStrings() {
         return new String[] {
             International.getString("lokales Dateisystem"),
-            International.getString("Remote efa"),
+            International.getString("efaRemote"),
             International.getString("SQL-Datenbank")
         };
     }

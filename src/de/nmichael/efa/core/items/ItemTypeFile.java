@@ -44,6 +44,10 @@ public class ItemTypeFile extends ItemTypeString {
         this.fileOrDir = fileOrDir;
     }
 
+    public IItemType copyOf() {
+        return new ItemTypeFile(name, value, fileItem, fileTypes, fileExtensions, fileOpenSave, fileOrDir, type, category, description);
+    }
+
     public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
         super.displayOnGui(dlg, panel, x, y);
 

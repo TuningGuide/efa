@@ -26,15 +26,13 @@ public class AdminDialog extends BaseDialog implements IItemListener {
 
     private EfaBoathouseFrame efaBoathouseFrame;
     private AdminRecord admin;
-    private Logbook logbook;
     private JLabel projectName;
     private JLabel logbookName;
 
-    public AdminDialog(EfaBoathouseFrame parent, AdminRecord admin, Logbook logbook) {
+    public AdminDialog(EfaBoathouseFrame parent, AdminRecord admin) {
         super(parent, International.getStringWithMnemonic("Admin-Modus") + " [" + admin.getName() + "]", International.getStringWithMnemonic("Logout"));
         this.efaBoathouseFrame = parent;
         this.admin = admin;
-        this.logbook = logbook;
     }
 
     protected void iniDialog() throws Exception {
@@ -152,7 +150,7 @@ public class AdminDialog extends BaseDialog implements IItemListener {
         projectName.setText(International.getString("Projekt") + ": " +
                 (Daten.project != null ? Daten.project.getProjectName() : "- " + International.getString("kein Projekt geöffnet") + " -"));
         logbookName.setText(International.getString("Fahrtenbuch") + ": " +
-                (logbook != null ? logbook.getName() : "- " + International.getString("kein Fahrtenbuch geöffnet") + " -"));
+                (efaBoathouseFrame.getLogbook() != null ? efaBoathouseFrame.getLogbook().getName() : "- " + International.getString("kein Fahrtenbuch geöffnet") + " -"));
     }
 
     public void keyAction(ActionEvent evt) {
@@ -174,7 +172,7 @@ public class AdminDialog extends BaseDialog implements IItemListener {
             }
 
             // now check permissions and perform the menu action
-            boolean permission = EfaMenuButton.menuAction(this, action, admin, logbook);
+            boolean permission = EfaMenuButton.menuAction(this, action, admin, efaBoathouseFrame.getLogbook());
 
             // Projects and Logbooks are *not* handled within EfaMenuButton
             if (action.equals(EfaMenuButton.BUTTON_PROJECTS) && permission) {
@@ -186,7 +184,7 @@ public class AdminDialog extends BaseDialog implements IItemListener {
                     Dialog.error(International.getString("Kein Projekt geöffnet."));
                     return;
                 }
-                logbook = efaBoathouseFrame.openLogbook(admin);
+                efaBoathouseFrame.openLogbook(admin);
                 updateInfos();
             }
 

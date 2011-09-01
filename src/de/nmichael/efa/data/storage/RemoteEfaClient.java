@@ -251,7 +251,7 @@ public class RemoteEfaClient extends DataAccess {
 
     private String getErrorLogstring(String requestName, String msg, int code) {
         return getStorageObjectName() + "." + getStorageObjectType() + ": " +
-               International.getMessage("Remote efa Anfrage {request} fehlgeschlagen: {reason}", requestName, msg + " (Code " + code + ")");
+               International.getMessage("efaRemote-Anfrage {request} fehlgeschlagen: {reason}", requestName, msg + " (Code " + code + ")");
     }
 
     private int runSimpleRequest(RemoteEfaMessage request) {

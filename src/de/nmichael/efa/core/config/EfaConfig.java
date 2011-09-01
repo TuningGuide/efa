@@ -576,7 +576,7 @@ public class EfaConfig extends StorageObject {
                     IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
                     International.getString("Melden von Bootsschäden erlauben")));
             addParameter(efaDirekt_lockEfaShowHtml = new ItemTypeString("LockEfaPage", "",
-                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
                     International.getString("efa sperren") + ": "
                     + International.getString("HTML-Seite anzeigen")));
             addParameter(efaDirekt_lockEfaVollbild = new ItemTypeBoolean("LockEfaFullScreen", false,
@@ -662,7 +662,7 @@ public class EfaConfig extends StorageObject {
                     IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
                     International.getString("efa maximiert starten")));
             addParameter(efaDirekt_fensterNichtVerschiebbar = new ItemTypeBoolean("EfaBoathouseWindowFixedPosition", true,
-                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
                     International.getString("Hauptfenster nicht verschiebbar")));
             addParameter(efaDirekt_immerImVordergrund = new ItemTypeBoolean("EfaBoathouseWindowAlwaysOnTop", false,
                     IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
@@ -1955,6 +1955,8 @@ public class EfaConfig extends StorageObject {
         iniTypes(typesCoxing, EfaTypes.CATEGORY_COXING);
         iniTypes(typesSession, EfaTypes.CATEGORY_SESSION);
         iniTypes(typesStatus, EfaTypes.CATEGORY_STATUS);
+        standardFahrtart.setListData(EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES),
+                                     EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY));
     }
 
     private void iniTypes(ItemTypeHashtable<String> types, String cat) {

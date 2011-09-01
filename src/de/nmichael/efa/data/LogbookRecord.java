@@ -375,6 +375,16 @@ public class LogbookRecord extends DataRecord {
     public UUID getSessionGroupId() {
         return getUUID(SESSIONGROUPID);
     }
+    public SessionGroupRecord getSessionGroup() {
+        UUID id = getUUID(SESSIONGROUPID);
+        if (id != null) {
+            SessionGroups sessionGroups = getPersistence().getProject().getSessionGroups(false);
+            if (sessionGroups != null) {
+                return sessionGroups.findSessionGroupRecord(id);
+            }
+        }
+        return null;
+    }
 
     public void setSyncState(int syncState) {
         setInt(EFBSYNCSTATE, syncState);

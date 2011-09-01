@@ -160,6 +160,19 @@ public class ItemTypeTable extends ItemType implements ActionListener {
         table.scrollRectToVisible(table.getCellRect(i, 0, true));
     }
 
+    public void selectValue(String value) {
+        for (int i = 0; keys != null && value != null && i < keys.length; i++) {
+            if (value.equals(keys[i])) {
+                int currentIdx = table.getCurrentRowIndex(i);
+                if (currentIdx >= 0) {
+                    scrollToRow(currentIdx);
+                }
+                break;
+            }
+        }
+    }
+
+
     protected void iniDisplay() {
         scrollPane = new JScrollPane();
         scrollPane.setPreferredSize(new Dimension(fieldWidth, fieldHeight));

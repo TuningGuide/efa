@@ -85,6 +85,9 @@ public class SessionGroupListDialog extends DataListDialog {
         super.iniDialog();
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setDefaultActionForDoubleclick(ACTION_SELECT);
+        if (selectedSessionGroupId != null) {
+            table.selectValue(selectedSessionGroupId.toString());
+        }
     }
 
     public void keyAction(ActionEvent evt) {

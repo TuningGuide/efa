@@ -97,6 +97,11 @@ public class Dialog {
     MAX_DIALOG_HEIGHT = (int)(Dialog.screenSize.height / (fontSize*1.6)) - 5;
   }
 
+  public static float getScalingFactor() {
+      int fontSize = (FONT_SIZE>0 ? FONT_SIZE : 12);
+      return (((float)fontSize)/12f);
+  }
+
 
   public static int DateiErstellen(String dat) {
     switch (Dialog.yesNoDialog(

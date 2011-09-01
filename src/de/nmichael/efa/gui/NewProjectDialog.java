@@ -55,7 +55,7 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
             case 1:
                 return International.getString("Bitte wähle, wo die Daten des Projekts gespeichert werden sollen") + ":\n"+
                         "  "+International.getString("lokales Dateisystem - speichert die Daten lokal auf Deinem Computer")+"\n"+
-                        "  "+International.getString("Remote efa - greift auf Daten in einem entfernt laufenden efa zu")+"\n"+
+                        "  "+International.getString("efaRemote - greift auf Daten in einem entfernt laufenden efa zu")+"\n"+
                         "  "+International.getString("SQL-Datenbank - speichert die Daten in einer beliebigen SQL-Datenbank");
             case 2:
                 return International.getString("Bitte gib an, wo die Daten gespeichert werden sollen und wie der Zugriff erfolgen soll");// + ":\n"+

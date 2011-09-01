@@ -12,6 +12,7 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.ex.EfaModifyException;
 import java.util.*;
 
@@ -74,6 +75,35 @@ public class SessionGroups extends StorageObject {
             assertFieldNotEmpty(record, SessionGroupRecord.NAME);
             assertUnique(record, new String[] { SessionGroupRecord.NAME, SessionGroupRecord.LOGBOOK });
             assertFieldNotEmpty(record, SessionGroupRecord.LOGBOOK);
+            assertFieldNotEmpty(record, SessionGroupRecord.STARTDATE);
+            assertFieldNotEmpty(record, SessionGroupRecord.ENDDATE);
+
+            // check whether ActiveDays is not larger than EndDate-StartDate
+            DataTypeDate startDate = ((SessionGroupRecord)record).getStartDate();
+            DataTypeDate endDate   = ((SessionGroupRecord)record).getEndDate();
+            int activeDays = ((SessionGroupRecord)record).getActiveDays();
+            if (startDate.isSet() && endDate.isSet() && activeDays != IDataAccess.UNDEFINED_INT) {
+                long days = startDate.getDifferenceDays(endDate) + 1;
+                if (activeDays < 1 || activeDays > days) {
+                    throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                              International.getMessage("Das Feld '{field}' hat einen ungültigen Wert.", SessionGroupRecord.ACTIVEDAYS),
+                              Thread.currentThread().getStackTrace());
+                }
+            }
+
+            // check whether all referencing logbook records fit into this range
+            Vector<LogbookRecord> logbookRecords = ((SessionGroupRecord)record).getAllReferencingLogbookRecords();
+            for (int i=0; logbookRecords != null && i<logbookRecords.size(); i++) {
+                LogbookRecord r = logbookRecords.get(i);
+                if (!((SessionGroupRecord)record).checkLogbookRecordFitsIntoRange(r)) {
+                    throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                            International.getMessage("Das Datum des Fahrtenbucheintrags {entry} liegt außerhalb des Zeitraums, "
+                            + "der für die ausgewählte Fahrtgruppe '{name}' angegeben wurde.",
+                            r.getEntryId().toString(), ((SessionGroupRecord)record).getName()),
+                            Thread.currentThread().getStackTrace());
+                }
+                
+            }
         }
         if (delete) {
             assertNotReferenced(record, getProject().getLogbook(((SessionGroupRecord)record).getLogbook(), false),

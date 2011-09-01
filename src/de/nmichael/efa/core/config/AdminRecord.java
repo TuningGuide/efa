@@ -54,6 +54,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
     public static final String MSGAUTOREADADMIN      = "MsgAutoMarkReadAdmin";
     public static final String MSGAUTOREADBOATMAINT  = "MsgAutoMarkReadBoatMaintenance";
     public static final String EDITSTATISTICS        = "EditStatistics";
+    public static final String REMOTEACCESS          = "RemoteAccess";
     public static final String SYNCKANUEFB           = "SyncKanuEfb";
     public static final String SHOWLOGFILE           = "ShowLogfile";
     public static final String EXITEFA               = "ExitEfa";
@@ -89,6 +90,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
         f.add(MSGAUTOREADADMIN);                  t.add(IDataAccess.DATA_BOOLEAN);
         f.add(MSGAUTOREADBOATMAINT);              t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EDITSTATISTICS);                    t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(REMOTEACCESS);                      t.add(IDataAccess.DATA_BOOLEAN);
         f.add(SYNCKANUEFB);                       t.add(IDataAccess.DATA_BOOLEAN);
         f.add(SHOWLOGFILE);                       t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EXITEFA);                           t.add(IDataAccess.DATA_BOOLEAN);
@@ -283,6 +285,13 @@ public class AdminRecord extends DataRecord implements IItemListener {
         return getBool(EDITSTATISTICS);
     }
 
+    public void setAllowedRemoteAccess(boolean allowed) {
+        setBool(REMOTEACCESS, allowed);
+    }
+    public Boolean isAllowedRemoteAccess() {
+        return getBool(REMOTEACCESS);
+    }
+
     public void setAllowedSyncKanuEfb(boolean allowed) {
         setBool(SYNCKANUEFB, allowed);
     }
@@ -334,34 +343,73 @@ public class AdminRecord extends DataRecord implements IItemListener {
     }
 
     public void makeSurePermissionsAreCorrect() {
+        boolean changed = false;
         if (getName() != null && getName().equals(Admins.SUPERADMIN)) {
-            setAllowedEditAdmins(true);
-            setAllowedChangePassword(true);
-            setAllowedConfiguration(true);
-            setAllowedAdministerProjectLogbook(true);
-            setAllowedEditLogbook(true);
-            setAllowedEditBoatStatus(true);
-            setAllowedEditBoatReservation(true);
-            setAllowedEditBoatDamages(true);
-            setAllowedEditBoats(true);
-            setAllowedEditPersons(true);
-            setAllowedEditDestinations(true);
-            setAllowedEditGroups(true);
-            setAllowedEditCrews(true);
-            setAllowedEditFahrtenabzeichen(true);
-            setAllowedMsgReadAdmin(true);
-            setAllowedMsgReadBoatMaintenance(true);
-            setAllowedMsgMarkReadAdmin(true);
-            setAllowedMsgMarkReadBoatMaintenance(true);
-            setAllowedEditStatistics(true);
-            setAllowedSyncKanuEfb(true);
-            setAllowedShowLogfile(true);
-            setAllowedExitEfa(true);
-            setAllowedLockEfa(true);
-            setAllowedUpdateEfa(true);
-            setAllowedExecCommand(true);
+            if (!isAllowedEditAdmins()
+                    || !isAllowedChangePassword()
+                    || !isAllowedConfiguration()
+                    || !isAllowedAdministerProjectLogbook()
+                    || !isAllowedEditLogbook()
+                    || !isAllowedEditBoatStatus()
+                    || !isAllowedEditBoatReservation()
+                    || !isAllowedEditBoatDamages()
+                    || !isAllowedEditBoats()
+                    || !isAllowedEditPersons()
+                    || !isAllowedEditDestinations()
+                    || !isAllowedEditGroups()
+                    || !isAllowedEditCrews()
+                    || !isAllowedEditFahrtenabzeichen()
+                    || !isAllowedMsgReadAdmin()
+                    || !isAllowedMsgReadBoatMaintenance()
+                    || !isAllowedMsgMarkReadAdmin()
+                    || !isAllowedMsgMarkReadBoatMaintenance()
+                    || !isAllowedEditStatistics()
+                    || !isAllowedRemoteAccess()
+                    || !isAllowedSyncKanuEfb()
+                    || !isAllowedShowLogfile()
+                    || !isAllowedExitEfa()
+                    || !isAllowedLockEfa()
+                    || !isAllowedUpdateEfa()
+                    || !isAllowedExecCommand()) {
+                setAllowedEditAdmins(true);
+                setAllowedChangePassword(true);
+                setAllowedConfiguration(true);
+                setAllowedAdministerProjectLogbook(true);
+                setAllowedEditLogbook(true);
+                setAllowedEditBoatStatus(true);
+                setAllowedEditBoatReservation(true);
+                setAllowedEditBoatDamages(true);
+                setAllowedEditBoats(true);
+                setAllowedEditPersons(true);
+                setAllowedEditDestinations(true);
+                setAllowedEditGroups(true);
+                setAllowedEditCrews(true);
+                setAllowedEditFahrtenabzeichen(true);
+                setAllowedMsgReadAdmin(true);
+                setAllowedMsgReadBoatMaintenance(true);
+                setAllowedMsgMarkReadAdmin(true);
+                setAllowedMsgMarkReadBoatMaintenance(true);
+                setAllowedEditStatistics(true);
+                setAllowedRemoteAccess(true);
+                setAllowedSyncKanuEfb(true);
+                setAllowedShowLogfile(true);
+                setAllowedExitEfa(true);
+                setAllowedLockEfa(true);
+                setAllowedUpdateEfa(true);
+                setAllowedExecCommand(true);
+                changed = true;
+            }
         } else {
-            setAllowedEditAdmins(false);
+            if (isAllowedEditAdmins()) {
+                setAllowedEditAdmins(false);
+                changed = true;
+            }
+        }
+        if (changed && getPersistence() != null && getPersistence().data() != null) {
+            try {
+                getPersistence().data().update(this);
+            } catch(Exception eignore) {
+            }
         }
     }
 
@@ -449,6 +497,9 @@ public class AdminRecord extends DataRecord implements IItemListener {
         v.add(item = new ItemTypeBoolean(EDITSTATISTICS, isAllowedEditStatistics(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Statistiken erstellen")));
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
+        v.add(item = new ItemTypeBoolean(REMOTEACCESS, isAllowedRemoteAccess(),
+                IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Remote-Zugriff über efa Remote")));
+        ((ItemTypeBoolean) item).setEnabled(!isSuperAdmin());
         if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
             v.add(item = new ItemTypeBoolean(SYNCKANUEFB, isAllowedSyncKanuEfb(),
                     IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.onlyFor("mit KanuEfb synchonisieren","de")));

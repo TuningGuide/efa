@@ -400,9 +400,9 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
             return new Vector<String>();
         }
         Vector<String> v = new Vector<String>();
-        Persons p = this.getPersistence().getProject().getPersons(false);
+        Groups p = this.getPersistence().getProject().getGroups(false);
         for (int i=0; p != null && i < list.length(); i++) {
-            PersonRecord r = p.getPerson(list.get(i), validAt);
+            GroupRecord r = p.findGroupRecord(list.get(i), validAt);
             if (r != null) {
                 v.add(r.getQualifiedName());
             }
@@ -430,6 +430,17 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     }
     public UUID getRequiredGroupId() {
         return getUUID(REQUIREDGROUPID);
+    }
+    public String getRequiredGroupAsName(long validAt) {
+        UUID id = getUUID(REQUIREDGROUPID);
+        Groups groups = getPersistence().getProject().getGroups(false);
+        if (groups != null) {
+            DataRecord r = groups.findGroupRecord(id, validAt);
+            if (r != null) {
+                return r.getQualifiedName();
+            }
+        }
+        return null;
     }
 
     public void setOnlyWithBoatCaptain(boolean onlyWithBoatCaptain) {
@@ -495,6 +506,17 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     public UUID getDefaultCrewId() {
         return getUUID(DEFAULTCREWID);
     }
+    public String getDefaultCrewAsName() {
+        UUID id = getUUID(DEFAULTCREWID);
+        Crews crews = getPersistence().getProject().getCrews(false);
+        if (crews != null) {
+            DataRecord r = crews.getCrew(id);
+            if (r != null) {
+                return r.getQualifiedName();
+            }
+        }
+        return null;
+    }
 
     public void setDefaultSessionType(String type) {
         setString(DEFAULTSESSIONTYPE, type);
@@ -508,6 +530,17 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     }
     public UUID getDefaultDestinationId() {
         return getUUID(DEFAULTDESTINATIONID);
+    }
+    public String getDefaultDestinationAsName(long validAt) {
+        UUID id = getUUID(DEFAULTDESTINATIONID);
+        Destinations destinations = getPersistence().getProject().getDestinations(false);
+        if (destinations != null) {
+            DataRecord r = destinations.getDestination(id, validAt);
+            if (r != null) {
+                return r.getQualifiedName();
+            }
+        }
+        return null;
     }
 
     public void setFreeUse1(String s) {
@@ -733,6 +766,164 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         return null;
     }
 
+    public String getAsText(String fieldName) {
+        if (fieldName.equals(TYPEVARIANT) ||
+            fieldName.equals(TYPEDESCRIPTION)) {
+            DataTypeList list = (DataTypeList)get(fieldName);
+            if (list != null) {
+                return list.toString();
+            }
+            return null;
+        }
+        if (fieldName.equals(TYPETYPE) ||
+            fieldName.equals(TYPESEATS) ||
+            fieldName.equals(TYPERIGGING) ||
+            fieldName.equals(TYPECOXING)) {
+            DataTypeList list = (DataTypeList)get(fieldName);
+            if (list == null) {
+                return null;
+            } else {
+                String cat = null;
+                if (fieldName.equals(TYPETYPE)) {
+                    cat = EfaTypes.CATEGORY_BOAT;
+                }
+                if (fieldName.equals(TYPESEATS)) {
+                    cat = EfaTypes.CATEGORY_NUMSEATS;
+                }
+                if (fieldName.equals(TYPERIGGING)) {
+                    cat = EfaTypes.CATEGORY_RIGGING;
+                }
+                if (fieldName.equals(TYPECOXING)) {
+                    cat = EfaTypes.CATEGORY_COXING;
+                }
+                String s = null;
+                for (int i=0; i<list.length(); i++) {
+                    s = (s != null ? s + ";" : "") + Daten.efaTypes.getValue(cat, (String)list.get(i));
+                }
+                return s;
+            }
+        }
+        if (fieldName.equals(ALLOWEDGROUPIDLIST)) {
+            DataTypeList list = (DataTypeList)get(fieldName);
+            if (list == null) {
+                return null;
+            } else {
+                return getAllowedGroupsAsNameString(System.currentTimeMillis());
+            }
+        }
+        if (fieldName.equals(REQUIREDGROUPID)) {
+            return getRequiredGroupAsName(System.currentTimeMillis());
+        }
+        if (fieldName.equals(DEFAULTCREWID)) {
+            return getDefaultCrewAsName();
+        }
+        if (fieldName.equals(DEFAULTSESSIONTYPE)) {
+            String s = getAsString(fieldName);
+            if (s != null) {
+                return Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, s);
+            }
+            return null;
+        }
+        if (fieldName.equals(DEFAULTDESTINATIONID)) {
+            return getDefaultDestinationAsName(System.currentTimeMillis());
+        }
+        return super.getAsText(fieldName);
+    }
+
+    public void setFromText(String fieldName, String value) {
+        if (fieldName.equals(TYPEVARIANT)) {
+            DataTypeList list = DataTypeList.parseList(value, IDataAccess.DATA_INTEGER);
+            if (list != null && list.isSet() && list.length() > 0) {
+                set(fieldName, list);
+            }
+            return;
+        }
+        if (fieldName.equals(TYPEDESCRIPTION)) {
+            DataTypeList list = DataTypeList.parseList(value, IDataAccess.DATA_STRING);
+            if (list != null && list.isSet() && list.length() > 0) {
+                set(fieldName, list);
+            }
+            return;
+        }
+        if (fieldName.equals(TYPETYPE) ||
+            fieldName.equals(TYPESEATS) ||
+            fieldName.equals(TYPERIGGING) ||
+            fieldName.equals(TYPECOXING)) {
+            DataTypeList list = DataTypeList.parseList(value, IDataAccess.DATA_STRING);
+            if (list != null && list.isSet() && list.length() > 0) {
+                String cat = null;
+                if (fieldName.equals(TYPETYPE)) {
+                    cat = EfaTypes.CATEGORY_BOAT;
+                }
+                if (fieldName.equals(TYPESEATS)) {
+                    cat = EfaTypes.CATEGORY_NUMSEATS;
+                }
+                if (fieldName.equals(TYPERIGGING)) {
+                    cat = EfaTypes.CATEGORY_RIGGING;
+                }
+                if (fieldName.equals(TYPECOXING)) {
+                    cat = EfaTypes.CATEGORY_COXING;
+                }
+                String s = null;
+                for (int i=0; i<list.length(); i++) {
+                    s = Daten.efaTypes.getTypeForValue(cat, (String)list.get(i));
+                    if (s != null) {
+                        list.set(i, s);
+                    }
+                }
+                set(fieldName, list);
+                return;
+            }
+        }
+        if (fieldName.equals(ALLOWEDGROUPIDLIST)) {
+            Vector<String> values = EfaUtil.split(value, ',');
+            DataTypeList<UUID> list = new DataTypeList<UUID>();
+            Groups groups = getPersistence().getProject().getGroups(false);
+            for (int i=0; i<values.size(); i++) {
+                GroupRecord gr = groups.findGroupRecord(values.get(i).trim(), -1);
+                if (gr != null) {
+                    list.add(gr.getId());
+                }
+            }
+            if (list.length() > 0) {
+                set(fieldName, list);
+            }
+            return;
+        }
+        if (fieldName.equals(REQUIREDGROUPID)) {
+            Groups groups = getPersistence().getProject().getGroups(false);
+            GroupRecord gr = groups.findGroupRecord(value, -1);
+            if (gr != null) {
+                set(fieldName, gr.getId());
+            }
+            return;
+        }
+        if (fieldName.equals(DEFAULTCREWID)) {
+            Crews crews = getPersistence().getProject().getCrews(false);
+            CrewRecord gr = crews.findCrewRecord(value);
+            if (gr != null) {
+                set(fieldName, gr.getId());
+            }
+            return;
+        }
+        if (fieldName.equals(DEFAULTSESSIONTYPE)) {
+            String s = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, value);
+            if (s != null) {
+                set(fieldName, s);
+            }
+            return;
+        }
+        if (fieldName.equals(DEFAULTDESTINATIONID)) {
+            Destinations destinations = getPersistence().getProject().getDestinations(false);
+            DestinationRecord dr = destinations.getDestination(value, -1);
+            if (dr != null) {
+                set(fieldName, dr.getId());
+            }
+            return;
+        }
+        set(fieldName, value);
+    }
+
     public Vector<IItemType> getGuiItems() {
         String CAT_BASEDATA     = "%01%" + International.getString("Basisdaten");
         String CAT_MOREDATA     = "%02%" + International.getString("Weitere Daten");
@@ -841,25 +1032,31 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         item.setFieldSize(300, -1);
 
         // CAT_RESERVATIONS
-        v.add(item = new ItemTypeDataRecordTable(GUIITEM_RESERVATIONS,
-            boatReservations.createNewRecord().getGuiTableHeader(),
-            boatReservations, 0,
-            BoatReservationRecord.BOATID, getId().toString(),
-            null, null, this,
-            IItemType.TYPE_PUBLIC, CAT_RESERVATIONS, International.getString("Reservierungen")));
+        if (getId() != null) {
+            v.add(item = new ItemTypeDataRecordTable(GUIITEM_RESERVATIONS,
+                    boatReservations.createNewRecord().getGuiTableHeader(),
+                    boatReservations, 0,
+                    BoatReservationRecord.BOATID, getId().toString(),
+                    null, null, this,
+                    IItemType.TYPE_PUBLIC, CAT_RESERVATIONS, International.getString("Reservierungen")));
+        }
 
         // CAT_DAMAGES
-        v.add(item = new ItemTypeDataRecordTable(GUIITEM_DAMAGES,
-            boatDamages.createNewRecord().getGuiTableHeader(),
-            boatDamages, 0,
-            BoatDamageRecord.BOATID, getId().toString(),
-            null, null, this,
-            IItemType.TYPE_PUBLIC, CAT_DAMAGES, International.getString("Bootsschäden")));
+        if (getId() != null) {
+            v.add(item = new ItemTypeDataRecordTable(GUIITEM_DAMAGES,
+                    boatDamages.createNewRecord().getGuiTableHeader(),
+                    boatDamages, 0,
+                    BoatDamageRecord.BOATID, getId().toString(),
+                    null, null, this,
+                    IItemType.TYPE_PUBLIC, CAT_DAMAGES, International.getString("Bootsschäden")));
+        }
 
         // CAT_STATUS
-        BoatStatusRecord boatStatusRecord = boatStatus.getBoatStatus(getId());
-        if (boatStatusRecord != null) {
-            v.addAll(boatStatusRecord.getGuiItems());
+        if (getId() != null) {
+            BoatStatusRecord boatStatusRecord = boatStatus.getBoatStatus(getId());
+            if (boatStatusRecord != null) {
+                v.addAll(boatStatusRecord.getGuiItems());
+            }
         }
 
         // CAT_FREEUSE
@@ -973,7 +1170,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         // nothing to do
     }
 
-    public DataEditDialog createNewDataEditDialog(JDialog parent, Persistence persistence, DataRecord record) {
+    public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record) {
         boolean newRecord = false;
         if (persistence != null && persistence instanceof BoatReservations) {
             if (record == null) {

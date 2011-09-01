@@ -36,7 +36,7 @@ public class FahrtenabzeichenListDialog extends DataListDialog {
         _keyAction(evt);
     }
 
-    public DataEditDialog createNewDataEditDialog(JDialog parent, Persistence persistence, DataRecord record) {
+    public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record) {
         boolean newRecord = (record == null);
         if (record == null) {
             record = Daten.project.getFahrtenabzeichen(false).createFahrtenabzeichenRecord(UUID.randomUUID());

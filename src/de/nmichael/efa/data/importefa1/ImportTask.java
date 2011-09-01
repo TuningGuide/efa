@@ -149,15 +149,15 @@ public class ImportTask extends ProgressTask {
     }
 
     public String synMitglieder_genMainName(String syn) {
-        return ( synMitglieder.get(syn) != null ? synMitglieder.get(syn) : syn);
+        return ( synMitglieder != null && synMitglieder.get(syn) != null ? synMitglieder.get(syn) : syn);
     }
 
     public String synBoote_genMainName(String syn) {
-        return ( synBoote.get(syn) != null ? synBoote.get(syn) : syn);
+        return ( synBoote != null && synBoote.get(syn) != null ? synBoote.get(syn) : syn);
     }
 
     public String synZiele_genMainName(String syn) {
-        return ( synZiele.get(syn) != null ? synZiele.get(syn) : syn);
+        return ( synZiele != null && synZiele.get(syn) != null ? synZiele.get(syn) : syn);
     }
 
     public void setAddresses(Hashtable<String,String> addr) {
@@ -165,7 +165,7 @@ public class ImportTask extends ProgressTask {
     }
 
     public String getAddress(String name) {
-        return addresses.get(name);
+        return (addresses != null ? addresses.get(name) : null);
     }
 
     public void setBoatsAllowedGroups(Hashtable<DataKey,String> boatsAllowedGroups) {

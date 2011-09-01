@@ -17,7 +17,7 @@ import java.util.*;
 
 // @i18n complete
 
-public class Status extends Persistence {
+public class Status extends StorageObject {
 
     public static final String DATATYPE = "efa2status";
 
@@ -27,8 +27,12 @@ public class Status extends Persistence {
     private UUID idGuest;
     private UUID idOther;
 
-    public Status(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Status"));
+    public Status(int storageType, 
+            String storageLocation,
+            String storageUsername,
+            String storagePassword,
+            String storageObjectName) {
+        super(storageType, storageLocation, storageUsername, storagePassword, storageObjectName, DATATYPE, International.getString("Status"));
         StatusRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
@@ -201,6 +205,7 @@ public class Status extends Persistence {
 
     public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
         if (add || update) {
+            assertFieldNotEmpty(record, StatusRecord.ID);
             assertFieldNotEmpty(record, StatusRecord.NAME);
             assertUnique(record, StatusRecord.NAME);
         }

@@ -17,12 +17,16 @@ import java.util.*;
 
 // @i18n complete
 
-public class Waters extends Persistence {
+public class Waters extends StorageObject {
 
     public static final String DATATYPE = "efa2waters";
 
-    public Waters(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Gewässer"));
+    public Waters(int storageType, 
+            String storageLocation,
+            String storageUsername,
+            String storagePassword,
+            String storageObjectName) {
+        super(storageType, storageLocation, storageUsername, storagePassword, storageObjectName, DATATYPE, International.getString("Gewässer"));
         WatersRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
@@ -60,6 +64,7 @@ public class Waters extends Persistence {
 
     public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
         if (add || update) {
+            assertFieldNotEmpty(record, WatersRecord.ID);
             assertFieldNotEmpty(record, WatersRecord.NAME);
             assertUnique(record, WatersRecord.NAME);
         }

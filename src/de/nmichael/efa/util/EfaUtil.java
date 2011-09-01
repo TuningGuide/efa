@@ -44,7 +44,60 @@ public class EfaUtil {
 
   private static java.awt.Container java_awt_Container = new java.awt.Container();
 
-  // überprüfen, ob "c" ein "echtes" Zeichen (Buchstabe, Ziffer, Whitespace) ist
+    public static String escapeXml(String str) {
+        str = replaceString(str,"&","&amp;");
+        str = replaceString(str,"<","&lt;");
+        str = replaceString(str,">","&gt;");
+        str = replaceString(str,"\"","&quot;");
+        str = replaceString(str,"'","&apos;");
+        return str;
+    }
+
+    // from StringW
+    public static String replaceString(String text, String repl, String with) {
+        return replaceString(text, repl, with, -1);
+    }
+
+    /**
+     * Replace a string with another string inside a larger string, for
+     * the first n values of the search string.
+     *
+     * @param text String to do search and replace in
+     * @param repl String to search for
+     * @param with String to replace with
+     * @param n    int    values to replace
+     *
+     * @return String with n values replacEd
+     */
+    public static String replaceString(String text, String repl, String with, int max) {
+        if (text == null) {
+            return null;
+        }
+
+        StringBuffer buffer = new StringBuffer(text.length());
+        int start = 0;
+        int end = 0;
+        while ((end = text.indexOf(repl, start)) != -1) {
+            buffer.append(text.substring(start, end)).append(with);
+            start = end + repl.length();
+
+            if (--max == 0) {
+                break;
+            }
+        }
+        buffer.append(text.substring(start));
+
+        return buffer.toString();
+    }
+
+    public static String getString(String s, int length) {
+        while (s.length() < length) {
+            s = s + " ";
+        }
+        return s;
+    }
+    
+    // überprüfen, ob "c" ein "echtes" Zeichen (Buchstabe, Ziffer, Whitespace) ist
   public static boolean isRealChar(KeyEvent e) {
     char c = e.getKeyChar();
     return (Character.isLetter(c) || Character.isDigit(c) || Character.isWhitespace(c) ||
@@ -666,10 +719,14 @@ public class EfaUtil {
   }
 
   public static String int2String(int i, int digits) {
+      return int2String(i, digits, true);
+  }
+
+  public static String int2String(int i, int digits, boolean leadingZero) {
       StringBuilder s = new StringBuilder(digits);
       s.append(Integer.toString(i));
       while (s.length() < digits) {
-          s.insert(0, "0");
+          s.insert(0, (leadingZero ? "0" : " "));
       }
       return s.toString();
   }

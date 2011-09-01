@@ -126,8 +126,8 @@ public abstract class StepwiseDialog extends BaseDialog {
         descriptionLabel.setText(International.getString("Beschreibung")+":");
         descriptionPanel.add(descriptionLabel, BorderLayout.NORTH);
         JScrollPane descriptionScrollPane = new JScrollPane();
-        descriptionScrollPane.setPreferredSize(new Dimension(200,50));
-        descriptionScrollPane.setMinimumSize(new Dimension(200,50));
+        descriptionScrollPane.setPreferredSize(new Dimension(200,80));
+        descriptionScrollPane.setMinimumSize(new Dimension(200,80));
         descriptionPanel.add(descriptionScrollPane, BorderLayout.CENTER);
         descriptionText = new JTextArea();
         descriptionText.setEditable(false);
@@ -183,6 +183,9 @@ public abstract class StepwiseDialog extends BaseDialog {
         if (_thisStepItems != null) {
             int y = 1;
             for (IItemType item : _thisStepItems) {
+                if (item.getType() != IItemType.TYPE_PUBLIC) {
+                    continue;
+                }
                 y += item.displayOnGui(this, inputPanel, y);
                 if (item.isVisible() && item.isEnabled() && item.isEditable() && itemToBeFocused == null) {
                     itemToBeFocused = item;
@@ -237,6 +240,9 @@ public abstract class StepwiseDialog extends BaseDialog {
         if (_thisStepItems == null) {
             return true;
         }
+        if (direction < 0) {
+            return true;
+        }
         for (IItemType item : _thisStepItems) {
             if (!item.isValidInput()) {
                 Dialog.error(International.getMessage("Ungültiger Wert im Feld '{fieldname}'",item.getDescription()));
@@ -254,7 +260,9 @@ public abstract class StepwiseDialog extends BaseDialog {
             return false;
         }
         if (step > 0) {
-            step--;
+            do {
+                step--;
+            } while(step > 0 && (getInputItems(step) == null || getInputItems(step).length == 0));
             updateGui();
         }
         return true;
@@ -265,7 +273,9 @@ public abstract class StepwiseDialog extends BaseDialog {
             return false;
         }
         if (steps != null && step+1 < steps.length) {
-            step++;
+            do {
+                step++;
+            } while(step+1 < steps.length && (getInputItems(step) == null || getInputItems(step).length == 0));
             updateGui();
         }
         return true;

@@ -101,6 +101,7 @@ public class AdminLoginDialog extends BaseDialog {
             Dialog.error(International.getString("Admin-Name oder Paßwort ungültig!"));
             Logger.log(Logger.WARNING, Logger.MSG_ADMIN_LOGINFAILURE, International.getString("Admin-Login") + ": "
                     + International.getMessage("Name {name} oder Paßwort ungültig!", name.getValue()));
+            password.parseAndShowValue("");
             password.requestFocus();
             adminRecord = null;
             return;

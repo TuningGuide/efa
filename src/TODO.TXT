@@ -2,11 +2,9 @@
 
 Item                                                                 days  until
 ================================================================================
-EfaConfig Parameter names
-DataLayer: Remote GUI Access                                         2.0  23.08.
-DataLayer: Remote CLI Access                                         2.0  25.08.
-efa Online Services                                                  1.0  26.08.
-Import/Export with standardized CSV/XML Format (Header Names)        1.0  27.08.
+Backup
+Thumbnails
+Vorbereitung für Seminar: Installation & Test                        1.0  02.09.
 
 DataLayer: DB Access                                                 4.0  28.08.
 Online Update                                                        0.5  29.08.
@@ -14,19 +12,18 @@ Statistics - Framework                                               4.0  02.09.
 Statistics - Basic Statistics                                        1.0  03.09.
 Individual Distance per Person for each Session                      0.5  04.09.
 AutoComplete: match anything within input/change list content        0.5  04.09.
-Vorbereitung für Seminar: Installation & Test                        1.0  02.09.
 Audit
 --------------------------------------------------------------------------------
 Statistics - Advanced Statistics
 Statistics - Kilometerwettbewerbe
 Administration of DRV-Fahrtenabzeichen
 efaWett (elektronische Meldung)
-Backup & Point-in-Time Recovery
+Backup
+Point-in-Time Recovery
 Data Safety and Concurrency: Optimistic Locking
 Data Safety and Concurrency: Journaling and File Copies
 Automatically add and purge names from Data Lists
 Widget Warnings (i.e. after sunset, flooding)
-Rewrite EfaConfig to use XML Files and remove old Config Parameters
 Rewrite remaining Dialogs/Frames
 Delete unused Classes
 Input of Regatta Results
@@ -42,4 +39,7 @@ EfaBoathouseFrame and EfaBaseFrame - interworking                    1.0  12.08.
 Show Logbook                                                         0.3  16.08.     16.08.
 Correct Misspelled Names                                             0.2  16.08.     16.08.
 MultiDay Sessions                                                    2.0  18.08.     18.08.
-
+DataLayer: Remote GUI Access                                         2.0  28.08.     28.08.
+efa Online Services                                                  1.0  31.08.     29.08.
+DataLayer: Remote CLI Access                                         2.0  30.08.     30.08.
+Import/Export with standardized CSV/XML Format (Header Names)        1.0  01.09.     31.08.

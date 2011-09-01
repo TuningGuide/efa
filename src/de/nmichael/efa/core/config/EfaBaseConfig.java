@@ -78,7 +78,7 @@ public class EfaBaseConfig {
         if (!dir.endsWith(Daten.fileSep)) {
             dir = dir + Daten.fileSep;
         }
-        if (efaCanWrite(dir, false)) {
+        if (efaCanWrite(dir, createDir)) {
             efaUserDirectory = dir;
             Logger.log(Logger.DEBUG, Logger.MSG_CORE_BASICCONFIG, "efa.dir.user=" + efaUserDirectory);
             return true;
@@ -92,10 +92,10 @@ public class EfaBaseConfig {
 
     // Einstellungen zurücksetzen
     void reset() {
-        efaUserDirectory = Daten.efaMainDirectory;
         language = null;
-        if (!trySetUserDir(efaUserDirectory, false)) {
-            efaUserDirectory = Daten.userHomeDir + (!Daten.userHomeDir.endsWith(Daten.fileSep) ? Daten.fileSep : "") + Daten.EFA_USERDATA_DIR + Daten.fileSep;
+        efaUserDirectory = Daten.userHomeDir + (!Daten.userHomeDir.endsWith(Daten.fileSep) ? Daten.fileSep : "") + Daten.EFA_USERDATA_DIR + Daten.fileSep;
+        if (!trySetUserDir(efaUserDirectory, true)) {
+            efaUserDirectory = Daten.efaMainDirectory;
             if (!trySetUserDir(efaUserDirectory, false)) {
                 efaUserDirectory = null;
                 if (Logger.isTraceOn(Logger.TT_CORE)) {

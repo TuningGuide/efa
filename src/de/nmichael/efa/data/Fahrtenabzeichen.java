@@ -12,16 +12,21 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.ex.EfaModifyException;
 import java.util.*;
 
 // @i18n complete
 
-public class Fahrtenabzeichen extends Persistence {
+public class Fahrtenabzeichen extends StorageObject {
 
     public static final String DATATYPE = "efa2fahrtenabzeichen";
 
-    public Fahrtenabzeichen(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, DATATYPE, International.onlyFor("Fahrtenabzeichen","de"));
+    public Fahrtenabzeichen(int storageType, 
+            String storageLocation,
+            String storageUsername,
+            String storagePassword,
+            String storageObjectName) {
+        super(storageType, storageLocation, storageUsername, storagePassword, storageObjectName, DATATYPE, International.onlyFor("Fahrtenabzeichen","de"));
         FahrtenabzeichenRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
@@ -34,6 +39,12 @@ public class Fahrtenabzeichen extends Persistence {
         FahrtenabzeichenRecord r = new FahrtenabzeichenRecord(this, MetaData.getMetaData(DATATYPE));
         r.setPersonId(id);
         return r;
+    }
+
+    public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
+        if (add || update) {
+            assertFieldNotEmpty(record, FahrtenabzeichenRecord.PERSONID);
+        }
     }
 
 }

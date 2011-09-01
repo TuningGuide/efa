@@ -88,6 +88,23 @@ public class GroupRecord extends DataRecord implements IItemFactory {
         return (list == null ? 0 : list.length());
     }
 
+    public String getMemberIdListAsString(long validAt) {
+        DataTypeList<UUID> list = getMemberIdList();
+        if (list == null) {
+            return null;
+        }
+        StringBuffer s = new StringBuffer();
+        Persons persons = getPersistence().getProject().getPersons(false);
+        for (int i=0; i<list.length(); i++) {
+            UUID id = list.get(i);
+            PersonRecord r = persons.getPerson(id, validAt);
+            if (r != null) {
+                s.append((s.length() > 0 ? "; " : "") + r.getQualifiedName());
+            }
+        }
+        return s.toString();
+    }
+
     public String getQualifiedName() {
         String name = getName();
         return (name != null ? name : "");
@@ -99,6 +116,32 @@ public class GroupRecord extends DataRecord implements IItemFactory {
 
     public Object getUniqueIdForRecord() {
         return getId();
+    }
+
+    public String getAsText(String fieldName) {
+        if (fieldName.equals(MEMBERIDLIST)) {
+            return getMemberIdListAsString(System.currentTimeMillis());
+        }
+        return super.getAsText(fieldName);
+    }
+
+    public void setFromText(String fieldName, String value) {
+        if (fieldName.equals(MEMBERIDLIST)) {
+            Vector<String> values = EfaUtil.split(value, ';');
+            DataTypeList<UUID> list = new DataTypeList<UUID>();
+            Persons persons = getPersistence().getProject().getPersons(false);
+            for (int i=0; i<values.size(); i++) {
+                PersonRecord pr = persons.getPerson(values.get(i).trim(), -1);
+                if (pr != null) {
+                    list.add(pr.getId());
+                }
+            }
+            if (list.length() > 0) {
+                set(fieldName, list);
+            }
+            return;
+        }
+        set(fieldName, value);
     }
 
     public IItemType[] getDefaultItems(String itemName) {

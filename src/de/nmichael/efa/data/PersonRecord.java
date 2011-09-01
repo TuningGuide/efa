@@ -401,6 +401,39 @@ public class PersonRecord extends DataRecord {
         return getId();
     }
 
+    public String getAsText(String fieldName) {
+        if (fieldName.equals(GENDER)) {
+            String s = getAsString(fieldName);
+            if (s != null) {
+                return Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, s);
+            }
+            return null;
+        }
+        if (fieldName.equals(STATUSID)) {
+            return getStatusName();
+        }
+        return super.getAsText(fieldName);
+    }
+
+    public void setFromText(String fieldName, String value) {
+        if (fieldName.equals(GENDER)) {
+            String s = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_GENDER, value);
+            if (s != null) {
+                set(fieldName, s);
+            }
+            return;
+        }
+        if (fieldName.equals(STATUSID)) {
+            Status status = getPersistence().getProject().getStatus(false);
+            StatusRecord sr = status.findStatusByName(value);
+            if (sr != null) {
+                set(fieldName, sr.getId());
+            }
+            return;
+        }
+        set(fieldName, value);
+    }
+
     public Vector<IItemType> getGuiItems() {
         String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
         String CAT_MOREDATA = "%02%" + International.getString("Weitere Daten");

@@ -90,7 +90,7 @@ public class DataFileWriter extends Thread {
         if (System.currentTimeMillis() - lastSave > SAVE_INTERVAL) {
             this.interrupt();
         }
-        while (synchronous && writedata) {
+        while (synchronous && writedata && dataFile.isStorageObjectOpen()) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {

@@ -109,7 +109,7 @@ public class SessionGroupListDialog extends DataListDialog {
         }
     }
 
-    public DataEditDialog createNewDataEditDialog(JDialog parent, Persistence persistence, DataRecord record) {
+    public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record) {
         boolean newRecord = (record == null);
         if (record == null && persistence != null && filterFieldValue != null) {
             record = ((SessionGroups)persistence).createSessionGroupRecord(UUID.randomUUID(), filterFieldValue);

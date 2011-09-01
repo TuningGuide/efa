@@ -54,54 +54,9 @@ public class XMLFile extends DataFile {
     }
 
     private String xmltag(String tag, String value) {
-        return xmltagStart(tag) + escapeXml(value) + xmltagEnd(tag);
+        return xmltagStart(tag) + EfaUtil.escapeXml(value) + xmltagEnd(tag);
     }
 
-    private String escapeXml(String str) {
-        str = replaceString(str,"&","&amp;");
-        str = replaceString(str,"<","&lt;");
-        str = replaceString(str,">","&gt;");
-        str = replaceString(str,"\"","&quot;");
-        str = replaceString(str,"'","&apos;");
-        return str;
-    } 
-    
-    // from StringW
-    private String replaceString(String text, String repl, String with) {
-        return replaceString(text, repl, with, -1);
-    }
-
-    /**
-     * Replace a string with another string inside a larger string, for
-     * the first n values of the search string.
-     *
-     * @param text String to do search and replace in
-     * @param repl String to search for
-     * @param with String to replace with
-     * @param n    int    values to replace
-     *
-     * @return String with n values replacEd
-     */
-    private String replaceString(String text, String repl, String with, int max) {
-        if (text == null) {
-            return null;
-        }
-
-        StringBuffer buffer = new StringBuffer(text.length());
-        int start = 0;
-        int end = 0;
-        while ((end = text.indexOf(repl, start)) != -1) {
-            buffer.append(text.substring(start, end)).append(with);
-            start = end + repl.length();
-
-            if (--max == 0) {
-                break;
-            }
-        }
-        buffer.append(text.substring(start));
-
-        return buffer.toString();
-    }
 
     protected synchronized void readFile(BufferedReader fr) throws EfaException {
         isOpen = true;

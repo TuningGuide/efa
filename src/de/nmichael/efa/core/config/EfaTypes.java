@@ -19,7 +19,7 @@ import java.util.*;
 
 // @i18n complete
 
-public class EfaTypes extends Persistence {
+public class EfaTypes extends StorageObject {
 
     public static final String DATATYPE = "efa2types";
 
@@ -113,7 +113,7 @@ public class EfaTypes extends Persistence {
 
     // Default Construktor
     public EfaTypes(CustSettings custSettings) {
-        super(IDataAccess.TYPE_FILE_XML, Daten.efaCfgDirectory, "types", DATATYPE, International.getString("Bezeichnungen"));
+        super(IDataAccess.TYPE_FILE_XML, Daten.efaCfgDirectory, null, null, "types", DATATYPE, International.getString("Bezeichnungen"));
         EfaTypeRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
         this.custSettings = custSettings;
@@ -297,10 +297,12 @@ public class EfaTypes extends Persistence {
         try {
             Vector<EfaTypeRecord> types = new Vector<EfaTypeRecord>();
             DataKey[] keys = data().getByFields(new String[] { EfaTypeRecord.CATEGORY }, new String[] { cat });
-            for (DataKey key : keys) {
-                EfaTypeRecord r = (EfaTypeRecord)data().get(key);
-                if (r.getCategory() != null && r.getCategory().equals(cat)) {
-                    types.add(r);
+            if (keys != null) {
+                for (DataKey key : keys) {
+                    EfaTypeRecord r = (EfaTypeRecord) data().get(key);
+                    if (r.getCategory() != null && r.getCategory().equals(cat)) {
+                        types.add(r);
+                    }
                 }
             }
             EfaTypeRecord[] ra = new EfaTypeRecord[types.size()];

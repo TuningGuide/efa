@@ -19,13 +19,19 @@ import de.nmichael.efa.util.Logger;
 
 // @i18n complete
 
-public abstract class Persistence {
+public abstract class StorageObject {
 
     protected IDataAccess dataAccess;
     protected Project project;
 
-    public Persistence(int storageType, String storageLocation, String storageObjectName, String storageObjectType, String storageObjectDescription) {
-        dataAccess = DataAccess.createDataAccess(this, storageType, storageLocation, storageObjectName, storageObjectType, storageObjectDescription);
+    public StorageObject(int storageType,
+            String storageLocation,
+            String storageUsername,
+            String storagePassword,
+            String storageObjectName,
+            String storageObjectType,
+            String storageObjectDescription) {
+        dataAccess = DataAccess.createDataAccess(this, storageType, storageLocation, storageUsername, storagePassword, storageObjectName, storageObjectType, storageObjectDescription);
     }
 
     public void open(boolean createNewIfNotExists) throws EfaException {
@@ -149,16 +155,16 @@ public abstract class Persistence {
     /*
      * Note: referencingFields must be in the same order as the key fields of record!
      */
-    protected void assertNotReferenced(DataRecord record, Persistence referencingPersistence, String[] referencingFields) throws EfaModifyException {
+    protected void assertNotReferenced(DataRecord record, StorageObject referencingPersistence, String[] referencingFields) throws EfaModifyException {
         assertNotReferenced(record, referencingPersistence, referencingFields, true, null, null);
     }
     
-    protected void assertNotReferenced(DataRecord record, Persistence referencingPersistence, String[] referencingFields,
+    protected void assertNotReferenced(DataRecord record, StorageObject referencingPersistence, String[] referencingFields,
                                        boolean keyMustMatchInAllReferencingFields) throws EfaModifyException {
         assertNotReferenced(record, referencingPersistence, referencingFields, keyMustMatchInAllReferencingFields, null, null);
     }
 
-    protected void assertNotReferenced(DataRecord record, Persistence referencingPersistence, String[] referencingFields,
+    protected void assertNotReferenced(DataRecord record, StorageObject referencingPersistence, String[] referencingFields,
                                        boolean keyMustMatchInAllReferencingFields,
                                        String[] referencingFieldFilerNames, String[] referencingFieldFilerValues) throws EfaModifyException {
         if (this.data().inOpeningStorageObject()) {

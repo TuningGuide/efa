@@ -47,9 +47,9 @@ public class ImportCrews extends ImportBase {
             Persons persons = Daten.project.getPersons(false); // must be imported first!
             Destinations destinations = Daten.project.getDestinations(false); // must be imported first!
 
-            String[] IDXP = new String[] { PersonRecord.FIRSTNAME, PersonRecord.LASTNAME, PersonRecord.ASSOCIATION };
-            String[] IDXB = new String[] { BoatRecord.NAME, BoatRecord.OWNER };
-            String[] IDXD = new String[] { DestinationRecord.NAME };
+            String[] IDXP = PersonRecord.IDX_NAME_NAMEAFFIX;
+            String[] IDXB = BoatRecord.IDX_NAME_NAMEAFFIX;
+            String[] IDXD = DestinationRecord.IDX_NAME;
             
             DatenFelder d = mannschaften.getCompleteFirst();
             while (d != null) {

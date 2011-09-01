@@ -13,7 +13,6 @@ package de.nmichael.efa.data.storage;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.ex.EfaException;
-import java.util.*;
 import java.io.*;
 
 public class Journal {
@@ -39,6 +38,32 @@ public class Journal {
         this.storageObjectFilename = storageObjectFilename;
         this.scnsPerJournal = scnsPerJournal;
         this.numberOfJournals = numberOfJournals;
+    }
+
+    public static String getOperationName(Operation operation) {
+        switch (operation) {
+            case add:
+                return "Add";
+            case update:
+                return "Upd";
+            case delete:
+                return "Del";
+            case truncate:
+                return "Trc";
+        }
+        return null;
+    }
+
+    public static String encodeCommand(Operation operation, DataRecord r) {
+        return encodeCommand(new StringBuffer(), operation, r);
+    }
+
+    public static String encodeCommand(StringBuffer s, Operation operation, DataRecord r) {
+        s.append(getOperationName(operation) + ":");
+        if (operation != Operation.truncate) {
+            s.append(r.encodeAsString());
+        }
+        return s.toString();
     }
 
     public boolean close() {
@@ -110,29 +135,11 @@ public class Journal {
         return fw;
     }
 
-    public String getOperationName(Operation operation) {
-        switch (operation) {
-            case add:
-                return "Add";
-            case update:
-                return "Upd";
-            case delete:
-                return "Del";
-            case truncate:
-                return "Trc";
-        }
-        return null;
-    }
-
     public String getLogString(long scn, Operation operation, DataRecord r) {
         StringBuffer s = new StringBuffer();
         s.append("#" + scn + ":");
         s.append(System.currentTimeMillis() + ":");
-        s.append(getOperationName(operation) + ":");
-        if (operation != Operation.truncate) {
-            s.append(r.toString());
-        }
-        return s.toString();
+        return encodeCommand(s, operation, r);
     }
 
     public boolean log(long scn, Operation operation, DataRecord r) {

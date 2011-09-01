@@ -10,7 +10,7 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.*;
+import de.nmichael.efa.gui.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
@@ -31,7 +31,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
     public static final int ACTION_IMPORT  = -100; // negative actions will not be shown as popup actions
     public static final int ACTION_EXPORT  = -101; // negative actions will not be shown as popup actions
 
-    private Persistence persistence;
+    private StorageObject persistence;
     private long validAt;
 
     protected String[] actionText;
@@ -46,26 +46,23 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
     private JPanel buttonPanel;
     private Hashtable<ItemTypeButton,String> actionButtons;
 
-    public DataListDialog(Frame parent, String title, Persistence persistence, long validAt) {
+    public DataListDialog(Frame parent, String title, StorageObject persistence, long validAt) {
         super(parent, title, International.getStringWithMnemonic("Schließen"));
         setPersistence(persistence, validAt);
+        iniActions();
     }
 
-    public DataListDialog(JDialog parent, String title, Persistence persistence, long validAt) {
+    public DataListDialog(JDialog parent, String title, StorageObject persistence, long validAt) {
         super(parent, title, International.getStringWithMnemonic("Schließen"));
         setPersistence(persistence, validAt);
+        iniActions();
     }
 
     public void keyAction(ActionEvent evt) {
         _keyAction(evt);
     }
 
-    protected void iniDialog() throws Exception {
-        mainPanel.setLayout(new BorderLayout());
-        
-        JPanel mainTablePanel = new JPanel();
-        mainTablePanel.setLayout(new BorderLayout());
-
+    protected void iniActions() {
         if (persistence.data().getMetaData().isVersionized()) {
             actionText = new String[] {
                 ItemTypeDataRecordTable.ACTIONTEXT_NEW,
@@ -84,8 +81,29 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 ACTION_EXPORT
             };
         } else {
-
+            actionText = new String[] {
+                ItemTypeDataRecordTable.ACTIONTEXT_NEW,
+                ItemTypeDataRecordTable.ACTIONTEXT_EDIT,
+                ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
+                International.getString("Importieren"),
+                International.getString("Exportieren")
+            };
+            actionType = new int[] {
+                ItemTypeDataRecordTable.ACTION_NEW,
+                ItemTypeDataRecordTable.ACTION_EDIT,
+                ItemTypeDataRecordTable.ACTION_DELETE,
+                ACTION_IMPORT,
+                ACTION_EXPORT
+            };
         }
+    }
+
+
+    protected void iniDialog() throws Exception {
+        mainPanel.setLayout(new BorderLayout());
+        
+        JPanel mainTablePanel = new JPanel();
+        mainTablePanel.setLayout(new BorderLayout());
 
         table = new ItemTypeDataRecordTable("TABLE",
                 persistence.createNewRecord().getGuiTableHeader(),
@@ -129,7 +147,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
         this.validate();
     }
 
-    public void setPersistence(Persistence persistence, long validAt) {
+    public void setPersistence(StorageObject persistence, long validAt) {
         this.persistence = persistence;
         this.validAt = validAt;
     }
@@ -179,10 +197,12 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 }
                 break;
             case ACTION_IMPORT:
-                Dialog.infoDialog("Datenimport noch nicht implementiert!"); // @todo (P3) implement Data Import
+                DataImportDialog dlg1 = new DataImportDialog(this, persistence, validAt);
+                dlg1.showDialog();
                 break;
             case ACTION_EXPORT:
-                Dialog.infoDialog("Datenexport noch nicht implementiert!"); // @todo (P3) implement Data Export
+                DataExportDialog dlg2 = new DataExportDialog(this, persistence, validAt);
+                dlg2.showDialog();
                 break;
         }
     }

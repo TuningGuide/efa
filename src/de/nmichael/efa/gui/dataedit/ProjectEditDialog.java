@@ -44,22 +44,31 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog {
         this.logbookName = logbookName;
         Vector<IItemType> guiItems = new Vector<IItemType>();
         try {
-            DataKeyIterator it = p.data().getStaticIterator();
-            DataKey k = it.getFirst();
-            while (k != null) {
-                ProjectRecord r = (ProjectRecord)p.data().get(k);
-                if (logbookName != null &&
-                     (!r.getType().equals(ProjectRecord.TYPE_LOGBOOK) || !r.getLogbookName().equals(logbookName))) {
-                    k = it.getNext();
-                    continue;
+            ProjectRecord r;
+            if (logbookName != null) {
+                r = p.getLoogbookRecord(logbookName);
+                if (r != null) {
+                    guiItems.addAll(r.getGuiItems(subtype, null, false));
                 }
-                Vector<IItemType> v = r.getGuiItems(subtype, null, false);
-                for (int i=0; i<v.size(); i++) {
-                    IItemType item = v.get(i);
-                    item.setName(r.getKey().toString() + ":" + item.getName());
-                    guiItems.add(item);
+            } else {
+                r = p.getProjectRecord();
+                if (r != null) {
+                    guiItems.addAll(r.getGuiItems(subtype, null, false));
                 }
-                k = it.getNext();
+                r = p.getClubRecord();
+                if (r != null) {
+                    guiItems.addAll(r.getGuiItems(subtype, null, false));
+                }
+                String[] logbooks = p.getAllLogbookNames();
+                for (int i = 0; logbooks != null && i < logbooks.length; i++) {
+                    r = p.getLoogbookRecord(logbooks[i]);
+                    Vector<IItemType> v = r.getGuiItems(subtype, null, false);
+                    for (int j = 0; j < v.size(); j++) {
+                        IItemType item = v.get(j);
+                        item.setName(r.getKey().toString() + ":" + item.getName());
+                        guiItems.add(item);
+                    }
+                }
             }
         } catch(Exception e) {
             Logger.logdebug(e);
@@ -104,7 +113,7 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog {
                 }
                 ProjectRecord r = project.getRecord(k);
                 r.saveGuiItems(ki);
-                project.data().update(r);
+                project.getMyDataAccess(r.getType()).update(r);
             }
             for(IItemType item : getItems()) {
                 item.setUnchanged();

@@ -58,8 +58,8 @@ public class ItemTypeFile extends ItemTypeString {
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { buttonHit(e); }
         });
-        panel.add(button, new GridBagConstraints(x+2, y, 1, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+        panel.add(button, new GridBagConstraints(x+1+fieldWidth, y, 1, 1, 0.0, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, padYafter, padXafter), 0, 0));
         return 1;
     }
 
@@ -80,6 +80,7 @@ public class ItemTypeFile extends ItemTypeString {
         if (file != null) {
             value = file;
             showValue();
+            actionEvent(e);
         }
         
     }

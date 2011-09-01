@@ -17,13 +17,19 @@ import java.util.*;
 
 // @i18n complete
 
-public class Crews extends Persistence {
+public class Crews extends StorageObject {
 
     public static final String DATATYPE = "efa2crews";
+    public CrewRecord staticCrewRecord;
 
-    public Crews(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Mannschaften"));
+    public Crews(int storageType, 
+            String storageLocation,
+            String storageUsername,
+            String storagePassword,
+            String storageObjectName) {
+        super(storageType, storageLocation, storageUsername, storagePassword, storageObjectName, DATATYPE, International.getString("Mannschaften"));
         CrewRecord.initialize();
+        staticCrewRecord = (CrewRecord)createNewRecord();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
 
@@ -46,8 +52,23 @@ public class Crews extends Persistence {
         }
     }
 
+    public CrewRecord findCrewRecord(String crewName) {
+        try {
+            DataKey[] keys = data().getByFields(
+                staticCrewRecord.getQualifiedNameFields(), staticCrewRecord.getQualifiedNameValues(crewName));
+            if (keys == null || keys.length < 1) {
+                return null;
+            }
+            return (CrewRecord)data().get(keys[0]);
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
     public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
         if (add || update) {
+            assertFieldNotEmpty(record, CrewRecord.ID);
             assertFieldNotEmpty(record, CrewRecord.NAME);
             assertUnique(record, CrewRecord.NAME);
         }

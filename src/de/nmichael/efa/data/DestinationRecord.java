@@ -200,6 +200,37 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
         return getId();
     }
 
+    public String getAsText(String fieldName) {
+        if (fieldName.equals(WATERSIDLIST)) {
+            DataTypeList list = (DataTypeList)get(fieldName);
+            if (list == null) {
+                return null;
+            } else {
+                return getWatersNamesStringList();
+            }
+        }
+        return super.getAsText(fieldName);
+    }
+
+    public void setFromText(String fieldName, String value) {
+        if (fieldName.equals(WATERSIDLIST)) {
+            Vector<String> values = EfaUtil.split(value, ',');
+            DataTypeList<UUID> list = new DataTypeList<UUID>();
+            Waters waters = getPersistence().getProject().getWaters(false);
+            for (int i=0; i<values.size(); i++) {
+                WatersRecord wr = waters.findWatersByName(values.get(i).trim());
+                if (wr != null) {
+                    list.add(wr.getId());
+                }
+            }
+            if (list.length() > 0) {
+                set(fieldName, list);
+            }
+            return;
+        }
+        set(fieldName, value);
+    }
+
     public IItemType[] getDefaultItems(String itemName) {
         if (itemName.equals(GUIITEM_WATERSIDLIST)) {
             IItemType[] items = new IItemType[1];

@@ -21,7 +21,7 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 import javax.swing.UIManager;
 
-public class EfaConfig extends Persistence {
+public class EfaConfig extends StorageObject {
 
     public static final String DATATYPE = "efa2config";
 
@@ -54,6 +54,7 @@ public class EfaConfig extends Persistence {
     public static final String CATEGORY_WIDGETS       = "17WIDGETS";
     public static final String CATEGORY_DATAACCESS    = "18DATAACCESS";
     public static final String CATEGORY_DATAXML       = "181DATAXML";
+    public static final String CATEGORY_DATAREMOTE    = "182DATAREMOTE";
 
     private static final int STRINGLIST_VALUES  = 1;
     private static final int STRINGLIST_DISPLAY = 2;
@@ -127,6 +128,7 @@ public class EfaConfig extends Persistence {
     private ItemTypeStringList defaultDistanceUnit;
     private ItemTypeBoolean debugLogging;
     private ItemTypeString traceTopic;
+    private ItemTypeInteger traceLevel;
     private ItemTypeString efaVersionLastCheck;
     private ItemTypeString version;
     private ItemTypeBoolean efaDirekt_zielBeiFahrtbeginnPflicht;
@@ -153,7 +155,6 @@ public class EfaConfig extends Persistence {
     private ItemTypeInteger efaDirekt_exitIdleTime;
     private ItemTypeString efaDirekt_execOnEfaAutoExit;
     private ItemTypeTime efaDirekt_restartTime;
-    private ItemTypeBoolean efaDirekt_checkRunning;
     private ItemTypeConfigButton efaDirekt_butFahrtBeginnen;
     private ItemTypeConfigButton efaDirekt_butFahrtBeenden;
     private ItemTypeConfigButton efaDirekt_butFahrtAbbrechen;
@@ -232,6 +233,16 @@ public class EfaConfig extends Persistence {
     private ItemTypeString kanuEfb_urlLogin;
     private ItemTypeString kanuEfb_urlRequest;
     private ItemTypeBoolean dataPreModifyRecordCallbackEnabled;
+    private ItemTypeBoolean dataRemoteEfaServerEnabled;
+    private ItemTypeInteger dataRemoteEfaServerPort;
+    private ItemTypeString dataRemoteEfaOnlineUrl;
+    private ItemTypeBoolean dataRemoteEfaOnlineEnabled;
+    private ItemTypeString dataRemoteEfaOnlineUsername;
+    private ItemTypePassword dataRemoteEfaOnlinePassword;
+    private ItemTypeLong dataRemoteEfaOnlineUpdateInterval;
+    private ItemTypeLong dataRemoteCacheExpiryTime;
+    private ItemTypeLong dataRemoteIsOpenExpiryTime;
+    private ItemTypeLong dataRemoteLoginFailureRetryTime;
     private Vector<IWidget> widgets;
 
     // private internal data
@@ -240,13 +251,21 @@ public class EfaConfig extends Persistence {
     private Vector<String> configValueNames;
     private ConfigValueUpdateThread configValueUpdateThread;
 
+    public EfaConfig(int storageType,
+            String storageLocation,
+            String storageUsername,
+            String storagePassword) {
+        super(storageType, storageLocation, storageUsername, storagePassword, "configuration", DATATYPE, International.getString("Konfiguration"));
+        initialize(null);
+    }
+
     public EfaConfig() {
-        super(IDataAccess.TYPE_FILE_XML, Daten.efaCfgDirectory, "configuration", DATATYPE, International.getString("Konfiguration"));
+        super(IDataAccess.TYPE_FILE_XML, Daten.efaCfgDirectory, null, null, "configuration", DATATYPE, International.getString("Konfiguration"));
         initialize(null);
     }
 
     public EfaConfig(CustSettings custSettings) {
-        super(IDataAccess.TYPE_FILE_XML, Daten.efaCfgDirectory, "configuration", DATATYPE, International.getString("Konfiguration"));
+        super(IDataAccess.TYPE_FILE_XML, Daten.efaCfgDirectory, null, null, "configuration", DATATYPE, International.getString("Konfiguration"));
         initialize(custSettings);
     }
 
@@ -319,8 +338,10 @@ public class EfaConfig extends Persistence {
                 }
             }
         }
-        (configValueUpdateThread = new ConfigValueUpdateThread()).start();
-        updateConfigValuesWithPersistence();
+        if (data().getStorageType() != IDataAccess.TYPE_EFA_REMOTE) {
+            (configValueUpdateThread = new ConfigValueUpdateThread()).start();
+            updateConfigValuesWithPersistence();
+        }
     }
 
     public void close() throws EfaException {
@@ -359,6 +380,9 @@ public class EfaConfig extends Persistence {
         categories.put(CATEGORY_TYPES_GEND,    International.getString("Geschlecht"));
         categories.put(CATEGORY_TYPES_STAT,    International.getString("Status"));
         categories.put(CATEGORY_WIDGETS,       International.getString("Widgets"));
+        categories.put(CATEGORY_DATAACCESS,    International.getString("Daten"));
+        categories.put(CATEGORY_DATAXML,       International.getString("lokale Dateien"));
+        categories.put(CATEGORY_DATAREMOTE,    International.getString("Remote efa"));
     }
 
     // initialize all configuration parameters with their default values
@@ -397,6 +421,9 @@ public class EfaConfig extends Persistence {
             addParameter(traceTopic = new ItemTypeString("DebugTraceTopic", "",
                     IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON),
                     International.getString("Trace-Topic")));
+            addParameter(traceLevel = new ItemTypeInteger("DebugTraceLevel", 1, 1, 9,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_COMMON),
+                    International.getString("Trace-Level")));
 
             // ============================= COMMON:INPUT =============================
             addParameter(nameFormat = new ItemTypeStringList("NameFormat", NAMEFORMAT_LASTFIRST,
@@ -634,14 +661,14 @@ public class EfaConfig extends Persistence {
             addParameter(efaDirekt_startMaximized = new ItemTypeBoolean("EfaBoathouseWindowMaximized", true,
                     IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
                     International.getString("efa maximiert starten")));
-            addParameter(efaDirekt_fensterNichtVerschiebbar = new ItemTypeBoolean("EfaBoathouseWindowFixedPosition", false,
+            addParameter(efaDirekt_fensterNichtVerschiebbar = new ItemTypeBoolean("EfaBoathouseWindowFixedPosition", true,
                     IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
                     International.getString("Hauptfenster nicht verschiebbar")));
             addParameter(efaDirekt_immerImVordergrund = new ItemTypeBoolean("EfaBoathouseWindowAlwaysOnTop", false,
                     IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
                     International.getString("efa immer im Vordergrund")));
             addParameter(efaDirekt_immerImVordergrundBringToFront = new ItemTypeBoolean("EfaBoathouseWindowAlwaysOnTopBringToFront", false, // @todo (P5) EfaBoathouseWindowAlwaysOnTopBringToFront can be deleted (?)
-                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
                     International.getString("efa immer im Vordergrund") + " (bringToFront)"));
             addParameter(efaDirekt_fontSize = new ItemTypeInteger("EfaBoathouseFontSize", (Dialog.screenSize.width >= 1024 ? 16 : 12), 6, 32, false,
                     IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
@@ -836,10 +863,10 @@ public class EfaConfig extends Persistence {
                     + International.getString("Signatur")));
 
             // ============================= SYNC =============================
-            addParameter(kanuEfb_urlLogin = new ItemTypeString("KanuEfbLoginUrl", "http://sid.kanu-efb.de/services/login",
+            addParameter(kanuEfb_urlLogin = new ItemTypeString("KanuEfbUrlLogin", "http://kanu-efb.de/services/login",
                     IItemType.TYPE_EXPERT, makeCategory(CATEGORY_SYNC, CATEGORY_KANUEFB),
                     "Login URL"));
-            addParameter(kanuEfb_urlRequest = new ItemTypeString("KanuEfbRequestUrl", "http://sid.kanu-efb.de/services",
+            addParameter(kanuEfb_urlRequest = new ItemTypeString("KanuEfbUrlRequest", "http://kanu-efb.de/services",
                     IItemType.TYPE_EXPERT, makeCategory(CATEGORY_SYNC, CATEGORY_KANUEFB),
                     "Request URL"));
 
@@ -931,8 +958,41 @@ public class EfaConfig extends Persistence {
             addParameter(dataPreModifyRecordCallbackEnabled = new ItemTypeBoolean("DataPreModifyRecordCallbackEnabled", true,
                     IItemType.TYPE_EXPERT, makeCategory(CATEGORY_DATAACCESS, CATEGORY_COMMON),
                     "PreModifyRecordCallbackEnabled"));
+            addParameter(dataRemoteEfaServerEnabled = new ItemTypeBoolean("DataRemoteEfaServerEnabled", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
+                    International.getString("Remote-Zugriff erlauben")));
+            addParameter(dataRemoteEfaServerPort = new ItemTypeInteger("DataRemoteEfaServerPort", 0xEFA, 1, 65535,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
+                    International.getString("Server Port")));
+            addParameter(dataRemoteCacheExpiryTime = new ItemTypeLong("DataRemoteCacheExpiryTime", 10, 1, 3600,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
+                    "Cache Expiry Time (sec)"));
+            addParameter(dataRemoteIsOpenExpiryTime = new ItemTypeLong("DataRemoteIsOpenExpiryTime", 60, 1, 3600,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
+                    "IsStorageObjectOpen Expiry Time (sec)"));
+            addParameter(dataRemoteLoginFailureRetryTime = new ItemTypeLong("DataRemoteLoginFailureRetryDelay", 600, 60, 24*3600,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
+                    "Login Failure Retry Delay (sec)"));
 
-
+            addParameter(dataRemoteEfaOnlineEnabled = new ItemTypeBoolean("DataRemoteEfaOnlineEnabled", false,
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
+                    International.getString("efaOnline aktivieren")));
+            addParameter(dataRemoteEfaOnlineUsername = new ItemTypeString("DataRemoteEfaOnlineUsername", "",
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
+                    International.getString("efaOnline") + " - " +
+                    International.getString("Benutzername") +
+                    " (" + International.getString("Server") + ")"));
+            addParameter(dataRemoteEfaOnlinePassword = new ItemTypePassword("DataRemoteEfaOnlinePassword", "",
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
+                    International.getString("efaOnline") + " - " +
+                    International.getString("Paßwort") +
+                    " (" + International.getString("Server") + ")"));
+            addParameter(dataRemoteEfaOnlineUrl = new ItemTypeString("DataRemoteEfaOnlineUrl", "http://efa-online.nmichael.de/efa",
+                    IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
+                    "efaOnline URL"));
+            addParameter(dataRemoteEfaOnlineUpdateInterval = new ItemTypeLong("DataRemoteEfaOnlineUpdateInverval", 3600, 60, 24*3600,
+                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
+                    "efaOnline Update Interval (sec)"));
         }
     }
 
@@ -1148,6 +1208,10 @@ public class EfaConfig extends Persistence {
         return traceTopic.getValue();
     }
 
+    public int getValueTraceLevel() {
+        return traceLevel.getValue();
+    }
+
     public String getValueEfaVersionLastCheck() {
         return efaVersionLastCheck.getValue();
     }
@@ -1250,10 +1314,6 @@ public class EfaConfig extends Persistence {
 
     public DataTypeTime getValueEfaDirekt_restartTime() {
         return efaDirekt_restartTime.getTime();
-    }
-
-    public boolean getValueEfaDirekt_checkRunning() {
-        return efaDirekt_checkRunning.getValue();
     }
 
     public ItemTypeConfigButton getValueEfaDirekt_butFahrtBeginnen() {
@@ -1584,6 +1644,46 @@ public class EfaConfig extends Persistence {
         return dataPreModifyRecordCallbackEnabled.getValue();
     }
 
+    public boolean getValueDataRemoteEfaServerEnabled() {
+        return dataRemoteEfaServerEnabled.getValue();
+    }
+
+    public int getValueDataataRemoteEfaServerPort() {
+        return dataRemoteEfaServerPort.getValue();
+    }
+
+    public String getValueDataRemoteEfaOnlineUrl() {
+        return dataRemoteEfaOnlineUrl.getValue();
+    }
+
+    public boolean getValueDataRemoteEfaOnlineEnabled() {
+        return dataRemoteEfaOnlineEnabled.getValue();
+    }
+
+    public String getValueDataRemoteEfaOnlineUsername() {
+        return dataRemoteEfaOnlineUsername.getValue();
+    }
+
+    public String getValueDataRemoteEfaOnlinePassword() {
+        return dataRemoteEfaOnlinePassword.getValue();
+    }
+
+    public long getValueDataRemoteEfaOnlineUpdateInterval() {
+        return dataRemoteEfaOnlineUpdateInterval.getValue();
+    }
+
+    public long getValueDataRemoteCacheExpiryTime() {
+        return dataRemoteCacheExpiryTime.getValue();
+    }
+
+    public long getValueDataRemoteIsOpenExpiryTime() {
+        return dataRemoteIsOpenExpiryTime.getValue();
+    }
+
+    public long getValueDataRemoteLoginFailureRetryTime() {
+        return dataRemoteLoginFailureRetryTime.getValue();
+    }
+
     public Vector<IWidget> getWidgets() {
         return widgets;
     }
@@ -1638,6 +1738,12 @@ public class EfaConfig extends Persistence {
                         changedSettings = (changedSettings == null ? "" : changedSettings + "\n") +
                                           International.getString("Regionale Anpassung");
                     }
+                    if (item == this.dataRemoteEfaServerEnabled ||
+                        item == this.dataRemoteEfaServerPort
+                        ) {
+                        changedSettings = (changedSettings == null ? "" : changedSettings + "\n") +
+                                          International.getString("Remote efa");
+                    }
                 }
             }
         }
@@ -1654,6 +1760,7 @@ public class EfaConfig extends Persistence {
         // set Debug Logging and Trace Topic (will only take effect if it has not been set through command line previously!!)
         Logger.setDebugLogging(debugLogging.getValue(),false);
         Logger.setTraceTopic(traceTopic.getValue(),false);
+        Logger.setTraceLevel(traceLevel.getValue(),false);
 
         // if isGuiConfigChange, i.e. if interactive changes have been made by the user, set other parameters as well
         if (!isGuiConfigChange) {

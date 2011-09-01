@@ -323,7 +323,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
                     }
                 }
                 boolean success = false;
-                if (Daten.project.getProjectName().equals(prj.getProjectName())) {
+                if (Daten.project != null && Daten.project.getProjectName().equals(prj.getProjectName())) {
                     success = Daten.project.deleteProject();
                     Daten.project = null;
                 } else {

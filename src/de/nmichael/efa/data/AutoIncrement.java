@@ -12,16 +12,20 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
-import java.util.*;
+import de.nmichael.efa.ex.EfaModifyException;
 
 // @i18n complete
 
-public class AutoIncrement extends Persistence {
+public class AutoIncrement extends StorageObject {
 
     public static final String DATATYPE = "efa2autoincrement";
 
-    public AutoIncrement(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, DATATYPE, "AutoIncrement");
+    public AutoIncrement(int storageType, 
+            String storageLocation,
+            String storageUsername,
+            String storagePassword,
+            String storageObjectName) {
+        super(storageType, storageLocation, storageUsername, storagePassword, storageObjectName, DATATYPE, "AutoIncrement");
         AutoIncrementRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
@@ -94,6 +98,12 @@ public class AutoIncrement extends Persistence {
             }
         }
         return -1;
+    }
+
+    public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
+        if (add || update) {
+            assertFieldNotEmpty(record, AutoIncrementRecord.SEQUENCE);
+        }
     }
 
 }

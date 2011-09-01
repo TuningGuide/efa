@@ -121,6 +121,10 @@ public class MetaData {
         return TYPES[i];
     }
 
+    public int getFieldType(String fieldName) {
+        return getFieldType(getFieldIndex(fieldName));
+    }
+
     public String[] getKeyFields() {
         return Arrays.copyOf(KEY, KEY.length);
     }

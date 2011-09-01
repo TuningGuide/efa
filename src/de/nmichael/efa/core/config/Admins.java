@@ -18,20 +18,20 @@ import java.util.*;
 
 // @i18n complete
 
-public class Admins extends Persistence {
+public class Admins extends StorageObject {
 
     public static final String DATATYPE = "efa2admins";
 
     public static final String SUPERADMIN = "admin";
 
     public Admins(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Administratoren"));
+        super(storageType, storageLocation, null, null, storageObjectName, DATATYPE, International.getString("Administratoren"));
         AdminRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
 
     public Admins() {
-        super(IDataAccess.TYPE_FILE_XML, Daten.efaCfgDirectory, "admins", DATATYPE, International.getString("Administratoren"));
+        super(IDataAccess.TYPE_FILE_XML, Daten.efaCfgDirectory, null, null, "admins", DATATYPE, International.getString("Administratoren"));
         AdminRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
@@ -51,7 +51,11 @@ public class Admins extends Persistence {
 
     public AdminRecord getAdmin(String name) {
         try {
-            return (AdminRecord)data().get(AdminRecord.getKey(name));
+            AdminRecord r = (AdminRecord)data().get(AdminRecord.getKey(name));
+            if (r != null) {
+                r.makeSurePermissionsAreCorrect();
+            }
+            return r;
         } catch(Exception e) {
             return null;
         }

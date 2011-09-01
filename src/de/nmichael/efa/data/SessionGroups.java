@@ -17,12 +17,16 @@ import java.util.*;
 
 // @i18n complete
 
-public class SessionGroups extends Persistence {
+public class SessionGroups extends StorageObject {
 
     public static final String DATATYPE = "efa2sessiongroups";
 
-    public SessionGroups(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Fahrtengruppen"));
+    public SessionGroups(int storageType, 
+            String storageLocation,
+            String storageUsername,
+            String storagePassword,
+            String storageObjectName) {
+        super(storageType, storageLocation, storageUsername, storagePassword, storageObjectName, DATATYPE, International.getString("Fahrtengruppen"));
         SessionGroupRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
@@ -66,6 +70,7 @@ public class SessionGroups extends Persistence {
 
     public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
         if (add || update) {
+            assertFieldNotEmpty(record, SessionGroupRecord.ID);
             assertFieldNotEmpty(record, SessionGroupRecord.NAME);
             assertUnique(record, new String[] { SessionGroupRecord.NAME, SessionGroupRecord.LOGBOOK });
             assertFieldNotEmpty(record, SessionGroupRecord.LOGBOOK);

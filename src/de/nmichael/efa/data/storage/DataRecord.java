@@ -20,17 +20,19 @@ import de.nmichael.efa.util.*;
 
 public abstract class DataRecord implements Cloneable, Comparable {
 
-    protected static final String LASTMODIFIED     = "LastModified";
-    protected static final String VALIDFROM        = "ValidFrom";
-    protected static final String INVALIDFROM      = "InvalidFrom";
-    protected static final String INVISIBLE        = "Invisible";
-    protected static final String DELETED          = "Deleted";
+    public static final String ENCODING_RECORD = "Record";
 
-    protected Persistence persistence;
+    public static final String LASTMODIFIED     = "LastModified";
+    public static final String VALIDFROM        = "ValidFrom";
+    public static final String INVALIDFROM      = "InvalidFrom";
+    public static final String INVISIBLE        = "Invisible";
+    public static final String DELETED          = "Deleted";
+
+    protected StorageObject persistence;
     protected MetaData metaData;
     protected Object[] data;
 
-    public DataRecord(Persistence persistence, MetaData metaData) {
+    public DataRecord(StorageObject persistence, MetaData metaData) {
         this.persistence = persistence;
         this.metaData = metaData;
         data = new Object[metaData.getNumberOfFields()];
@@ -205,6 +207,13 @@ public abstract class DataRecord implements Cloneable, Comparable {
         return (o != null ? o.toString() : null);
     }
 
+    public String getAsText(String fieldName) {
+        return getAsString(fieldName);
+    }
+
+    public void setFromText(String fieldName, String value) {
+        set(fieldName, value);
+    }
 
     protected boolean isDefaultValue(int fieldIdx) {
         int type = getFieldType(fieldIdx);
@@ -263,6 +272,19 @@ public abstract class DataRecord implements Cloneable, Comparable {
         }
         b.append("]");
         return b.toString();
+    }
+
+    public String encodeAsString() {
+        StringBuilder s = new StringBuilder();
+        s.append("<" + ENCODING_RECORD + ">");
+        for (int i=0; i<getFieldCount(); i++) {
+            Object o = get(i);
+            if (o != null && getFieldType(i) != IDataAccess.DATA_VIRTUAL && !isDefaultValue(i)) {
+                s.append("<" + getFieldName(i) + ">" + EfaUtil.escapeXml(o.toString()) + "</" +  getFieldName(i) + ">");
+            }
+        }
+        s.append("</" + ENCODING_RECORD + ">");
+        return s.toString();
     }
 
     public String getQualifiedName() {
@@ -587,12 +609,12 @@ public abstract class DataRecord implements Cloneable, Comparable {
         return null;
     }
 
-    public Persistence getPersistence() {
+    public StorageObject getPersistence() {
         return persistence;
     }
 
     protected ItemTypeStringAutoComplete getGuiItemTypeStringAutoComplete(String name, UUID value, int type, String category,
-            Persistence persistence, long validFrom, long validUntil,
+            StorageObject persistence, long validFrom, long validUntil,
             String description) {
         AutoCompleteList list = new AutoCompleteList();
         list.setDataAccess(persistence.data(), validFrom, validUntil);

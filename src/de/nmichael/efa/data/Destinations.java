@@ -17,13 +17,17 @@ import java.util.*;
 
 // @i18n complete
 
-public class Destinations extends Persistence {
+public class Destinations extends StorageObject {
 
     public static final String DATATYPE = "efa2destinations";
     public DestinationRecord staticDestinationRecord;
 
-    public Destinations(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, DATATYPE, 
+    public Destinations(int storageType, 
+            String storageLocation,
+            String storageUsername,
+            String storagePassword,
+            String storageObjectName) {
+        super(storageType, storageLocation, storageUsername, storagePassword, storageObjectName, DATATYPE,
                 International.getString("Ziele") + " / " +
                 International.getString("Strecken"));
         DestinationRecord.initialize();
@@ -106,6 +110,7 @@ public class Destinations extends Persistence {
 
     public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
         if (add || update) {
+            assertFieldNotEmpty(record, DestinationRecord.ID);
             assertFieldNotEmpty(record, DestinationRecord.NAME);
         }
         if (delete) {

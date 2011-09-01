@@ -64,8 +64,7 @@ public class BoatReservationListDialog extends DataListDialog {
             this.filterFieldValue = boatId.toString();
         }
         if (allowNewReservations && allowEditDeleteReservations) {
-            actionText = null; // default: ADD, EDIT, DELETE
-            actionType = null; // default: ADD, EDIT, DELETE
+            // default: ADD, EDIT, DELETE, IMPORT, EXPORT
         } else if (allowNewReservations) {
             actionText = new String[] { ItemTypeDataRecordTable.ACTIONTEXT_NEW };
             actionType = new int[] { ItemTypeDataRecordTable.ACTION_NEW };
@@ -84,7 +83,7 @@ public class BoatReservationListDialog extends DataListDialog {
         _keyAction(evt);
     }
 
-    public DataEditDialog createNewDataEditDialog(JDialog parent, Persistence persistence, DataRecord record) {
+    public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record) {
         boolean newRecord = (record == null);
         if (record == null && persistence != null && filterFieldValue != null) {
             record = ((BoatReservations)persistence).createBoatReservationsRecord(UUID.fromString(filterFieldValue));

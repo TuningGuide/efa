@@ -23,7 +23,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-public class NewProjectDialog extends StepwiseDialog {
+public class NewProjectDialog extends StepwiseDialog implements IItemListener {
 
     public NewProjectDialog(JDialog parent) {
         super(parent, International.getString("Neues Projekt"));
@@ -40,6 +40,7 @@ public class NewProjectDialog extends StepwiseDialog {
     String[] getSteps() {
         return new String[] {
             International.getString("Name und Beschreibung"),
+            International.getString("Speichertyp auswählen"),
             International.getString("Speicherort festlegen"),
             International.getString("Angaben zum Verein"),
             International.getString("Verbände")
@@ -54,10 +55,15 @@ public class NewProjectDialog extends StepwiseDialog {
             case 1:
                 return International.getString("Bitte wähle, wo die Daten des Projekts gespeichert werden sollen") + ":\n"+
                         "  "+International.getString("lokales Dateisystem - speichert die Daten lokal auf Deinem Computer")+"\n"+
+                        "  "+International.getString("Remote efa - greift auf Daten in einem entfernt laufenden efa zu")+"\n"+
                         "  "+International.getString("SQL-Datenbank - speichert die Daten in einer beliebigen SQL-Datenbank");
             case 2:
-                return International.getString("Bitte vervollständige die Angaben zu Deinem Verein.");
+                return International.getString("Bitte gib an, wo die Daten gespeichert werden sollen und wie der Zugriff erfolgen soll");// + ":\n"+
+                        //"  "+International.getString("lokales Dateisystem - speichert die Daten lokal auf Deinem Computer")+"\n"+
+                        //"  "+International.getString("SQL-Datenbank - speichert die Daten in einer beliebigen SQL-Datenbank");
             case 3:
+                return International.getString("Bitte vervollständige die Angaben zu Deinem Verein.");
+            case 4:
                 return International.getString("Bitte gib an, in welchen Dachverbänden Dein Verein Mitglied ist, und (falls vorhanden) die Benutzernamen "+
                         "für elektronische Meldung und ähnliche Dienste.");
         }
@@ -73,9 +79,10 @@ public class NewProjectDialog extends StepwiseDialog {
         r = Project.createNewRecordFromStatic(ProjectRecord.TYPE_PROJECT);
         items.addAll(r.getGuiItems(1, "0", true));
         items.addAll(r.getGuiItems(2, "1", true));
+        items.addAll(r.getGuiItems(3, "2", true));
         r = Project.createNewRecordFromStatic(ProjectRecord.TYPE_CLUB);
-        items.addAll(r.getGuiItems(1, "2", true));
-        items.addAll(r.getGuiItems(2, "3", true));
+        items.addAll(r.getGuiItems(1, "3", true));
+        items.addAll(r.getGuiItems(2, "4", true));
     }
 
     boolean checkInput(int direction) {
@@ -101,14 +108,72 @@ public class NewProjectDialog extends StepwiseDialog {
 
         if (step == 1) {
             ItemTypeStringList item = (ItemTypeStringList)getItemByName(ProjectRecord.STORAGETYPE);
-            if (!item.getValue().equals(IDataAccess.TYPESTRING_FILE_XML)) {
+            if (!item.getValue().equals(IDataAccess.TYPESTRING_FILE_XML) &&
+                !item.getValue().equals(IDataAccess.TYPESTRING_EFA_REMOTE)) {
                 Dialog.error(International.getMessage("Die ausgewählte Option '{option}' wird zur Zeit noch nicht unterstützt.",
                         item.getValue()));
                 item.requestFocus();
                 return false;
             }
+
+            // remove all StorageType-specific config options
+            ProjectRecord r = Project.createNewRecordFromStatic(ProjectRecord.TYPE_PROJECT);
+            Vector<IItemType> itemsToBeDeleted = new Vector<IItemType>();
+            itemsToBeDeleted.addAll(r.getGuiItems(3, "2", true));
+            r.setStorageType(IDataAccess.TYPE_EFA_REMOTE);
+            itemsToBeDeleted.addAll(r.getGuiItems(3, "2", true));
+            r.setStorageType(IDataAccess.TYPE_DB_SQL);
+            itemsToBeDeleted.addAll(r.getGuiItems(3, "2", true));
+            for (int i=0; i<items.size(); i++) {
+                for (int j=0; j<itemsToBeDeleted.size(); j++) {
+                    if (items.get(i).getName().equals(itemsToBeDeleted.get(j).getName())) {
+                        items.remove(i--);
+                    }
+                }
+            }
+
+            // add all StorageType-specific config options
+            r.setStorageType(IDataAccess.TYPE_FILE_XML);
+            if (item.getValue().equals(IDataAccess.TYPESTRING_EFA_REMOTE)) {
+                r.setStorageType(IDataAccess.TYPE_EFA_REMOTE);
+            }
+            if (item.getValue().equals(IDataAccess.TYPESTRING_DB_SQL)) {
+                r.setStorageType(IDataAccess.TYPE_DB_SQL);
+            }
+            items.addAll(r.getGuiItems(3, "2", true));
+            if (item.getValue().equals(IDataAccess.TYPESTRING_EFA_REMOTE)) {
+                IItemType checkbox = getItemByName(ProjectRecord.EFAONLINECONNECT);
+                if (checkbox != null) {
+                    checkbox.registerItemListener(this);
+                    itemListenerAction(checkbox, null);
+                }
+            }
+
+
         }
         return true;
+    }
+
+    public void itemListenerAction(IItemType itemType, AWTEvent event) {
+        if (itemType.getName().equals(ProjectRecord.EFAONLINECONNECT) && (event == null || event instanceof ActionEvent)) {
+            boolean efaOnline = Boolean.parseBoolean(itemType.getValueFromField());
+            IItemType item;
+            item = getItemByName(ProjectRecord.STORAGELOCATION);
+            if (item != null) {
+                item.setNotNull(!efaOnline);
+                item.setEnabled(!efaOnline);
+            }
+            item = getItemByName(ProjectRecord.EFAONLINEUSERNAME);
+            if (item != null) {
+                item.setNotNull(efaOnline);
+                item.setEnabled(efaOnline);
+            }
+            item = getItemByName(ProjectRecord.EFAONLINEPASSWORD);
+            if (item != null) {
+                item.setNotNull(efaOnline);
+                item.setEnabled(efaOnline);
+            }
+        }
     }
 
     boolean finishButton_actionPerformed(ActionEvent e) {
@@ -123,6 +188,9 @@ public class NewProjectDialog extends StepwiseDialog {
         if (storType.getValue().equals(IDataAccess.TYPESTRING_FILE_XML)) {
             storageType = IDataAccess.TYPE_FILE_XML;
         }
+        if (storType.getValue().equals(IDataAccess.TYPESTRING_EFA_REMOTE)) {
+            storageType = IDataAccess.TYPE_EFA_REMOTE;
+        }
         if (storType.getValue().equals(IDataAccess.TYPESTRING_DB_SQL)) {
             storageType = IDataAccess.TYPE_DB_SQL;
         }
@@ -132,11 +200,34 @@ public class NewProjectDialog extends StepwiseDialog {
         try {
             prj.open(true);
             prj.setEmptyProject(prjName.getValue());
+
             // Project Properties
             prj.setProjectDescription(((ItemTypeString)getItemByName(ProjectRecord.DESCRIPTION)).getValue());
             prj.setProjectStorageType(storageType);
             prj.setAdminName(((ItemTypeString)getItemByName(ProjectRecord.ADMINNAME)).getValue());
             prj.setAdminEmail(((ItemTypeString)getItemByName(ProjectRecord.ADMINEMAIL)).getValue());
+            if (getItemByName(ProjectRecord.STORAGELOCATION) != null) {
+                prj.setProjectStorageLocation(((ItemTypeString)getItemByName(ProjectRecord.STORAGELOCATION)).getValue());
+            }
+            if (getItemByName(ProjectRecord.STORAGEUSERNAME) != null) {
+                prj.setProjectStorageUsername(((ItemTypeString)getItemByName(ProjectRecord.STORAGEUSERNAME)).getValue());
+            }
+            if (getItemByName(ProjectRecord.STORAGEPASSWORD) != null) {
+                prj.setProjectStoragePassword(((ItemTypeString)getItemByName(ProjectRecord.STORAGEPASSWORD)).getValue());
+            }
+            if (getItemByName(ProjectRecord.REMOTEPROJECTNAME) != null) {
+                prj.setProjectRemoteProjectName(((ItemTypeString)getItemByName(ProjectRecord.REMOTEPROJECTNAME)).getValue());
+            }
+            if (getItemByName(ProjectRecord.EFAONLINECONNECT) != null) {
+                prj.setProjectEfaOnlineConnect(((ItemTypeBoolean)getItemByName(ProjectRecord.EFAONLINECONNECT)).getValue());
+            }
+            if (getItemByName(ProjectRecord.EFAONLINEUSERNAME) != null) {
+                prj.setProjectEfaOnlineUsername(((ItemTypeString)getItemByName(ProjectRecord.EFAONLINEUSERNAME)).getValue());
+            }
+            if (getItemByName(ProjectRecord.EFAONLINEPASSWORD) != null) {
+                prj.setProjectEfaOnlinePassword(((ItemTypePassword)getItemByName(ProjectRecord.EFAONLINEPASSWORD)).getValue());
+            }
+
             // Club Properties (1)
             prj.setClubName(((ItemTypeString)getItemByName(ProjectRecord.CLUBNAME)).getValue());
             prj.setClubAddressStreet(((ItemTypeString)getItemByName(ProjectRecord.ADDRESSSTREET)).getValue());
@@ -144,6 +235,7 @@ public class NewProjectDialog extends StepwiseDialog {
             if (getItemByName(ProjectRecord.AREAID) != null) {
                 prj.setClubAreaId(((ItemTypeInteger)getItemByName(ProjectRecord.AREAID)).getValue());
             }
+
             // Club Properties (2)
             prj.setClubGlobalAssociationName(((ItemTypeString)getItemByName(ProjectRecord.ASSOCIATIONGLOBALNAME)).getValue());
             prj.setClubGlobalAssociationMemberNo(((ItemTypeString)getItemByName(ProjectRecord.ASSOCIATIONGLOBALMEMBERNO)).getValue());
@@ -159,6 +251,12 @@ public class NewProjectDialog extends StepwiseDialog {
             }
             if (getItemByName(ProjectRecord.MEMBEROFADH) != null) {
                 prj.setClubMemberOfADH(((ItemTypeBoolean)getItemByName(ProjectRecord.MEMBEROFADH)).getValue());
+            }
+            if (getItemByName(ProjectRecord.KANUEFBUSERNAME) != null) {
+                prj.setClubKanuEfbUsername(((ItemTypeString)getItemByName(ProjectRecord.KANUEFBUSERNAME)).getValue());
+            }
+            if (getItemByName(ProjectRecord.KANUEFBPASSWORD) != null) {
+                prj.setClubKanuEfbPassword(((ItemTypeString)getItemByName(ProjectRecord.KANUEFBPASSWORD)).getValue());
             }
 
             prj.close();
@@ -179,6 +277,9 @@ public class NewProjectDialog extends StepwiseDialog {
     public String createNewProjectAndLogbook() {
         showDialog();
         if (!getDialogResult()) {
+            return null;
+        }
+        if (Daten.project != null && Daten.project.getProjectStorageType() != IDataAccess.TYPE_FILE_XML) {
             return null;
         }
         String logbookName = null;

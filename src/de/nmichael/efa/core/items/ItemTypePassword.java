@@ -20,6 +20,8 @@ import javax.swing.*;
 
 public class ItemTypePassword extends ItemTypeString {
 
+    // @todo (P2) encrypt passwords in file
+
     public ItemTypePassword(String name, String value, int type,
             String category, String description) {
         super(name, value, type, category, description);

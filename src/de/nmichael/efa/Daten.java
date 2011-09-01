@@ -15,6 +15,7 @@ import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.DataFile;
+import de.nmichael.efa.data.storage.RemoteEfaServer;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.drv.DRVConfig;
@@ -36,16 +37,17 @@ public class Daten {
   public final static String EFA = "efa"; // efa program name/ID
   public       static String EFA_SHORTNAME = "efa";                              // dummy, will be set in International.ininitalize()
   public       static String EFA_LONGNAME  = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
+  public       static String EFA_ONLINE    = "efa Online";                       // dummy, will be set in International.ininitalize()
 
-  public final static String VERSION = "v2.0_dev95"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSIONID = "1.9.5_00";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "22.08.2011";  // Release Date: TT.MM.JJJJ
-  public final static String PROGRAMMID = "EFA.195"; // Versions-ID für Wettbewerbsmeldungen
-  public final static String PROGRAMMID_DRV = "EFADRV.195"; // Versions-ID für Wettbewerbsmeldungen
+  public final static String VERSION = "v2.0_dev96"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
+  public final static String VERSIONID = "1.9.6_00";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+  public final static String VERSIONRELEASEDATE = "01.09.2011";  // Release Date: TT.MM.JJJJ
+  public final static String PROGRAMMID = "EFA.196"; // Versions-ID für Wettbewerbsmeldungen
+  public final static String PROGRAMMID_DRV = "EFADRV.196"; // Versions-ID für Wettbewerbsmeldungen
   public final static String COPYRIGHTYEAR = "11";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
 
   public final static String EMIL_VERSION = VERSION; // Version
-  public final static String EMIL_KENNUNG = "EMIL.195";
+  public final static String EMIL_KENNUNG = "EMIL.196";
   public final static String ELWIZ_VERSION = VERSION; // Version
   public final static String EDDI_VERSION = VERSION; // Version
 
@@ -299,6 +301,7 @@ public class Daten {
         iniEfaTypes(cust);
         iniCopiedFiles();
         iniAllDataFiles();
+        iniRemoteEfaServer();
         iniGUI();
         iniChecks();
         if (createNewAdmin && efaFirstSetup != null) {
@@ -469,14 +472,14 @@ public class Daten {
 
     private static void iniUserDirectory() {
         if (firstEfaStart && isGuiAppl()) {
-            ItemTypeFile dir = new ItemTypeFile("USERDIR", Daten.efaBaseConfig.efaUserDirectory,
-                    International.getString("Verzeichnis für Nutzerdaten"),
-                    International.getString("Verzeichnisse"),
-                    null,ItemTypeFile.MODE_OPEN,ItemTypeFile.TYPE_DIR,
-                    IItemType.TYPE_PUBLIC, "",
-                    International.getString("In welchem Verzeichnis soll efa sämtliche Benutzerdaten ablegen?"));
-            dir.setFieldSize(600, 19);
             while (true) {
+                ItemTypeFile dir = new ItemTypeFile("USERDIR", Daten.efaBaseConfig.efaUserDirectory,
+                        International.getString("Verzeichnis für Nutzerdaten"),
+                        International.getString("Verzeichnisse"),
+                        null, ItemTypeFile.MODE_OPEN, ItemTypeFile.TYPE_DIR,
+                        IItemType.TYPE_PUBLIC, "",
+                        International.getString("In welchem Verzeichnis soll efa sämtliche Benutzerdaten ablegen?"));
+                dir.setFieldSize(600, 19);
                 SimpleInputDialog dlg = new SimpleInputDialog((Frame) null, International.getString("Verzeichnis für Nutzerdaten"), dir);
                 dlg.showDialog();
                 if (dlg.getDialogResult()) {
@@ -501,23 +504,13 @@ public class Daten {
         switch (applID) {
             case APPL_EFABASE:
             case APPL_EFABH:
+                baklog = Logger.ini("efa.log", true, false);
+                break;
             case APPL_CLI:
-                baklog = Logger.ini("efa.log", true);
-                break;
-            case APPL_EMIL:
-                baklog = Logger.ini("emil.log", false);
-                break;
-            case APPL_ELWIZ:
-                baklog = Logger.ini("elwiz.log", false);
-                break;
-            case APPL_EDDI:
-                baklog = Logger.ini("eddi.log", false);
-                break;
-            case APPL_DRV:
-                baklog = Logger.ini("drv.log", true);
+                baklog = Logger.ini("efa.log", true, true);
                 break;
             default:
-                baklog = Logger.ini(null, true);
+                baklog = Logger.ini(null, true, false);
                 break;
         }
 
@@ -888,6 +881,9 @@ public class Daten {
     }
 
     public static void iniEfaRunning() {
+        if (applID == APPL_CLI) {
+            return;
+        }
         efaRunning = new EfaRunning();
         if (efaRunning.isRunning()) {
             String msg = International.getString("efa läuft bereits und kann nicht zeitgleich zweimal gestartet werden!");
@@ -910,6 +906,15 @@ public class Daten {
         Daten.wettDefs = new WettDefs(Daten.efaCfgDirectory + Daten.WETTDEFS);
         iniDataFile(Daten.wettDefs, true, International.onlyFor("Wettbewerbskonfiguration", "de"));
         Daten.keyStore = new EfaKeyStore(Daten.efaDataDirectory + Daten.PUBKEYSTORE, "efa".toCharArray());
+    }
+
+    public static void iniRemoteEfaServer() {
+        if (applID == APPL_CLI) {
+            return;
+        }
+        if (Daten.efaConfig.getValueDataRemoteEfaServerEnabled()) {
+            new RemoteEfaServer(Daten.efaConfig.getValueDataataRemoteEfaServerPort());
+        }
     }
 
     public static void iniScreenSize() {

@@ -41,7 +41,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         ACTIONTEXT_DELETE
     };
 
-    protected Persistence persistence;
+    protected StorageObject persistence;
     protected long validAt = -1; // configured validAt
     protected long myValidAt = -1; // actually used validAt in updateData(); if validAt == -1, then myValidAt is "now" each time the data is updated
     protected boolean showAll = false;
@@ -70,7 +70,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
     public ItemTypeDataRecordTable(String name,
             TableItemHeader[] tableHeader, 
-            Persistence persistence,
+            StorageObject persistence,
             long validAt,
             String filterFieldName, String filterFieldValue,
             String[] actions, int[] actionTypes,
@@ -86,7 +86,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         renderer.setMarkedBackgroundColor(null);
     }
 
-    protected void setData(Persistence persistence, long validAt, String filterFieldName, String filterFieldValue) {
+    protected void setData(StorageObject persistence, long validAt, String filterFieldName, String filterFieldValue) {
         this.persistence = persistence;
         this.validAt = validAt;
         this.filterFieldName = filterFieldName;

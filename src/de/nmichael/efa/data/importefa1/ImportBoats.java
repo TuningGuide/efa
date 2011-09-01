@@ -220,41 +220,45 @@ public class ImportBoats extends ImportBase {
         Boats boats = Daten.project.getBoats(false);
         Groups groups = Daten.project.getGroups(false);
 
-        for (DataKey k : boatsAllowedGroups.keySet()) {
-            Vector<String> gruppen = EfaUtil.split(boatsAllowedGroups.get(k), ';');
-            DataTypeList<UUID> groupList = new DataTypeList<UUID>();
-            for (String g : gruppen) {
-                g = g.trim();
-                UUID id = groupMapping.get(g);
-                if (id != null) {
-                    groupList.add(id);
-                }
-            }
-            if (groupList.length() > 0) {
-                try {
-                    BoatRecord boat = (BoatRecord)boats.data().get(k);
-                    if (boat != null) {
-                        boat.setAllowedGroupIdList(groupList);
+        if (boatsAllowedGroups != null) {
+            for (DataKey k : boatsAllowedGroups.keySet()) {
+                Vector<String> gruppen = EfaUtil.split(boatsAllowedGroups.get(k), ';');
+                DataTypeList<UUID> groupList = new DataTypeList<UUID>();
+                for (String g : gruppen) {
+                    g = g.trim();
+                    UUID id = (groupMapping != null ? groupMapping.get(g): null);
+                    if (id != null) {
+                        groupList.add(id);
                     }
-                    boats.data().update(boat);
-                } catch(Exception e) {
-                    // no special handling
+                }
+                if (groupList.length() > 0) {
+                    try {
+                        BoatRecord boat = (BoatRecord) boats.data().get(k);
+                        if (boat != null) {
+                            boat.setAllowedGroupIdList(groupList);
+                        }
+                        boats.data().update(boat);
+                    } catch (Exception e) {
+                        // no special handling
+                    }
                 }
             }
         }
 
-        for (DataKey k : boatsRequiredGroup.keySet()) {
-            String g = boatsRequiredGroup.get(k).trim();
-            UUID id = groupMapping.get(g);
-            if (id != null) {
-                try {
-                    BoatRecord boat = (BoatRecord)boats.data().get(k);
-                    if (boat != null) {
-                        boat.setRequiredGroupId(id);
+        if (boatsRequiredGroup != null) {
+            for (DataKey k : boatsRequiredGroup.keySet()) {
+                String g = boatsRequiredGroup.get(k).trim();
+                UUID id = (groupMapping != null ? groupMapping.get(g): null);
+                if (id != null) {
+                    try {
+                        BoatRecord boat = (BoatRecord) boats.data().get(k);
+                        if (boat != null) {
+                            boat.setRequiredGroupId(id);
+                        }
+                        boats.data().update(boat);
+                    } catch (Exception e) {
+                        // no special handling
                     }
-                    boats.data().update(boat);
-                } catch(Exception e) {
-                    // no special handling
                 }
             }
         }

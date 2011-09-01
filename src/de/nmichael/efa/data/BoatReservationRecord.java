@@ -317,6 +317,40 @@ public class BoatReservationRecord extends DataRecord {
         return false;
     }
 
+    public String getAsText(String fieldName) {
+        if (fieldName.equals(BOATID)) {
+            return getBoatName();
+        }
+        if (fieldName.equals(PERSONID)) {
+            if (get(PERSONID) != null) {
+                return getPersonAsName();
+            } else {
+                return null;
+            }
+        }
+        return super.getAsText(fieldName);
+    }
+
+    public void setFromText(String fieldName, String value) {
+        if (fieldName.equals(BOATID)) {
+            Boats boats = getPersistence().getProject().getBoats(false);
+            BoatRecord br = boats.getBoat(value, -1);
+            if (br != null) {
+                set(fieldName, br.getId());
+            }
+            return;
+        }
+        if (fieldName.equals(PERSONID)) {
+            Persons persons = getPersistence().getProject().getPersons(false);
+            PersonRecord pr = persons.getPerson(value, -1);
+            if (pr != null) {
+                set(fieldName, pr.getId());
+            }
+            return;
+        }
+        set(fieldName, value);
+    }
+
     public Vector<IItemType> getGuiItems() {
         String CAT_BASEDATA     = "%01%" + International.getString("Reservierung");
         IItemType item;

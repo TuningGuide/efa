@@ -59,6 +59,7 @@ public class International {
             decimalSeparator = ((DecimalFormat)numberFormat).getDecimalFormatSymbols().getDecimalSeparator();
             Daten.EFA_SHORTNAME = International.getString("efa");
             Daten.EFA_LONGNAME = International.getString("efa - elektronisches Fahrtenbuch");
+            Daten.EFA_ONLINE = International.getString("efa Online");
         } catch(Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_INTERNATIONAL_FAILEDSETUP, "Failed to set up internationalization: "+e.toString()); // no need for translation
             initializationFailed = true;

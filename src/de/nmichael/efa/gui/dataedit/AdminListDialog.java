@@ -25,17 +25,21 @@ public class AdminListDialog extends DataListDialog {
 
     public AdminListDialog(Frame parent) {
         super(parent, International.getString("Administratoren"), Daten.admins, 0);
+        actionText = null; // only ADD, EDIT, DELETE (no IMPORT, EXPORT)
+        actionType = null; // only ADD, EDIT, DELETE (no IMPORT, EXPORT)
     }
 
     public AdminListDialog(JDialog parent) {
         super(parent, International.getString("Administratoren"), Daten.admins, 0);
+        actionText = null; // only ADD, EDIT, DELETE (no IMPORT, EXPORT)
+        actionType = null; // only ADD, EDIT, DELETE (no IMPORT, EXPORT)
     }
 
     public void keyAction(ActionEvent evt) {
         _keyAction(evt);
     }
 
-    public DataEditDialog createNewDataEditDialog(JDialog parent, Persistence persistence, DataRecord record) {
+    public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record) {
         boolean newRecord = (record == null);
         if (record == null) {
             record = Daten.admins.createAdminRecord(null, null);

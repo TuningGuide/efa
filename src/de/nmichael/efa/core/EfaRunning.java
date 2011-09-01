@@ -19,7 +19,7 @@ import de.nmichael.efa.*;
 
 public class EfaRunning {
 
-  private static final int DEFAULT_PORT = 3834; // 3834 == EFA ;-)
+  private static final int DEFAULT_PORT = 3700; // 3700
   private static final String PING = "Bist Du efa?";
   private static final String PONG = "Ich bin efa!";
 

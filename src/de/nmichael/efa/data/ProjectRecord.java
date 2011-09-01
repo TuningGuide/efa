@@ -39,6 +39,12 @@ public class ProjectRecord extends DataRecord {
     // DESCRIPTION
     public static final String STORAGETYPE                  = "StorageType";
     public static final String STORAGELOCATION              = "StorageLocation";
+    public static final String STORAGEUSERNAME              = "StorageUsername";
+    public static final String STORAGEPASSWORD              = "StoragePassword";
+    public static final String REMOTEPROJECTNAME            = "RemoteProjectName";
+    public static final String EFAONLINECONNECT             = "EfaOnlineConnect";
+    public static final String EFAONLINEUSERNAME            = "EfaOnlineUsername";
+    public static final String EFAONLINEPASSWORD            = "EfaOnlinePassword";
     public static final String ADMINNAME                    = "AdminName";
     public static final String ADMINEMAIL                   = "AdminEmail";
     public static final String CURRENTLOGBOOKEFABASE        = "CurrentLogbookEfaBase";
@@ -79,6 +85,12 @@ public class ProjectRecord extends DataRecord {
         f.add(DESCRIPTION);                   t.add(IDataAccess.DATA_STRING);
         f.add(STORAGETYPE);                   t.add(IDataAccess.DATA_STRING);
         f.add(STORAGELOCATION);               t.add(IDataAccess.DATA_STRING);
+        f.add(STORAGEUSERNAME);               t.add(IDataAccess.DATA_STRING);
+        f.add(STORAGEPASSWORD);               t.add(IDataAccess.DATA_STRING);
+        f.add(REMOTEPROJECTNAME);             t.add(IDataAccess.DATA_STRING);
+        f.add(EFAONLINECONNECT);              t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(EFAONLINEUSERNAME);             t.add(IDataAccess.DATA_STRING);
+        f.add(EFAONLINEPASSWORD);             t.add(IDataAccess.DATA_STRING);
         f.add(ADMINNAME);                     t.add(IDataAccess.DATA_STRING);
         f.add(ADMINEMAIL);                    t.add(IDataAccess.DATA_STRING);
         f.add(CURRENTLOGBOOKEFABASE);         t.add(IDataAccess.DATA_STRING);
@@ -170,6 +182,24 @@ public class ProjectRecord extends DataRecord {
     }
     public void setStorageLocation(String storageLocation) {
         setString(STORAGELOCATION, storageLocation);
+    }
+    public void setStorageUsername(String username) {
+        setString(STORAGEUSERNAME, username);
+    }
+    public void setStoragePassword(String password) {
+        setString(STORAGEPASSWORD, password);
+    }
+    public void setRemoteProjectName(String projectName) {
+        setString(REMOTEPROJECTNAME, projectName);
+    }
+    public void setEfaOnlineConnect(boolean connectThroughEfaOnline) {
+        setBool(EFAONLINECONNECT, connectThroughEfaOnline);
+    }
+    public void setEfaOnlineUsername(String username) {
+        setString(EFAONLINEUSERNAME, username);
+    }
+    public void setEfaOnlinePassword(String password) {
+        setString(EFAONLINEPASSWORD, password);
     }
     public void setAdminName(String adminName) {
         setString(ADMINNAME, adminName);
@@ -267,8 +297,35 @@ public class ProjectRecord extends DataRecord {
         return getString(STORAGETYPE);
     }
     public String getStorageLocation() {
+        try {
+            if (getStorageType() == IDataAccess.TYPE_FILE_XML) {
+                // for file-based projects: storageLocation of content is always relative to this project file!
+                return getPersistence().data().getStorageLocation() + getProjectName() + Daten.fileSep;
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
         return getString(STORAGELOCATION);
     }
+    public String getStorageUsername() {
+        return getString(STORAGEUSERNAME);
+    }
+    public String getStoragePassword() {
+        return getString(STORAGEPASSWORD);
+    }
+    public String getRemoteProjectName() {
+        return getString(REMOTEPROJECTNAME);
+    }
+    public boolean getEfaOnlineConnect() {
+        return getBool(EFAONLINECONNECT);
+    }
+    public String getEfaOnlineUsername() {
+        return getString(EFAONLINEUSERNAME);
+    }
+    public String getEfaOnlinePassword() {
+        return getString(EFAONLINEPASSWORD);
+    }
+
     public String getAdminName() {
         return getString(ADMINNAME);
     }
@@ -382,10 +439,50 @@ public class ProjectRecord extends DataRecord {
             }
 
             if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 3) {
-                v.add(item = new ItemTypeString(ProjectRecord.STORAGELOCATION, getStorageLocation(),
-                        IItemType.TYPE_PUBLIC, category,
-                        International.getString("Speicherort")));
-                ((ItemTypeString) item).setVisible(newProject || getStorageType() != IDataAccess.TYPE_FILE_XML);
+                if (!newProject || getStorageType() != IDataAccess.TYPE_FILE_XML) {
+                    v.add(item = new ItemTypeString(ProjectRecord.STORAGELOCATION, getStorageLocation(),
+                            IItemType.TYPE_PUBLIC, category,
+                            (getStorageType() == IDataAccess.TYPE_EFA_REMOTE ?
+                            International.getString("IP-Adresse") + " ("+
+                              International.getString("remote") + ")" :
+                            International.getString("Speicherort"))));
+                    ((ItemTypeString) item).setEnabled(getStorageType() != IDataAccess.TYPE_FILE_XML);
+                    ((ItemTypeString) item).setNotNull(getStorageType() == IDataAccess.TYPE_DB_SQL);
+                }
+                if (getStorageType() != IDataAccess.TYPE_FILE_XML) {
+                    v.add(item = new ItemTypeString(ProjectRecord.STORAGEUSERNAME, getStorageUsername(),
+                            IItemType.TYPE_PUBLIC, category,
+                            (getStorageType() == IDataAccess.TYPE_EFA_REMOTE ?
+                              International.getString("Admin-Name") + " ("+
+                              International.getString("remote") + ")" :
+                              International.getString("Benutzername"))));
+                    ((ItemTypeString) item).setNotNull(true);
+                    v.add(item = new ItemTypePassword(ProjectRecord.STORAGEPASSWORD, getStoragePassword(),
+                            IItemType.TYPE_PUBLIC, category,
+                            (getStorageType() == IDataAccess.TYPE_EFA_REMOTE ?
+                              International.getString("Paßwort") + " ("+
+                              International.getString("remote") + ")" :
+                              International.getString("Paßwort"))));
+                    ((ItemTypeString) item).setNotNull(true);
+                    v.add(item = new ItemTypeString(ProjectRecord.REMOTEPROJECTNAME, getRemoteProjectName(),
+                            IItemType.TYPE_PUBLIC, category,
+                            International.getString("Name des Projekts") + " ("+
+                            International.getString("remote") + ")"));
+                    ((ItemTypeString) item).setNotNull(true);
+                }
+                if (getStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+                    v.add(item = new ItemTypeBoolean(ProjectRecord.EFAONLINECONNECT, getEfaOnlineConnect(),
+                            IItemType.TYPE_PUBLIC, category,
+                            International.getString("über efaOnline verbinden")));
+                    v.add(item = new ItemTypeString(ProjectRecord.EFAONLINEUSERNAME, getEfaOnlineUsername(),
+                            IItemType.TYPE_PUBLIC, category,
+                            International.getString("efaOnline") + " - " +
+                            International.getString("Benutzername")));
+                    v.add(item = new ItemTypePassword(ProjectRecord.EFAONLINEPASSWORD, getEfaOnlinePassword(),
+                            IItemType.TYPE_PUBLIC, category,
+                            International.getString("efaOnline") + " - " +
+                            International.getString("Paßwort")));
+                }
             }
         }
 
@@ -457,7 +554,7 @@ public class ProjectRecord extends DataRecord {
                     v.add(item = new ItemTypeString(ProjectRecord.KANUEFBUSERNAME, getKanuEfbUsername(),
                             IItemType.TYPE_PUBLIC, category,
                             International.getString("Benutzername") + " (Kanu-Efb)"));
-                    v.add(item = new ItemTypeString(ProjectRecord.KANUEFBPASSWORD, getKanuEfbPassword(),
+                    v.add(item = new ItemTypePassword(ProjectRecord.KANUEFBPASSWORD, getKanuEfbPassword(),
                             IItemType.TYPE_PUBLIC, category,
                             International.getString("Paßwort") + " (Kanu-Efb)"));
                     v.add(item = new ItemTypeLong(ProjectRecord.KANUEFBLASTSYNC, getKanuEfbLastSync(), 0, Long.MAX_VALUE,

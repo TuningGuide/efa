@@ -133,6 +133,25 @@ public class FahrtenabzeichenRecord extends DataRecord {
         return sig.getJahr() + " (" + sig.getLetzteKm() + " Km)";
     }
 
+    public String getAsText(String fieldName) {
+        if (fieldName.equals(PERSONID)) {
+            return getPersonName();
+        }
+        return super.getAsText(fieldName);
+    }
+
+    public void setFromText(String fieldName, String value) {
+        if (fieldName.equals(PERSONID)) {
+            Persons persons = getPersistence().getProject().getPersons(false);
+            PersonRecord pr = persons.getPerson(value, -1);
+            if (pr != null) {
+                set(fieldName, pr.getId());
+            }
+            return;
+        }
+        set(fieldName, value);
+    }
+
     public Vector<IItemType> getGuiItems() {
         String CAT_BASEDATA     = "%01%" + International.onlyFor("Fahrtenabzeichen","de");
         IItemType item;

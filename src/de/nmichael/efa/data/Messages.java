@@ -14,15 +14,20 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeTime;
+import de.nmichael.efa.ex.EfaModifyException;
 
 // @i18n complete
 
-public class Messages extends Persistence {
+public class Messages extends StorageObject {
 
     public static final String DATATYPE = "efa2messages";
 
-    public Messages(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Nachrichten"));
+    public Messages(int storageType, 
+            String storageLocation,
+            String storageUsername,
+            String storagePassword,
+            String storageObjectName) {
+        super(storageType, storageLocation, storageUsername, storagePassword, storageObjectName, DATATYPE, International.getString("Nachrichten"));
         MessageRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
@@ -61,6 +66,12 @@ public class Messages extends Persistence {
         }
         r.sendEmail();
         return r;
+    }
+
+    public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
+        if (add || update) {
+            assertFieldNotEmpty(record, MessageRecord.MESSAGEID);
+        }
     }
 
 }

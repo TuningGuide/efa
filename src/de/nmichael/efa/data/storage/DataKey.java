@@ -10,11 +10,16 @@
 
 package de.nmichael.efa.data.storage;
 
-import java.util.*;
+import de.nmichael.efa.util.EfaUtil;
 
 // @i18n complete
 
 public class DataKey<T1,T2,T3> implements Comparable {
+
+    public static final String ENCODING_KEY        = "Key";
+    public static final String ENCODING_KEY_PART1  = "Part1";
+    public static final String ENCODING_KEY_PART2  = "Part2";
+    public static final String ENCODING_KEY_PART3  = "Part3";
 
     private T1 v1;
     private T2 v2;
@@ -130,6 +135,35 @@ public class DataKey<T1,T2,T3> implements Comparable {
         }
         return s;
     }
+
+    public String encodeAsString() {
+        StringBuilder s = new StringBuilder();
+        s.append("<" + ENCODING_KEY + ">");
+        if (v1 != null) {
+            s.append("<" + ENCODING_KEY_PART1 + ">" + EfaUtil.escapeXml(v1.toString()) + "</" +  ENCODING_KEY_PART1 + ">");
+        }
+        if (v2 != null) {
+            s.append("<" + ENCODING_KEY_PART2 + ">" + EfaUtil.escapeXml(v2.toString()) + "</" +  ENCODING_KEY_PART2 + ">");
+        }
+        if (v3 != null) {
+            s.append("<" + ENCODING_KEY_PART3 + ">" + EfaUtil.escapeXml(v3.toString()) + "</" +  ENCODING_KEY_PART3 + ">");
+        }
+        s.append("</" + ENCODING_KEY + ">");
+        return s.toString();
+    }
+
+    public void set(int keyField, Object value) {
+        if (keyField == 0) {
+            v1 = (T1)value;
+        }
+        if (keyField == 1) {
+            v2 = (T2)value;
+        }
+        if (keyField == 2) {
+            v3 = (T3)value;
+        }
+    }
+
 
 
 }

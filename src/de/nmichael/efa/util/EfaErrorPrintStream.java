@@ -90,7 +90,9 @@ public class EfaErrorPrintStream extends PrintStream {
           }
           text += "\n"+International.getMessage("Bitte melde diesen Fehler an: {efaemail}", Daten.EMAILBUGS);
           Logger.log(Logger.ERROR,Logger.MSG_ERROR_EXCEPTION,text);
-          new ErrorThread(o.toString(),stacktrace).start();
+          if (Daten.isGuiAppl()) {
+              new ErrorThread(o.toString(),stacktrace).start();
+          }
       } else {
           text += "\n"+International.getString("Dieser Fehler ist möglicherweise ein Fehler in Java, der durch ein Java-Update behoben werden kann. "+
                   "Meistens führt diese Art von Fehlern nur zu vorübergehenden Darstellungsproblemen und hat keine Auswirkung auf efa und die Daten. "+

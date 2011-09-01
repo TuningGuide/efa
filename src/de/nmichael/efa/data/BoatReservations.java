@@ -12,16 +12,21 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.ex.EfaModifyException;
 import java.util.*;
 
 // @i18n complete
 
-public class BoatReservations extends Persistence {
+public class BoatReservations extends StorageObject {
 
     public static final String DATATYPE = "efa2boatreservations";
 
-    public BoatReservations(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Bootsreservierungen"));
+    public BoatReservations(int storageType, 
+            String storageLocation,
+            String storageUsername,
+            String storagePassword,
+            String storageObjectName) {
+        super(storageType, storageLocation, storageUsername, storagePassword, storageObjectName, DATATYPE, International.getString("Bootsreservierungen"));
         BoatReservationRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
@@ -100,6 +105,13 @@ public class BoatReservations extends Persistence {
             }
         }
         return purged;
+    }
+
+    public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
+        if (add || update) {
+            assertFieldNotEmpty(record, BoatReservationRecord.BOATID);
+            assertFieldNotEmpty(record, BoatReservationRecord.RESERVATION);
+        }
     }
 
 }

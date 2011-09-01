@@ -150,6 +150,28 @@ public class SessionGroupRecord extends DataRecord {
         return getId();
     }
 
+    public String getAsText(String fieldName) {
+        if (fieldName.equals(SESSIONTYPE)) {
+            String s = getAsString(fieldName);
+            if (s != null) {
+                return Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, s);
+            }
+            return null;
+        }
+        return super.getAsText(fieldName);
+    }
+
+    public void setFromText(String fieldName, String value) {
+        if (fieldName.equals(SESSIONTYPE)) {
+            String s = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, value);
+            if (s != null) {
+                set(fieldName, s);
+            }
+            return;
+        }
+        set(fieldName, value);
+    }
+
     public Vector<IItemType> getGuiItems() {
         String CAT_BASEDATA     = "%01%" + International.getString("Reservierung");
         IItemType item;

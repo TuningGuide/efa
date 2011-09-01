@@ -52,7 +52,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     JButton toolBar_nextButton = new JButton();
     JButton toolBar_lastButton = new JButton();
     JButton toolBar_newButton = new JButton();
-    JButton toolBar_insertButton = new JButton();
+    // @remove JButton toolBar_insertButton = new JButton();
     JButton toolBar_deleteButton = new JButton();
     JButton toolBar_searchButton = new JButton();
     JTextField toolBar_goToEntry = new JTextField();
@@ -324,6 +324,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             }
         });
 
+        /* @remove
         toolBar_insertButton.setMargin(new Insets(2, 3, 2, 3));
         Mnemonics.setButton(this, toolBar_insertButton, International.getStringWithMnemonic("Einfügen"));
         toolBar_insertButton.addActionListener(new java.awt.event.ActionListener() {
@@ -331,6 +332,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 createNewRecord(true);
             }
         });
+        */
 
         toolBar_deleteButton.setMargin(new Insets(2, 3, 2, 3));
         Mnemonics.setButton(this, toolBar_deleteButton, International.getStringWithMnemonic("Löschen"));
@@ -369,7 +371,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         toolBar_spaceLabel1.setText("  ");
         toolBar.add(toolBar_spaceLabel1, null);
         toolBar.add(toolBar_newButton, null);
-        toolBar.add(toolBar_insertButton, null);
+        // @remove toolBar.add(toolBar_insertButton, null);
         toolBar.add(toolBar_deleteButton, null);
         JLabel toolBar_spaceLabel2 = new JLabel();
         toolBar_spaceLabel2.setText("  ");
@@ -652,9 +654,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         if (Daten.project == null && isModeBase()) {
             if (Daten.efaConfig.getValueLastProjectEfaBase().length() > 0) {
                 Project.openProject(Daten.efaConfig.getValueLastProjectEfaBase());
-                if (Daten.project != null) {
-                    Daten.project.runAudit();
-                }
             }
         }
         if (Daten.project != null && isModeBase() && Daten.project.getCurrentLogbookEfaBase() != null) {

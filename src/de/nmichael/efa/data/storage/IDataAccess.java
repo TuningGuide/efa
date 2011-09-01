@@ -48,13 +48,13 @@ public interface IDataAccess {
     /**
      * Sets the associated Persistence object for this Data Access.
      */
-    public void setPersistence(Persistence persistence);
+    public void setPersistence(StorageObject persistence);
 
     /**
      * Returns the associated Persistence object for this Data Access.
      * @return the Persistence object
      */
-    public Persistence getPersistence();
+    public StorageObject getPersistence();
 
     /**
      * Returns the storage type of this implementation (e.g. CSV file, XML file or SQL database)
@@ -514,7 +514,7 @@ public interface IDataAccess {
      * Retrieves all keys valid at validAt for data records specified through fieldNames and values
      * @param fieldNames the field names for the corresponding values
      * @param values the values to search for
-     * @param validAt the time the record shall be valid
+     * @param validAt the time the record shall be valid, or -1 if any
      * @return all matching keys
      * @throws EfaException
      */
@@ -538,15 +538,17 @@ public interface IDataAccess {
     public DataKey[] getAllKeys() throws EfaException;
     public DataKeyIterator getStaticIterator() throws EfaException;
     public DataKeyIterator getDynamicIterator() throws EfaException;
+    /*
     public DataRecord getCurrent(DataKeyIterator it) throws EfaException;
     public DataRecord getFirst(DataKeyIterator it) throws EfaException;
     public DataRecord getLast(DataKeyIterator it) throws EfaException;
     public DataRecord getNext(DataKeyIterator it) throws EfaException;
     public DataRecord getPrev(DataKeyIterator it) throws EfaException;
+    */
     public DataRecord getFirst() throws EfaException;
     public DataRecord getLast() throws EfaException;
 
-    public void setPreModifyRecordCallbackEnabled(boolean enabled);
+     public void setPreModifyRecordCallbackEnabled(boolean enabled);
     public boolean isPreModifyRecordCallbackEnabled();
 
 }

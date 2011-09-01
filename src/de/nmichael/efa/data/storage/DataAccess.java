@@ -19,7 +19,7 @@ import java.util.*;
 
 public abstract class DataAccess implements IDataAccess {
 
-    protected Persistence persistence;
+    protected StorageObject persistence;
     protected String storageLocation;
     protected String storageObjectName;
     protected String storageObjectType;
@@ -35,26 +35,35 @@ public abstract class DataAccess implements IDataAccess {
     protected boolean inOpeningStorageObject = false;
     protected boolean isPreModifyRecordCallbackEnabled = true;
 
-    public static IDataAccess createDataAccess(Persistence persistence, int type, String storageLocation, String storageObjectName, 
-            String storageObjectType, String storageObjectDescription) {
+    public static IDataAccess createDataAccess(StorageObject persistence,
+            int type,
+            String storageLocation,
+            String storageUsername,
+            String storagePassword,
+            String storageObjectName,
+            String storageObjectType,
+            String storageObjectDescription) {
+        IDataAccess dataAccess = null;
         switch(type) {
             case IDataAccess.TYPE_FILE_XML:
-                IDataAccess dataAccess = (IDataAccess)new XMLFile(storageLocation, storageObjectName, storageObjectType, storageObjectDescription);
+                dataAccess = (IDataAccess)new XMLFile(storageLocation, storageObjectName, storageObjectType, storageObjectDescription);
                 dataAccess.setPersistence(persistence);
                 return dataAccess;
             case IDataAccess.TYPE_DB_SQL:
                 return null; // @todo (P4) TYPE_DB_SQL not yet implemented
             case IDataAccess.TYPE_EFA_REMOTE:
-                return null; // @todo (P4) TYPE_EFA_REMOTE not yet implemented
+                 dataAccess = (IDataAccess)new RemoteEfaClient(storageLocation, storageUsername, storagePassword, storageObjectName, storageObjectType, storageObjectDescription);
+                 dataAccess.setPersistence(persistence);
+                return dataAccess;
         }
         return null;
     }
 
-    public void setPersistence(Persistence persistence) {
+    public void setPersistence(StorageObject persistence) {
         this.persistence = persistence;
     }
 
-    public Persistence getPersistence() {
+    public StorageObject getPersistence() {
         return persistence;
     }
 
@@ -190,13 +199,13 @@ public abstract class DataAccess implements IDataAccess {
         Object v3 = null;
 
         if (keyFields.length >= 1) {
-            v1 = record.get(keyFields[0]);
+            v1 = (record != null ? record.get(keyFields[0]) : null);
         }
         if (keyFields.length >= 2) {
-            v2 = record.get(keyFields[1]);
+            v2 = (record != null ? record.get(keyFields[1]) : null);
         }
         if (keyFields.length >= 3) {
-            v3 = record.get(keyFields[2]);
+            v3 = (record != null ? record.get(keyFields[2]) : null);
         }
 
         return new DataKey(v1, v2, v3);

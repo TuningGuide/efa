@@ -27,6 +27,8 @@ public class Logger {
     public static final String WARNING = "WARNING";
     public static final String ACTION = "ACTION";
     public static final String DEBUG = "DEBUG";
+    public static final String INPUT = "INPUT";
+    public static final String OUTPUT = "OUTPUT";
     // Message Keys
     public static final String MSG_GENERIC = "GEN001";
     public static final String MSG_GENERIC_ERROR = "GEN002";
@@ -138,6 +140,21 @@ public class Logger {
     public static final String MSG_DATA_JOURNALWRITEFAILED = "DAT023";
     public static final String MSG_DATA_JOURNALLOGFAILED = "DAT024";
     public static final String MSG_DATA_INVALIDPARAMETER = "DAT025";
+
+    public static final String MSG_REFA_SERVERSTATUS                 = "RMT001";
+    public static final String MSG_REFA_SERVERERROR                  = "RMT002";
+    public static final String MSG_REFA_SERVERLOG                    = "RMT003";
+    public static final String MSG_REFA_DEBUGCOMMUNICATION           = "RMT004";
+    public static final String MSG_REFA_ERRORCOMMUNICATION           = "RMT005";
+    public static final String MSG_REFA_REQUESTFAILED                = "RMT006";
+    public static final String MSG_REFA_INVALIDREQUEST               = "RMT007";
+    public static final String MSG_REFA_INVALIDRESPONSE              = "RMT008";
+    public static final String MSG_REFA_UNEXPECTEDRESPONSE           = "RMT009";
+    public static final String MSG_REFA_LOGINFAILURE                 = "RMT010";
+    public static final String MSG_REFA_STATISTICS                   = "RMT011";
+
+    public static final String MSG_EONL_ERROR                        = "ONL001";
+    public static final String MSG_EONL_WARNING                      = "ONL002";
 
     // de.nmichael.efa.core.DatenListe (and subclasses)
     public static final String MSG_CSVFILE_FILECONVERTED = "CSV001";
@@ -297,6 +314,11 @@ public class Logger {
     public static final String MSG_DEBUG_IGNOREDEXCEPTION = "DBG012";
     public static final String MSG_DEBUG_GUI_WINDOWS = "DBG013";
     public static final String MSG_DEBUG_GUI_ICONS = "DBG014";
+    // CLI
+    public static final String MSG_CLI_INFO  = "CLI001";
+    public static final String MSG_CLI_ERROR = "CLI002";
+    public static final String MSG_CLI_INPUT = "CLI003";
+    public static final String MSG_CLI_OUTPUT = "CLI004";
 
     // Trace Topics for Debug Logging
     public static final long TT_CORE = Integer.parseInt("0000000000000001", 2); // 0x0001
@@ -313,23 +335,29 @@ public class Logger {
     public static final long TT_EXCEPTIONS = Integer.parseInt("0000100000000000", 2); // 0x0800
     public static final long TT_HELP = Integer.parseInt("0001000000000000", 2); // 0x1000
     public static final long TT_SYNC = Integer.parseInt("0010000000000000", 2); // 0x2000
+    public static final long TT_REMOTEEFA = Integer.parseInt("0100000000000000", 2); // 0x4000
     // Debug Logging and Trace Topics
     private static boolean debugLogging = false;
     private static long globalTraceTopic = 0;
+    private static int globalTraceLevel = 1;
     private static boolean debugLoggingActivatedByCommandLine = false; // if set by Command Line, this overwrites any configuration in EfaConfig
     private static boolean globalTraceTopicSetByCommandLine = false;   // if set by Command Line, this overwrites any configuration in EfaConfig
+    private static boolean globalTraceLevelSetByCommandLine = false;   // if set by Command Line, this overwrites any configuration in EfaConfig
     private static volatile long lastLog;
     private static volatile long[] logCount;
     private static volatile boolean doNotLog = false;
     private static volatile boolean inMailError = false;
+    private static volatile boolean inLogging = false;
+    private static boolean alsoLogToStdOut;
 
     private static String createLogfileName(String logfile) {
         return Daten.efaLogDirectory + logfile;
     }
 
-    public static String ini(String logfile, boolean append) {
+    public static String ini(String logfile, boolean append, boolean alsoStdOut) {
         lastLog = 0;
         logCount = new long[2];
+        alsoLogToStdOut = alsoStdOut;
         for (int i = 0; i < logCount.length; i++) {
             logCount[i] = 0;
         }
@@ -373,50 +401,71 @@ public class Logger {
      * @param msg the message to be logged
      */
     public static void log(String type, String key, String msg) {
-        if (type != null && type.equals(DEBUG) && !debugLogging) {
-            return;
+        if (inLogging) {
+            return; // avoid recursion
         }
-
-        // Error Threshold exceeded?
-        if (logCount != null) {
-            long now = System.currentTimeMillis() / 1000;
-            if (now != lastLog) {
-                logCount[(int) (lastLog % logCount.length)] = 0;
-                doNotLog = false;
-            }
-            logCount[(int) (now % logCount.length)]++;
-            lastLog = now;
-            if (logCount[(int) (now % logCount.length)] >= LOGGING_THRESHOLD ||
-                (type.equals(ERROR) && logCount[(int) (now % logCount.length)] >= LOGGING_THRESHOLD_ERR)) {
-                if (doNotLog) {
-                    // nothing
-                } else {
-                    doNotLog = true;
-                    Logger.log(ERROR, MSG_LOGGER_THRESHOLDEXCEEDED, "Logging Threshold exceeded.");
-                    return;
-                }
-            }
-        }
-
-        Calendar cal = new GregorianCalendar();
-        String t = "[" + EfaUtil.getCurrentTimeStamp() + "] - " + getString(Daten.applName, 7) + " - " + Daten.applPID + " - " + getString(type, 7) + " - " + key + " - " + msg;
-        EfaErrorPrintStream.ignoreExceptions = true; // Damit Exception-Ausschriften nicht versehentlich als echte Exceptions gemeldet werden
-        System.err.println(EfaUtil.replace(t, "\n", " ", true));
-        EfaErrorPrintStream.ignoreExceptions = false;
-
-        if (type != null && type.equals(ERROR) && Daten.project != null) {
-            Messages messages = Daten.project.getMessages(false);
-            if (messages == null || !messages.isOpen()) {
+        inLogging = true;
+        try {
+            if (type != null && type.equals(DEBUG) && !debugLogging) {
+                inLogging = false;
                 return;
             }
-            if ((Daten.efaConfig == null || Daten.efaConfig.getValueEfaDirekt_bnrError_admin())) {
-                mailError(key, t, MessageRecord.TO_ADMIN);
-            }
-            if ((Daten.efaConfig.getValueEfaDirekt_bnrError_bootswart())) {
-                mailError(key, t, MessageRecord.TO_BOATMAINTENANCE);
-            }
-        }
 
+            // Error Threshold exceeded?
+            if (logCount != null) {
+                long now = System.currentTimeMillis() / 1000;
+                if (now != lastLog) {
+                    logCount[(int) (lastLog % logCount.length)] = 0;
+                    doNotLog = false;
+                }
+                logCount[(int) (now % logCount.length)]++;
+                lastLog = now;
+                if (logCount[(int) (now % logCount.length)] >= LOGGING_THRESHOLD
+                        || (type.equals(ERROR) && logCount[(int) (now % logCount.length)] >= LOGGING_THRESHOLD_ERR)) {
+                    if (doNotLog) {
+                        // nothing
+                    } else {
+                        doNotLog = true;
+                        Logger.log(ERROR, MSG_LOGGER_THRESHOLDEXCEEDED, "Logging Threshold exceeded.");
+                        inLogging = false;
+                        return;
+                    }
+                }
+            }
+
+            if (alsoLogToStdOut) {
+                if (type != null && !type.equals(INPUT))  {
+                    System.out.println(EfaUtil.getString(type, 7) + " - " + key + " - " + msg);
+                } else {
+                    System.out.print(EfaUtil.getString(type, 7) + " - " + key + " - " + msg);
+                }
+            }
+            String t = "[" + EfaUtil.getCurrentTimeStamp() + "] - " + EfaUtil.getString(Daten.applName, 7) + " - " + Daten.applPID + " - " + EfaUtil.getString(type, 7) + " - " + key + " - " + msg;
+            if (type != null && !type.equals(INPUT) && !type.equals(OUTPUT))  {
+                Calendar cal = new GregorianCalendar();
+                EfaErrorPrintStream.ignoreExceptions = true; // Damit Exception-Ausschriften nicht versehentlich als echte Exceptions gemeldet werden
+                System.err.println(EfaUtil.replace(t, "\n", " ", true));
+                EfaErrorPrintStream.ignoreExceptions = false;
+            }
+
+            if (type != null && type.equals(ERROR) && Daten.project != null) {
+
+                Messages messages = (Daten.project != null && !Daten.project.isInOpeningProject() ? Daten.project.getMessages(false) : null);
+                if (messages == null || !messages.isOpen()) {
+                    inLogging = false;
+                    return;
+                }
+                if ((Daten.efaConfig == null || Daten.efaConfig.getValueEfaDirekt_bnrError_admin())) {
+                    mailError(key, t, MessageRecord.TO_ADMIN);
+                }
+                if ((Daten.efaConfig.getValueEfaDirekt_bnrError_bootswart())) {
+                    mailError(key, t, MessageRecord.TO_BOATMAINTENANCE);
+                }
+            }
+        } catch (Exception eignore) {
+        } finally {
+            inLogging = false;
+        }
     }
 
     /**
@@ -456,12 +505,6 @@ public class Logger {
         EfaErrorPrintStream.ignoreExceptions = false;
     }
 
-    private static String getString(String s, int length) {
-        while (s.length() < length) {
-            s = s + " ";
-        }
-        return s;
-    }
 
     public static boolean setDebugLogging(boolean activate, boolean setFromCommandLine) {
         if (debugLogging == activate) {
@@ -517,6 +560,21 @@ public class Logger {
         return true;
     }
 
+    public static boolean setTraceLevel(int level, boolean setFromCommandLine) {
+        if (globalTraceLevelSetByCommandLine) {
+            return false; // don't allow to change value if it has been set from command line
+        }
+        globalTraceLevelSetByCommandLine = setFromCommandLine;
+        if (globalTraceLevel != level) {
+            globalTraceLevel = level;
+            if (debugLogging) {
+                Logger.log(Logger.INFO, Logger.MSG_LOGGER_TRACETOPIC,
+                        "Trace Level set to " + Integer.toString(globalTraceLevel) + "."); // do not internationalize!
+            }
+        }
+        return true;
+    }
+
     public static boolean isDebugLoggin() {
         return debugLogging;
     }
@@ -526,7 +584,11 @@ public class Logger {
     }
 
     public static boolean isTraceOn(long traceTopic) {
-        return debugLogging && (globalTraceTopic & traceTopic) != 0;
+        return isTraceOn(traceTopic, 1);
+    }
+
+    public static boolean isTraceOn(long traceTopic, int level) {
+        return debugLogging && (globalTraceTopic & traceTopic) != 0 && globalTraceLevel >= level;
     }
 
     private static void mailError(String key, String msg, String to) {

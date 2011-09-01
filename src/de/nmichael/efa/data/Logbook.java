@@ -18,15 +18,19 @@ import java.util.*;
 
 // @i18n complete
 
-public class Logbook extends Persistence {
+public class Logbook extends StorageObject {
 
     public static final String DATATYPE = "efa2logbook";
 
     private String name;
     private ProjectRecord projectRecord;
 
-    public Logbook(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Fahrtenbuch"));
+    public Logbook(int storageType, 
+            String storageLocation,
+            String storageUsername,
+            String storagePassword,
+            String storageObjectName) {
+        super(storageType, storageLocation, storageUsername, storagePassword, storageObjectName, DATATYPE, International.getString("Fahrtenbuch"));
         LogbookRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
@@ -112,6 +116,10 @@ public class Logbook extends Persistence {
     }
 
     public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
+        if (add || update) {
+            assertFieldNotEmpty(record, LogbookRecord.ENTRYID);
+            assertUnique(record, LogbookRecord.ENTRYID);
+        }
         if (delete) {
             assertNotReferenced(record, getProject().getBoatStatus(false), new String[] { BoatStatusRecord.ENTRYNO }, true,
                     new String[] { BoatStatusRecord.LOGBOOK }, new String[] { getName() } );

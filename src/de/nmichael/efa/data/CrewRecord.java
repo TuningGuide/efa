@@ -160,6 +160,54 @@ public class CrewRecord extends DataRecord {
         return getId();
     }
 
+    public String getPersonAsName(String field, long validAt) {
+        UUID id = getUUID(field);
+        if (id != null) {
+            Persons persons = getPersistence().getProject().getPersons(false);
+            if (persons != null) {
+                PersonRecord r = persons.getPerson(id, validAt);
+                if (r != null) {
+                    return r.getQualifiedName();
+                }
+            }
+        }
+        return null;
+    }
+
+    public String getAsText(String fieldName) {
+        if (fieldName.equals(COXID)) {
+            return getPersonAsName(COXID, System.currentTimeMillis());
+        }
+        for (int i=1; i<=LogbookRecord.CREW_MAX; i++) {
+            if (fieldName.equals(getCrewFieldNameId(i))) {
+                return getPersonAsName(fieldName, System.currentTimeMillis());
+            }
+        }
+        return super.getAsText(fieldName);
+    }
+
+    public void setFromText(String fieldName, String value) {
+        boolean personId = false;
+        if (fieldName.equals(COXID)) {
+            personId = true;
+        }
+        for (int i=1; i<=LogbookRecord.CREW_MAX; i++) {
+            if (fieldName.equals(getCrewFieldNameId(i))) {
+                personId = true;
+            }
+        }
+        if (personId) {
+            Persons persons = getPersistence().getProject().getPersons(false);
+            PersonRecord pr = persons.getPerson(value, -1);
+            if (pr != null) {
+                set(fieldName, pr.getId());
+            }
+            return;
+        }
+        set(fieldName, value);
+    }
+
+
     public Vector<IItemType> getGuiItems() {
         String CAT_BASEDATA     = "%01%" + International.getString("Mannschaft");
 

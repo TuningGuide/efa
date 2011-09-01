@@ -17,13 +17,17 @@ import java.util.*;
 
 // @i18n complete
 
-public class Persons extends Persistence {
+public class Persons extends StorageObject {
 
     public static final String DATATYPE = "efa2persons";
     public PersonRecord staticPersonRecord;
 
-    public Persons(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, storageObjectName, DATATYPE, International.getString("Personen"));
+    public Persons(int storageType, 
+            String storageLocation,
+            String storageUsername,
+            String storagePassword,
+            String storageObjectName) {
+        super(storageType, storageLocation, storageUsername, storagePassword, storageObjectName, DATATYPE, International.getString("Personen"));
         PersonRecord.initialize();
         staticPersonRecord = (PersonRecord)createNewRecord();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
@@ -123,6 +127,7 @@ public class Persons extends Persistence {
 
     public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
         if (add || update) {
+            assertFieldNotEmpty(record, PersonRecord.ID);
             assertFieldNotEmpty(record, PersonRecord.FIRSTLASTNAME);
         }
         if (delete) {

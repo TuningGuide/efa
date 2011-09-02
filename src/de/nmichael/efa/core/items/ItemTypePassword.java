@@ -27,6 +27,10 @@ public class ItemTypePassword extends ItemTypeString {
         super(name, value, type, category, description);
     }
     
+    public IItemType copyOf() {
+        return new ItemTypePassword(name, value, type, category, description);
+    }
+
     protected JComponent initializeField() {
         JPasswordField f = new JPasswordField();
         return f;

@@ -219,6 +219,9 @@ public abstract class ItemType implements IItemType {
 
     public boolean isChanged() {
         String s = toString();
+        if ((s == null || s.length() == 0) && (lastValue == null || lastValue.length() == 0)) {
+            return false;
+        }
         return s != null && !s.equals(lastValue);
     }
 

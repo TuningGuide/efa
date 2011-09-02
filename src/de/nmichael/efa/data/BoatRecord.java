@@ -328,6 +328,10 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         DataTypeList lrigging = getList(TYPERIGGING, IDataAccess.DATA_STRING);
         DataTypeList lcoxing = getList(TYPECOXING, IDataAccess.DATA_STRING);
 
+        while (ldescription != null && idx >= ldescription.length()) {
+            ldescription.add(""); // might be null because it only contains 0-length strings
+        }        
+
         if (idx < 0 ||
                 ldescription == null || idx >= ldescription.length() ||
                 ltype == null || idx >= ltype.length() ||
@@ -359,6 +363,13 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         DataTypeList lseats = getList(TYPESEATS, IDataAccess.DATA_STRING);
         DataTypeList lrigging = getList(TYPERIGGING, IDataAccess.DATA_STRING);
         DataTypeList lcoxing = getList(TYPECOXING, IDataAccess.DATA_STRING);
+
+        if (ldescription == null) { // fixing the description list, which may be null if it only contains "" strings
+            ldescription = DataTypeList.parseList("", IDataAccess.DATA_STRING);
+        }
+        while (ldescription != null && idx >= ldescription.length()) {
+            ldescription.add(""); // might be null because it only contains 0-length strings
+        }
 
         if (idx < 0 ||
                 lvariant == null || idx >= lvariant.length() ||

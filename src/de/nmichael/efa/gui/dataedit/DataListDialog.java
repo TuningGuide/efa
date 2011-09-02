@@ -123,7 +123,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                     (validAt < 0 ? null : new DataTypeDate(validAt)),
                     (validAt < 0 ? null : new DataTypeTime(validAt)),
                     IItemType.TYPE_PUBLIC, "", International.getString("zeige Datensätze gültig am"));
-            validAtDateTime.setNotNull(true);
+            // validAtDateTime.setNotNull(true); // @todo (P1) why not null? This can very well be null!
             validAtDateTime.setPadding(0, 0, 10, 0);
             validAtDateTime.displayOnGui(this, mainControlPanel, 0, 0);
             validAtDateTime.registerItemListener(this);
@@ -144,6 +144,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
         }
         mainPanel.add(mainTablePanel, BorderLayout.CENTER);
 
+        setRequestFocus(table);
         this.validate();
     }
 
@@ -185,8 +186,16 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 try {
                     for (int i = 0; records != null && i < records.length; i++) {
                         if (records[i] != null) {
-                            records[i].setInvisible(currentlyVisible);
-                            persistence.data().update(records[i]);
+                            if (persistence.data().getMetaData().isVersionized()) {
+                                DataRecord[] allVersions = persistence.data().getValidAny(records[i].getKey());
+                                for (int j=0; allVersions != null && j<allVersions.length; j++) {
+                                    allVersions[j].setInvisible(currentlyVisible);
+                                    persistence.data().update(allVersions[j]);
+                                }
+                            } else {
+                                records[i].setInvisible(currentlyVisible);
+                                persistence.data().update(records[i]);
+                            }
                         }
                     }
                 } catch (EfaModifyException exmodify) {

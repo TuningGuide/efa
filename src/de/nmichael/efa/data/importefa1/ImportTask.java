@@ -119,7 +119,7 @@ public class ImportTask extends ProgressTask {
             }
         }
         try {
-            Daten.project.close();
+            Daten.project.closeAllStorageObjects();
             Daten.project.open(false);
         } catch(Exception e) {
             Logger.logdebug(e);

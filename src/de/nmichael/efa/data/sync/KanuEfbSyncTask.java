@@ -172,7 +172,7 @@ public class KanuEfbSyncTask extends ProgressTask {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.logdebug(e);
             logInfo(Logger.ERROR, Logger.MSG_SYNC_ERRORLOGIN, "Login fehlgeschlagen: "+e.toString());
             return false;
         }

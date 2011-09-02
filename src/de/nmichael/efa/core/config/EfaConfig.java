@@ -6,7 +6,6 @@
 package de.nmichael.efa.core.config;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.DownloadFrame;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
@@ -16,6 +15,7 @@ import de.nmichael.efa.gui.widgets.Widget;
 import de.nmichael.efa.util.*;
 import java.io.File;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Vector;
@@ -202,7 +202,7 @@ public class EfaConfig extends StorageObject {
     private ItemTypeInteger efaDirekt_emailPort;
     private ItemTypeString efaDirekt_emailAbsender;
     private ItemTypeString efaDirekt_emailUsername;
-    private ItemTypeString efaDirekt_emailPassword;
+    private ItemTypePassword efaDirekt_emailPassword;
     private ItemTypeString efaDirekt_emailAbsenderName;
     private ItemTypeString efaDirekt_emailBetreffPraefix;
     private ItemTypeString efaDirekt_emailSignatur;
@@ -841,7 +841,7 @@ public class EfaConfig extends StorageObject {
                     IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
                     International.getString("email") + ": "
                     + International.getString("Username")));
-            addParameter(efaDirekt_emailPassword = new ItemTypeString("NotificationEmailPassword", "",
+            addParameter(efaDirekt_emailPassword = new ItemTypePassword("NotificationEmailPassword", "",
                     IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
                     International.getString("email") + ": "
                     + International.getString("Paßwort")));
@@ -1721,36 +1721,38 @@ public class EfaConfig extends StorageObject {
     }
 
     public void checkNewConfigValues() {
-        String changedSettings = null;
+        Hashtable<String,String> changedSettings = new Hashtable<String,String>();
         synchronized(configValues) {
             for (int i=0; i<configValueNames.size(); i++) {
                 IItemType item = configValues.get(configValueNames.get(i));
                 if (item != null && item.isChanged()) {
                     if (item == efaDirekt_fontSize || item == efaDirekt_fontStyle) {
-                        changedSettings = (changedSettings == null ? "" : changedSettings + "\n") +
-                                          International.getString("Schriftgröße");
+                        changedSettings.put(International.getString("Schriftgröße"), "foo");
                     }
                     if (item == useFunctionalityRowing ||
                         item == useFunctionalityRowingGermany ||
                         item == useFunctionalityRowingBerlin ||
                         item == useFunctionalityCanoeing ||
                         item == useFunctionalityCanoeingGermany) {
-                        changedSettings = (changedSettings == null ? "" : changedSettings + "\n") +
-                                          International.getString("Regionale Anpassung");
+                        changedSettings.put(International.getString("Regionale Anpassung"), "foo");
                     }
                     if (item == this.dataRemoteEfaServerEnabled ||
                         item == this.dataRemoteEfaServerPort
                         ) {
-                        changedSettings = (changedSettings == null ? "" : changedSettings + "\n") +
-                                          International.getString("Remote efa");
+                        changedSettings.put(International.getString("efaRemote"), "foo");
                     }
                 }
             }
         }
-        if (changedSettings != null) {
+        if (changedSettings.size() > 0) {
+            String[] keys = changedSettings.keySet().toArray(new String[0]);
+            String s = null;
+            for (int i=0; i<keys.length; i++) {
+                s = (s != null ? s + "\n" : "") + keys[i];
+            }
             Dialog.infoDialog(International.getString("Geänderte Einstellungen"),
                     International.getString("Folgende geänderte Einstellungen werden erst nach einem Neustart von efa wirksam:") +
-                    "\n" + changedSettings);
+                    "\n" + s);
         }
     }
 

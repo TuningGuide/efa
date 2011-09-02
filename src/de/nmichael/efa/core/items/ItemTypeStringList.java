@@ -35,6 +35,7 @@ public class ItemTypeStringList extends ItemTypeLabelValue {
         this.type = type;
         this.category = category;
         this.description = description;
+        this.lastValue = (value != null ? value.toString() : null);
     }
 
     public IItemType copyOf() {

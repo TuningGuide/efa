@@ -1535,7 +1535,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             return false;
         }
 
-        if (isNewRecord) {
+        if (isNewRecord || currentRecord == null) {
             // erstmal prüfen, ob die Laufende Nummer korrekt ist
             DataTypeIntString highestEntryNo = new DataTypeIntString(" ");
             try {
@@ -2016,9 +2016,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         if (!isLogbookReady()) {
             return;
         }
-        if (isModeFull() && currentRecord == null) {
-            return; // new record already created
-        }
+        // @todo (P1) are the following lines really necessary? they cause exceptions for blank logbooks
+        //if (isModeFull() && currentRecord == null) {
+        //    return; // new record already created
+        //}
         if (isModeFull() && !promptSaveChangesOk()) {
             return;
         }
@@ -2076,6 +2077,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         // calculate new EntryID for new record
         if (insertAtCurrentPosition) {
             entryno.parseAndShowValue(currentEntryNo);
+            entryno.setUnchanged();
         } else {
             String n;
             if (!isModeBoathouse() && entryNoForNewEntry > 0) {
@@ -2094,6 +2096,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 }
             }
             entryno.parseAndShowValue(n);
+            entryno.setUnchanged();
         }
 
         // set Date
@@ -2104,6 +2107,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             d = EfaUtil.getCurrentTimeStampDD_MM_YYYY();
         }
         date.parseAndShowValue(d);
+        date.setUnchanged();
     }
 
     void deleteRecord() {

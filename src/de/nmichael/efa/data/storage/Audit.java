@@ -9,12 +9,17 @@
 
 package de.nmichael.efa.data.storage;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.data.*;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
 import java.util.Hashtable;
 import java.util.UUID;
 
 public class Audit extends Thread {
+
+    private static final long MAX_MESSAGES_FILESIZE = 1024*1024;
     
     private Project project;
 
@@ -113,6 +118,68 @@ public class Audit extends Thread {
         }
     }
 
+    private int runAuditMessages() {
+        int errors = 0;
+        try {
+            Messages messages = project.getMessages(false);
+            if (messages.data().getStorageType() == IDataAccess.TYPE_FILE_XML) {
+                long size = ((DataFile)messages.data()).getFileSize();
+                if (size > MAX_MESSAGES_FILESIZE) {
+                    Logger.log(Logger.INFO,Logger.MSG_DATA_FILESIZEHIGH,
+                            International.getMessage("Nachrichtendatei hat maximale Dateigröße überschritten. Derzeitige Größe: {size} byte", size));
+                    Messages archived = new Messages(messages.data().getStorageType(),
+                                                     Daten.efaBakDirectory,
+                                                     null, null,
+                                                     "messages_"+EfaUtil.getCurrentTimeStampYYYYMMDD_HHMMSS());
+                    archived.open(true);
+                    long lock = messages.data().acquireGlobalLock();
+                    int cntRead = 0;
+                    int cntUnread = 0;
+                    int cntMoved = 0;
+                    try {
+                        DataKeyIterator it = messages.data().getStaticIterator();
+                        DataKey k = it.getFirst();
+                        while (k != null) {
+                            MessageRecord r = (MessageRecord) messages.data().get(k);
+                            if (r.getRead()) {
+                                cntRead++;
+                                try {
+                                    archived.data().add(r);
+                                    messages.data().delete(k, lock);
+                                    cntMoved++;
+                                } catch (Exception e1) {
+                                    Logger.log(e1);
+                                }
+                            } else {
+                                cntUnread++;
+                            }
+                            k = it.getNext();
+                        }
+                        archived.close();
+                        Logger.log(Logger.INFO,Logger.MSG_DATA_FILEARCHIVED,
+                                International.getMessage("{count} gelesene Nachrichten wurden erfolgreich in die Archivdatei {filename} verschoben.",
+                                cntMoved, ((DataFile)archived.data()).filename));
+                    } finally {
+                        messages.data().releaseGlobalLock(lock);
+                    }
+                    ((DataFile) messages.data()).flush();
+                    size = ((DataFile) messages.data()).getFileSize();
+                    if (size > MAX_MESSAGES_FILESIZE / 2) {
+                        Logger.log(Logger.WARNING, Logger.MSG_DATA_FILESIZEHIGH,
+                                International.getMessage("Nachrichtendatei ist nach Archivierung gelesener Nachrichten noch immer groß. Derzeitige Größe: {size} byte", size));
+                        Logger.log(Logger.WARNING, Logger.MSG_DATA_FILESIZEHIGH,
+                                International.getMessage("Es gibt {count} ungelesene Nachrichten. Bitte lies die Nachrichten und markiere sie als gelesen.", cntUnread));
+                    }
+                }
+            }
+            return errors;
+        } catch (Exception e) {
+            Logger.logdebug(e);
+            Logger.log(Logger.ERROR,Logger.MSG_DATA_PROJECTCHECK,"runAuditMessages() Caught Exception: " + e.toString());
+            return ++errors;
+        }
+    }
+
     public boolean runAudit() {
         Logger.log(Logger.INFO,Logger.MSG_DATA_PROJECTCHECK,"Starting Project Audit for Project: " + project.getProjectName());
         int errors = 0;
@@ -129,10 +196,11 @@ public class Audit extends Thread {
             errors += runAuditPersistence(project.getBoatDamages(false), BoatDamages.DATATYPE);
             errors += runAuditPersistence(project.getDestinations(false), Destinations.DATATYPE);
             errors += runAuditPersistence(project.getWaters(false), Waters.DATATYPE);
-            errors += runAuditPersistence(project.getMessages(false), Messages.DATATYPE); // @todo (P2) make sure to truncate message file once in a while
+            errors += runAuditPersistence(project.getMessages(false), Messages.DATATYPE);
 
             errors += runAuditBoats();
-            // @todo (P3) AuditLogbook: check whether any name has a matching ID and replace by ID; also, check for deleted entries
+            errors += runAuditMessages();
+            // @todo (P4) AuditLogbook: check whether any name has a matching ID and replace by ID; also, check for deleted entries
         } catch(Exception e) {
             Logger.logdebug(e);
             Logger.log(Logger.ERROR,Logger.MSG_DATA_PROJECTCHECK,"runAudit() Caught Exception: " + e.toString());

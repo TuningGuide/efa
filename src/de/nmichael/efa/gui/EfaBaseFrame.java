@@ -73,7 +73,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     ItemTypeDistance distance;
     ItemTypeString comments;
     ItemTypeStringList sessiontype;
-    ItemTypeStringAutoComplete sessiongroup; // @todo (P2) make sure all entries are within time range of session group; and active days must be checked!
+    ItemTypeStringAutoComplete sessiongroup;
 
     // Supplementary Elements
     ItemTypeButton remainingCrewUpButton;
@@ -103,6 +103,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     int crewRangeSelection = 0;     // mannschAuswahl = 0: 1-8 sichtbar; 1: 9-16 sichtbar; 2: 17-24 sichtbar
     String crew1defaultText = null; // mannsch1_label_defaultText = der Standardtext, den das Label "Mannschaft 1: " normalerweise haben soll (wenn es nicht für Einer auf "Name: " gesetzt wird)
     IItemType lastFocusedItem;
+    private volatile boolean _inUpdateBoatVariant = false;
     AutoCompleteList autoCompleteListBoats = new AutoCompleteList();
     AutoCompleteList autoCompleteListPersons = new AutoCompleteList();
     AutoCompleteList autoCompleteListDestinations = new AutoCompleteList();
@@ -688,6 +689,27 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         }
     }
 
+    private void clearAllBackgroundColors() {
+        entryno.restoreBackgroundColor();
+        date.restoreBackgroundColor();
+        enddate.restoreBackgroundColor();
+        boat.restoreBackgroundColor();
+        boatvariant.restoreBackgroundColor();
+        cox.restoreBackgroundColor();
+        for (int i=0; i<crew.length; i++) {
+            crew[i].restoreBackgroundColor();
+        }
+        boatcaptain.restoreBackgroundColor();
+        starttime.restoreBackgroundColor();
+        endtime.restoreBackgroundColor();
+        destination.restoreBackgroundColor();
+        distance.restoreBackgroundColor();
+        comments.restoreBackgroundColor();
+        sessiontype.restoreBackgroundColor();
+        boatDamageButton.restoreBackgroundColor();
+        saveButton.restoreBackgroundColor();
+    }
+
     // =========================================================================
     // Data-related methods
     // =========================================================================
@@ -748,32 +770,40 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
 
     String updateBoatVariant(BoatRecord b, int variant) {
-        if (b != null) {
-            int numberOfVariants = b.getNumberOfVariants();
-            if (numberOfVariants < 0) {
-                boatvariant.setVisible(false);
-                return null;
-            }
-            String[] bt = new String[numberOfVariants];
-            String[] bv = new String[numberOfVariants];
-            for (int i = 0; i < numberOfVariants; i++) {
-                bt[i] = Integer.toString(b.getTypeVariant(i));
-                bv[i] = b.getQualifiedBoatTypeShortName(i);
-            }
-            boatvariant.setListData(bt, bv);
-            if (variant > 0) {
-                boatvariant.parseAndShowValue(Integer.toString(variant));
-            } else {
-                if (numberOfVariants > 0 && (boatvariant.getValue() == null || boatvariant.getValue().length() == 0)) {
-                    boatvariant.parseAndShowValue(bt[0]);
-                }
-            }
-            boatvariant.setVisible(numberOfVariants > 1);
-            return boatvariant.getValue();
+        if (_inUpdateBoatVariant) {
+            return null;
         }
-        boatvariant.setListData(null, null);
-        boatvariant.setVisible(false);
-        return null;
+        _inUpdateBoatVariant = true;
+        try {
+            if (b != null) {
+                int numberOfVariants = b.getNumberOfVariants();
+                if (numberOfVariants < 0) {
+                    boatvariant.setVisible(false);
+                    return null;
+                }
+                String[] bt = new String[numberOfVariants];
+                String[] bv = new String[numberOfVariants];
+                for (int i = 0; i < numberOfVariants; i++) {
+                    bt[i] = Integer.toString(b.getTypeVariant(i));
+                    bv[i] = b.getQualifiedBoatTypeShortName(i);
+                }
+                boatvariant.setListData(bt, bv);
+                if (variant > 0) {
+                    boatvariant.parseAndShowValue(Integer.toString(variant));
+                } else {
+                    if (numberOfVariants > 0 && (boatvariant.getValue() == null || boatvariant.getValue().length() == 0)) {
+                        boatvariant.parseAndShowValue(bt[0]);
+                    }
+                }
+                boatvariant.setVisible(numberOfVariants > 1);
+                return boatvariant.getValue();
+            }
+            boatvariant.setListData(null, null);
+            boatvariant.setVisible(false);
+            return null;
+        } finally {
+            _inUpdateBoatVariant = false;
+        }
     }
 
     void openLogbook(String logbookName) {
@@ -1198,8 +1228,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             }
             switch (Dialog.yesNoCancelDialog(International.getString("Eintrag nicht gespeichert"), txt)) {
                 case Dialog.YES:
-                    saveEntry();
-                    break;
+                    return saveEntry();
                 case Dialog.NO:
                     break;
                 default:
@@ -1267,9 +1296,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 now.setMinute(notBefore.getMinute());
             }
         }
-        
-        field.parseAndShowValue(now.toString());
-        field.setSelection(0, Integer.MAX_VALUE);
+
+        if (addMinutes != 0) {
+            field.parseAndShowValue(now.toString());
+            field.setSelection(0, Integer.MAX_VALUE);
+        }
     }
 
     void setDesinationDistance() {
@@ -1618,7 +1649,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 if (currentBoat != null) {
                     efaBoathouseAction.boatStatus = currentBoat.getBoatStatus();
                 }
-                return efaBoathouseFrame.checkStartSessionForBoat(efaBoathouseAction, 2);
+                boolean success = efaBoathouseFrame.checkStartSessionForBoat(efaBoathouseAction, 2);
+                if (!success) {
+                    efaBoathouseAction.boat = null; // otherwise next check would fail
+                }
+                return success;
             }
         }
         return true;
@@ -2016,10 +2051,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         if (!isLogbookReady()) {
             return;
         }
-        // @todo (P1) are the following lines really necessary? they cause exceptions for blank logbooks
-        //if (isModeFull() && currentRecord == null) {
-        //    return; // new record already created
-        //}
         if (isModeFull() && !promptSaveChangesOk()) {
             return;
         }
@@ -2210,7 +2241,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         if (id == FocusEvent.FOCUS_LOST) {
             showHint(null);
             lastFocusedItem = item;
-            if (item == boat) {
+            if (item == boat || item == boatvariant) {
                 currentBoatUpdateGui();
             }
             if (item == cox) {
@@ -2274,6 +2305,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         if (id == ItemEvent.ITEM_STATE_CHANGED) {
             if (item == boatcaptain) {
                 setBoatCaptain(getBoatCaptain(), false);
+            }
+            if (item == boatvariant) {
+                int variant = EfaUtil.stringFindInt(boatvariant.getValueFromField(), -1);
+                currentBoatUpdateGui(variant);
             }
         }
     }
@@ -2391,6 +2426,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         setFieldEnabled(enabled, true, distance);
     }
 
+
     private void currentBoatUpdateGuiBoathouse(boolean isCoxed, int numCrew) {
         // Steuermann wird bei steuermannslosen Booten immer disabled (unabhängig von Konfigurationseinstellung)
         setFieldEnabled(isCoxed, isCoxed, cox);
@@ -2430,6 +2466,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
     // wird von boot_focusLost aufgerufen, sowie vom FocusManager! (irgendwie unsauber, da bei <Tab> doppelt...
     void currentBoatUpdateGui() {
+        currentBoatUpdateGui(-1);
+    }
+    void currentBoatUpdateGui(int newvariant) {
         boat.getValueFromGui();
 
         currentBoat = null;
@@ -2445,7 +2484,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             if (b != null) {
                 currentBoat = b;
                 // Update Boat Type selection
-                updateBoatVariant(currentBoat, -1);
+                updateBoatVariant(currentBoat, newvariant);
                 int variant = EfaUtil.stringFindInt(boatvariant.toString(), -1);
                 int idx = b.getVariantIndex(variant);
                 currentBoatTypeSeats = b.getTypeSeats(idx);
@@ -2463,7 +2502,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                     }
                 }
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logger.logdebug(e);
         }
 
@@ -2731,7 +2770,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         }
 
         void focusItem(IItemType item, Component cur, int direction) {
-            //System.out.println("focusItem(" + item.getName() + ")");
+            // fSystem.out.println("focusItem(" + item.getName() + ")");
             if (item == efaBaseFrame.starttime && Daten.efaConfig.getValueSkipUhrzeit()) {
                 focusItem(efaBaseFrame.destination, cur, direction);
             } else if (item == efaBaseFrame.endtime && Daten.efaConfig.getValueSkipUhrzeit()) {
@@ -2772,7 +2811,23 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 efaBaseFrame.currentBoatUpdateGui();
                 if (!(cur instanceof JButton) && efaBaseFrame.boat.getValue().length()>0 && !efaBaseFrame.boat.isKnown() && !efaBaseFrame.isModeBoathouse()) {
                     efaBaseFrame.boat.requestButtonFocus();
-                } else if (efaBaseFrame.currentBoatTypeCoxing != null && efaBaseFrame.currentBoatTypeCoxing.equals(EfaTypes.TYPE_COXING_COXLESS)) {
+                } else if (efaBaseFrame.boatvariant.isVisible()) {
+                    focusItem(efaBaseFrame.boatvariant, cur, 1);
+                } else {
+                    if (efaBaseFrame.currentBoatTypeCoxing != null && efaBaseFrame.currentBoatTypeCoxing.equals(EfaTypes.TYPE_COXING_COXLESS)) {
+                        focusItem(efaBaseFrame.crew[0], cur, 1);
+                    } else {
+                        focusItem(efaBaseFrame.cox, cur, 1);
+                    }
+                }
+                return;
+            }
+
+            // BOOTVARIANT
+            if (item == efaBaseFrame.boatvariant) {
+                efaBaseFrame.boatvariant.getValueFromGui();
+                efaBaseFrame.currentBoatUpdateGui();
+                if (efaBaseFrame.currentBoatTypeCoxing != null && efaBaseFrame.currentBoatTypeCoxing.equals(EfaTypes.TYPE_COXING_COXLESS)) {
                     focusItem(efaBaseFrame.crew[0], cur, 1);
                 } else {
                     focusItem(efaBaseFrame.cox, cur, 1);
@@ -2932,6 +2987,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         this.mode = action.mode;
         openLogbook(logbook);
         this.efaBoathouseAction = action;
+        clearAllBackgroundColors();
         switch(mode) {
             case MODE_BOATHOUSE_START:
                 return efaBoathouseStartSession(action);
@@ -2972,6 +3028,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         if (item.boat != null) {
             boat.parseAndShowValue(item.boat.getQualifiedName());
             currentBoatUpdateGui();
+            if (item.boatVariant >= 0) {
+                updateBoatVariant(item.boat, item.boatVariant + 1);
+            }
             if (cox.isEditable()) {
                 setRequestFocus(cox);
             } else {
@@ -3022,8 +3081,14 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         setFieldEnabled(true, true, comments);
         setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(), boatDamageButton);
 
-        currentBoatUpdateGui();
-        boat.requestFocus();
+        try {
+            _inUpdateBoatVariant = true; // a hack to avoid that updateBoatVariant() called from within currentBoatUpdateGui() will change the focus
+            currentBoatUpdateGui();
+        } finally {
+            _inUpdateBoatVariant = false;
+        }
+
+        setRequestFocus(boat);
 
         return true;
     }
@@ -3064,8 +3129,14 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         setFieldEnabled(true, true, comments);
         setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(), boatDamageButton);
 
-        currentBoatUpdateGui();
-        destination.requestFocus();
+        try {
+            _inUpdateBoatVariant = true; // a hack to avoid that updateBoatVariant() called from within currentBoatUpdateGui() will change the focus
+            currentBoatUpdateGui();
+        } finally {
+            _inUpdateBoatVariant = false;
+        }
+
+        setRequestFocus(destination);
 
         return true;
     }
@@ -3088,6 +3159,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         if (item.boat != null) {
             boat.parseAndShowValue(item.boat.getQualifiedName());
             currentBoatUpdateGui();
+            if (item.boatVariant >= 0) {
+                updateBoatVariant(item.boat, item.boatVariant + 1);
+            }
             if (cox.isEditable()) {
                 setRequestFocus(cox);
             } else {
@@ -3260,6 +3334,17 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                             boatStatus.data().add(boatStatusRecord);
                         } else {
                             boatStatus.data().update(boatStatusRecord);
+                            
+                            // check whether we have changed the boat during this dialog (e.g. StartCorrect)
+                            if (efaBoathouseAction.boatStatus != null && efaBoathouseAction.boatStatus.getBoatId() != null &&
+                                !boatStatusRecord.getBoatId().equals(efaBoathouseAction.boatStatus.getBoatId())) {
+                                BoatStatusRecord oldStatus = efaBoathouseAction.boatStatus;
+                                oldStatus.setCurrentStatus(BoatStatusRecord.STATUS_AVAILABLE);
+                                oldStatus.setEntryNo(null);
+                                oldStatus.setLogbook(null);
+                                oldStatus.setComment("");
+                                boatStatus.data().update(oldStatus);
+                            }
                         }
                     }
                 } catch(Exception e) {

@@ -170,6 +170,14 @@ public abstract class DataFile extends DataAccess {
         }
     }
 
+    public long getFileSize() {
+        try {
+            return (new File(this.filename)).length();
+        } catch(Exception e) {
+            return -1;
+        }
+    }
+
     protected abstract void readFile(BufferedReader fr) throws EfaException;
     protected abstract void writeFile(BufferedWriter fw) throws EfaException;
 
@@ -823,6 +831,14 @@ public abstract class DataFile extends DataAccess {
 
     public DataRecord getLast() throws EfaException {
         return getLast(getStaticIterator());
+    }
+
+    public void flush() {
+        try {
+            fileWriter.save(true, false);
+        } catch(Exception e) {
+            Logger.log(e);
+        }
     }
 
 }

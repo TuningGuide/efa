@@ -46,8 +46,10 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
     protected void iniDialog() throws Exception {
         if (Daten.efaConfig.getValueEfaDirekt_startMaximized()) {
             this.setSize(Dialog.screenSize.width, Dialog.screenSize.height);
+            this.setPreferredSize(new Dimension(Dialog.screenSize.width, Dialog.screenSize.height));
         } else {
             this.setSize((Dialog.screenSize.width * 98) / 100, (Dialog.screenSize.height * 95) / 100);
+            this.setPreferredSize(new Dimension((Dialog.screenSize.width * 98) / 100, (Dialog.screenSize.height * 95) / 100));
         }
 
         mainPanel.setLayout(new BorderLayout());
@@ -234,9 +236,9 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
                     }
                     break;
                 case 8:
-                    widths[i] = 4 * width / 100; // Boots-Km
-                    if (widths[i] > 30) {
-                        widths[i] = 30;
+                    widths[i] = 6 * width / 100; // Boots-Km
+                    if (widths[i] > 50) {
+                        widths[i] = 50;
                     }
                     break;
             }
@@ -255,7 +257,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
                     widths[i] = 22 * remaining / 100;
                     break; // Mannsch
                 case 7:
-                    widths[i] = 28 * remaining / 100;
+                    widths[i] = 26 * remaining / 100;
                     break; // Ziel
                 case 9:
                     widths[i] = 10 * remaining / 100;
@@ -276,7 +278,6 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
     }
 
     public void itemListenerAction(IItemType itemType, AWTEvent event) {
-        System.out.println(event);
         if (event != null && itemType != null) {
             if ((event instanceof KeyEvent && itemType == showOnlyNumber && event.getID() == KeyEvent.KEY_RELEASED) ||
                 (event instanceof ActionEvent && itemType == showAlsoIncomplete)) {

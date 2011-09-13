@@ -68,6 +68,7 @@ public class ImportDestinations extends ImportBase {
             Waters waters = Daten.project.getWaters(true);
             long validFrom = logbookRec.getStartDate().getTimestamp(null);
 
+            Hashtable<UUID,String> importedDestinations = new Hashtable<UUID,String>();
             DatenFelder d = ziele.getCompleteFirst();
             String[] IDXD = new String[] { DestinationRecord.NAME };
             String[] IDXW = new String[] { WatersRecord.NAME };
@@ -131,7 +132,24 @@ public class ImportDestinations extends ImportBase {
                 } else {
                     logDetail(International.getMessage("Identischer Eintrag: {entry}", r.toString()));
                 }
+                importedDestinations.put(r.getId(), r.getQualifiedName());
                 d = ziele.getCompleteNext();
+            }
+
+            // mark all destinations that have *not* been imported with this run, but still have a valid version, as deleted
+            DataKeyIterator it = destinations.data().getStaticIterator();
+            DataKey key = it.getFirst();
+            while (key != null) {
+                DestinationRecord dr = destinations.getDestination((UUID)key.getKeyPart1(), validFrom);
+                if (dr != null && importedDestinations.get(dr.getId()) == null) {
+                    try {
+                        destinations.data().changeValidity(dr, dr.getValidFrom(), validFrom);
+                    } catch(Exception e) {
+                        logError(International.getMessage("Gültigkeit ändern von Eintrag fehlgeschlagen: {entry} ({error})", dr.toString(), e.toString()));
+                        Logger.logdebug(e);
+                    }
+                }
+                key = it.getNext();
             }
         } catch(Exception e) {
             logError(International.getMessage("Import von {list} aus {file} ist fehlgeschlagen.", getDescription(), ziele.getFileName()));

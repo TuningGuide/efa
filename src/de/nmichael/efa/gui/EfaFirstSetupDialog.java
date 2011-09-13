@@ -110,7 +110,7 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
         items.add(item = new ItemTypeString(ADMIN_NAME, Admins.SUPERADMIN, IItemType.TYPE_PUBLIC,
                 Integer.toString(getCreateSuperAdminStep()), International.getString("Name")));
         ((ItemTypeString)item).setEditable(false);
-        items.add(item = new ItemTypePassword(ADMIN_PASSWORD, "", IItemType.TYPE_PUBLIC,
+        items.add(item = new ItemTypePassword(ADMIN_PASSWORD, "",  IItemType.TYPE_PUBLIC,
                 Integer.toString(getCreateSuperAdminStep()), International.getString("Paßwort")));
         ((ItemTypePassword)item).setNotNull(true);
         ((ItemTypePassword)item).setMinCharacters(6);

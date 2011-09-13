@@ -34,6 +34,8 @@ public class ItemTypeTable extends ItemType implements ActionListener {
     protected Hashtable<String,TableItem[]> items; // keys -> columns for key
     protected String[] popupActions;
     protected int selectionMode = ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
+    protected int sortByColumn = 0;
+    protected boolean ascending = true;
 
     public ItemTypeTable(String name, TableItemHeader[] header, Hashtable<String,TableItem[]> items, String value,
             int type, String category, String description) {
@@ -109,7 +111,7 @@ public class ItemTypeTable extends ItemType implements ActionListener {
             table = Table.createTable(null, renderer, header, data);
             table.setSelectionMode(selectionMode);
             if (currentSortingColumn < 0) {
-                table.sortByColumn(0);
+                table.sortByColumn(this.sortByColumn, this.ascending);
             } else {
                 table.sortByColumn(currentSortingColumn, currentSortingAscending);
             }
@@ -254,6 +256,11 @@ public class ItemTypeTable extends ItemType implements ActionListener {
 
     public void setSelectionMode(int selectionMode) {
         this.selectionMode = selectionMode;
+    }
+
+    public void setSorting(int sortByColumn, boolean ascending) {
+        this.sortByColumn = sortByColumn;
+        this.ascending = ascending;
     }
 
 }

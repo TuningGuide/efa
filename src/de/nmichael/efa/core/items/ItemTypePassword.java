@@ -10,30 +10,48 @@
 
 package de.nmichael.efa.core.items;
 
-import de.nmichael.efa.*;
-import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.gui.BaseDialog;
-import java.awt.*;
-import java.awt.event.*;
+import de.nmichael.efa.data.types.DataTypePasswordCrypted;
 import javax.swing.*;
 
 public class ItemTypePassword extends ItemTypeString {
 
-    // @todo (P2) encrypt passwords in file
+    private boolean encrypted = false;
 
     public ItemTypePassword(String name, String value, int type,
             String category, String description) {
         super(name, value, type, category, description);
     }
     
+    public ItemTypePassword(String name, String value, boolean encrypted, int type,
+            String category, String description) {
+        super(name, value, type, category, description);
+        this.encrypted = encrypted;
+    }
+
     public IItemType copyOf() {
-        return new ItemTypePassword(name, value, type, category, description);
+        return new ItemTypePassword(name, value, encrypted, type, category, description);
     }
 
     protected JComponent initializeField() {
         JPasswordField f = new JPasswordField();
         return f;
+    }
+
+    public void parseValue(String value) {
+        if (encrypted) {
+            value = DataTypePasswordCrypted.parsePassword(value).getPassword();
+        }
+        super.parseValue(value);
+    }
+
+    // called from EfaConfig for external storage;
+    // we need a special solution here because EfaConfig ist not DataType-aware
+    public String getCryptedPassword() {
+        if (value != null && value.length() > 0) {
+            DataTypePasswordCrypted pwd = new DataTypePasswordCrypted(value);
+            return pwd.toString();
+        }
+        return value;
     }
 
 }

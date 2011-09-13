@@ -220,12 +220,12 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
     }
 
     // @override
-    protected void field_keyPressed(KeyEvent e) {
-        if (e != null) {
+    public void actionEvent(AWTEvent e) {
+        if (e != null && e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED) {
             if (!isSet()) {
                 value.setDate(referenceDate);
             }
-            switch(e.getKeyCode()) {
+            switch(((KeyEvent)e).getKeyCode()) {
                 case KeyEvent.VK_PLUS:
                 case KeyEvent.VK_ADD:
                 case KeyEvent.VK_UP:

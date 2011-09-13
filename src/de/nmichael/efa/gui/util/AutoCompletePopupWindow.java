@@ -14,6 +14,7 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.util.Dialog;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.Dialog.ModalExclusionType;
 import java.awt.event.*;
 import java.util.*;
 
@@ -30,7 +31,8 @@ public class AutoCompletePopupWindow extends JWindow {
     JScrollPane scrollPane = new JScrollPane();
     JList list = new JList();
 
-    private AutoCompletePopupWindow() {
+    private AutoCompletePopupWindow(Window parent) {
+        this.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
         try {
             jbInit();
             setListSize(200, 100);
@@ -177,7 +179,7 @@ public class AutoCompletePopupWindow extends JWindow {
     public static void showAndSelect(JTextField field, AutoCompleteList list, String eintrag, AutoCompletePopupWindowCallback callback) {
         try {
             if (window == null) {
-                window = new AutoCompletePopupWindow();
+                window = new AutoCompletePopupWindow(Dialog.frameCurrent());
             }
             window.callback = callback;
             if (window.setListData(list) == 0) {

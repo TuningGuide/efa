@@ -104,6 +104,7 @@ public class ImportPersons extends ImportBase {
             Status status = Daten.project.getStatus(true);
             long validFrom = logbookRec.getStartDate().getTimestamp(null);
 
+            Hashtable<UUID,String> importedPersons = new Hashtable<UUID,String>();
             DatenFelder d = mitglieder.getCompleteFirst();
             while (d != null) {
                 // First search, whether we have imported this person already
@@ -208,7 +209,24 @@ public class ImportPersons extends ImportBase {
                 } else {
                     logDetail(International.getMessage("Identischer Eintrag: {entry}", r.toString()));
                 }
+                importedPersons.put(r.getId(), r.getQualifiedName());
                 d = mitglieder.getCompleteNext();
+            }
+
+            // mark all persons that have *not* been imported with this run, but still have a valid version, as deleted
+            DataKeyIterator it = persons.data().getStaticIterator();
+            DataKey key = it.getFirst();
+            while (key != null) {
+                PersonRecord pr = persons.getPerson((UUID)key.getKeyPart1(), validFrom);
+                if (pr != null && importedPersons.get(pr.getId()) == null) {
+                    try {
+                        persons.data().changeValidity(pr, pr.getValidFrom(), validFrom);
+                    } catch(Exception e) {
+                        logError(International.getMessage("Gültigkeit ändern von Eintrag fehlgeschlagen: {entry} ({error})", pr.toString(), e.toString()));
+                        Logger.logdebug(e);
+                    }
+                }
+                key = it.getNext();
             }
         } catch(Exception e) {
             logError(International.getMessage("Import von {list} aus {file} ist fehlgeschlagen.", getDescription(), mitglieder.getFileName()));

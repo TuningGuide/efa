@@ -118,6 +118,7 @@ public class ImportBoats extends ImportBase {
             boatsAllowedGroups = new Hashtable<DataKey,String>();
             boatsRequiredGroup = new Hashtable<DataKey,String>();
 
+            Hashtable<UUID,String> importedBoats = new Hashtable<UUID,String>();
             DatenFelder d = boote.getCompleteFirst();
             String[] IDX = BoatRecord.IDX_NAME_NAMEAFFIX;
             while (d != null) {
@@ -201,8 +202,26 @@ public class ImportBoats extends ImportBase {
                         logDetail(International.getMessage("Identischer Eintrag: {entry}", boatRecord.toString()));
                     }
                 }
+                importedBoats.put(boatRecord.getId(), boatRecord.getQualifiedName());
                 d = boote.getCompleteNext();
             }
+
+            // mark all boats that have *not* been imported with this run, but still have a valid version, as deleted
+            DataKeyIterator it = boats.data().getStaticIterator();
+            DataKey key = it.getFirst();
+            while (key != null) {
+                BoatRecord br = boats.getBoat((UUID)key.getKeyPart1(), validFrom);
+                if (br != null && importedBoats.get(br.getId()) == null) {
+                    try {
+                        boats.data().changeValidity(br, br.getValidFrom(), validFrom);
+                    } catch(Exception e) {
+                        logError(International.getMessage("Gültigkeit ändern von Eintrag fehlgeschlagen: {entry} ({error})", br.toString(), e.toString()));
+                        Logger.logdebug(e);
+                    }
+                }
+                key = it.getNext();
+            }
+
             task.setBoatsAllowedGroups(boatsAllowedGroups);
             task.setBoatsRequiredGroup(boatsRequiredGroup);
         } catch(Exception e) {

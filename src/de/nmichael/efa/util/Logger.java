@@ -140,6 +140,8 @@ public class Logger {
     public static final String MSG_DATA_JOURNALWRITEFAILED = "DAT023";
     public static final String MSG_DATA_JOURNALLOGFAILED = "DAT024";
     public static final String MSG_DATA_INVALIDPARAMETER = "DAT025";
+    public static final String MSG_DATA_FILESIZEHIGH     = "DAT026";
+    public static final String MSG_DATA_FILEARCHIVED     = "DAT027";
 
     public static final String MSG_REFA_SERVERSTATUS                 = "RMT001";
     public static final String MSG_REFA_SERVERERROR                  = "RMT002";

@@ -176,9 +176,30 @@ public abstract class DataAccess implements IDataAccess {
     }
 
     public String[] getFieldNames() {
+        return getFieldNames(true);
+    }
+
+    public String[] getFieldNames(boolean includingVirtual) {
         synchronized (fieldTypes) { // fieldTypes used for synchronization of fieldTypes and keyFields as well
             String[] keys = new String[fieldTypes.size()];
-            return fieldTypes.keySet().toArray(keys);
+            fieldTypes.keySet().toArray(keys);
+            if (includingVirtual) {
+                return keys;
+            } else {
+                Vector<String> v = new Vector<String>();
+                for (int i=0; i<keys.length; i++) {
+                    if (getMetaData().getFieldType(keys[i]) != IDataAccess.DATA_VIRTUAL) {
+                        v.add(keys[i]);
+                    }
+                }
+                if (keys.length != v.size()) {
+                    keys = new String[v.size()];
+                    for (int i=0; i<v.size(); i++) {
+                        keys[i] = v.get(i);
+                    }
+                }
+                return keys;
+            }
         }
     }
 
@@ -241,6 +262,10 @@ public abstract class DataAccess implements IDataAccess {
                 return "UUID";
             case DATA_INTSTRING:
                 return "INTSTRING";
+            case DATA_PASSWORDH:
+                return "PASSWORDH";
+            case DATA_PASSWORDC:
+                return "PASSWORDC";
             case DATA_LIST_STRING:
                 return "LIST_STRING";
             case DATA_LIST_INTEGER:

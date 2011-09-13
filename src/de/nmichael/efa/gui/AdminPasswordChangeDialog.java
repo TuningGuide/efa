@@ -57,19 +57,19 @@ public class AdminPasswordChangeDialog extends BaseDialog {
         name.displayOnGui(this, mainPanel, 0, 0);
 
         if (mustEnterOldPass) {
-            passwordOld = new ItemTypePassword("PASSWORD_OLD", "", IItemType.TYPE_PUBLIC, "", International.getStringWithMnemonic("Altes Paßwort"));
+            passwordOld = new ItemTypePassword("PASSWORD_OLD", "",  IItemType.TYPE_PUBLIC, "", International.getStringWithMnemonic("Altes Paßwort"));
             passwordOld.setFieldSize(120, 20);
             passwordOld.setNotNull(true);
             passwordOld.displayOnGui(this, mainPanel, 0, 1);
         }
 
-        passwordNew1 = new ItemTypePassword("PASSWORD_NEW1", "", IItemType.TYPE_PUBLIC, "", International.getStringWithMnemonic("Neues Paßwort"));
+        passwordNew1 = new ItemTypePassword("PASSWORD_NEW1", "",  IItemType.TYPE_PUBLIC, "", International.getStringWithMnemonic("Neues Paßwort"));
         passwordNew1.setFieldSize(120, 20);
         passwordNew1.setNotNull(true);
         passwordNew1.setMinCharacters(6);
         passwordNew1.displayOnGui(this, mainPanel, 0, 2);
 
-        passwordNew2 = new ItemTypePassword("PASSWORD_NEW2", "", IItemType.TYPE_PUBLIC, "", International.getStringWithMnemonic("Neues Paßwort")+
+        passwordNew2 = new ItemTypePassword("PASSWORD_NEW2", "",  IItemType.TYPE_PUBLIC, "", International.getStringWithMnemonic("Neues Paßwort")+
                 " (" + International.getString("Wiederholung") + ")");
         passwordNew2.setFieldSize(120, 20);
         passwordNew2.setNotNull(true);

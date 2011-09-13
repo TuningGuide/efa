@@ -39,7 +39,7 @@ public class DataExportDialog extends BaseDialog {
     private String[] fieldDescription;
     private int[] selectedIndices;
 
-    // @todo (P2) DataExport option: "export to efa", which leaves all keys as they are (only xml, add flag "<exportMode>efa</exportMode>"
+    // @todo (P4) DataExport option: "export to efa", which leaves all keys as they are (only xml, add flag "<exportMode>efa</exportMode>"
 
     public DataExportDialog(Frame parent, StorageObject persistence, long validAt) {
         super(parent, International.getMessage("{data} exportieren", persistence.getDescription()),
@@ -56,7 +56,7 @@ public class DataExportDialog extends BaseDialog {
     public void setPersistence(StorageObject persistence, long validAt) {
         this.persistence = persistence;
         this.validAt = validAt;
-        this.fields = persistence.data().getFieldNames();
+        this.fields = persistence.data().getFieldNames(false);
         this.fieldDescription = new String[fields.length];
         Vector<Integer> indices = new Vector<Integer>();
         Vector<IItemType> items = persistence.createNewRecord().getGuiItems();

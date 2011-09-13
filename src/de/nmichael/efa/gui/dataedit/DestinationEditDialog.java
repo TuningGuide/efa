@@ -43,4 +43,13 @@ public class DestinationEditDialog extends VersionizedDataEditDialog {
         _keyAction(evt);
     }
 
+    protected void iniDefaults() {
+        if (newRecord) {
+            ((DestinationRecord)dataRecord).setStartIsBoathouse(true);
+            ((DestinationRecord)dataRecord).setRoundtrip(true);
+            
+        }
+    }
+
+
 }

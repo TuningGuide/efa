@@ -38,16 +38,20 @@ public class EfaOnlineThread extends Thread {
             boolean ok = false;
             String ipaddr = null;
             int pos;
+            String errormsg = "";
             while ( (s = in.readLine()) != null) {
                 if (s.indexOf("RESULT:OK") >= 0) {
                     ok = true;
+                }
+                if (s.indexOf("RESULT:ERROR:") >= 0) {
+                    errormsg = s.substring(13);
                 }
                 if ( (pos = s.indexOf("IPADDR:")) >= 0) {
                     ipaddr = s.substring(pos+7);
                 }
             }
             if (!ok) {
-                Logger.log(Logger.WARNING, Logger.MSG_EONL_WARNING, "efaOnline: Status Update failed");
+                Logger.log(Logger.WARNING, Logger.MSG_EONL_WARNING, "efaOnline: Status Update failed: " + errormsg);
             } else {
                 if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 1)) {
                     Logger.log(Logger.DEBUG, Logger.MSG_REFA_SERVERSTATUS, "efaOnline: Status Update successful: IPADDR="+ipaddr+" PORT="+port);;

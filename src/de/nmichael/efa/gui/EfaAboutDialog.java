@@ -233,7 +233,7 @@ public class EfaAboutDialog extends BaseDialog {
                 + "\n"
                 + International.getString("Unterstützung, Zusammenarbeit und Technologie") + ":\n"
                 + "* Apache Software Foundation (FOP Plugin, XML Plugin)\n"
-                + "* Deutscher Kanu-Verband (Kanu-Efb)\n"
+                + "* Deutscher Kanu-Verband (Kanu-eFB)\n"
                 + "* Deutscher Ruderverband (Fahrtenwettbewerbe)\n"
                 + "* Enterprise Distributed Technologies (FTP Plugin)\n"
                 + "* Jonathan Stott (JSunrise Plugin)\n"

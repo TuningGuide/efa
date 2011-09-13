@@ -165,6 +165,16 @@ public abstract class DataRecord implements Cloneable, Comparable {
                         throw new IllegalArgumentException(persistence.toString() + ": Data Type INTSTRING expected for Data Field " + metaData.getFieldName(fieldIdx) + ".");
                     }
                     break;
+                case IDataAccess.DATA_PASSWORDH:
+                    if (!(data instanceof DataTypePasswordHashed)) {
+                        throw new IllegalArgumentException(persistence.toString() + ": Data Type PASSWORDH expected for Data Field " + metaData.getFieldName(fieldIdx) + ".");
+                    }
+                    break;
+                case IDataAccess.DATA_PASSWORDC:
+                    if (!(data instanceof DataTypePasswordCrypted)) {
+                        throw new IllegalArgumentException(persistence.toString() + ": Data Type PASSWORDC expected for Data Field " + metaData.getFieldName(fieldIdx) + ".");
+                    }
+                    break;
                 case IDataAccess.DATA_VIRTUAL:
                     // nothing to do
                     return;
@@ -239,6 +249,10 @@ public abstract class DataRecord implements Cloneable, Comparable {
                 return o == null;
             case IDataAccess.DATA_INTSTRING:
                 return o == null || !((DataTypeIntString)o).isSet();
+            case IDataAccess.DATA_PASSWORDH:
+                return o == null || !((DataTypePasswordHashed)o).isSet();
+            case IDataAccess.DATA_PASSWORDC:
+                return o == null || !((DataTypePasswordCrypted)o).isSet();
             case IDataAccess.DATA_VIRTUAL:
                 return false;
         }
@@ -293,6 +307,10 @@ public abstract class DataRecord implements Cloneable, Comparable {
 
     public String[] getQualifiedNameFields() {
         return null; // not supported - no qualified name; to be overridden in subclass if necessary
+    }
+
+    public String[] getQualifiedNameFieldsTranslateVirtualToReal() {
+        return getQualifiedNameFields(); // not supported - no qualified name; to be overridden in subclass if necessary
     }
 
     public String[] getQualifiedNameValues(String qname) {
@@ -491,6 +509,24 @@ public abstract class DataRecord implements Cloneable, Comparable {
         }
     }
 
+    protected void setPasswordHashed(String fieldName, String pwd) {
+        DataTypePasswordHashed p = new DataTypePasswordHashed(pwd);
+        if (p != null && p.isSet()) {
+            set(fieldName, p);
+        } else {
+            set(fieldName, null);
+        }
+    }
+
+    protected void setPasswordCrypted(String fieldName, String pwd) {
+        DataTypePasswordCrypted p = new DataTypePasswordCrypted(pwd);
+        if (p != null && p.isSet()) {
+            set(fieldName, p);
+        } else {
+            set(fieldName, null);
+        }
+    }
+
     protected String getString(String fieldName) {
         return (String)get(fieldName);
     }
@@ -575,6 +611,22 @@ public abstract class DataRecord implements Cloneable, Comparable {
         return s;
     }
 
+    protected DataTypePasswordHashed getPasswordHashed(String fieldName) {
+        DataTypePasswordHashed pwd = (DataTypePasswordHashed)get(fieldName);
+        if (pwd == null) {
+            return null;
+        }
+        return pwd;
+    }
+
+    protected DataTypePasswordCrypted getPasswordCrypted(String fieldName) {
+        DataTypePasswordCrypted pwd = (DataTypePasswordCrypted)get(fieldName);
+        if (pwd == null) {
+            return null;
+        }
+        return pwd;
+    }
+
     public static Object transformDataStringToType(String s, int type) {
         switch (type) {
             case IDataAccess.DATA_STRING:
@@ -597,6 +649,10 @@ public abstract class DataRecord implements Cloneable, Comparable {
                 return UUID.fromString(s);
             case IDataAccess.DATA_INTSTRING:
                 return DataTypeIntString.parseString(s);
+            case IDataAccess.DATA_PASSWORDH:
+                return DataTypePasswordHashed.parsePassword(s);
+            case IDataAccess.DATA_PASSWORDC:
+                return DataTypePasswordCrypted.parsePassword(s);
             case IDataAccess.DATA_LIST_STRING:
                 return DataTypeList.parseList(s, IDataAccess.DATA_STRING);
             case IDataAccess.DATA_LIST_INTEGER:

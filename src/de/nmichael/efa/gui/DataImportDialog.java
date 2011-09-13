@@ -66,7 +66,7 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
         file.setNotNull(true);
         file.setFieldGrid(2, -1, -1);
         file.setPadding(0, 0, 10, 0);
-        file.setFieldSize(500, -1);
+        file.setFieldSize(450, -1);
         file.registerItemListener(this);
         file.displayOnGui(this, mainPanel, 0, 0);
 
@@ -102,17 +102,32 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
         encoding.setFieldSize(100, -1);
         encoding.displayOnGui(this, mainPanel, 1, 2);
 
-        csvSeparator = new ItemTypeString("CSVSEPARATOR", ",",
-                IItemType.TYPE_PUBLIC, "", "Feldtrenner");
+        csvSeparator = new ItemTypeString("CSVSEPARATOR", "|",
+                IItemType.TYPE_PUBLIC, "", International.getString("Feldtrenner"));
         csvSeparator.setAllowedRegex("."); // exact one character
         csvSeparator.setFieldSize(100, -1);
         csvSeparator.displayOnGui(this, mainPanel, 1, 3);
 
         csvQuotes = new ItemTypeString("CSVQUOTED", "\"",
-                IItemType.TYPE_PUBLIC, "", "Texttrenner");
+                IItemType.TYPE_PUBLIC, "", International.getString("Texttrenner"));
         csvQuotes.setAllowedRegex("."); // exact one character
         csvQuotes.setFieldSize(100, -1);
         csvQuotes.displayOnGui(this, mainPanel, 1, 4);
+
+        String[] kf = persistence.createNewRecord().getQualifiedNameFieldsTranslateVirtualToReal();
+        String kfs = "";
+        for (int i=0; i<kf.length; i++) {
+            if (!kf[i].equals(DataRecord.VALIDFROM)) {
+                kfs = (kfs.length() > 0 ? kfs + ", " : "") + kf[i];
+            }
+        }
+        ItemTypeString keyFields = new ItemTypeString("KEY_FIELDS", kfs,
+                IItemType.TYPE_PUBLIC, "", International.getString("Schlüsselfelder"));
+        keyFields.setEditable(false);
+        keyFields.setFieldSize(450, -1);
+        keyFields.setFieldGrid(2, -1, -1);
+        keyFields.setPadding(0, 0, 20, 0);
+        keyFields.displayOnGui(this, mainPanel, 0, 5);
 
         importMode = new ItemTypeStringList("IMPORTMODE", DataImport.IMPORTMODE_ADD,
                     new String[]{ DataImport.IMPORTMODE_ADD,
@@ -124,7 +139,7 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
                     IItemType.TYPE_PUBLIC, "",
                     International.getStringWithMnemonic("Import-Modus"));
         importMode.registerItemListener(this);
-        importMode.setFieldSize(500, -1);
+        importMode.setFieldSize(450, -1);
         importMode.setFieldGrid(2, -1, -1);
         importMode.setPadding(0, 0, 20, 0);
         importMode.displayOnGui(this, mainPanel, 0, 10);
@@ -136,7 +151,7 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
                     IItemType.TYPE_PUBLIC, "", International.getString("Gültigkeitszeitpunkt für Import"));
             validAtDateTime.setNotNull(true);
             validAtDateTime.setFieldGrid(2, -1, -1);
-            validAtDateTime.setFieldSize(500, -1);
+            validAtDateTime.setFieldSize(450, -1);
             validAtDateTime.displayOnGui(this, mainPanel, 0, 11);
             importModeUpd = new ItemTypeStringList("IMPORTMODEUPD", DataImport.UPPMODE_CREATENEWVERSION,
                     new String[]{DataImport.UPDMODE_UPDATEVALIDVERSION, DataImport.UPPMODE_CREATENEWVERSION},
@@ -145,7 +160,7 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
                     IItemType.TYPE_PUBLIC, "",
                     International.getStringWithMnemonic("beim Aktualisieren eines Datensatzes"));
             importModeUpd.setFieldGrid(2, -1, -1);
-            importModeUpd.setFieldSize(500, -1);
+            importModeUpd.setFieldSize(450, -1);
             importModeUpd.displayOnGui(this, mainPanel, 0, 12);
         }
 

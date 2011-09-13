@@ -51,6 +51,7 @@ public class BoatDamageListDialog extends DataListDialog {
             this.filterFieldName  = BoatReservationRecord.BOATID;
             this.filterFieldValue = boatId.toString();
         }
+        super.sortByColumn = 4;
     }
 
     public void keyAction(ActionEvent evt) {

@@ -30,15 +30,19 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
     public static final int ACTION_HIDE    =  100;
     public static final int ACTION_IMPORT  = -100; // negative actions will not be shown as popup actions
     public static final int ACTION_EXPORT  = -101; // negative actions will not be shown as popup actions
+    // @todo (P4) add a generic "print list" button
 
-    private StorageObject persistence;
-    private long validAt;
+    protected StorageObject persistence;
+    protected long validAt;
 
     protected String[] actionText;
     protected int[] actionType;
     protected String filterFieldName;
     protected String filterFieldValue;
+    protected String filterFieldDescription;
     protected ItemTypeDataRecordTable table;
+    protected int sortByColumn = 0;
+    protected boolean sortAscending = true;
     private ItemTypeDateTime validAtDateTime;
     private ItemTypeBoolean showAll;
     private ItemTypeBoolean showDeleted;
@@ -105,6 +109,14 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
         JPanel mainTablePanel = new JPanel();
         mainTablePanel.setLayout(new BorderLayout());
 
+        if (filterFieldDescription != null) {
+            JLabel filterName = new JLabel();
+            filterName.setText(filterFieldDescription);
+            filterName.setHorizontalAlignment(SwingConstants.CENTER);
+            mainTablePanel.add(filterName, BorderLayout.NORTH);
+            mainTablePanel.setBorder(new EmptyBorder(10,0,0,0));
+        }
+
         table = new ItemTypeDataRecordTable("TABLE",
                 persistence.createNewRecord().getGuiTableHeader(),
                 persistence, validAt,
@@ -112,6 +124,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 actionText, actionType, // default actions: new, edit, delete
                 this,
                 IItemType.TYPE_PUBLIC, "BASE_CAT", getTitle());
+        table.setSorting(sortByColumn, sortAscending);
         table.setFieldSize(600, 500);
         table.setPadding(0, 0, 10, 0);
         table.displayOnGui(this, mainTablePanel, BorderLayout.CENTER);
@@ -123,7 +136,6 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                     (validAt < 0 ? null : new DataTypeDate(validAt)),
                     (validAt < 0 ? null : new DataTypeTime(validAt)),
                     IItemType.TYPE_PUBLIC, "", International.getString("zeige Datensätze gültig am"));
-            // validAtDateTime.setNotNull(true); // @todo (P1) why not null? This can very well be null!
             validAtDateTime.setPadding(0, 0, 10, 0);
             validAtDateTime.displayOnGui(this, mainControlPanel, 0, 0);
             validAtDateTime.registerItemListener(this);

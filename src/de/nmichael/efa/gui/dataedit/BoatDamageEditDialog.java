@@ -12,30 +12,65 @@ package de.nmichael.efa.gui.dataedit;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.types.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
-import javax.swing.event.ChangeEvent;
 
 // @i18n complete
-public class BoatDamageEditDialog extends UnversionizedDataEditDialog {
+public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements IItemListener {
 
     public BoatDamageEditDialog(Frame parent, BoatDamageRecord r, boolean newRecord) {
         super(parent, International.getString("Bootsschaden"), r, newRecord);
+        initListener();
     }
 
     public BoatDamageEditDialog(JDialog parent, BoatDamageRecord r, boolean newRecord) {
         super(parent, International.getString("Bootsschaden"), r, newRecord);
+        initListener();
     }
 
     public void keyAction(ActionEvent evt) {
         _keyAction(evt);
+    }
+
+    private void initListener() {
+        IItemType itemType = null;
+        for (IItemType item : items) {
+            if (item.getName().equals(BoatDamageRecord.FIXED)) {
+                ((ItemTypeBoolean)item).registerItemListener(this);
+                itemType = item;
+            }
+        }
+        itemListenerAction(itemType, null);
+    }
+
+    public void itemListenerAction(IItemType item, AWTEvent event) {
+        if (item != null && item.getName().equals(BoatDamageRecord.FIXED)) {
+            ((ItemTypeBoolean)item).getValueFromGui();
+            boolean fixed = ((ItemTypeBoolean)item).getValue();
+            getItem(BoatDamageRecord.GUIITEM_FIXDATETIME).setNotNull(fixed);
+            getItem(BoatDamageRecord.FIXEDBYPERSONID).setNotNull(fixed);
+            if (fixed) {
+                ItemTypeDateTime fixedDate = (ItemTypeDateTime)getItem(BoatDamageRecord.GUIITEM_FIXDATETIME);
+                fixedDate.getValueFromGui();
+                if (!fixedDate.isSet()) {
+                    fixedDate.parseAndShowValue(EfaUtil.getCurrentTimeStampYYYY_MM_DD_HH_MM_SS());
+                }
+                getItem(BoatDamageRecord.FIXEDBYPERSONID).requestFocus();
+            }
+        }
+    }
+
+    private void sendNotification() {
+        BoatDamageRecord r = (BoatDamageRecord)dataRecord;
+        Messages messages = r.getPersistence().getProject().getMessages(false);
+        messages.createAndSaveMessageRecord(r.getReportedByPersonAsName(),
+                MessageRecord.TO_BOATMAINTENANCE,
+                International.getString("Neuer Bootsschaden") + " - " + r.getBoatAsName(),
+                r.getCompleteDamageInfo());
     }
 
     public static void newBoatDamage(Window parent, BoatRecord boat) {
@@ -51,38 +86,7 @@ public class BoatDamageEditDialog extends UnversionizedDataEditDialog {
             new BoatDamageEditDialog((JFrame)parent, r, true));
         dlg.showDialog();
         if (dlg.getDialogResult()) {
-            /* @todo (P3) send boat damage message to admin for
-            String boot = this.boot.getText().trim();
-            NachrichtAnAdminFrame dlg = new NachrichtAnAdminFrame(this, Daten.nachrichten, Nachricht.BOOTSWART,
-                    (getObmannTextField(getObmann()) != null ? getObmannTextField(getObmann()).getText() : null),
-                    International.getString("Bootsschaden"),
-                    International.getString("LfdNr") + ": " + lfdnr.getText() + "\n"
-                    + International.getString("Datum") + ": " + datum.getText() + "\n"
-                    + International.getString("Boot") + ": " + boot + "\n"
-                    + International.getString("Mannschaft") + ": " + stmMannsch2String() + "\n"
-                    + "-----------------------\n"
-                    + International.getString("Beschreibung des Schadens") + ":\n");
-            Dialog.setDlgLocation(dlg, this);
-            dlg.setModal(true);
-            dlg.show();
-            if (dlg.isGesendet()) {
-                String s = this.bemerk.getText().trim();
-                this.bemerk.setText(s + (s.length() > 0 ? "; " : "") + International.getString("Bootsschaden gemeldet") + ".");
-                Nachricht n = dlg.getLastMessage();
-                if (n != null && n.nachricht != null) {
-                    String t = "";
-                    int pos = n.nachricht.indexOf(International.getString("Beschreibung des Schadens") + ":");
-                    if (pos >= 0) {
-                        t = n.nachricht.substring(pos + (International.getString("Beschreibung des Schadens") + ":").length());
-                    }
-                    if (t.length() == 0) {
-                        t = International.getString("Bootsschaden"); // generic
-                    }
-                    t = EfaUtil.replace(t, "\n", " ", true).trim();
-                    efaDirektFrame.setBootstatusSchaden(boot, t);
-                }
-            }
-             */
+            dlg.sendNotification();
         }
     }
 

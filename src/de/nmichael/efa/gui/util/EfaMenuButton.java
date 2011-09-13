@@ -134,7 +134,7 @@ public class EfaMenuButton {
             if (admin == null || admin.isAllowedSyncKanuEfb()) {
                 v.add(new EfaMenuButton(MENU_FILE, BUTTON_SYNCKANUEFB,
                         International.getStringWithMnemonic("Datei"),
-                        International.onlyFor("Mit Kanu-Efb synchronisieren", "de"),
+                        International.onlyFor("Mit Kanu-eFB synchronisieren", "de"),
                         BaseFrame.getIcon("menu_efbsync.png")));
             }
         }
@@ -639,8 +639,8 @@ public class EfaMenuButton {
             }
             KanuEfbSyncTask syncTask = new KanuEfbSyncTask(logbook);
             ProgressDialog progressDialog = (parentFrame != null ?
-                new ProgressDialog(parentFrame, International.getString("Mit Kanu-Efb synchronisieren"), syncTask, false) :
-                new ProgressDialog(parentDialog, International.getString("Mit Kanu-Efb synchronisieren"), syncTask, false) );
+                new ProgressDialog(parentFrame, International.getString("Mit Kanu-eFB synchronisieren"), syncTask, false) :
+                new ProgressDialog(parentDialog, International.getString("Mit Kanu-eFB synchronisieren"), syncTask, false) );
             syncTask.startSynchronization(progressDialog);
         }
 
@@ -657,7 +657,7 @@ public class EfaMenuButton {
                 insufficientRights(admin, action);
                 return false;
             }
-            MessageListDialog dlg = (parentFrame != null ? new MessageListDialog(parentFrame) : new MessageListDialog(parentDialog));
+            MessageListDialog dlg = (parentFrame != null ? new MessageListDialog(parentFrame, admin) : new MessageListDialog(parentDialog, admin));
             dlg.showDialog();
         }
 

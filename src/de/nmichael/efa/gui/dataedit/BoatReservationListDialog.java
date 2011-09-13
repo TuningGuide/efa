@@ -62,6 +62,15 @@ public class BoatReservationListDialog extends DataListDialog {
         if (boatId != null) {
             this.filterFieldName  = BoatReservationRecord.BOATID;
             this.filterFieldValue = boatId.toString();
+            if (Daten.project != null) {
+                Boats boats = Daten.project.getBoats(false);
+                if (boats != null) {
+                    BoatRecord r = boats.getBoat(boatId, System.currentTimeMillis());
+                    if (r != null) {
+                        this.filterFieldDescription = International.getMessage("Boot: {boat}", r.getQualifiedName());
+                    }
+                }
+            }
         }
         if (allowNewReservations && allowEditDeleteReservations) {
             // default: ADD, EDIT, DELETE, IMPORT, EXPORT

@@ -668,7 +668,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
             return getDetailedBoatType(idx);
         }
         boolean skull = rig.equals(EfaTypes.TYPE_RIGGING_SCULL);
-        boolean coxed = rig.equals(EfaTypes.TYPE_COXING_COXED);
+        boolean coxed = cox.equals(EfaTypes.TYPE_COXING_COXED);
         if (seats % 2 == 1 && !skull) {
             return getDetailedBoatType(idx);
         }
@@ -1001,7 +1001,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Währung")));
         if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
             v.add(item = new ItemTypeString(BoatRecord.EFBID, getEfbId(),
-                    IItemType.TYPE_EXPERT, CAT_MOREDATA, International.onlyFor("Kanu-Efb ID","de")));
+                    IItemType.TYPE_EXPERT, CAT_MOREDATA, International.onlyFor("Kanu-eFB ID","de")));
         }
 
         // CAT_USAGE

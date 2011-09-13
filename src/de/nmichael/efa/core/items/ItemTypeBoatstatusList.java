@@ -11,17 +11,12 @@
 package de.nmichael.efa.core.items;
 
 import java.util.*;
-import java.util.regex.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.gui.*;
-import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.data.*;
+import de.nmichael.efa.data.types.DataTypeIntString;
 
 public class ItemTypeBoatstatusList extends ItemTypeList {
 
@@ -37,7 +32,9 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     public void setBoatStatusData(Vector<BoatStatusRecord> v, Logbook logbook, String other) {
         Vector<ItemTypeListData> vdata = sortBootsList(v, logbook);
         if (other != null) {
-            vdata.add(0, new ItemTypeListData(other, null, false, -1));
+            BoatListItem item = new BoatListItem();
+            item.text = other;
+            vdata.add(0, new ItemTypeListData(other, item, false, -1));
         }
         clearIncrementalSearch();
         list.setSelectedIndex(-1);
@@ -53,31 +50,79 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         Boats boats = Daten.project.getBoats(false);
         long now = System.currentTimeMillis();
 
-        BoatString[] a = new BoatString[v.size()];
+        Vector<BoatString> bsv = new Vector<BoatString>();
         for (int i = 0; i < v.size(); i++) {
             BoatStatusRecord sr = v.get(i);
-            a[i] = new BoatString();
-            a[i].seats = 99;
-            a[i].name = sr.getBoatText();
-            a[i].sortBySeats = (Daten.efaConfig.getValueEfaDirekt_sortByAnzahl());
-            a[i].record = sr;
 
             BoatRecord r = boats.getBoat(sr.getBoatId(), now);
+            Hashtable<Integer,Integer> allSeats = new Hashtable<Integer,Integer>();
+            // find all seat variants to be shown...
             if (r != null) {
-                int seats = r.getNumberOfSeats(0);
-                if (seats == 0) {
-                    seats = 99;
+                if (r.getNumberOfVariants() == 1) {
+                    allSeats.put(r.getNumberOfSeats(0), 0);
+                } else {
+                    if (sr.getCurrentStatus().equals(BoatStatusRecord.STATUS_AVAILABLE)) {
+                        for (int j = 0; j < r.getNumberOfVariants(); j++) {
+                            // if the boat is available, show the boat in all seat variants
+                            allSeats.put(r.getNumberOfSeats(j), j);
+                        }
+                    } else {
+                        if (sr.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
+                            // if the boat is on the water, show the boat in the variant that it is currently being used in
+                            DataTypeIntString entry = sr.getEntryNo();
+                            if (entry != null && entry.length() > 0) {
+                                LogbookRecord lr = logbook.getLogbookRecord(sr.getEntryNo());
+                                if (lr != null && lr.getBoatVariant() > 0 && lr.getBoatVariant() <= r.getNumberOfVariants()) {
+                                    allSeats.put(r.getNumberOfSeats(lr.getBoatVariant()-1), lr.getBoatVariant()-1);
+                                }
+                            }
+                        }
+                    }
                 }
-                if (seats < 0) {
-                    seats = 0;
+                if (allSeats.size() == 0) {
+                    // just show the boat in any variant
+                    allSeats.put(r.getNumberOfSeats(0), 0);
                 }
-                if (seats > 99) {
-                    seats = 99;
+            } else {
+                if (sr.getUnknownBoat()) {
+                    // unknown boat
+                    allSeats.put(99, -1);
+                } else {
+                    // BoatRecord not found; may be a boat which has a status, but is invalid at timestamp "now"
+                    // don't add seats for this boat; it should *not* appear in the list
                 }
-                a[i].seats = seats;
+            }
+
+            Integer[] seats = allSeats.keySet().toArray(new Integer[0]);
+            for (int j=0; j<seats.length; j++) {
+                int variant = allSeats.get(seats[j]);
+                BoatString bs = new BoatString();
+
+                // Seats
+                int seat = seats[j];
+                if (seat == 0) {
+                    seat = 99;
+                }
+                if (seat < 0) {
+                    seat = 0;
+                }
+                if (seat > 99) {
+                    seat = 99;
+                }
+                bs.seats = seat;
+                bs.variant = variant;
+
                 // for BoatsOnTheWater, don't use the "real" boat name, but rather what's stored in the boat status as "BoatText"
-                a[i].name = (sr.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER) ? sr.getBoatText() : r.getQualifiedName());
-                a[i].sortBySeats = (Daten.efaConfig.getValueEfaDirekt_sortByAnzahl());
+                bs.name = (sr.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER) || r == null ? sr.getBoatText() : r.getQualifiedName());
+
+                bs.sortBySeats = (Daten.efaConfig.getValueEfaDirekt_sortByAnzahl());
+
+                BoatListItem item = new BoatListItem();
+                item.list = this;
+                item.text = bs.name;
+                item.boatStatus = sr;
+                item.boatVariant = bs.variant;
+                bs.record = item;
 
                 if (Daten.efaConfig.getValueEfaDirekt_showZielnameFuerBooteUnterwegs() &&
                     BoatStatusRecord.STATUS_ONTHEWATER.equals(sr.getCurrentStatus()) &&
@@ -86,11 +131,21 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
                     if (lr != null) {
                         String dest = lr.getDestinationAndVariantName();
                         if (dest != null && dest.length() > 0) {
-                            a[i].name += "     -> " + dest;
+                            bs.name += "     -> " + dest;
                         }
-                    };
+                    }
+                }
+
+                bsv.add(bs);
+                if (!bs.sortBySeats) {
+                    break;
                 }
             }
+        }
+
+        BoatString[] a = new BoatString[bsv.size()];
+        for (int i=0; i<a.length; i++) {
+            a[i] = bsv.get(i);
         }
         Arrays.sort(a);
 
@@ -124,7 +179,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
                         break;
                 }
                 if (s == null || s.equals(EfaTypes.getStringUnknown())) {
-                    /* @todo (P4) Doppeleinträge currently not supported in efa2
+                    /* @todo (P5) Doppeleinträge currently not supported in efa2
                     DatenFelder d = Daten.fahrtenbuch.getDaten().boote.getExactComplete(removeDoppeleintragFromBootsname(a[i].name));
                     if (d != null) {
                         s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, d.get(Boote.ANZAHL));
@@ -167,7 +222,11 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             a[i].seats = 99;
             a[i].name = pr.getQualifiedName();
             a[i].sortBySeats = false;
-            a[i].record = pr;
+            BoatListItem item = new BoatListItem();
+            item.list = this;
+            item.text = a[i].name;
+            item.person = pr;
+            a[i].record = item;
         }
         Arrays.sort(a);
 
@@ -190,17 +249,11 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         if (list == null || list.isSelectionEmpty()) {
             return null;
         } else {
-            BoatListItem item = new BoatListItem();
-            item.list = this;
-            item.text = getSelectedText();
             Object o = getSelectedValue();
-            if (o != null && o instanceof BoatStatusRecord) {
-                item.boatStatus = (BoatStatusRecord)o;
+            if (o != null) {
+                return (BoatListItem)o;
             }
-            if (o != null && o instanceof PersonRecord) {
-                item.person = (PersonRecord)o;
-            }
-            return item;
+            return null;
         }
     }
 
@@ -210,6 +263,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         public String text;
         public BoatRecord boat;
         public BoatStatusRecord boatStatus;
+        public int boatVariant = 0;
         public PersonRecord person;
     }
 
@@ -219,6 +273,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         public int seats;
         public boolean sortBySeats;
         public Object record;
+        public int variant;
 
         private String normalizeString(String s) {
             if (s == null) {

@@ -219,8 +219,14 @@ public class ItemTypeList extends ItemType implements ActionListener {
 
     public void clearSelection() {
         try {
-            list.setSelectedIndices(new int[0]);
-        } catch(Exception e) {}
+            //list.setSelectedIndices(new int[0]);
+            list.clearSelection();
+        } catch(Exception e) {
+        }
+    }
+
+    public boolean isFocusOwner() {
+        return list.isFocusOwner();
     }
 
     private void list_keyReleased(KeyEvent e) {

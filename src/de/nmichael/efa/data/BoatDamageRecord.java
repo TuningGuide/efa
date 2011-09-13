@@ -46,8 +46,8 @@ public class BoatDamageRecord extends DataRecord {
 
     public static final String[] IDX_BOATID = new String[] { BOATID };
 
-    private static final String GUIITEM_REPORTDATETIME = "GUIITEM_REPORTDATETIME";
-    private static final String GUIITEM_FIXDATETIME    = "GUIITEM_FIXDATETIME";
+    public static final String GUIITEM_REPORTDATETIME = "GUIITEM_REPORTDATETIME";
+    public static final String GUIITEM_FIXDATETIME    = "GUIITEM_FIXDATETIME";
 
     private boolean showOnlyAddDamageFields = false;
 
@@ -97,6 +97,16 @@ public class BoatDamageRecord extends DataRecord {
         return getUUID(BOATID);
     }
 
+    public String getBoatAsName() {
+        try {
+            Boats boats = getPersistence().getProject().getBoats(false);
+            return boats.getBoat(getBoatId(), getReportDate().getTimestamp(getReportTime())).getQualifiedName();
+        } catch (Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+    
     public void setDamage(int no) {
         setInt(DAMAGE, no);
     }
@@ -136,6 +146,23 @@ public class BoatDamageRecord extends DataRecord {
     }
     public boolean getFixed() {
         return getBool(FIXED);
+    }
+
+    public int getPriority() {
+        if (getFixed()) {
+            return 9;
+        }
+        String severity = getSeverity();
+        if (severity != null && severity.equals(SEVERITY_NOTUSEABLE)) {
+            return 1;
+        }
+        if (severity != null && severity.equals(SEVERITY_LIMITEDUSEABLE)) {
+            return 2;
+        }
+        if (severity != null && severity.equals(SEVERITY_FULLYUSEABLE)) {
+            return 3;
+        }
+        return 5;
     }
 
     public void setReportDate(DataTypeDate date) {
@@ -180,6 +207,21 @@ public class BoatDamageRecord extends DataRecord {
         return getString(REPORTEDBYPERSONNAME);
     }
 
+    public String getReportedByPersonAsName() {
+        UUID id = getReportedByPersonId();
+        if (id != null) {
+            try {
+                Persons persons = getPersistence().getProject().getPersons(false);
+                return persons.getPerson(id, getReportDate().getTimestamp(getReportTime())).getQualifiedName();
+            } catch(Exception e) {
+                Logger.logdebug(e);
+                return null;
+            }
+        } else {
+            return getReportedByPersonName();
+        }
+    }
+
     public void setFixedByPersonId(UUID id) {
         setUUID(FIXEDBYPERSONID, id);
     }
@@ -194,6 +236,21 @@ public class BoatDamageRecord extends DataRecord {
         return getString(FIXEDBYPERSONNAME);
     }
 
+    public String getFixedByPersonAsName() {
+        UUID id = getFixedByPersonId();
+        if (id != null) {
+            try {
+                Persons persons = getPersistence().getProject().getPersons(false);
+                return persons.getPerson(id, getFixDate().getTimestamp(getFixTime())).getQualifiedName();
+            } catch(Exception e) {
+                Logger.logdebug(e);
+                return null;
+            }
+        } else {
+            return getFixedByPersonName();
+        }
+    }
+
     public void setNotes(String reason) {
         setString(NOTES, reason);
     }
@@ -201,32 +258,30 @@ public class BoatDamageRecord extends DataRecord {
         return getString(NOTES);
     }
 
-    private String getBoatName() {
-        Boats boats = getPersistence().getProject().getBoats(false);
-        String boatName = "?";
-        if (boats != null) {
-            BoatRecord r = boats.getBoat(getBoatId(), System.currentTimeMillis());
-            if (r != null) {
-                boatName = r.getQualifiedName();
-            }
-        }
-        return boatName;
+    public String getCompleteDamageInfo() {
+        StringBuffer s = new StringBuffer();
+        s.append(International.getMessage("Bootsschaden für {boat}", getBoatAsName()) + "\n==============================================\n");
+        s.append(International.getString("Beschreibung") + ": " + getDescription() + "\n");
+        s.append(International.getString("Schwere des Schadens") + ": " + getSeverityDescription() + "\n");
+        s.append(International.getString("gemeldet am") + ": " + DataTypeDate.getDateTimeString(getReportDate(), getReportTime()) + "\n");
+        s.append(International.getString("gemeldet von") + ": " + getReportedByPersonAsName() + "\n");
+        return s.toString();
     }
 
     public String getAsText(String fieldName) {
         if (fieldName.equals(BOATID)) {
-            return getBoatName();
+            return getBoatAsName();
         }
         if (fieldName.equals(REPORTEDBYPERSONID)) {
             if (get(REPORTEDBYPERSONID) != null) {
-                return this.getReportedByPersonName();
+                return this.getReportedByPersonAsName();
             } else {
                 return null;
             }
         }
         if (fieldName.equals(FIXEDBYPERSONID)) {
             if (get(FIXEDBYPERSONID) != null) {
-                return this.getFixedByPersonName();
+                return this.getFixedByPersonAsName();
             } else {
                 return null;
             }
@@ -260,7 +315,7 @@ public class BoatDamageRecord extends DataRecord {
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
         v.add(item = new ItemTypeLabel("GUI_BOAT_NAME",
-                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getMessage("Bootsschaden für {boat}", getBoatName())));
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getMessage("Bootsschaden für {boat}", getBoatAsName())));
         item.setPadding(0, 0, 0, 10);
         v.add(item = new ItemTypeString(BoatDamageRecord.DESCRIPTION, getDescription(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Beschreibung")));
@@ -281,6 +336,7 @@ public class BoatDamageRecord extends DataRecord {
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                     getPersistence().getProject().getPersons(false), System.currentTimeMillis(), System.currentTimeMillis(),
                     International.getString("gemeldet von")));
+        ((ItemTypeStringAutoComplete)item).setNotNull(true);
         ((ItemTypeStringAutoComplete)item).setAlternateFieldNameForPlainText(BoatDamageRecord.REPORTEDBYPERSONNAME);
         if (!showOnlyAddDamageFields) {
             v.add(item = new ItemTypeDateTime(GUIITEM_FIXDATETIME, getFixDate(), getFixTime(),
@@ -318,23 +374,29 @@ public class BoatDamageRecord extends DataRecord {
         header[1] = new TableItemHeader(International.getString("Schaden"));
         header[2] = new TableItemHeader(International.getString("gemeldet am"));
         header[3] = new TableItemHeader(International.getString("behoben am"));
-        header[4] = new TableItemHeader(International.getString("Status"));
+        header[4] = new TableItemHeader(International.getString("Priorität"));
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
         TableItem[] items = new TableItem[5];
-        items[0] = new TableItem(getBoatName());
+        items[0] = new TableItem(getBoatAsName());
         items[1] = new TableItem(getDescription());
         items[2] = new TableItem(DataTypeDate.getDateTimeString(getReportDate(), getReportTime()));
         items[3] = new TableItem(DataTypeDate.getDateTimeString(getFixDate(), getFixTime()));
-        items[4] = new TableItem( (getFixed() ? International.getString("behoben") :
-                                                International.getString("offen")));
+        items[4] = new TableItem(Integer.toString(getPriority()));
+        if (!getFixed()) {
+            items[0].setMarked(true);
+            items[1].setMarked(true);
+            items[2].setMarked(true);
+            items[3].setMarked(true);
+            items[4].setMarked(true);
+        }
         return items;
     }
 
     public String getQualifiedName() {
-        return International.getMessage("Schaden für {boat}", getBoatName());
+        return International.getMessage("Schaden für {boat}", getBoatAsName());
     }
 
     public void setShowOnlyAddDamageFields(boolean showOnlyAddDamageFields) {

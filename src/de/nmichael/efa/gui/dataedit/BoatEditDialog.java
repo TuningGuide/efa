@@ -10,17 +10,12 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
+import de.nmichael.efa.ex.InvalidValueException;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
-import javax.swing.event.ChangeEvent;
 
 // @i18n complete
 public class BoatEditDialog extends VersionizedDataEditDialog {
@@ -37,4 +32,20 @@ public class BoatEditDialog extends VersionizedDataEditDialog {
         _keyAction(evt);
     }
 
+    boolean saveRecord() throws InvalidValueException {
+        boolean success = super.saveRecord();
+        if (success) {
+            if (newRecord && dataRecord != null) {
+                BoatStatus boatStatus = dataRecord.getPersistence().getProject().getBoatStatus(false);
+                if (boatStatus != null) {
+                    try {
+                        boatStatus.data().add(boatStatus.createBoatStatusRecord(((BoatRecord)dataRecord).getId(), null));
+                    } catch(Exception e) {
+                        Logger.log(e);
+                    }
+                }
+            }
+        }
+        return success;
+    }
 }

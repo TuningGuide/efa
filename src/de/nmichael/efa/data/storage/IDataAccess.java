@@ -36,6 +36,8 @@ public interface IDataAccess {
     public static final int DATA_TIME = 7;           // DataTypeTime
     public static final int DATA_UUID = 8;           // java.util.UUID
     public static final int DATA_INTSTRING = 9;      // Number-String mixed String
+    public static final int DATA_PASSWORDH = 10;     // DataTypePasswordHashed
+    public static final int DATA_PASSWORDC = 11;     // DataTypePasswordCrypted
     public static final int DATA_LIST_STRING = 100;  // String-based list
     public static final int DATA_LIST_INTEGER = 101; // Integer-based list
     public static final int DATA_LIST_UUID = 108;    // UUID-based list
@@ -298,10 +300,17 @@ public interface IDataAccess {
     public String[] getKeyFieldNames();
 
     /**
-     * Returns all field names of this storage object.
+     * Returns all field names (including virtual field names) of this storage object.
      * @return the field names
      */
     public String[] getFieldNames();
+
+    /**
+     * Returns all field names of this storage object.
+     * @param includingVirtual  also return virtual fields
+     * @return the field names
+     */
+    public String[] getFieldNames(boolean includingVirtual);
 
     /**
      * Returns the field type for a given field name.

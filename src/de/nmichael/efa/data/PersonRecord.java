@@ -346,6 +346,10 @@ public class PersonRecord extends DataRecord {
         return IDX_NAME_NAMEAFFIX;
     }
 
+    public String[] getQualifiedNameFieldsTranslateVirtualToReal() {
+        return new String[] { FIRSTNAME, LASTNAME, NAMEAFFIX };
+    }
+
     public String[] getQualifiedNameValues(String qname) {
         Matcher m = qnamePattern.matcher(qname);
         if (m.matches()) {
@@ -480,7 +484,7 @@ public class PersonRecord extends DataRecord {
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Externe ID")));
         if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
             v.add(item = new ItemTypeString(PersonRecord.EFBID, getEfbId(),
-                    IItemType.TYPE_EXPERT, CAT_MOREDATA, International.onlyFor("Kanu-Efb ID","de")));
+                    IItemType.TYPE_EXPERT, CAT_MOREDATA, International.onlyFor("Kanu-eFB ID","de")));
         }
 
         v.add(item = new ItemTypeString(PersonRecord.ADDRESSSTREET, getAddressStreet(),

@@ -91,7 +91,7 @@ public class KanuEfbSyncTask extends ProgressTask {
         if (Logger.isTraceOn(Logger.TT_SYNC)) {
             try {
                 in.mark(1024*1024);
-                logInfo(Logger.DEBUG, Logger.MSG_SYNC_SYNCDEBUG, "Antwort von Kanu-Efb:");
+                logInfo(Logger.DEBUG, Logger.MSG_SYNC_SYNCDEBUG, "Antwort von Kanu-eFB:");
                 logInfo(Logger.DEBUG, Logger.MSG_SYNC_SYNCDEBUG, "    -- HEADER START --");
                 Map<String, List<String>> m = connection.getHeaderFields();
                 for (String header : m.keySet()) {
@@ -408,7 +408,7 @@ public class KanuEfbSyncTask extends ProgressTask {
                                 BoatRecord b = (r.getBoatId() != null ? boats.getBoat(r.getBoatId(), thisSync) : null);
                                 DestinationRecord d = (r.getDestinationId() != null ? destinations.getDestination(r.getDestinationId(), thisSync): null);
                                 WatersRecord w = (d != null && d.getWatersIdList() != null && d.getWatersIdList().length() > 0 ?
-                                    waters.getWaters(d.getWatersIdList().get(0)) : null); // @todo (P3) get all other waters as well, currently for test purpose only first one!
+                                    waters.getWaters(d.getWatersIdList().get(0)) : null); // @todo (P4) get all other waters as well, currently for test purpose only first one!
                                 String startDate = r.getDate().getDateString("YYYY-MM-DD");
                                 String endDate = (r.getEndDate() != null ? r.getEndDate().getDateString("YYYY-MM-DD") : startDate);
                                 String tripId = logbook.getName()+"_"+r.getEntryId().toString();
@@ -548,7 +548,7 @@ public class KanuEfbSyncTask extends ProgressTask {
         }
         int i = 0;
         thisSync = System.currentTimeMillis();
-        logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Beginne Synchronisierung mit Kanu-Efb ...");
+        logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Beginne Synchronisierung mit Kanu-eFB ...");
         logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Startzeit der Synchronisierung: " +
                 EfaUtil.getTimeStamp(thisSync) + " (" + thisSync + ")");
         logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Letzte Synchronisierung: " +
@@ -580,9 +580,9 @@ public class KanuEfbSyncTask extends ProgressTask {
         setCurrentWorkDone(++i);
         if (i == getAbsoluteWork()) {
             Daten.project.setClubKanuEfbLastSync(thisSync);
-            logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Synchronisierung mit Kanu-Efb erfolgreich beendet.");
+            logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Synchronisierung mit Kanu-eFB erfolgreich beendet.");
         } else {
-            logInfo(Logger.ERROR, Logger.MSG_SYNC_ERRORABORTSYNC, "Synchronisierung mit Kanu-Efb wegen Fehlern abgebrochen.");
+            logInfo(Logger.ERROR, Logger.MSG_SYNC_ERRORABORTSYNC, "Synchronisierung mit Kanu-eFB wegen Fehlern abgebrochen.");
         }
         setDone();
     }
@@ -604,8 +604,8 @@ public class KanuEfbSyncTask extends ProgressTask {
 
     public void startSynchronization(ProgressDialog progressDialog) {
         if (Daten.isGuiAppl()) {
-            if (Dialog.yesNoDialog(International.onlyFor("Mit Kanu-Efb synchronisieren", "de"),
-                    International.onlyFor("Es werden alle Fahrten aus dem aktuellen Fahrtenbuch mit dem Kanu-Efb synchronisiert.", "de") + "\n" +
+            if (Dialog.yesNoDialog(International.onlyFor("Mit Kanu-eFB synchronisieren", "de"),
+                    International.onlyFor("Es werden alle Fahrten aus dem aktuellen Fahrtenbuch mit dem Kanu-eFB synchronisiert.", "de") + "\n" +
                     International.getString("Möchtest Du fortfahren?")) != Dialog.YES) {
                 return;
             }

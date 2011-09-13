@@ -10,31 +10,50 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.core.items.ItemTypeBoolean;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
-import javax.swing.event.ChangeEvent;
 
 // @i18n complete
 public class MessageEditDialog extends UnversionizedDataEditDialog {
 
-    public MessageEditDialog(Frame parent, MessageRecord r, boolean newRecord) {
+    public MessageEditDialog(Frame parent, MessageRecord r, boolean newRecord, AdminRecord admin) {
         super(parent, International.getString("Nachricht"), r, newRecord);
+        ini(admin);
     }
 
-    public MessageEditDialog(JDialog parent, MessageRecord r, boolean newRecord) {
+    public MessageEditDialog(JDialog parent, MessageRecord r, boolean newRecord, AdminRecord admin) {
         super(parent, International.getString("Nachricht"), r, newRecord);
+        ini(admin);
     }
 
     public void keyAction(ActionEvent evt) {
         _keyAction(evt);
+    }
+
+    private void ini (AdminRecord admin) {
+        ItemTypeBoolean msgRead = (ItemTypeBoolean)getItem(MessageRecord.READ);
+        if (msgRead != null) {
+            MessageRecord r = (MessageRecord)dataRecord;
+            if (r.getTo() == null || r.getTo().equals(MessageRecord.TO_ADMIN)) {
+                msgRead.setEnabled(admin != null && admin.isAllowedMsgMarkReadAdmin());
+                if (admin != null && admin.isAllowedMsgAutoMarkReadAdmin()) {
+                    msgRead.setValue(true);
+                    msgRead.showValue();
+                }
+            } else {
+                msgRead.setEnabled(admin != null && admin.isAllowedMsgMarkReadBoatMaintenance());
+                if (admin != null && admin.isAllowedMsgAutoMarkReadBoatMaintenance()) {
+                    msgRead.setValue(true);
+                    msgRead.showValue();
+                }
+            }
+        }
+        // @todo (P4) add a "print message" button
     }
 
 }

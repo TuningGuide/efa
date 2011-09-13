@@ -71,6 +71,10 @@ public class DataTypeList<T> {
             case IDataAccess.DATA_INTSTRING:
                 list = new ArrayList<DataTypeIntString>();
                 break;
+            case IDataAccess.DATA_PASSWORDH:
+                list = new ArrayList<DataTypePasswordHashed>();
+            case IDataAccess.DATA_PASSWORDC:
+                list = new ArrayList<DataTypePasswordCrypted>();
         }
         while(tok.hasMoreTokens()) {
             String t = tok.nextToken();

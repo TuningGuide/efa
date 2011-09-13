@@ -86,11 +86,11 @@ public class ProjectRecord extends DataRecord {
         f.add(STORAGETYPE);                   t.add(IDataAccess.DATA_STRING);
         f.add(STORAGELOCATION);               t.add(IDataAccess.DATA_STRING);
         f.add(STORAGEUSERNAME);               t.add(IDataAccess.DATA_STRING);
-        f.add(STORAGEPASSWORD);               t.add(IDataAccess.DATA_STRING);
+        f.add(STORAGEPASSWORD);               t.add(IDataAccess.DATA_PASSWORDC);
         f.add(REMOTEPROJECTNAME);             t.add(IDataAccess.DATA_STRING);
         f.add(EFAONLINECONNECT);              t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EFAONLINEUSERNAME);             t.add(IDataAccess.DATA_STRING);
-        f.add(EFAONLINEPASSWORD);             t.add(IDataAccess.DATA_STRING);
+        f.add(EFAONLINEPASSWORD);             t.add(IDataAccess.DATA_PASSWORDC);
         f.add(ADMINNAME);                     t.add(IDataAccess.DATA_STRING);
         f.add(ADMINEMAIL);                    t.add(IDataAccess.DATA_STRING);
         f.add(CURRENTLOGBOOKEFABASE);         t.add(IDataAccess.DATA_STRING);
@@ -109,7 +109,7 @@ public class ProjectRecord extends DataRecord {
         f.add(MEMBEROFADH);                   t.add(IDataAccess.DATA_BOOLEAN);
         f.add(AREAID);                        t.add(IDataAccess.DATA_INTEGER);
         f.add(KANUEFBUSERNAME);               t.add(IDataAccess.DATA_STRING);
-        f.add(KANUEFBPASSWORD);               t.add(IDataAccess.DATA_STRING);
+        f.add(KANUEFBPASSWORD);               t.add(IDataAccess.DATA_PASSWORDC);
         f.add(KANUEFBLASTSYNC);               t.add(IDataAccess.DATA_LONGINT);
         f.add(STARTDATE);                     t.add(IDataAccess.DATA_DATE);
         f.add(ENDDATE);                       t.add(IDataAccess.DATA_DATE);
@@ -187,7 +187,7 @@ public class ProjectRecord extends DataRecord {
         setString(STORAGEUSERNAME, username);
     }
     public void setStoragePassword(String password) {
-        setString(STORAGEPASSWORD, password);
+        setPasswordCrypted(STORAGEPASSWORD, password);
     }
     public void setRemoteProjectName(String projectName) {
         setString(REMOTEPROJECTNAME, projectName);
@@ -199,7 +199,7 @@ public class ProjectRecord extends DataRecord {
         setString(EFAONLINEUSERNAME, username);
     }
     public void setEfaOnlinePassword(String password) {
-        setString(EFAONLINEPASSWORD, password);
+        setPasswordCrypted(EFAONLINEPASSWORD, password);
     }
     public void setAdminName(String adminName) {
         setString(ADMINNAME, adminName);
@@ -256,7 +256,7 @@ public class ProjectRecord extends DataRecord {
         setString(KANUEFBUSERNAME, username);
     }
     public void setKanuEfbPassword(String password) {
-        setString(KANUEFBPASSWORD, password);
+        setPasswordCrypted(KANUEFBPASSWORD, password);
     }
     public void setKanuEfbLastSync(long lastSync) {
         setLong(KANUEFBLASTSYNC, lastSync);
@@ -311,7 +311,12 @@ public class ProjectRecord extends DataRecord {
         return getString(STORAGEUSERNAME);
     }
     public String getStoragePassword() {
-        return getString(STORAGEPASSWORD);
+        DataTypePasswordCrypted pwd = getPasswordCrypted(STORAGEPASSWORD);
+        if (pwd != null && pwd.isSet()) {
+            return pwd.getPassword();
+        } else {
+            return "";
+        }
     }
     public String getRemoteProjectName() {
         return getString(REMOTEPROJECTNAME);
@@ -323,7 +328,12 @@ public class ProjectRecord extends DataRecord {
         return getString(EFAONLINEUSERNAME);
     }
     public String getEfaOnlinePassword() {
-        return getString(EFAONLINEPASSWORD);
+        DataTypePasswordCrypted pwd = getPasswordCrypted(EFAONLINEPASSWORD);
+        if (pwd != null && pwd.isSet()) {
+            return pwd.getPassword();
+        } else {
+            return "";
+        }
     }
 
     public String getAdminName() {
@@ -381,7 +391,12 @@ public class ProjectRecord extends DataRecord {
         return getString(KANUEFBUSERNAME);
     }
     public String getKanuEfbPassword() {
-        return getString(KANUEFBPASSWORD);
+        DataTypePasswordCrypted pwd = getPasswordCrypted(KANUEFBPASSWORD);
+        if (pwd != null && pwd.isSet()) {
+            return pwd.getPassword();
+        } else {
+            return "";
+        }
     }
     public long getKanuEfbLastSync() {
         return getLong(KANUEFBLASTSYNC);
@@ -457,7 +472,7 @@ public class ProjectRecord extends DataRecord {
                               International.getString("remote") + ")" :
                               International.getString("Benutzername"))));
                     ((ItemTypeString) item).setNotNull(true);
-                    v.add(item = new ItemTypePassword(ProjectRecord.STORAGEPASSWORD, getStoragePassword(),
+                    v.add(item = new ItemTypePassword(ProjectRecord.STORAGEPASSWORD, getStoragePassword(), true,
                             IItemType.TYPE_PUBLIC, category,
                             (getStorageType() == IDataAccess.TYPE_EFA_REMOTE ?
                               International.getString("Paßwort") + " ("+
@@ -478,7 +493,7 @@ public class ProjectRecord extends DataRecord {
                             IItemType.TYPE_PUBLIC, category,
                             International.getString("efaOnline") + " - " +
                             International.getString("Benutzername")));
-                    v.add(item = new ItemTypePassword(ProjectRecord.EFAONLINEPASSWORD, getEfaOnlinePassword(),
+                    v.add(item = new ItemTypePassword(ProjectRecord.EFAONLINEPASSWORD, getEfaOnlinePassword(), true,
                             IItemType.TYPE_PUBLIC, category,
                             International.getString("efaOnline") + " - " +
                             International.getString("Paßwort")));
@@ -553,13 +568,13 @@ public class ProjectRecord extends DataRecord {
                 if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany() || subtype == GUIITEMS_SUBTYPE_KANUEFB) {
                     v.add(item = new ItemTypeString(ProjectRecord.KANUEFBUSERNAME, getKanuEfbUsername(),
                             IItemType.TYPE_PUBLIC, category,
-                            International.getString("Benutzername") + " (Kanu-Efb)"));
-                    v.add(item = new ItemTypePassword(ProjectRecord.KANUEFBPASSWORD, getKanuEfbPassword(),
+                            International.getString("Benutzername") + " (Kanu-eFB)"));
+                    v.add(item = new ItemTypePassword(ProjectRecord.KANUEFBPASSWORD, getKanuEfbPassword(), true,
                             IItemType.TYPE_PUBLIC, category,
-                            International.getString("Paßwort") + " (Kanu-Efb)"));
+                            International.getString("Paßwort") + " (Kanu-eFB)"));
                     v.add(item = new ItemTypeLong(ProjectRecord.KANUEFBLASTSYNC, getKanuEfbLastSync(), 0, Long.MAX_VALUE,
                             IItemType.TYPE_EXPERT, category,
-                            "Letzte Synchronisierung  (Kanu-Efb)"));
+                            "Letzte Synchronisierung  (Kanu-eFB)"));
                 }
 
             }

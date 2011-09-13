@@ -137,6 +137,10 @@ public class MessageRecord extends DataRecord {
         return getBool(READ);
     }
 
+    public String getQualifiedName() {
+        return "#" + getMessageId() + " " + getSubject();
+    }
+
     public boolean sendEmail() {
         if (Daten.admins == null) {
             return false;
@@ -183,7 +187,7 @@ public class MessageRecord extends DataRecord {
                 },
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                 International.getString("An")));
-        item.setEditable(newMsg);
+        item.setEnabled(newMsg);
         item.setNotNull(true);
 
         v.add(item = new ItemTypeStringAutoComplete(FROM, getFrom(),
@@ -200,18 +204,17 @@ public class MessageRecord extends DataRecord {
         item.setEditable(newMsg);
         item.setNotNull(true);
 
-        v.add(item = new ItemTypeString(TEXT, getText(), // @todo (P3) message text must be TextArea instead of TextField
-                IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-                International.getString("Nachricht")));
-        item.setEditable(newMsg);
-        item.setNotNull(true);
-
         if (!newMsg) {
             v.add(item = new ItemTypeBoolean(READ, getRead(),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                     International.getString("gelesen")));
-            // item.setEditable(); @todo (P4) Messages - allow to mark read depending on admin privileges
         }
+
+        v.add(item = new ItemTypeTextArea(TEXT, getText(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                International.getString("Nachricht")));
+        item.setEditable(newMsg);
+        item.setNotNull(true);
 
         return v;
     }
@@ -229,8 +232,14 @@ public class MessageRecord extends DataRecord {
         TableItem[] items = new TableItem[4];
         items[0] = new TableItem(getDate().toString() + " " + getTime().toString());
         items[1] = new TableItem(getFrom());
-        items[2] = new TableItem(getTo());
+        items[2] = new TableItem(getToAsName());
         items[3] = new TableItem(getSubject());
+        if (!getRead()) {
+            items[0].setMarked(true);
+            items[1].setMarked(true);
+            items[2].setMarked(true);
+            items[3].setMarked(true);
+        }
         return items;
     }
 }

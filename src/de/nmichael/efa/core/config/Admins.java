@@ -14,7 +14,7 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.ex.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
-import java.util.*;
+import de.nmichael.efa.data.types.DataTypePasswordHashed;
 
 // @i18n complete
 
@@ -69,7 +69,7 @@ public class Admins extends StorageObject {
         if (admin == null || admin.getPassword() == null) {
             return null;
         }
-        if (admin.getPassword().equals(password)) {
+        if (admin.getPassword().equals(new DataTypePasswordHashed(password))) {
             return admin;
         }
         return null;
@@ -83,7 +83,7 @@ public class Admins extends StorageObject {
                         International.getMessage("Das Feld '{field}' darf nicht leer sein.", AdminRecord.NAME),
                         Thread.currentThread().getStackTrace());
             }
-            if (ar.getPassword() == null || ar.getPassword().trim().length() == 0) {
+            if (ar.getPassword() == null || !ar.getPassword().isSet()) {
                 throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
                         International.getMessage("Das Feld '{field}' darf nicht leer sein.", AdminRecord.PASSWORD),
                         Thread.currentThread().getStackTrace());

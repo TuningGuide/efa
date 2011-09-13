@@ -424,6 +424,12 @@ public class International {
         return getMessage(s,args);
     }
 
+    // ========================= Long only arguments =========================
+    public static String getMessage(String s, long arg1) {
+        Object[] args = {"dummy", Long.toString(arg1)};
+        return getMessage(s, args);
+    }
+
     // ========================= mixed Type arguments =========================
     public static String getMessage(String s, int arg1, String arg2) {
         Object[] args = {"dummy", Integer.toString(arg1), arg2};

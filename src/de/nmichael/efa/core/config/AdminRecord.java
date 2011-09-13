@@ -13,6 +13,7 @@ package de.nmichael.efa.core.config;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.data.types.DataTypePasswordHashed;
 import de.nmichael.efa.gui.AdminPasswordChangeDialog;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.util.*;
@@ -67,7 +68,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
         Vector<Integer> t = new Vector<Integer>();
 
         f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
-        f.add(PASSWORD);                          t.add(IDataAccess.DATA_STRING);
+        f.add(PASSWORD);                          t.add(IDataAccess.DATA_PASSWORDH);
         f.add(EMAIL);                             t.add(IDataAccess.DATA_STRING);
         f.add(EDITADMINS);                        t.add(IDataAccess.DATA_BOOLEAN);
         f.add(CHANGEPASSWORD);                    t.add(IDataAccess.DATA_BOOLEAN);
@@ -125,10 +126,10 @@ public class AdminRecord extends DataRecord implements IItemListener {
     }
 
     public void setPassword(String password) {
-        setString(PASSWORD, password);
+        setPasswordHashed(PASSWORD, password);
     }
-    public String getPassword() {
-        return getString(PASSWORD);
+    public DataTypePasswordHashed getPassword() {
+        return getPasswordHashed(PASSWORD);
     }
 
     public void setEmail(String email) {
@@ -431,17 +432,17 @@ public class AdminRecord extends DataRecord implements IItemListener {
         item.setEnabled(getName() == null || getName().length() == 0);
         ((ItemTypeString)item).setNotNull(true);
         ((ItemTypeString)item).setAllowedCharacters("abcdefghijklmnopqrstuvwxyz1234567890");
-        if (getPassword() != null && getPassword().length() > 0) {
+        if (getPassword() != null && getPassword().isSet()) {
             v.add(item = new ItemTypeButton("PASSWORDBUTTON",
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Paßwort ändern")));
             ((ItemTypeButton)item).setFieldGrid(2, GridBagConstraints.EAST, GridBagConstraints.NONE);
             ((ItemTypeButton)item).registerItemListener(this);
         } else {
-            v.add(item = new ItemTypePassword(PASSWORD, "",
+            v.add(item = new ItemTypePassword(PASSWORD, "", 
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Paßwort")));
             ((ItemTypePassword)item).setNotNull(true);
             ((ItemTypePassword)item).setMinCharacters(6);
-            v.add(item = new ItemTypePassword(PASSWORD + "_REPEAT", "",
+            v.add(item = new ItemTypePassword(PASSWORD + "_REPEAT", "", 
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Paßwort") +
                     " (" + International.getString("Wiederholung") + ")"));
             ((ItemTypePassword)item).setNotNull(true);

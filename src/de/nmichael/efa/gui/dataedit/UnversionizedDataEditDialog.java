@@ -32,15 +32,23 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
     protected boolean newRecord;
 
     public UnversionizedDataEditDialog(Frame parent, String title, DataRecord dataRecord, boolean newRecord) {
-        super(parent, title, (dataRecord != null ? dataRecord.getGuiItems() : null));
+        super(parent, title, null);
         this.dataRecord = dataRecord;
         this.newRecord = newRecord;
+        iniDefaults();
+        setItems((dataRecord != null ? dataRecord.getGuiItems() : null));
     }
 
     public UnversionizedDataEditDialog(JDialog parent, String title, DataRecord dataRecord, boolean newRecord) {
-        super(parent, title, (dataRecord != null ? dataRecord.getGuiItems() : null));
+        super(parent, title, null);
         this.dataRecord = dataRecord;
         this.newRecord = newRecord;
+        iniDefaults();
+        setItems((dataRecord != null ? dataRecord.getGuiItems() : null));
+    }
+
+    protected void iniDefaults() {
+        // implement in subclass if necessary
     }
 
     boolean saveRecord() throws InvalidValueException {

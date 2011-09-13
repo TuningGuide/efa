@@ -22,10 +22,10 @@ public class EmailSender {
     public EmailSender() {
         javax.mail.Session session = javax.mail.Session.getInstance(new Properties(), null); // just dummy statement
     }
-    static EmailSenderThread sendThread = null;
-    static boolean sendCompleted = true;
+    static volatile EmailSenderThread sendThread = null;
+    static volatile boolean sendCompleted = true;
 
-    public static void sendEmail(MessageRecord msg, String adressen) {
+    public static synchronized void sendEmail(MessageRecord msg, String adressen) {
 
         if (sendThread != null) {
             return; // verhindern, daß durch Fehler sich das Senden rekursiv aufruft

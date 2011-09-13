@@ -74,6 +74,63 @@ public class TableSorter extends TableMap {
         reallocateIndexes();
     }
 
+    private int compareStringDates(String s1, String s2) {
+        // added by Nicolas Michael, to compare Strings containing dates
+        TMJ t1 = EfaUtil.string2date(s1, 0, 0, 0);
+        TMJ t2 = EfaUtil.string2date(s2, 0, 0, 0);
+        if (t1.tag > 0 && t1.monat > 0 && t1.jahr > 0
+                && t2.tag > 0 && t2.monat > 0 && t2.jahr > 0
+                && EfaUtil.countCharInString(s1, '.') == 2
+                && EfaUtil.countCharInString(s2, '.') == 2) {
+            if (t1.jahr < t2.jahr) {
+                return -1;
+            } else if (t1.jahr > t2.jahr) {
+                return 1;
+            } else if (t1.monat < t2.monat) {
+                return -1;
+            } else if (t1.monat > t2.monat) {
+                return 1;
+            } else if (t1.tag < t2.tag) {
+                return -1;
+            } else if (t1.tag > t2.tag) {
+                return 1;
+            } else {
+                int p1 = s1.indexOf(" ");
+                int p2 = s2.indexOf(" ");
+                if (p1 > 0 && p2 > 0) {
+                    s1 = s1.substring(p1 + 1);
+                    s2 = s2.substring(p2 + 1);
+                    t1 = EfaUtil.string2date(s1, -1, -1, -1);
+                    t2 = EfaUtil.string2date(s2, -1, -1, -1);
+                    if (t1.tag >= 0 && t1.monat >= 0 && t1.jahr >= 0
+                            && t2.tag >= 0 && t2.monat >= 0 && t2.jahr >= 0
+                            && EfaUtil.countCharInString(s1, ':') == 2
+                            && EfaUtil.countCharInString(s2, ':') == 2) {
+                        // seems we've got dates and times ... let's try to compare times as well
+                        if (t1.tag < t2.tag) {
+                            return -1;
+                        } else if (t1.tag > t2.tag) {
+                            return 1;
+                        } else if (t1.monat < t2.monat) {
+                            return -1;
+                        } else if (t1.monat > t2.monat) {
+                            return 1;
+                        } else if (t1.jahr < t2.jahr) {
+                            return -1;
+                        } else if (t1.jahr > t2.jahr) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    }
+                } else {
+                    return 0;
+                }
+            }
+        }
+        return 99;
+    }
+
     public int compareRowsByColumn(int row1, int row2, int column) {
         Class type = model.getColumnClass(column);
         TableModel data = model;
@@ -132,32 +189,16 @@ public class TableSorter extends TableMap {
             String s2 = (String) data.getValueAt(row2, column);
 
             // added by Nicolas Michael, to compare Strings containing dates
-            TMJ t1 = EfaUtil.string2date(s1, 0, 0, 0);
-            TMJ t2 = EfaUtil.string2date(s2, 0, 0, 0);
-            if (t1.tag > 0 && t1.monat > 0 && t1.jahr > 0
-                    && t2.tag > 0 && t2.monat > 0 && t2.jahr > 0
-                    && EfaUtil.countCharInString(s1, '.') == 2
-                    && EfaUtil.countCharInString(s2, '.') == 2) {
-                if (t1.jahr < t2.jahr) {
-                    return -1;
-                } else if (t1.jahr > t2.jahr) {
-                    return 1;
-                } else if (t1.monat < t2.monat) {
-                    return -1;
-                } else if (t1.monat > t2.monat) {
-                    return 1;
-                } else if (t1.tag < t2.tag) {
-                    return -1;
-                } else if (t1.tag > t2.tag) {
-                    return 1;
-                } else {
-                    return 0;
-                }
+            int ret = compareStringDates(s1, s2);
+            if (ret != 99) {
+                return ret;
             }
 
             // added by Nicolas Michael, to compare Strings containing numbers
             if (s1.length() > 0 && s1.charAt(0) >= '0' && s1.charAt(0) <= '9'
                     && s2.length() > 0 && s2.charAt(0) >= '0' && s2.charAt(0) <= '9') {
+                TMJ t1 = EfaUtil.string2date(s1, 0, 0, 0);
+                TMJ t2 = EfaUtil.string2date(s2, 0, 0, 0);
                 int i1 = t1.tag * 10000 + t1.monat * 100 + t1.jahr;
                 int i2 = t2.tag * 10000 + t2.monat * 100 + t2.jahr;
                 if (i1 < i2) {
@@ -198,33 +239,16 @@ public class TableSorter extends TableMap {
             Object v2 = data.getValueAt(row2, column);
             String s2 = v2.toString();
 
-            // added by Nicolas Michael, to compare Strings containing dates
-            TMJ t1 = EfaUtil.string2date(s1, 0, 0, 0);
-            TMJ t2 = EfaUtil.string2date(s2, 0, 0, 0);
-            if (t1.tag > 0 && t1.monat > 0 && t1.jahr > 0
-                    && t2.tag > 0 && t2.monat > 0 && t2.jahr > 0
-                    && EfaUtil.countCharInString(s1, '.') == 2
-                    && EfaUtil.countCharInString(s2, '.') == 2) {
-                if (t1.jahr < t2.jahr) {
-                    return -1;
-                } else if (t1.jahr > t2.jahr) {
-                    return 1;
-                } else if (t1.monat < t2.monat) {
-                    return -1;
-                } else if (t1.monat > t2.monat) {
-                    return 1;
-                } else if (t1.tag < t2.tag) {
-                    return -1;
-                } else if (t1.tag > t2.tag) {
-                    return 1;
-                } else {
-                    return 0;
-                }
+            int ret = compareStringDates(s1, s2);
+            if (ret != 99) {
+                return ret;
             }
 
             // added by Nicolas Michael, to compare Strings containing numbers
             if (s1.length() > 0 && s1.charAt(0) >= '0' && s1.charAt(0) <= '9'
                     && s2.length() > 0 && s2.charAt(0) >= '0' && s2.charAt(0) <= '9') {
+                TMJ t1 = EfaUtil.string2date(s1, 0, 0, 0);
+                TMJ t2 = EfaUtil.string2date(s2, 0, 0, 0);
                 int i1 = t1.tag * 10000 + t1.monat * 100 + t1.jahr;
                 int i2 = t2.tag * 10000 + t2.monat * 100 + t2.jahr;
                 if (i1 < i2) {

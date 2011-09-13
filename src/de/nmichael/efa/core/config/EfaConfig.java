@@ -7,6 +7,7 @@ package de.nmichael.efa.core.config;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.data.MessageRecord;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.ex.EfaException;
@@ -191,6 +192,7 @@ public class EfaConfig extends StorageObject {
     private ItemTypeBoolean efaDirekt_fensterNichtVerschiebbar;
     private ItemTypeBoolean efaDirekt_immerImVordergrund;
     private ItemTypeBoolean efaDirekt_immerImVordergrundBringToFront;
+    private ItemTypeStringList efaDirekt_bnrMsgToAdminDefaultRecipient;
     private ItemTypeBoolean efaDirekt_bnrError_admin;
     private ItemTypeBoolean efaDirekt_bnrError_bootswart;
     private ItemTypeBoolean efaDirekt_bnrWarning_admin;
@@ -366,7 +368,7 @@ public class EfaConfig extends StorageObject {
         categories.put(CATEGORY_PRINTING,      International.getString("Drucken"));
         categories.put(CATEGORY_INPUT,         International.getString("Eingabe"));
         categories.put(CATEGORY_SYNC,          International.getString("Synchronisation"));
-        categories.put(CATEGORY_KANUEFB,       International.onlyFor("Kanu-Efb","de"));
+        categories.put(CATEGORY_KANUEFB,       International.onlyFor("Kanu-eFB","de"));
         categories.put(CATEGORY_LOCALE,        International.getString("Regionale Anpassung"));
         categories.put(CATEGORY_STARTSTOP,     International.getString("Starten und Beenden"));
         categories.put(CATEGORY_PERMISSIONS,   International.getString("Berechtigungen"));
@@ -670,7 +672,7 @@ public class EfaConfig extends StorageObject {
             addParameter(efaDirekt_immerImVordergrundBringToFront = new ItemTypeBoolean("EfaBoathouseWindowAlwaysOnTopBringToFront", false, // @todo (P5) EfaBoathouseWindowAlwaysOnTopBringToFront can be deleted (?)
                     IItemType.TYPE_INTERNAL, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
                     International.getString("efa immer im Vordergrund") + " (bringToFront)"));
-            addParameter(efaDirekt_fontSize = new ItemTypeInteger("EfaBoathouseFontSize", (Dialog.screenSize.width >= 1024 ? 16 : 12), 6, 32, false,
+            addParameter(efaDirekt_fontSize = new ItemTypeInteger("EfaBoathouseFontSize", 16, 6, 32, false,
                     IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
                     International.getString("Schriftgröße in Punkten (6 bis 32, Standard: 12)")));
             addParameter(efaDirekt_fontStyle = new ItemTypeStringList("EfaBoathouseFontStyle", "",
@@ -802,6 +804,13 @@ public class EfaConfig extends StorageObject {
                     International.getString("Mitglieder dürfen efa beenden")));
 
             // ============================= BOATHOUSE:NOTIFICATIONS =============================
+            addParameter(efaDirekt_bnrMsgToAdminDefaultRecipient = new ItemTypeStringList("NotificationMessageToAdminDefaultRecipient", MessageRecord.TO_ADMIN,
+                    new String[] { MessageRecord.TO_ADMIN, MessageRecord.TO_BOATMAINTENANCE },
+                    new String[] { International.getString("Administrator"),
+                                   International.getString("Bootswart")
+                },
+                IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                International.getString("Standardempfänger für 'Nachricht an Admin'")));
             addParameter(efaDirekt_bnrError_admin = new ItemTypeBoolean("NotificationErrorAdmin", true,
                     IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
                     International.getMessage("Benachrichtigungen verschicken an {to} {on_event}",
@@ -841,7 +850,7 @@ public class EfaConfig extends StorageObject {
                     IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
                     International.getString("email") + ": "
                     + International.getString("Username")));
-            addParameter(efaDirekt_emailPassword = new ItemTypePassword("NotificationEmailPassword", "",
+            addParameter(efaDirekt_emailPassword = new ItemTypePassword("NotificationEmailPassword", "", true,
                     IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
                     International.getString("email") + ": "
                     + International.getString("Paßwort")));
@@ -982,7 +991,7 @@ public class EfaConfig extends StorageObject {
                     International.getString("efaOnline") + " - " +
                     International.getString("Benutzername") +
                     " (" + International.getString("Server") + ")"));
-            addParameter(dataRemoteEfaOnlinePassword = new ItemTypePassword("DataRemoteEfaOnlinePassword", "",
+            addParameter(dataRemoteEfaOnlinePassword = new ItemTypePassword("DataRemoteEfaOnlinePassword", "", true,
                     IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
                     International.getString("efaOnline") + " - " +
                     International.getString("Paßwort") +
@@ -1029,7 +1038,11 @@ public class EfaConfig extends StorageObject {
 
     private void setValue(IItemType item, String newValue) {
         item.parseValue(newValue);
-        updateValue(item.getName(), newValue);
+        if (item instanceof ItemTypePassword) {
+            updateValue(item.getName(), ((ItemTypePassword)item).getCryptedPassword() );
+        } else {
+            updateValue(item.getName(), newValue);
+        }
     }
 
     public String getValueLastProjectEfaBase() {
@@ -1459,6 +1472,11 @@ public class EfaConfig extends StorageObject {
     public boolean getValueEfaDirekt_immerImVordergrundBringToFront() {
         return efaDirekt_immerImVordergrundBringToFront.getValue();
     }
+
+    public String getValueEfaDirekt_bnrMsgToAdminDefaultRecipient() {
+        return efaDirekt_bnrMsgToAdminDefaultRecipient.getValue();
+    }
+
 
     public boolean getValueEfaDirekt_bnrError_admin() {
         return efaDirekt_bnrError_admin.getValue();

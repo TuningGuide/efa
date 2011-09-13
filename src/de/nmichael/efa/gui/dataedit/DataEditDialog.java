@@ -159,6 +159,18 @@ public class DataEditDialog extends BaseDialog {
         return items;
     }
 
+    public IItemType getItem(String name) {
+        if (items == null) {
+            return null;
+        }
+        for (IItemType item : items) {
+            if (item.getName().equals(name)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
     public void setItems(Vector<IItemType> items) {
         this.items = items;
         cat2items = new Hashtable<String,Vector<IItemType>>();

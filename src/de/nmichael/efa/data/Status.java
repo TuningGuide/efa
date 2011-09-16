@@ -190,6 +190,15 @@ public class Status extends StorageObject {
         return status;
     }
 
+    public UUID[] makeStatusArrayUUID() {
+        StatusRecord[] sr = getAllStatus();
+        UUID[] status = new UUID[ (sr != null ? sr.length : 0) ];
+        for(int i=0; i<status.length; i++) {
+            status[i] = sr[i].getId();
+        }
+        return status;
+    }
+
     public void open(boolean createNewIfNotExists) throws EfaException {
         super.open(createNewIfNotExists);
         if (isOpen()) {

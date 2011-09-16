@@ -37,6 +37,7 @@ public class Project extends StorageObject {
     public static final String STORAGEOBJECT_BOATDAMAGES          = "boatdamages";
     public static final String STORAGEOBJECT_DESTINATIONS         = "destinations";
     public static final String STORAGEOBJECT_WATERS               = "waters";
+    public static final String STORAGEOBJECT_STATISTICS           = "statistics";
     public static final String STORAGEOBJECT_MESSAGES             = "messages";
 
     private Hashtable<String,StorageObject> persistenceCache = new Hashtable<String,StorageObject>();
@@ -106,6 +107,7 @@ public class Project extends StorageObject {
             getBoatDamages(true);
             getDestinations(true);
             getWaters(true);
+            getStatistics(true);
             getMessages(true);
             return true;
         } catch(Exception e) {
@@ -349,6 +351,9 @@ public class Project extends StorageObject {
                     if (storageObjectType.equals(Waters.DATATYPE) && storageObjectName.equals(STORAGEOBJECT_WATERS)) {
                         c = Waters.class;
                     }
+                    if (storageObjectType.equals(Statistics.DATATYPE) && storageObjectName.equals(STORAGEOBJECT_STATISTICS)) {
+                        c = Statistics.class;
+                    }
                     if (storageObjectType.equals(Messages.DATATYPE) && storageObjectName.equals(STORAGEOBJECT_MESSAGES)) {
                         c = Messages.class;
                     }
@@ -492,6 +497,11 @@ public class Project extends StorageObject {
     public Waters getWaters(boolean createNewIfDoesntExist) {
         return (Waters)getPersistence(Waters.class, STORAGEOBJECT_WATERS, Waters.DATATYPE,
                 createNewIfDoesntExist, International.getString("Gewässer"));
+    }
+
+    public Statistics getStatistics(boolean createNewIfDoesntExist) {
+        return (Statistics)getPersistence(Statistics.class, STORAGEOBJECT_STATISTICS, Statistics.DATATYPE,
+                createNewIfDoesntExist, International.getString("Statistiken"));
     }
 
     public Messages getMessages(boolean createNewIfDoesntExist) {

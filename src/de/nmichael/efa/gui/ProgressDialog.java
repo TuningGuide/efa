@@ -20,33 +20,56 @@ public class ProgressDialog extends BaseDialog {
 
     private ProgressTask progressTask;
     private JTextArea loggingTextArea;
+    private JLabel currentStatusLabel;
     private JProgressBar progressBar;
 
     public ProgressDialog(Frame parent, String title, ProgressTask progressTask, boolean autoCloseDialogWhenDone) {
         super(parent, title, International.getStringWithMnemonic("Schließen"));
-        this.progressTask = progressTask;
-        progressTask.setProgressDialog(this, autoCloseDialogWhenDone);
-        loggingTextArea = new JTextArea();
+        initialize(progressTask, autoCloseDialogWhenDone, false);
     }
 
     public ProgressDialog(JDialog parent, String title, ProgressTask progressTask, boolean autoCloseDialogWhenDone) {
         super(parent, title, International.getStringWithMnemonic("Schließen"));
+        initialize(progressTask, autoCloseDialogWhenDone, false);
+    }
+
+    public ProgressDialog(Frame parent, String title, ProgressTask progressTask, boolean autoCloseDialogWhenDone, boolean minimalDialog) {
+        super(parent, title, International.getStringWithMnemonic("Schließen"));
+        initialize(progressTask, autoCloseDialogWhenDone, minimalDialog);
+    }
+
+    public ProgressDialog(JDialog parent, String title, ProgressTask progressTask, boolean autoCloseDialogWhenDone, boolean minimalDialog) {
+        super(parent, title, International.getStringWithMnemonic("Schließen"));
+        initialize(progressTask, autoCloseDialogWhenDone, minimalDialog);
+    }
+
+    private void initialize(ProgressTask progressTask, boolean autoCloseDialogWhenDone, boolean minimalDialog) {
         this.progressTask = progressTask;
         progressTask.setProgressDialog(this, autoCloseDialogWhenDone);
-        loggingTextArea = new JTextArea();
+        if (minimalDialog) {
+            currentStatusLabel = new JLabel();
+        } else {
+            loggingTextArea = new JTextArea();
+        }
     }
 
     protected void iniDialog() throws Exception {
         mainPanel.setLayout(new BorderLayout());
 
-        JScrollPane loggingScrollPane = new JScrollPane();
-        loggingScrollPane.setPreferredSize(new Dimension(550,200));
-        loggingScrollPane.setMinimumSize(new Dimension(550,200));
-        loggingTextArea.setEditable(false);
-        //loggingTextArea.setWrapStyleWord(true);
-        //loggingTextArea.setLineWrap(true);
-        loggingScrollPane.getViewport().add(loggingTextArea, null);
-        mainPanel.add(loggingScrollPane, BorderLayout.CENTER);
+        if (loggingTextArea != null) {
+            JScrollPane loggingScrollPane = new JScrollPane();
+            loggingScrollPane.setPreferredSize(new Dimension(550, 200));
+            loggingScrollPane.setMinimumSize(new Dimension(550, 200));
+            loggingTextArea.setEditable(false);
+            //loggingTextArea.setWrapStyleWord(true);
+            //loggingTextArea.setLineWrap(true);
+            loggingScrollPane.getViewport().add(loggingTextArea, null);
+            mainPanel.add(loggingScrollPane, BorderLayout.CENTER);
+        }
+        if (currentStatusLabel != null) {
+            currentStatusLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            mainPanel.add(currentStatusLabel, BorderLayout.CENTER);
+        }
 
         JPanel progressPanel = new JPanel();
         progressPanel.setLayout(new GridBagLayout());
@@ -66,11 +89,16 @@ public class ProgressDialog extends BaseDialog {
     }
 
     public void logInfo(String s) {
-        for (int tryi=1; loggingTextArea == null && tryi<=10; tryi++) {
+        for (int tryi=1; loggingTextArea == null && currentStatusLabel == null && tryi<=10; tryi++) {
             try { Thread.sleep(100*tryi); } catch(Exception e) {} // Dialog may not have been fully initialized when progress thread starts running
         }
-        loggingTextArea.append(s);
-        loggingTextArea.setCaretPosition(loggingTextArea.getDocument().getLength());
+        if (loggingTextArea != null) {
+            loggingTextArea.append(s);
+            loggingTextArea.setCaretPosition(loggingTextArea.getDocument().getLength());
+        }
+        if (currentStatusLabel != null) {
+            currentStatusLabel.setText(s);
+        }
     }
 
     public void setCurrentWorkDone(int i) {

@@ -59,6 +59,15 @@ public class Boats extends StorageObject {
         }
     }
 
+    public BoatRecord getBoat(UUID id, long earliestValidAt, long latestValidAt, long preferredValidAt) {
+        try {
+            return (BoatRecord)data().getValidNearest(BoatRecord.getKey(id, preferredValidAt), earliestValidAt, latestValidAt, preferredValidAt);
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
     // find a record being valid at the specified time
     public BoatRecord getBoat(String boatName, long validAt) {
         try {

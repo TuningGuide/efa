@@ -36,6 +36,7 @@ public class ItemTypeTable extends ItemType implements ActionListener {
     protected int selectionMode = ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
     protected int sortByColumn = 0;
     protected boolean ascending = true;
+    protected int fontSize = -1;
 
     public ItemTypeTable(String name, TableItemHeader[] header, Hashtable<String,TableItem[]> items, String value,
             int type, String category, String description) {
@@ -109,6 +110,10 @@ public class ItemTypeTable extends ItemType implements ActionListener {
                 scrollPane.remove(table);
             }
             table = Table.createTable(null, renderer, header, data);
+            if (fontSize > 0) {
+                table.getRenderer().setFontSize(fontSize);
+                table.setRowHeight(fontSize*2);
+            }
             table.setSelectionMode(selectionMode);
             if (currentSortingColumn < 0) {
                 table.sortByColumn(this.sortByColumn, this.ascending);
@@ -261,6 +266,10 @@ public class ItemTypeTable extends ItemType implements ActionListener {
     public void setSorting(int sortByColumn, boolean ascending) {
         this.sortByColumn = sortByColumn;
         this.ascending = ascending;
+    }
+
+    public void setFontSize(int fontSize) {
+        this.fontSize = fontSize;
     }
 
 }

@@ -265,8 +265,29 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
         return compareTo(o) < 0;
     }
 
+    public boolean isBeforeOrEqual(DataTypeDate o) {
+        return compareTo(o) <= 0;
+    }
+
     public boolean isAfter(DataTypeDate o) {
         return compareTo(o) > 0;
+    }
+
+    public boolean isAfterOrEqual(DataTypeDate o) {
+        return compareTo(o) >= 0;
+    }
+
+    public boolean isInRange(DataTypeDate from, DataTypeDate to) {
+        return (compareTo(from) >= 0) && (compareTo(to) <= 0);
+    }
+
+    public static boolean isRangeOverlap(DataTypeDate r1From, DataTypeDate r1To, DataTypeDate r2From, DataTypeDate r2To) {
+        return (r2From.isBeforeOrEqual(r1From) && r2To.isAfterOrEqual(r1From)) ||
+               (r2From.isBeforeOrEqual(r1To) && r2To.isAfterOrEqual(r1To)) ||
+               (r2From.isAfterOrEqual(r1From) && r2To.isBeforeOrEqual(r1To)) ||
+               (r1From.isBeforeOrEqual(r2From) && r1To.isAfterOrEqual(r2From)) ||
+               (r1From.isBeforeOrEqual(r2To) && r1To.isAfterOrEqual(r2To)) ||
+               (r1From.isAfterOrEqual(r2From) && r1To.isBeforeOrEqual(r2To));
     }
 
     public long getTimestamp(DataTypeTime time) {

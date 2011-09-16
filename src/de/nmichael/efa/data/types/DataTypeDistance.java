@@ -90,6 +90,14 @@ public class DataTypeDistance {
         return distance;
     }
 
+    public static DataTypeDistance getDistance(long distanceInDefaultUnit) {
+        if (getDefaultUnit() == UnitType.km) {
+            return parseDistance(Long.toString(distanceInDefaultUnit) + " " + METERS);
+        } else {
+            return parseDistance(Long.toString(distanceInDefaultUnit) + " " + YARDS);
+        }
+    }
+
     public void setDistance(DataTypeDecimal value, UnitType unit) {
         this.value = (value != null ? new DataTypeDecimal(value) : null);
         this.unit = unit;
@@ -187,8 +195,12 @@ public class DataTypeDistance {
     }
 
     public String getValueInKilometers() {
+        return getValueInKilometers(false);
+    }
+
+    public String getValueInKilometers(boolean withUnit) {
         DataTypeDecimal d = new DataTypeDecimal(getValueInMeters(), 3);
-        return d.toString();
+        return d.toString() + (withUnit ? " " + KILOMETERS : "");
     }
 
     public long getValueInDefaultUnit() {

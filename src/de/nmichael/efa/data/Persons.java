@@ -52,6 +52,15 @@ public class Persons extends StorageObject {
         }
     }
 
+    public PersonRecord getPerson(UUID id, long earliestValidAt, long latestValidAt, long preferredValidAt) {
+        try {
+            return (PersonRecord)data().getValidNearest(PersonRecord.getKey(id, preferredValidAt), earliestValidAt, latestValidAt, preferredValidAt);
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
     // find a record being valid at the specified time
     public PersonRecord getPerson(String personName, long validAt) {
         try {

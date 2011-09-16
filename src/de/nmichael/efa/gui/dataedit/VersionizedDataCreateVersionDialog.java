@@ -58,8 +58,8 @@ public class VersionizedDataCreateVersionDialog extends BaseDialog implements II
         label1.setPadding(0, 0, 0, 10);
         label1.displayOnGui(this, mainPanel, 0, 0);
 
-        long now = System.currentTimeMillis();
-        long validFromTs = (now > dataRecord.getValidFrom() && now < dataRecord.getInvalidFrom() ? now : dataRecord.getValidFrom());
+        long today = DataTypeDate.today().getTimestamp(new DataTypeTime(0,0,0));
+        long validFromTs = (today > dataRecord.getValidFrom() && today < dataRecord.getInvalidFrom() ? today : dataRecord.getValidFrom());
         validFrom = new ItemTypeDateTime("VALID_FROM",
                 (validFromTs == 0 ? null : new DataTypeDate(validFromTs)),
                 (validFromTs == 0 ? null : new DataTypeTime(validFromTs)),

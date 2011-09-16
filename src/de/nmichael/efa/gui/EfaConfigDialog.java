@@ -29,7 +29,6 @@ public class EfaConfigDialog extends BaseDialog {
     private JCheckBox expertMode;
     private String _selectedPanel; // selected panel specified in constructor
 
-    //private EfaConfig myEfaConfig;
     private Hashtable<String,Hashtable> categories;
     private Hashtable<String,Vector<IItemType>> items;
     private Vector<IItemType> configItems;
@@ -112,7 +111,8 @@ public class EfaConfigDialog extends BaseDialog {
         // create GUI items
         mainPanel.setLayout(new BorderLayout());
         expertMode = new JCheckBox();
-        expertMode.setText(International.getString("Expertenmodus (alle Parameter anzeigen)"));
+        expertMode.setText(International.getString("Expertenmodus") + 
+                " (" + International.getString("alle Parameter anzeigen") + ")");
         expertMode.setSelected(false);
         expertMode.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { expertModeChanged(e); }

@@ -61,7 +61,7 @@ public abstract class ImportBase {
         if (name.length() == 0) {
             return null;
         }
-        String[] qname = PersonRecord.tryGetNameAndAffix(name);
+        String[] qname = persons.staticPersonRecord.getQualifiedNameValues(name);  //PersonRecord.tryGetNameAndAffix(name);
         return findPerson(persons, IDX, qname[0], qname[1], warnIfNotFound);
     }
 

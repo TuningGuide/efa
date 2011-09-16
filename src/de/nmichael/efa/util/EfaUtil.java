@@ -1499,16 +1499,16 @@ public class EfaUtil {
         return parser;
     }
 
-          // just for test purpose
-  public static void main(String[] args) {
-    TMJ tmj = string2date("23.01.1979",0,0,0); System.out.println(tmj.tag+"    "+tmj.monat+"    "+tmj.jahr);
-        tmj = string2date("-42",0,0,0); System.out.println(tmj.tag+"    "+tmj.monat+"    "+tmj.jahr);
-        tmj = string2date("1979-1994",0,0,0); System.out.println(tmj.tag+"    "+tmj.monat+"    "+tmj.jahr);
-        tmj = string2date("1979 -1994",0,0,0); System.out.println(tmj.tag+"    "+tmj.monat+"    "+tmj.jahr);
-        tmj = string2date("  19-79-94  ",0,0,0); System.out.println(tmj.tag+"    "+tmj.monat+"    "+tmj.jahr);
-        tmj = string2date("  19-",0,0,0); System.out.println(tmj.tag+"    "+tmj.monat+"    "+tmj.jahr);
-        tmj = string2date("  19- ",0,0,0); System.out.println(tmj.tag+"    "+tmj.monat+"    "+tmj.jahr);
-  }
+    public static boolean execCmd(String cmd) {
+        try {
+            Process p = Runtime.getRuntime().exec(cmd);
+            p.waitFor();
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
 
 }
 

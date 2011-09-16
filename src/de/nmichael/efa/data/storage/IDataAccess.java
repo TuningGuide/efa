@@ -504,6 +504,16 @@ public interface IDataAccess {
     public DataRecord getValidLatest(DataKey key) throws EfaException;
 
     /**
+     * Retrieves the nearest valid version of an existing data record from this storage object.
+     * @param key the key of the data record to retrieve (with or without the validity information)
+     * @param earliestValidAt earlist timestamp which is accepted to fall into the validity range of the record
+     * @param latestValidAt latest timestamp which is accepted to fall into the validity range of the record
+     * @param preferredValidAt preferred validity shall be as close as possible to this timestamp
+     * @throws Exception if the data record does not exist, is locked or the operation fails for another reason
+     */
+    public DataRecord getValidNearest(DataKey key, long earliestValidAt, long latestValidAt, long preferredValidAt) throws EfaException;
+
+    /**
      * Returns true if there are any data records valid at any point in time from this storage object.
      * @param key the key of the data record to retrieve (with or without the validity information)
      * @throws Exception if the data record is locked or the operation fails for another reason

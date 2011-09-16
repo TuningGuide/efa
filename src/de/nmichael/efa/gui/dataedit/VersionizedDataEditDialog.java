@@ -415,7 +415,7 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
     boolean saveRecord() throws InvalidValueException {
         if (newRecord) {
             long validFromTs = 0;
-            ItemTypeDateTime validFrom = new ItemTypeDateTime("VALID_FROM", DataTypeDate.today(), DataTypeTime.now(),
+            ItemTypeDateTime validFrom = new ItemTypeDateTime("VALID_FROM", DataTypeDate.today(), new DataTypeTime(0,0,0),
                 IItemType.TYPE_PUBLIC, "", International.getString("neue Version gültig ab") );
             if (SimpleInputDialog.showInputDialog(this, International.getString("Gültigkeitsbeginn festlegen"), validFrom)) {
                 validFromTs = validFrom.getTimeStamp();

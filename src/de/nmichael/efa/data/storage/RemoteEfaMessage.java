@@ -46,6 +46,7 @@ public class RemoteEfaMessage {
     public static final String OPERATION_GETVALIDANY             = "GetValidAny";
     public static final String OPERATION_GETVALIDAT              = "GetValidAt";
     public static final String OPERATION_GETVALIDLATEST          = "GetValidLatest";
+    public static final String OPERATION_GETVALIDNEAREST         = "GetValidNearest";
     public static final String OPERATION_ISVALIDANY              = "IsValidAny";
     public static final String OPERATION_UPDATE                  = "Update";
     public static final String OPERATION_CHANGEVALIDITY          = "ChangeValidity";

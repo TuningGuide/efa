@@ -602,6 +602,24 @@ public class RemoteEfaClient extends DataAccess {
         return response.getRecord(0);
     }
 
+    public DataRecord getValidNearest(DataKey key, long earliestValidAt, long latestValidAt, long preferredValidAt) throws EfaException {
+        RemoteEfaMessage request = RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
+                RemoteEfaMessage.OPERATION_GETVALIDNEAREST);
+        request.addKey(key);
+        request.addField(RemoteEfaMessage.FIELD_VALIDFROM, Long.toString(earliestValidAt));
+        request.addField(RemoteEfaMessage.FIELD_INVALIDFROM, Long.toString(latestValidAt));
+        request.addField(RemoteEfaMessage.FIELD_TIMESTAMP, Long.toString(preferredValidAt));
+        RemoteEfaMessage response = runDataRequest(request);
+        if (response == null || response.getResultCode() != RemoteEfaMessage.RESULT_OK) {
+            throw new EfaException(Logger.MSG_REFA_REQUESTFAILED,
+                    getErrorLogstring(RemoteEfaMessage.OPERATION_GETVALIDNEAREST,
+                    (response != null ? response.getResultText() : "unknown"),
+                    (response != null ? response.getResultCode() : -1)),
+                    Thread.currentThread().getStackTrace());
+        }
+        return response.getRecord(0);
+    }
+
     public boolean isValidAny(DataKey key) throws EfaException {
         RemoteEfaMessage request = RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
                 RemoteEfaMessage.OPERATION_ISVALIDANY);

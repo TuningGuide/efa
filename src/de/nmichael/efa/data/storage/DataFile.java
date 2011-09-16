@@ -675,6 +675,33 @@ public abstract class DataFile extends DataAccess {
         return null;
     }
 
+    public DataRecord getValidNearest(DataKey key, long earliestValidAt, long latestValidAt, long preferredValidAt) throws EfaException {
+        synchronized(data) { // always synchronize on data to ensure integrity!
+            DataRecord r = getValidAt(key, preferredValidAt);
+            if (r != null) {
+                return r;
+            }
+            DataRecord[] records = getValidAny(key);
+            long minDistance = Long.MAX_VALUE;
+            for (int i=0; records != null && i<records.length; i++) {
+                if (records[i].isInValidityRange(earliestValidAt, latestValidAt)) {
+                    long myDist = Long.MAX_VALUE;
+                    if (records[i].getInvalidFrom()-1 < preferredValidAt) {
+                        myDist = preferredValidAt - records[i].getInvalidFrom()-1;
+                    }
+                    if (records[i].getValidFrom() > preferredValidAt) {
+                        myDist = records[i].getValidFrom() - preferredValidAt;
+                    }
+                    if (myDist < minDistance) {
+                        minDistance = myDist;
+                        r = records[i];
+                    }
+                }
+            }
+            return r;
+        }
+    }
+
     public boolean isValidAny(DataKey key) throws EfaException {
         synchronized(data) { // always synchronize on data to ensure integrity!
             ArrayList<DataKey> list = versionizedKeyList.get(getUnversionizedKey(key));

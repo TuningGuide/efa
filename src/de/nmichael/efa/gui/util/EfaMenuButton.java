@@ -624,8 +624,8 @@ public class EfaMenuButton {
                 insufficientRights(admin, action);
                 return false;
             }
-            Dialog.infoDialog("Not yet implemented!");
-            // @todo (P2) Implement Create Statistics
+            StatisticsListDialog dlg = (parentFrame != null ? new StatisticsListDialog(parentFrame, admin) : new StatisticsListDialog(parentDialog, admin));
+            dlg.showDialog();
         }
 
         if (action.equals(BUTTON_SYNCKANUEFB)) {

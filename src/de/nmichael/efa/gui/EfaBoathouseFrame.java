@@ -1856,45 +1856,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         if (Daten.project == null) {
             return;
         }
-        Dialog.infoDialog("Not yet implemented");
-        /* @todo (P3) actionStatistics()
-        if (Daten.fahrtenbuch == null || Daten.fahrtenbuch.getDaten().statistik == null) {
-            Dialog.error(International.getString("Es sind keine Statistiken verfügbar!") + "\n\n"
-                    + International.getString("Hinweis für Administratoren") + ":\n"
-                    + International.getString("Damit Statistiken im Bootshaus von jedem Mitglied aufrufbar sind, "
-                    + "müssen sie zuerst im Admin-Modus vorbereitet und als Statistikeinstellungen "
-                    + "abgespeichert werden. Beim Abspeichern muß zusätzliche die Option "
-                    + "'Statistik auch im Bootshaus verfügbar machen' aktiviert werden."));
-            return;
-        }
-
-        Vector stats = new Vector();
-        DatenFelder d = Daten.fahrtenbuch.getDaten().statistik.getCompleteFirst();
-        while (d != null) {
-            if (d.get(StatSave.AUCHINEFADIREKT).equals("+")) {
-                stats.add(d.get(StatSave.NAMESTAT));
-            }
-            d = Daten.fahrtenbuch.getDaten().statistik.getCompleteNext();
-        }
-        if (stats.size() == 0) {
-            Dialog.error(International.getString("Es sind keine Statistiken verfügbar!") + "\n\n"
-                    + International.getString("Hinweis für Administratoren") + ":\n"
-                    + International.getString("Damit Statistiken im Bootshaus von jedem Mitglied aufrufbar sind, "
-                    + "müssen sie zuerst im Admin-Modus vorbereitet und als Statistikeinstellungen "
-                    + "abgespeichert werden. Beim Abspeichern muß zusätzliche die Option "
-                    + "'Statistik auch im Bootshaus verfügbar machen' aktiviert werden."));
-            return;
-        }
-
-        try {
-            StatistikDirektFrame dlg = new StatistikDirektFrame(this, stats);
-            Dialog.setDlgLocation(dlg, this);
-            dlg.setModal(true);
-            dlg.show();
-        } catch (Exception ee) {
-            // HTML Reder Exception reported by Thilo Coblenzer (01.06.06)
-        }
-        */
+        StatisticsListDialog dlg = new StatisticsListDialog(this, null);
+        dlg.showDialog();
     }
 
     void actionMessageToAdmin() {

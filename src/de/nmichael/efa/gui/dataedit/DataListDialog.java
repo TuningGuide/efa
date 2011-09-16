@@ -43,6 +43,8 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
     protected ItemTypeDataRecordTable table;
     protected int sortByColumn = 0;
     protected boolean sortAscending = true;
+    protected int tableFontSize = -1;
+    protected String buttonPanelPosition = BorderLayout.EAST;
     private ItemTypeDateTime validAtDateTime;
     private ItemTypeBoolean showAll;
     private ItemTypeBoolean showDeleted;
@@ -125,6 +127,8 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 this,
                 IItemType.TYPE_PUBLIC, "BASE_CAT", getTitle());
         table.setSorting(sortByColumn, sortAscending);
+        table.setFontSize(tableFontSize);
+        table.setButtonPanelPosition(buttonPanelPosition);
         table.setFieldSize(600, 500);
         table.setPadding(0, 0, 10, 0);
         table.displayOnGui(this, mainTablePanel, BorderLayout.CENTER);

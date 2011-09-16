@@ -49,6 +49,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 
     protected String filterFieldName;
     protected String filterFieldValue;
+    protected String buttonPanelPosition = BorderLayout.EAST;
     
     protected Vector<DataRecord> data;
     protected Hashtable<String,DataRecord> mappingKeyToRecord;
@@ -142,7 +143,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         searchPanel = new JPanel();
         searchPanel.setLayout(new GridBagLayout());
         myPanel.add(tablePanel, BorderLayout.CENTER);
-        myPanel.add(buttonPanel, BorderLayout.EAST);
+        myPanel.add(buttonPanel, buttonPanelPosition);
         tablePanel.add(searchPanel, new GridBagConstraints(0, 10, 0, 0, 0.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
         actionButtons = new Hashtable<ItemTypeButton,String>();
@@ -177,6 +178,14 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         panel.add(myPanel, borderLayoutPosition);
         super.displayOnGui(dlg, tablePanel, 0, 0);
         return 1;
+    }
+
+    public void setVisibleButtonPanel(boolean visible) {
+        buttonPanel.setVisible(visible);
+    }
+
+    public void setVisibleSearchPanel(boolean visible) {
+        searchPanel.setVisible(visible);
     }
 
     public void showValue() {
@@ -471,4 +480,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         itemListenerAction(this, e);
     }
 
+    public void setButtonPanelPosition(String borderLayoutPosition) {
+        this.buttonPanelPosition = borderLayoutPosition;
+    }
+    
 }

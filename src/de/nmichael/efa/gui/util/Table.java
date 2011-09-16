@@ -146,6 +146,10 @@ public class Table extends JTable {
         return sorter.getSortingAscending();
     }
 
+    public TableCellRenderer getRenderer() {
+        return renderer;
+    }
+
     class TableMouseListener extends MouseAdapter {
         public void mousePressed(MouseEvent e) {
             if (e.getSource() instanceof Table) {

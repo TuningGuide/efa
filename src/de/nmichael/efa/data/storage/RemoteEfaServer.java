@@ -273,6 +273,10 @@ public class RemoteEfaServer {
                         responses.add(requestGetValidLatest(request, admin, p));
                         break;
                     }
+                    if (operation.equals(RemoteEfaMessage.OPERATION_GETVALIDNEAREST)) {
+                        responses.add(requestGetValidNearest(request, admin, p));
+                        break;
+                    }
                     if (operation.equals(RemoteEfaMessage.OPERATION_ISVALIDANY)) {
                         responses.add(requestIsValidAny(request, admin, p));
                         break;
@@ -631,6 +635,19 @@ public class RemoteEfaServer {
     private RemoteEfaMessage requestGetValidLatest(RemoteEfaMessage request, AdminRecord admin, StorageObject p) {
         try {
             DataRecord r = p.data().getValidLatest(request.getKey(0));
+            RemoteEfaMessage response = RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_OK, null);
+            if (r != null) {
+                response.addRecord(r);
+            }
+            return response;
+        } catch(Exception e) {
+            return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.ERROR_UNKNOWN, e.toString());
+        }
+    }
+
+    private RemoteEfaMessage requestGetValidNearest(RemoteEfaMessage request, AdminRecord admin, StorageObject p) {
+        try {
+            DataRecord r = p.data().getValidNearest(request.getKey(0), request.getValidFrom(), request.getInvalidFrom(), request.getTimestamp());
             RemoteEfaMessage response = RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_OK, null);
             if (r != null) {
                 response.addRecord(r);

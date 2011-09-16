@@ -24,6 +24,7 @@ public class TableCellRenderer extends DefaultTableCellRenderer {
     private Color markedFgColor = null;
     private Color disabledBkgColor = null;
     private Color disabledFgColor = Color.gray;
+    private int fontSize = -1;
 
     public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int row, int column) {
@@ -56,6 +57,10 @@ public class TableCellRenderer extends DefaultTableCellRenderer {
             if (isMarked && markedFgColor != null) {
                 fgColor = markedFgColor;
             }
+            if (fontSize > 0) {
+                c.setFont(c.getFont().deriveFont((float)fontSize));
+                c.setFont(c.getFont().deriveFont(Font.BOLD));
+            }
 
             c.setBackground(bkgColor);
             c.setForeground(fgColor);
@@ -83,6 +88,10 @@ public class TableCellRenderer extends DefaultTableCellRenderer {
 
     public void setDisabledBackgroundColor(Color c) {
         this.disabledBkgColor = c;
+    }
+
+    public void setFontSize(int size) {
+        this.fontSize = size;
     }
 
 }

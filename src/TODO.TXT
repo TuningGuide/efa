@@ -2,10 +2,6 @@
 
 Item                                                                 days  until
 ================================================================================
-Backup
-Thumbnails
-Vorbereitung für Seminar: Installation & Test                        1.0  02.09.
-
 DataLayer: DB Access                                                 4.0  28.08.
 Online Update                                                        0.5  29.08.
 Statistics - Framework                                               4.0  02.09.
@@ -24,6 +20,7 @@ Data Safety and Concurrency: Optimistic Locking
 Data Safety and Concurrency: Journaling and File Copies
 Automatically add and purge names from Data Lists
 Widget Warnings (i.e. after sunset, flooding)
+Thumbnails
 Rewrite remaining Dialogs/Frames
 Delete unused Classes
 Input of Regatta Results

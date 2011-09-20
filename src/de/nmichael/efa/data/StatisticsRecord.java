@@ -11,6 +11,7 @@
 package de.nmichael.efa.data;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.types.DataTypeDate;
@@ -32,6 +33,7 @@ public class StatisticsRecord extends DataRecord {
 
     public static final String ID                  = "Id";
     public static final String NAME                = "Name";
+    public static final String POSITION            = "Position";
     public static final String PUBLICLYAVAILABLE   = "PubliclyAvailable";
     public static final String DATEFROM            = "DateFrom";
     public static final String DATETO              = "DateTo";
@@ -44,6 +46,7 @@ public class StatisticsRecord extends DataRecord {
     public static final String FILTERBOATRIGGING   = "FilterBoatRigging";
     public static final String FILTERBOATCOXING    = "FilterBoatCoxing";
     public static final String FILTERBYNAME        = "FilterByName";
+    public static final String FILTERBYGROUP       = "FilterByGroup";
     public static final String SHOWFIELDS          = "ShowFields";  // like Name, Status, Gender, BoatType, ...
     public static final String AGGREGATIONS        = "Aggregations"; // like Distance, Sessions, AvgDistance, ...
     public static final String SORTINGCRITERIA     = "SortingCriteria";
@@ -57,7 +60,9 @@ public class StatisticsRecord extends DataRecord {
 
     public static final String TYPE_PERSONS        = "Persons";
     public static final String TYPE_BOATS          = "Boats";
+    public static final String TYPE_COMPETITION    = "Competition";
 
+    public static final String FIELDS_POSITION     = "Position";
     public static final String FIELDS_NAME         = "Name";
     public static final String FIELDS_STATUS       = "Status";
     public static final String FIELDS_YEAROFBIRTH  = "YearOfBirth";
@@ -76,7 +81,8 @@ public class StatisticsRecord extends DataRecord {
     public enum StatisticTypes {
         UNKNOWN,
         persons,
-        boats
+        boats,
+        competition
     }
 
     // =========================================================================
@@ -90,7 +96,18 @@ public class StatisticsRecord extends DataRecord {
     public long sTimestampEnd;
     public long sValidAt;
     public StatisticTypes sStatisticType;
+    public Hashtable<String,String> sFilterGender;
     public Hashtable<UUID,String> sFilterStatus;
+    public boolean sFilterStatusOther;
+    public Hashtable<String,String> sFilterSessionType;
+    public Hashtable<String,String> sFilterBoatType;
+    public Hashtable<String,String> sFilterBoatSeats;
+    public Hashtable<String,String> sFilterBoatRigging;
+    public Hashtable<String,String> sFilterBoatCoxing;
+    public UUID sFilterByNameId; // @todo (P4) statistics - filter by name
+    public String sFilterByNameText; // @todo (P4) statistics - filter by name
+    public UUID sFilterByGroup; // @todo (P4) statistics - filter by group
+    public boolean sIsFieldsPosition;
     public boolean sIsFieldsName;
     public boolean sIsFieldsStatus;
     public boolean sIsFieldsYearOfBirth;
@@ -98,8 +115,11 @@ public class StatisticsRecord extends DataRecord {
     public boolean sIsAggrDistance;
     public boolean sIsAggrSessions;
     public boolean sIsAggrAvgDistance;
-    public String sOutputDir = Daten.efaTmpDirectory; // @todo (P2) real output file fot statistics
-    public String sOutputFile = Daten.efaTmpDirectory + "output.html"; // @todo (P2) real output file fot statistics
+    public int sAggrDistanceBarSize = 200; // @todo (P2) statistics - bar sizes
+    public int sAggrSessionsBarSize = 0; // @todo (P2) statistics - bar sizes
+    public int sAggrAvgDistanceBarSize = 0; // @todo (P2) statistics - bar sizes
+    public String sOutputDir = Daten.efaTmpDirectory; // @todo (P2) statistics - real output file fot statistics
+    public String sOutputFile = Daten.efaTmpDirectory + "output.html"; // @todo (P2) statistics - real output file fot statistics
     public boolean sOutputHtmlUpdateTable = false;
     public String sFileExecBefore;
     public String sFileExecAfter;
@@ -111,8 +131,6 @@ public class StatisticsRecord extends DataRecord {
     public DataTypeDate cEntryDateFirst;
     public DataTypeDate cEntryDateLast;
 
-    public String[] tableColumns;
-
     // filled by StatistikTask.runPostprocessing()
     public BaseDialog pParentDialog;
     public String pStatTitle;
@@ -122,6 +140,7 @@ public class StatisticsRecord extends DataRecord {
     public String pStatDescription;
     public String pStatDateRange;
     public String pStatConsideredEntries;
+    public Vector<String> pTableColumns;
 
 
 
@@ -131,6 +150,7 @@ public class StatisticsRecord extends DataRecord {
 
         f.add(ID);                                t.add(IDataAccess.DATA_UUID);
         f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
+        f.add(POSITION);                          t.add(IDataAccess.DATA_INTEGER);
         f.add(PUBLICLYAVAILABLE);                 t.add(IDataAccess.DATA_BOOLEAN);
         f.add(DATEFROM);                          t.add(IDataAccess.DATA_DATE);
         f.add(DATETO);                            t.add(IDataAccess.DATA_DATE);
@@ -143,6 +163,7 @@ public class StatisticsRecord extends DataRecord {
         f.add(FILTERBOATRIGGING);                 t.add(IDataAccess.DATA_LIST_STRING);
         f.add(FILTERBOATCOXING);                  t.add(IDataAccess.DATA_LIST_STRING);
         f.add(FILTERBYNAME);                      t.add(IDataAccess.DATA_STRING);
+        f.add(FILTERBYGROUP);                     t.add(IDataAccess.DATA_STRING);
         f.add(SHOWFIELDS);                        t.add(IDataAccess.DATA_LIST_STRING);
         f.add(AGGREGATIONS);                      t.add(IDataAccess.DATA_LIST_STRING);
         f.add(SORTINGCRITERIA);                   t.add(IDataAccess.DATA_STRING);
@@ -158,6 +179,16 @@ public class StatisticsRecord extends DataRecord {
 
     public DataRecord createDataRecord() { // used for cloning
         return getPersistence().createNewRecord();
+    }
+
+    public void setDefaults() {
+        setFilterGender(new DataTypeList<String>(Daten.efaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES)));
+        setFilterStatus(new DataTypeList<UUID>(getFilterStatusListValues()));
+        setFilterSessionType(new DataTypeList<String>(Daten.efaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES)));
+        setFilterBoatType(new DataTypeList<String>(Daten.efaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES)));
+        setFilterBoatSeats(new DataTypeList<String>(Daten.efaTypes.makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_VALUES)));
+        setFilterBoatRigging(new DataTypeList<String>(Daten.efaTypes.makeBoatRiggingArray(EfaTypes.ARRAY_STRINGLIST_VALUES)));
+        setFilterBoatCoxing(new DataTypeList<String>(Daten.efaTypes.makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_VALUES)));
     }
 
     public DataKey getKey() {
@@ -184,6 +215,17 @@ public class StatisticsRecord extends DataRecord {
             return International.getString("Standard");
         }
         return s;
+    }
+
+    public void setPosition(int position) {
+        setInt(POSITION, position);
+    }
+    public int getPosition() {
+        int position = getInt(POSITION);
+        if (position < 0) {
+            return 0;
+        }
+        return position;
     }
 
     public void setPubliclyAvailable(boolean publiclyAvailable) {
@@ -230,6 +272,8 @@ public class StatisticsRecord extends DataRecord {
             return StatisticTypes.persons;
         } else if (type.equals(TYPE_BOATS)) {
             return StatisticTypes.boats;
+        } else if (type.equals(TYPE_COMPETITION)) {
+            return StatisticTypes.competition;
         }
         return StatisticTypes.UNKNOWN;
     }
@@ -240,6 +284,8 @@ public class StatisticsRecord extends DataRecord {
                 return International.getString("Personen");
             case boats:
                 return International.getString("Boote");
+            case competition:
+                return International.getString("Wettbewerb");
         }
         return International.getString("unbekannt");
     }
@@ -248,14 +294,24 @@ public class StatisticsRecord extends DataRecord {
         if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
             return new String[] {
                 TYPE_PERSONS,
-                TYPE_BOATS
+                TYPE_BOATS,
+                TYPE_COMPETITION
             };
         } else {
             return new String[] {
                 International.getString("Personen"),
-                International.getString("Boote")
+                International.getString("Boote"),
+                International.getString("Wettbewerb"),
             };
         }
+    }
+
+    public void setFilterGender(DataTypeList<String> list) {
+        setList(FILTERGENDER, list);
+    }
+
+    public DataTypeList<String> getFilterGender() {
+        return getList(FILTERGENDER, IDataAccess.DATA_STRING);
     }
 
     public void setFilterStatus(DataTypeList<UUID> list) {
@@ -274,6 +330,46 @@ public class StatisticsRecord extends DataRecord {
         return getPersistence().getProject().getStatus(false).makeStatusArray(Status.ARRAY_STRINGLIST_DISPLAY);
     }
 
+    public void setFilterSessionType(DataTypeList<String> list) {
+        setList(FILTERSESSIONTYPE, list);
+    }
+
+    public DataTypeList<String> getFilterSessionType() {
+        return getList(FILTERSESSIONTYPE, IDataAccess.DATA_STRING);
+    }
+
+    public void setFilterBoatType(DataTypeList<String> list) {
+        setList(FILTERBOATTYPE, list);
+    }
+
+    public DataTypeList<String> getFilterBoatType() {
+        return getList(FILTERBOATTYPE, IDataAccess.DATA_STRING);
+    }
+
+    public void setFilterBoatSeats(DataTypeList<String> list) {
+        setList(FILTERBOATSEATS, list);
+    }
+
+    public DataTypeList<String> getFilterBoatSeats() {
+        return getList(FILTERBOATSEATS, IDataAccess.DATA_STRING);
+    }
+
+    public void setFilterBoatRigging(DataTypeList<String> list) {
+        setList(FILTERBOATRIGGING, list);
+    }
+
+    public DataTypeList<String> getFilterBoatRigging() {
+        return getList(FILTERBOATRIGGING, IDataAccess.DATA_STRING);
+    }
+
+    public void setFilterBoatCoxing(DataTypeList<String> list) {
+        setList(FILTERBOATCOXING, list);
+    }
+
+    public DataTypeList<String> getFilterBoatCoxing() {
+        return getList(FILTERBOATCOXING, IDataAccess.DATA_STRING);
+    }
+
     public void setShowFields(DataTypeList<String> list) {
         setList(SHOWFIELDS, list);
     }
@@ -285,6 +381,7 @@ public class StatisticsRecord extends DataRecord {
     public String[] getFieldsList(int valuesOrDisplay) {
         if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
             return new String[] {
+                FIELDS_POSITION,
                 FIELDS_NAME,
                 FIELDS_STATUS,
                 FIELDS_YEAROFBIRTH,
@@ -292,6 +389,7 @@ public class StatisticsRecord extends DataRecord {
             };
         } else {
             return new String[] {
+                International.getString("Position"),
                 International.getString("Name"),
                 International.getString("Status"),
                 International.getString("Jahrgang"),
@@ -341,11 +439,13 @@ public class StatisticsRecord extends DataRecord {
         String CAT_BASEDATA     = "%01%" + International.getString("Statistik");
         String CAT_FIELDS       = "%02%" + International.getString("Felder");
         String CAT_FILTER       = "%03%" + International.getString("Filter");
-        String CAT_F_STATUS     = "%031%" + International.getString("Status");
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
 
         // CAT_BASEDATA
+        v.add(item = new ItemTypeInteger(StatisticsRecord.POSITION, getPosition(), 0, Integer.MAX_VALUE,
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Position")));
+        item.setNotNull(true);
         v.add(item = new ItemTypeString(StatisticsRecord.NAME, getName(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
         item.setNotNull(true);
@@ -374,32 +474,54 @@ public class StatisticsRecord extends DataRecord {
                     International.getString("Berechnung")));
 
         // CAT_FILTER
+        v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.FILTERGENDER, getFilterGender(),
+                    Daten.efaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES), Daten.efaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, CAT_FILTER,
+                    International.getString("Geschlecht")));
         v.add(item = new ItemTypeMultiSelectList<UUID>(StatisticsRecord.FILTERSTATUS, getFilterStatus(),
                     getFilterStatusListValues(), getFilterStatusListDisplay(),
                     IItemType.TYPE_PUBLIC, CAT_FILTER,
                     International.getString("Status")));
+        v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.FILTERSESSIONTYPE, getFilterSessionType(),
+                    Daten.efaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), Daten.efaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, CAT_FILTER,
+                    International.getString("Fahrtart")));
+        v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.FILTERBOATTYPE, getFilterBoatType(),
+                    Daten.efaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), Daten.efaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, CAT_FILTER,
+                    International.getString("Bootstyp")));
+        v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.FILTERBOATSEATS, getFilterBoatSeats(),
+                    Daten.efaTypes.makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_VALUES), Daten.efaTypes.makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, CAT_FILTER,
+                    International.getString("Bootsplätze")));
+        v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.FILTERBOATRIGGING, getFilterBoatRigging(),
+                    Daten.efaTypes.makeBoatRiggingArray(EfaTypes.ARRAY_STRINGLIST_VALUES), Daten.efaTypes.makeBoatRiggingArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, CAT_FILTER,
+                    International.getString("Riggerung")));
+        v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.FILTERBOATCOXING, getFilterBoatCoxing(),
+                    Daten.efaTypes.makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_VALUES), Daten.efaTypes.makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, CAT_FILTER,
+                    International.getString("Steuerung")));
         return v;
     }
 
-    public static String makeCategory(String c1, String c2) {
-        return c1 + ":" + c2;
-    }
-
     public TableItemHeader[] getGuiTableHeader() {
-        TableItemHeader[] header = new TableItemHeader[4];
-        header[0] = new TableItemHeader(International.getString("Name"));
-        header[1] = new TableItemHeader(International.getString("Statistikart"));
-        header[2] = new TableItemHeader(International.getString("Von"));
-        header[3] = new TableItemHeader(International.getString("Bis"));
+        TableItemHeader[] header = new TableItemHeader[5];
+        header[0] = new TableItemHeader(International.getString("Nr."));
+        header[1] = new TableItemHeader(International.getString("Name"));
+        header[2] = new TableItemHeader(International.getString("Statistikart"));
+        header[3] = new TableItemHeader(International.getString("Von"));
+        header[4] = new TableItemHeader(International.getString("Bis"));
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
-        TableItem[] items = new TableItem[4];
-        items[0] = new TableItem(getName());
-        items[1] = new TableItem(getStatisticTypeDescription());
-        items[2] = new TableItem(getDateFrom());
-        items[3] = new TableItem(getDateTo());
+        TableItem[] items = new TableItem[5];
+        items[0] = new TableItem(getPosition());
+        items[1] = new TableItem(getName());
+        items[2] = new TableItem(getStatisticTypeDescription());
+        items[3] = new TableItem(getDateFrom());
+        items[4] = new TableItem(getDateTo());
         return items;
     }
 
@@ -407,6 +529,8 @@ public class StatisticsRecord extends DataRecord {
         sStartDate = getDateFrom();
         if (sStartDate == null || !sStartDate.isSet()) {
             sStartDate = DataTypeDate.today();
+            sStartDate.setDay(1);
+            sStartDate.setMonth(1);
         }
 
         sEndDate = getDateTo();
@@ -416,10 +540,67 @@ public class StatisticsRecord extends DataRecord {
 
         sStatisticType = getStatisticTypeEnum();
 
+        sFilterGender = new Hashtable<String,String>();
+        DataTypeList<String> listString = getFilterGender();
+        for (int i=0; listString != null && i<listString.length(); i++) {
+            sFilterGender.put(listString.get(i), "foo");
+        }
+
         sFilterStatus = new Hashtable<UUID,String>();
         DataTypeList<UUID> listUUID = getFilterStatus();
         for (int i=0; listUUID != null && i<listUUID.length(); i++) {
             sFilterStatus.put(listUUID.get(i), "foo");
+        }
+        try {
+            sFilterStatusOther = sFilterStatus.containsKey(getPersistence().getProject().getStatus(false).getStatusOther().getId());
+        } catch(Exception eignore) {
+            sFilterStatusOther = false;
+        }
+
+        sFilterSessionType = new Hashtable<String,String>();
+        listString = getFilterSessionType();
+        for (int i=0; listString != null && i<listString.length(); i++) {
+            sFilterSessionType.put(listString.get(i), "foo");
+        }
+
+        sFilterBoatType = new Hashtable<String,String>();
+        listString = getFilterBoatType();
+        for (int i=0; listString != null && i<listString.length(); i++) {
+            sFilterBoatType.put(listString.get(i), "foo");
+        }
+
+        sFilterBoatSeats = new Hashtable<String,String>();
+        listString = getFilterBoatSeats();
+        for (int i=0; listString != null && i<listString.length(); i++) {
+            sFilterBoatSeats.put(listString.get(i), "foo");
+        }
+
+        sFilterBoatRigging = new Hashtable<String,String>();
+        listString = getFilterBoatRigging();
+        for (int i=0; listString != null && i<listString.length(); i++) {
+            sFilterBoatRigging.put(listString.get(i), "foo");
+        }
+
+        sFilterBoatCoxing = new Hashtable<String,String>();
+        listString = getFilterBoatCoxing();
+        for (int i=0; listString != null && i<listString.length(); i++) {
+            sFilterBoatCoxing.put(listString.get(i), "foo");
+        }
+
+        DataTypeList<String> fields = getShowFields();
+        for (int i=0; fields != null && i<fields.length(); i++) {
+            String s = fields.get(i);
+            if (s.equals(FIELDS_POSITION)) {
+                sIsFieldsPosition = true;
+            } else if (s.equals(FIELDS_NAME)) {
+                sIsFieldsName = true;
+            } else if (s.equals(FIELDS_STATUS)) {
+                sIsFieldsStatus = true;
+            } else if (s.equals(FIELDS_YEAROFBIRTH)) {
+                sIsFieldsYearOfBirth = true;
+            } else if (s.equals(FIELDS_BOATTYPE)) {
+                sIsFieldsBoatType = true;
+            }
         }
 
         DataTypeList<String> aggr = getAggregations();

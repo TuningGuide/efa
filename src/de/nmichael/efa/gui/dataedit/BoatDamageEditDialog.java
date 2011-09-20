@@ -15,8 +15,10 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.UUID;
 import javax.swing.*;
 
 // @i18n complete
@@ -74,6 +76,10 @@ public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements
     }
 
     public static void newBoatDamage(Window parent, BoatRecord boat) {
+        newBoatDamage(parent, boat, null);
+    }
+
+    public static void newBoatDamage(Window parent, BoatRecord boat, UUID personID) {
         BoatDamages boatDamages = Daten.project.getBoatDamages(false);
         AutoIncrement autoIncrement = Daten.project.getAutoIncrement(false);
         int val = autoIncrement.nextAutoIncrementIntValue(boatDamages.data().getStorageObjectType());
@@ -81,12 +87,17 @@ public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements
         r.setReportDate(DataTypeDate.today());
         r.setReportTime(DataTypeTime.now());
         r.setShowOnlyAddDamageFields(true);
+        if (personID != null) {
+            r.setReportedByPersonId(personID);
+        }
         BoatDamageEditDialog dlg = (parent instanceof JDialog ? 
             new BoatDamageEditDialog((JDialog)parent, r, true) :
             new BoatDamageEditDialog((JFrame)parent, r, true));
         dlg.showDialog();
         if (dlg.getDialogResult()) {
             dlg.sendNotification();
+            Dialog.infoDialog(International.getString("Vielen Dank!"),
+                              International.getString("Der Bootsschaden wurde gemeldet."));
         }
     }
 

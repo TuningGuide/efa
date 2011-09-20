@@ -6,20 +6,20 @@
 <helpset version="2.0">
 
   <!-- title -->
-  <title>efa - electronic Logbook: Help</title>
+  <title>efa - elektronisches Fahrtenbuch: Hilfe</title>
 
   <!-- maps -->
   <maps>
      <homeID>top</homeID>
-     <mapref location="efaHelpMap_en.jhm"/>
+     <mapref location="efaHelpMap_de.jhm"/>
   </maps>
 
   <!-- views -->
   <view>
     <name>TOC</name>
-    <label>Content</label>
+    <label>Inhalt</label>
     <type>javax.help.TOCView</type>
-    <data>efaHelpTOC_en.xml</data>
+    <data>efaHelpTOC_de.xml</data>
   </view>
 
   <view>
@@ -31,7 +31,7 @@
 
   <view>
     <name>Search</name>
-    <label>Search</label>
+    <label>Suche</label>
     <type>javax.help.SearchView</type>
     <data engine="com.sun.java.help.search.DefaultSearchEngine">
       JavaHelpSearch
@@ -42,7 +42,7 @@
      <name>main</name>
      <size width="700" height="500" />
      <location x="50" y="50" />
-     <title>efa - electronic Logbook: Help</title>
+     <title>efa - elektronisches Fahrtenbuch: Hilfe</title>
      <image>toplevelfolder</image>
      <toolbar>
         <helpaction>javax.help.BackAction</helpaction>

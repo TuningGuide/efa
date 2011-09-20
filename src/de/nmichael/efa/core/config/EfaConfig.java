@@ -252,6 +252,7 @@ public class EfaConfig extends StorageObject {
     private HashMap<String,IItemType> configValues; // always snychronize on this object!!
     private Vector<String> configValueNames;
     private ConfigValueUpdateThread configValueUpdateThread;
+    private EfaTypes myEfaTypes;
 
     public EfaConfig(int storageType,
             String storageLocation,
@@ -280,6 +281,20 @@ public class EfaConfig extends StorageObject {
         configValueNames = new Vector<String>();
         iniCategories();
         iniParameters(custSettings);
+    }
+
+    private void getMyEfaTypes() {
+        if (myEfaTypes != null && myEfaTypes.data().getStorageType() == data().getStorageType()) {
+            return;
+        }
+        if (data().getStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+            myEfaTypes = new EfaTypes(Daten.project.getProjectStorageType(),
+                                      Daten.project.getProjectStorageLocation(),
+                                      Daten.project.getProjectStorageUsername(),
+                                      Daten.project.getProjectStoragePassword());
+        } else {
+            myEfaTypes = Daten.efaTypes;
+        }
     }
 
     public DataRecord createNewRecord() {
@@ -352,7 +367,11 @@ public class EfaConfig extends StorageObject {
     }
 
     public boolean updateConfigValuesWithPersistence() {
-        return configValueUpdateThread.updateConfigValuesWithPersistence();
+        if (configValueUpdateThread != null) {
+            return configValueUpdateThread.updateConfigValuesWithPersistence();
+        } else {
+            return (new ConfigValueUpdateThread()).updateConfigValuesWithPersistence();
+        }
     }
 
     // initializa all category strings
@@ -792,7 +811,7 @@ public class EfaConfig extends StorageObject {
             addParameter(efaDirekt_mitgliederDuerfenReservierenZyklisch = new ItemTypeBoolean("AllowMembersBoatReservationWeekly", false,
                     IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_PERMISSIONS),
                     International.getString("Mitglieder dürfen Boote reservieren")
-                    + " (" + International.getString("einmalige Reservierungen") + ")"));
+                    + " (" + International.getString("wöchentliche Reservierungen") + ")"));
             addParameter(efaDirekt_mitgliederDuerfenReservierungenEditieren = new ItemTypeBoolean("AllowMembersBoatReservationEdit", false,
                     IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_PERMISSIONS),
                     International.getString("Mitglieder dürfen Bootsreservierungen verändern und löschen")));
@@ -1278,7 +1297,7 @@ public class EfaConfig extends StorageObject {
     }
 
     public boolean getValueEfaDirekt_mitgliederDuerfenReservieren() {
-        return efaDirekt_mitgliederDuerfenReservieren.getValue();
+        return efaDirekt_mitgliederDuerfenReservieren.getValue() || efaDirekt_mitgliederDuerfenReservierenZyklisch.getValue();
     }
 
     public boolean getValueEfaDirekt_mitgliederDuerfenReservierenZyklisch() {
@@ -1788,27 +1807,28 @@ public class EfaConfig extends StorageObject {
         }
 
         // Types
-        if (Daten.efaTypes != null) {
+        getMyEfaTypes();
+        if (myEfaTypes != null) {
             boolean changed = false;
-            if (updateTypes(Daten.efaTypes, EfaTypes.CATEGORY_GENDER, typesGender)) {
+            if (updateTypes(myEfaTypes, EfaTypes.CATEGORY_GENDER, typesGender)) {
                 changed = true;
             }
-            if (updateTypes(Daten.efaTypes, EfaTypes.CATEGORY_BOAT, typesBoat)) {
+            if (updateTypes(myEfaTypes, EfaTypes.CATEGORY_BOAT, typesBoat)) {
                 changed = true;
             }
-            if (updateTypes(Daten.efaTypes, EfaTypes.CATEGORY_NUMSEATS, typesNumSeats)) {
+            if (updateTypes(myEfaTypes, EfaTypes.CATEGORY_NUMSEATS, typesNumSeats)) {
                 changed = true;
             }
-            if (updateTypes(Daten.efaTypes, EfaTypes.CATEGORY_RIGGING, typesRigging)) {
+            if (updateTypes(myEfaTypes, EfaTypes.CATEGORY_RIGGING, typesRigging)) {
                 changed = true;
             }
-            if (updateTypes(Daten.efaTypes, EfaTypes.CATEGORY_COXING, typesCoxing)) {
+            if (updateTypes(myEfaTypes, EfaTypes.CATEGORY_COXING, typesCoxing)) {
                 changed = true;
             }
-            if (updateTypes(Daten.efaTypes, EfaTypes.CATEGORY_SESSION, typesSession)) {
+            if (updateTypes(myEfaTypes, EfaTypes.CATEGORY_SESSION, typesSession)) {
                 changed = true;
             }
-            if (updateTypes(Daten.efaTypes, EfaTypes.CATEGORY_STATUS, typesStatus)) {
+            if (updateTypes(myEfaTypes, EfaTypes.CATEGORY_STATUS, typesStatus)) {
                 changed = true;
             }
             if (changed) {
@@ -1816,6 +1836,10 @@ public class EfaConfig extends StorageObject {
                         International.getString("Folgende geänderte Einstellungen werden erst nach einem Neustart von efa wirksam:") +
                         "\n" + International.getString("Bezeichnungen"));
             }
+        }
+
+        if (data().getStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+            return; // don't allow changes to Language and especially UserDataDir!
         }
 
         // Language & efa User Data
@@ -1844,7 +1868,7 @@ public class EfaConfig extends StorageObject {
                 Daten.efaBaseConfig.writeFile();
             }
             if (changedLang) {
-                Daten.efaTypes.setToLanguage(newLang);
+                myEfaTypes.setToLanguage(newLang);
                 Dialog.infoDialog(International.getString("Geänderte Einstellungen"),
                         International.getString("Folgende geänderte Einstellungen werden erst nach einem Neustart von efa wirksam:") +
                         "\n" + International.getString("Sprache"));
@@ -1854,7 +1878,6 @@ public class EfaConfig extends StorageObject {
                         International.getString("Das geänderte Verzeichnis für Nutzerdaten wird erst nach einem Neustart von efa wirksam."));
             }
         }
-
     }
 
     public boolean setToLanguate(String lang) {
@@ -1943,7 +1966,8 @@ public class EfaConfig extends StorageObject {
     }
 
     public void buildTypes() {
-        if (Daten.efaTypes == null) {
+        getMyEfaTypes();
+        if (myEfaTypes == null) {
             return;
         }
         addParameter(typesGender = new ItemTypeHashtable<String>("_TYPES_GENDER", "", true,
@@ -1980,8 +2004,8 @@ public class EfaConfig extends StorageObject {
     }
 
     private void iniTypes(ItemTypeHashtable<String> types, String cat) {
-        String[] t = Daten.efaTypes.getTypesArray(cat);
-        String[] v = Daten.efaTypes.getValueArray(cat);
+        String[] t = myEfaTypes.getTypesArray(cat);
+        String[] v = myEfaTypes.getValueArray(cat);
         for (int i=0; i<t.length && i<v.length; i++) {
             types.put(t[i], v[i]);
         }
@@ -2030,7 +2054,7 @@ public class EfaConfig extends StorageObject {
             while (keepRunning) {
                 // sleep first, then update
                 try {
-                    Thread.sleep(60000);
+                    Thread.sleep(10000);
                 } catch (Exception e) {
                 }
                 updateConfigValuesWithPersistence();

@@ -328,6 +328,10 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         DataTypeList lrigging = getList(TYPERIGGING, IDataAccess.DATA_STRING);
         DataTypeList lcoxing = getList(TYPECOXING, IDataAccess.DATA_STRING);
 
+        // ldescription might be null because it only contains 0-length strings
+        if (ldescription == null && ltype != null && ltype.length() > 0) {
+            ldescription = DataTypeList.parseList("", IDataAccess.DATA_STRING);
+        }
         while (ldescription != null && idx >= ldescription.length()) {
             ldescription.add(""); // might be null because it only contains 0-length strings
         }        

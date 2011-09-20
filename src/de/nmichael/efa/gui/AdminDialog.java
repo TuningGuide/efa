@@ -162,11 +162,22 @@ public class AdminDialog extends BaseDialog implements IItemListener {
             String action = itemType.getName();
 
             if (action.equals(EfaMenuButton.BUTTON_EXIT)) {
-                if (admin.isAllowedExitEfa() &&
-                    Dialog.yesNoDialog(International.getString("Beenden"),
-                                       International.getString("Möchtest Du efa wirklich beenden?")) == Dialog.YES) {
-                    cancel();
-                    efaBoathouseFrame.cancel(null, EfaBoathouseFrame.EFA_EXIT_REASON_USER, admin, false);
+                if (admin.isAllowedExitEfa()) {
+                    switch(Dialog.auswahlDialog(International.getString("Beenden"),
+                                                International.getString("efa beenden oder neu starten?"),
+                                                International.getString("Beenden"),
+                                                International.getString("Neu starten"), true)) {
+                        case 0:
+                            cancel();
+                            efaBoathouseFrame.cancel(null, EfaBoathouseFrame.EFA_EXIT_REASON_USER, admin, false);
+                            break;
+                        case 1:
+                            cancel();
+                            efaBoathouseFrame.cancel(null, EfaBoathouseFrame.EFA_EXIT_REASON_USER, admin, true);
+                            break;
+                        default:
+                            return;
+                    }
                 }
                 return;
             }

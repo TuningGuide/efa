@@ -19,7 +19,7 @@
     <name>TOC</name>
     <label>Content</label>
     <type>javax.help.TOCView</type>
-    <data>efaHelpTOC.xml</data>
+    <data>efaHelpTOC_en.xml</data>
   </view>
 
   <view>

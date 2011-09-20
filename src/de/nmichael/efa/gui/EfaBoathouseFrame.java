@@ -253,6 +253,14 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         updateGuiWidgets();
     }
 
+    public void updateGuiElements() {
+        updateGuiWidgets();
+        updateGuiClock();
+        updateGuiNews();
+        updateGuiButtonText();
+        updateGuiLogo();
+    }
+
     private void iniGuiPanels() {
         widgetTopPanel.setLayout(new BorderLayout());
         widgetBottomPanel.setLayout(new BorderLayout());
@@ -699,6 +707,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         news.setText(Daten.efaConfig.getValueEfaDirekt_newsText());
         news.setScrollSpeed(Daten.efaConfig.getValueEfaDirekt_newsScrollSpeed());
         news.getGuiComponent().setVisible(Daten.efaConfig.getValueEfaDirekt_showNews());
+        if (isDisplayable()) {
+            packFrame("updateGuiNews()");
+        }
     }
 
     private void updateGuiWidgets() {
@@ -1235,11 +1246,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     public void setUnreadMessages(boolean admin, boolean boatmaintenance) {
         String iconName = "action_admin.png";
         if (admin && boatmaintenance) {
-            iconName = "mail.gif";
+            iconName = "action_admin_mailAdminBoat.png";
         } else if (admin) {
-            iconName = "mailAdmin.gif";
+            iconName = "action_admin_mailAdmin.png";
         } else if (boatmaintenance) {
-            iconName = "mailBootswart.gif";
+            iconName = "action_admin_mailBoat.png";
         }
         adminButton.setIcon(getIcon(iconName));
     }
@@ -1909,9 +1920,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         dlg.showDialog();
         efaBoathouseBackgroundTask.interrupt();
         updateBoatLists(true);
-        updateGuiWidgets();
-        updateGuiButtonText();
-        updateGuiLogo();
+        updateGuiElements();
     }
 
     void actionSpecial() {
@@ -1945,7 +1954,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
     void hilfeButton_actionPerformed(ActionEvent e) {
         clearAllPopups();
-        Help.showHelp(helpTopic);
+        Help.showHelp(getHelpTopics());
     }
 
     public void lockEfaAt(DataTypeDate date, DataTypeTime time) {

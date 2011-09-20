@@ -74,9 +74,6 @@ public class SimpleInputFrame extends JDialog implements ActionListener {
       input = null;
       cancel();
     }
-    if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
-      Help.showHelp(getClass().getCanonicalName());
-    }
   }
 
 

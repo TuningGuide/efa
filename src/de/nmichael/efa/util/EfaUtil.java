@@ -731,10 +731,10 @@ public class EfaUtil {
       return s.toString();
   }
 
-  public static String long2String(long l, int digits) {
-      StringBuilder s = new StringBuilder(digits);
+  public static String long2String(long l, int minDigits) {
+      StringBuilder s = new StringBuilder(minDigits);
       s.append(Long.toString(l));
-      while (s.length() < digits) {
+      while (s.length() < minDigits) {
           s.insert(0, "0");
       }
       return s.toString();

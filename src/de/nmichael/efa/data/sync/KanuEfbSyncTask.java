@@ -618,7 +618,7 @@ public class KanuEfbSyncTask extends ProgressTask {
                 Daten.haltProgram(Daten.HALT_MISCONFIG);
             }
             Dialog.infoDialog(msg, International.getString("Bitte vervollständige die Konfigurationseinstellungen!"));
-            EfaConfigDialog dlg = new EfaConfigDialog((JDialog)null, EfaConfig.makeCategory(EfaConfig.CATEGORY_SYNC, EfaConfig.CATEGORY_KANUEFB));
+            EfaConfigDialog dlg = new EfaConfigDialog((JDialog)null, Daten.efaConfig, EfaConfig.makeCategory(EfaConfig.CATEGORY_SYNC, EfaConfig.CATEGORY_KANUEFB));
             dlg.showDialog();
             if (!dlg.getDialogResult()) {
                 return;

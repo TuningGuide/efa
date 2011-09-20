@@ -107,9 +107,6 @@ public class DRVConfigFrame extends JDialog implements ActionListener {
     if (evt.getActionCommand().equals("KEYSTROKE_ACTION_0")) { // Escape
       cancel();
     }
-    if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
-      Help.showHelp(getClass().getCanonicalName());
-    }
   }
 
 

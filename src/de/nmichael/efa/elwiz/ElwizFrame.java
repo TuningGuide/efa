@@ -75,9 +75,6 @@ public class ElwizFrame extends JFrame {
 //    if (evt.getActionCommand().equals("KEYSTROKE_ACTION_0")) { // Escape
       // nothing
 //    }
-    if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
-      Help.showHelp(getClass().getCanonicalName());
-    }
   }
 
 
@@ -372,7 +369,6 @@ public class ElwizFrame extends JFrame {
 
 
   void jMenuItem4_actionPerformed(ActionEvent e) {
-    Help.showHelp(getClass().getCanonicalName());
   }
 
 

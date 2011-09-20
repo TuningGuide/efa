@@ -31,6 +31,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
     Calendar cal;
     Calendar lockEfa;
     boolean framePacked;
+    long lastEfaConfigScn = -1;
 
     public EfaBoathouseBackgroundTask(EfaBoathouseFrame efaBoathouseFrame) {
         this.efaBoathouseFrame = efaBoathouseFrame;
@@ -111,6 +112,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
     public void run() {
         // Diese Schleife läuft i.d.R. einmal pro Minute
         while (true) {
+            // Update GUI on Config Changes
+            checkUpdateGui();
 
             // Reservierungs-Checker
             checkBoatStatus();
@@ -162,6 +165,20 @@ public class EfaBoathouseBackgroundTask extends Thread {
         } // end: while(true)
     } // end: run
 
+    private void checkUpdateGui() {
+        if (Daten.efaConfig != null) {
+            try {
+                long scn = Daten.efaConfig.data().getSCN();
+                if (scn != lastEfaConfigScn) {
+                    efaBoathouseFrame.updateGuiElements();
+                    lastEfaConfigScn = scn;
+                }
+            } catch(Exception e) {
+                Logger.logdebug(e);
+            }
+        }
+    }
+
     private void checkBoatStatus() {
         BoatStatus boatStatus = (Daten.project != null ? Daten.project.getBoatStatus(false) : null);
         BoatReservations boatReservations = (Daten.project != null ? Daten.project.getBoatReservations(false) : null);
@@ -187,7 +204,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
                     }
 
                     if (boatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_HIDE)) {
-                        if (!boatStatusRecord.getShowInList().equals(BoatStatusRecord.STATUS_HIDE)) {
+                        if (boatStatusRecord.getShowInList() != null && !boatStatusRecord.getShowInList().equals(BoatStatusRecord.STATUS_HIDE)) {
                             boatStatusRecord.setShowInList(null);
                             boatStatus.data().update(boatStatusRecord);
                             listChanged = true;

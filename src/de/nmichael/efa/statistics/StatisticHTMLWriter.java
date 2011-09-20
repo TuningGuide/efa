@@ -63,6 +63,10 @@ public class StatisticHTMLWriter extends StatisticWriter {
             // Start des eigentlichen Bereichs
             f.write("<!--EFA-START-->\n");
 
+            if (sr.sStatisticType == StatisticsRecord.StatisticTypes.competition) {
+                f.write("<p align=\"center\"><b style=\"color:red\">Wettbewerbsauswertungen sind derzeit noch nicht möglich.<br>Ich bitte vielmals um Entschuldigung!<br>In Kürze werden die Auswertungen wieder zur Verfügung stehen!</b><p>\n");
+            }
+
             f.write("<table align=\"center\" border>\n");
             f.write("<tr>");
             // Ausgabe des efa-Logos
@@ -215,33 +219,44 @@ public class StatisticHTMLWriter extends StatisticWriter {
             */
 
             // Auswertung normaler Einträge
-            //if (sr.tableColumns != null) {
+            if (sr.pTableColumns != null && sr.pTableColumns.size() > 0) {
+                StatisticsData sdMaximum = sd[sd.length-1]; // Maximum is always last
+                if (!sdMaximum.isMaximum) {
+                    sdMaximum = null;
+                }
                 f.write("<table align=\"center\" bgcolor=\"#ffffff\" border>\n<tr>\n");
-                /*
-                for (int i = 0; i < sr.tableColumns.length; i++) {
-                    f.write("<th" + (ad.tabellenTitelBreite != null ? " colspan=\"" + ad.tabellenTitelBreite[i] + "\"" : "") + ">" + ad.tabellenTitel[i] + "</th>");
+                for (int i=0; i<sr.pTableColumns.size(); i++) {
+                    //f.write("<th" + (ad.tabellenTitelBreite != null ? " colspan=\"" + ad.tabellenTitelBreite[i] + "\"" : "") + ">" + ad.tabellenTitel[i] + "</th>");
+                    f.write("<th>" + sr.pTableColumns.get(i) + "</th>");
                 }
                 f.write("</tr>\n");
-                */
 
                 // Einträge auswerten
                 for (int i=0; i<sd.length; i++) {
+                    if (sd[i].isMaximum) {
+                        continue;
+                    }
                     if (!sd[i].isSummary) {
                         f.write("<tr bgcolor=\"" + (sd[i].absPosition % 2 == 0 ? "#eeeeff" : "#ccccff") + "\">");
                     } else {
                         f.write("<tr>");
                     }
-                    outHTML(f, Integer.toString(sd[i].position) + ".", false, null);
-                    outHTML(f, sd[i].text, false, null);
-                    if (sr.sIsAggrDistance) {
-                        outHTML(f, DataTypeDistance.getDistance(sd[i].distance).getValueInKilometers(true), false, null);
-                    }
-                    if (sr.sIsAggrSessions) {
-                        outHTML(f, Long.toString(sd[i].sessions), false, null);
-                    }
+                    
+                    outHTML(f, sd[i].sPosition, true, null);
+                    outHTML(f, sd[i].sName, false, null);
+                    outHTML(f, sd[i].sStatus, false, null);
+                    outHTML(f, sd[i].sYearOfBirth, false, null);
+                    outHTML(f, sd[i].sBoatType, false, null);
+                    outHTML(f, sd[i].sDistance, sd[i].distance,
+                            (sdMaximum != null && !sd[i].isSummary ? sdMaximum.distance : 0),
+                            "blue", sr.sAggrDistanceBarSize);
+                    outHTML(f, sd[i].sSessions, sd[i].sessions,
+                            (sdMaximum != null && !sd[i].isSummary ? sdMaximum.sessions : 0),
+                            "red", sr.sAggrSessionsBarSize);
+                    outHTML(f, sd[i].sAvgDistance, sd[i].avgDistance,
+                            (sdMaximum != null && !sd[i].isSummary ? sdMaximum.avgDistance : 0),
+                            "green", sr.sAggrAvgDistanceBarSize);
                     /*
-                    outHTML(f, ae.status, false, null);
-                    outHTML(f, ae.bezeichnung, false, null);
                     outHTML(f, ae.anzversch, false, null);
                     outHTMLgra(f, ae, ae.km, ae.colspanKm);
                     outHTMLgra(f, ae, ae.rudkm, ae.colspanRudKm);
@@ -277,7 +292,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
                 }
 
                 f.write("</table>\n");
-            //}
+            }
 
             /*
             // Zusatzdaten
@@ -339,7 +354,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
         return true;
     }
 
-    static void outHTML(BufferedWriter f, String s, boolean right, String color) throws IOException {
+    void outHTML(BufferedWriter f, String s, boolean right, String color) throws IOException {
         if (s != null) {
             f.write("<td"
                     + (color != null ? " bgcolor=\"#" + color + "\"" : "")
@@ -347,6 +362,23 @@ public class StatisticHTMLWriter extends StatisticWriter {
                     + ">"
                     + (s.length() > 0 ? s : "&nbsp;")
                     + "</td>\n");
+        }
+    }
+
+    void outHTML(BufferedWriter f, String s, long value, long maximum, String colorBar, long barSize) throws IOException {
+        if (s != null) {
+            f.write("<td" + (colorBar == null || barSize == 0 ? " align=\"right\"" : "") + ">");
+            if (colorBar != null && barSize != 0 && value != 0 && maximum > 0) {
+                long width = value*barSize / maximum;
+                if (width <= 0) {
+                    width = 1;
+                }
+                f.write("<img src=\"" + saveImage("color_" + colorBar + ".gif", "gif", sr.sOutputDir) + "\" width=\"" + width + "\" height=\"20\" alt=\"\">&nbsp;");
+            }
+            if (s.length() > 0) {
+                f.write(s);
+            }
+            f.write("</td>\n");
         }
     }
 

@@ -110,6 +110,13 @@ public class DataTypeDistance {
         return "";
     }
 
+    public String getAsFormattedString() {
+        if (isSet()) {
+            return value.getAsFormattedString() + " " + unit;
+        }
+        return "";
+    }
+
     public boolean isSet() {
         return value != null && unit != null && value.isSet();
     }
@@ -149,6 +156,18 @@ public class DataTypeDistance {
             }
         }
         return International.getString("Kilometer");
+    }
+
+    public static String getDefaultUnitAbbrevation() {
+        if (Daten.efaConfig != null) {
+            if (Daten.efaConfig.getValueDefaultDistanceUnit().equals(KILOMETERS)) {
+                return International.getString("km");
+            }
+            if (Daten.efaConfig.getValueDefaultDistanceUnit().equals(KILOMETERS)) {
+                return International.getString("mi");
+            }
+        }
+        return International.getString("km");
     }
 
     public static String getAllUnitAbbrevationsAsString(boolean withWordOther) {
@@ -195,12 +214,20 @@ public class DataTypeDistance {
     }
 
     public String getValueInKilometers() {
-        return getValueInKilometers(false);
+        return getValueInKilometers(false, false, 3, 3);
     }
 
-    public String getValueInKilometers(boolean withUnit) {
+    public String getValueInKilometers(boolean withUnit, boolean formatted) {
+        return getValueInKilometers(withUnit, formatted, 3, 3);
+    }
+
+    public String getValueInKilometers(boolean withUnit, int minDecimalPlaces, int maxDecimalPlaces) {
+        return getValueInKilometers(withUnit, true, minDecimalPlaces, maxDecimalPlaces);
+    }
+
+    private String getValueInKilometers(boolean withUnit, boolean formatted, int minDecimalPlaces, int maxDecimalPlaces) {
         DataTypeDecimal d = new DataTypeDecimal(getValueInMeters(), 3);
-        return d.toString() + (withUnit ? " " + KILOMETERS : "");
+        return (formatted ? d.getAsFormattedString(minDecimalPlaces, maxDecimalPlaces) : d.toString()) + (withUnit ? " " + KILOMETERS : "");
     }
 
     public long getValueInDefaultUnit() {

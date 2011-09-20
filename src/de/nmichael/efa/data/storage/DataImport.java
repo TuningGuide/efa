@@ -119,34 +119,34 @@ public class DataImport extends ProgressTask {
 
     private void updateRecord(DataRecord r) {
         try {
-            if (!versionized || updMode.equals(UPDMODE_UPDATEVALIDVERSION)) {
-                DataRecord rorig = (versionized ?
-                    dataAccess.getValidAt(r.getKey(), validAt) :
-                    dataAccess.get(r.getKey()) );
-                if (rorig == null) {
-                    logImportFailed(r, International.getString("Keine gültige Version des Datensatzes gefunden"));
-                } else {
-                    for (int i = 0; i < fields.length; i++) {
-                        Object o = r.get(fields[i]);
-                        if (o != null
-                                && !r.isKeyField(fields[i])
-                                && !fields[i].equals(DataRecord.LASTMODIFIED)
-                                && !fields[i].equals(DataRecord.VALIDFROM)
-                                && !fields[i].equals(DataRecord.INVALIDFROM)
-                                && !fields[i].equals(DataRecord.INVISIBLE)
-                                && !fields[i].equals(DataRecord.INVISIBLE)) {
-                            rorig.set(fields[i], o);
-                        }
-                    }
-                    dataAccess.update(rorig);
-                    setCurrentWorkDone(++importCount);
+            DataRecord rorig = (versionized
+                    ? dataAccess.getValidAt(r.getKey(), validAt)
+                    : dataAccess.get(r.getKey()));
+            if (rorig == null) {
+                logImportFailed(r, International.getString("Keine gültige Version des Datensatzes gefunden"));
+                return;
+            }
+            for (int i = 0; i < fields.length; i++) {
+                Object o = r.get(fields[i]);
+                if (o != null
+                        && !r.isKeyField(fields[i])
+                        && !fields[i].equals(DataRecord.LASTMODIFIED)
+                        && !fields[i].equals(DataRecord.VALIDFROM)
+                        && !fields[i].equals(DataRecord.INVALIDFROM)
+                        && !fields[i].equals(DataRecord.INVISIBLE)
+                        && !fields[i].equals(DataRecord.DELETED)) {
+                    rorig.set(fields[i], o);
                 }
             }
-            if (versionized && updMode.equals(UPPMODE_CREATENEWVERSION)) {
-                dataAccess.addValidAt(r, validAt);
+
+            if (!versionized || updMode.equals(UPDMODE_UPDATEVALIDVERSION)) {
+                dataAccess.update(rorig);
                 setCurrentWorkDone(++importCount);
             }
-
+            if (versionized && updMode.equals(UPPMODE_CREATENEWVERSION)) {
+                dataAccess.addValidAt(rorig, validAt);
+                setCurrentWorkDone(++importCount);
+            }
         } catch (Exception e) {
             logImportFailed(r, e.toString());
         }
@@ -237,6 +237,10 @@ public class DataImport extends ProgressTask {
             BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(filename), encoding));
             String s;
             while ( (s = f.readLine()) != null) {
+                s = s.trim();
+                if (s.length() == 0)  {
+                    continue;
+                }
                 Vector<String> fields = splitFields(s);
                 if (fields.size() > 0) {
                     if (linecnt == 0) {
@@ -272,10 +276,7 @@ public class DataImport extends ProgressTask {
 
     public void run() {
         setRunning(true);
-        try {
-            Thread.sleep(1000);
-        } catch(Exception e) {
-        }
+        this.logInfo(International.getString("Importiere Datensätze ..."));
         if (isXmlFile(filename)) {
             runXmlImport();
         } else {

@@ -292,7 +292,11 @@ public class Logger {
     // Help System
     public static final String MSG_HELP_ERRORHELPSET = "HLP001";
     public static final String MSG_HELP_ERRORHELPBROKER = "HLP002";
-    public static final String MSG_HELP_DEBUGHELPTOPIC = "HLP003";
+    public static final String MSG_HELP_DEBUGHELPTOPICFRAMEOPENED = "HLP003";
+    public static final String MSG_HELP_DEBUGHELPTOPICTRYHELP = "HLP004";
+    public static final String MSG_HELP_DEBUGHELPTOPICTNOTFOUND = "HLP005";
+    public static final String MSG_HELP_DEBUGHELPTOPICFALLBACK = "HLP006";
+    public static final String MSG_HELP_DEBUGHELPTOPICSHOWHELP = "HLP007";
     // Synchronization
     public static final String MSG_SYNC_ERRORCONFIG = "SNC001";
     public static final String MSG_SYNC_SYNCINFO = "SNC002";
@@ -481,9 +485,6 @@ public class Logger {
     }
 
     public static void logdebug(Exception e) {
-        //if (!isTraceOn(TT_EXCEPTIONS)) {
-        //    return;
-        //}
         log(DEBUG, MSG_DEBUG_IGNOREDEXCEPTION, e);
     }
 
@@ -503,7 +504,9 @@ public class Logger {
         }
         log(type, key, s.toString());
         EfaErrorPrintStream.ignoreExceptions = true;
-        e.printStackTrace();
+        if (!DEBUG.equals(type) || isTraceOn(TT_EXCEPTIONS)) {
+            e.printStackTrace();
+        }
         EfaErrorPrintStream.ignoreExceptions = false;
     }
 

@@ -112,6 +112,9 @@ public class DataEditDialog extends BaseDialog {
         Vector<IItemType> v = cat2items.get( (selectedPanel != null ? selectedPanel : cats[0]));
         for (int i=0; v != null && i<v.size(); i++) {
             if (!(v.get(i) instanceof ItemTypeLabel) && v.get(i).isVisible() && v.get(i).isEnabled()) {
+                if (v.get(i) instanceof ItemTypeLabelTextfield && !v.get(i).isEditable()) {
+                    break;
+                }
                 setRequestFocus(v.get(i));
                 break;
             }

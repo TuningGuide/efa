@@ -4,6 +4,6 @@
          "http://java.sun.com/products/javahelp/map_1_0.dtd">
 
 <map version="1.0">
-        <mapID target="default" url="main/index.html" />
-        <mapID target="de.nmichael.efa.gui.EfaConfigFrame" url="gui/EfaConfigFrame.html.en" />
+        <mapID target="default" url="main/index_en.html" />
+        <mapID target="de.nmichael.efa.gui.EfaConfigDialog" url="gui/EfaConfigDialog_en.html" />
 </map>

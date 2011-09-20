@@ -56,4 +56,12 @@ public class MessageEditDialog extends UnversionizedDataEditDialog {
         // @todo (P4) add a "print message" button
     }
 
+    public void updateGui() {
+        super.updateGui();
+        if (newRecord && getItem(MessageRecord.FROM) != null) {
+            this.setRequestFocus(getItem(MessageRecord.FROM));
+        }
+    }
+
+
 }

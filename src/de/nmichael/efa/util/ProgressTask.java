@@ -87,6 +87,7 @@ public abstract class ProgressTask extends Thread {
     }
 
     public void setCurrentWorkDone(int i) {
+        this.currentWorkDone = i;
         progressDialog.setCurrentWorkDone(i);
     }
 

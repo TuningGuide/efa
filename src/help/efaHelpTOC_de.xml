@@ -9,9 +9,9 @@
    <tocitem text="Einführung" target="t1"/>
 
    <tocitem text="Tutorial" target="t2" expand="true">
-       <tocitem text="Einführung in efa" target="t3"/>
-       <tocitem text="Kapitel 1: Fahrtenbücher verwalten" target="t4"/>
-       <tocitem text="Kapitel 2: Statistiken erstellen" target="t5"/>
+       <tocitem text="Einführung in efa (@dummy)" target="t3"/>
+       <tocitem text="Kapitel 1: Fahrtenbücher verwalten (@dummy)" target="t4"/>
+       <tocitem text="Kapitel 2: Statistiken erstellen (@dummy)" target="t5"/>
    </tocitem>
 
 </tocitem>

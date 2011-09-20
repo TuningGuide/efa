@@ -81,9 +81,6 @@ public class SimpleSelectFrame extends JDialog implements ActionListener {
       resultID = -1;
       cancel();
     }
-    if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
-      Help.showHelp(getClass().getCanonicalName());
-    }
   }
 
 

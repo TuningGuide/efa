@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='ISO-8859-1'  ?>
+
+<!DOCTYPE toc
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN"
+         "http://java.sun.com/products/javahelp/toc_2_0.dtd">
+<toc version="2.0">
+<tocitem text="efa - electronic Logbook" image="toplevelfolder">
+
+   <tocitem text="Einführung" target="t1"/>
+
+   <tocitem text="Introduction" target="t2" expand="true">
+       <tocitem text="Introduction to efa (@dummy)" target="t3"/>
+       <tocitem text="Chapter 1: Logbook administration (@dummy)" target="t4"/>
+       <tocitem text="Chapter 2: Statistics creation (@dummy)" target="t5"/>
+   </tocitem>
+
+</tocitem>
+</toc>

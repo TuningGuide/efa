@@ -38,6 +38,7 @@ public class Statistics extends StorageObject {
     public StatisticsRecord createStatisticsRecord(UUID id) {
         StatisticsRecord r = new StatisticsRecord(this, MetaData.getMetaData(DATATYPE));
         r.setId(id);
+        r.setDefaults();
         return r;
     }
 
@@ -67,6 +68,7 @@ public class Statistics extends StorageObject {
             assertFieldNotEmpty(record, StatisticsRecord.ID);
             assertFieldNotEmpty(record, StatisticsRecord.NAME);
             assertUnique(record, StatisticsRecord.NAME);
+            assertUnique(record, StatisticsRecord.POSITION);
         }
     }
 

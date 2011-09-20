@@ -115,18 +115,42 @@ public class DataTypeDecimal {
         normalize();
     }
 
-    public String toString() {
+    private String toString(boolean formatted, int minDecimalPlaces, int maxDecimalPlaces) {
         if (isSet()) {
-            if (decimalPlaces == 0) {
+            if (decimalPlaces == 0 && minDecimalPlaces == 0) {
                 return Long.toString(value);
             }
             long precision = 1;
             for (int i=0; i<decimalPlaces; i++) {
                 precision *= 10;
             }
-            return Long.toString(value / precision) + "." + EfaUtil.long2String(value % precision, decimalPlaces);
+            char decimalSep = (formatted ? International.getDecimalSeparator() : '.');
+            if (decimalSep != '.' && decimalSep != ',') {
+                decimalSep = '.';
+            }
+            long fraction = value % precision;
+            if (maxDecimalPlaces < decimalPlaces) {
+                long precisionDiff = 1;
+                for (int i = maxDecimalPlaces; i < decimalPlaces; i++) {
+                    precisionDiff *= 10;
+                }
+                fraction = fraction / precisionDiff;
+            }
+            return Long.toString(value / precision) + decimalSep + EfaUtil.long2String(fraction, minDecimalPlaces);
         }
         return "";
+    }
+
+    public String toString() {
+        return toString(false, decimalPlaces, decimalPlaces);
+    }
+
+    public String getAsFormattedString() {
+        return toString(true, decimalPlaces, decimalPlaces);
+    }
+
+    public String getAsFormattedString(int minDecimalPlaces, int maxDecimalPlaces) {
+        return toString(true, minDecimalPlaces, maxDecimalPlaces);
     }
 
     public boolean isSet() {

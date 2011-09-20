@@ -12,14 +12,15 @@ package de.nmichael.efa.gui.util;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.data.Logbook;
+import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.sync.KanuEfbSyncTask;
 import de.nmichael.efa.gui.*;
 import de.nmichael.efa.gui.dataedit.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.Help;
 import de.nmichael.efa.util.International;
-import java.awt.Dialog.ModalExclusionType;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ImageIcon;
@@ -584,7 +585,28 @@ public class EfaMenuButton {
                 insufficientRights(admin, action);
                 return false;
             }
-            EfaConfigDialog dlg = (parentFrame != null ? new EfaConfigDialog(parentFrame) : new EfaConfigDialog(parentDialog));
+            EfaConfig myEfaConfig = Daten.efaConfig;
+            if (Daten.project != null && Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+                switch(Dialog.auswahlDialog(International.getString("Konfiguration"),
+                                            International.getString("Lokale oder remote Konfiguration bearbeiten?"),
+                                            International.getString("lokal"),
+                                            International.getString("remote"),
+                                            true)) {
+                    case 0:
+                        break;
+                    case 1:
+                        myEfaConfig = new EfaConfig(Daten.project.getProjectStorageType(),
+                                                    Daten.project.getProjectStorageLocation(),
+                                                    Daten.project.getProjectStorageUsername(),
+                                                    Daten.project.getProjectStoragePassword());
+                        myEfaConfig.updateConfigValuesWithPersistence();
+                        break;
+                    default:
+                        return false;
+                }
+            }
+
+            EfaConfigDialog dlg = (parentFrame != null ? new EfaConfigDialog(parentFrame, myEfaConfig) : new EfaConfigDialog(parentDialog, myEfaConfig));
             dlg.showDialog();
         }
 
@@ -645,7 +667,7 @@ public class EfaMenuButton {
         }
 
         if (action.equals(BUTTON_HELP)) {
-            Help.showHelp((parentFrame != null ? parentFrame.getHelpTopic() : parentDialog.getHelpTopic()));
+            Help.showHelp((parentFrame != null ? parentFrame.getHelpTopics() : parentDialog.getHelpTopics()));
         }
 
         if (action.equals(BUTTON_MESSAGES)) {

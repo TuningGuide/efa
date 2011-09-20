@@ -46,7 +46,7 @@ public class RemoteEfaClient extends DataAccess {
     }
 
     public int getStorageType() {
-        return IDataAccess.TYPE_FILE_XML;
+        return IDataAccess.TYPE_EFA_REMOTE;
     }
 
     public String getUID() {

@@ -14,6 +14,7 @@ import java.util.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.gui.*;
@@ -29,12 +30,54 @@ public class StatisticTask extends ProgressTask {
     private Persons persons = Daten.project.getPersons(false);
     private Boats boats = Daten.project.getBoats(false);
 
+    // values from current logbook entry
+    private DataTypeIntString entryNo;
+    private DataTypeDate entryDate;
+    private DataTypeDate entryEndDate;
+    private long entryValidAt;
+    private UUID entryBoatId;
+    private BoatRecord entryBoatRecord;
+    private String entryBoatName;
+    private String entryBoatType;
+    private String entryBoatSeats;
+    private String entryBoatRigging;
+    private String entryBoatCoxing;
+    private UUID entryPersonId;
+    private PersonRecord entryPersonRecord;
+    private String entryPersonName;
+    private UUID entryPersonStatusId;
+    private String entryPersonGender;
+    private DestinationRecord entryDestination;
+    private String entrySessionType;
+
+
 
     private StatisticTask(StatisticsRecord[] statisticsRecords) {
         this.statisticsRecords = statisticsRecords;
     }
 
-    private void calculateAggregations(LogbookRecord r, Object key, int crewPos) {
+    private void resetEntryValues() {
+        entryNo = null;
+        entryDate = null;
+        entryEndDate = null;
+        entryValidAt = -1;
+        entryBoatId = null;
+        entryBoatRecord = null;
+        entryBoatName = null;
+        entryBoatType = null;
+        entryBoatSeats = null;
+        entryBoatRigging = null;
+        entryBoatCoxing = null;
+        entryPersonId = null;
+        entryPersonRecord = null;
+        entryPersonName = null;
+        entryPersonStatusId = null;
+        entryPersonGender = null;
+        entryDestination = null;
+        entrySessionType = null;
+    }
+
+    private void calculateAggregations(LogbookRecord r, Object key) {
         if (key == null) {
             return;
         }
@@ -43,7 +86,7 @@ public class StatisticTask extends ProgressTask {
             sd = new StatisticsData();
             sd.key = key;
         }
-        
+
         if (sr.sIsAggrDistance || sr.sIsAggrAvgDistance) {
             sd.distance += r.getDistance().getValueInDefaultUnit();
         }
@@ -55,9 +98,12 @@ public class StatisticTask extends ProgressTask {
     }
 
     private void calculateEntry(LogbookRecord r) {
+        resetEntryValues();
+        getEntryBasic(r);
         if (!isInRange(r) ||
             !isInFilter(r) ||
             r.getSessionIsOpen()) {
+
             return;
         }
 
@@ -65,21 +111,18 @@ public class StatisticTask extends ProgressTask {
         sr.cNumberOfEntries++;
 
         // update date range of evaluated entries
-        DataTypeDate date = r.getDate();
-        if (date != null && date.isSet()) {
-            if (sr.cEntryDateFirst == null || date.isBefore(sr.cEntryDateFirst)) {
-                sr.cEntryDateFirst = date;
+        if (entryDate != null && entryDate.isSet()) {
+            if (sr.cEntryDateFirst == null || entryDate.isBefore(sr.cEntryDateFirst)) {
+                sr.cEntryDateFirst = entryDate;
             }
-            if (sr.cEntryDateLast == null || date.isAfter(sr.cEntryDateLast)) {
-                sr.cEntryDateLast = date;
+            if (sr.cEntryDateLast == null || entryDate.isAfter(sr.cEntryDateLast)) {
+                sr.cEntryDateLast = entryDate;
             }
-            date = r.getEndDate();
-            if (date != null && date.isSet() && (sr.cEntryDateLast == null || date.isAfter(sr.cEntryDateLast))) {
-                sr.cEntryDateLast = date;
+            if (entryEndDate != null && entryEndDate.isSet() && (sr.cEntryDateLast == null || entryEndDate.isAfter(sr.cEntryDateLast))) {
+                sr.cEntryDateLast = entryEndDate;
             }
         }
 
-        DataTypeIntString entryNo = r.getEntryId();
         if (entryNo != null) {
             if (sr.cEntryNoFirst == null || entryNo.intValue() < sr.cEntryNoFirst.intValue()) {
                 sr.cEntryNoFirst = entryNo;
@@ -89,60 +132,145 @@ public class StatisticTask extends ProgressTask {
             }
         }
 
-        long validAt = r.getValidAtTimestamp();
         switch(sr.sStatisticType) {
             case persons:
                 for (int i=0; i<LogbookRecord.CREW_MAX; i++) {
-                    UUID id = r.getCrewId(i);
-                    PersonRecord p = persons.getPerson(id, validAt);
-                    if (isInPersonFilter(p, (id == null ? r.getCrewName(i) : null))) {
-                        if (id != null) {
-                            calculateAggregations(r, id, i);
+                    getEntryPerson(r, i);
+                    if (isInPersonFilter()) {
+                        if (entryPersonId != null) {
+                            calculateAggregations(r, entryPersonId);
                         } else {
-                            calculateAggregations(r, r.getCrewName(i), i);
+                            if (entryPersonName != null) {
+                                calculateAggregations(r, entryPersonName);
+                            }
                         }
                     }
                 }
                 break;
             case boats:
-
+                if (entryBoatId != null) {
+                    calculateAggregations(r, entryBoatId);
+                } else {
+                    if (entryBoatName != null) {
+                        calculateAggregations(r, entryBoatName);
+                    }
+                }
+                break;
+            case competition:
+                break;
         }
     }
 
+    private void getEntryBasic(LogbookRecord r) {
+        entryNo = r.getEntryId();
+        entryValidAt = r.getValidAtTimestamp();
+    }
+    
+    private void getEntryDates(LogbookRecord r) {
+        entryDate = r.getDate();
+        entryEndDate = r.getEndDate();        
+    }
+
+    private void getEntrySessionType(LogbookRecord r) {
+        entrySessionType = r.getSessionType();
+        if (entrySessionType == null) {
+            entrySessionType = EfaTypes.TYPE_SESSION_NORMAL;
+        }
+    }
+
+    private void getEntryBoat(LogbookRecord r) {
+        entryBoatId = r.getBoatId();
+        entryBoatRecord = (entryBoatId != null ? boats.getBoat(entryBoatId, entryValidAt) : null);
+        entryBoatName = (entryBoatId != null ? null : r.getBoatName());
+        int boatVariant = r.getBoatVariant();
+        int vidx = -1;
+        if (entryBoatRecord != null) {
+            if (entryBoatRecord.getNumberOfVariants() == 1) {
+                vidx = 0;
+            } else {
+                vidx = entryBoatRecord.getVariantIndex(boatVariant);
+            }
+        }
+        if (vidx >= 0) {
+            entryBoatType = entryBoatRecord.getTypeType(vidx);
+            entryBoatSeats = entryBoatRecord.getTypeSeats(vidx);
+            entryBoatRigging = entryBoatRecord.getTypeRigging(vidx);
+            entryBoatCoxing = entryBoatRecord.getTypeCoxing(vidx);
+        }
+        if (entryBoatType == null) {
+            entryBoatType = EfaTypes.TYPE_BOAT_OTHER;
+        }
+        if (entryBoatSeats == null) {
+            entryBoatSeats = EfaTypes.TYPE_NUMSEATS_OTHER;
+        }
+        if (entryBoatRigging == null) {
+            entryBoatRigging = EfaTypes.TYPE_RIGGING_OTHER;
+        }
+        if (entryBoatCoxing == null) {
+            entryBoatCoxing = EfaTypes.TYPE_COXING_OTHER;
+        }
+    }
+
+    private void getEntryPerson(LogbookRecord r, int pos) {
+        entryPersonId = r.getCrewId(pos);
+        entryPersonRecord = (entryPersonId != null ? persons.getPerson(entryPersonId, entryValidAt) : null);
+        entryPersonName = (entryPersonId != null ? null : r.getCrewName(pos));
+        entryPersonStatusId = (entryPersonRecord != null ? entryPersonRecord.getStatusId() : null);
+        entryPersonGender = (entryPersonRecord != null ? entryPersonRecord.getGender() : null);
+    }
+
     private boolean isInRange(LogbookRecord r) {
-        DataTypeDate d1 = r.getDate();
-        DataTypeDate d2 = r.getEndDate();
-        if (d1 == null || !d1.isSet()) {
+        getEntryDates(r);
+        if (entryDate == null || !entryDate.isSet()) {
             return false;
         }
-        if (d2 == null || !d2.isSet()) {
-            return d1.isInRange(sr.sStartDate, sr.sEndDate);
+        if (entryEndDate == null || !entryEndDate.isSet()) {
+            return entryDate.isInRange(sr.sStartDate, sr.sEndDate);
         } else {
-            return d1.isInRange(sr.sStartDate, sr.sEndDate) && // both start *and* end date must be in range!
-                   d2.isInRange(sr.sStartDate, sr.sEndDate);
+            return entryDate.isInRange(sr.sStartDate, sr.sEndDate) && // both start *and* end date must be in range!
+                   entryEndDate.isInRange(sr.sStartDate, sr.sEndDate);
         }
     }
 
     private boolean isInFilter(LogbookRecord r) {
+        getEntrySessionType(r);
+        if (!sr.sFilterSessionType.containsKey(entrySessionType)) {
+            return false;
+        }
+
+        getEntryBoat(r);
+        if (!sr.sFilterBoatType.containsKey(entryBoatType) ||
+            !sr.sFilterBoatSeats.containsKey(entryBoatSeats) ||
+            !sr.sFilterBoatRigging.containsKey(entryBoatRigging) ||
+            !sr.sFilterBoatCoxing.containsKey(entryBoatCoxing)) {
+            return false;
+        }
+
         return true;
     }
 
-    private boolean isInPersonFilter(PersonRecord p, String name) {
-        if (p != null) {
+    private boolean isInPersonFilter() {
+        if (entryPersonRecord != null) {
             // known person
-            UUID statusID = p.getStatusId();
-            if (statusID == null || !sr.sFilterStatus.contains(statusID)) {
+            if (entryPersonStatusId == null || !sr.sFilterStatus.containsKey(entryPersonStatusId)) {
+                return false;
+            }
+            if (entryPersonGender == null || !sr.sFilterGender.containsKey(entryPersonGender)) {
                 return false;
             }
             return true;
         } else {
             // unknown person
-            if (name == null) {
+            if (entryPersonName == null) {
                 return false;
             }
-            
+            if (!sr.sFilterStatusOther) {
+                return false;
+            }
+            if (sr.sFilterGender.size() != 2) {
+                return false; // both MALE and FEMALE must be selected
+            }
             return true;
-
         }
     }
 
@@ -173,49 +301,110 @@ public class StatisticTask extends ProgressTask {
 
     private StatisticsData[] runPostprocessing() {
         logInfo(International.getString("Aufbereiten der Daten") + " ...\n");
+        int workBeforePostprocessing = this.getCurrentWorkDone();
+
+        String statusOtherText;
+        try {
+            statusOtherText = persons.getProject().getStatus(false).getStatusOther().getQualifiedName();
+        } catch(Exception eignore) {
+            statusOtherText = International.getString("andere");
+        }
+
+
+        StatisticsData sdSummary = new StatisticsData();
+        sdSummary.isSummary = true;
+        sdSummary.sName = "--- " + International.getString("gesamt") + " (" + data.size() + ") ---";
+        StatisticsData sdMaximum = new StatisticsData();
+        sdMaximum.isMaximum = true;
+
         Object[] keys = data.keySet().toArray();
         for (int i=0; i<keys.length; i++) {
             StatisticsData sd = data.get(keys[i]);
+            boolean isUUID = false;
             switch(sr.sStatisticType) {
                 case persons:
+                    PersonRecord pr = null;
                     if (sd.key instanceof UUID) {
-                        PersonRecord pr = persons.getPerson((UUID) sd.key, sr.sTimestampBegin, sr.sTimestampEnd, sr.sValidAt);
-                        if (pr != null) {
-                            sd.text = pr.getQualifiedName();
-                        } else {
-                            sd.text = "*** " + International.getString("ungültiger Eintrag") + " ***";
+                        pr = persons.getPerson((UUID) sd.key, sr.sTimestampBegin, sr.sTimestampEnd, sr.sValidAt);
+                        isUUID = true;
+                    }
+                    if (sr.sIsFieldsName) {
+                        sd.sName = (pr != null ? pr.getQualifiedName() : 
+                            (isUUID ? "*** " + International.getString("ungültiger Eintrag") + " ***" : sd.key.toString()));
+                    }
+                    if (sr.sIsFieldsStatus) {
+                        sd.sStatus = (pr != null ? pr.getStatusName() : statusOtherText);
+                    }
+                    if (sr.sIsFieldsYearOfBirth) {
+                        DataTypeDate birthday = (pr != null ? pr.getBirthday() : null);
+                        if (birthday != null && birthday.isSet()) {
+                            sd.sYearOfBirth = Integer.toString(birthday.getYear());
                         }
-                    } else {
-                        sd.text = sd.key.toString();
                     }
                     break;
                 case boats:
+                    BoatRecord br = null;
                     if (sd.key instanceof UUID) {
-                        BoatRecord br = boats.getBoat((UUID) sd.key, sr.sTimestampBegin, sr.sTimestampEnd, sr.sValidAt);
-                        if (br != null) {
-                            sd.text = br.getQualifiedName();
-                        } else {
-                            sd.text = "*** " + International.getString("ungültiger Eintrag") + " ***";
-                        }
-                    } else {
-                        sd.text = sd.key.toString();
+                        br = boats.getBoat((UUID) sd.key, sr.sTimestampBegin, sr.sTimestampEnd, sr.sValidAt);
+                        isUUID = true;
+                    }
+                    if (sr.sIsFieldsName) {
+                        sd.sName = (br != null ? br.getQualifiedName() :
+                            (isUUID ? "*** " + International.getString("ungültiger Eintrag") + " ***" : sd.key.toString()));
+                    }
+                    if (sr.sIsFieldsBoatType) {
+                        sd.sBoatType = (br != null ? br.getDetailedBoatType(0) : Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, EfaTypes.TYPE_BOAT_OTHER));
                     }
                     break;
             }
-        }
 
-        StatisticsData[] sdArray = new StatisticsData[keys.length];
+            // Calculate Summary and Maximum
+            sdSummary.updateSummary(sd);
+            sdMaximum.updateMaximum(sd);
+        }
+        setCurrentWorkDone(workBeforePostprocessing + (WORK_POSTPROCESSING/5)*1);
+
+        // Create Array and sort
+        StatisticsData[] sdArray = new StatisticsData[keys.length + 2];
         for (int i=0; i<keys.length; i++) {
             sdArray[i] = data.get(keys[i]);
         }
-        Arrays.sort(sdArray);
+        Arrays.sort(sdArray, 0, keys.length);
+        sdArray[sdArray.length - 2] = sdSummary;
+        sdArray[sdArray.length - 1] = sdMaximum;
+        setCurrentWorkDone(workBeforePostprocessing + (WORK_POSTPROCESSING/5)*2);
+
+        // Calculate String Output Values
         for (int i=0; i<sdArray.length; i++) {
             sdArray[i].absPosition = i;
-            sdArray[i].position = i+1;
+            if (sr.sIsFieldsPosition) {
+                if (!sdArray[i].isMaximum && !sdArray[i].isSummary) {
+                    sdArray[i].sPosition = (i>0 && sdArray[i].getMainAggregationValue() == sdArray[i-1].getMainAggregationValue() ? sdArray[i-1].sPosition : Integer.toString(i+1) + ".");
+                } else {
+                    sdArray[i].sPosition = "";
+                }
+            }
+            if (sr.sIsAggrDistance) {
+                sdArray[i].sDistance = DataTypeDistance.getDistance(sdArray[i].distance).getValueInKilometers(true, 0, 1);
+            }
+            if (sr.sIsAggrSessions) {
+                sdArray[i].sSessions = Long.toString(sdArray[i].sessions);
+            }
+            if (sr.sIsAggrAvgDistance) {
+                if (sdArray[i].sessions > 0) {
+                    sdArray[i].avgDistance = sdArray[i].distance / sdArray[i].sessions;
+                    sdArray[i].sAvgDistance = DataTypeDistance.getDistance(sdArray[i].avgDistance).getValueInKilometers(true, 1, 1);
+                } else {
+                    sdArray[i].avgDistance = 0;
+                    sdArray[i].sAvgDistance = "";
+                }
+            }
         }
+        setCurrentWorkDone(workBeforePostprocessing + (WORK_POSTPROCESSING/5)*3);
 
         sr.pParentDialog = this.progressDialog;
 
+        // Statistics Base Data
         sr.pStatTitle = International.getString("Kilometerliste");
         if (sr.cEntryDateFirst != null && sr.cEntryDateFirst.isSet()) {
             sr.pStatTitle += " " + sr.cEntryDateFirst.getYear();
@@ -223,7 +412,6 @@ public class StatisticTask extends ProgressTask {
                 sr.pStatTitle += " - " + sr.cEntryDateLast.getYear();
             }
         }
-
         sr.pStatCreationDate = EfaUtil.getCurrentTimeStampDD_MM_YYYY();
         sr.pStatCreatedByUrl = Daten.EFAURL;
         sr.pStatCreatedByName = Daten.EFA_LONGNAME + " " + Daten.VERSION;
@@ -238,6 +426,34 @@ public class StatisticTask extends ProgressTask {
             }
         }
 
+        // Table Columns
+        sr.pTableColumns = new Vector<String>();
+        if (sr.sIsFieldsPosition) {
+            sr.pTableColumns.add(International.getString("Platz"));
+        }
+        if (sr.sIsFieldsName) {
+            sr.pTableColumns.add(International.getString("Name"));
+        }
+        if (sr.sIsFieldsStatus) {
+            sr.pTableColumns.add(International.getString("Status"));
+        }
+        if (sr.sIsFieldsYearOfBirth) {
+            sr.pTableColumns.add(International.getString("Jahrgang"));
+        }
+        if (sr.sIsFieldsBoatType) {
+            sr.pTableColumns.add(International.getString("Bootstyp"));
+        }
+        if (sr.sIsAggrDistance) {
+            sr.pTableColumns.add(DataTypeDistance.getDefaultUnitName());
+        }
+        if (sr.sIsAggrSessions) {
+            sr.pTableColumns.add(International.getString("Fahrten"));
+        }
+        if (sr.sIsAggrAvgDistance) {
+            sr.pTableColumns.add(DataTypeDistance.getDefaultUnitAbbrevation() + "/" + International.getString("Fahrt"));
+        }
+
+        setCurrentWorkDone(workBeforePostprocessing + (WORK_POSTPROCESSING/5)*4);
         return sdArray;
     }
 

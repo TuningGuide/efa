@@ -120,6 +120,16 @@ public class EfaTypes extends StorageObject {
         iniCategories();
     }
 
+    public EfaTypes(int storageType,
+            String storageLocation,
+            String storageUsername,
+            String storagePassword) {
+        super(storageType, storageLocation, storageUsername, storagePassword, "types", DATATYPE, International.getString("Bezeichnungen"));
+        EfaTypeRecord.initialize();
+        dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
+        iniCategories();
+    }
+
     public void open(boolean createNewIfNotExists) throws EfaException {
         super.open(createNewIfNotExists);
         try {

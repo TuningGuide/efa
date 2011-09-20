@@ -102,7 +102,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
         Object[][] fahrten = new Object[max][10];
         //String s = "";
 
-        int c = max - 1;
+        int c = max;
         try {
             DataKeyIterator it = logbook.data().getStaticIterator();
             DataKey k = it.getLast();
@@ -114,6 +114,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
                 }
 
                 int obmann = r.getBoatCaptainPosition();
+                c--;
 
                 fahrten[c][0] = r.getEntryId();
                 fahrten[c][1] = r.getDate();
@@ -150,7 +151,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
                 fahrten[c][9] = r.getComments();
 
                 k = it.getPrev();
-                if (c-- == 0) {
+                if (c == 0) {
                     break;
                 }
             }

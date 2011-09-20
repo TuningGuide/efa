@@ -294,7 +294,7 @@ public abstract class StepwiseDialog extends BaseDialog {
     }
 
     void helpButton_actionPerformed(ActionEvent e) {
-        Help.showHelp(helpTopic);
+        Help.showHelp(getHelpTopics());
     }
 
 }

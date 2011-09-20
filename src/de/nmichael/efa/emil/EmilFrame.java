@@ -174,9 +174,6 @@ public class EmilFrame extends JFrame {
 //    if (evt.getActionCommand().equals("KEYSTROKE_ACTION_0")) { // Escape
       // nothing
 //    }
-    if (evt.getActionCommand().equals("KEYSTROKE_ACTION_1")) { // F1
-      Help.showHelp(getClass().getCanonicalName());
-    }
   }
 
 
@@ -908,7 +905,6 @@ public class EmilFrame extends JFrame {
   }
 
   void menuItemHelp_actionPerformed(ActionEvent e) {
-    Help.showHelp(getClass().getCanonicalName());
   }
 
 

@@ -26,13 +26,13 @@ import javax.swing.*;
 public class BoatStatusListDialog extends DataListDialog {
 
     public BoatStatusListDialog(Frame parent) {
-        super(parent, International.getString("Bootsstatus"), Daten.project.getBoatStatus(false), 0);
+        super(parent, International.getString("Bootsstatus"), Daten.project.getBoatStatus(false), -1);
         actionText = new String[] { ItemTypeDataRecordTable.ACTIONTEXT_EDIT };
         actionType = new int[] { ItemTypeDataRecordTable.ACTION_EDIT };
     }
 
     public BoatStatusListDialog(JDialog parent) {
-        super(parent, International.getString("Bootsstatus"), Daten.project.getBoatStatus(false), 0);
+        super(parent, International.getString("Bootsstatus"), Daten.project.getBoatStatus(false), -1);
         actionText = new String[] { ItemTypeDataRecordTable.ACTIONTEXT_EDIT };
         actionType = new int[] { ItemTypeDataRecordTable.ACTION_EDIT };
     }

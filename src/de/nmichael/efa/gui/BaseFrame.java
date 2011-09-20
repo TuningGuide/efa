@@ -33,7 +33,8 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
     protected JScrollPane mainScrollPane = new JScrollPane();
     protected JPanel mainPanel = new JPanel();
     protected JButton closeButton;
-    protected String helpTopic;
+    protected String helpTopic1;
+    protected String helpTopic2;
     protected IItemType focusItem;
     protected boolean resultSuccess = false;
 
@@ -107,7 +108,7 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
         }
         
         if (evt.getActionCommand().equals(KEYACTION_F1)) {
-            Help.showHelp(helpTopic);
+            Help.showHelp(getHelpTopics());
         }
     }
 
@@ -126,9 +127,13 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
     }
 
     protected void iniDialogCommon(String title) throws Exception {
-        helpTopic = getClass().getCanonicalName();
-        if (Logger.isTraceOn(Logger.TT_BACKGROUND)) {
-            Logger.log(Logger.DEBUG, Logger.MSG_HELP_DEBUGHELPTOPIC, "Help Topic: "+helpTopic);
+        helpTopic1 = getClass().getCanonicalName();
+        helpTopic2 = getClass().getSuperclass().getCanonicalName();
+        if (!helpTopic2.startsWith("de.nmichael.efa") || helpTopic2.startsWith("de.nmichael.efa.gui.BaseFrame")) {
+            helpTopic2 = null;
+        }
+        if (Logger.isTraceOn(Logger.TT_HELP, 5)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_HELP_DEBUGHELPTOPICFRAMEOPENED, "Dialog Help Topic(s): "+helpTopic1 + (helpTopic2 != null ? " , " + helpTopic2 : ""));
         }
 
         KEYACTION_ESCAPE = addKeyAction("ESCAPE");
@@ -235,8 +240,8 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
         }
     }
 
-    public String getHelpTopic() {
-        return helpTopic;
+    public String[] getHelpTopics() {
+        return (helpTopic2 != null ? new String[] { helpTopic1, helpTopic2 } : new String[] { helpTopic1 });
     }
 
 }

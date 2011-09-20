@@ -83,6 +83,10 @@ public class BoatStatusRecord extends DataRecord {
         return new DataKey<UUID,String,String>(id,null,null);
     }
 
+    public boolean isValidAt(long validAt) {
+        return getPersistence().getProject().getBoats(false).isValidAt(getBoatId(), validAt);
+    }
+
     public boolean getDeleted() {
         return getPersistence().getProject().getBoats(false).isBoatDeleted(getBoatId());
     }

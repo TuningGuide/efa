@@ -110,12 +110,21 @@ public class Boats extends StorageObject {
         }
     }
 
+    public boolean isValidAt(UUID boatId, long validAt) {
+        try {
+            DataRecord r = data().getValidAt(BoatRecord.getKey(boatId, validAt), validAt);
+            return r != null;
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return false;
+    }
+
     public boolean isBoatDeleted(UUID boatId) {
         try {
             DataRecord[] records = data().getValidAny(BoatRecord.getKey(boatId, -1));
             if (records != null && records.length > 0) {
                 return records[0].getDeleted();
-
             }
         } catch(Exception e) {
             Logger.logdebug(e);
@@ -128,7 +137,6 @@ public class Boats extends StorageObject {
             DataRecord[] records = data().getValidAny(BoatRecord.getKey(boatId, -1));
             if (records != null && records.length > 0) {
                 return records[0].getInvisible();
-
             }
         } catch(Exception e) {
             Logger.logdebug(e);
@@ -141,7 +149,6 @@ public class Boats extends StorageObject {
             DataRecord[] records = data().getValidAny(BoatRecord.getKey(boatId, -1));
             if (records != null && records.length > 0) {
                 return records[0].getDeleted() || records[0].getInvisible();
-
             }
         } catch(Exception e) {
             Logger.logdebug(e);

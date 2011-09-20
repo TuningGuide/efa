@@ -55,9 +55,15 @@ public class ImportBoatStatus extends ImportBase {
             while (d != null) {
                 String b = task.synBoote_genMainName(d.get(BootStatus.NAME));
                 UUID boatID = findBoat(boats, IDXB, b, true);
-                if (boatID != null && imported.get(boatID) != null) {
-                    // create new BoatStatusRecord
-                    BoatStatusRecord rs = boatStatus.createBoatStatusRecord(boatID, b);
+                if (boatID != null && imported.get(boatID) == null) {
+                    // normally the BoatStatusRecord should already have been created when the boat was created...
+                    BoatStatusRecord rs = boatStatus.getBoatStatus(boatID);
+                    boolean newRecord = false;
+                    if (rs == null) {
+                        // create new BoatStatusRecord
+                        rs = boatStatus.createBoatStatusRecord(boatID, b);
+                        newRecord = true;
+                    }
 
                     if ((d.get(BootStatus.STATUS) != null && d.get(BootStatus.STATUS).equals(BootStatus.STAT_VORUEBERGEHEND_VERSTECKEN)) ||
                         (d.get(BootStatus.UNBEKANNTESBOOT) != null && d.get(BootStatus.UNBEKANNTESBOOT).equals("+"))) {
@@ -92,7 +98,11 @@ public class ImportBoatStatus extends ImportBase {
                         if (d.get(BootStatus.BEMERKUNG).length() > 0) {
                             rs.setComment(d.get(BootStatus.BEMERKUNG));
                         }
-                        boatStatus.data().add(rs);
+                        if (newRecord) {
+                            boatStatus.data().add(rs);
+                        } else {
+                            boatStatus.data().update(rs);
+                        }
                         imported.put(boatID, b); // to avoid importing duplicates because of synonyms/Kombiboote
                         logDetail(International.getMessage("Importiere Eintrag: {entry}", rs.toString()));
                     } catch(Exception e) {

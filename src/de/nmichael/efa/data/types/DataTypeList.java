@@ -29,6 +29,13 @@ public class DataTypeList<T> {
         this.list = list;
     }
 
+    public DataTypeList(T[] array) {
+        this.list = new ArrayList<T>();
+        for (int i=0; i<array.length; i++) {
+            this.list.add(array[i]);
+        }
+    }
+
     // Copy Constructor
     public DataTypeList(DataTypeList list) {
         this.list = new ArrayList<T>(list.list.size());

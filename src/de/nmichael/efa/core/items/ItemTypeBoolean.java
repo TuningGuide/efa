@@ -95,7 +95,7 @@ public class ItemTypeBoolean extends ItemType {
 
     public void showValue() {
         if (field != null) {
-            ((JTextField)field).setText(toString());
+            ((JCheckBox)field).setSelected(value);
         }
     }
 

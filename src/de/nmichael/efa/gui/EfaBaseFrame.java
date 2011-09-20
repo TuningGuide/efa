@@ -916,7 +916,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 return (r != null ? r.getDestinationAndVariantName(getValidAtTimestamp(r)) : "");
             }
             if (field == distance) {
-                return (r != null ? r.getDistance().toString() : "");
+                return (r != null ? r.getDistance().getAsFormattedString() : "");
             }
             if (field == comments) {
                 return (r != null ? r.getComments() : "");
@@ -1151,6 +1151,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             } else {
                 logbook.data().update(currentRecord, lock);
             }
+            isNewRecord = false;
         } catch (Exception e) {
             Logger.log(e);
             myE = e;
@@ -1329,7 +1330,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             // aufgerufen wird und somit ein gültiger Datensatz bereits gefunden wurde!
             DestinationRecord r = findDestination(-1);
             if (r != null) {
-                distance.parseAndShowValue(r.getDistance().toString());
+                distance.parseAndShowValue(r.getDistance().getAsFormattedString());
             } else {
                 distance.parseAndShowValue("");
             }
@@ -1531,7 +1532,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                         + International.getString("Abfahrt") + ": " + (duplicate.getStartTime() != null ? duplicate.getStartTime().toString() : "") + "; "
                         + International.getString("Ankunft") + ": " + (duplicate.getEndTime() != null ? duplicate.getEndTime().toString() : "") + "; "
                         + International.getString("Ziel") + " / " +
-                          International.getString("Strecke") + ": " + duplicate.getDestinationAndVariantName() + " (" + (duplicate.getDistance() != null ? duplicate.getDistance().toString() : "") + " Km)" + "\n\n"
+                          International.getString("Strecke") + ": " + duplicate.getDestinationAndVariantName() + " (" + (duplicate.getDistance() != null ? duplicate.getDistance().getAsFormattedString() : "") + " Km)" + "\n\n"
                         + International.getString("Bitte füge den aktuellen Eintrag nur hinzu, falls es sich NICHT um einen Doppeleintrag handelt.") + "\n"
                         + International.getString("Was möchtest Du tun?"),
                         International.getString("Eintrag hinzufügen")
@@ -2221,7 +2222,18 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             }
             if (item == boatDamageButton) {
                 if (currentBoat != null && currentBoat.getId() != null) {
-                    BoatDamageEditDialog.newBoatDamage(this, currentBoat);
+                    UUID personID = null;
+                    LogbookRecord myRecord = currentRecord;
+                    if (myRecord == null) {
+                        myRecord = getFields();
+                    }
+                    if (myRecord != null) {
+                        personID = myRecord.getCoxId();
+                        if (personID == null) {
+                            personID = myRecord.getCrewId(1);
+                        }
+                    }
+                    BoatDamageEditDialog.newBoatDamage(this, currentBoat, personID);
                 }
             }
             if (item == saveButton) {

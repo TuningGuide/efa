@@ -460,6 +460,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                     }
                 } else {
                     r = dataAccess.get(key);
+                    if (!showAll && !r.isValidAt(myValidAt)) {
+                        r = null;
+                    }
                 }
                 if (r != null && (!r.getDeleted() || showDeleted)) {
                     if (filterFieldName == null || filterFieldValue == null ||

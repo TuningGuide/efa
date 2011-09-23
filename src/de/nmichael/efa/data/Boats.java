@@ -120,40 +120,39 @@ public class Boats extends StorageObject {
         return false;
     }
 
-    public boolean isBoatDeleted(UUID boatId) {
+    // the idea of this function is to provide any boat record for boatId, if it doesn't matter which version we get
+    public BoatRecord getAnyBoatRecord(UUID boatId) {
         try {
+            DataKey k = BoatRecord.getKey(boatId, -1);
+            // first try to find the currently valid record (this is usually a fast operation, especially for remote access)
+            DataRecord record = data().getValidAt(k, System.currentTimeMillis());
+            if (record != null) {
+                return (BoatRecord)record;
+            }
+            // if we haven't found a record, go for the
             DataRecord[] records = data().getValidAny(BoatRecord.getKey(boatId, -1));
             if (records != null && records.length > 0) {
-                return records[0].getDeleted();
+                return (BoatRecord)records[0];
             }
         } catch(Exception e) {
             Logger.logdebug(e);
         }
-        return false;
+        return null;
+    }
+
+    public boolean isBoatDeleted(UUID boatId) {
+        BoatRecord r = getAnyBoatRecord(boatId);
+        return (r != null && r.getDeleted());
     }
 
     public boolean isBoatInvisible(UUID boatId) {
-        try {
-            DataRecord[] records = data().getValidAny(BoatRecord.getKey(boatId, -1));
-            if (records != null && records.length > 0) {
-                return records[0].getInvisible();
-            }
-        } catch(Exception e) {
-            Logger.logdebug(e);
-        }
-        return false;
+        BoatRecord r = getAnyBoatRecord(boatId);
+        return (r != null && r.getInvisible());
     }
 
     public boolean isBoatDeletedOrInvisible(UUID boatId) {
-        try {
-            DataRecord[] records = data().getValidAny(BoatRecord.getKey(boatId, -1));
-            if (records != null && records.length > 0) {
-                return records[0].getDeleted() || records[0].getInvisible();
-            }
-        } catch(Exception e) {
-            Logger.logdebug(e);
-        }
-        return false;
+        BoatRecord r = getAnyBoatRecord(boatId);
+        return (r != null && (r.getDeleted() || r.getInvisible()));
     }
 
     public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {

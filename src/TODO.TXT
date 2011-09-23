@@ -4,20 +4,17 @@ Item                                                                 days  until
 ================================================================================
 DataLayer: DB Access                                                 4.0  28.08.
 Online Update                                                        0.5  29.08.
-Statistics - Framework                                               4.0  02.09.
-Statistics - Basic Statistics                                        1.0  03.09.
 Individual Distance per Person for each Session                      0.5  04.09.
 AutoComplete: match anything within input/change list content        0.5  04.09.
 Audit
---------------------------------------------------------------------------------
 Statistics - Advanced Statistics
 Statistics - Kilometerwettbewerbe
 Administration of DRV-Fahrtenabzeichen
 efaWett (elektronische Meldung)
 Backup
+Crash Recovery (Roll forward)
 Point-in-Time Recovery
-Data Safety and Concurrency: Optimistic Locking
-Data Safety and Concurrency: Journaling and File Copies
+--------------------------------------------------------------------------------
 Automatically add and purge names from Data Lists
 Widget Warnings (i.e. after sunset, flooding)
 Thumbnails
@@ -40,3 +37,7 @@ DataLayer: Remote GUI Access                                         2.0  28.08.
 efa Online Services                                                  1.0  31.08.     29.08.
 DataLayer: Remote CLI Access                                         2.0  30.08.     30.08.
 Import/Export with standardized CSV/XML Format (Header Names)        1.0  01.09.     31.08.
+Statistics - Framework                                               4.0  02.09.     20.09.
+Statistics - Basic Statistics                                        1.0  03.09.     20.09.
+Data Safety and Concurrency: Optimistic Locking
+Data Safety and Concurrency: Journaling and File Copies

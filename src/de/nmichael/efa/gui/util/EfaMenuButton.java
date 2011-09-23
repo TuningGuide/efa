@@ -12,9 +12,11 @@ package de.nmichael.efa.gui.util;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.core.config.Admins;
 import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.storage.IDataAccess;
+import de.nmichael.efa.data.storage.RemoteCommand;
 import de.nmichael.efa.data.sync.KanuEfbSyncTask;
 import de.nmichael.efa.gui.*;
 import de.nmichael.efa.gui.dataedit.*;
@@ -73,6 +75,7 @@ public class EfaMenuButton {
     }
 
     private static Hashtable<String,String> actionMapping;
+    private static boolean lastBooleanValue;
 
     private String menuName;
     private String menuText;
@@ -398,16 +401,57 @@ public class EfaMenuButton {
         }
 
         if (action.equals(BUTTON_EXIT)) {
-            if (admin == null || (!admin.isAllowedExitEfa())) {
+            if (Daten.applID == Daten.APPL_EFABH &&  // check permissions only for efaBths; other programs may be exited by anyone
+                (admin == null || (!admin.isAllowedExitEfa()))) {
                 insufficientRights(admin, action);
                 return false;
             }
-            if (parentFrame != null) {
-                parentFrame.cancel();
+
+            boolean remoteEfa = false;
+            if (Daten.project != null && Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+                switch (Dialog.auswahlDialog(International.getString("Beenden"),
+                        International.getString("Lokales oder entferntes efa beenden?"),
+                        International.getString("Lokal"),
+                        International.getString("Remote"), true)) {
+                    case 0:
+                        break;
+                    case 1:
+                        remoteEfa = true;
+                        break;
+                    default:
+                        return false;
+                }
             }
-            if (parentDialog != null) {
-                parentDialog.cancel();
+
+            boolean restart = false;
+            if (remoteEfa || Daten.applID == Daten.APPL_EFABH) {
+                switch (Dialog.auswahlDialog(International.getString("Beenden"),
+                        International.getString("efa beenden oder neu starten?"),
+                        International.getString("Beenden"),
+                        International.getString("Neu starten"), true)) {
+                    case 0:
+                        break;
+                    case 1:
+                        restart = true;
+                        break;
+                    default:
+                        return false;
+                }
             }
+
+            if (remoteEfa) {
+                RemoteCommand cmd = new RemoteCommand(Daten.project);
+                boolean result = cmd.exitEfa(restart);
+                if (result) {
+                    Dialog.infoDialog(International.getString("Operation erfolgreich."));
+                } else {
+                    Dialog.error(International.getString("Operation fehlgeschlagen."));
+                }
+                return false; // nothing to do for caller of this method
+            }
+
+            lastBooleanValue = restart;
+
         }
 
         if (action.equals(BUTTON_LOGBOOK)) {
@@ -589,8 +633,8 @@ public class EfaMenuButton {
             if (Daten.project != null && Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
                 switch(Dialog.auswahlDialog(International.getString("Konfiguration"),
                                             International.getString("Lokale oder remote Konfiguration bearbeiten?"),
-                                            International.getString("lokal"),
-                                            International.getString("remote"),
+                                            International.getString("Lokal"),
+                                            International.getString("Remote"),
                                             true)) {
                     case 0:
                         break;
@@ -615,7 +659,27 @@ public class EfaMenuButton {
                 insufficientRights(admin, action);
                 return false;
             }
-            AdminListDialog dlg = (parentFrame != null ? new AdminListDialog(parentFrame) : new AdminListDialog(parentDialog));
+            Admins myAdmins = Daten.admins;
+            if (Daten.project != null && Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+                switch(Dialog.auswahlDialog(International.getString("Administratoren"),
+                                            International.getString("Lokale oder remote Administratoren bearbeiten?"),
+                                            International.getString("Lokal"),
+                                            International.getString("Remote"),
+                                            true)) {
+                    case 0:
+                        break;
+                    case 1:
+                        myAdmins = new Admins(Daten.project.getProjectStorageType(),
+                                                    Daten.project.getProjectStorageLocation(),
+                                                    Daten.project.getProjectStorageUsername(),
+                                                    Daten.project.getProjectStoragePassword());
+                        break;
+                    default:
+                        return false;
+                }
+            }
+
+            AdminListDialog dlg = (parentFrame != null ? new AdminListDialog(parentFrame, myAdmins) : new AdminListDialog(parentDialog, myAdmins));
             dlg.showDialog();
         }
 
@@ -711,5 +775,9 @@ public class EfaMenuButton {
         if (Daten.isGuiAppl()) {
             Dialog.error(msg);
         }
+    }
+
+    public static boolean getLastBooleanValue() {
+        return lastBooleanValue;
     }
 }

@@ -254,7 +254,7 @@ public class RemoteEfaClient extends DataAccess {
                International.getMessage("efaRemote-Anfrage {request} fehlgeschlagen: {reason}", requestName, msg + " (Code " + code + ")");
     }
 
-    private int runSimpleRequest(RemoteEfaMessage request) {
+    protected int runSimpleRequest(RemoteEfaMessage request) {
         try {
             int myRequestId = request.getMsgId();
             Vector<RemoteEfaMessage> responses = sendRequest(request);

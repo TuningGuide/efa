@@ -974,7 +974,12 @@ public class Project extends StorageObject {
     }
 
     public String getProjectName() {
-        return getProjectRecord().getProjectName();
+        try {
+            return getProjectRecord().getProjectName();
+        } catch(Exception e) {
+            // can happen while opening a remote project
+            return "";
+        }
     }
 
     public String getProjectDescription() {

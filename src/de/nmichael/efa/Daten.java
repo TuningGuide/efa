@@ -40,8 +40,8 @@ public class Daten {
   public       static String EFA_ONLINE    = "efa Online";                       // dummy, will be set in International.ininitalize()
 
   public final static String VERSION = "v2.0_dev97"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSIONID = "1.9.7_02";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "20.09.2011";  // Release Date: TT.MM.JJJJ
+  public final static String VERSIONID = "1.9.7_06";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+  public final static String VERSIONRELEASEDATE = "23.09.2011";  // Release Date: TT.MM.JJJJ
   public final static String PROGRAMMID = "EFA.196"; // Versions-ID für Wettbewerbsmeldungen
   public final static String PROGRAMMID_DRV = "EFADRV.196"; // Versions-ID für Wettbewerbsmeldungen
   public final static String COPYRIGHTYEAR = "11";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
@@ -302,6 +302,7 @@ public class Daten {
         iniCopiedFiles();
         iniAllDataFiles();
         iniRemoteEfaServer();
+        iniEmailSenderThread();
         iniGUI();
         iniChecks();
         if (createNewAdmin && efaFirstSetup != null) {
@@ -327,7 +328,7 @@ public class Daten {
     }
 
     public static void haltProgram(int exitCode) {
-        if (exitCode == 0 || exitCode >= 100) {
+        if (exitCode == 0 || exitCode == HALT_SHELLRESTART || exitCode == HALT_JAVARESTART) {
             if (project != null && project.isOpen()) {
                 try {
                     project.closeAllStorageObjects();
@@ -919,6 +920,19 @@ public class Daten {
         }
     }
 
+    public static void iniEmailSenderThread() {
+        if (applID == APPL_EFABASE || applID == APPL_EFABH) {
+            try {
+                new de.nmichael.efa.core.EmailSenderThread().start();
+            } catch (NoClassDefFoundError e) {
+                Logger.log(Logger.WARNING, Logger.MSG_CORE_MISSINGPLUGIN,
+                        International.getString("Fehlendes Plugin") + ": " + Daten.PLUGIN_EMAIL_NAME + " - "
+                        + International.getString("Kein email-Versand möglich!") + " "
+                        + International.getMessage("Bitte lade das fehlende Plugin unter der Adresse {url} herunter.", Daten.pluginWWWdirectory));
+            }
+        }
+    }
+
     public static void iniScreenSize() {
         if (!isGuiAppl()) {
             return;
@@ -1093,7 +1107,7 @@ public class Daten {
                 infos.add("efa.plugin.ftp=NOT INSTALLED");
             }
             try {
-                de.nmichael.efa.util.EmailSender tmp = new de.nmichael.efa.util.EmailSender();
+                de.nmichael.efa.core.EmailSenderThread tmp = new de.nmichael.efa.core.EmailSenderThread();
                 infos.add("efa.plugin.email=INSTALLED");
             } catch (NoClassDefFoundError e) {
                 infos.add("efa.plugin.email=NOT INSTALLED");

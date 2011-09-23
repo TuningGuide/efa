@@ -163,7 +163,7 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
     }
 
     public DataTypeDate getDate() {
-        return new DataTypeDate(value.getDay(), value.getMonth(), value.getYear());
+        return new DataTypeDate(value);
     }
 
     public void setValueDay(int day) {

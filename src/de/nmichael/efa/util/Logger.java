@@ -142,6 +142,8 @@ public class Logger {
     public static final String MSG_DATA_INVALIDPARAMETER = "DAT025";
     public static final String MSG_DATA_FILESIZEHIGH     = "DAT026";
     public static final String MSG_DATA_FILEARCHIVED     = "DAT027";
+    public static final String MSG_DATA_FILEBACKUPFAILED = "DAT028";
+    public static final String MSG_DATA_UPDATECONFLICT   = "DAT029";
 
     public static final String MSG_REFA_SERVERSTATUS                 = "RMT001";
     public static final String MSG_REFA_SERVERERROR                  = "RMT002";
@@ -157,6 +159,7 @@ public class Logger {
 
     public static final String MSG_EONL_ERROR                        = "ONL001";
     public static final String MSG_EONL_WARNING                      = "ONL002";
+    public static final String MSG_EONL_DEBUG                        = "ONL003";
 
     // de.nmichael.efa.core.DatenListe (and subclasses)
     public static final String MSG_CSVFILE_FILECONVERTED = "CSV001";
@@ -219,6 +222,7 @@ public class Logger {
     public static final String MSG_EVT_TIMEBASEDRESTARTDELAY = "EVT039";
     public static final String MSG_EVT_ERRORSAVELOGBOOKENTRY = "EVT040";
     public static final String MSG_EVT_ERRORNOBOATSTATUSFORBOAT = "EVT041";
+    public static final String MSG_EVT_REMOTEEFAEXIT = "EVT042";
 
     // efa in the Boat House - Errors
     public static final String MSG_ERR_GENERIC = "ERR001";
@@ -320,6 +324,7 @@ public class Logger {
     public static final String MSG_DEBUG_IGNOREDEXCEPTION = "DBG012";
     public static final String MSG_DEBUG_GUI_WINDOWS = "DBG013";
     public static final String MSG_DEBUG_GUI_ICONS = "DBG014";
+    public static final String MSG_DEBUG_SENDMAIL = "DBG015";
     // CLI
     public static final String MSG_CLI_INFO  = "CLI001";
     public static final String MSG_CLI_ERROR = "CLI002";
@@ -508,6 +513,15 @@ public class Logger {
             e.printStackTrace();
         }
         EfaErrorPrintStream.ignoreExceptions = false;
+    }
+
+    public static void logStackTrace(String type, String key, String msg, StackTraceElement[] stack) {
+        StringBuilder s = new StringBuilder();
+        s.append(msg + ":");
+        for (int i = 0; stack != null && i < stack.length; i++) {
+            s.append("\n" + stack[i].toString());
+        }
+        log(type, key, s.toString());
     }
 
 

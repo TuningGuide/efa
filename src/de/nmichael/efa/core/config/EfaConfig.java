@@ -356,13 +356,14 @@ public class EfaConfig extends StorageObject {
             }
         }
         if (data().getStorageType() != IDataAccess.TYPE_EFA_REMOTE) {
-            (configValueUpdateThread = new ConfigValueUpdateThread()).start();
+            (configValueUpdateThread = new ConfigValueUpdateThread(this)).start();
             updateConfigValuesWithPersistence();
         }
     }
 
     public void close() throws EfaException {
         configValueUpdateThread.stopConfigValueUpdateThread();
+        configValueUpdateThread = null;
         super.close();
     }
 
@@ -370,7 +371,7 @@ public class EfaConfig extends StorageObject {
         if (configValueUpdateThread != null) {
             return configValueUpdateThread.updateConfigValuesWithPersistence();
         } else {
-            return (new ConfigValueUpdateThread()).updateConfigValuesWithPersistence();
+            return (new ConfigValueUpdateThread(this)).updateConfigValuesWithPersistence();
         }
     }
 
@@ -878,7 +879,7 @@ public class EfaConfig extends StorageObject {
                     International.getString("email") + ": "
                     + International.getString("Absender-Name")));
             addParameter(efaDirekt_emailAbsender = new ItemTypeString("NotificationEmailFromEmail", "",
-                    IItemType.TYPE_EXPERT, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    IItemType.TYPE_PUBLIC, makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
                     International.getString("email") + ": "
                     + International.getString("Absender-Adresse")));
             addParameter(efaDirekt_emailBetreffPraefix = new ItemTypeString("NotificationEmailSubjectPrefix", Daten.EFA_SHORTNAME,
@@ -2047,8 +2048,13 @@ public class EfaConfig extends StorageObject {
 
     class ConfigValueUpdateThread extends Thread {
 
+        private EfaConfig efaConfig;
         private long lastScn = -1;
         private volatile boolean keepRunning = true;
+
+        public ConfigValueUpdateThread(EfaConfig efaConfig) {
+            this.efaConfig = efaConfig;
+        }
 
         public void run() {
             while (keepRunning) {
@@ -2063,27 +2069,29 @@ public class EfaConfig extends StorageObject {
 
         public boolean updateConfigValuesWithPersistence() {
             try {
-                long scn = data().getSCN();
-                if (scn == lastScn) {
-                    return true;
-                }
-                DataKeyIterator it = data().getStaticIterator();
-                DataKey k = it.getFirst();
-                synchronized (configValues) {
-                    while (k != null) {
-                        EfaConfigRecord r = (EfaConfigRecord) data().get(k);
-                        if (r.getName().startsWith("_")) {
-                            continue; // it shouldn't happen that such a value actually made it into the file, but you never know...
-                        }
-                        IItemType item = configValues.get(r.getName());
-                        if (item != null) {
-                            item.parseValue(r.getValue());
-                            item.setUnchanged();
-                        }
-                        k = it.getNext();
+                synchronized (efaConfig) {
+                    long scn = data().getSCN();
+                    if (scn == lastScn) {
+                        return true;
                     }
+                    DataKeyIterator it = data().getStaticIterator();
+                    DataKey k = it.getFirst();
+                    synchronized (configValues) {
+                        while (k != null) {
+                            EfaConfigRecord r = (EfaConfigRecord) data().get(k);
+                            if (r.getName().startsWith("_")) {
+                                continue; // it shouldn't happen that such a value actually made it into the file, but you never know...
+                            }
+                            IItemType item = configValues.get(r.getName());
+                            if (item != null) {
+                                item.parseValue(r.getValue());
+                                item.setUnchanged();
+                            }
+                            k = it.getNext();
+                        }
+                    }
+                    lastScn = scn;
                 }
-                lastScn = scn;
             } catch (Exception e) {
                 Logger.logdebug(e);
                 return false;

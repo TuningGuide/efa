@@ -57,6 +57,8 @@ public class RemoteEfaMessage {
     public static final String OPERATION_GETFIRST                = "GetFirst";
     public static final String OPERATION_GETLAST                 = "GetLast";
 
+    public static final String OPERATION_CMD_EXITEFA             = "CmdExitEfa";
+
     // Field Names for Operations
     public static final String FIELD_SESSIONID          = "SID";
     public static final String FIELD_RESULTCODE         = "RCode";
@@ -76,6 +78,7 @@ public class RemoteEfaMessage {
     public static final String FIELD_FIELDNAME          = "FieldName";
     public static final String FIELD_FIELDVALUE         = "FieldValue";
     public static final String FIELD_PID                = "PID";
+    public static final String FIELD_BOOLEAN            = "Boolean";
 
     // Result Codes
     public static final int RESULT_OK                   =  0;
@@ -161,6 +164,14 @@ public class RemoteEfaMessage {
 
     public String getPid() {
         return getFieldValue(FIELD_PID);
+    }
+
+    public boolean getBoolean() {
+        try {
+            return Boolean.parseBoolean(getFieldValue(FIELD_BOOLEAN));
+        } catch(Exception e) {
+            return false;
+        }
     }
 
     public long getScn() {

@@ -52,6 +52,15 @@ public class LogString {
       return logstring_fileDeletionFailed(filename, description, null);
   }
 
+  public static String logstring_fileRenameFailed(String filename, String description, String error) {
+      return International.getMessage("{filedescription} '{filename}' konnte nicht umbenannt werden",
+                                       description,filename) +
+                                       (error == null ? "." : ": " + error);
+  }
+
+  public static String logstring_fileRenameFailed(String filename, String description) {
+      return logstring_fileRenameFailed(filename, description, null);
+  }
 
   public static String logstring_fileOpenFailed(String filename, String description, String error) {
       return International.getMessage("{filedescription} '{filename}' konnte nicht geöffnet werden",

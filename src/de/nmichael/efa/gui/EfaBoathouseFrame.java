@@ -30,6 +30,8 @@ import java.io.*;
 
 public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
+    public static EfaBoathouseFrame efaBoathouseFrame;
+
     public static final int EFA_EXIT_REASON_USER = 0;
     public static final int EFA_EXIT_REASON_TIME = 1;
     public static final int EFA_EXIT_REASON_OOME = 2;
@@ -108,6 +110,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     
     public EfaBoathouseFrame() {
         super(null, Daten.EFA_LONGNAME);
+        this.efaBoathouseFrame = this;
     }
 
     public void _keyAction(ActionEvent evt) {

@@ -399,7 +399,7 @@ public class MeteoAstroWidget extends Widget {
                     } catch (Exception e) {
                         Logger.logdebug(e);
                         if (!weatherError) {
-                            Logger.log(Logger.WARNING, Logger.MSG_WARN_WEATHERUPDATEFAILED,
+                            Logger.log(Logger.DEBUG, Logger.MSG_WARN_WEATHERUPDATEFAILED,
                                     International.getString("Wetterdaten konnten nicht geladen werden") + ": " + e.toString());
                         }
                         weatherError = true;

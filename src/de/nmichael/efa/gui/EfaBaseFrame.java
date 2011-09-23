@@ -991,7 +991,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         }
 
         // EntryNo
-        LogbookRecord r = logbook.createLogbookRecord(DataTypeIntString.parseString(entryno.getValue()));
+        LogbookRecord r = (isNewRecord || currentRecord == null ?
+            logbook.createLogbookRecord(DataTypeIntString.parseString(entryno.getValue())) :
+            currentRecord);
+        r.setEntryId(DataTypeIntString.parseString(entryno.getValue()));
 
         // Date
         if (date.isSet()) {
@@ -1935,13 +1938,13 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             }
         }
 
-        // for exit, we don't need to check permissions: every admin is allowed to exit efaBase
-        if (cmd.equals(EfaMenuButton.BUTTON_EXIT)) {
-            cancel();
-        }
-
         // now check permissions and perform the menu action
         boolean permission = EfaMenuButton.menuAction(this, cmd, admin, logbook);
+
+        // handle exit
+        if (cmd.equals(EfaMenuButton.BUTTON_EXIT) && permission) {
+            cancel();
+        }
 
         // Projects and Logbooks are *not* handled within EfaMenuButton
         if (cmd.equals(EfaMenuButton.BUTTON_PROJECTS) && permission) {

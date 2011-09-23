@@ -47,6 +47,7 @@ public class Messages extends StorageObject {
         r.setMessageId(getNextMessageId());
         r.setDate(DataTypeDate.today());
         r.setTime(DataTypeTime.now());
+        r.setToBeMailed(true);
         return r;
     }
 
@@ -59,12 +60,12 @@ public class Messages extends StorageObject {
         r.setFrom(from);
         r.setSubject(subject);
         r.setText(text);
+        r.setToBeMailed(true);
         try {
             data().add(r);
         } catch(Exception e) {
             Logger.logdebug(e);
         }
-        r.sendEmail();
         return r;
     }
 

@@ -14,7 +14,8 @@ import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.core.items.*;
-import de.nmichael.efa.data.Logbook;
+import de.nmichael.efa.data.storage.IDataAccess;
+import de.nmichael.efa.data.storage.RemoteCommand;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -161,29 +162,13 @@ public class AdminDialog extends BaseDialog implements IItemListener {
         if (event != null && event instanceof ActionEvent) {
             String action = itemType.getName();
 
-            if (action.equals(EfaMenuButton.BUTTON_EXIT)) {
-                if (admin.isAllowedExitEfa()) {
-                    switch(Dialog.auswahlDialog(International.getString("Beenden"),
-                                                International.getString("efa beenden oder neu starten?"),
-                                                International.getString("Beenden"),
-                                                International.getString("Neu starten"), true)) {
-                        case 0:
-                            cancel();
-                            efaBoathouseFrame.cancel(null, EfaBoathouseFrame.EFA_EXIT_REASON_USER, admin, false);
-                            break;
-                        case 1:
-                            cancel();
-                            efaBoathouseFrame.cancel(null, EfaBoathouseFrame.EFA_EXIT_REASON_USER, admin, true);
-                            break;
-                        default:
-                            return;
-                    }
-                }
-                return;
-            }
-
             // now check permissions and perform the menu action
             boolean permission = EfaMenuButton.menuAction(this, action, admin, efaBoathouseFrame.getLogbook());
+
+            if (action.equals(EfaMenuButton.BUTTON_EXIT) && permission) {
+                efaBoathouseFrame.cancel(null, EfaBoathouseFrame.EFA_EXIT_REASON_USER, admin, EfaMenuButton.getLastBooleanValue());
+                return;
+            }
 
             // Projects and Logbooks are *not* handled within EfaMenuButton
             if (action.equals(EfaMenuButton.BUTTON_PROJECTS) && permission) {

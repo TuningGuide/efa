@@ -24,8 +24,11 @@ public class Admins extends StorageObject {
 
     public static final String SUPERADMIN = "admin";
 
-    public Admins(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, null, null, storageObjectName, DATATYPE, International.getString("Administratoren"));
+    public Admins(int storageType, 
+            String storageLocation,
+            String storageUsername,
+            String storagePassword) {
+        super(storageType, storageLocation, storageUsername, storagePassword, "admins", DATATYPE, International.getString("Administratoren"));
         AdminRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }

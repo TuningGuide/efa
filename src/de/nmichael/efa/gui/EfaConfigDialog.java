@@ -11,16 +11,13 @@
 package de.nmichael.efa.gui;
 
 import de.nmichael.efa.core.items.*;
-import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.config.*;
+import de.nmichael.efa.data.storage.IDataAccess;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import java.util.*;
-import javax.swing.event.ChangeEvent;
 
 // @i18n complete
 public class EfaConfigDialog extends BaseDialog {
@@ -242,14 +239,15 @@ public class EfaConfigDialog extends BaseDialog {
 
     public void closeButton_actionPerformed(ActionEvent e) {
         getValuesFromGui();
-        for (int i=0; i<configItems.size(); i++) {
-            IItemType item = configItems.get(i);
-            if (item.isChanged()) {
-                myEfaConfig.setValue(item.getName(), item.toString());
+        synchronized (myEfaConfig) {
+            for (int i = 0; i < configItems.size(); i++) {
+                IItemType item = configItems.get(i);
+                if (item.isChanged()) {
+                    myEfaConfig.setValue(item.getName(), item.toString());
+                }
             }
         }
         myEfaConfig.checkNewConfigValues();
-        myEfaConfig.updateConfigValuesWithPersistence();
         myEfaConfig.setExternalParameters(true);
         myEfaConfig.checkForRequiredPlugins();
         super.closeButton_actionPerformed(e);

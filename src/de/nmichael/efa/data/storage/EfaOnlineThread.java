@@ -54,7 +54,7 @@ public class EfaOnlineThread extends Thread {
                 Logger.log(Logger.WARNING, Logger.MSG_EONL_WARNING, "efaOnline: Status Update failed: " + errormsg);
             } else {
                 if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 1)) {
-                    Logger.log(Logger.DEBUG, Logger.MSG_REFA_SERVERSTATUS, "efaOnline: Status Update successful: IPADDR="+ipaddr+" PORT="+port);;
+                    Logger.log(Logger.DEBUG, Logger.MSG_EONL_DEBUG, "efaOnline: Status Update successful: IPADDR="+ipaddr+" PORT="+port);;
                 }
             }
         } catch(Exception e) {

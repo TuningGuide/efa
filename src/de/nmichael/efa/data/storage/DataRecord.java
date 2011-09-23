@@ -22,6 +22,7 @@ public abstract class DataRecord implements Cloneable, Comparable {
 
     public static final String ENCODING_RECORD = "Record";
 
+    public static final String CHANGECOUNT      = "ChangeCount";
     public static final String LASTMODIFIED     = "LastModified";
     public static final String VALIDFROM        = "ValidFrom";
     public static final String INVALIDFROM      = "InvalidFrom";
@@ -48,6 +49,7 @@ public abstract class DataRecord implements Cloneable, Comparable {
             fields.add(DataRecord.INVISIBLE);       types.add(IDataAccess.DATA_BOOLEAN);
             fields.add(DataRecord.DELETED);         types.add(IDataAccess.DATA_BOOLEAN);
         }
+        fields.add(DataRecord.CHANGECOUNT);         types.add(IDataAccess.DATA_LONGINT);
         // LastModified must always be the last field; this class's set(int, Object) method implicitly uses this to update the timestamp!
         fields.add(DataRecord.LASTMODIFIED);        types.add(IDataAccess.DATA_LONGINT);
         return MetaData.constructMetaData(dataType, fields, types, versionized);
@@ -329,6 +331,19 @@ public abstract class DataRecord implements Cloneable, Comparable {
 
     public long getLastModified() {
         return getLong(LASTMODIFIED);
+    }
+
+    protected void updateChangeCount() {
+        long l = getChangeCount();
+        setLong(CHANGECOUNT, l+1);
+    }
+
+    protected long getChangeCount() {
+        long l = getLong(CHANGECOUNT);
+        if (l < 0) {
+            return 0;
+        }
+        return l;
     }
 
     // =========================================================================

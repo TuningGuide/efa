@@ -136,11 +136,50 @@ public abstract class DataFile extends DataAccess {
         }
     }
 
+    private boolean createBackupFile(String originalFilename) {
+        String backup0 = originalFilename + ".s0"; // most recent backup
+        String backup1 = originalFilename + ".s1"; // previoud backup
+        try {
+            if (!new File(originalFilename).exists()) {
+                return true; // nothing to do
+            }
+            boolean ok = true;
+            if (new File(backup0).exists()) {
+                if (new File(backup1).exists()) {
+                    // backup1 exists! delete it first
+                    ok = new File(backup1).delete();
+                    if (!ok) {
+                        Logger.log(Logger.WARNING, Logger.MSG_DATA_FILEBACKUPFAILED, LogString.logstring_fileDeletionFailed(backup1, "Backup File 1"));
+                    }
+                }
+                if (ok) {
+                    // backup1 doesn't exisit or has successfully been deleted
+                    ok = new File(backup0).renameTo(new File(backup1));
+                    if (!ok) {
+                        Logger.log(Logger.WARNING, Logger.MSG_DATA_FILEBACKUPFAILED, LogString.logstring_fileRenameFailed(backup0, "Backup File 0"));
+                    }
+                }
+            }
+            if (ok) {
+                // backup0 has successfully been renamed to backup1
+                ok = new File(originalFilename).renameTo(new File(backup0));
+                if (!ok) {
+                    Logger.log(Logger.WARNING, Logger.MSG_DATA_FILEBACKUPFAILED, LogString.logstring_fileRenameFailed(originalFilename, "Original File"));
+                }
+            }
+            return ok;
+        } catch(Exception e) {
+            Logger.log(Logger.WARNING, Logger.MSG_DATA_FILEBACKUPFAILED, e.toString());
+            return false;
+        }
+    }
+
     public synchronized void saveStorageObject() throws EfaException {
         if (!isStorageObjectOpen()) {
             throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed(filename, storageLocation, "Storage Object is not open"), Thread.currentThread().getStackTrace());
         }
         try {
+            createBackupFile(filename);
             BufferedWriter fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename, false), ENCODING));
             writeFile(fw);
             fw.close();
@@ -256,7 +295,8 @@ public abstract class DataFile extends DataAccess {
         if (myLock > 0) {
             try {
                 synchronized (data) {
-                    if (data.get(key) == null) {
+                    DataRecord currentRecord = data.get(key);
+                    if (currentRecord == null) {
                         if ( (update && !add) || delete) {
                             throw new EfaException(Logger.MSG_DATA_RECORDNOTFOUND, getUID() + ": Data Record '"+key.toString()+"' does not exist", Thread.currentThread().getStackTrace());
                         }
@@ -265,8 +305,23 @@ public abstract class DataFile extends DataAccess {
                             throw new EfaException(Logger.MSG_DATA_DUPLICATERECORD, getUID() + ": Data Record '"+key.toString()+"' already exists", Thread.currentThread().getStackTrace());
                         }
                     }
+                    if (update && !add) {
+                        if (currentRecord.getChangeCount() != record.getChangeCount()) {
+                            // @todo (P1) throw exception upon lock conflicts
+                            /*
+                            throw new EfaException(Logger.MSG_DATA_DUPLICATERECORD, getUID() + ": Update Conflict for Data Record '"+key.toString()+
+                                    "': Current ChangeCount="+currentRecord.getChangeCount()+", expected ChangeCount="+record.getChangeCount(),
+                                    Thread.currentThread().getStackTrace());
+                            */
+                            Logger.logStackTrace(Logger.ERROR, Logger.MSG_DATA_UPDATECONFLICT,
+                                    getUID() + ": Update Conflict for Data Record '"+key.toString()+
+                                    "': Current ChangeCount="+currentRecord.getChangeCount()+", expected ChangeCount="+record.getChangeCount(),
+                                    Thread.currentThread().getStackTrace());
+                        }
+                    }
                     if (!inOpeningStorageObject) { // don't update LastModified timestamp when reading saved data from file!
                         record.setLastModified();
+                        record.updateChangeCount();
                     }
                     if (add || update) {
                         DataRecord myRecord = record.cloneRecord();

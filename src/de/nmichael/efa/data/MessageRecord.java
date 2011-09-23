@@ -38,6 +38,7 @@ public class MessageRecord extends DataRecord {
     public static final String SUBJECT               = "Subject";
     public static final String TEXT                  = "Text";
     public static final String READ                  = "Read";
+    public static final String TOBEMAILED            = "ToBeMailed";
 
     public static void initialize() {
         Vector<String> f = new Vector<String>();
@@ -51,6 +52,7 @@ public class MessageRecord extends DataRecord {
         f.add(SUBJECT);                           t.add(IDataAccess.DATA_STRING);
         f.add(TEXT);                              t.add(IDataAccess.DATA_STRING);
         f.add(READ);                              t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(TOBEMAILED);                        t.add(IDataAccess.DATA_BOOLEAN);
         MetaData metaData = constructMetaData(Messages.DATATYPE, f, t, false);
         metaData.setKey(new String[] { MESSAGEID });
     }
@@ -137,35 +139,15 @@ public class MessageRecord extends DataRecord {
         return getBool(READ);
     }
 
-    public String getQualifiedName() {
-        return "#" + getMessageId() + " " + getSubject();
+    public void setToBeMailed(boolean toBeMailed) {
+        setBool(TOBEMAILED, toBeMailed);
+    }
+    public boolean getToBeMailed() {
+        return getBool(TOBEMAILED);
     }
 
-    public boolean sendEmail() {
-        if (Daten.admins == null) {
-            return false;
-        }
-        try {
-            StringBuffer recipients = new StringBuffer();
-            DataKeyIterator it = Daten.admins.data().getStaticIterator();
-            DataKey k = it.getFirst();
-            while (k != null) {
-                AdminRecord admin = (AdminRecord)Daten.admins.data().get(k);
-                if (admin.getEmail() != null && admin.getEmail().length() > 0 &&
-                     ((getTo().equals(TO_ADMIN) && admin.isAllowedMsgReadAdmin()) ||
-                      (getTo().equals(TO_BOATMAINTENANCE) && admin.isAllowedMsgReadBoatMaintenance())) ) {
-                    recipients.append( (recipients.length() > 0 ? ", " : "") + admin.getName() + " <" + admin.getEmail() + ">");
-                }
-                k = it.getNext();
-            }
-            if (recipients.length() > 0) {
-                EmailSender.sendEmail(this, recipients.toString());
-            }
-        } catch (Exception e) {
-            Logger.logdebug(e);
-            return false;
-        }
-        return true;
+    public String getQualifiedName() {
+        return "#" + getMessageId() + " " + getSubject();
     }
 
     public Vector<IItemType> getGuiItems() {

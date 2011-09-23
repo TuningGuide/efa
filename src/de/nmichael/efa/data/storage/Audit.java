@@ -29,7 +29,7 @@ public class Audit extends Thread {
 
     private int runAuditPersistence(StorageObject p, String dataType) {
         if (p != null && p.isOpen()) {
-            Logger.log(Logger.INFO, Logger.MSG_DATA_PROJECTCHECK, dataType + " open (" + p.toString() + ")");
+            Logger.log(Logger.DEBUG, Logger.MSG_DATA_PROJECTCHECK, dataType + " open (" + p.toString() + ")");
             return 0;
         } else {
             Logger.log(Logger.ERROR, Logger.MSG_DATA_PROJECTCHECK, dataType + " not open");
@@ -181,7 +181,7 @@ public class Audit extends Thread {
     }
 
     public boolean runAudit() {
-        Logger.log(Logger.INFO,Logger.MSG_DATA_PROJECTCHECK,"Starting Project Audit for Project: " + project.getProjectName());
+        Logger.log(Logger.DEBUG,Logger.MSG_DATA_PROJECTCHECK,"Starting Project Audit for Project: " + project.getProjectName());
         int errors = 0;
         try {
             errors += runAuditPersistence(project.getSessionGroups(false), SessionGroups.DATATYPE);
@@ -205,7 +205,7 @@ public class Audit extends Thread {
             Logger.logdebug(e);
             Logger.log(Logger.ERROR,Logger.MSG_DATA_PROJECTCHECK,"runAudit() Caught Exception: " + e.toString());
         }
-        Logger.log( (errors == 0 ? Logger.INFO : Logger.ERROR) ,Logger.MSG_DATA_PROJECTCHECK,"Project Audit completed with " + errors + " Errors.");
+        Logger.log( (errors == 0 ? Logger.DEBUG : Logger.ERROR) ,Logger.MSG_DATA_PROJECTCHECK,"Project Audit completed with " + errors + " Errors.");
         return errors == 0;
     }
 

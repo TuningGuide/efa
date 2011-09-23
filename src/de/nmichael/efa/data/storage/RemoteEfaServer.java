@@ -13,6 +13,7 @@ package de.nmichael.efa.data.storage;
 import com.sun.net.httpserver.*;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.gui.EfaBoathouseFrame;
 import de.nmichael.efa.util.Base64;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.International;
@@ -184,7 +185,7 @@ public class RemoteEfaServer {
                 }
                 IDataAccess dataAccess = request.getDataAccesss();
                 StorageObject p = (dataAccess != null ? dataAccess.getPersistence() : null);
-                if (p == null) {
+                if (p == null && !RemoteCommand.DATATYPE.equals(request.getStorageObjectType())) {
                     responses.add(RemoteEfaMessage.createResponseResult(msgId, RemoteEfaMessage.ERROR_UNKNOWNSTORAGEOBJECT,
                             "StorageObject not found: " + storageObjectName + "." + storageObjectType));
                     break;
@@ -311,6 +312,11 @@ public class RemoteEfaServer {
                     }
                     if (operation.equals(RemoteEfaMessage.OPERATION_GETLAST)) {
                         responses.add(requestGetLast(request, admin, p));
+                        break;
+                    }
+
+                    if (operation.equals(RemoteEfaMessage.OPERATION_CMD_EXITEFA)) {
+                        responses.add(requestCmdExitEfa(request, admin));
                         break;
                     }
 
@@ -740,6 +746,31 @@ public class RemoteEfaServer {
             RemoteEfaMessage response = RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_OK, null);
             if (r != null) {
                 response.addRecord(r);
+            }
+            return response;
+        } catch(Exception e) {
+            return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.ERROR_UNKNOWN, e.toString());
+        }
+    }
+
+    private RemoteEfaMessage requestCmdExitEfa(RemoteEfaMessage request, AdminRecord admin) {
+        try {
+            final boolean restart = request.getBoolean();
+            Logger.log(Logger.INFO, Logger.MSG_EVT_REMOTEEFAEXIT, International.getString("Beenden von efa durch Remote-Kommando"));
+            final AdminRecord _admin = admin;
+            RemoteEfaMessage response;
+            if (EfaBoathouseFrame.efaBoathouseFrame != null) {
+                new Thread() {
+                    public void run() {
+                        try {
+                            Thread.sleep(1000);
+                        } catch(Exception e) {}
+                        EfaBoathouseFrame.efaBoathouseFrame.cancel(null, EfaBoathouseFrame.EFA_EXIT_REASON_USER, _admin, restart);
+                    }
+                }.start();
+                response  = RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_OK, null);
+            } else {
+                response  = RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_FALSE, null);
             }
             return response;
         } catch(Exception e) {

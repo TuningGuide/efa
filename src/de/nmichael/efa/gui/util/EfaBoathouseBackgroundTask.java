@@ -112,55 +112,63 @@ public class EfaBoathouseBackgroundTask extends Thread {
     public void run() {
         // Diese Schleife läuft i.d.R. einmal pro Minute
         while (true) {
-            // Update GUI on Config Changes
-            checkUpdateGui();
-
-            // Reservierungs-Checker
-            checkBoatStatus();
-
-            // Nach ungelesenen Nachrichten für den Admin suchen
-            checkForUnreadMessages();
-
-            // automatisches Beenden von efa
-            checkForExitOrRestart();
-
-            // efa zeitgesteuert sperren
-            checkForLockEfa();
-
-            // automatisches Beginnen eines neuen Fahrtenbuchs (z.B. zum Jahreswechsel)
-            checkForAutoCreateNewLogbook();
-
-            // immer im Vordergrund
-            checkAlwaysInFront();
-
-            // Fokus-Kontrolle
-            checkFocus();
-
-            // Speicher-Überwachung
-            checkMemory();
-
-            // Aktivitäten einmal pro Stunde
-            if (--onceAnHour <= 0) {
-                System.gc(); // Damit Speicherüberwachung funktioniert (anderenfalls wird CollectionUsage nicht aktualisiert; Java-Bug)
-                onceAnHour = ONCE_AN_HOUR;
-                if (Logger.isTraceOn(Logger.TT_BACKGROUND)) {
+            try {
+                if (Logger.isTraceOn(Logger.TT_BACKGROUND, 5)) {
                     Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK, "EfaDirektBackgroundTask: alive!");
                 }
 
-                checkWarnings();
-            }
+                // Update GUI on Config Changes
+                checkUpdateGui();
 
-            try {
-                Thread.sleep(CHECK_INTERVAL * 1000);
-            } catch (Exception e) {
-                // wenn unterbrochen, dann versuch nochmal, kurz zu schlafen, und arbeite dann weiter!! ;-)
-                try {
-                    Thread.sleep(100);
-                } catch (Exception ee) {
-                    EfaUtil.foo();
+                // Reservierungs-Checker
+                checkBoatStatus();
+
+                // Nach ungelesenen Nachrichten für den Admin suchen
+                checkForUnreadMessages();
+
+                // automatisches Beenden von efa
+                checkForExitOrRestart();
+
+                // efa zeitgesteuert sperren
+                checkForLockEfa();
+
+                // automatisches Beginnen eines neuen Fahrtenbuchs (z.B. zum Jahreswechsel)
+                checkForAutoCreateNewLogbook();
+
+                // immer im Vordergrund
+                checkAlwaysInFront();
+
+                // Fokus-Kontrolle
+                checkFocus();
+
+                // Speicher-Überwachung
+                checkMemory();
+
+                // Aktivitäten einmal pro Stunde
+                if (--onceAnHour <= 0) {
+                    System.gc(); // Damit Speicherüberwachung funktioniert (anderenfalls wird CollectionUsage nicht aktualisiert; Java-Bug)
+                    onceAnHour = ONCE_AN_HOUR;
+                    if (Logger.isTraceOn(Logger.TT_BACKGROUND)) {
+                        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK, "EfaDirektBackgroundTask: alive!");
+                    }
+
+                    checkWarnings();
                 }
 
-                checkPackFrame();
+                try {
+                    Thread.sleep(CHECK_INTERVAL * 1000);
+                } catch (Exception e) {
+                    // wenn unterbrochen, dann versuch nochmal, kurz zu schlafen, und arbeite dann weiter!! ;-)
+                    try {
+                        Thread.sleep(100);
+                    } catch (Exception ee) {
+                        EfaUtil.foo();
+                    }
+
+                    checkPackFrame();
+                }
+            } catch (Exception eglobal) {
+                Logger.log(eglobal);
             }
         } // end: while(true)
     } // end: run
@@ -190,9 +198,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
         boolean listChanged = false;
         try {
             DataKeyIterator it = boatStatus.data().getStaticIterator();
-            DataKey k = it.getFirst();
-            while (k != null) {
+            for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
                 BoatStatusRecord boatStatusRecord = (BoatStatusRecord) boatStatus.data().get(k);
+                if (boatStatusRecord == null) {
+                    continue;
+                }
                 try {
                     boolean statusRecordChanged = false;
 

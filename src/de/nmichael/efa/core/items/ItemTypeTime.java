@@ -88,7 +88,7 @@ public class ItemTypeTime extends ItemTypeLabelTextfield {
     }
 
     public DataTypeTime getTime() {
-        return new DataTypeTime(value.getHour(), value.getMinute(), value.getSecond());
+        return new DataTypeTime(value);
     }
 
     public void setValueHour(int hour) {

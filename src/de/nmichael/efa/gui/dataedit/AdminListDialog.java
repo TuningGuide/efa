@@ -10,11 +10,10 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.*;
 import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.core.config.Admins;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.util.*;
-import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -23,14 +22,18 @@ import javax.swing.*;
 // @i18n complete
 public class AdminListDialog extends DataListDialog {
 
-    public AdminListDialog(Frame parent) {
-        super(parent, International.getString("Administratoren"), Daten.admins, 0);
+    private Admins admins;
+
+    public AdminListDialog(Frame parent, Admins admins) {
+        super(parent, International.getString("Administratoren"), admins, 0);
+        this.admins = admins;
         actionText = null; // only ADD, EDIT, DELETE (no IMPORT, EXPORT)
         actionType = null; // only ADD, EDIT, DELETE (no IMPORT, EXPORT)
     }
 
-    public AdminListDialog(JDialog parent) {
-        super(parent, International.getString("Administratoren"), Daten.admins, 0);
+    public AdminListDialog(JDialog parent, Admins admins) {
+        super(parent, International.getString("Administratoren"), admins, 0);
+        this.admins = admins;
         actionText = null; // only ADD, EDIT, DELETE (no IMPORT, EXPORT)
         actionType = null; // only ADD, EDIT, DELETE (no IMPORT, EXPORT)
     }
@@ -42,7 +45,7 @@ public class AdminListDialog extends DataListDialog {
     public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record) {
         boolean newRecord = (record == null);
         if (record == null) {
-            record = Daten.admins.createAdminRecord(null, null);
+            record = admins.createAdminRecord(null, null);
         }
         return new AdminEditDialog(parent, (AdminRecord)record, newRecord);
     }

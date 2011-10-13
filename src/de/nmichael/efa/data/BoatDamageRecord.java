@@ -320,13 +320,15 @@ public class BoatDamageRecord extends DataRecord {
         v.add(item = new ItemTypeString(BoatDamageRecord.DESCRIPTION, getDescription(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Beschreibung")));
         v.add(item = new ItemTypeStringList(SEVERITY, getSeverity(),
-                new String[] { SEVERITY_NOTUSEABLE, SEVERITY_LIMITEDUSEABLE, SEVERITY_FULLYUSEABLE },
-                new String[] { International.getString("Boot nicht benutzbar"),
+                new String[] { "", SEVERITY_NOTUSEABLE, SEVERITY_LIMITEDUSEABLE, SEVERITY_FULLYUSEABLE },
+                new String[] { "--- " + International.getString("bitte wählen") + " ---",
+                               International.getString("Boot nicht benutzbar"),
                                International.getString("Boot eingeschränkt benutzbar"),
                                International.getString("Boot voll benutzbar")
                 },
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                 International.getString("Schwere des Schadens")));
+        item.setNotNull(true);
         v.add(item = new ItemTypeDateTime(GUIITEM_REPORTDATETIME, getReportDate(), getReportTime(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("gemeldet am")));
         if (showOnlyAddDamageFields) {

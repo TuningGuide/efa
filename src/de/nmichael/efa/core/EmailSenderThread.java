@@ -183,6 +183,10 @@ public class EmailSenderThread extends Thread {
                     int countToBeSent = 0;
                     int countSuccess = 0;
                     Messages messages = Daten.project.getMessages(false);
+                    if (messages == null || messages.data() == null ||
+                        messages.data().getStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+                        continue; // EmailSenderThread must only run for local messages!
+                    }
                     DataKeyIterator it = messages.data().getStaticIterator();
                     DataKey k = it.getFirst();
                     while (k != null) {

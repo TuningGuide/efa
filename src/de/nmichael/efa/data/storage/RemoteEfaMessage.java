@@ -68,6 +68,7 @@ public class RemoteEfaMessage {
     public static final String FIELD_STORAGEOBJECTTYPE  = "ObjType";
     public static final String FIELD_STORAGEOBJECTNAME  = "ObjName";
     public static final String FIELD_SCN                = "SCN";
+    public static final String FIELD_TOTALRECORDCOUNT   = "RecCnt";
     public static final String FIELD_LOCKID             = "LockId";
     public static final String FIELD_LONGVALUE          = "LongValue";
     public static final String FIELD_TIMESTAMP          = "Timestamp";
@@ -176,6 +177,10 @@ public class RemoteEfaMessage {
 
     public long getScn() {
         return EfaUtil.string2long(getFieldValue(FIELD_SCN), -1);
+    }
+
+    public long getRecCnt() {
+        return EfaUtil.string2long(getFieldValue(FIELD_TOTALRECORDCOUNT), -1);
     }
 
     public long getLockId() {

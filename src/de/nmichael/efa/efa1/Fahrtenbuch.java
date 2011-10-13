@@ -346,8 +346,14 @@ public class Fahrtenbuch extends DatenListe {
 
 
  public static String getMehrtagesfahrtName(String key) {
+   if (key.startsWith(EfaTypes.TYPE_SESSION_TOUR_EFA1X1+":")) {
+       return key.substring(EfaTypes.TYPE_SESSION_TOUR_EFA1X1.length()+1);
+   }
+   if (key.startsWith(EfaTypes.TYPE_SESSION_TOUR_EFA1X2+":")) {
+       return key.substring(EfaTypes.TYPE_SESSION_TOUR_EFA1X2.length()+1);
+   }
    if (key.startsWith(EfaTypes.TYPE_SESSION_TOUR+":")) {
-       key = key.substring(EfaTypes.TYPE_SESSION_TOUR.length()+1);
+       return key.substring(EfaTypes.TYPE_SESSION_TOUR.length()+1);
    }
    return key;
  }

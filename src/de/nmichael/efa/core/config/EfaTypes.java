@@ -89,6 +89,8 @@ public class EfaTypes extends StorageObject {
     public static final String TYPE_SESSION_MOTORBOAT     = "MOTORBOAT";    // MOTORBOOT
     public static final String TYPE_SESSION_ERG           = "ERG";          // ERGO
     public static final String TYPE_SESSION_TOUR          = "TOUR";         // MEHRTAGESFAHRT
+    public static final String TYPE_SESSION_TOUR_EFA1X1   = "MEHRTAGESFAHRT"; // for import efa 1.x: MEHRTAGESFAHRT
+    public static final String TYPE_SESSION_TOUR_EFA1X2   = "MULTIDAY";     // for import efa 1.x: MEHRTAGESFAHRT
 
     public static final String TYPE_STATUS_GUEST          = "GUEST";        // Gast
     public static final String TYPE_STATUS_OTHER          = "OTHER";        // andere

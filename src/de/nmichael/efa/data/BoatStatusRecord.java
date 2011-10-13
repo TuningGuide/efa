@@ -244,7 +244,8 @@ public class BoatStatusRecord extends DataRecord {
         if (getCurrentStatus() != null && getCurrentStatus().equals(STATUS_ONTHEWATER)) {
             v.add(item = new ItemTypeLabel(BoatStatusRecord.ENTRYNO,
                     IItemType.TYPE_PUBLIC, CAT_STATUS,
-                    International.getMessage("Eintrag in Lfd. Nr. {entryNo} in Fahrtenbuch {logbook}", getEntryNo().toString(), getLogbook())));
+                    International.getMessage("Eintrag in Lfd. Nr. {entryNo} in Fahrtenbuch {logbook}", 
+                    (getEntryNo() != null ? getEntryNo().toString() : "NOENTRYNO"), getLogbook())));
         }
         v.add(item = new ItemTypeString(BoatStatusRecord.COMMENT, getComment(),
                 IItemType.TYPE_PUBLIC, CAT_STATUS, International.getString("Bemerkung")));

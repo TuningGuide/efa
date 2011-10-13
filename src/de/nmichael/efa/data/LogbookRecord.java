@@ -113,6 +113,10 @@ public class LogbookRecord extends DataRecord {
     // General
     public static final int CREW_MAX = 24;
 
+    // =========================================================================
+    // Temporary Fields for Evaluation (not stored in the persistent record!)
+    // =========================================================================
+    public Zielfahrt zielfahrt;
 
     public static String getCrewFieldNameId(int pos) {
         if (pos == 0) {

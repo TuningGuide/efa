@@ -15,11 +15,13 @@ import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.types.DataTypeDistance;
 import de.nmichael.efa.data.types.DataTypeIntString;
 import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.util.*;
+import de.nmichael.efa.statistics.StatisticsData;
 import de.nmichael.efa.util.*;
 import java.util.*;
 
@@ -38,6 +40,7 @@ public class StatisticsRecord extends DataRecord {
     public static final String DATEFROM            = "DateFrom";
     public static final String DATETO              = "DateTo";
     public static final String STATISTICTYPE       = "StatisticType";
+    public static final String OUTPUTTYPE          = "OutputType";
     public static final String FILTERGENDER        = "FilterGender";
     public static final String FILTERSTATUS        = "FilterStatus";
     public static final String FILTERSESSIONTYPE   = "FilterSessionType";
@@ -58,9 +61,15 @@ public class StatisticsRecord extends DataRecord {
     // Field Value Constants
     // =========================================================================
 
-    public static final String TYPE_PERSONS        = "Persons";
-    public static final String TYPE_BOATS          = "Boats";
-    public static final String TYPE_COMPETITION    = "Competition";
+    public static final String STYPE_PERSONS       = "Persons";
+    public static final String STYPE_BOATS         = "Boats";
+    public static final String STYPE_COMPETITION   = "Competition";
+
+    public static final String OTYPE_INTERNAL       = "Internal";
+    public static final String OTYPE_HTML           = "Html";
+    public static final String OTYPE_CSV            = "Csv";
+    public static final String OTYPE_XML            = "Xml";
+    public static final String OTYPE_EFAWETT        = "EfaWett";
 
     public static final String FIELDS_POSITION     = "Position";
     public static final String FIELDS_NAME         = "Name";
@@ -71,6 +80,7 @@ public class StatisticsRecord extends DataRecord {
     public static final String AGGR_DISTANCE       = "Distance";
     public static final String AGGR_SESSIONS       = "Sessions";
     public static final String AGGR_AVGDISTANCE    = "AvgDistance";
+    public static final String AGGR_ZIELFAHRTEN    = "Zielfahrten";
 
     public static final String SORTINGORDER_ASC    = "Ascending";
     public static final String SORTINGORDER_DESC   = "Descending";
@@ -85,6 +95,15 @@ public class StatisticsRecord extends DataRecord {
         competition
     }
 
+    public enum OutputTypes {
+        UNKNOWN,
+        internal,
+        html,
+        csv,
+        xml,
+        efawett
+    }
+
     // =========================================================================
     // Statistic Settings (for easier access)
     // =========================================================================
@@ -96,6 +115,7 @@ public class StatisticsRecord extends DataRecord {
     public long sTimestampEnd;
     public long sValidAt;
     public StatisticTypes sStatisticType;
+    public OutputTypes sOutputType;
     public Hashtable<String,String> sFilterGender;
     public Hashtable<UUID,String> sFilterStatus;
     public boolean sFilterStatusOther;
@@ -115,6 +135,12 @@ public class StatisticsRecord extends DataRecord {
     public boolean sIsAggrDistance;
     public boolean sIsAggrSessions;
     public boolean sIsAggrAvgDistance;
+    public boolean sIsAggrZielfahrten;
+    public boolean sIsOutputCompShort;
+    public boolean sIsOutputCompRules;
+    public boolean sIsOutputCompAdditionalWithRequirements;
+    public boolean sIsOutputCompWithoutDetails;
+    public boolean sIsOutputCompAllDestinationAreas;
     public int sAggrDistanceBarSize = 200; // @todo (P2) statistics - bar sizes
     public int sAggrSessionsBarSize = 0; // @todo (P2) statistics - bar sizes
     public int sAggrAvgDistanceBarSize = 0; // @todo (P2) statistics - bar sizes
@@ -123,6 +149,8 @@ public class StatisticsRecord extends DataRecord {
     public boolean sOutputHtmlUpdateTable = false;
     public String sFileExecBefore;
     public String sFileExecAfter;
+    public int sCompYear;
+    public int sCompPercentFulfilled;
 
     // filled during statistics creation in StatistikTask
     public int cNumberOfEntries = 0;
@@ -142,6 +170,16 @@ public class StatisticsRecord extends DataRecord {
     public String pStatConsideredEntries;
     public Vector<String> pTableColumns;
 
+    // filled by Competition.calculate()
+    public String[] pCompRules;
+    public Hashtable pCompRulesBold = new Hashtable();
+    public Hashtable pCompRulesItalics = new Hashtable();
+    public String pCompWarning;
+    public String[][] pCompGroupNames;
+    public StatisticsData[] pCompParticipants;
+
+    public String[][] pAdditionalTable;
+
 
 
     public static void initialize() {
@@ -155,6 +193,7 @@ public class StatisticsRecord extends DataRecord {
         f.add(DATEFROM);                          t.add(IDataAccess.DATA_DATE);
         f.add(DATETO);                            t.add(IDataAccess.DATA_DATE);
         f.add(STATISTICTYPE);                     t.add(IDataAccess.DATA_STRING);
+        f.add(OUTPUTTYPE);                        t.add(IDataAccess.DATA_STRING);
         f.add(FILTERGENDER);                      t.add(IDataAccess.DATA_LIST_STRING);
         f.add(FILTERSTATUS);                      t.add(IDataAccess.DATA_LIST_UUID);
         f.add(FILTERSESSIONTYPE);                 t.add(IDataAccess.DATA_LIST_STRING);
@@ -259,7 +298,7 @@ public class StatisticsRecord extends DataRecord {
     public String getStatisticType() {
         String s = getString(STATISTICTYPE);
         if (s == null || s.length() == 0) {
-            return TYPE_PERSONS;
+            return STYPE_PERSONS;
         }
         return s;
     }
@@ -268,11 +307,11 @@ public class StatisticsRecord extends DataRecord {
         String type = getStatisticType();
         if (type == null) {
             return StatisticTypes.UNKNOWN;
-        } else if (type.equals(TYPE_PERSONS)) {
+        } else if (type.equals(STYPE_PERSONS)) {
             return StatisticTypes.persons;
-        } else if (type.equals(TYPE_BOATS)) {
+        } else if (type.equals(STYPE_BOATS)) {
             return StatisticTypes.boats;
-        } else if (type.equals(TYPE_COMPETITION)) {
+        } else if (type.equals(STYPE_COMPETITION)) {
             return StatisticTypes.competition;
         }
         return StatisticTypes.UNKNOWN;
@@ -293,15 +332,82 @@ public class StatisticsRecord extends DataRecord {
     public String[] getStatisticTypes(int valuesOrDisplay) {
         if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
             return new String[] {
-                TYPE_PERSONS,
-                TYPE_BOATS,
-                TYPE_COMPETITION
+                STYPE_PERSONS,
+                STYPE_BOATS,
+                STYPE_COMPETITION
             };
         } else {
             return new String[] {
                 International.getString("Personen"),
                 International.getString("Boote"),
-                International.getString("Wettbewerb"),
+                International.getString("Wettbewerb")
+            };
+        }
+    }
+
+    public void setOutputType(String type) {
+        setString(OUTPUTTYPE, type);
+    }
+
+    public String getOutputType() {
+        String s = getString(OUTPUTTYPE);
+        if (s == null || s.length() == 0) {
+            return OTYPE_INTERNAL;
+        }
+        return s;
+    }
+
+    public OutputTypes getOutputTypeEnum() {
+        String type = getOutputType();
+        if (type == null) {
+            return OutputTypes.UNKNOWN;
+        } else if (type.equals(OTYPE_INTERNAL)) {
+            return OutputTypes.internal;
+        } else if (type.equals(OTYPE_HTML)) {
+            return OutputTypes.html;
+        } else if (type.equals(OTYPE_CSV)) {
+            return OutputTypes.csv;
+        } else if (type.equals(OTYPE_XML)) {
+            return OutputTypes.xml;
+        } else if (type.equals(OTYPE_EFAWETT)) {
+            return OutputTypes.efawett;
+        }
+        return OutputTypes.UNKNOWN;
+    }
+
+    public String getOutputTypeDescription() {
+        switch(getOutputTypeEnum()) {
+            case internal:
+                return International.getString("intern");
+            case html:
+                return International.getString("HTML");
+            case csv:
+                return International.getString("CSV");
+            case xml:
+                return International.getString("XML");
+            case efawett:
+                return International.getString("efaWett");
+        }
+        return International.getString("unbekannt");
+    }
+
+    public String[] getOutputTypes(int valuesOrDisplay) {
+        if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
+            return new String[] {
+                OTYPE_INTERNAL,
+                OTYPE_HTML,
+                OTYPE_CSV,
+                OTYPE_XML,
+                OTYPE_EFAWETT
+            };
+        } else {
+            return new String[] {
+                International.getString("intern"),
+                International.getString("HTML"),
+                International.getString("CSV"),
+                International.getString("XML"),
+                International.getString("efaWett"),
+
             };
         }
     }
@@ -411,13 +517,15 @@ public class StatisticsRecord extends DataRecord {
             return new String[] {
                 AGGR_DISTANCE,
                 AGGR_SESSIONS,
-                AGGR_AVGDISTANCE
+                AGGR_AVGDISTANCE,
+                AGGR_ZIELFAHRTEN
             };
         } else {
             return new String[] {
                 International.getString("Kilometer"), // @todo (P3) default unit for km
                 International.getString("Fahrten"),
-                International.getString("Km/Fahrt") // @todo (P3) default unit for km
+                International.getString("Km/Fahrt"), // @todo (P3) default unit for km
+                International.onlyFor("Zielfahrten", "de")
             };
         }
     }
@@ -461,6 +569,10 @@ public class StatisticsRecord extends DataRecord {
                     getStatisticTypes(ARRAY_STRINGLIST_VALUES), getStatisticTypes(ARRAY_STRINGLIST_DISPLAY),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                     International.getString("Statistikart")));
+        v.add(item = new ItemTypeStringList(StatisticsRecord.OUTPUTTYPE, getOutputType(),
+                    getOutputTypes(ARRAY_STRINGLIST_VALUES), getOutputTypes(ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                    International.getString("Ausgabeart")));
         item.setNotNull(true);
         
         // CAT_FIELDS
@@ -539,6 +651,7 @@ public class StatisticsRecord extends DataRecord {
         }
 
         sStatisticType = getStatisticTypeEnum();
+        sOutputType = getOutputTypeEnum();
 
         sFilterGender = new Hashtable<String,String>();
         DataTypeList<String> listString = getFilterGender();
@@ -612,12 +725,62 @@ public class StatisticsRecord extends DataRecord {
                 sIsAggrSessions = true;
             } else if (s.equals(AGGR_AVGDISTANCE)) {
                 sIsAggrAvgDistance = true;
+            } else if (s.equals(AGGR_ZIELFAHRTEN)) {
+                sIsAggrZielfahrten = true;
             }
         }
+
+        sCompYear = 2011; // @todo (P2) - statistics comp
+        sCompPercentFulfilled = 10; // @todo (P2) - statistics comp
+        sIsOutputCompShort = false; // @todo (P2) - statistics comp
+        sIsOutputCompRules = false; // @todo (P2) - statistics comp
+        sIsOutputCompAdditionalWithRequirements = false; // @todo (P2) - statistics comp
+        sIsOutputCompWithoutDetails = true; // @todo (P2) - statistics comp
+        sIsOutputCompAllDestinationAreas = false; // @todo (P2) - statistics comp
+        if (sStatisticType == StatisticTypes.competition) {
+            this.sIsAggrDistance = true;
+            this.sIsAggrSessions = true;
+            this.sIsAggrZielfahrten = true;
+            this.sIsFieldsName = true;
+            this.sIsFieldsStatus = true;
+            this.sIsFieldsYearOfBirth = true;
+        }
+
 
         sTimestampBegin = sStartDate.getTimestamp(new DataTypeTime(0,0,0));
         sTimestampEnd   = sEndDate.getTimestamp(new DataTypeTime(23,59,59));
         sValidAt = sEndDate.getTimestamp(new DataTypeTime(23,59,59));
+    }
+
+    public void prepareTableColumns() {
+        pTableColumns = new Vector<String>();
+        if (sIsFieldsPosition) {
+            pTableColumns.add(International.getString("Platz"));
+        }
+        if (sIsFieldsName) {
+            pTableColumns.add(International.getString("Name"));
+        }
+        if (sIsFieldsStatus) {
+            pTableColumns.add(International.getString("Status"));
+        }
+        if (sIsFieldsYearOfBirth) {
+            pTableColumns.add(International.getString("Jahrgang"));
+        }
+        if (sIsFieldsBoatType) {
+            pTableColumns.add(International.getString("Bootstyp"));
+        }
+        if (sIsAggrDistance) {
+            pTableColumns.add(DataTypeDistance.getDefaultUnitName());
+        }
+        if (sIsAggrSessions) {
+            pTableColumns.add(International.getString("Fahrten"));
+        }
+        if (sIsAggrAvgDistance) {
+            pTableColumns.add(DataTypeDistance.getDefaultUnitAbbrevation() + "/" + International.getString("Fahrt"));
+        }
+        if (sIsAggrZielfahrten) {
+            pTableColumns.add(International.getString("Zielfahrten"));
+        }
     }
 
 }

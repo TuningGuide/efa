@@ -409,9 +409,21 @@ public class Logger {
      * Use this method for loggin!
      * @param type the type of the message, see Logger: Message Types
      * @param key the key for this message, see Logger: Message Keys
-     * @param msg the message to be logged
+     * @param txt the message to be logged
      */
-    public static void log(String type, String key, String msg) {
+    public static void log(String type, String key, String txt) {
+        log(type, key, txt, type != null && type.equals(ERROR));
+    }
+
+    /**
+     * Log a message.
+     * Use this method for loggin!
+     * @param type the type of the message, see Logger: Message Types
+     * @param key the key for this message, see Logger: Message Keys
+     * @param txt the message to be logged
+     * @param sendmail
+     */
+    public static void log(String type, String key, String txt, boolean msgToAdmin) {
         if (inLogging) {
             return; // avoid recursion
         }
@@ -446,12 +458,12 @@ public class Logger {
 
             if (alsoLogToStdOut) {
                 if (type != null && !type.equals(INPUT))  {
-                    System.out.println(EfaUtil.getString(type, 7) + " - " + key + " - " + msg);
+                    System.out.println(EfaUtil.getString(type, 7) + " - " + key + " - " + txt);
                 } else {
-                    System.out.print(EfaUtil.getString(type, 7) + " - " + key + " - " + msg);
+                    System.out.print(EfaUtil.getString(type, 7) + " - " + key + " - " + txt);
                 }
             }
-            String t = "[" + EfaUtil.getCurrentTimeStamp() + "] - " + EfaUtil.getString(Daten.applName, 7) + " - " + Daten.applPID + " - " + EfaUtil.getString(type, 7) + " - " + key + " - " + msg;
+            String t = "[" + EfaUtil.getCurrentTimeStamp() + "] - " + EfaUtil.getString(Daten.applName, 7) + " - " + Daten.applPID + " - " + EfaUtil.getString(type, 7) + " - " + key + " - " + txt;
             if (type != null && !type.equals(INPUT) && !type.equals(OUTPUT))  {
                 Calendar cal = new GregorianCalendar();
                 EfaErrorPrintStream.ignoreExceptions = true; // Damit Exception-Ausschriften nicht versehentlich als echte Exceptions gemeldet werden
@@ -459,7 +471,7 @@ public class Logger {
                 EfaErrorPrintStream.ignoreExceptions = false;
             }
 
-            if (type != null && type.equals(ERROR) && Daten.project != null) {
+            if (msgToAdmin && Daten.project != null) {
 
                 Messages messages = (Daten.project != null && !Daten.project.isInOpeningProject() ? Daten.project.getMessages(false) : null);
                 if (messages == null || !messages.isOpen()) {

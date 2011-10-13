@@ -116,6 +116,9 @@ public abstract class DataFile extends DataAccess {
     // This method must *not* be synchronized;
     // that would result in a deadlock between fileWriter running save(true) and the thread calling closeStorageObject()
     public void closeStorageObject() throws EfaException {
+        if (!isOpen) {
+            return;
+        }
         try {
             fileWriter.save(true, false);
             synchronized(data) {

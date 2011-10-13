@@ -41,6 +41,16 @@ public class DataTypeDistance {
         this.unit = unit;
     }
 
+    public DataTypeDistance(long distanceInDefaultUnit) {
+        if (getDefaultUnit() == UnitType.km) {
+            this.value = new DataTypeDecimal(distanceInDefaultUnit, 0);
+            this.unit = UnitType.m;
+        } else {
+            this.value = new DataTypeDecimal(distanceInDefaultUnit, 0);
+            this.unit = UnitType.yd;
+        }
+    }
+
     // Copy Constructor
     public DataTypeDistance(DataTypeDistance distance) {
         this.value = (distance.value != null ? new DataTypeDecimal(distance.value) : null);
@@ -211,6 +221,11 @@ public class DataTypeDistance {
             case yd: return value.getValue(0);
         }
         return 0;
+    }
+
+    public long getTruncatedValueInKilometers() {
+        long m = getValueInMeters();
+        return m / 1000;
     }
 
     public String getValueInKilometers() {

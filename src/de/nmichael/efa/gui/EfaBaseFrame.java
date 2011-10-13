@@ -113,6 +113,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     EfaBoathouseFrame efaBoathouseFrame;
     AdminDialog adminDialog;
     ItemTypeBoatstatusList.BoatListItem efaBoathouseAction;
+    BoatStatusRecord correctSessionLastBoatStatus;
     int positionX,positionY;      // Position des Frames, wenn aus efaDirekt aufgerufen
 
 
@@ -759,9 +760,19 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     DestinationRecord findDestination(long preferredValidAt) {
         DestinationRecord d = null;
         try {
-            String s = LogbookRecord.getDestinationNameAndVariantFromString(destination.toString())[0];
-            if (s.length() > 0) {
-                return Daten.project.getDestinations(false).getDestination(s, logbookValidFrom, logbookInvalidFrom-1, preferredValidAt);
+            String[] dest = LogbookRecord.getDestinationNameAndVariantFromString(destination.toString());
+            if (dest[0].length() > 0 && dest[1].length() > 0) {
+                // this is a destination of the form "base + variant".
+                // however, it could be that we have an explicit destination "base & variant" in our database.
+                // check for "base & variant" first
+                d = Daten.project.getDestinations(false).getDestination(dest[0] + " & " + dest[1],
+                        logbookValidFrom, logbookInvalidFrom-1, preferredValidAt);
+                if (d != null) {
+                    return d;
+                }
+            }
+            if (dest[0].length() > 0) {
+                return Daten.project.getDestinations(false).getDestination(dest[0], logbookValidFrom, logbookInvalidFrom-1, preferredValidAt);
             }
         } catch(Exception e) {
             Logger.logdebug(e);
@@ -1011,9 +1022,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         if (b != null) {
             r.setBoatId(b.getId());
             r.setBoatVariant(EfaUtil.stringFindInt(boatvariant.getValue(), b.getTypeVariant(0)));
+            r.setBoatName(null);
         } else {
             s = boat.toString().trim();
             r.setBoatName( (s.length() == 0 ? null : s) );
+            r.setBoatId(null);
         }
 
         // Cox and Crew
@@ -1332,7 +1345,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             // "zielButton.getBackground()!=Color.red" aus "ziel_keyReleased" oder "zielButton_focusLost"
             // aufgerufen wird und somit ein gültiger Datensatz bereits gefunden wurde!
             DestinationRecord r = findDestination(-1);
-            if (r != null) {
+            if (r != null && r.getDistance() != null) {
                 distance.parseAndShowValue(r.getDistance().getAsFormattedString());
             } else {
                 distance.parseAndShowValue("");
@@ -3001,6 +3014,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     boolean setDataForBoathouseAction(ItemTypeBoatstatusList.BoatListItem action, Logbook logbook) {
         this.mode = action.mode;
         openLogbook(logbook);
+        if (getMode() == MODE_BOATHOUSE_START_CORRECT) {
+            correctSessionLastBoatStatus = action.boatStatus;
+        } else {
+            correctSessionLastBoatStatus = null;
+        }
         this.efaBoathouseAction = action;
         clearAllBackgroundColors();
         switch(mode) {
@@ -3257,12 +3275,13 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         }
 
         // Update boat status
-        if (success && efaBoathouseAction != null && currentRecord != null) {
+        if (success && efaBoathouseAction != null && currentRecord != null &&
+            mode != MODE_BOATHOUSE_LATEENTRY) {
             long tstmp = currentRecord.getValidAtTimestamp();
             BoatStatus boatStatus = Daten.project.getBoatStatus(false);
             BoatRecord boatRecord = currentRecord.getBoatRecord(tstmp);
             BoatStatusRecord boatStatusRecord = (boatRecord != null ? boatStatus.getBoatStatus(boatRecord.getId()) : null);
-
+           
             // figure out new status information
             String newStatus = null;
             String newShowInList = null; // if not explicitly set, this boat will appear in the list determined by its status
@@ -3351,14 +3370,13 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                             boatStatus.data().update(boatStatusRecord);
                             
                             // check whether we have changed the boat during this dialog (e.g. StartCorrect)
-                            if (efaBoathouseAction.boatStatus != null && efaBoathouseAction.boatStatus.getBoatId() != null &&
-                                !boatStatusRecord.getBoatId().equals(efaBoathouseAction.boatStatus.getBoatId())) {
-                                BoatStatusRecord oldStatus = efaBoathouseAction.boatStatus;
-                                oldStatus.setCurrentStatus(BoatStatusRecord.STATUS_AVAILABLE);
-                                oldStatus.setEntryNo(null);
-                                oldStatus.setLogbook(null);
-                                oldStatus.setComment("");
-                                boatStatus.data().update(oldStatus);
+                            if (correctSessionLastBoatStatus != null && correctSessionLastBoatStatus.getBoatId() != null &&
+                                !boatStatusRecord.getBoatId().equals(correctSessionLastBoatStatus.getBoatId())) {
+                                correctSessionLastBoatStatus.setCurrentStatus(BoatStatusRecord.STATUS_AVAILABLE);
+                                correctSessionLastBoatStatus.setEntryNo(null);
+                                correctSessionLastBoatStatus.setLogbook(null);
+                                correctSessionLastBoatStatus.setComment("");
+                                boatStatus.data().update(correctSessionLastBoatStatus);
                             }
                         }
                     }

@@ -77,11 +77,13 @@ public class Audit extends Thread {
             it = boatStatus.data().getStaticIterator();
             k = it.getFirst();
             while (k != null) {
-                BoatStatusRecord status = (BoatStatusRecord)boatStatus.data().get(k);
-                DataRecord[] boat = boats.data().getValidAny(BoatRecord.getKey(status.getBoatId(), 0));
-                if (boat == null || boat.length == 0) {
-                    Logger.log(Logger.ERROR,Logger.MSG_DATA_PROJECTCHECK,"No Boat found for Boat Status: " + status.toString());
-                    errors++;
+                BoatStatusRecord status = (BoatStatusRecord) boatStatus.data().get(k);
+                if (!status.getUnknownBoat()) {
+                    DataRecord[] boat = boats.data().getValidAny(BoatRecord.getKey(status.getBoatId(), 0));
+                    if (boat == null || boat.length == 0) {
+                        Logger.log(Logger.ERROR, Logger.MSG_DATA_PROJECTCHECK, "No Boat found for Boat Status: " + status.toString());
+                        errors++;
+                    }
                 }
                 k = it.getNext();
             }

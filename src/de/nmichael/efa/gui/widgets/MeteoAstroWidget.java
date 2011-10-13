@@ -645,6 +645,7 @@ public class MeteoAstroWidget extends Widget {
         private int width;
         private int height;
         private int closeTimeoutSeconds;
+        private boolean isClosed = false;
 
         public HtmlPopupDialog(String title, String url, int width, int height, int closeTimeoutSeconds) {
             super((JDialog)null, title, International.getStringWithMnemonic("Schließen"));
@@ -684,6 +685,7 @@ public class MeteoAstroWidget extends Widget {
                 public void run() {
                     try {
                         Thread.sleep(closeTimeoutSeconds*1000);
+
                         cancel();
                     } catch(Exception e) {
                     }
@@ -693,6 +695,14 @@ public class MeteoAstroWidget extends Widget {
 
         public void keyAction(ActionEvent evt) {
             _keyAction(evt);
+        }
+
+        public boolean cancel() {
+            if (!isClosed) {
+                isClosed = true;
+                return super.cancel();
+            }
+            return true;
         }
     }
 

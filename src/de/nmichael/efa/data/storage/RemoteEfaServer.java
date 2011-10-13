@@ -28,9 +28,14 @@ import org.xml.sax.XMLReader;
 
 public class RemoteEfaServer {
 
+    private static final Object syncObject = new Object();
+
     private static SecureRandom prng;
     private static MessageDigest sha;
 
+    private static String lastLoginAdmin = null;
+    private static String lastLoginIp = null;
+    private static long lastLoginTime = 0;
 
     private int serverPort;
     private XMLReader parser;
@@ -326,10 +331,12 @@ public class RemoteEfaServer {
                 }
 
                 if (responses.size() > 0 && p != null) {
-                    // add SCN to response
                     RemoteEfaMessage lastResponse = responses.get(responses.size() - 1);
                     if (lastResponse != null && lastResponse.getResultCode() == RemoteEfaMessage.RESULT_OK) {
+                        // add SCN to response
                         lastResponse.addField(RemoteEfaMessage.FIELD_SCN, Long.toString(p.data().getSCN()));
+                        // add NumberOfRecords to response
+                        lastResponse.addField(RemoteEfaMessage.FIELD_TOTALRECORDCOUNT, Long.toString(p.dataAccess.getNumberOfRecords()));
                     }
                 }
 
@@ -401,9 +408,27 @@ public class RemoteEfaServer {
                             + ": " + International.getString("Admin") + "=" + username);
                     return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.ERROR_NOPERMISSION, "No Permission");
                 }
-                Logger.log(Logger.INFO, Logger.MSG_REFA_SERVERLOG,
-                    International.getMessage("efaRemote Login von {ipaddress} erfolgreich", peerAddress.toString()) +
-                    ": " + International.getString("Admin") + "=" + username);
+
+                // avoid duplicate lolastLogging for logins for various storage objects
+                String logType = Logger.INFO;
+                synchronized (syncObject) {
+                    if (lastLoginAdmin != null && lastLoginIp != null
+                            && System.currentTimeMillis() - lastLoginTime < 60 * 1000
+                            && lastLoginAdmin.equals(username) && lastLoginIp.equals(peerAddress.toString())) {
+                        // same login within one minute
+                        logType = Logger.DEBUG;
+                    } else {
+                        lastLoginAdmin = username;
+                        lastLoginIp = peerAddress.toString();
+                        lastLoginTime = System.currentTimeMillis();
+                    }
+                }
+
+                if (logType.equals(Logger.INFO) || Logger.isTraceOn(Logger.TT_REMOTEEFA, 2)) {
+                    Logger.log(Logger.INFO, Logger.MSG_REFA_SERVERLOG,
+                            International.getMessage("efaRemote Login von {ipaddress} erfolgreich", peerAddress.toString())
+                            + ": " + International.getString("Admin") + "=" + username);
+                }
                 RemoteEfaMessage response = RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_OK,
                         Daten.VERSIONID);
                 response.addField(RemoteEfaMessage.FIELD_SESSIONID, createSessionId(admin));

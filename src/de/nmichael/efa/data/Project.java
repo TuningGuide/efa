@@ -275,9 +275,8 @@ public class Project extends StorageObject {
 
     private void closePersistence(StorageObject p) {
         try {
-            if (p.isOpen()) {
-                p.close();
-            }
+            // It's ok to just close the storage object; if it wasn't open at all, close will do nothing
+            p.close();
         } catch(Exception e) {
             Logger.log(Logger.ERROR,Logger.MSG_DATA_CLOSEFAILED,
             LogString.logstring_fileCloseFailed(persistenceCache.toString(), p.getDescription(), e.toString()));

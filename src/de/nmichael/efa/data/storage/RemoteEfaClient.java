@@ -225,16 +225,17 @@ public class RemoteEfaClient extends DataAccess {
             RemoteEfaMessage response = responses.get(i);
             if (response != null && response.getResultCode() == RemoteEfaMessage.RESULT_OK) {
                 long scn = response.getScn();
+                long totalRecordCount = response.getRecCnt();
                 DataRecord[] records = response.getRecords();
                 if (records != null) {
                     for (int j=0; j<records.length; j++) {
                         if (records[j] != null) {
-                            cache.updateCache(records[j], scn);
+                            cache.updateCache(records[j], scn, totalRecordCount);
                         }
                     }
                     updateStatistics("Rcvd:Records", records.length);
                 } else {
-                    cache.updateScn(scn);
+                    cache.updateScn(scn, totalRecordCount);
                 }
                 DataKey[] keys = response.getKeys();
                 if (keys != null) {
@@ -271,13 +272,13 @@ public class RemoteEfaClient extends DataAccess {
             RemoteEfaMessage response = responses.get(0);
             if (response.getResultCode() != 0) {
                 Logger.log(Logger.ERROR, Logger.MSG_REFA_REQUESTFAILED, getErrorLogstring(request,
-                           response.getResultText(), response.getResultCode()));
+                           response.getResultText(), response.getResultCode()), false);
                 return response.getResultCode();
             }
             return RemoteEfaMessage.RESULT_OK;
         } catch(Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_REFA_REQUESTFAILED, getErrorLogstring(request,
-                       e.getMessage(), -1));
+                       e.getMessage(), -1), false);
             return -1;
         }
     }
@@ -299,7 +300,7 @@ public class RemoteEfaClient extends DataAccess {
             return responses.get(0);
         } catch(Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_REFA_REQUESTFAILED, getErrorLogstring(request,
-                       e.getMessage(), -1));
+                       e.getMessage(), -1), false);
             return null;
         }
     }
@@ -312,6 +313,7 @@ public class RemoteEfaClient extends DataAccess {
     }
 
     public void openStorageObject() throws EfaException {
+        // @todo (P3) remote openStorageObject()
         /*
         if (!runSimpleRequest(RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
                 RemoteEfaMessage.OPERATION_OPENSTORAGEOBJECT))) {
@@ -323,6 +325,7 @@ public class RemoteEfaClient extends DataAccess {
     }
 
     public void createStorageObject() throws EfaException {
+        // @todo (P3) remote createStorageObject()
         /*
         if (!runSimpleRequest(RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
                 RemoteEfaMessage.OPERATION_CREATESTORAGEOBJECT))) {
@@ -344,6 +347,7 @@ public class RemoteEfaClient extends DataAccess {
     }
 
     public void closeStorageObject() throws EfaException {
+        // @todo (P3) remote closeStorageObject()
         /*
         if (!runSimpleRequest(RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
                 RemoteEfaMessage.OPERATION_CLOSESTORAGEOBJECT))) {
@@ -355,6 +359,7 @@ public class RemoteEfaClient extends DataAccess {
     }
 
     public void deleteStorageObject() throws EfaException {
+        // @todo (P3) remote deleteStorageObject()
         /*
         if (!runSimpleRequest(RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
                 RemoteEfaMessage.OPERATION_DELETESTORAGEOBJECT))) {
@@ -416,6 +421,13 @@ public class RemoteEfaClient extends DataAccess {
     // =========================== Global Data Methods ===========================
 
     public long getNumberOfRecords() throws EfaException {
+        // fetch SCN from Cache or remotely to make sure we have up-to-date data (< MAX_AGE)
+        getSCN();
+        long totalNumberOfRecords = cache.getTotalNumberOfRecordsIfNotTooOld();
+        if (totalNumberOfRecords >= 0) {
+            return totalNumberOfRecords;
+        }
+        
         RemoteEfaMessage request = RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
                 RemoteEfaMessage.OPERATION_GETNUMBEROFRECORDS);
         RemoteEfaMessage response = runDataRequest(request);
@@ -569,7 +581,10 @@ public class RemoteEfaClient extends DataAccess {
 
     public DataRecord getValidAt(DataKey key, long t) throws EfaException {
         DataRecord r = cache.getValidAt(key, t);
-        if (r != null) {
+        // the new implementation will always find a record in the cache if there is one
+        // (by updating the cache first); therefore, if the cache returns null, there is no
+        // record and we don't have to fetch it remotely
+        if (true || r != null) {
             return r;
         }
         RemoteEfaMessage request = RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),

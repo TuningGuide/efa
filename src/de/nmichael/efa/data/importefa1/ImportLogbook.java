@@ -158,7 +158,14 @@ public class ImportLogbook extends ImportBase {
                     if (id != null) {
                         r.setDestinationId(id);
                     } else {
-                        r.setDestinationName(d.get(Fahrtenbuch.ZIEL));
+                        // since we replace "+" by "&" in the import of destinations, we need to check whether a destination
+                        // with a "&" probably exists; if so, we use that one
+                        id = findDestination(destinations, destinationIdx, EfaUtil.replace(d.get(Fahrtenbuch.ZIEL), "+", "&", true), false);
+                        if (id != null) {
+                            r.setDestinationId(id);
+                        } else {
+                            r.setDestinationName(d.get(Fahrtenbuch.ZIEL));
+                        }
                     }
                 }
                 
@@ -171,7 +178,8 @@ public class ImportLogbook extends ImportBase {
                     String fahrtArt = d.get(Fahrtenbuch.FAHRTART).trim();
                     String mtourName = null;
                     Mehrtagesfahrt mtour = null;
-                    if (fahrtArt.startsWith(EfaTypes.TYPE_SESSION_TOUR+":")) {
+                    if (fahrtArt.startsWith(EfaTypes.TYPE_SESSION_TOUR_EFA1X1+":") ||
+                        fahrtArt.startsWith(EfaTypes.TYPE_SESSION_TOUR_EFA1X2+":")) {
                         mtourName = Fahrtenbuch.getMehrtagesfahrtName(fahrtArt);
                         mtour = (mtourName != null && mtourName.length() > 0 ? fahrtenbuch.getMehrtagesfahrt(mtourName) : null);
                         fahrtArt = EfaTypes.TYPE_SESSION_TOUR;

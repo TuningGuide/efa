@@ -64,7 +64,10 @@ public class StatisticHTMLWriter extends StatisticWriter {
             f.write("<!--EFA-START-->\n");
 
             if (sr.sStatisticType == StatisticsRecord.StatisticTypes.competition) {
-                f.write("<p align=\"center\"><b style=\"color:red\">Wettbewerbsauswertungen sind derzeit noch nicht möglich.<br>Ich bitte vielmals um Entschuldigung!<br>In Kürze werden die Auswertungen wieder zur Verfügung stehen!</b><p>\n");
+                f.write("<p align=\"center\"><b style=\"color:red\">Wettbewerbsauswertungen sind derzeit experimentell.<br>Bitte Fehler über 'Nachricht an Admin' melden. Danke!</b><p>\n");
+                if (sr.pCompGroupNames == null) {
+                    f.write("<p align=\"center\"><b style=\"color:red\">Diese Auswertung ist derzeit noch nicht möglich.<br>Ich bitte vielmals um Entschuldigung!</b><p>\n");
+                }
             }
 
             f.write("<table align=\"center\" border>\n");
@@ -121,28 +124,28 @@ public class StatisticHTMLWriter extends StatisticWriter {
 
             // Auswertung von Wettbewerbseinträgen
             // Wettbewerbsbedingungen
-            /*
-            if (ad.wett_bedingungen != null) {
+
+            if (sr.pCompRules != null) {
                 f.write("<table align=\"center\" bgcolor=\"#eeeeee\" border><tr><td>\n");
-                for (int i = 0; i < ad.wett_bedingungen.length; i++) {
-                    if (ad.wett_bedingungen_fett.get(new Integer(i)) != null) {
+                for (int i = 0; i < sr.pCompRules.length; i++) {
+                    if (sr.pCompRulesBold.get(new Integer(i)) != null) {
                         f.write("<b>");
                     }
-                    if (ad.wett_bedingungen_kursiv.get(new Integer(i)) != null) {
+                    if (sr.pCompRulesItalics.get(new Integer(i)) != null) {
                         f.write("<i>");
                     }
-                    f.write(ad.wett_bedingungen[i] + "<br>");
-                    if (ad.wett_bedingungen_kursiv.get(new Integer(i)) != null) {
+                    f.write(sr.pCompRules[i] + "<br>");
+                    if (sr.pCompRulesItalics.get(new Integer(i)) != null) {
                         f.write("</i>");
                     }
-                    if (ad.wett_bedingungen_fett.get(new Integer(i)) != null) {
+                    if (sr.pCompRulesBold.get(new Integer(i)) != null) {
                         f.write("</b>");
                     }
                 }
                 f.write("</table>\n<br><br>\n");
             }
 
-            if (sr.wettOhneDetail) {
+            if (sr.sIsOutputCompWithoutDetails) {
                 f.write("<table align=\"center\" width=\"500\">\n");
                 f.write("<tr><th colspan=\"2\" bgcolor=\"#ddddff\">Legende</th></tr>\n");
                 f.write("<tr><td bgcolor=\"#00ff00\" width=\"250\" align=\"center\">"
@@ -152,37 +155,39 @@ public class StatisticHTMLWriter extends StatisticWriter {
                 f.write("</table>\n<br><br>\n");
             }
 
+            /* @todo (Px) statistics
             if (ad.ausgabeZeilenOben != null) {
                 schreibeHTMLZeilen(f, ad.ausgabeZeilenOben);
             }
+            */
 
-            if (ad.wett_gruppennamen != null && ad.wett_teilnehmerInGruppe != null) {
-                if (ad.wett_zeitraumWarnung != null) {
+            if (sr.pCompGroupNames != null && sr.pCompParticipants != null) {
+                if (sr.pCompWarning != null) {
                     f.write("<p align=\"center\"><font color=\"#ff0000\"><b>"
-                            + ad.wett_zeitraumWarnung + "</b></font></p>\n");
+                            + sr.pCompWarning + "</b></font></p>\n");
                 }
 
                 f.write("<table width=\"100%\">\n");
-                for (int i = 0; i < ad.wett_gruppennamen.length; i++) {
+                for (int i = 0; i < sr.pCompGroupNames.length; i++) {
                     f.write("<tr><th align=\"left\" colspan=\"3\" bgcolor=\"#ddddff\">"
-                            + ad.wett_gruppennamen[i][0] + " " + ad.wett_gruppennamen[i][1]
-                            + " (<i>gefordert: " + ad.wett_gruppennamen[i][2] + "</i>)</th></tr>\n");
-                    for (ae = ad.wett_teilnehmerInGruppe[i]; ae != null; ae = ae.next) {
+                            + sr.pCompGroupNames[i][0] + " " + sr.pCompGroupNames[i][1]
+                            + " (<i>gefordert: " + sr.pCompGroupNames[i][2] + "</i>)</th></tr>\n");
+                    for (StatisticsData participant = sr.pCompParticipants[i]; participant != null; participant = participant.next) {
                         f.write("<tr><td width=\"10%\">&nbsp;</td>\n");
-                        if (ae.w_detail == null) {
+                        if (participant.sDetailsArray == null) {
                             // kurze Ausgabe
-                            if (sr.wettOhneDetail) {
-                                f.write("<td width=\"45%\" bgcolor=\"" + (ae.w_erfuellt ? "#00ff00" : "#ffff00") + "\"><b>" + ae.w_name + "</b></td>"
-                                        + "<td width=\"45%\" bgcolor=\"" + (ae.w_erfuellt ? "#aaffaa" : "#ffffaa") + "\">" + ae.w_kilometer + " Km"
-                                        + (ae.w_additional == null || ae.w_additional.equals("") ? "" : "; " + ae.w_additional) + "</td>\n");
+                            if (sr.sIsOutputCompWithoutDetails) {
+                                f.write("<td width=\"45%\" bgcolor=\"" + (participant.compFulfilled ? "#00ff00" : "#ffff00") + "\"><b>" + participant.sName + "</b></td>"
+                                        + "<td width=\"45%\" bgcolor=\"" + (participant.compFulfilled ? "#aaffaa" : "#ffffaa") + "\">" + participant.sDistance + " Km"
+                                        + (participant.sAdditional == null || participant.sAdditional.equals("") ? "" : "; " + participant.sAdditional) + "</td>\n");
                             } else {
-                                String additional = (ae.w_additional == null || ae.w_additional.equals("") ? "" : ae.w_additional)
-                                        + (ae.w_warnung == null ? "" : "; <font color=\"red\">" + ae.w_warnung + "</font>");
-                                f.write("<td width=\"90%\" colspan=\"2\">" + (ae.w_erfuellt
+                                String additional = (participant.sAdditional == null || participant.sAdditional.equals("") ? "" : participant.sAdditional)
+                                        + (participant.sCompWarning == null ? "" : "; <font color=\"red\">" + participant.sCompWarning + "</font>");
+                                f.write("<td width=\"90%\" colspan=\"2\">" + (participant.compFulfilled
                                         ? International.getString("erfüllt") + ": "
-                                        : International.getString("noch nicht erfüllt") + ": ") + "<b>" + ae.w_name + "</b>"
-                                        + (ae.w_jahrgang != null ? " (" + ae.w_jahrgang + ")" : "")
-                                        + ": " + ae.w_kilometer + " Km"
+                                        : International.getString("noch nicht erfüllt") + ": ") + "<b>" + participant.sName + "</b>"
+                                        + (participant.sYearOfBirth != null ? " (" + participant.sYearOfBirth + ")" : "")
+                                        + ": " + participant.sDistance + " Km"
                                         + (additional.length() > 0 ? " (" + additional + ")" : "")
                                         + "</td>\n");
                             }
@@ -190,17 +195,17 @@ public class StatisticHTMLWriter extends StatisticWriter {
                             // ausführliche Ausgabe
                             f.write("<td width=\"90%\" colspan=\"2\">\n");
                             int colspan = 1;
-                            if (ae.w_detail.length > 0) {
-                                colspan = ae.w_detail[0].length;
+                            if (participant.sDetailsArray.length > 0) {
+                                colspan = participant.sDetailsArray[0].length;
                             }
-                            f.write("<table border>\n<tr><td colspan=\"" + colspan + "\"><b>" + ae.w_name + " (" + ae.w_jahrgang + "): "
-                                    + ae.w_kilometer + " Km" + (ae.w_additional != null ? "; " + ae.w_additional : "") + "</b></td></tr>\n");
-                            if (ae.w_detail.length > 0) {
-                                for (int j = 0; j < ae.w_detail.length; j++) {
+                            f.write("<table border>\n<tr><td colspan=\"" + colspan + "\"><b>" + participant.sName + " (" + participant.sYearOfBirth + "): "
+                                    + participant.sDistance + " Km" + (participant.sAdditional != null ? "; " + participant.sAdditional : "") + "</b></td></tr>\n");
+                            if (participant.sDetailsArray.length > 0) {
+                                for (int j = 0; j < participant.sDetailsArray.length; j++) {
                                     f.write("<tr>");
-                                    if (ae.w_detail[j] != null && ae.w_detail[j][0] != null) {
-                                        for (int k = 0; k < ae.w_detail[j].length; k++) {
-                                            f.write("<td>" + ae.w_detail[j][k] + "</td>");
+                                    if (participant.sDetailsArray[j] != null && participant.sDetailsArray[j][0] != null) {
+                                        for (int k = 0; k < participant.sDetailsArray[j].length; k++) {
+                                            f.write("<td>" + participant.sDetailsArray[j][k] + "</td>");
                                         }
                                     } else {
                                         f.write("<td colspan=\"" + colspan + "\">und weitere Fahrten</td>");
@@ -216,7 +221,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
                 }
                 f.write("</table>\n");
             }
-            */
+            
 
             // Auswertung normaler Einträge
             if (sr.pTableColumns != null && sr.pTableColumns.size() > 0) {
@@ -256,6 +261,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
                     outHTML(f, sd[i].sAvgDistance, sd[i].avgDistance,
                             (sdMaximum != null && !sd[i].isSummary ? sdMaximum.avgDistance : 0),
                             "green", sr.sAggrAvgDistanceBarSize);
+                    outHTML(f, sd[i].sDestinationAreas, false, null);
                     /*
                     outHTML(f, ae.anzversch, false, null);
                     outHTMLgra(f, ae, ae.km, ae.colspanKm);
@@ -294,17 +300,16 @@ public class StatisticHTMLWriter extends StatisticWriter {
                 f.write("</table>\n");
             }
 
-            /*
             // Zusatzdaten
-            if (ad.additionalTable != null) {
+            if (sr.pAdditionalTable != null) {
                 f.write("<br><table border align=\"center\">\n");
-                for (int i = 0; i < ad.additionalTable.length; i++) {
+                for (int i = 0; i < sr.pAdditionalTable.length; i++) {
                     f.write("<tr>");
-                    for (int j = 0; j < ad.additionalTable[i].length; j++) {
+                    for (int j = 0; j < sr.pAdditionalTable[i].length; j++) {
                         f.write("<td>"
-                                + ((i == 0 && ad.additionalTable_1stRowBold) || (i == ad.additionalTable.length - 1 && ad.additionalTable_lastRowBold) ? "<b>" : "")
-                                + ad.additionalTable[i][j]
-                                + ((i == 0 && ad.additionalTable_1stRowBold) || (i == ad.additionalTable.length - 1 && ad.additionalTable_lastRowBold) ? "</b>" : "")
+                                //+ ((i == 0 && sr.pAdditionalTable_1stRowBold) || (i == sr.pAdditionalTable.length - 1 && sr.pAdditionalTable_lastRowBold) ? "<b>" : "")
+                                + sr.pAdditionalTable[i][j]
+                                //+ ((i == 0 && sr.pAdditionalTable_1stRowBold) || (i == sr.pAdditionalTable.length - 1 && sr.pAdditionalTable_lastRowBold) ? "</b>" : "")
                                 + "</td>");
                     }
                     f.write("</tr>\n");
@@ -312,6 +317,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
                 f.write("</table><br>\n");
             }
 
+            /*
             if (ad.tfe != null) {
                 schreibeHTMLTabellenFolge(f, ad.tfe);
             }

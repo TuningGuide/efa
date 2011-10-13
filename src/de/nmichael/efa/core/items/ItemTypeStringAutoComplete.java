@@ -300,10 +300,15 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         }
 
         // make sure to accept value as known which have a known base part (everything before ignoreEverythingAfter)
+        String ignoredString = null;
         int ignorePos = (prefix != null ? prefix.indexOf(ignoreEverythingAfter) : field.getText().indexOf(ignoreEverythingAfter));
         if (ignorePos >= 0) {
             String s = (prefix != null ? prefix : field.getText());
             base = s.substring(0, ignorePos).trim();
+            ignoredString = s.substring(ignorePos + 1).trim();
+            if (ignoredString.length() == 0) {
+                ignoredString = null;
+            }
         }
         if (base != null && !matching) {
             String firstInList = list.getFirst(base.trim());
@@ -321,7 +326,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         }
 
         if (matching) {
-            setButtonColor(Color.green);
+            setButtonColor( (ignoredString == null ? Color.green : Color.yellow) );
         } else {
             setButtonColor(Color.red);
         }
@@ -392,7 +397,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
     }
 
     private void setButtonColor(Color color) {
-        valueIsKnown = (color == Color.green);
+        valueIsKnown = (color == Color.green || color == Color.yellow);
         if (button != null) {
             if (color != null) {
                 if (!Daten.lookAndFeel.endsWith("MetalLookAndFeel")) {

@@ -101,7 +101,7 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
     }
 
     public void closeButton_actionPerformed(ActionEvent e) {
-        if (getValuesFromGui()) {
+        if (getValuesFromGui() || this.newRecord) {
             try {
                 if (!saveRecord()) {
                     return;

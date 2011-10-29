@@ -12,6 +12,7 @@ package de.nmichael.efa.statistics;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.EfaWett;
 import de.nmichael.efa.core.WettDef;
+import de.nmichael.efa.core.WettDefs;
 import de.nmichael.efa.data.StatisticsRecord;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.util.Dialog;
@@ -34,11 +35,15 @@ public abstract class Competition {
     protected EfaWett efaWett; // Zusammenstellung aller Wettbewerbsdaten für Erstellung einer Meldedatei
 
     public static Competition getCompetition(StatisticsRecord sr) {
-        if (sr.getName().indexOf("DRV") < 0) { // @todo (P2) statistics
-            return new CompetitionLRVBSommer();
-        } else {
+        String sType = sr.getStatisticType();
+        if (sType == null) {
             return null;
         }
+        if (sType.equals(WettDefs.LRVBERLIN_SOMMER)) {
+            return new CompetitionLRVBSommer();
+        }
+        // @todo (P2) statistics
+        return null;
     }
 
     public abstract void calculate(StatisticsRecord sr, StatisticsData[] sd);

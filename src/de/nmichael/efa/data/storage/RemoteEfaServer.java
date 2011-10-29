@@ -82,7 +82,10 @@ public class RemoteEfaServer {
 
                 Vector<RemoteEfaMessage> responses = new Vector<RemoteEfaMessage>();
                 try {
-                    Vector<RemoteEfaMessage> requests = getRequests(new BufferedInputStream(exchange.getRequestBody()), exchange.getRemoteAddress());
+                    Vector<RemoteEfaMessage> requests = getRequests(RemoteEfaMessage.getBufferedInputStream(exchange.getRequestBody()), exchange.getRemoteAddress());
+                    if (requests == null) {
+                        return;
+                    }
                     responses = handleRequests(requests, exchange.getRemoteAddress());
                 } catch(Exception e) {
                     responses.add(RemoteEfaMessage.createResponseResult(0, RemoteEfaMessage.ERROR_UNKNOWN, e.getMessage()));
@@ -97,7 +100,7 @@ public class RemoteEfaServer {
                 if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 5)) {
                     Logger.log(Logger.DEBUG, Logger.MSG_REFA_DEBUGCOMMUNICATION, "Sending Response [" + exchange.getRemoteAddress().toString() + "]: " + response.toString());
                 }
-                OutputStream responseBody = exchange.getResponseBody();
+                OutputStream responseBody = RemoteEfaMessage.getOutputStream(exchange.getResponseBody());
                 responseBody.write(response.toString().getBytes());
                 responseBody.close();
             }
@@ -432,6 +435,15 @@ public class RemoteEfaServer {
                 RemoteEfaMessage response = RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_OK,
                         Daten.VERSIONID);
                 response.addField(RemoteEfaMessage.FIELD_SESSIONID, createSessionId(admin));
+
+                // check whether a storage object was supplied with this login; if yes, check
+                // whether this storage object is open and return the result as a boolean
+                // find the storage object referenced in this request
+                IDataAccess dataAccess = request.getDataAccesss();
+                if (dataAccess != null) {
+                    response.addField(RemoteEfaMessage.FIELD_BOOLEAN, Boolean.toString(dataAccess.isStorageObjectOpen()));
+                }
+
                 return response;
             }
         } else {

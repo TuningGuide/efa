@@ -63,7 +63,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
             // Start des eigentlichen Bereichs
             f.write("<!--EFA-START-->\n");
 
-            if (sr.sStatisticType == StatisticsRecord.StatisticTypes.competition) {
+            if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.competition) {
                 f.write("<p align=\"center\"><b style=\"color:red\">Wettbewerbsauswertungen sind derzeit experimentell.<br>Bitte Fehler über 'Nachricht an Admin' melden. Danke!</b><p>\n");
                 if (sr.pCompGroupNames == null) {
                     f.write("<p align=\"center\"><b style=\"color:red\">Diese Auswertung ist derzeit noch nicht möglich.<br>Ich bitte vielmals um Entschuldigung!</b><p>\n");
@@ -155,7 +155,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
                 f.write("</table>\n<br><br>\n");
             }
 
-            /* @todo (Px) statistics
+            /* @todo (P5) statistics
             if (ad.ausgabeZeilenOben != null) {
                 schreibeHTMLZeilen(f, ad.ausgabeZeilenOben);
             }

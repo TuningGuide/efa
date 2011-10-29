@@ -639,7 +639,7 @@ public class MeteoAstroWidget extends Widget {
         }
     }
 
-    class HtmlPopupDialog extends BaseDialog {
+    public class HtmlPopupDialog extends BaseDialog {
 
         private String url;
         private int width;

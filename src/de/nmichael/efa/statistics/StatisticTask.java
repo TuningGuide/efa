@@ -30,6 +30,7 @@ public class StatisticTask extends ProgressTask {
     private Persons persons = Daten.project.getPersons(false);
     private Boats boats = Daten.project.getBoats(false);
     private Destinations destinations = Daten.project.getDestinations(false);
+    private Groups groups = Daten.project.getGroups(false);
 
     // values from current logbook entry
     private DataTypeIntString entryNo;
@@ -118,7 +119,7 @@ public class StatisticTask extends ProgressTask {
         } else {
             Zielfahrt destArea = null;
             if (entryDestinationAreas != null && entryDestinationAreas.getAnzZielfahrten() > 0) {
-                destArea = entryDestinationAreas.getZielfahrt(0); // @todo warn if more than 1!!
+                destArea = entryDestinationAreas.getZielfahrt(0); // @todo (P4) statistics - warn if more than 1!!
             }
             if (destArea != null) {
                 sd.sessionHistory.addSession(r, destArea);
@@ -195,12 +196,15 @@ public class StatisticTask extends ProgressTask {
         }
         getEntryDistance(r);
 
-        switch(sr.sStatisticType) {
+        switch(sr.sStatisticCategory) {
             case persons:
             case competition:
                 for (int i=0; i<LogbookRecord.CREW_MAX; i++) {
                     getEntryPerson(r, i);
-                    if (isInPersonFilter()) {
+                    if (entryPersonId == null && entryPersonName == null) {
+                        continue;
+                    }
+                    if (isInPersonFilter() && isInGroupFilter()) {
                         if (entryPersonId != null) {
                             calculateAggregations(r, entryPersonId);
                         } else {
@@ -339,6 +343,13 @@ public class StatisticTask extends ProgressTask {
             return false;
         }
 
+        if (sr.sFilterByBoatId != null && !sr.sFilterByBoatId.equals(r.getBoatId())) {
+            return false;
+        }
+        if (sr.sFilterByBoatText != null && !sr.sFilterByBoatText.equals(r.getBoatAsName())) {
+            return false;
+        }
+
         return true;
     }
 
@@ -349,6 +360,12 @@ public class StatisticTask extends ProgressTask {
                 return false;
             }
             if (entryPersonGender == null || !sr.sFilterGender.containsKey(entryPersonGender)) {
+                return false;
+            }
+            if (sr.sFilterByPersonId != null && !sr.sFilterByPersonId.equals(entryPersonRecord.getId())) {
+                return false;
+            }
+            if (sr.sFilterByPersonText != null && !sr.sFilterByPersonText.equals(entryPersonRecord.getQualifiedName())) {
                 return false;
             }
             return true;
@@ -363,8 +380,32 @@ public class StatisticTask extends ProgressTask {
             if (sr.sFilterGender.size() != 2) {
                 return false; // both MALE and FEMALE must be selected
             }
+            if (sr.sFilterByPersonId != null) {
+                return false;
+            }
+            if (sr.sFilterByPersonText != null && !sr.sFilterByPersonText.equals(entryPersonName)) {
+                return false;
+            }
             return true;
         }
+    }
+
+    private boolean isInGroupFilter() {
+        if (sr.sFilterByGroupId != null) {
+            if (entryPersonRecord == null) {
+                return false;
+            }
+            GroupRecord gr = groups.findGroupRecord(sr.sFilterByGroupId, entryValidAt);
+            if (gr == null) {
+                return false;
+            }
+            DataTypeList<UUID> glist = gr.getMemberIdList();
+            if (glist == null) {
+                return false;
+            }
+            return glist.contains(entryPersonRecord.getId());
+        }
+        return true;
     }
 
     private Vector<Logbook> getAllLogbooks() {
@@ -414,7 +455,7 @@ public class StatisticTask extends ProgressTask {
         for (int i=0; i<keys.length; i++) {
             StatisticsData sd = data.get(keys[i]);
             boolean isUUID = false;
-            switch(sr.sStatisticType) {
+            switch(sr.sStatisticCategory) {
                 case persons:
                 case competition:
                     PersonRecord pr = null;
@@ -435,7 +476,7 @@ public class StatisticTask extends ProgressTask {
                             sd.sYearOfBirth = Integer.toString(birthday.getYear());
                         }
                     }
-                    if (sr.sStatisticType == StatisticsRecord.StatisticTypes.competition && pr != null) {
+                    if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.competition && pr != null) {
                         sd.gender = pr.getGender();
                         sd.disabled = pr.getDisability();
                     }
@@ -479,7 +520,7 @@ public class StatisticTask extends ProgressTask {
         }
         setCurrentWorkDone(workBeforePostprocessing + (WORK_POSTPROCESSING/5)*3);
 
-        if (sr.sStatisticType == StatisticsRecord.StatisticTypes.competition) {
+        if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.competition) {
             Competition competition = Competition.getCompetition(sr);
             if (competition != null) {
                 competition.calculate(sr, sdArray);
@@ -499,7 +540,7 @@ public class StatisticTask extends ProgressTask {
         sr.pStatCreationDate = EfaUtil.getCurrentTimeStampDD_MM_YYYY();
         sr.pStatCreatedByUrl = Daten.EFAURL;
         sr.pStatCreatedByName = Daten.EFA_LONGNAME + " " + Daten.VERSION;
-        sr.pStatDescription = sr.getStatisticTypeDescription();
+        sr.pStatDescription = sr.getStatisticCategoryDescription();
         sr.pStatDateRange = sr.sStartDate.toString() + " - " + sr.sEndDate.toString();
         sr.pStatConsideredEntries = International.getMessage("{n} Einträge", sr.cNumberOfEntries);
         if (sr.cNumberOfEntries > 0 && sr.cEntryNoFirst != null && sr.cEntryNoLast != null) {
@@ -510,7 +551,7 @@ public class StatisticTask extends ProgressTask {
             }
         }
 
-        if (sr.sStatisticType != StatisticsRecord.StatisticTypes.competition) {
+        if (sr.sStatisticCategory != StatisticsRecord.StatisticCategory.competition) {
             // Table Columns
             sr.prepareTableColumns();
         }

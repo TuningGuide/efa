@@ -30,6 +30,7 @@ public class Dialog {
   public static final int WRITE_REMOVE = 1;
 
   public static volatile boolean SUPPRESS_DIALOGS = false;
+  public static volatile boolean IGNORE_WINDOW_STACK_CHECKS = false;
 
 
   public static Stack frameStack=null;
@@ -454,32 +455,36 @@ public class Dialog {
             Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_WINDOWS, "Dialog.frameClosed("+w.getClass().getCanonicalName()+")");
         }
         if (frameStack.isEmpty()) {
-            Logger.log(Logger.WARNING, Logger.MSG_ERR_WINDOWSTACK,
-                    "Stack Inconsistency: closed Window: "
-                    + w.getClass().toString() + " but stack was empty.");
-            if (Daten.watchWindowStack) {
-                Thread.dumpStack();
-                (new Exception("Watch Stack Exception")).printStackTrace();
+            if (!IGNORE_WINDOW_STACK_CHECKS) {
+                Logger.log(Logger.WARNING, Logger.MSG_ERR_WINDOWSTACK,
+                        "Stack Inconsistency: closed Window: "
+                        + w.getClass().toString() + " but stack was empty.");
+                if (Daten.watchWindowStack) {
+                    Thread.dumpStack();
+                    (new Exception("Watch Stack Exception")).printStackTrace();
+                }
             }
             return;
         }
         Window wtop = (Window) frameStack.peek();
         if (wtop != w) {
-            String s = "";
-            try {
-                for (int i = 0; i < frameStack.size(); i++) {
-                    s += (s.length() > 0 ? "; " : "") + frameStack.elementAt(i).getClass().toString();
+            if (!IGNORE_WINDOW_STACK_CHECKS) {
+                String s = "";
+                try {
+                    for (int i = 0; i < frameStack.size(); i++) {
+                        s += (s.length() > 0 ? "; " : "") + frameStack.elementAt(i).getClass().toString();
+                    }
+                } catch (Exception e) {
+                    EfaUtil.foo();
                 }
-            } catch (Exception e) {
-                EfaUtil.foo();
-            }
-            Logger.log(Logger.WARNING, Logger.MSG_ERR_WINDOWSTACK,
-                    "Stack Inconsistency: closed Window: "
-                    + w.getClass().toString() + " but top of stack is: "
-                    + wtop.getClass().toString() + " (stack: " + s + ")");
-            if (Daten.watchWindowStack) {
-                Thread.dumpStack();
-                (new Exception("Watch Stack Exception")).printStackTrace();
+                Logger.log(Logger.WARNING, Logger.MSG_ERR_WINDOWSTACK,
+                        "Stack Inconsistency: closed Window: "
+                        + w.getClass().toString() + " but top of stack is: "
+                        + wtop.getClass().toString() + " (stack: " + s + ")");
+                if (Daten.watchWindowStack) {
+                    Thread.dumpStack();
+                    (new Exception("Watch Stack Exception")).printStackTrace();
+                }
             }
         } else {
             frameStack.pop();

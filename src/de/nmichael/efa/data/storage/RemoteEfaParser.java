@@ -197,7 +197,7 @@ public class RemoteEfaParser extends DefaultHandler {
     }
 
     public void characters(char[] ch, int start, int length) {
-        String s = new String(ch, start, length).trim();
+        String s = new String(ch, start, length); // .trim(); // trimming here would wrongly trim away spaces within strings which are composed out of several characters() invocations!
         if (Logger.isTraceOn(Logger.TT_XMLFILE, 9)) {
             Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "characters("+s+")");
         }
@@ -215,7 +215,7 @@ public class RemoteEfaParser extends DefaultHandler {
         if (inRequestResponse && fieldName != null && localName.equals(fieldName)) {
             // end of field
             if (inRecord) {
-                record.set(fieldName, fieldValue);
+                record.set(fieldName, (fieldValue != null ? fieldValue.trim() : fieldValue));
             } else if (inKey) {
                 int keyFieldIdx = -1;
                 if (fieldName.equals(DataKey.ENCODING_KEY_PART1)) {

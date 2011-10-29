@@ -12,8 +12,14 @@ package de.nmichael.efa.data.storage;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.EfaUtil;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public class RemoteEfaMessage {
 
@@ -378,7 +384,17 @@ public class RemoteEfaMessage {
     // ===================================== Requests =====================================
 
     public static RemoteEfaMessage createRequestLogin(int msgId, String username, String password) {
+        return createRequestLogin(msgId, null, null, username, password);
+    }
+
+    public static RemoteEfaMessage createRequestLogin(int msgId, String storageObjectType, String storageObjectName, String username, String password) {
         RemoteEfaMessage r = new RemoteEfaMessage(msgId, Type.request, OPERATION_LOGIN);
+        if (storageObjectType != null) {
+            r.addField(FIELD_STORAGEOBJECTTYPE, storageObjectType);
+        }
+        if (storageObjectName != null) {
+            r.addField(FIELD_STORAGEOBJECTNAME, storageObjectName);
+        }
         r.addField(FIELD_USERNAME, username);
         r.addField(FIELD_PASSWORD, password);
         r.addField(FIELD_PID, Daten.applPID);
@@ -402,4 +418,26 @@ public class RemoteEfaMessage {
         return r;
     }
 
+
+    // ===================================== Compression Handling =====================================
+
+    public static BufferedInputStream getBufferedInputStream(InputStream in) {
+        try {
+            ZipInputStream zip = new ZipInputStream(in);
+            ZipEntry entry = zip.getNextEntry();
+            return new BufferedInputStream(zip);
+        } catch(Exception e) {
+            return null;
+        }
+    }
+
+    public static OutputStream getOutputStream(OutputStream out) {
+        try {
+            ZipOutputStream zip = new ZipOutputStream(out);
+            zip.putNextEntry(new ZipEntry("efa"));
+            return zip;
+        } catch(Exception e) {
+            return null;
+        }
+    }
 }

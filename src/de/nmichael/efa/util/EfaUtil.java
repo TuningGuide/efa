@@ -1510,5 +1510,10 @@ public class EfaUtil {
     }
 
 
+    public static void main(String args[]) {
+        String text = "abc & def";
+        System.out.println(text + " -> EfaUtil.escapeXml() = " + EfaUtil.escapeXml(text));
+    }
+
 }
 

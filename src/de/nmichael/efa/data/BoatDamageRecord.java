@@ -319,6 +319,7 @@ public class BoatDamageRecord extends DataRecord {
         item.setPadding(0, 0, 0, 10);
         v.add(item = new ItemTypeString(BoatDamageRecord.DESCRIPTION, getDescription(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Beschreibung")));
+        item.setNotNull(true);
         v.add(item = new ItemTypeStringList(SEVERITY, getSeverity(),
                 new String[] { "", SEVERITY_NOTUSEABLE, SEVERITY_LIMITEDUSEABLE, SEVERITY_FULLYUSEABLE },
                 new String[] { "--- " + International.getString("bitte wählen") + " ---",
@@ -334,19 +335,29 @@ public class BoatDamageRecord extends DataRecord {
         if (showOnlyAddDamageFields) {
             item.setEnabled(false);
         }
-        v.add(item = getGuiItemTypeStringAutoComplete(BoatDamageRecord.REPORTEDBYPERSONID, getReportedByPersonId(),
+        v.add(item = getGuiItemTypeStringAutoComplete(BoatDamageRecord.REPORTEDBYPERSONID, null,
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                     getPersistence().getProject().getPersons(false), System.currentTimeMillis(), System.currentTimeMillis(),
                     International.getString("gemeldet von")));
+        if (getReportedByPersonId() != null) {
+            ((ItemTypeStringAutoComplete)item).setId(getReportedByPersonId());
+        } else {
+            ((ItemTypeStringAutoComplete)item).parseAndShowValue(getReportedByPersonName());
+        }        
         ((ItemTypeStringAutoComplete)item).setNotNull(true);
         ((ItemTypeStringAutoComplete)item).setAlternateFieldNameForPlainText(BoatDamageRecord.REPORTEDBYPERSONNAME);
         if (!showOnlyAddDamageFields) {
             v.add(item = new ItemTypeDateTime(GUIITEM_FIXDATETIME, getFixDate(), getFixTime(),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("behoben am")));
-            v.add(item = getGuiItemTypeStringAutoComplete(BoatDamageRecord.FIXEDBYPERSONID, getFixedByPersonId(),
+            v.add(item = getGuiItemTypeStringAutoComplete(BoatDamageRecord.FIXEDBYPERSONID, null,
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                     getPersistence().getProject().getPersons(false), System.currentTimeMillis(), System.currentTimeMillis(),
                     International.getString("behoben von")));
+            if (getFixedByPersonId() != null) {
+                ((ItemTypeStringAutoComplete) item).setId(getFixedByPersonId());
+            } else {
+                ((ItemTypeStringAutoComplete) item).parseAndShowValue(getFixedByPersonName());
+            }
             ((ItemTypeStringAutoComplete) item).setAlternateFieldNameForPlainText(BoatDamageRecord.FIXEDBYPERSONNAME);
             v.add(item = new ItemTypeString(BoatDamageRecord.NOTES, getNotes(),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bemerkungen")));

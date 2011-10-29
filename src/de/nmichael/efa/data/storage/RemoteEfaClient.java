@@ -31,6 +31,7 @@ public class RemoteEfaClient extends DataAccess {
     private long lastIsOpenTs = -1;
     private boolean lastIsOpen = false;
     private long lastLoginFailed = -1;
+    private boolean lastLoginStorageObjectOpen = false; // true if the last request was a login and the corresponding storage object is open; false otherwise
 
     private Hashtable<String,Long> statistics = new Hashtable<String,Long>();
     private long lastPrintStatistics = 0;
@@ -91,7 +92,8 @@ public class RemoteEfaClient extends DataAccess {
             return null;
         }
         while(this.sessionId == null && !requests.get(0).getOperationName().equals(RemoteEfaMessage.OPERATION_LOGIN)) {
-            int ret = runSimpleRequest(RemoteEfaMessage.createRequestLogin(1, getStorageUsername(), getStoragePassword()));
+            int ret = runSimpleRequest(RemoteEfaMessage.createRequestLogin(1, getStorageObjectType(), getStorageObjectName(),
+                    getStorageUsername(), getStoragePassword()));
             if (ret == RemoteEfaMessage.ERROR_INVALIDLOGIN ||
                 ret == RemoteEfaMessage.ERROR_NOPERMISSION ||
                 ret == RemoteEfaMessage.ERROR_SELFLOGIN) {
@@ -111,6 +113,17 @@ public class RemoteEfaClient extends DataAccess {
             }
         }
         lastLoginFailed = 0;
+        
+        // Optimization: If this is only a single isStorageObjectOpen() request which
+        // has triggered a successful login, and if we got a "true" piggibacked with the login,
+        // then we don't need to send an actual isStorageObjectOpen() to the server, but just
+        // create a fake response, that the storage object is open.
+        if (lastLoginStorageObjectOpen && requests.size() == 1 && requests.get(0) != null &&
+            requests.get(0).getOperationName().equals(RemoteEfaMessage.OPERATION_ISSTORAGEOBJECTOPEN)) {
+            Vector<RemoteEfaMessage> responses = new Vector<RemoteEfaMessage>();
+            responses.add(RemoteEfaMessage.createResponseResult(requests.get(0).getMsgId(), RemoteEfaMessage.RESULT_OK, null));
+            return responses;
+        }
 
         // provide session id for all requests
         if (this.sessionId != null) {
@@ -131,21 +144,48 @@ public class RemoteEfaClient extends DataAccess {
         if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 5)) {
             Logger.log(Logger.DEBUG, Logger.MSG_REFA_DEBUGCOMMUNICATION, "Sending Request [" + url.toString() + "]: " + request.toString());
         }
+        if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 2)) {
+            for (int i=0; i<requests.size(); i++) {
+                RemoteEfaMessage msg = requests.get(i);
+                if (msg == null) {
+                    continue;
+                }
+                Logger.log(Logger.DEBUG, Logger.MSG_REFA_TRACECOMMUNICATION, "Snd: " +
+                        msg.getStorageObjectName() + "." + msg.getStorageObjectType() + ":" + msg.getOperationName() +
+                        " (" + msg.toString().length() + " bytes)");
+            }
+        }
 
+        long reqStartTs = System.currentTimeMillis();
         URLConnection connection = url.openConnection();
         connection.setDoOutput(true);
         connection.setDoInput(true);
         connection.setUseCaches(false);
         connection.setAllowUserInteraction(true);
         connection.setRequestProperty("Content-Type", "application/xml"); //"application/x-www-form-urlencoded");
-        OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
+        OutputStreamWriter out = new OutputStreamWriter(RemoteEfaMessage.getOutputStream(connection.getOutputStream()));
         out.write(request.toString());
         out.flush();
         out.close();
 
         updateStatistics("Sent:Requests");
 
-        Vector<RemoteEfaMessage> responses = getResponse(connection, new BufferedInputStream(connection.getInputStream()));
+        Vector<RemoteEfaMessage> responses = getResponse(connection, RemoteEfaMessage.getBufferedInputStream(connection.getInputStream()));
+        long reqEndTs = System.currentTimeMillis();
+        if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 2)) {
+            for (int i=0; i<responses.size(); i++) {
+                RemoteEfaMessage req = (i < requests.size() ? requests.get(i) : null);
+                RemoteEfaMessage msg = responses.get(i);
+                if (msg == null) {
+                    continue;
+                }
+                Logger.log(Logger.DEBUG, Logger.MSG_REFA_TRACECOMMUNICATION, "Rcv: " +
+                        (req != null ? req.getStorageObjectName() + "." + req.getStorageObjectType() + ":" + req.getOperationName() :
+                                       msg.getOperationName() ) +
+                        " (" + msg.toString().length() + " bytes) [" +
+                        (reqEndTs-reqStartTs) + " ms]");
+            }
+        }
         getGeneralDataFromResponses(responses);
         return responses;
     }
@@ -256,6 +296,7 @@ public class RemoteEfaClient extends DataAccess {
     }
 
     protected int runSimpleRequest(RemoteEfaMessage request) {
+        lastLoginStorageObjectOpen = false;
         try {
             int myRequestId = request.getMsgId();
             Vector<RemoteEfaMessage> responses = sendRequest(request);
@@ -274,6 +315,9 @@ public class RemoteEfaClient extends DataAccess {
                 Logger.log(Logger.ERROR, Logger.MSG_REFA_REQUESTFAILED, getErrorLogstring(request,
                            response.getResultText(), response.getResultCode()), false);
                 return response.getResultCode();
+            }
+            if (request.getOperationName().equals(RemoteEfaMessage.OPERATION_LOGIN)) {
+                lastLoginStorageObjectOpen = response.getBoolean();
             }
             return RemoteEfaMessage.RESULT_OK;
         } catch(Exception e) {

@@ -23,11 +23,14 @@ import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.statistics.StatisticsData;
 import de.nmichael.efa.util.*;
+import java.awt.AWTEvent;
+import java.awt.event.ItemEvent;
+import java.io.File;
 import java.util.*;
 
 // @i18n complete
 
-public class StatisticsRecord extends DataRecord {
+public class StatisticsRecord extends DataRecord implements IItemListener {
 
     // =========================================================================
     // Field Names
@@ -39,8 +42,8 @@ public class StatisticsRecord extends DataRecord {
     public static final String PUBLICLYAVAILABLE   = "PubliclyAvailable";
     public static final String DATEFROM            = "DateFrom";
     public static final String DATETO              = "DateTo";
+    public static final String STATISTICCATEGORY   = "StatisticCategory";
     public static final String STATISTICTYPE       = "StatisticType";
-    public static final String OUTPUTTYPE          = "OutputType";
     public static final String FILTERGENDER        = "FilterGender";
     public static final String FILTERSTATUS        = "FilterStatus";
     public static final String FILTERSESSIONTYPE   = "FilterSessionType";
@@ -48,12 +51,27 @@ public class StatisticsRecord extends DataRecord {
     public static final String FILTERBOATSEATS     = "FilterBoatSeats";
     public static final String FILTERBOATRIGGING   = "FilterBoatRigging";
     public static final String FILTERBOATCOXING    = "FilterBoatCoxing";
-    public static final String FILTERBYNAME        = "FilterByName";
-    public static final String FILTERBYGROUP       = "FilterByGroup";
+    public static final String FILTERBYPERSONID    = "FilterByPersonId";
+    public static final String FILTERBYPERSONTEXT  = "FilterByPersonText";
+    public static final String FILTERBYBOATID      = "FilterByBoatId";
+    public static final String FILTERBYBOATTEXT    = "FilterByBoatText";
+    public static final String FILTERBYGROUPID     = "FilterByGroupId";
     public static final String SHOWFIELDS          = "ShowFields";  // like Name, Status, Gender, BoatType, ...
     public static final String AGGREGATIONS        = "Aggregations"; // like Distance, Sessions, AvgDistance, ...
+    public static final String AGGRDISTANCEBARSIZE = "AggregationDistanceBarSize";
+    public static final String AGGRSESSIONSBARSIZE = "AggregationSessionsBarSize";
+    public static final String AGGRAVGDISTBARSIZE  = "AggregationAvgDistanceBarSize";
+    public static final String COMPYEAR            = "CompYear";
+    public static final String COMPPERCENTFULFILLED = "CompPercentFulfilled";
+    public static final String COMPOUTPUTSHORT     = "CompOutputShort";
+    public static final String COMPOUTPUTRULES     = "CompOutputRules";
+    public static final String COMPOUTPUTADDITIONALWITHREQUIREMENTS = "CompOutputAdditionalWithRequirements";
+    public static final String COMPOUTPUTWITHOUTDETAILS = "CompOutputWithoutDetails";
+    public static final String COMPOUTPUTALLDESTINATIONAREAS = "CompOutputAllDestinationAreas";
     public static final String SORTINGCRITERIA     = "SortingCriteria";
     public static final String SORTINGORDER        = "SortingOrder";
+    public static final String OUTPUTTYPE          = "OutputType";
+    public static final String OUTPUTFILE          = "OutputFile";
 
     public static final String[] IDX_NAME = new String[] { NAME };
 
@@ -61,9 +79,12 @@ public class StatisticsRecord extends DataRecord {
     // Field Value Constants
     // =========================================================================
 
-    public static final String STYPE_PERSONS       = "Persons";
-    public static final String STYPE_BOATS         = "Boats";
-    public static final String STYPE_COMPETITION   = "Competition";
+    public static final String SCAT_PERSONS         = "Persons";
+    public static final String SCAT_BOATS           = "Boats";
+    public static final String SCAT_COMPETITION     = "Competition";
+
+    public static final String STYPE_LIST           = "List";
+    public static final String STYPE_LOGBOOK        = "Logbook";
 
     public static final String OTYPE_INTERNAL       = "Internal";
     public static final String OTYPE_HTML           = "Html";
@@ -88,7 +109,7 @@ public class StatisticsRecord extends DataRecord {
     private static final int ARRAY_STRINGLIST_VALUES = 1;
     private static final int ARRAY_STRINGLIST_DISPLAY = 2;
 
-    public enum StatisticTypes {
+    public enum StatisticCategory {
         UNKNOWN,
         persons,
         boats,
@@ -105,6 +126,11 @@ public class StatisticsRecord extends DataRecord {
     }
 
     // =========================================================================
+    // Internal Variables for various pusposes
+    // =========================================================================
+    private ItemTypeStringList itemStatisticType;
+
+    // =========================================================================
     // Statistic Settings (for easier access)
     // =========================================================================
 
@@ -114,7 +140,8 @@ public class StatisticsRecord extends DataRecord {
     public long sTimestampBegin;
     public long sTimestampEnd;
     public long sValidAt;
-    public StatisticTypes sStatisticType;
+    public StatisticCategory sStatisticCategory;
+    public String sStatisticType;
     public OutputTypes sOutputType;
     public Hashtable<String,String> sFilterGender;
     public Hashtable<UUID,String> sFilterStatus;
@@ -124,9 +151,11 @@ public class StatisticsRecord extends DataRecord {
     public Hashtable<String,String> sFilterBoatSeats;
     public Hashtable<String,String> sFilterBoatRigging;
     public Hashtable<String,String> sFilterBoatCoxing;
-    public UUID sFilterByNameId; // @todo (P4) statistics - filter by name
-    public String sFilterByNameText; // @todo (P4) statistics - filter by name
-    public UUID sFilterByGroup; // @todo (P4) statistics - filter by group
+    public UUID sFilterByPersonId;
+    public String sFilterByPersonText;
+    public UUID sFilterByBoatId;
+    public String sFilterByBoatText;
+    public UUID sFilterByGroupId;
     public boolean sIsFieldsPosition;
     public boolean sIsFieldsName;
     public boolean sIsFieldsStatus;
@@ -136,21 +165,21 @@ public class StatisticsRecord extends DataRecord {
     public boolean sIsAggrSessions;
     public boolean sIsAggrAvgDistance;
     public boolean sIsAggrZielfahrten;
-    public boolean sIsOutputCompShort;
-    public boolean sIsOutputCompRules;
-    public boolean sIsOutputCompAdditionalWithRequirements;
-    public boolean sIsOutputCompWithoutDetails;
-    public boolean sIsOutputCompAllDestinationAreas;
-    public int sAggrDistanceBarSize = 200; // @todo (P2) statistics - bar sizes
-    public int sAggrSessionsBarSize = 0; // @todo (P2) statistics - bar sizes
-    public int sAggrAvgDistanceBarSize = 0; // @todo (P2) statistics - bar sizes
-    public String sOutputDir = Daten.efaTmpDirectory; // @todo (P2) statistics - real output file fot statistics
-    public String sOutputFile = Daten.efaTmpDirectory + "output.html"; // @todo (P2) statistics - real output file fot statistics
+    public int sAggrDistanceBarSize;
+    public int sAggrSessionsBarSize;
+    public int sAggrAvgDistanceBarSize;
+    public String sOutputDir;
+    public String sOutputFile;
     public boolean sOutputHtmlUpdateTable = false;
     public String sFileExecBefore;
     public String sFileExecAfter;
     public int sCompYear;
     public int sCompPercentFulfilled;
+    public boolean sIsOutputCompShort;
+    public boolean sIsOutputCompRules;
+    public boolean sIsOutputCompAdditionalWithRequirements;
+    public boolean sIsOutputCompWithoutDetails;
+    public boolean sIsOutputCompAllDestinationAreas;
 
     // filled during statistics creation in StatistikTask
     public int cNumberOfEntries = 0;
@@ -192,6 +221,7 @@ public class StatisticsRecord extends DataRecord {
         f.add(PUBLICLYAVAILABLE);                 t.add(IDataAccess.DATA_BOOLEAN);
         f.add(DATEFROM);                          t.add(IDataAccess.DATA_DATE);
         f.add(DATETO);                            t.add(IDataAccess.DATA_DATE);
+        f.add(STATISTICCATEGORY);                 t.add(IDataAccess.DATA_STRING);
         f.add(STATISTICTYPE);                     t.add(IDataAccess.DATA_STRING);
         f.add(OUTPUTTYPE);                        t.add(IDataAccess.DATA_STRING);
         f.add(FILTERGENDER);                      t.add(IDataAccess.DATA_LIST_STRING);
@@ -201,10 +231,24 @@ public class StatisticsRecord extends DataRecord {
         f.add(FILTERBOATSEATS);                   t.add(IDataAccess.DATA_LIST_STRING);
         f.add(FILTERBOATRIGGING);                 t.add(IDataAccess.DATA_LIST_STRING);
         f.add(FILTERBOATCOXING);                  t.add(IDataAccess.DATA_LIST_STRING);
-        f.add(FILTERBYNAME);                      t.add(IDataAccess.DATA_STRING);
-        f.add(FILTERBYGROUP);                     t.add(IDataAccess.DATA_STRING);
+        f.add(FILTERBYPERSONID);                    t.add(IDataAccess.DATA_UUID);
+        f.add(FILTERBYPERSONTEXT);                  t.add(IDataAccess.DATA_STRING);
+        f.add(FILTERBYBOATID);                    t.add(IDataAccess.DATA_UUID);
+        f.add(FILTERBYBOATTEXT);                  t.add(IDataAccess.DATA_STRING);
+        f.add(FILTERBYGROUPID);                   t.add(IDataAccess.DATA_UUID);
         f.add(SHOWFIELDS);                        t.add(IDataAccess.DATA_LIST_STRING);
         f.add(AGGREGATIONS);                      t.add(IDataAccess.DATA_LIST_STRING);
+        f.add(AGGRDISTANCEBARSIZE);               t.add(IDataAccess.DATA_INTEGER);
+        f.add(AGGRSESSIONSBARSIZE);               t.add(IDataAccess.DATA_INTEGER);
+        f.add(AGGRAVGDISTBARSIZE);                t.add(IDataAccess.DATA_INTEGER);
+        f.add(OUTPUTFILE);                        t.add(IDataAccess.DATA_STRING);
+        f.add(COMPYEAR);                          t.add(IDataAccess.DATA_INTEGER);
+        f.add(COMPPERCENTFULFILLED);              t.add(IDataAccess.DATA_INTEGER);
+        f.add(COMPOUTPUTSHORT);                   t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(COMPOUTPUTRULES);                   t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(COMPOUTPUTADDITIONALWITHREQUIREMENTS); t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(COMPOUTPUTWITHOUTDETAILS);          t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(COMPOUTPUTALLDESTINATIONAREAS);     t.add(IDataAccess.DATA_BOOLEAN);
         f.add(SORTINGCRITERIA);                   t.add(IDataAccess.DATA_STRING);
         f.add(SORTINGORDER);                      t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(Statistics.DATATYPE, f, t, false);
@@ -228,6 +272,8 @@ public class StatisticsRecord extends DataRecord {
         setFilterBoatSeats(new DataTypeList<String>(Daten.efaTypes.makeBoatSeatsArray(EfaTypes.ARRAY_STRINGLIST_VALUES)));
         setFilterBoatRigging(new DataTypeList<String>(Daten.efaTypes.makeBoatRiggingArray(EfaTypes.ARRAY_STRINGLIST_VALUES)));
         setFilterBoatCoxing(new DataTypeList<String>(Daten.efaTypes.makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_VALUES)));
+        setCompYear(DataTypeDate.today().getYear());
+        setCompPercentFulfilled(100);
     }
 
     public DataKey getKey() {
@@ -291,34 +337,38 @@ public class StatisticsRecord extends DataRecord {
         return getDate(DATETO);
     }
 
-    public void setStatisticType(String type) {
-        setString(STATISTICTYPE, type);
+    public void setStatisticCategory(String type) {
+        setString(STATISTICCATEGORY, type);
     }
 
-    public String getStatisticType() {
-        String s = getString(STATISTICTYPE);
+    public String getStatisticCategory() {
+        String s = getString(STATISTICCATEGORY);
         if (s == null || s.length() == 0) {
-            return STYPE_PERSONS;
+            return SCAT_PERSONS;
         }
         return s;
     }
 
-    public StatisticTypes getStatisticTypeEnum() {
-        String type = getStatisticType();
+    public static StatisticCategory getStatisticCategoryEnum(String type) {
         if (type == null) {
-            return StatisticTypes.UNKNOWN;
-        } else if (type.equals(STYPE_PERSONS)) {
-            return StatisticTypes.persons;
-        } else if (type.equals(STYPE_BOATS)) {
-            return StatisticTypes.boats;
-        } else if (type.equals(STYPE_COMPETITION)) {
-            return StatisticTypes.competition;
+            return StatisticCategory.UNKNOWN;
+        } else if (type.equals(SCAT_PERSONS)) {
+            return StatisticCategory.persons;
+        } else if (type.equals(SCAT_BOATS)) {
+            return StatisticCategory.boats;
+        } else if (type.equals(SCAT_COMPETITION)) {
+            return StatisticCategory.competition;
         }
-        return StatisticTypes.UNKNOWN;
+        return StatisticCategory.UNKNOWN;
     }
 
-    public String getStatisticTypeDescription() {
-        switch(getStatisticTypeEnum()) {
+    public StatisticCategory getStatisticCategoryEnum() {
+        String type = getStatisticCategory();
+        return getStatisticCategoryEnum(type);
+    }
+
+    public String getStatisticCategoryDescription() {
+        switch(getStatisticCategoryEnum()) {
             case persons:
                 return International.getString("Personen");
             case boats:
@@ -329,12 +379,12 @@ public class StatisticsRecord extends DataRecord {
         return International.getString("unbekannt");
     }
 
-    public String[] getStatisticTypes(int valuesOrDisplay) {
+    public String[] getStatisticCategories(int valuesOrDisplay) {
         if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
             return new String[] {
-                STYPE_PERSONS,
-                STYPE_BOATS,
-                STYPE_COMPETITION
+                SCAT_PERSONS,
+                SCAT_BOATS,
+                SCAT_COMPETITION
             };
         } else {
             return new String[] {
@@ -342,6 +392,42 @@ public class StatisticsRecord extends DataRecord {
                 International.getString("Boote"),
                 International.getString("Wettbewerb")
             };
+        }
+    }
+
+    public void setStatisticType(String type) {
+        setString(STATISTICTYPE, type);
+    }
+
+    public String getStatisticType() {
+        String s = getString(STATISTICTYPE);
+        if (s == null || s.length() == 0) {
+            return STYPE_LIST;
+        }
+        return s;
+    }
+
+    public String[] getStatisticTypes(StatisticCategory category, int valuesOrDisplay) {
+        if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
+            if (category != StatisticCategory.competition) {
+                return new String[]{
+                            STYPE_LIST,
+                            STYPE_LOGBOOK
+                        };
+            } else {
+                return (Daten.wettDefs != null ?
+                    Daten.wettDefs.getAllWettDefKeys() : new String[0]);
+            }
+        } else {
+            if (category != StatisticCategory.competition) {
+                return new String[]{
+                            International.getString("Kilometerliste"),
+                            International.getString("Fahrtenbuch")
+                        };
+            } else {
+                return (Daten.wettDefs != null ?
+                    Daten.wettDefs.getAllWettDefNames() : new String[0]);
+            }
         }
     }
 
@@ -389,6 +475,22 @@ public class StatisticsRecord extends DataRecord {
                 return International.getString("efaWett");
         }
         return International.getString("unbekannt");
+    }
+
+    public String getOutputTypeFileExtension() {
+        switch(getOutputTypeEnum()) {
+            case internal:
+                return "html";
+            case html:
+                return "html";
+            case csv:
+                return "csv";
+            case xml:
+                return "xml";
+            case efawett:
+                return "efw";
+        }
+        return "out";
     }
 
     public String[] getOutputTypes(int valuesOrDisplay) {
@@ -476,6 +578,41 @@ public class StatisticsRecord extends DataRecord {
         return getList(FILTERBOATCOXING, IDataAccess.DATA_STRING);
     }
 
+    public void setFilterByPersonId(UUID id) {
+        setUUID(FILTERBYPERSONID, id);
+    }
+    public UUID getFilterByPersonId() {
+        return getUUID(FILTERBYPERSONID);
+    }
+
+    public void setFilterByPersonText(String name) {
+        setString(FILTERBYPERSONTEXT, name);
+    }
+    public String getFilterByPersonText() {
+        return getString(FILTERBYPERSONTEXT);
+    }
+
+    public void setFilterByBoatId(UUID id) {
+        setUUID(FILTERBYBOATID, id);
+    }
+    public UUID getFilterByBoatId() {
+        return getUUID(FILTERBYBOATID);
+    }
+
+    public void setFilterByBoatText(String name) {
+        setString(FILTERBYBOATTEXT, name);
+    }
+    public String getFilterByBoatText() {
+        return getString(FILTERBYBOATTEXT);
+    }
+
+    public void setFilterByGroupId(UUID id) {
+        setUUID(FILTERBYGROUPID, id);
+    }
+    public UUID getFilterByGroupId() {
+        return getUUID(FILTERBYGROUPID);
+    }
+
     public void setShowFields(DataTypeList<String> list) {
         setList(SHOWFIELDS, list);
     }
@@ -522,12 +659,89 @@ public class StatisticsRecord extends DataRecord {
             };
         } else {
             return new String[] {
-                International.getString("Kilometer"), // @todo (P3) default unit for km
+                International.getString("Kilometer"), // @todo (P3) statistics - default unit for km
                 International.getString("Fahrten"),
-                International.getString("Km/Fahrt"), // @todo (P3) default unit for km
+                International.getString("Km/Fahrt"), // @todo (P3) statistics - default unit for km
                 International.onlyFor("Zielfahrten", "de")
             };
         }
+    }
+
+    public void setAggrDistanceBarSize(int size) {
+        setInt(AGGRDISTANCEBARSIZE, size);
+    }
+    public int getAggrDistanceBarSize() {
+        return getInt(AGGRDISTANCEBARSIZE);
+    }
+
+    public void setAggrSessionsBarSize(int size) {
+        setInt(AGGRSESSIONSBARSIZE, size);
+    }
+    public int getAggrSessionsBarSize() {
+        return getInt(AGGRSESSIONSBARSIZE);
+    }
+
+    public void setAggrAvgDistanceBarSize(int size) {
+        setInt(AGGRAVGDISTBARSIZE, size);
+    }
+    public int getAggrAvgDistanceBarSize() {
+        return getInt(AGGRAVGDISTBARSIZE);
+    }
+
+    public String getOutputFile() {
+        return getString(OUTPUTFILE);
+    }
+    public void setOutputFile(String file) {
+        setString(OUTPUTFILE, file);
+    }
+
+    public int getCompYear() {
+        return getInt(COMPYEAR);
+    }
+    public void setCompYear(int year) {
+        setInt(COMPYEAR, year);
+    }
+
+    public int getCompPercentFulfilled() {
+        return getInt(COMPPERCENTFULFILLED);
+    }
+    public void setCompPercentFulfilled(int pct) {
+        setInt(COMPPERCENTFULFILLED, pct);
+    }
+
+    public boolean getCompOutputShort() {
+        return getBool(COMPOUTPUTSHORT);
+    }
+    public void setCompOutputShort(boolean bool) {
+        setBool(COMPOUTPUTSHORT, bool);
+    }
+
+    public boolean getCompOutputRules() {
+        return getBool(COMPOUTPUTRULES);
+    }
+    public void setCompOutputRules(boolean bool) {
+        setBool(COMPOUTPUTRULES, bool);
+    }
+
+    public boolean getCompOutputAdditionalWithRequirements() {
+        return getBool(COMPOUTPUTADDITIONALWITHREQUIREMENTS);
+    }
+    public void setCompOutputAdditionalWithRequirements(boolean bool) {
+        setBool(COMPOUTPUTADDITIONALWITHREQUIREMENTS, bool);
+    }
+
+    public boolean getCompOutputWithoutDetails() {
+        return getBool(COMPOUTPUTWITHOUTDETAILS);
+    }
+    public void setCompOutputWithoutDetails(boolean bool) {
+        setBool(COMPOUTPUTWITHOUTDETAILS, bool);
+    }
+
+    public boolean getCompOutputAllDestinationAreas() {
+        return getBool(COMPOUTPUTALLDESTINATIONAREAS);
+    }
+    public void setCompOutputAllDestinationAreas(boolean bool) {
+        setBool(COMPOUTPUTALLDESTINATIONAREAS, bool);
     }
 
     public String[] getQualifiedNameFields() {
@@ -547,6 +761,8 @@ public class StatisticsRecord extends DataRecord {
         String CAT_BASEDATA     = "%01%" + International.getString("Statistik");
         String CAT_FIELDS       = "%02%" + International.getString("Felder");
         String CAT_FILTER       = "%03%" + International.getString("Filter");
+        String CAT_COMP         = "%04%" + International.getString("Wettbewerbe");
+        String CAT_OUTPUT       = "%05%" + International.getString("Ausgabe");
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
 
@@ -565,10 +781,17 @@ public class StatisticsRecord extends DataRecord {
         v.add(item = new ItemTypeDate(StatisticsRecord.DATETO, getDateTo(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bis")));
         ((ItemTypeDate)item).setMustBeAfter(dateFrom, true);
+        v.add(item = new ItemTypeStringList(StatisticsRecord.STATISTICCATEGORY, getStatisticCategory(),
+                    getStatisticCategories(ARRAY_STRINGLIST_VALUES), getStatisticCategories(ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                    International.getString("Statistiktyp")));
+        item.registerItemListener(this);
         v.add(item = new ItemTypeStringList(StatisticsRecord.STATISTICTYPE, getStatisticType(),
-                    getStatisticTypes(ARRAY_STRINGLIST_VALUES), getStatisticTypes(ARRAY_STRINGLIST_DISPLAY),
+                    getStatisticTypes(getStatisticCategoryEnum(), ARRAY_STRINGLIST_VALUES),
+                    getStatisticTypes(getStatisticCategoryEnum(), ARRAY_STRINGLIST_DISPLAY),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                     International.getString("Statistikart")));
+        this.itemStatisticType = (ItemTypeStringList)item;
         v.add(item = new ItemTypeStringList(StatisticsRecord.OUTPUTTYPE, getOutputType(),
                     getOutputTypes(ARRAY_STRINGLIST_VALUES), getOutputTypes(ARRAY_STRINGLIST_DISPLAY),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA,
@@ -584,6 +807,15 @@ public class StatisticsRecord extends DataRecord {
                     getAggregationList(ARRAY_STRINGLIST_VALUES), getAggregationList(ARRAY_STRINGLIST_DISPLAY),
                     IItemType.TYPE_PUBLIC, CAT_FIELDS,
                     International.getString("Berechnung")));
+        v.add(item = new ItemTypeInteger(StatisticsRecord.AGGRDISTANCEBARSIZE, getAggrDistanceBarSize(), 0, 1000,
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Balkengröße") + ": " +
+                International.getString("Kilometer")));
+        v.add(item = new ItemTypeInteger(StatisticsRecord.AGGRSESSIONSBARSIZE, getAggrSessionsBarSize(), 0, 1000,
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Balkengröße") + ": " +
+                International.getString("Fahrten")));
+        v.add(item = new ItemTypeInteger(StatisticsRecord.AGGRAVGDISTBARSIZE, getAggrAvgDistanceBarSize(), 0, 1000,
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Balkengröße") + ": " +
+                International.getString("Km/Fahrt")));
 
         // CAT_FILTER
         v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.FILTERGENDER, getFilterGender(),
@@ -614,26 +846,84 @@ public class StatisticsRecord extends DataRecord {
                     Daten.efaTypes.makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_VALUES), Daten.efaTypes.makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
                     IItemType.TYPE_PUBLIC, CAT_FILTER,
                     International.getString("Steuerung")));
+
+        v.add(item = getGuiItemTypeStringAutoComplete(StatisticsRecord.FILTERBYPERSONID, null,
+                    IItemType.TYPE_PUBLIC, CAT_FILTER,
+                    getPersistence().getProject().getPersons(false), System.currentTimeMillis(), System.currentTimeMillis(),
+                    International.getString("nur Person")));
+        if (getFilterByPersonId() != null) {
+            ((ItemTypeStringAutoComplete)item).setId(getFilterByPersonId());
+        } else {
+            ((ItemTypeStringAutoComplete)item).parseAndShowValue(getFilterByPersonText());
+        }
+        ((ItemTypeStringAutoComplete)item).setAlternateFieldNameForPlainText(StatisticsRecord.FILTERBYPERSONTEXT);
+        v.add(item = getGuiItemTypeStringAutoComplete(StatisticsRecord.FILTERBYBOATID, null,
+                    IItemType.TYPE_PUBLIC, CAT_FILTER,
+                    getPersistence().getProject().getBoats(false), System.currentTimeMillis(), System.currentTimeMillis(),
+                    International.getString("nur Boot")));
+        if (getFilterByBoatId() != null) {
+            ((ItemTypeStringAutoComplete)item).setId(getFilterByBoatId());
+        } else {
+            ((ItemTypeStringAutoComplete)item).parseAndShowValue(getFilterByBoatText());
+        }
+        ((ItemTypeStringAutoComplete)item).setAlternateFieldNameForPlainText(StatisticsRecord.FILTERBYBOATTEXT);
+        v.add(item = getGuiItemTypeStringAutoComplete(StatisticsRecord.FILTERBYGROUPID, getFilterByGroupId(),
+                    IItemType.TYPE_PUBLIC, CAT_FILTER,
+                    getPersistence().getProject().getGroups(false), System.currentTimeMillis(), System.currentTimeMillis(),
+                    International.getString("nur Gruppe")));
+
+        v.add(item = new ItemTypeInteger(StatisticsRecord.COMPYEAR, getCompYear(),
+                    1900, 2100,
+                    IItemType.TYPE_PUBLIC, CAT_COMP,
+                    International.getString("Wettbewerbsjahr")));
+        v.add(item = new ItemTypeInteger(StatisticsRecord.COMPPERCENTFULFILLED, getCompPercentFulfilled(),
+                    0, 100,
+                    IItemType.TYPE_PUBLIC, CAT_COMP,
+                    International.getString("Prozent erfüllt")));
+        v.add(item = new ItemTypeBoolean(StatisticsRecord.COMPOUTPUTRULES, getCompOutputRules(),
+                    IItemType.TYPE_PUBLIC, CAT_COMP,
+                    International.getString("Wettbewerbsbedingungen ausgeben")));
+        v.add(item = new ItemTypeBoolean(StatisticsRecord.COMPOUTPUTSHORT, getCompOutputShort(),
+                    IItemType.TYPE_PUBLIC, CAT_COMP,
+                    International.getString("Ausgabe im Kurzformat")));
+        v.add(item = new ItemTypeBoolean(StatisticsRecord.COMPOUTPUTWITHOUTDETAILS, getCompOutputWithoutDetails(),
+                    IItemType.TYPE_PUBLIC, CAT_COMP,
+                    International.getString("Ausgabe ohne Details")));
+        v.add(item = new ItemTypeBoolean(StatisticsRecord.COMPOUTPUTADDITIONALWITHREQUIREMENTS, getCompOutputAdditionalWithRequirements(),
+                    IItemType.TYPE_PUBLIC, CAT_COMP,
+                    International.getString("Ausgabe zusätzlich mit Anforderungen")));
+        v.add(item = new ItemTypeBoolean(StatisticsRecord.COMPOUTPUTALLDESTINATIONAREAS, getCompOutputAllDestinationAreas(),
+                    IItemType.TYPE_PUBLIC, CAT_COMP,
+                    International.onlyFor("Alle Zielbereiche ausgeben", "de")));
+
+        v.add(item = new ItemTypeFile(StatisticsRecord.OUTPUTFILE, getOutputFile(),
+                International.getString("Ausgabedatei"),
+                International.getString("alle Dateien"),
+                null, ItemTypeFile.MODE_OPEN, ItemTypeFile.TYPE_FILE,
+                IItemType.TYPE_PUBLIC, CAT_OUTPUT, International.getString("Ausgabedatei")));
+
         return v;
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        TableItemHeader[] header = new TableItemHeader[5];
+        TableItemHeader[] header = new TableItemHeader[6];
         header[0] = new TableItemHeader(International.getString("Nr."));
         header[1] = new TableItemHeader(International.getString("Name"));
-        header[2] = new TableItemHeader(International.getString("Statistikart"));
-        header[3] = new TableItemHeader(International.getString("Von"));
-        header[4] = new TableItemHeader(International.getString("Bis"));
+        header[2] = new TableItemHeader(International.getString("Statistiktyp"));
+        header[3] = new TableItemHeader(International.getString("Statistikart"));
+        header[4] = new TableItemHeader(International.getString("Von"));
+        header[5] = new TableItemHeader(International.getString("Bis"));
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
-        TableItem[] items = new TableItem[5];
+        TableItem[] items = new TableItem[6];
         items[0] = new TableItem(getPosition());
         items[1] = new TableItem(getName());
-        items[2] = new TableItem(getStatisticTypeDescription());
-        items[3] = new TableItem(getDateFrom());
-        items[4] = new TableItem(getDateTo());
+        items[2] = new TableItem(getStatisticCategoryDescription());
+        items[3] = new TableItem(getStatisticCategoryDescription());
+        items[4] = new TableItem(getDateFrom());
+        items[5] = new TableItem(getDateTo());
         return items;
     }
 
@@ -650,7 +940,8 @@ public class StatisticsRecord extends DataRecord {
             sEndDate = DataTypeDate.today();
         }
 
-        sStatisticType = getStatisticTypeEnum();
+        sStatisticCategory = getStatisticCategoryEnum();
+        sStatisticType = getStatisticType();
         sOutputType = getOutputTypeEnum();
 
         sFilterGender = new Hashtable<String,String>();
@@ -700,6 +991,12 @@ public class StatisticsRecord extends DataRecord {
             sFilterBoatCoxing.put(listString.get(i), "foo");
         }
 
+        sFilterByPersonId = getFilterByPersonId();
+        sFilterByPersonText = (sFilterByPersonId != null ? null : getFilterByPersonText());
+        sFilterByBoatId = getFilterByBoatId();
+        sFilterByBoatText = (sFilterByBoatId != null ? null : getFilterByBoatText());
+        sFilterByGroupId = getFilterByGroupId();
+
         DataTypeList<String> fields = getShowFields();
         for (int i=0; fields != null && i<fields.length(); i++) {
             String s = fields.get(i);
@@ -730,14 +1027,18 @@ public class StatisticsRecord extends DataRecord {
             }
         }
 
-        sCompYear = 2011; // @todo (P2) - statistics comp
-        sCompPercentFulfilled = 10; // @todo (P2) - statistics comp
-        sIsOutputCompShort = false; // @todo (P2) - statistics comp
-        sIsOutputCompRules = false; // @todo (P2) - statistics comp
-        sIsOutputCompAdditionalWithRequirements = false; // @todo (P2) - statistics comp
-        sIsOutputCompWithoutDetails = true; // @todo (P2) - statistics comp
-        sIsOutputCompAllDestinationAreas = false; // @todo (P2) - statistics comp
-        if (sStatisticType == StatisticTypes.competition) {
+        sAggrDistanceBarSize = getAggrDistanceBarSize();
+        sAggrSessionsBarSize = getAggrSessionsBarSize();
+        sAggrAvgDistanceBarSize = getAggrAvgDistanceBarSize();
+
+        sCompYear = getCompYear();
+        sCompPercentFulfilled = getCompPercentFulfilled();
+        sIsOutputCompShort = getCompOutputShort();
+        sIsOutputCompRules = getCompOutputRules();
+        sIsOutputCompAdditionalWithRequirements = getCompOutputAdditionalWithRequirements();
+        sIsOutputCompWithoutDetails = getCompOutputWithoutDetails();
+        sIsOutputCompAllDestinationAreas = this.getCompOutputAllDestinationAreas();
+        if (sStatisticCategory == StatisticCategory.competition) {
             this.sIsAggrDistance = true;
             this.sIsAggrSessions = true;
             this.sIsAggrZielfahrten = true;
@@ -746,6 +1047,11 @@ public class StatisticsRecord extends DataRecord {
             this.sIsFieldsYearOfBirth = true;
         }
 
+        sOutputFile = getOutputFile();
+        if (sOutputFile == null || sOutputFile.length() == 0) {
+            sOutputFile = Daten.efaTmpDirectory + Daten.fileSep + "output." + getOutputTypeFileExtension();
+        }
+        sOutputDir = (new File(sOutputFile)).getAbsolutePath();
 
         sTimestampBegin = sStartDate.getTimestamp(new DataTypeTime(0,0,0));
         sTimestampEnd   = sEndDate.getTimestamp(new DataTypeTime(23,59,59));
@@ -780,6 +1086,16 @@ public class StatisticsRecord extends DataRecord {
         }
         if (sIsAggrZielfahrten) {
             pTableColumns.add(International.getString("Zielfahrten"));
+        }
+    }
+
+    public void itemListenerAction(IItemType itemType, AWTEvent event) {
+        if (itemType.getName().equals(STATISTICCATEGORY) && event instanceof ItemEvent &&
+            itemStatisticType != null) {
+            String cats = itemType.getValueFromField();
+            StatisticCategory cat = getStatisticCategoryEnum(cats);
+            itemStatisticType.setListData(getStatisticTypes(cat, ARRAY_STRINGLIST_VALUES),
+                                          getStatisticTypes(cat, ARRAY_STRINGLIST_DISPLAY));
         }
     }
 

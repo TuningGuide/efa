@@ -543,6 +543,32 @@ public class WettDefs extends DatenListe {
             return null;
         }
     }
+   
+    public String[] getAllWettDefKeys() {
+        String[] wett = new String[ANZWETT];
+        for (int i = 0; i < ANZWETT; i++) {
+            WettDef w = getWettDef(i, 9999);
+            if (w != null) {
+                wett[i] = w.key; // Namen der Wettbewerbe für höchstmögliches Jahr (falls sich Namen ändern)!
+            } else {
+                wett[i] = "";
+            }
+        }
+        return wett;
+    }
+
+    public String[] getAllWettDefNames() {
+        String[] wett = new String[ANZWETT];
+        for (int i = 0; i < ANZWETT; i++) {
+            WettDef w = getWettDef(i, 9999);
+            if (w != null) {
+                wett[i] = w.name; // Namen der Wettbewerbe für höchstmögliches Jahr (falls sich Namen ändern)!
+            } else {
+                wett[i] = "*** " + International.getString("Keine Wettbewerbsdefinition gefunden") + " ***";
+            }
+        }
+        return wett;
+    }
 
     private int getGender(String gender) {
         if (gender != null && gender.equals(EfaTypes.TYPE_GENDER_MALE)) {

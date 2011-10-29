@@ -95,6 +95,7 @@ public class BoatDamages extends StorageObject {
         if (add || update) {
             assertFieldNotEmpty(record, BoatDamageRecord.BOATID);
             assertFieldNotEmpty(record, BoatDamageRecord.DAMAGE);
+            assertFieldNotEmpty(record, BoatDamageRecord.SEVERITY);
         }
     }
     

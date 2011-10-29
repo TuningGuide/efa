@@ -740,6 +740,13 @@ public abstract class DataRecord implements Cloneable, Comparable {
                 }
             } else {
                 set(item.getName(), null);
+                if (item instanceof ItemTypeStringAutoComplete) {
+                    ItemTypeStringAutoComplete acItem = (ItemTypeStringAutoComplete) item;
+                    String alternateField = acItem.getAlternateFieldNameForPlainText();
+                    if (alternateField != null) {
+                        set(alternateField, null);
+                    }
+                }
             }
         }
     }

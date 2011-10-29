@@ -53,7 +53,6 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
     }
 
     public void iniDisplay() {
-        super.iniDisplay();
         if (showButton) {
             button = new JButton();
             originalButtonColor = button.getBackground();
@@ -62,6 +61,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
                 public void actionPerformed(ActionEvent e) { actionEvent(e); }
             });
         }
+        super.iniDisplay();
         ((JTextField)field).addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(KeyEvent e) { autoComplete(e); }
         });

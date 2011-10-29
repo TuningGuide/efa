@@ -107,6 +107,8 @@ public class EfaExitFrame extends BaseFrame {
                     International.getString("efa beendet sich jetzt")
                     + (restart ? " " + International.getString("und wird anschließend neu gestartet") + "."
                     : "."));
+            // disable window stack checks: EfaBoathouseFrame may not be top of stack; yet we're closing it
+            Dialog.IGNORE_WINDOW_STACK_CHECKS = true;
             efaBoathouseFrame.cancel(null, who, null, restart);
         } else {
             thread = new CountdownThread(this); // Thread für's nächste Mal initialisieren

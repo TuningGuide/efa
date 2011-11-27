@@ -27,6 +27,7 @@ public class ItemTypeFile extends ItemTypeString {
     public static final int TYPE_FILE = 1;
     public static final int TYPE_DIR  = 2;
 
+    private JButton button;
     private String fileItem;
     private String fileTypes;
     private String fileExtensions;
@@ -51,7 +52,7 @@ public class ItemTypeFile extends ItemTypeString {
     public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
         super.displayOnGui(dlg, panel, x, y);
 
-        JButton button = new JButton();
+        button = new JButton();
         if (fileOpenSave == MODE_OPEN) {
             button.setIcon(BaseFrame.getIcon("menu_open.gif"));
         } else {
@@ -59,6 +60,7 @@ public class ItemTypeFile extends ItemTypeString {
         }
         button.setMargin(new Insets(0,0,0,0));
         Dialog.setPreferredSize(button, 19, 19);
+        button.setVisible(isVisible);
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { buttonHit(e); }
         });
@@ -104,6 +106,13 @@ public class ItemTypeFile extends ItemTypeString {
         }
         value = filename;
         showValue();
+    }
+
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        if (button != null) {
+            button.setVisible(isVisible);
+        }
     }
 
 }

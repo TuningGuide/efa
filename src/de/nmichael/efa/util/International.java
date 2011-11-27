@@ -11,9 +11,7 @@
 package de.nmichael.efa.util;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.util.EfaErrorPrintStream;
-import de.nmichael.efa.core.config.EfaBaseConfig;
-import de.nmichael.efa.util.SimpleSelectFrame;
+import de.nmichael.efa.core.config.EfaTypes;
 import java.util.*;
 import java.io.*;
 import java.text.*;
@@ -60,6 +58,7 @@ public class International {
             Daten.EFA_SHORTNAME = International.getString("efa");
             Daten.EFA_LONGNAME = International.getString("efa - elektronisches Fahrtenbuch");
             Daten.EFA_ONLINE = International.getString("efa Online");
+            EfaTypes.TEXT_UNKNOWN = International.getString("unbekannt");
         } catch(Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_INTERNATIONAL_FAILEDSETUP, "Failed to set up internationalization: "+e.toString()); // no need for translation
             initializationFailed = true;

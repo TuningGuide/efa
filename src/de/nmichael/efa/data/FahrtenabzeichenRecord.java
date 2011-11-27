@@ -58,6 +58,10 @@ public class FahrtenabzeichenRecord extends DataRecord {
         return new DataKey<UUID,String,String>(getPersonId(),null,null);
     }
 
+    public static DataKey getKey(UUID personId) {
+        return new DataKey<UUID,String,String>(personId,null,null);
+    }
+
     public boolean getDeleted() {
         return getPersistence().getProject().getPersons(false).isPersonDeleted(getPersonId());
     }

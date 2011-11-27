@@ -13,6 +13,9 @@ import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.EfaWett;
 import de.nmichael.efa.core.WettDef;
 import de.nmichael.efa.core.WettDefs;
+import de.nmichael.efa.core.config.EfaTypes;
+import de.nmichael.efa.data.BoatRecord;
+import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.StatisticsRecord;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.util.Dialog;
@@ -33,17 +36,42 @@ public abstract class Competition {
     protected AusgabeEintrag letzterAusgabeEintrag;
     protected Hashtable nichtBeruecksichtigt = new Hashtable(); // Bei Wettbewerben nicht berücksichtigte Mitglieder (z.B. weil Jahrgang fehlt oder Wettbewerbsmeldungen deaktiviert sind)
     protected EfaWett efaWett; // Zusammenstellung aller Wettbewerbsdaten für Erstellung einer Meldedatei
+    protected StatisticsRecord sr;
 
     public static Competition getCompetition(StatisticsRecord sr) {
         String sType = sr.getStatisticType();
         if (sType == null) {
             return null;
         }
-        if (sType.equals(WettDefs.LRVBERLIN_SOMMER)) {
-            return new CompetitionLRVBSommer();
+        Competition comp = null;
+        if (sType.equals(WettDefs.STR_DRV_FAHRTENABZEICHEN)) {
+            comp = new CompetitionDRVFahrtenabzeichen();
         }
-        // @todo (P2) statistics
-        return null;
+        if (sType.equals(WettDefs.STR_DRV_WANDERRUDERSTATISTIK)) {
+            comp = new CompetitionDRVWanderruderstatistik();
+        }
+        if (sType.equals(WettDefs.STR_LRVBERLIN_SOMMER)) {
+            comp = new CompetitionLRVBerlinSommer();
+        }
+        if (sType.equals(WettDefs.STR_LRVBERLIN_WINTER)) {
+            comp = new CompetitionLRVBerlinWinter();
+        }
+        if (sType.equals(WettDefs.STR_LRVBERLIN_BLAUERWIMPEL)) {
+            comp = new CompetitionLRVBerlinBlauerWimpel();
+        }
+        if (sType.equals(WettDefs.STR_LRVBRB_WANDERRUDERWETT)) {
+            comp = new CompetitionLRVBrandenburgWanderruderwett();
+        }
+        if (sType.equals(WettDefs.STR_LRVBRB_FAHRTENWETT)) {
+            comp = new CompetitionLRVBrandenburgFahrtenwett();
+        }
+        if (sType.equals(WettDefs.STR_LRVMVP_WANDERRUDERWETT)) {
+            comp = new CompetitionLRVMeckPommWanderruderwett();
+        }
+        if (comp != null) {
+            comp.sr = sr;
+        }
+        return comp;
     }
 
     public abstract void calculate(StatisticsRecord sr, StatisticsData[] sd);
@@ -132,4 +160,41 @@ public abstract class Competition {
         _zeil.toArray(zeilen);
         return zeilen;
     }
+
+    public static void getGigFahrten(StatisticsData sd, long minMeters) {
+        sd.compData = new CompetitionData();
+        for (int i = 0; sd.sessionHistory != null && i < sd.sessionHistory.size(); i++) {
+            LogbookRecord r = sd.sessionHistory.get(i);
+            BoatRecord b = r.getBoatRecord(r.getValidAtTimestamp());
+            if (b != null) {
+                int boatVariant = r.getBoatVariant();
+                int vidx = -1;
+                if (b.getNumberOfVariants() == 1) {
+                    vidx = 0;
+                } else {
+                    vidx = b.getVariantIndex(boatVariant);
+                }
+                if (vidx >= 0) {
+                    String boatType = b.getTypeType(vidx);
+                    if (boatType == null || !EfaTypes.isGigBoot(boatType)) {
+                        continue;
+                    }
+                }
+                if (r.getDistance() != null && r.getDistance().getValueInMeters() >= minMeters) {
+                    int meters = (int) r.getDistance().getValueInMeters();
+                    sd.compData.gigfahrten.add(r);
+                    sd.compData.gigbootanz++;
+                    sd.compData.gigbootmeters += meters;
+                    if (meters >= 20*1000) {
+                        sd.compData.gigboot20plus++;
+                    }
+                    if (meters >= 30*1000) {
+                        sd.compData.gigboot30plus++;
+                    }
+
+                }
+            }
+        }
+    }
+
 }

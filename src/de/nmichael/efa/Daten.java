@@ -39,15 +39,15 @@ public class Daten {
   public       static String EFA_LONGNAME  = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
   public       static String EFA_ONLINE    = "efa Online";                       // dummy, will be set in International.ininitalize()
 
-  public final static String VERSION = "v2.0_dev97"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSIONID = "1.9.7_13";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "29.10.2011";  // Release Date: TT.MM.JJJJ
-  public final static String PROGRAMMID = "EFA.196"; // Versions-ID für Wettbewerbsmeldungen
-  public final static String PROGRAMMID_DRV = "EFADRV.196"; // Versions-ID für Wettbewerbsmeldungen
+  public final static String VERSION = "v2.0_dev98"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
+  public final static String VERSIONID = "1.9.8_00";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+  public final static String VERSIONRELEASEDATE = "26.11.2011";  // Release Date: TT.MM.JJJJ
+  public final static String PROGRAMMID = "EFA.198"; // Versions-ID für Wettbewerbsmeldungen
+  public final static String PROGRAMMID_DRV = "EFADRV.198"; // Versions-ID für Wettbewerbsmeldungen
   public final static String COPYRIGHTYEAR = "11";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
 
   public final static String EMIL_VERSION = VERSION; // Version
-  public final static String EMIL_KENNUNG = "EMIL.196";
+  public final static String EMIL_KENNUNG = "EMIL.198";
   public final static String ELWIZ_VERSION = VERSION; // Version
   public final static String EDDI_VERSION = VERSION; // Version
 

@@ -90,6 +90,11 @@ public class Project extends StorageObject {
     }
 
     public boolean openAllData() {
+        if (getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+            // in order to speed up initial login to a remote project,
+            // we will only open the neccesary files on demand
+            return true;
+        }
         try {
             if (!isOpen()) {
                 open(false);

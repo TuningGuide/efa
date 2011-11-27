@@ -9,6 +9,7 @@
  */
 package de.nmichael.efa.data.types;
 
+import de.nmichael.efa.core.config.EfaTypes;
 import java.util.*;
 import de.nmichael.efa.util.*;
 
@@ -391,4 +392,69 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
         return s;
     }
     
+    public String getMonthAsStringWithIntMarking(String prefix, String postfix) {
+        return prefix + EfaUtil.int2String(month, 2) + postfix + getMonthAsString();
+    }
+
+    public String getMonthAsString() {
+        switch(month) {
+            case 1:
+                return International.getString("Januar");
+            case 2:
+                return International.getString("Februar");
+            case 3:
+                return International.getString("März");
+            case 4:
+                return International.getString("April");
+            case 5:
+                return International.getString("Mai");
+            case 6:
+                return International.getString("Juni");
+            case 7:
+                return International.getString("Juli");
+            case 8:
+                return International.getString("August");
+            case 9:
+                return International.getString("September");
+            case 10:
+                return International.getString("Oktober");
+            case 11:
+                return International.getString("November");
+            case 12:
+                return International.getString("Dezember");
+        }
+        return EfaTypes.TEXT_UNKNOWN;
+    }
+
+    public String getWeekdayAsStringWithIntMarking(String prefix, String postfix) {
+        int weekday = toCalendar().get(Calendar.DAY_OF_WEEK);
+        if (International.getLanguageID().startsWith("de") &&
+            weekday == Calendar.SUNDAY) {
+            // for German language setting, put Sunday last
+            weekday = Calendar.SATURDAY + 1; // what a hack ;-)
+        }
+        return prefix + EfaUtil.int2String(weekday, 2) + postfix +
+                getWeekdayAsString();
+    }
+
+    public String getWeekdayAsString() {
+        switch (toCalendar().get(Calendar.DAY_OF_WEEK)) {
+            case Calendar.MONDAY:
+                return International.getString("Montag");
+            case Calendar.TUESDAY:
+                return International.getString("Dienstag");
+            case Calendar.WEDNESDAY:
+                return International.getString("Mittwoch");
+            case Calendar.THURSDAY:
+                return International.getString("Donnerstag");
+            case Calendar.FRIDAY:
+                return International.getString("Freitag");
+            case Calendar.SATURDAY:
+                return International.getString("Samstag");
+            case Calendar.SUNDAY:
+                return International.getString("Sonntag");
+        }
+        return EfaTypes.TEXT_UNKNOWN;
+    }
+
 }

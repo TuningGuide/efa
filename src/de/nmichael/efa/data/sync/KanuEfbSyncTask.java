@@ -23,6 +23,7 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.gui.EfaConfigDialog;
 import de.nmichael.efa.gui.ProgressDialog;
+import de.nmichael.efa.gui.BaseTabbedDialog;
 import de.nmichael.efa.gui.dataedit.ProjectEditDialog;
 import javax.swing.JDialog;
 
@@ -446,7 +447,7 @@ public class KanuEfbSyncTask extends ProgressTask {
                                 if (d != null && d.getEnd() != null && d.getEnd().length() > 0) {
                                     request.append("<toText>" + d.getEnd() + "</toText>");
                                 }
-                                request.append("<kilometers>" + r.getDistance().getValueInKilometers() + "</kilometers>");
+                                request.append("<kilometers>" + r.getDistance().getStringValueInKilometers() + "</kilometers>");
                                 request.append("</line>");
                                 request.append("</lines>");
 
@@ -618,7 +619,7 @@ public class KanuEfbSyncTask extends ProgressTask {
                 Daten.haltProgram(Daten.HALT_MISCONFIG);
             }
             Dialog.infoDialog(msg, International.getString("Bitte vervollständige die Konfigurationseinstellungen!"));
-            EfaConfigDialog dlg = new EfaConfigDialog((JDialog)null, Daten.efaConfig, EfaConfig.makeCategory(EfaConfig.CATEGORY_SYNC, EfaConfig.CATEGORY_KANUEFB));
+            EfaConfigDialog dlg = new EfaConfigDialog((JDialog)null, Daten.efaConfig, BaseTabbedDialog.makeCategory(Daten.efaConfig.CATEGORY_SYNC, Daten.efaConfig.CATEGORY_KANUEFB));
             dlg.showDialog();
             if (!dlg.getDialogResult()) {
                 return;

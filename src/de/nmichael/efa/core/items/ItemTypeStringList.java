@@ -132,4 +132,10 @@ public class ItemTypeStringList extends ItemTypeLabelValue {
         return true;
     }
 
+    public void actionEvent(AWTEvent e) {
+        if (!ignoreItemStateChanges) {
+            super.actionEvent(e);
+        }
+    }
+
 }

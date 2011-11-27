@@ -40,7 +40,7 @@ public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements
 
     private void initListener() {
         IItemType itemType = null;
-        for (IItemType item : items) {
+        for (IItemType item : allGuiItems) {
             if (item.getName().equals(BoatDamageRecord.FIXED)) {
                 ((ItemTypeBoolean)item).registerItemListener(this);
                 itemType = item;

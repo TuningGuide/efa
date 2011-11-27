@@ -86,39 +86,25 @@ public class StatisticHTMLWriter extends StatisticWriter {
             //        "<img src=\"" + saveImage("efa_logo.png", "png", sr.sOutputDir) + "\" width=\"128\" height=\"87\" align=\"center\" alt=\"efa\" border=\"0\"></a></td>\n");
 
             f.write("<td>"
-                    + International.getString("Auswertung erstellt am")
+                    + EfaUtil.replace(International.getString("Auswertung erstellt am"), " ", "&nbsp;", true)
                     + ":</td><td><b>" + sr.pStatCreationDate + "</b></td></tr>\n");
             f.write("<td>"
-                    + International.getString("Auswertung erstellt von")
+                    + EfaUtil.replace(International.getString("Auswertung erstellt von"), " ", "&nbsp;", true)
                     + ":</td><td><b><a href=\"" + sr.pStatCreatedByUrl + "\">" + sr.pStatCreatedByName + "</a></b></td></tr>\n");
             f.write("<tr><td>"
-                    + International.getString("Art der Auswertung")
+                    + EfaUtil.replace(International.getString("Art der Auswertung"), " ", "&nbsp;", true)
                     + ":</td><td><b>" + sr.pStatDescription + "</b></td></tr>\n");
             f.write("<tr><td>"
-                    + International.getString("Zeitraum für Auswertung")
+                    + EfaUtil.replace(International.getString("Zeitraum für Auswertung"), " ", "&nbsp;", true)
                     + ":</td><td><b>" + sr.pStatDateRange + "</b></td></tr>\n");
             f.write("<tr><td>"
-                    + International.getString("Ausgewertete Einträge")
+                    + EfaUtil.replace(International.getString("Ausgewertete Einträge"), " ", "&nbsp;", true)
                     + ":</td><td><b>" + sr.pStatConsideredEntries + "</b></td></tr>\n");
-            /*
-            f.write("<tr><td>"
-                    + International.getString("Auswertung für")
-                    + ":</td><td><b>");
-            for (int i = 0; i < ad.auswertungFuer.length; i++) {
-                f.write((i > 0 ? "<br>" : "") + ad.auswertungFuer[i]);
-            }
-            f.write("</b></td></tr>\n");
-            if (ad.auswertungNurFuer != null) {
+            if (sr.pStatFilter != null) {
                 f.write("<tr><td>"
-                        + International.getString("nur für")
-                        + " " + ad.auswertungNurFuerBez + ":</td><td><b>" + ad.auswertungNurFuer + "</b></td></tr>\n");
+                        + EfaUtil.replace(International.getString("Filter"), " ", "&nbsp;", true)
+                        + ":</td><td><b>" + EfaUtil.replace(sr.pStatFilter,"\n","<br>",true) + "</b></td></tr>\n");
             }
-            if (ad.auswertungWettNur != null) {
-                f.write("<tr><td>"
-                        + International.getString("Ausgabe, wenn")
-                        + ":</td><td><b>" + ad.auswertungWettNur + "</b></td></tr>\n");
-            }
-            */
             f.write("</table>\n<br><br>\n");
 
 
@@ -246,48 +232,52 @@ public class StatisticHTMLWriter extends StatisticWriter {
                     } else {
                         f.write("<tr>");
                     }
-                    
-                    outHTML(f, sd[i].sPosition, true, null);
-                    outHTML(f, sd[i].sName, false, null);
-                    outHTML(f, sd[i].sStatus, false, null);
-                    outHTML(f, sd[i].sYearOfBirth, false, null);
-                    outHTML(f, sd[i].sBoatType, false, null);
-                    outHTML(f, sd[i].sDistance, sd[i].distance,
-                            (sdMaximum != null && !sd[i].isSummary ? sdMaximum.distance : 0),
-                            "blue", sr.sAggrDistanceBarSize);
-                    outHTML(f, sd[i].sSessions, sd[i].sessions,
-                            (sdMaximum != null && !sd[i].isSummary ? sdMaximum.sessions : 0),
-                            "red", sr.sAggrSessionsBarSize);
-                    outHTML(f, sd[i].sAvgDistance, sd[i].avgDistance,
-                            (sdMaximum != null && !sd[i].isSummary ? sdMaximum.avgDistance : 0),
-                            "green", sr.sAggrAvgDistanceBarSize);
-                    outHTML(f, sd[i].sDestinationAreas, false, null);
-                    /*
-                    outHTML(f, ae.anzversch, false, null);
-                    outHTMLgra(f, ae, ae.km, ae.colspanKm);
-                    outHTMLgra(f, ae, ae.rudkm, ae.colspanRudKm);
-                    outHTMLgra(f, ae, ae.stmkm, ae.colspanStmKm);
-                    outHTMLgra(f, ae, ae.fahrten, ae.colspanFahrten);
-                    outHTMLgra(f, ae, ae.kmfahrt, ae.colspanKmFahrt);
-                    outHTMLgra(f, ae, ae.dauer, ae.colspanDauer);
-                    outHTMLgra(f, ae, ae.kmh, ae.colspanKmH);
-                    outHTML(f, ae.wafaKm, false, null);
-                    outHTML(f, ae.zielfahrten, false, null);
-                    outHTML(f, ae.zusatzDRV, false, null);
-                    outHTML(f, ae.zusatzLRVBSommer, false, null);
-                    outHTML(f, ae.zusatzLRVBWinter, false, null);
-                    outHTML(f, ae.zusatzLRVBrbWanderWett, false, null);
-                    outHTML(f, ae.zusatzLRVBrbFahrtenWett, false, null);
-                    outHTML(f, ae.zusatzLRVMVpWanderWett, false, null);
-                    */
-                    /*
-                    if (ae.fahrtenbuch != null) {
-                        for (int i = 0; i < ae.fahrtenbuch.length; i++) {
-                            if (ae.fahrtenbuch[i] != null) {
-                                outHTML(f, ae.fahrtenbuch[i], false, null);
+
+                    if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list) {
+                        outHTML(f, sd[i].sPosition, true, null);
+                        outHTML(f, sd[i].sName, false, null);
+                        outHTML(f, sd[i].sStatus, false, null);
+                        outHTML(f, sd[i].sYearOfBirth, false, null);
+                        outHTML(f, sd[i].sBoatType, false, null);
+                        outHTML(f, sd[i].sDistance, sd[i].distance,
+                                (sdMaximum != null && !sd[i].isSummary ? sdMaximum.distance : 0),
+                                "blue", sr.sAggrDistanceBarSize);
+                        outHTML(f, sd[i].sSessions, sd[i].sessions,
+                                (sdMaximum != null && !sd[i].isSummary ? sdMaximum.sessions : 0),
+                                "red", sr.sAggrSessionsBarSize);
+                        outHTML(f, sd[i].sAvgDistance, sd[i].avgDistance,
+                                (sdMaximum != null && !sd[i].isSummary ? sdMaximum.avgDistance : 0),
+                                "green", sr.sAggrAvgDistanceBarSize);
+                        outHTML(f, sd[i].sDestinationAreas, false, null);
+                        /*
+                        outHTML(f, ae.anzversch, false, null);
+                        outHTMLgra(f, ae, ae.km, ae.colspanKm);
+                        outHTMLgra(f, ae, ae.rudkm, ae.colspanRudKm);
+                        outHTMLgra(f, ae, ae.stmkm, ae.colspanStmKm);
+                        outHTMLgra(f, ae, ae.fahrten, ae.colspanFahrten);
+                        outHTMLgra(f, ae, ae.kmfahrt, ae.colspanKmFahrt);
+                        outHTMLgra(f, ae, ae.dauer, ae.colspanDauer);
+                        outHTMLgra(f, ae, ae.kmh, ae.colspanKmH);
+                        outHTML(f, ae.wafaKm, false, null);
+                        outHTML(f, ae.zielfahrten, false, null);
+                        outHTML(f, ae.zusatzDRV, false, null);
+                        outHTML(f, ae.zusatzLRVBSommer, false, null);
+                        outHTML(f, ae.zusatzLRVBWinter, false, null);
+                        outHTML(f, ae.zusatzLRVBrbWanderWett, false, null);
+                        outHTML(f, ae.zusatzLRVBrbFahrtenWett, false, null);
+                        outHTML(f, ae.zusatzLRVMVpWanderWett, false, null);
+                         */
+                    }
+                    if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook) {
+                        if (sd[i].logbookFields != null) {
+                            for (int j = 0; j < sd[i].logbookFields.length; j++) {
+                                if (sd[i].logbookFields[j] != null) {
+                                    outHTML(f, sd[i].logbookFields[j], false, null);
+                                }
                             }
                         }
                     }
+                    /*
                     if (ae.ww != null) {
                         for (int i = 0; i < ae.ww.length; i++) {
                             outHTML(f, ae.ww[i], false, (ae.ww_selbst[i] ? "ffdddd" : null));
@@ -301,20 +291,13 @@ public class StatisticHTMLWriter extends StatisticWriter {
             }
 
             // Zusatzdaten
-            if (sr.pAdditionalTable != null) {
-                f.write("<br><table border align=\"center\">\n");
-                for (int i = 0; i < sr.pAdditionalTable.length; i++) {
-                    f.write("<tr>");
-                    for (int j = 0; j < sr.pAdditionalTable[i].length; j++) {
-                        f.write("<td>"
-                                //+ ((i == 0 && sr.pAdditionalTable_1stRowBold) || (i == sr.pAdditionalTable.length - 1 && sr.pAdditionalTable_lastRowBold) ? "<b>" : "")
-                                + sr.pAdditionalTable[i][j]
-                                //+ ((i == 0 && sr.pAdditionalTable_1stRowBold) || (i == sr.pAdditionalTable.length - 1 && sr.pAdditionalTable_lastRowBold) ? "</b>" : "")
-                                + "</td>");
-                    }
-                    f.write("</tr>\n");
-                }
-                f.write("</table><br>\n");
+            if (sr.pAdditionalTable1 != null) {
+                printTable(f, sr.pAdditionalTable1Title, sr.pAdditionalTable1, 
+                        sr.pAdditionalTable1FirstRowBold, sr.pAdditionalTable1LastRowBold);
+            }
+            if (sr.pAdditionalTable2 != null) {
+                printTable(f, sr.pAdditionalTable2Title, sr.pAdditionalTable2,
+                        sr.pAdditionalTable2FirstRowBold, sr.pAdditionalTable2LastRowBold);
             }
 
             /*
@@ -366,7 +349,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
                     + (color != null ? " bgcolor=\"#" + color + "\"" : "")
                     + (right ? " align=\"right\"" : "")
                     + ">"
-                    + (s.length() > 0 ? s : "&nbsp;")
+                    + (s.length() > 0 ? EfaUtil.escapeXml(s) : "&nbsp;")
                     + "</td>\n");
         }
     }
@@ -382,7 +365,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
                 f.write("<img src=\"" + saveImage("color_" + colorBar + ".gif", "gif", sr.sOutputDir) + "\" width=\"" + width + "\" height=\"20\" alt=\"\">&nbsp;");
             }
             if (s.length() > 0) {
-                f.write(s);
+                f.write(EfaUtil.escapeXml(s));
             }
             f.write("</td>\n");
         }
@@ -445,5 +428,33 @@ public class StatisticHTMLWriter extends StatisticWriter {
             fname = "/" + EfaUtil.replace(fname, "\\", "/", true);
         }
         return "file://" + fname;
+    }
+
+    private void printTable(BufferedWriter f, String[] header, String[][] data,
+            boolean firstRowBold, boolean lastRowBold) throws IOException {
+        f.write("<br><table border align=\"center\">\n");
+        if (header != null) {
+            f.write("<tr>");
+            for (int i = 0; header != null && i < header.length; i++) {
+                f.write("<th>" + header[i] + "</th>");
+            }
+            f.write("</tr>\n");
+        }
+        for (int i = 0; i < data.length; i++) {
+            if (data[i] == null) {
+                continue;
+            }
+            f.write("<tr>");
+            for (int j = 0; j < data[i].length; j++) {
+                f.write("<td>"
+                        + ((i == 0 && firstRowBold) || (i == data.length - 1 && lastRowBold) ? "<b>" : "")
+                        + data[i][j]
+                        + ((i == 0 && firstRowBold) || (i == data.length - 1 && lastRowBold) ? "</b>" : "")
+                        + "</td>");
+            }
+            f.write("</tr>\n");
+        }
+        f.write("</table><br>\n");
+
     }
 }

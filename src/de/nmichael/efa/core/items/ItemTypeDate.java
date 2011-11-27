@@ -108,29 +108,7 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
     protected void updateWeekday() {
         if (showWeekday && weekdayLabel != null) {
             if (isSet()) {
-                switch(value.toCalendar().get(Calendar.DAY_OF_WEEK)) {
-                    case Calendar.MONDAY:
-                        weekdayLabel.setText(" (" + International.getString("Montag") + ")");
-                        break;
-                    case Calendar.TUESDAY:
-                        weekdayLabel.setText(" (" + International.getString("Dienstag") + ")");
-                        break;
-                    case Calendar.WEDNESDAY:
-                        weekdayLabel.setText(" (" + International.getString("Mittwoch") + ")");
-                        break;
-                    case Calendar.THURSDAY:
-                        weekdayLabel.setText(" (" + International.getString("Donnerstag") + ")");
-                        break;
-                    case Calendar.FRIDAY:
-                        weekdayLabel.setText(" (" + International.getString("Freitag") + ")");
-                        break;
-                    case Calendar.SATURDAY:
-                        weekdayLabel.setText(" (" + International.getString("Samstag") + ")");
-                        break;
-                    case Calendar.SUNDAY:
-                        weekdayLabel.setText(" (" + International.getString("Sonntag") + ")");
-                        break;
-                }
+                weekdayLabel.setText(" (" + value.getWeekdayAsString() + ")");
             } else {
                 weekdayLabel.setText("");
             }

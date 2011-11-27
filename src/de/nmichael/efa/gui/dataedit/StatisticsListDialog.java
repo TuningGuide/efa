@@ -28,6 +28,7 @@ import javax.swing.*;
 public class StatisticsListDialog extends DataListDialog {
 
     public static final int ACTION_CREATESTATISTICS = 901; // negative actions will not be shown as popup actions
+    public static final int ACTION_ONETIMESTATISTIC = 902; // negative actions will not be shown as popup actions
 
     private AdminRecord admin;
 
@@ -53,6 +54,9 @@ public class StatisticsListDialog extends DataListDialog {
             this.filterFieldValue = Boolean.toString(true);
             this.tableFontSize = Dialog.getFontSize();
             this.buttonPanelPosition = BorderLayout.SOUTH;
+            StatisticsRecord.TABLE_HEADER_LONG = false;
+        } else {
+            StatisticsRecord.TABLE_HEADER_LONG = true;
         }
 
         if (admin != null && admin.isAllowedEditStatistics()) {
@@ -60,13 +64,15 @@ public class StatisticsListDialog extends DataListDialog {
                         ItemTypeDataRecordTable.ACTIONTEXT_NEW,
                         ItemTypeDataRecordTable.ACTIONTEXT_EDIT,
                         ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
-                        International.getString("Statistik erstellen")
+                        International.getString("Statistik erstellen"),
+                        International.getString("Einmalige Statistik")
                     };
             actionType = new int[]{
                         ItemTypeDataRecordTable.ACTION_NEW,
                         ItemTypeDataRecordTable.ACTION_EDIT,
                         ItemTypeDataRecordTable.ACTION_DELETE,
-                        ACTION_CREATESTATISTICS
+                        ACTION_CREATESTATISTICS,
+                        ACTION_ONETIMESTATISTIC
                     };
         } else {
             actionText = new String[]{
@@ -88,17 +94,27 @@ public class StatisticsListDialog extends DataListDialog {
 
     public void itemListenerActionTable(int actionId, DataRecord[] records) {
         super.itemListenerActionTable(actionId, records);
+        StatisticsRecord[] sr;
         switch(actionId) {
             case ACTION_CREATESTATISTICS:
                 if (records == null || records.length == 0 || records[0] == null) {
                     return;
                 }
-                StatisticsRecord[] sr = new StatisticsRecord[records.length];
+                sr = new StatisticsRecord[records.length];
                 for (int i=0; i<records.length; i++) {
                     sr[i] = (StatisticsRecord)records[i];
                 }
                 StatisticTask.createStatisticsTask(null, this, sr);
                 break;
+            case ACTION_ONETIMESTATISTIC:
+                StatisticsRecord srtmp = (StatisticsRecord)Daten.project.getStatistics(false).createStatisticsRecord(UUID.randomUUID());
+                StatisticsEditDialog dlg = new StatisticsEditDialog(this, srtmp, true, true);
+                dlg.showDialog();
+                if (dlg.getDialogResult()) {
+                    sr = new StatisticsRecord[1];
+                    sr[0] = srtmp;
+                    StatisticTask.createStatisticsTask(null, this, sr);
+                }
         }
     }
 

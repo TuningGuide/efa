@@ -27,18 +27,18 @@ public class WettDefs extends DatenListe {
     /* Die folgenden Konstanten müssen mit den WETT_* Konstanten aus StatistikDaten übereinstimmen
     (abgesehen davon, daß die Werte von WETT_* genau um 200 größer sind als die Werte hier) */
     public static final int DRV_FAHRTENABZEICHEN = 0;
-    public static final int LRVBERLIN_SOMMER = 1;
-    public static final int LRVBERLIN_WINTER = 2;
-    public static final int LRVBERLIN_BLAUERWIMPEL = 3;
-    public static final int DRV_WANDERRUDERSTATISTIK = 4;
+    public static final int DRV_WANDERRUDERSTATISTIK = 1;
+    public static final int LRVBERLIN_SOMMER = 2;
+    public static final int LRVBERLIN_WINTER = 3;
+    public static final int LRVBERLIN_BLAUERWIMPEL = 4;
     public static final int LRVBRB_WANDERRUDERWETT = 5;
     public static final int LRVBRB_FAHRTENWETT = 6;
     public static final int LRVMVP_WANDERRUDERWETT = 7;
     public static final String STR_DRV_FAHRTENABZEICHEN = "DRV.FAHRTENABZEICHEN";
+    public static final String STR_DRV_WANDERRUDERSTATISTIK = "DRV.WANDERRUDERSTATISTIK";
     public static final String STR_LRVBERLIN_SOMMER = "LRVBERLIN.SOMMER";
     public static final String STR_LRVBERLIN_WINTER = "LRVBERLIN.WINTER";
     public static final String STR_LRVBERLIN_BLAUERWIMPEL = "LRVBERLIN.BLAUERWIMPEL";
-    public static final String STR_DRV_WANDERRUDERSTATISTIK = "DRV.WANDERRUDERSTATISTIK";
     public static final String STR_LRVBRB_WANDERRUDERWETT = "LRVBRANDENBURG.WANDERRUDERWETTBEWERB";
     public static final String STR_LRVBRB_FAHRTENWETT = "LRVBRANDENBURG.FAHRTENWETTBEWERB";
     public static final String STR_LRVMVP_WANDERRUDERWETT = "LRVMECKLENBURGVORPOMMERN.WANDERRUDERWETTBEWERB";

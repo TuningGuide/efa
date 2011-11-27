@@ -192,9 +192,6 @@ public class ImportLogbook extends ImportBase {
                                 if (mtour.ende != null && mtour.ende.length() > 0) {
                                     r.setEndDate(DataTypeDate.parseDate(mtour.ende));
                                 }
-                                if (mtour.rudertage > 0) {
-                                    r.setActiveDays(mtour.rudertage);
-                                }
                             }
                             // set/update SessionGroup
                             UUID id = sessionGroupMapping.get(mtourName);

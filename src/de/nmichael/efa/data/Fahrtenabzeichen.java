@@ -47,4 +47,13 @@ public class Fahrtenabzeichen extends StorageObject {
         }
     }
 
+    public FahrtenabzeichenRecord getFahrtenabzeichen(UUID personId) {
+        try {
+            return (FahrtenabzeichenRecord)data().get(FahrtenabzeichenRecord.getKey(personId));
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
 }

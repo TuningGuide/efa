@@ -42,7 +42,7 @@ public class SessionGroupEditDialog extends UnversionizedDataEditDialog implemen
 
     private void initListener() {
         IItemType itemType = null;
-        for (IItemType item : items) {
+        for (IItemType item : allGuiItems) {
             if (item.getName().equals(SessionGroupRecord.STARTDATE) ||
                 item.getName().equals(SessionGroupRecord.ENDDATE)) {
                 ((ItemTypeDate)item).registerItemListener(this);

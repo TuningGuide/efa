@@ -230,6 +230,51 @@ public class PersonRecord extends DataRecord {
         return getString(ADDRESSCOUNTRY);
     }
 
+    public String getAddressComplete(String lineSep) {
+        String street = getAddressStreet();
+        String additional = getAddressAdditional();
+        String city = getAddressCity();
+        String zip = getAddressZip();
+        String country = getAddressCountry();
+        StringBuilder addr = new StringBuilder();
+        if (street != null && street.length() > 0) {
+            addr.append(street);
+        }
+        if (additional != null && additional.length() > 0) {
+            if (addr.length() > 0) {
+                addr.append(lineSep);
+            }
+            addr.append(additional);
+        }
+        if ((city != null && city.length() > 0) || (zip != null && zip.length() > 0)) {
+            if (addr.length() > 0) {
+                addr.append(lineSep);
+            }
+            if (International.getLanguageID().startsWith("de")) {
+                if (zip != null && zip.length() > 0) {
+                    addr.append(zip + " ");
+                }
+                if (city != null && city.length() > 0) {
+                    addr.append(city);
+                }
+            } else {
+                if (city != null && city.length() > 0) {
+                    addr.append(city + ", ");
+                }
+                if (zip != null && zip.length() > 0) {
+                    addr.append(zip);
+                }
+            }
+        }
+        if (country != null && country.length() > 0) {
+            if (addr.length() > 0) {
+                addr.append(lineSep);
+            }
+            addr.append(country);
+        }
+        return addr.toString();
+    }
+
     public void setMembershipNo(String no) {
         setString(MEMBERSHIPNO, no);
     }

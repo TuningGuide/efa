@@ -33,6 +33,18 @@ public class StatisticsEditDialog extends UnversionizedDataEditDialog {
         super(parent, International.getString("Statistik"), r, newRecord);
     }
 
+    public StatisticsEditDialog(JDialog parent, StatisticsRecord r, boolean newRecord, boolean dontSaveButRun) {
+        super(parent, International.getString("Statistik"), r, newRecord);
+        mainPanel.setMinimumSize(new Dimension(600, 400));
+        _dontSaveRecord = dontSaveButRun;
+        if (dontSaveButRun) {
+            _closeButtonText = International.getString("Statistik erstellen");
+            getItem(StatisticsRecord.POSITION).setVisible(false);
+            getItem(StatisticsRecord.NAME).setVisible(false);
+            getItem(StatisticsRecord.PUBLICLYAVAILABLE).setVisible(false);
+        }
+    }
+
     public void keyAction(ActionEvent evt) {
         _keyAction(evt);
     }

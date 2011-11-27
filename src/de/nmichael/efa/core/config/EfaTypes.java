@@ -103,6 +103,8 @@ public class EfaTypes extends StorageObject {
     public static final String TYPE_WEEKDAY_SATURDAY      = "SATURDAY";
     public static final String TYPE_WEEKDAY_SUNDAY        = "SUNDAY";
 
+    public static       String TEXT_UNKNOWN               = "unknown"; // overwritten in International.java
+
     public static final int SELECTION_ROWING = 1;
     public static final int SELECTION_CANOEING = 2;
 
@@ -377,10 +379,10 @@ public class EfaTypes extends StorageObject {
             return false;
         }
         int sep = key.indexOf("_");
-        if (sep<=0) {
-            return false;
+        String type = key;
+        if (sep > 0) {
+            type = key.substring(sep+1);
         }
-        String type = key.substring(sep+1);
         if (type.length() == 0) {
             return false;
         }

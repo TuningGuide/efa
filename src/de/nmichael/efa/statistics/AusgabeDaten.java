@@ -54,7 +54,7 @@ public class AusgabeDaten {
   boolean additionalTable_1stRowBold = false;
   boolean additionalTable_lastRowBold = false;
 
-  AusgabeZeilen ausgabeZeilenOben = null;
-  AusgabeZeilen ausgabeZeilenUnten = null;
+  StatOutputLines ausgabeZeilenOben = null;
+  StatOutputLines ausgabeZeilenUnten = null;
 
 }

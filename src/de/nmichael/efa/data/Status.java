@@ -190,13 +190,29 @@ public class Status extends StorageObject {
         return status;
     }
 
-    public UUID[] makeStatusArrayUUID() {
+    public UUID[] makeStatusArrayUUID(boolean withGuestAndOther) {
         StatusRecord[] sr = getAllStatus();
+        if (!withGuestAndOther) {
+            Vector<StatusRecord> sr2 = new Vector<StatusRecord>();
+            for (int i=0; i<sr.length; i++) {
+                if (sr[i].getType().equals(StatusRecord.TYPE_USER)) {
+                    sr2.add(sr[i]);
+                }
+            }
+            sr = new StatusRecord[sr2.size()];
+            for (int i=0; i<sr.length; i++) {
+                sr[i] = sr2.get(i);
+            }
+        }
         UUID[] status = new UUID[ (sr != null ? sr.length : 0) ];
         for(int i=0; i<status.length; i++) {
             status[i] = sr[i].getId();
         }
         return status;
+    }
+
+    public UUID[] makeStatusArrayUUID() {
+        return makeStatusArrayUUID(true);
     }
 
     public void open(boolean createNewIfNotExists) throws EfaException {

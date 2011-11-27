@@ -28,7 +28,6 @@ public class LogbookRecord extends DataRecord {
     public static final String ENTRYID          = "EntryId";
     public static final String DATE             = "Date";
     public static final String ENDDATE          = "EndDate";
-    public static final String ACTIVEDAYS       = "ActiveDays";
 
     // Boat is either represented by BOATID,BOATVARIANT or by BOATNAME
     public static final String BOATID           = "BoatId";
@@ -139,7 +138,6 @@ public class LogbookRecord extends DataRecord {
         f.add(ENTRYID);             t.add(IDataAccess.DATA_INTSTRING);
         f.add(DATE);                t.add(IDataAccess.DATA_DATE);
         f.add(ENDDATE);             t.add(IDataAccess.DATA_DATE);
-        f.add(ACTIVEDAYS);          t.add(IDataAccess.DATA_INTEGER);
         f.add(BOATID);              t.add(IDataAccess.DATA_UUID);
         f.add(BOATVARIANT);         t.add(IDataAccess.DATA_INTEGER);
         f.add(BOATNAME);            t.add(IDataAccess.DATA_STRING);
@@ -246,11 +244,15 @@ public class LogbookRecord extends DataRecord {
         return getDate(ENDDATE);
     }
 
-    public void setActiveDays(int days) {
-        setInt(ACTIVEDAYS, days);
-    }
-    public int getActiveDays() {
-        return getInt(ACTIVEDAYS);
+    public int getNumberOfDays() {
+        int days = 1;
+        DataTypeDate startDate = getDate();
+        DataTypeDate endDate = getEndDate();
+        if (startDate != null && startDate.isSet()
+                && endDate != null && endDate.isSet()) {
+            days = (int) endDate.getDifferenceDays(startDate) + 1;
+        }
+        return days;
     }
 
     public void setBoatId(UUID id) {

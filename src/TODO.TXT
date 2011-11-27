@@ -2,26 +2,31 @@
 
 Item                                                                 days  until
 ================================================================================
-DataLayer: DB Access                                                 4.0  28.08.
-Online Update                                                        0.5  29.08.
-Individual Distance per Person for each Session                      0.5  04.09.
-AutoComplete: match anything within input/change list content        0.5  04.09.
-Audit
-Statistics - Advanced Statistics
-Statistics - Kilometerwettbewerbe
 Administration of DRV-Fahrtenabzeichen
 efaWett (elektronische Meldung)
+Online Update
+AutoComplete: match anything within input/change list content
+Audit
 Backup
+efaRemote - SSL
+efaRemote - proper Session Handling
+efaRemote - Progress Indicator
 Crash Recovery (Roll forward)
 Point-in-Time Recovery
+Lock Efa
+Rewrite remaining Dialogs/Frames
+Delete unused Classes
+DataLayer: DB Access
+Help System
 --------------------------------------------------------------------------------
+
+Statistics - Weird Statistics (WerMitWem etc.)
+Statistics - Special Details (e.g. Wett in Kilometerliste etc.)
+Individual Distance per Person for each Session
 Automatically add and purge names from Data Lists
 Widget Warnings (i.e. after sunset, flooding)
 Thumbnails
-Rewrite remaining Dialogs/Frames
-Delete unused Classes
 Input of Regatta Results
-Help System
 Other new Functionality
 
 
@@ -41,3 +46,9 @@ Statistics - Framework                                               4.0  02.09.
 Statistics - Basic Statistics                                        1.0  03.09.     20.09.
 Data Safety and Concurrency: Optimistic Locking
 Data Safety and Concurrency: Journaling and File Copies
+Statistics - Advanced Statistics
+Statistics - Button for "On-Demand" Statistics without saving a Record
+Statistics - Kilometerwettbewerbe
+Statistics - Output Types
+Statistics - split Dialog to select Filters in Sub-Tabs
+Statistics - add buttons "all" for Filters of each Category, so ensure nothing is skipped when e.g. SessionTypes are added

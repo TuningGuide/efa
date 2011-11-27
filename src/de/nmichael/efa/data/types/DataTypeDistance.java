@@ -108,6 +108,13 @@ public class DataTypeDistance {
         }
     }
 
+    public static DataTypeDistance getDistanceFromMeters(long distanceInMeters) {
+        DataTypeDistance dist = new DataTypeDistance();
+        dist.value = new DataTypeDecimal(distanceInMeters, 0);
+        dist.unit = UnitType.m;
+        return dist;
+    }
+
     public void setDistance(DataTypeDecimal value, UnitType unit) {
         this.value = (value != null ? new DataTypeDecimal(value) : null);
         this.unit = unit;
@@ -149,7 +156,7 @@ public class DataTypeDistance {
             if (Daten.efaConfig.getValueDefaultDistanceUnit().equals(KILOMETERS)) {
                 return UnitType.km;
             }
-            if (Daten.efaConfig.getValueDefaultDistanceUnit().equals(KILOMETERS)) {
+            if (Daten.efaConfig.getValueDefaultDistanceUnit().equals(MILES)) {
                 return UnitType.mi;
             }
         }
@@ -161,7 +168,7 @@ public class DataTypeDistance {
             if (Daten.efaConfig.getValueDefaultDistanceUnit().equals(KILOMETERS)) {
                 return International.getString("Kilometer");
             }
-            if (Daten.efaConfig.getValueDefaultDistanceUnit().equals(KILOMETERS)) {
+            if (Daten.efaConfig.getValueDefaultDistanceUnit().equals(MILES)) {
                 return International.getString("Meilen");
             }
         }
@@ -169,15 +176,19 @@ public class DataTypeDistance {
     }
 
     public static String getDefaultUnitAbbrevation() {
+        return getDefaultUnitAbbrevation(false);
+    }
+
+    public static String getDefaultUnitAbbrevation(boolean capitalized) {
         if (Daten.efaConfig != null) {
             if (Daten.efaConfig.getValueDefaultDistanceUnit().equals(KILOMETERS)) {
-                return International.getString("km");
+                return (capitalized ? International.getString("Km") : International.getString("km"));
             }
-            if (Daten.efaConfig.getValueDefaultDistanceUnit().equals(KILOMETERS)) {
-                return International.getString("mi");
+            if (Daten.efaConfig.getValueDefaultDistanceUnit().equals(MILES)) {
+                return (capitalized ? International.getString("Mi") : International.getString("mi"));
             }
         }
-        return International.getString("km");
+        return (capitalized ? International.getString("Km") : International.getString("km"));
     }
 
     public static String getAllUnitAbbrevationsAsString(boolean withWordOther) {
@@ -228,21 +239,81 @@ public class DataTypeDistance {
         return m / 1000;
     }
 
-    public String getValueInKilometers() {
-        return getValueInKilometers(false, false, 3, 3);
+    public long getRoundedValueInKilometers() {
+        long m = getValueInMeters();
+        return (m / 1000) + (m % 1000 > 500 ? 1 : 0);
     }
 
-    public String getValueInKilometers(boolean withUnit, boolean formatted) {
-        return getValueInKilometers(withUnit, formatted, 3, 3);
+    public void truncateToMainDistanceUnit() {
+        if (!isSet()) {
+            return;
+        }
+        switch(unit) {
+            case km:
+            case m :
+                this.value.setDecimal(getValueInMeters()/1000, 0);
+                this.unit = UnitType.km;
+                break;
+            case mi:
+            case yd:
+                this.value.setDecimal(getValueInYards()/1760, 0);
+                this.unit = UnitType.mi;
+                break;
+        }
     }
 
-    public String getValueInKilometers(boolean withUnit, int minDecimalPlaces, int maxDecimalPlaces) {
-        return getValueInKilometers(withUnit, true, minDecimalPlaces, maxDecimalPlaces);
+    public String getStringValueInKilometers() {
+        return getStringValueInKilometers(false, false, 3, 3);
     }
 
-    private String getValueInKilometers(boolean withUnit, boolean formatted, int minDecimalPlaces, int maxDecimalPlaces) {
+    public String getStringValueInKilometers(boolean withUnit, boolean formatted) {
+        return getStringValueInKilometers(withUnit, formatted, 3, 3);
+    }
+
+    public String getStringValueInKilometers(boolean withUnit, int minDecimalPlaces, int maxDecimalPlaces) {
+        return getStringValueInKilometers(withUnit, true, minDecimalPlaces, maxDecimalPlaces);
+    }
+
+    private String getStringValueInKilometers(boolean withUnit, boolean formatted, int minDecimalPlaces, int maxDecimalPlaces) {
         DataTypeDecimal d = new DataTypeDecimal(getValueInMeters(), 3);
         return (formatted ? d.getAsFormattedString(minDecimalPlaces, maxDecimalPlaces) : d.toString()) + (withUnit ? " " + KILOMETERS : "");
+    }
+
+    public String getStringValueInMiles() {
+        return getStringValueInMiles(false, false, 3, 3);
+    }
+
+    public String getStringValueInMiles(boolean withUnit, boolean formatted) {
+        return getStringValueInMiles(withUnit, formatted, 3, 3);
+    }
+
+    public String getStringValueInMiles(boolean withUnit, int minDecimalPlaces, int maxDecimalPlaces) {
+        return getStringValueInMiles(withUnit, true, minDecimalPlaces, maxDecimalPlaces);
+    }
+
+    private String getStringValueInMiles(boolean withUnit, boolean formatted, int minDecimalPlaces, int maxDecimalPlaces) {
+        DataTypeDecimal d = new DataTypeDecimal((getValueInYards()*1000)/1760, 3);
+        return (formatted ? d.getAsFormattedString(minDecimalPlaces, maxDecimalPlaces) : d.toString()) + (withUnit ? " " + MILES : "");
+    }
+
+    public String getStringValueInDefaultUnit() {
+        return getStringValueInDefaultUnit(false, false, 3, 3);
+    }
+
+    public String getStringValueInDefaultUnit(boolean withUnit, boolean formatted) {
+        return getStringValueInDefaultUnit(withUnit, formatted, 3, 3);
+    }
+
+    public String getStringValueInDefaultUnit(boolean withUnit, int minDecimalPlaces, int maxDecimalPlaces) {
+        return getStringValueInDefaultUnit(withUnit, true, minDecimalPlaces, maxDecimalPlaces);
+    }
+
+    private String getStringValueInDefaultUnit(boolean withUnit, boolean formatted, int minDecimalPlaces, int maxDecimalPlaces) {
+        if (getDefaultUnit() == UnitType.km) {
+            return getStringValueInKilometers(withUnit, formatted, minDecimalPlaces, maxDecimalPlaces);
+        } else {
+            return getStringValueInMiles(withUnit, formatted, minDecimalPlaces, maxDecimalPlaces);
+        }
     }
 
     public long getValueInDefaultUnit() {

@@ -296,7 +296,7 @@ public class ItemTypeHashtable<E> extends ItemType {
         Hashtable<String,E> newHash = new Hashtable<String,E>();
         newHash.put(DUMMY, hash.get(DUMMY));
         String[] keys = getKeysArray();
-        if (keys.length != textfield.length) {
+        if (textfield == null || keys.length != textfield.length) {
             // This happens when an element has been added or removed from the hash.
             // Therefore, in addButtonHit(e) resp. delButtonHit(e), we first call getValueFromGui()
             // before we add or remove an item, in order to retrieve all current values, then add

@@ -121,6 +121,7 @@ public class ItemTypeMultiSelectList<T> extends ItemType implements ActionListen
             mypanel.add(label, BorderLayout.NORTH);
         }
         mypanel.add(scrollPane, BorderLayout.CENTER);
+        setEnabled(this.isEnabled);
 
         return mypanel;
     }
@@ -223,6 +224,16 @@ public class ItemTypeMultiSelectList<T> extends ItemType implements ActionListen
 
     public JPanel getPanel() {
         return mypanel;
+    }
+
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        if (label != null) {
+            label.setForeground((enabled ? (new JLabel()).getForeground() : Color.gray));
+        }
+        if (list != null) {
+            list.setEnabled(enabled);
+        }
     }
 
 }

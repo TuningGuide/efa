@@ -30,6 +30,7 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
 
     protected DataRecord dataRecord;
     protected boolean newRecord;
+    protected boolean _dontSaveRecord = false;
 
     public UnversionizedDataEditDialog(Frame parent, String title, DataRecord dataRecord, boolean newRecord) {
         super(parent, title, null);
@@ -59,13 +60,15 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
         }
         try {
             dataRecord.saveGuiItems(getItems());
-            if (newRecord) {
-                dataRecord.getPersistence().data().add(dataRecord);
-            } else {
-                dataRecord.getPersistence().data().update(dataRecord);
-            }
-            for(IItemType item : getItems()) {
-                item.setUnchanged();
+            if (!_dontSaveRecord) {
+                if (newRecord) {
+                    dataRecord.getPersistence().data().add(dataRecord);
+                } else {
+                    dataRecord.getPersistence().data().update(dataRecord);
+                }
+                for (IItemType item : getItems()) {
+                    item.setUnchanged();
+                }
             }
             return true;
         } catch(EfaModifyException emodify) {
@@ -80,6 +83,22 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
 
     boolean checkAndSaveChanges() {
         if (getValuesFromGui()) {
+            if (_dontSaveRecord) {
+                try {
+                    // this looks as if it doesn't make sense... but it's correct;
+                    // we have to call saveRecord() to read the GUI values into the data
+                    // record; there is another check in saveRecord() which will not
+                    // save the record in the persistence media.
+                    // Here in checkAndSaveChanges(), we would just like to skip the
+                    // user prompt whether we want to save any changes. When we don't do
+                    // a physical save, then we don't need to ask - we just get the GUI
+                    // values into the record and that's it!
+                    return saveRecord();
+                } catch (InvalidValueException einv) {
+                    einv.displayMessage();
+                    return false;
+                }
+            }
             switch (Dialog.yesNoCancelDialog(International.getString("Änderungen speichern"),
                     International.getString("Die Daten wurden verändert.") + "\n"
                     + International.getString("Möchtest Du die Änderungen jetzt speichern?"))) {

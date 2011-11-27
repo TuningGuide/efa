@@ -63,6 +63,7 @@ public class ItemTypeBoolean extends ItemType {
             checkbox.setForeground(color);
         }
         checkbox.setEnabled(isEnabled);
+        checkbox.setVisible(isVisible);
         this.field = checkbox;
         checkbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -113,10 +114,10 @@ public class ItemTypeBoolean extends ItemType {
     }
 
     public void setVisible(boolean visible) {
-        if (field != null) {
-            field.setVisible(visible);
-        }
         super.setVisible(visible);
+        if (field != null) {
+            field.setVisible(isVisible);
+        }
     }
 
     public void setEnabled(boolean enabled) {

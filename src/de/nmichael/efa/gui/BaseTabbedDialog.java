@@ -10,34 +10,148 @@
 
 package de.nmichael.efa.gui;
 
-import de.nmichael.efa.*;
-import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
-import de.nmichael.efa.ex.*;
-import de.nmichael.efa.gui.BaseDialog;
+import de.nmichael.efa.util.*;
+import de.nmichael.efa.core.config.*;
+import de.nmichael.efa.data.storage.IDataAccess;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import java.util.*;
-import javax.swing.event.ChangeEvent;
 
+// @i18n complete
+public abstract class BaseTabbedDialog extends BaseDialog {
 
-public class BaseTabbedDialog extends BaseDialog {
+    public static final char CATEGORY_SEPARATOR = ':';
+    public static final String CATEGORY_COMMON = "%00%" + International.getString("Allgemein");
 
     protected JTabbedPane tabbedPane;
+    protected JPanel dataPanel;
+    protected JCheckBox expertMode;
+    protected String _selectedPanel; // selected panel specified in constructor
 
-    protected Vector<IItemType> items;
-    protected Hashtable<String,Vector<IItemType>> cat2items; // items per category
+    protected Vector<IItemType> allGuiItems;
+    protected Hashtable<String,Hashtable> categoryHierarchy;
+    protected Hashtable<String,Vector<IItemType>> itemsPerCategory;
+    protected Vector<IItemType> displayedGuiItems;
     protected Hashtable<JPanel,String> panels;
 
-    public BaseTabbedDialog(Frame parent, String title, String closeButton) {
-        super(parent, title, closeButton);
+    protected boolean defaultGetGuiItemsOnUpdateGui = false; // true for EfaConfigDialog (req. by Hashtable); else false
+
+    protected boolean expertModeEnabled = false;
+    protected boolean expertModeItems = false;
+
+    public BaseTabbedDialog(Frame parent, String title, String closeButtonText,
+            Vector<IItemType> guiItems,
+            boolean defaultGetGuiItemsOnUpdateGui) {
+        super(parent, title, closeButtonText);
+        setItems(guiItems);
+        this.defaultGetGuiItemsOnUpdateGui = defaultGetGuiItemsOnUpdateGui;
     }
 
-    public BaseTabbedDialog(JDialog parent, String title, String closeButton) {
-        super(parent, title, closeButton);
+    public BaseTabbedDialog(JDialog parent, String title, String closeButtonText,
+            Vector<IItemType> guiItems,
+            boolean defaultGetGuiItemsOnUpdateGui) {
+        super(parent, title, closeButtonText);
+        setItems(guiItems);
+        this.defaultGetGuiItemsOnUpdateGui = defaultGetGuiItemsOnUpdateGui;
+    }
+
+    public static String makeCategory(String c1) {
+        return c1;
+    }
+    public static String makeCategory(String c1, String c2) {
+        return c1 + CATEGORY_SEPARATOR + c2;
+    }
+    public static String makeCategory(String c1, String c2, String c3) {
+        return c1 + CATEGORY_SEPARATOR + c2 + CATEGORY_SEPARATOR + c3;
+    }
+
+    public static String[] getCategoryKeyArray(String keystring) {
+        Vector v = EfaUtil.split(keystring, CATEGORY_SEPARATOR);
+        String[] a = new String[v.size()];
+        for (int i=0; i<v.size(); i++) {
+            a[i] = (String)v.get(i);
+        }
+        return a;
+    }
+
+    public static String getCatName(String key) {
+        String catName = key;
+        int posFirst = -1;
+        while ( (posFirst = catName.indexOf("%")) >= 0) {
+            int posNext = catName.indexOf("%", posFirst + 1);
+            if (posNext > 0) {
+                catName = catName.substring(posNext + 1);
+            }
+        }
+        return catName;
+    }
+
+    public void setItems(Vector<IItemType> guiItems) {
+        this.allGuiItems = guiItems;
+        expertModeItems = false;
+
+        categoryHierarchy = new Hashtable<String,Hashtable>();    // category          -> sub-categories
+        itemsPerCategory = new Hashtable<String,Vector<IItemType>>(); // categoryhierarchy -> config items
+
+        if (guiItems == null) {
+            return;
+        }
+        // build category hierarchy
+        for (int i=0; i<guiItems.size(); i++) {
+            IItemType item = guiItems.get(i);
+            if (item.getType() == IItemType.TYPE_EXPERT) {
+                expertModeItems = true;
+            }
+            String[] cats = getCategoryKeyArray(item.getCategory());
+            Hashtable<String,Hashtable> h = categoryHierarchy;
+            for (int j=0; j<cats.length; j++) {
+                Hashtable hnext = h.get(cats[j]);
+                if (hnext == null) {
+                    hnext = new Hashtable<String,Hashtable>();
+                    h.put(cats[j], hnext);
+                }
+                h = hnext;
+            }
+        }
+
+        // build config items per category
+        for (int i=0; i<guiItems.size(); i++) {
+            IItemType item = guiItems.get(i);
+            item.setUnchanged();
+            String cat = item.getCategory();
+            String[] cats = getCategoryKeyArray(cat);
+            Hashtable<String,Hashtable> h = categoryHierarchy;
+            for (int j=0; j<cats.length; j++) {
+                Hashtable hnext = h.get(cats[j]);
+
+                // check whether there are subcategories for the parameter's level
+                if (j == cats.length-1 && hnext.size() != 0) {
+                    // yes, there are subcategories for this level
+                    // --> place this parameter into a subcategory CATEGORY_COMMON
+                    cat = makeCategory(cat, CATEGORY_COMMON);
+
+                    // is there already a level CATEGORY_COMMON on this level?
+                    if (hnext.get(CATEGORY_COMMON) != null) {
+                        // ok, there already is a level CATEGORY_COMMON
+                    } else {
+                        // there is no level CATEGORY_COMMON yet --> add one
+                        hnext.put(CATEGORY_COMMON, new Hashtable<String,Hashtable>());
+                    }
+                }
+                h = hnext;
+            }
+
+            // build config items per category
+            Vector<IItemType> v = itemsPerCategory.get(cat);
+            if (v == null) {
+                v = new Vector<IItemType>();
+            }
+            v.add(item);
+            itemsPerCategory.put(cat, v);
+        }
+
     }
 
     public void keyAction(ActionEvent evt) {
@@ -47,59 +161,114 @@ public class BaseTabbedDialog extends BaseDialog {
     protected void iniDialog() throws Exception {
         // create GUI items
         mainPanel.setLayout(new BorderLayout());
-        updateGui();
+        dataPanel = new JPanel();
+        dataPanel.setLayout(new BorderLayout());
+        expertMode = new JCheckBox();
+        Mnemonics.setButton(this, expertMode, International.getString("Expertenmodus"));
+        expertMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) { expertModeChanged(e); }
+        });
+        if (!expertModeItems && expertMode != null) {
+            expertMode.setVisible(false);
+        }
+        dataPanel.add(expertMode, BorderLayout.NORTH);
+        mainPanel.add(dataPanel, BorderLayout.CENTER);
+        updateGui(false);
     }
 
     public void updateGui() {
+        updateGui(defaultGetGuiItemsOnUpdateGui);
+    }
+
+    public void updateGui(boolean readValuesFromGui) {
+        if (readValuesFromGui) {
+            getValuesFromGui();
+        }
+
         String selectedPanel = getSelectedPanel(tabbedPane);
 
+        displayedGuiItems = new Vector<IItemType>();
         if (tabbedPane != null) {
-            mainPanel.remove(tabbedPane);
+            dataPanel.remove(tabbedPane);
         }
         tabbedPane = new JTabbedPane();
         panels = new Hashtable<JPanel,String>();
-
-        Object[] cats = cat2items.keySet().toArray();
-        Arrays.sort(cats);
-        for (int i=0; i<cats.length; i++) {
-            String cat = (String)cats[i];
-            JPanel panel = new JPanel();
-            panels.put(panel, cat);
-            panel.setLayout(new GridBagLayout());
-            Vector<IItemType> v = cat2items.get(cat);
-            int y = 0;
-            for (IItemType item : v) {
-                y += item.displayOnGui(this,panel,y);
-            }
-            if (y > 0) {
-                String catname = cat;
-                if (catname.startsWith("%")) {
-                    int pos = catname.indexOf("%", 1);
-                    if (pos > 0) {
-                        catname = catname.substring(pos+1);
-                    }
-                }
-                tabbedPane.add(panel, catname);
-                if (cat.equals(selectedPanel)) {
-                    tabbedPane.setSelectedComponent(panel);
-                }
-            }
-        }
-        mainPanel.add(tabbedPane, BorderLayout.CENTER);
+        expertModeEnabled = expertMode.isSelected();
+        recursiveBuildGui(categoryHierarchy,itemsPerCategory,"",tabbedPane, selectedPanel);
+        dataPanel.add(tabbedPane, BorderLayout.CENTER);
         this.validate();
-        Vector<IItemType> v = cat2items.get( (selectedPanel != null ? selectedPanel : cats[0]));
+
+        // select an item to focus
+        String[] cats = categoryHierarchy.keySet().toArray(new String[0]);
+        Arrays.sort(cats);
+        Vector<IItemType> v = itemsPerCategory.get( (selectedPanel != null ? selectedPanel : cats[0]));
         for (int i=0; v != null && i<v.size(); i++) {
-            if (!(v.get(i) instanceof ItemTypeLabel)) {
+            if (!(v.get(i) instanceof ItemTypeLabel) && v.get(i).isVisible()) {
                 setRequestFocus(v.get(i));
                 break;
             }
-
         }
+
+    }
+
+    private int recursiveBuildGui(Hashtable<String,Hashtable> categories,
+                                   Hashtable<String,Vector<IItemType>> items,
+                                   String catKey,
+                                   JTabbedPane tabbedPane,
+                                   String selectedPanel) {
+        int itmcnt = 0;
+        int pos = (selectedPanel != null && selectedPanel.length() > 0 ? selectedPanel.indexOf(CATEGORY_SEPARATOR) : -1);
+        String selectThisCat = (pos < 0 ? selectedPanel : selectedPanel.substring(0,pos));
+        String selectNextCat = (pos < 0 ? null : selectedPanel.substring(pos+1));
+
+        Object[] cats = categories.keySet().toArray();
+        Arrays.sort(cats);
+        for (int i=0; i<cats.length; i++) {
+            String key = (String)cats[i];
+            String thisCatKey = (catKey.length() == 0 ? key : makeCategory(catKey, key));
+            String catName = getCatName(thisCatKey);
+            Hashtable<String,Hashtable> subCat = categories.get(key);
+            if (subCat.size() != 0) {
+                JTabbedPane subTabbedPane = new JTabbedPane();
+                if (recursiveBuildGui(subCat, items, thisCatKey, subTabbedPane, selectNextCat) > 0) {
+                    tabbedPane.add(subTabbedPane, catName);
+                    if (key.equals(selectThisCat)) {
+                        tabbedPane.setSelectedComponent(subTabbedPane);
+                    }
+                }
+            } else {
+                JPanel panel = new JPanel();
+                panels.put(panel, thisCatKey);
+                panel.setLayout(new GridBagLayout());
+                Vector<IItemType> v = items.get(thisCatKey);
+                int y = 0;
+                for (int j=0; v != null && j<v.size(); j++) {
+                    IItemType itm = v.get(j);
+                    if (itm.getType() == IItemType.TYPE_PUBLIC ||
+                        (itm.getType() == IItemType.TYPE_EXPERT && expertModeEnabled)) {
+                        y += itm.displayOnGui(this,panel,y);
+                        displayedGuiItems.add(itm);
+                        itmcnt++;
+                    }
+                }
+                if (y > 0) {
+                    tabbedPane.add(panel, catName);
+                    if (key.equals(selectThisCat)) {
+                        tabbedPane.setSelectedComponent(panel);
+                    }
+                }
+            }
+        }
+        return itmcnt;
     }
 
     protected boolean getValuesFromGui() {
+        if (allGuiItems == null) {
+            return false;
+        }
         boolean changed = false;
-        for (IItemType item : items) {
+        for (int i=0; i<allGuiItems.size(); i++) {
+            IItemType item = allGuiItems.get(i);
             item.getValueFromGui();
             if (item.isChanged()) {
                 changed = true;
@@ -109,9 +278,24 @@ public class BaseTabbedDialog extends BaseDialog {
             }
         }
         return changed;
+   }
+
+    void expertModeChanged(ActionEvent e) {
+        if (expertMode.isSelected()) {
+            expertMode.setForeground(Color.red);
+        } else {
+            expertMode.setForeground(Color.black);
+        }
+        expertMode.setVisible(expertModeItems);
+        updateGui();
     }
 
     protected String getSelectedPanel(JTabbedPane pane) {
+        if (_selectedPanel != null) {
+            String s = _selectedPanel;
+            _selectedPanel = null;
+            return s;
+        }
         if (pane == null) {
             return null;
         }
@@ -123,36 +307,25 @@ public class BaseTabbedDialog extends BaseDialog {
             JPanel panel = (JPanel)c;
             return panels.get(panel);
         } catch(Exception e) {
-            return null;
+            try {
+                return getSelectedPanel((JTabbedPane)c);
+            } catch(Exception ee) {
+                return null;
+            }
         }
-    }
-
-    public void closeButton_actionPerformed(ActionEvent e) {
-        getValuesFromGui();
-        setDialogResult(true);
-        super.closeButton_actionPerformed(e);
     }
 
     public Vector<IItemType> getItems() {
-        return items;
+        return allGuiItems;
     }
 
-    public void setItems(Vector<IItemType> items) {
-        this.items = items;
-        cat2items = new Hashtable<String,Vector<IItemType>>();
-
-        // build data item hierarchy across categories
-        for (IItemType item : items) {
-            String cat = item.getCategory();
-            Vector<IItemType> v = cat2items.get(cat);
-            if (v == null) {
-                v = new Vector<IItemType>();
+    public IItemType getItem(String name) {
+        for (int i=0; i<allGuiItems.size(); i++) {
+            if (allGuiItems.get(i).getName().equals(name)) {
+                return allGuiItems.get(i);
             }
-            item.setUnchanged();
-            v.add(item);
-            cat2items.put(cat, v);
         }
-
+        return null;
     }
 
 }

@@ -650,9 +650,9 @@ public class Statistik {
 
       // wenn ein Ruderer an einer Mehrtagesfahrt (als einzelne Etappen eingetragen) nur einen Tag
       // mitgerudert ist, werden nur 30 Km gefordert (Dennis, 02.05.03)
-      if (fahrt != null && fahrt.jum == false && fahrt.km >= Daten.WAFAKM && fahrt.anzTage == 1) fahrt.ok = true;
+      // @gehtnichtmehrinefa2 if (fahrt != null && fahrt.jum == false && fahrt.km >= Daten.WAFAKM && fahrt.days == 1) fahrt.ok = true;
 
-      if (fahrt.ok && !fahrt.jum) km += fahrt.km;
+      // @gehtnichtmehrinefa2 if (fahrt.ok && !fahrt.jum) km += fahrt.km;
     }
     return km;
   }
@@ -877,7 +877,7 @@ public class Statistik {
       return;
     }
     if (sd.art == StatistikDaten.WETT_DRV) {
-      ausgabeKmWettDRV(ad,sd,a);
+// @gehtnichtmehrinefa2       ausgabeKmWettDRV(ad,sd,a);
       return;
     }
     if (sd.art == StatistikDaten.WETT_LRVBWIMPEL) {
@@ -889,7 +889,7 @@ public class Statistik {
       return;
     }
     if (sd.art == StatistikDaten.WETT_LRVBRB_WANDERRUDERWETT) {
-      ausgabeKmWettLRVBrbWanderruderWett(ad,sd,a);
+// @gehtnichtmehrinefa2       ausgabeKmWettLRVBrbWanderruderWett(ad,sd,a);
       return;
     }
     if (sd.art == StatistikDaten.WETT_LRVBRB_FAHRTENWETT) {
@@ -1005,7 +1005,7 @@ public class Statistik {
     if (sd.ausgebenWafaKm && sd.art == StatistikDaten.ART_MITGLIEDER && gesWafaKm > 0) {
       ges.kmwett = new KmWettInfo();
       DRVFahrt fahrt = new DRVFahrt();
-      fahrt.anzTage = 1; fahrt.km = gesWafaKm; fahrt.ok = true;
+      // @gehtnichtmehrinefa2 fahrt.days = 1; fahrt.km = gesWafaKm; fahrt.ok = true;
       ges.kmwett.wafa.put("dummy",fahrt);
     }
     ges.zf.reduceToMinimun();
@@ -1471,7 +1471,7 @@ public class Statistik {
 
 
 
-
+/*
   // Ausgabedaten für Kilometerwettbewerbe erstellen (DRV)
   // @i18n Methode wird nicht internationalisiert
   static void ausgabeKmWettDRV(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
@@ -1544,19 +1544,19 @@ public class Statistik {
 
                 // wenn ein Ruderer an einer Mehrtagesfahrt (als einzelne Etappen eingetragen) nur einen Tag
                 // mitgerudert ist, werden nur 30 Km gefordert (Dennis, 02.05.03)
-                if (drvel != null && drvel.jum == false && drvel.km >= Daten.WAFAKM && drvel.anzTage == 1) drvel.ok = true;
+                // @gehtnichtmehrinefa2 if (drvel != null && drvel.jum == false && drvel.km >= Daten.WAFAKM && drvel.days == 1) drvel.ok = true;
 
                 if (!ausg[k] &&                                                   // Fahrt, die noch nicht ausgegeben wurde, ...
                      drvel != null &&                                             // und die wirklich vorhanden ist, außerdem:
-                      (  (gruppen[g].gruppe!=3 && drvel.ok && drvel.km>hoechst) ||    // Gruppe 1/2: Fahrt "ok", d.h. >30 bzw. >40 Km
-                         ( gruppen[g].gruppe == 3 && drvel.anzTage>hoechst &&         // Gruppe 3:
-                            (drvel.anzTage>1 || drvel.jum && gruppen[g].untergruppe<=2)    // echte Mehrtagesfahrt oder JuM bei Gr. 3 a/b
+                      // @gehtnichtmehrinefa2 (  (gruppen[g].gruppe!=3 && drvel.ok && drvel.km>hoechst) ||    // Gruppe 1/2: Fahrt "ok", d.h. >30 bzw. >40 Km
+                         ( gruppen[g].gruppe == 3 && drvel.days>hoechst &&         // Gruppe 3:
+                            (drvel.days>1 || drvel.jum && gruppen[g].untergruppe<=2)    // echte Mehrtagesfahrt oder JuM bei Gr. 3 a/b
                          )
                        )
                    ) {
                   bestEl = drvel;
                   if (gruppen[g].gruppe != 3) hoechst = drvel.km;
-                  else hoechst = drvel.anzTage;
+                  // @gehtnichtmehrinefa2 else hoechst = drvel.days;
                   hoechstEl = k;
                 }
               }
@@ -1569,16 +1569,16 @@ public class Statistik {
                    (wafaKm/10 < gruppen[g].zusatz && gruppen[g].gruppe != 3) || // noch Km nötig
                    (wafaAnzMTour<3 && gruppen[g].gruppe == 3) ) ) {         // noch Fahrten nötig
                 ausg[hoechstEl] = true;
-                wafa[nr][0] = bestEl.lfdnr;
-                wafa[nr][1] = bestEl.datumStart;
-                wafa[nr][2] = bestEl.datumEnde;
-                wafa[nr][3] = bestEl.ziel;
+                wafa[nr][0] = bestEl.entryNo;
+                wafa[nr][1] = bestEl.dateStart;
+                wafa[nr][2] = bestEl.dateEnd;
+                wafa[nr][3] = bestEl.destination;
                 wafa[nr][4] = EfaUtil.zehntelInt2String(bestEl.km);
-                wafa[nr][5] = bestEl.bemerk;
+                wafa[nr][5] = bestEl.comments;
                 if (sd.ausgabeArt == sd.AUSGABE_EFAWETT && bestEl.jum) wafa[nr][5] = EfaWettMeldung.JUM;
                 if (sd.ausgabeArt == sd.AUSGABE_EFAWETT && !bestEl.jum && wafa[nr][5].equals(EfaWettMeldung.JUM)) wafa[nr][5] = "";
                 wafaKm += bestEl.km;
-                if (!bestEl.jum) wafaAnzMTour += bestEl.anzTage;
+                if (!bestEl.jum) wafaAnzMTour += bestEl.days;
                 else jumAnz++;
               }
             }
@@ -1832,7 +1832,7 @@ public class Statistik {
         ad.additionalTable[1][1] = EfaUtil.zehntelInt2String(geskm);
       }
   }
-
+*/
 
 
 
@@ -1920,25 +1920,25 @@ public class Statistik {
                                 (Daten.vereinsConfig.mitglADH ? "ADH" : "");
     }
 
-    ad.ausgabeZeilenOben = new AusgabeZeilen();
-    ad.ausgabeZeilenOben.addZeile("Name des Vereins:|"+Daten.vereinsConfig.vereinsname,2,AusgabeZeilen.FONT_BOLD);
-    ad.ausgabeZeilenOben.addZeile("Ort:|"+Daten.vereinsConfig.vereinsort,2,AusgabeZeilen.FONT_BOLD);
-    ad.ausgabeZeilenOben.addZeile("DRV Mitgliedsnummer:|"+Daten.vereinsConfig.mitgliedsnummerDRV,2,AusgabeZeilen.FONT_BOLD);
-    ad.ausgabeZeilenOben.addZeile("LRV:|"+Daten.vereinsConfig.lrvname,2,AusgabeZeilen.FONT_BOLD);
+    ad.ausgabeZeilenOben = new StatOutputLines();
+    ad.ausgabeZeilenOben.addLine("Name des Vereins:|"+Daten.vereinsConfig.vereinsname,2,StatOutputLines.FONT_BOLD);
+    ad.ausgabeZeilenOben.addLine("Ort:|"+Daten.vereinsConfig.vereinsort,2,StatOutputLines.FONT_BOLD);
+    ad.ausgabeZeilenOben.addLine("DRV Mitgliedsnummer:|"+Daten.vereinsConfig.mitgliedsnummerDRV,2,StatOutputLines.FONT_BOLD);
+    ad.ausgabeZeilenOben.addLine("LRV:|"+Daten.vereinsConfig.lrvname,2,StatOutputLines.FONT_BOLD);
     String mitgl = "";
     if (Daten.vereinsConfig.mitglDRV) mitgl = "DRV";
     if (Daten.vereinsConfig.mitglSRV) mitgl += (mitgl.length()>0 ? ", " : "") + "SRV";
     if (Daten.vereinsConfig.mitglADH) mitgl += (mitgl.length()>0 ? ", " : "") + "ADH";
-    ad.ausgabeZeilenOben.addZeile("Mitglied im:|"+mitgl,2,AusgabeZeilen.FONT_BOLD);
+    ad.ausgabeZeilenOben.addLine("Mitglied im:|"+mitgl,2,StatOutputLines.FONT_BOLD);
 
-    ad.ausgabeZeilenUnten = new AusgabeZeilen();
-    ad.ausgabeZeilenUnten.addZeile("Anschrift des Wanderruderwartes bzw. des Ausfüllers: ",1,AusgabeZeilen.FONT_BOLD);
-    ad.ausgabeZeilenUnten.addZeile(Daten.vereinsConfig.versandName,1,AusgabeZeilen.FONT_NORMAL);
-    if (!Daten.vereinsConfig.versandName.equals(Daten.vereinsConfig.meldenderName)) ad.ausgabeZeilenUnten.addZeile("c/o "+Daten.vereinsConfig.meldenderName,1,AusgabeZeilen.FONT_NORMAL);
-    ad.ausgabeZeilenUnten.addZeile(Daten.vereinsConfig.versandStrasse,1,AusgabeZeilen.FONT_NORMAL);
-    ad.ausgabeZeilenUnten.addZeile(Daten.vereinsConfig.versandOrt,1,AusgabeZeilen.FONT_NORMAL);
-    ad.ausgabeZeilenUnten.addZeile("",1,AusgabeZeilen.FONT_NORMAL);
-    ad.ausgabeZeilenUnten.addZeile("Unterschrift, Vereinsstempel: ",1,AusgabeZeilen.FONT_BOLD);
+    ad.ausgabeZeilenUnten = new StatOutputLines();
+    ad.ausgabeZeilenUnten.addLine("Anschrift des Wanderruderwartes bzw. des Ausfüllers: ",1,StatOutputLines.FONT_BOLD);
+    ad.ausgabeZeilenUnten.addLine(Daten.vereinsConfig.versandName,1,StatOutputLines.FONT_NORMAL);
+    if (!Daten.vereinsConfig.versandName.equals(Daten.vereinsConfig.meldenderName)) ad.ausgabeZeilenUnten.addLine("c/o "+Daten.vereinsConfig.meldenderName,1,StatOutputLines.FONT_NORMAL);
+    ad.ausgabeZeilenUnten.addLine(Daten.vereinsConfig.versandStrasse,1,StatOutputLines.FONT_NORMAL);
+    ad.ausgabeZeilenUnten.addLine(Daten.vereinsConfig.versandOrt,1,StatOutputLines.FONT_NORMAL);
+    ad.ausgabeZeilenUnten.addLine("",1,StatOutputLines.FONT_NORMAL);
+    ad.ausgabeZeilenUnten.addLine("Unterschrift, Vereinsstempel: ",1,StatOutputLines.FONT_BOLD);
 
     String[] tabellentitel = new String[14];
     tabellentitel[ 0] = "Start + Ziel der Fahrt";
@@ -2140,7 +2140,7 @@ public class Statistik {
   }
 
 
-
+/*
   // Ausgabedaten für Kilometerwettbewerbe erstellen (LRV Brandenburg Wanderruderwettbewerb: "Großer Wettbewerb")
   // @i18n Methode wird nicht internationalisiert
   static void ausgabeKmWettLRVBrbWanderruderWett(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
@@ -2187,17 +2187,17 @@ public class Statistik {
                 drvel = (DRVFahrt)a[i].kmwett.wafa.get(keys[fahrtnr]);
                 // wenn ein Ruderer an einer Mehrtagesfahrt (als einzelne Etappen eingetragen) nur einen Tag
                 // mitgerudert ist, werden nur 30 Km gefordert (Dennis, 02.05.03)
-                if (drvel != null && drvel.jum == false && drvel.km >= Daten.WAFAKM && drvel.anzTage == 1) drvel.ok = true;
+                if (drvel != null && drvel.jum == false && drvel.km >= Daten.WAFAKM && drvel.days == 1) drvel.ok = true;
                 fahrtnr++;
               } while ((drvel == null || !drvel.ok) && fahrtnr < keys.length);
               if (drvel != null && drvel.ok) {
-                wafa[nr][0] = drvel.lfdnr;
-                wafa[nr][1] = drvel.datumStart;
-                wafa[nr][2] = drvel.datumEnde;
-                wafa[nr][3] = drvel.ziel;
+                wafa[nr][0] = drvel.entryNo;
+                wafa[nr][1] = drvel.dateStart;
+                wafa[nr][2] = drvel.dateEnd;
+                wafa[nr][3] = drvel.destination;
                 wafa[nr][4] = EfaUtil.zehntelInt2String(drvel.km);
-                wafa[nr][5] = drvel.bemerk;
-                anzWafaTage += drvel.anzTage;
+                wafa[nr][5] = drvel.comments;
+                anzWafaTage += drvel.days;
                 anzWafa++;
               }
             }
@@ -2270,7 +2270,7 @@ public class Statistik {
         ad.additionalTable[1][1] = EfaUtil.zehntelInt2String(geskm);
       }
   }
-
+*/
   // Ausgabedaten für Kilometerwettbewerbe erstellen (LRV Brandenburg Fahrtenwettbewerb: "Kleiner Wettbewerb")
   // @i18n Methode wird nicht internationalisiert
   static void ausgabeKmWettLRVBrbFahrtenWett(AusgabeDaten ad, StatistikDaten sd, ArrEl[] a) {
@@ -2313,8 +2313,8 @@ public class Statistik {
               DRVFahrt drvel = (DRVFahrt)a[i].kmwett.wafa.get(keys[nr]);
               // wenn ein Ruderer an einer Mehrtagesfahrt (als einzelne Etappen eingetragen) nur einen Tag
               // mitgerudert ist, werden nur 30 Km gefordert (Dennis, 02.05.03)
-              if (drvel != null && drvel.jum == false && drvel.km >= Daten.WAFAKM && drvel.anzTage == 1) drvel.ok = true;
-              if (drvel != null && drvel.ok) anzWafaTage += drvel.anzTage;
+// @gehtnichtmehrinefa2               if (drvel != null && drvel.jum == false && drvel.km >= Daten.WAFAKM && drvel.days == 1) drvel.ok = true;
+              if (drvel != null && drvel.ok) anzWafaTage += drvel.days;
             }
 
             // Anzahl der geforderten Gig-Fahrten ermitteln
@@ -2472,10 +2472,11 @@ public class Statistik {
                 // wenn ein Ruderer an einer Mehrtagesfahrt (als einzelne Etappen eingetragen) nur einen Tag
                 // mitgerudert ist, werden nur 30 Km gefordert (Dennis, 02.05.03)
                 if (drvel != null && drvel.jum == false &&
-                    drvel.km >= Daten.WAFAKM && drvel.anzTage == 1)
+// @gehtnichtmehrinefa2                     drvel.km >= Daten.WAFAKM &&
+                    drvel.days == 1)
                   drvel.ok = true;
                 if (drvel != null && drvel.ok) {
-                  wafaKm += drvel.km;
+// @gehtnichtmehrinefa2                   wafaKm += drvel.km;
                   if (drvel.jum)
                     jumAnz++;
                   else
@@ -3850,12 +3851,12 @@ public class Statistik {
           else kmwett.geschlecht = 1;
           kmwett.behinderung = behinderung;
 
-          wettAddWafa(kmwett,d.get(Fahrtenbuch.LFDNR),d.get(Fahrtenbuch.DATUM),d.get(Fahrtenbuch.ZIEL),d.get(Fahrtenbuch.BOOTSKM),d.get(Fahrtenbuch.BEMERK),rudKm+stmKm,
-                  Fahrtenbuch.getMehrtagesfahrtName(d.get(Fahrtenbuch.FAHRTART)),mehrtagesfahrt);
+// @gehtnichtmehrinefa2           wettAddWafa(kmwett,d.get(Fahrtenbuch.LFDNR),d.get(Fahrtenbuch.DATUM),d.get(Fahrtenbuch.ZIEL),d.get(Fahrtenbuch.BOOTSKM),d.get(Fahrtenbuch.BEMERK),rudKm+stmKm,
+// @gehtnichtmehrinefa2                   Fahrtenbuch.getMehrtagesfahrtName(d.get(Fahrtenbuch.FAHRTART)),mehrtagesfahrt);
           h.put(name,new HashEl(jahrgang,status,"",rudKm,stmKm,mannschKm,0,eins*anzRuderTage,new ZielfahrtFolge(),null,null,kmwett));
         } else {
-          wettAddWafa(ges.kmwett,d.get(Fahrtenbuch.LFDNR),d.get(Fahrtenbuch.DATUM),d.get(Fahrtenbuch.ZIEL),d.get(Fahrtenbuch.BOOTSKM),d.get(Fahrtenbuch.BEMERK),rudKm+stmKm,
-                  Fahrtenbuch.getMehrtagesfahrtName(d.get(Fahrtenbuch.FAHRTART)),mehrtagesfahrt);
+// @gehtnichtmehrinefa2           wettAddWafa(ges.kmwett,d.get(Fahrtenbuch.LFDNR),d.get(Fahrtenbuch.DATUM),d.get(Fahrtenbuch.ZIEL),d.get(Fahrtenbuch.BOOTSKM),d.get(Fahrtenbuch.BEMERK),rudKm+stmKm,
+// @gehtnichtmehrinefa2                   Fahrtenbuch.getMehrtagesfahrtName(d.get(Fahrtenbuch.FAHRTART)),mehrtagesfahrt);
           h.put(name,new HashEl(jahrgang,status,"",rudKm + ges.rudKm, stmKm + ges.stmKm, mannschKm,0,eins*anzRuderTage+ges.anz, new ZielfahrtFolge(),null,null,ges.kmwett));
         }
         break;
@@ -3921,7 +3922,7 @@ public class Statistik {
 
         // Mehrtagesfahrt berechnen
         String fahrtname = d.get(Fahrtenbuch.FAHRTART);
-        if (!mayBeWafa(fahrtname,km)) return;
+// @gehtnichtmehrinefa2         if (!mayBeWafa(fahrtname,km)) return;
         if (fahrtname.length() == 0 || Mehrtagesfahrt.isVordefinierteFahrtart(fahrtname)) {
             fahrtname = d.get(Fahrtenbuch.ZIEL);
         } else {
@@ -4058,15 +4059,15 @@ public class Statistik {
           else kmwett.geschlecht = 1;
           kmwett.behinderung = behinderung;
 
-          wettAddWafa(kmwett,d.get(Fahrtenbuch.LFDNR),d.get(Fahrtenbuch.DATUM),d.get(Fahrtenbuch.ZIEL),d.get(Fahrtenbuch.BOOTSKM),d.get(Fahrtenbuch.BEMERK),rudKm+stmKm,
-                  Fahrtenbuch.getMehrtagesfahrtName(d.get(Fahrtenbuch.FAHRTART)),mehrtagesfahrt);
+// @gehtnichtmehrinefa2           wettAddWafa(kmwett,d.get(Fahrtenbuch.LFDNR),d.get(Fahrtenbuch.DATUM),d.get(Fahrtenbuch.ZIEL),d.get(Fahrtenbuch.BOOTSKM),d.get(Fahrtenbuch.BEMERK),rudKm+stmKm,
+// @gehtnichtmehrinefa2                   Fahrtenbuch.getMehrtagesfahrtName(d.get(Fahrtenbuch.FAHRTART)),mehrtagesfahrt);
           kmwett.gigbootkm += gigbootkm;
           if (gigfahrtBRB != null) kmwett.gigfahrten.add(gigfahrtBRB);
 
           h.put(name,new HashEl(jahrgang,status,"",rudKm,stmKm,mannschKm,0,eins*anzRuderTage,null,null,null,kmwett));
         } else {
-          wettAddWafa(ges.kmwett,d.get(Fahrtenbuch.LFDNR),d.get(Fahrtenbuch.DATUM),d.get(Fahrtenbuch.ZIEL),d.get(Fahrtenbuch.BOOTSKM),d.get(Fahrtenbuch.BEMERK),rudKm+stmKm,
-                  Fahrtenbuch.getMehrtagesfahrtName(d.get(Fahrtenbuch.FAHRTART)),mehrtagesfahrt);
+// @gehtnichtmehrinefa2           wettAddWafa(ges.kmwett,d.get(Fahrtenbuch.LFDNR),d.get(Fahrtenbuch.DATUM),d.get(Fahrtenbuch.ZIEL),d.get(Fahrtenbuch.BOOTSKM),d.get(Fahrtenbuch.BEMERK),rudKm+stmKm,
+// @gehtnichtmehrinefa2                   Fahrtenbuch.getMehrtagesfahrtName(d.get(Fahrtenbuch.FAHRTART)),mehrtagesfahrt);
           ges.kmwett.gigbootkm += gigbootkm;
           if (gigfahrtBRB != null) ges.kmwett.gigfahrten.add(gigfahrtBRB);
 
@@ -4110,8 +4111,8 @@ public class Statistik {
           else kmwett.geschlecht = 1;
           kmwett.behinderung = behinderung;
 
-          wettAddWafa(kmwett,d.get(Fahrtenbuch.LFDNR),d.get(Fahrtenbuch.DATUM),d.get(Fahrtenbuch.ZIEL),d.get(Fahrtenbuch.BOOTSKM),d.get(Fahrtenbuch.BEMERK),rudKm+stmKm,
-                  Fahrtenbuch.getMehrtagesfahrtName(d.get(Fahrtenbuch.FAHRTART)),mehrtagesfahrt);
+// @gehtnichtmehrinefa2           wettAddWafa(kmwett,d.get(Fahrtenbuch.LFDNR),d.get(Fahrtenbuch.DATUM),d.get(Fahrtenbuch.ZIEL),d.get(Fahrtenbuch.BOOTSKM),d.get(Fahrtenbuch.BEMERK),rudKm+stmKm,
+// @gehtnichtmehrinefa2                   Fahrtenbuch.getMehrtagesfahrtName(d.get(Fahrtenbuch.FAHRTART)),mehrtagesfahrt);
           kmwett.gigbootkm += gigbootkm2;
           kmwett.gigbootanz += gigbootanz;
           kmwett.gigboot20plus += gigboot20plus;
@@ -4120,8 +4121,8 @@ public class Statistik {
 
           h.put(name,new HashEl(jahrgang,status,"",rudKm,stmKm,mannschKm,0,eins*anzRuderTage,null,null,null,kmwett));
         } else {
-          wettAddWafa(ges.kmwett,d.get(Fahrtenbuch.LFDNR),d.get(Fahrtenbuch.DATUM),d.get(Fahrtenbuch.ZIEL),d.get(Fahrtenbuch.BOOTSKM),d.get(Fahrtenbuch.BEMERK),rudKm+stmKm,
-                  Fahrtenbuch.getMehrtagesfahrtName(d.get(Fahrtenbuch.FAHRTART)),mehrtagesfahrt);
+// @gehtnichtmehrinefa2           wettAddWafa(ges.kmwett,d.get(Fahrtenbuch.LFDNR),d.get(Fahrtenbuch.DATUM),d.get(Fahrtenbuch.ZIEL),d.get(Fahrtenbuch.BOOTSKM),d.get(Fahrtenbuch.BEMERK),rudKm+stmKm,
+// @gehtnichtmehrinefa2                   Fahrtenbuch.getMehrtagesfahrtName(d.get(Fahrtenbuch.FAHRTART)),mehrtagesfahrt);
           ges.kmwett.gigbootkm += gigbootkm2;
           ges.kmwett.gigbootanz += gigbootanz;
           ges.kmwett.gigboot20plus += gigboot20plus;
@@ -4145,8 +4146,8 @@ public class Statistik {
           if (sd.art == StatistikDaten.ART_MITGLIEDER && sd.ausgebenWafaKm) {
             if (ges == null || ges.kmwett == null) kmwett = new KmWettInfo();
             else kmwett = ges.kmwett;
-            wettAddWafa(kmwett,d.get(Fahrtenbuch.LFDNR),d.get(Fahrtenbuch.DATUM),d.get(Fahrtenbuch.ZIEL),d.get(Fahrtenbuch.BOOTSKM),d.get(Fahrtenbuch.BEMERK),rudKm+stmKm,
-                    Fahrtenbuch.getMehrtagesfahrtName(d.get(Fahrtenbuch.FAHRTART)),mehrtagesfahrt);
+// @gehtnichtmehrinefa2             wettAddWafa(kmwett,d.get(Fahrtenbuch.LFDNR),d.get(Fahrtenbuch.DATUM),d.get(Fahrtenbuch.ZIEL),d.get(Fahrtenbuch.BOOTSKM),d.get(Fahrtenbuch.BEMERK),rudKm+stmKm,
+// @gehtnichtmehrinefa2                     Fahrtenbuch.getMehrtagesfahrtName(d.get(Fahrtenbuch.FAHRTART)),mehrtagesfahrt);
           }
 
           if (ges == null) h.put(name,new HashEl(jahrgang,status,bezeichnung,rudKm,stmKm,mannschKm,dauer,eins*anzRuderTage,new ZielfahrtFolge(zf),null,null,kmwett));
@@ -4233,7 +4234,7 @@ public class Statistik {
 
 
 
-
+/*
   static boolean mayBeWafa(String mTour, int bootskm) {
     if (mTour == null) return false;
     if (mTour.equals(EfaTypes.TYPE_SESSION_TRAINING) ||
@@ -4258,24 +4259,24 @@ public class Statistik {
     if (mtour == null && !jum) { // Eintagestour
       if (bootskm < Daten.WAFAKM) return;
       fahrt = new DRVFahrt();
-      fahrt.lfdnr = lfdnr;
-      fahrt.datumStart = datum;
-      fahrt.datumEnde = datum;
-      fahrt.ziel = ziel;
+      fahrt.entryNo = lfdnr;
+      fahrt.dateStart = datum;
+      fahrt.dateEnd = datum;
+      fahrt.destination = ziel;
       fahrt.km = bootskm;
-      fahrt.bemerk = bemerk;
+      fahrt.comments = bemerk;
       fahrt.ok = true;
-      fahrt.anzTage = 1;
+      fahrt.days = 1;
       kmwett.wafa.put(lfdnr+datum,fahrt); // bei Eintagestouren dient "lfdnr+datum" als Key
     } else { // Mehrtagestour
       if ( (fahrt = (DRVFahrt)kmwett.wafa.get(mtourName)) == null) { // neue MTour
         fahrt = new DRVFahrt();
-        fahrt.lfdnr = lfdnr;
-        fahrt.datumStart = (mtour != null && !mtour.isEtappen ? mtour.start : datum);
-        fahrt.datumEnde =  (mtour != null && !mtour.isEtappen ? mtour.ende : datum);
-        fahrt.ziel = mtourName;
+        fahrt.entryNo = lfdnr;
+        fahrt.dateStart = (mtour != null && !mtour.isEtappen ? mtour.start : datum);
+        fahrt.dateEnd =  (mtour != null && !mtour.isEtappen ? mtour.ende : datum);
+        fahrt.destination = mtourName;
         fahrt.km = bootskm;
-        fahrt.bemerk = bemerk;
+        fahrt.comments = bemerk;
 
         // *** ACHTUNG ***
         // In diesem Abschnitt müßten Änderungen vorgenommen werden, wenn die Implementierung
@@ -4285,9 +4286,9 @@ public class Statistik {
         // mit anderen Szenarien und wurde daher bislang nicht realisiert.
         // Folgende Zeilen sind der Original-Code:
         if (mtour != null && !mtour.isEtappen) {
-          if (mtour.rudertage > 0) fahrt.anzTage = mtour.rudertage;
-          else fahrt.anzTage = EfaUtil.getDateDiff(fahrt.datumStart,fahrt.datumEnde);
-        } else fahrt.anzTage = 1; // erst 1 Tag der Mehrtagesfahrt gerudert
+          if (mtour.rudertage > 0) fahrt.days = mtour.rudertage;
+          else fahrt.days = EfaUtil.getDateDiff(fahrt.dateStart,fahrt.dateEnd);
+        } else fahrt.days = 1; // erst 1 Tag der Mehrtagesfahrt gerudert
         // Folgende Zeilen entpsrächen der DRV-Implementierung:
         // if (mtour != null) fahrt.anzTage = mtour.rudertage;
         // else fahrt.anzTage = 1;
@@ -4298,11 +4299,11 @@ public class Statistik {
         fahrt.jum = false;
 
         if (jum) {
-          fahrt.ziel = ziel + " ("+Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_JUMREGATTA)+")";
-          fahrt.anzTage = 1;
+          fahrt.destination = ziel + " ("+Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_JUMREGATTA)+")";
+          fahrt.days = 1;
           fahrt.ok = false; // denn: ok wird als gültige Mehrtagesfahrt gewertet...
           fahrt.jum = true;
-          mtourName = lfdnr+fahrt.ziel; // Key bei JuM-Regatten
+          mtourName = lfdnr+fahrt.destination; // Key bei JuM-Regatten
         }
 
         kmwett.wafa.put(mtourName,fahrt); // bei MTour dient "mtourName" als Key
@@ -4315,11 +4316,11 @@ public class Statistik {
         // in bestimmten Fällen (Trainingslager) die Ansicht des DRV, verträgt sich aber nicht
         // mit anderen Szenarien und wurde daher bislang nicht realisiert.
         // Folgende Zeilen sind der Original-Code und müßten für den DRV entfernt werden:
-        if (!fahrt.datumEnde.equals(datum)) fahrt.anzTage++; // 1 weiterer Tag der Mehrtagesfahrt gerudert
-        if (EfaUtil.getRealDateDiff(EfaUtil.string2date(fahrt.datumEnde,0,0,0),EfaUtil.string2date(datum,0,0,0)) > 0)
-          fahrt.datumEnde = datum;
-        if (EfaUtil.getRealDateDiff(EfaUtil.string2date(fahrt.datumStart,0,0,0),EfaUtil.string2date(datum,0,0,0)) < 0)
-          fahrt.datumStart = datum; // Bugfix: War nötig, weil die Einträge einer Fahrt nicht immer in chronologischer Reihenfolge vorliegen müssen
+        if (!fahrt.dateEnd.equals(datum)) fahrt.days++; // 1 weiterer Tag der Mehrtagesfahrt gerudert
+        if (EfaUtil.getRealDateDiff(EfaUtil.string2date(fahrt.dateEnd,0,0,0),EfaUtil.string2date(datum,0,0,0)) > 0)
+          fahrt.dateEnd = datum;
+        if (EfaUtil.getRealDateDiff(EfaUtil.string2date(fahrt.dateStart,0,0,0),EfaUtil.string2date(datum,0,0,0)) < 0)
+          fahrt.dateStart = datum; // Bugfix: War nötig, weil die Einträge einer Fahrt nicht immer in chronologischer Reihenfolge vorliegen müssen
         // *** ACHTUNG ***
 
         fahrt.km += bootskm;
@@ -4332,7 +4333,7 @@ public class Statistik {
       }
     }
   }
-
+*/
 
 // ==============================================================================================
 
@@ -5114,26 +5115,26 @@ public class Statistik {
   }
 
 
-  static void schreibeHTMLZeilen(BufferedWriter f, AusgabeZeilen zeilen) throws IOException {
+  static void schreibeHTMLZeilen(BufferedWriter f, StatOutputLines zeilen) throws IOException {
     int maxCols = 1;
-    for (int i=0; i<zeilen.size(); i++) if (zeilen.getZeileColumns(i)>maxCols) maxCols = zeilen.getZeileColumns(i);
+    for (int i=0; i<zeilen.size(); i++) if (zeilen.getLineColumns(i)>maxCols) maxCols = zeilen.getLineColumns(i);
 
     if (maxCols>1) f.write("<table align=\"center\">\n");
     else f.write("<p>\n");
     for (int i=0; i<zeilen.size(); i++) {
-      if (maxCols>1) f.write("<tr><td>" + (zeilen.getZeileFont(i)==AusgabeZeilen.FONT_BOLD ? "<b>" : "") );
+      if (maxCols>1) f.write("<tr><td>" + (zeilen.getLineFont(i)==StatOutputLines.FONT_BOLD ? "<b>" : "") );
       String s;
-      if (zeilen.getZeileColumns(i)>1) {
-        s = EfaUtil.replace(zeilen.getZeile(i),"|",
-                            (zeilen.getZeileFont(i)==AusgabeZeilen.FONT_BOLD ? "</b>" : "")+"</td><td>"+(zeilen.getZeileFont(i)==AusgabeZeilen.FONT_BOLD ? "<b>" : ""),
+      if (zeilen.getLineColumns(i)>1) {
+        s = EfaUtil.replace(zeilen.getLine(i),"|",
+                            (zeilen.getLineFont(i)==StatOutputLines.FONT_BOLD ? "</b>" : "")+"</td><td>"+(zeilen.getLineFont(i)==StatOutputLines.FONT_BOLD ? "<b>" : ""),
                             true);
       } else {
-        s = (zeilen.getZeileFont(i)==AusgabeZeilen.FONT_BOLD ? "<b>" : "") +
-             zeilen.getZeile(i) +
-            (zeilen.getZeileFont(i)==AusgabeZeilen.FONT_BOLD ? "</b>" : "");
+        s = (zeilen.getLineFont(i)==StatOutputLines.FONT_BOLD ? "<b>" : "") +
+             zeilen.getLine(i) +
+            (zeilen.getLineFont(i)==StatOutputLines.FONT_BOLD ? "</b>" : "");
       }
       f.write(s);
-      if (maxCols>1) f.write( (zeilen.getZeileFont(i)==AusgabeZeilen.FONT_BOLD ? "</b>" : "") + "</td></tr>\n");
+      if (maxCols>1) f.write( (zeilen.getLineFont(i)==StatOutputLines.FONT_BOLD ? "</b>" : "") + "</td></tr>\n");
       else f.write("<br>\n");
     }
     if (maxCols>1) f.write("</table>\n");

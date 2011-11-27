@@ -134,6 +134,29 @@ public class Persons extends StorageObject {
         return false;
     }
 
+    public int getNumberOfMembers(long tstmp) {
+        try {
+            DataKeyIterator it = dataAccess.getStaticIterator();
+            DataKey k = it.getFirst();
+            // actually, checking for records valid at tstmp should already
+            // give us unique records, so there should be no need to use
+            // a Hashtable to make sure we don't cound a person twice. But, well,
+            // you never know...
+            Hashtable<UUID,DataKey> uuids = new Hashtable<UUID,DataKey>();
+            while (k != null) {
+                PersonRecord p = (PersonRecord) dataAccess.get(k);
+                if (p != null && p.isValidAt(tstmp) && !p.getDeleted()) {
+                    uuids.put(p.getId(), k);
+                }
+                k = it.getNext();
+            }
+            return uuids.size();
+        } catch (Exception e) {
+            Logger.log(e);
+            return -1;
+        }
+    }
+
     public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
         if (add || update) {
             assertFieldNotEmpty(record, PersonRecord.ID);

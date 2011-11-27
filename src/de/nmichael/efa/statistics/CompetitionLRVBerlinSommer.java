@@ -15,16 +15,15 @@ import de.nmichael.efa.core.WettDef;
 import de.nmichael.efa.core.WettDefGruppe;
 import de.nmichael.efa.core.WettDefs;
 import de.nmichael.efa.core.config.EfaTypes;
+import de.nmichael.efa.data.PersonRecord;
 import de.nmichael.efa.data.StatisticsRecord;
 import de.nmichael.efa.data.types.DataTypeDistance;
-import de.nmichael.efa.efa1.Adressen;
-import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.Zielfahrt;
 import de.nmichael.efa.util.ZielfahrtFolge;
 import java.util.Vector;
 
-public class CompetitionLRVBSommer extends Competition {
+public class CompetitionLRVBerlinSommer extends Competition {
 
     // Anzahl der Zielfahrten in einem String[][] ermitteln, bzw. wenn null aus einem String
     protected int countZf(Zielfahrt[] z, ZielfahrtFolge zf) {
@@ -196,10 +195,9 @@ public class CompetitionLRVBSommer extends Competition {
         }
         sr.pTableColumns = null;
         WettDefGruppe[] gruppen = wett.gruppen;
-        DatenFelder akt;
         int jahrgang;
         int anzInGruppe; // wievielter Ruderer in der Gruppe: die ersten 3 brauchen eine Adresse!
-        long totaldistance = 0;
+        long totalDistanceInDefaultUnit = 0;
         int gesanz = 0;
 
         // Zielfahrten für alle Ruderer aufbereiten und auswählen
@@ -252,7 +250,7 @@ public class CompetitionLRVBSommer extends Competition {
 
                     if (erfuellt) {
                         gesanz++;
-                        totaldistance += sd[i].distance;
+                        totalDistanceInDefaultUnit += sd[i].distance;
                     }
 
                     // sollen Daten für den Teilnehmer ausgegeben werden?
@@ -263,10 +261,10 @@ public class CompetitionLRVBSommer extends Competition {
                         anzInGruppe++;
                         if (sr.getOutputTypeEnum() == StatisticsRecord.OutputTypes.efawett) {
                             // Ausgabe für efaWett
-                            if (erfuellt) {
+                            if (erfuellt && sd[i].personRecord != null) {
                                 EfaWettMeldung ewm = new EfaWettMeldung();
-                                ewm.nachname = EfaUtil.getNachname(sd[i].sName);
-                                ewm.vorname = EfaUtil.getVorname(sd[i].sName);
+                                ewm.nachname = sd[i].personRecord.getLastName();
+                                ewm.vorname = sd[i].personRecord.getFirstName();
                                 ewm.jahrgang = sd[i].sYearOfBirth;
                                 ewm.gruppe = gruppen[g].bezeichnung;
                                 if (sd[i].gender.equals(EfaTypes.TYPE_GENDER_MALE)) {
@@ -276,14 +274,9 @@ public class CompetitionLRVBSommer extends Competition {
                                 } else {
                                     ewm.geschlecht = "X";
                                 }
-                                ewm.kilometer = DataTypeDistance.getDistance(sd[i].distance).getValueInKilometers(false, 0, 1);
+                                ewm.kilometer = DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(false, 0, 1);
                                 if (anzInGruppe <= 3) {
-                                    DatenFelder d = (Daten.adressen != null ? Daten.adressen.getExactComplete(ewm.vorname + " " + ewm.nachname) : null);
-                                    if (d != null) {
-                                        ewm.anschrift = d.get(Adressen.ADRESSE);
-                                    } else {
-                                        ewm.anschrift = ""; // muß noch eingetragen werden! (im Gegensatz zu "null": wird nicht mehr abgefragt!)
-                                    }
+                                    ewm.anschrift = sd[i].personRecord.getAddressComplete("; ");
                                 }
                                 for (int j = 0; sd[i].bestDestinationAreas != null && j < sd[i].bestDestinationAreas.length; j++) {
                                     if (sd[i].bestDestinationAreas[j] != null) {
@@ -337,7 +330,7 @@ public class CompetitionLRVBSommer extends Competition {
                         } else {
                             // normale Ausgabe des Teilnehmers
                             StatisticsData participant = sd[i];
-                            participant.sDistance = DataTypeDistance.getDistance(sd[i].distance).getValueInKilometers(false, 0, 1);
+                            participant.sDistance = DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(false, 0, 1);
                             if (!erfuellt && sr.sIsOutputCompAdditionalWithRequirements) {
                                 participant.sDistance += "/" + gruppen[g].km;
                             }
@@ -393,18 +386,18 @@ public class CompetitionLRVBSommer extends Competition {
                             && nichtBeruecksichtigt.get(sd[i].sName) == null) {
                         nichtBeruecksichtigt.put(sd[i].sName, 
                                 "Wegen fehlenden Jahrgangs ignoriert (" +
-                                DataTypeDistance.getDistance(sd[i].distance).getValueInKilometers(true, 0, 1) + ")");
+                                DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(true, 0, 1) + ")");
                         continue;
                     }
                 }
             }
         }
         if (sr.getOutputTypeEnum() != StatisticsRecord.OutputTypes.efawett) {
-            sr.pAdditionalTable = new String[2][2];
-            sr.pAdditionalTable[0][0] = "Anzahl der Erfüller:";
-            sr.pAdditionalTable[0][1] = Integer.toString(gesanz);
-            sr.pAdditionalTable[1][0] = "Kilometer aller Erfüller:";
-            sr.pAdditionalTable[1][1] = (new DataTypeDistance(totaldistance)).getValueInKilometers(true, 0, 1);
+            sr.pAdditionalTable1 = new String[2][2];
+            sr.pAdditionalTable1[0][0] = "Anzahl der Erfüller:";
+            sr.pAdditionalTable1[0][1] = Integer.toString(gesanz);
+            sr.pAdditionalTable1[1][0] = "Kilometer aller Erfüller:";
+            sr.pAdditionalTable1[1][1] = DataTypeDistance.getDistance(totalDistanceInDefaultUnit).getStringValueInKilometers(true, 0, 1);
         }
     }
 }

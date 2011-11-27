@@ -66,7 +66,8 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
     private ItemTypeDistance eLargeDistance;
 
     private SearchLogbookDialog(EfaBaseFrame parent) {
-        super(parent, International.getString("Suche"), International.getStringWithMnemonic("Suchen"));
+        super(parent, International.getString("Suche"), International.getStringWithMnemonic("Suchen"),
+                null, false);
 
         IItemType item;
         Vector<IItemType> items = new Vector<IItemType>();
@@ -163,6 +164,8 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
         if (getSelectedPanel(tabbedPane).equals(CAT_SPECIAL)) {
             searchMode = SearchMode.special;
         }
+        getValuesFromGui();
+        setDialogResult(true);
         super.closeButton_actionPerformed(e);
         search();
     }

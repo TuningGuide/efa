@@ -1118,6 +1118,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             !checkBoatStatus() ||
             !checkMultiDayTours() ||
             !checkDate() ||
+            !checkTime() ||
             !checkAllowedDateForLogbook() ||
             !checkAllDataEntered() ||
             !checkUnknownNames() ||
@@ -1292,6 +1293,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
     void setTime(ItemTypeTime field, int addMinutes, DataTypeTime notBefore) {
         DataTypeTime now = DataTypeTime.now();
+        now.setSecond(0);
         now.add(addMinutes*60);
         int m = now.getMinute();
         if (m % 5 != 0) {
@@ -1708,6 +1710,32 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             Dialog.error(msg);
             enddate.requestFocus();
             return false;
+        }
+        return true;
+    }
+
+    private boolean checkTime() {
+        if (isModeBoathouse()) {
+            if (starttime.isVisible() && !starttime.isSet()) {
+                setTime(starttime, Daten.efaConfig.getValueEfaDirekt_plusMinutenAbfahrt(), null);
+            }
+            if (endtime.isVisible() && !endtime.isSet()) {
+                setTime(endtime, -Daten.efaConfig.getValueEfaDirekt_minusMinutenAnkunft(), starttime.getTime());
+            }
+            if (starttime.isVisible() && endtime.isVisible() && distance.isVisible() &&
+                starttime.isSet() && endtime.isSet() && distance.isSet()) {
+                long timediff = Math.abs(endtime.getTime().getTimeAsSeconds() - starttime.getTime().getTimeAsSeconds());
+                long dist = distance.getValue().getValueInMeters();
+                if (timediff < 15*60 && timediff < dist/10) {
+                    // if a short elapsed time (anything between 15 minutes) has been entered,
+                    // then check whether it is plausible; plausible times need to be at least
+                    // above 1 s per 10 meters; everything else is unplausible
+                    String msg = International.getString("Bitte überprüfe die eingetragenen Uhrzeiten.");
+                    Dialog.error(msg);
+                    endtime.requestFocus();
+                    return false;
+                }
+            }
         }
         return true;
     }
@@ -2286,9 +2314,20 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                     }
                 }
             }
+
+            if (isModeBoathouse() && (item == starttime || item == endtime)) {
+                if (item == starttime && !starttime.isSet()) {
+                    setTime(starttime, Daten.efaConfig.getValueEfaDirekt_plusMinutenAbfahrt(), null);
+                }
+                if (item == endtime && !endtime.isSet()) {
+                    setTime(endtime, -Daten.efaConfig.getValueEfaDirekt_minusMinutenAnkunft(), starttime.getTime());
+                }
+            }
+            /*
             if (isModeBoathouse() && (item == starttime || item == endtime)) {
                 setTime((ItemTypeTime)item, 0, null);
             }
+            */
             if (item == destination) {
                 setDesinationDistance();
             }

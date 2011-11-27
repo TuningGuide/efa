@@ -43,7 +43,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
 
     private void initListener() {
         IItemType itemType = null;
-        for (IItemType item : items) {
+        for (IItemType item : allGuiItems) {
             if (item.getName().equals(BoatReservationRecord.TYPE)) {
                 ((ItemTypeRadioButtons)item).registerItemListener(this);
                 itemType = item;
@@ -58,7 +58,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
             if (type == null) {
                 return;
             }
-            for (IItemType it : items) {
+            for (IItemType it : allGuiItems) {
                 if (it.getName().equals(BoatReservationRecord.DAYOFWEEK)) {
                     it.setVisible(type.equals(BoatReservationRecord.TYPE_WEEKLY));
                 }
@@ -74,7 +74,7 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
 
     private void setAllowWeeklyReservation(boolean allowWeeklyReservation) {
         if (!allowWeeklyReservation) {
-            for (IItemType it : items) {
+            for (IItemType it : allGuiItems) {
                 if (it.getName().equals(BoatReservationRecord.TYPE)) {
                     it.parseAndShowValue(BoatReservationRecord.TYPE_ONETIME);
                     it.setVisible(false);

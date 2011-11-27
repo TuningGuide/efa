@@ -136,6 +136,9 @@ public class DataTypeDecimal {
                 }
                 fraction = fraction / precisionDiff;
             }
+            if (maxDecimalPlaces == 0) {
+                return Long.toString(value / precision);
+            }
             return Long.toString(value / precision) + decimalSep + EfaUtil.long2String(fraction, minDecimalPlaces);
         }
         return "";

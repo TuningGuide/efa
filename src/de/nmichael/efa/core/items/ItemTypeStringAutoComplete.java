@@ -11,7 +11,7 @@
 package de.nmichael.efa.core.items;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.gui.SimpleInputDialog;
+import de.nmichael.efa.gui.SimpleOptionInputDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.gui.util.*;
@@ -379,7 +379,12 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             }
             item.setFieldSize(300, 200);
 
-            if (SimpleInputDialog.showInputDialog(dlg, International.getString("Tippfehler?"), item)) {
+            if (SimpleOptionInputDialog.showOptionInputDialog(dlg,
+                    International.getString("Tippfehler?"), item,
+                    new String[] { International.getString("Ersetzen"),
+                                   International.getString("Abbruch") },
+                    new int[] { SimpleOptionInputDialog.OPTION_OK,
+                                SimpleOptionInputDialog.OPTION_CANCEL })) {
                 String suggestedName = item.getSelectedText();
                 if (suggestedName != null && suggestedName.length() > 0) {
                     this.parseAndShowValue(suggestedName);

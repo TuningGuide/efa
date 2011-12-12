@@ -817,11 +817,19 @@ public class RemoteEfaClient extends DataAccess {
     // =========================== Data Iterator Methods ===========================
 
     public DataKeyIterator getStaticIterator() throws EfaException {
-        return new DataKeyIterator(this, getAllKeys(), false);
+        DataKey[] keys = cache.getAllKeys();
+        if (keys == null) {
+            keys = getAllKeys();
+        }
+        return new DataKeyIterator(this, keys, false);
     }
 
     public DataKeyIterator getDynamicIterator() throws EfaException {
-        return new DataKeyIterator(this, getAllKeys(), true);
+        DataKey[] keys = cache.getAllKeys();
+        if (keys == null) {
+            keys = getAllKeys();
+        }
+        return new DataKeyIterator(this, keys, true);
     }
 
     public DataRecord getFirst() throws EfaException {

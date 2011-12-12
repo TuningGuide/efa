@@ -140,7 +140,7 @@ public class CompetitionLRVBrandenburgWanderruderwett extends Competition {
                         } else {
                             // normale Ausgabe des Teilnehmers
                             StatisticsData participant = sd[i];
-                            participant.sDistance = DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(false, 0, 1);
+                            participant.sDistance = DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(false, 0, 0);
                             if (!erfuellt && sr.sIsOutputCompAdditionalWithRequirements) {
                                 participant.sDistance += "/" + gruppen[g].km;
                             }
@@ -179,7 +179,7 @@ public class CompetitionLRVBrandenburgWanderruderwett extends Competition {
                     if (sd[i].sYearOfBirth.equals("")
                             && Daten.wettDefs.erfuellt(WettDefs.LRVBRB_WANDERRUDERWETT, sr.sCompYear, 0, sd[i].gender, sd[i].disabled, sd[i].distance, 9999, 9999, 9999, 0) != null
                             && nichtBeruecksichtigt.get(sd[i].sName) == null) {
-                        nichtBeruecksichtigt.put(sd[i].sName, "Wegen fehlenden Jahrgangs ignoriert (" + DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(true, 0, 1) + ")");
+                        nichtBeruecksichtigt.put(sd[i].sName, "Wegen fehlenden Jahrgangs ignoriert (" + DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(true, 0, 0) + ")");
                         continue;
                     }
                 }
@@ -190,7 +190,7 @@ public class CompetitionLRVBrandenburgWanderruderwett extends Competition {
             sr.pAdditionalTable1[0][0] = "Anzahl der Erfüller:";
             sr.pAdditionalTable1[0][1] = Integer.toString(gesanz);
             sr.pAdditionalTable1[1][0] = "Kilometer aller Erfüller:";
-            sr.pAdditionalTable1[1][1] = DataTypeDistance.getDistance(totalDistanceInDefaultUnit).getStringValueInKilometers(true, 0, 1);
+            sr.pAdditionalTable1[1][1] = DataTypeDistance.getDistance(totalDistanceInDefaultUnit).getStringValueInKilometers(true, 0, 0);
         }
     }
 

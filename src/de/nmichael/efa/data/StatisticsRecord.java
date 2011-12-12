@@ -308,6 +308,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public DataTypeDate cEntryDateFirst;
     public DataTypeDate cEntryDateLast;
     public Hashtable<String,String> cWarnings = new Hashtable<String,String>();
+    public Competition cCompetition;
 
     // filled by StatistikTask.runPostprocessing()
     public BaseDialog pParentDialog;

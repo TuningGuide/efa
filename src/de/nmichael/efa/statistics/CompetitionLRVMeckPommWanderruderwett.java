@@ -158,14 +158,14 @@ public class CompetitionLRVMeckPommWanderruderwett extends Competition {
                         } else {
                             // normale Ausgabe des Teilnehmers
                             StatisticsData participant = sd[i];
-                            participant.sDistance = DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(false, 0, 1);
+                            participant.sDistance = DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(false, 0, 0);
                             if (!erfuellt && sr.sIsOutputCompAdditionalWithRequirements) {
                                 participant.sDistance += "/" + gruppen[g].km;
                             }
                             if (!sr.sIsOutputCompWithoutDetails && erfuellt) {
                                 participant.sAdditional = "davon "
                                         + (sr.sCompYear < LRVMVP_NEU ?
-                                            DataTypeDistance.getDistanceFromMeters(sd[i].compData.gigbootmeters).getStringValueInKilometers(false, 0, 1) + 
+                                            DataTypeDistance.getDistanceFromMeters(sd[i].compData.gigbootmeters).getStringValueInKilometers(false, 0, 0) +
                                             " Gigboot-Km in " + sd[i].compData.gigbootanz + " Fahrten mit " : "")
                                         + sd[i].compData.gigboot20plus + " Fahrten >= 20 Km und " + sd[i].compData.gigboot30plus + " Fahrten >= 30 Km";
 
@@ -217,20 +217,20 @@ public class CompetitionLRVMeckPommWanderruderwett extends Competition {
                                 if (sr.sIsOutputCompShort) {
                                     if (sr.sIsOutputCompAdditionalWithRequirements) {
                                         participant.sAdditional = (sr.sCompYear < LRVMVP_NEU
-                                                ? DataTypeDistance.getDistanceFromMeters(sd[i].compData.gigbootmeters).getStringValueInKilometers(false, 0, 1) + "/" + gruppen[g].zusatz + " Gig-Km; " : "")
+                                                ? DataTypeDistance.getDistanceFromMeters(sd[i].compData.gigbootmeters).getStringValueInKilometers(false, 0, 0) + "/" + gruppen[g].zusatz + " Gig-Km; " : "")
                                                 + sd[i].compData.gigbootanz + "/" + gruppen[g].zusatz2 + " Fahrten; "
                                                 + sd[i].compData.gigboot20plus + "/" + gruppen[g].zusatz3 + " >= 20 Km; "
                                                 + sd[i].compData.gigboot30plus + "/" + gruppen[g].zusatz4 + " >= 30 Km";
 
                                     } else {
-                                        participant.sAdditional = (sr.sCompYear < LRVMVP_NEU ? DataTypeDistance.getDistanceFromMeters(sd[i].compData.gigbootmeters).getStringValueInKilometers(false, 0, 1)
+                                        participant.sAdditional = (sr.sCompYear < LRVMVP_NEU ? DataTypeDistance.getDistanceFromMeters(sd[i].compData.gigbootmeters).getStringValueInKilometers(false, 0, 0)
                                                 + " Gig-Km; " : "") + sd[i].compData.gigbootanz + " Fahrten; "
                                                 + sd[i].compData.gigboot20plus + " >= 20 Km; "
                                                 + sd[i].compData.gigboot30plus + " >= 30 Km";
                                     }
                                 } else {
                                     participant.sAdditional = "davon " + (sr.sCompYear < LRVMVP_NEU ?
-                                        DataTypeDistance.getDistanceFromMeters(sd[i].compData.gigbootmeters).getStringValueInKilometers(false, 0, 1)
+                                        DataTypeDistance.getDistanceFromMeters(sd[i].compData.gigbootmeters).getStringValueInKilometers(false, 0, 0)
                                         + " Gigboot-Km in " : "") + sd[i].compData.gigbootanz
                                             + " Fahrten mit " + sd[i].compData.gigboot20plus + " Fahrten >= 20 Km und " + sd[i].compData.gigboot30plus + " Fahrten >= 30 Km";
                                 }
@@ -252,7 +252,7 @@ public class CompetitionLRVMeckPommWanderruderwett extends Competition {
                     if (sd[i].sYearOfBirth.equals("")
                             && Daten.wettDefs.erfuellt(WettDefs.LRVMVP_WANDERRUDERWETT, sr.sCompYear, 0, sd[i].gender, sd[i].disabled, sd[i].distance, 9999, 9999, 9999, 0) != null
                             && nichtBeruecksichtigt.get(sd[i].sName) == null) {
-                        nichtBeruecksichtigt.put(sd[i].sName, "Wegen fehlenden Jahrgangs ignoriert (" + DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(true, 0, 1) + ")");
+                        nichtBeruecksichtigt.put(sd[i].sName, "Wegen fehlenden Jahrgangs ignoriert (" + DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(true, 0, 0) + ")");
                         continue;
                     }
                 }
@@ -263,7 +263,7 @@ public class CompetitionLRVMeckPommWanderruderwett extends Competition {
             sr.pAdditionalTable1[0][0] = "Anzahl der Erfüller:";
             sr.pAdditionalTable1[0][1] = Integer.toString(gesanz);
             sr.pAdditionalTable1[1][0] = "Kilometer aller Erfüller:";
-            sr.pAdditionalTable1[1][1] = DataTypeDistance.getDistance(totalDistanceInDefaultUnit).getStringValueInKilometers(true, 0, 1);
+            sr.pAdditionalTable1[1][1] = DataTypeDistance.getDistance(totalDistanceInDefaultUnit).getStringValueInKilometers(true, 0, 0);
         }
     }
 

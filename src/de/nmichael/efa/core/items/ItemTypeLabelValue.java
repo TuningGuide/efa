@@ -27,6 +27,8 @@ public abstract class ItemTypeLabelValue extends ItemType {
     protected int labelGridFill = GridBagConstraints.NONE;
     protected Font labelFont;
     protected Font fieldFont;
+    protected Color fieldColor = null;
+    protected Color savedFieldColor = null;
     protected boolean isShowOptional = false;
     protected String optionalButtonText = "+";
     protected JButton expandButton;
@@ -53,6 +55,9 @@ public abstract class ItemTypeLabelValue extends ItemType {
         }
         field = initializeField();
         Dialog.setPreferredSize(field, fieldWidth, fieldHeight);
+        if (fieldColor != null) {
+            field.setForeground(fieldColor);
+        }
         if (backgroundColor != null) {
             field.setBackground(backgroundColor);
         }
@@ -150,6 +155,25 @@ public abstract class ItemTypeLabelValue extends ItemType {
 
     public void restoreFieldFont() {
         field.setFont(fieldFont);
+    }
+
+    public void setFieldColor(Color c) {
+        this.fieldColor = c;
+        if (field != null) {
+            field.setForeground(c);
+        }
+    }
+
+    public void saveFieldColor(boolean force) {
+        if (field != null && (savedFieldColor == null || force)) {
+            savedFieldColor = field.getForeground();
+        }
+    }
+
+    public void restoreFieldColor() {
+        if (field != null && savedFieldColor != null) {
+            field.setForeground(savedFieldColor);
+        }
     }
 
     private boolean showExpandButton(boolean isExpandButtonHit, boolean calledForExpandButton) {

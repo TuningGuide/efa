@@ -11,15 +11,18 @@
 package de.nmichael.efa.data;
 
 import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.util.*;
+import java.awt.AWTEvent;
+import java.awt.Color;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
 import java.util.*;
 
 // @i18n complete
 
-public class FahrtenabzeichenRecord extends DataRecord {
+public class FahrtenabzeichenRecord extends DataRecord implements IItemListener {
 
     // =========================================================================
     // Field Names
@@ -28,9 +31,30 @@ public class FahrtenabzeichenRecord extends DataRecord {
     public static final String PERSONID            = "PersonId";
     public static final String ABZEICHEN           = "Abzeichen";
     public static final String ABZEICHENAB         = "AbzeichenAB";
-    public static final String KILOMETER           = "Kilometer";
-    public static final String KILOMETERAB         = "KilometerAB";
-    public static final String FAHRTENHEFT         = "Fahrtenheft";
+    public static final String KILOMETER = "Kilometer";
+    public static final String KILOMETERAB = "KilometerAB";
+    public static final String FAHRTENHEFT = "Fahrtenheft";
+
+    public static final String GUI_NAMEMISMATCH = "GUI_NAMEMISMATCH";
+    public static final String GUI_YEAROFBIRTH = "GUI_YEAROFBIRTH";
+    public static final String GUI_LETZTESFAHRTENABZEICHEN = "GUI_LETZTESFAHRTENABZEICHEN";
+    public static final String GUI_TEILNEHMERNUMMER = "GUI_TEILNEHMERNUMMER";
+    public static final String GUI_VORNAME = "GUI_VORNAME";
+    public static final String GUI_NACHNAME = "GUI_NACHNAME";
+    public static final String GUI_JAHRGANG = "GUI_JAHRGANG";
+    public static final String GUI_ANZABZEICHEN = "GUI_ANZABZEICHEN";
+    public static final String GUI_ANZKM = "GUI_ANZKM";
+    public static final String GUI_ANZABZEICHENAB = "GUI_ANZABZEICHENAB";
+    public static final String GUI_ANZKMAB = "GUI_ANZKMAB";
+    public static final String GUI_LETZTESJAHR = "GUI_LETZTESJAHR";
+    public static final String GUI_LETZTEKM = "GUI_LETZTEKM";
+    public static final String GUI_LETZTESDATUM = "GUI_LETZTESDATUM";
+    public static final String GUI_VERSION = "GUI_VERSION";
+    public static final String GUI_SCHLUESSEL = "GUI_SCHLUESSEL";
+    public static final String GUI_SIGNATUR = "GUI_SIGNATUR";
+    public static final String GUI_STATUS = "GUI_STATUS";
+
+    private Vector<IItemType> myItems;
 
     public static void initialize() {
         Vector<String> f = new Vector<String>();
@@ -73,16 +97,34 @@ public class FahrtenabzeichenRecord extends DataRecord {
         return getUUID(PERSONID);
     }
 
-    private String getPersonName() {
+    public PersonRecord getPersonRecord(UUID id) {
+        if (id == null) {
+            return null;
+        }
         Persons persons = getPersistence().getProject().getPersons(false);
-        String personName = "?";
-        if (persons != null) {
-            PersonRecord r = persons.getPerson(getPersonId(), System.currentTimeMillis());
-            if (r != null) {
-                personName = r.getQualifiedName();
+        PersonRecord p = persons.getPerson(id, System.currentTimeMillis());
+        if (p == null) {
+            try {
+                p = (PersonRecord)persons.data().getValidLatest(PersonRecord.getKey(id, System.currentTimeMillis()));
+            } catch(Exception e) {
+                Logger.logdebug(e);
             }
         }
-        return personName;
+        return p;
+    }
+
+    public PersonRecord getPersonRecord() {
+        return getPersonRecord(getPersonId());
+    }
+
+    public String getPersonName() {
+        PersonRecord p = getPersonRecord();
+        return (p != null ? p.getQualifiedName() : "?");
+    }
+
+    public int getYearOfBirth() {
+        PersonRecord p = getPersonRecord();
+        return (p != null && p.getBirthday() != null && p.getBirthday().isSet() ? p.getBirthday().getYear() : 0);
     }
 
 
@@ -157,13 +199,30 @@ public class FahrtenabzeichenRecord extends DataRecord {
     }
 
     public Vector<IItemType> getGuiItems() {
-        String CAT_BASEDATA     = "%01%" + International.onlyFor("Fahrtenabzeichen","de");
+        String CAT_BASEDATA         = "%01%" + International.onlyFor("Allgemein","de");
+        String CAT_FAHRTENABZEICHEN = "%02%" + International.onlyFor("elektronisches Fahrtenheft","de");
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
         v.add(item = getGuiItemTypeStringAutoComplete(FahrtenabzeichenRecord.PERSONID, getPersonId(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                 persistence.getProject().getPersons(false), 0, Long.MAX_VALUE,
-                International.getString("Person")));
+                International.getString("Name")));
+        ((ItemTypeStringAutoComplete)item).setFieldSize(300, -1);
+        // Since PersonId is the key to this record, it may never be changed.
+        // Only when the record is newly created and getPersonRecord() returns null, it's allowed to
+        // modify the persons name (and thus, the associated PersonRecord)!
+        item.setEditable(getPersonRecord() == null);
+        item.registerItemListener(this);
+        v.add(item = new ItemTypeLabel(GUI_NAMEMISMATCH,
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                International.onlyFor("Achtung: Der Name stimmt nicht mit dem Namen im Fahrtenheft überein!","de")));
+        item.setEditable(false);
+        item.setColor(Color.red);
+        item.setVisible(false);
+
+        v.add(item = new ItemTypeString(GUI_YEAROFBIRTH, Integer.toString(getYearOfBirth()),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Jahrgang")));
+        item.setEditable(false);
         v.add(item = new ItemTypeInteger(FahrtenabzeichenRecord.ABZEICHEN, getAbzeichen(), 0, 99,
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("Anzahl der bereits erfüllten Abzeichen","de")));
         v.add(item = new ItemTypeInteger(FahrtenabzeichenRecord.KILOMETER, getKilometer(), 0, Integer.MAX_VALUE,
@@ -172,8 +231,63 @@ public class FahrtenabzeichenRecord extends DataRecord {
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("... davon Abzeichen in den Jugend-Gruppen A/B","de")));
         v.add(item = new ItemTypeInteger(FahrtenabzeichenRecord.KILOMETERAB, getKilometerAB(), 0, Integer.MAX_VALUE,
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("... davon Kilometer in den Jugend-Gruppen A/B","de")));
+        v.add(item = new ItemTypeString(GUI_LETZTESFAHRTENABZEICHEN, getLetzteMeldungDescription(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("Letztes elektronisches Fahrtenabzeichen","de")));
+        item.setEditable(false);
         v.add(item = new ItemTypeString(FahrtenabzeichenRecord.FAHRTENHEFT, getFahrtenheft(),
-                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("Letztes elektronisches Fahrtenheft","de")));
+                IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("elektronisches Fahrtenheft","de")));
+        item.registerItemListener(this);
+        v.add(item = new ItemTypeString(GUI_TEILNEHMERNUMMER, "",
+                IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("DRV-Teilnehmernummer", "de")));
+        item.setEditable(false);
+        v.add(item = new ItemTypeString(GUI_VORNAME, "",
+                IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("Vorname", "de")));
+        item.setEditable(false);
+        v.add(item = new ItemTypeString(GUI_NACHNAME, "",
+                IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("Nachname", "de")));
+        item.setEditable(false);
+        v.add(item = new ItemTypeString(GUI_JAHRGANG, "",
+                IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("Jahrgang", "de")));
+        item.setEditable(false);
+        v.add(item = new ItemTypeString(GUI_ANZABZEICHEN, "",
+                IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("Anzahl der Fahrtenabzeichen", "de")));
+        item.setEditable(false);
+        v.add(item = new ItemTypeString(GUI_ANZKM, "",
+                IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("Insgesamt nachgewiesene Kilometer", "de")));
+        item.setEditable(false);
+        v.add(item = new ItemTypeString(GUI_ANZABZEICHENAB, "",
+                IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("... davon Fahrtenabzeichen Jugend A/B", "de")));
+        item.setEditable(false);
+        v.add(item = new ItemTypeString(GUI_ANZKMAB, "",
+                IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("... davon Kilometer Jugend A/B", "de")));
+        item.setEditable(false);
+        v.add(item = new ItemTypeString(GUI_LETZTESJAHR, "",
+                IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("Jahr der letzten elektronischen Meldung", "de")));
+        item.setEditable(false);
+        v.add(item = new ItemTypeString(GUI_LETZTEKM, "",
+                IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("Kilometer bei der letzten elektronischen Meldung", "de")));
+        item.setEditable(false);
+        v.add(item = new ItemTypeString(GUI_LETZTESDATUM, "",
+                IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("Ausstellungsdatum des Fahrtenhefts", "de")));
+        item.setEditable(false);
+        item.setPadding(0, 0, 0, 20);
+        v.add(item = new ItemTypeString(GUI_VERSION, "",
+                IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("Fahrtenabzeichen-Version", "de")));
+        item.setEditable(false);
+        v.add(item = new ItemTypeString(GUI_SCHLUESSEL, "",
+                IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("öffentlicher DRV-Schlüssel", "de")));
+        item.setEditable(false);
+        v.add(item = new ItemTypeString(GUI_SIGNATUR, "",
+                IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("DRV-Signatur", "de")));
+        item.setEditable(false);
+        v.add(item = new ItemTypeString(GUI_STATUS, "",
+                IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("Status", "de")));
+        item.setEditable(false);
+
+        // update values of derived GUI items
+        this.myItems = v;
+        updateGuiItems();
+        
         // @todo (P4) Fahrtenheft Signatur prüfen, bearbeiten usw.
         return v;
     }
@@ -194,6 +308,85 @@ public class FahrtenabzeichenRecord extends DataRecord {
         items[2] = new TableItem(getKilometer());
         items[3] = new TableItem(getLetzteMeldungDescription());
         return items;
+    }
+
+    public void itemListenerAction(IItemType itemType, AWTEvent event) {
+        if (itemType.getName().equals(PERSONID) &&
+             ( (event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST) ||
+               (event instanceof KeyEvent && ((KeyEvent)event).getKeyChar() == '\n') ) ) {
+            itemType.getValueFromGui();
+            updateGuiItems();
+        }
+        if (itemType.getName().equals(FAHRTENHEFT) &&
+             ( (event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST) ||
+               (event instanceof KeyEvent && ((KeyEvent)event).getKeyChar() == '\n') ) ) {
+            itemType.getValueFromGui();
+            updateGuiItems();
+        }
+    }
+
+    private IItemType getGuiItem(String itemName) {
+        for (int i=0; myItems != null && i<myItems.size(); i++) {
+            if (myItems.get(i).getName().equals(itemName)) {
+                return myItems.get(i);
+            }
+        }
+        return null;
+    }
+
+    private void updateGuiItem(String itemName, String value) {
+        IItemType item = getGuiItem(itemName);
+        if (item == null) {
+            return;
+        }
+        if (item instanceof ItemTypeLabel) {
+            item.setDescription(value);
+        } else {
+            item.parseAndShowValue(value);
+        }
+    }
+
+    private void updateGuiItems() {
+        ItemTypeStringAutoComplete itemPerson = (ItemTypeStringAutoComplete)getGuiItem(PERSONID);
+        itemPerson.getValueFromGui();
+        PersonRecord person = getPersonRecord((UUID)itemPerson.getId(itemPerson.getValueFromField()));
+        String sig = getGuiItem(FAHRTENHEFT).getValueFromField();
+        DRVSignatur drvSignatur = (sig != null && sig.trim().length() > 0 ? new DRVSignatur(sig) : null);
+        if (drvSignatur != null) {
+            drvSignatur.checkSignature();
+        }
+        String sigName = (drvSignatur != null ? drvSignatur.getVorname() + " " + drvSignatur.getNachname() : null);
+
+        getGuiItem(GUI_NAMEMISMATCH).setVisible(sigName != null && person != null && person.getFirstLastName() != null &&
+                        !sigName.equals(person.getFirstLastName()));
+        getGuiItem(ABZEICHEN).setEditable(drvSignatur == null);
+        getGuiItem(KILOMETER).setEditable(drvSignatur == null);
+        getGuiItem(ABZEICHENAB).setEditable(drvSignatur == null);
+        getGuiItem(KILOMETERAB).setEditable(drvSignatur == null);
+        updateGuiItem(GUI_YEAROFBIRTH, (person != null && person.getBirthday() != null && person.getBirthday().isSet() ? 
+            Integer.toString(person.getBirthday().getYear()) : ""));
+        updateGuiItem(GUI_LETZTESFAHRTENABZEICHEN, 
+                (drvSignatur != null ? drvSignatur.getJahr() + " (" + drvSignatur.getLetzteKm() + " Km)" :
+                International.onlyFor("- keine elektronisches Fahrtenheft vorhanden -", "de")));
+        updateGuiItem(GUI_TEILNEHMERNUMMER, (drvSignatur != null ? drvSignatur.getTeilnNr() : ""));
+        updateGuiItem(GUI_VORNAME, (drvSignatur != null ? drvSignatur.getVorname() : ""));
+        updateGuiItem(GUI_NACHNAME, (drvSignatur != null ? drvSignatur.getNachname() : ""));
+        updateGuiItem(GUI_JAHRGANG, (drvSignatur != null ? drvSignatur.getJahrgang() : ""));
+        updateGuiItem(GUI_ANZABZEICHEN, (drvSignatur != null ? Integer.toString(drvSignatur.getAnzAbzeichen()) : ""));
+        updateGuiItem(GUI_ANZKM, (drvSignatur != null ? Integer.toString(drvSignatur.getGesKm()) : ""));
+        updateGuiItem(GUI_ANZABZEICHENAB, (drvSignatur != null ? Integer.toString(drvSignatur.getAnzAbzeichenAB()) : ""));
+        updateGuiItem(GUI_ANZKMAB, (drvSignatur != null ? Integer.toString(drvSignatur.getGesKmAB()) : ""));
+        updateGuiItem(GUI_LETZTESJAHR, (drvSignatur != null ? Integer.toString(drvSignatur.getJahr()) : ""));
+        updateGuiItem(GUI_LETZTEKM, (drvSignatur != null ? Integer.toString(drvSignatur.getLetzteKm()) : ""));
+        updateGuiItem(GUI_LETZTESDATUM, (drvSignatur != null ? drvSignatur.getSignaturDatum(true) : ""));
+        updateGuiItem(GUI_VERSION, (drvSignatur != null ? Byte.toString(drvSignatur.getVersion()) : ""));
+        updateGuiItem(GUI_SCHLUESSEL, (drvSignatur != null ? Integer.toString(drvSignatur.getKeyNr()) : ""));
+        updateGuiItem(GUI_SIGNATUR, (drvSignatur != null ? drvSignatur.getSignaturString() : ""));
+        updateGuiItem(GUI_STATUS, (drvSignatur != null ? drvSignatur.getSignatureStateDescription() : ""));
+        if (drvSignatur != null) {
+            ((ItemTypeString)getGuiItem(GUI_STATUS)).setFieldColor((drvSignatur.getSignatureState() == DRVSignatur.SIG_VALID ? Color.blue : Color.red));
+        }
+        getGuiItem(GUI_STATUS).setVisible(drvSignatur != null);
     }
 
 }

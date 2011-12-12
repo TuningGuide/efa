@@ -30,6 +30,7 @@ public class CompetitionLRVBerlinBlauerWimpel extends Competition {
         sr.pTableColumns = null;
         int numberOfMembers = Daten.project.getPersons(false).getNumberOfMembers(sr.sTimestampBegin);
         int anzWertung = 20 + (int) (0.1 * numberOfMembers); // Anzahl der zu wertenden Mitglieder
+        efaWett.wimpel_anzMitglieder = numberOfMembers;
 
         if (sr.sIsOutputCompRules) {
             sr.pCompRules = createAusgabeBedingungen(sr, wett.key, sr.pCompRulesBold, sr.pCompRulesItalics);
@@ -67,7 +68,7 @@ public class CompetitionLRVBerlinBlauerWimpel extends Competition {
                     sr.pAdditionalTable1[i] = new String[3];
                     sr.pAdditionalTable1[i][0] = Integer.toString(i+1);
                     sr.pAdditionalTable1[i][1] = sd[i].sName;
-                    sr.pAdditionalTable1[i][2] = DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(false, 0, 1);
+                    sr.pAdditionalTable1[i][2] = DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(false, 0, 0);
                 }
 
             }
@@ -82,7 +83,7 @@ public class CompetitionLRVBerlinBlauerWimpel extends Competition {
             sr.pAdditionalTable2[0][0] = "Anzahl der ausgewerteten Ruderer:";
             sr.pAdditionalTable2[0][1] = anzWertung + " (von " + numberOfMembers + " Mitgliedern)";
             sr.pAdditionalTable2[1][0] = "Gesamtkilometer der ersten " + anzWertung + " Ruderer:";
-            sr.pAdditionalTable2[1][1] = DataTypeDistance.getDistance(totalDistanceInDefaultUnit).getStringValueInKilometers(true, 0, 1);
+            sr.pAdditionalTable2[1][1] = DataTypeDistance.getDistance(totalDistanceInDefaultUnit).getStringValueInKilometers(true, 0, 0);
             sr.pAdditionalTable2[2][0] = "Durchschnittskilometer pro Ruderer:";
             sr.pAdditionalTable2[2][1] = DataTypeDistance.getDistance(totalDistanceInDefaultUnit/anzWertung).getStringValueInKilometers(true, 0, 1);
         }

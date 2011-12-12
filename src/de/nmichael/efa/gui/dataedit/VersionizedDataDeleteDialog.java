@@ -47,8 +47,10 @@ public class VersionizedDataDeleteDialog extends BaseDialog implements IItemList
         // create GUI items
         mainPanel.setLayout(new GridBagLayout());
 
+        DataTypeDate deleteDate = new DataTypeDate(System.currentTimeMillis());
+        deleteDate.addDays(1); // suggest to delete from tomorrow on
         deleteAt = new ItemTypeDateTime("DELETE_AT",
-                new DataTypeDate(System.currentTimeMillis()), new DataTypeTime(System.currentTimeMillis()),
+                deleteDate, new DataTypeTime(0, 0, 0),
                 IItemType.TYPE_PUBLIC, "", International.getString("Datensätze als ungültig markieren ab") );
         deleteAt.displayOnGui(this, mainPanel, 0, 0);
         deleteAt.requestFocus();

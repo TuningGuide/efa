@@ -33,6 +33,7 @@ public class ProjectRecord extends DataRecord {
 
     public static final int GUIITEMS_SUBTYPE_ALL = 0;
     public static final int GUIITEMS_SUBTYPE_KANUEFB = 100;
+    public static final int GUIITEMS_SUBTYPE_EFAWETT = 101;
 
     // Fields for Type=Project
     // PROJECTNAME
@@ -505,7 +506,7 @@ public class ProjectRecord extends DataRecord {
             if (category == null) {
                 category = "%02%" + International.getString("Club");
             }
-            if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 1) {
+            if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 1 || subtype == GUIITEMS_SUBTYPE_EFAWETT) {
                 v.add(item = new ItemTypeString(ProjectRecord.CLUBNAME, getClubName(),
                         IItemType.TYPE_PUBLIC, category,
                         International.getString("Vereinsname")));
@@ -525,7 +526,7 @@ public class ProjectRecord extends DataRecord {
                 }
 
             }
-            if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 2) {
+            if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 2 || subtype == GUIITEMS_SUBTYPE_EFAWETT) {
                 v.add(item = new ItemTypeString(ProjectRecord.ASSOCIATIONGLOBALNAME, getGlobalAssociationName(),
                         IItemType.TYPE_PUBLIC, category,
                         International.getString("Dachverband") + " - "

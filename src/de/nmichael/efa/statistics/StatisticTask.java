@@ -27,7 +27,6 @@ public class StatisticTask extends ProgressTask {
     
     private StatisticsRecord[] statisticsRecords;
     private StatisticsRecord sr;
-    private Competition competition;
     private Hashtable<Object,StatisticsData> data = new Hashtable<Object,StatisticsData>();
     private Persons persons = Daten.project.getPersons(false);
     private Boats boats = Daten.project.getBoats(false);
@@ -370,6 +369,9 @@ public class StatisticTask extends ProgressTask {
             if (entryPersonRecord == null) {
                 continue;
             }
+            if (entryPersonRecord.getExcludeFromCompetition()) {
+                continue;
+            }
             if (isInPersonFilter() && isInGroupFilter()) {
                 // Statistics for Competitions are only calculated based on known Names
                 Object aggregationKey = getAggregationKeyForCompetition(r);
@@ -377,8 +379,8 @@ public class StatisticTask extends ProgressTask {
                     if (!sr.sStatisticType.equals(WettDefs.STR_DRV_WANDERRUDERSTATISTIK)) {
                         calculateAggregations(r, aggregationKey);
                     } else {
-                        if (competition != null) {
-                        ((CompetitionDRVWanderruderstatistik)competition).calculateAggregation(data,
+                        if (sr.cCompetition != null) {
+                        ((CompetitionDRVWanderruderstatistik)sr.cCompetition).calculateAggregation(data,
                                 r, aggregationKey, entryPersonRecord);
                         }
                     }
@@ -754,8 +756,8 @@ public class StatisticTask extends ProgressTask {
         setCurrentWorkDone(workBeforePostprocessing + (WORK_POSTPROCESSING/5)*3);
 
         if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.competition) {
-            if (competition != null) {
-                competition.calculate(sr, sdArray);
+            if (sr.cCompetition != null) {
+                sr.cCompetition.calculate(sr, sdArray);
             }
         }
 
@@ -827,7 +829,7 @@ public class StatisticTask extends ProgressTask {
         sr.prepareStatisticSettings();
         logInfo(International.getMessage("Erstelle Statistik für den Zeitraum {from} bis {to} ...", sr.sStartDate.toString(), sr.sEndDate.toString()) + "\n");
         if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.competition) {
-            competition = Competition.getCompetition(sr);
+            sr.cCompetition = Competition.getCompetition(sr);
         }
         Vector<Logbook> logbooks = getAllLogbooks();
         if (logbooks.size() == 0) {

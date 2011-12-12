@@ -130,4 +130,12 @@ public class DataCache {
         return null;
     }
 
+    public DataKey[] getAllKeys() {
+        long numberOfRecRemote = getTotalNumberOfRecordsIfNotTooOld();
+        if (numberOfRecRemote == cache.size()) {
+            return cache.keySet().toArray(new DataKey[0]);
+        }
+        return null;
+    }
+
 }

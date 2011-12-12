@@ -37,8 +37,9 @@ public abstract class StatisticWriter {
             case xml:
                 return new StatisticXMLWriter(sr, sd);
             case efawett:
-                // @todo (P2) return new StatisticEfaWettWriter(sr, sd);
-                Dialog.error("efaWett output not yet implemented");
+                if (sr.cCompetition != null) {
+                    return new StatisticEfaWettWriter(sr, sd);
+                }
         }
         return new StatisticInternalWriter(sr, sd);
     }

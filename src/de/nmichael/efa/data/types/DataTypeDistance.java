@@ -244,6 +244,14 @@ public class DataTypeDistance {
         return (m / 1000) + (m % 1000 > 500 ? 1 : 0);
     }
 
+    public void truncateToMeters(int meters) {
+        if (!isSet()) {
+            return;
+        }
+        this.value.setDecimal((getValueInMeters() / meters) * meters, 0);
+        this.unit = UnitType.m;
+    }
+
     public void truncateToMainDistanceUnit() {
         if (!isSet()) {
             return;

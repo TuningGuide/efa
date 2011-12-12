@@ -136,9 +136,10 @@ public class StatisticsData implements Comparable {
         }
         if (sr.sIsAggrDistance) {
             int decimals = 1;
-            if (sr.sTruncateDistanceToFullValue
-                    && sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list) {
-                decimals = 0;
+            if (sr.sTruncateDistanceToFullValue) {
+                if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list) {
+                    decimals = 0;
+                }
             }
             this.sDistance = DataTypeDistance.getDistance(this.distance).getStringValueInDefaultUnit(sr.sDistanceWithUnit, 0, decimals);
         }

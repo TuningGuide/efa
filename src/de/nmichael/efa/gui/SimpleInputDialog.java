@@ -28,7 +28,7 @@ import javax.swing.event.ChangeEvent;
 public class SimpleInputDialog extends BaseDialog {
 
     private String KEYACTION_ENTER;
-    private IItemType item;
+    protected IItemType item;
 
     public SimpleInputDialog(Frame parent, String title, IItemType item) {
         super(parent, title, International.getStringWithMnemonic("OK"));
@@ -102,4 +102,5 @@ public class SimpleInputDialog extends BaseDialog {
             return showInputDialog((JFrame)parent, title, item);
         }
     }
+    
 }

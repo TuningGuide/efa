@@ -2,8 +2,6 @@
 
 Item                                                                 days  until
 ================================================================================
-Administration of DRV-Fahrtenabzeichen
-efaWett (elektronische Meldung)
 Online Update
 AutoComplete: match anything within input/change list content
 Audit
@@ -17,6 +15,7 @@ Lock Efa
 Rewrite remaining Dialogs/Frames
 Delete unused Classes
 DataLayer: DB Access
+efaRemote: "rotating status symbol" on remote activity
 Help System
 --------------------------------------------------------------------------------
 
@@ -52,3 +51,5 @@ Statistics - Kilometerwettbewerbe
 Statistics - Output Types
 Statistics - split Dialog to select Filters in Sub-Tabs
 Statistics - add buttons "all" for Filters of each Category, so ensure nothing is skipped when e.g. SessionTypes are added
+Administration of DRV-Fahrtenabzeichen
+efaWett (elektronische Meldung)

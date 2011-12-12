@@ -274,7 +274,7 @@ public class CompetitionLRVBerlinSommer extends Competition {
                                 } else {
                                     ewm.geschlecht = "X";
                                 }
-                                ewm.kilometer = DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(false, 0, 1);
+                                ewm.kilometer = DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(false, 0, 0);
                                 if (anzInGruppe <= 3) {
                                     ewm.anschrift = sd[i].personRecord.getAddressComplete("; ");
                                 }
@@ -330,7 +330,7 @@ public class CompetitionLRVBerlinSommer extends Competition {
                         } else {
                             // normale Ausgabe des Teilnehmers
                             StatisticsData participant = sd[i];
-                            participant.sDistance = DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(false, 0, 1);
+                            participant.sDistance = DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(false, 0, 0);
                             if (!erfuellt && sr.sIsOutputCompAdditionalWithRequirements) {
                                 participant.sDistance += "/" + gruppen[g].km;
                             }
@@ -386,7 +386,7 @@ public class CompetitionLRVBerlinSommer extends Competition {
                             && nichtBeruecksichtigt.get(sd[i].sName) == null) {
                         nichtBeruecksichtigt.put(sd[i].sName, 
                                 "Wegen fehlenden Jahrgangs ignoriert (" +
-                                DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(true, 0, 1) + ")");
+                                DataTypeDistance.getDistance(sd[i].distance).getStringValueInKilometers(true, 0, 0) + ")");
                         continue;
                     }
                 }
@@ -397,7 +397,7 @@ public class CompetitionLRVBerlinSommer extends Competition {
             sr.pAdditionalTable1[0][0] = "Anzahl der Erfüller:";
             sr.pAdditionalTable1[0][1] = Integer.toString(gesanz);
             sr.pAdditionalTable1[1][0] = "Kilometer aller Erfüller:";
-            sr.pAdditionalTable1[1][1] = DataTypeDistance.getDistance(totalDistanceInDefaultUnit).getStringValueInKilometers(true, 0, 1);
+            sr.pAdditionalTable1[1][1] = DataTypeDistance.getDistance(totalDistanceInDefaultUnit).getStringValueInKilometers(true, 0, 0);
         }
     }
 }

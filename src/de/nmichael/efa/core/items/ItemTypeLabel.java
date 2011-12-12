@@ -62,6 +62,7 @@ public class ItemTypeLabel extends ItemType {
             if (color != null) {
                 l.setForeground(color);
             }
+            l.setVisible(isVisible);
             labels[i] = l;
         }
     }
@@ -94,7 +95,7 @@ public class ItemTypeLabel extends ItemType {
     }
     
     public void setVisible(boolean visible) {
-        for (int i=0; i<labels.length; i++) {
+        for (int i=0; labels != null && i<labels.length; i++) {
             labels[i].setVisible(visible);
         }
         isVisible = visible;

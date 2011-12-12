@@ -16,6 +16,7 @@ import de.nmichael.efa.core.WettDefs;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.BoatRecord;
 import de.nmichael.efa.data.LogbookRecord;
+import de.nmichael.efa.data.Project;
 import de.nmichael.efa.data.StatisticsRecord;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.util.Dialog;
@@ -44,34 +45,82 @@ public abstract class Competition {
             return null;
         }
         Competition comp = null;
+        int wettId = -1;
         if (sType.equals(WettDefs.STR_DRV_FAHRTENABZEICHEN)) {
             comp = new CompetitionDRVFahrtenabzeichen();
+            wettId = WettDefs.DRV_FAHRTENABZEICHEN;
         }
         if (sType.equals(WettDefs.STR_DRV_WANDERRUDERSTATISTIK)) {
             comp = new CompetitionDRVWanderruderstatistik();
+            wettId = WettDefs.DRV_WANDERRUDERSTATISTIK;
         }
         if (sType.equals(WettDefs.STR_LRVBERLIN_SOMMER)) {
             comp = new CompetitionLRVBerlinSommer();
+            wettId = WettDefs.LRVBERLIN_SOMMER;
         }
         if (sType.equals(WettDefs.STR_LRVBERLIN_WINTER)) {
             comp = new CompetitionLRVBerlinWinter();
+            wettId = WettDefs.LRVBERLIN_WINTER;
         }
         if (sType.equals(WettDefs.STR_LRVBERLIN_BLAUERWIMPEL)) {
             comp = new CompetitionLRVBerlinBlauerWimpel();
+            wettId = WettDefs.LRVBERLIN_BLAUERWIMPEL;
         }
         if (sType.equals(WettDefs.STR_LRVBRB_WANDERRUDERWETT)) {
             comp = new CompetitionLRVBrandenburgWanderruderwett();
+            wettId = WettDefs.LRVBRB_WANDERRUDERWETT;
         }
         if (sType.equals(WettDefs.STR_LRVBRB_FAHRTENWETT)) {
             comp = new CompetitionLRVBrandenburgFahrtenwett();
+            wettId = WettDefs.LRVBRB_FAHRTENWETT;
         }
         if (sType.equals(WettDefs.STR_LRVMVP_WANDERRUDERWETT)) {
             comp = new CompetitionLRVMeckPommWanderruderwett();
+            wettId = WettDefs.LRVMVP_WANDERRUDERWETT;
         }
         if (comp != null) {
             comp.sr = sr;
+            comp.iniEfaWett(wettId);
         }
         return comp;
+    }
+
+    private void iniEfaWett(int wettId) {
+        WettDef wett = Daten.wettDefs.getWettDef(wettId, sr.sCompYear);
+        efaWett = new EfaWett();
+        efaWett.wettId = wettId;
+        efaWett.allg_programm = Daten.PROGRAMMID;
+        if (wett.von.jahr == wett.bis.jahr) {
+            efaWett.allg_wettjahr = Integer.toString(sr.sCompYear + wett.von.jahr);
+        } else {
+            efaWett.allg_wettjahr = Integer.toString(sr.sCompYear + wett.von.jahr) + "/"
+                    + Integer.toString(sr.sCompYear + wett.bis.jahr);
+        }
+        efaWett.allg_wett = wett.key;
+        Project prj = sr.getPersistence().getProject();
+        switch (wettId) {
+            case WettDefs.DRV_FAHRTENABZEICHEN:
+            case WettDefs.DRV_WANDERRUDERSTATISTIK:
+                efaWett.verein_user = prj.getClubGlobalAssociationLogin();
+                break;
+            case WettDefs.LRVBERLIN_SOMMER:
+            case WettDefs.LRVBERLIN_WINTER:
+            case WettDefs.LRVBERLIN_BLAUERWIMPEL:
+                efaWett.verein_user = prj.getClubRegionalAssociationLogin();
+                break;
+        }
+        efaWett.verein_name = prj.getClubName();
+        efaWett.meld_name = prj.getAdminName();
+        efaWett.meld_email = prj.getAdminEmail();
+        efaWett.versand_name = prj.getClubName();
+        efaWett.versand_strasse = prj.getClubAddressStreet();
+        efaWett.versand_ort = prj.getClubAddressCity();
+
+        // correct evaluation period to competition period
+        //if (sr.sOutputType == StatisticsRecord.OutputTypes.efawett) {
+            sr.sStartDate.setDate(wett.von.tag, wett.von.monat, sr.sCompYear + wett.von.jahr);
+            sr.sEndDate.setDate(wett.bis.tag, wett.bis.monat, sr.sCompYear + wett.bis.jahr);
+        //}
     }
 
     public abstract void calculate(StatisticsRecord sr, StatisticsData[] sd);
@@ -195,6 +244,10 @@ public abstract class Competition {
                 }
             }
         }
+    }
+
+    public EfaWett getEfaWett() {
+        return efaWett;
     }
 
 }

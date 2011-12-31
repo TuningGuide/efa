@@ -10,6 +10,11 @@
 
 package de.nmichael.efa.emil;
 
+import de.nmichael.efa.data.efawett.ZielfahrtFolge;
+import de.nmichael.efa.data.efawett.WettDefs;
+import de.nmichael.efa.data.efawett.WettDef;
+import de.nmichael.efa.data.efawett.EfaWettMeldung;
+import de.nmichael.efa.data.efawett.EfaWett;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.util.*;
@@ -1569,7 +1574,7 @@ public class EmilFrame extends JFrame {
 
   boolean speichereDatei(boolean unter) {
     if (efw == null) return false;
-    efw.allg_programm = Daten.EMIL_KENNUNG;
+    efw.allg_programm = Main.EMIL_KENNUNG;
     getFields();
 
 

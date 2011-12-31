@@ -23,8 +23,7 @@ import de.nmichael.efa.*;
 public class Main extends Program {
 
     public Main(String[] args) {
-        super(args);
-        Daten.initialize(Daten.APPL_DRV);
+        super(Daten.APPL_DRV, args);
 
         EfaDRVFrame frame = new EfaDRVFrame();
         frame.pack();

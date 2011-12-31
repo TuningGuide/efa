@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.data.efawett.CertInfos;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.util.*;

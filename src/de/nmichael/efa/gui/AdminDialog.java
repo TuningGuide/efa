@@ -14,8 +14,7 @@ import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.core.items.*;
-import de.nmichael.efa.data.storage.IDataAccess;
-import de.nmichael.efa.data.storage.RemoteCommand;
+import de.nmichael.efa.data.Project;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -172,8 +171,11 @@ public class AdminDialog extends BaseDialog implements IItemListener {
 
             // Projects and Logbooks are *not* handled within EfaMenuButton
             if (action.equals(EfaMenuButton.BUTTON_PROJECTS) && permission) {
-                efaBoathouseFrame.openProject(admin);
+                Project p = efaBoathouseFrame.openProject(admin);
                 updateInfos();
+                if (p == null) {
+                    return;
+                }
             }
             if ((action.equals(EfaMenuButton.BUTTON_PROJECTS) || action.equals(EfaMenuButton.BUTTON_LOGBOOKS)) && permission) {
                 if (Daten.project == null) {
@@ -182,6 +184,7 @@ public class AdminDialog extends BaseDialog implements IItemListener {
                 }
                 efaBoathouseFrame.openLogbook(admin);
                 updateInfos();
+                return;
             }
 
         }

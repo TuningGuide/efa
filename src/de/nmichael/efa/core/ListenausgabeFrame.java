@@ -14,13 +14,12 @@ import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.efa1.Boote;
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.*;
+import de.nmichael.efa.gui.BrowserDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import java.util.*;
 import java.io.*;
 
@@ -51,6 +50,7 @@ class Entry implements Comparable {
 }
 
 
+// @todo (P3) rewrite ListenausgabeFrame
 public class ListenausgabeFrame extends JDialog implements ActionListener {
   String listenname;
   DatenListe datenListe;
@@ -273,7 +273,7 @@ public class ListenausgabeFrame extends JDialog implements ActionListener {
       f.write("</body></html>\n");
       f.close();
 
-      Dialog.neuBrowserDlg(this,International.getString("Ausgabe"),"file:"+filename);
+      BrowserDialog.openInternalBrowser(this,International.getString("Ausgabe"),"file:"+filename);
       EfaUtil.deleteFile(filename);
     } catch(IOException e) {
       Dialog.error(International.getMessage("Liste konnte nicht erstellt werden: {error}",e.toString()));

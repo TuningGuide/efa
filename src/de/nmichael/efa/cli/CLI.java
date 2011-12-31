@@ -28,6 +28,7 @@ public class CLI {
     public static final String MENU_BOATS        = "boats";
     public static final String MENU_PERSONS      = "persons";
     public static final String MENU_DESTINATIONS = "destinations";
+    public static final String MENU_BACKUP       = "backup";
 
 
     private String username;
@@ -40,6 +41,7 @@ public class CLI {
 
     private EfaConfig remoteEfaConfig;
     private MenuBase lastMenu;
+    private Stack<String> menuStack;
 
     public CLI(String username,
                String password,
@@ -217,53 +219,79 @@ public class CLI {
         Daten.haltProgram(0);
     }
 
-    public void run() {
+    public Class getMenu() {
+        String mymenu = menuStack.peek();
+        if (mymenu.equals(MENU_MAIN)) {
+            return de.nmichael.efa.cli.MenuMain.class;
+        }
+        if (mymenu.equals(MENU_BOATS)) {
+            return de.nmichael.efa.cli.MenuBoats.class;
+        }
+        if (mymenu.equals(MENU_PERSONS)) {
+            return de.nmichael.efa.cli.MenuPersons.class;
+        }
+        if (mymenu.equals(MENU_DESTINATIONS)) {
+            return de.nmichael.efa.cli.MenuDestinations.class;
+        }
+        if (mymenu.equals(MENU_BACKUP)) {
+            return de.nmichael.efa.cli.MenuBackup.class;
+        }
+        return null;
+    }
+
+    public void run(String initialCommand) {
         if (!connect()) {
             return;
         }
-        Stack<String> menuStack = new Stack<String>();
+        try {
+            Thread.sleep(500);
+        } catch(InterruptedException eignore) {
+        }
+        if (initialCommand != null && initialCommand.length() == 0) {
+            initialCommand = null;
+        }
+
+        menuStack = new Stack<String>();
         menuStack.push(MENU_MAIN);
+
         while(true) {
-            String command = promptForInput(null);
-            String cmd = parseCommand(command, 0);
-            String args = parseCommand(command, 1);
-            if (cmd == null || cmd.length() == 0) {
+            String command = (initialCommand != null ? 
+                initialCommand : promptForInput(null));
+            if (command == null || command.length() == 0) {
                 continue;
             }
-            String mymenu = menuStack.peek();
-            Class c = null;
-            if (mymenu.equals(MENU_MAIN)) {
-                c = de.nmichael.efa.cli.MenuMain.class;
-            }
-            if (mymenu.equals(MENU_BOATS)) {
-                c = de.nmichael.efa.cli.MenuBoats.class;
-            }
-            if (mymenu.equals(MENU_PERSONS)) {
-                c = de.nmichael.efa.cli.MenuPersons.class;
-            }
-            if (mymenu.equals(MENU_DESTINATIONS)) {
-                c = de.nmichael.efa.cli.MenuDestinations.class;
-            }
-            if (c != null) {
-                try {
-                    MenuBase menu;
-                    if (lastMenu != null && c == lastMenu.getClass()) {
-                        menu = lastMenu;
-                    } else {
-                        menu = (MenuBase)c.getConstructor(CLI.class).newInstance(this);
-                    }
-                    menu.runCommand(menuStack, cmd, args);
-                    lastMenu = menu;
-                } catch(Exception e) {
-                    Logger.log(e);
-                }
-            } else {
-                logerr("Command in unknown Menu");
-            }
-            if (menuStack.isEmpty()) {
+            runCommandInCurrentMenu(command);
+            if (menuStack.isEmpty() || initialCommand != null) {
                 quit();
             }
         }
     }
 
+    public boolean runCommandInCurrentMenu(String command) {
+        String cmd = parseCommand(command, 0);
+        String args = parseCommand(command, 1);
+        if (cmd == null || cmd.length() == 0) {
+            return true;
+        }
+        Class c = getMenu();
+        if (c != null) {
+            try {
+                MenuBase menu;
+                if (lastMenu != null && c == lastMenu.getClass()) {
+                    menu = lastMenu;
+                } else {
+                    menu = (MenuBase) c.getConstructor(CLI.class).newInstance(this);
+                }
+                lastMenu = menu;
+                return menu.runCommand(menuStack, cmd, args);
+            } catch (Exception e) {
+                Logger.log(e);
+                return false;
+            }
+        } else {
+            logerr("Command in unknown Menu");
+            return false;
+        }
+
+    }
 }

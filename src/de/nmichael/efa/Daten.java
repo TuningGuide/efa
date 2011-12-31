@@ -7,9 +7,9 @@
  * @author Nicolas Michael
  * @version 2
  */
-
 package de.nmichael.efa;
 
+import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.core.*;
@@ -19,9 +19,8 @@ import de.nmichael.efa.data.storage.RemoteEfaServer;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.drv.DRVConfig;
-import de.nmichael.efa.statistics.FTPWriter;
-import de.nmichael.efa.statistics.PDFWriter;
-import de.nmichael.efa.statistics.XMLWriter;
+import de.nmichael.efa.util.FTPClient;
+import de.nmichael.efa.util.PDFWriter;
 import de.nmichael.efa.gui.*;
 import java.io.*;
 import java.util.jar.*;
@@ -31,256 +30,178 @@ import javax.swing.UIManager;
 import java.lang.management.*;
 
 // @i18n complete
-
 public class Daten {
 
-  public final static String EFA = "efa"; // efa program name/ID
-  public       static String EFA_SHORTNAME = "efa";                              // dummy, will be set in International.ininitalize()
-  public       static String EFA_LONGNAME  = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
-  public       static String EFA_ONLINE    = "efa Online";                       // dummy, will be set in International.ininitalize()
+    public final static String EFA = "efa"; // efa program name/ID
+    public static String EFA_SHORTNAME = "efa";                              // dummy, will be set in International.ininitalize()
+    public static String EFA_LONGNAME = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
+    public static String EFA_ONLINE = "efa Online";                       // dummy, will be set in International.ininitalize()
+    public final static String VERSION = "v2.0_beta"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
+    public final static String VERSIONID = "1.9.9_01";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "31.12.2011";  // Release Date: TT.MM.JJJJ
+    public final static String PROGRAMMID = "EFA.199"; // Versions-ID für Wettbewerbsmeldungen
+    public final static String PROGRAMMID_DRV = "EFADRV.199"; // Versions-ID für Wettbewerbsmeldungen
+    public final static String COPYRIGHTYEAR = "11";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
+    public final static String EFA_JAVA_ARGUMENTS = "EFA_JAVA_ARGUMENTS"; // Environment Variable Name containing all arguments passed to the "java" command
+    public static String efa_java_arguments = null;                 // Environment Variable Contents containing all arguments passed to the "java" command
+    public final static String EFADIREKT_MAINCLASS = "de.nmichael.efa.direkt.Main";
+    public final static String EFAURL = "http://efa.nmichael.de";
+    public final static String EFASUPPORTURL = "http://efa.nmichael.de/help";
+    public final static String EFADEVURL = "http://kenai.com/projects/efa";
+    public final static String EFAWETTURL = "http://efa.rudern.de";
+    public final static String NICOLASURL = "http://www.nmichael.de";
+    public final static String EFAEMAILNAME = "efa";
+    public final static String EMAILINFO = "info@efa.nmichael.de";
+    public final static String EMAILBUGS = "bugs@efa.nmichael.de";
+    public final static String EMAILHELP = "help@efa.nmichael.de";
+    public static final String EFA_USERDATA_DIR = "efa2";                // <efauser> = ~/efa2/              Directory for efauser data (if not efa program directory)
+    public static final String EFA_RUNNING = "efa.run";                  // <efauser>/efa.run                Indiz, daß efaDirekt läuft (enthält Port#)
 
-  public final static String VERSION = "v2.0_dev98"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-  public final static String VERSIONID = "1.9.8_02";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-  public final static String VERSIONRELEASEDATE = "11.12.2011";  // Release Date: TT.MM.JJJJ
-  public final static String PROGRAMMID = "EFA.198"; // Versions-ID für Wettbewerbsmeldungen
-  public final static String PROGRAMMID_DRV = "EFADRV.198"; // Versions-ID für Wettbewerbsmeldungen
-  public final static String COPYRIGHTYEAR = "11";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
+    public final static String CONFIGFILE = "efa.cfg";                   // <efauser>/cfg/efa.cfg            Konfigurationsdatei
+    public final static String DRVCONFIGFILE = "drv.cfg";                // <efauser>/cfg/drv.cfg            DRV-Konfigurationsdatei
+    public static final String EFATYPESFILE = "types.cfg";               // <efauser>/cfg/types.cfg          Konfiguration für EfaTypes (Bezeichnungen)
+    public static final String WETTFILE = "wett.cfg";                    // <efauser>/cfg/wett.cfg           Konfiguration für Wettbewerbe
+    public static final String WETTDEFS = "wettdefs.cfg";                // <efauser>/cfg/wettdefs.cfg       Wettbewerbs-Definitionen
 
-  public final static String EMIL_VERSION = VERSION; // Version
-  public final static String EMIL_KENNUNG = "EMIL.198";
-  public final static String ELWIZ_VERSION = VERSION; // Version
-  public final static String EDDI_VERSION = VERSION; // Version
+    public static final String EFA_LICENSE = "license.html";             // <efa>/doc/license.html
+    public static final String EFA_JAR = "efa.jar";                      // <efa>/program/efa.jar
+    public static final String EFA_SECFILE = "efa.sec";                  // <efa>/program/efa.sec            Hash von efa.jar: für Erstellen des Admins
+    public static final String EFA_HELPSET = "help/efaHelp";
+    // efa exit codes
+    public static final int HALT_BASICCONFIG = 1;
+    public static final int HALT_DIRECTORIES = 2;
+    public static final int HALT_EFACONFIG = 3;
+    public static final int HALT_EFATYPES = 4;
+    public static final int HALT_EFASEC = 5;
+    public static final int HALT_EFARUNNING = 6;
+    public static final int HALT_FILEOPEN = 7;
+    public static final int HALT_EFASECADMIN = 8;
+    public static final int HALT_FILEERROR = 9;
+    public static final int HALT_ERROR = 10;
+    public static final int HALT_INSTALLATION = 11;
+    public static final int HALT_ADMIN = 12;
+    public static final int HALT_MISCONFIG = 12;
+    public static final int HALT_FIRSTSETUP = 13;
+    public static final int HALT_PANIC = 14;
+    public static final int HALT_ADMINLOGIN = 15;
+    public static final int HALT_SHELLRESTART = 99;
+    public static final int HALT_JAVARESTART = 199;
 
-  public final static String EFA_JAVA_ARGUMENTS = "EFA_JAVA_ARGUMENTS"; // Environment Variable Name containing all arguments passed to the "java" command
-  public       static String efa_java_arguments = null;                 // Environment Variable Contents containing all arguments passed to the "java" command
-  public final static String EFADIREKT_MAINCLASS = "de.nmichael.efa.direkt.Main";
+    public static final String efaSubdirDATA = "data";
+    public static final String efaSubdirCFG = "cfg";
 
-  public final static String EFAURL = "http://efa.nmichael.de";
-  public final static String EFASUPPORTURL = "http://efa.nmichael.de/help";
-  public final static String EFADEVURL = "http://kenai.com/projects/efa";
-  public final static String EFAWETTURL = "http://efa.rudern.de";
-  public final static String NICOLASURL = "http://www.nmichael.de";
-  public final static String EFAEMAILNAME = "efa";
-  public final static String EMAILINFO = "info@efa.nmichael.de";
-  public final static String EMAILBUGS = "bugs@efa.nmichael.de";
-  public final static String EMAILHELP = "help@efa.nmichael.de";
+    public static Program program = null;            // this Program
+    public static String userHomeDir = null;         // User Home Directory (NOT the efa userdata directoy!! see EfaBaseConfig!)
+    public static String userName = null;            // User Name
+    public static String efaLogfile = null;          // Logdatei für efa-Konsole
+    public static String efaMainDirectory = null;    // Efa-Hauptverzeichnis, immer mit "/" am Ende
+    public static String efaProgramDirectory = null; // Programmverzeichnis, immer mit "/" am Ende     ("./program/")
+    public static String efaPluginDirectory = null;  // Programmverzeichnis, immer mit "/" am Ende     ("./program/plugins")
+    public static String efaDataDirectory = null;    // Efa-Datenverzeichnis, immer mit "/" am Ende    ("./data/")
+    public static String efaLogDirectory = null;     // Efa-Log-Verzeichnis, immer mit "/" am Ende     ("./log/")
+    public static String efaCfgDirectory = null;     // Efa-Configverzeichnis, immer mit "/" am Ende   ("./cfg/")
+    public static String efaDocDirectory = null;     // Efa-Doku-Verzeichnis,  immer mit "/" am Ende   ("./doc/")
+    public static String efaAusgabeDirectory = null; // Efa-Ausgabe-Verzeichnis, immer mit "/" am Ende ("./fmt/")
+    public static String efaBakDirectory = null;     // Efa-Backupverzeichnis, immer mit "/" am Ende   ("./backup/")
+    public static String efaTmpDirectory = null;     // Efa-Tempverzeichnis,   immer mit "/" am Ende   ("./tmp/")
+    public static String efaStyleDirectory = null;   // Efa-Stylesheetverzeichnis,   mit "/" am Ende   ("./fmt/layout/")
+    public static String fileSep = "/"; // Verzeichnis-Separator (wird in ini() ermittelt)
 
-  public static final String EFA_USERDATA_DIR = "efa2";                // <efauser> = ~/efa2/              Directory for efauser data (if not efa program directory)
-  public static final String EFA_RUNNING = "efa.run";                  // <efauser>/efa.run                Indiz, daß efaDirekt läuft (enthält Port#)
-  public final static String VEREINSCONFIG = "verein.efv";             // <efauser>/data/verein.efv        Konfigurationsdatei für Vereinseinstellungen
-  public static final String ADRESSENFILE = "adressen.efd";            // <efauser>/data/adressen.efd      gespeicherte Adressen von Teilnehmern
-  public static final String MITGLIEDER_SYNONYM = "mitglieder.efs";    // <efauser>/data/mitglieder.efs    Synonymdatei
-  public static final String BOOTE_SYNONYM = "boote.efs";              // <efauser>/data/boote.efs         Synonymdatei
-  public static final String ZIELE_SYNONYM = "ziele.efs";              // <efauser>/data/ziele.efs         Synonymdatei
-  public static final String MANNSCHAFTENFILE = "mannschaften.efm";    // <efauser>/data/mannschaften.efm  Standardmannschaften
-  public static final String FAHRTENABZEICHEN ="fahrtenabzeichen.eff"; // <efauser>/data/fahrtenabzeichen.eff DRV Fahrtenabzeichen
-  public static final String GRUPPEN ="gruppen.efg";                   // <efauser>/data/gruppen.efg       Gruppendatei
-  public static final String PUBKEYSTORE = "keystore_pub.dat";         // <efauser>/data/keystore_pub.dat
-  public final static String DIREKTBOOTSTATUS = "bootstatus.efdb";     // <efauser>/data/bootstatus.efdb   Status der Boote
-  public final static String DIREKTNACHRICHTEN= "nachrichten.efdn";    // <efauser>/data/nachrichten.efdn  Nachrichten an Admin
-  public final static String CONFIGFILE = "efa.cfg";                   // <efauser>/cfg/efa.cfg            Konfigurationsdatei
-  public final static String DRVCONFIGFILE = "drv.cfg";                // <efauser>/cfg/drv.cfg            DRV-Konfigurationsdatei
-  public static final String EFATYPESFILE = "types.cfg";               // <efauser>/cfg/types.cfg          Konfiguration für EfaTypes (Bezeichnungen)
-  public static final String WETTFILE = "wett.cfg";                    // <efauser>/cfg/wett.cfg           Konfiguration für Wettbewerbe
-  public static final String WETTDEFS = "wettdefs.cfg";                // <efauser>/cfg/wettdefs.cfg       Wettbewerbs-Definitionen
-  public static final String EFA_LICENSE = "license.html";             // <efa>/doc/license.html
-  public static final String EFA_JAR = "efa.jar";                      // <efa>/program/efa.jar            
-  public static final String EFA_SECFILE = "efa.sec";                  // <efa>/program/efa.sec            Hash von efa.jar: für Erstellen des Admins
-  public static final String EFA_HELPSET = "help/efaHelp";
+    public static String javaVersion = "";
+    public static String jvmVersion = "";
+    public static String osName = "";
+    public static String osVersion = "";
+    public static String lookAndFeel = "";
 
-  // efa exit codes
-  public static final int HALT_BASICCONFIG  =   1;
-  public static final int HALT_DIRECTORIES  =   2;
-  public static final int HALT_EFACONFIG    =   3;
-  public static final int HALT_EFATYPES     =   4;
-  public static final int HALT_EFASEC       =   5;
-  public static final int HALT_EFARUNNING   =   6;
-  public static final int HALT_FILEOPEN     =   7;
-  public static final int HALT_EFASECADMIN  =   8;
-  public static final int HALT_FILEERROR    =   9;
-  public static final int HALT_ERROR        =  10;
-  public static final int HALT_INSTALLATION =  11;
-  public static final int HALT_ADMIN        =  12;
-  public static final int HALT_MISCONFIG    =  12;
-  public static final int HALT_FIRSTSETUP   =  13;
-  public static final int HALT_PANIC        =  14;
-  public static final int HALT_ADMINLOGIN   =  15;
-  public static final int HALT_SHELLRESTART =  99;
-  public static final int HALT_JAVARESTART  = 199;
+    public final static String PLUGIN_WWW_URL = "http://efa.nmichael.de/plugins/plugins.url"; // in dieser Datei muß eine gültige Plugin-Download-URL stehen!
+    public static String pluginWWWdirectory = "http://efa.nmichael.de/plugins/"; // wird automatisch auf das in der o.g. Datei stehende gesetzt
+    public final static String PLUGIN_JAXP_NAME = "JAXP-Plugin";
+    public final static String PLUGIN_JAXP_FILE = "jaxp.plugin";
+    public final static String PLUGIN_JAXP_HTML = "jaxp.html";
+    public final static String PLUGIN_FOP_NAME = "FOP-Plugin";
+    public final static String PLUGIN_FOP_FILE = "fop.plugin";
+    public final static String PLUGIN_FOP_HTML = "fop.html";
+    public final static String PLUGIN_FTP_NAME = "FTP-Plugin";
+    public final static String PLUGIN_FTP_FILE = "ftp.plugin";
+    public final static String PLUGIN_FTP_HTML = "ftp.html";
+    public final static String PLUGIN_EMAIL_NAME = "EMAIL-Plugin";
+    public final static String PLUGIN_EMAIL_FILE = "email.plugin";
+    public final static String PLUGIN_EMAIL_HTML = "email.html";
+    public final static String PLUGIN_JSUNTIMES_NAME = "JSUNTIMES-Plugin";
+    public final static String PLUGIN_JSUNTIMES_FILE = "jsuntimes.plugin";
+    public final static String PLUGIN_JSUNTIMES_HTML = "jsuntimes.html";
 
-  public static Program program = null;            // this Program
-  public static String userHomeDir = null;         // User Home Directory (NOT the efa userdata directoy!! see EfaBaseConfig!)
-  public static String userName = null;            // User Name
-  public static String efaLogfile = null;          // Logdatei für efa-Konsole
-  public static String efaMainDirectory = null;    // Efa-Hauptverzeichnis, immer mit "/" am Ende
-  public static String efaProgramDirectory = null; // Programmverzeichnis, immer mit "/" am Ende     ("./program/")
-  public static String efaPluginDirectory = null;  // Programmverzeichnis, immer mit "/" am Ende     ("./program/plugins")
-  public static String efaDataDirectory = null;    // Efa-Datenverzeichnis, immer mit "/" am Ende    ("./data/")
-  public static String efaLogDirectory = null;     // Efa-Log-Verzeichnis, immer mit "/" am Ende     ("./log/")
-  public static String efaCfgDirectory = null;     // Efa-Configverzeichnis, immer mit "/" am Ende   ("./cfg/")
-  public static String efaDocDirectory = null;     // Efa-Doku-Verzeichnis,  immer mit "/" am Ende   ("./doc/")
-  public static String efaAusgabeDirectory = null; // Efa-Ausgabe-Verzeichnis, immer mit "/" am Ende ("./fmt/")
-  public static String efaBakDirectory = null;     // Efa-Backupverzeichnis, immer mit "/" am Ende   ("./backup/")
-  public static String efaTmpDirectory = null;     // Efa-Tempverzeichnis,   immer mit "/" am Ende   ("./tmp/")
-  public static String efaStyleDirectory = null;   // Efa-Stylesheetverzeichnis,   mit "/" am Ende   ("./fmt/layout/")
-  public static String fileSep = "/"; // Verzeichnis-Separator (wird in ini() ermittelt)
-  public static String javaVersion = "";
-  public static String jvmVersion = "";
-  public static String osName = "";
-  public static String osVersion = "";
-  public static String lookAndFeel = "";
+    public final static String ONLINEUPDATE_INFO = "http://efa.nmichael.de/eou.xml";
+    public final static String ONLINEUPDATE_INFO_DRV = "http://efa.nmichael.de/efadrv.eou";
+    public final static String EFW_UPDATE_DATA = "http://efa.nmichael.de/efw.data";
+    public final static String INTERNET_EFAMAIL = "http://cgi.snafu.de/nmichael/user-cgi-bin/efamail.pl";
+    public final static String IMAGEPATH = "/de/nmichael/efa/img/";
 
-  public static final int ZIELFAHRTKM = 200; // nötige Kilometer für eine Zielfahrt (in 100m)
-  public static final int WAFAKM = 300;      // nötige Kilometer für eine Eintages-DRV-Wanderfahrt (in 100m)
-  public static final int FART_TRAINING = 1;
-  public static final int FART_REGATTA = 2;
+    public final static int AUTO_EXIT_MIN_RUNTIME = 60; // Minuten, die efa mindestens gelaufen sein muß, damit es zu einem automatischen Beenden/Restart kommt (60)
+    public final static int AUTO_EXIT_MIN_LAST_USED = 5; // Minuten, die efa mindestens nicht benutzt wurde, damit Beenden/Neustart nicht verzögert wird (muß kleiner als AUTO_EXIT_MIN_RUNTIME sein!!!) (5)
+    public final static int WINDOWCLOSINGTIMEOUT = 600; // Timeout in Sekunden, nach denen im Direkt-Modus manche Fenster automatisch geschlossen werden
+    public final static int MIN_FREEMEM_PERCENTAGE = 90;
+    public final static int WARN_FREEMEM_PERCENTAGE = 70;
+    public final static int MIN_FREEMEM_COLLECTION_THRESHOLD = 99;
+    public static boolean DONT_SAVE_ANY_FILES_DUE_TO_OOME = false;
+    public static boolean javaRestart = false;
 
-  public final static String PLUGIN_WWW_URL = "http://efa.nmichael.de/plugins/plugins.url"; // in dieser Datei muß eine gültige Plugin-Download-URL stehen!
-  public static String pluginWWWdirectory = "http://efa.nmichael.de/plugins/"; // wird automatisch auf das in der o.g. Datei stehende gesetzt
-  public final static String PLUGIN_JAXP_NAME = "JAXP-Plugin";
-  public final static String PLUGIN_JAXP_FILE = "jaxp.plugin";
-  public final static String PLUGIN_JAXP_HTML = "jaxp.html";
-  public final static String PLUGIN_FOP_NAME = "FOP-Plugin";
-  public final static String PLUGIN_FOP_FILE = "fop.plugin";
-  public final static String PLUGIN_FOP_HTML = "fop.html";
-  public final static String PLUGIN_FTP_NAME = "FTP-Plugin";
-  public final static String PLUGIN_FTP_FILE = "ftp.plugin";
-  public final static String PLUGIN_FTP_HTML = "ftp.html";
-  public final static String PLUGIN_EMAIL_NAME = "EMAIL-Plugin";
-  public final static String PLUGIN_EMAIL_FILE = "email.plugin";
-  public final static String PLUGIN_EMAIL_HTML = "email.html";
-  public final static String PLUGIN_JSUNTIMES_NAME = "JSUNTIMES-Plugin";
-  public final static String PLUGIN_JSUNTIMES_FILE = "jsuntimes.plugin";
-  public final static String PLUGIN_JSUNTIMES_HTML = "jsuntimes.html";
+    public static EfaBaseConfig efaBaseConfig; // efa Base Config
+    public static EfaConfig efaConfig;         // Konfigurationsdatei
+    public static DRVConfig drvConfig;         // Konfigurationsdatei
+    public static EfaTypes efaTypes;           // EfaTypes (Bezeichnungen)
+    public static Admins admins;               // Admins
+    public static Project project;             // Efa Project
+    public static WettDefs wettDefs;           // WettDefs
+    public static EfaKeyStore keyStore;        // KeyStore
+    public static final String PUBKEYSTORE = "keystore_pub.dat";         // <efauser>/data/keystore_pub.dat
+    public static final String EFAMASTERKEY = "k)fx,R4{Qb:lhTg";
+    
+    public static EfaSec efaSec;               // efa Security File
+    public static EfaRunning efaRunning;       // efa Running (Doppelstarts verhindern)
 
-  public final static String ONLINEUPDATE_INFO = "http://efa.nmichael.de/efa2.eou";
-  public final static String ONLINEUPDATE_INFO_DRV = "http://efa.nmichael.de/efadrv.eou";
-  public final static String EFW_UPDATE_DATA = "http://efa.nmichael.de/efw.data";
-  public final static String INTERNET_EFAMAIL = "http://cgi.snafu.de/nmichael/user-cgi-bin/efamail.pl";
-  public final static String IMAGEPATH = "/de/nmichael/efa/img/";
+    private static StartLogo splashScreen;     // Efa Splash Screen
+    public static boolean firstEfaStart = false; // true wenn efa das erste Mal gestartet wurde und EfaBaseConfig neu erzeugt wurde
 
-  public final static int AUTO_EXIT_MIN_RUNTIME = 60; // Minuten, die efa mindestens gelaufen sein muß, damit es zu einem automatischen Beenden/Restart kommt (60)
-  public final static int AUTO_EXIT_MIN_LAST_USED = 5; // Minuten, die efa mindestens nicht benutzt wurde, damit Beenden/Neustart nicht verzögert wird (muß kleiner als AUTO_EXIT_MIN_RUNTIME sein!!!) (5)
-  public final static int WINDOWCLOSINGTIMEOUT = 600; // Timeout in Sekunden, nach denen im Direkt-Modus manche Fenster automatisch geschlossen werden
+    public static Color colorGreen = new Color(0, 150, 0);
+    public static Color colorOrange = new Color(255, 100, 0);
+    public static String defaultWriteProtectPw = null;
+    public static long efaStartTime;
+    public static boolean exceptionTest = false; // Exceptions beim Drücken von F1 produzieren (für Exception-Test)
+    public static boolean watchWindowStack = false; // Window-Stack überwachen
 
-  public final static int MIN_FREEMEM_PERCENTAGE = 90;
-  public final static int WARN_FREEMEM_PERCENTAGE = 70;
-  public final static int MIN_FREEMEM_COLLECTION_THRESHOLD = 99;
-  public static boolean DONT_SAVE_ANY_FILES_DUE_TO_OOME = false;
-  public static boolean javaRestart = false;
+    // Encoding zum Lesen und Schreiben von Dateien
+    public static final String ENCODING_ISO = "ISO-8859-1";
+    public static final String ENCODING_UTF = "UTF-8";
 
-  // @todo (P5) remove old data lists in efa2
-  public static de.nmichael.efa.efa1.VereinsConfig vereinsConfig; // Konfigurationsdatei für Vereinseinstellungen
-  public static de.nmichael.efa.efa1.Adressen adressen;           // gespeicherte Teilnehmer-Adressen
-  public static de.nmichael.efa.efa1.Synonyme synMitglieder;      // Synonymliste für Mitglieder
-  public static de.nmichael.efa.efa1.Synonyme synBoote;           // Synonymliste für Boote
-  public static de.nmichael.efa.efa1.Synonyme synZiele;           // Synonymliste für Ziele
-  public static de.nmichael.efa.efa1.Mannschaften mannschaften;   // Standardmannschaften
-  public static de.nmichael.efa.efa1.Fahrtenbuch fahrtenbuch;     // Fahrtenbuch
-  public static de.nmichael.efa.efa1.Fahrtenabzeichen fahrtenabzeichen; // DRV Fahrtenabzeichen
-  public static de.nmichael.efa.efa1.Gruppen gruppen;             // Gruppen
+    // Applikations-IDs
+    public static int applID = -1;
+    public static String applName = "Unknown"; // will be set in iniBase(...)
+    public static final int APPL_EFABASE = 1;
+    public static final int APPL_EFABH = 2;
+    public static final int APPL_CLI = 3;
+    public static final int APPL_DRV = 4;
+    public static final int APPL_EMIL = 5;
+    public static final int APPL_ELWIZ = 6;
+    public static final int APPL_EDDI = 7;
+    public static final String APPLNAME_EFA = "efaBase";
+    public static final String APPLNAME_EFADIREKT = "efaBths";
+    public static final String APPLNAME_CLI = "efaCLI";
+    public static final String APPLNAME_DRV = "efaDRV";
+    public static final String APPLNAME_EMIL = "emil";
+    public static final String APPLNAME_ELWIZ = "elwiz";
+    public static final String APPLNAME_EDDI = "eddi";
 
-  public static EfaBaseConfig efaBaseConfig; // efa Base Config
-  public static EfaConfig efaConfig;         // Konfigurationsdatei
-  public static DRVConfig drvConfig;         // Konfigurationsdatei
-  public static EfaTypes efaTypes;           // EfaTypes (Bezeichnungen)
-  public static Admins admins;               // Admins
-  public static Project project;             // Efa Project
+    // Applikations-Mode
+    public static final int APPL_MODE_NORMAL = 1;
+    public static final int APPL_MODE_ADMIN = 2;
+    public static int applMode = APPL_MODE_NORMAL;
 
-  public static WettDefs wettDefs;           // WettDefs
-  public static EfaKeyStore keyStore;        // KeyStore
-  public static EfaSec efaSec;               // efa Security File
-  public static EfaRunning efaRunning;       // efa Running (Doppelstarts verhindern)
-  private static StartLogo splashScreen;     // Efa Splash Screen
-  public static boolean firstEfaStart=false; // true wenn efa das erste Mal gestartet wurde und EfaBaseConfig neu erzeugt wurde
+    // Applikations- PID
+    public static String applPID = "XXXXX"; // will be set in iniBase(...)
 
-  public static String dateiHTML = "";
-  public static String dateiTXT = "";
-
-  public static Color colorGreen = new Color(0,150,0);
-  public static Color colorOrange = new Color(255,100,0);
-
-
-  public static String defaultWriteProtectPw = null;
-
-  // move as static variables to SuchFrame!
-  public static final int SUCH_NORMAL = 1;
-  public static final int SUCH_ERROR = 2;
-  public static int suchMode = SUCH_NORMAL;
-  public static String such = "";
-  public static boolean such_lfdnr=true, such_datum=true, such_stm=true, such_mannsch=true,
-                        such_boot=true, such_ziel=true, such_abfahrt=true, such_ankunft=true,
-                        such_bootskm=true, such_mannschkm=true, such_bemerk=true, such_fahrtart=true;
-  public static boolean such_errUnvollst=true, such_errKm=true, such_errUnbekRuderer=true,
-                        such_errUnbekRudererOhneGast=false,
-                        such_errUnbekBoot=true, such_errUnbekZiel=true, such_errWafa=true, such_errZielfahrten=true,
-                        such_errVieleKm=false,
-                        such_errNichtZurueckgetragen=true,such_errNichtKonfMTours=true;
-  public static int     such_errVieleKmKm = 0;
-
-  public static Backup backup=null;
-  public static long efaStartTime;
-
-  public static boolean exceptionTest = false; // Exceptions beim Drücken von F1 produzieren (für Exception-Test)
-  public static boolean watchWindowStack  = false; // Window-Stack überwachen
-
-  // Verhalten, wenn Checksumme nicht stimmt
-  public static final int CHECKSUM_LOAD_NO_ACTION = 0;
-  public static final int CHECKSUM_LOAD_PRINT_WARNING = 1;
-  public static final int CHECKSUM_LOAD_SHOW_WARNING = 2;
-  public static final int CHECKSUM_LOAD_REQUIRE_ADMIN = 3;
-  public static final int CHECKSUM_LOAD_PRINT_WARNING_AND_AUTO_REWRITE = 4;
-  public static final int CHECKSUM_LOAD_HALT_PROGRAM = 5;
-  public static int actionOnChecksumLoadError = CHECKSUM_LOAD_PRINT_WARNING_AND_AUTO_REWRITE;
-  public static final int CHECKSUM_SAVE_PRINT_ERROR = 0;
-  public static final int CHECKSUM_SAVE_HALT_PROGRAM = 1;
-  public static final int CHECKSUM_SAVE_NO_ACTION = 2;
-  public static int actionOnChecksumSaveError = CHECKSUM_SAVE_PRINT_ERROR;
-
-  // Verhalten, wenn beim Öffnen einer Datenliste diese nicht existiert
-  public static final int DATENLISTE_FRAGE_NUTZER = 0;
-  public static final int DATENLISTE_FRAGE_REQUIRE_ADMIN_EXIT_ON_NEIN = 1;
-  public static final int DATENLISTE_FRAGE_REQUIRE_ADMIN_RETURN_FALSE_ON_NEIN = 2;
-  public static int actionOnDatenlisteNotFound = DATENLISTE_FRAGE_NUTZER;
-
-  // Verhalten, wenn beim Öffnen einer Datenliste diese sich als Backup herausstellt
-  public static final int BACKUP_LOAD_WITHOUT_QUESTION = 0;
-  public static final int BACKUP_FRAGE_REQUIRE_ADMIN_EXIT_ON_NEIN = 1;
-  public static int actionOnDatenlisteIsBackup = BACKUP_LOAD_WITHOUT_QUESTION;
-
-  // Encoding zum Lesen und Schreiben von Dateien
-  public static final String ENCODING_ISO = "ISO-8859-1";
-  public static final String ENCODING_UTF = "UTF-8";
-
-  // Applikations-IDs
-  public static int applID = -1;
-  public static String applName = "Unknown"; // will be set in iniBase(...)
-  public static final int APPL_EFABASE = 1;
-  public static final int APPL_EFABH = 2;
-  public static final int APPL_CLI = 3;
-  public static final int APPL_DRV = 4;
-  public static final int APPL_EMIL = 5;
-  public static final int APPL_ELWIZ = 6;
-  public static final int APPL_EDDI = 7;
-  public static final String APPLNAME_EFA = "efaBase";
-  public static final String APPLNAME_EFADIREKT = "efaBths";
-  public static final String APPLNAME_CLI = "efaCLI";
-  public static final String APPLNAME_DRV = "efaDRV";
-  public static final String APPLNAME_EMIL = "emil";
-  public static final String APPLNAME_ELWIZ = "elwiz";
-  public static final String APPLNAME_EDDI = "eddi";
-
-  // Applikations-Mode
-  public static final int APPL_MODE_NORMAL = 1;
-  public static final int APPL_MODE_ADMIN = 2;
-  public static int applMode = APPL_MODE_NORMAL;
-
-  // Applikations- PID
-  public static String applPID  = "XXXXX"; // will be set in iniBase(...)
-
-    public static AdminRecord initialize(int applID) {
+    public static AdminRecord initialize() {
         AdminRecord newlyCreatedAdminRecord = null;
-        iniBase(applID);
         iniScreenSize();
         iniMainDirectory();
         iniEfaBaseConfig();
@@ -293,7 +214,7 @@ public class Daten {
         iniEfaSec();
         boolean createNewAdmin = iniAdmins();
         Object[] efaFirstSetup = iniEfaFirstSetup(createNewAdmin);
-        CustSettings cust = (efaFirstSetup != null ? (CustSettings)efaFirstSetup[0] : null);
+        CustSettings cust = (efaFirstSetup != null ? (CustSettings) efaFirstSetup[0] : null);
         iniFileSettings(1);
         iniEfaConfig(cust);
         iniFileSettings(2);
@@ -306,7 +227,7 @@ public class Daten {
         iniGUI();
         iniChecks();
         if (createNewAdmin && efaFirstSetup != null) {
-            return (AdminRecord)efaFirstSetup[1];
+            return (AdminRecord) efaFirstSetup[1];
         }
         return null;
     }
@@ -315,14 +236,14 @@ public class Daten {
         try {
             StackTraceElement[] stack = Thread.currentThread().getStackTrace();
             String trace = "";
-            for (int i=stack.length-1; i>=0; i--) {
+            for (int i = stack.length - 1; i >= 0; i--) {
                 trace = trace + " -> " + stack[i].toString();
                 if (stack[i].toString().startsWith(International.class.getCanonicalName())) {
                     break;
                 }
             }
             return trace;
-        } catch(Exception e) {
+        } catch (Exception e) {
             return "";
         }
     }
@@ -383,7 +304,7 @@ public class Daten {
         }
     }
 
-    private static void iniBase(int _applID) {
+    public static void iniBase(int _applID) {
         project = null;
         fileSep = System.getProperty("file.separator");
         javaVersion = System.getProperty("java.version");
@@ -393,7 +314,7 @@ public class Daten {
         userHomeDir = System.getProperty("user.home");
         userName = System.getProperty("user.name");
         applID = _applID;
-        switch(applID) {
+        switch (applID) {
             case APPL_EFABASE:
                 applName = APPLNAME_EFA;
                 break;
@@ -445,8 +366,8 @@ public class Daten {
         Daten.efaBaseConfig = new EfaBaseConfig(efaBaseConfigFile);
         if (!EfaUtil.canOpenFile(Daten.efaBaseConfig.getFileName())) {
             if (!Daten.efaBaseConfig.writeFile()) {
-                String msg = International.getString("efa can't start") + ": " +
-                        International.getMessage("Basic Configuration File '{filename}' could not be created.", Daten.efaBaseConfig.getFileName());
+                String msg = International.getString("efa can't start") + ": "
+                        + International.getMessage("Basic Configuration File '{filename}' could not be created.", Daten.efaBaseConfig.getFileName());
                 Logger.log(Logger.ERROR, Logger.MSG_CORE_BASICCONFIGFAILEDCREATE, msg);
                 if (isGuiAppl()) {
                     Dialog.error(msg);
@@ -456,8 +377,8 @@ public class Daten {
             firstEfaStart = true;
         }
         if (!Daten.efaBaseConfig.readFile()) {
-            String msg = International.getString("efa can't start") + ": " +
-                    International.getMessage("Basic Configuration File '{filename}' could not be opened.", Daten.efaBaseConfig.getFileName());
+            String msg = International.getString("efa can't start") + ": "
+                    + International.getMessage("Basic Configuration File '{filename}' could not be opened.", Daten.efaBaseConfig.getFileName());
             Logger.log(Logger.ERROR, Logger.MSG_CORE_BASICCONFIGFAILEDOPEN, msg);
             if (isGuiAppl()) {
                 Dialog.error(msg);
@@ -539,7 +460,7 @@ public class Daten {
                 Daten.efa_java_arguments = System.getenv(Daten.EFA_JAVA_ARGUMENTS);
                 if (Logger.isTraceOn(Logger.TT_CORE)) {
                     Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GENERIC,
-                               Daten.EFA_JAVA_ARGUMENTS + "=" + Daten.efa_java_arguments);
+                            Daten.EFA_JAVA_ARGUMENTS + "=" + Daten.efa_java_arguments);
                 }
             }
         } catch (Error e) {
@@ -563,13 +484,13 @@ public class Daten {
         }
 
         // ./daten
-        Daten.efaDataDirectory = Daten.efaBaseConfig.efaUserDirectory + "data" + Daten.fileSep;
+        Daten.efaDataDirectory = Daten.efaBaseConfig.efaUserDirectory + efaSubdirDATA + Daten.fileSep;
         if (!checkAndCreateDirectory(Daten.efaDataDirectory)) {
             haltProgram(HALT_DIRECTORIES);
         }
 
         // ./cfg
-        Daten.efaCfgDirectory = Daten.efaBaseConfig.efaUserDirectory + "cfg" + Daten.fileSep;
+        Daten.efaCfgDirectory = Daten.efaBaseConfig.efaUserDirectory + efaSubdirCFG + Daten.fileSep;
         if (!checkAndCreateDirectory(Daten.efaCfgDirectory)) {
             haltProgram(HALT_DIRECTORIES);
         }
@@ -630,9 +551,9 @@ public class Daten {
         }
         efaSec = new EfaSec(Daten.efaBaseConfig.efaUserDirectory + Daten.EFA_SECFILE);
         if (efaSec.secFileExists() && !efaSec.secValueValid()) {
-            String msg = International.getString("Die Sicherheitsdatei ist korrupt!") + "\n" +
-                    International.getString("Aus Gründen der Sicherheit verweigert efa den Dienst. " +
-                    "Um efa zu reaktivieren, wende Dich bitte an den Entwickler: ") + Daten.EMAILHELP;
+            String msg = International.getString("Die Sicherheitsdatei ist korrupt!") + "\n"
+                    + International.getString("Aus Gründen der Sicherheit verweigert efa den Dienst. "
+                    + "Um efa zu reaktivieren, wende Dich bitte an den Entwickler: ") + Daten.EMAILHELP;
             Logger.log(Logger.ERROR, Logger.MSG_CORE_EFASECCORRUPTED, msg);
             if (isGuiAppl()) {
                 Dialog.error(msg);
@@ -711,7 +632,7 @@ public class Daten {
             }
             haltProgram(HALT_EFASEC);
             return false; // we never reach here, but just to be sure... ;-)
-        } else  {
+        } else {
             // ok, we do have a super admin already
             return false;
         }
@@ -741,25 +662,12 @@ public class Daten {
                 switch (stage) {
                     case 1: // before EfaConfig is opened
                         if (!efaSec.secFileExists()) { // efa Secure Mode
-                            // Stop on Checksum Errors
-                            // Eigentlich darf efa bei fehlerhafter Konfigurationsdatei überhaupt nicht mehr Starten, denn ein
-                            // Angreifer könnte ja das Paßwort der admins ausgetauscht haben. Wenn efa dann beim Start die
-                            // modifizierte Konfigurationsdatei einliest, wird das Abnicken der geänderten Datei durch das
-                            // geänderte Paßwort möglich!
-                            // Gleiches gilt für efa im Bootshaus.
-                            // Um sicher zu sein, muß efa jegliche Änderungen an der Konfigurationsdatei künftig verbieten.
-                            //      Daten.actionOnChecksumError = Daten.CHECKSUM_HALT_PROGRAM;
-                            Daten.actionOnChecksumLoadError = Daten.CHECKSUM_LOAD_REQUIRE_ADMIN;
-                            // Admin erforderlich, um nicht vorhandene Datenliste neu zu erstellen
-                            Daten.actionOnDatenlisteNotFound = Daten.DATENLISTE_FRAGE_REQUIRE_ADMIN_EXIT_ON_NEIN;
-                            // Admin erforderlich, wenn Backupdatei geladen werden soll
-                            Daten.actionOnDatenlisteIsBackup = Daten.BACKUP_FRAGE_REQUIRE_ADMIN_EXIT_ON_NEIN;
+                            // @todo (P6) detect changes on files and refuse to start if manipulated
                         }
                         break;
                     case 2: // after EfaConfig is opened
                         if (!efaSec.secFileExists()) { // efa Secure Mode: Jetzt, da Config gelesen wurde: Nur noch require Admin
-                            // Admit on Checksum Errors
-                            Daten.actionOnChecksumLoadError = Daten.CHECKSUM_LOAD_REQUIRE_ADMIN;
+                            // @todo (P6) detect changes on files and require admin acknowledge if manipulated
                         }
                         break;
                 }
@@ -768,12 +676,7 @@ public class Daten {
                 switch (stage) {
                     case 1: // before EfaConfig is opened
                         // Stop on Checksum Errors
-                        Daten.actionOnChecksumLoadError = Daten.CHECKSUM_LOAD_REQUIRE_ADMIN;
-                        Daten.actionOnChecksumSaveError = Daten.CHECKSUM_SAVE_HALT_PROGRAM;
-                        // Admin erforderlich, um nicht vorhandene Datenliste neu zu erstellen
-                        Daten.actionOnDatenlisteNotFound = Daten.DATENLISTE_FRAGE_REQUIRE_ADMIN_EXIT_ON_NEIN;
-                        // Admin erforderlich, wenn Backupdatei geladen werden soll
-                        Daten.actionOnDatenlisteIsBackup = Daten.BACKUP_FRAGE_REQUIRE_ADMIN_EXIT_ON_NEIN;
+                        // @todo (P6) detect changes on files and refuse to start if manipulated
                         break;
                     case 2: // after EfaConfig is opened
                         // nothing to do
@@ -788,40 +691,40 @@ public class Daten {
             /* @efaconfig
             Daten.efaConfig = new EfaConfig(Daten.efaCfgDirectory + Daten.CONFIGFILE, custSettings);
             if (!EfaUtil.canOpenFile(Daten.efaConfig.getFileName())) {
-                if (!Daten.efaConfig.writeFile()) {
-                    String msg = LogString.logstring_fileCreationFailed(Daten.efaConfig.getFileName(),
-                            International.getString("Konfigurationsdatei"));
-                    Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDCREATE, msg);
-                    if (isGuiAppl()) {
-                        Dialog.error(msg);
-                    }
-                    haltProgram(HALT_EFACONFIG);
-                }
-                String msg = LogString.logstring_fileNewCreated(Daten.efaConfig.getFileName(),
-                        International.getString("Konfigurationsdatei"));
-                Logger.log(Logger.WARNING, Logger.MSG_CORE_EFACONFIGCREATEDNEW, msg);
+            if (!Daten.efaConfig.writeFile()) {
+            String msg = LogString.logstring_fileCreationFailed(Daten.efaConfig.getFileName(),
+            International.getString("Konfigurationsdatei"));
+            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDCREATE, msg);
+            if (isGuiAppl()) {
+            Dialog.error(msg);
+            }
+            haltProgram(HALT_EFACONFIG);
+            }
+            String msg = LogString.logstring_fileNewCreated(Daten.efaConfig.getFileName(),
+            International.getString("Konfigurationsdatei"));
+            Logger.log(Logger.WARNING, Logger.MSG_CORE_EFACONFIGCREATEDNEW, msg);
             }
             if (!Daten.efaConfig.readFile()) {
-                String msg = LogString.logstring_fileOpenFailed(Daten.efaConfig.getFileName(),
-                        International.getString("Konfigurationsdatei"));
-                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDOPEN, msg);
-                if (isGuiAppl()) {
-                    Dialog.error(msg);
-                }
-                haltProgram(HALT_EFACONFIG);
+            String msg = LogString.logstring_fileOpenFailed(Daten.efaConfig.getFileName(),
+            International.getString("Konfigurationsdatei"));
+            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDOPEN, msg);
+            if (isGuiAppl()) {
+            Dialog.error(msg);
             }
-            */
+            haltProgram(HALT_EFACONFIG);
+            }
+             */
 
             efaConfig = new EfaConfig(custSettings);
             try {
                 efaConfig.open(false);
-            } catch(Exception eopen) {
+            } catch (Exception eopen) {
                 try {
                     efaConfig.open(true);
                     String msg = LogString.logstring_fileNewCreated(((DataFile) efaConfig.data()).getFilename(),
                             International.getString("Konfigurationsdatei"));
                     Logger.log(Logger.WARNING, Logger.MSG_CORE_EFACONFIGCREATEDNEW, msg);
-                } catch(Exception ecreate) {
+                } catch (Exception ecreate) {
                     String msg = LogString.logstring_fileCreationFailed(((DataFile) efaConfig.data()).getFilename(),
                             International.getString("Konfigurationsdatei"));
                     Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDCREATE, msg);
@@ -900,9 +803,9 @@ public class Daten {
     }
 
     public static void iniCopiedFiles() {
-      String distribCfgDirectory = Daten.efaMainDirectory + "cfg" + Daten.fileSep;
-      tryCopy(distribCfgDirectory+Daten.WETTFILE, Daten.efaCfgDirectory+Daten.WETTFILE);
-      tryCopy(distribCfgDirectory+Daten.WETTDEFS, Daten.efaCfgDirectory+Daten.WETTDEFS);
+        String distribCfgDirectory = Daten.efaMainDirectory + "cfg" + Daten.fileSep;
+        tryCopy(distribCfgDirectory + Daten.WETTFILE, Daten.efaCfgDirectory + Daten.WETTFILE);
+        tryCopy(distribCfgDirectory + Daten.WETTDEFS, Daten.efaCfgDirectory + Daten.WETTDEFS);
     }
 
     public static void iniAllDataFiles() {
@@ -972,7 +875,7 @@ public class Daten {
                         "SPACE", "pressed",
                         "released SPACE", "released"
                     }));
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTSETLOOKANDFEEL,
                     "Failed to apply LookAndFeel Workarounds: " + e.toString());
         }
@@ -1016,12 +919,12 @@ public class Daten {
     }
 
     public static boolean isGuiAppl() {
-        return (applID == APPL_EFABASE ||
-                applID == APPL_EFABH ||
-                applID == APPL_EMIL ||
-                applID == APPL_ELWIZ ||
-                applID == APPL_EDDI ||
-                applID == APPL_DRV);
+        return (applID == APPL_EFABASE
+                || applID == APPL_EFABH
+                || applID == APPL_EMIL
+                || applID == APPL_ELWIZ
+                || applID == APPL_EDDI
+                || applID == APPL_DRV);
     }
 
     private static boolean checkAndCreateDirectory(String dir) {
@@ -1089,8 +992,12 @@ public class Daten {
                 }
             }
             try {
-                XMLWriter tmp = new XMLWriter(null, null);
-                infos.add("efa.plugin.xml=INSTALLED");
+                if (EfaUtil.getXMLReader() != null) {
+                    infos.add("efa.plugin.xml=INSTALLED");
+                    infos.add("efa.plugin.xml.name=" + EfaUtil.getXMLReader().getClass().getCanonicalName());
+                } else {
+                    infos.add("efa.plugin.xml=NOT INSTALLED");
+                }
             } catch (NoClassDefFoundError e) {
                 infos.add("efa.plugin.xml=NOT INSTALLED");
             }
@@ -1101,7 +1008,7 @@ public class Daten {
                 infos.add("efa.plugin.fop=NOT INSTALLED");
             }
             try {
-                FTPWriter tmp = new FTPWriter(null);
+                FTPClient tmp = new FTPClient(null, null, null, null, null, null);
                 infos.add("efa.plugin.ftp=INSTALLED");
             } catch (NoClassDefFoundError e) {
                 infos.add("efa.plugin.ftp=NOT INSTALLED");
@@ -1189,25 +1096,13 @@ public class Daten {
         int birthday = EfaUtil.getEfaBirthday();
         switch (size) {
             case 1:
-                //if (birthday == 5) {
-                //    return "/de/nmichael/efa/img/efa_small_5jahre.gif";
-                //} else {
-                    return IMAGEPATH + "efa_small.png";
-                //}
+                return IMAGEPATH + "efa_small.png";
             case 2:
-                //if (birthday == 5) {
-                //    return "/de/nmichael/efa/img/efa_logo_5jahre.gif";
-                //} else {
-                    return IMAGEPATH + "efa_logo.png";
-                //}
+                return IMAGEPATH + "efa_logo.png";
             case 3:
-                //if (birthday == 5) {
-                //    return "/de/nmichael/efa/img/efa_logo_5jahre.gif";
-                //} else {
-                    return IMAGEPATH + "efa_large.png";
-                //}
+                return IMAGEPATH + "efa_large.png";
             default:
-                    return IMAGEPATH + "efa_logo.png";
+                return IMAGEPATH + "efa_logo.png";
         }
     }
 
@@ -1279,26 +1174,25 @@ public class Daten {
         boolean promptForRegistration = false;
         if (Daten.efaConfig.getValueRegisteredProgramID().length() == 0) {
             // never before registered
-            if (Daten.efaConfig.getValueRegistrationChecks() <= 30 &&
-                Daten.efaConfig.getValueRegistrationChecks() % 10 == 0) {
+            if (Daten.efaConfig.getValueRegistrationChecks() <= 30
+                    && Daten.efaConfig.getValueRegistrationChecks() % 10 == 0) {
                 promptForRegistration = true;
             }
         } else {
             // previous version already registered
-            if (Daten.efaConfig.getValueRegistrationChecks() <= 10 &&
-                Daten.efaConfig.getValueRegistrationChecks() % 10 == 0) {
+            if (Daten.efaConfig.getValueRegistrationChecks() <= 10
+                    && Daten.efaConfig.getValueRegistrationChecks() % 10 == 0) {
                 promptForRegistration = true;
             }
         }
 
         if (promptForRegistration) {
-            if (Dialog.neuBrowserDlg((javax.swing.JDialog) null, Daten.EFA_SHORTNAME,
-                    "file:" + HtmlFactory.createRegister(), 
-                    750, 600, (int) Dialog.screenSize.getWidth() / 2 - 375, (int) Dialog.screenSize.getHeight() / 2 - 300).endsWith(".pl")) {
+            if (BrowserDialog.openInternalBrowser(null, Daten.EFA_SHORTNAME,
+                    "file:" + HtmlFactory.createRegister(),
+                    750, 600).endsWith(".pl")) {
                 // registration complete
                 Daten.efaConfig.setValueRegisteredProgramID(Daten.PROGRAMMID);
                 Daten.efaConfig.setValueRegistrationChecks(0);
-                //@efaconfig remove Daten.efaConfig.writeEinstellungen();
             }
 
         }
@@ -1320,7 +1214,7 @@ public class Daten {
                 return Integer.parseInt(Daten.javaVersion.substring(2, 3));
             }
             return 99;
-        } catch(Exception e) {
+        } catch (Exception e) {
             return 0;
         }
     }
@@ -1330,9 +1224,9 @@ public class Daten {
             return;
         }
         Dialog.infoDialog(International.getString("Download-Anleitung"),
-                International.getString("Bitte folge in der folgenden Anleitung den Hinweisen unter Punkt 5, " +
-                "um eine neue Java-Version zu installieren."));
-        Dialog.neuBrowserDlg((javax.swing.JFrame) null, International.getString("Java-Installation"), 
+                International.getString("Bitte folge in der folgenden Anleitung den Hinweisen unter Punkt 5, "
+                + "um eine neue Java-Version zu installieren."));
+        BrowserDialog.openInternalBrowser(null, International.getString("Java-Installation"),
                 "file:" + Daten.efaDocDirectory + "installation.html");
     }
 }

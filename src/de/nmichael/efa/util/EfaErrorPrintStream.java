@@ -110,18 +110,18 @@ public class EfaErrorPrintStream extends PrintStream {
     super.print(s);
   }
 
+    class ErrorThread extends Thread {
 
+        String message;
+        String stacktrace;
 
-  class ErrorThread extends Thread {
-    String message;
-    String stacktrace;
-      ErrorThread(String message, String stacktrace) {
-        this.message = message;
-        this.stacktrace = stacktrace;
-      }
-    public void run() {
-      Dialog.exceptionError(message,stacktrace);
+        ErrorThread(String message, String stacktrace) {
+            this.message = message;
+            this.stacktrace = stacktrace;
+        }
+
+        public void run() {
+            Dialog.exceptionError(message, stacktrace);
+        }
     }
-  }
-
 }

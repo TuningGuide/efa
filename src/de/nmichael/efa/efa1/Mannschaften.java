@@ -78,7 +78,7 @@ public class Mannschaften extends DatenListe {
 
         // KONVERTIEREN 173 -> 190
         if ( s != null && s.trim().startsWith(KENNUNG173)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"173");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"173");
           iniList(this.dat,29,1,true); // Rahmenbedingungen von v1.9.0 schaffen
           try {
             while ((s = freadLine()) != null) {

@@ -18,7 +18,7 @@ import org.xml.sax.helpers.*;
 
 // @i18n complete
 
-public class KanuEfbXmlResponse extends DefaultHandler {
+public class KanuEfbXmlResponse extends XmlHandler {
 
     public static String LOGIN = "header"; // pseudo-field, only used for internal Hashtable
 
@@ -28,100 +28,41 @@ public class KanuEfbXmlResponse extends DefaultHandler {
     private Vector<Hashtable<String,String>> data = new Vector<Hashtable<String,String>>(); // Vector of (fieldName,fieldValue)
     Hashtable<String,String> fields;
 
-    private boolean inXml = false;
     private boolean inResponse = false;
     private boolean inRecord = false;
     private boolean documentComplete = false;
 
     private String responseName;
     private String recordName;
-    private String fieldName;
-    private String fieldValue;
 
     public KanuEfbXmlResponse(KanuEfbSyncTask efb) {
-        super();
+        super("xml");
         this.efb = efb;
     }
 
-    public void setDocumentLocator(Locator locator) {
-        this.locator = locator;
-    }
-
-    String getLocation() {
-        return locator.getSystemId() + ":" + EfaUtil.int2String(locator.getLineNumber(),4) + ":" + EfaUtil.int2String(locator.getColumnNumber(),4) + ":\t";
-    }
-
-    public void startDocument() {
-        if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"Positions: <SystemID>:<LineNumber>:<ColumnNumber>");
-        }
-        if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "startDocument()");
-        }
-        documentComplete = false;
-    }
-
-    public void endDocument() {
-        if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "endDocument()");
-        }
-        if (!documentComplete) {
-            Logger.log(Logger.ERROR,Logger.MSG_FILE_XMLFILEINCOMPLETE, International.getMessage("Unvollständige oder korrupte Daten gelesen: {data}", data.toString()));
-        }
-    }
-
     public void startElement(String uri, String localName, String qname, Attributes atts) {
-        if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "startElement(uri=" + uri + ", localName=" + localName + ", qname=" + qname + ")");
-        }
-        if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
-            for (int i = 0; i < atts.getLength(); i++) {
-                Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"\tattribute: uri=" + atts.getURI(i) + ", localName=" + atts.getLocalName(i) + ", qname=" + atts.getQName(i) + ", value=" + atts.getValue(i) + ", type=" + atts.getType(i));
-            }
-        }
+        super.startElement(uri, localName, qname, atts);
 
-        if (inResponse && inRecord) {
-            fieldName = localName;
-            fieldValue = "";
-        }
         if (inResponse && !inRecord) {
             inRecord = true;
             recordName = localName;
-            fieldName = null;
         }
-        if (inXml && localName.equals("response")) {
+        if (localName.equals("response")) {
             inResponse = true;
             responseName = atts.getValue("command");
             recordName = null;
         }
-        if (inXml && !inResponse) {
+        if (!inResponse) {
             inRecord = true;
             recordName = LOGIN;
-            fieldName = localName;
-            fieldValue = "";
-        }
-        if (!inXml && localName.equals("xml")) {
-            inXml = true;
-        }
-    }
-
-    public void characters(char[] ch, int start, int length) {
-        String s = new String(ch, start, length).trim();
-        if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "characters("+s+")");
-        }
-
-        if (inRecord && fieldName != null) {
-            fieldValue += s;
         }
     }
 
     public void endElement(String uri, String localName, String qname) {
-        if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "endElement(" + uri + "," + localName + "," + qname + ")");
-        }
-
-        if (inRecord && recordName != null && fieldName != null && localName.equals(fieldName)) {
+        super.endElement(uri, localName, qname);
+        
+        if (inRecord && recordName != null && 
+                !fieldName.equals(recordName) && localName.equals(fieldName)) {
             // add field content
             if (fields == null) {
                 fields = new Hashtable<String,String>();
@@ -142,10 +83,6 @@ public class KanuEfbXmlResponse extends DefaultHandler {
             inResponse = false;
         }
 
-        if (!inResponse && localName.equals("xml")) {
-            inXml = false;
-            documentComplete = true;
-        }
     }
 
     public Vector<Hashtable<String,String>> getData() {

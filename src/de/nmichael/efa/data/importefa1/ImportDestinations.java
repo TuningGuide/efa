@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data.importefa1;
 
+import de.nmichael.efa.data.efawett.ZielfahrtFolge;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;

@@ -302,98 +302,41 @@ public class DataImport extends ProgressTask {
         }
     }
 
-    public class DataImportXmlParser extends DefaultHandler {
+    public class DataImportXmlParser extends XmlHandler {
 
-        private Locator locator;
         private DataImport dataImport;
         private IDataAccess dataAccess;
         private DataRecord record;
-        private String fieldName;
-        private String fieldValue;
 
         public DataImportXmlParser(DataImport dataImport, IDataAccess dataAccess) {
-            super();
+            super(DataExport.FIELD_EXPORT);
             this.dataImport = dataImport;
             this.dataAccess = dataAccess;
         }
 
-        public void setDocumentLocator(Locator locator) {
-            this.locator = locator;
-        }
-
-        String getLocation() {
-            return locator.getSystemId() + ":" + EfaUtil.int2String(locator.getLineNumber(), 4) + ":" + EfaUtil.int2String(locator.getColumnNumber(), 4) + ":\t";
-        }
-
-        public void startDocument() {
-            if (Logger.isTraceOn(Logger.TT_XMLFILE, 9)) {
-                Logger.log(Logger.DEBUG, Logger.MSG_FILE_XMLTRACE, "Positions: <SystemID>:<LineNumber>:<ColumnNumber>");
-            }
-            if (Logger.isTraceOn(Logger.TT_XMLFILE, 5)) {
-                Logger.log(Logger.DEBUG, Logger.MSG_FILE_XMLTRACE, getLocation() + "startDocument()");
-            }
-        }
-
-        public void endDocument() {
-            if (Logger.isTraceOn(Logger.TT_XMLFILE, 5)) {
-                Logger.log(Logger.DEBUG, Logger.MSG_FILE_XMLTRACE, getLocation() + "endDocument()");
-            }
-        }
-
         public void startElement(String uri, String localName, String qname, Attributes atts) {
-            if (Logger.isTraceOn(Logger.TT_XMLFILE, 9)) {
-                Logger.log(Logger.DEBUG, Logger.MSG_FILE_XMLTRACE, getLocation() + "startElement(uri=" + uri + ", localName=" + localName + ", qname=" + qname + ")");
-            }
-            if (Logger.isTraceOn(Logger.TT_XMLFILE, 9)) {
-                for (int i = 0; i < atts.getLength(); i++) {
-                    Logger.log(Logger.DEBUG, Logger.MSG_FILE_XMLTRACE, "\tattribute: uri=" + atts.getURI(i) + ", localName=" + atts.getLocalName(i) + ", qname=" + atts.getQName(i) + ", value=" + atts.getValue(i) + ", type=" + atts.getType(i));
-                }
-            }
+            super.startElement(uri, localName, qname, atts);
 
-            if (record != null) {
-                // begin of field (inside record)
-                fieldName = localName;
-                fieldValue = "";
+            if (localName.equals(DataRecord.ENCODING_RECORD)) {
+                // begin of record
+                record = dataAccess.getPersistence().createNewRecord();
                 return;
-            }
-
-            if (record == null) {
-                if (localName.equals(DataRecord.ENCODING_RECORD)) {
-                    // begin of record
-                    record = dataAccess.getPersistence().createNewRecord();
-                    fieldName = null;
-                    return;
-                }
-            }
-        }
-
-        public void characters(char[] ch, int start, int length) {
-            String s = new String(ch, start, length).trim();
-            if (Logger.isTraceOn(Logger.TT_XMLFILE, 9)) {
-                Logger.log(Logger.DEBUG, Logger.MSG_FILE_XMLTRACE, getLocation() + "characters(" + s + ")");
-            }
-
-            if (fieldName != null) {
-                fieldValue += s;
             }
         }
 
         public void endElement(String uri, String localName, String qname) {
-            if (Logger.isTraceOn(Logger.TT_XMLFILE, 9)) {
-                Logger.log(Logger.DEBUG, Logger.MSG_FILE_XMLTRACE, getLocation() + "endElement(" + uri + "," + localName + "," + qname + ")");
-            }
+            super.endElement(uri, localName, qname);
 
-            if (fieldName != null && localName.equals(fieldName)) {
-                // end of field
-                record.setFromText(fieldName, fieldValue);
-                fieldName = null;
-            }
-
-            if (record != null && fieldName == null && localName.equals(DataRecord.ENCODING_RECORD)) {
+            if (record != null && localName.equals(DataRecord.ENCODING_RECORD)) {
                 // end of record
                 dataImport.importRecord(record);
                 record = null;
             }
+            if (record != null) {
+                // end of field
+                record.setFromText(fieldName, fieldValue);
+            }
+
         }
     }
 }

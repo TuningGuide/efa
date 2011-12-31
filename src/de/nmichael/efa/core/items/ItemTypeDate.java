@@ -144,6 +144,10 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
         return new DataTypeDate(value);
     }
 
+    public void setValueDate(DataTypeDate date) {
+        value = new DataTypeDate(date);
+    }
+
     public void setValueDay(int day) {
         value.setDay(day);
     }

@@ -69,6 +69,10 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog {
                         guiItems.add(item);
                     }
                 }
+                r = p.getConfigRecord();
+                if (r != null) {
+                    guiItems.addAll(r.getGuiItems(subtype, null, false));
+                }
             }
         } catch(Exception e) {
             Logger.logdebug(e);
@@ -112,8 +116,11 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog {
                     }
                 }
                 ProjectRecord r = project.getRecord(k);
-                r.saveGuiItems(ki);
-                project.getMyDataAccess(r.getType()).update(r);
+                if (r != null) {
+                    // r can be null for remote projects which aren't yet open
+                    r.saveGuiItems(ki);
+                    project.getMyDataAccess(r.getType()).update(r);
+                }
             }
             for(IItemType item : getItems()) {
                 item.setUnchanged();

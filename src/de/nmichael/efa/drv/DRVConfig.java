@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.efa1.Efa1Backup;
 import java.io.*;
 import java.util.Hashtable;
 import de.nmichael.efa.efa1.DatenListe;
@@ -238,7 +239,7 @@ public class DRVConfig extends DatenListe {
       if ( s == null || !s.trim().startsWith(kennung) ) {
         // KONVERTIEREN: 150 -> 190
         if (s != null && s.trim().startsWith(KENNUNG150)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"150");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"150");
           iniList(this.dat,0,0,false); // Rahmenbedingungen von v1.9.0 schaffen
           // Datei lesen
           readEinstellungen();

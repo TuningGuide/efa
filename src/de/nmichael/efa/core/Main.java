@@ -22,8 +22,8 @@ public class Main extends Program {
     private String project = null;
 
     public Main(String[] args) {
-        super(args);
-        AdminRecord admin = Daten.initialize(Daten.APPL_EFABASE);
+        super(Daten.APPL_EFABASE, args);
+        AdminRecord admin = getNewlyCreatedAdminRecord();
 
         if (project != null) {
             Project.openProject(project);

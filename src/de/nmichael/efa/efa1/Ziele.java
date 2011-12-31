@@ -10,6 +10,8 @@
 
 package de.nmichael.efa.efa1;
 
+import de.nmichael.efa.data.efawett.ZielfahrtFolge;
+import de.nmichael.efa.data.efawett.Zielfahrt;
 import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.*;
@@ -56,7 +58,7 @@ public class Ziele extends DatenListe {
 
         // KONVERTIEREN: 174 -> 190
         if (s != null && s.trim().startsWith(KENNUNG174)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"174");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"174");
           iniList(this.dat,5,1,false); // Rahmenbedingungen von v1.9.0 schaffen
           // Datei lesen
           try {

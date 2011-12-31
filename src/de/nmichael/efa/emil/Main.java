@@ -21,9 +21,11 @@ import java.io.*;
 
 public class Main extends Program {
 
+    public final static String EMIL_VERSION = Daten.VERSION; // Version
+    public final static String EMIL_KENNUNG = "EMIL.198";
+
     public Main(String[] args) {
-        super(args);
-        Daten.initialize(Daten.APPL_EMIL);
+        super(Daten.APPL_EMIL, args);
 
         EmilFrame frame = new EmilFrame();
         frame.validate();

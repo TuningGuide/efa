@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.efa1.Efa1Backup;
 import de.nmichael.efa.efa1.DatenListe;
 import java.io.*;
 import java.util.Hashtable;
@@ -44,7 +45,7 @@ public class Teilnehmer extends DatenListe {
       if ( s == null || !s.trim().startsWith(kennung) ) {
         // KONVERTIEREN: 151 -> 190
         if (s != null && s.trim().startsWith(KENNUNG151)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"151");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"151");
           iniList(this.dat,5,1,false); // Rahmenbedingungen von v1.9.0 schaffen
           // Datei lesen
           try {

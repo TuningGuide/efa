@@ -63,7 +63,7 @@ public class Fahrtenabzeichen extends DatenListe {
 
         // KONVERTIEREN: 151 -> 190
         if (s != null && s.trim().startsWith(KENNUNG151)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"151");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"151");
           iniList(this.dat,8,1,false); // Rahmenbedingungen von v1.9.0 schaffen
           // Datei lesen
           try {

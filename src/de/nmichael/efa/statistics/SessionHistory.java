@@ -14,7 +14,7 @@ import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeDistance;
 import de.nmichael.efa.util.International;
-import de.nmichael.efa.util.Zielfahrt;
+import de.nmichael.efa.data.efawett.Zielfahrt;
 import java.util.*;
 
 public class SessionHistory {

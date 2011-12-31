@@ -12,7 +12,7 @@ package de.nmichael.efa.statistics;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.gui.statistics.EfaWettDoneDialog;
 import de.nmichael.efa.gui.statistics.EfaWettSelectAndCompleteDialog;
-import de.nmichael.efa.core.EfaWett;
+import de.nmichael.efa.data.efawett.EfaWett;
 import java.io.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.gui.BaseDialog;

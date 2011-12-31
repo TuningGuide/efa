@@ -14,6 +14,8 @@ import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.Admins;
 import de.nmichael.efa.core.config.EfaConfig;
+import de.nmichael.efa.core.items.IItemType;
+import de.nmichael.efa.core.items.ItemTypeString;
 import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.storage.RemoteCommand;
@@ -23,6 +25,9 @@ import de.nmichael.efa.gui.dataedit.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.Help;
 import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.LogString;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.OnlineUpdate;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ImageIcon;
@@ -387,8 +392,7 @@ public class EfaMenuButton {
                 insufficientRights(admin, action);
                 return false;
             }
-            Dialog.infoDialog("Not yet implemented!");
-            // @todo (P3) Implement Online Update
+            OnlineUpdate.runOnlineUpdate(parentDialog, Daten.ONLINEUPDATE_INFO);
         }
 
         if (action.equals(BUTTON_OSCOMMAND)) {
@@ -396,8 +400,29 @@ public class EfaMenuButton {
                 insufficientRights(admin, action);
                 return false;
             }
-            Dialog.infoDialog("Not yet implemented!");
-            // @todo (P3) Implement Exec OS Command
+            String cmd = Daten.efaConfig.getValueEfadirekt_adminLastOsCommand();
+            if (cmd == null) {
+                cmd = "";
+            }
+            ItemTypeString item = new ItemTypeString("CMD", cmd,
+                    IItemType.TYPE_PUBLIC, "", International.getString("Kommando"));
+            if ( (parentFrame != null ?
+                  SimpleInputDialog.showInputDialog(parentFrame,
+                                    International.getString("Betriebssystemkommando ausführen"), item) :
+                  SimpleInputDialog.showInputDialog(parentDialog,
+                                    International.getString("Betriebssystemkommando ausführen"), item) ) ) {
+
+                cmd = item.getValueFromField().trim();
+                Daten.efaConfig.setValueEfadirekt_adminLastOsCommand(cmd);
+                Logger.log(Logger.INFO, Logger.MSG_ADMIN_ACTION_EXECCMD,
+                        International.getMessage("Starte Kommando: {cmd}", cmd));
+                try {
+                    Runtime.getRuntime().exec(cmd);
+                } catch (Exception ee) {
+                    Logger.log(Logger.ERROR, Logger.MSG_ADMIN_ACTION_EXECCMDFAILED,
+                            LogString.logstring_cantExecCommand(cmd, International.getString("Kommando")));
+                }
+            }
         }
 
         if (action.equals(BUTTON_EXIT)) {

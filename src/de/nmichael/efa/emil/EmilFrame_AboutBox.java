@@ -86,7 +86,7 @@ public class EmilFrame_AboutBox extends JDialog implements ActionListener {
     label4.setText("4");
     label5.setText("5");
     label1.setText(parent.PROGRAMMNAME);
-    label2.setText("Version "+Daten.EMIL_VERSION);
+    label2.setText("Version "+Main.EMIL_VERSION);
     label3.setText("Copyright (c) 2002-"+Daten.COPYRIGHTYEAR+" by Nicolas Michael");
     label4.setText("WWW: " +Daten.EFAURL);
     label5.setText("email: "+Daten.EMAILINFO);

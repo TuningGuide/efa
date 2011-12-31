@@ -10,8 +10,10 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.data.efawett.CertInfos;
+import de.nmichael.efa.data.efawett.DRVSignatur;
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.ESigFahrtenhefte;
+import de.nmichael.efa.data.efawett.ESigFahrtenhefte;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.ex.EfaModifyException;
@@ -140,7 +142,7 @@ public class Fahrtenabzeichen extends StorageObject {
                     parent = (JDialog) Dialog.frameCurrent();
                 } catch (Exception eee) {
                 }
-                if (!EfaUtil.getFile(parent, remoteFile, localFile, true) || !EfaUtil.canOpenFile(localFile)) {
+                if (!DownloadThread.getFile(parent, remoteFile, localFile, true) || !EfaUtil.canOpenFile(localFile)) {
                     Dialog.error("Der Schlüssel konnte nicht heruntergeladen werden.");
                     return false;
                 }
@@ -257,7 +259,7 @@ public class Fahrtenabzeichen extends StorageObject {
             return false;
         }
         String localFile = Daten.efaTmpDirectory + "drvSigFahrtenhefte.efwsig";
-        if (!EfaUtil.getFile((JDialog) Dialog.frameCurrent(), request, localFile, true)) {
+        if (!DownloadThread.getFile((JDialog) Dialog.frameCurrent(), request, localFile, true)) {
             Dialog.error("Die Bestätigungsdatei konnte nicht heruntergeladen werden!");
             return false;
         }

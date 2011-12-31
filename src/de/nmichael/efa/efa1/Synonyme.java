@@ -48,7 +48,7 @@ public class Synonyme extends DatenListe {
       if ( s == null || !s.trim().startsWith(kennung) ) {
         // KONVERTIEREN: 091 -> 190
         if (s != null && s.trim().startsWith(KENNUNG091)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"091");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"091");
           iniList(this.dat,2,1,false); // Rahmenbedingungen von v1.9.0 schaffen
           // Datei lesen
           try {

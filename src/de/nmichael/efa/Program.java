@@ -10,15 +10,25 @@
 
 package de.nmichael.efa;
 
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.Logger;
 import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.LogString;
 
 // @i18n complete
 public class Program {
 
-    public Program(String[] args) {
-        checkArgs(args);
+    private AdminRecord newlyCreatedAdminRecord;
+
+    public Program(int applId, String[] args) {
         Daten.program = this;
+        Daten.iniBase(applId);
+        checkArgs(args);
+        newlyCreatedAdminRecord = Daten.initialize();
+    }
+
+    protected AdminRecord getNewlyCreatedAdminRecord() {
+        return newlyCreatedAdminRecord;
     }
 
     public void printOption(String option, String description) {
@@ -34,20 +44,16 @@ public class Program {
             wrongArgument = null;
             showHelpDev = true;
         }
-        System.out.println(Daten.EFA_SHORTNAME + " " + Daten.VERSION + " (" + Daten.VERSIONID + ")\n");
+        System.out.println(Daten.EFA_LONGNAME + " " + Daten.VERSION + " (" + Daten.VERSIONID + ")\n");
         if (wrongArgument != null) {
-            System.out.println(International.getString("Unbekanntes Argument") + ": " + wrongArgument);
+            System.out.println("ERROR: Unknown Argument" + ": " + wrongArgument+"\n");
         }
-        System.out.println(International.getString("Benutzung") + ": " +
-                           "java [javaopt] " + 
-                           this.getClass().getCanonicalName() +
-                           " [option]");
-        System.out.println("    [javaopt]:");
-        System.out.println("      " + International.getString("Optionen der Java Virtual Machine") + " ('java -help')");
-        System.out.println("    [option]:");
-        printOption("-help",International.getString("diese Hilfemeldung anzeigen"));
-        printOption("-javaRestart", International.getString("Neustart von efa durch Java statt Shell"));
+        System.out.println("Usage: " +
+                           Daten.applName + " [options]");
+        System.out.println("    List of options:");
+        printOption("-help","Show this help");
         if (showHelpDev) {
+            printOption("-javaRestart", "efa restart by Java instead of Shell");
             System.out.println("    Parameters for development use:");
             printOption("-debug","Activate Debug Logging");
             printOption("-traceTopic <topic>","Set Trace Topic <topic> for Debug Logging");
@@ -141,6 +147,28 @@ public class Program {
         }
     }
 
+    public int restart() {
+        int exitCode;
+        if (Daten.javaRestart) {
+            exitCode = Daten.HALT_JAVARESTART;
+            String restartcmd = System.getProperty("java.home") + Daten.fileSep
+                    + "bin" + Daten.fileSep + "java "
+                    + (Daten.efa_java_arguments != null ? Daten.efa_java_arguments
+                    : "-cp " + System.getProperty("java.class.path")
+                    + " " + Daten.EFADIREKT_MAINCLASS + de.nmichael.efa.direkt.Main.STARTARGS);
+            Logger.log(Logger.INFO, Logger.MSG_EVT_EFARESTART,
+                    International.getMessage("Neustart mit Kommando: {cmd}", restartcmd));
+            try {
+                Runtime.getRuntime().exec(restartcmd);
+            } catch (Exception ee) {
+                Logger.log(Logger.ERROR, Logger.MSG_ERR_EFARESTARTEXEC_FAILED,
+                        LogString.logstring_cantExecCommand(restartcmd, International.getString("Kommando")));
+            }
+        } else {
+            exitCode = Daten.HALT_SHELLRESTART;
+        }
+        return exitCode;
+    }
 
     public void exit(int exitCode) {
         if (Daten.efaRunning != null) {

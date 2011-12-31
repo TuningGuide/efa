@@ -116,7 +116,8 @@ public class SunRiseSet {
     }
 
     public static void main(String[] args) {
-        Daten.initialize(Daten.APPL_CLI);
+        Daten.iniBase(-1);
+        Daten.initialize();
         printAllDays(2009);
     }
 }

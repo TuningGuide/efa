@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.data.efawett.Zielfahrt;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
@@ -25,6 +26,7 @@ public class ProjectRecord extends DataRecord {
     public static final String TYPE_PROJECT = "Project";
     public static final String TYPE_CLUB    = "Club";
     public static final String TYPE_LOGBOOK = "Logbook";
+    public static final String TYPE_CONFIG  = "Config";
 
     public static final String TYPE                         = "Type"; // one of TYPE_XXX constants
     public static final String PROJECTNAME                  = "ProjectName";
@@ -50,6 +52,9 @@ public class ProjectRecord extends DataRecord {
     public static final String ADMINEMAIL                   = "AdminEmail";
     public static final String CURRENTLOGBOOKEFABASE        = "CurrentLogbookEfaBase";
     public static final String CURRENTLOGBOOKEFABOATHOUSE   = "CurrentLogbookEfaBoathouse";
+    public static final String AUTONEWLOGBOOKDATE           = "AutoNewLogbookDate";
+    public static final String AUTONEWLOGBOOKNAME           = "AutoNewLogbookName";
+
 
     // Fields for Type=Club
     public static final String CLUBNAME                     = "ClubName";
@@ -96,6 +101,8 @@ public class ProjectRecord extends DataRecord {
         f.add(ADMINEMAIL);                    t.add(IDataAccess.DATA_STRING);
         f.add(CURRENTLOGBOOKEFABASE);         t.add(IDataAccess.DATA_STRING);
         f.add(CURRENTLOGBOOKEFABOATHOUSE);    t.add(IDataAccess.DATA_STRING);
+        f.add(AUTONEWLOGBOOKDATE);            t.add(IDataAccess.DATA_DATE);
+        f.add(AUTONEWLOGBOOKNAME);            t.add(IDataAccess.DATA_STRING);
         f.add(CLUBNAME);                      t.add(IDataAccess.DATA_STRING);
         f.add(ADDRESSSTREET);                 t.add(IDataAccess.DATA_STRING);
         f.add(ADDRESSCITY);                   t.add(IDataAccess.DATA_STRING);
@@ -213,6 +220,12 @@ public class ProjectRecord extends DataRecord {
     }
     public void setCurrentLogbookEfaBoathouse(String currentLogbook) {
         setString(CURRENTLOGBOOKEFABOATHOUSE, currentLogbook);
+    }
+    public void setAutoNewLogbookDate(DataTypeDate date) {
+        setDate(AUTONEWLOGBOOKDATE, date);
+    }
+    public void setAutoNewLogbookName(String name) {
+        setString(AUTONEWLOGBOOKNAME, name);
     }
     public void setClubName(String clubName) {
         setString(CLUBNAME, clubName);
@@ -348,6 +361,12 @@ public class ProjectRecord extends DataRecord {
     }
     public String getCurrentLogbookEfaBoathouse() {
         return getString(CURRENTLOGBOOKEFABOATHOUSE);
+    }
+    public DataTypeDate getAutoNewLogbookDate() {
+        return getDate(AUTONEWLOGBOOKDATE);
+    }
+    public String getAutoNewLogbookName() {
+        return getString(AUTONEWLOGBOOKNAME);
     }
     public String getClubName() {
         return getString(CLUBNAME);
@@ -522,7 +541,8 @@ public class ProjectRecord extends DataRecord {
                     v.add(item = new ItemTypeInteger(ProjectRecord.AREAID, getAreaId(),
                             1, Zielfahrt.ANZ_ZIELBEREICHE, true,
                             IItemType.TYPE_PUBLIC, category,
-                            International.onlyFor("Zielbereich", "de")));
+                            International.onlyFor("eigener Zielbereich", "de")));
+                    item.setNotNull(true);
                 }
 
             }
@@ -611,6 +631,20 @@ public class ProjectRecord extends DataRecord {
                         International.getString("Ende des Zeitraums")));
                 ((ItemTypeDate) item).setNotNull(true);
                 ((ItemTypeDate) item).setEditable(newProject);
+            }
+        }
+
+        if (getType().equals(TYPE_CONFIG)) {
+            if (category == null) {
+                category = "%04%" + International.getString("Fahrtenbuchwechsel");
+            }
+            if (subtype == GUIITEMS_SUBTYPE_ALL && !newProject) {
+                v.add(item = new ItemTypeDate(ProjectRecord.AUTONEWLOGBOOKDATE, getAutoNewLogbookDate(),
+                        IItemType.TYPE_EXPERT, category,
+                        International.getString("Datum")));
+                v.add(item = new ItemTypeString(ProjectRecord.AUTONEWLOGBOOKNAME, getAutoNewLogbookName(),
+                        IItemType.TYPE_EXPERT, category,
+                        International.getString("Fahrtenbuch")));
             }
         }
 

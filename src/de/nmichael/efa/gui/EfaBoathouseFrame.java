@@ -930,24 +930,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         }
 
         if (restart) {
-            if (Daten.javaRestart) {
-                exitCode = Daten.HALT_JAVARESTART;
-                String restartcmd = System.getProperty("java.home") + Daten.fileSep
-                        + "bin" + Daten.fileSep + "java "
-                        + (Daten.efa_java_arguments != null ? Daten.efa_java_arguments
-                        : "-cp " + System.getProperty("java.class.path")
-                        + " " + Daten.EFADIREKT_MAINCLASS + de.nmichael.efa.direkt.Main.STARTARGS);
-                Logger.log(Logger.INFO, Logger.MSG_EVT_EFARESTART,
-                        International.getMessage("Neustart mit Kommando: {cmd}", restartcmd));
-                try {
-                    Runtime.getRuntime().exec(restartcmd);
-                } catch (Exception ee) {
-                    Logger.log(Logger.ERROR, Logger.MSG_ERR_EFARESTARTEXEC_FAILED,
-                            LogString.logstring_cantExecCommand(restartcmd, International.getString("Kommando")));
-                }
-            } else {
-                exitCode = Daten.HALT_SHELLRESTART;
-            }
+            exitCode = Daten.program.restart();
         }
 
 //        if (e != null) {
@@ -1054,19 +1037,6 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
 
     public Project openProject(AdminRecord admin) {
-        // close any other projects first
-        if (Daten.project != null) {
-            try {
-                Daten.project.closeAllStorageObjects();
-            } catch(Exception e) {
-                String msg = LogString.logstring_fileCloseFailed(Daten.project.getProjectName(), International.getString("Projekt"), e.getMessage());
-                Logger.log(Logger.ERROR, Logger.MSG_DATA_CLOSEFAILED, msg);
-                Dialog.error(msg);
-            }
-        }
-        Daten.project = null;
-        logbook = null;
-
         // project to open
         String projectName = null;
         if (admin == null && Daten.efaConfig.getValueLastProjectEfaBoathouse().length() > 0) {
@@ -1083,6 +1053,20 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         if (projectName == null || projectName.length() == 0) {
             return null;
         }
+
+        // close open project now
+        if (Daten.project != null) {
+            try {
+                Daten.project.closeAllStorageObjects();
+            } catch(Exception e) {
+                String msg = LogString.logstring_fileCloseFailed(Daten.project.getProjectName(), International.getString("Projekt"), e.getMessage());
+                Logger.log(Logger.ERROR, Logger.MSG_DATA_CLOSEFAILED, msg);
+                Dialog.error(msg);
+            }
+        }
+        Daten.project = null;
+        logbook = null;
+
         if (!Project.openProject(projectName)) {
             Daten.project = null;
             return null;
@@ -1138,7 +1122,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         return logbook;
     }
 
-    boolean openLogbook(String logbookName) {
+    public boolean openLogbook(String logbookName) {
         if (Daten.project == null) {
             return false;
         }
@@ -1989,11 +1973,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                 EfaUtil.foo();
             }
         }
-        de.nmichael.efa.core.BrowserFrame browser = null; // @todo (P4) new BrowserFrame(this, Daten.efaConfig.efaDirekt_lockEfaVollbild.getValue(), "file:" + html);
+        de.nmichael.efa.gui.BrowserDialog browser = 
+                new BrowserDialog(this, "file:" + html);
+        browser.setLocked(this, true);
+        browser.setFullScreenMode(Daten.efaConfig.getValueEfaDirekt_lockEfaVollbild());
         browser.setModal(true);
-        if (Daten.efaConfig.getValueEfaDirekt_lockEfaVollbild()) {
-            browser.setSize(Dialog.screenSize);
-        }
         Dialog.setDlgLocation(browser, this);
         browser.setClosingTimeout(10); // nur um Lock-Ende zu überwachen
         Logger.log(Logger.INFO, Logger.MSG_EVT_LOCKED,
@@ -2001,7 +1985,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         Daten.efaConfig.setValueEfaDirekt_lockEfaFromDatum(new DataTypeDate()); // damit nach Entsperren nicht wiederholt gelockt wird
         Daten.efaConfig.setValueEfaDirekt_lockEfaFromZeit(new DataTypeTime());  // damit nach Entsperren nicht wiederholt gelockt wird
         Daten.efaConfig.setValueEfaDirekt_locked(true);
-        browser.show(); // @todo (P4) implement new BrowserDialog and replace show() by showDialog()
+        browser.showDialog();
     }
 
 }

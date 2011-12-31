@@ -10,6 +10,9 @@
 
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.data.efawett.DRVSignatur;
+import de.nmichael.efa.data.efawett.EfaWett;
+import de.nmichael.efa.data.efawett.ESigFahrtenhefte;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.util.*;

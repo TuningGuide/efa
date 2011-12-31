@@ -339,8 +339,9 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         if (type == Type.logbook) {
             try {
                 Logbook logbook = Daten.project.getLogbook(name, false);
-                logbook.data().deleteStorageObject();
-                Daten.project.deleteLogbookRecord(name);
+                if (Daten.project.deleteLogbookRecord(name)) {
+                    logbook.data().deleteStorageObject();
+                }
                 updateGui();
             } catch(Exception ex) {
                 Dialog.error(ex.toString());

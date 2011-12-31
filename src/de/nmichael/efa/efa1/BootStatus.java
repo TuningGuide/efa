@@ -55,11 +55,11 @@ public class BootStatus extends DatenListe {
     super(pdat,_FELDANZ,1,false);
     if (STATUSDESCR == null) {
         STATUSDESCR = new String[STATUSKEYS.length];
-        STATUSDESCR[STAT_HIDE]                      = International.getString("nicht anzeigen");
-        STATUSDESCR[STAT_VERFUEGBAR]                = International.getString("verfügbar");
-        STATUSDESCR[STAT_UNTERWEGS]                 = International.getString("unterwegs");
-        STATUSDESCR[STAT_NICHT_VERFUEGBAR]          = International.getString("nicht verfügbar");
-        STATUSDESCR[STAT_VORUEBERGEHEND_VERSTECKEN] = International.getString("vorübergehend verstecken");
+        STATUSDESCR[STAT_HIDE]                      = "nicht anzeigen";
+        STATUSDESCR[STAT_VERFUEGBAR]                = "verfügbar";
+        STATUSDESCR[STAT_UNTERWEGS]                 = "unterwegs";
+        STATUSDESCR[STAT_NICHT_VERFUEGBAR]          = "nicht verfügbar";
+        STATUSDESCR[STAT_VORUEBERGEHEND_VERSTECKEN] = "vorübergehend verstecken";
     }
     kennung = KENNUNG190;
   }
@@ -174,19 +174,6 @@ public class BootStatus extends DatenListe {
     return null;
   }
 
-  public static String makeReservierungText(BoatReservation r) {
-    String s = null;
-    if (r.isOneTimeReservation()) {
-      if (r.getDateFrom().equals(r.getDateTo())) {
-          s = International.getMessage("am {day} von {time_from} bis {time_to}",r.getDateFrom(),r.getTimeFrom(),r.getTimeTo());
-      } else {
-          s = International.getMessage("vom {day_from} {time_from} bis {day_to} {time_to}",r.getDateFrom(),r.getTimeFrom(),r.getDateTo(),r.getTimeTo());
-      }
-    } else {
-        s = International.getMessage("jeden {day_from} von {time_from} bis {time_to}",r.getWeekdayFrom(),r.getTimeFrom(),r.getTimeTo());
-    }
-    return s;
-  }
 
   // alle verfallenen Reservierungen löschen;
   // gibt true zurück, falls Reservierungen gelöscht wurden; sonst false.
@@ -257,7 +244,7 @@ public class BootStatus extends DatenListe {
 
         // KONVERTIEREN: 170 -> 190
         if (s != null && s.trim().startsWith(KENNUNG170)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"170");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"170");
           iniList(this.dat,7,1,false); // Rahmenbedingungen von v1.9.0 schaffen
           // Datei lesen
           try {
@@ -273,11 +260,13 @@ public class BootStatus extends DatenListe {
               
               //convert bemerkungen to selected language
               String bemerk = d.get(BEMERKUNG);
+              /* @efa1
               if (bemerk.equals("nicht anzeigen"))           bemerk = International.getString("nicht anzeigen");
               if (bemerk.equals("verfügbar"))                bemerk = International.getString("verfügbar");
               if (bemerk.equals("unterwegs"))                bemerk = International.getString("unterwegs");
               if (bemerk.equals("nicht verfügbar"))          bemerk = International.getString("nicht verfügbar");
               if (bemerk.equals("vorübergehend verstecken")) bemerk = International.getString("vorübergehend verstecken");
+               */
               d.set(BEMERKUNG, bemerk);
 
               // convert weekday names to keys

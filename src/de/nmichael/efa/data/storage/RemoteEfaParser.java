@@ -18,7 +18,7 @@ import org.xml.sax.helpers.*;
 
 // @i18n complete
 
-public class RemoteEfaParser extends DefaultHandler {
+public class RemoteEfaParser extends XmlHandler {
 
     public static String XML_EFA = "efa";
 
@@ -31,18 +31,12 @@ public class RemoteEfaParser extends DefaultHandler {
     private DataRecord record;
     private DataKey key;
 
-    private Locator locator;
-    private boolean inXml = false;
     private boolean inRequestResponse = false;
     private boolean inRecord = false;
     private boolean inKey = false;
-    private boolean documentComplete = false;
-
-    private String fieldName;
-    private String fieldValue;
 
     public RemoteEfaParser(IDataAccess dataAccess) {
-        super();
+        super(XML_EFA);
         this.dataAccess = dataAccess;
         iniDataAccess();
     }
@@ -56,7 +50,8 @@ public class RemoteEfaParser extends DefaultHandler {
                 StorageObject p = null;
                 if (Daten.project != null) {
                     // most often, we will be asked for a project storage object, so we check this first
-                    p = Daten.project.getStorageObject(storageObjectName, storageObjectType, false);
+                    boolean createNewIfDoesntExist = RemoteEfaMessage.OPERATION_CREATESTORAGEOBJECT.equals(message.getOperationName());
+                    p = Daten.project.getStorageObject(storageObjectName, storageObjectType, createNewIfDoesntExist);
                 }
                 if (p == null) {
                     if (Daten.efaConfig.data().getStorageObjectType().equals(storageObjectType)
@@ -82,64 +77,12 @@ public class RemoteEfaParser extends DefaultHandler {
         return;
     }
 
-    public boolean isDocumentComplete() {
-        return documentComplete;
-    }
-
     public Vector<RemoteEfaMessage> getMessages() {
         return messages;
     }
 
-    public void setDocumentLocator(Locator locator) {
-        this.locator = locator;
-    }
-
-    String getLocation() {
-        return locator.getSystemId() + ":" + EfaUtil.int2String(locator.getLineNumber(),4) + ":" + EfaUtil.int2String(locator.getColumnNumber(),4) + ":\t";
-    }
-
-    public void startDocument() {
-        if (Logger.isTraceOn(Logger.TT_XMLFILE, 9)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"Positions: <SystemID>:<LineNumber>:<ColumnNumber>");
-        }
-        if (Logger.isTraceOn(Logger.TT_XMLFILE, 5)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "startDocument()");
-        }
-        documentComplete = false;
-    }
-
-    public void endDocument() {
-        if (Logger.isTraceOn(Logger.TT_XMLFILE, 5)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "endDocument()");
-        }
-        if (!documentComplete) {
-            Logger.log(Logger.ERROR,Logger.MSG_FILE_XMLFILEINCOMPLETE, International.getMessage("Unvollständige oder korrupte Daten gelesen: {data}", messages.toString()));
-        }
-    }
-
     public void startElement(String uri, String localName, String qname, Attributes atts) {
-        if (Logger.isTraceOn(Logger.TT_XMLFILE, 9)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "startElement(uri=" + uri + ", localName=" + localName + ", qname=" + qname + ")");
-        }
-        if (Logger.isTraceOn(Logger.TT_XMLFILE, 9)) {
-            for (int i = 0; i < atts.getLength(); i++) {
-                Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"\tattribute: uri=" + atts.getURI(i) + ", localName=" + atts.getLocalName(i) + ", qname=" + atts.getQName(i) + ", value=" + atts.getValue(i) + ", type=" + atts.getType(i));
-            }
-        }
-
-        if (inRequestResponse && inRecord) {
-            // begin of field (inside record)
-            fieldName = localName;
-            fieldValue = "";
-            return;
-        }
-
-        if (inRequestResponse && inKey) {
-            // begin of field (inside key)
-            fieldName = localName;
-            fieldValue = "";
-            return;
-        }
+        super.startElement(uri, localName, qname, atts);
 
         if (inRequestResponse && !inRecord && !inKey) {
             if (localName.equals(DataRecord.ENCODING_RECORD)) {
@@ -147,7 +90,6 @@ public class RemoteEfaParser extends DefaultHandler {
                 iniDataAccess();
                 inRecord = true;
                 record = dataAccess.getPersistence().createNewRecord();
-                fieldName = null;
                 return;
             }
             if (localName.equals(DataKey.ENCODING_KEY)) {
@@ -159,18 +101,15 @@ public class RemoteEfaParser extends DefaultHandler {
                 } catch(Exception e) {
                     Logger.log(e);
                 }
-                fieldName = null;
                 return;
             }
             // begin of field (outside record and key)
             inRecord = false;
             inKey = false;
-            fieldName = localName;
-            fieldValue = "";
             return;
         }
 
-        if (inXml && !inRequestResponse && localName.equals(RemoteEfaMessage.TYPE_REQUEST)) {
+        if (!inRequestResponse && localName.equals(RemoteEfaMessage.TYPE_REQUEST)) {
             // begin of request
             inRequestResponse = true;
             message = new RemoteEfaMessage(
@@ -180,7 +119,7 @@ public class RemoteEfaParser extends DefaultHandler {
             return;
         }
 
-        if (inXml && !inRequestResponse && localName.equals(RemoteEfaMessage.TYPE_RESPONSE)) {
+        if (!inRequestResponse && localName.equals(RemoteEfaMessage.TYPE_RESPONSE)) {
             // begin of response
             inRequestResponse = true;
             message = new RemoteEfaMessage(
@@ -189,30 +128,52 @@ public class RemoteEfaParser extends DefaultHandler {
                     atts.getValue(RemoteEfaMessage.TYPE_OPERATION_NAME));
             return;
         }
-
-        if (!inXml && localName.equals(XML_EFA)) {
-            // begin of document
-            inXml = true;
-        }
-    }
-
-    public void characters(char[] ch, int start, int length) {
-        String s = new String(ch, start, length); // .trim(); // trimming here would wrongly trim away spaces within strings which are composed out of several characters() invocations!
-        if (Logger.isTraceOn(Logger.TT_XMLFILE, 9)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "characters("+s+")");
-        }
-
-        if (fieldName != null) {
-            fieldValue += s;
-        }
     }
 
     public void endElement(String uri, String localName, String qname) {
-        if (Logger.isTraceOn(Logger.TT_XMLFILE, 9)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "endElement(" + uri + "," + localName + "," + qname + ")");
+        super.endElement(uri, localName, qname);
+
+        if (inRequestResponse && inRecord && localName.equals(DataRecord.ENCODING_RECORD)) {
+            // end of record
+            message.addRecord(record);
+            record = null;
+            inRecord = false;
+            return;
         }
 
-        if (inRequestResponse && fieldName != null && localName.equals(fieldName)) {
+        if (inRequestResponse && inKey && localName.equals(DataKey.ENCODING_KEY)) {
+            // end of key
+            message.addKey(key);
+            key = null;
+            inKey = false;
+            return;
+        }
+
+        if (inRequestResponse && !inRecord && !inKey && localName.equals(RemoteEfaMessage.TYPE_REQUEST)) {
+            // end of request
+            inRequestResponse = false;
+            if (dataAccess == null) {
+                iniDataAccess();
+            }
+            message.setDataAccess(dataAccess);
+            messages.add(message);
+            message = null;
+            return;
+        }
+
+        if (inRequestResponse && !inRecord && !inKey && localName.equals(RemoteEfaMessage.TYPE_RESPONSE)) {
+            // end of response
+            inRequestResponse = false;
+            if (dataAccess == null) {
+                iniDataAccess();
+            }
+            message.setDataAccess(dataAccess);
+            messages.add(message);
+            message = null;
+            return;
+        }
+
+        if (inRequestResponse) {
             // end of field
             if (inRecord) {
                 record.set(fieldName, (fieldValue != null ? fieldValue.trim() : fieldValue));
@@ -234,50 +195,8 @@ public class RemoteEfaParser extends DefaultHandler {
             } else{
                 message.addField(fieldName, fieldValue);
             }
-            fieldName = null;
         }
 
-        if (inRequestResponse && inRecord && fieldName == null && localName.equals(DataRecord.ENCODING_RECORD)) {
-            // end of record
-            message.addRecord(record);
-            record = null;
-            inRecord = false;
-        }
-
-        if (inRequestResponse && inKey && fieldName == null && localName.equals(DataKey.ENCODING_KEY)) {
-            // end of key
-            message.addKey(key);
-            key = null;
-            inKey = false;
-        }
-
-        if (inRequestResponse && !inRecord && !inKey && fieldName == null && localName.equals(RemoteEfaMessage.TYPE_REQUEST)) {
-            // end of request
-            inRequestResponse = false;
-            if (dataAccess == null) {
-                iniDataAccess();
-            }
-            message.setDataAccess(dataAccess);
-            messages.add(message);
-            message = null;
-        }
-
-        if (inRequestResponse && !inRecord && !inKey && fieldName == null && localName.equals(RemoteEfaMessage.TYPE_RESPONSE)) {
-            // end of response
-            inRequestResponse = false;
-            if (dataAccess == null) {
-                iniDataAccess();
-            }
-            message.setDataAccess(dataAccess);
-            messages.add(message);
-            message = null;
-        }
-
-        if (!inRequestResponse && localName.equals(XML_EFA)) {
-            // end of document
-            inXml = false;
-            documentComplete = true;
-        }
     }
 
 }

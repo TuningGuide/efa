@@ -11,7 +11,7 @@
 package de.nmichael.efa.data;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.WettDefs;
+import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.core.items.*;

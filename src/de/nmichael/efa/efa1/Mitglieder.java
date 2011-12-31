@@ -59,7 +59,7 @@ public class Mitglieder extends DatenListe {
 
   // Key-Wert ermitteln
   public String constructKey(DatenFelder d) {
-    return EfaUtil.getFullName(d.get(VORNAME),d.get(NACHNAME),d.get(VEREIN));
+    return getFullName(d.get(VORNAME),d.get(NACHNAME),d.get(VEREIN));
   }
 
 
@@ -73,7 +73,7 @@ public class Mitglieder extends DatenListe {
 
         // KONVERTIEREN: 173 -> 190
         if (s != null && s.trim().startsWith(KENNUNG173)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"173");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"173");
           iniList(this.dat,14,1,false); // Rahmenbedingungen von v1.9.0 schaffen
           // Datei lesen
           try {
@@ -84,11 +84,13 @@ public class Mitglieder extends DatenListe {
               String gender = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_GENDER, d.get(GESCHLECHT));
               if (gender == null) {
                   gender = EfaTypes.TYPE_GENDER_MALE;
+                  /* // @efa1
                   Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORCONVERTING,
                           getFileName() + ": " +
                           International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!",constructKey(d)) + " " +
                           International.getMessage("Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
                           d.get(GESCHLECHT), Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, gender)));
+                   */
               }
               d.set(GESCHLECHT, gender);
               add(d);
@@ -149,7 +151,7 @@ public class Mitglieder extends DatenListe {
     String s;
     while (d != null) {
       if (!( s = d.get(ALIAS).trim()).equals(""))
-        addAlias(s,EfaUtil.getFullName(d.get(VORNAME),d.get(NACHNAME),d.get(VEREIN)));
+        addAlias(s,getFullName(d.get(VORNAME),d.get(NACHNAME),d.get(VEREIN)));
       d = (DatenFelder)getCompleteNext();
     }
   }
@@ -175,7 +177,7 @@ public class Mitglieder extends DatenListe {
       DatenFelder d = getCompleteFirst();
       while (d != null) {
           if (!onlyMembers || d.get(Mitglieder.VEREIN).length()==0) {
-              String name = EfaUtil.getFullName(d.get(Mitglieder.VORNAME), d.get(Mitglieder.NACHNAME), d.get(Mitglieder.VEREIN));
+              String name = getFullName(d.get(Mitglieder.VORNAME), d.get(Mitglieder.NACHNAME), d.get(Mitglieder.VEREIN));
               names.add(name);
           }
           d = getCompleteNext();
@@ -184,4 +186,117 @@ public class Mitglieder extends DatenListe {
   }
 
 
-}
+
+  // Namen zerlegen
+  public static String[] zerlegeNamen(String s, boolean vorNach) {
+    String name,vor,nach,ver;
+    int from , to;
+
+    // gesamter Name
+    if ( (to = s.indexOf("(")) >= 0) name = s.substring(0,to).trim();
+    else name = s;
+
+    // Teilnamen
+    if (vorNach) { // erst Vorname
+      if ( (to = name.indexOf(" v. ")) >= 0 ||
+            ( (to = name.indexOf(" van ")) >= 0 && name.indexOf(" van Maren") < 0 )
+           ) { // Titel
+        vor = name.substring(0,to);
+        nach = name.substring(vor.length()+1,name.length());
+      } else if ( (to = name.lastIndexOf(" ")) >= 0) { // normal
+        vor = name.substring(0,to);
+        nach = name.substring(to+1,name.length());
+      } else { // kein Vorname
+        vor = "";
+        nach = name;
+      }
+    } else { // erst Nachname
+      if ( (to = name.indexOf(",")) >= 0) { // normal
+        nach = name.substring(0,to);
+        if (to+2<=name.length()) vor = name.substring(to+2,name.length());
+        else vor = "";
+      } else { // kein Vorname
+        nach = name;
+        vor = "";
+      }
+    }
+
+    // Verein
+    from = s.indexOf("(")+1;
+    to = s.indexOf(")");
+    if (from <= 0 || to < 0 || from>to) ver = "";
+    else ver = s.substring(from,to);
+
+    String[] a = {vor,nach,ver};
+    return a;
+  }
+
+  // aus einem Namensstring den Vornamen liefern
+  public static String getVorname(String s) {
+    if (Fahrtenbuch.fahrtenbuch == null) return "";
+    return zerlegeNamen(s,Fahrtenbuch.fahrtenbuch.getDaten().erstVorname)[0];
+  }
+
+
+  // aus einem Namensstring den Nachnamen liefern
+  public static String getNachname(String s) {
+    if (Fahrtenbuch.fahrtenbuch == null) return "";
+    return zerlegeNamen(s,Fahrtenbuch.fahrtenbuch.getDaten().erstVorname)[1];
+  }
+
+  // aus einem Namensstring den Bootsnamen liefern
+  public static String getName(String s) {
+    int from , to;
+    from = 0;
+    to = s.indexOf("(")-1;
+    if (to < 0) to = s.length();
+    return s.substring(from,to);
+  }
+
+  // aus einem Namensstring den Vereinsamen liefern
+  public static String getVerein(String s) {
+    if (Fahrtenbuch.fahrtenbuch == null) return "";
+    return zerlegeNamen(s,Fahrtenbuch.fahrtenbuch.getDaten().erstVorname)[2];
+  }
+
+
+  // vollen Namen aus Teilnamen konstruieren
+  public static String getFullName(String vor, String nach, String ver) {
+    if (Fahrtenbuch.fahrtenbuch == null) return getFullName(vor,nach,ver,true);
+    return getFullName(vor,nach,ver,Fahrtenbuch.fahrtenbuch.getDaten().erstVorname);
+  }
+
+
+    // @todo (P5) remove old efa1 functionality, has been replaced by PersonRecord.getFullName(...)
+    public static String getFullName(String first, String last, String association, boolean firstFirst) {
+        String s = "";
+        if (firstFirst) {
+            if (first != null && first.length() > 0) {
+                s = first;
+            }
+            if (last != null && last.length() > 0) {
+                if (s.length() > 0) {
+                    s = s + " " + last;
+                } else {
+                    s = first;
+                }
+            }
+        } else {
+            if (last != null && last.length() > 0) {
+                s = last;
+            }
+            if (first != null && first.length() > 0) {
+                if (s.length() > 0) {
+                    s = s + ", " + first;
+                } else {
+                    s = first;
+                }
+            }
+        }
+        if (association != null && association.length() > 0) {
+            s = s + " (" + association + ")";
+        }
+        return s.trim();
+    }
+
+ }

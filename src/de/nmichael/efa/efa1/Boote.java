@@ -115,7 +115,7 @@ public class Boote extends DatenListe {
 
         // KONVERTIEREN: 170 -> 190
         if (s != null && s.trim().startsWith(KENNUNG170)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"170");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"170");
           iniList(this.dat,12,1,false); // Rahmenbedingungen von v1.9.0 schaffen
           // Datei lesen
           try {
@@ -149,35 +149,43 @@ public class Boote extends DatenListe {
               }
               if (art == null) {
                   art = EfaTypes.TYPE_BOAT_OTHER;
+                  /* @efa1
                   Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORCONVERTING,
                           getFileName() + ": " +
                           International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!",constructKey(d)) + " " +
                           International.getMessage("Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
                           d.get(ART), Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, art)));
+                   */
               }
               if (anz == null) {
                   anz = EfaTypes.TYPE_NUMSEATS_OTHER;
+                  /* @efa1
                   Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORCONVERTING,
                           getFileName() + ": " +
                           International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!",constructKey(d)) + " " +
                           International.getMessage("Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
                           d.get(ANZAHL), Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, anz)));
+                   */
               }
               if (rig == null) {
                   rig = EfaTypes.TYPE_RIGGING_OTHER;
+                  /* @efa12
                   Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORCONVERTING,
                           getFileName() + ": " +
                           International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!",constructKey(d)) + " " +
                           International.getMessage("Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
                           d.get(RIGGER), Daten.efaTypes.getValue(EfaTypes.CATEGORY_RIGGING, rig)));
+                   */
               }
               if (stm == null) {
                   stm = EfaTypes.TYPE_COXING_OTHER;
+                  /* @efa1
                   Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORCONVERTING,
                           getFileName() + ": " +
                           International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!",constructKey(d)) + " " +
                           International.getMessage("Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
                           d.get(STM), Daten.efaTypes.getValue(EfaTypes.CATEGORY_COXING, stm)));
+                   */
               }
               d.set(ART, art);
               d.set(ANZAHL, anz);

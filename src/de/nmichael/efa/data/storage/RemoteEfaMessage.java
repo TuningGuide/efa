@@ -31,7 +31,6 @@ public class RemoteEfaMessage {
 
     // Operation Names
     public static final String OPERATION_RESULT                  = "Res";
-    public static final String OPERATION_LOGIN                   = "Login";
     public static final String OPERATION_EXISTSSTORAGEOBJECT     = "ExistsObj";
     public static final String OPERATION_OPENSTORAGEOBJECT       = "OpenObj";
     public static final String OPERATION_CREATESTORAGEOBJECT     = "CreateObj";
@@ -382,24 +381,6 @@ public class RemoteEfaMessage {
     }
 
     // ===================================== Requests =====================================
-
-    public static RemoteEfaMessage createRequestLogin(int msgId, String username, String password) {
-        return createRequestLogin(msgId, null, null, username, password);
-    }
-
-    public static RemoteEfaMessage createRequestLogin(int msgId, String storageObjectType, String storageObjectName, String username, String password) {
-        RemoteEfaMessage r = new RemoteEfaMessage(msgId, Type.request, OPERATION_LOGIN);
-        if (storageObjectType != null) {
-            r.addField(FIELD_STORAGEOBJECTTYPE, storageObjectType);
-        }
-        if (storageObjectName != null) {
-            r.addField(FIELD_STORAGEOBJECTNAME, storageObjectName);
-        }
-        r.addField(FIELD_USERNAME, username);
-        r.addField(FIELD_PASSWORD, password);
-        r.addField(FIELD_PID, Daten.applPID);
-        return r;
-    }
 
     public static RemoteEfaMessage createRequestData(int msgId, String storageObjectType, String storageObjectName, String operation) {
         RemoteEfaMessage r = new RemoteEfaMessage(msgId, Type.request, operation, storageObjectType, storageObjectName);

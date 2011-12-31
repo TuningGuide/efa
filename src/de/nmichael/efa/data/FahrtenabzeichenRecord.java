@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.data.efawett.DRVSignatur;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.gui.util.*;
@@ -288,7 +289,6 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
         this.myItems = v;
         updateGuiItems();
         
-        // @todo (P4) Fahrtenheft Signatur prüfen, bearbeiten usw.
         return v;
     }
 

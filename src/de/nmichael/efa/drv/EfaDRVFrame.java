@@ -12,7 +12,7 @@ package de.nmichael.efa.drv;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.WettDefs;
+import de.nmichael.efa.data.efawett.WettDefs;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;

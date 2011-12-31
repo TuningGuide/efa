@@ -10,11 +10,30 @@
 
 package de.nmichael.efa.data.types;
 
-import de.nmichael.efa.util.*;
+import de.nmichael.efa.Daten;
+import de.nmichael.efa.util.Base64;
+import de.nmichael.efa.util.Logger;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
 
 public class DataTypePasswordCrypted {
 
     private static final String CRYPTED = "*~c:";
+    private static SecretKey key = null;
+
+    static {
+        try {
+            DESKeySpec keySpec = new DESKeySpec(Daten.EFAMASTERKEY.getBytes("UTF8"));
+            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
+            key = keyFactory.generateSecret(keySpec);
+        } catch (Exception e) {
+            Logger.log(Logger.ERROR, Logger.MSG_ERR_GENERIC,
+                    "Failed to initialize internal password store: " + e.toString());
+            Logger.logdebug(e);
+        }
+    }
 
     private String password;
 
@@ -37,25 +56,29 @@ public class DataTypePasswordCrypted {
         return new DataTypePasswordCrypted(s);
     }
 
-    // @todo (P3) dummy encryption - implement real algorithm
-    public static String encrypt(String sd) {
-        StringBuffer se = new StringBuffer();
-        for (int i=0; i<sd.length(); i++) {
-            char c = sd.charAt(i);
-            se.append(++c);
-            
+    public synchronized static String encrypt(String sd) {
+        try {
+            byte[] cleartext = sd.getBytes("UTF8");
+            Cipher cipher = Cipher.getInstance("DES");
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            return Base64.encodeBytes(cipher.doFinal(cleartext));
+        } catch(Exception e) {
+            Logger.log(e);
+            return null;
         }
-        return se.toString();
     }
 
-    // @todo (P3) dummy encryption - implement real algorithm
-    public static String decrypt(String se) {
-        StringBuffer sd = new StringBuffer();
-        for (int i=0; i<se.length(); i++) {
-            char c = se.charAt(i);
-            sd.append(--c);
+    public synchronized static String decrypt(String se) {
+        try {
+            byte[] encrypedPwdBytes = Base64.decode(se);
+            Cipher cipher = Cipher.getInstance("DES");
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            byte[] plainTextPwdBytes = (cipher.doFinal(encrypedPwdBytes));
+            return new String(plainTextPwdBytes);
+        } catch(Exception e) {
+            Logger.log(e);
+            return null;
         }
-        return sd.toString();
     }
 
     public void setPassword(String s) {

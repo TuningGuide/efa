@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.efa1.Efa1Backup;
 import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.core.*;
@@ -64,7 +65,7 @@ public class MeldungenIndex extends DatenListe {
 
         // KONVERTIEREN: 150 -> 160
         if (s != null && s.trim().startsWith(KENNUNG150)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"150");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"150");
           iniList(this.dat,7,1,false); // Rahmenbedingungen von v1.5.0 schaffen
           // Datei lesen
           try {
@@ -89,7 +90,7 @@ public class MeldungenIndex extends DatenListe {
 
         // KONVERTIEREN: 160 -> 190
         if (s != null && s.trim().startsWith(KENNUNG160)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"160");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"160");
           iniList(this.dat,7,1,false); // Rahmenbedingungen von v1.9.0 schaffen
           // Datei lesen
           try {

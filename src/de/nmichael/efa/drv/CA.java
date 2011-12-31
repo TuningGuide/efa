@@ -13,7 +13,6 @@ package de.nmichael.efa.drv;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.EnterPasswordFrame;
 import java.io.*;
 
 // @i18n complete (needs no internationalization -- only relevant for Germany)

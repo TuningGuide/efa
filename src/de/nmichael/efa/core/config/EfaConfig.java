@@ -132,7 +132,7 @@ public class EfaConfig extends StorageObject {
     private ItemTypeBoolean debugLogging;
     private ItemTypeString traceTopic;
     private ItemTypeInteger traceLevel;
-    private ItemTypeString efaVersionLastCheck;
+    private ItemTypeLong efaVersionLastCheck;
     private ItemTypeString version;
     private ItemTypeBoolean efaDirekt_zielBeiFahrtbeginnPflicht;
     private ItemTypeBoolean efaDirekt_eintragErzwingeObmann;
@@ -178,8 +178,6 @@ public class EfaConfig extends StorageObject {
     private ItemTypeInteger efaDirekt_maxFBAnzeigenFahrten;
     private ItemTypeInteger efaDirekt_anzFBAnzeigenFahrten;
     private ItemTypeBoolean efaDirekt_FBAnzeigenAuchUnvollstaendige;
-    private ItemTypeDate efaDirekt_autoNewFb_datum;
-    private ItemTypeString efaDirekt_autoNewFb_datei;
     private ItemTypeInteger efaDirekt_fontSize;
     private ItemTypeStringList efaDirekt_fontStyle;
     private ItemTypeBoolean efaDirekt_colorizeInputField;
@@ -286,7 +284,7 @@ public class EfaConfig extends StorageObject {
         if (myEfaTypes != null && myEfaTypes.data().getStorageType() == data().getStorageType()) {
             return;
         }
-        if (data().getStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+        if (data().getStorageType() == IDataAccess.TYPE_EFA_REMOTE && Daten.project != null) {
             myEfaTypes = new EfaTypes(Daten.project.getProjectStorageType(),
                                       Daten.project.getProjectStorageLocation(),
                                       Daten.project.getProjectStorageUsername(),
@@ -381,7 +379,7 @@ public class EfaConfig extends StorageObject {
             addParameter(version = new ItemTypeString("EfaVersion", "100",
                     IItemType.TYPE_INTERNAL,BaseTabbedDialog.makeCategory(CATEGORY_INTERNAL),
                     "efa version"));
-            addParameter(efaVersionLastCheck = new ItemTypeString("EfaVersionLastCheck", "",
+            addParameter(efaVersionLastCheck = new ItemTypeLong("EfaVersionLastCheck", 0, 0, Long.MAX_VALUE,
                     IItemType.TYPE_INTERNAL,BaseTabbedDialog.makeCategory(CATEGORY_INTERNAL),
                     "efa last checked for new version"));
             addParameter(countEfaStarts = new ItemTypeInteger("EfaStartsCounter", 0, 0, Integer.MAX_VALUE, false,
@@ -595,15 +593,6 @@ public class EfaConfig extends StorageObject {
             addParameter(efaDirekt_locked = new ItemTypeBoolean("LockEfaLocked", false,
                     IItemType.TYPE_INTERNAL,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
                     International.getString("efa ist für die Benutzung gesperrt")));
-            addParameter(efaDirekt_autoNewFb_datum = new ItemTypeDate("NewLogbookDate", new DataTypeDate(-1, -1, -1),
-                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-                    International.getString("Neues Fahrtenbuch erstellen am")));
-            addParameter(efaDirekt_autoNewFb_datei = new ItemTypeFile("NewLogbookFile", "",
-                    International.getString("Fahrtenbuch"),
-                    International.getString("Fahrtenbuch") + " (*.efb)",
-                    "efb", ItemTypeFile.MODE_SAVE, ItemTypeFile.TYPE_FILE,
-                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-                    International.getString("Dateiname des neuen Fahrtenbuchs")));
             addParameter(efadirekt_adminLastOsCommand = new ItemTypeString("AdminLastOsCommand", "",
                     IItemType.TYPE_INTERNAL, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
                     International.getString("Betriebssystemkommando")));
@@ -986,6 +975,7 @@ public class EfaConfig extends StorageObject {
             addParameter(dataRemoteEfaOnlineUpdateInterval = new ItemTypeLong("DataRemoteEfaOnlineUpdateInverval", 3600, 60, 24*3600,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
                     "efaOnline Update Interval (sec)"));
+
         }
     }
 
@@ -1200,8 +1190,12 @@ public class EfaConfig extends StorageObject {
         return traceLevel.getValue();
     }
 
-    public String getValueEfaVersionLastCheck() {
+    public long getValueEfaVersionLastCheck() {
         return efaVersionLastCheck.getValue();
+    }
+
+    public void setValueEfaVersionLastCheck(long timestamp) {
+        efaVersionLastCheck.setValue(timestamp);
     }
 
     public String getValueVersion() {
@@ -1384,14 +1378,6 @@ public class EfaConfig extends StorageObject {
         return efaDirekt_FBAnzeigenAuchUnvollstaendige.getValue();
     }
 
-    public DataTypeDate getValueEfaDirekt_autoNewFb_datum() {
-        return efaDirekt_autoNewFb_datum.getDate();
-    }
-
-    public String getValueEfaDirekt_autoNewFb_datei() {
-        return efaDirekt_autoNewFb_datei.getValue();
-    }
-
     public int getValueEfaDirekt_fontSize() {
         return efaDirekt_fontSize.getValue();
     }
@@ -1410,6 +1396,10 @@ public class EfaConfig extends StorageObject {
 
     public String getValueEfadirekt_adminLastOsCommand() {
         return efadirekt_adminLastOsCommand.getValue();
+    }
+
+    public void setValueEfadirekt_adminLastOsCommand(String cmd) {
+        efadirekt_adminLastOsCommand.setValue(cmd);
     }
 
     public String getValueEfaDirekt_vereinsLogo() {

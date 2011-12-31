@@ -64,7 +64,7 @@ public class ElwizAboutFrame extends JDialog implements ActionListener {
 
     jLabel1.setText("elwiz - efa Layout Wizard");
     this.getContentPane().setLayout(gridBagLayout1);
-    versionLabel.setText("Version " + Daten.ELWIZ_VERSION);
+    versionLabel.setText("Version " + Main.ELWIZ_VERSION);
     jLabel2.setText("Copyright (c) 2003-"+Daten.COPYRIGHTYEAR+" by Nicolas Michael <software@nmichael.de>");
     Mnemonics.setButton(this, closeButton, International.getStringWithMnemonic("Schließen"));
     closeButton.addActionListener(new java.awt.event.ActionListener() {

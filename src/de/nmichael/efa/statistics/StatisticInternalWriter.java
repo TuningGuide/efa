@@ -11,11 +11,9 @@
 package de.nmichael.efa.statistics;
 
 import java.io.*;
-import java.awt.image.*;
 import de.nmichael.efa.data.*;
+import de.nmichael.efa.gui.BrowserDialog;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.*;
-import de.nmichael.efa.data.types.DataTypeDistance;
 
 public class StatisticInternalWriter extends StatisticHTMLWriter {
 
@@ -31,8 +29,8 @@ public class StatisticInternalWriter extends StatisticHTMLWriter {
             if (!new File(sr.sOutputFile).isFile()) {
                 Dialog.error(LogString.logstring_fileNotFound(sr.sOutputFile, International.getString("Ausgabedatei")));
             } else {
-                Dialog.neuBrowserDlg(sr.pParentDialog,
-                        International.getString("Ausgabe"),
+                BrowserDialog.openInternalBrowser(sr.pParentDialog,
+                        International.getString("Statistik"),
                         "file:" + sr.sOutputFile, BROWSER_CLOSE_TIMEOUT);
             }
         }

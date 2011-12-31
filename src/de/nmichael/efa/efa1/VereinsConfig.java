@@ -11,7 +11,7 @@
 package de.nmichael.efa.efa1;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.EnterPasswordFrame;
+import de.nmichael.efa.drv.EnterPasswordFrame;
 import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -228,7 +228,7 @@ public class VereinsConfig extends DatenListe {
 
         // KONVERTIEREN: 150 -> 190
         if (s != null && s.trim().startsWith(KENNUNG150)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"150");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"150");
           // Datei lesen
           readEinstellungen();
           kennung = KENNUNG190;

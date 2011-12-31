@@ -105,7 +105,7 @@ public class FahrtenabzeichenListDialog extends DataListDialog {
                     return false;
                 }
                 localFile = Daten.efaTmpDirectory + "drvSigFahrtenhefte.qnrlist";
-                if (!EfaUtil.getFile((JDialog) Dialog.frameCurrent(), request, localFile, true)) {
+                if (!DownloadThread.getFile((JDialog) Dialog.frameCurrent(), request, localFile, true)) {
                     Dialog.error("Es konnten keine Bestätigungsdateien heruntergeladen werden!");
                     return false;
                 }

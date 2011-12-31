@@ -19,67 +19,27 @@ import org.xml.sax.helpers.*;
 
 // @i18n complete
 
-public class XMLFileReader extends DefaultHandler {
+public class XMLFileReader extends XmlHandler {
 
     private XMLFile data;
     private long globalLock;
-    private Locator locator;
 
     private boolean inDataSection = false;
     private boolean inHeaderSection = false;
     private boolean inRecord = false;
-    private String currentField = null;
     private DataRecord dataRecord = null;
-    private StringBuilder charBuffer = null;
     private boolean documentComplete = false;
     private String documentReadError = null;
 
     public XMLFileReader(XMLFile data, long globalLock) {
-        super();
+        super(XMLFile.FIELD_GLOBAL);
         this.data = data;
         this.globalLock = globalLock;
     }
 
-    public void setDocumentLocator(Locator locator) {
-        this.locator = locator;
-    }
-
-    String getLocation() {
-        return locator.getSystemId() + ":" + EfaUtil.int2String(locator.getLineNumber(),4) + ":" + EfaUtil.int2String(locator.getColumnNumber(),4) + ":\t";
-    }
-
-    public void startDocument() {
-        if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"Positions: <SystemID>:<LineNumber>:<ColumnNumber>");
-        }
-        if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "startDocument()");
-        }
-        documentComplete = false;
-    }
-
-    public void endDocument() {
-        if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "endDocument()");
-        }
-        if (!documentComplete) {
-            Logger.log(Logger.ERROR,Logger.MSG_FILE_XMLFILEINCOMPLETE, International.getMessage("Unvollständige oder korrupte Daten gelesen: {data}", data.toString()));
-        }
-    }
-
     public void startElement(String uri, String localName, String qname, Attributes atts) {
-        if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "startElement(uri=" + uri + ", localName=" + localName + ", qname=" + qname + ")");
-        }
-        if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
-            for (int i = 0; i < atts.getLength(); i++) {
-                Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"\tattribute: uri=" + atts.getURI(i) + ", localName=" + atts.getLocalName(i) + ", qname=" + atts.getQName(i) + ", value=" + atts.getValue(i) + ", type=" + atts.getType(i));
-            }
-        }
+        super.startElement(uri, localName, qname, atts);
 
-        if (inHeaderSection || inRecord) {
-            currentField = localName;
-        }
         if (inDataSection && localName.equals(XMLFile.FIELD_DATA_RECORD)) {
             inRecord = true;
             dataRecord = data.getPersistence().createNewRecord();
@@ -90,65 +50,10 @@ public class XMLFileReader extends DefaultHandler {
         if (localName.equals(XMLFile.FIELD_DATA)) {
             inDataSection = true;
         }
-        charBuffer = new StringBuilder();
-    }
-
-    public void characters(char[] ch, int start, int length) {
-        String s = new String(ch, start, length);
-        if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "characters("+s+")");
-        }
-
-        if (inDataSection && currentField != null) {
-            try {
-                charBuffer.append(s);
-                s = charBuffer.toString().trim();
-                dataRecord.set(currentField, s, false);
-            } catch(Exception e) {
-                Logger.log(Logger.ERROR,Logger.MSG_FILE_PARSEERROR,getLocation() + "Parse Error for Field "+currentField+" = "+s+": "+e.toString());
-                currentField = null;
-            }
-            if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
-                Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"Field "+currentField+" = "+s);
-            }
-        }
-        if (inHeaderSection && currentField != null) {
-            try {
-                if (currentField.equals(XMLFile.FIELD_HEADER_PROGRAM)) {
-                    if (!s.equals(Daten.EFA)) {
-                        documentReadError = getLocation() + "Unexpected Value for Header Field " + currentField + ": " + s;
-                    }
-                }
-                if (currentField.equals(XMLFile.FIELD_HEADER_VERSION)) {
-                    // version handling, if necessary
-                }
-                if (currentField.equals(XMLFile.FIELD_HEADER_NAME)) {
-                    if (!s.equals(data.getStorageObjectName())) {
-                        documentReadError = getLocation() + "Unexpected Value for Header Field " + currentField + ": " + s;
-                    }
-                }
-                if (currentField.equals(XMLFile.FIELD_HEADER_TYPE)) {
-                    if (!s.equals(data.getStorageObjectType())) {
-                        documentReadError = getLocation() + "Unexpected Value for Header Field " + currentField + ": " + s;
-                    }
-                }
-                if (currentField.equals(XMLFile.FIELD_HEADER_SCN)) {
-                    data.setSCN(Long.parseLong(s));
-                }
-            } catch (Exception e) {
-                documentReadError = getLocation() + "Parse Error for Header Field " + currentField + ": " + s;
-                Logger.log(Logger.ERROR, Logger.MSG_FILE_PARSEERROR, "Parse Error for Field " + currentField + " = " + s + ": " + e.toString());
-            }
-            if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
-                Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"Field "+currentField+" = "+s);
-            }
-        }
     }
 
     public void endElement(String uri, String localName, String qname) {
-        if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
-            Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,getLocation() + "endElement(" + uri + "," + localName + "," + qname + ")");
-        }
+        super.endElement(uri, localName, qname);
 
         if (localName.equals(XMLFile.FIELD_HEADER)) {
             inHeaderSection = false;
@@ -165,11 +70,52 @@ public class XMLFileReader extends DefaultHandler {
             }
             dataRecord = null;
             inRecord = false;
+            return;
         }
-        if (localName.equals(XMLFile.FIELD_GLOBAL)) {
-            documentComplete = true;
+
+        if (inDataSection) {
+            try {
+                dataRecord.set(fieldName, fieldValue, false);
+            } catch(Exception e) {
+                Logger.log(Logger.ERROR,Logger.MSG_FILE_PARSEERROR,
+                        getLocation() + "Parse Error for Field "+fieldName+" = "+fieldValue+": "+e.toString());
+            }
+            if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
+                Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,
+                        "Field "+fieldName+" = "+fieldValue);
+            }
         }
-        currentField = null;
+        if (inHeaderSection) {
+            try {
+                if (fieldName.equals(XMLFile.FIELD_HEADER_PROGRAM)) {
+                    if (!fieldValue.equals(Daten.EFA)) {
+                        documentReadError = getLocation() + "Unexpected Value for Header Field " + fieldName + ": " + fieldValue;
+                    }
+                }
+                if (fieldName.equals(XMLFile.FIELD_HEADER_VERSION)) {
+                    // version handling, if necessary
+                }
+                if (fieldName.equals(XMLFile.FIELD_HEADER_NAME)) {
+                    if (!fieldValue.equals(data.getStorageObjectName())) {
+                        documentReadError = getLocation() + "Unexpected Value for Header Field " + fieldName + ": " + fieldValue;
+                    }
+                }
+                if (fieldName.equals(XMLFile.FIELD_HEADER_TYPE)) {
+                    if (!fieldValue.equals(data.getStorageObjectType())) {
+                        documentReadError = getLocation() + "Unexpected Value for Header Field " + fieldName + ": " + fieldValue;
+                    }
+                }
+                if (fieldName.equals(XMLFile.FIELD_HEADER_SCN)) {
+                    data.setSCN(Long.parseLong(fieldValue));
+                }
+            } catch (Exception e) {
+                documentReadError = getLocation() + "Parse Error for Header Field " + fieldName + ": " + fieldValue;
+                Logger.log(Logger.ERROR, Logger.MSG_FILE_PARSEERROR, "Parse Error for Field " + fieldName + " = " + fieldValue + ": " + e.toString());
+            }
+            if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
+                Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"Field "+fieldName+" = "+fieldValue);
+            }
+        }
     }
 
     public String getDocumentReadError() {

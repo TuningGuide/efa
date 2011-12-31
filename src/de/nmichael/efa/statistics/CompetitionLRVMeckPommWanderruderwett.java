@@ -10,9 +10,9 @@
 package de.nmichael.efa.statistics;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.WettDef;
-import de.nmichael.efa.core.WettDefGruppe;
-import de.nmichael.efa.core.WettDefs;
+import de.nmichael.efa.data.efawett.WettDef;
+import de.nmichael.efa.data.efawett.WettDefGruppe;
+import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.StatisticsRecord;
 import de.nmichael.efa.data.types.DataTypeDistance;

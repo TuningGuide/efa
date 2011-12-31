@@ -11,6 +11,7 @@
 package de.nmichael.efa.data.storage;
 
 import de.nmichael.efa.ex.EfaException;
+import java.util.zip.ZipOutputStream;
 
 // @i18n complete
 
@@ -567,7 +568,10 @@ public interface IDataAccess {
     public DataRecord getFirst() throws EfaException;
     public DataRecord getLast() throws EfaException;
 
-     public void setPreModifyRecordCallbackEnabled(boolean enabled);
+    public void setPreModifyRecordCallbackEnabled(boolean enabled);
     public boolean isPreModifyRecordCallbackEnabled();
+
+    public void saveToXmlFile(String filename) throws EfaException;
+    public String saveToZipFile(String dir, ZipOutputStream zipOut) throws EfaException;
 
 }

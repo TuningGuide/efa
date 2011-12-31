@@ -83,8 +83,8 @@ public class ImportCrews extends ImportBase {
                 }
 
                 // update BoatRecord
-                String boatName = EfaUtil.getName(d.get(Mannschaften.BOOT));
-                String clubName = EfaUtil.getVerein(d.get(Mannschaften.BOOT));
+                String boatName = Mitglieder.getName(d.get(Mannschaften.BOOT));
+                String clubName = Mitglieder.getVerein(d.get(Mannschaften.BOOT));
                 try {
                     DataKey[] keys = boats.data().getByFields(IDXB,
                             new String[]{

@@ -164,8 +164,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
                     } catch (Exception ee) {
                         EfaUtil.foo();
                     }
-
-                    checkPackFrame();
                 }
             } catch (Exception eglobal) {
                 Logger.log(eglobal);
@@ -374,16 +372,12 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
     
     private void checkForAutoCreateNewLogbook() {
-        // @todo (P4) - EfaBoathouseBackgroundTask.checkForAutoCreateNewLogbook()
-        /*
-        if (Daten.applMode == Daten.APPL_MODE_NORMAL
-                && Daten.efaConfig.efaDirekt_autoNewFb_datum.isSet()
-                && Daten.efaConfig.efaDirekt_autoNewFb_datei.getValue().length() > 0) {
-            if (EfaUtil.secondDateIsEqualOrAfterFirst(Daten.efaConfig.efaDirekt_autoNewFb_datum.toString(), EfaUtil.getCurrentTimeStampDD_MM_YYYY())) {
-                efaBoathouseFrame.autoCreateNewFb();
+        if (Daten.project != null && Daten.project.isOpen()) {
+            DataTypeDate date = Daten.project.getAutoNewLogbookDate();
+            if (date != null && date.isSet() && DataTypeDate.today().isAfterOrEqual(date)) {
+                autoOpenNewLogbook();
             }
         }
-        */
     }
 
     private void checkAlwaysInFront() {
@@ -433,30 +427,110 @@ public class EfaBoathouseBackgroundTask extends Thread {
         }
     }
 
-    private void checkPackFrame() {
-        // Bugfix, da efa unter manchen Versionen beim Start nicht richtig gepackt wird.
-        // @todo (P4) - EfaBoathouseBackgroundTask.checkForAutoCreateNewLogbook() - STILL NECESSARY??
-        /*
-        if (!framePacked) {
-            if (efaBoathouseFrame != null) {
-                if (Daten.efaConfig != null) {
-                    if (!Daten.efaConfig.efaDirekt_startMaximized.getValue()) {
-                        efaBoathouseFrame.packFrame("EfaBoathouseBackgroundTask");
-                    } else {
-                        if (efaBoathouseFrame.jScrollPane1 != null && efaBoathouseFrame.westPanel != null && efaBoathouseFrame.contentPane != null) {
-                            efaBoathouseFrame.jScrollPane1.setSize(efaBoathouseFrame.jScrollPane1.getPreferredSize());
-                            efaBoathouseFrame.westPanel.validate();
-                            efaBoathouseFrame.contentPane.validate();
+    private void autoOpenNewLogbook() {
+        if (Daten.project == null || !Daten.project.isOpen()) {
+            return;
+        }
+        String newLogbookName = Daten.project.getAutoNewLogbookName();
+        if (newLogbookName == null || newLogbookName.length() == 0) {
+            return;
+        }
+        Daten.project.setAutoNewLogbookDate(null);
+        Daten.project.setAutoNewLogbookName(null);
+        Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLOGBOOK,
+                International.getString("Fahrtenbuchwechsel wird begonnen ..."));
+
+        Logbook currentLogbook = efaBoathouseFrame.getLogbook();
+        BoatStatus boatStatus = Daten.project.getBoatStatus(false);
+        long lockLogbook = -1;
+        long lockStatus = -1;
+        try {
+            Logbook newLogbook = Daten.project.getLogbook(newLogbookName, false);
+
+            // Step 1: Try to find and open new Logbook
+            if (newLogbook == null) {
+                Logger.log(Logger.ERROR, Logger.MSG_ERR_AUTOSTARTNEWLOGBOOK,
+                        LogString.logstring_fileNotFound(newLogbookName, International.getString("Fahrtenbuch")));
+                throw new Exception("New Logbook not found");
+            }
+            if (currentLogbook != null && newLogbook.getName().equals(currentLogbook.getName())) {
+                Logger.log(Logger.ERROR, Logger.MSG_ERR_AUTOSTARTNEWLOGBOOK,
+                        International.getMessage("Fahrtenbuch {name} ist bereits geöffnet.", newLogbook.getName()));
+                throw new Exception("New Logbook already opened");
+            }
+
+            // Step 2: Abort open Sessions
+            boolean sessionsAborted = false;
+            if (currentLogbook != null) {
+                Vector<BoatStatusRecord> boatsOnTheWater = boatStatus.getBoats(BoatStatusRecord.STATUS_ONTHEWATER);
+                if (boatsOnTheWater.size() > 0) {
+                    lockStatus = boatStatus.data().acquireGlobalLock();
+                    lockLogbook = currentLogbook.data().acquireGlobalLock();
+                    sessionsAborted = true;
+                    Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLBSTEP,
+                            International.getString("Offene Fahrten werden abgebrochen ..."));
+                    for (int i = 0; i < boatsOnTheWater.size(); i++) {
+                        BoatStatusRecord sr = boatsOnTheWater.get(i);
+                        LogbookRecord r = null;
+                        if (sr.getEntryNo() != null && sr.getEntryNo().isSet()) {
+                            r = currentLogbook.getLogbookRecord(sr.getEntryNo());
+                            r.setSessionIsOpen(false);
+                            currentLogbook.data().update(r, lockLogbook);
                         }
+                        sr.setEntryNo(null);
+                        sr.setCurrentStatus(sr.getBaseStatus());
+                        boatStatus.data().update(sr, lockStatus);
+                        EfaBaseFrame.logBoathouseEvent(Logger.INFO, Logger.MSG_EVT_TRIPABORT,
+                                International.getString("Fahrtabbruch"), r);
+                        boatStatus.data().releaseGlobalLock(lockStatus);
+                        lockStatus = -1;
+                        currentLogbook.data().releaseGlobalLock(lockLogbook);
+                        lockLogbook = -1;
                     }
                 }
             }
-            if (efaBoathouseFrame != null && efaBoathouseFrame.efaFrame != null) {
-                efaBoathouseFrame.efaFrame.packFrame("EfaBoathouseBackgroundTask.run()");
+
+            // Step 3: Activate the new Logbook
+            if (efaBoathouseFrame.openLogbook(newLogbook.getName())) {
+                Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLBDONE,
+                        International.getString("Fahrtenbuchwechsel erfolgreich abgeschlossen."));
+            } else {
+                throw new Exception("Failed to open new Logbook");
             }
-            framePacked = true; // nicht nochmal machen, sondern nur einmal beim Start
+
+            Messages messages = Daten.project.getMessages(false);
+            messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME, MessageRecord.TO_ADMIN,
+                    International.getString("Fahrtenbuchwechsel"),
+                    International.getString("efa hat soeben wie konfiguriert ein neues Fahrtenbuch geöffnet.") + "\n"
+                    + International.getMessage("Das neue Fahrtenbuch heißt {name} und ist gültig vom {fromdate} bis {todate}.",
+                    newLogbook.getName(), newLogbook.getStartDate().toString(), newLogbook.getEndDate().toString())+"\n"
+                    + International.getString("Der Vorgang wurde ERFOLGREICH abgeschlossen.") + "\n\n"
+                    + (sessionsAborted ? International.getString("Zum Zeitpunkt des Fahrtenbuchwechsels befanden sich noch einige Boote "
+                    + "auf dem Wasser. Diese Fahrten wurden ABGEBROCHEN. Die abgebrochenen "
+                    + "Fahrten sind in der Logdatei verzeichnet.") : ""));
+            EfaUtil.sleep(500);
+            efaBoathouseFrame.updateBoatLists(true);
+            EfaUtil.sleep(500);
+            interrupt();
+        } catch (Exception e) {
+            Logger.logdebug(e);
+            Logger.log(Logger.ERROR, Logger.MSG_ERR_AUTOSTARTNEWLOGBOOK,
+                    International.getString("Fahrtenbuchwechsel abgebrochen."));
+            Messages messages = Daten.project.getMessages(false);
+            messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME, MessageRecord.TO_ADMIN,
+                    International.getString("Fahrtenbuchwechsel"),
+                    International.getString("efa hat soeben versucht, wie konfiguriert ein neues Fahrtenbuch anzulegen.") + "\n"
+                    + International.getString("Bei diesem Vorgang traten jedoch FEHLER auf.") + "\n\n"
+                    + International.getString("Ein Protokoll ist in der Logdatei (Admin-Modus: Logdatei anzeigen) zu finden."));
+        } finally {
+            if (boatStatus != null && lockStatus >= 0) {
+                boatStatus.data().releaseGlobalLock(lockStatus);
+            }
+            if (currentLogbook != null && lockLogbook >= 0) {
+                currentLogbook.data().releaseGlobalLock(lockLogbook);
+            }
         }
-        */
+
     }
 
 }

@@ -9,9 +9,11 @@
  */
 package de.nmichael.efa.gui.statistics;
 
+import de.nmichael.efa.data.efawett.WettDefs;
+import de.nmichael.efa.data.efawett.EfaWett;
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.*;
 import de.nmichael.efa.gui.BaseDialog;
+import de.nmichael.efa.gui.BrowserDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -292,10 +294,10 @@ public class EfaWettDoneDialog extends BaseDialog implements ActionListener {
             Dialog.error("Fehler: " + ee.toString());
         }
         if (!Daten.javaVersion.startsWith("1.5.") && !Daten.javaVersion.startsWith("1.6.")) {
-            Dialog.neuBrowserDlg(this, "Meldeddatei einsenden", "file:" + tmpdatei);
+            BrowserDialog.openInternalBrowser(this, "Meldeddatei einsenden", "file:" + tmpdatei);
             EfaUtil.deleteFile(tmpdatei);
         } else {
-            Dialog.startBrowser(this, "file:" + tmpdatei);
+            BrowserDialog.openExternalBrowser(this, "file:" + tmpdatei);
         }
     }
 
@@ -425,7 +427,7 @@ public class EfaWettDoneDialog extends BaseDialog implements ActionListener {
             Dialog.error("Erstellen der Anleitung ist fehlgeschlagen.");
             return;
         }
-        Dialog.neuBrowserDlg(this, "Anleitung zum Einsenden von Meldedateien", "file:" + tmpfile);
+        BrowserDialog.openInternalBrowser(this, "Anleitung zum Einsenden von Meldedateien", "file:" + tmpfile);
         EfaUtil.deleteFile(tmpfile);
     }
 }

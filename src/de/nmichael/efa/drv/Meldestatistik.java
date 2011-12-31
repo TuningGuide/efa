@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.efa1.Efa1Backup;
 import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
@@ -71,7 +72,7 @@ public class Meldestatistik extends DatenListe {
 
         // KONVERTIEREN: 151 -> 160
         if (s != null && s.trim().startsWith(KENNUNG151)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"151");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"151");
           iniList(this.dat,22,1,true); // Rahmenbedingungen von v160 schaffen
           try {
             while ((s = freadLine()) != null) {
@@ -93,7 +94,7 @@ public class Meldestatistik extends DatenListe {
 
         // KONVERTIEREN: 160 -> 183
         if (s != null && s.trim().startsWith(KENNUNG160)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"160");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"160");
           iniList(this.dat,26,1,true); // Rahmenbedingungen von v183 schaffen
           try {
             while ((s = freadLine()) != null) {
@@ -115,7 +116,7 @@ public class Meldestatistik extends DatenListe {
 
         // KONVERTIEREN: 182 -> 190
         if (s != null && s.trim().startsWith(KENNUNG183)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"183");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"183");
           iniList(this.dat,26,1,true); // Rahmenbedingungen von v190 schaffen
           try {
             while ((s = freadLine()) != null) {

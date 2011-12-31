@@ -17,8 +17,8 @@ import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeDistance;
 import de.nmichael.efa.data.types.DataTypeIntString;
 import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.Zielfahrt;
-import de.nmichael.efa.util.ZielfahrtFolge;
+import de.nmichael.efa.data.efawett.Zielfahrt;
+import de.nmichael.efa.data.efawett.ZielfahrtFolge;
 import java.util.Vector;
 
 public class StatisticsData implements Comparable {

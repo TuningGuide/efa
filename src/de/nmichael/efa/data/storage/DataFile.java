@@ -85,9 +85,9 @@ public abstract class DataFile extends DataAccess {
             if (!f.exists()) {
                 f.mkdirs();
             }
-            BufferedWriter fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename,false), ENCODING));
-            writeFile(fw);
-            fw.close();
+            FileOutputStream fout = new FileOutputStream(filename,false);
+            writeFile(fout);
+            fout.close();
             scn = 0;
             setupJournal();
             isOpen = true;
@@ -183,9 +183,9 @@ public abstract class DataFile extends DataAccess {
         }
         try {
             createBackupFile(filename);
-            BufferedWriter fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename, false), ENCODING));
-            writeFile(fw);
-            fw.close();
+            FileOutputStream fout = new FileOutputStream(filename, false);
+            writeFile(fout);
+            fout.close();
         } catch(Exception e) {
             throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         }
@@ -221,7 +221,7 @@ public abstract class DataFile extends DataAccess {
     }
 
     protected abstract void readFile(BufferedReader fr) throws EfaException;
-    protected abstract void writeFile(BufferedWriter fw) throws EfaException;
+    protected abstract void writeFile(OutputStream out) throws EfaException;
 
     private long getLock(DataKey object) throws EfaException {
         if (!isStorageObjectOpen()) {
@@ -310,16 +310,18 @@ public abstract class DataFile extends DataAccess {
                     }
                     if (update && !add) {
                         if (currentRecord.getChangeCount() != record.getChangeCount()) {
-                            // @todo (P1) throw exception upon lock conflicts
-                            /*
+                            // Throw an exception!
                             throw new EfaException(Logger.MSG_DATA_DUPLICATERECORD, getUID() + ": Update Conflict for Data Record '"+key.toString()+
                                     "': Current ChangeCount="+currentRecord.getChangeCount()+", expected ChangeCount="+record.getChangeCount(),
                                     Thread.currentThread().getStackTrace());
-                            */
+                            /*
+                            // Logging this event was just a work-around in the past; actually, we have
+                            // to throw an exception instead
                             Logger.logStackTrace(Logger.ERROR, Logger.MSG_DATA_UPDATECONFLICT,
                                     getUID() + ": Update Conflict for Data Record '"+key.toString()+
                                     "': Current ChangeCount="+currentRecord.getChangeCount()+", expected ChangeCount="+record.getChangeCount(),
                                     Thread.currentThread().getStackTrace());
+                            */
                         }
                     }
                     if (!inOpeningStorageObject) { // don't update LastModified timestamp when reading saved data from file!

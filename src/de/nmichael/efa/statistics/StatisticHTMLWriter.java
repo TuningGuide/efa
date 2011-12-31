@@ -18,7 +18,7 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.data.types.DataTypeDistance;
 
 public class StatisticHTMLWriter extends StatisticWriter {
-    
+
     public StatisticHTMLWriter(StatisticsRecord sr, StatisticsData[] sd) {
         super(sr, sd);
     }
@@ -368,49 +368,6 @@ public class StatisticHTMLWriter extends StatisticWriter {
                 f.write(EfaUtil.escapeXml(s));
             }
             f.write("</td>\n");
-        }
-    }
-
-    static void outHTMLgra(BufferedWriter f, AusgabeEintrag ae, String[] s, int colspan) throws IOException {
-        if (s != null && s[0] != null) {
-            if (colspan == 1 || s[1] == null || s[2] == null) {
-                // "normale" Ausgabe (kein Vorjahresvergleich) oder nicht grafische Ausgabe
-                f.write("<td" + (s[1] == null ? " align=\"right\"" : "") + ">");
-                if (s[1] != null && s[2] != null && !s[2].equals("0")) {
-                    f.write("<img src=\"" + s[1] + "\" width=\"" + s[2] + "\" height=\"20\" alt=\"\">&nbsp;");
-                }
-                f.write(s[0] + "</td>\n");
-            } else {
-                // Ausgabe für Vorjahresvergleich bei grafischer Ausgabe mit zwei Tabellenfeldern
-                int wert = EfaUtil.zehntelString2Int(s[0]);
-                // Null-Wert zentriert über beide Spalten
-                if (wert == 0) {
-                    f.write("<td align=\"center\" colspan=\"2\">" + s[0] + "</td>");
-                } else {
-                    // linke Spalte für negative Werte
-                    f.write("<td align=\"right\">");
-                    if (wert < 0) {
-                        f.write(s[0]);
-                        if (!s[2].equals("0")) {
-                            f.write("&nbsp;<img src=\"" + s[1] + "\" width=\"" + Math.abs(EfaUtil.string2int(s[2], 0)) + "\" height=\"20\" alt=\"\">");
-                        }
-                    } else {
-                        f.write("&nbsp;");
-                    }
-                    f.write("</td>");
-                    // rechte Spalte für positive Werte
-                    f.write("<td align=\"left\">");
-                    if (wert > 0) {
-                        if (!s[2].equals("0")) {
-                            f.write("<img src=\"" + s[1] + "\" width=\"" + s[2] + "\" height=\"20\" alt=\"\">&nbsp;");
-                        }
-                        f.write(s[0]);
-                    } else {
-                        f.write("&nbsp;");
-                    }
-                    f.write("</td>");
-                }
-            }
         }
     }
 

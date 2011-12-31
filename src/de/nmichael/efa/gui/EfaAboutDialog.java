@@ -286,31 +286,31 @@ public class EfaAboutDialog extends BaseDialog {
         if (Daten.applID == Daten.APPL_EFABH) {
             return;
         }
-        Dialog.startBrowser(this, Daten.EFAURL);
+        BrowserDialog.openExternalBrowser(this, Daten.EFAURL);
     }
 
     void supportLabel_mouseClicked(MouseEvent e) {
         if (Daten.applID == Daten.APPL_EFABH) {
             return;
         }
-        Dialog.startBrowser(this, Daten.EFASUPPORTURL);
+        BrowserDialog.openExternalBrowser(this, Daten.EFASUPPORTURL);
     }
 
     void emailLabel_mouseClicked(MouseEvent e) {
         if (Daten.applID == Daten.APPL_EFABH) {
             return;
         }
-        Dialog.neuBrowserDlg(this, "Browser", "file:" + HtmlFactory.createMailto(Daten.EMAILINFO), 700, 600, (int) Dialog.screenSize.getWidth() / 2 - 350, (int) Dialog.screenSize.getHeight() / 2 - 300);
+        BrowserDialog.openInternalBrowser(this, "Browser", "file:" + HtmlFactory.createMailto(Daten.EMAILINFO), 700, 600);
     }
 
     void gplLabel_mouseClicked(MouseEvent e) {
-        Dialog.neuBrowserDlg(this, "Browser", "file:" + Daten.efaDocDirectory + Daten.EFA_LICENSE, 700, 600, (int) Dialog.screenSize.getWidth() / 2 - 350, (int) Dialog.screenSize.getHeight() / 2 - 300);
+        BrowserDialog.openInternalBrowser(this, "Browser", "file:" + Daten.efaDocDirectory + Daten.EFA_LICENSE, 700, 600);
     }
 
     void devNoteUrlLabel_mouseClicked(MouseEvent e) {
         if (Daten.applID == Daten.APPL_EFABH) {
             return;
         }
-        Dialog.startBrowser(this, Daten.EFADEVURL);
+        BrowserDialog.openExternalBrowser(this, Daten.EFADEVURL);
     }
 }

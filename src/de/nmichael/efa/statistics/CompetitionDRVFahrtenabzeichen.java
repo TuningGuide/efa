@@ -10,20 +10,20 @@
 package de.nmichael.efa.statistics;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.DRVSignaturFrame;
-import de.nmichael.efa.core.EfaWettMeldung;
-import de.nmichael.efa.core.WettDef;
-import de.nmichael.efa.core.WettDefGruppe;
-import de.nmichael.efa.core.WettDefs;
+import de.nmichael.efa.data.efawett.EfaWettMeldung;
+import de.nmichael.efa.data.efawett.WettDef;
+import de.nmichael.efa.data.efawett.WettDefGruppe;
+import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.Fahrtenabzeichen;
 import de.nmichael.efa.data.FahrtenabzeichenRecord;
 import de.nmichael.efa.data.LogbookRecord;
+import de.nmichael.efa.data.Project;
 import de.nmichael.efa.data.SessionGroupRecord;
 import de.nmichael.efa.data.StatisticsRecord;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeDistance;
-import de.nmichael.efa.util.DRVSignatur;
+import de.nmichael.efa.data.efawett.DRVSignatur;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.EfaUtil;
 import java.util.Hashtable;
@@ -162,10 +162,12 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
         }
 
         if (sr.getOutputTypeEnum() == StatisticsRecord.OutputTypes.efawett) {
-            efaWett.verein_mitglnr = Daten.vereinsConfig.mitgliedsnummerDRV;
-            efaWett.meld_kto = Daten.vereinsConfig.meldenderKto;
-            efaWett.meld_bank = Daten.vereinsConfig.meldenderBank;
-            efaWett.meld_blz = Daten.vereinsConfig.meldenderBLZ;
+            Project p = sr.getPersistence().getProject();
+            efaWett.verein_mitglnr = p.getClubGlobalAssociationMemberNo();
+            // @todo (P5) Bankverbindung für Meldung efaWett
+            //efaWett.meld_kto = Daten.vereinsConfig.meldenderKto;
+            //efaWett.meld_bank = Daten.vereinsConfig.meldenderBank;
+            //efaWett.meld_blz = Daten.vereinsConfig.meldenderBLZ;
         }
 
         sr.pCompGroupNames = new String[gruppen.length][3];
@@ -348,7 +350,7 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
                                                         + "aber nicht prüfen, da der Schlüssel unbekannt ist.\n"
                                                         + "Im folgenden Dialog wirst Du daher aufgefordert, den Schlüssel\n"
                                                         + "aus dem Internet herunterzuladen.");
-                                                if (DRVSignaturFrame.downloadKey(drvSignatur.getKeyName())) {
+                                                if (fahrtenabzeichen.downloadKey(drvSignatur.getKeyName())) {
                                                     drvSignatur.checkSignature();
                                                 }
                                             }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<efaOnlineUpdate>
+    <Version>
+        <VersionID>1.9.9_01</VersionID>
+        <ReleaseDate>31.12.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2755584</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Bugfixes Remote-Zugriff</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Bugfixes Remote Access</ChangeItem>
+        </Changes>
+    </Version>
+
+</efaOnlineUpdate>

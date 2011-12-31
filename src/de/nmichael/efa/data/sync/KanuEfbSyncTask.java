@@ -409,7 +409,7 @@ public class KanuEfbSyncTask extends ProgressTask {
                                 BoatRecord b = (r.getBoatId() != null ? boats.getBoat(r.getBoatId(), thisSync) : null);
                                 DestinationRecord d = (r.getDestinationId() != null ? destinations.getDestination(r.getDestinationId(), thisSync): null);
                                 WatersRecord w = (d != null && d.getWatersIdList() != null && d.getWatersIdList().length() > 0 ?
-                                    waters.getWaters(d.getWatersIdList().get(0)) : null); // @todo (P4) get all other waters as well, currently for test purpose only first one!
+                                    waters.getWaters(d.getWatersIdList().get(0)) : null); // @todo (P6) get all other waters as well, currently for test purpose only first one!
                                 String startDate = r.getDate().getDateString("YYYY-MM-DD");
                                 String endDate = (r.getEndDate() != null ? r.getEndDate().getDateString("YYYY-MM-DD") : startDate);
                                 String tripId = logbook.getName()+"_"+r.getEntryId().toString();
@@ -424,10 +424,10 @@ public class KanuEfbSyncTask extends ProgressTask {
                                 request.append("<begdate>" + startDate + "</begdate>");
                                 request.append("<enddate>" + endDate + "</enddate>");
                                 if (r.getStartTime() != null) {
-                                    // @todo (P3) request.append("<begtime>" + r.getStartTime().toString() + "</begtime>");
+                                    // @todo (P6) request.append("<begtime>" + r.getStartTime().toString() + "</begtime>");
                                 }
                                 if (r.getEndTime() != null) {
-                                    // @todo (P3) request.append("<endtime>" + r.getEndTime().toString() + "</endtime>");
+                                    // @todo (P6) request.append("<endtime>" + r.getEndTime().toString() + "</endtime>");
                                 }
 
                                 request.append("<lines>");

@@ -10,9 +10,9 @@
 package de.nmichael.efa.statistics;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.EfaWettMeldung;
-import de.nmichael.efa.core.WettDef;
-import de.nmichael.efa.core.WettDefs;
+import de.nmichael.efa.data.efawett.EfaWettMeldung;
+import de.nmichael.efa.data.efawett.WettDef;
+import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.types.DataTypeDate;
@@ -33,7 +33,6 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
     protected static final String AKTIV_W_BIS18 = "W18";
     
     protected Hashtable<String,String> alleWW = new Hashtable<String,String>();
-    protected AlleWWArrEl[] alleWWArr;
     protected Hashtable<UUID,String> alleAktive = new Hashtable<UUID,String>();
 
     protected Waters waters = Daten.project.getWaters(false);

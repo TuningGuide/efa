@@ -14,7 +14,6 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.core.config.EfaTypes;
-import de.nmichael.efa.statistics.StatistikDaten;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.io.*;
@@ -136,7 +135,7 @@ public class StatSave extends DatenListe {
 
         // KONVERTIEREN: 182 -> 190
         if (s != null && s.trim().startsWith(KENNUNG182)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"182");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"182");
           iniList(this.dat,74,1,false); // Rahmenbedingungen von v1.9.0 schaffen
           // Datei lesen
           try {

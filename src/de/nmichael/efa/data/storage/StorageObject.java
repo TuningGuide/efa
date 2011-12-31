@@ -172,7 +172,7 @@ public abstract class StorageObject {
         }
 
         if (this.data().getMetaData().isVersionized()) {
-            return; // @todo (P3) there are lots of operations which involve deleting of versions, which trigger this check unnecessarily
+            return; // @todo (P5) there are lots of operations which involve deleting of versions, which trigger this check unnecessarily
         }
 
         String refRec = null;

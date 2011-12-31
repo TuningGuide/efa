@@ -32,10 +32,10 @@ public class Main extends Program {
     static String hostname = "localhost";
     static String port = null;
     static String project = null;
+    static String command = null;
 
     public Main(String[] args) {
-        super(args);
-        Daten.initialize(Daten.APPL_CLI);
+        super(Daten.APPL_CLI, args);
         if (port == null) {
             port = Integer.toString(Daten.efaConfig.getValueDataataRemoteEfaServerPort());
         }
@@ -44,7 +44,7 @@ public class Main extends Program {
         }
 
         CLI cli = new CLI(username, password, hostname, port, project);
-        cli.run();
+        cli.run(command);
 
         Daten.haltProgram(0);
     }
@@ -52,6 +52,7 @@ public class Main extends Program {
     public void printUsage(String wrongArgument) {
         super.printUsage(wrongArgument);
         printOption("[username[:password]@][host[:port]][/project]", "Connect String");
+        printOption("[-cmd command]", "Run Command");
         System.exit(0);
     }
 
@@ -91,7 +92,16 @@ public class Main extends Program {
                 args[i] = null;
                 continue;
             }
-}
+            if (args[i].equals("-cmd")) {
+                args[i] = null;
+                i++;
+                if (i < args.length) {
+                    command = args[i];
+                    args[i] = null;
+                }
+                continue;
+            }
+        }
         checkRemainingArgs(args);
     }
 

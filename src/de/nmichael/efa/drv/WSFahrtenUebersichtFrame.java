@@ -10,7 +10,7 @@
 
 package de.nmichael.efa.drv;
 
-import de.nmichael.efa.core.EfaWettMeldung;
+import de.nmichael.efa.data.efawett.EfaWettMeldung;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;

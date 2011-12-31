@@ -2,21 +2,25 @@
 
 Item                                                                 days  until
 ================================================================================
-Online Update
-AutoComplete: match anything within input/change list content
-Audit
+Test Bugfix: Online-Update (restart am Ende)
 Backup
+Internationalize - Cleanup
+Rewrite remaining Dialogs/Frames
+Delete unused Classes
+Auto Create new Logbooks - better Dialog
+
+efaWett: email-Adresse Pflicht
+Audit
 efaRemote - SSL
 efaRemote - proper Session Handling
 efaRemote - Progress Indicator
 Crash Recovery (Roll forward)
 Point-in-Time Recovery
 Lock Efa
-Rewrite remaining Dialogs/Frames
-Delete unused Classes
 DataLayer: DB Access
 efaRemote: "rotating status symbol" on remote activity
 Help System
+AutoComplete: match anything within input/change list content
 --------------------------------------------------------------------------------
 
 Statistics - Weird Statistics (WerMitWem etc.)
@@ -53,3 +57,5 @@ Statistics - split Dialog to select Filters in Sub-Tabs
 Statistics - add buttons "all" for Filters of each Category, so ensure nothing is skipped when e.g. SessionTypes are added
 Administration of DRV-Fahrtenabzeichen
 efaWett (elektronische Meldung)
+Online Update: XML and Multi-Language
+Encrypt Passwords for external Systems

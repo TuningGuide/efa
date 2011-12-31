@@ -13,10 +13,8 @@ package de.nmichael.efa.data.storage;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.ex.EfaException;
-import java.util.*;
 import java.io.*;
 import org.xml.sax.*;
-import org.xml.sax.helpers.*;
 
 // @i18n complete
 
@@ -33,7 +31,6 @@ public class XMLFile extends DataFile {
     public static final String FIELD_DATA_RECORD = "record";
 
     private static final boolean doIndent = true;
-    private int indent = 0;
 
     public XMLFile(String directory, String filename, String extension, String description) {
         super(directory, filename, extension, description);
@@ -42,21 +39,6 @@ public class XMLFile extends DataFile {
     public int getStorageType() {
         return IDataAccess.TYPE_FILE_XML;
     }
-
-    private String xmltagStart(String tag) {
-        indent++;
-        return "<" + tag + ">";
-    }
-
-    private String xmltagEnd(String tag) {
-        indent--;
-        return "</" + tag + ">";
-    }
-
-    private String xmltag(String tag, String value) {
-        return xmltagStart(tag) + EfaUtil.escapeXml(value) + xmltagEnd(tag);
-    }
-
 
     protected synchronized void readFile(BufferedReader fr) throws EfaException {
         isOpen = true;
@@ -89,58 +71,129 @@ public class XMLFile extends DataFile {
         }
     }
 
-    protected String space(int indent) {
+    protected synchronized void writeFile(OutputStream out) throws EfaException {
+        writeFile(this, out);
+    }
+
+    // ============== static methods for writing XML data ==============
+
+    protected static void writeFile(IDataAccess dataAccess, OutputStream out) throws EfaException {
+        synchronized (dataAccess) {
+            StaticXmlInfo data = new StaticXmlInfo(dataAccess, out);
+            write(data, "<?xml version=\"1.0\" encoding=\"" + ENCODING + "\"?>");
+            write(data, xmltagStart(data, FIELD_GLOBAL));
+            write(data, xmltagStart(data, FIELD_HEADER));
+            write(data, xmltag(data, FIELD_HEADER_PROGRAM, Daten.EFA));
+            write(data, xmltag(data, FIELD_HEADER_VERSION, Daten.VERSIONID));
+            write(data, xmltag(data, FIELD_HEADER_NAME, dataAccess.getStorageObjectName()));
+            write(data, xmltag(data, FIELD_HEADER_TYPE, dataAccess.getStorageObjectType()));
+            write(data, xmltag(data, FIELD_HEADER_SCN, Long.toString(dataAccess.getSCN())));
+            write(data, xmltagEnd(data, FIELD_HEADER));
+            writeData(data);
+            write(data, xmltagEnd(data, FIELD_GLOBAL));
+            try {
+                if (data.fout != null) {
+                    data.fout.close();
+                }
+            } catch (IOException e) {
+                Logger.log(e);
+                throw new EfaException(Logger.MSG_DATA_WRITEFAILED,
+                        LogString.logstring_fileWritingFailed(data.dataAccess.getUID(),
+                        data.dataAccess.getStorageObjectDescription(), e.toString()), Thread.currentThread().getStackTrace());
+            }
+        }
+   }
+
+    private static void writeData(StaticXmlInfo data) throws EfaException {
+        write(data, xmltagStart(data, FIELD_DATA));
+
+        String[] fields = data.dataAccess.getFieldNames();
+        DataKeyIterator it = data.dataAccess.getStaticIterator();
+        DataKey k = it.getFirst();
+        while(k != null) {
+            DataRecord r = data.dataAccess.get(k);
+            if (r == null) {
+                continue;
+            }
+            write(data, xmltagStart(data, FIELD_DATA_RECORD));
+            for (int i=0; i<fields.length; i++) {
+                Object o = r.get(fields[i]);
+                if (o != null && r.getFieldType(i) != IDataAccess.DATA_VIRTUAL && !r.isDefaultValue(i)) {
+                    write(data, xmltag(data, fields[i],o.toString()));
+                }
+            }
+            write(data, xmltagEnd(data, FIELD_DATA_RECORD));
+            k = it.getNext();
+        }
+
+        write(data, xmltagEnd(data, FIELD_DATA));
+    }
+
+    private static void write(StaticXmlInfo data, String s) throws EfaException {
+        try {
+            String str = space(data) + s + "\n";
+            if (data.fout != null) {
+                data.fout.write(str);
+            } else {
+                data.out.write(str.getBytes(XMLFile.ENCODING));
+            }
+        } catch(Exception e) {
+            Logger.log(e);
+            throw new EfaException(Logger.MSG_DATA_WRITEFAILED, 
+                    LogString.logstring_fileWritingFailed(data.dataAccess.getUID(),
+                    data.dataAccess.getStorageObjectDescription(), e.toString()), Thread.currentThread().getStackTrace());
+        }
+    }
+
+    private static String xmltagStart(StaticXmlInfo data, String tag) {
+        data.indent++;
+        return "<" + tag + ">";
+    }
+
+    private static String xmltagEnd(StaticXmlInfo data, String tag) {
+        data.indent--;
+        return "</" + tag + ">";
+    }
+
+    private static String xmltag(StaticXmlInfo data, String tag, String value) {
+        return xmltagStart(data, tag) +
+                EfaUtil.escapeXml(value) +
+                xmltagEnd(data, tag);
+    }
+ 
+    private static String space(StaticXmlInfo data) {
         if (doIndent) {
             String s = "";
-            for (int i=0; i<indent && i<this.indent; i++) {
+            for (int i=0; i<data.lastindent && i<data.indent; i++) {
                 s += "  ";
             }
+            data.lastindent = data.indent;
             return s;
         }
         return "";
     }
 
-    protected synchronized void write(BufferedWriter fw, int indent, String s) throws EfaException {
-        try {
-            fw.write(space(indent) + s + "\n");
-        } catch(Exception e) {
-            Logger.log(e);
-            throw new EfaException(Logger.MSG_DATA_WRITEFAILED, LogString.logstring_fileWritingFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
-        }
-    }
+}
 
-    protected synchronized void writeFile(BufferedWriter fw) throws EfaException {
-        write(fw,0,"<?xml version=\"1.0\" encoding=\""+ENCODING+"\"?>");
-        write(fw,indent,xmltagStart(FIELD_GLOBAL));
-        write(fw,indent,xmltagStart(FIELD_HEADER));
-        write(fw,indent,xmltag(FIELD_HEADER_PROGRAM,Daten.EFA));
-        write(fw,indent,xmltag(FIELD_HEADER_VERSION,Daten.VERSIONID));
-        write(fw,indent,xmltag(FIELD_HEADER_NAME,getStorageObjectName()));
-        write(fw,indent,xmltag(FIELD_HEADER_TYPE,getStorageObjectType()));
-        write(fw,indent,xmltag(FIELD_HEADER_SCN,Long.toString(getSCN())));
-        write(fw,indent,xmltagEnd(FIELD_HEADER));
-        writeData(fw);
-        write(fw,indent,xmltagEnd(FIELD_GLOBAL));
-    }
+class StaticXmlInfo {
 
-    private synchronized void writeData(BufferedWriter fw) throws EfaException {
-        write(fw,indent,xmltagStart(FIELD_DATA));
+    IDataAccess dataAccess;
+    OutputStream out;
+    // BufferedWriter is more efficient for files; only used if out is an instance of FileOutputStream
+    BufferedWriter fout;
+    int indent, lastindent;
 
-        String[] fields = getFieldNames();
-        DataKeyIterator it = getStaticIterator();
-        DataRecord d = getFirst(it);
-        while(d != null) {
-            write(fw,indent,xmltagStart(FIELD_DATA_RECORD));
-            for (int i=0; i<fields.length; i++) {
-                Object o = d.get(fields[i]);
-                if (o != null && d.getFieldType(i) != IDataAccess.DATA_VIRTUAL && !d.isDefaultValue(i)) {
-                    write(fw,indent,xmltag(fields[i],o.toString()));
-                }
+    public StaticXmlInfo(IDataAccess dataAccess, OutputStream out) {
+        this.dataAccess = dataAccess;
+        this.out = out;
+        if (out instanceof FileOutputStream) {
+            try {
+                fout = new BufferedWriter(new OutputStreamWriter(out, XMLFile.ENCODING));
+            } catch (Exception e) {
+                fout = null;
             }
-            write(fw,indent,xmltagEnd(FIELD_DATA_RECORD));
-            d = getNext(it);
         }
-
-        write(fw,indent,xmltagEnd(FIELD_DATA));
+        indent = 0;
+        lastindent = 0;
     }
 }

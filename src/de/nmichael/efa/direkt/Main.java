@@ -26,8 +26,7 @@ public class Main extends Program {
 
     //Construct the application
     public Main(String[] args) {
-        super(args);
-        Daten.initialize(Daten.APPL_EFABH);
+        super(Daten.APPL_EFABH, args);
 
         EfaBoathouseFrame frame = new EfaBoathouseFrame();
         frame.showFrame();

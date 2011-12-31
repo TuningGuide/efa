@@ -74,6 +74,8 @@ public class Fahrtenbuch extends DatenListe {
   public static final String KENNUNG135 = "##EFA.135.FAHRTENBUCH##";
   public static final String KENNUNG190 = "##EFA.190.FAHRTENBUCH##";
 
+  public static Fahrtenbuch fahrtenbuch; // replaces Daten.fahrtenbuch for old efa1 functionality
+
   private FBDaten fbDaten = null;
   private Hashtable mehrtagesfahrten = null;
   private String nextFb = null; // nächste Fahrtenbuchdatei
@@ -194,7 +196,7 @@ public class Fahrtenbuch extends DatenListe {
 
         // KONVERTIEREN: 135 -> 190
         if (s != null && s.trim().startsWith(KENNUNG135)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"135");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"135");
           iniList(this.dat,36,1,true); // Rahmenbedingungen von v1.9.0 schaffen
 
           if (!readEinstellungen()) return false;
@@ -218,11 +220,13 @@ public class Fahrtenbuch extends DatenListe {
               }
               if (fa == null) {
                   fa = EfaTypes.TYPE_SESSION_NORMAL;
+                  /* // @efa1
                   Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORCONVERTING,
                           getFileName() + ": " +
                           International.getMessage("Fehler beim Konvertieren von Eintrag '{key}'!",constructKey(d)) + " " +
                           International.getMessage("Unbekannte Eigenschaft '{original_property}' korrigiert zu '{new_property}'.",
                           d.get(FAHRTART), Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, fa)));
+                   */
               }
               d.set(FAHRTART, fa);
               add(d);

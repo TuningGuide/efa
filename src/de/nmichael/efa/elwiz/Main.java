@@ -17,14 +17,15 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.DownloadFrame;
+import de.nmichael.efa.gui.DownloadMultipleFilesDialog;
 
 // @i18n complete
 public class Main extends Program {
 
+    public final static String ELWIZ_VERSION = Daten.VERSION; // Version
+
     public Main(String[] args) {
-        super(args);
-        Daten.initialize(Daten.APPL_ELWIZ);
+        super(Daten.APPL_ELWIZ, args);
 
         ElwizFrame frame = new ElwizFrame();
         frame.validate();

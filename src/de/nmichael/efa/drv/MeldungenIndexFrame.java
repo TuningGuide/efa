@@ -10,6 +10,10 @@
 
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.data.efawett.WettDefs;
+import de.nmichael.efa.data.efawett.EfaWettMeldung;
+import de.nmichael.efa.data.efawett.EfaWett;
+import de.nmichael.efa.data.efawett.ESigFahrtenhefte;
 import de.nmichael.efa.gui.util.TableSorter;
 import de.nmichael.efa.efa1.DatenFelder;
 import java.awt.*;
@@ -427,7 +431,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       Logger.log(Logger.INFO,"ENDE Neue Meldungen aus dem Internet abrufen");
       return;
     }
-    if (!EfaUtil.getFile(this,url,listFile,true) || !EfaUtil.canOpenFile(listFile)) {
+    if (!DownloadThread.getFile(this,url,listFile,true) || !EfaUtil.canOpenFile(listFile)) {
       Dialog.error("Download der Meldungen-Indexdatei fehlgeschlagen.");
       Logger.log(Logger.ERROR,"Download der Meldungen-Indexdatei fehlgeschlagen.");
       Logger.log(Logger.INFO,"ENDE Neue Meldungen aus dem Internet abrufen");
@@ -463,7 +467,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
           url = Daten.drvConfig.makeScriptRequestString(DRVConfig.ACTION_GET,"item="+qnr,"verein="+(String)v.get(5),null,null);
           String localFile = Daten.efaDataDirectory+Daten.drvConfig.aktJahr+Daten.fileSep+qnr+".efw";
           Logger.log(Logger.INFO,"Download der neuen Meldung "+qnr+" ...");
-          if (!EfaUtil.getFile(this,url,localFile,true) || !EfaUtil.canOpenFile(localFile)) {
+          if (!DownloadThread.getFile(this,url,localFile,true) || !EfaUtil.canOpenFile(localFile)) {
             errorLog += "Download der Meldung "+qnr+" fehlgeschlagen.\n";
             Logger.log(Logger.ERROR,"Download der Meldung "+qnr+" fehlgeschlagen.");
           } else {
@@ -1018,7 +1022,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
 
     String url = Daten.drvConfig.makeScriptRequestString(DRVConfig.ACTION_REJECT,"verein="+verein,"qnr="+qnr,"grund="+EfaUtil.replace(grund," ","+",true),null);
     String localFile = Daten.efaTmpDirectory+"efwstatus.tmp";
-    if (!EfaUtil.getFile(this,url,localFile,true) || !EfaUtil.canOpenFile(localFile)) {
+    if (!DownloadThread.getFile(this,url,localFile,true) || !EfaUtil.canOpenFile(localFile)) {
       Logger.log(Logger.ERROR,"Zurückweisen der Meldung "+qnr+" von Verein "+verein+" fehlgeschlagen: Kann efaWett nicht erreichen");
       Dialog.error("Aktion fehlgeschlagen: Kann efaWett nicht erreichen");
       return;

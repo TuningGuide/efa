@@ -10,9 +10,9 @@
 package de.nmichael.efa.statistics;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.EfaWett;
-import de.nmichael.efa.core.WettDef;
-import de.nmichael.efa.core.WettDefs;
+import de.nmichael.efa.data.efawett.EfaWett;
+import de.nmichael.efa.data.efawett.WettDef;
+import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.BoatRecord;
 import de.nmichael.efa.data.LogbookRecord;
@@ -34,7 +34,6 @@ import java.util.Vector;
 
 public abstract class Competition {
 
-    protected AusgabeEintrag letzterAusgabeEintrag;
     protected Hashtable nichtBeruecksichtigt = new Hashtable(); // Bei Wettbewerben nicht berücksichtigte Mitglieder (z.B. weil Jahrgang fehlt oder Wettbewerbsmeldungen deaktiviert sind)
     protected EfaWett efaWett; // Zusammenstellung aller Wettbewerbsdaten für Erstellung einer Meldedatei
     protected StatisticsRecord sr;

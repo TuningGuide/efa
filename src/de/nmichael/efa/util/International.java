@@ -12,9 +12,13 @@ package de.nmichael.efa.util;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.config.EfaTypes;
+import de.nmichael.efa.core.items.IItemType;
+import de.nmichael.efa.core.items.ItemTypeStringList;
+import de.nmichael.efa.gui.SimpleInputDialog;
 import java.util.*;
 import java.io.*;
 import java.text.*;
+import javax.swing.JFrame;
 
 // @i18n complete
 
@@ -83,33 +87,34 @@ public class International {
                 }
                 String[] bundles = getLanguageBundles();
                 if (Daten.isGuiAppl() && bundles != null && bundles.length > 0) {
-                    String[] items = new String[bundles.length + 1];
-                    items[0] = International.getString("Default"); // must be in English (in case user's language is not supported)
-                    int preselect = 0;
+                    String[] listDisplay = new String[bundles.length + 1];
+                    String[] listValues = new String[bundles.length + 1];
+                    listDisplay[0] = International.getString("Default"); // must be in English (in case user's language is not supported)
+                    listValues[0] = "";
+                    String preselect = "";
                     for (int i=0; i<bundles.length; i++) {
                         Locale loc = new Locale(bundles[i]);
-                        items[i+1] = loc.getDisplayName();
+                        listDisplay[i+1] = loc.getDisplayName();
+                        listValues[i+1] = bundles[i];
                         if (Locale.getDefault().getLanguage().equals(loc.getLanguage())) {
-                            preselect = i+1;
+                            preselect = bundles[i];
                         }
                     }
-                    int selected = SimpleSelectFrame.showInputDialog(
-                            International.getString("Select Language"),                 // must be in English (in case user's language is not supported)
-                            International.getString("Please select your language")+":", // must be in English (in case user's language is not supported)
-                            items,
-                            preselect);
-                    String lang = null;
-                    if (selected >= 0) {
-                        if (selected == 0) {
-                            lang = ""; // auto default language
-                            if (Logger.isTraceOn(Logger.TT_INTERNATIONALIZATION)) {
-                                Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Selected Language: <default>");
-                            }
-                        } else {
-                            lang = bundles[selected - 1];
-                            if (Logger.isTraceOn(Logger.TT_INTERNATIONALIZATION)) {
-                                Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Selected Language: " + lang);
-                            }
+                    ItemTypeStringList languages = new ItemTypeStringList("LANG", preselect,
+                            listValues, listDisplay,
+                            IItemType.TYPE_PUBLIC, "",
+                            International.getString("Please select your language")
+                            );
+
+                    String lang = "";
+                    if (SimpleInputDialog.showInputDialog((JFrame)null,
+                            International.getString("Select Language"), // must be in English (in case user's language is not supported)
+                            languages)) {
+                        languages.getValueFromGui();
+                        lang = languages.getValue();
+                        if (Logger.isTraceOn(Logger.TT_INTERNATIONALIZATION)) {
+                            Logger.log(Logger.DEBUG, Logger.MSG_INTERNATIONAL_DEBUG, "Selected Language: " +
+                                    (lang.length() > 0 ? lang : "<default>"));
                         }
                     } else {
                         if (Logger.isTraceOn(Logger.TT_INTERNATIONALIZATION)) {

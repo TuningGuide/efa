@@ -12,8 +12,14 @@ package de.nmichael.efa.data.storage;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.util.LogString;
 import de.nmichael.efa.util.Logger;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 // @i18n complete
 
@@ -50,7 +56,7 @@ public abstract class DataAccess implements IDataAccess {
                 dataAccess.setPersistence(persistence);
                 return dataAccess;
             case IDataAccess.TYPE_DB_SQL:
-                return null; // @todo (P4) TYPE_DB_SQL not yet implemented
+                return null; // @todo (P6) TYPE_DB_SQL not yet implemented
             case IDataAccess.TYPE_EFA_REMOTE:
                  dataAccess = (IDataAccess)new RemoteEfaClient(storageLocation, storageUsername, storagePassword, storageObjectName, storageObjectType, storageObjectDescription);
                  dataAccess.setPersistence(persistence);
@@ -290,4 +296,40 @@ public abstract class DataAccess implements IDataAccess {
         return this.isPreModifyRecordCallbackEnabled && (Daten.efaConfig == null || Daten.efaConfig.getValueDataPreModifyRecordCallbackEnabled());
     }
 
+    public void saveToXmlFile(String filename) throws EfaException {
+        if (!isStorageObjectOpen()) {
+            throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed(filename, storageLocation, "Storage Object is not open"), Thread.currentThread().getStackTrace());
+        }
+        try {
+            FileOutputStream out = new FileOutputStream(filename, false);
+            XMLFile.writeFile(this, out);
+            out.close();
+        } catch(Exception e) {
+            throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+        }
+    }
+
+    public String saveToZipFile(String dir, ZipOutputStream zipOut) throws EfaException {
+        if (!isStorageObjectOpen()) {
+            throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed("ZIP Buffer", storageLocation, "Storage Object is not open"), Thread.currentThread().getStackTrace());
+        }
+        if (dir.length() > 0 && !dir.endsWith(Daten.fileSep)) {
+            dir += Daten.fileSep;
+        }
+        String zipFileEntry = dir + getStorageObjectName() + "." + getStorageObjectType();
+        long lock = -1;
+        try {
+            ZipEntry entry = new ZipEntry(zipFileEntry);
+            zipOut.putNextEntry(entry);
+            lock = acquireGlobalLock();
+            XMLFile.writeFile(this, zipOut);
+        } catch(Exception e) {
+            throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed("ZIP Buffer", storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+        } finally {
+            if (lock >= 0) {
+                releaseGlobalLock(lock);
+            }
+        }
+        return zipFileEntry;
+    }
 }

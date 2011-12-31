@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data.importefa1;
 
+import de.nmichael.efa.efa1.Mehrtagesfahrt;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.*;
@@ -44,10 +45,12 @@ public class ImportLogbook extends ImportBase {
     }
 
     public boolean runImport() {
-        Fahrtenbuch origFahrtenbuch = Daten.fahrtenbuch;
+        // Fahrtenbuch.fahrtenbuch replaces old Daten.fahrtenbuch
+        // We need this static reference for some of the zerlegeNamen(...) methods!
+        Fahrtenbuch origFahrtenbuch = Fahrtenbuch.fahrtenbuch;
         try {
             Fahrtenbuch fahrtenbuch = new Fahrtenbuch(efa1fname);
-            Daten.fahrtenbuch = fahrtenbuch;
+            Fahrtenbuch.fahrtenbuch = fahrtenbuch;
             logInfo(International.getMessage("Importiere {list} aus {file} ...", getDescription(), efa1fname));
             if (!fahrtenbuch.readFile()) {
                 logError(LogString.logstring_fileOpenFailed(efa1fname, getDescription()));
@@ -250,7 +253,7 @@ public class ImportLogbook extends ImportBase {
             Logger.logdebug(e);
             return false;
         } finally {
-            Daten.fahrtenbuch = origFahrtenbuch;
+            Fahrtenbuch.fahrtenbuch = origFahrtenbuch;
         }
         return true;
     }

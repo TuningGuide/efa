@@ -181,6 +181,7 @@ public class Logger {
     public static final String MSG_CSVFILE_ERRORINVALIDRECORD = "CSV016";
     public static final String MSG_CSVFILE_EXITONERROR = "CSV017";
     public static final String MSG_CSVFILE_ERRORENCODING = "CSV018";
+
     // efa in the Boat House - Events (multiple source files)
     public static final String MSG_EVT_EFASTART = "EVT001";
     public static final String MSG_EVT_LOCKED = "EVT002";
@@ -206,7 +207,7 @@ public class Logger {
     public static final String MSG_EVT_TRIPLATEREC = "EVT022";
     public static final String MSG_EVT_UNALLOWEDBOATUSAGE = "EVT023";
     public static final String MSG_EVT_AUTOSTARTNEWLOGBOOK = "EVT024";
-    public static final String MSG_EVT_AUTOSTARTNEWLB_LX = "EVT025";
+    public static final String MSG_EVT_AUTOSTARTNEWLBSTEP = "EVT025";
     public static final String MSG_EVT_AUTOSTARTNEWLBDONE = "EVT026";
     public static final String MSG_EVT_AUTONEWLOGROLLBACK = "EVT027";
     public static final String MSG_EVT_CHECKFORWARNINGS = "EVT028";
@@ -224,6 +225,9 @@ public class Logger {
     public static final String MSG_EVT_ERRORSAVELOGBOOKENTRY = "EVT040";
     public static final String MSG_EVT_ERRORNOBOATSTATUSFORBOAT = "EVT041";
     public static final String MSG_EVT_REMOTEEFAEXIT = "EVT042";
+
+    // Backup
+    public static final String MSG_BCK_BACKUPSTARTED = "BCK001";
 
     // efa in the Boat House - Errors
     public static final String MSG_ERR_GENERIC = "ERR001";
@@ -302,6 +306,7 @@ public class Logger {
     public static final String MSG_HELP_DEBUGHELPTOPICTNOTFOUND = "HLP005";
     public static final String MSG_HELP_DEBUGHELPTOPICFALLBACK = "HLP006";
     public static final String MSG_HELP_DEBUGHELPTOPICSHOWHELP = "HLP007";
+
     // Synchronization
     public static final String MSG_SYNC_ERRORCONFIG = "SNC001";
     public static final String MSG_SYNC_SYNCINFO = "SNC002";
@@ -310,6 +315,17 @@ public class Logger {
     public static final String MSG_SYNC_ERRORABORTSYNC = "SNC005";
     public static final String MSG_SYNC_WARNINCORRECTRESPONSE = "SNC006";
     public static final String MSG_SYNC_SYNCDEBUG = "SNC007";
+
+    // Backup
+    public static final String MSG_BACKUP_BACKUPSTARTED = "BCK001";
+    public static final String MSG_BACKUP_BACKUPINFO = "BCK001";
+    public static final String MSG_BACKUP_BACKUPERROR = "BCK001";
+    public static final String MSG_BACKUP_BACKUPFINISHEDINFO = "BCK004";
+    public static final String MSG_BACKUP_BACKUPFINISHEDWITHERRORS = "BCK005";
+    public static final String MSG_BACKUP_BACKUPFINISHED = "BCK006";
+    public static final String MSG_BACKUP_BACKUPFAILED = "BCK007";
+    public static final String MSG_BACKUP_BACKUPDEBUG = "BCK008";
+
     // Debug Logging
     public static final String MSG_DEBUG_GENERIC = "DBG001";
     public static final String MSG_DEBUG_EFAWETT = "DBG002";
@@ -348,6 +364,8 @@ public class Logger {
     public static final long TT_HELP = Integer.parseInt("0001000000000000", 2); // 0x1000
     public static final long TT_SYNC = Integer.parseInt("0010000000000000", 2); // 0x2000
     public static final long TT_REMOTEEFA = Integer.parseInt("0100000000000000", 2); // 0x4000
+    public static final long TT_PDF = Integer.parseInt("1000000000000000", 2); // 0x8000
+
     // Debug Logging and Trace Topics
     private static boolean debugLogging = false;
     private static long globalTraceTopic = 0;
@@ -457,7 +475,7 @@ public class Logger {
                 }
             }
 
-            if (alsoLogToStdOut) {
+            if (alsoLogToStdOut && !type.equals(DEBUG)) {
                 if (type != null && !type.equals(INPUT))  {
                     System.out.println(EfaUtil.getString(type, 7) + " - " + key + " - " + txt);
                 } else {

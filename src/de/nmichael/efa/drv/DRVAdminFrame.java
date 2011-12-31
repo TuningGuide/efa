@@ -16,9 +16,9 @@ import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import java.io.*;
 import de.nmichael.efa.*;
+import de.nmichael.efa.gui.OnlineUpdateDialog;
 import java.util.Vector;
 
 // @i18n complete (needs no internationalization -- only relevant for Germany)
@@ -259,7 +259,8 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
   }
 
   void updateButton_actionPerformed(ActionEvent e) {
-    // @todo (P3) OnlineUpdateFrame.runOnlineUpdate(this,Daten.ONLINEUPDATE_INFO_DRV);
+      // @todo (P6) DRV Online Update XML-based
+    OnlineUpdate.runOnlineUpdate(this,Daten.ONLINEUPDATE_INFO_DRV);
   }
 
   void datensicherungButton_actionPerformed(ActionEvent e) {

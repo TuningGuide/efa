@@ -10,7 +10,7 @@
 package de.nmichael.efa.data.efawett;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.EnterPasswordFrame;
+import de.nmichael.efa.drv.EnterPasswordFrame;
 import de.nmichael.efa.util.Dialog;
 
 public class EfaWettClient {

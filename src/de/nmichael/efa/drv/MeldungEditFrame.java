@@ -10,6 +10,11 @@
 
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.data.efawett.WettDefs;
+import de.nmichael.efa.data.efawett.DRVSignatur;
+import de.nmichael.efa.data.efawett.EfaWettMeldung;
+import de.nmichael.efa.data.efawett.EfaWett;
+import de.nmichael.efa.data.efawett.ESigFahrtenhefte;
 import de.nmichael.efa.efa1.DatenFelder;
 import java.awt.*;
 import java.awt.event.*;

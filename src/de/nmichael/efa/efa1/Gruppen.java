@@ -134,7 +134,7 @@ public class Gruppen extends DatenListe {
       if ( s == null || !s.trim().startsWith(kennung) ) {
         // KONVERTIEREN: 170 -> 190
         if (s != null && s.trim().startsWith(KENNUNG170)) {
-          if (Daten.backup != null) Daten.backup.create(dat,Backup.CONV,"170");
+          // @efa1 if (Daten.backup != null) Daten.backup.create(dat,Efa1Backup.CONV,"170");
           iniList(this.dat,4,1,false); // Rahmenbedingungen von v1.9.0 schaffen
           // Datei lesen
           try {

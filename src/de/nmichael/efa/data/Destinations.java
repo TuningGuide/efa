@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.ex.EfaModifyException;
@@ -112,6 +113,17 @@ public class Destinations extends StorageObject {
         if (add || update) {
             assertFieldNotEmpty(record, DestinationRecord.ID);
             assertFieldNotEmpty(record, DestinationRecord.NAME);
+            if (Daten.efaConfig.getValueUseFunctionalityRowingBerlin() &&
+                getProject().getClubAreaID() > 0) {
+                DestinationRecord dr = ((DestinationRecord)record);
+                if (dr.getStartIsBoathouse() && dr.getDestinationAreas() != null &&
+                    dr.getDestinationAreas().findZielbereich(getProject().getClubAreaID()) > 0) {
+                    throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                            "Eigener Zielbereich "+getProject().getClubAreaID()+" bei Fahrten ab eigenem Bootshaus nicht erlaubt.",
+                            Thread.currentThread().getStackTrace());
+
+                }
+            }
         }
         if (delete) {
             assertNotReferenced(record, getProject().getBoats(false), new String[] { BoatRecord.DEFAULTDESTINATIONID });

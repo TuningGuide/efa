@@ -12,6 +12,7 @@ package de.nmichael.efa.data;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.util.Dialog;
@@ -175,6 +176,30 @@ public class Project extends StorageObject {
         return true;
     }
 
+    public Vector<StorageObject> getAllDataAndLogbooks() {
+        Vector<StorageObject> data = new Vector<StorageObject>();
+        data.add(getAutoIncrement(false));
+        data.add(getSessionGroups(false));
+        data.add(getPersons(false));
+        data.add(getStatus(false));
+        data.add(getGroups(false));
+        data.add(getFahrtenabzeichen(false));
+        data.add(getBoats(false));
+        data.add(getCrews(false));
+        data.add(getBoatStatus(false));
+        data.add(getBoatReservations(false));
+        data.add(getBoatDamages(false));
+        data.add(getDestinations(false));
+        data.add(getWaters(false));
+        data.add(getStatistics(false));
+        data.add(getMessages(false));
+        String[] logbookNames = getAllLogbookNames();
+        for (int i=0; logbookNames != null && i<logbookNames.length; i++) {
+            data.add(getLogbook(logbookNames[i], false));
+        }
+        return data;
+    }
+
     public static ProjectRecord createNewRecordFromStatic(String type) {
         if (MetaData.getMetaData(DATATYPE) == null) {
             ProjectRecord.initialize();
@@ -200,9 +225,10 @@ public class Project extends StorageObject {
 
     public IDataAccess getMyDataAccess(String recordType) {
         if (recordType.endsWith(ProjectRecord.TYPE_CLUB) ||
-            recordType.endsWith(ProjectRecord.TYPE_LOGBOOK)) {
+            recordType.endsWith(ProjectRecord.TYPE_LOGBOOK) ||
+            recordType.endsWith(ProjectRecord.TYPE_CONFIG)) {
             if (getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
-                return remoteDataAccess;
+                return (remoteDataAccess != null ? remoteDataAccess : dataAccess);
             } else {
                 return dataAccess;
             }
@@ -212,11 +238,18 @@ public class Project extends StorageObject {
 
     }
 
+    public IDataAccess getRemoteDataAccess() {
+        return remoteDataAccess;
+    }
+
     public boolean deleteLogbookRecord(String logbookName) {
         try {
             getMyDataAccess(ProjectRecord.TYPE_LOGBOOK).delete(createProjectRecord(ProjectRecord.TYPE_LOGBOOK, logbookName).getKey());
         } catch(Exception e) {
             Logger.logdebug(e);
+            if (e instanceof EfaModifyException) {
+                ((EfaModifyException)e).displayMessage();
+            }
             return false;
         }
         return true;
@@ -232,6 +265,9 @@ public class Project extends StorageObject {
             dataAccess.add(rec);
             rec = (ProjectRecord)createNewRecord();
             rec.setType(ProjectRecord.TYPE_CLUB);
+            dataAccess.add(rec);
+            rec = (ProjectRecord)createNewRecord();
+            rec.setType(ProjectRecord.TYPE_CONFIG);
             dataAccess.add(rec);
         } catch(Exception e) {
             Logger.log(e);
@@ -250,6 +286,10 @@ public class Project extends StorageObject {
         return ProjectRecord.getDataKey(ProjectRecord.TYPE_LOGBOOK, logbookName);
     }
 
+    public DataKey getConfigRecordKey() {
+        return ProjectRecord.getDataKey(ProjectRecord.TYPE_CONFIG, null);
+    }
+
     public ProjectRecord getRecord(DataKey k) {
         try {
             return (ProjectRecord)getMyDataAccess((String)k.getKeyPart1()).get(k);
@@ -260,15 +300,49 @@ public class Project extends StorageObject {
     }
 
     public ProjectRecord getProjectRecord() {
-        return getRecord(getProjectRecordKey());
+        ProjectRecord r = getRecord(getProjectRecordKey());
+        if (r == null && isOpen()) {
+            r = (ProjectRecord)createNewRecord();
+            r.setType(ProjectRecord.TYPE_PROJECT);
+            try {
+                getMyDataAccess(ProjectRecord.TYPE_PROJECT).add(r);
+            } catch(Exception e) {
+                Logger.log(e);
+            }
+        }
+        return r;
     }
 
     public ProjectRecord getClubRecord() {
-        return getRecord(getClubRecordKey());
+        ProjectRecord r = getRecord(getClubRecordKey());
+        if (r == null && isOpen()) {
+            r = (ProjectRecord)createNewRecord();
+            r.setType(ProjectRecord.TYPE_CLUB);
+            try {
+                getMyDataAccess(ProjectRecord.TYPE_CLUB).add(r);
+            } catch(Exception e) {
+                Logger.logdebug(e); // happens for remote projects which aren't yet open
+            }
+        }
+        return r;
     }
 
     public ProjectRecord getLoogbookRecord(String logbookName) {
         return getRecord(getLoogbookRecordKey(logbookName));
+    }
+
+    public ProjectRecord getConfigRecord() {
+        ProjectRecord r = getRecord(getConfigRecordKey());
+        if (r == null && isOpen()) {
+            r = (ProjectRecord)createNewRecord();
+            r.setType(ProjectRecord.TYPE_CONFIG);
+            try {
+                getMyDataAccess(ProjectRecord.TYPE_CONFIG).add(r);
+            } catch(Exception e) {
+                Logger.logdebug(e); // happens for remote projects which aren't yet open
+            }
+        }
+        return r;
     }
 
     public void addLogbookRecord(ProjectRecord rec) throws EfaException {
@@ -304,6 +378,10 @@ public class Project extends StorageObject {
     }
 
     private StorageObject getPersistence(Class c, String storageObjectName, String storageObjectType, boolean createNewIfDoesntExist, String description) {
+        return getPersistence(c, storageObjectName, storageObjectType, createNewIfDoesntExist, description, false);
+    }
+
+    private StorageObject getPersistence(Class c, String storageObjectName, String storageObjectType, boolean createNewIfDoesntExist, String description, boolean silent) {
         if (_inDeleteProject) {
             return null;
         }
@@ -361,6 +439,9 @@ public class Project extends StorageObject {
                     if (storageObjectType.equals(Messages.DATATYPE) && storageObjectName.equals(STORAGEOBJECT_MESSAGES)) {
                         c = Messages.class;
                     }
+                    if (storageObjectType.equals(Logbook.DATATYPE)) {
+                        c = Logbook.class;
+                    }
                 }
                 if (c == null) {
                     return null;
@@ -388,9 +469,13 @@ public class Project extends StorageObject {
             // we only have to do this in the slow path (usually when a new persistence object is created which hasn't been there before)
             p.data().setPreModifyRecordCallbackEnabled(data().isPreModifyRecordCallbackEnabled());
         } catch(Exception e) {
-            Logger.log(Logger.ERROR,Logger.MSG_DATA_OPENFAILED,
-                    LogString.logstring_fileOpenFailed( (p != null ? p.toString(): "<?>"), description, e.toString()));
-            Logger.log(e);
+            if (!silent) {
+                Logger.log(Logger.ERROR,Logger.MSG_DATA_OPENFAILED,
+                        LogString.logstring_fileOpenFailed( (p != null ? p.toString(): "<?>"), description, e.toString()));
+                if (getProjectStorageType() != IDataAccess.TYPE_EFA_REMOTE) {
+                    Logger.log(e);
+                }
+            }
             return null;
         }
         return p;
@@ -400,7 +485,7 @@ public class Project extends StorageObject {
         if (storageObjectName.equals(getProjectName()) && storageObjectType.equals(DATATYPE)) {
             return this;
         }
-        return this.getPersistence(null, storageObjectName, storageObjectType, createNewIfDoesntExist, "Remote Request");
+        return this.getPersistence(null, storageObjectName, storageObjectType, createNewIfDoesntExist, "Remote Request", true);
     }
 
     public Logbook getLogbook(String logbookName, boolean createNewIfDoesntExist) {
@@ -419,7 +504,11 @@ public class Project extends StorageObject {
 
     public String[] getAllLogbookNames() {
         try {
-            DataKeyIterator it = getMyDataAccess(ProjectRecord.TYPE_LOGBOOK).getStaticIterator();
+            IDataAccess myAccess = getMyDataAccess(ProjectRecord.TYPE_LOGBOOK);
+            if (myAccess == null) {
+                return null; // happens for remote projects
+            }
+            DataKeyIterator it = myAccess.getStaticIterator();
             ArrayList<String> a = new ArrayList<String>();
             DataKey k = it.getFirst();
             while (k != null) {
@@ -595,6 +684,42 @@ public class Project extends StorageObject {
             e.printStackTrace();
         } finally {
             data().releaseLocalLock(l);
+        }
+    }
+
+    public void setAutoNewLogbookDate(DataTypeDate date) {
+        long l = 0;
+        IDataAccess access = getMyDataAccess(ProjectRecord.TYPE_CONFIG);
+        if (access == null) {
+            return;
+        }
+        try {
+            l = access.acquireLocalLock(getConfigRecordKey());
+            ProjectRecord r = getConfigRecord();
+            r.setAutoNewLogbookDate(date);
+            access.update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            access.releaseLocalLock(l);
+        }
+    }
+
+    public void setAutoNewLogbookName(String name) {
+        long l = 0;
+        IDataAccess access = getMyDataAccess(ProjectRecord.TYPE_CONFIG);
+        if (access == null) {
+            return;
+        }
+        try {
+            l = access.acquireLocalLock(getConfigRecordKey());
+            ProjectRecord r = getConfigRecord();
+            r.setAutoNewLogbookName(name);
+            access.update(r, l);
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            access.releaseLocalLock(l);
         }
     }
 
@@ -1127,6 +1252,14 @@ public class Project extends StorageObject {
         return getClubRecord().getKanuEfbLastSync();
     }
 
+    public DataTypeDate getAutoNewLogbookDate() {
+        return getConfigRecord().getAutoNewLogbookDate();
+    }
+
+    public String getAutoNewLogbookName() {
+        return getConfigRecord().getAutoNewLogbookName();
+    }
+
 
     public void setPreModifyRecordCallbackEnabled(boolean enabled) {
         this.data().setPreModifyRecordCallbackEnabled(enabled);
@@ -1141,6 +1274,27 @@ public class Project extends StorageObject {
             assertFieldNotEmpty(record, ProjectRecord.TYPE);
             assertUnique(record, ProjectRecord.PROJECTNAME);
             assertUnique(record, ProjectRecord.LOGBOOKNAME);
+            if (((ProjectRecord) record).getType().equals(ProjectRecord.TYPE_CONFIG)) {
+                ProjectRecord r = (ProjectRecord) record;
+                String lName = r.getAutoNewLogbookName();
+                if (lName != null && lName.length() > 0 && getLoogbookRecord(lName) == null) {
+                    throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                            "Logbook " + lName + " not found!",
+                            Thread.currentThread().getStackTrace());
+                }
+            }
+        }
+        if (delete) {
+            if (((ProjectRecord) record).getType().equals(ProjectRecord.TYPE_LOGBOOK)) {
+                ProjectRecord r = (ProjectRecord) record;
+                String lName = getAutoNewLogbookName();
+                if (lName != null && lName.length() > 0 && r.getLogbookName().equals(lName)) {
+            throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                    International.getMessage("Der Datensatz kann nicht gelöscht werden, da er noch von {listtype} '{record}' genutzt wird.",
+                    International.getString("Fahrtenbuchwechsel"), lName),
+                    Thread.currentThread().getStackTrace());
+                }
+            }
         }
     }
 

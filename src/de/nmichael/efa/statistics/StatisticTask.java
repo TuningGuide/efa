@@ -10,11 +10,13 @@
 
 package de.nmichael.efa.statistics;
 
+import de.nmichael.efa.data.efawett.ZielfahrtFolge;
+import de.nmichael.efa.data.efawett.Zielfahrt;
 import java.util.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.WettDefs;
+import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;

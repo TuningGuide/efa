@@ -9,6 +9,10 @@
  */
 package de.nmichael.efa.gui.statistics;
 
+import de.nmichael.efa.data.efawett.WettDefs;
+import de.nmichael.efa.data.efawett.DRVSignatur;
+import de.nmichael.efa.data.efawett.EfaWettMeldung;
+import de.nmichael.efa.data.efawett.EfaWett;
 import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.efa1.Adressen;
 import de.nmichael.efa.core.*;

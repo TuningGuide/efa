@@ -10,9 +10,9 @@
 package de.nmichael.efa.statistics;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.WettDef;
-import de.nmichael.efa.core.WettDefGruppe;
-import de.nmichael.efa.core.WettDefs;
+import de.nmichael.efa.data.efawett.WettDef;
+import de.nmichael.efa.data.efawett.WettDefGruppe;
+import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.data.StatisticsRecord;
 import de.nmichael.efa.data.types.DataTypeDistance;
 import de.nmichael.efa.util.EfaUtil;
@@ -83,7 +83,9 @@ public class CompetitionLRVBrandenburgWanderruderwett extends Competition {
                                 drvel = wanderfahrten.get(keys[fahrtnr]);
                                 // wenn ein Ruderer an einer Mehrtagesfahrt (als einzelne Etappen eingetragen) nur einen Tag
                                 // mitgerudert ist, werden nur 30 Km gefordert (Dennis, 02.05.03)
-                                if (drvel != null && drvel.jum == false && drvel.distanceInMeters/1000 >= Daten.WAFAKM && drvel.days == 1) {
+                                if (drvel != null && drvel.jum == false && 
+                                        drvel.distanceInMeters/1000 >= CompetitionDRVFahrtenabzeichen.WAFA_MINDISTANCE_ONEDAY &&
+                                        drvel.days == 1) {
                                     drvel.ok = true;
                                 }
                                 fahrtnr++;

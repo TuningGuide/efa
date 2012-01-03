@@ -33,6 +33,7 @@ public class ItemTypeItemList extends ItemType {
     private JButton addButton;
     private Hashtable<JButton,Integer> delButtons;
     private JComponent lastItemStart;
+    private IItemType lastItemFocus;
     private int xForAddDelButtons = 2;
     private int padYbetween = 10;
     private boolean repeatTitle = true;
@@ -64,6 +65,9 @@ public class ItemTypeItemList extends ItemType {
             String internalName = getName() + "_" + idx + "_" + item.getName();
             itemNameMapping.put(internalName, item.getName());
             item.setName(internalName);
+            if (item.isVisible() && item.isEnabled() && item.isEditable()) {
+                lastItemFocus = item;
+            }
         }
         this.items.add(items);
     }
@@ -221,6 +225,9 @@ public class ItemTypeItemList extends ItemType {
             ((BaseDialog)dlg).updateGui();
             if (lastItemStart != null) {
                 ((BaseDialog)dlg).getScrollPane().scrollRectToVisible(lastItemStart.getBounds());
+            }
+            if (lastItemFocus != null) {
+                lastItemFocus.requestFocus();
             }
         }
     }

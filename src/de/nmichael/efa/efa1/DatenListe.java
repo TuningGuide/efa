@@ -9,14 +9,12 @@
  */
 package de.nmichael.efa.efa1;
 
-import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.io.*;
-import java.util.Hashtable;
 import java.util.Vector;
-import java.util.StringTokenizer;
+import javax.swing.JOptionPane;
 
 // @i18n complete
 public class DatenListe {
@@ -108,6 +106,33 @@ public class DatenListe {
         DONTEVERWRITE = true;
     }
 
+    // Fragen, ob Schreibschutz aufgehoben werden soll
+    public static int removeWriteProtection(String datei, boolean beimKonvertieren) {
+        Object[] auswahl = new String[3];
+        auswahl[0] = "Schreibschutz übergehen";
+        auswahl[1] = "Schreibschutz deaktivieren";
+        auswahl[2] = International.getString("Abbruch");
+        if (!beimKonvertieren) {
+            return JOptionPane.showOptionDialog(null,
+                    "Die Datei " + datei + " ist schreibgeschützt.",
+                    "Datei schreibgeschützt",
+                    0, JOptionPane.QUESTION_MESSAGE, null, auswahl, auswahl[0]);
+        } else {
+            return JOptionPane.showOptionDialog(null,
+                    "Die Datei " + datei + " muß in ein neues Format konvertiert werden, ist aber schreibgeschützt.",
+                    "Datei schreibgeschützt",
+                    0, JOptionPane.QUESTION_MESSAGE, null, auswahl, auswahl[0]);
+        }
+    }
+
+    // Liefert Paßwort für Datei oder null, wenn Dialog abgebrochen wurde
+    public static String getWriteProtectionPasswort(String datei, boolean firstTry) {
+        return Dialog.inputDialog("Paßwort für Schreibschutz",
+                (firstTry ? "" : "Ungültiges Paßwort!" + "\n")
+                + "Bitte gib das Paßwort zum Aufheben des Schreibschutzes der Datei '" + datei + "' an:");
+    }
+
+    
     // check whether file should be opened with ISO encoding
     protected synchronized boolean checkIfIsoEncoding(BufferedReader f) throws IOException {
         f.mark(8192);
@@ -354,7 +379,7 @@ public class DatenListe {
         if (writeProtect) {
             // Schreibschutz entfernen?
             int c;
-            if ((c = Dialog.removeWriteProtection(dat, fuerKonvertieren)) != Dialog.WRITE_IGNORE && c != Dialog.WRITE_REMOVE) {
+            if ((c = removeWriteProtection(dat, fuerKonvertieren)) != Dialog.WRITE_IGNORE && c != Dialog.WRITE_REMOVE) {
                 return false;
             }
 
@@ -397,7 +422,7 @@ public class DatenListe {
             return true;
         }
         do {
-            pwd = Dialog.getWriteProtectionPasswort(dat, pwd == null);
+            pwd = getWriteProtectionPasswort(dat, pwd == null);
         } while (pwd != null && !password.equals(EfaUtil.getSHA(pwd)));
         if (pwd == null) {
             return false;

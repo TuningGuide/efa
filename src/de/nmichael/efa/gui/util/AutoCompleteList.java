@@ -127,9 +127,17 @@ public class AutoCompleteList {
         scn++;
     }
 
+    class MyStringComparator implements Comparator {
+
+        public int compare(Object o1, Object o2) {
+            return ((String)o1).compareToIgnoreCase((String)o2);
+        }
+
+    }
+
     public synchronized void sort() {
         String[] a = dataVisible.toArray(new String[0]);
-        Arrays.sort(a);
+        Arrays.sort(a, new MyStringComparator());
         dataVisible = new Vector(a.length);
         for (int i=0; i<a.length; i++) {
             dataVisible.add(a[i]);

@@ -19,6 +19,7 @@ import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
 import java.io.*;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.security.*;
@@ -41,21 +42,30 @@ public class RemoteEfaServer {
     private XMLReader parser;
     private Hashtable<String,AdminRecord> sessions = new Hashtable<String,AdminRecord>();
 
-    public RemoteEfaServer(int port) {
+    public RemoteEfaServer(int port, boolean acceptRemote) {
         serverPort = port;
+        String serverName = (acceptRemote ? "efaRemote" : "efaLocal" );
         try {
-            InetSocketAddress addr = new InetSocketAddress(port);
+            InetSocketAddress addr;
+            if (acceptRemote) {
+                addr = new InetSocketAddress(port);
+            } else {
+                addr = new InetSocketAddress(
+                        InetAddress.getByAddress(new byte[] { 127, 0, 0, 1 }), port);
+            }
             HttpServer server = HttpServer.create(addr, 0);
 
             server.createContext("/", new MyHandler());
             server.setExecutor(Executors.newCachedThreadPool());
             server.start();
             Logger.log(Logger.INFO, Logger.MSG_REFA_SERVERSTATUS,
-                    International.getMessage("efaRemote Server läuft auf Port {port}", serverPort));
+                    International.getMessage("{name} Server läuft auf Port {port}",
+                    serverName, serverPort));
             (new EfaOnlineThread()).start();
         } catch (Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_REFA_SERVERERROR,
-                    International.getString("efaRemote Server konnte nicht gestartet werden.") + " " + e.getMessage());
+                    International.getMessage("{name} Server konnte nicht gestartet werden.", serverName)
+                    + " " + e.getMessage());
             Logger.logdebug(e);
         }
     }
@@ -119,6 +129,9 @@ public class RemoteEfaServer {
     }
 
     private Vector<RemoteEfaMessage> getRequests(BufferedInputStream in, InetSocketAddress peerAddress) {
+        if (in == null) {
+            return null;
+        }
         if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 5)) {
             try {
                 in.mark(1024*1024); // tracing will break messages if they are larger than 1 MB
@@ -139,6 +152,7 @@ public class RemoteEfaServer {
                         Logger.log(Logger.DEBUG, Logger.MSG_REFA_DEBUGCOMMUNICATION, "Got Request [" + peerAddress.toString() + "]:" + s);
                     }
                 }
+                in.reset();
             } catch (Exception e) {
                 Logger.logdebug(e);
             }
@@ -375,6 +389,7 @@ public class RemoteEfaServer {
                     if (firstResponse != null) {
                         // add new SessionID to response
                         firstResponse.addField(RemoteEfaMessage.FIELD_SESSIONID, newSessionId);
+                        firstResponse.setAdminRecord(admin);
                     }
                 }
                 if (responses.size() > 0 && p != null) {
@@ -477,6 +492,8 @@ public class RemoteEfaServer {
                             + ": " + International.getString("Admin") + "=" + username);
                 }
                 request.addField(RemoteEfaMessage.FIELD_SESSIONID, createSessionId(admin));
+                request.setAdminRecord(admin);
+
                 return null; // login successful
             }
         } else {
@@ -864,7 +881,7 @@ public class RemoteEfaServer {
     public static void main(String[] args) throws IOException {
         Logger.setDebugLogging(true, true);
         Logger.setTraceTopic("0x4000", true);
-        new RemoteEfaServer(3834);
+        new RemoteEfaServer(3834, true);
     }
 
 }

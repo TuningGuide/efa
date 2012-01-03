@@ -10,33 +10,28 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
-import javax.swing.event.ChangeEvent;
 
 // @i18n complete
 public class DestinationEditDialog extends VersionizedDataEditDialog {
 
-    public DestinationEditDialog(Frame parent, DestinationRecord r, boolean newRecord) {
+    public DestinationEditDialog(Frame parent, DestinationRecord r, boolean newRecord, AdminRecord admin) {
         super(parent, 
                 International.getString("Ziel") + " / " +
                 International.getString("Strecke"),
-                r, newRecord);
+                r, newRecord, admin);
     }
 
-    public DestinationEditDialog(JDialog parent, DestinationRecord r, boolean newRecord) {
+    public DestinationEditDialog(JDialog parent, DestinationRecord r, boolean newRecord, AdminRecord admin) {
         super(parent,
                 International.getString("Ziel") + " / " +
                 International.getString("Strecke"),
-                r, newRecord);
+                r, newRecord, admin);
     }
 
     public void keyAction(ActionEvent evt) {

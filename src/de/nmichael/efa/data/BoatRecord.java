@@ -18,7 +18,6 @@ import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.gui.*;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.Daten;
 import java.util.regex.*;
@@ -939,7 +938,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         set(fieldName, value);
     }
 
-    public Vector<IItemType> getGuiItems() {
+    public Vector<IItemType> getGuiItems(AdminRecord admin) {
         String CAT_BASEDATA     = "%01%" + International.getString("Basisdaten");
         String CAT_MOREDATA     = "%02%" + International.getString("Weitere Daten");
         String CAT_USAGE        = "%03%" + International.getString("Benutzung");
@@ -1047,30 +1046,30 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         item.setFieldSize(300, -1);
 
         // CAT_RESERVATIONS
-        if (getId() != null) {
+        if (getId() != null && admin != null && admin.isAllowedEditBoatReservation()) {
             v.add(item = new ItemTypeDataRecordTable(GUIITEM_RESERVATIONS,
                     boatReservations.createNewRecord().getGuiTableHeader(),
-                    boatReservations, 0,
+                    boatReservations, 0, admin,
                     BoatReservationRecord.BOATID, getId().toString(),
                     null, null, this,
                     IItemType.TYPE_PUBLIC, CAT_RESERVATIONS, International.getString("Reservierungen")));
         }
 
         // CAT_DAMAGES
-        if (getId() != null) {
+        if (getId() != null && admin != null && admin.isAllowedEditBoatDamages()) {
             v.add(item = new ItemTypeDataRecordTable(GUIITEM_DAMAGES,
                     boatDamages.createNewRecord().getGuiTableHeader(),
-                    boatDamages, 0,
+                    boatDamages, 0, admin,
                     BoatDamageRecord.BOATID, getId().toString(),
                     null, null, this,
                     IItemType.TYPE_PUBLIC, CAT_DAMAGES, International.getString("Bootsschäden")));
         }
 
         // CAT_STATUS
-        if (getId() != null) {
+        if (getId() != null && admin != null && admin.isAllowedEditBoatStatus()) {
             BoatStatusRecord boatStatusRecord = boatStatus.getBoatStatus(getId());
             if (boatStatusRecord != null) {
-                v.addAll(boatStatusRecord.getGuiItems());
+                v.addAll(boatStatusRecord.getGuiItems(admin));
             }
         }
 
@@ -1196,7 +1195,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
             if (record == null) {
                 return null;
             }
-            return new BoatReservationEditDialog(parent, (BoatReservationRecord) record, newRecord, true);
+            return new BoatReservationEditDialog(parent, (BoatReservationRecord) record, newRecord, true, null);
         }
 
         if (persistence != null && persistence instanceof BoatDamages) {
@@ -1208,7 +1207,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
             if (record == null) {
                 return null;
             }
-            return new BoatDamageEditDialog(parent, (BoatDamageRecord) record, newRecord);
+            return new BoatDamageEditDialog(parent, (BoatDamageRecord) record, newRecord, null);
         }
 
         return null;

@@ -48,6 +48,10 @@ public abstract class ProgressTask extends Thread {
         setCurrentWorkDone(getAbsoluteWork());
         if (getSuccessfullyDoneMessage() != null) {
             Dialog.infoDialog(getSuccessfullyDoneMessage());
+        } else {
+            if (getErrorDoneMessage() != null) {
+                Dialog.error(getErrorDoneMessage());
+            }
         }
         if (f != null) {
             try {
@@ -93,6 +97,9 @@ public abstract class ProgressTask extends Thread {
 
     public abstract String getSuccessfullyDoneMessage();
 
+    public String getErrorDoneMessage() {
+        return null;
+    }
 
 
 

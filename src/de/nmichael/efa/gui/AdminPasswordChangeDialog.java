@@ -16,6 +16,7 @@ import de.nmichael.efa.core.config.Admins;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.data.storage.IDataAccess;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -28,22 +29,35 @@ public class AdminPasswordChangeDialog extends BaseDialog {
     private ItemTypePassword passwordNew1;
     private ItemTypePassword passwordNew2;
     private AdminRecord adminRecord;
+    private Admins myAdmins;
     private boolean mustEnterOldPass = true;
 
     public AdminPasswordChangeDialog(Frame parent, AdminRecord adminRecord) {
         super(parent, International.getStringWithMnemonic("Paßwort ändern"), International.getStringWithMnemonic("Paßwort ändern"));
-        this.adminRecord = adminRecord;
+        iniAdminDataAccess(adminRecord);
     }
 
     public AdminPasswordChangeDialog(JDialog parent, AdminRecord adminRecord) {
         super(parent, International.getStringWithMnemonic("Paßwort ändern"), International.getStringWithMnemonic("Paßwort ändern"));
-        this.adminRecord = adminRecord;
+        iniAdminDataAccess(adminRecord);
     }
 
     public AdminPasswordChangeDialog(JDialog parent, AdminRecord adminRecord, boolean mustEnterOldPass) {
         super(parent, International.getStringWithMnemonic("Paßwort ändern"), International.getStringWithMnemonic("Paßwort ändern"));
-        this.adminRecord = adminRecord;
+        iniAdminDataAccess(adminRecord);
         this.mustEnterOldPass = mustEnterOldPass;
+    }
+
+    private void iniAdminDataAccess(AdminRecord admin) {
+        this.adminRecord = admin;
+        myAdmins = Daten.admins;
+        if (adminRecord.isRemoteAdminRecord()
+                && Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+            myAdmins = new Admins(Daten.project.getProjectStorageType(),
+                    Daten.project.getProjectStorageLocation(),
+                    Daten.project.getProjectStorageUsername(),
+                    Daten.project.getProjectStoragePassword());
+        }
     }
 
     protected void iniDialog() throws Exception {
@@ -111,7 +125,7 @@ public class AdminPasswordChangeDialog extends BaseDialog {
             passwordNew2.requestFocus();
             return;
         }
-        if (passwordOld != null && (Daten.admins.login(adminRecord.getName(), passwordOld.getValue())) == null) {
+        if (passwordOld != null && (myAdmins.login(adminRecord.getName(), passwordOld.getValue())) == null) {
             Dialog.error(International.getString("Altes Paßwort ungültig!"));
             return;
         }
@@ -121,7 +135,7 @@ public class AdminPasswordChangeDialog extends BaseDialog {
         }
         adminRecord.setPassword(passwordNew1.getValue());
         try {
-            Daten.admins.data().update(adminRecord);
+            myAdmins.data().update(adminRecord);
             Dialog.infoDialog(International.getString("Das Paßwort wurde erfolgreich geändert."));
         } catch(Exception ee) {
             Dialog.error(ee.toString());

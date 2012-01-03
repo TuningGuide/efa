@@ -264,6 +264,8 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
   }
 
   void datensicherungButton_actionPerformed(ActionEvent e) {
+      // @toto (P8) DRV Datensicherung neu implementieren
+      /*
     DatensicherungFrame dlg;
     try {
       Vector directories = new Vector();
@@ -285,6 +287,7 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(true);
     dlg.show();
+       */
   }
 
 

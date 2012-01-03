@@ -10,8 +10,10 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.data.GroupRecord;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.ex.EfaModifyException;
 import java.util.*;
 
@@ -49,6 +51,70 @@ public class Groups extends StorageObject {
         } catch(Exception e) {
             Logger.logdebug(e);
             return null;
+        }
+    }
+
+    public GroupRecord[] getGroupsForPerson(UUID personId, long validAt) {
+        return getGroupsForPerson(personId, validAt, -1, -1);
+    }
+
+    public GroupRecord[] getGroupsForPerson(UUID personId, long validFrom, long validUntil) {
+        return getGroupsForPerson(personId, -1, validFrom, validUntil);
+    }
+
+    private GroupRecord[] getGroupsForPerson(UUID personId, long validAt, long validFrom, long validUntil) {
+        ArrayList<GroupRecord> groups = new ArrayList<GroupRecord>();
+        try {
+            DataKeyIterator it = data().getStaticIterator();
+            DataKey k = it.getFirst();
+            Hashtable<UUID,String> uniqueList = new Hashtable<UUID,String>();
+            while (k != null) {
+                GroupRecord r = (GroupRecord)data().get(k);
+                if ( (validAt != -1 && r.isValidAt(validAt)) ||
+                     (validFrom != -1 && validUntil != -1 && r.isInValidityRange(validFrom, validUntil)) ) {
+                    DataTypeList<UUID> memberList = r.getMemberIdList();
+                    if (memberList != null && memberList.contains(personId)) {
+                        if (uniqueList.get(r.getId()) == null) {
+                            groups.add(r);
+                            uniqueList.put(r.getId(), "foo");
+                        }
+                    }
+                }
+                k = it.getNext();
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+        if (groups.size() == 0) {
+            return null;
+        } else {
+            return groups.toArray(new GroupRecord[0]);
+        }
+    }
+
+    public void setGroupsForPerson(UUID personId, UUID[] groupIdList, long validAt) {
+        try {
+            DataKeyIterator it = data().getStaticIterator();
+            DataKey k = it.getFirst();
+            while (k != null) {
+                GroupRecord r = (GroupRecord)data().get(k);
+                if (r.isValidAt(validAt)) {
+                    boolean personToBeIngroup = false;
+                    for (UUID id : groupIdList) {
+                        if (r.getId().equals(id)) {
+                            personToBeIngroup = true;
+                            break;
+                        }
+                    }
+                    if (r.setPersonInGroup(personId, personToBeIngroup)) {
+                        data().update(r);
+                    }
+                }
+                k = it.getNext();
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
         }
     }
 

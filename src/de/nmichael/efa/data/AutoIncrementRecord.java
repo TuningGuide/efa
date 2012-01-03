@@ -10,11 +10,10 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.gui.util.*;
-import de.nmichael.efa.util.*;
 import java.util.*;
 
 // @i18n complete
@@ -77,7 +76,7 @@ public class AutoIncrementRecord extends DataRecord {
         return getLong(LONGVALUE);
     }
 
-    public Vector<IItemType> getGuiItems() {
+    public Vector<IItemType> getGuiItems(AdminRecord admin) {
         return null; // not supported
     }
 

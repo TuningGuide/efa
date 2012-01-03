@@ -12,16 +12,12 @@ package de.nmichael.efa.gui.widgets;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.gui.*;
-import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
 import java.awt.*;
 import java.awt.image.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.border.*;
 import javax.swing.text.html.*;
 import java.util.*;
 import java.io.*;
@@ -666,9 +662,7 @@ public class MeteoAstroWidget extends Widget {
             ((HTMLEditorKit) htmlPane.getEditorKit()).setAutoFormSubmission(false);
             try {
                 if (url != null && url.length() > 0) {
-                    if (url.indexOf("://") < 0) {
-                        url = "file://" + url;
-                    }
+                    url = EfaUtil.correctUrl(url);
                     htmlPane.setPage(url);
                 }
             } catch (IOException ee) {

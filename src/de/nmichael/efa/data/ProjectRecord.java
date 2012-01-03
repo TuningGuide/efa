@@ -12,6 +12,7 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.data.efawett.Zielfahrt;
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.items.*;
@@ -430,11 +431,11 @@ public class ProjectRecord extends DataRecord {
         return getDate(ENDDATE);
     }
     
-    public Vector<IItemType> getGuiItems() {
-        return getGuiItems(0, null, false);
+    public Vector<IItemType> getGuiItems(AdminRecord admin) {
+        return getGuiItems(admin, 0, null, false);
     }
 
-    public Vector<IItemType> getGuiItems(int subtype, String category, boolean newProject) {
+    public Vector<IItemType> getGuiItems(AdminRecord admin, int subtype, String category, boolean newProject) {
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
 

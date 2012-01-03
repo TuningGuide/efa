@@ -14,7 +14,6 @@ import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.gui.widgets.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.*; // @todo (P4) remove again - currently only necessary for old BrowserFrame
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.direkt.*;

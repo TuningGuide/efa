@@ -160,7 +160,7 @@ public class ImportBoatStatus extends ImportBase {
                         BoatDamageRecord rd = boatDamages.createBoatDamageRecord(boatID, 1);
                         try {
                             rd.setDescription(d.get(BootStatus.BOOTSSCHAEDEN));
-                            boatReservations.data().add(rd);
+                            boatDamages.data().add(rd);
                             logDetail(International.getMessage("Importiere Eintrag: {entry}", rd.toString()));
                         } catch (Exception e) {
                             logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", rd.toString(), e.toString()));

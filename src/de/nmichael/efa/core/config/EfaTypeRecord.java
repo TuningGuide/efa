@@ -97,7 +97,7 @@ public class EfaTypeRecord extends DataRecord implements Comparable {
         return (category != null && type != null ? category + "_" + type : "");
     }
 
-    public Vector<IItemType> getGuiItems() {
+    public Vector<IItemType> getGuiItems(AdminRecord admin) {
         return null;
     }
 

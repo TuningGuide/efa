@@ -17,20 +17,24 @@ import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
 
 public class NewProjectDialog extends StepwiseDialog implements IItemListener {
 
-    public NewProjectDialog(JDialog parent) {
+    private AdminRecord admin;
+
+    public NewProjectDialog(JDialog parent, AdminRecord admin) {
         super(parent, International.getString("Neues Projekt"));
+        this.admin = admin;
     }
 
-    public NewProjectDialog(Frame parent) {
+    public NewProjectDialog(Frame parent, AdminRecord admin) {
         super(parent, International.getString("Neues Projekt"));
+        this.admin = admin;
     }
 
     public void keyAction(ActionEvent evt) {
@@ -77,12 +81,12 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
         ProjectRecord r;
 
         r = Project.createNewRecordFromStatic(ProjectRecord.TYPE_PROJECT);
-        items.addAll(r.getGuiItems(1, "0", true));
-        items.addAll(r.getGuiItems(2, "1", true));
-        items.addAll(r.getGuiItems(3, "2", true));
+        items.addAll(r.getGuiItems(admin, 1, "0", true));
+        items.addAll(r.getGuiItems(admin, 2, "1", true));
+        items.addAll(r.getGuiItems(admin, 3, "2", true));
         r = Project.createNewRecordFromStatic(ProjectRecord.TYPE_CLUB);
-        items.addAll(r.getGuiItems(1, "3", true));
-        items.addAll(r.getGuiItems(2, "4", true));
+        items.addAll(r.getGuiItems(admin, 1, "3", true));
+        items.addAll(r.getGuiItems(admin, 2, "4", true));
     }
 
     boolean checkInput(int direction) {
@@ -115,15 +119,21 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
                 item.requestFocus();
                 return false;
             }
+            if (item.getValue().equals(IDataAccess.TYPESTRING_EFA_REMOTE)) {
+                Dialog.error(International.getMessage("Die ausgewählte Option '{option}' ist zur Zeit experimentell und nur bedingt funktionsfähig.",
+                        item.getValue()));
+                item.requestFocus();
+                return false;
+            }
 
             // remove all StorageType-specific config options
             ProjectRecord r = Project.createNewRecordFromStatic(ProjectRecord.TYPE_PROJECT);
             Vector<IItemType> itemsToBeDeleted = new Vector<IItemType>();
-            itemsToBeDeleted.addAll(r.getGuiItems(3, "2", true));
+            itemsToBeDeleted.addAll(r.getGuiItems(admin, 3, "2", true));
             r.setStorageType(IDataAccess.TYPE_EFA_REMOTE);
-            itemsToBeDeleted.addAll(r.getGuiItems(3, "2", true));
+            itemsToBeDeleted.addAll(r.getGuiItems(admin, 3, "2", true));
             r.setStorageType(IDataAccess.TYPE_DB_SQL);
-            itemsToBeDeleted.addAll(r.getGuiItems(3, "2", true));
+            itemsToBeDeleted.addAll(r.getGuiItems(admin, 3, "2", true));
             for (int i=0; i<items.size(); i++) {
                 for (int j=0; j<itemsToBeDeleted.size(); j++) {
                     if (items.get(i).getName().equals(itemsToBeDeleted.get(j).getName())) {
@@ -140,7 +150,7 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
             if (item.getValue().equals(IDataAccess.TYPESTRING_DB_SQL)) {
                 r.setStorageType(IDataAccess.TYPE_DB_SQL);
             }
-            items.addAll(r.getGuiItems(3, "2", true));
+            items.addAll(r.getGuiItems(admin, 3, "2", true));
             if (item.getValue().equals(IDataAccess.TYPESTRING_EFA_REMOTE)) {
                 IItemType checkbox = getItemByName(ProjectRecord.EFAONLINECONNECT);
                 if (checkbox != null) {

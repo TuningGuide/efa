@@ -33,13 +33,15 @@ public class StatisticsListDialog extends DataListDialog {
     private AdminRecord admin;
 
     public StatisticsListDialog(Frame parent, AdminRecord admin) {
-        super(parent, International.getString("Statistiken"), Daten.project.getStatistics(false), 0);
+        super(parent, International.getString("Statistiken"), 
+                Daten.project.getStatistics(false), 0, admin);
         this.admin = admin;
         ini();
     }
 
     public StatisticsListDialog(JDialog parent, AdminRecord admin) {
-        super(parent, International.getString("Statistiken"), Daten.project.getStatistics(false), 0);
+        super(parent, International.getString("Statistiken"), 
+                Daten.project.getStatistics(false), 0, admin);
         this.admin = admin;
         ini();
     }
@@ -108,7 +110,7 @@ public class StatisticsListDialog extends DataListDialog {
                 break;
             case ACTION_ONETIMESTATISTIC:
                 StatisticsRecord srtmp = (StatisticsRecord)Daten.project.getStatistics(false).createStatisticsRecord(UUID.randomUUID());
-                StatisticsEditDialog dlg = new StatisticsEditDialog(this, srtmp, true, true);
+                StatisticsEditDialog dlg = new StatisticsEditDialog(this, srtmp, true, true, admin);
                 dlg.showDialog();
                 if (dlg.getDialogResult()) {
                     sr = new StatisticsRecord[1];
@@ -123,6 +125,6 @@ public class StatisticsListDialog extends DataListDialog {
         if (record == null) {
             record = Daten.project.getStatistics(false).createStatisticsRecord(UUID.randomUUID());
         }
-        return new StatisticsEditDialog(parent, (StatisticsRecord)record, newRecord);
+        return new StatisticsEditDialog(parent, (StatisticsRecord)record, newRecord, admin);
     }
 }

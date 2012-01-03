@@ -11,10 +11,10 @@
 package de.nmichael.efa.gui.dataedit;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -24,12 +24,12 @@ import javax.swing.*;
 // @i18n complete
 public class CrewListDialog extends DataListDialog {
 
-    public CrewListDialog(Frame parent) {
-        super(parent, International.getString("Mannschaften"), Daten.project.getCrews(false), 0);
+    public CrewListDialog(Frame parent, AdminRecord admin) {
+        super(parent, International.getString("Mannschaften"), Daten.project.getCrews(false), 0, admin);
     }
 
-    public CrewListDialog(JDialog parent) {
-        super(parent, International.getString("Mannschaften"), Daten.project.getCrews(false), 0);
+    public CrewListDialog(JDialog parent, AdminRecord admin) {
+        super(parent, International.getString("Mannschaften"), Daten.project.getCrews(false), 0, admin);
     }
 
     public void keyAction(ActionEvent evt) {
@@ -41,6 +41,6 @@ public class CrewListDialog extends DataListDialog {
         if (record == null) {
             record = Daten.project.getCrews(false).createCrewRecord(UUID.randomUUID());
         }
-        return new CrewEditDialog(parent, (CrewRecord)record, newRecord);
+        return new CrewEditDialog(parent, (CrewRecord)record, newRecord, admin);
     }
 }

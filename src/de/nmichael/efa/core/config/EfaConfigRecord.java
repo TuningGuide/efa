@@ -78,7 +78,7 @@ public class EfaConfigRecord extends DataRecord {
         return (name != null ? name : "");
     }
 
-    public Vector<IItemType> getGuiItems() {
+    public Vector<IItemType> getGuiItems(AdminRecord admin) {
         return null;
     }
 

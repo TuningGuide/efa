@@ -23,6 +23,8 @@ public class Admins extends StorageObject {
     public static final String DATATYPE = "efa2admins";
 
     public static final String SUPERADMIN = "admin";
+    public static final String EFALIVEADMIN = "efalive";
+    public static final String EFALIVEPASSWORD = "u^Gm9{,yD#t";
 
     public Admins(int storageType, 
             String storageLocation,
@@ -37,6 +39,47 @@ public class Admins extends StorageObject {
         super(IDataAccess.TYPE_FILE_XML, Daten.efaCfgDirectory, null, null, "admins", DATATYPE, International.getString("Administratoren"));
         AdminRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
+    }
+
+    public void open(boolean createNewIfNotExists) throws EfaException {
+        super.open(createNewIfNotExists);
+        ensureEfaLiveAdminIsSet();
+    }
+
+    private void ensureEfaLiveAdminIsSet() {
+        if (isOpen()) {
+            boolean isNew = false;
+            boolean changed = false;
+            AdminRecord admin = getAdmin(EFALIVEADMIN);
+            if (admin == null) {
+                admin = createAdminRecord(EFALIVEADMIN, EFALIVEPASSWORD);
+                isNew = true;
+            }
+            if (admin.getPassword() == null || admin.getPassword().getPassword() == null ||
+               !admin.getPassword().getPassword().equals(DataTypePasswordHashed.encrypt(EFALIVEPASSWORD))) {
+                admin.setPassword(EFALIVEPASSWORD);
+                changed = true;
+            }
+            if (!admin.isAllowedRemoteAccess()) {
+                admin.setAllowedRemoteAccess(true);
+                changed = true;
+            }
+            if (!admin.isAllowedBackup()) {
+                admin.setAllowedBackup(true);
+                changed = true;
+            }
+            if ((isNew || changed) && data() != null) {
+                try {
+                    if (isNew) {
+                        data().add(admin);
+                    } else {
+                        data().update(admin);
+                    }
+                } catch (Exception eignore) {
+                    Logger.logdebug(eignore);
+                }
+            }
+        }
     }
 
     public DataRecord createNewRecord() {

@@ -2,8 +2,10 @@
 
 Item                                                                 days  until
 ================================================================================
-Test Bugfix: Online-Update (restart am Ende)
+Kay: ntpd, Port 3834 konfigurierbar
+
 Backup
+
 Internationalize - Cleanup
 Rewrite remaining Dialogs/Frames
 Delete unused Classes
@@ -11,9 +13,11 @@ Auto Create new Logbooks - better Dialog
 
 efaWett: email-Adresse Pflicht
 Audit
+Gewaesserliste mitliefern
 efaRemote - SSL
 efaRemote - proper Session Handling
 efaRemote - Progress Indicator
+efaRemote - Online Update
 Crash Recovery (Roll forward)
 Point-in-Time Recovery
 Lock Efa

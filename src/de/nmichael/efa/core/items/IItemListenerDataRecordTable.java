@@ -12,9 +12,9 @@ package de.nmichael.efa.core.items;
 
 // @i18n complete
 
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.gui.dataedit.DataEditDialog;
 import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.gui.*;
 import javax.swing.*;
 
 public interface IItemListenerDataRecordTable {

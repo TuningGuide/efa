@@ -11,6 +11,7 @@
 package de.nmichael.efa.gui;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
@@ -34,6 +35,7 @@ public class DataExportDialog extends BaseDialog {
     private ItemTypeFile file;
 
     private StorageObject persistence;
+    private AdminRecord admin;
     private long validAt;
     private String[] fields;
     private String[] fieldDescription;
@@ -41,15 +43,17 @@ public class DataExportDialog extends BaseDialog {
 
     // @todo (P4) DataExport option: "export to efa", which leaves all keys as they are (only xml, add flag "<exportMode>efa</exportMode>"
 
-    public DataExportDialog(Frame parent, StorageObject persistence, long validAt) {
+    public DataExportDialog(Frame parent, StorageObject persistence, long validAt, AdminRecord admin) {
         super(parent, International.getMessage("{data} exportieren", persistence.getDescription()),
                 International.getStringWithMnemonic("Export starten"));
+        this.admin = admin;
         setPersistence(persistence, validAt);
     }
 
-    public DataExportDialog(JDialog parent, StorageObject persistence, long validAt) {
+    public DataExportDialog(JDialog parent, StorageObject persistence, long validAt, AdminRecord admin) {
         super(parent, International.getMessage("{data} exportieren", persistence.getDescription()),
                 International.getStringWithMnemonic("Export starten"));
+        this.admin = admin;
         setPersistence(persistence, validAt);
     }
 
@@ -59,7 +63,7 @@ public class DataExportDialog extends BaseDialog {
         this.fields = persistence.data().getFieldNames(false);
         this.fieldDescription = new String[fields.length];
         Vector<Integer> indices = new Vector<Integer>();
-        Vector<IItemType> items = persistence.createNewRecord().getGuiItems();
+        Vector<IItemType> items = persistence.createNewRecord().getGuiItems(admin);
         for (int i=0; i<fields.length; i++) {
             IItemType item = null;
             for (int j=0; items != null && j<items.size(); j++) {
@@ -207,7 +211,7 @@ public class DataExportDialog extends BaseDialog {
             return;
         }
         if (!file.isValidInput()) {
-            Dialog.error(International.getString(file.getInvalidErrorText()));
+            Dialog.error(file.getInvalidErrorText());
             return;
         }
 

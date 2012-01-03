@@ -74,6 +74,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     }
 
     public void showDialog() {
+        Daten.iniSplashScreen(false);
         if (!_prepared && !prepareDialog()) {
             return;
         }
@@ -138,7 +139,8 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     protected void iniDialogCommon(String title, String closeButtonText) throws Exception {
         helpTopic1 = getClass().getCanonicalName();
         helpTopic2 = getClass().getSuperclass().getCanonicalName();
-        if (!helpTopic2.startsWith("de.nmichael.efa") || helpTopic2.startsWith("de.nmichael.efa.gui.BaseDialog")) {
+        if (!helpTopic2.startsWith("de.nmichael.efa") || 
+             helpTopic2.startsWith(BaseDialog.class.getCanonicalName())) {
             helpTopic2 = null;
         }
         if (Logger.isTraceOn(Logger.TT_HELP, 5)) {

@@ -150,7 +150,7 @@ public class MessageRecord extends DataRecord {
         return "#" + getMessageId() + " " + getSubject();
     }
 
-    public Vector<IItemType> getGuiItems() {
+    public Vector<IItemType> getGuiItems(AdminRecord admin) {
         String CAT_BASEDATA     = "%01%" + International.getString("Nachricht");
         boolean newMsg = getFrom() == null || getFrom().length() == 0;
         long now = System.currentTimeMillis();

@@ -351,7 +351,7 @@ public class BoatReservationRecord extends DataRecord {
         set(fieldName, value);
     }
 
-    public Vector<IItemType> getGuiItems() {
+    public Vector<IItemType> getGuiItems(AdminRecord admin) {
         String CAT_BASEDATA     = "%01%" + International.getString("Reservierung");
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
@@ -398,6 +398,7 @@ public class BoatReservationRecord extends DataRecord {
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bis") + " (" +
                 International.getString("Zeit") + ")"));
         ((ItemTypeTime)item).enableSeconds(false);
+        ((ItemTypeTime)item).setReferenceTime(DataTypeTime.time235959());
         item.setNotNull(true);
         ((ItemTypeTime)item).setMustBeAfter(timeFrom, false);
         v.add(item = getGuiItemTypeStringAutoComplete(BoatReservationRecord.PERSONID, null,

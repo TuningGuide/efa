@@ -1,8 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <efaOnlineUpdate>
     <Version>
+        <VersionID>1.9.9_03</VersionID>
+        <ReleaseDate>02.01.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2749682</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>efaRemote Rechteverwaltung im Client</ChangeItem>
+            <ChangeItem>CLI-Anpassungen für Backup durch efaLive</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>efaRemote Client-based Access Control</ChangeItem>
+            <ChangeItem>CLI Adapdations for Backup through efaLive</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_02</VersionID>
+        <ReleaseDate>01.01.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2743002</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Backup-Funktionalität in der GUI erreichbar</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Backup Functionality available in GUI</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>1.9.9_01</VersionID>
-        <ReleaseDate>31.12.2012</ReleaseDate>
+        <ReleaseDate>31.12.2011</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2755584</DownloadSize>
 

@@ -10,8 +10,9 @@
 
 package de.nmichael.efa.data.storage;
 
-import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.Logger;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -66,6 +67,7 @@ public class RemoteEfaMessage {
 
     // Field Names for Operations
     public static final String FIELD_SESSIONID          = "SID";
+    public static final String FIELD_ADMINRECORD        = "AdminRecord"; // for login
     public static final String FIELD_RESULTCODE         = "RCode";
     public static final String FIELD_RESULTTEXT         = "RText";
     public static final String FIELD_USERNAME           = "Username";
@@ -113,6 +115,7 @@ public class RemoteEfaMessage {
     private Vector<DataRecord> records;
     private Vector<DataKey> keys;
     private Hashtable<String,String> fields;
+    private AdminRecord adminRecord;
 
     public RemoteEfaMessage(int msgId, Type type, String operation) {
         this.msgId = msgId;
@@ -297,6 +300,14 @@ public class RemoteEfaMessage {
         return a;
     }
 
+    public void setAdminRecord(AdminRecord admin) {
+        this.adminRecord = admin;
+    }
+
+    public AdminRecord getAdminRecord() {
+        return adminRecord;
+    }
+
     public int getNumberOfRecords() {
         return (records != null ? records.size() : 0);
     }
@@ -354,8 +365,16 @@ public class RemoteEfaMessage {
         if (fields != null) {
             String[] fieldNames = fields.keySet().toArray(new String[0]);
             for (int i=0; i<fieldNames.length; i++) {
-                s.append("<" +  fieldNames[i] + ">" + EfaUtil.escapeXml(fields.get(fieldNames[i])) + "</" + fieldNames[i] + ">");
+                s.append("<" +  fieldNames[i] + ">" + 
+                        EfaUtil.escapeXml(fields.get(fieldNames[i])) + "</" +
+                        fieldNames[i] + ">");
             }
+        }
+
+        if (adminRecord != null) {
+                s.append("<" +  FIELD_ADMINRECORD + ">" +
+                        adminRecord.encodeAsString() +
+                        "</" + FIELD_ADMINRECORD + ">");
         }
 
         if (records != null) {
@@ -404,6 +423,18 @@ public class RemoteEfaMessage {
 
     public static BufferedInputStream getBufferedInputStream(InputStream in) {
         try {
+            int timeout = 100;
+            while (in.available() <= 0) {
+                try {
+                    Thread.sleep(100);
+                } catch(InterruptedException eignore) {
+                }
+                if (--timeout <= 0) {
+                    Logger.log(Logger.ERROR, Logger.MSG_REFA_ERRORTIMEOUT,
+                            "Response Receive Timeout");
+                    return null;
+                }
+            }
             ZipInputStream zip = new ZipInputStream(in);
             ZipEntry entry = zip.getNextEntry();
             return new BufferedInputStream(zip);

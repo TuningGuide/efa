@@ -10,7 +10,7 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
@@ -22,9 +22,7 @@ import de.nmichael.efa.ex.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import java.util.*;
-import javax.swing.event.ChangeEvent;
 
 // @i18n complete
 public class VersionizedDataEditDialog extends UnversionizedDataEditDialog implements IItemListener {
@@ -35,12 +33,12 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
     private JLabel selectedVersionLabel;
     protected int thisVersion;
 
-    public VersionizedDataEditDialog(Frame parent, String title, DataRecord dataRecord, boolean newRecord) {
-        super(parent, title, dataRecord, newRecord);
+    public VersionizedDataEditDialog(Frame parent, String title, DataRecord dataRecord, boolean newRecord, AdminRecord admin) {
+        super(parent, title, dataRecord, newRecord, admin);
     }
 
-    public VersionizedDataEditDialog(JDialog parent, String title, DataRecord dataRecord, boolean newRecord) {
-        super(parent, title, dataRecord, newRecord);
+    public VersionizedDataEditDialog(JDialog parent, String title, DataRecord dataRecord, boolean newRecord, AdminRecord admin) {
+        super(parent, title, dataRecord, newRecord, admin);
     }
     
     protected void iniDialog() throws Exception {
@@ -211,7 +209,7 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
 
     void showRecord(DataRecord r) {
         this.dataRecord = r;
-        setItems(dataRecord.getGuiItems());
+        setItems(dataRecord.getGuiItems(admin));
         for (IItemType item : getItems()) {
             item.setUnchanged();
         }

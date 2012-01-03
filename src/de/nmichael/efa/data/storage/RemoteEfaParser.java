@@ -11,10 +11,10 @@
 package de.nmichael.efa.data.storage;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
 import java.util.*;
 import org.xml.sax.*;
-import org.xml.sax.helpers.*;
 
 // @i18n complete
 
@@ -34,6 +34,7 @@ public class RemoteEfaParser extends XmlHandler {
     private boolean inRequestResponse = false;
     private boolean inRecord = false;
     private boolean inKey = false;
+    private boolean inFieldAdminRecord = false;
 
     public RemoteEfaParser(IDataAccess dataAccess) {
         super(XML_EFA);
@@ -85,11 +86,18 @@ public class RemoteEfaParser extends XmlHandler {
         super.startElement(uri, localName, qname, atts);
 
         if (inRequestResponse && !inRecord && !inKey) {
+            if (localName.equals(RemoteEfaMessage.FIELD_ADMINRECORD)) {
+                inFieldAdminRecord = true;
+            }
             if (localName.equals(DataRecord.ENCODING_RECORD)) {
                 // begin of record
-                iniDataAccess();
+                if (!inFieldAdminRecord) {
+                    iniDataAccess();
+                    record = dataAccess.getPersistence().createNewRecord();
+                } else {
+                    record = Daten.admins.createNewRecord();
+                }
                 inRecord = true;
-                record = dataAccess.getPersistence().createNewRecord();
                 return;
             }
             if (localName.equals(DataKey.ENCODING_KEY)) {
@@ -135,7 +143,11 @@ public class RemoteEfaParser extends XmlHandler {
 
         if (inRequestResponse && inRecord && localName.equals(DataRecord.ENCODING_RECORD)) {
             // end of record
-            message.addRecord(record);
+            if (!inFieldAdminRecord) {
+                message.addRecord(record);
+            } else {
+                message.setAdminRecord((AdminRecord)record);
+            }
             record = null;
             inRecord = false;
             return;
@@ -193,7 +205,9 @@ public class RemoteEfaParser extends XmlHandler {
                     key.set(keyFieldIdx, dummyRecord.get(keyFields[keyFieldIdx]));
                 }
             } else{
-                message.addField(fieldName, fieldValue);
+                if (!inFieldAdminRecord) {
+                    message.addField(fieldName, fieldValue);
+                }
             }
         }
 

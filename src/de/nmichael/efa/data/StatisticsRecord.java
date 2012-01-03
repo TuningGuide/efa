@@ -11,6 +11,7 @@
 package de.nmichael.efa.data;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.storage.*;
@@ -1220,7 +1221,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         }
         if (!isFilterBoatTypeAllSelected()) {
             filter = (filter == null ? "" : filter + "\n") +
-                    International.getString("Botstyp") + ": " + getFilterBoatTypeSelectedListAsText();
+                    International.getString("Bootstyp") + ": " + getFilterBoatTypeSelectedListAsText();
         }
         if (!isFilterBoatSeatsAllSelected()) {
             filter = (filter == null ? "" : filter + "\n") +
@@ -1398,7 +1399,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             case yearOfBirth:
                 return International.getString("Jahrgang");
             case boatType:
-                return International.getString("Botstyp");
+                return International.getString("Bootstyp");
             case entryNo:
                 return International.getString("LfdNr.");
             case date:
@@ -1428,7 +1429,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 International.getString("Name"),
                 International.getString("Status"),
                 International.getString("Jahrgang"),
-                International.getString("Botstyp"),
+                International.getString("Bootstyp"),
                 International.getString("LfdNr."),
                 International.getString("Datum")
             };
@@ -1600,7 +1601,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         return (name != null ? name : "");
     }
 
-    public Vector<IItemType> getGuiItems() {
+    public Vector<IItemType> getGuiItems(AdminRecord admin) {
         String CAT_BASEDATA     = "%01%" + International.getString("Statistik");
         String CAT_FILTER       = "%02%" + International.getString("Filter");
         String CAT_FILTERGENDER        = "%021%" + International.getString("Geschlecht");

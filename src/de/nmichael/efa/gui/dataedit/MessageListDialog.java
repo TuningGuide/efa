@@ -32,13 +32,13 @@ public class MessageListDialog extends DataListDialog {
     private AdminRecord admin;
 
     public MessageListDialog(Frame parent, AdminRecord admin) {
-        super(parent, International.getString("Nachrichten"), Daten.project.getMessages(false), 0);
+        super(parent, International.getString("Nachrichten"), Daten.project.getMessages(false), 0, admin);
         this.admin = admin;
         ini();
     }
 
     public MessageListDialog(JDialog parent, AdminRecord admin) {
-        super(parent, International.getString("Nachrichten"), Daten.project.getMessages(false), 0);
+        super(parent, International.getString("Nachrichten"), Daten.project.getMessages(false), 0, admin);
         this.admin = admin;
         ini();
     }

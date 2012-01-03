@@ -10,27 +10,22 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
-import javax.swing.event.ChangeEvent;
 
 // @i18n complete
 public class FahrtenabzeichenEditDialog extends UnversionizedDataEditDialog {
 
-    public FahrtenabzeichenEditDialog(Frame parent, FahrtenabzeichenRecord r, boolean newRecord) {
-        super(parent, International.onlyFor("Fahrtenabzeichen","de"), r, newRecord);
+    public FahrtenabzeichenEditDialog(Frame parent, FahrtenabzeichenRecord r, boolean newRecord, AdminRecord admin) {
+        super(parent, International.onlyFor("Fahrtenabzeichen","de"), r, newRecord, admin);
     }
 
-    public FahrtenabzeichenEditDialog(JDialog parent, FahrtenabzeichenRecord r, boolean newRecord) {
-        super(parent, International.onlyFor("Fahrtenabzeichen","de"), r, newRecord);
+    public FahrtenabzeichenEditDialog(JDialog parent, FahrtenabzeichenRecord r, boolean newRecord, AdminRecord admin) {
+        super(parent, International.onlyFor("Fahrtenabzeichen","de"), r, newRecord, admin);
     }
 
     public void keyAction(ActionEvent evt) {

@@ -458,9 +458,7 @@ public class BrowserDialog extends BaseDialog {
         if (url == null || url.length() == 0) {
             return;
         }
-        if (url.indexOf(":") < 0) {
-            url = "file:" + url;
-        }
+        url = EfaUtil.correctUrl(url);
         storePageInHistory(url);
         setPage(url);
 
@@ -716,7 +714,6 @@ public class BrowserDialog extends BaseDialog {
                 dlg = new BrowserDialog((BaseFrame) null, url);
             }
             if (width <= 0 || height <= 0) {
-            } else {
                 width = (int) Dialog.screenSize.getWidth() - 100;
                 height = (int) Dialog.screenSize.getHeight() - 150;
                 if (Daten.applID == Daten.APPL_EFABH
@@ -726,6 +723,7 @@ public class BrowserDialog extends BaseDialog {
                 }
             }
             dlg.setSize(width, height);
+            dlg.setPreferredSize(new Dimension(width, height));
             dlg.setClosingTimeout(closingTimeout);
             if (title != null) {
                 dlg.setTitle(title);

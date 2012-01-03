@@ -11,6 +11,7 @@
 package de.nmichael.efa.gui.dataedit;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
@@ -24,13 +25,13 @@ import javax.swing.*;
 // @i18n complete
 public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements IItemListener {
 
-    public BoatDamageEditDialog(Frame parent, BoatDamageRecord r, boolean newRecord) {
-        super(parent, International.getString("Bootsschaden"), r, newRecord);
+    public BoatDamageEditDialog(Frame parent, BoatDamageRecord r, boolean newRecord, AdminRecord admin) {
+        super(parent, International.getString("Bootsschaden"), r, newRecord, admin);
         initListener();
     }
 
-    public BoatDamageEditDialog(JDialog parent, BoatDamageRecord r, boolean newRecord) {
-        super(parent, International.getString("Bootsschaden"), r, newRecord);
+    public BoatDamageEditDialog(JDialog parent, BoatDamageRecord r, boolean newRecord, AdminRecord admin) {
+        super(parent, International.getString("Bootsschaden"), r, newRecord, admin);
         initListener();
     }
 
@@ -91,8 +92,8 @@ public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements
             r.setReportedByPersonId(personID);
         }
         BoatDamageEditDialog dlg = (parent instanceof JDialog ? 
-            new BoatDamageEditDialog((JDialog)parent, r, true) :
-            new BoatDamageEditDialog((JFrame)parent, r, true));
+            new BoatDamageEditDialog((JDialog)parent, r, true, null) :
+            new BoatDamageEditDialog((JFrame)parent, r, true, null));
         dlg.showDialog();
         if (dlg.getDialogResult()) {
             dlg.sendNotification();

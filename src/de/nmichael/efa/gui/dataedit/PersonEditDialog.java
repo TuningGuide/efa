@@ -10,27 +10,22 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
-import javax.swing.event.ChangeEvent;
 
 // @i18n complete
 public class PersonEditDialog extends VersionizedDataEditDialog {
 
-    public PersonEditDialog(Frame parent, PersonRecord r, boolean newRecord) {
-        super(parent, International.getString("Person"), r, newRecord);
+    public PersonEditDialog(Frame parent, PersonRecord r, boolean newRecord, AdminRecord admin) {
+        super(parent, International.getString("Person"), r, newRecord, admin);
     }
 
-    public PersonEditDialog(JDialog parent, PersonRecord r, boolean newRecord) {
-        super(parent, International.getString("Person"), r, newRecord);
+    public PersonEditDialog(JDialog parent, PersonRecord r, boolean newRecord, AdminRecord admin) {
+        super(parent, International.getString("Person"), r, newRecord, admin);
     }
 
     public void keyAction(ActionEvent evt) {

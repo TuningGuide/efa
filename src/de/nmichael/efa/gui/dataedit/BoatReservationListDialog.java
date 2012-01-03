@@ -11,6 +11,7 @@
 package de.nmichael.efa.gui.dataedit;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
@@ -28,33 +29,33 @@ public class BoatReservationListDialog extends DataListDialog {
 
     boolean allowNewReservationsWeekly = true;
 
-    public BoatReservationListDialog(Frame parent) {
-        super(parent, International.getString("Bootsreservierungen"), Daten.project.getBoatReservations(false), 0);
+    public BoatReservationListDialog(Frame parent, AdminRecord admin) {
+        super(parent, International.getString("Bootsreservierungen"), Daten.project.getBoatReservations(false), 0, admin);
         iniValues(null, true, true, true);
     }
 
-    public BoatReservationListDialog(JDialog parent) {
-        super(parent, International.getString("Bootsreservierungen"), Daten.project.getBoatReservations(false), 0);
+    public BoatReservationListDialog(JDialog parent, AdminRecord admin) {
+        super(parent, International.getString("Bootsreservierungen"), Daten.project.getBoatReservations(false), 0, admin);
         iniValues(null, true, true, true);
     }
 
-    public BoatReservationListDialog(Frame parent, UUID boatId) {
-        super(parent, International.getString("Bootsreservierungen"), Daten.project.getBoatReservations(false), 0);
+    public BoatReservationListDialog(Frame parent, UUID boatId, AdminRecord admin) {
+        super(parent, International.getString("Bootsreservierungen"), Daten.project.getBoatReservations(false), 0, admin);
         iniValues(boatId, true, true, true);
     }
 
-    public BoatReservationListDialog(JDialog parent, UUID boatId) {
-        super(parent, International.getString("Bootsreservierungen"), Daten.project.getBoatReservations(false), 0);
+    public BoatReservationListDialog(JDialog parent, UUID boatId, AdminRecord admin) {
+        super(parent, International.getString("Bootsreservierungen"), Daten.project.getBoatReservations(false), 0, admin);
         iniValues(boatId, true, true, true);
     }
 
     public BoatReservationListDialog(Frame parent, UUID boatId, boolean allowNewReservations, boolean allowNewReservationsWeekly, boolean allowEditDeleteReservations) {
-        super(parent, International.getString("Bootsreservierungen"), Daten.project.getBoatReservations(false), 0);
+        super(parent, International.getString("Bootsreservierungen"), Daten.project.getBoatReservations(false), 0, null);
         iniValues(boatId, allowNewReservations, allowNewReservationsWeekly, allowEditDeleteReservations);
     }
 
     public BoatReservationListDialog(JDialog parent, UUID boatId, boolean allowNewReservations, boolean allowNewReservationsWeekly, boolean allowEditDeleteReservations) {
-        super(parent, International.getString("Bootsreservierungen"), Daten.project.getBoatReservations(false), 0);
+        super(parent, International.getString("Bootsreservierungen"), Daten.project.getBoatReservations(false), 0, null);
         iniValues(boatId, allowNewReservations, allowNewReservationsWeekly, allowEditDeleteReservations);
     }
 
@@ -117,6 +118,7 @@ public class BoatReservationListDialog extends DataListDialog {
         if (record == null) {
             return null;
         }
-        return new BoatReservationEditDialog(parent, (BoatReservationRecord)record, newRecord, allowNewReservationsWeekly);
+        return new BoatReservationEditDialog(parent, (BoatReservationRecord)record, 
+                newRecord, allowNewReservationsWeekly, admin);
     }
 }

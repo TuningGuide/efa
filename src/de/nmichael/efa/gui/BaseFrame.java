@@ -69,6 +69,7 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
         if (!_prepared && !prepareDialog()) {
             return;
         }
+        Daten.iniSplashScreen(false);
         Dialog.setDlgLocation(this);
         Dialog.frameOpened(this);
         if (focusItem != null) {
@@ -129,7 +130,8 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
     protected void iniDialogCommon(String title) throws Exception {
         helpTopic1 = getClass().getCanonicalName();
         helpTopic2 = getClass().getSuperclass().getCanonicalName();
-        if (!helpTopic2.startsWith("de.nmichael.efa") || helpTopic2.startsWith("de.nmichael.efa.gui.BaseFrame")) {
+        if (!helpTopic2.startsWith("de.nmichael.efa") || 
+             helpTopic2.startsWith(BaseFrame.class.getCanonicalName())) {
             helpTopic2 = null;
         }
         if (Logger.isTraceOn(Logger.TT_HELP, 5)) {

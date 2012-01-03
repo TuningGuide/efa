@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data.storage;
 
+import de.nmichael.efa.core.config.AdminRecord;
 import java.util.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.items.*;
@@ -697,12 +698,12 @@ public abstract class DataRecord implements Cloneable, Comparable {
         return item;
     }
 
-    public abstract Vector<IItemType> getGuiItems();
+    public abstract Vector<IItemType> getGuiItems(AdminRecord admin);
     public abstract TableItemHeader[] getGuiTableHeader();
     public abstract TableItem[] getGuiTableItems();
 
-    public IItemType[] getGuiItemsAsArray() {
-        Vector<IItemType> items = getGuiItems();
+    public IItemType[] getGuiItemsAsArray(AdminRecord admin) {
+        Vector<IItemType> items = getGuiItems(admin);
         return items.toArray(new IItemType[0]);
     }
 

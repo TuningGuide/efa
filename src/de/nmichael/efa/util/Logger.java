@@ -157,6 +157,7 @@ public class Logger {
     public static final String MSG_REFA_LOGINFAILURE                 = "RMT010";
     public static final String MSG_REFA_STATISTICS                   = "RMT011";
     public static final String MSG_REFA_TRACECOMMUNICATION           = "RMT012";
+    public static final String MSG_REFA_ERRORTIMEOUT                 = "RMT013";
 
     public static final String MSG_EONL_ERROR                        = "ONL001";
     public static final String MSG_EONL_WARNING                      = "ONL002";

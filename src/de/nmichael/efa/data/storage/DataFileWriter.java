@@ -90,11 +90,17 @@ public class DataFileWriter extends Thread {
         if (System.currentTimeMillis() - lastSave > SAVE_INTERVAL) {
             this.interrupt();
         }
+        int maxTries = 100;
         while (synchronous && writedata && dataFile.isStorageObjectOpen()) {
             try {
                 Thread.sleep(100);
+                maxTries--;
             } catch (InterruptedException e) {
                 // nothing to do
+            }
+            if (maxTries <= 0) {
+                Logger.log(Logger.ERROR, Logger.MSG_FILE_WRITETHREAD_ERROR,
+                        "DataFileWriter["+dataFile.filename+"] synchronous save timed out.");
             }
         }
     }

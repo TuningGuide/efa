@@ -16,6 +16,7 @@ import de.nmichael.efa.core.config.Admins;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.data.storage.IDataAccess;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -87,6 +88,7 @@ public class AdminLoginDialog extends BaseDialog {
     public void closeButton_actionPerformed(ActionEvent e) {
         name.getValueFromGui();
         password.getValueFromGui();
+
         if (!name.isValidInput()) {
             Dialog.error(International.getString("Kein Admin-Name eingegeben!"));
             name.requestFocus();
@@ -97,10 +99,23 @@ public class AdminLoginDialog extends BaseDialog {
             password.requestFocus();
             return;
         }
-        if ((adminRecord = Daten.admins.login(name.getValue(), password.getValue())) == null) {
+
+        String adminName = name.getValue();
+        String adminPassword = password.getValue();
+        Admins myAdmins = Daten.admins;
+        if (Daten.project != null &&
+            Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE &&
+            !adminName.equals(Admins.SUPERADMIN)) {
+            myAdmins = new Admins(Daten.project.getProjectStorageType(),
+                    Daten.project.getProjectStorageLocation(),
+                    Daten.project.getProjectStorageUsername(),
+                    Daten.project.getProjectStoragePassword());
+        }
+        
+        if ((adminRecord = myAdmins.login(adminName, adminPassword)) == null) {
             Dialog.error(International.getString("Admin-Name oder Paßwort ungültig!"));
             Logger.log(Logger.WARNING, Logger.MSG_ADMIN_LOGINFAILURE, International.getString("Admin-Login") + ": "
-                    + International.getMessage("Name {name} oder Paßwort ungültig!", name.getValue()));
+                    + International.getMessage("Name {name} oder Paßwort ungültig!", adminName));
             password.parseAndShowValue("");
             password.requestFocus();
             adminRecord = null;

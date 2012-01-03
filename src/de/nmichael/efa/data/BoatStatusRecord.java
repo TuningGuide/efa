@@ -11,6 +11,7 @@
 package de.nmichael.efa.data;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
@@ -219,7 +220,7 @@ public class BoatStatusRecord extends DataRecord {
         return getBoatName() + ": " + getStatusDescription(this.getCurrentStatus());
     }
 
-    public Vector<IItemType> getGuiItems() {
+    public Vector<IItemType> getGuiItems(AdminRecord admin) {
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
 

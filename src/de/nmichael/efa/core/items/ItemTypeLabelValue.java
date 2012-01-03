@@ -32,6 +32,7 @@ public abstract class ItemTypeLabelValue extends ItemType {
     protected boolean isShowOptional = false;
     protected String optionalButtonText = "+";
     protected JButton expandButton;
+    protected boolean itemOnNewRow = false;
 
     protected abstract JComponent initializeField();
 
@@ -88,19 +89,26 @@ public abstract class ItemTypeLabelValue extends ItemType {
         iniDisplay();
         if (label != null) {
             panel.add(label, new GridBagConstraints(x, y, labelGridWidth, fieldGridHeight, 0.0, 0.0,
-                    labelGridAnchor, labelGridFill, new Insets(padYbefore, padXbefore, padYafter, 0), 0, 0));
+                    labelGridAnchor, labelGridFill, 
+                    new Insets(padYbefore, padXbefore, (itemOnNewRow ? 0 : padYafter), (itemOnNewRow ? padXafter : 0)), 0, 0));
         }
         if (expandButton != null) {
             int gridWidth = labelGridWidth + (optionalButtonText.length() > 1 ? fieldGridWidth : 0);
             panel.add(expandButton, new GridBagConstraints(x, y, gridWidth, fieldGridHeight, 0.0, 0.0,
                     labelGridAnchor, labelGridFill, new Insets(padYbefore, padXbefore, padYafter, 0), 0, 0));
         }
-        panel.add(field, new GridBagConstraints(x+labelGridWidth, y, fieldGridWidth, fieldGridHeight, 0.0, 0.0,
-                fieldGridAnchor, fieldGridFill, new Insets(padYbefore, 0, padYafter, padXafter), 0, 0));
+        if (itemOnNewRow) {
+            y++;
+        } else {
+            x += labelGridWidth;
+        }
+        panel.add(field, new GridBagConstraints(x, y, fieldGridWidth, fieldGridHeight, 0.0, 0.0,
+                fieldGridAnchor, fieldGridFill, 
+                new Insets((itemOnNewRow ? 0 : padYbefore), (itemOnNewRow ? padXbefore : 0), padYafter, padXafter), 0, 0));
         if (!isEnabled) {
             setEnabled(isEnabled);
         }
-        return 1;
+        return (itemOnNewRow ? 2 : 1);
     }
 
     public void getValueFromGui() {
@@ -232,4 +240,9 @@ public abstract class ItemTypeLabelValue extends ItemType {
             field.requestFocus();
         }
     }
+
+    public void setItemOnNewRow(boolean newRow) {
+        itemOnNewRow = newRow;
+    }
+    
 }

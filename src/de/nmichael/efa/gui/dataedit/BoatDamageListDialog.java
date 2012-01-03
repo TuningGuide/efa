@@ -11,6 +11,7 @@
 package de.nmichael.efa.gui.dataedit;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
@@ -26,23 +27,23 @@ import javax.swing.*;
 // @i18n complete
 public class BoatDamageListDialog extends DataListDialog {
 
-    public BoatDamageListDialog(Frame parent) {
-        super(parent, International.getString("Bootsschäden"), Daten.project.getBoatDamages(false), 0);
+    public BoatDamageListDialog(Frame parent, AdminRecord admin) {
+        super(parent, International.getString("Bootsschäden"), Daten.project.getBoatDamages(false), 0, admin);
         iniValues(null);
     }
 
-    public BoatDamageListDialog(JDialog parent) {
-        super(parent, International.getString("Bootsschäden"), Daten.project.getBoatDamages(false), 0);
+    public BoatDamageListDialog(JDialog parent, AdminRecord admin) {
+        super(parent, International.getString("Bootsschäden"), Daten.project.getBoatDamages(false), 0, admin);
         iniValues(null);
     }
 
-    public BoatDamageListDialog(Frame parent, UUID boatId) {
-        super(parent, International.getString("Bootsschäden"), Daten.project.getBoatDamages(false), 0);
+    public BoatDamageListDialog(Frame parent, UUID boatId, AdminRecord admin) {
+        super(parent, International.getString("Bootsschäden"), Daten.project.getBoatDamages(false), 0, admin);
         iniValues(boatId);
     }
 
-    public BoatDamageListDialog(JDialog parent, UUID boatId) {
-        super(parent, International.getString("Bootsschäden"), Daten.project.getBoatDamages(false), 0);
+    public BoatDamageListDialog(JDialog parent, UUID boatId, AdminRecord admin) {
+        super(parent, International.getString("Bootsschäden"), Daten.project.getBoatDamages(false), 0, admin);
         iniValues(boatId);
     }
 
@@ -83,6 +84,6 @@ public class BoatDamageListDialog extends DataListDialog {
         if (record == null) {
             return null;
         }
-        return new BoatDamageEditDialog(parent, (BoatDamageRecord)record, newRecord);
+        return new BoatDamageEditDialog(parent, (BoatDamageRecord)record, newRecord, admin);
     }
 }

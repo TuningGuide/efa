@@ -10,42 +10,41 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.gui.dataedit.DataEditDialog;
-import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.ex.*;
-import de.nmichael.efa.gui.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
-import javax.swing.event.ChangeEvent;
 
 // @i18n complete
 public class UnversionizedDataEditDialog extends DataEditDialog {
 
     protected DataRecord dataRecord;
     protected boolean newRecord;
+    protected AdminRecord admin;
     protected boolean _dontSaveRecord = false;
 
-    public UnversionizedDataEditDialog(Frame parent, String title, DataRecord dataRecord, boolean newRecord) {
+    public UnversionizedDataEditDialog(Frame parent, String title, 
+            DataRecord dataRecord, boolean newRecord, AdminRecord admin) {
         super(parent, title, null);
         this.dataRecord = dataRecord;
         this.newRecord = newRecord;
+        this.admin = admin;
         iniDefaults();
-        setItems((dataRecord != null ? dataRecord.getGuiItems() : null));
+        setItems((dataRecord != null ? dataRecord.getGuiItems(admin) : null));
     }
 
-    public UnversionizedDataEditDialog(JDialog parent, String title, DataRecord dataRecord, boolean newRecord) {
+    public UnversionizedDataEditDialog(JDialog parent, String title, 
+            DataRecord dataRecord, boolean newRecord, AdminRecord admin) {
         super(parent, title, null);
         this.dataRecord = dataRecord;
         this.newRecord = newRecord;
         iniDefaults();
-        setItems((dataRecord != null ? dataRecord.getGuiItems() : null));
+        setItems((dataRecord != null ? dataRecord.getGuiItems(admin) : null));
     }
 
     protected void iniDefaults() {

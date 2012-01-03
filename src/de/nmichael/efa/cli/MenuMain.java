@@ -31,18 +31,34 @@ public class MenuMain extends MenuBase {
     public boolean runCommand(Stack<String> menuStack, String cmd, String args) {
         if (!super.runCommand(menuStack, cmd, args)) {
             if (cmd.equalsIgnoreCase(CLI.MENU_BOATS)) {
+                if (!cli.getAdminRecord().isAllowedEditBoats()) {
+                    cli.logerr("You don't have permission to access this function.");
+                    return false;
+                }
                 menuStack.push(CLI.MENU_BOATS);
                 return runCommandWithArgs(args);
             }
             if (cmd.equalsIgnoreCase(CLI.MENU_PERSONS)) {
+                if (!cli.getAdminRecord().isAllowedEditPersons()) {
+                    cli.logerr("You don't have permission to access this function.");
+                    return false;
+                }
                 menuStack.push(CLI.MENU_PERSONS);
                 return runCommandWithArgs(args);
             }
             if (cmd.equalsIgnoreCase(CLI.MENU_DESTINATIONS)) {
+                if (!cli.getAdminRecord().isAllowedEditDestinations()) {
+                    cli.logerr("You don't have permission to access this function.");
+                    return false;
+                }
                 menuStack.push(CLI.MENU_DESTINATIONS);
                 return runCommandWithArgs(args);
             }
             if (cmd.equalsIgnoreCase(CLI.MENU_BACKUP)) {
+                if (!cli.getAdminRecord().isAllowedBackup()) {
+                    cli.logerr("You don't have permission to access this function.");
+                    return false;
+                }
                 menuStack.push(CLI.MENU_BACKUP);
                 return runCommandWithArgs(args);
             }

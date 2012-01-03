@@ -16,9 +16,12 @@ import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.storage.StorageObject;
+import de.nmichael.efa.gui.BaseDialog;
+import de.nmichael.efa.gui.ProgressDialog;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.ProgressTask;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.util.Vector;
@@ -29,6 +32,12 @@ public class Backup {
     private String backupDir;
     private boolean backupProject;
     private boolean backupConfig;
+    private String zipFile;
+    private String lastErrorMsg;
+
+    private BackupTask backupTask;
+    private int totalWork = 0;
+    private int totalWorkDone = 0;
 
     public Backup(String backupDir,
             boolean backupProject,
@@ -45,20 +54,26 @@ public class Backup {
             try {
                 data.saveToZipFile(dir, zipOut);
                 successful++;
-                Logger.log(Logger.INFO, Logger.MSG_BACKUP_BACKUPINFO,
+                logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPINFO,
                         International.getMessage("Objekt {name} gesichert.", data.getUID()));
             } catch (Exception e) {
-                Logger.log(Logger.ERROR, Logger.MSG_BACKUP_BACKUPERROR,
+                logMsg(Logger.ERROR, Logger.MSG_BACKUP_BACKUPERROR,
                         International.getMessage("Sicherung von Objekt {name} fehlgeschlagen: {reason}",
                         data.getUID(), e.toString()));
                 Logger.logdebug(e);
 
             }
         }
+        if (backupTask != null) {
+            backupTask.setCurrentWorkDone(++totalWorkDone);
+        }
         return successful;
     }
 
-    public boolean runBackup() {
+    // backupTask is null for CLI backup, and set for GUI Backup
+    public boolean runBackup(BackupTask backupTask) {
+        this.backupTask = backupTask;
+        lastErrorMsg = null;
         try {
             if (Daten.project == null || !Daten.project.isOpen() ||
                     (!backupProject && !backupConfig)) {
@@ -72,7 +87,7 @@ public class Backup {
                 projectName = Daten.project.getProjectRemoteProjectName();
             }
 
-            Logger.log(Logger.INFO, Logger.MSG_BACKUP_BACKUPSTARTED,
+            logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPSTARTED,
                     (backupProject && backupConfig ?
                         International.getMessage("Starte Backup von Projekt {projekt} und efa-Konfiguration ...",
                         projectName) :
@@ -87,7 +102,7 @@ public class Backup {
                 backupDir += Daten.fileSep;
             }
             String backupName = "Backup_" + EfaUtil.getCurrentTimeStampYYYYMMDD_HHMMSS();
-            String zipFile = backupDir + backupName + ".zip";
+            zipFile = backupDir + backupName + ".zip";
 
             FileOutputStream outFile = new FileOutputStream(zipFile);
             ZipOutputStream zipOut = new ZipOutputStream(new BufferedOutputStream(outFile));
@@ -106,6 +121,7 @@ public class Backup {
                 for (int i=0; i<storageObjects.size(); i++) {
                     dataAccesses[i] = storageObjects.get(i).data();
                 }
+                totalWork = storageObjects.size() + (backupConfig ? 3 : 0);
                 cnt = backupStorageObjects(dataAccesses, zipOut, Daten.efaSubdirDATA + Daten.fileSep + projectName);
                 successful += cnt;
                 errors += (dataAccesses.length - cnt);
@@ -132,6 +148,7 @@ public class Backup {
                     dataAccesses[0] = myEfaConfig.data();
                     dataAccesses[1] = myAdmins.data();
                     dataAccesses[2] = myTypes.data();
+                    totalWork = (totalWork > 0 ? totalWork : 3);
                     cnt = backupStorageObjects(dataAccesses, zipOut, Daten.efaSubdirCFG);
                     successful += cnt;
                     errors += (dataAccesses.length - cnt);
@@ -139,23 +156,105 @@ public class Backup {
             }
 
             zipOut.close();
-            Logger.log(Logger.INFO, Logger.MSG_BACKUP_BACKUPFINISHEDINFO,
+            logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPFINISHEDINFO,
                     International.getMessage("{n} Objekte in {filename} gesichert.",
                     successful, zipFile));
             if (errors == 0) {
-                Logger.log(Logger.INFO, Logger.MSG_BACKUP_BACKUPFINISHED,
+                logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPFINISHED,
                         International.getString("Backup erfolgreich abgeschlossen."));
             } else {
-                Logger.log(Logger.INFO, Logger.MSG_BACKUP_BACKUPFINISHEDWITHERRORS,
+                logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPFINISHEDWITHERRORS,
                         International.getMessage("Backup mit {n} Fehlern abgeschlossen.", errors));
             }
         } catch(Exception e) {
-            Logger.log(Logger.ERROR, Logger.MSG_BACKUP_BACKUPFAILED,
-                    International.getString("Backup fehlgeschlagen.") + e.toString());
-            Logger.log(e);
+            lastErrorMsg = International.getString("Backup fehlgeschlagen.") + e.toString();
+            logMsg(Logger.ERROR, Logger.MSG_BACKUP_BACKUPFAILED,
+                    lastErrorMsg);
+            Logger.logdebug(e);
             return false;
         }
         return true;
+    }
+
+    public String getLastErrorMessage() {
+        return lastErrorMsg;
+    }
+
+    public String getZipFile() {
+        return zipFile;
+    }
+
+    private void logMsg(String type, String key, String msg) {
+        Logger.log(type, key, msg);
+        if (backupTask != null && !type.equals(Logger.DEBUG)) {
+            backupTask.logInfo(msg + "\n");
+        }
+    }
+    
+    public int getTotalWork() {
+        return totalWork;
+    }
+
+    // Run Method for Creating a Backup
+    public static void runAsTask(BaseDialog parentDialog,
+            String backupDir,
+            boolean backupProject,
+            boolean backupConfig) {
+        BackupTask backupTask = new BackupTask(backupDir, backupProject, backupConfig);
+        ProgressDialog progressDialog = new ProgressDialog(parentDialog,
+                International.getString("Backup erstellen"), backupTask, false);
+        backupTask.startBackup(progressDialog);
+
+    }
+
+
+}
+
+class BackupTask extends ProgressTask {
+
+    private Backup backup;
+    boolean success = false;
+
+    // Constructor for Creating a Backup
+    public BackupTask(String backupDir,
+            boolean backupProject,
+            boolean backupConfig) {
+        super();
+        backup = new Backup(backupDir, backupProject, backupConfig);
+    }
+
+    public void startBackup(ProgressDialog progressDialog) {
+        this.start();
+        if (progressDialog != null) {
+            progressDialog.showDialog();
+        }
+    }
+
+    public void run() {
+        setRunning(true);
+        success = backup.runBackup(this);
+        setDone();
+    }
+
+    public int getAbsoluteWork() {
+        return backup.getTotalWork();
+    }
+
+    public String getSuccessfullyDoneMessage() {
+        if (success) {
+            return International.getString("Backup erfolgreich abgeschlossen.") + "\n" +
+                    backup.getZipFile();
+        } else {
+            return null;
+        }
+    }
+
+    public String getErrorDoneMessage() {
+        if (!success) {
+            return International.getString("Backup fehlgeschlagen.");
+        } else {
+            return null;
+        }
     }
 
 }

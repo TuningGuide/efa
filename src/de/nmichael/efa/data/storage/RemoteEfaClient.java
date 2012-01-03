@@ -11,6 +11,7 @@
 package de.nmichael.efa.data.storage;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.types.DataTypeIntString;
@@ -25,6 +26,7 @@ import org.xml.sax.XMLReader;
 public class RemoteEfaClient extends DataAccess {
 
     private String sessionId;
+    private AdminRecord adminRecord;
     private XMLReader parser;
 
     private DataCache cache;
@@ -53,6 +55,10 @@ public class RemoteEfaClient extends DataAccess {
 
     public String getUID() {
         return "remote:" + getStorageUsername() + "@" + getStorageLocation() + "/" + getStorageObjectName() + "." + getStorageObjectType();
+    }
+
+    public AdminRecord getAdminRecord() {
+        return adminRecord;
     }
 
 
@@ -215,6 +221,10 @@ public class RemoteEfaClient extends DataAccess {
                     } else {
                         // we don't have a session id, so this might be the response for a login: get the session id
                         this.sessionId = responses.get(0).getSessionId();
+                        this.adminRecord = responses.get(0).getAdminRecord();
+                        if (this.adminRecord != null) {
+                            this.adminRecord.setRemoteAdminRecord(true);
+                        }
                     }
                 }
                 updateStatistics("Rcvd:Responses:Ok");
@@ -377,12 +387,10 @@ public class RemoteEfaClient extends DataAccess {
     }
 
     public void closeStorageObject() throws EfaException {
-        if (runSimpleRequest(RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
-                RemoteEfaMessage.OPERATION_CLOSESTORAGEOBJECT)) != RemoteEfaMessage.RESULT_OK) {
-            throw new EfaException(Logger.MSG_REFA_REQUESTFAILED,
-                    getErrorLogstring(RemoteEfaMessage.OPERATION_CLOSESTORAGEOBJECT, "unknown", -1),
-                    Thread.currentThread().getStackTrace());
-        }
+        // we shouldn't do anything here... this method is called often when we exit,
+        // and we just delay the exit of efa by doing a real close.
+        // also, the server won't react on this method anyway, so it's useless sending
+        // it from the client.
     }
 
     public void deleteStorageObject() throws EfaException {

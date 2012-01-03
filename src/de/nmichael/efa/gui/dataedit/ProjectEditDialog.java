@@ -10,11 +10,11 @@
 
 package de.nmichael.efa.gui.dataedit;
 
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.DataKey;
-import de.nmichael.efa.data.storage.DataKeyIterator;
 import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.ex.InvalidValueException;
 import de.nmichael.efa.util.Dialog;
@@ -29,13 +29,13 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog {
     Project project;
     String logbookName;
 
-    public ProjectEditDialog(Frame parent, Project p, String logbookName, int subtype) {
-        super(parent, International.getString("Projekt"), null, false);
+    public ProjectEditDialog(Frame parent, Project p, String logbookName, int subtype, AdminRecord admin) {
+        super(parent, International.getString("Projekt"), null, false, admin);
         iniItems(p, logbookName, subtype);
     }
 
-    public ProjectEditDialog(JDialog parent, Project p, String logbookName, int subtype) {
-        super(parent, International.getString("Projekt"), null, false);
+    public ProjectEditDialog(JDialog parent, Project p, String logbookName, int subtype, AdminRecord admin) {
+        super(parent, International.getString("Projekt"), null, false, admin);
         iniItems(p, logbookName, subtype);
     }
 
@@ -48,21 +48,21 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog {
             if (logbookName != null) {
                 r = p.getLoogbookRecord(logbookName);
                 if (r != null) {
-                    guiItems.addAll(r.getGuiItems(subtype, null, false));
+                    guiItems.addAll(r.getGuiItems(admin, subtype, null, false));
                 }
             } else {
                 r = p.getProjectRecord();
                 if (r != null) {
-                    guiItems.addAll(r.getGuiItems(subtype, null, false));
+                    guiItems.addAll(r.getGuiItems(admin, subtype, null, false));
                 }
                 r = p.getClubRecord();
                 if (r != null) {
-                    guiItems.addAll(r.getGuiItems(subtype, null, false));
+                    guiItems.addAll(r.getGuiItems(admin, subtype, null, false));
                 }
                 String[] logbooks = p.getAllLogbookNames();
                 for (int i = 0; logbooks != null && i < logbooks.length; i++) {
                     r = p.getLoogbookRecord(logbooks[i]);
-                    Vector<IItemType> v = r.getGuiItems(subtype, null, false);
+                    Vector<IItemType> v = r.getGuiItems(admin, subtype, null, false);
                     for (int j = 0; j < v.size(); j++) {
                         IItemType item = v.get(j);
                         item.setName(r.getKey().toString() + ":" + item.getName());
@@ -71,7 +71,7 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog {
                 }
                 r = p.getConfigRecord();
                 if (r != null) {
-                    guiItems.addAll(r.getGuiItems(subtype, null, false));
+                    guiItems.addAll(r.getGuiItems(admin, subtype, null, false));
                 }
             }
         } catch(Exception e) {

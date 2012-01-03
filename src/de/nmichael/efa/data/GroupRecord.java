@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.items.*;
@@ -105,6 +106,31 @@ public class GroupRecord extends DataRecord implements IItemFactory {
         return s.toString();
     }
 
+    public boolean setPersonInGroup(UUID personId, boolean beInGroup) {
+        DataTypeList<UUID> memberList = getMemberIdList();
+        boolean changed = true;
+        if (beInGroup) {
+            if (memberList == null) {
+                memberList = new DataTypeList<UUID>();
+            }
+            if (!memberList.contains(personId)) {
+                memberList.add(personId);
+                changed = true;
+            }
+        } else {
+            if (memberList != null) {
+                if (memberList.contains(personId)) {
+                    memberList.remove(personId);
+                    changed = true;
+                }
+            }
+        }
+        if (changed) {
+            setMemberIdList(memberList);
+        }
+        return changed;
+    }
+
     public String getQualifiedName() {
         String name = getName();
         return (name != null ? name : "");
@@ -157,7 +183,7 @@ public class GroupRecord extends DataRecord implements IItemFactory {
         return null;
     }
 
-    public Vector<IItemType> getGuiItems() {
+    public Vector<IItemType> getGuiItems(AdminRecord admin) {
         Vector<IItemType[]> itemList;
 
         IItemType item;

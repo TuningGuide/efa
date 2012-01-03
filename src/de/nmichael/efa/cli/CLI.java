@@ -11,16 +11,22 @@
 package de.nmichael.efa.cli;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.data.Project;
 import de.nmichael.efa.data.storage.EfaOnlineClient;
 import de.nmichael.efa.data.storage.IDataAccess;
+import de.nmichael.efa.data.storage.RemoteEfaClient;
 import de.nmichael.efa.data.storage.StorageObject;
 import de.nmichael.efa.util.Logger;
 import java.io.BufferedReader;
 import java.io.Console;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.Hashtable;
 import java.util.Stack;
+import java.util.StringTokenizer;
 
 public class CLI {
 
@@ -29,7 +35,6 @@ public class CLI {
     public static final String MENU_PERSONS      = "persons";
     public static final String MENU_DESTINATIONS = "destinations";
     public static final String MENU_BACKUP       = "backup";
-
 
     private String username;
     private String password;
@@ -40,6 +45,7 @@ public class CLI {
     BufferedReader in;
 
     private EfaConfig remoteEfaConfig;
+    private AdminRecord adminRecord;
     private MenuBase lastMenu;
     private Stack<String> menuStack;
 
@@ -55,6 +61,7 @@ public class CLI {
         this.project = project;
         console = System.console();
         in = new BufferedReader(new InputStreamReader(System.in));
+        readCredentials();
     }
 
     private void getIpAndPortFromEfaOnline() {
@@ -67,6 +74,39 @@ public class CLI {
                 hostname = addr.substring(0, pos);
                 port = addr.substring(pos + 1);
             }
+        }
+    }
+
+    private void readCredentials() {
+        if (username == null || username.length() == 0)  {
+            return;
+        }
+        if (password != null && password.length() > 0)  {
+            return;
+        }
+        try {
+            String credfilename = Daten.userHomeDir + Daten.EFACLICREDENTIALS;
+            File credfile = new File(credfilename);
+            if (credfile.exists()) {
+                BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(credfilename), Daten.ENCODING_UTF));
+                String s;
+                while ( (s = f.readLine()) != null) {
+                    s = s.trim();
+                    if (s.startsWith("#") || s.length() == 0) {
+                        continue;
+                    }
+                    StringTokenizer tok = new StringTokenizer(s, " ");
+                    if (tok.countTokens() >= 2) {
+                        String username = tok.nextToken();
+                        String password = tok.nextToken();
+                        if (this.username.equals(username) && password.length() > 0) {
+                            this.password = password;
+                        }
+                    }
+                }
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
         }
     }
 
@@ -172,6 +212,11 @@ public class CLI {
         try {
             if (remoteEfaConfig.isOpen()) {
                 loginfo("Connected.");
+                adminRecord = ((RemoteEfaClient)remoteEfaConfig.data()).getAdminRecord();
+                if (adminRecord == null) {
+                    logerr("Could not get Admin Permissions.");
+                    return false;
+                }
                 loginfo("Opening Remote Project " + project + " ...");
                 Project prj = new Project(IDataAccess.TYPE_FILE_XML, Daten.efaTmpDirectory, "cli");
                 prj.open(true);
@@ -195,6 +240,10 @@ public class CLI {
             logerr(e.getMessage());
         }
         return false;
+    }
+
+    public AdminRecord getAdminRecord() {
+        return adminRecord;
     }
     
     private String parseCommand(String s, int i) {

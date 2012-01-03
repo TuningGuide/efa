@@ -62,6 +62,9 @@ public class AdminRecord extends DataRecord implements IItemListener {
     public static final String LOCKEFA               = "LockEfa";
     public static final String UPDATEEFA             = "UpdateEfa";
     public static final String EXECCOMMAND           = "ExecCommand";
+    public static final String BACKUP                = "Backup";
+
+    private boolean isRemoteAdmin = false;
 
     public static void initialize() {
         Vector<String> f = new Vector<String>();
@@ -98,6 +101,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
         f.add(LOCKEFA);                           t.add(IDataAccess.DATA_BOOLEAN);
         f.add(UPDATEEFA);                         t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EXECCOMMAND);                       t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(BACKUP);                            t.add(IDataAccess.DATA_BOOLEAN);
         MetaData metaData = constructMetaData(Admins.DATATYPE, f, t, false);
         metaData.setKey(new String[] { NAME });
     }
@@ -321,6 +325,13 @@ public class AdminRecord extends DataRecord implements IItemListener {
         return getBool(LOCKEFA);
     }
 
+    public void setAllowedBackup(boolean allowed) {
+        setBool(BACKUP, allowed);
+    }
+    public Boolean isAllowedBackup() {
+        return getBool(BACKUP);
+    }
+
     public void setAllowedUpdateEfa(boolean allowed) {
         setBool(UPDATEEFA, allowed);
     }
@@ -371,7 +382,8 @@ public class AdminRecord extends DataRecord implements IItemListener {
                     || !isAllowedExitEfa()
                     || !isAllowedLockEfa()
                     || !isAllowedUpdateEfa()
-                    || !isAllowedExecCommand()) {
+                    || !isAllowedExecCommand()
+                    || !isAllowedBackup()) {
                 setAllowedEditAdmins(true);
                 setAllowedChangePassword(true);
                 setAllowedConfiguration(true);
@@ -398,6 +410,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
                 setAllowedLockEfa(true);
                 setAllowedUpdateEfa(true);
                 setAllowedExecCommand(true);
+                setAllowedBackup(true);
                 changed = true;
             }
         } else {
@@ -410,6 +423,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
             try {
                 getPersistence().data().update(this);
             } catch(Exception eignore) {
+                Logger.logdebug(eignore);
             }
         }
     }
@@ -418,7 +432,15 @@ public class AdminRecord extends DataRecord implements IItemListener {
         return getName() != null && getName().equals(Admins.SUPERADMIN);
     }
 
-    public Vector<IItemType> getGuiItems() {
+    public boolean isRemoteAdminRecord() {
+        return isRemoteAdmin;
+    }
+
+    public void setRemoteAdminRecord(boolean isRemoteAdmin) {
+        this.isRemoteAdmin = isRemoteAdmin;
+    }
+
+    public Vector<IItemType> getGuiItems(AdminRecord admin) {
         makeSurePermissionsAreCorrect();
         
         String CAT_BASEDATA     = "%01%" + International.getString("Administrator");
@@ -515,11 +537,14 @@ public class AdminRecord extends DataRecord implements IItemListener {
         v.add(item = new ItemTypeBoolean(LOCKEFA, isAllowedLockEfa(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("efa sperren")));
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
+        v.add(item = new ItemTypeBoolean(BACKUP, isAllowedBackup(),
+                IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Backups erstellen")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(UPDATEEFA, isAllowedUpdateEfa(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Online-Update")));
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(EXECCOMMAND, isAllowedExecCommand(),
-                IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Betriebssystem-Kommando ausführen")));
+                IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Betriebssystemkommando ausführen")));
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
 
         v.add(item = new ItemTypeBoolean(MSGREADADMIN, isAllowedMsgReadAdmin(),

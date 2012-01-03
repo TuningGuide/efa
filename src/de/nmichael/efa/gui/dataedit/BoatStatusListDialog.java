@@ -11,12 +11,11 @@
 package de.nmichael.efa.gui.dataedit;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
-import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -25,14 +24,16 @@ import javax.swing.*;
 // @i18n complete
 public class BoatStatusListDialog extends DataListDialog {
 
-    public BoatStatusListDialog(Frame parent) {
-        super(parent, International.getString("Bootsstatus"), Daten.project.getBoatStatus(false), -1);
+    public BoatStatusListDialog(Frame parent, AdminRecord admin) {
+        super(parent, International.getString("Bootsstatus"),
+                Daten.project.getBoatStatus(false), -1, admin);
         actionText = new String[] { ItemTypeDataRecordTable.ACTIONTEXT_EDIT };
         actionType = new int[] { ItemTypeDataRecordTable.ACTION_EDIT };
     }
 
-    public BoatStatusListDialog(JDialog parent) {
-        super(parent, International.getString("Bootsstatus"), Daten.project.getBoatStatus(false), -1);
+    public BoatStatusListDialog(JDialog parent, AdminRecord admin) {
+        super(parent, International.getString("Bootsstatus"),
+                Daten.project.getBoatStatus(false), -1, admin);
         actionText = new String[] { ItemTypeDataRecordTable.ACTIONTEXT_EDIT };
         actionType = new int[] { ItemTypeDataRecordTable.ACTION_EDIT };
     }
@@ -45,6 +46,6 @@ public class BoatStatusListDialog extends DataListDialog {
         if (record == null) {
             return null;
         }
-        return new BoatStatusEditDialog(parent, (BoatStatusRecord)record, false);
+        return new BoatStatusEditDialog(parent, (BoatStatusRecord)record, false, admin);
     }
 }

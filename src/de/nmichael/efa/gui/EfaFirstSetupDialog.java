@@ -38,7 +38,7 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
     private AdminRecord newSuperAdmin = null;
 
     public EfaFirstSetupDialog(boolean createSuperAdmin, boolean efaCustomization) {
-        super((JFrame)null, International.getString(Daten.EFA_LONGNAME));
+        super((JFrame)null, Daten.EFA_LONGNAME);
         this.createSuperAdmin = createSuperAdmin;
         this.efaCustomization = efaCustomization;
     }

@@ -84,6 +84,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
         // Find existing efa installations
         ArrayList<String> oldEfaDataDir = new ArrayList<String>();
         ArrayList<String> oldEfaDescription = new ArrayList<String>();
+        int longestTextWidth = 0;
         try {
             File dir = new File(Daten.userHomeDir);
             if (dir.isDirectory()) {
@@ -93,7 +94,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                         try {
                             String name = f.getName();
                             String dataDir = "";
-                            String lastUsed = EfaUtil.getTimeStamp(f.lastModified());
+                            String lastUsed = EfaUtil.getTimeStampDDMMYYYY(f.lastModified());
                             BufferedReader efa1 = new BufferedReader(new InputStreamReader(new FileInputStream(f.getAbsolutePath()),Daten.ENCODING_ISO));
                             String s;
                             while ( (s = efa1.readLine()) != null) {
@@ -104,11 +105,13 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                             efa1.close();
                             File fcfg = new File(dataDir+Daten.fileSep+"cfg" + Daten.fileSep + "efa.cfg");
                             if (fcfg.isFile()) {
-                                lastUsed = EfaUtil.getTimeStamp(fcfg.lastModified());
+                                lastUsed = EfaUtil.getTimeStampDDMMYYYY(fcfg.lastModified());
                             }
+                            String txt = International.getMessage("{datadir} (zuletzt genutzt {date})",
+                                    dataDir, lastUsed);
                             oldEfaDataDir.add(dataDir);
-                            oldEfaDescription.add(International.getMessage("{datadir} (zuletzt genutzt {date})",
-                                    dataDir, lastUsed));
+                            oldEfaDescription.add(txt);
+                            longestTextWidth = Math.max(longestTextWidth, txt.length());
                         } catch(Exception eignore2) {
                         }
                     }
@@ -123,8 +126,15 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                     oldEfaDataDir.toArray(new String[0]),
                     oldEfaDescription.toArray(new String[0]),
                 IItemType.TYPE_PUBLIC, "0", International.getString("Daten importieren von"));
-            ((ItemTypeStringList)item).setFieldSize(600, 19); // setWidth(600);
-            ((ItemTypeStringList)item).setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE); // setTwoRows(true);
+            int width = 450;
+            if (longestTextWidth > 60) {
+                width += (longestTextWidth-60) * (450/60);
+            }
+
+            ((ItemTypeStringList)item).setFieldSize(width, 19);
+            ((ItemTypeStringList)item).setItemOnNewRow(true);
+            ((ItemTypeStringList)item).setPadding(0, 0, 10, 10);
+            ((ItemTypeStringList)item).setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE);
         } else {
             item = new ItemTypeFile(OLDEFADATADIR, "",
                     International.getString("Verzeichnis für Nutzerdaten"),

@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.gui.dataedit;
 
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.ex.InvalidValueException;
@@ -20,12 +21,12 @@ import javax.swing.*;
 // @i18n complete
 public class BoatEditDialog extends VersionizedDataEditDialog {
 
-    public BoatEditDialog(Frame parent, BoatRecord r, boolean newRecord) {
-        super(parent, International.getString("Boot"), r, newRecord);
+    public BoatEditDialog(Frame parent, BoatRecord r, boolean newRecord, AdminRecord admin) {
+        super(parent, International.getString("Boot"), r, newRecord, admin);
     }
 
-    public BoatEditDialog(JDialog parent, BoatRecord r, boolean newRecord) {
-        super(parent, International.getString("Boot"), r, newRecord);
+    public BoatEditDialog(JDialog parent, BoatRecord r, boolean newRecord, AdminRecord admin) {
+        super(parent, International.getString("Boot"), r, newRecord, admin);
     }
 
     public void keyAction(ActionEvent evt) {

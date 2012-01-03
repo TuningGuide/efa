@@ -24,15 +24,15 @@ public class AdminListDialog extends DataListDialog {
 
     private Admins admins;
 
-    public AdminListDialog(Frame parent, Admins admins) {
-        super(parent, International.getString("Administratoren"), admins, 0);
+    public AdminListDialog(Frame parent, Admins admins, AdminRecord admin) {
+        super(parent, International.getString("Administratoren"), admins, 0, admin);
         this.admins = admins;
         actionText = null; // only ADD, EDIT, DELETE (no IMPORT, EXPORT)
         actionType = null; // only ADD, EDIT, DELETE (no IMPORT, EXPORT)
     }
 
-    public AdminListDialog(JDialog parent, Admins admins) {
-        super(parent, International.getString("Administratoren"), admins, 0);
+    public AdminListDialog(JDialog parent, Admins admins, AdminRecord admin) {
+        super(parent, International.getString("Administratoren"), admins, 0, admin);
         this.admins = admins;
         actionText = null; // only ADD, EDIT, DELETE (no IMPORT, EXPORT)
         actionType = null; // only ADD, EDIT, DELETE (no IMPORT, EXPORT)
@@ -47,6 +47,6 @@ public class AdminListDialog extends DataListDialog {
         if (record == null) {
             record = admins.createAdminRecord(null, null);
         }
-        return new AdminEditDialog(parent, (AdminRecord)record, newRecord);
+        return new AdminEditDialog(parent, (AdminRecord)record, newRecord, admin);
     }
 }

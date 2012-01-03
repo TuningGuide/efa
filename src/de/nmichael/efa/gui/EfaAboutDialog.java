@@ -148,7 +148,7 @@ public class EfaAboutDialog extends BaseDialog {
                 label_mouseExited(e);
             }
         });
-        devNoteLabel.setText(International.getString("Diese Version ist eine Entwicklerversion in Alpha-Qualität!"));
+        devNoteLabel.setText(International.getString("Diese Version ist eine Entwicklerversion in Beta-Qualität!"));
         devNoteLabel.setForeground(Color.red);
         devNote2Label.setText(International.getString("Bitte melde Fehler unter:") + " ");
         devNote2Label.setForeground(Color.black);

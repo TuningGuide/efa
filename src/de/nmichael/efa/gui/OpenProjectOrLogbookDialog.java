@@ -11,6 +11,7 @@
 package de.nmichael.efa.gui;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
@@ -34,24 +35,27 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
 
     private String name;
     private Type type;
+    private AdminRecord admin;
     private String[] keys;
     private ItemTypeHtmlList list;
 
-    public OpenProjectOrLogbookDialog(Frame parent, Type type) {
+    public OpenProjectOrLogbookDialog(Frame parent, Type type, AdminRecord admin) {
         super(parent, 
                 (type == Type.project ? 
                     International.getString("Projekt öffnen") :
                     International.getString("Fahrtenbuch öffnen")),
                 International.getStringWithMnemonic("Abbruch"));
+        this.admin = admin;
         this.type = type;
     }
 
-    public OpenProjectOrLogbookDialog(JDialog parent, Type type) {
+    public OpenProjectOrLogbookDialog(JDialog parent, Type type, AdminRecord admin) {
         super(parent,
                 (type == Type.project ?
                     International.getString("Projekt öffnen") :
                     International.getString("Fahrtenbuch öffnen")),
                 International.getStringWithMnemonic("Abbruch"));
+        this.admin = admin;
         this.type = type;
     }
 
@@ -226,7 +230,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
 
     void newButton_actionPerformed(ActionEvent e) {
         if (type == Type.project) {
-            NewProjectDialog dlg = new NewProjectDialog(this);
+            NewProjectDialog dlg = new NewProjectDialog(this, admin);
             dlg.createNewProjectAndLogbook();
             updateGui();
             return;
@@ -266,7 +270,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
                 Dialog.error(ex.toString());
                 return;
             }
-            ProjectEditDialog dlg = new ProjectEditDialog(this, prj, null, ProjectRecord.GUIITEMS_SUBTYPE_ALL);
+            ProjectEditDialog dlg = new ProjectEditDialog(this, prj, null, ProjectRecord.GUIITEMS_SUBTYPE_ALL, admin);
             dlg.showDialog();
         }
 
@@ -274,7 +278,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
             if (Daten.project == null || Daten.project.getLogbook(name, false) == null) {
                 return;
             }
-            ProjectEditDialog dlg = new ProjectEditDialog(this, Daten.project, name, ProjectRecord.GUIITEMS_SUBTYPE_ALL);
+            ProjectEditDialog dlg = new ProjectEditDialog(this, Daten.project, name, ProjectRecord.GUIITEMS_SUBTYPE_ALL, admin);
             dlg.showDialog();
         }
     }

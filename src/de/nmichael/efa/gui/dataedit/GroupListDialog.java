@@ -10,13 +10,11 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.gui.dataedit.DataListDialog;
-import de.nmichael.efa.gui.dataedit.DataEditDialog;
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -26,12 +24,14 @@ import javax.swing.*;
 // @i18n complete
 public class GroupListDialog extends DataListDialog {
 
-    public GroupListDialog(Frame parent, long validAt) {
-        super(parent, International.getString("Gruppen"), Daten.project.getGroups(false), validAt);
+    public GroupListDialog(Frame parent, long validAt, AdminRecord admin) {
+        super(parent, International.getString("Gruppen"), 
+                Daten.project.getGroups(false), validAt, admin);
     }
 
-    public GroupListDialog(JDialog parent, long validAt) {
-        super(parent, International.getString("Gruppen"), Daten.project.getGroups(false), validAt);
+    public GroupListDialog(JDialog parent, long validAt, AdminRecord admin) {
+        super(parent, International.getString("Gruppen"), 
+                Daten.project.getGroups(false), validAt, admin);
     }
 
     public void keyAction(ActionEvent evt) {
@@ -43,6 +43,6 @@ public class GroupListDialog extends DataListDialog {
         if (record == null) {
             record = Daten.project.getGroups(false).createGroupRecord(UUID.randomUUID());
         }
-        return new GroupEditDialog(parent, (GroupRecord)record, newRecord);
+        return new GroupEditDialog(parent, (GroupRecord)record, newRecord, admin);
     }
 }

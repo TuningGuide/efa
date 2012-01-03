@@ -10,27 +10,22 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
-import javax.swing.event.ChangeEvent;
 
 // @i18n complete
 public class BoatStatusEditDialog extends UnversionizedDataEditDialog {
 
-    public BoatStatusEditDialog(Frame parent, BoatStatusRecord r, boolean newRecord) {
-        super(parent, International.getString("Bootsstatus"), r, newRecord);
+    public BoatStatusEditDialog(Frame parent, BoatStatusRecord r, boolean newRecord, AdminRecord admin) {
+        super(parent, International.getString("Bootsstatus"), r, newRecord, admin);
     }
 
-    public BoatStatusEditDialog(JDialog parent, BoatStatusRecord r, boolean newRecord) {
-        super(parent, International.getString("Bootsstatus"), r, newRecord);
+    public BoatStatusEditDialog(JDialog parent, BoatStatusRecord r, boolean newRecord, AdminRecord admin) {
+        super(parent, International.getString("Bootsstatus"), r, newRecord, admin);
     }
 
     public void keyAction(ActionEvent evt) {

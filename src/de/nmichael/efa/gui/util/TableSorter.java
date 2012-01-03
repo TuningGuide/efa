@@ -210,7 +210,7 @@ public class TableSorter extends TableMap {
                 }
             }
 
-            int result = s1.compareTo(s2);
+            int result = s1.compareToIgnoreCase(s2);
 
 
             if (result < 0) {
@@ -260,7 +260,7 @@ public class TableSorter extends TableMap {
                 }
             }
 
-            int result = s1.compareTo(s2);
+            int result = s1.compareToIgnoreCase(s2);
 
             if (result < 0) {
                 return -1;

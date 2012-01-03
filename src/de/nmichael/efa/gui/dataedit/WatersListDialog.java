@@ -10,13 +10,11 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.gui.dataedit.DataListDialog;
-import de.nmichael.efa.gui.dataedit.DataEditDialog;
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -26,12 +24,12 @@ import javax.swing.*;
 // @i18n complete
 public class WatersListDialog extends DataListDialog {
 
-    public WatersListDialog(Frame parent) {
-        super(parent, International.getString("Gewässer"), Daten.project.getWaters(false), 0);
+    public WatersListDialog(Frame parent, AdminRecord admin) {
+        super(parent, International.getString("Gewässer"), Daten.project.getWaters(false), 0, admin);
     }
 
-    public WatersListDialog(JDialog parent) {
-        super(parent, International.getString("Gewässer"), Daten.project.getWaters(false), 0);
+    public WatersListDialog(JDialog parent, AdminRecord admin) {
+        super(parent, International.getString("Gewässer"), Daten.project.getWaters(false), 0, admin);
     }
 
     public void keyAction(ActionEvent evt) {
@@ -43,6 +41,6 @@ public class WatersListDialog extends DataListDialog {
         if (record == null) {
             record = Daten.project.getWaters(false).createWatersRecord(UUID.randomUUID());
         }
-        return new WatersEditDialog(parent, (WatersRecord)record, newRecord);
+        return new WatersEditDialog(parent, (WatersRecord)record, newRecord, admin);
     }
 }

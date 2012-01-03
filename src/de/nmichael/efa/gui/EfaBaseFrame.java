@@ -87,6 +87,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     // Internal Data Structures
     Logbook logbook;                // this logbook
     AdminRecord admin;
+    AdminRecord remoteAdmin;
     DataKeyIterator iterator;       // iterator for this logbook
     LogbookRecord currentRecord;    // aktDatensatz = aktuell angezeigter Datensatz
     LogbookRecord referenceRecord;  // refDatensatz = Referenz-Datensatz (zuletzt angezeigter Datensatz, wenn neuer erstellt wird)
@@ -167,6 +168,34 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                getMode() == MODE_ADMIN_SESSIONS;
     }
 
+    public AdminRecord getAdmin() {
+        return (remoteAdmin != null ? remoteAdmin : admin);
+    }
+
+    private void checkRemoteAdmin() {
+        boolean error = false;
+        if (remoteAdmin == null && Daten.project != null &&
+                Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+            error = true;
+            Dialog.error(International.getString("Login fehlgeschlagen") + ".\n" +
+                    International.getString("Bitte überprüfe Remote-Adminnamen und Paßwort in den Projekteinstellungen."));
+        }
+        if (remoteAdmin != null && !remoteAdmin.isAllowedAdministerProjectLogbook()) {
+            error = true;
+            EfaMenuButton.insufficientRights(remoteAdmin,
+                    International.getString("Projekte und Fahrtenbücher administrieren"));
+        }
+        if (error) {
+            Daten.project = null;
+            remoteAdmin = null;
+        } else {
+            // enable some local functions for the admin
+            if (remoteAdmin != null) {
+                remoteAdmin.setAllowedShowLogfile( (admin != null && admin.isAllowedShowLogfile()) );
+            }
+        }
+    }
+
     public void _keyAction(ActionEvent evt) {
         if (evt.getActionCommand().equals(KEYACTION_F3)) {
             SearchLogbookDialog.search();
@@ -219,9 +248,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
     private void iniAdmin() {
         admin = AdminLoginDialog.login(null, Daten.APPLNAME_EFA);
-        if (admin == null || !admin.isAllowedEditLogbook()) {
+        if (admin == null || !admin.isAllowedAdministerProjectLogbook()) {
             if (admin != null) {
-                EfaMenuButton.insufficientRights(admin, International.getString("Fahrtenbuch bearbeiten"));
+                EfaMenuButton.insufficientRights(admin,
+                        International.getString("Projekte und Fahrtenbücher administrieren"));
             }
             super.cancel();
             Daten.haltProgram(Daten.HALT_ADMINLOGIN);
@@ -244,12 +274,14 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         KEYACTION_F4 = addKeyAction("F4");
     }
 
-
-
-
     private void iniGuiMenu() {
-        Vector<EfaMenuButton> menuButtons = EfaMenuButton.getAllMenuButtons(admin, false);
+        if (!isModeBase()) {
+            return;
+        }
+        Vector<EfaMenuButton> menuButtons = EfaMenuButton.getAllMenuButtons(
+                getAdmin(), false);
         String lastMenuName = null;
+        menuBar.removeAll();
         JMenu menu = null;
         for (EfaMenuButton menuButton : menuButtons) {
             if (!menuButton.getMenuName().equals(lastMenuName)) {
@@ -656,6 +688,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         if (Daten.project == null && isModeBase()) {
             if (Daten.efaConfig.getValueLastProjectEfaBase().length() > 0) {
                 Project.openProject(Daten.efaConfig.getValueLastProjectEfaBase());
+                remoteAdmin = (Daten.project != null ? Daten.project.getRemoteAdmin() : null);
+                checkRemoteAdmin();
+                iniGuiMenu();
             }
         }
         if (Daten.project != null && isModeBase() && Daten.project.getCurrentLogbookEfaBase() != null) {
@@ -679,12 +714,12 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             setTitle(Daten.EFA_LONGNAME);
         } else {
             if (Daten.project == null) {
-                setTitle(Daten.EFA_LONGNAME + " [" + admin.getName() + "]");
+                setTitle(Daten.EFA_LONGNAME + " [" + getAdmin().getName() + "]");
             } else {
                 if (!isLogbookReady()) {
-                    setTitle(Daten.project.getProjectName() + " - " + Daten.EFA_LONGNAME + " [" + admin.getName() + "]");
+                    setTitle(Daten.project.getProjectName() + " - " + Daten.EFA_LONGNAME + " [" + getAdmin().getName() + "]");
                 } else {
-                    setTitle(Daten.project.getProjectName() + ": " + logbook.getName() + " - " + Daten.EFA_LONGNAME + " [" + admin.getName() + "]");
+                    setTitle(Daten.project.getProjectName() + ": " + logbook.getName() + " - " + Daten.EFA_LONGNAME + " [" + getAdmin().getName() + "]");
                 }
             }
         }
@@ -818,6 +853,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
 
     void openLogbook(String logbookName) {
+        if (!getAdmin().isAllowedEditLogbook()) {
+            logbookName = null;
+        }
         if (logbookName == null || logbookName.length() == 0) {
             setFields(null);
         } else {
@@ -1381,7 +1419,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 r.setNameAffix(name[1]);
             }
         }
-        BoatEditDialog dlg = new BoatEditDialog(this, r, newRecord);
+        BoatEditDialog dlg = new BoatEditDialog(this, r, newRecord, getAdmin());
         dlg.showDialog();
         if (dlg.getDialogResult()) {
             item.parseAndShowValue(r.getQualifiedName());
@@ -1419,7 +1457,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 r.setNameAffix(name[2]);
             }
         }
-        PersonEditDialog dlg = new PersonEditDialog(this, r, newRecord);
+        PersonEditDialog dlg = new PersonEditDialog(this, r, newRecord, getAdmin());
         dlg.showDialog();
         if (dlg.getDialogResult()) {
             item.parseAndShowValue(r.getQualifiedName());
@@ -1450,7 +1488,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 r.setName(name[0]);
             }
         }
-        DestinationEditDialog dlg = new DestinationEditDialog(this, r, newRecord);
+        DestinationEditDialog dlg = new DestinationEditDialog(this, r, newRecord, getAdmin());
         dlg.showDialog();
         if (dlg.getDialogResult()) {
             item.parseAndShowValue(r.getQualifiedName());
@@ -1468,7 +1506,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         if (currentRecord != null) {
             id = currentRecord.getSessionGroupId();
         }
-        SessionGroupListDialog dlg = new SessionGroupListDialog(this, logbook.getName(), id);
+        SessionGroupListDialog dlg = new SessionGroupListDialog(this, logbook.getName(), id, getAdmin());
         dlg.showDialog();
         if (dlg.getDialogResult()) {
             SessionGroupRecord r = dlg.getSelectedSessionGroupRecord();
@@ -1789,7 +1827,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             // Distance
             if ((!distance.isSet() || distance.getValue().getValueInDefaultUnit() == 0)) {
                 if (mode == MODE_BOATHOUSE_FINISH || mode == MODE_BOATHOUSE_LATEENTRY) {
-                    Dialog.error(International.getString("Bitte trage die gefahrenen Kilometer ein!"));
+                    Dialog.error(International.getString("Bitte trage die gefahrenen Entfernung ein!"));
                     distance.requestFocus();
                     return false;
                 }
@@ -1980,7 +2018,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         }
 
         // now check permissions and perform the menu action
-        boolean permission = EfaMenuButton.menuAction(this, cmd, admin, logbook);
+        boolean permission = EfaMenuButton.menuAction(this, cmd, getAdmin(), logbook);
 
         // handle exit
         if (cmd.equals(EfaMenuButton.BUTTON_EXIT) && permission) {
@@ -1998,7 +2036,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
 
     void menuFileProjects(ActionEvent e) {
-        OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.project);
+        // for projects, we always use the permissions of the local admin!!
+        OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.project, admin); // local admin!!
         String projectName = dlg.openDialog();
         if (projectName == null) {
             return;
@@ -2014,6 +2053,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         }
         Daten.project = null;
         Project.openProject(projectName);
+        remoteAdmin = (Daten.project != null ? Daten.project.getRemoteAdmin() : null);
+        checkRemoteAdmin();
+        iniGuiMenu();
         if (Daten.project != null && !isModeBoathouse()) {
             Daten.efaConfig.setValueLastProjectEfaBase(Daten.project.getProjectName());
         }
@@ -2034,7 +2076,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 return;
             }
         }
-        OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.logbook);
+        OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.logbook, getAdmin());
         String logbookName = dlg.openDialog();
         if (logbookName != null) {
             openLogbook(logbookName);

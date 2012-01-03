@@ -11,6 +11,7 @@
 package de.nmichael.efa.gui.dataedit;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.ItemTypeDataRecordTable;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.efawett.EfaWettClient;
@@ -30,13 +31,15 @@ public class FahrtenabzeichenListDialog extends DataListDialog {
 
     public static final int ACTION_GETFAHRTENHEFTE = 901; // negative actions will not be shown as popup actions
 
-    public FahrtenabzeichenListDialog(Frame parent) {
-        super(parent, International.onlyFor("Fahrtenabzeichen","de"), Daten.project.getFahrtenabzeichen(false), 0);
+    public FahrtenabzeichenListDialog(Frame parent, AdminRecord admin) {
+        super(parent, International.onlyFor("Fahrtenabzeichen","de"), 
+                Daten.project.getFahrtenabzeichen(false), 0, admin);
         ini();
     }
 
-    public FahrtenabzeichenListDialog(JDialog parent) {
-        super(parent, International.onlyFor("Fahrtenabzeichen","de"), Daten.project.getFahrtenabzeichen(false), 0);
+    public FahrtenabzeichenListDialog(JDialog parent, AdminRecord admin) {
+        super(parent, International.onlyFor("Fahrtenabzeichen","de"), 
+                Daten.project.getFahrtenabzeichen(false), 0, admin);
         ini();
     }
 
@@ -68,7 +71,7 @@ public class FahrtenabzeichenListDialog extends DataListDialog {
         if (record == null) {
             record = Daten.project.getFahrtenabzeichen(false).createFahrtenabzeichenRecord(null);
         }
-        return new FahrtenabzeichenEditDialog(parent, (FahrtenabzeichenRecord)record, newRecord);
+        return new FahrtenabzeichenEditDialog(parent, (FahrtenabzeichenRecord)record, newRecord, admin);
     }
 
     public void itemListenerActionTable(int actionId, DataRecord[] records) {

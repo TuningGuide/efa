@@ -11,11 +11,10 @@
 package de.nmichael.efa.gui.dataedit;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.gui.SimpleInputDialog;
-import de.nmichael.efa.gui.util.AutoCompleteList;
 import de.nmichael.efa.util.*;
 import java.util.*;
 import java.awt.*;
@@ -34,23 +33,27 @@ public class SessionGroupListDialog extends DataListDialog {
     private boolean modeSelectSessionGroup;
     private SessionGroupRecord selectedRecord;
 
-    public SessionGroupListDialog(Frame parent, String logbook) {
-        super(parent, International.getString("Fahrtgruppen"), Daten.project.getSessionGroups(false), 0);
+    public SessionGroupListDialog(Frame parent, String logbook, AdminRecord admin) {
+        super(parent, International.getString("Fahrtgruppen"), 
+                Daten.project.getSessionGroups(false), 0, admin);
         iniValues(logbook, null, false);
     }
 
-    public SessionGroupListDialog(JDialog parent, String logbook) {
-        super(parent, International.getString("Fahrtgruppen"), Daten.project.getSessionGroups(false), 0);
+    public SessionGroupListDialog(JDialog parent, String logbook, AdminRecord admin) {
+        super(parent, International.getString("Fahrtgruppen"), 
+                Daten.project.getSessionGroups(false), 0, admin);
         iniValues(logbook, null, false);
     }
 
-    public SessionGroupListDialog(Frame parent, String logbook, UUID selectedSessionGroupId) {
-        super(parent, International.getString("Fahrtgruppen"), Daten.project.getSessionGroups(false), 0);
+    public SessionGroupListDialog(Frame parent, String logbook, UUID selectedSessionGroupId, AdminRecord admin) {
+        super(parent, International.getString("Fahrtgruppen"), 
+                Daten.project.getSessionGroups(false), 0, admin);
         iniValues(logbook, selectedSessionGroupId, true);
     }
 
-    public SessionGroupListDialog(JDialog parent, String logbook, UUID selectedSessionGroupId) {
-        super(parent, International.getString("Fahrtgruppen"), Daten.project.getSessionGroups(false), 0);
+    public SessionGroupListDialog(JDialog parent, String logbook, UUID selectedSessionGroupId, AdminRecord admin) {
+        super(parent, International.getString("Fahrtgruppen"), 
+                Daten.project.getSessionGroups(false), 0, admin);
         iniValues(logbook, selectedSessionGroupId, true);
     }
 
@@ -123,7 +126,7 @@ public class SessionGroupListDialog extends DataListDialog {
         if (logbook != null && logbook.length() > 0) {
             ((SessionGroupRecord)record).setLogbook(logbook);
         }
-        return new SessionGroupEditDialog(parent, (SessionGroupRecord)record, newRecord);
+        return new SessionGroupEditDialog(parent, (SessionGroupRecord)record, newRecord, admin);
     }
 
     public SessionGroupRecord getSelectedSessionGroupRecord() {

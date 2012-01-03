@@ -106,7 +106,7 @@ public class MenuData extends MenuBase {
             cli.logerr("Record with index "+index+" not found.");
             return;
         }
-        Vector<IItemType> items = r.getGuiItems();
+        Vector<IItemType> items = r.getGuiItems(cli.getAdminRecord());
         for (int i=0; items != null && i<items.size(); i++) {
             IItemType item = items.get(i);
             cli.loginfo(EfaUtil.getString(item.getName(), 25) + ": " + item.toString());

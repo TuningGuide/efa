@@ -218,15 +218,15 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
 
 
         if (!file.isValidInput()) {
-            Dialog.error(International.getString(file.getInvalidErrorText()));
+            Dialog.error(file.getInvalidErrorText());
             return;
         }
         if (!csvSeparator.isValidInput()) {
-            Dialog.error(International.getString(csvSeparator.getInvalidErrorText()));
+            Dialog.error(csvSeparator.getInvalidErrorText());
             return;
         }
         if (!csvQuotes.isValidInput()) {
-            Dialog.error(International.getString(csvQuotes.getInvalidErrorText()));
+            Dialog.error(csvQuotes.getInvalidErrorText());
             return;
         }
 

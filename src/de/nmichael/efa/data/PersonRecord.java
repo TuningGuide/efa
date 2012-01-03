@@ -22,7 +22,7 @@ import java.util.regex.*;
 
 // @i18n complete
 
-public class PersonRecord extends DataRecord {
+public class PersonRecord extends DataRecord implements IItemFactory {
 
     // =========================================================================
     // Field Names
@@ -55,6 +55,13 @@ public class PersonRecord extends DataRecord {
     public static final String FREEUSE3            = "FreeUse3";
 
     public static final String[] IDX_NAME_NAMEAFFIX = new String[] { FIRSTLASTNAME, NAMEAFFIX };
+
+    private static String GUIITEM_GROUPS           = "GUIITEM_GROUPS";
+    private static String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
+    private static String CAT_MOREDATA = "%02%" + International.getString("Weitere Daten");
+    private static String CAT_ADDRESS  = "%03%" + International.getString("Adresse");
+    private static String CAT_GROUPS   = "%04%" + International.getString("Gruppen");
+    private static String CAT_FREEUSE  = "%05%" + International.getString("Freie Verwendung");
 
     private static Pattern qnamePattern = Pattern.compile("(.+) \\(([^\\(\\)]+)\\)");
 
@@ -317,6 +324,11 @@ public class PersonRecord extends DataRecord {
         return getString(INPUTSHORTCUT);
     }
 
+    public GroupRecord[] getGroupList() {
+        Groups groups = getPersistence().getProject().getGroups(false);
+        return groups.getGroupsForPerson(getId(), getValidFrom(), getInvalidFrom()-1);
+    }
+
     public void setFreeUse1(String s) {
         setString(FREEUSE1, s);
     }
@@ -483,12 +495,22 @@ public class PersonRecord extends DataRecord {
         set(fieldName, value);
     }
 
-    public Vector<IItemType> getGuiItems() {
-        String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
-        String CAT_MOREDATA = "%02%" + International.getString("Weitere Daten");
-        String CAT_ADDRESS  = "%03%" + International.getString("Adresse");
-        String CAT_FREEUSE  = "%04%" + International.getString("Freie Verwendung");
+    public IItemType[] getDefaultItems(String itemName) {
+        if (itemName.equals(PersonRecord.GUIITEM_GROUPS)) {
+            IItemType[] items = new IItemType[1];
+            String CAT_USAGE = "%04%" + International.getString("Gruppen");
+            items[0] = getGuiItemTypeStringAutoComplete(PersonRecord.GUIITEM_GROUPS, null,
+                    IItemType.TYPE_PUBLIC, CAT_GROUPS,
+                    getPersistence().getProject().getGroups(false), getValidFrom(), getInvalidFrom()-1,
+                    International.getString("Gruppe"));
+            items[0].setFieldSize(300, -1);
+            return items;
+        }
+        return null;
 
+    }
+
+    public Vector<IItemType> getGuiItems(AdminRecord admin) {
         Status status = getPersistence().getProject().getStatus(false);
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
@@ -543,6 +565,27 @@ public class PersonRecord extends DataRecord {
         v.add(item = new ItemTypeString(PersonRecord.ADDRESSCOUNTRY, getAddressCountry(),
                 IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Land")));
 
+        // CAT_GROUPS
+        if (getId() != null && admin != null && admin.isAllowedEditGroups()) {
+            Vector<IItemType[]> itemList = new Vector<IItemType[]>();
+            GroupRecord[] groupList = getGroupList();
+            DataTypeList<UUID> agList = new DataTypeList<UUID>();
+            for (int i = 0; groupList != null && i < groupList.length; i++) {
+                agList.add(groupList[i].getId());
+            }
+            for (int i = 0; agList != null && i < agList.length(); i++) {
+                IItemType[] items = getDefaultItems(GUIITEM_GROUPS);
+                ((ItemTypeStringAutoComplete) items[0]).setId(agList.get(i));
+                itemList.add(items);
+            }
+            v.add(item = new ItemTypeItemList(GUIITEM_GROUPS, itemList, this,
+                    IItemType.TYPE_PUBLIC, CAT_GROUPS, International.getString("Gruppenzugehörigkeit")));
+            ((ItemTypeItemList) item).setXForAddDelButtons(3);
+            ((ItemTypeItemList) item).setPadYbetween(0);
+            ((ItemTypeItemList) item).setRepeatTitle(false);
+            ((ItemTypeItemList) item).setAppendPositionToEachElement(true);
+        }
+
         v.add(item = new ItemTypeString(PersonRecord.FREEUSE1, getFreeUse1(),
                 IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 1"));
         v.add(item = new ItemTypeString(PersonRecord.FREEUSE2, getFreeUse2(),
@@ -553,6 +596,27 @@ public class PersonRecord extends DataRecord {
         return v;
     }
 
+    public void saveGuiItems(Vector<IItemType> items) {
+        for(IItemType item : items) {
+            String name = item.getName();
+            if (name.equals(GUIITEM_GROUPS) && item.isChanged()) {
+                ItemTypeItemList list = (ItemTypeItemList)item;
+                Groups groups = getPersistence().getProject().getGroups(false);
+                Hashtable<UUID,String> groupIds = new Hashtable<UUID,String>();
+                for (int i=0; i<list.size(); i++) {
+                    ItemTypeStringAutoComplete l = (ItemTypeStringAutoComplete)list.getItems(i)[0];
+                    UUID id = (UUID)l.getId(l.getValue());
+                    if (id != null) {
+                        groupIds.put(id, "foo");
+                    }
+                }
+                groups.setGroupsForPerson(getId(),
+                        groupIds.keySet().toArray(new UUID[0]),
+                        getInvalidFrom()-1);
+            }
+        }
+        super.saveGuiItems(items);
+    }
     public TableItemHeader[] getGuiTableHeader() {
         TableItemHeader[] header = new TableItemHeader[4];
         header[0] = new TableItemHeader(International.getString("Nachname"));

@@ -323,31 +323,6 @@ public class Dialog {
         return (String) JOptionPane.showInputDialog(frame, chopDialogString(s), title, JOptionPane.PLAIN_MESSAGE, null, null, vorbelegung);
     }
 
-    // Fragen, ob Schreibschutz aufgehoben werden soll
-    public static int removeWriteProtection(String datei, boolean beimKonvertieren) {
-        Object[] auswahl = new String[3];
-        auswahl[0] = International.getString("Schreibschutz übergehen");
-        auswahl[1] = International.getString("Schreibschutz deaktivieren");
-        auswahl[2] = International.getString("Abbruch");
-        if (!beimKonvertieren) {
-            return JOptionPane.showOptionDialog(null,
-                    International.getMessage("Die Datei '{file}' ist schreibgeschützt.", datei),
-                    International.getString("Datei schreibgeschützt"),
-                    0, JOptionPane.QUESTION_MESSAGE, null, auswahl, auswahl[0]);
-        } else {
-            return JOptionPane.showOptionDialog(null,
-                    International.getMessage("Die Datei '{file}' muß in ein neues Format konvertiert werden, ist aber schreibgeschützt.", datei),
-                    International.getString("Datei schreibgeschützt"),
-                    0, JOptionPane.QUESTION_MESSAGE, null, auswahl, auswahl[0]);
-        }
-    }
-
-    // Liefert Paßwort für Datei oder null, wenn Dialog abgebrochen wurde
-    public static String getWriteProtectionPasswort(String datei, boolean firstTry) {
-        return Dialog.inputDialog(International.getString("Paßwort für Schreibschutz"),
-                (firstTry ? "" : International.getString("Ungültiges Paßwort!") + "\n")
-                + International.getMessage("Bitte gib das Paßwort zum Aufheben des Schreibschutzes der Datei '{file}' an:", datei));
-    }
 
     // muß von jedem Frame gerufen werden, das geöffnet wird!!
     public static void frameOpened(Window w) {

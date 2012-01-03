@@ -21,17 +21,19 @@ import javax.swing.*;
 public class OnlineUpdateDialog extends BaseDialog {
 
     private String newVersionName;
+    private String newVersionDate;
     private long downloadSize;
     private Vector<String> changes;
     JButton downloadButton = new JButton();
     JScrollPane infoScrollPane = new JScrollPane();
     JEditorPane infoEditorPane = new JEditorPane();
 
-    public OnlineUpdateDialog(JDialog parent, String newVersionName, long downloadSize, Vector<String> changes) {
+    public OnlineUpdateDialog(JDialog parent, String newVersionName, String newVersionDate, long downloadSize, Vector<String> changes) {
         super(parent,
                 International.getStringWithMnemonic("Online-Update"),
                 International.getStringWithMnemonic("Abbruch"));
         this.newVersionName = newVersionName;
+        this.newVersionDate = newVersionDate;
         this.downloadSize = downloadSize;
         this.changes = changes;
     }
@@ -44,11 +46,11 @@ public class OnlineUpdateDialog extends BaseDialog {
         JLabel currentVersionLabel = new JLabel();
         currentVersionLabel.setText(International.getString("installierte Version") + ": ");
         JLabel currentVersionValue = new JLabel();
-        currentVersionValue.setText(Daten.VERSIONID);
+        currentVersionValue.setText(Daten.VERSIONID + " (" + Daten.VERSIONRELEASEDATE + ")");
         JLabel newVersionLabel = new JLabel();
         newVersionLabel.setText(International.getString("verfügbare Version") + ": ");
         JLabel newVersionValue = new JLabel();
-        newVersionValue.setText(newVersionName);
+        newVersionValue.setText(newVersionName + " (" + newVersionDate + ")");
         newVersionValue.setForeground(Color.blue);
         newVersionValue.setFont(newVersionValue.getFont().deriveFont(Font.BOLD));
         JLabel downloadSizeLabel = new JLabel();

@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.items.*;
@@ -310,7 +311,7 @@ public class BoatDamageRecord extends DataRecord {
         set(fieldName, value);
     }
 
-    public Vector<IItemType> getGuiItems() {
+    public Vector<IItemType> getGuiItems(AdminRecord admin) {
         String CAT_BASEDATA     = "%01%" + International.getString("Bootsschaden");
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();

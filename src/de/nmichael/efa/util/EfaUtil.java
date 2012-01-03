@@ -258,10 +258,14 @@ public class EfaUtil {
 
     // Aus einem String s eine korrekte (gültige) Zeit machen
     public static String correctTime(String s, boolean withSeconds) {
+        return correctTime(s, 0, 0, 0, withSeconds);
+    }
+
+    public static String correctTime(String s, int hdef, int mdef, int sdef, boolean withSeconds) {
         if (s.length() == 0) {
             return "";
         }
-        TMJ hhmmss = EfaUtil.string2date(s, 0, 0, 0); // TMJ mißbraucht für die Auswertung von Uhrzeiten
+        TMJ hhmmss = EfaUtil.string2date(s, hdef, mdef, sdef); // TMJ mißbraucht für die Auswertung von Uhrzeiten
         int hh = hhmmss.tag;
         int mm = hhmmss.monat;
         int ss = hhmmss.jahr;
@@ -1001,6 +1005,14 @@ public class EfaUtil {
                 + makeTimeString(cal.get(Calendar.SECOND), 2);
     }
 
+    public static String getTimeStampDDMMYYYY(long l) {
+        Calendar cal = new GregorianCalendar();
+        cal.setTimeInMillis(l);
+        return makeTimeString(cal.get(Calendar.DAY_OF_MONTH), 2) + "."
+                + makeTimeString(cal.get(Calendar.MONTH) + 1, 2) + "."
+                + makeTimeString(cal.get(Calendar.YEAR), 4);
+    }
+
     public static String getCurrentTimeStampYYYYMMDD_HHMMSS() {
         Calendar cal = new GregorianCalendar();
         return makeTimeString(cal.get(Calendar.YEAR), 4)
@@ -1590,6 +1602,14 @@ public class EfaUtil {
             return false;
         }
         return true;
+    }
+
+    public static String correctUrl(String url) {
+        int pos = url.indexOf(":");
+        if (pos < 4 || pos > 10) { // http, https, file, mailto, ftp, ...
+            url = "file:" + url;
+        }
+        return EfaUtil.replace(url, "\\", "/", true);
     }
 
     public static void main(String args[]) {

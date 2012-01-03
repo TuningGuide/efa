@@ -25,12 +25,12 @@ import javax.swing.*;
 // @i18n complete
 public class BoatListDialog extends DataListDialog {
 
-    public BoatListDialog(Frame parent, long validAt) {
-        super(parent, International.getString("Boote"), Daten.project.getBoats(false), validAt);
+    public BoatListDialog(Frame parent, long validAt, AdminRecord admin) {
+        super(parent, International.getString("Boote"), Daten.project.getBoats(false), validAt, admin);
     }
 
-    public BoatListDialog(JDialog parent, long validAt) {
-        super(parent, International.getString("Boote"), Daten.project.getBoats(false), validAt);
+    public BoatListDialog(JDialog parent, long validAt, AdminRecord admin) {
+        super(parent, International.getString("Boote"), Daten.project.getBoats(false), validAt, admin);
     }
 
     public void keyAction(ActionEvent evt) {
@@ -43,6 +43,6 @@ public class BoatListDialog extends DataListDialog {
             record = Daten.project.getBoats(false).createBoatRecord(UUID.randomUUID());
             ((BoatRecord)record).addTypeVariant("", EfaTypes.TYPE_BOAT_OTHER, EfaTypes.TYPE_NUMSEATS_OTHER, EfaTypes.TYPE_RIGGING_OTHER, EfaTypes.TYPE_COXING_OTHER);
         }
-        return new BoatEditDialog(parent, (BoatRecord)record, newRecord);
+        return new BoatEditDialog(parent, (BoatRecord)record, newRecord, admin);
     }
 }

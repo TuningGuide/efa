@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.gui.dataedit;
 
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.gui.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -17,7 +18,6 @@ import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.gui.BaseDialog;
-import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.ex.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -34,6 +34,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
 
     protected StorageObject persistence;
     protected long validAt;
+    protected AdminRecord admin;
 
     protected String[] actionText;
     protected int[] actionType;
@@ -52,14 +53,16 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
     private JPanel buttonPanel;
     private Hashtable<ItemTypeButton,String> actionButtons;
 
-    public DataListDialog(Frame parent, String title, StorageObject persistence, long validAt) {
+    public DataListDialog(Frame parent, String title, StorageObject persistence, long validAt, AdminRecord admin) {
         super(parent, title, International.getStringWithMnemonic("Schließen"));
+        this.admin = admin;
         setPersistence(persistence, validAt);
         iniActions();
     }
 
-    public DataListDialog(JDialog parent, String title, StorageObject persistence, long validAt) {
+    public DataListDialog(JDialog parent, String title, StorageObject persistence, long validAt, AdminRecord admin) {
         super(parent, title, International.getStringWithMnemonic("Schließen"));
+        this.admin = admin;
         setPersistence(persistence, validAt);
         iniActions();
     }
@@ -121,7 +124,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
 
         table = new ItemTypeDataRecordTable("TABLE",
                 persistence.createNewRecord().getGuiTableHeader(),
-                persistence, validAt,
+                persistence, validAt, admin,
                 filterFieldName, filterFieldValue, // defaults are null
                 actionText, actionType, // default actions: new, edit, delete
                 this,
@@ -226,7 +229,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 dlg1.showDialog();
                 break;
             case ACTION_EXPORT:
-                DataExportDialog dlg2 = new DataExportDialog(this, persistence, validAt);
+                DataExportDialog dlg2 = new DataExportDialog(this, persistence, validAt, admin);
                 dlg2.showDialog();
                 break;
         }

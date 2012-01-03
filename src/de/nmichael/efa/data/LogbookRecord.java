@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.efawett.Zielfahrt;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
@@ -676,7 +677,7 @@ public class LogbookRecord extends DataRecord {
         return -1;
     }
 
-    public Vector<IItemType> getGuiItems() {
+    public Vector<IItemType> getGuiItems(AdminRecord admin) {
         return null; // not supported for LogbokRecord
     }
 

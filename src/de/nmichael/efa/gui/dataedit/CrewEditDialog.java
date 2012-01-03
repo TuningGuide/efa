@@ -10,27 +10,22 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
-import javax.swing.event.ChangeEvent;
 
 // @i18n complete
 public class CrewEditDialog extends UnversionizedDataEditDialog {
 
-    public CrewEditDialog(Frame parent, CrewRecord r, boolean newRecord) {
-        super(parent, International.getString("Mannschaft"), r, newRecord);
+    public CrewEditDialog(Frame parent, CrewRecord r, boolean newRecord, AdminRecord admin) {
+        super(parent, International.getString("Mannschaft"), r, newRecord, admin);
     }
 
-    public CrewEditDialog(JDialog parent, CrewRecord r, boolean newRecord) {
-        super(parent, International.getString("Mannschaft"), r, newRecord);
+    public CrewEditDialog(JDialog parent, CrewRecord r, boolean newRecord, AdminRecord admin) {
+        super(parent, International.getString("Mannschaft"), r, newRecord, admin);
     }
 
     public void keyAction(ActionEvent evt) {

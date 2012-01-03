@@ -246,7 +246,7 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
         return null;
     }
 
-    public Vector<IItemType> getGuiItems() {
+    public Vector<IItemType> getGuiItems(AdminRecord admin) {
         String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
         String CAT_WATERS   = "%02%" + International.getString("Gewässer");
 

@@ -10,6 +10,7 @@
 package de.nmichael.efa.data;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.DataTypeDate;
@@ -79,6 +80,11 @@ public class Project extends StorageObject {
                         p.getProjectStorageLocation(), p.getProjectStorageUsername(), p.getProjectStoragePassword(),
                         p.getProjectRemoteProjectName(), p.dataAccess.getStorageObjectType(), p.dataAccess.getStorageObjectDescription());
                 p.remoteDataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
+                // since login into remote data is lazy, we should retrieve a project record here
+                // to make the login happen. It's important to chose a record which is a remote
+                // record, i.e. *not* the project record itself. Therefore we select the config
+                // record.
+                p.getConfigRecord();
             }
             p._inOpeningProject = false;
         } catch (Exception ee) {
@@ -240,6 +246,14 @@ public class Project extends StorageObject {
 
     public IDataAccess getRemoteDataAccess() {
         return remoteDataAccess;
+    }
+
+    public AdminRecord getRemoteAdmin() {
+        if (getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE
+            && getRemoteDataAccess() != null) {
+            return ((RemoteEfaClient)getRemoteDataAccess()).getAdminRecord();
+        }
+        return null;
     }
 
     public boolean deleteLogbookRecord(String logbookName) {

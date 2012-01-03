@@ -10,13 +10,11 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.gui.dataedit.DataListDialog;
-import de.nmichael.efa.gui.dataedit.DataEditDialog;
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -26,18 +24,18 @@ import javax.swing.*;
 // @i18n complete
 public class DestinationListDialog extends DataListDialog {
 
-    public DestinationListDialog(Frame parent, long validAt) {
+    public DestinationListDialog(Frame parent, long validAt, AdminRecord admin) {
         super(parent,
                 International.getString("Ziele") + " / " +
                 International.getString("Strecken"),
-                Daten.project.getDestinations(false), validAt);
+                Daten.project.getDestinations(false), validAt, admin);
     }
 
-    public DestinationListDialog(JDialog parent, long validAt) {
+    public DestinationListDialog(JDialog parent, long validAt, AdminRecord admin) {
         super(parent,
                 International.getString("Ziele") + " / " +
                 International.getString("Strecken"),
-                Daten.project.getDestinations(false), validAt);
+                Daten.project.getDestinations(false), validAt, admin);
     }
 
     public void keyAction(ActionEvent evt) {
@@ -49,6 +47,6 @@ public class DestinationListDialog extends DataListDialog {
         if (record == null) {
             record = Daten.project.getDestinations(false).createDestinationRecord(UUID.randomUUID());
         }
-        return new DestinationEditDialog(parent, (DestinationRecord)record, newRecord);
+        return new DestinationEditDialog(parent, (DestinationRecord)record, newRecord, admin);
     }
 }

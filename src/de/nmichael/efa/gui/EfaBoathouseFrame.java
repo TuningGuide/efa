@@ -1045,7 +1045,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
         if (projectName == null || projectName.length() == 0) {
             if (admin != null && admin.isAllowedAdministerProjectLogbook()) {
-                OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.project);
+                OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.project, admin);
                 projectName = dlg.openDialog();
             }
         }
@@ -1053,6 +1053,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         if (projectName == null || projectName.length() == 0) {
             return null;
         }
+
+
 
         // close open project now
         if (Daten.project != null) {
@@ -1069,6 +1071,15 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
         if (!Project.openProject(projectName)) {
             Daten.project = null;
+            return null;
+        }
+
+        if (Daten.project != null && Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE &&
+            !Daten.project.getProjectStorageUsername().equals(Admins.SUPERADMIN)) {
+            Daten.project = null;
+            String err = International.getString("Nur der Super-Administrator darf im Bootshaus-Modus ein Remote-Projekt öffnen.");
+            Logger.log(Logger.ERROR, Logger.MSG_ERR_NOPROJECTOPENED, err);
+            Dialog.error(err);
             return null;
         }
 
@@ -1108,7 +1119,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
         if (logbookName == null || logbookName.length() == 0) {
             if (admin != null && admin.isAllowedAdministerProjectLogbook()) {
-                OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.logbook);
+                OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.logbook, admin);
                 logbookName = dlg.openDialog();
             }
         }
@@ -1821,7 +1832,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         if (item.boat == null || item.boatStatus == null || item.boatStatus.getUnknownBoat() || item.boatStatus.getBoatId() == null) {
             // Dialog.error(International.getString("Dieses Boot kann nicht reserviert werden!"));
             // boatListRequestFocus(1);
-            BoatReservationListDialog dlg = new BoatReservationListDialog(this, null,
+            BoatReservationListDialog dlg = new BoatReservationListDialog(this, null, 
                 Daten.efaConfig.getValueEfaDirekt_mitgliederDuerfenReservieren(),
                 Daten.efaConfig.getValueEfaDirekt_mitgliederDuerfenReservierenZyklisch(),
                 Daten.efaConfig.getValueEfaDirekt_mitgliederDuerfenReservierungenEditieren());
@@ -1888,7 +1899,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         boolean adminOnStack = false;
         try {
             for (int i = 0; i < s.size(); i++) {
-                if (s.elementAt(i).getClass().getName().equals("de.nmichael.efa.gui.AdminDialog")) {
+                if (s.elementAt(i).getClass().getName().equals(AdminDialog.class.getCanonicalName())) {
                     adminOnStack = true;
                 }
             }
@@ -1911,25 +1922,22 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
 
     void actionSpecial() {
-        Dialog.infoDialog("Not yet implemented");
-        /* @todo (P4) actionSpecial()
         alive();
         clearAllPopups();
-        String cmd = Daten.efaConfig.efaDirekt_butSpezialCmd.getValue().trim();
+        String cmd = Daten.efaConfig.getValueEfaDirekt_butSpezialCmd().trim();
         if (cmd.length() > 0) {
             try {
                 if (cmd.toLowerCase().startsWith("browser:")) {
-                    Dialog.neuBrowserDlg(this, International.getString("Browser"), cmd.substring(8));
+                    BrowserDialog.openInternalBrowser(_parent, cmd.substring(8));
                 } else {
                     Runtime.getRuntime().exec(cmd);
                 }
             } catch (Exception ee) {
-                LogString.logWarning_cantExecCommand(cmd, International.getString("für Spezial-Button"), ee.toString());
+                LogString.logWarning_cantExecCommand(cmd, International.getString("Spezial-Button"), ee.toString());
             }
         } else {
             Dialog.error(International.getString("Kein Kommando für diesen Button konfiguriert!"));
         }
-        */
     }
 
     void efaButton_actionPerformed(ActionEvent e) {

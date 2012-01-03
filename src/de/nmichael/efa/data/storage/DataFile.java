@@ -141,7 +141,7 @@ public abstract class DataFile extends DataAccess {
 
     private boolean createBackupFile(String originalFilename) {
         String backup0 = originalFilename + ".s0"; // most recent backup
-        String backup1 = originalFilename + ".s1"; // previoud backup
+        String backup1 = originalFilename + ".s1"; // previous backup
         try {
             if (!new File(originalFilename).exists()) {
                 return true; // nothing to do
@@ -207,8 +207,29 @@ public abstract class DataFile extends DataAccess {
                 throw new Exception(LogString.logstring_fileDeletionFailed(filename, getStorageObjectDescription()));
             }
             journal.deleteAllJournals();
+            deleteAllBackups();
         } catch(Exception e) {
             throw new EfaException(Logger.MSG_DATA_DELETEFAILED, LogString.logstring_fileDeletionFailed(filename, getStorageObjectDescription(), e.toString()), Thread.currentThread().getStackTrace());
+        }
+    }
+
+    public void deleteAllBackups() throws EfaException {
+        String[] backups = new String[] {
+            filename + ".s0",
+            filename + ".s1"
+        };
+        for (int i = 0; i < backups.length; i++) {
+            String backupFIle = backups[i];
+            try {
+                File f = new File(backupFIle);
+                if (f.isFile()) {
+                    if (!f.delete()) {
+                        throw new Exception(LogString.logstring_fileDeletionFailed(backupFIle, International.getString("Backup")));
+                    }
+                }
+            } catch (Exception e) {
+                throw new EfaException(Logger.MSG_DATA_DELETEFAILED, LogString.logstring_fileDeletionFailed(backupFIle, International.getString("Backup"), e.toString()), Thread.currentThread().getStackTrace());
+            }
         }
     }
 

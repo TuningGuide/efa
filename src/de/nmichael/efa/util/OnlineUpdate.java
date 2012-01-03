@@ -11,9 +11,9 @@
 package de.nmichael.efa.util;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.Backup;
 import de.nmichael.efa.gui.OnlineUpdateDialog;
 import java.awt.Window;
-import java.io.BufferedReader;
 import java.io.File;
 import java.util.Vector;
 import javax.swing.JDialog;
@@ -83,7 +83,8 @@ public class OnlineUpdate {
 
         // Ok, Informationen gelesen: Jetzt auf dem Bildschirm anzeigen
         OnlineUpdateDialog dlg = new OnlineUpdateDialog(parent,
-                newestVersion.versionId, newestVersion.downloadSize, changes);
+                newestVersion.versionId, newestVersion.releaseDate,
+                newestVersion.downloadSize, changes);
         dlg.showDialog();
         if (!dlg.getDialogResult()) {
             return false;
@@ -230,16 +231,10 @@ class ExecuteAfterDownloadImpl implements ExecuteAfterDownload {
                 International.getString("Es werden jetzt alle Daten gesichert und anschließend die neue Version installiert."));
 
         // ZIP-Archiv mit bisherigen Daten sichern
-        // @todo (P4) replace by new Backup Functionality
-        Vector sourceDirs = new Vector();
-        Vector inclSubdirs = new Vector();
-        sourceDirs.add(Daten.efaDataDirectory);
-        inclSubdirs.add(new Boolean(true));
-        String backup = Daten.efaBakDirectory + "Backup_" + Daten.VERSIONID + "_beforeUpdate.zip";
-        String result = EfaUtil.createZipArchive(sourceDirs, inclSubdirs, backup);
-        if (result != null) {
-            if (Dialog.yesNoDialog(International.getString("Fehler bei Datensicherung"),
-                    International.getMessage("Sicherung der Daten in der Datei {filename} fehlgeschlagen: {error}", backup,result) +
+        Backup backup = new Backup(Daten.efaBakDirectory, true, true);
+        if (!backup.runBackup(null)) {
+            if (Dialog.yesNoDialog(International.getString("Backup fehlgeschlagen"),
+                    backup.getLastErrorMessage() +
                     "\n" +
                     International.getString("Soll der Update-Vorgang trotzdem fortgesetzt werden?")) != Dialog.YES) {
                 return;
@@ -247,7 +242,7 @@ class ExecuteAfterDownloadImpl implements ExecuteAfterDownload {
         }
 
         // Neue Version entpacken
-        result = EfaUtil.unzip(zipFile, Daten.efaMainDirectory);
+        String result = EfaUtil.unzip(zipFile, Daten.efaMainDirectory);
         if (result != null) {
             if (result.length() > 1000) {
                 result = result.substring(0, 1000);

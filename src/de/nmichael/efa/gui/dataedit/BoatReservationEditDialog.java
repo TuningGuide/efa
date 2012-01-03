@@ -10,29 +10,27 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
-import javax.swing.event.ChangeEvent;
 
 // @i18n complete
 public class BoatReservationEditDialog extends UnversionizedDataEditDialog implements IItemListener {
 
-    public BoatReservationEditDialog(Frame parent, BoatReservationRecord r, boolean newRecord, boolean allowWeeklyReservation) {
-        super(parent, International.getString("Reservierung"), r, newRecord);
+    public BoatReservationEditDialog(Frame parent, BoatReservationRecord r, 
+            boolean newRecord, boolean allowWeeklyReservation, AdminRecord admin) {
+        super(parent, International.getString("Reservierung"), r, newRecord, admin);
         initListener();
         setAllowWeeklyReservation(allowWeeklyReservation);
     }
 
-    public BoatReservationEditDialog(JDialog parent, BoatReservationRecord r, boolean newRecord, boolean allowWeeklyReservation) {
-        super(parent, International.getString("Reservierung"), r, newRecord);
+    public BoatReservationEditDialog(JDialog parent, BoatReservationRecord r, 
+            boolean newRecord, boolean allowWeeklyReservation, AdminRecord admin) {
+        super(parent, International.getString("Reservierung"), r, newRecord, admin);
         initListener();
         setAllowWeeklyReservation(allowWeeklyReservation);
     }

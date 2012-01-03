@@ -20,7 +20,7 @@ import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.config.EfaConfig;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.gui.EfaConfigDialog;
 import de.nmichael.efa.gui.ProgressDialog;
 import de.nmichael.efa.gui.BaseTabbedDialog;
@@ -30,6 +30,7 @@ import javax.swing.JDialog;
 
 public class KanuEfbSyncTask extends ProgressTask {
 
+    private AdminRecord admin;
     private Logbook logbook;
     private String loginurl;
     private String cmdurl;
@@ -40,8 +41,9 @@ public class KanuEfbSyncTask extends ProgressTask {
     private long thisSync;
     private boolean loggedIn = false;
 
-    public KanuEfbSyncTask(Logbook logbook) {
+    public KanuEfbSyncTask(Logbook logbook, AdminRecord admin) {
         super();
+        this.admin = admin;
         getConfigValues();
         this.logbook = logbook;
     }
@@ -633,7 +635,7 @@ public class KanuEfbSyncTask extends ProgressTask {
                 Logger.log(Logger.ERROR, Logger.MSG_SYNC_ERRORABORTSYNC, msg);
                 Daten.haltProgram(Daten.HALT_MISCONFIG);
             }
-            ProjectEditDialog dlg = new ProjectEditDialog((JDialog)null, Daten.project, null, ProjectRecord.GUIITEMS_SUBTYPE_KANUEFB);
+            ProjectEditDialog dlg = new ProjectEditDialog((JDialog)null, Daten.project, null, ProjectRecord.GUIITEMS_SUBTYPE_KANUEFB, admin);
             dlg.showDialog();
             if (!dlg.getDialogResult()) {
                 return;

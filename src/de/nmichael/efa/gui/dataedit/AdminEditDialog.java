@@ -21,12 +21,12 @@ import javax.swing.*;
 // @i18n complete
 public class AdminEditDialog extends UnversionizedDataEditDialog {
 
-    public AdminEditDialog(Frame parent, AdminRecord r, boolean newRecord) {
-        super(parent, International.getString("Administrator"), r, newRecord);
+    public AdminEditDialog(Frame parent, AdminRecord r, boolean newRecord, AdminRecord admin) {
+        super(parent, International.getString("Administrator"), r, newRecord, admin);
     }
 
-    public AdminEditDialog(JDialog parent, AdminRecord r, boolean newRecord) {
-        super(parent, International.getString("Administrator"), r, newRecord);
+    public AdminEditDialog(JDialog parent, AdminRecord r, boolean newRecord, AdminRecord admin) {
+        super(parent, International.getString("Administrator"), r, newRecord, admin);
     }
 
     public void keyAction(ActionEvent evt) {

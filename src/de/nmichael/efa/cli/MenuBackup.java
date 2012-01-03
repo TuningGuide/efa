@@ -67,7 +67,7 @@ public class MenuBackup extends MenuBase {
         }
 
         Backup backup = new Backup(backupDir, backupProject, backupConfig);
-        backup.runBackup();
+        backup.runBackup(null);
     }
 
     public boolean runCommand(Stack<String> menuStack, String cmd, String args) {

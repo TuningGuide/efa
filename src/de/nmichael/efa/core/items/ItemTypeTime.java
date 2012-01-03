@@ -12,7 +12,9 @@ package de.nmichael.efa.core.items;
 
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.util.*;
+import java.awt.AWTEvent;
 import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
 
 // @i18n complete
 
@@ -23,6 +25,7 @@ public class ItemTypeTime extends ItemTypeLabelTextfield {
     protected ItemTypeTime mustBeBefore;
     protected ItemTypeTime mustBeAfter;
     protected boolean mustBeCanBeEqual = false;
+    private DataTypeTime referenceTime = null;
 
     public ItemTypeTime(String name, DataTypeTime value, int type,
             String category, String description) {
@@ -31,6 +34,7 @@ public class ItemTypeTime extends ItemTypeLabelTextfield {
         this.type = type;
         this.category = category;
         this.description = description;
+        this.referenceTime = (isSet() ? new DataTypeTime(value) : DataTypeTime.time000000());
     }
 
     public IItemType copyOf() {
@@ -44,10 +48,17 @@ public class ItemTypeTime extends ItemTypeLabelTextfield {
         }
     }
 
+    public void setReferenceTime(DataTypeTime time) {
+        this.referenceTime = (time != null ? time : DataTypeTime.time000000());
+    }
+
     public void parseValue(String value) {
         try {
             if (value != null && value.trim().length()>0) {
-                value = EfaUtil.correctTime(value,true);
+                value = EfaUtil.correctTime(value,
+                        referenceTime.getHour(), referenceTime.getMinute(), referenceTime.getSecond(),
+                        true);
+
             }
             this.value = DataTypeTime.parseTime(value);
             this.value.enableSeconds(withSeconds);
@@ -70,8 +81,16 @@ public class ItemTypeTime extends ItemTypeLabelTextfield {
     protected void field_focusLost(FocusEvent e) {
         super.field_focusLost(e);
         if (!isSet() && isNotNullSet()) {
-            parseValue("00:00:00");
+            if (referenceTime.isSet()) {
+                parseValue(referenceTime.toString());
+            } else {
+                parseValue("00:00:00");
+            }
+            
             showValue();
+        }
+        if (isSet()) {
+            referenceTime.setTime(value);
         }
     }
 
@@ -128,6 +147,32 @@ public class ItemTypeTime extends ItemTypeLabelTextfield {
     public void setMustBeAfter(ItemTypeTime item, boolean mayAlsoBeEqual) {
         mustBeAfter = item;
         mustBeCanBeEqual = mayAlsoBeEqual;
+    }
+
+    // @override
+    public void actionEvent(AWTEvent e) {
+        if (e != null && e instanceof KeyEvent && e.getID() == KeyEvent.KEY_PRESSED) {
+            if (!isSet()) {
+                value.setTime(referenceTime);
+            }
+            switch(((KeyEvent)e).getKeyCode()) {
+                case KeyEvent.VK_PLUS:
+                case KeyEvent.VK_ADD:
+                case KeyEvent.VK_UP:
+                case KeyEvent.VK_KP_UP:
+                    value.add((withSeconds ? 1 : 60));
+                    showValue();
+                    break;
+                case KeyEvent.VK_MINUS:
+                case KeyEvent.VK_SUBTRACT:
+                case KeyEvent.VK_DOWN:
+                case KeyEvent.VK_KP_DOWN:
+                    value.add((withSeconds ? -1 : -60));
+                    showValue();
+                    break;
+            }
+        }
+        super.actionEvent(e);
     }
 
 }

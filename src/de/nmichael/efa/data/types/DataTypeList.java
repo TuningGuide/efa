@@ -177,6 +177,15 @@ public class DataTypeList<T> {
         }
     }
 
+    public boolean remove(T value) {
+        if (list == null) {
+            return false;
+        }
+        synchronized (list) {
+            return list.remove(value);
+        }
+    }
+
     public boolean contains(T value) {
         if (list == null) {
             return false;

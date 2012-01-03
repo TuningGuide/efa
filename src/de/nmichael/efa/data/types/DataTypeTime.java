@@ -62,6 +62,22 @@ public class DataTypeTime implements Cloneable, Comparable<DataTypeTime> {
         return time;
     }
 
+    public static DataTypeTime time000000() {
+        DataTypeTime time = new DataTypeTime();
+        time.setHour(0);
+        time.setMinute(0);
+        time.setSecond(0);
+        return time;
+    }
+
+    public static DataTypeTime time235959() {
+        DataTypeTime time = new DataTypeTime();
+        time.setHour(23);
+        time.setMinute(59);
+        time.setSecond(59);
+        return time;
+    }
+
     public void enableSeconds(boolean withSeconds) {
         this.withSeconds = withSeconds;
     }

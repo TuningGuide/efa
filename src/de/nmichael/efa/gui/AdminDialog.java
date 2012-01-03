@@ -148,7 +148,7 @@ public class AdminDialog extends BaseDialog implements IItemListener {
 
     private void updateInfos() {
         projectName.setText(International.getString("Projekt") + ": " +
-                (Daten.project != null ? Daten.project.getProjectName() : "- " + International.getString("kein Projekt geöffnet") + " -"));
+                (Daten.project != null ? Daten.project.getProjectName() : "- " + International.getString("Kein Projekt geöffnet.") + " -"));
         logbookName.setText(International.getString("Fahrtenbuch") + ": " +
                 (efaBoathouseFrame.getLogbook() != null ? efaBoathouseFrame.getLogbook().getName() : "- " + International.getString("kein Fahrtenbuch geöffnet") + " -"));
     }

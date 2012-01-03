@@ -37,14 +37,14 @@ public class Daten {
     public static String EFA_LONGNAME = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
     public static String EFA_ONLINE = "efa Online";                       // dummy, will be set in International.ininitalize()
     public final static String VERSION = "v2.0_beta"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID = "1.9.9_01";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-    public final static String VERSIONRELEASEDATE = "31.12.2011";  // Release Date: TT.MM.JJJJ
+    public final static String VERSIONID = "1.9.9_03";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "02.01.2012";  // Release Date: TT.MM.JJJJ
     public final static String PROGRAMMID = "EFA.199"; // Versions-ID für Wettbewerbsmeldungen
     public final static String PROGRAMMID_DRV = "EFADRV.199"; // Versions-ID für Wettbewerbsmeldungen
-    public final static String COPYRIGHTYEAR = "11";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
+    public final static String COPYRIGHTYEAR = "12";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
     public final static String EFA_JAVA_ARGUMENTS = "EFA_JAVA_ARGUMENTS"; // Environment Variable Name containing all arguments passed to the "java" command
     public static String efa_java_arguments = null;                 // Environment Variable Contents containing all arguments passed to the "java" command
-    public final static String EFADIREKT_MAINCLASS = "de.nmichael.efa.direkt.Main";
+    public final static String EFADIREKT_MAINCLASS = de.nmichael.efa.direkt.Main.class.getCanonicalName();
     public final static String EFAURL = "http://efa.nmichael.de";
     public final static String EFASUPPORTURL = "http://efa.nmichael.de/help";
     public final static String EFADEVURL = "http://kenai.com/projects/efa";
@@ -62,6 +62,7 @@ public class Daten {
     public static final String EFATYPESFILE = "types.cfg";               // <efauser>/cfg/types.cfg          Konfiguration für EfaTypes (Bezeichnungen)
     public static final String WETTFILE = "wett.cfg";                    // <efauser>/cfg/wett.cfg           Konfiguration für Wettbewerbe
     public static final String WETTDEFS = "wettdefs.cfg";                // <efauser>/cfg/wettdefs.cfg       Wettbewerbs-Definitionen
+    public static final String EFACLICREDENTIALS = ".efa_cred";          // <userHomeDir>.efa_cred           Credentials for CLI Remote Access
 
     public static final String EFA_LICENSE = "license.html";             // <efa>/doc/license.html
     public static final String EFA_JAR = "efa.jar";                      // <efa>/program/efa.jar
@@ -312,6 +313,12 @@ public class Daten {
         osName = System.getProperty("os.name");
         osVersion = System.getProperty("os.version");
         userHomeDir = System.getProperty("user.home");
+        if (userHomeDir == null) {
+            userHomeDir = "";
+        }
+        if (!userHomeDir.endsWith(fileSep)) {
+            userHomeDir += fileSep;
+        }
         userName = System.getProperty("user.name");
         applID = _applID;
         switch (applID) {
@@ -367,7 +374,7 @@ public class Daten {
         if (!EfaUtil.canOpenFile(Daten.efaBaseConfig.getFileName())) {
             if (!Daten.efaBaseConfig.writeFile()) {
                 String msg = International.getString("efa can't start") + ": "
-                        + International.getMessage("Basic Configuration File '{filename}' could not be created.", Daten.efaBaseConfig.getFileName());
+                        + LogString.logstring_fileCreationFailed(International.getString("Basic Configuration File"), Daten.efaBaseConfig.getFileName());
                 Logger.log(Logger.ERROR, Logger.MSG_CORE_BASICCONFIGFAILEDCREATE, msg);
                 if (isGuiAppl()) {
                     Dialog.error(msg);
@@ -378,7 +385,7 @@ public class Daten {
         }
         if (!Daten.efaBaseConfig.readFile()) {
             String msg = International.getString("efa can't start") + ": "
-                    + International.getMessage("Basic Configuration File '{filename}' could not be opened.", Daten.efaBaseConfig.getFileName());
+                        + LogString.logstring_fileOpenFailed(International.getString("Basic Configuration File"), Daten.efaBaseConfig.getFileName());
             Logger.log(Logger.ERROR, Logger.MSG_CORE_BASICCONFIGFAILEDOPEN, msg);
             if (isGuiAppl()) {
                 Dialog.error(msg);
@@ -465,8 +472,7 @@ public class Daten {
             }
         } catch (Error e) {
             Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTGETEFAJAVAARGS,
-                    International.getMessage("Abfragen der Environment-Variable {name} nicht möglich: {msg}",
-                    Daten.EFA_JAVA_ARGUMENTS, e.toString()));
+                    "Cannot get Environment Variable " + Daten.EFA_JAVA_ARGUMENTS + ": " + e.toString());
         }
     }
 
@@ -643,6 +649,7 @@ public class Daten {
      */
     public static Object[] iniEfaFirstSetup(boolean createNewAdmin) {
         if (firstEfaStart || createNewAdmin) {
+            iniSplashScreen(false);
             EfaFirstSetupDialog dlg = new EfaFirstSetupDialog(createNewAdmin, firstEfaStart);
             dlg.showDialog();
             if (!dlg.getDialogResult()) {
@@ -815,12 +822,11 @@ public class Daten {
     }
 
     public static void iniRemoteEfaServer() {
-        if (applID == APPL_CLI) {
+        if (applID != APPL_EFABH) {
             return;
         }
-        if (Daten.efaConfig.getValueDataRemoteEfaServerEnabled()) {
-            new RemoteEfaServer(Daten.efaConfig.getValueDataataRemoteEfaServerPort());
-        }
+        new RemoteEfaServer(Daten.efaConfig.getValueDataataRemoteEfaServerPort(),
+                Daten.efaConfig.getValueDataRemoteEfaServerEnabled());
     }
 
     public static void iniEmailSenderThread() {
@@ -1223,10 +1229,12 @@ public class Daten {
         if (Daten.efaDocDirectory == null) {
             return;
         }
+        /*
         Dialog.infoDialog(International.getString("Download-Anleitung"),
                 International.getString("Bitte folge in der folgenden Anleitung den Hinweisen unter Punkt 5, "
                 + "um eine neue Java-Version zu installieren."));
         BrowserDialog.openInternalBrowser(null, International.getString("Java-Installation"),
                 "file:" + Daten.efaDocDirectory + "installation.html");
+        */
     }
 }

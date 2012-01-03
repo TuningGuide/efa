@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.efawett.DRVSignatur;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.core.items.*;
@@ -199,7 +200,7 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
         set(fieldName, value);
     }
 
-    public Vector<IItemType> getGuiItems() {
+    public Vector<IItemType> getGuiItems(AdminRecord admin) {
         String CAT_BASEDATA         = "%01%" + International.onlyFor("Allgemein","de");
         String CAT_FAHRTENABZEICHEN = "%02%" + International.onlyFor("elektronisches Fahrtenheft","de");
         IItemType item;

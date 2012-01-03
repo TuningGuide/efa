@@ -10,31 +10,26 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
-import javax.swing.event.ChangeEvent;
 
 // @i18n complete
 public class StatisticsEditDialog extends UnversionizedDataEditDialog {
 
-    public StatisticsEditDialog(Frame parent, StatisticsRecord r, boolean newRecord) {
-        super(parent, International.getString("Statistik"), r, newRecord);
+    public StatisticsEditDialog(Frame parent, StatisticsRecord r, boolean newRecord, AdminRecord admin) {
+        super(parent, International.getString("Statistik"), r, newRecord, admin);
     }
 
-    public StatisticsEditDialog(JDialog parent, StatisticsRecord r, boolean newRecord) {
-        super(parent, International.getString("Statistik"), r, newRecord);
+    public StatisticsEditDialog(JDialog parent, StatisticsRecord r, boolean newRecord, AdminRecord admin) {
+        super(parent, International.getString("Statistik"), r, newRecord, admin);
     }
 
-    public StatisticsEditDialog(JDialog parent, StatisticsRecord r, boolean newRecord, boolean dontSaveButRun) {
-        super(parent, International.getString("Statistik"), r, newRecord);
+    public StatisticsEditDialog(JDialog parent, StatisticsRecord r, boolean newRecord, boolean dontSaveButRun, AdminRecord admin) {
+        super(parent, International.getString("Statistik"), r, newRecord, admin);
         mainPanel.setMinimumSize(new Dimension(600, 400));
         _dontSaveRecord = dontSaveButRun;
         if (dontSaveButRun) {

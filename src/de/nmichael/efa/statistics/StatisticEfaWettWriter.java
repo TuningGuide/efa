@@ -48,7 +48,7 @@ public class StatisticEfaWettWriter extends StatisticWriter {
                 EfaUtil.replace(efaWett.allg_wettjahr, "/", "-", true) + ".EFW";
 
         ProjectEditDialog dlg1 = new ProjectEditDialog((BaseDialog)Dialog.frameCurrent(),
-                sr.getPersistence().getProject(), null, ProjectRecord.GUIITEMS_SUBTYPE_EFAWETT);
+                sr.getPersistence().getProject(), null, ProjectRecord.GUIITEMS_SUBTYPE_EFAWETT, null);
         dlg1.showDialog();
         if (Logger.isTraceOn(Logger.TT_STATISTICS, 1)) {
             Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_STATISTICS,

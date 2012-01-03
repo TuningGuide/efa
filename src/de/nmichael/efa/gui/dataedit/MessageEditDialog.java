@@ -22,12 +22,12 @@ import javax.swing.*;
 public class MessageEditDialog extends UnversionizedDataEditDialog {
 
     public MessageEditDialog(Frame parent, MessageRecord r, boolean newRecord, AdminRecord admin) {
-        super(parent, International.getString("Nachricht"), r, newRecord);
+        super(parent, International.getString("Nachricht"), r, newRecord, admin);
         ini(admin);
     }
 
     public MessageEditDialog(JDialog parent, MessageRecord r, boolean newRecord, AdminRecord admin) {
-        super(parent, International.getString("Nachricht"), r, newRecord);
+        super(parent, International.getString("Nachricht"), r, newRecord, admin);
         ini(admin);
     }
 

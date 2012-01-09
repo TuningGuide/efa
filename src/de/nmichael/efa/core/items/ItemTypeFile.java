@@ -33,6 +33,7 @@ public class ItemTypeFile extends ItemTypeString {
     private String fileExtensions;
     private int fileOpenSave;
     private int fileOrDir;
+    private String fileDialogBaseDirectory;
 
     public ItemTypeFile(String name, String value,
             String fileItem, String fileTypes, String fileExtensions, int fileOpenSave, int fileOrDir,
@@ -64,7 +65,7 @@ public class ItemTypeFile extends ItemTypeString {
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { buttonHit(e); }
         });
-        panel.add(button, new GridBagConstraints(x+1+fieldWidth, y, 1, 1, 0.0, 0.0,
+        panel.add(button, new GridBagConstraints(x+1+fieldGridWidth, y, 1, 1, 0.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbefore, 0, padYafter, padXafter), 0, 0));
         return 1;
     }
@@ -77,6 +78,8 @@ public class ItemTypeFile extends ItemTypeString {
         if (currentValue.length() > 0) {
             startDirectory = EfaUtil.getPathOfFile(currentValue);
             selectedFile = EfaUtil.getNameOfFile(currentValue);
+        } else {
+            startDirectory = fileDialogBaseDirectory;
         }
 
         String file = Dialog.dateiDialog(dlg,
@@ -113,6 +116,10 @@ public class ItemTypeFile extends ItemTypeString {
         if (button != null) {
             button.setVisible(isVisible);
         }
+    }
+
+    public void setFileDialogBaseDirectory(String dir) {
+        fileDialogBaseDirectory = dir;
     }
 
 }

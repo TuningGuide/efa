@@ -1336,9 +1336,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         int m = now.getMinute();
         if (m % 5 != 0) {
             if (m % 5 < 3) {
-                now.delete(m % 5);
+                now.delete((m % 5) * 60);
             } else {
-                now.add(5 - m % 5);
+                now.add((5 - m % 5) * 60);
             }
         }
 
@@ -1848,27 +1848,36 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     private boolean checkUnknownNames() {
         // Prüfen, ob ggf. nur bekannte Boote/Ruderer/Ziele eingetragen wurden
         if (isModeBoathouse()) {
-            if (Daten.efaConfig.getValueEfaDirekt_eintragNurBekannteBoote() && currentRecord.getBoatId() == null) {
-                Dialog.error(International.getMessage("Das Boot '{bootsname}' ist unbekannt. Bitte trage ein bekanntes Boot ein!", boat.getValue()));
-                boat.requestFocus();
-                return false;
-            }
-            if (Daten.efaConfig.getValueEfaDirekt_eintragNurBekannteRuderer() && currentRecord.getCoxId() == null) {
-                Dialog.error(International.getMessage("Person '{name}' ist unbekannt. Bitte trage eine bekannte Person ein!", cox.getValue()));
-                cox.requestFocus();
-                return false;
-            }
-            for (int i = 0; i < crew.length; i++) {
-                if (Daten.efaConfig.getValueEfaDirekt_eintragNurBekannteRuderer() && currentRecord.getCrewId(i) == null) {
-                    Dialog.error(International.getMessage("Person '{name}' ist unbekannt. Bitte trage eine bekannte Person ein!", crew[i].getValue()));
-                    crew[i].requestFocus();
+            if (Daten.efaConfig.getValueEfaDirekt_eintragNurBekannteBoote()) {
+                String name = boat.getValueFromField();
+                if (name != null && name.length() > 0 && findBoat(-1) == null) {
+                    Dialog.error(International.getMessage("Das Boot '{bootsname}' ist unbekannt. Bitte trage ein bekanntes Boot ein!", name));
+                    boat.requestFocus();
                     return false;
                 }
             }
-            if (Daten.efaConfig.getValueEfaDirekt_eintragNurBekannteZiele() && currentRecord.getDestinationId() == null) {
-                Dialog.error(International.getMessage("Ziel/Strecke '{destination}' ist unbekannt. Bitte trage eine bekanntes Ziel/Strecke ein!", destination.getValue()));
-                destination.requestFocus();
-                return false;
+            if (Daten.efaConfig.getValueEfaDirekt_eintragNurBekannteRuderer()) {
+                for (int i = 0; i <= LogbookRecord.CREW_MAX; i++) {
+                    String name = (i == 0 ? cox : crew[i-1]).getValueFromField();
+                    if (name != null && name.length() > 0 && findPerson(i, -1) == null) {
+                        Dialog.error(International.getMessage("Person '{name}' ist unbekannt. Bitte trage eine bekannte Person ein!",
+                                name));
+                        if (i == 0) {
+                            cox.requestFocus();
+                        } else {
+                            crew[i-1].requestFocus();
+                        }
+                        return false;
+                    }
+                }
+            }
+            if (Daten.efaConfig.getValueEfaDirekt_eintragNurBekannteZiele()) {
+                String name = destination.getValueFromField();
+                if (name != null && name.length() > 0 && findDestination(-1) == null) {
+                    Dialog.error(International.getMessage("Ziel/Strecke '{destination}' ist unbekannt. Bitte trage eine bekanntes Ziel/Strecke ein!", name));
+                    destination.requestFocus();
+                    return false;
+                }
             }
         }
         return true;

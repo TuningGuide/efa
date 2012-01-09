@@ -40,6 +40,19 @@ public class XMLFile extends DataFile {
         return IDataAccess.TYPE_FILE_XML;
     }
 
+    // for restoring backups only!
+    public synchronized void readFromInputStream(InputStream in) throws EfaException {
+        try {
+            scn = 0;
+            BufferedReader fr = new BufferedReader(new InputStreamReader(in, ENCODING));
+            readFile(fr);
+            fr.close();
+            isOpen = true;
+        } catch(Exception e) {
+            throw new EfaException(Logger.MSG_DATA_OPENFAILED, LogString.logstring_fileOpenFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+        }
+    }
+
     protected synchronized void readFile(BufferedReader fr) throws EfaException {
         isOpen = true;
         long lock = -1;
@@ -58,7 +71,8 @@ public class XMLFile extends DataFile {
             parser.setContentHandler(xmlFileReader);
             parser.setErrorHandler(eh);
             inOpeningStorageObject = true; // don't update LastModified Timestamps, don't increment SCN, don't check assertions!
-            parser.parse(filename);
+            //parser.parse(filename);
+            parser.parse(new InputSource(fr));
             if (xmlFileReader.getDocumentReadError() != null) {
                 throw new EfaException(Logger.MSG_DATA_INVALIDHEADER, xmlFileReader.getDocumentReadError(), Thread.currentThread().getStackTrace());
             }

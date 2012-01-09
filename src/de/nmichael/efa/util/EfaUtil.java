@@ -1415,6 +1415,22 @@ public class EfaUtil {
         return s;
     }
 
+    public static String leadingZeroString(long l, int length) {
+        String s = Long.toString(l);
+        while (s.length() < length) {
+            s = "0" + s;
+        }
+        return s;
+    }
+
+    public static String getRightBoundNumber(long l, int length) {
+        String s = Long.toString(l);
+        while (s.length() < length) {
+            s = " " + s;
+        }
+        return s;
+    }
+
     public static int sumUpArray(int[] array) {
         if (array == null) {
             return 0;

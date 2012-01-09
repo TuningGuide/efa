@@ -13,6 +13,7 @@ package de.nmichael.efa.cli;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.EfaUtil;
 import java.util.Stack;
+import java.util.Vector;
 
 public abstract class MenuBase {
 
@@ -27,7 +28,7 @@ public abstract class MenuBase {
     }
 
     public void printUsage(String cmd, String args, String description) {
-        cli.loginfo(EfaUtil.getString(cmd, 12) + " " + EfaUtil.getString(args, 20) + " " + description);
+        cli.loginfo(EfaUtil.getString(cmd, 12) + " " + EfaUtil.getString(args, 35) + " " + description);
     }
 
     public void printHelpHeader(String menu) {
@@ -49,23 +50,30 @@ public abstract class MenuBase {
         printHelpCommon();
     }
 
-    public boolean runCommand(Stack<String> menuStack, String cmd, String args) {
+    protected Vector<String> getCommandOptions(String args) {
+        if (args == null || args.length() == 0) {
+            return null;
+        }
+        return EfaUtil.split(args, ' ');
+    }
+
+    public int runCommand(Stack<String> menuStack, String cmd, String args) {
         if (cmd == null || cmd.length() == 0) {
-            return true;
+            return CLI.RC_OK;
         }
         if (cmd.equalsIgnoreCase(CMD_HELP)) {
             printHelp(menuStack.peek());
-            return true;
+            return CLI.RC_OK;
         }
         if (cmd.equalsIgnoreCase(CMD_EXIT)) {
             menuStack.pop();
-            return true;
+            return CLI.RC_OK;
         }
         if (cmd.equalsIgnoreCase(CMD_QUIT)) {
-            cli.quit();
-            return true;
+            cli.quit(CLI.RC_OK);
+            return CLI.RC_OK;
         }
-        return false;
+        return -1; // to be handled by subclass
     }
 
 }

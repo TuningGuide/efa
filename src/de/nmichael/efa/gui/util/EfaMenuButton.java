@@ -152,7 +152,7 @@ public class EfaMenuButton {
             v.add(new EfaMenuButton(MENU_FILE, SEPARATOR,
                     null, null, null));
         }
-        if (admin == null || admin.isAllowedBackup()) {
+        if (admin == null || admin.isAllowedCreateBackup()) {
             v.add(new EfaMenuButton(MENU_FILE, BUTTON_BACKUP,
                     International.getStringWithMnemonic("Datei"),
                     International.getStringWithMnemonic("Backups"),
@@ -395,12 +395,8 @@ public class EfaMenuButton {
         }
 
         if (action.equals(BUTTON_BACKUP)) {
-            if (admin == null || (!admin.isAllowedBackup())) {
+            if (admin == null || (!admin.isAllowedCreateBackup())) {
                 insufficientRights(admin, action);
-                return false;
-            }
-            if (Daten.project == null) {
-                Dialog.error(International.getString("Kein Projekt geöffnet."));
                 return false;
             }
             BackupDialog dlg = (parentFrame != null ?
@@ -414,7 +410,35 @@ public class EfaMenuButton {
                 insufficientRights(admin, action);
                 return false;
             }
-            OnlineUpdate.runOnlineUpdate(parentDialog, Daten.ONLINEUPDATE_INFO);
+
+            boolean remoteEfa = false;
+            if (Daten.project != null && Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+                switch (Dialog.auswahlDialog(International.getString("Online-Update"),
+                        International.getString("Lokales oder entferntes efa aktualisieren?"),
+                        International.getString("Lokal"),
+                        International.getString("Remote"), true)) {
+                    case 0:
+                        break;
+                    case 1:
+                        remoteEfa = true;
+                        break;
+                    default:
+                        return false;
+                }
+            }
+
+            if (remoteEfa) {
+                RemoteCommand cmd = new RemoteCommand(Daten.project);
+                boolean result = cmd.onlineUpdate();
+                if (result) {
+                    Dialog.infoDialog(International.getString("Operation erfolgreich."));
+                } else {
+                    Dialog.error(International.getString("Operation fehlgeschlagen."));
+                }
+            } else {
+                OnlineUpdate.runOnlineUpdate(parentDialog, Daten.ONLINEUPDATE_INFO);
+            }
+            return false; // nothing to do for caller of this method
         }
 
         if (action.equals(BUTTON_OSCOMMAND)) {

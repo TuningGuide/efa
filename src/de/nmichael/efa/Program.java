@@ -155,7 +155,7 @@ public class Program {
                     + "bin" + Daten.fileSep + "java "
                     + (Daten.efa_java_arguments != null ? Daten.efa_java_arguments
                     : "-cp " + System.getProperty("java.class.path")
-                    + " " + Daten.EFADIREKT_MAINCLASS + de.nmichael.efa.direkt.Main.STARTARGS);
+                    + " " + Daten.EFADIREKT_MAINCLASS + de.nmichael.efa.boathouse.Main.STARTARGS);
             Logger.log(Logger.INFO, Logger.MSG_EVT_EFARESTART,
                     International.getMessage("Neustart mit Kommando: {cmd}", restartcmd));
             try {

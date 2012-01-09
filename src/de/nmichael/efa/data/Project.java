@@ -46,18 +46,21 @@ public class Project extends StorageObject {
     protected IDataAccess remoteDataAccess; // used for ClubRecord and LogbookRecord, if TYPE_EFA_REMOTE
     private volatile boolean _inOpeningProject = false;
     private volatile boolean _inDeleteProject = false;
+    private boolean isRemoteOpen = false;
 
     // Note: storageType and storageLocation are only type and location for the project file itself
     // (which is always being stored in the file system). The storageType and storageLocation for
     // the project's content may differ.
     public Project(int storageType, String storageLocation, String storageObjectName) {
-        super(storageType, storageLocation, null, null, storageObjectName, DATATYPE, International.getString("Projekt"));
+        super(storageType, storageLocation, null, null, storageObjectName, DATATYPE, 
+                International.getString("Projekt") + " " + storageObjectName);
         ProjectRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
 
     public Project(String projectName) {
-        super(IDataAccess.TYPE_FILE_XML, Daten.efaDataDirectory, null, null, projectName, DATATYPE, International.getString("Projekt"));
+        super(IDataAccess.TYPE_FILE_XML, Daten.efaDataDirectory, null, null, projectName, DATATYPE, 
+                International.getString("Projekt") + " " + projectName);
         ProjectRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
@@ -69,6 +72,7 @@ public class Project extends StorageObject {
     public static boolean openProject(Project p, String projectName) {
         try {
             p._inOpeningProject = true;
+            p.isRemoteOpen = false;
             p.open(false);
             Daten.project = p;
             p.openAllData();
@@ -84,7 +88,7 @@ public class Project extends StorageObject {
                 // to make the login happen. It's important to chose a record which is a remote
                 // record, i.e. *not* the project record itself. Therefore we select the config
                 // record.
-                p.getConfigRecord();
+                p.isRemoteOpen = (p.getConfigRecord() != null);
             }
             p._inOpeningProject = false;
         } catch (Exception ee) {
@@ -94,6 +98,10 @@ public class Project extends StorageObject {
             return false;
         }
         return true;
+    }
+
+    public boolean isRemoteOpen() {
+        return isRemoteOpen;
     }
 
     public boolean openAllData() {
@@ -322,6 +330,7 @@ public class Project extends StorageObject {
                 getMyDataAccess(ProjectRecord.TYPE_PROJECT).add(r);
             } catch(Exception e) {
                 Logger.log(e);
+                r = null;
             }
         }
         return r;
@@ -336,6 +345,7 @@ public class Project extends StorageObject {
                 getMyDataAccess(ProjectRecord.TYPE_CLUB).add(r);
             } catch(Exception e) {
                 Logger.logdebug(e); // happens for remote projects which aren't yet open
+                r = null;
             }
         }
         return r;
@@ -354,6 +364,7 @@ public class Project extends StorageObject {
                 getMyDataAccess(ProjectRecord.TYPE_CONFIG).add(r);
             } catch(Exception e) {
                 Logger.logdebug(e); // happens for remote projects which aren't yet open
+                r = null;
             }
         }
         return r;
@@ -395,7 +406,8 @@ public class Project extends StorageObject {
         return getPersistence(c, storageObjectName, storageObjectType, createNewIfDoesntExist, description, false);
     }
 
-    private StorageObject getPersistence(Class c, String storageObjectName, String storageObjectType, boolean createNewIfDoesntExist, String description, boolean silent) {
+    private StorageObject getPersistence(Class c, String storageObjectName, String storageObjectType,
+            boolean createNewIfDoesntExist, String description, boolean silent) {
         if (_inDeleteProject) {
             return null;
         }
@@ -493,6 +505,24 @@ public class Project extends StorageObject {
             return null;
         }
         return p;
+    }
+
+    public IDataAccess getStorageObjectDataAccess(String storageObjectName, String storageObjectType,
+            boolean createNewIfDoesntExist) {
+        if (storageObjectType.equals(DATATYPE) &&
+            storageObjectName.equals(data().getStorageObjectName())) {
+            if (getProjectStorageType() != IDataAccess.TYPE_EFA_REMOTE) {
+                return this.dataAccess;
+            } else {
+                return this.remoteDataAccess;
+            }
+        }
+        StorageObject so = getPersistence(null, storageObjectName, storageObjectType,
+                createNewIfDoesntExist, storageObjectName + "." + storageObjectType, true);
+        if (so != null) {
+            return so.data();
+        }
+        return null;
     }
 
     public StorageObject getStorageObject(String storageObjectName, String storageObjectType, boolean createNewIfDoesntExist) {

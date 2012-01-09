@@ -11,36 +11,40 @@ package de.nmichael.efa.cli;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.Backup;
+import de.nmichael.efa.core.BackupMetaData;
+import de.nmichael.efa.core.BackupMetaDataItem;
 import de.nmichael.efa.util.EfaUtil;
+import java.io.File;
 import java.util.Stack;
 import java.util.Vector;
 
 public class MenuBackup extends MenuBase {
 
-    public static final String CMD_BACKUP = "create";
+    public static final String CMD_BACKUP  = "create";
+    public static final String CMD_RESTORE = "restore";
+    public static final String CMD_SHOW    = "show";
 
     public MenuBackup(CLI cli) {
         super(cli);
     }
 
     public void printHelpContext() {
-        printUsage(CMD_BACKUP, "[project|config|all] [directory]", "create backup");
+        printUsage(CMD_BACKUP,  "[project|config|all] [directory/file]", "create backup");
+        printUsage(CMD_RESTORE, "[zipfile] [objects...]", "restore backup");
+        printUsage(CMD_SHOW,    "[zipfile]", "show archive content");
     }
 
-    private void backup(String args) {
-        if (args == null || args.length() == 0) {
-            printHelpContext();
-            return;
-        }
-        Vector<String> options = EfaUtil.split(args, ' ');
+    private int backup(String args) {
+        Vector<String> options = super.getCommandOptions(args);
         if (options == null || options.size() < 1 || options.size() > 2) {
             printHelpContext();
-            return;
+            return CLI.RC_INVALID_COMMAND;
         }
         
         boolean backupProject = false;
         boolean backupConfig = false;
         String backupDir = Daten.efaBakDirectory;
+        String backupFile = null;
         for (int i=0; i<options.size(); i++) {
             String opt = options.get(i).trim();
             switch(i) {
@@ -57,28 +61,110 @@ public class MenuBackup extends MenuBase {
                     }
                     break;
                 case 1:
-                    backupDir = opt;
+                    File f = new File(opt);
+                    if (f.isDirectory()) {
+                        backupDir = opt;
+                    } else {
+                        backupDir = EfaUtil.getPathOfFile(opt);
+                        backupFile = EfaUtil.getNameOfFile(opt);
+                    }
+                    if (backupDir == null || backupDir.length() == 0) {
+                        backupDir = Daten.efaBakDirectory;
+                    }
+                    if (backupFile != null && backupFile.length() == 0) {
+                        backupFile = null;
+                    }
+                    
                     break;
             }
         }
         if (!backupProject && !backupConfig) {
             printHelpContext();
-            return;
+            return CLI.RC_INVALID_COMMAND;
         }
 
-        Backup backup = new Backup(backupDir, backupProject, backupConfig);
-        backup.runBackup(null);
+        Backup backup = new Backup(backupDir, backupFile, backupProject, backupConfig);
+        int ret = backup.runBackup(null);
+        if (ret > 0) {
+            return CLI.RC_COMMAND_COMPLETED_WITH_ERRORS;
+        }
+        if (ret < 0) {
+            return CLI.RC_COMMAND_FAILED;
+        }
+        return CLI.RC_OK;
     }
 
-    public boolean runCommand(Stack<String> menuStack, String cmd, String args) {
-        if (!super.runCommand(menuStack, cmd, args)) {
+    private int restore(String args) {
+        Vector<String> options = super.getCommandOptions(args);
+        if (options == null || options.size() < 1) {
+            printHelpContext();
+            return CLI.RC_INVALID_COMMAND;
+        }
+
+        String zipFile = options.get(0);
+        String[] restoreObjects = (options.size() > 1 ? new String[options.size() - 1] : null);
+        for (int i=0; restoreObjects != null && i<restoreObjects.length; i++) {
+            restoreObjects[i] = options.get(i+1);
+        }
+
+        Backup backup = new Backup(zipFile, restoreObjects);
+        int ret = backup.runRestore(null);
+        if (ret > 0) {
+            return CLI.RC_COMMAND_COMPLETED_WITH_ERRORS;
+        }
+        if (ret < 0) {
+            return CLI.RC_COMMAND_FAILED;
+        }
+        return CLI.RC_OK;
+    }
+
+    private int show(String args) {
+        Vector<String> options = super.getCommandOptions(args);
+        if (options == null || options.size() != 1) {
+            printHelpContext();
+            return CLI.RC_INVALID_COMMAND;
+        }
+
+        String zipFile = options.get(0);
+
+        BackupMetaData metaData = new BackupMetaData(null);
+        if (!metaData.read(zipFile)) {
+            return CLI.RC_COMMAND_FAILED;
+        }
+
+        cli.loginfo("Archive      : " + zipFile);
+        if (metaData.getProjectName() != null) {
+            cli.loginfo("Project      : " + metaData.getProjectName());
+        }
+        cli.loginfo("Creation Date: " + EfaUtil.getTimeStamp(metaData.getTimeStamp()));
+        cli.loginfo("Object                                  Description                          SCN   Records");
+        cli.loginfo("------------------------------------------------------------------------------------------");
+        for (int i=0; i<metaData.size(); i++) {
+            BackupMetaDataItem meta = metaData.getItem(i);
+            cli.loginfo(EfaUtil.getString(meta.getNameAndType(), 40) +
+                        EfaUtil.getString(meta.getDescription(), 30) +
+                        EfaUtil.getRightBoundNumber(meta.getScn(), 10) +
+                        EfaUtil.getRightBoundNumber(meta.getNumberOfRecords(), 10) );
+        }
+
+        return CLI.RC_OK;
+    }
+
+    public int runCommand(Stack<String> menuStack, String cmd, String args) {
+        int ret = super.runCommand(menuStack, cmd, args);
+        if (ret < 0) {
             if (cmd.equalsIgnoreCase(CMD_BACKUP)) {
-                backup(args);
-                return true;
+                return backup(args);
             }
-            return false;
+            if (cmd.equalsIgnoreCase(CMD_RESTORE)) {
+                return restore(args);
+            }
+            if (cmd.equalsIgnoreCase(CMD_SHOW)) {
+                return show(args);
+            }
+            return CLI.RC_UNKNOWN_COMMAND;
         } else {
-            return true;
+            return ret;
         }
     }
 }

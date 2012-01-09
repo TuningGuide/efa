@@ -422,6 +422,7 @@ public class BrowserDialog extends BaseDialog {
 
     void setPage(String url) {
         try {
+            url = EfaUtil.correctUrl(url);
             html.setPage(url);
             this.url = url;
             updateSslLabel(url);
@@ -471,7 +472,7 @@ public class BrowserDialog extends BaseDialog {
         if (current.prev != null) {
             if (nopage) {
                 try {
-                    html.setPage("file:" + HtmlFactory.createReload());
+                    html.setPage(EfaUtil.correctUrl("file:" + HtmlFactory.createReload()));
                 } catch (IOException ee) {
                 }
             }
@@ -490,7 +491,7 @@ public class BrowserDialog extends BaseDialog {
     void reloadButton_actionPerformed(ActionEvent e) {
         String pageShowing = url.trim();
         try {
-            html.setPage("file:" + HtmlFactory.createReload());
+            html.setPage(EfaUtil.correctUrl("file:" + HtmlFactory.createReload()));
         } catch (IOException ee) {
         }
         setPage(pageShowing);

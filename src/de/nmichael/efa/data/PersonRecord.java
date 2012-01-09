@@ -516,12 +516,16 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         Vector<IItemType> v = new Vector<IItemType>();
         v.add(item = new ItemTypeString(PersonRecord.FIRSTNAME, getFirstName(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Vorname")));
+        ((ItemTypeString)item).setNotAllowedCharacters(",");
         v.add(item = new ItemTypeString(PersonRecord.LASTNAME, getLastName(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Nachname")));
+        ((ItemTypeString)item).setNotAllowedCharacters(",");
         v.add(item = new ItemTypeString(PersonRecord.NAMEAFFIX, getNameAffix(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Namenszusatz")));
+        ((ItemTypeString)item).setNotAllowedCharacters(",");
         v.add(item = new ItemTypeString(PersonRecord.TITLE, getTitle(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Titel")));
+        ((ItemTypeString)item).setNotAllowedCharacters(",");
         v.add(item = new ItemTypeStringList(PersonRecord.GENDER, getGender(),
                 EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Geschlecht")));

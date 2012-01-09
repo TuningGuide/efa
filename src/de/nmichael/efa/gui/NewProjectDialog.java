@@ -120,10 +120,8 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
                 return false;
             }
             if (item.getValue().equals(IDataAccess.TYPESTRING_EFA_REMOTE)) {
-                Dialog.error(International.getMessage("Die ausgewählte Option '{option}' ist zur Zeit experimentell und nur bedingt funktionsfähig.",
+                Dialog.infoDialog(International.getMessage("Die ausgewählte Option '{option}' ist zur Zeit experimentell und nur bedingt funktionsfähig.",
                         item.getValue()));
-                item.requestFocus();
-                return false;
             }
 
             // remove all StorageType-specific config options

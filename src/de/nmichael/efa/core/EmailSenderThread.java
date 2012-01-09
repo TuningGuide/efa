@@ -175,7 +175,8 @@ public class EmailSenderThread extends Thread {
             try {
                 if (Daten.efaConfig != null && Daten.project != null && Daten.admins != null &&
                     Daten.efaConfig.isOpen() && Daten.project.isOpen() && Daten.admins.isOpen() &&
-                    !Daten.project.isInOpeningProject()) {
+                    !Daten.project.isInOpeningProject() &&
+                    Daten.project.getProjectStorageType() != IDataAccess.TYPE_EFA_REMOTE) {
 
                     updateMailProperties();
                     updateAdminEmailAddresses();

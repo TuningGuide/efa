@@ -36,4 +36,11 @@ public class RemoteCommand extends RemoteEfaClient {
         return success;
     }
 
+    public boolean onlineUpdate() {
+        RemoteEfaMessage request = RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
+                RemoteEfaMessage.OPERATION_CMD_ONLINEUPDATE);
+        boolean success = runSimpleRequest(request) == RemoteEfaMessage.RESULT_OK;
+        return success;
+    }
+
 }

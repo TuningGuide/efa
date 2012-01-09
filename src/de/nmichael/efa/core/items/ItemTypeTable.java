@@ -167,6 +167,25 @@ public class ItemTypeTable extends ItemType implements ActionListener {
         table.scrollRectToVisible(table.getCellRect(i, 0, true));
     }
 
+    public void selectAll() {
+        table.selectAll();
+    }
+
+    public String[] getSelectedKeys() {
+        if (table == null) {
+            return null;
+        }
+        int[] rows = table.getSelectedRows();
+        if (rows == null) {
+            return null;
+        }
+        String[] keys = new String[rows.length];
+        for (int i=0; i<rows.length; i++) {
+            keys[i] = this.keys[rows[i]];
+        }
+        return keys;
+    }
+
     public void selectValue(String value) {
         for (int i = 0; keys != null && value != null && i < keys.length; i++) {
             if (value.equals(keys[i])) {

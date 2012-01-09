@@ -37,14 +37,14 @@ public class Daten {
     public static String EFA_LONGNAME = "efa - elektronisches Fahrtenbuch"; // dummy, will be set in International.ininitalize()
     public static String EFA_ONLINE = "efa Online";                       // dummy, will be set in International.ininitalize()
     public final static String VERSION = "v2.0_beta"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID = "1.9.9_03";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-    public final static String VERSIONRELEASEDATE = "02.01.2012";  // Release Date: TT.MM.JJJJ
+    public final static String VERSIONID = "1.9.9_11";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "08.01.2012";  // Release Date: TT.MM.JJJJ
     public final static String PROGRAMMID = "EFA.199"; // Versions-ID für Wettbewerbsmeldungen
     public final static String PROGRAMMID_DRV = "EFADRV.199"; // Versions-ID für Wettbewerbsmeldungen
     public final static String COPYRIGHTYEAR = "12";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
     public final static String EFA_JAVA_ARGUMENTS = "EFA_JAVA_ARGUMENTS"; // Environment Variable Name containing all arguments passed to the "java" command
     public static String efa_java_arguments = null;                 // Environment Variable Contents containing all arguments passed to the "java" command
-    public final static String EFADIREKT_MAINCLASS = de.nmichael.efa.direkt.Main.class.getCanonicalName();
+    public final static String EFADIREKT_MAINCLASS = de.nmichael.efa.boathouse.Main.class.getCanonicalName();
     public final static String EFAURL = "http://efa.nmichael.de";
     public final static String EFASUPPORTURL = "http://efa.nmichael.de/help";
     public final static String EFADEVURL = "http://kenai.com/projects/efa";
@@ -62,7 +62,11 @@ public class Daten {
     public static final String EFATYPESFILE = "types.cfg";               // <efauser>/cfg/types.cfg          Konfiguration für EfaTypes (Bezeichnungen)
     public static final String WETTFILE = "wett.cfg";                    // <efauser>/cfg/wett.cfg           Konfiguration für Wettbewerbe
     public static final String WETTDEFS = "wettdefs.cfg";                // <efauser>/cfg/wettdefs.cfg       Wettbewerbs-Definitionen
-    public static final String EFACLICREDENTIALS = ".efa_cred";          // <userHomeDir>.efa_cred           Credentials for CLI Remote Access
+
+    public static final String EFALIVE_VERSIONFILE = "/etc/efalive_version"; // file containing efaLive version
+    public static       String EFALIVE_VERSION = null;                   // efaLive Version Number
+    public static final String EFACREDENVVAR = "EFA_CRED";               // Environment Variable specifying the Credentials File Name
+    public static       String EFACREDFILE = ".efacred";                 // <userHomeDir>.efacred             Credentials for CLI Remote Access
 
     public static final String EFA_LICENSE = "license.html";             // <efa>/doc/license.html
     public static final String EFA_JAR = "efa.jar";                      // <efa>/program/efa.jar
@@ -287,7 +291,9 @@ public class Daten {
 
         if (exitCode != 0) {
             if (exitCode < 99) {
-                Logger.log(Logger.INFO, Logger.MSG_CORE_HALT, getCurrentStack());
+                if (Daten.applID != Daten.APPL_CLI) {
+                    Logger.log(Logger.INFO, Logger.MSG_CORE_HALT, getCurrentStack());
+                }
                 Logger.log(Logger.ERROR, Logger.MSG_CORE_HALT,
                         International.getString("PROGRAMMENDE") + " (Error Code " + exitCode + ")");
             } else {
@@ -462,6 +468,8 @@ public class Daten {
     }
 
     private static void iniEnvironmentSettings() {
+        String s;
+
         try {
             if (applID == APPL_EFABH) {
                 Daten.efa_java_arguments = System.getenv(Daten.EFA_JAVA_ARGUMENTS);
@@ -473,6 +481,31 @@ public class Daten {
         } catch (Error e) {
             Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTGETEFAJAVAARGS,
                     "Cannot get Environment Variable " + Daten.EFA_JAVA_ARGUMENTS + ": " + e.toString());
+        }
+
+        try {
+            s = System.getenv(EFACREDENVVAR);
+            if (s != null && s.length() > 0) {
+                EFACREDFILE = s;
+            } else {
+                EFACREDFILE = Daten.userHomeDir + EFACREDFILE;
+            }
+        } catch (Exception e) {
+            Logger.logdebug(e);
+        }
+
+        try {
+            if ((new File(EFALIVE_VERSIONFILE).exists())) {
+                EFALIVE_VERSION = "";
+                BufferedReader f = new BufferedReader(new FileReader(EFALIVE_VERSION));
+                s = f.readLine();
+                if (s != null) {
+                    EFALIVE_VERSION = s.trim();
+                }
+                f.close();
+            }
+        } catch (Exception e) {
+            Logger.logdebug(e);
         }
     }
 
@@ -556,6 +589,8 @@ public class Daten {
             EfaSec.createNewSecFile(Daten.efaBaseConfig.efaUserDirectory + Daten.EFA_SECFILE, Daten.efaProgramDirectory + Daten.EFA_JAR);
         }
         efaSec = new EfaSec(Daten.efaBaseConfig.efaUserDirectory + Daten.EFA_SECFILE);
+        // in efa2 we don't care whether the file is corrupt, just whether it's there
+        /*
         if (efaSec.secFileExists() && !efaSec.secValueValid()) {
             String msg = International.getString("Die Sicherheitsdatei ist korrupt!") + "\n"
                     + International.getString("Aus Gründen der Sicherheit verweigert efa den Dienst. "
@@ -566,6 +601,7 @@ public class Daten {
             }
             haltProgram(HALT_EFASEC);
         }
+        */
     }
 
     // returns true if we need to create a new super admin (and are allowed to do so)
@@ -695,7 +731,7 @@ public class Daten {
 
     public static void iniEfaConfig(CustSettings custSettings) {
         if (applID != APPL_DRV) {
-            /* @efaconfig
+            /* @todo (P9) DRV efaconfig initialization
             Daten.efaConfig = new EfaConfig(Daten.efaCfgDirectory + Daten.CONFIGFILE, custSettings);
             if (!EfaUtil.canOpenFile(Daten.efaConfig.getFileName())) {
             if (!Daten.efaConfig.writeFile()) {

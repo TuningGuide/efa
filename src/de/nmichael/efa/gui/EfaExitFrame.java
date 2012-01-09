@@ -16,7 +16,6 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.core.items.*;
-import de.nmichael.efa.direkt.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.data.storage.*;

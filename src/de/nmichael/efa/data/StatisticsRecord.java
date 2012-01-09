@@ -2024,7 +2024,11 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         }
 
         sOutputType = getOutputTypeEnum();
-        sOutputFile = getOutputFile();
+        if (sOutputType == OutputTypes.internal) {
+            sOutputFile = Daten.efaTmpDirectory + "output.html";
+        } else {
+            sOutputFile = getOutputFile();
+        }
         sOutputDir = (new File(sOutputFile)).getAbsolutePath();
         sOutputEncoding = getOutputEncoding();
         sOutputHtmlUpdateTable = getOutputHtmlUpdateTable();

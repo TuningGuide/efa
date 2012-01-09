@@ -113,19 +113,20 @@ public class MenuData extends MenuBase {
         }
     }
 
-    public boolean runCommand(Stack<String> menuStack, String cmd, String args) {
-        if (!super.runCommand(menuStack, cmd, args)) {
+    public int runCommand(Stack<String> menuStack, String cmd, String args) {
+        int ret = super.runCommand(menuStack, cmd, args);
+        if (ret < 0) {
             if (cmd.equalsIgnoreCase(CMD_LIST)) {
                 list(args);
-                return true;
+                return CLI.RC_OK;
             }
             if (cmd.equalsIgnoreCase(CMD_SHOW)) {
                 show(args);
-                return true;
+                return CLI.RC_OK;
             }
-            return false;
+            return CLI.RC_UNKNOWN_COMMAND;
         } else {
-            return true;
+            return ret;
         }
     }
 

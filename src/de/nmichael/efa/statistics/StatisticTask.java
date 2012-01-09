@@ -871,6 +871,20 @@ public class StatisticTask extends ProgressTask {
 
     public void run() {
         setRunning(true);
+        try {
+            // if we finish creating the statistics before progressDialog.showDialog()
+            // in createStatistics() has completed, and at the end of creating the statistic
+            // we open a new window (like a Browser for the internal statistics), then
+            // the ProgressDialog will end up on top of the Window stack above the Browser.
+            // When the browser is then closed, it's not top of stack, and efa's WindowStack
+            // check will notice that. It's not really bad when that happens, but it's better
+            // to avoid this as it will result in a warning.
+            // In the time I have written this explanation, I might have coded a better and
+            // safer solution, but it's been a long day and I'm tired, so sleeping half a
+            // second must do.
+            Thread.sleep(500);
+        } catch(Exception eignore) {
+        }
         for (int i=0; i<statisticsRecords.length; i++) {
             createStatistic(statisticsRecords[i], i);
             setCurrentWorkDone((i+1) * WORK_PER_STATISTIC);

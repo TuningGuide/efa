@@ -28,12 +28,13 @@ public class MenuMain extends MenuBase {
         printUsage(CLI.MENU_BACKUP      , "", "create backups");
     }
     
-    public boolean runCommand(Stack<String> menuStack, String cmd, String args) {
-        if (!super.runCommand(menuStack, cmd, args)) {
+    public int runCommand(Stack<String> menuStack, String cmd, String args) {
+        int ret = super.runCommand(menuStack, cmd, args);
+        if (ret < 0) {
             if (cmd.equalsIgnoreCase(CLI.MENU_BOATS)) {
                 if (!cli.getAdminRecord().isAllowedEditBoats()) {
                     cli.logerr("You don't have permission to access this function.");
-                    return false;
+                    return CLI.RC_NO_PERMISSION;
                 }
                 menuStack.push(CLI.MENU_BOATS);
                 return runCommandWithArgs(args);
@@ -41,7 +42,7 @@ public class MenuMain extends MenuBase {
             if (cmd.equalsIgnoreCase(CLI.MENU_PERSONS)) {
                 if (!cli.getAdminRecord().isAllowedEditPersons()) {
                     cli.logerr("You don't have permission to access this function.");
-                    return false;
+                    return CLI.RC_NO_PERMISSION;
                 }
                 menuStack.push(CLI.MENU_PERSONS);
                 return runCommandWithArgs(args);
@@ -49,34 +50,35 @@ public class MenuMain extends MenuBase {
             if (cmd.equalsIgnoreCase(CLI.MENU_DESTINATIONS)) {
                 if (!cli.getAdminRecord().isAllowedEditDestinations()) {
                     cli.logerr("You don't have permission to access this function.");
-                    return false;
+                    return CLI.RC_NO_PERMISSION;
                 }
                 menuStack.push(CLI.MENU_DESTINATIONS);
                 return runCommandWithArgs(args);
             }
             if (cmd.equalsIgnoreCase(CLI.MENU_BACKUP)) {
-                if (!cli.getAdminRecord().isAllowedBackup()) {
+                if (!cli.getAdminRecord().isAllowedCreateBackup()) {
                     cli.logerr("You don't have permission to access this function.");
-                    return false;
+                    return CLI.RC_NO_PERMISSION;
                 }
                 menuStack.push(CLI.MENU_BACKUP);
                 return runCommandWithArgs(args);
             }
-            return false;
+            return CLI.RC_UNKNOWN_COMMAND;
         } else {
-            return true;
+            return CLI.RC_OK;
         }
     }
 
-    private boolean runCommandWithArgs(String args) {
+    private int runCommandWithArgs(String args) {
         if (args == null || args.length() == 0) {
-            return true;
+            return CLI.RC_OK;
         }
-        if (cli.runCommandInCurrentMenu(args)) {
-            cli.runCommandInCurrentMenu(CMD_EXIT); // up one menu again
-            return true;
-        }
-        return false;
+        int ret = cli.runCommandInCurrentMenu(args);
+        //if (cli.runCommandInCurrentMenu(args)) {
+        //    cli.runCommandInCurrentMenu(CMD_EXIT); // up one menu again
+        //    return true;
+        //}
+        return ret;
     }
 
 }

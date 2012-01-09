@@ -11,12 +11,11 @@
 package de.nmichael.efa.data.storage;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.BackupMetaDataItem;
 import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.util.LogString;
 import de.nmichael.efa.util.Logger;
-import java.io.BufferedWriter;
 import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -309,7 +308,7 @@ public abstract class DataAccess implements IDataAccess {
         }
     }
 
-    public String saveToZipFile(String dir, ZipOutputStream zipOut) throws EfaException {
+    public BackupMetaDataItem saveToZipFile(String dir, ZipOutputStream zipOut) throws EfaException {
         if (!isStorageObjectOpen()) {
             throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed("ZIP Buffer", storageLocation, "Storage Object is not open"), Thread.currentThread().getStackTrace());
         }
@@ -318,10 +317,17 @@ public abstract class DataAccess implements IDataAccess {
         }
         String zipFileEntry = dir + getStorageObjectName() + "." + getStorageObjectType();
         long lock = -1;
+        BackupMetaDataItem metaData = null;
         try {
             ZipEntry entry = new ZipEntry(zipFileEntry);
             zipOut.putNextEntry(entry);
             lock = acquireGlobalLock();
+            metaData = new BackupMetaDataItem(getStorageObjectName(),
+                    getStorageObjectType(),
+                    zipFileEntry,
+                    getStorageObjectDescription(),
+                    getNumberOfRecords(),
+                    getSCN());
             XMLFile.writeFile(this, zipOut);
         } catch(Exception e) {
             throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed("ZIP Buffer", storageLocation, e.toString()), Thread.currentThread().getStackTrace());
@@ -330,6 +336,26 @@ public abstract class DataAccess implements IDataAccess {
                 releaseGlobalLock(lock);
             }
         }
-        return zipFileEntry;
+        return metaData;
+    }
+
+    // this method does NOT set the SCN to the value of the archive.
+    // the SCN is always incresing!!
+    public synchronized void copyFromDataAccess(IDataAccess source) throws EfaException {
+        truncateAllData();
+        try {
+            DataKeyIterator it = source.getStaticIterator();
+            DataKey k = it.getFirst();
+            inOpeningStorageObject = true; // don't update LastModified Timestamps, don't increment SCN, don't check assertions!
+            while (k != null) {
+                add(source.get(k));
+                k = it.getNext();
+            }
+        } catch (Exception e) {
+            throw new EfaException(Logger.MSG_DATA_COPYFROMDATAACCESSFAILED, getUID() + 
+                    ": Restore from DataAccess failed", Thread.currentThread().getStackTrace());
+        } finally {
+            inOpeningStorageObject = false;
+        }
     }
 }

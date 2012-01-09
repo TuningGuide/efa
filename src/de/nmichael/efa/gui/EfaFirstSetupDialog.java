@@ -32,8 +32,11 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
     static final String CUST_CANOEING        = "CUST_CANOEING";
     static final String CUST_CANOEINGGERMANY = "CUST_CANOEINGGERMANY";
 
+    static final String EFALIVE_CREATEADMIN  = "EFALIVE_CREATEADMIN";
+
     private boolean createSuperAdmin;
     private boolean efaCustomization;
+    private boolean efaLiveAdmin;
     private CustSettings custSettings = null;
     private AdminRecord newSuperAdmin = null;
 
@@ -41,6 +44,7 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
         super((JFrame)null, Daten.EFA_LONGNAME);
         this.createSuperAdmin = createSuperAdmin;
         this.efaCustomization = efaCustomization;
+        this.efaLiveAdmin = Daten.EFALIVE_VERSION != null && !Daten.admins.isEfaLiveAdminOk();
     }
 
     public void keyAction(ActionEvent evt) {
@@ -48,7 +52,17 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
     }
 
     private int getNumberOfSteps() {
-        return (createSuperAdmin && efaCustomization ? 3 : 2); // at least one of them is always activated, otherwise we wouldn't call this dialog
+        int stepCnt = 1;
+        if (createSuperAdmin) {
+            stepCnt++;
+        }
+        if (efaCustomization) {
+            stepCnt++;
+        }
+        if (efaLiveAdmin) {
+            stepCnt++;
+        }
+        return stepCnt;
     }
 
     private int getCreateSuperAdminStep() {
@@ -57,6 +71,10 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
 
     private int getEfaCustomizationStep() {
         return (efaCustomization ? (createSuperAdmin ? 2 : 1) : 99);
+    }
+
+    private int getEfaLiveAdminStep() {
+        return (efaLiveAdmin ? (efaCustomization ? (createSuperAdmin ? 3 : 2) : 1) : 99);
     }
 
     String[] getSteps() {
@@ -68,6 +86,9 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
         }
         if (efaCustomization) {
             steps[i++] = International.getString("Einstellungen");
+        }
+        if (efaLiveAdmin) {
+            steps[i++] = International.getString("efaLive");
         }
         return steps;
     }
@@ -84,6 +105,11 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
         if (step == getEfaCustomizationStep()) {
             return International.getString("Welche Funktionen von efa möchtest Du verwenden?") + "\n"
                  + International.getString("Du kannst diese Einstellungen jederzeit in der efa-Konfiguration ändern.");
+        }
+        if (step == getEfaLiveAdminStep()) {
+            return International.getString("Bestimmte Funktionen von efaLive (Erstellen oder Einspielen eines Backups) erfordern, daß efaLive Administrator-Zugriff auf efa hat.") + "\n"
+                 + International.getString("Möchtest Du jetzt einen Administrator für efaLive anlegen?") + " "
+                 + International.getString("Du kannst diesen Administrator jederzeit in der Verwaltung der Administratoren wieder löschen.");
         }
         return "";
     }
@@ -144,6 +170,11 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
                 International.getString("Kanufahren") + " " +
                 International.getMessage("in {region}",
                 International.getString("Deutschland"))));
+
+        // Items for Step 3 (EfaLiveAdmin)
+        items.add(item = new ItemTypeBoolean(EFALIVE_CREATEADMIN, true, IItemType.TYPE_PUBLIC,
+                Integer.toString(getEfaLiveAdminStep()),
+                International.getMessage("Admin '{name}' erstellen", Admins.EFALIVEADMIN)));
     }
 
     boolean checkInput(int direction) {
@@ -174,6 +205,11 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
             custSettings.activateBerlinRowingOptions = ((ItemTypeBoolean)getItemByName(CUST_ROWINGBERLIN)).getValue();
             custSettings.activateCanoeingOptions = ((ItemTypeBoolean)getItemByName(CUST_CANOEING)).getValue();
             custSettings.activateGermanCanoeingOptions = ((ItemTypeBoolean)getItemByName(CUST_CANOEINGGERMANY)).getValue();
+        }
+        if (efaLiveAdmin) {
+            if (((ItemTypeBoolean)getItemByName(EFALIVE_CREATEADMIN)).getValue()) {
+                Daten.admins.createOrFixEfaLiveAdmin();
+            }
         }
         setDialogResult(true);
         cancel();

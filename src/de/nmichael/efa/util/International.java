@@ -59,9 +59,9 @@ public class International {
             numberFormat = NumberFormat.getNumberInstance(locale);
             msgFormat = new MessageFormat("",locale);
             decimalSeparator = ((DecimalFormat)numberFormat).getDecimalFormatSymbols().getDecimalSeparator();
-            Daten.EFA_SHORTNAME = International.getString("efa");
-            Daten.EFA_LONGNAME = International.getString("efa - elektronisches Fahrtenbuch");
-            Daten.EFA_ONLINE = International.getString("efa Online");
+            Daten.EFA_SHORTNAME = "efa";
+            Daten.EFA_LONGNAME = Daten.EFA_SHORTNAME + " - " + International.getString("elektronisches Fahrtenbuch");
+            Daten.EFA_ONLINE = "efaOnline";
             EfaTypes.TEXT_UNKNOWN = International.getString("unbekannt");
         } catch(Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_INTERNATIONAL_FAILEDSETUP, "Failed to set up internationalization: "+e.toString()); // no need for translation

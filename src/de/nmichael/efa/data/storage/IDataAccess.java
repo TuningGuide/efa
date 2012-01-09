@@ -11,6 +11,7 @@
 package de.nmichael.efa.data.storage;
 
 import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.core.BackupMetaDataItem;
 import java.util.zip.ZipOutputStream;
 
 // @i18n complete
@@ -553,6 +554,14 @@ public interface IDataAccess {
      */
     public void truncateAllData() throws EfaException;
 
+    /**
+     * Truncates all records from this storage objects and copies the data from
+     * source, thus re-building this storage object from source' contents
+     * @param source
+     * @throws EfaException
+     */
+    public void copyFromDataAccess(IDataAccess source) throws EfaException;
+
     public String getTypeName(int type);
 
     public DataKey[] getAllKeys() throws EfaException;
@@ -572,6 +581,6 @@ public interface IDataAccess {
     public boolean isPreModifyRecordCallbackEnabled();
 
     public void saveToXmlFile(String filename) throws EfaException;
-    public String saveToZipFile(String dir, ZipOutputStream zipOut) throws EfaException;
+    public BackupMetaDataItem saveToZipFile(String dir, ZipOutputStream zipOut) throws EfaException;
 
 }

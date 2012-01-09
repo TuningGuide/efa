@@ -40,6 +40,10 @@ public class DataLock {
         return lockTime;
     }
 
+    public Thread getLockOwner() {
+        return lockOwner;
+    }
+
     public String toString() {
         String threadInfo;
         try {

@@ -8,38 +8,33 @@
  * @version 2
  */
 
-package de.nmichael.efa.core;
+package de.nmichael.efa.boathouse;
 
-import de.nmichael.efa.gui.*;
-import de.nmichael.efa.*;
-import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.data.*;
+import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.gui.*;
+import javax.swing.UIManager;
+import java.awt.*;
+import de.nmichael.efa.*;
+import java.io.*;
+import java.util.*;
 
 // @i18n complete
 public class Main extends Program {
 
-    private String project = null;
+    public static String STARTARGS = "";
 
+    //Construct the application
     public Main(String[] args) {
-        super(Daten.APPL_EFABASE, args);
-        AdminRecord admin = getNewlyCreatedAdminRecord();
+        super(Daten.APPL_EFABH, args);
 
-        if (project != null) {
-            Project.openProject(project);
-        }
-
-        EfaBaseFrame frame = new EfaBaseFrame(EfaBaseFrame.MODE_BASE);
-        if (admin != null) {
-            frame.setAdmin(admin);
-        }
-        frame.showMe();
+        EfaBoathouseFrame frame = new EfaBoathouseFrame();
+        frame.showFrame();
         Daten.iniSplashScreen(false);
     }
 
     public void printUsage(String wrongArgument) {
         super.printUsage(wrongArgument);
-        printOption("-open <project>", International.getString("Projekt <project> öffnen"));
         System.exit(0);
     }
 
@@ -49,18 +44,15 @@ public class Main extends Program {
             if (args[i] == null) {
                 continue; // argument already handled by super class
             }
-            if (args[i].equals("-open") && i + 1 < args.length) {
-                args[i] = null;
-                project = args[++i];
-                args[i] = null;
-                continue;
-            }
         }
         checkRemainingArgs(args);
     }
 
+    //Main method
     public static void main(String[] args) {
+        for (int i = 0; i < args.length; i++) {
+            STARTARGS += " " + args[i];
+        }
         new Main(args);
     }
-
 }

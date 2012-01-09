@@ -30,7 +30,8 @@ public class Logbook extends StorageObject {
             String storageUsername,
             String storagePassword,
             String storageObjectName) {
-        super(storageType, storageLocation, storageUsername, storagePassword, storageObjectName, DATATYPE, International.getString("Fahrtenbuch"));
+        super(storageType, storageLocation, storageUsername, storagePassword, storageObjectName, DATATYPE, 
+                International.getString("Fahrtenbuch") + " " + storageObjectName);
         LogbookRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }

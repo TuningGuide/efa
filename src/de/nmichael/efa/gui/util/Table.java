@@ -109,6 +109,10 @@ public class Table extends JTable {
         return rows;
     }
 
+    public TableItem getTableItem(int row, int col) {
+        return data[row][col];
+    }
+
     private void cancel() {
         if (dlg != null) {
             dlg.cancel();

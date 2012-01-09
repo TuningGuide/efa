@@ -102,9 +102,7 @@ public class HTMLWidget extends Widget {
                 try {
                     try {
                         if (url != null && url.length() > 0) {
-                            if (url.indexOf("://") < 0) {
-                                url = "file://" + url;
-                            }
+                            url = EfaUtil.correctUrl(url);
                             htmlPane.setPage(url);
                         }
                     } catch (IOException ee) {

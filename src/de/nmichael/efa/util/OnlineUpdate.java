@@ -12,6 +12,7 @@ package de.nmichael.efa.util;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.Backup;
+import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.gui.OnlineUpdateDialog;
 import java.awt.Window;
 import java.io.File;
@@ -22,11 +23,15 @@ import org.xml.sax.XMLReader;
 
 public class OnlineUpdate {
 
-    public static boolean runOnlineUpdate(JDialog parent, String eouFile) {
+    private static String lastError;
+
+    public synchronized static boolean runOnlineUpdate(JDialog parent, String eouFile) {
         Vector<OnlineUpdateInfo> versions = null;
+        lastError = null;
 
         // Online Update
-        if (!Dialog.okAbbrDialog(International.getString("Online-Update"),
+        if (parent != null &&
+            !Dialog.okAbbrDialog(International.getString("Online-Update"),
                 International.getString("Prüfen auf neue Programmversion") + "\n\n" +
                 International.getString("Bitte stelle eine Verbindung zum Internet her und klicke OK."))) {
             return false;
@@ -35,6 +40,7 @@ public class OnlineUpdate {
         // aktuelle Versionsnummer aus dem Internet besorgen
         String versionFile = Daten.efaTmpDirectory + "eou.xml";
         if (!DownloadThread.getFile(parent, eouFile, versionFile, true)) {
+            lastError = International.getString("Keine neue Version gefunden!");
             return false;
         }
 
@@ -45,13 +51,19 @@ public class OnlineUpdate {
             parser.parse(versionFile);
             versions = ou.getVersions();
         } catch (Exception ee) {
-            Dialog.error(International.getString("Keine neue Version gefunden!")
-                    + "\n" + ee.getMessage());
+            lastError = International.getString("Keine neue Version gefunden!")
+                        + "\n" + ee.getMessage();
+            if (parent != null) {
+                Dialog.error(lastError);
+            }
             EfaUtil.deleteFile(versionFile);
             return false;
         }
         if (versions == null || versions.size() == 0) {
-            Dialog.error(International.getString("Keine neue Version gefunden!"));
+            lastError = International.getString("Keine neue Version gefunden!");
+            if (parent != null) {
+                Dialog.error(lastError);
+            }
             EfaUtil.deleteFile(versionFile);
             return false;
         }
@@ -64,11 +76,15 @@ public class OnlineUpdate {
         OnlineUpdateInfo newestVersion = versions.get(0); // first version is always newest one!
         if (Daten.VERSIONID.equals(newestVersion.versionId) ||
             Daten.VERSIONID.compareTo(newestVersion.versionId) > 0) {
-            Dialog.infoDialog(International.getString("Es liegt derzeit keine neuere Version von efa vor.") + "\n"
-                    + International.getMessage("Die von Dir benutzte Version {version} ist noch aktuell.",
-                    Daten.VERSIONID));
+            if (parent != null) {
+                Dialog.infoDialog(International.getString("Es liegt derzeit keine neuere Version von efa vor.") + "\n"
+                        + International.getMessage("Die von Dir benutzte Version {version} ist noch aktuell.",
+                        Daten.VERSIONID));
+            } else {
+                lastError = International.getString("Es liegt derzeit keine neuere Version von efa vor.");
+            }
             EfaUtil.deleteFile(versionFile);
-            return true;
+            return false;
         }
 
         // Ok, es gibt eine neue Version --> Infos über diese Version einlesen
@@ -78,16 +94,23 @@ public class OnlineUpdate {
             if (Daten.VERSIONID.compareTo(version.versionId) >= 0) {
                 break;
             }
-            changes.addAll(version.getChanges());
+            Vector<String> moreChanges = version.getChanges();
+            for (String s : moreChanges) {
+                if (!changes.contains(s)) {
+                    changes.add(s);
+                }
+            }
         }
 
         // Ok, Informationen gelesen: Jetzt auf dem Bildschirm anzeigen
-        OnlineUpdateDialog dlg = new OnlineUpdateDialog(parent,
-                newestVersion.versionId, newestVersion.releaseDate,
-                newestVersion.downloadSize, changes);
-        dlg.showDialog();
-        if (!dlg.getDialogResult()) {
-            return false;
+        if (parent != null) {
+            OnlineUpdateDialog dlg = new OnlineUpdateDialog(parent,
+                    newestVersion.versionId, newestVersion.releaseDate,
+                    newestVersion.downloadSize, changes);
+            dlg.showDialog();
+            if (!dlg.getDialogResult()) {
+                return false;
+            }
         }
 
         // Ok, jetzt pruefen, ob Benutzer Schreibrechte im efa-Directory hat
@@ -104,23 +127,37 @@ public class OnlineUpdate {
             EfaUtil.deleteFile(writeTestFile);
         }
         if (!canWrite) {
-            Dialog.error(LogString.logstring_directoryNoWritePermission(Daten.efaMainDirectory, International.getString("Verzeichnis")) +
-                    "\n\n" +
-                    International.getMessage("Bitte wiederhole das Online-Update als {osname}-Administrator.", Daten.osName));
+            if (parent != null) {
+                Dialog.error(LogString.logstring_directoryNoWritePermission(Daten.efaMainDirectory, International.getString("Verzeichnis")) +
+                        "\n\n" +
+                        International.getMessage("Bitte wiederhole das Online-Update als {osname}-Administrator.", Daten.osName));
+            } else {
+                lastError = LogString.logstring_directoryNoWritePermission(Daten.efaMainDirectory, International.getString("Verzeichnis"));
+            }
             return false;
         }
 
         // Download des Updates
         String zipFile = Daten.efaTmpDirectory + "eou.zip";
         ExecuteAfterDownload afterDownload = new ExecuteAfterDownloadImpl(parent,
-                zipFile, newestVersion.downloadSize);
+                zipFile, newestVersion.downloadSize, newestVersion.versionId);
         if (parent != null) {
             parent.setEnabled(false);
             if (!DownloadThread.getFile(parent, newestVersion.downloadUrl, zipFile, afterDownload)) {
                 return false;
             }
+        } else {
+            if (!DownloadThread.getFile(parent, newestVersion.downloadUrl, zipFile, true)) {
+                lastError = International.getString("Download fehlgeschlagen");
+                return false;
+            }
+            afterDownload.success();
         }
         return true;
+    }
+
+    public static String getLastError() {
+        return lastError;
     }
 
 }
@@ -205,35 +242,48 @@ class ExecuteAfterDownloadImpl implements ExecuteAfterDownload {
     Window parent;
     String zipFile;
     long fileSize;
+    String versionId;
+    String lastError;
 
-    public ExecuteAfterDownloadImpl(Window parent, String zipFile, long fileSize) {
+    public ExecuteAfterDownloadImpl(Window parent, String zipFile, long fileSize, String versionId) {
         this.parent = parent;
         this.zipFile = zipFile;
         this.fileSize = fileSize;
+        this.versionId = versionId;
     }
 
     public void success() {
-        parent.setEnabled(true);
-        File f = new File(zipFile);
-        if (f.length() < fileSize) {
-            Dialog.error(International.getString("Update abgebrochen!") + "\n" +
-                    International.getString("Der Download ist unvollständig."));
-            return;
+        if (parent != null) {
+            parent.setEnabled(true);
         }
-        if (f.length() > fileSize) {
-            Dialog.error(International.getString("Update abgebrochen!") + "\n" +
-                    International.getString("Der Download ist unvollständig."));
+        File f = new File(zipFile);
+        if (f.length() != fileSize) {
+            lastError = International.getString("Der Download ist unvollständig.");
+            if (parent != null) {
+                Dialog.error(International.getString("Update abgebrochen!") + "\n" + lastError);
+            }
             return;
         }
 
         // Download war erfolgreich
-        Dialog.infoDialog(International.getString("Der Download war erfolgreich.") + "\n" +
-                International.getString("Es werden jetzt alle Daten gesichert und anschließend die neue Version installiert."));
+        if (parent != null) {
+            Dialog.infoDialog(International.getString("Der Download war erfolgreich.") + "\n" +
+                    International.getString("Es werden jetzt alle Daten gesichert und anschließend die neue Version installiert."));
+        }
 
         // ZIP-Archiv mit bisherigen Daten sichern
-        Backup backup = new Backup(Daten.efaBakDirectory, true, true);
-        if (!backup.runBackup(null)) {
-            if (Dialog.yesNoDialog(International.getString("Backup fehlgeschlagen"),
+        boolean backupProject = true;
+        if (Daten.project == null || !Daten.project.isOpen() ||
+            Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+            backupProject = false;
+        }
+        Backup backup = new Backup(Daten.efaBakDirectory, null, backupProject, true);
+        if (backup.runBackup(null) != 0) {
+            lastError = "Backup fehlgeschlagen";
+            if (parent == null ) {
+                return;
+            }
+            if (Dialog.yesNoDialog(International.getString(lastError),
                     backup.getLastErrorMessage() +
                     "\n" +
                     International.getString("Soll der Update-Vorgang trotzdem fortgesetzt werden?")) != Dialog.YES) {
@@ -247,20 +297,30 @@ class ExecuteAfterDownloadImpl implements ExecuteAfterDownload {
             if (result.length() > 1000) {
                 result = result.substring(0, 1000);
             }
-            Dialog.error(International.getString("Die Installation der neuen Version ist fehlgeschlagen.") +
-                    "\n" + result);
+            lastError = International.getString("Die Installation der neuen Version ist fehlgeschlagen.") +
+                    "\n" + result;
+            if (parent != null) {
+                Dialog.error(lastError);
+            }
             return;
         }
 
         // Erfolgreich
-        Dialog.infoDialog(International.getString("Version aktualisiert"),
-                International.getString("Die Installation des Updates wurde erfolgreich abgeschlossen.") + "\n"
-                +
-                International.getString("efa wird nun neu gestartet."));
-        if (Daten.program != null) {
-            Daten.haltProgram(Daten.program.restart());
-        } else {
-            Daten.haltProgram(Daten.HALT_SHELLRESTART);
+        if (parent != null) {
+            Dialog.infoDialog(International.getString("Version aktualisiert"),
+                    International.getString("Die Installation des Updates wurde erfolgreich abgeschlossen.") + "\n"
+                    +
+                    International.getString("efa wird nun neu gestartet."));
+        }
+        Logger.log(Logger.INFO, Logger.MSG_EVT_ONLINEUPDATEFINISHED,
+                International.getMessage("Online-Update auf Version {version} erfolgreich abgeschlossen.",
+                versionId));
+        if (parent != null) {
+            if (Daten.program != null) {
+                Daten.haltProgram(Daten.program.restart());
+            } else {
+                Daten.haltProgram(Daten.HALT_SHELLRESTART);
+            }
         }
     }
 

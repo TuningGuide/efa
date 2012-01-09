@@ -18,6 +18,7 @@ import de.nmichael.efa.util.Base64;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.OnlineUpdate;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -58,7 +59,7 @@ public class RemoteEfaServer {
             server.createContext("/", new MyHandler());
             server.setExecutor(Executors.newCachedThreadPool());
             server.start();
-            Logger.log(Logger.INFO, Logger.MSG_REFA_SERVERSTATUS,
+            Logger.log((acceptRemote ? Logger.INFO : Logger.DEBUG), Logger.MSG_REFA_SERVERSTATUS,
                     International.getMessage("{name} Server läuft auf Port {port}",
                     serverName, serverPort));
             (new EfaOnlineThread()).start();
@@ -92,7 +93,9 @@ public class RemoteEfaServer {
 
                 Vector<RemoteEfaMessage> responses = new Vector<RemoteEfaMessage>();
                 try {
-                    Vector<RemoteEfaMessage> requests = getRequests(RemoteEfaMessage.getBufferedInputStream(exchange.getRequestBody()), exchange.getRemoteAddress());
+                    Vector<RemoteEfaMessage> requests = getRequests(
+                            RemoteEfaMessage.getBufferedInputStream(exchange.getRequestBody(), 0),
+                            exchange.getRemoteAddress());
                     if (requests == null) {
                         return;
                     }
@@ -376,6 +379,11 @@ public class RemoteEfaServer {
 
                     if (operation.equals(RemoteEfaMessage.OPERATION_CMD_EXITEFA)) {
                         responses.add(requestCmdExitEfa(request, admin));
+                        break;
+                    }
+
+                    if (operation.equals(RemoteEfaMessage.OPERATION_CMD_ONLINEUPDATE)) {
+                        responses.add(requestCmdOnlineUpdate(request, admin));
                         break;
                     }
 
@@ -854,20 +862,43 @@ public class RemoteEfaServer {
 
     private RemoteEfaMessage requestCmdExitEfa(RemoteEfaMessage request, AdminRecord admin) {
         try {
+            if (!admin.isAllowedExitEfa()) {
+                return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.ERROR_NOPERMISSION, "No Permission to update efa");
+            }
             final boolean restart = request.getBoolean();
-            Logger.log(Logger.INFO, Logger.MSG_EVT_REMOTEEFAEXIT, International.getString("Beenden von efa durch Remote-Kommando"));
+            Logger.log(Logger.INFO, Logger.MSG_EVT_REMOTEEFAEXIT, International.getString("Remote-Kommando") + ": " +
+                    International.getString("Beenden von efa"));
             final AdminRecord _admin = admin;
             RemoteEfaMessage response;
             if (EfaBoathouseFrame.efaBoathouseFrame != null) {
-                new Thread() {
-                    public void run() {
-                        try {
-                            Thread.sleep(1000);
-                        } catch(Exception e) {}
-                        EfaBoathouseFrame.efaBoathouseFrame.cancel(null, EfaBoathouseFrame.EFA_EXIT_REASON_USER, _admin, restart);
-                    }
-                }.start();
+                EfaBoathouseFrame.efaBoathouseFrame.cancelRunInThreadWithDelay(EfaBoathouseFrame.EFA_EXIT_REASON_USER, _admin, restart);
                 response  = RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_OK, null);
+            } else {
+                response  = RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_FALSE, null);
+            }
+            return response;
+        } catch(Exception e) {
+            return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.ERROR_UNKNOWN, e.toString());
+        }
+    }
+
+    private RemoteEfaMessage requestCmdOnlineUpdate(RemoteEfaMessage request, AdminRecord admin) {
+        try {
+            if (!admin.isAllowedUpdateEfa()) {
+                return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.ERROR_NOPERMISSION, "No Permission to update efa");
+            }
+            Logger.log(Logger.INFO, Logger.MSG_EVT_REMOTEONLINEUPDATE, International.getString("Remote-Kommando") + ": " +
+                    International.getString("Online-Update"));
+
+            final AdminRecord _admin = admin;
+            RemoteEfaMessage response;
+            if (EfaBoathouseFrame.efaBoathouseFrame != null) {
+                if (OnlineUpdate.runOnlineUpdate(null, Daten.ONLINEUPDATE_INFO)) {
+                    EfaBoathouseFrame.efaBoathouseFrame.cancelRunInThreadWithDelay(EfaBoathouseFrame.EFA_EXIT_REASON_USER, _admin, true);
+                    response  = RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_OK, null);
+                } else {
+                    response  = RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_FALSE, OnlineUpdate.getLastError());
+                }
             } else {
                 response  = RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_FALSE, null);
             }

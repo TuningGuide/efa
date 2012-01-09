@@ -123,7 +123,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             return; // do nothing (and don't invoke _keyAction(evt)!)
         }
         if (evt.getActionCommand().equals(KEYACTION_F2)) {
-            actionStartSession();
+            actionStartSession(null);
         }
         if (evt.getActionCommand().equals(KEYACTION_F3)) {
             actionFinishSession();
@@ -560,7 +560,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         Mnemonics.setButton(this, startSessionButton, International.getStringWithMnemonic("Fahrt beginnen"));
         startSessionButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                actionStartSession();
+                actionStartSession(null);
             }
         });
 
@@ -943,6 +943,21 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         return true;
     }
 
+    public void cancelRunInThreadWithDelay(int reason, AdminRecord admin, boolean restart) {
+        final int _reason = reason;
+        final AdminRecord _admin = admin;
+        final boolean _restart = restart;
+        new Thread() {
+            public void run() {
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e) {
+                }
+                cancel(null, _reason, _admin, _restart);
+            }
+        }.start();
+    }
+
     /**
      * Returns all possible actions for a list.
      * Those actions are prefixed with the following numbers representing those actions, which may be processed by processListAction(String, int):
@@ -1321,9 +1336,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             if (ae.getActionCommand().startsWith(EfaMouseListener.EVENT_POPUP_CLICKED)) {
                 int subCmd = EfaUtil.stringFindInt(ae.getActionCommand(), -1);
                 if (subCmd >= 0) {
-                    ItemTypeBoatstatusList.BoatListItem blitem = list.getSelectedBoatListItem();
+                    ItemTypeBoatstatusList.BoatListItem blitem = getSelectedListItem(list);
                     if (blitem != null) {
-                        processListAction((blitem.boatStatus != null ? blitem.boatStatus : blitem.person), subCmd);
+                        processListAction(blitem, subCmd);
                     }
                 }
             }
@@ -1343,10 +1358,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         }
     }
 
-    private void processListAction(DataRecord r, int action) {
+    private void processListAction(ItemTypeBoatstatusList.BoatListItem blitem, int action) {
         switch (action) {
             case 1: // start session
-                actionStartSession();
+                actionStartSession(blitem);
                 break;
             case 2: // finish session
                 actionFinishSession();
@@ -1372,7 +1387,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         }
         clearAllPopups();
 
-        ItemTypeBoatstatusList.BoatListItem blitem = list.getSelectedBoatListItem();
+        ItemTypeBoatstatusList.BoatListItem blitem = getSelectedListItem(list);
         DataRecord r = null;
         String name = null;
         if (blitem != null) {
@@ -1391,7 +1406,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         if (listnr == 1
                 && Daten.efaConfig.getValueEfaDirekt_listAllowToggleBoatsPersons()
                 && toggleAvailableBoatsToPersons.isSelected()) {
-            actionStartSession();
+            actionStartSession(blitem);
             return;
         }
 
@@ -1408,7 +1423,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                 International.getMessage("Was möchtest Du mit dem Boot {boat} machen?", name),
                 myActions);
         if (selection >= 0 && selection < actions.length) {
-            processListAction(r, EfaUtil.string2int(actions[selection].substring(0, 1), -1));
+            processListAction(blitem, EfaUtil.string2int(actions[selection].substring(0, 1), -1));
         }
     }
 
@@ -1428,7 +1443,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         ItemTypeBoatstatusList.BoatListItem item = null;
         while (item == null) {
             try {
-                item = list.getSelectedBoatListItem();
+                item = getSelectedListItem(list);
                 if (list != personsAvailableList) {
                     name = item.text;
                 } else {
@@ -1521,23 +1536,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         }
     }
 
-    private ItemTypeBoatstatusList.BoatListItem getSelectedListItem() {
-        ItemTypeBoatstatusList.BoatListItem item = null;
-        if (Daten.efaConfig.getValueEfaDirekt_listAllowToggleBoatsPersons() && toggleAvailableBoatsToPersons.isSelected()) {
-            if (item == null && personsAvailableList != null) {
-                item = personsAvailableList.getSelectedBoatListItem();
-            }
-        } else {
-            if (item == null && boatsAvailableList != null) {
-                item = boatsAvailableList.getSelectedBoatListItem();
-            }
-        }
-        if (item == null && boatsOnTheWaterList != null) {
-            item = boatsOnTheWaterList.getSelectedBoatListItem();
-        }
-        if (item == null && boatsNotAvailableList != null) {
-            item = boatsNotAvailableList.getSelectedBoatListItem();
-        }
+    private ItemTypeBoatstatusList.BoatListItem getSelectedListItem(ItemTypeBoatstatusList list) {
+        ItemTypeBoatstatusList.BoatListItem item = (list != null ?
+            list.getSelectedBoatListItem() : null);
         if (item != null && item.boatStatus != null) {
             // update saved boat status in GUI list with current boat status from Persistence
             item.boatStatus = boatStatus.getBoatStatus(item.boatStatus.getBoatId());
@@ -1550,7 +1551,26 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                 Logger.log(Logger.ERROR, Logger.MSG_ERR_BOATNOTFOUNDINSTATUS, s);
             }
         }
+        return item;
+    }
 
+    private ItemTypeBoatstatusList.BoatListItem getSelectedListItem() {
+        ItemTypeBoatstatusList.BoatListItem item = null;
+        if (Daten.efaConfig.getValueEfaDirekt_listAllowToggleBoatsPersons() && toggleAvailableBoatsToPersons.isSelected()) {
+            if (item == null && personsAvailableList != null) {
+                item = getSelectedListItem(personsAvailableList);
+            }
+        } else {
+            if (item == null && boatsAvailableList != null) {
+                item = getSelectedListItem(boatsAvailableList);
+            }
+        }
+        if (item == null && boatsOnTheWaterList != null) {
+            item = getSelectedListItem(boatsOnTheWaterList);
+        }
+        if (item == null && boatsNotAvailableList != null) {
+            item = getSelectedListItem(boatsNotAvailableList);
+        }
         return item;
     }
 
@@ -1695,14 +1715,16 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         alive();
     }
 
-    void actionStartSession() {
+    void actionStartSession(ItemTypeBoatstatusList.BoatListItem item) {
         alive();
         clearAllPopups();
         if (Daten.project == null) {
             return;
         }
 
-        ItemTypeBoatstatusList.BoatListItem item = getSelectedListItem();
+        if (item == null) {
+            item = getSelectedListItem();
+        }
         if (item == null) {
             Dialog.error(International.getString("Bitte wähle zuerst ein Boot aus!"));
             boatListRequestFocus(1);

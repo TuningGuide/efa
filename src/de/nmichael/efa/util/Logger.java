@@ -10,8 +10,8 @@
 package de.nmichael.efa.util;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.*;
+import de.nmichael.efa.data.storage.IDataAccess;
 import java.io.*;
 import java.util.*;
 
@@ -144,6 +144,9 @@ public class Logger {
     public static final String MSG_DATA_FILEARCHIVED     = "DAT027";
     public static final String MSG_DATA_FILEBACKUPFAILED = "DAT028";
     public static final String MSG_DATA_UPDATECONFLICT   = "DAT029";
+    public static final String MSG_DATA_TRUNCATEFAILED   = "DAT030";
+    public static final String MSG_DATA_COPYFROMDATAACCESSFAILED  = "DAT031";
+    public static final String MSG_DATA_ACCESSFAILED  = "DAT032";
 
     public static final String MSG_REFA_SERVERSTATUS                 = "RMT001";
     public static final String MSG_REFA_SERVERERROR                  = "RMT002";
@@ -226,6 +229,8 @@ public class Logger {
     public static final String MSG_EVT_ERRORSAVELOGBOOKENTRY = "EVT040";
     public static final String MSG_EVT_ERRORNOBOATSTATUSFORBOAT = "EVT041";
     public static final String MSG_EVT_REMOTEEFAEXIT = "EVT042";
+    public static final String MSG_EVT_REMOTEONLINEUPDATE = "EVT043";
+    public static final String MSG_EVT_ONLINEUPDATEFINISHED = "EVT044";
 
     // Backup
     public static final String MSG_BCK_BACKUPSTARTED = "BCK001";
@@ -319,13 +324,21 @@ public class Logger {
 
     // Backup
     public static final String MSG_BACKUP_BACKUPSTARTED = "BCK001";
-    public static final String MSG_BACKUP_BACKUPINFO = "BCK001";
-    public static final String MSG_BACKUP_BACKUPERROR = "BCK001";
+    public static final String MSG_BACKUP_BACKUPINFO = "BCK002";
+    public static final String MSG_BACKUP_BACKUPERROR = "BCK003";
     public static final String MSG_BACKUP_BACKUPFINISHEDINFO = "BCK004";
     public static final String MSG_BACKUP_BACKUPFINISHEDWITHERRORS = "BCK005";
     public static final String MSG_BACKUP_BACKUPFINISHED = "BCK006";
     public static final String MSG_BACKUP_BACKUPFAILED = "BCK007";
     public static final String MSG_BACKUP_BACKUPDEBUG = "BCK008";
+    public static final String MSG_BACKUP_RESTORESTARTED = "BCK009";
+    public static final String MSG_BACKUP_RESTOREINFO = "BCK010";
+    public static final String MSG_BACKUP_RESTOREERROR = "BCK011";
+    public static final String MSG_BACKUP_RESTOREFINISHEDINFO = "BCK012";
+    public static final String MSG_BACKUP_RESTOREFINISHEDWITHERRORS = "BCK013";
+    public static final String MSG_BACKUP_RESTOREFINISHED = "BCK014";
+    public static final String MSG_BACKUP_RESTOREFAILED = "BCK015";
+    public static final String MSG_BACKUP_RESTOREDEBUG = "BCK016";
 
     // Debug Logging
     public static final String MSG_DEBUG_GENERIC = "DBG001";
@@ -493,7 +506,10 @@ public class Logger {
 
             if (msgToAdmin && Daten.project != null) {
 
-                Messages messages = (Daten.project != null && !Daten.project.isInOpeningProject() ? Daten.project.getMessages(false) : null);
+                Messages messages = (Daten.project != null && 
+                        !Daten.project.isInOpeningProject() &&
+                        Daten.project.getProjectStorageType() != IDataAccess.TYPE_EFA_REMOTE ?
+                           Daten.project.getMessages(false) : null);
                 if (messages == null || !messages.isOpen()) {
                     inLogging = false;
                     return;

@@ -1,10 +1,7 @@
-
-
 Item                                                                 days  until
 ================================================================================
-Kay: ntpd, Port 3834 konfigurierbar
-
-Backup
+Versionsnummerntabelle: sprechende Nummer; technische Nummer
+Dr-Titel in Ausgabe (und erkennung) von Strings aufnehmen!
 
 Internationalize - Cleanup
 Rewrite remaining Dialogs/Frames
@@ -16,13 +13,12 @@ Audit
 Gewaesserliste mitliefern
 efaRemote - SSL
 efaRemote - proper Session Handling
-efaRemote - Progress Indicator
-efaRemote - Online Update
+efaRemote - Progress/Status Indicator
 Crash Recovery (Roll forward)
 Point-in-Time Recovery
+Signal Handler
 Lock Efa
 DataLayer: DB Access
-efaRemote: "rotating status symbol" on remote activity
 Help System
 AutoComplete: match anything within input/change list content
 --------------------------------------------------------------------------------
@@ -63,3 +59,5 @@ Administration of DRV-Fahrtenabzeichen
 efaWett (elektronische Meldung)
 Online Update: XML and Multi-Language
 Encrypt Passwords for external Systems
+efaRemote - Online Update
+Backup

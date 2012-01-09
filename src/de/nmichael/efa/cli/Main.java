@@ -39,14 +39,17 @@ public class Main extends Program {
         if (port == null) {
             port = Integer.toString(Daten.efaConfig.getValueDataataRemoteEfaServerPort());
         }
-        if (project == null) {
-            project = Daten.efaConfig.getValueLastProjectEfaBase();
+        if (project == null || project.length() == 0) {
+            project = Daten.efaConfig.getValueLastProjectEfaCli();
+        }
+        if (project == null || project.length() == 0) {
+            project = Daten.efaConfig.getValueLastProjectEfaBoathouse();
         }
 
         CLI cli = new CLI(username, password, hostname, port, project);
-        cli.run(command);
+        int ret = cli.run(command);
 
-        Daten.haltProgram(0);
+        Daten.haltProgram(ret);
     }
 
     public void printUsage(String wrongArgument) {

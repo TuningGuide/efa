@@ -23,11 +23,12 @@ public class MenuBoats extends MenuData {
         this.storageObjectDescription = "boats";
     }
 
-    public boolean runCommand(Stack<String> menuStack, String cmd, String args) {
-        if (!super.runCommand(menuStack, cmd, args)) {
-            return false;
+    public int runCommand(Stack<String> menuStack, String cmd, String args) {
+        int ret = super.runCommand(menuStack, cmd, args);
+        if (ret < 0) {
+            return CLI.RC_UNKNOWN_COMMAND;
         } else {
-            return true;
+            return ret;
         }
     }
 

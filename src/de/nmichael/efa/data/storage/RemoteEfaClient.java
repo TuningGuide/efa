@@ -149,7 +149,12 @@ public class RemoteEfaClient extends DataAccess {
 
         updateStatistics("Sent:Requests");
 
-        Vector<RemoteEfaMessage> responses = getResponse(connection, RemoteEfaMessage.getBufferedInputStream(connection.getInputStream()));
+        Vector<RemoteEfaMessage> responses = getResponse(connection, 
+                RemoteEfaMessage.getBufferedInputStream(connection.getInputStream(),
+                Daten.efaConfig.getValueDataRemoteClientReceiveTimeout()));
+        if (responses == null) {
+            throw new Exception("Receive Timeout");
+        }
         long reqEndTs = System.currentTimeMillis();
         if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 2)) {
             for (int i=0; i<responses.size(); i++) {
@@ -170,6 +175,9 @@ public class RemoteEfaClient extends DataAccess {
     }
 
     private Vector<RemoteEfaMessage> getResponse(URLConnection connection, BufferedInputStream in) {
+        if (in == null) {
+            return null;
+        }
         if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 5)) {
             try {
                 in.mark(1024 * 1024);
@@ -234,7 +242,8 @@ public class RemoteEfaClient extends DataAccess {
                 return null;
             }
         } catch(Exception e) {
-            Logger.log(e);
+            Logger.log(Logger.ERROR, Logger.MSG_REFA_INVALIDRESPONSE, "Get Response failed: " + e.toString());
+            Logger.logdebug(e);
             updateStatistics("Rcvd:Responses:Err");
             return null;
         }
@@ -803,7 +812,6 @@ public class RemoteEfaClient extends DataAccess {
                     Thread.currentThread().getStackTrace());
         }
     }
-
 
     // =========================== Data Iterator Methods ===========================
 

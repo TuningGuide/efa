@@ -1347,7 +1347,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
       f.close();
       JEditorPane out = new JEditorPane();
       out.setContentType("text/html; charset="+Daten.ENCODING_ISO);
-      out.setPage("file:"+tmpdatei);
+      out.setPage(EfaUtil.correctUrl("file:"+tmpdatei));
       SimpleFilePrinter.sizeJEditorPane(out);
       SimpleFilePrinter sfp = new SimpleFilePrinter(out);
       if (sfp.setupPageFormat()) {

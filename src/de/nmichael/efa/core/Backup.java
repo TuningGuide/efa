@@ -7,15 +7,17 @@
  * @author Nicolas Michael
  * @version 2
  */
-
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.Admins;
 import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.core.config.EfaTypes;
+import de.nmichael.efa.data.storage.DataKey;
+import de.nmichael.efa.data.storage.DataKeyIterator;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.storage.StorageObject;
+import de.nmichael.efa.data.storage.XMLFile;
 import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.ProgressDialog;
 import de.nmichael.efa.util.EfaUtil;
@@ -24,27 +26,63 @@ import de.nmichael.efa.util.Logger;
 import de.nmichael.efa.util.ProgressTask;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.Vector;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 public class Backup {
 
+    public static final String BACKUP_META = "backup.meta";
+
+    enum Mode {
+        create,
+        restore
+    }
+
+    private IDataAccess currentProjectDataAccess;
+    private String currentProjectName;
     private String backupDir;
+    private String backupFile;
     private boolean backupProject;
     private boolean backupConfig;
     private String zipFile;
     private String lastErrorMsg;
-
     private BackupTask backupTask;
+    private BackupMetaData backupMetaData;
+    private String[] restoreObjects;
+    private Mode mode;
     private int totalWork = 0;
     private int totalWorkDone = 0;
 
-    public Backup(String backupDir,
+    public Backup(String backupDir, String backupFile,
             boolean backupProject,
             boolean backupConfig) {
         this.backupDir = backupDir;
+        this.backupFile = backupFile;
         this.backupProject = backupProject;
         this.backupConfig = backupConfig;
+        this.mode = Mode.create;
+    }
+
+    public Backup(String backupZipFile, String[] restoreObjects) {
+        this.zipFile = backupZipFile;
+        this.restoreObjects = restoreObjects;
+        this.mode = Mode.restore;
+    }
+
+    public Mode getMode() {
+        return mode;
+    }
+
+    private void getCurrentProjectInfo() {
+        currentProjectDataAccess = Daten.project.data();
+        currentProjectName = Daten.project.getProjectName();
+        if (Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+            currentProjectDataAccess = Daten.project.getRemoteDataAccess();
+            currentProjectName = Daten.project.getProjectRemoteProjectName();
+        }
     }
 
     private int backupStorageObjects(IDataAccess[] dataAccesses,
@@ -52,7 +90,8 @@ public class Backup {
         int successful = 0;
         for (IDataAccess data : dataAccesses) {
             try {
-                data.saveToZipFile(dir, zipOut);
+                BackupMetaDataItem meta = data.saveToZipFile(dir, zipOut);
+                backupMetaData.addMetaDataItem(meta);
                 successful++;
                 logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPINFO,
                         International.getMessage("Objekt {name} gesichert.", data.getUID()));
@@ -61,7 +100,6 @@ public class Backup {
                         International.getMessage("Sicherung von Objekt {name} fehlgeschlagen: {reason}",
                         data.getUID(), e.toString()));
                 Logger.logdebug(e);
-
             }
         }
         if (backupTask != null) {
@@ -70,92 +108,194 @@ public class Backup {
         return successful;
     }
 
-    // backupTask is null for CLI backup, and set for GUI Backup
-    public boolean runBackup(BackupTask backupTask) {
-        this.backupTask = backupTask;
-        lastErrorMsg = null;
+    private boolean isProjectDataAccess(String type) {
+        return !type.equals(EfaConfig.DATATYPE) &&
+               !type.equals(Admins.DATATYPE) &&
+               !type.equals(EfaTypes.DATATYPE);
+    }
+
+    private IDataAccess getDataAccess(String name, String type, boolean isRemoteProject) {
         try {
-            if (Daten.project == null || !Daten.project.isOpen() ||
-                    (!backupProject && !backupConfig)) {
+            if (type.equals(EfaConfig.DATATYPE)) {
+                if (isRemoteProject) {
+                    return new EfaConfig(Daten.project.getProjectStorageType(),
+                            Daten.project.getProjectStorageLocation(),
+                            Daten.project.getProjectStorageUsername(),
+                            Daten.project.getProjectStoragePassword()).data();
+                } else {
+                    return Daten.efaConfig.data();
+                }
+            }
+            if (type.equals(Admins.DATATYPE)) {
+                if (isRemoteProject) {
+                    return new Admins(Daten.project.getProjectStorageType(),
+                            Daten.project.getProjectStorageLocation(),
+                            Daten.project.getProjectStorageUsername(),
+                            Daten.project.getProjectStoragePassword()).data();
+                } else {
+                    return Daten.admins.data();
+                }
+            }
+            if (type.equals(EfaTypes.DATATYPE)) {
+                if (isRemoteProject) {
+                    return new EfaTypes(Daten.project.getProjectStorageType(),
+                            Daten.project.getProjectStorageLocation(),
+                            Daten.project.getProjectStorageUsername(),
+                            Daten.project.getProjectStoragePassword()).data();
+                } else {
+                    return Daten.efaTypes.data();
+                }
+            }
+            return Daten.project.getStorageObjectDataAccess(name, type, true);
+        } catch(Exception e) {
+            logMsg(Logger.ERROR, Logger.MSG_DATA_ACCESSFAILED,
+                    "Could not get DataAccess for "+name+"."+type);
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
+    private boolean restoreStorageObject(BackupMetaDataItem meta, boolean isRemoteProject,
+            ZipFile zip) {
+        logMsg(Logger.INFO, Logger.MSG_BACKUP_RESTOREINFO,
+                International.getMessage("Wiederherstellung von {description} ({name}) ...",
+                meta.getDescription(), meta.getNameAndType()));
+        try {
+            ZipEntry entry = zip.getEntry(meta.getFileName());
+            InputStream in = zip.getInputStream(entry);
+
+            if (isProjectDataAccess(meta.getType())) {
+                if (currentProjectName == null) {
+                    getCurrentProjectInfo();
+                }
+                if (currentProjectName == null ||
+                    backupMetaData.getProjectName() == null ||
+                    !currentProjectName.equals(backupMetaData.getProjectName())) {
+                    logMsg(Logger.ERROR, Logger.MSG_BACKUP_RESTOREERROR,
+                            International.getMessage("Wiederherstellung von Objekt {name} fehlgeschlagen: {reason}",
+                            meta.getNameAndType(),
+                            International.getMessage("Daten des Projekts {name} können nur in diesem auch wiederhergestellt werden, aber derzeit ist Projekt {name} geöffnet.",
+                                                      backupMetaData.getProjectName(),
+                                                      (currentProjectName != null ? currentProjectName :
+                                                          "<" + International.getString("kein Projekt geöffnet") + ">"))));
+                    return false;
+                }
+            }
+
+            IDataAccess dataAccess = getDataAccess(meta.getName(), meta.getType(), isRemoteProject);
+            if (dataAccess == null) {
+                logMsg(Logger.ERROR, Logger.MSG_BACKUP_RESTOREERROR,
+                        International.getMessage("Wiederherstellung von Objekt {name} fehlgeschlagen: {reason}",
+                        meta.getNameAndType(), "DataAccess not found"));
                 return false;
             }
 
-            IDataAccess projectDataAccess = Daten.project.data();
-            String projectName = Daten.project.getProjectName();
-            if (Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
-                projectDataAccess = Daten.project.getRemoteDataAccess();
-                projectName = Daten.project.getProjectRemoteProjectName();
+            XMLFile zipDataAccess = new XMLFile(zipFile + "@@",
+                    meta.getName(), meta.getType(), meta.getDescription());
+            zipDataAccess.setPersistence(dataAccess.getPersistence());
+            zipDataAccess.setMetaData(dataAccess.getMetaData());
+            zipDataAccess.readFromInputStream(in);
+            if (zipDataAccess.getSCN() != meta.getScn() ||
+                zipDataAccess.getNumberOfRecords() != meta.getNumberOfRecords()) {
+                throw new Exception("Unexpected SCN " + zipDataAccess.getSCN() +
+                                    " or Record Count " + zipDataAccess.getNumberOfRecords() +
+                                    " read from ZIP file; expected SCN " + meta.getScn() +
+                                    " and Record Count " + meta.getNumberOfRecords() + ".");
+            }
+            dataAccess.copyFromDataAccess(zipDataAccess);
+            
+            logMsg(Logger.INFO, Logger.MSG_BACKUP_RESTOREINFO,
+                    International.getMessage("Objekt {name} erfolgreich wiederhergestellt.",
+                    meta.getNameAndType()) +
+                    " [new SCN=" + dataAccess.getSCN() + ", Records=" + dataAccess.getNumberOfRecords() + "]");
+            if (backupTask != null) {
+                backupTask.setCurrentWorkDone(++totalWorkDone);
+            }
+        } catch (Exception e) {
+            logMsg(Logger.ERROR, Logger.MSG_BACKUP_RESTOREERROR,
+                    International.getMessage("Wiederherstellung von Objekt {name} fehlgeschlagen: {reason}",
+                    meta.getNameAndType(), e.toString()));
+            Logger.logdebug(e);
+            return false;
+        }
+        return true;
+    }
+
+    // backupTask is null for CLI backup, and set for GUI Backup
+    public int runBackup(BackupTask backupTask) {
+        this.backupTask = backupTask;
+        lastErrorMsg = null;
+        int successful = 0;
+        int errors = 0;
+
+        try {
+            if ((!backupProject && !backupConfig)) {
+                return -1;
+            }
+            boolean isRemoteProject = Daten.project != null && Daten.project.isOpen() &&
+                    Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE;
+
+            if (backupProject) {
+                getCurrentProjectInfo();
             }
 
+            backupMetaData = new BackupMetaData( (backupProject ? currentProjectName : null) );
+
             logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPSTARTED,
-                    (backupProject && backupConfig ?
-                        International.getMessage("Starte Backup von Projekt {projekt} und efa-Konfiguration ...",
-                        projectName) :
-                    (backupProject ?
-                        International.getMessage("Starte Backup von Projekt {projekt} ...",
-                        projectName) :
-                    (backupConfig ?
-                        International.getString("Starte Backup von efa-Konfiguration ...") :
-                        "ERROR"))));
+                    (backupProject && backupConfig
+                    ? International.getMessage("Starte Backup von Projekt {projekt} und efa-Konfiguration ...",
+                    currentProjectName)
+                    : (backupProject
+                    ? International.getMessage("Starte Backup von Projekt {projekt} ...",
+                    currentProjectName)
+                    : (backupConfig
+                    ? International.getString("Starte Backup von efa-Konfiguration ...")
+                    : "ERROR"))));
 
             if (backupDir.length() > 0 && !backupDir.endsWith(Daten.fileSep)) {
                 backupDir += Daten.fileSep;
             }
-            String backupName = "Backup_" + EfaUtil.getCurrentTimeStampYYYYMMDD_HHMMSS();
-            zipFile = backupDir + backupName + ".zip";
+            String backupName = "efaBackup_" + EfaUtil.getCurrentTimeStampYYYYMMDD_HHMMSS();
+            if (backupFile == null || backupFile.length() == 0) {
+                backupFile = backupName + ".zip";
+            }
+            zipFile = backupDir + backupFile;
 
             FileOutputStream outFile = new FileOutputStream(zipFile);
             ZipOutputStream zipOut = new ZipOutputStream(new BufferedOutputStream(outFile));
-            
-            int successful = 0;
-            int errors = 0;
+
             int cnt;
 
             if (backupProject) {
-                cnt = backupStorageObjects(new IDataAccess[] { projectDataAccess }, zipOut, Daten.efaSubdirDATA);
+                cnt = backupStorageObjects(new IDataAccess[]{currentProjectDataAccess}, zipOut, Daten.efaSubdirDATA);
                 successful += cnt;
                 errors += (1 - cnt);
-                
+
                 Vector<StorageObject> storageObjects = Daten.project.getAllDataAndLogbooks();
                 IDataAccess[] dataAccesses = new IDataAccess[storageObjects.size()];
-                for (int i=0; i<storageObjects.size(); i++) {
+                for (int i = 0; i < storageObjects.size(); i++) {
                     dataAccesses[i] = storageObjects.get(i).data();
                 }
                 totalWork = storageObjects.size() + (backupConfig ? 3 : 0);
-                cnt = backupStorageObjects(dataAccesses, zipOut, Daten.efaSubdirDATA + Daten.fileSep + projectName);
+                cnt = backupStorageObjects(dataAccesses, zipOut, Daten.efaSubdirDATA + Daten.fileSep + currentProjectName);
                 successful += cnt;
                 errors += (dataAccesses.length - cnt);
             }
 
             if (backupConfig) {
-                EfaConfig myEfaConfig = Daten.efaConfig;
-                Admins myAdmins = Daten.admins;
-                EfaTypes myTypes = Daten.efaTypes;
-                if (Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
-                    myEfaConfig = new EfaConfig(Daten.project.getProjectStorageType(),
-                                                Daten.project.getProjectStorageLocation(),
-                                                Daten.project.getProjectStorageUsername(),
-                                                Daten.project.getProjectStoragePassword());
-                    myAdmins = new Admins(Daten.project.getProjectStorageType(),
-                                                Daten.project.getProjectStorageLocation(),
-                                                Daten.project.getProjectStorageUsername(),
-                                                Daten.project.getProjectStoragePassword());
-                    myTypes = new EfaTypes(Daten.project.getProjectStorageType(),
-                                                Daten.project.getProjectStorageLocation(),
-                                                Daten.project.getProjectStorageUsername(),
-                                                Daten.project.getProjectStoragePassword());
-                    IDataAccess[] dataAccesses = new IDataAccess[3];
-                    dataAccesses[0] = myEfaConfig.data();
-                    dataAccesses[1] = myAdmins.data();
-                    dataAccesses[2] = myTypes.data();
-                    totalWork = (totalWork > 0 ? totalWork : 3);
-                    cnt = backupStorageObjects(dataAccesses, zipOut, Daten.efaSubdirCFG);
-                    successful += cnt;
-                    errors += (dataAccesses.length - cnt);
-                }
+                IDataAccess[] dataAccesses = new IDataAccess[3];
+                dataAccesses[0] = getDataAccess(null, EfaConfig.DATATYPE, false);
+                dataAccesses[1] = getDataAccess(null, Admins.DATATYPE, false);
+                dataAccesses[2] = getDataAccess(null, EfaTypes.DATATYPE, false);
+                totalWork = (totalWork > 0 ? totalWork : 3);
+                cnt = backupStorageObjects(dataAccesses, zipOut, Daten.efaSubdirCFG);
+                successful += cnt;
+                errors += (dataAccesses.length - cnt);
             }
 
+            backupMetaData.write(zipOut);
             zipOut.close();
+            
             logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPFINISHEDINFO,
                     International.getMessage("{n} Objekte in {filename} gesichert.",
                     successful, zipFile));
@@ -166,14 +306,95 @@ public class Backup {
                 logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPFINISHEDWITHERRORS,
                         International.getMessage("Backup mit {n} Fehlern abgeschlossen.", errors));
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             lastErrorMsg = International.getString("Backup fehlgeschlagen.") + e.toString();
             logMsg(Logger.ERROR, Logger.MSG_BACKUP_BACKUPFAILED,
                     lastErrorMsg);
             Logger.logdebug(e);
-            return false;
+            return -1;
         }
-        return true;
+        return errors;
+    }
+
+    // backupTask is null for CLI backup, and set for GUI Backup
+    public int runRestore(BackupTask backupTask) {
+        this.backupTask = backupTask;
+        lastErrorMsg = null;
+        int successful = 0;
+        int errors = 0;
+
+        if (zipFile == null || zipFile.length() == 0) {
+            return -1;
+        }
+
+        backupMetaData = new BackupMetaData(null);
+        if (!backupMetaData.read(zipFile)) {
+            lastErrorMsg = International.getString("ZIP-Archiv kann nicht gelesen werden oder ist kein gültiges Backup.");
+            logMsg(Logger.ERROR, Logger.MSG_BACKUP_RESTOREFAILED,
+                    lastErrorMsg);
+            return -1;
+        }
+        try {
+            boolean isRemoteProject = Daten.project != null && Daten.project.isOpen() &&
+                    Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE;
+
+            logMsg(Logger.INFO, Logger.MSG_BACKUP_RESTORESTARTED,
+                   International.getMessage("Starte Wiederherstellung von Projekt {name} mit {count} Objekten in {zip} ...",
+                   (backupMetaData.getProjectName() != null ? backupMetaData.getProjectName() :
+                       "<" + International.getString("unbekannt") + ">"),
+                   (restoreObjects == null || restoreObjects.length == 0 ?
+                       backupMetaData.size() : restoreObjects.length),
+                        zipFile));
+
+            ZipFile zip = new ZipFile(zipFile);
+            if (restoreObjects == null || restoreObjects.length == 0) {
+                totalWork = backupMetaData.size();
+                for (int i=0; i<backupMetaData.size(); i++) {
+                    if (restoreStorageObject(backupMetaData.getItem(i), isRemoteProject, zip)) {
+                        successful++;
+                    } else {
+                        errors++;
+                    }
+                }
+            } else {
+                totalWork = restoreObjects.length;
+                for (int i=0; i<restoreObjects.length; i++) {
+                    BackupMetaDataItem meta = backupMetaData.getItem(restoreObjects[i]);
+                    if (meta == null) {
+                        logMsg(Logger.ERROR, Logger.MSG_BACKUP_RESTOREERROR,
+                                International.getMessage("Wiederherstellung von Objekt {name} fehlgeschlagen: {reason}",
+                                restoreObjects[i], "Object not found"));
+                        errors++;
+                        continue;
+                    }
+                    if (restoreStorageObject(meta,
+                            isRemoteProject, zip)) {
+                        successful++;
+                    } else {
+                        errors++;
+                    }
+                }
+
+            }
+
+            logMsg(Logger.INFO, Logger.MSG_BACKUP_RESTOREFINISHEDINFO,
+                    International.getMessage("{n} Objekte wiederhergestellt.",
+                    successful, zipFile));
+            if (errors == 0) {
+                logMsg(Logger.INFO, Logger.MSG_BACKUP_RESTOREFINISHED,
+                        International.getString("Wiederherstellung erfolgreich abgeschlossen."));
+            } else {
+                logMsg(Logger.INFO, Logger.MSG_BACKUP_RESTOREFINISHEDWITHERRORS,
+                        International.getMessage("Wiederherstellung mit {n} Fehlern abgeschlossen.", errors));
+            }
+        } catch (Exception e) {
+            lastErrorMsg = International.getString("Wiederherstellung fehlgeschlagen.") + " " + e.toString();
+            logMsg(Logger.ERROR, Logger.MSG_BACKUP_RESTOREFAILED,
+                    lastErrorMsg);
+            Logger.logdebug(e);
+            return -1;
+        }
+        return errors;
     }
 
     public String getLastErrorMessage() {
@@ -190,23 +411,32 @@ public class Backup {
             backupTask.logInfo(msg + "\n");
         }
     }
-    
+
     public int getTotalWork() {
         return totalWork;
     }
 
     // Run Method for Creating a Backup
-    public static void runAsTask(BaseDialog parentDialog,
+    public static void runCreateBackupTask(BaseDialog parentDialog,
             String backupDir,
+            String backupFile,
             boolean backupProject,
             boolean backupConfig) {
-        BackupTask backupTask = new BackupTask(backupDir, backupProject, backupConfig);
+        BackupTask backupTask = new BackupTask(backupDir, backupFile,
+                backupProject, backupConfig);
         ProgressDialog progressDialog = new ProgressDialog(parentDialog,
                 International.getString("Backup erstellen"), backupTask, false);
         backupTask.startBackup(progressDialog);
-
     }
 
+    // Run Method for Restoring a Backup
+    public static void runRestoreBackupTask(BaseDialog parentDialog,
+            String backupZipFile, String[] restoreObjects) {
+        BackupTask backupTask = new BackupTask(backupZipFile, restoreObjects);
+        ProgressDialog progressDialog = new ProgressDialog(parentDialog,
+                International.getString("Backup einspielen"), backupTask, false);
+        backupTask.startBackup(progressDialog);
+    }
 
 }
 
@@ -216,11 +446,17 @@ class BackupTask extends ProgressTask {
     boolean success = false;
 
     // Constructor for Creating a Backup
-    public BackupTask(String backupDir,
+    public BackupTask(String backupDir, String backupFile,
             boolean backupProject,
             boolean backupConfig) {
         super();
-        backup = new Backup(backupDir, backupProject, backupConfig);
+        backup = new Backup(backupDir, backupFile, backupProject, backupConfig);
+    }
+
+    // Constructor for Restoring a Backup
+    public BackupTask(String backupZipFile, String[] restoreObjects) {
+        super();
+        backup = new Backup(backupZipFile, restoreObjects);
     }
 
     public void startBackup(ProgressDialog progressDialog) {
@@ -232,7 +468,15 @@ class BackupTask extends ProgressTask {
 
     public void run() {
         setRunning(true);
-        success = backup.runBackup(this);
+        success = false;
+        switch(backup.getMode()) {
+            case create:
+                success = backup.runBackup(this) == 0;
+                break;
+            case restore:
+                success = backup.runRestore(this) == 0;
+                break;
+        }
         setDone();
     }
 
@@ -242,8 +486,15 @@ class BackupTask extends ProgressTask {
 
     public String getSuccessfullyDoneMessage() {
         if (success) {
-            return International.getString("Backup erfolgreich abgeschlossen.") + "\n" +
-                    backup.getZipFile();
+            switch (backup.getMode()) {
+                case create:
+                    return International.getString("Backup erfolgreich abgeschlossen.") + "\n"
+                            + backup.getZipFile();
+                case restore:
+                    return International.getString("Wiederherstellung erfolgreich abgeschlossen.");
+            }
+            return International.getString("Operation erfolgreich abgeschlossen");
+
         } else {
             return null;
         }
@@ -251,10 +502,16 @@ class BackupTask extends ProgressTask {
 
     public String getErrorDoneMessage() {
         if (!success) {
-            return International.getString("Backup fehlgeschlagen.");
+            switch (backup.getMode()) {
+                case create:
+                    return International.getString("Backup fehlgeschlagen.");
+                case restore:
+                    return International.getString("Wiederherstellung fehlgeschlagen.");
+            }
+            return International.getString("Operation fehlgeschlagen.");
+
         } else {
             return null;
         }
     }
-
 }

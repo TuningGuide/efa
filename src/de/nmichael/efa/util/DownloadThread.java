@@ -91,9 +91,11 @@ public class DownloadThread {
 
     private boolean runDownload() {
         timer = new javax.swing.Timer(PROGRESS_TIMERINTERVAL, new TimerListener(this));
-        progressMonitor.setProgress(0);
-        progressMonitor.setMaximum(conn.getContentLength());
-        progressMonitor.setMillisToDecideToPopup(PROGRESS_TIMETOPOPUP);
+        if (progressMonitor != null) {
+            progressMonitor.setProgress(0);
+            progressMonitor.setMaximum(conn.getContentLength());
+            progressMonitor.setMillisToDecideToPopup(PROGRESS_TIMETOPOPUP);
+        }
         go();
         timer.start();
         if (waitfor) {
@@ -102,7 +104,8 @@ public class DownloadThread {
             } catch (InterruptedException e) {
             }
         }
-        if (exceptionText != null) {
+        // if progrssMonitor == null, we run in silent mode
+        if (exceptionText != null && progressMonitor != null) {
             Dialog.error(International.getString("Download fehlgeschlagen") + ": " + exceptionText + "\n"
                     + International.getString("Eventuell wird efa durch eine Firewall blockiert."));
             return false;
@@ -111,13 +114,19 @@ public class DownloadThread {
     }
 
     public static boolean runDownload(Window frame, URLConnection conn, String remote, String local, boolean waitfor) {
-        ProgressMonitor progressMonitor = new ProgressMonitor(frame, International.getString("Download") + " " + remote, "", 0, 100);
+        ProgressMonitor progressMonitor = null;
+        if (frame != null) {
+            progressMonitor = new ProgressMonitor(frame, International.getString("Download") + " " + remote, "", 0, 100);
+        }
         DownloadThread downloadThread = new DownloadThread(progressMonitor, conn, local, waitfor, null);
         return downloadThread.runDownload();
     }
 
     public static boolean runDownload(Window frame, URLConnection conn, String remote, String local, ExecuteAfterDownload afterDownload) {
-        ProgressMonitor progressMonitor = new ProgressMonitor(frame, International.getString("Download") + " " + remote, "", 0, 100);
+        ProgressMonitor progressMonitor = null;
+        if (frame != null) {
+            progressMonitor = new ProgressMonitor(frame, International.getString("Download") + " " + remote, "", 0, 100);
+        }
         DownloadThread downloadThread = new DownloadThread(progressMonitor, conn, local, false, afterDownload);
         return downloadThread.runDownload();
     }
@@ -128,9 +137,12 @@ public class DownloadThread {
             conn.connect();
             return runDownload(frame, conn, remote, local, wait);
         } catch (Exception e) {
-            Dialog.error(International.getString("Download fehlgeschlagen")
-                    + ": " + e.toString() + "\n"
-                    + International.getString("Eventuell wird efa durch eine Firewall blockiert."));
+            // if frame==null, we run in "silent" mode
+            if (frame != null) {
+               Dialog.error(International.getString("Download fehlgeschlagen")
+                       + ": " + e.toString() + "\n"
+                       + International.getString("Eventuell wird efa durch eine Firewall blockiert."));
+            }
             return false;
         }
     }
@@ -141,9 +153,11 @@ public class DownloadThread {
             conn.connect();
             return runDownload(frame, conn, remote, local, afterDownload);
         } catch (Exception e) {
-            Dialog.error(International.getString("Download fehlgeschlagen")
-                    + ": " + e.toString() + "\n"
-                    + International.getString("Eventuell wird efa durch eine Firewall blockiert."));
+            if (frame != null) {
+                Dialog.error(International.getString("Download fehlgeschlagen")
+                        + ": " + e.toString() + "\n"
+                        + International.getString("Eventuell wird efa durch eine Firewall blockiert."));
+            }
             return false;
         }
     }
@@ -187,15 +201,17 @@ public class DownloadThread {
         }
 
         public void actionPerformed(ActionEvent evt) {
-            if (progressMonitor.isCanceled() || downloadThread.done()) {
-                progressMonitor.close();
+            if (progressMonitor != null) {
+                if (progressMonitor.isCanceled() || downloadThread.done()) {
+                    progressMonitor.close();
 //                downloadThread.stop();
-                downloadThread.exit();
-                timer.stop();
-            } else {
-                progressMonitor.setNote(downloadThread.getMessage());
-                progressMonitor.setMaximum(downloadThread.getLengthOfTask());
-                progressMonitor.setProgress(downloadThread.getCurrent());
+                    downloadThread.exit();
+                    timer.stop();
+                } else {
+                    progressMonitor.setNote(downloadThread.getMessage());
+                    progressMonitor.setMaximum(downloadThread.getLengthOfTask());
+                    progressMonitor.setProgress(downloadThread.getCurrent());
+                }
             }
         }
     }

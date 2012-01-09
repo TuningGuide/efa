@@ -2765,7 +2765,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       f.close();
       JEditorPane out = new JEditorPane();
       out.setContentType("text/html; charset="+Daten.ENCODING_UTF);
-      out.setPage("file:"+tmpdatei);
+      out.setPage(EfaUtil.correctUrl("file:"+tmpdatei));
       out.setSize(600,800);
       out.doLayout();
       SimpleFilePrinter sfp = new SimpleFilePrinter(out);
@@ -2871,7 +2871,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
       f.close();
       JEditorPane out = new JEditorPane();
       out.setContentType("text/html; charset="+Daten.ENCODING_UTF);
-      out.setPage("file:"+tmpdatei);
+      out.setPage(EfaUtil.correctUrl("file:"+tmpdatei));
       SimpleFilePrinter.sizeJEditorPane(out);
       SimpleFilePrinter sfp = new SimpleFilePrinter(out);
       if (sfp.setupPageFormat()) {

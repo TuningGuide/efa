@@ -26,7 +26,7 @@ public abstract class DataFile extends DataAccess {
     private final HashMap<DataKey,DataRecord> data = new HashMap<DataKey,DataRecord>();
     private final HashMap<DataKey,ArrayList<DataKey>> versionizedKeyList = new HashMap<DataKey,ArrayList<DataKey>>();
     private final ArrayList<DataIndex> indices = new ArrayList<DataIndex>();
-    private long scn = 0;
+    protected long scn = 0;
     private DataKey[] cachedKeys; // are only updated by getAllKeys(), not automatically when data is changed!!
     private long cachedKeysSCN = 0;
     private final DataLocks dataLocks = new DataLocks();
@@ -174,6 +174,27 @@ public abstract class DataFile extends DataAccess {
         } catch(Exception e) {
             Logger.log(Logger.WARNING, Logger.MSG_DATA_FILEBACKUPFAILED, e.toString());
             return false;
+        }
+    }
+
+    public synchronized void saveStorageObject(boolean calledFromFileWriter) throws EfaException {
+        long lock = -1;
+        try {
+            lock = acquireGlobalLock();
+            if (Logger.isTraceOn(Logger.TT_FILEIO)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_FILE_WRITETHREAD_SAVING, "DataFileWriter[" + filename + "] got global lock, now saving ...");
+            }
+            saveStorageObject();
+            if (Logger.isTraceOn(Logger.TT_FILEIO)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_FILE_WRITETHREAD_SAVING, "DataFileWriter[" + filename + "] data successfully saved.");
+            }
+        } finally {
+            if (lock > 0) {
+                releaseGlobalLock(lock);
+                if (Logger.isTraceOn(Logger.TT_FILEIO)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_FILE_WRITETHREAD_SAVING, "DataFileWriter[" + filename + "] released global lock.");
+                }
+            }
         }
     }
 
@@ -881,13 +902,13 @@ public abstract class DataFile extends DataAccess {
                     versionizedKeyList.clear();
                     scn++;
                 } else {
-                    throw new EfaException(Logger.MSG_DATA_JOURNALLOGFAILED, getUID() + ": Truncate failed", Thread.currentThread().getStackTrace());
+                    throw new EfaException(Logger.MSG_DATA_TRUNCATEFAILED, getUID() + ": Truncate failed", Thread.currentThread().getStackTrace());
                 }
             }
-            fileWriter.save(false, true);
         } finally {
             this.releaseGlobalLock(lockID);
         }
+        fileWriter.save(false, true);
     }
 
     public DataKey[] getAllKeys() throws EfaException {

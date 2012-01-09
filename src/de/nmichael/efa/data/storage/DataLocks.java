@@ -72,7 +72,13 @@ public class DataLocks {
                 DataLock lock = locks.get(it.next());
                 if (now - lock.getLockTime() >= LOCK_TIMEOUT) {
                     Logger.log(Logger.WARNING, Logger.MSG_DATA_LOCKTIMEOUT,
-                            "Lock Timeout [" + now + "]: " + lock.toString());
+                            "Lock Timeout at " + now +
+                            " (" + Thread.currentThread().getName() + "[" + Thread.currentThread().getId() + "]" +
+                            "): " + lock.toString());
+                    Logger.logStackTrace(Logger.DEBUG, Logger.MSG_DEBUG_GENERIC, "Lock Timeout Thread",
+                            Thread.currentThread().getStackTrace());
+                    Logger.logStackTrace(Logger.DEBUG, Logger.MSG_DEBUG_GENERIC, "Lock Owner Thread",
+                            lock.getLockOwner().getStackTrace());
                     locks.remove(lock.getLockObject());
                     count++;
                 }

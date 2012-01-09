@@ -12,6 +12,7 @@ package de.nmichael.efa.cli;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.core.config.Credentials;
 import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.data.Project;
 import de.nmichael.efa.data.storage.EfaOnlineClient;
@@ -21,12 +22,8 @@ import de.nmichael.efa.data.storage.StorageObject;
 import de.nmichael.efa.util.Logger;
 import java.io.BufferedReader;
 import java.io.Console;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.util.Hashtable;
 import java.util.Stack;
-import java.util.StringTokenizer;
 
 public class CLI {
 
@@ -35,6 +32,15 @@ public class CLI {
     public static final String MENU_PERSONS      = "persons";
     public static final String MENU_DESTINATIONS = "destinations";
     public static final String MENU_BACKUP       = "backup";
+
+    public static final int RC_OK                            =  0;
+    public static final int RC_ERROR_LOGIN                   =  1;
+    public static final int RC_ERROR_OPEN_PROJECT            =  2;
+    public static final int RC_UNKNOWN_COMMAND               =  3;
+    public static final int RC_INVALID_COMMAND               =  4;
+    public static final int RC_NO_PERMISSION                 =  5;
+    public static final int RC_COMMAND_COMPLETED_WITH_ERRORS = 10;
+    public static final int RC_COMMAND_FAILED                = 11;
 
     private String username;
     private String password;
@@ -61,7 +67,12 @@ public class CLI {
         this.project = project;
         console = System.console();
         in = new BufferedReader(new InputStreamReader(System.in));
-        readCredentials();
+        if (username != null && username.length() > 0 &&
+                (password == null || password.length() == 0)) {
+            Credentials cred = new Credentials();
+            cred.readCredentials();
+            this.password = cred.getPassword(username);
+        }
     }
 
     private void getIpAndPortFromEfaOnline() {
@@ -74,39 +85,6 @@ public class CLI {
                 hostname = addr.substring(0, pos);
                 port = addr.substring(pos + 1);
             }
-        }
-    }
-
-    private void readCredentials() {
-        if (username == null || username.length() == 0)  {
-            return;
-        }
-        if (password != null && password.length() > 0)  {
-            return;
-        }
-        try {
-            String credfilename = Daten.userHomeDir + Daten.EFACLICREDENTIALS;
-            File credfile = new File(credfilename);
-            if (credfile.exists()) {
-                BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(credfilename), Daten.ENCODING_UTF));
-                String s;
-                while ( (s = f.readLine()) != null) {
-                    s = s.trim();
-                    if (s.startsWith("#") || s.length() == 0) {
-                        continue;
-                    }
-                    StringTokenizer tok = new StringTokenizer(s, " ");
-                    if (tok.countTokens() >= 2) {
-                        String username = tok.nextToken();
-                        String password = tok.nextToken();
-                        if (this.username.equals(username) && password.length() > 0) {
-                            this.password = password;
-                        }
-                    }
-                }
-            }
-        } catch(Exception e) {
-            Logger.logdebug(e);
         }
     }
 
@@ -127,7 +105,7 @@ public class CLI {
     }
 
     public String promptForInput(String prompt) {
-        loginput((prompt != null ? prompt + ": " : "efaCLI> "));
+        loginput((prompt != null ? prompt + ": " : "efaCLI:" + menuStack.peek()  + "> "));
         String s = null;
         if (console != null) {
             s = console.readLine();
@@ -200,11 +178,15 @@ public class CLI {
         }
     }
 
-    private boolean connect() {
+    private int connect() {
         if (port != null && port.length() > 0 && !Character.isDigit(port.charAt(0))) {
             getIpAndPortFromEfaOnline();
         }
-        if (password == null) {
+        if (project == null || project.length() == 0) {
+            logerr("Don't know which project to open (no recent project, and no project specified).");
+            return RC_ERROR_OPEN_PROJECT;
+        }
+        if (password == null || password.length() == 0) {
             password = promptForPassword("Password for "+username);
         }
         loginfo("Connecting as "+username+" to " +hostname+":"+port+" ...");
@@ -215,7 +197,7 @@ public class CLI {
                 adminRecord = ((RemoteEfaClient)remoteEfaConfig.data()).getAdminRecord();
                 if (adminRecord == null) {
                     logerr("Could not get Admin Permissions.");
-                    return false;
+                    return RC_ERROR_LOGIN;
                 }
                 loginfo("Opening Remote Project " + project + " ...");
                 Project prj = new Project(IDataAccess.TYPE_FILE_XML, Daten.efaTmpDirectory, "cli");
@@ -229,17 +211,19 @@ public class CLI {
                 prj.setProjectRemoteProjectName(project);
                 prj.close();
                 Project.openProject(new Project(IDataAccess.TYPE_FILE_XML, Daten.efaTmpDirectory, "cli"), "cli");
-                if (Daten.project != null) {
+                if (Daten.project != null && Daten.project.isRemoteOpen()) {
                     loginfo("Remote Project opened.");
+                    Daten.efaConfig.setValueLastProjectEfaCli(project);
                 } else {
                     logerr("Failed to open Remote Project " + project + ".");
+                    return RC_ERROR_OPEN_PROJECT;
                 }
-                return true;
+                return RC_OK;
             }
         } catch(Exception e) {
             logerr(e.getMessage());
         }
-        return false;
+        return RC_ERROR_LOGIN;
     }
 
     public AdminRecord getAdminRecord() {
@@ -264,8 +248,8 @@ public class CLI {
         }
     }
 
-    public void quit() {
-        Daten.haltProgram(0);
+    public void quit(int ret) {
+        Daten.haltProgram(ret);
     }
 
     public Class getMenu() {
@@ -288,9 +272,10 @@ public class CLI {
         return null;
     }
 
-    public void run(String initialCommand) {
-        if (!connect()) {
-            return;
+    public int run(String initialCommand) {
+        int ret = connect();
+        if (ret != RC_OK) {
+            return ret;
         }
         try {
             Thread.sleep(500);
@@ -302,6 +287,11 @@ public class CLI {
 
         menuStack = new Stack<String>();
         menuStack.push(MENU_MAIN);
+        try {
+            lastMenu = (MenuBase) MenuMain.class.getConstructor(CLI.class).newInstance(this);
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
 
         while(true) {
             String command = (initialCommand != null ? 
@@ -309,38 +299,47 @@ public class CLI {
             if (command == null || command.length() == 0) {
                 continue;
             }
-            runCommandInCurrentMenu(command);
-            if (menuStack.isEmpty() || initialCommand != null) {
-                quit();
+            ret = runCommandInCurrentMenu(command);
+            if (menuStack.isEmpty()) {
+                quit(RC_OK);
+            }
+            if (initialCommand != null) {
+                quit(ret);
             }
         }
     }
 
-    public boolean runCommandInCurrentMenu(String command) {
+    public int runCommandInCurrentMenu(String command) {
         String cmd = parseCommand(command, 0);
         String args = parseCommand(command, 1);
         if (cmd == null || cmd.length() == 0) {
-            return true;
+            return RC_OK;
         }
         Class c = getMenu();
         if (c != null) {
             try {
                 MenuBase menu;
+                boolean menuChanged = false;
                 if (lastMenu != null && c == lastMenu.getClass()) {
                     menu = lastMenu;
                 } else {
                     menu = (MenuBase) c.getConstructor(CLI.class).newInstance(this);
+                    menuChanged = true;
                 }
-                lastMenu = menu;
-                return menu.runCommand(menuStack, cmd, args);
+                int ret = menu.runCommand(menuStack, cmd, args);
+                if (menuChanged && args != null && args.length() > 0) {
+                    menuStack.pop();
+                } else {
+                    lastMenu = menu;
+                }
+                return ret;
             } catch (Exception e) {
                 Logger.log(e);
-                return false;
+                return RC_COMMAND_FAILED;
             }
         } else {
             logerr("Command in unknown Menu");
-            return false;
+            return RC_COMMAND_FAILED;
         }
-
     }
 }

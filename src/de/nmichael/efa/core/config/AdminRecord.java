@@ -27,6 +27,8 @@ import javax.swing.JDialog;
 
 public class AdminRecord extends DataRecord implements IItemListener {
 
+    public static final int MIN_PASSWORD_LENGTH = 6;
+
     // =========================================================================
     // Field Names
     // =========================================================================
@@ -63,6 +65,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
     public static final String UPDATEEFA             = "UpdateEfa";
     public static final String EXECCOMMAND           = "ExecCommand";
     public static final String BACKUP                = "Backup";
+    public static final String RESTORE               = "Restore";
 
     private boolean isRemoteAdmin = false;
 
@@ -102,6 +105,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
         f.add(UPDATEEFA);                         t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EXECCOMMAND);                       t.add(IDataAccess.DATA_BOOLEAN);
         f.add(BACKUP);                            t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(RESTORE);                           t.add(IDataAccess.DATA_BOOLEAN);
         MetaData metaData = constructMetaData(Admins.DATATYPE, f, t, false);
         metaData.setKey(new String[] { NAME });
     }
@@ -325,11 +329,18 @@ public class AdminRecord extends DataRecord implements IItemListener {
         return getBool(LOCKEFA);
     }
 
-    public void setAllowedBackup(boolean allowed) {
+    public void setAllowedCreateBackup(boolean allowed) {
         setBool(BACKUP, allowed);
     }
-    public Boolean isAllowedBackup() {
+    public Boolean isAllowedCreateBackup() {
         return getBool(BACKUP);
+    }
+
+    public void setAllowedRestoreBackup(boolean allowed) {
+        setBool(RESTORE, allowed);
+    }
+    public Boolean isAllowedRestoreBackup() {
+        return getBool(RESTORE);
     }
 
     public void setAllowedUpdateEfa(boolean allowed) {
@@ -383,7 +394,8 @@ public class AdminRecord extends DataRecord implements IItemListener {
                     || !isAllowedLockEfa()
                     || !isAllowedUpdateEfa()
                     || !isAllowedExecCommand()
-                    || !isAllowedBackup()) {
+                    || !isAllowedCreateBackup()
+                    || !isAllowedRestoreBackup()) {
                 setAllowedEditAdmins(true);
                 setAllowedChangePassword(true);
                 setAllowedConfiguration(true);
@@ -410,7 +422,8 @@ public class AdminRecord extends DataRecord implements IItemListener {
                 setAllowedLockEfa(true);
                 setAllowedUpdateEfa(true);
                 setAllowedExecCommand(true);
-                setAllowedBackup(true);
+                setAllowedCreateBackup(true);
+                setAllowedRestoreBackup(true);
                 changed = true;
             }
         } else {
@@ -463,12 +476,12 @@ public class AdminRecord extends DataRecord implements IItemListener {
             v.add(item = new ItemTypePassword(PASSWORD, "", 
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Paßwort")));
             ((ItemTypePassword)item).setNotNull(true);
-            ((ItemTypePassword)item).setMinCharacters(6);
+            ((ItemTypePassword)item).setMinCharacters(MIN_PASSWORD_LENGTH);
             v.add(item = new ItemTypePassword(PASSWORD + "_REPEAT", "", 
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Paßwort") +
                     " (" + International.getString("Wiederholung") + ")"));
             ((ItemTypePassword)item).setNotNull(true);
-            ((ItemTypePassword)item).setMinCharacters(6);
+            ((ItemTypePassword)item).setMinCharacters(MIN_PASSWORD_LENGTH);
         }
         v.add(item = new ItemTypeString(EMAIL, getEmail(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("email-Adresse")));
@@ -537,8 +550,11 @@ public class AdminRecord extends DataRecord implements IItemListener {
         v.add(item = new ItemTypeBoolean(LOCKEFA, isAllowedLockEfa(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("efa sperren")));
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
-        v.add(item = new ItemTypeBoolean(BACKUP, isAllowedBackup(),
-                IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Backups erstellen")));
+        v.add(item = new ItemTypeBoolean(BACKUP, isAllowedCreateBackup(),
+                IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Backup erstellen")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
+        v.add(item = new ItemTypeBoolean(RESTORE, isAllowedRestoreBackup(),
+                IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Backup einspielen")));
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(UPDATEEFA, isAllowedUpdateEfa(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Online-Update")));

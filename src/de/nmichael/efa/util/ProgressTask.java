@@ -59,7 +59,7 @@ public abstract class ProgressTask extends Thread {
             } catch(Exception e) {
             }
         }
-        if (autoCloseDialogWhenDone) {
+        if (autoCloseDialogWhenDone && progressDialog != null) {
             progressDialog.cancel();
         }
     }

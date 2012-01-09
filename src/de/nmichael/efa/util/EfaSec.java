@@ -64,9 +64,11 @@ public class EfaSec {
     }
 
     public boolean secValueValid() {
-        String efaJarSHA = EfaUtil.getSHA(new File(Daten.efaProgramDirectory + Daten.EFA_JAR));
-        String efaSecSHA = getSecValue();
-        return efaJarSHA != null && efaSecSHA != null && efaJarSHA.equals(efaSecSHA);
+        // in efa2, we don't care whether it's valid or not... just whether it's there
+        //String efaJarSHA = EfaUtil.getSHA(new File(Daten.efaProgramDirectory + Daten.EFA_JAR));
+        //String efaSecSHA = getSecValue();
+        //return efaJarSHA != null && efaSecSHA != null && efaJarSHA.equals(efaSecSHA);
+        return true;
     }
 
     public boolean writeSecFile(String sha, boolean dontDelete) {
@@ -110,4 +112,5 @@ public class EfaSec {
             return false;
         }
     }
+
 }

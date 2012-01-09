@@ -93,6 +93,7 @@ public class EfaConfig extends StorageObject {
     // private configuration data
     private ItemTypeString lastProjectEfaBase;
     private ItemTypeString lastProjectEfaBoathouse;
+    private ItemTypeString lastProjectEfaCli;
     private ItemTypeBoolean autogenAlias;
     private ItemTypeString aliasFormat;
     private ItemTypeFile browser;
@@ -245,6 +246,7 @@ public class EfaConfig extends StorageObject {
     private ItemTypeLong dataRemoteCacheExpiryTime;
     private ItemTypeLong dataRemoteIsOpenExpiryTime;
     private ItemTypeLong dataRemoteLoginFailureRetryTime;
+    private ItemTypeLong dataRemoteClientReceiveTimeout;
     private Vector<IWidget> widgets;
 
     // private internal data
@@ -401,7 +403,10 @@ public class EfaConfig extends StorageObject {
                     International.getString("Verzeichnis für Nutzerdaten")));
             addParameter(lastProjectEfaBase = new ItemTypeString("LastProjectEfaBase", "",
                     IItemType.TYPE_INTERNAL,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_COMMON),
-                    "Last project opened by efa Base"));
+                    "Last project opened by efaBase"));
+            addParameter(lastProjectEfaCli = new ItemTypeString("LastProjectEfaCli", "",
+                    IItemType.TYPE_INTERNAL,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_COMMON),
+                    "Last project opened by efaCLI"));
             addParameter(debugLogging = new ItemTypeBoolean("DebugLogging", false,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_COMMON),
                     International.getString("Debug-Logging aktivieren")));
@@ -552,7 +557,7 @@ public class EfaConfig extends StorageObject {
             // ============================= BOATHOUSE:COMMON =============================
             addParameter(lastProjectEfaBoathouse = new ItemTypeString("LastProjectEfaBoathouse", "",
                     IItemType.TYPE_INTERNAL,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_COMMON),
-                    "Last project opened by efa Boathouse"));
+                    "Last project opened by efaBoathouse"));
             addParameter(efaDirekt_listAllowToggleBoatsPersons = new ItemTypeBoolean("BoatListToggleToPersons", false,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
                     International.getString("erlaube Auswahl in Bootslisten alternativ auch über Personennamen")));
@@ -955,6 +960,9 @@ public class EfaConfig extends StorageObject {
             addParameter(dataRemoteLoginFailureRetryTime = new ItemTypeLong("DataRemoteLoginFailureRetryDelay", 600, 60, 24*3600,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
                     "Login Failure Retry Delay (sec)"));
+            addParameter(dataRemoteClientReceiveTimeout = new ItemTypeLong("DataRemoteClientReceiveTimeout", 60, 10, 600,
+                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
+                    "Client Receive Timeout (sec)"));
 
             addParameter(dataRemoteEfaOnlineEnabled = new ItemTypeBoolean("DataRemoteEfaOnlineEnabled", false,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
@@ -1024,6 +1032,14 @@ public class EfaConfig extends StorageObject {
 
     public void setValueLastProjectEfaBoathouse(String name) {
         setValue(lastProjectEfaBoathouse, name);
+    }
+
+    public String getValueLastProjectEfaCli() {
+        return lastProjectEfaCli.getValue();
+    }
+
+    public void setValueLastProjectEfaCli(String name) {
+        setValue(lastProjectEfaCli, name);
     }
 
     public boolean getValueAutogenAlias() {
@@ -1665,6 +1681,10 @@ public class EfaConfig extends StorageObject {
 
     public long getValueDataRemoteLoginFailureRetryTime() {
         return dataRemoteLoginFailureRetryTime.getValue();
+    }
+
+    public long getValueDataRemoteClientReceiveTimeout() {
+        return dataRemoteClientReceiveTimeout.getValue();
     }
 
     public Vector<IWidget> getWidgets() {

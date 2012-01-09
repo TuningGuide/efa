@@ -153,6 +153,10 @@ public class RemoteEfaParser extends XmlHandler {
             return;
         }
 
+        if (inRequestResponse && localName.equals(RemoteEfaMessage.FIELD_ADMINRECORD)) {
+            inFieldAdminRecord = false;
+        }
+
         if (inRequestResponse && inKey && localName.equals(DataKey.ENCODING_KEY)) {
             // end of key
             message.addKey(key);

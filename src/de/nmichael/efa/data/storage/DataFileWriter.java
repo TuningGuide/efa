@@ -38,28 +38,14 @@ public class DataFileWriter extends Thread {
                     if (Logger.isTraceOn(Logger.TT_FILEIO)) {
                         Logger.log(Logger.DEBUG, Logger.MSG_FILE_WRITETHREAD_SAVING, "DataFileWriter["+dataFile.filename+"] found new data to be saved.");
                     }
-                    long lock = dataFile.acquireGlobalLock();
-                    if (lock > 0) {
                         try {
-                            if (Logger.isTraceOn(Logger.TT_FILEIO)) {
-                                Logger.log(Logger.DEBUG, Logger.MSG_FILE_WRITETHREAD_SAVING, "DataFileWriter["+dataFile.filename+"] got global lock, now saving ...");
-                            }
-                            dataFile.saveStorageObject();
-                            if (Logger.isTraceOn(Logger.TT_FILEIO)) {
-                                Logger.log(Logger.DEBUG, Logger.MSG_FILE_WRITETHREAD_SAVING, "DataFileWriter["+dataFile.filename+"] data successfully saved.");
-                            }
+                            dataFile.saveStorageObject(true);
                         } catch(Exception e) {
                             Logger.log(Logger.ERROR, Logger.MSG_FILE_WRITETHREAD_ERROR, "DataFileWriter["+dataFile.filename+"] failed to save data: "+e.toString());
                             Logger.log(e);
-                        } finally {
-                            dataFile.releaseGlobalLock(lock);
-                            if (Logger.isTraceOn(Logger.TT_FILEIO)) {
-                                Logger.log(Logger.DEBUG, Logger.MSG_FILE_WRITETHREAD_SAVING, "DataFileWriter["+dataFile.filename+"] released global lock.");
-                            }
                         }
                         lastSave = System.currentTimeMillis();
                         writedata = false;
-                    }
                 } else {
                     Thread.sleep(SLEEP_INTERVAL);
                 }

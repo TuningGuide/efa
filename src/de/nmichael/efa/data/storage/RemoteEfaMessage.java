@@ -64,6 +64,7 @@ public class RemoteEfaMessage {
     public static final String OPERATION_GETLAST                 = "GetLast";
 
     public static final String OPERATION_CMD_EXITEFA             = "CmdExitEfa";
+    public static final String OPERATION_CMD_ONLINEUPDATE        = "CmdOnlineUpdate";
 
     // Field Names for Operations
     public static final String FIELD_SESSIONID          = "SID";
@@ -421,18 +422,22 @@ public class RemoteEfaMessage {
 
     // ===================================== Compression Handling =====================================
 
-    public static BufferedInputStream getBufferedInputStream(InputStream in) {
+    public static BufferedInputStream getBufferedInputStream(InputStream in, long timeoutSec) {
         try {
-            int timeout = 100;
-            while (in.available() <= 0) {
-                try {
-                    Thread.sleep(100);
-                } catch(InterruptedException eignore) {
-                }
-                if (--timeout <= 0) {
-                    Logger.log(Logger.ERROR, Logger.MSG_REFA_ERRORTIMEOUT,
-                            "Response Receive Timeout");
-                    return null;
+            // RemoteEfaServer has to call this method without a timeout (timeoutSec == 0).
+            // RemoteEfaClient should supply a timeout value to avoid blocking
+            if (timeoutSec > 0) {
+                long timeout = timeoutSec*10;
+                while (in.available() <= 0) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException eignore) {
+                    }
+                    if (--timeout <= 0) {
+                        Logger.log(Logger.ERROR, Logger.MSG_REFA_ERRORTIMEOUT,
+                                "Response Receive Timeout [" + timeoutSec + " sec]");
+                        return null;
+                    }
                 }
             }
             ZipInputStream zip = new ZipInputStream(in);

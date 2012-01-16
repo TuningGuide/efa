@@ -105,7 +105,7 @@ public class CLI {
     }
 
     public String promptForInput(String prompt) {
-        loginput((prompt != null ? prompt + ": " : "efaCLI:" + menuStack.peek()  + "> "));
+        loginput((prompt != null ? prompt + ": " : Daten.EFA_CLI + ":" + menuStack.peek()  + "> "));
         String s = null;
         if (console != null) {
             s = console.readLine();
@@ -123,7 +123,7 @@ public class CLI {
     }
 
     public String promptForPassword(String prompt) {
-        loginput((prompt != null ? prompt + ": " : "efaCLI> "));
+        loginput((prompt != null ? prompt + ": " : Daten.EFA_CLI + "> "));
         String s = null;
         if (console != null) {
             char[] pass = console.readPassword();

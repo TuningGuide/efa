@@ -81,8 +81,12 @@ public class Project extends StorageObject {
             }
             if (p.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
                 p.remoteDataAccess = DataAccess.createDataAccess(p, IDataAccess.TYPE_EFA_REMOTE,
-                        p.getProjectStorageLocation(), p.getProjectStorageUsername(), p.getProjectStoragePassword(),
-                        p.getProjectRemoteProjectName(), p.dataAccess.getStorageObjectType(), p.dataAccess.getStorageObjectDescription());
+                        p.getProjectStorageLocation(), 
+                        p.getProjectStorageUsername(),
+                        p.getProjectStoragePassword(),
+                        p.getProjectRemoteProjectName(), 
+                        p.dataAccess.getStorageObjectType(),
+                        International.getString("Projekt") + " " + p.getProjectRemoteProjectName());
                 p.remoteDataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
                 // since login into remote data is lazy, we should retrieve a project record here
                 // to make the login happen. It's important to chose a record which is a remote
@@ -93,7 +97,7 @@ public class Project extends StorageObject {
             p._inOpeningProject = false;
         } catch (Exception ee) {
             Logger.log(ee);
-            Dialog.error(LogString.logstring_fileOpenFailed(projectName, International.getString("Projekt"), ee.toString()));
+            Dialog.error(LogString.fileOpenFailed(projectName, International.getString("Projekt"), ee.toString()));
             Daten.project = null;
             return false;
         }
@@ -183,7 +187,7 @@ public class Project extends StorageObject {
         } catch(Exception e) {
             _inDeleteProject = false;
             Logger.log(e);
-            Dialog.error(LogString.logstring_fileDeletionFailed(projectName, International.getString("Projekt"), e.toString()));
+            Dialog.error(LogString.fileDeletionFailed(projectName, International.getString("Projekt"), e.toString()));
             return false;
         }
         _inDeleteProject = false;
@@ -212,6 +216,58 @@ public class Project extends StorageObject {
             data.add(getLogbook(logbookNames[i], false));
         }
         return data;
+    }
+
+    public static Hashtable<String,String> getProjects() {
+        Hashtable<String,String> items = new Hashtable<String,String>();
+        try {
+            File dir = new File(Daten.efaDataDirectory);
+            if (dir.isDirectory()) {
+                String[] files = dir.list();
+                for (int i=0; files != null && i<files.length; i++) {
+                    if (files[i] != null && files[i].length() > 0 &&
+                        files[i].toLowerCase().endsWith("." + Project.DATATYPE)) {
+                        int pos = files[i].lastIndexOf(".");
+                        String name = files[i].substring(0,pos);
+                        try {
+                            Project p = new Project(name);
+                            p.open(false);
+                            StringBuffer description = new StringBuffer();
+                            description.append("<b>" + International.getString("Projekt") + ":</b> <b style=\"color:blue\">" + name + "</b><br>");
+                            if (p.getProjectDescription() != null) {
+                                description.append(p.getProjectDescription()+"<br>");
+                            }
+                            String[] logbooks = p.getAllLogbookNames();
+                            if (logbooks != null) {
+                                description.append(International.getString("Fahrtenbücher") + ": ");
+                                for (int j=0; j<logbooks.length; j++) {
+                                    description.append( (j>0 ? ", " : "") + logbooks[j]);
+                                }
+                            }
+                            items.put(name, description.toString());
+                        } catch(Exception e1) {
+                        }
+                    }
+                }
+            }
+        } catch(Exception e) {
+        }
+        return items;
+    }
+
+    public Hashtable<String,String> getLogbooks() {
+        Hashtable<String,String> items = new Hashtable<String,String>();
+        String[] logbooks = getAllLogbookNames();
+        for (int i = 0; logbooks != null && i < logbooks.length; i++) {
+            ProjectRecord r = getLoogbookRecord(logbooks[i]);
+            if (r != null) {
+                String name = "<b>" + International.getString("Fahrtenbuch") + ":</b> <b style=\"color:blue\">" + logbooks[i] + "</b><br>";
+                String description = (r.getDescription() != null && r.getDescription().length() > 0 ? r.getDescription() + " " : "");
+                description += "(" + r.getStartDate().toString() + " - " + r.getEndDate() + ")";
+                items.put(logbooks[i], name + description);
+            }
+        }
+        return items;
     }
 
     public static ProjectRecord createNewRecordFromStatic(String type) {
@@ -383,7 +439,7 @@ public class Project extends StorageObject {
             p.close();
         } catch(Exception e) {
             Logger.log(Logger.ERROR,Logger.MSG_DATA_CLOSEFAILED,
-            LogString.logstring_fileCloseFailed(persistenceCache.toString(), p.getDescription(), e.toString()));
+            LogString.fileCloseFailed(persistenceCache.toString(), p.getDescription(), e.toString()));
             Logger.log(e);
         }
     }
@@ -497,7 +553,7 @@ public class Project extends StorageObject {
         } catch(Exception e) {
             if (!silent) {
                 Logger.log(Logger.ERROR,Logger.MSG_DATA_OPENFAILED,
-                        LogString.logstring_fileOpenFailed( (p != null ? p.toString(): "<?>"), description, e.toString()));
+                        LogString.fileOpenFailed( (p != null ? p.toString(): "<?>"), description, e.toString()));
                 if (getProjectStorageType() != IDataAccess.TYPE_EFA_REMOTE) {
                     Logger.log(e);
                 }
@@ -509,13 +565,17 @@ public class Project extends StorageObject {
 
     public IDataAccess getStorageObjectDataAccess(String storageObjectName, String storageObjectType,
             boolean createNewIfDoesntExist) {
-        if (storageObjectType.equals(DATATYPE) &&
-            storageObjectName.equals(data().getStorageObjectName())) {
-            if (getProjectStorageType() != IDataAccess.TYPE_EFA_REMOTE) {
+        if (storageObjectType.equals(DATATYPE)) {
+            if (getProjectStorageType() != IDataAccess.TYPE_EFA_REMOTE &&
+                storageObjectName.equals(data().getStorageObjectName())) {
                 return this.dataAccess;
-            } else {
+            }
+            if (getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE &&
+                remoteDataAccess != null &&
+                storageObjectName.equals(remoteDataAccess.getStorageObjectName())) {
                 return this.remoteDataAccess;
             }
+            return null; // it's another project
         }
         StorageObject so = getPersistence(null, storageObjectName, storageObjectType,
                 createNewIfDoesntExist, storageObjectName + "." + storageObjectType, true);
@@ -526,7 +586,9 @@ public class Project extends StorageObject {
     }
 
     public StorageObject getStorageObject(String storageObjectName, String storageObjectType, boolean createNewIfDoesntExist) {
-        if (storageObjectName.equals(getProjectName()) && storageObjectType.equals(DATATYPE)) {
+        // it's important that we compare aginst storageObjectName, not against getProjectName(),
+        // as the latter might not be fully initialized
+        if (storageObjectName.equals(getName()) && storageObjectType.equals(DATATYPE)) {
             return this;
         }
         return this.getPersistence(null, storageObjectName, storageObjectType, createNewIfDoesntExist, "Remote Request", true);
@@ -578,7 +640,7 @@ public class Project extends StorageObject {
 
     public SessionGroups getSessionGroups(boolean createNewIfDoesntExist) {
         return (SessionGroups)getPersistence(SessionGroups.class, STORAGEOBJECT_SESSIONGROUPS, SessionGroups.DATATYPE,
-                createNewIfDoesntExist, International.getString("Fahrtengruppen"));
+                createNewIfDoesntExist, International.getString("Fahrtgruppen"));
     }
 
     public Persons getPersons(boolean createNewIfDoesntExist) {

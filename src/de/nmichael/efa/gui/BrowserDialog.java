@@ -404,7 +404,8 @@ public class BrowserDialog extends BaseDialog {
                 return;
             }
             if (!admin.isAllowedLockEfa()) {
-                Dialog.error(International.getString("Du hast nicht die Berechtigung, um efa zu entsperren!"));
+                Dialog.error(International.getMessage("Du hast als {user} nicht die Berechtigung, um die Funktion '{function}' auszuführen.",
+                        admin.getName(), International.getString("Entsperren von efa")));
                 return;
             }
             unlock();
@@ -544,7 +545,7 @@ public class BrowserDialog extends BaseDialog {
             }
         }
         if (!EfaUtil.copyFile(quelle, ziel)) {
-            Dialog.error(International.getMessage("Fehler beim Speichern der Seite unter dem Namen {name}.", ziel));
+            Dialog.error(LogString.fileSavingFailed(ziel, International.getString("HTML-Seite")));
         } else {
             // Datei erfolgreich kopiert
 
@@ -600,7 +601,8 @@ public class BrowserDialog extends BaseDialog {
                         } while (i >= 0);
                     }
                 } catch (Exception ee) {
-                    Dialog.error(International.getMessage("Fehler beim Speichern der eingebetteten Bilder: {message}", ee.toString()));
+                    Dialog.error(LogString.fileSavingFailed("...", International.getString("Bilder"), ee.toString()));
+
                 } finally {
                     try {
                         f.close();
@@ -635,7 +637,7 @@ public class BrowserDialog extends BaseDialog {
                 DownloadThread.runDownload(this, conn, fname, dat, false);
             }
         } catch (IOException e) {
-            Dialog.error(International.getString("Download fehlgeschlagen") + ":\n" + e.toString() + "\n"
+            Dialog.error(LogString.operationFailed(International.getString("Download")) + ":\n" + e.toString() + "\n"
                     + International.getString("Eventuell wird efa durch eine Firewall blockiert."));
         }
     }

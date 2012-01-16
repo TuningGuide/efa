@@ -71,6 +71,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     protected int[] actionTypes;
     protected int defaultActionForDoubleclick = ACTION_EDIT;
 
+    protected Color markedCellColor = Color.red;
+    protected boolean markedCellBold = false;
+
     public ItemTypeDataRecordTable(String name,
             TableItemHeader[] tableHeader, 
             StorageObject persistence,
@@ -86,7 +89,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         this.itemListenerActionTable = itemListenerActionTable;
         renderer = new de.nmichael.efa.gui.util.TableCellRenderer();
         renderer.setMarkedBold(false);
-        renderer.setMarkedForegroundColor(Color.red);
+        renderer.setMarkedForegroundColor(markedCellColor);
+        renderer.setMarkedBold(markedCellBold);
         renderer.setMarkedBackgroundColor(null);
     }
 
@@ -491,5 +495,19 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     public void setButtonPanelPosition(String borderLayoutPosition) {
         this.buttonPanelPosition = borderLayoutPosition;
     }
+
+    public void setMarkedCellColor(Color color) {
+        this.markedCellColor = color;
+        if (renderer != null) {
+            renderer.setMarkedForegroundColor(color);
+        }
+    }
     
+    public void setMarkedCellBold(boolean bold) {
+        this.markedCellBold = bold;
+        if (renderer != null) {
+            renderer.setMarkedBold(bold);
+        }
+    }
+
 }

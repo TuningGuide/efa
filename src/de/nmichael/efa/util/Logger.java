@@ -230,7 +230,8 @@ public class Logger {
     public static final String MSG_EVT_ERRORNOBOATSTATUSFORBOAT = "EVT041";
     public static final String MSG_EVT_REMOTEEFAEXIT = "EVT042";
     public static final String MSG_EVT_REMOTEONLINEUPDATE = "EVT043";
-    public static final String MSG_EVT_ONLINEUPDATEFINISHED = "EVT044";
+    public static final String MSG_EVT_REMOTEONLINEUPDATEDOWNLOAD = "EVT044";
+    public static final String MSG_EVT_ONLINEUPDATEFINISHED = "EVT045";
 
     // Backup
     public static final String MSG_BCK_BACKUPSTARTED = "BCK001";
@@ -430,7 +431,7 @@ public class Logger {
                 Logger.log(Logger.ERROR,
                         Logger.MSG_LOGGER_FAILEDCREATELOG,
                         International.getString("Fehler") + ": "
-                        + LogString.logstring_fileCreationFailed(Daten.efaLogfile, International.getString("Logdatei")));
+                        + LogString.fileCreationFailed(Daten.efaLogfile, International.getString("Logdatei")));
             }
         }
 

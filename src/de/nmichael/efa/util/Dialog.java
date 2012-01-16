@@ -103,7 +103,7 @@ public class Dialog {
     public static int DateiErstellen(String dat) {
         switch (Dialog.yesNoDialog(
                 International.getString("Fehler"),
-                LogString.logstring_fileNotFound(dat, International.getString("Datei")) + "\n"
+                LogString.fileNotFound(dat, International.getString("Datei")) + "\n"
                 + International.getString("Soll die Datei neu erstellt werden?"))) {
             case Dialog.YES:
                 return YES;
@@ -118,7 +118,7 @@ public class Dialog {
         if (Daten.isGuiAppl() && !SUPPRESS_DIALOGS) {
             Dialog.infoDialog(International.getString("Fehler"), s);
         } else {
-            System.out.println(International.getString("ERROR") + ": " + s);
+            System.out.println("ERROR" + ": " + s);
         }
     }
 
@@ -126,7 +126,7 @@ public class Dialog {
         if (Daten.isGuiAppl() && !SUPPRESS_DIALOGS) {
             Dialog.infoDialog(title, s);
         } else {
-            System.out.println(International.getString("INFO") + ": " + s);
+            System.out.println("INFO" + ": " + s);
         }
     }
 

@@ -68,7 +68,8 @@ public class BoatReservationListDialog extends DataListDialog {
                 if (boats != null) {
                     BoatRecord r = boats.getBoat(boatId, System.currentTimeMillis());
                     if (r != null) {
-                        this.filterFieldDescription = International.getMessage("Boot: {boat}", r.getQualifiedName());
+                        this.filterFieldDescription = International.getString("Boot") + ": " +
+                                r.getQualifiedName();
                     }
                 }
             }

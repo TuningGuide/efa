@@ -16,18 +16,27 @@ import de.nmichael.efa.core.config.Admins;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.data.Project;
 import de.nmichael.efa.data.storage.IDataAccess;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Arrays;
+import java.util.Hashtable;
 import javax.swing.*;
 
 public class AdminLoginDialog extends BaseDialog {
 
+    private static String NO_PROJECT;
+
     private String KEYACTION_ENTER;
     private String reason;
+    private boolean showSelectProject;
     private ItemTypeString name;
     private ItemTypePassword password;
+    private ItemTypeStringList projectList;
     private AdminRecord adminRecord;
+    private String project;
+    private static String selectedProject;
 
     public AdminLoginDialog(Frame parent, String reason) {
         super(parent, International.getStringWithMnemonic("Admin-Login"), International.getStringWithMnemonic("Login"));
@@ -37,6 +46,12 @@ public class AdminLoginDialog extends BaseDialog {
     public AdminLoginDialog(JDialog parent, String reason) {
         super(parent, International.getStringWithMnemonic("Admin-Login"), International.getStringWithMnemonic("Login"));
         this.reason = reason;
+    }
+
+    private void setShowSelectProject(String defaultProject) {
+        this.showSelectProject = true;
+        this.project = defaultProject;
+        NO_PROJECT = "<" + International.getString("kein Projekt") + ">";
     }
 
     protected void iniDialog() throws Exception {
@@ -51,6 +66,8 @@ public class AdminLoginDialog extends BaseDialog {
         infoLabel.setText(International.getString("Admin-Login erforderlich."));
         infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
+        int width = (showSelectProject ? 200 : 120);
+
         if (reason != null && reason.length() > 0) {
             mainPanel.add(reasonLabel, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 10, 0, 10), 0, 0));
@@ -60,12 +77,29 @@ public class AdminLoginDialog extends BaseDialog {
 
         name = new ItemTypeString("NAME", "", IItemType.TYPE_PUBLIC, "", International.getStringWithMnemonic("Admin-Name"));
         name.setAllowedCharacters("abcdefghijklmnopqrstuvwxyz0123456789_");
-        name.setFieldSize(120, 20);
+        name.setFieldSize(width, -1);
         password = new ItemTypePassword("PASSWORD", "", IItemType.TYPE_PUBLIC, "", International.getStringWithMnemonic("Paßwort"));
-        password.setFieldSize(120, 20);
+        password.setFieldSize(width, -1);
         
         name.displayOnGui(this, mainPanel, 0, 2);
         password.displayOnGui(this, mainPanel, 0, 3);
+
+        if (showSelectProject) {
+            Hashtable<String,String> projects = Project.getProjects();
+            projects.put(NO_PROJECT, "foobar");
+            if (projects != null && projects.size() > 0) {
+                String[] projectArray = projects.keySet().toArray(new String[0]);
+                Arrays.sort(projectArray);
+                projectList = new ItemTypeStringList("PROJECT",
+                        (project != null && project.length() > 0 ? project : NO_PROJECT),
+                        projectArray, projectArray,
+                        IItemType.TYPE_PUBLIC, "",
+                        International.getString("Projekt"));
+                projectList.setFieldSize(width, -1);
+                projectList.displayOnGui(this, mainPanel, 0, 4);
+            }
+
+        }
     }
 
     public void keyAction(ActionEvent evt) {
@@ -88,6 +122,9 @@ public class AdminLoginDialog extends BaseDialog {
     public void closeButton_actionPerformed(ActionEvent e) {
         name.getValueFromGui();
         password.getValueFromGui();
+        if (projectList != null) {
+            projectList.getValueFromGui();
+        }
 
         if (!name.isValidInput()) {
             Dialog.error(International.getString("Kein Admin-Name eingegeben!"));
@@ -134,11 +171,26 @@ public class AdminLoginDialog extends BaseDialog {
         return adminRecord;
     }
 
-    public static AdminRecord login(Window parent, String reason) {
-        return login(parent, reason, null);
+    public String getSelectedProject() {
+        if (projectList == null) {
+            return null;
+        }
+        String p = projectList.getValue();
+        return (NO_PROJECT.equals(p) ? null : p);
     }
 
-    public static AdminRecord login(Window parent, String reason, String admin) {
+    public static AdminRecord login(Window parent, String reason) {
+        return login(parent, reason, null, false, null);
+    }
+
+    public static AdminRecord login(Window parent, String reason,
+            boolean showSelectProject, String defaultProject) {
+        return login(parent, reason, null,
+                showSelectProject, defaultProject);
+    }
+
+    public static AdminRecord login(Window parent, String reason, String admin,
+            boolean showSelectProject, String defaultProject) {
         AdminLoginDialog dlg = null;
         if (parent == null) {
             dlg = new AdminLoginDialog((JDialog)null, reason);
@@ -149,27 +201,38 @@ public class AdminLoginDialog extends BaseDialog {
                 dlg = new AdminLoginDialog((JFrame) parent, reason);
             }
         }
-        return login(dlg, reason, admin);
+        return login(dlg, reason, admin, showSelectProject, defaultProject);
     }
 
-    public static AdminRecord login(Frame parent, String grund, String admin) {
+    public static AdminRecord login(Frame parent, String grund, String admin,
+            boolean showSelectProject, String defaultProject) {
         AdminLoginDialog dlg = null;
         if (parent != null) {
             dlg = new AdminLoginDialog(parent, grund);
         } else {
             dlg = new AdminLoginDialog((JFrame)null, grund);
         }
-        return login(dlg, grund, admin);
+        return login(dlg, grund, admin, showSelectProject, defaultProject);
     }
 
-    public static AdminRecord login(AdminLoginDialog dlg, String grund, String adminName) {
+    public static AdminRecord login(AdminLoginDialog dlg, String grund, String adminName,
+            boolean showSelectProject, String defaultProject) {
         //dlg.setModal(true);
         if (adminName != null) {
             dlg.setLoginOnlyAdmin(adminName);
         }
+        if (showSelectProject) {
+            dlg.setShowSelectProject(defaultProject);
+        }
         dlg.showDialog();
+        selectedProject = (showSelectProject ? dlg.getSelectedProject() : null);
         return dlg.getResult();
     }
+
+    public static String getLastSelectedProject() {
+        return selectedProject;
+    }
+
 
 
 

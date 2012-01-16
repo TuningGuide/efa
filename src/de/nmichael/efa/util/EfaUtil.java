@@ -262,10 +262,23 @@ public class EfaUtil {
     }
 
     public static String correctTime(String s, int hdef, int mdef, int sdef, boolean withSeconds) {
+        return correctTime(s, hdef, mdef, sdef, withSeconds, false);
+    }
+
+    public static String correctTime(String s, int hdef, int mdef, int sdef, boolean withSeconds,
+            boolean useZeroAsMinuteAndSecondIfHourWasGivenInS) {
         if (s.length() == 0) {
             return "";
         }
-        TMJ hhmmss = EfaUtil.string2date(s, hdef, mdef, sdef); // TMJ mißbraucht für die Auswertung von Uhrzeiten
+        TMJ hhmmss;
+        if (useZeroAsMinuteAndSecondIfHourWasGivenInS) {
+            hhmmss = EfaUtil.string2date(s, -1, -1, -1); // TMJ mißbraucht für die Auswertung von Uhrzeiten
+            if (hhmmss.tag != -1) {
+                mdef = 0;
+                sdef = 0;
+            }
+        }
+        hhmmss = EfaUtil.string2date(s, hdef, mdef, sdef); // TMJ mißbraucht für die Auswertung von Uhrzeiten
         int hh = hhmmss.tag;
         int mm = hhmmss.monat;
         int ss = hhmmss.jahr;
@@ -1185,11 +1198,15 @@ public class EfaUtil {
     // Entpacken eines Ziparchivs zipFile in einem Verzeichnis destDir
     // Rückgabe: null, wenn erfolgreich; String != null mit Fehlermeldungen, sonst
     public static String unzip(String zipFile, String destDir) {
+        return unzip(zipFile, destDir, null, null);
+    }
+    public static String unzip(String zipFile, String destDir,
+            String replaceFilePostfixSource, String replaceFilePostfixDest) {
         if (!(new File(zipFile)).isFile()) {
-            return LogString.logstring_fileNotFound(zipFile, International.getString("ZIP-Datei"));
+            return LogString.fileNotFound(zipFile, International.getString("ZIP-Archiv"));
         }
         if (!(new File(destDir)).isDirectory()) {
-            return LogString.logstring_directoryDoesNotExist(destDir, International.getString("Ziel-Verzeichnis"));
+            return LogString.directoryDoesNotExist(destDir, International.getString("Ziel-Verzeichnis"));
         }
 
         if (!destDir.endsWith(Daten.fileSep)) {
@@ -1208,9 +1225,9 @@ public class EfaUtil {
                     if (!(new File(destDir + filename)).isDirectory()) {
                         if (!(new File(destDir + filename)).mkdirs()) {
                             result = (result == null ? "" : result + "\n")
-                                    + International.getString("Fehler beim Entpacken") + ": "
-                                    + International.getMessage("Erstellen des Verzeichnisses {dirname} fehlgeschlagen!", destDir + filename) + "\n"
-                                    + International.getString("Entpacken abgebrochen.");
+                                    + LogString.operationFailed(International.getString("Entpacken"),
+                                        LogString.directoryCreationFailed(destDir + filename, International.getString("Verzeichnis")) + "\n"
+                                        + LogString.operationAborted(International.getString("Entpacken")));
                         }
                     }
                 } else {
@@ -1226,12 +1243,18 @@ public class EfaUtil {
                         }
                         if (dir != null && !(new File(destDir + dir)).isDirectory()) {
                             if (!(new File(destDir + dir)).mkdirs()) {
-                                result = (result == null ? "" : result + "\n")
-                                        + International.getString("Fehler beim Entpacken") + ": "
-                                        + International.getMessage("Erstellen des Verzeichnisses {dirname} fehlgeschlagen!", destDir + dir) + "\n"
-                                        + International.getString("Entpacken abgebrochen.");
-
+                            result = (result == null ? "" : result + "\n")
+                                    + LogString.operationFailed(International.getString("Entpacken"),
+                                        LogString.directoryCreationFailed(destDir + dir, International.getString("Verzeichnis")) + "\n"
+                                        + LogString.operationAborted(International.getString("Entpacken")));
                             }
+                        }
+
+                        // check whether we should extract the file under a different name
+                        if (replaceFilePostfixSource != null && filename.endsWith(replaceFilePostfixSource) &&
+                            replaceFilePostfixDest != null) {
+                            int pos = filename.lastIndexOf(replaceFilePostfixSource);
+                            filename = filename.substring(0, pos) + replaceFilePostfixDest;
                         }
 
                         // jetzt die Datei entpacken
@@ -1246,18 +1269,18 @@ public class EfaUtil {
                         stream.close();
                     } catch (Exception e) {
                         result = (result == null ? "" : result + "\n")
-                                + International.getString("Fehler beim Entpacken") + ": "
-                                + International.getMessage("Entpacken der Datei {filename} fehlgeschlagen!", filename) + "\n"
-                                + e.toString();
+                                + LogString.operationFailed(International.getString("Entpacken"),
+                                    LogString.fileExtractFailed(filename,
+                                        International.getString("Datei"), e.toString()));
                     }
                 }
                 file = (files.hasMoreElements() ? (ZipEntry) files.nextElement() : null);
             }
         } catch (Exception ee) {
-            result = (result == null ? "" : result + "\n")
-                    + International.getString("Fehler beim Entpacken") + ": "
-                    + ee.toString() + "\n"
-                    + International.getString("Entpacken abgebrochen.");
+            result = (result == null ? "" : result + "\n") +
+                    LogString.operationFailed(International.getString("Entpacken"), ee.toString())
+                    + "\n" +
+                    LogString.operationAborted(International.getString("Entpacken"));
         }
         return result;
     }
@@ -1322,7 +1345,8 @@ public class EfaUtil {
             }
             out.close();
             if (warnings.length() > 0) {
-                return International.getMessage("Folgende Dateien konnten nicht gesichert werden: {files}", warnings) + "\n";
+                return International.getString("Folgende Dateien konnten nicht gesichert werden:") +
+                        " " + warnings + "\n";
             }
         } catch (Exception e) {
             return e.toString();

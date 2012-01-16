@@ -42,7 +42,7 @@ public class HtmlFactory {
             writeHeader(f, International.getMessage("email an {receiver}", email), true);
             f.write("<form method=\"post\" action=\"" + Daten.INTERNET_EFAMAIL + "\">\n");
             f.write("<input type=\"hidden\" name=\"reply_thanks\" value=\"" + International.getString("Danke") + "\">\n");
-            f.write("<input type=\"hidden\" name=\"reply_mailsent\" value=\"" + International.getString("Deine email ist erfolgreich verschickt worden.") + "\">\n");
+            f.write("<input type=\"hidden\" name=\"reply_mailsent\" value=\"" + International.getString("email erfolgreich versandt.") + "\">\n");
             f.write("<table align=\"center\">\n");
             f.write("<tr><td><b>" + International.getString("Von") +
                     " (" + International.getString("Name") + "):</b></td><td><input type=\"text\" name=\"absender\" size=\"30\"></td></tr>\n");
@@ -58,7 +58,7 @@ public class HtmlFactory {
             f.write("<tr><td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"" +
                     International.getString("Abschicken") + "\"><br>\n");
             f.write("<font color=\"red\"><b>" +
-                    International.getString("Bitte stelle vor dem Abschicken eine Verbindung zum Internet her!") +
+                    International.getString("Bitte stelle eine Verbindung zum Internet her.") +
                     "</b></font></td></tr>\n");
             f.write("</table>\n");
             f.write("</form>\n");
@@ -83,22 +83,6 @@ public class HtmlFactory {
         return filename;
     }
 
-    public static String createTour() {
-        String filename = Daten.efaTmpDirectory+"tour.html";
-        try {
-            BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename),Daten.ENCODING_UTF));
-            writeHeader(f, International.getString("efa-Tour"), true);
-            f.write("<p><b><a href=\"file:" + Daten.efaDocDirectory + "tour/index.html\">" +
-                    International.getString("Tour starten") +
-                    "</a></b></p>\n");
-            writeFooter(f);
-            f.close();
-        } catch(Exception e) {
-            return null;
-        }
-        return filename;
-    }
-
     public static String createRegister() {
         String filename = Daten.efaTmpDirectory+"register.html";
         try {
@@ -106,51 +90,89 @@ public class HtmlFactory {
             writeHeader(f, International.getString("Registrieren"), true);
             f.write("<p>" +
                     International.getString("Bitte unterstütze die Weiterentwicklung von efa, indem Du Dich kurz als Nutzer "+
-                    "von efa registrierst. Mit Deinen Angaben hilfst Du zu erkennen, wo auf der Welt efa wie eingesetzt "+
-                    "wird, so daß zukünftige Versionen von efa optimal auf die Anforderungen und Bedürfnisse ihrer Nutzer " +
-                    "abgestimmt werden können.") +
-                    "</p>\n");
+                    "von efa registrierst.") +
+                    "</p>\n<br><br>");
             f.write("<form method=\"post\" action=\"" + Daten.INTERNET_EFAMAIL + "\">\n");
             f.write("<input type=\"hidden\" name=\"reply_thanks\" value=\"" + International.getString("Danke") + "\">\n");
             f.write("<input type=\"hidden\" name=\"reply_clubdata\" value=\"" + International.getString("Deine Daten werden überprüft und demnächst aktualisiert.") + "\">\n");
-            f.write("<input type=\"hidden\" name=\"betreff\" value=\"User efa " + Daten.VERSIONID + "\">\n");
+            f.write("<input type=\"hidden\" name=\"subject\" value=\"User efa - " + Daten.VERSIONID + "\">\n");
+            f.write("<input type=\"hidden\" name=\"addUserList\" value=\"yes\">\n");
+            f.write("<input type=\"hidden\" name=\"efa.version\" value=\""+ Daten.VERSIONID + "\">\n");
+            if (Daten.EFALIVE_VERSION != null) {
+                f.write("<input type=\"hidden\" name=\"efalive.version\" value=\"" + Daten.EFALIVE_VERSION + "\">\n");
+            }
+            if (Daten.VERSIONID.compareTo("1.9.9") < 0) {
+                f.write("<input name=\"useEfa1\" type=\"hidden\" value=\"yes\"/>\n");
+            }
+            if (Daten.VERSIONID.compareTo("1.9.9") >= 0) {
+                f.write("<input name=\"useEfa2\" type=\"hidden\" value=\"yes\"/>\n");
+            }
+            if (Daten.EFALIVE_VERSION != null) {
+                f.write("<input name=\"useEfaLive\" type=\"hidden\" value=\"yes\"/>\n");
+            }
             f.write("<table align=\"center\">\n");
-            f.write("<tr><td><b>" + International.getString("Name") +
-                    ":</b></td><td><input type=\"text\" name=\"absender\" size=\"30\"></td></tr>\n");
-            f.write("<tr><td><b>" + International.getString("email-Adresse") +
-                    ":</b></td><td><input type=\"text\" name=\"email\" size=\"30\"></td></tr>\n");
-            f.write("<tr><td><b>" + International.getString("Vereinsname") +
-                    ":</b></td><td><input type=\"text\" name=\"verein\" size=\"30\"></td></tr>\n");
-            f.write("<tr><td><b>" + International.getString("Land") +
-                    ":</b></td><td><input type=\"text\" name=\"land\" size=\"30\"></td></tr>\n");
-            f.write("<tr><td><b>" + International.getString("Bundesland / Region") +
-                    ":</b></td><td><input type=\"text\" name=\"bundesland\" size=\"30\"></td></tr>\n");
-            f.write("<tr><td colspan=\"2\">" + International.getString("Bitte wähle alle zutreffenden Punkte aus:") + "<<br>\n");
-            f.write("<input type=\"checkbox\" name=\"useEvaluate\" value=\"ja\"> " +
-                    International.getString("Ich/wir evaluieren efa.") + "<br>\n");
-            f.write("<input type=\"checkbox\" name=\"usePrivate\" value=\"ja\"> " +
-                    International.getString("Ich benutze efa privat, um meine eigenen Fahrten zu erfassen.") + "<br>\n");
-            f.write("<input type=\"checkbox\" name=\"useClubHome\" value=\"ja\"> " +
-                    International.getString("Ich benutze efa für meinen Verein, um unsere Fahrten nachträglich auszuwerten.") + "<br>\n");
-            f.write("<input type=\"checkbox\" name=\"useClubEvaluate\" value=\"ja\"> " +
-                    International.getString("Wir haben efa testweise im Bootshaus installiert.") + "<br>\n");
-            f.write("<input type=\"checkbox\" name=\"useClubDirect\" value=\"ja\"> " +
-                    International.getString("Wir haben efa im Bootshaus installiert. Die Mitglieder tragen alle ihre Fahrten direkt in efa ein.") + "<br>\n");
-            f.write("</td></tr>\n");
-            f.write("<tr><td colspan=\"2\"><b>" + International.getString("Bemerkungen") +
-                    ":</b><br><textarea name=\"nachricht\" cols=\"40\" rows=\"5\" wrap=\"physical\"></textarea></td></tr>\n");
-            f.write("<tr><td colspan=\"2\"><input type=\"checkbox\" name=\"vereinsliste\" checked value=\"ja\"> " +
-                    International.getString("Ich bin damit einverstanden, daß mein Verein in der Liste von Vereinen, die efa benutzen, erwähnt wird.") +
-                    "</td></tr>\n");
-            f.write("<tr><td colspan=\"2\"><input type=\"checkbox\" name=\"mailingliste\" checked value=\"ja\"> " +
-                    International.getString("Ich möchte mit meiner email-Adresse in die efa-Mailingliste aufgenommen werden und immer über aktuelle " +
-                    "Informationen und neue Versionen informiert werden.") +
-                    "</td></tr>\n");
-            f.write("<tr><td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"" +
-                    International.getString("Abschicken") + "\"><br>\n");
-            f.write("<font color=\"red\"><b>" +
-                    International.getString("Bitte stelle vor dem Abschicken eine Verbindung zum Internet her!") +
-                    "</b></font></td></tr>\n");
+
+            // the following names are not determined by efa, since this check is
+            // currently being called at a time where no project is open. well...
+            String clubName = (Daten.project != null && Daten.project.getClubName() != null
+                    ? EfaUtil.replace(Daten.project.getClubName(), "\"", "'") : "");
+            String adminName = (Daten.project != null && Daten.project.getAdminName() != null
+                    ? EfaUtil.replace(Daten.project.getAdminName(), "\"", "'") : "");
+            String adminEmail = (Daten.project != null && Daten.project.getAdminEmail() != null
+                    ? EfaUtil.replace(Daten.project.getAdminEmail(), "\"", "'") : "");
+            String checkedRowing = (Daten.efaConfig.getValueUseFunctionalityRowing() ? "checked" : "");
+            String checkedCanoeing = (Daten.efaConfig.getValueUseFunctionalityCanoeing() ? "checked" : "");
+
+            f.write("<tr><td><b>" + International.getString("Vereinsname") + ":</b></td>");
+            f.write("<td colspan=\"3\"><input name=\"club\" type=\"text\" value=\"" + clubName
+                    + "\" size=\"40\"/></td></tr>\n");
+
+            f.write("<tr><td><b>" + International.getString("Homepage") + ":</b></td>");
+            f.write("<td colspan=\"3\"><input name=\"homepage\" type=\"text\" size=\"40\"/></td></tr>\n");
+
+            f.write("<tr><td><b>" + International.getString("Land") + ":</b></td>");
+            f.write("<td colspan=\"3\"><input name=\"country_new\" type=\"text\" size=\"40\"/></td></tr>\n");
+
+            f.write("<tr><td><b>" + International.getString("Region") + ":</b></td>");
+            f.write("<td colspan=\"3\"><input name=\"region_new\" type=\"text\" size=\"40\"/></td></tr>\n");
+
+
+            f.write("<tr><td><b>" + International.getString("Benutzung seit (Jahr)") + ":</b></td>");
+            f.write("<td colspan=\"3\"><input name=\"useSince\" type=\"text\" size=\"40\"/></td></tr>\n");
+
+            f.write("<tr><td rowspan=\"2\" valign=\"top\"><b>" + International.getString("Benutzt für Sportarten") + ":</b></td>");
+            f.write("<td colspan=\"3\"><input name=\"useRowing\" type=\"checkbox\" value=\"yes\" " + checkedRowing + " /> "
+                    + International.getString("Rudern") + "</td></tr>\n");
+            f.write("<tr><td colspan=\"3\"><input name=\"useCanoeing\" type=\"checkbox\" value=\"yes\" " + checkedCanoeing + " />"
+                    + International.getString("Kanu") + "</td></tr>\n");
+
+
+            f.write("<tr><td rowspan=\"3\" valign=\"top\"><b>"
+                    + International.getString("Nutzungsart") + ":</b></td>");
+            f.write("<td colspan=\"3\"><input name=\"useClubHome\" type=\"checkbox\" value=\"yes\"/> "
+                    + International.getString("Papier-Fahrtenbuch mit Übertrag nach efa") + "</td></tr>\n");
+            f.write("<tr><td colspan=\"3\"><input name=\"useClubDirect\" type=\"checkbox\" value=\"yes\"/> "
+                    + International.getString("im Bootshaus") + "</td></tr>\n");
+            f.write("<tr><td colspan=\"3\"><input name=\"useEvaluate\" type=\"checkbox\" value=\"yes\"/> "
+                    + International.getString("Evaluierung") + "</td></tr>\n");
+
+            f.write("<tr><td><b>" + International.getString("Name") + ":</b></td>");
+            f.write("<td colspan=\"3\"><input name=\"name\" type=\"text\" value=\"" + adminName + "\" size=\"40\"/></td></tr>\n");
+
+            f.write("<tr><td><b>" + International.getString("email-Adresse") + ":</b></td>");
+            f.write("<td colspan=\"3\"><input name=\"email\" type=\"text\" value=\"" + adminEmail + "\" size=\"40\"/></td></tr>\n");
+
+            f.write("<tr><td><b>" + International.getString("Bemerkungen") + ":</b></td>");
+            f.write("<td colspan=\"3\"><textarea name=\"comments\" cols=\"40\" rows=\"3\"/></textarea></td></tr>\n");
+
+            f.write("<tr><td><b>" + International.getString("Mailingliste") + ":</b></td>");
+            f.write("<td colspan=\"3\"><input name=\"addMailingList\" type=\"checkbox\" value=\"yes\" checked /> "
+                    + International.getString("Ich möchte über Neuigkeiten per email informiert werden.") + "</td></tr>\n");
+            f.write("<tr><td colspan=\"4\" align=\"center\"><br><input type=\"submit\" value=\""
+                    + International.getString("Abschicken") + "\"></td></tr>\n");
+            f.write("<tr><td colspan=\"4\" align=\"center\"><font color=\"red\"><b>"
+                    + International.getString("Bitte stelle eine Verbindung zum Internet her.")
+                    + "</b></font></td></tr>\n");
             f.write("</table>\n");
             f.write("</form>\n");
             writeFooter(f);

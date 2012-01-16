@@ -56,7 +56,8 @@ public class MenuMain extends MenuBase {
                 return runCommandWithArgs(args);
             }
             if (cmd.equalsIgnoreCase(CLI.MENU_BACKUP)) {
-                if (!cli.getAdminRecord().isAllowedCreateBackup()) {
+                if (!cli.getAdminRecord().isAllowedCreateBackup() &&
+                    !cli.getAdminRecord().isAllowedRestoreBackup()) {
                     cli.logerr("You don't have permission to access this function.");
                     return CLI.RC_NO_PERMISSION;
                 }

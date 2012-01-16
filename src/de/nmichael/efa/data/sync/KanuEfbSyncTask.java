@@ -595,7 +595,7 @@ public class KanuEfbSyncTask extends ProgressTask {
     }
 
     public String getSuccessfullyDoneMessage() {
-        return International.getString("Synchronisation beendet.");
+        return LogString.operationSuccessfullyCompleted(International.getString("Synchronisation"));
     }
 
     private void logInfo(String type, String key, String msg) {

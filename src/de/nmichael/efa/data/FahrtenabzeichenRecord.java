@@ -296,9 +296,9 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
     public TableItemHeader[] getGuiTableHeader() {
         TableItemHeader[] header = new TableItemHeader[4];
         header[0] = new TableItemHeader(International.getString("Name"));
-        header[1] = new TableItemHeader(International.getString("Abzeichen"));
+        header[1] = new TableItemHeader(International.onlyFor("Abzeichen", "de"));
         header[2] = new TableItemHeader(International.getString("Kilometer"));
-        header[3] = new TableItemHeader(International.getString("letzte elektr. Meldung"));
+        header[3] = new TableItemHeader(International.onlyFor("letzte elektr. Meldung", "de"));
         return header;
     }
 

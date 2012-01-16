@@ -179,14 +179,17 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
             ImportMetadata meta;
 
             // find all Data (except Logbooks)
-            checkImportData(importData, dir, new Adressen("adressen.efd"), ImportMetadata.TYPE_ADRESSEN, International.getString("Adreßliste"));
-            checkImportData(importData, dir, new Synonyme("boote.efs"), ImportMetadata.TYPE_SYNONYME_BOOTE, International.getString("Boots-Synonymliste"));
-            checkImportData(importData, dir, new Synonyme("mitglieder.efs"), ImportMetadata.TYPE_SYNONYME_MITGLIEDER, International.getString("Mitglieder-Synonymliste"));
-            checkImportData(importData, dir, new Synonyme("ziele.efs"), ImportMetadata.TYPE_SYNONYME_ZIELE, International.getString("Ziel-Synonymliste"));
-            checkImportData(importData, dir, new BootStatus("bootstatus.efdb"), ImportMetadata.TYPE_BOOTSTATUS, International.getString("Bootsstatus-Liste"));
+            checkImportData(importData, dir, new Adressen("adressen.efd"), ImportMetadata.TYPE_ADRESSEN, International.getString("Adressen"));
+            checkImportData(importData, dir, new Synonyme("boote.efs"), ImportMetadata.TYPE_SYNONYME_BOOTE, International.getString("Synonyme")
+                    + " (" + International.getString("Boote") + ")");
+            checkImportData(importData, dir, new Synonyme("mitglieder.efs"), ImportMetadata.TYPE_SYNONYME_MITGLIEDER, International.getString("Synonyme")
+                    + " (" + International.getString("Personen") + ")");
+            checkImportData(importData, dir, new Synonyme("ziele.efs"), ImportMetadata.TYPE_SYNONYME_ZIELE, International.getString("Synonyme")
+                    + " (" + International.getString("Ziele") + ")");
+            checkImportData(importData, dir, new BootStatus("bootstatus.efdb"), ImportMetadata.TYPE_BOOTSTATUS, International.getString("Bootsstatus"));
             checkImportData(importData, dir, new de.nmichael.efa.efa1.Fahrtenabzeichen("fahrtenabzeichen.eff"), ImportMetadata.TYPE_FAHRTENABZEICHEN, International.onlyFor("Fahrtenabzeichen", "de"));
-            checkImportData(importData, dir, new Gruppen("gruppen.efg"), ImportMetadata.TYPE_GRUPPEN, International.getString("Gruppenliste"));
-            checkImportData(importData, dir, new Mannschaften("mannschaften.efm"), ImportMetadata.TYPE_MANNSCHAFTEN, International.getString("Mannschaften-Liste"));
+            checkImportData(importData, dir, new Gruppen("gruppen.efg"), ImportMetadata.TYPE_GRUPPEN, International.getString("Gruppen"));
+            checkImportData(importData, dir, new Mannschaften("mannschaften.efm"), ImportMetadata.TYPE_MANNSCHAFTEN, International.getString("Mannschaften"));
 
             // find all Logbooks
             getAllLogbooks(importData, dir);
@@ -396,7 +399,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                 dir = ((ItemTypeFile)item).getValue();
             }
             if (!(new File(dir)).isDirectory()) {
-                Dialog.error(LogString.logstring_directoryDoesNotExist(dir, International.getString("Verzeichnis")));
+                Dialog.error(LogString.directoryDoesNotExist(dir, International.getString("Verzeichnis")));
                 item.requestFocus();
                 return false;
             } else {

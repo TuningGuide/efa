@@ -162,7 +162,7 @@ public class Program {
                 Runtime.getRuntime().exec(restartcmd);
             } catch (Exception ee) {
                 Logger.log(Logger.ERROR, Logger.MSG_ERR_EFARESTARTEXEC_FAILED,
-                        LogString.logstring_cantExecCommand(restartcmd, International.getString("Kommando")));
+                        LogString.cantExecCommand(restartcmd, International.getString("Kommando")));
             }
         } else {
             exitCode = Daten.HALT_SHELLRESTART;

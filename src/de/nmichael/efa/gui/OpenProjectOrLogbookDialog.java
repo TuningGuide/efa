@@ -63,60 +63,6 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         _keyAction(evt);
     }
 
-    private Hashtable<String,String> getProjects() {
-        Hashtable<String,String> items = new Hashtable<String,String>();
-        try {
-            File dir = new File(Daten.efaDataDirectory);
-            if (dir.isDirectory()) {
-                String[] files = dir.list();
-                for (int i=0; files != null && i<files.length; i++) {
-                    if (files[i] != null && files[i].length() > 0 &&
-                        files[i].toLowerCase().endsWith("." + Project.DATATYPE)) {
-                        int pos = files[i].lastIndexOf(".");
-                        String name = files[i].substring(0,pos);
-                        try {
-                            Project p = new Project(name);
-                            p.open(false);
-                            StringBuffer description = new StringBuffer();
-                            description.append("<b>" + International.getString("Projekt") + ":</b> <b style=\"color:blue\">" + name + "</b><br>");
-                            if (p.getProjectDescription() != null) {
-                                description.append(p.getProjectDescription()+"<br>");
-                            }
-                            String[] logbooks = p.getAllLogbookNames();
-                            if (logbooks != null) {
-                                description.append(International.getString("Fahrtenbücher") + ": ");
-                                for (int j=0; j<logbooks.length; j++) {
-                                    description.append( (j>0 ? ", " : "") + logbooks[j]);
-                                }
-                            }
-                            items.put(name, description.toString());
-                        } catch(Exception e1) {
-                        }
-                    }
-                }
-            }
-        } catch(Exception e) {
-        }
-        return items;
-    }
-
-    private Hashtable<String,String> getLogbooks() {
-        Hashtable<String,String> items = new Hashtable<String,String>();
-        if (Daten.project != null) {
-            String[] logbooks = Daten.project.getAllLogbookNames();
-            for (int i=0; logbooks != null && i<logbooks.length; i++) {
-                ProjectRecord r = Daten.project.getLoogbookRecord(logbooks[i]);
-                if (r != null) {
-                    String name = "<b>" + International.getString("Fahrtenbuch") + ":</b> <b style=\"color:blue\">" + logbooks[i] + "</b><br>";
-                    String description = (r.getDescription() != null && r.getDescription().length()>0 ? r.getDescription() + " " : "");
-                    description += "(" + r.getStartDate().toString() + " - " + r.getEndDate() + ")";
-                    items.put(logbooks[i], name+description);
-                }
-            }
-        }
-        return items;
-    }
-
     protected void iniDialog() throws Exception {
         // create GUI items
         mainPanel.setLayout(new GridBagLayout());
@@ -189,10 +135,10 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         Hashtable<String,String> items = null;
 
         if (type == Type.project) {
-            items = getProjects();
+            items = Project.getProjects();
         }
-        if (type == Type.logbook) {
-            items = getLogbooks();
+        if (type == Type.logbook && Daten.project != null) {
+            items = Daten.project.getLogbooks();
         }
 
         keys = items.keySet().toArray(new String[0]);

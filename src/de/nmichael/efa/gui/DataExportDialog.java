@@ -217,7 +217,8 @@ public class DataExportDialog extends BaseDialog {
 
         if ((new File(fname).exists())) {
             if (Dialog.yesNoDialog(International.getString("Warnung"),
-                    International.getMessage("Datei {file} existiert bereits. Überschreiben?", fname)) != Dialog.YES) {
+                    LogString.fileAlreadyExists(fname, International.getString("Datei")) + " " +
+                    International.getString("Überschreiben?")) != Dialog.YES) {
                 return;
             }
         }

@@ -1,14 +1,36 @@
 #!/bin/sh
 
+# ##########################################
+# Check for updated JAR files and install  #
+# ##########################################
+check_online_update()
+{
+  for fnew in `find program -name '*.jar.new'`
+  do
+    echo "$PROG: found updated JAR file: $fnew"
+    forg=`echo "$fnew" | sed "s/.jar.new/.jar/"`
+    echo "$PROG: copying $fnew to $forg"
+    cp ${fnew:?} ${forg:?}
+    rm ${fnew:?}
+  done
+}
+
+# ##########################################
+# Main                                     #
+# ##########################################
+
 # change to efa directory
 cd `dirname $0`
+PROG=$0
 
-# get parameters
+# ##########################################
+# Get Arguments                            #
+# ##########################################
 if [ $# -eq 0 ] ; then
-  echo "usage: $0 <mainclass> [arguments]"
+  echo "usage: $PROG <mainclass> [arguments]"
   exit 1
 fi
-
+CLASSNAME=$1
 
 # ##########################################
 # Classpath                                #
@@ -70,11 +92,30 @@ JVMOPTIONS="-Xmx$EFA_JAVA_HEAP -XX:NewSize=$EFA_NEW_SIZE -XX:MaxNewSize=$EFA_NEW
 EFA_JAVA_ARGUMENTS="$JVMOPTIONS -cp $CP"
 
 # Run Program
+if [ $EFA_VERBOSE ] ; then
+  date
+  echo "$PROG: script running ..."
+fi
 RC=99
-while [ $RC -eq 99 ]
+while [ $RC -ge 99 ]
 do
-  echo "$0: starting $1 ..."
+  if [ $EFA_VERBOSE ] ; then
+    date
+  fi
+  check_online_update
+  if [ $EFA_VERBOSE ] ; then
+    echo "$PROG: starting $CLASSNAME ..."
+  fi
   java $EFA_JAVA_ARGUMENTS "$@"
   RC=$?
-  echo "$0: efa exit code: $RC"
+  if [ $EFA_VERBOSE ] ; then
+    date
+    echo "$PROG: efa exit code: $RC"
+  fi
 done
+
+if [ $EFA_VERBOSE ] ; then
+  date
+  echo "$PROG: script finished."
+fi
+exit $RC

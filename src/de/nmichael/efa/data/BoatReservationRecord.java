@@ -394,13 +394,14 @@ public class BoatReservationRecord extends DataRecord {
                 International.getString("Tag") + ")"));
         item.setNotNull(true);
         ((ItemTypeDate)item).setMustBeAfter(dateFrom, true);
+        ItemTypeDate dateTo = (ItemTypeDate)item;
         v.add(item = new ItemTypeTime(BoatReservationRecord.TIMETO, getTimeTo(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bis") + " (" +
                 International.getString("Zeit") + ")"));
         ((ItemTypeTime)item).enableSeconds(false);
         ((ItemTypeTime)item).setReferenceTime(DataTypeTime.time235959());
         item.setNotNull(true);
-        ((ItemTypeTime)item).setMustBeAfter(timeFrom, false);
+        ((ItemTypeTime)item).setMustBeAfter(dateFrom, timeFrom, dateTo, false);
         v.add(item = getGuiItemTypeStringAutoComplete(BoatReservationRecord.PERSONID, null,
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                     getPersistence().getProject().getPersons(false), System.currentTimeMillis(), System.currentTimeMillis(),

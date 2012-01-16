@@ -49,7 +49,7 @@ public class XMLFile extends DataFile {
             fr.close();
             isOpen = true;
         } catch(Exception e) {
-            throw new EfaException(Logger.MSG_DATA_OPENFAILED, LogString.logstring_fileOpenFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+            throw new EfaException(Logger.MSG_DATA_OPENFAILED, LogString.fileOpenFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         }
     }
 
@@ -62,7 +62,7 @@ public class XMLFile extends DataFile {
             isOpen = false;
         }
         if (lock < 0) {
-            throw new EfaException(Logger.MSG_DATA_READFAILED, LogString.logstring_fileReadFailed(filename, storageLocation, "Cannot get Global Lock for File Reading"), Thread.currentThread().getStackTrace());
+            throw new EfaException(Logger.MSG_DATA_READFAILED, LogString.fileReadFailed(filename, storageLocation, "Cannot get Global Lock for File Reading"), Thread.currentThread().getStackTrace());
         }
         try {
             SaxErrorHandler eh = new SaxErrorHandler(filename);
@@ -78,7 +78,7 @@ public class XMLFile extends DataFile {
             }
         } catch(Exception e) {
             Logger.log(e);
-            throw new EfaException(Logger.MSG_DATA_READFAILED, LogString.logstring_fileReadFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+            throw new EfaException(Logger.MSG_DATA_READFAILED, LogString.fileReadFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         } finally {
             inOpeningStorageObject = false;
             releaseGlobalLock(lock);
@@ -112,7 +112,7 @@ public class XMLFile extends DataFile {
             } catch (IOException e) {
                 Logger.log(e);
                 throw new EfaException(Logger.MSG_DATA_WRITEFAILED,
-                        LogString.logstring_fileWritingFailed(data.dataAccess.getUID(),
+                        LogString.fileWritingFailed(data.dataAccess.getUID(),
                         data.dataAccess.getStorageObjectDescription(), e.toString()), Thread.currentThread().getStackTrace());
             }
         }
@@ -154,7 +154,7 @@ public class XMLFile extends DataFile {
         } catch(Exception e) {
             Logger.log(e);
             throw new EfaException(Logger.MSG_DATA_WRITEFAILED, 
-                    LogString.logstring_fileWritingFailed(data.dataAccess.getUID(),
+                    LogString.fileWritingFailed(data.dataAccess.getUID(),
                     data.dataAccess.getStorageObjectDescription(), e.toString()), Thread.currentThread().getStackTrace());
         }
     }

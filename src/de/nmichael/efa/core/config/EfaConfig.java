@@ -31,8 +31,8 @@ public class EfaConfig extends StorageObject {
     public final String CATEGORY_INTERNAL      = "%-1%" + International.getString("intern");
     public final String CATEGORY_COMMON        = BaseTabbedDialog.CATEGORY_COMMON;
     public final String CATEGORY_INPUT         = "%02%" + International.getString("Eingabe");
-    public final String CATEGORY_BASE          = "%03%" + International.getString("efa-Basis");
-    public final String CATEGORY_BOATHOUSE     = "%04%" + International.getString("efa-Bootshaus");
+    public final String CATEGORY_BASE          = "%03%" + Daten.EFA_BASE;
+    public final String CATEGORY_BOATHOUSE     = "%04%" + Daten.EFA_BOATHOUSE;
     public final String CATEGORY_GUI           = "%05%" + International.getString("Erscheinungsbild");
     public final String CATEGORY_GUIBUTTONS    = "%06%" + International.getString("Buttons");
     public final String CATEGORY_BACKUP        = "%07%" + International.getString("Backup");
@@ -57,7 +57,7 @@ public class EfaConfig extends StorageObject {
     public final String CATEGORY_WIDGET_NEWS   = "%172%" + International.getString("Ticker");
     public final String CATEGORY_DATAACCESS    = "%18%" + International.getString("Daten");
     public final String CATEGORY_DATAXML       = "%181%" + International.getString("lokale Dateien");
-    public final String CATEGORY_DATAREMOTE    = "%182%" + International.getString("Remote efa");
+    public final String CATEGORY_DATAREMOTE    = "%182%" + Daten.EFA_REMOTE;
 
     private static final int STRINGLIST_VALUES  = 1;
     private static final int STRINGLIST_DISPLAY = 2;
@@ -846,7 +846,8 @@ public class EfaConfig extends StorageObject {
             addParameter(efaDirekt_emailBetreffPraefix = new ItemTypeString("NotificationEmailSubjectPrefix", Daten.EFA_SHORTNAME,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
                     International.getString("email") + ": "
-                    + International.getString("Betreff (Präfix)")));
+                    + International.getString("Betreff") 
+                    + " (" + International.getString("Präfix") + ")"));
             addParameter(efaDirekt_emailSignatur = new ItemTypeString("NotificationEmailSignature", International.getString("Diese Nachricht wurde von efa verschickt."),
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
                     International.getString("email") + ": "
@@ -969,12 +970,12 @@ public class EfaConfig extends StorageObject {
                     International.getString("efaOnline aktivieren")));
             addParameter(dataRemoteEfaOnlineUsername = new ItemTypeString("DataRemoteEfaOnlineUsername", "",
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
-                    International.getString("efaOnline") + " - " +
+                    Daten.EFA_ONLINE + " - " +
                     International.getString("Benutzername") +
                     " (" + International.getString("Server") + ")"));
             addParameter(dataRemoteEfaOnlinePassword = new ItemTypePassword("DataRemoteEfaOnlinePassword", "", true,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
-                    International.getString("efaOnline") + " - " +
+                    Daten.EFA_ONLINE + " - " +
                     International.getString("Paßwort") +
                     " (" + International.getString("Server") + ")"));
             addParameter(dataRemoteEfaOnlineUrl = new ItemTypeString("DataRemoteEfaOnlineUrl", "http://efa-online.nmichael.de/efa",
@@ -1737,7 +1738,7 @@ public class EfaConfig extends StorageObject {
                     if (item == this.dataRemoteEfaServerEnabled ||
                         item == this.dataRemoteEfaServerPort
                         ) {
-                        changedSettings.put(International.getString("efaRemote"), "foo");
+                        changedSettings.put(Daten.EFA_REMOTE, "foo");
                     }
                 }
             }
@@ -1749,7 +1750,7 @@ public class EfaConfig extends StorageObject {
                 s = (s != null ? s + "\n" : "") + keys[i];
             }
             Dialog.infoDialog(International.getString("Geänderte Einstellungen"),
-                    International.getString("Folgende geänderte Einstellungen werden erst nach einem Neustart von efa wirksam:") +
+                    LogString.onlyEffectiveAfterRestart(International.getString("Geänderte Einstellungen")) +
                     "\n" + s);
         }
     }
@@ -1794,7 +1795,7 @@ public class EfaConfig extends StorageObject {
             }
             if (changed) {
                 Dialog.infoDialog(International.getString("Geänderte Einstellungen"),
-                        International.getString("Folgende geänderte Einstellungen werden erst nach einem Neustart von efa wirksam:") +
+                    LogString.onlyEffectiveAfterRestart(International.getString("Geänderte Einstellungen")) +
                         "\n" + International.getString("Bezeichnungen"));
             }
         }
@@ -1831,12 +1832,12 @@ public class EfaConfig extends StorageObject {
             if (changedLang) {
                 myEfaTypes.setToLanguage(newLang);
                 Dialog.infoDialog(International.getString("Geänderte Einstellungen"),
-                        International.getString("Folgende geänderte Einstellungen werden erst nach einem Neustart von efa wirksam:") +
+                    LogString.onlyEffectiveAfterRestart(International.getString("Geänderte Einstellungen")) +
                         "\n" + International.getString("Sprache"));
             }
             if (changedUserDir) {
                 Dialog.infoDialog(International.getString("Verzeichnis für Nutzerdaten"),
-                        International.getString("Das geänderte Verzeichnis für Nutzerdaten wird erst nach einem Neustart von efa wirksam."));
+                        LogString.onlyEffectiveAfterRestart(International.getString("Verzeichnis für Nutzerdaten")));
             }
         }
     }

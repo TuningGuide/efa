@@ -106,7 +106,7 @@ public class DownloadThread {
         }
         // if progrssMonitor == null, we run in silent mode
         if (exceptionText != null && progressMonitor != null) {
-            Dialog.error(International.getString("Download fehlgeschlagen") + ": " + exceptionText + "\n"
+            Dialog.error(LogString.operationFailed(International.getString("Download"), exceptionText) + "\n"
                     + International.getString("Eventuell wird efa durch eine Firewall blockiert."));
             return false;
         }
@@ -139,8 +139,7 @@ public class DownloadThread {
         } catch (Exception e) {
             // if frame==null, we run in "silent" mode
             if (frame != null) {
-               Dialog.error(International.getString("Download fehlgeschlagen")
-                       + ": " + e.toString() + "\n"
+               Dialog.error(LogString.operationFailed(International.getString("Download"), e.toString()) + "\n"
                        + International.getString("Eventuell wird efa durch eine Firewall blockiert."));
             }
             return false;
@@ -154,8 +153,7 @@ public class DownloadThread {
             return runDownload(frame, conn, remote, local, afterDownload);
         } catch (Exception e) {
             if (frame != null) {
-                Dialog.error(International.getString("Download fehlgeschlagen")
-                        + ": " + e.toString() + "\n"
+                Dialog.error(LogString.operationFailed(International.getString("Download"),e.toString()) + "\n"
                         + International.getString("Eventuell wird efa durch eine Firewall blockiert."));
             }
             return false;

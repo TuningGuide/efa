@@ -201,7 +201,7 @@ public class DatenListe {
             error = e.toString();
         }
         if (error != null) {
-            String msg = LogString.logstring_fileWritingFailed(dat, "Datei", error) + " ("
+            String msg = LogString.fileWritingFailed(dat, "Datei", error) + " ("
                     + "Ein anderes Programm hat die Datei verändert. Um inkonsistente Änderungen zu vermeiden, wird efa die Datei NICHT speichern." + ")";
             Logger.log(Logger.ERROR, Logger.MSG_CSVFILE_ERRORWRITEFILE, msg);
             switch (actionOnChecksumSaveError) {
@@ -535,7 +535,7 @@ public class DatenListe {
     }
 
     public void errWritingFile(String file) {
-        String msg = LogString.logstring_fileWritingFailed(file, "Datei");
+        String msg = LogString.fileWritingFailed(file, "Datei");
         Dialog.error(msg);
         Logger.log(Logger.ERROR,
                 Logger.MSG_CSVFILE_ERRORWRITEFILE,
@@ -543,7 +543,7 @@ public class DatenListe {
     }
 
     public void errCreatingFile(String file) {
-        String msg = LogString.logstring_fileCreationFailed(file, "Datei");
+        String msg = LogString.fileCreationFailed(file, "Datei");
         Dialog.error(msg);
         Logger.log(Logger.ERROR,
                 Logger.MSG_CSVFILE_ERRORCREATEFILE,
@@ -567,7 +567,7 @@ public class DatenListe {
     }
 
     public void errReadingFile(String file, String message) {
-        String msg = LogString.logstring_fileReadFailed(file, "Datei", message);
+        String msg = LogString.fileReadFailed(file, "Datei", message);
         Dialog.error(msg);
         Logger.log(Logger.ERROR,
                 Logger.MSG_CSVFILE_ERRORREADINGFILE,
@@ -575,7 +575,7 @@ public class DatenListe {
     }
 
     public void errClosingFile(String file, String message) {
-        String msg = LogString.logstring_fileCloseFailed(file, "Datei", message);
+        String msg = LogString.fileCloseFailed(file, "Datei", message);
         Dialog.error(msg);
         Logger.log(Logger.ERROR,
                 Logger.MSG_CSVFILE_ERRORCLOSINGFILE,
@@ -642,7 +642,7 @@ public class DatenListe {
 
         // Versuchen, die Datei zu öffnen
         if (dat == null) {
-            Dialog.error(LogString.logstring_fileOpenFailed("<null>", "Datei"));
+            Dialog.error(LogString.fileOpenFailed("<null>", "Datei"));
             return false;
         }
         try {
@@ -685,7 +685,7 @@ public class DatenListe {
                                 "Programmende, da Datenliste " + dat + " nicht gefunden wurde.");
                         Daten.haltProgram(Daten.HALT_FILEERROR);
                     }
-                    Dialog.error(LogString.logstring_fileNotFound(dat, "Datei"));
+                    Dialog.error(LogString.fileNotFound(dat, "Datei"));
                     return false;
                 }
             }
@@ -778,7 +778,7 @@ public class DatenListe {
         else backupFailures-=9; // also insg. plus 1
         } else {
         Logger.log(Logger.WARNING,Logger.MSG_CSVFILE_BACKUPERROR,
-        International.getMessage("Wegen zu vieler fehlgeschlagener Backups wurde kein Backup von {file} angelegt. Ich versuche es später erneut.",dat));
+        International.getMessageXXX("Wegen zu vieler fehlgeschlagener Backups wurde kein Backup von {file} angelegt. Ich versuche es später erneut.",dat));
         backupFailures++;
         }
         if (backupFailures == 30) backupFailures=9; // mal wieder versuchen...

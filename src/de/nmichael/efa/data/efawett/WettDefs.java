@@ -567,7 +567,7 @@ public class WettDefs extends DatenListe {
             if (w != null) {
                 wett[i] = w.name; // Namen der Wettbewerbe für höchstmögliches Jahr (falls sich Namen ändern)!
             } else {
-                wett[i] = "*** " + International.getString("Keine Wettbewerbsdefinition gefunden") + " ***";
+                wett[i] = "*** " + International.onlyFor("Keine Wettbewerbsdefinition gefunden.", "de") + " ***";
             }
         }
         return wett;

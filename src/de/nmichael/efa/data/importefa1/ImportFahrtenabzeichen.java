@@ -38,7 +38,7 @@ public class ImportFahrtenabzeichen extends ImportBase {
             de.nmichael.efa.efa1.Fahrtenabzeichen fahrtenabzeichen1 = new de.nmichael.efa.efa1.Fahrtenabzeichen(efa1fname);
             logInfo(International.getMessage("Importiere {list} aus {file} ...", getDescription(), efa1fname));
             if (!fahrtenabzeichen1.readFile()) {
-                logError(LogString.logstring_fileOpenFailed(efa1fname, getDescription()));
+                logError(LogString.fileOpenFailed(efa1fname, getDescription()));
                 return false;
             }
 

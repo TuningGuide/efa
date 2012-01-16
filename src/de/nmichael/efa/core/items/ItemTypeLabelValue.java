@@ -235,6 +235,10 @@ public abstract class ItemTypeLabelValue extends ItemType {
     }
 
     private void expandButton_actionEvent(ActionEvent e) {
+        expandToField();
+    }
+
+    public void expandToField() {
         setVisibleInternal(true);
         if (field != null) {
             field.requestFocus();

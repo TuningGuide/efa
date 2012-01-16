@@ -94,7 +94,7 @@ public abstract class DataFile extends DataAccess {
             fileWriter = new DataFileWriter(this);
             fileWriter.start();
         } catch(Exception e) {
-            throw new EfaException(Logger.MSG_DATA_CREATEFAILED, LogString.logstring_fileCreationFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+            throw new EfaException(Logger.MSG_DATA_CREATEFAILED, LogString.fileCreationFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         }
     }
 
@@ -109,7 +109,7 @@ public abstract class DataFile extends DataAccess {
             fileWriter = new DataFileWriter(this);
             fileWriter.start();
         } catch(Exception e) {
-            throw new EfaException(Logger.MSG_DATA_OPENFAILED, LogString.logstring_fileOpenFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+            throw new EfaException(Logger.MSG_DATA_OPENFAILED, LogString.fileOpenFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         }
     }
 
@@ -133,7 +133,7 @@ public abstract class DataFile extends DataAccess {
             fileWriter.exit();
             fileWriter.join();
         } catch(Exception e) {
-            throw new EfaException(Logger.MSG_DATA_CLOSEFAILED, LogString.logstring_fileCloseFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+            throw new EfaException(Logger.MSG_DATA_CLOSEFAILED, LogString.fileCloseFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         } finally {
             fileWriter = null;
         }
@@ -152,14 +152,14 @@ public abstract class DataFile extends DataAccess {
                     // backup1 exists! delete it first
                     ok = new File(backup1).delete();
                     if (!ok) {
-                        Logger.log(Logger.WARNING, Logger.MSG_DATA_FILEBACKUPFAILED, LogString.logstring_fileDeletionFailed(backup1, "Backup File 1"));
+                        Logger.log(Logger.WARNING, Logger.MSG_DATA_FILEBACKUPFAILED, LogString.fileDeletionFailed(backup1, "Backup File 1"));
                     }
                 }
                 if (ok) {
                     // backup1 doesn't exisit or has successfully been deleted
                     ok = new File(backup0).renameTo(new File(backup1));
                     if (!ok) {
-                        Logger.log(Logger.WARNING, Logger.MSG_DATA_FILEBACKUPFAILED, LogString.logstring_fileRenameFailed(backup0, "Backup File 0"));
+                        Logger.log(Logger.WARNING, Logger.MSG_DATA_FILEBACKUPFAILED, LogString.fileRenameFailed(backup0, "Backup File 0"));
                     }
                 }
             }
@@ -167,7 +167,7 @@ public abstract class DataFile extends DataAccess {
                 // backup0 has successfully been renamed to backup1
                 ok = new File(originalFilename).renameTo(new File(backup0));
                 if (!ok) {
-                    Logger.log(Logger.WARNING, Logger.MSG_DATA_FILEBACKUPFAILED, LogString.logstring_fileRenameFailed(originalFilename, "Original File"));
+                    Logger.log(Logger.WARNING, Logger.MSG_DATA_FILEBACKUPFAILED, LogString.fileRenameFailed(originalFilename, "Original File"));
                 }
             }
             return ok;
@@ -200,7 +200,7 @@ public abstract class DataFile extends DataAccess {
 
     public synchronized void saveStorageObject() throws EfaException {
         if (!isStorageObjectOpen()) {
-            throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed(filename, storageLocation, "Storage Object is not open"), Thread.currentThread().getStackTrace());
+            throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.fileWritingFailed(filename, storageLocation, "Storage Object is not open"), Thread.currentThread().getStackTrace());
         }
         try {
             createBackupFile(filename);
@@ -208,7 +208,7 @@ public abstract class DataFile extends DataAccess {
             writeFile(fout);
             fout.close();
         } catch(Exception e) {
-            throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+            throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.fileWritingFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         }
     }
 
@@ -225,12 +225,13 @@ public abstract class DataFile extends DataAccess {
             }
             File f = new File(filename);
             if (!f.delete()) {
-                throw new Exception(LogString.logstring_fileDeletionFailed(filename, getStorageObjectDescription()));
+                throw new Exception(LogString.fileDeletionFailed(filename, getStorageObjectDescription()));
             }
             journal.deleteAllJournals();
             deleteAllBackups();
         } catch(Exception e) {
-            throw new EfaException(Logger.MSG_DATA_DELETEFAILED, LogString.logstring_fileDeletionFailed(filename, getStorageObjectDescription(), e.toString()), Thread.currentThread().getStackTrace());
+            throw new EfaException(Logger.MSG_DATA_DELETEFAILED,
+                    LogString.fileDeletionFailed(filename, getStorageObjectDescription(), e.toString()), Thread.currentThread().getStackTrace());
         }
     }
 
@@ -245,11 +246,11 @@ public abstract class DataFile extends DataAccess {
                 File f = new File(backupFIle);
                 if (f.isFile()) {
                     if (!f.delete()) {
-                        throw new Exception(LogString.logstring_fileDeletionFailed(backupFIle, International.getString("Backup")));
+                        throw new Exception(LogString.fileDeletionFailed(backupFIle, International.getString("Backup")));
                     }
                 }
             } catch (Exception e) {
-                throw new EfaException(Logger.MSG_DATA_DELETEFAILED, LogString.logstring_fileDeletionFailed(backupFIle, International.getString("Backup"), e.toString()), Thread.currentThread().getStackTrace());
+                throw new EfaException(Logger.MSG_DATA_DELETEFAILED, LogString.fileDeletionFailed(backupFIle, International.getString("Backup"), e.toString()), Thread.currentThread().getStackTrace());
             }
         }
     }

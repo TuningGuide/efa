@@ -423,7 +423,8 @@ public class KeysAdminFrame extends JDialog implements ActionListener {
     if (Dialog.yesNoDialog("Zertifikat in efaWett hinterlegen",
                            "Soll das Zertifikat jetzt hochgeladen\n"+
                            "und in efaWett hinterlegt werden?") != Dialog.YES) return;
-    if (!Dialog.okAbbrDialog("Internet-Verbindung","Bitte stelle eine Verbindung zum Internet her\nund klicke dann OK.")) return;
+    if (!Dialog.okAbbrDialog("Internet-Verbindung",
+            "Bitte stelle eine Verbindung zum Internet her.")) return;
     try {
       int filesize = (int)(new File(certFile)).length();
       byte[] buf = new byte[filesize];

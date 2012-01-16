@@ -22,8 +22,10 @@ public class ItemTypeTime extends ItemTypeLabelTextfield {
 
     protected DataTypeTime value;
     protected boolean withSeconds = true;
-    protected ItemTypeTime mustBeBefore;
-    protected ItemTypeTime mustBeAfter;
+    protected ItemTypeTime mustBeBeforeTime;
+    protected ItemTypeTime mustBeAfterTime;
+    protected ItemTypeDate beforeDate;
+    protected ItemTypeDate myDate;
     protected boolean mustBeCanBeEqual = false;
     private DataTypeTime referenceTime = null;
 
@@ -57,7 +59,7 @@ public class ItemTypeTime extends ItemTypeLabelTextfield {
             if (value != null && value.trim().length()>0) {
                 value = EfaUtil.correctTime(value,
                         referenceTime.getHour(), referenceTime.getMinute(), referenceTime.getSecond(),
-                        true);
+                        true, true);
 
             }
             this.value = DataTypeTime.parseTime(value);
@@ -127,11 +129,17 @@ public class ItemTypeTime extends ItemTypeLabelTextfield {
     }
 
     public boolean isValidInput() {
-        if (mustBeBefore != null && isSet() && value.isSet() && !value.isBefore(mustBeBefore.value)) {
-            return mustBeCanBeEqual && value.equals(mustBeBefore.value);
+        if (mustBeBeforeTime != null && isSet() && value.isSet() && !value.isBefore(mustBeBeforeTime.value)) {
+            return mustBeCanBeEqual && value.equals(mustBeBeforeTime.value);
         }
-        if (mustBeAfter != null && isSet() && value.isSet() && !value.isAfter(mustBeAfter.value)) {
-            return mustBeCanBeEqual && value.equals(mustBeAfter.value);
+        if (beforeDate != null && beforeDate.isSet() && myDate != null && myDate.isSet()) {
+            if (beforeDate.getDate().isBefore(myDate.getDate()) ||
+                (mustBeCanBeEqual && beforeDate.getDate().isBeforeOrEqual(myDate.getDate())) ) {
+                return true;
+            }
+        }
+        if (mustBeAfterTime != null && isSet() && value.isSet() && !value.isAfter(mustBeAfterTime.value)) {
+            return mustBeCanBeEqual && value.equals(mustBeAfterTime.value);
         }
         if (isNotNullSet()) {
             return isSet();
@@ -140,12 +148,20 @@ public class ItemTypeTime extends ItemTypeLabelTextfield {
     }
 
     public void setMustBeBefore(ItemTypeTime item, boolean mayAlsoBeEqual) {
-        mustBeBefore = item;
+        mustBeBeforeTime = item;
         mustBeCanBeEqual = mayAlsoBeEqual;
     }
 
     public void setMustBeAfter(ItemTypeTime item, boolean mayAlsoBeEqual) {
-        mustBeAfter = item;
+        mustBeAfterTime = item;
+        mustBeCanBeEqual = mayAlsoBeEqual;
+    }
+
+    public void setMustBeAfter(ItemTypeDate fromDate, ItemTypeTime fromTime,
+                               ItemTypeDate toDate, boolean mayAlsoBeEqual) {
+        mustBeAfterTime = fromTime;
+        beforeDate = fromDate;
+        myDate = toDate;
         mustBeCanBeEqual = mayAlsoBeEqual;
     }
 

@@ -58,13 +58,14 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
                         "genau ein Projekt erstellen, welches dann sämtliche Fahrtenbücher, Mitglieder-, Boots- und Ziellisten sowie sonstige Daten enthält.");
             case 1:
                 return International.getString("Bitte wähle, wo die Daten des Projekts gespeichert werden sollen") + ":\n"+
-                        "  "+International.getString("lokales Dateisystem - speichert die Daten lokal auf Deinem Computer")+"\n"+
-                        "  "+International.getString("efaRemote - greift auf Daten in einem entfernt laufenden efa zu")+"\n"+
-                        "  "+International.getString("SQL-Datenbank - speichert die Daten in einer beliebigen SQL-Datenbank");
+                        "  "+International.getString("lokales Dateisystem") + " - " +
+                             International.getString("speichert die Daten lokal auf Deinem Computer")+"\n"+
+                        "  "+Daten.EFA_REMOTE + " - " +
+                             International.getString("greift auf Daten in einem entfernt laufenden efa zu")+"\n"+
+                        "  "+International.getString("SQL-Datenbank") + " - " +
+                             International.getString("speichert die Daten in einer beliebigen SQL-Datenbank");
             case 2:
-                return International.getString("Bitte gib an, wo die Daten gespeichert werden sollen und wie der Zugriff erfolgen soll");// + ":\n"+
-                        //"  "+International.getString("lokales Dateisystem - speichert die Daten lokal auf Deinem Computer")+"\n"+
-                        //"  "+International.getString("SQL-Datenbank - speichert die Daten in einer beliebigen SQL-Datenbank");
+                return International.getString("Bitte gib an, wo die Daten gespeichert werden sollen und wie der Zugriff erfolgen soll");
             case 3:
                 return International.getString("Bitte vervollständige die Angaben zu Deinem Verein.");
             case 4:
@@ -101,7 +102,7 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
             Project prj = new Project(IDataAccess.TYPE_FILE_XML, Daten.efaDataDirectory, name);
             try {
                 if (prj.data().existsStorageObject()) {
-                    Dialog.error(LogString.logstring_fileAlreadyExists(name, International.getString("Projekt")));
+                    Dialog.error(LogString.fileAlreadyExists(name, International.getString("Projekt")));
                     item.requestFocus();
                     return false;
                 }
@@ -270,7 +271,7 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
             prj.close();
             Project.openProject(prjName.getValue());
             if (Daten.project != null) {
-                Dialog.infoDialog(LogString.logstring_fileSuccessfullyCreated(prjName.getValue(),
+                Dialog.infoDialog(LogString.fileSuccessfullyCreated(prjName.getValue(),
                         International.getString("Projekt")));
             }
             setDialogResult(Daten.project != null);

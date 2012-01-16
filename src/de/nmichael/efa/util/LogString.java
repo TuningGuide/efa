@@ -15,251 +15,324 @@ package de.nmichael.efa.util;
 public class LogString {
 
 
-  public static String logstring_fileOpened(String filename, String description) {
+  public static String fileOpened(String filename, String description) {
       return International.getMessage("{filedescription} '{filename}' geöffnet",
                                        description,filename) + ".";
   }
 
-  public static String logstring_fileNewCreated(String filename, String description) {
+  public static String fileNewCreated(String filename, String description) {
       return International.getMessage("{filedescription} '{filename}' wurde neu erzeugt",
                                        description,filename) + ".";
   }
 
-  public static String logstring_fileSuccessfullyCreated(String filename, String description) {
+  public static String fileSuccessfullyCreated(String filename, String description) {
       return International.getMessage("{filedescription} '{filename}' wurde erfolgreich erstellt",
                                        description,filename) + ".";
   }
 
 
-  public static String logstring_fileCreationFailed(String filename, String description, String error) {
-      return International.getMessage("{filedescription} '{filename}' konnte nicht neu erzeugt werden",
+  public static String fileCreationFailed(String filename, String description, String error) {
+      return International.getMessage("{filedescription} '{filename}' konnte nicht erstellt werden",
                                        description,filename) +
                                        (error == null ? "." : ": " + error);
   }
 
-  public static String logstring_fileCreationFailed(String filename, String description) {
-      return logstring_fileCreationFailed(filename, description, null);
+  public static String fileCreationFailed(String filename, String description) {
+      return fileCreationFailed(filename, description, null);
   }
 
 
-  public static String logstring_fileDeletionFailed(String filename, String description, String error) {
+  public static String fileDeletionFailed(String filename, String description, String error) {
       return International.getMessage("{filedescription} '{filename}' konnte nicht gelöscht werden",
                                        description,filename) +
                                        (error == null ? "." : ": " + error);
   }
 
-  public static String logstring_fileDeletionFailed(String filename, String description) {
-      return logstring_fileDeletionFailed(filename, description, null);
+  public static String fileDeletionFailed(String filename, String description) {
+      return fileDeletionFailed(filename, description, null);
   }
 
-  public static String logstring_fileRenameFailed(String filename, String description, String error) {
+  public static String fileRenameFailed(String filename, String description, String error) {
       return International.getMessage("{filedescription} '{filename}' konnte nicht umbenannt werden",
                                        description,filename) +
                                        (error == null ? "." : ": " + error);
   }
 
-  public static String logstring_fileRenameFailed(String filename, String description) {
-      return logstring_fileRenameFailed(filename, description, null);
+  public static String fileRenameFailed(String filename, String description) {
+      return fileRenameFailed(filename, description, null);
   }
 
-  public static String logstring_fileOpenFailed(String filename, String description, String error) {
+  public static String fileOpenFailed(String filename, String description, String error) {
       return International.getMessage("{filedescription} '{filename}' konnte nicht geöffnet werden",
                                        description,filename) +
                                        (error == null ? "." : ": " + error);
   }
 
-  public static String logstring_fileOpenFailed(String filename, String description) {
-      return logstring_fileOpenFailed(filename, description, null);
+  public static String fileOpenFailed(String filename, String description) {
+      return fileOpenFailed(filename, description, null);
   }
 
 
 
-  public static String logstring_fileReadFailed(String filename, String description, String error) {
+  public static String fileReadFailed(String filename, String description, String error) {
       return International.getMessage("{filedescription} '{filename}' konnte nicht gelesen werden.",
                                        description,filename) + 
                                        (error == null ? "." : ": " + error);
   }
 
-  public static String logstring_fileReadFailed(String filename, String description) {
-      return logstring_fileReadFailed(filename, description, null);
+  public static String fileReadFailed(String filename, String description) {
+      return fileReadFailed(filename, description, null);
   }
 
 
 
-  public static String logstring_fileNotFound(String filename, String description) {
+  public static String fileNotFound(String filename, String description) {
       return International.getMessage("{filedescription} '{filename}' konnte nicht gefunden werden",
                                        description,filename) + ".";
   }
 
 
 
-  public static String logstring_fileAlreadyExists(String filename, String description) {
+  public static String fileAlreadyExists(String filename, String description) {
       return International.getMessage("{filedescription} '{filename}' existiert bereits",
                                        description,filename) + ".";
   }
 
 
 
-  public static String logstring_fileWritingFailed(String filename, String description, String error) {
+  public static String fileWritingFailed(String filename, String description, String error) {
       return International.getMessage("{filedescription} '{filename}' konnte nicht geschrieben werden",
                                        description,filename) + 
                                        (error == null ? "." : ": " + error);
   }
 
-  public static String logstring_fileWritingFailed(String filename, String description) {
-      return logstring_fileWritingFailed(filename, description, null);
+  public static String fileWritingFailed(String filename, String description) {
+      return fileWritingFailed(filename, description, null);
+  }
+
+  public static String fileSavingFailed(String filename, String description, String error) {
+      return International.getMessage("{filedescription} '{filename}' konnte nicht gespeichert werden",
+                                       description,filename) +
+                                       (error == null ? "." : ": " + error);
+  }
+
+  public static String fileSavingFailed(String filename, String description) {
+      return fileSavingFailed(filename, description, null);
   }
 
 
 
-  public static String logstring_fileCloseFailed(String filename, String description, String error) {
+  public static String fileCloseFailed(String filename, String description, String error) {
       return International.getMessage("{filedescription} '{filename}' konnte nicht geschlossen werden",
                                        description,filename) +
                                        (error == null ? "." : ": " + error);
   }
 
-  public static String logstring_fileCloseFailed(String filename, String description) {
-      return logstring_fileCloseFailed(filename, description, null);
+  public static String fileCloseFailed(String filename, String description) {
+      return fileCloseFailed(filename, description, null);
   }
 
+  public static String fileSuccessfullyArchived(String filename, String description) {
+      return International.getMessage("{filedescription} '{filename}' wurde erfolgreich gesichert",
+                                       description,filename) + ".";
+  }
 
-
-  public static String logstring_fileArchivingFailed(String filename, String description, String error) {
-      return International.getMessage("{filedescription} '{filename}' konnte nicht archiviert werden",
+  public static String fileArchivingFailed(String filename, String description, String error) {
+      return International.getMessage("{filedescription} '{filename}' konnte nicht gesichert werden",
                                        description,filename) + 
                                        (error == null ? "." : ": " + error);
   }
   
-  public static String logstring_fileArchivingFailed(String filename, String description) {
-      return logstring_fileArchivingFailed(filename, description, null);
+  public static String fileArchivingFailed(String filename, String description) {
+      return fileArchivingFailed(filename, description, null);
   }
 
+  public static String fileSuccessfullyRestored(String filename, String description) {
+      return International.getMessage("{filedescription} '{filename}' wurde erfolgreich wiederhergestellt",
+                                       description,filename) + ".";
+  }
 
-  
-  public static String logstring_fileBackupFailed(String filename, String description, String error) {
-      return International.getMessage("Sicherung von {filedescription} '{filename}' konnte nicht erstellt werden",
+  public static String fileRestoreFailed(String filename, String description, String error) {
+      return International.getMessage("{filedescription} '{filename}' konnte nicht wiederhergestellt werden",
                                        description,filename) +
                                        (error == null ? "." : ": " + error);
   }
 
-  public static String logstring_fileBackupFailed(String filename, String description) {
-      return logstring_fileBackupFailed(filename, description, null);
+  public static String fileRestoreFailed(String filename, String description) {
+      return fileRestoreFailed(filename, description, null);
+  }
+
+  public static String fileExtractFailed(String filename, String description, String error) {
+      return International.getMessage("{filedescription} '{filename}' konnte nicht entpackt werden",
+                                       description,filename) +
+                                       (error == null ? "." : ": " + error);
+  }
+
+  public static String fileExtractFailed(String filename, String description) {
+      return fileExtractFailed(filename, description, null);
   }
 
 
-
-  public static String logstring_directoryDoesNotExist(String dirname, String description) {
+  public static String directoryDoesNotExist(String dirname, String description) {
       return International.getMessage("{directorydescription} '{directoryname}' existiert nicht",
                                        description,dirname) + ".";
   }
 
 
-  public static String logstring_directoryNoWritePermission(String dirname, String description) {
+  public static String directoryNoWritePermission(String dirname, String description) {
       return International.getMessage("Keine Schreibberechtigung in {directorydescription} '{directoryname}'",
                                        description,dirname) + ".";
   }
 
+  public static String directoryCreationFailed(String dirname, String description) {
+      return fileCreationFailed(dirname, description);
+  }
 
-  public static String logstring_cantExecCommand(String command, String description, String error) {
+
+  public static String cantExecCommand(String command, String description, String error) {
       return International.getMessage("{commanddescription} '{command}' kann nicht ausgeführt werden",
                                        description,command) +
                                        (error == null ? "." : ": " + error);
   }
 
-  public static String logstring_cantExecCommand(String command, String description) {
-      return logstring_cantExecCommand(command, description, null);
+  public static String cantExecCommand(String command, String description) {
+      return cantExecCommand(command, description, null);
+  }
+
+  public static String operationSuccessfullyCompleted(String operationName) {
+      return International.getMessage("{operationname} erfolgreich abgeschlossen",
+                                       operationName) + ".";
+  }
+
+  public static String operationFailed(String operationName) {
+      return International.getMessage("{operationname} fehlgeschlagen",
+                                       operationName) + ".";
+  }
+
+  public static String operationFailed(String operationName, String error) {
+      return International.getMessage("{operationname} fehlgeschlagen",
+                                       operationName) + ": " + error;
+  }
+
+  public static String operationFinished(String operationName) {
+      return International.getMessage("{operationname} abgeschlossen", operationName) + ".";
+  }
+
+  public static String operationFinishedWithErrors(String operationName, int errorCount) {
+      return International.getMessage("{operationname} mit {n} Fehlern abgeschlossen",
+                                       operationName, errorCount) + ".";
+  }
+
+  public static String operationAborted(String operationName) {
+      return International.getMessage("{operationname} abgebrochen",
+                                       operationName) + ".";
   }
 
 
+  public static String installationSuccessfullyCompleted(String item) {
+      return operationSuccessfullyCompleted(International.getMessage("Installation von {name}",
+                                       item));
+  }
+
+  public static String installationFailed(String item) {
+      return operationFailed(International.getMessage("Installation von {name}",
+                                       item));
+  }
+
+  public static String onlyEffectiveAfterRestart(String item) {
+      return International.getMessage("{name} wird erst nach einem Neustart von efa wirksam.",
+                                       item);
+  }
+
+  public static String itemIsUnknown(String item, String description) {
+      return International.getMessage("{description} {name} unbekannt",
+                                       description, item) + ".";
+  }
 
 
   public static void logInfo_fileOpened(String filename, String description) {
       Logger.log(Logger.INFO, Logger.MSG_FILE_FILENEWCREATED,
-                 logstring_fileOpened(filename,description));
+                 fileOpened(filename,description));
   }
 
   public static void logInfo_fileNewCreated(String filename, String description) {
       Logger.log(Logger.INFO, Logger.MSG_FILE_FILENEWCREATED,
-                 logstring_fileNewCreated(filename,description));
+                 fileNewCreated(filename,description));
   }
 
   public static void logInfo_fileSuccessfullyCreated(String filename, String description) {
       Logger.log(Logger.INFO, Logger.MSG_FILE_FILESUCCESSFULLYCREATED,
-                 logstring_fileSuccessfullyCreated(filename,description));
+                 fileSuccessfullyCreated(filename,description));
   }
 
   public static void logWarning_fileNewCreated(String filename, String description) {
       Logger.log(Logger.WARNING, Logger.MSG_FILE_FILENEWCREATED,
-                 logstring_fileNewCreated(filename,description));
+                 fileNewCreated(filename,description));
   }
 
   public static void logError_fileCreationFailed(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_FILECREATEFAILED,
-              logstring_fileCreationFailed(filename,description));
+              fileCreationFailed(filename,description));
   }
 
   public static void logError_fileDeletionFailed(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_FILECREATEFAILED,
-              logstring_fileDeletionFailed(filename,description));
+              fileDeletionFailed(filename,description));
   }
 
   public static void logError_fileOpenFailed(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_FILEOPENFAILED,
-              logstring_fileOpenFailed(filename,description));
+              fileOpenFailed(filename,description));
   }
 
   public static void logError_fileReadFailed(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_FILEREADFAILED,
-              logstring_fileReadFailed(filename,description));
+              fileReadFailed(filename,description));
   }
 
   public static void logError_fileNotFound(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_FILENOTFOUND,
-              logstring_fileNotFound(filename,description));
+              fileNotFound(filename,description));
   }
 
   public static void logError_fileAlreadyExists(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_FILEALREADYEXISTS,
-              logstring_fileAlreadyExists(filename,description));
+              fileAlreadyExists(filename,description));
   }
 
   public static void logError_fileWritingFailed(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_FILEWRITEFAILED,
-              logstring_fileWritingFailed(filename,description));
+              fileWritingFailed(filename,description));
   }
 
   public static void logError_fileCloseFailed(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_FILECLOSEFAILED,
-              logstring_fileCloseFailed(filename,description));
+              fileCloseFailed(filename,description));
   }
 
   public static void logError_fileArchivingFailed(String filename, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_ARCHIVINGFAILED,
-              logstring_fileArchivingFailed(filename,description));
+              fileArchivingFailed(filename,description));
   }
 
-   public static void logError_fileBackupFailed(String filename, String description) {
-      Logger.log(Logger.ERROR, Logger.MSG_FILE_BACKUPFAILED,
-              logstring_fileBackupFailed(filename,description));
+  public static void logError_fileArchivingFailed(String filename, String description, String error) {
+      Logger.log(Logger.ERROR, Logger.MSG_FILE_ARCHIVINGFAILED,
+              fileArchivingFailed(filename,description, error));
   }
-  public static void logError_fileBackupFailed(String filename, String description, String error) {
-      Logger.log(Logger.ERROR, Logger.MSG_FILE_BACKUPFAILED,
-              logstring_fileBackupFailed(filename,description,error));
-  }
- 
-   public static void logError_directoryDoesNotExist(String dirname, String description) {
+
+  public static void logError_directoryDoesNotExist(String dirname, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_DIRECTORYNOTFOUND,
-              logstring_directoryDoesNotExist(dirname,description));
+              directoryDoesNotExist(dirname,description));
   }
   
    public static void logError_directoryNoWritePermission(String dirname, String description) {
       Logger.log(Logger.ERROR, Logger.MSG_FILE_DIRECTORYNOTFOUND,
-              logstring_directoryNoWritePermission(dirname,description));
+              directoryNoWritePermission(dirname,description));
   }
 
   public static void logWarning_cantExecCommand(String command, String description, String error) {
       Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTEXECCOMMAND,
-              logstring_cantExecCommand(command,description,error));
+              cantExecCommand(command,description,error));
   }
 
 }

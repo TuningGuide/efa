@@ -40,12 +40,11 @@ public class RemoteEfaServer {
     private static long lastLoginTime = 0;
 
     private int serverPort;
-    private XMLReader parser;
     private Hashtable<String,AdminRecord> sessions = new Hashtable<String,AdminRecord>();
 
     public RemoteEfaServer(int port, boolean acceptRemote) {
         serverPort = port;
-        String serverName = (acceptRemote ? "efaRemote" : "efaLocal" );
+        String serverName = (acceptRemote ? Daten.EFA_REMOTE : "efaLocal" );
         try {
             InetSocketAddress addr;
             if (acceptRemote) {
@@ -162,9 +161,7 @@ public class RemoteEfaServer {
         }
 
         try {
-            if (parser == null) {
-                parser = EfaUtil.getXMLReader();
-            }
+            XMLReader parser = EfaUtil.getXMLReader();
             RemoteEfaParser responseHandler = new RemoteEfaParser(null);
             parser.setContentHandler(responseHandler);
             parser.parse(new InputSource(in));
@@ -894,7 +891,7 @@ public class RemoteEfaServer {
             RemoteEfaMessage response;
             if (EfaBoathouseFrame.efaBoathouseFrame != null) {
                 if (OnlineUpdate.runOnlineUpdate(null, Daten.ONLINEUPDATE_INFO)) {
-                    EfaBoathouseFrame.efaBoathouseFrame.cancelRunInThreadWithDelay(EfaBoathouseFrame.EFA_EXIT_REASON_USER, _admin, true);
+                    EfaBoathouseFrame.efaBoathouseFrame.cancelRunInThreadWithDelay(EfaBoathouseFrame.EFA_EXIT_REASON_ONLINEUPDATE, _admin, true);
                     response  = RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_OK, null);
                 } else {
                     response  = RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_FALSE, OnlineUpdate.getLastError());

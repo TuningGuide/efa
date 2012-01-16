@@ -16,6 +16,7 @@ import de.nmichael.efa.core.BackupMetaData;
 import de.nmichael.efa.core.BackupMetaDataItem;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.gui.util.EfaMenuButton;
 import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -125,7 +126,7 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
                     new String[] {
                         International.getString("Objekt"),
                         International.getString("Datensätze"),
-                        International.getString("SCN"),
+                        "SCN",
                     },
                     null, null,
                     IItemType.TYPE_PUBLIC, cat,
@@ -144,6 +145,10 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
 
     public void itemListenerAction(IItemType itemType, AWTEvent event) {
         if (itemType.getName().equals(CREATE_BUTTON) && event instanceof ActionEvent) {
+            if (!admin.isAllowedCreateBackup()) {
+                EfaMenuButton.insufficientRights(admin, itemType.getDescription());
+                return;
+            }
             getValuesFromGui();
             if (createDirectory.getValue().length() == 0) {
                 Dialog.error(International.getString("Feld darf nicht leer sein"));
@@ -162,6 +167,10 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
         }
 
         if (itemType.getName().equals(RESTORE_BUTTON) && event instanceof ActionEvent) {
+            if (!admin.isAllowedRestoreBackup()) {
+                EfaMenuButton.insufficientRights(admin, itemType.getDescription());
+                return;
+            }
             getValuesFromGui();
             if (restoreMetaData == null) {
                 readBackupContent();

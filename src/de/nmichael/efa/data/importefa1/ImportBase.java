@@ -80,7 +80,7 @@ public abstract class ImportBase {
             logWarning(International.getMessage("{type_of_entry} {entry} nicht in {list} gefunden.",
                             International.getString("Person"),
                             name + (affix != null && affix.length() > 0 ? " ("+affix+")" : ""),
-                            International.getString("Mitgliederliste")));
+                            International.getString("Mitglieder")));
         }
         return null;
     }

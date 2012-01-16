@@ -395,7 +395,8 @@ public class EfaMenuButton {
         }
 
         if (action.equals(BUTTON_BACKUP)) {
-            if (admin == null || (!admin.isAllowedCreateBackup())) {
+            if (admin == null || 
+                (!admin.isAllowedCreateBackup() && !admin.isAllowedRestoreBackup())) {
                 insufficientRights(admin, action);
                 return false;
             }
@@ -431,9 +432,11 @@ public class EfaMenuButton {
                 RemoteCommand cmd = new RemoteCommand(Daten.project);
                 boolean result = cmd.onlineUpdate();
                 if (result) {
-                    Dialog.infoDialog(International.getString("Operation erfolgreich."));
+                    Dialog.infoDialog(LogString.operationSuccessfullyCompleted(
+                            International.getString("Online-Update")));
                 } else {
-                    Dialog.error(International.getString("Operation fehlgeschlagen."));
+                    Dialog.error(LogString.operationFailed(
+                            International.getString("Online-Update")));
                 }
             } else {
                 OnlineUpdate.runOnlineUpdate(parentDialog, Daten.ONLINEUPDATE_INFO);
@@ -466,7 +469,7 @@ public class EfaMenuButton {
                     Runtime.getRuntime().exec(cmd);
                 } catch (Exception ee) {
                     Logger.log(Logger.ERROR, Logger.MSG_ADMIN_ACTION_EXECCMDFAILED,
-                            LogString.logstring_cantExecCommand(cmd, International.getString("Kommando")));
+                            LogString.cantExecCommand(cmd, International.getString("Kommando")));
                 }
             }
         }
@@ -495,14 +498,17 @@ public class EfaMenuButton {
             }
 
             boolean restart = false;
+            String opName = null;
             if (remoteEfa || Daten.applID == Daten.APPL_EFABH) {
                 switch (Dialog.auswahlDialog(International.getString("Beenden"),
                         International.getString("efa beenden oder neu starten?"),
                         International.getString("Beenden"),
-                        International.getString("Neu starten"), true)) {
+                        International.getString("Neustart"), true)) {
                     case 0:
+                        opName = International.getString("Beenden");
                         break;
                     case 1:
+                        opName = International.getString("Neustart");
                         restart = true;
                         break;
                     default:
@@ -514,9 +520,9 @@ public class EfaMenuButton {
                 RemoteCommand cmd = new RemoteCommand(Daten.project);
                 boolean result = cmd.exitEfa(restart);
                 if (result) {
-                    Dialog.infoDialog(International.getString("Operation erfolgreich."));
+                    Dialog.infoDialog(LogString.operationSuccessfullyCompleted(opName));
                 } else {
-                    Dialog.error(International.getString("Operation fehlgeschlagen."));
+                    Dialog.error(LogString.operationFailed(opName));
                 }
                 return false; // nothing to do for caller of this method
             }
@@ -726,7 +732,7 @@ public class EfaMenuButton {
             }
             EfaConfig myEfaConfig = Daten.efaConfig;
             if (Daten.project != null && Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
-                switch(Dialog.auswahlDialog(International.getString("Konfiguration"),
+                switch(Dialog.auswahlDialog(International.getString("efa-Konfiguration"),
                                             International.getString("Lokale oder remote Konfiguration bearbeiten?"),
                                             International.getString("Lokal"),
                                             International.getString("Remote"),
@@ -822,8 +828,8 @@ public class EfaMenuButton {
             }
             KanuEfbSyncTask syncTask = new KanuEfbSyncTask(logbook, admin);
             ProgressDialog progressDialog = (parentFrame != null ?
-                new ProgressDialog(parentFrame, International.getString("Mit Kanu-eFB synchronisieren"), syncTask, false) :
-                new ProgressDialog(parentDialog, International.getString("Mit Kanu-eFB synchronisieren"), syncTask, false) );
+                new ProgressDialog(parentFrame, International.onlyFor("Mit Kanu-eFB synchronisieren", "de"), syncTask, false) :
+                new ProgressDialog(parentDialog, International.onlyFor("Mit Kanu-eFB synchronisieren", "de"), syncTask, false) );
             syncTask.startSynchronization(progressDialog);
         }
 

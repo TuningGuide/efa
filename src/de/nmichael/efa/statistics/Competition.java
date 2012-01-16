@@ -200,9 +200,9 @@ public abstract class Competition {
             }
             f.close();
         } catch (FileNotFoundException e) {
-            Dialog.error(LogString.logstring_fileNotFound(dir + Daten.WETTFILE, International.getString("Wettbewerbskonfiguration")));
+            Dialog.error(LogString.fileNotFound(dir + Daten.WETTFILE, International.getString("Wettbewerbskonfiguration")));
         } catch (IOException e) {
-            Dialog.error(LogString.logstring_fileReadFailed(dir + Daten.WETTFILE, International.getString("Wettbewerbskonfiguration")));
+            Dialog.error(LogString.fileReadFailed(dir + Daten.WETTFILE, International.getString("Wettbewerbskonfiguration")));
         }
         String[] zeilen = new String[_zeil.size()];
         _zeil.toArray(zeilen);

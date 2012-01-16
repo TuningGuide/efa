@@ -105,7 +105,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
         } catch (Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_ERR_CHECKFORWARNINGS,
-                    International.getMessage("Benachrichtigung über WARNING's im Logfile ist fehlgeschlagen: {msg}", e.toString()));
+                    "Checking Logfile for Warnings and mailing them to Admin failed: " + e.toString());
         }
     }
 
@@ -228,7 +228,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
                     }
 
                     // delete any obsolete revervations
-                    boatReservations.purgeObsoleteReservations(boatStatusRecord.getBoatId(), now);
+                    int purgedRes = boatReservations.purgeObsoleteReservations(boatStatusRecord.getBoatId(), now);
 
                     // find all currently valid reservations
                     BoatReservationRecord[] reservations = boatReservations.getBoatReservations(boatStatusRecord.getBoatId(), now, 0);
@@ -237,6 +237,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
                         if (!boatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER) &&
                             !boatStatusRecord.getShowInList().equals(boatStatusRecord.getCurrentStatus())) {
                             boatStatusRecord.setShowInList(null);
+                            statusRecordChanged = true;
+                        }
+
+                        if (purgedRes > 0) {
+                            boatStatusRecord.setComment(null);
                             statusRecordChanged = true;
                         }
                     } else {
@@ -271,7 +276,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
                 } catch (Exception ee) {
                     Logger.logdebug(ee);
                 }
-                k = it.getNext();
             }
             efaBoathouseFrame.updateBoatLists(listChanged);
         } catch (Exception e) {
@@ -450,7 +454,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
             // Step 1: Try to find and open new Logbook
             if (newLogbook == null) {
                 Logger.log(Logger.ERROR, Logger.MSG_ERR_AUTOSTARTNEWLOGBOOK,
-                        LogString.logstring_fileNotFound(newLogbookName, International.getString("Fahrtenbuch")));
+                        LogString.fileNotFound(newLogbookName, International.getString("Fahrtenbuch")));
                 throw new Exception("New Logbook not found");
             }
             if (currentLogbook != null && newLogbook.getName().equals(currentLogbook.getName())) {
@@ -493,7 +497,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
             // Step 3: Activate the new Logbook
             if (efaBoathouseFrame.openLogbook(newLogbook.getName())) {
                 Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLBDONE,
-                        International.getString("Fahrtenbuchwechsel erfolgreich abgeschlossen."));
+                        LogString.operationSuccessfullyCompleted(International.getString("Fahrtenbuchwechsel")));
             } else {
                 throw new Exception("Failed to open new Logbook");
             }
@@ -504,7 +508,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
                     International.getString("efa hat soeben wie konfiguriert ein neues Fahrtenbuch geöffnet.") + "\n"
                     + International.getMessage("Das neue Fahrtenbuch heißt {name} und ist gültig vom {fromdate} bis {todate}.",
                     newLogbook.getName(), newLogbook.getStartDate().toString(), newLogbook.getEndDate().toString())+"\n"
-                    + International.getString("Der Vorgang wurde ERFOLGREICH abgeschlossen.") + "\n\n"
+                    + LogString.operationSuccessfullyCompleted(International.getString("Fahrtenbuchwechsel")) + "\n\n"
                     + (sessionsAborted ? International.getString("Zum Zeitpunkt des Fahrtenbuchwechsels befanden sich noch einige Boote "
                     + "auf dem Wasser. Diese Fahrten wurden ABGEBROCHEN. Die abgebrochenen "
                     + "Fahrten sind in der Logdatei verzeichnet.") : ""));
@@ -515,7 +519,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
         } catch (Exception e) {
             Logger.logdebug(e);
             Logger.log(Logger.ERROR, Logger.MSG_ERR_AUTOSTARTNEWLOGBOOK,
-                    International.getString("Fahrtenbuchwechsel abgebrochen."));
+                    LogString.operationAborted(International.getString("Fahrtenbuchwechsel")));
             Messages messages = Daten.project.getMessages(false);
             messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME, MessageRecord.TO_ADMIN,
                     International.getString("Fahrtenbuchwechsel"),

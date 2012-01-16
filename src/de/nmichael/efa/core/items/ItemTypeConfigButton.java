@@ -179,7 +179,7 @@ public class ItemTypeConfigButton extends ItemType {
     private void chooseText() {
         if (!isChangeableText) return;
         String s = Dialog.inputDialog(getDescription(),
-                International.getString("Bitte Text für Button eingeben") + ":",
+                International.getString("Text") + ":",
                 ((JButton)field).getText());
         if (s != null) {
             ((JButton)field).setText(s.trim());

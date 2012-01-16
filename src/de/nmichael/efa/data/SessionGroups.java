@@ -27,7 +27,7 @@ public class SessionGroups extends StorageObject {
             String storageUsername,
             String storagePassword,
             String storageObjectName) {
-        super(storageType, storageLocation, storageUsername, storagePassword, storageObjectName, DATATYPE, International.getString("Fahrtengruppen"));
+        super(storageType, storageLocation, storageUsername, storagePassword, storageObjectName, DATATYPE, International.getString("Fahrtgruppen"));
         SessionGroupRecord.initialize();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }

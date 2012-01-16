@@ -105,10 +105,10 @@ public class EfaSec {
             String sha = EfaUtil.getSHA(new File(jarFile));
             efaSec = new EfaSec(secFile);
             efaSec.writeSecFile(sha, false);
-            Logger.log(Logger.INFO, Logger.MSG_CORE_EFASECCREATED, LogString.logstring_fileNewCreated(efaSec.getFilename(), International.getString("Sicherheitsdatei")));
+            Logger.log(Logger.INFO, Logger.MSG_CORE_EFASECCREATED, LogString.fileNewCreated(efaSec.getFilename(), International.getString("Sicherheitsdatei")));
             return true;
         } catch (Exception e) {
-            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFASECFAILEDCREATE, LogString.logstring_fileCreationFailed(efaSec.getFilename(), International.getString("Sicherheitsdatei"), e.toString()));
+            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFASECFAILEDCREATE, LogString.fileCreationFailed(efaSec.getFilename(), International.getString("Sicherheitsdatei"), e.toString()));
             return false;
         }
     }

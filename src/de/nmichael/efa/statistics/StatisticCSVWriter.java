@@ -167,7 +167,7 @@ public class StatisticCSVWriter extends StatisticWriter {
             }
             f.close();
         } catch (IOException e) {
-            Dialog.error(LogString.logstring_fileCreationFailed(sr.sOutputFile, International.getString("Ausgabedatei")));
+            Dialog.error(LogString.fileCreationFailed(sr.sOutputFile, International.getString("Ausgabedatei")));
             LogString.logError_fileCreationFailed(sr.sOutputFile, International.getString("Ausgabedatei"));
             return false;
         } finally {

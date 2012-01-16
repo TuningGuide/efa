@@ -67,8 +67,15 @@ public class Audit extends Thread {
                 BoatStatusRecord status = boatStatus.getBoatStatus(boat.getId());
                 if (status == null) {
                     Logger.log(Logger.WARNING,Logger.MSG_DATA_PROJECTCHECK,"No Boat Status found for Boat "+boat.getQualifiedName()+": " + boat.toString());
-                    boatStatus.data().add(boatStatus.createBoatStatusRecord(boat.getId(), ""));
+                    boatStatus.data().add(boatStatus.createBoatStatusRecord(boat.getId(),
+                            boat.getQualifiedName()));
                     Logger.log(Logger.INFO,Logger.MSG_DATA_PROJECTCHECK,"New Boat Status added for Boat "+boat.getQualifiedName());
+                } else {
+                    // fix text field in boat status to match the current boat name
+                    if (!boat.getQualifiedName().equals(status.getBoatText())) {
+                        status.setBoatText(boat.getQualifiedName());
+                        boatStatus.data().update(status);
+                    }
                 }
 
                 k = it.getNext();

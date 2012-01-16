@@ -72,6 +72,10 @@ public abstract class StorageObject {
         return dataAccess.getUID();
     }
 
+    public String getName() {
+        return dataAccess.getStorageObjectName();
+    }
+
     public String getDescription() {
         return dataAccess.getStorageObjectDescription();
     }
@@ -111,7 +115,12 @@ public abstract class StorageObject {
         }
         DataKey[] keys = null;
         try {
-            keys = data().getByFields(new String[] { field }, new String[] { record.getAsString(field) });
+            keys = data().getByFields(new String[] { field }, 
+                    new Object[] { record.get(field) });
+                    // @todo (P5) make sure this didn't break anything.
+                    // the original line was the following, but it looks wrong:
+                    // we should be passing on Objects, not Strings!
+                    //new String[] { record.getAsString(field) });
         } catch(Exception e) {
             Logger.logdebug(e);
         }
@@ -133,9 +142,14 @@ public abstract class StorageObject {
 
         DataKey[] keys = null;
         try {
-            String[] values = new String[fields.length];
+            Object[] values = new Object[fields.length];
+            // @todo (P5) make sure this didn't break anything.
+            // the original line was the following, but it looks wrong:
+            // we should be passing on Objects, not Strings!
+            // String[] values = new String[fields.length];
             for (int i=0; i<values.length; i++) {
-                values[i] = record.getAsString(fields[i]);
+                //values[i] = record.getAsString(fields[i]);
+                values[i] = record.get(fields[i]);
             }
             keys = data().getByFields(fields, values);
         } catch(Exception e) {

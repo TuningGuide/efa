@@ -10,8 +10,6 @@
 package de.nmichael.efa.gui;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.util.ExecuteAfterDownload;
-import de.nmichael.efa.gui.BrowserDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -92,7 +90,8 @@ public class DownloadMultipleFilesDialog extends BaseDialog {
                 f = new File(Daten.efaPluginDirectory + (String) fnames.get(i));
                 if (f.isFile()) {
                     if (f.length() != ((Integer) fsizes.get(i)).intValue()) {
-                        s += International.getMessage("{file}: ungültige Dateigröße (erwartet war: {size})", (String) fnames.get(i), ((Integer) fsizes.get(i)).intValue()) + "\n";
+                        s += (String) fnames.get(i) + ": " +
+                                International.getMessage("ungültige Dateigröße (erwartet war: {size})", ((Integer) fsizes.get(i)).intValue()) + "\n";
                         ok = false;
                     }
                 } else {
@@ -130,13 +129,14 @@ public class DownloadMultipleFilesDialog extends BaseDialog {
                     "jSunTimes v0.3\nCopyright (C) Jonathan Stott.\nwww.jstott.me.uk/jsuntimes");
         }
         if (ok) {
-            Dialog.infoDialog(International.getMessage("Das {plugin} wurde erfolgreich installiert. "
-                    + "Bitte starte nun {program} neu, um die neuen Funktionen nutzen zu können!", plugname, progname));
+            Dialog.infoDialog(International.getMessage("Das {plugin} wurde erfolgreich installiert. ", plugname)
+                    + "\n" +
+                    LogString.onlyEffectiveAfterRestart(plugname));
             if (exit) {
                 Daten.haltProgram(0);
             }
         } else {
-            Dialog.error(International.getMessage("Das {plugin} konnte NICHT erfolgreich installiert werden!", plugname) + "\n" + s);
+            Dialog.error(LogString.installationFailed(plugname) + "\n" + s);
             if (exit) {
                 Daten.haltProgram(Daten.HALT_INSTALLATION);
             }
@@ -174,15 +174,15 @@ public class DownloadMultipleFilesDialog extends BaseDialog {
 
     public static boolean getPlugin(String progname, String pname, String pfile, String phtml, String classError, JDialog frame, boolean exit) {
         if (Dialog.yesNoDialog(International.getString("Fehlendes Plugin"),
-                International.getMessage("Das erforderliche {plugin} konnte nicht gefunden werden", pname)
+                LogString.fileNotFound(pname, International.getString("Plugin"))
                 + ":\n" + classError + "\n"
-                + International.getMessage("Möchtest Du das {plugin} jetzt installieren?", pname)) != Dialog.YES) {
+                + International.getMessage("Jetzt installieren?", pname)) != Dialog.YES) {
             return false;
         }
         int x = Dialog.auswahlDialog(International.getString("Art der Installation"),
                 International.getString("efa kann die Plugin-Dateien automatisch aus dem Intnernet laden "
                 + "oder eine Anleitung für die manuelle Installation anzeigen.") + "\n"
-                + International.getString("Bitte wähle die Art der Installation."),
+                + International.getString("Bitte wähle ..."),
                 International.getString("Automatische Installation"),
                 International.getString("Manuelle Installation"));
         if (x == -1 || x == 2) {
@@ -195,8 +195,7 @@ public class DownloadMultipleFilesDialog extends BaseDialog {
 
         // automatische Installation
         if (!Dialog.okAbbrDialog(International.getString("Automatische Installation"),
-                International.getString("Bitte stelle nun eine Verbindung zum Internet her. "
-                + "Sobald Du online bist, klicke bitte OK."))) {
+                International.getString("Bitte stelle eine Verbindung zum Internet her."))) {
             return false;
         }
 
@@ -214,7 +213,7 @@ public class DownloadMultipleFilesDialog extends BaseDialog {
             f.close();
             new File(infoFile).delete();
         } catch (IOException ee) {
-            Dialog.error(International.getMessage("Bestimmung der Plugin-URL schlug fehl: {error}", ee.toString()));
+            Dialog.error("Could not get Plugin URL: " + ee.toString());
             return false;
         }
 
@@ -226,7 +225,7 @@ public class DownloadMultipleFilesDialog extends BaseDialog {
 
         // Informationen über das Plugin auswerten
         if (!EfaUtil.canOpenFile(infoFile)) {
-            Dialog.error(International.getMessage("Plugin-Infodatei {file} konnte nicht geöffnet werden.", infoFile));
+            Dialog.error(LogString.fileOpenFailed(infoFile, International.getString("Plugin-Infordatei")));
             return false;
         }
 
@@ -255,7 +254,7 @@ public class DownloadMultipleFilesDialog extends BaseDialog {
             f.close();
             new File(infoFile).delete();
         } catch (IOException ee) {
-            Dialog.error(LogString.logstring_fileReadFailed(infoFile, International.getString("Plugin-Infordatei"), ee.toString()));
+            Dialog.error(LogString.fileReadFailed(infoFile, International.getString("Plugin-Infordatei"), ee.toString()));
             return false;
         }
 //      String[] fnames = (String[])_fnames.toArray();
@@ -286,12 +285,14 @@ class AfterDownloadImpl implements ExecuteAfterDownload {
     }
 
     public void success() {
-        out.append(International.getMessage("Download von {file} erfolgreich beendet.", fname) + "\n");
+        out.append(LogString.operationSuccessfullyCompleted(
+                International.getMessage("Download von {file}", fname)) + "\n");
         fileCount--;
     }
 
     public void failure(String text) {
-        out.append(International.getMessage("Download von {file} fehlgeschlagen: {error}", fname, text) + "\n");
+        out.append(LogString.operationFailed(
+                International.getMessage("Download von {file}", fname), text) + "\n");
         fileCount--;
     }
 }

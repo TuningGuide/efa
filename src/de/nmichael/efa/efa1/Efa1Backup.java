@@ -60,7 +60,7 @@ public class Efa1Backup {
 
         if (typ == SAVE && save) {
             if (!backupFile(fname, fbak)) {
-                LogString.logError_fileBackupFailed(fname,
+                LogString.logError_fileArchivingFailed(fname,
                         International.getString("Datei")
                         + " [" + "Backup beim Speichern" + "]",
                         lastError);
@@ -74,7 +74,7 @@ public class Efa1Backup {
             String bakname = fbak + cal.get(GregorianCalendar.YEAR) + "-" + (monat < 10 ? "0" + monat : "" + monat);
             if (!new File(bakname).isFile()) {
                 if (!backupFile(fname, bakname)) {
-                    LogString.logError_fileBackupFailed(fname,
+                    LogString.logError_fileArchivingFailed(fname,
                             International.getString("Datei")
                             + " [" + "monatliches Backup" + "]",
                             lastError);
@@ -90,7 +90,7 @@ public class Efa1Backup {
             String bakname = fbak + cal.get(GregorianCalendar.YEAR) + "-" + (monat < 10 ? "0" + monat : "" + monat) + "-" + (tag < 10 ? "0" + tag : "" + tag);
             if (!new File(bakname).isFile()) {
                 if (!backupFile(fname, bakname)) {
-                    LogString.logError_fileBackupFailed(fname,
+                    LogString.logError_fileArchivingFailed(fname,
                             International.getString("Datei")
                             + " [" + "tägliches Backup" + "]",
                             lastError);
@@ -102,7 +102,7 @@ public class Efa1Backup {
         if (typ == CONV && conv && version != null) {
             String bakname = fbak + "_v" + version;
             if (!backupFile(fname, bakname)) {
-                LogString.logError_fileBackupFailed(fname,
+                LogString.logError_fileArchivingFailed(fname,
                         International.getString("Datei")
                         + " [" + "Backup beim Konvertieren" + "]",
                         lastError);

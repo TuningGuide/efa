@@ -75,7 +75,7 @@ public class Journal {
             }
         } catch(Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_DATA_JOURNALOPENFAILED,
-                        LogString.logstring_fileCloseFailed(fwname, International.getString("Journal"), e.toString()));
+                        LogString.fileCloseFailed(fwname, International.getString("Journal"), e.toString()));
             return false;
         }
         return true;
@@ -126,7 +126,7 @@ public class Journal {
                 fwname = journalName;
             } catch (Exception e) {
                 Logger.log(Logger.ERROR, Logger.MSG_DATA_JOURNALOPENFAILED,
-                        LogString.logstring_fileCreationFailed(journalName, International.getString("Journal"), e.toString()));
+                        LogString.fileCreationFailed(journalName, International.getString("Journal"), e.toString()));
                 fw = null;
                 fwnr = -1;
                 fwname = null;
@@ -148,14 +148,14 @@ public class Journal {
             String s = getLogString(scn, operation, r);
             if (s == null || s.length() == 0) {
                 Logger.log(Logger.ERROR, Logger.MSG_DATA_JOURNALWRITEFAILED,
-                        LogString.logstring_fileWritingFailed(fwname, International.getString("Journal"), "empty log string"));
+                        LogString.fileWritingFailed(fwname, International.getString("Journal"), "empty log string"));
                 return false;
             }
             f.write(s + "\n");
             f.flush();
         } catch(Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_DATA_JOURNALWRITEFAILED,
-                        LogString.logstring_fileWritingFailed(fwname, International.getString("Journal"), e.toString()));
+                        LogString.fileWritingFailed(fwname, International.getString("Journal"), e.toString()));
             return false;
         }
         return true;
@@ -168,11 +168,11 @@ public class Journal {
                 File f = new File(filename);
                 if (f.isFile()) {
                     if (!f.delete()) {
-                        throw new Exception(LogString.logstring_fileDeletionFailed(filename, International.getString("Journal")));
+                        throw new Exception(LogString.fileDeletionFailed(filename, International.getString("Journal")));
                     }
                 }
             } catch (Exception e) {
-                throw new EfaException(Logger.MSG_DATA_DELETEFAILED, LogString.logstring_fileDeletionFailed(filename, International.getString("Journal"), e.toString()), Thread.currentThread().getStackTrace());
+                throw new EfaException(Logger.MSG_DATA_DELETEFAILED, LogString.fileDeletionFailed(filename, International.getString("Journal"), e.toString()), Thread.currentThread().getStackTrace());
             }
         }
     }

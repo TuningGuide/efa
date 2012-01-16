@@ -126,7 +126,7 @@ public class Logbook extends StorageObject {
             // make sure enddate is after startdate
             if (r.getDate() != null && r.getDate().isSet() && r.getEndDate() != null && r.getEndDate().isSet() && !r.getDate().isBefore(r.getEndDate())) {
                 throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
-                        International.getString("Das Enddatum des Fahrtenbucheintrags muß nach dem Startdatum liegen."),
+                        International.getString("Das Enddatum muß nach dem Startdatum liegen."),
                         Thread.currentThread().getStackTrace());
             }
 

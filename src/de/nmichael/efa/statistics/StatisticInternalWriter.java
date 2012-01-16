@@ -27,7 +27,7 @@ public class StatisticInternalWriter extends StatisticHTMLWriter {
         boolean result = super.write();
         if (result) {
             if (!new File(sr.sOutputFile).isFile()) {
-                Dialog.error(LogString.logstring_fileNotFound(sr.sOutputFile, International.getString("Ausgabedatei")));
+                Dialog.error(LogString.fileNotFound(sr.sOutputFile, International.getString("Ausgabedatei")));
             } else {
                 BrowserDialog.openInternalBrowser(sr.pParentDialog,
                         International.getString("Statistik"),

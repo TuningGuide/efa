@@ -245,7 +245,7 @@ public abstract class StepwiseDialog extends BaseDialog {
         }
         for (IItemType item : _thisStepItems) {
             if (!item.isValidInput()) {
-                Dialog.error(International.getMessage("Ungültiger Wert im Feld '{fieldname}'",item.getDescription()));
+                Dialog.error(International.getMessage("Ungültige Eingabe im Feld '{field}'",item.getDescription()));
                 item.requestFocus();
                 return false;
             } else {

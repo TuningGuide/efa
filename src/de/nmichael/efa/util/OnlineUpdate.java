@@ -33,7 +33,7 @@ public class OnlineUpdate {
         if (parent != null &&
             !Dialog.okAbbrDialog(International.getString("Online-Update"),
                 International.getString("Prüfen auf neue Programmversion") + "\n\n" +
-                International.getString("Bitte stelle eine Verbindung zum Internet her und klicke OK."))) {
+                International.getString("Bitte stelle eine Verbindung zum Internet her."))) {
             return false;
         }
 
@@ -128,11 +128,11 @@ public class OnlineUpdate {
         }
         if (!canWrite) {
             if (parent != null) {
-                Dialog.error(LogString.logstring_directoryNoWritePermission(Daten.efaMainDirectory, International.getString("Verzeichnis")) +
+                Dialog.error(LogString.directoryNoWritePermission(Daten.efaMainDirectory, International.getString("Verzeichnis")) +
                         "\n\n" +
                         International.getMessage("Bitte wiederhole das Online-Update als {osname}-Administrator.", Daten.osName));
             } else {
-                lastError = LogString.logstring_directoryNoWritePermission(Daten.efaMainDirectory, International.getString("Verzeichnis"));
+                lastError = LogString.directoryNoWritePermission(Daten.efaMainDirectory, International.getString("Verzeichnis"));
             }
             return false;
         }
@@ -147,10 +147,15 @@ public class OnlineUpdate {
                 return false;
             }
         } else {
+            Logger.log(Logger.INFO, Logger.MSG_EVT_REMOTEONLINEUPDATEDOWNLOAD,
+                    International.getMessage("Download von {file}", newestVersion.downloadUrl) + " ...");
             if (!DownloadThread.getFile(parent, newestVersion.downloadUrl, zipFile, true)) {
-                lastError = International.getString("Download fehlgeschlagen");
+                lastError = LogString.operationFailed(International.getString("Download"));
                 return false;
             }
+            Logger.log(Logger.INFO, Logger.MSG_EVT_REMOTEONLINEUPDATEDOWNLOAD,
+                    LogString.operationSuccessfullyCompleted(
+                        International.getMessage("Download von {file}", newestVersion.downloadUrl)));
             afterDownload.success();
         }
         return true;
@@ -260,14 +265,16 @@ class ExecuteAfterDownloadImpl implements ExecuteAfterDownload {
         if (f.length() != fileSize) {
             lastError = International.getString("Der Download ist unvollständig.");
             if (parent != null) {
-                Dialog.error(International.getString("Update abgebrochen!") + "\n" + lastError);
+                Dialog.error(LogString.operationAborted(International.getString("Update")) + "\n" + lastError);
             }
             return;
         }
 
         // Download war erfolgreich
         if (parent != null) {
-            Dialog.infoDialog(International.getString("Der Download war erfolgreich.") + "\n" +
+            Dialog.infoDialog(
+                    LogString.operationSuccessfullyCompleted(International.getString("Download"))
+                    + "\n" +
                     International.getString("Es werden jetzt alle Daten gesichert und anschließend die neue Version installiert."));
         }
 
@@ -279,11 +286,11 @@ class ExecuteAfterDownloadImpl implements ExecuteAfterDownload {
         }
         Backup backup = new Backup(Daten.efaBakDirectory, null, backupProject, true);
         if (backup.runBackup(null) != 0) {
-            lastError = "Backup fehlgeschlagen";
+            lastError = LogString.operationFailed(International.getString("Backup"));
             if (parent == null ) {
                 return;
             }
-            if (Dialog.yesNoDialog(International.getString(lastError),
+            if (Dialog.yesNoDialog(lastError,
                     backup.getLastErrorMessage() +
                     "\n" +
                     International.getString("Soll der Update-Vorgang trotzdem fortgesetzt werden?")) != Dialog.YES) {
@@ -292,12 +299,12 @@ class ExecuteAfterDownloadImpl implements ExecuteAfterDownload {
         }
 
         // Neue Version entpacken
-        String result = EfaUtil.unzip(zipFile, Daten.efaMainDirectory);
+        String result = EfaUtil.unzip(zipFile, Daten.efaMainDirectory, ".jar", ".jar.new");
         if (result != null) {
             if (result.length() > 1000) {
                 result = result.substring(0, 1000);
             }
-            lastError = International.getString("Die Installation der neuen Version ist fehlgeschlagen.") +
+            lastError = LogString.operationFailed(International.getString("Installation")) +
                     "\n" + result;
             if (parent != null) {
                 Dialog.error(lastError);
@@ -308,13 +315,13 @@ class ExecuteAfterDownloadImpl implements ExecuteAfterDownload {
         // Erfolgreich
         if (parent != null) {
             Dialog.infoDialog(International.getString("Version aktualisiert"),
-                    International.getString("Die Installation des Updates wurde erfolgreich abgeschlossen.") + "\n"
-                    +
+                    LogString.operationSuccessfullyCompleted(International.getString("Installation des Updates"))
+                    + "\n" +
                     International.getString("efa wird nun neu gestartet."));
         }
         Logger.log(Logger.INFO, Logger.MSG_EVT_ONLINEUPDATEFINISHED,
-                International.getMessage("Online-Update auf Version {version} erfolgreich abgeschlossen.",
-                versionId));
+                LogString.operationSuccessfullyCompleted(
+                International.getMessage("Online-Update auf Version {version}", versionId)));
         if (parent != null) {
             if (Daten.program != null) {
                 Daten.haltProgram(Daten.program.restart());
@@ -326,6 +333,6 @@ class ExecuteAfterDownloadImpl implements ExecuteAfterDownload {
 
     public void failure(String text) {
         parent.setEnabled(true);
-        Dialog.infoDialog("Der Download der neuen Version ist fehlgeschlagen: " + text);
+        Dialog.infoDialog(LogString.operationFailed(International.getString("Installation")));
     }
 }

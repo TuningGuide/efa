@@ -297,20 +297,20 @@ public abstract class DataAccess implements IDataAccess {
 
     public void saveToXmlFile(String filename) throws EfaException {
         if (!isStorageObjectOpen()) {
-            throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed(filename, storageLocation, "Storage Object is not open"), Thread.currentThread().getStackTrace());
+            throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.fileWritingFailed(filename, storageLocation, "Storage Object is not open"), Thread.currentThread().getStackTrace());
         }
         try {
             FileOutputStream out = new FileOutputStream(filename, false);
             XMLFile.writeFile(this, out);
             out.close();
         } catch(Exception e) {
-            throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+            throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.fileWritingFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         }
     }
 
     public BackupMetaDataItem saveToZipFile(String dir, ZipOutputStream zipOut) throws EfaException {
         if (!isStorageObjectOpen()) {
-            throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed("ZIP Buffer", storageLocation, "Storage Object is not open"), Thread.currentThread().getStackTrace());
+            throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.fileWritingFailed("ZIP Buffer", storageLocation, "Storage Object is not open"), Thread.currentThread().getStackTrace());
         }
         if (dir.length() > 0 && !dir.endsWith(Daten.fileSep)) {
             dir += Daten.fileSep;
@@ -330,7 +330,8 @@ public abstract class DataAccess implements IDataAccess {
                     getSCN());
             XMLFile.writeFile(this, zipOut);
         } catch(Exception e) {
-            throw new EfaException(Logger.MSG_DATA_SAVEFAILED, LogString.logstring_fileWritingFailed("ZIP Buffer", storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+            throw new EfaException(Logger.MSG_DATA_SAVEFAILED,
+                    LogString.fileWritingFailed("ZIP Buffer", storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         } finally {
             if (lock >= 0) {
                 releaseGlobalLock(lock);

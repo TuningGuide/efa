@@ -52,6 +52,8 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
     private JPanel tablePanel;
     private JPanel buttonPanel;
     private Hashtable<ItemTypeButton,String> actionButtons;
+    protected Color markedCellColor = Color.red;
+    protected boolean markedCellBold = false;
 
     public DataListDialog(Frame parent, String title, StorageObject persistence, long validAt, AdminRecord admin) {
         super(parent, title, International.getStringWithMnemonic("Schließen"));
@@ -131,6 +133,8 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 IItemType.TYPE_PUBLIC, "BASE_CAT", getTitle());
         table.setSorting(sortByColumn, sortAscending);
         table.setFontSize(tableFontSize);
+        table.setMarkedCellColor(markedCellColor);
+        table.setMarkedCellBold(markedCellBold);
         table.setButtonPanelPosition(buttonPanelPosition);
         table.setFieldSize(600, 500);
         table.setPadding(0, 0, 10, 0);

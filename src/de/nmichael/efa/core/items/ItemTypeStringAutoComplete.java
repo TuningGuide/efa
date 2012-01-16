@@ -372,7 +372,8 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             neighbours = list.getNeighbours(name, 3, (isCheckPermutations ? 6 : 0));
         }
         if (neighbours != null && neighbours.size() > 0) {
-            ItemTypeList item = new ItemTypeList("NAME", IItemType.TYPE_PUBLIC, "", International.getMessage("Der Name '{name}' ist unbekannt.", name) + "\n" +
+            ItemTypeList item = new ItemTypeList("NAME", IItemType.TYPE_PUBLIC, "",
+                    LogString.itemIsUnknown(name, International.getString("Name")) + "\n" +
                    International.getString("Meintest Du ...?"));
             for (int i=0; i<neighbours.size(); i++) {
                 item.addItem(neighbours.get(i), neighbours.get(i), false, '\0');

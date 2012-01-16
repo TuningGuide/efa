@@ -53,7 +53,7 @@ public class ImportLogbook extends ImportBase {
             Fahrtenbuch.fahrtenbuch = fahrtenbuch;
             logInfo(International.getMessage("Importiere {list} aus {file} ...", getDescription(), efa1fname));
             if (!fahrtenbuch.readFile()) {
-                logError(LogString.logstring_fileOpenFailed(efa1fname, getDescription()));
+                logError(LogString.fileOpenFailed(efa1fname, getDescription()));
                 return false;
             }
 

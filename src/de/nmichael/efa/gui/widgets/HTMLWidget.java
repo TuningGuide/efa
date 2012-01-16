@@ -50,7 +50,7 @@ public class HTMLWidget extends Widget {
                 International.getString("HTML-Seite"),
                 null,ItemTypeFile.MODE_OPEN,ItemTypeFile.TYPE_FILE,
                 IItemType.TYPE_PUBLIC, "",
-                International.getString("URL")));
+                "URL"));
     }
 
     void construct() {

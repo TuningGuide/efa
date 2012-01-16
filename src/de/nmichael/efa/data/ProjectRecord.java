@@ -512,11 +512,11 @@ public class ProjectRecord extends DataRecord {
                             International.getString("über efaOnline verbinden")));
                     v.add(item = new ItemTypeString(ProjectRecord.EFAONLINEUSERNAME, getEfaOnlineUsername(),
                             IItemType.TYPE_PUBLIC, category,
-                            International.getString("efaOnline") + " - " +
+                            Daten.EFA_ONLINE + " - " +
                             International.getString("Benutzername")));
                     v.add(item = new ItemTypePassword(ProjectRecord.EFAONLINEPASSWORD, getEfaOnlinePassword(), true,
                             IItemType.TYPE_PUBLIC, category,
-                            International.getString("efaOnline") + " - " +
+                            Daten.EFA_ONLINE + " - " +
                             International.getString("Paßwort")));
                 }
             }
@@ -677,7 +677,7 @@ public class ProjectRecord extends DataRecord {
     public static String[] getStorageTypeNameStrings() {
         return new String[] {
             International.getString("lokales Dateisystem"),
-            International.getString("efaRemote"),
+            Daten.EFA_REMOTE,
             International.getString("SQL-Datenbank")
         };
     }

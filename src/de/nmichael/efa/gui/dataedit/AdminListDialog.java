@@ -78,7 +78,7 @@ public class AdminListDialog extends DataListDialog {
                         International.getMessage("Admin '{name}' erfolgreich repariert", Admins.EFALIVEADMIN) :
                         International.getMessage("Admin '{name}' erfolgreich erstellt", Admins.EFALIVEADMIN) ));
                 } else {
-                    Dialog.error(International.getString("Operation fehlgeschlagen."));
+                    Dialog.error(LogString.operationFailed(International.getString("Operation")));
                 }
                 break;
         }

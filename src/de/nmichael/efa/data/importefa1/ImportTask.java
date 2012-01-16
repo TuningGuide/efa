@@ -130,7 +130,7 @@ public class ImportTask extends ProgressTask {
             msg += "\n" + International.getMessage("Der Import von {count} Dateien wurde wegen Fehlern abgebrochen.", errorCnt);
         }
         msg += "\n" + International.getMessage("Es traten {count} Warnungen und {count} Fehler auf.", totalWarnings, totalErrors);
-        logInfo(International.getString("Import beendet.")+"\n");
+        logInfo(LogString.operationFinished(International.getString("Import"))+"\n");
         logInfo(msg+"\n");
         Dialog.infoDialog(msg);
         setDone();
@@ -185,7 +185,7 @@ public class ImportTask extends ProgressTask {
     }
 
     public String getSuccessfullyDoneMessage() {
-        return International.getString("Import abgeschlossen.");
+        return LogString.operationSuccessfullyCompleted(International.getString("Import"));
     }
 
     public String getNewestLogbookName() {

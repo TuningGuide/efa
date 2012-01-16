@@ -67,6 +67,7 @@ public class Statistics extends StorageObject {
         if (add || update) {
             assertFieldNotEmpty(record, StatisticsRecord.ID);
             assertFieldNotEmpty(record, StatisticsRecord.NAME);
+            assertFieldNotEmpty(record, StatisticsRecord.POSITION);
             assertUnique(record, StatisticsRecord.NAME);
             assertUnique(record, StatisticsRecord.POSITION);
         }

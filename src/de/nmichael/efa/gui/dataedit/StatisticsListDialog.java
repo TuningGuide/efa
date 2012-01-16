@@ -59,6 +59,8 @@ public class StatisticsListDialog extends DataListDialog {
             StatisticsRecord.TABLE_HEADER_LONG = false;
         } else {
             StatisticsRecord.TABLE_HEADER_LONG = true;
+            this.markedCellColor = Color.blue;
+            //this.markedCellBold = true;
         }
 
         if (admin != null && admin.isAllowedEditStatistics()) {

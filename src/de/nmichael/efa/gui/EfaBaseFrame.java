@@ -247,7 +247,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
 
     private void iniAdmin() {
-        admin = AdminLoginDialog.login(null, Daten.APPLNAME_EFA);
+        admin = AdminLoginDialog.login(null, Daten.APPLNAME_EFA, 
+                true, Daten.efaConfig.getValueLastProjectEfaBase());
         if (admin == null || !admin.isAllowedAdministerProjectLogbook()) {
             if (admin != null) {
                 EfaMenuButton.insufficientRights(admin,
@@ -256,6 +257,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             super.cancel();
             Daten.haltProgram(Daten.HALT_ADMINLOGIN);
         }
+        String p = AdminLoginDialog.getLastSelectedProject();
+        Daten.efaConfig.setValueLastProjectEfaBase( (p != null ? p : ""));
+        Daten.checkRegister();
     }
 
     private void iniGuiBase() {
@@ -863,7 +867,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             if (newLogbook != null) {
                 openLogbook(newLogbook);
             } else {
-                Dialog.error(International.getMessage("Fahrtenbuch {logbook} konnte nicht geöffnet werden.", logbookName));
+                Dialog.error(LogString.fileOpenFailed(logbookName, International.getString("Fahrtenbuch")));
                 setFields(null);
             }
         }
@@ -1216,7 +1220,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             }
         }
         if (myE != null) {
-            Dialog.error(International.getString("Der Fahrtenbucheintrag konnte nicht gespeichert werden.") + "\n" + myE.toString());
+            Dialog.error(International.getString("Fahrtenbucheintrag konnte nicht gespeichert werden.") + "\n" + myE.toString());
             return false;
         }
 
@@ -1331,6 +1335,12 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
     void setTime(ItemTypeTime field, int addMinutes, DataTypeTime notBefore) {
         DataTypeTime now = DataTypeTime.now();
+
+        if (mode == MODE_BOATHOUSE_LATEENTRY && field == this.starttime) {
+            // for Late Entries, we default to a start time about 100 minutes ago
+            now.delete((100+addMinutes)*60);
+        }
+
         now.setSecond(0);
         now.add(addMinutes*60);
         int m = now.getMinute();
@@ -1578,10 +1588,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 for (int i = 0; i < v.size(); i++) {
                     m += (m.length() > 0 ? "; " : "") + v.get(i);
                 }
-                switch (Dialog.auswahlDialog(International.getString("Doppeleintrag?"),
+                switch (Dialog.auswahlDialog(International.getString("Doppeleintrag") + "?",
+                        // @todo (P5) make duplicate entry dialog a bit more readable
                         International.getString("efa hat einen ähnlichen Eintrag im Fahrtenbuch gefunden.") + "\n"
                         + International.getString("Eventuell hast Du oder jemand anderes die Fahrt bereits eingetragen.") + "\n\n"
-                        + International.getString("Vorhandener Eintrag:") + "\n"
+                        + International.getString("Vorhandener Eintrag") + ":\n"
                         + International.getMessage("#{entry} vom {date} mit {boat}",
                         duplicate.getEntryId().toString(), duplicate.getDate().toString(), duplicate.getBoatAsName()) + ":\n"
                         + International.getString("Mannschaft") + ": " + m + "\n"
@@ -1593,7 +1604,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                         + International.getString("Was möchtest Du tun?"),
                         International.getString("Eintrag hinzufügen")
                         + " (" + International.getString("kein Doppeleintrag") + ")",
-                        International.getString("Eintrag NICHT hinzufügen")
+                        International.getString("Eintrag nicht hinzufügen")
                         + " (" + International.getString("Doppeleintrag") + ")",
                         International.getString("Zurück zum Eintrag"))) {
                     case 0: // kein Doppeleintrag: Hinzufügen
@@ -1613,8 +1624,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         DataTypeIntString newEntryNo = DataTypeIntString.parseString(entryno.getValue());
         if ((logbook.getLogbookRecord(newEntryNo) != null && (isNewRecord || !newEntryNo.equals(currentRecord.getEntryId())))
                 || newEntryNo.length() == 0) {
-            Dialog.error(International.getString("Diese Laufende Nummer ist bereits vergeben! Jede Laufende "
-                    + "Nummer darf nur einmal verwendet werden werden.") + " "
+            Dialog.error(International.getString("Diese Laufende Nummer ist bereits vergeben!") + " "
                     + International.getString("Bitte korrigiere die laufende Nummer des Eintrags!") + "\n\n"
                     + International.getString("Hinweis") + ": "
                     + International.getString("Um mehrere Einträge unter 'derselben' Nummer hinzuzufügen, "
@@ -1744,7 +1754,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
     private boolean checkDate() {
         if (date.isSet() && enddate.isSet() && !date.getDate().isBefore(enddate.getDate())) {
-            String msg = International.getString("Das Enddatum des Fahrtenbucheintrags nach vor dem Startdatum liegen.");
+            String msg = International.getString("Das Enddatum muß nach dem Startdatum liegen.");
             Dialog.error(msg);
             enddate.requestFocus();
             return false;
@@ -1760,14 +1770,42 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             if (endtime.isVisible() && !endtime.isSet()) {
                 setTime(endtime, -Daten.efaConfig.getValueEfaDirekt_minusMinutenAnkunft(), starttime.getTime());
             }
-            if (starttime.isVisible() && endtime.isVisible() && distance.isVisible() &&
+
+            // check whether end time is after start time (or multi day tour)
+            if (starttime.isVisible() && endtime.isVisible() &&
+                starttime.isSet() && endtime.isSet() &&
+                starttime.getTime().isAfter(endtime.getTime()) &&
+                !enddate.isSet()) {
+                if (Dialog.yesNoDialog(
+                        International.getMessage("Ungültige Eingabe im Feld '{field}'",
+                        International.getString("Zeit")),
+                        International.getString("Bitte überprüfe die eingetragenen Uhrzeiten.") + "\n" +
+                        International.getString("Ist dieser Eintrag eine Mehrtagsfahrt?")) == Dialog.YES) {
+                    enddate.expandToField();
+                    enddate.requestFocus();
+                    return false;
+                }
+                endtime.requestFocus();
+                return false;
+
+            }
+
+            // check whether the elapsed time is long enough
+            String sType = (sessiontype.isVisible() ? sessiontype.getValue() : null);
+            if (!sType.equals(EfaTypes.TYPE_SESSION_LATEENTRY) &&
+                !sType.equals(EfaTypes.TYPE_SESSION_TRAININGCAMP) &&
+                starttime.isVisible() && endtime.isVisible() && distance.isVisible() &&
                 starttime.isSet() && endtime.isSet() && distance.isSet()) {
                 long timediff = Math.abs(endtime.getTime().getTimeAsSeconds() - starttime.getTime().getTimeAsSeconds());
                 long dist = distance.getValue().getValueInMeters();
-                if (timediff < 15*60 && timediff < dist/10) {
-                    // if a short elapsed time (anything between 15 minutes) has been entered,
+                if (timediff < 15*60 && 
+                    timediff < dist/10 &&
+                    dist < 100 * 1000) {
+                    // if a short elapsed time (anything less than 15 minutes) has been entered,
                     // then check whether it is plausible; plausible times need to be at least
                     // above 1 s per 10 meters; everything else is unplausible
+                    // we skip the check if the distance is >= 100 Km (that's probably a late entry
+                    // then).
                     String msg = International.getString("Bitte überprüfe die eingetragenen Uhrzeiten.");
                     Dialog.error(msg);
                     endtime.requestFocus();
@@ -1851,7 +1889,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             if (Daten.efaConfig.getValueEfaDirekt_eintragNurBekannteBoote()) {
                 String name = boat.getValueFromField();
                 if (name != null && name.length() > 0 && findBoat(-1) == null) {
-                    Dialog.error(International.getMessage("Das Boot '{bootsname}' ist unbekannt. Bitte trage ein bekanntes Boot ein!", name));
+                    Dialog.error(LogString.itemIsUnknown(name, International.getString("Boot")));
                     boat.requestFocus();
                     return false;
                 }
@@ -1860,8 +1898,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 for (int i = 0; i <= LogbookRecord.CREW_MAX; i++) {
                     String name = (i == 0 ? cox : crew[i-1]).getValueFromField();
                     if (name != null && name.length() > 0 && findPerson(i, -1) == null) {
-                        Dialog.error(International.getMessage("Person '{name}' ist unbekannt. Bitte trage eine bekannte Person ein!",
-                                name));
+                    Dialog.error(LogString.itemIsUnknown(name, International.getString("Person")));
                         if (i == 0) {
                             cox.requestFocus();
                         } else {
@@ -1874,7 +1911,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             if (Daten.efaConfig.getValueEfaDirekt_eintragNurBekannteZiele()) {
                 String name = destination.getValueFromField();
                 if (name != null && name.length() > 0 && findDestination(-1) == null) {
-                    Dialog.error(International.getMessage("Ziel/Strecke '{destination}' ist unbekannt. Bitte trage eine bekanntes Ziel/Strecke ein!", name));
+                    Dialog.error(LogString.itemIsUnknown(name, International.getString("Ziel/Strecke")));
                     destination.requestFocus();
                     return false;
                 }
@@ -2152,16 +2189,17 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         }
 
         String currentEntryNo = null;
+        /* @remove
         if (insertAtCurrentPosition && currentRecord != null && currentRecord.getEntryId() != null) {
             currentEntryNo = currentRecord.getEntryId().toString();
             if (!isModeBase() && Daten.project.getBoatStatus(false).areBoatsOutOnTheWater()) {
-                Dialog.error(International.getString("Es sind noch Boote unterwegs. "
+                Dialog.error(InternationalXXX.getString("Es sind noch Boote unterwegs. "
                         + "Das Einfügen von Einträgen ist nur möglich, wenn alle laufenden Fahrten beendet sind."));
                 return;
             }
 
-            int ret = Dialog.yesNoDialog(International.getString("Eintrag einfügen"),
-                    International.getMessage("Soll vor dem aktuellen Eintrag (Lfd. Nr. {lfdnr}) wirklich ein neuer Eintrag eingefügt werden?\n"
+            int ret = Dialog.yesNoDialog(InternationalXXX.getString("Eintrag einfügen"),
+                    InternationalXXX.getMessage("Soll vor dem aktuellen Eintrag (Lfd. Nr. {lfdnr}) wirklich ein neuer Eintrag eingefügt werden?\n"
                     + "Alle nachfolgenden laufenden Nummern werden dann um eins erhöht!", currentEntryNo));
             if (ret != Dialog.YES) {
                 return;
@@ -2198,6 +2236,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 }
             }
         }
+        */
 
         setFields(null);
 

@@ -99,7 +99,8 @@ public class DataImport extends ProgressTask {
     }
 
     private void logImportFailed(DataRecord r, String msg) {
-        logInfo("ERROR: " + International.getMessage("Import von Datensatz {record} fehlgeschlagen: {reason}", r.toString(), msg + "\n"));
+        logInfo("ERROR: " + LogString.operationFailed(
+                International.getMessage("Import von Datensatz {record}", r.toString()),msg) + "\n");
         errorCount++;
     }
 
@@ -123,7 +124,7 @@ public class DataImport extends ProgressTask {
                     ? dataAccess.getValidAt(r.getKey(), validAt)
                     : dataAccess.get(r.getKey()));
             if (rorig == null) {
-                logImportFailed(r, International.getString("Keine gültige Version des Datensatzes gefunden"));
+                logImportFailed(r, International.getString("Keine gültige Version des Datensatzes gefunden."));
                 return;
             }
             for (int i = 0; i < fields.length; i++) {

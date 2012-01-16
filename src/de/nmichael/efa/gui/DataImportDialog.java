@@ -231,7 +231,7 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
         }
 
         if (!(new File(fname).exists())) {
-            Dialog.error(LogString.logstring_fileNotFound(fname, International.getString("Datei")));
+            Dialog.error(LogString.fileNotFound(fname, International.getString("Datei")));
             return;
         }
         char csep = (csvSeparator.getValue() != null ? csvSeparator.getValue().charAt(0) : '\0');

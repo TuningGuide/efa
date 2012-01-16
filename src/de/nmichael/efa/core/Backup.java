@@ -13,8 +13,6 @@ import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.Admins;
 import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.core.config.EfaTypes;
-import de.nmichael.efa.data.storage.DataKey;
-import de.nmichael.efa.data.storage.DataKeyIterator;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.storage.StorageObject;
 import de.nmichael.efa.data.storage.XMLFile;
@@ -22,6 +20,7 @@ import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.ProgressDialog;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.LogString;
 import de.nmichael.efa.util.Logger;
 import de.nmichael.efa.util.ProgressTask;
 import java.io.BufferedOutputStream;
@@ -94,11 +93,12 @@ public class Backup {
                 backupMetaData.addMetaDataItem(meta);
                 successful++;
                 logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPINFO,
-                        International.getMessage("Objekt {name} gesichert.", data.getUID()));
+                        LogString.fileSuccessfullyArchived(data.getUID(),
+                        data.getStorageObjectDescription()));
             } catch (Exception e) {
                 logMsg(Logger.ERROR, Logger.MSG_BACKUP_BACKUPERROR,
-                        International.getMessage("Sicherung von Objekt {name} fehlgeschlagen: {reason}",
-                        data.getUID(), e.toString()));
+                        LogString.fileArchivingFailed(data.getUID(),
+                        data.getStorageObjectDescription(), e.toString()));
                 Logger.logdebug(e);
             }
         }
@@ -158,7 +158,7 @@ public class Backup {
     private boolean restoreStorageObject(BackupMetaDataItem meta, boolean isRemoteProject,
             ZipFile zip) {
         logMsg(Logger.INFO, Logger.MSG_BACKUP_RESTOREINFO,
-                International.getMessage("Wiederherstellung von {description} ({name}) ...",
+                International.getMessage("Wiederherstellung von {description} '{name}' ...",
                 meta.getDescription(), meta.getNameAndType()));
         try {
             ZipEntry entry = zip.getEntry(meta.getFileName());
@@ -172,12 +172,12 @@ public class Backup {
                     backupMetaData.getProjectName() == null ||
                     !currentProjectName.equals(backupMetaData.getProjectName())) {
                     logMsg(Logger.ERROR, Logger.MSG_BACKUP_RESTOREERROR,
-                            International.getMessage("Wiederherstellung von Objekt {name} fehlgeschlagen: {reason}",
-                            meta.getNameAndType(),
+                            LogString.fileRestoreFailed(meta.getNameAndType(),
+                            meta.getDescription(),
                             International.getMessage("Daten des Projekts {name} können nur in diesem auch wiederhergestellt werden, aber derzeit ist Projekt {name} geöffnet.",
                                                       backupMetaData.getProjectName(),
                                                       (currentProjectName != null ? currentProjectName :
-                                                          "<" + International.getString("kein Projekt geöffnet") + ">"))));
+                                                          "<--->"))));
                     return false;
                 }
             }
@@ -185,8 +185,8 @@ public class Backup {
             IDataAccess dataAccess = getDataAccess(meta.getName(), meta.getType(), isRemoteProject);
             if (dataAccess == null) {
                 logMsg(Logger.ERROR, Logger.MSG_BACKUP_RESTOREERROR,
-                        International.getMessage("Wiederherstellung von Objekt {name} fehlgeschlagen: {reason}",
-                        meta.getNameAndType(), "DataAccess not found"));
+                        LogString.fileRestoreFailed(meta.getNameAndType(),
+                        meta.getDescription(),  "DataAccess not found"));
                 return false;
             }
 
@@ -205,16 +205,16 @@ public class Backup {
             dataAccess.copyFromDataAccess(zipDataAccess);
             
             logMsg(Logger.INFO, Logger.MSG_BACKUP_RESTOREINFO,
-                    International.getMessage("Objekt {name} erfolgreich wiederhergestellt.",
-                    meta.getNameAndType()) +
+                    LogString.fileSuccessfullyRestored(meta.getNameAndType(),
+                    meta.getDescription()) +
                     " [new SCN=" + dataAccess.getSCN() + ", Records=" + dataAccess.getNumberOfRecords() + "]");
             if (backupTask != null) {
                 backupTask.setCurrentWorkDone(++totalWorkDone);
             }
         } catch (Exception e) {
             logMsg(Logger.ERROR, Logger.MSG_BACKUP_RESTOREERROR,
-                    International.getMessage("Wiederherstellung von Objekt {name} fehlgeschlagen: {reason}",
-                    meta.getNameAndType(), e.toString()));
+                    LogString.fileRestoreFailed(meta.getNameAndType(),
+                    meta.getDescription(), e.toString()));
             Logger.logdebug(e);
             return false;
         }
@@ -241,16 +241,17 @@ public class Backup {
 
             backupMetaData = new BackupMetaData( (backupProject ? currentProjectName : null) );
 
-            logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPSTARTED,
-                    (backupProject && backupConfig
-                    ? International.getMessage("Starte Backup von Projekt {projekt} und efa-Konfiguration ...",
-                    currentProjectName)
+            String items = (backupProject && backupConfig
+                    ? International.getString("Projekt") + " '" + currentProjectName + "' " +
+                      International.getString("und") + " " +
+                      International.getString("efa-Konfiguration")
                     : (backupProject
-                    ? International.getMessage("Starte Backup von Projekt {projekt} ...",
-                    currentProjectName)
+                    ? International.getString("Projekt") + " '" + currentProjectName + "'"
                     : (backupConfig
-                    ? International.getString("Starte Backup von efa-Konfiguration ...")
-                    : "ERROR"))));
+                    ? International.getString("efa-Konfiguration")
+                    : null)));
+            logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPSTARTED,
+                    International.getMessage("Starte Backup von {items} ...", items));
 
             if (backupDir.length() > 0 && !backupDir.endsWith(Daten.fileSep)) {
                 backupDir += Daten.fileSep;
@@ -301,13 +302,13 @@ public class Backup {
                     successful, zipFile));
             if (errors == 0) {
                 logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPFINISHED,
-                        International.getString("Backup erfolgreich abgeschlossen."));
+                        LogString.operationSuccessfullyCompleted(International.getString("Backup")));
             } else {
                 logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPFINISHEDWITHERRORS,
-                        International.getMessage("Backup mit {n} Fehlern abgeschlossen.", errors));
+                        LogString.operationFinishedWithErrors(International.getString("Backup"), errors));
             }
         } catch (Exception e) {
-            lastErrorMsg = International.getString("Backup fehlgeschlagen.") + e.toString();
+            lastErrorMsg = LogString.operationFailed(International.getString("Backup"), e.toString());
             logMsg(Logger.ERROR, Logger.MSG_BACKUP_BACKUPFAILED,
                     lastErrorMsg);
             Logger.logdebug(e);
@@ -329,7 +330,8 @@ public class Backup {
 
         backupMetaData = new BackupMetaData(null);
         if (!backupMetaData.read(zipFile)) {
-            lastErrorMsg = International.getString("ZIP-Archiv kann nicht gelesen werden oder ist kein gültiges Backup.");
+            lastErrorMsg = LogString.fileOpenFailed(zipFile, International.getString("Archiv"), 
+                    International.getString("Datei ist kein gültiges Backup"));
             logMsg(Logger.ERROR, Logger.MSG_BACKUP_RESTOREFAILED,
                     lastErrorMsg);
             return -1;
@@ -362,8 +364,9 @@ public class Backup {
                     BackupMetaDataItem meta = backupMetaData.getItem(restoreObjects[i]);
                     if (meta == null) {
                         logMsg(Logger.ERROR, Logger.MSG_BACKUP_RESTOREERROR,
-                                International.getMessage("Wiederherstellung von Objekt {name} fehlgeschlagen: {reason}",
-                                restoreObjects[i], "Object not found"));
+                                LogString.fileRestoreFailed(restoreObjects[i],
+                                "<" + International.getString("unbekannt") + ">",
+                                "Object not found"));
                         errors++;
                         continue;
                     }
@@ -382,13 +385,13 @@ public class Backup {
                     successful, zipFile));
             if (errors == 0) {
                 logMsg(Logger.INFO, Logger.MSG_BACKUP_RESTOREFINISHED,
-                        International.getString("Wiederherstellung erfolgreich abgeschlossen."));
+                        LogString.operationSuccessfullyCompleted(International.getString("Wiederherstellung")));
             } else {
                 logMsg(Logger.INFO, Logger.MSG_BACKUP_RESTOREFINISHEDWITHERRORS,
-                        International.getMessage("Wiederherstellung mit {n} Fehlern abgeschlossen.", errors));
+                        LogString.operationFinishedWithErrors(International.getString("Wiederherstellung"), errors));
             }
         } catch (Exception e) {
-            lastErrorMsg = International.getString("Wiederherstellung fehlgeschlagen.") + " " + e.toString();
+            lastErrorMsg = LogString.operationFailed(International.getString("Wiederherstellung"), e.toString());
             logMsg(Logger.ERROR, Logger.MSG_BACKUP_RESTOREFAILED,
                     lastErrorMsg);
             Logger.logdebug(e);
@@ -488,12 +491,16 @@ class BackupTask extends ProgressTask {
         if (success) {
             switch (backup.getMode()) {
                 case create:
-                    return International.getString("Backup erfolgreich abgeschlossen.") + "\n"
-                            + backup.getZipFile();
+                    return LogString.operationSuccessfullyCompleted(
+                            International.getString("Backup")) + "\n\n" +
+                            International.getString("Archiv") + ": \n" +
+                            backup.getZipFile();
                 case restore:
-                    return International.getString("Wiederherstellung erfolgreich abgeschlossen.");
+                    return LogString.operationSuccessfullyCompleted(
+                            International.getString("Wiederherstellung"));
             }
-            return International.getString("Operation erfolgreich abgeschlossen");
+            return LogString.operationSuccessfullyCompleted(
+                            International.getString("Operation"));
 
         } else {
             return null;
@@ -504,12 +511,11 @@ class BackupTask extends ProgressTask {
         if (!success) {
             switch (backup.getMode()) {
                 case create:
-                    return International.getString("Backup fehlgeschlagen.");
+                    return LogString.operationFailed(International.getString("Backup"));
                 case restore:
-                    return International.getString("Wiederherstellung fehlgeschlagen.");
+                    return LogString.operationFailed(International.getString("Wiederherstellung"));
             }
-            return International.getString("Operation fehlgeschlagen.");
-
+            return LogString.operationFailed(International.getString("Operation"));
         } else {
             return null;
         }

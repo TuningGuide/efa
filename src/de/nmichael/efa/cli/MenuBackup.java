@@ -35,6 +35,10 @@ public class MenuBackup extends MenuBase {
     }
 
     private int backup(String args) {
+        if (!cli.getAdminRecord().isAllowedCreateBackup()) {
+            cli.logerr("You don't have permission to access this function.");
+            return CLI.RC_NO_PERMISSION;
+        }
         Vector<String> options = super.getCommandOptions(args);
         if (options == null || options.size() < 1 || options.size() > 2) {
             printHelpContext();
@@ -95,6 +99,10 @@ public class MenuBackup extends MenuBase {
     }
 
     private int restore(String args) {
+        if (!cli.getAdminRecord().isAllowedRestoreBackup()) {
+            cli.logerr("You don't have permission to access this function.");
+            return CLI.RC_NO_PERMISSION;
+        }
         Vector<String> options = super.getCommandOptions(args);
         if (options == null || options.size() < 1) {
             printHelpContext();

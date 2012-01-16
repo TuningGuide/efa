@@ -83,9 +83,9 @@ public class LogViewDialog extends BaseDialog {
             }
         });
         filterAppl.addItem(International.getString("alle"));
-        filterAppl.addItem(International.getString("efa-Basis"));
-        filterAppl.addItem(International.getString("efa-Bootshaus"));
-        filterAppl.addItem(International.getString("efa-CLI"));
+        filterAppl.addItem(Daten.EFA_BASE);
+        filterAppl.addItem(Daten.EFA_BOATHOUSE);
+        filterAppl.addItem(Daten.EFA_CLI);
         filterAppl.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 updateLog();

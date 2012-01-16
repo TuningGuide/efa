@@ -42,7 +42,8 @@ public class RemoteEfaParser extends XmlHandler {
         iniDataAccess();
     }
 
-    private void iniDataAccess() {
+    // it doesn't hurt to call this method when everything has already been initialized
+    private boolean iniDataAccess() {
         if (dataAccess == null && message != null) {
             String storageObjectName = message.getStorageObjectName();
             String storageObjectType = message.getStorageObjectType();
@@ -71,11 +72,11 @@ public class RemoteEfaParser extends XmlHandler {
                 }
             }
         }
-        if (dataAccess != null && dataAccess.getPersistence() != null && dummyRecord == null) {
+        if (dummyRecord == null && dataAccess != null && dataAccess.getPersistence() != null) {
             dummyRecord = dataAccess.getPersistence().createNewRecord();
             keyFields =  dummyRecord.getKeyFields();
         }
-        return;
+        return (dataAccess != null);
     }
 
     public Vector<RemoteEfaMessage> getMessages() {
@@ -92,7 +93,9 @@ public class RemoteEfaParser extends XmlHandler {
             if (localName.equals(DataRecord.ENCODING_RECORD)) {
                 // begin of record
                 if (!inFieldAdminRecord) {
-                    iniDataAccess();
+                    if (!iniDataAccess()) {
+                        return;
+                    }
                     record = dataAccess.getPersistence().createNewRecord();
                 } else {
                     record = Daten.admins.createNewRecord();
@@ -102,7 +105,9 @@ public class RemoteEfaParser extends XmlHandler {
             }
             if (localName.equals(DataKey.ENCODING_KEY)) {
                 // begin of key
-                iniDataAccess();
+                if (!iniDataAccess()) {
+                    return;
+                }
                 inKey = true;
                 try {
                     key = dataAccess.constructKey(null);
@@ -168,9 +173,7 @@ public class RemoteEfaParser extends XmlHandler {
         if (inRequestResponse && !inRecord && !inKey && localName.equals(RemoteEfaMessage.TYPE_REQUEST)) {
             // end of request
             inRequestResponse = false;
-            if (dataAccess == null) {
-                iniDataAccess();
-            }
+            iniDataAccess();
             message.setDataAccess(dataAccess);
             messages.add(message);
             message = null;
@@ -180,9 +183,7 @@ public class RemoteEfaParser extends XmlHandler {
         if (inRequestResponse && !inRecord && !inKey && localName.equals(RemoteEfaMessage.TYPE_RESPONSE)) {
             // end of response
             inRequestResponse = false;
-            if (dataAccess == null) {
-                iniDataAccess();
-            }
+            iniDataAccess();
             message.setDataAccess(dataAccess);
             messages.add(message);
             message = null;

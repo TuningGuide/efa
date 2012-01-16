@@ -97,7 +97,7 @@ public class NewLogbookDialog extends StepwiseDialog {
             ItemTypeString item = (ItemTypeString)getItemByName(LOGBOOKNAME);
             String name = item.getValue();
             if (Daten.project.getLoogbookRecord(name) != null) {
-                    Dialog.error(LogString.logstring_fileAlreadyExists(name, International.getString("Fahrtenbuch")));
+                    Dialog.error(LogString.fileAlreadyExists(name, International.getString("Fahrtenbuch")));
                     item.requestFocus();
                     return false;
             }
@@ -125,7 +125,7 @@ public class NewLogbookDialog extends StepwiseDialog {
             Daten.project.addLogbookRecord(rec);
             newLogbookName = logName.getValue();
             Daten.project.getLogbook(newLogbookName, true);
-            Dialog.infoDialog(LogString.logstring_fileSuccessfullyCreated(logName.getValue(),
+            Dialog.infoDialog(LogString.fileSuccessfullyCreated(logName.getValue(),
                     International.getString("Fahrtenbuch")));
             setDialogResult(true);
         } catch(EfaException ee) {

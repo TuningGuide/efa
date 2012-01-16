@@ -38,7 +38,7 @@ public class ImportCrews extends ImportBase {
             Mannschaften mannschaften = new Mannschaften(efa1fname);
             logInfo(International.getMessage("Importiere {list} aus {file} ...", getDescription(), efa1fname));
             if (!mannschaften.readFile()) {
-                logError(LogString.logstring_fileOpenFailed(efa1fname, getDescription()));
+                logError(LogString.fileOpenFailed(efa1fname, getDescription()));
                 return false;
             }
 

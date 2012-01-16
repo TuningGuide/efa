@@ -75,7 +75,7 @@ public class SimpleInputDialog extends BaseDialog {
     public void closeButton_actionPerformed(ActionEvent e) {
         item.getValueFromGui();
         if (!item.isValidInput()) {
-            Dialog.error(International.getMessage("Ungültige oder fehlende Eingabe im Feld '{field}'.", item.getDescription()));
+            Dialog.error(International.getMessage("Ungültige Eingabe im Feld '{field}'", item.getDescription()));
             item.requestFocus();
             return;
         }

@@ -27,6 +27,7 @@ import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.statistics.*;
 import de.nmichael.efa.util.*;
 import java.awt.AWTEvent;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.io.File;
@@ -857,15 +858,15 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             case internal:
                 return International.getString("intern");
             case html:
-                return International.getString("HTML");
+                return "HTML";
             case csv:
-                return International.getString("CSV");
+                return "CSV";
             case xml:
-                return International.getString("XML");
+                return "XML";
             case pdf:
-                return International.getString("PDF");
+                return "PDF";
             case efawett:
-                return International.getString("efaWett");
+                return Daten.EFA_WETT;
         }
         return EfaTypes.TEXT_UNKNOWN;
     }
@@ -904,11 +905,11 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         } else {
             return new String[] {
                 International.getString("intern"),
-                International.getString("HTML"),
-                International.getString("PDF"),
-                International.getString("CSV"),
-                International.getString("XML"),
-                International.getString("efaWett"),
+                "HTML",
+                "PDF",
+                "CSV",
+                "XML",
+                Daten.EFA_WETT,
 
             };
         }
@@ -1401,7 +1402,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             case boatType:
                 return International.getString("Bootstyp");
             case entryNo:
-                return International.getString("LfdNr.");
+                return International.getString("LfdNr");
             case date:
                 return International.getString("Datum");
         }
@@ -1430,7 +1431,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 International.getString("Status"),
                 International.getString("Jahrgang"),
                 International.getString("Bootstyp"),
-                International.getString("LfdNr."),
+                International.getString("LfdNr"),
                 International.getString("Datum")
             };
         }
@@ -1629,6 +1630,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         item.setNotNull(true);
         v.add(item = new ItemTypeBoolean(StatisticsRecord.PUBLICLYAVAILABLE, getPubliclyAvailable(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Statistik allgemein verfügbar")));
+        ((ItemTypeBoolean)item).registerItemListener(this);
         v.add(item = new ItemTypeDate(StatisticsRecord.DATEFROM, getDateFrom(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Von")));
         ItemTypeDate dateFrom = (ItemTypeDate)item;
@@ -1874,6 +1876,14 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             items[3] = new TableItem(getStatisticTypeDescription());
             items[4] = new TableItem(getDateFrom());
             items[5] = new TableItem(getDateTo());
+            if (getPubliclyAvailable()) {
+                items[0].setMarked(true);
+                items[1].setMarked(true);
+                items[2].setMarked(true);
+                items[3].setMarked(true);
+                items[4].setMarked(true);
+                items[5].setMarked(true);
+            }
         }
         return items;
     }
@@ -2172,6 +2182,11 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                     itemOutputFile.parseAndShowValue(fname);
                 }
             }
+        }
+        if (itemType.getName().equals(PUBLICLYAVAILABLE) && event instanceof ActionEvent) {
+            ((ItemTypeBoolean)itemType).setColor(
+                    (itemType.getValueFromField().equals(Boolean.toString(true)) ?
+                        Color.blue : Color.black));
         }
     }
 

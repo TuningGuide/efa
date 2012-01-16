@@ -88,7 +88,7 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
             steps[i++] = International.getString("Einstellungen");
         }
         if (efaLiveAdmin) {
-            steps[i++] = International.getString("efaLive");
+            steps[i++] = Daten.EFA_LIVE;
         }
         return steps;
     }
@@ -229,7 +229,7 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
             Daten.efaSec.delete(true);
             newSuperAdmin = r;
         } catch (Exception ee) {
-            String msg = LogString.logstring_fileCreationFailed(((DataFile) Daten.admins.data()).getFilename(),
+            String msg = LogString.fileCreationFailed(((DataFile) Daten.admins.data()).getFilename(),
                     International.getString("Administratoren"));
             Logger.log(Logger.ERROR, Logger.MSG_CORE_ADMINSFAILEDCREATE, msg);
             if (Daten.isGuiAppl()) {
@@ -237,7 +237,7 @@ public class EfaFirstSetupDialog extends StepwiseDialog {
             }
             Daten.haltProgram(Daten.HALT_ADMIN);
         }
-        String msg = LogString.logstring_fileNewCreated(((DataFile) Daten.admins.data()).getFilename(),
+        String msg = LogString.fileNewCreated(((DataFile) Daten.admins.data()).getFilename(),
                 International.getString("Administratoren"));
         Logger.log(Logger.WARNING, Logger.MSG_CORE_ADMINSCREATEDNEW, msg);
         Dialog.infoDialog(International.getString("Neuer Hauptadministrator"),

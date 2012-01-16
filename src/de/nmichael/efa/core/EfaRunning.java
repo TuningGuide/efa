@@ -48,13 +48,13 @@ public class EfaRunning {
             } catch (SecurityException e) {
                 trace("Error while trying to bind to port " + port + ": " + e.toString());
                 Logger.log(Logger.WARNING, Logger.MSG_WARN_EFARUNNING_FAILED,
-                        International.getString("efa konnte sich an keinen Port binden, um den Doppelstart-Verhinderer zu aktivieren:") + " " + e.toString());
+                        "efa failed to bind to a port to detect double starts:" + " " + e.toString());
                 return false;
             }
         }
         if (socket == null) {
             Logger.log(Logger.WARNING, Logger.MSG_WARN_EFARUNNING_FAILED,
-                    International.getString("efa konnte sich an keinen Port binden, um den Doppelstart-Verhinderer zu aktivieren:") + " socket==null");
+                    "efa failed to bind to a port to detect double starts:" + " socket==null");
             return false;
         }
         trace("EfaRunning now listening on port " + port + ".");
@@ -68,7 +68,7 @@ public class EfaRunning {
             f.close();
         } catch (Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_ERR_EFARUNNING_FAILED,
-                    LogString.logstring_fileCreationFailed(Daten.efaBaseConfig.efaUserDirectory + Daten.EFA_RUNNING, International.getString("Datei"))
+                    LogString.fileCreationFailed(Daten.efaBaseConfig.efaUserDirectory + Daten.EFA_RUNNING, International.getString("Datei"))
                     + "  " + e.toString());
         }
 

@@ -213,7 +213,7 @@ public class EnterPasswordFrame extends JDialog implements ActionListener {
     if (newPwd) {
       String pwd2 = new String(passwort2.getPassword());
       if (!pwd.equals(pwd2)) {
-        Dialog.error(International.getString("Die beiden eingegebenen Paßwörter sind verschieden. Du mußt in beide Felder dasselbe Paßwort eingeben!"));
+        Dialog.error(International.getString("Die beiden eingegebenen Paßwörter sind verschieden."));
         passwort2.requestFocus();
         return;
       }

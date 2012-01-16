@@ -835,6 +835,8 @@ public class StatisticTask extends ProgressTask {
         }
         Vector<Logbook> logbooks = getAllLogbooks();
         if (logbooks.size() == 0) {
+            Dialog.error(International.getMessage("Keine Fahrten im Zeitraum {fromdate} bis {todate} gefunden.",
+                    sr.sStartDate.toString(), sr.sEndDate.toString()));
             return;
         }
         int WORK_PER_LOGBOOK = WORK_PER_STATISTIC / logbooks.size();

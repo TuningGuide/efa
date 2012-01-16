@@ -50,8 +50,6 @@ public class EfaAboutDialog extends BaseDialog {
     JTextArea danke = new JTextArea();
     JTextArea languages = new JTextArea();
     JLabel devNoteLabel = new JLabel();
-    JLabel devNote2Label = new JLabel();
-    JLabel devNoteUrlLabel = new JLabel();
 
     public EfaAboutDialog(Frame parent) {
         super(parent, Daten.EFA_LONGNAME, International.getStringWithMnemonic("Schließen"));
@@ -148,26 +146,9 @@ public class EfaAboutDialog extends BaseDialog {
                 label_mouseExited(e);
             }
         });
-        devNoteLabel.setText(International.getString("Diese Version ist eine Entwicklerversion in Beta-Qualität!"));
+        devNoteLabel.setText(International.getMessage("Diese Version ist eine Entwicklerversion in {status}-Qualität!",
+                "Beta"));
         devNoteLabel.setForeground(Color.red);
-        devNote2Label.setText(International.getString("Bitte melde Fehler unter:") + " ");
-        devNote2Label.setForeground(Color.black);
-        devNoteUrlLabel.setText(Daten.EFADEVURL);
-        devNoteUrlLabel.setForeground(Color.blue);
-        devNoteUrlLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-
-            public void mouseClicked(MouseEvent e) {
-                devNoteUrlLabel_mouseClicked(e);
-            }
-
-            public void mouseEntered(MouseEvent e) {
-                label_mouseEntered(e);
-            }
-
-            public void mouseExited(MouseEvent e) {
-                label_mouseExited(e);
-            }
-        });
         detailPanel.setLayout(borderLayout3);
         jScrollPane1.setPreferredSize(new Dimension(400, 300));
         efaBirthdayLabel.setForeground(Color.red);
@@ -188,8 +169,6 @@ public class EfaAboutDialog extends BaseDialog {
         infoPanel.add(gpl1Label, new GridBagConstraints(1, 7, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
         infoPanel.add(gplLabel, new GridBagConstraints(3, 7, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 20), 0, 0));
         infoPanel.add(devNoteLabel, new GridBagConstraints(1, 8, 4, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 20), 0, 0));
-        infoPanel.add(devNote2Label, new GridBagConstraints(1, 9, 3, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-        infoPanel.add(devNoteUrlLabel, new GridBagConstraints(4, 9, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 20), 0, 0));
         infoPanel.add(efaBirthdayLabel, new GridBagConstraints(0, 11, 4, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         tabbedPane.add(infoPanel, International.getString("Über efa"));
         tabbedPane.add(detailPanel, International.getString("Systeminformationen"));
@@ -263,7 +242,7 @@ public class EfaAboutDialog extends BaseDialog {
         }
         languages.setEditable(false);
         languages.append(International.getString("efa wurde in die folgenden Sprachen übersetzt:") + "\n\n" + translations + "\n"
-                + International.getString("Bitte unterstütze uns bei der Übersetzung in weitere Sprachen:") + " " + Daten.EFADEVURL);
+                + International.getString("Bitte unterstütze uns bei der Übersetzung in weitere Sprachen!") + " email: " + Daten.EFADEVURL);
     }
 
     void label_mouseEntered(MouseEvent e) {
@@ -307,10 +286,4 @@ public class EfaAboutDialog extends BaseDialog {
         BrowserDialog.openInternalBrowser(this, "Browser", "file:" + Daten.efaDocDirectory + Daten.EFA_LICENSE, 700, 600);
     }
 
-    void devNoteUrlLabel_mouseClicked(MouseEvent e) {
-        if (Daten.applID == Daten.APPL_EFABH) {
-            return;
-        }
-        BrowserDialog.openExternalBrowser(this, Daten.EFADEVURL);
-    }
 }

@@ -38,7 +38,7 @@ public class ImportBoatStatus extends ImportBase {
             BootStatus bootStatus = new BootStatus(efa1fname);
             logInfo(International.getMessage("Importiere {list} aus {file} ...", getDescription(), efa1fname));
             if (!bootStatus.readFile()) {
-                logError(LogString.logstring_fileOpenFailed(efa1fname, getDescription()));
+                logError(LogString.fileOpenFailed(efa1fname, getDescription()));
                 return false;
             }
 

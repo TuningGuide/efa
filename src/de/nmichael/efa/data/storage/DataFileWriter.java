@@ -87,6 +87,7 @@ public class DataFileWriter extends Thread {
             if (maxTries <= 0) {
                 Logger.log(Logger.ERROR, Logger.MSG_FILE_WRITETHREAD_ERROR,
                         "DataFileWriter["+dataFile.filename+"] synchronous save timed out.");
+                break;
             }
         }
     }

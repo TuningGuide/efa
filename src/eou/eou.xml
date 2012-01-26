@@ -1,6 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <efaOnlineUpdate>
     <Version>
+        <VersionID>1.9.9_24</VersionID>
+        <ReleaseDate>25.01.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2707274</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Übersetzungs-Update</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Translation Update</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_23</VersionID>
+        <ReleaseDate>24.01.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2783469</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Listenausgabe aller Daten</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>List Output of all Data</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_22</VersionID>
+        <ReleaseDate>17.01.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2779726</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Interaktive Auswahl von Namen für Statistik</ChangeItem>
+            <ChangeItem>Bugfixes: Index-Updates, Spellcheck, Statistikauswahl</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Interactive Selection of Names for Statistics</ChangeItem>
+            <ChangeItem>Bugfixes: Index Updates, Spellcheck, Statistic Selection</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_21</VersionID>
+        <ReleaseDate>16.01.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2766835</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Manuelle Auswahl eines Ordners für efa1-Datenimport</ChangeItem>
+            <ChangeItem>Bugfix: Deadlock beim Löschen eines Projekts</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Manual Selection of a Folder for efa1 Data Import</ChangeItem>
+            <ChangeItem>Bugfix: Deadlock when deleting a Project</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_20</VersionID>
+        <ReleaseDate>16.01.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>efa2_beta.zip</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>ACHTUNG Windows-Nutzer: Bitte NICHT per Online-Update, sondern manuell durch Download des ZIP-Archivs updaten!!</ChangeItem>
+            <ChangeItem>Bugfixes (Bootsstatus, Online-Update Windows)</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>ATTENTION Windows Users: Please don't update through Online Update, but install ZIP Archive manually.</ChangeItem>
+            <ChangeItem>Bugfixes (Boat Status, Online Update Windows)</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>1.9.9_19</VersionID>
         <ReleaseDate>15.01.2012</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>

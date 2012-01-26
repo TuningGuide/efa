@@ -88,6 +88,10 @@ public class Table extends JTable {
         }
     }
 
+    public int getOriginalIndex(int currentIndex) {
+        return sorter.getOriginalIndex(currentIndex);
+    }
+    
     public int getCurrentRowIndex(int originalIndex) {
         return sorter.getCurrentIndex(originalIndex);
     }

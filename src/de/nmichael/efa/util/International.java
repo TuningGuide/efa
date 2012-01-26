@@ -62,10 +62,12 @@ public class International {
             Daten.EFA_SHORTNAME = "efa";
             Daten.EFA_LONGNAME = Daten.EFA_SHORTNAME + " - " + International.getString("elektronisches Fahrtenbuch");
             Daten.EFA_ONLINE = "efaOnline";
-            Daten.EFA_BASE = "efa" + International.getString("Basis");
-            Daten.EFA_BOATHOUSE = "efa" + International.getString("Bootshaus");
+            Daten.EFA_BASE = "efa-" + International.getString("Basis");
+            Daten.EFA_BOATHOUSE = "efa-" + International.getString("Bootshaus");
             Daten.EFA_CLI = "efaCLI";
             Daten.EFA_LIVE = "efaLive";
+            Daten.EFA_WETT = "efaWett";
+            Daten.EFA_REMOTE = "efaRemote";
             EfaTypes.TEXT_UNKNOWN = International.getString("unbekannt");
         } catch(Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_INTERNATIONAL_FAILEDSETUP, "Failed to set up internationalization: "+e.toString()); // no need for translation

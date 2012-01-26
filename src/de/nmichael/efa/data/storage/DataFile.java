@@ -216,7 +216,10 @@ public abstract class DataFile extends DataAccess {
         return isOpen;
     }
 
-    public synchronized void deleteStorageObject() throws EfaException {
+    // This method must *not* be synchronized;
+    // that would result in a deadlock between fileWriter running save(true) and the
+    // thread calling deleteStorageObject(), which calls closeStorageObject()
+    public void deleteStorageObject() throws EfaException {
         try {
             try {
                 closeStorageObject();
@@ -385,6 +388,9 @@ public abstract class DataFile extends DataAccess {
                             modifyVersionizedKeys(key, add, update, delete);
                         }
                         for (DataIndex idx: indices) {
+                            if (update) {
+                                idx.delete(currentRecord);
+                            }
                             idx.add(myRecord);
                         }
                     } else {

@@ -46,7 +46,7 @@ public class Dialog {
 
     public static void initializeScreenSize() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        if ("Linux".equals(System.getProperty("os.name"))) {
+        if (Daten.isOsLinux()) {
             // Workaround für Linux: Fenster verschwinden oder werden falsch positioniert, wenn die die
             // volle Bildschirmgröße haben
             Dialog.screenSize = new Dimension(screenSize.width - 1, screenSize.height - 1);

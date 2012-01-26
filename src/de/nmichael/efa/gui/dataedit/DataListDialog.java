@@ -30,6 +30,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
     public static final int ACTION_HIDE    =  100;
     public static final int ACTION_IMPORT  = -100; // negative actions will not be shown as popup actions
     public static final int ACTION_EXPORT  = -101; // negative actions will not be shown as popup actions
+    public static final int ACTION_PRINT   = -102; // negative actions will not be shown as popup actions
     // @todo (P4) add a generic "print list" button
 
     protected StorageObject persistence;
@@ -81,7 +82,8 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
                 International.getString("Verstecken"),
                 International.getString("Importieren"),
-                International.getString("Exportieren")
+                International.getString("Exportieren"),
+                International.getString("Liste ausgeben")
             };
             actionType = new int[] {
                 ItemTypeDataRecordTable.ACTION_NEW,
@@ -89,7 +91,8 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 ItemTypeDataRecordTable.ACTION_DELETE,
                 ACTION_HIDE,
                 ACTION_IMPORT,
-                ACTION_EXPORT
+                ACTION_EXPORT,
+                ACTION_PRINT
             };
         } else {
             actionText = new String[] {
@@ -97,14 +100,16 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 ItemTypeDataRecordTable.ACTIONTEXT_EDIT,
                 ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
                 International.getString("Importieren"),
-                International.getString("Exportieren")
+                International.getString("Exportieren"),
+                International.getString("Liste ausgeben")
             };
             actionType = new int[] {
                 ItemTypeDataRecordTable.ACTION_NEW,
                 ItemTypeDataRecordTable.ACTION_EDIT,
                 ItemTypeDataRecordTable.ACTION_DELETE,
                 ACTION_IMPORT,
-                ACTION_EXPORT
+                ACTION_EXPORT,
+                ACTION_PRINT
             };
         }
     }
@@ -236,6 +241,15 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 DataExportDialog dlg2 = new DataExportDialog(this, persistence, validAt, admin);
                 dlg2.showDialog();
                 break;
+            case ACTION_PRINT:
+                Vector<DataRecord> data = table.getDisplayedData();
+                if (data == null || data.size() == 0) {
+                    Dialog.error(International.getString("Auswahl ist leer."));
+                    return;
+                }
+                DataPrintDialog dlg3 = new DataPrintDialog(this, persistence, validAt, admin, data);
+                dlg3.showDialog();
+                break;
         }
     }
 
@@ -277,58 +291,4 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
         }
     }
 
-/* @todo (P5) Implement a Print List functionality
- *   void printButton_actionPerformed(ActionEvent e) {
-    if (drvSignatur == null) {
-      Dialog.error("Kein elektronisches Fahrtenheft vorhanden!");
-      return;
-    }
-    String tmpdatei = Daten.efaTmpDirectory+"eFahrtenheft.html";
-    try {
-      BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpdatei),Daten.ENCODING_ISO));
-      f.write("<html>\n");
-      f.write("<head><META http-equiv=\"Content-Type\" content=\"text/html; charset="+Daten.ENCODING_ISO+"\"></head>\n");
-      f.write("<body>\n");
-      f.write("<h1 align=\"center\">elektronisches Fahrtenheft<br>für "+drvSignatur.getVorname()+" "+drvSignatur.getNachname()+"</h1>\n");
-      f.write("<table align=\"center\" border=\"3\" width=\"100%\">\n");
-      f.write("<tr><td>DRV-Teilnehmernummer:</td><td><tt><b>"+drvSignatur.getTeilnNr()+"</b></tt></td></tr>\n");
-      f.write("<tr><td>Vorname:</td><td><tt><b>"+drvSignatur.getVorname()+"</b></tt></td></tr>\n");
-      f.write("<tr><td>Nachname:</td><td><tt><b>"+drvSignatur.getNachname()+"</b></tt></td></tr>\n");
-      f.write("<tr><td>Jahrgang:</td><td><tt><b>"+drvSignatur.getJahrgang()+"</b></tt></td></tr>\n");
-      f.write("<tr><td>Anzahl der Fahrtenabzeichen:</td><td><tt><b>"+drvSignatur.getAnzAbzeichen()+"</b></tt></td></tr>\n");
-      f.write("<tr><td>Insgesamt nachgewiesene Kilometer:</td><td><tt><b>"+drvSignatur.getGesKm()+"</b></tt></td></tr>\n");
-      f.write("<tr><td>... davon Fahrtenabzeichen Jugend A/B:</td><td><tt><b>"+drvSignatur.getAnzAbzeichenAB()+"</b></tt></td></tr>\n");
-      f.write("<tr><td>... davon Kilometer Jugend A/B:</td><td><tt><b>"+drvSignatur.getGesKmAB()+"</b></tt></td></tr>\n");
-      f.write("<tr><td>Jahr der letzten elektronischen Meldung:</td><td><tt><b>"+drvSignatur.getJahr()+"</b></tt></td></tr>\n");
-      if (drvSignatur.getVersion() >= 3) f.write("<tr><td>Kilometer bei letzter elektronischer Meldung:</td><td><tt><b>"+drvSignatur.getLetzteKm()+"</b></tt></td></tr>\n");
-      f.write("<tr><td>Ausstellungsdatum des Fahrtenhefts:</td><td><tt><b>"+drvSignatur.getSignaturDatum(true)+"</b></tt></td></tr>\n");
-      f.write("<tr><td>Fahrtenabzeichen-Version:</td><td><tt><b>"+drvSignatur.getVersion()+"</b></tt></td></tr>\n");
-      f.write("<tr><td>öffentlicher DRV-Schlüssel:</td><td><tt><b>"+drvSignatur.getKeyName()+"</b></tt></td></tr>\n");
-      f.write("<tr><td>DRV-Signatur:</td><td><tt><b>"+drvSignatur.getSignaturString()+"</b></tt></td></tr>\n");
-      f.write("<tr><td>elektronisches Fahrtenheft (zur Eingabe):</td><td><tt><b>"+drvSignatur.toString()+"</b></tt></td></tr>\n");
-      if (signatureValidLabel.getForeground() == Color.red)
-        f.write("<tr><td colspan=\"2\"><font color=\"red\"><b>"+signatureValidLabel.getText()+"</b></font></td></tr>\n");
-      f.write("</table>\n");
-      f.write("</body></html>\n");
-      f.close();
-      JEditorPane out = new JEditorPane();
-      out.setContentType("text/html; charset="+Daten.ENCODING_ISO);
-      out.setPage(EfaUtil.correctUrl("file:"+tmpdatei));
-      out.setSize(600,800);
-      out.doLayout();
-      SimpleFilePrinter sfp = new SimpleFilePrinter(out);
-      if (sfp.setupPageFormat()) {
-        if (sfp.setupJobOptions()) {
-          sfp.printFile();
-        }
-      }
-      EfaUtil.deleteFile(tmpdatei);
-    } catch(Exception ee) {
-      Dialog.error("Druckdatei konnte nicht erstellt werden: "+ee.toString());
-      return;
-    }
-  }
-
- *
- */
 }

@@ -7,9 +7,9 @@ check_online_update()
 {
   for fnew in `find program -name '*.jar.new'`
   do
-    echo "$PROG: found updated JAR file: $fnew"
+    echo "[`date +%Y-%m-%d_%H:%M:%S` $PROG] found updated JAR file: $fnew"
     forg=`echo "$fnew" | sed "s/.jar.new/.jar/"`
-    echo "$PROG: copying $fnew to $forg"
+    echo "[`date +%Y-%m-%d_%H:%M:%S` $PROG] copying $fnew to $forg"
     cp ${fnew:?} ${forg:?}
     rm ${fnew:?}
   done
@@ -93,29 +93,23 @@ EFA_JAVA_ARGUMENTS="$JVMOPTIONS -cp $CP"
 
 # Run Program
 if [ $EFA_VERBOSE ] ; then
-  date
-  echo "$PROG: script running ..."
+  echo "[`date +%Y-%m-%d_%H:%M:%S` $PROG] script running ..."
 fi
 RC=99
 while [ $RC -ge 99 ]
 do
-  if [ $EFA_VERBOSE ] ; then
-    date
-  fi
   check_online_update
   if [ $EFA_VERBOSE ] ; then
-    echo "$PROG: starting $CLASSNAME ..."
+    echo "[`date +%Y-%m-%d_%H:%M:%S` $PROG] starting $CLASSNAME ..."
   fi
   java $EFA_JAVA_ARGUMENTS "$@"
   RC=$?
   if [ $EFA_VERBOSE ] ; then
-    date
-    echo "$PROG: efa exit code: $RC"
+    echo "[`date +%Y-%m-%d_%H:%M:%S` $PROG] efa exit code: $RC"
   fi
 done
 
 if [ $EFA_VERBOSE ] ; then
-  date
-  echo "$PROG: script finished."
+  echo "[`date +%Y-%m-%d_%H:%M:%S` $PROG] script finished."
 fi
 exit $RC

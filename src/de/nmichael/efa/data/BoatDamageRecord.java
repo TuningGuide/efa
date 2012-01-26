@@ -269,6 +269,11 @@ public class BoatDamageRecord extends DataRecord {
         return s.toString();
     }
 
+    public String getShortDamageInfo() {
+        return International.getString("Bootsschaden") + ": " +
+                getDescription() + " (" + getSeverityDescription() + ")";
+    }
+
     public String getAsText(String fieldName) {
         if (fieldName.equals(BOATID)) {
             return getBoatAsName();

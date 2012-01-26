@@ -299,7 +299,13 @@ class ExecuteAfterDownloadImpl implements ExecuteAfterDownload {
         }
 
         // Neue Version entpacken
-        String result = EfaUtil.unzip(zipFile, Daten.efaMainDirectory, ".jar", ".jar.new");
+       // if (Date)
+        String result = null;
+        if (Daten.isOsLinux()) {
+            result= EfaUtil.unzip(zipFile, Daten.efaMainDirectory, ".jar", ".jar.new");
+        } else {
+            result= EfaUtil.unzip(zipFile, Daten.efaMainDirectory);
+        }
         if (result != null) {
             if (result.length() > 1000) {
                 result = result.substring(0, 1000);

@@ -1,11 +1,9 @@
 Item                                                                 days  until
 ================================================================================
+Versionierte Daten (siehe email 16.01. an Fabian!)
 Dr-Titel in Ausgabe (und erkennung) von Strings aufnehmen!
-Persoenliches Fahrtenbuch mit $$ Eingabe http://forum.nmichael.de/viewtopic.php?f=15&t=177&p=528#p528
-efaBase in efaAdmin umbenennen?
 Up/Down Buttons fuer Statistikeinstellungen
 Create Statistik in CLI
-[07.01.2012 09:08:41] - efaBths - 11229 - WARNING - ERR022 - Stack Inconsistency: closed Window: class de.nmichael.efa.gui.BrowserDialog but top of stack is: class de.nmichael.efa.gui.ProgressDialog (stack: class de.nmichael.efa.gui.EfaBoathouseFrame; class de.nmichael.efa.gui.dataedit.StatisticsListDialog; class de.nmichael.efa.gui.ProgressDialog)
 Buttons mit Symbolen ausstatten
 
 Internationalize - Cleanup

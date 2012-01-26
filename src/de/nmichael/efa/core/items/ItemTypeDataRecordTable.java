@@ -510,4 +510,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         }
     }
 
+    public Vector<DataRecord> getDisplayedData() {
+        Vector<DataRecord> sortedData = new Vector<DataRecord>();
+        for (int i=0; i<data.size(); i++) {
+            sortedData.add(mappingKeyToRecord.get(keys[table.getOriginalIndex(i)]));
+        }
+        return sortedData;
+    }
+
 }

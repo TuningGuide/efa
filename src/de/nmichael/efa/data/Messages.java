@@ -64,6 +64,8 @@ public class Messages extends StorageObject {
         try {
             data().add(r);
         } catch(Exception e) {
+            Logger.log(Logger.WARNING, Logger.MSG_WARN_SAVEMESSAGE,
+                    "Save Message Failed: " + e.toString());
             Logger.logdebug(e);
         }
         return r;

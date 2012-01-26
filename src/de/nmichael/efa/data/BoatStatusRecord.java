@@ -253,7 +253,7 @@ public class BoatStatusRecord extends DataRecord {
                     (getEntryNo() != null ? getEntryNo().toString() : "NOENTRYNO"), getLogbook())));
         }
         v.add(item = new ItemTypeString(BoatStatusRecord.COMMENT, getComment(),
-                IItemType.TYPE_PUBLIC, CAT_STATUS, International.getString("Bemerkung")));
+                IItemType.TYPE_EXPERT, CAT_STATUS, International.getString("Bemerkung")));
         
         return v;
     }

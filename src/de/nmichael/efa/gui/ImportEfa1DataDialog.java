@@ -13,19 +13,16 @@ package de.nmichael.efa.gui;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
-import de.nmichael.efa.data.*;
-import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.importefa1.*;
-import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.efa1.*;
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.EfaBaseConfig;
 import java.io.*;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
 
 public class ImportEfa1DataDialog extends StepwiseDialog {
 
@@ -94,6 +91,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                         try {
                             String name = f.getName();
                             String dataDir = "";
+                            boolean isEfa1Version = true;
                             String lastUsed = EfaUtil.getTimeStampDDMMYYYY(f.lastModified());
                             BufferedReader efa1 = new BufferedReader(new InputStreamReader(new FileInputStream(f.getAbsolutePath()),Daten.ENCODING_ISO));
                             String s;
@@ -101,17 +99,22 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                                 if (s.startsWith("USERHOME=")) {
                                     dataDir = s.substring(9);
                                 }
+                                if (s.startsWith(EfaBaseConfig.FIELD_VERSION)) {
+                                    isEfa1Version = false; // this field is not present in efa1!
+                                }
                             }
                             efa1.close();
-                            File fcfg = new File(dataDir+Daten.fileSep+"cfg" + Daten.fileSep + "efa.cfg");
-                            if (fcfg.isFile()) {
-                                lastUsed = EfaUtil.getTimeStampDDMMYYYY(fcfg.lastModified());
+                            if (isEfa1Version) {
+                                File fcfg = new File(dataDir + Daten.fileSep + "cfg" + Daten.fileSep + "efa.cfg");
+                                if (fcfg.isFile()) {
+                                    lastUsed = EfaUtil.getTimeStampDDMMYYYY(fcfg.lastModified());
+                                }
+                                String txt = International.getMessage("{datadir} (zuletzt genutzt {date})",
+                                        dataDir, lastUsed);
+                                oldEfaDataDir.add(dataDir);
+                                oldEfaDescription.add(txt);
+                                longestTextWidth = Math.max(longestTextWidth, txt.length());
                             }
-                            String txt = International.getMessage("{datadir} (zuletzt genutzt {date})",
-                                    dataDir, lastUsed);
-                            oldEfaDataDir.add(dataDir);
-                            oldEfaDescription.add(txt);
-                            longestTextWidth = Math.max(longestTextWidth, txt.length());
                         } catch(Exception eignore2) {
                         }
                     }
@@ -122,6 +125,9 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
         }
         // Add existing efa Installations to GUI Selection
         if (oldEfaDataDir.size() > 0) {
+            oldEfaDataDir.add("");
+            oldEfaDescription.add("--- " + International.getString("Verzeichnis manuell auswählen") + " ---");
+
             item = new ItemTypeStringList(OLDEFADATADIR, oldEfaDataDir.get(0),
                     oldEfaDataDir.toArray(new String[0]),
                     oldEfaDescription.toArray(new String[0]),
@@ -173,6 +179,19 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                 dir = ((ItemTypeStringList) item).getValue();
             } else {
                 dir = ((ItemTypeFile) item).getValue();
+            }
+
+            if (dir == null || dir.length() == 0) {
+                dir = Dialog.dateiDialog(this,
+                    International.getMessage("{item} auswählen",
+                        International.getString("Verzeichnis für Nutzerdaten")),
+                    International.getString("Verzeichnisse"),
+                    null,
+                    Daten.userHomeDir,
+                    null,
+                    null,
+                    false,
+                    true);
             }
 
             importData = new HashMap<String, ImportMetadata>();
@@ -299,13 +318,21 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
         Dialog.SUPPRESS_DIALOGS = false;
         ImportMetadata meta = new ImportMetadata(type, datenListe, description);
         String fname = datenListe.getFileName();
-        if (EfaUtil.canOpenFile(dir+"daten"+Daten.fileSep+fname)) {
-            datenListe.setFileName(dir+"daten"+Daten.fileSep+fname);
-            if (datenListe.readFile()) {
-                meta.numRecords = datenListe.countElements();
-            }
-        } else if (EfaUtil.canOpenFile(dir+"data"+Daten.fileSep+fname)) {
-            datenListe.setFileName(dir+"data"+Daten.fileSep+fname);
+        if (dir == null || !dir.endsWith(Daten.fileSep)) {
+            dir = (dir != null ? dir : "") + Daten.fileSep;
+        }
+        if (new File(dir+"daten"+Daten.fileSep+fname).exists()) {
+            // old efa 1.x daten folder
+            dir = dir+"daten"+Daten.fileSep;
+        } else if (new File(dir+"data"+Daten.fileSep+fname).exists()) {
+            // new efa 1.9.0 data folder
+            dir = dir+"data"+Daten.fileSep;
+        } else if (new File(dir+fname).exists()) {
+            // user may have manually selected the "daten" or "data" folder, so we're already in it
+            // nothing to do
+        }
+        if (EfaUtil.canOpenFile(dir+fname)) {
+            datenListe.setFileName(dir+fname);
             if (datenListe.readFile()) {
                 meta.numRecords = datenListe.countElements();
             }
@@ -398,7 +425,8 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
             } else {
                 dir = ((ItemTypeFile)item).getValue();
             }
-            if (!(new File(dir)).isDirectory()) {
+            if (dir == null || (dir.length() > 0 && !(new File(dir)).isDirectory())) {
+                // dir.length==0 is allowed - we will prompt the user later
                 Dialog.error(LogString.directoryDoesNotExist(dir, International.getString("Verzeichnis")));
                 item.requestFocus();
                 return false;

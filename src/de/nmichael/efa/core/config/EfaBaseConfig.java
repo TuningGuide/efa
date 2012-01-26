@@ -19,9 +19,14 @@ import java.io.*;
 
 public class EfaBaseConfig {
 
+    public static final String FIELD_USERHOME = "USERHOME";
+    public static final String FIELD_LANGUAGE = "LANGUAGE";
+    public static final String FIELD_VERSION  = "VERSION";
+
     private String filename;
     public String efaUserDirectory; // Verzeichnis für alle User-Daten von efa (daten, cfg, tmp)
     public String language;         // Sprache
+    public String version;          // only used to distinguish between efa1 and efa2
 
     private String normalize(String sin) {
         String sout = "";
@@ -93,6 +98,7 @@ public class EfaBaseConfig {
     // Einstellungen zurücksetzen
     void reset() {
         language = null;
+        version = null;
         efaUserDirectory = Daten.userHomeDir + (!Daten.userHomeDir.endsWith(Daten.fileSep) ? Daten.fileSep : "") + Daten.EFA_USERDATA_DIR + Daten.fileSep;
         if (!trySetUserDir(efaUserDirectory, true)) {
             efaUserDirectory = Daten.efaMainDirectory;
@@ -115,8 +121,8 @@ public class EfaBaseConfig {
             f = new BufferedReader(new InputStreamReader(new FileInputStream(filename),Daten.ENCODING_UTF));
             while ((s = f.readLine()) != null) {
                 s = s.trim();
-                if (s.startsWith("USERHOME=")) {
-                    String newUserHome = s.substring(9, s.length()).trim();
+                if (s.startsWith(FIELD_USERHOME + "=")) {
+                    String newUserHome = s.substring(FIELD_USERHOME.length()+1, s.length()).trim();
                     if (efaCanWrite(newUserHome, true)) {
                         efaUserDirectory = newUserHome;
                         if (!efaUserDirectory.endsWith(Daten.fileSep)) {
@@ -124,8 +130,11 @@ public class EfaBaseConfig {
                         }
                     }
                 }
-                if (s.startsWith("LANGUAGE=")) {
-                    language = s.substring(9).trim();
+                if (s.startsWith(FIELD_LANGUAGE+"=")) {
+                    language = s.substring(FIELD_LANGUAGE.length()+1).trim();
+                }
+                if (s.startsWith(FIELD_VERSION+"=")) {
+                    version = s.substring(FIELD_VERSION.length()+1).trim();
                 }
             }
             f.close();
@@ -147,11 +156,12 @@ public class EfaBaseConfig {
         try {
             f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename,false), Daten.ENCODING_UTF ));
             if (efaUserDirectory != null && efaUserDirectory.length() > 0) {
-                f.write("USERHOME=" + efaUserDirectory + "\n");
+                f.write(FIELD_USERHOME + "=" + efaUserDirectory + "\n");
             }
             if (language != null) {
-                f.write("LANGUAGE=" + language + "\n");
+                f.write(FIELD_LANGUAGE + "=" + language + "\n");
             }
+            f.write(FIELD_VERSION + "=" + Daten.MAJORVERSION + "\n");
             f.close();
         } catch (Exception e) {
             Logger.log(e);

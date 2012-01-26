@@ -278,6 +278,7 @@ public class Logger {
     public static final String MSG_WARN_ERRORCNTMSGEXCEEDED = "WRN013";
     public static final String MSG_WARN_FONTDOESNOTEXIST = "WRN014";
     public static final String MSG_WARN_WEATHERUPDATEFAILED = "WRN015";
+    public static final String MSG_WARN_SAVEMESSAGE = "WRN016";
     // File Operations
     public static final String MSG_FILE_FILEOPENFAILED = "FLE001";
     public static final String MSG_FILE_FILEREADFAILED = "FLE002";

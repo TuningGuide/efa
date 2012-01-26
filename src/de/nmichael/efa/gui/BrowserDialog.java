@@ -398,6 +398,9 @@ public class BrowserDialog extends BaseDialog {
 
     /**Close the dialog*/
     void cancel(boolean timeout) {
+        if (_inCancel) {
+            return;
+        }
         if (locked) {
             AdminRecord admin = AdminLoginDialog.login(this, International.getString("Entsperren von efa"));
             if (admin == null) {

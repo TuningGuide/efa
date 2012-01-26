@@ -114,9 +114,7 @@ public class EfaConfig extends StorageObject {
     private ItemTypeStringList defaultObmann;
     private ItemTypeBoolean popupComplete;
     private ItemTypeStringList nameFormat;
-    private ItemTypeBoolean correctMisspelledMitglieder;
-    private ItemTypeBoolean correctMisspelledBoote;
-    private ItemTypeBoolean correctMisspelledZiele;
+    private ItemTypeBoolean correctMisspelledNames;
     private ItemTypeBoolean skipUhrzeit;
     private ItemTypeBoolean skipZiel;
     private ItemTypeBoolean skipBemerk;
@@ -447,18 +445,9 @@ public class EfaConfig extends StorageObject {
             addParameter(manualStandardmannsch = new ItemTypeBoolean("DefaultCrewManualSelect", false,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
                     International.getString("Manuelle Auswahl einer Standardmannschaft erlauben")));
-            addParameter(correctMisspelledMitglieder = new ItemTypeBoolean("SpellingCheckPersons", true,
+            addParameter(correctMisspelledNames = new ItemTypeBoolean("SpellingCheckNames", true,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
-                    International.getMessage("Fahrtenbucheinträge auf Tippfehler prüfen für {types}",
-                    International.getString("Mitglieder"))));
-            addParameter(correctMisspelledBoote = new ItemTypeBoolean("SpellingCheckBoats", true,
-                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
-                    International.getMessage("Fahrtenbucheinträge auf Tippfehler prüfen für {types}",
-                    International.getString("Boote"))));
-            addParameter(correctMisspelledZiele = new ItemTypeBoolean("SpellingCheckDestinations", true,
-                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
-                    International.getMessage("Fahrtenbucheinträge auf Tippfehler prüfen für {types}",
-                    International.getString("Ziele"))));
+                    International.getString("Eingaben auf Tippfehler prüfen")));
             addParameter(skipUhrzeit = new ItemTypeBoolean("InputSkipTime", false,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
                     International.getMessage("Eingabefeld '{field}' überspringen",
@@ -1131,16 +1120,8 @@ public class EfaConfig extends StorageObject {
         return nameFormat.getValue();
     }
 
-    public boolean getValueCorrectMisspelledMitglieder() {
-        return correctMisspelledMitglieder.getValue();
-    }
-
-    public boolean getValueCorrectMisspelledBoote() {
-        return correctMisspelledBoote.getValue();
-    }
-
-    public boolean getValueCorrectMisspelledZiele() {
-        return correctMisspelledZiele.getValue();
+    public boolean getValueCorrectMisspelledNames() {
+        return correctMisspelledNames.getValue();
     }
 
     public boolean getValueSkipUhrzeit() {
@@ -1891,7 +1872,7 @@ public class EfaConfig extends StorageObject {
 
     private String getDefaultLookAndFeel() {
         String[] laf = makeLookAndFeelArray(STRINGLIST_VALUES);
-        if (true || Daten.osName.equals("Linux")) { // let's do this for all OS'es
+        if (true || Daten.isOsLinux()) { // let's do this for all OS'es
             for (int i=0; i<laf.length; i++) {
                 if (laf[i].endsWith("MetalLookAndFeel")) {
                     return laf[i];

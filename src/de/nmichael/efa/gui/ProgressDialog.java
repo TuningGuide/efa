@@ -45,6 +45,7 @@ public class ProgressDialog extends BaseDialog {
 
     private void initialize(ProgressTask progressTask, boolean autoCloseDialogWhenDone, boolean minimalDialog) {
         this.progressTask = progressTask;
+        super.enableWindowStackChecks(false);
         progressTask.setProgressDialog(this, autoCloseDialogWhenDone);
         if (minimalDialog) {
             currentStatusLabel = new JLabel();

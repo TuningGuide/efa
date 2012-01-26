@@ -69,6 +69,12 @@ public class SimpleInputDialog extends BaseDialog {
         }
 
         item.displayOnGui(this, mainPanel, 0, y);
+        if (item instanceof ItemTypeString) {
+            String val = ((ItemTypeString)item).getValue();
+            if (val != null && val.length() > 0) {
+                ((ItemTypeString)item).setSelection(0, s.length());
+            }
+        }
         item.requestFocus();
     }
 

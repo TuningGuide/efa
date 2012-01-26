@@ -27,6 +27,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     protected String _closeButtonText;
     protected boolean _prepared = false;
     protected boolean _inCancel = false;
+    private boolean doWindowStackChecks = true;
 
     private ActionHandler ah;
     protected String KEYACTION_ESCAPE;
@@ -73,6 +74,10 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
         showDialog();
     }
 
+    protected void enableWindowStackChecks(boolean enable) {
+        this.doWindowStackChecks = enable;
+    }
+
     public void showDialog() {
         Daten.iniSplashScreen(false);
         if (!_prepared && !prepareDialog()) {
@@ -80,7 +85,9 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
         }
         Dialog.setDlgLocation(this, _parent);
         setModal(true);
-        Dialog.frameOpened(this);
+        if (doWindowStackChecks) {
+            Dialog.frameOpened(this);
+        }
         if (focusItem != null) {
             focusItem.requestFocus();
         }
@@ -216,7 +223,9 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
 
     public boolean cancel() {
         _inCancel = true;
-        Dialog.frameClosed(this);
+        if (doWindowStackChecks) {
+            Dialog.frameClosed(this);
+        }
         dispose();
         return true;
     }

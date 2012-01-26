@@ -33,8 +33,9 @@ import java.lang.management.*;
 public class Daten {
 
     public final static String VERSION            = "v2.0_beta"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID          = "1.9.9_19";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-    public final static String VERSIONRELEASEDATE = "15.01.2012";  // Release Date: TT.MM.JJJJ
+    public final static String VERSIONID          = "1.9.9_24";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "25.01.2012";  // Release Date: TT.MM.JJJJ
+    public final static String MAJORVERSION       = "2";
     public final static String PROGRAMMID         = "EFA.199"; // Versions-ID für Wettbewerbsmeldungen
     public final static String PROGRAMMID_DRV     = "EFADRV.199"; // Versions-ID für Wettbewerbsmeldungen
     public final static String COPYRIGHTYEAR      = "12";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
@@ -603,7 +604,7 @@ public class Daten {
         /*
         if (efaSec.secFileExists() && !efaSec.secValueValid()) {
             String msg = International.getStringXXX("Die Sicherheitsdatei ist korrupt!") + "\n"
-                    + International.getStringXXX("Aus Gründen der Sicherheit verweigert efa den Dienst. "
+                    + International.getXXX("Aus Gründen der Sicherheit verweigert efa den Dienst. "
                     + "Um efa zu reaktivieren, wende Dich bitte an den Entwickler: ") + Daten.EMAILHELP;
             Logger.log(Logger.ERROR, Logger.MSG_CORE_EFASECCORRUPTED, msg);
             if (isGuiAppl()) {
@@ -979,6 +980,10 @@ public class Daten {
                 || applID == APPL_ELWIZ
                 || applID == APPL_EDDI
                 || applID == APPL_DRV);
+    }
+
+    public static boolean isOsLinux() {
+        return "Linux".equals(osName);
     }
 
     private static boolean checkAndCreateDirectory(String dir) {

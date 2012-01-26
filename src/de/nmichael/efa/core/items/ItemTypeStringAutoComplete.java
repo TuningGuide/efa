@@ -154,7 +154,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         if (Daten.efaConfig.getValuePopupComplete()) {
             AutoCompletePopupWindow.hideWindow();
         }
-        if (isCheckSpelling && Daten.efaConfig.getValueCorrectMisspelledBoote()) {
+        if (isCheckSpelling && Daten.efaConfig.getValueCorrectMisspelledNames()) {
             checkSpelling();
         }
         super.field_focusLost(e);
@@ -380,6 +380,15 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             }
             item.setFieldSize(300, 200);
 
+            if (field == null || !field.isValid()) {
+                // field is invalid if the entire input dialog has already been closed.
+                // This can happen in case of SimpleInputDialog, where this check, triggered
+                // by a focusLost event, is actually called when the user hits ENTER at the
+                // end of the input. In this case, also the window is closed and the control
+                // already returns to the calling thread. This is too late for us to check spelling
+                // then.
+                return;
+            }
             if (SimpleOptionInputDialog.showOptionInputDialog(dlg,
                     International.getString("Tippfehler?"), item,
                     new String[] { International.getString("Ersetzen"),

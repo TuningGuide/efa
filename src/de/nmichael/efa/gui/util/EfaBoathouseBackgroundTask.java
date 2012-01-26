@@ -188,7 +188,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
     private void checkBoatStatus() {
         BoatStatus boatStatus = (Daten.project != null ? Daten.project.getBoatStatus(false) : null);
         BoatReservations boatReservations = (Daten.project != null ? Daten.project.getBoatReservations(false) : null);
-        if (boatStatus == null || boatReservations == null) {
+        BoatDamages boatDamages  = (Daten.project != null ? Daten.project.getBoatDamages(false) : null);
+        if (boatStatus == null || boatReservations == null || boatDamages == null) {
             return;
         }
 
@@ -202,13 +203,14 @@ public class EfaBoathouseBackgroundTask extends Thread {
                     continue;
                 }
                 try {
-                    boolean statusRecordChanged = false;
+                    String oldCurrentStatus = boatStatusRecord.getCurrentStatus();
+                    String oldShowInList = boatStatusRecord.getShowInList();
+                    String oldComment = boatStatusRecord.getComment();
 
                     // set CurrentStatus correctly
                     if (!boatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER) &&
                         !boatStatusRecord.getCurrentStatus().equals(boatStatusRecord.getBaseStatus())) {
                         boatStatusRecord.setCurrentStatus(boatStatusRecord.getBaseStatus());
-                        statusRecordChanged = true;
                     }
 
                     if (boatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_HIDE)) {
@@ -237,12 +239,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
                         if (!boatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER) &&
                             !boatStatusRecord.getShowInList().equals(boatStatusRecord.getCurrentStatus())) {
                             boatStatusRecord.setShowInList(null);
-                            statusRecordChanged = true;
                         }
 
                         if (purgedRes > 0) {
                             boatStatusRecord.setComment(null);
-                            statusRecordChanged = true;
                         }
                     } else {
                         // reservations found
@@ -250,12 +250,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
                             if (Daten.efaConfig.getValueEfaDirekt_resBooteNichtVerfuegbar()) {
                                 if (!boatStatusRecord.getShowInList().equals(BoatStatusRecord.STATUS_NOTAVAILABLE)) {
                                     boatStatusRecord.setShowInList(BoatStatusRecord.STATUS_NOTAVAILABLE);
-                                    statusRecordChanged = true;
                                 }
                             } else {
                                 if (!boatStatusRecord.getShowInList().equals(boatStatusRecord.getBaseStatus())) {
                                     boatStatusRecord.setShowInList(boatStatusRecord.getBaseStatus());
-                                    statusRecordChanged = true;
                                 }
                             }
                         }
@@ -263,15 +261,49 @@ public class EfaBoathouseBackgroundTask extends Thread {
                                 reservations[0].getPersonAsName(),
                                 reservations[0].getReason(),
                                 reservations[0].getReservationTimeDescription());
-                        if (!s.equals(boatStatusRecord.getComment())) {
-                            boatStatusRecord.setComment(s);
-                            statusRecordChanged = true;
+                        boatStatusRecord.setComment(s);
+                    }
+
+                    // find all current damages
+                    BoatDamageRecord[] damages = boatDamages.getBoatDamages(boatStatusRecord.getBoatId());
+                    for (int i=0; damages != null && i<damages.length; i++) {
+                        if (!damages[i].getFixed() && damages[i].getSeverity() != null &&
+                            damages[i].getSeverity().equals(BoatDamageRecord.SEVERITY_NOTUSEABLE)) {
+                            boatStatusRecord.setComment(damages[i].getShortDamageInfo());
+                            if (!boatStatusRecord.getShowInList().equals(BoatStatusRecord.STATUS_NOTAVAILABLE)) {
+                                boatStatusRecord.setShowInList(BoatStatusRecord.STATUS_NOTAVAILABLE);
+                            }
+                            break; // stop after first severe damage
                         }
                     }
-                    
+
+                    // make sure that if the boat is on the water, this status overrides any other list settings
+                    if (boatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
+                        boatStatusRecord.setShowInList(BoatStatusRecord.STATUS_ONTHEWATER);
+                    }
+
+                    boolean statusRecordChanged = false;
+                    if (oldCurrentStatus == null ||
+                        !oldCurrentStatus.equals(boatStatusRecord.getCurrentStatus())) {
+                        statusRecordChanged = true;
+                    }
+                    if (oldShowInList == null ||
+                        !oldShowInList.equals(boatStatusRecord.getShowInList())) {
+                        statusRecordChanged = true;
+                    }
+                    if ((oldComment == null && boatStatusRecord.getComment() != null && boatStatusRecord.getComment().length() > 0) ||
+                        (oldComment != null && !oldComment.equals(boatStatusRecord.getComment()))) {
+                        statusRecordChanged = true;
+                    }
+
                     if (statusRecordChanged) {
                         boatStatus.data().update(boatStatusRecord);
                         listChanged = true;
+                    }
+                    if (statusRecordChanged && Logger.isTraceOn(Logger.TT_BACKGROUND, 2)) {
+                        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                                "BoatStatus changed for Boat " + boatStatusRecord.getBoatNameAsString(now) +
+                                ", new Status: " + boatStatusRecord.toString());
                     }
                 } catch (Exception ee) {
                     Logger.logdebug(ee);

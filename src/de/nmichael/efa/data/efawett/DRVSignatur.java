@@ -12,7 +12,7 @@ package de.nmichael.efa.data.efawett;
 import de.nmichael.efa.*;
 import de.nmichael.efa.util.Base64;
 import de.nmichael.efa.util.Base64;
-import de.nmichael.efa.util.EfaKeyStore;
+import de.nmichael.efa.core.EfaKeyStore;
 import de.nmichael.efa.util.EfaUtil;
 import java.util.*;
 import java.security.*;

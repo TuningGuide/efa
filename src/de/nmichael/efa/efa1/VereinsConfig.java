@@ -11,7 +11,6 @@
 package de.nmichael.efa.efa1;
 
 import de.nmichael.efa.*;
-import de.nmichael.efa.drv.EnterPasswordFrame;
 import de.nmichael.efa.efa1.DatenListe;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -255,68 +254,4 @@ public class VereinsConfig extends DatenListe {
   public void reusePasswordForNextRequest() {
     _reusePasswordForNextRequest = true;
   }
-
-  public String makeScriptRequestString(int _verband, int _action, String param1, String param2) {
-    if (Daten.wettDefs == null) {
-      Dialog.error("Es ist keine Wettbewerbskonfiguration vorhanden.\n"+
-                   "Bitte öffne im Menü 'Administration' den Punkt 'Wettbewerbskonfiguration'\n"+
-                   "und aktualisiere die Konfigurationsdaten.");
-      return null;
-    }
-    String verbandName = null;
-    String verband = null;
-    String user = null;
-    switch(_verband) {
-      case VERBAND_DRV:    verbandName = "DRV";        verband = "drv";    user = userDRV; break;
-      case VERBAND_LRVBLN: verbandName = "LRV Berlin"; verband = "lrvbln"; user = userLRV; break;
-    }
-    if (verband == null || user == null) return null;
-    if (user.length()==0) {
-      Dialog.error("Es ist kein Benutzername zum Abrufen der Daten konfiguriert.\n"+
-                   "Bitte öffne im Menü 'Administration' den Punkt 'Wettbewerbskonfiguration'\n"+
-                   "und trage einen Benutzernamen für efaWett ein.");
-      return null;
-    }
-
-    String action = null;
-    String script = null;
-    switch(_action) {
-      case ACTION_EINSENDEN:
-        action = "efa_uploadMeldung";
-        if (_verband == VERBAND_DRV) script = Daten.wettDefs.efw_url_einsenden;
-        break;
-      case ACTION_ABRUFEN :
-        action = "efa_getBestaetigung";
-        if (_verband == VERBAND_DRV) script = Daten.wettDefs.efw_url_abrufen;
-        break;
-      case ACTION_QNRLIST :
-        action = "efa_getAllQnr";
-        if (_verband == VERBAND_DRV) script = Daten.wettDefs.efw_url_abrufen;
-        break;
-    }
-    if (action == null || script == null) return null;
-    if (script.length()==0) {
-      Dialog.error("Es ist keine Adresse zum Abrufen der Daten konfiguriert.\n"+
-                   "Bitte öffne im Menü 'Administration' den Punkt 'Wettbewerbskonfiguration'\n"+
-                   "und aktualisiere die Konfigurationsdaten.");
-      return null;
-    }
-
-    if (!_reusePasswordForNextRequest) {
-      pwd = null;
-    }
-    if (pwd == null) {
-      pwd = EnterPasswordFrame.enterPassword(Dialog.frameCurrent(),
-          "Bitte gib das efaWett-Paßwort für den Benutzernamen '" + user +
-                                             "' beim "+verbandName+" an:");
-    }
-    if (pwd == null) return null;
-    String password = new String(pwd);
-    String s = script+"?verband="+verband+"&agent=efa&username="+user+"&password="+password+"&action="+action;
-    if (param1 != null) s += "&"+param1;
-    if (param2 != null) s += "&"+param2;
-    _reusePasswordForNextRequest = false;
-    return s;
-  }
-
 }

@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.drv;
 
+import de.nmichael.efa.core.OnlineUpdate;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -229,8 +230,8 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
       }
       Logger.log(Logger.INFO,"Vorhandenes Wettbewerbsjahr "+j+" ausgewählt.");
     }
-    Daten.drvConfig.aktJahr = j;
-    Daten.drvConfig.writeFile();
+    Main.drvConfig.aktJahr = j;
+    Main.drvConfig.writeFile();
     Dialog.infoDialog("Wettbewerbsjahr ausgewählt","Das ausgewählte Jahr für die Erfassung von Meldungen ist jetzt "+j+".");
   }
 
@@ -259,13 +260,10 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
   }
 
   void updateButton_actionPerformed(ActionEvent e) {
-      // @todo (P6) DRV Online Update XML-based
     OnlineUpdate.runOnlineUpdate(this,Daten.ONLINEUPDATE_INFO_DRV);
   }
 
   void datensicherungButton_actionPerformed(ActionEvent e) {
-      // @toto (P8) DRV Datensicherung neu implementieren
-      /*
     DatensicherungFrame dlg;
     try {
       Vector directories = new Vector();
@@ -273,8 +271,8 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
       Vector inclSubdirs = new Vector();
       directories.add(Daten.efaMainDirectory); selected.add(new Boolean(true)); inclSubdirs.add(new Boolean(false));
       directories.add(Daten.efaDataDirectory); selected.add(new Boolean(true)); inclSubdirs.add(new Boolean(false));
-      if (Daten.drvConfig.aktJahr != 0) {
-        directories.add(Daten.efaDataDirectory+Daten.drvConfig.aktJahr+Daten.fileSep); selected.add(new Boolean(true)); inclSubdirs.add(new Boolean(true));
+      if (Main.drvConfig.aktJahr != 0) {
+        directories.add(Daten.efaDataDirectory+Main.drvConfig.aktJahr+Daten.fileSep); selected.add(new Boolean(true)); inclSubdirs.add(new Boolean(true));
       }
       if ((new File(Daten.efaDataDirectory+"CA"+Daten.fileSep)).isDirectory()) {
         directories.add(Daten.efaDataDirectory+"CA"+Daten.fileSep); selected.add(new Boolean(true)); inclSubdirs.add(new Boolean(true));
@@ -287,7 +285,6 @@ public class DRVAdminFrame extends JDialog implements ActionListener {
     Dialog.setDlgLocation(dlg,this);
     dlg.setModal(true);
     dlg.show();
-       */
   }
 
 

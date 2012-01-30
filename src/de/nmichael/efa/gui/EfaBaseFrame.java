@@ -2818,7 +2818,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
     private void this_windowIconified(WindowEvent e) {
         if (isModeBoathouse()) {
-            // @todo (P9) startBringToFront(true); not needed any more
+            // startBringToFront(true); not needed any more
         }
     }
 

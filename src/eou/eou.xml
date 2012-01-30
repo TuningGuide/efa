@@ -1,6 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <efaOnlineUpdate>
     <Version>
+        <VersionID>1.9.9_27</VersionID>
+        <ReleaseDate>29.01.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2734096</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Ausdruck von Datensätzen</ChangeItem>
+            <ChangeItem>Sperren von efa</ChangeItem>
+            <ChangeItem>Französische Übersetzung aktualisiert</ChangeItem>
+            <ChangeItem>Dänische Übersetzung (noch unvollständig)</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Printing of Records</ChangeItem>
+            <ChangeItem>Locking efa</ChangeItem>
+            <ChangeItem>French Translation updated</ChangeItem>
+            <ChangeItem>Danish Translation (yet incomplete)</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_26</VersionID>
+        <ReleaseDate>28.01.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2677358</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Erkennung von externen Datenänderungen</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Detection of external Data Changes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_25</VersionID>
+        <ReleaseDate>28.01.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2610358</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Wiederherstellung von Daten bei Datenkorruption</ChangeItem>
+            <ChangeItem>Bugfix Produktion</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Crash Recovery of corrupted Data</ChangeItem>
+            <ChangeItem>Bugfix Production</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>1.9.9_24</VersionID>
         <ReleaseDate>25.01.2012</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>

@@ -74,6 +74,7 @@ public class DataExportDialog extends BaseDialog {
             }
             fieldDescription[i] = fields[i] + (item != null ? " (" + item.getDescription() + ")" : "");
             if (!fields[i].equals(DataRecord.LASTMODIFIED) &&
+                !fields[i].equals(DataRecord.CHANGECOUNT) &&
                 !fields[i].equals(DataRecord.VALIDFROM) &&
                 !fields[i].equals(DataRecord.INVALIDFROM) &&
                 !fields[i].equals(DataRecord.INVISIBLE) &&

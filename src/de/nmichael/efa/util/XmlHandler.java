@@ -10,12 +10,16 @@
 
 package de.nmichael.efa.util;
 
+import de.nmichael.efa.Daten;
 import java.util.Stack;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.helpers.DefaultHandler;
 //
 public class XmlHandler extends DefaultHandler {
+
+    public static final String ENCODING = Daten.ENCODING_UTF;
+    public static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"" + ENCODING + "\"?>";
 
     protected Locator locator;
     protected String xmlRootElement;

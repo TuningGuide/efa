@@ -71,13 +71,12 @@ public class XMLFile extends DataFile {
             parser.setContentHandler(xmlFileReader);
             parser.setErrorHandler(eh);
             inOpeningStorageObject = true; // don't update LastModified Timestamps, don't increment SCN, don't check assertions!
-            //parser.parse(filename);
             parser.parse(new InputSource(fr));
             if (xmlFileReader.getDocumentReadError() != null) {
                 throw new EfaException(Logger.MSG_DATA_INVALIDHEADER, xmlFileReader.getDocumentReadError(), Thread.currentThread().getStackTrace());
             }
         } catch(Exception e) {
-            Logger.log(e);
+            Logger.logdebug(e);
             throw new EfaException(Logger.MSG_DATA_READFAILED, LogString.fileReadFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         } finally {
             inOpeningStorageObject = false;
@@ -94,7 +93,7 @@ public class XMLFile extends DataFile {
     protected static void writeFile(IDataAccess dataAccess, OutputStream out) throws EfaException {
         synchronized (dataAccess) {
             StaticXmlInfo data = new StaticXmlInfo(dataAccess, out);
-            write(data, "<?xml version=\"1.0\" encoding=\"" + ENCODING + "\"?>");
+            write(data, XmlHandler.XML_HEADER);
             write(data, xmltagStart(data, FIELD_GLOBAL));
             write(data, xmltagStart(data, FIELD_HEADER));
             write(data, xmltag(data, FIELD_HEADER_PROGRAM, Daten.EFA));

@@ -8,8 +8,9 @@
  * @version 2
  */
 
-package de.nmichael.efa.util;
+package de.nmichael.efa.core;
 
+import de.nmichael.efa.util.International;
 import java.util.Hashtable;
 import java.util.Vector;
 

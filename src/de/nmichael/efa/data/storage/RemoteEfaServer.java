@@ -18,7 +18,7 @@ import de.nmichael.efa.util.Base64;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.OnlineUpdate;
+import de.nmichael.efa.core.OnlineUpdate;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -29,6 +29,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
 public class RemoteEfaServer {
+
+    private static final long SESSION_TIMEOUT = 24 * 60 * 60 * 1000;
 
     private static final Object syncObject = new Object();
 
@@ -41,6 +43,7 @@ public class RemoteEfaServer {
 
     private int serverPort;
     private Hashtable<String,AdminRecord> sessions = new Hashtable<String,AdminRecord>();
+    private Hashtable<String,Long> sessionTimeouts = new Hashtable<String,Long>();
 
     public RemoteEfaServer(int port, boolean acceptRemote) {
         serverPort = port;
@@ -128,6 +131,34 @@ public class RemoteEfaServer {
                 responseBody.close();
             }
         }
+    }
+
+    class SessionTimeoutThread extends Thread {
+
+        public void run() {
+            while(true) {
+                try {
+                    Thread.sleep(60 * 1000);
+                } catch(InterruptedException eignore) {
+                }
+                try {
+                    synchronized (sessions) {
+                        long now = System.currentTimeMillis();
+                        String[] keys = sessions.keySet().toArray(new String[0]);
+                        for (String key : keys) {
+                            Long timeout = sessionTimeouts.get(key);
+                            if (timeout >= now) {
+                                sessions.remove(key);
+                                sessionTimeouts.remove(key);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    Logger.logdebug(e);
+                }
+            }
+        }
+
     }
 
     private Vector<RemoteEfaMessage> getRequests(BufferedInputStream in, InetSocketAddress peerAddress) {
@@ -431,6 +462,7 @@ public class RemoteEfaServer {
                 byte[] result = sha.digest(idBytes);
                 sid = Base64.encodeBytes(result);
                 sessions.put(sid, admin);
+                sessionTimeouts.put(sid, System.currentTimeMillis() + SESSION_TIMEOUT);
             }
         } catch (Exception e) {
             Logger.log(e);
@@ -443,7 +475,6 @@ public class RemoteEfaServer {
             return null;
         }
         synchronized(sessions) {
-            // @todo (P3) check for session timeout and clean up dead sessions
             return sessions.get(sessionId);
         }
     }

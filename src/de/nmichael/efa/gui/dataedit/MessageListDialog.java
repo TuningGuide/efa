@@ -79,7 +79,8 @@ public class MessageListDialog extends DataListDialog {
                     International.getString("Weiterleiten"),
                     International.getString("als gelesen markieren"),
                     International.getString("Importieren"),
-                    International.getString("Exportieren")
+                    International.getString("Exportieren"),
+                    International.getString("Liste ausgeben")
                 };
         actionType = new int[]{
                     ItemTypeDataRecordTable.ACTION_NEW,
@@ -88,7 +89,8 @@ public class MessageListDialog extends DataListDialog {
                     ACTION_FORWARD,
                     ACTION_MARKREAD,
                     ACTION_IMPORT,
-                    ACTION_EXPORT
+                    ACTION_EXPORT,
+                    ACTION_PRINTLIST
                 };
     }
 

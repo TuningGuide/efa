@@ -267,7 +267,6 @@ public class Mitglieder extends DatenListe {
   }
 
 
-    // @todo (P5) remove old efa1 functionality, has been replaced by PersonRecord.getFullName(...)
     public static String getFullName(String first, String last, String association, boolean firstFirst) {
         String s = "";
         if (firstFirst) {

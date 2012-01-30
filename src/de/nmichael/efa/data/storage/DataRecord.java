@@ -304,6 +304,10 @@ public abstract class DataRecord implements Cloneable, Comparable {
         return s.toString();
     }
 
+    public void decodeFromString(String s) throws Exception {
+        
+    }
+
     public String getQualifiedName() {
         return toString();
     }

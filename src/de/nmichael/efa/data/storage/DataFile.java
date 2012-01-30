@@ -20,6 +20,9 @@ import java.io.*;
 
 public abstract class DataFile extends DataAccess {
 
+    public static final String BACKUP_MOSTRECENT = ".s0";
+    public static final String BACKUP_OLDVERSION = ".s1";
+
     protected static final String ENCODING = Daten.ENCODING_UTF;
     protected String filename;
     protected volatile boolean isOpen = false;
@@ -63,7 +66,7 @@ public abstract class DataFile extends DataAccess {
     }
 
     private void setupJournal() {
-        journal = new Journal(getStorageObjectName()+"."+getStorageObjectType(), filename, 1000, 3);
+        journal = new Journal(getStorageObjectName()+"."+getStorageObjectType(), filename);
     }
 
     private void closeJournal() {
@@ -98,16 +101,66 @@ public abstract class DataFile extends DataAccess {
         }
     }
 
+    private boolean tryOpenStorageObject(String filename, boolean recover) throws Exception {
+        String descr = getStorageObjectDescription() + " (" + getStorageObjectName() + "." + getStorageObjectType() + ")";
+        if (recover) {
+            Logger.log(Logger.WARNING, Logger.MSG_DATA_RECOVERYSTART,
+                    LogString.operationStarted(
+                        International.getMessage("Wiederherstellung von {description} aus {filename}",
+                        descr, filename)));
+        }
+        scn = 0;
+        BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(filename), ENCODING));
+        readFile(fr);
+        fr.close();
+        if (recover) {
+            Logger.log(Logger.INFO, Logger.MSG_DATA_RECOVERYSTART,
+                    LogString.fileOpened(filename, descr + " [SCN " + getSCN() + "]"));
+            long latestScn = Journal.getLatestScnFromJournals(getStorageObjectName()+"."+getStorageObjectType(), this.filename);
+            if (latestScn < 0) {
+                Logger.log(Logger.ERROR, Logger.MSG_DATA_REPLAYNOJOURNAL,
+                        International.getMessage("Kein Journal für Wiederherstellung von {description} gefunden. Wiederhergestellte Daten sind möglicherweise unvollständig (Datenverlust)!",
+                        descr, filename));                
+            } else {
+                if (latestScn > scn) {
+                    inOpeningStorageObject = true; // don't update LastModified Timestamps, don't increment SCN, don't check assertions!
+                    isOpen = true;
+                    try {
+                        scn = Journal.rollForward(this, getStorageObjectName()+"."+getStorageObjectType(), this.filename, latestScn);
+                    } finally {
+                        inOpeningStorageObject = false;
+                        isOpen = false;
+                    }
+                }
+            }
+            Logger.log(Logger.INFO, Logger.MSG_DATA_RECOVERYFINISHED,
+                    LogString.operationFinished(
+                        International.getMessage("Wiederherstellung von {description} aus {filename}",
+                        descr, filename)) + " SCN=" + scn);
+            return true;
+        }
+        return false;
+    }
+
     public synchronized void openStorageObject() throws EfaException {
         try {
-            scn = 0;
-            BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(filename), ENCODING));
-            readFile(fr);
-            fr.close();
+            boolean recovered = false;
+            try {
+                recovered = tryOpenStorageObject(filename, false);
+            } catch(Exception e1) {
+                try {
+                    recovered = tryOpenStorageObject(filename + BACKUP_MOSTRECENT, true);
+                } catch(Exception e2) {
+                    recovered = tryOpenStorageObject(filename + BACKUP_OLDVERSION, true);
+                }
+            }
             setupJournal();
             isOpen = true;
             fileWriter = new DataFileWriter(this);
             fileWriter.start();
+            if (recovered) {
+                saveStorageObject();
+            }
         } catch(Exception e) {
             throw new EfaException(Logger.MSG_DATA_OPENFAILED, LogString.fileOpenFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         }
@@ -140,8 +193,8 @@ public abstract class DataFile extends DataAccess {
     }
 
     private boolean createBackupFile(String originalFilename) {
-        String backup0 = originalFilename + ".s0"; // most recent backup
-        String backup1 = originalFilename + ".s1"; // previous backup
+        String backup0 = originalFilename + BACKUP_MOSTRECENT; // most recent backup
+        String backup1 = originalFilename + BACKUP_OLDVERSION; // previous backup
         try {
             if (!new File(originalFilename).exists()) {
                 return true; // nothing to do
@@ -240,8 +293,8 @@ public abstract class DataFile extends DataAccess {
 
     public void deleteAllBackups() throws EfaException {
         String[] backups = new String[] {
-            filename + ".s0",
-            filename + ".s1"
+            filename + BACKUP_MOSTRECENT,
+            filename + BACKUP_OLDVERSION
         };
         for (int i = 0; i < backups.length; i++) {
             String backupFIle = backups[i];

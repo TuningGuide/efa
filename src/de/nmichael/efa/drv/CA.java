@@ -11,6 +11,7 @@
 package de.nmichael.efa.drv;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.gui.EnterPasswordDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.io.*;
@@ -33,12 +34,12 @@ public class CA {
   }
 
   public boolean runKeytool(String cmd, char[] keypass) {
-    String showCmd = cmd + " -keystore "+Daten.efaDataDirectory+Daten.drvConfig.KEYSTORE_FILE +
+    String showCmd = cmd + " -keystore "+Daten.efaDataDirectory+Main.drvConfig.KEYSTORE_FILE +
            (keypass != null ? " -keypass ***" : "") +
            " -storepass ***";
-    cmd += " -keystore "+Daten.efaDataDirectory+Daten.drvConfig.KEYSTORE_FILE +
+    cmd += " -keystore "+Daten.efaDataDirectory+Main.drvConfig.KEYSTORE_FILE +
            (keypass != null ? " -keypass " + new String(keypass) : "") +
-           " -storepass " + new String(Daten.drvConfig.keyPassword);
+           " -storepass " + new String(Main.drvConfig.keyPassword);
     Logger.log(Logger.INFO,"Starte Keytool: "+showCmd);
     String[] cmdarr = EfaUtil.kommaList2Arr(cmd,' ');
     for (int i=0; i<cmdarr.length; i++) cmdarr[i] = EfaUtil.replace(cmdarr[i],"\\s"," ",true);
@@ -64,18 +65,19 @@ public class CA {
   }
 
   public boolean signRequest(String req, String sigReq, int tage) {
-    if (Daten.drvConfig.openssl == null || Daten.drvConfig.openssl.length() == 0) {
+    if (Main.drvConfig.openssl == null || Main.drvConfig.openssl.length() == 0) {
       Dialog.error("Openssl ist nicht konfiguriert!");
       return false;
     }
     try {
-      char[] pwd = EnterPasswordFrame.enterPassword(Dialog.frameCurrent(),"Bitte Schlüssel-Paßwort für CA eingeben:");
+      String pwd = EnterPasswordDialog.enterPassword(Dialog.frameCurrent(),
+              "Bitte Schlüssel-Paßwort für CA eingeben:", false);
       if (pwd == null) return false;
-      String openssl = Daten.drvConfig.openssl;
+      String openssl = Main.drvConfig.openssl;
       String sigReqTmp = sigReq+".tmp";
       String cmd = openssl + " ca -config "+Daten.efaDataDirectory+"CA"+Daten.fileSep+"openssl.cnf -policy policy_anything -in "+req+" -out "+sigReqTmp+" -batch -days "+tage+" -key ";
       Logger.log(Logger.INFO,"Starte OpenSSL: "+cmd+"***");
-      cmd += new String(pwd);
+      cmd += pwd;
       Process p = Runtime.getRuntime().exec(cmd,null,new File(Daten.efaDataDirectory+"CA"));
       InputStream stdout = p.getInputStream();
       InputStream stderr = p.getErrorStream();

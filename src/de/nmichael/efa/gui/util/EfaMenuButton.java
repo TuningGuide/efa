@@ -27,7 +27,7 @@ import de.nmichael.efa.util.Help;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.LogString;
 import de.nmichael.efa.util.Logger;
-import de.nmichael.efa.util.OnlineUpdate;
+import de.nmichael.efa.core.OnlineUpdate;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ImageIcon;
@@ -61,7 +61,6 @@ public class EfaMenuButton {
     public final static String BUTTON_CONFIGURATION     = "CONFIGURATION";
     public final static String BUTTON_ADMINS            = "ADMINS";
     public final static String BUTTON_PASSWORD          = "PASSWORD";
-    public final static String BUTTON_LOCKEFA           = "LOCKEFA";
 
     public final static String MENU_OUTPUT              = "OUTPUT";
     public final static String BUTTON_STATISTICS        = "STATISTICS";
@@ -309,12 +308,6 @@ public class EfaMenuButton {
         if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_ADMINISTRATION) && !v.get(v.size()-1).isSeparator()) {
             v.add(new EfaMenuButton(MENU_ADMINISTRATION, SEPARATOR,
                     null, null, null));
-        }
-        if (admin == null || (admin.isAllowedLockEfa() && adminMode)) {
-            v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_LOCKEFA,
-                    International.getStringWithMnemonic("Administration"),
-                    International.getStringWithMnemonic("efa sperren"),
-                    BaseFrame.getIcon("menu_lockefa.png")));
         }
 
         if (admin == null || admin.isAllowedEditStatistics()) {
@@ -793,15 +786,6 @@ public class EfaMenuButton {
             }
             AdminPasswordChangeDialog dlg = (parentFrame != null ? new AdminPasswordChangeDialog(parentFrame, admin) : new AdminPasswordChangeDialog(parentDialog, admin));
             dlg.showDialog();
-        }
-
-        if (action.equals(BUTTON_LOCKEFA)) {
-            if (admin == null || (!admin.isAllowedLockEfa())) {
-                insufficientRights(admin, action);
-                return false;
-            }
-            Dialog.infoDialog("Not yet implemented!");
-            // @todo (P3) Implement Lock Efa
         }
 
         if (action.equals(BUTTON_STATISTICS)) {

@@ -27,7 +27,12 @@ public abstract class BaseTabbedDialog extends BaseDialog {
 
     protected JTabbedPane tabbedPane;
     protected JPanel dataPanel;
+
+    protected JPanel dataNorthPanel;
     protected JCheckBox expertMode;
+    protected JComponent dataNorthCenterComponent; // may be set by subclass
+    protected JComponent dataNorthEastComponent; // may be set by subclass
+
     protected String _selectedPanel; // selected panel specified in constructor
 
     protected Vector<IItemType> allGuiItems;
@@ -171,7 +176,19 @@ public abstract class BaseTabbedDialog extends BaseDialog {
         if (!expertModeItems && expertMode != null) {
             expertMode.setVisible(false);
         }
-        dataPanel.add(expertMode, BorderLayout.NORTH);
+
+        // Data North Panel
+        dataNorthPanel = new JPanel();
+        dataNorthPanel.setLayout(new BorderLayout());
+        dataNorthPanel.add(expertMode, BorderLayout.WEST);
+        if (dataNorthCenterComponent != null) {
+            dataNorthPanel.add(dataNorthCenterComponent, BorderLayout.CENTER);
+        }
+        if (dataNorthEastComponent != null) {
+            dataNorthPanel.add(dataNorthEastComponent, BorderLayout.EAST);
+        }
+
+        dataPanel.add(dataNorthPanel, BorderLayout.NORTH);
         mainPanel.add(dataPanel, BorderLayout.CENTER);
         updateGui(false);
     }

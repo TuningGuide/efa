@@ -42,20 +42,15 @@ public class EfaBoathouseBackgroundTask extends Thread {
         this.framePacked = false;
     }
 
-    private void lockEfaThread() {
-        new Thread() {
-
-            public void run() {
-                efaBoathouseFrame.lockEfa();
-            }
-        }.start();
-    }
-
     public void setEfaLockBegin(DataTypeDate datum, DataTypeTime zeit) {
-        if (datum == null) {
+        if (Daten.efaConfig.getValueEfaDirekt_locked()) {
+            lockEfa = null; // don't lock twice
+            return;
+        }
+        if (datum == null || !datum.isSet()) {
             lockEfa = null;
         } else {
-            if (zeit != null) {
+            if (zeit != null && zeit.isSet()) {
                 lockEfa = new GregorianCalendar(datum.getYear(), datum.getMonth() - 1, datum.getDay(), zeit.getHour(), zeit.getMinute());
             } else {
                 lockEfa = new GregorianCalendar(datum.getYear(), datum.getMonth() - 1, datum.getDay());
@@ -397,11 +392,20 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     private void checkForLockEfa() {
+        if (Daten.efaConfig != null) {
+            if (Daten.efaConfig.getValueEfaDirekt_locked()) {
+                efaBoathouseFrame.lockEfa();
+                return;
+            }
+            setEfaLockBegin(Daten.efaConfig.getValueEfaDirekt_lockEfaFromDatum(), 
+                            Daten.efaConfig.getValueEfaDirekt_lockEfaFromZeit());
+        }
+
         if (lockEfa != null) {
             date.setTime(System.currentTimeMillis());
             cal.setTime(date);
-            if (cal.after(lockEfa)) {
-                lockEfaThread();
+            if (cal.after(lockEfa) && efaBoathouseFrame != null) {
+                efaBoathouseFrame.lockEfa();
                 lockEfa = null;
             }
         }

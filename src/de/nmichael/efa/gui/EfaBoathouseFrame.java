@@ -115,6 +115,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     BoatStatus boatStatus;
     volatile long lastUserInteraction = 0;
     byte[] largeChunkOfMemory = new byte[1024*1024];
+    boolean isLocked = false;
 
     
     public EfaBoathouseFrame() {
@@ -419,23 +420,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         // Lock efa?
         if (Daten.efaConfig.getValueEfaDirekt_locked()) {
             // lock efa NOW
-            try {
-                new Thread() {
-                    public void run() {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (Exception e) {
-                        }
-                        lockEfa();
-                    }
-                }.start();
-            } catch (Exception ee) {
-            }
-        } else {
-            // lock efa later
-            if (Daten.efaConfig.getValueEfaDirekt_lockEfaFromDatum().isSet()) {
-                lockEfaAt(Daten.efaConfig.getValueEfaDirekt_lockEfaFromDatum(), Daten.efaConfig.getValueEfaDirekt_lockEfaFromZeit());
-            }
+            lockEfa();
         }
 
         // note: packing must happen at the very end, since it makes the frame "displayable", which then
@@ -1996,48 +1981,73 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         Help.showHelp(getHelpTopics());
     }
 
-    public void lockEfaAt(DataTypeDate date, DataTypeTime time) {
-        this.efaBoathouseBackgroundTask.setEfaLockBegin(date, time);
-    }
-
     public void lockEfa() {
         if (Daten.efaConfig == null) {
             return;
         }
-
-        String endeDerSperrung = (Daten.efaConfig.getValueEfaDirekt_lockEfaUntilDatum().isSet() ? " " + International.getString("Ende der Sperrung") + ": "
-                + Daten.efaConfig.getValueEfaDirekt_lockEfaUntilDatum().toString()
-                + (Daten.efaConfig.getValueEfaDirekt_lockEfaUntilZeit().isSet() ? " " + Daten.efaConfig.getValueEfaDirekt_lockEfaUntilZeit().toString() : "") : "");
-
-        String html = Daten.efaConfig.getValueEfaDirekt_lockEfaShowHtml();
-        if (html == null || !EfaUtil.canOpenFile(html)) {
-            html = Daten.efaTmpDirectory + "locked.html";
-            try {
-                BufferedWriter f = new BufferedWriter(new FileWriter(html));
-                f.write("<html><body><h1 align=\"center\">" + International.getString("efa ist für die Benutzung gesperrt") + "</h1>\n");
-                f.write("<p>" + International.getString("efa wurde vom Administrator vorübergehend für die Benutzung gesperrt.") + "</p>\n");
-                if (endeDerSperrung.length() > 0) {
-                    f.write("<p>" + endeDerSperrung + "</p>\n");
-                }
-                f.write("</body></html>\n");
-                f.close();
-            } catch (Exception e) {
-                EfaUtil.foo();
-            }
+        if (isLocked) {
+            return; // don't lock twice
         }
-        de.nmichael.efa.gui.BrowserDialog browser = 
-                new BrowserDialog(this, "file:" + html);
-        browser.setLocked(this, true);
-        browser.setFullScreenMode(Daten.efaConfig.getValueEfaDirekt_lockEfaVollbild());
-        browser.setModal(true);
-        Dialog.setDlgLocation(browser, this);
-        browser.setClosingTimeout(10); // nur um Lock-Ende zu überwachen
-        Logger.log(Logger.INFO, Logger.MSG_EVT_LOCKED,
-                International.getString("efa wurde vom Administrator vorübergehend für die Benutzung gesperrt.") + endeDerSperrung);
+        isLocked = true;
         Daten.efaConfig.setValueEfaDirekt_lockEfaFromDatum(new DataTypeDate()); // damit nach Entsperren nicht wiederholt gelockt wird
         Daten.efaConfig.setValueEfaDirekt_lockEfaFromZeit(new DataTypeTime());  // damit nach Entsperren nicht wiederholt gelockt wird
         Daten.efaConfig.setValueEfaDirekt_locked(true);
-        browser.showDialog();
+
+        try {
+            final EfaBoathouseFrame frame = this;
+            new Thread() {
+
+                public void run() {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (Exception e) {
+                    }
+                    String endeDerSperrung = (Daten.efaConfig.getValueEfaDirekt_lockEfaUntilDatum().isSet() ? " " + International.getString("Ende der Sperrung") + ": "
+                            + Daten.efaConfig.getValueEfaDirekt_lockEfaUntilDatum().toString()
+                            + (Daten.efaConfig.getValueEfaDirekt_lockEfaUntilZeit().isSet() ? " " + Daten.efaConfig.getValueEfaDirekt_lockEfaUntilZeit().toString() : "") : "");
+
+                    String html = Daten.efaConfig.getValueEfaDirekt_lockEfaShowHtml();
+                    if (html == null || !EfaUtil.canOpenFile(html)) {
+                        html = Daten.efaTmpDirectory + "locked.html";
+                        try {
+                            String img = EfaUtil.saveImage("efaLocked.png", "png", Daten.efaTmpDirectory,
+                                    true, false);
+                            BufferedWriter f = new BufferedWriter(new FileWriter(html));
+                            f.write("<html><body><h1 align=\"center\">" + International.getString("efa ist für die Benutzung gesperrt") + "</h1>\n");
+                            f.write("<p align=\"center\"><img src=\"" + img + "\" align=\"center\" width=\"256\" height=\"256\"></p>\n");
+                            f.write("<p align=\"center\">" + International.getString("efa wurde vom Administrator vorübergehend für die Benutzung gesperrt.") + "</p>\n");
+                            if (endeDerSperrung.length() > 0) {
+                                f.write("<p align=\"center\">" + endeDerSperrung + "</p>\n");
+                            }
+                            f.write("</body></html>\n");
+                            f.close();
+                        } catch (Exception e) {
+                            EfaUtil.foo();
+                        }
+                    }
+                    de.nmichael.efa.gui.BrowserDialog browser =
+                            new BrowserDialog(frame, "file:" + html);
+                    browser.setLocked(frame, true);
+                    if (Daten.efaConfig.getValueEfaDirekt_lockEfaVollbild()) {
+                        browser.setFullScreenMode(true);
+                    } else {
+                        browser.setSize(650, 420);
+                        browser.setPreferredSize(new Dimension(650, 420));
+                    }
+                    browser.setModal(true);
+                    Dialog.setDlgLocation(browser, frame);
+                    browser.setClosingTimeout(10); // nur um Lock-Ende zu überwachen
+                    Logger.log(Logger.INFO, Logger.MSG_EVT_LOCKED,
+                            International.getString("efa wurde vom Administrator vorübergehend für die Benutzung gesperrt.") + endeDerSperrung);
+                    browser.showDialog();
+                }
+            }.start();
+        } catch (Exception ee) {
+        }
     }
 
+    public void setUnlocked() {
+        isLocked = false;
+    }
+    
 }

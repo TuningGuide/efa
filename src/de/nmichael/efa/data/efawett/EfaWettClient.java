@@ -10,7 +10,7 @@
 package de.nmichael.efa.data.efawett;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.drv.EnterPasswordFrame;
+import de.nmichael.efa.gui.EnterPasswordDialog;
 import de.nmichael.efa.util.Dialog;
 
 public class EfaWettClient {
@@ -21,7 +21,7 @@ public class EfaWettClient {
     public static final int ACTION_ABRUFEN = 2;
     public static final int ACTION_QNRLIST = 3;
     private static boolean _reusePasswordForNextRequest = false;
-    private static char[] pwd = null;
+    private static String password = null;
 
     public static void reusePasswordForNextRequest() {
         _reusePasswordForNextRequest = true;
@@ -95,17 +95,16 @@ public class EfaWettClient {
         }
 
         if (!_reusePasswordForNextRequest) {
-            pwd = null;
+            password = null;
         }
-        if (pwd == null) {
-            pwd = EnterPasswordFrame.enterPassword(Dialog.frameCurrent(),
+        if (password == null) {
+            password = EnterPasswordDialog.enterPassword(Dialog.frameCurrent(),
                     "Bitte gib das efaWett-Paßwort für den Benutzernamen '" + user
-                    + "' beim " + verbandName + " an:");
+                    + "' beim " + verbandName + " an:", false);
         }
-        if (pwd == null) {
+        if (password == null) {
             return null;
         }
-        String password = new String(pwd);
         String s = script + "?verband=" + verband + "&agent=efa&username=" + user + "&password=" + password + "&action=" + action;
         if (param1 != null) {
             s += "&" + param1;

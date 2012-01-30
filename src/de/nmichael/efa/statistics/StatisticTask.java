@@ -266,7 +266,7 @@ public class StatisticTask extends ProgressTask {
                 }
                 break;
             case timeOfDay:
-                // @todo (P5) statistics - time of day
+                // @todo (P6) statistics - time of day
                 break;
             case sessionType:
                 if (entrySessionType != null) {

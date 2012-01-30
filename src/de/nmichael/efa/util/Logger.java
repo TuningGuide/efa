@@ -147,6 +147,11 @@ public class Logger {
     public static final String MSG_DATA_TRUNCATEFAILED   = "DAT030";
     public static final String MSG_DATA_COPYFROMDATAACCESSFAILED  = "DAT031";
     public static final String MSG_DATA_ACCESSFAILED  = "DAT032";
+    public static final String MSG_DATA_RECOVERYSTART  = "DAT033";
+    public static final String MSG_DATA_RECOVERYFINISHED  = "DAT034";
+    public static final String MSG_DATA_REPLAYSTART  = "DAT035";
+    public static final String MSG_DATA_REPLAYFINISHED  = "DAT036";
+    public static final String MSG_DATA_REPLAYNOJOURNAL  = "DAT037";
 
     public static final String MSG_REFA_SERVERSTATUS                 = "RMT001";
     public static final String MSG_REFA_SERVERERROR                  = "RMT002";
@@ -262,6 +267,9 @@ public class Logger {
     public static final String MSG_ERR_NOXMLPARSER = "ERR023";
     public static final String MSG_ERR_NOPROJECTOPENED = "ERR024";
     public static final String MSG_ERR_NOLOGBOOKOPENED = "ERR025";
+    public static final String MSG_ERR_DATALOCK_FAILED = "ERR026";
+    public static final String MSG_ERR_DATALOCK_CONFLICT = "ERR027";
+
     // efa in the Boat House - Warnings
     public static final String MSG_WARN_EFARUNNING_FAILED = "WRN001";
     public static final String MSG_WARN_JAVA_VERSION = "WRN002";

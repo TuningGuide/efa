@@ -73,9 +73,10 @@ public class DatenListe {
     protected int backupFailures = 0; // Anzahl der in Folge fehlgeschlagenen Backups
     private int scn;            // Change Number: Wird am Konstruktion bei jeder verändernden Operation hochgezählt
     private boolean DONTEVERWRITE = false;
-    private boolean fileHasBeenConverted = false; // efa2
+    private boolean fileHasBeenConverted = false; // efa2: avoid re-reading of a converted file that wasn't actually written
     private String checksum;  // String, der als Checksumme in der Datei gefunden wurde
     private static final int HASHLENGTH = 11 + 40; // ##CHECKSUM=<40 Characters Hash>
+    private static Efa1Backup efa1Backup;
 
     // Konstruktor; dat: Datei; pf: Anzahl der Datenfelder; pk: Position des Key-Feldes
     public DatenListe(String pdat, int pf, int pk, boolean numeric) {
@@ -770,20 +771,26 @@ public class DatenListe {
         }
 
         // ggf. ein Backup erzeugen
-    /* @efa1
-        if (Daten.backup != null && this.backupEnabled && (new File(dat)).exists()) {
-        if (backupFailures < 10) {
-        backupFailures += 10; // weil sonst rekursiver Aufruf dazu führt, daß backupFailures nie erhöht wird
-        if (Daten.backup.create(dat, Efa1Backup.SAVE, null)) backupFailures=0;
-        else backupFailures-=9; // also insg. plus 1
-        } else {
-        Logger.log(Logger.WARNING,Logger.MSG_CSVFILE_BACKUPERROR,
-        International.getMessageXXX("Wegen zu vieler fehlgeschlagener Backups wurde kein Backup von {file} angelegt. Ich versuche es später erneut.",dat));
-        backupFailures++;
+        if (efa1Backup == null) {
+            efa1Backup = new Efa1Backup(Daten.efaBakDirectory, true, true, true, true);
         }
-        if (backupFailures == 30) backupFailures=9; // mal wieder versuchen...
+        if (efa1Backup != null && this.backupEnabled && (new File(dat)).exists()) {
+            if (backupFailures < 10) {
+                backupFailures += 10; // weil sonst rekursiver Aufruf dazu führt, daß backupFailures nie erhöht wird
+                if (efa1Backup.create(dat, Efa1Backup.SAVE, null)) {
+                    backupFailures = 0;
+                } else {
+                    backupFailures -= 9; // also insg. plus 1
+                }
+            } else {
+                Logger.log(Logger.WARNING, Logger.MSG_CSVFILE_BACKUPERROR,
+                        "Wegen zu vieler fehlgeschlagener Backups wurde kein Backup von "+dat+" angelegt. Ich versuche es später erneut.");
+                backupFailures++;
+            }
+            if (backupFailures == 30) {
+                backupFailures = 9; // mal wieder versuchen...
+            }
         }
-         */
 
         // Versuchen, die Datei zu öffnen
         if (!force && !validChecksum()) {
@@ -882,7 +889,7 @@ public class DatenListe {
 
     // Datei öffnen und lesen
     public synchronized boolean readFile() {
-        if (openFile() && !fileHasBeenConverted && readEinstellungen() && _readFile() && closeFile()) {
+        if (openFile() && (!fileHasBeenConverted || !DONTEVERWRITE) && readEinstellungen() && _readFile() && closeFile()) {
             return true;
         }
         return fileHasBeenConverted; // efa2

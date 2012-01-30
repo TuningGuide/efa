@@ -141,12 +141,6 @@ public class StatisticHTMLWriter extends StatisticWriter {
                 f.write("</table>\n<br><br>\n");
             }
 
-            /* @todo (P5) statistics
-            if (ad.ausgabeZeilenOben != null) {
-                schreibeHTMLZeilen(f, ad.ausgabeZeilenOben);
-            }
-            */
-
             if (sr.pCompGroupNames != null && sr.pCompParticipants != null) {
                 if (sr.pCompWarning != null) {
                     f.write("<p align=\"center\"><font color=\"#ff0000\"><b>"
@@ -362,29 +356,15 @@ public class StatisticHTMLWriter extends StatisticWriter {
                 if (width <= 0) {
                     width = 1;
                 }
-                f.write("<img src=\"" + saveImage("color_" + colorBar + ".gif", "gif", sr.sOutputDir) + "\" width=\"" + width + "\" height=\"20\" alt=\"\">&nbsp;");
+                f.write("<img src=\"" + 
+                        EfaUtil.saveImage("color_" + colorBar + ".gif", "gif", sr.sOutputDir, true, false) +
+                        "\" width=\"" + width + "\" height=\"20\" alt=\"\">&nbsp;");
             }
             if (s.length() > 0) {
                 f.write(EfaUtil.escapeXml(s));
             }
             f.write("</td>\n");
         }
-    }
-
-    private String saveImage(String image, String format, String dir) {
-        String fname = dir + image;
-        if (!EfaUtil.canOpenFile(fname)) {
-            try {
-                BufferedImage img = javax.imageio.ImageIO.read(StatisticHTMLWriter.class.getResource(Daten.IMAGEPATH + image));
-                javax.imageio.ImageIO.write(img, format, new File(fname));
-            } catch (Exception e) {
-                Logger.logdebug(e);
-            }
-        }
-        if (Daten.fileSep.equals("\\")) {
-            fname = "/" + EfaUtil.replace(fname, "\\", "/", true);
-        }
-        return "file://" + fname;
     }
 
     private void printTable(BufferedWriter f, String[] header, String[][] data,

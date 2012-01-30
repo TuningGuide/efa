@@ -199,6 +199,10 @@ public class LogString {
       return cantExecCommand(command, description, null);
   }
 
+  public static String operationStarted(String operationName) {
+      return International.getMessage("Starte {operationname} ...", operationName);
+  }
+
   public static String operationSuccessfullyCompleted(String operationName) {
       return International.getMessage("{operationname} erfolgreich abgeschlossen",
                                        operationName) + ".";

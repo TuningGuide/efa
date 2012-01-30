@@ -16,6 +16,8 @@ import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.ex.*;
+import de.nmichael.efa.gui.BaseDialog;
+import de.nmichael.efa.gui.DataPrintRecordDialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -34,6 +36,9 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
         this.dataRecord = dataRecord;
         this.newRecord = newRecord;
         this.admin = admin;
+        if (admin != null) {
+            setPrintButton();
+        }
         iniDefaults();
         setItems((dataRecord != null ? dataRecord.getGuiItems(admin) : null));
     }
@@ -43,8 +48,23 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
         super(parent, title, null);
         this.dataRecord = dataRecord;
         this.newRecord = newRecord;
+        if (admin != null) {
+            setPrintButton();
+        }
         iniDefaults();
         setItems((dataRecord != null ? dataRecord.getGuiItems(admin) : null));
+    }
+
+    protected void setPrintButton() {
+        JButton printButton = new JButton();
+        printButton.setIcon(BaseDialog.getIcon("button_print.png"));
+        printButton.setMargin(new Insets(2,2,2,2));
+        printButton.setSize(35, 20);
+        printButton.setToolTipText(International.getString("Drucken"));
+        printButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) { printRecord(); }
+        });
+        dataNorthEastComponent = printButton;
     }
 
     protected void iniDefaults() {
@@ -137,6 +157,11 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
             return false;
         }
         return super.cancel();
+    }
+
+    protected void printRecord() {
+        DataPrintRecordDialog dlg = new DataPrintRecordDialog(this, admin, dataRecord);
+        dlg.showDialog();
     }
 
 

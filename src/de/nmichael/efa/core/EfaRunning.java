@@ -20,7 +20,8 @@ public class EfaRunning {
     private static final int DEFAULT_PORT = 3700; // 3700
     private static final String PING = "Bist Du efa?";
     private static final String PONG = "Ich bin efa!";
-    private EfaRunningThread thread;
+    private EfaRunningThread efaRunningThread;
+    private EfaDataLockThread efaDataLockThread;
 
     public EfaRunning() {
     }
@@ -73,18 +74,29 @@ public class EfaRunning {
         }
 
         // Thread starten
-        thread = new EfaRunningThread(socket);
-        thread.start();
+        efaRunningThread = new EfaRunningThread(socket);
+        efaRunningThread.start();
         return true;
+    }
+
+    public void runDataLockThread() {
+        efaDataLockThread = new EfaDataLockThread();
+        efaDataLockThread.start();
+    }
+
+    public void stopDataLockThread() {
+        if (efaDataLockThread != null) {
+            efaDataLockThread.stopMe();
+        }
     }
 
     // Server Port schließen (der Thread lebt trotzdem weiter!)
     public boolean closeServer() {
-        if (thread == null) {
+        if (efaRunningThread == null) {
             return true;
         }
         try {
-            thread.closeSocket();
+            efaRunningThread.closeSocket();
             if (!new File(Daten.efaBaseConfig.efaUserDirectory + Daten.EFA_RUNNING).delete()) {
                 return false;
             }
@@ -263,6 +275,69 @@ public class EfaRunning {
             }
         }
     }
+
+    class EfaDataLockThread extends Thread {
+
+        private volatile boolean keepRunning = true;
+
+        public EfaDataLockThread() {
+        }
+
+        public void stopMe() {
+            keepRunning = false;
+            interrupt();
+        }
+
+        public void run() {
+            String lockFile = Daten.efaDataDirectory + "lock";
+            String myID = Daten.applName + "/" + Daten.applPID;
+
+            try {
+                BufferedWriter f = new BufferedWriter(new FileWriter(lockFile));
+                f.write(myID);
+                f.close();
+            } catch(Exception e) {
+                Logger.log(Logger.ERROR, Logger.MSG_ERR_DATALOCK_FAILED,
+                        LogString.fileCreationFailed(lockFile, "Lock File", e.toString()));
+                Daten.haltProgram(Daten.HALT_DATALOCK);
+            }
+            while(keepRunning) {
+                try {
+                    Thread.sleep(60*1000);
+                } catch(InterruptedException eignore) {
+                }
+
+                try {
+                    BufferedReader f = new BufferedReader(new FileReader(lockFile));
+                    String s = f.readLine();
+                    f.close();
+                    if (s == null) {
+                        s = "<unknown>";
+                    }
+                    if (!myID.equals(s)) {
+                        Logger.log(Logger.ERROR, Logger.MSG_ERR_DATALOCK_CONFLICT,
+                                International.getMessage("efa hat eine fremde Datenänderung von {program} festgestellt. " +
+                                                         "Möglicherweise wurde efa doppelt gestartet. " +
+                                                         "Um Dateninkonsistenz zu vermeiden beendet efa sich JETZT.", s));
+                        Daten.haltProgram(Daten.HALT_DATALOCK);
+                    }
+                } catch(Exception e) {
+                    Logger.log(Logger.ERROR, Logger.MSG_ERR_DATALOCK_FAILED,
+                            LogString.fileOpenFailed(lockFile, "Lock File", e.toString()));
+                    Daten.haltProgram(Daten.HALT_DATALOCK);
+                }
+            }
+
+            try {
+                new File(lockFile).delete();
+            } catch(Exception e) {
+                // nothing to do 
+            }
+
+        }
+
+    }
+
     /*
 
     // nur zu Testzwecken

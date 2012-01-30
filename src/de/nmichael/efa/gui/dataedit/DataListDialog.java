@@ -27,11 +27,10 @@ import java.util.*;
 
 public abstract class DataListDialog extends BaseDialog implements IItemListener, IItemListenerDataRecordTable {
 
-    public static final int ACTION_HIDE    =  100;
-    public static final int ACTION_IMPORT  = -100; // negative actions will not be shown as popup actions
-    public static final int ACTION_EXPORT  = -101; // negative actions will not be shown as popup actions
-    public static final int ACTION_PRINT   = -102; // negative actions will not be shown as popup actions
-    // @todo (P4) add a generic "print list" button
+    public static final int ACTION_HIDE      =  100;
+    public static final int ACTION_IMPORT    = -100; // negative actions will not be shown as popup actions
+    public static final int ACTION_EXPORT    = -101; // negative actions will not be shown as popup actions
+    public static final int ACTION_PRINTLIST = -102; // negative actions will not be shown as popup actions
 
     protected StorageObject persistence;
     protected long validAt;
@@ -92,7 +91,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 ACTION_HIDE,
                 ACTION_IMPORT,
                 ACTION_EXPORT,
-                ACTION_PRINT
+                ACTION_PRINTLIST
             };
         } else {
             actionText = new String[] {
@@ -109,7 +108,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 ItemTypeDataRecordTable.ACTION_DELETE,
                 ACTION_IMPORT,
                 ACTION_EXPORT,
-                ACTION_PRINT
+                ACTION_PRINTLIST
             };
         }
     }
@@ -241,13 +240,13 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 DataExportDialog dlg2 = new DataExportDialog(this, persistence, validAt, admin);
                 dlg2.showDialog();
                 break;
-            case ACTION_PRINT:
+            case ACTION_PRINTLIST:
                 Vector<DataRecord> data = table.getDisplayedData();
                 if (data == null || data.size() == 0) {
                     Dialog.error(International.getString("Auswahl ist leer."));
                     return;
                 }
-                DataPrintDialog dlg3 = new DataPrintDialog(this, persistence, validAt, admin, data);
+                DataPrintListDialog dlg3 = new DataPrintListDialog(this, persistence, validAt, admin, data);
                 dlg3.showDialog();
                 break;
         }

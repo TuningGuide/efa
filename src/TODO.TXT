@@ -6,21 +6,18 @@ Up/Down Buttons fuer Statistikeinstellungen
 Create Statistik in CLI
 Buttons mit Symbolen ausstatten
 
-Internationalize - Cleanup
-Rewrite remaining Dialogs/Frames
-Delete unused Classes
 Auto Create new Logbooks - better Dialog
 
 efaWett: email-Adresse Pflicht
 Audit
 Gewaesserliste mitliefern
+Eigener Zielbereich
+Statistik FTP Upload
 efaRemote - SSL
 efaRemote - proper Session Handling
 efaRemote - Progress/Status Indicator
-Crash Recovery (Roll forward)
 Point-in-Time Recovery
 Signal Handler
-Lock Efa
 DataLayer: DB Access
 Help System
 AutoComplete: match anything within input/change list content
@@ -66,3 +63,4 @@ Online Update: XML and Multi-Language
 Encrypt Passwords for external Systems
 efaRemote - Online Update
 Backup
+LockEfa

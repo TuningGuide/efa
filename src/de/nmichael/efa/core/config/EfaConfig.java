@@ -5,6 +5,7 @@
 
 package de.nmichael.efa.core.config;
 
+import de.nmichael.efa.core.EfaSec;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.MessageRecord;
@@ -40,24 +41,25 @@ public class EfaConfig extends StorageObject {
     public final String CATEGORY_PRINTING      = "%09%" + International.getString("Drucken");
     public final String CATEGORY_STARTSTOP     = "%10%" + International.getString("Starten und Beenden");
     public final String CATEGORY_PERMISSIONS   = "%11%" + International.getString("Berechtigungen");
-    public final String CATEGORY_NOTIFICATIONS = "%12%" + International.getString("Benachrichtigungen");
-    public final String CATEGORY_TYPES         = "%13%" + International.getString("Bezeichnungen");
-    public final String CATEGORY_TYPES_SESS    = "%131%" + International.getString("Fahrtart");
-    public final String CATEGORY_TYPES_BOAT    = "%132%" + International.getString("Bootsart");
-    public final String CATEGORY_TYPES_SEAT    = "%133%" + International.getString("Anzahl Bootsplätze");
-    public final String CATEGORY_TYPES_RIGG    = "%134%" + International.getString("Riggerung");
-    public final String CATEGORY_TYPES_COXD    = "%135%" + International.getString("mit/ohne Stm.");
-    public final String CATEGORY_TYPES_GEND    = "%136%" + International.getString("Geschlecht");
-    public final String CATEGORY_TYPES_STAT    = "%137%" + International.getString("Status");
-    public final String CATEGORY_SYNC          = "%14%" + International.getString("Synchronisation");
-    public final String CATEGORY_KANUEFB       = "%15%" + International.onlyFor("Kanu-eFB","de");
-    public final String CATEGORY_LOCALE        = "%16%" + International.getString("Regionale Anpassung");
-    public final String CATEGORY_WIDGETS       = "%17%" + International.getString("Widgets");
-    public final String CATEGORY_WIDGET_CLOCK  = "%171%" + International.getString("Uhr");
-    public final String CATEGORY_WIDGET_NEWS   = "%172%" + International.getString("Ticker");
-    public final String CATEGORY_DATAACCESS    = "%18%" + International.getString("Daten");
-    public final String CATEGORY_DATAXML       = "%181%" + International.getString("lokale Dateien");
-    public final String CATEGORY_DATAREMOTE    = "%182%" + Daten.EFA_REMOTE;
+    public final String CATEGORY_LOCKEFA       = "%12%" + International.getString("Sperren");
+    public final String CATEGORY_NOTIFICATIONS = "%13%" + International.getString("Benachrichtigungen");
+    public final String CATEGORY_TYPES         = "%14%" + International.getString("Bezeichnungen");
+    public final String CATEGORY_TYPES_SESS    = "%141%" + International.getString("Fahrtart");
+    public final String CATEGORY_TYPES_BOAT    = "%142%" + International.getString("Bootsart");
+    public final String CATEGORY_TYPES_SEAT    = "%143%" + International.getString("Anzahl Bootsplätze");
+    public final String CATEGORY_TYPES_RIGG    = "%144%" + International.getString("Riggerung");
+    public final String CATEGORY_TYPES_COXD    = "%145%" + International.getString("mit/ohne Stm.");
+    public final String CATEGORY_TYPES_GEND    = "%146%" + International.getString("Geschlecht");
+    public final String CATEGORY_TYPES_STAT    = "%147%" + International.getString("Status");
+    public final String CATEGORY_SYNC          = "%15%" + International.getString("Synchronisation");
+    public final String CATEGORY_KANUEFB       = "%16%" + International.onlyFor("Kanu-eFB","de");
+    public final String CATEGORY_LOCALE        = "%17%" + International.getString("Sprache & Region");
+    public final String CATEGORY_WIDGETS       = "%18%" + International.getString("Widgets");
+    public final String CATEGORY_WIDGET_CLOCK  = "%181%" + International.getString("Uhr");
+    public final String CATEGORY_WIDGET_NEWS   = "%182%" + International.getString("Ticker");
+    public final String CATEGORY_DATAACCESS    = "%19%" + International.getString("Daten");
+    public final String CATEGORY_DATAXML       = "%191%" + International.getString("lokale Dateien");
+    public final String CATEGORY_DATAREMOTE    = "%192%" + Daten.EFA_REMOTE;
 
     private static final int STRINGLIST_VALUES  = 1;
     private static final int STRINGLIST_DISPLAY = 2;
@@ -472,7 +474,7 @@ public class EfaConfig extends StorageObject {
             addParameter(aliasFormat = new ItemTypeString("InputShortcutFormat", "{F1}{F2}-{N1}",
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
                     International.getString("Format der Eingabe-Kürzel")));
-            addParameter(autogenAlias = new ItemTypeBoolean("InputShortcutAutoGenerate", false, // @todo (P5) inplement auto generation of input shortcuts
+            addParameter(autogenAlias = new ItemTypeBoolean("InputShortcutAutoGenerate", false,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
                     International.getString("Eingabe-Kürzel automatisch beim Anlegen neuer Mitglieder generieren")));
 
@@ -556,37 +558,37 @@ public class EfaConfig extends StorageObject {
             addParameter(efaDirekt_showBootsschadenButton = new ItemTypeBoolean("BoatDamageEnableReporting", true,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
                     International.getString("Melden von Bootsschäden erlauben")));
+            addParameter(efaDirekt_locked = new ItemTypeBoolean("LockEfaLocked", false,
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_LOCKEFA),
+                    International.getString("efa ist für die Benutzung gesperrt")));
             addParameter(efaDirekt_lockEfaShowHtml = new ItemTypeString("LockEfaPage", "",
-                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_LOCKEFA),
                     International.getString("efa sperren") + ": "
                     + International.getString("HTML-Seite anzeigen")));
             addParameter(efaDirekt_lockEfaVollbild = new ItemTypeBoolean("LockEfaFullScreen", false,
-                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_LOCKEFA),
                     International.getString("efa sperren") + ": "
                     + International.getString("Vollbild")));
             addParameter(efaDirekt_lockEfaFromDatum = new ItemTypeDate("LockEfaFromDate", new DataTypeDate(-1, -1, -1),
-                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_LOCKEFA),
                     International.getString("efa sperren") + ": "
                     + International.getString("Sperrung automatisch beginnen") + " ("
                     + International.getString("Datum") + ")"));
             addParameter(efaDirekt_lockEfaFromZeit = new ItemTypeTime("LockEfaFromTime", new DataTypeTime(-1, -1, -1),
-                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_LOCKEFA),
                     International.getString("efa sperren") + ": "
                     + International.getString("Sperrung automatisch beginnen") + " ("
                     + International.getString("Zeit") + ")"));
             addParameter(efaDirekt_lockEfaUntilDatum = new ItemTypeDate("LockEfaToDate", new DataTypeDate(-1, -1, -1),
-                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_LOCKEFA),
                     International.getString("efa sperren") + ": "
                     + International.getString("Sperrung automatisch beenden") + " ("
                     + International.getString("Datum") + ")"));
             addParameter(efaDirekt_lockEfaUntilZeit = new ItemTypeTime("LockEfaToTime", new DataTypeTime(-1, -1, -1),
-                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_LOCKEFA),
                     International.getString("efa sperren") + ": "
                     + International.getString("Sperrung automatisch beenden") + " ("
                     + International.getString("Zeit") + ")"));
-            addParameter(efaDirekt_locked = new ItemTypeBoolean("LockEfaLocked", false,
-                    IItemType.TYPE_INTERNAL,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
-                    International.getString("efa ist für die Benutzung gesperrt")));
             addParameter(efadirekt_adminLastOsCommand = new ItemTypeString("AdminLastOsCommand", "",
                     IItemType.TYPE_INTERNAL, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
                     International.getString("Betriebssystemkommando")));
@@ -680,12 +682,12 @@ public class EfaConfig extends StorageObject {
 
             // ============================= BOATHOUSE:GUIBUTTONS =============================
             addParameter(efaDirekt_butFahrtBeginnen = new ItemTypeConfigButton("ButtonStartSession",
-                    International.getString("Fahrt beginnen"), "CCFFCC", true, true, true, false,
+                    International.getString("Fahrt beginnen"), "CCFFCC", true, false, true, false,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
                     International.getMessage("Button '{button}'",
                     International.getString("Fahrt beginnen"))));
             addParameter(efaDirekt_butFahrtBeenden = new ItemTypeConfigButton("ButtonFinishSession",
-                    International.getString("Fahrt beenden"), "CCFFCC", true, true, true, false,
+                    International.getString("Fahrt beenden"), "CCFFCC", true, false, true, false,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
                     International.getMessage("Button '{button}'",
                     International.getString("Fahrt beenden"))));
@@ -1518,7 +1520,7 @@ public class EfaConfig extends StorageObject {
     }
 
     public void setValueEfaDirekt_lockEfaFromDatum(DataTypeDate date) {
-        setValue(efaDirekt_lockEfaFromDatum, date.toString());
+        setValue(efaDirekt_lockEfaFromDatum, (date != null ? date.toString() : ""));
     }
 
     public DataTypeTime getValueEfaDirekt_lockEfaFromZeit() {
@@ -1526,15 +1528,23 @@ public class EfaConfig extends StorageObject {
     }
 
     public void setValueEfaDirekt_lockEfaFromZeit(DataTypeTime time) {
-        setValue(efaDirekt_lockEfaFromZeit, time.toString());
+        setValue(efaDirekt_lockEfaFromZeit, (time != null ? time.toString() : ""));
     }
 
     public DataTypeDate getValueEfaDirekt_lockEfaUntilDatum() {
         return efaDirekt_lockEfaUntilDatum.getDate();
     }
 
+    public void setValueEfaDirekt_lockEfaUntilDatum(DataTypeDate date) {
+        setValue(efaDirekt_lockEfaUntilDatum, (date != null ? date.toString() : ""));
+    }
+
     public DataTypeTime getValueEfaDirekt_lockEfaUntilZeit() {
         return efaDirekt_lockEfaUntilZeit.getTime();
+    }
+
+    public void setValueEfaDirekt_lockEfaUntilZeit(DataTypeTime time) {
+        setValue(efaDirekt_lockEfaUntilZeit, (time != null ? time.toString() : ""));
     }
 
     public boolean getValueEfaDirekt_locked() {

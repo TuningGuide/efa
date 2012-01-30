@@ -7,8 +7,9 @@
  * @author Nicolas Michael
  * @version 2
  */
-package de.nmichael.efa.util;
+package de.nmichael.efa.core;
 
+import de.nmichael.efa.util.EfaUtil;
 import java.security.*;
 import java.security.cert.*;
 import java.security.cert.Certificate;

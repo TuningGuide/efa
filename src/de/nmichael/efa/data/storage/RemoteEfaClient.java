@@ -223,7 +223,6 @@ public class RemoteEfaClient extends DataAccess {
                         // we have a session id, but we need to check whether the server still accepts it
                         if (responses.get(0).getResultCode() == RemoteEfaMessage.ERROR_INVALIDSESSIONID) {
                             // it seems our session id became invalid
-                            // @todo (P3) if session id becomes invalid, login again and re-try
                             this.sessionId = null;
                         }
                     } else {
@@ -403,15 +402,7 @@ public class RemoteEfaClient extends DataAccess {
     }
 
     public void deleteStorageObject() throws EfaException {
-        // @todo (P9) remote deleteStorageObject()
-        /*
-        if (!runSimpleRequest(RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
-                RemoteEfaMessage.OPERATION_DELETESTORAGEOBJECT))) {
-            throw new EfaException(Logger.MSG_REFA_REQUESTFAILED,
-                    getErrorLogstring(RemoteEfaMessage.OPERATION_DELETESTORAGEOBJECT, "unknown", -1),
-                    Thread.currentThread().getStackTrace());
-        }
-        */
+        // we will never delete a remote storage object!
     }
 
 

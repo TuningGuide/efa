@@ -22,8 +22,31 @@ import de.nmichael.efa.*;
 
 public class Main extends Program {
 
+    public static DRVConfig drvConfig;
+
     public Main(String[] args) {
         super(Daten.APPL_DRV, args);
+
+            drvConfig = new DRVConfig(Daten.efaCfgDirectory + Daten.DRVCONFIGFILE);
+            if (!EfaUtil.canOpenFile(drvConfig.getFileName())) {
+                if (!drvConfig.writeFile()) {
+                    String msg = LogString.fileCreationFailed(drvConfig.getFileName(),
+                            International.getString("Konfigurationsdatei"));
+                    Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDCREATE, msg);
+                    Dialog.error(msg);
+                    Daten.haltProgram(Daten.HALT_EFACONFIG);
+                }
+                String msg = LogString.fileNewCreated(drvConfig.getFileName(),
+                        International.getString("Konfigurationsdatei"));
+                Logger.log(Logger.WARNING, Logger.MSG_CORE_EFACONFIGCREATEDNEW, msg);
+            }
+            if (!drvConfig.readFile()) {
+                String msg = LogString.fileOpenFailed(drvConfig.getFileName(),
+                        International.getString("Konfigurationsdatei"));
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDOPEN, msg);
+                Dialog.error(msg);
+                Daten.haltProgram(Daten.HALT_EFACONFIG);
+            }
 
         EfaDRVFrame frame = new EfaDRVFrame();
         frame.pack();

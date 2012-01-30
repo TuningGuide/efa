@@ -23,44 +23,36 @@ import java.io.*;
 import java.util.*;
 import javax.swing.*;
 
-public class DataPrintDialog extends BaseDialog {
+public class DataPrintRecordDialog extends BaseDialog {
 
     private JScrollPane selectedFieldsScrollPane;
     private JList selectedFields;
+    private JCheckBox printEmptyFields;
 
-    private StorageObject persistence;
-    private long validAt;
-    private AdminRecord admin;
-    private Vector<DataRecord> data;
+    private DataRecord record;
     private String[] fields;
     private String[] fieldDescription;
     private int[] selectedIndices;
 
-    public DataPrintDialog(Frame parent, StorageObject persistence, long validAt, AdminRecord admin,
-            Vector<DataRecord> data) {
-        super(parent, International.getMessage("{data} ausgeben", persistence.getDescription()),
-                International.getStringWithMnemonic("Liste ausgeben"));
-        setPersistence(persistence, validAt, admin, data);
+    public DataPrintRecordDialog(Frame parent, AdminRecord admin, DataRecord record) {
+        super(parent, International.getString("Datensatz ausgeben"),
+                International.getStringWithMnemonic("Datensatz ausgeben"));
+        setPersistence(admin, record);
     }
 
-    public DataPrintDialog(JDialog parent, StorageObject persistence, long validAt, AdminRecord admin,
-            Vector<DataRecord> data) {
-        super(parent, International.getMessage("{data} ausgeben", persistence.getDescription()),
-                International.getStringWithMnemonic("Liste ausgeben"));
-        setPersistence(persistence, validAt, admin, data);
+    public DataPrintRecordDialog(JDialog parent, AdminRecord admin, DataRecord record) {
+        super(parent, International.getString("Datensatz ausgeben"),
+                International.getStringWithMnemonic("Datensatz ausgeben"));
+        setPersistence(admin, record);
     }
 
-    public void setPersistence(StorageObject persistence, long validAt, AdminRecord admin,
-            Vector<DataRecord> data) {
-        this.persistence = persistence;
-        this.validAt = validAt;
-        this.admin = admin;
-        this.data = data;
+    public void setPersistence(AdminRecord admin, DataRecord record) {
+        this.record = record;
+        StorageObject persistence = record.getPersistence();
         this.fields = persistence.data().getFieldNames(false);
         this.fieldDescription = new String[fields.length];
         Vector<Integer> indices = new Vector<Integer>();
-        Vector<IItemType> items = persistence.createNewRecord().getGuiItems(admin);
-        TableItemHeader[] defaultSelection = persistence.createNewRecord().getGuiTableHeader();
+        Vector<IItemType> items = record.getGuiItems(admin);
         for (int i=0; i<fields.length; i++) {
             IItemType item = null;
             for (int j=0; items != null && j<items.size(); j++) {
@@ -70,11 +62,14 @@ public class DataPrintDialog extends BaseDialog {
                 }
             }
             fieldDescription[i] = (item != null ? item.getDescription() : fields[i]);
-            for (int j=0; j<defaultSelection.length; j++) {
-                if (defaultSelection[j].toString().equals(fieldDescription[i])) {
-                    indices.add(i);
-                    break;
-                }
+            if (!fields[i].equals(DataRecord.LASTMODIFIED) &&
+                !fields[i].equals(DataRecord.CHANGECOUNT) &&
+                !fields[i].equals(DataRecord.VALIDFROM) &&
+                !fields[i].equals(DataRecord.INVALIDFROM) &&
+                !fields[i].equals(DataRecord.INVISIBLE) &&
+                !fields[i].equals(DataRecord.DELETED) &&
+                !fields[i].equals("Id")) {
+                indices.add(i);
             }
         }
         selectedIndices = new int[indices.size()];
@@ -102,6 +97,11 @@ public class DataPrintDialog extends BaseDialog {
         selectedFieldsScrollPane.getViewport().add(selectedFields);
         mainPanel.add(selectedFieldsScrollPane, BorderLayout.CENTER);
 
+        printEmptyFields = new JCheckBox();
+        Mnemonics.setButton(this, printEmptyFields,
+                International.getStringWithMnemonic("auch leere Felder ausgeben"));
+        mainPanel.add(printEmptyFields, BorderLayout.SOUTH);
+
     }
 
     public void keyAction(ActionEvent evt) {
@@ -123,37 +123,34 @@ public class DataPrintDialog extends BaseDialog {
         }
 
         String filename = Daten.efaTmpDirectory
-                + persistence.data().getStorageObjectType() + "_" + persistence.data().getStorageObjectName()
-                + ".html";
-        if (runExport(filename, selectedFieldNames, selectedFieldDescriptions)) {
+                + "datarecord.html";
+        if (printItems(filename, selectedFieldNames, selectedFieldDescriptions,
+                printEmptyFields.isSelected())) {
             BrowserDialog.openInternalBrowser(this, "file:" + filename);
             EfaUtil.deleteFile(filename);
         }
 
     }
 
-    private boolean runExport(String filename, String[] fields, String[] descriptions) {
+    private boolean printItems(String filename, String[] fields, String[] descriptions,
+            boolean printEmptyValues) {
         try {
             BufferedWriter fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename,false), Daten.ENCODING_UTF));
-            HtmlFactory.writeHeader(fw, persistence.getDescription(), true);
+            HtmlFactory.writeHeader(fw, record.getQualifiedName(), true);
 
             fw.write("<table border align=\"center\">");
-
-            fw.write("<tr>");
-            for (String header : descriptions) {
-                fw.write("<th>" + EfaUtil.escapeXml(header) + "</th>");
-            }
-            fw.write("</tr>");
-
-            for (DataRecord r : data) {
-                fw.write("<tr>");
-                for (int i = 0; i < fields.length; i++) {
-                    String value = r.getAsText(fields[i]);
-                    fw.write("<td>" +
-                            (value != null && value.length() > 0 ? EfaUtil.escapeXml(value) : "&nbsp;") +
-                            "</td>");
+            for (int i = 0; i < fields.length; i++) {
+                String descr = descriptions[i];
+                String value = record.getAsText(fields[i]);
+                if ((value == null || value.length() == 0) && !printEmptyValues) {
+                    continue;
                 }
-                fw.write("</tr>\n");
+                fw.write("<tr>");
+                fw.write("<td>" + descr + "</td>");
+                fw.write("<td>"
+                        + (value != null && value.length() > 0 ? EfaUtil.escapeXml(value) : "&nbsp;")
+                        + "</td>");
+                fw.write("</tr>");
             }
             fw.write("</table>");
             HtmlFactory.writeFooter(fw);

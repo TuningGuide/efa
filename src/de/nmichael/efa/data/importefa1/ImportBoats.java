@@ -23,7 +23,6 @@ import java.util.*;
 public class ImportBoats extends ImportBase {
 
     private Boats boats;
-    private BoatTypes boatTypes;
     private Boote boote;
     private ProjectRecord logbookRec;
     private Hashtable<DataKey,String> boatsAllowedGroups;

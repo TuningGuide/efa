@@ -9,13 +9,11 @@
  */
 package de.nmichael.efa.util;
 
-import de.nmichael.efa.gui.BrowserDialog;
 import de.nmichael.efa.efa1.Synonyme;
 import de.nmichael.efa.efa1.DatenFelder;
-import de.nmichael.efa.core.*;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.*;
-import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.statistics.StatisticHTMLWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.zip.*;
@@ -26,14 +24,10 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.net.*;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
+import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 import java.security.*;
 import org.xml.sax.XMLReader;
-import org.xml.sax.Attributes;
-import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 // @i18n complete
@@ -1519,31 +1513,31 @@ public class EfaUtil {
         }
     }
 
-    public static String genAlias(String aliasFormat, String vorname, String nachname, String verein) {
-        String s = "";
+    public static String getInputShortcut(String firstName, String lastName) {
         int i = 0;
+        String aliasFormat = Daten.efaConfig.getValueAliasFormat();
+        if (aliasFormat == null) {
+            return "";
+        }
+        String s = "";
         while (i < aliasFormat.length()) {
             if (aliasFormat.charAt(i) == '{') {
                 if (aliasFormat.length() < i + 4 || aliasFormat.charAt(i + 3) != '}') {
                     if (Logger.isTraceOn(Logger.TT_OTHER)) {
                         Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GENERIC,
-                                "NeuesMitgliedFrame: Fehler beim Parsen des Eingabe-Kürzel-Formats!"); // no need to translate
+                                "Error Parsing InputShortcutFormat"); // no need to translate
                     }
                     return "";
                 }
                 String feld = null;
                 switch (aliasFormat.charAt(i + 1)) {
-                    case 'v':
-                    case 'V':
-                        feld = vorname.trim().toLowerCase();
+                    case 'f':
+                    case 'F':
+                        feld = firstName.trim().toLowerCase();
                         break;
-                    case 'n':
-                    case 'N':
-                        feld = nachname.trim().toLowerCase();
-                        break;
-                    case 'c':
-                    case 'C':
-                        feld = verein.trim().toLowerCase();
+                    case 'l':
+                    case 'L':
+                        feld = lastName.trim().toLowerCase();
                         break;
                 }
                 if (feld != null && aliasFormat.charAt(i + 2) > '0' && aliasFormat.charAt(i + 2) <= '9') {
@@ -1651,6 +1645,28 @@ public class EfaUtil {
         }
         return EfaUtil.replace(url, "\\", "/", true);
     }
+
+    public static String saveImage(String image, String format, String dir, 
+            boolean urlNotation, boolean forceOverwrite) {
+        String fname = dir + image;
+        if (forceOverwrite || !EfaUtil.canOpenFile(fname)) {
+            try {
+                BufferedImage img = javax.imageio.ImageIO.read(EfaUtil.class.getResource(Daten.IMAGEPATH + image));
+                javax.imageio.ImageIO.write(img, format, new File(fname));
+            } catch (Exception e) {
+                Logger.logdebug(e);
+            }
+        }
+        if (urlNotation) {
+            if (Daten.fileSep.equals("\\")) {
+                fname = "/" + EfaUtil.replace(fname, "\\", "/", true);
+            }
+            return "file:" + fname;
+        } else {
+            return fname;
+        }
+    }
+
 
     public static void main(String args[]) {
         String text = "abc & def";

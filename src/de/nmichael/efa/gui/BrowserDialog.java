@@ -68,15 +68,11 @@ public class BrowserDialog extends BaseDialog {
         private BrowserDialog frame;
         private int timeout;
         private boolean locked;
-        private DataTypeDate lockDatum;
-        private DataTypeTime lockZeit;
 
-        public TimeoutThread(BrowserDialog frame, int timeout, boolean locked, DataTypeDate lockDatum, DataTypeTime lockZeit) {
+        public TimeoutThread(BrowserDialog frame, int timeout, boolean locked) {
             this.frame = frame;
             this.timeout = timeout;
             this.locked = locked;
-            this.lockDatum = lockDatum;
-            this.lockZeit = lockZeit;
         }
 
         public void run() {
@@ -84,20 +80,30 @@ public class BrowserDialog extends BaseDialog {
                 if (!locked) {
                     Thread.sleep(timeout * 1000);
                 } else {
-                    if (lockDatum == null) {
+                    if (Daten.efaConfig == null) {
                         return;
                     }
-                    GregorianCalendar unlock;
-                    if (lockZeit != null) {
-                        unlock = new GregorianCalendar(lockDatum.getYear(), lockDatum.getMonth() - 1, lockDatum.getDay(), lockZeit.getHour(), lockZeit.getMinute());
-                    } else {
-                        unlock = new GregorianCalendar(lockDatum.getYear(), lockDatum.getMonth() - 1, lockDatum.getDay());
-                    }
                     GregorianCalendar now;
+                    GregorianCalendar unlock;
                     do {
+                        unlock = null;
+                        DataTypeDate date = Daten.efaConfig.getValueEfaDirekt_lockEfaUntilDatum();
+                        DataTypeTime time = Daten.efaConfig.getValueEfaDirekt_lockEfaUntilZeit();
+                        if (date != null && date.isSet()) {
+                            if (time != null && time.isSet()) {
+                                unlock = new GregorianCalendar(
+                                        date.getYear(), date.getMonth() - 1, date.getDay(),
+                                        time.getHour(), time.getMinute());
+                            } else {
+                                unlock = new GregorianCalendar(
+                                        date.getYear(), date.getMonth() - 1, date.getDay(),
+                                        0, 0);
+                            }
+                        }
                         Thread.sleep(60 * 1000);
                         now = new GregorianCalendar();
-                    } while (unlock.after(now));
+                    } while ( (unlock == null || unlock.after(now)) &&
+                               Daten.efaConfig.getValueEfaDirekt_locked());
                     unlock();
                 }
             } catch (InterruptedException e) {
@@ -203,6 +209,9 @@ public class BrowserDialog extends BaseDialog {
     public void setLocked(EfaBoathouseFrame efaBoathouseFrame, boolean locked) {
         this.efaBoathouseFrame = efaBoathouseFrame;
         this.locked = locked;
+        if (locked) {
+            _closeButtonText = null;
+        }
     }
 
     public void keyAction(ActionEvent evt) {
@@ -353,8 +362,8 @@ public class BrowserDialog extends BaseDialog {
         }
         if (locked) {
             this.setTitle(Daten.EFA_LONGNAME);
-            this.remove(this.northPanel);
-            this.remove(this.southPanel);
+            mainPanel.remove(this.northPanel);
+            mainPanel.remove(this.southPanel);
         }
         html.addHyperlinkListener(new LinkFollower());
         html.setEditable(false);
@@ -366,9 +375,7 @@ public class BrowserDialog extends BaseDialog {
     public void setClosingTimeout(int timeout) {
         if (timeout > 0) {
             timeoutThread = new TimeoutThread(this, timeout,
-                    locked,
-                    Daten.efaConfig.getValueEfaDirekt_lockEfaUntilDatum(),
-                    Daten.efaConfig.getValueEfaDirekt_lockEfaUntilZeit());
+                    locked);
             timeoutThread.start();
         }
     }
@@ -384,12 +391,11 @@ public class BrowserDialog extends BaseDialog {
 
     void unlock() {
         locked = false;
-        if (efaBoathouseFrame!= null) {
-            efaBoathouseFrame.lockEfaAt(null,null);
-        }
         if (Daten.efaConfig != null) {
             Daten.efaConfig.setValueEfaDirekt_locked(false);
-            //@efaconfig Daten.efaConfig.writeFile();
+            Daten.efaConfig.setValueEfaDirekt_lockEfaUntilDatum(new DataTypeDate());
+            Daten.efaConfig.setValueEfaDirekt_lockEfaUntilZeit(new DataTypeTime());
+            this.efaBoathouseFrame.setUnlocked();
             Logger.log(Logger.INFO,
                     Logger.MSG_EVT_UNLOCKED,
                     International.getString("efa ist wieder entsperrt und für die Benutzung freigegeben."));

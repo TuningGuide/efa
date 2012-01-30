@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<efaOnlineUpdate>
+    <Version>
+        <VersionID>1.9.9_27</VersionID>
+        <ReleaseDate>29.01.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2drv.zip</DownloadUrl>
+        <DownloadSize>2890497</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_26</VersionID>
+        <ReleaseDate>28.01.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2drv.zip</DownloadUrl>
+        <DownloadSize>2832831</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>efaDRV auf Basis von efa2</ChangeItem>
+            <ChangeItem>Neuer Briefbogen</ChangeItem>
+        </Changes>
+    </Version>
+
+</efaOnlineUpdate>

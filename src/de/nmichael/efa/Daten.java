@@ -9,6 +9,8 @@
  */
 package de.nmichael.efa;
 
+import de.nmichael.efa.core.EfaSec;
+import de.nmichael.efa.core.EfaKeyStore;
 import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.core.items.*;
@@ -18,7 +20,6 @@ import de.nmichael.efa.data.storage.DataFile;
 import de.nmichael.efa.data.storage.RemoteEfaServer;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.drv.DRVConfig;
 import de.nmichael.efa.util.FTPClient;
 import de.nmichael.efa.util.PDFWriter;
 import de.nmichael.efa.gui.*;
@@ -33,8 +34,8 @@ import java.lang.management.*;
 public class Daten {
 
     public final static String VERSION            = "v2.0_beta"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID          = "1.9.9_24";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-    public final static String VERSIONRELEASEDATE = "25.01.2012";  // Release Date: TT.MM.JJJJ
+    public final static String VERSIONID          = "1.9.9_27";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "29.01.2012";  // Release Date: TT.MM.JJJJ
     public final static String MAJORVERSION       = "2";
     public final static String PROGRAMMID         = "EFA.199"; // Versions-ID für Wettbewerbsmeldungen
     public final static String PROGRAMMID_DRV     = "EFADRV.199"; // Versions-ID für Wettbewerbsmeldungen
@@ -100,6 +101,7 @@ public class Daten {
     public static final int HALT_FIRSTSETUP   = 13;
     public static final int HALT_PANIC        = 14;
     public static final int HALT_ADMINLOGIN   = 15;
+    public static final int HALT_DATALOCK     = 16;
     public static final int HALT_JAVARESTART  = 98;
     public static final int HALT_SHELLRESTART = 99;
 
@@ -148,7 +150,7 @@ public class Daten {
     public final static String PLUGIN_JSUNTIMES_HTML = "jsuntimes.html";
 
     public final static String ONLINEUPDATE_INFO = "http://efa.nmichael.de/eou.xml";
-    public final static String ONLINEUPDATE_INFO_DRV = "http://efa.nmichael.de/efadrv.eou";
+    public final static String ONLINEUPDATE_INFO_DRV = "http://efa.nmichael.de/eoudrv.xml";
     public final static String EFW_UPDATE_DATA = "http://efa.nmichael.de/efw.data";
     public final static String INTERNET_EFAMAIL = "http://cgi.snafu.de/nmichael/user-cgi-bin/efamail.pl";
     public final static String IMAGEPATH = "/de/nmichael/efa/img/";
@@ -164,13 +166,13 @@ public class Daten {
 
     public static EfaBaseConfig efaBaseConfig; // efa Base Config
     public static EfaConfig efaConfig;         // Konfigurationsdatei
-    public static DRVConfig drvConfig;         // Konfigurationsdatei
     public static EfaTypes efaTypes;           // EfaTypes (Bezeichnungen)
     public static Admins admins;               // Admins
     public static Project project;             // Efa Project
     public static WettDefs wettDefs;           // WettDefs
     public static EfaKeyStore keyStore;        // KeyStore
     public static final String PUBKEYSTORE = "keystore_pub.dat";         // <efauser>/data/keystore_pub.dat
+    public static final String DRVKEYSTORE = "keystore.dat";         // <efauser>/data/keystore.dat
     public static final String EFAMASTERKEY = "k)fx,R4{Qb:lhTg";
     
     public static EfaSec efaSec;               // efa Security File
@@ -231,9 +233,7 @@ public class Daten {
         boolean createNewAdmin = iniAdmins();
         Object[] efaFirstSetup = iniEfaFirstSetup(createNewAdmin);
         CustSettings cust = (efaFirstSetup != null ? (CustSettings) efaFirstSetup[0] : null);
-        iniFileSettings(1);
         iniEfaConfig(cust);
-        iniFileSettings(2);
         iniEfaRunning();
         iniEfaTypes(cust);
         iniCopiedFiles();
@@ -452,10 +452,9 @@ public class Daten {
         switch (applID) {
             case APPL_EFABASE:
             case APPL_EFABH:
-                baklog = Logger.ini("efa.log", true, false);
-                break;
             case APPL_CLI:
-                baklog = Logger.ini("efa.log", true, true);
+            case APPL_DRV:
+                baklog = Logger.ini("efa.log", true, false);
                 break;
             default:
                 baklog = Logger.ini(null, true, false);
@@ -534,7 +533,11 @@ public class Daten {
         }
 
         // ./daten
-        Daten.efaDataDirectory = Daten.efaBaseConfig.efaUserDirectory + efaSubdirDATA + Daten.fileSep;
+        if (applID != APPL_DRV) {
+            Daten.efaDataDirectory = Daten.efaBaseConfig.efaUserDirectory + efaSubdirDATA + Daten.fileSep;
+        } else {
+            Daten.efaDataDirectory = Daten.efaBaseConfig.efaUserDirectory + "daten" + Daten.fileSep;
+        }
         if (!checkAndCreateDirectory(Daten.efaDataDirectory)) {
             haltProgram(HALT_DIRECTORIES);
         }
@@ -695,6 +698,9 @@ public class Daten {
      * @return [0] == CustSettins; [1] == new AdminRecord
      */
     public static Object[] iniEfaFirstSetup(boolean createNewAdmin) {
+        if (applID == APPL_DRV) {
+            return null;
+        }
         if (firstEfaStart || createNewAdmin) {
             if (!isGuiAppl()) {
                 Logger.log(Logger.ERROR, Logger.MSG_CORE_BASICCONFIG,
@@ -715,65 +721,8 @@ public class Daten {
         return null;
     }
 
-    public static void iniFileSettings(int stage) {
-        switch (applID) {
-            case APPL_EFABASE:
-                switch (stage) {
-                    case 1: // before EfaConfig is opened
-                        if (!efaSec.secFileExists()) { // efa Secure Mode
-                            // @todo (P6) detect changes on files and refuse to start if manipulated
-                        }
-                        break;
-                    case 2: // after EfaConfig is opened
-                        if (!efaSec.secFileExists()) { // efa Secure Mode: Jetzt, da Config gelesen wurde: Nur noch require Admin
-                            // @todo (P6) detect changes on files and require admin acknowledge if manipulated
-                        }
-                        break;
-                }
-                break;
-            case APPL_EFABH:
-                switch (stage) {
-                    case 1: // before EfaConfig is opened
-                        // Stop on Checksum Errors
-                        // @todo (P6) detect changes on files and refuse to start if manipulated
-                        break;
-                    case 2: // after EfaConfig is opened
-                        // nothing to do
-                        break;
-                }
-                break;
-        }
-    }
-
     public static void iniEfaConfig(CustSettings custSettings) {
         if (applID != APPL_DRV) {
-            /* @todo (P9) DRV efaconfig initialization
-            Daten.efaConfig = new EfaConfig(Daten.efaCfgDirectory + Daten.CONFIGFILE, custSettings);
-            if (!EfaUtil.canOpenFile(Daten.efaConfig.getFileName())) {
-            if (!Daten.efaConfig.writeFile()) {
-            String msg = LogString.logstring_fileCreationFailed(Daten.efaConfig.getFileName(),
-            International.getString("Konfigurationsdatei"));
-            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDCREATE, msg);
-            if (isGuiAppl()) {
-            Dialog.error(msg);
-            }
-            haltProgram(HALT_EFACONFIG);
-            }
-            String msg = LogString.logstring_fileNewCreated(Daten.efaConfig.getFileName(),
-            International.getString("Konfigurationsdatei"));
-            Logger.log(Logger.WARNING, Logger.MSG_CORE_EFACONFIGCREATEDNEW, msg);
-            }
-            if (!Daten.efaConfig.readFile()) {
-            String msg = LogString.logstring_fileOpenFailed(Daten.efaConfig.getFileName(),
-            International.getString("Konfigurationsdatei"));
-            Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDOPEN, msg);
-            if (isGuiAppl()) {
-            Dialog.error(msg);
-            }
-            haltProgram(HALT_EFACONFIG);
-            }
-             */
-
             efaConfig = new EfaConfig(custSettings);
             try {
                 efaConfig.open(false);
@@ -794,35 +743,13 @@ public class Daten {
                 }
             }
             Daten.efaConfig.setExternalParameters(false);
-        } else {
-            Daten.drvConfig = new DRVConfig(Daten.efaCfgDirectory + Daten.DRVCONFIGFILE);
-            if (!EfaUtil.canOpenFile(Daten.drvConfig.getFileName())) {
-                if (!Daten.drvConfig.writeFile()) {
-                    String msg = LogString.fileCreationFailed(Daten.drvConfig.getFileName(),
-                            International.getString("Konfigurationsdatei"));
-                    Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDCREATE, msg);
-                    if (isGuiAppl()) {
-                        Dialog.error(msg);
-                    }
-                    haltProgram(HALT_EFACONFIG);
-                }
-                String msg = LogString.fileNewCreated(Daten.drvConfig.getFileName(),
-                        International.getString("Konfigurationsdatei"));
-                Logger.log(Logger.WARNING, Logger.MSG_CORE_EFACONFIGCREATEDNEW, msg);
-            }
-            if (!Daten.drvConfig.readFile()) {
-                String msg = LogString.fileOpenFailed(Daten.drvConfig.getFileName(),
-                        International.getString("Konfigurationsdatei"));
-                Logger.log(Logger.ERROR, Logger.MSG_CORE_EFACONFIGFAILEDOPEN, msg);
-                if (isGuiAppl()) {
-                    Dialog.error(msg);
-                }
-                haltProgram(HALT_EFACONFIG);
-            }
         }
     }
 
     public static void iniEfaTypes(CustSettings custSettings) {
+        if (applID == APPL_DRV) {
+            return;
+        }
         efaTypes = new EfaTypes(custSettings);
         try {
             efaTypes.open(false);
@@ -859,6 +786,7 @@ public class Daten {
             haltProgram(Daten.HALT_EFARUNNING);
         }
         efaRunning.run();
+        efaRunning.runDataLockThread();
     }
 
     public static void iniCopiedFiles() {
@@ -870,7 +798,9 @@ public class Daten {
     public static void iniAllDataFiles() {
         Daten.wettDefs = new WettDefs(Daten.efaCfgDirectory + Daten.WETTDEFS);
         iniDataFile(Daten.wettDefs, true, International.onlyFor("Wettbewerbskonfiguration", "de"));
-        Daten.keyStore = new EfaKeyStore(Daten.efaDataDirectory + Daten.PUBKEYSTORE, "efa".toCharArray());
+        Daten.keyStore = (applID != APPL_DRV ?
+                new EfaKeyStore(Daten.efaDataDirectory + Daten.PUBKEYSTORE, "efa".toCharArray()) :
+                new EfaKeyStore(Daten.efaDataDirectory + Daten.DRVKEYSTORE, "efa".toCharArray()) );
     }
 
     public static void iniRemoteEfaServer() {
@@ -908,15 +838,17 @@ public class Daten {
         iniScreenSize();
 
         // Look&Feel
-        try {
-            if (Daten.efaConfig.getValueLookAndFeel().length() == 0) {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } else {
-                UIManager.setLookAndFeel(Daten.efaConfig.getValueLookAndFeel());
+        if (Daten.efaConfig != null) { // is null for applDRV
+            try {
+                if (Daten.efaConfig.getValueLookAndFeel().length() == 0) {
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                } else {
+                    UIManager.setLookAndFeel(Daten.efaConfig.getValueLookAndFeel());
+                }
+            } catch (Exception e) {
+                Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTSETLOOKANDFEEL,
+                        International.getString("Konnte Look&Feel nicht setzen") + ": " + e.toString());
             }
-        } catch (Exception e) {
-            Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTSETLOOKANDFEEL,
-                    International.getString("Konnte Look&Feel nicht setzen") + ": " + e.toString());
         }
 
         // Look&Feel specific Work-Arounds

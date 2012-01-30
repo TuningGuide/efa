@@ -53,7 +53,6 @@ public class MessageEditDialog extends UnversionizedDataEditDialog {
                 }
             }
         }
-        // @todo (P4) add a "print message" button
     }
 
     public void updateGui() {

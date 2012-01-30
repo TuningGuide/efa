@@ -8,12 +8,20 @@
  * @version 2
  */
 
-package de.nmichael.efa.util;
+package de.nmichael.efa.core;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.Backup;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.gui.OnlineUpdateDialog;
+import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.util.DownloadThread;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.ExecuteAfterDownload;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.LogString;
+import de.nmichael.efa.util.Logger;
+import de.nmichael.efa.util.XmlHandler;
 import java.awt.Window;
 import java.io.File;
 import java.util.Vector;
@@ -274,27 +282,30 @@ class ExecuteAfterDownloadImpl implements ExecuteAfterDownload {
         if (parent != null) {
             Dialog.infoDialog(
                     LogString.operationSuccessfullyCompleted(International.getString("Download"))
-                    + "\n" +
-                    International.getString("Es werden jetzt alle Daten gesichert und anschließend die neue Version installiert."));
+                    + (Daten.applID != Daten.APPL_DRV ? "\n" +
+                       International.getString("Es werden jetzt alle Daten gesichert und anschließend die neue Version installiert.")
+                       : ""));
         }
 
         // ZIP-Archiv mit bisherigen Daten sichern
-        boolean backupProject = true;
-        if (Daten.project == null || !Daten.project.isOpen() ||
-            Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
-            backupProject = false;
-        }
-        Backup backup = new Backup(Daten.efaBakDirectory, null, backupProject, true);
-        if (backup.runBackup(null) != 0) {
-            lastError = LogString.operationFailed(International.getString("Backup"));
-            if (parent == null ) {
-                return;
+        if (Daten.applID != Daten.APPL_DRV) {
+            boolean backupProject = true;
+            if (Daten.project == null || !Daten.project.isOpen()
+                    || Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+                backupProject = false;
             }
-            if (Dialog.yesNoDialog(lastError,
-                    backup.getLastErrorMessage() +
-                    "\n" +
-                    International.getString("Soll der Update-Vorgang trotzdem fortgesetzt werden?")) != Dialog.YES) {
-                return;
+            Backup backup = new Backup(Daten.efaBakDirectory, null, backupProject, true);
+            if (backup.runBackup(null) != 0) {
+                lastError = LogString.operationFailed(International.getString("Backup"));
+                if (parent == null) {
+                    return;
+                }
+                if (Dialog.yesNoDialog(lastError,
+                        backup.getLastErrorMessage()
+                        + "\n"
+                        + International.getString("Soll der Update-Vorgang trotzdem fortgesetzt werden?")) != Dialog.YES) {
+                    return;
+                }
             }
         }
 

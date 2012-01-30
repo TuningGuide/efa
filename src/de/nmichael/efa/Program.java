@@ -173,6 +173,7 @@ public class Program {
     public void exit(int exitCode) {
         if (Daten.efaRunning != null) {
             Daten.efaRunning.closeServer();
+            Daten.efaRunning.stopDataLockThread();
         }
         System.exit(exitCode);
     }

@@ -28,7 +28,6 @@ public class XMLFileReader extends XmlHandler {
     private boolean inHeaderSection = false;
     private boolean inRecord = false;
     private DataRecord dataRecord = null;
-    private boolean documentComplete = false;
     private String documentReadError = null;
 
     public XMLFileReader(XMLFile data, long globalLock) {

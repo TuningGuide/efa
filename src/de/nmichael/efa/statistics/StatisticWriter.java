@@ -30,7 +30,7 @@ public abstract class StatisticWriter {
             case html:
                 return new StatisticHTMLWriter(sr, sd);
             case pdf:
-                // @todo (P5) return new StatisticPDFWriter(sr, sd);
+                // @todo (P6) return new StatisticPDFWriter(sr, sd);
                 Dialog.error("PDF output not yet implemented");
             case csv:
                 return new StatisticCSVWriter(sr, sd);

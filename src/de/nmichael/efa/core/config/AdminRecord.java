@@ -548,7 +548,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("efa beenden")));
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(LOCKEFA, isAllowedLockEfa(),
-                IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("efa sperren")));
+                IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("efa entsperren")));
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(BACKUP, isAllowedCreateBackup(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Backup erstellen")));

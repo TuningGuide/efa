@@ -50,7 +50,8 @@ public class FahrtenabzeichenListDialog extends DataListDialog {
                     ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
                     International.onlyFor("Fahrtenhefte downloaden", "de"),
                     International.getString("Importieren"),
-                    International.getString("Exportieren")
+                    International.getString("Exportieren"),
+                    International.getString("Liste ausgeben")
                 };
         actionType = new int[]{
                     ItemTypeDataRecordTable.ACTION_NEW,
@@ -58,7 +59,8 @@ public class FahrtenabzeichenListDialog extends DataListDialog {
                     ItemTypeDataRecordTable.ACTION_DELETE,
                     ACTION_GETFAHRTENHEFTE,
                     ACTION_IMPORT,
-                    ACTION_EXPORT
+                    ACTION_EXPORT,
+                    ACTION_PRINTLIST
                 };
     }
 

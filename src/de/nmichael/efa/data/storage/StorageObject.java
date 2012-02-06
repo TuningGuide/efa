@@ -34,6 +34,10 @@ public abstract class StorageObject {
         dataAccess = DataAccess.createDataAccess(this, storageType, storageLocation, storageUsername, storagePassword, storageObjectName, storageObjectType, storageObjectDescription);
     }
 
+    public void create() throws EfaException {
+        dataAccess.createStorageObject();
+    }
+
     public void open(boolean createNewIfNotExists) throws EfaException {
         try {
             dataAccess.openStorageObject();

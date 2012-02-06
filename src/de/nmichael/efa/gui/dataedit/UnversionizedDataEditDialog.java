@@ -71,7 +71,34 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
         // implement in subclass if necessary
     }
 
-    boolean saveRecord() throws InvalidValueException {
+    protected void warnIfVersionizedRecordOfThatNameAlreadyExists() throws InvalidValueException {
+        String conflict = null;
+        try {
+            if (!dataRecord.getPersistence().data().getMetaData().isVersionized()) {
+                return;
+            }
+            DataKey[] keys = dataRecord.getPersistence().data().getByFields(dataRecord.getQualifiedNameFields(),
+                    dataRecord.getQualifiedNameValues(dataRecord.getQualifiedName()));
+            for (int i=0; keys != null && i<keys.length; i++) {
+                DataRecord r = dataRecord.getPersistence().data().get(keys[i]);
+                if (!r.getDeleted()) {
+                    conflict = r.getQualifiedName() + " (" + r.getValidRangeString() + ")";
+                }
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        if (conflict != null) {
+            if (Dialog.yesNoDialog(International.getString("Warnung"),
+                    International.getString("Es existiert bereits ein gleichnamiger Datensatz!") + "\n" +
+                    conflict + "\n" +
+                    International.getString("Möchtest Du diesen Datensatz trotzdem erstellen?")) != Dialog.YES) {
+                throw new InvalidValueException(null, null);
+            }
+        }
+    }
+
+    protected boolean saveRecord() throws InvalidValueException {
         for (IItemType item : getItems()) {
             if (!item.isValidInput() && item.isVisible()) {
                 throw new InvalidValueException(item, item.getInvalidErrorText());
@@ -81,6 +108,7 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
             dataRecord.saveGuiItems(getItems());
             if (!_dontSaveRecord) {
                 if (newRecord) {
+                    warnIfVersionizedRecordOfThatNameAlreadyExists();
                     dataRecord.getPersistence().data().add(dataRecord);
                 } else {
                     dataRecord.getPersistence().data().update(dataRecord);
@@ -95,7 +123,9 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
             return false;
         } catch(Exception e) {
             Logger.logdebug(e);
-            Dialog.error("Die Änderungen konnten nicht gespeichert werden." + "\n" + e.toString());
+            if (e.toString() != null) {
+                Dialog.error("Die Änderungen konnten nicht gespeichert werden." + "\n" + e.toString());
+            }
             return false;
         }
     }

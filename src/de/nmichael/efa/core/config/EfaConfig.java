@@ -53,7 +53,7 @@ public class EfaConfig extends StorageObject {
     public final String CATEGORY_TYPES_STAT    = "%147%" + International.getString("Status");
     public final String CATEGORY_SYNC          = "%15%" + International.getString("Synchronisation");
     public final String CATEGORY_KANUEFB       = "%16%" + International.onlyFor("Kanu-eFB","de");
-    public final String CATEGORY_LOCALE        = "%17%" + International.getString("Sprache & Region");
+    public final String CATEGORY_LOCALE        = "%17%" + International.getStringWithoutAnyEscaping("Sprache & Region");
     public final String CATEGORY_WIDGETS       = "%18%" + International.getString("Widgets");
     public final String CATEGORY_WIDGET_CLOCK  = "%181%" + International.getString("Uhr");
     public final String CATEGORY_WIDGET_NEWS   = "%182%" + International.getString("Ticker");
@@ -236,6 +236,7 @@ public class EfaConfig extends StorageObject {
     private ItemTypeString kanuEfb_urlLogin;
     private ItemTypeString kanuEfb_urlRequest;
     private ItemTypeBoolean dataPreModifyRecordCallbackEnabled;
+    private ItemTypeFile dataMirrorDirectory;
     private ItemTypeBoolean dataRemoteEfaServerEnabled;
     private ItemTypeInteger dataRemoteEfaServerPort;
     private ItemTypeString dataRemoteEfaOnlineUrl;
@@ -641,7 +642,7 @@ public class EfaConfig extends StorageObject {
             addParameter(efaDirekt_immerImVordergrund = new ItemTypeBoolean("EfaBoathouseWindowAlwaysOnTop", false,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
                     International.getString("efa immer im Vordergrund")));
-            addParameter(efaDirekt_immerImVordergrundBringToFront = new ItemTypeBoolean("EfaBoathouseWindowAlwaysOnTopBringToFront", false, // @todo (P5) EfaBoathouseWindowAlwaysOnTopBringToFront can be deleted (?)
+            addParameter(efaDirekt_immerImVordergrundBringToFront = new ItemTypeBoolean("EfaBoathouseWindowAlwaysOnTopBringToFront", false,
                     IItemType.TYPE_INTERNAL,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
                     International.getString("efa immer im Vordergrund") + " (bringToFront)"));
             addParameter(efaDirekt_fontSize = new ItemTypeInteger("EfaBoathouseFontSize", 16, 6, 32, false,
@@ -869,14 +870,14 @@ public class EfaConfig extends StorageObject {
             addParameter(useFunctionalityRowingGermany = new ItemTypeBoolean("CustUsageRowingGermany",
                     (custSettings != null ? custSettings.activateGermanRowingOptions : International.getLanguageID().startsWith("de")),
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_LOCALE),
-                    International.getMessage("Funktionalitäten aktivieren für {sport} in {region}",
+                    International.getMessage("Funktionalitäten aktivieren für {sport}",
                     International.getString("Rudern")) + " "
                     + International.getMessage("in {region}",
                     International.getString("Deutschland"))));
             addParameter(useFunctionalityRowingBerlin = new ItemTypeBoolean("CustUsageRowingBerlin",
                     (custSettings != null ? custSettings.activateBerlinRowingOptions : false),
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_LOCALE),
-                    International.getMessage("Funktionalitäten aktivieren für {sport} in {region}",
+                    International.getMessage("Funktionalitäten aktivieren für {sport}",
                     International.getString("Rudern")) + " "
                     + International.getMessage("in {region}",
                     International.getString("Berlin"))));
@@ -888,7 +889,7 @@ public class EfaConfig extends StorageObject {
             addParameter(useFunctionalityCanoeingGermany = new ItemTypeBoolean("CustUsageCanoeingGermany",
                     (custSettings != null ? custSettings.activateGermanCanoeingOptions : false),
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_LOCALE),
-                    International.getMessage("Funktionalitäten aktivieren für {sport} in {region}",
+                    International.getMessage("Funktionalitäten aktivieren für {sport}",
                     International.getString("Kanufahren")) + " "
                     + International.getMessage("in {region}",
                     International.getString("Deutschland"))));
@@ -937,6 +938,14 @@ public class EfaConfig extends StorageObject {
             addParameter(dataPreModifyRecordCallbackEnabled = new ItemTypeBoolean("DataPreModifyRecordCallbackEnabled", true,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS, CATEGORY_COMMON),
                     "PreModifyRecordCallbackEnabled"));
+
+            addParameter(dataMirrorDirectory = new ItemTypeFile("DataMirrorDirectory", "",
+                    International.getString("Spiegelverzeichnis für Datenkopie"),
+                    International.getString("Verzeichnisse"),
+                    null, ItemTypeFile.MODE_OPEN, ItemTypeFile.TYPE_DIR,
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAXML),
+                    International.getString("Spiegelverzeichnis für Datenkopie")));
+
             addParameter(dataRemoteEfaServerEnabled = new ItemTypeBoolean("DataRemoteEfaServerEnabled", false,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAREMOTE),
                     International.getString("Remote-Zugriff erlauben")));
@@ -1633,6 +1642,10 @@ public class EfaConfig extends StorageObject {
 
     public boolean getValueDataPreModifyRecordCallbackEnabled() {
         return dataPreModifyRecordCallbackEnabled.getValue();
+    }
+
+    public String getValueDataMirrorDirectory() {
+        return dataMirrorDirectory.getValue();
     }
 
     public boolean getValueDataRemoteEfaServerEnabled() {

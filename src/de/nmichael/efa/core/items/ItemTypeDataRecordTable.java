@@ -157,6 +157,9 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                 GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
         actionButtons = new Hashtable<ItemTypeButton,String>();
         for (int i=0; actionText != null && i<actionText.length; i++) {
+            if (actionTypes[i] > 1000) {
+                continue; // actions > 1000 not shown as buttons
+            }
             String action = ACTION_BUTTON + "_" + actionTypes[i];
             ItemTypeButton button = new ItemTypeButton(action, IItemType.TYPE_PUBLIC, "BUTTON_CAT", actionText[i]);
             button.registerItemListener(this);

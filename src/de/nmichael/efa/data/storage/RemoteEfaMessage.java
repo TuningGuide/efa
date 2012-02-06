@@ -297,6 +297,9 @@ public class RemoteEfaMessage {
         String[] a = new String[count];
         for (int i=0; i<count; i++) {
             a[i] = getFieldValue(FIELD_FIELDVALUE + i);
+            if (a[i] != null && a[i].length() == 0) {
+                a[i] = null; // empty fields must be null for getByFields(...)
+            }
         }
         return a;
     }
@@ -364,7 +367,7 @@ public class RemoteEfaMessage {
         }
 
         if (fields != null) {
-            String[] fieldNames = fields.keySet().toArray(new String[0]);
+            String[] fieldNames = getFields();
             for (int i=0; i<fieldNames.length; i++) {
                 s.append("<" +  fieldNames[i] + ">" + 
                         EfaUtil.escapeXml(fields.get(fieldNames[i])) + "</" +

@@ -36,6 +36,7 @@ public class ImportGroups extends ImportBase {
     public boolean runImport() {
         try {
             Gruppen gruppen = new Gruppen(efa1fname);
+            gruppen.dontEverWrite();
             logInfo(International.getMessage("Importiere {list} aus {file} ...", getDescription(), efa1fname));
             if (!gruppen.readFile()) {
                 logError(LogString.fileOpenFailed(efa1fname, getDescription()));

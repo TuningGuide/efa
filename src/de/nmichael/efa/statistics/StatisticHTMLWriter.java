@@ -11,11 +11,10 @@
 package de.nmichael.efa.statistics;
 
 import java.io.*;
-import java.awt.image.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.data.types.DataTypeDistance;
+import java.util.Arrays;
 
 public class StatisticHTMLWriter extends StatisticWriter {
 
@@ -106,7 +105,17 @@ public class StatisticHTMLWriter extends StatisticWriter {
                         + ":</td><td><b>" + EfaUtil.replace(sr.pStatFilter,"\n","<br>",true) + "</b></td></tr>\n");
             }
             f.write("</table>\n<br><br>\n");
-
+            
+            // Warnings
+            if (sr.cWarnings != null && sr.cWarnings.size() > 0) {
+                String[] keys = sr.cWarnings.keySet().toArray(new String[0]);
+                Arrays.sort(keys);
+                StringBuilder warning = new StringBuilder();
+                for (String s : keys) {
+                    warning.append( (warning.length() > 0 ? "<br>\n" : "") + s);
+                }
+                f.write("<p><b><font color=\"red\">" + warning.toString() + "</font></b></p>");
+            }
 
             // Auswertung von Wettbewerbseinträgen
             // Wettbewerbsbedingungen

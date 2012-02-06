@@ -250,6 +250,7 @@ public class StatisticsData implements Comparable {
             return this.sName.compareTo(osd.sName);
         }
         return 0;
+
     }
 
 }

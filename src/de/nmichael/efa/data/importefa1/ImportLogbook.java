@@ -50,6 +50,7 @@ public class ImportLogbook extends ImportBase {
         Fahrtenbuch origFahrtenbuch = Fahrtenbuch.fahrtenbuch;
         try {
             Fahrtenbuch fahrtenbuch = new Fahrtenbuch(efa1fname);
+            fahrtenbuch.dontEverWrite();
             Fahrtenbuch.fahrtenbuch = fahrtenbuch;
             logInfo(International.getMessage("Importiere {list} aus {file} ...", getDescription(), efa1fname));
             if (!fahrtenbuch.readFile()) {

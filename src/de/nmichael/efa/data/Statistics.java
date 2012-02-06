@@ -39,7 +39,72 @@ public class Statistics extends StorageObject {
         StatisticsRecord r = new StatisticsRecord(this, MetaData.getMetaData(DATATYPE));
         r.setId(id);
         r.setDefaults();
+        r.setPosition(getHighestPosition() + 1);
         return r;
+    }
+
+    public int getHighestPosition() {
+        try {
+            int max = 0;
+            DataKeyIterator it = dataAccess.getStaticIterator();
+            DataKey k = it.getFirst();
+            while (k != null) {
+                StatisticsRecord r = (StatisticsRecord)dataAccess.get(k);
+                max = Math.max(max, r.getPosition());
+                k = it.getNext();
+            }
+            return max;
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return 0;
+        }
+    }
+
+    public void moveRecord(StatisticsRecord r, int direction) {
+        boolean origRecordDeleted = false;
+        long lock = -1;
+        try {
+            int oldPos = r.getPosition();
+            int newPos = oldPos + direction;
+            if (oldPos == newPos || newPos < 1 || newPos > getHighestPosition()) {
+                return;
+            }
+            lock = dataAccess.acquireGlobalLock();
+            dataAccess.delete(r.getKey(), lock);
+            origRecordDeleted = true;
+            DataKeyIterator it = dataAccess.getStaticIterator();
+            DataKey k = it.getFirst();
+            while (k != null) {
+                StatisticsRecord r2 = (StatisticsRecord)dataAccess.get(k);
+                if (r2.getPosition() == newPos) {
+                    r2.setPosition(oldPos);
+                    dataAccess.update(r2, lock);
+                    break;
+                }
+                k = it.getNext();
+            }
+            r.setPosition(newPos);
+            dataAccess.add(r, lock);
+            origRecordDeleted = false;
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            Dialog.error(e.toString());
+        } finally {
+            if (lock >= 0) {
+                dataAccess.releaseGlobalLock(lock);
+            }
+            if (origRecordDeleted) {
+                try {
+                    // we add this record again *without* holding a lock
+                    // the exception that caused us to go into this code path
+                    // may have been caused by the lock timing out, so can't be
+                    // sure we're still holding it
+                    dataAccess.add(r);
+                } catch(Exception e2) {
+                    Logger.logdebug(e2);
+                }
+            }
+        }
     }
 
     public StatisticsRecord getStatistics(UUID id) {

@@ -63,7 +63,7 @@ public class DataTypePasswordCrypted {
             cipher.init(Cipher.ENCRYPT_MODE, key);
             return Base64.encodeBytes(cipher.doFinal(cleartext));
         } catch(Exception e) {
-            Logger.log(e);
+            Logger.logdebug(e);
             return null;
         }
     }
@@ -76,7 +76,7 @@ public class DataTypePasswordCrypted {
             byte[] plainTextPwdBytes = (cipher.doFinal(encrypedPwdBytes));
             return new String(plainTextPwdBytes);
         } catch(Exception e) {
-            Logger.log(e);
+            Logger.logdebug(e);
             return null;
         }
     }

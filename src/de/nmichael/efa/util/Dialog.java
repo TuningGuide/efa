@@ -484,7 +484,7 @@ public class Dialog {
         dlg.setLocation(getLocation(dlg.getSize(), null, null));
     }
 
-    private static Point getLocation(Dimension dlgSize, Dimension parentSize, Point loc) {
+    public static Point getLocation(Dimension dlgSize, Dimension parentSize, Point loc) {
         int x, y;
 
         // fix dlgSize, if necessary

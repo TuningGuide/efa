@@ -30,7 +30,6 @@ public class KanuEfbXmlResponse extends XmlHandler {
 
     private boolean inResponse = false;
     private boolean inRecord = false;
-    private boolean documentComplete = false;
 
     private String responseName;
     private String recordName;

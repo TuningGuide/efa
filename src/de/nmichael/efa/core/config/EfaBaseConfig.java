@@ -128,6 +128,10 @@ public class EfaBaseConfig {
                         if (!efaUserDirectory.endsWith(Daten.fileSep)) {
                             efaUserDirectory += Daten.fileSep;
                         }
+                    } else {
+                        Logger.log(Logger.ERROR, Logger.MSG_CORE_BASICCONFIGUSERDATACANTWRITE,
+                                "Cannot write in configured User Data Directory: " + newUserHome +
+                                "; using " + efaUserDirectory + " instead.");
                     }
                 }
                 if (s.startsWith(FIELD_LANGUAGE+"=")) {

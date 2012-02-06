@@ -33,7 +33,7 @@ public class MenuData extends MenuBase {
 
     public void printHelpContext() {
         printUsage(CMD_LIST,        "[all|invisible|deleted]", "list " + storageObjectDescription);
-        printUsage(CMD_SHOW,        "[index]", "show record");
+        printUsage(CMD_SHOW,        "[name|index]", "show record");
     }
 
     public void list(String args) {
@@ -84,26 +84,52 @@ public class MenuData extends MenuBase {
         }
     }
 
+    protected DataRecord getRecordFromArgs(String args) {
+        if (args == null || args.length() == 0) {
+            printHelpContext();
+            return null;
+        }
+        if (storageObject == null) {
+            return null;
+        }
+
+        DataRecord r = null;
+        try {
+            MetaData meta = storageObject.data().getMetaData();
+            DataRecord dummyRecord = storageObject.createNewRecord();
+            DataKey[] k;
+            if (meta.isVersionized()) {
+                k = storageObject.data().getByFields(dummyRecord.getQualifiedNameFields(),
+                        dummyRecord.getQualifiedNameValues(args), System.currentTimeMillis());
+            } else {
+                k = storageObject.data().getByFields(dummyRecord.getQualifiedNameFields(),
+                        dummyRecord.getQualifiedNameValues(args));
+            }
+            r = storageObject.data().get(k[0]);
+        } catch(Exception e) {
+        }
+        if (r == null) {
+            if (lastListResult == null || lastListResult.size() == 0) {
+                cli.logerr("Please run a list command first.");
+                return null;
+            }
+            int index = EfaUtil.string2int(args, -1);
+            if (index < 0) {
+                printHelpContext();
+                return null;
+            }
+            r = lastListResult.get(index);
+        }
+        return r;
+    }
+
     public void show(String args) {
         if (storageObject == null) {
             return;
         }
-        if (lastListResult == null || lastListResult.size() == 0) {
-            cli.logerr("Please run a list command first.");
-            return;
-        }
-        if (args == null || args.length() == 0) {
-            printHelpContext();
-            return;
-        }
-        int index = EfaUtil.string2int(args, -1);
-        if (index < 0) {
-            printHelpContext();
-            return;
-        }
-        DataRecord r = lastListResult.get(index);
+        DataRecord r = getRecordFromArgs(args);
         if (r == null) {
-            cli.logerr("Record with index "+index+" not found.");
+            cli.logerr("Record '"+args+"' not found.");
             return;
         }
         Vector<IItemType> items = r.getGuiItems(cli.getAdminRecord());

@@ -25,6 +25,7 @@ public class MenuMain extends MenuBase {
         printUsage(CLI.MENU_BOATS,        "", "boat administration");
         printUsage(CLI.MENU_PERSONS,      "", "person administration");
         printUsage(CLI.MENU_DESTINATIONS, "", "destination administration");
+        printUsage(CLI.MENU_STATISTICS  , "", "create statistics");
         printUsage(CLI.MENU_BACKUP      , "", "create backups");
     }
     
@@ -53,6 +54,14 @@ public class MenuMain extends MenuBase {
                     return CLI.RC_NO_PERMISSION;
                 }
                 menuStack.push(CLI.MENU_DESTINATIONS);
+                return runCommandWithArgs(args);
+            }
+            if (cmd.equalsIgnoreCase(CLI.MENU_STATISTICS)) {
+                if (!cli.getAdminRecord().isAllowedEditStatistics()) {
+                    cli.logerr("You don't have permission to access this function.");
+                    return CLI.RC_NO_PERMISSION;
+                }
+                menuStack.push(CLI.MENU_STATISTICS);
                 return runCommandWithArgs(args);
             }
             if (cmd.equalsIgnoreCase(CLI.MENU_BACKUP)) {

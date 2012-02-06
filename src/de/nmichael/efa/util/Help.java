@@ -83,6 +83,9 @@ public class Help {
             if (Logger.isTraceOn(Logger.TT_HELP, 1)) {
                 Logger.log(Logger.DEBUG, Logger.MSG_HELP_DEBUGHELPTOPICSHOWHELP, "  -> Showing Help: " + Help.getHelpBroker().getCurrentID().getIDString());
             }
+            Dimension dim = Dialog.getMaxSize(new Dimension(1000,600));
+            Help.getHelpBroker().setSize(dim);
+            Help.getHelpBroker().setLocation(Dialog.getLocation(dim, null, null));
             Help.getHelpBroker().setDisplayed(true);
             if (Logger.isTraceOn(Logger.TT_HELP, 9)) {
                 try {

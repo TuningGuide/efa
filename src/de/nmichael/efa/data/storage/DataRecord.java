@@ -415,6 +415,9 @@ public abstract class DataRecord implements Cloneable, Comparable {
     }
 
     public boolean isInValidityRange(long validStart, long validEnd) {
+        if (getDeleted()) {
+            return false;
+        }
         long rValidFrom = getValidFrom();
         long rValidUntil = getInvalidFrom() - 1;
         if ( (rValidFrom >= validStart && rValidFrom <= validEnd) ||   // rValidFrom is in specified range
@@ -426,6 +429,9 @@ public abstract class DataRecord implements Cloneable, Comparable {
     }
     
     public boolean isValidAt(long validAt) {
+        if (getDeleted()) {
+            return false;
+        }
         return (validAt >= getValidFrom() && validAt < getInvalidFrom());
     }
 

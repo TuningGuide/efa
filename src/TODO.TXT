@@ -1,10 +1,8 @@
 Item                                                                 days  until
 ================================================================================
-Versionierte Daten (siehe email 16.01. an Fabian!)
 Dr-Titel in Ausgabe (und erkennung) von Strings aufnehmen!
-Up/Down Buttons fuer Statistikeinstellungen
-Create Statistik in CLI
 Buttons mit Symbolen ausstatten
+Check Java Version (min 6)
 
 Auto Create new Logbooks - better Dialog
 
@@ -14,7 +12,6 @@ Gewaesserliste mitliefern
 Eigener Zielbereich
 Statistik FTP Upload
 efaRemote - SSL
-efaRemote - proper Session Handling
 efaRemote - Progress/Status Indicator
 Point-in-Time Recovery
 Signal Handler
@@ -64,3 +61,7 @@ Encrypt Passwords for external Systems
 efaRemote - Online Update
 Backup
 LockEfa
+Create Statistik in CLI
+efaRemote - proper Session Handling
+Up/Down Buttons fuer Statistikeinstellungen
+Versionierte Daten (siehe email 16.01. an Fabian!)

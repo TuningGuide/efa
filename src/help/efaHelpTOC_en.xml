@@ -6,12 +6,9 @@
 <toc version="2.0">
 <tocitem text="efa - electronic Logbook" image="toplevelfolder">
 
-   <tocitem text="Einführung" target="t1"/>
-
-   <tocitem text="Introduction" target="t2" expand="true">
-       <tocitem text="Introduction to efa (@dummy)" target="t3"/>
-       <tocitem text="Chapter 1: Logbook administration (@dummy)" target="t4"/>
-       <tocitem text="Chapter 2: Statistics creation (@dummy)" target="t5"/>
+   <tocitem text="Introductioon" expand="true">
+       <tocitem text="About efa" target="default"/>
+       <tocitem text="Installation" target="install"/>
    </tocitem>
 
 </tocitem>

@@ -866,6 +866,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
 
     public boolean cancel(WindowEvent e, int reason, AdminRecord admin, boolean restart) {
+        Dialog.IGNORE_WINDOW_STACK_CHECKS = true;
         int exitCode = 0;
         String who = "unknown";
 
@@ -877,6 +878,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                         if (admin == null) {
                             admin = AdminLoginDialog.login(this, International.getString("Beenden von efa"));
                             if (admin == null) {
+                                Dialog.IGNORE_WINDOW_STACK_CHECKS = false;
                                 return false;
                             }
                         }

@@ -25,6 +25,7 @@ public class Unixlf2doslf {
       f2 = new FileOutputStream(ziel);
       clast = 0;
       while ( (c = f1.read()) >= 0) {
+          // Standard DOS Format is: \r \n (0x0d 0x0a)
         if (c == 10 && clast!= 13) f2.write(13);
         f2.write(c);
       }

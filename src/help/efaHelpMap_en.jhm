@@ -5,5 +5,6 @@
 
 <map version="1.0">
         <mapID target="default" url="main/index_en.html" />
+        <mapID target="install" url="main/install_en.html" />
         <mapID target="de.nmichael.efa.gui.EfaConfigDialog" url="gui/EfaConfigDialog_en.html" />
 </map>

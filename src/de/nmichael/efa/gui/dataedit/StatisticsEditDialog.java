@@ -13,6 +13,7 @@ package de.nmichael.efa.gui.dataedit;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.*;
+import de.nmichael.efa.statistics.StatisticTask;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -34,7 +35,6 @@ public class StatisticsEditDialog extends UnversionizedDataEditDialog {
         _dontSaveRecord = dontSaveButRun;
         if (dontSaveButRun) {
             _closeButtonText = International.getString("Statistik erstellen");
-            getItem(StatisticsRecord.POSITION).setVisible(false);
             getItem(StatisticsRecord.NAME).setVisible(false);
             getItem(StatisticsRecord.PUBLICLYAVAILABLE).setVisible(false);
         }
@@ -43,5 +43,20 @@ public class StatisticsEditDialog extends UnversionizedDataEditDialog {
     public void keyAction(ActionEvent evt) {
         _keyAction(evt);
     }
+
+    public void closeButton_actionPerformed(ActionEvent e) {
+        if (_dontSaveRecord) {
+            try {
+                if (getValuesFromGui() && saveRecord()) {
+                    StatisticTask.createStatisticsTask(null, this,
+                            new StatisticsRecord[]{(StatisticsRecord) dataRecord});
+                }
+            } catch (Exception ex) {
+            }
+        } else {
+            super.closeButton_actionPerformed(e);
+        }
+    }
+
 
 }

@@ -65,6 +65,7 @@ public class Logger {
     public static final String MSG_CORE_ADMINSFAILEDCREATE = "COR027";
     public static final String MSG_CORE_ADMINSFAILEDOPEN = "COR028";
     public static final String MSG_CORE_ADMINSFAILEDNOSEC = "COR029";
+    public static final String MSG_CORE_BASICCONFIGUSERDATACANTWRITE = "COR030";
     // Activities performed in Admin Mode
     public static final String MSG_ADMIN_LOGIN = "ADM001";
     public static final String MSG_ADMIN_LOGINFAILURE = "ADM002";
@@ -237,6 +238,7 @@ public class Logger {
     public static final String MSG_EVT_REMOTEONLINEUPDATE = "EVT043";
     public static final String MSG_EVT_REMOTEONLINEUPDATEDOWNLOAD = "EVT044";
     public static final String MSG_EVT_ONLINEUPDATEFINISHED = "EVT045";
+    public static final String MSG_EVT_ERRORRECORDINVALIDATTIME = "EVT046";
 
     // Backup
     public static final String MSG_BCK_BACKUPSTARTED = "BCK001";

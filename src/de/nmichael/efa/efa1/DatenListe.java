@@ -72,11 +72,11 @@ public class DatenListe {
     protected boolean backupEnabled = true; // ob von dieser Datei Backups angelegt werden sollen oder nicht
     protected int backupFailures = 0; // Anzahl der in Folge fehlgeschlagenen Backups
     private int scn;            // Change Number: Wird am Konstruktion bei jeder verändernden Operation hochgezählt
-    private boolean DONTEVERWRITE = false;
+    protected boolean DONTEVERWRITE = false;
     private boolean fileHasBeenConverted = false; // efa2: avoid re-reading of a converted file that wasn't actually written
     private String checksum;  // String, der als Checksumme in der Datei gefunden wurde
     private static final int HASHLENGTH = 11 + 40; // ##CHECKSUM=<40 Characters Hash>
-    private static Efa1Backup efa1Backup;
+    public static Efa1Backup efa1Backup;
 
     // Konstruktor; dat: Datei; pf: Anzahl der Datenfelder; pk: Position des Key-Feldes
     public DatenListe(String pdat, int pf, int pk, boolean numeric) {

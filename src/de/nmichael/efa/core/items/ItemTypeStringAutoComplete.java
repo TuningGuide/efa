@@ -11,6 +11,7 @@
 package de.nmichael.efa.core.items;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.gui.SimpleOptionInputDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -45,11 +46,19 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
     protected char ignoreEverythingAfter = 0x0;
     protected String alternateFieldNameForPlainText = null;
     protected boolean alwaysReturnPlainText = false;
+    protected ItemTypeDate validAtDate;
+    protected ItemTypeTime validAtTime;
+
 
     public ItemTypeStringAutoComplete(String name, String value, int type,
             String category, String description, boolean showButton) {
         super(name, value, type, category, description);
         this.showButton = showButton;
+    }
+
+    public void setValidAt(ItemTypeDate validAtDate, ItemTypeTime validAtTime) {
+        this.validAtDate = validAtDate;
+        this.validAtTime = validAtTime;
     }
 
     public void iniDisplay() {
@@ -325,10 +334,28 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             }
         }
 
+        // in case of versionized data, make sure it also valid
+        boolean valid = false;
+        if (matching && validAtDate != null) {
+            long t = LogbookRecord.getValidAtTimestamp(validAtDate.getDate(),
+                    (validAtTime != null ? validAtTime.getTime() : null));
+            if (ignoredString == null && complete != null) {
+                valid = autoCompleteList.isValidAt(complete, t);
+            }
+            if (ignoredString != null && base != null) {
+                valid = autoCompleteList.isValidAt(base, t);
+            }
+            if (!valid) {
+                matching = false;
+            }
+        } else {
+            valid = true;
+        }
+
         if (matching) {
             setButtonColor( (ignoredString == null ? Color.green : Color.yellow) );
         } else {
-            setButtonColor(Color.red);
+            setButtonColor( (valid ? Color.red : Color.orange) );
         }
         //System.out.println("autoComplete("+e+") on "+getName()+" with text '"+field.getText()+"' -> matching="+matching);
         

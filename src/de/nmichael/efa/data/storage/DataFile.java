@@ -25,6 +25,7 @@ public abstract class DataFile extends DataAccess {
 
     protected static final String ENCODING = Daten.ENCODING_UTF;
     protected String filename;
+    protected String mirrorRelativeFilename;
     protected volatile boolean isOpen = false;
     private final HashMap<DataKey,DataRecord> data = new HashMap<DataKey,DataRecord>();
     private final HashMap<DataKey,ArrayList<DataKey>> versionizedKeyList = new HashMap<DataKey,ArrayList<DataKey>>();
@@ -43,8 +44,17 @@ public abstract class DataFile extends DataAccess {
         setStorageObjectDescription(description);
         filename = directory + (directory.endsWith(Daten.fileSep) ? "" : Daten.fileSep) +
                 name + "." + extension;
+        if (filename.startsWith(Daten.efaDataDirectory)) {
+            mirrorRelativeFilename = Daten.efaSubdirDATA + Daten.fileSep +
+                    filename.substring(Daten.efaDataDirectory.length());
+        }
+        if (filename.startsWith(Daten.efaCfgDirectory)) {
+            mirrorRelativeFilename = Daten.efaSubdirCFG + Daten.fileSep +
+                    filename.substring(Daten.efaCfgDirectory.length());
+        }
     }
 
+    /*
     public DataFile(String filename) {
         setStorageLocation(EfaUtil.getPathOfFile(filename));
         String fname = EfaUtil.getNameOfFile(filename);
@@ -56,7 +66,8 @@ public abstract class DataFile extends DataAccess {
             setStorageObjectType("");
         }
     }
-
+    */
+    
     public String getUID() {
         return "file:" + filename;
     }
@@ -115,7 +126,8 @@ public abstract class DataFile extends DataAccess {
         fr.close();
         if (recover) {
             Logger.log(Logger.INFO, Logger.MSG_DATA_RECOVERYSTART,
-                    LogString.fileOpened(filename, descr + " [SCN " + getSCN() + "]"));
+                    LogString.fileOpened(filename, 
+                        getStorageObjectName() + "." + getStorageObjectType() + " [SCN " + getSCN() + "]"));
             long latestScn = Journal.getLatestScnFromJournals(getStorageObjectName()+"."+getStorageObjectType(), this.filename);
             if (latestScn < 0) {
                 Logger.log(Logger.ERROR, Logger.MSG_DATA_REPLAYNOJOURNAL,
@@ -148,9 +160,20 @@ public abstract class DataFile extends DataAccess {
             try {
                 recovered = tryOpenStorageObject(filename, false);
             } catch(Exception e1) {
+                if (!new File (filename + BACKUP_MOSTRECENT).exists() &&
+                    !new File (filename + BACKUP_OLDVERSION).exists()) {
+                    // no backup files found, so we don't have to even try to recover.
+                    // instead, we throw an exception.
+                    // our callee may then react by creating a new storage object instead, if he likes
+                    throw e1;
+                }
                 try {
+                    Logger.log(Logger.ERROR, Logger.MSG_DATA_OPENFAILED,
+                            LogString.fileOpenFailed(filename, getStorageObjectName() + "." + getStorageObjectType() , e1.toString()));
                     recovered = tryOpenStorageObject(filename + BACKUP_MOSTRECENT, true);
                 } catch(Exception e2) {
+                    Logger.log(Logger.ERROR, Logger.MSG_DATA_OPENFAILED,
+                            LogString.fileOpenFailed(filename, getStorageObjectName() + "." + getStorageObjectType() , e1.toString()));
                     recovered = tryOpenStorageObject(filename + BACKUP_OLDVERSION, true);
                 }
             }
@@ -158,11 +181,30 @@ public abstract class DataFile extends DataAccess {
             isOpen = true;
             fileWriter = new DataFileWriter(this);
             fileWriter.start();
-            if (recovered) {
+            if (recovered || shouldWriteMirrorFile()) {
                 saveStorageObject();
             }
         } catch(Exception e) {
             throw new EfaException(Logger.MSG_DATA_OPENFAILED, LogString.fileOpenFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+        }
+    }
+
+    private boolean shouldWriteMirrorFile() {
+        try {
+            String mirrorDir = Daten.efaConfig.getValueDataMirrorDirectory();
+            if (mirrorDir != null && mirrorDir.length() > 0 &&
+                    new File(mirrorDir).exists() &&
+                    mirrorRelativeFilename != null && mirrorRelativeFilename.length() > 0) {
+                String mirrorFile = mirrorDir + (mirrorDir.endsWith(Daten.fileSep) ? "" : Daten.fileSep)
+                                       + mirrorRelativeFilename;
+                File f = new File(mirrorFile);
+                return !f.exists();
+            } else {
+                return false;
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return false;
         }
     }
 
@@ -174,13 +216,7 @@ public abstract class DataFile extends DataAccess {
         }
         try {
             fileWriter.save(true, false);
-            synchronized(data) {
-                data.clear();
-                versionizedKeyList.clear();
-                for (DataIndex idx: indices) {
-                    idx.clear();
-                }
-            }
+            clearAllData();
             isOpen = false;
             closeJournal();
             fileWriter.exit();
@@ -192,7 +228,7 @@ public abstract class DataFile extends DataAccess {
         }
     }
 
-    private boolean createBackupFile(String originalFilename) {
+    protected boolean createBackupFile(String originalFilename) {
         String backup0 = originalFilename + BACKUP_MOSTRECENT; // most recent backup
         String backup1 = originalFilename + BACKUP_OLDVERSION; // previous backup
         try {
@@ -408,7 +444,8 @@ public abstract class DataFile extends DataAccess {
                         }
                     }
                     if (update && !add) {
-                        if (currentRecord.getChangeCount() != record.getChangeCount()) {
+                        if (currentRecord.getChangeCount() != record.getChangeCount() &&
+                            !inOpeningStorageObject) {
                             // Throw an exception!
                             throw new EfaException(Logger.MSG_DATA_DUPLICATERECORD, getUID() + ": Update Conflict for Data Record '"+key.toString()+
                                     "': Current ChangeCount="+currentRecord.getChangeCount()+", expected ChangeCount="+record.getChangeCount(),
@@ -953,13 +990,22 @@ public abstract class DataFile extends DataAccess {
         }
     }
 
+    protected void clearAllData() {
+        synchronized (data) {
+            data.clear();
+            versionizedKeyList.clear();
+            for (DataIndex idx : indices) {
+                idx.clear();
+            }
+        }
+    }
+
     public void truncateAllData() throws EfaException {
         long lockID = acquireGlobalLock();
         try {
             synchronized (data) {
                 if (journal.log(scn + 1, Journal.Operation.truncate, null)) {
-                    data.clear();
-                    versionizedKeyList.clear();
+                    clearAllData();
                     scn++;
                 } else {
                     throw new EfaException(Logger.MSG_DATA_TRUNCATEFAILED, getUID() + ": Truncate failed", Thread.currentThread().getStackTrace());

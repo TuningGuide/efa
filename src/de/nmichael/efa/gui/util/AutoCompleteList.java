@@ -17,11 +17,20 @@ import java.util.*;
 
 public class AutoCompleteList {
 
+    private class ValidInfo {
+        public ValidInfo(long validFrom, long invalidFrom) {
+            this.validFrom = validFrom;
+            this.invalidFrom = invalidFrom;
+        }
+        long validFrom, invalidFrom;
+    }
+
     private IDataAccess dataAccess;
     private long dataAccessSCN = -1;
     private long validFrom = -1;
     private long validUntil = -1;
     private Vector<String> dataVisible = new Vector<String>();;
+    private Hashtable<String,ValidInfo> name2valid = new Hashtable<String,ValidInfo>();
     private Hashtable<String,String> lower2realVisible = new Hashtable<String,String>();;
     private Hashtable<String,String> lower2realInvisible = new Hashtable<String,String>();;
     private Hashtable<String,String> aliases2realVisible = new Hashtable<String,String>();;
@@ -67,6 +76,7 @@ public class AutoCompleteList {
             if (dataAccess != null && dataAccess.isStorageObjectOpen() && dataAccess.getSCN() != dataAccessSCN) {
                 dataAccessSCN = dataAccess.getSCN();
                 dataVisible = new Vector<String>();
+                name2valid = new Hashtable<String,ValidInfo>();
                 lower2realVisible = new Hashtable<String,String>();
                 lower2realInvisible = new Hashtable<String,String>();
                 aliases2realVisible = new Hashtable<String,String>();
@@ -82,10 +92,14 @@ public class AutoCompleteList {
                         String alias = (r instanceof PersonRecord ? ((PersonRecord)r).getInputShortcut() : null);
                         if (!r.getDeleted() && !r.getInvisible()) {
                             if (s.length() > 0) {
-                                add(s, alias, r.isInValidityRange(validFrom, validUntil));
+                                ValidInfo vi = null;
+                                if (dataAccess.getMetaData().isVersionized()) {
+                                    vi = new ValidInfo(r.getValidFrom(), r.getInvalidFrom());
+                                }
+                                add(s, alias, r.isInValidityRange(validFrom, validUntil), vi);
                             }
                         } else {
-                            add(s, alias, false);
+                            add(s, alias, false, null);
                         }
                     }
                     k = it.getNext();
@@ -103,11 +117,15 @@ public class AutoCompleteList {
         return _foundValue;
     }
 
-    public synchronized void add(String s, String alias, boolean visibleInDropDown) {
+    public synchronized void add(String s, String alias, boolean visibleInDropDown,
+            ValidInfo validInfo) {
         String lowers = s.toLowerCase();
         if (visibleInDropDown) {
             if (lower2realVisible.get(lowers) == null) {
                 dataVisible.add(s);
+                if (validInfo != null) {
+                    name2valid.put(s, validInfo);
+                }
                 lower2realVisible.put(lowers, s);
                 if (alias != null && alias.length() > 0) {
                     aliases2realVisible.put(alias.toLowerCase(), s);
@@ -121,6 +139,7 @@ public class AutoCompleteList {
 
     public synchronized void delete(String s) {
         dataVisible.remove(s);
+        name2valid.remove(s);
         lower2realVisible.remove(s.toLowerCase());
         lower2realInvisible.remove(s.toLowerCase());
         aliases2realVisible.remove(s.toLowerCase());
@@ -246,6 +265,17 @@ public class AutoCompleteList {
             Logger.logdebug(e);
         }
         return null;
+    }
+
+    public synchronized boolean isValidAt(String name, long validAt) {
+        ValidInfo vi = name2valid.get(name);
+        if (vi == null) {
+            String nameWithUpper = lower2realVisible.get(name);
+            if (nameWithUpper != null) {
+                vi = name2valid.get(nameWithUpper);
+            }
+        }
+        return (vi != null && validAt >= vi.validFrom && validAt < vi.invalidFrom);
     }
 
     public long getSCN() {

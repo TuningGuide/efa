@@ -34,8 +34,8 @@ import java.lang.management.*;
 public class Daten {
 
     public final static String VERSION            = "v2.0_beta"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID          = "1.9.9_27";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-    public final static String VERSIONRELEASEDATE = "29.01.2012";  // Release Date: TT.MM.JJJJ
+    public final static String VERSIONID          = "1.9.9_35";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "05.02.2012";  // Release Date: TT.MM.JJJJ
     public final static String MAJORVERSION       = "2";
     public final static String PROGRAMMID         = "EFA.199"; // Versions-ID für Wettbewerbsmeldungen
     public final static String PROGRAMMID_DRV     = "EFADRV.199"; // Versions-ID für Wettbewerbsmeldungen
@@ -452,9 +452,11 @@ public class Daten {
         switch (applID) {
             case APPL_EFABASE:
             case APPL_EFABH:
-            case APPL_CLI:
             case APPL_DRV:
                 baklog = Logger.ini("efa.log", true, false);
+                break;
+            case APPL_CLI:
+                baklog = Logger.ini("efa.log", true, true);
                 break;
             default:
                 baklog = Logger.ini(null, true, false);
@@ -1035,6 +1037,8 @@ public class Daten {
         infos.add("os.arch=" + System.getProperty("os.arch"));
         infos.add("os.version=" + System.getProperty("os.version"));
         if (applID != APPL_EFABH) {
+            infos.add("user.home=" + System.getProperty("user.home"));
+            infos.add("user.name=" + System.getProperty("user.name"));
             infos.add("user.dir=" + System.getProperty("user.dir"));
             infos.add("java.class.path=" + System.getProperty("java.class.path"));
         }
@@ -1101,7 +1105,7 @@ public class Daten {
     }
 
     public static void checkEfaVersion(boolean interactive) {
-        // @todo (P5) check for outdated efa version
+        // @todo (P7) check for outdated efa version
 /*
         // Bei 1 Jahr alten Versionen alle 90 Tage prüfen, ob eine neue Version vorliegt
         if (EfaUtil.getDateDiff(Daten.VERSIONRELEASEDATE,EfaUtil.getCurrentTimeStampDD_MM_YYYY()) > 365 &&
@@ -1120,7 +1124,7 @@ public class Daten {
     }
 
     public static void checkJavaVersion(boolean interactive) {
-        // @todo (P5) check for outdated java version
+        // @todo (P7) check for outdated java version
 /*
         if (Daten.javaVersion == null) return;
 

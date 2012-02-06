@@ -34,7 +34,9 @@ public class InvalidValueException extends Exception {
     }
 
     public void displayMessage() {
-        Dialog.error(msg);
+        if (msg != null) {
+            Dialog.error(msg);
+        }
         if (item != null) {
             item.requestFocus();
         }

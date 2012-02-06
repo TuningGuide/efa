@@ -33,7 +33,7 @@ public class AdminEditDialog extends UnversionizedDataEditDialog {
         _keyAction(evt);
     }
 
-    boolean saveRecord() throws InvalidValueException {
+    protected boolean saveRecord() throws InvalidValueException {
         String password = null;
         for (IItemType item : getItems()) {
             if (item.isVisible() && item.getName().startsWith(AdminRecord.PASSWORD)) {

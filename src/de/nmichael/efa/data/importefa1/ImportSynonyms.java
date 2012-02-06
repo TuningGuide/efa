@@ -39,6 +39,7 @@ public class ImportSynonyms extends ImportBase {
             //Hashtable<String,ArrayList<String>> h = new Hashtable<String,ArrayList<String>>();
             Hashtable<String,String> h = new Hashtable<String,String>();
             logInfo(International.getMessage("Importiere {list} aus {file} ...", getDescription(), efa1fname));
+            syn.dontEverWrite();
             if (!syn.readFile()) {
                 logError(LogString.fileOpenFailed(efa1fname, getDescription()));
                 return false;

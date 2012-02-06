@@ -40,6 +40,7 @@ public class KanuEfbSyncTask extends ProgressTask {
     private long lastSync;
     private long thisSync;
     private boolean loggedIn = false;
+    private boolean successfulCompleted = false;
 
     public KanuEfbSyncTask(Logbook logbook, AdminRecord admin) {
         super();
@@ -70,7 +71,7 @@ public class KanuEfbSyncTask extends ProgressTask {
         s.append("</xml>\n");
     }
 
-    private KanuEfbXmlResponse sendRequest(String request) throws Exception {
+    private KanuEfbXmlResponse sendRequest(String request, boolean expectResponse) throws Exception {
         if (Logger.isTraceOn(Logger.TT_SYNC)) {
             logInfo(Logger.DEBUG, Logger.MSG_SYNC_SYNCDEBUG, "Sende Synchronisierungs-Anfrage an "+cmdurl+":\n"+request);
         }
@@ -87,7 +88,11 @@ public class KanuEfbSyncTask extends ProgressTask {
         out.flush();
         out.close();
 
-        return getResponse(connection, new BufferedInputStream(connection.getInputStream()));
+        if (expectResponse) {
+            return getResponse(connection, new BufferedInputStream(connection.getInputStream()));
+        } else {
+            return null;
+        }
     }
 
     private KanuEfbXmlResponse getResponse(URLConnection connection, BufferedInputStream in) {
@@ -196,7 +201,7 @@ public class KanuEfbSyncTask extends ProgressTask {
             buildRequestFooter(request);
 
             logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Sende Synchronisierungs-Anfrage für alle Personen ...");
-            KanuEfbXmlResponse response = sendRequest(request.toString());
+            KanuEfbXmlResponse response = sendRequest(request.toString(), true);
             if (response != null && response.isResponseOk("SyncUsers")) {
                 logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Synchronisierungs-Antwort erhalten für " + response.getNumberOfRecords() + " Personen ...");
                 for (int i=0; i<response.getNumberOfRecords(); i++) {
@@ -267,7 +272,7 @@ public class KanuEfbSyncTask extends ProgressTask {
             buildRequestFooter(request);
 
             logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Sende Synchronisierungs-Anfrage für " + reqCnt + " Boote ...");
-            KanuEfbXmlResponse response = sendRequest(request.toString());
+            KanuEfbXmlResponse response = sendRequest(request.toString(), true);
             if (response != null && response.isResponseOk("SyncBoats")) {
                 logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Synchronisierungs-Antwort erhalten für " + response.getNumberOfRecords() + " Boote ...");
                 for (int i=0; i<response.getNumberOfRecords(); i++) {
@@ -336,7 +341,7 @@ public class KanuEfbSyncTask extends ProgressTask {
             buildRequestFooter(request);
 
             logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Sende Synchronisierungs-Anfrage für " + reqCnt + " Gewässer ...");
-            KanuEfbXmlResponse response = sendRequest(request.toString());
+            KanuEfbXmlResponse response = sendRequest(request.toString(), true);
             if (response != null && response.isResponseOk("SyncWaters")) {
                 logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Synchronisierungs-Antwort erhalten für " + response.getNumberOfRecords() + " Gewässer ...");
                 for (int i=0; i<response.getNumberOfRecords(); i++) {
@@ -479,7 +484,7 @@ public class KanuEfbSyncTask extends ProgressTask {
             buildRequestFooter(request);
 
             logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Sende Synchronisierungs-Anfrage für " + reqCnt + " Fahrten ...");
-            KanuEfbXmlResponse response = sendRequest(request.toString());
+            KanuEfbXmlResponse response = sendRequest(request.toString(), true);
             int okCnt = 0;
             if (response != null && response.isResponseOk("SyncTrips")) {
                 logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Synchronisierungs-Antwort erhalten für " + response.getNumberOfRecords() + " Fahrten ...");
@@ -533,7 +538,7 @@ public class KanuEfbSyncTask extends ProgressTask {
                 buildRequestHeader(request, "SyncDone");
                 buildRequestFooter(request);
 
-                KanuEfbXmlResponse response = sendRequest(request.toString());
+                KanuEfbXmlResponse response = sendRequest(request.toString(), false);
             }
 
         } catch (Exception e) {
@@ -584,8 +589,10 @@ public class KanuEfbSyncTask extends ProgressTask {
         if (i == getAbsoluteWork()) {
             Daten.project.setClubKanuEfbLastSync(thisSync);
             logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Synchronisierung mit Kanu-eFB erfolgreich beendet.");
+            successfulCompleted = true;
         } else {
             logInfo(Logger.ERROR, Logger.MSG_SYNC_ERRORABORTSYNC, "Synchronisierung mit Kanu-eFB wegen Fehlern abgebrochen.");
+            successfulCompleted = false;
         }
         setDone();
     }
@@ -595,7 +602,11 @@ public class KanuEfbSyncTask extends ProgressTask {
     }
 
     public String getSuccessfullyDoneMessage() {
-        return LogString.operationSuccessfullyCompleted(International.getString("Synchronisation"));
+        if (successfulCompleted) {
+            return LogString.operationSuccessfullyCompleted(International.getString("Synchronisation"));
+        } else {
+            return LogString.operationFailed(International.getString("Synchronisation"));
+        }
     }
 
     private void logInfo(String type, String key, String msg) {

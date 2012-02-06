@@ -423,6 +423,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     }
 
     public void setDefaults() {
+        setStatisticCategory(SCAT_LIST);
+        setStatisticType(this.STYPE_PERSONS);
+        setStatisticKey(SKEY_NAME);
+        
         setFilterGender(new DataTypeList<String>(Daten.efaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES)));
         setFilterGenderAll(true);
         setFilterStatus(new DataTypeList<UUID>(getFilterStatusListValues(false)));
@@ -1675,9 +1679,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         Vector<IItemType> v = new Vector<IItemType>();
 
         // CAT_BASEDATA
-        v.add(item = new ItemTypeInteger(StatisticsRecord.POSITION, getPosition(), 0, Integer.MAX_VALUE,
-                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Position")));
-        item.setNotNull(true);
         v.add(item = new ItemTypeString(StatisticsRecord.NAME, getName(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
         item.setNotNull(true);
@@ -2192,7 +2193,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 pTableColumns.add(International.getString("Platz"));
             }
             if (sIsFieldsName) {
-                pTableColumns.add(getStatisticKeyDescription());
+                String s = getStatisticKeyDescription();
+                pTableColumns.add( (s != null ? s : International.getString("Name")) );
             }
             if (sIsFieldsStatus) {
                 pTableColumns.add(International.getString("Status"));

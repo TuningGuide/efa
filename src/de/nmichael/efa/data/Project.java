@@ -472,6 +472,9 @@ public class Project extends StorageObject {
             String key = getPersistenceCacheKey(storageObjectName, storageObjectType);
             p = persistenceCache.get(key);
             if (p != null) {
+                if (!p.isOpen()) {
+                    p.open(createNewIfDoesntExist);
+                }
                 return p; // fast path (would happen anyhow a few lines further down, but let's optimize for the most frequent use-case
             }
             if (p == null) {
@@ -1292,6 +1295,20 @@ public class Project extends StorageObject {
 
     public String getCurrentLogbookEfaBoathouse() {
         return getProjectRecord().getCurrentLogbookEfaBoathouse();
+    }
+
+    public Logbook getCurrentLogbook() {
+        String name = null;
+        if (Daten.applID == Daten.APPL_EFABASE) {
+            name = getCurrentLogbookEfaBase();
+        }
+        if (Daten.applID == Daten.APPL_EFABH) {
+            name = getCurrentLogbookEfaBoathouse();
+        }
+        if (name != null && name.length() > 0) {
+            return getLogbook(name, false);
+        }
+        return null;
     }
 
     public String getClubName() {

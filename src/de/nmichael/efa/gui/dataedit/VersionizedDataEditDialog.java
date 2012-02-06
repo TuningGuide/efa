@@ -10,10 +10,12 @@
 
 package de.nmichael.efa.gui.dataedit;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.gui.*;
@@ -410,11 +412,23 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
         }
     }
 
-    boolean saveRecord() throws InvalidValueException {
+    protected boolean saveRecord() throws InvalidValueException {
         if (newRecord) {
+            // suggest a good validity start timestamp
             long validFromTs = 0;
-            ItemTypeDateTime validFrom = new ItemTypeDateTime("VALID_FROM", DataTypeDate.today(), new DataTypeTime(0,0,0),
+            DataTypeDate date = DataTypeDate.today();
+            DataTypeTime time = new DataTypeTime(0,0,0);
+            Logbook l = Daten.project.getCurrentLogbook();
+            if (l != null) {
+                DataTypeDate logbookDate = l.getStartDate();
+                if (logbookDate != null && logbookDate.isSet()) {
+                    date = logbookDate;
+                }
+            }
+
+            ItemTypeDateTime validFrom = new ItemTypeDateTime("VALID_FROM", date, time,
                 IItemType.TYPE_PUBLIC, "", International.getString("Neue Version gültig ab") );
+
             if (SimpleInputDialog.showInputDialog(this, International.getString("Gültigkeitsbeginn festlegen"), validFrom)) {
                 validFromTs = validFrom.getTimeStamp();
             }

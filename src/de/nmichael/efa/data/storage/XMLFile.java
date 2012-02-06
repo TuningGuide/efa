@@ -65,6 +65,7 @@ public class XMLFile extends DataFile {
             throw new EfaException(Logger.MSG_DATA_READFAILED, LogString.fileReadFailed(filename, storageLocation, "Cannot get Global Lock for File Reading"), Thread.currentThread().getStackTrace());
         }
         try {
+            clearAllData();
             SaxErrorHandler eh = new SaxErrorHandler(filename);
             XMLReader parser = EfaUtil.getXMLReader();
             XMLFileReader xmlFileReader = new XMLFileReader(this, lock);
@@ -92,7 +93,7 @@ public class XMLFile extends DataFile {
 
     protected static void writeFile(IDataAccess dataAccess, OutputStream out) throws EfaException {
         synchronized (dataAccess) {
-            StaticXmlInfo data = new StaticXmlInfo(dataAccess, out);
+            XmlFileInfo data = new XmlFileInfo(dataAccess, out);
             write(data, XmlHandler.XML_HEADER);
             write(data, xmltagStart(data, FIELD_GLOBAL));
             write(data, xmltagStart(data, FIELD_HEADER));
@@ -105,9 +106,7 @@ public class XMLFile extends DataFile {
             writeData(data);
             write(data, xmltagEnd(data, FIELD_GLOBAL));
             try {
-                if (data.fout != null) {
-                    data.fout.close();
-                }
+                data.close();
             } catch (IOException e) {
                 Logger.log(e);
                 throw new EfaException(Logger.MSG_DATA_WRITEFAILED,
@@ -117,7 +116,7 @@ public class XMLFile extends DataFile {
         }
    }
 
-    private static void writeData(StaticXmlInfo data) throws EfaException {
+    private static void writeData(XmlFileInfo data) throws EfaException {
         write(data, xmltagStart(data, FIELD_DATA));
 
         String[] fields = data.dataAccess.getFieldNames();
@@ -142,14 +141,10 @@ public class XMLFile extends DataFile {
         write(data, xmltagEnd(data, FIELD_DATA));
     }
 
-    private static void write(StaticXmlInfo data, String s) throws EfaException {
+    private static void write(XmlFileInfo data, String s) throws EfaException {
         try {
             String str = space(data) + s + "\n";
-            if (data.fout != null) {
-                data.fout.write(str);
-            } else {
-                data.out.write(str.getBytes(XMLFile.ENCODING));
-            }
+            data.write(str);
         } catch(Exception e) {
             Logger.log(e);
             throw new EfaException(Logger.MSG_DATA_WRITEFAILED, 
@@ -158,23 +153,23 @@ public class XMLFile extends DataFile {
         }
     }
 
-    private static String xmltagStart(StaticXmlInfo data, String tag) {
+    private static String xmltagStart(XmlFileInfo data, String tag) {
         data.indent++;
         return "<" + tag + ">";
     }
 
-    private static String xmltagEnd(StaticXmlInfo data, String tag) {
+    private static String xmltagEnd(XmlFileInfo data, String tag) {
         data.indent--;
         return "</" + tag + ">";
     }
 
-    private static String xmltag(StaticXmlInfo data, String tag, String value) {
+    private static String xmltag(XmlFileInfo data, String tag, String value) {
         return xmltagStart(data, tag) +
                 EfaUtil.escapeXml(value) +
                 xmltagEnd(data, tag);
     }
  
-    private static String space(StaticXmlInfo data) {
+    private static String space(XmlFileInfo data) {
         if (doIndent) {
             String s = "";
             for (int i=0; i<data.lastindent && i<data.indent; i++) {
@@ -188,20 +183,23 @@ public class XMLFile extends DataFile {
 
 }
 
-class StaticXmlInfo {
+class XmlFileInfo {
 
     IDataAccess dataAccess;
-    OutputStream out;
-    // BufferedWriter is more efficient for files; only used if out is an instance of FileOutputStream
-    BufferedWriter fout;
     int indent, lastindent;
+    private OutputStream out;
+    private BufferedWriter fout;
+    private BufferedWriter fout2;
+    private String mirrorFile;
 
-    public StaticXmlInfo(IDataAccess dataAccess, OutputStream out) {
+    public XmlFileInfo(IDataAccess dataAccess, OutputStream out) {
         this.dataAccess = dataAccess;
         this.out = out;
+        // BufferedWriter is more efficient for files; only used if out is an instance of FileOutputStream
         if (out instanceof FileOutputStream) {
             try {
                 fout = new BufferedWriter(new OutputStreamWriter(out, XMLFile.ENCODING));
+                fout2 = getMirrorFile();
             } catch (Exception e) {
                 fout = null;
             }
@@ -209,4 +207,70 @@ class StaticXmlInfo {
         indent = 0;
         lastindent = 0;
     }
+
+    private BufferedWriter getMirrorFile() {
+        try {
+            String mirrorDir = Daten.efaConfig.getValueDataMirrorDirectory();
+            if (mirrorDir != null && mirrorDir.length() > 0 && dataAccess instanceof XMLFile &&
+                    new File(mirrorDir).exists()) {
+                String relativeFilename = ((XMLFile) dataAccess).mirrorRelativeFilename;
+                if (relativeFilename == null || relativeFilename.length() == 0) {
+                    return null;
+                }
+                mirrorFile = mirrorDir + (mirrorDir.endsWith(Daten.fileSep) ? "" : Daten.fileSep)
+                                       + relativeFilename;
+                File f = new File(mirrorFile);
+                f.getParentFile().mkdirs();
+                ((XMLFile) dataAccess).createBackupFile(mirrorFile);
+                return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(mirrorFile), XMLFile.ENCODING));
+            }
+        } catch (Exception e) {
+            Logger.log(Logger.WARNING, Logger.MSG_DATA_WRITEFAILED,
+                    LogString.fileWritingFailed(mirrorFile, International.getString("Spiegeldatei"),
+                    e.toString()));
+        }
+        return null;
+    }
+
+    private void writeMirror(String s) {
+        try {
+            fout2.write(s);
+        } catch(Exception e) {
+            Logger.log(Logger.WARNING, Logger.MSG_DATA_WRITEFAILED,
+                    LogString.fileWritingFailed(mirrorFile, International.getString("Spiegeldatei"),
+                    e.toString()));
+        }
+    }
+
+    private void closeMirror() {
+        try {
+            fout2.close();
+        } catch(Exception e) {
+            Logger.log(Logger.WARNING, Logger.MSG_DATA_WRITEFAILED,
+                    LogString.fileCloseFailed(mirrorFile, International.getString("Spiegeldatei"),
+                    e.toString()));
+        }
+    }
+
+    public void write(String s) throws IOException {
+        if (fout != null) {
+            fout.write(s);
+            if (fout2 != null) {
+                writeMirror(s);
+            }
+        } else {
+            out.write(s.getBytes(XMLFile.ENCODING));
+        }
+    }
+
+    public void close() throws IOException {
+        if (fout != null) {
+            fout.close();
+            if (fout2 != null) {
+                closeMirror();
+            }
+        }
+        // no need to close out, only fout!
+    }
+    
 }

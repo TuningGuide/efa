@@ -41,7 +41,6 @@ public class DRVConfig extends DatenListe {
   public static final String KEYSTORE_FILE  = "keystore.dat";
 
   // Daten, die gespeichert werden
-  public String datenDirectory;
   public int aktJahr;
   public String schluessel;
   public String efw_script;
@@ -78,7 +77,6 @@ public class DRVConfig extends DatenListe {
 
   // Einstellungen zurücksetzen
   void reset() {
-    datenDirectory = "";
     aktJahr = 0;
     schluessel = "";
     efw_script = "";
@@ -125,8 +123,6 @@ public class DRVConfig extends DatenListe {
       while ((s = freadLine()) != null) {
         s = s.trim();
 
-        if (s.startsWith("DATEN_DIRECTORY="))
-            datenDirectory=s.substring(16,s.length()).trim();
         if (s.startsWith("AKTJAHR="))
             aktJahr=EfaUtil.string2int(s.substring(8,s.length()).trim(),0);
         if (s.startsWith("SCHLUESSEL="))
@@ -181,7 +177,6 @@ public class DRVConfig extends DatenListe {
   public boolean writeEinstellungen() {
     // Datei schreiben
     try {
-      fwrite("DATEN_DIRECTORY=" + datenDirectory + "\n");
       fwrite("AKTJAHR=" + aktJahr + "\n");
       fwrite("SCHLUESSEL=" + schluessel + "\n");
       fwrite("EFW_SCRIPT=" + efw_script + "\n");

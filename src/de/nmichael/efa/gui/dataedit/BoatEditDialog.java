@@ -33,7 +33,7 @@ public class BoatEditDialog extends VersionizedDataEditDialog {
         _keyAction(evt);
     }
 
-    boolean saveRecord() throws InvalidValueException {
+    protected boolean saveRecord() throws InvalidValueException {
         boolean success = super.saveRecord();
         if (success) {
             if (newRecord && dataRecord != null) {

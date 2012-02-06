@@ -384,9 +384,9 @@ public class BrowserDialog extends BaseDialog {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
             cancel(false);
         }
-        if (!locked) {
-            super.processWindowEvent(e);
-        }
+//        if (!locked) {
+//            super.processWindowEvent(e);
+//        }
     }
 
     void unlock() {

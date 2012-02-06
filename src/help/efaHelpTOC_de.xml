@@ -6,12 +6,9 @@
 <toc version="2.0">
 <tocitem text="efa - elektronisches Fahrtenbuch" image="toplevelfolder">
 
-   <tocitem text="Einführung" target="t1"/>
-
-   <tocitem text="Tutorial" target="t2" expand="true">
-       <tocitem text="Einführung in efa (@dummy)" target="t3"/>
-       <tocitem text="Kapitel 1: Fahrtenbücher verwalten (@dummy)" target="t4"/>
-       <tocitem text="Kapitel 2: Statistiken erstellen (@dummy)" target="t5"/>
+   <tocitem text="Einführung" expand="true">
+       <tocitem text="Über efa" target="default"/>
+       <tocitem text="Installation" target="install"/>
    </tocitem>
 
 </tocitem>

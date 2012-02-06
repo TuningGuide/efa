@@ -165,6 +165,7 @@ public class AdminDialog extends BaseDialog implements IItemListener {
             boolean permission = EfaMenuButton.menuAction(this, action, admin, efaBoathouseFrame.getLogbook());
 
             if (action.equals(EfaMenuButton.BUTTON_EXIT) && permission) {
+
                 efaBoathouseFrame.cancel(null, EfaBoathouseFrame.EFA_EXIT_REASON_USER, admin, EfaMenuButton.getLastBooleanValue());
                 return;
             }

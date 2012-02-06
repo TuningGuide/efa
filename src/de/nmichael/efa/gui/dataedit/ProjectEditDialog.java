@@ -86,7 +86,7 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog {
         _keyAction(evt);
     }
 
-    boolean saveRecord() throws InvalidValueException {
+    protected boolean saveRecord() throws InvalidValueException {
         for (IItemType item : getItems()) {
             if (!item.isValidInput() && item.isVisible()) {
                 throw new InvalidValueException(item, item.getInvalidErrorText());

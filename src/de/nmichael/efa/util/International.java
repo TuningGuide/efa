@@ -283,6 +283,9 @@ public class International {
     public static String getString(String s, ResourceBundle bundle) {
         return getString(s, true, false, false, bundle);
     }
+    public static String getStringWithoutAnyEscaping(String s) {
+        return EfaUtil.replace(getString(s), "&&", "&", true);
+    }
 
     public static String onlyFor(String s, String lang) {
         if (getLanguageID().startsWith(lang)) {

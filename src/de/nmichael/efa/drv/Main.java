@@ -48,6 +48,19 @@ public class Main extends Program {
                 Daten.haltProgram(Daten.HALT_EFACONFIG);
             }
 
+        Logger.log(Logger.INFO, Logger.MSG_INFO_CONFIGURATION,
+                "efa.dir.main=" + Daten.efaMainDirectory);
+        Logger.log(Logger.INFO, Logger.MSG_INFO_CONFIGURATION,
+                "efa.dir.user=" + Daten.efaBaseConfig.efaUserDirectory);
+        Logger.log(Logger.INFO, Logger.MSG_INFO_CONFIGURATION,
+                "efa.dir.data=" + Daten.efaDataDirectory);
+        Logger.log(Logger.INFO, Logger.MSG_INFO_CONFIGURATION,
+                "efa.dir.cfg=" + Daten.efaCfgDirectory);
+        Logger.log(Logger.INFO, Logger.MSG_INFO_CONFIGURATION,
+                "user.home=" + System.getProperty("user.home"));
+        Logger.log(Logger.INFO, Logger.MSG_INFO_CONFIGURATION,
+                "user.dir=" + System.getProperty("user.dir"));
+
         EfaDRVFrame frame = new EfaDRVFrame();
         frame.pack();
         //Center the window

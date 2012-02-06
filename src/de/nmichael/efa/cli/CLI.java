@@ -31,6 +31,7 @@ public class CLI {
     public static final String MENU_BOATS        = "boats";
     public static final String MENU_PERSONS      = "persons";
     public static final String MENU_DESTINATIONS = "destinations";
+    public static final String MENU_STATISTICS   = "statistics";
     public static final String MENU_BACKUP       = "backup";
 
     public static final int RC_OK                            =  0;
@@ -201,7 +202,7 @@ public class CLI {
                 }
                 loginfo("Opening Remote Project " + project + " ...");
                 Project prj = new Project(IDataAccess.TYPE_FILE_XML, Daten.efaTmpDirectory, "cli");
-                prj.open(true);
+                prj.create();
                 prj.setEmptyProject("cli");
                 prj.setProjectDescription("dummy project created by cli");
                 prj.setProjectStorageType(IDataAccess.TYPE_EFA_REMOTE);
@@ -265,6 +266,9 @@ public class CLI {
         }
         if (mymenu.equals(MENU_DESTINATIONS)) {
             return de.nmichael.efa.cli.MenuDestinations.class;
+        }
+        if (mymenu.equals(MENU_STATISTICS)) {
+            return de.nmichael.efa.cli.MenuStatistics.class;
         }
         if (mymenu.equals(MENU_BACKUP)) {
             return de.nmichael.efa.cli.MenuBackup.class;

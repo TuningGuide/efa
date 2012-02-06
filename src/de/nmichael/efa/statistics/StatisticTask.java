@@ -134,7 +134,11 @@ public class StatisticTask extends ProgressTask {
         } else {
             Zielfahrt destArea = null;
             if (entryDestinationAreas != null && entryDestinationAreas.getAnzZielfahrten() > 0) {
-                destArea = entryDestinationAreas.getZielfahrt(0); // @todo (P4) statistics - warn if more than 1!!
+                destArea = entryDestinationAreas.getZielfahrt(0);
+                if (entryDestinationAreas.getAnzZielfahrten() > 1) {
+                    sr.cWarnings.put("Fahrt #"+entryNo.toString() + " hat zu viele Zielfahrten; überzählige Zielbereiche werden ignoriert.",
+                            "foo");
+                }
             }
             if (destArea != null) {
                 sd.sessionHistory.addSession(r, destArea);
@@ -829,7 +833,10 @@ public class StatisticTask extends ProgressTask {
     private void createStatistic(StatisticsRecord sr, int statisticsNumber) {
         this.sr = sr;
         sr.prepareStatisticSettings();
-        logInfo(International.getMessage("Erstelle Statistik für den Zeitraum {from} bis {to} ...", sr.sStartDate.toString(), sr.sEndDate.toString()) + "\n");
+        logInfo(International.getMessage("Erstelle Statistik für den Zeitraum {from} bis {to} ...", 
+                sr.sStartDate.toString(), sr.sEndDate.toString()) + "\n", false, true);
+        logInfo(International.getString("Erstelle Statistik ..."),
+                true, false);
         if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.competition) {
             sr.cCompetition = Competition.getCompetition(sr);
         }
@@ -868,6 +875,12 @@ public class StatisticTask extends ProgressTask {
         this.start();
         if (progressDialog != null) {
             progressDialog.showDialog();
+        } else {
+            try {
+                this.join();
+            } catch(Exception e) {
+                Logger.logdebug(e);
+            }
         }
     }
 
@@ -906,7 +919,9 @@ public class StatisticTask extends ProgressTask {
             StatisticTask statisticTask = new StatisticTask(sr);
             ProgressDialog progressDialog = (parentFrame != null ?
                 new ProgressDialog(parentFrame, International.getString("Statistik erstellen"), statisticTask, true, true) :
-                new ProgressDialog(parentDialog, International.getString("Statistik erstellen"), statisticTask, true, true) );
+                (parentDialog != null ? 
+                    new ProgressDialog(parentDialog, International.getString("Statistik erstellen"), statisticTask, true, true)
+                    : null));
             statisticTask.createStatistics(progressDialog);
     }
 }

@@ -79,7 +79,7 @@ public abstract class ProgressTask extends Thread {
     }
 
     public void logInfo(String s, boolean toScreen, boolean toFile) {
-        if (toScreen) {
+        if (toScreen && progressDialog != null) {
             progressDialog.logInfo(s);
         }
         if (toFile && f != null) {
@@ -92,7 +92,9 @@ public abstract class ProgressTask extends Thread {
 
     public void setCurrentWorkDone(int i) {
         this.currentWorkDone = i;
-        progressDialog.setCurrentWorkDone(i);
+        if (progressDialog != null) {
+            progressDialog.setCurrentWorkDone(i);
+        }
     }
 
     public abstract String getSuccessfullyDoneMessage();

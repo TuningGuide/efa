@@ -67,6 +67,12 @@ public class Program {
         }
     }
 
+    private void printArgs(String[] args) {
+        for (int i=0; i<args.length; i++) {
+            System.out.println("ARGS[" + i + "] = " + args[i]);
+        }
+    }
+
     public void checkArgs(String[] args) {
         for (int i = 0; i < args.length; i++) {
 
@@ -108,6 +114,11 @@ public class Program {
             }
             if (args[i].equals("-exc")) {
                 Daten.exceptionTest = true;
+                args[i] = null;
+                continue;
+            }
+            if (args[i].equals("-printargs")) {
+                printArgs(args);
                 args[i] = null;
                 continue;
             }

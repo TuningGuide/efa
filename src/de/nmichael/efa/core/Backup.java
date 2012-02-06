@@ -89,6 +89,9 @@ public class Backup {
         int successful = 0;
         for (IDataAccess data : dataAccesses) {
             try {
+                if (!data.isStorageObjectOpen()) {
+                    data.openStorageObject();
+                }
                 BackupMetaDataItem meta = data.saveToZipFile(dir, zipOut);
                 backupMetaData.addMetaDataItem(meta);
                 successful++;
@@ -188,6 +191,9 @@ public class Backup {
                         LogString.fileRestoreFailed(meta.getNameAndType(),
                         meta.getDescription(),  "DataAccess not found"));
                 return false;
+            }
+            if (!dataAccess.isStorageObjectOpen()) {
+                dataAccess.openStorageObject();
             }
 
             XMLFile zipDataAccess = new XMLFile(zipFile + "@@",

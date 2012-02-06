@@ -35,6 +35,7 @@ public class ImportAddresses extends ImportBase {
 
     public boolean runImport() {
         Adressen adr = new Adressen(efa1fname);
+        adr.dontEverWrite();
         try {
             Hashtable<String,String> h = new Hashtable<String,String>();
             logInfo(International.getMessage("Importiere {list} aus {file} ...", getDescription(), efa1fname));

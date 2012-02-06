@@ -266,6 +266,9 @@ public class Fahrtenbuch extends DatenListe {
     if (fbDaten.bootDatei.equals("")) fbDaten.boote = null;
     else {
       fbDaten.boote = new Boote(EfaUtil.makeFullPath(fbPath,fbDaten.bootDatei));
+      if (DONTEVERWRITE) {
+          fbDaten.boote.dontEverWrite();
+      }
       if (neuErstellen && !EfaUtil.canOpenFile(fbDaten.boote.getFileName())) fbDaten.boote.writeFile();
       if (!fbDaten.boote.readFile()) fbDaten.bootDatei= null;
     }
@@ -274,6 +277,9 @@ public class Fahrtenbuch extends DatenListe {
     if (fbDaten.mitgliederDatei.equals("")) fbDaten.mitglieder = null;
     else {
       fbDaten.mitglieder = new Mitglieder(EfaUtil.makeFullPath(fbPath,fbDaten.mitgliederDatei));
+      if (DONTEVERWRITE) {
+          fbDaten.mitglieder.dontEverWrite();
+      }
       if (neuErstellen && !EfaUtil.canOpenFile(fbDaten.mitglieder.getFileName())) fbDaten.mitglieder.writeFile();
       if (!fbDaten.mitglieder.readFile()) fbDaten.mitgliederDatei= null;
     }
@@ -282,6 +288,9 @@ public class Fahrtenbuch extends DatenListe {
     if (fbDaten.zieleDatei.equals("")) fbDaten.ziele = null;
     else {
       fbDaten.ziele = new Ziele(EfaUtil.makeFullPath(fbPath,fbDaten.zieleDatei));
+      if (DONTEVERWRITE) {
+          fbDaten.ziele.dontEverWrite();
+      }
       if (neuErstellen && !EfaUtil.canOpenFile(fbDaten.ziele.getFileName())) fbDaten.ziele.writeFile();
       if (!fbDaten.ziele.readFile()) fbDaten.zieleDatei= null;
     }
@@ -290,6 +299,9 @@ public class Fahrtenbuch extends DatenListe {
     if (fbDaten.statistikDatei.equals("")) fbDaten.statistik = null;
     else {
       fbDaten.statistik = new StatSave(EfaUtil.makeFullPath(fbPath,fbDaten.statistikDatei));
+      if (DONTEVERWRITE) {
+          fbDaten.statistik.dontEverWrite();
+      }
       if (neuErstellen && !EfaUtil.canOpenFile(fbDaten.statistik.getFileName())) fbDaten.statistik.writeFile();
       if (!fbDaten.statistik.readFile()) fbDaten.statistikDatei= null;
     }

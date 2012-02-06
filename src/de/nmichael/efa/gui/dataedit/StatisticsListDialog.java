@@ -29,6 +29,8 @@ public class StatisticsListDialog extends DataListDialog {
 
     public static final int ACTION_CREATESTATISTICS = 901; // negative actions will not be shown as popup actions
     public static final int ACTION_ONETIMESTATISTIC = 902; // negative actions will not be shown as popup actions
+    public static final int ACTION_MOVEUP          = 1001; // positive actions > 1000 will *only* be shown as popup
+    public static final int ACTION_MOVEDOWN        = 1002; // positive actions > 1000 will *only* be shown as popup
 
     private AdminRecord admin;
 
@@ -69,14 +71,18 @@ public class StatisticsListDialog extends DataListDialog {
                         ItemTypeDataRecordTable.ACTIONTEXT_EDIT,
                         ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
                         International.getString("Statistik erstellen"),
-                        International.getString("Einmalige Statistik")
+                        International.getString("Einmalige Statistik"),
+                        International.getString("eine Position hoch"),
+                        International.getString("eine Position runter")
                     };
             actionType = new int[]{
                         ItemTypeDataRecordTable.ACTION_NEW,
                         ItemTypeDataRecordTable.ACTION_EDIT,
                         ItemTypeDataRecordTable.ACTION_DELETE,
                         ACTION_CREATESTATISTICS,
-                        ACTION_ONETIMESTATISTIC
+                        ACTION_ONETIMESTATISTIC,
+                        ACTION_MOVEUP,
+                        ACTION_MOVEDOWN
                     };
         } else {
             actionText = new String[]{
@@ -114,11 +120,19 @@ public class StatisticsListDialog extends DataListDialog {
                 StatisticsRecord srtmp = (StatisticsRecord)Daten.project.getStatistics(false).createStatisticsRecord(UUID.randomUUID());
                 StatisticsEditDialog dlg = new StatisticsEditDialog(this, srtmp, true, true, admin);
                 dlg.showDialog();
-                if (dlg.getDialogResult()) {
-                    sr = new StatisticsRecord[1];
-                    sr[0] = srtmp;
-                    StatisticTask.createStatisticsTask(null, this, sr);
+                break;
+            case ACTION_MOVEUP:
+            case ACTION_MOVEDOWN:
+                if (records == null || records.length == 0 || records[0] == null) {
+                    return;
                 }
+                if (records.length > 1) {
+                    Dialog.error(International.getString("Bitte wähle nur einen Datensatz aus!"));
+                    return;
+                }
+                ((Statistics)persistence).moveRecord((StatisticsRecord)records[0],
+                        (actionId == ACTION_MOVEUP ? -1 : 1));
+                break;
         }
     }
 

@@ -207,7 +207,7 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
         // The storageType of the project's content (set through prj.setProjectStorageType(storageType)) may differ.
         Project prj = new Project(prjName.getValue());
         try {
-            prj.open(true);
+            prj.create();
             prj.setEmptyProject(prjName.getValue());
 
             // Project Properties

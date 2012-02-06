@@ -14,6 +14,7 @@ import de.nmichael.efa.data.*;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.UUID;
 
@@ -189,7 +190,57 @@ public class Audit extends Thread {
         }
     }
 
+    private int runAuditStatistics() {
+        int errors = 0;
+        try {
+            Statistics statistics = project.getStatistics(false);
+            Hashtable<Integer,StatisticsRecord> hash = new Hashtable<Integer,StatisticsRecord>();
+            DataKeyIterator it = statistics.dataAccess.getStaticIterator();
+            DataKey k = it.getFirst();
+            while (k != null) {
+                StatisticsRecord r = (StatisticsRecord)statistics.dataAccess.get(k);
+                hash.put(r.getPosition(), r);
+                k = it.getNext();
+            }
+            Integer[] positions = hash.keySet().toArray(new Integer[0]);
+            Arrays.sort(positions);
+            boolean needsReordering = false;
+            int expectedPos = 1;
+            for (int i = 0; i<positions.length; i++) {
+                if (positions[i] != expectedPos++) {
+                    needsReordering = true;
+                }
+            }
+            if (needsReordering) {
+                // we should be locking, but well.. so what. This is just a cleanup at startup that
+                // shouldn't happen anyhow
+                try {
+                    statistics.dataAccess.truncateAllData();
+                    expectedPos = 1;
+                    for (int i=0; i<positions.length; i++) {
+                        StatisticsRecord r = hash.get(positions[i]);
+                        r.setPosition(expectedPos++);
+                        statistics.dataAccess.add(r);
+                    }
+                } catch(Exception e) {
+                    Logger.logdebug(e);
+                    Logger.log(Logger.ERROR,Logger.MSG_DATA_PROJECTCHECK,"runAuditStatistics() Caught Exception: " + e.toString());
+                    errors++;
+                }
+            }
+            return errors;
+        } catch (Exception e) {
+            Logger.logdebug(e);
+            Logger.log(Logger.ERROR,Logger.MSG_DATA_PROJECTCHECK,"runAuditStatistics() Caught Exception: " + e.toString());
+            return ++errors;
+        }
+    }
+
     public boolean runAudit() {
+        if (project == null || project.isInOpeningProject() || !project.isOpen() ||
+                project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+            return true;
+        }
         Logger.log(Logger.DEBUG,Logger.MSG_DATA_PROJECTCHECK,"Starting Project Audit for Project: " + project.getProjectName());
         int errors = 0;
         try {
@@ -209,6 +260,7 @@ public class Audit extends Thread {
 
             errors += runAuditBoats();
             errors += runAuditMessages();
+            errors += runAuditStatistics();
             // @todo (P4) AuditLogbook: check whether any name has a matching ID and replace by ID; also, check for deleted entries
         } catch(Exception e) {
             Logger.logdebug(e);

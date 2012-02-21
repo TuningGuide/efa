@@ -164,6 +164,8 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
             importModeUpd.displayOnGui(this, mainPanel, 0, 12);
         }
 
+        closeButton.setIcon(getIcon(BaseDialog.IMAGE_RUN));
+        closeButton.setIconTextGap(10);
     }
 
     public void keyAction(ActionEvent evt) {

@@ -23,7 +23,6 @@ public class ImportPersons extends ImportBase {
 
     private Mitglieder mitglieder;
     private ProjectRecord logbookRec;
-    private Hashtable<String,UUID> statusKeys = new Hashtable<String,UUID>();
 
     public ImportPersons(ImportTask task, Mitglieder mitglieder, ProjectRecord logbookRec) {
         super(task);
@@ -36,7 +35,7 @@ public class ImportPersons extends ImportBase {
     }
 
     private String getStatusKey(String name) {
-        UUID id = statusKeys.get(name);
+        UUID id = task.getStatusKey(name);
         return (id != null ? id.toString(): "");
     }
 
@@ -109,18 +108,33 @@ public class ImportPersons extends ImportBase {
             while (d != null) {
                 // First search, whether we have imported this person already
                 PersonRecord r = null;
+                String personName = PersonRecord.getFullName(d.get(Mitglieder.VORNAME),
+                        d.get(Mitglieder.NACHNAME), d.get(Mitglieder.VEREIN), true);
+                String mainPersonName = task.synMitglieder_getMainName(personName);
+                DataKey k = null;
                 DataKey[] keys = persons.data().getByFields(PersonRecord.IDX_NAME_NAMEAFFIX,
-                        persons.staticPersonRecord.getQualifiedNameValues(
-                            PersonRecord.getFullName(d.get(Mitglieder.VORNAME), d.get(Mitglieder.NACHNAME), d.get(Mitglieder.VEREIN), true)));
+                        persons.staticPersonRecord.getQualifiedNameValues(personName));
                 if (keys != null && keys.length > 0) {
                     // We've found one or more persons with same Name and Association.
                     // Since we're importing data from efa1, these persons are all identical, i.e. have the same ID.
                     // Therefore their key is identical, so we can just retrieve one person record with keys[0], which
                     // is valid for this logbook.
-                    r = (PersonRecord)persons.data().getValidAt(keys[0], validFrom);
+                    k = keys[0];
+                } else {
+                    // we have not found a person by this name that we imported already.
+                    // it could be, that there is a synonym, so look up this persons's main name
+                    // if it is different.
+                    // we don't replace a person's name with the synonym automatically, since we
+                    // want to preserve the original name (and used it to created multiple versionized
+                    // records). Other than with boats, where synonyms are used for kombiboote.
+                    k = task.synMitglieder_getKeyForMainName(mainPersonName);
+                }
+                if (k != null) {
+                    r = (PersonRecord)persons.data().getValidAt(k, validFrom);
                 }
 
                 if (r == null || isChanged(r, d)) {
+                    boolean newRecord = (r == null);
                     r = persons.createPersonRecord((r != null ? r.getId() : UUID.randomUUID()));
 
                     if (d.get(Mitglieder.VORNAME).length() > 0) {
@@ -151,7 +165,7 @@ public class ImportPersons extends ImportBase {
                         if (s.length() == 0) {
                             s = Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_OTHER);
                         }
-                        UUID statusId = statusKeys.get(s);
+                        UUID statusId = task.getStatusKey(s);
                         if (statusId == null && s.equals(Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST))) {
                             statusId = status.getStatusGuest().getId();
                         }
@@ -166,7 +180,7 @@ public class ImportPersons extends ImportBase {
                         }
                         if (statusId != null) {
                             r.setStatusId(statusId);
-                            statusKeys.put(s, statusId);
+                            task.setStatusKey(s, statusId);
                         }
                     
                     String address = task.getAddress(r.getFirstName() + " " + r.getLastName());
@@ -194,16 +208,21 @@ public class ImportPersons extends ImportBase {
                         r.setFreeUse1(d.get(Mitglieder.FREI1));
                     }
                     if (d.get(Mitglieder.FREI2).length() > 0) {
-                        r.setFreeUse1(d.get(Mitglieder.FREI2));
+                        r.setFreeUse2(d.get(Mitglieder.FREI2));
                     }
                     if (d.get(Mitglieder.FREI3).length() > 0) {
-                        r.setFreeUse1(d.get(Mitglieder.FREI3));
+                        r.setFreeUse3(d.get(Mitglieder.FREI3));
                     }
                     try {
                         persons.data().addValidAt(r, validFrom);
+                        task.synMitglieder_setKeyForMainName(mainPersonName, r.getKey());
                         logDetail(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                     } catch(Exception e) {
-                        logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
+                        if (newRecord) {
+                            logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
+                        } else {
+                            logWarning(International.getMessage("Änderung eines existierenden Eintrags fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
+                        }
                         Logger.logdebug(e);
                     }
                 } else {

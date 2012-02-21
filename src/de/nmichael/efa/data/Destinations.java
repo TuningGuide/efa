@@ -63,7 +63,13 @@ public class Destinations extends StorageObject {
             if (keys == null || keys.length < 1) {
                 return null;
             }
-            return (DestinationRecord)data().get(keys[0]);
+            for (int i=0; i<keys.length; i++) {
+                DestinationRecord r = (DestinationRecord)data().get(keys[i]);
+                if (r.isValidAt(validAt)) {
+                    return r;
+                }
+            }
+            return null;
         } catch(Exception e) {
             Logger.logdebug(e);
             return null;
@@ -117,7 +123,7 @@ public class Destinations extends StorageObject {
                 getProject().getClubAreaID() > 0) {
                 DestinationRecord dr = ((DestinationRecord)record);
                 if (dr.getStartIsBoathouse() && dr.getDestinationAreas() != null &&
-                    dr.getDestinationAreas().findZielbereich(getProject().getClubAreaID()) > 0) {
+                    dr.getDestinationAreas().findZielbereich(getProject().getClubAreaID()) >= 0) {
                     throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
                             "Eigener Zielbereich "+getProject().getClubAreaID()+" bei Fahrten ab eigenem Bootshaus nicht erlaubt.",
                             Thread.currentThread().getStackTrace());

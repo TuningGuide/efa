@@ -14,7 +14,9 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.Dialog;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -24,16 +26,46 @@ import javax.swing.*;
 // @i18n complete
 public class WatersListDialog extends DataListDialog {
 
+    public static final int ACTION_CREATEFROMTEMPLATE = 901; // negative actions will not be shown as popup actions
+
     public WatersListDialog(Frame parent, AdminRecord admin) {
         super(parent, International.getString("Gewässer"), Daten.project.getWaters(false), 0, admin);
+        addCreateWatersButton();
+        intelligentColumnWidth = false;
     }
 
     public WatersListDialog(JDialog parent, AdminRecord admin) {
         super(parent, International.getString("Gewässer"), Daten.project.getWaters(false), 0, admin);
+        addCreateWatersButton();
+        intelligentColumnWidth = false;
+    }
+
+    private void addCreateWatersButton() {
+        try {
+            if (Daten.project.getWaters(false).getResourceTemplate(International.getLanguageID()) != null) {
+                addAction(International.getString("Gewässerliste erstellen"),
+                        ACTION_CREATEFROMTEMPLATE,
+                        BaseDialog.IMAGE_SPECIAL);
+            }
+        } catch(Exception eignore) {
+        }
     }
 
     public void keyAction(ActionEvent evt) {
         _keyAction(evt);
+    }
+
+    public void itemListenerActionTable(int actionId, DataRecord[] records) {
+        super.itemListenerActionTable(actionId, records);
+        switch(actionId) {
+            case ACTION_CREATEFROMTEMPLATE:
+                int count = Daten.project.getWaters(false).addAllWatersFromTemplate(International.getLanguageID());
+                if (count > 0) {
+                    Dialog.infoDialog(International.getMessage("Gewässerliste mit {count} Gewässern erfolgreich erstellt.",
+                            count));
+                }
+                break;
+        }
     }
 
     public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record) {

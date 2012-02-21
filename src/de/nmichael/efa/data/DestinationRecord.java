@@ -155,6 +155,7 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
     public DataTypeList<UUID> getWatersIdList() {
         return getList(WATERSIDLIST, IDataAccess.DATA_UUID);
     }
+
     public String getWatersNamesStringList() {
         StringBuilder s = new StringBuilder();
         try {
@@ -174,6 +175,29 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
             Logger.logdebug(e);
             return "";
         }
+    }
+
+    public String getDestinationDetailsAsString() {
+        StringBuilder s = new StringBuilder();
+
+        String start = getStart();
+        String end   = getEnd();
+        if (start != null && start.length() > 0) {
+            s.append(start);
+        } else {
+            if (getStartIsBoathouse()) {
+                s.append(International.getString("Bootshaus"));
+            }
+        }
+        if (end != null && end.length() > 0) {
+            s.append(" - " + end);
+        } else {
+            s.append(" - ?");
+        }
+        if (getRoundtrip()) {
+            s.append(" (" + International.getString("Start gleich Ziel") + ")");
+        }
+        return s.toString();
     }
 
     public String getQualifiedName() {

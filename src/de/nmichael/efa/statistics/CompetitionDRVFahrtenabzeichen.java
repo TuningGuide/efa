@@ -136,6 +136,19 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
         return wanderfahrten;
     }
 
+    public static long getWanderfahrtenMeter(StatisticsData sd) {
+        Hashtable<String, DRVFahrt> wanderfahrten = getWanderfahrten(sd);
+        Object[] keys = wanderfahrten.keySet().toArray(); // Keys ermitteln
+        long totalWafaMeters = 0; // Wafa-Meter insgesamt
+        for (int k = 0; k < keys.length; k++) {
+            DRVFahrt drvFahrt = wanderfahrten.get(keys[k]);
+            if (drvFahrt.ok && !drvFahrt.jum) {
+                totalWafaMeters += drvFahrt.distanceInMeters;
+            }
+        }
+        return totalWafaMeters;
+    }
+
     // Ausgabedaten für Kilometerwettbewerbe erstellen
     // @i18n Methode wird nicht internationalisiert
     public void calculate(StatisticsRecord sr, StatisticsData[] sd) {
@@ -529,10 +542,10 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
                 }
             } else if (letzteElektronischeMeldung + 1 < sr.sCompYear) {
                 if (Dialog.yesNoDialog("Letzte elektronische Meldung?",
-                        "Die letzte in efa gespeicherte Bestätigungsdatei stammt aus dem Jahr\n"
-                        + letzteElektronischeMeldung + ". Eventuell in späteren Jahren gemeldete\n"
+                        "Die ausgewerteten Teilnehmer haben zum letzten Mal im Jahr " + letzteElektronischeMeldung + " ein\n"
+                        + "Fahrtenabzeichen erworben. Eventuell in späteren Jahren gemeldete\n"
                         + "Fahrtenabzeichen liegen efa nicht vor und werden daher NICHT berücksichtigt.\n\n"
-                        + "Ist es richtig, daß Du zum letzten Mal für das Jahr " + letzteElektronischeMeldung + " elektronisch gemeldet hast?") != Dialog.YES) {
+                        + "Ist es richtig, daß diese Teilnehmer keine neueren Fahrtenabzeichen haben?") != Dialog.YES) {
                     Dialog.infoDialog("Bestätigungsdatei abrufen",
                             "Anscheinend hast Du nach Deiner letzten elektronischen Meldung vergessen,\n"
                             + "die Bestätigungsdatei abzurufen. Rufe daher bitte zunächst unter\n"

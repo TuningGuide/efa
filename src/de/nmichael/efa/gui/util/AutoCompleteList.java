@@ -28,7 +28,7 @@ public class AutoCompleteList {
     private IDataAccess dataAccess;
     private long dataAccessSCN = -1;
     private long validFrom = -1;
-    private long validUntil = -1;
+    private long validUntil = Long.MAX_VALUE;
     private Vector<String> dataVisible = new Vector<String>();;
     private Hashtable<String,ValidInfo> name2valid = new Hashtable<String,ValidInfo>();
     private Hashtable<String,String> lower2realVisible = new Hashtable<String,String>();;
@@ -99,7 +99,9 @@ public class AutoCompleteList {
                                 add(s, alias, r.isInValidityRange(validFrom, validUntil), vi);
                             }
                         } else {
-                            add(s, alias, false, null);
+                            if (!r.getDeleted()) {
+                                add(s, alias, false, null);
+                            }
                         }
                     }
                     k = it.getNext();
@@ -122,14 +124,33 @@ public class AutoCompleteList {
         String lowers = s.toLowerCase();
         if (visibleInDropDown) {
             if (lower2realVisible.get(lowers) == null) {
+                // new name
                 dataVisible.add(s);
                 if (validInfo != null) {
                     name2valid.put(s, validInfo);
                 }
                 lower2realVisible.put(lowers, s);
-                if (alias != null && alias.length() > 0) {
-                    aliases2realVisible.put(alias.toLowerCase(), s);
+            } else {
+                // we already have this name; but it could be, that this name's validity
+                // increases the validity of the name we already have, so we need to
+                // check and increase it, if necessary.
+                if (validInfo != null) {
+                    ValidInfo prevValidInfo = name2valid.get(s);
+                    if (prevValidInfo != null) {
+                        if (validInfo.validFrom < prevValidInfo.validFrom) {
+                            prevValidInfo.validFrom = validInfo.validFrom;
+                        }
+                        if (validInfo.invalidFrom > prevValidInfo.invalidFrom) {
+                            prevValidInfo.invalidFrom = validInfo.invalidFrom;
+                        }
+                        name2valid.put(s, prevValidInfo);
+                    } else {
+                        name2valid.put(s, validInfo);
+                    }
                 }
+            }
+            if (alias != null && alias.length() > 0) {
+                aliases2realVisible.put(alias.toLowerCase(), s);
             }
         } else {
             lower2realInvisible.put(lowers, s);
@@ -259,7 +280,13 @@ public class AutoCompleteList {
                 if (keys == null || keys.length < 1) {
                     return null;
                 }
-                return dataAccess.get(keys[0]).getUniqueIdForRecord();
+                for (int i=0; i<keys.length; i++) {
+                    DataRecord r = dataAccess.get(keys[i]);
+                    if (r.isInValidityRange(validFrom, validUntil)) {
+                        return r.getUniqueIdForRecord();
+                    }
+                }
+                return null;
             }
         } catch(Exception e) {
             Logger.logdebug(e);

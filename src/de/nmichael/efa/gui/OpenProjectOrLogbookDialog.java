@@ -90,7 +90,8 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         list.displayOnGui(_parent, mainPanel, 0, 1);
 
         JButton newButton = new JButton();
-        Mnemonics.setButton(this, newButton, International.getString("Neu"));
+        Mnemonics.setButton(this, newButton, International.getString("Neu"),
+                BaseDialog.IMAGE_ADD);
         newButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 newButton_actionPerformed(e);
@@ -99,7 +100,9 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         mainPanel.add(newButton, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
                                     GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
         JButton openButton = new JButton();
-        Mnemonics.setButton(this, openButton, International.getString("Öffnen"));
+        Mnemonics.setButton(this, openButton, International.getString("Öffnen")
+                ,
+                BaseDialog.IMAGE_OPEN);
         openButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 openButton_actionPerformed(e);
@@ -109,7 +112,8 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
                                     GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
 
         JButton configureButton = new JButton();
-        Mnemonics.setButton(this, configureButton, International.getString("Einstellungen"));
+        Mnemonics.setButton(this, configureButton, International.getString("Einstellungen"),
+                BaseDialog.IMAGE_CONFIGURE);
         configureButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 configureButton_actionPerformed(e);
@@ -119,7 +123,8 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
                                     GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
 
         JButton deleteButton = new JButton();
-        Mnemonics.setButton(this, deleteButton, International.getString("Löschen"));
+        Mnemonics.setButton(this, deleteButton, International.getString("Löschen"),
+                BaseDialog.IMAGE_DELETE);
         deleteButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 deleteButton_actionPerformed(e);

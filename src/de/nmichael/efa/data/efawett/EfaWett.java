@@ -10,6 +10,7 @@
 package de.nmichael.efa.data.efawett;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.data.Project;
 import de.nmichael.efa.util.*;
 import java.io.*;
 
@@ -116,6 +117,26 @@ public class EfaWett {
         aktive_W_ab19 = null;
         aktive_W_bis18 = null;
         EfaWettMeldung meldung = null;
+    }
+
+    public void setProjectSettings(Project prj) {
+        switch (wettId) {
+            case WettDefs.DRV_FAHRTENABZEICHEN:
+            case WettDefs.DRV_WANDERRUDERSTATISTIK:
+                verein_user = prj.getClubGlobalAssociationLogin();
+                break;
+            case WettDefs.LRVBERLIN_SOMMER:
+            case WettDefs.LRVBERLIN_WINTER:
+            case WettDefs.LRVBERLIN_BLAUERWIMPEL:
+                verein_user = prj.getClubRegionalAssociationLogin();
+                break;
+        }
+        verein_name = prj.getClubName();
+        meld_name = prj.getCompetitionSubmitterName();
+        meld_email = prj.getCompetitionSubmitterEmail();
+        versand_name = prj.getClubName();
+        versand_strasse = prj.getClubAddressStreet();
+        versand_ort = prj.getClubAddressCity();
     }
 
     public boolean writeFile() throws IOException {

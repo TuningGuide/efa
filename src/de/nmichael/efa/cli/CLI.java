@@ -211,7 +211,8 @@ public class CLI {
                 prj.setProjectStoragePassword(password);
                 prj.setProjectRemoteProjectName(project);
                 prj.close();
-                Project.openProject(new Project(IDataAccess.TYPE_FILE_XML, Daten.efaTmpDirectory, "cli"), "cli");
+                Project.openProject(new Project(IDataAccess.TYPE_FILE_XML, Daten.efaTmpDirectory, "cli"), 
+                        "cli", false);
                 if (Daten.project != null && Daten.project.isRemoteOpen()) {
                     loginfo("Remote Project opened.");
                     Daten.efaConfig.setValueLastProjectEfaCli(project);

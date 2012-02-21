@@ -269,10 +269,24 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
             }
 
             prj.close();
-            Project.openProject(prjName.getValue());
+            Project.openProject(prjName.getValue(), false);
             if (Daten.project != null) {
                 Dialog.infoDialog(LogString.fileSuccessfullyCreated(prjName.getValue(),
                         International.getString("Projekt")));
+                try {
+                    if (Daten.project.getWaters(false).getResourceTemplate(International.getLanguageID()) != null) {
+                        if (Dialog.yesNoDialog(International.getString("Gewässerliste erstellen"),
+                                 International.getString("Möchtest Du eine Gewässerliste mit Standardgewässern erstellen?")) == Dialog.YES) {
+                            int count = Daten.project.getWaters(false).addAllWatersFromTemplate(International.getLanguageID());
+                            if (count > 0) {
+                                Dialog.infoDialog(International.getMessage("Gewässerliste mit {count} Gewässern erfolgreich erstellt.",
+                                        count));
+                            }
+                        }
+                    }
+                } catch(Exception eignore) {
+                    Logger.logdebug(eignore);
+                }
             }
             setDialogResult(Daten.project != null);
         } catch(EfaException ee) {

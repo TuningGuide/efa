@@ -164,6 +164,9 @@ public class DataExportDialog extends BaseDialog {
         file.setPadding(0, 0, 0, 10);
         file.displayOnGui(this, filePanel, 3);
         mainPanel.add(filePanel, BorderLayout.SOUTH);
+
+        closeButton.setIcon(getIcon(BaseDialog.IMAGE_RUN));
+        closeButton.setIconTextGap(10);
     }
 
     public void keyAction(ActionEvent evt) {

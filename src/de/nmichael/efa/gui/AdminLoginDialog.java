@@ -100,6 +100,7 @@ public class AdminLoginDialog extends BaseDialog {
             }
 
         }
+        closeButton.setIcon(getIcon(IMAGE_ACCEPT));
     }
 
     public void keyAction(ActionEvent evt) {

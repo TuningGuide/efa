@@ -10,9 +10,13 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.ex.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.*;
 
 // @i18n complete
@@ -60,6 +64,73 @@ public class Waters extends StorageObject {
             Logger.logdebug(e);
         }
         return null;
+    }
+
+    public boolean addWatersRecord(String name, String details) {
+        try {
+            WatersRecord r = createWatersRecord(UUID.randomUUID());
+            r.setName(name);
+            r.setDetails(details);
+            dataAccess.add(r);
+            return true;
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return false;
+        }
+    }
+
+    public URL getResourceTemplate(String countryCode) {
+        try {
+            return Waters.class.getResource(Daten.DATATEMPLATEPATH + "Waters_" + countryCode + ".txt");
+        } catch(Exception e) {
+            return null;
+        }
+    }
+
+    public int addAllWatersFromTemplate(String countryCode) {
+        int count = 0;
+        try {
+            BufferedReader f = new BufferedReader(
+                    new InputStreamReader(
+                        getResourceTemplate(countryCode).openStream(),
+                        Daten.ENCODING_UTF));
+            String s;
+            String water = null;
+            StringBuilder details = null;
+            while ( (s = f.readLine()) != null) {
+                s = s.trim();
+                if (s.length() == 0 || s.startsWith("#")) {
+                    continue;
+                }
+                int pos = s.indexOf(";");
+                if (pos < 0) {
+                    continue;
+                }
+                if (pos > 0) {
+                    if (water != null && details != null) {
+                        if (addWatersRecord(water, details.toString())) {
+                            count++;
+                        }
+                    }
+                    water = s.substring(0, pos);
+                    details = new StringBuilder();
+                }
+                String detail = s.substring(pos + 1);
+                if (details != null) {
+                    details.append( (details.length() > 0 ? "; " : "") + detail);
+                }
+            }
+            if (water != null && details != null) {
+                if (addWatersRecord(water, details.toString())) {
+                    count++;
+                }
+            }
+            return count;
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return -1;
+
+        }
     }
 
     public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {

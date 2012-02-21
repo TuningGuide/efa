@@ -22,6 +22,43 @@ import javax.swing.border.*;
 // @i18n complete
 public abstract class BaseDialog extends JDialog implements ActionListener {
 
+    public static final String IMAGE_ACCEPT    = "button_accept.png";
+    public static final String IMAGE_ADD       = "button_add.png";
+    public static final String IMAGE_CANCEL    = "button_cancel.png";
+    public static final String IMAGE_CLOSE     = "button_close.png";
+    public static final String IMAGE_DELETE    = "button_delete.png";
+    public static final String IMAGE_EDIT      = "button_edit.png";
+    public static final String IMAGE_PRINT     = "button_print.png";
+    public static final String IMAGE_SELECT    = "button_select.png";
+    public static final String IMAGE_HIDE      = "button_hide.png";
+    public static final String IMAGE_IMPORT    = "button_import.png";
+    public static final String IMAGE_EXPORT    = "button_export.png";
+    public static final String IMAGE_LIST      = "button_list.png";
+    public static final String IMAGE_CALENDAR  = "button_calendar.png";
+    public static final String IMAGE_DOWNLOAD  = "button_download.png";
+    public static final String IMAGE_CONFIGURE = "button_configure.png";
+    public static final String IMAGE_SETTINGS  = "button_settings.png";
+    public static final String IMAGE_OPEN      = "button_open.png";
+    public static final String IMAGE_FIRST     = "button_first.png";
+    public static final String IMAGE_NEXT      = "button_next.png";
+    public static final String IMAGE_PREV      = "button_prev.png";
+    public static final String IMAGE_LAST      = "button_last.png";
+    public static final String IMAGE_BACK      = "button_back.png";
+    public static final String IMAGE_FORWARD   = "button_forward.png";
+    public static final String IMAGE_RUNEXPORT = "button_runexport.png";
+    public static final String IMAGE_RUNIMPORT = "button_runimport.png";
+    public static final String IMAGE_HELP      = "button_help.png";
+    public static final String IMAGE_RUN       = "button_run.png";
+    public static final String IMAGE_STAT      = "button_stat.png";
+    public static final String IMAGE_MARKREAD  = "button_markread.png";
+    public static final String IMAGE_MFORWARD  = "button_mforward.png";
+    public static final String IMAGE_REPAIR    = "button_repair.png";
+    public static final String IMAGE_LOGOUT    = "button_logout.png";
+    public static final String IMAGE_DAMAGE    = "button_damage.png";
+    public static final String IMAGE_SEARCH    = "button_search.png";
+    public static final String IMAGE_SEARCHNEXT= "button_searchnext.png";
+    public static final String IMAGE_SPECIAL   = "button_special.png";
+
     protected Window _parent;
     protected String _title;
     protected String _closeButtonText;
@@ -164,6 +201,12 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
         if (closeButtonText != null) {
             closeButton = new JButton();
             Mnemonics.setButton(this, closeButton, closeButtonText);
+            if (closeButtonText.equals(International.getStringWithMnemonic("OK"))) {
+                closeButton.setIcon(getIcon(IMAGE_ACCEPT));
+            } else {
+                closeButton.setIcon(getIcon(IMAGE_CLOSE));
+            }
+            closeButton.setIconTextGap(10);
             closeButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     closeButton_actionPerformed(e);

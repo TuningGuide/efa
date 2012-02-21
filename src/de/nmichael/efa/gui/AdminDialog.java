@@ -52,6 +52,8 @@ public class AdminDialog extends BaseDialog implements IItemListener {
         menuOutput.setLayout(new GridBagLayout());
         JPanel menuInfo = new JPanel();
         menuInfo.setLayout(new GridBagLayout());
+        JPanel menuDeveloper = new JPanel();
+        menuDeveloper.setLayout(new GridBagLayout());
         JPanel panel = null;
 
         Vector<EfaMenuButton> menuButtons = EfaMenuButton.getAllMenuButtons(admin, true);
@@ -73,6 +75,9 @@ public class AdminDialog extends BaseDialog implements IItemListener {
                 }
                 if (menuButton.getMenuName().equals(EfaMenuButton.MENU_INFO)) {
                     panel = menuInfo;
+                }
+                if (menuButton.getMenuName().equals(EfaMenuButton.MENU_DEVELOPMENT)) {
+                    panel = menuDeveloper;
                 }
                 if (panel == null) {
                     continue;
@@ -124,7 +129,15 @@ public class AdminDialog extends BaseDialog implements IItemListener {
                 new GridBagConstraints(1, 0, 1, 3, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                 new Insets(10, 10, 10, 10), 0, 0));
+        if (Daten.efaConfig.getDeveloperFunctionsActivated()) {
+            centerPanel.add(menuDeveloper,
+                    new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                    new Insets(10, 10, 10, 10), 0, 0));
+        }
         mainPanel.add(centerPanel, BorderLayout.CENTER);
+        closeButton.setIcon(getIcon(IMAGE_LOGOUT));
+        closeButton.setIconTextGap(10);
     }
 
     private void iniNorthPanel() {

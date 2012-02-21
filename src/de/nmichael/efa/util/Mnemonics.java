@@ -10,10 +10,9 @@
 
 package de.nmichael.efa.util;
 
-import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.gui.BaseDialog;
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
 
 // @i18n complete
 
@@ -116,6 +115,26 @@ public class Mnemonics {
       char key = getMnemonic(w, s, b, null);
       if (key != 0x0) {
           b.setMnemonic(key);
+      }
+  }
+
+  public static void setButton(Window w, AbstractButton b, String s, String icon) {
+      if (w == null || b == null) return;
+      if (s != null) {
+          b.setText(stripMnemonics(s));
+          char key = getMnemonic(w, s, b, null);
+          if (key != 0x0) {
+              b.setMnemonic(key);
+          }
+      }
+      if (icon != null) {
+          b.setIcon(BaseDialog.getIcon(icon));
+          if (s != null) {
+              b.setIconTextGap(10);
+              b.setHorizontalAlignment(SwingConstants.LEFT);
+          } else {
+              b.setMargin(new Insets (0, 20, 0, 20));
+          }
       }
   }
 

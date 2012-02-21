@@ -29,6 +29,7 @@ public class ItemTypeTextArea extends ItemType {
     protected int labelGridFill = GridBagConstraints.NONE;
     protected Font labelFont;
     protected Font fieldFont;
+    protected boolean wrap;
 
     public ItemTypeTextArea(String name, String value, int type,
             String category, String description) {
@@ -66,6 +67,10 @@ public class ItemTypeTextArea extends ItemType {
         field = new JTextArea();
         ((JTextArea)field).setEditable(isEditable);
         ((JTextArea)field).setDisabledTextColor(Color.black);
+        if (wrap) {
+            ((JTextArea) field).setWrapStyleWord(true);
+            ((JTextArea) field).setLineWrap(true);
+        }
         field.setEnabled(isEnabled && isEditable);
         scrollPane.getViewport().add(field, null);        
         if (backgroundColor != null) {
@@ -201,6 +206,10 @@ public class ItemTypeTextArea extends ItemType {
         if (field != null) {
             field.setEnabled(enabled);
         }
+    }
+
+    public void setWrap(boolean wrap) {
+        this.wrap = wrap;
     }
 
 }

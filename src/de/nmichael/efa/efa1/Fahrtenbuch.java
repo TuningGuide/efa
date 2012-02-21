@@ -210,6 +210,13 @@ public class Fahrtenbuch extends DatenListe {
                   fa = EfaTypes.TYPE_SESSION_NORMAL;
               } else {
                   fa = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, d.get(FAHRTART));
+                  if (fa != null && fa.equals(EfaTypes.TYPE_SESSION_TOUR)) {
+                      // Bugfix: Als Fahrtart war "Mehrtagesfahrt" eingetragen; dies ist in efa2
+                      // ein vorbelegter Begriff. Wenn wir das jetzt zu "TOUR" ändern, geht der
+                      // Name der Mehrtagesfahrt verloren, und damit die Metadaten.
+                      // Statt dessen müssen wir ein "TOUR:Mehrtagesfahrt" daraus machen!
+                      fa = EfaTypes.TYPE_SESSION_TOUR + ":" + d.get(FAHRTART);
+                  }
                   if (fa == null && Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, EfaTypes.TYPE_SESSION_TOUR)) {
                       if (d.get(FAHRTART).startsWith("Mehrtagesfahrt: konfigurieren!!")) {
                           fa = CONFIGURE_MTOUR + d.get(FAHRTART).substring("Mehrtagesfahrt: konfigurieren!!".length());

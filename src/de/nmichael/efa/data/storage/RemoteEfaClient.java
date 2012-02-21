@@ -113,7 +113,7 @@ public class RemoteEfaClient extends DataAccess {
         }
 
         StringBuffer request = new StringBuffer();
-        request.append("<?xml version='1.0' encoding='UTF-8' ?>");
+        request.append("<?xml version='1.0' encoding='" + Daten.ENCODING_UTF + "' ?>");
         request.append("<" + RemoteEfaParser.XML_EFA + ">");
         for (int i=0; i<requests.size(); i++) {
             request.append(requests.get(i).toString());
@@ -142,7 +142,9 @@ public class RemoteEfaClient extends DataAccess {
         connection.setUseCaches(false);
         connection.setAllowUserInteraction(true);
         connection.setRequestProperty("Content-Type", "application/xml"); //"application/x-www-form-urlencoded");
-        OutputStreamWriter out = new OutputStreamWriter(RemoteEfaMessage.getOutputStream(connection.getOutputStream()));
+        OutputStreamWriter out = new OutputStreamWriter(
+                RemoteEfaMessage.getOutputStream(connection.getOutputStream()),
+                Daten.ENCODING_UTF);
         out.write(request.toString());
         out.flush();
         out.close();

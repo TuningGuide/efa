@@ -31,6 +31,7 @@ public class StatisticXMLWriter extends StatisticWriter {
     public static final String FIELD_HEADER_DATARANGE = "DateRange";
     public static final String FIELD_HEADER_CONSIDEREDENTRIES = "ConsideredEntries";
     public static final String FIELD_HEADER_FILTER = "Filter";
+    public static final String FIELD_HEADER_IGNORED = "Ignored";
 
     public static final String FIELD_DATA = "Data";
     public static final String FIELD_ITEM = "Item";
@@ -43,7 +44,8 @@ public class StatisticXMLWriter extends StatisticWriter {
     public static final String FIELD_ITEM_SESSIONS = "Sessions";
     public static final String FIELD_ITEM_AVGDISTANCE = "AvgDistance";
     public static final String FIELD_ITEM_DESTINATIONAREAS = "DestinationAreas";
-
+    public static final String FIELD_ITEM_WANDERFARTEN = "WanderfahrtKm";
+    
     public static final String FIELD_LOGBOOK = "Logbook";
     public static final String FIELD_RECORD = "Record";
     public static final String FIELD_RECORD_ENTRYNO = "EntryNo";
@@ -201,6 +203,10 @@ public class StatisticXMLWriter extends StatisticWriter {
             write(f, indent, xmltag(FIELD_HEADER_DATARANGE, sr.pStatDateRange));
             write(f, indent, xmltag(FIELD_HEADER_CONSIDEREDENTRIES, sr.pStatConsideredEntries));
             write(f, indent, xmltag(FIELD_HEADER_FILTER, sr.pStatFilter));
+            if (sr.pStatIgnored != null && sr.pStatIgnored.size() > 0) {
+                write(f, indent, xmltag(FIELD_HEADER_IGNORED, Integer.toString(sr.pStatIgnored.size())));
+            }
+
             write(f, indent, xmltagEnd(FIELD_HEADER));
 
             // Write Competition
@@ -264,6 +270,7 @@ public class StatisticXMLWriter extends StatisticWriter {
                         write(f, indent, xmltag(FIELD_ITEM_SESSIONS, sd[i].sSessions));
                         write(f, indent, xmltag(FIELD_ITEM_AVGDISTANCE, sd[i].sAvgDistance));
                         write(f, indent, xmltag(FIELD_ITEM_DESTINATIONAREAS, sd[i].sDestinationAreas));
+                        write(f, indent, xmltag(FIELD_ITEM_WANDERFARTEN, sd[i].sWanderfahrten));
                         write(f, indent, xmltagEnd(FIELD_ITEM));
                     }
                     if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook) {

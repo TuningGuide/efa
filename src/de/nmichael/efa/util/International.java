@@ -153,6 +153,10 @@ public class International {
         }
     }
 
+    public static String getBundleFilename(String languageId) {
+        return Daten.efaProgramDirectory + BUNDLE_NAME + "_" + languageId + ".properties";
+    }
+
     public static String[] getLanguageBundles() {
         if (Daten.efaProgramDirectory == null) {
             // not yet initialized
@@ -164,6 +168,9 @@ public class International {
         }
         File dir = new File(Daten.efaProgramDirectory);
         File[] files = dir.listFiles();
+        if (files == null) {
+            return null;
+        }
         ArrayList<String> bundles = new ArrayList<String>();
         for (File f : files) {
             String name = f.getName();
@@ -480,6 +487,11 @@ public class International {
         } catch(Exception e) {
             return "unknown"; // do not internationalize
         }
+    }
+
+    public static String getLanguageDescription(String langId) {
+        Locale loc = new Locale(langId);
+        return loc.getDisplayName();
     }
 
     public static String getLanguageID() {

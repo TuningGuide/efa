@@ -17,6 +17,7 @@ public abstract class StatisticWriter {
 
     protected StatisticsRecord sr;
     protected StatisticsData[] sd;
+    protected String resultMessage;
 
     public StatisticWriter(StatisticsRecord sr, StatisticsData[] sd) {
         this.sd = sd;
@@ -45,5 +46,9 @@ public abstract class StatisticWriter {
     }
 
     public abstract boolean write();
+
+    public String getResultMessage() {
+        return resultMessage;
+    }
 
 }

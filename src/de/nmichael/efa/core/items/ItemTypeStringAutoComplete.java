@@ -421,7 +421,8 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
                     new String[] { International.getString("Ersetzen"),
                                    International.getString("Abbruch") },
                     new int[] { SimpleOptionInputDialog.OPTION_OK,
-                                SimpleOptionInputDialog.OPTION_CANCEL })) {
+                                SimpleOptionInputDialog.OPTION_CANCEL },
+                                null)) {
                 String suggestedName = item.getSelectedText();
                 if (suggestedName != null && suggestedName.length() > 0) {
                     this.parseAndShowValue(suggestedName);

@@ -218,7 +218,7 @@ public class SessionGroupRecord extends DataRecord {
     }
 
     public Vector<IItemType> getGuiItems(AdminRecord admin) {
-        String CAT_BASEDATA     = "%01%" + International.getString("Reservierung");
+        String CAT_BASEDATA     = "%01%" + International.getString("Fahrtgruppe");
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
 

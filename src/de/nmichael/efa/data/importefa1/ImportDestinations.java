@@ -76,17 +76,32 @@ public class ImportDestinations extends ImportBase {
             while (d != null) {
                 // First search, whether we have imported this destination already
                 DestinationRecord r = null;
+                String destinationName = d.get(Ziele.NAME);
+                String mainDestinationName = task.synZiele_getMainName(destinationName);
+                DataKey k = null;
                 DataKey[] keys = destinations.data().getByFields(IDXD,
-                        new String[] { d.get(Boote.NAME) });
+                        new String[] { destinationName });
                 if (keys != null && keys.length > 0) {
                     // We've found one or more destinations with same Name.
                     // Since we're importing data from efa1, these destinations are all identical, i.e. have the same ID.
                     // Therefore their key is identical, so we can just retrieve one destination record with keys[0], which
                     // is valid for this logbook.
-                    r = (DestinationRecord)destinations.data().getValidAt(keys[0], validFrom);
+                    k = keys[0];
+                } else {
+                    // we have not found a person by this name that we imported already.
+                    // it could be, that there is a synonym, so look up this persons's main name
+                    // if it is different.
+                    // we don't replace a person's name with the synonym automatically, since we
+                    // want to preserve the original name (and used it to created multiple versionized
+                    // records). Other than with boats, where synonyms are used for kombiboote.
+                    k = task.synZiele_getKeyForMainName(mainDestinationName);
+                }
+                if (k != null) {
+                    r = (DestinationRecord)destinations.data().getValidAt(k, validFrom);
                 }
 
                 if (r == null || isChanged(r, d)) {
+                    boolean newRecord = (r == null);
                     r = destinations.createDestinationRecord((r != null ? r.getId() : UUID.randomUUID()));
                     r.setName(EfaUtil.replace(d.get(Ziele.NAME),"+","&",true));
                     r.setDistance(DataTypeDistance.parseDistance(d.get(Ziele.KM) + DataTypeDistance.KILOMETERS));
@@ -125,9 +140,14 @@ public class ImportDestinations extends ImportBase {
                     }
                     try {
                         destinations.data().addValidAt(r, validFrom);
+                        task.synZiele_setKeyForMainName(mainDestinationName, r.getKey());
                         logDetail(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
                     } catch(Exception e) {
-                        logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
+                        if (newRecord) {
+                            logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
+                        } else {
+                            logWarning(International.getMessage("Änderung eines existierenden Eintrags fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
+                        }
                         Logger.logdebug(e);
                     }
                 } else {

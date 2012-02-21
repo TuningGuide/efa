@@ -93,6 +93,9 @@ public class VersionizedDataChangeValidityDialog extends BaseDialog implements I
         validUntil.setNotNull(rNext != null);
 
         validUntil.displayOnGui(this, mainPanel, 0, 2);
+
+        closeButton.setIcon(getIcon(BaseDialog.IMAGE_ACCEPT));
+        closeButton.setIconTextGap(10);
     }
 
     boolean checkValidFrom() {

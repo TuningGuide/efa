@@ -9,14 +9,15 @@
  */
 package de.nmichael.efa.gui.util;
 
+import de.nmichael.efa.core.items.ITableEditListener;
 import de.nmichael.efa.gui.*;
+import de.nmichael.efa.util.Logger;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.event.*;
+import java.util.EventObject;
 import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.event.ChangeEvent;
 import javax.swing.table.*;
-import java.util.Vector;
 
 public class Table extends JTable {
 
@@ -26,6 +27,10 @@ public class Table extends JTable {
     TableItemHeader[] header;
     TableItem[][] data;
     private boolean dontResize = false;
+    private boolean[] columnEditable;
+    private ITableEditListener editListener;
+    private boolean toolTipsEnabled = false;
+    private boolean intelligentColumnWidthDisabled = false;
 
     public Table(BaseDialog dlg, TableSorter sorter, TableCellRenderer renderer, TableItemHeader[] header, TableItem[][] data) {
         super(sorter);
@@ -54,14 +59,54 @@ public class Table extends JTable {
     }
 
     public boolean isCellEditable(int row, int column) {
-        return false;
+        if (columnEditable == null || column < 0 || column >= columnEditable.length) {
+            return false;
+        }
+        return columnEditable[column];
+    }
+
+    public void setEditableColumns(boolean[] columns, ITableEditListener editListener) {
+        columnEditable = columns;
+        this.editListener = editListener;
+    }
+
+    public boolean editCellAt(int row, int column, EventObject e) {
+        return super.editCellAt(row, column, e);
+    }
+
+    /**
+     * This is certainly a very messy method, and it's not very elegant.
+     * But it works.
+     * DON'T CHANGE IT!!
+     */
+    public void editingStopped(ChangeEvent e) {
+        int row = editingRow;
+        int col = editingColumn;
+        super.editingStopped(e);
+        sortByColumn(getSortingColumn());
+        try {
+            int origRow = getOriginalIndex(row);
+            TableItem[] items = new TableItem[data[origRow].length];
+            for (int i=0; i<items.length; i++) {
+                items[i] = getTableItem(origRow, i);
+            }
+            items[col].setText(getValueAt(row, col).toString());
+            getModel().setValueAt(items[col], row, col);
+            sortByColumn(getSortingColumn());
+            editListener.tableEditListenerAction(null, items, origRow, col);
+            doLayout();
+        } catch (Exception ex) {
+            Logger.logdebug(ex);
+        }
     }
 
     public void doLayout() {
         super.doLayout();
         if (!dontResize) {
             dontResize = true;
-            setIntelligentColumnWidth();
+            if (!intelligentColumnWidthDisabled) {
+                setIntelligentColumnWidth();
+            }
             validate();
             dontResize = false;
         }
@@ -115,6 +160,10 @@ public class Table extends JTable {
 
     public TableItem getTableItem(int row, int col) {
         return data[row][col];
+    }
+
+    public TableItem[][] getTableData() {
+        return data;
     }
 
     private void cancel() {
@@ -171,6 +220,26 @@ public class Table extends JTable {
             }
             super.mousePressed(e);
         }
+    }
+
+    public String getToolTipText(MouseEvent event) {
+        try {
+            if (toolTipsEnabled) {
+                int row = rowAtPoint(event.getPoint());
+                int col = columnAtPoint(event.getPoint());
+                return getValueAt(row, col).toString();
+            }
+        } catch (Exception eignore) {
+        }
+        return null;
+    }
+
+    public void setToolTipsEnabled(boolean enabled) {
+        toolTipsEnabled = enabled;
+    }
+
+    public void disableIntelligentColumnWidth(boolean disabled) {
+        intelligentColumnWidthDisabled = disabled;
     }
 
 }

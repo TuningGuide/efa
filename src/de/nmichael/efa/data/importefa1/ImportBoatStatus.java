@@ -54,8 +54,8 @@ public class ImportBoatStatus extends ImportBase {
             DatenFelder d = bootStatus.getCompleteFirst();
             Hashtable<UUID,String> imported = new Hashtable<UUID,String>();
             while (d != null) {
-                String b = task.synBoote_genMainName(d.get(BootStatus.NAME));
-                UUID boatID = findBoat(boats, IDXB, b, true);
+                String b = task.synBoote_getMainName(d.get(BootStatus.NAME));
+                UUID boatID = findBoat(boats, IDXB, b, true, -1);
                 if (boatID != null && imported.get(boatID) == null) {
                     // normally the BoatStatusRecord should already have been created when the boat was created...
                     BoatStatusRecord rs = boatStatus.getBoatStatus(boatID);
@@ -138,7 +138,7 @@ public class ImportBoatStatus extends ImportBase {
                                 }
                             }
                             if (r.getForName() != null && r.getForName().length() > 0) {
-                                UUID id = findPerson(persons, IDXP, r.getForName(), false);
+                                UUID id = findPerson(persons, IDXP, r.getForName(), false, -1);
                                 if (id != null) {
                                     rr.setPersonId(id);
                                 } else {

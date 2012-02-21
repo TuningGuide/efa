@@ -26,6 +26,7 @@ public class StatisticCSVWriter extends StatisticWriter {
     public static final String FIELD_ITEM_SESSIONS = "Sessions";
     public static final String FIELD_ITEM_AVGDISTANCE = "AvgDistance";
     public static final String FIELD_ITEM_DESTINATIONAREAS = "DestinationAreas";
+    public static final String FIELD_ITEM_WANDERFARTEN = "WanderfahrtKm";
     public static final String FIELD_LOGBOOK = "Logbook";
     public static final String FIELD_RECORD = "Record";
     public static final String FIELD_RECORD_ENTRYNO = "EntryNo";
@@ -153,6 +154,9 @@ public class StatisticCSVWriter extends StatisticWriter {
                             if (sr.sIsAggrZielfahrten) {
                                 write(f, sd[i].sDestinationAreas);
                             }
+                            if (sr.sIsAggrWanderfahrten) {
+                                write(f, sd[i].sWanderfahrten);
+                            }
                         }
                         if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook) {
                             if (sd[i].logbookFields != null) {
@@ -169,6 +173,7 @@ public class StatisticCSVWriter extends StatisticWriter {
         } catch (IOException e) {
             Dialog.error(LogString.fileCreationFailed(sr.sOutputFile, International.getString("Ausgabedatei")));
             LogString.logError_fileCreationFailed(sr.sOutputFile, International.getString("Ausgabedatei"));
+            resultMessage = LogString.fileCreationFailed(sr.sOutputFile, International.getString("Statistik"));
             return false;
         } finally {
             try {
@@ -180,6 +185,7 @@ public class StatisticCSVWriter extends StatisticWriter {
         if (sr.sFileExecAfter != null && sr.sFileExecAfter.length() > 0) {
             EfaUtil.execCmd(sr.sFileExecAfter);
         }
+        resultMessage = LogString.fileSuccessfullyCreated(sr.sOutputFile, International.getString("Statistik"));
         return true;
     }
 }

@@ -52,7 +52,7 @@ public class ImportFahrtenabzeichen extends ImportBase {
             while (d != null) {
                 UUID personID = findPerson(persons, IDXP,
                         d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.VORNAME) + " " + d.get(de.nmichael.efa.efa1.Fahrtenabzeichen.NACHNAME),
-                        "", true);
+                        "", true, -1);
                 if (personID != null) {
                     // create new FahrtenabzeichenRecord
                     FahrtenabzeichenRecord r = fahrtenabzeichen.createFahrtenabzeichenRecord(personID);

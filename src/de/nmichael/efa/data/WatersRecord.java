@@ -29,6 +29,7 @@ public class WatersRecord extends DataRecord {
     public static final String ID                  = "Id";
     public static final String EFBID               = "EfbId";
     public static final String NAME                = "Name";
+    public static final String DETAILS             = "Details";
 
     public static final String[] IDX_NAME = new String[] { NAME };
 
@@ -39,6 +40,7 @@ public class WatersRecord extends DataRecord {
         f.add(ID);                                t.add(IDataAccess.DATA_UUID);
         f.add(EFBID);                             t.add(IDataAccess.DATA_STRING);
         f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
+        f.add(DETAILS);                           t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(Waters.DATATYPE, f, t, false);
         metaData.setKey(new String[] { ID });
         metaData.addIndex(IDX_NAME);
@@ -81,6 +83,13 @@ public class WatersRecord extends DataRecord {
         return getString(NAME);
     }
 
+    public void setDetails(String details) {
+        setString(DETAILS, details);
+    }
+    public String getDetails() {
+        return getString(DETAILS);
+    }
+
     public String[] getQualifiedNameFields() {
         return IDX_NAME;
     }
@@ -100,6 +109,10 @@ public class WatersRecord extends DataRecord {
         Vector<IItemType> v = new Vector<IItemType>();
         v.add(item = new ItemTypeString(WatersRecord.NAME, getName(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
+        v.add(item = new ItemTypeTextArea(WatersRecord.DETAILS, getDetails(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Details")));
+        ((ItemTypeTextArea)item).setFieldSize(400, 100);
+        ((ItemTypeTextArea)item).setWrap(true);
         if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
             v.add(item = new ItemTypeString(WatersRecord.EFBID, getEfbId(),
                     IItemType.TYPE_EXPERT, CAT_BASEDATA, International.onlyFor("Kanu-eFB ID","de")));
@@ -108,14 +121,16 @@ public class WatersRecord extends DataRecord {
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        TableItemHeader[] header = new TableItemHeader[1];
+        TableItemHeader[] header = new TableItemHeader[2];
         header[0] = new TableItemHeader(International.getString("Name"));
+        header[1] = new TableItemHeader(International.getString("Details"));
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
-        TableItem[] items = new TableItem[1];
+        TableItem[] items = new TableItem[2];
         items[0] = new TableItem(getName());
+        items[1] = new TableItem(getDetails());
         return items;
     }
 

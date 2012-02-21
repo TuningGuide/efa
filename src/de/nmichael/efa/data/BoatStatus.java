@@ -12,6 +12,7 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.data.types.DataTypeIntString;
 import de.nmichael.efa.ex.EfaModifyException;
 import java.util.*;
 
@@ -51,6 +52,20 @@ public class BoatStatus extends StorageObject {
             Logger.logdebug(e);
             return null;
         }
+    }
+
+    public BoatStatusRecord getBoatStatus(String logbookName, DataTypeIntString entryNo) {
+        try {
+            DataKey[] keys = dataAccess.getByFields(
+                    new String[]{BoatStatusRecord.LOGBOOK, BoatStatusRecord.ENTRYNO},
+                    new Object[]{logbookName, entryNo});
+            if (keys != null && keys.length > 0) {
+                return (BoatStatusRecord) dataAccess.get(keys[0]);
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return null;
     }
 
     public Vector<BoatStatusRecord> getBoats(String status) {

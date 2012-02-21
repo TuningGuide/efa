@@ -20,6 +20,7 @@ import org.xml.sax.helpers.*;
 
 public class KanuEfbXmlResponse extends XmlHandler {
 
+    public static String ROOT_ELEMENT = "xml";
     public static String LOGIN = "header"; // pseudo-field, only used for internal Hashtable
 
     private KanuEfbSyncTask efb;
@@ -35,12 +36,15 @@ public class KanuEfbXmlResponse extends XmlHandler {
     private String recordName;
 
     public KanuEfbXmlResponse(KanuEfbSyncTask efb) {
-        super("xml");
+        super(ROOT_ELEMENT);
         this.efb = efb;
     }
 
     public void startElement(String uri, String localName, String qname, Attributes atts) {
         super.startElement(uri, localName, qname, atts);
+        if (localName.equals(ROOT_ELEMENT)) {
+            return;
+        }
 
         if (inResponse && !inRecord) {
             inRecord = true;
@@ -71,7 +75,7 @@ public class KanuEfbXmlResponse extends XmlHandler {
 
         if (inRecord && recordName != null && 
                 (localName.equals(recordName) || 
-                 localName.equals("xml"))) { // make sure to also add record for login response, which doesn't really have a "recordName"
+                 localName.equals(ROOT_ELEMENT))) { // make sure to also add record for login response, which doesn't really have a "recordName"
             data.add(fields);
             fields = null;
             inRecord = false;

@@ -60,6 +60,8 @@ public class VersionizedDataDeleteDialog extends BaseDialog implements IItemList
                 IItemType.TYPE_PUBLIC, "", International.getString("Datensätze komplett löschen") );
         deleteAll.registerItemListener(this);
         deleteAll.displayOnGui(this, mainPanel, 0, 1);
+        closeButton.setIcon(getIcon(BaseDialog.IMAGE_ACCEPT));
+        closeButton.setIconTextGap(10);
     }
 
     public void itemListenerAction(IItemType itemType, AWTEvent event) {

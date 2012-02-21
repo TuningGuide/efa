@@ -108,6 +108,7 @@ public class EfaAboutDialog extends BaseDialog {
         });
         infoPanel.setLayout(new GridBagLayout());
         //infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 60, 10, 10));
+        /*
         emailLabel0.setText(International.getString("email") + ": ");
         emailLabel.setForeground(Color.blue);
         emailLabel.setText(Daten.EMAILINFO);
@@ -125,6 +126,7 @@ public class EfaAboutDialog extends BaseDialog {
                 emailLabel_mouseClicked(e);
             }
         });
+        */
         versionLabel.setForeground(Color.black);
         logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
         logoLabel.setHorizontalTextPosition(SwingConstants.CENTER);
@@ -164,8 +166,8 @@ public class EfaAboutDialog extends BaseDialog {
         infoPanel.add(urlLabel, new GridBagConstraints(2, 4, 3, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 1, 0));
         infoPanel.add(supportLabel0, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 1, 0));
         infoPanel.add(supportLabel, new GridBagConstraints(2, 5, 3, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 1, 0));
-        infoPanel.add(emailLabel0, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
-        infoPanel.add(emailLabel, new GridBagConstraints(2, 6, 3, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
+        //infoPanel.add(emailLabel0, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
+        //infoPanel.add(emailLabel, new GridBagConstraints(2, 6, 3, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
         infoPanel.add(gpl1Label, new GridBagConstraints(1, 7, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 0), 0, 0));
         infoPanel.add(gplLabel, new GridBagConstraints(3, 7, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 20, 20), 0, 0));
         infoPanel.add(devNoteLabel, new GridBagConstraints(1, 8, 4, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 20), 0, 0));
@@ -242,7 +244,7 @@ public class EfaAboutDialog extends BaseDialog {
         }
         languages.setEditable(false);
         languages.append(International.getString("efa wurde in die folgenden Sprachen übersetzt:") + "\n\n" + translations + "\n"
-                + International.getString("Bitte unterstütze uns bei der Übersetzung in weitere Sprachen!") + " email: " + Daten.EFADEVURL);
+                + International.getString("Bitte unterstütze uns bei der Übersetzung in weitere Sprachen!") + "\n" + Daten.EFADEVURL);
     }
 
     void label_mouseEntered(MouseEvent e) {

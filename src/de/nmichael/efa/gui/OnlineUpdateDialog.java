@@ -84,7 +84,8 @@ public class OnlineUpdateDialog extends BaseDialog {
         infoEditorPane.setText(info.toString());
 
         Mnemonics.setButton(this, downloadButton,
-                International.getString("Version aktualisieren"));
+                International.getString("Version aktualisieren"),
+                BaseDialog.IMAGE_DOWNLOAD);
         downloadButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 downloadButton_actionPerformed(e);

@@ -14,6 +14,7 @@ import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.statistics.StatisticTask;
+import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -47,11 +48,15 @@ public class StatisticsEditDialog extends UnversionizedDataEditDialog {
     public void closeButton_actionPerformed(ActionEvent e) {
         if (_dontSaveRecord) {
             try {
-                if (getValuesFromGui() && saveRecord()) {
+                getValuesFromGui();
+                if (saveRecord()) {
                     StatisticTask.createStatisticsTask(null, this,
-                            new StatisticsRecord[]{(StatisticsRecord) dataRecord});
+                            new StatisticsRecord[]{(StatisticsRecord) dataRecord},
+                            admin);
                 }
             } catch (Exception ex) {
+                Logger.logdebug(ex);
+                Dialog.error(ex.toString());
             }
         } else {
             super.closeButton_actionPerformed(e);

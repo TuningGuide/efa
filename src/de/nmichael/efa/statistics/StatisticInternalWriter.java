@@ -34,6 +34,7 @@ public class StatisticInternalWriter extends StatisticHTMLWriter {
                         "file:" + sr.sOutputFile, BROWSER_CLOSE_TIMEOUT);
             }
         }
+        resultMessage = null;
         return result;
     }
 

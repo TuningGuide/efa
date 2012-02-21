@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data.storage;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.Logger;

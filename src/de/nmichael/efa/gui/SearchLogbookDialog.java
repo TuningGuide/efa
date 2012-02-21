@@ -112,19 +112,39 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
         setItems(items);
     }
 
+    public static void initialize(EfaBaseFrame parent, Logbook logbook, DataKeyIterator iterator) {
+        efaBaseFrame = parent;
+        SearchLogbookDialog.logbook = logbook;
+        SearchLogbookDialog.it = iterator;
+    }
+
+    public static boolean isInitialized() {
+        if (efaBaseFrame == null || logbook == null || it == null) {
+            return false;
+        }
+        return true;
+    }
+
     public void keyAction(ActionEvent evt) {
         _keyAction(evt);
     }
 
-    public static void showSearchDialog(EfaBaseFrame parent, Logbook logbook, DataKeyIterator iterator) {
+    protected void iniDialog() throws Exception {
+        super.iniDialog();
+        closeButton.setIcon(getIcon(BaseDialog.IMAGE_SEARCH));
+    }
+
+    public static void showSearchDialog(EfaBaseFrame parent, Logbook logbook, DataKeyIterator iterator,
+            String searchString) {
         if (searchLogbookDialog == null || parent != efaBaseFrame) {
             searchLogbookDialog = new SearchLogbookDialog(parent);
         }
-        efaBaseFrame = parent;
-        SearchLogbookDialog.logbook = logbook;
-        SearchLogbookDialog.it = iterator;
+        initialize(parent, logbook, iterator);
         if (CAT_NORMAL.equals(searchLogbookDialog.getSelectedPanel(searchLogbookDialog.tabbedPane))) {
             searchLogbookDialog.setRequestFocus(searchLogbookDialog.sSearchText);
+        }
+        if (searchString != null) {
+            searchLogbookDialog.sSearchText.parseAndShowValue(searchString);
         }
         searchLogbookDialog.showDialog();
     }
@@ -188,24 +208,33 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
         return (f.indexOf(s) >= 0);
     }
 
-    private static void foundMatch(LogbookRecord r, IItemType item) {
+    private static void foundMatch(LogbookRecord r, IItemType item, boolean jumpToField) {
         efaBaseFrame.setFields(r);
-        item.requestFocus();
+        if (jumpToField) {
+            item.requestFocus();
+        }
     }
 
     public static boolean search() {
-        if (searchLogbookDialog == null || efaBaseFrame == null || logbook == null || it == null) {
+        if (searchLogbookDialog == null) {
             return false;
         }
         String s = searchLogbookDialog.sSearchText.getValue().trim().toLowerCase();
-        if (searchMode == SearchMode.normal && s.length() == 0) {
+        efaBaseFrame.toolBar_goToEntry.setText( (searchMode == SearchMode.normal ? s : ""));
+        return search(s, searchMode, true, true);
+    }
+
+    public static boolean search(String s, SearchMode mode, boolean startWithNext, boolean jumpToField) {
+        if (mode == SearchMode.normal && s.length() == 0) {
             Dialog.error(International.getString("Bitte gib einen Suchbegriff ein!"));
             return false;
         }
+        if (!isInitialized()) {
+            return false;
+        }
         try {
-            DataKey k;
+            DataKey k = (startWithNext ? it.getNext() : it.getCurrent());
             while (true) {
-                k = it.getNext();
                 if (k == null) {
                     if (JOptionPane.showConfirmDialog(efaBaseFrame, International.getString("Keinen Eintrag gefunden!") + ""
                             + "\n" + International.getString("Suche vom Anfang an fortsetzen?"),
@@ -218,86 +247,99 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
 
                 LogbookRecord r = logbook.getLogbookRecord(k);
                 if (r == null) {
+                    k = it.getNext();
                     continue;
                 }
-                if (searchMode == SearchMode.normal) {
-                    if (tryMatch(s, r.getEntryId(), searchLogbookDialog.sEntryno.getValue())) {
-                        foundMatch(r, efaBaseFrame.entryno);
+                if (mode == SearchMode.normal) {
+                    if (tryMatch(s, r.getEntryId(), 
+                            (searchLogbookDialog != null ? searchLogbookDialog.sEntryno.getValue() : true))) {
+                        foundMatch(r, efaBaseFrame.entryno, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, r.getDate(), searchLogbookDialog.sDate.getValue())) {
-                        foundMatch(r, efaBaseFrame.date);
+                    if (tryMatch(s, r.getDate(), 
+                            (searchLogbookDialog != null ? searchLogbookDialog.sDate.getValue() : true))) {
+                        foundMatch(r, efaBaseFrame.date, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, r.getEndDate(), searchLogbookDialog.sEnddate.getValue())) {
-                        foundMatch(r, efaBaseFrame.enddate);
+                    if (tryMatch(s, r.getEndDate(), 
+                            (searchLogbookDialog != null ? searchLogbookDialog.sEnddate.getValue() : true))) {
+                        foundMatch(r, efaBaseFrame.enddate, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, r.getBoatAsName(), searchLogbookDialog.sBoat.getValue())) {
-                        foundMatch(r, efaBaseFrame.boat);
+                    if (tryMatch(s, r.getBoatAsName(), 
+                            (searchLogbookDialog != null ? searchLogbookDialog.sBoat.getValue() : true))) {
+                        foundMatch(r, efaBaseFrame.boat, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, r.getCoxAsName(), searchLogbookDialog.sCox.getValue())) {
-                        foundMatch(r, efaBaseFrame.cox);
+                    if (tryMatch(s, r.getCoxAsName(), 
+                            (searchLogbookDialog != null ? searchLogbookDialog.sCox.getValue() : true))) {
+                        foundMatch(r, efaBaseFrame.cox, jumpToField);
                         return true;
                     }
                     for (int i = 0; i < LogbookRecord.CREW_MAX; i++) {
-                        if (tryMatch(s, r.getCrewAsName(i + 1), searchLogbookDialog.sCrew.getValue())) {
-                            foundMatch(r, efaBaseFrame.crew[i]);
+                        if (tryMatch(s, r.getCrewAsName(i + 1), 
+                                (searchLogbookDialog != null ? searchLogbookDialog.sCrew.getValue() : true))) {
+                            foundMatch(r, efaBaseFrame.crew[i], jumpToField);
                             return true;
                         }
                     }
-                    if (tryMatch(s, r.getStartTime(), searchLogbookDialog.sStarttime.getValue())) {
-                        foundMatch(r, efaBaseFrame.starttime);
+                    if (tryMatch(s, r.getStartTime(), 
+                            (searchLogbookDialog != null ? searchLogbookDialog.sStarttime.getValue() : true))) {
+                        foundMatch(r, efaBaseFrame.starttime, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, r.getEndTime(), searchLogbookDialog.sEndtime.getValue())) {
-                        foundMatch(r, efaBaseFrame.endtime);
+                    if (tryMatch(s, r.getEndTime(), 
+                            (searchLogbookDialog != null ? searchLogbookDialog.sEndtime.getValue() : true))) {
+                        foundMatch(r, efaBaseFrame.endtime, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, r.getDestinationAndVariantName(), searchLogbookDialog.sDestination.getValue())) {
-                        foundMatch(r, efaBaseFrame.destination);
+                    if (tryMatch(s, r.getDestinationAndVariantName(), 
+                            (searchLogbookDialog != null ? searchLogbookDialog.sDestination.getValue() : true))) {
+                        foundMatch(r, efaBaseFrame.destination, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, r.getDistance(), searchLogbookDialog.sDistance.getValue())) {
-                        foundMatch(r, efaBaseFrame.distance);
+                    if (tryMatch(s, r.getDistance(), 
+                            (searchLogbookDialog != null ? searchLogbookDialog.sDistance.getValue() : true))) {
+                        foundMatch(r, efaBaseFrame.distance, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, r.getComments(), searchLogbookDialog.sComments.getValue())) {
-                        foundMatch(r, efaBaseFrame.comments);
+                    if (tryMatch(s, r.getComments(), 
+                            (searchLogbookDialog != null ? searchLogbookDialog.sComments.getValue() : true))) {
+                        foundMatch(r, efaBaseFrame.comments, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, r.getSessionType()), searchLogbookDialog.sSessiontype.getValue())) {
-                        foundMatch(r, efaBaseFrame.sessiontype);
+                    if (tryMatch(s, Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, r.getSessionType()), 
+                            (searchLogbookDialog != null ? searchLogbookDialog.sSessiontype.getValue() : true))) {
+                        foundMatch(r, efaBaseFrame.sessiontype, jumpToField);
                         return true;
                     }
                 }
-                if (searchMode == SearchMode.special) {
-                    if (searchLogbookDialog.eIncomplete.getValue()) {
+                if (mode == SearchMode.special) {
+                    if (searchLogbookDialog != null && searchLogbookDialog.eIncomplete.getValue()) {
                         if (r.getBoatAsName() == null || r.getBoatAsName().length() == 0) {
-                            foundMatch(r, efaBaseFrame.boat);
+                            foundMatch(r, efaBaseFrame.boat, jumpToField);
                             return true;
                         }
                         if (r.getDestinationAndVariantName() == null || r.getDestinationAndVariantName().length() == 0) {
-                            foundMatch(r, efaBaseFrame.destination);
+                            foundMatch(r, efaBaseFrame.destination, jumpToField);
                             return true;
                         }
                         if (r.getDistance() == null || !r.getDistance().isSet()) {
-                            foundMatch(r, efaBaseFrame.distance);
+                            foundMatch(r, efaBaseFrame.distance, jumpToField);
                             return true;
                         }
                         if (r.getAllCoxAndCrewAsNames().size() == 0) {
-                            foundMatch(r, efaBaseFrame.crew[0]);
+                            foundMatch(r, efaBaseFrame.crew[0], jumpToField);
                             return true;
                         }
                     }
-                    if (searchLogbookDialog.eUnknownBoat.getValue()) {
+                    if (searchLogbookDialog != null && searchLogbookDialog.eUnknownBoat.getValue()) {
                         if (r.getBoatId() == null) {
-                            foundMatch(r, efaBaseFrame.boat);
+                            foundMatch(r, efaBaseFrame.boat, jumpToField);
                             return true;
                         }
                     }
-                    if (searchLogbookDialog.eUnknownPerson.getValue()) {
+                    if (searchLogbookDialog != null && searchLogbookDialog.eUnknownPerson.getValue()) {
                         for (int i = 0; i < LogbookRecord.CREW_MAX; i++) {
                             if (r.getCrewId(i) == null && r.getCrewName(i) != null && r.getCrewName(i).length() > 0) {
                                 if (searchLogbookDialog.eUnknownPersonIgnoreGuest.getValue() &&
@@ -305,35 +347,35 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
                                     continue;
                                 }
                                 if (i == 0) {
-                                    foundMatch(r, efaBaseFrame.cox);
+                                    foundMatch(r, efaBaseFrame.cox, jumpToField);
                                 } else {
-                                    foundMatch(r, efaBaseFrame.crew[i-1]);
+                                    foundMatch(r, efaBaseFrame.crew[i-1], jumpToField);
                                 }
                                 return true;
                             }
                         }
                     }
-                    if (searchLogbookDialog.eUnknownDestination.getValue()) {
+                    if (searchLogbookDialog != null && searchLogbookDialog.eUnknownDestination.getValue()) {
                         if (r.getDestinationId() == null) {
-                            foundMatch(r, efaBaseFrame.destination);
+                            foundMatch(r, efaBaseFrame.destination, jumpToField);
                             return true;
                         }
                     }
-                    if (searchLogbookDialog.eOpenEntry.getValue()) {
+                    if (searchLogbookDialog != null && searchLogbookDialog.eOpenEntry.getValue()) {
                         if (r.getDistance() != null && (!r.getDistance().isSet() || r.getDistance().getValueInMeters() == 0)) {
-                            foundMatch(r, efaBaseFrame.distance);
+                            foundMatch(r, efaBaseFrame.distance, jumpToField);
                             return true;
                         }
                     }
-                    if (searchLogbookDialog.eLargeDistance.getValue().getValueInMeters() > 0) {
+                    if (searchLogbookDialog != null && searchLogbookDialog.eLargeDistance.getValue().getValueInMeters() > 0) {
                         if (r.getDistance() != null && r.getDistance().isSet() &&
                             r.getDistance().getValueInMeters() >= searchLogbookDialog.eLargeDistance.getValue().getValueInMeters()) {
-                            foundMatch(r, efaBaseFrame.distance);
+                            foundMatch(r, efaBaseFrame.distance, jumpToField);
                             return true;
                         }
                     }
                 }
-
+                k = it.getNext();
             }
         } catch (Exception e) {
             Logger.logdebug(e);

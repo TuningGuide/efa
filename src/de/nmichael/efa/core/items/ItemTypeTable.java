@@ -20,7 +20,7 @@ import javax.swing.*;
 
 // @i18n complete
 
-public class ItemTypeTable extends ItemType implements ActionListener {
+public class ItemTypeTable extends ItemType implements ActionListener, ITableEditListener {
 
     protected String value;
 
@@ -37,6 +37,10 @@ public class ItemTypeTable extends ItemType implements ActionListener {
     protected int sortByColumn = 0;
     protected boolean ascending = true;
     protected int fontSize = -1;
+    private boolean[] columnEditable;
+    private ITableEditListener tableEditListener;
+    private boolean toolTipsEnabled = false;
+    private boolean intelligentColumnWidthDisabled = false;
 
     public ItemTypeTable(String name, TableItemHeader[] header, Hashtable<String,TableItem[]> items, String value,
             int type, String category, String description) {
@@ -120,6 +124,11 @@ public class ItemTypeTable extends ItemType implements ActionListener {
             } else {
                 table.sortByColumn(currentSortingColumn, currentSortingAscending);
             }
+            if (columnEditable != null) {
+                table.setEditableColumns(columnEditable, this);
+            }
+            table.setToolTipsEnabled(toolTipsEnabled);
+            table.disableIntelligentColumnWidth(intelligentColumnWidthDisabled);
         }
         if (scrollPane != null && table != null) {
             scrollPane.getViewport().add(table, null);
@@ -184,6 +193,10 @@ public class ItemTypeTable extends ItemType implements ActionListener {
             keys[i] = this.keys[rows[i]];
         }
         return keys;
+    }
+
+    public TableItem[][] getTableData() {
+        return (table != null ? table.getTableData() : null);
     }
 
     public void selectValue(String value) {
@@ -289,6 +302,28 @@ public class ItemTypeTable extends ItemType implements ActionListener {
 
     public void setFontSize(int fontSize) {
         this.fontSize = fontSize;
+    }
+
+    public void setEditableColumns(boolean[] columns) {
+        columnEditable = columns;
+    }
+
+    public void registerTableEditListener(ITableEditListener listener) {
+        this.tableEditListener = listener;
+    }
+
+    public void tableEditListenerAction(IItemType itemType, TableItem[] items, int row, int col) {
+        if (tableEditListener != null) {
+            tableEditListener.tableEditListenerAction(this, items, row, col);
+        }
+    }
+
+    public void setToolTipsEnabled(boolean enabled) {
+        toolTipsEnabled = enabled;
+    }
+
+    public void disableIntelligentColumnWidth(boolean disabled) {
+        intelligentColumnWidthDisabled = disabled;
     }
 
 }

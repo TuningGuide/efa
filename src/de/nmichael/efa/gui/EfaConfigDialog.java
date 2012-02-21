@@ -53,6 +53,11 @@ public class EfaConfigDialog extends BaseTabbedDialog {
         _keyAction(evt);
     }
     
+    protected void iniDialog() throws Exception {
+        super.iniDialog();
+        closeButton.setIcon(getIcon(BaseDialog.IMAGE_ACCEPT));
+        closeButton.setIconTextGap(10);
+    }
     public void closeButton_actionPerformed(ActionEvent e) {
         getValuesFromGui();
         synchronized (myEfaConfig) {

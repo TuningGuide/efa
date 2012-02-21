@@ -68,6 +68,8 @@ public class VersionizedDataCreateVersionDialog extends BaseDialog implements II
         validFrom.setReferenceDate(rDate, new DataTypeTime(0, 0, 0));
         validFrom.registerItemListener(this);
         validFrom.displayOnGui(this, mainPanel, 0, 1);
+        closeButton.setIcon(getIcon(BaseDialog.IMAGE_ACCEPT));
+        closeButton.setIconTextGap(10);
         validFrom.requestFocus();
     }
 

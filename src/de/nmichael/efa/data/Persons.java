@@ -69,7 +69,13 @@ public class Persons extends StorageObject {
             if (keys == null || keys.length < 1) {
                 return null;
             }
-            return (PersonRecord)data().get(keys[0]);
+            for (int i=0; i<keys.length; i++) {
+                PersonRecord r = (PersonRecord)data().get(keys[i]);
+                if (r.isValidAt(validAt)) {
+                    return r;
+                }
+            }
+            return null;
         } catch(Exception e) {
             Logger.logdebug(e);
             return null;
@@ -110,7 +116,7 @@ public class Persons extends StorageObject {
             DataKey k = it.getFirst();
             while (k != null) {
                 PersonRecord r = (PersonRecord) data().get(k);
-                if (r != null && r.isValidAt(validAt) && (!r.getDeleted() || alsoDeleted) && (!r.getInvisible() || alsoInvisible)) {
+                if (r != null && (r.isValidAt(validAt) || (r.getDeleted() && alsoDeleted)) && (!r.getInvisible() || alsoInvisible)) {
                     v.add(r);
                 }
                 k = it.getNext();

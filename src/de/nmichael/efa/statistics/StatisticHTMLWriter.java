@@ -62,13 +62,6 @@ public class StatisticHTMLWriter extends StatisticWriter {
             // Start des eigentlichen Bereichs
             f.write("<!--EFA-START-->\n");
 
-            if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.competition) {
-                f.write("<p align=\"center\"><b style=\"color:red\">Wettbewerbsauswertungen sind derzeit experimentell.<br>Bitte Fehler über 'Nachricht an Admin' melden. Danke!</b><p>\n");
-                if (sr.pCompGroupNames == null) {
-                    f.write("<p align=\"center\"><b style=\"color:red\">Diese Auswertung ist derzeit noch nicht möglich.<br>Ich bitte vielmals um Entschuldigung!</b><p>\n");
-                }
-            }
-
             f.write("<table align=\"center\" border>\n");
             f.write("<tr>");
             // Ausgabe des efa-Logos
@@ -103,6 +96,12 @@ public class StatisticHTMLWriter extends StatisticWriter {
                 f.write("<tr><td>"
                         + EfaUtil.replace(International.getString("Filter"), " ", "&nbsp;", true)
                         + ":</td><td><b>" + EfaUtil.replace(sr.pStatFilter,"\n","<br>",true) + "</b></td></tr>\n");
+            }
+            if (sr.pStatIgnored != null && sr.pStatIgnored.size() > 0) {
+                f.write("<tr><td colspan=\"2\">"
+                        + International.getMessage("{count} Personen oder Boote wurden von der Auswertung explizit ausgenommen.",
+                        sr.pStatIgnored.size())
+                        + "</td></tr>\n");
             }
             f.write("</table>\n<br><br>\n");
             
@@ -163,7 +162,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
                             + " (<i>gefordert: " + sr.pCompGroupNames[i][2] + "</i>)</th></tr>\n");
                     for (StatisticsData participant = sr.pCompParticipants[i]; participant != null; participant = participant.next) {
                         f.write("<tr><td width=\"10%\">&nbsp;</td>\n");
-                        if (participant.sDetailsArray == null) {
+                        if (participant.sDetailsArray == null || sr.sIsOutputCompWithoutDetails) {
                             // kurze Ausgabe
                             if (sr.sIsOutputCompWithoutDetails) {
                                 f.write("<td width=\"45%\" bgcolor=\"" + (participant.compFulfilled ? "#00ff00" : "#ffff00") + "\"><b>" + participant.sName + "</b></td>"
@@ -252,6 +251,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
                                 (sdMaximum != null && !sd[i].isSummary ? sdMaximum.avgDistance : 0),
                                 "green", sr.sAggrAvgDistanceBarSize);
                         outHTML(f, sd[i].sDestinationAreas, false, null);
+                        outHTML(f, sd[i].sWanderfahrten, false, null);
                         /*
                         outHTML(f, ae.anzversch, false, null);
                         outHTMLgra(f, ae, ae.km, ae.colspanKm);
@@ -274,9 +274,8 @@ public class StatisticHTMLWriter extends StatisticWriter {
                     if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook) {
                         if (sd[i].logbookFields != null) {
                             for (int j = 0; j < sd[i].logbookFields.length; j++) {
-                                if (sd[i].logbookFields[j] != null) {
-                                    outHTML(f, sd[i].logbookFields[j], false, null);
-                                }
+                                outHTML(f, (sd[i].logbookFields[j] != null
+                                        ? sd[i].logbookFields[j] : ""), false, null);
                             }
                         }
                     }
@@ -332,6 +331,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
         } catch (IOException e) {
             Dialog.error(LogString.fileCreationFailed(sr.sOutputFile, International.getString("Ausgabedatei")));
             LogString.logError_fileCreationFailed(sr.sOutputFile, International.getString("Ausgabedatei"));
+            resultMessage = LogString.fileCreationFailed(sr.sOutputFile, International.getString("Statistik"));
             return false;
         } finally {
             try {
@@ -343,6 +343,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
         if (sr.sFileExecAfter != null && sr.sFileExecAfter.length() > 0) {
             EfaUtil.execCmd(sr.sFileExecAfter);
         }
+        resultMessage = LogString.fileSuccessfullyCreated(sr.sOutputFile, International.getString("Statistik"));
         return true;
     }
 
@@ -352,7 +353,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
                     + (color != null ? " bgcolor=\"#" + color + "\"" : "")
                     + (right ? " align=\"right\"" : "")
                     + ">"
-                    + (s.length() > 0 ? EfaUtil.escapeXml(s) : "&nbsp;")
+                    + (s.length() > 0 ? EfaUtil.escapeHtml(s) : "&nbsp;")
                     + "</td>\n");
         }
     }
@@ -370,7 +371,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
                         "\" width=\"" + width + "\" height=\"20\" alt=\"\">&nbsp;");
             }
             if (s.length() > 0) {
-                f.write(EfaUtil.escapeXml(s));
+                f.write(EfaUtil.escapeHtml(s));
             }
             f.write("</td>\n");
         }
@@ -401,6 +402,5 @@ public class StatisticHTMLWriter extends StatisticWriter {
             f.write("</tr>\n");
         }
         f.write("</table><br>\n");
-
     }
 }

@@ -65,18 +65,18 @@ public class Project extends StorageObject {
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));
     }
 
-    public static boolean openProject(String projectName) {
-        return openProject(new Project(projectName), projectName);
+    public static boolean openProject(String projectName, boolean runAudit) {
+        return openProject(new Project(projectName), projectName, runAudit);
     }
 
-    public static boolean openProject(Project p, String projectName) {
+    public static boolean openProject(Project p, String projectName, boolean runAudit) {
         try {
             p._inOpeningProject = true;
             p.isRemoteOpen = false;
             p.open(false);
             Daten.project = p;
             p.openAllData();
-            if (p.getProjectStorageType() == IDataAccess.TYPE_FILE_XML) {
+            if (p.getProjectStorageType() == IDataAccess.TYPE_FILE_XML && runAudit) {
                 (new Audit(p)).start();
             }
             if (p.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
@@ -444,7 +444,7 @@ public class Project extends StorageObject {
         }
     }
 
-    public void closeAllStorageObjects() throws Exception {
+    public synchronized void closeAllStorageObjects() throws Exception {
         // close all of this project's storage objects
         Set<String> keys = persistenceCache.keySet();
         for (String key: keys) {
@@ -462,7 +462,7 @@ public class Project extends StorageObject {
         return getPersistence(c, storageObjectName, storageObjectType, createNewIfDoesntExist, description, false);
     }
 
-    private StorageObject getPersistence(Class c, String storageObjectName, String storageObjectType,
+    private synchronized StorageObject getPersistence(Class c, String storageObjectName, String storageObjectType,
             boolean createNewIfDoesntExist, String description, boolean silent) {
         if (_inDeleteProject) {
             return null;
@@ -597,6 +597,20 @@ public class Project extends StorageObject {
         return this.getPersistence(null, storageObjectName, storageObjectType, createNewIfDoesntExist, "Remote Request", true);
     }
 
+    public synchronized boolean isLogbookOpen(String logbookName) {
+        try {
+            String key = getPersistenceCacheKey(logbookName, Logbook.DATATYPE);
+            if (key == null) {
+                return false;
+            }
+            StorageObject p = persistenceCache.get(key);
+            return (p != null && p.isOpen());
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return false;
+        }
+    }
+
     public Logbook getLogbook(String logbookName, boolean createNewIfDoesntExist) {
         ProjectRecord rec = getLoogbookRecord(logbookName);
         if (rec == null) {
@@ -607,6 +621,11 @@ public class Project extends StorageObject {
         if (logbook != null) {
             logbook.setName(logbookName);
             logbook.setProjectRecord(rec);
+            if (Logger.isTraceOn(Logger.TT_CORE, 9)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_LOGBOOK,
+                        "Project.getLogbook(" + logbookName +"): hash " + logbook.hashCode());
+                Thread.currentThread().dumpStack();
+            }
         }
         return logbook;
     }
@@ -1323,6 +1342,14 @@ public class Project extends StorageObject {
         return getClubRecord().getAddressCity();
     }
 
+    public String getCompetitionSubmitterName() {
+        return getClubRecord().getAdminName();
+    }
+
+    public String getCompetitionSubmitterEmail() {
+        return getClubRecord().getAdminEmail();
+    }
+
     public String getClubRegionalAssociationName() {
         return getClubRecord().getRegionalAssociationName();
     }
@@ -1384,7 +1411,7 @@ public class Project extends StorageObject {
     }
 
 
-    public void setPreModifyRecordCallbackEnabled(boolean enabled) {
+    public synchronized void setPreModifyRecordCallbackEnabled(boolean enabled) {
         this.data().setPreModifyRecordCallbackEnabled(enabled);
         Set<String> keys = persistenceCache.keySet();
         for (String key: keys) {

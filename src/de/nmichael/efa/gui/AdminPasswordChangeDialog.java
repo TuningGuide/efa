@@ -90,6 +90,8 @@ public class AdminPasswordChangeDialog extends BaseDialog {
         passwordNew2.setMinCharacters(6);
         passwordNew2.displayOnGui(this, mainPanel, 0, 3);
 
+        closeButton.setIcon(getIcon(IMAGE_ACCEPT));
+        closeButton.setIconTextGap(10);
         setRequestFocus((passwordOld != null ? passwordOld : passwordNew1));
     }
 

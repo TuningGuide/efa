@@ -35,6 +35,12 @@ public class DataEditDialog extends BaseTabbedDialog {
         _keyAction(evt);
     }
 
+    protected void iniDialog() throws Exception {
+        super.iniDialog();
+        if (closeButton != null) {
+            closeButton.setIcon(getIcon("button_accept.png"));
+        }
+    }
     public void closeButton_actionPerformed(ActionEvent e) {
         getValuesFromGui();
         setDialogResult(true);

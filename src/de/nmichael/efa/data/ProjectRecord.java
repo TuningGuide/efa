@@ -539,7 +539,11 @@ public class ProjectRecord extends DataRecord {
                         International.getString("Anschrift") + " - "
                         + International.getString("Postleitzahl und Ort")));
                 if (Daten.efaConfig.getValueUseFunctionalityRowingBerlin()) {
-                    v.add(item = new ItemTypeInteger(ProjectRecord.AREAID, getAreaId(),
+                    int areaId = getAreaId();
+                    if (areaId < 1 || areaId > Zielfahrt.ANZ_ZIELBEREICHE) {
+                        areaId = 1;
+                    }
+                    v.add(item = new ItemTypeInteger(ProjectRecord.AREAID, areaId,
                             1, Zielfahrt.ANZ_ZIELBEREICHE, true,
                             IItemType.TYPE_PUBLIC, category,
                             International.onlyFor("eigener Zielbereich", "de")));
@@ -548,6 +552,28 @@ public class ProjectRecord extends DataRecord {
 
             }
             if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 2 || subtype == GUIITEMS_SUBTYPE_EFAWETT) {
+                if (subtype == GUIITEMS_SUBTYPE_EFAWETT) {
+                    // this is a dirty trick! Actually, we never use the fields ADMINNAME and ADMINEMAIL
+                    // in Club Records, only in ProjectRecords. In all other GUI's, these aren't visible
+                    // for Club Records; but here we prompt the user to submit an Online Competition, so
+                    // we need those. We simply store them in the Club Record, where they will remain
+                    // invisible until the user sends in the next competition...
+                    v.add(item = new ItemTypeString(ProjectRecord.ADMINNAME, getAdminName(),
+                            IItemType.TYPE_PUBLIC, category,
+                            International.getString("Dein Name")));
+                    item.setNotNull(true);
+                    if (getAdminName() == null && getAdminName().length() == 0) {
+                        item.setChanged(); // enforcing the check
+                    }
+                    v.add(item = new ItemTypeString(ProjectRecord.ADMINEMAIL, getAdminEmail(),
+                            IItemType.TYPE_PUBLIC, category,
+                            International.getString("Deine email-Adresse")));
+                    item.setNotNull(true);
+                    if (getAdminEmail() == null && getAdminEmail().length() == 0) {
+                        item.setChanged(); // enforcing the check
+                    }
+                }
+
                 v.add(item = new ItemTypeString(ProjectRecord.ASSOCIATIONGLOBALNAME, getGlobalAssociationName(),
                         IItemType.TYPE_PUBLIC, category,
                         International.getString("Dachverband") + " - "

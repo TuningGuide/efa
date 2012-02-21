@@ -16,6 +16,7 @@ import de.nmichael.efa.core.items.ItemTypeDataRecordTable;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.efawett.EfaWettClient;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -62,6 +63,16 @@ public class FahrtenabzeichenListDialog extends DataListDialog {
                     ACTION_EXPORT,
                     ACTION_PRINTLIST
                 };
+            actionImage = new String[] {
+                BaseDialog.IMAGE_ADD,
+                BaseDialog.IMAGE_EDIT,
+                BaseDialog.IMAGE_DELETE,
+                BaseDialog.IMAGE_DOWNLOAD,
+                BaseDialog.IMAGE_IMPORT,
+                BaseDialog.IMAGE_EXPORT,
+                BaseDialog.IMAGE_LIST
+                    };
+
     }
 
     public void keyAction(ActionEvent evt) {

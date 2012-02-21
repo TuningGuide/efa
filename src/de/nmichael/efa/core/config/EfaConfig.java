@@ -221,8 +221,11 @@ public class EfaConfig extends StorageObject {
     private ItemTypeBoolean useFunctionalityRowingBerlin;
     private ItemTypeBoolean useFunctionalityCanoeing;
     private ItemTypeBoolean useFunctionalityCanoeingGermany;
+    private ItemTypeBoolean developerFunctions;
     private ItemTypeFile efaUserDirectory;
     private ItemTypeStringList language;
+    private ItemTypeString translateLanguageWork;
+    private ItemTypeString translateLanguageBase;
     private ItemTypeAction typesResetToDefault;
     private ItemTypeAction typesAddAllDefaultRowingBoats;
     private ItemTypeAction typesAddAllDefaultCanoeingBoats;
@@ -236,6 +239,7 @@ public class EfaConfig extends StorageObject {
     private ItemTypeString kanuEfb_urlLogin;
     private ItemTypeString kanuEfb_urlRequest;
     private ItemTypeBoolean dataPreModifyRecordCallbackEnabled;
+    private ItemTypeBoolean dataAuditCorrectErrors;
     private ItemTypeFile dataMirrorDirectory;
     private ItemTypeBoolean dataRemoteEfaServerEnabled;
     private ItemTypeInteger dataRemoteEfaServerPort;
@@ -408,6 +412,11 @@ public class EfaConfig extends StorageObject {
             addParameter(lastProjectEfaCli = new ItemTypeString("LastProjectEfaCli", "",
                     IItemType.TYPE_INTERNAL,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_COMMON),
                     "Last project opened by efaCLI"));
+            addParameter(developerFunctions = new ItemTypeBoolean("DeveloperFunctions",
+                    false,
+                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_COMMON),
+                    International.getMessage("Funktionalitäten aktivieren für {sport}",
+                    International.getString("Entwicklung"))));
             addParameter(debugLogging = new ItemTypeBoolean("DebugLogging", false,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_COMMON),
                     International.getString("Debug-Logging aktivieren")));
@@ -858,6 +867,14 @@ public class EfaConfig extends StorageObject {
                     makeLanguageArray(STRINGLIST_VALUES), makeLanguageArray(STRINGLIST_DISPLAY),
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_LOCALE),
                     International.getString("Sprache")));
+            addParameter(translateLanguageWork = new ItemTypeString("TranslateLanguageWork", "",
+                    IItemType.TYPE_INTERNAL,BaseTabbedDialog.makeCategory(CATEGORY_LOCALE),
+                    "TranslateLanguageWork"));
+            addParameter(translateLanguageBase = new ItemTypeString("TranslateLanguageBase", "",
+                    IItemType.TYPE_INTERNAL,BaseTabbedDialog.makeCategory(CATEGORY_LOCALE),
+                    "TranslateLanguageBase"));
+
+
             addParameter(defaultDistanceUnit = new ItemTypeStringList("LocaleDefaultDistanceUnit", DataTypeDistance.KILOMETERS,
                     DataTypeDistance.makeDistanceUnitValueArray(), DataTypeDistance.makeDistanceUnitNamesArray(),
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_LOCALE),
@@ -938,7 +955,10 @@ public class EfaConfig extends StorageObject {
             addParameter(dataPreModifyRecordCallbackEnabled = new ItemTypeBoolean("DataPreModifyRecordCallbackEnabled", true,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS, CATEGORY_COMMON),
                     "PreModifyRecordCallbackEnabled"));
-
+            addParameter(dataAuditCorrectErrors = new ItemTypeBoolean("DataAuditCorrectErrors", true,
+                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS, CATEGORY_COMMON),
+                    "DataAuditCorrectErrors"));
+            
             addParameter(dataMirrorDirectory = new ItemTypeFile("DataMirrorDirectory", "",
                     International.getString("Spiegelverzeichnis für Datenkopie"),
                     International.getString("Verzeichnisse"),
@@ -1129,6 +1149,10 @@ public class EfaConfig extends StorageObject {
 
     public String getValueNameFormat() {
         return nameFormat.getValue();
+    }
+
+    public boolean getValueNameFormatIsFirstNameFirst() {
+        return getValueNameFormat().equals(NAMEFORMAT_FIRSTLAST);
     }
 
     public boolean getValueCorrectMisspelledNames() {
@@ -1584,6 +1608,11 @@ public class EfaConfig extends StorageObject {
         return useFunctionalityCanoeingGermany.getValue();
     }
 
+    public boolean getDeveloperFunctionsActivated() {
+        return developerFunctions.getValue();
+    }
+
+
     public String getValueEfaUserDirectory() {
         return efaUserDirectory.getValue();
     }
@@ -1644,6 +1673,10 @@ public class EfaConfig extends StorageObject {
         return dataPreModifyRecordCallbackEnabled.getValue();
     }
 
+    public boolean getValueDataAuditCorrectErrors() {
+        return dataAuditCorrectErrors.getValue();
+    }
+
     public String getValueDataMirrorDirectory() {
         return dataMirrorDirectory.getValue();
     }
@@ -1696,6 +1729,21 @@ public class EfaConfig extends StorageObject {
         return widgets;
     }
 
+    public String getTranslateLanguageWork() {
+        return translateLanguageWork.getValue();
+    }
+
+    public void setTranslateLanguageWork(String lang) {
+        setValue(translateLanguageWork, lang);
+    }
+
+    public String getTranslateLanguageBase() {
+        return translateLanguageBase.getValue();
+    }
+
+    public void setTranslateLanguageBase(String lang) {
+        setValue(translateLanguageBase, lang);
+    }
 
     public IItemType getExternalGuiItem(String name) {
         synchronized (configValues) {
@@ -1729,20 +1777,19 @@ public class EfaConfig extends StorageObject {
             for (int i=0; i<configValueNames.size(); i++) {
                 IItemType item = configValues.get(configValueNames.get(i));
                 if (item != null && item.isChanged()) {
-                    if (item == efaDirekt_fontSize || item == efaDirekt_fontStyle) {
-                        changedSettings.put(International.getString("Schriftgröße"), "foo");
-                    }
-                    if (item == useFunctionalityRowing ||
+                    if (item == efaDirekt_fontSize || 
+                        item == efaDirekt_fontStyle ||
+                        item == efaDirekt_listAllowToggleBoatsPersons ||
+                        item == efaDirekt_autoPopupOnBoatLists ||
+                        item == useFunctionalityRowing ||
                         item == useFunctionalityRowingGermany ||
                         item == useFunctionalityRowingBerlin ||
                         item == useFunctionalityCanoeing ||
-                        item == useFunctionalityCanoeingGermany) {
-                        changedSettings.put(International.getString("Regionale Anpassung"), "foo");
-                    }
-                    if (item == this.dataRemoteEfaServerEnabled ||
-                        item == this.dataRemoteEfaServerPort
-                        ) {
-                        changedSettings.put(Daten.EFA_REMOTE, "foo");
+                        item == useFunctionalityCanoeingGermany ||
+                        item == developerFunctions ||
+                        item == this.dataRemoteEfaServerEnabled ||
+                        item == this.dataRemoteEfaServerPort) {
+                        changedSettings.put(item.getDescription(), "foo");
                     }
                 }
             }
@@ -1751,7 +1798,7 @@ public class EfaConfig extends StorageObject {
             String[] keys = changedSettings.keySet().toArray(new String[0]);
             String s = null;
             for (int i=0; i<keys.length; i++) {
-                s = (s != null ? s + "\n" : "") + keys[i];
+                s = (s != null ? s + "\n" : "") + "'" + keys[i] + "'";
             }
             Dialog.infoDialog(International.getString("Geänderte Einstellungen"),
                     LogString.onlyEffectiveAfterRestart(International.getString("Geänderte Einstellungen")) +

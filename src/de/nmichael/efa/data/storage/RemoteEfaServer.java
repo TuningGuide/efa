@@ -107,7 +107,7 @@ public class RemoteEfaServer {
                     Logger.log(e);
                 }
                 StringBuilder response = new StringBuilder();
-                response.append("<?xml version='1.0' encoding='UTF-8' ?><" + RemoteEfaParser.XML_EFA + ">");
+                response.append("<?xml version='1.0' encoding='" + Daten.ENCODING_UTF + "' ?><" + RemoteEfaParser.XML_EFA + ">");
                 for (int i=0; i<responses.size(); i++) {
                     response.append(responses.get(i).toString());
                 }
@@ -127,7 +127,7 @@ public class RemoteEfaServer {
                     }
                 }
                 OutputStream responseBody = RemoteEfaMessage.getOutputStream(exchange.getResponseBody());
-                responseBody.write(response.toString().getBytes());
+                responseBody.write(response.toString().getBytes(Daten.ENCODING_UTF));
                 responseBody.close();
             }
         }

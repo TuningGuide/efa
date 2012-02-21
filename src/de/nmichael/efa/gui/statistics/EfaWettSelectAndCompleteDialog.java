@@ -219,6 +219,10 @@ public class EfaWettSelectAndCompleteDialog extends BaseDialog implements Action
         iniFelder(efaWett);
         teilnehmerScrollPane.setMaximumSize(new Dimension((int) Dialog.screenSize.getWidth() - 100, (int) Dialog.screenSize.getHeight() - 300));
         teilnehmerScrollPane.setPreferredSize(new Dimension((int) Dialog.screenSize.getWidth() - 100, (int) Dialog.screenSize.getHeight() - 300));
+
+        closeButton.setIcon(getIcon(BaseDialog.IMAGE_ACCEPT));
+        closeButton.setIconTextGap(10);
+
         (new WarningWindow()).start();
     }
 

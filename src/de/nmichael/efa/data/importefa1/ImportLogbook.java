@@ -112,8 +112,8 @@ public class ImportLogbook extends ImportBase {
                 }
 
                 if (d.get(Fahrtenbuch.BOOT).length() > 0) {
-                    String b = task.synBoote_genMainName(d.get(Fahrtenbuch.BOOT));
-                    UUID id = findBoat(boats, boatIdx, b, false);
+                    String b = task.synBoote_getMainName(d.get(Fahrtenbuch.BOOT));
+                    UUID id = findBoat(boats, boatIdx, b, false, validAt);
                     if (id != null) {
                         r.setBoatId(id);
                         BoatRecord boat = boats.getBoat(id, validAt);
@@ -137,7 +137,17 @@ public class ImportLogbook extends ImportBase {
                     }
                 }
                 if (d.get(Fahrtenbuch.STM).length() > 0) {
-                    UUID id = findPerson(persons, personIdx, d.get(Fahrtenbuch.STM), false);
+                    UUID id = findPerson(persons, personIdx, d.get(Fahrtenbuch.STM), false, validAt);
+                    if (id == null) {
+                        // it coule be that a person's name has changed during a year, and old
+                        // logbook entries still have the old name of the person;
+                        // If there is a synonym, we use that. If not, we treat this as a unknown name.
+                        // We could alternatively also lookup this person based on another validAt,
+                        // but that would actually be incorrect in terms of efa2 (and also efa1 -
+                        // in that case the efa1 data would be wrong).
+                        id = findPerson(persons, personIdx,
+                                task.synMitglieder_getMainName(d.get(Fahrtenbuch.STM)), false, validAt);
+                    }
                     if (id != null) {
                         r.setCoxId(id);
                     } else {
@@ -146,7 +156,12 @@ public class ImportLogbook extends ImportBase {
                 }
                 for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++) {
                     if (d.get(Fahrtenbuch.MANNSCH1 + i).length() > 0) {
-                        UUID id = findPerson(persons, personIdx, d.get(Fahrtenbuch.MANNSCH1 + i), false);
+                        UUID id = findPerson(persons, personIdx, d.get(Fahrtenbuch.MANNSCH1 + i), false, validAt);
+                        if (id == null) {
+                            // see comments above
+                            id = findPerson(persons, personIdx,
+                                    task.synMitglieder_getMainName(d.get(Fahrtenbuch.MANNSCH1 + i)), false, validAt);
+                        }
                         if (id != null) {
                             r.setCrewId(i+1, id);
                         } else {
@@ -158,13 +173,18 @@ public class ImportLogbook extends ImportBase {
                 r.setStartTime(DataTypeTime.parseTime(d.get(Fahrtenbuch.ABFAHRT)));
                 r.setEndTime(DataTypeTime.parseTime(d.get(Fahrtenbuch.ANKUNFT)));
                 if (d.get(Fahrtenbuch.ZIEL).length() > 0) {
-                    UUID id = findDestination(destinations, destinationIdx, d.get(Fahrtenbuch.ZIEL), false);
+                    UUID id = findDestination(destinations, destinationIdx, d.get(Fahrtenbuch.ZIEL), false, validAt);
+                    if (id == null) {
+                        // see comments above for persons on why we do it this way
+                        id = findDestination(destinations, destinationIdx,
+                                task.synZiele_getMainName(d.get(Fahrtenbuch.ZIEL)), false, validAt);
+                    }
                     if (id != null) {
                         r.setDestinationId(id);
                     } else {
                         // since we replace "+" by "&" in the import of destinations, we need to check whether a destination
                         // with a "&" probably exists; if so, we use that one
-                        id = findDestination(destinations, destinationIdx, EfaUtil.replace(d.get(Fahrtenbuch.ZIEL), "+", "&", true), false);
+                        id = findDestination(destinations, destinationIdx, EfaUtil.replace(d.get(Fahrtenbuch.ZIEL), "+", "&", true), false, validAt);
                         if (id != null) {
                             r.setDestinationId(id);
                         } else {
@@ -182,8 +202,14 @@ public class ImportLogbook extends ImportBase {
                     String fahrtArt = d.get(Fahrtenbuch.FAHRTART).trim();
                     String mtourName = null;
                     Mehrtagesfahrt mtour = null;
-                    if (fahrtArt.startsWith(EfaTypes.TYPE_SESSION_TOUR_EFA1X1+":") ||
-                        fahrtArt.startsWith(EfaTypes.TYPE_SESSION_TOUR_EFA1X2+":")) {
+
+                    // in efa 1.8.3, a MultiDay tour is a tour with SessionType "NameOfTour" (*not* prefixed by TYPE_SESSION_TOUR_EFA1X1)
+                    // in efa 1.9.0, a MultiDay tour is a tour with SessionType "TYPE_SESSION_TOUR_EFA1X2:NameOfTour"
+                    if (fahrtArt.startsWith(EfaTypes.TYPE_SESSION_TOUR+":") || // this line is bullshit, but we keep it...
+                        fahrtArt.startsWith(EfaTypes.TYPE_SESSION_TOUR_EFA1X1+":") || // this line is bullshit, but we keep it...
+                        fahrtArt.startsWith(EfaTypes.TYPE_SESSION_TOUR_EFA1X2+":") ||
+                        // the next line is for efa 1.8.3: If this is a unknown session type, we treat it as a MTour
+                        !Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, fahrtArt)) {
                         mtourName = Fahrtenbuch.getMehrtagesfahrtName(fahrtArt);
                         mtour = (mtourName != null && mtourName.length() > 0 ? fahrtenbuch.getMehrtagesfahrt(mtourName) : null);
                         fahrtArt = EfaTypes.TYPE_SESSION_TOUR;

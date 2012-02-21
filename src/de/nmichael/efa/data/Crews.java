@@ -59,7 +59,13 @@ public class Crews extends StorageObject {
             if (keys == null || keys.length < 1) {
                 return null;
             }
-            return (CrewRecord)data().get(keys[0]);
+            for (int i=0; i<keys.length; i++) {
+                CrewRecord r = (CrewRecord)data().get(keys[i]);
+                if (!r.getDeleted()) {
+                    return r;
+                }
+            }
+            return null;
         } catch(Exception e) {
             Logger.logdebug(e);
             return null;

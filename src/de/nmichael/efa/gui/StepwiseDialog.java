@@ -28,9 +28,9 @@ public abstract class StepwiseDialog extends BaseDialog {
     JScrollPane inputScrollPane;
     JPanel inputPanel;
     JTextArea descriptionText;
-    JButton backButton;
-    JButton nextButton;
-    JButton finishButton;
+    private JButton backButton;
+    private JButton nextButton;
+    private JButton finishButton;
     int step = 0;
     String[] steps;
     JLabel[] stepsLabel;
@@ -73,35 +73,42 @@ public abstract class StepwiseDialog extends BaseDialog {
         controlPanel = new JPanel();
         controlPanel.setLayout(new GridBagLayout());
         backButton = new JButton();
-        Mnemonics.setButton(this, backButton, "<< " + International.getStringWithMnemonic("Zurück"));
+        Mnemonics.setButton(this, backButton, International.getStringWithMnemonic("Zurück"),
+                IMAGE_BACK);
         backButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 backButton_actionPerformed(e);
             }
         });
         nextButton = new JButton();
-        Mnemonics.setButton(this, nextButton, International.getStringWithMnemonic("Weiter") + " >>");
+        Mnemonics.setButton(this, nextButton, International.getStringWithMnemonic("Weiter"),
+                IMAGE_FORWARD);
         nextButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 nextButton_actionPerformed(e);
             }
         });
         finishButton = new JButton();
-        Mnemonics.setButton(this, finishButton, International.getStringWithMnemonic("Fertig"));
+        Mnemonics.setButton(this, finishButton, International.getStringWithMnemonic("Fertig"),
+                IMAGE_ACCEPT);
         finishButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 finishButton_actionPerformed(e);
             }
         });
         JButton cancelButton = new JButton();
-        Mnemonics.setButton(this, cancelButton, International.getStringWithMnemonic("Abbruch"));
+        Mnemonics.setButton(this, cancelButton, International.getStringWithMnemonic("Abbruch"),
+                IMAGE_CANCEL);
         cancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 cancelButton_actionPerformed(e);
             }
         });
         JButton helpButton = new JButton();
-        Mnemonics.setButton(this, helpButton, International.getStringWithMnemonic("Hilfe"));
+        Mnemonics.setButton(this, helpButton, International.getStringWithMnemonic("Hilfe"),
+                IMAGE_HELP);
+        Mnemonics.setButton(this, cancelButton, International.getStringWithMnemonic("Abbruch"),
+                IMAGE_CANCEL);
         helpButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 helpButton_actionPerformed(e);

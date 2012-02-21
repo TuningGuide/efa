@@ -110,6 +110,9 @@ public class CrewRecord extends DataRecord {
     }
 
     private static String getCrewFieldNameId(int pos) {
+        if (pos == 0) {
+            return COXID;
+        }
         return "Crew"+pos+"Id";
     }
 

@@ -61,12 +61,12 @@ public class ImportCrews extends ImportBase {
                 CrewRecord r = crews.createCrewRecord(UUID.randomUUID());
                 r.setName(d.get(Mannschaften.BOOT));
                 UUID id;
-                id = findPerson(persons, IDXP, d.get(Mannschaften.STM), true);
+                id = findPerson(persons, IDXP, d.get(Mannschaften.STM), true, -1);
                 if (id != null) {
                     r.setCoxId(id);
                 }
                 for (int i=0; i<Fahrtenbuch.ANZ_MANNSCH; i++) {
-                    id = findPerson(persons, IDXP, d.get(Mannschaften.MANNSCH1 + i), true);
+                    id = findPerson(persons, IDXP, d.get(Mannschaften.MANNSCH1 + i), true, -1);
                     if (id != null) {
                         r.setCrewId(i+1, id);
                     }
@@ -98,7 +98,7 @@ public class ImportCrews extends ImportBase {
                             if (d.get(Mannschaften.FAHRTART).length() > 0) {
                                 b.setDefaultSessionType(d.get(Mannschaften.FAHRTART));
                             }
-                            id = findDestination(destinations, IDXD, d.get(Mannschaften.ZIEL), true);
+                            id = findDestination(destinations, IDXD, d.get(Mannschaften.ZIEL), true, -1);
                             if (id != null) {
                                 b.setDefaultDestinationId(id);
                             }

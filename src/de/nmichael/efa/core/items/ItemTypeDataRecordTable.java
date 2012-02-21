@@ -18,6 +18,7 @@ import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.ex.*;
+import de.nmichael.efa.gui.BaseDialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -35,6 +36,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     public static final String ACTIONTEXT_NEW    = International.getString("Neu");
     public static final String ACTIONTEXT_EDIT   = International.getString("Bearbeiten");
     public static final String ACTIONTEXT_DELETE = International.getString("Löschen");
+
+    public static final String BUTTON_IMAGE_CENTERED_PREFIX = "%";
 
     private static final String[] DEFAULT_ACTIONS = new String[] {
         ACTIONTEXT_NEW,
@@ -69,6 +72,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     protected static final String ACTION_BUTTON = "ACTION_BUTTON";
     protected String[] actionText;
     protected int[] actionTypes;
+    protected String[] actionIcons;
     protected int defaultActionForDoubleclick = ACTION_EDIT;
 
     protected Color markedCellColor = Color.red;
@@ -80,12 +84,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             long validAt,
             AdminRecord admin,
             String filterFieldName, String filterFieldValue,
-            String[] actions, int[] actionTypes,
+            String[] actions, int[] actionTypes, String[] actionIcons,
             IItemListenerDataRecordTable itemListenerActionTable,
             int type, String category, String description) {
         super(name, tableHeader, null, null, type, category, description);
         setData(persistence, validAt, admin, filterFieldName, filterFieldValue);
-        setActions(actions, actionTypes);
+        setActions(actions, actionTypes, actionIcons);
         this.itemListenerActionTable = itemListenerActionTable;
         renderer = new de.nmichael.efa.gui.util.TableCellRenderer();
         renderer.setMarkedBold(false);
@@ -110,11 +114,14 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         updateData();
     }
 
-    public void setActions(String[] actions, int[] actionTypes) {
+    public void setActions(String[] actions, int[] actionTypes, String[] actionIcons) {
         if (actions == null || actionTypes == null) {
             super.setPopupActions(DEFAULT_ACTIONS);
             this.actionText = DEFAULT_ACTIONS;
             this.actionTypes = new int[] { ACTION_NEW, ACTION_EDIT, ACTION_DELETE };
+            this.actionIcons = new String[] {
+                "button_new.png", "button_edit.png", "button_delete.png"
+            };
         } else {
             int popupActionCnt = 0;
             for (int i=0; i<actionTypes.length; i++) {
@@ -125,7 +132,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                 }
             }
             String[] myPopupActions = new String[popupActionCnt];
-            for (int i=0; i<actionTypes.length; i++) {
+            for (int i=0; i<myPopupActions.length; i++) {
                 if (actionTypes[i] >= 0) {
                     myPopupActions[i] = actions[i];
                 }
@@ -133,6 +140,24 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             super.setPopupActions(myPopupActions);
             this.actionText = actions;
             this.actionTypes = actionTypes;
+            if (actionIcons != null) {
+                this.actionIcons = actionIcons;
+            } else {
+                this.actionIcons = new String[actionTypes.length];
+                for (int i=0; i<this.actionIcons.length; i++) {
+                    switch (actionTypes[i]) {
+                        case ACTION_NEW:
+                            this.actionIcons[i] = BaseDialog.IMAGE_ADD;
+                            break;
+                        case ACTION_EDIT:
+                            this.actionIcons[i] = BaseDialog.IMAGE_EDIT;
+                            break;
+                        case ACTION_DELETE:
+                            this.actionIcons[i] = BaseDialog.IMAGE_DELETE;
+                            break;
+                    }
+                }
+            }
         }
     }
 
@@ -165,6 +190,15 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             button.registerItemListener(this);
             button.setPadding(20, 20, (i>0 && actionTypes[i]<0 && actionTypes[i-1] >=0 ? 20 : 0), 5);
             button.setFieldSize(200, -1);
+            if (actionIcons != null && i<actionIcons.length && actionIcons[i] != null) {
+                String iconName = actionIcons[i];
+                if (iconName.startsWith(BUTTON_IMAGE_CENTERED_PREFIX)) {
+                    iconName = iconName.substring(1);
+                } else {
+                    button.setHorizontalAlignment(SwingConstants.LEFT);
+                }
+                button.setIcon(BaseDialog.getIcon(iconName));
+            }
             button.displayOnGui(dlg, buttonPanel, 0, i);
             actionButtons.put(button, action);
         }
@@ -474,6 +508,12 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                     r = dataAccess.get(key);
                     if (!showAll && !r.isValidAt(myValidAt)) {
                         r = null;
+                    }
+                }
+                if (r == null && showDeleted) {
+                    DataRecord[] any = dataAccess.getValidAny(key);
+                    if (any != null && any.length > 0 && any[0].getDeleted()) {
+                        r = any[0];
                     }
                 }
                 if (r != null && (!r.getDeleted() || showDeleted)) {

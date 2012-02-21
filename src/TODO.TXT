@@ -1,15 +1,17 @@
 Item                                                                 days  until
 ================================================================================
-Dr-Titel in Ausgabe (und erkennung) von Strings aufnehmen!
+Vortrag: Folie zu Backup & Restore
 Buttons mit Symbolen ausstatten
-Check Java Version (min 6)
-
-Auto Create new Logbooks - better Dialog
-
-efaWett: email-Adresse Pflicht
-Audit
 Gewaesserliste mitliefern
-Eigener Zielbereich
+
+efaWett-Daten aktualisieren
+Dr-Titel in Ausgabe (und erkennung) von Strings aufnehmen!
+Check Java Version (min 6)
+Statistik (und alle Datensätze) sollten den Fokus nach Bearbeitung behalten. Auch bei HOch- und Runter schieben
+Zusammenfassen von Gästen & anderen am Ende der Liste, Gäste dabei vereinsweise[/quote]
+Buttons für Statistik hoch/runter (nicht nur Kontext-Menü)
+Beim Admin-Login (auch efaBase) Admin GROSS auf vorliegende Nachrichten hinweisen!
+Auto Create new Logbooks - better Dialog
 Statistik FTP Upload
 efaRemote - SSL
 efaRemote - Progress/Status Indicator
@@ -18,6 +20,12 @@ Signal Handler
 DataLayer: DB Access
 Help System
 AutoComplete: match anything within input/change list content
+Eine alternative Gruppierung der Boote über die Bootsart würde ich auch nicht schlecht finden (alternativ zu "Einer, Zweier, Dreier, Vierer, andere").
+Ausgabe Steuerkilometer (mit Balken)
+Paßwort für Statistiken
+vorhandene Statistik bearbeiten und unter anderem Namen speichern
+für Kombiboote Standardbootstyp festlegen können (insb. Riemen/Skull; für Anzhal Plätze macht das weniger Sinn, da eh schon doppelt in Liste und dann entsprechend Auswahl)
+Vor dem Aufrufen der Wetter-Popups einen Befehl durchführen können (um ggf. Seiten zu holen und aufzubereiten)
 --------------------------------------------------------------------------------
 
 Gewässer - durch Mitglieder für jede Fahrt erfassen lassen
@@ -65,3 +73,14 @@ Create Statistik in CLI
 efaRemote - proper Session Handling
 Up/Down Buttons fuer Statistikeinstellungen
 Versionierte Daten (siehe email 16.01. an Fabian!)
+Beim Restore die kaputte Version vor dem Restore sichern!
+Statistiken erstellen (Datei-Ausgabe): Nach der letzten Info-Dialog mit geschriebenen Dateien
+Hinweis am Ende von Statistiken (oder im Header??) daß einzelne Personen/Boote ausgenommen wurden
+Standardboot für Personen bei Auswahl über Personennamen
+Wanderfahrten/Zielfahrten ausgeben (werden calculateSessionHistory aggregiert, aber nicht ausgegeben)
+Audit
+Statistikausgabe Gewässer (http://forum.nmichael.de/viewtopic.php?f=15&t=202&start=10)
+Übersetzungstool in efa
+email-Adressen entfernen
+Eigener Zielbereich
+efaWett: email-Adresse Pflicht

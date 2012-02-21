@@ -37,7 +37,6 @@ public class EmilFrame_AboutBox extends JDialog implements ActionListener {
   BorderLayout borderLayout1 = new BorderLayout();
   BorderLayout borderLayout2 = new BorderLayout();
   FlowLayout flowLayout1 = new FlowLayout();
-  JLabel label5 = new JLabel();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
   public EmilFrame_AboutBox(EmilFrame parent) {
     super(parent);
@@ -84,12 +83,10 @@ public class EmilFrame_AboutBox extends JDialog implements ActionListener {
     label2.setText("2");
     label3.setText("3");
     label4.setText("4");
-    label5.setText("5");
     label1.setText(parent.PROGRAMMNAME);
     label2.setText("Version "+Main.EMIL_VERSION);
     label3.setText("Copyright (c) 2002-"+Daten.COPYRIGHTYEAR+" by Nicolas Michael");
     label4.setText("WWW: " +Daten.EFAURL);
-    label5.setText("email: "+Daten.EMAILINFO);
     insetsPanel3.setLayout(gridBagLayout1);
     insetsPanel3.setBorder(BorderFactory.createEmptyBorder(10, 60, 10, 10));
     button1.setText("Ok");
@@ -97,8 +94,6 @@ public class EmilFrame_AboutBox extends JDialog implements ActionListener {
     insetsPanel2.add(imageLabel, null);
     panel2.add(insetsPanel2, BorderLayout.WEST);
     this.getContentPane().add(panel1, null);
-    insetsPanel3.add(label5,   new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     insetsPanel3.add(label1,   new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     insetsPanel3.add(label2,   new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0

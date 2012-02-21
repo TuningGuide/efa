@@ -162,6 +162,11 @@ public class LogString {
       return fileRestoreFailed(filename, description, null);
   }
 
+  public static String fileMoved(String filename, String description, String destination) {
+      return International.getMessage("{filedescription} '{filename}' wurde nach '{destination}' verschoben",
+                                       description,filename, destination) + ".";
+  }
+
   public static String fileExtractFailed(String filename, String description, String error) {
       return International.getMessage("{filedescription} '{filename}' konnte nicht entpackt werden",
                                        description,filename) +

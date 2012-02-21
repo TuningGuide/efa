@@ -1,0 +1,438 @@
+# Waters Template for Germany
+# Saved as CSV with Delimiter ; and without Quotes in UTF-8
+# Create using OpenOffice "Save As CSV..." Function
+#
+# First Column: Water
+# Second Column: Details
+# Rows with empty first column add more Details to the previous Water
+Nordsee;
+Ostsee;
+Vorpommersche Bodden;Saaler Bodden
+;Neuendorfer Bülten
+;Koppelstrom
+;Bodstedter Bodden
+;Zingststrom
+;Barther Bodden 
+;Grabow
+;Gellenstrom
+;Vierendeelstrom
+;Prohner Wiek
+;Kubitzer Bodden
+;Schaproder Bodden
+;Vitter Bodden
+;Rassowstrom
+;Breeger Bodden
+;Großer Jasmunder Bodden
+;Kleiner Jasmunder Bodden
+;Strelasund
+;Deviner See
+;Stahlbroder Bodden
+;Puddeminer Wiek
+;Greifswalder Bodden
+;Dänische Wiek
+;Schoritzer Wiek
+;Selliner See
+;Harving
+;Hagensche Wiek
+;Zicker See
+;Peenestrom
+;Achterwasser
+;Keines Haff
+;Usedomer See
+;Neuwarper See
+Stettiner Haff;
+Ryck;
+Uecker;
+Randow;
+Uckerseen;Oberuckersee
+;Unteruckersee
+Feldberger Seen;Haussee
+;Breiter Luzin
+;Schmaler Luzin
+;Zansen
+;Carwitzer See
+;Dreetzse
+Schweriner Seen;Schweriner Innensee
+;Schweriner Außensee
+;Ziegelinnensee
+;Ziegelaußensee
+;Heidensee
+;Burgsee
+Störkanal;
+Pinnower See;
+Osdorfer See;
+Medeweger See;
+Lankower See;
+Müritz-Elde-Wasserstrasse;Müritzsee
+;Müritzarm
+;Kleine Müritz
+;Müritz
+;Binnenmüritz
+;Kölpinsee
+;Schwenzin
+;Jabelscher See
+;Loppiner See
+;Flesensee
+;Malchower See
+;Recken
+;Petersdorfer See
+;Plauer See
+;Elde
+Warnow;Sternberger See
+;Breitling
+;Radelkanal
+;Radelsee
+;Alter Strom
+Recknitz;
+Mildenitz;Goldberger See
+;Dobbertiner See
+;Schwarzer See
+;Borkower See
+;Rothener See
+;Trentsee
+Trebel;
+Peene ;Ostpeene
+;Malchiner See
+;Dahmer Kanal
+;Teterower Peene
+;Darguner Kanal
+;Richtgraben
+;Peene-Süd-Kanal
+Tollense;Tollense
+;Tollensesee
+Krakower See;
+Trave;Stadttrave
+;Kanaltrave
+;Stadtgraben
+;Schlutuper Wiek
+;Pötenitzer Wiek
+;Dassower See
+;Warder See
+;Herrenteich
+Schwentine;Schwentine
+;Eutiner See
+;Kellersee
+;Dieksee
+;Behler See
+;Großer Plöner See
+;Kleiner Plöner See
+;Lanker See
+Kieler Förde;
+NOK;Nord-Ostsee-Kanal
+;Borgstedter Enge
+;Audorfer See
+;Gieselaukanal
+Westensee;Achterwehrer Schifffahrtskanal
+;Bossee
+Eider;Tönning Hafen
+Treene;
+Bielauer See;
+Segeberger See;
+Einfelder See;
+Schaalsee;Schaalseekanal
+Ratzeburger See;Küchensee
+;Domsee
+Wakenitz;
+ELK;Elbe-Lübeck-Kanal
+;Möllner See
+;Schulsee
+;Prüßsee
+Eckernförder Bucht;
+Schlei;Burgsee
+;Haddebyer Noor
+;Selker Noor
+Flenburger Förde;Innenförde
+;Außenförde
+Krükau;
+Störkanal;
+Wilster Au;
+Hamburger Gewässer;Alster
+;Alsterkanal
+;Brabantkanal
+;Skaragkanal
+;Leinpfadkanal
+;Goldbekkanal
+;Stadtparksee
+;Osterbekkanal
+;Isebekkanal
+;Inselkanal
+;Bellevuekanal
+;Barmbeker Kohlekanal
+;Hofwegkanal
+;Feenteich
+;Rondeelteich
+;Eilenau
+;Außenalster
+;Binnenalster
+;Nikolaifleet
+;Zollkanal
+;Reiherstieg
+;Kattwig
+ ;Billwerder Bucht
+;untere Bille
+;Billekanal
+;Mittelkanal
+;Südkanal
+;Soninkanal
+;Hochwasserbassin
+;Rückerskanal
+;Bullenhuser Kanal
+;Tiefstakkanal
+Este;
+Lühe;
+Pinnau;
+Oste;
+Ilmenau;
+Winsener Marsch;Alte Ilmenau
+;Neetze
+;Neetzekanal
+;Nordenwasser
+Dove-Elbe;Neuer Schleusengraben
+;Neuengammer Durchstich
+Gose-Elbe;
+Elbe-Weser-Schifffahrtsweg;Medem
+;Hadelner Kanal
+;Aue
+;Berdakesa-Geste-Kanal
+;Geste
+Müritz-Havel-Wasserstrasse;Ellenbogensee 
+;Mirower Kanal
+;Sumpfsee
+;Zotzensee
+;Mössensee
+;Vilzsee
+;Labussee
+;Pälitzsee
+Mirower Gewässer;Bolter Kanal
+;Caarpsee
+;Woterfitzsee
+;Leppinsee
+;Mössel
+;Kotzower See
+;Granzower Möschen
+;Mirower See
+;Adlersee
+;Zehntner See
+;Schwarzer See
+;Fehrlingsee
+;Fleeth
+;Rätzsee
+;Drosedower Bek 
+;Gobenowsee
+;Klenzsee
+Rheinberger Gewässer;Hüttenkanal
+;Jagowkanal
+;Prebelowsee
+;Tietzowsee
+;Schlabornsee
+;Bikowsee
+;Mehlitzsee
+;Rheinsberger See
+;Grienericksee
+;Dollgowsee
+;Kagarsee
+Zechliner Gewässer;Zootzensee
+;Zechliner See
+;Schwarzer See
+Lychener Gewässer;Haussee
+;Moderfitzsee
+;Woblitz
+;Großer Lychensee
+;Stadtsee
+;Nesselpfuhl
+;Wurlsee
+;Oberpfuhlsee
+;Zenssee
+;Platkowsee
+Templiner Gewässer;Kuhwallsee
+;Lankensee
+;Röddelinsee
+;Templiner See
+;Bruchsee
+;Gleuensee
+;Netzowsee
+;Fährsee
+;Zarsee
+;Labüskesee
+Havel;Pagelsee
+;Zotzensee
+;Jäthensee
+;Jamelsee
+;Görtowsee
+;Useriner See
+;Großer Labussee
+;Kleiner Labussee
+;Woblitzsee
+;Kammerkanal
+;Zierker See
+;Prälankkanal
+;Drewensee
+;Finowsee
+;Wangnitzsee
+;Priepertsee
+;Ellenbogensee 
+;Ziernsee
+;Menowsee
+;Röblinsee
+;Füstenberger Stadtsee
+;Schwedtsee
+;Stolpsee
+;Lehnitzsee
+;Oranienburger Havel
+;Veltener Stichkanal
+;Nieder-Neuendorfer See
+;Jungfernsee
+;Trebelsee
+;Pritzerber See
+;Hohennauer Kanal
+;Hohenauer See
+;Ferchesarer See
+;Gülper See
+;Grippel
+;Trentsee
+;Havelberger Schleusenkanal
+Potsdamer Gewässer;Glieniker Lake
+;Tiefer See
+;Neustädter Havelbucht
+;Judengraben
+;Templiner See
+;Petzinsee
+;Wentorfgraben
+;Schwielowsee
+;Glindower See
+;Großer Zernsee
+;Göttinsee
+;Schlänitzsee
+;Fahrländer See
+;Lehnitzsee
+;Krampnitzsee
+;Heiliger See
+Emster;Emster Kanal
+;Klostersee
+;Rietzer See
+;Netzner See
+Brandenburger Gewässer;Brandenburger Stadtkanal
+;Brandenburger Niederhavel
+;Silokanal
+;Kleiner Beetzsee
+;Beetzsee
+;Oberer Beetzsee
+;Riewendsee
+;Quenzsee
+;Plauer See
+;Breitlingsee
+;Mösersche See
+;Wendtsee
+Wublitz;
+Nuthe;
+Havelkanal;
+SPK;Sacrow-Paretzer-Kanal
+EHK;Elbe-Havel-Kanal
+;Woltersdorfer Altkanal
+;Roßdorfer Altkanal
+;Parayer Verbindungskanal
+;Altenplathower Altkanal
+;Kühnes Loch
+;Niegripper See
+;Niegripper Verbindungskanal
+Elbe ;Magdeburger Alte Elbe
+;Alberthafen
+;Werfthafen Roßlau
+;Mönchsgraben
+;Zollelbe
+;Handelshafen Magedeburg
+;Rothenseeer Abstiegskanal
+ESK;Elbe-Seitenkanal
+OHK;Oder-Havel-Kanal
+Finowkanal;
+;Oderberger See
+;Lieper See
+Werbelliner Gewässer;Werbellinsee
+;Werbellinkanal
+;Langer Trödel
+;Grimnitzsee
+HFW;Hohensaaten-Friedrichstaler-Wasserst.
+Ruppiner Gewässer;Oranienburger Kanal
+;Malzer Kanal
+;Ruppiner Kanal
+;Kremmener Rhin
+;Bützsee
+;Bützrhin
+;Alter Rhin
+;Ruppiner See
+;Wustrauer Rhin
+;Altmannkanal
+;Lanke
+;Molchowsee
+;Tetzensee
+;Rottenstielfließ
+;Tornowsee
+;Zermützelsee
+;Rheisberger Rhin
+;Möllensee
+;Gudelachsee
+;Vielitzsee
+Rhingewässer;Fehrbelliner Rhin
+;Rhinkanal
+;Friesacker Rhin
+;Mühlenrhin
+;Bültgraben
+Dosse;
+HGH;Havelländischer Großer Hauptkanal
+NPK;Nauen-Paretzer-Kanal
+Tek;Teltowkanal
+Berliner Gewässer;Spree (von Dämeritzsee bis Mündung)
+;Havel (von Nieder-Neuendorf bis Gl.-Br.)
+;Dahme (von Zeithen bis Mündung)
+;Nieder-Neuendorfer See
+;Havelseen
+;Wannsee
+;Kleiner Wannsee
+;Stölpchensee
+;Pohlesee
+;Prinz-Luipold-Kanal
+;Griebnitzsee
+;Scharfe Lanke
+;Stößensee
+;Tegeler See
+;Hohenzollernkanal
+;Alte Spandauer Schifffahrtskanal
+;Westhafenkanal
+;Chalottenburger Verbindungskanal
+;Landwehrkanal
+;Kupfergraben
+;Strekkanal
+;Neuköllner Kanal
+;Britzer Zweigkanal
+;Rummelburger See
+;Kietzgraben
+;Müggelsee
+;Langer See
+;Kleiner Müggelsee
+;Krampe
+;Seddinsee
+;Gosener Kanal
+;Gossener Graben
+;Neuvenedig
+;Zeuthener See
+;Krossinsee
+Rüdersdorfer Gewässer;Flakenfließ
+;Flakersee
+;Kalkfließ
+;Kalksee
+;Kalkgraben
+;Stolpgraben
+;Langehanskanal
+;Hohler See
+;Kriensee
+;Stienitzsee
+Löcknitz;Löcknitz
+;Werlsee
+;Peetzsee
+;Möllensee
+;Kiessee
+OSK;Oder-Spree-Kanal
+;Dehmsee
+;Kersdorfersee
+;Mülroser See
+;Brieskower Kanal

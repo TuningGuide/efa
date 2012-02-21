@@ -76,7 +76,13 @@ public class Boats extends StorageObject {
             if (keys == null || keys.length < 1) {
                 return null;
             }
-            return (BoatRecord)data().get(keys[0]);
+            for (int i=0; i<keys.length; i++) {
+                BoatRecord r = (BoatRecord)data().get(keys[i]);
+                if (r.isValidAt(validAt)) {
+                    return r;
+                }
+            }
+            return null;
         } catch(Exception e) {
             Logger.logdebug(e);
             return null;

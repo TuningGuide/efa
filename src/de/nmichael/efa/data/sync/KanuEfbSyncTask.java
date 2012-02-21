@@ -41,6 +41,10 @@ public class KanuEfbSyncTask extends ProgressTask {
     private long thisSync;
     private boolean loggedIn = false;
     private boolean successfulCompleted = false;
+    private int countSyncUsers = 0;
+    private int countSyncBoats = 0;
+    private int countSyncWaters = 0;
+    private int countSyncTrips = 0;
 
     public KanuEfbSyncTask(Logbook logbook, AdminRecord admin) {
         super();
@@ -222,6 +226,7 @@ public class KanuEfbSyncTask extends ProgressTask {
                             if (!efbId.equals(p.getEfbId())) {
                                 p.setEfbId(efbId);
                                 persons.data().update(p);
+                                countSyncUsers++;
                             }
                             ok = true;
                         }
@@ -234,7 +239,7 @@ public class KanuEfbSyncTask extends ProgressTask {
                         }
                     }
                 }
-
+                logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, countSyncUsers + " Personen synchronisiert.");
             } else {
                 logInfo(Logger.ERROR, Logger.MSG_SYNC_ERRORINVALIDRESPONSE, "Ungültige Synchronisierungs-Antwort.");
                 return false;
@@ -290,6 +295,7 @@ public class KanuEfbSyncTask extends ProgressTask {
                                 if (!efbId.equals(b.getEfbId())) {
                                     b.setEfbId(efbId);
                                     boats.data().update(b);
+                                    countSyncBoats++;
                                 }
                                 ok = true;
                             }
@@ -303,7 +309,7 @@ public class KanuEfbSyncTask extends ProgressTask {
                         logInfo(Logger.WARNING, Logger.MSG_SYNC_WARNINCORRECTRESPONSE, "Ungültige Synchronisierungs-Antwort für Boot: "+boatName);
                     }
                 }
-
+                logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, countSyncBoats + " Boote synchronisiert.");
             } else {
                 logInfo(Logger.ERROR, Logger.MSG_SYNC_ERRORINVALIDRESPONSE, "Ungültige Synchronisierungs-Antwort.");
                 return false;
@@ -359,6 +365,7 @@ public class KanuEfbSyncTask extends ProgressTask {
                                 if (!efbId.equals(w.getEfbId())) {
                                     w.setEfbId(efbId);
                                     waters.data().update(w);
+                                    countSyncWaters++;
                                 }
                                 ok = true;
                             }
@@ -372,7 +379,7 @@ public class KanuEfbSyncTask extends ProgressTask {
                         logInfo(Logger.WARNING, Logger.MSG_SYNC_WARNINCORRECTRESPONSE, "Ungültige Synchronisierungs-Antwort für Gewässer: "+watersName);
                     }
                 }
-
+                logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, countSyncWaters + " Gewässer synchronisiert.");
             } else {
                 logInfo(Logger.ERROR, Logger.MSG_SYNC_ERRORINVALIDRESPONSE, "Ungültige Synchronisierungs-Antwort.");
                 return false;
@@ -402,7 +409,7 @@ public class KanuEfbSyncTask extends ProgressTask {
             while (k != null) {
                 LogbookRecord r = (LogbookRecord)logbook.data().get(k);
                 if (r != null &&
-                    (r.getLastModified() > lastSync || r.getSyncState() == IDataAccess.UNDEFINED_INT || r.getSyncState() == 0)) {
+                    (r.getLastModified() > r.getSyncTime() || r.getSyncTime() <= 0)) {
                     for (int i=0; i<=LogbookRecord.CREW_MAX; i++) {
                         UUID pId = r.getCrewId(i);
                         if (pId != null) {
@@ -431,10 +438,10 @@ public class KanuEfbSyncTask extends ProgressTask {
                                 request.append("<begdate>" + startDate + "</begdate>");
                                 request.append("<enddate>" + endDate + "</enddate>");
                                 if (r.getStartTime() != null) {
-                                    // @todo (P7) request.append("<begtime>" + r.getStartTime().toString() + "</begtime>");
+                                    request.append("<begtime>" + r.getStartTime().toString() + "</begtime>");
                                 }
                                 if (r.getEndTime() != null) {
-                                    // @todo (P7) request.append("<endtime>" + r.getEndTime().toString() + "</endtime>");
+                                    request.append("<endtime>" + r.getEndTime().toString() + "</endtime>");
                                 }
 
                                 request.append("<lines>");
@@ -445,21 +452,23 @@ public class KanuEfbSyncTask extends ProgressTask {
                                     } else {
                                         request.append("<waterText>" + w.getName() + "</waterText>");
                                     }
-                                } else {
-                                    request.append("<waterText>"+ (r.getDestinationId() != null ? r.getDestinationAndVariantName() : r.getDestinationName()) + "</waterText>");
                                 }
                                 if (d != null && d.getStart() != null && d.getStart().length() > 0) {
                                     request.append("<fromText>" + d.getStart() + "</fromText>");
                                 }
                                 if (d != null && d.getEnd() != null && d.getEnd().length() > 0) {
                                     request.append("<toText>" + d.getEnd() + "</toText>");
+                                } else {
+                                    if (r.getDestinationId() != null || r.getDestinationName() != null) {
+                                        request.append("<toText>"+ (r.getDestinationId() != null ? r.getDestinationAndVariantName() : r.getDestinationName()) + "</toText>");
+                                    }
                                 }
-                                request.append("<kilometers>" + r.getDistance().getStringValueInKilometers() + "</kilometers>");
+                                request.append("<kilometers>" + (r.getDistance() != null ? r.getDistance().getStringValueInKilometers() : "0") + "</kilometers>");
                                 request.append("</line>");
                                 request.append("</lines>");
 
                                 if (r.getComments() != null && r.getComments().length() > 0) {
-                                    request.append("<comment><![CDATA[" + d.getEnd() + "]]></comment>");
+                                    request.append("<comment><![CDATA[" + r.getComments() + "]]></comment>");
                                 }
 
                                 request.append("<changeDate>" + r.getLastModified() + "</changeDate>");
@@ -485,7 +494,6 @@ public class KanuEfbSyncTask extends ProgressTask {
 
             logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Sende Synchronisierungs-Anfrage für " + reqCnt + " Fahrten ...");
             KanuEfbXmlResponse response = sendRequest(request.toString(), true);
-            int okCnt = 0;
             if (response != null && response.isResponseOk("SyncTrips")) {
                 logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Synchronisierungs-Antwort erhalten für " + response.getNumberOfRecords() + " Fahrten ...");
                 for (int i=0; i<response.getNumberOfRecords(); i++) {
@@ -501,7 +509,7 @@ public class KanuEfbSyncTask extends ProgressTask {
                     String resultText = fields.get("resultText");
                     if (r != null) {
                         if (result == 0) {
-                            r.setSyncState(1);
+                            r.setSyncTime(thisSync);
                             logbook.data().update(r);
                             ok = true;
                         }
@@ -509,7 +517,7 @@ public class KanuEfbSyncTask extends ProgressTask {
                         logInfo(Logger.WARNING, Logger.MSG_SYNC_WARNINCORRECTRESPONSE, "Fehler beim Synchronisieren von Fahrt: Trip ID "+tripId+" unbekannt ("+result+" - "+resultText+")");
                     }
                     if (ok) {
-                        okCnt++;
+                        countSyncTrips++;
                         if (Logger.isTraceOn(Logger.TT_SYNC)) {
                             logInfo(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO, "  Fahrt erfolgreich synchronisiert: "+r.toString());
                         }
@@ -517,7 +525,7 @@ public class KanuEfbSyncTask extends ProgressTask {
                         logInfo(Logger.WARNING, Logger.MSG_SYNC_WARNINCORRECTRESPONSE, "Fehler beim Synchronisieren von Fahrt: "+tripId+" ("+result+" - "+resultText+")");
                     }
                 }
-                logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, okCnt + " Fahrten erfolgreich synchronisiert.");
+                logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, countSyncTrips + " Fahrten synchronisiert.");
             } else {
                 logInfo(Logger.ERROR, Logger.MSG_SYNC_ERRORINVALIDRESPONSE, "Ungültige Synchronisierungs-Antwort.");
                 return false;
@@ -603,7 +611,11 @@ public class KanuEfbSyncTask extends ProgressTask {
 
     public String getSuccessfullyDoneMessage() {
         if (successfulCompleted) {
-            return LogString.operationSuccessfullyCompleted(International.getString("Synchronisation"));
+            return LogString.operationSuccessfullyCompleted(International.getString("Synchronisation")) +
+                   "\n" + countSyncTrips + " Fahrten synchronisiert." +
+                   "\n" + countSyncUsers + " Personen synchronisiert." +
+                   "\n" + countSyncBoats + " Boote synchronisiert." +
+                   "\n" + countSyncWaters + " Gewässer synchronisiert.";
         } else {
             return LogString.operationFailed(International.getString("Synchronisation"));
         }
@@ -620,6 +632,7 @@ public class KanuEfbSyncTask extends ProgressTask {
         if (Daten.isGuiAppl()) {
             if (Dialog.yesNoDialog(International.onlyFor("Mit Kanu-eFB synchronisieren", "de"),
                     International.onlyFor("Es werden alle Fahrten aus dem aktuellen Fahrtenbuch mit dem Kanu-eFB synchronisiert.", "de") + "\n" +
+                    International.getString("Bitte stelle eine Verbindung zum Internet her.") + "\n" +
                     International.getString("Möchtest Du fortfahren?")) != Dialog.YES) {
                 return;
             }

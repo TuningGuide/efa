@@ -73,7 +73,8 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
         versionList.displayOnGui(_parent, versionPanel, 0, 1);
 
         JButton selectButton = new JButton();
-        Mnemonics.setButton(this, selectButton, International.getString("Auswählen"));
+        Mnemonics.setButton(this, selectButton, International.getString("Auswählen"),
+                BaseDialog.IMAGE_SELECT);
         selectButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 selectButton_actionPerformed(e, false);
@@ -83,7 +84,8 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
                                     GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
 
         JButton newButton = new JButton();
-        Mnemonics.setButton(this, newButton, International.getString("Neu"));
+        Mnemonics.setButton(this, newButton, International.getString("Neu"),
+                BaseDialog.IMAGE_ADD);
         newButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 newButton_actionPerformed(e, false);
@@ -93,7 +95,8 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
                                     GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
 
         JButton deleteButton = new JButton();
-        Mnemonics.setButton(this, deleteButton, International.getString("Löschen"));
+        Mnemonics.setButton(this, deleteButton, International.getString("Löschen"),
+                BaseDialog.IMAGE_DELETE);
         deleteButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 deleteButton_actionPerformed(e, false);
@@ -108,7 +111,9 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
                                     GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(30, 0, 5, 0), 0, 0));
 
         JButton versionValidityChangeButton = new JButton();
-        Mnemonics.setButton(this, versionValidityChangeButton, International.getString("Gültigkeitszeitraum ändern"));
+        Mnemonics.setButton(this, versionValidityChangeButton, 
+                International.getString("Gültigkeitszeitraum ändern"),
+                BaseDialog.IMAGE_CALENDAR);
         versionValidityChangeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 versionValidityChangeButton_actionPerformed(e);

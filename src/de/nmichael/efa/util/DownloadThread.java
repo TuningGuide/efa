@@ -35,6 +35,7 @@ public class DownloadThread {
     private FileOutputStream o;
     private String exceptionText = null;
     private javax.swing.Timer timer;
+    private boolean aborted = false;
 
     public DownloadThread(ProgressMonitor progressMonitor, 
             URLConnection conn, 
@@ -71,6 +72,7 @@ public class DownloadThread {
         try {
             i.close();
             o.close();
+            exceptionText = International.getString("Abbruch");
         } catch (IOException e) {
             i = null;
             o = null;
@@ -83,6 +85,10 @@ public class DownloadThread {
 
     String getMessage() {
         return International.getMessage("{bytesDone} Bytes von {bytesTotal} Bytes ...", downDone, downTotal);
+    }
+
+    void setAborted() {
+        aborted = true;
     }
 
     void exit() {
@@ -172,14 +178,18 @@ public class DownloadThread {
                 int c = 0;
                 downDone = 0;
                 downTotal = conn.getContentLength();
-                while ((c = i.read(buf, 0, BUFSIZE)) > 0) {
+                while ((c = i.read(buf, 0, BUFSIZE)) > 0 && !aborted) {
                     o.write(buf, 0, c);
                     downDone += c;
                 }
                 i.close();
                 o.close();
                 if (afterDownload != null) {
-                    afterDownload.success();
+                    if (!aborted && downDone == downTotal) {
+                        afterDownload.success();
+                    } else {
+                        afterDownload.failure(International.getString("Abbruch"));
+                    }
                 }
             } catch (IOException e) {
                 exceptionText = e.getMessage();
@@ -201,6 +211,9 @@ public class DownloadThread {
         public void actionPerformed(ActionEvent evt) {
             if (progressMonitor != null) {
                 if (progressMonitor.isCanceled() || downloadThread.done()) {
+                    if (progressMonitor.isCanceled()) {
+                        downloadThread.setAborted();
+                    }
                     progressMonitor.close();
 //                downloadThread.stop();
                     downloadThread.exit();

@@ -112,6 +112,26 @@ public abstract class DataFile extends DataAccess {
         }
     }
 
+    private void saveOriginalFileBeforeRecovery(String filename) {
+        String bakFile = null;
+        try {
+            File f = new File(filename);
+            if (f.exists()) {
+                bakFile = Daten.efaBakDirectory + f.getName();
+                int i = 0;
+                while (new File(bakFile).exists()) {
+                    bakFile = Daten.efaBakDirectory + f.getName() + "." + ++i;
+                }
+                f.renameTo(new File(bakFile));
+                Logger.log(Logger.INFO, Logger.MSG_DATA_RECOVERYORIGMOVED,
+                        LogString.fileMoved(filename, International.getString("Originaldatei"), bakFile));
+            }
+        } catch(Exception e) {
+            Logger.log(Logger.WARNING, Logger.MSG_DATA_RECOVERYORIGMOVED,
+                    "Could not move " + filename + " to " + bakFile + ": " + e.toString());
+        }
+    }
+
     private boolean tryOpenStorageObject(String filename, boolean recover) throws Exception {
         String descr = getStorageObjectDescription() + " (" + getStorageObjectName() + "." + getStorageObjectType() + ")";
         if (recover) {
@@ -170,6 +190,7 @@ public abstract class DataFile extends DataAccess {
                 try {
                     Logger.log(Logger.ERROR, Logger.MSG_DATA_OPENFAILED,
                             LogString.fileOpenFailed(filename, getStorageObjectName() + "." + getStorageObjectType() , e1.toString()));
+                    saveOriginalFileBeforeRecovery(filename);
                     recovered = tryOpenStorageObject(filename + BACKUP_MOSTRECENT, true);
                 } catch(Exception e2) {
                     Logger.log(Logger.ERROR, Logger.MSG_DATA_OPENFAILED,
@@ -839,7 +860,7 @@ public abstract class DataFile extends DataAccess {
                 long validFrom = (Long)k.getKeyPart(validFromField);
                 if (t >= validFrom) {
                     DataRecord rec = get(k);
-                    if (rec != null && t >= rec.getValidFrom() && t < rec.getInvalidFrom()) {
+                    if (rec != null && rec.isValidAt(t)) {
                         return rec;
                     }
                 }
@@ -860,15 +881,20 @@ public abstract class DataFile extends DataAccess {
             if (list == null) {
                 return null;
             }
-            DataKey latestVersion = null;
+            DataKey latestVersionKey = null;
+            DataRecord latestVersionRec = null;
             for (DataKey k : list) {
                 long validFrom = (Long)k.getKeyPart(validFromField);
-                if (latestVersion == null || validFrom > (Long)latestVersion.getKeyPart(validFromField)) {
-                    latestVersion = k;
+                if (latestVersionKey == null || validFrom > (Long)latestVersionKey.getKeyPart(validFromField)) {
+                    DataRecord r = get(k);
+                    if (!r.getDeleted()) {
+                        latestVersionKey = k;
+                        latestVersionRec = r;
+                    }
                 }
             }
-            if (latestVersion != null) {
-                return get(latestVersion);
+            if (latestVersionRec != null) {
+                return latestVersionRec;
             }
         }
         return null;
@@ -940,7 +966,7 @@ public abstract class DataFile extends DataAccess {
             ArrayList<DataKey> keyList = new ArrayList<DataKey>();
             for (int i=0; i<keys.length; i++) {
                 DataRecord r = this.get(keys[i]);
-                if (r != null && r.getValidFrom() <= validAt && r.getInvalidFrom() > validAt) {
+                if (r != null && r.isValidAt(validAt)) {
                     keyList.add(keys[i]);
                 }
             }
@@ -966,7 +992,8 @@ public abstract class DataFile extends DataAccess {
                         if (fieldIdx[i] >= 0 && !values[i].equals(rec.get(fieldIdx[i]))) {
                             matching = false;
                         }
-                        if (validAt >= 0 && (rec.getValidFrom() > validAt || rec.getInvalidFrom() <= validAt)) {
+                        if (validAt >= 0 && (rec.getValidFrom() > validAt || rec.getInvalidFrom() <= validAt) ||
+                                rec.getDeleted()) {
                             matching = false;
                         }
                     }

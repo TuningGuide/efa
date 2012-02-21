@@ -76,6 +76,10 @@ public class SimpleInputDialog extends BaseDialog {
             }
         }
         item.requestFocus();
+
+        if (closeButton != null) {
+            closeButton.setIcon(getIcon("button_accept.png"));
+        }
     }
 
     public void closeButton_actionPerformed(ActionEvent e) {

@@ -20,9 +20,12 @@ import java.util.*;
 public class ImportTask extends ProgressTask {
 
     private HashMap<String, ImportMetadata> importData;
+    private Hashtable<String,DataKey> personMainName2Key;
+    private Hashtable<String,DataKey> destinationMainName2Key;
     private Hashtable<String,String> synMitglieder;
     private Hashtable<String,String> synBoote;
     private Hashtable<String,String> synZiele;
+    private Hashtable<String,UUID> statusKeys;
     private Hashtable<String,String> addresses;
     private Hashtable<DataKey,String> boatsAllowedGroups;
     private Hashtable<DataKey,String> boatsRequiredGroup;
@@ -60,23 +63,23 @@ public class ImportTask extends ProgressTask {
                 if (run == 1) {
                     switch (meta.type) {
                         case ImportMetadata.TYPE_SYNONYME_MITGLIEDER:
-                            importJob = new ImportSynonyms(this, key, meta);
+                            importJob = new ImportSynonyms(this, meta.filename, meta);
                             break;
                         case ImportMetadata.TYPE_SYNONYME_BOOTE:
-                            importJob = new ImportSynonyms(this, key, meta);
+                            importJob = new ImportSynonyms(this, meta.filename, meta);
                             break;
                         case ImportMetadata.TYPE_SYNONYME_ZIELE:
-                            importJob = new ImportSynonyms(this, key, meta);
+                            importJob = new ImportSynonyms(this, meta.filename, meta);
                             break;
                         case ImportMetadata.TYPE_ADRESSEN:
-                            importJob = new ImportAddresses(this, key, meta);
+                            importJob = new ImportAddresses(this, meta.filename, meta);
                             break;
                     }
                 }
                 if (run == 2) {
                     switch (meta.type) {
                         case ImportMetadata.TYPE_FAHRTENBUCH:
-                            importJob = new ImportLogbook(this, key, meta);
+                            importJob = new ImportLogbook(this, meta.filename, meta);
                             newestLogbookName = meta.name;
                             break;
                     }
@@ -84,16 +87,16 @@ public class ImportTask extends ProgressTask {
                 if (run == 3) {
                     switch (meta.type) {
                         case ImportMetadata.TYPE_GRUPPEN:
-                            importJob = new ImportGroups(this, key, meta);
+                            importJob = new ImportGroups(this, meta.filename, meta);
                             break;
                         case ImportMetadata.TYPE_MANNSCHAFTEN:
-                            importJob = new ImportCrews(this, key, meta);
+                            importJob = new ImportCrews(this, meta.filename, meta);
                             break;
                         case ImportMetadata.TYPE_BOOTSTATUS:
-                            importJob = new ImportBoatStatus(this, key, meta);
+                            importJob = new ImportBoatStatus(this, meta.filename, meta);
                             break;
                         case ImportMetadata.TYPE_FAHRTENABZEICHEN:
-                            importJob = new ImportFahrtenabzeichen(this, key, meta);
+                            importJob = new ImportFahrtenabzeichen(this, meta.filename, meta);
                             break;
                     }
                 }
@@ -148,16 +151,51 @@ public class ImportTask extends ProgressTask {
         this.synZiele = syn;
     }
 
-    public String synMitglieder_genMainName(String syn) {
+    public String synMitglieder_getMainName(String syn) {
         return ( synMitglieder != null && synMitglieder.get(syn) != null ? synMitglieder.get(syn) : syn);
     }
 
-    public String synBoote_genMainName(String syn) {
+    public void synMitglieder_setKeyForMainName(String mainName, DataKey key) {
+        if (personMainName2Key == null) {
+            personMainName2Key = new Hashtable<String,DataKey>();
+        }
+        personMainName2Key.put(mainName, key);
+    }
+
+    public DataKey synMitglieder_getKeyForMainName(String mainName) {
+        return (personMainName2Key != null ?
+            personMainName2Key.get(mainName): null);
+    }
+
+    public String synBoote_getMainName(String syn) {
         return ( synBoote != null && synBoote.get(syn) != null ? synBoote.get(syn) : syn);
     }
 
-    public String synZiele_genMainName(String syn) {
+    public String synZiele_getMainName(String syn) {
         return ( synZiele != null && synZiele.get(syn) != null ? synZiele.get(syn) : syn);
+    }
+
+    public void synZiele_setKeyForMainName(String mainName, DataKey key) {
+        if (destinationMainName2Key == null) {
+            destinationMainName2Key = new Hashtable<String,DataKey>();
+        }
+        destinationMainName2Key.put(mainName, key);
+    }
+
+    public DataKey synZiele_getKeyForMainName(String mainName) {
+        return (destinationMainName2Key != null ?
+            destinationMainName2Key.get(mainName): null);
+    }
+
+    public void setStatusKey(String statusName, UUID statusId) {
+        if (statusKeys == null) {
+            statusKeys = new Hashtable<String,UUID>();
+        }
+        statusKeys.put(statusName, statusId);
+    }
+
+    public UUID getStatusKey(String statusName) {
+        return (statusKeys != null ? statusKeys.get(statusName) : null);
     }
 
     public void setAddresses(Hashtable<String,String> addr) {
@@ -172,8 +210,16 @@ public class ImportTask extends ProgressTask {
         this.boatsAllowedGroups = boatsAllowedGroups;
     }
 
+    public Hashtable<DataKey,String> getBoatsAllowedGroups() {
+        return boatsAllowedGroups;
+    }
+
     public void setBoatsRequiredGroup(Hashtable<DataKey,String> boatsRequiredGroup) {
         this.boatsRequiredGroup = boatsRequiredGroup;
+    }
+
+    public Hashtable<DataKey,String> getBoatsRequiredGroup() {
+        return boatsRequiredGroup;
     }
 
     public void setGroupMapping(Hashtable<String,UUID> groupMapping) {

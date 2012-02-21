@@ -28,23 +28,41 @@ public class SimpleOptionInputDialog extends SimpleInputDialog implements IItemL
 
     private String[] optionButtonText;
     private int[] optionButtonAction;
+    private String[] optionButtonIcons;
     private Hashtable<JButton,Integer> buttonActions = new Hashtable<JButton,Integer>();
 
     public SimpleOptionInputDialog(Frame parent, String title, IItemType item,
-            String[] optionButtonText, int[] optionButtonAction) {
+            String[] optionButtonText, int[] optionButtonAction,
+            String[] optionButtonIcons) {
         super(parent, title, item);
-        ini(item, optionButtonText, optionButtonAction);
+        ini(item, optionButtonText, optionButtonAction, optionButtonIcons);
     }
 
     public SimpleOptionInputDialog(JDialog parent, String title, IItemType item,
-            String[] optionButtonText, int[] optionButtonAction) {
+            String[] optionButtonText, int[] optionButtonAction,
+            String[] optionButtonIcons) {
         super(parent, title, item);
-        ini(item, optionButtonText, optionButtonAction);
+        ini(item, optionButtonText, optionButtonAction, optionButtonIcons);
     }
 
-    private void ini(IItemType item, String[] optionButtonText, int[] optionButtonAction) {
+    private void ini(IItemType item, String[] optionButtonText, int[] optionButtonAction,
+            String[] optionButtonIcons) {
         this.optionButtonText = optionButtonText;
         this.optionButtonAction = optionButtonAction;
+        if (optionButtonIcons == null) {
+            optionButtonIcons = new String[optionButtonAction.length];
+            for (int i=0; i<optionButtonAction.length; i++) {
+                switch(optionButtonAction[i]) {
+                    case OPTION_OK:
+                        optionButtonIcons[i] = "button_accept.png";
+                        break;
+                    case OPTION_CANCEL:
+                        optionButtonIcons[i] = "button_cancel.png";
+                        break;
+                }
+            }
+        }
+        this.optionButtonIcons = optionButtonIcons;
         this._closeButtonText = null;
          item.registerItemListener(this);
 
@@ -69,6 +87,10 @@ public class SimpleOptionInputDialog extends SimpleInputDialog implements IItemL
             });
             buttonPanel.add(button);
             buttonActions.put(button, optionButtonAction[i]);
+            if (optionButtonIcons != null && optionButtonIcons.length > i &&
+                optionButtonIcons[i] != null) {
+                button.setIcon(getIcon(optionButtonIcons[i]));
+            }
         }
         basePanel.add(buttonPanel, BorderLayout.SOUTH);
     }
@@ -102,29 +124,29 @@ public class SimpleOptionInputDialog extends SimpleInputDialog implements IItemL
 
 
     public static boolean showOptionInputDialog(JDialog parent, String title, IItemType item,
-            String[] optionButtonText, int[] optionButtonAction) {
+            String[] optionButtonText, int[] optionButtonAction, String[] optionButtonIcons) {
         SimpleOptionInputDialog dlg = new SimpleOptionInputDialog(parent, title, item,
-                optionButtonText, optionButtonAction);
+                optionButtonText, optionButtonAction, optionButtonIcons);
         dlg.showDialog();
         return dlg.resultSuccess;
     }
 
     public static boolean showOptionInputDialog(JFrame parent, String title, IItemType item,
-            String[] optionButtonText, int[] optionButtonAction) {
+            String[] optionButtonText, int[] optionButtonAction, String[] optionButtonIcons) {
         SimpleOptionInputDialog dlg = new SimpleOptionInputDialog(parent, title, item,
-                optionButtonText, optionButtonAction);
+                optionButtonText, optionButtonAction, optionButtonIcons);
         dlg.showDialog();
         return dlg.resultSuccess;
     }
 
     public static boolean showOptionInputDialog(Window parent, String title, IItemType item,
-            String[] optionButtonText, int[] optionButtonAction) {
+            String[] optionButtonText, int[] optionButtonAction, String[] optionButtonIcons) {
         if (parent instanceof JDialog) {
             return showOptionInputDialog((JDialog)parent, title, item,
-                optionButtonText, optionButtonAction);
+                optionButtonText, optionButtonAction, optionButtonIcons);
         } else {
             return showOptionInputDialog((JFrame)parent, title, item,
-                optionButtonText, optionButtonAction);
+                optionButtonText, optionButtonAction, optionButtonIcons);
         }
     }
 

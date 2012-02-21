@@ -38,6 +38,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
 
     protected String[] actionText;
     protected int[] actionType;
+    protected String[] actionImage;
     protected String filterFieldName;
     protected String filterFieldValue;
     protected String filterFieldDescription;
@@ -45,6 +46,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
     protected int sortByColumn = 0;
     protected boolean sortAscending = true;
     protected int tableFontSize = -1;
+    protected boolean intelligentColumnWidth = true;
     protected String buttonPanelPosition = BorderLayout.EAST;
     private ItemTypeDateTime validAtDateTime;
     private ItemTypeBoolean showAll;
@@ -93,6 +95,15 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 ACTION_EXPORT,
                 ACTION_PRINTLIST
             };
+            actionImage = new String[] {
+                BaseDialog.IMAGE_ADD,
+                BaseDialog.IMAGE_EDIT,
+                BaseDialog.IMAGE_DELETE,
+                BaseDialog.IMAGE_HIDE,
+                BaseDialog.IMAGE_IMPORT,
+                BaseDialog.IMAGE_EXPORT,
+                BaseDialog.IMAGE_LIST,
+            };
         } else {
             actionText = new String[] {
                 ItemTypeDataRecordTable.ACTIONTEXT_NEW,
@@ -110,7 +121,33 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 ACTION_EXPORT,
                 ACTION_PRINTLIST
             };
+            actionImage = new String[] {
+                BaseDialog.IMAGE_ADD,
+                BaseDialog.IMAGE_EDIT,
+                BaseDialog.IMAGE_DELETE,
+                BaseDialog.IMAGE_IMPORT,
+                BaseDialog.IMAGE_EXPORT,
+                BaseDialog.IMAGE_LIST,
+            };
         }
+    }
+
+    protected void addAction(String text, int type, String image) {
+        String[] _actionText = actionText;
+        int[] _actionType = actionType;
+        String[] _actionImage = actionImage;
+        actionText = new String[_actionText.length + 1];
+        actionType = new int[_actionType.length + 1];
+        actionImage = new String[_actionImage.length + 1];
+        // arrays must all be the same length!
+        for (int i=0; i<actionType.length - 1; i++) {
+            actionText[i] = _actionText[i];
+            actionType[i] = _actionType[i];
+            actionImage[i] = _actionImage[i];
+        }
+        actionText[actionText.length - 1] = text;
+        actionType[actionType.length - 1] = type;
+        actionImage[actionImage.length - 1] = image;
     }
 
 
@@ -132,13 +169,14 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 persistence.createNewRecord().getGuiTableHeader(),
                 persistence, validAt, admin,
                 filterFieldName, filterFieldValue, // defaults are null
-                actionText, actionType, // default actions: new, edit, delete
+                actionText, actionType, actionImage, // default actions: new, edit, delete
                 this,
                 IItemType.TYPE_PUBLIC, "BASE_CAT", getTitle());
         table.setSorting(sortByColumn, sortAscending);
         table.setFontSize(tableFontSize);
         table.setMarkedCellColor(markedCellColor);
         table.setMarkedCellBold(markedCellBold);
+        table.disableIntelligentColumnWidth(!intelligentColumnWidth);
         table.setButtonPanelPosition(buttonPanelPosition);
         table.setFieldSize(600, 500);
         table.setPadding(0, 0, 10, 0);

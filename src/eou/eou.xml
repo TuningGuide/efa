@@ -1,6 +1,259 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <efaOnlineUpdate>
     <Version>
+        <VersionID>1.9.9_52</VersionID>
+        <ReleaseDate>20.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2803244</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Vordefinierte Gewässerliste für Deutschland (Teil 1)</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Predefined Waters Lists supported</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_51</VersionID>
+        <ReleaseDate>19.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2799976</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Bugfixes Datenimport</ChangeItem>
+            <ChangeItem>Bugfixes DRV-Fahrtenabzeichen</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Bugfixes Data Import</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_49</VersionID>
+        <ReleaseDate>19.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2798698</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_47</VersionID>
+        <ReleaseDate>18.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2795519</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Auswahl der Felder für Fahrtenbuchausgabe (bestehende Statistiken müssen angepaßt werden!)</ChangeItem>
+            <ChangeItem>Übersetzungstool in efa</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Selection of Fields for Logbook Output</ChangeItem>
+            <ChangeItem>Translation Tool in efa</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_46</VersionID>
+        <ReleaseDate>15.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2782684</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>GUI Icons für Buttons</ChangeItem>
+            <ChangeItem>Verbesserte Suchfunktion</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>GUI Icons for Buttons</ChangeItem>
+            <ChangeItem>Improved Search Function</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_45</VersionID>
+        <ReleaseDate>14.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2755094</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_44</VersionID>
+        <ReleaseDate>13.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2754794</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Statistikausgabe Gewässer</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Statistics Calculation for Waters</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_43</VersionID>
+        <ReleaseDate>12.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2752907</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Audit: Überprüfung sämtlicher Projektdaten auf Korrektheit (beim Öffnen eines Projekts)</ChangeItem>
+            <ChangeItem>ACHTUNG: Beta-Tester bitte schaut ins Forum zu wichtigen Hinweisen zum Audit!!!!!</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Audit: Verification of all Project Data (when Project is opened)</ChangeItem>
+            <ChangeItem>ATTENTION: Beta Testers, please see the Forum for important notes regarding the Audit!!!!!</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_42</VersionID>
+        <ReleaseDate>12.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2744705</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_40</VersionID>
+        <ReleaseDate>10.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2743456</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Kleinigkeiten</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Small Stuff</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_39</VersionID>
+        <ReleaseDate>09.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2741680</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Personen von Statistiken ausnehmen</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Exclude Persons from Statistics</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_38</VersionID>
+        <ReleaseDate>08.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2743716</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_37</VersionID>
+        <ReleaseDate>07.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2732165</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_36</VersionID>
+        <ReleaseDate>06.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2732201</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Bugfixes Kanu-EFb-Synchronisation</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>1.9.9_35</VersionID>
         <ReleaseDate>05.02.2012</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>

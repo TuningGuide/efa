@@ -72,6 +72,9 @@ public class EfaMenuButton {
     public final static String BUTTON_LOGFILE           = "LOGFILE";
     public final static String BUTTON_ABOUT             = "ABOUT";
 
+    public final static String MENU_DEVELOPMENT         = "DEVELOPMENT";
+    public final static String BUTTON_TRANSLATE         = "TRANSLATE";
+
     public enum MenuMode {
         all,
         efaBaseGui,
@@ -315,6 +318,13 @@ public class EfaMenuButton {
                     International.getStringWithMnemonic("Ausgabe"),
                     International.getStringWithMnemonic("Statistiken"),
                     BaseFrame.getIcon("menu_statistics.png")));
+        }
+
+        if (Daten.efaConfig.getDeveloperFunctionsActivated() && admin != null && admin.isSuperAdmin()) {
+            v.add(new EfaMenuButton(MENU_DEVELOPMENT, BUTTON_TRANSLATE,
+                    International.getStringWithMnemonic("Entwicklung"),
+                    International.getStringWithMnemonic("Übersetzen"),
+                    BaseFrame.getIcon("menu_translate.png")));
         }
 
         v.add(new EfaMenuButton(MENU_INFO, BUTTON_HELP,
@@ -841,6 +851,17 @@ public class EfaMenuButton {
             }
             LogViewDialog dlg = (parentFrame != null ? new LogViewDialog(parentFrame) : new LogViewDialog(parentDialog));
             dlg.showDialog();
+        }
+        if (action.equals(BUTTON_TRANSLATE)) {
+            if (admin == null || (!admin.isSuperAdmin())) {
+                insufficientRights(admin, action);
+                return false;
+            }
+            if (parentFrame != null) {
+                TranslateDialog.openTranslateDialog(parentFrame);
+            } else {
+                TranslateDialog.openTranslateDialog(parentDialog);
+            }
         }
 
         if (action.equals(BUTTON_ABOUT)) {

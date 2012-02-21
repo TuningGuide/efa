@@ -51,6 +51,7 @@ public class PersonEditDialog extends VersionizedDataEditDialog implements IItem
     }
 
     public void itemListenerAction(IItemType itemType, AWTEvent event) {
+        super.itemListenerAction(itemType, event);
         if (itemType.getName().equals(PersonRecord.FIRSTNAME) ||
             itemType.getName().equals(PersonRecord.LASTNAME)) {
             if (newRecord && Daten.efaConfig.getValueAutogenAlias() &&

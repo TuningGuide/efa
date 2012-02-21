@@ -31,6 +31,7 @@ public class ImportMetadata {
     public String typedescription;
     public boolean selected = true;
     public String name = null;
+    public String filename = null;
     public String description = null;
     public DatenListe datenListe;
     public int numRecords = -1;
@@ -46,6 +47,7 @@ public class ImportMetadata {
         this.type = type;
         this.datenListe = datenListe;
         this.typedescription = description;
+        this.filename = datenListe.getFileName();
     }
 
     public String toString(boolean longtext) {

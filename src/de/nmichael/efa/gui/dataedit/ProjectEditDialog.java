@@ -14,6 +14,7 @@ import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
+import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.ex.InvalidValueException;
@@ -37,6 +38,25 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog {
     public ProjectEditDialog(JDialog parent, Project p, String logbookName, int subtype, AdminRecord admin) {
         super(parent, International.getString("Projekt"), null, false, admin);
         iniItems(p, logbookName, subtype);
+    }
+
+    public ProjectEditDialog(JDialog parent, Project p, String logbookName, int subtype,
+            String compName, AdminRecord admin) {
+        super(parent, International.getString("Projekt"), null, false, admin);
+        iniItems(p, logbookName, subtype);
+        if (compName != null &&
+             (compName.equals(WettDefs.STR_DRV_FAHRTENABZEICHEN) ||
+              compName.equals(WettDefs.STR_DRV_WANDERRUDERSTATISTIK))
+             &&getItem(ProjectRecord.ASSOCIATIONGLOBALLOGIN) != null) {
+            getItem(ProjectRecord.ASSOCIATIONGLOBALLOGIN).setNotNull(true);
+        }
+        if (compName != null &&
+             (compName.equals(WettDefs.STR_LRVBERLIN_SOMMER) ||
+              compName.equals(WettDefs.STR_LRVBERLIN_WINTER) ||
+              compName.equals(WettDefs.STR_LRVBERLIN_BLAUERWIMPEL))
+             &&getItem(ProjectRecord.ASSOCIATIONREGIONALLOGIN) != null) {
+            getItem(ProjectRecord.ASSOCIATIONREGIONALLOGIN).setNotNull(true);
+        }
     }
 
     private void iniItems(Project p, String logbookName, int subtype) {

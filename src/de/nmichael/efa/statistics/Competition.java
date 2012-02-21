@@ -97,23 +97,7 @@ public abstract class Competition {
         }
         efaWett.allg_wett = wett.key;
         Project prj = sr.getPersistence().getProject();
-        switch (wettId) {
-            case WettDefs.DRV_FAHRTENABZEICHEN:
-            case WettDefs.DRV_WANDERRUDERSTATISTIK:
-                efaWett.verein_user = prj.getClubGlobalAssociationLogin();
-                break;
-            case WettDefs.LRVBERLIN_SOMMER:
-            case WettDefs.LRVBERLIN_WINTER:
-            case WettDefs.LRVBERLIN_BLAUERWIMPEL:
-                efaWett.verein_user = prj.getClubRegionalAssociationLogin();
-                break;
-        }
-        efaWett.verein_name = prj.getClubName();
-        efaWett.meld_name = prj.getAdminName();
-        efaWett.meld_email = prj.getAdminEmail();
-        efaWett.versand_name = prj.getClubName();
-        efaWett.versand_strasse = prj.getClubAddressStreet();
-        efaWett.versand_ort = prj.getClubAddressCity();
+        efaWett.setProjectSettings(prj);
 
         // correct evaluation period to competition period
         //if (sr.sOutputType == StatisticsRecord.OutputTypes.efawett) {

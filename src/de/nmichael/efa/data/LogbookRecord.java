@@ -105,7 +105,7 @@ public class LogbookRecord extends DataRecord {
     public static final String SESSIONGROUPID   = "SessionGroupId";
 
     public static final String OPEN             = "Open";
-    public static final String EFBSYNCSTATE     = "EfbSyncState";
+    public static final String EFBSYNCTIME      = "EfbSyncTime";
 
     // =========================================================================
     // Supplementary Constants
@@ -203,7 +203,7 @@ public class LogbookRecord extends DataRecord {
         f.add(COMMENTS);            t.add(IDataAccess.DATA_STRING);
         f.add(SESSIONTYPE);         t.add(IDataAccess.DATA_STRING);
         f.add(SESSIONGROUPID);      t.add(IDataAccess.DATA_UUID);
-        f.add(EFBSYNCSTATE);           t.add(IDataAccess.DATA_INTEGER);
+        f.add(EFBSYNCTIME);         t.add(IDataAccess.DATA_LONGINT);
         f.add(OPEN);                t.add(IDataAccess.DATA_BOOLEAN);
         MetaData metaData = constructMetaData(Logbook.DATATYPE, f, t, false);
         metaData.setKey(new String[] { ENTRYID });
@@ -394,11 +394,11 @@ public class LogbookRecord extends DataRecord {
         return null;
     }
 
-    public void setSyncState(int syncState) {
-        setInt(EFBSYNCSTATE, syncState);
+    public void setSyncTime(long syncTime) {
+        setLong(EFBSYNCTIME, syncTime);
     }
-    public int getSyncState() {
-        return getInt(EFBSYNCSTATE);
+    public long getSyncTime() {
+        return getLong(EFBSYNCTIME);
     }
 
     public void setSessionIsOpen(boolean open) {

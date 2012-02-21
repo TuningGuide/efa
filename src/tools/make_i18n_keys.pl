@@ -29,6 +29,7 @@ if (length($properties) == 0) {
   printf("       f   print file name as a comment after each key\n");
   printf("       i   write output as ISO-8859-1\n");
   printf("       d   print DEBUG messages on stderr\n");
+  printf("       r   remove all old strings\n");
   exit(1);
 }
 
@@ -399,6 +400,9 @@ sub writeProps {
           printf OUTPROPS ("# new keys in $file:\n");
         }
         if ($new == 2) {
+          if ($options =~ /r/) {
+            next;
+          }
           printf OUTPROPS ("# removed keys in $file (these keys do not exist in the source code any more):\n");
         }
         $header = -1;

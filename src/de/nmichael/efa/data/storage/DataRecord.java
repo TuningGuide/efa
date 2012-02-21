@@ -432,7 +432,7 @@ public abstract class DataRecord implements Cloneable, Comparable {
         if (getDeleted()) {
             return false;
         }
-        return (validAt >= getValidFrom() && validAt < getInvalidFrom());
+        return (validAt >= getValidFrom() && validAt < getInvalidFrom()) || validAt < 0;
     }
 
     public void setDeleted(boolean deleted) {

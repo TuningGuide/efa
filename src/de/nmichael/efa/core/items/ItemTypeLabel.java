@@ -11,15 +11,16 @@
 package de.nmichael.efa.core.items;
 
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
 import java.util.Vector;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import javax.swing.*;
 
 public class ItemTypeLabel extends ItemType {
 
     private JLabel[] labels;
     private ImageIcon icon;
+    private boolean mouseClickListener = false;
     
     public ItemTypeLabel(String name, int type,
             String category, String description) {
@@ -64,6 +65,9 @@ public class ItemTypeLabel extends ItemType {
             }
             l.setVisible(isVisible);
             labels[i] = l;
+        }
+        if (mouseClickListener) {
+            addMouseClickListener();
         }
     }
 
@@ -119,6 +123,50 @@ public class ItemTypeLabel extends ItemType {
 
     public void setImage(ImageIcon icon) {
         this.icon = icon;
+    }
+
+    public void activateMouseClickListener() {
+        mouseClickListener = true;
+    }
+
+    private void addMouseClickListener() {
+        for (int i=0; i<labels.length; i++) {
+        labels[i].addMouseListener(new java.awt.event.MouseAdapter() {
+
+            public void mouseClicked(MouseEvent e) {
+                labelMouseClicked(e);
+            }
+
+            public void mouseEntered(MouseEvent e) {
+                labelMouseEntered(e);
+            }
+
+            public void mouseExited(MouseEvent e) {
+                labelMouseExited(e);
+            }
+        });
+
+        }
+    }
+
+    private void labelMouseClicked(MouseEvent e) {
+        actionEvent(e);
+    }
+
+    private void labelMouseEntered(MouseEvent e) {
+        try {
+            JLabel label = (JLabel) e.getSource();
+            label.setForeground(Color.red);
+        } catch (Exception eignore) {
+        }
+    }
+
+    private void labelMouseExited(MouseEvent e) {
+        try {
+            JLabel label = (JLabel) e.getSource();
+            label.setForeground(Color.blue);
+        } catch (Exception eignore) {
+        }
     }
 
 }

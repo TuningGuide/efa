@@ -15,6 +15,7 @@ import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -29,6 +30,7 @@ public class BoatStatusListDialog extends DataListDialog {
                 Daten.project.getBoatStatus(false), -1, admin);
         actionText = new String[] { ItemTypeDataRecordTable.ACTIONTEXT_EDIT };
         actionType = new int[] { ItemTypeDataRecordTable.ACTION_EDIT };
+        actionImage = new String[] { BaseDialog.IMAGE_EDIT };
     }
 
     public BoatStatusListDialog(JDialog parent, AdminRecord admin) {
@@ -36,6 +38,7 @@ public class BoatStatusListDialog extends DataListDialog {
                 Daten.project.getBoatStatus(false), -1, admin);
         actionText = new String[] { ItemTypeDataRecordTable.ACTIONTEXT_EDIT };
         actionType = new int[] { ItemTypeDataRecordTable.ACTION_EDIT };
+        actionImage = new String[] { BaseDialog.IMAGE_EDIT };
     }
 
     public void keyAction(ActionEvent evt) {

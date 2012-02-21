@@ -26,7 +26,7 @@ public class Main extends Program {
         AdminRecord admin = getNewlyCreatedAdminRecord();
 
         if (project != null) {
-            Project.openProject(project);
+            Project.openProject(project, true);
         }
 
         EfaBaseFrame frame = new EfaBaseFrame(EfaBaseFrame.MODE_BASE);

@@ -84,12 +84,24 @@ public class StatisticsListDialog extends DataListDialog {
                         ACTION_MOVEUP,
                         ACTION_MOVEDOWN
                     };
+            actionImage = new String[]{
+                        IMAGE_ADD,
+                        IMAGE_EDIT,
+                        IMAGE_DELETE,
+                        IMAGE_RUN,
+                        IMAGE_STAT,
+                        null,
+                        null
+                    };
         } else {
             actionText = new String[]{
                         International.getString("Statistik erstellen")
                     };
             actionType = new int[]{
                         ACTION_CREATESTATISTICS
+                    };
+            actionImage = new String[]{
+                        ItemTypeDataRecordTable.BUTTON_IMAGE_CENTERED_PREFIX + IMAGE_STAT
                     };
         }
     }
@@ -114,7 +126,7 @@ public class StatisticsListDialog extends DataListDialog {
                 for (int i=0; i<records.length; i++) {
                     sr[i] = (StatisticsRecord)records[i];
                 }
-                StatisticTask.createStatisticsTask(null, this, sr);
+                StatisticTask.createStatisticsTask(null, this, sr, admin);
                 break;
             case ACTION_ONETIMESTATISTIC:
                 StatisticsRecord srtmp = (StatisticsRecord)Daten.project.getStatistics(false).createStatisticsRecord(UUID.randomUUID());

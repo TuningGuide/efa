@@ -44,6 +44,10 @@ public class TableItem {
         return marked;
     }
 
+    public void setText(String text) {
+        this.txt = text;
+    }
+    
     public void setMarked(boolean marked) {
         this.marked = marked;
     }

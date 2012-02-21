@@ -52,6 +52,10 @@ public class Fahrtenabzeichen extends StorageObject {
     public FahrtenabzeichenRecord createFahrtenabzeichenRecord(UUID id) {
         FahrtenabzeichenRecord r = new FahrtenabzeichenRecord(this, MetaData.getMetaData(DATATYPE));
         r.setPersonId(id);
+        r.setKilometer(0);
+        r.setAbzeichen(0);
+        r.setKilometerAB(0);
+        r.setAbzeichenAB(0);
         return r;
     }
 
@@ -311,7 +315,7 @@ public class Fahrtenabzeichen extends StorageObject {
                 FahrtenabzeichenRecord fa = getFahrtenabzeichen(sig.getVorname(), sig.getNachname());
                 boolean newRecord = false;
                 if (fa == null) {
-                    createFahrtenabzeichen(sig.getVorname(), sig.getNachname());
+                    fa = createFahrtenabzeichen(sig.getVorname(), sig.getNachname());
                     newRecord = true;
                 }
                 if (fa != null) {

@@ -108,6 +108,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     JPanel northPanel = new JPanel();
     JPanel southPanel = new JPanel();
 
+    // Window GUI Items
+    JLabel titleLabel = new JLabel();
+
     // Data
     EfaBoathouseBackgroundTask efaBoathouseBackgroundTask;
     EfaBaseFrame efaBaseFrame;
@@ -344,7 +347,6 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                 menuBar.setForeground(Color.white);
                 JLabel efaLabel = new JLabel();
                 efaLabel.setIcon(getIcon("efa_icon_small.png"));
-                JLabel titleLabel = new JLabel();
                 titleLabel.setText(Daten.EFA_LONGNAME);
                 titleLabel.setForeground(Color.white);
                 titleLabel.setFont(titleLabel.getFont().deriveFont(12f));
@@ -422,6 +424,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             // lock efa NOW
             lockEfa();
         }
+
+        // Update Project Info#
+        updateProjectLogbookInfo();
 
         // note: packing must happen at the very end, since it makes the frame "displayable", which then
         // does not allow to change any window settings like setUndecorated()
@@ -1048,129 +1053,150 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         Daten.haltProgram(exitCode);
     }
 
+    private void updateProjectLogbookInfo() {
+        if (Daten.project == null || !Daten.project.isOpen()) {
+            titleLabel.setText(Daten.EFA_LONGNAME);
+        } else {
+            titleLabel.setText(Daten.EFA_LONGNAME + " [" + Daten.project.getProjectName() +
+                    (logbook != null && logbook.isOpen() ? ": " + logbook.getName() : "") + "]");
+        }
+    }
+
     public Project openProject(AdminRecord admin) {
-        // project to open
-        String projectName = null;
-        if (admin == null && Daten.efaConfig.getValueLastProjectEfaBoathouse().length() > 0) {
-            projectName = Daten.efaConfig.getValueLastProjectEfaBoathouse();
-        }
-
-        if (projectName == null || projectName.length() == 0) {
-            if (admin != null && admin.isAllowedAdministerProjectLogbook()) {
-                OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.project, admin);
-                projectName = dlg.openDialog();
+        try {
+            // project to open
+            String projectName = null;
+            if (admin == null && Daten.efaConfig.getValueLastProjectEfaBoathouse().length() > 0) {
+                projectName = Daten.efaConfig.getValueLastProjectEfaBoathouse();
             }
-        }
-        
-        if (projectName == null || projectName.length() == 0) {
-            return null;
-        }
 
-
-
-        // close open project now
-        if (Daten.project != null) {
-            try {
-                Daten.project.closeAllStorageObjects();
-            } catch(Exception e) {
-                String msg = LogString.fileCloseFailed(Daten.project.getProjectName(), International.getString("Projekt"), e.getMessage());
-                Logger.log(Logger.ERROR, Logger.MSG_DATA_CLOSEFAILED, msg);
-                Dialog.error(msg);
+            if (projectName == null || projectName.length() == 0) {
+                if (admin != null && admin.isAllowedAdministerProjectLogbook()) {
+                    OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.project, admin);
+                    projectName = dlg.openDialog();
+                }
             }
-        }
-        Daten.project = null;
-        logbook = null;
 
-        if (!Project.openProject(projectName)) {
+            if (projectName == null || projectName.length() == 0) {
+                return null;
+            }
+
+
+
+            // close open project now
+            if (Daten.project != null) {
+                try {
+                    Daten.project.closeAllStorageObjects();
+                } catch (Exception e) {
+                    String msg = LogString.fileCloseFailed(Daten.project.getProjectName(), International.getString("Projekt"), e.getMessage());
+                    Logger.log(Logger.ERROR, Logger.MSG_DATA_CLOSEFAILED, msg);
+                    Dialog.error(msg);
+                }
+            }
             Daten.project = null;
-            return null;
-        }
+            logbook = null;
 
-        if (Daten.project != null && Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE &&
-            !Daten.project.getProjectStorageUsername().equals(Admins.SUPERADMIN)) {
-            Daten.project = null;
-            String err = International.getString("Nur der Super-Administrator darf im Bootshaus-Modus ein Remote-Projekt öffnen.");
-            Logger.log(Logger.ERROR, Logger.MSG_ERR_NOPROJECTOPENED, err);
-            Dialog.error(err);
-            return null;
-        }
+            if (!Project.openProject(projectName, true)) {
+                Daten.project = null;
+                return null;
+            }
 
-        Daten.efaConfig.setValueLastProjectEfaBoathouse(projectName);
-        boatStatus = Daten.project.getBoatStatus(false);
-        Logger.log(Logger.INFO, Logger.MSG_EVT_PROJECTOPENED, LogString.fileOpened(projectName, International.getString("Projekt")));
+            if (Daten.project != null && Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE
+                    && !Daten.project.getProjectStorageUsername().equals(Admins.SUPERADMIN)) {
+                Daten.project = null;
+                String err = International.getString("Nur der Super-Administrator darf im Bootshaus-Modus ein Remote-Projekt öffnen.");
+                Logger.log(Logger.ERROR, Logger.MSG_ERR_NOPROJECTOPENED, err);
+                Dialog.error(err);
+                return null;
+            }
 
-        if (efaBoathouseBackgroundTask != null) {
-            efaBoathouseBackgroundTask.interrupt();
+            Daten.efaConfig.setValueLastProjectEfaBoathouse(projectName);
+            boatStatus = Daten.project.getBoatStatus(false);
+            Logger.log(Logger.INFO, Logger.MSG_EVT_PROJECTOPENED, LogString.fileOpened(projectName, International.getString("Projekt")));
+
+            if (efaBoathouseBackgroundTask != null) {
+                efaBoathouseBackgroundTask.interrupt();
+            }
+            return Daten.project;
+        } finally {
+            updateProjectLogbookInfo();
         }
-        return Daten.project;
     }
 
     public Logbook openLogbook(AdminRecord admin) {
-        if (Daten.project == null) {
-            return null;
-        }
+        try {
+            if (Daten.project == null) {
+                return null;
+            }
 
-        // close any other logbook first
-        if (logbook != null) {
-            try {
-                logbook.close();
-            } catch (Exception e) {
-                String msg = LogString.fileCloseFailed(Daten.project.getProjectName(), International.getString("Fahrtenbuch"), e.toString());
-                Logger.log(Logger.ERROR, Logger.MSG_DATA_CLOSEFAILED, msg);
-                Logger.logdebug(e);
-                Dialog.error(msg);
+            // close any other logbook first
+            if (logbook != null) {
+                try {
+                    logbook.close();
+                } catch (Exception e) {
+                    String msg = LogString.fileCloseFailed(Daten.project.getProjectName(), International.getString("Fahrtenbuch"), e.toString());
+                    Logger.log(Logger.ERROR, Logger.MSG_DATA_CLOSEFAILED, msg);
+                    Logger.logdebug(e);
+                    Dialog.error(msg);
+                    logbook = null;
+                }
+            }
+
+            // logbook to open
+            String logbookName = null;
+            if (admin == null && Daten.project.getCurrentLogbookEfaBoathouse() != null) {
+                logbookName = Daten.project.getCurrentLogbookEfaBoathouse();
+            }
+
+            if (logbookName == null || logbookName.length() == 0) {
+                if (admin != null && admin.isAllowedAdministerProjectLogbook()) {
+                    OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.logbook, admin);
+                    logbookName = dlg.openDialog();
+                }
+            }
+            if (logbookName == null || logbookName.length() == 0) {
+                return null;
+            }
+            if (!openLogbook(logbookName)) {
                 logbook = null;
+                return null;
             }
+            return logbook;
+        } finally {
+            updateProjectLogbookInfo();
         }
-
-        // logbook to open
-        String logbookName = null;
-        if (admin == null && Daten.project.getCurrentLogbookEfaBoathouse() != null) {
-            logbookName = Daten.project.getCurrentLogbookEfaBoathouse();
-        }
-
-        if (logbookName == null || logbookName.length() == 0) {
-            if (admin != null && admin.isAllowedAdministerProjectLogbook()) {
-                OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.logbook, admin);
-                logbookName = dlg.openDialog();
-            }
-        }
-        if (logbookName == null || logbookName.length() == 0) {
-            return null;
-        }
-        if (!openLogbook(logbookName)) {
-            logbook = null;
-            return null;
-        }
-        return logbook;
     }
 
     public boolean openLogbook(String logbookName) {
-        if (Daten.project == null) {
-            return false;
-        }
         try {
-            if (logbook != null && logbook.isOpen()) {
-                logbook.close();
+            if (Daten.project == null) {
+                return false;
             }
-        } catch (Exception e) {
-            Logger.log(e);
-            Dialog.error(e.toString());
-        }
-        if (logbookName != null && logbookName.length() > 0) {
-            logbook = Daten.project.getLogbook(logbookName, false);
-            if (logbook != null) {
-                Daten.project.setCurrentLogbookEfaBoathouse(logbookName);
-                Logger.log(Logger.INFO, Logger.MSG_EVT_LOGBOOKOPENED, LogString.fileOpened(logbookName, International.getString("Fahrtenbuch")));
-                if (efaBoathouseBackgroundTask != null) {
-                    efaBoathouseBackgroundTask.interrupt();
+            try {
+                if (logbook != null && logbook.isOpen()) {
+                    logbook.close();
                 }
-                return true;
-            } else {
-                Dialog.error(LogString.fileOpenFailed(logbookName, International.getString("Fahrtenbuch")));
+            } catch (Exception e) {
+                Logger.log(e);
+                Dialog.error(e.toString());
             }
+            if (logbookName != null && logbookName.length() > 0) {
+                logbook = Daten.project.getLogbook(logbookName, false);
+                if (logbook != null) {
+                    Daten.project.setCurrentLogbookEfaBoathouse(logbookName);
+                    Logger.log(Logger.INFO, Logger.MSG_EVT_LOGBOOKOPENED, LogString.fileOpened(logbookName, International.getString("Fahrtenbuch")));
+                    if (efaBoathouseBackgroundTask != null) {
+                        efaBoathouseBackgroundTask.interrupt();
+                    }
+                    return true;
+                } else {
+                    Dialog.error(LogString.fileOpenFailed(logbookName, International.getString("Fahrtenbuch")));
+                }
+            }
+            return false;
+        } finally {
+            updateProjectLogbookInfo();
         }
-        return false;
     }
 
     public Logbook getLogbook() {

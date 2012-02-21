@@ -210,6 +210,9 @@ class XmlFileInfo {
 
     private BufferedWriter getMirrorFile() {
         try {
+            if (Daten.efaConfig == null || dataAccess == null) {
+                return null;
+            }
             String mirrorDir = Daten.efaConfig.getValueDataMirrorDirectory();
             if (mirrorDir != null && mirrorDir.length() > 0 && dataAccess instanceof XMLFile &&
                     new File(mirrorDir).exists()) {

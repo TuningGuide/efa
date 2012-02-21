@@ -23,7 +23,9 @@ import java.util.Vector;
 
 public class StatisticsData implements Comparable {
 
-    public static final int LOGBOOK_FIELD_COUNT = 10;
+    public static final int LOGBOOK_FIELD_COUNT_NORMAL = 10;
+    public static final int LOGBOOK_FIELD_COUNT_EXTENDED = 11;
+
     public static final String SORTING_PREFIX  = "%%";
     public static final String SORTING_POSTFIX = "$$";
 
@@ -39,6 +41,7 @@ public class StatisticsData implements Comparable {
     String sSessions;
     String sAvgDistance;
     String sDestinationAreas;
+    String sWanderfahrten;
     String sAdditional;
     String[][] sDetailsArray;
     String sCompAttr1;
@@ -141,10 +144,18 @@ public class StatisticsData implements Comparable {
                     decimals = 0;
                 }
             }
-            this.sDistance = DataTypeDistance.getDistance(this.distance).getStringValueInDefaultUnit(sr.sDistanceWithUnit, 0, decimals);
+            if (sr.sIgnoreNullValues && distance == 0) {
+                sDistance = "";
+            } else {
+                this.sDistance = DataTypeDistance.getDistance(this.distance).getStringValueInDefaultUnit(sr.sDistanceWithUnit, 0, decimals);
+            }
         }
         if (sr.sIsAggrSessions) {
-            this.sSessions = Long.toString(this.sessions);
+            if (sr.sIgnoreNullValues && sessions == 0) {
+                this.sSessions = "";
+            } else {
+                this.sSessions = Long.toString(this.sessions);
+            }
         }
         if (sr.sIsAggrAvgDistance) {
             if (this.sessions > 0) {
@@ -160,6 +171,21 @@ public class StatisticsData implements Comparable {
                 getAllDestinationAreas();
             }
             this.sDestinationAreas = destinationAreas.toString();
+        }
+        if (sr.sIsAggrWanderfahrten) {
+            int decimals = 1;
+            if (sr.sTruncateDistanceToFullValue) {
+                if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list) {
+                    decimals = 0;
+                }
+            }
+            long meters = CompetitionDRVFahrtenabzeichen.getWanderfahrtenMeter(this);
+            if (sr.sIgnoreNullValues && meters == 0) {
+                sWanderfahrten = "";
+            } else {
+                sWanderfahrten = DataTypeDistance.getDistance(meters).
+                        getStringValueInDefaultUnit(sr.sDistanceWithUnit, 0, decimals);
+            }
         }
 
     }

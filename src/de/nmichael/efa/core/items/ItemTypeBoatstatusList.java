@@ -43,7 +43,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
     }
 
     Vector<ItemTypeListData> sortBootsList(Vector<BoatStatusRecord> v, Logbook logbook) {
-        if (v == null || v.size() == 0) {
+        if (v == null || v.size() == 0 || logbook == null) {
             return new Vector<ItemTypeListData>();
         }
 

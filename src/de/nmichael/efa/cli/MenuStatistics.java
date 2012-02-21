@@ -57,7 +57,7 @@ public class MenuStatistics extends MenuData {
 
         try {
             cli.loginfo("Creating Statistic " + sr.getQualifiedName() + "...");
-            StatisticTask.createStatisticsTask(null, null, new StatisticsRecord[] { sr });
+            StatisticTask.createStatisticsTask(null, null, new StatisticsRecord[] { sr }, cli.getAdminRecord());
             cli.loginfo("Done.");
             return CLI.RC_OK;
         } catch(Exception e) {

@@ -62,6 +62,12 @@ public class AdminListDialog extends DataListDialog {
                         ItemTypeDataRecordTable.ACTION_DELETE,
                         ACTION_EFALIVE_ADMIN
                     };
+            actionImage = new String[]{
+                        IMAGE_ADD,
+                        IMAGE_EDIT,
+                        IMAGE_DELETE,
+                        IMAGE_REPAIR
+                    };
         }
     }
 

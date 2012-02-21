@@ -56,23 +56,29 @@ public abstract class ImportBase {
         return cntError;
     }
 
-    protected UUID findPerson(Persons persons, String[] IDX, String name, boolean warnIfNotFound) {
+    protected UUID findPerson(Persons persons, String[] IDX, String name, boolean warnIfNotFound, long validAt) {
         name = name.trim();
         if (name.length() == 0) {
             return null;
         }
         String[] qname = persons.staticPersonRecord.getQualifiedNameValues(name);  //PersonRecord.tryGetNameAndAffix(name);
-        return findPerson(persons, IDX, qname[0], qname[1], warnIfNotFound);
+        return findPerson(persons, IDX, qname[0], qname[1], warnIfNotFound, validAt);
     }
 
-    protected UUID findPerson(Persons persons, String[] IDX, String name, String affix, boolean warnIfNotFound) {
+    protected UUID findPerson(Persons persons, String[] IDX, String name, String affix, boolean warnIfNotFound, long validAt) {
         try {
             DataKey[] keys = persons.data().getByFields(IDX,
                     new String[]{
                         (name != null && name.length() > 0 ? name : null),
                         (affix != null && affix.length() > 0 ? affix : null)});
             if (keys != null && keys.length > 0) {
-                return (UUID) keys[0].getKeyPart1();
+                for (int i=0; i<keys.length; i++) {
+                    DataRecord r = persons.data().get(keys[i]);
+                    if (r != null && r.isValidAt(validAt)) {
+                        return (UUID) keys[i].getKeyPart1();
+                    }
+                }
+                return null;
             }
         } catch(Exception e) {
         }
@@ -85,23 +91,29 @@ public abstract class ImportBase {
         return null;
     }
 
-    protected UUID findBoat(Boats boats, String[] IDX, String name, boolean warnIfNotFound) {
+    protected UUID findBoat(Boats boats, String[] IDX, String name, boolean warnIfNotFound, long validAt) {
         name = name.trim();
         if (name.length() == 0) {
             return null;
         }
         String[] qname = BoatRecord.tryGetNameAndAffix(name);
-        return findBoat(boats, IDX, qname[0], qname[1], warnIfNotFound);
+        return findBoat(boats, IDX, qname[0], qname[1], warnIfNotFound, validAt);
     }
 
-    protected UUID findBoat(Boats boats, String[] IDX, String boatName, String nameAffix, boolean warnIfNotFound) {
+    protected UUID findBoat(Boats boats, String[] IDX, String boatName, String nameAffix, boolean warnIfNotFound, long validAt) {
         try {
             DataKey[] keys = boats.data().getByFields(IDX,
                     new String[]{
                         (boatName != null && boatName.length() > 0 ? boatName : null),
                         (nameAffix != null && nameAffix.length() > 0 ? nameAffix : null)});
             if (keys != null && keys.length > 0) {
-                return (UUID) keys[0].getKeyPart1();
+                for (int i=0; i<keys.length; i++) {
+                    DataRecord r = boats.data().get(keys[i]);
+                    if (r != null && r.isValidAt(validAt)) {
+                        return (UUID) keys[i].getKeyPart1();
+                    }
+                }
+                return null;
             }
         } catch(Exception e) {
         }
@@ -114,7 +126,7 @@ public abstract class ImportBase {
         return null;
     }
 
-    protected UUID findDestination(Destinations destinations, String[] IDX, String name, boolean warnIfNotFound) {
+    protected UUID findDestination(Destinations destinations, String[] IDX, String name, boolean warnIfNotFound, long validAt) {
         name = name.trim();
         if (name.length() == 0) {
             return null;
@@ -123,7 +135,13 @@ public abstract class ImportBase {
             DataKey[] keys = destinations.data().getByFields(IDX,
                     new String[]{ name });
             if (keys != null && keys.length > 0) {
-                return (UUID) keys[0].getKeyPart1();
+                for (int i=0; i<keys.length; i++) {
+                    DataRecord r = destinations.data().get(keys[i]);
+                    if (r != null && r.isValidAt(validAt)) {
+                        return (UUID) keys[i].getKeyPart1();
+                    }
+                }
+                return null;
             }
         } catch(Exception e) {
         }

@@ -92,6 +92,16 @@ public class MessageListDialog extends DataListDialog {
                     ACTION_EXPORT,
                     ACTION_PRINTLIST
                 };
+        actionImage = new String[]{
+                    IMAGE_ADD,
+                    IMAGE_EDIT,
+                    IMAGE_DELETE,
+                    IMAGE_MFORWARD,
+                    IMAGE_MARKREAD,
+                    IMAGE_IMPORT,
+                    IMAGE_EXPORT,
+                    IMAGE_LIST
+                };
     }
 
     public void itemListenerActionTable(int actionId, DataRecord[] records) {

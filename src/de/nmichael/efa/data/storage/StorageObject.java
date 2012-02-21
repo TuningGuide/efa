@@ -121,7 +121,6 @@ public abstract class StorageObject {
         try {
             keys = data().getByFields(new String[] { field }, 
                     new Object[] { record.get(field) });
-                    // @todo (P5) make sure this didn't break anything.
                     // the original line was the following, but it looks wrong:
                     // we should be passing on Objects, not Strings!
                     //new String[] { record.getAsString(field) });
@@ -147,7 +146,6 @@ public abstract class StorageObject {
         DataKey[] keys = null;
         try {
             Object[] values = new Object[fields.length];
-            // @todo (P5) make sure this didn't break anything.
             // the original line was the following, but it looks wrong:
             // we should be passing on Objects, not Strings!
             // String[] values = new String[fields.length];

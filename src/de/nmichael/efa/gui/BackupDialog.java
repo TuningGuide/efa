@@ -95,6 +95,7 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
         guiItems.add(item = new ItemTypeButton(CREATE_BUTTON,
                 IItemType.TYPE_PUBLIC, cat, International.getString("Backup erstellen")));
         ((ItemTypeButton)item).setPadding(0, 0, 20, 20);
+        ((ItemTypeButton)item).setIcon(getIcon(IMAGE_RUNEXPORT));
         ((ItemTypeButton)item).registerItemListener(this);
         item.setFieldGrid(3, GridBagConstraints.CENTER, GridBagConstraints.NONE);
 
@@ -136,6 +137,7 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
 
         guiItems.add(item = new ItemTypeButton(RESTORE_BUTTON,
                 IItemType.TYPE_PUBLIC, cat, International.getString("Ausgewählte Objekte wiederherstellen")));
+        ((ItemTypeButton)item).setIcon(getIcon(IMAGE_RUNIMPORT));
         ((ItemTypeButton)item).setPadding(0, 0, 20, 20);
         ((ItemTypeButton)item).registerItemListener(this);
         item.setFieldGrid(3, GridBagConstraints.CENTER, GridBagConstraints.NONE);

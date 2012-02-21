@@ -152,6 +152,7 @@ public class OnlineUpdate {
         if (parent != null) {
             parent.setEnabled(false);
             if (!DownloadThread.getFile(parent, newestVersion.downloadUrl, zipFile, afterDownload)) {
+                parent.setEnabled(true);
                 return false;
             }
         } else {

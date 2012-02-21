@@ -216,13 +216,13 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
             // add items to GUI
             String[] datakeys = importData.keySet().toArray(new String[0]);
             Arrays.sort(datakeys);
-            for (String fname : datakeys) {
-                meta = importData.get(fname);
-                item = new ItemTypeBoolean(IMPORTDATA + fname, meta.numRecords > 0,
-                        IItemType.TYPE_PUBLIC, (meta.type != ImportMetadata.TYPE_FAHRTENBUCH ? "1" : "2"), fname);
+            for (String key : datakeys) {
+                meta = importData.get(key);
+                item = new ItemTypeBoolean(IMPORTDATA + key, meta.numRecords > 0,
+                        IItemType.TYPE_PUBLIC, (meta.type != ImportMetadata.TYPE_FAHRTENBUCH ? "1" : "2"), key);
 
                 items.add(item);
-                item = new ItemTypeLabel(IMPORTDATALABEL + fname,
+                item = new ItemTypeLabel(IMPORTDATALABEL + key,
                         IItemType.TYPE_PUBLIC, (meta.type != ImportMetadata.TYPE_FAHRTENBUCH ? "1" : "2"),
                         meta.toString());
                 item.setColor(meta.numRecords < 0 ? Color.red : Color.black);
@@ -249,8 +249,8 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
             String[] keys  = importData.keySet().toArray(new String[0]);
             Arrays.sort(keys);
             HashMap logNames = new HashMap<String,String>();
-            for (String fname : keys) {
-                ImportMetadata meta = importData.get(fname);
+            for (String key : keys) {
+                ImportMetadata meta = importData.get(key);
                 if (meta.type == ImportMetadata.TYPE_FAHRTENBUCH && meta.selected) {
                     DataTypeDate dateFrom = new DataTypeDate();
                     dateFrom.setDate( (meta.firstDate != null ? meta.firstDate.toString() : DataTypeDate.today().toString()) );
@@ -268,39 +268,39 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                     name = skey;
                     logNames.put(name, name);
 
-                    item = new ItemTypeLabel(LOGBOOKRANGELABEL + "l0" + fname,
+                    item = new ItemTypeLabel(LOGBOOKRANGELABEL + "l0" + key,
                             IItemType.TYPE_PUBLIC, "3",
-                            fname);
+                            meta.filename);
                     item.setPadding(0, 0, 5, 0);
                     items.add(item);
-                    item = new ItemTypeLabel(LOGBOOKRANGELABEL + "l1" + fname,
+                    item = new ItemTypeLabel(LOGBOOKRANGELABEL + "l1" + key,
                             IItemType.TYPE_PUBLIC, "3",
                             meta.toString(false));
                     item.setPadding(25, 0, 0, 0);
                     items.add(item);
 
-                    item = new ItemTypeString(LOGBOOKNAME + fname,
+                    item = new ItemTypeString(LOGBOOKNAME + key,
                             name,
                             IItemType.TYPE_PUBLIC, "3",
                             International.getString("Name des Fahrtenbuchs"));
                     ((ItemTypeString)item).setNotNull(true);
                     item.setPadding(25, 0, 0, 0);
                     items.add(item);
-                    item = new ItemTypeString(LOGBOOKDESCRIPTION + fname,
+                    item = new ItemTypeString(LOGBOOKDESCRIPTION + key,
                             "",
                             IItemType.TYPE_PUBLIC, "3",
                             International.getString("Beschreibung"));
                     item.setPadding(25, 0, 0, 0);
                     items.add(item);
 
-                    item = new ItemTypeDate(LOGBOOKRANGEFROM + fname,
+                    item = new ItemTypeDate(LOGBOOKRANGEFROM + key,
                             dateFrom,
                             IItemType.TYPE_PUBLIC, "3",
                             International.getString("Fahrtenbuch gültig für Fahrten ab"));
                     ItemTypeDate logbookFrom = (ItemTypeDate)item;
                     item.setPadding(25, 0, 0, 0);
                     items.add(item);
-                    item = new ItemTypeDate(LOGBOOKRANGETO + fname,
+                    item = new ItemTypeDate(LOGBOOKRANGETO + key,
                             dateTo,
                             IItemType.TYPE_PUBLIC, "3",
                             International.getString("Fahrtenbuch gültig für Fahrten bis"));
@@ -334,6 +334,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
         if (EfaUtil.canOpenFile(dir+fname)) {
             datenListe.setFileName(dir+fname);
             if (datenListe.readFile()) {
+                meta.filename = datenListe.getFileName();
                 meta.numRecords = datenListe.countElements();
             }
         }
@@ -356,6 +357,11 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
             }
         } catch(Exception eignore0) {
         }
+    }
+
+    private String getLogbookKey(ImportMetadata meta, String filename) {
+        return (meta.firstDate != null && meta.firstDate.isSet()
+                ? meta.firstDate.getDateString("YYYYMMDD") : "00000000") + "-" + filename;
     }
 
     private void recursiveAddLogbook(HashMap<String, ImportMetadata> importData, String fname) {
@@ -437,11 +443,11 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
 
         if (step == 2) { // get data from step 1 and 2
             String[] datakeys = importData.keySet().toArray(new String[0]);
-            for (String fname : datakeys) {
-                ImportMetadata meta = importData.get(fname);
+            for (String key : datakeys) {
+                ImportMetadata meta = importData.get(key);
 
                 // get selected data files for import
-                IItemType item = getItemByName(IMPORTDATA + fname);
+                IItemType item = getItemByName(IMPORTDATA + key);
                 if (item != null && item instanceof ItemTypeBoolean) {
                     meta.selected = ((ItemTypeBoolean)item).getValue();
                 }
@@ -451,12 +457,12 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
         if (step == 2 || step == 3) { // get data from step 2 and 3
             String[] datakeys = importData.keySet().toArray(new String[0]);
             Hashtable<String,String> uniqueLogbooks = new Hashtable<String,String>();
-            for (String fname : datakeys) {
-                ImportMetadata meta = importData.get(fname);
+            for (String key : datakeys) {
+                ImportMetadata meta = importData.get(key);
                 // get logbool metadata
-                IItemType item = getItemByName(IMPORTDATA + fname);
+                IItemType item = getItemByName(IMPORTDATA + key);
                 if (meta.type == ImportMetadata.TYPE_FAHRTENBUCH) {
-                    item = getItemByName(LOGBOOKNAME + fname);
+                    item = getItemByName(LOGBOOKNAME + key);
                     if (item != null && item instanceof ItemTypeString) {
                         meta.name = ((ItemTypeString)item).getValue();
                         if (uniqueLogbooks.get(meta.name) != null) {
@@ -467,15 +473,15 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                         }
                         uniqueLogbooks.put(meta.name, "foo");
                     }
-                    item = getItemByName(LOGBOOKDESCRIPTION + fname);
+                    item = getItemByName(LOGBOOKDESCRIPTION + key);
                     if (item != null && item instanceof ItemTypeString) {
                         meta.description = ((ItemTypeString)item).getValue();
                     }
-                    item = getItemByName(LOGBOOKRANGEFROM + fname);
+                    item = getItemByName(LOGBOOKRANGEFROM + key);
                     if (item != null && item instanceof ItemTypeDate) {
                         meta.firstDate = DataTypeDate.parseDate(((ItemTypeDate)item).toString());
                     }
-                    item = getItemByName(LOGBOOKRANGETO + fname);
+                    item = getItemByName(LOGBOOKRANGETO + key);
                     if (item != null && item instanceof ItemTypeDate) {
                         meta.lastDate = DataTypeDate.parseDate(((ItemTypeDate)item).toString());
                     }
@@ -490,10 +496,29 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
         return true;
     }
 
+    private void rearrangeLogbookOrder(HashMap<String, ImportMetadata> importData ) {
+        // this is to make sure that logbooks are imported in the order in which the
+        // user specified their valid start dates; those dates may be different
+        // than these we detected ourselves when scanning the logbooks, so we prefix
+        // each key with the selected start date.
+        // Import order in ImportTask is based on alphanumerical sorting of the keys.
+        String[] keys = importData.keySet().toArray(new String[0]);
+        for (String key : keys) {
+            ImportMetadata meta = importData.get(key);
+            if (meta.selected && meta.type == ImportMetadata.TYPE_FAHRTENBUCH) {
+                String newkey = (meta.firstDate != null && meta.firstDate.isSet() ?
+                    meta.firstDate.getDateString("YYYYMMDD") : "00000000") + "-" + key;
+                importData.remove(key);
+                importData.put(newkey, meta);
+            }
+        }
+    }
+
     boolean finishButton_actionPerformed(ActionEvent e) {
         if (!super.finishButton_actionPerformed(e)) {
             return false;
         }
+        rearrangeLogbookOrder(importData);
         importTask = new ImportTask(importData);
         ProgressDialog progressDialog = new ProgressDialog(this, International.getString("Daten importieren"), importTask, false);
         importTask.start();

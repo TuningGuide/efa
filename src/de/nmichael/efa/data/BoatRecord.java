@@ -60,6 +60,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     public static final String DEFAULTCREWID         = "DefaultCrewId";
     public static final String DEFAULTSESSIONTYPE    = "DefaultSessionType";
     public static final String DEFAULTDESTINATIONID  = "DefaultDestinationId";
+    public static final String EXCLUDEFROMSTATISTIC= "ExcludeFromStatistics";
     public static final String FREEUSE1              = "FreeUse1";
     public static final String FREEUSE2              = "FreeUse2";
     public static final String FREEUSE3              = "FreeUse3";
@@ -103,6 +104,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         f.add(DEFAULTCREWID);                     t.add(IDataAccess.DATA_UUID);
         f.add(DEFAULTSESSIONTYPE);                t.add(IDataAccess.DATA_STRING);
         f.add(DEFAULTDESTINATIONID);              t.add(IDataAccess.DATA_UUID);
+        f.add(EXCLUDEFROMSTATISTIC);              t.add(IDataAccess.DATA_BOOLEAN);
         f.add(FREEUSE1);                          t.add(IDataAccess.DATA_STRING);
         f.add(FREEUSE2);                          t.add(IDataAccess.DATA_STRING);
         f.add(FREEUSE3);                          t.add(IDataAccess.DATA_STRING);
@@ -557,6 +559,13 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         return null;
     }
 
+    public void setExcludeFromPublicStatistics(boolean exclude) {
+        setBool(EXCLUDEFROMSTATISTIC, exclude);
+    }
+    public boolean getExcludeFromPublicStatistics() {
+        return getBool(EXCLUDEFROMSTATISTIC);
+    }
+
     public void setFreeUse1(String s) {
         setString(FREEUSE1, s);
     }
@@ -1002,6 +1011,8 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Kaufpreis")));
         v.add(item = new ItemTypeString(BoatRecord.PURCHASEPRICECURRENCY, getPurchasePriceCurrency(),
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Währung")));
+        v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC, getExcludeFromPublicStatistics(),
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von allgemein verfügbaren Statistiken ausnehmen")));
         if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
             v.add(item = new ItemTypeString(BoatRecord.EFBID, getEfbId(),
                     IItemType.TYPE_EXPERT, CAT_MOREDATA, International.onlyFor("Kanu-eFB ID","de")));
@@ -1051,7 +1062,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
                     boatReservations.createNewRecord().getGuiTableHeader(),
                     boatReservations, 0, admin,
                     BoatReservationRecord.BOATID, getId().toString(),
-                    null, null, this,
+                    null, null, null, this,
                     IItemType.TYPE_PUBLIC, CAT_RESERVATIONS, International.getString("Reservierungen")));
         }
 
@@ -1061,7 +1072,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
                     boatDamages.createNewRecord().getGuiTableHeader(),
                     boatDamages, 0, admin,
                     BoatDamageRecord.BOATID, getId().toString(),
-                    null, null, this,
+                    null, null, null, this,
                     IItemType.TYPE_PUBLIC, CAT_DAMAGES, International.getString("Bootsschäden")));
         }
 

@@ -45,6 +45,14 @@ public class EfaUtil {
         return str;
     }
 
+    public static String escapeHtml(String str) {
+        str = replaceString(str, "&", "&amp;");
+        str = replaceString(str, "<", "&lt;");
+        str = replaceString(str, ">", "&gt;");
+        str = replaceString(str, "\"", "&quot;");
+        return str;
+    }
+
     // from StringW
     public static String replaceString(String text, String repl, String with) {
         return replaceString(text, repl, with, -1);

@@ -48,6 +48,7 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
         super(parent, title, null);
         this.dataRecord = dataRecord;
         this.newRecord = newRecord;
+        this.admin = admin;
         if (admin != null) {
             setPrintButton();
         }

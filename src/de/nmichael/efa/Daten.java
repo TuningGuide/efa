@@ -34,8 +34,8 @@ import java.lang.management.*;
 public class Daten {
 
     public final static String VERSION            = "v2.0_beta"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID          = "1.9.9_35";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-    public final static String VERSIONRELEASEDATE = "05.02.2012";  // Release Date: TT.MM.JJJJ
+    public final static String VERSIONID          = "1.9.9_52";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "20.02.2012";  // Release Date: TT.MM.JJJJ
     public final static String MAJORVERSION       = "2";
     public final static String PROGRAMMID         = "EFA.199"; // Versions-ID für Wettbewerbsmeldungen
     public final static String PROGRAMMID_DRV     = "EFADRV.199"; // Versions-ID für Wettbewerbsmeldungen
@@ -57,12 +57,14 @@ public class Daten {
     public final static String EFAURL = "http://efa.nmichael.de";
     public final static String EFASUPPORTURL = "http://efa.nmichael.de/help";
     public final static String EFADEVURL = "http://kenai.com/projects/efa";
+    public final static String EFATRANSLATEWIKI = "http://kenai.com/projects/efa/pages/TranslatingEfa";
     public final static String EFAWETTURL = "http://efa.rudern.de";
     public final static String NICOLASURL = "http://www.nmichael.de";
     public final static String EFAEMAILNAME = "efa";
     public final static String EMAILINFO = "info@efa.nmichael.de";
     public final static String EMAILBUGS = "bugs@efa.nmichael.de";
     public final static String EMAILHELP = "help@efa.nmichael.de";
+    public final static String EMAILDEV  = "dev@efa.nmichael.de";
     public static final String EFA_USERDATA_DIR = "efa2";                // <efauser> = ~/efa2/              Directory for efauser data (if not efa program directory)
     public static final String EFA_RUNNING = "efa.run";                  // <efauser>/efa.run                Indiz, daß efaDirekt läuft (enthält Port#)
 
@@ -154,6 +156,7 @@ public class Daten {
     public final static String EFW_UPDATE_DATA = "http://efa.nmichael.de/efw.data";
     public final static String INTERNET_EFAMAIL = "http://cgi.snafu.de/nmichael/user-cgi-bin/efamail.pl";
     public final static String IMAGEPATH = "/de/nmichael/efa/img/";
+    public final static String DATATEMPLATEPATH = "/de/nmichael/efa/data/templates/";
 
     public final static int AUTO_EXIT_MIN_RUNTIME = 60; // Minuten, die efa mindestens gelaufen sein muß, damit es zu einem automatischen Beenden/Restart kommt (60)
     public final static int AUTO_EXIT_MIN_LAST_USED = 5; // Minuten, die efa mindestens nicht benutzt wurde, damit Beenden/Neustart nicht verzögert wird (muß kleiner als AUTO_EXIT_MIN_RUNTIME sein!!!) (5)
@@ -664,7 +667,7 @@ public class Daten {
                 // no sec file there: exit and don't create new admin
                 String msg = International.getString("Kein Admin gefunden.") + "\n"
                         + International.getString("Aus Gründen der Sicherheit verweigert efa den Dienst. "
-                        + "Um efa zu reaktivieren, wende Dich bitte an den Entwickler:") + " " + Daten.EMAILHELP;
+                        + "Hilfe zum Reaktivieren von efa erhälst Du im Support-Forum.");
                 Logger.log(Logger.ERROR, Logger.MSG_CORE_ADMINSFAILEDNOSEC, msg);
                 if (isGuiAppl()) {
                     Dialog.error(msg);
@@ -683,7 +686,7 @@ public class Daten {
             // no sec file there: exit and don't create new admin
             String msg = International.getString("Kein Admin gefunden.") + "\n"
                     + International.getString("Aus Gründen der Sicherheit verweigert efa den Dienst. "
-                    + "Um efa zu reaktivieren, wende Dich bitte an den Entwickler:") + " " + Daten.EMAILHELP;
+                        + "Hilfe zum Reaktivieren von efa erhälst Du im Support-Forum.");
             Logger.log(Logger.ERROR, Logger.MSG_CORE_ADMINSFAILEDNOSEC, msg);
             if (isGuiAppl()) {
                 Dialog.error(msg);

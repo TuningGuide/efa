@@ -109,6 +109,9 @@ public abstract class DataRecord implements Cloneable, Comparable {
     public abstract DataKey getKey();
     
     protected void set(int fieldIdx, Object data, boolean updateTimestamp) {
+        if (fieldIdx < 0) {
+            return;
+        }
         if (data != null) {
             int type = getFieldType(fieldIdx);
             if (data instanceof String && type != IDataAccess.DATA_STRING) {
@@ -201,6 +204,9 @@ public abstract class DataRecord implements Cloneable, Comparable {
     }
 
     protected Object get(int fieldIdx) {
+        if (fieldIdx < 0) {
+            return null;
+        }
         int type = getFieldType(fieldIdx);
         synchronized(data) {
             if (type != IDataAccess.DATA_VIRTUAL) {
@@ -224,8 +230,12 @@ public abstract class DataRecord implements Cloneable, Comparable {
         return getAsString(fieldName);
     }
 
-    public void setFromText(String fieldName, String value) {
+    public boolean setFromText(String fieldName, String value) {
+        if (value != null) {
+            value = value.trim();
+        }
         set(fieldName, value);
+        return (value.equals(getAsText(fieldName)));
     }
 
     protected boolean isDefaultValue(int fieldIdx) {

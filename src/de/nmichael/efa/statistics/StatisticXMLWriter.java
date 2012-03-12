@@ -13,7 +13,7 @@ import java.io.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.data.types.DataTypeList;
 
 public class StatisticXMLWriter extends StatisticWriter {
 
@@ -256,7 +256,7 @@ public class StatisticXMLWriter extends StatisticWriter {
                     write(f, indent, xmltagStart(FIELD_LOGBOOK));
                 }
                 for (int i = 0; i < sd.length; i++) {
-                    if (sd[i].isMaximum) {
+                    if (sd[i].isMaximum || sd[i].isSummary) {
                         continue;
                     }
                     if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list) {
@@ -274,10 +274,11 @@ public class StatisticXMLWriter extends StatisticWriter {
                         write(f, indent, xmltagEnd(FIELD_ITEM));
                     }
                     if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook) {
+                        DataTypeList<String> lfNames = sr.getShowLogbookFields();
                         write(f, indent, xmltagStart(FIELD_RECORD));
-                        if (sd[i].logbookFields != null) {
-                            for (int j = 0; j < sd[i].logbookFields.length; j++) {
-                                write(f, indent, xmltag(getLogbookField(j), sd[i].logbookFields[j]));
+                        if (sd[i].logbookFields != null && lfNames != null) {
+                            for (int j = 0; j < sd[i].logbookFields.length && j < lfNames.length(); j++) {
+                                write(f, indent, xmltag(lfNames.get(j), sd[i].logbookFields[j]));
                             }
                         }
                         write(f, indent, xmltagEnd(FIELD_RECORD));
@@ -315,6 +316,7 @@ public class StatisticXMLWriter extends StatisticWriter {
         if (sr.sFileExecAfter != null && sr.sFileExecAfter.length() > 0) {
             EfaUtil.execCmd(sr.sFileExecAfter);
         }
+        resultMessage = LogString.fileSuccessfullyCreated(sr.sOutputFile, International.getString("Statistik"));
         return true;
     }
 }

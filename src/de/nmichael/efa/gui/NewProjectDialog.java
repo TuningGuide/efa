@@ -25,6 +25,8 @@ import javax.swing.*;
 
 public class NewProjectDialog extends StepwiseDialog implements IItemListener {
 
+    private final static String GUIITEM_CREATE_WATERS_LIST = "GUIITEM_CREATE_WATERS_LIST";
+
     private AdminRecord admin;
 
     public NewProjectDialog(JDialog parent, AdminRecord admin) {
@@ -88,6 +90,11 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
         r = Project.createNewRecordFromStatic(ProjectRecord.TYPE_CLUB);
         items.addAll(r.getGuiItems(admin, 1, "3", true));
         items.addAll(r.getGuiItems(admin, 2, "4", true));
+        if (Waters.getResourceTemplate(International.getLanguageID()) != null) {
+            items.add(new ItemTypeBoolean(GUIITEM_CREATE_WATERS_LIST, true,
+                    IItemType.TYPE_PUBLIC, "3",
+                    International.getString("Gewässerliste mit Standardgewässern erstellen")));
+        }
     }
 
     boolean checkInput(int direction) {
@@ -274,14 +281,10 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
                 Dialog.infoDialog(LogString.fileSuccessfullyCreated(prjName.getValue(),
                         International.getString("Projekt")));
                 try {
-                    if (Daten.project.getWaters(false).getResourceTemplate(International.getLanguageID()) != null) {
-                        if (Dialog.yesNoDialog(International.getString("Gewässerliste erstellen"),
-                                 International.getString("Möchtest Du eine Gewässerliste mit Standardgewässern erstellen?")) == Dialog.YES) {
-                            int count = Daten.project.getWaters(false).addAllWatersFromTemplate(International.getLanguageID());
-                            if (count > 0) {
-                                Dialog.infoDialog(International.getMessage("Gewässerliste mit {count} Gewässern erfolgreich erstellt.",
-                                        count));
-                            }
+                    if (Waters.getResourceTemplate(International.getLanguageID()) != null) {
+                        ItemTypeBoolean createWatersList = (ItemTypeBoolean)getItemByName(GUIITEM_CREATE_WATERS_LIST);
+                        if (createWatersList != null && createWatersList.getValue()) {
+                            Daten.project.getWaters(false).addAllWatersFromTemplate(International.getLanguageID());
                         }
                     }
                 } catch(Exception eignore) {

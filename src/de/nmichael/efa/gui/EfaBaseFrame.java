@@ -815,12 +815,23 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             String s = item.toString().trim();
             if (s.length() > 0) {
                 PersonRecord r = Daten.project.getPersons(false).getPerson(s, validAt);
-                /*
-                PersonRecord r = Daten.project.getPersons(false).getPerson(s, logbookValidFrom, logbookInvalidFrom-1, validAt);
-                if (validAt > 0 && r != null && !r.isValidAt(validAt)) {
-                    return null;
+
+                // If we have not found a valid record, we next try whether we can find
+                // any (currently invalid) record for that name (within the validiy range
+                // of this lookbook). If we find such a record, we use its ID to find
+                // yet another record of the same ID, which might be valid now.
+                // Since we search by name, it could be that the user entered name "A", which is
+                // not currently valid, but appears in the AutoComplete list because it is valid
+                // some other time for this logbook. It might be that "A" is just another name for
+                // "B" of the same record, which is valid. If there is a "B", we will use that.
+                // That means, even though the user entered "A", we will save the ID, and display "B".
+                if (validAt > 0 && r == null) {
+                    PersonRecord r2 = Daten.project.getPersons(false).getPerson(s, this.logbookValidFrom, logbookInvalidFrom-1, validAt);
+                    if (r2 != null) {
+                        r = Daten.project.getPersons(false).getPerson(r2.getId(), validAt);
+                    }
                 }
-                */
+
                 return r;
             }
         } catch(Exception e) {
@@ -834,12 +845,23 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             String s = boat.toString().trim();
             if (s.length() > 0) {
                 BoatRecord r = Daten.project.getBoats(false).getBoat(s, validAt);
-                /*
-                BoatRecord r = Daten.project.getBoats(false).getBoat(s, logbookValidFrom, logbookInvalidFrom-1, validAt);
-                if (validAt > 0 && r != null && !r.isValidAt(validAt)) {
-                    return null;
+
+                // If we have not found a valid record, we next try whether we can find
+                // any (currently invalid) record for that name (within the validiy range
+                // of this lookbook). If we find such a record, we use its ID to find
+                // yet another record of the same ID, which might be valid now.
+                // Since we search by name, it could be that the user entered name "A", which is
+                // not currently valid, but appears in the AutoComplete list because it is valid
+                // some other time for this logbook. It might be that "A" is just another name for
+                // "B" of the same record, which is valid. If there is a "B", we will use that.
+                // That means, even though the user entered "A", we will save the ID, and display "B".
+                if (validAt > 0 && r == null) {
+                    BoatRecord r2 = Daten.project.getBoats(false).getBoat(s, this.logbookValidFrom, logbookInvalidFrom-1, validAt);
+                    if (r2 != null) {
+                        r = Daten.project.getBoats(false).getBoat(r2.getId(), validAt);
+                    }
                 }
-                */
+
                 return r;
             }
         } catch(Exception e) {
@@ -853,38 +875,39 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
 
     DestinationRecord findDestination(long validAt) {
-        DestinationRecord d = null;
+        DestinationRecord r = null;
         try {
             String[] dest = LogbookRecord.getDestinationNameAndVariantFromString(destination.toString());
             if (dest[0].length() > 0 && dest[1].length() > 0) {
                 // this is a destination of the form "base + variant".
                 // however, it could be that we have an explicit destination "base & variant" in our database.
                 // check for "base & variant" first
-                d = Daten.project.getDestinations(false).getDestination(dest[0] + " & " + dest[1],
+                r = Daten.project.getDestinations(false).getDestination(dest[0] + " & " + dest[1],
                         validAt);
-                /*
-                d = Daten.project.getDestinations(false).getDestination(dest[0] + " & " + dest[1],
-                        logbookValidFrom, logbookInvalidFrom-1, validAt);
-                if (d != null) {
-                    if (validAt > 0 && !d.isValidAt(validAt)) {
-                        return null;
-                    }
-                    return d;
-                }
-                */
-                if (d != null) {
-                    return d;
+                if (r != null) {
+                    return r;
                 }
             }
             if (dest[0].length() > 0) {
-                d = Daten.project.getDestinations(false).getDestination(dest[0], validAt);
-                /*
-                d = Daten.project.getDestinations(false).getDestination(dest[0], logbookValidFrom, logbookInvalidFrom-1, validAt);
-                if (validAt > 0 && d != null && !d.isValidAt(validAt)) {
-                    return null;
+                r = Daten.project.getDestinations(false).getDestination(dest[0], validAt);
+
+                // If we have not found a valid record, we next try whether we can find
+                // any (currently invalid) record for that name (within the validiy range
+                // of this lookbook). If we find such a record, we use its ID to find
+                // yet another record of the same ID, which might be valid now.
+                // Since we search by name, it could be that the user entered name "A", which is
+                // not currently valid, but appears in the AutoComplete list because it is valid
+                // some other time for this logbook. It might be that "A" is just another name for
+                // "B" of the same record, which is valid. If there is a "B", we will use that.
+                // That means, even though the user entered "A", we will save the ID, and display "B".
+                if (validAt > 0 && r == null) {
+                    DestinationRecord r2 = Daten.project.getDestinations(false).getDestination(dest[0], this.logbookValidFrom, logbookInvalidFrom-1, validAt);
+                    if (r2 != null) {
+                        r = Daten.project.getDestinations(false).getDestination(r2.getId(), validAt);
+                    }
                 }
-                */
-                return d;
+
+                return r;
             }
         } catch(Exception e) {
             Logger.logdebug(e);

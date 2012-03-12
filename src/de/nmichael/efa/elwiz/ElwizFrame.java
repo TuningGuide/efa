@@ -53,12 +53,12 @@ public class ElwizFrame extends JFrame {
     catch(Exception e) {
       e.printStackTrace();
     }
-    optionsHTML = XSLTReader.run(Daten.efaAusgabeDirectory+"layout"+Daten.fileSep+"html"+Daten.fileSep+"elwiz.xml");
+    optionsHTML = XSLTReader.run(Daten.efaFormattingDirectory+"layout"+Daten.fileSep+"html"+Daten.fileSep+"elwiz.xml");
     if (optionsHTML == null) {
       Dialog.error("Es konnte kein XML-Parser geladen werden.");
       Daten.haltProgram(Daten.HALT_MISCONFIG);
     }
-    optionsPDF  = XSLTReader.run(Daten.efaAusgabeDirectory+"layout"+Daten.fileSep+"pdf"+Daten.fileSep+"elwiz.xml");
+    optionsPDF  = XSLTReader.run(Daten.efaFormattingDirectory+"layout"+Daten.fileSep+"pdf"+Daten.fileSep+"elwiz.xml");
     if (optionsPDF == null) {
       Dialog.error("Es konnte kein XML-Parser geladen werden.");
       Daten.haltProgram(Daten.HALT_MISCONFIG);
@@ -338,16 +338,16 @@ public class ElwizFrame extends JFrame {
     String infile;
     String outfile;
     if (optionHTMLPanel.isShowing()) {
-      infile = Daten.efaAusgabeDirectory+"layout/html/elwiz.xml";
+      infile = Daten.efaFormattingDirectory+"layout/html/elwiz.xml";
       outfile = Dialog.dateiDialog(this,
               International.getString("HTML-Layout erstellen"),
-              "XSLT-Stylesheets (*.xsl)","xsl",Daten.efaAusgabeDirectory+"layout/html/",true);
+              "XSLT-Stylesheets (*.xsl)","xsl",Daten.efaFormattingDirectory+"layout/html/",true);
       if (outfile != null) XSLTWriter.run(infile,outfile,optionsHTML);
     } else {
-      infile = Daten.efaAusgabeDirectory+"layout/pdf/elwiz.xml";
+      infile = Daten.efaFormattingDirectory+"layout/pdf/elwiz.xml";
       outfile = Dialog.dateiDialog(this,
               International.getString("PDF-Layout erstellen"),
-              "XSLT-Stylesheets (*.xsl)","xsl",Daten.efaAusgabeDirectory+"layout/pdf/",true);
+              "XSLT-Stylesheets (*.xsl)","xsl",Daten.efaFormattingDirectory+"layout/pdf/",true);
       if (outfile != null) XSLTWriter.run(infile,outfile,optionsPDF);
     }
   }

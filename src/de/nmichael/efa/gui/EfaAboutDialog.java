@@ -151,6 +151,7 @@ public class EfaAboutDialog extends BaseDialog {
         devNoteLabel.setText(International.getMessage("Diese Version ist eine Entwicklerversion in {status}-Qualität!",
                 "Beta"));
         devNoteLabel.setForeground(Color.red);
+        devNoteLabel.setVisible(false);
         detailPanel.setLayout(borderLayout3);
         jScrollPane1.setPreferredSize(new Dimension(400, 300));
         efaBirthdayLabel.setForeground(Color.red);
@@ -224,6 +225,7 @@ public class EfaAboutDialog extends BaseDialog {
                 + "* Ralf Ludwig (efa Evangelist)\n"
                 + "* Robert Harder (Base64 Implementation)\n"
                 + "* Sun Microsystems & Oracle (Java Technology)\n"
+                + "* Wolfgang Krutzke (Waters List for Germany)\n"
                 + "* World Wide Web Consortium (XML Plugin)");
 
         String translations = "";

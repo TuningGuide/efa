@@ -101,7 +101,10 @@ public class BoatDamageRecord extends DataRecord {
     public String getBoatAsName() {
         try {
             Boats boats = getPersistence().getProject().getBoats(false);
-            return boats.getBoat(getBoatId(), getReportDate().getTimestamp(getReportTime())).getQualifiedName();
+            long t = (getReportDate() != null && getReportTime() != null ?
+                getReportDate().getTimestamp(getReportTime()) :
+                System.currentTimeMillis() );
+            return boats.getBoat(getBoatId(), t).getQualifiedName();
         } catch (Exception e) {
             Logger.logdebug(e);
             return null;
@@ -295,25 +298,24 @@ public class BoatDamageRecord extends DataRecord {
         return super.getAsText(fieldName);
     }
 
-    public void setFromText(String fieldName, String value) {
+    public boolean setFromText(String fieldName, String value) {
         if (fieldName.equals(BOATID)) {
             Boats boats = getPersistence().getProject().getBoats(false);
             BoatRecord br = boats.getBoat(value, -1);
             if (br != null) {
                 set(fieldName, br.getId());
             }
-            return;
-        }
-        if (fieldName.equals(REPORTEDBYPERSONID) ||
+        } else if (fieldName.equals(REPORTEDBYPERSONID) ||
             fieldName.equals(FIXEDBYPERSONID)) {
             Persons persons = getPersistence().getProject().getPersons(false);
             PersonRecord pr = persons.getPerson(value, -1);
             if (pr != null) {
                 set(fieldName, pr.getId());
             }
-            return;
+        } else {
+            set(fieldName, value);
         }
-        set(fieldName, value);
+        return (value.equals(getAsText(fieldName)));
     }
 
     public Vector<IItemType> getGuiItems(AdminRecord admin) {

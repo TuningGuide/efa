@@ -34,54 +34,63 @@ import java.util.Vector;
 
 public abstract class Competition {
 
+    protected int compId;
     protected Hashtable nichtBeruecksichtigt = new Hashtable(); // Bei Wettbewerben nicht berücksichtigte Mitglieder (z.B. weil Jahrgang fehlt oder Wettbewerbsmeldungen deaktiviert sind)
     protected EfaWett efaWett; // Zusammenstellung aller Wettbewerbsdaten für Erstellung einer Meldedatei
     protected StatisticsRecord sr;
+
+    public static Competition getCompetition(String statType) {
+        Competition comp = null;
+        if (statType.equals(WettDefs.STR_DRV_FAHRTENABZEICHEN)) {
+            comp = new CompetitionDRVFahrtenabzeichen();
+            comp.compId = WettDefs.DRV_FAHRTENABZEICHEN;
+        }
+        if (statType.equals(WettDefs.STR_DRV_WANDERRUDERSTATISTIK)) {
+            comp = new CompetitionDRVWanderruderstatistik();
+            comp.compId = WettDefs.DRV_WANDERRUDERSTATISTIK;
+        }
+        if (statType.equals(WettDefs.STR_LRVBERLIN_SOMMER)) {
+            comp = new CompetitionLRVBerlinSommer();
+            comp.compId = WettDefs.LRVBERLIN_SOMMER;
+        }
+        if (statType.equals(WettDefs.STR_LRVBERLIN_WINTER)) {
+            comp = new CompetitionLRVBerlinWinter();
+            comp.compId = WettDefs.LRVBERLIN_WINTER;
+        }
+        if (statType.equals(WettDefs.STR_LRVBERLIN_BLAUERWIMPEL)) {
+            comp = new CompetitionLRVBerlinBlauerWimpel();
+            comp.compId = WettDefs.LRVBERLIN_BLAUERWIMPEL;
+        }
+        if (statType.equals(WettDefs.STR_LRVBRB_WANDERRUDERWETT)) {
+            comp = new CompetitionLRVBrandenburgWanderruderwett();
+            comp.compId = WettDefs.LRVBRB_WANDERRUDERWETT;
+        }
+        if (statType.equals(WettDefs.STR_LRVBRB_FAHRTENWETT)) {
+            comp = new CompetitionLRVBrandenburgFahrtenwett();
+            comp.compId = WettDefs.LRVBRB_FAHRTENWETT;
+        }
+        if (statType.equals(WettDefs.STR_LRVMVP_WANDERRUDERWETT)) {
+            comp = new CompetitionLRVMeckPommWanderruderwett();
+            comp.compId = WettDefs.LRVMVP_WANDERRUDERWETT;
+        }
+        return comp;
+    }
 
     public static Competition getCompetition(StatisticsRecord sr) {
         String sType = sr.getStatisticType();
         if (sType == null) {
             return null;
         }
-        Competition comp = null;
-        int wettId = -1;
-        if (sType.equals(WettDefs.STR_DRV_FAHRTENABZEICHEN)) {
-            comp = new CompetitionDRVFahrtenabzeichen();
-            wettId = WettDefs.DRV_FAHRTENABZEICHEN;
-        }
-        if (sType.equals(WettDefs.STR_DRV_WANDERRUDERSTATISTIK)) {
-            comp = new CompetitionDRVWanderruderstatistik();
-            wettId = WettDefs.DRV_WANDERRUDERSTATISTIK;
-        }
-        if (sType.equals(WettDefs.STR_LRVBERLIN_SOMMER)) {
-            comp = new CompetitionLRVBerlinSommer();
-            wettId = WettDefs.LRVBERLIN_SOMMER;
-        }
-        if (sType.equals(WettDefs.STR_LRVBERLIN_WINTER)) {
-            comp = new CompetitionLRVBerlinWinter();
-            wettId = WettDefs.LRVBERLIN_WINTER;
-        }
-        if (sType.equals(WettDefs.STR_LRVBERLIN_BLAUERWIMPEL)) {
-            comp = new CompetitionLRVBerlinBlauerWimpel();
-            wettId = WettDefs.LRVBERLIN_BLAUERWIMPEL;
-        }
-        if (sType.equals(WettDefs.STR_LRVBRB_WANDERRUDERWETT)) {
-            comp = new CompetitionLRVBrandenburgWanderruderwett();
-            wettId = WettDefs.LRVBRB_WANDERRUDERWETT;
-        }
-        if (sType.equals(WettDefs.STR_LRVBRB_FAHRTENWETT)) {
-            comp = new CompetitionLRVBrandenburgFahrtenwett();
-            wettId = WettDefs.LRVBRB_FAHRTENWETT;
-        }
-        if (sType.equals(WettDefs.STR_LRVMVP_WANDERRUDERWETT)) {
-            comp = new CompetitionLRVMeckPommWanderruderwett();
-            wettId = WettDefs.LRVMVP_WANDERRUDERWETT;
-        }
+        Competition comp = getCompetition(sType);
         if (comp != null) {
             comp.sr = sr;
-            comp.iniEfaWett(wettId);
+            comp.iniEfaWett(comp.compId);
         }
         return comp;
+    }
+
+    public int getCompId() {
+        return compId;
     }
 
     private void iniEfaWett(int wettId) {

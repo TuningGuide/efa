@@ -206,15 +206,16 @@ public class SessionGroupRecord extends DataRecord {
         return super.getAsText(fieldName);
     }
 
-    public void setFromText(String fieldName, String value) {
+    public boolean setFromText(String fieldName, String value) {
         if (fieldName.equals(SESSIONTYPE)) {
             String s = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, value);
             if (s != null) {
                 set(fieldName, s);
             }
-            return;
+        } else {
+            set(fieldName, value);
         }
-        set(fieldName, value);
+        return (value.equals(getAsText(fieldName)));
     }
 
     public Vector<IItemType> getGuiItems(AdminRecord admin) {

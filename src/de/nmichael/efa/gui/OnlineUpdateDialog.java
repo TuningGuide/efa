@@ -86,6 +86,7 @@ public class OnlineUpdateDialog extends BaseDialog {
         Mnemonics.setButton(this, downloadButton,
                 International.getString("Version aktualisieren"),
                 BaseDialog.IMAGE_DOWNLOAD);
+        downloadButton.setHorizontalAlignment(SwingConstants.CENTER);
         downloadButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 downloadButton_actionPerformed(e);

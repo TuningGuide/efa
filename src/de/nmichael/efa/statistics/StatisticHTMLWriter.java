@@ -251,7 +251,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
                                 (sdMaximum != null && !sd[i].isSummary ? sdMaximum.avgDistance : 0),
                                 "green", sr.sAggrAvgDistanceBarSize);
                         outHTML(f, sd[i].sDestinationAreas, false, null);
-                        outHTML(f, sd[i].sWanderfahrten, false, null);
+                        outHTML(f, sd[i].sWanderfahrten, true, null);
                         /*
                         outHTML(f, ae.anzversch, false, null);
                         outHTMLgra(f, ae, ae.km, ae.colspanKm);

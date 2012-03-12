@@ -131,7 +131,7 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
         }
     }
 
-    boolean checkAndSaveChanges() {
+    boolean checkAndSaveChanges(boolean promptForInvalidValues) {
         if (getValuesFromGui()) {
             if (_dontSaveRecord) {
                 try {
@@ -145,8 +145,12 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
                     // values into the record and that's it!
                     return saveRecord();
                 } catch (InvalidValueException einv) {
-                    einv.displayMessage();
-                    return false;
+                    if (promptForInvalidValues) {
+                        einv.displayMessage();
+                        return false;
+                    } else {
+                        return true;
+                    }
                 }
             }
             switch (Dialog.yesNoCancelDialog(International.getString("Änderungen speichern"),
@@ -184,7 +188,7 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
     }
 
     public boolean cancel() {
-        if (!checkAndSaveChanges()) {
+        if (!checkAndSaveChanges(false)) {
             return false;
         }
         return super.cancel();

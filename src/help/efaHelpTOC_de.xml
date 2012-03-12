@@ -9,6 +9,7 @@
    <tocitem text="Einführung" expand="true">
        <tocitem text="Über efa" target="default"/>
        <tocitem text="Installation" target="install"/>
+       <tocitem text="Konfiguration" target="configure"/>
    </tocitem>
 
 </tocitem>

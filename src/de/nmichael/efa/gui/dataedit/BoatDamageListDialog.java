@@ -15,6 +15,8 @@ import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.gui.SimpleInputDialog;
 import de.nmichael.efa.gui.util.AutoCompleteList;
 import de.nmichael.efa.util.*;
@@ -75,6 +77,8 @@ public class BoatDamageListDialog extends DataListDialog {
                     if (s != null && s.length() > 0) {
                         Boats boats = Daten.project.getBoats(false);
                         record = ((BoatDamages)persistence).createBoatDamageRecord(boats.getBoat(s, now).getId());
+                        ((BoatDamageRecord)record).setReportDate(DataTypeDate.today());
+                        ((BoatDamageRecord)record).setReportTime(DataTypeTime.now());
                     }
                 } catch(Exception e) {
                     Logger.logdebug(e);

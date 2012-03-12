@@ -42,6 +42,7 @@ public class DataImport extends ProgressTask {
     private String updMode;
     private int importCount = 0;
     private int errorCount = 0;
+    private int warningCount = 0;
 
 
     public DataImport(StorageObject storageObject,
@@ -99,9 +100,14 @@ public class DataImport extends ProgressTask {
     }
 
     private void logImportFailed(DataRecord r, String msg) {
-        logInfo("ERROR: " + LogString.operationFailed(
-                International.getMessage("Import von Datensatz {record}", r.toString()),msg) + "\n");
+        logInfo("\nERROR: " + LogString.operationFailed(
+                International.getMessage("Import von Datensatz {record}", r.toString()),msg));
         errorCount++;
+    }
+
+    private void logImportWarning(DataRecord r, String msg) {
+        logInfo("\nWARNING: " + msg + ": " + r.toString());
+        warningCount++;
     }
 
     private void addRecord(DataRecord r) {
@@ -195,6 +201,7 @@ public class DataImport extends ProgressTask {
                 } else {
                     addRecord(r);
                 }
+                return;
             }
             if (importMode.equals(IMPORTMODE_UPD)) {
                 if (otherVersions == null || otherVersions.length == 0) {
@@ -202,6 +209,7 @@ public class DataImport extends ProgressTask {
                 } else {
                     updateRecord(r);
                 }
+                return;
             }
             if (importMode.equals(IMPORTMODE_ADDUPD)) {
                 if (otherVersions != null && otherVersions.length > 0) {
@@ -209,6 +217,7 @@ public class DataImport extends ProgressTask {
                 } else {
                     addRecord(r);
                 }
+                return;
             }
         } catch (Exception e) {
             logImportFailed(r, e.getMessage());
@@ -256,7 +265,9 @@ public class DataImport extends ProgressTask {
                         for (int i=0; i<header.length; i++) {
                             String value = (fields.size() > i ? fields.get(i) : null);
                             if (value != null && value.length() > 0) {
-                                r.setFromText(header[i], value);
+                                if (!r.setFromText(header[i], value.trim())) {
+                                    logImportWarning(r, "Value '" + value + "' for Field '"+header[i] + "' corrected to '" + r.getAsText(header[i]) + "'");
+                                }
                             }
                         }
                         importRecord(r);
@@ -285,6 +296,7 @@ public class DataImport extends ProgressTask {
         }
         this.logInfo("\n\n" + International.getMessage("{count} Datensätze erfolgreich importiert.", importCount));
         this.logInfo("\n" + International.getMessage("{count} Fehler.", errorCount));
+        this.logInfo("\n" + International.getMessage("{count} Warnungen.", warningCount));
         setDone();
     }
 
@@ -333,9 +345,11 @@ public class DataImport extends ProgressTask {
                 dataImport.importRecord(record);
                 record = null;
             }
-            if (record != null) {
+            if (record != null && fieldValue != null) {
                 // end of field
-                record.setFromText(fieldName, fieldValue);
+                if (!record.setFromText(fieldName, fieldValue.trim())) {
+                    dataImport.logImportWarning(record, "Value '" + fieldValue + "' for Field '" + fieldName + "' corrected to '" + record.getAsText(fieldName) + "'");
+                }
             }
 
         }

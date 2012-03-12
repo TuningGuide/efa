@@ -16,6 +16,7 @@ import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.data.efawett.WettDef;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeDistance;
 import de.nmichael.efa.data.types.DataTypeIntString;
@@ -31,6 +32,7 @@ import java.awt.AWTEvent;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.util.*;
@@ -242,8 +244,12 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     // =========================================================================
     // Internal Variables for various pusposes
     // =========================================================================
+    private ItemTypeStringList itemStatisticCategory;
     private ItemTypeStringList itemStatisticType;
     private ItemTypeStringList itemStatisticKey;
+    private ItemTypeDate itemDateFrom;
+    private ItemTypeDate itemDateTo;
+    private ItemTypeInteger itemCompYear;
     private ItemTypeMultiSelectList<String> itemFilterGender;
     private ItemTypeMultiSelectList<String> itemFilterStatus;
     private ItemTypeMultiSelectList<String> itemFilterSessionType;
@@ -327,6 +333,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public int sAggrDistanceBarSize;
     public int sAggrSessionsBarSize;
     public int sAggrAvgDistanceBarSize;
+    public int sLFieldDistancePos = -1;
     // --- Sorting Settings
     public SortingCriteria sSortingCriteria;
     public boolean sSortingOrderAscending;
@@ -1776,7 +1783,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     }
 
     public int getLogbookFieldCount() {
-        return getLogbookFieldsList(ARRAY_STRINGLIST_VALUES).length;
+        DataTypeList l = getShowLogbookFields();
+        return (l != null ? l.length() : 0);
     }
 
     public String[] getQualifiedNameFields() {
@@ -1822,15 +1830,17 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         ((ItemTypeBoolean)item).registerItemListener(this);
         v.add(item = new ItemTypeDate(StatisticsRecord.DATEFROM, getDateFrom(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Von")));
-        ItemTypeDate dateFrom = (ItemTypeDate)item;
+        itemDateFrom = (ItemTypeDate)item;
         v.add(item = new ItemTypeDate(StatisticsRecord.DATETO, getDateTo(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bis")));
-        ((ItemTypeDate)item).setMustBeAfter(dateFrom, true);
+        ((ItemTypeDate)item).setMustBeAfter(itemDateFrom, true);
+        itemDateTo = (ItemTypeDate)item;
         v.add(item = new ItemTypeStringList(StatisticsRecord.STATISTICCATEGORY, getStatisticCategory(),
                     getStatisticCategories(ARRAY_STRINGLIST_VALUES), getStatisticCategories(ARRAY_STRINGLIST_DISPLAY),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                     International.getString("Statistiktyp")));
         item.registerItemListener(this);
+        this.itemStatisticCategory = (ItemTypeStringList)item;
         v.add(item = new ItemTypeStringList(StatisticsRecord.STATISTICTYPE, getStatisticType(),
                     getStatisticTypes(getStatisticCategoryEnum(), ARRAY_STRINGLIST_VALUES),
                     getStatisticTypes(getStatisticCategoryEnum(), ARRAY_STRINGLIST_DISPLAY),
@@ -1994,6 +2004,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                     1900, 2100,
                     IItemType.TYPE_PUBLIC, CAT_COMP,
                     International.getString("Wettbewerbsjahr")));
+        item.registerItemListener(this);
+        itemCompYear = (ItemTypeInteger)item;
+
         v.add(item = new ItemTypeInteger(StatisticsRecord.COMPPERCENTFULFILLED, getCompPercentFulfilled(),
                     0, 100,
                     IItemType.TYPE_PUBLIC, CAT_COMP,
@@ -2213,6 +2226,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                     sFilterByPersonText = (String)o;
                     sFilterByPersonId = null;
                 }
+            } else {
+                return false;
             }
         }
         if (getFilterPromptBoat() && Daten.isGuiAppl()) {
@@ -2300,6 +2315,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 sIsLFieldsDestinationAreas = true;
             } else if (s.equals(LFIELDS_DISTANCE)) {
                 sIsLFieldsDistance = true;
+                sLFieldDistancePos = i;
             } else if (s.equals(LFIELDS_MULTIDAY)) {
                 sIsLFieldsMultiDay = true;
             } else if (s.equals(LFIELDS_NOTES)) {
@@ -2516,6 +2532,36 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         }
     }
 
+    private void setDefaultDates(StatisticCategory cat, String statType) {
+        if (itemDateFrom == null || itemDateTo == null || itemCompYear == null) {
+            return;
+        }
+        if (cat == null) {
+            String cats = itemStatisticCategory.getValueFromField();
+            cat = getStatisticCategoryEnum(cats);
+        }
+        if (statType == null) {
+            statType = itemStatisticType.getValueFromField();
+        }
+
+        itemDateFrom.setEditable(cat != StatisticCategory.competition);
+        itemDateTo.setEditable(cat != StatisticCategory.competition);
+        if (cat == StatisticCategory.competition) {
+            Competition comp = Competition.getCompetition(statType);
+            int year = EfaUtil.stringFindInt(itemCompYear.getValueFromField(), -1);
+            if (comp != null && year > 0) {
+                WettDef wett = Daten.wettDefs.getWettDef(comp.getCompId(), year);
+                if (wett != null && wett.von != null) {
+                    itemDateFrom.parseAndShowValue(wett.von.tag + "." + wett.von.monat + "." + (wett.von.jahr+year));
+                }
+                if (wett != null && wett.bis != null) {
+                    itemDateTo.parseAndShowValue(wett.bis.tag + "." + wett.bis.monat + "." + (wett.bis.jahr+year));
+                }
+            }
+
+        }
+    }
+
     public void itemListenerAction(IItemType itemType, AWTEvent event) {
         if (itemType.getName().equals(STATISTICCATEGORY) && 
             event instanceof ItemEvent &&
@@ -2542,6 +2588,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 }
             }
             setDefaultSorting(cat);
+            setDefaultDates(cat, defaultStatisticType);
         }
         if (itemType.getName().equals(STATISTICTYPE) && 
             event instanceof ItemEvent  &&
@@ -2555,6 +2602,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                     itemStatisticKey.parseAndShowValue(defaultStatisticKey);
                 }
             }
+            setDefaultDates(null, type);
         }
         if (itemType.getName().equals(FILTERGENDERALL) && event instanceof ActionEvent) {
             if (itemFilterGender != null && itemType.getValueFromField() != null) {
@@ -2607,6 +2655,11 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             ((ItemTypeBoolean)itemType).setColor(
                     (itemType.getValueFromField().equals(Boolean.toString(true)) ?
                         Color.blue : Color.black));
+        }
+        if (itemType.getName().equals(COMPYEAR) &&
+            event instanceof FocusEvent &&
+            ((FocusEvent)event).getID() == FocusEvent.FOCUS_LOST) {
+            setDefaultDates(null, null);
         }
     }
 

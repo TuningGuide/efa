@@ -116,57 +116,55 @@ public class StatisticCSVWriter extends StatisticWriter {
 
             // Write normal Output
             if (sr.pTableColumns != null && sr.pTableColumns.size() > 0) {
-                if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list) {
-                    for (int i = 0; i < sr.pTableColumns.size(); i++) {
-                        write(f, sr.pTableColumns.get(i));
+                for (int i = 0; i < sr.pTableColumns.size(); i++) {
+                    write(f, sr.pTableColumns.get(i));
+                }
+                writeln(f);
+
+                for (int i = 0; i < sd.length; i++) {
+                    if (sd[i].isMaximum || sd[i].isSummary) {
+                        continue;
+                    }
+                    if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list) {
+                        if (sr.sIsFieldsPosition) {
+                            write(f, sd[i].sPosition);
+                        }
+                        if (sr.sIsFieldsName) {
+                            write(f, sd[i].sName);
+                        }
+                        if (sr.sIsFieldsStatus) {
+                            write(f, sd[i].sStatus);
+                        }
+                        if (sr.sIsFieldsYearOfBirth) {
+                            write(f, sd[i].sYearOfBirth);
+                        }
+                        if (sr.sIsFieldsBoatType) {
+                            write(f, sd[i].sBoatType);
+                        }
+                        if (sr.sIsAggrDistance) {
+                            write(f, sd[i].sDistance);
+                        }
+                        if (sr.sIsAggrSessions) {
+                            write(f, sd[i].sSessions);
+                        }
+                        if (sr.sIsAggrAvgDistance) {
+                            write(f, sd[i].sAvgDistance);
+                        }
+                        if (sr.sIsAggrZielfahrten) {
+                            write(f, sd[i].sDestinationAreas);
+                        }
+                        if (sr.sIsAggrWanderfahrten) {
+                            write(f, sd[i].sWanderfahrten);
+                        }
+                    }
+                    if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook) {
+                        if (sd[i].logbookFields != null) {
+                            for (int j = 0; j < sd[i].logbookFields.length; j++) {
+                                write(f, sd[i].logbookFields[j]);
+                            }
+                        }
                     }
                     writeln(f);
-
-                    for (int i = 0; i < sd.length; i++) {
-                        if (sd[i].isMaximum) {
-                            continue;
-                        }
-                        if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list) {
-                            if (sr.sIsFieldsPosition) {
-                                write(f, sd[i].sPosition);
-                            }
-                            if (sr.sIsFieldsName) {
-                                write(f, sd[i].sName);
-                            }
-                            if (sr.sIsFieldsStatus) {
-                                write(f, sd[i].sStatus);
-                            }
-                            if (sr.sIsFieldsYearOfBirth) {
-                                write(f, sd[i].sYearOfBirth);
-                            }
-                            if (sr.sIsFieldsBoatType) {
-                                write(f, sd[i].sBoatType);
-                            }
-                            if (sr.sIsAggrDistance) {
-                                write(f, sd[i].sDistance);
-                            }
-                            if (sr.sIsAggrSessions) {
-                                write(f, sd[i].sSessions);
-                            }
-                            if (sr.sIsAggrAvgDistance) {
-                                write(f, sd[i].sAvgDistance);
-                            }
-                            if (sr.sIsAggrZielfahrten) {
-                                write(f, sd[i].sDestinationAreas);
-                            }
-                            if (sr.sIsAggrWanderfahrten) {
-                                write(f, sd[i].sWanderfahrten);
-                            }
-                        }
-                        if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook) {
-                            if (sd[i].logbookFields != null) {
-                                for (int j = 0; j < sd[i].logbookFields.length; j++) {
-                                    write(f, sd[i].logbookFields[j]);
-                                }
-                            }
-                        }
-                        writeln(f);
-                    }
                 }
             }
             f.close();

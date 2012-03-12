@@ -1,10 +1,10 @@
 Item                                                                 days  until
 ================================================================================
-Vortrag: Folie zu Backup & Restore
+Mitglieder sich selbst hinzufügen nur Name mit Status andere
+Schreiben ins Spiegelverzeichnis mit Timeout bei Netzlaufwerk
 Buttons mit Symbolen ausstatten
-Gewaesserliste mitliefern
-
 efaWett-Daten aktualisieren
+Obmann in Fahrtenbuchansicht und in Statistik kenntlich machen
 Dr-Titel in Ausgabe (und erkennung) von Strings aufnehmen!
 Check Java Version (min 6)
 Statistik (und alle Datensätze) sollten den Fokus nach Bearbeitung behalten. Auch bei HOch- und Runter schieben
@@ -26,6 +26,19 @@ Paßwort für Statistiken
 vorhandene Statistik bearbeiten und unter anderem Namen speichern
 für Kombiboote Standardbootstyp festlegen können (insb. Riemen/Skull; für Anzhal Plätze macht das weniger Sinn, da eh schon doppelt in Liste und dann entsprechend Auswahl)
 Vor dem Aufrufen der Wetter-Popups einen Befehl durchführen können (um ggf. Seiten zu holen und aufzubereiten)
+Text-Fahrtenbücher in efa importieren/exportieren
+Zusätzliche Import-Option: alle *nicht* importierten (versionierten) Daten als ungültig markieren
+  (Use Case: Importieren einer neuen (vollständigen) Mitgliederliste; alles was nicht importiert wurde, ist ungültig)
+  Dabei sollten allerdings Gäste und andere nicht gelöscht werden!
+Datenimport sollte eine Warnung ausgeben, wenn das
+Funktion, um zwei Records mit unterschiedlichen ID's zusammenzuführen
+Warnungs-Fenster mit Infos zum Ruderrevier (Gefahren, Sperrungen, etc.) beim Beginnen einer Fahrt
+PDF-Output
+Feld "Trommler" für Drachenboote
+Datenabgleich zwischen Bootshäusern implementieren, bei dem efa einen Export/Import durchführt, der
+  anhand von LastModified erkennt, welche Daten gewinnen, aber zum Beispiel nie die Bootsstatusliste,
+  Nachrichten, ... synchronisiert.
+Für alle Daten-Felder Klartextnamen definieren, die bei Listenausgabe dann verwendet werden
 --------------------------------------------------------------------------------
 
 Gewässer - durch Mitglieder für jede Fahrt erfassen lassen

@@ -188,16 +188,17 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
         return super.getAsText(fieldName);
     }
 
-    public void setFromText(String fieldName, String value) {
+    public boolean setFromText(String fieldName, String value) {
         if (fieldName.equals(PERSONID)) {
             Persons persons = getPersistence().getProject().getPersons(false);
             PersonRecord pr = persons.getPerson(value, -1);
             if (pr != null) {
                 set(fieldName, pr.getId());
             }
-            return;
+        } else {
+            set(fieldName, value);
         }
-        set(fieldName, value);
+        return (value.equals(getAsText(fieldName)));
     }
 
     public Vector<IItemType> getGuiItems(AdminRecord admin) {

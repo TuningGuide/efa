@@ -287,7 +287,7 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
     }
 
     void selectButton_actionPerformed(ActionEvent e, boolean fromPopupMenu) {
-        if (!checkAndSaveChanges()) {
+        if (!checkAndSaveChanges(true)) {
             return;
         }
         int v = EfaUtil.stringFindInt(versionList.getValueFromField(), -1);
@@ -300,7 +300,7 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
     }
 
     void newButton_actionPerformed(ActionEvent e, boolean fromPopupMenu) {
-        if (!checkAndSaveChanges()) {
+        if (!checkAndSaveChanges(true)) {
             return;
         }
         int v = EfaUtil.stringFindInt(versionList.getValueFromField(), -1);
@@ -322,7 +322,7 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
 
     void deleteButton_actionPerformed(ActionEvent e, boolean fromPopupMenu) {
         int v = EfaUtil.stringFindInt(versionList.getValueFromField(), -1);
-        if (v != thisVersion && !checkAndSaveChanges()) {
+        if (v != thisVersion && !checkAndSaveChanges(true)) {
             return;
         }
         if (v >= 0) {

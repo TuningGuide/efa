@@ -392,6 +392,7 @@ public class StatisticTask extends ProgressTask {
         sd.key = logbook.getName() + ":" + entryNo.toString();
         sd.entryNo = entryNo;
         sd.date = entryDate;
+        sd.sessions = 1; // we count every entry as one session
         sd.logbookFields = new String[sr.getLogbookFieldCount()];
         int col = 0;
         if (sr.sIsLFieldsEntryNo) {
@@ -457,6 +458,8 @@ public class StatisticTask extends ProgressTask {
         }
         if (sr.sIsLFieldsDistance) {
             sd.logbookFields[col++] = (r.getDistance() != null ? r.getDistance().toString() : "");
+            // we update the sd.distance because we use this field to summarize all output data
+            sd.distance = (r.getDistance() != null ? r.getDistance().getValueInDefaultUnit() : 0);
         }
         if (sr.sIsLFieldsMultiDay) {
             sd.logbookFields[col++] = (entrySessionGroup != null ?
@@ -864,6 +867,20 @@ public class StatisticTask extends ProgressTask {
             sdMaximum.updateMaximum(sd);
         }
         setCurrentWorkDone(workBeforePostprocessing + (WORK_POSTPROCESSING/5)*1);
+
+        // summary for Logbook
+        if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook) {
+            if (sdSummary.logbookFields == null) {
+                sdSummary.logbookFields = new String[sr.getLogbookFieldCount()];
+            }
+            if (sr.sLFieldDistancePos >= 0 && sr.sLFieldDistancePos < sdSummary.logbookFields.length) {
+                sdSummary.logbookFields[0] = sdSummary.sName;
+                sdSummary.logbookFields[sr.sLFieldDistancePos] =
+                        DataTypeDistance.getDistance(sdSummary.distance).getStringValueInDefaultUnit(sr.sDistanceWithUnit, 0,
+                        (sr.sTruncateDistanceToFullValue ? 0 : 1));
+            }
+        }
+
 
         // Create Array and sort
         StatisticsData[] sdArray = new StatisticsData[keys.length + 2];

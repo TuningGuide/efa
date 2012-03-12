@@ -33,12 +33,12 @@ import java.lang.management.*;
 // @i18n complete
 public class Daten {
 
-    public final static String VERSION            = "v2.0_beta"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID          = "1.9.9_52";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-    public final static String VERSIONRELEASEDATE = "20.02.2012";  // Release Date: TT.MM.JJJJ
+    public final static String VERSION            = "2.0"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
+    public final static String VERSIONID          = "2.0.0_04";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "11.03.2012";  // Release Date: TT.MM.JJJJ
     public final static String MAJORVERSION       = "2";
-    public final static String PROGRAMMID         = "EFA.199"; // Versions-ID für Wettbewerbsmeldungen
-    public final static String PROGRAMMID_DRV     = "EFADRV.199"; // Versions-ID für Wettbewerbsmeldungen
+    public final static String PROGRAMMID         = "EFA.200"; // Versions-ID für Wettbewerbsmeldungen
+    public final static String PROGRAMMID_DRV     = "EFADRV.200"; // Versions-ID für Wettbewerbsmeldungen
     public final static String COPYRIGHTYEAR      = "12";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
 
     public final static String EFA     = "efa";                              // efa program name/ID
@@ -55,7 +55,7 @@ public class Daten {
     public static String efa_java_arguments = null;                 // Environment Variable Contents containing all arguments passed to the "java" command
     public final static String EFADIREKT_MAINCLASS = de.nmichael.efa.boathouse.Main.class.getCanonicalName();
     public final static String EFAURL = "http://efa.nmichael.de";
-    public final static String EFASUPPORTURL = "http://efa.nmichael.de/help";
+    public final static String EFASUPPORTURL = "http://efa.nmichael.de/help.html";
     public final static String EFADEVURL = "http://kenai.com/projects/efa";
     public final static String EFATRANSLATEWIKI = "http://kenai.com/projects/efa/pages/TranslatingEfa";
     public final static String EFAWETTURL = "http://efa.rudern.de";
@@ -121,10 +121,10 @@ public class Daten {
     public static String efaLogDirectory = null;     // Efa-Log-Verzeichnis, immer mit "/" am Ende     ("./log/")
     public static String efaCfgDirectory = null;     // Efa-Configverzeichnis, immer mit "/" am Ende   ("./cfg/")
     public static String efaDocDirectory = null;     // Efa-Doku-Verzeichnis,  immer mit "/" am Ende   ("./doc/")
-    public static String efaAusgabeDirectory = null; // Efa-Ausgabe-Verzeichnis, immer mit "/" am Ende ("./fmt/")
+    public static String efaFormattingDirectory = null; // Efa-Ausgabe-Verzeichnis, immer mit "/" am Ende ("./fmt/")
     public static String efaBakDirectory = null;     // Efa-Backupverzeichnis, immer mit "/" am Ende   ("./backup/")
     public static String efaTmpDirectory = null;     // Efa-Tempverzeichnis,   immer mit "/" am Ende   ("./tmp/")
-    public static String efaStyleDirectory = null;   // Efa-Stylesheetverzeichnis,   mit "/" am Ende   ("./fmt/layout/")
+    //public static String efaStyleDirectory = null;   // Efa-Stylesheetverzeichnis,   mit "/" am Ende   ("./fmt/layout/")
     public static String fileSep = "/"; // Verzeichnis-Separator (wird in ini() ermittelt)
 
     public static String javaVersion = "";
@@ -560,16 +560,16 @@ public class Daten {
         }
 
         // ./ausgabe
-        Daten.efaAusgabeDirectory = Daten.efaMainDirectory + "fmt" + Daten.fileSep;
-        if (!checkAndCreateDirectory(Daten.efaAusgabeDirectory)) {
-            haltProgram(HALT_DIRECTORIES);
-        }
+        //Daten.efaAusgabeDirectory = Daten.efaBaseConfig.efaUserDirectory + "fmt" + Daten.fileSep;
+        //if (!checkAndCreateDirectory(Daten.efaAusgabeDirectory)) {
+        //    haltProgram(HALT_DIRECTORIES);
+        //}
 
         // ./ausgabe/layout
-        Daten.efaStyleDirectory = Daten.efaAusgabeDirectory + "layout" + Daten.fileSep;
-        if (!checkAndCreateDirectory(Daten.efaStyleDirectory)) {
-            haltProgram(HALT_DIRECTORIES);
-        }
+        //Daten.efaStyleDirectory = Daten.efaAusgabeDirectory + "layout" + Daten.fileSep;
+        //if (!checkAndCreateDirectory(Daten.efaStyleDirectory)) {
+        //    haltProgram(HALT_DIRECTORIES);
+        //}
 
         // ./bak
         Daten.efaBakDirectory = Daten.efaBaseConfig.efaUserDirectory + "backup" + Daten.fileSep;
@@ -971,8 +971,8 @@ public class Daten {
             infos.add("efa.dir.program=" + Daten.efaProgramDirectory);
             infos.add("efa.dir.plugin=" + Daten.efaPluginDirectory);
             infos.add("efa.dir.doc=" + Daten.efaDocDirectory);
-            infos.add("efa.dir.ausgabe=" + Daten.efaAusgabeDirectory);
-            infos.add("efa.dir.layout=" + Daten.efaStyleDirectory);
+            //infos.add("efa.dir.ausgabe=" + Daten.efaAusgabeDirectory);
+            //infos.add("efa.dir.layout=" + Daten.efaStyleDirectory);
             infos.add("efa.dir.data=" + Daten.efaDataDirectory);
             infos.add("efa.dir.cfg=" + Daten.efaCfgDirectory);
             infos.add("efa.dir.bak=" + Daten.efaBakDirectory);

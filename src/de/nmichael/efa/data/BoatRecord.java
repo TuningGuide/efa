@@ -853,22 +853,18 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         return super.getAsText(fieldName);
     }
 
-    public void setFromText(String fieldName, String value) {
+    public boolean setFromText(String fieldName, String value) {
         if (fieldName.equals(TYPEVARIANT)) {
             DataTypeList list = DataTypeList.parseList(value, IDataAccess.DATA_INTEGER);
             if (list != null && list.isSet() && list.length() > 0) {
                 set(fieldName, list);
             }
-            return;
-        }
-        if (fieldName.equals(TYPEDESCRIPTION)) {
+        } else if (fieldName.equals(TYPEDESCRIPTION)) {
             DataTypeList list = DataTypeList.parseList(value, IDataAccess.DATA_STRING);
             if (list != null && list.isSet() && list.length() > 0) {
                 set(fieldName, list);
             }
-            return;
-        }
-        if (fieldName.equals(TYPETYPE) ||
+        } else if (fieldName.equals(TYPETYPE) ||
             fieldName.equals(TYPESEATS) ||
             fieldName.equals(TYPERIGGING) ||
             fieldName.equals(TYPECOXING)) {
@@ -895,10 +891,8 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
                     }
                 }
                 set(fieldName, list);
-                return;
             }
-        }
-        if (fieldName.equals(ALLOWEDGROUPIDLIST)) {
+        } else if (fieldName.equals(ALLOWEDGROUPIDLIST)) {
             Vector<String> values = EfaUtil.split(value, ',');
             DataTypeList<UUID> list = new DataTypeList<UUID>();
             Groups groups = getPersistence().getProject().getGroups(false);
@@ -911,40 +905,33 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
             if (list.length() > 0) {
                 set(fieldName, list);
             }
-            return;
-        }
-        if (fieldName.equals(REQUIREDGROUPID)) {
+        } else if (fieldName.equals(REQUIREDGROUPID)) {
             Groups groups = getPersistence().getProject().getGroups(false);
             GroupRecord gr = groups.findGroupRecord(value, -1);
             if (gr != null) {
                 set(fieldName, gr.getId());
             }
-            return;
-        }
-        if (fieldName.equals(DEFAULTCREWID)) {
+        } else if (fieldName.equals(DEFAULTCREWID)) {
             Crews crews = getPersistence().getProject().getCrews(false);
             CrewRecord gr = crews.findCrewRecord(value);
             if (gr != null) {
                 set(fieldName, gr.getId());
             }
-            return;
-        }
-        if (fieldName.equals(DEFAULTSESSIONTYPE)) {
+        } else if (fieldName.equals(DEFAULTSESSIONTYPE)) {
             String s = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, value);
             if (s != null) {
                 set(fieldName, s);
             }
-            return;
-        }
-        if (fieldName.equals(DEFAULTDESTINATIONID)) {
+        } else if (fieldName.equals(DEFAULTDESTINATIONID)) {
             Destinations destinations = getPersistence().getProject().getDestinations(false);
             DestinationRecord dr = destinations.getDestination(value, -1);
             if (dr != null) {
                 set(fieldName, dr.getId());
             }
-            return;
+        } else {
+            set(fieldName, value);
         }
-        set(fieldName, value);
+        return (value.equals(getAsText(fieldName)));
     }
 
     public Vector<IItemType> getGuiItems(AdminRecord admin) {

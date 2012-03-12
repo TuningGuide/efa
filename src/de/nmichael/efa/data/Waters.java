@@ -79,7 +79,7 @@ public class Waters extends StorageObject {
         }
     }
 
-    public URL getResourceTemplate(String countryCode) {
+    public static URL getResourceTemplate(String countryCode) {
         try {
             return Waters.class.getResource(Daten.DATATEMPLATEPATH + "Waters_" + countryCode + ".txt");
         } catch(Exception e) {

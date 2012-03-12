@@ -1,5 +1,143 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <efaOnlineUpdate>
+
+    <Version>
+        <VersionID>2.0.0_04</VersionID>
+        <ReleaseDate>11.03.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa200.zip</DownloadUrl>
+        <DownloadSize>2823476</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Bugfixes LRV-Winter-Wettbewerb</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.0_03</VersionID>
+        <ReleaseDate>11.03.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa200.zip</DownloadUrl>
+        <DownloadSize>2822949</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Bugfixes Statisiken</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Bugfixes Statistics</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.0_02</VersionID>
+        <ReleaseDate>06.03.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa200.zip</DownloadUrl>
+        <DownloadSize>2822505</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.0_01</VersionID>
+        <ReleaseDate>26.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa200.zip</DownloadUrl>
+        <DownloadSize>2823389</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.0_00</VersionID>
+        <ReleaseDate>26.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa2.zip</DownloadUrl>
+        <DownloadSize>2777996</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>efa Version 2.0</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>efa Version 2.0</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_55</VersionID>
+        <ReleaseDate>23.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2796474</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_54</VersionID>
+        <ReleaseDate>22.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2796258</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Gewässerliste</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>1.9.9_53</VersionID>
+        <ReleaseDate>21.02.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
+        <DownloadSize>2796148</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Kleinigkeiten</ChangeItem>
+        </Changes>
+
+        <!-- Changes (english) -->
+        <Changes lang="en">
+            <ChangeItem>Minor Things</ChangeItem>
+        </Changes>
+    </Version>
+
     <Version>
         <VersionID>1.9.9_52</VersionID>
         <ReleaseDate>20.02.2012</ReleaseDate>

@@ -151,7 +151,7 @@ public class GroupRecord extends DataRecord implements IItemFactory {
         return super.getAsText(fieldName);
     }
 
-    public void setFromText(String fieldName, String value) {
+    public boolean setFromText(String fieldName, String value) {
         if (fieldName.equals(MEMBERIDLIST)) {
             Vector<String> values = EfaUtil.split(value, ';');
             DataTypeList<UUID> list = new DataTypeList<UUID>();
@@ -165,9 +165,10 @@ public class GroupRecord extends DataRecord implements IItemFactory {
             if (list.length() > 0) {
                 set(fieldName, list);
             }
-            return;
+        } else {
+            set(fieldName, value);
         }
-        set(fieldName, value);
+        return (value.equals(getAsText(fieldName)));
     }
 
     public IItemType[] getDefaultItems(String itemName) {

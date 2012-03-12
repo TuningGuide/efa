@@ -519,31 +519,28 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         return super.getAsText(fieldName);
     }
 
-    public void setFromText(String fieldName, String value) {
+    public boolean setFromText(String fieldName, String value) {
         if (fieldName.equals(GENDER)) {
             String s = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_GENDER, value);
             if (s != null) {
                 set(fieldName, s);
             }
-            return;
-        }
-        if (fieldName.equals(STATUSID)) {
+        } else if (fieldName.equals(STATUSID)) {
             Status status = getPersistence().getProject().getStatus(false);
             StatusRecord sr = status.findStatusByName(value);
             if (sr != null) {
                 set(fieldName, sr.getId());
             }
-            return;
-        }
-        if (fieldName.equals(DEFAULTBOATID)) {
+        } else if (fieldName.equals(DEFAULTBOATID)) {
             Boats boats = getPersistence().getProject().getBoats(false);
             BoatRecord br = boats.getBoat(value, System.currentTimeMillis());
             if (br != null) {
                 set(fieldName, br.getId());
             }
-            return;
+        } else {
+            set(fieldName, value);
         }
-        set(fieldName, value);
+        return (value.equals(getAsText(fieldName)));
     }
 
     public IItemType[] getDefaultItems(String itemName) {

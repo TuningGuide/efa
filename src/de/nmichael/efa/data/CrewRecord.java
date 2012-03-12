@@ -189,7 +189,7 @@ public class CrewRecord extends DataRecord {
         return super.getAsText(fieldName);
     }
 
-    public void setFromText(String fieldName, String value) {
+    public boolean setFromText(String fieldName, String value) {
         boolean personId = false;
         if (fieldName.equals(COXID)) {
             personId = true;
@@ -205,9 +205,10 @@ public class CrewRecord extends DataRecord {
             if (pr != null) {
                 set(fieldName, pr.getId());
             }
-            return;
+        } else {
+            set(fieldName, value);
         }
-        set(fieldName, value);
+        return (value.equals(getAsText(fieldName)));
     }
 
 

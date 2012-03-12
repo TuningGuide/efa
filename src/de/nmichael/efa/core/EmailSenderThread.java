@@ -142,7 +142,7 @@ public class EmailSenderThread extends Thread {
             javax.mail.Session session = javax.mail.Session.getInstance(props, ma);
             com.sun.mail.smtp.SMTPMessage mail = new com.sun.mail.smtp.SMTPMessage(session);
             mail.setAllow8bitMIME(true);
-            mail.setHeader("X-Mailer", Daten.EFA_SHORTNAME + " " + Daten.VERSION);
+            mail.setHeader("X-Mailer", Daten.EFA_SHORTNAME + " " + Daten.VERSIONID);
             mail.setHeader("Content-Type", "text/plain; charset=" + charset);
             mail.setFrom(new javax.mail.internet.InternetAddress(mailFromName + " <" + mailFromEmail + ">"));
             mail.setRecipients(com.sun.mail.smtp.SMTPMessage.RecipientType.TO, javax.mail.internet.InternetAddress.parse(recipients.toString()));

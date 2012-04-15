@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.gui.util;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.util.*;
@@ -27,6 +28,7 @@ public class AutoCompleteList {
 
     private IDataAccess dataAccess;
     private long dataAccessSCN = -1;
+    private long efaConfigSCN = -1;
     private long validFrom = -1;
     private long validUntil = Long.MAX_VALUE;
     private Vector<String> dataVisible = new Vector<String>();;
@@ -62,6 +64,7 @@ public class AutoCompleteList {
     public synchronized void setDataAccess(IDataAccess dataAccess, long validFrom, long validUntil) {
         this.dataAccess = dataAccess;
         this.dataAccessSCN = -1;
+        this.efaConfigSCN = -1;
         this.validFrom = validFrom;
         this.validUntil = validUntil;
         scn++;
@@ -73,8 +76,13 @@ public class AutoCompleteList {
     public synchronized void update() {
         try {
             _foundValue = null;
-            if (dataAccess != null && dataAccess.isStorageObjectOpen() && dataAccess.getSCN() != dataAccessSCN) {
+            if (dataAccess != null &&
+                dataAccess.isStorageObjectOpen() &&
+                Daten.efaConfig != null && Daten.efaConfig.data() != null &&
+                (dataAccess.getSCN() != dataAccessSCN ||
+                 Daten.efaConfig.data().getSCN() != efaConfigSCN)) {
                 dataAccessSCN = dataAccess.getSCN();
+                efaConfigSCN = Daten.efaConfig.data().getSCN();
                 dataVisible = new Vector<String>();
                 name2valid = new Hashtable<String,ValidInfo>();
                 lower2realVisible = new Hashtable<String,String>();
@@ -89,6 +97,10 @@ public class AutoCompleteList {
                             _foundValue = r.getQualifiedName();
                         }
                         String s = r.getQualifiedName();
+                        if (Daten.efaConfig.getValuePrefixDestinationWithWaters() &&
+                            r instanceof DestinationRecord) {
+                            s = ((DestinationRecord)r).getWatersNamesStringListPrefix() + s;
+                        }
                         String alias = (r instanceof PersonRecord ? ((PersonRecord)r).getInputShortcut() : null);
                         if (!r.getDeleted() && !r.getInvisible()) {
                             if (s.length() > 0) {

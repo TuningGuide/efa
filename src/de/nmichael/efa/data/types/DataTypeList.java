@@ -132,6 +132,20 @@ public class DataTypeList<T> {
         }
     }
 
+    public void addAll(DataTypeList<T> addlist) {
+        if (list == null) {
+            list = new ArrayList<T>();
+        }
+        synchronized(list) {
+            for (int i=0; i<addlist.length(); i++) {
+                T t = addlist.get(i);
+                if (!list.contains(t)) {
+                    list.add(t);
+                }
+            }
+        }
+    }
+
     public int length() {
         if (list == null) {
             return 0;

@@ -85,8 +85,7 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
         }
         StatisticsData sd = data.get(key);
         if (sd == null) {
-            sd = new StatisticsData(sr);
-            sd.key = key;
+            sd = new StatisticsData(sr, key);
         }
 
         // Alter des Teilnehmers

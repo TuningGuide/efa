@@ -223,12 +223,12 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
             if (name.indexOf("/") < 0) {
                 name = Daten.IMAGEPATH + name;
             }
-            if (Logger.isTraceOn(Logger.TT_GUI)) {
+            if (Logger.isTraceOn(Logger.TT_GUI, 9)) {
                 Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_ICONS, "getIcon("+name+")");
             }
             return new ImageIcon(BaseFrame.class.getResource(name));
         } catch(Exception e) {
-            if (Logger.isTraceOn(Logger.TT_GUI)) {
+            if (Logger.isTraceOn(Logger.TT_GUI, 9)) {
                 Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_ICONS, "getIcon("+name+"): no icon found!");
             }
             Logger.logdebug(e);

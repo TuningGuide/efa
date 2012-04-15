@@ -85,7 +85,18 @@ REM # ##########################################
 REM Java Arguments
 SET EFA_JAVA_ARGUMENTS=%JVMOPTIONS% -cp %CP% %1 -javaRestart %3 %4 %5 %6 %7 %8 %9
 
-IF "%2" == "runcli" GOTO STARTCLI
+SET EFA_RUN_CLI=0
+SET EFA_RUN_DEBUG=0
+IF "%2" == "runcli" SET EFA_RUN_CLI=1
+IF "%3" == "-debug" SET EFA_RUN_DEBUG=1
+IF "%4" == "-debug" SET EFA_RUN_DEBUG=1
+IF "%5" == "-debug" SET EFA_RUN_DEBUG=1
+IF "%6" == "-debug" SET EFA_RUN_DEBUG=1
+IF "%7" == "-debug" SET EFA_RUN_DEBUG=1
+IF "%8" == "-debug" SET EFA_RUN_DEBUG=1
+IF "%9" == "-debug" SET EFA_RUN_DEBUG=1
+IF "%EFA_RUN_CLI%" == "1" GOTO STARTCLI
+IF "%EFA_RUN_DEBUG%" == "1" GOTO STARTCLIDBG
 IF "%OS%" == "Windows_NT" GOTO STARTNT
 GOTO START9X
 
@@ -101,10 +112,14 @@ echo starting %1 (Windows 9x) ...
 javaw %EFA_JAVA_ARGUMENTS%
 GOTO END
 
+:STARTCLIDBG
+echo EFA_JAVA_ARGUMENTS=%EFA_JAVA_ARGUMENTS%
 :STARTCLI
 java %EFA_JAVA_ARGUMENTS%
 goto EXIT
 
 :END
+IF "%EFA_RUN_CLI%" == "1" GOTO EXIT
+IF "%EFA_RUN_DEBUG%" == "1" GOTO EXIT
 @CLS
 :EXIT

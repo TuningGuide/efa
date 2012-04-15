@@ -38,6 +38,8 @@ public class StatisticTask extends ProgressTask {
     private Waters waters = Daten.project.getWaters(false);
     private Groups groups = Daten.project.getGroups(false);
     private Status status = Daten.project.getStatus(false);
+    private StatusRecord statusGuest = null;
+    private StatusRecord statusOther = null;
 
     // values from current logbook entry
     private Logbook logbook;
@@ -53,11 +55,14 @@ public class StatisticTask extends ProgressTask {
     private String entryBoatSeats;
     private String entryBoatRigging;
     private String entryBoatCoxing;
+    private String entryBoatOwner;
     private boolean entryBoatExclude;
     private UUID entryPersonId;
     private PersonRecord entryPersonRecord;
     private String entryPersonName;
     private UUID entryPersonStatusId;
+    private boolean entryPersonIsGuest;
+    private boolean entryPersonIsOther;
     private String entryPersonGender;
     private boolean entryPersonExclude;
     private UUID entryDestinationId;
@@ -76,6 +81,9 @@ public class StatisticTask extends ProgressTask {
     private StatisticTask(StatisticsRecord[] statisticsRecords, AdminRecord admin) {
         this.statisticsRecords = statisticsRecords;
         this.admin = admin;
+
+        statusGuest = status.getStatusGuest();
+        statusOther = status.getStatusOther();
     }
 
     private void resetEntryValues() {
@@ -91,11 +99,14 @@ public class StatisticTask extends ProgressTask {
         entryBoatSeats = null;
         entryBoatRigging = null;
         entryBoatCoxing = null;
+        entryBoatOwner = null;
         entryBoatExclude = false;
         entryPersonId = null;
         entryPersonRecord = null;
         entryPersonName = null;
         entryPersonStatusId = null;
+        entryPersonIsGuest = false;
+        entryPersonIsOther = false;
         entryPersonGender = null;
         entryPersonExclude = false;
         entryDestinationId = null;
@@ -168,8 +179,7 @@ public class StatisticTask extends ProgressTask {
         }
         StatisticsData sd = data.get(key);
         if (sd == null) {
-            sd = new StatisticsData(sr);
-            sd.key = key;
+            sd = new StatisticsData(sr, key);
         }
 
         // aggregate
@@ -226,6 +236,22 @@ public class StatisticTask extends ProgressTask {
             case name:
                 switch(sr.sStatisticTypeEnum) {
                     case persons:
+                        if (sr.sSumGuestsByClub && entryPersonIsGuest) {
+                            String clubName = International.getString("unbekannt");
+                            if (entryPersonRecord != null && entryPersonRecord.getAssocitation() != null &&
+                                entryPersonRecord.getAssocitation().length() > 0) {
+                                clubName = entryPersonRecord.getAssocitation();
+                            }
+                            return StatisticsData.SORTTOEND_PREFIX + International.getMessage("Gäste von {club}", clubName);
+                        }
+                        if (sr.sSumGuestsAndOthers && (entryPersonIsGuest || entryPersonIsOther)) {
+                            if (entryPersonIsGuest) {
+                                return StatisticsData.SORTTOEND_PREFIX + International.getString("Gäste");
+                            }
+                            if (entryPersonIsOther) {
+                                return StatisticsData.SORTTOEND_PREFIX + International.getString("andere");
+                            }
+                        }
                         if (entryPersonId != null) {
                             return entryPersonId;
                         }
@@ -234,6 +260,13 @@ public class StatisticTask extends ProgressTask {
                         }
                         break;
                     case boats:
+                        if (sr.sSumGuestsByClub && entryBoatRecord != null) {
+                            String owner = entryBoatRecord.getOwner();
+                            if (owner != null && owner.length() > 0) {
+                                return StatisticsData.SORTTOEND_PREFIX +
+                                        International.getMessage("Fremdboote von {owner}", owner);
+                            }
+                        }
                         if (entryBoatId != null) {
                             return entryBoatId;
                         }
@@ -285,18 +318,35 @@ public class StatisticTask extends ProgressTask {
                 }
                 break;
             case waters:
+                DataTypeList<String> watersText = new DataTypeList<String>();
+                DataTypeList<UUID> watersList = null;
                 if (entryDestinationRecord != null) {
-                    DataTypeList<UUID> watersList = entryDestinationRecord.getWatersIdList();
-                    if (watersList != null && watersList.length() > 0) {
-                        DataTypeList<String> watersText = new DataTypeList<String>();
-                        for (int i=0; i<watersList.length(); i++) {
-                            WatersRecord w = waters.getWaters(watersList.get(i));
-                            if (w != null) {
-                                watersText.add(w.getQualifiedName());
-                            }
-                        }
-                        return watersText;
+                    watersList = entryDestinationRecord.getWatersIdList();
+                }
+                if (r.getWatersIdList() != null) {
+                    if (watersList != null) {
+                        watersList.addAll(r.getWatersIdList());
+                    } else {
+                        watersList = r.getWatersIdList();
                     }
+                }
+                if (watersList != null && watersList.length() > 0) {
+                    for (int i = 0; i < watersList.length(); i++) {
+                        WatersRecord w = waters.getWaters(watersList.get(i));
+                        if (w != null) {
+                            watersText.add(w.getQualifiedName());
+                        }
+                    }
+                }
+                if (r.getWatersNameList() != null) {
+                    for (int i = 0; i < r.getWatersNameList().length(); i++) {
+                        if (!watersText.contains(r.getWatersNameList().get(i))) {
+                            watersText.add(r.getWatersNameList().get(i));
+                        }
+                    }
+                }
+                if (watersText.length() > 0) {
+                    return watersText;
                 }
                 break;
             case distance:
@@ -388,8 +438,7 @@ public class StatisticTask extends ProgressTask {
             return;
         }
 
-        StatisticsData sd = new StatisticsData(sr);
-        sd.key = logbook.getName() + ":" + entryNo.toString();
+        StatisticsData sd = new StatisticsData(sr, logbook.getName() + ":" + entryNo.toString());
         sd.entryNo = entryNo;
         sd.date = entryDate;
         sd.sessions = 1; // we count every entry as one session
@@ -416,7 +465,13 @@ public class StatisticTask extends ProgressTask {
                 name = "";
             }
             if (sr.sPublicStatistic && entryPersonExclude) {
-                name = "<" + International.getString("anonym") + ">";
+                name = "<" + International.getString("anonym") + ">"; // < and > will be correctly escaped in output!
+            }
+            if (sr.sOutputType == StatisticsRecord.OutputTypes.html ||
+                sr.sOutputType == StatisticsRecord.OutputTypes.internal) {
+                if (i == r.getBoatCaptainPosition()) {
+                    name = StatisticWriter.TEXTMARK_BOLDSTART + name + StatisticWriter.TEXTMARK_BOLDEND;
+                }
             }
             if (i == 0) {
                 coxName = name;
@@ -433,15 +488,23 @@ public class StatisticTask extends ProgressTask {
             sd.logbookFields[col++] = crewNames;
         }
         if (sr.sIsLFieldsStartTime) {
-            sd.logbookFields[col++] = (r.getStartTime() != null ? r.getStartTime().toString() : "");
+            sd.logbookFields[col++] = (r.getStartTime() != null ? r.getStartTime().toString(false) : "");
         }
         if (sr.sIsLFieldsEndTime) {
-            sd.logbookFields[col++] = (r.getEndTime() != null ? r.getEndTime().toString() : "");
+            sd.logbookFields[col++] = (r.getEndTime() != null ? r.getEndTime().toString(false) : "");
         }
         if (sr.sIsLFieldsWaters) {
             String w = null;
             if (entryDestinationRecord != null) {
-                w = entryDestinationRecord.getWatersNamesStringList();
+                w = DestinationRecord.getWatersNamesStringList(
+                        r.getPersistence().getProject().getWaters(false),
+                        entryDestinationRecord.getWatersIdList(),
+                        r.getWatersIdList(), r.getWatersNameList());
+            } else {
+                w = DestinationRecord.getWatersNamesStringList(
+                        r.getPersistence().getProject().getWaters(false),
+                        null,
+                        r.getWatersIdList(), r.getWatersNameList());
             }
             sd.logbookFields[col++] = (w != null ? w : "");
         }
@@ -457,13 +520,19 @@ public class StatisticTask extends ProgressTask {
                     entryDestinationAreas.toString() : "");
         }
         if (sr.sIsLFieldsDistance) {
-            sd.logbookFields[col++] = (r.getDistance() != null ? r.getDistance().toString() : "");
+            sd.logbookFields[col++] = (r.getDistance() != null ? 
+                r.getDistance().getStringValueInDefaultUnit(sr.sDistanceWithUnit, 0, 3) : "");
             // we update the sd.distance because we use this field to summarize all output data
-            sd.distance = (r.getDistance() != null ? r.getDistance().getValueInDefaultUnit() : 0);
+            sd.distance = (r.getDistance() != null ? 
+                r.getDistance().getValueInDefaultUnit() : 0);
         }
         if (sr.sIsLFieldsMultiDay) {
             sd.logbookFields[col++] = (entrySessionGroup != null ?
                 entrySessionGroup.getSessionTypeDescription() : "");
+        }
+        if (sr.sIsLFieldsSessionType) {
+            sd.logbookFields[col++] = (entrySessionType != null ?
+                Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, entrySessionType) : "");
         }
         if (sr.sIsLFieldsNotes) {
             sd.logbookFields[col++] = (r.getComments() != null ? r.getComments() : "");
@@ -625,6 +694,14 @@ public class StatisticTask extends ProgressTask {
         if (entryBoatCoxing == null) {
             entryBoatCoxing = EfaTypes.TYPE_COXING_OTHER;
         }
+        entryBoatOwner = StatisticsRecord.BOWNER_UNKNOWN;
+        if (entryBoatRecord != null) {
+            if (entryBoatRecord.getOwner() == null || entryBoatRecord.getOwner().length() == 0) {
+                entryBoatOwner = StatisticsRecord.BOWNER_OWN;
+            } else {
+                entryBoatOwner = StatisticsRecord.BOWNER_OTHER;
+            }
+        }
         entryBoatExclude = (entryBoatRecord != null && entryBoatRecord.getExcludeFromPublicStatistics() &&
                 sr.getPubliclyAvailable());
     }
@@ -634,6 +711,8 @@ public class StatisticTask extends ProgressTask {
         entryPersonRecord = (entryPersonId != null ? persons.getPerson(entryPersonId, entryValidAt) : null);
         entryPersonName = (entryPersonId != null ? null : r.getCrewName(pos));
         entryPersonStatusId = (entryPersonRecord != null ? entryPersonRecord.getStatusId() : null);
+        entryPersonIsGuest = (entryPersonStatusId != null && entryPersonStatusId.equals(this.statusGuest.getId()));
+        entryPersonIsOther = (entryPersonStatusId == null || entryPersonStatusId.equals(this.statusOther.getId()));
         entryPersonGender = (entryPersonRecord != null ? entryPersonRecord.getGender() : null);
         entryPersonExclude = (entryPersonRecord != null && entryPersonRecord.getExcludeFromPublicStatistics() &&
                 sr.getPubliclyAvailable());
@@ -677,7 +756,8 @@ public class StatisticTask extends ProgressTask {
         if ((!sr.sFilterBoatTypeAll && !sr.sFilterBoatType.containsKey(entryBoatType)) ||
             (!sr.sFilterBoatSeatsAll && !sr.sFilterBoatSeats.containsKey(entryBoatSeats)) ||
             (!sr.sFilterBoatRiggingAll && !sr.sFilterBoatRigging.containsKey(entryBoatRigging)) ||
-            (!sr.sFilterBoatCoxingAll && !sr.sFilterBoatCoxing.containsKey(entryBoatCoxing))) {
+            (!sr.sFilterBoatCoxingAll && !sr.sFilterBoatCoxing.containsKey(entryBoatCoxing)) ||
+            (!sr.sFilterBoatOwnerAll && !sr.sFilterBoatOwner.containsKey(entryBoatOwner))) {
             return false;
         }
 
@@ -795,10 +875,10 @@ public class StatisticTask extends ProgressTask {
         }
 
 
-        StatisticsData sdSummary = new StatisticsData(sr);
+        StatisticsData sdSummary = new StatisticsData(sr, null);
         sdSummary.isSummary = true;
         sdSummary.sName = International.getString("gesamt") + " (" + data.size() + ")";
-        StatisticsData sdMaximum = new StatisticsData(sr);
+        StatisticsData sdMaximum = new StatisticsData(sr, null);
         sdMaximum.isMaximum = true;
 
         Object[] keys = data.keySet().toArray();
@@ -821,6 +901,12 @@ public class StatisticTask extends ProgressTask {
                 if (sr.sIsFieldsName) {
                     sd.sName = (pr != null ? pr.getQualifiedName()
                             : (isUUID ? "*** " + International.getString("ungültiger Eintrag") + " ***" : sd.key.toString()));
+                }
+                if (sr.sIsFieldsGender) {
+                    sd.sGender = (pr != null ? pr.getGenderAsString() : null);
+                    if (sd.sGender == null) {
+                        sd.sGender = International.getString("unbekannt");
+                    }
                 }
                 if (sr.sIsFieldsStatus) {
                     sd.sStatus = (pr != null ? pr.getStatusName() : statusOtherText);
@@ -965,7 +1051,12 @@ public class StatisticTask extends ProgressTask {
     private String writeStatistic(StatisticsData[] sd) {
         logInfo(International.getString("Ausgabe der Daten") + " ...\n");
         StatisticWriter writer = StatisticWriter.getWriter(sr, sd);
-        writer.write();
+        if (writer.write()) {
+            if (sr.sOutputFtpClient != null) {
+                logInfo(International.getString("FTP-Upload") + " ...\n");
+                return sr.sOutputFtpClient.write();
+            }
+        }
         return writer.getResultMessage();
     }
 

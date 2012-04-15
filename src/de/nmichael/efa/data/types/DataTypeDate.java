@@ -291,6 +291,22 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
                (r1From.isAfterOrEqual(r2From) && r1To.isBeforeOrEqual(r2To));
     }
 
+    public static boolean isRangeOverlap(DataTypeDate r1FromDate, DataTypeTime r1FromTime,
+                                         DataTypeDate r1ToDate, DataTypeTime r1ToTime,
+                                         DataTypeDate r2FromDate, DataTypeTime r2FromTime,
+                                         DataTypeDate r2ToDate,DataTypeTime r2ToTime) {
+        long r1From = r1FromDate.getTimestamp(r1FromTime);
+        long r1To   = r1ToDate.getTimestamp(r1ToTime);
+        long r2From = r2FromDate.getTimestamp(r2FromTime);
+        long r2To   = r2ToDate.getTimestamp(r2ToTime);
+        return (r2From < r1From && r2To > r1From) ||
+               (r2From < r1To && r2To > r1To) ||
+               (r2From > r1From && r2To < r1To) ||
+               (r1From < r2From && r1To > r2From) ||
+               (r1From < r2To && r1To > r2To) ||
+               (r1From > r2From && r1To < r2To);
+    }
+
     public long getTimestamp(DataTypeTime time) {
         if (isSet()) {
             Calendar cal = toCalendar();

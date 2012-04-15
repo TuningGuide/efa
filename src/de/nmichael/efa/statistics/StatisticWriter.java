@@ -15,6 +15,9 @@ import de.nmichael.efa.util.Dialog;
 
 public abstract class StatisticWriter {
 
+    public static final String TEXTMARK_BOLDSTART = "%%BOLD-START%%";
+    public static final String TEXTMARK_BOLDEND   = "%%BOLD-END%%";
+
     protected StatisticsRecord sr;
     protected StatisticsData[] sd;
     protected String resultMessage;

@@ -26,13 +26,24 @@ public class PersonEditDialog extends VersionizedDataEditDialog implements IItem
 
     public PersonEditDialog(Frame parent, PersonRecord r, boolean newRecord, AdminRecord admin) {
         super(parent, International.getString("Person"), r, newRecord, admin);
+        ini4Permissions(admin);
         initListener();
     }
 
     public PersonEditDialog(JDialog parent, PersonRecord r, boolean newRecord, AdminRecord admin) {
         super(parent, International.getString("Person"), r, newRecord, admin);
+        ini4Permissions(admin);
         initListener();
     }
+
+    private void ini4Permissions(AdminRecord admin) {
+        if (admin == null || !admin.isAllowedEditPersons()) {
+            setShowVersionPanel(false);
+            setPromptToEnterValidity(false);
+            allowConflicts = false;
+        }
+    }
+
 
     public void keyAction(ActionEvent evt) {
         _keyAction(evt);

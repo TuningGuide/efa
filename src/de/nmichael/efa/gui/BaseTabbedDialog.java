@@ -220,8 +220,10 @@ public abstract class BaseTabbedDialog extends BaseDialog {
         Arrays.sort(cats);
         Vector<IItemType> v = itemsPerCategory.get( (selectedPanel != null ? selectedPanel : cats[0]));
         for (int i=0; v != null && i<v.size(); i++) {
-            if (!(v.get(i) instanceof ItemTypeLabel) && v.get(i).isVisible()) {
-                setRequestFocus(v.get(i));
+            if (!(v.get(i) instanceof ItemTypeLabel) && v.get(i).isVisible() && v.get(i).isEditable()) {
+                if (focusItem == null) {
+                    setRequestFocus(v.get(i));
+                }
                 break;
             }
         }

@@ -28,6 +28,7 @@ public class AdminDialog extends BaseDialog implements IItemListener {
     private AdminRecord admin;
     private JLabel projectName;
     private JLabel logbookName;
+    private ItemTypeButton messageButton;
 
     public AdminDialog(EfaBoathouseFrame parent, AdminRecord admin) {
         super(parent, International.getStringWithMnemonic("Admin-Modus") + " [" + admin.getName() + "]", International.getStringWithMnemonic("Logout"));
@@ -103,6 +104,9 @@ public class AdminDialog extends BaseDialog implements IItemListener {
                 if (menuButton.getIcon() != null) {
                     button.setIcon(menuButton.getIcon());
                 }
+                if (menuButton.getButtonName().equals(EfaMenuButton.BUTTON_MESSAGES)) {
+                    updateMessageButton(button);
+                }
                 button.setFieldSize(200, 20);
                 button.setHorizontalAlignment(SwingConstants.LEFT);
                 button.registerItemListener(this);
@@ -166,6 +170,24 @@ public class AdminDialog extends BaseDialog implements IItemListener {
                 (efaBoathouseFrame.getLogbook() != null ? efaBoathouseFrame.getLogbook().getName() : "- " + International.getString("Kein Fahrtenbuch geöffnet.") + " -"));
     }
 
+    private void updateMessageButton(ItemTypeButton button) {
+        if (button != null) {
+            messageButton = button;
+            messageButton.saveColor();
+        }
+        try {
+            long msg = (Daten.project != null ? Daten.project.getMessages(false).countUnreadMessages() : 0);
+            if (msg > 0) {
+                messageButton.setDescription(International.getString("Nachrichten") + " (" + msg + ")");
+                messageButton.setColor(Color.red);
+            } else {
+                messageButton.setDescription(International.getString("Nachrichten"));
+                messageButton.restoreColor();
+            }
+        } catch (Exception eignore) {
+        }
+    }
+
     public void keyAction(ActionEvent evt) {
         _keyAction(evt);
     }
@@ -201,6 +223,7 @@ public class AdminDialog extends BaseDialog implements IItemListener {
                 return;
             }
 
+            updateMessageButton(null);
         }
         
     }

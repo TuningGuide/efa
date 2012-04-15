@@ -795,6 +795,11 @@ public class Audit extends Thread {
             DataKey k = it.getFirst();
             while (k != null) {
                 StatisticsRecord r = (StatisticsRecord)statistics.dataAccess.get(k);
+                if ((r.getFilterBoatOwner() == null || r.getFilterBoatOwner().length() == 0) &&
+                     !r.getFilterBoatOwnerAll()) {
+                    r.setFilterBoatOwnerAll(true);
+                    statistics.dataAccess.update(r);
+                }
                 hash.put(r.getPosition(), r);
                 k = it.getNext();
             }

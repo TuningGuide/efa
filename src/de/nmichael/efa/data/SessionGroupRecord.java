@@ -231,7 +231,7 @@ public class SessionGroupRecord extends DataRecord {
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                 International.getString("Name")));
         item.setNotNull(true);
-        v.add(item = new ItemTypeString(ROUTE, getName(),
+        v.add(item = new ItemTypeString(ROUTE, getRoute(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                 International.getString("Start & Ziel") + " / " +
                 International.getString("Strecke")));

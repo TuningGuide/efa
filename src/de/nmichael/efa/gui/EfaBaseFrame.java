@@ -71,10 +71,13 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     ItemTypeTime starttime;
     ItemTypeTime endtime;
     ItemTypeStringAutoComplete destination;
+    ItemTypeString destinationInfo;
+    ItemTypeStringAutoComplete waters;
     ItemTypeDistance distance;
     ItemTypeString comments;
     ItemTypeStringList sessiontype;
     ItemTypeStringAutoComplete sessiongroup;
+    public static final String GUIITEM_ADDITIONALWATERS = "GUIITEM_ADDITIONALWATERS";
 
     // Supplementary Elements
     ItemTypeButton remainingCrewUpButton;
@@ -109,6 +112,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     AutoCompleteList autoCompleteListBoats = new AutoCompleteList();
     AutoCompleteList autoCompleteListPersons = new AutoCompleteList();
     AutoCompleteList autoCompleteListDestinations = new AutoCompleteList();
+    AutoCompleteList autoCompleteListWaters = new AutoCompleteList();
     EfaBaseFrameFocusManager efaBaseFrameFocusManager;
 
     // Internal Data Structures for EfaBoathouse
@@ -616,10 +620,32 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         destination.setFieldGrid(7, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL);
         destination.setAutoCompleteData(autoCompleteListDestinations);
         destination.setChecks(true, false);
-        destination.setIgnoreEverythingAfter(DestinationRecord.DESTINATION_VARIANT_SEPARATOR.charAt(0));
+        destination.setIgnoreEverythingAfter(DestinationRecord.DESTINATION_VARIANT_SEPARATOR);
         destination.setBackgroundColorWhenFocused(Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
         destination.displayOnGui(this, mainInputPanel, 0, 11);
         destination.registerItemListener(this);
+        destinationInfo = new ItemTypeString("GUIITEM_DESTINATIONINFO", "",
+                IItemType.TYPE_PUBLIC, null, International.getString("Gewässer"));
+        destinationInfo.setFieldSize(400, 19);
+        destinationInfo.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
+        destinationInfo.setFieldGrid(7, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL);
+        destinationInfo.displayOnGui(this, mainInputPanel, 0, 12);
+        destinationInfo.setEditable(false);
+        destinationInfo.setVisible(false);
+
+        // Waters
+        waters = new ItemTypeStringAutoComplete(GUIITEM_ADDITIONALWATERS, "", IItemType.TYPE_PUBLIC, null,
+                International.getStringWithMnemonic("Gewässer"), true);
+        waters.setFieldSize(400, 19);
+        waters.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
+        waters.setFieldGrid(7, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL);
+        waters.setAutoCompleteData(autoCompleteListWaters);
+        waters.setChecks(true, false);
+        waters.setIgnoreEverythingAfter(LogbookRecord.WATERS_SEPARATORS);
+        waters.setBackgroundColorWhenFocused(Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
+        waters.displayOnGui(this, mainInputPanel, 0, 13);
+        waters.registerItemListener(this);
+        waters.setVisible(false);
 
         // Distance
         distance = new ItemTypeDistance(LogbookRecord.DISTANCE, null, IItemType.TYPE_PUBLIC, null,
@@ -628,7 +654,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         distance.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
         distance.setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE);
         distance.setBackgroundColorWhenFocused(Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
-        distance.displayOnGui(this, mainInputPanel, 0, 12);
+        distance.displayOnGui(this, mainInputPanel, 0, 14);
         distance.registerItemListener(this);
 
         // Comments
@@ -637,7 +663,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         comments.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
         comments.setFieldGrid(7, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL);
         comments.setBackgroundColorWhenFocused(Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
-        comments.displayOnGui(this, mainInputPanel, 0, 13);
+        comments.displayOnGui(this, mainInputPanel, 0, 15);
         comments.registerItemListener(this);
 
         // Session Type
@@ -648,7 +674,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         sessiontype.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
         sessiontype.setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE);
         sessiontype.setBackgroundColorWhenFocused(Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
-        sessiontype.displayOnGui(this, mainInputPanel, 0, 14);
+        sessiontype.displayOnGui(this, mainInputPanel, 0, 16);
         sessiontype.registerItemListener(this);
 
         // Session Type
@@ -659,7 +685,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         sessiongroup.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
         sessiongroup.setFieldGrid(2, GridBagConstraints.WEST, GridBagConstraints.NONE);
         sessiongroup.setEditable(false);
-        sessiongroup.displayOnGui(this, mainInputPanel, 0, 15);
+        sessiongroup.displayOnGui(this, mainInputPanel, 0, 17);
         sessiongroup.registerItemListener(this);
         sessiongroup.setVisible(isModeFull());
 
@@ -684,7 +710,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         infoLabel.setHorizontalTextPosition(SwingConstants.LEFT);
         infoLabel.setText(" ");
         mainInputPanel.add(infoLabel,
-                new GridBagConstraints(0, 16, 8, 1, 0.0, 0.0,
+                new GridBagConstraints(0, 18, 8, 1, 0.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE,
                 new Insets(10, 20, 10, 20), 0, 0));
 
@@ -694,7 +720,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         boatDamageButton.setFieldGrid(4, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL);
         boatDamageButton.setBackgroundColorWhenFocused(Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
         boatDamageButton.setIcon(getIcon(BaseDialog.IMAGE_DAMAGE));
-        boatDamageButton.displayOnGui(this, mainInputPanel, 4, 17);
+        boatDamageButton.displayOnGui(this, mainInputPanel, 4, 19);
         boatDamageButton.registerItemListener(this);
         boatDamageButton.setVisible(isModeBoathouse() && Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton());
 
@@ -785,6 +811,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         starttime.restoreBackgroundColor();
         endtime.restoreBackgroundColor();
         destination.restoreBackgroundColor();
+        waters.restoreBackgroundColor();
         distance.restoreBackgroundColor();
         comments.restoreBackgroundColor();
         sessiontype.restoreBackgroundColor();
@@ -874,10 +901,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         return findPerson(getCrewItem(pos), validAt);
     }
 
-    DestinationRecord findDestination(long validAt) {
+    DestinationRecord findDestinationFromString(String s, long validAt) {
         DestinationRecord r = null;
         try {
-            String[] dest = LogbookRecord.getDestinationNameAndVariantFromString(destination.toString());
+            String[] dest = LogbookRecord.getDestinationNameAndVariantFromString(s);
             if (dest[0].length() > 0 && dest[1].length() > 0) {
                 // this is a destination of the form "base + variant".
                 // however, it could be that we have an explicit destination "base & variant" in our database.
@@ -914,10 +941,63 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         }
         return null;
     }
+    DestinationRecord findDestination(long validAt) {
+        String s = destination.toString();
+        DestinationRecord r = findDestinationFromString(s, validAt);
+        if (r == null && s != null && s.length() > 0) {
+            int pos = s.indexOf(DestinationRecord.WATERS_DESTINATION_DELIMITER);
+            if (pos > 0 && pos+1 < s.length()) {
+                s = s.substring(pos+1);
+                r = findDestinationFromString(s, validAt);
+            }
+        }
+        return r;
+    }
+
+    DataTypeList[] findWaters(ItemTypeString item) {
+        try {
+            String s = item.toString().trim();
+            if (s.length() == 0) {
+                return null;
+            }
+            s = EfaUtil.replace(s, "+", ",", true);
+            s = EfaUtil.replace(s, ";", ",", true);
+            Vector<String> wlist = EfaUtil.split(s, ',');
+            if (wlist.size() == 0) {
+                return null;
+            }
+            DataTypeList<UUID> watersIdList = new DataTypeList<UUID>();
+            DataTypeList<String> watersNameList = new DataTypeList<String>();
+            for (int i=0; i<wlist.size(); i++) {
+                String ws = wlist.get(i).trim();
+                if (ws.length() == 0) {
+                    continue;
+                }
+                WatersRecord w = Daten.project.getWaters(false).findWatersByName(ws);
+                if (w != null && w.getId() != null) {
+                    watersIdList.add(w.getId());
+                } else {
+                    watersNameList.add(ws);
+                }
+            }
+            return new DataTypeList[] {
+                watersIdList, watersNameList
+            };
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return null;
+    }
+
 
     String updateBoatVariant(BoatRecord b, int variant) {
         if (_inUpdateBoatVariant) {
             return null;
+        }
+        if (Logger.isTraceOn(Logger.TT_GUI, 7)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_EFABASEFRAME,
+                    "updateBoatVariant(" +
+                     (b != null ? b.getQualifiedName() : "") + ", " + variant + ")");
         }
         _inUpdateBoatVariant = true;
         try {
@@ -927,6 +1007,13 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                     boatvariant.setVisible(false);
                     return null;
                 }
+
+                if (variant == -1 && numberOfVariants > 1 && boatvariant.isVisible() &&
+                    currentBoat != null && currentBoat.getId() != null &&
+                    b.getId() != null && currentBoat.getId().equals(b.getId())) {
+                    variant = EfaUtil.string2int(boatvariant.getValueFromField(), -1);
+                }
+
                 String[] bt = new String[numberOfVariants];
                 String[] bv = new String[numberOfVariants];
                 for (int i = 0; i < numberOfVariants; i++) {
@@ -934,10 +1021,13 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                     bv[i] = b.getQualifiedBoatTypeShortName(i);
                 }
                 boatvariant.setListData(bt, bv);
+                if (variant < 0 && b.getDefaultVariant() > 0) {
+                    variant = b.getDefaultVariant();
+                }
                 if (variant > 0) {
                     boatvariant.parseAndShowValue(Integer.toString(variant));
                 } else {
-                    if (numberOfVariants > 0 && (boatvariant.getValue() == null || boatvariant.getValue().length() == 0)) {
+                    if (numberOfVariants > 0 && bt != null && bt.length > 0 && bt[0] != null) {
                         boatvariant.parseAndShowValue(bt[0]);
                     }
                 }
@@ -1005,6 +1095,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             autoCompleteListBoats.setDataAccess(Daten.project.getBoats(false).data(), logbookValidFrom, logbookInvalidFrom - 1);
             autoCompleteListPersons.setDataAccess(Daten.project.getPersons(false).data(), logbookValidFrom, logbookInvalidFrom - 1);
             autoCompleteListDestinations.setDataAccess(Daten.project.getDestinations(false).data(), logbookValidFrom, logbookInvalidFrom - 1);
+            autoCompleteListWaters.setDataAccess(Daten.project.getWaters(false).data(), logbookValidFrom, logbookInvalidFrom - 1);
         } catch (Exception e) {
             Logger.logdebug(e);
             iterator = null;
@@ -1062,7 +1153,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 return (r != null ? r.getEndTime().toString() : "");
             }
             if (field == destination) {
-                return (r != null ? r.getDestinationAndVariantName(getValidAtTimestamp(r)) : "");
+                return (r != null ? r.getDestinationAndVariantName(getValidAtTimestamp(r),
+                        Daten.efaConfig.getValuePrefixDestinationWithWaters()) : "");
+            }
+            if (field == waters) {
+                return (r != null ? r.getWatersNamesStringList() : "");
             }
             if (field == distance) {
                 return (r != null ? r.getDistance().getAsFormattedString() : "");
@@ -1079,7 +1174,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 return Daten.project.getSessionGroups(false).getSessionGroupName(id);
             }
             if (field == boatcaptain) {
-                return (r != null ? (r.getBoatCaptainPosition() >= 0 ? Integer.toString(r.getBoatCaptainPosition()) : "") : "");
+                int pos = (r != null ? (r.getBoatCaptainPosition() >= 0 ? r.getBoatCaptainPosition() : -1) : -1);
+                if (pos >= 0) {
+                    setBoatCaptain(pos, false);
+                }
+                return (pos != -1 ? Integer.toString(pos) : "");
             }
         } catch (NullPointerException enull) {
             // this happens when field in r has not been set, no need to log this!
@@ -1118,12 +1217,14 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         setField(starttime,r);
         setField(endtime,r);
         setField(destination,r);
+        setDestinationInfo( (r != null ? r.getDestinationRecord(getValidAtTimestamp(r)) : null) );
+        setField(waters,r);
         setField(distance,r);
         setField(comments,r);
         setField(sessiontype,r);
         setField(sessiongroup,r);
         opensession.setVisible(isModeFull() && r != null && r.getSessionIsOpen());
-        currentBoatUpdateGui();
+        currentBoatUpdateGui( (r != null && r.getBoatVariant() > 0 ? r.getBoatVariant() : -1) );
         setCrewRangeSelection(0);
         setEntryUnchanged();
         entryNoForNewEntry = -1; // -1 bedeutet, daß beim nächsten neuen Datensatz die LfdNr "last+1" vorgegeben wird
@@ -1225,6 +1326,19 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             r.setDestinationName( (s.length() == 0 ? null : s) );
             r.setDestinationId(null);
             r.setDestinationVariantName(null);
+        }
+
+        // Waters
+        if (waters.isVisible()) {
+            DataTypeList[] wlists = findWaters(waters);
+            if (wlists == null || wlists.length == 0 ||
+                (wlists[0].length() == 0 && wlists[1].length() == 0)) {
+                r.setWatersIdList(null);
+                r.setWatersNameList(null);
+            } else {
+                r.setWatersIdList( (wlists[0].length() > 0 ? wlists[0] : null) );
+                r.setWatersNameList( (wlists[1].length() > 0 ? wlists[1] : null) );
+            }
         }
 
         // Distance
@@ -1365,6 +1479,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         starttime.setUnchanged();
         endtime.setUnchanged();
         destination.setUnchanged();
+        waters.setUnchanged();
         distance.setUnchanged();
         comments.setUnchanged();
         sessiontype.setUnchanged();
@@ -1382,6 +1497,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 starttime.isChanged() ||
                 endtime.isChanged() ||
                 destination.isChanged() ||
+                waters.isChanged() ||
                 distance.isChanged() ||
                 comments.isChanged() ||
                 sessiontype.isChanged() ||
@@ -1489,6 +1605,60 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         }
     }
 
+    void setDestinationInfo(DestinationRecord r) {
+        boolean showDestinationInfo = false;
+        boolean showWatersInput = false;
+
+        if (Daten.efaConfig.getValueShowDestinationInfoForInput()) {
+            String[] info = (r != null ? r.getWatersAndDestinationAreasAsLabelAndString() : null);
+            String infoLabel = (info != null ? info[0] : International.getString("Gewässer"));
+            String infoText = (info != null ? info[1] : "");
+            destinationInfo.setDescription(infoLabel);
+            destinationInfo.parseAndShowValue((infoText.length() > 0 ? infoText : " ")); // intentionally a space and not empty!
+            showDestinationInfo = infoText.length() > 0;
+        }
+
+        if (!Daten.efaConfig.getValueAdditionalWatersInput()) {
+            waters.setVisible(false);
+        } else {
+            String variant = LogbookRecord.getDestinationNameAndVariantFromString(destination.getValueFromField())[1];
+            boolean isDestinationUnknownOrVariant = (r == null
+                    || (variant != null && variant.length() > 0));
+            boolean watersWasVisible = waters.isVisible();
+            showWatersInput = Daten.efaConfig.getValueAdditionalWatersInput()
+                    && isDestinationUnknownOrVariant && destination.getValueFromField().length() > 0;
+            if (showWatersInput) {
+                if (r == null) {
+                    waters.setDescription(International.getString("Gewässer"));
+                } else {
+                    waters.setDescription(International.getString("Weitere Gewässer"));
+                }
+            }
+            waters.setVisible(showWatersInput);
+            if (showWatersInput && !watersWasVisible && isModeBoathouse()) {
+                waters.requestFocus();
+            }
+        }
+
+        if (showDestinationInfo ||
+            (Daten.efaConfig.getValueShowDestinationInfoForInput() && !showWatersInput)) {
+            destinationInfo.setVisible(true);
+        } else {
+            destinationInfo.setVisible(false);
+        }
+    }
+
+    void truncateWatersFromEnteredDestination() {
+        String dest = destination.getValueFromField().trim();
+        int pos = dest.indexOf(DestinationRecord.WATERS_DESTINATION_DELIMITER.trim());
+        if (pos > 0 && pos+1 < dest.length()) {
+            String wtext = dest.substring(0, pos).trim();
+            String dtext = dest.substring(pos+1).trim();
+            destination.parseAndShowValue(dtext);
+            waters.parseAndShowValue(wtext);
+        }
+    }
+
     void setDesinationDistance() {
         String newDestination = DestinationRecord.tryGetNameAndVariant(destination.getValueFromField().trim())[0];
         if (isModeBoathouse() && newDestination.length()>0 && distance.getValueFromField().trim().length() == 0) {
@@ -1505,21 +1675,27 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                     distance.parseAndShowValue("");
                 }
                 lastDestination = "";
+                if (Daten.efaConfig.getValuePrefixDestinationWithWaters()) {
+                    truncateWatersFromEnteredDestination();
+                }
             }
+            setDestinationInfo(null);
             return;
         }
 
+        DestinationRecord r = findDestination(getValidAtTimestamp(null));
         if (!newDestination.equals(lastDestination) && newDestination.length() != 0 && this.isLogbookReady()) {
             // die folgende Zeile ist korrekt, da diese Methode nur nach "vervollstaendige" und bei
             // "zielButton.getBackground()!=Color.red" aus "ziel_keyReleased" oder "zielButton_focusLost"
             // aufgerufen wird und somit ein gültiger Datensatz bereits gefunden wurde!
-            DestinationRecord r = findDestination(getValidAtTimestamp(null));
             if (r != null && r.getDistance() != null) {
                 distance.parseAndShowValue(r.getDistance().getAsFormattedString());
             } else {
                 distance.parseAndShowValue("");
             }
         }
+
+        setDestinationInfo(r);
     }
 
     void editBoat(ItemTypeStringAutoComplete item) {
@@ -1542,7 +1718,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         boolean newRecord = (r == null);
         if (r == null) {
             r = Daten.project.getBoats(false).createBoatRecord(UUID.randomUUID());
-            r.addTypeVariant("", EfaTypes.TYPE_BOAT_OTHER, EfaTypes.TYPE_NUMSEATS_OTHER, EfaTypes.TYPE_RIGGING_OTHER, EfaTypes.TYPE_COXING_OTHER);
+            r.addTypeVariant("", EfaTypes.TYPE_BOAT_OTHER, EfaTypes.TYPE_NUMSEATS_OTHER, 
+                    EfaTypes.TYPE_RIGGING_OTHER, EfaTypes.TYPE_COXING_OTHER, Boolean.toString(true));
             String[] name = BoatRecord.tryGetNameAndAffix(s);
             if (name != null && name[0] != null) {
                 r.setName(name[0]);
@@ -1578,6 +1755,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 return; // only add new persons (if allowed), but don't edit existing ones
             }
         }
+        boolean notifyAdmin = false;
         boolean newRecord = (r == null);
         if (r == null) {
             r = Daten.project.getPersons(false).createPersonRecord(UUID.randomUUID());
@@ -1598,10 +1776,22 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             if (!anyNameSet && s != null) {
                 r.setFirstName(s);
             }
+            if (getAdmin() == null || !getAdmin().isAllowedEditPersons()) {
+                r.setStatusId(Daten.project.getStatus(false).getStatusOther().getId());
+                notifyAdmin = true;
+            }
         }
-        PersonEditDialog dlg = new PersonEditDialog(this, r, newRecord, getAdmin());
+        PersonEditDialog dlg = (new PersonEditDialog(this, r, newRecord, getAdmin()));
         dlg.showDialog();
         if (dlg.getDialogResult()) {
+            if (notifyAdmin) {
+                String msgTitle = International.getString("Eine neue Person wurde der Personenliste hinzugefügt.");
+                String msg = msgTitle + "\n" +
+                        International.getString("Person") + " " + r.getQualifiedName() + ": " + r.toString();
+                Logger.log(Logger.INFO, Logger.MSG_EVT_PERSONADDED, msg);
+                Daten.project.getMessages(false).createAndSaveMessageRecord(MessageRecord.TO_ADMIN,
+                        msgTitle, msg);
+            }
             item.parseAndShowValue(r.getQualifiedName());
             item.setChanged();
         }
@@ -1831,16 +2021,26 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         }
         boatCaptain = getBoatCaptain();
 
+        // just to be really sure... if we hide boatcaptain field, but the wrong one is selected, fall back to autoselect
+        if ((boatCaptain == 0 && cox.getValue().length() == 0)
+                || (boatCaptain > 0 && crew[boatCaptain - 1].getValue().length() == 0)) {
+            if (!boatcaptain.isVisible()) {
+                autoSelectBoatCaptain(true);
+            }
+        }
+
         // Obmann-Check
         if ((boatCaptain == 0 && cox.getValue().length() == 0)
                 || (boatCaptain > 0 && crew[boatCaptain - 1].getValue().length() == 0)) {
             Dialog.error(International.getString("Bitte wähle als Obmann eine Person aus, die tatsächlich im Boot sitzt!"));
+            boatcaptain.setVisible(true);
             boatcaptain.requestFocus();
             return false;
         }
 
         if (Daten.efaConfig.getValueEfaDirekt_eintragErzwingeObmann() && boatCaptain < 0) {
             Dialog.error(International.getString("Bitte wähle einen Obmann aus!"));
+            boatcaptain.setVisible(true);
             boatcaptain.requestFocus();
             return false;
         }
@@ -1997,9 +2197,18 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             }
 
             if ((mode == MODE_BOATHOUSE_FINISH || mode == MODE_BOATHOUSE_LATEENTRY) &&
-                !Daten.efaConfig.getValueSkipZiel() && destination.getValue().length() == 0) {
+                destination.getValue().length() == 0) {
                 Dialog.error(International.getString("Bitte trage ein Fahrtziel/Strecke ein!"));
                 destination.requestFocus();
+                return false;
+            }
+
+            // Waters
+            if ((mode == MODE_BOATHOUSE_FINISH || mode == MODE_BOATHOUSE_LATEENTRY) &&
+                Daten.efaConfig.getValueEfaDirekt_gewaesserBeiUnbekanntenZielenPflicht() &&
+                waters.isVisible() && waters.getValue().length() == 0) {
+                Dialog.error(International.getString("Bitte trage ein Gewässer ein!"));
+                waters.requestFocus();
                 return false;
             }
 
@@ -2128,6 +2337,15 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 if (name != null && name.length() > 0 && findDestination(getValidAtTimestamp(null)) == null) {
                     Dialog.error(LogString.itemIsUnknown(name, International.getString("Ziel/Strecke")));
                     destination.requestFocus();
+                    return false;
+                }
+            }
+
+            if (Daten.efaConfig.getValueEfaDirekt_eintragNurBekannteGewaesser() && waters.isVisible()) {
+                DataTypeList[] wlists = findWaters(waters);
+                if (wlists != null && wlists.length != 0 && wlists[1].length() > 0) {
+                    Dialog.error(LogString.itemIsUnknown(wlists[1].toString(), International.getString("Gewässer")));
+                    waters.requestFocus();
                     return false;
                 }
             }
@@ -2747,6 +2965,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                     + "<" + International.getString("Fahrtziel oder Strecke") + ">");
             return;
         }
+        if (s.equals(GUIITEM_ADDITIONALWATERS)) {
+            infoLabel.setText(International.getString("Bitte eingeben") + ": "
+                    + "<" + International.getString("Weitere Gewässer") + ">");
+            return;
+        }
         if (s.equals(LogbookRecord.DISTANCE)) {
             infoLabel.setText(International.getString("Bitte eingeben") + ": "
                     + "<" + International.getString("Länge der Fahrt") + ">"
@@ -2853,6 +3076,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     void currentBoatUpdateGui(int newvariant) {
         boat.getValueFromGui();
 
+        if (Logger.isTraceOn(Logger.TT_GUI, 7)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_EFABASEFRAME,
+                    "currentBoatUpdateGui("+newvariant+") for boat: " + boat.getValue());
+        }
+
         currentBoat = null;
         currentBoatTypeSeats = null;
         currentBoatTypeCoxing = null;
@@ -2865,6 +3093,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             BoatRecord b = findBoat(getValidAtTimestamp(null));
             if (b != null) {
                 currentBoat = b;
+                if (Logger.isTraceOn(Logger.TT_GUI, 7)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_EFABASEFRAME,
+                            "currentBoatUpdateGui(" + newvariant + "): b = " +
+                            b.getId() + "(" + b.getValidFrom()+"-"+b.getInvalidFrom()+"): " + b.getQualifiedName());
+                }
                 // Update Boat Type selection
                 updateBoatVariant(currentBoat, newvariant);
                 int variant = EfaUtil.stringFindInt(boatvariant.toString(), -1);
@@ -2872,9 +3105,18 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 currentBoatTypeSeats = b.getTypeSeats(idx);
                 currentBoatTypeCoxing = b.getTypeCoxing(idx);
                 currentBoatNumberOfSeats = b.getNumberOfSeats(idx);
+                if (Logger.isTraceOn(Logger.TT_GUI, 7)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_EFABASEFRAME,
+                            "currentBoatUpdateGui(" + newvariant + "): "
+                            + "variant="+variant+", idx="+idx+", seats="+currentBoatTypeSeats
+                            +", coxing="+currentBoatTypeCoxing+", noofseats="+currentBoatNumberOfSeats);
+                }
                 if (isNewRecord) {
                     if (b.getDefaultDestinationId() != null) {
-                        destination.parseAndShowValue(b.getDefaultDestinationId().toString());
+                        Destinations d = logbook.getProject().getDestinations(false);
+                        DestinationRecord dr = d.getDestination(b.getDefaultDestinationId(), getValidAtTimestamp(null));
+                        destination.parseAndShowValue((dr != null ? dr.getQualifiedName() : ""));
+                        setDesinationDistance();
                     }
                     if (b.getDefaultCrewId() != null && Daten.efaConfig.getValueAutoStandardmannsch()) {
                         setDefaultCrew(b.getDefaultCrewId());
@@ -2882,6 +3124,12 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                     if (b.getDefaultSessionType() != null) {
                         sessiontype.parseAndShowValue(b.getDefaultSessionType());
                     }
+                }
+            } else {
+                if (Logger.isTraceOn(Logger.TT_GUI, 7)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_EFABASEFRAME,
+                            "currentBoatUpdateGui(" + newvariant + "): No boat found for boat " + boat.getValue() +
+                            " at " + getValidAtTimestamp(null) + ".");
                 }
             }
         } catch (Exception e) {
@@ -2945,7 +3193,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
 
     void autoSelectBoatCaptain() {
-        if (Daten.efaConfig.getValueAutoObmann() && isNewRecord
+        autoSelectBoatCaptain(false);
+    }
+
+    void autoSelectBoatCaptain(boolean force) {
+        if ( (force || (Daten.efaConfig.getValueAutoObmann() && isNewRecord))
                 && getBoatCaptain() == -1) {
             if (Daten.efaConfig.getValueDefaultObmann().equals(EfaConfig.OBMANN_STROKE)) {
                 try {
@@ -2961,8 +3213,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
         // Wenn Angabe eines Obmanns Pflicht ist, soll auch im Einer immer der Obmann automatisch selektiert werden,
         // unabhängig davon, ob Daten.efaConfig.autoObmann aktiviert ist oder nicht
-        if (Daten.efaConfig.getValueEfaDirekt_eintragErzwingeObmann()
-                && isNewRecord && getBoatCaptain() == -1
+        if ( (force || (Daten.efaConfig.getValueEfaDirekt_eintragErzwingeObmann()
+                && isNewRecord ) )
+                && getBoatCaptain() == -1
                 && cox.getValueFromField().trim().length() == 0
                 && getNumberOfPersonsInBoat() == 1) {
             try {
@@ -3127,6 +3380,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 c == efaBaseFrame.destination.getButton()) {
                 return efaBaseFrame.destination;
             }
+            if (c == efaBaseFrame.waters.getComponent() ||
+                c == efaBaseFrame.waters.getButton()) {
+                return efaBaseFrame.waters;
+            }
             if (c == efaBaseFrame.distance.getComponent()) {
                 return efaBaseFrame.distance;
             }
@@ -3266,6 +3523,16 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 if (!(cur instanceof JButton) && efaBaseFrame.destination.getValue().length()>0 && !efaBaseFrame.destination.isKnown() && !efaBaseFrame.isModeBoathouse()) {
                     efaBaseFrame.destination.requestButtonFocus();
                 } else {
+                    focusItem(efaBaseFrame.waters, cur, 1);
+                }
+                return;
+            }
+
+            // WATERS
+            if (item == efaBaseFrame.waters) {
+                if (!(cur instanceof JButton) && efaBaseFrame.waters.getValue().length()>0 && !efaBaseFrame.waters.isKnown() && !efaBaseFrame.isModeBoathouse()) {
+                    efaBaseFrame.waters.requestButtonFocus();
+                } else {
                     focusItem(efaBaseFrame.distance, cur, 1);
                 }
                 return;
@@ -3316,8 +3583,12 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                     }
                 }
             }
-            if (item == efaBaseFrame.distance) {
+            if (item == efaBaseFrame.waters) {
                 focusItem(efaBaseFrame.destination, cur, -1);
+                return;
+            }
+            if (item == efaBaseFrame.distance) {
+                focusItem(efaBaseFrame.waters, cur, -1);
                 return;
             }
             if (item == efaBaseFrame.comments) {
@@ -3393,10 +3664,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     private void efaBoathouseSetPersonAndBoat(ItemTypeBoatstatusList.BoatListItem item) {
         if (item.boat != null) {
             boat.parseAndShowValue(item.boat.getQualifiedName());
-            currentBoatUpdateGui();
             if (item.boatVariant >= 0) {
-                updateBoatVariant(item.boat, item.boatVariant + 1);
+                updateBoatVariant(item.boat, item.boatVariant);
             }
+            currentBoatUpdateGui( ( item.boatVariant >= 0 ? item.boatVariant : -1) );
             if (cox.isEditable()) {
                 setRequestFocus(cox);
             } else {
@@ -3481,13 +3752,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         setFieldEnabled(true, true, comments);
         setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(), boatDamageButton);
 
-        try {
-            _inUpdateBoatVariant = true; // a hack to avoid that updateBoatVariant() called from within currentBoatUpdateGui() will change the focus
-            currentBoatUpdateGui();
-        } finally {
-            _inUpdateBoatVariant = false;
-        }
-
+        currentBoatUpdateGui( (currentRecord.getBoatVariant() >= 0 ? currentRecord.getBoatVariant() : -1) );
         setRequestFocus(boat);
 
         return true;
@@ -3529,13 +3794,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         setFieldEnabled(true, true, comments);
         setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(), boatDamageButton);
 
-        try {
-            _inUpdateBoatVariant = true; // a hack to avoid that updateBoatVariant() called from within currentBoatUpdateGui() will change the focus
-            currentBoatUpdateGui();
-        } finally {
-            _inUpdateBoatVariant = false;
-        }
-
+        currentBoatUpdateGui( (currentRecord.getBoatVariant() >= 0 ? currentRecord.getBoatVariant() : -1) );
         setRequestFocus(destination);
 
         return true;

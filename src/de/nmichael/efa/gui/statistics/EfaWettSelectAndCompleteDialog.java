@@ -969,9 +969,11 @@ public class EfaWettSelectAndCompleteDialog extends BaseDialog implements Action
                 Dimension frameSize = w.getSize();
                 w.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
                 w.setVisible(true);
-                if (Daten.javaVersion.startsWith("1.4")) {
-                    w.toFront(); // bei Java 1.4 im Vordergrund, da es sonst nicht sichtbar ist
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException eee) {
                 }
+                w.toFront();
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException eee) {

@@ -797,6 +797,23 @@ public class RemoteEfaClient extends DataAccess {
         }
     }
 
+    public long countRecords(String[] fieldNames, Object[] values) throws EfaException {
+        RemoteEfaMessage request = RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
+                RemoteEfaMessage.OPERATION_COUNTRECORDS);
+        for (int i=0; i<fieldNames.length; i++) {
+            request.addFieldArrayElement(i, fieldNames[i], (values[i] != null ? values[i].toString() : ""));
+        }
+        RemoteEfaMessage response = runDataRequest(request);
+        if (response == null || response.getResultCode() != RemoteEfaMessage.RESULT_OK) {
+            throw new EfaException(Logger.MSG_REFA_REQUESTFAILED,
+                    getErrorLogstring(RemoteEfaMessage.OPERATION_COUNTRECORDS,
+                    (response != null ? response.getResultText() : "unknown"),
+                    (response != null ? response.getResultCode() : -1)),
+                    Thread.currentThread().getStackTrace());
+        }
+        return response.getLongValue();
+    }
+
     public void truncateAllData() throws EfaException {
         if (runSimpleRequest(RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
                 RemoteEfaMessage.OPERATION_TRUNCATEALLDATA)) != RemoteEfaMessage.RESULT_OK) {

@@ -68,6 +68,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String FILTERBOATRIGGINGALL= "FilterBoatRiggingAll";
     public static final String FILTERBOATCOXING    = "FilterBoatCoxing";
     public static final String FILTERBOATCOXINGALL = "FilterBoatCoxingAll";
+    public static final String FILTERBOATOWNER     = "FilterBoatOwner";
+    public static final String FILTERBOATOWNERALL  = "FilterBoatOwnerAll";
     public static final String FILTERBYPERSONID    = "FilterByPersonId";
     public static final String FILTERBYPERSONTEXT  = "FilterByPersonText";
     public static final String FILTERBYBOATID      = "FilterByBoatId";
@@ -100,6 +102,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String OPTIONDISTANCEWITHUNIT = "OptionDistanceWithUnit";
     public static final String OPTIONTRUNCATEDIST  = "OptionTruncateDistance";
     public static final String OPTIONIGNORENULLVALUES = "OptionIgnoreNullValues";
+    public static final String OPTIONSUMGUESTSANDOTHERS = "OptionSumGuestsAndOthers";
+    public static final String OPTIONSUMGUESTSBYCLUB = "OptionSumGuestsByClub";
 
 
     public static final String[] IDX_NAME = new String[] { NAME };
@@ -145,6 +149,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
 
     public static final String FIELDS_POSITION     = "Position";
     public static final String FIELDS_NAME         = "Name";
+    public static final String FIELDS_GENDER       = "Gender";
     public static final String FIELDS_STATUS       = "Status";
     public static final String FIELDS_YEAROFBIRTH  = "YearOfBirth";
     public static final String FIELDS_BOATTYPE     = "BoatType";
@@ -163,6 +168,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String LFIELDS_DESTAREAS   = "DestAreas";
     public static final String LFIELDS_DISTANCE    = "Distance";
     public static final String LFIELDS_MULTIDAY    = "MultiDay";
+    public static final String LFIELDS_SESSIONTYPE = "SessionType";
     public static final String LFIELDS_NOTES       = "Notes";
 
     public static final String AGGR_DISTANCE       = "Distance";
@@ -175,6 +181,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String SORTING_SESSIONS    = "Sessions";
     public static final String SORTING_AVGDISTANCE = "AvgDistance";
     public static final String SORTING_NAME        = "Name";
+    public static final String SORTING_GENDER      = "Geschlecht";
     public static final String SORTING_STATUS      = "Status";
     public static final String SORTING_YEAROFBIRTH = "YearOfBirth";
     public static final String SORTING_BOATTYPE    = "BoatType";
@@ -183,6 +190,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
 
     public static final String SORTINGORDER_ASC    = "Ascending";
     public static final String SORTINGORDER_DESC   = "Descending";
+
+    public static final String BOWNER_OWN     = "OwnBoat";
+    public static final String BOWNER_OTHER   = "OtherBoat";
+    public static final String BOWNER_UNKNOWN = "Unknown";
 
     private static final int ARRAY_STRINGLIST_VALUES = 1;
     private static final int ARRAY_STRINGLIST_DISPLAY = 2;
@@ -224,6 +235,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         sessions,
         avgDistance,
         name,
+        gender,
         status,
         yearOfBirth,
         boatType,
@@ -244,6 +256,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     // =========================================================================
     // Internal Variables for various pusposes
     // =========================================================================
+    private static final String GUIITEM_OUTPUTFTP = "GUIITEM_OUTPUTFTP";
     private ItemTypeStringList itemStatisticCategory;
     private ItemTypeStringList itemStatisticType;
     private ItemTypeStringList itemStatisticKey;
@@ -257,11 +270,13 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     private ItemTypeMultiSelectList<String> itemFilterBoatSeats;
     private ItemTypeMultiSelectList<String> itemFilterBoatRigging;
     private ItemTypeMultiSelectList<String> itemFilterBoatCoxing;
+    private ItemTypeMultiSelectList<String> itemFilterBoatOwner;
     private ItemTypeFile itemOutputFile;
     private ItemTypeStringList itemOutputEncoding;
     private ItemTypeBoolean itemOutputHtmlUpdateTable;
     private ItemTypeString itemOutputCsvSeparator;
     private ItemTypeString itemOutputCsvQuotes;
+    private ItemTypeButton itemOutputFtpButton;
     private ItemTypeStringList itemTypeSortingCriteria;
     private ItemTypeStringList itemTypeSortingOrder;
 
@@ -297,6 +312,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean sFilterBoatRiggingAll;
     public Hashtable<String,String> sFilterBoatCoxing;
     public boolean sFilterBoatCoxingAll;
+    public Hashtable<String,String> sFilterBoatOwner;
+    public boolean sFilterBoatOwnerAll;
     public UUID sFilterByPersonId;
     public String sFilterByPersonText;
     public UUID sFilterByBoatId;
@@ -305,6 +322,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     // --- Field Settings
     public boolean sIsFieldsPosition;
     public boolean sIsFieldsName;
+    public boolean sIsFieldsGender;
     public boolean sIsFieldsStatus;
     public boolean sIsFieldsYearOfBirth;
     public boolean sIsFieldsBoatType;
@@ -322,6 +340,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean sIsLFieldsDestinationAreas;
     public boolean sIsLFieldsDistance;
     public boolean sIsLFieldsMultiDay;
+    public boolean sIsLFieldsSessionType;
     public boolean sIsLFieldsNotes;
     public boolean sIsAggrDistance;
     public boolean sIsAggrSessions;
@@ -345,6 +364,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean sOutputHtmlUpdateTable;
     public String sOutputCsvSeparator;
     public String sOutputCsvQuotes;
+    public FTPClient sOutputFtpClient;
     public String sFileExecBefore;
     public String sFileExecAfter;
     // --- Competition Settings
@@ -359,6 +379,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean sDistanceWithUnit;
     public boolean sTruncateDistanceToFullValue;
     public boolean sIgnoreNullValues;
+    public boolean sSumGuestsAndOthers;
+    public boolean sSumGuestsByClub;
 
     // filled during statistics creation in StatistikTask
     public int cNumberOfEntries = 0;
@@ -431,6 +453,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         f.add(FILTERBOATRIGGINGALL);              t.add(IDataAccess.DATA_BOOLEAN);
         f.add(FILTERBOATCOXING);                  t.add(IDataAccess.DATA_LIST_STRING);
         f.add(FILTERBOATCOXINGALL);               t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(FILTERBOATOWNER);                   t.add(IDataAccess.DATA_LIST_STRING);
+        f.add(FILTERBOATOWNERALL);                t.add(IDataAccess.DATA_BOOLEAN);
         f.add(FILTERBYPERSONID);                  t.add(IDataAccess.DATA_UUID);
         f.add(FILTERBYPERSONTEXT);                t.add(IDataAccess.DATA_STRING);
         f.add(FILTERBYBOATID);                    t.add(IDataAccess.DATA_UUID);
@@ -463,6 +487,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         f.add(OPTIONDISTANCEWITHUNIT);            t.add(IDataAccess.DATA_BOOLEAN);
         f.add(OPTIONTRUNCATEDIST);                t.add(IDataAccess.DATA_BOOLEAN);
         f.add(OPTIONIGNORENULLVALUES);            t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(OPTIONSUMGUESTSANDOTHERS);          t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(OPTIONSUMGUESTSBYCLUB);             t.add(IDataAccess.DATA_BOOLEAN);
         MetaData metaData = constructMetaData(Statistics.DATATYPE, f, t, false);
         metaData.setKey(new String[] { ID });
         metaData.addIndex(IDX_NAME);
@@ -495,6 +521,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         setFilterBoatRiggingAll(true);
         setFilterBoatCoxing(new DataTypeList<String>(Daten.efaTypes.makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_VALUES)));
         setFilterBoatCoxingAll(true);
+        setFilterBoatOwner(new DataTypeList<String>(getFilterBoatOwnerArray(EfaTypes.ARRAY_STRINGLIST_VALUES)));
+        setFilterBoatOwnerAll(true);
         setShowFields(new DataTypeList<String>(new String[] { FIELDS_POSITION, FIELDS_NAME }));
         setShowLogbookFields(new DataTypeList<String>(new String[] { 
             LFIELDS_ENTRYNO,
@@ -518,6 +546,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         setOptionDistanceWithUnit(true);
         setOptionTruncateDistance(true);
         setOptionIgnoreNullValues(true);
+        setOptionSumGuestsAndOthers(true);
+        setOptionSumGuestsByClub(false);
     }
 
     public DataKey getKey() {
@@ -1257,6 +1287,69 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         return getFilterEfaTypesSelectedListAsText(getFilterBoatCoxing(), EfaTypes.CATEGORY_COXING);
     }
 
+    public String[] getFilterBoatOwnerArray(int valuesOrDisplay) {
+        if (valuesOrDisplay == EfaTypes.ARRAY_STRINGLIST_VALUES) {
+            return new String[] {
+                BOWNER_OWN,
+                BOWNER_OTHER,
+                BOWNER_UNKNOWN
+            };
+        } else {
+            return new String[] {
+                International.getString("Vereinsboote"),
+                International.getString("fremde Boote"),
+                International.getString("unbekannte Boote")
+            };
+        }
+    }
+
+    public String getFilterBoatOwnerText(String value) {
+        String[] values = getFilterBoatOwnerArray(EfaTypes.ARRAY_STRINGLIST_VALUES);
+        String[] text   = getFilterBoatOwnerArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY);
+        for (int i=0; i<values.length; i++) {
+            if (value.equals(values[i])) {
+                return text[i];
+            }
+        }
+        return null;
+    }
+
+    public void setFilterBoatOwner(DataTypeList<String> list) {
+        setList(FILTERBOATOWNER, list);
+    }
+
+    public DataTypeList<String> getFilterBoatOwner() {
+        if (getFilterBoatOwnerAll()) {
+            return new DataTypeList<String>(getFilterBoatOwnerArray(EfaTypes.ARRAY_STRINGLIST_VALUES));
+        }
+        return getList(FILTERBOATOWNER, IDataAccess.DATA_STRING);
+    }
+
+    public void setFilterBoatOwnerAll(boolean all) {
+        setBool(FILTERBOATOWNERALL, all);
+    }
+
+    public boolean getFilterBoatOwnerAll() {
+        return getBool(FILTERBOATOWNERALL);
+    }
+
+    public boolean isFilterBoatOwnerAllSelected() {
+        DataTypeList list = getFilterBoatOwner();
+        return getFilterBoatOwnerAll() || (list != null && list.length() == getFilterBoatOwnerArray(EfaTypes.ARRAY_STRINGLIST_VALUES).length);
+    }
+
+    public String getFilterBoatOwnerSelectedListAsText() {
+        DataTypeList<String> list = getFilterBoatOwner();
+        if (list == null || list.length() == 0) {
+            return "<" + International.getString("leer") + ">";
+        }
+        String slist = null;
+        for (int i=0; i<list.length(); i++) {
+            slist = (slist != null ? slist + "; " : "") + getFilterBoatOwnerText(list.get(i));
+        }
+        return slist;
+    }
+
     public void setFilterByPersonId(UUID id) {
         setUUID(FILTERBYPERSONID, id);
     }
@@ -1367,6 +1460,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             filter = (filter == null ? "" : filter + "\n") +
                     International.getString("Steuerung") + ": " + getFilterBoatCoxingSelectedListAsText();
         }
+        if (!isFilterBoatOwnerAllSelected()) {
+            filter = (filter == null ? "" : filter + "\n") +
+                    International.getString("Eigentümer") + ": " + getFilterBoatOwnerSelectedListAsText();
+        }
         if (sFilterByPersonId != null) {
             filter = (filter == null ? "" : filter + "\n") +
                     International.getString("Person") + ": " + getFilterByPersonIdAsString(sValidAt);
@@ -1411,6 +1508,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             return new String[] {
                 FIELDS_POSITION,
                 FIELDS_NAME,
+                FIELDS_GENDER,
                 FIELDS_STATUS,
                 FIELDS_YEAROFBIRTH,
                 FIELDS_BOATTYPE
@@ -1419,6 +1517,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             return new String[] {
                 International.getString("Position"),
                 International.getString("Name"),
+                International.getString("Geschlecht"),
                 International.getString("Status"),
                 International.getString("Jahrgang"),
                 International.getString("Bootstyp")
@@ -1445,6 +1544,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             }
             strings.add(LFIELDS_DISTANCE);
             strings.add(LFIELDS_MULTIDAY);
+            strings.add(LFIELDS_SESSIONTYPE);
             strings.add(LFIELDS_NOTES);
          } else {
             strings.add(International.getString("Lfd. Nr."));
@@ -1464,6 +1564,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             }
             strings.add(International.getString("Kilometer"));
             strings.add(International.getString("Mehrtagesfahrt"));
+            strings.add(International.getString("Fahrtart"));
             strings.add(International.getString("Bemerkungen"));
         }
         String[] a = new String[strings.size()];
@@ -1552,6 +1653,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             return SortingCriteria.avgDistance;
         } else if (sort.equals(SORTING_NAME)) {
             return SortingCriteria.name;
+        } else if (sort.equals(SORTING_GENDER)) {
+            return SortingCriteria.gender;
         } else if (sort.equals(SORTING_STATUS)) {
             return SortingCriteria.status;
         } else if (sort.equals(SORTING_YEAROFBIRTH)) {
@@ -1602,6 +1705,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 SORTING_SESSIONS,
                 SORTING_AVGDISTANCE,
                 SORTING_NAME,
+                SORTING_GENDER,
                 SORTING_STATUS,
                 SORTING_YEAROFBIRTH,
                 SORTING_BOATTYPE,
@@ -1614,6 +1718,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 International.getString("Fahrten"),
                 International.getString("Km/Fahrt"),
                 International.getString("Name"),
+                International.getString("Geschlecht"),
                 International.getString("Status"),
                 International.getString("Jahrgang"),
                 International.getString("Bootstyp"),
@@ -1782,6 +1887,20 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         setBool(OPTIONIGNORENULLVALUES, ignore);
     }
 
+    public boolean getOptionSumGuestsAndOthers() {
+        return getBool(OPTIONSUMGUESTSANDOTHERS);
+    }
+    public void setOptionSumGuestsAndOthers(boolean sumGuests) {
+        setBool(OPTIONSUMGUESTSANDOTHERS, sumGuests);
+    }
+
+    public boolean getOptionSumGuestsByClub() {
+        return getBool(OPTIONSUMGUESTSBYCLUB);
+    }
+    public void setOptionSumGuestsByClub(boolean byClub) {
+        setBool(OPTIONSUMGUESTSBYCLUB, byClub);
+    }
+
     public int getLogbookFieldCount() {
         DataTypeList l = getShowLogbookFields();
         return (l != null ? l.length() : 0);
@@ -1810,7 +1929,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         String CAT_FILTERBOATSEAT      = "%025%" + International.getString("Bootsplätze");
         String CAT_FILTERBOATRIGG      = "%026%" + International.getString("Riggerung");
         String CAT_FILTERBOATCOXING    = "%027%" + International.getString("Steuerung");
-        String CAT_FILTERINDIVIDUAL    = "%028%" + International.getString("individuell");
+        String CAT_FILTERBOATOWNER     = "%028%" + International.getString("Eigentümer");
+        String CAT_FILTERINDIVIDUAL    = "%029%" + International.getString("individuell");
         String CAT_FIELDS       = "%03%" + International.getString("Felder");
         String CAT_FIELDSLIST   = "%031%" + International.getString("Kilometerliste");
         String CAT_FIELDSLOGBOOK= "%032%" + International.getString("Fahrtenbuch");
@@ -1923,6 +2043,16 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         itemFilterBoatCoxing.setEnabled(!getFilterBoatCoxingAll());
         v.add(item = new ItemTypeBoolean(StatisticsRecord.FILTERBOATCOXINGALL, getFilterBoatCoxingAll(),
                     IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER,CAT_FILTERBOATCOXING),
+                    International.getString("alle")));
+        item.registerItemListener(this);
+        v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.FILTERBOATOWNER, getFilterBoatOwner(),
+                    getFilterBoatOwnerArray(EfaTypes.ARRAY_STRINGLIST_VALUES), getFilterBoatOwnerArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER,CAT_FILTERBOATOWNER),
+                    International.getString("Eigentümer")));
+        itemFilterBoatOwner = (ItemTypeMultiSelectList<String>)item;
+        itemFilterBoatOwner.setEnabled(!getFilterBoatOwnerAll());
+        v.add(item = new ItemTypeBoolean(StatisticsRecord.FILTERBOATOWNERALL, getFilterBoatOwnerAll(),
+                    IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER,CAT_FILTERBOATOWNER),
                     International.getString("alle")));
         item.registerItemListener(this);
 
@@ -2062,6 +2192,12 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                     IItemType.TYPE_PUBLIC, CAT_OUTPUT,
                     International.getString("Texttrenner") + " (CSV)"));
         this.itemOutputCsvQuotes = (ItemTypeString)item;
+        v.add(item = new ItemTypeButton(GUIITEM_OUTPUTFTP,
+                    IItemType.TYPE_PUBLIC, CAT_OUTPUT,
+                    International.getString("FTP-Upload") + " ..."));
+        ((ItemTypeButton)item).setFieldGrid(2, GridBagConstraints.EAST, GridBagConstraints.NONE);
+        ((ItemTypeButton)item).registerItemListener(this);
+        this.itemOutputFtpButton = (ItemTypeButton)item;
 
         // CAT_OPTIONS
         v.add(item = new ItemTypeBoolean(StatisticsRecord.OPTIONDISTANCEWITHUNIT, getOptionDistanceWithUnit(),
@@ -2073,6 +2209,12 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         v.add(item = new ItemTypeBoolean(StatisticsRecord.OPTIONIGNORENULLVALUES, getOptionIgnoreNullValues(),
                     IItemType.TYPE_PUBLIC, CAT_OPTIONS,
                     International.getString("Nullwerte nicht ausgeben")));
+        v.add(item = new ItemTypeBoolean(StatisticsRecord.OPTIONSUMGUESTSANDOTHERS, getOptionSumGuestsAndOthers(),
+                    IItemType.TYPE_PUBLIC, CAT_OPTIONS,
+                    International.getString("Gäste und andere zusammenfassen")));
+        v.add(item = new ItemTypeBoolean(StatisticsRecord.OPTIONSUMGUESTSBYCLUB, getOptionSumGuestsByClub(),
+                    IItemType.TYPE_PUBLIC, CAT_OPTIONS,
+                    International.getString("Gäste/Fremdboote vereinsweise zusammenfassen")));
 
         setVisibleItems(getOutputTypeEnum());
         return v;
@@ -2202,6 +2344,13 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         }
         sFilterBoatCoxingAll = isFilterBoatCoxingAllSelected();
 
+        sFilterBoatOwner = new Hashtable<String,String>();
+        listString = getFilterBoatOwner();
+        for (int i=0; listString != null && i<listString.length(); i++) {
+            sFilterBoatOwner.put(listString.get(i), "foo");
+        }
+        sFilterBoatOwnerAll = isFilterBoatOwnerAllSelected();
+
         sFilterByPersonId = getFilterByPersonId();
         sFilterByPersonText = (sFilterByPersonId != null ? null : getFilterByPersonText());
         sFilterByBoatId = getFilterByBoatId();
@@ -2271,6 +2420,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 sIsFieldsPosition = true;
             } else if (s.equals(FIELDS_NAME)) {
                 sIsFieldsName = true;
+            } else if (s.equals(FIELDS_GENDER)) {
+                sIsFieldsGender = true;
             } else if (s.equals(FIELDS_STATUS)) {
                 sIsFieldsStatus = true;
             } else if (s.equals(FIELDS_YEAROFBIRTH)) {
@@ -2318,6 +2469,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 sLFieldDistancePos = i;
             } else if (s.equals(LFIELDS_MULTIDAY)) {
                 sIsLFieldsMultiDay = true;
+            } else if (s.equals(LFIELDS_SESSIONTYPE)) {
+                sIsLFieldsSessionType = true;
             } else if (s.equals(LFIELDS_NOTES)) {
                 sIsLFieldsNotes = true;
             }
@@ -2363,6 +2516,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             this.sIsAggrDistance = true;
             this.sIsAggrSessions = true;
             this.sIsFieldsName = true;
+            this.sIsFieldsGender = true;
             this.sIsFieldsStatus = true;
             this.sIsFieldsYearOfBirth = true;
             if (sStatisticType.equals(WettDefs.STR_LRVBERLIN_SOMMER)) {
@@ -2387,6 +2541,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         } else {
             sOutputFile = getOutputFile();
         }
+        if (sOutputFile.toLowerCase().startsWith("ftp:")) {
+            sOutputFtpClient = new FTPClient(sOutputFile, Daten.efaTmpDirectory + "output.ftp");
+            sOutputFile = Daten.efaTmpDirectory + "output.ftp";
+        }
         sOutputDir = (new File(sOutputFile)).getAbsolutePath();
         sOutputEncoding = getOutputEncoding();
         sOutputHtmlUpdateTable = getOutputHtmlUpdateTable();
@@ -2396,6 +2554,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         sDistanceWithUnit = getOptionDistanceWithUnit();
         sTruncateDistanceToFullValue = getOptionTruncateDistance();
         sIgnoreNullValues = getOptionIgnoreNullValues();
+        sSumGuestsAndOthers = getOptionSumGuestsAndOthers();
+        sSumGuestsByClub = getOptionSumGuestsByClub();
+
 
         pStatIgnored = new Hashtable<String,String>();
         cWarnings = new Hashtable<String,String>();
@@ -2432,11 +2593,17 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         pTableColumns = new Vector<String>();
         if (sStatisticCategory == StatisticCategory.list) {
             if (sIsFieldsPosition) {
-                pTableColumns.add(International.getString("Platz"));
+                //pTableColumns.add(International.getString("Platz"));
+                // The following line is useless, but added with intention to keep the translation for "Platz"
+                International.getString("Platz");
+                pTableColumns.add(International.getString("Position"));
             }
             if (sIsFieldsName) {
                 String s = getStatisticKeyDescription();
                 pTableColumns.add( (s != null ? s : International.getString("Name")) );
+            }
+            if (sIsFieldsGender) {
+                pTableColumns.add(International.getString("Geschlecht"));
             }
             if (sIsFieldsStatus) {
                 pTableColumns.add(International.getString("Status"));
@@ -2506,6 +2673,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             }
             if (sIsLFieldsMultiDay) {
                 pTableColumns.add(International.onlyFor("Wanderfahrten", "de"));
+            }
+            if (sIsLFieldsSessionType) {
+                pTableColumns.add(International.getString("Fahrtart"));
             }
             if (sIsLFieldsNotes) {
                 pTableColumns.add(International.getString("Bemerkungen"));
@@ -2639,6 +2809,11 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 itemFilterBoatCoxing.setEnabled(itemType.getValueFromField().equals(Boolean.toString(false)));
             }
         }
+        if (itemType.getName().equals(FILTERBOATOWNERALL) && event instanceof ActionEvent) {
+            if (itemFilterBoatOwner != null && itemType.getValueFromField() != null) {
+                itemFilterBoatOwner.setEnabled(itemType.getValueFromField().equals(Boolean.toString(false)));
+            }
+        }
         if (itemType.getName().equals(OUTPUTTYPE) && event instanceof ItemEvent) {
             OutputTypes newOutputType = getOutputTypeEnumFromString(itemType.getValueFromField());
             setVisibleItems(newOutputType);
@@ -2661,11 +2836,22 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             ((FocusEvent)event).getID() == FocusEvent.FOCUS_LOST) {
             setDefaultDates(null, null);
         }
+        if (itemType.getName().equals(GUIITEM_OUTPUTFTP) &&
+            event instanceof ActionEvent) {
+            String f = itemOutputFile.getValueFromField();
+            f = FTPClient.getFtpStringGuiDialog(f);
+            if (f != null) {
+                itemOutputFile.parseAndShowValue(f);
+            }
+        }
     }
 
     private void setVisibleItems(OutputTypes output) {
         if (itemOutputFile != null) {
             itemOutputFile.setVisible(output != OutputTypes.internal && output != OutputTypes.efawett);
+        }
+        if (itemOutputFtpButton != null) {
+            itemOutputFtpButton.setVisible(output != OutputTypes.internal && output != OutputTypes.efawett);
         }
         if (itemOutputEncoding != null) {
             itemOutputEncoding.setVisible(output == OutputTypes.csv);

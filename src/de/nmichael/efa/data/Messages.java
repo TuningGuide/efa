@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.DataTypeDate;
@@ -51,6 +52,10 @@ public class Messages extends StorageObject {
         return r;
     }
 
+    public MessageRecord createAndSaveMessageRecord(String to, String subject, String text) {
+        return createAndSaveMessageRecord(Daten.EFA_SHORTNAME, to, subject, text);
+    }
+
     public MessageRecord createAndSaveMessageRecord(String from, String to, String subject, String text) {
         MessageRecord r = new MessageRecord(this, MetaData.getMetaData(DATATYPE));
         r.setMessageId(getNextMessageId());
@@ -69,6 +74,25 @@ public class Messages extends StorageObject {
             Logger.logdebug(e);
         }
         return r;
+    }
+
+    public long countUnreadMessages() {
+        long lockId = -1;
+        try {
+            lockId = data().acquireGlobalLock();
+            long totalCnt = data().getNumberOfRecords();
+            // we cannot explicitly count records with READ set to false, as "false" is a value not stored in the record.
+            // therefore, we have to count the true's, and substract them from the total count.
+            long msgRead = data().countRecords(new String[] { MessageRecord.READ }, new Object[] { new Boolean(true) });
+            return totalCnt - msgRead;
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return -1;
+        } finally {
+            if (lockId >= 0) {
+                data().releaseGlobalLock(lockId);
+            }
+        }
     }
 
     public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {

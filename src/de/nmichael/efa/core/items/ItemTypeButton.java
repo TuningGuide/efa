@@ -63,6 +63,7 @@ public class ItemTypeButton extends ItemType {
             public void focusGained(FocusEvent e) { field_focusGained(e); }
             public void focusLost(FocusEvent e) { field_focusLost(e); }
         });
+        button.setVisible(isVisible);
         this.field = button;
         saveBackgroundColor(true);
     }
@@ -108,7 +109,9 @@ public class ItemTypeButton extends ItemType {
     }
 
     public void setVisible(boolean visible) {
-        button.setVisible(visible);
+        if (button != null) {
+            button.setVisible(visible);
+        }
         super.setVisible(visible);
 }
 

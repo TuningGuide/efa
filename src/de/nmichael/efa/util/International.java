@@ -19,6 +19,7 @@ import java.util.*;
 import java.io.*;
 import java.text.*;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 // @i18n complete
 
@@ -69,6 +70,7 @@ public class International {
             Daten.EFA_WETT = "efaWett";
             Daten.EFA_REMOTE = "efaRemote";
             EfaTypes.TEXT_UNKNOWN = International.getString("unbekannt");
+            JOptionPane.setDefaultLocale(locale);
         } catch(Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_INTERNATIONAL_FAILEDSETUP, "Failed to set up internationalization: "+e.toString()); // no need for translation
             initializationFailed = true;

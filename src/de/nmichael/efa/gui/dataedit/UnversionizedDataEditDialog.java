@@ -29,6 +29,7 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
     protected boolean newRecord;
     protected AdminRecord admin;
     protected boolean _dontSaveRecord = false;
+    protected boolean allowConflicts = true;
 
     public UnversionizedDataEditDialog(Frame parent, String title, 
             DataRecord dataRecord, boolean newRecord, AdminRecord admin) {
@@ -41,6 +42,9 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
         }
         iniDefaults();
         setItems((dataRecord != null ? dataRecord.getGuiItems(admin) : null));
+        if (dataRecord != null && !newRecord) {
+            setTitle(title + ": " + dataRecord.getQualifiedName());
+        }
     }
 
     public UnversionizedDataEditDialog(JDialog parent, String title, 
@@ -54,6 +58,9 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
         }
         iniDefaults();
         setItems((dataRecord != null ? dataRecord.getGuiItems(admin) : null));
+        if (dataRecord != null && !newRecord) {
+            setTitle(title + ": " + dataRecord.getQualifiedName());
+        }
     }
 
     protected void setPrintButton() {
@@ -90,10 +97,15 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
             Logger.logdebug(e);
         }
         if (conflict != null) {
-            if (Dialog.yesNoDialog(International.getString("Warnung"),
-                    International.getString("Es existiert bereits ein gleichnamiger Datensatz!") + "\n" +
-                    conflict + "\n" +
-                    International.getString("Möchtest Du diesen Datensatz trotzdem erstellen?")) != Dialog.YES) {
+            if (allowConflicts) {
+                if (Dialog.yesNoDialog(International.getString("Warnung"),
+                        International.getString("Es existiert bereits ein gleichnamiger Datensatz!") + "\n"
+                        + conflict + "\n"
+                        + International.getString("Möchtest Du diesen Datensatz trotzdem erstellen?")) != Dialog.YES) {
+                    throw new InvalidValueException(null, null);
+                }
+            } else {
+                Dialog.error(International.getString("Es existiert bereits ein gleichnamiger Datensatz!"));
                 throw new InvalidValueException(null, null);
             }
         }

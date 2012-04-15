@@ -55,16 +55,16 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             BoatStatusRecord sr = v.get(i);
 
             BoatRecord r = boats.getBoat(sr.getBoatId(), now);
-            Hashtable<Integer,Integer> allSeats = new Hashtable<Integer,Integer>();
+            Hashtable<Integer,Integer> allSeats = new Hashtable<Integer,Integer>(); // seats -> variant
             // find all seat variants to be shown...
             if (r != null) {
                 if (r.getNumberOfVariants() == 1) {
-                    allSeats.put(r.getNumberOfSeats(0), 0);
+                    allSeats.put(r.getNumberOfSeats(0), r.getTypeVariant(0));
                 } else {
                     if (sr.getCurrentStatus().equals(BoatStatusRecord.STATUS_AVAILABLE)) {
                         for (int j = 0; j < r.getNumberOfVariants(); j++) {
                             // if the boat is available, show the boat in all seat variants
-                            allSeats.put(r.getNumberOfSeats(j), j);
+                            allSeats.put(r.getNumberOfSeats(j), r.getTypeVariant(j));
                         }
                     } else {
                         if (sr.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
@@ -73,7 +73,8 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
                             if (entry != null && entry.length() > 0) {
                                 LogbookRecord lr = logbook.getLogbookRecord(sr.getEntryNo());
                                 if (lr != null && lr.getBoatVariant() > 0 && lr.getBoatVariant() <= r.getNumberOfVariants()) {
-                                    allSeats.put(r.getNumberOfSeats(lr.getBoatVariant()-1), lr.getBoatVariant()-1);
+                                    allSeats.put(r.getNumberOfSeats(r.getVariantIndex(lr.getBoatVariant())),
+                                            lr.getBoatVariant());
                                 }
                             }
                         }
@@ -81,7 +82,11 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
                 }
                 if (allSeats.size() == 0) {
                     // just show the boat in any variant
-                    allSeats.put(r.getNumberOfSeats(0), 0);
+                    int vd = r.getDefaultVariant();
+                    if (vd < 1) {
+                        vd = r.getTypeVariant(0);
+                    }
+                    allSeats.put(r.getNumberOfSeats(0), vd);
                 }
             } else {
                 if (sr.getUnknownBoat()) {
@@ -96,6 +101,14 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             Integer[] seats = allSeats.keySet().toArray(new Integer[0]);
             for (int j=0; j<seats.length; j++) {
                 int variant = allSeats.get(seats[j]);
+
+                if (r != null && seats.length < r.getNumberOfVariants()) {
+                    // we have multiple variants, but all with the same number of seats
+                    if (r.getDefaultVariant() > 0) {
+                        variant = r.getDefaultVariant();
+                    }
+                }
+
                 BoatString bs = new BoatString();
 
                 // Seats

@@ -91,6 +91,8 @@ public abstract class ItemType implements IItemType {
     public void saveColor() {
         if (field != null) {
             savedFgColor = field.getForeground();
+        } else {
+            savedFgColor = Color.black;
         }
     }
 

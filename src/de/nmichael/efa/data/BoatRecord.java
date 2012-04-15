@@ -38,6 +38,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     public static final String NAMEAFFIX             = "NameAffix";
     public static final String OWNER                 = "Owner";
     public static final String LASTVARIANT           = "LastVariant";
+    public static final String DEFAULTVARIANT        = "DefaultVariant";
     public static final String TYPEVARIANT           = "TypeVariant";
     public static final String TYPEDESCRIPTION       = "TypeDescription";
     public static final String TYPETYPE              = "TypeType";
@@ -57,6 +58,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     public static final String PURCHASEDATE          = "PurchaseDate";
     public static final String PURCHASEPRICE         = "PurchasePrice";
     public static final String PURCHASEPRICECURRENCY = "PurchasePriceCurrency";
+    public static final String INSURANCEVALUE        = "InsuranceValue";
     public static final String DEFAULTCREWID         = "DefaultCrewId";
     public static final String DEFAULTSESSIONTYPE    = "DefaultSessionType";
     public static final String DEFAULTDESTINATIONID  = "DefaultDestinationId";
@@ -71,6 +73,8 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     private static String GUIITEM_ALLOWEDGROUPIDLIST = "GUIITEM_ALLOWEDGROUPIDLIST";
     private static String GUIITEM_RESERVATIONS       = "GUIITEM_RESERVATIONS";
     private static String GUIITEM_DAMAGES            = "GUIITEM_DAMAGES";
+    private static String GUIITEM_DEFAULTBOATTYPE    = "GUIITEM_DEFAULTBOATTYPE";
+    private ButtonGroup buttonGroup = new ButtonGroup();
 
     private static Pattern qnamePattern = Pattern.compile("(.+) \\(([^\\(\\)]+)\\)");
 
@@ -84,6 +88,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         f.add(NAMEAFFIX);                         t.add(IDataAccess.DATA_STRING);
         f.add(OWNER);                             t.add(IDataAccess.DATA_STRING);
         f.add(LASTVARIANT);                       t.add(IDataAccess.DATA_INTEGER);
+        f.add(DEFAULTVARIANT);                    t.add(IDataAccess.DATA_INTEGER);
         f.add(TYPEVARIANT);                       t.add(IDataAccess.DATA_LIST_INTEGER);
         f.add(TYPEDESCRIPTION);                   t.add(IDataAccess.DATA_LIST_STRING);
         f.add(TYPETYPE);                          t.add(IDataAccess.DATA_LIST_STRING);
@@ -101,6 +106,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         f.add(PURCHASEDATE);                      t.add(IDataAccess.DATA_DATE);
         f.add(PURCHASEPRICE);                     t.add(IDataAccess.DATA_DECIMAL);
         f.add(PURCHASEPRICECURRENCY);             t.add(IDataAccess.DATA_STRING);
+        f.add(INSURANCEVALUE);                    t.add(IDataAccess.DATA_DECIMAL);
         f.add(DEFAULTCREWID);                     t.add(IDataAccess.DATA_UUID);
         f.add(DEFAULTSESSIONTYPE);                t.add(IDataAccess.DATA_STRING);
         f.add(DEFAULTDESTINATIONID);              t.add(IDataAccess.DATA_UUID);
@@ -234,7 +240,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         }
     }
 
-    public int addTypeVariant(String description, String type, String seats, String rigging, String coxing) {
+    public int addTypeVariant(String description, String type, String seats, String rigging, String coxing, String isDefault) {
         int variant = getInt(LASTVARIANT);
         if (variant == IDataAccess.UNDEFINED_INT || variant < 0) {
             variant = 0;
@@ -303,10 +309,26 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         setList(TYPERIGGING, lrigging);
         setList(TYPECOXING, lcoxing);
 
+        if (isDefault != null && isDefault.equals(Boolean.TRUE.toString())) {
+            setDefaultVariant(variant);
+        }
+
         return variant;
     }
 
-    public boolean setTypeVariant(int idx, String description, String type, String seats, String rigging, String coxing) {
+    public int getLastVariant() {
+        return getInt(LASTVARIANT);
+    }
+
+    public int getDefaultVariant() {
+        return getInt(DEFAULTVARIANT);
+    }
+
+    public void setDefaultVariant(int variant) {
+        setInt(DEFAULTVARIANT, variant);
+    }
+
+    public boolean setTypeVariant(int idx, String description, String type, String seats, String rigging, String coxing, String isDefault) {
         if (description == null) {
             description = "";
         }
@@ -358,6 +380,10 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         setList(TYPERIGGING, lrigging);
         setList(TYPECOXING, lcoxing);
 
+        if (isDefault != null && isDefault.equals(Boolean.TRUE.toString())) {
+            setDefaultVariant(getTypeVariant(idx));
+        }
+
         return true;
     }
 
@@ -386,6 +412,11 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
             return false;
         }
 
+        boolean resetDefaultVariant = false;
+        if (getDefaultVariant() == getTypeVariant(idx)) {
+            resetDefaultVariant = true;
+        }
+
         lvariant.remove(idx);
         ldescription.remove(idx);
         ltype.remove(idx);
@@ -399,6 +430,13 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         setList(TYPESEATS, lseats);
         setList(TYPERIGGING, lrigging);
         setList(TYPECOXING, lcoxing);
+
+        if (resetDefaultVariant) {
+            int v = getTypeVariant(0);
+            if (v > 0) {
+                setDefaultVariant(v);
+            }
+        }
 
         return true;
     }
@@ -515,6 +553,14 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     public String getPurchasePriceCurrency() {
         return getString(PURCHASEPRICECURRENCY);
     }
+
+    public void setInsuranceValue(DataTypeDecimal price) {
+        setDecimal(INSURANCEVALUE, price);
+    }
+    public DataTypeDecimal getInsuranceValue() {
+        return getDecimal(INSURANCEVALUE);
+    }
+
 
     public void setDefaultCrewId(UUID id) {
         setUUID(DEFAULTCREWID, id);
@@ -738,7 +784,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
 
     public IItemType[] getDefaultItems(String itemName) {
         if (itemName.equals(BoatRecord.GUIITEM_BOATTYPES)) {
-            IItemType[] items = new IItemType[6];
+            IItemType[] items = new IItemType[7];
             String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
             items[0] = new ItemTypeInteger(BoatRecord.TYPEVARIANT, 0, 0, Integer.MAX_VALUE,
                     IItemType.TYPE_INTERNAL, CAT_BASEDATA, International.getString("Variante"));
@@ -760,6 +806,10 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
                     EfaTypes.makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeBoatCoxingArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                     International.getString("Steuerung"));
+            items[6] = new ItemTypeBoolean(BoatRecord.GUIITEM_DEFAULTBOATTYPE, false,
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                    International.getString("Standard-Bootstyp"));
+            ((ItemTypeBoolean)items[6]).setUseRadioButton(true, buttonGroup);
             return items;
         }
         if (itemName.equals(BoatRecord.GUIITEM_ALLOWEDGROUPIDLIST)) {
@@ -960,7 +1010,8 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Namenszusatz")));
         ((ItemTypeString)item).setNotAllowedCharacters("()");
         v.add(item = new ItemTypeString(BoatRecord.OWNER, getOwner(),
-                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Eigentümer")));
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Eigentümer") +
+                 " (" + International.getString("Fremdboot") + ")"));
         ((ItemTypeString)item).setNotAllowedCharacters("()");
 
         itemList = new Vector<IItemType[]>();
@@ -972,6 +1023,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
             items[3].parseValue(getTypeSeats(i));
             items[4].parseValue(getTypeRigging(i));
             items[5].parseValue(getTypeCoxing(i));
+            items[6].parseValue(Boolean.toString(getTypeVariant(i) == getDefaultVariant()));
             itemList.add(items);
         }
         v.add(item = new ItemTypeItemList(GUIITEM_BOATTYPES, itemList, this,
@@ -996,6 +1048,8 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Kaufdatum")));
         v.add(item = new ItemTypeDecimal(BoatRecord.PURCHASEPRICE, getPurchasePrice(), 2, true,
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Kaufpreis")));
+        v.add(item = new ItemTypeDecimal(BoatRecord.INSURANCEVALUE, getInsuranceValue(), 2, true,
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Versicherungswert")));
         v.add(item = new ItemTypeString(BoatRecord.PURCHASEPRICECURRENCY, getPurchasePriceCurrency(),
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Währung")));
         v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC, getExcludeFromPublicStatistics(),
@@ -1131,11 +1185,14 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
                         continue;
                     }
                     if (variant == 0) {
-                        addTypeVariant(typeItems[1].toString(), typeItems[2].toString(), typeItems[3].toString(), typeItems[4].toString(), typeItems[5].toString());
+                        addTypeVariant(typeItems[1].toString(), typeItems[2].toString(), typeItems[3].toString(), 
+                                typeItems[4].toString(), typeItems[5].toString(), typeItems[6].toString());
                     } else {
                         int idx = getVariantIndex(variant);
-                        if (typeItems[1].isChanged() || typeItems[2].isChanged() || typeItems[3].isChanged() || typeItems[4].isChanged() || typeItems[5].isChanged()) {
-                            setTypeVariant(idx, typeItems[1].toString(), typeItems[2].toString(), typeItems[3].toString(), typeItems[4].toString(), typeItems[5].toString());
+                        if (typeItems[1].isChanged() || typeItems[2].isChanged() || typeItems[3].isChanged() || 
+                                typeItems[4].isChanged() || typeItems[5].isChanged() || typeItems[6].isChanged()) {
+                            setTypeVariant(idx, typeItems[1].toString(), typeItems[2].toString(), typeItems[3].toString(), 
+                                    typeItems[4].toString(), typeItems[5].toString(), typeItems[6].toString());
                         }
                     }
                 }
@@ -1147,13 +1204,19 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
                     IItemType[] typeItems = list.getItems(i);
                     Object uuid = ((ItemTypeStringAutoComplete)typeItems[0]).getId(typeItems[0].toString());
                     if (uuid != null && uuid.toString().length() > 0) {
-                        uuidList.put(uuid.toString(), (UUID)uuid);
+                        String text = ((ItemTypeStringAutoComplete)typeItems[0]).getValue();
+                        if (text == null) {
+                            text = "";
+                        }
+                        // sort based on text:uuid
+                        uuidList.put(text + ":" + uuid.toString(), (UUID)uuid);
                     }
                 }
-                String[] uuidArr = uuidList.keySet().toArray(new String[0]);
+                String[] keyArr = uuidList.keySet().toArray(new String[0]);
+                Arrays.sort(keyArr);
                 DataTypeList<UUID> agList = new DataTypeList<UUID>();
-                for (String uuid : uuidArr) {
-                    agList.add(uuidList.get(uuid));
+                for (String key : keyArr) {
+                    agList.add(uuidList.get(key));
                 }
                 setAllowedGroupIdList(agList);
             }

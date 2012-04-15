@@ -10,9 +10,9 @@
 
 package de.nmichael.efa.core.items;
 
-import de.nmichael.efa.core.items.ItemTypeLabelValue;
 import de.nmichael.efa.data.types.DataTypeDecimal;
 import de.nmichael.efa.util.*;
+import javax.swing.JTextField;
 
 // @i18n complete
 
@@ -58,6 +58,12 @@ public class ItemTypeDecimal extends ItemTypeLabelTextfield {
         }
     }
 
+    public void showValue() {
+        super.showValue();
+        if (field != null) {
+            ((JTextField)field).setText(value.getAsFormattedString(decimalPlaces, decimalPlaces));
+        }
+    }
     public String toString() {
         if (!isNotNullSet() && !value.isSet()) {
             return "";

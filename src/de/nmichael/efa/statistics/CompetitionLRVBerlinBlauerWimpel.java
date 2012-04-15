@@ -50,7 +50,7 @@ public class CompetitionLRVBerlinBlauerWimpel extends Competition {
             sr.pAdditionalTable1 = new String[anzWertung][3];
         }
 
-        sr.pCompParticipants = new StatisticsData[1];
+        sr.pCompParticipants = new StatisticsData[0];
         for (int i = 0; i < sd.length && i < anzWertung; i++) {
             if (!sr.sIsOutputCompWithoutDetails) {
                 if (sr.getOutputTypeEnum() == StatisticsRecord.OutputTypes.efawett

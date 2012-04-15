@@ -1011,6 +1011,11 @@ public abstract class DataFile extends DataAccess {
         }
     }
 
+    public long countRecords(String[] fieldNames, Object[] values) throws EfaException {
+        DataKey[] k = getByFields(fieldNames, values);
+        return (k == null ? 0 : k.length);
+    }
+
     public long getNumberOfRecords() throws EfaException {
         synchronized(data) {
             return data.size();

@@ -12,6 +12,8 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.ex.EfaModifyException;
 import java.util.*;
 
@@ -111,6 +113,52 @@ public class BoatReservations extends StorageObject {
         if (add || update) {
             assertFieldNotEmpty(record, BoatReservationRecord.BOATID);
             assertFieldNotEmpty(record, BoatReservationRecord.RESERVATION);
+            assertFieldNotEmpty(record, BoatReservationRecord.TYPE);
+
+            BoatReservationRecord r = ((BoatReservationRecord)record);
+            BoatReservationRecord[] br = this.getBoatReservations(r.getBoatId());
+            for (int i=0; br != null && i<br.length; i++) {
+                if (br[i].getReservation() == r.getReservation()) {
+                    continue;
+                }
+                if (!r.getType().equals(br[i].getType())) {
+                    continue;
+                }
+                if (r.getType().equals(BoatReservationRecord.TYPE_WEEKLY)) {
+                    assertFieldNotEmpty(record, BoatReservationRecord.DAYOFWEEK);
+                    assertFieldNotEmpty(record, BoatReservationRecord.TIMEFROM);
+                    assertFieldNotEmpty(record, BoatReservationRecord.TIMETO);
+                    if (!r.getDayOfWeek().equals(br[i].getDayOfWeek())) {
+                        continue;
+                    }
+                    if (DataTypeTime.isRangeOverlap(r.getTimeFrom(), r.getTimeTo(),
+                            br[i].getTimeFrom(), br[i].getTimeTo())) {
+                        throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                                International.getString("Die Reservierung überschneidet sich mit einer anderen Reservierung."),
+                                Thread.currentThread().getStackTrace());
+                        
+                    }
+                }
+                if (r.getType().equals(BoatReservationRecord.TYPE_ONETIME)) {
+                    assertFieldNotEmpty(record, BoatReservationRecord.DATEFROM);
+                    assertFieldNotEmpty(record, BoatReservationRecord.DATETO);
+                    assertFieldNotEmpty(record, BoatReservationRecord.TIMEFROM);
+                    assertFieldNotEmpty(record, BoatReservationRecord.TIMETO);
+                    if (DataTypeDate.isRangeOverlap(r.getDateFrom(),
+                                                    r.getTimeFrom(),
+                                                    r.getDateTo(),
+                                                    r.getTimeTo(),
+                                                    br[i].getDateFrom(),
+                                                    br[i].getTimeFrom(),
+                                                    br[i].getDateTo(),
+                                                    br[i].getTimeTo())) {
+                        throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                                International.getString("Die Reservierung überschneidet sich mit einer anderen Reservierung."),
+                                Thread.currentThread().getStackTrace());
+
+                    }
+                }
+            }
         }
     }
 

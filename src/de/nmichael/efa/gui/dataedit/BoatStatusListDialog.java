@@ -31,6 +31,7 @@ public class BoatStatusListDialog extends DataListDialog {
         actionText = new String[] { ItemTypeDataRecordTable.ACTIONTEXT_EDIT };
         actionType = new int[] { ItemTypeDataRecordTable.ACTION_EDIT };
         actionImage = new String[] { BaseDialog.IMAGE_EDIT };
+        intelligentColumnWidth = false;
     }
 
     public BoatStatusListDialog(JDialog parent, AdminRecord admin) {
@@ -39,6 +40,7 @@ public class BoatStatusListDialog extends DataListDialog {
         actionText = new String[] { ItemTypeDataRecordTable.ACTIONTEXT_EDIT };
         actionType = new int[] { ItemTypeDataRecordTable.ACTION_EDIT };
         actionImage = new String[] { BaseDialog.IMAGE_EDIT };
+        intelligentColumnWidth = false;
     }
 
     public void keyAction(ActionEvent evt) {

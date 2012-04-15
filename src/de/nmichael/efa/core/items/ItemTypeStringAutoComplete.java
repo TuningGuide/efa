@@ -43,7 +43,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
     protected boolean isCheckSpelling = false;
     protected boolean isCheckPermutations = false;
     protected boolean isVisibleSticky = true;
-    protected char ignoreEverythingAfter = 0x0;
+    protected String ignoreEverythingAfter = null;
     protected String alternateFieldNameForPlainText = null;
     protected boolean alwaysReturnPlainText = false;
     protected ItemTypeDate validAtDate;
@@ -94,8 +94,8 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         this.isCheckPermutations = checkPermutations;
     }
 
-    public void setIgnoreEverythingAfter(char c) {
-        ignoreEverythingAfter = c;
+    public void setIgnoreEverythingAfter(String s) {
+        ignoreEverythingAfter = s;
     }
 
     public void setVisible(boolean visible) {
@@ -310,7 +310,14 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
 
         // make sure to accept value as known which have a known base part (everything before ignoreEverythingAfter)
         String ignoredString = null;
-        int ignorePos = (prefix != null ? prefix.indexOf(ignoreEverythingAfter) : field.getText().indexOf(ignoreEverythingAfter));
+        int ignorePos = -1;
+        for (int i=0; ignoreEverythingAfter != null && i<ignoreEverythingAfter.length(); i++) {
+            ignorePos = (prefix != null ? prefix.indexOf(ignoreEverythingAfter.charAt(i)) :
+                field.getText().indexOf(ignoreEverythingAfter.charAt(i)));
+            if (ignorePos >= 0) {
+                break;
+            }
+        }
         if (ignorePos >= 0) {
             String s = (prefix != null ? prefix : field.getText());
             base = s.substring(0, ignorePos).trim();
@@ -384,7 +391,13 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             return;
         }
 
-        int ignorePos = name.indexOf(ignoreEverythingAfter);
+        int ignorePos = -1;
+        for (int i=0; ignoreEverythingAfter != null && i<ignoreEverythingAfter.length(); i++) {
+            ignorePos = name.indexOf(ignoreEverythingAfter.charAt(i));
+            if (ignorePos >= 0) {
+                break;
+            }
+        }
         if (ignorePos >= 0) {
             name = name.substring(0, ignorePos).trim();
         }
@@ -396,7 +409,8 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
 
         Vector<String> neighbours = null;
         if (list.getExact(name.toLowerCase()) == null) {
-            neighbours = list.getNeighbours(name, 3, (isCheckPermutations ? 6 : 0));
+            int radius = (name.length() < 6 ? name.length() / 2 : 3);
+            neighbours = list.getNeighbours(name, radius, (isCheckPermutations ? 6 : 0));
         }
         if (neighbours != null && neighbours.size() > 0) {
             ItemTypeList item = new ItemTypeList("NAME", IItemType.TYPE_PUBLIC, "",

@@ -58,6 +58,8 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     public static final String IMAGE_SEARCH    = "button_search.png";
     public static final String IMAGE_SEARCHNEXT= "button_searchnext.png";
     public static final String IMAGE_SPECIAL   = "button_special.png";
+    public static final String IMAGE_ARROWUP   = "button_arrowup.png";
+    public static final String IMAGE_ARROWDOWN = "button_arrowdown.png";
 
     protected Window _parent;
     protected String _title;
@@ -109,6 +111,11 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     
     public void showMe() {
         showDialog();
+    }
+
+    public void setTitle(String title) {
+        this._title = title;
+        super.setTitle(title);
     }
 
     protected void enableWindowStackChecks(boolean enable) {
@@ -297,12 +304,12 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
             if (name.indexOf("/") < 0) {
                 name = Daten.IMAGEPATH + name;
             }
-            if (Logger.isTraceOn(Logger.TT_GUI)) {
+            if (Logger.isTraceOn(Logger.TT_GUI, 9)) {
                 Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_ICONS, "getIcon("+name+")");
             }
             return new ImageIcon(BaseDialog.class.getResource(name));
         } catch(Exception e) {
-            if (Logger.isTraceOn(Logger.TT_GUI)) {
+            if (Logger.isTraceOn(Logger.TT_GUI, 9)) {
                 Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_ICONS, "getIcon("+name+"): no icon found!");
             }
             Logger.logdebug(e);

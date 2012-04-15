@@ -21,6 +21,8 @@ import javax.swing.*;
 public class ItemTypeBoolean extends ItemType {
 
     private boolean value;
+    private boolean useRadioButton = false;
+    private ButtonGroup buttonGroup;
 
     public ItemTypeBoolean(String name, boolean value, int type,
             String category, String description) {
@@ -53,7 +55,10 @@ public class ItemTypeBoolean extends ItemType {
     }
 
     protected void iniDisplay() {
-        JCheckBox checkbox = new JCheckBox();
+        JToggleButton checkbox = (!useRadioButton ? new JCheckBox() : new JRadioButton());
+        if (useRadioButton && buttonGroup != null) {
+            buttonGroup.add(checkbox);
+        }
         Mnemonics.setButton(dlg, checkbox, getDescription());
         checkbox.setSelected(value);
         if (type == IItemType.TYPE_EXPERT) {
@@ -82,13 +87,13 @@ public class ItemTypeBoolean extends ItemType {
 
     public void getValueFromGui() {
         if (field != null) {
-            value = ((JCheckBox)field).isSelected();
+            value = ((JToggleButton)field).isSelected();
         }
     }
 
     public String getValueFromField() {
         if (field != null) {
-            return Boolean.toString(((JCheckBox)field).isSelected());
+            return Boolean.toString(((JToggleButton)field).isSelected());
         } else {
             return toString(); // otherwise a hidden field in expert mode might return null
         }
@@ -96,7 +101,7 @@ public class ItemTypeBoolean extends ItemType {
 
     public void showValue() {
         if (field != null) {
-            ((JCheckBox)field).setSelected(value);
+            ((JToggleButton)field).setSelected(value);
         }
     }
 
@@ -125,6 +130,11 @@ public class ItemTypeBoolean extends ItemType {
         if (field != null) {
             field.setEnabled(enabled);
         }
+    }
+
+    public void setUseRadioButton(boolean useRadioButton, ButtonGroup buttonGroup) {
+        this.useRadioButton = useRadioButton;
+        this.buttonGroup = buttonGroup;
     }
 
 }

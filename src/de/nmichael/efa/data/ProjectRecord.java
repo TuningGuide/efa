@@ -562,14 +562,14 @@ public class ProjectRecord extends DataRecord {
                             IItemType.TYPE_PUBLIC, category,
                             International.getString("Dein Name")));
                     item.setNotNull(true);
-                    if (getAdminName() == null && getAdminName().length() == 0) {
+                    if (getAdminName() == null || getAdminName().length() == 0) {
                         item.setChanged(); // enforcing the check
                     }
                     v.add(item = new ItemTypeString(ProjectRecord.ADMINEMAIL, getAdminEmail(),
                             IItemType.TYPE_PUBLIC, category,
                             International.getString("Deine email-Adresse")));
                     item.setNotNull(true);
-                    if (getAdminEmail() == null && getAdminEmail().length() == 0) {
+                    if (getAdminEmail() == null || getAdminEmail().length() == 0) {
                         item.setChanged(); // enforcing the check
                     }
                 }

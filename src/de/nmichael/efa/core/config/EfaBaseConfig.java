@@ -46,8 +46,8 @@ public class EfaBaseConfig {
     // Konstruktor
     public EfaBaseConfig(String dir) {
         setEfaConfigUserHomeFilename(dir);
-        if (Logger.isTraceOn(Logger.TT_CORE)) {
-            Logger.log(Logger.DEBUG, Logger.MSG_CORE_BASICCONFIG, "EfaBaseConfig=" + filename);
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "EfaBaseConfig(): filename=" + filename);
         }
         reset();
     }
@@ -76,6 +76,9 @@ public class EfaBaseConfig {
     }
 
     public boolean trySetUserDir(String dir, boolean createDir) {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "trySetUserDir(" + dir + "," + createDir+")");
+        }
         if (dir == null || dir.length() == 0) {
             return false;
         }
@@ -83,10 +86,18 @@ public class EfaBaseConfig {
         if (!dir.endsWith(Daten.fileSep)) {
             dir = dir + Daten.fileSep;
         }
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "trySetUserDir(): efa.dir.user=" + efaUserDirectory);
+        }
         if (efaCanWrite(dir, createDir)) {
             efaUserDirectory = dir;
-            Logger.log(Logger.DEBUG, Logger.MSG_CORE_BASICCONFIG, "efa.dir.user=" + efaUserDirectory);
+            if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+                Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "trySetUserDir(): can write, setting efa.dir.user=" + efaUserDirectory);
+            }
             return true;
+        }
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "trySetUserDir(): cannot write: " + dir);
         }
         return false;
     }
@@ -104,7 +115,7 @@ public class EfaBaseConfig {
             efaUserDirectory = Daten.efaMainDirectory;
             if (!trySetUserDir(efaUserDirectory, false)) {
                 efaUserDirectory = null;
-                if (Logger.isTraceOn(Logger.TT_CORE)) {
+                if (Logger.isTraceOn(Logger.TT_CORE) || Logger.isDebugLoggingActivatedByCommandLine()) {
                     Logger.log(Logger.DEBUG, Logger.MSG_CORE_BASICCONFIG, "efa.dir.user=<null>");
                 }
             }

@@ -114,6 +114,9 @@ public class EfaConfig extends StorageObject {
     private ItemTypeBoolean showObmann;
     private ItemTypeBoolean autoObmann;
     private ItemTypeStringList defaultObmann;
+    private ItemTypeBoolean showDestinationInfoForInput;
+    private ItemTypeBoolean additionalWatersInput;
+    private ItemTypeBoolean prefixDestinationWithWaters;
     private ItemTypeBoolean popupComplete;
     private ItemTypeStringList nameFormat;
     private ItemTypeBoolean correctMisspelledNames;
@@ -136,13 +139,15 @@ public class EfaConfig extends StorageObject {
     private ItemTypeLong efaVersionLastCheck;
     private ItemTypeString version;
     private ItemTypeBoolean efaDirekt_zielBeiFahrtbeginnPflicht;
+    private ItemTypeBoolean efaDirekt_gewaesserBeiUnbekanntenZielenPflicht;
     private ItemTypeBoolean efaDirekt_eintragErzwingeObmann;
     private ItemTypeBoolean efaDirekt_eintragErlaubeNurMaxRudererzahl;
     private ItemTypeBoolean efaDirekt_eintragNichtAenderbarUhrzeit;
     private ItemTypeBoolean efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen;
-    private ItemTypeBoolean efaDirekt_eintragNurBekannteBoote;
-    private ItemTypeBoolean efaDirekt_eintragNurBekannteRuderer;
-    private ItemTypeBoolean efaDirekt_eintragNurBekannteZiele;
+    private ItemTypeBoolean efaBoathouseOnlyEnterKnownBoats;
+    private ItemTypeBoolean efaBoathouseOnlyEnterKnownPersons;
+    private ItemTypeBoolean efaBoathouseOnlyEnterKnownDestinations;
+    private ItemTypeBoolean efaBoathouseOnlyEnterKnownWaters;
     private ItemTypeBoolean efaDirekt_eintragHideUnnecessaryInputFields;
     private ItemTypeInteger efaDirekt_plusMinutenAbfahrt;
     private ItemTypeInteger efaDirekt_minusMinutenAnkunft;
@@ -445,6 +450,15 @@ public class EfaConfig extends StorageObject {
                     makeObmannArray(STRINGLIST_VALUES), makeObmannArray(STRINGLIST_DISPLAY),
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
                     International.getString("Standard-Obmann für ungesteuerte Boote")));
+            addParameter(showDestinationInfoForInput = new ItemTypeBoolean("DestinationInfoShowForInput", false,
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("Zielinformationen bei Eingabe anzeigen")));
+            addParameter(additionalWatersInput = new ItemTypeBoolean("AdditionalWatersInput", false,
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("Eingabe von Gewässern für unbekannte Ziele und Abstecher")));
+            addParameter(prefixDestinationWithWaters = new ItemTypeBoolean("PrefixDestinationWithWaters", false,
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("Gewässernamen in Zielliste anzeigen")));
             addParameter(showObmann = new ItemTypeBoolean("BoatCaptainShow", true,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
                     International.getString("Obmann-Auswahlliste anzeigen")));
@@ -604,18 +618,22 @@ public class EfaConfig extends StorageObject {
                     International.getString("Betriebssystemkommando")));
 
             // ============================= BOATHOUSE:INPUT =============================
-            addParameter(efaDirekt_eintragNurBekannteBoote = new ItemTypeBoolean("InputAllowOnlyKnownBoats", false,
+            addParameter(efaBoathouseOnlyEnterKnownBoats = new ItemTypeBoolean("InputAllowOnlyKnownBoats", false,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
                     International.getMessage("Beim Eintrag von Fahrten nur bekannte Namen erlauben für {type}",
                     International.getString("Boote"))));
-            addParameter(efaDirekt_eintragNurBekannteRuderer = new ItemTypeBoolean("InputAllowOnlyKnownPersons", false,
+            addParameter(efaBoathouseOnlyEnterKnownPersons = new ItemTypeBoolean("InputAllowOnlyKnownPersons", false,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
                     International.getMessage("Beim Eintrag von Fahrten nur bekannte Namen erlauben für {type}",
                     International.getString("Personen"))));
-            addParameter(efaDirekt_eintragNurBekannteZiele = new ItemTypeBoolean("InputAllowOnlyKnownDestinatins", false,
+            addParameter(efaBoathouseOnlyEnterKnownDestinations = new ItemTypeBoolean("InputAllowOnlyKnownDestinatins", false,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
                     International.getMessage("Beim Eintrag von Fahrten nur bekannte Namen erlauben für {type}",
                     International.getString("Ziele"))));
+            addParameter(efaBoathouseOnlyEnterKnownWaters = new ItemTypeBoolean("InputAllowOnlyKnownWaters", false,
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+                    International.getMessage("Beim Eintrag von Fahrten nur bekannte Namen erlauben für {type}",
+                    International.getString("Gewässer"))));
             addParameter(efaDirekt_eintragErlaubeNurMaxRudererzahl = new ItemTypeBoolean("InputAllowOnlyMaxCrewNumber", true,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
                     International.getString("Nur für das Boot maximal mögliche Anzahl an Personen erlauben")));
@@ -634,6 +652,9 @@ public class EfaConfig extends StorageObject {
             addParameter(efaDirekt_zielBeiFahrtbeginnPflicht = new ItemTypeBoolean("StartSessionMustSelectDestination", false,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
                     International.getString("Ziel muß bereits bei Fahrtbeginn angegeben werden")));
+            addParameter(efaDirekt_gewaesserBeiUnbekanntenZielenPflicht = new ItemTypeBoolean("MustEnterWatersForUnknownDestinations", false,
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+                    International.getString("Gewässer muß bei unbekannten Zielen angegeben werden")));
             addParameter(efaDirekt_eintragHideUnnecessaryInputFields = new ItemTypeBoolean("InputHideUnnecessaryFields", true,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
                     International.getString("Beim Eintrag von Fahrten unnötige Eingabefelder ausblenden")));
@@ -1143,6 +1164,18 @@ public class EfaConfig extends StorageObject {
         return defaultObmann.getValue();
     }
 
+    public boolean getValueShowDestinationInfoForInput() {
+        return showDestinationInfoForInput.getValue();
+    }
+
+    public boolean getValueAdditionalWatersInput() {
+        return additionalWatersInput.getValue();
+    }
+
+    public boolean getValuePrefixDestinationWithWaters() {
+        return prefixDestinationWithWaters.getValue();
+    }
+
     public boolean getValuePopupComplete() {
         return popupComplete.getValue();
     }
@@ -1239,6 +1272,10 @@ public class EfaConfig extends StorageObject {
         return efaDirekt_zielBeiFahrtbeginnPflicht.getValue();
     }
 
+    public boolean getValueEfaDirekt_gewaesserBeiUnbekanntenZielenPflicht() {
+        return efaDirekt_gewaesserBeiUnbekanntenZielenPflicht.getValue();
+    }
+
     public boolean getValueEfaDirekt_eintragErzwingeObmann() {
         return efaDirekt_eintragErzwingeObmann.getValue();
     }
@@ -1256,16 +1293,21 @@ public class EfaConfig extends StorageObject {
     }
 
     public boolean getValueEfaDirekt_eintragNurBekannteBoote() {
-        return efaDirekt_eintragNurBekannteBoote.getValue();
+        return efaBoathouseOnlyEnterKnownBoats.getValue();
     }
 
     public boolean getValueEfaDirekt_eintragNurBekannteRuderer() {
-        return efaDirekt_eintragNurBekannteRuderer.getValue();
+        return efaBoathouseOnlyEnterKnownPersons.getValue();
     }
 
     public boolean getValueEfaDirekt_eintragNurBekannteZiele() {
-        return efaDirekt_eintragNurBekannteZiele.getValue();
+        return efaBoathouseOnlyEnterKnownDestinations.getValue();
     }
+
+    public boolean getValueEfaDirekt_eintragNurBekannteGewaesser() {
+        return efaBoathouseOnlyEnterKnownWaters.getValue();
+    }
+
 
     public boolean getValueEfaDirekt_eintragHideUnnecessaryInputFields() {
         return efaDirekt_eintragHideUnnecessaryInputFields.getValue();

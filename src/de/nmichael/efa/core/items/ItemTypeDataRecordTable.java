@@ -181,15 +181,29 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         tablePanel.add(searchPanel, new GridBagConstraints(0, 10, 0, 0, 0.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
         actionButtons = new Hashtable<ItemTypeButton,String>();
+
+        JPanel smallButtonPanel = null;
         for (int i=0; actionText != null && i<actionText.length; i++) {
-            if (actionTypes[i] > 1000) {
-                continue; // actions > 1000 not shown as buttons
+            if (actionTypes[i] >= 2000) {
+                continue; // actions >= 2000 not shown as buttons
             }
             String action = ACTION_BUTTON + "_" + actionTypes[i];
-            ItemTypeButton button = new ItemTypeButton(action, IItemType.TYPE_PUBLIC, "BUTTON_CAT", actionText[i]);
+            ItemTypeButton button = new ItemTypeButton(action, IItemType.TYPE_PUBLIC, "BUTTON_CAT", 
+                    (actionTypes[i] < 1000 ? actionText[i] : null)); // >= 2000 just as small buttons without text
             button.registerItemListener(this);
-            button.setPadding(20, 20, (i>0 && actionTypes[i]<0 && actionTypes[i-1] >=0 ? 20 : 0), 5);
-            button.setFieldSize(200, -1);
+            if (actionTypes[i] < 1000) {
+                button.setPadding(20, 20, (i>0 && actionTypes[i]<0 && actionTypes[i-1] >=0 ? 20 : 0), 5);
+                button.setFieldSize(200, -1);
+            } else {
+                button.setPadding(5, 5, 5, 5);
+                button.setFieldSize(50, -1);
+                if (smallButtonPanel == null) {
+                    smallButtonPanel = new JPanel();
+                    smallButtonPanel.setLayout(new GridBagLayout());
+                    buttonPanel.add(smallButtonPanel, new GridBagConstraints(0, i, 1, 1, 0.0, 0.0,
+                         GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(20, 0, 20, 0), 0, 0));
+                }
+            }
             if (actionIcons != null && i<actionIcons.length && actionIcons[i] != null) {
                 String iconName = actionIcons[i];
                 if (iconName.startsWith(BUTTON_IMAGE_CENTERED_PREFIX)) {
@@ -197,9 +211,15 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                 } else {
                     button.setHorizontalAlignment(SwingConstants.LEFT);
                 }
-                button.setIcon(BaseDialog.getIcon(iconName));
+                if (iconName != null && iconName.length() > 0) {
+                    button.setIcon(BaseDialog.getIcon(iconName));
+                }
             }
-            button.displayOnGui(dlg, buttonPanel, 0, i);
+            if (actionTypes[i] < 1000) {
+                button.displayOnGui(dlg, buttonPanel, 0, i);
+            } else {
+                button.displayOnGui(dlg, smallButtonPanel, i, 0);
+            }
             actionButtons.put(button, action);
         }
         searchField = new ItemTypeString("SEARCH_FIELD","", IItemType.TYPE_PUBLIC, "SEARCH_CAT", International.getString("Suche"));

@@ -41,6 +41,7 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
     private ITableEditListener tableEditListener;
     private boolean toolTipsEnabled = false;
     private boolean intelligentColumnWidthDisabled = false;
+    private int _moveRowSelectionUponNextRefresh = 0;
 
     public ItemTypeTable(String name, TableItemHeader[] header, Hashtable<String,TableItem[]> items, String value,
             int type, String category, String description) {
@@ -99,10 +100,15 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
         Rectangle currentVisibleRect = null;
         int currentSortingColumn = -1;
         boolean currentSortingAscending = true;
+        int currentSelectedRow = -1;
         if (table != null) {
             currentVisibleRect = table.getVisibleRect();
             currentSortingColumn = table.getSortingColumn();
             currentSortingAscending = table.getSortingAscending();
+            if (table.getSelectedRowCount() == 1) {
+                currentSelectedRow = table.getCurrentRowIndex(table.getSelectedRow()) + _moveRowSelectionUponNextRefresh;
+
+            }
         }
 
         if (keys != null && items != null) {
@@ -166,9 +172,13 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
             this.field = table;
         }
 
+        if (currentSelectedRow >= 0 && currentSelectedRow < table.getRowCount()) {
+            table.setRowSelectionInterval(currentSelectedRow, currentSelectedRow);
+        }
         if (value == null && table != null && currentVisibleRect != null) {
             table.scrollRectToVisible(currentVisibleRect);
         }
+        _moveRowSelectionUponNextRefresh = 0;
     }
 
     public void scrollToRow(int i) {
@@ -324,6 +334,10 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
 
     public void disableIntelligentColumnWidth(boolean disabled) {
         intelligentColumnWidthDisabled = disabled;
+    }
+
+    public void setMoveRowSelectionUponNextRefresh(int direction) {
+        _moveRowSelectionUponNextRefresh = direction;
     }
 
 }

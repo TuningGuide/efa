@@ -43,6 +43,8 @@ public class BoatDamageRecord extends DataRecord {
     public static final String REPORTEDBYPERSONNAME = "ReportedByPersonName";
     public static final String FIXEDBYPERSONID      = "FixedByPersonId";
     public static final String FIXEDBYPERSONNAME    = "FixedByPersonName";
+    public static final String REPAIRCOSTS          = "RepairCosts";
+    public static final String CLAIM                = "Claim";
     public static final String NOTES                = "Notes";
 
     public static final String[] IDX_BOATID = new String[] { BOATID };
@@ -69,6 +71,8 @@ public class BoatDamageRecord extends DataRecord {
         f.add(REPORTEDBYPERSONNAME);     t.add(IDataAccess.DATA_STRING);
         f.add(FIXEDBYPERSONID);          t.add(IDataAccess.DATA_UUID);
         f.add(FIXEDBYPERSONNAME);        t.add(IDataAccess.DATA_STRING);
+        f.add(REPAIRCOSTS);              t.add(IDataAccess.DATA_DECIMAL);
+        f.add(CLAIM);                    t.add(IDataAccess.DATA_BOOLEAN);
         f.add(NOTES);                    t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(BoatDamages.DATATYPE, f, t, false);
         metaData.setKey(new String[] { BOATID, DAMAGE });
@@ -240,6 +244,20 @@ public class BoatDamageRecord extends DataRecord {
         return getString(FIXEDBYPERSONNAME);
     }
 
+    public void setRepairCosts(DataTypeDecimal costs) {
+        setDecimal(REPAIRCOSTS, costs);
+    }
+    public DataTypeDecimal getRepairCosts() {
+        return getDecimal(REPAIRCOSTS);
+    }
+
+    public void setClaim(boolean isClaim) {
+        setBool(CLAIM, isClaim);
+    }
+    public boolean getClaim() {
+        return getBool(CLAIM);
+    }
+
     public String getFixedByPersonAsName() {
         UUID id = getFixedByPersonId();
         if (id != null) {
@@ -367,6 +385,10 @@ public class BoatDamageRecord extends DataRecord {
                 ((ItemTypeStringAutoComplete) item).parseAndShowValue(getFixedByPersonName());
             }
             ((ItemTypeStringAutoComplete) item).setAlternateFieldNameForPlainText(BoatDamageRecord.FIXEDBYPERSONNAME);
+            v.add(item = new ItemTypeDecimal(BoatDamageRecord.REPAIRCOSTS, getRepairCosts(), 2, true,
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Reparaturkosten")));
+            v.add(item = new ItemTypeBoolean(BoatDamageRecord.CLAIM, getClaim(),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Versicherungsfall")));
             v.add(item = new ItemTypeString(BoatDamageRecord.NOTES, getNotes(),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bemerkungen")));
             v.add(item = new ItemTypeBoolean(BoatDamageRecord.FIXED, getFixed(),

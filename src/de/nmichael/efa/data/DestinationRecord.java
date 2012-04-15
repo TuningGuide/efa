@@ -25,6 +25,8 @@ import java.util.*;
 public class DestinationRecord extends DataRecord implements IItemFactory {
 
     public static final String DESTINATION_VARIANT_SEPARATOR = "+";
+    public static final String WATERS_DESTINATION_DELIMITER = ": ";
+
 
     // =========================================================================
     // Field Names
@@ -157,17 +159,36 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
     }
 
     public String getWatersNamesStringList() {
+        return getWatersNamesStringList(getPersistence().getProject().getWaters(false),
+                getWatersIdList(), null, null);
+    }
+
+    public static String getWatersNamesStringList(Waters waters,
+            DataTypeList<UUID> waterIds,
+            DataTypeList<UUID> moreWaterIds,
+            DataTypeList<String> moreWaterNames) {
         StringBuilder s = new StringBuilder();
         try {
-            DataTypeList<UUID> wlist = getWatersIdList();
-            if (wlist == null || wlist.length() == 0) {
+            if (moreWaterIds != null) {
+                if (waterIds == null) {
+                    waterIds = new DataTypeList<UUID>();
+                }
+                waterIds.addAll(moreWaterIds);
+            }
+            if ((waterIds == null || waterIds.length() == 0) &&
+                (moreWaterNames == null || moreWaterNames.length() == 0)) {
                 return "";
             }
-            Waters waters = getPersistence().getProject().getWaters(false);
-            for (int i=0; i<wlist.length(); i++) {
-                WatersRecord w = waters.getWaters(wlist.get(i));
+            for (int i=0; waterIds != null && i<waterIds.length(); i++) {
+                WatersRecord w = waters.getWaters(waterIds.get(i));
                 if (w != null && w.getName() != null && w.getName().length() > 0) {
                     s.append( (s.length() > 0 ? ", " : "") + w.getName());
+                }
+            }
+            for (int i=0; moreWaterNames != null && i<moreWaterNames.length(); i++) {
+                String ws = moreWaterNames.get(i);
+                if (ws != null && ws.length() > 0) {
+                    s.append( (s.length() > 0 ? ", " : "") + ws);
                 }
             }
             return s.toString();
@@ -175,6 +196,17 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
             Logger.logdebug(e);
             return "";
         }
+    }
+
+    public String getWatersNamesStringListPrefix() {
+        String w = getWatersNamesStringList();
+        if (w.length() > 0) {
+            if (w.contains(WATERS_DESTINATION_DELIMITER)) {
+                w = EfaUtil.replace(w, WATERS_DESTINATION_DELIMITER, " ", true);
+            }
+            return w + WATERS_DESTINATION_DELIMITER;
+        }
+        return "";
     }
 
     public String getDestinationDetailsAsString() {
@@ -198,6 +230,48 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
             s.append(" (" + International.getString("Start gleich Ziel") + ")");
         }
         return s.toString();
+    }
+
+    // returns
+    // String[0] - label
+    // String[1] - text
+    public String[] getWatersAndDestinationAreasAsLabelAndString() {
+        String areas = null;
+        if (getDestinationAreas() != null) {
+            areas = getDestinationAreas().toString();
+        }
+        String waters = getWatersNamesStringList();
+
+        int numberOfInfoItems = 0;
+        if (waters.length() > 0) {
+            numberOfInfoItems++;
+        }
+        if (areas != null && areas.length() > 0) {
+            numberOfInfoItems++;
+        }
+        if (numberOfInfoItems == 0) {
+            return null;
+        }
+
+        String label = International.getString("Streckeninfos");
+        StringBuilder s = new StringBuilder();
+
+        if (areas != null && areas.length() > 0) {
+            s.append((numberOfInfoItems > 1 ? International.onlyFor("Zielbereiche", "de") + ": " : "")
+                    + areas);
+            if (numberOfInfoItems == 1) {
+                label = International.onlyFor("Zielbereiche", "de");
+            }
+        }
+        if (waters.length() > 0) {
+            s.append( (s.length() > 0 ? "; " : "") +
+                    (numberOfInfoItems > 1 ? International.getString("Gewässer") + ": " : "")
+                    + waters);
+            if (numberOfInfoItems == 1) {
+                label = International.getString("Gewässer");
+            }
+        }
+        return new String[] { label, s.toString() };
     }
 
     public String getQualifiedName() {
@@ -336,17 +410,14 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
             if (name.equals(GUIITEM_WATERSIDLIST) && item.isChanged()) {
                 ItemTypeItemList list = (ItemTypeItemList)item;
                 Hashtable<String,UUID> uuidList = new Hashtable<String,UUID>();
+                DataTypeList<UUID> watersList = new DataTypeList<UUID>();
                 for (int i=0; i<list.size(); i++) {
                     IItemType[] typeItems = list.getItems(i);
                     Object uuid = ((ItemTypeStringAutoComplete)typeItems[0]).getId(typeItems[0].toString());
                     if (uuid != null && uuid.toString().length() > 0) {
                         uuidList.put(uuid.toString(), (UUID)uuid);
+                        watersList.add((UUID)uuid);
                     }
-                }
-                String[] uuidArr = uuidList.keySet().toArray(new String[0]);
-                DataTypeList<UUID> watersList = new DataTypeList<UUID>();
-                for (String uuid : uuidArr) {
-                    watersList.add(uuidList.get(uuid));
                 }
                 this.setWatersIdList(watersList);
             }

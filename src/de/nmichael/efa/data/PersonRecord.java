@@ -179,6 +179,11 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         return getString(GENDER);
     }
 
+    public String getGenderAsString() {
+        String s = getGender();
+        return (s != null ? Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, s) : null);
+    }
+
     public void setBirthday(DataTypeDate date) {
         setDate(BIRTHDAY, date);
     }
@@ -581,79 +586,82 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         v.add(item = new ItemTypeDate(PersonRecord.BIRTHDAY, getBirthday(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Geburtstag")));
         ((ItemTypeDate)item).setAllowYearOnly(true);
-        v.add(item = new ItemTypeStringList(PersonRecord.STATUSID, (getStatusId() != null ? getStatusId().toString() : status.getStatusOther().getId().toString()),
-                status.makeStatusArray(Status.ARRAY_STRINGLIST_VALUES), status.makeStatusArray(Status.ARRAY_STRINGLIST_DISPLAY),
-                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Status")));
-        v.add(item = new ItemTypeLabel(PersonRecord.LASTMODIFIED, IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-                International.getMessage("zuletzt geändert am {datetime}", EfaUtil.date2String(new Date(this.getLastModified())))));
-        item.setPadding(0, 0, 20, 0);
 
-        v.add(item = new ItemTypeString(PersonRecord.ASSOCIATION, getAssocitation(),
-                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Verein")));
-        v.add(item = new ItemTypeString(PersonRecord.MEMBERSHIPNO, getMembershipNo(),
-                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Mitgliedsnummer")));
-        v.add(item = new ItemTypeString(PersonRecord.PASSWORD, getPassword(),
-                IItemType.TYPE_EXPERT, CAT_MOREDATA, International.getString("Paßwort")));
-        v.add(item = new ItemTypeBoolean(PersonRecord.DISABILITY, getDisability(),
-                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("50% oder mehr Behinderung")));
-        v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC, getExcludeFromPublicStatistics(),
-                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von allgemein verfügbaren Statistiken ausnehmen")));
-        v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCOMPETE, getExcludeFromCompetition(),
-                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von Wettbewerbsmeldungen ausnehmen")));
-        v.add(item = new ItemTypeString(PersonRecord.INPUTSHORTCUT, getInputShortcut(),
-                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Eingabekürzel")));
-        v.add(item = getGuiItemTypeStringAutoComplete(PersonRecord.DEFAULTBOATID, getDefaultBoatId(),
-                IItemType.TYPE_PUBLIC, CAT_MOREDATA,
-                boats, getValidFrom(), getInvalidFrom()-1,
-                International.getString("Standard-Boot")));
-        item.setFieldSize(300, -1);
-        v.add(item = new ItemTypeString(PersonRecord.EXTERNALID, getExternalId(),
-                IItemType.TYPE_EXPERT, CAT_MOREDATA, International.getString("Externe ID")));
-        if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
-            v.add(item = new ItemTypeString(PersonRecord.EFBID, getEfbId(),
-                    IItemType.TYPE_EXPERT, CAT_MOREDATA, International.onlyFor("Kanu-eFB ID","de")));
-        }
+        if (admin != null && admin.isAllowedEditPersons()) {
+            v.add(item = new ItemTypeStringList(PersonRecord.STATUSID, (getStatusId() != null ? getStatusId().toString() : status.getStatusOther().getId().toString()),
+                    status.makeStatusArray(Status.ARRAY_STRINGLIST_VALUES), status.makeStatusArray(Status.ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Status")));
+            v.add(item = new ItemTypeLabel(PersonRecord.LASTMODIFIED, IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                    International.getMessage("zuletzt geändert am {datetime}", EfaUtil.date2String(new Date(this.getLastModified())))));
+            item.setPadding(0, 0, 20, 0);
 
-        v.add(item = new ItemTypeString(PersonRecord.ADDRESSSTREET, getAddressStreet(),
-                IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Straße")));
-        v.add(item = new ItemTypeString(PersonRecord.ADDRESSADDITIONAL, getAddressAdditional(),
-                IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("weitere Adreßzeile")));
-        v.add(item = new ItemTypeString(PersonRecord.ADDRESSCITY, getAddressCity(),
-                IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Stadt")));
-        v.add(item = new ItemTypeString(PersonRecord.ADDRESSZIP, getAddressZip(),
-                IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Postleitzahl")));
-        v.add(item = new ItemTypeString(PersonRecord.ADDRESSCOUNTRY, getAddressCountry(),
-                IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Land")));
-        v.add(item = new ItemTypeString(PersonRecord.EMAIL, getEmail(),
-                IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("email")));
-
-        // CAT_GROUPS
-        if (getId() != null && admin != null && admin.isAllowedEditGroups()) {
-            Vector<IItemType[]> itemList = new Vector<IItemType[]>();
-            GroupRecord[] groupList = getGroupList();
-            DataTypeList<UUID> agList = new DataTypeList<UUID>();
-            for (int i = 0; groupList != null && i < groupList.length; i++) {
-                agList.add(groupList[i].getId());
+            v.add(item = new ItemTypeString(PersonRecord.ASSOCIATION, getAssocitation(),
+                    IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Verein")));
+            v.add(item = new ItemTypeString(PersonRecord.MEMBERSHIPNO, getMembershipNo(),
+                    IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Mitgliedsnummer")));
+            v.add(item = new ItemTypeString(PersonRecord.PASSWORD, getPassword(),
+                    IItemType.TYPE_EXPERT, CAT_MOREDATA, International.getString("Paßwort")));
+            v.add(item = new ItemTypeBoolean(PersonRecord.DISABILITY, getDisability(),
+                    IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("50% oder mehr Behinderung")));
+            v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC, getExcludeFromPublicStatistics(),
+                    IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von allgemein verfügbaren Statistiken ausnehmen")));
+            v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCOMPETE, getExcludeFromCompetition(),
+                    IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von Wettbewerbsmeldungen ausnehmen")));
+            v.add(item = new ItemTypeString(PersonRecord.INPUTSHORTCUT, getInputShortcut(),
+                    IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Eingabekürzel")));
+            v.add(item = getGuiItemTypeStringAutoComplete(PersonRecord.DEFAULTBOATID, getDefaultBoatId(),
+                    IItemType.TYPE_PUBLIC, CAT_MOREDATA,
+                    boats, getValidFrom(), getInvalidFrom() - 1,
+                    International.getString("Standard-Boot")));
+            item.setFieldSize(300, -1);
+            v.add(item = new ItemTypeString(PersonRecord.EXTERNALID, getExternalId(),
+                    IItemType.TYPE_EXPERT, CAT_MOREDATA, International.getString("Externe ID")));
+            if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
+                v.add(item = new ItemTypeString(PersonRecord.EFBID, getEfbId(),
+                        IItemType.TYPE_EXPERT, CAT_MOREDATA, International.onlyFor("Kanu-eFB ID", "de")));
             }
-            for (int i = 0; agList != null && i < agList.length(); i++) {
-                IItemType[] items = getDefaultItems(GUIITEM_GROUPS);
-                ((ItemTypeStringAutoComplete) items[0]).setId(agList.get(i));
-                itemList.add(items);
-            }
-            v.add(item = new ItemTypeItemList(GUIITEM_GROUPS, itemList, this,
-                    IItemType.TYPE_PUBLIC, CAT_GROUPS, International.getString("Gruppenzugehörigkeit")));
-            ((ItemTypeItemList) item).setXForAddDelButtons(3);
-            ((ItemTypeItemList) item).setPadYbetween(0);
-            ((ItemTypeItemList) item).setRepeatTitle(false);
-            ((ItemTypeItemList) item).setAppendPositionToEachElement(true);
-        }
 
-        v.add(item = new ItemTypeString(PersonRecord.FREEUSE1, getFreeUse1(),
-                IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 1"));
-        v.add(item = new ItemTypeString(PersonRecord.FREEUSE2, getFreeUse2(),
-                IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 2"));
-        v.add(item = new ItemTypeString(PersonRecord.FREEUSE3, getFreeUse3(),
-                IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 3"));
+            v.add(item = new ItemTypeString(PersonRecord.ADDRESSSTREET, getAddressStreet(),
+                    IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Straße")));
+            v.add(item = new ItemTypeString(PersonRecord.ADDRESSADDITIONAL, getAddressAdditional(),
+                    IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("weitere Adreßzeile")));
+            v.add(item = new ItemTypeString(PersonRecord.ADDRESSCITY, getAddressCity(),
+                    IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Stadt")));
+            v.add(item = new ItemTypeString(PersonRecord.ADDRESSZIP, getAddressZip(),
+                    IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Postleitzahl")));
+            v.add(item = new ItemTypeString(PersonRecord.ADDRESSCOUNTRY, getAddressCountry(),
+                    IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("Land")));
+            v.add(item = new ItemTypeString(PersonRecord.EMAIL, getEmail(),
+                    IItemType.TYPE_PUBLIC, CAT_ADDRESS, International.getString("email")));
+
+            // CAT_GROUPS
+            if (getId() != null && admin != null && admin.isAllowedEditGroups()) {
+                Vector<IItemType[]> itemList = new Vector<IItemType[]>();
+                GroupRecord[] groupList = getGroupList();
+                DataTypeList<UUID> agList = new DataTypeList<UUID>();
+                for (int i = 0; groupList != null && i < groupList.length; i++) {
+                    agList.add(groupList[i].getId());
+                }
+                for (int i = 0; agList != null && i < agList.length(); i++) {
+                    IItemType[] items = getDefaultItems(GUIITEM_GROUPS);
+                    ((ItemTypeStringAutoComplete) items[0]).setId(agList.get(i));
+                    itemList.add(items);
+                }
+                v.add(item = new ItemTypeItemList(GUIITEM_GROUPS, itemList, this,
+                        IItemType.TYPE_PUBLIC, CAT_GROUPS, International.getString("Gruppenzugehörigkeit")));
+                ((ItemTypeItemList) item).setXForAddDelButtons(3);
+                ((ItemTypeItemList) item).setPadYbetween(0);
+                ((ItemTypeItemList) item).setRepeatTitle(false);
+                ((ItemTypeItemList) item).setAppendPositionToEachElement(true);
+            }
+
+            v.add(item = new ItemTypeString(PersonRecord.FREEUSE1, getFreeUse1(),
+                    IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 1"));
+            v.add(item = new ItemTypeString(PersonRecord.FREEUSE2, getFreeUse2(),
+                    IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 2"));
+            v.add(item = new ItemTypeString(PersonRecord.FREEUSE3, getFreeUse3(),
+                    IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 3"));
+        }
         
         return v;
     }

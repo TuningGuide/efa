@@ -119,7 +119,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
             // Auswertung von Wettbewerbseinträgen
             // Wettbewerbsbedingungen
 
-            if (sr.pCompRules != null) {
+            if (sr.pCompRules != null && sr.sStatisticCategory == StatisticsRecord.StatisticCategory.competition) {
                 f.write("<table align=\"center\" bgcolor=\"#eeeeee\" border><tr><td>\n");
                 for (int i = 0; i < sr.pCompRules.length; i++) {
                     if (sr.pCompRulesBold.get(new Integer(i)) != null) {
@@ -139,7 +139,9 @@ public class StatisticHTMLWriter extends StatisticWriter {
                 f.write("</table>\n<br><br>\n");
             }
 
-            if (sr.sIsOutputCompWithoutDetails) {
+            if (sr.sIsOutputCompWithoutDetails && 
+                    sr.sStatisticCategory == StatisticsRecord.StatisticCategory.competition &&
+                    sr.pCompParticipants != null && sr.pCompParticipants.length > 0) {
                 f.write("<table align=\"center\" width=\"500\">\n");
                 f.write("<tr><th colspan=\"2\" bgcolor=\"#ddddff\">Legende</th></tr>\n");
                 f.write("<tr><td bgcolor=\"#00ff00\" width=\"250\" align=\"center\">"
@@ -149,7 +151,8 @@ public class StatisticHTMLWriter extends StatisticWriter {
                 f.write("</table>\n<br><br>\n");
             }
 
-            if (sr.pCompGroupNames != null && sr.pCompParticipants != null) {
+            if (sr.pCompGroupNames != null && sr.pCompParticipants != null
+                    && sr.sStatisticCategory == StatisticsRecord.StatisticCategory.competition) {
                 if (sr.pCompWarning != null) {
                     f.write("<p align=\"center\"><font color=\"#ff0000\"><b>"
                             + sr.pCompWarning + "</b></font></p>\n");
@@ -160,50 +163,52 @@ public class StatisticHTMLWriter extends StatisticWriter {
                     f.write("<tr><th align=\"left\" colspan=\"3\" bgcolor=\"#ddddff\">"
                             + sr.pCompGroupNames[i][0] + " " + sr.pCompGroupNames[i][1]
                             + " (<i>gefordert: " + sr.pCompGroupNames[i][2] + "</i>)</th></tr>\n");
-                    for (StatisticsData participant = sr.pCompParticipants[i]; participant != null; participant = participant.next) {
-                        f.write("<tr><td width=\"10%\">&nbsp;</td>\n");
-                        if (participant.sDetailsArray == null || sr.sIsOutputCompWithoutDetails) {
-                            // kurze Ausgabe
-                            if (sr.sIsOutputCompWithoutDetails) {
-                                f.write("<td width=\"45%\" bgcolor=\"" + (participant.compFulfilled ? "#00ff00" : "#ffff00") + "\"><b>" + participant.sName + "</b></td>"
-                                        + "<td width=\"45%\" bgcolor=\"" + (participant.compFulfilled ? "#aaffaa" : "#ffffaa") + "\">" + participant.sDistance + " Km"
-                                        + (participant.sAdditional == null || participant.sAdditional.equals("") ? "" : "; " + participant.sAdditional) + "</td>\n");
-                            } else {
-                                String additional = (participant.sAdditional == null || participant.sAdditional.equals("") ? "" : participant.sAdditional)
-                                        + (participant.sCompWarning == null ? "" : "; <font color=\"red\">" + participant.sCompWarning + "</font>");
-                                f.write("<td width=\"90%\" colspan=\"2\">" + (participant.compFulfilled
-                                        ? International.getString("erfüllt") + ": "
-                                        : International.getString("noch nicht erfüllt") + ": ") + "<b>" + participant.sName + "</b>"
-                                        + (participant.sYearOfBirth != null ? " (" + participant.sYearOfBirth + ")" : "")
-                                        + ": " + participant.sDistance + " Km"
-                                        + (additional.length() > 0 ? " (" + additional + ")" : "")
-                                        + "</td>\n");
-                            }
-                        } else {
-                            // ausführliche Ausgabe
-                            f.write("<td width=\"90%\" colspan=\"2\">\n");
-                            int colspan = 1;
-                            if (participant.sDetailsArray.length > 0) {
-                                colspan = participant.sDetailsArray[0].length;
-                            }
-                            f.write("<table border>\n<tr><td colspan=\"" + colspan + "\"><b>" + participant.sName + " (" + participant.sYearOfBirth + "): "
-                                    + participant.sDistance + " Km" + (participant.sAdditional != null ? "; " + participant.sAdditional : "") + "</b></td></tr>\n");
-                            if (participant.sDetailsArray.length > 0) {
-                                for (int j = 0; j < participant.sDetailsArray.length; j++) {
-                                    f.write("<tr>");
-                                    if (participant.sDetailsArray[j] != null && participant.sDetailsArray[j][0] != null) {
-                                        for (int k = 0; k < participant.sDetailsArray[j].length; k++) {
-                                            f.write("<td>" + participant.sDetailsArray[j][k] + "</td>");
-                                        }
-                                    } else {
-                                        f.write("<td colspan=\"" + colspan + "\">und weitere Fahrten</td>");
-                                    }
-                                    f.write("</tr>\n");
+                    if (sr.pCompParticipants != null && sr.pCompParticipants.length > i) {
+                        for (StatisticsData participant = sr.pCompParticipants[i]; participant != null; participant = participant.next) {
+                            f.write("<tr><td width=\"10%\">&nbsp;</td>\n");
+                            if (participant.sDetailsArray == null || sr.sIsOutputCompWithoutDetails) {
+                                // kurze Ausgabe
+                                if (sr.sIsOutputCompWithoutDetails) {
+                                    f.write("<td width=\"45%\" bgcolor=\"" + (participant.compFulfilled ? "#00ff00" : "#ffff00") + "\"><b>" + participant.sName + "</b></td>"
+                                            + "<td width=\"45%\" bgcolor=\"" + (participant.compFulfilled ? "#aaffaa" : "#ffffaa") + "\">" + participant.sDistance + " Km"
+                                            + (participant.sAdditional == null || participant.sAdditional.equals("") ? "" : "; " + participant.sAdditional) + "</td>\n");
+                                } else {
+                                    String additional = (participant.sAdditional == null || participant.sAdditional.equals("") ? "" : participant.sAdditional)
+                                            + (participant.sCompWarning == null ? "" : "; <font color=\"red\">" + participant.sCompWarning + "</font>");
+                                    f.write("<td width=\"90%\" colspan=\"2\">" + (participant.compFulfilled
+                                            ? International.getString("erfüllt") + ": "
+                                            : International.getString("noch nicht erfüllt") + ": ") + "<b>" + participant.sName + "</b>"
+                                            + (participant.sYearOfBirth != null ? " (" + participant.sYearOfBirth + ")" : "")
+                                            + ": " + participant.sDistance + " Km"
+                                            + (additional.length() > 0 ? " (" + additional + ")" : "")
+                                            + "</td>\n");
                                 }
+                            } else {
+                                // ausführliche Ausgabe
+                                f.write("<td width=\"90%\" colspan=\"2\">\n");
+                                int colspan = 1;
+                                if (participant.sDetailsArray.length > 0) {
+                                    colspan = participant.sDetailsArray[0].length;
+                                }
+                                f.write("<table border>\n<tr><td colspan=\"" + colspan + "\"><b>" + participant.sName + " (" + participant.sYearOfBirth + "): "
+                                        + participant.sDistance + " Km" + (participant.sAdditional != null ? "; " + participant.sAdditional : "") + "</b></td></tr>\n");
+                                if (participant.sDetailsArray.length > 0) {
+                                    for (int j = 0; j < participant.sDetailsArray.length; j++) {
+                                        f.write("<tr>");
+                                        if (participant.sDetailsArray[j] != null && participant.sDetailsArray[j][0] != null) {
+                                            for (int k = 0; k < participant.sDetailsArray[j].length; k++) {
+                                                f.write("<td>" + participant.sDetailsArray[j][k] + "</td>");
+                                            }
+                                        } else {
+                                            f.write("<td colspan=\"" + colspan + "\">und weitere Fahrten</td>");
+                                        }
+                                        f.write("</tr>\n");
+                                    }
+                                }
+                                f.write("</table>\n</td>\n");
                             }
-                            f.write("</table>\n</td>\n");
+                            f.write("</tr>\n");
                         }
-                        f.write("</tr>\n");
                     }
                     f.write("<tr colspan=\"3\"><td>&nbsp;</td></tr>\n");
                 }
@@ -238,6 +243,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
                     if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list) {
                         outHTML(f, sd[i].sPosition, true, null);
                         outHTML(f, sd[i].sName, false, null);
+                        outHTML(f, sd[i].sGender, false, null);
                         outHTML(f, sd[i].sStatus, false, null);
                         outHTML(f, sd[i].sYearOfBirth, false, null);
                         outHTML(f, sd[i].sBoatType, false, null);
@@ -330,7 +336,9 @@ public class StatisticHTMLWriter extends StatisticWriter {
             }
         } catch (IOException e) {
             Dialog.error(LogString.fileCreationFailed(sr.sOutputFile, International.getString("Ausgabedatei")));
-            LogString.logError_fileCreationFailed(sr.sOutputFile, International.getString("Ausgabedatei"));
+            Logger.log(Logger.WARNING, Logger.MSG_ERR_ERRORCREATINGSTATISTIC,
+                    LogString.fileCreationFailed(sr.sOutputFile, International.getString("Ausgabedatei")));
+            
             resultMessage = LogString.fileCreationFailed(sr.sOutputFile, International.getString("Statistik"));
             return false;
         } finally {
@@ -349,11 +357,16 @@ public class StatisticHTMLWriter extends StatisticWriter {
 
     void outHTML(BufferedWriter f, String s, boolean right, String color) throws IOException {
         if (s != null) {
+            s = (s.length() > 0 ? EfaUtil.escapeHtml(s) : "&nbsp;");
+            if (s.indexOf(StatisticWriter.TEXTMARK_BOLDSTART) >= 0) {
+                s = EfaUtil.replace(s, StatisticWriter.TEXTMARK_BOLDSTART, "<b>", true);
+                s = EfaUtil.replace(s, StatisticWriter.TEXTMARK_BOLDEND, "</b>", true);
+            }
             f.write("<td"
                     + (color != null ? " bgcolor=\"#" + color + "\"" : "")
                     + (right ? " align=\"right\"" : "")
                     + ">"
-                    + (s.length() > 0 ? EfaUtil.escapeHtml(s) : "&nbsp;")
+                    + s
                     + "</td>\n");
         }
     }

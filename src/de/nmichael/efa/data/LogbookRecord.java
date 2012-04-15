@@ -99,6 +99,10 @@ public class LogbookRecord extends DataRecord {
     public static final String DESTINATIONNAME  = "DestinationName";
     public static final String DESTINATIONVARIANTNAME = "DestinationVariantName";
 
+    // Additional Waters can be a combination of both UUID-List and String-List
+    public static final String WATERSIDLIST     = "WatersIdList";
+    public static final String WATERSNAMELIST   = "WatersNameList";
+
     public static final String DISTANCE         = "Distance";
     public static final String COMMENTS         = "Comments";
     public static final String SESSIONTYPE      = "SessionType";
@@ -113,6 +117,7 @@ public class LogbookRecord extends DataRecord {
 
     // General
     public static final int CREW_MAX = 24;
+    public static final String WATERS_SEPARATORS = ",;+";
 
     // =========================================================================
     // Temporary Fields for Evaluation (not stored in the persistent record!)
@@ -199,6 +204,8 @@ public class LogbookRecord extends DataRecord {
         f.add(DESTINATIONID);       t.add(IDataAccess.DATA_UUID);
         f.add(DESTINATIONNAME);     t.add(IDataAccess.DATA_STRING);
         f.add(DESTINATIONVARIANTNAME); t.add(IDataAccess.DATA_STRING);
+        f.add(WATERSIDLIST);        t.add(IDataAccess.DATA_LIST_UUID);
+        f.add(WATERSNAMELIST);      t.add(IDataAccess.DATA_LIST_STRING);
         f.add(DISTANCE);            t.add(IDataAccess.DATA_DISTANCE);
         f.add(COMMENTS);            t.add(IDataAccess.DATA_STRING);
         f.add(SESSIONTYPE);         t.add(IDataAccess.DATA_STRING);
@@ -354,6 +361,49 @@ public class LogbookRecord extends DataRecord {
         names[0] = (pos < 0 ? s.trim() : s.substring(0, pos).trim());
         names[1] = (pos >= 0 ? s.substring(pos+1).trim() : "");
         return names;
+    }
+
+    public void setWatersIdList(DataTypeList<UUID> list) {
+        setList(WATERSIDLIST, list);
+    }
+    public DataTypeList<UUID> getWatersIdList() {
+        return getList(WATERSIDLIST, IDataAccess.DATA_UUID);
+    }
+
+    public void setWatersNameList(DataTypeList<String> list) {
+        setList(WATERSNAMELIST, list);
+    }
+    public DataTypeList<String> getWatersNameList() {
+        return getList(WATERSNAMELIST, IDataAccess.DATA_STRING);
+    }
+
+    public String getWatersNamesStringList() {
+        StringBuilder s = new StringBuilder();
+        try {
+            DataTypeList<UUID> wIdList = getWatersIdList();
+            DataTypeList<String> wNameList = getWatersNameList();
+            if ((wIdList == null || wIdList.length() == 0) &&
+                (wNameList == null || wNameList.length() == 0)) {
+                return "";
+            }
+            Waters waters = getPersistence().getProject().getWaters(false);
+            for (int i=0; wIdList != null && i<wIdList.length(); i++) {
+                WatersRecord w = waters.getWaters(wIdList.get(i));
+                if (w != null && w.getName() != null && w.getName().length() > 0) {
+                    s.append( (s.length() > 0 ? ", " : "") + w.getName());
+                }
+            }
+            for (int i=0; wNameList != null && i<wNameList.length(); i++) {
+                String w = wNameList.get(i);
+                if (s != null && s.length() > 0) {
+                    s.append( (s.length() > 0 ? ", " : "") + w);
+                }
+            }
+            return s.toString();
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return "";
+        }
     }
 
     public void setDistance(DataTypeDistance distance) {
@@ -563,6 +613,10 @@ public class LogbookRecord extends DataRecord {
     }
 
     public String getDestinationAndVariantName(long validAt) {
+        return getDestinationAndVariantName(validAt, false);
+    }
+
+    public String getDestinationAndVariantName(long validAt, boolean prefixedByWaters) {
         String name = null;
         if (validAt < 0) {
             validAt = getValidAtTimestamp();
@@ -579,7 +633,7 @@ public class LogbookRecord extends DataRecord {
             name = name + " " + DestinationRecord.DESTINATION_VARIANT_SEPARATOR + " " + variant;
         }
         if (name != null) {
-            return name;
+            return (prefixedByWaters && d != null ? d.getWatersNamesStringListPrefix() + name : name);
         }
         return "";
     }

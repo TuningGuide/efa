@@ -28,12 +28,14 @@ public class StatisticsData implements Comparable {
 
     public static final String SORTING_PREFIX  = "%%";
     public static final String SORTING_POSTFIX = "$$";
+    public static final String SORTTOEND_PREFIX = "$END$";
 
     private StatisticsRecord sr;
 
     Object key;
     String sPosition;
     String sName;
+    String sGender;
     String sStatus;
     String sYearOfBirth;
     String sBoatType;
@@ -62,6 +64,7 @@ public class StatisticsData implements Comparable {
     String gender;
     boolean disabled;
 
+    boolean sortToEnd = false;
     int absPosition = 0;
     Vector<Zielfahrt> destinationAreaVector;
     ZielfahrtFolge destinationAreas;
@@ -74,8 +77,12 @@ public class StatisticsData implements Comparable {
 
     StatisticsData next; // used for chained lists of competition participants
 
-    public StatisticsData(StatisticsRecord sr) {
+    public StatisticsData(StatisticsRecord sr, Object key) {
         this.sr = sr;
+        this.key = key;
+        if (key != null && key instanceof String && ((String)key).startsWith(SORTTOEND_PREFIX)) {
+            this.sortToEnd = true;
+        }
     }
 
     public void updateSummary(StatisticsData sd) {
@@ -127,6 +134,12 @@ public class StatisticsData implements Comparable {
             if (pos > 0) {
                 sName = sName.substring(pos + SORTING_POSTFIX.length());
             }
+        }
+        if (sr.sIsFieldsName && sName.startsWith(SORTTOEND_PREFIX)) {
+            sName = sName.substring(SORTTOEND_PREFIX.length());
+        }
+        if (sr.sIsFieldsGender && sGender == null) {
+            this.sGender = "";
         }
         if (sr.sIsFieldsStatus && sStatus == null) {
             this.sStatus = "";
@@ -199,6 +212,15 @@ public class StatisticsData implements Comparable {
 
         int order = (sr.sSortingOrderAscending ? 1 : -1);
 
+        // first check whether we have
+        if (this.sortToEnd != osd.sortToEnd) {
+            if (this.sortToEnd) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+
         switch(sr.sSortingCriteria) {
             case distance:
                 if (this.distance > osd.distance) {
@@ -224,6 +246,14 @@ public class StatisticsData implements Comparable {
             case name:
                 if (this.sName != null && osd.sName != null) {
                     int res = this.sName.compareTo(osd.sName);
+                    if (res != 0) {
+                        return res * order;
+                    }
+                }
+                break;
+            case gender:
+                if (this.sGender != null && osd.sGender != null) {
+                    int res = this.sGender.compareTo(osd.sGender);
                     if (res != 0) {
                         return res * order;
                     }

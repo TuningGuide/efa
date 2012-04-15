@@ -222,13 +222,19 @@ public class GroupRecord extends DataRecord implements IItemFactory {
                     IItemType[] typeItems = list.getItems(i);
                     Object uuid = ((ItemTypeStringAutoComplete)typeItems[0]).getId(typeItems[0].toString());
                     if (uuid != null && uuid.toString().length() > 0) {
-                        uuidList.put(uuid.toString(), (UUID)uuid);
+                        String text = ((ItemTypeStringAutoComplete)typeItems[0]).getValue();
+                        if (text == null) {
+                            text = "";
+                        }
+                        // sort based on text:uuid
+                        uuidList.put(text + ":" + uuid.toString(), (UUID)uuid);
                     }
                 }
-                String[] uuidArr = uuidList.keySet().toArray(new String[0]);
+                String[] keyArr = uuidList.keySet().toArray(new String[0]);
+                Arrays.sort(keyArr);
                 DataTypeList<UUID> memberList = new DataTypeList<UUID>();
-                for (String uuid : uuidArr) {
-                    memberList.add(uuidList.get(uuid));
+                for (String key : keyArr) {
+                    memberList.add(uuidList.get(key));
                 }
                 setMemberIdList(memberList);
             }

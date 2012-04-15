@@ -542,6 +542,13 @@ public interface IDataAccess {
     public DataKey[] getByFields(String[] fieldNames, Object[] values, long validAt) throws EfaException;
 
     /**
+     * Returns a count of all the records where all fields match the gives values
+     * @return the number of data records
+     * @throws Exception
+     */
+    public long countRecords(String[] fieldNames, Object[] values) throws EfaException;
+
+    /**
      * Returns the number of data records in this storage object.
      * @return the number of data records
      * @throws Exception

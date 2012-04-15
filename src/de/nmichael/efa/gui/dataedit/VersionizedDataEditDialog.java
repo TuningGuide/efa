@@ -33,6 +33,8 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
     private ItemTypeTable versionList;
     private Hashtable<Integer,DataRecord> versions;
     private JLabel selectedVersionLabel;
+    private boolean showVersionPanel = true;
+    private boolean promptToEnterValidity = true;
     protected int thisVersion;
 
     public VersionizedDataEditDialog(Frame parent, String title, DataRecord dataRecord, boolean newRecord, AdminRecord admin) {
@@ -122,7 +124,9 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
         versionPanel.add(versionValidityChangeButton, new GridBagConstraints(1, 4, 2, 1, 0.0, 0.0,
                                     GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(20, 5, 5, 10), 0, 0));
 
-        mainPanel.add(versionPanel, BorderLayout.NORTH);
+        if (showVersionPanel) {
+            mainPanel.add(versionPanel, BorderLayout.NORTH);
+        }
         updateGui();
     }
 
@@ -182,6 +186,9 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
         setSelectedVersionLabel();
     }
 
+    protected void setShowVersionPanel(boolean showVersionPanel) {
+        this.showVersionPanel = showVersionPanel;
+    }
 
     public void itemListenerAction(IItemType item, AWTEvent event) {
         if (item != null && event != null && item == versionList) {
@@ -434,8 +441,12 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
             ItemTypeDateTime validFrom = new ItemTypeDateTime("VALID_FROM", date, time,
                 IItemType.TYPE_PUBLIC, "", International.getString("Neue Version gültig ab") );
 
-            if (SimpleInputDialog.showInputDialog(this, International.getString("Gültigkeitsbeginn festlegen"), validFrom)) {
-                validFromTs = validFrom.getTimeStamp();
+            if (promptToEnterValidity) {
+                if (SimpleInputDialog.showInputDialog(this, International.getString("Gültigkeitsbeginn festlegen"), validFrom)) {
+                    validFromTs = validFrom.getTimeStamp();
+                }
+            } else {
+                validFromTs = date.getTimestamp(time);
             }
             if (super.saveRecord()) {
                 if (validFromTs > 0) {
@@ -453,6 +464,10 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
             }
         }
         return super.saveRecord();
+    }
+
+    protected void setPromptToEnterValidity(boolean promptToEnterValidity) {
+        this.promptToEnterValidity = promptToEnterValidity;
     }
 
 }

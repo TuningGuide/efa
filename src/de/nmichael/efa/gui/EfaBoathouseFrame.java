@@ -1517,7 +1517,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                 String rudererlaubnis = "";
                 if (listnr == 1) {
                     if (boat != null) {
-                        bootstyp = " (" + boat.getDetailedBoatType(item.boatVariant) + ")";
+                        bootstyp = " (" + boat.getDetailedBoatType(boat.getVariantIndex(item.boatVariant)) + ")";
                         String groups = boat.getAllowedGroupsAsNameString(System.currentTimeMillis());
                         if (groups.length() > 0) {
                             rudererlaubnis = (rudererlaubnis.length() > 0 ? rudererlaubnis + ", "
@@ -1622,7 +1622,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         if (item.boatStatus.getCurrentStatus().equals(BoatStatusRecord.STATUS_NOTAVAILABLE)) {
             if (Dialog.yesNoCancelDialog(International.getString("Boot gesperrt"),
                     International.getMessage("Das Boot {boat} ist laut Liste nicht verfügbar.", item.boatStatus.getBoatText()) + "\n"
-                    + International.getString("Bemerkung") + ": " + item.boatStatus.getComment() + "\n"
+                    + (item.boatStatus.getComment() != null ? International.getString("Bemerkung") + ": " + item.boatStatus.getComment() + "\n" : "")
                     + "\n"
                     + International.getString("Möchtest Du trotzdem das Boot benutzen?"))
                     != Dialog.YES) {
@@ -1652,9 +1652,24 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             }
         }
 
+        if (!checkBoatDamage(item, International.getString("Möchtest Du trotzdem das Boot benutzen?"))) {
+            return false;
+        }
+
+        return true;
+    }
+
+    boolean checkBoatDamage(ItemTypeBoatstatusList.BoatListItem item, String questionText) {
         BoatDamages boatDamages = Daten.project.getBoatDamages(false);
-        BoatDamageRecord[] damages = (item.boatStatus.getBoatId() != null ?
-            boatDamages.getBoatDamages(item.boatStatus.getBoatId(), true, true) : null);
+        UUID boatId = null;
+        if (item.boatStatus != null && item.boatStatus.getBoatId() != null) {
+            boatId = item.boatStatus.getBoatId();
+        }
+        if (item.boat != null && item.boat.getId() != null) {
+            boatId = item.boatStatus.getBoatId();
+        }
+        BoatDamageRecord[] damages = (boatId != null ?
+            boatDamages.getBoatDamages(boatId, true, true) : null);
         if (damages != null && damages.length > 0) {
             if (Dialog.yesNoDialog(International.getString("Bootsschaden gemeldet"),
                     International.getMessage("Für das Boot {boat} wurde folgender Bootsschaden gemeldet:", item.boatStatus.getBoatText()) + "\n"
@@ -1663,13 +1678,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                     + "\"\n"
                     + International.getString("Schwere des Schadens") + ": " + damages[0].getSeverityDescription()
                     + "\n\n"
-                    + International.getString("Möchtest Du trotzdem das Boot benutzen?"))
+                    + questionText)
                     != Dialog.YES) {
                 return false;
             }
-
         }
-
         return true;
     }
 
@@ -1867,9 +1880,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             efaBoathouseBackgroundTask.interrupt(); // Falls requestFocus nicht funktioniert hat, setzt der Thread ihn richtig!
             return;
         }
+        if (item.boat != null
+                && !checkBoatDamage(item, International.getString("Möchtest Du trotzdem das Boot reservieren?"))) {
+            return;
+        }
         if (item.boat == null || item.boatStatus == null || item.boatStatus.getUnknownBoat() || item.boatStatus.getBoatId() == null) {
-            // Dialog.error(International.getString("Dieses Boot kann nicht reserviert werden!"));
-            // boatListRequestFocus(1);
             BoatReservationListDialog dlg = new BoatReservationListDialog(this, null, 
                 Daten.efaConfig.getValueEfaDirekt_mitgliederDuerfenReservieren(),
                 Daten.efaConfig.getValueEfaDirekt_mitgliederDuerfenReservierenZyklisch(),

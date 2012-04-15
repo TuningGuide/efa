@@ -392,6 +392,10 @@ public class RemoteEfaServer {
                         responses.add(requestDeleteVersionizedAll(request, admin, p));
                         break;
                     }
+                    if (operation.equals(RemoteEfaMessage.OPERATION_COUNTRECORDS)) {
+                        responses.add(requestCountRecords(request, admin, p));
+                        break;
+                    }
                     if (operation.equals(RemoteEfaMessage.OPERATION_TRUNCATEALLDATA)) {
                         responses.add(requestTruncateAllData(request, admin, p));
                         break;
@@ -848,6 +852,17 @@ public class RemoteEfaServer {
         try {
             p.data().deleteVersionizedAll(request.getKey(0), request.getTimestamp(), request.getLockId());
             return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_OK, null);
+        } catch(Exception e) {
+            return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.ERROR_UNKNOWN, e.toString());
+        }
+    }
+
+    private RemoteEfaMessage requestCountRecords(RemoteEfaMessage request, AdminRecord admin, StorageObject p) {
+        try {
+            long recs = p.data().countRecords(request.getFieldArrayNames(), request.getFieldArrayValues());
+            RemoteEfaMessage response = RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_OK, null);
+            response.addField(RemoteEfaMessage.FIELD_LONGVALUE, Long.toString(recs));
+            return response;
         } catch(Exception e) {
             return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.ERROR_UNKNOWN, e.toString());
         }

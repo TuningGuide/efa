@@ -42,6 +42,17 @@ public class ItemTypeLabel extends ItemType {
         return description;
     }
 
+    public void setDescription(String s) {
+        super.setDescription(s);
+        Vector<String> v = EfaUtil.split(description, '\n');
+        if (v.size() == 0) {
+            v.add("");
+        }
+        for (int i=0; i<v.size() && i<labels.length; i++) {
+            labels[i].setText((String)v.get(i));
+        }
+    }
+
     protected void iniDisplay() {
         Vector<String> v = EfaUtil.split(description, '\n');
         if (v.size() == 0) {

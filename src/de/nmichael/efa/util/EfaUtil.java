@@ -366,11 +366,11 @@ public class EfaUtil {
     }
 
     // Split: Einen String anhand von Trennzeichen in einen Vector aufspalten
-    public static Vector split(String s, char sep) {
+    public static Vector<String> split(String s, char sep) {
         if (s == null) {
             return null;
         }
-        Vector v = new Vector();
+        Vector v = new Vector<String>();
         while (s.length() != 0) {
             int pos = s.indexOf(sep);
             if (pos >= 0) {

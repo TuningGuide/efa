@@ -80,8 +80,8 @@ public class SessionGroupListDialog extends DataListDialog {
                 ACTION_SELECT,
                 ACTION_UNSELECT
             };
-            
         }
+        intelligentColumnWidth = false;
     }
 
     protected void iniDialog() throws Exception {

@@ -85,7 +85,8 @@ public class BoatStatusRecord extends DataRecord {
     }
 
     public boolean isValidAt(long validAt) {
-        return getPersistence().getProject().getBoats(false).isValidAt(getBoatId(), validAt);
+        return getUnknownBoat() ||
+                getPersistence().getProject().getBoats(false).isValidAt(getBoatId(), validAt);
     }
 
     public boolean getDeleted() {
@@ -207,11 +208,15 @@ public class BoatStatusRecord extends DataRecord {
     private String getBoatName() {
         Boats boats = getPersistence().getProject().getBoats(false);
         String boatName = "?";
-        if (boats != null) {
+        if (boats != null && getBoatId() != null) {
             BoatRecord r = boats.getBoat(getBoatId(), System.currentTimeMillis());
             if (r != null) {
                 boatName = r.getQualifiedName();
             }
+        } 
+        if (boatName != null && boatName.equals("?") &&
+            getBoatText() != null && getBoatText().length() > 0) {
+            boatName = getBoatText() + " (" + International.getString("unbekanntes Boot") + ")";
         }
         return boatName;
     }

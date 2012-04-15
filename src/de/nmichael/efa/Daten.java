@@ -33,12 +33,12 @@ import java.lang.management.*;
 // @i18n complete
 public class Daten {
 
-    public final static String VERSION            = "2.0"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID          = "2.0.0_04";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-    public final static String VERSIONRELEASEDATE = "11.03.2012";  // Release Date: TT.MM.JJJJ
+    public final static String VERSION            = "2.0.1"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
+    public final static String VERSIONID          = "2.0.1_00";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "15.04.2012";  // Release Date: TT.MM.JJJJ
     public final static String MAJORVERSION       = "2";
-    public final static String PROGRAMMID         = "EFA.200"; // Versions-ID für Wettbewerbsmeldungen
-    public final static String PROGRAMMID_DRV     = "EFADRV.200"; // Versions-ID für Wettbewerbsmeldungen
+    public final static String PROGRAMMID         = "EFA.201"; // Versions-ID für Wettbewerbsmeldungen
+    public final static String PROGRAMMID_DRV     = "EFADRV.201"; // Versions-ID für Wettbewerbsmeldungen
     public final static String COPYRIGHTYEAR      = "12";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
 
     public final static String EFA     = "efa";                              // efa program name/ID
@@ -222,6 +222,10 @@ public class Daten {
     public static String applPID = "XXXXX"; // will be set in iniBase(...)
 
     public static AdminRecord initialize() {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "initialize()");
+            printEfaInfos(false, false, true, false);
+        }
         AdminRecord newlyCreatedAdminRecord = null;
         iniScreenSize();
         iniMainDirectory();
@@ -326,6 +330,9 @@ public class Daten {
     }
 
     public static void iniBase(int _applID) {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniBase(" + _applID + ")");
+        }
         project = null;
         fileSep = System.getProperty("file.separator");
         javaVersion = System.getProperty("java.version");
@@ -375,6 +382,9 @@ public class Daten {
     }
 
     private static void iniMainDirectory() {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniMainDirectory()");
+        }
         Daten.efaMainDirectory = System.getProperty("user.dir");
         if (!Daten.efaMainDirectory.endsWith(Daten.fileSep)) {
             Daten.efaMainDirectory += Daten.fileSep;
@@ -386,13 +396,25 @@ public class Daten {
             Daten.efaMainDirectory = Daten.efaMainDirectory.substring(0, Daten.efaMainDirectory.length() - 8);
         }
         Daten.efaProgramDirectory = Daten.efaMainDirectory + "program" + Daten.fileSep; // just temporary, will be overwritten by iniDirectories()
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            printEfaInfos(true, false, false, false);
+        }
     }
 
     private static void iniEfaBaseConfig() {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEfaBaseConfig()");
+        }
         String efaBaseConfigFile = Daten.userHomeDir + (Daten.fileSep != null && !Daten.userHomeDir.endsWith(Daten.fileSep) ? Daten.fileSep : "");
         Daten.efaBaseConfig = new EfaBaseConfig(efaBaseConfigFile);
         if (!EfaUtil.canOpenFile(Daten.efaBaseConfig.getFileName())) {
+            if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+                Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEfaBaseConfig(): cannot open: " + Daten.efaBaseConfig.getFileName());
+            }
             if (!Daten.efaBaseConfig.writeFile()) {
+                if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEfaBaseConfig(): cannot write: " + Daten.efaBaseConfig.getFileName());
+                }
                 String msg = International.getString("efa can't start") + ": "
                         + LogString.fileCreationFailed(International.getString("Basic Configuration File"), Daten.efaBaseConfig.getFileName());
                 Logger.log(Logger.ERROR, Logger.MSG_CORE_BASICCONFIGFAILEDCREATE, msg);
@@ -403,7 +425,13 @@ public class Daten {
             }
             firstEfaStart = true;
         }
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEfaBaseConfig(): firstEfaStart=" + firstEfaStart);
+        }
         if (!Daten.efaBaseConfig.readFile()) {
+            if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+                Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEfaBaseConfig(): cannot read: " + Daten.efaBaseConfig.getFileName());
+            }
             String msg = International.getString("efa can't start") + ": "
                         + LogString.fileOpenFailed(International.getString("Basic Configuration File"), Daten.efaBaseConfig.getFileName());
             Logger.log(Logger.ERROR, Logger.MSG_CORE_BASICCONFIGFAILEDOPEN, msg);
@@ -412,16 +440,27 @@ public class Daten {
             }
             haltProgram(HALT_BASICCONFIG);
         }
-
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            printEfaInfos(true, false, false, false);
+        }
     }
 
     private static void iniLanguageSupport() {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniLanguageSupport()");
+        }
         International.initialize();
     }
 
     private static void iniUserDirectory() {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniUserDirectory()");
+        }
         if (firstEfaStart && isGuiAppl()) {
             while (true) {
+                if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniUserDirectory(): prompting user for input...");
+                }
                 ItemTypeFile dir = new ItemTypeFile("USERDIR", Daten.efaBaseConfig.efaUserDirectory,
                         International.getString("Verzeichnis für Nutzerdaten"),
                         International.getString("Verzeichnisse"),
@@ -433,20 +472,39 @@ public class Daten {
                 dlg.showDialog();
                 if (dlg.getDialogResult()) {
                     dir.getValueFromGui();
+                    if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+                        Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniUserDirectory(): input=" + dir.getValue());
+                    }
                     if (!efaBaseConfig.trySetUserDir(dir.getValue(), javaRestart)) {
+                        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+                            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniUserDirectory(): " +
+                                    LogString.directoryNoWritePermission(dir.getValue(), International.getString("Verzeichnis")));
+                        }
                         Dialog.error(LogString.directoryNoWritePermission(dir.getValue(), International.getString("Verzeichnis")));
                     } else {
                         efaBaseConfig.writeFile();
+                        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+                            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniUserDirectory(): " + efaBaseConfig.getFileName() + " written.");
+                        }
                         break;
                     }
                 } else {
+                    if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+                        Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniUserDirectory(): input aborted.");
+                    }
                     Daten.haltProgram(HALT_BASICCONFIG);
                 }
             }
         }
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            printEfaInfos(true, false, false, false);
+        }
     }
 
     private static void iniLogging() {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniLogging()");
+        }
         Daten.efaLogDirectory = Daten.efaBaseConfig.efaUserDirectory + "log" + Daten.fileSep;
         if (!checkAndCreateDirectory(Daten.efaLogDirectory)) {
             haltProgram(HALT_DIRECTORIES);
@@ -483,6 +541,9 @@ public class Daten {
     }
 
     private static void iniEnvironmentSettings() {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEnvironmentSettings()");
+        }
         String s;
 
         try {
@@ -525,6 +586,9 @@ public class Daten {
     }
 
     private static void iniDirectories() {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniDirectories()");
+        }
         // ./program
         Daten.efaProgramDirectory = Daten.efaMainDirectory + "program" + Daten.fileSep;
         if (!checkAndCreateDirectory(Daten.efaProgramDirectory)) {
@@ -582,9 +646,16 @@ public class Daten {
         if (!checkAndCreateDirectory(Daten.efaTmpDirectory)) {
             haltProgram(HALT_DIRECTORIES);
         }
+
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            printEfaInfos(true, false, false, false);
+        }
     }
 
     public static void iniSplashScreen(boolean show) {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniSplashScreen( " + show + ")");
+        }
         if (!isGuiAppl()) {
             return;
         }
@@ -604,6 +675,9 @@ public class Daten {
     }
 
     public static void iniEfaSec() {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEfaSec()");
+        }
         if (firstEfaStart) {
             EfaSec.createNewSecFile(Daten.efaBaseConfig.efaUserDirectory + Daten.EFA_SECFILE, Daten.efaProgramDirectory + Daten.EFA_JAR);
         }
@@ -727,6 +801,9 @@ public class Daten {
     }
 
     public static void iniEfaConfig(CustSettings custSettings) {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEfaConfig()");
+        }
         if (applID != APPL_DRV) {
             efaConfig = new EfaConfig(custSettings);
             try {
@@ -752,6 +829,9 @@ public class Daten {
     }
 
     public static void iniEfaTypes(CustSettings custSettings) {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEfaTypes()");
+        }
         if (applID == APPL_DRV) {
             return;
         }
@@ -778,6 +858,9 @@ public class Daten {
     }
 
     public static void iniEfaRunning() {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEfaRunning()");
+        }
         if (applID == APPL_CLI) {
             return;
         }
@@ -795,12 +878,18 @@ public class Daten {
     }
 
     public static void iniCopiedFiles() {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniCopiedFiles()");
+        }
         String distribCfgDirectory = Daten.efaMainDirectory + "cfg" + Daten.fileSep;
         tryCopy(distribCfgDirectory + Daten.WETTFILE, Daten.efaCfgDirectory + Daten.WETTFILE);
         tryCopy(distribCfgDirectory + Daten.WETTDEFS, Daten.efaCfgDirectory + Daten.WETTDEFS);
     }
 
     public static void iniAllDataFiles() {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniAllDataFiles()");
+        }
         Daten.wettDefs = new WettDefs(Daten.efaCfgDirectory + Daten.WETTDEFS);
         iniDataFile(Daten.wettDefs, true, International.onlyFor("Wettbewerbskonfiguration", "de"));
         Daten.keyStore = (applID != APPL_DRV ?
@@ -809,6 +898,9 @@ public class Daten {
     }
 
     public static void iniRemoteEfaServer() {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniRemoteEfaServer()");
+        }
         if (applID != APPL_EFABH) {
             return;
         }
@@ -817,6 +909,9 @@ public class Daten {
     }
 
     public static void iniEmailSenderThread() {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniEmailSenderThread()");
+        }
         if (applID == APPL_EFABASE || applID == APPL_EFABH) {
             try {
                 new de.nmichael.efa.core.EmailSenderThread().start();
@@ -830,6 +925,9 @@ public class Daten {
     }
 
     public static void iniScreenSize() {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniScreenSize()");
+        }
         if (!isGuiAppl()) {
             return;
         }
@@ -837,6 +935,9 @@ public class Daten {
     }
 
     public static void iniGUI() {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniGUI()");
+        }
         if (!isGuiAppl()) {
             return;
         }
@@ -887,11 +988,18 @@ public class Daten {
     }
 
     public static void iniChecks() {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniChecks()");
+        }
         checkEfaVersion(true);
         checkJavaVersion(true);
     }
 
     public static void iniDataFile(de.nmichael.efa.efa1.DatenListe f, boolean autoNewIfDoesntExist, String s) {
+        if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION,
+                    "iniDataFile("+f.getFileName()+","+autoNewIfDoesntExist+","+s+")");
+        }
         if (autoNewIfDoesntExist) {
             f.createNewIfDoesntExist();
         } else {
@@ -958,96 +1066,122 @@ public class Daten {
     }
 
     public static Vector getEfaInfos() {
+        return getEfaInfos(true, true, true, false);
+    }
+    
+    public static Vector getEfaInfos(boolean efaInfos, boolean pluginInfos, boolean javaInfos, boolean jarInfos) {
         Vector infos = new Vector();
 
         // efa-Infos
-        infos.add("efa.version=" + Daten.VERSIONID);
-        if (EFALIVE_VERSION != null && EFALIVE_VERSION.length() > 0) {
-            infos.add("efalive.version=" + Daten.EFALIVE_VERSION);
-        }
-        if (applID != APPL_EFABH) {
-            infos.add("efa.dir.main=" + Daten.efaMainDirectory);
-            infos.add("efa.dir.user=" + Daten.efaBaseConfig.efaUserDirectory);
-            infos.add("efa.dir.program=" + Daten.efaProgramDirectory);
-            infos.add("efa.dir.plugin=" + Daten.efaPluginDirectory);
-            infos.add("efa.dir.doc=" + Daten.efaDocDirectory);
-            //infos.add("efa.dir.ausgabe=" + Daten.efaAusgabeDirectory);
-            //infos.add("efa.dir.layout=" + Daten.efaStyleDirectory);
-            infos.add("efa.dir.data=" + Daten.efaDataDirectory);
-            infos.add("efa.dir.cfg=" + Daten.efaCfgDirectory);
-            infos.add("efa.dir.bak=" + Daten.efaBakDirectory);
-            infos.add("efa.dir.tmp=" + Daten.efaTmpDirectory);
+        if (efaInfos) {
+            infos.add("efa.version=" + Daten.VERSIONID);
+            if (EFALIVE_VERSION != null && EFALIVE_VERSION.length() > 0) {
+                infos.add("efalive.version=" + Daten.EFALIVE_VERSION);
+            }
+            if (applID != APPL_EFABH) {
+                if (Daten.efaMainDirectory != null) {
+                    infos.add("efa.dir.main=" + Daten.efaMainDirectory);
+                }
+                if (Daten.efaBaseConfig != null && Daten.efaBaseConfig.efaUserDirectory != null) {
+                    infos.add("efa.dir.user=" + Daten.efaBaseConfig.efaUserDirectory);
+                }
+                if (Daten.efaProgramDirectory != null) {
+                    infos.add("efa.dir.program=" + Daten.efaProgramDirectory);
+                }
+                if (Daten.efaPluginDirectory != null) {
+                    infos.add("efa.dir.plugin=" + Daten.efaPluginDirectory);
+                }
+                if (Daten.efaDocDirectory != null) {
+                    infos.add("efa.dir.doc=" + Daten.efaDocDirectory);
+                }
+                if (Daten.efaDataDirectory != null) {
+                    infos.add("efa.dir.data=" + Daten.efaDataDirectory);
+                }
+                if (Daten.efaCfgDirectory != null) {
+                    infos.add("efa.dir.cfg=" + Daten.efaCfgDirectory);
+                }
+                if (Daten.efaBakDirectory != null) {
+                    infos.add("efa.dir.bak=" + Daten.efaBakDirectory);
+                }
+                if (Daten.efaTmpDirectory != null) {
+                    infos.add("efa.dir.tmp=" + Daten.efaTmpDirectory);
+                }
+            }
         }
 
         // efa Plugin-Infos
-        try {
-            File dir = new File(Daten.efaPluginDirectory);
-            if (applID != APPL_EFABH) {
-                File[] files = dir.listFiles();
-                for (int i = 0; i < files.length; i++) {
-                    if (files[i].isFile()) {
-                        infos.add("efa.plugin.file=" + files[i].getName() + ":" + files[i].length());
+        if (pluginInfos) {
+            try {
+                File dir = new File(Daten.efaPluginDirectory);
+                if (applID != APPL_EFABH) {
+                    File[] files = dir.listFiles();
+                    for (int i = 0; i < files.length; i++) {
+                        if (files[i].isFile()) {
+                            infos.add("efa.plugin.file=" + files[i].getName() + ":" + files[i].length());
+                        }
                     }
                 }
-            }
-            try {
-                if (EfaUtil.getXMLReader() != null) {
-                    infos.add("efa.plugin.xml=INSTALLED");
-                    infos.add("efa.plugin.xml.name=" + EfaUtil.getXMLReader().getClass().getCanonicalName());
-                } else {
+                try {
+                    if (EfaUtil.getXMLReader() != null) {
+                        infos.add("efa.plugin.xml=INSTALLED");
+                        infos.add("efa.plugin.xml.name=" + EfaUtil.getXMLReader().getClass().getCanonicalName());
+                    } else {
+                        infos.add("efa.plugin.xml=NOT INSTALLED");
+                    }
+                } catch (NoClassDefFoundError e) {
                     infos.add("efa.plugin.xml=NOT INSTALLED");
                 }
-            } catch (NoClassDefFoundError e) {
-                infos.add("efa.plugin.xml=NOT INSTALLED");
+                try {
+                    PDFWriter tmp = new PDFWriter(null, null);
+                    infos.add("efa.plugin.fop=INSTALLED");
+                } catch (NoClassDefFoundError e) {
+                    infos.add("efa.plugin.fop=NOT INSTALLED");
+                }
+                try {
+                    FTPClient tmp = new FTPClient(null, null, null, null, null, null);
+                    infos.add("efa.plugin.ftp=INSTALLED");
+                } catch (NoClassDefFoundError e) {
+                    infos.add("efa.plugin.ftp=NOT INSTALLED");
+                }
+                try {
+                    de.nmichael.efa.core.EmailSenderThread tmp = new de.nmichael.efa.core.EmailSenderThread();
+                    infos.add("efa.plugin.email=INSTALLED");
+                } catch (NoClassDefFoundError e) {
+                    infos.add("efa.plugin.email=NOT INSTALLED");
+                }
+                try {
+                    de.nmichael.efa.util.SunRiseSet tmp = new de.nmichael.efa.util.SunRiseSet();
+                    infos.add("efa.plugin.jsuntimes=INSTALLED");
+                } catch (NoClassDefFoundError e) {
+                    infos.add("efa.plugin.jsuntimes=NOT INSTALLED");
+                }
+            } catch (Exception e) {
+                Logger.log(Logger.ERROR, Logger.MSG_CORE_INFOFAILED, International.getString("Programminformationen konnten nicht ermittelt werden") + ": " + e.toString());
+                return null;
             }
-            try {
-                PDFWriter tmp = new PDFWriter(null, null);
-                infos.add("efa.plugin.fop=INSTALLED");
-            } catch (NoClassDefFoundError e) {
-                infos.add("efa.plugin.fop=NOT INSTALLED");
-            }
-            try {
-                FTPClient tmp = new FTPClient(null, null, null, null, null, null);
-                infos.add("efa.plugin.ftp=INSTALLED");
-            } catch (NoClassDefFoundError e) {
-                infos.add("efa.plugin.ftp=NOT INSTALLED");
-            }
-            try {
-                de.nmichael.efa.core.EmailSenderThread tmp = new de.nmichael.efa.core.EmailSenderThread();
-                infos.add("efa.plugin.email=INSTALLED");
-            } catch (NoClassDefFoundError e) {
-                infos.add("efa.plugin.email=NOT INSTALLED");
-            }
-            try {
-                de.nmichael.efa.util.SunRiseSet tmp = new de.nmichael.efa.util.SunRiseSet();
-                infos.add("efa.plugin.jsuntimes=INSTALLED");
-            } catch (NoClassDefFoundError e) {
-                infos.add("efa.plugin.jsuntimes=NOT INSTALLED");
-            }
-        } catch (Exception e) {
-            Logger.log(Logger.ERROR, Logger.MSG_CORE_INFOFAILED, International.getString("Programminformationen konnten nicht ermittelt werden") + ": " + e.toString());
-            return null;
         }
 
         // Java Infos
-        infos.add("java.version=" + System.getProperty("java.version"));
-        infos.add("java.vendor=" + System.getProperty("java.vendor"));
-        infos.add("java.home=" + System.getProperty("java.home"));
-        infos.add("java.vm.version=" + System.getProperty("java.vm.version"));
-        infos.add("java.vm.vendor=" + System.getProperty("java.vm.vendor"));
-        infos.add("java.vm.name=" + System.getProperty("java.vm.name"));
-        infos.add("os.name=" + System.getProperty("os.name"));
-        infos.add("os.arch=" + System.getProperty("os.arch"));
-        infos.add("os.version=" + System.getProperty("os.version"));
-        if (applID != APPL_EFABH) {
-            infos.add("user.home=" + System.getProperty("user.home"));
-            infos.add("user.name=" + System.getProperty("user.name"));
-            infos.add("user.dir=" + System.getProperty("user.dir"));
-            infos.add("java.class.path=" + System.getProperty("java.class.path"));
+        if (javaInfos) {
+            infos.add("java.version=" + System.getProperty("java.version"));
+            infos.add("java.vendor=" + System.getProperty("java.vendor"));
+            infos.add("java.home=" + System.getProperty("java.home"));
+            infos.add("java.vm.version=" + System.getProperty("java.vm.version"));
+            infos.add("java.vm.vendor=" + System.getProperty("java.vm.vendor"));
+            infos.add("java.vm.name=" + System.getProperty("java.vm.name"));
+            infos.add("os.name=" + System.getProperty("os.name"));
+            infos.add("os.arch=" + System.getProperty("os.arch"));
+            infos.add("os.version=" + System.getProperty("os.version"));
+            if (applID != APPL_EFABH) {
+                infos.add("user.home=" + System.getProperty("user.home"));
+                infos.add("user.name=" + System.getProperty("user.name"));
+                infos.add("user.dir=" + System.getProperty("user.dir"));
+                infos.add("java.class.path=" + System.getProperty("java.class.path"));
+            }
         }
 
         // JAR methods
-        if (false && Logger.isDebugLoggin()) {
+        if (jarInfos && Logger.isDebugLoggin()) {
             try {
                 String cp = System.getProperty("java.class.path");
                 while (cp != null && cp.length() > 0) {
@@ -1087,7 +1221,11 @@ public class Daten {
     }
 
     public static void printEfaInfos() {
-        Vector infos = getEfaInfos();
+        printEfaInfos(true, true, true, false);
+    }
+
+    public static void printEfaInfos(boolean efaInfos, boolean pluginInfos, boolean javaInfos, boolean jarInfos) {
+        Vector infos = getEfaInfos(efaInfos, pluginInfos, javaInfos, jarInfos);
         for (int i = 0; infos != null && i < infos.size(); i++) {
             Logger.log(Logger.INFO, Logger.MSG_INFO_CONFIGURATION, (String) infos.get(i));
         }

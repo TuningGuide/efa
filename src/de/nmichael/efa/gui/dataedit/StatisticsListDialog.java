@@ -29,8 +29,8 @@ public class StatisticsListDialog extends DataListDialog {
 
     public static final int ACTION_CREATESTATISTICS = 901; // negative actions will not be shown as popup actions
     public static final int ACTION_ONETIMESTATISTIC = 902; // negative actions will not be shown as popup actions
-    public static final int ACTION_MOVEUP          = 1001; // positive actions > 1000 will *only* be shown as popup
-    public static final int ACTION_MOVEDOWN        = 1002; // positive actions > 1000 will *only* be shown as popup
+    public static final int ACTION_MOVEUP          = 1001; // positive actions > 2000 will be shown as popups + small buttons without text
+    public static final int ACTION_MOVEDOWN        = 1002; // positive actions > 2000 will be shown as popups + small buttons without text
 
     private AdminRecord admin;
 
@@ -90,8 +90,8 @@ public class StatisticsListDialog extends DataListDialog {
                         IMAGE_DELETE,
                         IMAGE_RUN,
                         IMAGE_STAT,
-                        null,
-                        null
+                        ItemTypeDataRecordTable.BUTTON_IMAGE_CENTERED_PREFIX + IMAGE_ARROWUP,
+                        ItemTypeDataRecordTable.BUTTON_IMAGE_CENTERED_PREFIX + IMAGE_ARROWDOWN
                     };
         } else {
             actionText = new String[]{
@@ -144,6 +144,7 @@ public class StatisticsListDialog extends DataListDialog {
                 }
                 ((Statistics)persistence).moveRecord((StatisticsRecord)records[0],
                         (actionId == ACTION_MOVEUP ? -1 : 1));
+                table.setMoveRowSelectionUponNextRefresh((actionId == ACTION_MOVEUP ? -1 : 1));
                 break;
         }
     }

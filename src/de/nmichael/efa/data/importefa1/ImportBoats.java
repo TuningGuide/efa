@@ -185,7 +185,8 @@ public class ImportBoats extends ImportBase {
                 }
 
                 if (!findBoatType(boatRecord, d)) {
-                    boatRecord.addTypeVariant(description, d.get(Boote.ART), d.get(Boote.ANZAHL), d.get(Boote.RIGGER), d.get(Boote.STM));
+                    boatRecord.addTypeVariant(description, d.get(Boote.ART), d.get(Boote.ANZAHL), 
+                            d.get(Boote.RIGGER), d.get(Boote.STM), Boolean.toString(false));
                     changedBoatRecord = true;
                 }
 

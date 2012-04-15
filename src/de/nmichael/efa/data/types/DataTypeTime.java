@@ -131,7 +131,7 @@ public class DataTypeTime implements Cloneable, Comparable<DataTypeTime> {
         }
     }
 
-    public String toString() {
+    public String toString(boolean withSeconds) {
         if (hour < 0 || minute < 0) {
             return "";
         }
@@ -139,6 +139,10 @@ public class DataTypeTime implements Cloneable, Comparable<DataTypeTime> {
             return EfaUtil.int2String(hour,2) + ":" + EfaUtil.int2String(minute,2);
         }
         return EfaUtil.int2String(hour,2) + ":" + EfaUtil.int2String(minute,2) + ":" + EfaUtil.int2String(second,2);
+    }
+
+    public String toString() {
+        return toString(withSeconds);
     }
 
     public boolean isSet() {
@@ -218,6 +222,27 @@ public class DataTypeTime implements Cloneable, Comparable<DataTypeTime> {
 
     public boolean isAfter(DataTypeTime o) {
         return compareTo(o) > 0;
+    }
+
+    public boolean isBeforeOrEqual(DataTypeTime o) {
+        return compareTo(o) <= 0;
+    }
+
+    public boolean isAfterOrEqual(DataTypeTime o) {
+        return compareTo(o) >= 0;
+    }
+
+    public boolean isInRange(DataTypeTime from, DataTypeTime to) {
+        return (compareTo(from) >= 0) && (compareTo(to) <= 0);
+    }
+
+    public static boolean isRangeOverlap(DataTypeTime r1From, DataTypeTime r1To, DataTypeTime r2From, DataTypeTime r2To) {
+        return (r2From.isBefore(r1From) && r2To.isAfter(r1From)) ||
+               (r2From.isBefore(r1To) && r2To.isAfter(r1To)) ||
+               (r2From.isAfter(r1From) && r2To.isBefore(r1To)) ||
+               (r1From.isBefore(r2From) && r1To.isAfter(r2From)) ||
+               (r1From.isBefore(r2To) && r1To.isAfter(r2To)) ||
+               (r1From.isAfter(r2From) && r1To.isBefore(r2To));
     }
 
     public void add(int seconds) {

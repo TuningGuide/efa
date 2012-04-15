@@ -132,6 +132,9 @@ public class StatisticCSVWriter extends StatisticWriter {
                         if (sr.sIsFieldsName) {
                             write(f, sd[i].sName);
                         }
+                        if (sr.sIsFieldsGender) {
+                            write(f, sd[i].sGender);
+                        }
                         if (sr.sIsFieldsStatus) {
                             write(f, sd[i].sStatus);
                         }

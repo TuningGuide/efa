@@ -66,6 +66,7 @@ public class Logger {
     public static final String MSG_CORE_ADMINSFAILEDOPEN = "COR028";
     public static final String MSG_CORE_ADMINSFAILEDNOSEC = "COR029";
     public static final String MSG_CORE_BASICCONFIGUSERDATACANTWRITE = "COR030";
+    public static final String MSG_CORE_STARTUPINITIALIZATION = "COR031";
     // Activities performed in Admin Mode
     public static final String MSG_ADMIN_LOGIN = "ADM001";
     public static final String MSG_ADMIN_LOGINFAILURE = "ADM002";
@@ -250,6 +251,7 @@ public class Logger {
     public static final String MSG_EVT_REMOTEONLINEUPDATEDOWNLOAD = "EVT044";
     public static final String MSG_EVT_ONLINEUPDATEFINISHED = "EVT045";
     public static final String MSG_EVT_ERRORRECORDINVALIDATTIME = "EVT046";
+    public static final String MSG_EVT_PERSONADDED = "EVT047";
 
     // Backup
     public static final String MSG_BCK_BACKUPSTARTED = "BCK001";
@@ -380,6 +382,7 @@ public class Logger {
     public static final String MSG_DEBUG_GUI_ICONS = "DBG014";
     public static final String MSG_DEBUG_SENDMAIL = "DBG015";
     public static final String MSG_DEBUG_LOGBOOK = "DBG016";
+    public static final String MSG_DEBUG_GUI_EFABASEFRAME = "DBG017";
     // CLI
     public static final String MSG_CLI_INFO  = "CLI001";
     public static final String MSG_CLI_ERROR = "CLI002";
@@ -562,7 +565,9 @@ public class Logger {
     }
 
     public static void logdebug(Exception e) {
-        log(DEBUG, MSG_DEBUG_IGNOREDEXCEPTION, e);
+        if (isTraceOn(TT_EXCEPTIONS)) {
+            log(DEBUG, MSG_DEBUG_IGNOREDEXCEPTION, e);
+        }
     }
 
     public static void log(Exception e) {
@@ -668,6 +673,10 @@ public class Logger {
 
     public static boolean isDebugLoggin() {
         return debugLogging;
+    }
+
+    public static boolean isDebugLoggingActivatedByCommandLine() {
+        return debugLoggingActivatedByCommandLine;
     }
 
     public static long getTraceTopic() {

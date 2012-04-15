@@ -21,9 +21,13 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 
 public class ShowLogbookDialog extends BaseDialog implements IItemListener {
 
@@ -79,6 +83,21 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
         table.requestFocus();
     }
 
+    private void updateNestedTableHight() {
+        for (int i = 0; table != null && i < table.getRowCount(); i++) {
+            int orgHeight = table.getRowHeight(i);
+            int newHeight = 0;
+            try {
+                newHeight = (int) ((JTable) table.getValueAt(i, 4)).getPreferredSize().getHeight();
+            } catch (Exception e) {
+                EfaUtil.foo();
+            }
+            if (newHeight > orgHeight) {
+                table.setRowHeight(i, newHeight);
+            }
+        }
+    }
+
     public void updateTable(int max, boolean alsoIncomplete) {
         if (max < 1) {
             max = 1;
@@ -121,7 +140,8 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
                 fahrten[c][2] = r.getBoatAsName();
                 fahrten[c][3] = new TableItem(r.getCoxAsName(), obmann == 0); // (obmann == 0 ? BOLD : "") + d.get(Fahrtenbuch.STM);
 
-                int mRowCount = r.getNumberOfCrewMembers();
+                int mRowCount = r.getNumberOfCrewMembers() 
+                        - (r.getCoxAsName().length() > 0 ? 1 : 0); // substract cox, we want only crew
                 if (mRowCount == 0) {
                     mRowCount = 1;
                 }
@@ -129,7 +149,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
                 for (int j = 0, i = 1; i <= LogbookRecord.CREW_MAX; i++) {
                     String s = r.getCrewAsName(i);
                     if (s != null && s.length() > 0) {
-                        mRowData[j++][0] = new TableItem(s, obmann == i + 1); // (obmann == ii+1 ? BOLD : "") + d.get(i);
+                        mRowData[j++][0] = new TableItem(s, obmann == i); // (obmann == ii+1 ? BOLD : "") + d.get(i);
                     }
                 }
                 Object[] mRowTitle = new Object[1];
@@ -175,18 +195,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
         table.getColumn(International.getString("Mannschaft")).setCellRenderer(new TableInTableRenderer());
         //table.getColumn("Mannschaft").setCellEditor(new TableInTableEditor(new JCheckBox()));
 
-        for (int i = 0; i < fahrten.length; i++) {
-            int orgHeight = table.getRowHeight(i);
-            int newHeight = 0;
-            try {
-                newHeight = (int) ((JTable) table.getValueAt(i, 4)).getPreferredSize().getHeight();
-            } catch (Exception e) {
-                EfaUtil.foo();
-            }
-            if (newHeight > orgHeight) {
-                table.setRowHeight(i, newHeight);
-            }
-        }
+        updateNestedTableHight();
         sorter.addMouseListenerToHeaderInTable(table);
         scrollPane.getViewport().add(table, null);
         try {
@@ -282,6 +291,9 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
         if (event != null && itemType != null) {
             if ((event instanceof KeyEvent && itemType == showOnlyNumber && event.getID() == KeyEvent.KEY_RELEASED) ||
                 (event instanceof ActionEvent && itemType == showAlsoIncomplete)) {
+                if (((KeyEvent)event).getKeyCode() == KeyEvent.VK_SHIFT) {
+                    return;
+                }
                 showOnlyNumber.getValueFromGui();
                 showAlsoIncomplete.getValueFromGui();
                 updateTable(showOnlyNumber.getValue(), showAlsoIncomplete.getValue());
@@ -317,6 +329,11 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
             } catch (Exception ee) {
             }
             super.valueChanged(e);
+        }
+
+        public void tableChanged(TableModelEvent e) {
+            super.tableChanged(e);
+            updateNestedTableHight();
         }
     }
 

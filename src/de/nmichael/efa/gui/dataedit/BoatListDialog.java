@@ -41,7 +41,8 @@ public class BoatListDialog extends DataListDialog {
         boolean newRecord = (record == null);
         if (record == null) {
             record = Daten.project.getBoats(false).createBoatRecord(UUID.randomUUID());
-            ((BoatRecord)record).addTypeVariant("", EfaTypes.TYPE_BOAT_OTHER, EfaTypes.TYPE_NUMSEATS_OTHER, EfaTypes.TYPE_RIGGING_OTHER, EfaTypes.TYPE_COXING_OTHER);
+            ((BoatRecord)record).addTypeVariant("", EfaTypes.TYPE_BOAT_OTHER, EfaTypes.TYPE_NUMSEATS_OTHER, 
+                    EfaTypes.TYPE_RIGGING_OTHER, EfaTypes.TYPE_COXING_OTHER, Boolean.toString(true));
         }
         return new BoatEditDialog(parent, (BoatRecord)record, newRecord, admin);
     }

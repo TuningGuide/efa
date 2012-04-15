@@ -1,32 +1,27 @@
-Item                                                                 days  until
-================================================================================
-Mitglieder sich selbst hinzufügen nur Name mit Status andere
+Item
+============================================================================================================
+Eine alternative Gruppierung der Boote über die Bootsart würde ich auch nicht schlecht finden (alternativ zu "Einer, Zweier, Dreier, Vierer, andere").
+Text-Fahrtenbücher in efa importieren/exportieren
+Datenabgleich zwischen Bootshäusern implementieren, bei dem efa einen Export/Import durchführt, der
+  anhand von LastModified erkennt, welche Daten gewinnen, aber zum Beispiel nie die Bootsstatusliste,
+  Nachrichten, ... synchronisiert.
+
 Schreiben ins Spiegelverzeichnis mit Timeout bei Netzlaufwerk
 Buttons mit Symbolen ausstatten
 efaWett-Daten aktualisieren
-Obmann in Fahrtenbuchansicht und in Statistik kenntlich machen
 Dr-Titel in Ausgabe (und erkennung) von Strings aufnehmen!
 Check Java Version (min 6)
-Statistik (und alle Datensätze) sollten den Fokus nach Bearbeitung behalten. Auch bei HOch- und Runter schieben
-Zusammenfassen von Gästen & anderen am Ende der Liste, Gäste dabei vereinsweise[/quote]
-Buttons für Statistik hoch/runter (nicht nur Kontext-Menü)
-Beim Admin-Login (auch efaBase) Admin GROSS auf vorliegende Nachrichten hinweisen!
 Auto Create new Logbooks - better Dialog
-Statistik FTP Upload
-efaRemote - SSL
 efaRemote - Progress/Status Indicator
 Point-in-Time Recovery
 Signal Handler
 DataLayer: DB Access
 Help System
 AutoComplete: match anything within input/change list content
-Eine alternative Gruppierung der Boote über die Bootsart würde ich auch nicht schlecht finden (alternativ zu "Einer, Zweier, Dreier, Vierer, andere").
 Ausgabe Steuerkilometer (mit Balken)
 Paßwort für Statistiken
 vorhandene Statistik bearbeiten und unter anderem Namen speichern
-für Kombiboote Standardbootstyp festlegen können (insb. Riemen/Skull; für Anzhal Plätze macht das weniger Sinn, da eh schon doppelt in Liste und dann entsprechend Auswahl)
 Vor dem Aufrufen der Wetter-Popups einen Befehl durchführen können (um ggf. Seiten zu holen und aufzubereiten)
-Text-Fahrtenbücher in efa importieren/exportieren
 Zusätzliche Import-Option: alle *nicht* importierten (versionierten) Daten als ungültig markieren
   (Use Case: Importieren einer neuen (vollständigen) Mitgliederliste; alles was nicht importiert wurde, ist ungültig)
   Dabei sollten allerdings Gäste und andere nicht gelöscht werden!
@@ -34,14 +29,19 @@ Datenimport sollte eine Warnung ausgeben, wenn das
 Funktion, um zwei Records mit unterschiedlichen ID's zusammenzuführen
 Warnungs-Fenster mit Infos zum Ruderrevier (Gefahren, Sperrungen, etc.) beim Beginnen einer Fahrt
 PDF-Output
-Feld "Trommler" für Drachenboote
-Datenabgleich zwischen Bootshäusern implementieren, bei dem efa einen Export/Import durchführt, der
-  anhand von LastModified erkennt, welche Daten gewinnen, aber zum Beispiel nie die Bootsstatusliste,
-  Nachrichten, ... synchronisiert.
+Feld "Trommler" für Drachenboote; "Zweiter Steuermann" oder "Kielschwein", z.B. für Kirchboote
 Für alle Daten-Felder Klartextnamen definieren, die bei Listenausgabe dann verwendet werden
---------------------------------------------------------------------------------
+Auswertung über die Bootsschäden:Zusammenfassung der Schäden pro Boot in einem def. Zeitraum. Durchschnittliche AUsfallzeit pro Reparatur.
+Benachrichtigung des Admins, wenn Bootsreservierungen durch Mitglieder eingetragen werden
 
-Gewässer - durch Mitglieder für jede Fahrt erfassen lassen
+- DRV(Barbara): bei der Bearbeitung habe ich häufig Rückfragen zur den eingetragenen Fahrten. Es wäre toll, wenn ich
+die in der Fahrtenübersicht markieren und dann daraus gleich die Rückfragemail generieren könnte. So muss
+ich manuell die mangelhaften Angaben in die Rückfragemail eintragen und beschreiben. Das kostet sehr viel
+Zeit.
+- DRV(Barbara): Und eine Spalte zum Markieren, wenn die Meldung bereits bearbeitet, aber wegen Rückfragen z. B.
+nicht abgeschlossen ist. Wenn ich derzeit unterbreche, muss ich mir aufschreiben, bei wem ich war
+
+============================================================================================================
 Gäste - automatisch erfassen
 Statistics - Weird Statistics (WerMitWem etc.)
 Statistics - Special Details (e.g. Wett in Kilometerliste etc.)
@@ -52,48 +52,7 @@ Thumbnails
 Input of Regatta Results
 Other new Functionality
 
-
-Item                                                                 days  until   finished
-===========================================================================================
-EfaBoathouseFrame Background Thread                                  0.5  13.08.     16.08.
-Messages                                                             0.5  13.08.     16.08.
-EfaBoathouseFrame and EfaBaseFrame - interworking                    1.0  12.08.     16.08.
-Show Logbook                                                         0.3  16.08.     16.08.
-Correct Misspelled Names                                             0.2  16.08.     16.08.
-MultiDay Sessions                                                    2.0  18.08.     18.08.
-DataLayer: Remote GUI Access                                         2.0  28.08.     28.08.
-efa Online Services                                                  1.0  31.08.     29.08.
-DataLayer: Remote CLI Access                                         2.0  30.08.     30.08.
-Import/Export with standardized CSV/XML Format (Header Names)        1.0  01.09.     31.08.
-Statistics - Framework                                               4.0  02.09.     20.09.
-Statistics - Basic Statistics                                        1.0  03.09.     20.09.
-Data Safety and Concurrency: Optimistic Locking
-Data Safety and Concurrency: Journaling and File Copies
-Statistics - Advanced Statistics
-Statistics - Button for "On-Demand" Statistics without saving a Record
-Statistics - Kilometerwettbewerbe
-Statistics - Output Types
-Statistics - split Dialog to select Filters in Sub-Tabs
-Statistics - add buttons "all" for Filters of each Category, so ensure nothing is skipped when e.g. SessionTypes are added
-Administration of DRV-Fahrtenabzeichen
-efaWett (elektronische Meldung)
-Online Update: XML and Multi-Language
-Encrypt Passwords for external Systems
-efaRemote - Online Update
-Backup
-LockEfa
-Create Statistik in CLI
-efaRemote - proper Session Handling
-Up/Down Buttons fuer Statistikeinstellungen
-Versionierte Daten (siehe email 16.01. an Fabian!)
-Beim Restore die kaputte Version vor dem Restore sichern!
-Statistiken erstellen (Datei-Ausgabe): Nach der letzten Info-Dialog mit geschriebenen Dateien
-Hinweis am Ende von Statistiken (oder im Header??) daß einzelne Personen/Boote ausgenommen wurden
-Standardboot für Personen bei Auswahl über Personennamen
-Wanderfahrten/Zielfahrten ausgeben (werden calculateSessionHistory aggregiert, aber nicht ausgegeben)
-Audit
-Statistikausgabe Gewässer (http://forum.nmichael.de/viewtopic.php?f=15&t=202&start=10)
-Übersetzungstool in efa
-email-Adressen entfernen
-Eigener Zielbereich
-efaWett: email-Adresse Pflicht
+============================================================================================================
+FAQ
+- Bootsbenutzung verhindern vs. warnen: http://forum.nmichael.de/posting.php?mode=reply&f=9&t=251
+- Fahrtart Training/DRV: http://forum.nmichael.de/viewtopic.php?f=15&t=245&p=842#p842

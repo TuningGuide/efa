@@ -37,21 +37,33 @@ public class MessageEditDialog extends UnversionizedDataEditDialog {
 
     private void ini (AdminRecord admin) {
         ItemTypeBoolean msgRead = (ItemTypeBoolean)getItem(MessageRecord.READ);
-        if (msgRead != null) {
-            MessageRecord r = (MessageRecord)dataRecord;
+        boolean setMsgRead = false;
+        MessageRecord r = null;
+        if (msgRead != null && !msgRead.getValue()) {
+            r = (MessageRecord)dataRecord;
             if (r.getTo() == null || r.getTo().equals(MessageRecord.TO_ADMIN)) {
                 msgRead.setEnabled(admin != null && admin.isAllowedMsgMarkReadAdmin());
                 if (admin != null && admin.isAllowedMsgAutoMarkReadAdmin()) {
-                    msgRead.setValue(true);
-                    msgRead.showValue();
+                    setMsgRead = true;
                 }
             } else {
                 msgRead.setEnabled(admin != null && admin.isAllowedMsgMarkReadBoatMaintenance());
                 if (admin != null && admin.isAllowedMsgAutoMarkReadBoatMaintenance()) {
-                    msgRead.setValue(true);
-                    msgRead.showValue();
+                    setMsgRead = true;
                 }
             }
+        }
+        if (setMsgRead && r != null) {
+            msgRead.setValue(true);
+            msgRead.showValue();
+            try {
+                r.setRead(true);
+                r.getPersistence().data().update(r);
+                msgRead.setUnchanged();
+            } catch (Exception eignore) {
+                Logger.logdebug(eignore);
+            }
+
         }
     }
 
@@ -60,6 +72,13 @@ public class MessageEditDialog extends UnversionizedDataEditDialog {
         if (newRecord && getItem(MessageRecord.FROM) != null) {
             this.setRequestFocus(getItem(MessageRecord.FROM));
         }
+    }
+
+    public void showDialog() {
+        if (newRecord && getItem(MessageRecord.FROM) != null) {
+            this.setRequestFocus(getItem(MessageRecord.FROM));
+        }
+        super.showDialog();
     }
 
 

@@ -36,6 +36,8 @@ public class SessionHistory {
             int dayNumber, DataTypeDate date, DataTypeDistance distance,
             Zielfahrt zf) {
         LogbookRecord r2 = (LogbookRecord)r.cloneRecord();
+        date = new DataTypeDate(date);
+        distance = new DataTypeDistance(distance);
         if (date != null) {
             r2.setDate(date);
         }

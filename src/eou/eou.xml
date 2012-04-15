@@ -2,17 +2,144 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.0.1_00</VersionID>
+        <ReleaseDate>15.04.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa201.zip</DownloadUrl>
+        <DownloadSize>2818194</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Statistiken mit zusammengefaßter Ausgabe von Gästen (auch vereinsweise) und anderen möglich</ChangeItem>
+            <ChangeItem>Neu: Im Admin-Modus wird die Anzahl der ungelesenen Nachrichten deutlich angezeigt</ChangeItem>
+            <ChangeItem>Neu: Zusätzliches Feld 'Versicherungswert' in Bootsverwaltung</ChangeItem>
+            <ChangeItem>Neu: Zusätzliche Felder 'Reparaturkosten' und 'Versicherungsfall' für Bootsschäden</ChangeItem>
+            <ChangeItem>Neu: Ausgabe der Fahrtart für Statistikart 'Fahrtenbuch' möglich</ChangeItem>
+            <ChangeItem>Neu: FTP-Upload von Statistiken</ChangeItem>
+            <ChangeItem>Neu: Für Kombiboote kann ein Standard-Bootstyp festgelegt werden</ChangeItem>
+            <ChangeItem>Neu: Zusätzliche Buttons im Statistik-Dialog zum Sortieren (auf/ab) der Statistikeinstellungen</ChangeItem>
+            <ChangeItem>Neu: Statistiken können nach eigenen, fremden oder unbekannten Booten gefiltert werden</ChangeItem>
+            <ChangeItem>Neu: Optional können bei der Eingabe von Fahrten zu einem Ziel Zusatzinformationen wie Gewässer und Zielbereiche angezeigt werden</ChangeItem>
+            <ChangeItem>Neu: Verbesserte Debug-Ausgaben beim Programmstart zur einfacheren Fehlersuche</ChangeItem>
+            <ChangeItem>Neu: Optional enthält Ziel-Auswahlliste jetzt auch Gewässernamen, um eine Auswahl/Sortierung anhand des Gewässers zu erlauben</ChangeItem>
+            <ChangeItem>Neu: Für unbekannte Ziele oder Zielen mit Abstechern können jetzt optional auch Gewässer erfaßt werden</ChangeItem>
+            <ChangeItem>Neu: Bearbeitungsdialoge zeigen den Namen des Datensatzes in der Titelzeile</ChangeItem>
+            <ChangeItem>Neu: Ausgabe des Geschlechts in Kilometerliste möglich</ChangeItem>
+            <ChangeItem>Bugfix: Beim Hinzufügen von Personen durch Mitglieder können nur noch einige Basisfelder gesetzt werden, aber z.B. nicht mehr Status, Gruppenzugehörigkeit usw.</ChangeItem>
+            <ChangeItem>Bugfix: Beim Erstellen einer 'Nachricht an Admin' hat das Absender-Feld automatisch den Fokus</ChangeItem>
+            <ChangeItem>Bugfix: Fehler bei Ein- und Ausgabe von Dezimalzahlen bzgl. der Anzahl der Nachkommastellen behoben</ChangeItem>
+            <ChangeItem>Bugfix: Ausgewählter Datensatz behält nach Bearbeiten seinen Fokus</ChangeItem>
+            <ChangeItem>Bugfix: Ungünstige Spaltendarstellung für Bootsstatus und Fahrtgruppen bearbeiten</ChangeItem>
+            <ChangeItem>Bugfix: Bootsstatus auch von unbekannten Booten kann bearbeitet werden</ChangeItem>
+            <ChangeItem>Bugfix: efa zeigt jetzt korrekte Anzahl der Eingabefelder bei Auswahl von Kombibooten an und behält Auswahl bei</ChangeItem>
+            <ChangeItem>Bugfix: Debug-Ausgaben bei Aufruf mit Option -debug unter Windows sichtbar</ChangeItem>
+            <ChangeItem>Bugfix: Auswertungsfehler von Mehrtagesfahrten für LRV-Winter-Fahrten-Wettbewerb behoben</ChangeItem>
+            <ChangeItem>Bugfix: Entfernungseinheit für Fahrtenbuchausgabe wird jetzt unterdrückt, wenn die enstprechende Option in den Statistikeinstellungen nicht selektiert ist</ChangeItem>
+            <ChangeItem>Bugfix: Reihenfolge der Gewässer für Ziele wird jetzt beibehalten</ChangeItem>
+            <ChangeItem>Bugfix: Gruppenliste wird jetzt alphabetisch sortiert</ChangeItem>
+            <ChangeItem>Bugfix: Fahrtenabzeichen zeigen jetzt den Personennamen anstelle der ID als ihren Namen an</ChangeItem>
+            <ChangeItem>Bugfix: Tippfehlerkorrektur für kurze Namen ist jetzt weniger aggressiv</ChangeItem>
+            <ChangeItem>Bugfix: Darstellungsfehler bei Wettbewerben mit 'Ausgabe ohne Detail' korrigiert.</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException für Auswertung von Blauem Wimpel (LRV Berlin) korrigiert.</ChangeItem>
+            <ChangeItem>Bugfix: Streckenbeschreibung für Fahrtgruppen wird jetzt korrekt angezeigt.</ChangeItem>
+            <ChangeItem>Bugfix: efa verhindert jetzt, daß Reservierungen eingetragen werden, die sich überschneiden.</ChangeItem>
+            <ChangeItem>Bugfix: Darstellungs- und Sortierungsfehler in der Fahrtenbuchansicht behoben.</ChangeItem>
+            <ChangeItem>Bugfix: Nachrichten werden jetzt beim Lesen ohne Nachfrage als gelesen markiert (wenn entsprechend konfiguriert).</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException beim Erstellen von Meldedateien behoben.</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>New: Statistics with aggregated output of guests and others possible</ChangeItem>
+            <ChangeItem>New: Number of unread messages clearly visible in Admin Mode</ChangeItem>
+            <ChangeItem>New: Additional field 'Insurance Value' in Boat Administration</ChangeItem>
+            <ChangeItem>New: Additional fields 'Repait Costs' und 'Insurance Claim' for boat damages</ChangeItem>
+            <ChangeItem>New: Output of session type for statistic 'Logbook' possible</ChangeItem>
+            <ChangeItem>New: FTP-Upload of statistics</ChangeItem>
+            <ChangeItem>New: Definition of default boat type for boats with multiple boat types possible</ChangeItem>
+            <ChangeItem>New: Additional buttons to sort statistics</ChangeItem>
+            <ChangeItem>New: Filtering of statistics for own and other boats</ChangeItem>
+            <ChangeItem>New: Optionally show destinations infos when entering destinations</ChangeItem>
+            <ChangeItem>New: Improved debug output at program start</ChangeItem>
+            <ChangeItem>New: Destination list can optionally also show waters</ChangeItem>
+            <ChangeItem>New: Entering of waters for unknown destinations or side trips possible</ChangeItem>
+            <ChangeItem>New: Name of record show in title bar of data edit dialogs</ChangeItem>
+            <ChangeItem>New: Gender can be printed in statistics</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.0_09</VersionID>
+        <ReleaseDate>24.03.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa200.zip</DownloadUrl>
+        <DownloadSize>2793743</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Obleute werden in Ansicht 'Fahrtenbuch anzeigen' korrekt markiert</ChangeItem>
+            <ChangeItem>Bugfix: Obleute werden auch in Statistikausgabe 'Fahrtenbuch' markiert</ChangeItem>
+            <ChangeItem>Bugfix: Bezeichnung für Positionsspalte in Kilometerlisten einheitlich 'Position'</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Boat Captain properly marked in windows 'Show Logbook'</ChangeItem>
+            <ChangeItem>Bugfix: Boat Captain also marked in statistic 'Logbook'</ChangeItem>
+            <ChangeItem>Bugfix: Name of column for position in mileage lists commonly changed to 'Position'</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.0_08</VersionID>
+        <ReleaseDate>20.03.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa200.zip</DownloadUrl>
+        <DownloadSize>2793532</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.0_06</VersionID>
+        <ReleaseDate>18.03.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa200.zip</DownloadUrl>
+        <DownloadSize>2793210</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.0_05</VersionID>
+        <ReleaseDate>17.03.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa200.zip</DownloadUrl>
+        <DownloadSize>2792683</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.0.0_04</VersionID>
         <ReleaseDate>11.03.2012</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa200.zip</DownloadUrl>
         <DownloadSize>2823476</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes LRV-Winter-Wettbewerb</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
@@ -24,12 +151,10 @@
         <DownloadUrl>http://efa.nmichael.de/download/efa200.zip</DownloadUrl>
         <DownloadSize>2822949</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes Statisiken</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes Statistics</ChangeItem>
         </Changes>
@@ -41,12 +166,10 @@
         <DownloadUrl>http://efa.nmichael.de/download/efa200.zip</DownloadUrl>
         <DownloadSize>2822505</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
@@ -58,12 +181,10 @@
         <DownloadUrl>http://efa.nmichael.de/download/efa200.zip</DownloadUrl>
         <DownloadSize>2823389</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
@@ -75,12 +196,10 @@
         <DownloadUrl>http://efa.nmichael.de/download/efa2.zip</DownloadUrl>
         <DownloadSize>2777996</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>efa Version 2.0</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>efa Version 2.0</ChangeItem>
         </Changes>
@@ -92,12 +211,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2796474</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
@@ -109,13 +226,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2796258</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Gewässerliste</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
@@ -127,12 +242,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2796148</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Kleinigkeiten</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Minor Things</ChangeItem>
         </Changes>
@@ -144,12 +257,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2803244</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Vordefinierte Gewässerliste für Deutschland (Teil 1)</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Predefined Waters Lists supported</ChangeItem>
         </Changes>
@@ -161,13 +272,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2799976</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes Datenimport</ChangeItem>
             <ChangeItem>Bugfixes DRV-Fahrtenabzeichen</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes Data Import</ChangeItem>
         </Changes>
@@ -179,12 +288,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2798698</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
@@ -196,14 +303,12 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2795519</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Auswahl der Felder für Fahrtenbuchausgabe (bestehende Statistiken müssen angepaßt werden!)</ChangeItem>
             <ChangeItem>Übersetzungstool in efa</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Selection of Fields for Logbook Output</ChangeItem>
             <ChangeItem>Translation Tool in efa</ChangeItem>
@@ -217,14 +322,12 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2782684</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>GUI Icons für Buttons</ChangeItem>
             <ChangeItem>Verbesserte Suchfunktion</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>GUI Icons for Buttons</ChangeItem>
             <ChangeItem>Improved Search Function</ChangeItem>
@@ -238,12 +341,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2755094</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
@@ -255,12 +356,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2754794</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Statistikausgabe Gewässer</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Statistics Calculation for Waters</ChangeItem>
         </Changes>
@@ -272,13 +371,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2752907</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Audit: Überprüfung sämtlicher Projektdaten auf Korrektheit (beim Öffnen eines Projekts)</ChangeItem>
             <ChangeItem>ACHTUNG: Beta-Tester bitte schaut ins Forum zu wichtigen Hinweisen zum Audit!!!!!</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Audit: Verification of all Project Data (when Project is opened)</ChangeItem>
             <ChangeItem>ATTENTION: Beta Testers, please see the Forum for important notes regarding the Audit!!!!!</ChangeItem>
@@ -291,12 +388,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2744705</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
@@ -308,13 +403,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2743456</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Kleinigkeiten</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Small Stuff</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
@@ -327,13 +420,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2741680</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Personen von Statistiken ausnehmen</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Exclude Persons from Statistics</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
@@ -346,12 +437,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2743716</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
@@ -363,12 +452,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2732165</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
@@ -380,12 +467,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2732201</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes Kanu-EFb-Synchronisation</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
@@ -397,13 +482,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2737851</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Verbesserte Handhabung versionierter Daten</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Improved Handling of versionized Data</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
@@ -416,12 +499,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2734682</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes (Import, Fahrtenbuchwechsel, andere)</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes (Import, Logbook change, other)</ChangeItem>
         </Changes>
@@ -433,13 +514,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2734433</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Verbesserungen Statistik-Dialog</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Improvements Statistics Dialog</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
@@ -452,13 +531,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2732354</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Initiale Kopie im Spiegelverzeichnis</ChangeItem>
             <ChangeItem>Dokumentation erweitert</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Initial Copy in Mirror Directory</ChangeItem>
             <ChangeItem>Extended Documentation</ChangeItem>
@@ -471,13 +548,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2713667</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Spiegelverzeichnis für zusätzliche Datensicherheit</ChangeItem>
             <ChangeItem>Bugfixes Crash-Recovery</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Mirror Directory for additional Data Safety</ChangeItem>
             <ChangeItem>Bugfixes Crash Recovery</ChangeItem>
@@ -490,12 +565,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2712240</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
@@ -507,14 +580,12 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2711956</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Statistiken im CLI erstellen</ChangeItem>
             <ChangeItem>Aktualisierung der Sprachpakete</ChangeItem>
             <ChangeItem>Bugfix: CLI</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Create Statistics in CLI</ChangeItem>
             <ChangeItem>Update of Language Packs</ChangeItem>
@@ -528,12 +599,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2734340</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Sprach-Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Language Bugfixes</ChangeItem>
         </Changes>
@@ -545,7 +614,6 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2734096</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Ausdruck von Datensätzen</ChangeItem>
             <ChangeItem>Sperren von efa</ChangeItem>
@@ -554,7 +622,6 @@
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Printing of Records</ChangeItem>
             <ChangeItem>Locking efa</ChangeItem>
@@ -570,12 +637,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2677358</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Erkennung von externen Datenänderungen</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Detection of external Data Changes</ChangeItem>
         </Changes>
@@ -587,13 +652,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2610358</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Wiederherstellung von Daten bei Datenkorruption</ChangeItem>
             <ChangeItem>Bugfix Produktion</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Crash Recovery of corrupted Data</ChangeItem>
             <ChangeItem>Bugfix Production</ChangeItem>
@@ -606,12 +669,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2707274</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Übersetzungs-Update</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Translation Update</ChangeItem>
         </Changes>
@@ -623,13 +684,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2783469</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Listenausgabe aller Daten</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>List Output of all Data</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
@@ -642,13 +701,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2779726</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Interaktive Auswahl von Namen für Statistik</ChangeItem>
             <ChangeItem>Bugfixes: Index-Updates, Spellcheck, Statistikauswahl</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Interactive Selection of Names for Statistics</ChangeItem>
             <ChangeItem>Bugfixes: Index Updates, Spellcheck, Statistic Selection</ChangeItem>
@@ -661,13 +718,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2766835</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Manuelle Auswahl eines Ordners für efa1-Datenimport</ChangeItem>
             <ChangeItem>Bugfix: Deadlock beim Löschen eines Projekts</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Manual Selection of a Folder for efa1 Data Import</ChangeItem>
             <ChangeItem>Bugfix: Deadlock when deleting a Project</ChangeItem>
@@ -680,13 +735,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>efa2_beta.zip</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>ACHTUNG Windows-Nutzer: Bitte NICHT per Online-Update, sondern manuell durch Download des ZIP-Archivs updaten!!</ChangeItem>
             <ChangeItem>Bugfixes (Bootsstatus, Online-Update Windows)</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>ATTENTION Windows Users: Please don't update through Online Update, but install ZIP Archive manually.</ChangeItem>
             <ChangeItem>Bugfixes (Boat Status, Online Update Windows)</ChangeItem>
@@ -699,13 +752,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2770297</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Übersetzung ins Englische aktualisiert</ChangeItem>
             <ChangeItem>Aufräumen</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Translation into English updated</ChangeItem>
             <ChangeItem>Cleanup</ChangeItem>
@@ -718,13 +769,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2784723</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes Online-Update</ChangeItem>
             <ChangeItem>Bugfixes efaRemote</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes Online Update</ChangeItem>
             <ChangeItem>Bugfixes efaRemote</ChangeItem>
@@ -737,12 +786,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2783291</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfix Bootsstatus</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfix Boat Status</ChangeItem>
         </Changes>
@@ -754,12 +801,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2783085</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfix NullPointerException beim Fahrtenbuch öffnen</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfix NullPointerException when opening Logbook</ChangeItem>
         </Changes>
@@ -771,13 +816,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2783133</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bootsschaden melden im Popup-Menue</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
@@ -789,13 +832,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2783965</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Projekt-Auswahl beim Start für efa-Basis</ChangeItem>
             <ChangeItem>Bugfixes (Uhrzeiten und Datum)</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Project Selection at Start of efa Base</ChangeItem>
             <ChangeItem>Bugfixes (Times and Dates)</ChangeItem>
@@ -808,13 +849,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2783189</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Installationshinweise aktualisiert</ChangeItem>
             <ChangeItem>Bugfixes (assertUnique, CLI Return Codes, Statistiken im Bootshaus, Remote-Restore des Projekt-Storageobjekts)</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Install Hints updated (German only)</ChangeItem>
             <ChangeItem>Bugfixes (assertUnique, CLI Return Codes, Statistics, Remote Restore of Project Storage Object)</ChangeItem>
@@ -827,12 +866,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2770128</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
@@ -844,13 +881,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2769548</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Backups wiedereinspielen</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Restore Backups</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
@@ -863,13 +898,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2756065</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Remote Online-Update</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Remote Online Update</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
@@ -882,12 +915,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2754853</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfix NullPointerException bei Fahrt beginnen</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfix NullPointerException for Start Session</ChangeItem>
         </Changes>
@@ -899,12 +930,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2754663</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>efaLive-Integration für Backup</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>efaLive Integration for Backup</ChangeItem>
         </Changes>
@@ -916,12 +945,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2750989</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
@@ -933,13 +960,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2750821</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>CLI Return Codes</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>CLI Return Codes</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
@@ -952,14 +977,12 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2749682</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>efaRemote Rechteverwaltung im Client</ChangeItem>
             <ChangeItem>CLI-Anpassungen für Backup durch efaLive</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>efaRemote Client-based Access Control</ChangeItem>
             <ChangeItem>CLI Adapdations for Backup through efaLive</ChangeItem>
@@ -973,13 +996,11 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2743002</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Backup-Funktionalität in der GUI erreichbar</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Backup Functionality available in GUI</ChangeItem>
             <ChangeItem>Bugfixes</ChangeItem>
@@ -992,12 +1013,10 @@
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2_beta.zip</DownloadUrl>
         <DownloadSize>2755584</DownloadSize>
 
-        <!-- Changes (deutsch) -->
         <Changes lang="de">
             <ChangeItem>Bugfixes Remote-Zugriff</ChangeItem>
         </Changes>
 
-        <!-- Changes (english) -->
         <Changes lang="en">
             <ChangeItem>Bugfixes Remote Access</ChangeItem>
         </Changes>

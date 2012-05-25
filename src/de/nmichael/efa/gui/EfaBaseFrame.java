@@ -252,18 +252,31 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
 
     private void iniAdmin() {
-        admin = AdminLoginDialog.login(null, Daten.APPLNAME_EFA, 
-                true, Daten.efaConfig.getValueLastProjectEfaBase());
-        if (admin == null || !admin.isAllowedAdministerProjectLogbook()) {
-            if (admin != null) {
-                EfaMenuButton.insufficientRights(admin,
-                        International.getString("Projekte und Fahrtenbücher administrieren"));
+        try {
+            Credentials cred = new Credentials();
+            cred.readCredentials();
+            if (cred.getDefaultAdmin() != null) {
+                admin = Daten.admins.login(cred.getDefaultAdmin(),
+                        cred.getPassword(cred.getDefaultAdmin()));
             }
-            super.cancel();
-            Daten.haltProgram(Daten.HALT_ADMINLOGIN);
+        } catch(Exception e) {
+            Logger.logdebug(e);
         }
-        String p = AdminLoginDialog.getLastSelectedProject();
-        Daten.efaConfig.setValueLastProjectEfaBase( (p != null ? p : ""));
+
+        if (admin == null) {
+            admin = AdminLoginDialog.login(null, Daten.APPLNAME_EFA,
+                    true, Daten.efaConfig.getValueLastProjectEfaBase());
+            if (admin == null || !admin.isAllowedAdministerProjectLogbook()) {
+                if (admin != null) {
+                    EfaMenuButton.insufficientRights(admin,
+                            International.getString("Projekte und Fahrtenbücher administrieren"));
+                }
+                super.cancel();
+                Daten.haltProgram(Daten.HALT_ADMINLOGIN);
+            }
+            String p = AdminLoginDialog.getLastSelectedProject();
+            Daten.efaConfig.setValueLastProjectEfaBase((p != null ? p : ""));
+        }
         Daten.checkRegister();
     }
 
@@ -1406,7 +1419,21 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         if (isModeFull()) {
             if (success) {
                 setEntryUnchanged();
-                entryno.requestFocus();
+                boolean createNewRecord = false;
+                if (getMode() == MODE_BASE) {
+                    try {
+                        LogbookRecord rlast = (LogbookRecord) logbook.data().getLast();
+                        if (currentRecord.getEntryId().equals(rlast.getEntryId())) {
+                            createNewRecord = true;
+                        }
+                    } catch (Exception eignore) {
+                    }
+                }
+                if (createNewRecord) {
+                    createNewRecord(false);
+                } else {
+                    entryno.requestFocus();
+                }
             }
         } else {
             finishBoathouseAction(success);
@@ -2107,7 +2134,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             if (starttime.isVisible() && !starttime.isSet()) {
                 setTime(starttime, Daten.efaConfig.getValueEfaDirekt_plusMinutenAbfahrt(), null);
             }
-            if (endtime.isVisible() && !endtime.isSet()) {
+            if (endtime.isVisible() && !endtime.isSet() &&
+                (getMode() == MODE_BOATHOUSE_FINISH || getMode() == this.MODE_BOATHOUSE_LATEENTRY)) {
                 setTime(endtime, -Daten.efaConfig.getValueEfaDirekt_minusMinutenAnkunft(), starttime.getTime());
             }
 
@@ -2115,6 +2143,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             if (starttime.isVisible() && endtime.isVisible() &&
                 starttime.isSet() && endtime.isSet() &&
                 starttime.getTime().isAfter(endtime.getTime()) &&
+                endtime.isEditable() &&
                 !enddate.isSet()) {
                 if (Dialog.yesNoDialog(
                         International.getMessage("Ungültige Eingabe im Feld '{field}'",
@@ -2135,7 +2164,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             if (!sType.equals(EfaTypes.TYPE_SESSION_LATEENTRY) &&
                 !sType.equals(EfaTypes.TYPE_SESSION_TRAININGCAMP) &&
                 starttime.isVisible() && endtime.isVisible() && distance.isVisible() &&
-                starttime.isSet() && endtime.isSet() && distance.isSet()) {
+                starttime.isSet() && endtime.isSet() && endtime.isEditable() && distance.isSet()) {
                 long timediff = Math.abs(endtime.getTime().getTimeAsSeconds() - starttime.getTime().getTimeAsSeconds());
                 long dist = distance.getValue().getValueInMeters();
                 if (timediff < 15*60 && 
@@ -4044,7 +4073,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             this.setVisible(false);
             Dialog.frameClosed(this);
         }
-        efaBoathouseFrame.showEfaBoathouseFrame();
+        efaBoathouseFrame.showEfaBoathouseFrame(efaBoathouseAction);
     }
 
 

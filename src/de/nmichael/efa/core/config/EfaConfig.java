@@ -190,6 +190,8 @@ public class EfaConfig extends StorageObject {
     private ItemTypeBoolean efaDirekt_showZielnameFuerBooteUnterwegs;
     private ItemTypeString efadirekt_adminLastOsCommand;
     private ItemTypeImage efaDirekt_vereinsLogo;
+    private ItemTypeBoolean efaBoathouseShowLastFromWaterNotification;
+    private ItemTypeString efaBoathouseShowLastFromWaterNotificationText;
     private ItemTypeBoolean efaDirekt_showUhr;
     private ItemTypeBoolean efaDirekt_showNews;
     private ItemTypeString efaDirekt_newsText;
@@ -664,10 +666,10 @@ public class EfaConfig extends StorageObject {
 
             // ============================= BOATHOUSE:GUI =============================
             addParameter(efaDirekt_startMaximized = new ItemTypeBoolean("EfaBoathouseWindowMaximized", true,
-                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
                     International.getString("efa maximiert starten")));
             addParameter(efaDirekt_fensterNichtVerschiebbar = new ItemTypeBoolean("EfaBoathouseWindowFixedPosition", true,
-                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
                     International.getString("Hauptfenster nicht verschiebbar")));
             addParameter(efaDirekt_immerImVordergrund = new ItemTypeBoolean("EfaBoathouseWindowAlwaysOnTop", false,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
@@ -689,7 +691,7 @@ public class EfaConfig extends StorageObject {
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
                     International.getString("Boote auf Regatta, Trainingslager oder Mehrtagesfahrt als 'nicht verfügbar' anzeigen")));
             addParameter(efaDirekt_showZielnameFuerBooteUnterwegs = new ItemTypeBoolean("BoatListDisplayDestinationForBoatsOnTheWater", false,
-                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
                     International.getMessage("Fahrtziel in der Liste {list} anzeigen",
                     International.getString("Boote auf Fahrt"))));
             addParameter(efaDirekt_sortByAnzahl = new ItemTypeBoolean("BoatListSortBySeats", true,
@@ -701,6 +703,14 @@ public class EfaConfig extends StorageObject {
             addParameter(efaDirekt_vereinsLogo = new ItemTypeImage("ClubLogo", "", 192, 64,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
                     International.getString("Vereinslogo")));
+            addParameter(efaBoathouseShowLastFromWaterNotification = new ItemTypeBoolean("ShowLastFromWaterNotification", true,
+                    IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getString("Nach Beenden letzter Fahrt Erinnerung zum Schließen der Bootshalle anzeigen")));
+            addParameter(efaBoathouseShowLastFromWaterNotificationText = new ItemTypeString("ShowLastFromWaterNotificationText",
+                    International.getString("Alle Boote sind zurück.") + "<br>" +
+                    International.getString("Bitte schließe die Hallentore."),
+                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getString("Erinnerungstext zum Schließen der Bootshalle")));
             addParameter(efaDirekt_maxFBAnzeigenFahrten = new ItemTypeInteger("LogbookDisplayEntriesMaxNumber", 100, 1, Integer.MAX_VALUE, false,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
                     International.getString("Fahrtenbuch anzeigen") + ": " + International.getString("maximale Anzahl von Fahrten")));
@@ -876,10 +886,10 @@ public class EfaConfig extends StorageObject {
                     + International.getString("Signatur")));
 
             // ============================= SYNC =============================
-            addParameter(kanuEfb_urlLogin = new ItemTypeString("KanuEfbUrlLogin", "http://kanu-efb.de/services/login",
+            addParameter(kanuEfb_urlLogin = new ItemTypeString("KanuEfbUrlLogin", "http://efb.kanu-efb.de/services/login",
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_SYNC, CATEGORY_KANUEFB),
                     "Login URL"));
-            addParameter(kanuEfb_urlRequest = new ItemTypeString("KanuEfbUrlRequest", "http://kanu-efb.de/services",
+            addParameter(kanuEfb_urlRequest = new ItemTypeString("KanuEfbUrlRequest", "http://efb.kanu-efb.de/services",
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_SYNC, CATEGORY_KANUEFB),
                     "Request URL"));
 
@@ -1479,6 +1489,14 @@ public class EfaConfig extends StorageObject {
 
     public String getValueEfaDirekt_vereinsLogo() {
         return efaDirekt_vereinsLogo.getValue();
+    }
+
+    public boolean getValueEfaBoathouseShowLastFromWaterNotification() {
+        return efaBoathouseShowLastFromWaterNotification.getValue();
+    }
+
+    public String getValueEfaBoathouseShowLastFromWaterNotificationText() {
+        return efaBoathouseShowLastFromWaterNotificationText.getValue();
     }
 
     public boolean getValueEfaDirekt_showUhr() {

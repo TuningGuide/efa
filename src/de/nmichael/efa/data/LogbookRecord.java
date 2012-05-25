@@ -10,7 +10,9 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.efawett.Zielfahrt;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
@@ -110,6 +112,13 @@ public class LogbookRecord extends DataRecord {
 
     public static final String OPEN             = "Open";
     public static final String EFBSYNCTIME      = "EfbSyncTime";
+
+    public static final String EXP_BOAT         = "Boat";
+    public static final String EXP_COX          = "Cox";
+    public static final String EXP_CREW         = "Crew";
+    public static final String EXP_DESTINATION  = "Destination";
+    public static final String EXP_WATERSLIST   = "WatersList";
+    public static final String EXP_SESSIONGROUP = "SessionGroup";
 
     // =========================================================================
     // Supplementary Constants
@@ -642,7 +651,7 @@ public class LogbookRecord extends DataRecord {
         if (d != null && d.isSet()) {
             return d.getTimestamp(t);
         }
-        return 0;
+        return System.currentTimeMillis();
     }
 
     public long getValidAtTimestamp() {
@@ -731,16 +740,187 @@ public class LogbookRecord extends DataRecord {
         return -1;
     }
 
+    public String[] getFieldNamesForTextExport() {
+        String[] allFields = getPersistence().data().getFieldNames();
+        ArrayList<String> expFields = new ArrayList<String>();
+        for (String f : allFields) {
+            if (f.equals(BOATID)) {
+                expFields.add(EXP_BOAT);
+                continue;
+            }
+            for (int i=0; i<=CREW_MAX; i++) {
+                if (f.equals(this.getCrewFieldNameId(i))) {
+                    expFields.add((i == 0 ? EXP_COX : EXP_CREW + i));
+                    continue;
+                }
+            }
+            if (f.equals(DESTINATIONID)) {
+                expFields.add(EXP_DESTINATION);
+                continue;
+            }
+            if (f.equals(WATERSIDLIST)) {
+                expFields.add(EXP_WATERSLIST);
+                continue;
+            }
+            if (f.equals(SESSIONGROUPID)) {
+                expFields.add(EXP_SESSIONGROUP);
+                continue;
+            }
+            if (f.equals(BOATNAME) ||
+                f.equals(DESTINATIONNAME) ||
+                f.equals(WATERSNAMELIST)) {
+                continue;
+            }
+            for (int i=0; i<=CREW_MAX; i++) {
+                if (f.equals(this.getCrewFieldNameName(i))) {
+                    continue;
+                }
+            }
+            expFields.add(f);
+        }
+        return expFields.toArray(new String[0]);
+    }
+
+    public String getAsText(String fieldName) {
+        if (fieldName.equals(BOATID) || fieldName.equals(EXP_BOAT)) {
+            return getBoatAsName();
+        }
+        for (int i=0; i<=CREW_MAX; i++) {
+            if (fieldName.equals(getCrewFieldNameId(i))
+                    || fieldName.equals(EXP_COX) || fieldName.equals(EXP_CREW+i)) {
+                return getCrewAsName(i);
+            }
+        }
+        if (fieldName.equals(DESTINATIONID) || fieldName.equals(EXP_DESTINATION)) {
+            return getDestinationAndVariantName();
+        }
+        if (fieldName.equals(WATERSIDLIST) || fieldName.equals(EXP_WATERSLIST)) {
+            return getWatersNamesStringList();
+        }
+        if (fieldName.equals(SESSIONGROUPID) || fieldName.equals(EXP_SESSIONGROUP)) {
+            return (getSessionGroup() != null ? getSessionGroup().getName() : "");
+        }
+        if (fieldName.equals(SESSIONTYPE)) {
+            String s = getAsString(fieldName);
+            if (s != null) {
+                return Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, s);
+            }
+            return null;
+        }
+        return super.getAsText(fieldName);
+    }
+
+    public boolean setFromText(String fieldName, String value) {
+        if (fieldName.equals(BOATID)) {
+            Boats boats = getPersistence().getProject().getBoats(false);
+            BoatRecord br = boats.getBoat(value, getValidAtTimestamp());
+            if (br != null) {
+                set(fieldName, br.getId());
+            } else {
+                fieldName = BOATNAME;
+                set(fieldName, value);
+            }
+            return (value.equals(getAsText(fieldName)));
+        }
+        for (int i=0; i<=CREW_MAX; i++) {
+            if (fieldName.equals(getCrewFieldNameId(i))) {
+                Persons persons = getPersistence().getProject().getPersons(false);
+                PersonRecord pr = persons.getPerson(value, getValidAtTimestamp());
+                if (pr != null) {
+                    set(fieldName, pr.getId());
+                } else {
+                    fieldName = getCrewFieldNameName(i);
+                    set(fieldName, value);
+                }
+                return (value.equals(getAsText(fieldName)));
+            }
+        }
+        if (fieldName.equals(DESTINATIONID)) {
+            Destinations destinations = getPersistence().getProject().getDestinations(false);
+            DestinationRecord dr = destinations.getDestination(value, getValidAtTimestamp());
+            if (dr != null) {
+                set(fieldName, dr.getId());
+            } else {
+                fieldName = DESTINATIONNAME;
+                set(fieldName, value);
+            }
+            return (value.equals(getAsText(fieldName)));
+        }
+        if (fieldName.equals(WATERSIDLIST)) {
+            Vector<String> values = EfaUtil.split(value, ',');
+            DataTypeList<UUID> list = new DataTypeList<UUID>();
+            Waters waters = getPersistence().getProject().getWaters(false);
+            for (int i=0; i<values.size(); i++) {
+                WatersRecord wr = waters.findWatersByName(values.get(i).trim());
+                if (wr != null) {
+                    list.add(wr.getId());
+                }
+            }
+            if (list.length() > 0) {
+                set(fieldName, list);
+            } else {
+                DataTypeList l = DataTypeList.parseList(value, IDataAccess.DATA_STRING);
+                if (l != null && l.length() > 0) {
+                    fieldName = WATERSNAMELIST;
+                    set(fieldName, value);
+                }
+            }
+        }
+        if (fieldName.equals(SESSIONGROUPID)) {
+            SessionGroups sessiongroups = getPersistence().getProject().getSessionGroups(false);
+            SessionGroupRecord sr = sessiongroups.findSessionGroupRecord(value,
+                    ((Logbook)getPersistence()).getName());
+            if (sr != null) {
+                set(fieldName, sr.getId());
+            }
+            return (value.equals(getAsText(fieldName)));
+        }
+        if (fieldName.equals(SESSIONTYPE)) {
+            String s = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, value);
+            if (s != null) {
+                set(fieldName, s);
+            }
+        }
+        set(fieldName, value);
+        return (value.equals(getAsText(fieldName)));
+    }
+
     public Vector<IItemType> getGuiItems(AdminRecord admin) {
         return null; // not supported for LogbokRecord
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        return null; // not supported for LogbokRecord
+        TableItemHeader[] header = new TableItemHeader[6];
+        header[0] = new TableItemHeader(International.getString("Lfd. Nr."));
+        header[1] = new TableItemHeader(International.getString("Datum"));
+        header[2] = new TableItemHeader(International.getString("Boot"));
+        header[3] = new TableItemHeader(International.getString("Mannschaft"));
+        header[4] = new TableItemHeader(International.getString("Ziel") + " / " +
+                                        International.getString("Strecke"));
+        header[5] = new TableItemHeader(DataTypeDistance.getDefaultUnitName());
+        return header;
     }
 
     public TableItem[] getGuiTableItems() {
-        return null; // not supported for LogbokRecord
+        TableItem[] items = new TableItem[6];
+        items[0] = new TableItem(getAsText(ENTRYID));
+        items[1] = new TableItem(getAsText(DATE));
+        items[2] = new TableItem(getBoatAsName());
+        items[3] = new TableItem(getAllCoxAndCrewAsNameString());
+        items[4] = new TableItem(getDestinationAndVariantName());
+        items[5] = new TableItem(getAsText(DISTANCE));
+        return items;
     }
+
+    public String getQualifiedName() {
+        String name = (getEntryId() != null ? getEntryId().toString() : "?") +
+                      " (" + (getDate() != null ? getDate().toString() : "?") + ")";
+        return name;
+    }
+
+    public String[] getQualifiedNameFields() {
+        return new String[] { ENTRYID };
+    }
+
 
 }

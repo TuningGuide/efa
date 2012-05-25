@@ -33,6 +33,7 @@ public interface IWidget {
     public void setUpdateInterval(int seconds);
     public int getUpdateInterval();
     public JComponent getComponent();
+    public void runWidgetWarnings(int mode, boolean actionBegin);
 
     public void show(JPanel panel, int x, int y);
     public void show(JPanel panel, String orientation);

@@ -2545,7 +2545,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             sOutputFtpClient = new FTPClient(sOutputFile, Daten.efaTmpDirectory + "output.ftp");
             sOutputFile = Daten.efaTmpDirectory + "output.ftp";
         }
-        sOutputDir = (new File(sOutputFile)).getAbsolutePath();
+        sOutputDir = (new File(sOutputFile)).getParent();
         sOutputEncoding = getOutputEncoding();
         sOutputHtmlUpdateTable = getOutputHtmlUpdateTable();
         sOutputCsvSeparator = getOutputCsvSeparator();

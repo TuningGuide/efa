@@ -1727,6 +1727,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
 
     void showEfaBaseFrame(int mode, ItemTypeBoatstatusList.BoatListItem action) {
+        for (IWidget w : widgets) {
+            w.runWidgetWarnings(mode, true);
+        }
         if (efaBaseFrame == null) {
             efaBaseFrame = new EfaBaseFrame(this, EfaBaseFrame.MODE_BOATHOUSE);
             efaBaseFrame.prepareDialog();
@@ -1744,7 +1747,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
 
     // Callback from EfaBaseFrame
-    void showEfaBoathouseFrame() {
+    void showEfaBoathouseFrame(ItemTypeBoatstatusList.BoatListItem efaBoathouseAction) {
         bringFrameToFront();
         updateBoatLists(true); // must be explicitly called here! only efaBoathouseBackgroundTask.interrupt() is NOT sufficient.
         efaBoathouseBackgroundTask.interrupt();
@@ -1752,6 +1755,28 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             focusItem.requestFocus();
         }
         alive();
+        if (efaBoathouseAction != null &&
+                (efaBoathouseAction.mode == EfaBaseFrame.MODE_BOATHOUSE_FINISH ||
+                efaBoathouseAction.mode == EfaBaseFrame.MODE_BOATHOUSE_ABORT)) {
+            if (!boatStatus.areBoatsOutOnTheWater() &&
+                Daten.efaConfig.getValueEfaBoathouseShowLastFromWaterNotification()) {
+                String txt = Daten.efaConfig.getValueEfaBoathouseShowLastFromWaterNotificationText();
+                if (txt == null || txt.length() == 0) {
+                    txt = International.getString("Alle Boote sind zurück.") + "<br>" +
+                        International.getString("Bitte schließe die Hallentore.");
+                }
+                NotificationDialog dlg = new NotificationDialog(this,
+                        txt,
+                        BaseDialog.BIGIMAGE_CLOSEDOORS,
+                        "ffffff", "ff0000", 10);
+                dlg.showDialog();
+            }
+        }
+        if (efaBoathouseAction != null) {
+            for (IWidget w : widgets) {
+                w.runWidgetWarnings(efaBoathouseAction.mode, false);
+            }
+        }
     }
 
     void actionStartSession(ItemTypeBoatstatusList.BoatListItem item) {
@@ -2054,7 +2079,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                         html = Daten.efaTmpDirectory + "locked.html";
                         try {
                             String img = EfaUtil.saveImage("efaLocked.png", "png", Daten.efaTmpDirectory,
-                                    true, false);
+                                    true, false, false);
                             BufferedWriter f = new BufferedWriter(new FileWriter(html));
                             f.write("<html><body><h1 align=\"center\">" + International.getString("efa ist für die Benutzung gesperrt") + "</h1>\n");
                             f.write("<p align=\"center\"><img src=\"" + img + "\" align=\"center\" width=\"256\" height=\"256\"></p>\n");

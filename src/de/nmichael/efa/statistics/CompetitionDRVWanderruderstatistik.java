@@ -306,9 +306,7 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
         }
 
         final int SPALTENTITEL_UNTEN_AB_EINTRAEGEN = 15;
-        sr.pAdditionalTable1 = new String[anzMtours + 2 + (anzMtours > SPALTENTITEL_UNTEN_AB_EINTRAEGEN ? 1 : 0)][14];
-        sr.pAdditionalTable1FirstRowBold = true;
-        sr.pAdditionalTable1[0] = sr.pAdditionalTable1Title;
+        sr.pAdditionalTable1 = new String[anzMtours + 1 + (anzMtours > SPALTENTITEL_UNTEN_AB_EINTRAEGEN ? 1 : 0)][14];
         if (anzMtours > SPALTENTITEL_UNTEN_AB_EINTRAEGEN) { // Tabellentitel unten wiederholen
             sr.pAdditionalTable1[sr.pAdditionalTable1.length - 1] = sr.pAdditionalTable1Title;
             sr.pAdditionalTable1LastRowBold = true;
@@ -325,7 +323,6 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
             if (sd[i] == null) {
                 continue; // Wafa gelöscht, da sie die Kriterien nicht erfüllte!
             }
-            pos++;
             long tmp;
             sr.pAdditionalTable1[pos][ 0] = sd[i].sName +
                     (sd[i].sAdditional != null && sd[i].sAdditional.length() > 0 ? " (" + sd[i].sAdditional + ")": "");
@@ -420,6 +417,7 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
                 }
 
             }
+            pos++;
         }
 
         if (nichtGewerteteEintraege > 0) {
@@ -433,20 +431,20 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
         for (int i = 0; i < ga.length; i++) {
             tmp += (i > 0 ? ", " : "") + ga[i];
         }// DataTypeDistance.getDistanceFromMeters(tmp).getStringValueInKilometers()
-        sr.pAdditionalTable1[anzMtours + 1][ 0] = "--- Zusammenfassung ---";
-        sr.pAdditionalTable1[anzMtours + 1][ 1] = tmp;
-        sr.pAdditionalTable1[anzMtours + 1][ 2] = DataTypeDistance.getDistanceFromMeters(_gesMeters).getStringValueInKilometers();
-        sr.pAdditionalTable1[anzMtours + 1][ 3] = Integer.toString(_gesTage);
-        sr.pAdditionalTable1[anzMtours + 1][ 4] = Integer.toString(_gesTeilnMueber18 + _gesTeilnMbis18 + _gesTeilnFueber18 + _gesTeilnFbis18);
-        sr.pAdditionalTable1[anzMtours + 1][ 5] = DataTypeDistance.getDistanceFromMeters(_gesCrewMeters).getStringValueInKilometers();
-        sr.pAdditionalTable1[anzMtours + 1][ 6] = Integer.toString(_gesTeilnMueber18);
-        sr.pAdditionalTable1[anzMtours + 1][ 7] = DataTypeDistance.getDistanceFromMeters(_gesMeterTeilnMueber18).getStringValueInKilometers();
-        sr.pAdditionalTable1[anzMtours + 1][ 8] = Integer.toString(_gesTeilnMbis18);
-        sr.pAdditionalTable1[anzMtours + 1][ 9] = DataTypeDistance.getDistanceFromMeters(_gesMeterTeilnMbis18).getStringValueInKilometers();
-        sr.pAdditionalTable1[anzMtours + 1][10] = Integer.toString(_gesTeilnFueber18);
-        sr.pAdditionalTable1[anzMtours + 1][11] = DataTypeDistance.getDistanceFromMeters(_gesMeterTeilnFueber18).getStringValueInKilometers();
-        sr.pAdditionalTable1[anzMtours + 1][12] = Integer.toString(_gesTeilnFbis18);
-        sr.pAdditionalTable1[anzMtours + 1][13] = DataTypeDistance.getDistanceFromMeters(_gesMeterTeilnFbis18).getStringValueInKilometers();
+        sr.pAdditionalTable1[anzMtours][ 0] = "--- Zusammenfassung ---";
+        sr.pAdditionalTable1[anzMtours][ 1] = tmp;
+        sr.pAdditionalTable1[anzMtours][ 2] = DataTypeDistance.getDistanceFromMeters(_gesMeters).getStringValueInKilometers();
+        sr.pAdditionalTable1[anzMtours][ 3] = Integer.toString(_gesTage);
+        sr.pAdditionalTable1[anzMtours][ 4] = Integer.toString(_gesTeilnMueber18 + _gesTeilnMbis18 + _gesTeilnFueber18 + _gesTeilnFbis18);
+        sr.pAdditionalTable1[anzMtours][ 5] = DataTypeDistance.getDistanceFromMeters(_gesCrewMeters).getStringValueInKilometers();
+        sr.pAdditionalTable1[anzMtours][ 6] = Integer.toString(_gesTeilnMueber18);
+        sr.pAdditionalTable1[anzMtours][ 7] = DataTypeDistance.getDistanceFromMeters(_gesMeterTeilnMueber18).getStringValueInKilometers();
+        sr.pAdditionalTable1[anzMtours][ 8] = Integer.toString(_gesTeilnMbis18);
+        sr.pAdditionalTable1[anzMtours][ 9] = DataTypeDistance.getDistanceFromMeters(_gesMeterTeilnMbis18).getStringValueInKilometers();
+        sr.pAdditionalTable1[anzMtours][10] = Integer.toString(_gesTeilnFueber18);
+        sr.pAdditionalTable1[anzMtours][11] = DataTypeDistance.getDistanceFromMeters(_gesMeterTeilnFueber18).getStringValueInKilometers();
+        sr.pAdditionalTable1[anzMtours][12] = Integer.toString(_gesTeilnFbis18);
+        sr.pAdditionalTable1[anzMtours][13] = DataTypeDistance.getDistanceFromMeters(_gesMeterTeilnFbis18).getStringValueInKilometers();
 
         // Anzahl der aktiven Mitglieder
         if (sr.getOutputTypeEnum() == StatisticsRecord.OutputTypes.efawett && alleAktive != null) {

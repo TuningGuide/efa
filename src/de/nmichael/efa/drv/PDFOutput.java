@@ -57,8 +57,8 @@ public class PDFOutput {
         String xslfo = Daten.efaTmpDirectory + "esigfahrtenhefte.fo";
 
         try {
-            String header = EfaUtil.saveImage("DRV_Briefkopf_header.gif", "gif", Daten.efaTmpDirectory, false, true);
-            String footer = EfaUtil.saveImage("DRV_Briefkopf_footer.gif", "gif", Daten.efaTmpDirectory, false, true);
+            String header = EfaUtil.saveImage("DRV_Briefkopf_header.gif", "gif", Daten.efaTmpDirectory, false, true, true);
+            String footer = EfaUtil.saveImage("DRV_Briefkopf_footer.gif", "gif", Daten.efaTmpDirectory, false, true, true);
             String fontSize = "10pt";
 
             int netto = (int) ((meldegeld * 100) / 107);

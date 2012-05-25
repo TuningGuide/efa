@@ -56,7 +56,7 @@ public class DataPrintListDialog extends BaseDialog {
         this.validAt = validAt;
         this.admin = admin;
         this.data = data;
-        this.fields = persistence.data().getFieldNames(false);
+        this.fields = persistence.createNewRecord().getFieldNamesForTextExport(); // @todo (P1) persistence.data().getFieldNames(true);
         this.fieldDescription = new String[fields.length];
         Vector<Integer> indices = new Vector<Integer>();
         Vector<IItemType> items = persistence.createNewRecord().getGuiItems(admin);
@@ -101,6 +101,8 @@ public class DataPrintListDialog extends BaseDialog {
         selectedFieldsScrollPane.setPreferredSize(new Dimension(300,200));
         selectedFieldsScrollPane.getViewport().add(selectedFields);
         mainPanel.add(selectedFieldsScrollPane, BorderLayout.CENTER);
+
+        closeButton.setIcon(getIcon(IMAGE_RUNEXPORT));
 
     }
 

@@ -442,7 +442,11 @@ public class StatisticTask extends ProgressTask {
         sd.entryNo = entryNo;
         sd.date = entryDate;
         sd.sessions = 1; // we count every entry as one session
-        sd.logbookFields = new String[sr.getLogbookFieldCount()];
+        int fieldCount = sr.getLogbookFieldCount();
+        if (fieldCount < 2) {
+            fieldCount = 2; // at least sIsLFieldsEntryNo and sIsLFieldsDate are always enabled
+        }
+        sd.logbookFields = new String[fieldCount];
         int col = 0;
         if (sr.sIsLFieldsEntryNo) {
             sd.logbookFields[col++] = entryNo.toString();
@@ -1097,6 +1101,7 @@ public class StatisticTask extends ProgressTask {
                 }
             } catch(Exception e) {
                 logInfo("ERROR: " + e.toString() + "\n");
+                Logger.log(e);
             }
         }
         StatisticsData[] sd = runPostprocessing();

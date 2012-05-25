@@ -26,6 +26,7 @@ public class Credentials {
 
     private String filename;
     private Hashtable<String,String> credentials = new Hashtable<String,String>();
+    private String defaultAdmin = null;
 
     public Credentials() {
         this.filename = Daten.EFACREDFILE;
@@ -37,6 +38,10 @@ public class Credentials {
 
     public String getPassword(String username) {
         return credentials.get(username);
+    }
+
+    public String getDefaultAdmin() {
+        return defaultAdmin;
     }
 
     public void addCredentials(String username, String password) {
@@ -60,6 +65,10 @@ public class Credentials {
                     if (tok.countTokens() >= 2) {
                         String username = tok.nextToken();
                         String password = tok.nextToken();
+                        if (username.startsWith("+")) {
+                            username = username.substring(1);
+                            defaultAdmin = (defaultAdmin == null ? username : defaultAdmin);
+                        }
                         credentials.put(username, password);
                     }
                 }

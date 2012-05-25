@@ -1,10 +1,15 @@
 Item
 ============================================================================================================
+
 Eine alternative Gruppierung der Boote über die Bootsart würde ich auch nicht schlecht finden (alternativ zu "Einer, Zweier, Dreier, Vierer, andere").
 Text-Fahrtenbücher in efa importieren/exportieren
 Datenabgleich zwischen Bootshäusern implementieren, bei dem efa einen Export/Import durchführt, der
   anhand von LastModified erkennt, welche Daten gewinnen, aber zum Beispiel nie die Bootsstatusliste,
   Nachrichten, ... synchronisiert.
+Paßwort für Statistiken
+vorhandene Statistik bearbeiten und unter anderem Namen speichern
+Vor dem Aufrufen der Wetter-Popups einen Befehl durchführen können (um ggf. Seiten zu holen und aufzubereiten)
+Funktion, um zwei Records mit unterschiedlichen ID's zusammenzuführen
 
 Schreiben ins Spiegelverzeichnis mit Timeout bei Netzlaufwerk
 Buttons mit Symbolen ausstatten
@@ -19,20 +24,17 @@ DataLayer: DB Access
 Help System
 AutoComplete: match anything within input/change list content
 Ausgabe Steuerkilometer (mit Balken)
-Paßwort für Statistiken
-vorhandene Statistik bearbeiten und unter anderem Namen speichern
-Vor dem Aufrufen der Wetter-Popups einen Befehl durchführen können (um ggf. Seiten zu holen und aufzubereiten)
 Zusätzliche Import-Option: alle *nicht* importierten (versionierten) Daten als ungültig markieren
   (Use Case: Importieren einer neuen (vollständigen) Mitgliederliste; alles was nicht importiert wurde, ist ungültig)
   Dabei sollten allerdings Gäste und andere nicht gelöscht werden!
 Datenimport sollte eine Warnung ausgeben, wenn das
-Funktion, um zwei Records mit unterschiedlichen ID's zusammenzuführen
 Warnungs-Fenster mit Infos zum Ruderrevier (Gefahren, Sperrungen, etc.) beim Beginnen einer Fahrt
 PDF-Output
 Feld "Trommler" für Drachenboote; "Zweiter Steuermann" oder "Kielschwein", z.B. für Kirchboote
 Für alle Daten-Felder Klartextnamen definieren, die bei Listenausgabe dann verwendet werden
 Auswertung über die Bootsschäden:Zusammenfassung der Schäden pro Boot in einem def. Zeitraum. Durchschnittliche AUsfallzeit pro Reparatur.
 Benachrichtigung des Admins, wenn Bootsreservierungen durch Mitglieder eingetragen werden
+Bei der Eingabe von Namen hat efa 1 erkannt das eine Person schon eingetragen wurde. z.B. Wenn Monika Mustermann gesteuert hat, kann sie nicht noch mal auf Platz 1 sitzen, efa 1 hat hier, in der Auswahl gleich Klaus Mustermann vorgeschlagen.
 
 - DRV(Barbara): bei der Bearbeitung habe ich häufig Rückfragen zur den eingetragenen Fahrten. Es wäre toll, wenn ich
 die in der Fahrtenübersicht markieren und dann daraus gleich die Rückfragemail generieren könnte. So muss

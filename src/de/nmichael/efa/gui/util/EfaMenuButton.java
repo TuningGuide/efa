@@ -46,6 +46,7 @@ public class EfaMenuButton {
 
     public final static String MENU_ADMINISTRATION      = "ADMINISTRATION";
     public final static String BUTTON_LOGBOOK           = "LOGBOOK";
+    public final static String BUTTON_LOGBOOKADMIN      = "LOGBOOKADMIN";
     public final static String BUTTON_SESSIONGROUPS     = "SESSIONGROUPS";
     public final static String BUTTON_BOATS             = "BOATS";
     public final static String BUTTON_BOATSTATUS        = "BOATSTATUS";
@@ -187,6 +188,13 @@ public class EfaMenuButton {
             v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_LOGBOOK,
                     International.getStringWithMnemonic("Administration"),
                     International.getStringWithMnemonic("Fahrtenbuch"),
+                    BaseFrame.getIcon("menu_logbook.png")));
+        }
+        if (admin == null || (admin.isAllowedEditLogbook() && adminMode)) {
+            v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_LOGBOOKADMIN,
+                    International.getStringWithMnemonic("Administration"),
+                    International.getStringWithMnemonic("Fahrtenbuch") +
+                    " (" + International.getString("Admin") + ")",
                     BaseFrame.getIcon("menu_logbook.png")));
         }
         if (admin == null || admin.isAllowedEditLogbook() && adminMode) { // we have the same menu again at the end for non-admin mode...
@@ -546,6 +554,21 @@ public class EfaMenuButton {
             EfaBaseFrame dlg = new EfaBaseFrame(parentDialog, EfaBaseFrame.MODE_ADMIN);
             dlg.setDataForAdminAction(logbook, admin, (AdminDialog)parentDialog);
             dlg.efaBoathouseShowEfaFrame();
+        }
+
+        if (action.equals(BUTTON_LOGBOOKADMIN)) {
+            if (Daten.project == null || logbook == null) {
+                Dialog.error(International.getString("Kein Fahrtenbuch geöffnet."));
+                return false;
+            }
+            if (admin == null || (!admin.isAllowedEditLogbook())) {
+                insufficientRights(admin, action);
+                return false;
+            }
+            LogbookListDialog dlg = (parentFrame != null ?
+                new LogbookListDialog(parentFrame, admin, logbook) :
+                new LogbookListDialog(parentDialog, admin, logbook));
+            dlg.showDialog();
         }
 
         if (action.equals(BUTTON_SESSIONGROUPS)) {

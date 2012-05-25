@@ -380,7 +380,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
                     width = 1;
                 }
                 f.write("<img src=\"" + 
-                        EfaUtil.saveImage("color_" + colorBar + ".gif", "gif", sr.sOutputDir, true, false) +
+                        EfaUtil.saveImage("color_" + colorBar + ".gif", "gif", sr.sOutputDir, true, false, false) +
                         "\" width=\"" + width + "\" height=\"20\" alt=\"\">&nbsp;");
             }
             if (s.length() > 0) {
@@ -406,10 +406,11 @@ public class StatisticHTMLWriter extends StatisticWriter {
             }
             f.write("<tr>");
             for (int j = 0; j < data[i].length; j++) {
-                f.write("<td>"
-                        + ((i == 0 && firstRowBold) || (i == data.length - 1 && lastRowBold) ? "<b>" : "")
+                boolean isBold = (i == 0 && firstRowBold) || (i == data.length - 1 && lastRowBold);
+                f.write("<td " + (isBold ? " align=\"center\"" : "") + ">"
+                        + (isBold ? "<b>" : "")
                         + data[i][j]
-                        + ((i == 0 && firstRowBold) || (i == data.length - 1 && lastRowBold) ? "</b>" : "")
+                        + (isBold ? "</b>" : "")
                         + "</td>");
             }
             f.write("</tr>\n");

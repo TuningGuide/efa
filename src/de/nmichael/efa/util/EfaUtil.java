@@ -1655,8 +1655,8 @@ public class EfaUtil {
     }
 
     public static String saveImage(String image, String format, String dir, 
-            boolean urlNotation, boolean forceOverwrite) {
-        String fname = dir + image;
+            boolean urlNotation, boolean forceOverwrite, boolean useAbsolutePath) {
+        String fname = dir + (dir.endsWith(Daten.fileSep) ? "" : Daten.fileSep) + image;
         if (forceOverwrite || !EfaUtil.canOpenFile(fname)) {
             try {
                 BufferedImage img = javax.imageio.ImageIO.read(EfaUtil.class.getResource(Daten.IMAGEPATH + image));
@@ -1665,11 +1665,14 @@ public class EfaUtil {
                 Logger.logdebug(e);
             }
         }
+        if (!useAbsolutePath) {
+            fname = image;
+        }
         if (urlNotation) {
             if (Daten.fileSep.equals("\\")) {
-                fname = "/" + EfaUtil.replace(fname, "\\", "/", true);
+                fname = (useAbsolutePath ? "/" : "") + EfaUtil.replace(fname, "\\", "/", true);
             }
-            return "file:" + fname;
+            return (useAbsolutePath ? "file:" : "") + fname;
         } else {
             return fname;
         }

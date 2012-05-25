@@ -91,6 +91,10 @@ public class HTMLWidget extends Widget {
         htmlUpdater.stopHTML();
     }
 
+    public void runWidgetWarnings(int mode, boolean actionBegin) {
+        // nothing to do
+    }
+
     class HTMLUpdater extends Thread {
 
         volatile boolean keepRunning = true;

@@ -2,6 +2,114 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.0.1_06</VersionID>
+        <ReleaseDate>xx.05.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa201.zip</DownloadUrl>
+        <DownloadSize></DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Nach Beenden der letzten Fahrt wird eine Erinnerung zum Schließen der Bootshalle angezeigt</ChangeItem>
+            <ChangeItem>Neu: Bei Fahrtbeginn kurz vor Einsetzen bzw. bei Dunkelheit wird (konfigurierbar) eine Warnung angezeigt</ChangeItem>
+            <ChangeItem>Bugfix: ArrayOutOfBoundsException beim Erstellen von Fahrtenbuch-Statistiken behoben, wenn keine Ausgabefelder selektiert waren.</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>New: After finishing of the last session, efa will display a reminder to lock the boat house</ChangeItem>
+            <ChangeItem>New: When starting a session shortly before sunset or during darkness, a (configurable) warning will be displayed</ChangeItem>
+            <ChangeItem>Bugfix: ArrayOutOfBoundsException when creating logbook statistics fixed when no output fields have been selected</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.1_05</VersionID>
+        <ReleaseDate>07.05.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa201.zip</DownloadUrl>
+        <DownloadSize>2830104</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Grafiken in generierten HTML-Dateien werden jetzt durch relativen (statt absoluten) Pfad referenziert.</ChangeItem>
+            <ChangeItem>Sprache: Erweiterte Griechische Übersetzung integriert.</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Images in generated HTML documents are now referecend through relative (instead of absolute) path names.</ChangeItem>
+            <ChangeItem>Language: Extended Greek translation integrated.</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.1_04</VersionID>
+        <ReleaseDate>05.05.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa201.zip</DownloadUrl>
+        <DownloadSize>2823446</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Anpassung: URL für Kanu-eFB in https://efb.kanu-efb.de/services geändert.</ChangeItem>
+            <ChangeItem>Bugfix: Beim Beginnen von Fahrten wird die Endzeit nicht mehr von efa aufgefüllt, wenn sämtliche Eingabefelder angezeigt werden.</ChangeItem>
+            <ChangeItem>Bugfix: Beim Eintragen von Fahrten vorgeschlagene Uhrzeiten, die nicht geändert werden können, führen zu keinen Fehlermeldungen von efa mehr.</ChangeItem>
+            <ChangeItem>Neu: In efa-Basis wird jetzt nach dem Speichern des letzten Fahrtenbucheintrags automatisch ein neuer Eintrag begonnen.</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: End time field will not be filled by efa any more when starting a new session.</ChangeItem>
+            <ChangeItem>Bugfix: When entering sessions and change of suggested times has been disabled, efa will not complain about wrong times any more.</ChangeItem>
+            <ChangeItem>New: efa-Base will automatically start a new entry when the last entry of the logbook is being saved.</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.1_03</VersionID>
+        <ReleaseDate>26.04.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa201.zip</DownloadUrl>
+        <DownloadSize>2819501</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Admin-Login für efa-Basis und efaCLI anhand mittels Credentials-Datei auch ohne Paßworteingabe möglich.</ChangeItem>
+            <ChangeItem>Sprache: Erweiterte Griechische Übersetzung integriert.</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException im MeteoAstroWidget behoben.</ChangeItem>
+            <ChangeItem>Bugfix: Fehlerhafte Logausschrift beim efa-Restart unter Windows behoben.</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>New: Admin-Login for efa-Base and efaCLI using credentials file possible without the need to enter a password.</ChangeItem>
+            <ChangeItem>Language: Extended Greek translation integrated.</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException in MeteoAstroWidget fixed</ChangeItem>
+            <ChangeItem>Bugfix: Wrong logging message during efa restart under Windows fixed</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.1_02</VersionID>
+        <ReleaseDate>18.04.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa201.zip</DownloadUrl>
+        <DownloadSize>2813831</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Unvollständige Auswertung des LRV-Sommer-Wettbewerbs behoben.</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix (Berlin-specific)</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.1_01</VersionID>
+        <ReleaseDate>17.04.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa201.zip</DownloadUrl>
+        <DownloadSize>2813731</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Fehlermeldung bei Fahrtenbuchansicht und Auswahl der Option 'auch Boote unterwegs anzeigen' behoben.</ChangeItem>
+            <ChangeItem>Bugfix: Doppelte Tabellenüberschrift bei DRV-Wanderruderstatistik behoben</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Exception in Logbook View (for boats on the water) fixed.</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.0.1_00</VersionID>
         <ReleaseDate>15.04.2012</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa201.zip</DownloadUrl>

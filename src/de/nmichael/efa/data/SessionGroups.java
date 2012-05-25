@@ -52,6 +52,21 @@ public class SessionGroups extends StorageObject {
         }
     }
 
+    public SessionGroupRecord findSessionGroupRecord(String name, String logbookName) {
+        try {
+            DataKey[] keys = data().getByFields(
+                    new String[] { SessionGroupRecord.NAME, SessionGroupRecord.LOGBOOK } ,
+                    new String[] { name, logbookName });
+            if (keys != null && keys.length > 0) {
+                return (SessionGroupRecord)data().get(keys[0]);
+            }
+            return null;
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
     public DataKey[] findAllSessionGroupKeys(String logbookName) {
         try {
             return data().getByFields(SessionGroupRecord.IDX_LOGBOOK, new String[] { logbookName });

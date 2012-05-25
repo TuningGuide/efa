@@ -291,7 +291,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
         if (event != null && itemType != null) {
             if ((event instanceof KeyEvent && itemType == showOnlyNumber && event.getID() == KeyEvent.KEY_RELEASED) ||
                 (event instanceof ActionEvent && itemType == showAlsoIncomplete)) {
-                if (((KeyEvent)event).getKeyCode() == KeyEvent.VK_SHIFT) {
+                if (event instanceof KeyEvent && ((KeyEvent)event).getKeyCode() == KeyEvent.VK_SHIFT) {
                     return;
                 }
                 showOnlyNumber.getValueFromGui();

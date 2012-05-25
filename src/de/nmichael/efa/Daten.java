@@ -34,8 +34,8 @@ import java.lang.management.*;
 public class Daten {
 
     public final static String VERSION            = "2.0.1"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID          = "2.0.1_00";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-    public final static String VERSIONRELEASEDATE = "15.04.2012";  // Release Date: TT.MM.JJJJ
+    public final static String VERSIONID          = "2.0.1_90";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "25.05.2012";  // Release Date: TT.MM.JJJJ
     public final static String MAJORVERSION       = "2";
     public final static String PROGRAMMID         = "EFA.201"; // Versions-ID für Wettbewerbsmeldungen
     public final static String PROGRAMMID_DRV     = "EFADRV.201"; // Versions-ID für Wettbewerbsmeldungen
@@ -308,15 +308,15 @@ public class Daten {
         }
 
         if (exitCode != 0) {
-            if (exitCode < 99) {
+            if (exitCode == Daten.HALT_SHELLRESTART || exitCode == Daten.HALT_JAVARESTART) {
+                Logger.log(Logger.INFO, Logger.MSG_CORE_HALT,
+                        International.getString("PROGRAMMENDE") + " (Exit Code " + exitCode + ")");
+            } else {
                 if (Daten.applID != Daten.APPL_CLI) {
                     Logger.log(Logger.INFO, Logger.MSG_CORE_HALT, getCurrentStack());
                 }
                 Logger.log(Logger.ERROR, Logger.MSG_CORE_HALT,
                         International.getString("PROGRAMMENDE") + " (Error Code " + exitCode + ")");
-            } else {
-                Logger.log(Logger.INFO, Logger.MSG_CORE_HALT,
-                        International.getString("PROGRAMMENDE") + " (Exit Code " + exitCode + ")");
             }
         } else {
             Logger.log(Logger.INFO, Logger.MSG_CORE_HALT,

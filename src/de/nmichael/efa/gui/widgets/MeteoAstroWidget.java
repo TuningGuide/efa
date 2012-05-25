@@ -14,6 +14,7 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.gui.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.image.*;
 import java.awt.event.*;
@@ -54,6 +55,13 @@ public class MeteoAstroWidget extends Widget {
     static final String PARAM_HTMLPOPUPURL        = "HtmlPopupUrl";
     static final String PARAM_HTMLPOPWIDTH        = "HtmlPopupWidth";
     static final String PARAM_HTMLPOPHEIGHT       = "HtmlPopupHeight";
+
+    static final String PARAM_WARNDARKNESS          = "WarnDarkness";
+    static final String PARAM_WARNTIMEBEFORESUNSET  = "WarnTimeBeforeSunset";
+    static final String PARAM_WARNTIMEAFTERSUNSET   = "WarnTimeAfterSunset";
+    static final String PARAM_WARNTIMEBEFORESUNRISE = "WarnTimeBeforeSunrise";
+    static final String PARAM_WARNTEXTDARKSOON      = "WarnTextDarkSoon";
+    static final String PARAM_WARNTEXTDARKNOW       = "WarnTextDarkNow";
 
     static final String GOOGLE_API = "http://www.google.com/ig/api";
     static final String GOOGLE_URL = "http://www.google.com";
@@ -152,6 +160,30 @@ public class MeteoAstroWidget extends Widget {
                 International.getString("HTML-Popup") + ": " +
                 International.getString("Höhe")));
 
+        addParameterInternal(new ItemTypeBoolean(PARAM_WARNDARKNESS, true,
+                IItemType.TYPE_PUBLIC, "",
+                International.getString("Bei Fahrtbeginn vor Dunkelheit warnen")));
+        addParameterInternal(new ItemTypeString(PARAM_WARNTEXTDARKSOON,
+                International.getString("Achtung, es wird bald dunkel.") + "<br>" +
+                International.getString("Bitte nimm Licht mit!"),
+                IItemType.TYPE_PUBLIC, "",
+                International.getString("Warntext vor Einbruch der Dunkelheit")));
+        addParameterInternal(new ItemTypeString(PARAM_WARNTEXTDARKNOW,
+                International.getString("Achtung, es ist dunkel.") + "<br>" +
+                International.getString("Bitte nimm Licht mit!"),
+                IItemType.TYPE_PUBLIC, "",
+                International.getString("Warntext bei Dunkelheit")));
+        addParameterInternal(new ItemTypeInteger(PARAM_WARNTIMEBEFORESUNSET, 30, 0, 60, false,
+                IItemType.TYPE_EXPERT, "",
+                PARAM_WARNTIMEBEFORESUNSET));
+        addParameterInternal(new ItemTypeInteger(PARAM_WARNTIMEAFTERSUNSET, 30, 0, 60, false,
+                IItemType.TYPE_EXPERT, "",
+                PARAM_WARNTIMEAFTERSUNSET));
+        addParameterInternal(new ItemTypeInteger(PARAM_WARNTIMEBEFORESUNRISE, 30, 0, 60, false,
+                IItemType.TYPE_EXPERT, "",
+                PARAM_WARNTIMEBEFORESUNRISE));
+
+
 
         super.setEnabled(true);
         super.setPosition(IWidget.POSITION_CENTER);
@@ -229,6 +261,25 @@ public class MeteoAstroWidget extends Widget {
         return ((ItemTypeInteger)getParameterInternal(PARAM_HTMLPOPHEIGHT)).getValue();
     }
 
+    public boolean isWarnDarkness() {
+        return ((ItemTypeBoolean)getParameterInternal(PARAM_WARNDARKNESS)).getValue();
+    }
+    public int getWarnTimeBeforeSunset() {
+        return ((ItemTypeInteger)getParameterInternal(PARAM_WARNTIMEBEFORESUNSET)).getValue();
+    }
+    public int getWarnTimeAfterSunset() {
+        return ((ItemTypeInteger)getParameterInternal(PARAM_WARNTIMEAFTERSUNSET)).getValue();
+    }
+    public int getWarnTimeBeforeSunrise() {
+        return ((ItemTypeInteger)getParameterInternal(PARAM_WARNTIMEBEFORESUNRISE)).getValue();
+    }
+    public String getWarnTextDarkSoon() {
+        return ((ItemTypeString)getParameterInternal(PARAM_WARNTEXTDARKSOON)).toString();
+    }
+    public String getWarnTextDarkNow() {
+        return ((ItemTypeString)getParameterInternal(PARAM_WARNTEXTDARKNOW)).toString();
+    }
+
     void construct() {
         htmlPane.setContentType("text/html");
         htmlPane.setEditable(false);
@@ -256,7 +307,45 @@ public class MeteoAstroWidget extends Widget {
     }
 
     public void stop() {
-        htmlUpdater.stopHTML();
+        try {
+            htmlUpdater.stopHTML();
+        } catch(Exception eignore) {
+            // nothing to do, might not be initialized
+        }
+    }
+
+    public void runWidgetWarnings(int mode, boolean actionBegin) {
+        try {
+            if ((mode == EfaBaseFrame.MODE_BOATHOUSE_START ||
+                 mode == EfaBaseFrame.MODE_BOATHOUSE_START_CORRECT) && !actionBegin &&
+                 isWarnDarkness()) {
+                Calendar cal = new GregorianCalendar();
+                int now = cal.get(Calendar.HOUR_OF_DAY)*60 + cal.get(Calendar.MINUTE);
+                String sun[] = SunRiseSet.getSunRiseSet(getLatitude(), getLongitude());
+                TMJ tmj = EfaUtil.string2date(sun[0], -1, -1, 0);
+                int sunrise = (tmj.tag >= 0 && tmj.monat >= 0 ? tmj.tag*60 + tmj.monat : -1);
+                tmj = EfaUtil.string2date(sun[1], -1, -1, 0);
+                int sunset = (tmj.tag >= 0 && tmj.monat >= 0 ? tmj.tag*60 + tmj.monat : -1);
+                if (sunset < 0 || sunrise < 0 || now < 0) {
+                    return;
+                }
+                String warnText = null;
+                if (now <= sunrise-getWarnTimeBeforeSunrise() || now >= sunset+getWarnTimeAfterSunset()) {
+                    warnText = getWarnTextDarkNow();
+                } else if (now >= sunset-getWarnTimeBeforeSunset() && now < sunset+getWarnTimeAfterSunset()) {
+                    warnText = getWarnTextDarkSoon();
+                }
+                if (warnText != null) {
+                    NotificationDialog dlg = new NotificationDialog((JFrame)null,
+                            warnText,
+                            BaseDialog.BIGIMAGE_DARKNESS,
+                            "ffffff", "ff0000", 10);
+                    dlg.showDialog();
+                }
+            }
+        } catch(Exception eignore) {
+            Logger.logdebug(eignore);
+        }
     }
 
     class HTMLUpdater extends Thread {

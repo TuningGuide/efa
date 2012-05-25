@@ -68,10 +68,13 @@ public class CLI {
         this.project = project;
         console = System.console();
         in = new BufferedReader(new InputStreamReader(System.in));
+        Credentials cred = new Credentials();
+        cred.readCredentials();
+        if (username == null || username.length() == 0) {
+            username = cred.getDefaultAdmin();
+        }
         if (username != null && username.length() > 0 &&
                 (password == null || password.length() == 0)) {
-            Credentials cred = new Credentials();
-            cred.readCredentials();
             this.password = cred.getPassword(username);
         }
     }

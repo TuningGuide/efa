@@ -16,8 +16,10 @@ import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.gui.BaseTabbedDialog;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.util.*;
+
 import java.util.*;
 
 // @i18n complete
@@ -28,10 +30,12 @@ public class ProjectRecord extends DataRecord {
     public static final String TYPE_CLUB    = "Club";
     public static final String TYPE_LOGBOOK = "Logbook";
     public static final String TYPE_CONFIG  = "Config";
+    public static final String TYPE_CLUBWORK_SETTINGS  = "ClubworkSettings";
 
     public static final String TYPE                         = "Type"; // one of TYPE_XXX constants
     public static final String PROJECTNAME                  = "ProjectName";
     public static final String LOGBOOKNAME                  = "LogbookName";
+    public static final String CLUBWORKSETTINGSNAME         = "ClubworkSettingsName";
     public static final String DESCRIPTION                  = "Description";
 
     public static final int GUIITEMS_SUBTYPE_ALL = 0;
@@ -55,6 +59,7 @@ public class ProjectRecord extends DataRecord {
     public static final String CURRENTLOGBOOKEFABOATHOUSE   = "CurrentLogbookEfaBoathouse";
     public static final String AUTONEWLOGBOOKDATE           = "AutoNewLogbookDate";
     public static final String AUTONEWLOGBOOKNAME           = "AutoNewLogbookName";
+    public static final String CLUBWORKCARRYOVER   			= "ClubworkCarryOverDate";
 
 
     // Fields for Type=Club
@@ -80,6 +85,12 @@ public class ProjectRecord extends DataRecord {
     // DESCRIPTION
     public static final String STARTDATE                    = "StartDate";
     public static final String ENDDATE                      = "EndDate";
+    
+    // Fields for Type=ClubworkSettings
+    // linked to LOGBOOKNAME (StorageObject Name)
+    public static final String DEFAULTCLUBWORKTARGETHOURS   = "DefaultClubworkTargetHours";
+    public static final String TRANSFERABLECLUBWORKHOURS    = "TransferableClubworkHours";
+    public static final String FINEFORTOOLITTLECLUBWORK     = "FineForTooLittleClubwork";
 
 
     public static void initialize() {
@@ -89,6 +100,7 @@ public class ProjectRecord extends DataRecord {
         f.add(TYPE);                          t.add(IDataAccess.DATA_STRING);
         f.add(PROJECTNAME);                   t.add(IDataAccess.DATA_STRING);
         f.add(LOGBOOKNAME);                   t.add(IDataAccess.DATA_STRING);
+        f.add(CLUBWORKSETTINGSNAME);          t.add(IDataAccess.DATA_STRING);
         f.add(DESCRIPTION);                   t.add(IDataAccess.DATA_STRING);
         f.add(STORAGETYPE);                   t.add(IDataAccess.DATA_STRING);
         f.add(STORAGELOCATION);               t.add(IDataAccess.DATA_STRING);
@@ -122,8 +134,12 @@ public class ProjectRecord extends DataRecord {
         f.add(KANUEFBLASTSYNC);               t.add(IDataAccess.DATA_LONGINT);
         f.add(STARTDATE);                     t.add(IDataAccess.DATA_DATE);
         f.add(ENDDATE);                       t.add(IDataAccess.DATA_DATE);
+        f.add(DEFAULTCLUBWORKTARGETHOURS);    t.add(IDataAccess.DATA_TIME);
+        f.add(TRANSFERABLECLUBWORKHOURS);     t.add(IDataAccess.DATA_TIME);
+        f.add(FINEFORTOOLITTLECLUBWORK);      t.add(IDataAccess.DATA_INTEGER);
+        f.add(CLUBWORKCARRYOVER);		      t.add(IDataAccess.DATA_DATE);
         MetaData metaData = constructMetaData(Project.DATATYPE, f, t, false);
-        metaData.setKey(new String[] { TYPE, LOGBOOKNAME });
+        metaData.setKey(new String[] { TYPE, LOGBOOKNAME, CLUBWORKSETTINGSNAME });
     }
 
     public ProjectRecord(Project project, MetaData metaData) {
@@ -156,11 +172,17 @@ public class ProjectRecord extends DataRecord {
         return getPersistence().createNewRecord();
     }
 
-    public static DataKey getDataKey(String type, String logbookName) {
-        return new DataKey<String,String,String>(type,logbookName,null);
+    public static DataKey getDataKey(String type, String name) {
+    	if(type == ProjectRecord.TYPE_CLUBWORK_SETTINGS)
+    		return new DataKey<String,String,String>(type,null,name);
+   		return new DataKey<String,String,String>(type,name,null);
     }
 
     public DataKey getKey() {
+    	String type = getType();
+    	if(type == ProjectRecord.TYPE_CLUBWORK_SETTINGS)
+    		return new DataKey<String,String,String>(type,null,getClubworkSettingsName());
+
         return new DataKey<String,String,String>(getType(),getLogbookName(),null);
     }
 
@@ -172,6 +194,9 @@ public class ProjectRecord extends DataRecord {
     }
     public void setLogbookName(String logbookName) {
         setString(LOGBOOKNAME, logbookName);
+    }
+    public void setClubworkSettingsName(String logbookName) {
+        setString(CLUBWORKSETTINGSNAME, logbookName);
     }
     public void setDescription(String description) {
         setString(DESCRIPTION, description);
@@ -228,6 +253,9 @@ public class ProjectRecord extends DataRecord {
     public void setAutoNewLogbookName(String name) {
         setString(AUTONEWLOGBOOKNAME, name);
     }
+    public void setClubworkCarryOverDate(DataTypeDate date) {
+        setDate(CLUBWORKCARRYOVER, date);
+    }
     public void setClubName(String clubName) {
         setString(CLUBNAME, clubName);
     }
@@ -282,6 +310,15 @@ public class ProjectRecord extends DataRecord {
     public void setEndDate(DataTypeDate endDate) {
         setDate(ENDDATE, endDate);
     }
+    public void setDefaultClubworkTargetHours(DataTypeHours defaultHours) {
+        setTime(DEFAULTCLUBWORKTARGETHOURS, defaultHours);
+    }
+    public void setTransferableClubworkHours(DataTypeHours hours) {
+        setTime(TRANSFERABLECLUBWORKHOURS, hours);
+    }
+    public void setFineForTooLittleClubwork(int monetaryUnits) {
+        setInt(FINEFORTOOLITTLECLUBWORK, monetaryUnits);
+    }
 
     public String getType() {
         return getString(TYPE);
@@ -291,6 +328,9 @@ public class ProjectRecord extends DataRecord {
     }
     public String getLogbookName() {
         return getString(LOGBOOKNAME);
+    }
+    public String getClubworkSettingsName() {
+        return getString(CLUBWORKSETTINGSNAME);
     }
     public String getDescription() {
         return getString(DESCRIPTION);
@@ -423,12 +463,25 @@ public class ProjectRecord extends DataRecord {
         return getLong(KANUEFBLASTSYNC);
     }
 
-
     public DataTypeDate getStartDate() {
         return getDate(STARTDATE);
     }
     public DataTypeDate getEndDate() {
         return getDate(ENDDATE);
+    }
+    public DataTypeHours getDefaultClubworkTargetHours() {
+       	DataTypeTime t = getTime(DEFAULTCLUBWORKTARGETHOURS);
+        return new DataTypeHours(0, 0, t != null ? t.getTimeAsSeconds() : 0);
+    }
+    public DataTypeHours getTransferableClubworkHours() {
+        DataTypeTime t = getTime(TRANSFERABLECLUBWORKHOURS);
+        return new DataTypeHours(0, 0, t != null ? t.getTimeAsSeconds() : 0);
+    }
+    public int getFineForTooLittleClubwork() {
+        return getInt(FINEFORTOOLITTLECLUBWORK);
+    }
+    public DataTypeDate getClubworkCarryOverDate() {
+        return getDate(CLUBWORKCARRYOVER);
     }
     
     public Vector<IItemType> getGuiItems(AdminRecord admin) {
@@ -549,7 +602,6 @@ public class ProjectRecord extends DataRecord {
                             International.onlyFor("eigener Zielbereich", "de")));
                     item.setNotNull(true);
                 }
-
             }
             if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 2 || subtype == GUIITEMS_SUBTYPE_EFAWETT) {
                 if (subtype == GUIITEMS_SUBTYPE_EFAWETT) {
@@ -672,6 +724,29 @@ public class ProjectRecord extends DataRecord {
                 v.add(item = new ItemTypeString(ProjectRecord.AUTONEWLOGBOOKNAME, getAutoNewLogbookName(),
                         IItemType.TYPE_EXPERT, category,
                         International.getString("Fahrtenbuch")));
+            }
+        }
+        
+        if (getType().equals(TYPE_CLUBWORK_SETTINGS)) {
+        	if (category == null) {
+                category = "%05%" + International.getString("Vereinsarbeits-Einstellungen") + " " + International.getString("für") + " " + International.getString("Fahrtenbuch") + getLogbookName();
+            }
+            if (subtype == GUIITEMS_SUBTYPE_ALL) {
+                v.add(item = new ItemTypeHours(ProjectRecord.DEFAULTCLUBWORKTARGETHOURS, getDefaultClubworkTargetHours(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Standard Sollstunden für die Vereinsarbeit")));
+                
+                v.add(item = new ItemTypeHours(ProjectRecord.TRANSFERABLECLUBWORKHOURS, getTransferableClubworkHours(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Übertragbare Vereinsarbeitsstunden")));
+                
+                int fine = getFineForTooLittleClubwork();
+                if (fine < 0) {
+                	fine = 0;
+                }
+                v.add(item = new ItemTypeInteger(ProjectRecord.FINEFORTOOLITTLECLUBWORK, fine, 0, Integer.MAX_VALUE, false,
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Bußgeld für Vereinsarbeit unter Sollstunden")));
             }
         }
 

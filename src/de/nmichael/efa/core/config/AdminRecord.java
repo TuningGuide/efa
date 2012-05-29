@@ -46,6 +46,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
     public static final String EDITBOATDAMAGES       = "EditBoatDamages";
     public static final String EDITBOATS             = "EditBoats";
     public static final String EDITPERSONS           = "EditPersons";
+    public static final String EDITCLUBWORK          = "EditClubwork";
     public static final String EDITDESTINATIONS      = "EditDestinations";
     public static final String EDITGROUPS            = "EditGroups";
     public static final String EDITCREWS             = "EditCrews";
@@ -86,6 +87,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
         f.add(EDITBOATDAMAGES);                   t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EDITBOATS);                         t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EDITPERSONS);                       t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(EDITCLUBWORK);                      t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EDITDESTINATIONS);                  t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EDITGROUPS);                        t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EDITCREWS);                         t.add(IDataAccess.DATA_BOOLEAN);
@@ -215,6 +217,13 @@ public class AdminRecord extends DataRecord implements IItemListener {
     }
     public Boolean isAllowedEditPersons() {
         return getBool(EDITPERSONS);
+    }
+    
+    public void setAllowedEditClubwork(boolean allowed) {
+        setBool(EDITCLUBWORK, allowed);
+    }
+    public Boolean isAllowedEditClubwork() {
+        return getBool(EDITCLUBWORK);
     }
 
     public void setAllowedEditDestinations(boolean allowed) {
@@ -378,6 +387,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
                     || !isAllowedEditBoatDamages()
                     || !isAllowedEditBoats()
                     || !isAllowedEditPersons()
+                    || !isAllowedEditClubwork()
                     || !isAllowedEditDestinations()
                     || !isAllowedEditGroups()
                     || !isAllowedEditCrews()
@@ -406,6 +416,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
                 setAllowedEditBoatDamages(true);
                 setAllowedEditBoats(true);
                 setAllowedEditPersons(true);
+                setAllowedEditClubwork(true);
                 setAllowedEditDestinations(true);
                 setAllowedEditGroups(true);
                 setAllowedEditCrews(true);
@@ -512,6 +523,9 @@ public class AdminRecord extends DataRecord implements IItemListener {
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(EDITPERSONS, isAllowedEditPersons(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Personen und Status bearbeiten")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
+        v.add(item = new ItemTypeBoolean(EDITCLUBWORK, isAllowedEditClubwork(),
+                IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Vereinsarbeit bearbeiten")));
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(EDITGROUPS, isAllowedEditGroups(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Gruppen bearbeiten")));

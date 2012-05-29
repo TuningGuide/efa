@@ -14,8 +14,8 @@ import de.nmichael.efa.util.*;
 
 public class DataTypeTime implements Cloneable, Comparable<DataTypeTime> {
 
-    private int hour, minute, second;
-    private boolean withSeconds = true;
+    protected int hour, minute, second;
+    protected boolean withSeconds = true;
 
     // Default Constructor
     public DataTypeTime() {

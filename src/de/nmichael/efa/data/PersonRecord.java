@@ -17,6 +17,7 @@ import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.util.*;
+
 import java.awt.AWTEvent;
 import java.awt.event.FocusEvent;
 import java.util.*;
@@ -31,7 +32,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     // =========================================================================
 
     public static final String ID                  = "Id";
-    public static final String EFBID                 = "EfbId";
+    public static final String EFBID               = "EfbId";
     public static final String FIRSTNAME           = "FirstName";
     public static final String LASTNAME            = "LastName";
     public static final String FIRSTLASTNAME       = "FirstLastName";
@@ -58,6 +59,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public static final String FREEUSE1            = "FreeUse1";
     public static final String FREEUSE2            = "FreeUse2";
     public static final String FREEUSE3            = "FreeUse3";
+    public static final String YEARLYCLUBWORKCREDIT= "YearlyClubworkCredit";
 
     public static final String[] IDX_NAME_NAMEAFFIX = new String[] { FIRSTLASTNAME, NAMEAFFIX };
 
@@ -102,6 +104,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         f.add(FREEUSE1);                          t.add(IDataAccess.DATA_STRING);
         f.add(FREEUSE2);                          t.add(IDataAccess.DATA_STRING);
         f.add(FREEUSE3);                          t.add(IDataAccess.DATA_STRING);
+        f.add(YEARLYCLUBWORKCREDIT);              t.add(IDataAccess.DATA_TIME);
         MetaData metaData = constructMetaData(Persons.DATATYPE, f, t, true);
         metaData.setKey(new String[] { ID }); // plus VALID_FROM
         metaData.addIndex(IDX_NAME_NAMEAFFIX);
@@ -394,6 +397,14 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public String getFreeUse3() {
         return getString(FREEUSE3);
     }
+    
+    public void setYearlyClubworkCredit(DataTypeHours s) {
+        setTime(YEARLYCLUBWORKCREDIT, s);
+    }
+    public DataTypeHours getYearlyClubworkCredit() {
+    	DataTypeTime t = getTime(YEARLYCLUBWORKCREDIT);
+        return new DataTypeHours(0, 0, t != null ? t.getTimeAsSeconds() : 0);
+    }
 
     protected Object getVirtualColumn(int fieldIdx) {
         if (getFieldName(fieldIdx).equals(FIRSTLASTNAME)) {
@@ -614,6 +625,8 @@ public class PersonRecord extends DataRecord implements IItemFactory {
                     boats, getValidFrom(), getInvalidFrom() - 1,
                     International.getString("Standard-Boot")));
             item.setFieldSize(300, -1);
+            v.add(item = new ItemTypeHours(PersonRecord.YEARLYCLUBWORKCREDIT, getYearlyClubworkCredit(),
+                    IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("jhrl. Vereinsarb. Gutschrift")));
             v.add(item = new ItemTypeString(PersonRecord.EXTERNALID, getExternalId(),
                     IItemType.TYPE_EXPERT, CAT_MOREDATA, International.getString("Externe ID")));
             if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {

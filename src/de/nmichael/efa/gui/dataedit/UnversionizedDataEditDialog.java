@@ -137,7 +137,8 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
         } catch(Exception e) {
             Logger.logdebug(e);
             if (e.toString() != null) {
-                Dialog.error("Die Änderungen konnten nicht gespeichert werden." + "\n" + e.toString());
+            	e.printStackTrace();
+                //Dialog.error("Die Änderungen konnten nicht gespeichert werden." + "\n" + e.toString());
             }
             return false;
         }

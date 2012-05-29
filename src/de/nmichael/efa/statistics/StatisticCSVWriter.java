@@ -167,6 +167,29 @@ public class StatisticCSVWriter extends StatisticWriter {
                             }
                         }
                     }
+                    if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.clubwork) {
+                        if (sr.sIsFieldsPosition) {
+                            write(f, sd[i].sPosition);
+                        }
+                        if (sr.sIsFieldsName) {
+                            write(f, sd[i].sName);
+                        }
+                        if (sr.sIsFieldsGender) {
+                            write(f, sd[i].sGender);
+                        }
+                        if (sr.sIsFieldsStatus) {
+                            write(f, sd[i].sStatus);
+                        }
+                        if (sr.sIsAggrClubwork) {
+                            write(f, sd[i].sClubwork);
+                        }
+                        if (sr.sIsAggrClubworkRelativeToTarget) {
+                            write(f, sd[i].sClubworkRelativeToTarget);
+                        }
+                        if (sr.sIsAggrClubworkOverUnderCarryOver) {
+                            write(f, sd[i].sClubworkOverUnderCarryOver);
+                        }
+                    }
                     writeln(f);
                 }
             }

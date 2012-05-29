@@ -10,11 +10,24 @@
 
 package de.nmichael.efa.statistics;
 
-import java.io.*;
-import de.nmichael.efa.data.*;
-import de.nmichael.efa.util.*;
-import de.nmichael.efa.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.Arrays;
+
+import de.nmichael.efa.Daten;
+import de.nmichael.efa.data.StatisticsRecord;
+import de.nmichael.efa.data.types.DataTypeHours;
+import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.LogString;
+import de.nmichael.efa.util.Logger;
 
 public class StatisticHTMLWriter extends StatisticWriter {
 
@@ -284,6 +297,22 @@ public class StatisticHTMLWriter extends StatisticWriter {
                                         ? sd[i].logbookFields[j] : ""), false, null);
                             }
                         }
+                    }
+                    if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.clubwork) {
+                        outHTML(f, sd[i].sPosition, true, null);
+                        outHTML(f, sd[i].sName, false, null);
+                        outHTML(f, sd[i].sGender, false, null);
+                        outHTML(f, sd[i].sStatus, false, null);
+                        outHTML(f, sd[i].sClubwork, false, null);
+                        outHTML(f, sd[i].sClubworkRelativeToTarget, false,
+                        		(sd[i].sClubworkRelativeToTarget != null &&   
+                        		DataTypeHours.parseTime(sd[i].sClubworkRelativeToTarget.replaceAll("[^\\-\\:\\d]", "")).getTimeAsSeconds() < -sr.sTransferableClubworkHours.getTimeAsSeconds() ?
+                        				"ff0000" : null));
+                        
+                        outHTML(f, sd[i].sClubworkOverUnderCarryOver, false,
+                        		(sd[i].sClubworkOverUnderCarryOver != null &&   
+                        		DataTypeHours.parseTime(sd[i].sClubworkOverUnderCarryOver.replaceAll("[^\\-\\:\\d]", "")).getTimeAsSeconds() < 0 ?
+                        				"ff0000" : null));
                     }
                     /*
                     if (ae.ww != null) {

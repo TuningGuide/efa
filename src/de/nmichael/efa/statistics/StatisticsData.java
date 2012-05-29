@@ -10,16 +10,19 @@
 
 package de.nmichael.efa.statistics;
 
+import java.util.Vector;
+
 import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.PersonRecord;
 import de.nmichael.efa.data.StatisticsRecord;
-import de.nmichael.efa.data.types.DataTypeDate;
-import de.nmichael.efa.data.types.DataTypeDistance;
-import de.nmichael.efa.data.types.DataTypeIntString;
-import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.data.efawett.Zielfahrt;
 import de.nmichael.efa.data.efawett.ZielfahrtFolge;
-import java.util.Vector;
+import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.types.DataTypeDistance;
+import de.nmichael.efa.data.types.DataTypeHours;
+import de.nmichael.efa.data.types.DataTypeIntString;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.International;
 
 public class StatisticsData implements Comparable {
 
@@ -49,11 +52,15 @@ public class StatisticsData implements Comparable {
     String sCompAttr1;
     String sCompAttr2;
     String sCompWarning;
+    String sClubwork;
+    String sClubworkRelativeToTarget;
+    String sClubworkOverUnderCarryOver;
 
     long distance = 0;
     long sessions = 0;
     long avgDistance = 0;
     SessionHistory sessionHistory;
+    DataTypeHours clubwork = new DataTypeHours(0,0,0);
 
     DataTypeIntString entryNo;
     DataTypeDate date;
@@ -88,6 +95,7 @@ public class StatisticsData implements Comparable {
     public void updateSummary(StatisticsData sd) {
         this.distance += sd.distance;
         this.sessions += sd.sessions;
+        this.clubwork.add(sd.clubwork.getTimeAsSeconds());
     }
 
     public void updateMaximum(StatisticsData sd) {
@@ -96,6 +104,9 @@ public class StatisticsData implements Comparable {
         }
         if (sd.sessions > this.sessions) {
             this.sessions = sd.sessions;
+        }
+        if (sd.clubwork.compareTo(this.clubwork) > 0) {
+            this.clubwork = sd.clubwork;
         }
     }
 
@@ -200,7 +211,51 @@ public class StatisticsData implements Comparable {
                         getStringValueInDefaultUnit(sr.sDistanceWithUnit, 0, decimals);
             }
         }
-
+        if (sr.sIsAggrClubwork) {
+            if (sr.sIgnoreNullValues && clubwork.isEmpty()) {
+                this.sClubwork = "null";
+            } else {
+            	int month = -1+sr.sStartDate.getMonth() + sr.sEndDate.getMonth() + Math.abs(sr.sEndDate.getYear() - sr.sStartDate.getYear())*12;
+            	
+            	int targetHoursAsSeconds = sr.sDefaultClubworkTargetHours.getTimeAsSeconds()/12*month;
+            	DataTypeHours target = new DataTypeHours(0,0,0);
+            	target.add(targetHoursAsSeconds);
+                this.sClubwork = this.clubwork+International.getString("h")+" / "+(isSummary ? new DataTypeHours(0,0,absPosition*target.getTimeAsSeconds()).toString(false) : target.toString(false))+International.getString("h");
+            }
+        }
+        if (sr.sIsAggrClubworkRelativeToTarget) {
+            if (sr.sIgnoreNullValues && clubwork.isEmpty()) {
+                this.sClubworkRelativeToTarget = "null";
+            } else {
+            	int month = -1+sr.sStartDate.getMonth() + sr.sEndDate.getMonth() + Math.abs(sr.sEndDate.getYear() - sr.sStartDate.getYear())*12;
+            	int targetHoursAsSeconds = sr.sDefaultClubworkTargetHours.getTimeAsSeconds()/12*month;
+            	DataTypeHours h = new DataTypeHours(this.clubwork);
+            	h.delete(targetHoursAsSeconds);
+                this.sClubworkRelativeToTarget = h.toString(false) + International.getString("h");
+            }
+        }
+        if (sr.sIsAggrClubworkOverUnderCarryOver) {
+            if (sr.sIgnoreNullValues && clubwork.isEmpty()) {
+                this.sClubworkOverUnderCarryOver = "null";
+            } else {
+            	int month = -1+sr.sStartDate.getMonth() + sr.sEndDate.getMonth() + Math.abs(sr.sEndDate.getYear() - sr.sStartDate.getYear())*12;
+            	int targetHoursAsSeconds = sr.sDefaultClubworkTargetHours.getTimeAsSeconds()/12*month;
+            	DataTypeHours h = new DataTypeHours(this.clubwork);
+            	h.delete(targetHoursAsSeconds);
+            	int seconds = sr.sTransferableClubworkHours.getTimeAsSeconds();
+            	if(h.getTimeAsSeconds() < -seconds) {
+            		h.add(seconds);
+            	}
+            	else if(h.getTimeAsSeconds() > seconds) {
+            		h.delete(seconds);
+            	}
+            	else {
+            		h.setTime(0, 0, 0);
+            	}
+            		
+                this.sClubworkOverUnderCarryOver = h.toString(false) + International.getString("h");
+            }
+        }
     }
 
     public int compareTo(Object o) {
@@ -298,6 +353,13 @@ public class StatisticsData implements Comparable {
                     if (res != 0) {
                         return res * order;
                     }
+                }
+                break;
+            case clubwork:
+                if (this.clubwork.compareTo(osd.clubwork) > 0) {
+                    return 1 * order;
+                } else if (this.clubwork.compareTo(osd.clubwork) < 0) {
+                    return -1 * order;
                 }
                 break;
         }

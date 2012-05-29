@@ -10,24 +10,6 @@
 
 package de.nmichael.efa.data;
 
-import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.config.AdminRecord;
-import de.nmichael.efa.data.efawett.WettDefs;
-import de.nmichael.efa.core.config.EfaTypes;
-import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.core.items.*;
-import de.nmichael.efa.data.efawett.WettDef;
-import de.nmichael.efa.data.types.DataTypeDate;
-import de.nmichael.efa.data.types.DataTypeDistance;
-import de.nmichael.efa.data.types.DataTypeIntString;
-import de.nmichael.efa.data.types.DataTypeList;
-import de.nmichael.efa.data.types.DataTypeTime;
-import de.nmichael.efa.gui.BaseDialog;
-import de.nmichael.efa.gui.BaseTabbedDialog;
-import de.nmichael.efa.gui.SimpleInputDialog;
-import de.nmichael.efa.gui.util.*;
-import de.nmichael.efa.statistics.*;
-import de.nmichael.efa.util.*;
 import java.awt.AWTEvent;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -35,7 +17,49 @@ import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.io.File;
-import java.util.*;
+import java.util.Hashtable;
+import java.util.UUID;
+import java.util.Vector;
+
+import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.core.config.EfaTypes;
+import de.nmichael.efa.core.items.IItemListener;
+import de.nmichael.efa.core.items.IItemType;
+import de.nmichael.efa.core.items.ItemTypeBoolean;
+import de.nmichael.efa.core.items.ItemTypeButton;
+import de.nmichael.efa.core.items.ItemTypeDate;
+import de.nmichael.efa.core.items.ItemTypeFile;
+import de.nmichael.efa.core.items.ItemTypeInteger;
+import de.nmichael.efa.core.items.ItemTypeMultiSelectList;
+import de.nmichael.efa.core.items.ItemTypeString;
+import de.nmichael.efa.core.items.ItemTypeStringAutoComplete;
+import de.nmichael.efa.core.items.ItemTypeStringList;
+import de.nmichael.efa.data.efawett.WettDef;
+import de.nmichael.efa.data.efawett.WettDefs;
+import de.nmichael.efa.data.storage.DataKey;
+import de.nmichael.efa.data.storage.DataRecord;
+import de.nmichael.efa.data.storage.IDataAccess;
+import de.nmichael.efa.data.storage.MetaData;
+import de.nmichael.efa.data.storage.StorageObject;
+import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.types.DataTypeDistance;
+import de.nmichael.efa.data.types.DataTypeHours;
+import de.nmichael.efa.data.types.DataTypeIntString;
+import de.nmichael.efa.data.types.DataTypeList;
+import de.nmichael.efa.data.types.DataTypeTime;
+import de.nmichael.efa.gui.BaseDialog;
+import de.nmichael.efa.gui.BaseTabbedDialog;
+import de.nmichael.efa.gui.SimpleInputDialog;
+import de.nmichael.efa.gui.util.TableItem;
+import de.nmichael.efa.gui.util.TableItemHeader;
+import de.nmichael.efa.statistics.Competition;
+import de.nmichael.efa.statistics.StatOutputLines;
+import de.nmichael.efa.statistics.StatisticsData;
+import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.FTPClient;
+import de.nmichael.efa.util.International;
 
 // @i18n complete
 
@@ -45,65 +69,65 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     // Field Names
     // =========================================================================
 
-    public static final String ID                  = "Id";
-    public static final String NAME                = "Name";
-    public static final String POSITION            = "Position";
-    public static final String PUBLICLYAVAILABLE   = "PubliclyAvailable";
-    public static final String DATEFROM            = "DateFrom";
-    public static final String DATETO              = "DateTo";
-    public static final String STATISTICCATEGORY   = "StatisticCategory";
-    public static final String STATISTICTYPE       = "StatisticType";
-    public static final String STATISTICKEY        = "StatisticKey";
-    public static final String FILTERGENDER        = "FilterGender";
-    public static final String FILTERGENDERALL     = "FilterGenderAll";
-    public static final String FILTERSTATUS        = "FilterStatus";
-    public static final String FILTERSTATUSALL     = "FilterStatusAll";
-    public static final String FILTERSESSIONTYPE   = "FilterSessionType";
-    public static final String FILTERSESSIONTYPEALL= "FilterSessionTypeAll";
-    public static final String FILTERBOATTYPE      = "FilterBoatType";
-    public static final String FILTERBOATTYPEALL   = "FilterBoatTypeAll";
-    public static final String FILTERBOATSEATS     = "FilterBoatSeats";
-    public static final String FILTERBOATSEATSALL  = "FilterBoatSeatsAll";
-    public static final String FILTERBOATRIGGING   = "FilterBoatRigging";
-    public static final String FILTERBOATRIGGINGALL= "FilterBoatRiggingAll";
-    public static final String FILTERBOATCOXING    = "FilterBoatCoxing";
-    public static final String FILTERBOATCOXINGALL = "FilterBoatCoxingAll";
-    public static final String FILTERBOATOWNER     = "FilterBoatOwner";
-    public static final String FILTERBOATOWNERALL  = "FilterBoatOwnerAll";
-    public static final String FILTERBYPERSONID    = "FilterByPersonId";
-    public static final String FILTERBYPERSONTEXT  = "FilterByPersonText";
-    public static final String FILTERBYBOATID      = "FilterByBoatId";
-    public static final String FILTERBYBOATTEXT    = "FilterByBoatText";
-    public static final String FILTERBYGROUPID     = "FilterByGroupId";
-    public static final String FILTERPROMPTPERSON  = "FilterPromptPerson";
-    public static final String FILTERPROMPTBOAT    = "FilterPromptBoat";
-    public static final String FILTERPROMPTGROUP   = "FilterPromptGroup";
-    public static final String SHOWFIELDS          = "ShowFields";  // like Name, Status, Gender, BoatType, ...
-    public static final String SHOWLOGBOOKFIELDS   = "ShowLogbookFields";  // like EntryNo, Date, Boat, Cox, Crew, ...
-    public static final String AGGREGATIONS        = "Aggregations"; // like Distance, Sessions, AvgDistance, ...
-    public static final String AGGRDISTANCEBARSIZE = "AggregationDistanceBarSize";
-    public static final String AGGRSESSIONSBARSIZE = "AggregationSessionsBarSize";
-    public static final String AGGRAVGDISTBARSIZE  = "AggregationAvgDistanceBarSize";
-    public static final String COMPYEAR            = "CompYear";
-    public static final String COMPPERCENTFULFILLED = "CompPercentFulfilled";
-    public static final String COMPOUTPUTSHORT     = "CompOutputShort";
-    public static final String COMPOUTPUTRULES     = "CompOutputRules";
+    public static final String ID                        = "Id";
+    public static final String NAME                      = "Name";
+    public static final String POSITION                  = "Position";
+    public static final String PUBLICLYAVAILABLE         = "PubliclyAvailable";
+    public static final String DATEFROM                  = "DateFrom";
+    public static final String DATETO                    = "DateTo";
+    public static final String STATISTICCATEGORY         = "StatisticCategory";
+    public static final String STATISTICTYPE             = "StatisticType";
+    public static final String STATISTICKEY              = "StatisticKey";
+    public static final String FILTERGENDER              = "FilterGender";
+    public static final String FILTERGENDERALL           = "FilterGenderAll";
+    public static final String FILTERSTATUS              = "FilterStatus";
+    public static final String FILTERSTATUSALL           = "FilterStatusAll";
+    public static final String FILTERSESSIONTYPE         = "FilterSessionType";
+    public static final String FILTERSESSIONTYPEALL      = "FilterSessionTypeAll";
+    public static final String FILTERBOATTYPE            = "FilterBoatType";
+    public static final String FILTERBOATTYPEALL         = "FilterBoatTypeAll";
+    public static final String FILTERBOATSEATS           = "FilterBoatSeats";
+    public static final String FILTERBOATSEATSALL        = "FilterBoatSeatsAll";
+    public static final String FILTERBOATRIGGING         = "FilterBoatRigging";
+    public static final String FILTERBOATRIGGINGALL      = "FilterBoatRiggingAll";
+    public static final String FILTERBOATCOXING          = "FilterBoatCoxing";
+    public static final String FILTERBOATCOXINGALL       = "FilterBoatCoxingAll";
+    public static final String FILTERBOATOWNER           = "FilterBoatOwner";
+    public static final String FILTERBOATOWNERALL        = "FilterBoatOwnerAll";
+    public static final String FILTERBYPERSONID          = "FilterByPersonId";
+    public static final String FILTERBYPERSONTEXT        = "FilterByPersonText";
+    public static final String FILTERBYBOATID            = "FilterByBoatId";
+    public static final String FILTERBYBOATTEXT          = "FilterByBoatText";
+    public static final String FILTERBYGROUPID           = "FilterByGroupId";
+    public static final String FILTERPROMPTPERSON        = "FilterPromptPerson";
+    public static final String FILTERPROMPTBOAT          = "FilterPromptBoat";
+    public static final String FILTERPROMPTGROUP         = "FilterPromptGroup";
+    public static final String SHOWFIELDS                = "ShowFields";  // like Name, Status, Gender, BoatType, ...
+    public static final String SHOWLOGBOOKFIELDS         = "ShowLogbookFields";  // like EntryNo, Date, Boat, Cox, Crew, ...
+    public static final String AGGREGATIONS              = "Aggregations"; // like Distance, Sessions, AvgDistance, ...
+    public static final String AGGRDISTANCEBARSIZE       = "AggregationDistanceBarSize";
+    public static final String AGGRSESSIONSBARSIZE       = "AggregationSessionsBarSize";
+    public static final String AGGRAVGDISTBARSIZE        = "AggregationAvgDistanceBarSize";
+    public static final String COMPYEAR                  = "CompYear";
+    public static final String COMPPERCENTFULFILLED      = "CompPercentFulfilled";
+    public static final String COMPOUTPUTSHORT           = "CompOutputShort";
+    public static final String COMPOUTPUTRULES           = "CompOutputRules";
     public static final String COMPOUTPUTADDITIONALWITHREQUIREMENTS = "CompOutputAdditionalWithRequirements";
-    public static final String COMPOUTPUTWITHOUTDETAILS = "CompOutputWithoutDetails";
+    public static final String COMPOUTPUTWITHOUTDETAILS  = "CompOutputWithoutDetails";
     public static final String COMPOUTPUTALLDESTINATIONAREAS = "CompOutputAllDestinationAreas";
-    public static final String SORTINGCRITERIA     = "SortingCriteria";
-    public static final String SORTINGORDER        = "SortingOrder";
-    public static final String OUTPUTTYPE          = "OutputType";
-    public static final String OUTPUTFILE          = "OutputFile";
-    public static final String OUTPUTENCODING      = "OutputEncoding";
-    public static final String OUTPUTHTMLUPDATETABLE = "OutputHtmlUpdateTable";
-    public static final String OUTPUTCSVSEPARATOR  = "OutputCsvSeparator";
-    public static final String OUTPUTCSVQUOTES     = "OutputCsvQuotes";
-    public static final String OPTIONDISTANCEWITHUNIT = "OptionDistanceWithUnit";
-    public static final String OPTIONTRUNCATEDIST  = "OptionTruncateDistance";
-    public static final String OPTIONIGNORENULLVALUES = "OptionIgnoreNullValues";
-    public static final String OPTIONSUMGUESTSANDOTHERS = "OptionSumGuestsAndOthers";
-    public static final String OPTIONSUMGUESTSBYCLUB = "OptionSumGuestsByClub";
+    public static final String SORTINGCRITERIA           = "SortingCriteria";
+    public static final String SORTINGORDER              = "SortingOrder";
+    public static final String OUTPUTTYPE                = "OutputType";
+    public static final String OUTPUTFILE                = "OutputFile";
+    public static final String OUTPUTENCODING            = "OutputEncoding";
+    public static final String OUTPUTHTMLUPDATETABLE     = "OutputHtmlUpdateTable";
+    public static final String OUTPUTCSVSEPARATOR        = "OutputCsvSeparator";
+    public static final String OUTPUTCSVQUOTES           = "OutputCsvQuotes";
+    public static final String OPTIONDISTANCEWITHUNIT    = "OptionDistanceWithUnit";
+    public static final String OPTIONTRUNCATEDIST        = "OptionTruncateDistance";
+    public static final String OPTIONIGNORENULLVALUES    = "OptionIgnoreNullValues";
+    public static final String OPTIONSUMGUESTSANDOTHERS  = "OptionSumGuestsAndOthers";
+    public static final String OPTIONSUMGUESTSBYCLUB     = "OptionSumGuestsByClub";
 
 
     public static final String[] IDX_NAME = new String[] { NAME };
@@ -120,6 +144,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String SCAT_LIST            = "List";
     public static final String SCAT_LOGBOOK         = "Logbook";
     public static final String SCAT_COMPETITION     = "Competition";
+    public static final String SCAT_CLUBWORK        = "Clubwork";
+    
 
     public static final String STYPE_PERSONS        = "Persons";
     public static final String STYPE_BOATS          = "Boats";
@@ -176,6 +202,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String AGGR_AVGDISTANCE    = "AvgDistance";
     public static final String AGGR_ZIELFAHRTEN    = "Zielfahrten";
     public static final String AGGR_WANDERFAHRTEN  = "Wanderfahrten";
+    public static final String AGGR_CLUBWORK       = "Clubwork";
+    public static final String AGGR_CBRELTOTARGET  = "ClubworkRelativeToTarget";
+    public static final String AGGR_CBOVERUNDERCARRYOVER = "ClubworkRelativeToTargetOverUnder";
 
     public static final String SORTING_DISTANCE    = "Distance";
     public static final String SORTING_SESSIONS    = "Sessions";
@@ -187,6 +216,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String SORTING_BOATTYPE    = "BoatType";
     public static final String SORTING_ENTRYNO     = "EntryNo";
     public static final String SORTING_DATE        = "Date";
+    public static final String SORTING_CLUBWORK    = "Clubwork";
 
     public static final String SORTINGORDER_ASC    = "Ascending";
     public static final String SORTINGORDER_DESC   = "Descending";
@@ -202,7 +232,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         UNKNOWN,
         list,
         logbook,
-        competition
+        competition,
+        clubwork
     }
 
     public enum StatisticType {
@@ -240,7 +271,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         yearOfBirth,
         boatType,
         entryNo,
-        date
+        date,
+        clubwork
     }
 
     public enum OutputTypes {
@@ -254,7 +286,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     }
 
     // =========================================================================
-    // Internal Variables for various pusposes
+    // Internal Variables for various purposes
     // =========================================================================
     private static final String GUIITEM_OUTPUTFTP = "GUIITEM_OUTPUTFTP";
     private ItemTypeStringList itemStatisticCategory;
@@ -349,6 +381,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean sIsAggrWanderfahrten;
     public boolean sIsAggrWinterfahrten;
     public boolean sIsAggrGigfahrten;
+    public boolean sIsAggrClubwork;
+    public boolean sIsAggrClubworkRelativeToTarget;
+    public boolean sIsAggrClubworkOverUnderCarryOver;
     public int sAggrDistanceBarSize;
     public int sAggrSessionsBarSize;
     public int sAggrAvgDistanceBarSize;
@@ -381,6 +416,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean sIgnoreNullValues;
     public boolean sSumGuestsAndOthers;
     public boolean sSumGuestsByClub;
+    // --- Clubwork-Options
+    public DataTypeHours sDefaultClubworkTargetHours;
+    public DataTypeHours sTransferableClubworkHours;
+    public int     sFineForTooLittleClubwork;
 
     // filled during statistics creation in StatistikTask
     public int cNumberOfEntries = 0;
@@ -632,6 +671,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             return StatisticCategory.logbook;
         } else if (type.equals(SCAT_COMPETITION)) {
             return StatisticCategory.competition;
+        } else if (type.equals(SCAT_CLUBWORK)) {
+            return StatisticCategory.clubwork;
         }
         return StatisticCategory.UNKNOWN;
     }
@@ -649,6 +690,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 return International.getString("Fahrtenbuch");
             case competition:
                 return International.getString("Wettbewerb");
+            case clubwork:
+                return International.getString("Vereinsarbeit");
         }
         return EfaTypes.TEXT_UNKNOWN;
     }
@@ -658,13 +701,15 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             return new String[] {
                 SCAT_LIST,
                 SCAT_LOGBOOK,
-                SCAT_COMPETITION
+                SCAT_COMPETITION,
+                SCAT_CLUBWORK
             };
         } else {
             return new String[] {
                 International.getString("Kilometerliste"),
                 International.getString("Fahrtenbuch"),
-                International.getString("Wettbewerb")
+                International.getString("Wettbewerb"),
+                International.getString("Vereinsarbeit")
             };
         }
     }
@@ -720,7 +765,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                         };
             }
         }
-        if (category == StatisticCategory.logbook) {
+        if (category == StatisticCategory.logbook || category == StatisticCategory.clubwork) {
             if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
                 return new String[]{ "" };
             } else {
@@ -1589,6 +1634,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         allKeys.put(AGGR_AVGDISTANCE, DataTypeDistance.getDefaultUnitAbbrevation(true) + "/" + International.getString("Fahrt"));
         allKeys.put(AGGR_WANDERFAHRTEN, International.onlyFor("Wanderfahrten", "de"));
         allKeys.put(AGGR_ZIELFAHRTEN, International.onlyFor("Zielfahrten", "de"));
+        allKeys.put(AGGR_CLUBWORK, International.getString("Vereinsarbeit"));
+        allKeys.put(AGGR_CBRELTOTARGET, International.getString("Vereinsarbeit (Relative zum Soll)"));
+        allKeys.put(AGGR_CBOVERUNDERCARRYOVER, International.getString("Vereinsarbeit (über/unter Jahresübertrag)"));
 
         Vector<String> selectedKeys = new Vector<String>();
         selectedKeys.add(AGGR_DISTANCE);
@@ -1600,6 +1648,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         if (Daten.efaConfig.getValueUseFunctionalityRowingBerlin()) {
             selectedKeys.add(AGGR_ZIELFAHRTEN);
         }
+        selectedKeys.add(AGGR_CLUBWORK);
+        selectedKeys.add(AGGR_CBRELTOTARGET);
+        selectedKeys.add(AGGR_CBOVERUNDERCARRYOVER);
+        
         String[] result = new String[selectedKeys.size()];
         for (int i=0; i<result.length; i++) {
             if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
@@ -1694,6 +1746,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 return International.getString("LfdNr");
             case date:
                 return International.getString("Datum");
+            case clubwork:
+                return International.getString("Vereinsarbeit");
         }
         return EfaTypes.TEXT_UNKNOWN;
     }
@@ -1710,7 +1764,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 SORTING_YEAROFBIRTH,
                 SORTING_BOATTYPE,
                 SORTING_ENTRYNO,
-                SORTING_DATE 
+                SORTING_DATE,
+                SORTING_CLUBWORK
             };
         } else {
             return new String[] {
@@ -1723,7 +1778,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 International.getString("Jahrgang"),
                 International.getString("Bootstyp"),
                 International.getString("LfdNr"),
-                International.getString("Datum")
+                International.getString("Datum"),
+                International.getString("Vereinsarbeit")
             };
         }
     }
@@ -2430,7 +2486,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 sIsFieldsBoatType = true;
             }
         }
-        if (sStatisticCategory == StatisticCategory.list &&
+        if ((sStatisticCategory == StatisticCategory.list || sStatisticCategory == StatisticCategory.clubwork) &&
             (fields == null || fields.length() == 0)) {
             // at least show these fields, if for (whatever reason) no fields were selected
             sIsFieldsPosition = true;
@@ -2495,7 +2551,13 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 sIsAggrZielfahrten = true;
             } else if (s.equals(AGGR_WANDERFAHRTEN)) {
                 sIsAggrWanderfahrten = true;
-            }
+            } else if (s.equals(AGGR_CLUBWORK)) {
+                sIsAggrClubwork = true;
+            } else if (s.equals(AGGR_CBRELTOTARGET)) {
+                sIsAggrClubworkRelativeToTarget = true;
+	        } else if (s.equals(AGGR_CBOVERUNDERCARRYOVER)) {
+	            sIsAggrClubworkOverUnderCarryOver = true;
+	        }
         }
 
         sAggrDistanceBarSize = getAggrDistanceBarSize();
@@ -2679,6 +2741,30 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             }
             if (sIsLFieldsNotes) {
                 pTableColumns.add(International.getString("Bemerkungen"));
+            }
+        }
+        if (sStatisticCategory == StatisticCategory.clubwork) {
+            if (sIsFieldsPosition) {
+                //pTableColumns.add(International.getString("Platz"));
+                // The following line is useless, but added with intention to keep the translation for "Platz"
+                International.getString("Platz");
+                pTableColumns.add(International.getString("Position"));
+            }
+            if (sIsFieldsName) {
+                String s = getStatisticKeyDescription();
+                pTableColumns.add( (s != null ? s : International.getString("Name")) );
+            }
+            if (sIsFieldsGender) {
+                pTableColumns.add(International.getString("Geschlecht"));
+            }
+            if (sIsFieldsStatus) {
+                pTableColumns.add(International.getString("Status"));
+            }
+            if (sIsAggrClubwork) {
+                pTableColumns.add(International.getString("Vereinsarbeit"));
+            }
+            if (sIsAggrClubworkRelativeToTarget) {
+                pTableColumns.add(International.getString("Vereinsarbeit rel. zum Soll"));
             }
         }
     }

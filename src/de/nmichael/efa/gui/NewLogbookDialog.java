@@ -10,19 +10,26 @@
 
 package de.nmichael.efa.gui;
 
-import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.core.items.*;
-import de.nmichael.efa.data.*;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+
+import javax.swing.JDialog;
+
+import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.items.IItemType;
+import de.nmichael.efa.core.items.ItemTypeDate;
+import de.nmichael.efa.core.items.ItemTypeHours;
+import de.nmichael.efa.core.items.ItemTypeInteger;
+import de.nmichael.efa.core.items.ItemTypeString;
+import de.nmichael.efa.data.ProjectRecord;
 import de.nmichael.efa.data.types.DataTypeDate;
-import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.data.types.DataTypeHours;
 import de.nmichael.efa.ex.EfaException;
-import de.nmichael.efa.*;
-import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
+import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.LogString;
 
 public class NewLogbookDialog extends StepwiseDialog {
 
@@ -30,6 +37,10 @@ public class NewLogbookDialog extends StepwiseDialog {
     private static final String LOGBOOKDESCRIPTION = "LOGBOOKDESCRIPTION";
     private static final String DATEFROM           = "DATEFROM";
     private static final String DATETO             = "DATETO";
+    // further information not related to logbook, copied from ProjectRecord
+    public static final String DEFAULTCLUBWORKTARGETHOURS   = "DefaultClubworkTargetHours";
+    public static final String TRANSFERABLECLUBWORKHOURS    = "TransferableClubworkHours";
+    public static final String FINEFORTOOLITTLECLUBWORK     = "FineForTooLittleClubwork";
 
     private String year = EfaUtil.getCurrentTimeStampYYYY();
     private String newLogbookName;
@@ -49,7 +60,8 @@ public class NewLogbookDialog extends StepwiseDialog {
     String[] getSteps() {
         return new String[] {
             International.getString("Name und Beschreibung"),
-            International.getString("Zeitraum für Fahrtenbuch")
+            International.getString("Zeitraum für Fahrtenbuch"),
+            International.getString("Informationen für weitere Bücher")
         };
     }
 
@@ -61,6 +73,8 @@ public class NewLogbookDialog extends StepwiseDialog {
             case 1:
                 return International.getString("Bitte wähle den Zeitraum für Fahrten dieses Fahrtenbuches aus. efa wird später nur Fahrten "+
                         "innerhalb dieses Zeitraums für dieses Fahrtenbuch zulassen.");
+            case 2:
+                return International.getString("Neben dem Fahrtenbuch wird auch ein Buch für Vereinsarbeit mit dem selben Zeitraum angelegt. Bitte fülle die für deinen Verein notwendigen Felder aus oder lasse die Felder frei.");
         }
         return "";
     }
@@ -85,6 +99,22 @@ public class NewLogbookDialog extends StepwiseDialog {
         item = new ItemTypeDate(DATETO, new DataTypeDate(31, 12, EfaUtil.string2int(year, 2010)), IItemType.TYPE_PUBLIC, "1", International.getString("Ende des Zeitraums"));
         ((ItemTypeDate)item).setNotNull(true);
         items.add(item);
+        
+        // Items for Step 2: Further information not directly related to Logbook 
+        items.add(item = new ItemTypeHours(ProjectRecord.DEFAULTCLUBWORKTARGETHOURS, new DataTypeHours(0,0,0),
+                IItemType.TYPE_PUBLIC, "2", International.getString("Standard Sollstunden für die Vereinsarbeit")));
+        item.setFieldSize(150, -1);
+        ((ItemTypeHours)item).enableSeconds(false);
+        
+        items.add(item = new ItemTypeHours(ProjectRecord.TRANSFERABLECLUBWORKHOURS, new DataTypeHours(0,0,0),
+                IItemType.TYPE_PUBLIC, "2", International.getString("Übertragbare Vereinsarbeitsstunden")));
+        item.setFieldSize(150, -1);
+        ((ItemTypeHours)item).enableSeconds(false);
+        
+        items.add(item = new ItemTypeInteger(ProjectRecord.FINEFORTOOLITTLECLUBWORK, 0, 0, Integer.MAX_VALUE, false,
+                IItemType.TYPE_PUBLIC, "2",
+                International.getString("Bußgeld für Vereinsarbeit unter Sollstunden")));
+        item.setFieldSize(150, -1);
     }
 
     boolean checkInput(int direction) {
@@ -120,13 +150,36 @@ public class NewLogbookDialog extends StepwiseDialog {
         rec.setDescription(logDescription.getValue());
         rec.setStartDate(logFromDate.getDate());
         rec.setEndDate(logFromTo.getDate());
-
+        
         try {
             Daten.project.addLogbookRecord(rec);
             newLogbookName = logName.getValue();
             Daten.project.getLogbook(newLogbookName, true);
             Dialog.infoDialog(LogString.fileSuccessfullyCreated(logName.getValue(),
                     International.getString("Fahrtenbuch")));
+            setDialogResult(true);
+        } catch(EfaException ee) {
+            newLogbookName = null;
+            Dialog.error(ee.getMessage());
+            ee.log();
+            setDialogResult(false);
+        }
+        
+        ItemTypeHours defaultClubworkTargetHours = (ItemTypeHours)getItemByName(DEFAULTCLUBWORKTARGETHOURS);
+        ItemTypeHours transferableClubworkHours = (ItemTypeHours)getItemByName(TRANSFERABLECLUBWORKHOURS);
+        ItemTypeInteger fineForTooLittleClubwork = (ItemTypeInteger)getItemByName(FINEFORTOOLITTLECLUBWORK);
+        
+        ProjectRecord rec2 = Daten.project.createNewClubworkRecord(logName.getValue());
+        rec2.setDefaultClubworkTargetHours(defaultClubworkTargetHours.getValue());
+        rec2.setTransferableClubworkHours(transferableClubworkHours.getValue());
+        rec2.setFineForTooLittleClubwork(fineForTooLittleClubwork.getValue());
+
+        try {
+            Daten.project.addClubworkRecord(rec2);
+            newLogbookName = logName.getValue();
+            Daten.project.getClubwork(newLogbookName, true);
+            Dialog.infoDialog(LogString.fileSuccessfullyCreated(logName.getValue(),
+                    International.getString("Vereinsarbeit")));
             setDialogResult(true);
         } catch(EfaException ee) {
             newLogbookName = null;

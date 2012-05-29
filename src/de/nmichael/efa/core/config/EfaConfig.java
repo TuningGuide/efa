@@ -171,6 +171,7 @@ public class EfaConfig extends StorageObject {
     private ItemTypeConfigButton efaDirekt_butBootsreservierungen;
     private ItemTypeConfigButton efaDirekt_butFahrtenbuchAnzeigen;
     private ItemTypeConfigButton efaDirekt_butStatistikErstellen;
+    private ItemTypeConfigButton efaDirekt_butVereinsarbeit;
     private ItemTypeConfigButton efaDirekt_butNachrichtAnAdmin;
     private ItemTypeConfigButton efaDirekt_butAdminModus;
     private ItemTypeConfigButton efaDirekt_butSpezial;
@@ -757,6 +758,11 @@ public class EfaConfig extends StorageObject {
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
                     International.getMessage("Button '{button}'",
                     International.getString("Statistiken erstellen"))));
+            addParameter(efaDirekt_butVereinsarbeit = new ItemTypeConfigButton("ButtonClubwork",
+                    International.getString("Vereinsarbeit"), "FFFFCC", true, false, true, true,
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
+                    International.getMessage("Button '{button}'",
+                    International.getString("Vereinsarbeit"))));
             addParameter(efaDirekt_butNachrichtAnAdmin = new ItemTypeConfigButton("ButtonMessageToAdmin",
                     International.getString("Nachricht an Admin"), "FFF197", true, false, true, true,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
@@ -1409,6 +1415,10 @@ public class EfaConfig extends StorageObject {
 
     public ItemTypeConfigButton getValueEfaDirekt_butStatistikErstellen() {
         return efaDirekt_butStatistikErstellen;
+    }
+    
+    public ItemTypeConfigButton getValueEfaDirekt_butVereinsarbeit() {
+        return efaDirekt_butVereinsarbeit;
     }
 
     public ItemTypeConfigButton getValueEfaDirekt_butNachrichtAnAdmin() {

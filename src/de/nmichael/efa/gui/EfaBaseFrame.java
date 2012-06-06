@@ -2540,6 +2540,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         if (cmd.equals(EfaMenuButton.BUTTON_LOGBOOKS) && permission) {
             menuFileLogbooks(e);
         }
+        if (cmd.equals(EfaMenuButton.BUTTON_CLUBWORK) && permission) {
+            menuFileClubwork(e);
+        }
 
     }
 
@@ -2585,6 +2588,21 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             }
         }
         OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.logbook, getAdmin());
+        String logbookName = dlg.openDialog();
+        if (logbookName != null) {
+            openLogbook(logbookName);
+        }
+        setTitle();
+    }
+    
+    void menuFileClubwork(ActionEvent e) {
+        if (Daten.project == null) {
+            menuFileProjects(e);
+            if (Daten.project == null) {
+                return;
+            }
+        }
+        OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.clubwork, getAdmin());
         String logbookName = dlg.openDialog();
         if (logbookName != null) {
             openLogbook(logbookName);

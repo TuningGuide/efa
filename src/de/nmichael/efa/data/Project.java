@@ -292,6 +292,22 @@ public class Project extends StorageObject {
 		}
 		return items;
 	}
+	
+	public Hashtable<String,String> getAllClubworkSettings() {
+		Hashtable<String,String> items = new Hashtable<String,String>();
+		String[] logbooks = getAllLogbookNames();
+		for (int i = 0; logbooks != null && i < logbooks.length; i++) {
+			ProjectRecord r = getLoogbookRecord(logbooks[i]);
+			ProjectRecord cw = getClubworkSettingsRecord(logbooks[i]);
+			if (r != null && cw != null) {
+				String name = "<b>" + International.getString("Vereinsbuch") + ":</b> <b style=\"color:blue\">" + logbooks[i] + "</b><br>";
+				String description = (r.getDescription() != null && r.getDescription().length() > 0 ? r.getDescription() + " " : "");
+				description += "(" + r.getStartDate().toString() + " - " + r.getEndDate() + ")";
+				items.put(logbooks[i], name + description);
+			}
+		}
+		return items;
+	}
 
 	public static ProjectRecord createNewRecordFromStatic(String type) {
 		if (MetaData.getMetaData(DATATYPE) == null) {
@@ -354,6 +370,19 @@ public class Project extends StorageObject {
 	public boolean deleteLogbookRecord(String logbookName) {
 		try {
 			getMyDataAccess(ProjectRecord.TYPE_LOGBOOK).delete(createProjectRecord(ProjectRecord.TYPE_LOGBOOK, logbookName).getKey());
+		} catch(Exception e) {
+			Logger.logdebug(e);
+			if (e instanceof EfaModifyException) {
+				((EfaModifyException)e).displayMessage();
+			}
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean deleteClubworkRecord(String clubworkName) {
+		try {
+			getMyDataAccess(ProjectRecord.TYPE_CLUBWORK_SETTINGS).delete(createProjectRecord(ProjectRecord.TYPE_CLUBWORK_SETTINGS, clubworkName).getKey());
 		} catch(Exception e) {
 			Logger.logdebug(e);
 			if (e instanceof EfaModifyException) {

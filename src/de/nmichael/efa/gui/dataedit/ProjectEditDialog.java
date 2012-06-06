@@ -10,27 +10,39 @@
 
 package de.nmichael.efa.gui.dataedit;
 
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.swing.JDialog;
+
 import de.nmichael.efa.core.config.AdminRecord;
-import de.nmichael.efa.util.*;
-import de.nmichael.efa.core.items.*;
-import de.nmichael.efa.data.*;
+import de.nmichael.efa.core.items.IItemType;
+import de.nmichael.efa.data.Project;
+import de.nmichael.efa.data.ProjectRecord;
 import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.ex.InvalidValueException;
+import de.nmichael.efa.gui.OpenProjectOrLogbookDialog;
 import de.nmichael.efa.util.Dialog;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import java.util.*;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.Logger;
 
 // @i18n complete
 public class ProjectEditDialog extends UnversionizedDataEditDialog {
 
     Project project;
     String logbookName;
+    
+    public enum Type {
+        project,
+        logbook,
+        clubwork
+    }
 
-    public ProjectEditDialog(Frame parent, Project p, String logbookName, int subtype, AdminRecord admin) {
+    public ProjectEditDialog(Frame parent, Project p, String projectRecordName, int subtype, AdminRecord admin) {
         super(parent, International.getString("Projekt"), null, false, admin);
         iniItems(p, logbookName, subtype);
     }
@@ -38,6 +50,16 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog {
     public ProjectEditDialog(JDialog parent, Project p, String logbookName, int subtype, AdminRecord admin) {
         super(parent, International.getString("Projekt"), null, false, admin);
         iniItems(p, logbookName, subtype);
+    }
+    
+    public ProjectEditDialog(Frame parent, Project p, Type type, String projectRecordName, int subtype, AdminRecord admin) {
+        super(parent, International.getString("Projekt"), null, false, admin);
+        iniItems(p, projectRecordName, type, subtype);
+    }
+
+    public ProjectEditDialog(JDialog parent, Project p, Type type, String projectRecordName, int subtype, AdminRecord admin) {
+        super(parent, International.getString("Projekt"), null, false, admin);
+        iniItems(p, projectRecordName, type, subtype);
     }
 
     public ProjectEditDialog(JDialog parent, Project p, String logbookName, int subtype,
@@ -57,6 +79,31 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog {
              &&getItem(ProjectRecord.ASSOCIATIONREGIONALLOGIN) != null) {
             getItem(ProjectRecord.ASSOCIATIONREGIONALLOGIN).setNotNull(true);
         }
+    }
+    
+    private void iniItems(Project p, String projectRecordName, Type type, int subtype) {
+    	if(type.equals(Type.project) || type.equals(Type.logbook)) {
+    		iniItems(p, projectRecordName, subtype);
+    	}
+    	else {
+            this.project = p;
+            // actually clubworkName
+            this.logbookName = projectRecordName;
+            Vector<IItemType> guiItems = new Vector<IItemType>();
+            try {
+                ProjectRecord r;
+                if (logbookName != null) {
+                    r = p.getClubworkSettingsRecord(logbookName);
+                    if (r != null) {
+                        guiItems.addAll(r.getGuiItems(admin, subtype, null, false));
+                    }
+                }
+            } catch(Exception e) {
+                Logger.logdebug(e);
+            }
+
+            this.setItems(guiItems);
+    	}
     }
 
     private void iniItems(Project p, String logbookName, int subtype) {

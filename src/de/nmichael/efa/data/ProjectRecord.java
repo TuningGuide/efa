@@ -729,9 +729,17 @@ public class ProjectRecord extends DataRecord {
         
         if (getType().equals(TYPE_CLUBWORK_SETTINGS)) {
         	if (category == null) {
-                category = "%05%" + International.getString("Vereinsarbeits-Einstellungen") + " " + International.getString("für") + " " + International.getString("Fahrtenbuch") + getLogbookName();
+                category = "%05%" + International.getString("Vereinsarbeits-Einstellungen") + " " + getClubworkSettingsName();
             }
             if (subtype == GUIITEMS_SUBTYPE_ALL) {
+            	v.add(item = new ItemTypeString(ProjectRecord.CLUBWORKSETTINGSNAME, getClubworkSettingsName(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Name des Vereinsbuchs")));
+                ((ItemTypeString) item).setAllowedCharacters("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
+                ((ItemTypeString) item).setReplacementCharacter('_');
+                ((ItemTypeString) item).setNotNull(true);
+                ((ItemTypeString) item).setEditable(newProject);
+                
                 v.add(item = new ItemTypeHours(ProjectRecord.DEFAULTCLUBWORKTARGETHOURS, getDefaultClubworkTargetHours(),
                         IItemType.TYPE_PUBLIC, category,
                         International.getString("Standard Sollstunden für die Vereinsarbeit")));

@@ -174,19 +174,19 @@ public class NewLogbookDialog extends StepwiseDialog {
         rec2.setTransferableClubworkHours(transferableClubworkHours.getValue());
         rec2.setFineForTooLittleClubwork(fineForTooLittleClubwork.getValue());
 
-        try {
-            Daten.project.addClubworkRecord(rec2);
-            newLogbookName = logName.getValue();
-            Daten.project.getClubwork(newLogbookName, true);
-            Dialog.infoDialog(LogString.fileSuccessfullyCreated(logName.getValue(),
-                    International.getString("Vereinsarbeit")));
-            setDialogResult(true);
-        } catch(EfaException ee) {
-            newLogbookName = null;
-            Dialog.error(ee.getMessage());
-            ee.log();
-            setDialogResult(false);
-        }
+//        try {
+//            Daten.project.addClubworkRecord(rec2);
+//            newLogbookName = logName.getValue();
+//            Daten.project.getClubwork(newLogbookName, true);
+//            Dialog.infoDialog(LogString.fileSuccessfullyCreated(logName.getValue(),
+//                    International.getString("Vereinsarbeit")));
+//            setDialogResult(true);
+//        } catch(EfaException ee) {
+//            newLogbookName = null;
+//            Dialog.error(ee.getMessage());
+//            ee.log();
+//            setDialogResult(false);
+//        }
         return true;
     }
 

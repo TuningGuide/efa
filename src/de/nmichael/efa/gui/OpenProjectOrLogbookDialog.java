@@ -30,7 +30,8 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
 
     public enum Type {
         project,
-        logbook
+        logbook,
+        clubwork
     }
 
     private String name;
@@ -43,7 +44,11 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         super(parent, 
                 (type == Type.project ? 
                     International.getString("Projekt öffnen") :
-                    International.getString("Fahrtenbuch öffnen")),
+                    (type == Type.logbook ? 
+                    	International.getString("Fahrtenbuch öffnen") :
+                    	International.getString("Vereinsbuch öffnen")
+                    )
+                ),
                 International.getStringWithMnemonic("Abbruch"));
         this.admin = admin;
         this.type = type;
@@ -51,9 +56,13 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
 
     public OpenProjectOrLogbookDialog(JDialog parent, Type type, AdminRecord admin) {
         super(parent,
-                (type == Type.project ?
+                (type == Type.project ? 
                     International.getString("Projekt öffnen") :
-                    International.getString("Fahrtenbuch öffnen")),
+                    (type == Type.logbook ? 
+                        International.getString("Fahrtenbuch öffnen") :
+                        International.getString("Vereinsbuch öffnen")
+                    )
+                ),
                 International.getStringWithMnemonic("Abbruch"));
         this.admin = admin;
         this.type = type;
@@ -73,6 +82,9 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         }
         if (type == Type.logbook) {
             label.setText(International.getString("vorhandene Fahrtenbücher"));
+        }
+        if (type == Type.clubwork) {
+            label.setText(International.getString("vorhandene Vereinsbücher"));
         }
         mainPanel.add(label, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                                     GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 10, 0, 0), 0, 0));
@@ -100,8 +112,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         mainPanel.add(newButton, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
                                     GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
         JButton openButton = new JButton();
-        Mnemonics.setButton(this, openButton, International.getString("Öffnen")
-                ,
+        Mnemonics.setButton(this, openButton, International.getString("Öffnen"),
                 BaseDialog.IMAGE_OPEN);
         openButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -142,8 +153,11 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         if (type == Type.project) {
             items = Project.getProjects();
         }
-        if (type == Type.logbook && Daten.project != null) {
+        if ((type == Type.logbook || type == Type.clubwork) && Daten.project != null) {
             items = Daten.project.getLogbooks();
+        }
+        if (type == Type.clubwork && Daten.project != null) {
+            items = Daten.project.getAllClubworkSettings();
         }
 
         keys = items.keySet().toArray(new String[0]);
@@ -192,6 +206,12 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
             updateGui();
             return;
         }
+        if (type == Type.clubwork) {
+            NewClubworkDialog dlg = new NewClubworkDialog(this);
+            dlg.newClubworkDialog();
+            updateGui();
+            return;
+        }
     }
 
     void openButton_actionPerformed(ActionEvent e) {
@@ -232,6 +252,13 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
             ProjectEditDialog dlg = new ProjectEditDialog(this, Daten.project, name, ProjectRecord.GUIITEMS_SUBTYPE_ALL, admin);
             dlg.showDialog();
         }
+        if (type == Type.clubwork) {
+            if (Daten.project == null || Daten.project.getLogbook(name, false) == null) {
+                return;
+            }
+            ProjectEditDialog dlg = new ProjectEditDialog(this, Daten.project, ProjectEditDialog.Type.clubwork, name, ProjectRecord.GUIITEMS_SUBTYPE_ALL, admin);
+            dlg.showDialog();
+        }
     }
 
     void deleteButton_actionPerformed(ActionEvent e) {
@@ -258,6 +285,10 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         if (type == Type.logbook) {
             message = International.getMessage("Möchtest Du das Fahrtenbuch '{name}' wirklich löschen?", name) + "\n" +
                     International.getString("Alle Fahrten des Fahrtenbuchs gehen damit unwiederbringlich verloren!");
+        }
+        if (type == Type.clubwork) {
+            message = International.getMessage("Möchtest Du das Vereinsbuch '{name}' wirklich löschen?", name) + "\n" +
+                    International.getString("Alle Vereinsarbeitsstunden des Vereinsbuch gehen damit unwiederbringlich verloren!");
         }
         if (message == null) {
             return;
@@ -296,6 +327,18 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
                 Logbook logbook = Daten.project.getLogbook(name, false);
                 if (Daten.project.deleteLogbookRecord(name)) {
                     logbook.data().deleteStorageObject();
+                }
+                updateGui();
+            } catch(Exception ex) {
+                Dialog.error(ex.toString());
+                Logger.logdebug(ex);
+            }
+        }
+        if (type == Type.clubwork) {
+            try {
+                Clubwork clubwork = Daten.project.getClubwork(name, false);
+                if (Daten.project.deleteClubworkRecord(name)) {
+                	clubwork.data().deleteStorageObject();
                 }
                 updateGui();
             } catch(Exception ex) {

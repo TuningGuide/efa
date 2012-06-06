@@ -173,14 +173,14 @@ public class ProjectRecord extends DataRecord {
     }
 
     public static DataKey getDataKey(String type, String name) {
-    	if(type == ProjectRecord.TYPE_CLUBWORK_SETTINGS)
+    	if(type.equals(ProjectRecord.TYPE_CLUBWORK_SETTINGS))
     		return new DataKey<String,String,String>(type,null,name);
    		return new DataKey<String,String,String>(type,name,null);
     }
 
     public DataKey getKey() {
     	String type = getType();
-    	if(type == ProjectRecord.TYPE_CLUBWORK_SETTINGS)
+    	if(type.equals(ProjectRecord.TYPE_CLUBWORK_SETTINGS))
     		return new DataKey<String,String,String>(type,null,getClubworkSettingsName());
 
         return new DataKey<String,String,String>(getType(),getLogbookName(),null);

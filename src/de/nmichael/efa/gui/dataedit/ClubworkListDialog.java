@@ -33,6 +33,8 @@ public class ClubworkListDialog extends DataListDialog {
 
 	public ClubworkListDialog(JDialog parent, long validAt, AdminRecord admin) {
 		super(parent, International.getString("Vereinsarbeit"), Daten.project.getClubwork(Daten.project.getCurrentLogbook().getName(), false), validAt, admin);
+		Logbook logbook = Daten.project.getCurrentLogbook();
+		Clubwork clubwork = Daten.project.getClubwork(logbook.getName(), false);
 	}
 
 	public void keyAction(ActionEvent evt) {
@@ -60,6 +62,8 @@ public class ClubworkListDialog extends DataListDialog {
 	public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record) {
 		boolean newRecord = (record == null);
 		if (record == null) {
+			Logbook logbook = Daten.project.getCurrentLogbook();
+			Clubwork clubwork = Daten.project.getClubwork(logbook.getName(), false);
 			record = Daten.project.getClubwork(Daten.project.getCurrentLogbook().getName(), false).createClubworkRecord(UUID.randomUUID());
 		}
 		return new ClubworkEditDialog(parent, (ClubworkRecord)record, newRecord, admin);

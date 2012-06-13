@@ -222,15 +222,6 @@ public class AdminDialog extends BaseDialog implements IItemListener {
                 updateInfos();
                 return;
             }
-            if (action.equals(EfaMenuButton.BUTTON_CLUBWORK) && permission) {
-            	if (Daten.project == null) {
-                    Dialog.error(International.getString("Kein Projekt geöffnet."));
-                    return;
-                }
-            	efaBoathouseFrame.openClubwork(admin);
-                updateInfos();
-                return;
-            }
 
             updateMessageButton(null);
         }

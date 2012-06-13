@@ -39,7 +39,6 @@ public class EfaMenuButton {
     public final static String MENU_FILE                = "FILE";
     public final static String BUTTON_PROJECTS          = "PROJECTS";
     public final static String BUTTON_LOGBOOKS          = "LOGBOOKS";
-    public final static String BUTTON_CLUBWORK          = "CLUBWORK";
     public final static String BUTTON_BACKUP            = "BACKUP";
     public final static String BUTTON_UPDATE            = "UPDATE";
     public final static String BUTTON_OSCOMMAND         = "OSCOMMAND";
@@ -138,12 +137,6 @@ public class EfaMenuButton {
             v.add(new EfaMenuButton(MENU_FILE, BUTTON_LOGBOOKS,
                     International.getStringWithMnemonic("Datei"),
                     International.getStringWithMnemonic("Fahrtenbücher") + " ...",
-                    BaseFrame.getIcon("menu_logbooks.png")));
-        }
-        if (admin == null || admin.isAllowedAdministerProjectLogbook()) {
-            v.add(new EfaMenuButton(MENU_FILE, BUTTON_CLUBWORK,
-                    International.getStringWithMnemonic("Datei"),
-                    International.getStringWithMnemonic("Vereinsarbeit") + " ...",
                     BaseFrame.getIcon("menu_logbooks.png")));
         }
         if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_FILE) && !v.get(v.size()-1).isSeparator()) {
@@ -404,7 +397,7 @@ public class EfaMenuButton {
             return true; // Projects have to handled individually by the caller
         }
 
-        if (action.equals(BUTTON_LOGBOOKS) || action.equals(BUTTON_CLUBWORK)) {
+        if (action.equals(BUTTON_LOGBOOKS)) {
             if (admin == null || (!admin.isAllowedAdministerProjectLogbook())) {
                 insufficientRights(admin, action);
                 return false;

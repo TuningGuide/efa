@@ -156,9 +156,6 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         if ((type == Type.logbook || type == Type.clubwork) && Daten.project != null) {
             items = Daten.project.getLogbooks();
         }
-        if (type == Type.clubwork && Daten.project != null) {
-            items = Daten.project.getAllClubworkSettings();
-        }
 
         keys = items.keySet().toArray(new String[0]);
         Arrays.sort(keys);
@@ -203,12 +200,6 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         if (type == Type.logbook) {
             NewLogbookDialog dlg = new NewLogbookDialog(this);
             dlg.newLogbookDialog();
-            updateGui();
-            return;
-        }
-        if (type == Type.clubwork) {
-            NewClubworkDialog dlg = new NewClubworkDialog(this);
-            dlg.newClubworkDialog();
             updateGui();
             return;
         }
@@ -327,18 +318,6 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
                 Logbook logbook = Daten.project.getLogbook(name, false);
                 if (Daten.project.deleteLogbookRecord(name)) {
                     logbook.data().deleteStorageObject();
-                }
-                updateGui();
-            } catch(Exception ex) {
-                Dialog.error(ex.toString());
-                Logger.logdebug(ex);
-            }
-        }
-        if (type == Type.clubwork) {
-            try {
-                Clubwork clubwork = Daten.project.getClubwork(name, false);
-                if (Daten.project.deleteClubworkRecord(name)) {
-                	clubwork.data().deleteStorageObject();
                 }
                 updateGui();
             } catch(Exception ex) {

@@ -292,22 +292,6 @@ public class Project extends StorageObject {
 		}
 		return items;
 	}
-	
-	public Hashtable<String,String> getAllClubworkSettings() {
-		Hashtable<String,String> items = new Hashtable<String,String>();
-		String[] logbooks = getAllLogbookNames();
-		for (int i = 0; logbooks != null && i < logbooks.length; i++) {
-			ProjectRecord r = getLoogbookRecord(logbooks[i]);
-			ProjectRecord cw = getClubworkSettingsRecord(logbooks[i]);
-			if (r != null && cw != null) {
-				String name = "<b>" + International.getString("Vereinsbuch") + ":</b> <b style=\"color:blue\">" + logbooks[i] + "</b><br>";
-				String description = (r.getDescription() != null && r.getDescription().length() > 0 ? r.getDescription() + " " : "");
-				description += "(" + r.getStartDate().toString() + " - " + r.getEndDate() + ")";
-				items.put(logbooks[i], name + description);
-			}
-		}
-		return items;
-	}
 
 	public static ProjectRecord createNewRecordFromStatic(String type) {
 		if (MetaData.getMetaData(DATATYPE) == null) {
@@ -325,9 +309,6 @@ public class Project extends StorageObject {
 		if (type.equals(ProjectRecord.TYPE_LOGBOOK)) {
 			p.setLogbookName(logbookName);
 		}
-		else if (type.equals(ProjectRecord.TYPE_CLUBWORK_SETTINGS)) {
-			p.setClubworkSettingsName(logbookName);
-		}
 		return p;
 	}
 
@@ -335,15 +316,10 @@ public class Project extends StorageObject {
 		return createProjectRecord(ProjectRecord.TYPE_LOGBOOK, logbookName);
 	}
 
-	public ProjectRecord createNewClubworkRecord(String name) {
-		return createProjectRecord(ProjectRecord.TYPE_CLUBWORK_SETTINGS, name);
-	}
-
 	public IDataAccess getMyDataAccess(String recordType) {
 		if (recordType.endsWith(ProjectRecord.TYPE_CLUB) ||
 				recordType.endsWith(ProjectRecord.TYPE_LOGBOOK) ||
-				recordType.endsWith(ProjectRecord.TYPE_CONFIG) ||
-				recordType.endsWith(ProjectRecord.TYPE_CLUBWORK_SETTINGS)) {
+				recordType.endsWith(ProjectRecord.TYPE_CONFIG)) {
 			if (getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
 				return (remoteDataAccess != null ? remoteDataAccess : dataAccess);
 			} else {
@@ -370,19 +346,6 @@ public class Project extends StorageObject {
 	public boolean deleteLogbookRecord(String logbookName) {
 		try {
 			getMyDataAccess(ProjectRecord.TYPE_LOGBOOK).delete(createProjectRecord(ProjectRecord.TYPE_LOGBOOK, logbookName).getKey());
-		} catch(Exception e) {
-			Logger.logdebug(e);
-			if (e instanceof EfaModifyException) {
-				((EfaModifyException)e).displayMessage();
-			}
-			return false;
-		}
-		return true;
-	}
-	
-	public boolean deleteClubworkRecord(String clubworkName) {
-		try {
-			getMyDataAccess(ProjectRecord.TYPE_CLUBWORK_SETTINGS).delete(createProjectRecord(ProjectRecord.TYPE_CLUBWORK_SETTINGS, clubworkName).getKey());
 		} catch(Exception e) {
 			Logger.logdebug(e);
 			if (e instanceof EfaModifyException) {
@@ -428,10 +391,6 @@ public class Project extends StorageObject {
 		return ProjectRecord.getDataKey(ProjectRecord.TYPE_CONFIG, null);
 	}
 
-	public DataKey getClubworkSettingsRecordKey(String name) {
-		return ProjectRecord.getDataKey(ProjectRecord.TYPE_CLUBWORK_SETTINGS, name);
-	}
-
 	public ProjectRecord getRecord(DataKey k) {
 		try {
 			return (ProjectRecord)getMyDataAccess((String)k.getKeyPart1()).get(k);
@@ -475,10 +434,6 @@ public class Project extends StorageObject {
 		return getRecord(getLoogbookRecordKey(logbookName));
 	}
 
-	public ProjectRecord getClubworkSettingsRecord(String name) {
-		return getRecord(getClubworkSettingsRecordKey(name));
-	}
-
 	public ProjectRecord getConfigRecord() {
 		ProjectRecord r = getRecord(getConfigRecordKey());
 		if (r == null && isOpen()) {
@@ -503,10 +458,6 @@ public class Project extends StorageObject {
 
 	public void addLogbookRecord(ProjectRecord rec) throws EfaException {
 		addRecord(rec, ProjectRecord.TYPE_LOGBOOK);
-	}
-
-	public void addClubworkRecord(ProjectRecord rec) throws EfaException {
-		addRecord(rec, ProjectRecord.TYPE_CLUBWORK_SETTINGS);
 	}
 
 	private void closePersistence(StorageObject p) {
@@ -755,7 +706,7 @@ public class Project extends StorageObject {
 	}
 
 	public Clubwork getClubwork(String name, boolean createNewIfDoesntExist) {
-		ProjectRecord rec = getClubworkSettingsRecord(name);
+		ProjectRecord rec = getLoogbookRecord(name);
 		if (rec == null) {
 			return null;
 		}

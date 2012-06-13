@@ -1243,9 +1243,9 @@ public class StatisticTask extends ProgressTask {
 				return null;
 			}
 			for (int i=0; names != null && i<names.length; i++) {
-				ProjectRecord pr = Daten.project.getClubworkSettingsRecord(names[i]);
+				ProjectRecord pr = Daten.project.getLoogbookRecord(names[i]);
 				if (pr != null) {
-					logInfo(International.getString("Fahrtenbuch") + " " + pr.getClubworkSettingsName() + " ...\n");
+					logInfo(International.getString("Fahrtenbuch") + " " + pr.getLogbookName() + " ...\n");
 					sr.sDefaultClubworkTargetHours = pr.getDefaultClubworkTargetHours();
 					sr.sTransferableClubworkHours = pr.getTransferableClubworkHours();
 					sr.sFineForTooLittleClubwork = pr.getFineForTooLittleClubwork();

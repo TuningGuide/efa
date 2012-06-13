@@ -145,16 +145,25 @@ public class NewLogbookDialog extends StepwiseDialog {
         ItemTypeString logDescription = (ItemTypeString)getItemByName(LOGBOOKDESCRIPTION);
         ItemTypeDate logFromDate = (ItemTypeDate)getItemByName(DATEFROM);
         ItemTypeDate logFromTo = (ItemTypeDate)getItemByName(DATETO);
+        
+        ItemTypeHours defaultClubworkTargetHours = (ItemTypeHours)getItemByName(DEFAULTCLUBWORKTARGETHOURS);
+        ItemTypeHours transferableClubworkHours = (ItemTypeHours)getItemByName(TRANSFERABLECLUBWORKHOURS);
+        ItemTypeInteger fineForTooLittleClubwork = (ItemTypeInteger)getItemByName(FINEFORTOOLITTLECLUBWORK);
 
         ProjectRecord rec = Daten.project.createNewLogbookRecord(logName.getValue());
         rec.setDescription(logDescription.getValue());
         rec.setStartDate(logFromDate.getDate());
         rec.setEndDate(logFromTo.getDate());
         
+        rec.setDefaultClubworkTargetHours(defaultClubworkTargetHours.getValue());
+        rec.setTransferableClubworkHours(transferableClubworkHours.getValue());
+        rec.setFineForTooLittleClubwork(fineForTooLittleClubwork.getValue());
+        
         try {
             Daten.project.addLogbookRecord(rec);
             newLogbookName = logName.getValue();
             Daten.project.getLogbook(newLogbookName, true);
+            Daten.project.getClubwork(newLogbookName, true);
             Dialog.infoDialog(LogString.fileSuccessfullyCreated(logName.getValue(),
                     International.getString("Fahrtenbuch")));
             setDialogResult(true);
@@ -165,28 +174,6 @@ public class NewLogbookDialog extends StepwiseDialog {
             setDialogResult(false);
         }
         
-        ItemTypeHours defaultClubworkTargetHours = (ItemTypeHours)getItemByName(DEFAULTCLUBWORKTARGETHOURS);
-        ItemTypeHours transferableClubworkHours = (ItemTypeHours)getItemByName(TRANSFERABLECLUBWORKHOURS);
-        ItemTypeInteger fineForTooLittleClubwork = (ItemTypeInteger)getItemByName(FINEFORTOOLITTLECLUBWORK);
-        
-        ProjectRecord rec2 = Daten.project.createNewClubworkRecord(logName.getValue());
-        rec2.setDefaultClubworkTargetHours(defaultClubworkTargetHours.getValue());
-        rec2.setTransferableClubworkHours(transferableClubworkHours.getValue());
-        rec2.setFineForTooLittleClubwork(fineForTooLittleClubwork.getValue());
-
-//        try {
-//            Daten.project.addClubworkRecord(rec2);
-//            newLogbookName = logName.getValue();
-//            Daten.project.getClubwork(newLogbookName, true);
-//            Dialog.infoDialog(LogString.fileSuccessfullyCreated(logName.getValue(),
-//                    International.getString("Vereinsarbeit")));
-//            setDialogResult(true);
-//        } catch(EfaException ee) {
-//            newLogbookName = null;
-//            Dialog.error(ee.getMessage());
-//            ee.log();
-//            setDialogResult(false);
-//        }
         return true;
     }
 

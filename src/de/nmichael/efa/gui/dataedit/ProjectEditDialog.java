@@ -82,28 +82,7 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog {
     }
     
     private void iniItems(Project p, String projectRecordName, Type type, int subtype) {
-    	if(type.equals(Type.project) || type.equals(Type.logbook)) {
-    		iniItems(p, projectRecordName, subtype);
-    	}
-    	else {
-            this.project = p;
-            // actually clubworkName
-            this.logbookName = projectRecordName;
-            Vector<IItemType> guiItems = new Vector<IItemType>();
-            try {
-                ProjectRecord r;
-                if (logbookName != null) {
-                    r = p.getClubworkSettingsRecord(logbookName);
-                    if (r != null) {
-                        guiItems.addAll(r.getGuiItems(admin, subtype, null, false));
-                    }
-                }
-            } catch(Exception e) {
-                Logger.logdebug(e);
-            }
-
-            this.setItems(guiItems);
-    	}
+   		iniItems(p, projectRecordName, subtype);
     }
 
     private void iniItems(Project p, String logbookName, int subtype) {

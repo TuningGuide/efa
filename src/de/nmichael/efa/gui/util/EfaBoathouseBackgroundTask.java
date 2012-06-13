@@ -109,6 +109,9 @@ public class EfaBoathouseBackgroundTask extends Thread {
 	}
 
 	public void run() {
+		// Aktivitäten einmal bei Start von efa
+		checkIfLogbooksContainBooks();
+		
 		// Diese Schleife läuft i.d.R. einmal pro Minute
 		while (true) {
 			try {
@@ -173,6 +176,24 @@ public class EfaBoathouseBackgroundTask extends Thread {
 		} // end: while(true)
 	} // end: run
 
+	private void checkIfLogbooksContainBooks() {
+		boolean newClubworkCreated = false;
+		
+		String[] logbookNames = (Daten.project != null) ? Daten.project.getAllLogbookNames(): null;
+		if(logbookNames != null) {
+			for(String s : logbookNames) {
+				if(Daten.project.getClubwork(s, false) == null) {
+					Daten.project.getClubwork(s, true);
+					newClubworkCreated = true;
+				}
+			}
+		}
+		
+		if(newClubworkCreated) {
+			Dialog.infoDialog(International.getString("Fahrtenbücher aktualisieren"), International.getString("Ihre Fahrtenbücher wurden um ein Buch zut Vereinsarbeit erweitert.\nBitte gehe in die Fahrtenbuch-Einstellungen und ergänze die Angaben."));
+		}
+	}
+	
 	private void checkUpdateGui() {
 		if (Daten.efaConfig != null) {
 			try {
@@ -553,31 +574,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
 			} else {
 				throw new Exception("Failed to open new Logbook");
 			}
-
-			// Step 4: Create other Books
-			// Clubwork
-			ProjectRecord pr = Daten.project.getClubworkSettingsRecord(currentLogbook.getName());
-			if (pr != null) {		        
-		        ProjectRecord rec2 = Daten.project.createNewClubworkRecord(newLogbookName);
-		        rec2.setDefaultClubworkTargetHours(pr.getDefaultClubworkTargetHours());
-		        rec2.setTransferableClubworkHours(pr.getTransferableClubworkHours());
-		        rec2.setFineForTooLittleClubwork(pr.getFineForTooLittleClubwork());
-	
-		        try {
-		            Daten.project.addClubworkRecord(rec2);
-		            Daten.project.getClubwork(newLogbookName, true);
-		        } catch(EfaException ee) {
-					Logger.logdebug(ee);
-					Logger.log(Logger.ERROR, Logger.MSG_ERR_AUTOSTARTNEWLOGBOOK,
-							LogString.operationAborted(International.getString("Vereinsarbeitsbuch-Wechsel")));
-					Messages messages = Daten.project.getMessages(false);
-					messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME, MessageRecord.TO_ADMIN,
-							International.getString("Vereinsarbeitsbuch-Wechsel"),
-							International.getString("efa hat soeben versucht, wie konfiguriert ein neues Buch für Vereinsarbeit anzulegen.") + "\n"
-									+ International.getString("Bei diesem Vorgang traten jedoch FEHLER auf.") + "\n\n"
-									+ International.getString("Ein Protokoll ist in der Logdatei (Admin-Modus: Logdatei anzeigen) zu finden."));
-		        }
-			}
 			
 			Messages messages = Daten.project.getMessages(false);
 			messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME, MessageRecord.TO_ADMIN,
@@ -673,7 +669,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
 		Logbook currentLB = Daten.project.getCurrentLogbook();
 
 		if(currentLB != null) {
-			ProjectRecord pr = Daten.project.getClubworkSettingsRecord(currentLB.getName());
+			ProjectRecord pr = Daten.project.getLoogbookRecord(currentLB.getName());
 			if (pr != null) {
 				DataTypeHours sDefaultClubworkTargetHours = pr.getDefaultClubworkTargetHours();
 				DataTypeHours sTransferableClubworkHours = pr.getTransferableClubworkHours();

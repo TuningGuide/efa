@@ -2540,9 +2540,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         if (cmd.equals(EfaMenuButton.BUTTON_LOGBOOKS) && permission) {
             menuFileLogbooks(e);
         }
-        if (cmd.equals(EfaMenuButton.BUTTON_CLUBWORK) && permission) {
-            menuFileClubwork(e);
-        }
 
     }
 

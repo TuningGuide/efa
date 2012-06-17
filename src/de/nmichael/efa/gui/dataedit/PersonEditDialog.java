@@ -15,6 +15,7 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.util.UUID;
+import java.util.Vector;
 
 import javax.swing.JDialog;
 
@@ -28,8 +29,7 @@ import de.nmichael.efa.data.ClubworkRecord;
 import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.PersonRecord;
 import de.nmichael.efa.data.types.DataTypeDate;
-import de.nmichael.efa.data.types.DataTypeDecimal;
-import de.nmichael.efa.data.types.DataTypeHours;
+import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.ex.InvalidValueException;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.International;
@@ -94,26 +94,25 @@ public class PersonEditDialog extends VersionizedDataEditDialog implements IItem
     }
     
     protected boolean saveRecord() throws InvalidValueException {
+    	PersonRecord personRecord = (PersonRecord)dataRecord;
+    	double oldCredit = personRecord.getYearlyClubworkCredit();
+    	
     	boolean saved = super.saveRecord();
+    	double credit = personRecord.getYearlyClubworkCredit();
+    	Logbook logbook = Daten.project.getCurrentLogbook();
+    	Clubwork clubwork = Daten.project.getClubwork(logbook.getName(), false);
+    	
         if (newRecord) {
-        	PersonRecord personRecord = (PersonRecord)dataRecord;
-        	
             // save clubwork credit for getting into the club + yearly credit
-        	DataTypeHours credit = personRecord.getYearlyClubworkCredit();
-
             DataTypeDate date = new DataTypeDate(personRecord.getValidFrom());
             int month = date.getDay() < 15 ? date.getMonth()-1 : date.getMonth();
-            
-            if(month > 0 || (credit != null && !credit.isEmpty())) {
-    	    	Logbook logbook = Daten.project.getCurrentLogbook();
-    	    	Clubwork clubwork = Daten.project.getClubwork(logbook.getName(), false);
     	    	
     	    	if(month > 0) {
 	    	    	ClubworkRecord record = clubwork.createClubworkRecord(UUID.randomUUID());
 	    	    	record.setPersonId(personRecord.getId());
 	    	    	record.setWorkDate(date);
-	    	    	record.setDescription(International.getString("Gutschrift für Vereinseintritt")+": #"+personRecord.getId());
-	    	    	record.setHours(new DataTypeHours(0,0,month*clubwork.getProjectRecord().getDefaultClubworkTargetHours().getTimeAsSeconds()/12));
+	    	    	record.setDescription(International.getString("Gutschrift für Vereinseintritt"));
+	    	    	record.setHours(month*clubwork.getProjectRecord().getDefaultClubworkTargetHours()/12);
 	    	    	
 	    	    	try {
 	    				clubwork.data().add(record);
@@ -121,11 +120,11 @@ public class PersonEditDialog extends VersionizedDataEditDialog implements IItem
 	    	            Logger.logdebug(eignore);
 	    	        }
     	    	}
-    	    	if(credit != null && !credit.isEmpty()) {
+    	    	if(credit != 0) {
 	    	    	ClubworkRecord record = clubwork.createClubworkRecord(UUID.randomUUID());
 	    	    	record.setPersonId(personRecord.getId());
 	    	    	record.setWorkDate(date);
-	    	    	record.setDescription(International.getString("Gutschrift")+": #"+personRecord.getId());
+	    	    	record.setDescription(International.getString("Gutschrift (jährlich)"));
 	    	    	record.setHours(credit);
 	    	    	
 	    	    	try {
@@ -134,7 +133,40 @@ public class PersonEditDialog extends VersionizedDataEditDialog implements IItem
 	    	            Logger.logdebug(eignore);
 	    	        }
     	    	}
-            }
+        }
+        else {
+        	if(credit != oldCredit) {
+        		boolean found = false;
+        		Vector<ClubworkRecord> clubworkRecords = clubwork.getAllClubworkRecords(-1, false, false);
+        		
+        		for(ClubworkRecord record : clubworkRecords) {
+        			if(record.getPersonId().equals(personRecord.getId()) && record.getDescription().startsWith(International.getString("Gutschrift (jährlich)"))) {
+        				found = true;
+        				record.setWorkDate(DataTypeDate.today());
+        				record.setHours(credit);
+        				
+        				try {
+    	    				clubwork.data().update(record);
+    	    	    	} catch (Exception eignore) {
+    	    	            Logger.logdebug(eignore);
+    	    	        }
+        			}
+        		}
+        		
+        		if(!found) {
+        			ClubworkRecord record = clubwork.createClubworkRecord(UUID.randomUUID());
+	    	    	record.setPersonId(personRecord.getId());
+	    	    	record.setWorkDate(DataTypeDate.today());
+	    	    	record.setDescription(International.getString("Gutschrift (jährlich)"));
+	    	    	record.setHours(credit);
+	    	    	
+	    	    	try {
+	    				clubwork.data().add(record);
+	    	    	} catch (Exception eignore) {
+	    	            Logger.logdebug(eignore);
+	    	        }
+        		}
+        	}
         }
         return saved;
     }

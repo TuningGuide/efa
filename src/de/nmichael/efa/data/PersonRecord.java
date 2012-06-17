@@ -104,7 +104,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         f.add(FREEUSE1);                          t.add(IDataAccess.DATA_STRING);
         f.add(FREEUSE2);                          t.add(IDataAccess.DATA_STRING);
         f.add(FREEUSE3);                          t.add(IDataAccess.DATA_STRING);
-        f.add(YEARLYCLUBWORKCREDIT);              t.add(IDataAccess.DATA_TIME);
+        f.add(YEARLYCLUBWORKCREDIT);              t.add(IDataAccess.DATA_DOUBLE);
         MetaData metaData = constructMetaData(Persons.DATATYPE, f, t, true);
         metaData.setKey(new String[] { ID }); // plus VALID_FROM
         metaData.addIndex(IDX_NAME_NAMEAFFIX);
@@ -398,12 +398,11 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         return getString(FREEUSE3);
     }
     
-    public void setYearlyClubworkCredit(DataTypeHours s) {
-        setTime(YEARLYCLUBWORKCREDIT, s);
+    public void setYearlyClubworkCredit(int s) {
+        setDouble(YEARLYCLUBWORKCREDIT, s);
     }
-    public DataTypeHours getYearlyClubworkCredit() {
-    	DataTypeTime t = getTime(YEARLYCLUBWORKCREDIT);
-        return new DataTypeHours(0, 0, t != null ? t.getTimeAsSeconds() : 0);
+    public double getYearlyClubworkCredit() {
+    	return getDouble(YEARLYCLUBWORKCREDIT);
     }
 
     protected Object getVirtualColumn(int fieldIdx) {
@@ -625,7 +624,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
                     boats, getValidFrom(), getInvalidFrom() - 1,
                     International.getString("Standard-Boot")));
             item.setFieldSize(300, -1);
-            v.add(item = new ItemTypeHours(PersonRecord.YEARLYCLUBWORKCREDIT, getYearlyClubworkCredit(),
+            v.add(item = new ItemTypeDouble(PersonRecord.YEARLYCLUBWORKCREDIT, getYearlyClubworkCredit(), ItemTypeDouble.MIN, ItemTypeDouble.MAX,
                     IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("jhrl. Vereinsarb. Gutschrift")));
             v.add(item = new ItemTypeString(PersonRecord.EXTERNALID, getExternalId(),
                     IItemType.TYPE_EXPERT, CAT_MOREDATA, International.getString("Externe ID")));

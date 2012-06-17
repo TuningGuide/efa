@@ -31,15 +31,16 @@ public interface IDataAccess {
     public static final int DATA_STRING = 0;         // String
     public static final int DATA_INTEGER = 1;        // int, Integer
     public static final int DATA_LONGINT = 2;        // long, Long
-    public static final int DATA_DECIMAL = 3;        // DataTypeDecimal
-    public static final int DATA_DISTANCE = 4;       // DataTypeDistance
-    public static final int DATA_BOOLEAN = 5;        // boolean, Boolean
-    public static final int DATA_DATE = 6;           // DataTypeDate
-    public static final int DATA_TIME = 7;           // DataTypeTime
-    public static final int DATA_UUID = 8;           // java.util.UUID
-    public static final int DATA_INTSTRING = 9;      // Number-String mixed String
-    public static final int DATA_PASSWORDH = 10;     // DataTypePasswordHashed
-    public static final int DATA_PASSWORDC = 11;     // DataTypePasswordCrypted
+    public static final int DATA_DOUBLE = 3;         // double, Double
+    public static final int DATA_DECIMAL = 4;        // DataTypeDecimal
+    public static final int DATA_DISTANCE = 5;       // DataTypeDistance
+    public static final int DATA_BOOLEAN = 6;        // boolean, Boolean
+    public static final int DATA_DATE = 7;           // DataTypeDate
+    public static final int DATA_TIME = 8;           // DataTypeTime
+    public static final int DATA_UUID = 9;           // java.util.UUID
+    public static final int DATA_INTSTRING = 10;      // Number-String mixed String
+    public static final int DATA_PASSWORDH = 11;     // DataTypePasswordHashed
+    public static final int DATA_PASSWORDC = 12;     // DataTypePasswordCrypted
     public static final int DATA_LIST_STRING = 100;  // String-based list
     public static final int DATA_LIST_INTEGER = 101; // Integer-based list
     public static final int DATA_LIST_UUID = 108;    // UUID-based list
@@ -47,6 +48,7 @@ public interface IDataAccess {
 
     public static final int  UNDEFINED_INT  = Integer.MIN_VALUE + 1;
     public static final long UNDEFINED_LONG = Long.MIN_VALUE + 1;
+    public static final double  UNDEFINED_DOUBLE  = -Double.MAX_VALUE+1;
 
 
     /**
@@ -98,7 +100,7 @@ public interface IDataAccess {
     public String getStorageObjectName();
 
     /**
-     * Sets the storage object type (e.g. logbook, members list, boat list, ...) which may be used as a file extension or databale table name prefix
+     * Sets the storage object type (e.g. logbook, members list, boat list, ...) which may be used as a file extension or database table name prefix
      * Examples:
      * efb (for a logbook)
      * efbm (for a members list)

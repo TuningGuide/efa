@@ -253,6 +253,8 @@ public abstract class DataAccess implements IDataAccess {
                 return "INTEGER";
             case DATA_LONGINT:
                 return "LONGINT";
+            case DATA_DOUBLE:
+                return "DOUBLE";
             case DATA_DECIMAL:
                 return "DECIMAL";
             case DATA_DISTANCE:

@@ -23,10 +23,23 @@ public class DataTypeHours extends DataTypeTime {
     }
 
     // Regular Constructor
+    public DataTypeHours(int hour, int minute) {
+    	this.withSeconds = false;
+    	this.minute = minute % 60;
+        this.hour = hour + minute/60;
+    }
+    
     public DataTypeHours(int hour, int minute, int second) {
     	this.second = second % 60;
     	this.minute = (minute + second/60) % 60;
         this.hour = hour + (minute + second/60)/60;
+    }
+    
+    public DataTypeHours(int second, boolean withSeconds) {
+    	this.withSeconds = withSeconds;
+    	this.second = second % 60;
+    	this.minute = (second/60) % 60;
+        this.hour = (minute + second/60)/60;
     }
 
     public DataTypeHours(long timestamp) {

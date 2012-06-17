@@ -175,6 +175,10 @@ public class DataTypeDecimal {
             }
         }
     }
+    
+    public double getValue() {
+    	return value / Math.pow(10, this.decimalPlaces);
+    }
 
     public long getValue(int decimalPlaces) {
         if (decimalPlaces == this.decimalPlaces) {

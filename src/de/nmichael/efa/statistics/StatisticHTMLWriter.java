@@ -305,14 +305,15 @@ public class StatisticHTMLWriter extends StatisticWriter {
                         outHTML(f, sd[i].sStatus, false, null);
                         outHTML(f, sd[i].sClubwork, false, null);
                         outHTML(f, sd[i].sClubworkRelativeToTarget, false,
-                        		(sd[i].sClubworkRelativeToTarget != null &&   
-                        		DataTypeHours.parseTime(sd[i].sClubworkRelativeToTarget.replaceAll("[^\\-\\:\\d]", "")).getTimeAsSeconds() < -sr.sTransferableClubworkHours.getTimeAsSeconds() ?
-                        				"ff0000" : null));
+                        		(!sd[i].sClubworkRelativeToTarget.equals("") && !sd[i].isSummary &&
+                        		sd[i].clubworkRelativeToTarget < -sr.sTransferableClubworkHours ?
+                        				"FFAAAA" : null));
                         
                         outHTML(f, sd[i].sClubworkOverUnderCarryOver, false,
-                        		(sd[i].sClubworkOverUnderCarryOver != null &&   
-                        		DataTypeHours.parseTime(sd[i].sClubworkOverUnderCarryOver.replaceAll("[^\\-\\:\\d]", "")).getTimeAsSeconds() < 0 ?
-                        				"ff0000" : null));
+                        		(!sd[i].sClubworkOverUnderCarryOver.equals("") && !sd[i].isSummary &&
+                        		sd[i].clubworkOverUnderCarryOver < 0 ?
+                        				"FFAAAA" : null));
+                        outHTML(f, sd[i].sClubworkCredit, false, null);
                     }
                     /*
                     if (ae.ww != null) {

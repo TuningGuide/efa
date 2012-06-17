@@ -4,7 +4,7 @@
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
- * @author Nicolas Michael
+ * @author Velten Heyn
  * @version 2
  */
 

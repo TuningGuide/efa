@@ -57,7 +57,7 @@ public class ItemTypeHours extends ItemTypeLabelTextfield {
     public void parseValue(String value) {
         try {
             if (value != null && value.trim().length()>0) {
-                value = EfaUtil.correctTime(value,
+                value = EfaUtil.correctHours(value,
                         referenceTime.getHour(), referenceTime.getMinute(), referenceTime.getSecond(),
                         true, true);
 
@@ -77,7 +77,7 @@ public class ItemTypeHours extends ItemTypeLabelTextfield {
     }
 
     public boolean isSet() {
-        return value != null && value.isSet();
+        return value != null;
     }
 
     protected void field_focusLost(FocusEvent e) {
@@ -112,7 +112,7 @@ public class ItemTypeHours extends ItemTypeLabelTextfield {
         return value.getSecond();
     }
 
-    public DataTypeHours getTime() {
+    public DataTypeHours getHours() {
         return new DataTypeHours(value);
     }
 

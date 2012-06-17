@@ -4,7 +4,7 @@
  * Website:      http://efa.nmichael.de/
  * License:      GNU General Public License v2
  *
- * @author Nicolas Michael
+ * @author Velten Heyn
  * @version 2
  */
 
@@ -63,7 +63,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 		f.add(NAMEAFFIX);                         t.add(IDataAccess.DATA_VIRTUAL);
 		f.add(WORKDATE);                          t.add(IDataAccess.DATA_DATE);
 		f.add(DESCRIPTION);                       t.add(IDataAccess.DATA_STRING);
-		f.add(HOURS);                             t.add(IDataAccess.DATA_TIME);
+		f.add(HOURS);                             t.add(IDataAccess.DATA_DOUBLE);
 
 		MetaData metaData = constructMetaData(Clubwork.DATATYPE, f, t, true);
 		metaData.setKey(new String[] { ID }); // plus VALID_FROM
@@ -146,12 +146,11 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 		return getString(DESCRIPTION);
 	}
 
-	public void setHours(DataTypeHours hours) {
-		setTime(HOURS, hours);
+	public void setHours(double hours) {
+		setDouble(HOURS, hours);
 	}
-	public DataTypeHours getHours() {
-	   	DataTypeTime t = getTime(HOURS);
-        return new DataTypeHours(0, 0, t != null ? t.getTimeAsSeconds() : 0);
+	public double getHours() {
+	   	return getDouble(HOURS);
 	}
 
 	public String getQualifiedName(boolean firstFirst) {
@@ -304,7 +303,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 		v.add(item = new ItemTypeString(DESCRIPTION, getDescription(),
 				IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Beschreibung")));
 
-		v.add(item = new ItemTypeHours(HOURS, getHours(),
+		v.add(item = new ItemTypeDouble(HOURS, getHours(), ItemTypeDouble.MIN, ItemTypeDouble.MAX,
 				IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Stunden")));
 
 		return v;
@@ -343,33 +342,37 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 
 
 	public TableItemHeader[] getGuiTableHeader() {
-		TableItemHeader[] header = new TableItemHeader[4];
+		TableItemHeader[] header = new TableItemHeader[5];
 		if (Daten.efaConfig.getValueNameFormatIsFirstNameFirst()) {
 			header[0] = new TableItemHeader(International.getString("Vorname"));
 			header[1] = new TableItemHeader(International.getString("Nachname"));
 			header[2] = new TableItemHeader(International.getString("Datum"));
-			header[3] = new TableItemHeader(International.getString("Stunden"));
+			header[3] = new TableItemHeader(International.getString("Beschreibung"));
+			header[4] = new TableItemHeader(International.getString("Stunden"));
 		} else {
 			header[0] = new TableItemHeader(International.getString("Nachname"));
 			header[1] = new TableItemHeader(International.getString("Vorname"));
 			header[2] = new TableItemHeader(International.getString("Datum"));
-			header[3] = new TableItemHeader(International.getString("Stunden"));
+			header[3] = new TableItemHeader(International.getString("Beschreibung"));
+			header[4] = new TableItemHeader(International.getString("Stunden"));
 		}
 		return header;
 	}
 
 	public TableItem[] getGuiTableItems() {
-		TableItem[] items = new TableItem[4];
+		TableItem[] items = new TableItem[5];
 		if (Daten.efaConfig.getValueNameFormatIsFirstNameFirst()) {
 			items[0] = new TableItem(getFirstName());
 			items[1] = new TableItem(getLastName());
 			items[2] = new TableItem(getWorkDate());
-			items[3] = new TableItem(getHours());
+			items[3] = new TableItem(getDescription());
+			items[4] = new TableItem(getHours());
 		} else {
 			items[0] = new TableItem(getLastName());
 			items[1] = new TableItem(getFirstName());
 			items[2] = new TableItem(getWorkDate());
-			items[3] = new TableItem(getHours());
+			items[3] = new TableItem(getDescription());
+			items[4] = new TableItem(getHours());
 		}
 		return items;
 	}

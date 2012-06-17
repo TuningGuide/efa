@@ -136,6 +136,11 @@ public abstract class DataRecord implements Cloneable, Comparable {
                         throw new IllegalArgumentException(persistence.toString() + ": Data Type LONGINT expected for Data Field " + metaData.getFieldName(fieldIdx) + ".");
                     }
                     break;
+                case IDataAccess.DATA_DOUBLE:
+                    if (!(data instanceof Double)) {
+                        throw new IllegalArgumentException(persistence.toString() + ": Data Type DOUBLE expected for Data Field " + metaData.getFieldName(fieldIdx) + ".");
+                    }
+                    break;
                 case IDataAccess.DATA_DECIMAL:
                     if (!(data instanceof DataTypeDecimal)) {
                         throw new IllegalArgumentException(persistence.toString() + ": Data Type DECIMAL expected for Data Field " + metaData.getFieldName(fieldIdx) + ".");
@@ -252,6 +257,8 @@ public abstract class DataRecord implements Cloneable, Comparable {
                 return o == null || ((Integer)o).intValue() == IDataAccess.UNDEFINED_INT;
             case IDataAccess.DATA_LONGINT:
                 return o == null || ((Long)o).longValue() == IDataAccess.UNDEFINED_LONG;
+            case IDataAccess.DATA_DOUBLE:
+                return o == null || ((Double)o).doubleValue() == IDataAccess.UNDEFINED_DOUBLE;
             case IDataAccess.DATA_DECIMAL:
                 return o == null || !((DataTypeDecimal)o).isSet();
             case IDataAccess.DATA_DISTANCE:
@@ -524,6 +531,14 @@ public abstract class DataRecord implements Cloneable, Comparable {
             set(fieldName, null);
         }
     }
+    
+    protected void setDouble(String fieldName, double i) {
+        if (i != IDataAccess.UNDEFINED_INT) {
+            set(fieldName, new Double(i));
+        } else {
+            set(fieldName, null);
+        }
+    }
 
     protected void setBool(String fieldName, boolean b) {
         set(fieldName, new Boolean(b));
@@ -618,6 +633,14 @@ public abstract class DataRecord implements Cloneable, Comparable {
         }
         return l.longValue();
     }
+    
+    protected double getDouble(String fieldName) {
+        Double i = (Double)get(fieldName);
+        if (i == null) {
+            return IDataAccess.UNDEFINED_DOUBLE;
+        }
+        return i.doubleValue();
+    }
 
     protected Boolean getBool(String fieldName) {
         Boolean bool = (Boolean)get(fieldName);
@@ -675,6 +698,8 @@ public abstract class DataRecord implements Cloneable, Comparable {
                 return Integer.parseInt(s);
             case IDataAccess.DATA_LONGINT:
                 return Long.parseLong(s);
+            case IDataAccess.DATA_DOUBLE:
+                return Double.parseDouble(s);
             case IDataAccess.DATA_DECIMAL:
                 return DataTypeDecimal.parseDecimal(s);
             case IDataAccess.DATA_DISTANCE:

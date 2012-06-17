@@ -29,7 +29,6 @@ import de.nmichael.efa.data.storage.MetaData;
 import de.nmichael.efa.data.storage.RemoteEfaClient;
 import de.nmichael.efa.data.storage.StorageObject;
 import de.nmichael.efa.data.types.DataTypeDate;
-import de.nmichael.efa.data.types.DataTypeHours;
 import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.util.Dialog;
@@ -1461,10 +1460,10 @@ public class Project extends StorageObject {
 	public int getClubAreaID() {
 		return getClubRecord().getAreaId();
 	}
-	public DataTypeHours getClubDefaultClubworkTargetHours() {
+	public double getClubDefaultClubworkTargetHours() {
 		return getClubRecord().getDefaultClubworkTargetHours();
 	}
-	public DataTypeHours getClubTransferableClubworkHours() {
+	public double getClubTransferableClubworkHours() {
 		return getClubRecord().getTransferableClubworkHours();
 	}
 

@@ -312,6 +312,38 @@ public class EfaUtil {
             return int2String(hh, 2) + ":" + int2String(mm, 2);
         }
     }
+    
+    public static String correctHours(String s, int hdef, int mdef, int sdef, boolean withSeconds) {
+        return correctHours(s, hdef, mdef, sdef, withSeconds, false);
+    }
+    
+    public static String correctHours(String s, int hdef, int mdef, int sdef, boolean withSeconds,
+            boolean useZeroAsMinuteAndSecondIfHourWasGivenInS) {
+        if (s.length() == 0) {
+            return "";
+        }
+        TMJ hhmmss;
+        if (useZeroAsMinuteAndSecondIfHourWasGivenInS) {
+            hhmmss = EfaUtil.string2date(s, -1, -1, -1); // TMJ mißbraucht für die Auswertung von Uhrzeiten
+            if (hhmmss.tag != -1) {
+                mdef = 0;
+                sdef = 0;
+            }
+        }
+        hhmmss = EfaUtil.string2date(s, hdef, mdef, sdef); // TMJ mißbraucht für die Auswertung von Uhrzeiten
+        int hh = hhmmss.tag;
+        int mm = hhmmss.monat;
+        int ss = hhmmss.jahr;
+        if (hh > 100 && mm == 0) {
+            mm = hh % 100;
+            hh = hh / 100;
+        }
+        if (withSeconds) {
+            return int2String(hh, 2) + ":" + int2String(mm, 2) + ":" + int2String(ss, 2);
+        } else {
+            return int2String(hh, 2) + ":" + int2String(mm, 2);
+        }
+    }
 
     // Aus einem String s eine korrekte (gültige) Zeit machen
     public static String correctTime(String s) {

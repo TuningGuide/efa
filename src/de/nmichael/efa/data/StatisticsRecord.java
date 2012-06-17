@@ -44,7 +44,6 @@ import de.nmichael.efa.data.storage.MetaData;
 import de.nmichael.efa.data.storage.StorageObject;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeDistance;
-import de.nmichael.efa.data.types.DataTypeHours;
 import de.nmichael.efa.data.types.DataTypeIntString;
 import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.data.types.DataTypeTime;
@@ -205,6 +204,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String AGGR_CLUBWORK       = "Clubwork";
     public static final String AGGR_CBRELTOTARGET  = "ClubworkRelativeToTarget";
     public static final String AGGR_CBOVERUNDERCARRYOVER = "ClubworkRelativeToTargetOverUnder";
+    public static final String AGGR_CLUBWORKCREDIT = "ClubworkCredit";
 
     public static final String SORTING_DISTANCE    = "Distance";
     public static final String SORTING_SESSIONS    = "Sessions";
@@ -384,6 +384,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean sIsAggrClubwork;
     public boolean sIsAggrClubworkRelativeToTarget;
     public boolean sIsAggrClubworkOverUnderCarryOver;
+    public boolean sIsAggrClubworkCredit;
     public int sAggrDistanceBarSize;
     public int sAggrSessionsBarSize;
     public int sAggrAvgDistanceBarSize;
@@ -417,9 +418,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean sSumGuestsAndOthers;
     public boolean sSumGuestsByClub;
     // --- Clubwork-Options
-    public DataTypeHours sDefaultClubworkTargetHours;
-    public DataTypeHours sTransferableClubworkHours;
-    public int     sFineForTooLittleClubwork;
+    public double sDefaultClubworkTargetHours;
+    public double sTransferableClubworkHours;
+    public double sFineForTooLittleClubwork;
 
     // filled during statistics creation in StatistikTask
     public int cNumberOfEntries = 0;
@@ -1637,6 +1638,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         allKeys.put(AGGR_CLUBWORK, International.getString("Vereinsarbeit"));
         allKeys.put(AGGR_CBRELTOTARGET, International.getString("Vereinsarbeit (Relative zum Soll)"));
         allKeys.put(AGGR_CBOVERUNDERCARRYOVER, International.getString("Vereinsarbeit (über/unter Jahresübertrag)"));
+        allKeys.put(AGGR_CLUBWORKCREDIT, International.getString("Vereinsarbeit (nur Gutschriften)"));
 
         Vector<String> selectedKeys = new Vector<String>();
         selectedKeys.add(AGGR_DISTANCE);
@@ -1651,6 +1653,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         selectedKeys.add(AGGR_CLUBWORK);
         selectedKeys.add(AGGR_CBRELTOTARGET);
         selectedKeys.add(AGGR_CBOVERUNDERCARRYOVER);
+        selectedKeys.add(AGGR_CLUBWORKCREDIT);
         
         String[] result = new String[selectedKeys.size()];
         for (int i=0; i<result.length; i++) {
@@ -1717,6 +1720,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             return SortingCriteria.entryNo;
         } else if (sort.equals(SORTING_DATE)) {
             return SortingCriteria.date;
+        } else if (sort.equals(SORTING_CLUBWORK)) {
+            return SortingCriteria.clubwork;
         }
         return SortingCriteria.UNKNOWN;
     }
@@ -2557,6 +2562,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 sIsAggrClubworkRelativeToTarget = true;
 	        } else if (s.equals(AGGR_CBOVERUNDERCARRYOVER)) {
 	            sIsAggrClubworkOverUnderCarryOver = true;
+	        } else if (s.equals(AGGR_CLUBWORKCREDIT)) {
+	            sIsAggrClubworkCredit = true;
 	        }
         }
 
@@ -2764,7 +2771,13 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 pTableColumns.add(International.getString("Vereinsarbeit"));
             }
             if (sIsAggrClubworkRelativeToTarget) {
-                pTableColumns.add(International.getString("Vereinsarbeit rel. zum Soll"));
+                pTableColumns.add(International.getString("V.A. rel. zum Soll"));
+            }
+            if (sIsAggrClubworkOverUnderCarryOver) {
+                pTableColumns.add(International.getString("V.A. über/unter Soll"));
+            }
+            if (sIsAggrClubworkCredit) {
+                pTableColumns.add(International.getString("V.A. Gutschriften"));
             }
         }
     }

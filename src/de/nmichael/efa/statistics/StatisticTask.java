@@ -229,7 +229,7 @@ public class StatisticTask extends ProgressTask {
 		data.put(key, sd);
 	}
 
-	private void calculateAggregations(ClubworkRecord r, Object key, DataTypeHours hours) {
+	private void calculateAggregations(ClubworkRecord r, Object key, double hours) {
 		if (key == null) {
 			return;
 		}
@@ -240,7 +240,10 @@ public class StatisticTask extends ProgressTask {
 
 		// aggregate
 		if (sr.sIsAggrClubwork || sr.sIsAggrClubworkRelativeToTarget || sr.sIsAggrClubworkOverUnderCarryOver) {
-			sd.clubwork.add(hours.getTimeAsSeconds());
+			sd.clubwork += hours;
+		}
+		if(sr.sIsAggrClubworkCredit && r.getDescription().startsWith(International.getString("Gutschrift"))) {
+			sd.clubworkCredit += hours;
 		}
 
 		data.put(key, sd);

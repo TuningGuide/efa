@@ -19,6 +19,7 @@ import javax.swing.JDialog;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeDate;
+import de.nmichael.efa.core.items.ItemTypeDouble;
 import de.nmichael.efa.core.items.ItemTypeHours;
 import de.nmichael.efa.core.items.ItemTypeInteger;
 import de.nmichael.efa.core.items.ItemTypeString;
@@ -101,19 +102,18 @@ public class NewLogbookDialog extends StepwiseDialog {
         items.add(item);
         
         // Items for Step 2: Further information not directly related to Logbook 
-        items.add(item = new ItemTypeHours(ProjectRecord.DEFAULTCLUBWORKTARGETHOURS, new DataTypeHours(0,0,0),
+        items.add(item = new ItemTypeDouble(ProjectRecord.DEFAULTCLUBWORKTARGETHOURS, ItemTypeDouble.UNSET, ItemTypeDouble.MIN, ItemTypeDouble.MAX,
                 IItemType.TYPE_PUBLIC, "2", International.getString("Standard Sollstunden für die Vereinsarbeit")));
         item.setFieldSize(150, -1);
         ((ItemTypeHours)item).enableSeconds(false);
         
-        items.add(item = new ItemTypeHours(ProjectRecord.TRANSFERABLECLUBWORKHOURS, new DataTypeHours(0,0,0),
+        items.add(item = new ItemTypeDouble(ProjectRecord.TRANSFERABLECLUBWORKHOURS, ItemTypeDouble.UNSET, ItemTypeDouble.MIN, ItemTypeDouble.MAX,
                 IItemType.TYPE_PUBLIC, "2", International.getString("Übertragbare Vereinsarbeitsstunden")));
         item.setFieldSize(150, -1);
         ((ItemTypeHours)item).enableSeconds(false);
         
-        items.add(item = new ItemTypeInteger(ProjectRecord.FINEFORTOOLITTLECLUBWORK, 0, 0, Integer.MAX_VALUE, false,
-                IItemType.TYPE_PUBLIC, "2",
-                International.getString("Bußgeld für Vereinsarbeit unter Sollstunden")));
+        items.add(item = new ItemTypeDouble(ProjectRecord.FINEFORTOOLITTLECLUBWORK, ItemTypeDouble.UNSET, ItemTypeDouble.MIN, ItemTypeDouble.MAX,
+                IItemType.TYPE_PUBLIC, "2", International.getString("Bußgeld für Vereinsarbeit unter Sollstunden")));
         item.setFieldSize(150, -1);
     }
 
@@ -146,8 +146,8 @@ public class NewLogbookDialog extends StepwiseDialog {
         ItemTypeDate logFromDate = (ItemTypeDate)getItemByName(DATEFROM);
         ItemTypeDate logFromTo = (ItemTypeDate)getItemByName(DATETO);
         
-        ItemTypeHours defaultClubworkTargetHours = (ItemTypeHours)getItemByName(DEFAULTCLUBWORKTARGETHOURS);
-        ItemTypeHours transferableClubworkHours = (ItemTypeHours)getItemByName(TRANSFERABLECLUBWORKHOURS);
+        ItemTypeDouble defaultClubworkTargetHours = (ItemTypeDouble)getItemByName(DEFAULTCLUBWORKTARGETHOURS);
+        ItemTypeDouble transferableClubworkHours = (ItemTypeDouble)getItemByName(TRANSFERABLECLUBWORKHOURS);
         ItemTypeInteger fineForTooLittleClubwork = (ItemTypeInteger)getItemByName(FINEFORTOOLITTLECLUBWORK);
 
         ProjectRecord rec = Daten.project.createNewLogbookRecord(logName.getValue());

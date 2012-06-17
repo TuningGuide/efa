@@ -189,6 +189,9 @@ public class StatisticCSVWriter extends StatisticWriter {
                         if (sr.sIsAggrClubworkOverUnderCarryOver) {
                             write(f, sd[i].sClubworkOverUnderCarryOver);
                         }
+                        if (sr.sIsAggrClubworkCredit) {
+                            write(f, sd[i].sClubworkCredit);
+                        }
                     }
                     writeln(f);
                 }

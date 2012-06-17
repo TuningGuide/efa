@@ -138,7 +138,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
 				checkForAutoCreateNewLogbook();
 
 				// automatischer Übertrag der Vereinsarbeit zum Jahreswechsel
-				checkForClubworkCarryOver();
+				checkForClubworkCarryOverAndYearlyCredit();
 
 				// immer im Vordergrund
 				checkAlwaysInFront();
@@ -190,7 +190,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
 		}
 		
 		if(newClubworkCreated) {
-			Dialog.infoDialog(International.getString("Fahrtenbücher aktualisieren"), International.getString("Ihre Fahrtenbücher wurden um ein Buch zut Vereinsarbeit erweitert.\nBitte gehe in die Fahrtenbuch-Einstellungen und ergänze die Angaben."));
+			Dialog.infoDialog(International.getString("Fahrtenbücher aktualisieren"), International.getString("Ihre Fahrtenbücher wurden um ein Buch zur Vereinsarbeit erweitert.\nBitte gehe in die Fahrtenbuch-Einstellungen und ergänze die Angaben."));
 		}
 	}
 	
@@ -448,11 +448,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
 		}
 	}
 
-	private void checkForClubworkCarryOver() {
+	private void checkForClubworkCarryOverAndYearlyCredit() {
 		if (Daten.project != null && Daten.project.isOpen()) {
 			DataTypeDate date = Daten.project.getClubworkCarryOverDate();
 			if (date != null && date.isSet() && DataTypeDate.today().isAfterOrEqual(date)) {
-				createClubworkCarryOver();
+				createClubworkCarryOverAndYearlyCredit();
 			}
 		}
 	}
@@ -610,13 +610,13 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
 	}
 
-	private void createClubworkCarryOver() {
+	private void createClubworkCarryOverAndYearlyCredit() {
 		if (Daten.project == null || !Daten.project.isOpen()) {
 			return;
 		}
 		Daten.project.setClubworkCarryOverDate(null);
 
-		Hashtable<UUID, Integer> data = new Hashtable<UUID, Integer>();
+		Hashtable<UUID, Double> data = new Hashtable<UUID, Double>();
 
 		String[] names = Daten.project.getAllLogbookNames();
 		for (int i=0; names != null && i<names.length; i++) {
@@ -647,15 +647,15 @@ public class EfaBoathouseBackgroundTask extends Thread {
 							if (key == null) {
 								return;
 							}
-							Integer seconds = data.get(key);
-							if (seconds == null) {
-								seconds = new Integer(0);
+							Double hours = data.get(key);
+							if (hours == null) {
+								hours = new Double(0);
 							}
 
 							// aggregate
-							seconds += r.getHours().getTimeAsSeconds();
+							hours += r.getHours();
 
-							data.put(key, seconds);
+							data.put(key, hours);
 						}
 						k = it.getNext();
 					}
@@ -671,17 +671,17 @@ public class EfaBoathouseBackgroundTask extends Thread {
 		if(currentLB != null) {
 			ProjectRecord pr = Daten.project.getLoogbookRecord(currentLB.getName());
 			if (pr != null) {
-				DataTypeHours sDefaultClubworkTargetHours = pr.getDefaultClubworkTargetHours();
-				DataTypeHours sTransferableClubworkHours = pr.getTransferableClubworkHours();
+				double sDefaultClubworkTargetHours = pr.getDefaultClubworkTargetHours();
+				double sTransferableClubworkHours = pr.getTransferableClubworkHours();
 
-				int max = sDefaultClubworkTargetHours.getTimeAsSeconds()+sTransferableClubworkHours.getTimeAsSeconds();
-				int min = sDefaultClubworkTargetHours.getTimeAsSeconds()-sTransferableClubworkHours.getTimeAsSeconds();
+				double max = sDefaultClubworkTargetHours+sTransferableClubworkHours;
+				double min = sDefaultClubworkTargetHours-sTransferableClubworkHours;
 				Clubwork clubwork = Daten.project.getClubwork(currentLB.getName(), false);
 				long lock = -1;
 				try {
 					lock = clubwork.data().acquireGlobalLock();
 
-
+					// Save Carry Over
 					Set<UUID> set = data.keySet();
 
 					Iterator<UUID> itr = set.iterator();
@@ -691,21 +691,41 @@ public class EfaBoathouseBackgroundTask extends Thread {
 						ClubworkRecord record = clubwork.createClubworkRecord(UUID.randomUUID());
 						record.setPersonId(person);
 						record.setWorkDate(DataTypeDate.today());
-						record.setDescription(International.getString("ÜBERTRAG")+": #"+person);
+						record.setDescription(International.getString("Übertrag"));
 
-						Integer seconds = data.get(person);
-						if(seconds == null) {
-							seconds = new Integer(0);
+						Double hours = data.get(person);
+						if(hours == null) {
+							hours = new Double(0);
 						}
-						else if(seconds > max) {
+						else if(hours > max) {
 							record.setHours(sTransferableClubworkHours);
 						}
-						else if(seconds < min) {
-							record.setHours(new DataTypeHours(0,0,-sTransferableClubworkHours.getTimeAsSeconds()));
+						else if(hours < min) {
+							record.setHours(-sTransferableClubworkHours);
 						}
 						else {
-							record.setHours(new DataTypeHours(0,0,seconds-sDefaultClubworkTargetHours.getTimeAsSeconds()));
+							record.setHours(hours-sDefaultClubworkTargetHours);
 						}
+
+						try {
+							clubwork.data().add(record);
+						} catch (Exception eignore) {
+							Logger.logdebug(eignore);
+						}
+					}
+					
+					// Save Yearly Credit
+					Vector<PersonRecord> persons = Daten.project.getPersons(false).getAllPersons(-1, false, false);
+					
+					Iterator<PersonRecord> personItr = persons.iterator();
+					while (personItr.hasNext()) {
+						PersonRecord person = personItr.next();
+
+						ClubworkRecord record = clubwork.createClubworkRecord(UUID.randomUUID());
+						record.setPersonId(person.getId());
+						record.setWorkDate(DataTypeDate.today());
+						record.setDescription(International.getString("Gutschrift (jährlich)"));
+						record.setHours(person.getYearlyClubworkCredit());
 
 						try {
 							clubwork.data().add(record);

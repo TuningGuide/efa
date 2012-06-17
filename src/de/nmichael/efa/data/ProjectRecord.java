@@ -130,9 +130,9 @@ public class ProjectRecord extends DataRecord {
         f.add(KANUEFBLASTSYNC);               t.add(IDataAccess.DATA_LONGINT);
         f.add(STARTDATE);                     t.add(IDataAccess.DATA_DATE);
         f.add(ENDDATE);                       t.add(IDataAccess.DATA_DATE);
-        f.add(DEFAULTCLUBWORKTARGETHOURS);    t.add(IDataAccess.DATA_TIME);
-        f.add(TRANSFERABLECLUBWORKHOURS);     t.add(IDataAccess.DATA_TIME);
-        f.add(FINEFORTOOLITTLECLUBWORK);      t.add(IDataAccess.DATA_INTEGER);
+        f.add(DEFAULTCLUBWORKTARGETHOURS);    t.add(IDataAccess.DATA_DOUBLE);
+        f.add(TRANSFERABLECLUBWORKHOURS);     t.add(IDataAccess.DATA_DOUBLE);
+        f.add(FINEFORTOOLITTLECLUBWORK);      t.add(IDataAccess.DATA_DOUBLE);
         f.add(CLUBWORKCARRYOVER);		      t.add(IDataAccess.DATA_DATE);
         MetaData metaData = constructMetaData(Project.DATATYPE, f, t, false);
         metaData.setKey(new String[] { TYPE, LOGBOOKNAME });
@@ -297,14 +297,14 @@ public class ProjectRecord extends DataRecord {
     public void setEndDate(DataTypeDate endDate) {
         setDate(ENDDATE, endDate);
     }
-    public void setDefaultClubworkTargetHours(DataTypeHours defaultHours) {
-        setTime(DEFAULTCLUBWORKTARGETHOURS, defaultHours);
+    public void setDefaultClubworkTargetHours(double defaultHours) {
+    	setDouble(DEFAULTCLUBWORKTARGETHOURS, defaultHours);
     }
-    public void setTransferableClubworkHours(DataTypeHours hours) {
-        setTime(TRANSFERABLECLUBWORKHOURS, hours);
+    public void setTransferableClubworkHours(double hours) {
+    	setDouble(TRANSFERABLECLUBWORKHOURS, hours);
     }
-    public void setFineForTooLittleClubwork(int monetaryUnits) {
-        setInt(FINEFORTOOLITTLECLUBWORK, monetaryUnits);
+    public void setFineForTooLittleClubwork(double monetaryUnits) {
+        setDouble(FINEFORTOOLITTLECLUBWORK, monetaryUnits);
     }
 
     public String getType() {
@@ -453,16 +453,14 @@ public class ProjectRecord extends DataRecord {
     public DataTypeDate getEndDate() {
         return getDate(ENDDATE);
     }
-    public DataTypeHours getDefaultClubworkTargetHours() {
-       	DataTypeTime t = getTime(DEFAULTCLUBWORKTARGETHOURS);
-        return new DataTypeHours(0, 0, t != null ? t.getTimeAsSeconds() : 0);
+    public double getDefaultClubworkTargetHours() {
+        return getDouble(DEFAULTCLUBWORKTARGETHOURS);
     }
-    public DataTypeHours getTransferableClubworkHours() {
-        DataTypeTime t = getTime(TRANSFERABLECLUBWORKHOURS);
-        return new DataTypeHours(0, 0, t != null ? t.getTimeAsSeconds() : 0);
+    public double getTransferableClubworkHours() {
+        return getDouble(TRANSFERABLECLUBWORKHOURS);
     }
-    public int getFineForTooLittleClubwork() {
-        return getInt(FINEFORTOOLITTLECLUBWORK);
+    public double getFineForTooLittleClubwork() {
+        return getDouble(FINEFORTOOLITTLECLUBWORK);
     }
     public DataTypeDate getClubworkCarryOverDate() {
         return getDate(CLUBWORKCARRYOVER);
@@ -697,19 +695,15 @@ public class ProjectRecord extends DataRecord {
             }
             
             if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 3) {
-	            v.add(item = new ItemTypeHours(ProjectRecord.DEFAULTCLUBWORKTARGETHOURS, getDefaultClubworkTargetHours(),
+	            v.add(item = new ItemTypeDouble(ProjectRecord.DEFAULTCLUBWORKTARGETHOURS, getDefaultClubworkTargetHours(), ItemTypeDouble.MIN, ItemTypeDouble.MAX,
 	                    IItemType.TYPE_PUBLIC, category,
 	                    International.getString("Standard Sollstunden für die Vereinsarbeit")));
 	            
-	            v.add(item = new ItemTypeHours(ProjectRecord.TRANSFERABLECLUBWORKHOURS, getTransferableClubworkHours(),
+	            v.add(item = new ItemTypeDouble(ProjectRecord.TRANSFERABLECLUBWORKHOURS, getTransferableClubworkHours(), ItemTypeDouble.MIN, ItemTypeDouble.MAX,
 	                    IItemType.TYPE_PUBLIC, category,
 	                    International.getString("Übertragbare Vereinsarbeitsstunden")));
 	            
-	            int fine = getFineForTooLittleClubwork();
-	            if (fine < 0) {
-	            	fine = 0;
-	            }
-	            v.add(item = new ItemTypeInteger(ProjectRecord.FINEFORTOOLITTLECLUBWORK, fine, 0, Integer.MAX_VALUE, false,
+	            v.add(item = new ItemTypeDouble(ProjectRecord.FINEFORTOOLITTLECLUBWORK, getFineForTooLittleClubwork(), ItemTypeDouble.MIN, ItemTypeDouble.MAX,
 	                    IItemType.TYPE_PUBLIC, category,
 	                    International.getString("Bußgeld für Vereinsarbeit unter Sollstunden")));
             }

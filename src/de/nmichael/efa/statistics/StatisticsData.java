@@ -55,12 +55,16 @@ public class StatisticsData implements Comparable {
     String sClubwork;
     String sClubworkRelativeToTarget;
     String sClubworkOverUnderCarryOver;
+    String sClubworkCredit;
 
     long distance = 0;
     long sessions = 0;
     long avgDistance = 0;
     SessionHistory sessionHistory;
-    DataTypeHours clubwork = new DataTypeHours(0,0,0);
+    double clubwork = 0;
+    double clubworkRelativeToTarget = 0;
+    double clubworkOverUnderCarryOver = 0;
+    double clubworkCredit = 0;
 
     DataTypeIntString entryNo;
     DataTypeDate date;
@@ -95,7 +99,7 @@ public class StatisticsData implements Comparable {
     public void updateSummary(StatisticsData sd) {
         this.distance += sd.distance;
         this.sessions += sd.sessions;
-        this.clubwork.add(sd.clubwork.getTimeAsSeconds());
+        this.clubwork += sd.clubwork;
     }
 
     public void updateMaximum(StatisticsData sd) {
@@ -105,7 +109,7 @@ public class StatisticsData implements Comparable {
         if (sd.sessions > this.sessions) {
             this.sessions = sd.sessions;
         }
-        if (sd.clubwork.compareTo(this.clubwork) > 0) {
+        if (sd.clubwork > this.clubwork) {
             this.clubwork = sd.clubwork;
         }
     }
@@ -212,48 +216,51 @@ public class StatisticsData implements Comparable {
             }
         }
         if (sr.sIsAggrClubwork) {
-            if (sr.sIgnoreNullValues && clubwork.isEmpty()) {
-                this.sClubwork = "null";
+            if (sr.sIgnoreNullValues && clubwork == 0) {
+                this.sClubwork = "";
             } else {
             	int month = -1+sr.sStartDate.getMonth() + sr.sEndDate.getMonth() + Math.abs(sr.sEndDate.getYear() - sr.sStartDate.getYear())*12;
-            	
-            	int targetHoursAsSeconds = sr.sDefaultClubworkTargetHours.getTimeAsSeconds()/12*month;
-            	DataTypeHours target = new DataTypeHours(0,0,0);
-            	target.add(targetHoursAsSeconds);
-                this.sClubwork = this.clubwork+International.getString("h")+" / "+(isSummary ? new DataTypeHours(0,0,absPosition*target.getTimeAsSeconds()).toString(false) : target.toString(false))+International.getString("h");
+            	double targetHours = sr.sDefaultClubworkTargetHours/12*month;
+                this.sClubwork = this.clubwork + " " + International.getString("h")+" / "+(isSummary ? absPosition*targetHours : targetHours) + " " + International.getString("h");
             }
         }
         if (sr.sIsAggrClubworkRelativeToTarget) {
-            if (sr.sIgnoreNullValues && clubwork.isEmpty()) {
-                this.sClubworkRelativeToTarget = "null";
+            if (sr.sIgnoreNullValues && clubwork == 0) {
+                this.sClubworkRelativeToTarget = "";
             } else {
             	int month = -1+sr.sStartDate.getMonth() + sr.sEndDate.getMonth() + Math.abs(sr.sEndDate.getYear() - sr.sStartDate.getYear())*12;
-            	int targetHoursAsSeconds = sr.sDefaultClubworkTargetHours.getTimeAsSeconds()/12*month;
-            	DataTypeHours h = new DataTypeHours(this.clubwork);
-            	h.delete(targetHoursAsSeconds);
-                this.sClubworkRelativeToTarget = h.toString(false) + International.getString("h");
+            	double targetHours = sr.sDefaultClubworkTargetHours/12*month;
+            	this.clubworkRelativeToTarget = this.clubwork - (this.isSummary ? absPosition*targetHours : targetHours);
+                this.sClubworkRelativeToTarget = this.clubworkRelativeToTarget + " " + International.getString("h");
             }
         }
         if (sr.sIsAggrClubworkOverUnderCarryOver) {
-            if (sr.sIgnoreNullValues && clubwork.isEmpty()) {
-                this.sClubworkOverUnderCarryOver = "null";
+            if (this.isSummary || (sr.sIgnoreNullValues && clubwork == 0)) {
+                this.sClubworkOverUnderCarryOver = "";
             } else {
             	int month = -1+sr.sStartDate.getMonth() + sr.sEndDate.getMonth() + Math.abs(sr.sEndDate.getYear() - sr.sStartDate.getYear())*12;
-            	int targetHoursAsSeconds = sr.sDefaultClubworkTargetHours.getTimeAsSeconds()/12*month;
-            	DataTypeHours h = new DataTypeHours(this.clubwork);
-            	h.delete(targetHoursAsSeconds);
-            	int seconds = sr.sTransferableClubworkHours.getTimeAsSeconds();
-            	if(h.getTimeAsSeconds() < -seconds) {
-            		h.add(seconds);
+            	double targetHours = sr.sDefaultClubworkTargetHours/12*month;
+            	
+            	this.clubworkOverUnderCarryOver = this.clubwork - targetHours;
+            	double t_hours = sr.sTransferableClubworkHours;
+            	if(this.clubworkOverUnderCarryOver < - t_hours) {
+            		this.clubworkOverUnderCarryOver += t_hours;
             	}
-            	else if(h.getTimeAsSeconds() > seconds) {
-            		h.delete(seconds);
+            	else if(this.clubworkOverUnderCarryOver > t_hours) {
+            		this.clubworkOverUnderCarryOver+= t_hours;
             	}
             	else {
-            		h.setTime(0, 0, 0);
+            		this.clubworkOverUnderCarryOver = 0;
             	}
             		
-                this.sClubworkOverUnderCarryOver = h.toString(false) + International.getString("h");
+                this.sClubworkOverUnderCarryOver = this.clubworkOverUnderCarryOver + " " + International.getString("h");
+            }
+        }
+        if (sr.sIsAggrClubworkCredit) {
+            if (this.isSummary || (sr.sIgnoreNullValues && clubwork == 0)) {
+                this.sClubworkCredit = "";
+            } else {            		
+                this.sClubworkCredit = this.clubworkCredit + " " + International.getString("h");
             }
         }
     }
@@ -356,9 +363,9 @@ public class StatisticsData implements Comparable {
                 }
                 break;
             case clubwork:
-                if (this.clubwork.compareTo(osd.clubwork) > 0) {
+                if (this.clubwork > osd.clubwork) {
                     return 1 * order;
-                } else if (this.clubwork.compareTo(osd.clubwork) < 0) {
+                } else if (this.clubwork < osd.clubwork) {
                     return -1 * order;
                 }
                 break;

@@ -1932,6 +1932,18 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 }
             }
         }
+
+        // disabled functionality: for unknown boats: If only one person entered as cox, change to crew1
+        if (false &&
+             (getMode() == MODE_BOATHOUSE_START ||
+              getMode() == MODE_BOATHOUSE_START_CORRECT ||
+              getMode() == MODE_BOATHOUSE_LATEENTRY) &&
+            currentBoat == null && cox.getValueFromField().trim().length() > 0 &&
+            getNumberOfPersonsInBoat() == 1 && crew[0].isVisible()) {
+            crew[0].parseAndShowValue(cox.getValueFromField().trim());
+            cox.parseAndShowValue("");
+        }
+
         return true;
     }
 
@@ -2592,22 +2604,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         setTitle();
     }
     
-    void menuFileClubwork(ActionEvent e) {
-        if (Daten.project == null) {
-            menuFileProjects(e);
-            if (Daten.project == null) {
-                return;
-            }
-        }
-        OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.clubwork, getAdmin());
-        String logbookName = dlg.openDialog();
-        if (logbookName != null) {
-            openLogbook(logbookName);
-        }
-        setTitle();
-    }
-
-     // =========================================================================
+    // =========================================================================
     // Toolbar Button Actions
     // =========================================================================
 
@@ -3824,7 +3821,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         setDesinationDistance();
 
         setFieldEnabled(false, true, entryno);
-        setFieldEnabled(false, true, date);
+        setFieldEnabled(true, true, date);
         setFieldEnabled(false, true, boat);
         if (Daten.efaConfig.getValueEfaDirekt_eintragNichtAenderbarUhrzeit()) {
             setFieldEnabled(false, true, starttime);

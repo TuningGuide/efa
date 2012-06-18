@@ -250,16 +250,16 @@ public class CrewRecord extends DataRecord {
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        TableItemHeader[] header = new TableItemHeader[2];
+        TableItemHeader[] header = new TableItemHeader[1];
         header[0] = new TableItemHeader(International.getString("Mannschaftsname"));
-        header[1] = new TableItemHeader(International.getString("Steuermann"));
+        //header[1] = new TableItemHeader(International.getString("Steuermann"));
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
-        TableItem[] items = new TableItem[2];
+        TableItem[] items = new TableItem[1];
         items[0] = new TableItem(getName());
-        items[1] = new TableItem(getAsText(COXID));
+        //items[1] = new TableItem(getAsText(COXID));
         return items;
     }
 

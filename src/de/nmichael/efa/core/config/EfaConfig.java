@@ -759,7 +759,7 @@ public class EfaConfig extends StorageObject {
                     International.getMessage("Button '{button}'",
                     International.getString("Statistiken erstellen"))));
             addParameter(efaDirekt_butVereinsarbeit = new ItemTypeConfigButton("ButtonClubwork",
-                    International.getString("Vereinsarbeit"), "FFFFCC", true, false, true, true,
+                    International.getString("Vereinsarbeit"), "CCFFCC", false, false, true, true,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
                     International.getMessage("Button '{button}'",
                     International.getString("Vereinsarbeit"))));

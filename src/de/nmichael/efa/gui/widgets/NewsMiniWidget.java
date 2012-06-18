@@ -32,6 +32,7 @@ public class NewsMiniWidget {
         label.setOpaque(true);
         label.setHorizontalAlignment(SwingConstants.CENTER);
         label.setHorizontalTextPosition(SwingConstants.CENTER);
+        label.setVisible(false);
         newsUpdater = new NewsUpdater();
         newsUpdater.start();
     }
@@ -59,17 +60,20 @@ public class NewsMiniWidget {
         private int showing;
         private int length;
         private int scrollSpeed;
+        private int maxChar = 50;
+        private int maxWidth = 600;
 
         public void run() {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+            getMaxChar();
             while (keepRunning) {
                 try {
-                    int maxChar = 20;
-                    Dimension dim = label.getSize();
-                    if (dim.width > 0 && dim.height > 0) {
-                        maxChar = (dim.width / dim.height) * 2;
-                    }
-
-                    label.setText(getText(text, showing, maxChar));
+                    do {
+                        label.setText(getText(text, showing, maxChar));
+                    } while (label.getPreferredSize().getWidth() > maxWidth && maxChar-- > 10);
                     showing = (showing + 1) % (length + 3);
                     if (length <= maxChar) {
                         Thread.sleep(60000);
@@ -80,6 +84,14 @@ public class NewsMiniWidget {
                     EfaUtil.foo();
                 }
             }
+        }
+
+        private void getMaxChar() {
+            Dimension dim = label.getSize();
+            if (dim.width > 0 && dim.height > 0) {
+                maxChar = (dim.width / dim.height) * 2;
+            }
+            maxWidth = Math.max(dim.width, 600);
         }
 
         private String getText(String s, int pos, int max) {
@@ -107,6 +119,7 @@ public class NewsMiniWidget {
             this.text = text;
             this.length = text.length();
             this.showing = 0;
+            getMaxChar();
         }
 
         public void setScrollSpeed(int scrollSpeed) {

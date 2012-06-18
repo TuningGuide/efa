@@ -225,6 +225,10 @@ public class BoatStatusRecord extends DataRecord {
         return getBoatName() + ": " + getStatusDescription(this.getCurrentStatus());
     }
 
+    public String[] getQualifiedNameFields() {
+        return new String[] { BOATID };
+    }
+
     public Vector<IItemType> getGuiItems(AdminRecord admin) {
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();

@@ -442,6 +442,10 @@ public class BoatDamageRecord extends DataRecord {
         return International.getMessage("Schaden für {boat}", getBoatAsName());
     }
 
+    public String[] getQualifiedNameFields() {
+        return IDX_BOATID;
+    }
+
     public void setShowOnlyAddDamageFields(boolean showOnlyAddDamageFields) {
         this.showOnlyAddDamageFields = showOnlyAddDamageFields;
     }

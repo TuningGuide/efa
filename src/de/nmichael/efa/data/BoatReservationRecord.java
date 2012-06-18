@@ -446,4 +446,8 @@ public class BoatReservationRecord extends DataRecord {
         return International.getMessage("Reservierung für {boat}", getBoatName());
     }
   
+    public String[] getQualifiedNameFields() {
+        return IDX_BOATID;
+    }
+
 }

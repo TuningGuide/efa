@@ -128,6 +128,10 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
         return getPersonName();
     }
 
+    public String[] getQualifiedNameFields() {
+        return new String[] { PERSONID };
+    }
+
     public int getYearOfBirth() {
         PersonRecord p = getPersonRecord();
         return (p != null && p.getBirthday() != null && p.getBirthday().isSet() ? p.getBirthday().getYear() : 0);

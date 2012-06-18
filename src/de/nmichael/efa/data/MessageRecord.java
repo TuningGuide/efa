@@ -150,6 +150,10 @@ public class MessageRecord extends DataRecord {
         return "#" + getMessageId() + " " + getSubject();
     }
 
+    public String[] getQualifiedNameFields() {
+        return new String[] { MESSAGEID };
+    }
+
     public Vector<IItemType> getGuiItems(AdminRecord admin) {
         String CAT_BASEDATA     = "%01%" + International.getString("Nachricht");
         boolean newMsg = getFrom() == null || getFrom().length() == 0;

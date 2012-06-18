@@ -116,7 +116,7 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
 
         String[] kf = persistence.createNewRecord().getQualifiedNameFieldsTranslateVirtualToReal();
         String kfs = "";
-        for (int i=0; i<kf.length; i++) {
+        for (int i=0; kf != null && i<kf.length; i++) {
             if (!kf[i].equals(DataRecord.VALIDFROM)) {
                 kfs = (kfs.length() > 0 ? kfs + ", " : "") + kf[i];
             }

@@ -532,9 +532,9 @@ public abstract class DataRecord implements Cloneable, Comparable {
         }
     }
     
-    protected void setDouble(String fieldName, double i) {
-        if (i != IDataAccess.UNDEFINED_INT) {
-            set(fieldName, new Double(i));
+    protected void setDouble(String fieldName, double d) {
+        if (d != IDataAccess.UNDEFINED_DOUBLE) {
+            set(fieldName, new Double(d));
         } else {
             set(fieldName, null);
         }

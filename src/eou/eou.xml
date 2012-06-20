@@ -15,6 +15,8 @@
             <ChangeItem>Bugfix: Auswertungsfehler der Wanderruderkilometer bei Ausgabe in normalen Kilometerlisten behoben.</ChangeItem>
             <ChangeItem>Bugfix: Auch langer News-Text wird jetzt korrekt angezeigt ohne das Fenster zu verschieben.</ChangeItem>
             <ChangeItem>Bugfix: NullPointerException beim Daten-Import behoben.</ChangeItem>
+            <ChangeItem>Bugfix: Fehler beim Import von Booten mit verschiedenen Bootstypen behoben.</ChangeItem>
+            <ChangeItem>Bugfix: Fehler beim Import von Zielen mit Zielbereichen für Mehrtagesfahrten behoben.</ChangeItem>
         </Changes>
 
         <Changes lang="en">
@@ -24,6 +26,7 @@
             <ChangeItem>Bugfix: ArrayOutOfBoundsException when creating logbook statistics fixed when no output fields have been selected</ChangeItem>
             <ChangeItem>Bugfix: Also long news texts are now displayed properly without moving the window.</ChangeItem>
             <ChangeItem>Bugfix: NullPointerException for Data Import fixed.</ChangeItem>
+            <ChangeItem>Bugfix: Fixed import of boats with different boat types.</ChangeItem>
         </Changes>
     </Version>
 

@@ -165,6 +165,8 @@ public class Logger {
     public static final String MSG_DATA_AUDIT_RECNOTFOUND = "DAT046";
     public static final String MSG_DATA_AUDIT_LOGBOOKERROR = "DAT047";
     public static final String MSG_DATA_AUDIT_BOATSTATUSCORRECTED = "DAT048";
+    public static final String MSG_DATA_AUDIT_OBJECTCREATED = "DAT049";
+    public static final String MSG_DATA_AUDIT_OBJECTCREATIONFAILED = "DAT050";
     
     public static final String MSG_REFA_SERVERSTATUS                 = "RMT001";
     public static final String MSG_REFA_SERVERERROR                  = "RMT002";

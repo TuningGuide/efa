@@ -145,10 +145,14 @@ public class ImportBoats extends ImportBase {
                                         boatName, boatVerein });
                 if (keys != null && keys.length > 0) {
                     // We've found one or more boats with same Name and Owner.
-                    // Since we're importing data from efa1, these boats are all identical, i.e. have the same ID.
-                    // Therefore their key is identical, so we can just retrieve one boat record with keys[0], which
-                    // is valid for this logbook.
-                    boatRecord = (BoatRecord)boats.data().getValidAt(keys[0], validFrom);
+                    // It can happen that the same record has existed before, but became invalid in the meantime.
+                    // In this case, even if names are identical, we create a new record. Over time, we may have
+                    // multiple keys with different IDs for (different) records with the same name. Therefore,
+                    // we go through all of them and hope to find at least one which is valid in the scope of
+                    // the current logbook.
+                    for (int i=0; i<keys.length && boatRecord == null; i++) {
+                        boatRecord = (BoatRecord)boats.data().getValidAt(keys[i], validFrom);
+                    }
                 }
 
                 String description = null;
@@ -185,6 +189,15 @@ public class ImportBoats extends ImportBase {
                 }
 
                 if (!findBoatType(boatRecord, d)) {
+                    if (boatSyn.equals(boatMain)) {
+                        // no synonym - no Kombiboot.
+                        // In this case, a boat which is no Kombiboot has a changed boat type.
+                        // We don't want to keep the old boat type for the new version we create,
+                        // so we first delete all old boat types.
+                        while (boatRecord.getNumberOfVariants() > 0) {
+                            boatRecord.deleteTypeVariant(0);
+                        }
+                    }
                     boatRecord.addTypeVariant(description, d.get(Boote.ART), d.get(Boote.ANZAHL), 
                             d.get(Boote.RIGGER), d.get(Boote.STM), Boolean.toString(false));
                     changedBoatRecord = true;

@@ -46,7 +46,7 @@ public class EfaMenuButton {
 
     public final static String MENU_ADMINISTRATION      = "ADMINISTRATION";
     public final static String BUTTON_LOGBOOK           = "LOGBOOK";
-    public final static String BUTTON_LOGBOOKADMIN      = "LOGBOOKADMIN";
+    public final static String BUTTON_LOGBOOKLIST       = "LOGBOOKLIST";
     public final static String BUTTON_SESSIONGROUPS     = "SESSIONGROUPS";
     public final static String BUTTON_BOATS             = "BOATS";
     public final static String BUTTON_BOATSTATUS        = "BOATSTATUS";
@@ -59,7 +59,11 @@ public class EfaMenuButton {
     public final static String BUTTON_FAHRTENABZEICHEN  = "FAHRTENABZEICHEN";
     public final static String BUTTON_DESTINATIONS      = "DESTINATIONS";
     public final static String BUTTON_WATERS            = "WATERS";
+    public final static String BUTTON_CLUBWORK          = "CLUBWORK";
+
+    public final static String MENU_MANAGEMENT          = "MANAGEMENT";
     public final static String BUTTON_CONFIGURATION     = "CONFIGURATION";
+    public final static String BUTTON_MESSAGES          = "MESSAGES";
     public final static String BUTTON_ADMINS            = "ADMINS";
     public final static String BUTTON_PASSWORD          = "PASSWORD";
 
@@ -69,7 +73,6 @@ public class EfaMenuButton {
 
     public final static String MENU_INFO                = "INFO";
     public final static String BUTTON_HELP              = "HELP";
-    public final static String BUTTON_MESSAGES          = "MESSAGES";
     public final static String BUTTON_LOGFILE           = "LOGFILE";
     public final static String BUTTON_ABOUT             = "ABOUT";
 
@@ -190,12 +193,12 @@ public class EfaMenuButton {
                     International.getStringWithMnemonic("Fahrtenbuch"),
                     BaseFrame.getIcon("menu_logbook.png")));
         }
-        if (admin == null || (admin.isAllowedEditLogbook() && adminMode)) {
-            v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_LOGBOOKADMIN,
+        if (admin == null || (admin.isAllowedEditLogbook() && adminMode)) { // we have the same menu again at the end for non-admin mode...
+            v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_LOGBOOKLIST,
                     International.getStringWithMnemonic("Administration"),
                     International.getStringWithMnemonic("Fahrtenbuch") +
-                    " (" + International.getString("Admin") + ")",
-                    BaseFrame.getIcon("menu_logbook.png")));
+                    " (" + International.getString("Liste") + ")",
+                    BaseFrame.getIcon("menu_logbook_list.png")));
         }
         if (admin == null || admin.isAllowedEditLogbook() && adminMode) { // we have the same menu again at the end for non-admin mode...
             v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_SESSIONGROUPS,
@@ -288,6 +291,23 @@ public class EfaMenuButton {
             v.add(new EfaMenuButton(MENU_ADMINISTRATION, SEPARATOR,
                     null, null, null));
         }
+        if (admin == null || admin.isAllowedEditClubwork()) {
+            v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_CLUBWORK,
+                    International.getStringWithMnemonic("Administration"),
+                    International.getStringWithMnemonic("Vereinsarbeit"),
+                    BaseFrame.getIcon("menu_clubwork.png")));
+        }
+        if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_ADMINISTRATION) && !v.get(v.size()-1).isSeparator()) {
+            v.add(new EfaMenuButton(MENU_ADMINISTRATION, SEPARATOR,
+                    null, null, null));
+        }
+        if (admin == null || (admin.isAllowedEditLogbook() && !adminMode)) { // we have the same menu again at the end for non-admin mode...
+            v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_LOGBOOKLIST,
+                    International.getStringWithMnemonic("Administration"),
+                    International.getStringWithMnemonic("Fahrtenbuch") +
+                    " (" + International.getString("Liste") + ")",
+                    BaseFrame.getIcon("menu_logbook_list.png")));
+        }
         if (admin == null || admin.isAllowedEditLogbook() && !adminMode) { // we have the same menu again at the beginning for admin mode...
             v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_SESSIONGROUPS,
                     International.getStringWithMnemonic("Administration"),
@@ -299,25 +319,31 @@ public class EfaMenuButton {
                     null, null, null));
         }
         if (admin == null || admin.isAllowedConfiguration()) {
-            v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_CONFIGURATION,
-                    International.getStringWithMnemonic("Administration"),
+            v.add(new EfaMenuButton(MENU_MANAGEMENT, BUTTON_CONFIGURATION,
+                    International.getStringWithMnemonic("Verwaltung"),
                     International.getStringWithMnemonic("Konfiguration"),
                     BaseFrame.getIcon("menu_configuration.png")));
         }
+        if (admin == null || admin.isAllowedMsgReadAdmin() || admin.isAllowedMsgReadBoatMaintenance()) {
+            v.add(new EfaMenuButton(MENU_MANAGEMENT, BUTTON_MESSAGES,
+                    International.getStringWithMnemonic("Verwaltung"),
+                    International.getStringWithMnemonic("Nachrichten"),
+                    BaseFrame.getIcon("menu_messages.png")));
+        }
         if (admin == null || admin.isAllowedEditAdmins()) {
-            v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_ADMINS,
-                    International.getStringWithMnemonic("Administration"),
+            v.add(new EfaMenuButton(MENU_MANAGEMENT, BUTTON_ADMINS,
+                    International.getStringWithMnemonic("Verwaltung"),
                     International.getStringWithMnemonic("Administratoren"),
                     BaseFrame.getIcon("menu_admins.png")));
         }
         if (admin == null || admin.isAllowedChangePassword()) {
-            v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_PASSWORD,
-                    International.getStringWithMnemonic("Administration"),
+            v.add(new EfaMenuButton(MENU_MANAGEMENT, BUTTON_PASSWORD,
+                    International.getStringWithMnemonic("Verwaltung"),
                     International.getStringWithMnemonic("Paßwort ändern"),
                     BaseFrame.getIcon("menu_password.png")));
         }
-        if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_ADMINISTRATION) && !v.get(v.size()-1).isSeparator()) {
-            v.add(new EfaMenuButton(MENU_ADMINISTRATION, SEPARATOR,
+        if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_MANAGEMENT) && !v.get(v.size()-1).isSeparator()) {
+            v.add(new EfaMenuButton(MENU_MANAGEMENT, SEPARATOR,
                     null, null, null));
         }
 
@@ -342,12 +368,6 @@ public class EfaMenuButton {
         if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_INFO) && !v.get(v.size()-1).isSeparator()) {
             v.add(new EfaMenuButton(MENU_INFO, SEPARATOR,
                     null, null, null));
-        }
-        if (admin == null || admin.isAllowedMsgReadAdmin() || admin.isAllowedMsgReadBoatMaintenance()) {
-            v.add(new EfaMenuButton(MENU_INFO, BUTTON_MESSAGES,
-                    International.getStringWithMnemonic("Info"),
-                    International.getStringWithMnemonic("Nachrichten"),
-                    BaseFrame.getIcon("menu_messages.png")));
         }
         if (admin == null || admin.isAllowedShowLogfile()) {
             v.add(new EfaMenuButton(MENU_INFO, BUTTON_LOGFILE,
@@ -556,7 +576,7 @@ public class EfaMenuButton {
             dlg.efaBoathouseShowEfaFrame();
         }
 
-        if (action.equals(BUTTON_LOGBOOKADMIN)) {
+        if (action.equals(BUTTON_LOGBOOKLIST)) {
             if (Daten.project == null || logbook == null) {
                 Dialog.error(International.getString("Kein Fahrtenbuch geöffnet."));
                 return false;
@@ -748,6 +768,21 @@ public class EfaMenuButton {
             WatersListDialog dlg = (parentFrame != null ? 
                 new WatersListDialog(parentFrame, admin) :
                 new WatersListDialog(parentDialog, admin));
+            dlg.showDialog();
+        }
+
+        if (action.equals(BUTTON_CLUBWORK)) {
+            if (Daten.project == null) {
+                Dialog.error(International.getString("Kein Projekt geöffnet."));
+                return false;
+            }
+            if (admin == null || (!admin.isAllowedEditClubwork())) {
+                insufficientRights(admin, action);
+                return false;
+            }
+            ClubworkListDialog dlg = (parentFrame != null ?
+                new ClubworkListDialog(parentFrame, admin) :
+                new ClubworkListDialog(parentDialog, admin));
             dlg.showDialog();
         }
 

@@ -31,6 +31,8 @@ public class Table extends JTable {
     private ITableEditListener editListener;
     private boolean toolTipsEnabled = false;
     private boolean intelligentColumnWidthDisabled = false;
+    private int minColumnWidth = 50;
+    private int[] minColumnWidths = null;
 
     public Table(BaseDialog dlg, TableSorter sorter, TableCellRenderer renderer, TableItemHeader[] header, TableItem[][] data) {
         super(sorter);
@@ -126,6 +128,13 @@ public class Table extends JTable {
         int[] widths = new int[header.length];
         for (int i = 0; i < widths.length; i++) {
             widths[i] = (int) Math.floor((((float)header[i].getMaxColumnWidth()) / ((float)absoluteWidth)) * ((float)width));
+            if (widths[i] < minColumnWidth) {
+                widths[i] = minColumnWidth;
+            }
+            if (minColumnWidths != null && i < minColumnWidths.length &&
+                widths[i] < minColumnWidths[i]) {
+                widths[i] = minColumnWidths[i];
+            }
         }
 
         for (int i = 0; i < widths.length; i++) {
@@ -242,4 +251,11 @@ public class Table extends JTable {
         intelligentColumnWidthDisabled = disabled;
     }
 
+    public void setMinColumnWidth(int minColumnWidth) {
+        this.minColumnWidth = minColumnWidth;
+    }
+
+    public void setMinColumnWidths(int[] minColumnWidths) {
+        this.minColumnWidths = minColumnWidths;
+    }
 }

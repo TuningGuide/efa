@@ -243,8 +243,8 @@ public abstract class DataRecord implements Cloneable, Comparable {
         return (value.equals(getAsText(fieldName)));
     }
 
-    public String[] getFieldNamesForTextExport() {
-        return getPersistence().data().getFieldNames(true);
+    public String[] getFieldNamesForTextExport(boolean includingVirtual) {
+        return getPersistence().data().getFieldNames(includingVirtual);
     }
 
     protected boolean isDefaultValue(int fieldIdx) {

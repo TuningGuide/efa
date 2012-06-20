@@ -27,12 +27,12 @@ import javax.swing.*;
 // @i18n complete
 public class ClubworkListDialog extends DataListDialog {
 
-	public ClubworkListDialog(Frame parent, long validAt, AdminRecord admin) {
-		super(parent, International.getString("Vereinsarbeit"), Daten.project.getClubwork(Daten.project.getCurrentLogbook().getName(), false), validAt, admin);
+	public ClubworkListDialog(Frame parent, AdminRecord admin) {
+		super(parent, International.getString("Vereinsarbeit"), Daten.project.getClubwork(Daten.project.getCurrentLogbook().getName(), false), 0, admin);
 	}
 
-	public ClubworkListDialog(JDialog parent, long validAt, AdminRecord admin) {
-		super(parent, International.getString("Vereinsarbeit"), Daten.project.getClubwork(Daten.project.getCurrentLogbook().getName(), false), validAt, admin);
+	public ClubworkListDialog(JDialog parent, AdminRecord admin) {
+		super(parent, International.getString("Vereinsarbeit"), Daten.project.getClubwork(Daten.project.getCurrentLogbook().getName(), false), 0, admin);
 		Logbook logbook = Daten.project.getCurrentLogbook();
 		Clubwork clubwork = Daten.project.getClubwork(logbook.getName(), false);
 	}

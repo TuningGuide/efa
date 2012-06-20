@@ -47,6 +47,8 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
     protected boolean sortAscending = true;
     protected int tableFontSize = -1;
     protected boolean intelligentColumnWidth = true;
+    protected int minColumnWidth = -1;
+    protected int[] minColumnWidths = null;
     protected String buttonPanelPosition = BorderLayout.EAST;
     private ItemTypeDateTime validAtDateTime;
     private ItemTypeBoolean showAll;
@@ -150,6 +152,25 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
         actionImage[actionImage.length - 1] = image;
     }
 
+    protected void removeAction(int type) {
+        for (int i=0; actionType != null && i<actionType.length; i++) {
+            if (actionType[i] == type) {
+                String[] _actionText = actionText;
+                int[] _actionType = actionType;
+                String[] _actionImage = actionImage;
+                actionText = new String[_actionText.length - 1];
+                actionType = new int[_actionType.length - 1];
+                actionImage = new String[_actionImage.length - 1];
+                // arrays must all be the same length!
+                for (int j = 0; j < actionType.length; j++) {
+                    actionText[j] = _actionText[ (j < i ? j : j+1) ];
+                    actionType[j] = _actionType[ (j < i ? j : j+1) ];
+                    actionImage[j] = _actionImage[ (j < i ? j : j+1) ];
+                }
+            }
+        }
+    }
+
 
     protected void iniDialog() throws Exception {
         mainPanel.setLayout(new BorderLayout());
@@ -177,6 +198,12 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
         table.setMarkedCellColor(markedCellColor);
         table.setMarkedCellBold(markedCellBold);
         table.disableIntelligentColumnWidth(!intelligentColumnWidth);
+        if (minColumnWidth > 0) {
+            table.setMinColumnWidth(minColumnWidth);
+        }
+        if (minColumnWidths != null) {
+            table.setMinColumnWidths(minColumnWidths);
+        }
         table.setButtonPanelPosition(buttonPanelPosition);
         table.setFieldSize(600, 500);
         table.setPadding(0, 0, 10, 0);

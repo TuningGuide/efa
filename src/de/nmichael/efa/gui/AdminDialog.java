@@ -49,6 +49,8 @@ public class AdminDialog extends BaseDialog implements IItemListener {
         menuFile.setLayout(new GridBagLayout());
         JPanel menuAdministration = new JPanel();
         menuAdministration.setLayout(new GridBagLayout());
+        JPanel menuConfiguration = new JPanel();
+        menuConfiguration.setLayout(new GridBagLayout());
         JPanel menuOutput = new JPanel();
         menuOutput.setLayout(new GridBagLayout());
         JPanel menuInfo = new JPanel();
@@ -70,6 +72,9 @@ public class AdminDialog extends BaseDialog implements IItemListener {
                 }
                 if (menuButton.getMenuName().equals(EfaMenuButton.MENU_ADMINISTRATION)) {
                     panel = menuAdministration;
+                }
+                if (menuButton.getMenuName().equals(EfaMenuButton.MENU_MANAGEMENT)) {
+                    panel = menuConfiguration;
                 }
                 if (menuButton.getMenuName().equals(EfaMenuButton.MENU_OUTPUT)) {
                     panel = menuOutput;
@@ -117,28 +122,39 @@ public class AdminDialog extends BaseDialog implements IItemListener {
                 space = 0;
             }
         }
+
+        // left side
         centerPanel.add(menuFile,
-                new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(10, 10, 10, 10), 0, 0));
-        centerPanel.add(menuOutput,
-                new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(10, 10, 10, 10), 0, 0));
-        centerPanel.add(menuInfo,
-                new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(10, 10, 10, 10), 0, 0));
-        centerPanel.add(menuAdministration,
-                new GridBagConstraints(1, 0, 1, 3, 0.0, 0.0,
+                new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                 new Insets(10, 10, 10, 10), 0, 0));
         if (Daten.efaConfig.getDeveloperFunctionsActivated()) {
             centerPanel.add(menuDeveloper,
-                    new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+                    new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                     new Insets(10, 10, 10, 10), 0, 0));
         }
+
+        // middle
+        centerPanel.add(menuAdministration,
+                new GridBagConstraints(1, 0, 1, 3, 0.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(10, 10, 10, 10), 0, 0));
+
+        // right
+        centerPanel.add(menuConfiguration,
+                new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(10, 10, 10, 10), 0, 0));
+        centerPanel.add(menuOutput,
+                new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(10, 10, 10, 10), 0, 0));
+        centerPanel.add(menuInfo,
+                new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(10, 10, 10, 10), 0, 0));
+        
         mainPanel.add(centerPanel, BorderLayout.CENTER);
         closeButton.setIcon(getIcon(IMAGE_LOGOUT));
         closeButton.setIconTextGap(10);

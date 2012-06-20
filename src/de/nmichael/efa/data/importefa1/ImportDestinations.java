@@ -44,6 +44,10 @@ public class ImportDestinations extends ImportBase {
         return (o.toString().equals(s));
     }
 
+    private String getZielbereiche(DatenFelder d) {
+        return EfaUtil.replace(d.get(Ziele.BEREICH), "/", ";", true);
+    }
+
     private boolean isChanged(DestinationRecord r, DatenFelder d) {
         if (!isIdentical(r.getName(), EfaUtil.replace(d.get(Ziele.NAME),"+","&",true))) {
             return true;
@@ -51,7 +55,7 @@ public class ImportDestinations extends ImportBase {
         if (!isIdentical(Long.toString(r.getDistance().getValueInMeters()), Integer.toString(EfaUtil.zehntelString2Int(d.get(Ziele.KM))*100))) {
             return true;
         }
-        if (!isIdentical((r.getDestinationAreas() == null ? "" : r.getDestinationAreas().toString()), d.get(Ziele.BEREICH))) {
+        if (!isIdentical((r.getDestinationAreas() == null ? "" : r.getDestinationAreas().toString()), getZielbereiche(d))) {
             return true;
         }
         if (!isIdentical(Boolean.toString(r.getStartIsBoathouse()), Boolean.toString(d.get(Ziele.STEGZIEL).equals("+")))) {
@@ -83,10 +87,14 @@ public class ImportDestinations extends ImportBase {
                         new String[] { destinationName });
                 if (keys != null && keys.length > 0) {
                     // We've found one or more destinations with same Name.
-                    // Since we're importing data from efa1, these destinations are all identical, i.e. have the same ID.
-                    // Therefore their key is identical, so we can just retrieve one destination record with keys[0], which
-                    // is valid for this logbook.
-                    k = keys[0];
+                    // It can happen that the same record has existed before, but became invalid in the meantime.
+                    // In this case, even if names are identical, we create a new record. Over time, we may have
+                    // multiple keys with different IDs for (different) records with the same name. Therefore,
+                    // we go through all of them and hope to find at least one which is valid in the scope of
+                    // the current logbook.
+                    for (int i=0; i<keys.length && k == null; i++) {
+                        k = (destinations.data().getValidAt(keys[i], validFrom) != null ? keys[i] : null);
+                    }
                 } else {
                     // we have not found a person by this name that we imported already.
                     // it could be, that there is a synonym, so look up this persons's main name
@@ -106,7 +114,7 @@ public class ImportDestinations extends ImportBase {
                     r.setName(EfaUtil.replace(d.get(Ziele.NAME),"+","&",true));
                     r.setDistance(DataTypeDistance.parseDistance(d.get(Ziele.KM) + DataTypeDistance.KILOMETERS));
                     if (d.get(Ziele.BEREICH).length() > 0) {
-                        r.setDestinationAreas(new ZielfahrtFolge(d.get(Ziele.BEREICH)));
+                        r.setDestinationAreas(new ZielfahrtFolge(getZielbereiche(d)));
                     }
                     if (d.get(Ziele.STEGZIEL).equals("+")) {
                         r.setStartIsBoathouse(true);

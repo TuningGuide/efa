@@ -56,7 +56,7 @@ public class DataPrintListDialog extends BaseDialog {
         this.validAt = validAt;
         this.admin = admin;
         this.data = data;
-        this.fields = persistence.createNewRecord().getFieldNamesForTextExport(); // @todo (P1) persistence.data().getFieldNames(true);
+        this.fields = persistence.createNewRecord().getFieldNamesForTextExport(true);
         this.fieldDescription = new String[fields.length];
         Vector<Integer> indices = new Vector<Integer>();
         Vector<IItemType> items = persistence.createNewRecord().getGuiItems(admin);

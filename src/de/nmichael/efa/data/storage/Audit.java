@@ -16,6 +16,7 @@ import de.nmichael.efa.data.types.DataTypeIntString;
 import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.LogString;
 import de.nmichael.efa.util.Logger;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -1106,6 +1107,28 @@ public class Audit extends Thread {
         }
     }
 
+    private int runAuditClubworks() {
+        int errors = 0;
+        String[] logbookNames = project.getAllLogbookNames();
+        if (logbookNames != null) {
+            for (String s : logbookNames) {
+                if (Daten.project.getClubwork(s, false) == null) {
+                    Clubwork c = Daten.project.getClubwork(s, true);
+                    if (c != null) {
+                        Logger.log(Logger.INFO, Logger.MSG_DATA_AUDIT_OBJECTCREATIONFAILED,
+                                "runAuditClubworks(): " +
+                                LogString.fileNewCreated(s, International.getString("Vereinsarbeit")));
+                    } else {
+                        Logger.log(Logger.ERROR, Logger.MSG_DATA_AUDIT_OBJECTCREATIONFAILED,
+                                "runAuditClubworks(): " +
+                                LogString.fileCreationFailed(s, International.getString("Vereinsarbeit")));
+                    }
+                }
+            }
+        }
+        return errors;
+    }
+
     private int runAuditPurgeDeletedRecords(StorageObject so, String itemDescription) {
         int errors = 0;
         long now = System.currentTimeMillis();
@@ -1186,6 +1209,7 @@ public class Audit extends Thread {
                 errors += runAuditPurgeDeletedRecords(project.getGroups(false),
                         International.getString("Gruppe"));
             }
+            errors += runAuditClubworks();
         } catch(Exception e) {
             Logger.logdebug(e);
             Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT,

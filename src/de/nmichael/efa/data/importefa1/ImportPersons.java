@@ -116,10 +116,14 @@ public class ImportPersons extends ImportBase {
                         persons.staticPersonRecord.getQualifiedNameValues(personName));
                 if (keys != null && keys.length > 0) {
                     // We've found one or more persons with same Name and Association.
-                    // Since we're importing data from efa1, these persons are all identical, i.e. have the same ID.
-                    // Therefore their key is identical, so we can just retrieve one person record with keys[0], which
-                    // is valid for this logbook.
-                    k = keys[0];
+                    // It can happen that the same record has existed before, but became invalid in the meantime.
+                    // In this case, even if names are identical, we create a new record. Over time, we may have
+                    // multiple keys with different IDs for (different) records with the same name. Therefore,
+                    // we go through all of them and hope to find at least one which is valid in the scope of
+                    // the current logbook.
+                    for (int i=0; i<keys.length && k == null; i++) {
+                        k = (persons.data().getValidAt(keys[i], validFrom) != null ? keys[i] : null);
+                    }
                 } else {
                     // we have not found a person by this name that we imported already.
                     // it could be, that there is a synonym, so look up this persons's main name

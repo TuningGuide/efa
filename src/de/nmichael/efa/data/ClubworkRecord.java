@@ -65,8 +65,8 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 		f.add(DESCRIPTION);                       t.add(IDataAccess.DATA_STRING);
 		f.add(HOURS);                             t.add(IDataAccess.DATA_DOUBLE);
 
-		MetaData metaData = constructMetaData(Clubwork.DATATYPE, f, t, true);
-		metaData.setKey(new String[] { ID }); // plus VALID_FROM
+		MetaData metaData = constructMetaData(Clubwork.DATATYPE, f, t, false);
+		metaData.setKey(new String[] { ID });
 		metaData.addIndex(IDX_DATE_NAME_NAMEAFFIX);
 	}
 

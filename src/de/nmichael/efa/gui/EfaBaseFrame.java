@@ -3976,6 +3976,14 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 if (boatStatusRecord == null) {
                     // unknown boat
                     boatStatusRecord = efaBoathouseAction.boatStatus;
+
+                    // it could be that a session has been corrected and efaBoathouseAction.boatStatus
+                    // is actually the status of a real boat; if that's the case, then create a new
+                    // boat status for the unknown boat
+                    if (boatStatusRecord != null && !boatStatusRecord.getUnknownBoat()) {
+                        boatStatusRecord = null;
+                    }
+
                     if (boatStatusRecord == null &&
                         (mode == EfaBaseFrame.MODE_BOATHOUSE_START || mode == EfaBaseFrame.MODE_BOATHOUSE_START_CORRECT)) {
                         // create new status record for unknown boat
@@ -4017,16 +4025,16 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                             boatStatus.data().add(boatStatusRecord);
                         } else {
                             boatStatus.data().update(boatStatusRecord);
-                            
-                            // check whether we have changed the boat during this dialog (e.g. StartCorrect)
-                            if (correctSessionLastBoatStatus != null && correctSessionLastBoatStatus.getBoatId() != null &&
-                                !boatStatusRecord.getBoatId().equals(correctSessionLastBoatStatus.getBoatId())) {
-                                correctSessionLastBoatStatus.setCurrentStatus(BoatStatusRecord.STATUS_AVAILABLE);
-                                correctSessionLastBoatStatus.setEntryNo(null);
-                                correctSessionLastBoatStatus.setLogbook(null);
-                                correctSessionLastBoatStatus.setComment("");
-                                boatStatus.data().update(correctSessionLastBoatStatus);
-                            }
+                        }
+
+                        // check whether we have changed the boat during this dialog (e.g. StartCorrect)
+                        if (correctSessionLastBoatStatus != null && correctSessionLastBoatStatus.getBoatId() != null
+                                && !boatStatusRecord.getBoatId().equals(correctSessionLastBoatStatus.getBoatId())) {
+                            correctSessionLastBoatStatus.setCurrentStatus(BoatStatusRecord.STATUS_AVAILABLE);
+                            correctSessionLastBoatStatus.setEntryNo(null);
+                            correctSessionLastBoatStatus.setLogbook(null);
+                            correctSessionLastBoatStatus.setComment("");
+                            boatStatus.data().update(correctSessionLastBoatStatus);
                         }
                     }
                 } catch(Exception e) {

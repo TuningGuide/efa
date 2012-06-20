@@ -41,6 +41,8 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
     private ITableEditListener tableEditListener;
     private boolean toolTipsEnabled = false;
     private boolean intelligentColumnWidthDisabled = false;
+    private int minColumnWidth = -1;
+    private int[] minColumnWidths = null;
     private int _moveRowSelectionUponNextRefresh = 0;
 
     public ItemTypeTable(String name, TableItemHeader[] header, Hashtable<String,TableItem[]> items, String value,
@@ -135,6 +137,12 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
             }
             table.setToolTipsEnabled(toolTipsEnabled);
             table.disableIntelligentColumnWidth(intelligentColumnWidthDisabled);
+            if (minColumnWidth > 0) {
+                table.setMinColumnWidth(minColumnWidth);
+            }
+            if (minColumnWidths != null) {
+                table.setMinColumnWidths(minColumnWidths);
+            }
         }
         if (scrollPane != null && table != null) {
             scrollPane.getViewport().add(table, null);
@@ -334,6 +342,14 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
 
     public void disableIntelligentColumnWidth(boolean disabled) {
         intelligentColumnWidthDisabled = disabled;
+    }
+
+    public void setMinColumnWidth(int minColumnWidth) {
+        this.minColumnWidth = minColumnWidth;
+    }
+
+    public void setMinColumnWidths(int[] minColumnWidths) {
+        this.minColumnWidths = minColumnWidths;
     }
 
     public void setMoveRowSelectionUponNextRefresh(int direction) {

@@ -60,7 +60,7 @@ public class DataExportDialog extends BaseDialog {
     public void setPersistence(StorageObject persistence, long validAt) {
         this.persistence = persistence;
         this.validAt = validAt;
-        this.fields = persistence.data().getFieldNames(false);
+        this.fields = persistence.createNewRecord().getFieldNamesForTextExport(false);
         this.fieldDescription = new String[fields.length];
         Vector<Integer> indices = new Vector<Integer>();
         Vector<IItemType> items = persistence.createNewRecord().getGuiItems(admin);

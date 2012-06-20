@@ -740,10 +740,11 @@ public class LogbookRecord extends DataRecord {
         return -1;
     }
 
-    public String[] getFieldNamesForTextExport() {
+    public String[] getFieldNamesForTextExport(boolean includingVirtual) {
         String[] allFields = getPersistence().data().getFieldNames();
         ArrayList<String> expFields = new ArrayList<String>();
         for (String f : allFields) {
+            boolean found = false;
             if (f.equals(BOATID)) {
                 expFields.add(EXP_BOAT);
                 continue;
@@ -751,7 +752,8 @@ public class LogbookRecord extends DataRecord {
             for (int i=0; i<=CREW_MAX; i++) {
                 if (f.equals(this.getCrewFieldNameId(i))) {
                     expFields.add((i == 0 ? EXP_COX : EXP_CREW + i));
-                    continue;
+                    found = true;
+                    break;
                 }
             }
             if (f.equals(DESTINATIONID)) {
@@ -773,10 +775,13 @@ public class LogbookRecord extends DataRecord {
             }
             for (int i=0; i<=CREW_MAX; i++) {
                 if (f.equals(this.getCrewFieldNameName(i))) {
-                    continue;
+                    found = true;
+                    break;
                 }
             }
-            expFields.add(f);
+            if (!found) {
+                expFields.add(f);
+            }
         }
         return expFields.toArray(new String[0]);
     }
@@ -811,7 +816,8 @@ public class LogbookRecord extends DataRecord {
     }
 
     public boolean setFromText(String fieldName, String value) {
-        if (fieldName.equals(BOATID)) {
+        if (fieldName.equals(BOATID) || fieldName.equals(EXP_BOAT)) {
+            fieldName = BOATID;
             Boats boats = getPersistence().getProject().getBoats(false);
             BoatRecord br = boats.getBoat(value, getValidAtTimestamp());
             if (br != null) {
@@ -823,7 +829,9 @@ public class LogbookRecord extends DataRecord {
             return (value.equals(getAsText(fieldName)));
         }
         for (int i=0; i<=CREW_MAX; i++) {
-            if (fieldName.equals(getCrewFieldNameId(i))) {
+            if (fieldName.equals(getCrewFieldNameId(i))
+                || fieldName.equals(EXP_COX) || fieldName.equals(EXP_CREW+i)) {
+                fieldName = getCrewFieldNameId(i);
                 Persons persons = getPersistence().getProject().getPersons(false);
                 PersonRecord pr = persons.getPerson(value, getValidAtTimestamp());
                 if (pr != null) {
@@ -835,7 +843,8 @@ public class LogbookRecord extends DataRecord {
                 return (value.equals(getAsText(fieldName)));
             }
         }
-        if (fieldName.equals(DESTINATIONID)) {
+        if (fieldName.equals(DESTINATIONID) || fieldName.equals(EXP_DESTINATION)) {
+            fieldName = DESTINATIONID;
             Destinations destinations = getPersistence().getProject().getDestinations(false);
             DestinationRecord dr = destinations.getDestination(value, getValidAtTimestamp());
             if (dr != null) {
@@ -846,7 +855,8 @@ public class LogbookRecord extends DataRecord {
             }
             return (value.equals(getAsText(fieldName)));
         }
-        if (fieldName.equals(WATERSIDLIST)) {
+        if (fieldName.equals(WATERSIDLIST) || fieldName.equals(EXP_WATERSLIST)) {
+            fieldName = WATERSIDLIST;
             Vector<String> values = EfaUtil.split(value, ',');
             DataTypeList<UUID> list = new DataTypeList<UUID>();
             Waters waters = getPersistence().getProject().getWaters(false);
@@ -866,7 +876,8 @@ public class LogbookRecord extends DataRecord {
                 }
             }
         }
-        if (fieldName.equals(SESSIONGROUPID)) {
+        if (fieldName.equals(SESSIONGROUPID) || fieldName.equals(EXP_SESSIONGROUP)) {
+            fieldName = SESSIONGROUPID;
             SessionGroups sessiongroups = getPersistence().getProject().getSessionGroups(false);
             SessionGroupRecord sr = sessiongroups.findSessionGroupRecord(value,
                     ((Logbook)getPersistence()).getName());

@@ -625,7 +625,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
                     International.getString("Standard-Boot")));
             item.setFieldSize(300, -1);
             v.add(item = new ItemTypeDouble(PersonRecord.YEARLYCLUBWORKCREDIT, getYearlyClubworkCredit(), ItemTypeDouble.MIN, ItemTypeDouble.MAX,
-                    IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("jhrl. Vereinsarb. Gutschrift")));
+                    IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("jährliche Gutschrift für Vereinsarbeit")));
             v.add(item = new ItemTypeString(PersonRecord.EXTERNALID, getExternalId(),
                     IItemType.TYPE_EXPERT, CAT_MOREDATA, International.getString("Externe ID")));
             if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {

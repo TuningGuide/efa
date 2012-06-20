@@ -30,11 +30,20 @@ public class LogbookListDialog extends DataListDialog {
     public LogbookListDialog(Frame parent, AdminRecord admin, Logbook logbook) {
         super(parent, International.getString("Fahrtenbuch") + " " + logbook.getName(),
                 logbook, -1, admin);
+        iniSettings();
     }
 
     public LogbookListDialog(JDialog parent, AdminRecord admin, Logbook logbook) {
         super(parent, International.getString("Fahrtenbuch") + " " + logbook.getName(),
                 logbook, -1, admin);
+        iniSettings();
+    }
+
+    private void iniSettings() {
+        removeAction(ItemTypeDataRecordTable.ACTION_NEW);
+        removeAction(ItemTypeDataRecordTable.ACTION_EDIT);
+        removeAction(ItemTypeDataRecordTable.ACTION_DELETE);
+        minColumnWidths = new int[] { 80, 150, 150, 200, 150, 80 };
     }
 
     public void keyAction(ActionEvent evt) {
@@ -45,6 +54,6 @@ public class LogbookListDialog extends DataListDialog {
         if (record == null) {
             return null;
         }
-        return null; // @todo (P1) new BoatStatusEditDialog(parent, (BoatStatusRecord)record, false, admin);
+        return null;
     }
 }

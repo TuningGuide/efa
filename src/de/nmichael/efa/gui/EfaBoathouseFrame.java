@@ -1211,53 +1211,6 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         }
     }
     
-    public Clubwork openClubwork(AdminRecord admin) {
-        try {
-            if (Daten.project == null) {
-                return null;
-            }
-
-            // close any other logbook first
-            if (logbook != null) {
-                try {
-                    logbook.close();
-                } catch (Exception e) {
-                    String msg = LogString.fileCloseFailed(Daten.project.getProjectName(), International.getString("Fahrtenbuch"), e.toString());
-                    Logger.log(Logger.ERROR, Logger.MSG_DATA_CLOSEFAILED, msg);
-                    Logger.logdebug(e);
-                    Dialog.error(msg);
-                    logbook = null;
-                }
-            }
-
-            // logbook to open
-            String logbookName = null;
-            if (admin == null && Daten.project.getCurrentLogbookEfaBoathouse() != null) {
-                logbookName = Daten.project.getCurrentLogbookEfaBoathouse();
-            }
-
-            if (logbookName == null || logbookName.length() == 0) {
-                if (admin != null && admin.isAllowedAdministerProjectLogbook()) {
-                	// Give clubwork as Type parameter
-                    OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.clubwork, admin);
-                    logbookName = dlg.openDialog();
-                }
-            }
-            if (logbookName == null || logbookName.length() == 0) {
-                return null;
-            }
-            if (!openLogbook(logbookName)) {
-                logbook = null;
-                return null;
-            }
-            
-            return Daten.project.getClubwork(logbookName, false);
-        } finally {
-            updateProjectLogbookInfo();
-        }
-    }
-
-
     public Logbook getLogbook() {
         return logbook;
     }
@@ -1992,7 +1945,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         if (Daten.project == null) {
             return;
         }
-        ClubworkListDialog dlg = new ClubworkListDialog(this, -1, null);
+        ClubworkListDialog dlg = new ClubworkListDialog(this, null);
         dlg.showDialog();
     }
 

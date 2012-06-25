@@ -2732,17 +2732,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             if (!isModeBoathouse() && entryNoForNewEntry > 0) {
                 n = Integer.toString(entryNoForNewEntry + 1);
             } else {
-                LogbookRecord lastrec = null;
-                try {
-                    lastrec = (LogbookRecord) logbook.data().getLast();
-                } catch (Exception e) {
-                    Logger.logdebug(e);
-                }
-                if (lastrec != null && lastrec.getEntryId() != null) {
-                    n = Integer.toString(EfaUtil.stringFindInt(lastrec.getEntryId().toString(), 0) + 1);
-                } else {
-                    n = "1";
-                }
+                n = logbook.getNextEntryNo().toString();
             }
             entryno.parseAndShowValue(n);
             entryno.setUnchanged();

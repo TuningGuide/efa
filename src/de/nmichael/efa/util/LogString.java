@@ -204,6 +204,15 @@ public class LogString {
       return cantExecCommand(command, description, null);
   }
 
+  public static String timedoutExecCommand(String command, String description, String error) {
+      return description + " '" + command + "' timed out" +
+                                       (error == null ? "." : ": " + error);
+  }
+
+  public static String timedoutExecCommand(String command, String description) {
+      return timedoutExecCommand(command, description, null);
+  }
+
   public static String operationStarted(String operationName) {
       return International.getMessage("Starte {operationname} ...", operationName);
   }

@@ -8,9 +8,13 @@
         <DownloadSize></DownloadSize>
 
         <Changes lang="de">
+            <ChangeItem>Neu: Text-Import und -Export von Fahrtenbüchern möglich</ChangeItem>
             <ChangeItem>Neu: Nach Beenden der letzten Fahrt wird eine Erinnerung zum Schließen der Bootshalle angezeigt</ChangeItem>
             <ChangeItem>Neu: Bei Fahrtbeginn kurz vor Einsetzen bzw. bei Dunkelheit wird (konfigurierbar) eine Warnung angezeigt</ChangeItem>
             <ChangeItem>Neu: Bei Fahrtende kann Datum korrigiert werden</ChangeItem>
+            <ChangeItem>Neu: Statistikeinstellungen können während des Bearbeitens unter einem neuen Namen abgespeichert werden</ChangeItem>
+            <ChangeItem>Neu: Vor Wetter-Popup kann ein beliebiges Kommando ausgeführt werden (z.B. um Wetterdaten aufzubereiten)</ChangeItem>
+            <ChangeItem>Neu: Erinnerung an offene Bootsschäden wird wöchentlich an Bootswart verschickt</ChangeItem>
             <ChangeItem>Bugfix: ArrayOutOfBoundsException beim Erstellen von Fahrtenbuch-Statistiken behoben, wenn keine Ausgabefelder selektiert waren.</ChangeItem>
             <ChangeItem>Bugfix: Auswertungsfehler der Wanderruderkilometer bei Ausgabe in normalen Kilometerlisten behoben.</ChangeItem>
             <ChangeItem>Bugfix: Auch langer News-Text wird jetzt korrekt angezeigt ohne das Fenster zu verschieben.</ChangeItem>
@@ -20,9 +24,13 @@
         </Changes>
 
         <Changes lang="en">
+            <ChangeItem>New: Text import and export of logbooks possible</ChangeItem>
             <ChangeItem>New: After finishing of the last session, efa will display a reminder to lock the boat house</ChangeItem>
             <ChangeItem>New: When starting a session shortly before sunset or during darkness, a (configurable) warning will be displayed</ChangeItem>
             <ChangeItem>New: Date can be modified when session is finished</ChangeItem>
+            <ChangeItem>New: Statistics sesstings may be saved under a new name while being edited</ChangeItem>
+            <ChangeItem>New: An arbitrary command can be run before opening the weather popup (for example, to prepare weather data)</ChangeItem>
+            <ChangeItem>New: Reminder of open boat damager is sent to boad maintenance once a week</ChangeItem>
             <ChangeItem>Bugfix: ArrayOutOfBoundsException when creating logbook statistics fixed when no output fields have been selected</ChangeItem>
             <ChangeItem>Bugfix: Also long news texts are now displayed properly without moving the window.</ChangeItem>
             <ChangeItem>Bugfix: NullPointerException for Data Import fixed.</ChangeItem>

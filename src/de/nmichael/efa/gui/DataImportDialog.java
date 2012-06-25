@@ -12,6 +12,7 @@ package de.nmichael.efa.gui;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.util.*;
@@ -32,6 +33,7 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
     private ItemTypeString csvQuotes;
     private ItemTypeStringList importMode;
     private ItemTypeStringList importModeUpd;
+    private ItemTypeStringList logbookEntryNoHandling;
     private ItemTypeDateTime validAtDateTime;
 
     private StorageObject persistence;
@@ -164,6 +166,25 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
             importModeUpd.displayOnGui(this, mainPanel, 0, 12);
         }
 
+        if (persistence != null && persistence.data().getStorageObjectType().equals(Logbook.DATATYPE)) {
+            logbookEntryNoHandling = new ItemTypeStringList("LOGBOOKENTRYNOHANDLING", DataImport.ENTRYNO_DUPLICATE_SKIP,
+                    new String[]{
+                           DataImport.ENTRYNO_DUPLICATE_SKIP,
+                           DataImport.ENTRYNO_DUPLICATE_ADDEND,
+                           DataImport.ENTRYNO_ALWAYS_ADDEND
+                    },
+                    new String[]{
+                           International.getString("wenn LfdNr. bereits vorhanden: Eintrag nicht importieren"),
+                           International.getString("wenn LfdNr. bereits vorhanden: Eintrag mit neuer LfdNr am Ende importieren"),
+                           International.getString("alle Einträge mit neuer LfdNr am Ende importieren"),
+                    },
+                    IItemType.TYPE_PUBLIC, "",
+                    International.getStringWithMnemonic("LfdNr bei Importdaten"));
+            logbookEntryNoHandling.setFieldGrid(2, -1, -1);
+            logbookEntryNoHandling.setFieldSize(450, -1);
+            logbookEntryNoHandling.displayOnGui(this, mainPanel, 0, 12);
+        }
+
         closeButton.setIcon(getIcon(BaseDialog.IMAGE_RUN));
         closeButton.setIconTextGap(10);
     }
@@ -201,6 +222,9 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
             String mode = importMode.getValueFromField();
             if (importModeUpd != null) {
                 importModeUpd.setEnabled(mode.equals(DataImport.IMPORTMODE_UPD) || mode.equals(DataImport.IMPORTMODE_ADDUPD));
+            }
+            if (logbookEntryNoHandling != null) {
+                logbookEntryNoHandling.setEnabled(mode.equals(DataImport.IMPORTMODE_ADD));
             }
         }
     }
@@ -241,8 +265,10 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
 
         DataImport dataImport = new DataImport(persistence,
                 fname, encoding.getValue(), csep, cquo,
-                importMode.getValueFromField(), validAt,
-                (importModeUpd != null ? importModeUpd.getValueFromField() : null));
+                importMode.getValueFromField(), 
+                (importModeUpd != null ? importModeUpd.getValueFromField() : null),
+                (logbookEntryNoHandling != null ? logbookEntryNoHandling.getValueFromField() : null),
+                validAt);
         ProgressDialog progressDialog = new ProgressDialog(this, International.getMessage("{data} importieren", persistence.getDescription()), dataImport, false);
         dataImport.runImport(progressDialog);
     }

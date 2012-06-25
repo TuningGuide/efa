@@ -702,15 +702,15 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             return new String[] {
                 SCAT_LIST,
                 SCAT_LOGBOOK,
-                SCAT_COMPETITION,
-                SCAT_CLUBWORK
+                SCAT_COMPETITION
+                // @clubwork SCAT_CLUBWORK
             };
         } else {
             return new String[] {
                 International.getString("Kilometerliste"),
                 International.getString("Fahrtenbuch"),
-                International.getString("Wettbewerb"),
-                International.getString("Vereinsarbeit")
+                International.getString("Wettbewerb")
+                // @clubwork International.getString("Vereinsarbeit")
             };
         }
     }
@@ -1635,10 +1635,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         allKeys.put(AGGR_AVGDISTANCE, DataTypeDistance.getDefaultUnitAbbrevation(true) + "/" + International.getString("Fahrt"));
         allKeys.put(AGGR_WANDERFAHRTEN, International.onlyFor("Wanderfahrten", "de"));
         allKeys.put(AGGR_ZIELFAHRTEN, International.onlyFor("Zielfahrten", "de"));
-        allKeys.put(AGGR_CLUBWORK, International.getString("Vereinsarbeit"));
+        // @clubwork allKeys.put(AGGR_CLUBWORK, International.getString("Vereinsarbeit"));
         allKeys.put(AGGR_CBRELTOTARGET, International.getString("Vereinsarbeit (Relative zum Soll)"));
         allKeys.put(AGGR_CBOVERUNDERCARRYOVER, International.getString("Vereinsarbeit (über/unter Jahresübertrag)"));
-        allKeys.put(AGGR_CLUBWORKCREDIT, International.getString("Vereinsarbeit (nur Gutschriften)"));
+        // @clubwork allKeys.put(AGGR_CLUBWORKCREDIT, International.getString("Vereinsarbeit (nur Gutschriften)"));
 
         Vector<String> selectedKeys = new Vector<String>();
         selectedKeys.add(AGGR_DISTANCE);
@@ -1650,10 +1650,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         if (Daten.efaConfig.getValueUseFunctionalityRowingBerlin()) {
             selectedKeys.add(AGGR_ZIELFAHRTEN);
         }
-        selectedKeys.add(AGGR_CLUBWORK);
-        selectedKeys.add(AGGR_CBRELTOTARGET);
-        selectedKeys.add(AGGR_CBOVERUNDERCARRYOVER);
-        selectedKeys.add(AGGR_CLUBWORKCREDIT);
+        // @clubwork selectedKeys.add(AGGR_CLUBWORK);
+        // @clubwork selectedKeys.add(AGGR_CBRELTOTARGET);
+        // @clubwork selectedKeys.add(AGGR_CBOVERUNDERCARRYOVER);
+        // @clubwork selectedKeys.add(AGGR_CLUBWORKCREDIT);
         
         String[] result = new String[selectedKeys.size()];
         for (int i=0; i<result.length; i++) {

@@ -52,6 +52,7 @@ public class MeteoAstroWidget extends Widget {
     static final String PARAM_SHOWWEATHERFCIMG    = "ShowWeatherFcImg";
     static final String PARAM_SHOWWEATHERFCTEMP   = "ShowWeatherFcTemp";
 
+    static final String PARAM_POPUPEXECCOMMAND    = "PopupExecCommand";
     static final String PARAM_HTMLPOPUPURL        = "HtmlPopupUrl";
     static final String PARAM_HTMLPOPWIDTH        = "HtmlPopupWidth";
     static final String PARAM_HTMLPOPHEIGHT       = "HtmlPopupHeight";
@@ -159,6 +160,10 @@ public class MeteoAstroWidget extends Widget {
                 IItemType.TYPE_PUBLIC, "",
                 International.getString("HTML-Popup") + ": " +
                 International.getString("Höhe")));
+        addParameterInternal(new ItemTypeString(PARAM_POPUPEXECCOMMAND, "",
+                IItemType.TYPE_PUBLIC, "",
+                International.getMessage("Auszuführendes Kommando vor {event}",
+                International.getString("Popup"))));
 
         addParameterInternal(new ItemTypeBoolean(PARAM_WARNDARKNESS, true,
                 IItemType.TYPE_PUBLIC, "",
@@ -249,6 +254,10 @@ public class MeteoAstroWidget extends Widget {
         return ((ItemTypeBoolean)getParameterInternal(PARAM_SHOWWEATHERFCTEMP)).getValue();
     }
 
+    public String getPopupExecCommand() {
+        return ((ItemTypeString)getParameterInternal(PARAM_POPUPEXECCOMMAND)).toString();
+    }
+
     public String getHtmlPopupUrl() {
         return ((ItemTypeFile)getParameterInternal(PARAM_HTMLPOPUPURL)).toString();
     }
@@ -293,7 +302,10 @@ public class MeteoAstroWidget extends Widget {
         htmlPane.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (getHtmlPopupUrl() != null && getHtmlPopupUrl().length() > 0) {
-                    new HtmlPopupDialog(getDescription(), getHtmlPopupUrl(), getHtmlPopupWidth(), getHtmlPopupHeight(), 60).showDialog();
+                    new HtmlPopupDialog(getDescription(),
+                            getHtmlPopupUrl(),
+                            getPopupExecCommand(),
+                            getHtmlPopupWidth(), getHtmlPopupHeight(), 60).showDialog();
                 }
             }
         });
@@ -732,12 +744,46 @@ public class MeteoAstroWidget extends Widget {
         private int closeTimeoutSeconds;
         private boolean isClosed = false;
 
-        public HtmlPopupDialog(String title, String url, int width, int height, int closeTimeoutSeconds) {
+        public HtmlPopupDialog(String title, String url, String cmd, int width, int height, int closeTimeoutSeconds) {
             super((JDialog)null, title, International.getStringWithMnemonic("Schließen"));
             this.url = url;
             this.width = width;
             this.height = height;
             this.closeTimeoutSeconds = closeTimeoutSeconds;
+            if (cmd != null && cmd.length() > 0) {
+                execCommandBeforePopup(cmd);
+            }
+        }
+
+        private void execCommandBeforePopup(String cmd) {
+                cmd = cmd.trim();
+                Logger.log(Logger.INFO, Logger.MSG_CORE_RUNNINGCOMMAND,
+                        International.getMessage("Starte Kommando: {cmd}", cmd));
+                try {
+                    Process p = Runtime.getRuntime().exec(cmd);
+                    if (p != null) {
+                        final Thread tcur = Thread.currentThread();
+                        new Thread() {
+                            public void run() {
+                                try {
+                                    Thread.sleep(10000);
+                                    tcur.interrupt();
+                                } catch(Exception eignore) {
+                                }
+                            }
+
+                        }.start();
+                        try {
+                            p.waitFor();
+                        } catch(InterruptedException eintr) {
+                            Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTEXECCOMMAND,
+                                    LogString.cantExecCommand(cmd, International.getString("Kommando")));
+                        }
+                    }
+                } catch (Exception ee) {
+                    Logger.log(Logger.WARNING, Logger.MSG_WARN_CANTEXECCOMMAND,
+                            LogString.cantExecCommand(cmd, International.getString("Kommando")));
+                }
         }
 
         protected void iniDialog() throws Exception {

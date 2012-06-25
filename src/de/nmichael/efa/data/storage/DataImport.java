@@ -11,18 +11,23 @@
 package de.nmichael.efa.data.storage;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.gui.ProgressDialog;
 import de.nmichael.efa.util.*;
 import java.io.*;
 import java.util.*;
 import org.xml.sax.*;
-import org.xml.sax.helpers.*;
 
 public class DataImport extends ProgressTask {
 
     public static final String IMPORTMODE_ADD    = "ADD";           // import as new record; fail for duplicates (also for duplicate versionized records with different validity)
     public static final String IMPORTMODE_UPD    = "UPDATE";        // update existing record; fail if record doesn't exist (for versionized: if no version exists)
     public static final String IMPORTMODE_ADDUPD = "ADD_OR_UPDATE"; // add, or if duplicate, update
+
+    // Import Options for Logbook Import
+    public static final String ENTRYNO_DUPLICATE_SKIP   = "DUPLICATE_SKIP";   // if duplicate EntryId, skip entry
+    public static final String ENTRYNO_DUPLICATE_ADDEND = "DUPLICATE_ADDEND"; // if duplicate EntryId, add entry with new EntryId at end
+    public static final String ENTRYNO_ALWAYS_ADDEND    = "ALWAYS_ADDEND";    // add all entries with new EntryId at end
 
     // only relevant for versionized storage objects
     public static final String UPDMODE_UPDATEVALIDVERSION = "UPDVERSION"; // update version which is valid at specified timestamp; fail if no version is valid
@@ -38,6 +43,7 @@ public class DataImport extends ProgressTask {
     private char csvSeparator;
     private char csvQuotes;
     private String importMode;
+    private String logbookEntryNoHandling;
     private long validAt;
     private String updMode;
     private int importCount = 0;
@@ -47,7 +53,10 @@ public class DataImport extends ProgressTask {
 
     public DataImport(StorageObject storageObject,
             String filename, String encoding, char csvSeparator, char csvQuotes,
-            String importMode, long validAt, String updMode) {
+            String importMode, 
+            String updMode,
+            String logbookEntryNoHandling,
+            long validAt) {
         super();
         this.storageObject = storageObject;
         this.dataAccess = storageObject.data();
@@ -59,6 +68,7 @@ public class DataImport extends ProgressTask {
         this.csvSeparator = csvSeparator;
         this.csvQuotes = csvQuotes;
         this.importMode = importMode;
+        this.logbookEntryNoHandling = logbookEntryNoHandling;
         this.validAt = validAt;
         this.updMode = updMode;
     }
@@ -163,9 +173,17 @@ public class DataImport extends ProgressTask {
         try {
             DataRecord[] otherVersions = null;
 
+            if (importMode.equals(IMPORTMODE_ADD) &&
+                logbookEntryNoHandling != null &&
+                logbookEntryNoHandling.equals(ENTRYNO_ALWAYS_ADDEND)) {
+                // determine new EntryId for logbook
+                r.set(keyFields[0], ((Logbook) storageObject).getNextEntryNo());
+            }
+
             DataKey key = r.getKey();
             if (key.getKeyPart1() == null) {
-                // first key field is *not* set -> search for record by QualifiedName
+                // first key field is *not* set
+                // -> search for record by QualifiedName
                 DataKey[] keys = dataAccess.getByFields(r.getQualifiedNameFields(), r.getQualifiedNameValues(r.getQualifiedName()), -1);
                 if (keys != null && keys.length > 0) {
                     for (int i = 0; i < keyFields.length; i++) {
@@ -195,6 +213,15 @@ public class DataImport extends ProgressTask {
                 DataRecord r1 = dataAccess.get(key);
                 otherVersions = (r1 != null ? new DataRecord[] { r1 } : null);
             }
+
+            if (importMode.equals(IMPORTMODE_ADD) &&
+                otherVersions != null && otherVersions.length > 0 &&
+                logbookEntryNoHandling != null &&
+                logbookEntryNoHandling.equals(ENTRYNO_DUPLICATE_ADDEND)) {
+                r.set(keyFields[0], ((Logbook) storageObject).getNextEntryNo());
+                otherVersions = null;
+            }
+
             if (importMode.equals(IMPORTMODE_ADD)) {
                 if (otherVersions != null && otherVersions.length > 0) {
                     logImportFailed(r, International.getString("Datensatz existiert bereits"));

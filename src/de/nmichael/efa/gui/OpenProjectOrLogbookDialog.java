@@ -30,8 +30,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
 
     public enum Type {
         project,
-        logbook,
-        clubwork
+        logbook
     }
 
     private String name;
@@ -82,9 +81,6 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         }
         if (type == Type.logbook) {
             label.setText(International.getString("vorhandene Fahrtenbücher"));
-        }
-        if (type == Type.clubwork) {
-            label.setText(International.getString("vorhandene Vereinsbücher"));
         }
         mainPanel.add(label, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                                     GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 10, 0, 0), 0, 0));
@@ -153,7 +149,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         if (type == Type.project) {
             items = Project.getProjects();
         }
-        if ((type == Type.logbook || type == Type.clubwork) && Daten.project != null) {
+        if (type == Type.logbook && Daten.project != null) {
             items = Daten.project.getLogbooks();
         }
 
@@ -243,13 +239,6 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
             ProjectEditDialog dlg = new ProjectEditDialog(this, Daten.project, name, ProjectRecord.GUIITEMS_SUBTYPE_ALL, admin);
             dlg.showDialog();
         }
-        if (type == Type.clubwork) {
-            if (Daten.project == null || Daten.project.getLogbook(name, false) == null) {
-                return;
-            }
-            ProjectEditDialog dlg = new ProjectEditDialog(this, Daten.project, ProjectEditDialog.Type.clubwork, name, ProjectRecord.GUIITEMS_SUBTYPE_ALL, admin);
-            dlg.showDialog();
-        }
     }
 
     void deleteButton_actionPerformed(ActionEvent e) {
@@ -276,10 +265,6 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         if (type == Type.logbook) {
             message = International.getMessage("Möchtest Du das Fahrtenbuch '{name}' wirklich löschen?", name) + "\n" +
                     International.getString("Alle Fahrten des Fahrtenbuchs gehen damit unwiederbringlich verloren!");
-        }
-        if (type == Type.clubwork) {
-            message = International.getMessage("Möchtest Du das Vereinsbuch '{name}' wirklich löschen?", name) + "\n" +
-                    International.getString("Alle Vereinsarbeitsstunden des Vereinsbuch gehen damit unwiederbringlich verloren!");
         }
         if (message == null) {
             return;

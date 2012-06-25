@@ -21,14 +21,26 @@ import java.util.*;
 // @i18n complete
 public class DataEditDialog extends BaseTabbedDialog {
 
+    private JPanel northeastPanel;
+
     public DataEditDialog(Frame parent, String title, Vector<IItemType> items) {
         super(parent, title, International.getStringWithMnemonic("Speichern"),
               items, false);
+        initialize();
     }
 
     public DataEditDialog(JDialog parent, String title, Vector<IItemType> items) {
         super(parent, title, International.getStringWithMnemonic("Speichern"),
               items, false);
+        initialize();
+    }
+
+    private void initialize() {
+        northeastPanel = new JPanel();
+        northeastPanel.setLayout(new FlowLayout());
+        northeastPanel.setVisible(false);
+        northeastPanel.getInsets().set(0, 0, 0, 0);
+        super.dataNorthEastComponent = northeastPanel;
     }
 
     public void keyAction(ActionEvent evt) {
@@ -45,6 +57,11 @@ public class DataEditDialog extends BaseTabbedDialog {
         getValuesFromGui();
         setDialogResult(true);
         super.closeButton_actionPerformed(e);
+    }
+
+    public void addComponentToNortheastPanel(JComponent c) {
+        northeastPanel.add(c);
+        northeastPanel.setVisible(true);
     }
 
 }

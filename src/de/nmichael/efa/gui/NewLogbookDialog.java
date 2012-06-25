@@ -100,7 +100,9 @@ public class NewLogbookDialog extends StepwiseDialog {
         item = new ItemTypeDate(DATETO, new DataTypeDate(31, 12, EfaUtil.string2int(year, 2010)), IItemType.TYPE_PUBLIC, "1", International.getString("Ende des Zeitraums"));
         ((ItemTypeDate)item).setNotNull(true);
         items.add(item);
-        
+
+        // @clubwork
+        /*
         // Items for Step 2: Further information not directly related to Logbook 
         items.add(item = new ItemTypeDouble(ProjectRecord.DEFAULTCLUBWORKTARGETHOURS, ItemTypeDouble.UNSET, ItemTypeDouble.MIN, ItemTypeDouble.MAX,
                 IItemType.TYPE_PUBLIC, "2", International.getString("Standard Sollstunden für die Vereinsarbeit")));
@@ -115,6 +117,7 @@ public class NewLogbookDialog extends StepwiseDialog {
         items.add(item = new ItemTypeDouble(ProjectRecord.FINEFORTOOLITTLECLUBWORK, ItemTypeDouble.UNSET, ItemTypeDouble.MIN, ItemTypeDouble.MAX,
                 IItemType.TYPE_PUBLIC, "2", International.getString("Bußgeld für Vereinsarbeit unter Sollstunden")));
         item.setFieldSize(150, -1);
+        */
     }
 
     boolean checkInput(int direction) {
@@ -145,19 +148,19 @@ public class NewLogbookDialog extends StepwiseDialog {
         ItemTypeString logDescription = (ItemTypeString)getItemByName(LOGBOOKDESCRIPTION);
         ItemTypeDate logFromDate = (ItemTypeDate)getItemByName(DATEFROM);
         ItemTypeDate logFromTo = (ItemTypeDate)getItemByName(DATETO);
-        
-        ItemTypeDouble defaultClubworkTargetHours = (ItemTypeDouble)getItemByName(DEFAULTCLUBWORKTARGETHOURS);
-        ItemTypeDouble transferableClubworkHours = (ItemTypeDouble)getItemByName(TRANSFERABLECLUBWORKHOURS);
-        ItemTypeInteger fineForTooLittleClubwork = (ItemTypeInteger)getItemByName(FINEFORTOOLITTLECLUBWORK);
+
+        // @clubwork ItemTypeDouble defaultClubworkTargetHours = (ItemTypeDouble)getItemByName(DEFAULTCLUBWORKTARGETHOURS);
+        // @clubwork ItemTypeDouble transferableClubworkHours = (ItemTypeDouble)getItemByName(TRANSFERABLECLUBWORKHOURS);
+        // @clubwork ItemTypeInteger fineForTooLittleClubwork = (ItemTypeInteger)getItemByName(FINEFORTOOLITTLECLUBWORK);
 
         ProjectRecord rec = Daten.project.createNewLogbookRecord(logName.getValue());
         rec.setDescription(logDescription.getValue());
         rec.setStartDate(logFromDate.getDate());
         rec.setEndDate(logFromTo.getDate());
         
-        rec.setDefaultClubworkTargetHours(defaultClubworkTargetHours.getValue());
-        rec.setTransferableClubworkHours(transferableClubworkHours.getValue());
-        rec.setFineForTooLittleClubwork(fineForTooLittleClubwork.getValue());
+        // @clubwork rec.setDefaultClubworkTargetHours(defaultClubworkTargetHours.getValue());
+        // @clubwork rec.setTransferableClubworkHours(transferableClubworkHours.getValue());
+        // @clubwork rec.setFineForTooLittleClubwork(fineForTooLittleClubwork.getValue());
         
         try {
             Daten.project.addLogbookRecord(rec);

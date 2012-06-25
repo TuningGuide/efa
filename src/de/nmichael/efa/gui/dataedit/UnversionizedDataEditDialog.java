@@ -72,7 +72,7 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
         printButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { printRecord(); }
         });
-        dataNorthEastComponent = printButton;
+        this.addComponentToNortheastPanel(printButton);
     }
 
     protected void iniDefaults() {

@@ -190,6 +190,7 @@ public class EfaConfig extends StorageObject {
     private ItemTypeBoolean efaDirekt_colorizeInputField;
     private ItemTypeBoolean efaDirekt_showZielnameFuerBooteUnterwegs;
     private ItemTypeString efadirekt_adminLastOsCommand;
+    private ItemTypeLong efadirekt_lastBoatDamangeReminder;
     private ItemTypeImage efaDirekt_vereinsLogo;
     private ItemTypeBoolean efaBoathouseShowLastFromWaterNotification;
     private ItemTypeString efaBoathouseShowLastFromWaterNotificationText;
@@ -619,6 +620,10 @@ public class EfaConfig extends StorageObject {
             addParameter(efadirekt_adminLastOsCommand = new ItemTypeString("AdminLastOsCommand", "",
                     IItemType.TYPE_INTERNAL, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
                     International.getString("Betriebssystemkommando")));
+            addParameter(efadirekt_lastBoatDamangeReminder = new ItemTypeLong("LastBoatDamageReminder", 0,
+                    0, Long.MAX_VALUE,
+                    IItemType.TYPE_INTERNAL, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
+                    "Last Boat Damage Reminder"));
 
             // ============================= BOATHOUSE:INPUT =============================
             addParameter(efaBoathouseOnlyEnterKnownBoats = new ItemTypeBoolean("InputAllowOnlyKnownBoats", false,
@@ -758,11 +763,11 @@ public class EfaConfig extends StorageObject {
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
                     International.getMessage("Button '{button}'",
                     International.getString("Statistiken erstellen"))));
-            addParameter(efaDirekt_butVereinsarbeit = new ItemTypeConfigButton("ButtonClubwork",
-                    International.getString("Vereinsarbeit"), "CCFFCC", false, false, true, true,
-                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
-                    International.getMessage("Button '{button}'",
-                    International.getString("Vereinsarbeit"))));
+            // @clubwork addParameter(efaDirekt_butVereinsarbeit = new ItemTypeConfigButton("ButtonClubwork",
+            // @clubwork         International.getString("Vereinsarbeit"), "CCFFCC", false, false, true, true,
+            // @clubwork         IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
+            // @clubwork         International.getMessage("Button '{button}'",
+            // @clubwork         International.getString("Vereinsarbeit"))));
             addParameter(efaDirekt_butNachrichtAnAdmin = new ItemTypeConfigButton("ButtonMessageToAdmin",
                     International.getString("Nachricht an Admin"), "FFF197", true, false, true, true,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
@@ -1277,7 +1282,7 @@ public class EfaConfig extends StorageObject {
     }
 
     public void setValueEfaVersionLastCheck(long timestamp) {
-        efaVersionLastCheck.setValue(timestamp);
+        setValue(efaVersionLastCheck, Long.toString(timestamp));
     }
 
     public String getValueVersion() {
@@ -1494,7 +1499,15 @@ public class EfaConfig extends StorageObject {
     }
 
     public void setValueEfadirekt_adminLastOsCommand(String cmd) {
-        efadirekt_adminLastOsCommand.setValue(cmd);
+        setValue(efadirekt_adminLastOsCommand, cmd);
+    }
+
+    public long getValueLastBoatDamageReminder() {
+        return efadirekt_lastBoatDamangeReminder.getValue();
+    }
+
+    public void setValueLastBoatDamageReminder(long timestamp) {
+        setValue(efadirekt_lastBoatDamangeReminder, Long.toString(timestamp));
     }
 
     public String getValueEfaDirekt_vereinsLogo() {

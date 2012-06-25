@@ -24,8 +24,6 @@ import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.IItemListener;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeString;
-import de.nmichael.efa.data.Clubwork;
-import de.nmichael.efa.data.ClubworkRecord;
 import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.PersonRecord;
 import de.nmichael.efa.data.types.DataTypeDate;

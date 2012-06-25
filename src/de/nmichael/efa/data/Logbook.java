@@ -116,6 +116,22 @@ public class Logbook extends StorageObject {
         return null;
     }
 
+    public DataTypeIntString getNextEntryNo() {
+        int n = 1;
+        LogbookRecord lastrec = null;
+        try {
+            lastrec = (LogbookRecord) data().getLast();
+        } catch (Exception e) {
+            Logger.logdebug(e);
+        }
+        if (lastrec != null && lastrec.getEntryId() != null) {
+            n = EfaUtil.stringFindInt(lastrec.getEntryId().toString(), 0) + 1;
+        } else {
+            n = 1;
+        }
+        return new DataTypeIntString(Integer.toString(n));
+    }
+
     public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
         if (add || update) {
             assertFieldNotEmpty(record, LogbookRecord.ENTRYID);

@@ -2,13 +2,10 @@ Item
 ============================================================================================================
 
 Eine alternative Gruppierung der Boote über die Bootsart würde ich auch nicht schlecht finden (alternativ zu "Einer, Zweier, Dreier, Vierer, andere").
-Text-Fahrtenbücher in efa importieren/exportieren
 Datenabgleich zwischen Bootshäusern implementieren, bei dem efa einen Export/Import durchführt, der
   anhand von LastModified erkennt, welche Daten gewinnen, aber zum Beispiel nie die Bootsstatusliste,
   Nachrichten, ... synchronisiert.
 Paßwort für Statistiken
-vorhandene Statistik bearbeiten und unter anderem Namen speichern
-Vor dem Aufrufen der Wetter-Popups einen Befehl durchführen können (um ggf. Seiten zu holen und aufzubereiten)
 Funktion, um zwei Records mit unterschiedlichen ID's zusammenzuführen
 
 Schreiben ins Spiegelverzeichnis mit Timeout bei Netzlaufwerk

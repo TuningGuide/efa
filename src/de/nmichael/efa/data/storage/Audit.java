@@ -839,6 +839,7 @@ public class Audit extends Thread {
             return ++errors;
         }
     }
+
     private int runAuditLogbook(String logbookName) {
         int errors = 0;
         try {
@@ -1112,17 +1113,20 @@ public class Audit extends Thread {
         String[] logbookNames = project.getAllLogbookNames();
         if (logbookNames != null) {
             for (String s : logbookNames) {
-                if (Daten.project.getClubwork(s, false) == null) {
+                try {
                     Clubwork c = Daten.project.getClubwork(s, true);
-                    if (c != null) {
-                        Logger.log(Logger.INFO, Logger.MSG_DATA_AUDIT_OBJECTCREATIONFAILED,
-                                "runAuditClubworks(): " +
-                                LogString.fileNewCreated(s, International.getString("Vereinsarbeit")));
-                    } else {
+                    if (c == null) {
                         Logger.log(Logger.ERROR, Logger.MSG_DATA_AUDIT_OBJECTCREATIONFAILED,
-                                "runAuditClubworks(): " +
-                                LogString.fileCreationFailed(s, International.getString("Vereinsarbeit")));
+                                "runAuditClubworks(): "
+                                + LogString.fileCreationFailed(s, International.getString("Vereinsarbeit")));
+                    } else {
+                        c.close();
                     }
+                } catch (Exception e) {
+                    Logger.logdebug(e);
+                    Logger.log(Logger.ERROR, Logger.MSG_DATA_AUDIT,
+                            "runAuditClubworks(" + s + ") Caught Exception: " + e.toString());
+                    return ++errors;
                 }
             }
         }

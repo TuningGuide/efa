@@ -138,7 +138,6 @@ public class Project extends StorageObject {
 			getAutoIncrement(true);
 			getSessionGroups(true);
 			getPersons(true);
-			//getClubwork(true);
 			getStatus(true);
 			getGroups(true);
 			getFahrtenabzeichen(true);
@@ -217,7 +216,6 @@ public class Project extends StorageObject {
 		data.add(getAutoIncrement(false));
 		data.add(getSessionGroups(false));
 		data.add(getPersons(false));
-		//data.add(getClubwork(false));
 		data.add(getStatus(false));
 		data.add(getGroups(false));
 		data.add(getFahrtenabzeichen(false));
@@ -234,9 +232,9 @@ public class Project extends StorageObject {
 		for (int i=0; logbookNames != null && i<logbookNames.length; i++) {
 			data.add(getLogbook(logbookNames[i], false));
 		}
-		for (int i=0; logbookNames != null && i<logbookNames.length; i++) {
-			data.add(getClubwork(logbookNames[i], false));
-		}
+		// @clubwork for (int i=0; logbookNames != null && i<logbookNames.length; i++) {
+		// @clubwork 	data.add(getClubwork(logbookNames[i], false));
+		// @clubwork }
 		return data;
 	}
 
@@ -514,9 +512,6 @@ public class Project extends StorageObject {
 					if (storageObjectType.equals(Persons.DATATYPE) && storageObjectName.equals(STORAGEOBJECT_PERSONS)) {
 						c = Persons.class;
 					}
-					if (storageObjectType.equals(Clubwork.DATATYPE) && storageObjectName.equals(STORAGEOBJECT_CLUBWORK)) {
-						c = Clubwork.class;
-					}
 					if (storageObjectType.equals(Status.DATATYPE) && storageObjectName.equals(STORAGEOBJECT_STATUS)) {
 						c = Status.class;
 					}
@@ -555,6 +550,9 @@ public class Project extends StorageObject {
 					}
 					if (storageObjectType.equals(Logbook.DATATYPE)) {
 						c = Logbook.class;
+					}
+					if (storageObjectType.equals(Clubwork.DATATYPE)) {
+						c = Clubwork.class;
 					}
 				}
 				if (c == null) {
@@ -699,11 +697,6 @@ public class Project extends StorageObject {
 				createNewIfDoesntExist, International.getString("Personen"));
 	}
 
-	public Clubwork getClubwork(boolean createNewIfDoesntExist) {
-		return (Clubwork)getPersistence(Clubwork.class, STORAGEOBJECT_CLUBWORK, Clubwork.DATATYPE,
-				createNewIfDoesntExist, International.getString("Vereinsarbeit"));
-	}
-
 	public Clubwork getClubwork(String name, boolean createNewIfDoesntExist) {
 		ProjectRecord rec = getLoogbookRecord(name);
 		if (rec == null) {
@@ -714,11 +707,6 @@ public class Project extends StorageObject {
 		if (clubwork != null) {
 			clubwork.setName(name);
 			clubwork.setProjectRecord(rec);
-			if (Logger.isTraceOn(Logger.TT_CORE, 9)) {
-				Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_LOGBOOK,
-						"Project.getLogbook(" + name +"): hash " + clubwork.hashCode());
-				Thread.currentThread().dumpStack();
-			}
 		}
 		return clubwork;
 	}

@@ -57,7 +57,7 @@ public class ProjectRecord extends DataRecord {
     public static final String CURRENTLOGBOOKEFABOATHOUSE   = "CurrentLogbookEfaBoathouse";
     public static final String AUTONEWLOGBOOKDATE           = "AutoNewLogbookDate";
     public static final String AUTONEWLOGBOOKNAME           = "AutoNewLogbookName";
-    public static final String CLUBWORKCARRYOVER   			= "ClubworkCarryOverDate";
+    public static final String CLUBWORKCARRYOVER            = "ClubworkCarryOverDate";
 
 
     // Fields for Type=Club
@@ -695,6 +695,8 @@ public class ProjectRecord extends DataRecord {
             }
             
             if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 3) {
+                    // @clubwork
+                    /*
 	            v.add(item = new ItemTypeDouble(ProjectRecord.DEFAULTCLUBWORKTARGETHOURS, getDefaultClubworkTargetHours(), ItemTypeDouble.MIN, ItemTypeDouble.MAX,
 	                    IItemType.TYPE_PUBLIC, category,
 	                    International.getString("Standard Sollstunden für die Vereinsarbeit")));
@@ -706,6 +708,7 @@ public class ProjectRecord extends DataRecord {
 	            v.add(item = new ItemTypeDouble(ProjectRecord.FINEFORTOOLITTLECLUBWORK, getFineForTooLittleClubwork(), ItemTypeDouble.MIN, ItemTypeDouble.MAX,
 	                    IItemType.TYPE_PUBLIC, category,
 	                    International.getString("Bußgeld für Vereinsarbeit unter Sollstunden")));
+                    */
             }
         }
 

@@ -67,6 +67,7 @@ public class Logger {
     public static final String MSG_CORE_ADMINSFAILEDNOSEC = "COR029";
     public static final String MSG_CORE_BASICCONFIGUSERDATACANTWRITE = "COR030";
     public static final String MSG_CORE_STARTUPINITIALIZATION = "COR031";
+    public static final String MSG_CORE_RUNNINGCOMMAND = "COR032";
     // Activities performed in Admin Mode
     public static final String MSG_ADMIN_LOGIN = "ADM001";
     public static final String MSG_ADMIN_LOGINFAILURE = "ADM002";

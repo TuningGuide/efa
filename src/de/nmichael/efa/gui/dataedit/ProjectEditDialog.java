@@ -38,8 +38,7 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog {
     
     public enum Type {
         project,
-        logbook,
-        clubwork
+        logbook
     }
 
     public ProjectEditDialog(Frame parent, Project p, String projectRecordName, int subtype, AdminRecord admin) {

@@ -1262,7 +1262,7 @@ public class StatisticTask extends ProgressTask {
         String[] names = Daten.project.getAllLogbookNames();
         if (names == null || names.length == 0) {
             Dialog.error(International.getMessage("Keine {items} im Zeitraum {fromdate} bis {todate} gefunden.",
-                    International.getString("Vereinsarbeitsstunden"),
+                    International.getString("Vereinsarbeit"),
                     sr.sStartDate.toString(), sr.sEndDate.toString()));
             return false;
         }

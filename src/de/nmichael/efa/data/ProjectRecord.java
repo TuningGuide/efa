@@ -699,15 +699,15 @@ public class ProjectRecord extends DataRecord {
                     /*
 	            v.add(item = new ItemTypeDouble(ProjectRecord.DEFAULTCLUBWORKTARGETHOURS, getDefaultClubworkTargetHours(), ItemTypeDouble.MIN, ItemTypeDouble.MAX,
 	                    IItemType.TYPE_PUBLIC, category,
-	                    International.getString("Standard Sollstunden für die Vereinsarbeit")));
+	                    International.getxString("Standard Sollstunden für die Vereinsarbeit")));
 	            
 	            v.add(item = new ItemTypeDouble(ProjectRecord.TRANSFERABLECLUBWORKHOURS, getTransferableClubworkHours(), ItemTypeDouble.MIN, ItemTypeDouble.MAX,
 	                    IItemType.TYPE_PUBLIC, category,
-	                    International.getString("Übertragbare Vereinsarbeitsstunden")));
+	                    International.getxString("Übertragbare Vereinsarbeitsstunden")));
 	            
 	            v.add(item = new ItemTypeDouble(ProjectRecord.FINEFORTOOLITTLECLUBWORK, getFineForTooLittleClubwork(), ItemTypeDouble.MIN, ItemTypeDouble.MAX,
 	                    IItemType.TYPE_PUBLIC, category,
-	                    International.getString("Bußgeld für Vereinsarbeit unter Sollstunden")));
+	                    International.getxString("Bußgeld für Vereinsarbeit unter Sollstunden")));
                     */
             }
         }

@@ -27,7 +27,6 @@ public class RemoteEfaClient extends DataAccess {
 
     private String sessionId;
     private AdminRecord adminRecord;
-    private XMLReader parser;
 
     private DataCache cache;
     private long lastIsOpenTs = -1;
@@ -212,9 +211,7 @@ public class RemoteEfaClient extends DataAccess {
 
         updateStatistics("Rcvd:Responses");
         try {
-            if (parser == null) {
-                parser = EfaUtil.getXMLReader();
-            }
+            XMLReader parser = EfaUtil.getXMLReader();
             RemoteEfaParser responseHandler = new RemoteEfaParser(this);
             parser.setContentHandler(responseHandler);
             parser.parse(new InputSource(in));

@@ -1213,7 +1213,7 @@ public class Audit extends Thread {
                 errors += runAuditPurgeDeletedRecords(project.getGroups(false),
                         International.getString("Gruppe"));
             }
-            errors += runAuditClubworks();
+            // @clubwork errors += runAuditClubworks();
         } catch(Exception e) {
             Logger.logdebug(e);
             Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT,

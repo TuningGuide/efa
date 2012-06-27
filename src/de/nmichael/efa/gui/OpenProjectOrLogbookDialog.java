@@ -43,10 +43,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         super(parent, 
                 (type == Type.project ? 
                     International.getString("Projekt öffnen") :
-                    (type == Type.logbook ? 
-                    	International.getString("Fahrtenbuch öffnen") :
-                    	International.getString("Vereinsbuch öffnen")
-                    )
+                    International.getString("Fahrtenbuch öffnen")
                 ),
                 International.getStringWithMnemonic("Abbruch"));
         this.admin = admin;
@@ -57,10 +54,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         super(parent,
                 (type == Type.project ? 
                     International.getString("Projekt öffnen") :
-                    (type == Type.logbook ? 
-                        International.getString("Fahrtenbuch öffnen") :
-                        International.getString("Vereinsbuch öffnen")
-                    )
+                    International.getString("Fahrtenbuch öffnen")
                 ),
                 International.getStringWithMnemonic("Abbruch"));
         this.admin = admin;

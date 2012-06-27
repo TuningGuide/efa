@@ -174,8 +174,10 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
                            DataImport.ENTRYNO_ALWAYS_ADDEND
                     },
                     new String[]{
-                           International.getString("wenn LfdNr. bereits vorhanden: Eintrag nicht importieren"),
-                           International.getString("wenn LfdNr. bereits vorhanden: Eintrag mit neuer LfdNr am Ende importieren"),
+                           International.getString("wenn LfdNr. bereits vorhanden") + ": " +
+                           International.getString("Eintrag nicht importieren"),
+                           International.getString("wenn LfdNr. bereits vorhanden") + ": " +
+                           International.getString("Eintrag mit neuer LfdNr am Ende importieren"),
                            International.getString("alle Einträge mit neuer LfdNr am Ende importieren"),
                     },
                     IItemType.TYPE_PUBLIC, "",

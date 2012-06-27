@@ -2,10 +2,10 @@
 <efaOnlineUpdate>
 
     <Version>
-        <VersionID>2.0.1_06</VersionID>
-        <ReleaseDate>xx.05.2012</ReleaseDate>
-        <DownloadUrl>http://efa.nmichael.de/download/efa201.zip</DownloadUrl>
-        <DownloadSize></DownloadSize>
+        <VersionID>2.0.2_00</VersionID>
+        <ReleaseDate>26.06.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa202.zip</DownloadUrl>
+        <DownloadSize>2888996</DownloadSize>
 
         <Changes lang="de">
             <ChangeItem>Neu: Text-Import und -Export von Fahrtenbüchern möglich</ChangeItem>
@@ -21,6 +21,7 @@
             <ChangeItem>Bugfix: NullPointerException beim Daten-Import behoben.</ChangeItem>
             <ChangeItem>Bugfix: Fehler beim Import von Booten mit verschiedenen Bootstypen behoben.</ChangeItem>
             <ChangeItem>Bugfix: Fehler beim Import von Zielen mit Zielbereichen für Mehrtagesfahrten behoben.</ChangeItem>
+            <ChangeItem>Bugfix: Fehler bei parallelem Remote-Zugriff im efa-Client behoben.</ChangeItem>
         </Changes>
 
         <Changes lang="en">
@@ -35,6 +36,7 @@
             <ChangeItem>Bugfix: Also long news texts are now displayed properly without moving the window.</ChangeItem>
             <ChangeItem>Bugfix: NullPointerException for Data Import fixed.</ChangeItem>
             <ChangeItem>Bugfix: Fixed import of boats with different boat types.</ChangeItem>
+            <ChangeItem>Bugfix: Bug in case of concurrent remote access in efa client fixed.</ChangeItem>
         </Changes>
     </Version>
 

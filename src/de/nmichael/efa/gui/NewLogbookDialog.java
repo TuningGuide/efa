@@ -61,8 +61,8 @@ public class NewLogbookDialog extends StepwiseDialog {
     String[] getSteps() {
         return new String[] {
             International.getString("Name und Beschreibung"),
-            International.getString("Zeitraum für Fahrtenbuch"),
-            International.getString("Informationen für weitere Bücher")
+            International.getString("Zeitraum für Fahrtenbuch")
+            // @clubwork International.getxString("Informationen für weitere Bücher")
         };
     }
 
@@ -74,8 +74,8 @@ public class NewLogbookDialog extends StepwiseDialog {
             case 1:
                 return International.getString("Bitte wähle den Zeitraum für Fahrten dieses Fahrtenbuches aus. efa wird später nur Fahrten "+
                         "innerhalb dieses Zeitraums für dieses Fahrtenbuch zulassen.");
-            case 2:
-                return International.getString("Neben dem Fahrtenbuch wird auch ein Buch für Vereinsarbeit mit dem selben Zeitraum angelegt. Bitte fülle die für deinen Verein notwendigen Felder aus oder lasse die Felder frei.");
+            // @clubwork case 2:
+            // @clubwork     return International.getxString("Neben dem Fahrtenbuch wird auch ein Buch für Vereinsarbeit mit dem selben Zeitraum angelegt. Bitte fülle die für deinen Verein notwendigen Felder aus oder lasse die Felder frei.");
         }
         return "";
     }
@@ -105,17 +105,17 @@ public class NewLogbookDialog extends StepwiseDialog {
         /*
         // Items for Step 2: Further information not directly related to Logbook 
         items.add(item = new ItemTypeDouble(ProjectRecord.DEFAULTCLUBWORKTARGETHOURS, ItemTypeDouble.UNSET, ItemTypeDouble.MIN, ItemTypeDouble.MAX,
-                IItemType.TYPE_PUBLIC, "2", International.getString("Standard Sollstunden für die Vereinsarbeit")));
+                IItemType.TYPE_PUBLIC, "2", International.getxString("Standard Sollstunden für die Vereinsarbeit")));
         item.setFieldSize(150, -1);
         ((ItemTypeHours)item).enableSeconds(false);
         
         items.add(item = new ItemTypeDouble(ProjectRecord.TRANSFERABLECLUBWORKHOURS, ItemTypeDouble.UNSET, ItemTypeDouble.MIN, ItemTypeDouble.MAX,
-                IItemType.TYPE_PUBLIC, "2", International.getString("Übertragbare Vereinsarbeitsstunden")));
+                IItemType.TYPE_PUBLIC, "2", International.getxString("Übertragbare Vereinsarbeitsstunden")));
         item.setFieldSize(150, -1);
         ((ItemTypeHours)item).enableSeconds(false);
         
         items.add(item = new ItemTypeDouble(ProjectRecord.FINEFORTOOLITTLECLUBWORK, ItemTypeDouble.UNSET, ItemTypeDouble.MIN, ItemTypeDouble.MAX,
-                IItemType.TYPE_PUBLIC, "2", International.getString("Bußgeld für Vereinsarbeit unter Sollstunden")));
+                IItemType.TYPE_PUBLIC, "2", International.getxString("Bußgeld für Vereinsarbeit unter Sollstunden")));
         item.setFieldSize(150, -1);
         */
     }

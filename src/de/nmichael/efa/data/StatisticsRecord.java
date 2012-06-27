@@ -1636,9 +1636,12 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         allKeys.put(AGGR_WANDERFAHRTEN, International.onlyFor("Wanderfahrten", "de"));
         allKeys.put(AGGR_ZIELFAHRTEN, International.onlyFor("Zielfahrten", "de"));
         // @clubwork allKeys.put(AGGR_CLUBWORK, International.getString("Vereinsarbeit"));
-        allKeys.put(AGGR_CBRELTOTARGET, International.getString("Vereinsarbeit (Relative zum Soll)"));
-        allKeys.put(AGGR_CBOVERUNDERCARRYOVER, International.getString("Vereinsarbeit (über/unter Jahresübertrag)"));
-        // @clubwork allKeys.put(AGGR_CLUBWORKCREDIT, International.getString("Vereinsarbeit (nur Gutschriften)"));
+        // @clubwork allKeys.put(AGGR_CBRELTOTARGET, International.getString("Vereinsarbeit") +
+        // @clubwork         " (" + International.getxString("relativ zum Soll") + ")");
+        // @clubwork allKeys.put(AGGR_CBOVERUNDERCARRYOVER, International.getString("Vereinsarbeit") +
+        // @clubwork         " (" + International.getxString("über/unter Jahresübertrag") + ")");
+        // @clubwork allKeys.put(AGGR_CLUBWORKCREDIT, International.getString("Vereinsarbeit") +
+        // @clubwork         " (" + International.getxString("nur Gutschriften") + ")");
 
         Vector<String> selectedKeys = new Vector<String>();
         selectedKeys.add(AGGR_DISTANCE);
@@ -2767,18 +2770,18 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             if (sIsFieldsStatus) {
                 pTableColumns.add(International.getString("Status"));
             }
-            if (sIsAggrClubwork) {
-                pTableColumns.add(International.getString("Vereinsarbeit"));
-            }
-            if (sIsAggrClubworkRelativeToTarget) {
-                pTableColumns.add(International.getString("V.A. rel. zum Soll"));
-            }
-            if (sIsAggrClubworkOverUnderCarryOver) {
-                pTableColumns.add(International.getString("V.A. über/unter Soll"));
-            }
-            if (sIsAggrClubworkCredit) {
-                pTableColumns.add(International.getString("V.A. Gutschriften"));
-            }
+            // @clubwork if (sIsAggrClubwork) {
+            // @clubwork     pTableColumns.add(International.getString("Vereinsarbeit"));
+            // @clubwork }
+            // @clubwork if (sIsAggrClubworkRelativeToTarget) {
+            // @clubwork     pTableColumns.add(International.getxString("relativ zum Soll"));
+            // @clubwork }
+            // @clubwork if (sIsAggrClubworkOverUnderCarryOver) {
+            // @clubwork     pTableColumns.add(International.getxString("über/unter Soll"));
+            // @clubwork }
+            // @clubwork if (sIsAggrClubworkCredit) {
+            // @clubwork     pTableColumns.add(International.getxString("Gutschriften"));
+            // @clubwork }
         }
     }
 

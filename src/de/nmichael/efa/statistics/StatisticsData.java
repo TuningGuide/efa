@@ -221,7 +221,7 @@ public class StatisticsData implements Comparable {
             } else {
             	int month = -1+sr.sStartDate.getMonth() + sr.sEndDate.getMonth() + Math.abs(sr.sEndDate.getYear() - sr.sStartDate.getYear())*12;
             	double targetHours = sr.sDefaultClubworkTargetHours/12*month;
-                this.sClubwork = this.clubwork + " " + International.getString("h")+" / "+(isSummary ? absPosition*targetHours : targetHours) + " " + International.getString("h");
+                this.sClubwork = this.clubwork + " " + "h"+" / "+(isSummary ? absPosition*targetHours : targetHours) + " " + "h";
             }
         }
         if (sr.sIsAggrClubworkRelativeToTarget) {
@@ -231,7 +231,7 @@ public class StatisticsData implements Comparable {
             	int month = -1+sr.sStartDate.getMonth() + sr.sEndDate.getMonth() + Math.abs(sr.sEndDate.getYear() - sr.sStartDate.getYear())*12;
             	double targetHours = sr.sDefaultClubworkTargetHours/12*month;
             	this.clubworkRelativeToTarget = this.clubwork - (this.isSummary ? absPosition*targetHours : targetHours);
-                this.sClubworkRelativeToTarget = this.clubworkRelativeToTarget + " " + International.getString("h");
+                this.sClubworkRelativeToTarget = this.clubworkRelativeToTarget + " " + "h";
             }
         }
         if (sr.sIsAggrClubworkOverUnderCarryOver) {
@@ -253,14 +253,14 @@ public class StatisticsData implements Comparable {
             		this.clubworkOverUnderCarryOver = 0;
             	}
             		
-                this.sClubworkOverUnderCarryOver = this.clubworkOverUnderCarryOver + " " + International.getString("h");
+                this.sClubworkOverUnderCarryOver = this.clubworkOverUnderCarryOver + " " + "h";
             }
         }
         if (sr.sIsAggrClubworkCredit) {
             if (this.isSummary || (sr.sIgnoreNullValues && clubwork == 0)) {
                 this.sClubworkCredit = "";
             } else {            		
-                this.sClubworkCredit = this.clubworkCredit + " " + International.getString("h");
+                this.sClubworkCredit = this.clubworkCredit + " " + "h";
             }
         }
     }

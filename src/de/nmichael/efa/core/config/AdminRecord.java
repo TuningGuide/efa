@@ -524,8 +524,10 @@ public class AdminRecord extends DataRecord implements IItemListener {
         v.add(item = new ItemTypeBoolean(EDITPERSONS, isAllowedEditPersons(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Personen und Status bearbeiten")));
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
-        v.add(item = new ItemTypeBoolean(EDITCLUBWORK, isAllowedEditClubwork(),
-                IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Vereinsarbeit bearbeiten")));
+        if (Daten.NEW_FEATURES) {
+            v.add(item = new ItemTypeBoolean(EDITCLUBWORK, isAllowedEditClubwork(),
+                    IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Vereinsarbeit bearbeiten")));
+        }
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(EDITGROUPS, isAllowedEditGroups(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Gruppen bearbeiten")));

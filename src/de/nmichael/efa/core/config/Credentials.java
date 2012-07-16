@@ -89,7 +89,11 @@ public class Credentials {
                     new FileOutputStream(filename), Daten.ENCODING_UTF));
             String[] usernames = credentials.keySet().toArray(new String[0]);
             for (String username : usernames) {
-                f.write(username + " " + credentials.get(username) + "\n");
+                if (defaultAdmin != null && defaultAdmin.equals(username)) {
+                    f.write("+" + username + " " + credentials.get(username) + "\n");
+                } else {
+                    f.write(username + " " + credentials.get(username) + "\n");
+                }
             }
             f.close();
             return true;

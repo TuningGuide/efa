@@ -11,9 +11,10 @@
 package de.nmichael.efa.data.importefa1;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.EfaKeyStore;
 import de.nmichael.efa.data.*;
-import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.data.types.*;
+//import de.nmichael.efa.efa1.*;
+import de.nmichael.efa.data.efawett.DRVSignatur;
 //import de.nmichael.efa.efa1.*;
 import de.nmichael.efa.util.*;
 import java.util.*;
@@ -41,6 +42,12 @@ public class ImportFahrtenabzeichen extends ImportBase {
             if (!fahrtenabzeichen1.readFile()) {
                 logError(LogString.fileOpenFailed(efa1fname, getDescription()));
                 return false;
+            }
+
+            ImportMetadata keyStoreMetadata = task.getKeyStoreMetadata();
+            EfaKeyStore efa1KeyStore = null;
+            if (keyStoreMetadata != null && keyStoreMetadata.filename != null) {
+                efa1KeyStore = new EfaKeyStore(keyStoreMetadata.filename, "efa".toCharArray());
             }
 
             Fahrtenabzeichen fahrtenabzeichen = Daten.project.getFahrtenabzeichen(true);
@@ -74,6 +81,19 @@ public class ImportFahrtenabzeichen extends ImportBase {
                         }
                         fahrtenabzeichen.data().add(r);
                         logDetail(International.getMessage("Importiere Eintrag: {entry}", r.toString()));
+                        
+                        String key = (r.getDRVSignatur() != null ?
+                            DRVSignatur.getKeyName(r.getDRVSignatur().getKeyNr()) : null);
+                        try {
+                            if (key != null && efa1KeyStore != null) {
+                                if (Daten.keyStore.getPublicKey(key) == null) {
+                                    Daten.keyStore.addCertificate(key, efa1KeyStore.getCertificate(key));
+                                    logDetail(International.getMessage("Importiere Eintrag: {entry}", "DRV-Schlüssel " + key));
+                                }
+                            }
+                        } catch(Exception ekey) {
+                            logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", "DRV-Schlüssel " + key, ekey.toString()));
+                        }
                     } catch(Exception e) {
                         logError(International.getMessage("Import von Eintrag fehlgeschlagen: {entry} ({error})", r.toString(), e.toString()));
                         Logger.logdebug(e);

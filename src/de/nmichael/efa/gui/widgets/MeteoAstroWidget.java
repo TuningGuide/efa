@@ -493,12 +493,12 @@ public class MeteoAstroWidget extends Widget {
                             }
                         }
 
+                        weatherError = false;
                     } catch (Exception e) {
+                        // log as WARNING for first weatherError; log as DEBUG for every next weatherError
+                        Logger.log( (weatherError ? Logger.DEBUG : Logger.WARNING), Logger.MSG_WARN_WEATHERUPDATEFAILED,
+                                International.getString("Wetterdaten konnten nicht geladen werden") + ": " + e.toString());
                         Logger.logdebug(e);
-                        if (!weatherError) {
-                            Logger.log(Logger.DEBUG, Logger.MSG_WARN_WEATHERUPDATEFAILED,
-                                    International.getString("Wetterdaten konnten nicht geladen werden") + ": " + e.toString());
-                        }
                         weatherError = true;
                     }
                 }

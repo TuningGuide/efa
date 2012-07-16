@@ -83,7 +83,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         Vector<Integer> t = new Vector<Integer>();
 
         f.add(ID);                                t.add(IDataAccess.DATA_UUID);
-        f.add(EFBID);                             t.add(IDataAccess.DATA_STRING);
         f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
         f.add(NAMEAFFIX);                         t.add(IDataAccess.DATA_STRING);
         f.add(OWNER);                             t.add(IDataAccess.DATA_STRING);
@@ -114,6 +113,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         f.add(FREEUSE1);                          t.add(IDataAccess.DATA_STRING);
         f.add(FREEUSE2);                          t.add(IDataAccess.DATA_STRING);
         f.add(FREEUSE3);                          t.add(IDataAccess.DATA_STRING);
+        f.add(EFBID);                             t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(Boats.DATATYPE, f, t, true);
         metaData.setKey(new String[] { ID }); // plus VALID_FROM
         metaData.addIndex(IDX_NAME_NAMEAFFIX);

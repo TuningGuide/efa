@@ -77,7 +77,7 @@ public class DataImport extends ProgressTask {
         try {
             BufferedReader f = new BufferedReader(new FileReader(filename));
             String s = f.readLine();
-            boolean xml = (s != null && s.startsWith("<?xml"));
+            boolean xml = (s != null && s.toLowerCase().startsWith("<?xml"));
             f.close();
             return xml;
         } catch(Exception eignore) {
@@ -292,8 +292,12 @@ public class DataImport extends ProgressTask {
                         for (int i=0; i<header.length; i++) {
                             String value = (fields.size() > i ? fields.get(i) : null);
                             if (value != null && value.length() > 0) {
-                                if (!r.setFromText(header[i], value.trim())) {
-                                    logImportWarning(r, "Value '" + value + "' for Field '"+header[i] + "' corrected to '" + r.getAsText(header[i]) + "'");
+                                try {
+                                    if (!r.setFromText(header[i], value.trim())) {
+                                        logImportWarning(r, "Value '" + value + "' for Field '"+header[i] + "' corrected to '" + r.getAsText(header[i]) + "'");
+                                    }
+                                } catch(Exception esetvalue) {
+                                    logImportWarning(r, "Cannot set value '" + value + "' for Field '"+header[i] + "': " + esetvalue.toString());
                                 }
                             }
                         }
@@ -374,8 +378,12 @@ public class DataImport extends ProgressTask {
             }
             if (record != null && fieldValue != null) {
                 // end of field
-                if (!record.setFromText(fieldName, fieldValue.trim())) {
-                    dataImport.logImportWarning(record, "Value '" + fieldValue + "' for Field '" + fieldName + "' corrected to '" + record.getAsText(fieldName) + "'");
+                try {
+                    if (!record.setFromText(fieldName, fieldValue.trim())) {
+                        dataImport.logImportWarning(record, "Value '" + fieldValue + "' for Field '" + fieldName + "' corrected to '" + record.getAsText(fieldName) + "'");
+                    }
+                } catch (Exception esetvalue) {
+                    dataImport.logImportWarning(record, "Cannot set value '" + fieldValue + "' for Field '" + fieldName + "': " + esetvalue.toString());
                 }
             }
 

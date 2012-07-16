@@ -79,6 +79,12 @@ public class BoatReservationRecord extends DataRecord {
         return new DataKey<UUID,Integer,String>(getBoatId(),getReservation(),null);
     }
 
+    public boolean isValidAt(long validAt) {
+        return true;
+        // Boat Reservation are always valid and should be shown even if the boat is invalid
+        // return getPersistence().getProject().getBoats(false).isValidAt(getBoatId(), validAt);
+    }
+
     public boolean getDeleted() {
         return getPersistence().getProject().getBoats(false).isBoatDeleted(getBoatId());
     }
@@ -216,6 +222,9 @@ public class BoatReservationRecord extends DataRecord {
         String boatName = "?";
         if (boats != null) {
             BoatRecord r = boats.getBoat(getBoatId(), System.currentTimeMillis());
+            if (r == null) {
+                r = boats.getAnyBoatRecord(getBoatId());
+            }
             if (r != null) {
                 boatName = r.getQualifiedName();
             }

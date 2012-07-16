@@ -133,10 +133,17 @@ public class Boote extends DatenListe {
                   if (d.get(ANZAHL).equals("5er")) { numseats = EfaTypes.TYPE_NUMSEATS_5; }
                   if (d.get(ANZAHL).equals("6er")) { numseats = EfaTypes.TYPE_NUMSEATS_6X; }
                   if (d.get(ANZAHL).equals("8er")) { numseats = EfaTypes.TYPE_NUMSEATS_8X; }
-              }
-              if (d.get(RIGGER).equals("Riemen")) {
+              } else if (d.get(RIGGER).equals("Riemen")) {
                   if (d.get(ANZAHL).equals("2er")) { numseats = EfaTypes.TYPE_NUMSEATS_2; }
                   if (d.get(ANZAHL).equals("4er")) { numseats = EfaTypes.TYPE_NUMSEATS_4; }
+                  if (d.get(ANZAHL).equals("6er")) { numseats = EfaTypes.TYPE_NUMSEATS_6; }
+                  if (d.get(ANZAHL).equals("8er")) { numseats = EfaTypes.TYPE_NUMSEATS_8; }
+              } else {
+                  if (d.get(ANZAHL).equals("1er")) { numseats = EfaTypes.TYPE_NUMSEATS_1; }
+                  if (d.get(ANZAHL).equals("2er")) { numseats = EfaTypes.TYPE_NUMSEATS_2; }
+                  if (d.get(ANZAHL).equals("3er")) { numseats = EfaTypes.TYPE_NUMSEATS_3; }
+                  if (d.get(ANZAHL).equals("4er")) { numseats = EfaTypes.TYPE_NUMSEATS_4; }
+                  if (d.get(ANZAHL).equals("5er")) { numseats = EfaTypes.TYPE_NUMSEATS_5; }
                   if (d.get(ANZAHL).equals("6er")) { numseats = EfaTypes.TYPE_NUMSEATS_6; }
                   if (d.get(ANZAHL).equals("8er")) { numseats = EfaTypes.TYPE_NUMSEATS_8; }
               }

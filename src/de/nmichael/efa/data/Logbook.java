@@ -155,6 +155,19 @@ public class Logbook extends StorageObject {
                         r.getEntryId().toString(), sg.getName()),
                     Thread.currentThread().getStackTrace());
             }
+
+            // select boat variant, if empty
+            if (r.getBoatVariant() == IDataAccess.UNDEFINED_INT &&
+                r.getBoatId() != null) {
+                try {
+                    BoatRecord br = r.getPersistence().getProject().getBoats(false).getBoat(r.getBoatId(), r.getValidAtTimestamp());
+                    if (br != null) {
+                        r.setBoatVariant(br.getTypeVariant(0));
+                    }
+                } catch(Exception eignore) {
+                    Logger.logdebug(eignore);
+                }
+            }
         }
         if (delete) {
             assertNotReferenced(record, getProject().getBoatStatus(false), new String[] { BoatStatusRecord.ENTRYNO }, true,

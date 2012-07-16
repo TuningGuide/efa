@@ -13,6 +13,7 @@ package de.nmichael.efa.gui;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.Admins;
+import de.nmichael.efa.core.config.Credentials;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
@@ -192,6 +193,22 @@ public class AdminLoginDialog extends BaseDialog {
 
     public static AdminRecord login(Window parent, String reason, String admin,
             boolean showSelectProject, String defaultProject) {
+
+        AdminRecord adminRecord = null;
+        try {
+            Credentials cred = new Credentials();
+            cred.readCredentials();
+            if (cred.getDefaultAdmin() != null) {
+                adminRecord = Daten.admins.login(cred.getDefaultAdmin(),
+                        cred.getPassword(cred.getDefaultAdmin()));
+            }
+            if (adminRecord != null) {
+                return adminRecord;
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+
         AdminLoginDialog dlg = null;
         if (parent == null) {
             dlg = new AdminLoginDialog((JDialog)null, reason);

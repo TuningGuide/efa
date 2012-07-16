@@ -291,15 +291,14 @@ public class EfaMenuButton {
             v.add(new EfaMenuButton(MENU_ADMINISTRATION, SEPARATOR,
                     null, null, null));
         }
-        // @clubwork
-        /*
-         if (admin == null || admin.isAllowedEditClubwork()) {
+        if (Daten.NEW_FEATURES) {
+        if (admin == null || admin.isAllowedEditClubwork()) {
             v.add(new EfaMenuButton(MENU_ADMINISTRATION, BUTTON_CLUBWORK,
                     International.getStringWithMnemonic("Administration"),
                     International.getStringWithMnemonic("Vereinsarbeit"),
                     BaseFrame.getIcon("menu_clubwork.png")));
         }
-        */
+        }
         if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_ADMINISTRATION) && !v.get(v.size()-1).isSeparator()) {
             v.add(new EfaMenuButton(MENU_ADMINISTRATION, SEPARATOR,
                     null, null, null));

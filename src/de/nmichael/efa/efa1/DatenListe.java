@@ -41,7 +41,7 @@ public class DatenListe {
     public static final int CHECKSUM_LOAD_REQUIRE_ADMIN = 3;
     public static final int CHECKSUM_LOAD_PRINT_WARNING_AND_AUTO_REWRITE = 4;
     public static final int CHECKSUM_LOAD_HALT_PROGRAM = 5;
-    public static int actionOnChecksumLoadError = CHECKSUM_LOAD_PRINT_WARNING_AND_AUTO_REWRITE;
+    public static int actionOnChecksumLoadError = CHECKSUM_LOAD_NO_ACTION;
     public static final int CHECKSUM_SAVE_PRINT_ERROR = 0;
     public static final int CHECKSUM_SAVE_HALT_PROGRAM = 1;
     public static final int CHECKSUM_SAVE_NO_ACTION = 2;

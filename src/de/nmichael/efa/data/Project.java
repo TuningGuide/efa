@@ -231,10 +231,10 @@ public class Project extends StorageObject {
 		String[] logbookNames = getAllLogbookNames();
 		for (int i=0; logbookNames != null && i<logbookNames.length; i++) {
 			data.add(getLogbook(logbookNames[i], false));
+                        if (Daten.NEW_FEATURES) {
+                            data.add(getClubwork(logbookNames[i], false));
+                        }
 		}
-		// @clubwork for (int i=0; logbookNames != null && i<logbookNames.length; i++) {
-		// @clubwork 	data.add(getClubwork(logbookNames[i], false));
-		// @clubwork }
 		return data;
 	}
 

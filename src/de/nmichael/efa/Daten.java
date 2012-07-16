@@ -33,13 +33,16 @@ import java.lang.management.*;
 // @i18n complete
 public class Daten {
 
-    public final static String VERSION            = "2.0.2"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID          = "2.0.2_00";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-    public final static String VERSIONRELEASEDATE = "26.06.2012";  // Release Date: TT.MM.JJJJ
+    public final static String VERSION            = "2.0.3"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
+    public final static String VERSIONID          = "2.0.3_00";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "15.07.2012";  // Release Date: TT.MM.JJJJ
     public final static String MAJORVERSION       = "2";
-    public final static String PROGRAMMID         = "EFA.201"; // Versions-ID für Wettbewerbsmeldungen
-    public final static String PROGRAMMID_DRV     = "EFADRV.201"; // Versions-ID für Wettbewerbsmeldungen
+    public final static String PROGRAMMID         = "EFA.203"; // Versions-ID für Wettbewerbsmeldungen
+    public final static String PROGRAMMID_DRV     = "EFADRV.203"; // Versions-ID für Wettbewerbsmeldungen
     public final static String COPYRIGHTYEAR      = "12";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
+
+    // enable/disable development functions for next version
+    public static final boolean NEW_FEATURES = false;
 
     public final static String EFA     = "efa";                              // efa program name/ID
     public static String EFA_SHORTNAME = "efa";                              // dummy, will be set in International.ininitalize()
@@ -174,7 +177,7 @@ public class Daten {
     public static Project project;             // Efa Project
     public static WettDefs wettDefs;           // WettDefs
     public static EfaKeyStore keyStore;        // KeyStore
-    public static final String PUBKEYSTORE = "keystore_pub.dat";         // <efauser>/data/keystore_pub.dat
+    public static final String PUBKEYSTORE = "keystore_pub.dat";     // <efauser>/data/keystore_pub.dat
     public static final String DRVKEYSTORE = "keystore.dat";         // <efauser>/data/keystore.dat
     public static final String EFAMASTERKEY = "k)fx,R4{Qb:lhTg";
     
@@ -882,8 +885,8 @@ public class Daten {
             Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniCopiedFiles()");
         }
         String distribCfgDirectory = Daten.efaMainDirectory + "cfg" + Daten.fileSep;
-        tryCopy(distribCfgDirectory + Daten.WETTFILE, Daten.efaCfgDirectory + Daten.WETTFILE);
-        tryCopy(distribCfgDirectory + Daten.WETTDEFS, Daten.efaCfgDirectory + Daten.WETTDEFS);
+        tryCopy(distribCfgDirectory + Daten.WETTFILE, Daten.efaCfgDirectory + Daten.WETTFILE, true);
+        tryCopy(distribCfgDirectory + Daten.WETTDEFS, Daten.efaCfgDirectory + Daten.WETTDEFS, true);
     }
 
     public static void iniAllDataFiles() {
@@ -1047,11 +1050,19 @@ public class Daten {
         return true;
     }
 
-    private static boolean tryCopy(String source, String dest) {
+    private static boolean tryCopy(String source, String dest, boolean alwaysCopyWhenNewer) {
         if (source.equals(dest)) {
             return true;
         }
-        if (!(new File(dest)).exists()) {
+        boolean copy = !(new File(dest)).exists();
+        if (!copy) {
+            File src = new File(source);
+            File dst = new File(dest);
+            if (src.exists() && dst.exists() && src.lastModified() > dst.lastModified() && alwaysCopyWhenNewer) {
+                copy = true;
+            }
+        }
+        if (copy) {
             if (EfaUtil.copyFile(source, dest)) {
                 Logger.log(Logger.INFO, Logger.MSG_CORE_SETUPFILES,
                         International.getMessage("Datei '{file}' wurde aus der Vorlage {template} neu erstellt.", dest, source));

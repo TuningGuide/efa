@@ -17,6 +17,7 @@ import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.importefa1.*;
 import de.nmichael.efa.efa1.*;
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.EfaKeyStore;
 import de.nmichael.efa.core.config.EfaBaseConfig;
 import java.io.*;
 import java.util.*;
@@ -207,6 +208,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                     + " (" + International.getString("Ziele") + ")");
             checkImportData(importData, dir, new BootStatus("bootstatus.efdb"), ImportMetadata.TYPE_BOOTSTATUS, International.getString("Bootsstatus"));
             checkImportData(importData, dir, new de.nmichael.efa.efa1.Fahrtenabzeichen("fahrtenabzeichen.eff"), ImportMetadata.TYPE_FAHRTENABZEICHEN, International.onlyFor("Fahrtenabzeichen", "de"));
+            checkImportData(importData, dir, new de.nmichael.efa.efa1.DatenListe("keystore_pub.dat", 1, 0, false), ImportMetadata.TYPE_KEYSTORE, "KeyStore"); // DatenList is just dummy to pass filename of keystore!
             checkImportData(importData, dir, new Gruppen("gruppen.efg"), ImportMetadata.TYPE_GRUPPEN, International.getString("Gruppen"));
             checkImportData(importData, dir, new Mannschaften("mannschaften.efm"), ImportMetadata.TYPE_MANNSCHAFTEN, International.getString("Mannschaften"));
 
@@ -333,9 +335,15 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
         }
         if (EfaUtil.canOpenFile(dir+fname)) {
             datenListe.setFileName(dir+fname);
-            if (datenListe.readFile()) {
+            if (type != ImportMetadata.TYPE_KEYSTORE) {
+                if (datenListe.readFile()) {
+                    meta.filename = datenListe.getFileName();
+                    meta.numRecords = datenListe.countElements();
+                }
+            } else {
+                EfaKeyStore keyStore = new EfaKeyStore(datenListe.getFileName(), "efa".toCharArray());
                 meta.filename = datenListe.getFileName();
-                meta.numRecords = datenListe.countElements();
+                meta.numRecords = keyStore.size();
             }
         }
         importData.put(datenListe.getFileName(), meta);

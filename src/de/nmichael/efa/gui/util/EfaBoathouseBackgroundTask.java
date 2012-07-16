@@ -10,16 +10,12 @@
 package de.nmichael.efa.gui.util;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.core.items.ItemTypeHours;
-import de.nmichael.efa.core.items.ItemTypeInteger;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.gui.*;
-import de.nmichael.efa.statistics.StatisticsData;
-import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.Dialog;
 
 import java.awt.*;
 import java.io.*;
@@ -483,7 +479,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
         long now = System.currentTimeMillis();
         long last = (Daten.efaConfig != null ? Daten.efaConfig.getValueLastBoatDamageReminder() : -1);
-        if (last == -1 || now-BOAT_DAMAGE_REMINDER_INTERVAL < last) {
+        if (last == -1 || now-BOAT_DAMAGE_REMINDER_INTERVAL > last) {
             return;
         }
         boolean damagesOlderThanAWeek = false;
@@ -522,7 +518,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
                 messages.createAndSaveMessageRecord(MessageRecord.TO_BOATMAINTENANCE,
                         International.getString("Offene Bootsschäden"),
                         s.toString());
-
                 Daten.efaConfig.setValueLastBoatDamageReminder(now);
             }
         } catch(Exception e) {

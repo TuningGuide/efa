@@ -49,6 +49,12 @@ public abstract class ItemTypeLabelTextfield extends ItemTypeLabelValue {
         f.setEditable(isEditable);
         f.setDisabledTextColor(Color.black);
         f.setEnabled(isEnabled && isEditable);
+        if (fieldColor != null) {
+            f.setForeground(fieldColor);
+            if (!(isEnabled && isEditable)) {
+                f.setDisabledTextColor(fieldColor);
+            }
+        }
         f.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(KeyEvent e) { actionEvent(e); }
             public void keyReleased(KeyEvent e) { actionEvent(e); }

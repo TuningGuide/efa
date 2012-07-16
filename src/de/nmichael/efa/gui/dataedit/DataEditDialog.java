@@ -12,6 +12,7 @@ package de.nmichael.efa.gui.dataedit;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.BaseTabbedDialog;
 import java.awt.*;
 import java.awt.event.*;
@@ -50,9 +51,10 @@ public class DataEditDialog extends BaseTabbedDialog {
     protected void iniDialog() throws Exception {
         super.iniDialog();
         if (closeButton != null) {
-            closeButton.setIcon(getIcon("button_accept.png"));
+            closeButton.setIcon(getIcon(BaseDialog.IMAGE_ACCEPT));
         }
     }
+
     public void closeButton_actionPerformed(ActionEvent e) {
         getValuesFromGui();
         setDialogResult(true);

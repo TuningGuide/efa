@@ -24,8 +24,9 @@ public abstract class BaseTabbedDialog extends BaseDialog {
 
     public static final char CATEGORY_SEPARATOR = ':';
     public static final String CATEGORY_COMMON = "%00%" + International.getString("Allgemein");
+    public static final String CATEGORY_NONAME = "%00%NONAME";
 
-    protected JTabbedPane tabbedPane;
+    protected JComponent topLevelPane;
     protected JPanel dataPanel;
 
     protected JPanel dataNorthPanel;
@@ -63,7 +64,7 @@ public abstract class BaseTabbedDialog extends BaseDialog {
     }
 
     public static String makeCategory(String c1) {
-        return c1;
+        return (c1 != null ? c1 : CATEGORY_NONAME);
     }
     public static String makeCategory(String c1, String c2) {
         return c1 + CATEGORY_SEPARATOR + c2;
@@ -82,6 +83,9 @@ public abstract class BaseTabbedDialog extends BaseDialog {
     }
 
     public static String getCatName(String key) {
+        if (key.equals(CATEGORY_NONAME)) {
+            return "";
+        }
         String catName = key;
         int posFirst = -1;
         while ( (posFirst = catName.indexOf("%")) >= 0) {
@@ -202,22 +206,27 @@ public abstract class BaseTabbedDialog extends BaseDialog {
             getValuesFromGui();
         }
 
-        String selectedPanel = getSelectedPanel(tabbedPane);
+        String[] cats = categoryHierarchy.keySet().toArray(new String[0]);
+        Arrays.sort(cats);
+
+        String selectedPanel = (topLevelPane instanceof JTabbedPane ?
+            getSelectedPanel((JTabbedPane)topLevelPane) : null);
 
         displayedGuiItems = new Vector<IItemType>();
-        if (tabbedPane != null) {
-            dataPanel.remove(tabbedPane);
+        if (topLevelPane != null) {
+            dataPanel.remove(topLevelPane);
         }
-        tabbedPane = new JTabbedPane();
+        topLevelPane = (cats.length > 1 ? new JTabbedPane() : new JPanel());
+        if (cats.length <= 1) {
+            topLevelPane.setLayout(new BorderLayout());
+        }
         panels = new Hashtable<JPanel,String>();
         expertModeEnabled = expertMode.isSelected();
-        recursiveBuildGui(categoryHierarchy,itemsPerCategory,"",tabbedPane, selectedPanel);
-        dataPanel.add(tabbedPane, BorderLayout.CENTER);
+        recursiveBuildGui(categoryHierarchy,itemsPerCategory,"",topLevelPane, selectedPanel);
+        dataPanel.add(topLevelPane, BorderLayout.CENTER);
         this.validate();
 
         // select an item to focus
-        String[] cats = categoryHierarchy.keySet().toArray(new String[0]);
-        Arrays.sort(cats);
         Vector<IItemType> v = itemsPerCategory.get( (selectedPanel != null ? selectedPanel : cats[0]));
         for (int i=0; v != null && i<v.size(); i++) {
             if (!(v.get(i) instanceof ItemTypeLabel) && v.get(i).isVisible() && v.get(i).isEditable()) {
@@ -233,7 +242,7 @@ public abstract class BaseTabbedDialog extends BaseDialog {
     private int recursiveBuildGui(Hashtable<String,Hashtable> categories,
                                    Hashtable<String,Vector<IItemType>> items,
                                    String catKey,
-                                   JTabbedPane tabbedPane,
+                                   JComponent currentPane,
                                    String selectedPanel) {
         int itmcnt = 0;
         int pos = (selectedPanel != null && selectedPanel.length() > 0 ? selectedPanel.indexOf(CATEGORY_SEPARATOR) : -1);
@@ -250,9 +259,9 @@ public abstract class BaseTabbedDialog extends BaseDialog {
             if (subCat.size() != 0) {
                 JTabbedPane subTabbedPane = new JTabbedPane();
                 if (recursiveBuildGui(subCat, items, thisCatKey, subTabbedPane, selectNextCat) > 0) {
-                    tabbedPane.add(subTabbedPane, catName);
-                    if (key.equals(selectThisCat)) {
-                        tabbedPane.setSelectedComponent(subTabbedPane);
+                    currentPane.add(subTabbedPane, catName);
+                    if (key.equals(selectThisCat) && currentPane instanceof JTabbedPane) {
+                        ((JTabbedPane)currentPane).setSelectedComponent(subTabbedPane);
                     }
                 }
             } else {
@@ -271,9 +280,13 @@ public abstract class BaseTabbedDialog extends BaseDialog {
                     }
                 }
                 if (y > 0) {
-                    tabbedPane.add(panel, catName);
-                    if (key.equals(selectThisCat)) {
-                        tabbedPane.setSelectedComponent(panel);
+                    if (currentPane instanceof JTabbedPane) {
+                        currentPane.add(panel, catName);
+                    } else {
+                        currentPane.add(panel, BorderLayout.CENTER);
+                    }
+                    if (key.equals(selectThisCat) && currentPane instanceof JTabbedPane) {
+                        ((JTabbedPane)currentPane).setSelectedComponent(panel);
                     }
                 }
             }

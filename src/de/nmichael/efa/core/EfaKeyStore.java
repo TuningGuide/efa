@@ -113,6 +113,19 @@ public class EfaKeyStore {
         }
         return en;
     }
+
+    public int size() {
+        if (keyStore == null) {
+            lastError = "Kein Schlüsselspeicher geladen";
+            return 0;
+        }
+        try {
+            return keyStore.size();
+        } catch (Exception e) {
+            lastError = e.toString();
+            return 0;
+        }
+    }
     /*
     public boolean addPublicKey(String alias, PublicKey key) {
     if (keyStore == null) {

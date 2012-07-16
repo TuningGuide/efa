@@ -38,6 +38,12 @@ public class ItemTypeItemList extends ItemType {
     private int padYbetween = 10;
     private boolean repeatTitle = true;
     private boolean appendPositionToEachElement = false;
+    private Orientation orientation = Orientation.vertical;
+
+    public enum Orientation {
+        vertical,
+        horizontal
+    }
 
     public ItemTypeItemList(String name, Vector<IItemType[]> items, IItemFactory itemFactory,
             int type, String category, String description) {
@@ -114,6 +120,10 @@ public class ItemTypeItemList extends ItemType {
 
     public void setAppendPositionToEachElement(boolean append) {
         appendPositionToEachElement = append;
+    }
+
+    public void setItemsOrientation(Orientation orientation) {
+        this.orientation = orientation;
     }
 
     public void parseValue(String value) {
@@ -199,6 +209,7 @@ public class ItemTypeItemList extends ItemType {
             }
             
             IItemType[] myItems = items.get(i);
+            int myX = x;
             for (IItemType item : myItems) {
                 if (item.getType() != IItemType.TYPE_INTERNAL) {
                     if (appendPositionToEachElement) {
@@ -209,8 +220,19 @@ public class ItemTypeItemList extends ItemType {
                         }
                         item.setDescription(descr + " " + (i+1));
                     }
-                    myY += item.displayOnGui(dlg, panel, x, y+myY);
+                    int plusY = item.displayOnGui(dlg, panel, myX, y+myY);
+                    switch (orientation) {
+                        case vertical:
+                            myY += plusY;
+                            break;
+                        case horizontal:
+                            myX++;
+                            break;
+                    }
                 }
+            }
+            if (orientation == Orientation.horizontal) {
+                myY++; // after each list item we need to increment myY
             }
 
         }

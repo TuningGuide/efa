@@ -91,6 +91,12 @@ public class BoatDamageRecord extends DataRecord {
         return new DataKey<UUID,Integer,String>(getBoatId(),getDamage(),null);
     }
 
+    public boolean isValidAt(long validAt) {
+        return true;
+        // BOat Damages are always valid and should be shown even if the boat is invalid
+        //return getPersistence().getProject().getBoats(false).isValidAt(getBoatId(), validAt);
+    }
+
     public boolean getDeleted() {
         return getPersistence().getProject().getBoats(false).isBoatDeleted(getBoatId());
     }
@@ -108,7 +114,11 @@ public class BoatDamageRecord extends DataRecord {
             long t = (getReportDate() != null && getReportTime() != null ?
                 getReportDate().getTimestamp(getReportTime()) :
                 System.currentTimeMillis() );
-            return boats.getBoat(getBoatId(), t).getQualifiedName();
+            BoatRecord r = boats.getBoat(getBoatId(), t);
+            if (r == null) {
+                r = boats.getAnyBoatRecord(getBoatId());
+            }
+            return r.getQualifiedName();
         } catch (Exception e) {
             Logger.logdebug(e);
             return null;

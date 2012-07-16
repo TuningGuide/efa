@@ -38,9 +38,9 @@ public class WatersRecord extends DataRecord {
         Vector<Integer> t = new Vector<Integer>();
 
         f.add(ID);                                t.add(IDataAccess.DATA_UUID);
-        f.add(EFBID);                             t.add(IDataAccess.DATA_STRING);
         f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
         f.add(DETAILS);                           t.add(IDataAccess.DATA_STRING);
+        f.add(EFBID);                             t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(Waters.DATATYPE, f, t, false);
         metaData.setKey(new String[] { ID });
         metaData.addIndex(IDX_NAME);

@@ -31,6 +31,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
     public static final int ACTION_IMPORT    = -100; // negative actions will not be shown as popup actions
     public static final int ACTION_EXPORT    = -101; // negative actions will not be shown as popup actions
     public static final int ACTION_PRINTLIST = -102; // negative actions will not be shown as popup actions
+    public static final int ACTION_EDITASSISTENT = -103; // negative actions will not be shown as popup actions
 
     protected StorageObject persistence;
     protected long validAt;
@@ -86,7 +87,8 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 International.getString("Verstecken"),
                 International.getString("Importieren"),
                 International.getString("Exportieren"),
-                International.getString("Liste ausgeben")
+                International.getString("Liste ausgeben"),
+                International.getString("Bearbeitungsassistent")//@todo
             };
             actionType = new int[] {
                 ItemTypeDataRecordTable.ACTION_NEW,
@@ -95,7 +97,8 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 ACTION_HIDE,
                 ACTION_IMPORT,
                 ACTION_EXPORT,
-                ACTION_PRINTLIST
+                ACTION_PRINTLIST,
+                ACTION_EDITASSISTENT//@todo
             };
             actionImage = new String[] {
                 BaseDialog.IMAGE_ADD,
@@ -105,6 +108,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 BaseDialog.IMAGE_IMPORT,
                 BaseDialog.IMAGE_EXPORT,
                 BaseDialog.IMAGE_LIST,
+                BaseDialog.IMAGE_EDITMULTI//@todo
             };
         } else {
             actionText = new String[] {
@@ -113,7 +117,8 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
                 International.getString("Importieren"),
                 International.getString("Exportieren"),
-                International.getString("Liste ausgeben")
+                International.getString("Liste ausgeben"),
+                International.getString("Bearbeitungsassistent")//@todo
             };
             actionType = new int[] {
                 ItemTypeDataRecordTable.ACTION_NEW,
@@ -121,7 +126,8 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 ItemTypeDataRecordTable.ACTION_DELETE,
                 ACTION_IMPORT,
                 ACTION_EXPORT,
-                ACTION_PRINTLIST
+                ACTION_PRINTLIST,
+                ACTION_EDITASSISTENT//@todo
             };
             actionImage = new String[] {
                 BaseDialog.IMAGE_ADD,
@@ -130,6 +136,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 BaseDialog.IMAGE_IMPORT,
                 BaseDialog.IMAGE_EXPORT,
                 BaseDialog.IMAGE_LIST,
+                BaseDialog.IMAGE_EDITMULTI//@todo
             };
         }
     }
@@ -313,6 +320,10 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 }
                 DataPrintListDialog dlg3 = new DataPrintListDialog(this, persistence, validAt, admin, data);
                 dlg3.showDialog();
+                break;
+            case ACTION_EDITASSISTENT:
+                BatchEditDialog dlg4 = new BatchEditDialog(this, persistence, validAt, admin);
+                dlg4.showDialog();
                 break;
         }
     }

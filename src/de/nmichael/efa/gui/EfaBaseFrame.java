@@ -252,17 +252,6 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
 
     private void iniAdmin() {
-        try {
-            Credentials cred = new Credentials();
-            cred.readCredentials();
-            if (cred.getDefaultAdmin() != null) {
-                admin = Daten.admins.login(cred.getDefaultAdmin(),
-                        cred.getPassword(cred.getDefaultAdmin()));
-            }
-        } catch(Exception e) {
-            Logger.logdebug(e);
-        }
-
         if (admin == null) {
             admin = AdminLoginDialog.login(null, Daten.APPLNAME_EFA,
                     true, Daten.efaConfig.getValueLastProjectEfaBase());
@@ -275,7 +264,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 Daten.haltProgram(Daten.HALT_ADMINLOGIN);
             }
             String p = AdminLoginDialog.getLastSelectedProject();
-            Daten.efaConfig.setValueLastProjectEfaBase((p != null ? p : ""));
+            if (p != null && p.length() > 0) {
+                Daten.efaConfig.setValueLastProjectEfaBase(p);
+            }
         }
         Daten.checkRegister();
     }
@@ -2856,6 +2847,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             }
             if (item == destination) {
                 lastDestination = DestinationRecord.tryGetNameAndVariant(destination.getValueFromField().trim())[0];;
+            }
+            if (item == distance) {
+                if (isModeBoathouse()) {
+                    distance.setSelection(0, Integer.MAX_VALUE);
+                }
             }
         }
         if (id == FocusEvent.FOCUS_LOST) {

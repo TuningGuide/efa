@@ -498,6 +498,14 @@ public class DRVSignatur {
         return "drv" + nr;
     }
 
+    public static String getKeyName(byte keyNr) {
+        String nr = Byte.toString(keyNr);
+        if (nr.length() < 2) {
+            nr = "0" + nr;
+        }
+        return "drv" + nr;
+    }
+
     public String getSignaturString() {
         if (_signatur == null) {
             return _signatur;

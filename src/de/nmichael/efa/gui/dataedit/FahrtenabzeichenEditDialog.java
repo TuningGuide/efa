@@ -13,6 +13,8 @@ package de.nmichael.efa.gui.dataedit;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.*;
+import de.nmichael.efa.data.efawett.DRVSignatur;
+import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -22,14 +24,29 @@ public class FahrtenabzeichenEditDialog extends UnversionizedDataEditDialog {
 
     public FahrtenabzeichenEditDialog(Frame parent, FahrtenabzeichenRecord r, boolean newRecord, AdminRecord admin) {
         super(parent, International.onlyFor("Fahrtenabzeichen","de"), r, newRecord, admin);
+        initialize(r);
     }
 
     public FahrtenabzeichenEditDialog(JDialog parent, FahrtenabzeichenRecord r, boolean newRecord, AdminRecord admin) {
         super(parent, International.onlyFor("Fahrtenabzeichen","de"), r, newRecord, admin);
+        initialize(r);
     }
 
     public void keyAction(ActionEvent evt) {
         _keyAction(evt);
     }
+
+    private void initialize(FahrtenabzeichenRecord r) {
+        DRVSignatur sig = (r != null ? r.getDRVSignatur() : null);
+        if (sig != null) {
+            sig.checkSignature();
+            if (sig.getSignatureState() == DRVSignatur.SIG_UNKNOWN_KEY) {
+                if (((Fahrtenabzeichen)r.getPersistence()).downloadKey(sig.getKeyName())) {
+                    r.updateGuiItems();
+                }
+            }
+        }
+    }
+
 
 }

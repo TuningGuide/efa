@@ -77,11 +77,11 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
         return s.toString();
     }
 
-    public void calculateAggregation(Hashtable<Object,StatisticsData> data,
+    public int calculateAggregation(Hashtable<Object,StatisticsData> data,
             LogbookRecord r, Object key,
             PersonRecord person) {
         if (key == null) {
-            return;
+            return 0;
         }
         StatisticsData sd = data.get(key);
         if (sd == null) {
@@ -96,7 +96,7 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
             String wtext = "Das Alter des Teilnehmers '" + person.getQualifiedName() + "' konnte nicht ermittelt werden, da sein/ihr Jahrgang "
                     + "nicht in efa erfaßt ist! Fahrten dieses Teilnehmers werden ignoriert.\n";
             sr.cWarnings.put(wtext, "foo");
-            return;
+            return 0;
         }
         int alter = sr.sCompYear - jahrgang;
 
@@ -218,6 +218,7 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
             }
 
         data.put(key, sd);
+        return 1;
     }
 
 

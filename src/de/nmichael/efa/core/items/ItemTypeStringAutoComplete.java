@@ -89,6 +89,10 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         this.autoCompleteList = autoCompleteList;
     }
 
+    public AutoCompleteList getAutoCompleteData() {
+        return this.autoCompleteList;
+    }
+
     public void setChecks(boolean checkSpelling, boolean checkPermutations) {
         this.isCheckSpelling = checkSpelling;
         this.isCheckPermutations = checkPermutations;

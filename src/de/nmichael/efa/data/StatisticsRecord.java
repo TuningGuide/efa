@@ -698,19 +698,34 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     }
 
     public String[] getStatisticCategories(int valuesOrDisplay) {
+        if (Daten.NEW_FEATURES) {
+            if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
+                return new String[]{
+                            SCAT_LIST,
+                            SCAT_LOGBOOK,
+                            SCAT_COMPETITION,
+                            SCAT_CLUBWORK
+                        };
+            } else {
+                return new String[]{
+                            International.getString("Kilometerliste"),
+                            International.getString("Fahrtenbuch"),
+                            International.getString("Wettbewerb"),
+                            International.getString("Vereinsarbeit")
+                        };
+            }
+        }
         if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
             return new String[] {
                 SCAT_LIST,
                 SCAT_LOGBOOK,
                 SCAT_COMPETITION
-                // @clubwork SCAT_CLUBWORK
             };
         } else {
             return new String[] {
                 International.getString("Kilometerliste"),
                 International.getString("Fahrtenbuch"),
                 International.getString("Wettbewerb")
-                // @clubwork International.getString("Vereinsarbeit")
             };
         }
     }
@@ -1609,7 +1624,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 strings.add(International.onlyFor("Zielgebiete", "de"));
             }
             strings.add(International.getString("Kilometer"));
-            strings.add(International.getString("Mehrtagesfahrt"));
+            strings.add(International.getString("Wanderfahrten"));
             strings.add(International.getString("Fahrtart"));
             strings.add(International.getString("Bemerkungen"));
         }
@@ -1635,13 +1650,15 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         allKeys.put(AGGR_AVGDISTANCE, DataTypeDistance.getDefaultUnitAbbrevation(true) + "/" + International.getString("Fahrt"));
         allKeys.put(AGGR_WANDERFAHRTEN, International.onlyFor("Wanderfahrten", "de"));
         allKeys.put(AGGR_ZIELFAHRTEN, International.onlyFor("Zielfahrten", "de"));
-        // @clubwork allKeys.put(AGGR_CLUBWORK, International.getString("Vereinsarbeit"));
-        // @clubwork allKeys.put(AGGR_CBRELTOTARGET, International.getString("Vereinsarbeit") +
-        // @clubwork         " (" + International.getxString("relativ zum Soll") + ")");
-        // @clubwork allKeys.put(AGGR_CBOVERUNDERCARRYOVER, International.getString("Vereinsarbeit") +
-        // @clubwork         " (" + International.getxString("über/unter Jahresübertrag") + ")");
-        // @clubwork allKeys.put(AGGR_CLUBWORKCREDIT, International.getString("Vereinsarbeit") +
-        // @clubwork         " (" + International.getxString("nur Gutschriften") + ")");
+        if (Daten.NEW_FEATURES) {
+            allKeys.put(AGGR_CLUBWORK, International.getString("Vereinsarbeit"));
+            allKeys.put(AGGR_CBRELTOTARGET, International.getString("Vereinsarbeit") +
+                     " (" + International.getString("relativ zum Soll") + ")");
+            allKeys.put(AGGR_CBOVERUNDERCARRYOVER, International.getString("Vereinsarbeit") +
+                     " (" + International.getString("über/unter Jahresübertrag") + ")");
+            allKeys.put(AGGR_CLUBWORKCREDIT, International.getString("Vereinsarbeit") +
+                     " (" + International.getString("nur Gutschriften") + ")");
+        }
 
         Vector<String> selectedKeys = new Vector<String>();
         selectedKeys.add(AGGR_DISTANCE);
@@ -1653,10 +1670,12 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         if (Daten.efaConfig.getValueUseFunctionalityRowingBerlin()) {
             selectedKeys.add(AGGR_ZIELFAHRTEN);
         }
-        // @clubwork selectedKeys.add(AGGR_CLUBWORK);
-        // @clubwork selectedKeys.add(AGGR_CBRELTOTARGET);
-        // @clubwork selectedKeys.add(AGGR_CBOVERUNDERCARRYOVER);
-        // @clubwork selectedKeys.add(AGGR_CLUBWORKCREDIT);
+        if (Daten.NEW_FEATURES) {
+            selectedKeys.add(AGGR_CLUBWORK);
+            selectedKeys.add(AGGR_CBRELTOTARGET);
+            selectedKeys.add(AGGR_CBOVERUNDERCARRYOVER);
+            selectedKeys.add(AGGR_CLUBWORKCREDIT);
+        }
         
         String[] result = new String[selectedKeys.size()];
         for (int i=0; i<result.length; i++) {
@@ -2699,7 +2718,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 pTableColumns.add(International.onlyFor("Zielfahrten", "de"));
             }
             if (sIsAggrWanderfahrten) {
-                pTableColumns.add(International.getString("Mehrtagesfahrt"));
+                pTableColumns.add(International.getString("Wanderfahrten"));
             }
         }
         if (sStatisticCategory == StatisticCategory.logbook) {
@@ -2770,18 +2789,20 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             if (sIsFieldsStatus) {
                 pTableColumns.add(International.getString("Status"));
             }
-            // @clubwork if (sIsAggrClubwork) {
-            // @clubwork     pTableColumns.add(International.getString("Vereinsarbeit"));
-            // @clubwork }
-            // @clubwork if (sIsAggrClubworkRelativeToTarget) {
-            // @clubwork     pTableColumns.add(International.getxString("relativ zum Soll"));
-            // @clubwork }
-            // @clubwork if (sIsAggrClubworkOverUnderCarryOver) {
-            // @clubwork     pTableColumns.add(International.getxString("über/unter Soll"));
-            // @clubwork }
-            // @clubwork if (sIsAggrClubworkCredit) {
-            // @clubwork     pTableColumns.add(International.getxString("Gutschriften"));
-            // @clubwork }
+            if (Daten.NEW_FEATURES) {
+                if (sIsAggrClubwork) {
+                    pTableColumns.add(International.getString("Vereinsarbeit"));
+                }
+                if (sIsAggrClubworkRelativeToTarget) {
+                    pTableColumns.add(International.getString("relativ zum Soll"));
+                }
+                if (sIsAggrClubworkOverUnderCarryOver) {
+                    pTableColumns.add(International.getString("über/unter Soll"));
+                }
+                if (sIsAggrClubworkCredit) {
+                    pTableColumns.add(International.getString("Gutschriften"));
+                }
+            }
         }
     }
 

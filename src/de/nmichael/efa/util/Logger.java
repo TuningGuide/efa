@@ -368,6 +368,10 @@ public class Logger {
     public static final String MSG_BACKUP_RESTOREFAILED = "BCK015";
     public static final String MSG_BACKUP_RESTOREDEBUG = "BCK016";
 
+    // Statistics
+    public static final String MSG_STAT_CALCULATEDENTRIES = "STA001";
+    public static final String MSG_STAT_IGNOREDENTRIES = "STA002";
+
     // Debug Logging
     public static final String MSG_DEBUG_GENERIC = "DBG001";
     public static final String MSG_DEBUG_EFAWETT = "DBG002";

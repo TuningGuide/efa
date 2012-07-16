@@ -120,7 +120,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
             this.actionText = DEFAULT_ACTIONS;
             this.actionTypes = new int[] { ACTION_NEW, ACTION_EDIT, ACTION_DELETE };
             this.actionIcons = new String[] {
-                "button_new.png", "button_edit.png", "button_delete.png"
+                "button_add.png", "button_edit.png", "button_delete.png"
             };
         } else {
             int popupActionCnt = 0;

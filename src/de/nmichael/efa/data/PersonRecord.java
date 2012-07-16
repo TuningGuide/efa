@@ -77,7 +77,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         Vector<Integer> t = new Vector<Integer>();
 
         f.add(ID);                                t.add(IDataAccess.DATA_UUID);
-        f.add(EFBID);                             t.add(IDataAccess.DATA_STRING);
         f.add(FIRSTNAME);                         t.add(IDataAccess.DATA_STRING);
         f.add(LASTNAME);                          t.add(IDataAccess.DATA_STRING);
         f.add(FIRSTLASTNAME);                     t.add(IDataAccess.DATA_VIRTUAL);
@@ -105,6 +104,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         f.add(FREEUSE2);                          t.add(IDataAccess.DATA_STRING);
         f.add(FREEUSE3);                          t.add(IDataAccess.DATA_STRING);
         f.add(YEARLYCLUBWORKCREDIT);              t.add(IDataAccess.DATA_DOUBLE);
+        f.add(EFBID);                             t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(Persons.DATATYPE, f, t, true);
         metaData.setKey(new String[] { ID }); // plus VALID_FROM
         metaData.addIndex(IDX_NAME_NAMEAFFIX);
@@ -624,8 +624,10 @@ public class PersonRecord extends DataRecord implements IItemFactory {
                     boats, getValidFrom(), getInvalidFrom() - 1,
                     International.getString("Standard-Boot")));
             item.setFieldSize(300, -1);
-            // @clubwork v.add(item = new ItemTypeDouble(PersonRecord.YEARLYCLUBWORKCREDIT, getYearlyClubworkCredit(), ItemTypeDouble.MIN, ItemTypeDouble.MAX,
-            // @clubwork         IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getxString("jährliche Gutschrift für Vereinsarbeit")));
+            if (Daten.NEW_FEATURES) {
+                v.add(item = new ItemTypeDouble(PersonRecord.YEARLYCLUBWORKCREDIT, getYearlyClubworkCredit(), 0, ItemTypeDouble.MAX,
+                      IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("jährliche Gutschrift für Vereinsarbeit")));
+            }
             v.add(item = new ItemTypeString(PersonRecord.EXTERNALID, getExternalId(),
                     IItemType.TYPE_EXPERT, CAT_MOREDATA, International.getString("Externe ID")));
             if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {

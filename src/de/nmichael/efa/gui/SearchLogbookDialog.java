@@ -140,7 +140,7 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
             searchLogbookDialog = new SearchLogbookDialog(parent);
         }
         initialize(parent, logbook, iterator);
-        if (CAT_NORMAL.equals(searchLogbookDialog.getSelectedPanel(searchLogbookDialog.tabbedPane))) {
+        if (CAT_NORMAL.equals(searchLogbookDialog.getSelectedPanel((JTabbedPane)searchLogbookDialog.topLevelPane))) {
             searchLogbookDialog.setRequestFocus(searchLogbookDialog.sSearchText);
         }
         if (searchString != null) {
@@ -178,10 +178,10 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
     }
 
     public void closeButton_actionPerformed(ActionEvent e) {
-        if (getSelectedPanel(tabbedPane).equals(CAT_NORMAL)) {
+        if (getSelectedPanel((JTabbedPane)topLevelPane).equals(CAT_NORMAL)) {
             searchMode = SearchMode.normal;
         }
-        if (getSelectedPanel(tabbedPane).equals(CAT_SPECIAL)) {
+        if (getSelectedPanel((JTabbedPane)topLevelPane).equals(CAT_SPECIAL)) {
             searchMode = SearchMode.special;
         }
         getValuesFromGui();

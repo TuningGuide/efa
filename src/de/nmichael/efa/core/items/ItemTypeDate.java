@@ -26,6 +26,7 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
     private DataTypeDate referenceDate;
     private boolean allowYearOnly = false;
     private boolean allowMonthAndYearOnly = false;
+    private boolean forceDayAndMonthOnly = false;
     protected boolean showWeekday;
     protected JLabel weekdayLabel;
     protected int weekdayGridWidth = 1;
@@ -56,7 +57,7 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
     public void parseValue(String value) {
         try {
             if (value != null && value.trim().length()>0) {
-                if (allowYearOnly || allowMonthAndYearOnly) {
+                if (allowYearOnly || allowMonthAndYearOnly || forceDayAndMonthOnly) {
                     TMJ tmj = EfaUtil.string2date(value, -1, -1, -1);
                     if (tmj.tag >= 0 && tmj.monat == -1 && tmj.jahr == -1 && allowYearOnly) {
                         this.value.setDate(0, 0, tmj.tag);
@@ -64,6 +65,10 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
                     }
                     if (tmj.tag >= 0 && tmj.monat >= 0 && tmj.jahr == -1 && allowMonthAndYearOnly) {
                         this.value.setDate(0, tmj.tag, tmj.monat);
+                        return;
+                    }
+                    if (forceDayAndMonthOnly) {
+                        this.value.setDate(tmj.tag, tmj.monat, 0);
                         return;
                     }
                 }
@@ -170,6 +175,10 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
 
     public void setAllowMonthAndYearOnly(boolean allowMonthAndYearOnly) {
         this.allowMonthAndYearOnly = allowMonthAndYearOnly;
+    }
+
+    public void setForceDayAndMonthOnly(boolean forceDayAndMonthOnly) {
+        this.forceDayAndMonthOnly = forceDayAndMonthOnly;
     }
 
     public boolean isValidInput() {

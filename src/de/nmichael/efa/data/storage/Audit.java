@@ -1213,7 +1213,9 @@ public class Audit extends Thread {
                 errors += runAuditPurgeDeletedRecords(project.getGroups(false),
                         International.getString("Gruppe"));
             }
-            // @clubwork errors += runAuditClubworks();
+            if (Daten.NEW_FEATURES) {
+                errors += runAuditClubworks();
+            }
         } catch(Exception e) {
             Logger.logdebug(e);
             Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT,

@@ -138,4 +138,12 @@ public class ItemTypeStringList extends ItemTypeLabelValue {
         }
     }
 
+    public String[] getValueList() {
+        return valueList;
+    }
+
+    public String[] getDisplayList() {
+        return displayList;
+    }
+
 }

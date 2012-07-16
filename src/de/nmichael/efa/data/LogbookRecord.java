@@ -333,14 +333,22 @@ public class LogbookRecord extends DataRecord {
         setTime(STARTTIME, time);
     }
     public DataTypeTime getStartTime() {
-        return getTime(STARTTIME);
+        DataTypeTime time = getTime(STARTTIME);
+        if (time != null) {
+            time.enableSeconds(false);
+        }
+        return time;
     }
 
     public void setEndTime(DataTypeTime time) {
         setTime(ENDTIME, time);
     }
     public DataTypeTime getEndTime() {
-        return getTime(ENDTIME);
+        DataTypeTime time = getTime(ENDTIME);
+        if (time != null) {
+            time.enableSeconds(false);
+        }
+        return time;
     }
 
     public void setDestinationId(UUID id) {
@@ -875,6 +883,7 @@ public class LogbookRecord extends DataRecord {
                     set(fieldName, value);
                 }
             }
+            return (value.equals(getAsText(fieldName)));
         }
         if (fieldName.equals(SESSIONGROUPID) || fieldName.equals(EXP_SESSIONGROUP)) {
             fieldName = SESSIONGROUPID;
@@ -891,6 +900,7 @@ public class LogbookRecord extends DataRecord {
             if (s != null) {
                 set(fieldName, s);
             }
+            return (value.equals(getAsText(fieldName)));
         }
         set(fieldName, value);
         return (value.equals(getAsText(fieldName)));

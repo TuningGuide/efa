@@ -127,9 +127,15 @@ public abstract class ItemTypeLabelValue extends ItemType {
     }
 
     public void setLabelGrid(int gridWidth, int gridAnchor, int gridFill) {
-        labelGridWidth = gridWidth;
-        labelGridAnchor = gridAnchor;
-        labelGridFill = gridFill;
+        if (gridWidth != -1) {
+            labelGridWidth = gridWidth;
+        }
+        if (gridAnchor != -1) {
+            labelGridAnchor = gridAnchor;
+        }
+        if (gridFill != -1) {
+            labelGridFill = gridFill;
+        }
     }
 
     public Font getLabelFont() {

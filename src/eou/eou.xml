@@ -2,6 +2,149 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.0.3_00</VersionID>
+        <ReleaseDate>15.07.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa203.zip</DownloadUrl>
+        <DownloadSize>2915727</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Bearbeitungsassistent zum Bearbeiten ("in einem Rutsch") von Datensätzen, die bestimmten Kriterien entsprechen.</ChangeItem>
+            <ChangeItem>Bugfix: Erstellen/Reparieren des efaLive-Admin hat paßwortlose Auto-Login eines anderen Admins zerstört.</ChangeItem>
+            <ChangeItem>Change: Projekt-Konfigurationsdialog leicht restrukturiert.</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>New: Edit Assistant for bulk data editing of records that match certain criteria.</ChangeItem>
+            <ChangeItem>Bugfix: Creating/Fixing of efaLive admin damaged password-less auto login of another, previously created admin.</ChangeItem>
+            <ChangeItem>Change: Project Configuration dialog slightly restructured.</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.2_07</VersionID>
+        <ReleaseDate>14.07.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa202.zip</DownloadUrl>
+        <DownloadSize>2911849</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: efa1-Import enthält jetzt keine vordefinierten Status aus efa2 mehr, wenn diese in efa1 nicht benutzt wurden.</ChangeItem>
+            <ChangeItem>Bugfix: efa1-Import importiert jetzt auch Schlüssel der DRV-Fahrtenabzeichen zur Überprüfung der Signaturen.</ChangeItem>
+            <ChangeItem>Bugfix: Fehlende Schlüssel für DRV-Signaturen werden jetzt beim Öffnen des Dialogs zum Anzeigen eines Fahrtenabzeichens automatisch heruntergeladen.</ChangeItem>
+            <ChangeItem>Bugfix: efa1-Checksum-Überprüfung jetzt deaktiviert.</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: efa1 import does not keep predefined status from efa2 any more, if those weren't used in efa1.</ChangeItem>
+            <ChangeItem>Bugfix: efa1 Checksum check now deactivated.</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.2_06</VersionID>
+        <ReleaseDate>12.07.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa202.zip</DownloadUrl>
+        <DownloadSize>2910133</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Import von Datensätzen mit leeren Feldern aus CSV- und XML-Dateien führte teilweise zu Fehlern oder Abbruch des Imports.</ChangeItem>
+            <ChangeItem>Bugfix: Bootsreservierungen und Bootsschäden für derzeit ungültige Boote wurden nicht (korrekt) angezeigt.</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Import of records with empty fields from CSV or XML files caused errors or aborts of the import.</ChangeItem>
+            <ChangeItem>Bugfix: Boat reservations and damages of currently invalid boats were not shown properly.</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.2_05</VersionID>
+        <ReleaseDate>11.07.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa202.zip</DownloadUrl>
+        <DownloadSize>2909937</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Öffnen des zuletzt geöffneten Projekts in efa-Basis.</ChangeItem>
+            <ChangeItem>Bugfix: Import von Fahrtart und Bootstyp in Fahrtenbuch-Import fehlerhaft.</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Opening of last opened project in efa Base.</ChangeItem>
+            <ChangeItem>Bugfix: Fixed import of session type and boat type in logbook import.</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.2_04</VersionID>
+        <ReleaseDate>10.07.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa202.zip</DownloadUrl>
+        <DownloadSize>2909691</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Admin-Login ohne Paßwort ist jetzt bei Erstellen einer Credentials-Datei auch in efa-Bootshaus möglich.</ChangeItem>
+            <ChangeItem>Änderung: Bei Fahrteingabe ist Inhalt des Entfernungsfelds selektiert, wenn es einen Wert enthält, so daß die vorgeschlagene Entfernung ohne vorherigen Löschen überschrieben werden kann.</ChangeItem>
+            <ChangeItem>Änderung: Spaltenüberschrift in Statistik von "Mehrtagesfahrten" in "Wanderfahrten" umbenannt.</ChangeItem>
+            <ChangeItem>Bugfix: Darstellung der Uhrzeiten in Fahrtenbuch-Ansicht war sekundengenau (geändert zu hh:mm).</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>New: Admin-Login without password is now also possible for efa Boathouse, if credentials file has been created.</ChangeItem>
+            <ChangeItem>Change: Content of distance field is now selected when entering a session (if it contains a value), such that the suggested distance can simply be overwritten without first deleting the current value.</ChangeItem>
+            <ChangeItem>Bugfix: Filter criteria for persons and groups were not correctly followed for boat mileage statistics.</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.2_03</VersionID>
+        <ReleaseDate>01.07.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa202.zip</DownloadUrl>
+        <DownloadSize>2891710</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Filterkriterien für Personen und Gruppen wurden bei Bootskilometerlisten nicht korrekt berücksichtigt.</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Filter criteria for persons and groups were not correctly followed for boat mileage statistics.</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.2_02</VersionID>
+        <ReleaseDate>28.06.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa202.zip</DownloadUrl>
+        <DownloadSize>2891906</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Uhr wird wieder angezeigt.</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Clock is shown again.</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.2_01</VersionID>
+        <ReleaseDate>27.06.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa202.zip</DownloadUrl>
+        <DownloadSize>2891739</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Falsches Icon für Button in Bearbeiten-Dialog korrigiert.</ChangeItem>
+            <ChangeItem>Bugfix: Fehlerhafte Erkennung der Bootsplätze bei efa1-Import von Booten mit unbekanntem Bootstyp korrigiert.</ChangeItem>
+            <ChangeItem>Bugfix: Zählung der ausgewerteten Einträge bei Statistikberechnung korrigiert.</ChangeItem>
+            <ChangeItem>Bugfix: Erinnerung an offene Bootsschäden erfolgte fälschlicherweise stündlich statt wöchentlich.</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Wrong icon for button in edit dialog corrected.</ChangeItem>
+            <ChangeItem>Bugfix: Wrong efa1 import of boat seats for boats with unknown boat type fixed.</ChangeItem>
+            <ChangeItem>Bugfix: Counting of evaluated entries for statistics fixed.</ChangeItem>
+            <ChangeItem>Bugfix: Reminder about open boat damages was hourly instead of weekly - fixed.</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.0.2_00</VersionID>
         <ReleaseDate>26.06.2012</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa202.zip</DownloadUrl>

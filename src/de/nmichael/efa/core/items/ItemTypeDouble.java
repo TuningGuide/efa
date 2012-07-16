@@ -19,7 +19,7 @@ public class ItemTypeDouble extends ItemTypeLabelTextfield {
 
     public static double UNSET = IDataAccess.UNDEFINED_DOUBLE;
     public static double MAX = Double.MAX_VALUE;
-    public static double MIN = -Double.MAX_VALUE;
+    public static double MIN = -Double.MIN_VALUE;
     
 
     private double value;

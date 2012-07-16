@@ -34,6 +34,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     public static final String IMAGE_IMPORT    = "button_import.png";
     public static final String IMAGE_EXPORT    = "button_export.png";
     public static final String IMAGE_LIST      = "button_list.png";
+    public static final String IMAGE_EDITMULTI = "button_editmultiple.png";
     public static final String IMAGE_CALENDAR  = "button_calendar.png";
     public static final String IMAGE_DOWNLOAD  = "button_download.png";
     public static final String IMAGE_CONFIGURE = "button_configure.png";
@@ -49,6 +50,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     public static final String IMAGE_RUNIMPORT = "button_runimport.png";
     public static final String IMAGE_HELP      = "button_help.png";
     public static final String IMAGE_RUN       = "button_run.png";
+    public static final String IMAGE_PREVIEW   = "button_preview.png";
     public static final String IMAGE_STAT      = "button_stat.png";
     public static final String IMAGE_MARKREAD  = "button_markread.png";
     public static final String IMAGE_MFORWARD  = "button_mforward.png";
@@ -67,6 +69,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     protected Window _parent;
     protected String _title;
     protected String _closeButtonText;
+    protected String _closeButtonImage;
     protected boolean _prepared = false;
     protected boolean _inCancel = false;
     private boolean doWindowStackChecks = true;
@@ -95,6 +98,10 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
         this._parent = parent;
         this._title = title;
         this._closeButtonText = closeButtonText;
+    }
+
+    public void setCloseButtonImage(String imageName) {
+        this._closeButtonImage = imageName;
     }
 
     public boolean prepareDialog() {
@@ -215,6 +222,9 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
                 closeButton.setIcon(getIcon(IMAGE_ACCEPT));
             } else {
                 closeButton.setIcon(getIcon(IMAGE_CLOSE));
+            }
+            if (_closeButtonImage != null) {
+                closeButton.setIcon(getIcon(_closeButtonImage));
             }
             closeButton.setIconTextGap(10);
             closeButton.addActionListener(new java.awt.event.ActionListener() {

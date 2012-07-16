@@ -707,12 +707,19 @@ public class BrowserDialog extends BaseDialog {
         sslLabel.setVisible(url.startsWith("https"));
     }
 
+    public void closeButton_actionPerformed(ActionEvent e) {
+        setDialogResult(true);
+        super.closeButton_actionPerformed(e);
+    }
+
     public static BrowserDialog createBrowserDialog(Window parent,
             String title,
             String url,
             int width,
             int height,
-            int closingTimeout
+            int closingTimeout,
+            String closeButtonText,
+            String closeButtonIcon
             ) {
         try {
             BrowserDialog dlg = null;
@@ -740,6 +747,12 @@ public class BrowserDialog extends BaseDialog {
             if (title != null) {
                 dlg.setTitle(title);
             }
+            if (closeButtonText != null) {
+                dlg._closeButtonText = closeButtonText;
+            }
+            if (closeButtonIcon != null) {
+                dlg.setCloseButtonImage(closeButtonIcon);
+            }
             dlg.showDialog();
             return dlg;
         } catch(Exception e) {
@@ -754,7 +767,7 @@ public class BrowserDialog extends BaseDialog {
             int width,
             int height,
             int closingTimeout) {
-        BrowserDialog dlg = createBrowserDialog(parent, title, url, width, height, closingTimeout);
+        BrowserDialog dlg = createBrowserDialog(parent, title, url, width, height, closingTimeout, null, null);
         if (dlg != null) {
             return (dlg.html.getPage() != null ? dlg.html.getPage().toString() : null);
         } else {
@@ -776,6 +789,11 @@ public class BrowserDialog extends BaseDialog {
 
     public static String openInternalBrowser(Window parent, String title, String url, int closingTimeout) {
         return openInternalBrowser(parent, title, url, 0, 0, closingTimeout);
+    }
+
+    public static boolean openInternalBrowserForAction(Window parent, String title, String url, String closeButtonText, String closeButtonImage) {
+        BrowserDialog dlg = createBrowserDialog(parent, title, url, 0, 0, 0, closeButtonText, closeButtonImage);
+        return dlg.getDialogResult();
     }
 
     public static void openExternalBrowser(Window parent, String url) {

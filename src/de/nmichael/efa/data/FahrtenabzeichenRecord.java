@@ -247,6 +247,7 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
         item.setEditable(false);
         v.add(item = new ItemTypeString(FahrtenabzeichenRecord.FAHRTENHEFT, getFahrtenheft(),
                 IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("elektronisches Fahrtenheft","de")));
+        item.setFieldSize(500, -1);
         item.registerItemListener(this);
         v.add(item = new ItemTypeString(GUI_TEILNEHMERNUMMER, "",
                 IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("DRV-Teilnehmernummer", "de")));
@@ -290,9 +291,11 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
         item.setEditable(false);
         v.add(item = new ItemTypeString(GUI_SIGNATUR, "",
                 IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("DRV-Signatur", "de")));
+        item.setFieldSize(500, -1);
         item.setEditable(false);
         v.add(item = new ItemTypeString(GUI_STATUS, "",
                 IItemType.TYPE_PUBLIC, CAT_FAHRTENABZEICHEN, International.onlyFor("Status", "de")));
+        item.setFieldSize(500, -1);
         item.setEditable(false);
 
         // update values of derived GUI items
@@ -356,7 +359,7 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
         }
     }
 
-    private void updateGuiItems() {
+    public void updateGuiItems() {
         ItemTypeStringAutoComplete itemPerson = (ItemTypeStringAutoComplete)getGuiItem(PERSONID);
         itemPerson.getValueFromGui();
         PersonRecord person = getPersonRecord((UUID)itemPerson.getId(itemPerson.getValueFromField()));
@@ -395,6 +398,7 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
         updateGuiItem(GUI_STATUS, (drvSignatur != null ? drvSignatur.getSignatureStateDescription() : ""));
         if (drvSignatur != null) {
             ((ItemTypeString)getGuiItem(GUI_STATUS)).setFieldColor((drvSignatur.getSignatureState() == DRVSignatur.SIG_VALID ? Color.blue : Color.red));
+            ((ItemTypeString)getGuiItem(GUI_STATUS)).setUnchanged();
         }
         getGuiItem(GUI_STATUS).setVisible(drvSignatur != null);
     }

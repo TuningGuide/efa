@@ -26,6 +26,7 @@ public class ImportMetadata {
     public static final int TYPE_MANNSCHAFTEN = 8;
     public static final int TYPE_NACHRICHTEN = 9;
     public static final int TYPE_FAHRTENBUCH = 10;
+    public static final int TYPE_KEYSTORE = 11;
     
     public int type;
     public String typedescription;

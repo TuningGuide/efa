@@ -10,11 +10,10 @@
 
 package de.nmichael.efa.data.importefa1;
 
-import de.nmichael.efa.gui.ProgressDialog;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.efa1.Synonyme;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.*;
+import de.nmichael.efa.data.StatusRecord;
 import java.util.*;
 
 public class ImportTask extends ProgressTask {
@@ -50,6 +49,7 @@ public class ImportTask extends ProgressTask {
         Daten.project.openAllData();
         Daten.project.setPreModifyRecordCallbackEnabled(false);
         String[] keys = importData.keySet().toArray(new String[0]);
+        StatusRecord[] statusBeforeImport = Daten.project.getStatus(false).getAllStatus();
         Arrays.sort(keys);
         int totalWarnings = 0;
         int totalErrors = 0;
@@ -121,6 +121,31 @@ public class ImportTask extends ProgressTask {
                 }
             }
         }
+
+        // remove pre-defined efa2 status that are not used by efa1 imported data
+        try {
+            String[] importedStatusNames = statusKeys.keySet().toArray(new String[0]);
+            for (int j = 0; statusBeforeImport != null && j < statusBeforeImport.length; j++) {
+                if (!StatusRecord.TYPE_USER.equals(statusBeforeImport[j].getType())) {
+                    continue;
+                }
+                boolean statusUsedInImport = false;
+                for (int k = 0; importedStatusNames != null && k < importedStatusNames.length; k++) {
+                    UUID uuid = statusKeys.get(importedStatusNames);
+                    if (statusBeforeImport[j].getId().equals(uuid)) {
+                        statusUsedInImport = true;
+                        break;
+                    }
+                }
+                if (!statusUsedInImport) {
+                    Daten.project.getStatus(false).deleteStatus(statusBeforeImport[j].getId());
+                }
+            }
+        } catch(Exception estatus) {
+            logInfo("ERROR   - Could not delete unused status - " + estatus.toString() + "\n", true, true);
+            totalErrors++;
+        }
+
         try {
             Daten.project.closeAllStorageObjects();
             Daten.project.open(false);
@@ -236,6 +261,16 @@ public class ImportTask extends ProgressTask {
 
     public String getNewestLogbookName() {
         return newestLogbookName;
+    }
+
+    public ImportMetadata getKeyStoreMetadata() {
+        String[] keys = importData.keySet().toArray(new String[0]);
+        for(String key : keys) {
+            if (importData.get(key).type == ImportMetadata.TYPE_KEYSTORE) {
+                return importData.get(key);
+            }
+        }
+        return null;
     }
 
 }

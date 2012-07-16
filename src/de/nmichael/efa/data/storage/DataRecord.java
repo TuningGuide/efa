@@ -228,6 +228,29 @@ public abstract class DataRecord implements Cloneable, Comparable {
 
     public String getAsString(String fieldName) {
         Object o = get(metaData.getFieldIndex(fieldName));
+        int idx = metaData.getFieldIndex(fieldName);
+        if (idx < 0) {
+            return null;
+        }
+        if (o != null) {
+            switch (getFieldType(idx)) {
+                case IDataAccess.DATA_INTEGER:
+                    if (((Integer)o).intValue() == IDataAccess.UNDEFINED_INT) {
+                        return "";
+                    }
+                    break;
+                case IDataAccess.DATA_LONGINT:
+                    if (((Long)o).longValue() == IDataAccess.UNDEFINED_LONG) {
+                        return "";
+                    }
+                    break;
+                case IDataAccess.DATA_DOUBLE:
+                    if (((Double)o).doubleValue() == IDataAccess.UNDEFINED_DOUBLE) {
+                        return "";
+                    }
+                    break;
+        }
+        }
         return (o != null ? o.toString() : null);
     }
 
@@ -241,6 +264,42 @@ public abstract class DataRecord implements Cloneable, Comparable {
         }
         set(fieldName, value);
         return (value.equals(getAsText(fieldName)));
+    }
+
+    public String addTextItemToList(String fieldName, String value) {
+        try {
+            DataTypeList list = getList(fieldName, getPersistence().data().getFieldType(fieldName));
+            DataRecord rtmp = createDataRecord();
+            rtmp.setFromText(fieldName, value);
+            DataTypeList listtmp = rtmp.getList(fieldName, getPersistence().data().getFieldType(fieldName));
+            Object newListValue = (listtmp != null && listtmp.length() > 0 ? listtmp.get(0) : null);
+            if (newListValue != null && !list.contains(newListValue)) {
+                list.add(newListValue);
+            }
+            rtmp.set(fieldName, list);
+            return rtmp.getAsText(fieldName);
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
+    public String removeTextItemFromList(String fieldName, String value) {
+        try {
+            DataTypeList list = getList(fieldName, getPersistence().data().getFieldType(fieldName));
+            DataRecord rtmp = createDataRecord();
+            rtmp.setFromText(fieldName, value);
+            DataTypeList listtmp = rtmp.getList(fieldName, getPersistence().data().getFieldType(fieldName));
+            Object newListValue = (listtmp != null && listtmp.length() > 0 ? listtmp.get(0) : null);
+            if (newListValue != null && list.contains(newListValue)) {
+                list.remove(newListValue);
+            }
+            rtmp.set(fieldName, list);
+            return rtmp.getAsText(fieldName);
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
     }
 
     public String[] getFieldNamesForTextExport(boolean includingVirtual) {
@@ -695,23 +754,23 @@ public abstract class DataRecord implements Cloneable, Comparable {
             case IDataAccess.DATA_STRING:
                 return s;
             case IDataAccess.DATA_INTEGER:
-                return Integer.parseInt(s);
+                return (s.length() > 0 ? Integer.parseInt(s) : IDataAccess.UNDEFINED_INT);
             case IDataAccess.DATA_LONGINT:
-                return Long.parseLong(s);
+                return (s.length() > 0 ? Long.parseLong(s) : IDataAccess.UNDEFINED_LONG);
             case IDataAccess.DATA_DOUBLE:
-                return Double.parseDouble(s);
+                return (s.length() > 0 ? Double.parseDouble(s) : IDataAccess.UNDEFINED_LONG);
             case IDataAccess.DATA_DECIMAL:
                 return DataTypeDecimal.parseDecimal(s);
             case IDataAccess.DATA_DISTANCE:
                 return DataTypeDistance.parseDistance(s);
             case IDataAccess.DATA_BOOLEAN:
-                return Boolean.parseBoolean(s);
+                return (s.length() > 0 ? Boolean.parseBoolean(s) : false);
             case IDataAccess.DATA_DATE:
                 return DataTypeDate.parseDate(s);
             case IDataAccess.DATA_TIME:
                 return DataTypeTime.parseTime(s);
             case IDataAccess.DATA_UUID:
-                return UUID.fromString(s);
+                return (s.length() > 0 ? UUID.fromString(s) : null);
             case IDataAccess.DATA_INTSTRING:
                 return DataTypeIntString.parseString(s);
             case IDataAccess.DATA_PASSWORDH:
@@ -728,6 +787,13 @@ public abstract class DataRecord implements Cloneable, Comparable {
                 return "";
         }
         return null;
+    }
+
+    /**
+     * throws Exception if fields are not comparable!
+     */
+    public int compareFieldToOtherRecord(String fieldName, DataRecord otherRecord) {
+        return ((Comparable)get(fieldName)).compareTo(otherRecord.get(fieldName));
     }
 
     public StorageObject getPersistence() {

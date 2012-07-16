@@ -16,6 +16,7 @@ import de.nmichael.efa.data.storage.*;
 
 public class DataTypeList<T> {
 
+    public static final String LISTITEM_STRING_SEPARATOR = ";";
     private static final String L0VALUE = "~";
     private ArrayList<T> list = null;
 
@@ -45,13 +46,15 @@ public class DataTypeList<T> {
     }
 
     public static DataTypeList parseList(String s, int dataType) {
-        StringTokenizer tok = new StringTokenizer(s,";");
+        StringTokenizer tok = new StringTokenizer(s,LISTITEM_STRING_SEPARATOR);
         ArrayList list = null;
         switch(dataType) {
             case IDataAccess.DATA_STRING:
+            case IDataAccess.DATA_LIST_STRING: // we accept both the value's data type as well as the list's data type
                 list = new ArrayList<String>();
                 break;
             case IDataAccess.DATA_INTEGER:
+            case IDataAccess.DATA_LIST_INTEGER: // we accept both the value's data type as well as the list's data type
                 list = new ArrayList<Integer>();
                 break;
             case IDataAccess.DATA_LONGINT:
@@ -73,6 +76,7 @@ public class DataTypeList<T> {
                 list = new ArrayList<DataTypeTime>();
                 break;
             case IDataAccess.DATA_UUID:
+            case IDataAccess.DATA_LIST_UUID: // we accept both the value's data type as well as the list's data type
                 list = new ArrayList<UUID>();
                 break;
             case IDataAccess.DATA_INTSTRING:
@@ -108,7 +112,7 @@ public class DataTypeList<T> {
             StringBuilder s = new StringBuilder();
             for (T t : list) {
                 String item = getStringValue(t);
-                s.append((s.length() == 0 ? item : ";" + item));
+                s.append((s.length() == 0 ? item : LISTITEM_STRING_SEPARATOR + item));
             }
             return s.toString();
         }

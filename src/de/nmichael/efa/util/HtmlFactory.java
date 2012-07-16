@@ -11,12 +11,20 @@
 package de.nmichael.efa.util;
 
 import de.nmichael.efa.*;
-import java.util.*;
 import java.io.*;
 
 // @i18n complete
 
 public class HtmlFactory {
+
+    public static BufferedWriter createFile(String filename) {
+        try {
+            return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename,false), Daten.ENCODING_UTF));
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
 
     public static void writeHeader(BufferedWriter f, String title, boolean withH1) throws IOException {
         f.write("<html>\n");

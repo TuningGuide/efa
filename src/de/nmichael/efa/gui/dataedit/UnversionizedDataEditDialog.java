@@ -79,8 +79,13 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
         // implement in subclass if necessary
     }
 
+    protected String findSimilarRecordsOfThisName() {
+        return null; // may be overwritten by subclass
+    }
+
     protected void warnIfVersionizedRecordOfThatNameAlreadyExists() throws InvalidValueException {
         String conflict = null;
+        boolean identical = true;
         try {
             if (!dataRecord.getPersistence().data().getMetaData().isVersionized()) {
                 return;
@@ -93,13 +98,20 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
                     conflict = r.getQualifiedName() + " (" + r.getValidRangeString() + ")";
                 }
             }
+            if (conflict == null) {
+                conflict = findSimilarRecordsOfThisName();
+                identical = false;
+            }
         } catch(Exception e) {
             Logger.logdebug(e);
         }
         if (conflict != null) {
             if (allowConflicts) {
+                String warn = (identical ?
+                    International.getString("Es existiert bereits ein gleichnamiger Datensatz!") :
+                    International.getString("Es existiert bereits ein ähnlicher Datensatz!"));
                 if (Dialog.yesNoDialog(International.getString("Warnung"),
-                        International.getString("Es existiert bereits ein gleichnamiger Datensatz!") + "\n"
+                        warn + "\n"
                         + conflict + "\n"
                         + International.getString("Möchtest Du diesen Datensatz trotzdem erstellen?")) != Dialog.YES) {
                     throw new InvalidValueException(null, null);

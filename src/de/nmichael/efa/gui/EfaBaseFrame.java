@@ -571,19 +571,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         crew1defaultText = crew[0].getDescription();
 
         // Boat Captain
-        String[] _bcValues = new String[LogbookRecord.CREW_MAX + 2];
-        _bcValues[0] = "";
-        for (int i=0; i<=LogbookRecord.CREW_MAX; i++) {
-            _bcValues[i+1] = Integer.toString(i);
-        }
-        String[] _bcNames = new String[LogbookRecord.CREW_MAX + 2];
-        _bcNames[0] = International.getString("keine Angabe");
-        for (int i=0; i<=LogbookRecord.CREW_MAX; i++) {
-            _bcNames[i+1] = (i == 0 ? International.getString("Steuermann") :
-                International.getString("Nummer") + " " + Integer.toString(i));
-        }
         boatcaptain = new ItemTypeStringList(LogbookRecord.BOATCAPTAIN, "",
-                _bcValues, _bcNames,
+                LogbookRecord.getBoatCaptainValues(), LogbookRecord.getBoatCaptainDisplay(),
                 IItemType.TYPE_PUBLIC, null, International.getString("Obmann"));
         boatcaptain.setFieldSize(80, 17);
         boatcaptain.setLabelGrid(1, GridBagConstraints.EAST, GridBagConstraints.NONE);
@@ -1636,14 +1625,14 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             showDestinationInfo = infoText.length() > 0;
         }
 
-        if (!Daten.efaConfig.getValueAdditionalWatersInput()) {
+        if (!Daten.efaConfig.getValueAdditionalWatersInput() && !Daten.efaConfig.getValueEfaDirekt_gewaesserBeiUnbekanntenZielenPflicht()) {
             waters.setVisible(false);
         } else {
             String variant = LogbookRecord.getDestinationNameAndVariantFromString(destination.getValueFromField())[1];
             boolean isDestinationUnknownOrVariant = (r == null
                     || (variant != null && variant.length() > 0));
             boolean watersWasVisible = waters.isVisible();
-            showWatersInput = Daten.efaConfig.getValueAdditionalWatersInput()
+            showWatersInput = (Daten.efaConfig.getValueAdditionalWatersInput() || Daten.efaConfig.getValueEfaDirekt_gewaesserBeiUnbekanntenZielenPflicht())
                     && isDestinationUnknownOrVariant && destination.getValueFromField().length() > 0;
             if (showWatersInput) {
                 if (r == null) {

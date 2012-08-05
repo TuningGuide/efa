@@ -284,7 +284,7 @@ public class Audit extends Thread {
             k = it.getFirst();
             while (k != null) {
                 BoatStatusRecord status = (BoatStatusRecord) boatStatus.data().get(k);
-                if (!status.getUnknownBoat()) {
+                if (status != null && !status.getUnknownBoat()) {
                     DataRecord[] boat = boats.data().getValidAny(BoatRecord.getKey(status.getBoatId(), 0));
                     if (boat == null || boat.length == 0) {
                         Logger.log(Logger.ERROR, Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
@@ -317,7 +317,7 @@ public class Audit extends Thread {
                                 + International.getMessage("Bootsstatus '{status}' korrigiert nach '{status}'.",
                                     status.getStatusDescription(BoatStatusRecord.STATUS_ONTHEWATER),
                                     status.getStatusDescription(status.getBaseStatus()))
-                                + "(Logbook or EntryNo not set)");
+                                + " (Logbook or EntryNo not set)");
                         warnings++;
                     }
                     if (!logbookName.equals(project.getCurrentLogbookEfaBoathouse())) {
@@ -342,7 +342,7 @@ public class Audit extends Thread {
                                     + International.getMessage("Bootsstatus '{status}' korrigiert nach '{status}'.",
                                     status.getStatusDescription(BoatStatusRecord.STATUS_ONTHEWATER),
                                     status.getStatusDescription(status.getBaseStatus()))
-                                    + "(Logbook '" + logbookName + "' does not exist)");
+                                    + " (Logbook '" + logbookName + "' does not exist)");
                             warnings++;
                         } else {
                             LogbookRecord lr = logbook.getLogbookRecord(entryNo);
@@ -357,11 +357,14 @@ public class Audit extends Thread {
                                         + International.getMessage("Bootsstatus '{status}' korrigiert nach '{status}'.",
                                         status.getStatusDescription(BoatStatusRecord.STATUS_ONTHEWATER),
                                         status.getStatusDescription(status.getBaseStatus()))
-                                        + "(Entry #" + entryNo.toString() + " in Logbook '" + logbookName + "' does not exist)");
+                                        + " (Entry #" + entryNo.toString() + " in Logbook '" + logbookName + "' does not exist)");
                                 warnings++;
                             }
                         }
                     }
+                }
+                if (updated) {
+                    boatStatus.data().update(status);
                 }
 
                 k = it.getNext();
@@ -866,7 +869,7 @@ public class Audit extends Thread {
                 boolean updated = false;
 
                 // Dates
-                if (r.getDate() == null && !r.getDate().isSet()) {
+                if (r.getDate() == null || !r.getDate().isSet()) {
                     Logger.log(Logger.ERROR, Logger.MSG_DATA_AUDIT_LOGBOOKERROR,
                             "runAuditLogbook(): "
                             + International.getString("Fahrtenbuch") + " " + logbookName + " "

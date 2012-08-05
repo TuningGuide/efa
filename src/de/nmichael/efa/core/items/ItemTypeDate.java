@@ -57,6 +57,8 @@ public class ItemTypeDate extends ItemTypeLabelTextfield {
     public void parseValue(String value) {
         try {
             if (value != null && value.trim().length()>0) {
+                value = EfaUtil.replaceString(value, "-", " ");
+                value = EfaUtil.replaceString(value, "+", " ");
                 if (allowYearOnly || allowMonthAndYearOnly || forceDayAndMonthOnly) {
                     TMJ tmj = EfaUtil.string2date(value, -1, -1, -1);
                     if (tmj.tag >= 0 && tmj.monat == -1 && tmj.jahr == -1 && allowYearOnly) {

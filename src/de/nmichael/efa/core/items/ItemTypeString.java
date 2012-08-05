@@ -25,7 +25,10 @@ public class ItemTypeString extends ItemTypeLabelTextfield {
     protected String allowedCharacters;
     protected String notAllowedCharacters;
     protected String replacementCharacter;
+    protected String charactersToSearch;
+    protected String charactersToReplace;
     protected Pattern pattern;
+    protected boolean toLowerCase = false;
     protected boolean toUpperCase = false;
     protected int minChar = 0;
 
@@ -46,8 +49,22 @@ public class ItemTypeString extends ItemTypeLabelTextfield {
         if (value != null) {
             value = value.trim();
         }
+        if (toLowerCase && value != null) {
+            value = value.toLowerCase();
+        }
         if (toUpperCase && value != null) {
             value = value.toUpperCase();
+        }
+        if (charactersToSearch != null && charactersToReplace != null &&
+            charactersToSearch.length() == charactersToReplace.length() &&
+            value != null) {
+            for (int i=0; i<value.length(); i++) {
+                int pos = charactersToSearch.indexOf(value.charAt(i));
+                if (pos >= 0) {
+                    value = value.substring(0, i) + charactersToReplace.charAt(pos) +
+                            value.substring(i+1);
+                }
+            }
         }
         if ((allowedCharacters != null || notAllowedCharacters != null) && value != null) {
             int i = 0;
@@ -104,12 +121,26 @@ public class ItemTypeString extends ItemTypeLabelTextfield {
         this.replacementCharacter = Character.toString(replacementCharacter);
     }
 
+    public void setAutoReplaceCharacters(String charactersToSearch, String charactersToReplace) {
+        this.charactersToSearch = charactersToSearch;
+        this.charactersToReplace = charactersToReplace;
+
+    }
+
     public void setAllowedRegex(String regex) {
         if (regex != null) {
             pattern = Pattern.compile("(" + regex + ")");
         } else {
             pattern = null;
         }
+    }
+
+    public void setToLowerCase(boolean toLowerCase) {
+        this.toLowerCase = toLowerCase;
+    }
+
+    public boolean isToLowerCase() {
+        return toLowerCase;
     }
 
     public void setToUpperCase(boolean toUpperCase) {

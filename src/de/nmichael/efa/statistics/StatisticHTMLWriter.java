@@ -67,6 +67,15 @@ public class StatisticHTMLWriter extends StatisticWriter {
                 f.write("<head>\n");
                 f.write("<meta http-equiv=\"content-type\" content=\"text/html; charset=" + Daten.ENCODING_UTF + "\">\n");
                 f.write("<title>" + sr.pStatTitle + "</title>\n");
+
+                // Styles for Output
+                f.write("<style type=\"text/css\">\n");
+                f.write("<!--\n");
+                f.write(".line1 {background-color: #eeeeff;}\n");
+                f.write(".line2 {background-color: #ccccff;}\n");
+                f.write("-->\n");
+                f.write("</style>\n");
+                
                 f.write("</head>\n");
                 f.write("<body>\n");
                 f.write("<h1 align=\"center\">" + sr.pStatTitle + "</h1>\n");
@@ -76,7 +85,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
             f.write("<!--EFA-START-->\n");
 
             f.write("<table align=\"center\" border>\n");
-            f.write("<tr>");
+            // f.write("<tr>");
             // Ausgabe des efa-Logos
             int rowspan = 5;
             /*
@@ -90,10 +99,10 @@ public class StatisticHTMLWriter extends StatisticWriter {
             //f.write("<td rowspan=\"" + rowspan + "\" width=\"180\" align=\"center\"><a href=\"" + Daten.EFAURL + "\">"+
             //        "<img src=\"" + saveImage("efa_logo.png", "png", sr.sOutputDir) + "\" width=\"128\" height=\"87\" align=\"center\" alt=\"efa\" border=\"0\"></a></td>\n");
 
-            f.write("<td>"
+            f.write("<tr><td>"
                     + EfaUtil.replace(International.getString("Auswertung erstellt am"), " ", "&nbsp;", true)
                     + ":</td><td><b>" + sr.pStatCreationDate + "</b></td></tr>\n");
-            f.write("<td>"
+            f.write("<tr><td>"
                     + EfaUtil.replace(International.getString("Auswertung erstellt von"), " ", "&nbsp;", true)
                     + ":</td><td><b><a href=\"" + sr.pStatCreatedByUrl + "\">" + sr.pStatCreatedByName + "</a></b></td></tr>\n");
             f.write("<tr><td>"
@@ -248,7 +257,8 @@ public class StatisticHTMLWriter extends StatisticWriter {
                         continue;
                     }
                     if (!sd[i].isSummary) {
-                        f.write("<tr bgcolor=\"" + (sd[i].absPosition % 2 == 0 ? "#eeeeff" : "#ccccff") + "\">");
+                        //f.write("<tr bgcolor=\"" + (sd[i].absPosition % 2 == 0 ? "#eeeeff" : "#ccccff") + "\">");
+                        f.write("<tr class=\"" + (sd[i].absPosition % 2 == 0 ? "line1" : "line2") + "\">");
                     } else {
                         f.write("<tr>");
                     }

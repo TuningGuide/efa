@@ -1,5 +1,13 @@
 Item
 ============================================================================================================
+
+BUG: NPE bei Erstellen einer neuen Version einer Person
+Rudergruppen farbig in efa markieren
+Unterstützung von Ziellisten für mehrere Bootshäuser
+Backup in efa?
+
+Zugriff auf alle Daten im CLI
+Import/Export von Daten im CLI
 PDF Output
 efaWett-Daten aktualisieren
 Farbig markierte Boote nach Gruppen
@@ -9,6 +17,7 @@ Datenabgleich zwischen Bootshäusern implementieren, bei dem efa einen Export/Im
   Nachrichten, ... synchronisiert.
 Paßwort für Statistiken
 Funktion, um zwei Records mit unterschiedlichen ID's zusammenzuführen
+Bei Mehrtagesfahrtem mit Enddatum hinter den Uhrzeitfeldern den Tag anzeigen, auf den sich Start und Endzeit beziehen
 
 Schreiben ins Spiegelverzeichnis mit Timeout bei Netzlaufwerk
 Buttons mit Symbolen ausstatten
@@ -22,6 +31,7 @@ DataLayer: DB Access
 Help System
 AutoComplete: match anything within input/change list content
 Ausgabe Steuerkilometer (mit Balken)
+Spalte mit Kilometerwettbewerben in normalen Kilometerlisten
 Zusätzliche Import-Option: alle *nicht* importierten (versionierten) Daten als ungültig markieren
   (Use Case: Importieren einer neuen (vollständigen) Mitgliederliste; alles was nicht importiert wurde, ist ungültig)
   Dabei sollten allerdings Gäste und andere nicht gelöscht werden!

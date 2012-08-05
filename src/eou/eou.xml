@@ -2,6 +2,97 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.0.3_04</VersionID>
+        <ReleaseDate>05.08.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa203.zip</DownloadUrl>
+        <DownloadSize>2915144</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Beim Anlegen einer neuen Person warnt efa, falls bereits eine "ähnliche Person" (mit gleichem Namen, aber ggf. anderem Namenszusatz) existiert.</ChangeItem>
+            <ChangeItem>Bugfix: Import von Fahrten ohne LfdNr im Modus "Datensätze hinzufügen oder aktualisieren" jetzt möglich.</ChangeItem>
+            <ChangeItem>Bugfix: Bei Eingabe von Admin-Namen werden jetzt Großbuchstaben automatisch in Kleinbuchstaben umgewandelt und nicht einfach nur abgeschnitten.</ChangeItem>
+            <ChangeItem>Neu: Eingabe von Zielbereichen ist toleranter bei Trennzeichen.</ChangeItem>
+            <ChangeItem>Bugfix: Doppelte Anzeige von Steuermann in Statuszeile behoben.</ChangeItem>
+            <ChangeItem>Bugfix: Fehler bei Datumseingabe mit Zurückblättern über "-" behoben.</ChangeItem>
+            <ChangeItem>Bugfix: Gewässer-Eingabefeld wird jetzt auch angezeigt, wenn Option "Gewässer muß bei unbekannten Zielen angegeben werden" gesetzt ist, aber nicht "Eingabe von Gewässern für unbekannte Ziele und Abstecher".</ChangeItem>
+            <ChangeItem>Bugfix: Unbekannte Gewässer in Fahrtenbucheinträgen wurden nicht angezeigt.</ChangeItem>
+            <ChangeItem>Bugfix: Audit hat fehlerhaften Bootsstatus nicht richtig korrigiert.</ChangeItem>
+            <ChangeItem>Bugfix: Erinnerungen an offene Bootsschäden kommt jetzt einmal pro Woche.</ChangeItem>
+            <ChangeItem>Bugfix: Fehlerhafte Statistikerstellung beim gleichzeitigen Aufruf mehrerer Statistiken behoben.</ChangeItem>
+            <ChangeItem>Bugfix: Fehlendes HTML-Tag in HTML-Statistik ergänzt.</ChangeItem>
+            <ChangeItem>Neu: Zeilenformatierungen für HTML-Statistiken sind jetzt in CSS-Styles ausgelagert, können geändert werden und werden beim Ersetzen der Tabelle im HTML-Dokument beibehalten.</ChangeItem>
+            <ChangeItem>Bugfix: Mitgliederstatus wird beim Import aus efa1 nach efa2 nicht korrekt importiert.</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>New: When creating a new person efa now warns in case a "similar person" (with same name, but eventually different name add-on) exists.</ChangeItem>
+            <ChangeItem>Bugfix: Import of sessions without EntryNo in mode "Add or update records" now possible.</ChangeItem>
+            <ChangeItem>Bugfix: When entering admin names, now capital letters are automatically replaced by lowercase letters and not just cut off.</ChangeItem>
+            <ChangeItem>Bugfix: Status line showing cox twice fixed.</ChangeItem>
+            <ChangeItem>Bugfix: Error for entering dates when changing data backwards through "-" fixed.</ChangeItem>
+            <ChangeItem>Bugfix: Unknown waters in logbook records were not displayed properly.</ChangeItem>
+            <ChangeItem>Bugfix: Audit didn't fix incorrect boat status entries properly.</ChangeItem>
+            <ChangeItem>Bugfix: Reminder for open boat damages is now being generated once per week.</ChangeItem>
+            <ChangeItem>Bugfix: Wrong statistics calculation fixed when launching multiple statistics simulataneously.</ChangeItem>
+            <ChangeItem>Bugfix: Missing HTML-Tag in HTML statistics added.</ChangeItem>
+            <ChangeItem>New: Row formatting for HTML statistics are now done using CSS styles, which can be re-defined and will not be overwritten when only table is replaced in existing HTML document.</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.3_03</VersionID>
+        <ReleaseDate>23.07.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa203.zip</DownloadUrl>
+        <DownloadSize>2913466</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Bearbeitungsassistent filtert jetzt auch nach allen Mannschaftsnamen (Fahrtenbuch) bzw. Vor- und Nachname gemeinsam (Personen).</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>New: Data Bulk Edit Assistant now also filters for all crew names (logbook) and for first and last names combined (persons).</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.3_02</VersionID>
+        <ReleaseDate>17.07.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa203.zip</DownloadUrl>
+        <DownloadSize>2913241</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Beim Datenimport/-export und im Bearbeitungsassistenten werden jetzt auch für das Fahrtenbuch Klartextnamen für die einzelnen Felder angezeigt.</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException im Audit behoben.</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException im Bearbeitungsassistenten bei der Bearbeitung unversionierter Daten behoben.</ChangeItem>
+            <ChangeItem>Änderung: Bearbeitungsassistent zeigt jetzt auch Datensätze an, deren Kriterien zwar passen, bei denen aber alter und neuer Wert der zu ändernden Felder identisch sind.</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>New: Data Import/Export and Bulk Edit Assistant now also show plain text field names for logbook fields.</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException in Audit fixed.</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException in Bulk Edit Assistant when editing of unversionized data fixed.</ChangeItem>
+            <ChangeItem>Change: Bulk Edit Assistant now also shows records which match the search criteria, but will not be changed as old and new field values are identical.</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.3_01</VersionID>
+        <ReleaseDate>16.07.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa203.zip</DownloadUrl>
+        <DownloadSize>2911825</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Neue Admin-Berechtigung zum Steuern, welche Admins den Datenimport und Bearbeitungsassistenten verwenden dürfen.</ChangeItem>
+            <ChangeItem>Bugfix: Fehler bei Eingabe von Paßwörtern mit weniger als 8 Zeichen behoben.</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>New: New admin permission to control which admins may use data import and bulk edit assistant.</ChangeItem>
+            <ChangeItem>Bugfix: Bug when entering passwords with less than 8 characters fixed.</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.0.3_00</VersionID>
         <ReleaseDate>15.07.2012</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa203.zip</DownloadUrl>
@@ -10,7 +101,7 @@
         <Changes lang="de">
             <ChangeItem>Neu: Bearbeitungsassistent zum Bearbeiten ("in einem Rutsch") von Datensätzen, die bestimmten Kriterien entsprechen.</ChangeItem>
             <ChangeItem>Bugfix: Erstellen/Reparieren des efaLive-Admin hat paßwortlose Auto-Login eines anderen Admins zerstört.</ChangeItem>
-            <ChangeItem>Change: Projekt-Konfigurationsdialog leicht restrukturiert.</ChangeItem>
+            <ChangeItem>Änderung: Projekt-Konfigurationsdialog leicht restrukturiert.</ChangeItem>
         </Changes>
 
         <Changes lang="en">

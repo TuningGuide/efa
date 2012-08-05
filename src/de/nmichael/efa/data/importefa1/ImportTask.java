@@ -131,7 +131,7 @@ public class ImportTask extends ProgressTask {
                 }
                 boolean statusUsedInImport = false;
                 for (int k = 0; importedStatusNames != null && k < importedStatusNames.length; k++) {
-                    UUID uuid = statusKeys.get(importedStatusNames);
+                    UUID uuid = statusKeys.get(importedStatusNames[k]);
                     if (statusBeforeImport[j].getId().equals(uuid)) {
                         statusUsedInImport = true;
                         break;

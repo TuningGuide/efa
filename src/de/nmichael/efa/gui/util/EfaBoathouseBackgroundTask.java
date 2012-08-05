@@ -479,49 +479,48 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
         long now = System.currentTimeMillis();
         long last = (Daten.efaConfig != null ? Daten.efaConfig.getValueLastBoatDamageReminder() : -1);
-        if (last == -1 || now-BOAT_DAMAGE_REMINDER_INTERVAL > last) {
-            return;
-        }
-        boolean damagesOlderThanAWeek = false;
-        Vector<DataKey> openDamages = new Vector<DataKey>();
-        try {
-            DataKeyIterator it = boatDamages.data().getStaticIterator();
-            for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
-                BoatDamageRecord damage = (BoatDamageRecord) boatDamages.data().get(k);
-                if (boatDamages == null) {
-                    continue;
-                }
-                if (!damage.getFixed()) {
-                    openDamages.add(k);
-                    if (damage.getReportDate() != null && damage.getReportTime() != null &&
-                        damage.getReportDate().isSet() && damage.getReportTime().isSet() &&
-                        damage.getReportDate().getTimestamp(damage.getReportTime()) < now - BOAT_DAMAGE_REMINDER_INTERVAL) {
-                        damagesOlderThanAWeek = true;
-                    }
-                }
-
-            }
-
-            if (damagesOlderThanAWeek) {
-                StringBuilder s = new StringBuilder();
-                s.append(International.getMessage("Es liegen {count} offene Bootsschäden vor:",
-                        openDamages.size())  + "\n\n");
-                for (DataKey k : openDamages) {
+        if (last == -1 || now - BOAT_DAMAGE_REMINDER_INTERVAL > last) {
+            boolean damagesOlderThanAWeek = false;
+            Vector<DataKey> openDamages = new Vector<DataKey>();
+            try {
+                DataKeyIterator it = boatDamages.data().getStaticIterator();
+                for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
                     BoatDamageRecord damage = (BoatDamageRecord) boatDamages.data().get(k);
                     if (boatDamages == null) {
                         continue;
                     }
-                    s.append(damage.getCompleteDamageInfo() + "\n");
+                    if (!damage.getFixed()) {
+                        openDamages.add(k);
+                        if (damage.getReportDate() != null && damage.getReportTime() != null
+                                && damage.getReportDate().isSet() && damage.getReportTime().isSet()
+                                && damage.getReportDate().getTimestamp(damage.getReportTime()) < now - BOAT_DAMAGE_REMINDER_INTERVAL) {
+                            damagesOlderThanAWeek = true;
+                        }
+                    }
+
                 }
-                s.append(International.getString("Sollten die Schäden bereits behoben sein, so markiere sie bitte "+
-                                                "in efa als behoben."));
-                messages.createAndSaveMessageRecord(MessageRecord.TO_BOATMAINTENANCE,
-                        International.getString("Offene Bootsschäden"),
-                        s.toString());
-                Daten.efaConfig.setValueLastBoatDamageReminder(now);
+
+                if (damagesOlderThanAWeek) {
+                    StringBuilder s = new StringBuilder();
+                    s.append(International.getMessage("Es liegen {count} offene Bootsschäden vor:",
+                            openDamages.size()) + "\n\n");
+                    for (DataKey k : openDamages) {
+                        BoatDamageRecord damage = (BoatDamageRecord) boatDamages.data().get(k);
+                        if (boatDamages == null) {
+                            continue;
+                        }
+                        s.append(damage.getCompleteDamageInfo() + "\n");
+                    }
+                    s.append(International.getString("Sollten die Schäden bereits behoben sein, so markiere sie bitte "
+                            + "in efa als behoben."));
+                    messages.createAndSaveMessageRecord(MessageRecord.TO_BOATMAINTENANCE,
+                            International.getString("Offene Bootsschäden"),
+                            s.toString());
+                    Daten.efaConfig.setValueLastBoatDamageReminder(now);
+                }
+            } catch (Exception e) {
+                Logger.logdebug(e);
             }
-        } catch(Exception e) {
-            Logger.logdebug(e);
         }
     }
 

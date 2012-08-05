@@ -62,7 +62,7 @@ public class EnterPasswordDialog extends BaseDialog {
 
         password = new ItemTypePassword("PASSWORD", "", IItemType.TYPE_PUBLIC, "",
                 International.getStringWithMnemonic("Paßwort"));
-        password.setMinCharacters(MIN_PASSWORD_LENGTH);
+        password.setMinCharacters( (newPassword ? MIN_PASSWORD_LENGTH : 1) );
         password.setNotAllowedCharacters(" ");
         password.setFieldSize(120, -1);
         password.displayOnGui(this, mainPanel, 0, 1);

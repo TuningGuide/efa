@@ -58,6 +58,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
     public static final String MSGAUTOREADADMIN      = "MsgAutoMarkReadAdmin";
     public static final String MSGAUTOREADBOATMAINT  = "MsgAutoMarkReadBoatMaintenance";
     public static final String EDITSTATISTICS        = "EditStatistics";
+    public static final String ADVANCEDEDIT          = "AdvancedEdit";
     public static final String REMOTEACCESS          = "RemoteAccess";
     public static final String SYNCKANUEFB           = "SyncKanuEfb";
     public static final String SHOWLOGFILE           = "ShowLogfile";
@@ -99,6 +100,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
         f.add(MSGAUTOREADADMIN);                  t.add(IDataAccess.DATA_BOOLEAN);
         f.add(MSGAUTOREADBOATMAINT);              t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EDITSTATISTICS);                    t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(ADVANCEDEDIT);                      t.add(IDataAccess.DATA_BOOLEAN);
         f.add(REMOTEACCESS);                      t.add(IDataAccess.DATA_BOOLEAN);
         f.add(SYNCKANUEFB);                       t.add(IDataAccess.DATA_BOOLEAN);
         f.add(SHOWLOGFILE);                       t.add(IDataAccess.DATA_BOOLEAN);
@@ -303,6 +305,13 @@ public class AdminRecord extends DataRecord implements IItemListener {
         return getBool(EDITSTATISTICS);
     }
 
+    public void setAllowedAdvancedEdit(boolean allowed) {
+        setBool(ADVANCEDEDIT, allowed);
+    }
+    public Boolean isAllowedAdvancedEdit() {
+        return getBool(ADVANCEDEDIT);
+    }
+
     public void setAllowedRemoteAccess(boolean allowed) {
         setBool(REMOTEACCESS, allowed);
     }
@@ -397,6 +406,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
                     || !isAllowedMsgMarkReadAdmin()
                     || !isAllowedMsgMarkReadBoatMaintenance()
                     || !isAllowedEditStatistics()
+                    || !isAllowedAdvancedEdit()
                     || !isAllowedRemoteAccess()
                     || !isAllowedSyncKanuEfb()
                     || !isAllowedShowLogfile()
@@ -426,6 +436,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
                 setAllowedMsgMarkReadAdmin(true);
                 setAllowedMsgMarkReadBoatMaintenance(true);
                 setAllowedEditStatistics(true);
+                setAllowedAdvancedEdit(true);
                 setAllowedRemoteAccess(true);
                 setAllowedSyncKanuEfb(true);
                 setAllowedShowLogfile(true);
@@ -477,6 +488,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Name")));
         item.setEnabled(getName() == null || getName().length() == 0);
         ((ItemTypeString)item).setNotNull(true);
+        ((ItemTypeString)item).setToLowerCase(true);
         ((ItemTypeString)item).setAllowedCharacters("abcdefghijklmnopqrstuvwxyz1234567890");
         if (getPassword() != null && getPassword().isSet()) {
             v.add(item = new ItemTypeButton("PASSWORDBUTTON",
@@ -542,6 +554,11 @@ public class AdminRecord extends DataRecord implements IItemListener {
         }
         v.add(item = new ItemTypeBoolean(EDITDESTINATIONS, isAllowedEditDestinations(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Ziele und Gewässer bearbeiten")));
+        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
+        v.add(item = new ItemTypeBoolean(ADVANCEDEDIT, isAllowedAdvancedEdit(),
+                IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Erweiterte Bearbeitungsfunktionen") + ": " +
+                International.getString("Import") + " && " +
+                International.getString("Bearbeitungsassistent")));
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(CONFIGURATION, isAllowedConfiguration(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("efa konfigurieren")));

@@ -158,7 +158,11 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         // nothing to do (this column in virtual)
     }
     public String getFirstLastName() {
-        return getFullName(getString(FIRSTNAME), getString(LASTNAME), null, true);
+        return getFirstLastName(true);
+    }
+    public String getFirstLastName(boolean alwaysFirstFirst) {
+        return getFullName(getString(FIRSTNAME), getString(LASTNAME), null,
+                (alwaysFirstFirst ? true : Daten.efaConfig.getValueNameFormatIsFirstNameFirst()));
     }
 
     public void setNameAffix(String affix) {
@@ -518,6 +522,9 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     }
 
     public String getAsText(String fieldName) {
+        if (fieldName.equals(FIRSTLASTNAME)) {
+            return getFirstLastName(false);
+        }
         if (fieldName.equals(GENDER)) {
             String s = getAsString(fieldName);
             if (s != null) {
@@ -676,6 +683,12 @@ public class PersonRecord extends DataRecord implements IItemFactory {
             v.add(item = new ItemTypeString(PersonRecord.FREEUSE3, getFreeUse3(),
                     IItemType.TYPE_PUBLIC, CAT_FREEUSE, International.getString("Freie Verwendung") + " 3"));
         }
+
+        // hidden parameter, just for BatchEditDialog
+        v.add(item = getGuiItemTypeStringAutoComplete(PersonRecord.FIRSTLASTNAME, null,
+                IItemType.TYPE_INTERNAL, "",
+                getPersistence(), getValidFrom(), getInvalidFrom() - 1,
+                International.getString("Name")));
         
         return v;
     }

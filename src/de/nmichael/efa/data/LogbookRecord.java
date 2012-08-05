@@ -38,6 +38,7 @@ public class LogbookRecord extends DataRecord {
     public static final String BOATVARIANT      = "BoatVariant";
     public static final String BOATNAME         = "BoatName";
 
+    public static final String ALLCREWNAMES     = "AllCrewNames";
     // each person is either represented by xxxID or xxxNAME
     public static final String COXID            = "CoxId";
     public static final String COXNAME          = "CoxName";
@@ -157,6 +158,7 @@ public class LogbookRecord extends DataRecord {
         f.add(BOATID);              t.add(IDataAccess.DATA_UUID);
         f.add(BOATVARIANT);         t.add(IDataAccess.DATA_INTEGER);
         f.add(BOATNAME);            t.add(IDataAccess.DATA_STRING);
+        f.add(ALLCREWNAMES);        t.add(IDataAccess.DATA_VIRTUAL);
         f.add(COXID);               t.add(IDataAccess.DATA_UUID);
         f.add(COXNAME);             t.add(IDataAccess.DATA_STRING);
         f.add(CREW1ID);             t.add(IDataAccess.DATA_UUID);
@@ -412,7 +414,7 @@ public class LogbookRecord extends DataRecord {
             }
             for (int i=0; wNameList != null && i<wNameList.length(); i++) {
                 String w = wNameList.get(i);
-                if (s != null && s.length() > 0) {
+                if (w != null && w.length() > 0) {
                     s.append( (s.length() > 0 ? ", " : "") + w);
                 }
             }
@@ -473,6 +475,13 @@ public class LogbookRecord extends DataRecord {
     }
     public boolean getSessionIsOpen() {
         return getBool(OPEN);
+    }
+
+    protected Object getVirtualColumn(int fieldIdx) {
+        if (getFieldName(fieldIdx).equals(ALLCREWNAMES)) {
+            return getAllCoxAndCrewAsNameString();
+        }
+        return null;
     }
 
     public BoatRecord getBoatRecord(long validAt) {
@@ -590,9 +599,6 @@ public class LogbookRecord extends DataRecord {
     public Vector<String> getAllCoxAndCrewAsNames(long validAt) {
         Vector<String> v = new Vector<String>();
         String s;
-        if ( (s = getCoxAsName(validAt)).length() > 0) {
-            v.add(s);
-        }
         for (int i=0; i<CREW_MAX; i++) {
             if ( (s = getPersonAsName(i, validAt)).length() > 0) {
                 v.add(s);
@@ -607,9 +613,10 @@ public class LogbookRecord extends DataRecord {
 
     public String getAllCoxAndCrewAsNameString(long validAt) {
         Vector<String> v = getAllCoxAndCrewAsNames(validAt);
+        String sep = (Daten.efaConfig.getValueNameFormatIsFirstNameFirst() ? ", " : "; ");
         StringBuffer s = new StringBuffer();
         for (int i=0; v != null && i < v.size(); i++) {
-            s.append( (s.length() > 0 ? ", " : "") + v.get(i));
+            s.append( (s.length() > 0 ? sep : "") + v.get(i));
         }
         return s.toString();
     }
@@ -907,7 +914,68 @@ public class LogbookRecord extends DataRecord {
     }
 
     public Vector<IItemType> getGuiItems(AdminRecord admin) {
-        return null; // not supported for LogbokRecord
+        /**
+         * CAUTION:
+         * The implementation of this method is *NOT* complete. It is *NOT* intended to display
+         * the current record properly for editing. All it does is return dummy GUI fields which
+         * are used, for example, by BatchEditDialog, to figure out data content and labels for
+         * the various fields.
+         */
+        String CAT_BASEDATA     = "%01%" + International.getString("Fahrt");
+
+        AutoCompleteList autoBoats = new AutoCompleteList();
+        autoBoats.setDataAccess(getPersistence().getProject().getBoats(false).data(), 0, Long.MAX_VALUE);
+        AutoCompleteList autoPersons = new AutoCompleteList();
+        autoPersons.setDataAccess(getPersistence().getProject().getPersons(false).data(), 0, Long.MAX_VALUE);
+        AutoCompleteList autoDestinations = new AutoCompleteList();
+        autoDestinations.setDataAccess(getPersistence().getProject().getDestinations(false).data(), 0, Long.MAX_VALUE);
+        AutoCompleteList autoWaters = new AutoCompleteList();
+        autoWaters.setDataAccess(getPersistence().getProject().getWaters(false).data(), 0, Long.MAX_VALUE);
+
+        IItemType item;
+        Vector<IItemType> v = new Vector<IItemType>();
+
+        v.add(item = new ItemTypeString(LogbookRecord.ENTRYID, "", IItemType.TYPE_PUBLIC, null, International.getStringWithMnemonic("Lfd. Nr.")));
+        v.add(item = new ItemTypeLabel(LogbookRecord.OPEN, IItemType.TYPE_PUBLIC, null, International.getStringWithMnemonic("Fahrt offen (Boot unterwegs)")));
+        v.add(item = new ItemTypeDate(LogbookRecord.DATE, new DataTypeDate(), IItemType.TYPE_PUBLIC, null, International.getStringWithMnemonic("Datum")));
+        v.add(item = new ItemTypeDate(LogbookRecord.ENDDATE, new DataTypeDate(), IItemType.TYPE_PUBLIC, null, International.getStringWithMnemonic("Enddatum")));
+        v.add(item = new ItemTypeStringAutoComplete(LogbookRecord.EXP_BOAT, "", IItemType.TYPE_PUBLIC, null, International.getStringWithMnemonic("Boot"), true));
+        ((ItemTypeStringAutoComplete)item).setAutoCompleteData(autoBoats);
+        v.add(item = new ItemTypeStringList(LogbookRecord.BOATVARIANT, "",
+                null, null,
+                IItemType.TYPE_PUBLIC, null, International.getString("Bootsvariante")));
+        v.add(item = new ItemTypeStringAutoComplete(LogbookRecord.ALLCREWNAMES, "", IItemType.TYPE_INTERNAL, null,
+                International.getString("Mannschaft"), true));
+        ((ItemTypeStringAutoComplete) item).setAutoCompleteData(autoPersons);
+        v.add(item = new ItemTypeStringAutoComplete(LogbookRecord.EXP_COX, "", IItemType.TYPE_PUBLIC, null, International.getStringWithMnemonic("Steuermann"), true));
+        ((ItemTypeStringAutoComplete)item).setAutoCompleteData(autoPersons);
+        for (int i=1; i<=CREW_MAX; i++) {
+            v.add(item = new ItemTypeStringAutoComplete(LogbookRecord.EXP_CREW+i, "", IItemType.TYPE_PUBLIC, null,
+                    International.getString("Mannschaft") + " " + Integer.toString(i), true));
+            ((ItemTypeStringAutoComplete)item).setAutoCompleteData(autoPersons);
+        }
+        v.add(item = new ItemTypeStringList(LogbookRecord.BOATCAPTAIN, "",
+                LogbookRecord.getBoatCaptainValues(), LogbookRecord.getBoatCaptainDisplay(),
+                IItemType.TYPE_PUBLIC, null, International.getString("Obmann")));
+        v.add(item = new ItemTypeTime(LogbookRecord.STARTTIME, new DataTypeTime(), IItemType.TYPE_PUBLIC, null, International.getStringWithMnemonic("Abfahrt")));
+        v.add(item = new ItemTypeTime(LogbookRecord.ENDTIME, new DataTypeTime(), IItemType.TYPE_PUBLIC, null, International.getStringWithMnemonic("Ankunft")));
+        v.add(item = new ItemTypeStringAutoComplete(LogbookRecord.EXP_DESTINATION, "", IItemType.TYPE_PUBLIC, null,
+                International.getStringWithMnemonic("Ziel") + " / " +
+                International.getStringWithMnemonic("Strecke"), true));
+        ((ItemTypeStringAutoComplete)item).setAutoCompleteData(autoDestinations);
+        v.add(item = new ItemTypeStringAutoComplete(LogbookRecord.EXP_WATERSLIST, "", IItemType.TYPE_PUBLIC, null,
+                International.getStringWithMnemonic("Gewässer"), true));
+        ((ItemTypeStringAutoComplete)item).setAutoCompleteData(autoWaters);
+        v.add(item = new ItemTypeDistance(LogbookRecord.DISTANCE, null, IItemType.TYPE_PUBLIC, null,
+                DataTypeDistance.getDefaultUnitName()));
+        v.add(item = new ItemTypeString(LogbookRecord.COMMENTS, null, IItemType.TYPE_PUBLIC, null, International.getStringWithMnemonic("Bemerkungen")));
+        v.add(item = new ItemTypeStringList(LogbookRecord.SESSIONTYPE, EfaTypes.TYPE_SESSION_NORMAL,
+                EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                IItemType.TYPE_PUBLIC, null, International.getString("Fahrtart")));
+        v.add(item = new ItemTypeStringAutoComplete(LogbookRecord.EXP_SESSIONGROUP,
+                "", IItemType.TYPE_PUBLIC, null,
+                International.getStringWithMnemonic("Fahrtgruppe"), true));
+        return v;
     }
 
     public TableItemHeader[] getGuiTableHeader() {
@@ -941,6 +1009,25 @@ public class LogbookRecord extends DataRecord {
 
     public String[] getQualifiedNameFields() {
         return new String[] { ENTRYID };
+    }
+
+    public static String[] getBoatCaptainValues() {
+        String[] _bcValues = new String[LogbookRecord.CREW_MAX + 2];
+        _bcValues[0] = "";
+        for (int i=0; i<=LogbookRecord.CREW_MAX; i++) {
+            _bcValues[i+1] = Integer.toString(i);
+        }
+        return _bcValues;
+    }
+
+    public static String[] getBoatCaptainDisplay() {
+        String[] _bcNames = new String[LogbookRecord.CREW_MAX + 2];
+        _bcNames[0] = International.getString("keine Angabe");
+        for (int i=0; i<=LogbookRecord.CREW_MAX; i++) {
+            _bcNames[i+1] = (i == 0 ? International.getString("Steuermann") :
+                International.getString("Nummer") + " " + Integer.toString(i));
+        }
+        return _bcNames;
     }
 
 

@@ -19,6 +19,7 @@ import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.ex.*;
+import de.nmichael.efa.gui.util.EfaMenuButton;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -79,65 +80,61 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
     }
 
     protected void iniActions() {
+        Vector<Integer> actions = new Vector<Integer>();
+        actions.add(ItemTypeDataRecordTable.ACTION_NEW);
+        actions.add(ItemTypeDataRecordTable.ACTION_EDIT);
+        actions.add(ItemTypeDataRecordTable.ACTION_DELETE);
         if (persistence.data().getMetaData().isVersionized()) {
-            actionText = new String[] {
-                ItemTypeDataRecordTable.ACTIONTEXT_NEW,
-                ItemTypeDataRecordTable.ACTIONTEXT_EDIT,
-                ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
-                International.getString("Verstecken"),
-                International.getString("Importieren"),
-                International.getString("Exportieren"),
-                International.getString("Liste ausgeben"),
-                International.getString("Bearbeitungsassistent")//@todo
-            };
-            actionType = new int[] {
-                ItemTypeDataRecordTable.ACTION_NEW,
-                ItemTypeDataRecordTable.ACTION_EDIT,
-                ItemTypeDataRecordTable.ACTION_DELETE,
-                ACTION_HIDE,
-                ACTION_IMPORT,
-                ACTION_EXPORT,
-                ACTION_PRINTLIST,
-                ACTION_EDITASSISTENT//@todo
-            };
-            actionImage = new String[] {
-                BaseDialog.IMAGE_ADD,
-                BaseDialog.IMAGE_EDIT,
-                BaseDialog.IMAGE_DELETE,
-                BaseDialog.IMAGE_HIDE,
-                BaseDialog.IMAGE_IMPORT,
-                BaseDialog.IMAGE_EXPORT,
-                BaseDialog.IMAGE_LIST,
-                BaseDialog.IMAGE_EDITMULTI//@todo
-            };
-        } else {
-            actionText = new String[] {
-                ItemTypeDataRecordTable.ACTIONTEXT_NEW,
-                ItemTypeDataRecordTable.ACTIONTEXT_EDIT,
-                ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
-                International.getString("Importieren"),
-                International.getString("Exportieren"),
-                International.getString("Liste ausgeben"),
-                International.getString("Bearbeitungsassistent")//@todo
-            };
-            actionType = new int[] {
-                ItemTypeDataRecordTable.ACTION_NEW,
-                ItemTypeDataRecordTable.ACTION_EDIT,
-                ItemTypeDataRecordTable.ACTION_DELETE,
-                ACTION_IMPORT,
-                ACTION_EXPORT,
-                ACTION_PRINTLIST,
-                ACTION_EDITASSISTENT//@todo
-            };
-            actionImage = new String[] {
-                BaseDialog.IMAGE_ADD,
-                BaseDialog.IMAGE_EDIT,
-                BaseDialog.IMAGE_DELETE,
-                BaseDialog.IMAGE_IMPORT,
-                BaseDialog.IMAGE_EXPORT,
-                BaseDialog.IMAGE_LIST,
-                BaseDialog.IMAGE_EDITMULTI//@todo
-            };
+            actions.add(ACTION_HIDE);
+        }
+        if (admin != null && admin.isAllowedAdvancedEdit()) {
+            actions.add(ACTION_IMPORT);
+        }
+        actions.add(ACTION_EXPORT);
+        actions.add(ACTION_PRINTLIST);
+        if (admin != null && admin.isAllowedAdvancedEdit()) {
+            actions.add(ACTION_EDITASSISTENT);
+        }
+
+        actionType = new int[actions.size()];
+        actionText = new String[actions.size()];
+        actionImage = new String[actions.size()];
+        for (int i=0; i<actions.size(); i++) {
+            actionType[i] = actions.get(i);
+            switch(actionType[i]) {
+                case ItemTypeDataRecordTable.ACTION_NEW:
+                    actionText[i] = ItemTypeDataRecordTable.ACTIONTEXT_NEW;
+                    actionImage[i] = BaseDialog.IMAGE_ADD;
+                    break;
+                case ItemTypeDataRecordTable.ACTION_EDIT:
+                    actionText[i] = ItemTypeDataRecordTable.ACTIONTEXT_EDIT;
+                    actionImage[i] = BaseDialog.IMAGE_EDIT;
+                    break;
+                case ItemTypeDataRecordTable.ACTION_DELETE:
+                    actionText[i] = ItemTypeDataRecordTable.ACTIONTEXT_DELETE;
+                    actionImage[i] = BaseDialog.IMAGE_DELETE;
+                    break;
+                case ACTION_HIDE:
+                    actionText[i] = International.getString("Verstecken");
+                    actionImage[i] = BaseDialog.IMAGE_HIDE;
+                    break;
+                case ACTION_IMPORT:
+                    actionText[i] = International.getString("Importieren");
+                    actionImage[i] = BaseDialog.IMAGE_IMPORT;
+                    break;
+                case ACTION_EXPORT:
+                    actionText[i] = International.getString("Exportieren");
+                    actionImage[i] = BaseDialog.IMAGE_EXPORT;
+                    break;
+                case ACTION_PRINTLIST:
+                    actionText[i] = International.getString("Liste ausgeben");
+                    actionImage[i] = BaseDialog.IMAGE_LIST;
+                    break;
+                case ACTION_EDITASSISTENT:
+                    actionText[i] = International.getString("Bearbeitungsassistent");
+                    actionImage[i] = BaseDialog.IMAGE_EDITMULTI;
+                    break;
+            }
         }
     }
 
@@ -305,6 +302,10 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 }
                 break;
             case ACTION_IMPORT:
+                if (admin == null || !admin.isAllowedAdvancedEdit()) {
+                    EfaMenuButton.insufficientRights(admin, International.getString("Import"));
+                    break;
+                }
                 DataImportDialog dlg1 = new DataImportDialog(this, persistence, validAt);
                 dlg1.showDialog();
                 break;
@@ -322,6 +323,10 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 dlg3.showDialog();
                 break;
             case ACTION_EDITASSISTENT:
+                if (admin == null || !admin.isAllowedAdvancedEdit()) {
+                    EfaMenuButton.insufficientRights(admin, International.getString("Bearbeitungsassistent"));
+                    break;
+                }
                 BatchEditDialog dlg4 = new BatchEditDialog(this, persistence, validAt, admin);
                 dlg4.showDialog();
                 break;

@@ -12,6 +12,7 @@ package de.nmichael.efa.data.storage;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.data.Logbook;
+import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.gui.ProgressDialog;
 import de.nmichael.efa.util.*;
 import java.io.*;
@@ -49,6 +50,7 @@ public class DataImport extends ProgressTask {
     private int importCount = 0;
     private int errorCount = 0;
     private int warningCount = 0;
+    private boolean isLogbook = false;
 
 
     public DataImport(StorageObject storageObject,
@@ -71,6 +73,7 @@ public class DataImport extends ProgressTask {
         this.logbookEntryNoHandling = logbookEntryNoHandling;
         this.validAt = validAt;
         this.updMode = updMode;
+        this.isLogbook = storageObject.data().getStorageObjectType().equals(Logbook.DATATYPE);
     }
 
     public static boolean isXmlFile(String filename) {
@@ -178,6 +181,13 @@ public class DataImport extends ProgressTask {
                 logbookEntryNoHandling.equals(ENTRYNO_ALWAYS_ADDEND)) {
                 // determine new EntryId for logbook
                 r.set(keyFields[0], ((Logbook) storageObject).getNextEntryNo());
+            }
+
+            if (isLogbook && (importMode.equals(IMPORTMODE_ADD) || importMode.equals(IMPORTMODE_ADDUPD))) {
+                LogbookRecord lr = ((LogbookRecord) r);
+                if (lr.getEntryId() == null || !lr.getEntryId().isSet() || lr.getEntryId().toString().length() == 0) {
+                    r.set(keyFields[0], ((Logbook) storageObject).getNextEntryNo());
+                }
             }
 
             DataKey key = r.getKey();

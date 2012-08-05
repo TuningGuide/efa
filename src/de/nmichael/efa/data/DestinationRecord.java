@@ -369,6 +369,7 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
             v.add(item = new ItemTypeString(DestinationRecord.GUIITEM_DESTINATIONAREAS, (getDestinationAreas() == null ? "" : getDestinationAreas().toString()),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("Zielbereiche","de")));
             ((ItemTypeString)item).setAllowedCharacters("0123456789,;");
+            ((ItemTypeString)item).setAutoReplaceCharacters("/", ";");
         }
         v.add(item = new ItemTypeInteger(DestinationRecord.PASSEDLOCKS, getPassedLocks(), 0, Integer.MAX_VALUE, true,
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Passierte Schleusen")));

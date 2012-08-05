@@ -88,8 +88,10 @@ public class BatchEditDialog extends BaseTabbedDialog implements IItemFactory, I
     private boolean isVersionized = false;
     private DataRecord dummyRecord;
     private Hashtable<String,IItemType> dummyRecordGuiItems;
-    private String[] fields;
-    private String[] fieldDescription;
+    private String[] fieldsCondition;
+    private String[] fieldDescriptionCondition;
+    private String[] fieldsEdit;
+    private String[] fieldDescriptionEdit;
 
     private ItemTypeItemList editConditions;
     private ItemTypeItemList editFields;
@@ -123,9 +125,11 @@ public class BatchEditDialog extends BaseTabbedDialog implements IItemFactory, I
         for (int i=0; _items != null && i<_items.size(); i++) {
             dummyRecordGuiItems.put(_items.get(i).getName(), _items.get(i));
         }
-        this.fields = dummyRecord.getFieldNamesForTextExport(false);
-        Vector<String> showFields = new Vector<String>();
-        Vector<String> showDescriptions = new Vector<String>();
+        String[] fields = dummyRecord.getFieldNamesForTextExport(true);
+        Vector<String> showFieldsCondition = new Vector<String>();
+        Vector<String> showDescriptionsCondition = new Vector<String>();
+        Vector<String> showFieldsEdit = new Vector<String>();
+        Vector<String> showDescriptionsEdit = new Vector<String>();
         Vector<IItemType> items = persistence.createNewRecord().getGuiItems(admin);
         for (int i=0; i<fields.length; i++) {
             IItemType item = null;
@@ -142,12 +146,21 @@ public class BatchEditDialog extends BaseTabbedDialog implements IItemFactory, I
                 !fields[i].equals(DataRecord.INVISIBLE) &&
                 !fields[i].equals(DataRecord.DELETED) &&
                 !fields[i].equals("Id")) {
-                showFields.add(fields[i]);
-                showDescriptions.add(fields[i] + (item != null ? " (" +  item.getDescription() + ")" : ""));
+                showFieldsCondition.add(fields[i]);
+                showDescriptionsCondition.add(fields[i] + (item != null ? " (" +  item.getDescription() + ")" : ""));
+                try {
+                    if (persistence.data().getFieldType(fields[i]) != IDataAccess.DATA_VIRTUAL) {
+                        showFieldsEdit.add(fields[i]);
+                        showDescriptionsEdit.add(fields[i] + (item != null ? " (" + item.getDescription() + ")" : ""));
+                    }
+                } catch (Exception eignore) {
+                }
             }
         }
-        fields = showFields.toArray(new String[0]);
-        fieldDescription = showDescriptions.toArray(new String[0]);
+        fieldsCondition = showFieldsCondition.toArray(new String[0]);
+        fieldDescriptionCondition = showDescriptionsCondition.toArray(new String[0]);
+        fieldsEdit = showFieldsEdit.toArray(new String[0]);
+        fieldDescriptionEdit = showDescriptionsEdit.toArray(new String[0]);
     }
 
     protected void iniDialog() throws Exception {
@@ -222,8 +235,8 @@ public class BatchEditDialog extends BaseTabbedDialog implements IItemFactory, I
     public IItemType[] getDefaultItems(String itemName) {
         if (itemName.equals(GUIITEM_EDITCONDITION)) {
             IItemType[] items = new IItemType[3];
-            items[0] = new ItemTypeStringList("FIELD", fields[0],
-                    fields, fieldDescription,
+            items[0] = new ItemTypeStringList("FIELD", fieldsCondition[0],
+                    fieldsCondition, fieldDescriptionCondition,
                     IItemType.TYPE_PUBLIC, "", null);
             items[0].registerItemListener(this);
             items[1] = new ItemTypeStringList("OPERATOR", OP_EQUAL,
@@ -236,8 +249,8 @@ public class BatchEditDialog extends BaseTabbedDialog implements IItemFactory, I
         }
         if (itemName.equals(GUIITEM_EDITFIELDS)) {
             IItemType[] items = new IItemType[3];
-            items[0] = new ItemTypeStringList("FIELD", fields[0],
-                    fields, fieldDescription,
+            items[0] = new ItemTypeStringList("FIELD", fieldsEdit[0],
+                    fieldsEdit, fieldDescriptionEdit,
                     IItemType.TYPE_PUBLIC, "", null);
             items[0].registerItemListener(this);
             items[1] = new ItemTypeStringList("ACTION", EA_SETVALUE,
@@ -362,12 +375,15 @@ public class BatchEditDialog extends BaseTabbedDialog implements IItemFactory, I
         String field;
         String oldValue;
         String newValue;
-        public EditChange(DataKey k, String qualifiedName, String field, String oldValue, String newValue) {
+        boolean identical;
+        public EditChange(DataKey k, String qualifiedName, String field, 
+                String oldValue, String newValue, boolean identical) {
             this.k = k;
             this.qualifiedName = qualifiedName;
             this.field = field;
             this.oldValue = oldValue;
             this.newValue = newValue;
+            this.identical = identical;
         }
     }
 
@@ -474,9 +490,12 @@ public class BatchEditDialog extends BaseTabbedDialog implements IItemFactory, I
                                     throw new Exception(editValue.field + " is not a List Data Type!");
                             }
                         }
-                        if (newValueText != null && !currentValueText.equals(newValueText)) {
+                        if (newValueText != null) {
                             editChanges.add(new EditChange(k, r.getQualifiedName(),
-                                    editValue.field, currentValueText, newValueText));
+                                    editValue.field, currentValueText, newValueText,
+                                    currentValueText.equals(newValueText)));
+                        } else {
+                            throw new Exception("New value '" + editValue.value + "' for field '" + editValue.field + "' cannot be applied!");
                         }
                     }
                 }
@@ -506,11 +525,13 @@ public class BatchEditDialog extends BaseTabbedDialog implements IItemFactory, I
                     "<th>" + International.getString("neuer Wert") + "</th>" +
                     "</tr>\n");
             for (EditChange change : editChanges) {
+                String i1 = (change.identical ? "<i>" : "");
+                String i2 = (change.identical ? "</i>" : "");
                 f.write("<tr>" +
-                        "<td>" + change.qualifiedName + "</td>" +
-                        "<td>" + change.field + "</td>" +
-                        "<td>" + change.oldValue + "</td>" +
-                        "<td>" + change.newValue + "</td>" +
+                        "<td>" + i1 + change.qualifiedName + i2 + "</td>" +
+                        "<td>" + i1 + change.field + i2 + "</td>" +
+                        "<td>" + i1 + change.oldValue + i2 + "</td>" +
+                        "<td>" + i1 + change.newValue + i2 + "</td>" +
                         "</tr>\n");
             }
             f.write("</table>\n");
@@ -580,12 +601,18 @@ public class BatchEditDialog extends BaseTabbedDialog implements IItemFactory, I
                 for (EditChange change : editChanges) {
                     logInfo(change.qualifiedName +
                             " [" + change.field + "]: " +
-                            change.oldValue + " -> " + change.newValue + "\n");
+                            change.oldValue + " -> " + change.newValue + 
+                            (change.identical ? " (identical)" : "") +
+                            "\n");
+                    if (change.identical) {
+                        continue;
+                    }
                     try {
                         DataRecord r = data.get(change.k);
                         if (r != null) {
                             r.setFromText(change.field, change.newValue);
-                            if (editRules.versionAction.equals(BatchEditDialog.VA_EDITCURRENT)) {
+                            if (editRules.versionAction == null ||
+                                editRules.versionAction.equals(BatchEditDialog.VA_EDITCURRENT)) {
                                 data.update(r);
                             } else {
                                 data.addValidAt(r, editRules.versionValidFrom);

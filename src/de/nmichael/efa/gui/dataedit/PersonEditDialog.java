@@ -14,8 +14,6 @@ import java.awt.AWTEvent;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
-import java.util.UUID;
-import java.util.Vector;
 
 import javax.swing.JDialog;
 
@@ -24,11 +22,11 @@ import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.IItemListener;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeString;
-import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.PersonRecord;
-import de.nmichael.efa.data.types.DataTypeDate;
-import de.nmichael.efa.data.types.DataTypeTime;
-import de.nmichael.efa.ex.InvalidValueException;
+import de.nmichael.efa.data.storage.DataKey;
+import de.nmichael.efa.data.storage.DataKeyIterator;
+import de.nmichael.efa.data.storage.DataRecord;
+import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
@@ -91,4 +89,25 @@ public class PersonEditDialog extends VersionizedDataEditDialog implements IItem
         }
     }
     
+    protected String findSimilarRecordsOfThisName() {
+        try {
+            IDataAccess data = dataRecord.getPersistence().data();
+            String newName = ((PersonRecord)dataRecord).getFirstLastName(true);
+            long now = System.currentTimeMillis();
+            DataKeyIterator it = data.getStaticIterator();
+            for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+                DataRecord r = data.get(k);
+                if (r != null && r.isValidAt(now)) {
+                    String oldName = ((PersonRecord)r).getFirstLastName(true);
+                    if (newName.equalsIgnoreCase(oldName)) {
+                        return r.getQualifiedName() + " (" + r.getValidRangeString() + ")";
+                    }
+                }
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return null;
+    }
+
 }

@@ -77,6 +77,7 @@ public class AdminLoginDialog extends BaseDialog {
                 GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 10, 10, 10), 0, 0));
 
         name = new ItemTypeString("NAME", "", IItemType.TYPE_PUBLIC, "", International.getStringWithMnemonic("Admin-Name"));
+        name.setToLowerCase(true);
         name.setAllowedCharacters("abcdefghijklmnopqrstuvwxyz0123456789_");
         name.setFieldSize(width, -1);
         password = new ItemTypePassword("PASSWORD", "", IItemType.TYPE_PUBLIC, "", International.getStringWithMnemonic("Paßwort"));

@@ -29,7 +29,7 @@ public class StatisticTask extends ProgressTask {
     private StatisticsRecord[] statisticsRecords;
     private AdminRecord admin;
     private StatisticsRecord sr;
-    private Hashtable<Object, StatisticsData> data = new Hashtable<Object, StatisticsData>();
+    private Hashtable<Object, StatisticsData> data;
     private Persons persons = Daten.project.getPersons(false);
     private Boats boats = Daten.project.getBoats(false);
     private Destinations destinations = Daten.project.getDestinations(false);
@@ -1355,6 +1355,8 @@ public class StatisticTask extends ProgressTask {
 
     private String createStatistic(StatisticsRecord sr, int statisticsNumber) {
         this.sr = sr;
+        data = new Hashtable<Object, StatisticsData>();
+
         if (!sr.prepareStatisticSettings(admin)) {
             return null;
         }

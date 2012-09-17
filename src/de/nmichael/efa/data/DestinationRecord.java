@@ -41,6 +41,7 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
     public static final String DESTINATIONAREAS    = "DestinationAreas";
     public static final String PASSEDLOCKS         = "PassedLocks";
     public static final String DISTANCE            = "Distance";
+    public static final String ONLYINBOATHOUSEID   = "OnlyInBoathouseId";
     public static final String WATERSIDLIST        = "WatersIdList";
 
     public static final String[] IDX_NAME = new String[] { NAME };
@@ -61,6 +62,7 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
         f.add(DESTINATIONAREAS);                  t.add(IDataAccess.DATA_STRING);
         f.add(PASSEDLOCKS);                       t.add(IDataAccess.DATA_INTEGER);
         f.add(DISTANCE);                          t.add(IDataAccess.DATA_DISTANCE);
+        f.add(ONLYINBOATHOUSEID);                 t.add(IDataAccess.DATA_STRING);
         f.add(WATERSIDLIST);                      t.add(IDataAccess.DATA_LIST_UUID);
         MetaData metaData = constructMetaData(Destinations.DATATYPE, f, t, true);
         metaData.setKey(new String[] { ID }); // plus VALID_FROM
@@ -149,6 +151,28 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
     }
     public DataTypeDistance getDistance() {
         return getDistance(DISTANCE);
+    }
+
+    public void setOnlyInBoathouseId(int boathouseId) {
+        setString(ONLYINBOATHOUSEID, (boathouseId < 0 ? null : Integer.toString(boathouseId)));
+    }
+    public int getOnlyInBoathouseIdAsInt() {
+        return EfaUtil.string2int(getOnlyInBoathouseId(), IDataAccess.UNDEFINED_INT);
+    }
+    public String getOnlyInBoathouseId() {
+        return getString(ONLYINBOATHOUSEID);
+    }
+    public String getOnlyInBoathouseName() {
+        int id = getOnlyInBoathouseIdAsInt();
+        if (id <= 0) {
+            return null;
+        }
+        try {
+            return getPersistence().getProject().getBoathouseName(id);
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return International.getString("Bootshaus") + " " + id;
     }
 
     public void setWatersIdList(DataTypeList<UUID> list) {
@@ -276,6 +300,10 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
 
     public String getQualifiedName() {
         String name = getName();
+        String bths = getOnlyInBoathouseName();
+        if (name != null && bths != null) {
+            name = makeDestinationPostfixedDestinationBoathouseString(name, bths);
+        }
         return (name != null ? name : "");
     }
 
@@ -308,6 +336,17 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
                 return getWatersNamesStringList();
             }
         }
+        if (fieldName.equals(ONLYINBOATHOUSEID)) {
+            Object o = get(fieldName);
+            if (o == null) {
+                return "";
+            }
+            String s = (String)o;
+            if (s.length() == 0) {
+                return "";
+            }
+            return getPersistence().getProject().getBoathouseName(EfaUtil.string2int(s, -1));
+        }
         return super.getAsText(fieldName);
     }
 
@@ -325,8 +364,19 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
             if (list.length() > 0) {
                 set(fieldName, list);
             }
+        } else if (fieldName.equals(ONLYINBOATHOUSEID)) {
+            if (value == null || value.length() == 0) {
+                set(fieldName, null);
+            } else {
+                int id = getPersistence().getProject().getBoathouseId(value);
+                if (id > 0) {
+                    set(fieldName, Integer.toString(id));
+                } else {
+                    set(fieldName, null);
+                }
+            }
         } else {
-            set(fieldName, value);
+            return super.setFromText(fieldName, value);
         }
         return (value.equals(getAsText(fieldName)));
     }
@@ -375,6 +425,13 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Passierte Schleusen")));
         v.add(item = new ItemTypeDistance(DestinationRecord.DISTANCE, getDistance(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Distanz")));
+        if (getPersistence().getProject().getNumberOfBoathouses() > 1) {
+            v.add(item = new ItemTypeStringList(BoatStatusRecord.ONLYINBOATHOUSEID, getOnlyInBoathouseId(),
+                    getPersistence().getProject().makeBoathouseArray(EfaTypes.ARRAY_STRINGLIST_VALUES),
+                    getPersistence().getProject().makeBoathouseArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                    International.getString("nur anzeigen in Bootshaus")));
+        }
 
         // CAT_WATERS
         Vector<IItemType[]>itemList = new Vector<IItemType[]>();
@@ -427,27 +484,87 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        int col = (Daten.efaConfig.getValueUseFunctionalityRowingBerlin() ? 4 : 3);
-        TableItemHeader[] header = new TableItemHeader[col];
-        header[0] = new TableItemHeader(International.getString("Name"));
-        header[1] = new TableItemHeader(International.getString("Entfernung"));
-        header[2] = new TableItemHeader(International.getString("Gewässer"));
-        if (col > 3) {
-            header[3] = new TableItemHeader(International.onlyFor("Zielbereiche","de"));
+        boolean multipleBoathouses = false;
+        try {
+            multipleBoathouses = (getPersistence().getProject().getNumberOfBoathouses() > 1);
+        } catch(Exception eingore) {
+            EfaUtil.foo();
+        }
+        boolean destinationAreas = Daten.efaConfig.getValueUseFunctionalityRowingBerlin();
+        int cols = 3;
+        if (multipleBoathouses) {
+            cols++;
+        }
+        if (destinationAreas) {
+            cols++;
+        }
+        int col=0;
+        TableItemHeader[] header = new TableItemHeader[cols];
+        header[col++] = new TableItemHeader(International.getString("Name"));
+        if (multipleBoathouses) {
+            header[col++] = new TableItemHeader(International.getString("Bootshaus"));
+        }
+        header[col++] = new TableItemHeader(International.getString("Entfernung"));
+        header[col++] = new TableItemHeader(International.getString("Gewässer"));
+        if (destinationAreas) {
+            header[col++] = new TableItemHeader(International.onlyFor("Zielbereiche","de"));
         }
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
-        int col = (Daten.efaConfig.getValueUseFunctionalityRowingBerlin() ? 4 : 3);
-        TableItem[] items = new TableItem[col];
-        items[0] = new TableItem(getName());
-        items[1] = new TableItem(getDistance());
-        items[2] = new TableItem(getWatersNamesStringList());
-        if (col > 3) {
-            items[3] = new TableItem(getDestinationAreas());
+        boolean multipleBoathouses = false;
+        try {
+            multipleBoathouses = (getPersistence().getProject().getNumberOfBoathouses() > 1);
+        } catch(Exception eingore) {
+            EfaUtil.foo();
+        }
+        boolean destinationAreas = Daten.efaConfig.getValueUseFunctionalityRowingBerlin();
+        int cols = 3;
+        if (multipleBoathouses) {
+            cols++;
+        }
+        if (destinationAreas) {
+            cols++;
+        }
+        int col=0;
+        TableItem[] items = new TableItem[cols];
+        items[col++] = new TableItem(getName());
+        if (multipleBoathouses) {
+            items[col++] = new TableItem(getOnlyInBoathouseName());
+        }
+        items[col++] = new TableItem(getDistance());
+        items[col++] = new TableItem(getWatersNamesStringList());
+        if (destinationAreas) {
+            items[col++] = new TableItem(getDestinationAreas());
         }
         return items;
+    }
+
+    public static String makeDestinationPostfixedDestinationBoathouseString(String destination, String boathouse) {
+        return destination + " (" + boathouse + ")";
+    }
+
+    public static String getDestinationNameFromPostfixedDestinationBoathouseString(String s) {
+        if (s == null || !s.endsWith(")")) {
+            return s;
+        }
+        int pos = s.lastIndexOf(" (");
+        if (pos > 0) {
+            return s.substring(0, pos);
+        }
+        return s;
+    }
+
+    public static String getBoathouseNameFromPostfixedDestinationBoathouseString(String s) {
+        if (s == null || !s.endsWith(")")) {
+            return s;
+        }
+        int pos = s.lastIndexOf(" (");
+        if (pos > 0) {
+            return s.substring(pos+2, s.length()-1);
+        }
+        return s;
     }
 
 }

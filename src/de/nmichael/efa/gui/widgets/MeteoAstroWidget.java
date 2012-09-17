@@ -64,8 +64,18 @@ public class MeteoAstroWidget extends Widget {
     static final String PARAM_WARNTEXTDARKSOON      = "WarnTextDarkSoon";
     static final String PARAM_WARNTEXTDARKNOW       = "WarnTextDarkNow";
 
+    enum WeatherApi {
+        google,
+        yahoo
+    }
+
+    static final WeatherApi weatherApi = WeatherApi.yahoo;
+
     static final String GOOGLE_API = "http://www.google.com/ig/api";
     static final String GOOGLE_URL = "http://www.google.com";
+
+    /* Documentation: http://developer.yahoo.com/weather/ */
+    static final String YAHOO_API = "http://weather.yahooapis.com/forecastrss";
 
     private JEditorPane htmlPane = new JEditorPane();
     private HTMLUpdater htmlUpdater;
@@ -98,7 +108,7 @@ public class MeteoAstroWidget extends Widget {
                 International.getString("Wetterdaten anzeigen") +
                 " (" + International.getString("Internetverbindung erforderlich") + ")"));
         addParameterInternal(new ItemTypeString(PARAM_WEATHERLOCATION,
-                "14109-Germany",
+                "638242", // "14109-Germany",
                 IItemType.TYPE_PUBLIC, "",
                 International.getString("Ort für Wetterdaten")));
         addParameterInternal(new ItemTypeStringList(PARAM_TEMPERATURESCALE, TEMP_CELSIUS,
@@ -365,6 +375,7 @@ public class MeteoAstroWidget extends Widget {
         volatile boolean keepRunning = true;
         private boolean sunriseError = false;
         private boolean weatherError = false;
+        private int weatherSlowDownUpdateFactor = 1;
         private int updateIntervalInSeconds = 24*3600;
 
         public HTMLUpdater(int updateIntervalInSeconds) {
@@ -374,22 +385,48 @@ public class MeteoAstroWidget extends Widget {
         public void run() {
             String bgcolor = EfaUtil.getColor(myPanel.getBackground());
 
+            int weatherCnt = 0;
             while (keepRunning) {
                 Vector<Cell> data = new Vector<Cell>();
                 int row = 1;
                 int column = 1;
 
                 // Weather
-                if (isShowWeather()) {
+                if (isShowWeather() && (++weatherCnt % weatherSlowDownUpdateFactor) == 0) {
+                    long availBytes = 0;
+                    String url = null;
+                    InputStream in = null;
+                    URLConnection conn = null;
+                    XMLReader parser = null;
                     try {
-                        String url = GOOGLE_API + "?weather=" + getWeatherLocation() + "&hl=" + International.getLanguageID() + "&ie=utf-8&oe=utf-8";
-                        URLConnection conn = new URL(url).openConnection();
-                        conn.connect();
-                        InputStream in = conn.getInputStream();
-                        XMLReader parser = EfaUtil.getXMLReader();
-                        GoogleXmlResponse response = new GoogleXmlResponse();
-                        parser.setContentHandler(response);
-                        parser.parse(new InputSource(in));
+                        WeatherXmlResponse response = null;
+                        switch(weatherApi) {
+                            case google:
+                                url = GOOGLE_API + "?weather=" + getWeatherLocation() + "&hl=" + International.getLanguageID() + "&ie=utf-8&oe=utf-8";
+                                conn = new URL(url).openConnection();
+                                conn.connect();
+                                in = conn.getInputStream();
+                                availBytes = in.available();
+                                in.mark(1024 * 1024);
+                                parser = EfaUtil.getXMLReader();
+                                response = new GoogleXmlResponse();
+                                parser.setContentHandler(response);
+                                parser.parse(new InputSource(in));
+                                break;
+                            case yahoo:
+                                url = YAHOO_API + "?w=" + getWeatherLocation() + "&u=" +
+                                        (getTemperatureScale().equals(TEMP_CELSIUS) ? "c" : "f");
+                                conn = new URL(url).openConnection();
+                                conn.connect();
+                                in = conn.getInputStream();
+                                availBytes = in.available();
+                                in.mark(1024 * 1024);
+                                parser = EfaUtil.getXMLReader();
+                                response = new YahooXmlResponse();
+                                parser.setContentHandler(response);
+                                parser.parse(new InputSource(in));
+                                break;
+                        }
 
                         if (getLayout().equals(LAYOUT_HORIZONTAL)) {
                             if (isShowWeatherLocation()) {
@@ -403,7 +440,7 @@ public class MeteoAstroWidget extends Widget {
                                         , false));
                             }
                             if (isShowCurrentWeatherImage()) {
-                                data.add(new Cell(column++, row, "<img src=\"" + GOOGLE_URL + response.currentImg + "\">", false));
+                                data.add(new Cell(column++, row, "<img src=\"" + response.currentImg + "\">", false));
                             }
                             if (isShowCurrentWeatherTemperature()) {
                                 data.add(new Cell(column++, row, "<big><b>" + (getTemperatureScale().equals(TEMP_CELSIUS) ? response.currentTempC + " °C" : response.currentTempF + " °F") + "</b></big>", false));
@@ -413,7 +450,7 @@ public class MeteoAstroWidget extends Widget {
                                         + response.forecastCondifion, false));
                             }
                             if (isShowForecastWeatherImage()) {
-                                data.add(new Cell(column++, row, "<img src=\"" + GOOGLE_URL + response.forecastIcon + "\">", false));
+                                data.add(new Cell(column++, row, "<img src=\"" + response.forecastIcon + "\">", false));
                             }
                             if (isShowForecastWeatherTemperature()) {
                                 data.add(new Cell(column++, row, International.getString("Min") + ": " + response.forecastLow + " °" + "<br>"
@@ -433,7 +470,7 @@ public class MeteoAstroWidget extends Widget {
                                         , true));
                             }
                             if (isShowCurrentWeatherImage()) {
-                                data.add(new Cell(column, row++, "<img src=\"" + GOOGLE_URL + response.currentImg + "\">", true));
+                                data.add(new Cell(column, row++, "<img src=\"" + response.currentImg + "\">", true));
                             }
                             if (isShowCurrentWeatherTemperature()) {
                                 data.add(new Cell(column, row++, "<big><b>" + (getTemperatureScale().equals(TEMP_CELSIUS) ? response.currentTempC + " °C" : response.currentTempF + " °F") + "</b></big>", true));
@@ -443,7 +480,7 @@ public class MeteoAstroWidget extends Widget {
                                         + response.forecastCondifion, true));
                             }
                             if (isShowForecastWeatherImage()) {
-                                data.add(new Cell(column, row++, "<img src=\"" + GOOGLE_URL + response.forecastIcon + "\">", true));
+                                data.add(new Cell(column, row++, "<img src=\"" + response.forecastIcon + "\">", true));
                             }
                             if (isShowForecastWeatherTemperature()) {
                                 data.add(new Cell(column, row++, International.getString("Min") + ": " + response.forecastLow + " °" + "<br>"
@@ -463,7 +500,7 @@ public class MeteoAstroWidget extends Widget {
                                         , false));
                             }
                             if (isShowCurrentWeatherImage()) {
-                                data.add(new Cell(column++, row, "<img src=\"" + GOOGLE_URL + response.currentImg + "\">", false));
+                                data.add(new Cell(column++, row, "<img src=\"" + response.currentImg + "\">", false));
                             }
                             if (isShowCurrentWeatherTemperature()) {
                                 data.add(new Cell(column++, row, "<big><b>" + (getTemperatureScale().equals(TEMP_CELSIUS) ? response.currentTempC + " °C" : response.currentTempF + " °F") + "</b></big>", false));
@@ -479,7 +516,7 @@ public class MeteoAstroWidget extends Widget {
                                         + response.forecastCondifion, false));
                             }
                             if (isShowForecastWeatherImage()) {
-                                data.add(new Cell(column++, row, "<img src=\"" + GOOGLE_URL + response.forecastIcon + "\">", false));
+                                data.add(new Cell(column++, row, "<img src=\"" + response.forecastIcon + "\">", false));
                             }
                             if (isShowForecastWeatherTemperature()) {
                                 data.add(new Cell(column++, row, International.getString("Min") + ": " + response.forecastLow + " °" + "<br>"
@@ -492,12 +529,36 @@ public class MeteoAstroWidget extends Widget {
                                 data.add(new Cell(column, row++, response.currentWind, true));
                             }
                         }
+                        //if (weatherApi == WeatherApi.yahoo) {
+                        //    data.add(new Cell(0, row++, "<font size=\"1\">Yahoo! Weather.</font>", false, true));
+                        //}
 
                         weatherError = false;
                     } catch (Exception e) {
+                        String firstResultLine = null;
+                        try {
+                            in.reset();
+                            BufferedReader buf = new BufferedReader(new InputStreamReader(in));
+                            firstResultLine = buf.readLine();
+                        } catch (Exception eignore) {
+                        }
                         // log as WARNING for first weatherError; log as DEBUG for every next weatherError
+                        String errMsg = e.toString();
+                        if (availBytes == 0) {
+                            errMsg = "no data received from " + url;
+                        }
+                        if (firstResultLine != null && firstResultLine.length() > 0) {
+                            if (firstResultLine.length() > 1000) {
+                                firstResultLine = firstResultLine.substring(0, 1000);
+                            }
+                            if (firstResultLine.indexOf("We're sorry") > 0) {
+                                weatherSlowDownUpdateFactor = 3;
+                                weatherCnt = 0;
+                            }
+                            errMsg = "invalid response received from " + url + ": " + firstResultLine;
+                        }
                         Logger.log( (weatherError ? Logger.DEBUG : Logger.WARNING), Logger.MSG_WARN_WEATHERUPDATEFAILED,
-                                International.getString("Wetterdaten konnten nicht geladen werden") + ": " + e.toString());
+                                International.getString("Wetterdaten konnten nicht geladen werden") + ": " + errMsg);
                         Logger.logdebug(e);
                         weatherError = true;
                     }
@@ -565,7 +626,9 @@ public class MeteoAstroWidget extends Widget {
                         }
                         boolean lastCellInRow = (i + 1 == data.size() || data.get(i + 1).row > row);
                         int colspan = (lastCellInRow && cell.col < maxCols ? 1 + maxCols - cell.col : 1);
-                        htmlDoc.append("<td colspan=\"" + colspan + "\" align=\"" + (cell.alignCenter ? "center" : "left")  + "\">" + cell.content + "</td>");
+                        htmlDoc.append("<td colspan=\"" + colspan + 
+                                "\" align=\"" + (cell.alignCenter ? "center" : (cell.alignRight ? "right" : "left"))  + "\">" +
+                                cell.content + "</td>");
                     }
                     htmlDoc.append("</tr>\n");
 
@@ -648,17 +711,24 @@ public class MeteoAstroWidget extends Widget {
         public int col,row;
         public String content;
         boolean alignCenter;
+        boolean alignRight;
         public Cell(int col, int row, String content, boolean alignCenter) {
             this.col = col;
             this.row = row;
             this.content = content;
             this.alignCenter = alignCenter;
+            this.alignRight = false;
+        }
+        public Cell(int col, int row, String content, boolean alignCenter, boolean alignRight) {
+            this.col = col;
+            this.row = row;
+            this.content = content;
+            this.alignCenter = alignCenter;
+            this.alignRight = alignRight;
         }
     }
 
-    class GoogleXmlResponse extends DefaultHandler {
-
-        Stack<String> elementStack = new Stack<String>();
+    class WeatherXmlResponse extends DefaultHandler {
 
         int forecastConditions = 0;
         String city;
@@ -673,6 +743,11 @@ public class MeteoAstroWidget extends Widget {
         String forecastIcon;
         String forecastCondifion;
 
+    }
+
+    class GoogleXmlResponse extends WeatherXmlResponse {
+
+        Stack<String> elementStack = new Stack<String>();
 
         private String getValue(Attributes atts) {
             String s = atts.getValue("data");
@@ -700,7 +775,7 @@ public class MeteoAstroWidget extends Widget {
                     currentTempC = getValue(atts);
                 }
                 if (localName.equals("icon")) {
-                    currentImg = getValue(atts);
+                    currentImg = GOOGLE_URL + getValue(atts);
                 }
                 if (localName.equals("wind_condition")) {
                     currentWind = getValue(atts);
@@ -722,7 +797,7 @@ public class MeteoAstroWidget extends Widget {
                     forecastHigh = getValue(atts);
                 }
                 if (localName.equals("icon")) {
-                    forecastIcon = getValue(atts);
+                    forecastIcon = GOOGLE_URL + getValue(atts);
                 }
                 if (localName.equals("condition")) {
                     forecastCondifion = getValue(atts);
@@ -734,6 +809,77 @@ public class MeteoAstroWidget extends Widget {
         public void endElement(String uri, String localName, String qname) {
             elementStack.pop();
         }
+    }
+
+    class YahooXmlResponse extends WeatherXmlResponse {
+
+        String speedUnit = "km/h";
+
+        public void startElement(String uri, String localName, String qname, Attributes atts) {
+            if (qname.equals("yweather:location")) {
+                city = atts.getValue("city");
+            }
+            if (qname.equals("yweather:units")) {
+                speedUnit = atts.getValue("speed");
+            }
+            if (qname.equals("yweather:wind")) {
+                String direction = "";
+                try {
+                    int dir = Integer.parseInt(atts.getValue("direction"));
+                    for (int angle = 22; angle <= 22+360; angle += 45) {
+                        if (dir < angle) {
+                            switch(angle) {
+                                case 22:  
+                                    direction = International.getString("N", "direction"); break;
+                                case 67:  
+                                    direction = International.getString("NO", "direction"); break;
+                                case 112: 
+                                    direction = International.getString("O", "direction"); break;
+                                case 157: 
+                                    direction = International.getString("SO", "direction"); break;
+                                case 202: 
+                                    direction = International.getString("S", "direction"); break;
+                                case 247: 
+                                    direction = International.getString("SW", "direction"); break;
+                                case 292: 
+                                    direction = International.getString("W", "direction"); break;
+                                case 337: 
+                                    direction = International.getString("NW", "direction"); break;
+                                case 382: 
+                                    direction = International.getString("N", "direction"); break;
+                            }
+                            break;
+                        }
+                    }
+                } catch(Exception eignore) {}
+                String speed = atts.getValue("speed");
+                if (speed != null && speed.indexOf(".") > 0) {
+                    speed = speed.substring(0, speed.indexOf("."));
+                }
+                currentWind = International.getString("Wind") + ": " + 
+                        direction + " " + speed + " " + speedUnit;
+            }
+            if (qname.equals("yweather:condition")) {
+                currentCondition = atts.getValue("text");
+                if (getTemperatureScale().equals(TEMP_CELSIUS)) {
+                    currentTempC = atts.getValue("temp");
+                } else {
+                    currentTempF = atts.getValue("temp");
+                }
+                currentImg = "http://l.yimg.com/a/i/us/we/52/" + atts.getValue("code") + ".gif";
+            }
+
+            if (qname.equals("yweather:forecast") && ++forecastConditions == 1) {
+                forecastDay = atts.getValue("day");
+                forecastLow = atts.getValue("low");
+                forecastHigh = atts.getValue("high");
+                forecastIcon = "http://l.yimg.com/a/i/us/we/52/" + atts.getValue("code") + ".gif";
+                forecastCondifion = atts.getValue("text");
+
+            }
+
+        }
+
     }
 
     public class HtmlPopupDialog extends BaseDialog {

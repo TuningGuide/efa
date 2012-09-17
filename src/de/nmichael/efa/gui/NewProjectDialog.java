@@ -26,6 +26,8 @@ import javax.swing.*;
 public class NewProjectDialog extends StepwiseDialog implements IItemListener {
 
     private final static String GUIITEM_CREATE_WATERS_LIST = "GUIITEM_CREATE_WATERS_LIST";
+    private final static String GUIITEM_NODATA_LABEL1 = "GUIITEM_NODATA_LABEL1";
+    private final static String GUIITEM_NODATA_LABEL2 = "GUIITEM_NODATA_LABEL2";
 
     private AdminRecord admin;
 
@@ -44,13 +46,13 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
     }
 
     String[] getSteps() {
-        return new String[] {
-            International.getString("Name und Beschreibung"),
-            International.getString("Speichertyp auswählen"),
-            International.getString("Speicherort festlegen"),
-            International.getString("Angaben zum Verein"),
-            International.getString("Verbände")
-        };
+        return new String[]{
+                    International.getString("Name und Beschreibung"),
+                    International.getString("Speichertyp auswählen"),
+                    International.getString("Speicherort festlegen"),
+                    International.getString("Angaben zum Verein"),
+                    International.getString("Verbände")
+                };
     }
     
     String getDescription(int step) {
@@ -133,13 +135,24 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
             }
 
             // remove all StorageType-specific config options
-            ProjectRecord r = Project.createNewRecordFromStatic(ProjectRecord.TYPE_PROJECT);
+            ProjectRecord rPrj = Project.createNewRecordFromStatic(ProjectRecord.TYPE_PROJECT);
+            ProjectRecord rClb = Project.createNewRecordFromStatic(ProjectRecord.TYPE_CLUB);
             Vector<IItemType> itemsToBeDeleted = new Vector<IItemType>();
-            itemsToBeDeleted.addAll(r.getGuiItems(admin, 3, "2", true));
-            r.setStorageType(IDataAccess.TYPE_EFA_REMOTE);
-            itemsToBeDeleted.addAll(r.getGuiItems(admin, 3, "2", true));
-            r.setStorageType(IDataAccess.TYPE_DB_SQL);
-            itemsToBeDeleted.addAll(r.getGuiItems(admin, 3, "2", true));
+            itemsToBeDeleted.addAll(rPrj.getGuiItems(admin, 3, "2", true));
+            rPrj.setStorageType(IDataAccess.TYPE_EFA_REMOTE);
+            itemsToBeDeleted.addAll(rPrj.getGuiItems(admin, 3, "2", true));
+            rPrj.setStorageType(IDataAccess.TYPE_DB_SQL);
+            itemsToBeDeleted.addAll(rPrj.getGuiItems(admin, 3, "2", true));
+
+            // delete all Club items
+            itemsToBeDeleted.addAll(rClb.getGuiItems(admin, 1, "3", true));
+            itemsToBeDeleted.addAll(rClb.getGuiItems(admin, 2, "4", true));
+            itemsToBeDeleted.add(new ItemTypeBoolean(GUIITEM_CREATE_WATERS_LIST, true,
+                    IItemType.TYPE_PUBLIC, "3", ""));
+            itemsToBeDeleted.add(new ItemTypeLabel(GUIITEM_NODATA_LABEL1,  IItemType.TYPE_PUBLIC, "3", ""));
+            itemsToBeDeleted.add(new ItemTypeLabel(GUIITEM_NODATA_LABEL2,  IItemType.TYPE_PUBLIC, "4", ""));
+
+            // delete items we don't want
             for (int i=0; i<items.size(); i++) {
                 for (int j=0; j<itemsToBeDeleted.size(); j++) {
                     if (items.get(i).getName().equals(itemsToBeDeleted.get(j).getName())) {
@@ -148,15 +161,33 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
                 }
             }
 
+
             // add all StorageType-specific config options
-            r.setStorageType(IDataAccess.TYPE_FILE_XML);
+            rPrj.setStorageType(IDataAccess.TYPE_FILE_XML);
             if (item.getValue().equals(IDataAccess.TYPESTRING_EFA_REMOTE)) {
-                r.setStorageType(IDataAccess.TYPE_EFA_REMOTE);
+                rPrj.setStorageType(IDataAccess.TYPE_EFA_REMOTE);
             }
             if (item.getValue().equals(IDataAccess.TYPESTRING_DB_SQL)) {
-                r.setStorageType(IDataAccess.TYPE_DB_SQL);
+                rPrj.setStorageType(IDataAccess.TYPE_DB_SQL);
             }
-            items.addAll(r.getGuiItems(admin, 3, "2", true));
+            items.addAll(rPrj.getGuiItems(admin, 3, "2", true));
+
+            if (item.getValue().equals(IDataAccess.TYPESTRING_FILE_XML)) {
+                items.addAll(rClb.getGuiItems(admin, 1, "3", true));
+                items.addAll(rClb.getGuiItems(admin, 2, "4", true));
+                if (Waters.getResourceTemplate(International.getLanguageID()) != null) {
+                    items.add(new ItemTypeBoolean(GUIITEM_CREATE_WATERS_LIST, true,
+                            IItemType.TYPE_PUBLIC, "3",
+                            International.getString("Gewässerliste mit Standardgewässern erstellen")));
+                }
+            } else {
+                items.add(new ItemTypeLabel(GUIITEM_NODATA_LABEL1,
+                        IItemType.TYPE_PUBLIC, "3",
+                            International.getString("Keine Angaben erforderlich")));
+                items.add(new ItemTypeLabel(GUIITEM_NODATA_LABEL2,
+                        IItemType.TYPE_PUBLIC, "4",
+                            International.getString("Keine Angaben erforderlich")));
+            }
             if (item.getValue().equals(IDataAccess.TYPESTRING_EFA_REMOTE)) {
                 IItemType checkbox = getItemByName(ProjectRecord.EFAONLINECONNECT);
                 if (checkbox != null) {
@@ -164,7 +195,6 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
                     itemListenerAction(checkbox, null);
                 }
             }
-
 
         }
         return true;
@@ -245,34 +275,36 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
             }
 
             // Club Properties (1)
-            prj.setClubName(((ItemTypeString)getItemByName(ProjectRecord.CLUBNAME)).getValue());
-            prj.setClubAddressStreet(((ItemTypeString)getItemByName(ProjectRecord.ADDRESSSTREET)).getValue());
-            prj.setClubAddressCity(((ItemTypeString)getItemByName(ProjectRecord.ADDRESSCITY)).getValue());
-            if (getItemByName(ProjectRecord.AREAID) != null) {
-                prj.setClubAreaId(((ItemTypeInteger)getItemByName(ProjectRecord.AREAID)).getValue());
-            }
+            if (storageType == IDataAccess.TYPE_FILE_XML) {
+                prj.setClubName(((ItemTypeString) getItemByName(ProjectRecord.CLUBNAME)).getValue());
+                prj.setClubAddressStreet(((ItemTypeString) getItemByName(ProjectRecord.ADDRESSSTREET)).getValue());
+                prj.setClubAddressCity(((ItemTypeString) getItemByName(ProjectRecord.ADDRESSCITY)).getValue());
+                if (getItemByName(ProjectRecord.AREAID) != null) {
+                    prj.setBoathouseAreaId(((ItemTypeInteger) getItemByName(ProjectRecord.AREAID)).getValue());
+                }
 
-            // Club Properties (2)
-            prj.setClubGlobalAssociationName(((ItemTypeString)getItemByName(ProjectRecord.ASSOCIATIONGLOBALNAME)).getValue());
-            prj.setClubGlobalAssociationMemberNo(((ItemTypeString)getItemByName(ProjectRecord.ASSOCIATIONGLOBALMEMBERNO)).getValue());
-            prj.setClubGlobalAssociationLogin(((ItemTypeString)getItemByName(ProjectRecord.ASSOCIATIONGLOBALLOGIN)).getValue());
-            prj.setClubRegionalAssociationName(((ItemTypeString)getItemByName(ProjectRecord.ASSOCIATIONREGIONALNAME)).getValue());
-            prj.setClubRegionalAssociationMemberNo(((ItemTypeString)getItemByName(ProjectRecord.ASSOCIATIONREGIONALMEMBERNO)).getValue());
-            prj.setClubRegionalAssociationLogin(((ItemTypeString)getItemByName(ProjectRecord.ASSOCIATIONREGIONALLOGIN)).getValue());
-            if (getItemByName(ProjectRecord.MEMBEROFDRV) != null) {
-                prj.setClubMemberOfDRV(((ItemTypeBoolean)getItemByName(ProjectRecord.MEMBEROFDRV)).getValue());
-            }
-            if (getItemByName(ProjectRecord.MEMBEROFSRV) != null) {
-                prj.setClubMemberOfSRV(((ItemTypeBoolean)getItemByName(ProjectRecord.MEMBEROFSRV)).getValue());
-            }
-            if (getItemByName(ProjectRecord.MEMBEROFADH) != null) {
-                prj.setClubMemberOfADH(((ItemTypeBoolean)getItemByName(ProjectRecord.MEMBEROFADH)).getValue());
-            }
-            if (getItemByName(ProjectRecord.KANUEFBUSERNAME) != null) {
-                prj.setClubKanuEfbUsername(((ItemTypeString)getItemByName(ProjectRecord.KANUEFBUSERNAME)).getValue());
-            }
-            if (getItemByName(ProjectRecord.KANUEFBPASSWORD) != null) {
-                prj.setClubKanuEfbPassword(((ItemTypeString)getItemByName(ProjectRecord.KANUEFBPASSWORD)).getValue());
+                // Club Properties (2)
+                prj.setClubGlobalAssociationName(((ItemTypeString) getItemByName(ProjectRecord.ASSOCIATIONGLOBALNAME)).getValue());
+                prj.setClubGlobalAssociationMemberNo(((ItemTypeString) getItemByName(ProjectRecord.ASSOCIATIONGLOBALMEMBERNO)).getValue());
+                prj.setClubGlobalAssociationLogin(((ItemTypeString) getItemByName(ProjectRecord.ASSOCIATIONGLOBALLOGIN)).getValue());
+                prj.setClubRegionalAssociationName(((ItemTypeString) getItemByName(ProjectRecord.ASSOCIATIONREGIONALNAME)).getValue());
+                prj.setClubRegionalAssociationMemberNo(((ItemTypeString) getItemByName(ProjectRecord.ASSOCIATIONREGIONALMEMBERNO)).getValue());
+                prj.setClubRegionalAssociationLogin(((ItemTypeString) getItemByName(ProjectRecord.ASSOCIATIONREGIONALLOGIN)).getValue());
+                if (getItemByName(ProjectRecord.MEMBEROFDRV) != null) {
+                    prj.setClubMemberOfDRV(((ItemTypeBoolean) getItemByName(ProjectRecord.MEMBEROFDRV)).getValue());
+                }
+                if (getItemByName(ProjectRecord.MEMBEROFSRV) != null) {
+                    prj.setClubMemberOfSRV(((ItemTypeBoolean) getItemByName(ProjectRecord.MEMBEROFSRV)).getValue());
+                }
+                if (getItemByName(ProjectRecord.MEMBEROFADH) != null) {
+                    prj.setClubMemberOfADH(((ItemTypeBoolean) getItemByName(ProjectRecord.MEMBEROFADH)).getValue());
+                }
+                if (getItemByName(ProjectRecord.KANUEFBUSERNAME) != null) {
+                    prj.setClubKanuEfbUsername(((ItemTypeString) getItemByName(ProjectRecord.KANUEFBUSERNAME)).getValue());
+                }
+                if (getItemByName(ProjectRecord.KANUEFBPASSWORD) != null) {
+                    prj.setClubKanuEfbPassword(((ItemTypeString) getItemByName(ProjectRecord.KANUEFBPASSWORD)).getValue());
+                }
             }
 
             prj.close();
@@ -283,7 +315,8 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
                 try {
                     if (Waters.getResourceTemplate(International.getLanguageID()) != null) {
                         ItemTypeBoolean createWatersList = (ItemTypeBoolean)getItemByName(GUIITEM_CREATE_WATERS_LIST);
-                        if (createWatersList != null && createWatersList.getValue()) {
+                        if (createWatersList != null && createWatersList.getValue() &&
+                            storageType != IDataAccess.TYPE_EFA_REMOTE) {
                             Daten.project.getWaters(false).addAllWatersFromTemplate(International.getLanguageID());
                         }
                     }

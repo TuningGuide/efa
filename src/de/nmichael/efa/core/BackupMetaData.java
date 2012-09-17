@@ -171,31 +171,31 @@ class BackupMetaDataParser extends XmlHandler {
         }
 
         if (localName.equals(BackupMetaData.FIELD_TIMESTAMP)) {
-            metaData.setTimeStamp(Long.parseLong(fieldValue));
+            metaData.setTimeStamp(Long.parseLong(getFieldValue()));
         }
 
         if (localName.equals(BackupMetaData.FIELD_PROJECTNAME)) {
-            metaData.setProjectName(fieldValue);
+            metaData.setProjectName(getFieldValue());
         }
 
         if (item != null) {
             if (localName.equals(BackupMetaData.FIELD_NAME)) {
-                item.setName(fieldValue);
+                item.setName(getFieldValue());
             }
             if (localName.equals(BackupMetaData.FIELD_TYPE)) {
-                item.setType(fieldValue);
+                item.setType(getFieldValue());
             }
             if (localName.equals(BackupMetaData.FIELD_FILENAME)) {
-                item.setFileName(fieldValue);
+                item.setFileName(getFieldValue());
             }
             if (localName.equals(BackupMetaData.FIELD_DESCRIPTION)) {
-                item.setDescription(fieldValue);
+                item.setDescription(getFieldValue());
             }
             if (localName.equals(BackupMetaData.FIELD_RECORDS)) {
-                item.setNumberOfRecords(Long.parseLong(fieldValue));
+                item.setNumberOfRecords(Long.parseLong(getFieldValue()));
             }
             if (localName.equals(BackupMetaData.FIELD_SCN)) {
-                item.setScn(Long.parseLong(fieldValue));
+                item.setScn(Long.parseLong(getFieldValue()));
             }
         }
     }

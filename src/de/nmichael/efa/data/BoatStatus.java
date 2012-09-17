@@ -86,9 +86,12 @@ public class BoatStatus extends StorageObject {
             while (k != null) {
                 BoatStatusRecord r = (BoatStatusRecord) data().get(k);
                 if (r != null && !r.getDeletedOrInvisible()) {
-                    String s = (getBoatsForLists ? r.getShowInList() : r.getCurrentStatus());
-                    if (s != null && s.equals(status)) {
-                        v.add(r);
+                    if (r.getOnlyInBoathouseIdAsInt() < 0
+                            || r.getOnlyInBoathouseIdAsInt() == getProject().getMyBoathouseId()) {
+                        String s = (getBoatsForLists ? r.getShowInList() : r.getCurrentStatus());
+                        if (s != null && s.equals(status)) {
+                            v.add(r);
+                        }
                     }
                 }
                 k = it.getNext();

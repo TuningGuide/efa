@@ -131,6 +131,10 @@ public abstract class ItemType implements IItemType {
         }
     }
 
+    public boolean hasFocus() {
+        return (field != null && field.hasFocus());
+    }
+
     public void setPadding(int padXbefore, int padXafter, int padYbefore, int padYafter) {
         this.padXbefore = padXbefore;
         this.padXafter = padXafter;

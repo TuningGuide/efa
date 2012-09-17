@@ -11,35 +11,17 @@
 package de.nmichael.efa.core.items;
 
 import java.util.*;
-import java.util.regex.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import de.nmichael.efa.*;
-import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.gui.*;
 import de.nmichael.efa.gui.util.*;
-import de.nmichael.efa.data.*;
+import java.awt.image.BufferedImage;
 
 public class ItemTypeList extends ItemType implements ActionListener {
-
-    class ItemTypeListData {
-        String text;
-        Object object;
-        boolean separator;
-        int section;
-        public ItemTypeListData(String text, Object object, boolean separator, int section) {
-            this.text = text;
-            this.object = object;
-            this.separator = separator;
-            this.section = section;
-        }
-        public String toString() {
-            return text;
-        }
-    }
 
     JPanel mypanel;
     JLabel label;
@@ -49,6 +31,87 @@ public class ItemTypeList extends ItemType implements ActionListener {
     Vector<ItemTypeListData> data;
     String[] actions;
     String incrementalSearch = "";
+    int iconWidth = 0;
+    int iconHeight = 0;
+
+    class ListDataCellRenderer extends DefaultListCellRenderer {
+        public Component getListCellRendererComponent(JList list, Object value,
+                int index, boolean iss, boolean chf) {
+            super.getListCellRendererComponent(list, value, index, iss, chf);
+
+            if (iconWidth > 0 && iconHeight > 0) {
+                try {
+                    ItemTypeListData item = (ItemTypeListData)value;
+                    ImageIcon icon = null;
+                    if (item.image != null) {
+                        icon = BaseDialog.getIcon(item.image);
+                    }
+                    if (icon == null) {
+                        BufferedImage image = new BufferedImage(iconWidth, iconHeight,
+                                BufferedImage.TYPE_INT_ARGB);
+                        Graphics2D g = image.createGraphics();
+                        if (item.colors != null && item.colors.length > 0) {
+                            if (item.colors.length == 1) {
+                                g.setColor(item.colors[0]);
+                                g.fillOval(0, 0, iconWidth, iconHeight);
+                            } else {
+                                int currentAngle = 90;
+                                int anglePerColor = 360 / item.colors.length;
+                                for (int i=0; i<item.colors.length; i++) {
+                                    g.setColor(item.colors[i]);
+                                    g.fillArc(0, 0, iconWidth, iconHeight,
+                                            currentAngle % 360, anglePerColor);
+                                    currentAngle += anglePerColor;
+                                }
+                            }
+                        } else {
+                            if (!item.separator) {
+                                g.setColor(new Color (230,230,230));
+                                g.fillOval(0, 0, iconWidth, iconHeight);
+                            }
+                        }
+                        icon = new ImageIcon(image);
+                    }
+                    if (icon.getIconWidth() > iconWidth
+                            || icon.getIconHeight() > iconHeight) {
+                        icon = new ImageIcon(icon.getImage().getScaledInstance(iconWidth, iconHeight,
+                                Image.SCALE_SMOOTH));
+                    }
+                    setIcon(icon);
+                } catch(Exception eignore) {
+                }
+            }
+            return this;
+        }
+    }
+
+    class ItemTypeListData {
+        String text;
+        Object object;
+        boolean separator;
+        int section;
+        String image;
+        Color[] colors;
+        public ItemTypeListData(String text, Object object, boolean separator, int section) {
+            ini(text, object, separator, section, null, null);
+        }
+        public ItemTypeListData(String text, Object object, boolean separator, int section,
+                String image, Color[] colors) {
+            ini(text, object, separator, section, image, colors);
+        }
+        private void ini(String text, Object object, boolean separator, int section,
+                String image, Color[] colors) {
+            this.text = text;
+            this.object = object;
+            this.separator = separator;
+            this.section = section;
+            this.image = image;
+            this.colors = colors;
+        }
+        public String toString() {
+            return text;
+        }
+    }
 
     public ItemTypeList(String name,
             int type, String category, String description) {
@@ -65,6 +128,11 @@ public class ItemTypeList extends ItemType implements ActionListener {
 
     public void addItem(String text, Object object, boolean separator, char separatorHotkey) {
         data.add(new ItemTypeListData(text, object, separator, separatorHotkey));
+    }
+
+    public void addItem(String text, Object object, boolean separator, char separatorHotkey,
+            String image, Color[] colors) {
+        data.add(new ItemTypeListData(text, object, separator, separatorHotkey, image, colors));
     }
 
     public void removeItem(int idx) {
@@ -114,6 +182,10 @@ public class ItemTypeList extends ItemType implements ActionListener {
             if (list != null) {
                 list.setToolTipText(null);
             }
+    }
+
+    public String getIncrementalSearchString() {
+        return incrementalSearch;
     }
 
     public void setPopupActions(String[] actions) {
@@ -377,6 +449,7 @@ public class ItemTypeList extends ItemType implements ActionListener {
 
     public void showValue() {
         list.setListData(data);
+        list.setCellRenderer(new ListDataCellRenderer());
     }
     
     public void getValueFromGui() {

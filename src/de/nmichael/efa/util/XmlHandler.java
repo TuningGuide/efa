@@ -27,7 +27,7 @@ public class XmlHandler extends DefaultHandler {
     protected Stack<String> xmlStack = new Stack<String>();
     protected String parentFieldName;
     protected String fieldName;
-    protected String fieldValue;
+    private StringBuilder fieldValue;
 
     public XmlHandler(String xmlRootElement) {
         super();
@@ -79,7 +79,7 @@ public class XmlHandler extends DefaultHandler {
         fieldName = localName;
         parentFieldName = (!xmlStack.empty() ? xmlStack.peek() : null);
         xmlStack.push(localName);
-        fieldValue = "";
+        fieldValue = new StringBuilder();
     }
 
     public void characters(char[] ch, int start, int length) {
@@ -89,7 +89,7 @@ public class XmlHandler extends DefaultHandler {
         }
 
         if (fieldName != null) {
-            fieldValue += s;
+            fieldValue.append(s);
         }
     }
 
@@ -98,9 +98,6 @@ public class XmlHandler extends DefaultHandler {
             Logger.log(Logger.DEBUG, Logger.MSG_FILE_XMLTRACE, getLocation() + "endElement(" + uri + "," + localName + "," + qname + ")");
         }
         fieldName = localName;
-        if (fieldValue != null) {
-            fieldValue = fieldValue.trim();
-        }
         xmlStack.pop();
         parentFieldName = (!xmlStack.empty() ? xmlStack.peek() : null);
 
@@ -108,5 +105,10 @@ public class XmlHandler extends DefaultHandler {
             // end of document
             documentComplete = true;
         }
+    }
+
+    protected String getFieldValue() {
+        return (fieldValue != null ?
+            fieldValue.toString().trim() : null);
     }
 }

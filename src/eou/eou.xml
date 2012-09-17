@@ -2,6 +2,80 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.0.4_00</VersionID>
+        <ReleaseDate>16.09.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa204.zip</DownloadUrl>
+        <DownloadSize>2946216</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Ziele und Boote können Bootshäusern zugeordnet werden, so daß sie beim Einsatz von efa in mehreren Bootshäusern nur in einem der Bootshäuser angezeigt werden.</ChangeItem>
+            <ChangeItem>Neu: Benutzungserlaubnis für Boote kann in Auswahllisten durch farbliche Markierungen angezeigt werden.</ChangeItem>
+            <ChangeItem>Neu: Verbesserte Startgeschwindigkeit von efa.</ChangeItem>
+            <ChangeItem>Neu: Kleine Verbesserungen bei Benutzung der Spezialsuche.</ChangeItem>
+            <ChangeItem>Neu: Namenseingaben im Format "Nachname, Vorname" ohne Leerzeichen nach dem Komma werden von efa automatisch korrigiert.</ChangeItem>
+            <ChangeItem>Neu: Audit weist jetzt bei zu großen Nachrichtendateien mit einer Fehlermeldung auf das Löschen von Nachrichten hin, und archiviert im Notfall auch ungelese Nachrichten.</ChangeItem>
+            <ChangeItem>Neu: Optional markiert efa bereits beim Erstellen von neuen Nachrichten diese sofort als gelesen.</ChangeItem>
+            <ChangeItem>Neu: Import kann jetzt auch Gültigkeitszeitraum von Datensätzen setzen.</ChangeItem>
+            <ChangeItem>Neu: Für Bootsschäden werden jetzt in der Schadensmeldung auch Informationen zum zugehörigen Fahrtenbucheintrag abgespeichert (falls zutreffend).</ChangeItem>
+            <ChangeItem>Neu: Für Bootsreservierungen kann jetzt eine Telefonnummer für Rückfragen angegeben werden.</ChangeItem>
+            <ChangeItem>Neu: Da Google sein Wetter-API eingestellt hat, bezieht efa jetzt aktuelle Wetterdaten von Yahoo!. Hierzu muß in der efa-Konfiguration der Ort entsprechend eingetragen werden (Anleitung dazu im Forum in der FAQ).</ChangeItem>
+            <ChangeItem>Neu: efa zeigt bei Mehrtagesfahrten jetzt an, auf welches Datum sich Abfahrt- und Ankunftszeit beziehen.</ChangeItem>
+            <ChangeItem>Neu: Individuelle Statistiken im Bootshaus können durch ein Paßwort geschützt werden.</ChangeItem>
+            <ChangeItem>Bugfix: Inkrementelle Suche nach Bootsnamen in Bootslisten (efa-Bootshaus) ist jetzt auch mit Leerzeichen möglich.</ChangeItem>
+            <ChangeItem>Bugfix: Als Standard-Fahrtart für Boote kann jetzt auch 'keine Auswahl' festgelegt werden; in diesem Fall siegt die globale Standard-Fahrtart aus der efa-Konfiguration.</ChangeItem>
+            <ChangeItem>Bugfix: Beim Datenimport im Modus "aktualisieren" werden jetzt auch Felder aus einem exisitierenden Record gelöscht, wenn diese in der Importdatei angegeben und leer sind.</ChangeItem>
+            <ChangeItem>Bugfix: Exception beim Versuch, aus dem Projekt-Bearbeiten-Dialog heraus zu drucken.</ChangeItem>
+            <ChangeItem>Bugfix: Fehler in Spezialsuche behoben.</ChangeItem>
+            <ChangeItem>Bugfix: Audit hat Anzahl der Warnungen nicht korrekt gezählt.</ChangeItem>
+            <ChangeItem>Bugfix: Fehler beim Recovery behoben.</ChangeItem>
+            <ChangeItem>Bugfix: Inkorrekte Wertung von Mehrtagesfahrten für DRV-Wettbewerbe behoben.</ChangeItem>
+            <ChangeItem>Bugfix: Fehlerhafter Import von Bootsreservierungen korrigiert.</ChangeItem>
+            <ChangeItem>Bugfix: Wöchentliche Reservierungen wurden von efa nicht berücksichtigs.</ChangeItem>
+            <ChangeItem>Bugfix: Fehler bei Erstellung von efaRemote-Projekten behoben.</ChangeItem>
+            <ChangeItem>Bugfix: Wenn das Ändern von Kilometern für bekannte Ziele verboten ist, aber ein Ziel ohne Kilometer in der Zielliste erfaßt wird, erlaubt efa für dieses Ziel die Eingabe von Kilometern.</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>New: Destinations and boats can be assigned to boat houses, so that if efa is being used in multiple boathouses, they are only shown in one of them.</ChangeItem>
+            <ChangeItem>New: Usage permission for boats can be shown in boat selection lists though color coding.</ChangeItem>
+            <ChangeItem>New: Improved efa startup time.</ChangeItem>
+            <ChangeItem>New: Minor improvements in useability of special search..</ChangeItem>
+            <ChangeItem>New: Names in input with format "last name, first name" without space after comma are automatically corrected by efa.</ChangeItem>
+            <ChangeItem>New: Audit now raises an error if message file is too big, and in case of emergency also archives unread messages.</ChangeItem>
+            <ChangeItem>New: Optionally efa marks new messages as read as they are created.</ChangeItem>
+            <ChangeItem>New: Import can now change validity of data records.</ChangeItem>
+            <ChangeItem>New: For boat damages, efa now also stores additional information about the associated logbook entry (if applicable).</ChangeItem>
+            <ChangeItem>New: Boat reservations can additionally contain a contact phone number.</ChangeItem>
+            <ChangeItem>New: As Google discontinued their weather API, efa now retrieves weather information from Yahoo!. For this the desired location must be configured properly in efa (steps to do this are described in the efa Forum's FAQ</ChangeItem>
+            <ChangeItem>New: Individual statistics can be protected by a password in efa Boathouse.</ChangeItem>
+            <ChangeItem>Bugfix: Incremental search for boat names in boat lists (efa Boathouse) now also supports space character.</ChangeItem>
+            <ChangeItem>Bugfix: Default session type for boats can now also be 'no selection', in which case the global session type from the efa configuration wins.</ChangeItem>
+            <ChangeItem>Bugfix: When importing data in mode "update", fields in existing records can now also be deleted if those are specified in the import data and are empty.</ChangeItem>
+            <ChangeItem>Bugfix: Exception when trying to print from Project Edit dialog.</ChangeItem>
+            <ChangeItem>Bugfix: Bugs in Special Search fixed.</ChangeItem>
+            <ChangeItem>Bugfix: Audit did not count number of warnings properly.</ChangeItem>
+            <ChangeItem>Bugfix: Bugs in recovery fixed.</ChangeItem>
+            <ChangeItem>Bugfix: Weekly reservations have been ignored by efa.</ChangeItem>
+            <ChangeItem>Bugfix: Bugs for efaRemote project creation fixed.</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.3_05</VersionID>
+        <ReleaseDate>05.08.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa203.zip</DownloadUrl>
+        <DownloadSize>2915101</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.0.3_04</VersionID>
         <ReleaseDate>05.08.2012</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa203.zip</DownloadUrl>

@@ -1390,6 +1390,13 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         if (listID != 0 && ke != null) {
             clearAllPopups();
             if (ke.getKeyCode() == KeyEvent.VK_ENTER || ke.getKeyCode() == KeyEvent.VK_SPACE) {
+                // don't react if space was pressed as part of an incremental search string
+                if (ke.getKeyCode() == KeyEvent.VK_SPACE) {
+                    String s = ((ItemTypeList)list).getIncrementalSearchString();
+                    if (s != null && s.length() > 0 && !s.startsWith(" ")) {
+                        return;
+                    }
+                }
                 boatListDoubleClick(listID, list);
                 return;
             }
@@ -1664,8 +1671,11 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                     ? International.getString("zur Zeit")
                     : International.getMessage("in {x} Minuten", (int) validInMinutes)),
                     reservations[0].getPersonAsName()) + "\n"
-                    + (reservations[0].getReason().length() > 0 ? " (" + International.getString("Grund") + ": " + reservations[0].getReason() + ")\n" : "")
-                    + International.getMessage("Die Reservierung liegt {from_time_to_time} vor.", reservations[0].getReservationTimeDescription()) + "\n"
+                    + (reservations[0].getReason() != null && reservations[0].getReason().length() > 0 ?
+                        International.getString("Grund") + ": " + reservations[0].getReason() + "\n" : "")
+                    + (reservations[0].getContact() != null && reservations[0].getContact().length() > 0 ?
+                        International.getString("Telefon für Rückfragen") + ": " + reservations[0].getContact() + "\n" : "")
+                    + "\n" + International.getMessage("Die Reservierung liegt {from_time_to_time} vor.", reservations[0].getReservationTimeDescription()) + "\n"
                     + International.getString("Möchtest Du trotzdem das Boot benutzen?"))
                     != Dialog.YES) {
                 return false;
@@ -1971,7 +1981,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             efaBoathouseBackgroundTask.interrupt(); // Falls requestFocus nicht funktioniert hat, setzt der Thread ihn richtig!
             return;
         }
-        BoatDamageEditDialog.newBoatDamage(this, item.boat, null);
+        BoatDamageEditDialog.newBoatDamage(this, item.boat, null, null);
         efaBoathouseBackgroundTask.interrupt();
     }
 

@@ -41,6 +41,8 @@ public class AutoCompleteList {
     private long scn = 0;
     private String _searchId;
     private String _foundValue;
+    private boolean filterDataOnlyForThisBoathouse = false;
+    private boolean postfixNamesWithBoathouseName = true;
 
     public AutoCompleteList() {
     }
@@ -70,11 +72,35 @@ public class AutoCompleteList {
         scn++;
     }
 
+    public void setFilterDataOnlyForThisBoathouse(boolean filterDataOnlyForThisBoathouse) {
+        this.filterDataOnlyForThisBoathouse = filterDataOnlyForThisBoathouse;
+    }
+
+    public void setPostfixNamesWithBoathouseName(boolean postfixNamesWithBoathouseName) {
+        this.postfixNamesWithBoathouseName = postfixNamesWithBoathouseName;
+    }
+
     /**
      * Synchronize this list with the uderlying DataAccess, if necessary
      */
     public synchronized void update() {
         try {
+            int myBoathouseId = -1;
+            String myBoathouseName = null;
+            int numberOfBoathouses = 1;
+            try {
+                myBoathouseId = dataAccess.getPersistence().getProject().getMyBoathouseId();
+                numberOfBoathouses = dataAccess.getPersistence().getProject().getNumberOfBoathouses();
+                if (numberOfBoathouses > 1) {
+                    myBoathouseName = (dataAccess.getPersistence().getProject().getBoathouseRecord() != null
+                            ? dataAccess.getPersistence().getProject().getBoathouseRecord().getName() : null);
+                    if (myBoathouseName == null || myBoathouseName.length() == 0) {
+                        myBoathouseName = International.getString("Bootshaus") + " " + myBoathouseId;
+                    }
+                }
+            } catch(Exception e1) {
+                Logger.logdebug(e1);
+            }
             _foundValue = null;
             if (dataAccess != null &&
                 dataAccess.isStorageObjectOpen() &&
@@ -89,17 +115,31 @@ public class AutoCompleteList {
                 lower2realInvisible = new Hashtable<String,String>();
                 aliases2realVisible = new Hashtable<String,String>();
                 DataKeyIterator it = dataAccess.getStaticIterator();
-                DataKey k = it.getFirst();
-                while (k != null) {
+                ;
+                for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
                     DataRecord r = dataAccess.get(k);
                     if (r != null) {
                         if (_searchId != null && r.getUniqueIdForRecord() != null && _searchId.equals(r.getUniqueIdForRecord().toString())) {
                             _foundValue = r.getQualifiedName();
                         }
                         String s = r.getQualifiedName();
-                        if (Daten.efaConfig.getValuePrefixDestinationWithWaters() &&
-                            r instanceof DestinationRecord) {
-                            s = ((DestinationRecord)r).getWatersNamesStringListPrefix() + s;
+                        if (r instanceof DestinationRecord) {
+                            if (filterDataOnlyForThisBoathouse && numberOfBoathouses > 1 &&
+                                    ((DestinationRecord)r).getOnlyInBoathouseIdAsInt() >= 0 &&
+                                myBoathouseId != ((DestinationRecord)r).getOnlyInBoathouseIdAsInt()) {
+                                continue;
+                            }
+                            if (Daten.efaConfig.getValuePrefixDestinationWithWaters()) {
+                                s = ((DestinationRecord)r).getWatersNamesStringListPrefix() + s;
+                            }
+                            if (!postfixNamesWithBoathouseName && myBoathouseName != null) {
+                                // remove postfix from qualified name
+                                String dest = DestinationRecord.getDestinationNameFromPostfixedDestinationBoathouseString(s);
+                                String bths = DestinationRecord.getBoathouseNameFromPostfixedDestinationBoathouseString(s);
+                                if (dest != null && bths != null && myBoathouseName.equals(bths)) {
+                                    s = dest;
+                                }
+                            }
                         }
                         String alias = (r instanceof PersonRecord ? ((PersonRecord)r).getInputShortcut() : null);
                         if (!r.getDeleted() && !r.getInvisible()) {
@@ -116,7 +156,6 @@ public class AutoCompleteList {
                             }
                         }
                     }
-                    k = it.getNext();
                 }
                 sort();
             }

@@ -87,6 +87,10 @@ public abstract class BaseTabbedDialog extends BaseDialog {
             return "";
         }
         String catName = key;
+        int pos = catName.lastIndexOf(CATEGORY_SEPARATOR);
+        if (pos >= 0) {
+            catName = catName.substring(pos+1);
+        }
         int posFirst = -1;
         while ( (posFirst = catName.indexOf("%")) >= 0) {
             int posNext = catName.indexOf("%", posFirst + 1);

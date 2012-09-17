@@ -16,9 +16,13 @@ import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.BaseTabbedDialog;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.util.*;
+import java.awt.AWTEvent;
+import java.awt.GridBagConstraints;
 
 import java.util.*;
 
@@ -26,19 +30,25 @@ import java.util.*;
 
 public class ProjectRecord extends DataRecord {
 
-    public static final String TYPE_PROJECT = "Project";
-    public static final String TYPE_CLUB    = "Club";
-    public static final String TYPE_LOGBOOK = "Logbook";
-    public static final String TYPE_CONFIG  = "Config";
+    public static final String TYPE_PROJECT    = "Project";
+    public static final String TYPE_CLUB       = "Club";
+    public static final String TYPE_BOATHOUSE  = "Boathouse";
+    public static final String TYPE_LOGBOOK    = "Logbook";
+    //public static final String TYPE_CONFIG     = "Config";
 
     public static final String TYPE                         = "Type"; // one of TYPE_XXX constants
     public static final String PROJECTNAME                  = "ProjectName";
-    public static final String LOGBOOKNAME                  = "LogbookName";
+    public static final String DEPRECATED_LOGBOOKNAME       = "LogbookName";
+    public static final String NAME                         = "Name";
     public static final String DESCRIPTION                  = "Description";
 
     public static final int GUIITEMS_SUBTYPE_ALL = 0;
     public static final int GUIITEMS_SUBTYPE_KANUEFB = 100;
     public static final int GUIITEMS_SUBTYPE_EFAWETT = 101;
+
+    public static final String GUIITEM_BOATHOUSE_SETDEFAULT = "GUIITEM_BOATHOUSE_SETDEFAULT";
+    public static final String GUIITEM_BOATHOUSE_ADD        = "GUIITEM_BOATHOUSE_ADD";
+    public static final String GUIITEM_BOATHOUSE_DELETE     = "GUIITEM_BOATHOUSE_DELETE";
 
     // Fields for Type=Project
     // PROJECTNAME
@@ -53,11 +63,6 @@ public class ProjectRecord extends DataRecord {
     public static final String EFAONLINEPASSWORD            = "EfaOnlinePassword";
     public static final String ADMINNAME                    = "AdminName";
     public static final String ADMINEMAIL                   = "AdminEmail";
-    public static final String CURRENTLOGBOOKEFABASE        = "CurrentLogbookEfaBase";
-    public static final String CURRENTLOGBOOKEFABOATHOUSE   = "CurrentLogbookEfaBoathouse";
-    public static final String AUTONEWLOGBOOKDATE           = "AutoNewLogbookDate";
-    public static final String AUTONEWLOGBOOKNAME           = "AutoNewLogbookName";
-
 
     // Fields for Type=Club
     public static final String CLUBNAME                     = "ClubName";
@@ -72,7 +77,6 @@ public class ProjectRecord extends DataRecord {
     public static final String MEMBEROFDRV                  = "MemberOfDRV";
     public static final String MEMBEROFSRV                  = "MemberOfSRV";
     public static final String MEMBEROFADH                  = "MemberOfADH";
-    public static final String AREAID                       = "AreaID"; // Zielbereich
     public static final String KANUEFBUSERNAME              = "KanuEfbUsername";
     public static final String KANUEFBPASSWORD              = "KanuEfbPassword";
     public static final String KANUEFBLASTSYNC              = "KanuEfbLastSync";
@@ -80,6 +84,17 @@ public class ProjectRecord extends DataRecord {
     public static final String TRANSFERABLECLUBWORKHOURS    = "TransferableClubworkHours";
     public static final String FINEFORTOOLITTLECLUBWORK     = "FineForTooLittleClubwork";
     public static final String CLUBWORKCARRYOVER            = "ClubworkCarryOverDate";
+
+    // Fields for Type=Boathouse
+    // BOATHOUSENAME (StorageObject Name)
+    // DESCRIPTION
+    public static final String BOATHOUSEID                  = "BoathouseId";
+    public static final String BOATHOUSE_IDENTIFIER         = "BoathouseIdentifier";
+    public static final String CURRENTLOGBOOKEFABASE        = "CurrentLogbookEfaBase"; // previous ProjectRecord
+    public static final String CURRENTLOGBOOKEFABOATHOUSE   = "CurrentLogbookEfaBoathouse"; // previous ProjectRecord
+    public static final String AREAID                       = "AreaID"; // previous ClubRecord
+    public static final String AUTONEWLOGBOOKDATE           = "AutoNewLogbookDate"; // previous ConfigRecord
+    public static final String AUTONEWLOGBOOKNAME           = "AutoNewLogbookName"; // previous ConfigRecord
 
     // Fields for Type=Logbook
     // LOGBOOKNAME (StorageObject Name)
@@ -95,7 +110,8 @@ public class ProjectRecord extends DataRecord {
 
         f.add(TYPE);                          t.add(IDataAccess.DATA_STRING);
         f.add(PROJECTNAME);                   t.add(IDataAccess.DATA_STRING);
-        f.add(LOGBOOKNAME);                   t.add(IDataAccess.DATA_STRING);
+        f.add(DEPRECATED_LOGBOOKNAME);        t.add(IDataAccess.DATA_STRING);
+        f.add(NAME);                          t.add(IDataAccess.DATA_STRING);
         f.add(DESCRIPTION);                   t.add(IDataAccess.DATA_STRING);
         f.add(STORAGETYPE);                   t.add(IDataAccess.DATA_STRING);
         f.add(STORAGELOCATION);               t.add(IDataAccess.DATA_STRING);
@@ -133,8 +149,11 @@ public class ProjectRecord extends DataRecord {
         f.add(TRANSFERABLECLUBWORKHOURS);     t.add(IDataAccess.DATA_DOUBLE);
         f.add(FINEFORTOOLITTLECLUBWORK);      t.add(IDataAccess.DATA_DOUBLE);
         f.add(CLUBWORKCARRYOVER);             t.add(IDataAccess.DATA_DATE);
+        f.add(BOATHOUSEID);                   t.add(IDataAccess.DATA_INTEGER);
+        f.add(BOATHOUSE_IDENTIFIER);          t.add(IDataAccess.DATA_STRING);
+        
         MetaData metaData = constructMetaData(Project.DATATYPE, f, t, false);
-        metaData.setKey(new String[] { TYPE, LOGBOOKNAME });
+        metaData.setKey(new String[] { TYPE, NAME });
     }
 
     public ProjectRecord(Project project, MetaData metaData) {
@@ -173,7 +192,7 @@ public class ProjectRecord extends DataRecord {
     }
 
     public DataKey getKey() {
-        return new DataKey<String,String,String>(getType(),getLogbookName(),null);
+        return new DataKey<String,String,String>(getType(),getName(),null);
     }
 
     public void setType(String type) {
@@ -181,9 +200,6 @@ public class ProjectRecord extends DataRecord {
     }
     public void setProjectName(String projectName) {
         setString(PROJECTNAME, projectName);
-    }
-    public void setLogbookName(String logbookName) {
-        setString(LOGBOOKNAME, logbookName);
     }
     public void setDescription(String description) {
         setString(DESCRIPTION, description);
@@ -307,14 +323,27 @@ public class ProjectRecord extends DataRecord {
         setDate(CLUBWORKCARRYOVER, date);
     }
 
+    public void setName(String name) {
+        setString(NAME, name);
+    }
+
+    public void setBoathouseId(int id) {
+        setInt(BOATHOUSEID, id);
+    }
+
+    public void setBoathouseIdentifier(String identifier) {
+        setString(BOATHOUSE_IDENTIFIER, identifier);
+    }
+
     public String getType() {
         return getString(TYPE);
     }
+    public String getName() {
+        return getString(NAME);
+    }
+
     public String getProjectName() {
         return getString(PROJECTNAME);
-    }
-    public String getLogbookName() {
-        return getString(LOGBOOKNAME);
     }
     public String getDescription() {
         return getString(DESCRIPTION);
@@ -466,6 +495,14 @@ public class ProjectRecord extends DataRecord {
         return getDate(CLUBWORKCARRYOVER);
     }
     
+    public String getBoathouseIdentifier() {
+        return getString(BOATHOUSE_IDENTIFIER);
+    }
+
+    public int getBoathouseId() {
+        return getInt(BOATHOUSEID);
+    }
+
     public Vector<IItemType> getGuiItems(AdminRecord admin) {
         return getGuiItems(admin, 0, null, false);
     }
@@ -479,6 +516,7 @@ public class ProjectRecord extends DataRecord {
             if (usecategory == null) {
                 category = "%01%" + International.getString("Projekt");
             }
+
             if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 1) {
                 v.add(item = new ItemTypeString(ProjectRecord.PROJECTNAME, getProjectName(),
                         IItemType.TYPE_PUBLIC, category,
@@ -511,6 +549,7 @@ public class ProjectRecord extends DataRecord {
             }
 
             if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 3) {
+
                 if (!newProject || getStorageType() != IDataAccess.TYPE_FILE_XML) {
                     v.add(item = new ItemTypeString(ProjectRecord.STORAGELOCATION, getStorageLocation(),
                             IItemType.TYPE_PUBLIC, category,
@@ -521,6 +560,7 @@ public class ProjectRecord extends DataRecord {
                     ((ItemTypeString) item).setEnabled(getStorageType() != IDataAccess.TYPE_FILE_XML);
                     ((ItemTypeString) item).setNotNull(getStorageType() == IDataAccess.TYPE_DB_SQL);
                 }
+
                 if (getStorageType() != IDataAccess.TYPE_FILE_XML) {
                     v.add(item = new ItemTypeString(ProjectRecord.STORAGEUSERNAME, getStorageUsername(),
                             IItemType.TYPE_PUBLIC, category,
@@ -542,6 +582,7 @@ public class ProjectRecord extends DataRecord {
                             International.getString("remote") + ")"));
                     ((ItemTypeString) item).setNotNull(true);
                 }
+
                 if (getStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
                     v.add(item = new ItemTypeBoolean(ProjectRecord.EFAONLINECONNECT, getEfaOnlineConnect(),
                             IItemType.TYPE_PUBLIC, category,
@@ -559,9 +600,11 @@ public class ProjectRecord extends DataRecord {
         }
 
         if (getType().equals(TYPE_CLUB)) {
+
             if (usecategory == null) {
                 category = "%02A%" + International.getString("Club");
             }
+
             if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 1 || subtype == GUIITEMS_SUBTYPE_EFAWETT) {
                 v.add(item = new ItemTypeString(ProjectRecord.CLUBNAME, getClubName(),
                         IItemType.TYPE_PUBLIC, category,
@@ -574,18 +617,8 @@ public class ProjectRecord extends DataRecord {
                         IItemType.TYPE_PUBLIC, category,
                         International.getString("Anschrift") + " - "
                         + International.getString("Postleitzahl und Ort")));
-                if (Daten.efaConfig.getValueUseFunctionalityRowingBerlin()) {
-                    int areaId = getAreaId();
-                    if (areaId < 1 || areaId > Zielfahrt.ANZ_ZIELBEREICHE) {
-                        areaId = 1;
-                    }
-                    v.add(item = new ItemTypeInteger(ProjectRecord.AREAID, areaId,
-                            1, Zielfahrt.ANZ_ZIELBEREICHE, true,
-                            IItemType.TYPE_PUBLIC, category,
-                            International.onlyFor("eigener Zielbereich", "de")));
-                    item.setNotNull(true);
-                }
             }
+
             if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 1) {
                 if (Daten.NEW_FEATURES) {
                     if (usecategory == null) {
@@ -609,6 +642,7 @@ public class ProjectRecord extends DataRecord {
 	                    International.getString("Bußgeld für Vereinsarbeit unter Sollstunden")));
                 }
             }
+
             if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 2 || subtype == GUIITEMS_SUBTYPE_EFAWETT) {
                 if (usecategory == null) {
                     category = "%02C%" + International.getString("Verbände");
@@ -673,6 +707,7 @@ public class ProjectRecord extends DataRecord {
                             International.onlyFor("Mitglied im Allgemeinen Deutschen Hochschulsportverband (ADH)", "de")));
                 }
             }
+
             if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 2 || subtype == GUIITEMS_SUBTYPE_KANUEFB) {
                 if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany() || subtype == GUIITEMS_SUBTYPE_KANUEFB) {
                    if (usecategory == null) {
@@ -691,12 +726,79 @@ public class ProjectRecord extends DataRecord {
             }
         }
 
-        if (getType().equals(TYPE_LOGBOOK)) {
+        if (getType().equals(TYPE_BOATHOUSE)) {
             if (usecategory == null) {
-                category = "%03%" + International.getString("Fahrtenbuch") + " " + getLogbookName();
+                category = BaseTabbedDialog.makeCategory("%03%" + International.getString("Bootshaus"),getName());
             }
+
             if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 1) {
-                v.add(item = new ItemTypeString(ProjectRecord.LOGBOOKNAME, getLogbookName(),
+                v.add(item = new ItemTypeString(ProjectRecord.NAME, getName(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Name des Bootshauses")));
+                ((ItemTypeString) item).setNotNull(true);
+                ((ItemTypeString) item).setNotAllowedCharacters("()");
+
+                v.add(item = new ItemTypeString(ProjectRecord.DESCRIPTION, getDescription(),
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Beschreibung")));
+
+                if (Daten.efaConfig.getValueUseFunctionalityRowingBerlin()) {
+                    int areaId = getAreaId();
+                    if (areaId < 1 || areaId > Zielfahrt.ANZ_ZIELBEREICHE) {
+                        areaId = 1;
+                    }
+                    v.add(item = new ItemTypeInteger(ProjectRecord.AREAID, areaId,
+                            1, Zielfahrt.ANZ_ZIELBEREICHE, true,
+                            IItemType.TYPE_PUBLIC, category,
+                            International.onlyFor("eigener Zielbereich", "de")));
+                    item.setNotNull(true);
+                }
+                if (!newProject) {
+                    v.add(item = new ItemTypeDate(ProjectRecord.AUTONEWLOGBOOKDATE, getAutoNewLogbookDate(),
+                            IItemType.TYPE_EXPERT, category,
+                            International.getString("Fahrtenbuchwechsel") + " - " +
+                            International.getString("Datum")));
+                    v.add(item = new ItemTypeString(ProjectRecord.AUTONEWLOGBOOKNAME, getAutoNewLogbookName(),
+                            IItemType.TYPE_EXPERT, category,
+                            International.getString("Fahrtenbuchwechsel") + " - " +
+                            International.getString("Fahrtenbuch")));
+                }
+
+                v.add(item = new ItemTypeButton(GUIITEM_BOATHOUSE_ADD,
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Bootshaus hinzufügen")));
+                ((ItemTypeButton)item).setIcon(BaseDialog.getIcon(BaseDialog.IMAGE_ADD));
+                ((ItemTypeButton)item).setFieldGrid(2, GridBagConstraints.CENTER, GridBagConstraints.NONE);
+                ((ItemTypeButton)item).setPadding(0, 0, 40, 0);
+                v.add(item = new ItemTypeButton(GUIITEM_BOATHOUSE_DELETE,
+                        IItemType.TYPE_PUBLIC, category,
+                        International.getString("Bootshaus entfernen")));
+                ((ItemTypeButton)item).setIcon(BaseDialog.getIcon(BaseDialog.IMAGE_DELETE));
+                ((ItemTypeButton)item).setFieldGrid(2, GridBagConstraints.CENTER, GridBagConstraints.NONE);
+                ((ItemTypeButton)item).setDataKey(getKey());
+                if (((Project)getPersistence()).getNumberOfBoathouses() > 1) {
+                    v.add(item = new ItemTypeString(ProjectRecord.BOATHOUSE_IDENTIFIER, getBoathouseIdentifier(),
+                            IItemType.TYPE_PUBLIC, category,
+                            International.getString("Standardcomputer für dieses Bootshaus")));
+                    ((ItemTypeString)item).setPadding(0, 0, 20, 0);
+                    v.add(item = new ItemTypeButton(GUIITEM_BOATHOUSE_SETDEFAULT,
+                            IItemType.TYPE_PUBLIC, category,
+                            International.getString("Diesen Computer auswählen")));
+                    ((ItemTypeButton)item).setIcon(BaseDialog.getIcon(BaseDialog.IMAGE_SELECT));
+                    ((ItemTypeButton)item).setFieldGrid(2, GridBagConstraints.EAST, GridBagConstraints.NONE);
+                }
+
+            }
+        }
+
+        if (getType().equals(TYPE_LOGBOOK)) {
+
+            if (usecategory == null) {
+                category = BaseTabbedDialog.makeCategory("%04%" + International.getString("Fahrtenbuch"),getName());
+            }
+
+            if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 1) {
+                v.add(item = new ItemTypeString(ProjectRecord.NAME, getName(),
                         IItemType.TYPE_PUBLIC, category,
                         International.getString("Name des Fahrtenbuchs")));
                 ((ItemTypeString) item).setAllowedCharacters("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
@@ -721,20 +823,6 @@ public class ProjectRecord extends DataRecord {
                         International.getString("Ende des Zeitraums")));
                 ((ItemTypeDate) item).setNotNull(true);
                 ((ItemTypeDate) item).setEditable(newProject);
-            }
-        }
-
-        if (getType().equals(TYPE_CONFIG)) {
-            if (usecategory == null) {
-                category = "%04%" + International.getString("Fahrtenbuchwechsel");
-            }
-            if (subtype == GUIITEMS_SUBTYPE_ALL && !newProject) {
-                v.add(item = new ItemTypeDate(ProjectRecord.AUTONEWLOGBOOKDATE, getAutoNewLogbookDate(),
-                        IItemType.TYPE_EXPERT, category,
-                        International.getString("Datum")));
-                v.add(item = new ItemTypeString(ProjectRecord.AUTONEWLOGBOOKNAME, getAutoNewLogbookName(),
-                        IItemType.TYPE_EXPERT, category,
-                        International.getString("Fahrtenbuch")));
             }
         }
 
@@ -770,6 +858,5 @@ public class ProjectRecord extends DataRecord {
             International.getString("SQL-Datenbank")
         };
     }
-
 
 }

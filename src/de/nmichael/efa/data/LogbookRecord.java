@@ -636,18 +636,26 @@ public class LogbookRecord extends DataRecord {
         return getDestinationAndVariantName(getValidAtTimestamp());
     }
 
+    public String getDestinationAndVariantName(boolean prefixedByWaters, boolean postfixedByBoathouse) {
+        return getDestinationAndVariantName(getValidAtTimestamp(), prefixedByWaters, postfixedByBoathouse);
+    }
+    
     public String getDestinationAndVariantName(long validAt) {
-        return getDestinationAndVariantName(validAt, false);
+        return getDestinationAndVariantName(validAt, false, true);
     }
 
-    public String getDestinationAndVariantName(long validAt, boolean prefixedByWaters) {
+/*    public String getDestinationAndVariantName(long validAt, boolean prefixedByWaters) {
+        return getDestinationAndVariantName(validAt, prefixedByWaters, true);
+    }
+*/
+    public String getDestinationAndVariantName(long validAt, boolean prefixedByWaters, boolean postfixedByBoathouse) {
         String name = null;
         if (validAt < 0) {
             validAt = getValidAtTimestamp();
         }
         DestinationRecord d = getDestinationRecord(validAt);
         if (d != null) {
-            name = d.getName();
+            name = (postfixedByBoathouse ? d.getQualifiedName() : d.getName());
         }
         if (name == null || name.length() == 0) {
             name = getDestinationName();
@@ -753,6 +761,30 @@ public class LogbookRecord extends DataRecord {
             return 24;
         }
         return -1;
+    }
+
+    public String[] getEquivalentFields(String fieldName) {
+        if (fieldName.equals(EXP_BOAT)) {
+            return new String[] { BOATID, BOATNAME };
+        }
+        if (fieldName.equals(EXP_COX)) {
+            return new String[] { COXID, COXNAME };
+        }
+        for (int i = 0; i < CREW_MAX; i++) {
+            if (fieldName.equals(EXP_CREW+i)) {
+                return new String[]{ getCrewFieldNameId(i), getCrewFieldNameName(i) };
+            }
+        }
+        if (fieldName.equals(EXP_DESTINATION)) {
+            return new String[] { DESTINATIONID, DESTINATIONNAME };
+        }
+        if (fieldName.equals(EXP_WATERSLIST)) {
+            return new String[] { WATERSIDLIST, WATERSNAMELIST };
+        }
+        if (fieldName.equals(EXP_SESSIONGROUP)) {
+            return new String[] { SESSIONGROUPID };
+        }
+        return super.getEquivalentFields(fieldName);
     }
 
     public String[] getFieldNamesForTextExport(boolean includingVirtual) {
@@ -909,8 +941,7 @@ public class LogbookRecord extends DataRecord {
             }
             return (value.equals(getAsText(fieldName)));
         }
-        set(fieldName, value);
-        return (value.equals(getAsText(fieldName)));
+        return super.setFromText(fieldName, value);
     }
 
     public Vector<IItemType> getGuiItems(AdminRecord admin) {
@@ -1009,6 +1040,30 @@ public class LogbookRecord extends DataRecord {
 
     public String[] getQualifiedNameFields() {
         return new String[] { ENTRYID };
+    }
+
+    public String getLogbookRecordAsStringDescription() {
+        try {
+            StringBuffer s = new StringBuffer();
+            s.append(International.getMessage("#{entry} vom {date} mit {boat}",
+                    getEntryId().toString(),
+                    (getDate() != null ? getDate().toString() : "?"),
+                    getBoatAsName()) + ": ");
+            s.append(getAllCoxAndCrewAsNameString() + ": ");
+            s.append( (getStartTime() != null ? getStartTime().toString() : "?") +
+                    " " + International.getString("bis") + " " +
+                     (getEndTime() != null ? getEndTime().toString() : "?") + " " +
+                     International.getString("Uhr") + ": ");
+            s.append(getDestinationAndVariantName() + " (" +
+                    (getDistance() != null ? getDistance().toString() : "?") + ")");
+            if (getComments() != null && getComments().length() > 0) {
+                s.append("; " + getComments());
+            }
+            return s.toString();
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
     }
 
     public static String[] getBoatCaptainValues() {

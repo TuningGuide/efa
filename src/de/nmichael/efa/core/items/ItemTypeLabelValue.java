@@ -21,6 +21,9 @@ import javax.swing.*;
 
 public abstract class ItemTypeLabelValue extends ItemType {
 
+    public static final int ACTIONID_FIELD_EXPANDED = 38341;
+    public static final int ACTIONID_FIELD_COLLAPSED = 38342;
+
     protected JLabel label;
     protected int labelGridWidth = 1;
     protected int labelGridAnchor = GridBagConstraints.WEST;
@@ -33,6 +36,8 @@ public abstract class ItemTypeLabelValue extends ItemType {
     protected String optionalButtonText = "+";
     protected JButton expandButton;
     protected boolean itemOnNewRow = false;
+    protected int xOffset = 0;
+    protected int yOffset = 0;
 
     protected abstract JComponent initializeField();
 
@@ -87,6 +92,8 @@ public abstract class ItemTypeLabelValue extends ItemType {
     public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
         this.dlg = dlg;
         iniDisplay();
+        x += xOffset;
+        y += yOffset;
         if (label != null) {
             panel.add(label, new GridBagConstraints(x, y, labelGridWidth, fieldGridHeight, 0.0, 0.0,
                     labelGridAnchor, labelGridFill, 
@@ -192,8 +199,14 @@ public abstract class ItemTypeLabelValue extends ItemType {
 
     private boolean showExpandButton(boolean isExpandButtonHit, boolean calledForExpandButton) {
         if (isShowOptional && toString().length() == 0 && !isExpandButtonHit) {
+            if (isShowOptional) {
+                actionEvent(new ActionEvent(this, ACTIONID_FIELD_COLLAPSED, "collapsed"));
+            }
             return (calledForExpandButton); // show expandButton
         } else {
+            if (isShowOptional) {
+                actionEvent(new ActionEvent(this, ACTIONID_FIELD_EXPANDED, "expanded"));
+            }
             return (!calledForExpandButton); // show label
         }
     }
@@ -253,6 +266,11 @@ public abstract class ItemTypeLabelValue extends ItemType {
 
     public void setItemOnNewRow(boolean newRow) {
         itemOnNewRow = newRow;
+    }
+
+    public void setOffsetXY(int x, int y) {
+        this.xOffset = x;
+        this.yOffset = y;
     }
     
 }

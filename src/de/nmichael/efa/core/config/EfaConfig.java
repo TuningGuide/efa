@@ -210,6 +210,8 @@ public class EfaConfig extends StorageObject {
     private ItemTypeBoolean efaDirekt_bnrBootsstatus_admin;
     private ItemTypeBoolean efaDirekt_bnrBootsstatus_bootswart;
     private ItemTypeLong efaDirekt_bnrWarning_lasttime;
+    private ItemTypeBoolean notificationMarkReadAdmin;
+    private ItemTypeBoolean notificationMarkReadBoatMaintenance;
     private ItemTypeString efaDirekt_emailServer;
     private ItemTypeInteger efaDirekt_emailPort;
     private ItemTypeString efaDirekt_emailAbsender;
@@ -864,6 +866,14 @@ public class EfaConfig extends StorageObject {
             addParameter(efaDirekt_bnrWarning_lasttime = new ItemTypeLong("NotificationLastWarnings", System.currentTimeMillis() - 7l * 24l * 60l * 60l * 1000l, 0, Long.MAX_VALUE, // one week ago
                     IItemType.TYPE_INTERNAL,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
                     International.getString("letzte Benachrichtigungen")));
+            addParameter(notificationMarkReadAdmin = new ItemTypeBoolean("NotificationMarkReadAdmin", false,
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    International.getMessage("Nachrichten an {recipient} automatisch als gelesen markieren",
+                    International.getString("Admin"))));
+            addParameter(notificationMarkReadBoatMaintenance = new ItemTypeBoolean("NotificationMarkReadBoatMaintenance", false,
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
+                    International.getMessage("Nachrichten an {recipient} automatisch als gelesen markieren",
+                    International.getString("Bootswart"))));
             addParameter(efaDirekt_emailServer = new ItemTypeString("NotificationEmailServer", "",
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_NOTIFICATIONS),
                     International.getString("email") + ": "
@@ -1591,6 +1601,14 @@ public class EfaConfig extends StorageObject {
 
     public void setValueEfaDirekt_bnrWarning_lasttime(long lasttime) {
         setValue(efaDirekt_bnrWarning_lasttime, Long.toString(lasttime));
+    }
+
+    public boolean getValueNotificationMarkReadAdmin() {
+        return notificationMarkReadAdmin.getValue();
+    }
+
+    public boolean getValueNotificationMarkReadBoatMaintenance() {
+        return notificationMarkReadBoatMaintenance.getValue();
     }
 
     public String getValueEfaDirekt_emailServer() {

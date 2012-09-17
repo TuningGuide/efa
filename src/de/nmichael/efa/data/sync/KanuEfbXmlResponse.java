@@ -70,7 +70,7 @@ public class KanuEfbXmlResponse extends XmlHandler {
             if (fields == null) {
                 fields = new Hashtable<String,String>();
             }
-            fields.put(fieldName, fieldValue);
+            fields.put(fieldName, getFieldValue());
         }
 
         if (inRecord && recordName != null && 

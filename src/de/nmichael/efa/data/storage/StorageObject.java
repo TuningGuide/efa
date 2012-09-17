@@ -40,11 +40,27 @@ public abstract class StorageObject {
 
     public void open(boolean createNewIfNotExists) throws EfaException {
         try {
+            if (Logger.isTraceOn(Logger.TT_CORE, 5)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_DATA, "Opening StorageObject "
+                        + getUID() + " ...");
+            }
             dataAccess.openStorageObject();
+            if (Logger.isTraceOn(Logger.TT_CORE, 5)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_DATA, "StorageObject "
+                        + getUID() + " opened.");
+            }
         } catch(EfaException eOpen) {
             if (createNewIfNotExists) {
                 try {
+                    if (Logger.isTraceOn(Logger.TT_CORE, 5)) {
+                        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_DATA, "Creating StorageObject "
+                                + getUID() + " ...");
+                    }
                     dataAccess.createStorageObject();
+                    if (Logger.isTraceOn(Logger.TT_CORE, 5)) {
+                        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_DATA, "StorageObject "
+                                + getUID() + " created.");
+                    }
                 } catch(EfaException eCreate) {
                     throw eCreate;
                 }
@@ -55,7 +71,15 @@ public abstract class StorageObject {
     }
 
     public void close() throws EfaException {
+        if (Logger.isTraceOn(Logger.TT_CORE, 5)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_DATA, "Closing StorageObject "
+                    + getUID() + " ...");
+        }
         dataAccess.closeStorageObject();
+        if (Logger.isTraceOn(Logger.TT_CORE, 5)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_DATA, "StorageObject "
+                    + getUID() + " closed.");
+        }
     }
 
     public boolean isOpen() {
@@ -284,4 +308,10 @@ public abstract class StorageObject {
                     Thread.currentThread().getStackTrace());
         }
     }
+
+    public String transformFieldName(String fieldName) {
+        // to be overwritten by subclass if field name changes and needs to be corrected during parsing
+        return fieldName;
+    }
+
 }

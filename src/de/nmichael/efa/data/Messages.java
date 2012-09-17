@@ -66,6 +66,14 @@ public class Messages extends StorageObject {
         r.setSubject(subject);
         r.setText(text);
         r.setToBeMailed(true);
+        if (Daten.efaConfig.getValueNotificationMarkReadAdmin() &&
+                MessageRecord.TO_ADMIN.equals(to)) {
+            r.setRead(true);
+        }
+        if (Daten.efaConfig.getValueNotificationMarkReadBoatMaintenance() &&
+                MessageRecord.TO_BOATMAINTENANCE.equals(to)) {
+            r.setRead(true);
+        }
         try {
             data().add(r);
         } catch(Exception e) {

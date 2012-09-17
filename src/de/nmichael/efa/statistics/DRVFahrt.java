@@ -34,6 +34,7 @@ public class DRVFahrt {
         this.destination = destination;
         this.comments = (comments != null ? comments : "");
         this.distanceInMeters = distanceInMeters;
+        this.days = CompetitionDRVFahrtenabzeichen.getNumberOfDays(dateStart, dateEnd);
     }
 
 }

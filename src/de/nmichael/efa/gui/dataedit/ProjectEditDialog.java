@@ -18,20 +18,24 @@ import java.util.Vector;
 import javax.swing.JDialog;
 
 import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.core.items.IItemListener;
 import de.nmichael.efa.core.items.IItemType;
+import de.nmichael.efa.core.items.ItemTypeString;
 import de.nmichael.efa.data.Project;
 import de.nmichael.efa.data.ProjectRecord;
 import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.data.storage.DataKey;
+import de.nmichael.efa.data.storage.IDataAccess;
+import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.ex.InvalidValueException;
-import de.nmichael.efa.gui.OpenProjectOrLogbookDialog;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
+import java.awt.AWTEvent;
 
 // @i18n complete
-public class ProjectEditDialog extends UnversionizedDataEditDialog {
+public class ProjectEditDialog extends UnversionizedDataEditDialog implements IItemListener {
 
     Project project;
     String logbookName;
@@ -87,6 +91,8 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog {
     private void iniItems(Project p, String logbookName, int subtype) {
         this.project = p;
         this.logbookName = logbookName;
+        removePrintButton();
+
         Vector<IItemType> guiItems = new Vector<IItemType>();
         try {
             ProjectRecord r;
@@ -114,9 +120,15 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog {
                         guiItems.add(item);
                     }
                 }
-                r = p.getConfigRecord();
-                if (r != null) {
-                    guiItems.addAll(r.getGuiItems(admin, subtype, null, false));
+                String[] boathouses = p.getAllBoathouseNames();
+                for (int i = 0; boathouses != null && i < boathouses.length; i++) {
+                    r = p.getBoathouseRecord(boathouses[i]);
+                    Vector<IItemType> v = r.getGuiItems(admin, subtype, null, false);
+                    for (int j = 0; j < v.size(); j++) {
+                        IItemType item = v.get(j);
+                        item.setName(r.getKey().toString() + ":" + item.getName());
+                        guiItems.add(item);
+                    }
                 }
             }
         } catch(Exception e) {
@@ -124,11 +136,104 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog {
         }
 
         this.setItems(guiItems);
+
+        for (IItemType item : getItems()) {
+            if (item.getName().endsWith(ProjectRecord.GUIITEM_BOATHOUSE_ADD)) {
+                item.registerItemListener(this);
+            }
+            if (item.getName().endsWith(ProjectRecord.GUIITEM_BOATHOUSE_DELETE)) {
+                item.registerItemListener(this);
+            }
+            if (item.getName().endsWith(ProjectRecord.GUIITEM_BOATHOUSE_SETDEFAULT)) {
+                item.registerItemListener(this);
+            }
+        }
     }
 
 
     public void keyAction(ActionEvent evt) {
         _keyAction(evt);
+    }
+
+    public void itemListenerAction(IItemType itemType, AWTEvent event) {
+        if (itemType.getName().endsWith(ProjectRecord.GUIITEM_BOATHOUSE_ADD) &&
+            event.getID() == ActionEvent.ACTION_PERFORMED) {
+            String boathouseName = Dialog.inputDialog(International.getString("Bootshaus hinzufügen"),
+                    International.getString("Name des Bootshauses"));
+            if (boathouseName != null) {
+                ProjectRecord r = project.createNewBoathouseRecord(boathouseName);
+                if (r == null) {
+                    return;
+                }
+                try {
+                    int boathousesBefore = project.getNumberOfBoathouses();
+                    ProjectRecord curBths = project.getBoathouseRecord();
+                    project.addRecord(r, ProjectRecord.TYPE_BOATHOUSE);
+                    Vector<IItemType> items = getItems();
+                    Vector<IItemType> itemsNew = r.getGuiItems(admin);
+                    for (IItemType item : itemsNew) {
+                        item.setName(r.getKey().toString() + ":" + item.getName());
+                        item.registerItemListener(this);
+                    }
+                    items.addAll(itemsNew);
+
+                    if (boathousesBefore == 1 && curBths != null) {
+                        // now also add additional fields for previous boathouse
+                        itemsNew = curBths.getGuiItems(admin);
+                        for (IItemType item : itemsNew) {
+                            item.setName(curBths.getKey().toString() + ":" + item.getName());
+                            if (getItem(item.getName()) == null) {
+                                item.registerItemListener(this);
+                                items.add(item);
+                            }
+                        }
+                    }
+
+                    setItems(items);
+                    updateGui();
+                } catch(EfaException e) {
+                    Dialog.error(e.getMessage());
+                    return;
+                }
+            }
+        }
+        if (itemType.getName().endsWith(ProjectRecord.GUIITEM_BOATHOUSE_DELETE) &&
+            event.getID() == ActionEvent.ACTION_PERFORMED) {
+            ProjectRecord r = project.getRecord(itemType.getDataKey());
+            if (r != null && Dialog.yesNoDialog(International.getString("Bootshaus entfernen"),
+                    International.getMessage("Möchtest Du das Bootshaus '{name}' wirklich entfernen?",
+                    r.getName())) != Dialog.YES) {
+                return;
+            }
+            try {
+                project.data().delete(r.getKey());
+                String cat = itemType.getCategory();
+                Vector<IItemType> items = getItems();
+                for (int i=0; i<items.size(); i++) {
+                    if (items.get(i).getCategory().equals(cat)) {
+                        items.remove(i--);
+                    }
+                }
+                setItems(items);
+                updateGui();
+            } catch (EfaException e) {
+                Dialog.error(e.getMessage());
+                return;
+            }
+        }
+        if (itemType.getName().endsWith(ProjectRecord.GUIITEM_BOATHOUSE_SETDEFAULT) &&
+            event.getID() == ActionEvent.ACTION_PERFORMED) {
+            String name = itemType.getName();
+            int pos = name.indexOf(":");
+            if (pos > 0) {
+                name = name.substring(0, pos) + ":" + ProjectRecord.BOATHOUSE_IDENTIFIER;
+                IItemType item = this.getItem(name);
+                if (item != null) {
+                    ((ItemTypeString)item).parseAndShowValue(project.getMyIdentifier());
+                }
+            }
+            
+        }
     }
 
     protected boolean saveRecord() throws InvalidValueException {
@@ -164,7 +269,22 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog {
                 if (r != null) {
                     // r can be null for remote projects which aren't yet open
                     r.saveGuiItems(ki);
-                    project.getMyDataAccess(r.getType()).update(r);
+                    if (k.equals(r.getKey())) {
+                        project.getMyDataAccess(r.getType()).update(r);
+                    } else {
+                        IDataAccess _dataAccess = project.getMyDataAccess(r.getType());
+                        if (_dataAccess != null) {
+                            try {
+                                _dataAccess.setPreModifyRecordCallbackEnabled(false);
+                                _dataAccess.delete(k);
+                                _dataAccess.add(r);
+                            } catch (Exception e) {
+                                _dataAccess.add(r);
+                            } finally {
+                                _dataAccess.setPreModifyRecordCallbackEnabled(true);
+                            }
+                        }
+                    }
                 }
             }
             for(IItemType item : getItems()) {

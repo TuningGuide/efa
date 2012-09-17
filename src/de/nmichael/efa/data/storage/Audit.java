@@ -28,6 +28,7 @@ public class Audit extends Thread {
     
     private Project project;
     private boolean correctErrors;
+    private int errors = 0;
     private int warnings = 0;
     private int infos = 0;
 
@@ -40,12 +41,27 @@ public class Audit extends Thread {
      * @todo (P3) Audit - SessionGroups
      */
 
+    private void auditInfo(String key, String msg) {
+        Logger.log(Logger.INFO, key, msg);
+        infos++;
+    }
+
+    private void auditWarning(String key, String msg) {
+        Logger.log(Logger.WARNING, key, msg);
+        warnings++;
+    }
+
+    private void auditError(String key, String msg) {
+        Logger.log(Logger.ERROR, key, msg);
+        errors++;
+    }
+
     private int runAuditPersistence(StorageObject p, String dataType) {
         if (p != null && p.isOpen()) {
             Logger.log(Logger.DEBUG, Logger.MSG_DATA_AUDIT, dataType + " open (" + p.toString() + ")");
             return 0;
         } else {
-            Logger.log(Logger.ERROR, Logger.MSG_DATA_AUDIT, dataType + " not open");
+            auditError(Logger.MSG_DATA_AUDIT, dataType + " not open");
             return 1;
         }
     }
@@ -112,11 +128,11 @@ public class Audit extends Thread {
     }
 
     private int runAuditBoats() {
-        int errors = 0;
+        int boatErr = 0;
         try {
             Boats boats = project.getBoats(false);
             if (boats.dataAccess.getNumberOfRecords() == 0) {
-                return errors; // don't run check agains empty list (could be due to error opening list)
+                return boatErr; // don't run check agains empty list (could be due to error opening list)
             }
             BoatStatus boatStatus = project.getBoatStatus(false);
             BoatReservations boatReservations = project.getBoatReservations(false);
@@ -127,6 +143,7 @@ public class Audit extends Thread {
             Persons persons = project.getPersons(false);
 
             Hashtable<UUID,Integer> boatVersions = new Hashtable<UUID,Integer>();
+            int[] boathouseIds = project.getAllBoathouseIds();
 
             DataKeyIterator it = boats.data().getStaticIterator();
             DataKey k = it.getFirst();
@@ -135,9 +152,9 @@ public class Audit extends Thread {
                 if (boat.getId() == null ||
                         boat.getValidFrom() < 0 || boat.getInvalidFrom() < 0 ||
                         boat.getValidFrom() >= boat.getInvalidFrom()) {
-                    Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT_INVALIDREC,
+                    auditError(Logger.MSG_DATA_AUDIT_INVALIDREC,
                             "Boat Record is invalid: " + boat.toString());
-                    errors++;
+                    boatErr++;
                 }
                 if (boat.getDeleted()) {
                     // if this boat is marked as deleted, treat it as if it wasn't there any more!
@@ -186,13 +203,12 @@ public class Audit extends Thread {
                         if (isReferenceInvalid(uuidList.get(i), groups, -1)) {
                             uuidList.remove(i--);
                             listChanged = true;
-                            Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+                            auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                                     "runAuditBoats(): "
                                     + International.getString("Boot") + " " + boat.getQualifiedName() + ": "
                                     + International.getMessage("Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                                     International.getString("Gruppe"),
                                     International.getString("Gruppen, die dieses Boot benutzen dürfen")));
-                            warnings++;
                         }
                     }
                     if (listChanged) {
@@ -202,36 +218,33 @@ public class Audit extends Thread {
                     if (isReferenceInvalid(boat.getRequiredGroupId(), groups, -1)) {
                         boat.setRequiredGroupId(null);
                         updated = true;
-                        Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+                        auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                                 "runAuditBoats(): "
                                 + International.getString("Boot") + " " + boat.getQualifiedName() + ": "
                                 + International.getMessage("Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                                 International.getString("Gruppe"),
                                 International.getString("Gruppe, der mindestens eine Person angehören muß")));
-                        warnings++;
                     }
                     if (isReferenceInvalid(boat.getDefaultCrewId(), crews, -1)) {
                         boat.setDefaultCrewId(null);
                         updated = true;
-                        Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+                        auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                                 "runAuditBoats(): "
                                 + International.getString("Boot") + " " + boat.getQualifiedName() + ": "
                                 + International.getMessage("Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                                 International.getString("Mannschaft"),
                                 International.getString("Standard-Mannschaft")));
-                        warnings++;
                     }
                     if (boat.getDefaultSessionType() != null &&
                         !Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, boat.getDefaultSessionType())) {
                         boat.setDefaultSessionType(null);
                         updated = true;
-                        Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+                        auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                                 "runAuditBoats(): "
                                 + International.getString("Boot") + " " + boat.getQualifiedName() + ": "
                                 + International.getMessage("Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                                 International.getString("Fahrtart"),
                                 International.getString("Standard-Fahrtart")));
-                        warnings++;
                     }
                 }
                 if (destinations.dataAccess.getNumberOfRecords() > 0) {
@@ -239,13 +252,12 @@ public class Audit extends Thread {
                     if (isReferenceInvalid(boat.getDefaultDestinationId(), destinations, -1)) {
                         boat.setDefaultDestinationId(null);
                         updated = true;
-                        Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+                        auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                                 "runAuditBoats(): "
                                 + International.getString("Boot") + " " + boat.getQualifiedName() + ": "
                                 + International.getMessage("Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                                 International.getString("Ziel"),
                                 International.getString("Standard-Ziel")));
-                        warnings++;
                     }
                 }
                 if (updated) {
@@ -256,20 +268,42 @@ public class Audit extends Thread {
 
                 BoatStatusRecord status = boatStatus.getBoatStatus(boat.getId());
                 if (status == null) {
-                    Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
+                    auditWarning(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
                             "No Boat Status found for Boat " + boat.getQualifiedName() + ": " + boat.toString());
-                    warnings++;
                     if (correctErrors) {
                         boatStatus.data().add(boatStatus.createBoatStatusRecord(boat.getId(),
                             boat.getQualifiedName()));
                     }
-                    Logger.log(Logger.INFO, Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
+                    auditInfo(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
                             "New Boat Status added for Boat " + boat.getQualifiedName());
-                    infos++;
                 } else {
-                    // fix text field in boat status to match the current boat name
+                    boolean updatedStatus = false;
+                    int bid = status.getOnlyInBoathouseIdAsInt();
+                    if (bid != IDataAccess.UNDEFINED_INT) {
+                        boolean found = false;
+                        for (int i : boathouseIds) {
+                            if (i == bid) {
+                                found = true;
+                            }
+                        }
+                        if (!found) {
+                            auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+                                    "runAuditBoats(): "
+                                    + International.getString("Bootsstatus") + " " + status.getQualifiedName() + ": "
+                                    + International.getMessage("Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
+                                    International.getString("Bootshaus"),
+                                    International.getString("Bootshaus")));
+                            status.setOnlyInBoathouseId(IDataAccess.UNDEFINED_INT);
+                            updatedStatus = true;
+                        }
+                    }
+
+                // fix text field in boat status to match the current boat name
                     if (!boat.getQualifiedName().equals(status.getBoatText())) {
                         status.setBoatText(boat.getQualifiedName());
+                        updatedStatus = true;
+                    }
+                    if (updatedStatus) {
                         if (correctErrors) {
                             boatStatus.data().update(status);
                         }
@@ -287,15 +321,14 @@ public class Audit extends Thread {
                 if (status != null && !status.getUnknownBoat()) {
                     DataRecord[] boat = boats.data().getValidAny(BoatRecord.getKey(status.getBoatId(), 0));
                     if (boat == null || boat.length == 0) {
-                        Logger.log(Logger.ERROR, Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
+                        auditError(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
                                 "No Boat found for Boat Status: " + status.toString());
-                        errors++;
+                        boatErr++;
                         if (correctErrors) {
                             boatStatus.dataAccess.delete(status.getKey());
                         }
-                        Logger.log(Logger.INFO, Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
+                        auditInfo(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
                                 "Boat Status " + status.toString() + " deleted.");
-                        infos++;
                         k = it.getNext();
                         continue;
                     }
@@ -311,23 +344,22 @@ public class Audit extends Thread {
                         status.setCurrentStatus(status.getBaseStatus());
                         status.setEntryNo(null);
                         updated = true;
-                        Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_BOATSTATUSCORRECTED,
+                        auditWarning(Logger.MSG_DATA_AUDIT_BOATSTATUSCORRECTED,
                                 "runAuditBoats(): "
                                 + International.getString("Bootsstatus") + " " + status.getBoatText() + ": "
                                 + International.getMessage("Bootsstatus '{status}' korrigiert nach '{status}'.",
                                     status.getStatusDescription(BoatStatusRecord.STATUS_ONTHEWATER),
                                     status.getStatusDescription(status.getBaseStatus()))
                                 + " (Logbook or EntryNo not set)");
-                        warnings++;
                     }
                     if (!logbookName.equals(project.getCurrentLogbookEfaBoathouse())) {
-                        Logger.log(Logger.ERROR, Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
+                        auditError(Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
                                 "runAuditBoats(): "
                                 + International.getString("Bootsstatus") + " " + status.getBoatText() + ": "
                                 + International.getMessage("Boot ist unterwegs in Fahrtenbuch {name}, aber Fahrtenbuch {name} ist geöffnet.",
                                                            logbookName, project.getCurrentLogbookEfaBoathouse()) + " "
                                 + International.getString("Bitte korrigiere den Status des Bootes im Admin-Modus."));
-                        errors++;
+                        boatErr++;
                     } else {
                         Logbook logbook = project.getLogbook(logbookName, false);
                         if (logbook == null ||
@@ -336,14 +368,13 @@ public class Audit extends Thread {
                             status.setLogbook(null);
                             status.setEntryNo(null);
                             updated = true;
-                            Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_BOATSTATUSCORRECTED,
+                            auditWarning(Logger.MSG_DATA_AUDIT_BOATSTATUSCORRECTED,
                                     "runAuditBoats(): "
                                     + International.getString("Bootsstatus") + " " + status.getBoatText() + ": "
                                     + International.getMessage("Bootsstatus '{status}' korrigiert nach '{status}'.",
                                     status.getStatusDescription(BoatStatusRecord.STATUS_ONTHEWATER),
                                     status.getStatusDescription(status.getBaseStatus()))
                                     + " (Logbook '" + logbookName + "' does not exist)");
-                            warnings++;
                         } else {
                             LogbookRecord lr = logbook.getLogbookRecord(entryNo);
                             if (lr == null) {
@@ -351,14 +382,13 @@ public class Audit extends Thread {
                                 status.setLogbook(null);
                                 status.setEntryNo(null);
                                 updated = true;
-                                Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_BOATSTATUSCORRECTED,
+                                auditWarning(Logger.MSG_DATA_AUDIT_BOATSTATUSCORRECTED,
                                         "runAuditBoats(): "
                                         + International.getString("Bootsstatus") + " " + status.getBoatText() + ": "
                                         + International.getMessage("Bootsstatus '{status}' korrigiert nach '{status}'.",
                                         status.getStatusDescription(BoatStatusRecord.STATUS_ONTHEWATER),
                                         status.getStatusDescription(status.getBaseStatus()))
                                         + " (Entry #" + entryNo.toString() + " in Logbook '" + logbookName + "' does not exist)");
-                                warnings++;
                             }
                         }
                     }
@@ -377,15 +407,14 @@ public class Audit extends Thread {
                 BoatReservationRecord reservation = (BoatReservationRecord)boatReservations.data().get(k);
                 DataRecord[] boat = boats.data().getValidAny(BoatRecord.getKey(reservation.getBoatId(), 0));
                 if (boat == null || boat.length == 0) {
-                    Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
+                    auditError(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
                             "No Boat found for Boat Reservation: " + reservation.toString());
-                    errors++;
+                    boatErr++;
                     if (correctErrors) {
                         boatReservations.dataAccess.delete(reservation.getKey());
                     }
-                    Logger.log(Logger.INFO, Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
+                    auditInfo(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
                             "Boat Reservation " + reservation.toString() + " deleted.");
-                    infos++;
                     k = it.getNext();
                     continue;
                 }
@@ -401,24 +430,22 @@ public class Audit extends Thread {
                             if (correctErrors) {
                                 boatReservations.dataAccess.update(reservation);
                             }
-                            Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_REFTOTEXT,
+                            auditWarning(Logger.MSG_DATA_AUDIT_REFTOTEXT,
                                     "runAuditBoats(): "
                                     + International.getString("Reservierung") + " " + boat[0].getQualifiedName() + ": "
                                     + International.getMessage("Ungültige Referenz für {item} durch '{name}' ersetzt.",
                                     International.getString("Person"), name));
-                            warnings++;
                         } else {
                             reservation.setPersonId(null);
                             if (correctErrors) {
                                 boatReservations.dataAccess.update(reservation);
                             }
-                            Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+                            auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                                     "runAuditBoats(): "
                                     + International.getString("Reservierung") + " " + boat[0].getQualifiedName() + ": "
                                     + International.getMessage("Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
                                     International.getString("Person"),
                                     International.getString("Reserviert für")));
-                            warnings++;
                         }
                     }
                 }
@@ -432,15 +459,14 @@ public class Audit extends Thread {
                 BoatDamageRecord damage = (BoatDamageRecord)boatDamages.data().get(k);
                 DataRecord[] boat = boats.data().getValidAny(BoatRecord.getKey(damage.getBoatId(), 0));
                 if (boat == null || boat.length == 0) {
-                    Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
+                    auditError(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
                             "No Boat found for Boat Damage: " + damage.toString());
-                    errors++;
+                    boatErr++;
                     if (correctErrors) {
                         boatStatus.dataAccess.delete(damage.getKey());
                     }
-                    Logger.log(Logger.INFO, Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
+                    auditInfo(Logger.MSG_DATA_AUDIT_BOATINCONSISTENCY,
                             "Boat Damage " + damage.toString() + " deleted.");
-                    infos++;
                     k = it.getNext();
                     continue;
                 }
@@ -455,14 +481,13 @@ public class Audit extends Thread {
                             damage.setReportedByPersonId(null);
                             damage.setReportedByPersonName(name);
                             updated = true;
-                            Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_REFTOTEXT,
+                            auditWarning(Logger.MSG_DATA_AUDIT_REFTOTEXT,
                                     "runAuditBoats(): "
                                     + International.getString("Bootsschaden") + " " + boat[0].getQualifiedName() + ": "
                                     + International.getMessage("Ungültige Referenz für {item} durch '{name}' ersetzt.",
                                     International.getString("Person"), name));
-                            warnings++;
                         } else {
-                            Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+                            auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                                     "runAuditBoats(): "
                                     + International.getString("Bootsschaden") + " " + boat[0].getQualifiedName() + ": "
                                     + International.getMessage("Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
@@ -470,7 +495,6 @@ public class Audit extends Thread {
                                     International.getString("gemeldet von")));
                             damage.setReportedByPersonId(null);
                             updated = true;
-                            warnings++;
                         }
                     }
                     if (isReferenceInvalid(damage.getFixedByPersonId(), persons, -1)) {
@@ -479,14 +503,13 @@ public class Audit extends Thread {
                             damage.setFixedByPersonId(null);
                             damage.setFixedByPersonName(name);
                             updated = true;
-                            Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_REFTOTEXT,
+                            auditWarning(Logger.MSG_DATA_AUDIT_REFTOTEXT,
                                     "runAuditBoats(): "
                                     + International.getString("Bootsschaden") + " " + boat[0].getQualifiedName() + ": "
                                     + International.getMessage("Ungültige Referenz für {item} durch '{name}' ersetzt.",
                                     International.getString("Person"), name));
-                            warnings++;
                         } else {
-                            Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+                            auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                                     "runAuditBoats(): "
                                     + International.getString("Bootsschaden") + " " + boat[0].getQualifiedName() + ": "
                                     + International.getMessage("Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
@@ -506,22 +529,22 @@ public class Audit extends Thread {
                 k = it.getNext();
             }
 
-            return errors;
+            return boatErr;
         } catch (Exception e) {
             Logger.logdebug(e);
-            Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT,
+            auditError(Logger.MSG_DATA_AUDIT,
                     "runAuditBoats() Caught Exception: " + e.toString());
-            return ++errors;
+            return ++boatErr;
         }
     }
 
     private int runAuditCrews() {
-        int errors = 0;
+        int crewErr = 0;
         try {
             Crews crews = project.getCrews(false);
             Persons persons = project.getPersons(false);
             if (persons.dataAccess.getNumberOfRecords() == 0) {
-                return errors; // don't run check agains empty list (could be due to error opening list)
+                return crewErr; // don't run check agains empty list (could be due to error opening list)
             }
             DataKeyIterator it = crews.data().getStaticIterator();
             DataKey k = it.getFirst();
@@ -542,22 +565,22 @@ public class Audit extends Thread {
                 k = it.getNext();
             }
 
-            return errors;
+            return crewErr;
         } catch (Exception e) {
             Logger.logdebug(e);
-            Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT,
+            auditError(Logger.MSG_DATA_AUDIT,
                     "runAuditBoats() Caught Exception: " + e.toString());
-            return ++errors;
+            return ++crewErr;
         }
     }
 
     private int runAuditGroups() {
-        int errors = 0;
+        int groupErr = 0;
         try {
             Groups groups = project.getGroups(false);
             Persons persons = project.getPersons(false);
             if (persons.dataAccess.getNumberOfRecords() == 0) {
-                return errors; // don't run check agains empty list (could be due to error opening list)
+                return groupErr; // don't run check agains empty list (could be due to error opening list)
             }
             DataKeyIterator it = groups.data().getStaticIterator();
             DataKey k = it.getFirst();
@@ -569,7 +592,7 @@ public class Audit extends Thread {
                     if (isReferenceInvalid(uuidList.get(i), persons, -1)) {
                         uuidList.remove(i--);
                         listChanged = true;
-                        Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+                        auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                                 "runAuditGroups(): "
                                 + International.getString("Gruppe") + " " + group.getQualifiedName() + ": "
                                 + International.getMessage("Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
@@ -586,26 +609,28 @@ public class Audit extends Thread {
                 k = it.getNext();
             }
 
-            return errors;
+            return groupErr;
         } catch (Exception e) {
             Logger.logdebug(e);
-            Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT,
+            auditError(Logger.MSG_DATA_AUDIT,
                     "runAuditBoats() Caught Exception: " + e.toString());
-            return ++errors;
+            return ++groupErr;
         }
     }
 
     private int runAuditDestinations() {
-        int errors = 0;
+        int destinationErr = 0;
         try {
+            int[] boathouseIds = project.getAllBoathouseIds();
             Destinations destinations = project.getDestinations(false);
             Waters waters = project.getWaters(false);
             if (waters.dataAccess.getNumberOfRecords() == 0) {
-                return errors; // don't run check agains empty list (could be due to error opening list)
+                return destinationErr; // don't run check agains empty list (could be due to error opening list)
             }
             DataKeyIterator it = destinations.data().getStaticIterator();
             DataKey k = it.getFirst();
             while (k != null) {
+                boolean updated = false;
                 DestinationRecord destination = (DestinationRecord) destinations.data().get(k);
                 DataTypeList<UUID> uuidList = destination.getWatersIdList();
                 boolean listChanged = false;
@@ -613,7 +638,7 @@ public class Audit extends Thread {
                     if (isReferenceInvalid(uuidList.get(i), waters, -1)) {
                         uuidList.remove(i--);
                         listChanged = true;
-                        Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+                        auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                                 "runAuditDestinations(): "
                                 + International.getString("Ziel") + " " + destination.getQualifiedName() + ": "
                                 + International.getMessage("Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
@@ -621,8 +646,32 @@ public class Audit extends Thread {
                                 International.getString("Gewässer") + " " + (i+1)));
                     }
                 }
+
+                int bid = destination.getOnlyInBoathouseIdAsInt();
+                if (bid != IDataAccess.UNDEFINED_INT) {
+                    boolean found = false;
+                    for (int i : boathouseIds) {
+                        if (i == bid) {
+                            found = true;
+                        }
+                    }
+                    if (!found) {
+                        auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+                                "runAuditDestinations(): "
+                                + International.getString("Ziel") + " " + destination.getQualifiedName() + ": "
+                                + International.getMessage("Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
+                                International.getString("Bootshaus"),
+                                International.getString("Bootshaus")));
+                        destination.setOnlyInBoathouseId(IDataAccess.UNDEFINED_INT);
+                        updated = true;
+                    }
+                }
+
                 if (listChanged) {
                     destination.setWatersIdList(uuidList);
+                    updated = true;
+                }
+                if (updated) {
                     if (correctErrors) {
                         destinations.dataAccess.update(destination);
                     }
@@ -630,24 +679,24 @@ public class Audit extends Thread {
                 k = it.getNext();
             }
 
-            return errors;
+            return destinationErr;
         } catch (Exception e) {
             Logger.logdebug(e);
-            Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT,
+            auditError(Logger.MSG_DATA_AUDIT,
                     "runAuditBoats() Caught Exception: " + e.toString());
-            return ++errors;
+            return ++destinationErr;
         }
     }
 
     private int runAuditPersons() {
-        int errors = 0;
+        int personErr = 0;
         try {
             Persons persons = project.getPersons(false);
             Boats boats = project.getBoats(false);
             Status status = project.getStatus(false);
             if (boats.dataAccess.getNumberOfRecords() == 0 ||
                 status.dataAccess.getNumberOfRecords() == 0) {
-                return errors; // don't run check agains empty list (could be due to error opening list)
+                return personErr; // don't run check agains empty list (could be due to error opening list)
             }
             DataKeyIterator it = persons.data().getStaticIterator();
             DataKey k = it.getFirst();
@@ -657,7 +706,7 @@ public class Audit extends Thread {
                 if (isReferenceInvalid(person.getStatusId(), status, -1)) {
                     person.setStatusId(status.getStatusOther().getId());
                     updated = true;
-                    Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_REFTOTEXT,
+                    auditWarning(Logger.MSG_DATA_AUDIT_REFTOTEXT,
                             "runAuditPersons(): "
                             + International.getString("Person") + " " + person.getQualifiedName() + ": "
                             + International.getMessage("Ungültige Referenz für {item} durch '{name}' ersetzt.",
@@ -667,7 +716,7 @@ public class Audit extends Thread {
                 if (isReferenceInvalid(person.getDefaultBoatId(), boats, -1)) {
                     person.setDefaultBoatId(null);
                     updated = true;
-                    Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+                    auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                             "runAuditPersons(): "
                             + International.getString("Person") + " " + person.getQualifiedName() + ": "
                             + International.getMessage("Ungültige Referenz für {item} in Feld '{fieldname}' gelöscht.",
@@ -682,116 +731,133 @@ public class Audit extends Thread {
                 k = it.getNext();
             }
 
-            return errors;
+            return personErr;
         } catch (Exception e) {
             Logger.logdebug(e);
-            Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT,
+            auditError(Logger.MSG_DATA_AUDIT,
                     "runAuditBoats() Caught Exception: " + e.toString());
-            return ++errors;
+            return ++personErr;
         }
     }
 
     private int runAuditFahrtenabzeichen() {
-        int errors = 0;
+        int faErr = 0;
         try {
             Fahrtenabzeichen fahrtenabzeichen = project.getFahrtenabzeichen(false);
             Persons persons = project.getPersons(false);
             if (persons.dataAccess.getNumberOfRecords() == 0) {
-                return errors; // don't run check agains empty list (could be due to error opening list)
+                return faErr; // don't run check agains empty list (could be due to error opening list)
             }
             DataKeyIterator it = fahrtenabzeichen.data().getStaticIterator();
             DataKey k = it.getFirst();
             while (k != null) {
                 FahrtenabzeichenRecord abzeichen = (FahrtenabzeichenRecord) fahrtenabzeichen.data().get(k);
                 if (persons.dataAccess.getValidLatest(PersonRecord.getKey(abzeichen.getPersonId(), -1)) == null) {
-                    Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_RECNOTFOUND,
+                    auditWarning(Logger.MSG_DATA_AUDIT_RECNOTFOUND,
                             "runAuditFahrtenabzeichen(): Keine Person zu Fahrtenabzeichen gefunden: " + abzeichen.toString());
                     if (correctErrors) {
                         fahrtenabzeichen.dataAccess.delete(abzeichen.getKey());
                     }
-                    Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_RECNOTFOUND,
+                    auditWarning(Logger.MSG_DATA_AUDIT_RECNOTFOUND,
                             "runAuditFahrtenabzeichen(): Fahrtenabzeichen " + abzeichen.toString() + " gelöscht.");
-                    errors++;
                 }
                 k = it.getNext();
             }
 
-            return errors;
+            return faErr;
         } catch (Exception e) {
             Logger.logdebug(e);
-            Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT,
+            auditError(Logger.MSG_DATA_AUDIT,
                     "runAuditBoats() Caught Exception: " + e.toString());
-            return ++errors;
+            return ++faErr;
         }
     }
 
+    private int archiveMessages(Messages messages, boolean all) throws Exception {
+        Messages archived = new Messages(messages.data().getStorageType(),
+                Daten.efaBakDirectory,
+                null, null,
+                "messages_" + EfaUtil.getCurrentTimeStampYYYYMMDD_HHMMSS());
+        archived.open(true);
+        long lock = messages.data().acquireGlobalLock();
+        int cntRead = 0;
+        int cntUnread = 0;
+        int cntMoved = 0;
+        try {
+            DataKeyIterator it = messages.data().getStaticIterator();
+            DataKey k = it.getFirst();
+            while (k != null) {
+                MessageRecord r = (MessageRecord) messages.data().get(k);
+                if (all || r.getRead()) {
+                    cntRead++;
+                    try {
+                        archived.data().add(r);
+                        messages.data().delete(k, lock);
+                        cntMoved++;
+                    } catch (Exception e1) {
+                        Logger.log(e1);
+                    }
+                } else {
+                    cntUnread++;
+                }
+                k = it.getNext();
+            }
+            archived.close();
+            auditInfo(Logger.MSG_DATA_FILEARCHIVED,
+                    (all ?
+                        International.getMessage("Alle {count} Nachrichten wurden erfolgreich in die Archivdatei {filename} verschoben.",
+                        cntMoved, ((DataFile) archived.data()).filename) :
+                        International.getMessage("{count} gelesene Nachrichten wurden erfolgreich in die Archivdatei {filename} verschoben.",
+                        cntMoved, ((DataFile) archived.data()).filename)
+                        ));
+        } finally {
+            messages.data().releaseGlobalLock(lock);
+        }
+        ((DataFile) messages.data()).flush();
+        return cntUnread;
+    }
+
     private int runAuditMessages() {
-        int errors = 0;
+        int messageErr = 0;
         try {
             Messages messages = project.getMessages(false);
             if (messages.data().getStorageType() == IDataAccess.TYPE_FILE_XML) {
                 long size = ((DataFile)messages.data()).getFileSize();
                 if (size > MAX_MESSAGES_FILESIZE) {
-                    Logger.log(Logger.INFO,Logger.MSG_DATA_FILESIZEHIGH,
+                    auditInfo(Logger.MSG_DATA_FILESIZEHIGH,
                             International.getMessage("Nachrichtendatei hat maximale Dateigröße überschritten. Derzeitige Größe: {size} byte", size));
-                    infos++;
-                    Messages archived = new Messages(messages.data().getStorageType(),
-                                                     Daten.efaBakDirectory,
-                                                     null, null,
-                                                     "messages_"+EfaUtil.getCurrentTimeStampYYYYMMDD_HHMMSS());
-                    archived.open(true);
-                    long lock = messages.data().acquireGlobalLock();
-                    int cntRead = 0;
-                    int cntUnread = 0;
-                    int cntMoved = 0;
-                    try {
-                        DataKeyIterator it = messages.data().getStaticIterator();
-                        DataKey k = it.getFirst();
-                        while (k != null) {
-                            MessageRecord r = (MessageRecord) messages.data().get(k);
-                            if (r.getRead()) {
-                                cntRead++;
-                                try {
-                                    archived.data().add(r);
-                                    messages.data().delete(k, lock);
-                                    cntMoved++;
-                                } catch (Exception e1) {
-                                    Logger.log(e1);
-                                }
-                            } else {
-                                cntUnread++;
-                            }
-                            k = it.getNext();
-                        }
-                        archived.close();
-                        Logger.log(Logger.INFO,Logger.MSG_DATA_FILEARCHIVED,
-                                International.getMessage("{count} gelesene Nachrichten wurden erfolgreich in die Archivdatei {filename} verschoben.",
-                                cntMoved, ((DataFile)archived.data()).filename));
-                        infos++;
-                    } finally {
-                        messages.data().releaseGlobalLock(lock);
-                    }
-                    ((DataFile) messages.data()).flush();
+                    int cntUnread = archiveMessages(messages, false);
                     size = ((DataFile) messages.data()).getFileSize();
+                    if (size > 4*MAX_MESSAGES_FILESIZE) {
+                        auditError(Logger.MSG_DATA_FILESIZEHIGH,
+                                International.getMessage("Nachrichtendatei hat maximale Dateigröße überschritten. Derzeitige Größe: {size} byte", size) +
+                                " - File Size way too high - Emergency Backup of all Messages");
+                        cntUnread = archiveMessages(messages, true);
+                        size = ((DataFile) messages.data()).getFileSize();
+                    }
                     if (size > MAX_MESSAGES_FILESIZE / 2) {
-                        Logger.log(Logger.WARNING, Logger.MSG_DATA_FILESIZEHIGH,
+                        auditWarning(Logger.MSG_DATA_FILESIZEHIGH,
                                 International.getMessage("Nachrichtendatei ist nach Archivierung gelesener Nachrichten noch immer groß. Derzeitige Größe: {size} byte", size));
-                        Logger.log(Logger.WARNING, Logger.MSG_DATA_FILESIZEHIGH,
+                        auditWarning(Logger.MSG_DATA_FILESIZEHIGH,
                                 International.getMessage("Es gibt {count} ungelesene Nachrichten. Bitte lies die Nachrichten und markiere sie als gelesen.", cntUnread));
+                    }
+                    if (size > 2*MAX_MESSAGES_FILESIZE) {
+                        auditError(Logger.MSG_DATA_FILESIZEHIGH,
+                                International.getString("Die Nachrichtendatei ist sehr groß. Bitte lösche umgehend alte Nachrichten und markiere gelesene Nachrichten als gelesen!"));
                     }
                 }
             }
-            return errors;
+            return messageErr;
         } catch (Exception e) {
             Logger.logdebug(e);
-            Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT,
+            auditError(Logger.MSG_DATA_AUDIT,
                     "runAuditMessages() Caught Exception: " + e.toString());
-            return ++errors;
+            return ++messageErr;
         }
     }
 
     private int runAuditStatistics() {
-        int errors = 0;
+        int statsErr = 0;
         try {
             Statistics statistics = project.getStatistics(false);
             Hashtable<Integer,StatisticsRecord> hash = new Hashtable<Integer,StatisticsRecord>();
@@ -829,22 +895,22 @@ public class Audit extends Thread {
                     }
                 } catch(Exception e) {
                     Logger.logdebug(e);
-                    Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT,
+                    auditError(Logger.MSG_DATA_AUDIT,
                             "runAuditStatistics() Caught Exception: " + e.toString());
-                    errors++;
+                    statsErr++;
                 }
             }
-            return errors;
+            return statsErr;
         } catch (Exception e) {
             Logger.logdebug(e);
-            Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT,
+            auditError(Logger.MSG_DATA_AUDIT,
                     "runAuditStatistics() Caught Exception: " + e.toString());
-            return ++errors;
+            return ++statsErr;
         }
     }
 
     private int runAuditLogbook(String logbookName) {
-        int errors = 0;
+        int logbookErr = 0;
         try {
             Boats boats = project.getBoats(false);
             Persons persons = project.getPersons(false);
@@ -855,7 +921,7 @@ public class Audit extends Thread {
             if (boats.dataAccess.getNumberOfRecords() == 0 ||
                 persons.dataAccess.getNumberOfRecords() == 0 ||
                 destinations.dataAccess.getNumberOfRecords() == 0) {
-                return errors; // don't run check agains empty list (could be due to error opening list)
+                return logbookErr; // don't run check agains empty list (could be due to error opening list)
             }
             UUID id;
 
@@ -870,21 +936,21 @@ public class Audit extends Thread {
 
                 // Dates
                 if (r.getDate() == null || !r.getDate().isSet()) {
-                    Logger.log(Logger.ERROR, Logger.MSG_DATA_AUDIT_LOGBOOKERROR,
+                    auditError(Logger.MSG_DATA_AUDIT_LOGBOOKERROR,
                             "runAuditLogbook(): "
                             + International.getString("Fahrtenbuch") + " " + logbookName + " "
                             + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
                             + "No Date set.");
-                    errors++;
+                    logbookErr++;
                 } else {
                     if (!r.getDate().isInRange(prjLogkoobRec.getStartDate(), prjLogkoobRec.getEndDate())) {
-                        Logger.log(Logger.ERROR, Logger.MSG_DATA_AUDIT_LOGBOOKERROR,
+                        auditError(Logger.MSG_DATA_AUDIT_LOGBOOKERROR,
                                 "runAuditLogbook(): "
                                 + International.getString("Fahrtenbuch") + " " + logbookName + " "
                                 + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
                                 + "Date " + r.getDate().toString() + " is not within defined range for this logbook (" +
                                 prjLogkoobRec.getStartDate() + " - " + prjLogkoobRec.getEndDate() + ").");
-                        errors++;
+                        logbookErr++;
                     }
                 }
                 
@@ -894,7 +960,7 @@ public class Audit extends Thread {
                     String name = r.getBoatName();
                     r.setBoatName(null);
                     updated = true;
-                    Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_TEXTTOREF,
+                    auditWarning(Logger.MSG_DATA_AUDIT_TEXTTOREF,
                             "runAuditLogbook(): "
                             + International.getString("Fahrtenbuch") + " " + logbookName + " "
                             + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
@@ -911,14 +977,14 @@ public class Audit extends Thread {
                         r.setBoatName(name);
                         r.setBoatId(null);
                         updated = true;
-                        Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_REFTOTEXT,
+                        auditWarning(Logger.MSG_DATA_AUDIT_REFTOTEXT,
                                 "runAuditLogbook(): "
                                 + International.getString("Fahrtenbuch") + " " + logbookName + " "
                                 + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
                                 + International.getMessage("Ungültige Referenz für {item} durch '{name}' ersetzt.",
                                 International.getString("Boot"), name));
                     } else {
-                        Logger.log(Logger.ERROR, Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
+                        auditError(Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
                                 "runAuditLogbook(): "
                                 + International.getString("Fahrtenbuch") + " " + logbookName + " "
                                 + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
@@ -926,14 +992,14 @@ public class Audit extends Thread {
                                 International.getString("Boot"),
                                 International.getString("Boot")
                                 ));
-                        errors++;
+                        logbookErr++;
                     }
                 } else if ( (id = findValidReference(r.getBoatName(), boats, validAt)) != null) {
                     String name = r.getBoatName();
                     r.setBoatId(id);
                     r.setBoatName(null);
                     updated = true;
-                    Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_TEXTTOREF,
+                    auditWarning(Logger.MSG_DATA_AUDIT_TEXTTOREF,
                             "runAuditLogbook(): "
                             + International.getString("Fahrtenbuch") + " " + logbookName + " "
                             + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
@@ -949,7 +1015,7 @@ public class Audit extends Thread {
                         String name = r.getCrewName(i);
                         r.setCrewName(i, null);
                         updated = true;
-                        Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_TEXTTOREF,
+                        auditWarning(Logger.MSG_DATA_AUDIT_TEXTTOREF,
                                 "runAuditLogbook(): "
                                 + International.getString("Fahrtenbuch") + " " + logbookName + " "
                                 + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
@@ -963,14 +1029,14 @@ public class Audit extends Thread {
                             r.setCrewName(i, name);
                             r.setCrewId(i, null);
                             updated = true;
-                            Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_REFTOTEXT,
+                            auditWarning(Logger.MSG_DATA_AUDIT_REFTOTEXT,
                                     "runAuditLogbook(): "
                                     + International.getString("Fahrtenbuch") + " " + logbookName + " "
                                     + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
                                     + International.getMessage("Ungültige Referenz für {item} durch '{name}' ersetzt.",
                                     International.getString("Person"), name));
                         } else {
-                            Logger.log(Logger.ERROR, Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
+                            auditError(Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
                                     "runAuditLogbook(): "
                                     + International.getString("Fahrtenbuch") + " " + logbookName + " "
                                     + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
@@ -978,14 +1044,14 @@ public class Audit extends Thread {
                                     International.getString("Person"),
                                     (i == 0 ? International.getString("Steuermann") :
                                               International.getString("Mannschaft") + " " + i)));
-                            errors++;
+                            logbookErr++;
                         }
                     } else if ((id = findValidReference(r.getCrewName(i), persons, validAt)) != null) {
                         String name = r.getCrewName(i);
                         r.setCrewId(i, id);
                         r.setCrewName(i, null);
                         updated = true;
-                        Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_TEXTTOREF,
+                        auditWarning(Logger.MSG_DATA_AUDIT_TEXTTOREF,
                                 "runAuditLogbook(): "
                                 + International.getString("Fahrtenbuch") + " " + logbookName + " "
                                 + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
@@ -1001,7 +1067,7 @@ public class Audit extends Thread {
                     String name = r.getDestinationName();
                     r.setDestinationName(null);
                     updated = true;
-                    Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_TEXTTOREF,
+                    auditWarning(Logger.MSG_DATA_AUDIT_TEXTTOREF,
                             "runAuditLogbook(): "
                             + International.getString("Fahrtenbuch") + " " + logbookName + " "
                             + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
@@ -1015,14 +1081,14 @@ public class Audit extends Thread {
                         r.setDestinationName(name);
                         r.setDestinationId(null);
                         updated = true;
-                        Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_REFTOTEXT,
+                        auditWarning(Logger.MSG_DATA_AUDIT_REFTOTEXT,
                                 "runAuditLogbook(): "
                                 + International.getString("Fahrtenbuch") + " " + logbookName + " "
                                 + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
                                 + International.getMessage("Ungültige Referenz für {item} durch '{name}' ersetzt.",
                                 International.getString("Ziel"), name));
                     } else {
-                        Logger.log(Logger.ERROR, Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
+                        auditError(Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
                                 "runAuditLogbook(): "
                                 + International.getString("Fahrtenbuch") + " " + logbookName + " "
                                 + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
@@ -1030,14 +1096,14 @@ public class Audit extends Thread {
                                 International.getString("Ziel"),
                                 International.getString("Ziel")
                                 ));
-                        errors++;
+                        logbookErr++;
                     }
                 } else if ( (id = findValidReference(r.getDestinationName(), destinations, validAt)) != null) {
                     String name = r.getDestinationName();
                     r.setDestinationId(id);
                     r.setDestinationName(null);
                     updated = true;
-                    Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_TEXTTOREF,
+                    auditWarning(Logger.MSG_DATA_AUDIT_TEXTTOREF,
                             "runAuditLogbook(): "
                             + International.getString("Fahrtenbuch") + " " + logbookName + " "
                             + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
@@ -1051,7 +1117,7 @@ public class Audit extends Thread {
                     !Daten.efaTypes.isConfigured(EfaTypes.CATEGORY_SESSION, r.getSessionType())) {
                     r.setSessionType(EfaTypes.TYPE_SESSION_NORMAL);
                     updated = true;
-                    Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_REFTOTEXT,
+                    auditWarning(Logger.MSG_DATA_AUDIT_REFTOTEXT,
                             "runAuditLogbook(): "
                             + International.getString("Fahrtenbuch") + " " + logbookName + " "
                             + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
@@ -1063,14 +1129,14 @@ public class Audit extends Thread {
                 // SessionGroup
                 if (isReferenceInvalid(r.getSessionGroupId(), sessionGroups, -1) &&
                     sessionGroups.dataAccess.getNumberOfRecords() > 0) {
-                    Logger.log(Logger.ERROR, Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
+                    auditError(Logger.MSG_DATA_AUDIT_INVALIDREFFOUND,
                             "runAuditLogbook(): "
                             + International.getString("Fahrtenbuch") + " " + logbookName + " "
                             + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
                             + International.getMessage("Ungültige Referenz für {item} in Feld '{fieldname}' gefunden.",
                             International.getString("Fahrtgruppe"),
                             International.getString("Fahrtgruppe")));
-                    errors++;
+                    logbookErr++;
                 }
 
                 // Open Session?
@@ -1078,7 +1144,7 @@ public class Audit extends Thread {
                         boatStatus.getBoatStatus(logbookName, r.getEntryId()) == null) {
                     r.setSessionIsOpen(false);
                     updated = true;
-                    Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
+                    auditWarning(Logger.MSG_DATA_AUDIT_INVALIDREFDELETED,
                             "runAuditLogbook(): "
                             + International.getString("Fahrtenbuch") + " " + logbookName + " "
                             + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
@@ -1102,24 +1168,24 @@ public class Audit extends Thread {
                 logbook.close();
             }
 
-            return errors;
+            return logbookErr;
         } catch (Exception e) {
             Logger.logdebug(e);
-            Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT,
+            auditError(Logger.MSG_DATA_AUDIT,
                     "runAuditLogbook("+logbookName+") Caught Exception: " + e.toString());
-            return ++errors;
+            return ++logbookErr;
         }
     }
 
     private int runAuditClubworks() {
-        int errors = 0;
+        int clubworkErr = 0;
         String[] logbookNames = project.getAllLogbookNames();
         if (logbookNames != null) {
             for (String s : logbookNames) {
                 try {
                     Clubwork c = Daten.project.getClubwork(s, true);
                     if (c == null) {
-                        Logger.log(Logger.ERROR, Logger.MSG_DATA_AUDIT_OBJECTCREATIONFAILED,
+                        auditError(Logger.MSG_DATA_AUDIT_OBJECTCREATIONFAILED,
                                 "runAuditClubworks(): "
                                 + LogString.fileCreationFailed(s, International.getString("Vereinsarbeit")));
                     } else {
@@ -1127,17 +1193,17 @@ public class Audit extends Thread {
                     }
                 } catch (Exception e) {
                     Logger.logdebug(e);
-                    Logger.log(Logger.ERROR, Logger.MSG_DATA_AUDIT,
+                    auditError(Logger.MSG_DATA_AUDIT,
                             "runAuditClubworks(" + s + ") Caught Exception: " + e.toString());
-                    return ++errors;
+                    return ++clubworkErr;
                 }
             }
         }
-        return errors;
+        return clubworkErr;
     }
 
     private int runAuditPurgeDeletedRecords(StorageObject so, String itemDescription) {
-        int errors = 0;
+        int purgeErr = 0;
         long now = System.currentTimeMillis();
         long purgeAfter = 0; /*( Daten.efaConfig.getValueDataDeletedRecordPurgeDays() < 0 ||
                             Daten.efaConfig.getValueDataDeletedRecordPurgeDays() == Long.MAX_VALUE ?
@@ -1153,19 +1219,19 @@ public class Audit extends Thread {
                     if (correctErrors) {
                         so.dataAccess.delete(k);
                     }
-                    Logger.log(Logger.WARNING, Logger.MSG_DATA_AUDIT_RECPURGED,
+                    auditWarning(Logger.MSG_DATA_AUDIT_RECPURGED,
                             "runAuditPurgeDeletedRecords(): "
                             + International.getMessage("{item} '{name}' endgültig gelöscht.",
                             itemDescription, r.getQualifiedName()));
                 }
                 k = it.getNext();
             }
-            return errors;
+            return purgeErr;
         } catch (Exception e) {
             Logger.logdebug(e);
-            Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT,
+            auditError(Logger.MSG_DATA_AUDIT,
                     "runAuditPurgeDeletedRecords() Caught Exception: " + e.toString());
-            return ++errors;
+            return ++purgeErr;
         }
     }
 
@@ -1174,56 +1240,55 @@ public class Audit extends Thread {
                 project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
             return true;
         }
-        warnings = 0;
+         int errors = 0;
+       warnings = 0;
         infos = 0;
         Logger.log(Logger.DEBUG,Logger.MSG_DATA_AUDIT,
                 "Starting Project Audit for Project: " + project.getProjectName());
-        int errors = 0;
         try {
-            errors += runAuditPersistence(project.getSessionGroups(false), SessionGroups.DATATYPE);
-            errors += runAuditPersistence(project.getPersons(false), Persons.DATATYPE);
-            errors += runAuditPersistence(project.getStatus(false), Status.DATATYPE);
-            errors += runAuditPersistence(project.getGroups(false), Groups.DATATYPE);
-            errors += runAuditPersistence(project.getFahrtenabzeichen(false), Fahrtenabzeichen.DATATYPE);
-            errors += runAuditPersistence(project.getBoats(false), Boats.DATATYPE);
-            errors += runAuditPersistence(project.getCrews(false), Crews.DATATYPE);
-            errors += runAuditPersistence(project.getBoatStatus(false), BoatStatus.DATATYPE);
-            errors += runAuditPersistence(project.getBoatReservations(false), BoatReservations.DATATYPE);
-            errors += runAuditPersistence(project.getBoatDamages(false), BoatDamages.DATATYPE);
-            errors += runAuditPersistence(project.getDestinations(false), Destinations.DATATYPE);
-            errors += runAuditPersistence(project.getWaters(false), Waters.DATATYPE);
-            errors += runAuditPersistence(project.getMessages(false), Messages.DATATYPE);
+            runAuditPersistence(project.getSessionGroups(false), SessionGroups.DATATYPE);
+            runAuditPersistence(project.getPersons(false), Persons.DATATYPE);
+            runAuditPersistence(project.getStatus(false), Status.DATATYPE);
+            runAuditPersistence(project.getGroups(false), Groups.DATATYPE);
+            runAuditPersistence(project.getFahrtenabzeichen(false), Fahrtenabzeichen.DATATYPE);
+            runAuditPersistence(project.getBoats(false), Boats.DATATYPE);
+            runAuditPersistence(project.getCrews(false), Crews.DATATYPE);
+            runAuditPersistence(project.getBoatStatus(false), BoatStatus.DATATYPE);
+            runAuditPersistence(project.getBoatReservations(false), BoatReservations.DATATYPE);
+            runAuditPersistence(project.getBoatDamages(false), BoatDamages.DATATYPE);
+            runAuditPersistence(project.getDestinations(false), Destinations.DATATYPE);
+            runAuditPersistence(project.getWaters(false), Waters.DATATYPE);
+            runAuditPersistence(project.getMessages(false), Messages.DATATYPE);
 
-            errors += runAuditBoats();
-            errors += runAuditCrews();
-            errors += runAuditGroups();
-            errors += runAuditDestinations();
-            errors += runAuditPersons();
-            errors += runAuditFahrtenabzeichen();
-            errors += runAuditMessages();
-            errors += runAuditStatistics();
+            runAuditBoats();
+            runAuditCrews();
+            runAuditGroups();
+            runAuditDestinations();
+            runAuditPersons();
+            runAuditFahrtenabzeichen();
+            runAuditMessages();
+            runAuditStatistics();
             String[] logbookNames = project.getAllLogbookNames();
             for (int i=0; logbookNames != null && i<logbookNames.length; i++) {
-                errors += runAuditLogbook(logbookNames[i]);
+                runAuditLogbook(logbookNames[i]);
             }
             if (errors == 0) {
-                errors += runAuditPurgeDeletedRecords(project.getBoats(false),
+                runAuditPurgeDeletedRecords(project.getBoats(false),
                         International.getString("Boot"));
-                errors += runAuditPurgeDeletedRecords(project.getPersons(false),
+                runAuditPurgeDeletedRecords(project.getPersons(false),
                         International.getString("Person"));
-                errors += runAuditPurgeDeletedRecords(project.getDestinations(false),
+                runAuditPurgeDeletedRecords(project.getDestinations(false),
                         International.getString("Ziel"));
-                errors += runAuditPurgeDeletedRecords(project.getGroups(false),
+                runAuditPurgeDeletedRecords(project.getGroups(false),
                         International.getString("Gruppe"));
             }
             if (Daten.NEW_FEATURES) {
-                errors += runAuditClubworks();
+                runAuditClubworks();
             }
         } catch(Exception e) {
             Logger.logdebug(e);
-            Logger.log(Logger.ERROR,Logger.MSG_DATA_AUDIT,
+            auditError(Logger.MSG_DATA_AUDIT,
                     "runAudit() Caught Exception: " + e.toString());
-            errors++;
         }
         boolean logEnd = (errors > 0 || warnings > 0 || infos > 0);
         Logger.log( (errors == 0 ? (logEnd ? Logger.INFO : Logger.DEBUG) : Logger.ERROR),

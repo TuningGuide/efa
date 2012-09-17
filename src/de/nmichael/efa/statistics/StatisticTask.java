@@ -961,9 +961,16 @@ public class StatisticTask extends ProgressTask {
         if (sr.sFilterByBoatText != null && !sr.sFilterByBoatText.equals(r.getBoatAsName())) {
             return false;
         }
-        if (sr.sPublicStatistic && entryBoatExclude) {
-            sr.pStatIgnored.put((entryBoatRecord != null
-                    ? entryBoatRecord.getQualifiedName() : entryBoatName), "foo");
+        if (sr.sPublicStatistic && entryBoatExclude && 
+                (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook ||
+                (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list &&
+                 sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.boats))) {
+            // exclude in all public logbook or boat list statistics
+            // ... but include in person statistics and competitions
+            if (isAtLeastOneInPersonOrGroupFilter(r)) {
+                sr.pStatIgnored.put((entryBoatRecord != null
+                        ? entryBoatRecord.getQualifiedName() : entryBoatName), "foo");
+            }
             return false;
         }
 
@@ -987,7 +994,12 @@ public class StatisticTask extends ProgressTask {
             if (sr.sFilterByPersonText != null && !sr.sFilterByPersonText.equals(entryPersonRecord.getQualifiedName())) {
                 return false;
             }
-            if (sr.sPublicStatistic && entryPersonExclude) {
+            if (sr.sPublicStatistic && entryPersonExclude &&
+                    (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.competition ||
+                     (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list &&
+                      sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.persons))) {
+                // exclude in all public competitions and person list statistics
+                // ... but include in boat statistics and logbooks (as anonymous)
                 sr.pStatIgnored.put((entryPersonRecord != null
                         ? entryPersonRecord.getQualifiedName() : entryPersonName), "foo");
                 return false;
@@ -1314,7 +1326,7 @@ public class StatisticTask extends ProgressTask {
         for (int i = 0; names != null && i < names.length; i++) {
             ProjectRecord pr = Daten.project.getLoogbookRecord(names[i]);
             if (pr != null) {
-                logInfo(International.getString("Fahrtenbuch") + " " + pr.getLogbookName() + " ...\n");
+                logInfo(International.getString("Fahrtenbuch") + " " + pr.getName() + " ...\n");
                 sr.sDefaultClubworkTargetHours = pr.getDefaultClubworkTargetHours();
                 sr.sTransferableClubworkHours = pr.getTransferableClubworkHours();
                 sr.sFineForTooLittleClubwork = pr.getFineForTooLittleClubwork();

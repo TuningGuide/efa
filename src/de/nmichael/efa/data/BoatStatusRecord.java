@@ -43,6 +43,7 @@ public class BoatStatusRecord extends DataRecord {
     public static final String BASESTATUS          = "BaseStatus";    // the base status that this boat falls back to if it's not on the water
     public static final String CURRENTSTATUS       = "CurrentStatus"; // current status - may be on the water
     public static final String SHOWINLIST          = "ShowInList";    // the status list this boat appears in
+    public static final String ONLYINBOATHOUSEID   = "OnlyInBoathouseId";
     public static final String LOGBOOK             = "Logbook";       // the name of the logbook EntryNo is pointing to
     public static final String ENTRYNO             = "EntryNo";       // the EntryNo if this boat in ONTHEWATER
     public static final String COMMENT             = "Comment";
@@ -59,6 +60,7 @@ public class BoatStatusRecord extends DataRecord {
         f.add(BASESTATUS);               t.add(IDataAccess.DATA_STRING);
         f.add(CURRENTSTATUS);            t.add(IDataAccess.DATA_STRING);
         f.add(SHOWINLIST);               t.add(IDataAccess.DATA_STRING);
+        f.add(ONLYINBOATHOUSEID);        t.add(IDataAccess.DATA_STRING);
         f.add(LOGBOOK);                  t.add(IDataAccess.DATA_STRING);
         f.add(ENTRYNO);                  t.add(IDataAccess.DATA_INTSTRING);
         f.add(COMMENT);                  t.add(IDataAccess.DATA_STRING);
@@ -184,6 +186,16 @@ public class BoatStatusRecord extends DataRecord {
         return s;
     }
 
+    public void setOnlyInBoathouseId(int boathouseId) {
+        setString(ONLYINBOATHOUSEID, (boathouseId < 0 ? null : Integer.toString(boathouseId)));
+    }
+    public int getOnlyInBoathouseIdAsInt() {
+        return EfaUtil.string2int(getOnlyInBoathouseId(), IDataAccess.UNDEFINED_INT);
+    }
+    public String getOnlyInBoathouseId() {
+        return getString(ONLYINBOATHOUSEID);
+    }
+
     public void setLogbook(String logbook) {
         setString(LOGBOOK, logbook);
     }
@@ -229,6 +241,39 @@ public class BoatStatusRecord extends DataRecord {
         return new String[] { BOATID };
     }
 
+    public String getAsText(String fieldName) {
+        if (fieldName.equals(ONLYINBOATHOUSEID)) {
+            Object o = get(fieldName);
+            if (o == null) {
+                return "";
+            }
+            String s = (String)o;
+            if (s.length() == 0) {
+                return "";
+            }
+            return getPersistence().getProject().getBoathouseName(EfaUtil.string2int(s, -1));
+        }
+        return super.getAsText(fieldName);
+    }
+
+    public boolean setFromText(String fieldName, String value) {
+        if (fieldName.equals(ONLYINBOATHOUSEID)) {
+            if (value == null || value.length() == 0) {
+                set(fieldName, null);
+            } else {
+                int id = getPersistence().getProject().getBoathouseId(value);
+                if (id > 0) {
+                    set(fieldName, Integer.toString(id));
+                } else {
+                    set(fieldName, null);
+                }
+            }
+        } else {
+            return super.setFromText(fieldName, value);
+        }
+        return (value.equals(getAsText(fieldName)));
+    }
+
     public Vector<IItemType> getGuiItems(AdminRecord admin) {
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
@@ -255,6 +300,13 @@ public class BoatStatusRecord extends DataRecord {
                 makeStatusTypeArray(SHOWINLIST, ARRAY_STRINGLIST_VALUES), makeStatusTypeArray(SHOWINLIST, ARRAY_STRINGLIST_DISPLAY),
                 IItemType.TYPE_EXPERT, CAT_STATUS,
                 International.getString("anzeigen in Liste")));
+        if (getPersistence().getProject().getNumberOfBoathouses() > 1) {
+            v.add(item = new ItemTypeStringList(BoatStatusRecord.ONLYINBOATHOUSEID, getOnlyInBoathouseId(),
+                    getPersistence().getProject().makeBoathouseArray(EfaTypes.ARRAY_STRINGLIST_VALUES),
+                    getPersistence().getProject().makeBoathouseArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, CAT_STATUS,
+                    International.getString("nur anzeigen in Bootshaus")));
+        }
         if (getCurrentStatus() != null && getCurrentStatus().equals(STATUS_ONTHEWATER)) {
             v.add(item = new ItemTypeLabel(BoatStatusRecord.ENTRYNO,
                     IItemType.TYPE_PUBLIC, CAT_STATUS,
@@ -373,5 +425,6 @@ public class BoatStatusRecord extends DataRecord {
                 + (zeit.trim().length() > 0 ? " " + International.getMessage("um {time}", zeit) : "")
                 + " " + International.getMessage("mit {crew}", person);
     }
+
 
 }

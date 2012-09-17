@@ -23,6 +23,7 @@ import java.util.*;
 public class DataEditDialog extends BaseTabbedDialog {
 
     private JPanel northeastPanel;
+    private int northeastPanelComponentCount = 0;
 
     public DataEditDialog(Frame parent, String title, Vector<IItemType> items) {
         super(parent, title, International.getStringWithMnemonic("Speichern"),
@@ -63,7 +64,16 @@ public class DataEditDialog extends BaseTabbedDialog {
 
     public void addComponentToNortheastPanel(JComponent c) {
         northeastPanel.add(c);
+        northeastPanelComponentCount++;
         northeastPanel.setVisible(true);
     }
 
+    public void removeComponentFromNortheastPanel(JComponent c) {
+        try {
+            northeastPanel.remove(c);
+            northeastPanel.setVisible(--northeastPanelComponentCount > 0);
+        } catch(Exception eignore) {
+            Logger.logdebug(eignore);
+        }
+    }
 }

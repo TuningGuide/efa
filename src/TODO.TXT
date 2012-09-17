@@ -1,23 +1,24 @@
 Item
 ============================================================================================================
 
-BUG: NPE bei Erstellen einer neuen Version einer Person
-Rudergruppen farbig in efa markieren
-Unterstützung von Ziellisten für mehrere Bootshäuser
-Backup in efa?
+FIXED BUG:: Beim Öffnen und Konvertierungsversuch eines Remote-Projekts
+CANNOT REPRODUCE BUG: NPE bei Erstellen einer neuen Version einer Person
 
+Backup zeitgesteuert in efa?
+Statistik Vorjahresvergleiche
+Statistik Wer unerlaubt?
+Gruppenzugehörigkeit mit BEarbeitungsassistent bearbeiten
+
+Kombiboote sollten anstelle einer "Standardbootsart" auch eine Option haben, immer die zuletzt genutzte Bootsart als Standard vorzuschlagen (http://forum.nmichael.de/viewtopic.php?f=9&t=390&p=1443#p1443)
 Zugriff auf alle Daten im CLI
 Import/Export von Daten im CLI
 PDF Output
 efaWett-Daten aktualisieren
-Farbig markierte Boote nach Gruppen
 Eine alternative Gruppierung der Boote über die Bootsart würde ich auch nicht schlecht finden (alternativ zu "Einer, Zweier, Dreier, Vierer, andere").
 Datenabgleich zwischen Bootshäusern implementieren, bei dem efa einen Export/Import durchführt, der
   anhand von LastModified erkennt, welche Daten gewinnen, aber zum Beispiel nie die Bootsstatusliste,
   Nachrichten, ... synchronisiert.
-Paßwort für Statistiken
 Funktion, um zwei Records mit unterschiedlichen ID's zusammenzuführen
-Bei Mehrtagesfahrtem mit Enddatum hinter den Uhrzeitfeldern den Tag anzeigen, auf den sich Start und Endzeit beziehen
 
 Schreiben ins Spiegelverzeichnis mit Timeout bei Netzlaufwerk
 Buttons mit Symbolen ausstatten

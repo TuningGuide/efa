@@ -262,7 +262,20 @@ public abstract class DataRecord implements Cloneable, Comparable {
         if (value != null) {
             value = value.trim();
         }
-        set(fieldName, value);
+        if ((fieldName.equals(VALIDFROM) ||
+            fieldName.equals(INVALIDFROM)) && value != null) {
+            try {
+                set(fieldName, value);
+            } catch(NumberFormatException elong) {
+                DataTypeDate date = DataTypeDate.parseDate(value);
+                if (date.isSet()) {
+                    set(fieldName, Long.toString(date.getTimestamp(null)));
+                    return true;
+                }
+            }
+        } else {
+            set(fieldName, value);
+        }
         return (value.equals(getAsText(fieldName)));
     }
 
@@ -302,6 +315,10 @@ public abstract class DataRecord implements Cloneable, Comparable {
         }
     }
 
+    public String[] getEquivalentFields(String fieldName) {
+        return new String[] { fieldName };
+    }
+    
     public String[] getFieldNamesForTextExport(boolean includingVirtual) {
         return getPersistence().data().getFieldNames(includingVirtual);
     }

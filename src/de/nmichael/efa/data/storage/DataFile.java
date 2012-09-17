@@ -177,6 +177,7 @@ public abstract class DataFile extends DataAccess {
     public synchronized void openStorageObject() throws EfaException {
         try {
             boolean recovered = false;
+            fileWriter = null;
             try {
                 recovered = tryOpenStorageObject(filename, false);
             } catch(Exception e1) {
@@ -1036,7 +1037,7 @@ public abstract class DataFile extends DataAccess {
         long lockID = acquireGlobalLock();
         try {
             synchronized (data) {
-                if (journal.log(scn + 1, Journal.Operation.truncate, null)) {
+                if (inOpeningStorageObject || journal.log(scn + 1, Journal.Operation.truncate, null)) {
                     clearAllData();
                     scn++;
                 } else {
@@ -1046,7 +1047,9 @@ public abstract class DataFile extends DataAccess {
         } finally {
             this.releaseGlobalLock(lockID);
         }
-        fileWriter.save(false, true);
+        if (fileWriter != null) { // may be null while reading (opening) a file
+            fileWriter.save(false, true);
+        }
     }
 
     public DataKey[] getAllKeys() throws EfaException {

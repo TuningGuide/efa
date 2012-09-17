@@ -57,6 +57,9 @@ public class Destinations extends StorageObject {
 
     // find a record being valid at the specified time
     public DestinationRecord getDestination(String destinationName, long validAt) {
+        return getDestination(destinationName, null, validAt);
+    }
+    public DestinationRecord getDestination(String destinationName, String onlyForBoathouseName, long validAt) {
         try {
             DataKey[] keys = data().getByFields(
                 staticDestinationRecord.getQualifiedNameFields(), staticDestinationRecord.getQualifiedNameValues(destinationName), validAt);
@@ -66,6 +69,9 @@ public class Destinations extends StorageObject {
             for (int i=0; i<keys.length; i++) {
                 DestinationRecord r = (DestinationRecord)data().get(keys[i]);
                 if (r.isValidAt(validAt)) {
+                    if (onlyForBoathouseName != null && !onlyForBoathouseName.equals(r.getOnlyInBoathouseName())) {
+                        continue;
+                    }
                     return r;
                 }
             }
@@ -120,12 +126,12 @@ public class Destinations extends StorageObject {
             assertFieldNotEmpty(record, DestinationRecord.ID);
             assertFieldNotEmpty(record, DestinationRecord.NAME);
             if (Daten.efaConfig.getValueUseFunctionalityRowingBerlin() &&
-                getProject().getClubAreaID() > 0) {
+                getProject().getBoathouseAreaID() > 0) {
                 DestinationRecord dr = ((DestinationRecord)record);
                 if (dr.getStartIsBoathouse() && dr.getDestinationAreas() != null &&
-                    dr.getDestinationAreas().findZielbereich(getProject().getClubAreaID()) >= 0) {
+                    dr.getDestinationAreas().findZielbereich(getProject().getBoathouseAreaID()) >= 0) {
                     throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
-                            "Eigener Zielbereich "+getProject().getClubAreaID()+" bei Fahrten ab eigenem Bootshaus nicht erlaubt.",
+                            "Eigener Zielbereich "+getProject().getBoathouseAreaID()+" bei Fahrten ab eigenem Bootshaus nicht erlaubt.",
                             Thread.currentThread().getStackTrace());
 
                 }

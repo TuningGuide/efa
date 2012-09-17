@@ -74,45 +74,46 @@ public class XMLFileReader extends XmlHandler {
 
         if (inDataSection) {
             try {
-                dataRecord.set(fieldName, fieldValue, false);
+                fieldName = data.getPersistence().transformFieldName(fieldName);
+                dataRecord.set(fieldName, getFieldValue(), false);
             } catch(Exception e) {
                 Logger.log(Logger.ERROR,Logger.MSG_FILE_PARSEERROR,
-                        getLocation() + "Parse Error for Field "+fieldName+" = "+fieldValue+": "+e.toString());
+                        getLocation() + "Parse Error for Field "+fieldName+" = "+getFieldValue()+": "+e.toString());
             }
             if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
                 Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,
-                        "Field "+fieldName+" = "+fieldValue);
+                        "Field "+fieldName+" = "+getFieldValue());
             }
         }
         if (inHeaderSection) {
             try {
                 if (fieldName.equals(XMLFile.FIELD_HEADER_PROGRAM)) {
-                    if (!fieldValue.equals(Daten.EFA)) {
-                        documentReadError = getLocation() + "Unexpected Value for Header Field " + fieldName + ": " + fieldValue;
+                    if (!getFieldValue().equals(Daten.EFA)) {
+                        documentReadError = getLocation() + "Unexpected Value for Header Field " + fieldName + ": " + getFieldValue();
                     }
                 }
                 if (fieldName.equals(XMLFile.FIELD_HEADER_VERSION)) {
                     // version handling, if necessary
                 }
                 if (fieldName.equals(XMLFile.FIELD_HEADER_NAME)) {
-                    if (!fieldValue.equals(data.getStorageObjectName())) {
-                        documentReadError = getLocation() + "Unexpected Value for Header Field " + fieldName + ": " + fieldValue;
+                    if (!getFieldValue().equals(data.getStorageObjectName())) {
+                        documentReadError = getLocation() + "Unexpected Value for Header Field " + fieldName + ": " + getFieldValue();
                     }
                 }
                 if (fieldName.equals(XMLFile.FIELD_HEADER_TYPE)) {
-                    if (!fieldValue.equals(data.getStorageObjectType())) {
-                        documentReadError = getLocation() + "Unexpected Value for Header Field " + fieldName + ": " + fieldValue;
+                    if (!getFieldValue().equals(data.getStorageObjectType())) {
+                        documentReadError = getLocation() + "Unexpected Value for Header Field " + fieldName + ": " + getFieldValue();
                     }
                 }
                 if (fieldName.equals(XMLFile.FIELD_HEADER_SCN)) {
-                    data.setSCN(Long.parseLong(fieldValue));
+                    data.setSCN(Long.parseLong(getFieldValue()));
                 }
             } catch (Exception e) {
-                documentReadError = getLocation() + "Parse Error for Header Field " + fieldName + ": " + fieldValue;
-                Logger.log(Logger.ERROR, Logger.MSG_FILE_PARSEERROR, "Parse Error for Field " + fieldName + " = " + fieldValue + ": " + e.toString());
+                documentReadError = getLocation() + "Parse Error for Header Field " + fieldName + ": " + getFieldValue();
+                Logger.log(Logger.ERROR, Logger.MSG_FILE_PARSEERROR, "Parse Error for Field " + fieldName + " = " + getFieldValue() + ": " + e.toString());
             }
             if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
-                Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"Field "+fieldName+" = "+fieldValue);
+                Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,"Field "+fieldName+" = "+getFieldValue());
             }
         }
     }

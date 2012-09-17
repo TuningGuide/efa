@@ -49,6 +49,7 @@ import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.BaseTabbedDialog;
+import de.nmichael.efa.gui.EnterPasswordDialog;
 import de.nmichael.efa.gui.SimpleInputDialog;
 import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.gui.util.TableItemHeader;
@@ -2452,6 +2453,20 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                         if (p != null && p.getExcludeFromPublicStatistics()) {
                             Dialog.error(International.getMessage("Statistik für {name} nicht erlaubt.", p.getQualifiedName()));
                             return false;
+                        }
+                        if (p != null && p.getPassword() != null && p.getPassword().length() > 0) {
+                            String pwd = null;
+                            do {
+                                pwd = EnterPasswordDialog.enterPassword(pParentDialog,
+                                        International.getMessage("Paßwort für {name}", p.getQualifiedName()) + "?",
+                                        false);
+                                if (pwd != null && !pwd.equals(p.getPassword())) {
+                                    Dialog.error(International.getString("Paßwort ist falsch."));
+                                }
+                            } while(pwd != null && !pwd.equals(p.getPassword()));
+                            if (pwd == null) {
+                                return false;
+                            }
                         }
                     }
                 } else {

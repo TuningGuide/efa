@@ -30,6 +30,7 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
     protected AdminRecord admin;
     protected boolean _dontSaveRecord = false;
     protected boolean allowConflicts = true;
+    private JButton printButton;
 
     public UnversionizedDataEditDialog(Frame parent, String title, 
             DataRecord dataRecord, boolean newRecord, AdminRecord admin) {
@@ -64,7 +65,7 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
     }
 
     protected void setPrintButton() {
-        JButton printButton = new JButton();
+        printButton = new JButton();
         printButton.setIcon(BaseDialog.getIcon("button_print.png"));
         printButton.setMargin(new Insets(2,2,2,2));
         printButton.setSize(35, 20);
@@ -73,6 +74,10 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
             public void actionPerformed(ActionEvent e) { printRecord(); }
         });
         this.addComponentToNortheastPanel(printButton);
+    }
+
+    protected void removePrintButton() {
+        removeComponentFromNortheastPanel(printButton);
     }
 
     protected void iniDefaults() {

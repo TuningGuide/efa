@@ -55,6 +55,7 @@ public interface IItemType {
     public int displayOnGui(Window dlg, JPanel panel, int x, int y);
 
     public void requestFocus();
+    public boolean hasFocus();
 
     public void setColor(Color c);
     public void setBackgroundColor(Color c);

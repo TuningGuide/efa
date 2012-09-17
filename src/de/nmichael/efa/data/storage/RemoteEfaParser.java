@@ -193,6 +193,7 @@ public class RemoteEfaParser extends XmlHandler {
         if (inRequestResponse) {
             // end of field
             if (inRecord) {
+                String fieldValue = getFieldValue();
                 record.set(fieldName, (fieldValue != null ? fieldValue.trim() : fieldValue));
             } else if (inKey) {
                 int keyFieldIdx = -1;
@@ -206,12 +207,12 @@ public class RemoteEfaParser extends XmlHandler {
                     keyFieldIdx = 2;
                 }
                 if (keyFieldIdx >= 0 && keyFieldIdx <= 2) {
-                    dummyRecord.set(keyFields[keyFieldIdx], fieldValue);
+                    dummyRecord.set(keyFields[keyFieldIdx], getFieldValue());
                     key.set(keyFieldIdx, dummyRecord.get(keyFields[keyFieldIdx]));
                 }
             } else{
                 if (!inFieldAdminRecord) {
-                    message.addField(fieldName, fieldValue);
+                    message.addField(fieldName, getFieldValue());
                 }
             }
         }

@@ -213,7 +213,7 @@ public class SessionGroupRecord extends DataRecord {
                 set(fieldName, s);
             }
         } else {
-            set(fieldName, value);
+            return super.setFromText(fieldName, value);
         }
         return (value.equals(getAsText(fieldName)));
     }

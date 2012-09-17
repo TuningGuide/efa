@@ -73,14 +73,18 @@ public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements
         messages.createAndSaveMessageRecord(r.getReportedByPersonAsName(),
                 MessageRecord.TO_BOATMAINTENANCE,
                 International.getString("Neuer Bootsschaden") + " - " + r.getBoatAsName(),
-                r.getCompleteDamageInfo());
+                r.getCompleteDamageInfo() +
+                (r.getLogbookText() != null && r.getLogbookText().length() > 0 ?
+                    "\n" + International.getString("Fahrt") + ": " + r.getLogbookText() :
+                    "")
+                );
     }
 
     public static void newBoatDamage(Window parent, BoatRecord boat) {
-        newBoatDamage(parent, boat, null);
+        newBoatDamage(parent, boat, null, null);
     }
 
-    public static void newBoatDamage(Window parent, BoatRecord boat, UUID personID) {
+    public static void newBoatDamage(Window parent, BoatRecord boat, UUID personID, String logbookRecordText) {
         BoatDamages boatDamages = Daten.project.getBoatDamages(false);
         AutoIncrement autoIncrement = Daten.project.getAutoIncrement(false);
         int val = autoIncrement.nextAutoIncrementIntValue(boatDamages.data().getStorageObjectType());
@@ -90,6 +94,9 @@ public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements
         r.setShowOnlyAddDamageFields(true);
         if (personID != null) {
             r.setReportedByPersonId(personID);
+        }
+        if (logbookRecordText != null) {
+            r.setLogbookText(logbookRecordText);
         }
         BoatDamageEditDialog dlg = (parent instanceof JDialog ? 
             new BoatDamageEditDialog((JDialog)parent, r, true, null) :

@@ -15,6 +15,16 @@ package de.nmichael.efa.util;
 public class LogString {
 
 
+  public static String fileOpening(String filename, String description) {
+      return International.getMessage("{filedescription} '{filename}' wird geöffnet ...",
+                                       description,filename) + ".";
+  }
+
+  public static String fileClosing(String filename, String description) {
+      return International.getMessage("{filedescription} '{filename}' wird geschlossen ...",
+                                       description,filename) + ".";
+  }
+
   public static String fileOpened(String filename, String description) {
       return International.getMessage("{filedescription} '{filename}' geöffnet",
                                        description,filename) + ".";

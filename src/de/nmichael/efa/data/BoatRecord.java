@@ -979,7 +979,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
                 set(fieldName, dr.getId());
             }
         } else {
-            set(fieldName, value);
+            return super.setFromText(fieldName, value);
         }
         return (value.equals(getAsText(fieldName)));
     }
@@ -1088,7 +1088,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
                 International.getString("Standard-Mannschaft")));
         item.setFieldSize(300, -1);
         v.add(item = new ItemTypeStringList(BoatRecord.DEFAULTSESSIONTYPE, getDefaultSessionType(),
-                EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES, true), EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY, true),
                 IItemType.TYPE_PUBLIC, CAT_USAGE,
                 International.getString("Standard-Fahrtart")));
         v.add(item = getGuiItemTypeStringAutoComplete(BoatRecord.DEFAULTDESTINATIONID, getDefaultDestinationId(),

@@ -166,7 +166,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
 
                 fahrten[c][5] = r.getStartTime();
                 fahrten[c][6] = r.getEndTime();
-                fahrten[c][7] = r.getDestinationAndVariantName();
+                fahrten[c][7] = r.getDestinationAndVariantName(false, false);
                 fahrten[c][8] = r.getDistance();
                 fahrten[c][9] = r.getComments();
 

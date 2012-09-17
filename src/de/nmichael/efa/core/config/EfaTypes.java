@@ -582,13 +582,26 @@ public class EfaTypes extends StorageObject {
     }
 
     public static String[] makeSessionTypeArray(int type) {
+        return makeSessionTypeArray(type, false);
+    }
+
+    public static String[] makeSessionTypeArray(int type, boolean withEmptyValue) {
         if (Daten.efaTypes == null) {
             // EfaTypes are not available when efa is started (will be initialized after EfaConfig).
             // This doesn't matter ... when EfaConfigFrame is opened, a new EfaConfig instance will be created
             // (as a copy from the static instance). This will also initialize all lists, including this one.
             return null;
         }
-        return makeTypeArray(type, EfaTypes.CATEGORY_SESSION);
+        String[] types = makeTypeArray(type, EfaTypes.CATEGORY_SESSION);
+        if (withEmptyValue && types != null && types.length > 0) {
+            String[] types2 = new String[types.length + 1];
+            types2[0] = (type == ARRAY_STRINGLIST_VALUES ? "" : "<" + International.getString("keine Auswahl") + ">");
+            for (int i=0; i<types.length; i++) {
+                types2[i+1] = types[i];
+            }
+            types = types2;
+        }
+        return types;
     }
 
     public static String[] makeGenderArray(int type) {

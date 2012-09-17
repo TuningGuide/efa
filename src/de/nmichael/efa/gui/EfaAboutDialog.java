@@ -226,6 +226,7 @@ public class EfaAboutDialog extends BaseDialog {
                 + "* Robert Harder (Base64 Implementation)\n"
                 + "* Sun Microsystems & Oracle (Java Technology)\n"
                 + "* Wolfgang Krutzke (Waters List for Germany)\n"
+                + "* Yahoo! (Weather Information)\n"
                 + "* World Wide Web Consortium (XML Plugin)");
 
         String translations = "";

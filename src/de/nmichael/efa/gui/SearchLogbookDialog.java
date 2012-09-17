@@ -63,7 +63,10 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
     private ItemTypeBoolean eUnknownPersonIgnoreGuest;
     private ItemTypeBoolean eUnknownDestination;
     private ItemTypeBoolean eOpenEntry;
-    private ItemTypeDistance eLargeDistance;
+    private ItemTypeBoolean eLargeDistance;
+    private ItemTypeDistance eLargeDistanceDistance;
+    private ItemTypeButton  eAll;
+    private ItemTypeButton  eNone;
 
     private SearchLogbookDialog(EfaBaseFrame parent) {
         super(parent, International.getString("Suche"), International.getStringWithMnemonic("Suchen"),
@@ -99,13 +102,25 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
         item.setPadding(0, 0, 10, 0);
 
         items.add(eIncomplete = new ItemTypeBoolean("ESEARCH_INCOMPLETE", true, IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("unvollständige Einträge")));
-        items.add(eUnknownPersonIgnoreGuest = new ItemTypeBoolean("ESEARCH_UNKNOWNBOAT", true, IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit unbekannten Booten")));
-        items.add(eUnknownBoat = new ItemTypeBoolean("ESEARCH_UNKNOWNPERSON", true, IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit unbekannten Personen")));
-        items.add(eUnknownPerson = new ItemTypeBoolean("ESEARCH_UNKNOWNPERSONIGNOREGUEST", true, IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getMessage("Unbekannte Einträge mit '{guest}' ignorieren",
+        items.add(eUnknownBoat = new ItemTypeBoolean("ESEARCH_UNKNOWNBOAT", true, IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit unbekannten Booten")));
+        items.add(eUnknownPerson = new ItemTypeBoolean("ESEARCH_UNKNOWNPERSON", true, IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit unbekannten Personen")));
+        items.add(eUnknownPersonIgnoreGuest = new ItemTypeBoolean("ESEARCH_UNKNOWNPERSONIGNOREGUEST", true, IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getMessage("Unbekannte Einträge mit '{guest}' ignorieren",
                 Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST))));
         items.add(eUnknownDestination = new ItemTypeBoolean("ESEARCH_UNKNOWNDESTINATION", true, IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit unbekannten Zielen")));
         items.add(eOpenEntry = new ItemTypeBoolean("ESEARCH_OPENENTRY", true, IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("nicht zurückgetragene Einträge")));
-        items.add(eLargeDistance = new ItemTypeDistance("ESEARCH_LARGEDISTANCE", DataTypeDistance.parseDistance("30 "+DataTypeDistance.KILOMETERS), IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit Kilometern größer als")));
+        items.add(eLargeDistance = new ItemTypeBoolean("ESEARCH_LARGEDISTANCE", true, IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit Kilometern größer als") + ": "));
+        items.add(eLargeDistanceDistance = new ItemTypeDistance("ESEARCH_LARGEDISTANCEDISTANCE", DataTypeDistance.parseDistance("30 "+DataTypeDistance.KILOMETERS), IItemType.TYPE_PUBLIC, CAT_SPECIAL, null));
+        eLargeDistance.setFieldGrid(1, GridBagConstraints.WEST, GridBagConstraints.NONE);
+        eLargeDistanceDistance.setOffsetXY(1, -1); // show behind eLargeDistance Checkbox
+        eLargeDistanceDistance.setFieldSize(100, -1);
+
+        items.add(eAll = new ItemTypeButton("ESEARCH_SELECT_ALL", IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("alle")));
+        eAll.setFieldGrid(2, GridBagConstraints.CENTER, GridBagConstraints.NONE);
+        eAll.setPadding(0, 0, 10, 0);
+        eAll.registerItemListener(this);
+        items.add(eNone = new ItemTypeButton("ESEARCH_SELECT_NONE", IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("keine")));
+        eNone.setFieldGrid(2, GridBagConstraints.CENTER, GridBagConstraints.NONE);
+        eNone.registerItemListener(this);
         items.add(item = new ItemTypeLabel("CONTINUE_SEARCH2", IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Weitersuchen mit F3")));
         item.setPadding(0, 0, 10, 0);
 
@@ -151,10 +166,16 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
 
     public void itemListenerAction(IItemType itemType, AWTEvent event) {
         if (itemType == sbAll && event.getID() == ActionEvent.ACTION_PERFORMED) {
-            selectAllSearchFields(true);
+            selectAllSearchFields(true, false);
         }
         if (itemType == sbNone && event.getID() == ActionEvent.ACTION_PERFORMED) {
-            selectAllSearchFields(false);
+            selectAllSearchFields(false, false);
+        }
+        if (itemType == eAll && event.getID() == ActionEvent.ACTION_PERFORMED) {
+            selectAllSearchFields(true, true);
+        }
+        if (itemType == eNone && event.getID() == ActionEvent.ACTION_PERFORMED) {
+            selectAllSearchFields(false, true);
         }
         if (itemType == sSearchText && event.getID() == KeyEvent.KEY_PRESSED &&
                 ((KeyEvent)event).getKeyCode() == KeyEvent.VK_ENTER) {
@@ -162,19 +183,29 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
         }
     }
 
-    private void selectAllSearchFields(boolean selected) {
-        sEntryno.parseAndShowValue(Boolean.toString(selected));
-        sDate.parseAndShowValue(Boolean.toString(selected));
-        sEnddate.parseAndShowValue(Boolean.toString(selected));
-        sBoat.parseAndShowValue(Boolean.toString(selected));
-        sCox.parseAndShowValue(Boolean.toString(selected));
-        sCrew.parseAndShowValue(Boolean.toString(selected));
-        sStarttime.parseAndShowValue(Boolean.toString(selected));
-        sEndtime.parseAndShowValue(Boolean.toString(selected));
-        sDestination.parseAndShowValue(Boolean.toString(selected));
-        sDistance.parseAndShowValue(Boolean.toString(selected));
-        sComments.parseAndShowValue(Boolean.toString(selected));
-        sSessiontype.parseAndShowValue(Boolean.toString(selected));
+    private void selectAllSearchFields(boolean selected, boolean special) {
+        if (!special) {
+            sEntryno.parseAndShowValue(Boolean.toString(selected));
+            sDate.parseAndShowValue(Boolean.toString(selected));
+            sEnddate.parseAndShowValue(Boolean.toString(selected));
+            sBoat.parseAndShowValue(Boolean.toString(selected));
+            sCox.parseAndShowValue(Boolean.toString(selected));
+            sCrew.parseAndShowValue(Boolean.toString(selected));
+            sStarttime.parseAndShowValue(Boolean.toString(selected));
+            sEndtime.parseAndShowValue(Boolean.toString(selected));
+            sDestination.parseAndShowValue(Boolean.toString(selected));
+            sDistance.parseAndShowValue(Boolean.toString(selected));
+            sComments.parseAndShowValue(Boolean.toString(selected));
+            sSessiontype.parseAndShowValue(Boolean.toString(selected));
+        } else {
+            eIncomplete.parseAndShowValue(Boolean.toString(selected));
+            eUnknownBoat.parseAndShowValue(Boolean.toString(selected));
+            eUnknownPerson.parseAndShowValue(Boolean.toString(selected));
+            eUnknownPersonIgnoreGuest.parseAndShowValue(Boolean.toString(selected));
+            eUnknownDestination.parseAndShowValue(Boolean.toString(selected));
+            eOpenEntry.parseAndShowValue(Boolean.toString(selected));
+            eLargeDistance.parseAndShowValue(Boolean.toString(selected));
+        }
     }
 
     public void closeButton_actionPerformed(ActionEvent e) {
@@ -367,9 +398,10 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
                             return true;
                         }
                     }
-                    if (searchLogbookDialog != null && searchLogbookDialog.eLargeDistance.getValue().getValueInMeters() > 0) {
+                    if (searchLogbookDialog != null && searchLogbookDialog.eLargeDistance.getValue() &&
+                            searchLogbookDialog.eLargeDistanceDistance.getValue().getValueInMeters() > 0) {
                         if (r.getDistance() != null && r.getDistance().isSet() &&
-                            r.getDistance().getValueInMeters() >= searchLogbookDialog.eLargeDistance.getValue().getValueInMeters()) {
+                            r.getDistance().getValueInMeters() >= searchLogbookDialog.eLargeDistanceDistance.getValue().getValueInMeters()) {
                             foundMatch(r, efaBaseFrame.distance, jumpToField);
                             return true;
                         }

@@ -28,14 +28,14 @@ public class DataRecordReader extends XmlHandler {
 
         if (!localName.equals(DataRecord.ENCODING_RECORD)) {
             try {
-                dataRecord.set(fieldName, fieldValue, false);
+                dataRecord.set(fieldName, getFieldValue(), false);
             } catch(Exception e) {
                 Logger.log(Logger.ERROR,Logger.MSG_FILE_PARSEERROR,
-                        getLocation() + "Parse Error for Field "+fieldName+" = "+fieldValue+": "+e.toString());
+                        getLocation() + "Parse Error for Field "+fieldName+" = "+getFieldValue()+": "+e.toString());
             }
             if (Logger.isTraceOn(Logger.TT_XMLFILE)) {
                 Logger.log(Logger.DEBUG,Logger.MSG_FILE_XMLTRACE,
-                        "Field "+fieldName+" = "+fieldValue);
+                        "Field "+fieldName+" = "+getFieldValue());
             }
         }
     }

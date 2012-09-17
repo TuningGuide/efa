@@ -183,7 +183,8 @@ public class AdminDialog extends BaseDialog implements IItemListener {
         projectName.setText(International.getString("Projekt") + ": " +
                 (Daten.project != null ? Daten.project.getProjectName() : "- " + International.getString("Kein Projekt geöffnet.") + " -"));
         logbookName.setText(International.getString("Fahrtenbuch") + ": " +
-                (efaBoathouseFrame.getLogbook() != null ? efaBoathouseFrame.getLogbook().getName() : "- " + International.getString("Kein Fahrtenbuch geöffnet.") + " -"));
+                (efaBoathouseFrame.getLogbook() != null && efaBoathouseFrame.getLogbook().isOpen() ?
+                    efaBoathouseFrame.getLogbook().getName() : "- " + International.getString("Kein Fahrtenbuch geöffnet.") + " -"));
     }
 
     private void updateMessageButton(ItemTypeButton button) {
@@ -239,6 +240,16 @@ public class AdminDialog extends BaseDialog implements IItemListener {
                 return;
             }
 
+            if (action.equals(EfaMenuButton.BUTTON_BACKUP)) {
+                // handled in EfaMenuButton; here we just need to update some infos
+                if (efaBoathouseFrame.getLogbook() != null && !efaBoathouseFrame.getLogbook().isOpen() &&
+                    Daten.project != null && Daten.project.isOpen() &&
+                    Daten.project.getCurrentLogbookEfaBoathouse() != null &&
+                    Daten.project.getCurrentLogbookEfaBoathouse().length() > 0) {
+                    efaBoathouseFrame.openLogbook(Daten.project.getCurrentLogbookEfaBoathouse());
+                }
+                updateInfos();
+            }
             updateMessageButton(null);
         }
         

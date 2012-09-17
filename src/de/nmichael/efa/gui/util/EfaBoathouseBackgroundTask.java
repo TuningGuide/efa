@@ -25,7 +25,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
     private static final int CHECK_INTERVAL = 60;
     private static final int ONCE_AN_HOUR = 60;
-    private static final long BOAT_DAMAGE_REMINDER_INTERVAL = 7*24*60*60;
+    private static final long BOAT_DAMAGE_REMINDER_INTERVAL = 7*24*60*60*1000;
     EfaBoathouseFrame efaBoathouseFrame;
     int onceAnHour;
     Date date;
@@ -415,11 +415,16 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     private void checkForAutoCreateNewLogbook() {
-        if (Daten.project != null && Daten.project.isOpen()) {
-            DataTypeDate date = Daten.project.getAutoNewLogbookDate();
-            if (date != null && date.isSet() && DataTypeDate.today().isAfterOrEqual(date)) {
-                autoOpenNewLogbook();
+        try {
+            if (Daten.project != null && Daten.project.isOpen()) {
+                DataTypeDate date = Daten.project.getAutoNewLogbookDate();
+                if (date != null && date.isSet() && DataTypeDate.today().isAfterOrEqual(date)) {
+                    autoOpenNewLogbook();
+                }
             }
+        } catch (Exception e) {
+            // can crash when project is currently being opened
+            Logger.logdebug(e);
         }
     }
 

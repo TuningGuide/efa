@@ -218,16 +218,16 @@ class OnlineUpdateFileParser extends XmlHandler {
         if (version != null) {
             // end of field
             if (fieldName.equals(XML_VERSION_ID)) {
-                version.versionId = fieldValue;
+                version.versionId = getFieldValue();
             }
             if (fieldName.equals(XML_RELEASE_DATE)) {
-                version.releaseDate = fieldValue;
+                version.releaseDate = getFieldValue();
             }
             if (fieldName.equals(XML_DOWNLOAD_URL)) {
-                version.downloadUrl = fieldValue;
+                version.downloadUrl = getFieldValue();
             }
             if (fieldName.equals(XML_DOWNLOAD_SIZE)) {
-                version.downloadSize = EfaUtil.stringFindInt(fieldValue, 0);
+                version.downloadSize = EfaUtil.stringFindInt(getFieldValue(), 0);
             }
 
             if (localName.equals(XML_CHANGE_ITEM)) {
@@ -238,7 +238,7 @@ class OnlineUpdateFileParser extends XmlHandler {
                 if (changes == null) {
                     changes = new Vector<String>();
                 }
-                changes.add(fieldValue);
+                changes.add(getFieldValue());
                 version.changeItems.put(changeItemLang, changes);
             }
             if (fieldName.equals(XML_VERSION)) {

@@ -257,7 +257,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 				set(fieldName, pr.getId());
 			}
 		} else {
-			set(fieldName, value);
+            return super.setFromText(fieldName, value);
 		}
 		return (value.equals(getAsText(fieldName)));
 	}

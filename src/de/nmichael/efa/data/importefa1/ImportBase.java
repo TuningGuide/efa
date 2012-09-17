@@ -73,8 +73,9 @@ public abstract class ImportBase {
                         (affix != null && affix.length() > 0 ? affix : null)});
             if (keys != null && keys.length > 0) {
                 for (int i=0; i<keys.length; i++) {
-                    DataRecord r = persons.data().get(keys[i]);
-                    if (r != null && r.isValidAt(validAt)) {
+                    PersonRecord r = (PersonRecord)persons.data().get(keys[i]);
+                    if (r != null && r.isValidAt(validAt) &&
+                        (affix != null || r.getNameAffix() == null || r.getNameAffix().length() == 0)) {
                         return (UUID) keys[i].getKeyPart1();
                     }
                 }
@@ -108,8 +109,9 @@ public abstract class ImportBase {
                         (nameAffix != null && nameAffix.length() > 0 ? nameAffix : null)});
             if (keys != null && keys.length > 0) {
                 for (int i=0; i<keys.length; i++) {
-                    DataRecord r = boats.data().get(keys[i]);
-                    if (r != null && r.isValidAt(validAt)) {
+                    BoatRecord r = (BoatRecord)boats.data().get(keys[i]);
+                    if (r != null && r.isValidAt(validAt) &&
+                        (nameAffix != null || r.getNameAffix() == null || r.getNameAffix().length() == 0)) {
                         return (UUID) keys[i].getKeyPart1();
                     }
                 }

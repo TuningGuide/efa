@@ -367,6 +367,7 @@ public class Logger {
     public static final String MSG_BACKUP_RESTOREFINISHED = "BCK014";
     public static final String MSG_BACKUP_RESTOREFAILED = "BCK015";
     public static final String MSG_BACKUP_RESTOREDEBUG = "BCK016";
+    public static final String MSG_BACKUP_REOPENINGFILES = "BCK017";
 
     // Statistics
     public static final String MSG_STAT_CALCULATEDENTRIES = "STA001";
@@ -390,6 +391,7 @@ public class Logger {
     public static final String MSG_DEBUG_SENDMAIL = "DBG015";
     public static final String MSG_DEBUG_LOGBOOK = "DBG016";
     public static final String MSG_DEBUG_GUI_EFABASEFRAME = "DBG017";
+    public static final String MSG_DEBUG_DATA = "DBG018";
     // CLI
     public static final String MSG_CLI_INFO  = "CLI001";
     public static final String MSG_CLI_ERROR = "CLI002";

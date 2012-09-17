@@ -209,7 +209,7 @@ public class Backup {
                                     " and Record Count " + meta.getNumberOfRecords() + ".");
             }
             dataAccess.copyFromDataAccess(zipDataAccess);
-            
+
             logMsg(Logger.INFO, Logger.MSG_BACKUP_RESTOREINFO,
                     LogString.fileSuccessfullyRestored(meta.getNameAndType(),
                     meta.getDescription()) +
@@ -389,6 +389,18 @@ public class Backup {
             logMsg(Logger.INFO, Logger.MSG_BACKUP_RESTOREFINISHEDINFO,
                     International.getMessage("{n} Objekte wiederhergestellt.",
                     successful, zipFile));
+
+            // re-open project
+            String pName = Daten.project.getProjectName();
+            logMsg(Logger.INFO, Logger.MSG_BACKUP_REOPENINGFILES,
+                    LogString.fileClosing(pName, International.getString("Projekt")));
+            Daten.project.closeAllStorageObjects();
+            logMsg(Logger.INFO, Logger.MSG_BACKUP_REOPENINGFILES,
+                    LogString.fileOpening(pName, International.getString("Projekt")));
+            Daten.project.openProject(pName, true);
+            logMsg(Logger.INFO, Logger.MSG_EVT_PROJECTOPENED,
+                    LogString.fileOpened(pName, International.getString("Projekt")));
+
             if (errors == 0) {
                 logMsg(Logger.INFO, Logger.MSG_BACKUP_RESTOREFINISHED,
                         LogString.operationSuccessfullyCompleted(International.getString("Wiederherstellung")));

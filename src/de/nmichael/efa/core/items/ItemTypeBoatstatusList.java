@@ -16,7 +16,12 @@ import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.gui.*;
 import de.nmichael.efa.data.*;
+import de.nmichael.efa.data.storage.DataKey;
+import de.nmichael.efa.data.storage.DataKeyIterator;
 import de.nmichael.efa.data.types.DataTypeIntString;
+import de.nmichael.efa.data.types.DataTypeList;
+import java.awt.Color;
+import java.util.UUID;
 
 public class ItemTypeBoatstatusList extends ItemTypeList {
 
@@ -47,8 +52,27 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             return new Vector<ItemTypeListData>();
         }
 
-        Boats boats = Daten.project.getBoats(false);
         long now = System.currentTimeMillis();
+        Boats boats = Daten.project.getBoats(false);
+
+        Groups groups = Daten.project.getGroups(false);
+        Hashtable<UUID, Color> groupColors = new Hashtable<UUID, Color>();
+        try {
+            DataKeyIterator it = groups.data().getStaticIterator();
+            for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+                GroupRecord gr = (GroupRecord)groups.data().get(k);
+                if (gr != null && gr.isValidAt(now)) {
+                    String cs = gr.getColor();
+                    if (cs != null && cs.length() > 0) {
+                        groupColors.put(gr.getId(), EfaUtil.getColor(cs));
+                    }
+                }
+            }
+            this.iconWidth = (groupColors.size() > 0 ? Daten.efaConfig.getValueEfaDirekt_fontSize() : 0);
+            this.iconHeight = this.iconWidth;
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
 
         Vector<BoatString> bsv = new Vector<BoatString>();
         for (int i = 0; i < v.size(); i++) {
@@ -130,11 +154,28 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
 
                 bs.sortBySeats = (Daten.efaConfig.getValueEfaDirekt_sortByAnzahl());
 
+                // Colors for Groups
+                ArrayList<Color> aColors = new ArrayList<Color>();
+                if (r != null) {
+                    DataTypeList<UUID> grps = r.getAllowedGroupIdList();
+                    if (grps != null && grps.length() > 0) {
+                        for (int g=0; g<grps.length(); g++) {
+                            UUID id = grps.get(g);
+                            Color c = groupColors.get(id);
+                            if (c != null) {
+                                aColors.add(c);
+                            }
+                        }
+                    }
+                }
+                Color[] colors = (aColors.size() > 0 ? aColors.toArray(new Color[0]) : null);
+
                 BoatListItem item = new BoatListItem();
                 item.list = this;
                 item.text = bs.name;
                 item.boatStatus = sr;
                 item.boatVariant = bs.variant;
+                bs.colors = colors;
                 bs.record = item;
 
                 if (Daten.efaConfig.getValueEfaDirekt_showZielnameFuerBooteUnterwegs() &&
@@ -208,7 +249,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
                 }
                 lastSep = newSep;
             }
-            vv.add(new ItemTypeListData(a[i].name, a[i].record, false, -1));
+            vv.add(new ItemTypeListData(a[i].name, a[i].record, false, -1, null, a[i].colors));
         }
         return vv;
     }
@@ -287,6 +328,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         public boolean sortBySeats;
         public Object record;
         public int variant;
+        public Color[] colors;
 
         private String normalizeString(String s) {
             if (s == null) {

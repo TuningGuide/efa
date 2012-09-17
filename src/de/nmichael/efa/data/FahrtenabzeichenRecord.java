@@ -204,7 +204,7 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
                 set(fieldName, pr.getId());
             }
         } else {
-            set(fieldName, value);
+            return super.setFromText(fieldName, value);
         }
         return (value.equals(getAsText(fieldName)));
     }

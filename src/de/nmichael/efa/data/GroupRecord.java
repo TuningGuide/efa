@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
@@ -28,6 +29,7 @@ public class GroupRecord extends DataRecord implements IItemFactory {
 
     public static final String ID                  = "Id";
     public static final String NAME                = "Name";
+    public static final String COLOR               = "Color";
     public static final String MEMBERIDLIST        = "MemberIdList";
 
     public static final String[] IDX_NAME = new String[] { NAME };
@@ -41,6 +43,7 @@ public class GroupRecord extends DataRecord implements IItemFactory {
 
         f.add(ID);                                t.add(IDataAccess.DATA_UUID);
         f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
+        f.add(COLOR);                             t.add(IDataAccess.DATA_STRING);
         f.add(MEMBERIDLIST);                      t.add(IDataAccess.DATA_LIST_UUID);
         MetaData metaData = constructMetaData(Groups.DATATYPE, f, t, true);
         metaData.setKey(new String[] { ID }); // plus VALID_FROM
@@ -75,6 +78,13 @@ public class GroupRecord extends DataRecord implements IItemFactory {
     }
     public String getName() {
         return getString(NAME);
+    }
+
+    public void setColor(String color) {
+        setString(COLOR, color);
+    }
+    public String getColor() {
+        return getString(COLOR);
     }
 
     public void setMemberIdList(DataTypeList<UUID> list) {
@@ -166,7 +176,7 @@ public class GroupRecord extends DataRecord implements IItemFactory {
                 set(fieldName, list);
             }
         } else {
-            set(fieldName, value);
+            return super.setFromText(fieldName, value);
         }
         return (value.equals(getAsText(fieldName)));
     }
@@ -190,8 +200,11 @@ public class GroupRecord extends DataRecord implements IItemFactory {
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
 
-        v.add(item = new ItemTypeString(CrewRecord.NAME, getName(),
+        v.add(item = new ItemTypeString(GroupRecord.NAME, getName(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Gruppenname")));
+
+        v.add(item = new ItemTypeColor(GroupRecord.COLOR, getColor(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Farbe")));
 
         DataTypeList<UUID> members = getMemberIdList();
         itemList = new Vector<IItemType[]>();

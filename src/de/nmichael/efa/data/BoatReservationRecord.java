@@ -44,6 +44,7 @@ public class BoatReservationRecord extends DataRecord {
     public static final String PERSONID            = "PersonId";
     public static final String PERSONNAME          = "PersonName";
     public static final String REASON              = "Reason";
+    public static final String CONTACT             = "Contact";
 
     public static final String[] IDX_BOATID = new String[] { BOATID };
 
@@ -62,6 +63,7 @@ public class BoatReservationRecord extends DataRecord {
         f.add(PERSONID);                 t.add(IDataAccess.DATA_UUID);
         f.add(PERSONNAME);               t.add(IDataAccess.DATA_STRING);
         f.add(REASON);                   t.add(IDataAccess.DATA_STRING);
+        f.add(CONTACT);                  t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(BoatReservations.DATATYPE, f, t, false);
         metaData.setKey(new String[] { BOATID, RESERVATION });
         metaData.addIndex(IDX_BOATID);
@@ -170,6 +172,17 @@ public class BoatReservationRecord extends DataRecord {
         return s;
     }
 
+    public void setContact(String contact) {
+        setString(CONTACT, contact);
+    }
+    public String getContact() {
+        String s = getString(CONTACT);
+        if (s == null || s.length() == 0) {
+            return "";
+        }
+        return s;
+    }
+
     private String getDateDescription(DataTypeDate date, String weekday, DataTypeTime time) {
         if (date == null && weekday == null) {
             return "";
@@ -261,34 +274,43 @@ public class BoatReservationRecord extends DataRecord {
                         if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_MONDAY)) {
                             return -1;
                         }
+                        break;
                     case Calendar.TUESDAY:
                         if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_TUESDAY)) {
                             return -1;
                         }
+                        break;
                     case Calendar.WEDNESDAY:
                         if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_WEDNESDAY)) {
                             return -1;
                         }
+                        break;
                     case Calendar.THURSDAY:
                         if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_THURSDAY)) {
                             return -1;
                         }
+                        break;
                     case Calendar.FRIDAY:
                         if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_FRIDAY)) {
                             return -1;
                         }
+                        break;
                     case Calendar.SATURDAY:
                         if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_SATURDAY)) {
                             return -1;
                         }
+                        break;
                     case Calendar.SUNDAY:
                         if (!dayOfWeek.equals(EfaTypes.TYPE_WEEKDAY_SUNDAY)) {
                             return -1;
                         }
+                        break;
                 }
                 // ok, this is our weekday!
                 dateFrom = new DataTypeDate(now);
                 dateTo   = new DataTypeDate(now);
+                timeFrom = this.getTimeFrom();
+                timeTo   = this.getTimeTo();
             }
             long resStart = dateFrom.getTimestamp(timeFrom);
             long resEnd   = dateTo.getTimestamp(timeTo);
@@ -354,7 +376,7 @@ public class BoatReservationRecord extends DataRecord {
                 set(fieldName, pr.getId());
             }
         } else {
-            set(fieldName, value);
+            return super.setFromText(fieldName, value);
         }
         return (value.equals(getAsText(fieldName)));
     }
@@ -423,6 +445,8 @@ public class BoatReservationRecord extends DataRecord {
         item.setNotNull(true);
         v.add(item = new ItemTypeString(BoatReservationRecord.REASON, getReason(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Reservierungsgrund")));
+        v.add(item = new ItemTypeString(BoatReservationRecord.CONTACT, getContact(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Telefon für Rückfragen")));
 
         return v;
     }

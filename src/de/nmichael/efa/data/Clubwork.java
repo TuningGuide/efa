@@ -31,7 +31,8 @@ public class Clubwork extends StorageObject {
             String storageUsername,
             String storagePassword,
             String storageObjectName) {
-        super(storageType, storageLocation, storageUsername, storagePassword, storageObjectName, DATATYPE, International.getString("Vereinsarbeit"));
+        super(storageType, storageLocation, storageUsername, storagePassword, storageObjectName, DATATYPE, 
+                International.getString("Vereinsarbeit") + " " + storageObjectName);
         ClubworkRecord.initialize();
 //        staticClubworkRecord = (ClubworkRecord)createNewRecord();
         dataAccess.setMetaData(MetaData.getMetaData(DATATYPE));

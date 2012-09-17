@@ -46,6 +46,7 @@ public class BoatDamageRecord extends DataRecord {
     public static final String REPAIRCOSTS          = "RepairCosts";
     public static final String CLAIM                = "Claim";
     public static final String NOTES                = "Notes";
+    public static final String LOGBOOKTEXT          = "LogbookText";
 
     public static final String[] IDX_BOATID = new String[] { BOATID };
 
@@ -74,6 +75,7 @@ public class BoatDamageRecord extends DataRecord {
         f.add(REPAIRCOSTS);              t.add(IDataAccess.DATA_DECIMAL);
         f.add(CLAIM);                    t.add(IDataAccess.DATA_BOOLEAN);
         f.add(NOTES);                    t.add(IDataAccess.DATA_STRING);
+        f.add(LOGBOOKTEXT);              t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(BoatDamages.DATATYPE, f, t, false);
         metaData.setKey(new String[] { BOATID, DAMAGE });
         metaData.addIndex(IDX_BOATID);
@@ -283,11 +285,18 @@ public class BoatDamageRecord extends DataRecord {
         }
     }
 
-    public void setNotes(String reason) {
-        setString(NOTES, reason);
+    public void setNotes(String notes) {
+        setString(NOTES, notes);
     }
     public String getNotes() {
         return getString(NOTES);
+    }
+
+    public void setLogbookText(String text) {
+        setString(LOGBOOKTEXT, text);
+    }
+    public String getLogbookText() {
+        return getString(LOGBOOKTEXT);
     }
 
     public String getCompleteDamageInfo() {
@@ -341,13 +350,14 @@ public class BoatDamageRecord extends DataRecord {
                 set(fieldName, pr.getId());
             }
         } else {
-            set(fieldName, value);
+            return super.setFromText(fieldName, value);
         }
         return (value.equals(getAsText(fieldName)));
     }
 
     public Vector<IItemType> getGuiItems(AdminRecord admin) {
         String CAT_BASEDATA     = "%01%" + International.getString("Bootsschaden");
+        String CAT_DETAILS      = "%02%" + International.getString("Details");
         IItemType item;
         Vector<IItemType> v = new Vector<IItemType>();
         v.add(item = new ItemTypeLabel("GUI_BOAT_NAME",
@@ -399,6 +409,8 @@ public class BoatDamageRecord extends DataRecord {
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Reparaturkosten")));
             v.add(item = new ItemTypeBoolean(BoatDamageRecord.CLAIM, getClaim(),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Versicherungsfall")));
+            v.add(item = new ItemTypeString(BoatDamageRecord.LOGBOOKTEXT, getLogbookText(),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Fahrt")));
             v.add(item = new ItemTypeString(BoatDamageRecord.NOTES, getNotes(),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Bemerkungen")));
             v.add(item = new ItemTypeBoolean(BoatDamageRecord.FIXED, getFixed(),

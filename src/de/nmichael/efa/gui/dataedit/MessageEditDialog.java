@@ -10,10 +10,13 @@
 
 package de.nmichael.efa.gui.dataedit;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeBoolean;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.*;
+import de.nmichael.efa.ex.InvalidValueException;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -81,5 +84,22 @@ public class MessageEditDialog extends UnversionizedDataEditDialog {
         super.showDialog();
     }
 
+    protected boolean saveRecord() throws InvalidValueException {
+        if (newRecord && dataRecord != null) {
+            IItemType item = getItem(MessageRecord.TO);
+            if (item != null) {
+                String to = item.getValueFromField();
+                if (Daten.efaConfig.getValueNotificationMarkReadAdmin()
+                        && MessageRecord.TO_ADMIN.equals(to)) {
+                    ((MessageRecord)dataRecord).setRead(true);
+                }
+                if (Daten.efaConfig.getValueNotificationMarkReadBoatMaintenance()
+                        && MessageRecord.TO_BOATMAINTENANCE.equals(to)) {
+                    ((MessageRecord)dataRecord).setRead(true);
+                }
+            }
+        }
+        return super.saveRecord();
+    }
 
 }

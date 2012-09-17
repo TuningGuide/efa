@@ -123,10 +123,21 @@ public class DataImport extends ProgressTask {
         warningCount++;
     }
 
+    private long getValidFrom(DataRecord r) {
+        long rv = r.getValidFrom();
+        return (rv > 0 ? rv : validAt);
+    }
+
+    private long getInvalidFrom(DataRecord r) {
+        long rv = r.getInvalidFrom();
+        return (rv > 0 && rv < Long.MAX_VALUE ? rv : -1);
+    }
+
     private void addRecord(DataRecord r) {
         try {
             if (versionized) {
-                dataAccess.addValidAt(r, validAt);
+                long myValidAt = getValidFrom(r);
+                dataAccess.addValidAt(r, myValidAt);
                 setCurrentWorkDone(++importCount);
             } else {
                 dataAccess.add(r);
@@ -137,7 +148,7 @@ public class DataImport extends ProgressTask {
         }
     }
 
-    private void updateRecord(DataRecord r) {
+    private void updateRecord(DataRecord r, ArrayList<String> fieldsInInport) {
         try {
             DataRecord rorig = (versionized
                     ? dataAccess.getValidAt(r.getKey(), validAt)
@@ -146,25 +157,50 @@ public class DataImport extends ProgressTask {
                 logImportFailed(r, International.getString("Keine gültige Version des Datensatzes gefunden."));
                 return;
             }
+
+            // has the import record an InvalidFrom field?
+            long invalidFrom = (versionized ? getInvalidFrom(r) : -1);
+            if (invalidFrom <= rorig.getValidFrom()) {
+                invalidFrom = -1;
+            }
+            boolean changed = false;
+
             for (int i = 0; i < fields.length; i++) {
                 Object o = r.get(fields[i]);
-                if (o != null
+                if ((o != null || fieldsInInport.contains(fields[i]))
                         && !r.isKeyField(fields[i])
                         && !fields[i].equals(DataRecord.LASTMODIFIED)
                         && !fields[i].equals(DataRecord.VALIDFROM)
                         && !fields[i].equals(DataRecord.INVALIDFROM)
                         && !fields[i].equals(DataRecord.INVISIBLE)
                         && !fields[i].equals(DataRecord.DELETED)) {
+                    Object obefore = rorig.get(fields[i]);
                     rorig.set(fields[i], o);
+                    if ( (o != null && !o.equals(obefore)) ||
+                         (o == null && obefore != null) ) {
+                        changed = true;
+                    }
                 }
             }
 
-            if (!versionized || updMode.equals(UPDMODE_UPDATEVALIDVERSION)) {
-                dataAccess.update(rorig);
-                setCurrentWorkDone(++importCount);
-            }
-            if (versionized && updMode.equals(UPPMODE_CREATENEWVERSION)) {
-                dataAccess.addValidAt(rorig, validAt);
+            if (invalidFrom <= 0) {
+                long myValidAt = getValidFrom(r);
+                if (!versionized || updMode.equals(UPDMODE_UPDATEVALIDVERSION)
+                        || rorig.getValidFrom() == myValidAt) {
+                    if (changed) {
+                        dataAccess.update(rorig);
+                    }
+                    setCurrentWorkDone(++importCount);
+                }
+                if (versionized && updMode.equals(UPPMODE_CREATENEWVERSION)
+                        && rorig.getValidFrom() != myValidAt) {
+                    if (changed) {
+                        dataAccess.addValidAt(rorig, myValidAt);
+                    }
+                    setCurrentWorkDone(++importCount);
+                }
+            } else {
+                dataAccess.changeValidity(rorig, rorig.getValidFrom(), invalidFrom);
                 setCurrentWorkDone(++importCount);
             }
         } catch (Exception e) {
@@ -172,7 +208,7 @@ public class DataImport extends ProgressTask {
         }
     }
 
-    private void importRecord(DataRecord r) {
+    private void importRecord(DataRecord r, ArrayList<String> fieldsInInport) {
         try {
             DataRecord[] otherVersions = null;
 
@@ -194,7 +230,8 @@ public class DataImport extends ProgressTask {
             if (key.getKeyPart1() == null) {
                 // first key field is *not* set
                 // -> search for record by QualifiedName
-                DataKey[] keys = dataAccess.getByFields(r.getQualifiedNameFields(), r.getQualifiedNameValues(r.getQualifiedName()), -1);
+                DataKey[] keys = dataAccess.getByFields(r.getQualifiedNameFields(), r.getQualifiedNameValues(r.getQualifiedName()),
+                        (versionized ? validAt : -1));
                 if (keys != null && keys.length > 0) {
                     for (int i = 0; i < keyFields.length; i++) {
                         if (!keyFields[i].equals(DataRecord.VALIDFROM)) {
@@ -244,13 +281,13 @@ public class DataImport extends ProgressTask {
                 if (otherVersions == null || otherVersions.length == 0) {
                     logImportFailed(r, International.getString("Datensatz nicht gefunden"));
                 } else {
-                    updateRecord(r);
+                    updateRecord(r, fieldsInInport);
                 }
                 return;
             }
             if (importMode.equals(IMPORTMODE_ADDUPD)) {
                 if (otherVersions != null && otherVersions.length > 0) {
-                    updateRecord(r);
+                    updateRecord(r, fieldsInInport);
                 } else {
                     addRecord(r);
                 }
@@ -281,8 +318,10 @@ public class DataImport extends ProgressTask {
         try {
             int linecnt = 0;
             String[] header = null;
+            ArrayList<String> fieldsInImport = new ArrayList<String>();
             BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(filename), encoding));
             String s;
+            DataRecord dummyRecord = storageObject.createNewRecord();
             while ( (s = f.readLine()) != null) {
                 s = s.trim();
                 if (s.length() == 0)  {
@@ -293,8 +332,12 @@ public class DataImport extends ProgressTask {
                     if (linecnt == 0) {
                         // header
                         header = new String[fields.size()];
-                        for (int i=0; i<header.length; i++) {
+                        for (int i=0; i<fields.size(); i++) {
                             header[i] = fields.get(i);
+                            String[] equivFields = dummyRecord.getEquivalentFields(fields.get(i));
+                            for (String ef : equivFields) {
+                                fieldsInImport.add(ef);
+                            }
                         }
                     } else {
                         // fields
@@ -311,7 +354,7 @@ public class DataImport extends ProgressTask {
                                 }
                             }
                         }
-                        importRecord(r);
+                        importRecord(r, fieldsInImport);
                     }
                 }
                 linecnt++;
@@ -361,6 +404,7 @@ public class DataImport extends ProgressTask {
         private DataImport dataImport;
         private IDataAccess dataAccess;
         private DataRecord record;
+        private ArrayList<String> fieldsInImport;
 
         public DataImportXmlParser(DataImport dataImport, IDataAccess dataAccess) {
             super(DataExport.FIELD_EXPORT);
@@ -374,6 +418,7 @@ public class DataImport extends ProgressTask {
             if (localName.equals(DataRecord.ENCODING_RECORD)) {
                 // begin of record
                 record = dataAccess.getPersistence().createNewRecord();
+                fieldsInImport = new ArrayList<String>();
                 return;
             }
         }
@@ -383,14 +428,20 @@ public class DataImport extends ProgressTask {
 
             if (record != null && localName.equals(DataRecord.ENCODING_RECORD)) {
                 // end of record
-                dataImport.importRecord(record);
+                dataImport.importRecord(record, fieldsInImport);
                 record = null;
+                fieldsInImport = null;
             }
+            String fieldValue = getFieldValue();
             if (record != null && fieldValue != null) {
                 // end of field
                 try {
                     if (!record.setFromText(fieldName, fieldValue.trim())) {
                         dataImport.logImportWarning(record, "Value '" + fieldValue + "' for Field '" + fieldName + "' corrected to '" + record.getAsText(fieldName) + "'");
+                    }
+                    String[] equivFields = record.getEquivalentFields(fieldName);
+                    for (String f : equivFields) {
+                        fieldsInImport.add(f);
                     }
                 } catch (Exception esetvalue) {
                     dataImport.logImportWarning(record, "Cannot set value '" + fieldValue + "' for Field '" + fieldName + "': " + esetvalue.toString());

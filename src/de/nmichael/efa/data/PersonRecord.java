@@ -560,7 +560,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
                 set(fieldName, br.getId());
             }
         } else {
-            set(fieldName, value);
+            return super.setFromText(fieldName, value);
         }
         return (value.equals(getAsText(fieldName)));
     }

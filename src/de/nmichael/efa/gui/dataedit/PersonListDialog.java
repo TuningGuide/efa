@@ -27,11 +27,17 @@ public class PersonListDialog extends DataListDialog {
     public PersonListDialog(Frame parent, long validAt, AdminRecord admin) {
         super(parent, International.getString("Personen"), 
                 Daten.project.getPersons(false), validAt, admin);
+        if (admin != null && admin.isAllowedEditPersons()) {
+            addMergeAction();
+        }
     }
 
     public PersonListDialog(JDialog parent, long validAt, AdminRecord admin) {
         super(parent, International.getString("Personen"), 
                 Daten.project.getPersons(false), validAt, admin);
+        if (admin != null && admin.isAllowedEditPersons()) {
+            addMergeAction();
+        }
     }
 
     public void keyAction(ActionEvent evt) {
@@ -44,5 +50,10 @@ public class PersonListDialog extends DataListDialog {
             record = Daten.project.getPersons(false).createPersonRecord(UUID.randomUUID());
         }
         return new PersonEditDialog(parent, (PersonRecord)record, newRecord, admin);
+    }
+    
+    protected ProgressTask getMergeProgressTask(DataKey mainKey, DataKey[] mergeKeys) {
+        Persons persons = (Persons)persistence;
+        return persons.getMergePersonsProgressTask(mainKey, mergeKeys);
     }
 }

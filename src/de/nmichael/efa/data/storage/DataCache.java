@@ -130,12 +130,62 @@ public class DataCache {
         return null;
     }
 
+    public synchronized DataRecord[] getValidAny(DataKey key) throws EfaException {
+        if (!isCacheComplete()) {
+            getAllRecordsFromRemote();
+        }
+        return getValidAnyFromCache(key);
+    }
+
+    private synchronized DataRecord[] getValidAnyFromCache(DataKey key) {
+        int validFromField;
+        if (dataAccess.getMetaData().versionized) {
+            validFromField = dataAccess.getKeyFieldNames().length - 1; // VALID_FROM is always the last key field!
+        } else {
+            // wrong call: not versionized
+            return null;
+        }
+        DataKey[] keys = cache.keySet().toArray(new DataKey[0]);
+        if (keys == null) {
+            return null;
+        }
+        ArrayList<DataRecord> recordList = new ArrayList<DataRecord>();
+        for (DataKey k : keys) {
+            boolean sameRecord = true;
+            for (int i=0; i<validFromField; i++) {
+                if (k.getKeyPart(i) == null || !k.getKeyPart(i).equals(key.getKeyPart(i))) {
+                    sameRecord = false;
+                }
+            }
+            if (!sameRecord) {
+                continue;
+            }
+            DataRecord r = get(k);
+            if (r != null) {
+                recordList.add(r);
+            }
+        }
+        if (recordList.size() > 0) {
+            return recordList.toArray(new DataRecord[0]);
+        }
+        return null;
+    }
+
     public DataKey[] getAllKeys() {
         long numberOfRecRemote = getTotalNumberOfRecordsIfNotTooOld();
         if (numberOfRecRemote == cache.size()) {
-            return cache.keySet().toArray(new DataKey[0]);
+            DataKey[] keys = cache.keySet().toArray(new DataKey[0]);
+            if (keys != null) {
+                // keys must be sorted, as they may be used for iterators for in-order traversal
+                Arrays.sort(keys);
+            }
+            return keys;
         }
         return null;
+    }
+
+    public synchronized boolean isCacheComplete() {
+        return !isTooOld() && (totalNumberOfRecords == cache.size());
     }
 
 }

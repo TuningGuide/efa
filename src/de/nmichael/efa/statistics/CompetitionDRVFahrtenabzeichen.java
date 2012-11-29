@@ -97,7 +97,7 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
                         r.getDestinationAndVariantName(), r.getComments(), r.getDistance().getValueInMeters());
                 fahrt.jum = jum;
             } else {
-                if (fahrt.dateStart.isBefore(r.getDate())) {
+                if (r.getDate().isBefore(fahrt.dateStart)) {
                     fahrt.dateStart = r.getDate();
                 }
                 if (fahrt.dateEnd == null || r.getDate().isAfter(fahrt.dateEnd)) {
@@ -354,7 +354,7 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
                                 Fahrtenabzeichen fahrtenabzeichen = Daten.project.getFahrtenabzeichen(false);
                                 FahrtenabzeichenRecord fahrtenheft = fahrtenabzeichen.getFahrtenabzeichen((UUID)sd[i].key);
                                     if (fahrtenheft != null) {
-                                        if (fahrtenheft.getFahrtenheft().length() > 0) {
+                                        if (fahrtenheft.getFahrtenheft() != null && fahrtenheft.getFahrtenheft().length() > 0) {
                                             DRVSignatur drvSignatur = new DRVSignatur(fahrtenheft.getFahrtenheft());
                                             if (drvSignatur.getSignatureState() == DRVSignatur.SIG_UNKNOWN_KEY) {
                                                 Dialog.infoDialog("Schlüssel nicht bekannt",

@@ -392,6 +392,8 @@ public class Logger {
     public static final String MSG_DEBUG_LOGBOOK = "DBG016";
     public static final String MSG_DEBUG_GUI_EFABASEFRAME = "DBG017";
     public static final String MSG_DEBUG_DATA = "DBG018";
+    public static final String MSG_DEBUG_FTP = "DBG019";
+
     // CLI
     public static final String MSG_CLI_INFO  = "CLI001";
     public static final String MSG_CLI_ERROR = "CLI002";
@@ -408,7 +410,7 @@ public class Logger {
     public static final long TT_FILEIO = Integer.parseInt("0000000001000000", 2); // 0x0040
     public static final long TT_XMLFILE = Integer.parseInt("0000000010000000", 2); // 0x0080
     public static final long TT_GUI = Integer.parseInt("0000000100000000", 2); // 0x0100
-    public static final long TT_PRINTER = Integer.parseInt("0000001000000000", 2); // 0x0200
+    public static final long TT_PRINT_FTP = Integer.parseInt("0000001000000000", 2); // 0x0200
     public static final long TT_STATISTICS = Integer.parseInt("0000010000000000", 2); // 0x0400
     public static final long TT_EXCEPTIONS = Integer.parseInt("0000100000000000", 2); // 0x0800
     public static final long TT_HELP = Integer.parseInt("0001000000000000", 2); // 0x1000
@@ -480,8 +482,8 @@ public class Logger {
      * @param key the key for this message, see Logger: Message Keys
      * @param txt the message to be logged
      */
-    public static void log(String type, String key, String txt) {
-        log(type, key, txt, type != null && type.equals(ERROR));
+    public static String log(String type, String key, String txt) {
+        return log(type, key, txt, type != null && type.equals(ERROR));
     }
 
     /**
@@ -492,15 +494,16 @@ public class Logger {
      * @param txt the message to be logged
      * @param sendmail
      */
-    public static void log(String type, String key, String txt, boolean msgToAdmin) {
+    public static String log(String type, String key, String txt, boolean msgToAdmin) {
+        String t = null;
         if (inLogging) {
-            return; // avoid recursion
+            return null; // avoid recursion
         }
         inLogging = true;
         try {
             if (type != null && type.equals(DEBUG) && !debugLogging) {
                 inLogging = false;
-                return;
+                return null;
             }
 
             // Error Threshold exceeded?
@@ -520,7 +523,7 @@ public class Logger {
                         doNotLog = true;
                         Logger.log(ERROR, MSG_LOGGER_THRESHOLDEXCEEDED, "Logging Threshold exceeded.");
                         inLogging = false;
-                        return;
+                        return null;
                     }
                 }
             }
@@ -532,7 +535,7 @@ public class Logger {
                     System.out.print(EfaUtil.getString(type, 7) + " - " + key + " - " + txt);
                 }
             }
-            String t = "[" + EfaUtil.getCurrentTimeStamp() + "] - " + EfaUtil.getString(Daten.applName, 7) + " - " + Daten.applPID + " - " + EfaUtil.getString(type, 7) + " - " + key + " - " + txt;
+            t = "[" + EfaUtil.getCurrentTimeStamp() + "] - " + EfaUtil.getString(Daten.applName, 7) + " - " + Daten.applPID + " - " + EfaUtil.getString(type, 7) + " - " + key + " - " + txt;
             if (type != null && !type.equals(INPUT) && !type.equals(OUTPUT))  {
                 Calendar cal = new GregorianCalendar();
                 EfaErrorPrintStream.ignoreExceptions = true; // Damit Exception-Ausschriften nicht versehentlich als echte Exceptions gemeldet werden
@@ -548,7 +551,7 @@ public class Logger {
                            Daten.project.getMessages(false) : null);
                 if (messages == null || !messages.isOpen()) {
                     inLogging = false;
-                    return;
+                    return t;
                 }
                 if ((Daten.efaConfig == null || Daten.efaConfig.getValueEfaDirekt_bnrError_admin())) {
                     mailError(key, t, MessageRecord.TO_ADMIN);
@@ -561,6 +564,7 @@ public class Logger {
         } finally {
             inLogging = false;
         }
+        return t;
     }
 
     /**

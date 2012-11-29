@@ -221,6 +221,18 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         }
         return null;
     }
+    public boolean isStatusMember() {
+        UUID id = getStatusId();
+        if (id != null) {
+            StatusRecord r = getPersistence().getProject().getStatus(false).getStatus(id);
+            if (r != null) {
+                if (StatusRecord.TYPE_USER.equals(r.getType())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     public void setAddressStreet(String street) {
         setString(ADDRESSSTREET, street);
@@ -608,9 +620,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
             v.add(item = new ItemTypeStringList(PersonRecord.STATUSID, (getStatusId() != null ? getStatusId().toString() : status.getStatusOther().getId().toString()),
                     status.makeStatusArray(Status.ARRAY_STRINGLIST_VALUES), status.makeStatusArray(Status.ARRAY_STRINGLIST_DISPLAY),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Status")));
-            v.add(item = new ItemTypeLabel(PersonRecord.LASTMODIFIED, IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-                    International.getMessage("zuletzt geändert am {datetime}", EfaUtil.date2String(new Date(this.getLastModified())))));
-            item.setPadding(0, 0, 20, 0);
 
             v.add(item = new ItemTypeString(PersonRecord.ASSOCIATION, getAssocitation(),
                     IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Verein")));

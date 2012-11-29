@@ -115,7 +115,10 @@ public class MenuBackup extends MenuBase {
             restoreObjects[i] = options.get(i+1);
         }
 
-        Backup backup = new Backup(zipFile, restoreObjects);
+        // Note: CLI does NOT support restore of object in a project which is not open!
+        // This would require opening and/or creating of another project in the server
+        // efa, which is currently not possible.
+        Backup backup = new Backup(zipFile, restoreObjects, false);
         int ret = backup.runRestore(null);
         if (ret > 0) {
             return CLI.RC_COMMAND_COMPLETED_WITH_ERRORS;

@@ -2058,8 +2058,16 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
     private boolean checkEntryNo() {
         DataTypeIntString newEntryNo = DataTypeIntString.parseString(entryno.getValue());
-        if ((logbook.getLogbookRecord(newEntryNo) != null && (isNewRecord || !newEntryNo.equals(currentRecord.getEntryId())))
+        while ((logbook.getLogbookRecord(newEntryNo) != null && (isNewRecord || !newEntryNo.equals(currentRecord.getEntryId())))
                 || newEntryNo.length() == 0) {
+            if (isNewRecord && isModeBoathouse()) {
+                // duplicate EntryNo's for new sessions in efa-Boathouse can happen in case
+                // of simultaneous remote access.
+                // if this happens, just increase number by one
+                entryno.parseAndShowValue(Integer.toString(newEntryNo.intValue() + 1));
+                newEntryNo = DataTypeIntString.parseString(entryno.getValue());
+                continue;
+            }
             Dialog.error(International.getString("Diese Laufende Nummer ist bereits vergeben!") + " "
                     + International.getString("Bitte korrigiere die laufende Nummer des Eintrags!") + "\n\n"
                     + International.getString("Hinweis") + ": "
@@ -2156,13 +2164,21 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
     private boolean checkBoatStatus() {
         if (getMode() == MODE_BOATHOUSE_START || getMode() == MODE_BOATHOUSE_START_CORRECT) {
+            int checkMode = 3;
             // checkFahrtbeginnFuerBoot nur bei direkt_boot==null machen, da ansonsten der Check schon in EfaDirektFrame gemacht wurde
-            if (efaBoathouseAction != null && efaBoathouseAction.boat == null) {
-                efaBoathouseAction.boat = currentBoat;
-                if (currentBoat != null) {
-                    efaBoathouseAction.boatStatus = currentBoat.getBoatStatus();
+            if (efaBoathouseAction != null) {
+                if (efaBoathouseAction.boat == null || // when called from EfaBoathouseFrame before boat is entered
+                        (currentBoat != null && currentBoat.getId() != null && // boat changed as part of START_CORRECT
+                        efaBoathouseAction.boat.getId() != currentBoat.getId())) {
+                    checkMode = 2;
+                    efaBoathouseAction.boat = currentBoat;
                 }
-                boolean success = efaBoathouseFrame.checkStartSessionForBoat(efaBoathouseAction, 2);
+                if (efaBoathouseAction.boat != null) {
+                    // update boat status (may have changed since we opened the dialog)
+                    efaBoathouseAction.boatStatus = efaBoathouseAction.boat.getBoatStatus();
+                }
+                boolean success = efaBoathouseFrame.checkStartSessionForBoat(efaBoathouseAction,
+                        entryno.getValueFromField(), checkMode);
                 if (!success) {
                     efaBoathouseAction.boat = null; // otherwise next check would fail
                 }
@@ -3971,6 +3987,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             logBoathouseEvent(Logger.ERROR, Logger.MSG_ERR_NOLOGENTRYFORBOAT, msg, null);
             return false;
         }
+        /* ** the following code has been moved to in 2.0.5_01 to prevent errors in remote access;
+         * ** logbook record will now be deleted after status has been updated
         boolean checks = logbook.data().isPreModifyRecordCallbackEnabled();
         try {
             logbook.data().setPreModifyRecordCallbackEnabled(false); // otherwise we couldn't delete the record before we change the status
@@ -3980,6 +3998,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             return false;
         }
         logbook.data().setPreModifyRecordCallbackEnabled(checks);
+        */
         return true;
     }
 
@@ -4138,6 +4157,14 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 }
             }
 
+        }
+
+        if (mode == MODE_BOATHOUSE_ABORT) {
+            try {
+                logbook.data().delete(currentRecord.getKey());
+            } catch (Exception e) {
+                Dialog.error(e.toString());
+            }
         }
 
         efaBoathouseHideEfaFrame();

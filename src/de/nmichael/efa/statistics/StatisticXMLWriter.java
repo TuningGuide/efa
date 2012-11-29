@@ -42,6 +42,8 @@ public class StatisticXMLWriter extends StatisticWriter {
     public static final String FIELD_ITEM_YEAROFBIRTH = "YearOfBirth";
     public static final String FIELD_ITEM_BOATTYPE = "BoatType";
     public static final String FIELD_ITEM_DISTANCE = "Distance";
+    public static final String FIELD_ITEM_ROWDISTANCE = "RowDistance";
+    public static final String FIELD_ITEM_COXDISTANCE = "CoxDistance";
     public static final String FIELD_ITEM_SESSIONS = "Sessions";
     public static final String FIELD_ITEM_AVGDISTANCE = "AvgDistance";
     public static final String FIELD_ITEM_DESTINATIONAREAS = "DestinationAreas";
@@ -269,6 +271,8 @@ public class StatisticXMLWriter extends StatisticWriter {
                         write(f, indent, xmltag(FIELD_ITEM_YEAROFBIRTH, sd[i].sYearOfBirth));
                         write(f, indent, xmltag(FIELD_ITEM_BOATTYPE, sd[i].sBoatType));
                         write(f, indent, xmltag(FIELD_ITEM_DISTANCE, sd[i].sDistance));
+                        write(f, indent, xmltag(FIELD_ITEM_ROWDISTANCE, sd[i].sRowDistance));
+                        write(f, indent, xmltag(FIELD_ITEM_COXDISTANCE, sd[i].sCoxDistance));
                         write(f, indent, xmltag(FIELD_ITEM_SESSIONS, sd[i].sSessions));
                         write(f, indent, xmltag(FIELD_ITEM_AVGDISTANCE, sd[i].sAvgDistance));
                         write(f, indent, xmltag(FIELD_ITEM_DESTINATIONAREAS, sd[i].sDestinationAreas));

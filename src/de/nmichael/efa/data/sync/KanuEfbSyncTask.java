@@ -21,10 +21,16 @@ import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.types.DataTypeList;
 import de.nmichael.efa.gui.EfaConfigDialog;
 import de.nmichael.efa.gui.ProgressDialog;
 import de.nmichael.efa.gui.BaseTabbedDialog;
 import de.nmichael.efa.gui.dataedit.ProjectEditDialog;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.swing.JDialog;
 
 
@@ -45,6 +51,23 @@ public class KanuEfbSyncTask extends ProgressTask {
     private int countSyncBoats = 0;
     private int countSyncWaters = 0;
     private int countSyncTrips = 0;
+
+    TrustManager[] trustAllCerts = new TrustManager[]{
+        new X509TrustManager() {
+
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+
+            public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                //No need to implement.
+            }
+
+            public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                //No need to implement.
+            }
+        }
+    };
 
     public KanuEfbSyncTask(Logbook logbook, AdminRecord admin) {
         super();
@@ -93,7 +116,13 @@ public class KanuEfbSyncTask extends ProgressTask {
         out.close();
 
         if (expectResponse) {
-            return getResponse(connection, new BufferedInputStream(connection.getInputStream()));
+            try {
+                return getResponse(connection, new BufferedInputStream(connection.getInputStream()));
+            } catch(Exception e) {
+                logInfo(Logger.ERROR, Logger.MSG_SYNC_SYNCDEBUG,
+                            "Fehler bei Kommunikation mit "+cmdurl+": "+e.getMessage());
+                return null;
+            }
         } else {
             return null;
         }
@@ -195,55 +224,114 @@ public class KanuEfbSyncTask extends ProgressTask {
         return true;
     }
 
+    private boolean handleSyncUserResponse(KanuEfbXmlResponse response) throws Exception {
+        Persons persons = Daten.project.getPersons(false);
+        if (response != null && response.isResponseOk("SyncUsers")) {
+            logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Synchronisierungs-Antwort erhalten für " + response.getNumberOfRecords() + " Personen ...");
+            for (int i = 0; i < response.getNumberOfRecords(); i++) {
+                Hashtable<String, String> fields = response.getFields(i);
+                boolean ok = false;
+                String personName = "<unknown>";
+                String firstName = fields.get("firstname");
+                String lastName = fields.get("lastname");
+                String dateOfBirth = fields.get("dateofbirth");
+                String efbId = fields.get("id");
+                if (firstName != null && lastName != null) {
+                    firstName = firstName.trim();
+                    lastName = lastName.trim();
+                    personName = PersonRecord.getFullName(firstName, lastName, "", false);
+                    PersonRecord[] plist = persons.getPersons(personName, thisSync);
+                    PersonRecord p = (plist != null && plist.length == 1 ? plist[0] : null);
+
+                    // try to match person on date of birth
+                    for (int pi = 0; p == null && plist != null && pi < plist.length; pi++) {
+                        if (plist[pi].getBirthday() != null && dateOfBirth != null
+                                && plist[pi].getBirthday().isSet()) {
+                            DataTypeDate bday = DataTypeDate.parseDate(dateOfBirth);
+                            if (bday != null && bday.isSet()) {
+                                if (bday.equals(plist[pi].getBirthday())) {
+                                    p = plist[pi];
+                                } else {
+                                    if (plist[i].getBirthday().getDay() < 1
+                                            && plist[i].getBirthday().getMonth() < 1
+                                            && plist[i].getBirthday().getYear() == bday.getYear()) {
+                                        p = plist[pi];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (efbId != null && p != null) {
+                        efbId = efbId.trim();
+                        if (!efbId.equals(p.getEfbId())) {
+                            p.setEfbId(efbId);
+                            persons.data().update(p);
+                            countSyncUsers++;
+                        }
+                        ok = true;
+                    }
+                }
+                if (Logger.isTraceOn(Logger.TT_SYNC)) {
+                    if (ok) {
+                        logInfo(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO, "  Synchronisierungs-Antwort für Person: " + personName + " (EfbId=" + efbId + ")");
+                    } else {
+                        logInfo(Logger.DEBUG, Logger.MSG_SYNC_WARNINCORRECTRESPONSE, "  Synchronisierungs-Antwort für unbekannte Person: " + personName);
+                    }
+                }
+            }
+            logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, countSyncUsers + " Personen synchronisiert.");
+            return true;
+        } else {
+            logInfo(Logger.ERROR, Logger.MSG_SYNC_ERRORINVALIDRESPONSE, "Ungültige Synchronisierungs-Antwort.");
+            return false;
+        }
+    }
+
     private boolean syncUsers() {
         try {
             logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Synchronisiere Personen ...");
-            Persons persons = Daten.project.getPersons(false);
 
+            // ask eFB to sync all users from eFB -> efa
+            // this is deprecated
             StringBuilder request = new StringBuilder();
             buildRequestHeader(request, "SyncUsers");
             buildRequestFooter(request);
-
             logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Sende Synchronisierungs-Anfrage für alle Personen ...");
             KanuEfbXmlResponse response = sendRequest(request.toString(), true);
-            if (response != null && response.isResponseOk("SyncUsers")) {
-                logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Synchronisierungs-Antwort erhalten für " + response.getNumberOfRecords() + " Personen ...");
-                for (int i=0; i<response.getNumberOfRecords(); i++) {
-                    Hashtable<String,String> fields = response.getFields(i);
-                    boolean ok = false;
-                    String personName = "<unknown>";
-                    String firstName = fields.get("firstname");
-                    String lastName = fields.get("lastname");
-                    String dateOfBirth = fields.get("dateOfBirth");
-                    String efbId = fields.get("ID");
-                    if (firstName != null && lastName != null) {
-                        firstName = firstName.trim();
-                        lastName = lastName.trim();
-                        personName = PersonRecord.getFullName(firstName, lastName, "", false);
-                        PersonRecord p = persons.getPerson(personName, thisSync);
-                        if (efbId != null && p != null) {
-                            efbId = efbId.trim();
-                            if (!efbId.equals(p.getEfbId())) {
-                                p.setEfbId(efbId);
-                                persons.data().update(p);
-                                countSyncUsers++;
-                            }
-                            ok = true;
-                        }
-                    }
+            handleSyncUserResponse(response);
+            
+
+            // transmit all efa users without eFB ID's to eFB
+            /*
+            StringBuilder request = new StringBuilder();
+            buildRequestHeader(request, "SyncUsers");
+            Persons persons = Daten.project.getPersons(false);
+            int reqCnt = 0;
+            DataKeyIterator it = persons.data().getStaticIterator();
+            DataKey k = it.getFirst();
+            while (k != null) {
+                PersonRecord r = (PersonRecord)persons.data().get(k);
+                if (r != null && r.isValidAt(thisSync) && r.isStatusMember() &&
+                    (r.getLastModified() > lastSync || r.getEfbId() == null || r.getEfbId().length() == 0)) {
                     if (Logger.isTraceOn(Logger.TT_SYNC)) {
-                        if (ok) {
-                            logInfo(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO, "  Synchronisierungs-Antwort für Person: " + personName + " (EfbId=" + efbId + ")");
-                        } else {
-                            logInfo(Logger.DEBUG, Logger.MSG_SYNC_WARNINCORRECTRESPONSE, "  Synchronisierungs-Antwort für unbekannte Person: " + personName);
-                        }
+                        logInfo(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO, "  erstelle Synchronisierungs-Anfrage für Person: " + r.getQualifiedName());
                     }
+                    request.append("<person>");
+                    request.append("<firstName>"+r.getFirstName()+"</firstName>");
+                    request.append("<lastName>"+r.getLastName()+"</lastName>");
+                    if (r.getBirthday() != null && r.getBirthday().isSet()) {
+                        request.append("<dateOfBirth>"+r.getBirthday().toString()+"</dateOfBirth>");
+                    }
+                    request.append("</person>\n");
+                    reqCnt++;
                 }
-                logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, countSyncUsers + " Personen synchronisiert.");
-            } else {
-                logInfo(Logger.ERROR, Logger.MSG_SYNC_ERRORINVALIDRESPONSE, "Ungültige Synchronisierungs-Antwort.");
-                return false;
+                k = it.getNext();
             }
+            buildRequestFooter(request);
+            logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Sende Synchronisierungs-Anfrage für " + reqCnt + " Personen ...");
+            KanuEfbXmlResponse response = sendRequest(request.toString(), true);
+            handleSyncUserResponse(response);
+            */
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -391,9 +479,28 @@ public class KanuEfbSyncTask extends ProgressTask {
         return true;
     }
 
+    private int countNumberOfPersonsWithEfbIds() {
+        int count = 0;
+        try {
+            Persons persons = Daten.project.getPersons(false);
+            DataKeyIterator it = persons.data().getStaticIterator();
+            for(DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+                PersonRecord r = (PersonRecord)persons.data().get(k);
+                if (r != null && r.isValidAt(thisSync) &&
+                    r.getEfbId() != null && r.getEfbId().length() > 0) {
+                    count++;
+                }
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return count;
+    }
+
     private boolean syncTrips() {
         try {
-            logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Synchronisiere Fahrten ...");
+            logInfo(Logger.INFO, Logger.MSG_SYNC_SYNCINFO, "Synchronisiere Fahrten für " +
+                    countNumberOfPersonsWithEfbIds() + " Personen mit Efb-ID's ...");
             StringBuilder request = new StringBuilder();
             buildRequestHeader(request, "SyncTrips");
 
@@ -422,8 +529,6 @@ public class KanuEfbSyncTask extends ProgressTask {
                                 }
                                 BoatRecord b = (r.getBoatId() != null ? boats.getBoat(r.getBoatId(), thisSync) : null);
                                 DestinationRecord d = (r.getDestinationId() != null ? destinations.getDestination(r.getDestinationId(), thisSync): null);
-                                WatersRecord w = (d != null && d.getWatersIdList() != null && d.getWatersIdList().length() > 0 ?
-                                    waters.getWaters(d.getWatersIdList().get(0)) : null); // @todo (P7) get all other waters as well, currently for test purpose only first one!
                                 String startDate = r.getDate().getDateString("YYYY-MM-DD");
                                 String endDate = (r.getEndDate() != null ? r.getEndDate().getDateString("YYYY-MM-DD") : startDate);
                                 String tripId = logbook.getName()+"_"+r.getEntryId().toString();
@@ -444,14 +549,39 @@ public class KanuEfbSyncTask extends ProgressTask {
                                     request.append("<endtime>" + r.getEndTime().toString() + "</endtime>");
                                 }
 
+                                // build waters
+                                ArrayList<String> waterText = new ArrayList<String>();
+                                ArrayList<String> waterID = new ArrayList<String>();
+                                DataTypeList<UUID> waterList = (d != null ? d.getWatersIdList() : null);
+                                DataTypeList<UUID> waterListMore = r.getWatersIdList();
+                                if (waterList != null && waterListMore != null) {
+                                    waterList.addAll(waterListMore);
+                                }
+                                for (int di=0; waterList != null && di<waterList.length(); di++) {
+                                    WatersRecord w = waters.getWaters(waterList.get(di));
+                                    if (w != null) {
+                                        if (w.getEfbId() != null && w.getEfbId().length() > 0) {
+                                            waterID.add(w.getEfbId());
+                                        } else {
+                                            waterText.add(w.getName());
+                                        }
+                                    }
+                                }
+                                DataTypeList<String> waterListText = r.getWatersNameList();
+                                for (int di=0; waterListText != null && di<waterListText.length(); di++) {
+                                    waterText.add(waterListText.get(di));
+                                }
+                                String wIDs = (waterID.size() > 0 ?
+                                    EfaUtil.arr2KommaList(waterID.toArray(new String[0])) : null);
+                                String wTxt = (wIDs == null && waterText.size() > 0 ?
+                                    EfaUtil.arr2KommaList(waterText.toArray(new String[0])) : null);
+
                                 request.append("<lines>");
                                 request.append("<line>");
-                                if (w != null) {
-                                    if (w.getEfbId() != null && w.getEfbId().length() > 0) {
-                                        request.append("<waterID>" + w.getEfbId() + "</waterID>");
-                                    } else {
-                                        request.append("<waterText>" + w.getName() + "</waterText>");
-                                    }
+                                if (wIDs != null) {
+                                    request.append("<waterID>" +wIDs + "</waterID>");
+                                } else if (wTxt != null) {
+                                    request.append("<waterText>" + wTxt + "</waterText>");
                                 }
                                 if (d != null && d.getStart() != null && d.getStart().length() > 0) {
                                     request.append("<fromText>" + d.getStart() + "</fromText>");
@@ -499,14 +629,14 @@ public class KanuEfbSyncTask extends ProgressTask {
                 for (int i=0; i<response.getNumberOfRecords(); i++) {
                     Hashtable<String,String> fields = response.getFields(i);
                     boolean ok = false;
-                    String tripId = fields.get("tripID");
+                    String tripId = fields.get("tripid");
                     int result = EfaUtil.string2int(fields.get("result"), -1);
                     LogbookRecord r = null;
                     if (tripId != null) {
                         tripId = tripId.trim();
                         r = efaEntryIds.get(tripId);
                     }
-                    String resultText = fields.get("resultText");
+                    String resultText = fields.get("resulttext");
                     if (r != null) {
                         if (result == 0) {
                             r.setSyncTime(thisSync);
@@ -666,6 +796,17 @@ public class KanuEfbSyncTask extends ProgressTask {
             }
             getConfigValues();
         }
+        
+        // Install the all-trusting trust manager
+        try {
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            java.lang.System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true");
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
         this.start();
         if (progressDialog != null) {
             progressDialog.showDialog();

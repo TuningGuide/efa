@@ -23,6 +23,8 @@ public class StatisticCSVWriter extends StatisticWriter {
     public static final String FIELD_ITEM_YEAROFBIRTH = "YearOfBirth";
     public static final String FIELD_ITEM_BOATTYPE = "BoatType";
     public static final String FIELD_ITEM_DISTANCE = "Distance";
+    public static final String FIELD_ITEM_ROWDISTANCE = "RowDistance";
+    public static final String FIELD_ITEM_COXDISTANCE = "CoxDistance";
     public static final String FIELD_ITEM_SESSIONS = "Sessions";
     public static final String FIELD_ITEM_AVGDISTANCE = "AvgDistance";
     public static final String FIELD_ITEM_DESTINATIONAREAS = "DestinationAreas";
@@ -146,6 +148,12 @@ public class StatisticCSVWriter extends StatisticWriter {
                         }
                         if (sr.sIsAggrDistance) {
                             write(f, sd[i].sDistance);
+                        }
+                        if (sr.sIsAggrRowDistance) {
+                            write(f, sd[i].sRowDistance);
+                        }
+                        if (sr.sIsAggrCoxDistance) {
+                            write(f, sd[i].sCoxDistance);
                         }
                         if (sr.sIsAggrSessions) {
                             write(f, sd[i].sSessions);

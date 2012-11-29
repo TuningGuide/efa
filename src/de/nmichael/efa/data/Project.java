@@ -113,7 +113,15 @@ public class Project extends StorageObject {
         return openProject(new Project(projectName), projectName, runAudit);
     }
 
+    public static boolean openProjectSilent(String projectName, boolean runAudit) {
+        return openProject(new Project(projectName), projectName, runAudit, true);
+    }
+
     public static boolean openProject(Project p, String projectName, boolean runAudit) {
+        return openProject(p, projectName, runAudit, false);
+    }
+
+    public static boolean openProject(Project p, String projectName, boolean runAudit, boolean silent) {
         if (Logger.isTraceOn(Logger.TT_CORE, 1)) {
             Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_DATA, "Opening Project " + projectName + " ...");
         }
@@ -147,8 +155,10 @@ public class Project extends StorageObject {
             }
             p._inOpeningProject = false;
         } catch (Exception ee) {
-            Logger.log(ee);
-            Dialog.error(LogString.fileOpenFailed(projectName, International.getString("Projekt"), ee.toString()));
+            if (!silent) {
+                Logger.log(ee);
+                Dialog.error(LogString.fileOpenFailed(projectName, International.getString("Projekt"), ee.toString()));
+            }
             Daten.project = null;
             return false;
         }
@@ -647,7 +657,7 @@ public class Project extends StorageObject {
     }
 
     public String getMyBoathouseName() {
-        if (myBoathouseName != null || myBoathouseName.length() > 0) {
+        if (myBoathouseName != null && myBoathouseName.length() > 0) {
             return myBoathouseName;
         }
         ProjectRecord r = getBoathouseRecord();
@@ -1688,11 +1698,21 @@ public class Project extends StorageObject {
     }
 
     public String getCurrentLogbookEfaBase() {
-        return getBoathouseRecord().getCurrentLogbookEfaBase();
+        try {
+            return getBoathouseRecord().getCurrentLogbookEfaBase();
+        } catch(NullPointerException e) {
+            Logger.logdebug(e); // can happen when remote project is not yet open
+            return null;
+        }
     }
 
     public String getCurrentLogbookEfaBoathouse() {
-        return getBoathouseRecord().getCurrentLogbookEfaBoathouse();
+        try {
+            return getBoathouseRecord().getCurrentLogbookEfaBoathouse();
+        } catch(NullPointerException e) {
+            Logger.logdebug(e); // can happen when remote project is not yet open
+            return null;
+        }
     }
 
     public Logbook getCurrentLogbook() {

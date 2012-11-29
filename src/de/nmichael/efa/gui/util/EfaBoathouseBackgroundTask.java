@@ -24,15 +24,20 @@ import java.util.*;
 public class EfaBoathouseBackgroundTask extends Thread {
 
     private static final int CHECK_INTERVAL = 60;
-    private static final int ONCE_AN_HOUR = 60;
+    private static final int REMOTE_SCN_CHECK_INTERVAL = 5;
+    private static final int ONCE_AN_HOUR = 3600 / CHECK_INTERVAL;
     private static final long BOAT_DAMAGE_REMINDER_INTERVAL = 7*24*60*60*1000;
-    EfaBoathouseFrame efaBoathouseFrame;
-    int onceAnHour;
-    Date date;
-    Calendar cal;
-    Calendar lockEfa;
-    boolean framePacked;
-    long lastEfaConfigScn = -1;
+    private EfaBoathouseFrame efaBoathouseFrame;
+    private boolean isProjectOpen = false;
+    private boolean isLocalProject = true;
+    private int onceAnHour;
+    private Date date;
+    private Calendar cal;
+    private Calendar lockEfa;
+    private boolean framePacked;
+    private long lastEfaConfigScn = -1;
+    private long lastBoatStatusScn = -1;
+    private long newBoatStatusScn = -1;
 
     public EfaBoathouseBackgroundTask(EfaBoathouseFrame efaBoathouseFrame) {
         this.efaBoathouseFrame = efaBoathouseFrame;
@@ -110,8 +115,11 @@ public class EfaBoathouseBackgroundTask extends Thread {
         while (true) {
             try {
                 if (Logger.isTraceOn(Logger.TT_BACKGROUND, 5)) {
-                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK, "EfaDirektBackgroundTask: alive!");
+                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK, "EfaBoathouseBackgroundTask: alive!");
                 }
+
+                // find out whether a project is open, and whether it's local or remote
+                updateProjectInfo();
 
                 // Update GUI on Config Changes
                 checkUpdateGui();
@@ -145,17 +153,81 @@ public class EfaBoathouseBackgroundTask extends Thread {
                     System.gc(); // Damit Speicherüberwachung funktioniert (anderenfalls wird CollectionUsage nicht aktualisiert; Java-Bug)
                     onceAnHour = ONCE_AN_HOUR;
                     if (Logger.isTraceOn(Logger.TT_BACKGROUND)) {
-                        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK, "EfaDirektBackgroundTask: alive!");
+                        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK, "EfaBoathouseBackgroundTask: alive!");
                     }
 
                     checkWarnings();
 
                     checkUnfixedBoatDamages();
                 }
+                
+                sleepForAWhile();
 
+            } catch (Exception eglobal) {
+                Logger.log(eglobal);
+            }
+        } // end: while(true)
+    } // end: run
+
+    private void updateProjectInfo() {
+        try {
+            if (Daten.project != null) {
+                isProjectOpen = true;
+                if (Daten.project.getProjectStorageType() == IDataAccess.TYPE_FILE_XML) {
+                    isLocalProject = true;
+                } else {
+                    isLocalProject = false;
+                }
+            } else {
+                isProjectOpen = false;
+            }
+        } catch (Exception e) {
+            Logger.logdebug(e);
+        }
+    }
+
+    private void sleepForAWhile() {
+        if (Logger.isTraceOn(Logger.TT_BACKGROUND, 8)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                    "EfaBoathouseBackgroundTask: sleepForAWhile()");
+        }
+        if (!isProjectOpen) {
+            // sleep 60 seconds
+            if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                        "EfaBoathouseBackgroundTask: sleep for " + CHECK_INTERVAL + " seconds ...");
+            }
+            try {
+                Thread.sleep(CHECK_INTERVAL * 1000);
+            } catch (Exception e) {
+                // wenn unterbrochen, dann versuch nochmal, kurz zu schlafen, und arbeite dann weiter!! ;-)
                 try {
-                    Thread.sleep(CHECK_INTERVAL * 1000);
-                } catch (Exception e) {
+                    Thread.sleep(100);
+                } catch (Exception ee) {
+                    EfaUtil.foo();
+                }
+            }
+        } else {
+            // sleep at most 60 seconds, but wake up earlier of boat status has changed
+            int cnt = CHECK_INTERVAL / REMOTE_SCN_CHECK_INTERVAL;
+            if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                        "EfaBoathouseBackgroundTask: sleep for " + cnt + " times " + REMOTE_SCN_CHECK_INTERVAL + " seconds ...");
+            }
+            BoatStatus boatStatus = null;
+            try {
+                boatStatus = (Daten.project != null ? Daten.project.getBoatStatus(false) : null);
+            } catch(Exception e) {
+                Logger.logdebug(e);
+            }
+            for (int i=0; i<cnt; i++) {
+                if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                            "EfaBoathouseBackgroundTask: sleep for " + REMOTE_SCN_CHECK_INTERVAL + " seconds ...");
+                }
+                try {
+                    Thread.sleep(REMOTE_SCN_CHECK_INTERVAL * 1000);
+                } catch(Exception e) {
                     // wenn unterbrochen, dann versuch nochmal, kurz zu schlafen, und arbeite dann weiter!! ;-)
                     try {
                         Thread.sleep(100);
@@ -163,13 +235,29 @@ public class EfaBoathouseBackgroundTask extends Thread {
                         EfaUtil.foo();
                     }
                 }
-            } catch (Exception eglobal) {
-                Logger.log(eglobal);
+                try {
+                    newBoatStatusScn = (boatStatus != null ? boatStatus.data().getSCN() : -1);
+                    if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
+                        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                                "EfaBoathouseBackgroundTask: BoatStatus scn is " + newBoatStatusScn + " (previously " + lastBoatStatusScn +")");
+                    }
+                    if (newBoatStatusScn != -1 && newBoatStatusScn != lastBoatStatusScn) {
+                        // do NOT set lastBoatStatusScn = scn here! This will be done when boat status is
+                        // updated.
+                        break;
+                    }
+                } catch(Exception e) {
+                    Logger.logdebug(e);
+                }
             }
-        } // end: while(true)
-    } // end: run
+        }
+    }
 
     private void checkUpdateGui() {
+        if (Logger.isTraceOn(Logger.TT_BACKGROUND, 8)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                    "EfaBoathouseBackgroundTask: checkUpdateGui()");
+        }
         if (Daten.efaConfig != null) {
             try {
                 long scn = Daten.efaConfig.data().getSCN();
@@ -184,6 +272,19 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     private void checkBoatStatus() {
+        if (Logger.isTraceOn(Logger.TT_BACKGROUND, 8)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                    "EfaBoathouseBackgroundTask: checkBoatStatus()");
+        }
+
+        boolean listChanged = (newBoatStatusScn != -1 && newBoatStatusScn != lastBoatStatusScn);
+        lastBoatStatusScn = newBoatStatusScn;
+
+        if (isProjectOpen && !isLocalProject) {
+            efaBoathouseFrame.updateBoatLists(listChanged);
+            return;
+        }
+
         BoatStatus boatStatus = (Daten.project != null ? Daten.project.getBoatStatus(false) : null);
         BoatReservations boatReservations = (Daten.project != null ? Daten.project.getBoatReservations(false) : null);
         BoatDamages boatDamages = (Daten.project != null ? Daten.project.getBoatDamages(false) : null);
@@ -192,7 +293,6 @@ public class EfaBoathouseBackgroundTask extends Thread {
         }
 
         long now = System.currentTimeMillis();
-        boolean listChanged = false;
         try {
             DataKeyIterator it = boatStatus.data().getStaticIterator();
             for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
@@ -314,6 +414,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     private void checkForUnreadMessages() {
+        if (Logger.isTraceOn(Logger.TT_BACKGROUND, 8)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                    "EfaBoathouseBackgroundTask: checkForUnreadMessages()");
+        }
         boolean admin = false;
         boolean boatmaintenance = false;
 
@@ -348,6 +452,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     private void checkForExitOrRestart() {
+        if (Logger.isTraceOn(Logger.TT_BACKGROUND, 8)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                    "EfaBoathouseBackgroundTask: checkForExitOrRestart()");
+        }
         // automatisches, zeitgesteuertes Beenden von efa ?
         if (Daten.efaConfig.getValueEfaDirekt_exitTime().isSet()
                 && System.currentTimeMillis() > Daten.efaStartTime + (Daten.AUTO_EXIT_MIN_RUNTIME + 1) * 60 * 1000) {
@@ -395,6 +503,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     private void checkForLockEfa() {
+        if (Logger.isTraceOn(Logger.TT_BACKGROUND, 8)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                    "EfaBoathouseBackgroundTask: checkForLockEfa()");
+        }
         if (Daten.efaConfig != null) {
             if (Daten.efaConfig.getValueEfaDirekt_locked()) {
                 efaBoathouseFrame.lockEfa();
@@ -415,6 +527,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     private void checkForAutoCreateNewLogbook() {
+        if (Logger.isTraceOn(Logger.TT_BACKGROUND, 8)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                    "EfaBoathouseBackgroundTask: checkForAutoCreateNewLogbook()");
+        }
         try {
             if (Daten.project != null && Daten.project.isOpen()) {
                 DataTypeDate date = Daten.project.getAutoNewLogbookDate();
@@ -429,6 +545,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     private void checkAlwaysInFront() {
+        if (Logger.isTraceOn(Logger.TT_BACKGROUND, 8)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                    "EfaBoathouseBackgroundTask: checkAlwaysInFront()");
+        }
         if (Daten.efaConfig.getValueEfaDirekt_immerImVordergrund() && this.efaBoathouseFrame != null
                 && Dialog.frameCurrent() == this.efaBoathouseFrame) {
             Window[] windows = this.efaBoathouseFrame.getOwnedWindows();
@@ -448,6 +568,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     private void checkFocus() {
+        if (Logger.isTraceOn(Logger.TT_BACKGROUND, 8)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                    "EfaBoathouseBackgroundTask: checkFocus()");
+        }
         if (this.efaBoathouseFrame != null && this.efaBoathouseFrame.getFocusOwner() == this.efaBoathouseFrame) {
             // das Frame selbst hat den Fokus: Das soll nicht sein! Gib einer Liste den Fokus!
             efaBoathouseFrame.boatListRequestFocus(0);
@@ -455,6 +579,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     private void checkMemory() {
+        if (Logger.isTraceOn(Logger.TT_BACKGROUND, 8)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                    "EfaBoathouseBackgroundTask: checkMemory()");
+        }
         try {
             // System.gc(); // !!! ONLY ENABLE FOR DEBUGGING PURPOSES !!!
             if (de.nmichael.efa.java15.Java15.isMemoryLow(Daten.MIN_FREEMEM_PERCENTAGE, Daten.WARN_FREEMEM_PERCENTAGE)) {
@@ -468,6 +596,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     private void checkWarnings() {
+        if (Logger.isTraceOn(Logger.TT_BACKGROUND, 8)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                    "EfaBoathouseBackgroundTask: checkWarnings()");
+        }
         // WARNINGs aus Logfile an Admins verschicken
         if (System.currentTimeMillis() >= Daten.efaConfig.getValueEfaDirekt_bnrWarning_lasttime() + 7l * 24l * 60l * 60l * 1000l
                 && (Daten.efaConfig.getValueEfaDirekt_bnrWarning_admin() || Daten.efaConfig.getValueEfaDirekt_bnrWarning_bootswart()) && Daten.efaLogfile != null) {
@@ -476,6 +608,13 @@ public class EfaBoathouseBackgroundTask extends Thread {
     }
 
     private void checkUnfixedBoatDamages() {
+        if (!isProjectOpen || !isLocalProject) {
+            return;
+        }
+        if (Logger.isTraceOn(Logger.TT_BACKGROUND, 8)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                    "EfaBoathouseBackgroundTask: checkUnfixedBoatDamages()");
+        }
         BoatDamages boatDamages = (Daten.project != null ? Daten.project.getBoatDamages(false) : null);
         Messages messages = (Daten.project != null ? Daten.project.getMessages(false) : null);
         if (boatDamages == null || messages == null) {

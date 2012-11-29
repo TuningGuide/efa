@@ -432,11 +432,19 @@ public class RemoteEfaMessage {
             // RemoteEfaServer has to call this method without a timeout (timeoutSec == 0).
             // RemoteEfaClient should supply a timeout value to avoid blocking
             if (timeoutSec > 0) {
-                long timeout = timeoutSec*10;
+                long timeout = timeoutSec*100;
+
+                // first do 10 fast loops to not waist too much time while waiting for input.
+                // if during fast loop no input becomes available, fall back to slow mode.
+                int fastCount = 0;
+
                 while (in.available() <= 0) {
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep( (fastCount++ < 10 ? 1 : 10) );
                     } catch (InterruptedException eignore) {
+                    }
+                    if (fastCount < 10) {
+                        continue;
                     }
                     if (--timeout <= 0) {
                         Logger.log(Logger.ERROR, Logger.MSG_REFA_ERRORTIMEOUT,

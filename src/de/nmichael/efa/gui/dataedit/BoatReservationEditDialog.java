@@ -14,6 +14,7 @@ import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
+import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -22,14 +23,14 @@ import javax.swing.*;
 public class BoatReservationEditDialog extends UnversionizedDataEditDialog implements IItemListener {
 
     public BoatReservationEditDialog(Frame parent, BoatReservationRecord r, 
-            boolean newRecord, boolean allowWeeklyReservation, AdminRecord admin) {
+            boolean newRecord, boolean allowWeeklyReservation, AdminRecord admin) throws Exception {
         super(parent, International.getString("Reservierung"), r, newRecord, admin);
         initListener();
         setAllowWeeklyReservation(allowWeeklyReservation);
     }
 
     public BoatReservationEditDialog(JDialog parent, BoatReservationRecord r, 
-            boolean newRecord, boolean allowWeeklyReservation, AdminRecord admin) {
+            boolean newRecord, boolean allowWeeklyReservation, AdminRecord admin) throws Exception {
         super(parent, International.getString("Reservierung"), r, newRecord, admin);
         initListener();
         setAllowWeeklyReservation(allowWeeklyReservation);
@@ -70,8 +71,12 @@ public class BoatReservationEditDialog extends UnversionizedDataEditDialog imple
         }
     }
 
-    private void setAllowWeeklyReservation(boolean allowWeeklyReservation) {
+    private void setAllowWeeklyReservation(boolean allowWeeklyReservation) throws Exception {
         if (!allowWeeklyReservation) {
+            if (!newRecord && dataRecord != null &&
+                    BoatReservationRecord.TYPE_WEEKLY.equals(((BoatReservationRecord)dataRecord).getType())) {
+                throw new Exception(International.getString("Diese Reservierung kann nicht bearbeitet werden."));
+            }
             for (IItemType it : allGuiItems) {
                 if (it.getName().equals(BoatReservationRecord.TYPE)) {
                     it.parseAndShowValue(BoatReservationRecord.TYPE_ONETIME);

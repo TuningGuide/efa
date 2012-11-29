@@ -1031,10 +1031,6 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         ((ItemTypeItemList)item).setMinNumberOfItems(1);
         item.setPadding(0, 0, 20, 0);
 
-        v.add(item = new ItemTypeLabel(BoatRecord.LASTMODIFIED, IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-                International.getMessage("zuletzt geändert am {datetime}", EfaUtil.date2String(new Date(this.getLastModified())))));
-        item.setPadding(0, 0, 20, 0);
-        
         // CAT_MOREDATA
         v.add(item = new ItemTypeString(BoatRecord.MANUFACTURER, getManufacturer(),
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Hersteller")));
@@ -1256,7 +1252,12 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
             if (record == null) {
                 return null;
             }
-            return new BoatReservationEditDialog(parent, (BoatReservationRecord) record, newRecord, true, null);
+            try {
+                return new BoatReservationEditDialog(parent, (BoatReservationRecord) record, newRecord, true, null);
+            } catch(Exception e) {
+                Dialog.error(e.getMessage());
+                return null;
+            }
         }
 
         if (persistence != null && persistence instanceof BoatDamages) {

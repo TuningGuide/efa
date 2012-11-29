@@ -106,6 +106,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String SHOWLOGBOOKFIELDS         = "ShowLogbookFields";  // like EntryNo, Date, Boat, Cox, Crew, ...
     public static final String AGGREGATIONS              = "Aggregations"; // like Distance, Sessions, AvgDistance, ...
     public static final String AGGRDISTANCEBARSIZE       = "AggregationDistanceBarSize";
+    public static final String AGGRROWDISTANCEBARSIZE    = "AggregationRowDistanceBarSize";
+    public static final String AGGRCOXDISTANCEBARSIZE    = "AggregationCoxDistanceBarSize";
     public static final String AGGRSESSIONSBARSIZE       = "AggregationSessionsBarSize";
     public static final String AGGRAVGDISTBARSIZE        = "AggregationAvgDistanceBarSize";
     public static final String COMPYEAR                  = "CompYear";
@@ -198,6 +200,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String LFIELDS_NOTES       = "Notes";
 
     public static final String AGGR_DISTANCE       = "Distance";
+    public static final String AGGR_ROWDISTANCE    = "RowDistance";
+    public static final String AGGR_COXDISTANCE    = "CoxDistance";
     public static final String AGGR_SESSIONS       = "Sessions";
     public static final String AGGR_AVGDISTANCE    = "AvgDistance";
     public static final String AGGR_ZIELFAHRTEN    = "Zielfahrten";
@@ -208,6 +212,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String AGGR_CLUBWORKCREDIT = "ClubworkCredit";
 
     public static final String SORTING_DISTANCE    = "Distance";
+    public static final String SORTING_ROWDISTANCE = "RowDistance";
+    public static final String SORTING_COXDISTANCE = "CoxDistance";
     public static final String SORTING_SESSIONS    = "Sessions";
     public static final String SORTING_AVGDISTANCE = "AvgDistance";
     public static final String SORTING_NAME        = "Name";
@@ -264,6 +270,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public enum SortingCriteria {
         UNKNOWN,
         distance,
+        rowdistance,
+        coxdistance,
         sessions,
         avgDistance,
         name,
@@ -376,6 +384,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean sIsLFieldsSessionType;
     public boolean sIsLFieldsNotes;
     public boolean sIsAggrDistance;
+    public boolean sIsAggrRowDistance;
+    public boolean sIsAggrCoxDistance;
     public boolean sIsAggrSessions;
     public boolean sIsAggrAvgDistance;
     public boolean sIsAggrZielfahrten;
@@ -387,6 +397,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean sIsAggrClubworkOverUnderCarryOver;
     public boolean sIsAggrClubworkCredit;
     public int sAggrDistanceBarSize;
+    public int sAggrRowDistanceBarSize;
+    public int sAggrCoxDistanceBarSize;
     public int sAggrSessionsBarSize;
     public int sAggrAvgDistanceBarSize;
     public int sLFieldDistancePos = -1;
@@ -508,6 +520,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         f.add(SHOWLOGBOOKFIELDS);                 t.add(IDataAccess.DATA_LIST_STRING);
         f.add(AGGREGATIONS);                      t.add(IDataAccess.DATA_LIST_STRING);
         f.add(AGGRDISTANCEBARSIZE);               t.add(IDataAccess.DATA_INTEGER);
+        f.add(AGGRROWDISTANCEBARSIZE);            t.add(IDataAccess.DATA_INTEGER);
+        f.add(AGGRCOXDISTANCEBARSIZE);            t.add(IDataAccess.DATA_INTEGER);
         f.add(AGGRSESSIONSBARSIZE);               t.add(IDataAccess.DATA_INTEGER);
         f.add(AGGRAVGDISTBARSIZE);                t.add(IDataAccess.DATA_INTEGER);
         f.add(COMPYEAR);                          t.add(IDataAccess.DATA_INTEGER);
@@ -578,6 +592,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         }));
         setAggregations(new DataTypeList<String>(new String[] { AGGR_DISTANCE, AGGR_SESSIONS, AGGR_AVGDISTANCE }));
         setAggrDistanceBarSize(200);
+        setAggrRowDistanceBarSize(0);
+        setAggrCoxDistanceBarSize(0);
         setAggrSessionsBarSize(0);
         setAggrAvgDistanceBarSize(0);
         setSortingCriteria(SORTING_DISTANCE);
@@ -1647,6 +1663,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public String[] getAggregationList(int valuesOrDisplay) {
         Hashtable<String,String> allKeys = new Hashtable<String,String>();
         allKeys.put(AGGR_DISTANCE, DataTypeDistance.getDefaultUnitName());
+        allKeys.put(AGGR_ROWDISTANCE, getRowingKmString());
+        allKeys.put(AGGR_COXDISTANCE, getCoxingKmString());
         allKeys.put(AGGR_SESSIONS, International.getString("Fahrten"));
         allKeys.put(AGGR_AVGDISTANCE, DataTypeDistance.getDefaultUnitAbbrevation(true) + "/" + International.getString("Fahrt"));
         allKeys.put(AGGR_WANDERFAHRTEN, International.onlyFor("Wanderfahrten", "de"));
@@ -1663,6 +1681,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
 
         Vector<String> selectedKeys = new Vector<String>();
         selectedKeys.add(AGGR_DISTANCE);
+        selectedKeys.add(AGGR_ROWDISTANCE);
+        selectedKeys.add(AGGR_COXDISTANCE);
         selectedKeys.add(AGGR_SESSIONS);
         selectedKeys.add(AGGR_AVGDISTANCE);
         if (Daten.efaConfig.getValueUseFunctionalityRowingGermany()) {
@@ -1697,6 +1717,22 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         return (size > 0 ? size : 0);
     }
 
+    public void setAggrRowDistanceBarSize(int size) {
+        setInt(AGGRROWDISTANCEBARSIZE, size);
+    }
+    public int getAggrRowDistanceBarSize() {
+        int size = getInt(AGGRROWDISTANCEBARSIZE);
+        return (size > 0 ? size : 0);
+    }
+
+    public void setAggrCoxDistanceBarSize(int size) {
+        setInt(AGGRCOXDISTANCEBARSIZE, size);
+    }
+    public int getAggrCoxDistanceBarSize() {
+        int size = getInt(AGGRCOXDISTANCEBARSIZE);
+        return (size > 0 ? size : 0);
+    }
+
     public void setAggrSessionsBarSize(int size) {
         setInt(AGGRSESSIONSBARSIZE, size);
     }
@@ -1725,6 +1761,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             return SortingCriteria.UNKNOWN;
         } else if (sort.equals(SORTING_DISTANCE)) {
             return SortingCriteria.distance;
+        } else if (sort.equals(SORTING_ROWDISTANCE)) {
+            return SortingCriteria.rowdistance;
+        } else if (sort.equals(SORTING_COXDISTANCE)) {
+            return SortingCriteria.coxdistance;
         } else if (sort.equals(SORTING_SESSIONS)) {
             return SortingCriteria.sessions;
         } else if (sort.equals(SORTING_AVGDISTANCE)) {
@@ -1758,6 +1798,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         switch(getSortingCriteriaEnum()) {
             case distance:
                 return International.getString("Kilometer");
+            case rowdistance:
+                return getRowingKmString();
+            case coxdistance:
+                return getCoxingKmString();
             case sessions:
                 return International.getString("Fahrten");
             case avgDistance:
@@ -1784,6 +1828,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
             return new String[] {
                 SORTING_DISTANCE,
+                SORTING_ROWDISTANCE,
+                SORTING_COXDISTANCE,
                 SORTING_SESSIONS,
                 SORTING_AVGDISTANCE,
                 SORTING_NAME,
@@ -1798,6 +1844,12 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         } else {
             return new String[] {
                 International.getString("Kilometer"),
+                Daten.efaConfig.getRowingAndOrPaddlingString() +
+                        International.getSpaceOrDash() +
+                        International.getString("Kilometer"),
+                International.getString("Steuer", "wie in Steuer-Km") +
+                        International.getSpaceOrDash() +
+                        International.getString("Kilometer"),
                 International.getString("Fahrten"),
                 International.getString("Km/Fahrt"),
                 International.getString("Name"),
@@ -2003,6 +2055,18 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         return (name != null ? name : "");
     }
 
+    public static String getRowingKmString() {
+        return Daten.efaConfig.getRowingAndOrPaddlingString() +
+               International.getSpaceOrDash() +
+               DataTypeDistance.getDefaultUnitAbbrevation(true);
+    }
+
+    public static String getCoxingKmString() {
+        return International.getString("Steuer", "wie in Steuer-Km") +
+               International.getSpaceOrDash() +
+               DataTypeDistance.getDefaultUnitAbbrevation(true);
+    }
+
     public Vector<IItemType> getGuiItems(AdminRecord admin) {
         String CAT_BASEDATA     = "%01%" + International.getString("Statistik");
         String CAT_FILTER       = "%02%" + International.getString("Filter");
@@ -2194,6 +2258,12 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         v.add(item = new ItemTypeInteger(StatisticsRecord.AGGRDISTANCEBARSIZE, getAggrDistanceBarSize(), 0, 1000,
                 IItemType.TYPE_PUBLIC, CAT_FIELDS, International.getString("Balkengröße") + ": " +
                 International.getString("Kilometer")));
+        v.add(item = new ItemTypeInteger(StatisticsRecord.AGGRROWDISTANCEBARSIZE, getAggrRowDistanceBarSize(), 0, 1000,
+                IItemType.TYPE_PUBLIC, CAT_FIELDS, International.getString("Balkengröße") + ": " +
+                getRowingKmString()));
+        v.add(item = new ItemTypeInteger(StatisticsRecord.AGGRCOXDISTANCEBARSIZE, getAggrCoxDistanceBarSize(), 0, 1000,
+                IItemType.TYPE_PUBLIC, CAT_FIELDS, International.getString("Balkengröße") + ": " +
+                getCoxingKmString()));
         v.add(item = new ItemTypeInteger(StatisticsRecord.AGGRSESSIONSBARSIZE, getAggrSessionsBarSize(), 0, 1000,
                 IItemType.TYPE_PUBLIC, CAT_FIELDS, International.getString("Balkengröße") + ": " +
                 International.getString("Fahrten")));
@@ -2346,6 +2416,42 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         cEntryDateLast = null;
         cWarnings = null;
         cCompetition = null;
+
+        sIsFieldsPosition = false;
+        sIsFieldsName = false;
+        sIsFieldsGender = false;
+        sIsFieldsStatus = false;
+        sIsFieldsYearOfBirth = false;
+        sIsFieldsBoatType = false;
+        sIsLFieldsEntryNo = false;
+        sIsLFieldsDate = false;
+        sIsLFieldsEndDate = false;
+        sIsLFieldsBoat = false;
+        sIsLFieldsCox = false;
+        sIsLFieldsCrew = false;
+        sIsLFieldsStartTime = false;
+        sIsLFieldsEndTime = false;
+        sIsLFieldsWaters = false;
+        sIsLFieldsDestination = false;
+        sIsLFieldsDestinationDetails = false;
+        sIsLFieldsDestinationAreas = false;
+        sIsLFieldsDistance = false;
+        sIsLFieldsMultiDay = false;
+        sIsLFieldsSessionType = false;
+        sIsLFieldsNotes = false;
+        sIsAggrDistance = false;
+        sIsAggrRowDistance = false;
+        sIsAggrCoxDistance = false;
+        sIsAggrSessions = false;
+        sIsAggrAvgDistance = false;
+        sIsAggrZielfahrten = false;
+        sIsAggrWanderfahrten = false;
+        sIsAggrWinterfahrten = false;
+        sIsAggrGigfahrten = false;
+        sIsAggrClubwork = false;
+        sIsAggrClubworkRelativeToTarget = false;
+        sIsAggrClubworkOverUnderCarryOver = false;
+        sIsAggrClubworkCredit = false;
 
         if (admin != null) {
             sPublicStatistic = false;
@@ -2585,6 +2691,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             String s = aggr.get(i);
             if (s.equals(AGGR_DISTANCE)) {
                 sIsAggrDistance = true;
+            } else if (s.equals(AGGR_ROWDISTANCE)) {
+                sIsAggrRowDistance = true;
+            } else if (s.equals(AGGR_COXDISTANCE)) {
+                sIsAggrCoxDistance = true;
             } else if (s.equals(AGGR_SESSIONS)) {
                 sIsAggrSessions = true;
             } else if (s.equals(AGGR_AVGDISTANCE)) {
@@ -2605,6 +2715,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         }
 
         sAggrDistanceBarSize = getAggrDistanceBarSize();
+        sAggrRowDistanceBarSize = getAggrRowDistanceBarSize();
+        sAggrCoxDistanceBarSize = getAggrCoxDistanceBarSize();
         sAggrSessionsBarSize = getAggrSessionsBarSize();
         sAggrAvgDistanceBarSize = getAggrAvgDistanceBarSize();
 
@@ -2652,6 +2764,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             sOutputFile = Daten.efaTmpDirectory + "output.ftp";
         }
         sOutputDir = (new File(sOutputFile)).getParent();
+        if (sOutputDir == null || sOutputDir.length() == 0) { // shouldn't happen, just in case...
+            sOutputDir = Daten.efaTmpDirectory;
+        }
         sOutputEncoding = getOutputEncoding();
         sOutputHtmlUpdateTable = getOutputHtmlUpdateTable();
         sOutputCsvSeparator = getOutputCsvSeparator();
@@ -2722,6 +2837,12 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             }
             if (sIsAggrDistance) {
                 pTableColumns.add(DataTypeDistance.getDefaultUnitName());
+            }
+            if (sIsAggrRowDistance) {
+                pTableColumns.add(getRowingKmString());
+            }
+            if (sIsAggrCoxDistance) {
+                pTableColumns.add(getCoxingKmString());
             }
             if (sIsAggrSessions) {
                 pTableColumns.add(International.getString("Fahrten"));

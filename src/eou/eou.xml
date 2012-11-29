@@ -2,6 +2,167 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.0.5_02</VersionID>
+        <ReleaseDate>29.11.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa205.zip</DownloadUrl>
+        <DownloadSize>2997443</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Fehler beim Abbrechen einer Fahrt beim Remote-Zugriff behoben</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException beim ermitteln des eigenen Bootshauses behoben</ChangeItem>
+            <ChangeItem>Bugfix: Ermittlung der Fahrtenabzeichen für Personen ohne vorheriges elektronisches Fahrtenheft korrigiert</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Error when aborting a session in remote access mode fixed</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException when determining own boathouse fixed</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.5_01</VersionID>
+        <ReleaseDate>28.11.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa205.zip</DownloadUrl>
+        <DownloadSize>2997317</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Überprüfung auf Eingabe von Benutzernamen beim Erstellen von elektronischen Wettbewerbsmeldungen</ChangeItem>
+            <ChangeItem>Bugfix: Sortierkriterien in Statistikauswertung waren "verrutscht"</ChangeItem>
+            <ChangeItem>Bugfix: Feldauswahl bei wiederholter interaktiver Statistikerstellung wurde nicht zurückgesetzt</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Sorting criteria in statistics calculation had been "mixed up"</ChangeItem>
+            <ChangeItem>Bugfix: Field selection for repeated interactive statistic creation had not been reset each time</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.5_00</VersionID>
+        <ReleaseDate>11.11.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa205.zip</DownloadUrl>
+        <DownloadSize>2990185</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Geschwindigkeit des Remote-Zugriffs deutlich verbessert (2-10x, teilweise bis zu 100x)</ChangeItem>
+            <ChangeItem>Neu: Ausgabe von Ruder/Paddel- und Steuer-Kilometern in Statistiken</ChangeItem>
+            <ChangeItem>Neu: Zusammenfügen von Personen ist jetzt möglich</ChangeItem>
+            <ChangeItem>Neu: Backup-Verzeichnis kann in der efa-Konfiguration konfiguriert werden</ChangeItem>
+            <ChangeItem>Neu: Beim Anlegen einer neuen Person warnt efa jetzt auch, wenn eine gleichnamige Person gefunden wird, die früher einmal angelegt worden war, aber inzwischen ungültig ist</ChangeItem>
+            <ChangeItem>Neu: efa zeigt jetzt für alle Datensätze beim Bearbeiten ihre interne ID sowie ihr letztes Änderungsdatum an</ChangeItem>
+            <ChangeItem>Bugfix: Fehler beim FTP-Upload ins Root-Verzeichnis behoben</ChangeItem>
+            <ChangeItem>Bugfix: Konfigurationsmöglichkeit des Nutzerdaten-Verzeichnisses beim Remote-Zugriff wird jetzt nicht mehr angeboten</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException in Wanderruderstatistik behoben</ChangeItem>
+            <ChangeItem>Bugfix: Doppelter Fahrtbeginn desselben Bootes durch Ändern eines Eintrags oder Remote-Zugriff wird jetzt von efa erkannt und unterbunden</ChangeItem>
+            <ChangeItem>Bugfix: Angezeigter Bootsstatus beim Remote-Zugriff wird jetzt innerhalb kurzer Zeit aktualisiert</ChangeItem>
+            <ChangeItem>Bugfix: Zeitgleiches Beginnen einer Fahrt in mehreren efa's über Remote-Zugriff führt jetzt nicht mehr zu Fehlern wegen doppelter LfdNr</ChangeItem>
+            <ChangeItem>Bugfix: Hintergrund-Aktivitäten von efa-Bootshaus als Remote-Client jetzt deutlich reduziert</ChangeItem>
+            <ChangeItem>Bugfix: Fahrtenbuch-Ansicht beim Remote-Zugriff zeigte nicht immer die letzten Fahrten an, falls Daten aus dem Cache geladen wurden</ChangeItem>
+            <ChangeItem>Bugfix: Robusteres Verhalten im Synchronisierungs-Protokoll mit dem Kanu-eFB</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>New: Performance of Remote Access greatly improved (2-10x, some even up to 100x)</ChangeItem>
+            <ChangeItem>New: Output of Paddling/Rowing and Coxing mileage in statistics</ChangeItem>
+            <ChangeItem>New: Merging of Persons possible</ChangeItem>
+            <ChangeItem>New: Backup directory can now be configured in efa</ChangeItem>
+            <ChangeItem>New: When creating a new person, efa now also warns if a similar or identical person exists even if it is not currently valid</ChangeItem>
+            <ChangeItem>New: efa now displays the internal ID and last change date of all records in the edit dialogs</ChangeItem>
+            <ChangeItem>Bugfix: Error when FTP uploading into root directory fixed</ChangeItem>
+            <ChangeItem>Bugfix: Option to configure user data directory for remote access is now hidden</ChangeItem>
+            <ChangeItem>Bugfix: Duplicate session start of the same boat through changing of a session or accessing efa remotely is now being detected by efa and will not be allowed</ChangeItem>
+            <ChangeItem>Bugfix: Boat status will be updated in short intervals in case of efa remote access</ChangeItem>
+            <ChangeItem>Bugfix: Simultaneous beginning of new sessions now does not cause errors in case of remote access any more</ChangeItem>
+            <ChangeItem>Bugfix: Background activity of efa remote clients has greatly been reduced to improve performance</ChangeItem>
+            <ChangeItem>Bugfix: "Show Logbook" view did not always work properly for remote access</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.4_05</VersionID>
+        <ReleaseDate>02.11.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa204.zip</DownloadUrl>
+        <DownloadSize>2978551</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Bei Wiederherstellung von Backups öffnet oder erstellt efa bei Bedarf jetzt auch das entsprechende Projekt (nur in GUI, nicht für CLI)</ChangeItem>
+            <ChangeItem>Änderung: Audit-Warnungen und Fehlermeldungen werden jetzt als eine einzelne (gesammelte) Nachricht verschickt anstelle vieler einzelner Nachrichten</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>New: Restore of backups now opens or creates the corresponding project, if necessary (only in GUI, not for CLI)</ChangeItem>
+            <ChangeItem>Change: Audit warnings and errors are now being sent as a single (aggregated) message and not as multiple individual ones</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.4_04</VersionID>
+        <ReleaseDate>31.10.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa204.zip</DownloadUrl>
+        <DownloadSize>2977061</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Änderung: FTP-Plugin wird jetzt standardmäßig mit efa ausgeliefert</ChangeItem>
+            <ChangeItem>Bugfix: Gewässer für Fahrten zu unbekannten Zielen wurden in Wanderruderstatistik nicht ausgegeben</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException beim Öffnen von Remote-Projekten behoben</ChangeItem>
+            <ChangeItem>Bugfix: Suche und Filter von Datensätzen in Datenlisten funktioniert jetzt für alle Felder</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Change: FTP plugin is now per default delivered with efa</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException when opening remote projects fixed</ChangeItem>
+            <ChangeItem>Bugfix: Search and filtering of records in data lists now works for all fields</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.4_03</VersionID>
+        <ReleaseDate>10.10.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa204.zip</DownloadUrl>
+        <DownloadSize>2943983</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Kanu-eFB-Synchronisationsprotokoll erweitert</ChangeItem>
+            <ChangeItem>Bugfix: XML-Export unterdrückt jetzt leere Felder</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: XML export now suppressed empty fields</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.4_02</VersionID>
+        <ReleaseDate>24.09.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa204.zip</DownloadUrl>
+        <DownloadSize>2942168</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Bearbeiten von Bootsreservierungen für Mitglieder war trotz deaktivierung möglich</ChangeItem>
+            <ChangeItem>Bugfix: Fehlerhafte Berechnung der Anzahl von Rudertagen auf Wanderfahrten mit Fahrtgruppen behoben</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Editing of boat reservations through members was possible regardless of deactivation</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.4_01</VersionID>
+        <ReleaseDate>23.09.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa204.zip</DownloadUrl>
+        <DownloadSize>2941728</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Export/Liste ausgeben von Bootsreservierungen war konfigurationsabhängig auch für Mitglieder möglich</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Export/Print of boat reservation was available also to regular members (depending on configuration)</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.0.4_00</VersionID>
         <ReleaseDate>16.09.2012</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa204.zip</DownloadUrl>

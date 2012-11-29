@@ -1,8 +1,8 @@
 Item
 ============================================================================================================
 
-FIXED BUG:: Beim Öffnen und Konvertierungsversuch eines Remote-Projekts
-CANNOT REPRODUCE BUG: NPE bei Erstellen einer neuen Version einer Person
+BUG: Sortierreihenfolge nach "Name" in Statistiken wird nicht beachtet
+Funktion, um zwei Records mit unterschiedlichen ID's zusammenzuführen
 
 Backup zeitgesteuert in efa?
 Statistik Vorjahresvergleiche
@@ -18,7 +18,7 @@ Eine alternative Gruppierung der Boote über die Bootsart würde ich auch nicht 
 Datenabgleich zwischen Bootshäusern implementieren, bei dem efa einen Export/Import durchführt, der
   anhand von LastModified erkennt, welche Daten gewinnen, aber zum Beispiel nie die Bootsstatusliste,
   Nachrichten, ... synchronisiert.
-Funktion, um zwei Records mit unterschiedlichen ID's zusammenzuführen
+Gelöschte Fahrtenbucheinträge sollten als gelöscht (sichtbar) im Fahrtenbuch stehen bleiben
 
 Schreiben ins Spiegelverzeichnis mit Timeout bei Netzlaufwerk
 Buttons mit Symbolen ausstatten
@@ -31,7 +31,6 @@ Signal Handler
 DataLayer: DB Access
 Help System
 AutoComplete: match anything within input/change list content
-Ausgabe Steuerkilometer (mit Balken)
 Spalte mit Kilometerwettbewerben in normalen Kilometerlisten
 Zusätzliche Import-Option: alle *nicht* importierten (versionierten) Daten als ungültig markieren
   (Use Case: Importieren einer neuen (vollständigen) Mitgliederliste; alles was nicht importiert wurde, ist ungültig)

@@ -251,6 +251,7 @@ public class EfaConfig extends StorageObject {
     private ItemTypeString kanuEfb_urlRequest;
     private ItemTypeBoolean dataPreModifyRecordCallbackEnabled;
     private ItemTypeBoolean dataAuditCorrectErrors;
+    private ItemTypeFile dataBackupDirectory;
     private ItemTypeFile dataMirrorDirectory;
     private ItemTypeBoolean dataRemoteEfaServerEnabled;
     private ItemTypeInteger dataRemoteEfaServerPort;
@@ -411,12 +412,19 @@ public class EfaConfig extends StorageObject {
                     "efa registration checks counter"));
 
             // ============================= COMMON:COMMON =============================
-            addParameter(efaUserDirectory = new ItemTypeFile("_EfaUserDirectory", Daten.efaBaseConfig.efaUserDirectory,
-                    International.getString("Verzeichnis für Nutzerdaten"),
-                    International.getString("Verzeichnisse"),
-                    null, ItemTypeFile.MODE_OPEN, ItemTypeFile.TYPE_DIR,
-                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_COMMON),
-                    International.getString("Verzeichnis für Nutzerdaten")));
+            if (dataAccess != null && dataAccess.getStorageType() != IDataAccess.TYPE_EFA_REMOTE) {
+                addParameter(efaUserDirectory = new ItemTypeFile("_EfaUserDirectory", Daten.efaBaseConfig.efaUserDirectory,
+                        International.getString("Verzeichnis für Nutzerdaten"),
+                        International.getString("Verzeichnisse"),
+                        null, ItemTypeFile.MODE_OPEN, ItemTypeFile.TYPE_DIR,
+                        IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_COMMON),
+                        International.getString("Verzeichnis für Nutzerdaten")));
+            } else {
+                addParameter(new ItemTypeLabel("_EfaRemoteLabel",
+                        IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_COMMON),
+                        International.getString("efa-Konfiguration") +
+                        " (" + International.getString("remote") + ")"));
+            }
             addParameter(lastProjectEfaBase = new ItemTypeString("LastProjectEfaBase", "",
                     IItemType.TYPE_INTERNAL,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_COMMON),
                     "Last project opened by efaBase"));
@@ -909,10 +917,10 @@ public class EfaConfig extends StorageObject {
                     + International.getString("Signatur")));
 
             // ============================= SYNC =============================
-            addParameter(kanuEfb_urlLogin = new ItemTypeString("KanuEfbUrlLogin", "http://efb.kanu-efb.de/services/login",
+            addParameter(kanuEfb_urlLogin = new ItemTypeString("KanuEfbUrlLogin", "https://efb.kanu-efb.de/services/login",
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_SYNC, CATEGORY_KANUEFB),
                     "Login URL"));
-            addParameter(kanuEfb_urlRequest = new ItemTypeString("KanuEfbUrlRequest", "http://efb.kanu-efb.de/services",
+            addParameter(kanuEfb_urlRequest = new ItemTypeString("KanuEfbUrlRequest", "https://efb.kanu-efb.de/services",
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_SYNC, CATEGORY_KANUEFB),
                     "Request URL"));
 
@@ -1012,7 +1020,13 @@ public class EfaConfig extends StorageObject {
             addParameter(dataAuditCorrectErrors = new ItemTypeBoolean("DataAuditCorrectErrors", true,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS, CATEGORY_COMMON),
                     "DataAuditCorrectErrors"));
-            
+
+            addParameter(dataBackupDirectory = new ItemTypeFile("DataBackupDirectory", "",
+                    International.getString("Backup-Verzeichnis"),
+                    International.getString("Verzeichnisse"),
+                    null, ItemTypeFile.MODE_OPEN, ItemTypeFile.TYPE_DIR,
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAXML),
+                    International.getString("Backup-Verzeichnis")));
             addParameter(dataMirrorDirectory = new ItemTypeFile("DataMirrorDirectory", "",
                     International.getString("Spiegelverzeichnis für Datenkopie"),
                     International.getString("Verzeichnisse"),
@@ -1780,6 +1794,10 @@ public class EfaConfig extends StorageObject {
         return dataAuditCorrectErrors.getValue();
     }
 
+    public String getValueDataBackupDirectory() {
+        return dataBackupDirectory.getValue();
+    }
+
     public String getValueDataMirrorDirectory() {
         return dataMirrorDirectory.getValue();
     }
@@ -1994,6 +2012,10 @@ public class EfaConfig extends StorageObject {
                         LogString.onlyEffectiveAfterRestart(International.getString("Verzeichnis für Nutzerdaten")));
             }
         }
+
+        // Backup Directory
+        String newBakDir = dataBackupDirectory.toString();
+        Daten.trySetEfaBackupDirectory(newBakDir);
     }
 
     public boolean setToLanguate(String lang) {
@@ -2024,6 +2046,14 @@ public class EfaConfig extends StorageObject {
             }
         }
         return "";
+    }
+
+    public String getRowingAndOrPaddlingString() {
+        return (getValueUseFunctionalityRowing()
+                ? International.getString("Ruder", "wie in Ruder-Km") : "")
+                + (getValueUseFunctionalityCanoeing()
+                ? (getValueUseFunctionalityRowing() ? "/" : "")
+                + International.getString("Paddel", "wie in Paddel-Km") : "");
     }
 
     private String[] makeLookAndFeelArray(int type) {

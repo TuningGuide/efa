@@ -35,6 +35,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     public static final String IMAGE_EXPORT    = "button_export.png";
     public static final String IMAGE_LIST      = "button_list.png";
     public static final String IMAGE_EDITMULTI = "button_editmultiple.png";
+    public static final String IMAGE_MERGE     = "button_merge.png";
     public static final String IMAGE_CALENDAR  = "button_calendar.png";
     public static final String IMAGE_DOWNLOAD  = "button_download.png";
     public static final String IMAGE_CONFIGURE = "button_configure.png";

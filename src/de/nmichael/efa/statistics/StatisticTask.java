@@ -190,7 +190,7 @@ public class StatisticTask extends ProgressTask {
         }
     }
 
-    private int calculateAggregations(LogbookRecord r, Object key, long distance) {
+    private int calculateAggregations(LogbookRecord r, Object key, long distance, boolean cox) {
         if (key == null) {
             return 0;
         }
@@ -202,6 +202,12 @@ public class StatisticTask extends ProgressTask {
         // aggregate
         if (sr.sIsAggrDistance || sr.sIsAggrAvgDistance) {
             sd.distance += distance;
+        }
+        if (sr.sIsAggrRowDistance) {
+            sd.rowdistance += (cox ? 0 : distance);
+        }
+        if (sr.sIsAggrCoxDistance) {
+            sd.coxdistance += (cox ? distance : 0);
         }
         if (sr.sIsAggrSessions || sr.sIsAggrAvgDistance) {
             sd.sessions += entryNumberOfDays;
@@ -251,7 +257,7 @@ public class StatisticTask extends ProgressTask {
         return 1;
     }
 
-    private int calculateAggregationsForList(LogbookRecord r, DataTypeList list) {
+    private int calculateAggregationsForList(LogbookRecord r, DataTypeList list, boolean cox) {
         if (list == null || list.length() == 0) {
             return 0;
         }
@@ -265,7 +271,7 @@ public class StatisticTask extends ProgressTask {
             if (i + 1 == size) {
                 myDistance = entryDistanceInDefaultUnit - distance;
             }
-            cnt += calculateAggregations(r, key, myDistance);
+            cnt += calculateAggregations(r, key, myDistance, cox);
             distance += myDistance;
         }
 
@@ -491,9 +497,9 @@ public class StatisticTask extends ProgressTask {
                     Object aggregationKey = getAggregationKeyForList(r);
                     if (aggregationKey != null) {
                         if (sr.sStatistikKey != StatisticsRecord.StatisticKey.waters) {
-                            cnt += calculateAggregations(r, aggregationKey, entryDistanceInDefaultUnit);
+                            cnt += calculateAggregations(r, aggregationKey, entryDistanceInDefaultUnit, i == 0);
                         } else {
-                            cnt += calculateAggregationsForList(r, (DataTypeList) aggregationKey);
+                            cnt += calculateAggregationsForList(r, (DataTypeList) aggregationKey, i == 0);
                         }
                     }
                 }
@@ -504,9 +510,9 @@ public class StatisticTask extends ProgressTask {
                 Object aggregationKey = getAggregationKeyForList(r);
                 if (aggregationKey != null) {
                     if (sr.sStatistikKey != StatisticsRecord.StatisticKey.waters) {
-                        cnt += calculateAggregations(r, aggregationKey, entryDistanceInDefaultUnit);
+                        cnt += calculateAggregations(r, aggregationKey, entryDistanceInDefaultUnit, false);
                     } else {
-                        cnt += calculateAggregationsForList(r, (DataTypeList) aggregationKey);
+                        cnt += calculateAggregationsForList(r, (DataTypeList) aggregationKey, false);
                     }
                 }
             }
@@ -643,7 +649,7 @@ public class StatisticTask extends ProgressTask {
                 Object aggregationKey = getAggregationKeyForCompetition(r);
                 if (aggregationKey != null) {
                     if (!sr.sStatisticType.equals(WettDefs.STR_DRV_WANDERRUDERSTATISTIK)) {
-                        cnt += calculateAggregations(r, aggregationKey, entryDistanceInDefaultUnit);
+                        cnt += calculateAggregations(r, aggregationKey, entryDistanceInDefaultUnit, i == 0);
                     } else {
                         if (sr.cCompetition != null) {
                             cnt += ((CompetitionDRVWanderruderstatistik) sr.cCompetition).calculateAggregation(data,
@@ -805,11 +811,15 @@ public class StatisticTask extends ProgressTask {
         entryDate = r.getDate();
         entryEndDate = r.getEndDate();
         entryNumberOfDays = 1;
+        getSessionGroup(r);
         if (entryDate != null && entryDate.isSet()
                 && entryEndDate != null && entryEndDate.isSet()) {
             entryNumberOfDays = entryEndDate.getDifferenceDays(entryDate) + 1;
             if (entryNumberOfDays > 1) {
-                getSessionGroup(r);
+                // Session Groups's 'active days' are only considered if this
+                // entry is a multi-day entry with same dates as the session group.
+                // If this entry does not have an end date, then it's just a single day
+                // trip as part of a session group, and therefore active days does not matter.
                 if (entrySessionGroup != null
                         && entrySessionGroup.checkLogbookRecordFitsIntoRange(r)
                         && entryDate.equals(entrySessionGroup.getStartDate())

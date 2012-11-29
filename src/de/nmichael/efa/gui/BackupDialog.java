@@ -189,8 +189,35 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
                         selectedObjects.length)) != Dialog.YES) {
                     return;
                 }
+
+                // check whether any of the objects to be restored is a project object
+                boolean openOrCreateProjectForRestore = false;
+                boolean containsProjectData = false;
+                for (String object : selectedObjects) {
+                    BackupMetaDataItem meta = restoreMetaData.getItem(object);
+                    if (meta != null && Backup.isProjectDataAccess(meta.getType())) {
+                        containsProjectData = true;
+                    }
+                }
+                if (containsProjectData && 
+                        (Daten.project == null || 
+                         !Daten.project.getProjectName().equals(restoreMetaData.getProjectName()))
+                        ) {
+                    if (Dialog.yesNoCancelDialog(International.getString("Backup einspielen"),
+                            International.getMessage("Daten des Projekts {name} können nur in diesem auch wiederhergestellt werden, aber derzeit ist Projekt {name} geöffnet.",
+                                                      restoreMetaData.getProjectName(),
+                                                      (Daten.project != null ? Daten.project.getProjectName() :
+                                                          "<--->")) + "\n" +
+                            International.getMessage("Möchtest Du das Projekt {name} öffnen oder neu erstellen?",
+                                                      restoreMetaData.getProjectName())) != Dialog.YES) {
+                        return;
+                    }
+                    openOrCreateProjectForRestore = true;
+                }
+
                 Backup.runRestoreBackupTask(this,
-                        restoreMetaData.getZipFileName(), selectedObjects
+                        restoreMetaData.getZipFileName(), selectedObjects,
+                        openOrCreateProjectForRestore
                         );
             }
 

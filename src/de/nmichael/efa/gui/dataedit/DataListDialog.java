@@ -29,6 +29,7 @@ import java.util.*;
 public abstract class DataListDialog extends BaseDialog implements IItemListener, IItemListenerDataRecordTable {
 
     public static final int ACTION_HIDE      =  100;
+    public static final int ACTION_MERGE     =  200;
     public static final int ACTION_IMPORT    = -100; // negative actions will not be shown as popup actions
     public static final int ACTION_EXPORT    = -101; // negative actions will not be shown as popup actions
     public static final int ACTION_PRINTLIST = -102; // negative actions will not be shown as popup actions
@@ -72,7 +73,11 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
         super(parent, title, International.getStringWithMnemonic("Schließen"));
         this.admin = admin;
         setPersistence(persistence, validAt);
-        iniActions();
+        try {
+            iniActions();
+        } catch(Exception e) {
+            Logger.logdebug(e); // can happen if remote project is not reachable
+        }
     }
 
     public void keyAction(ActionEvent evt) {
@@ -175,6 +180,12 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
         }
     }
 
+    protected void addMergeAction() {
+        addAction(International.getString("Zusammenfügen"),
+                ACTION_MERGE,
+                BaseDialog.IMAGE_MERGE);
+    }
+
 
     protected void iniDialog() throws Exception {
         mainPanel.setLayout(new BorderLayout());
@@ -212,6 +223,16 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
         table.setFieldSize(600, 500);
         table.setPadding(0, 0, 10, 0);
         table.displayOnGui(this, mainTablePanel, BorderLayout.CENTER);
+
+        boolean hasEditAction = false;
+        for (int i=0; actionType != null && i < actionType.length; i++) {
+            if (actionType[i] == ItemTypeDataRecordTable.ACTION_EDIT) {
+                hasEditAction = true;
+            }
+        }
+        if (!hasEditAction) {
+            table.setDefaultActionForDoubleclick(-1);
+        }
 
         if (persistence != null && persistence.data().getMetaData().isVersionized()) {
             JPanel mainControlPanel = new JPanel();
@@ -301,6 +322,59 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                     Dialog.error(ex.toString());
                 }
                 break;
+            case ACTION_MERGE:
+                if (records == null || records.length < 2) {
+                    Dialog.error("Bitte wähle mindestens zwei Datensätze zum Zusammenfügen aus!");
+                    return;
+                }
+                Hashtable<String,String> items = new Hashtable<String,String>();
+                Hashtable<String,DataKey> keyMapping = new Hashtable<String,DataKey>();
+                for (DataRecord r : records) {
+                    if (r != null) {
+                        DataKey k = r.getKey();
+                        String s = r.getKeyAsTextDescription();
+                        keyMapping.put(k.encodeAsString(), k);
+                        items.put(k.encodeAsString(),
+                                "ID: " + s + "<br>" +
+                                International.getString("Name") + ": " + r.getQualifiedName() +
+                                (r.getPersistence().data().getMetaData().isVersionized() ? "<br>" +
+                                 International.getString("Gültigkeit") + ": " + r.getValidRangeString() : ""));
+                    }
+                }
+                String[] keys = items.keySet().toArray(new String[0]);
+                if (keys.length < 2) {
+                    return;
+                }
+                ItemTypeHtmlList list = new ItemTypeHtmlList("LIST", keys, items,
+                        keys[0], IItemType.TYPE_PUBLIC, "",
+                        International.getString("Bitte wähle den Hauptdatensatz aus, zu dem alle Datensätze zusammengefügt werden sollen!") + "\n");
+                if (!SimpleInputDialog.showInputDialog(this,
+                        International.getString("Zusammenfügen"),
+                        list)) {
+                    return;
+                }
+                String mainKeyString = list.toString();
+                DataKey mainKey = (mainKeyString != null ? keyMapping.get(mainKeyString) : null);
+                if (mainKey == null) {
+                    return;
+                }
+                DataKey[] mergeKeys = new DataKey[keys.length - 1];
+                for (int i=0, j=0; i<keys.length; i++) {
+                    DataKey k = keyMapping.get(keys[i]);
+                    if (!k.equals(mainKey)) {
+                        mergeKeys[j++] = k;
+                    }
+                }
+                ProgressTask progressTask = getMergeProgressTask(mainKey, mergeKeys);
+                if (progressTask == null) {
+                    return;
+                }
+                ProgressDialog progressDialog = new ProgressDialog(this,
+                        International.getString("Datensätze zusammenfügen"), progressTask, false);
+                progressTask.setProgressDialog(progressDialog,false);
+                progressTask.start();
+                progressDialog.showDialog();
+                break;
             case ACTION_IMPORT:
                 if (admin == null || !admin.isAllowedAdvancedEdit()) {
                     EfaMenuButton.insufficientRights(admin, International.getString("Import"));
@@ -369,6 +443,10 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 table.showValue();
             }
         }
+    }
+
+    protected ProgressTask getMergeProgressTask(DataKey mainKey, DataKey[] mergeKeys) {
+        return null; // to be overridden
     }
 
 }

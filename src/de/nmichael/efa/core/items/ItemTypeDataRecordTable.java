@@ -539,7 +539,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                 if (r != null && (!r.getDeleted() || showDeleted)) {
                     if (filterFieldName == null || filterFieldValue == null ||
                         filterFieldValue.equals(r.getAsString(filterFieldName))) {
-                        if (filterByAnyText == null || r.toString().toLowerCase().indexOf(filterByAnyText) >= 0) {
+                        if (filterByAnyText == null || r.getAllFieldsAsSeparatedText().toLowerCase().indexOf(filterByAnyText) >= 0) {
                             data.add(r);
                         }
                     }

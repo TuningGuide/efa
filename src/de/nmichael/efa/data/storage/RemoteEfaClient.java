@@ -108,7 +108,7 @@ public class RemoteEfaClient extends DataAccess {
                 r.addField(RemoteEfaMessage.FIELD_PASSWORD, getStoragePassword());
                 r.addField(RemoteEfaMessage.FIELD_PID, Daten.applPID);
             }
-            updateStatistics("Sent:" + requests.get(i).getOperationName());
+            updateStatistics("Sent:" + requests.get(i).getOperationName(), 1);
         }
 
         StringBuffer request = new StringBuffer();
@@ -148,7 +148,7 @@ public class RemoteEfaClient extends DataAccess {
         out.flush();
         out.close();
 
-        updateStatistics("Sent:Requests");
+        updateStatistics("Sent:Requests", 1);
 
         Vector<RemoteEfaMessage> responses = getResponse(connection, 
                 RemoteEfaMessage.getBufferedInputStream(connection.getInputStream(),
@@ -157,6 +157,10 @@ public class RemoteEfaClient extends DataAccess {
             throw new Exception("Receive Timeout");
         }
         long reqEndTs = System.currentTimeMillis();
+        for (int i = 0; i < requests.size(); i++) {
+           updateStatistics("Delay:" + requests.get(i).getOperationName(), reqEndTs-reqStartTs);
+        }
+
         if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 2)) {
             for (int i=0; i<responses.size(); i++) {
                 RemoteEfaMessage req = (i < requests.size() ? requests.get(i) : null);
@@ -209,7 +213,7 @@ public class RemoteEfaClient extends DataAccess {
             }
         }
 
-        updateStatistics("Rcvd:Responses");
+        updateStatistics("Rcvd:Responses", 1);
         try {
             XMLReader parser = EfaUtil.getXMLReader();
             RemoteEfaParser responseHandler = new RemoteEfaParser(this);
@@ -233,16 +237,16 @@ public class RemoteEfaClient extends DataAccess {
                         }
                     }
                 }
-                updateStatistics("Rcvd:Responses:Ok");
+                updateStatistics("Rcvd:Responses:Ok", 1);
                 return responses;
             } else {
-                updateStatistics("Rcvd:Responses:Err");
+                updateStatistics("Rcvd:Responses:Err", 1);
                 return null;
             }
         } catch(Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_REFA_INVALIDRESPONSE, "Get Response failed: " + e.toString());
             Logger.logdebug(e);
-            updateStatistics("Rcvd:Responses:Err");
+            updateStatistics("Rcvd:Responses:Err", 1);
             return null;
         }
     }
@@ -599,6 +603,13 @@ public class RemoteEfaClient extends DataAccess {
     }
 
     public DataRecord[] getValidAny(DataKey key) throws EfaException {
+        DataRecord[] r = cache.getValidAny(key);
+        // the new implementation will always find a record in the cache if there is one
+        // (by updating the cache first); therefore, if the cache returns null, there is no
+        // record and we don't have to fetch it remotely
+        if (true || r != null) {
+            return r;
+        }
         RemoteEfaMessage request = RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
                 RemoteEfaMessage.OPERATION_GETVALIDANY);
         request.addKey(key);
@@ -652,6 +663,32 @@ public class RemoteEfaClient extends DataAccess {
     }
 
     public DataRecord getValidNearest(DataKey key, long earliestValidAt, long latestValidAt, long preferredValidAt) throws EfaException {
+        // indirect implementation - copied from DataFile
+        DataRecord r = getValidAt(key, preferredValidAt);
+        if (r != null) {
+            return r;
+        }
+        DataRecord[] records = getValidAny(key);
+        long minDistance = Long.MAX_VALUE;
+        for (int i = 0; records != null && i < records.length; i++) {
+            if (records[i].isInValidityRange(earliestValidAt, latestValidAt)) {
+                long myDist = Long.MAX_VALUE;
+                if (records[i].getInvalidFrom() - 1 < preferredValidAt) {
+                    myDist = preferredValidAt - records[i].getInvalidFrom() - 1;
+                }
+                if (records[i].getValidFrom() > preferredValidAt) {
+                    myDist = records[i].getValidFrom() - preferredValidAt;
+                }
+                if (myDist < minDistance) {
+                    minDistance = myDist;
+                    r = records[i];
+                }
+            }
+        }
+        return r;
+
+        // direct implementation - retrieve remotely
+        /*
         RemoteEfaMessage request = RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
                 RemoteEfaMessage.OPERATION_GETVALIDNEAREST);
         request.addKey(key);
@@ -667,6 +704,7 @@ public class RemoteEfaClient extends DataAccess {
                     Thread.currentThread().getStackTrace());
         }
         return response.getRecord(0);
+        */
     }
 
     public boolean isValidAny(DataKey key) throws EfaException {
@@ -866,11 +904,7 @@ public class RemoteEfaClient extends DataAccess {
         return response.getRecord(0);
     }
 
-    private void updateStatistics(String item) {
-        updateStatistics(item, 1);
-    }
-
-    private void updateStatistics(String item, int count) {
+    private void updateStatistics(String item, long count) {
         if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 1)) {
             synchronized (statistics) {
                 Long l = statistics.get(item);

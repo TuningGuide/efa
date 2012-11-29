@@ -33,12 +33,12 @@ import java.lang.management.*;
 // @i18n complete
 public class Daten {
 
-    public final static String VERSION            = "2.0.4"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID          = "2.0.4_00";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-    public final static String VERSIONRELEASEDATE = "16.09.2012";  // Release Date: TT.MM.JJJJ
+    public final static String VERSION            = "2.0.5"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
+    public final static String VERSIONID          = "2.0.5_02";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "29.11.2012";  // Release Date: TT.MM.JJJJ
     public final static String MAJORVERSION       = "2";
-    public final static String PROGRAMMID         = "EFA.203"; // Versions-ID für Wettbewerbsmeldungen
-    public final static String PROGRAMMID_DRV     = "EFADRV.203"; // Versions-ID für Wettbewerbsmeldungen
+    public final static String PROGRAMMID         = "EFA.205"; // Versions-ID für Wettbewerbsmeldungen
+    public final static String PROGRAMMID_DRV     = "EFADRV.205"; // Versions-ID für Wettbewerbsmeldungen
     public final static String COPYRIGHTYEAR      = "12";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
 
     // enable/disable development functions for next version
@@ -639,8 +639,7 @@ public class Daten {
         //}
 
         // ./bak
-        Daten.efaBakDirectory = Daten.efaBaseConfig.efaUserDirectory + "backup" + Daten.fileSep;
-        if (!checkAndCreateDirectory(Daten.efaBakDirectory)) {
+        if (!trySetEfaBackupDirectory(null)) {
             haltProgram(HALT_DIRECTORIES);
         }
 
@@ -1074,6 +1073,20 @@ public class Daten {
             }
         }
         return true; // nothing to do
+    }
+
+    public static boolean trySetEfaBackupDirectory(String dir) {
+        if (dir == null || dir.length() == 0) {
+            dir = Daten.efaBaseConfig.efaUserDirectory + "backup" + Daten.fileSep;
+        }
+        if (!dir.endsWith(Daten.fileSep)) {
+            dir = dir + Daten.fileSep;
+        }
+        if (checkAndCreateDirectory(dir)) {
+            Daten.efaBakDirectory = dir;
+            return true;
+        }
+        return false;
     }
 
     public static Vector getEfaInfos() {

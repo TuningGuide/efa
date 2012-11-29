@@ -93,7 +93,7 @@ public class SimpleFilePrinter implements Printable {
     int offset = (int)((pf.getImageableHeight()-MARGIN_TOP-OVERLAP)*scale*page);
     if (offset>=out.getHeight()) return NO_SUCH_PAGE;
 
-    if (Logger.isTraceOn(Logger.TT_PRINTER)) {
+    if (Logger.isTraceOn(Logger.TT_PRINT_FTP)) {
       Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_SIMPLEFILEPRINTER, "Printing page "+(page+1)+"...");
       Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_SIMPLEFILEPRINTER, "PageMargin: "+pf.getImageableX()+" ; "+pf.getImageableY());
       Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_SIMPLEFILEPRINTER, "PageUsable: "+pf.getImageableWidth()+" x "+pf.getImageableHeight());

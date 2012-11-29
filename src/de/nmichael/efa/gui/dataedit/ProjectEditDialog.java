@@ -73,14 +73,18 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog implements II
              (compName.equals(WettDefs.STR_DRV_FAHRTENABZEICHEN) ||
               compName.equals(WettDefs.STR_DRV_WANDERRUDERSTATISTIK))
              &&getItem(ProjectRecord.ASSOCIATIONGLOBALLOGIN) != null) {
-            getItem(ProjectRecord.ASSOCIATIONGLOBALLOGIN).setNotNull(true);
+            IItemType item = getItem(ProjectRecord.ASSOCIATIONGLOBALLOGIN);
+            item.setNotNull(true);
+            _alwaysCheckValues = true;
         }
         if (compName != null &&
              (compName.equals(WettDefs.STR_LRVBERLIN_SOMMER) ||
               compName.equals(WettDefs.STR_LRVBERLIN_WINTER) ||
               compName.equals(WettDefs.STR_LRVBERLIN_BLAUERWIMPEL))
              &&getItem(ProjectRecord.ASSOCIATIONREGIONALLOGIN) != null) {
-            getItem(ProjectRecord.ASSOCIATIONREGIONALLOGIN).setNotNull(true);
+            IItemType item = getItem(ProjectRecord.ASSOCIATIONREGIONALLOGIN);
+            item.setNotNull(true);
+            _alwaysCheckValues = true;
         }
     }
     

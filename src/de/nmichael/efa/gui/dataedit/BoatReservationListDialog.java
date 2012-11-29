@@ -18,6 +18,7 @@ import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.gui.SimpleInputDialog;
 import de.nmichael.efa.gui.util.AutoCompleteList;
 import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.Dialog;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -75,7 +76,20 @@ public class BoatReservationListDialog extends DataListDialog {
             }
         }
         if (allowNewReservations && allowEditDeleteReservations) {
-            // default: ADD, EDIT, DELETE, IMPORT, EXPORT
+            if (admin != null) {
+                // default: ADD, EDIT, DELETE, IMPORT, EXPORT
+            } else {
+                actionText = new String[]{
+                            ItemTypeDataRecordTable.ACTIONTEXT_NEW,
+                            ItemTypeDataRecordTable.ACTIONTEXT_EDIT,
+                            ItemTypeDataRecordTable.ACTIONTEXT_DELETE
+                        };
+                actionType = new int[]{
+                            ItemTypeDataRecordTable.ACTION_NEW,
+                            ItemTypeDataRecordTable.ACTION_EDIT,
+                            ItemTypeDataRecordTable.ACTION_DELETE
+                        };
+            }
         } else if (allowNewReservations) {
             actionText = new String[] { ItemTypeDataRecordTable.ACTIONTEXT_NEW };
             actionType = new int[] { ItemTypeDataRecordTable.ACTION_NEW };
@@ -119,7 +133,12 @@ public class BoatReservationListDialog extends DataListDialog {
         if (record == null) {
             return null;
         }
-        return new BoatReservationEditDialog(parent, (BoatReservationRecord)record, 
-                newRecord, allowNewReservationsWeekly, admin);
+        try {
+            return new BoatReservationEditDialog(parent, (BoatReservationRecord) record,
+                    newRecord, allowNewReservationsWeekly, admin);
+        } catch (Exception e) {
+            Dialog.error(e.getMessage());
+            return null;
+        }
     }
 }

@@ -200,7 +200,7 @@ public class MessageRecord extends DataRecord {
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                 International.getString("Nachricht")));
         item.setEditable(newMsg);
-        item.setNotNull(true);
+        item.setNotNull(newMsg && true);
 
         return v;
     }

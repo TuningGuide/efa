@@ -20,6 +20,8 @@ import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.DataPrintRecordDialog;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Date;
+import java.util.Vector;
 import javax.swing.*;
 
 // @i18n complete
@@ -29,6 +31,7 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
     protected boolean newRecord;
     protected AdminRecord admin;
     protected boolean _dontSaveRecord = false;
+    protected boolean _alwaysCheckValues = false;
     protected boolean allowConflicts = true;
     private JButton printButton;
 
@@ -38,14 +41,7 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
         this.dataRecord = dataRecord;
         this.newRecord = newRecord;
         this.admin = admin;
-        if (admin != null) {
-            setPrintButton();
-        }
-        iniDefaults();
-        setItems((dataRecord != null ? dataRecord.getGuiItems(admin) : null));
-        if (dataRecord != null && !newRecord) {
-            setTitle(title + ": " + dataRecord.getQualifiedName());
-        }
+        iniDlg(title);
     }
 
     public UnversionizedDataEditDialog(JDialog parent, String title, 
@@ -54,11 +50,29 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
         this.dataRecord = dataRecord;
         this.newRecord = newRecord;
         this.admin = admin;
+        iniDlg(title);
+    }
+
+    private void iniDlg(String title) {
         if (admin != null) {
             setPrintButton();
         }
         iniDefaults();
-        setItems((dataRecord != null ? dataRecord.getGuiItems(admin) : null));
+        Vector<IItemType> items = (dataRecord != null ? dataRecord.getGuiItems(admin) : null);
+        if (items != null && items.size() > 0) {
+            String mainCat = items.get(0).getCategory();
+            if (admin != null && mainCat != null) {
+                ItemTypeLabel item;
+                items.add(item = new ItemTypeLabel("_GUIITEM_GENERIC_RECORDID", IItemType.TYPE_PUBLIC, mainCat,
+                        International.getString("interne ID") + ": " + dataRecord.getKeyAsTextDescription()));
+                item.setColor(Color.gray);
+                item.setPadding(0, 0, 20, 0);
+                items.add(item = new ItemTypeLabel("_GUIITEM_GENERIC_LASTMODIFIED", IItemType.TYPE_PUBLIC, mainCat,
+                        International.getMessage("zuletzt geändert am {datetime}", EfaUtil.date2String(new Date(dataRecord.getLastModified())))));
+                item.setColor(Color.gray);
+            }
+        }
+        setItems(items);
         if (dataRecord != null && !newRecord) {
             setTitle(title + ": " + dataRecord.getQualifiedName());
         }
@@ -128,12 +142,16 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
         }
     }
 
-    protected boolean saveRecord() throws InvalidValueException {
+    protected void checkValidValues() throws InvalidValueException {
         for (IItemType item : getItems()) {
             if (!item.isValidInput() && item.isVisible()) {
                 throw new InvalidValueException(item, item.getInvalidErrorText());
             }
         }
+    }
+
+    protected boolean saveRecord() throws InvalidValueException {
+        checkValidValues();
         try {
             dataRecord.saveGuiItems(getItems());
             if (!_dontSaveRecord) {
@@ -203,15 +221,17 @@ public class UnversionizedDataEditDialog extends DataEditDialog {
     }
 
     public void closeButton_actionPerformed(ActionEvent e) {
-        if (getValuesFromGui() || this.newRecord) {
-            try {
+        try {
+            if (getValuesFromGui() || this.newRecord) {
                 if (!saveRecord()) {
                     return;
                 }
-            } catch (InvalidValueException einv) {
-                einv.displayMessage();
-                return;
+            } else if (_alwaysCheckValues) {
+                checkValidValues();
             }
+        } catch (InvalidValueException einv) {
+            einv.displayMessage();
+            return;
         }
         super.closeButton_actionPerformed(e);
     }

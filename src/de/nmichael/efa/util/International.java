@@ -480,6 +480,11 @@ public class International {
         return decimalSeparator;
     }
 
+    public static char getSpaceOrDash() {
+        String l = getLanguageID();
+        return (l.equals("de") ? '-' : ' ');
+    }
+
     public static String getLanguageDescription() {
         if (locale == null) {
             initialize();

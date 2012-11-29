@@ -273,6 +273,12 @@ public class StatisticHTMLWriter extends StatisticWriter {
                         outHTML(f, sd[i].sDistance, sd[i].distance,
                                 (sdMaximum != null && !sd[i].isSummary ? sdMaximum.distance : 0),
                                 "blue", sr.sAggrDistanceBarSize);
+                        outHTML(f, sd[i].sRowDistance, sd[i].rowdistance,
+                                (sdMaximum != null && !sd[i].isSummary ? sdMaximum.rowdistance : 0),
+                                "darkblue", sr.sAggrRowDistanceBarSize);
+                        outHTML(f, sd[i].sCoxDistance, sd[i].coxdistance,
+                                (sdMaximum != null && !sd[i].isSummary ? sdMaximum.coxdistance : 0),
+                                "lightblue", sr.sAggrCoxDistanceBarSize);
                         outHTML(f, sd[i].sSessions, sd[i].sessions,
                                 (sdMaximum != null && !sd[i].isSummary ? sdMaximum.sessions : 0),
                                 "red", sr.sAggrSessionsBarSize);

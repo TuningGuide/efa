@@ -104,7 +104,11 @@ public class DataKeyIterator {
                 keyHash.put(keys[i], i);
             }
         }
-        return goTo(keyHash.get(key).intValue());
+        try {
+            return goTo(keyHash.get(key).intValue());
+        } catch(Exception e) {
+            return null;
+        }
     }
 
     public synchronized int getPosition() {

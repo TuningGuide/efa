@@ -600,36 +600,39 @@ public abstract class DataFile extends DataAccess {
             try {
                 synchronized (data) {
                     if (isValidAny(record.getKey())) {
-                        if (t < 0) {
-                            t = record.getValidFrom();
-                            //t = System.currentTimeMillis();
-                        }
-                        DataRecord r1 = getValidAt(record.getKey(), t);
-                        if (r1 != null) {
-                            // record with (at least partially) overlapping validity (at validFrom of new record)
-                            if (t == r1.getValidFrom()) {
-                                throw new EfaException(Logger.MSG_DATA_VERSIONIZEDDATACONFLICT, getUID() + ": Versionized Data Conflict (Duplicate?) for Record " + record.toString() + " at ValidFrom=" + t, Thread.currentThread().getStackTrace());
-                            }
-                            // add new record
-                            record.setValidFrom(t);
-                            record.setInvalidFrom(r1.getInvalidFrom());
-                            modifyRecord(record, myLock, true, false, false);
-                            // adjust InvalidFrom field for existing record
-                            modifyRecord(r1, myLock, false, false, true);
-                            r1.setInvalidFrom(t);
-                            modifyRecord(r1, myLock, true, false, false);
+                        if (t == Long.MIN_VALUE || t == Long.MAX_VALUE) {
+                            addValidAtBeforeOrAfter(record, t, myLock);
                         } else {
-                            // There are already records with the same key, but none that are valid at this new record's validFrom.
-                            // During normal operation of efa, the validity range is always complete, i.e. there are no "holes" in validity.
-                            // However, for reading data from file, holes may appear until the entire file is read.
-                            // We could now check against all other records returned from getValidAny() whether there is any overlap, but we
-                            // skip this as this could only happen if the file is externally modified (or if there is a bug in efa...)
-                            if (t >= 0) {
-                                record.setValidFrom(t);
+                            if (t < 0) {
+                                t = record.getValidFrom();
+                                //t = System.currentTimeMillis();
                             }
-                            modifyRecord(record, myLock, true, false, false);
+                            DataRecord r1 = getValidAt(record.getKey(), t);
+                            if (r1 != null) {
+                                // record with (at least partially) overlapping validity (at validFrom of new record)
+                                if (t == r1.getValidFrom()) {
+                                    throw new EfaException(Logger.MSG_DATA_VERSIONIZEDDATACONFLICT, getUID() + ": Versionized Data Conflict (Duplicate?) for Record " + record.toString() + " at ValidFrom=" + t, Thread.currentThread().getStackTrace());
+                                }
+                                // add new record
+                                record.setValidFrom(t);
+                                record.setInvalidFrom(r1.getInvalidFrom());
+                                modifyRecord(record, myLock, true, false, false);
+                                // adjust InvalidFrom field for existing record
+                                modifyRecord(r1, myLock, false, false, true);
+                                r1.setInvalidFrom(t);
+                                modifyRecord(r1, myLock, true, false, false);
+                            } else {
+                                // There are already records with the same key, but none that are valid at this new record's validFrom.
+                                // During normal operation of efa, the validity range is always complete, i.e. there are no "holes" in validity.
+                                // However, for reading data from file, holes may appear until the entire file is read.
+                                // We could now check against all other records returned from getValidAny() whether there is any overlap, but we
+                                // skip this as this could only happen if the file is externally modified (or if there is a bug in efa...)
+                                if (t >= 0) {
+                                    record.setValidFrom(t);
+                                }
+                                modifyRecord(record, myLock, true, false, false);
+                            }
                         }
-
                     } else {
                         if (t >= 0) {
                             record.setValidFrom(t);
@@ -644,6 +647,50 @@ public abstract class DataFile extends DataAccess {
             }
         }
         return record.getKey();
+    }
+
+    private void addValidAtBeforeOrAfter(DataRecord record, long t, long lockID) throws EfaException {
+        // Adds a record before or after a current existing one without touching the existing ones.
+        // This will only add a record if the new record is valid before the first exisiting record,
+        // or if it is valid beyond the validity of the last record.
+        if (t == Long.MIN_VALUE) {
+            // if t == MIN_VALUE, this record is added before the first existing record of this key
+            DataRecord[] allr = getValidAny(record.getKey());
+            long currentValidFrom = Long.MAX_VALUE;
+            DataRecord currentFirst = null;
+            for (int i=0; allr != null && i<allr.length; i++) {
+                if (allr[i].getValidFrom() < currentValidFrom) {
+                    currentValidFrom = allr[i].getValidFrom();
+                    currentFirst = allr[i];
+                }
+            }
+            if (currentFirst != null) {
+                if (record.getValidFrom() >= currentFirst.getValidFrom()) {
+                    return;
+                }
+                record.setInvalidFrom(currentFirst.getValidFrom());
+                modifyRecord(record, lockID, true, false, false);
+            }
+        }
+        if (t == Long.MAX_VALUE) {
+            // if t == MAX_VALUE, this record is added after the last existing record of this key
+            DataRecord[] allr = getValidAny(record.getKey());
+            long currentValidFrom = Long.MIN_VALUE;
+            DataRecord currentLast = null;
+            for (int i=0; allr != null && i<allr.length; i++) {
+                if (allr[i].getValidFrom() > currentValidFrom) {
+                    currentValidFrom = allr[i].getValidFrom();
+                    currentLast = allr[i];
+                }
+            }
+            if (currentLast != null) {
+                if (record.getInvalidFrom() <= currentLast.getInvalidFrom()) {
+                    return;
+                }
+                record.setValidFrom(currentLast.getInvalidFrom());
+                modifyRecord(record, lockID, true, false, false);
+            }
+        }
     }
 
     public void update(DataRecord record) throws EfaException {

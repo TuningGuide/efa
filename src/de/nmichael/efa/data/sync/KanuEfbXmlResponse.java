@@ -70,7 +70,7 @@ public class KanuEfbXmlResponse extends XmlHandler {
             if (fields == null) {
                 fields = new Hashtable<String,String>();
             }
-            fields.put(fieldName, getFieldValue());
+            fields.put(fieldName.toLowerCase(), getFieldValue());
         }
 
         if (inRecord && recordName != null && 
@@ -130,7 +130,7 @@ public class KanuEfbXmlResponse extends XmlHandler {
         if (fields == null) {
             return null;
         }
-        return fields.get(fieldName);
+        return fields.get(fieldName.toLowerCase());
     }
 
 }

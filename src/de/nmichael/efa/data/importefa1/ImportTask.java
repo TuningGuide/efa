@@ -143,6 +143,7 @@ public class ImportTask extends ProgressTask {
             }
         } catch(Exception estatus) {
             logInfo("ERROR   - Could not delete unused status - " + estatus.toString() + "\n", true, true);
+            Logger.logdebug(estatus);
             totalErrors++;
         }
 

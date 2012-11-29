@@ -1491,83 +1491,87 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         if (Daten.project == null) {
             return;
         }
-        String name = null;
+        try {
+            String name = null;
 
-        ItemTypeBoatstatusList.BoatListItem item = null;
-        while (item == null) {
-            try {
-                item = getSelectedListItem(list);
-                if (list != personsAvailableList) {
-                    name = item.text;
-                } else {
-                    name = item.person.getQualifiedName();
-                }
-            } catch (Exception e) {
-            }
-            if (name == null || name.startsWith("---")) {
-                item = null;
+            ItemTypeBoatstatusList.BoatListItem item = null;
+            while (item == null) {
                 try {
-                    int i = list.getSelectedIndex() + direction;
-                    if (i < 0) {
-                        i = 1; // i<0 kann nur erreicht werden, wenn vorher i=0 und direction=-1; dann darf nicht auf i=0 gesprungen werden, da wir dort herkommen, sondern auf i=1
-                        direction = 1;
+                    item = getSelectedListItem(list);
+                    if (list != personsAvailableList) {
+                        name = item.text;
+                    } else {
+                        name = item.person.getQualifiedName();
                     }
-                    if (i >= list.size()) {
-                        return;
-                    }
-                    list.setSelectedIndex(i);
-                } catch (Exception e) { /* just to be sure */ }
-            }
-        }
-        if (item == null) {
-            return;
-        }
-
-        if (list != personsAvailableList) {
-            if (item.boatStatus != null) {
-                BoatStatusRecord status = boatStatus.getBoatStatus(item.boatStatus.getBoatId());
-                BoatRecord boat = Daten.project.getBoats(false).getBoat(item.boatStatus.getBoatId(), System.currentTimeMillis());
-                name = (boat != null ? boat.getQualifiedName() :
-                    (status != null ? status.getBoatText() : International.getString("anderes oder fremdes Boot")));
-                String text = "";
-                if (status != null) {
-                    String s = status.getStatusDescription(status.getCurrentStatus());
-                    if (s != null) {
-                        text = s;
-                    }
-                    s = status.getComment();
-                    if (s != null && s.length() > 0) {
-                        text = s; // if a comment is set, then *don't* display the current status, but only the comment
-                    }
+                } catch (Exception e) {
                 }
-                String bootstyp = "";
-                String rudererlaubnis = "";
-                if (listnr == 1) {
-                    if (boat != null) {
-                        bootstyp = " (" + boat.getDetailedBoatType(boat.getVariantIndex(item.boatVariant)) + ")";
-                        String groups = boat.getAllowedGroupsAsNameString(System.currentTimeMillis());
-                        if (groups.length() > 0) {
-                            rudererlaubnis = (rudererlaubnis.length() > 0 ? rudererlaubnis + ", "
-                                    : "; " + International.getMessage("nur für {something}", groups));
+                if (name == null || name.startsWith("---")) {
+                    item = null;
+                    try {
+                        int i = list.getSelectedIndex() + direction;
+                        if (i < 0) {
+                            i = 1; // i<0 kann nur erreicht werden, wenn vorher i=0 und direction=-1; dann darf nicht auf i=0 gesprungen werden, da wir dort herkommen, sondern auf i=1
+                            direction = 1;
+                        }
+                        if (i >= list.size()) {
+                            return;
+                        }
+                        list.setSelectedIndex(i);
+                    } catch (Exception e) { /* just to be sure */ }
+                }
+            }
+            if (item == null) {
+                return;
+            }
+
+            if (list != personsAvailableList) {
+                if (item.boatStatus != null) {
+                    BoatStatusRecord status = boatStatus.getBoatStatus(item.boatStatus.getBoatId());
+                    BoatRecord boat = Daten.project.getBoats(false).getBoat(item.boatStatus.getBoatId(), System.currentTimeMillis());
+                    name = (boat != null ? boat.getQualifiedName()
+                            : (status != null ? status.getBoatText() : International.getString("anderes oder fremdes Boot")));
+                    String text = "";
+                    if (status != null) {
+                        String s = status.getStatusDescription(status.getCurrentStatus());
+                        if (s != null) {
+                            text = s;
+                        }
+                        s = status.getComment();
+                        if (s != null && s.length() > 0) {
+                            text = s; // if a comment is set, then *don't* display the current status, but only the comment
                         }
                     }
+                    String bootstyp = "";
+                    String rudererlaubnis = "";
+                    if (listnr == 1) {
+                        if (boat != null) {
+                            bootstyp = " (" + boat.getDetailedBoatType(boat.getVariantIndex(item.boatVariant)) + ")";
+                            String groups = boat.getAllowedGroupsAsNameString(System.currentTimeMillis());
+                            if (groups.length() > 0) {
+                                rudererlaubnis = (rudererlaubnis.length() > 0 ? rudererlaubnis + ", "
+                                        : "; " + International.getMessage("nur für {something}", groups));
+                            }
+                        }
+                    }
+                    statusLabelSetText(name + ": " + text + bootstyp + rudererlaubnis);
+                } else {
+                    statusLabelSetText(International.getString("anderes oder fremdes Boot"));
                 }
-                statusLabelSetText(name + ": " + text + bootstyp + rudererlaubnis);
             } else {
-                statusLabelSetText(International.getString("anderes oder fremdes Boot"));
+                statusLabelSetText(name);
             }
-        } else {
-            statusLabelSetText(name);
-        }
-        if (listnr != 1) {
-            boatsAvailableList.clearSelection();
-            personsAvailableList.clearSelection();
-        }
-        if (listnr != 2) {
-            boatsOnTheWaterList.clearSelection();
-        }
-        if (listnr != 3) {
-            boatsNotAvailableList.clearSelection();
+            if (listnr != 1) {
+                boatsAvailableList.clearSelection();
+                personsAvailableList.clearSelection();
+            }
+            if (listnr != 2) {
+                boatsOnTheWaterList.clearSelection();
+            }
+            if (listnr != 3) {
+                boatsNotAvailableList.clearSelection();
+            }
+        } catch (Exception e) {
+            Logger.logdebug(e);
         }
     }
 
@@ -1632,19 +1636,27 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     // mode==2 - nur solche Checks durchführen, bei denen es egal ist, ob das Boot aus der Liste direkt ausgewählt wurde
     //           oder manuell über <anders Boot> eingegeben wurde. Der Aufruf von checkFahrtbeginnFuerBoot mit mode==2
     //           erfolgt aus EfaFrame.java.
-    boolean checkStartSessionForBoat(ItemTypeBoatstatusList.BoatListItem item, int mode) {
+    boolean checkStartSessionForBoat(ItemTypeBoatstatusList.BoatListItem item, 
+            String entryNo,
+            int mode) {
         if (item == null || item.boatStatus == null || item.boatStatus.getCurrentStatus() == null) {
             return true;
         }
         if (item.boatStatus.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
+            if (entryNo != null && item.boatStatus.getEntryNo() != null &&
+                !entryNo.equals(item.boatStatus.getEntryNo().toString())) {
+                // Dieses Boot ist bereits auf Fahrt in einem anderen Fahrtenbucheintrag!
+                Dialog.error(International.getMessage("Das Boot {boat} ist bereits unterwegs.", item.boatStatus.getBoatText()));
+                return false;
+            }
+
             if (mode == 1) {
                 actionStartSessionCorrect();
                 return false;
             }
-            if (mode == 2) {
-                Dialog.error(International.getMessage("Das Boot {boat} ist bereits unterwegs.", item.boatStatus.getBoatText()));
-                return false;
-            }
+        }
+        if (mode == 3) {
+            return true;
         }
         if (item.boatStatus.getCurrentStatus().equals(BoatStatusRecord.STATUS_NOTAVAILABLE)) {
             if (Dialog.yesNoCancelDialog(International.getString("Boot gesperrt"),
@@ -1826,7 +1838,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             return;
         }
 
-        if (!checkStartSessionForBoat(item, 1)) {
+        if (!checkStartSessionForBoat(item, null, 1)) {
             return;
         }
 

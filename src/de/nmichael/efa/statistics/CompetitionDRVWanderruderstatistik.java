@@ -77,6 +77,21 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
         return s.toString();
     }
 
+    private void addWaterIds(Hashtable<String,String> mywaters, DataTypeList<UUID> waterList) {
+        for (int i = 0; i < waterList.length(); i++) {
+            WatersRecord w = waters.getWaters(waterList.get(i));
+            if (w != null) {
+                mywaters.put(w.getQualifiedName(), "foo");
+            }
+        }
+    }
+
+    private void addWaterNames(Hashtable<String,String> mywaters, DataTypeList<String> waterList) {
+        for (int i = 0; i < waterList.length(); i++) {
+            mywaters.put(waterList.get(i), "foo");
+        }
+    }
+
     public int calculateAggregation(Hashtable<Object,StatisticsData> data,
             LogbookRecord r, Object key,
             PersonRecord person) {
@@ -131,13 +146,13 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
             sd.compData.activeDays = r.getNumberOfDays();
         }
         if (destination != null && destination.getWatersIdList() != null) {
-            DataTypeList<UUID> waterList = destination.getWatersIdList();
-            for (int i = 0; i < waterList.length(); i++) {
-                WatersRecord w = waters.getWaters(waterList.get(i));
-                if (w != null) {
-                    sd.compData.waters.put(w.getQualifiedName(), "foo");
-                }
-            }
+            addWaterIds(sd.compData.waters, destination.getWatersIdList());
+        }
+        if (r.getWatersIdList() != null) {
+            addWaterIds(sd.compData.waters, r.getWatersIdList());
+        }
+        if (r.getWatersNameList() != null) {
+            addWaterNames(sd.compData.waters, r.getWatersNameList());
         }
 
         // Daten der Fahrt füllen

@@ -43,6 +43,8 @@ public class StatisticsData implements Comparable {
     String sYearOfBirth;
     String sBoatType;
     String sDistance;
+    String sRowDistance;
+    String sCoxDistance;
     String sSessions;
     String sAvgDistance;
     String sDestinationAreas;
@@ -58,6 +60,8 @@ public class StatisticsData implements Comparable {
     String sClubworkCredit;
 
     long distance = 0;
+    long rowdistance = 0;
+    long coxdistance = 0;
     long sessions = 0;
     long avgDistance = 0;
     SessionHistory sessionHistory;
@@ -98,6 +102,8 @@ public class StatisticsData implements Comparable {
 
     public void updateSummary(StatisticsData sd) {
         this.distance += sd.distance;
+        this.rowdistance += sd.rowdistance;
+        this.coxdistance += sd.coxdistance;
         this.sessions += sd.sessions;
         this.clubwork += sd.clubwork;
     }
@@ -105,6 +111,12 @@ public class StatisticsData implements Comparable {
     public void updateMaximum(StatisticsData sd) {
         if (sd.distance > this.distance) {
             this.distance = sd.distance;
+        }
+        if (sd.rowdistance > this.rowdistance) {
+            this.rowdistance = sd.rowdistance;
+        }
+        if (sd.coxdistance > this.coxdistance) {
+            this.coxdistance = sd.coxdistance;
         }
         if (sd.sessions > this.sessions) {
             this.sessions = sd.sessions;
@@ -176,6 +188,32 @@ public class StatisticsData implements Comparable {
                 sDistance = "";
             } else {
                 this.sDistance = DataTypeDistance.getDistance(this.distance).getStringValueInDefaultUnit(sr.sDistanceWithUnit, 0, decimals);
+            }
+        }
+        if (sr.sIsAggrRowDistance) {
+            int decimals = 1;
+            if (sr.sTruncateDistanceToFullValue) {
+                if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list) {
+                    decimals = 0;
+                }
+            }
+            if (sr.sIgnoreNullValues && rowdistance == 0) {
+                sRowDistance = "";
+            } else {
+                this.sRowDistance = DataTypeDistance.getDistance(this.rowdistance).getStringValueInDefaultUnit(sr.sDistanceWithUnit, 0, decimals);
+            }
+        }
+        if (sr.sIsAggrCoxDistance) {
+            int decimals = 1;
+            if (sr.sTruncateDistanceToFullValue) {
+                if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list) {
+                    decimals = 0;
+                }
+            }
+            if (sr.sIgnoreNullValues && coxdistance == 0) {
+                sCoxDistance = "";
+            } else {
+                this.sCoxDistance = DataTypeDistance.getDistance(this.coxdistance).getStringValueInDefaultUnit(sr.sDistanceWithUnit, 0, decimals);
             }
         }
         if (sr.sIsAggrSessions) {
@@ -288,6 +326,20 @@ public class StatisticsData implements Comparable {
                 if (this.distance > osd.distance) {
                     return 1 * order;
                 } else if (this.distance < osd.distance) {
+                    return -1 * order;
+                }
+                break;
+            case rowdistance:
+                if (this.rowdistance > osd.rowdistance) {
+                    return 1 * order;
+                } else if (this.rowdistance < osd.rowdistance) {
+                    return -1 * order;
+                }
+                break;
+            case coxdistance:
+                if (this.coxdistance > osd.coxdistance) {
+                    return 1 * order;
+                } else if (this.coxdistance < osd.coxdistance) {
                     return -1 * order;
                 }
                 break;

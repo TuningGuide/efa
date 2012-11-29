@@ -12,6 +12,7 @@ package de.nmichael.efa.core.items;
 
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.Logger;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -227,6 +228,12 @@ public abstract class ItemType implements IItemType {
         String s = toString();
         if ((s == null || s.length() == 0) && (lastValue == null || lastValue.length() == 0)) {
             return false;
+        }
+        if (Logger.isTraceOn(Logger.TT_GUI, 9)) {
+            if (s != null && !s.equals(lastValue)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_GUI_DEBUGGUI,
+                    getName() + ": old=" + lastValue + "; new=" + s);
+            }
         }
         return s != null && !s.equals(lastValue);
     }

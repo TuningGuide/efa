@@ -107,6 +107,23 @@ public abstract class DataRecord implements Cloneable, Comparable {
     }
 
     public abstract DataKey getKey();
+
+    public String getKeyAsTextDescription() {
+        int keyFieldCnt = metaData.getKeyFields().length;
+        if (metaData.versionized) {
+            keyFieldCnt--;
+        }
+        DataKey k = getKey();
+        StringBuffer s = new StringBuffer();
+        for (int i=0; i<keyFieldCnt; i++) {
+            Object kp = k.getKeyPart(i);
+            String kps = (kp != null ? kp.toString() : null);
+            if (kps != null && kps.length() > 0) {
+                s.append( (s.length() > 0 ? ";" : "") + kps);
+            }
+        }
+        return s.toString();
+    }
     
     protected void set(int fieldIdx, Object data, boolean updateTimestamp) {
         if (fieldIdx < 0) {
@@ -403,6 +420,21 @@ public abstract class DataRecord implements Cloneable, Comparable {
 
     public void decodeFromString(String s) throws Exception {
         
+    }
+
+    public String getAllFieldsAsSeparatedText() {
+        StringBuilder b = new StringBuilder();
+        for (int i=0; i<getFieldCount(); i++) {
+            if (b.length() > 1) {
+                b.append(";");
+            }
+            String v = getAsText(getFieldName(i));
+            if (v != null && v.length() > 0) {
+                b.append(v);
+            }
+        }
+        return b.toString();
+
     }
 
     public String getQualifiedName() {

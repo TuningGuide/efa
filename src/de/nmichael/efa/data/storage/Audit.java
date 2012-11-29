@@ -25,12 +25,15 @@ import java.util.UUID;
 public class Audit extends Thread {
 
     private static final long MAX_MESSAGES_FILESIZE = 1024*1024;
+    private static final long MAX_AUDIT_MESSAGE_BUFFER = 1024*1024;
     
     private Project project;
     private boolean correctErrors;
     private int errors = 0;
     private int warnings = 0;
     private int infos = 0;
+    private StringBuilder auditMessages;
+    private boolean auditMessagesMaxReached = false;
 
     public Audit(Project project) {
         this.project = project;
@@ -41,19 +44,38 @@ public class Audit extends Thread {
      * @todo (P3) Audit - SessionGroups
      */
 
+    private void addMessageToBuffer(String s) {
+        if (s == null || s.length() == 0) {
+            return;
+        }
+        if (auditMessages != null) {
+            if (auditMessages.length() < MAX_AUDIT_MESSAGE_BUFFER) {
+                auditMessages.append(s + "\n");
+            } else {
+                if (!auditMessagesMaxReached) {
+                    auditMessages.append("*** too many messages - for all messages, see logfile ***");
+                    auditMessagesMaxReached = true;
+                }
+            }
+        }
+    }
+
     private void auditInfo(String key, String msg) {
-        Logger.log(Logger.INFO, key, msg);
+        String s = Logger.log(Logger.INFO, key, msg, false);
         infos++;
+        addMessageToBuffer(s);
     }
 
     private void auditWarning(String key, String msg) {
-        Logger.log(Logger.WARNING, key, msg);
+        String s = Logger.log(Logger.WARNING, key, msg, false);
         warnings++;
+        addMessageToBuffer(s);
     }
 
     private void auditError(String key, String msg) {
-        Logger.log(Logger.ERROR, key, msg);
+        String s = Logger.log(Logger.ERROR, key, msg, false);
         errors++;
+        addMessageToBuffer(s);
     }
 
     private int runAuditPersistence(StorageObject p, String dataType) {
@@ -1240,11 +1262,13 @@ public class Audit extends Thread {
                 project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
             return true;
         }
-         int errors = 0;
-       warnings = 0;
+        errors = 0;
+        warnings = 0;
         infos = 0;
+        auditMessages = new StringBuilder();
         Logger.log(Logger.DEBUG,Logger.MSG_DATA_AUDIT,
                 "Starting Project Audit for Project: " + project.getProjectName());
+        addMessageToBuffer("Audit Report for Project: " + project.getProjectName());
         try {
             runAuditPersistence(project.getSessionGroups(false), SessionGroups.DATATYPE);
             runAuditPersistence(project.getPersons(false), Persons.DATATYPE);
@@ -1291,10 +1315,20 @@ public class Audit extends Thread {
                     "runAudit() Caught Exception: " + e.toString());
         }
         boolean logEnd = (errors > 0 || warnings > 0 || infos > 0);
-        Logger.log( (errors == 0 ? (logEnd ? Logger.INFO : Logger.DEBUG) : Logger.ERROR),
+        String s = Logger.log( (errors == 0 ? (logEnd ? Logger.INFO : Logger.DEBUG) : Logger.ERROR),
                 Logger.MSG_DATA_AUDIT,
                 "Project Audit completed with " + errors + " Errors, " + warnings+ " Warnings and "+
-                infos +" Infos.");
+                infos +" Infos.", false);
+        if (errors > 0 || warnings > 0 && auditMessages != null) {
+            addMessageToBuffer(s);
+            Messages messages = (Daten.project != null ? Daten.project.getMessages(false) : null);
+            if (messages != null && messages.isOpen()) {
+                messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME,
+                        MessageRecord.TO_ADMIN,
+                        "Audit Report", auditMessages.toString());
+            }
+            
+        }
         return errors == 0;
     }
 

@@ -85,9 +85,18 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
 
     public void setDate(String s) {
         TMJ tmj = EfaUtil.string2date(s, -1, -1, -1);
-        this.day = tmj.tag;
-        this.month = tmj.monat;
-        this.year = tmj.jahr;
+        boolean ymd = (tmj.tag > 0 && tmj.jahr > 0 && tmj.tag > 1900 && tmj.jahr < 100);
+        if (!ymd) {
+            // day - month - year
+            this.day = tmj.tag;
+            this.month = tmj.monat;
+            this.year = tmj.jahr;
+        } else {
+            // year - month - day
+            this.year = tmj.tag;
+            this.month = tmj.monat;
+            this.day = tmj.jahr;
+        }
         if (day > 0 && month == -1 && year == -1) { // String with year only
             year = day;
             day = month = 0;

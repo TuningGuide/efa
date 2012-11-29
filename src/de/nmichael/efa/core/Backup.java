@@ -13,6 +13,7 @@ import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.Admins;
 import de.nmichael.efa.core.config.EfaConfig;
 import de.nmichael.efa.core.config.EfaTypes;
+import de.nmichael.efa.data.Project;
 import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.storage.StorageObject;
 import de.nmichael.efa.data.storage.XMLFile;
@@ -52,6 +53,7 @@ public class Backup {
     private BackupMetaData backupMetaData;
     private String[] restoreObjects;
     private Mode mode;
+    private boolean openOrCreateProjectForRestore;
     private int totalWork = 0;
     private int totalWorkDone = 0;
 
@@ -65,9 +67,11 @@ public class Backup {
         this.mode = Mode.create;
     }
 
-    public Backup(String backupZipFile, String[] restoreObjects) {
+    public Backup(String backupZipFile, String[] restoreObjects,
+            boolean openOrCreateProjectForRestore) {
         this.zipFile = backupZipFile;
         this.restoreObjects = restoreObjects;
+        this.openOrCreateProjectForRestore = openOrCreateProjectForRestore;
         this.mode = Mode.restore;
     }
 
@@ -76,11 +80,16 @@ public class Backup {
     }
 
     private void getCurrentProjectInfo() {
-        currentProjectDataAccess = Daten.project.data();
-        currentProjectName = Daten.project.getProjectName();
-        if (Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
-            currentProjectDataAccess = Daten.project.getRemoteDataAccess();
-            currentProjectName = Daten.project.getProjectRemoteProjectName();
+        if (Daten.project == null) {
+            currentProjectDataAccess = null;
+            currentProjectName = null;
+        } else {
+            currentProjectDataAccess = Daten.project.data();
+            currentProjectName = Daten.project.getProjectName();
+            if (Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+                currentProjectDataAccess = Daten.project.getRemoteDataAccess();
+                currentProjectName = Daten.project.getProjectRemoteProjectName();
+            }
         }
     }
 
@@ -111,7 +120,7 @@ public class Backup {
         return successful;
     }
 
-    private boolean isProjectDataAccess(String type) {
+    public static boolean isProjectDataAccess(String type) {
         return !type.equals(EfaConfig.DATATYPE) &&
                !type.equals(Admins.DATATYPE) &&
                !type.equals(EfaTypes.DATATYPE);
@@ -170,6 +179,11 @@ public class Backup {
             if (isProjectDataAccess(meta.getType())) {
                 if (currentProjectName == null) {
                     getCurrentProjectInfo();
+                }
+                if (backupMetaData.getProjectName() != null &&
+                    !backupMetaData.getProjectName().equals(currentProjectName) &&
+                    openOrCreateProjectForRestore) {
+                    openOrCreateProject(backupMetaData.getProjectName());
                 }
                 if (currentProjectName == null ||
                     backupMetaData.getProjectName() == null ||
@@ -391,15 +405,17 @@ public class Backup {
                     successful, zipFile));
 
             // re-open project
-            String pName = Daten.project.getProjectName();
-            logMsg(Logger.INFO, Logger.MSG_BACKUP_REOPENINGFILES,
-                    LogString.fileClosing(pName, International.getString("Projekt")));
-            Daten.project.closeAllStorageObjects();
-            logMsg(Logger.INFO, Logger.MSG_BACKUP_REOPENINGFILES,
-                    LogString.fileOpening(pName, International.getString("Projekt")));
-            Daten.project.openProject(pName, true);
-            logMsg(Logger.INFO, Logger.MSG_EVT_PROJECTOPENED,
-                    LogString.fileOpened(pName, International.getString("Projekt")));
+            if (Daten.applID != Daten.APPL_CLI) {
+                String pName = Daten.project.getProjectName();
+                logMsg(Logger.INFO, Logger.MSG_BACKUP_REOPENINGFILES,
+                        LogString.fileClosing(pName, International.getString("Projekt")));
+                Daten.project.closeAllStorageObjects();
+                logMsg(Logger.INFO, Logger.MSG_BACKUP_REOPENINGFILES,
+                        LogString.fileOpening(pName, International.getString("Projekt")));
+                Daten.project.openProject(pName, true);
+                logMsg(Logger.INFO, Logger.MSG_EVT_PROJECTOPENED,
+                        LogString.fileOpened(pName, International.getString("Projekt")));
+            }
 
             if (errors == 0) {
                 logMsg(Logger.INFO, Logger.MSG_BACKUP_RESTOREFINISHED,
@@ -416,6 +432,50 @@ public class Backup {
             return -1;
         }
         return errors;
+    }
+
+    private void openOrCreateProject(String newProjectName) {
+        try {
+            // close project, if a wrong project is open
+            if (Daten.project != null) {
+                logMsg(Logger.INFO, Logger.MSG_BACKUP_REOPENINGFILES,
+                        LogString.fileClosing(Daten.project.getProjectName(), International.getString("Projekt")));
+                Daten.project.closeAllStorageObjects();
+            }
+
+            // try to open correct project
+            logMsg(Logger.INFO, Logger.MSG_BACKUP_REOPENINGFILES,
+                    LogString.fileOpening(newProjectName, International.getString("Projekt")));
+            if (Daten.project.openProjectSilent(newProjectName, false)) {
+                logMsg(Logger.INFO, Logger.MSG_EVT_PROJECTOPENED,
+                        LogString.fileOpened(newProjectName, International.getString("Projekt")));
+            } else {
+                // if opening failed, create a new project
+                logMsg(Logger.WARNING, Logger.MSG_BACKUP_REOPENINGFILES,
+                        LogString.fileOpenFailed(newProjectName, International.getString("Projekt")));
+                Project prj = new Project(newProjectName);
+                try {
+                    prj.create();
+                    prj.setEmptyProject(newProjectName);
+                    prj.setProjectStorageType(IDataAccess.TYPE_FILE_XML);
+                    prj.close();
+                    Project.openProject(newProjectName, false);
+                    logMsg(Logger.INFO, Logger.MSG_EVT_PROJECTOPENED,
+                            LogString.fileNewCreated(newProjectName, International.getString("Projekt")));
+                } catch (Exception ecreate) {
+                    logMsg(Logger.ERROR, Logger.MSG_BACKUP_REOPENINGFILES,
+                            LogString.fileCreationFailed(newProjectName, International.getString("Projekt"),
+                            ecreate.toString()));
+                    openOrCreateProjectForRestore = false;
+                }
+            }
+        } catch (Exception e) {
+            logMsg(Logger.ERROR, Logger.MSG_BACKUP_REOPENINGFILES,
+                    LogString.fileOpenFailed(newProjectName, International.getString("Projekt"),
+                    e.toString()));
+            openOrCreateProjectForRestore = false;
+        }
+        getCurrentProjectInfo();
     }
 
     public String getLastErrorMessage() {
@@ -452,8 +512,10 @@ public class Backup {
 
     // Run Method for Restoring a Backup
     public static void runRestoreBackupTask(BaseDialog parentDialog,
-            String backupZipFile, String[] restoreObjects) {
-        BackupTask backupTask = new BackupTask(backupZipFile, restoreObjects);
+            String backupZipFile, String[] restoreObjects,
+            boolean openOrCreateProjectForRestore) {
+        BackupTask backupTask = new BackupTask(backupZipFile, restoreObjects,
+                openOrCreateProjectForRestore);
         ProgressDialog progressDialog = new ProgressDialog(parentDialog,
                 International.getString("Backup einspielen"), backupTask, false);
         backupTask.startBackup(progressDialog);
@@ -475,9 +537,10 @@ class BackupTask extends ProgressTask {
     }
 
     // Constructor for Restoring a Backup
-    public BackupTask(String backupZipFile, String[] restoreObjects) {
+    public BackupTask(String backupZipFile, String[] restoreObjects,
+            boolean openOrCreateProjectForRestore) {
         super();
-        backup = new Backup(backupZipFile, restoreObjects);
+        backup = new Backup(backupZipFile, restoreObjects, openOrCreateProjectForRestore);
     }
 
     public void startBackup(ProgressDialog progressDialog) {

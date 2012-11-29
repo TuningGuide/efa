@@ -77,7 +77,7 @@ public class DataExport {
                     for (int i=0; i<fields.length; i++) {
                         String value = r.getAsText(fields[i]);
                         if (format == Format.xml) {
-                            if (value != null) {
+                            if (value != null && value.length() > 0) {
                                 fw.write("<"+fields[i]+">"+EfaUtil.escapeXml(value)+"</"+fields[i]+">");
                             }
                         }

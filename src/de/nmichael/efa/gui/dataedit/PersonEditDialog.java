@@ -94,16 +94,22 @@ public class PersonEditDialog extends VersionizedDataEditDialog implements IItem
             IDataAccess data = dataRecord.getPersistence().data();
             String newName = ((PersonRecord)dataRecord).getFirstLastName(true);
             long now = System.currentTimeMillis();
+            String invalidMatch = null; // match that is not valid right now; will only be returned if not better (that is, valid) match is found
             DataKeyIterator it = data.getStaticIterator();
             for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
                 DataRecord r = data.get(k);
-                if (r != null && r.isValidAt(now)) {
+                if (r != null) {
                     String oldName = ((PersonRecord)r).getFirstLastName(true);
                     if (newName.equalsIgnoreCase(oldName)) {
-                        return r.getQualifiedName() + " (" + r.getValidRangeString() + ")";
+                        if (r.isValidAt(now)) {
+                            return r.getQualifiedName() + " (" + r.getValidRangeString() + ")";
+                        } else {
+                            invalidMatch = r.getQualifiedName() + " (" + r.getValidRangeString() + ")";
+                        }
                     }
                 }
             }
+            return invalidMatch;
         } catch(Exception e) {
             Logger.logdebug(e);
         }

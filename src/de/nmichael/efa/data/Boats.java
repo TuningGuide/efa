@@ -135,7 +135,7 @@ public class Boats extends StorageObject {
             if (record != null) {
                 return (BoatRecord)record;
             }
-            // if we haven't found a record, go for the
+            // if we haven't found a record, go for some other version of this record (if any)
             DataRecord[] records = data().getValidAny(BoatRecord.getKey(boatId, -1));
             if (records != null && records.length > 0) {
                 return (BoatRecord)records[0];

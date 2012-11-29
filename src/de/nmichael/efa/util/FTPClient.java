@@ -46,6 +46,9 @@ public class FTPClient {
                         pos = ftpString.lastIndexOf("/");
                         if (pos >= 0) {
                             remoteDirectory = ftpString.substring(0, pos);
+                            if (remoteDirectory == null || remoteDirectory.length() == 0) {
+                                remoteDirectory = "/";
+                            }
                             remoteFile = ftpString.substring(pos + 1);
                             validFormat = true; 
                         }
@@ -53,11 +56,15 @@ public class FTPClient {
                 }
             }
         }
+        if (Logger.isTraceOn(Logger.TT_PRINT_FTP, 5)) {
+            printDebugSummary();
+        }
     }
 
     public FTPClient(String server, String username, String password,
             String localFileWithPath, String remoteDirectory, String remoteFile) {
-        this.ftpString = username + ":" + password + "@" + server + ":" + remoteDirectory + "/" + remoteFile;
+        this.ftpString = username + ":" + password + "@" + server + ":" + remoteDirectory + 
+                (remoteDirectory.endsWith("/") ? "" : "/") + remoteFile;
         this.server = server;
         this.username = username;
         this.password = password;
@@ -65,6 +72,22 @@ public class FTPClient {
         this.remoteDirectory = remoteDirectory;
         this.remoteFile = remoteFile;
         validFormat = true;
+        if (Logger.isTraceOn(Logger.TT_PRINT_FTP, 5)) {
+            printDebugSummary();
+        }
+    }
+
+    private void printDebugSummary() {
+        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_FTP, "FTP Upload:");
+        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_FTP, "ftpString: " + ftpString);
+        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_FTP, "localFileWithPath: " + localFileWithPath);
+        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_FTP, "server: " + server);
+        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_FTP, "username: " + username);
+        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_FTP, "password: " + "<" +
+                (password == null ? "null" : password.length() + " characters") + ">");
+        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_FTP, "remoteDirectory: " + remoteDirectory);
+        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_FTP, "remoteFile: " + remoteFile);
+        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_FTP, "validFormat: " + validFormat);
     }
 
     public boolean isValidFormat() {
@@ -77,7 +100,8 @@ public class FTPClient {
 
     public String getFtpString(boolean withPassword) {
         return "ftp:" + username + (withPassword ? ":" + password : "") +
-                "@" + server + ":" + remoteDirectory + "/" + remoteFile;
+                "@" + server + ":" + remoteDirectory + 
+                (remoteDirectory.endsWith("/") ? "" : "/") + remoteFile;
     }
 
     public String getServer() {
@@ -101,11 +125,14 @@ public class FTPClient {
             com.enterprisedt.net.ftp.FTPClient ftpClient = new com.enterprisedt.net.ftp.FTPClient(server);
             ftpClient.setConnectMode(com.enterprisedt.net.ftp.FTPConnectMode.ACTIVE);
             ftpClient.login(username, password);
-            ftpClient.chdir(remoteDirectory);
+            if (remoteDirectory != null) {
+                ftpClient.chdir( (remoteDirectory.length() == 0 ? "/" : remoteDirectory) );
+            }
             ftpClient.put(localFileWithPath, remoteFile);
             ftpClient.quit();
             return null; // korrektes Ende!
         } catch (Exception e) {
+            Logger.logdebug(e);
             return e.toString();
         }
     }
@@ -118,13 +145,13 @@ public class FTPClient {
                         International.getString("Statistik"));
             } else {
                 return LogString.fileCreationFailed(getFtpString(false),
-                        International.getString("Statistik"));
+                        International.getString("Statistik"),
+                        error);
 
             }
         } else {
             return International.getString("Ungültiges Format") + ": " + getFtpString();
         }
-
     }
 
     public static String getFtpStringGuiDialog(String s) {

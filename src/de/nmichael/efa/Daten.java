@@ -34,7 +34,7 @@ import java.lang.management.*;
 public class Daten {
 
     public final static String VERSION            = "2.0.5"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID          = "2.0.5_02";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONID          = "2.0.5_03";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
     public final static String VERSIONRELEASEDATE = "29.11.2012";  // Release Date: TT.MM.JJJJ
     public final static String MAJORVERSION       = "2";
     public final static String PROGRAMMID         = "EFA.205"; // Versions-ID für Wettbewerbsmeldungen

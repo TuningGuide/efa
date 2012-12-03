@@ -256,6 +256,30 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
         return s.toString();
     }
 
+    public String getDestinationDetailsAsSimpleStartEndString() {
+        String start = getStart();
+        String end   = getEnd();
+        if (getStartIsBoathouse()) {
+            if (start == null || start.length() == 0) {
+                start = International.getString("Bootshaus");;
+            }
+        }
+        if (start == null || start.length() == 0) {
+            start = "?";
+        }
+        if (end == null || end.length() == 0) {
+            end = getName();
+        }
+        if (end == null || end.length() == 0) {
+            end = "?";
+        }
+        if (getRoundtrip()) {
+            return start + " - " + end + " - " + start;
+        } else {
+            return start + " - " + end;
+        }
+    }
+
     // returns
     // String[0] - label
     // String[1] - text

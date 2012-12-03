@@ -116,6 +116,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     AutoCompleteList autoCompleteListDestinations = new AutoCompleteList();
     AutoCompleteList autoCompleteListWaters = new AutoCompleteList();
     EfaBaseFrameFocusManager efaBaseFrameFocusManager;
+    String _jumpToEntryNo;
+    boolean showEditWaters = false; // allow to edit waters per session even if disabled in EfaConfig
 
     // Internal Data Structures for EfaBoathouse
     EfaBoathouseFrame efaBoathouseFrame;
@@ -126,19 +128,26 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
 
     public EfaBaseFrame(int mode) {
-        //super(null, Daten.EFA_LONGNAME);
         super((JFrame)null, Daten.EFA_LONGNAME, null);
         this.mode = mode;
     }
 
     public EfaBaseFrame(JDialog parent, int mode) {
-        //super(null, Daten.EFA_LONGNAME);
         super(parent, Daten.EFA_LONGNAME, null);
         this.mode = mode;
     }
 
+    public EfaBaseFrame(JDialog parent, int mode, AdminRecord admin,
+            Logbook logbook, String entryNo) {
+        super(parent, Daten.EFA_LONGNAME, null);
+        this.mode = mode;
+        this.logbook = logbook;
+        this.admin = admin;
+        this._jumpToEntryNo = entryNo;
+        this.showEditWaters = true;
+    }
+
     public EfaBaseFrame(EfaBoathouseFrame efaBoathouseFrame, int mode) {
-        //super(efaBoathouseFrame, Daten.EFA_LONGNAME);
         super(efaBoathouseFrame, Daten.EFA_LONGNAME, null);
         this.efaBoathouseFrame = efaBoathouseFrame;
         this.mode = mode;
@@ -781,6 +790,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             Logbook newLogbook = logbook;
             this.logbook = null;
             openLogbook(newLogbook);
+            if (_jumpToEntryNo != null && _jumpToEntryNo.length() > 0) {
+                goToEntry(_jumpToEntryNo, false);
+            }
         }
     }
 
@@ -788,16 +800,19 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
 
     void setTitle() {
+        String adminName = (getAdmin() != null ? getAdmin().getName() : null);
+        String adminNameString = (adminName != null && adminName.length() > 0 ?
+            " [" + adminName + "]" : "");
         if (isModeBoathouse()) {
             setTitle(Daten.EFA_LONGNAME);
         } else {
             if (Daten.project == null) {
-                setTitle(Daten.EFA_LONGNAME + " [" + getAdmin().getName() + "]");
+                setTitle(Daten.EFA_LONGNAME + adminNameString);
             } else {
                 if (!isLogbookReady()) {
-                    setTitle(Daten.project.getProjectName() + " - " + Daten.EFA_LONGNAME + " [" + getAdmin().getName() + "]");
+                    setTitle(Daten.project.getProjectName() + " - " + Daten.EFA_LONGNAME + adminNameString);
                 } else {
-                    setTitle(Daten.project.getProjectName() + ": " + logbook.getName() + " - " + Daten.EFA_LONGNAME + " [" + getAdmin().getName() + "]");
+                    setTitle(Daten.project.getProjectName() + ": " + logbook.getName() + " - " + Daten.EFA_LONGNAME + adminNameString);
                 }
             }
         }
@@ -1686,14 +1701,15 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             showDestinationInfo = infoText.length() > 0;
         }
 
-        if (!Daten.efaConfig.getValueAdditionalWatersInput() && !Daten.efaConfig.getValueEfaDirekt_gewaesserBeiUnbekanntenZielenPflicht()) {
+        if (!Daten.efaConfig.getValueAdditionalWatersInput() && !Daten.efaConfig.getValueEfaDirekt_gewaesserBeiUnbekanntenZielenPflicht()
+                && !showEditWaters) {
             waters.setVisible(false);
         } else {
             String variant = LogbookRecord.getDestinationNameAndVariantFromString(destination.getValueFromField())[1];
             boolean isDestinationUnknownOrVariant = (r == null
                     || (variant != null && variant.length() > 0));
             boolean watersWasVisible = waters.isVisible();
-            showWatersInput = (Daten.efaConfig.getValueAdditionalWatersInput() || Daten.efaConfig.getValueEfaDirekt_gewaesserBeiUnbekanntenZielenPflicht())
+            showWatersInput = (Daten.efaConfig.getValueAdditionalWatersInput() || Daten.efaConfig.getValueEfaDirekt_gewaesserBeiUnbekanntenZielenPflicht() || showEditWaters)
                     && isDestinationUnknownOrVariant && destination.getValueFromField().length() > 0;
             if (showWatersInput) {
                 if (r == null) {
@@ -1756,7 +1772,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             // die folgende Zeile ist korrekt, da diese Methode nur nach "vervollstaendige" und bei
             // "zielButton.getBackground()!=Color.red" aus "ziel_keyReleased" oder "zielButton_focusLost"
             // aufgerufen wird und somit ein gültiger Datensatz bereits gefunden wurde!
-            if (r != null && r.getDistance() != null) {
+            if (r != null && r.getDistance() != null && r.getDistance().isSet()) {
                 distance.parseAndShowValue(r.getDistance().getAsFormattedString());
             } else {
                 distance.parseAndShowValue("");
@@ -1902,7 +1918,13 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         if (dlg.getDialogResult()) {
             item.parseAndShowValue(r.getQualifiedName());
             item.setChanged();
+            String distBefore = distance.getValueFromField();
             setDesinationDistance();
+            if (distance.getValueFromField().length() == 0 && distBefore.length() > 0) {
+                // if there was a distance set, but the new/changed destination record does not
+                // specify a distance, then keep the distance that was previously set!
+                distance.parseAndShowValue(distBefore);
+            }
         }
         efaBaseFrameFocusManager.focusNextItem(item, item.getComponent());
     }
@@ -2502,6 +2524,30 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                     if (p == null && ptext == null) {
                         continue;
                     }
+
+                    if (p.getBoatUsageBan()) {
+                        switch (Dialog.auswahlDialog(International.getString("Bootsbenutzungs-Sperre"),
+                            International.getMessage("Für {name} liegt zur Zeit eine Bootsbenutzungs-Sperre vor.", p.getQualifiedName()) +
+                            "\n" +
+                            International.getString("Was möchtest Du tun?"),
+                            International.getString("Mannschaft ändern"),
+                            International.getString("Trotzdem benutzen"),
+                            International.getString("Eintrag abbrechen"))) {
+                        case 0:
+                            if (i == 0) {
+                                cox.requestFocus();
+                            } else {
+                                crew[i-1].requestFocus();
+                            }
+                            return false;
+                        case 1:
+                            break;
+                        case 2:
+                            cancel();
+                            return false;
+                        }
+                    }
+
                     boolean inAnyGroup = false;
                     if (p != null) {
                         for (int j = 0; j < groupIdList.length(); j++) {

@@ -18,8 +18,10 @@ import javax.swing.JDialog;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.items.IItemType;
+import de.nmichael.efa.core.items.ItemTypeBoolean;
 import de.nmichael.efa.core.items.ItemTypeDate;
 import de.nmichael.efa.core.items.ItemTypeString;
+import de.nmichael.efa.core.items.ItemTypeStringList;
 import de.nmichael.efa.data.ProjectRecord;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.ex.EfaException;
@@ -27,6 +29,8 @@ import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.LogString;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class NewLogbookDialog extends StepwiseDialog {
 
@@ -34,8 +38,9 @@ public class NewLogbookDialog extends StepwiseDialog {
     private static final String LOGBOOKDESCRIPTION = "LOGBOOKDESCRIPTION";
     private static final String DATEFROM           = "DATEFROM";
     private static final String DATETO             = "DATETO";
+    private static final String AUTOMATICLOGSWITCH = "AUTOMATICLOGSWITCH";
+    private static final String LOGSWITCHBOATHOUSE = "LOGSWITCHBOATHOUSE";
 
-    private String year = EfaUtil.getCurrentTimeStampYYYY();
     private String newLogbookName;
 
     public NewLogbookDialog(JDialog parent) {
@@ -53,7 +58,8 @@ public class NewLogbookDialog extends StepwiseDialog {
     String[] getSteps() {
         return new String[] {
             International.getString("Name und Beschreibung"),
-            International.getString("Zeitraum für Fahrtenbuch")
+            International.getString("Zeitraum für Fahrtenbuch"),
+            International.getString("Fahrtenbuchwechsel")
         };
     }
 
@@ -65,6 +71,11 @@ public class NewLogbookDialog extends StepwiseDialog {
             case 1:
                 return International.getString("Bitte wähle den Zeitraum für Fahrten dieses Fahrtenbuches aus. efa wird später nur Fahrten "+
                         "innerhalb dieses Zeitraums für dieses Fahrtenbuch zulassen.");
+            case 2:
+                return International.getString("Durch die Konfiguration eines Fahrtenbuchwechsels ist es möglich, ein neues Fahrtenbuch "+
+                        "automatisch zu einem konfigurierten Zeitpunkt (zum Beispiel Jahreswechsel) zu öffnen. efa-Bootshaus beendet dann im aktuellen " +
+                        "Fahrtenbuch alle noch offenen Fahrten, schließt das aktuelle Fahrtenbuch und wechselt zum neuen Fahrtenbuch, ohne daß " +
+                        "weitere Eingriffe eines Administrators nötig wären.");
         }
         return "";
     }
@@ -74,6 +85,11 @@ public class NewLogbookDialog extends StepwiseDialog {
         IItemType item;
 
         // Items for Step 0
+        Calendar cal = new GregorianCalendar();
+        cal.setTimeInMillis(System.currentTimeMillis());
+        String year = Integer.toString( cal.get(Calendar.MONTH)+1 <= 10 ?
+            cal.get(Calendar.YEAR) : cal.get(Calendar.YEAR) + 1); // current year until October, year+1 else
+
         item = new ItemTypeString(LOGBOOKNAME, year, IItemType.TYPE_PUBLIC, "0", International.getString("Name des Fahrtenbuchs"));
         ((ItemTypeString)item).setAllowedCharacters("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
         ((ItemTypeString)item).setReplacementCharacter('_');
@@ -89,6 +105,24 @@ public class NewLogbookDialog extends StepwiseDialog {
         item = new ItemTypeDate(DATETO, new DataTypeDate(31, 12, EfaUtil.string2int(year, 2010)), IItemType.TYPE_PUBLIC, "1", International.getString("Ende des Zeitraums"));
         ((ItemTypeDate)item).setNotNull(true);
         items.add(item);
+
+        // Items for Step 2
+        item = new ItemTypeBoolean(AUTOMATICLOGSWITCH, false, IItemType.TYPE_PUBLIC, "2",
+                International.getMessage("Fahrtenbuchwechsel automatisch zum {datum}", "?"));
+        items.add(item);
+        if (Daten.project.getNumberOfBoathouses() > 1) {
+            String[] descr  = Daten.project.getAllBoathouseNames();
+            String[] values = new String[descr.length];
+            for (int i=0; i<values.length; i++) {
+                values[i] = Integer.toString(Daten.project.getBoathouseId(descr[i]));
+            }
+            item = new ItemTypeStringList(LOGSWITCHBOATHOUSE,
+                    Integer.toString(Daten.project.getMyBoathouseId()),
+                    values, descr,
+                    IItemType.TYPE_PUBLIC, "2",
+                    International.getString("Bootshaus"));
+            items.add(item);
+        }
     }
 
     boolean checkInput(int direction) {
@@ -105,6 +139,27 @@ public class NewLogbookDialog extends StepwiseDialog {
                     item.requestFocus();
                     return false;
             }
+
+            int year = EfaUtil.stringFindInt(name, -1);
+            if (year > 1980 && year < 2100) {
+                ItemTypeDate logFromDate = (ItemTypeDate) getItemByName(DATEFROM);
+                ItemTypeDate logFromTo = (ItemTypeDate) getItemByName(DATETO);
+                if (logFromDate != null) {
+                    logFromDate.setValueDate(new DataTypeDate(1, 1, year));
+                }
+                if (logFromTo != null) {
+                    logFromTo.setValueDate(new DataTypeDate(31, 12, year));
+                }
+            }
+        }
+
+        if (step == 1) {
+            ItemTypeDate logFromDate = (ItemTypeDate)getItemByName(DATEFROM);
+            ItemTypeBoolean logswitch = (ItemTypeBoolean)getItemByName(AUTOMATICLOGSWITCH);
+            if (logFromDate != null && logswitch != null) {
+                logswitch.setDescription(International.getMessage("Fahrtenbuchwechsel automatisch zum {datum}",
+                        logFromDate.toString()));
+            }
         }
 
         return true;
@@ -119,6 +174,8 @@ public class NewLogbookDialog extends StepwiseDialog {
         ItemTypeString logDescription = (ItemTypeString)getItemByName(LOGBOOKDESCRIPTION);
         ItemTypeDate logFromDate = (ItemTypeDate)getItemByName(DATEFROM);
         ItemTypeDate logFromTo = (ItemTypeDate)getItemByName(DATETO);
+        ItemTypeBoolean logswitch = (ItemTypeBoolean)getItemByName(AUTOMATICLOGSWITCH);
+        ItemTypeStringList logswitchBoathouse = (ItemTypeStringList)getItemByName(LOGSWITCHBOATHOUSE);
 
         ProjectRecord rec = Daten.project.createNewLogbookRecord(logName.getValue());
         rec.setDescription(logDescription.getValue());
@@ -132,6 +189,26 @@ public class NewLogbookDialog extends StepwiseDialog {
             Daten.project.getClubwork(newLogbookName, true);
             Dialog.infoDialog(LogString.fileSuccessfullyCreated(logName.getValue(),
                     International.getString("Fahrtenbuch")));
+            if (logswitch.getValue()) {
+                boolean switchok = false;
+                String bh = (logswitchBoathouse == null ? Daten.project.getMyBoathouseName() :
+                    Daten.project.getBoathouseName(EfaUtil.string2int(logswitchBoathouse.getValue(), -1)));
+                if (bh != null) {
+                    ProjectRecord r = Daten.project.getBoathouseRecord(bh);
+                    if (r != null) {
+                        r.setAutoNewLogbookDate(logFromDate.getDate());
+                        r.setAutoNewLogbookName(logName.getValue());
+                        Daten.project.data().update(r);
+                        switchok = true;
+                    }
+                }
+                if (switchok) {
+                    Dialog.infoDialog(International.getMessage("Fahrtenbuchwechsel zum {datum} konfiguriert.",
+                            logFromDate.getDate().toString()));
+                } else {
+                    Dialog.error(International.getString("Fahrtenbuchwechsel konnte nicht konfiguriert werden."));
+                }
+            }
             setDialogResult(true);
         } catch(EfaException ee) {
             newLogbookName = null;

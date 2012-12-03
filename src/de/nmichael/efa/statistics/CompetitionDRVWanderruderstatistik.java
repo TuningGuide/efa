@@ -159,7 +159,13 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
         Long meters;
         String fahrtName = (sg != null ? sg.getName() : r.getDestinationAndVariantName(sr.sValidAt));
         String fahrtDetails = (sg != null ? sg.getRoute() : null);
+        if (fahrtDetails == null && destination != null) {
+            fahrtDetails = destination.getDestinationDetailsAsSimpleStartEndString();
+        }
         String etappenName = r.getDate().toString() + "##" + r.getDestinationAndVariantName(sr.sValidAt);
+        if (sd.entryNo == null) {
+            sd.entryNo = r.getEntryId();
+        }
         sd.sName = fahrtName;
         sd.sAdditional = fahrtDetails;
 
@@ -289,21 +295,23 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
         sr.pOutputLinesBelow.addLine("", 1, StatOutputLines.FONT_NORMAL);
         sr.pOutputLinesBelow.addLine("Unterschrift, Vereinsstempel: ", 1, StatOutputLines.FONT_BOLD);
 
-        sr.pAdditionalTable1Title = new String[14];
-        sr.pAdditionalTable1Title[ 0] = "Start + Ziel der Fahrt";
-        sr.pAdditionalTable1Title[ 1] = "Gewässer";
-        sr.pAdditionalTable1Title[ 2] = "Gesamt Km";
-        sr.pAdditionalTable1Title[ 3] = "Gesamt Tage";
-        sr.pAdditionalTable1Title[ 4] = "Anz. Teilnehmer";
-        sr.pAdditionalTable1Title[ 5] = "Mannsch-Km";
-        sr.pAdditionalTable1Title[ 6] = "Männer (Anz)";
-        sr.pAdditionalTable1Title[ 7] = "Männer (Km)";
-        sr.pAdditionalTable1Title[ 8] = "Junioren (Anz)";
-        sr.pAdditionalTable1Title[ 9] = "Junioren (Km)";
-        sr.pAdditionalTable1Title[10] = "Frauen (Anz)";
-        sr.pAdditionalTable1Title[11] = "Frauen (Km)";
-        sr.pAdditionalTable1Title[12] = "Juniorinnen (Anz)";
-        sr.pAdditionalTable1Title[13] = "Juniorinnen (Km)";
+        sr.pAdditionalTable1Title = new String[16];
+        sr.pAdditionalTable1Title[ 0] = "LfdNr";
+        sr.pAdditionalTable1Title[ 1] = "Name der Fahrt";
+        sr.pAdditionalTable1Title[ 2] = "Streckenbeschreibung";
+        sr.pAdditionalTable1Title[ 3] = "Gewässer";
+        sr.pAdditionalTable1Title[ 4] = "Gesamt Km";
+        sr.pAdditionalTable1Title[ 5] = "Gesamt Tage";
+        sr.pAdditionalTable1Title[ 6] = "Anz. Teilnehmer";
+        sr.pAdditionalTable1Title[ 7] = "Mannsch-Km";
+        sr.pAdditionalTable1Title[ 8] = "Männer (Anz)";
+        sr.pAdditionalTable1Title[ 9] = "Männer (Km)";
+        sr.pAdditionalTable1Title[10] = "Junioren (Anz)";
+        sr.pAdditionalTable1Title[11] = "Junioren (Km)";
+        sr.pAdditionalTable1Title[12] = "Frauen (Anz)";
+        sr.pAdditionalTable1Title[13] = "Frauen (Km)";
+        sr.pAdditionalTable1Title[14] = "Juniorinnen (Anz)";
+        sr.pAdditionalTable1Title[15] = "Juniorinnen (Km)";
 
         // lösche Mehrtagesfahrten, die gar keine sind
         int anzMtours = 0;
@@ -322,7 +330,7 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
         }
 
         final int SPALTENTITEL_UNTEN_AB_EINTRAEGEN = 15;
-        sr.pAdditionalTable1 = new String[anzMtours + 1 + (anzMtours > SPALTENTITEL_UNTEN_AB_EINTRAEGEN ? 1 : 0)][14];
+        sr.pAdditionalTable1 = new String[anzMtours + 1 + (anzMtours > SPALTENTITEL_UNTEN_AB_EINTRAEGEN ? 1 : 0)][16];
         if (anzMtours > SPALTENTITEL_UNTEN_AB_EINTRAEGEN) { // Tabellentitel unten wiederholen
             sr.pAdditionalTable1[sr.pAdditionalTable1.length - 1] = sr.pAdditionalTable1Title;
             sr.pAdditionalTable1LastRowBold = true;
@@ -340,87 +348,90 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
                 continue; // Wafa gelöscht, da sie die Kriterien nicht erfüllte!
             }
             long tmp;
-            sr.pAdditionalTable1[pos][ 0] = sd[i].sName +
-                    (sd[i].sAdditional != null && sd[i].sAdditional.length() > 0 ? " (" + sd[i].sAdditional + ")": "");
+            sr.pAdditionalTable1[pos][ 0] = (sd[i].entryNo != null ? sd[i].entryNo.toString() : "");
+            sr.pAdditionalTable1[pos][ 1] = sd[i].sName;
+            sr.pAdditionalTable1[pos][ 2] = (sd[i].sAdditional != null ? sd[i].sAdditional : "");
 
             if (sd[i].compData != null) {
                 boolean wirdGewertet = true;
 
-                if (sr.pAdditionalTable1[pos][0].trim().length() == 0) {
+                if (sr.pAdditionalTable1[pos][1].trim().length() == 0) {
                     wirdGewertet = false;
-                    sr.pAdditionalTable1[pos][0] = "KEIN ZIELNAME (WIRD NICHT ANERKANNT)";
+                    sr.pAdditionalTable1[pos][1] = "KEIN ZIELNAME (WIRD NICHT ANERKANNT)";
                 }
 
-                sr.pAdditionalTable1[pos][ 1] = printWatersHash(sd[i].compData.waters);
+                sr.pAdditionalTable1[pos][ 3] = printWatersHash(sd[i].compData.waters);
                 _gesWaters.putAll(sd[i].compData.waters);
 
                 long tmpTotalMeters = getSumOfAllHashEntries(sd[i].compData.etappen);
                 _gesMeters += tmpTotalMeters;
-                sr.pAdditionalTable1[pos][ 2] = DataTypeDistance.getDistanceFromMeters(tmpTotalMeters).getStringValueInKilometers();
+                sr.pAdditionalTable1[pos][ 4] = DataTypeDistance.getDistanceFromMeters(tmpTotalMeters).getStringValueInKilometers();
 
                 _gesTage += sd[i].compData.activeDays;
-                sr.pAdditionalTable1[pos][ 3] = Integer.toString(sd[i].compData.activeDays);
+                sr.pAdditionalTable1[pos][ 5] = Integer.toString(sd[i].compData.activeDays);
 
                 int tmpAnzTeiln = sd[i].compData.teilnFbis18.size() + sd[i].compData.teilnFueber18.size()
                         + sd[i].compData.teilnMbis18.size() + sd[i].compData.teilnMueber18.size();
-                sr.pAdditionalTable1[pos][ 4] = Integer.toString(tmpAnzTeiln);
+                sr.pAdditionalTable1[pos][ 6] = Integer.toString(tmpAnzTeiln);
 
                 _gesCrewMeters += sd[i].compData.totalDistanceInMeters;
-                sr.pAdditionalTable1[pos][ 5] = DataTypeDistance.getDistanceFromMeters(sd[i].compData.totalDistanceInMeters).getStringValueInKilometers();
+                sr.pAdditionalTable1[pos][ 7] = DataTypeDistance.getDistanceFromMeters(sd[i].compData.totalDistanceInMeters).getStringValueInKilometers();
 
                 // Plausi-Test
                 if (tmpTotalMeters * tmpAnzTeiln < sd[i].compData.totalDistanceInMeters) {
                     sr.cWarnings.put("Die berechneten Gesamt- und Mannschaftskilometer für die Mehrtagesfahrt '" + sd[i].sName + "'\n"
                             + "sind unstimmig. Bitte überprüfe, ob alle Einträge zu dieser Fahrt korrekt sind, insb. ob\n"
                             + "alle Etappennamen unterschiedlich sind und kein Ruderer auf einer Etappe mehrfach vorkommt!\n", "foo");
-                    sr.pAdditionalTable1[pos][ 0] += " (UNSTIMMIG - WIRD NICHT ANERKANNT)";
+                    sr.pAdditionalTable1[pos][ 1] += " (UNSTIMMIG - WIRD NICHT ANERKANNT)";
                     wirdGewertet = false;
                 }
 
                 _gesTeilnMueber18 += sd[i].compData.teilnMueber18.size();
-                sr.pAdditionalTable1[pos][ 6] = Integer.toString(sd[i].compData.teilnMueber18.size());
+                sr.pAdditionalTable1[pos][ 8] = Integer.toString(sd[i].compData.teilnMueber18.size());
 
                 tmp = getSumOfAllHashEntries(sd[i].compData.teilnMueber18);
                 _gesMeterTeilnMueber18 += tmp;
-                sr.pAdditionalTable1[pos][ 7] = DataTypeDistance.getDistanceFromMeters(tmp).getStringValueInKilometers();
+                sr.pAdditionalTable1[pos][ 9] = DataTypeDistance.getDistanceFromMeters(tmp).getStringValueInKilometers();
 
                 _gesTeilnMbis18 += sd[i].compData.teilnMbis18.size();
-                sr.pAdditionalTable1[pos][ 8] = Integer.toString(sd[i].compData.teilnMbis18.size());
+                sr.pAdditionalTable1[pos][10] = Integer.toString(sd[i].compData.teilnMbis18.size());
 
                 tmp = getSumOfAllHashEntries(sd[i].compData.teilnMbis18);
                 _gesMeterTeilnMbis18 += tmp;
-                sr.pAdditionalTable1[pos][ 9] = DataTypeDistance.getDistanceFromMeters(tmp).getStringValueInKilometers();
+                sr.pAdditionalTable1[pos][11] = DataTypeDistance.getDistanceFromMeters(tmp).getStringValueInKilometers();
 
                 _gesTeilnFueber18 += sd[i].compData.teilnFueber18.size();
-                sr.pAdditionalTable1[pos][10] = Integer.toString(sd[i].compData.teilnFueber18.size());
+                sr.pAdditionalTable1[pos][12] = Integer.toString(sd[i].compData.teilnFueber18.size());
 
                 tmp = getSumOfAllHashEntries(sd[i].compData.teilnFueber18);
                 _gesMeterTeilnFueber18 += tmp;
-                sr.pAdditionalTable1[pos][11] = DataTypeDistance.getDistanceFromMeters(tmp).getStringValueInKilometers();
+                sr.pAdditionalTable1[pos][13] = DataTypeDistance.getDistanceFromMeters(tmp).getStringValueInKilometers();
 
                 _gesTeilnFbis18 += sd[i].compData.teilnFbis18.size();
-                sr.pAdditionalTable1[pos][12] = Integer.toString(sd[i].compData.teilnFbis18.size());
+                sr.pAdditionalTable1[pos][14] = Integer.toString(sd[i].compData.teilnFbis18.size());
 
                 tmp = getSumOfAllHashEntries(sd[i].compData.teilnFbis18);
                 _gesMeterTeilnFbis18 += tmp;
-                sr.pAdditionalTable1[pos][13] = DataTypeDistance.getDistanceFromMeters(tmp).getStringValueInKilometers();
+                sr.pAdditionalTable1[pos][15] = DataTypeDistance.getDistanceFromMeters(tmp).getStringValueInKilometers();
 
                 if (sr.getOutputTypeEnum() == StatisticsRecord.OutputTypes.efawett && wirdGewertet) {
                     EfaWettMeldung ewm = new EfaWettMeldung();
-                    ewm.drvWS_StartZiel = sr.pAdditionalTable1[pos][0];
-                    ewm.drvWS_Gewaesser = sr.pAdditionalTable1[pos][1];
-                    ewm.drvWS_Km = sr.pAdditionalTable1[pos][2];
-                    ewm.drvWS_Tage = sr.pAdditionalTable1[pos][3];
-                    ewm.drvWS_Teilnehmer = sr.pAdditionalTable1[pos][4];
-                    ewm.drvWS_MannschKm = sr.pAdditionalTable1[pos][5];
-                    ewm.drvWS_MaennerAnz = sr.pAdditionalTable1[pos][6];
-                    ewm.drvWS_MaennerKm = sr.pAdditionalTable1[pos][7];
-                    ewm.drvWS_JuniorenAnz = sr.pAdditionalTable1[pos][8];
-                    ewm.drvWS_JuniorenKm = sr.pAdditionalTable1[pos][9];
-                    ewm.drvWS_FrauenAnz = sr.pAdditionalTable1[pos][10];
-                    ewm.drvWS_FrauenKm = sr.pAdditionalTable1[pos][11];
-                    ewm.drvWS_JuniorinnenAnz = sr.pAdditionalTable1[pos][12];
-                    ewm.drvWS_JuniorinnenKm = sr.pAdditionalTable1[pos][13];
+                    ewm.drvWS_LfdNr = sr.pAdditionalTable1[pos][0];
+                    ewm.drvWS_StartZiel = sr.pAdditionalTable1[pos][1];
+                    ewm.drvWS_Strecke = sr.pAdditionalTable1[pos][2];
+                    ewm.drvWS_Gewaesser = sr.pAdditionalTable1[pos][3];
+                    ewm.drvWS_Km = sr.pAdditionalTable1[pos][4];
+                    ewm.drvWS_Tage = sr.pAdditionalTable1[pos][5];
+                    ewm.drvWS_Teilnehmer = sr.pAdditionalTable1[pos][6];
+                    ewm.drvWS_MannschKm = sr.pAdditionalTable1[pos][7];
+                    ewm.drvWS_MaennerAnz = sr.pAdditionalTable1[pos][8];
+                    ewm.drvWS_MaennerKm = sr.pAdditionalTable1[pos][9];
+                    ewm.drvWS_JuniorenAnz = sr.pAdditionalTable1[pos][10];
+                    ewm.drvWS_JuniorenKm = sr.pAdditionalTable1[pos][11];
+                    ewm.drvWS_FrauenAnz = sr.pAdditionalTable1[pos][12];
+                    ewm.drvWS_FrauenKm = sr.pAdditionalTable1[pos][13];
+                    ewm.drvWS_JuniorinnenAnz = sr.pAdditionalTable1[pos][14];
+                    ewm.drvWS_JuniorinnenKm = sr.pAdditionalTable1[pos][15];
                     if (efaWett.meldung == null) {
                         efaWett.meldung = ewm;
                     } else {
@@ -447,20 +458,22 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
         for (int i = 0; i < ga.length; i++) {
             tmp += (i > 0 ? ", " : "") + ga[i];
         }// DataTypeDistance.getDistanceFromMeters(tmp).getStringValueInKilometers()
-        sr.pAdditionalTable1[anzMtours][ 0] = "--- Zusammenfassung ---";
-        sr.pAdditionalTable1[anzMtours][ 1] = tmp;
-        sr.pAdditionalTable1[anzMtours][ 2] = DataTypeDistance.getDistanceFromMeters(_gesMeters).getStringValueInKilometers();
-        sr.pAdditionalTable1[anzMtours][ 3] = Integer.toString(_gesTage);
-        sr.pAdditionalTable1[anzMtours][ 4] = Integer.toString(_gesTeilnMueber18 + _gesTeilnMbis18 + _gesTeilnFueber18 + _gesTeilnFbis18);
-        sr.pAdditionalTable1[anzMtours][ 5] = DataTypeDistance.getDistanceFromMeters(_gesCrewMeters).getStringValueInKilometers();
-        sr.pAdditionalTable1[anzMtours][ 6] = Integer.toString(_gesTeilnMueber18);
-        sr.pAdditionalTable1[anzMtours][ 7] = DataTypeDistance.getDistanceFromMeters(_gesMeterTeilnMueber18).getStringValueInKilometers();
-        sr.pAdditionalTable1[anzMtours][ 8] = Integer.toString(_gesTeilnMbis18);
-        sr.pAdditionalTable1[anzMtours][ 9] = DataTypeDistance.getDistanceFromMeters(_gesMeterTeilnMbis18).getStringValueInKilometers();
-        sr.pAdditionalTable1[anzMtours][10] = Integer.toString(_gesTeilnFueber18);
-        sr.pAdditionalTable1[anzMtours][11] = DataTypeDistance.getDistanceFromMeters(_gesMeterTeilnFueber18).getStringValueInKilometers();
-        sr.pAdditionalTable1[anzMtours][12] = Integer.toString(_gesTeilnFbis18);
-        sr.pAdditionalTable1[anzMtours][13] = DataTypeDistance.getDistanceFromMeters(_gesMeterTeilnFbis18).getStringValueInKilometers();
+        sr.pAdditionalTable1[anzMtours][ 0] = "";
+        sr.pAdditionalTable1[anzMtours][ 1] = "--- Zusammenfassung ---";
+        sr.pAdditionalTable1[anzMtours][ 2] = "";
+        sr.pAdditionalTable1[anzMtours][ 3] = tmp;
+        sr.pAdditionalTable1[anzMtours][ 4] = DataTypeDistance.getDistanceFromMeters(_gesMeters).getStringValueInKilometers();
+        sr.pAdditionalTable1[anzMtours][ 5] = Integer.toString(_gesTage);
+        sr.pAdditionalTable1[anzMtours][ 6] = Integer.toString(_gesTeilnMueber18 + _gesTeilnMbis18 + _gesTeilnFueber18 + _gesTeilnFbis18);
+        sr.pAdditionalTable1[anzMtours][ 7] = DataTypeDistance.getDistanceFromMeters(_gesCrewMeters).getStringValueInKilometers();
+        sr.pAdditionalTable1[anzMtours][ 8] = Integer.toString(_gesTeilnMueber18);
+        sr.pAdditionalTable1[anzMtours][ 9] = DataTypeDistance.getDistanceFromMeters(_gesMeterTeilnMueber18).getStringValueInKilometers();
+        sr.pAdditionalTable1[anzMtours][10] = Integer.toString(_gesTeilnMbis18);
+        sr.pAdditionalTable1[anzMtours][11] = DataTypeDistance.getDistanceFromMeters(_gesMeterTeilnMbis18).getStringValueInKilometers();
+        sr.pAdditionalTable1[anzMtours][12] = Integer.toString(_gesTeilnFueber18);
+        sr.pAdditionalTable1[anzMtours][13] = DataTypeDistance.getDistanceFromMeters(_gesMeterTeilnFueber18).getStringValueInKilometers();
+        sr.pAdditionalTable1[anzMtours][14] = Integer.toString(_gesTeilnFbis18);
+        sr.pAdditionalTable1[anzMtours][15] = DataTypeDistance.getDistanceFromMeters(_gesMeterTeilnFbis18).getStringValueInKilometers();
 
         // Anzahl der aktiven Mitglieder
         if (sr.getOutputTypeEnum() == StatisticsRecord.OutputTypes.efawett && alleAktive != null) {

@@ -167,7 +167,7 @@ public class Persons extends StorageObject {
         return false;
     }
 
-    public int getNumberOfMembers(long tstmp) {
+    public int getNumberOfMembers(long tstmp, boolean withoutMembersExcludedFromCompetition) {
         try {
             DataKeyIterator it = dataAccess.getStaticIterator();
             DataKey k = it.getFirst();
@@ -178,7 +178,9 @@ public class Persons extends StorageObject {
             Hashtable<UUID,DataKey> uuids = new Hashtable<UUID,DataKey>();
             while (k != null) {
                 PersonRecord p = (PersonRecord) dataAccess.get(k);
-                if (p != null && p.isValidAt(tstmp) && !p.getDeleted()) {
+                if (p != null && p.isValidAt(tstmp) && !p.getDeleted() &&
+                    p.isStatusMember() &&
+                    (!withoutMembersExcludedFromCompetition || !p.getExcludeFromCompetition())) {
                     uuids.put(p.getId(), k);
                 }
                 k = it.getNext();

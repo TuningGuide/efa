@@ -327,6 +327,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
 
     // filled by StatisticsRecord.prepareStatisticSettings()
     // --- Statistic Settings
+    public AdminRecord sAdmin;
     public boolean sPublicStatistic;
     public DataTypeDate sStartDate;
     public DataTypeDate sEndDate;
@@ -2409,6 +2410,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     }
 
     public boolean prepareStatisticSettings(AdminRecord admin) {
+        sAdmin = admin;
+        
         cNumberOfEntries = 0;
         cEntryNoFirst = null;
         cEntryNoLast = null;
@@ -2754,6 +2757,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         }
 
         sOutputType = getOutputTypeEnum();
+        if (sPublicStatistic && sOutputType == OutputTypes.efawett) {
+            sOutputType = OutputTypes.internal;
+        }
         if (sOutputType == OutputTypes.internal) {
             sOutputFile = Daten.efaTmpDirectory + "output.html";
         } else {

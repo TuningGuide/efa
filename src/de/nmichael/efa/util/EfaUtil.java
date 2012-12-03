@@ -1604,13 +1604,19 @@ public class EfaUtil {
     }
 
     public static String trimto(String s, int maxchar) {
+        return trimto(s, maxchar, false);
+    }
+
+    public static String trimto(String s, int maxchar, boolean addDots) {
         if (s == null) {
             return null;
         }
         if (s.length() <= maxchar) {
             return s;
         }
-        return s.substring(0, maxchar);
+        return (addDots ?
+            s.substring(0, maxchar-3) + "..."
+            : s.substring(0, maxchar));
     }
 
     public static XMLReader tryToGetXMLReader(String classname) {

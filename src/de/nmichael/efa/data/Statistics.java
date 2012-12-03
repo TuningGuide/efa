@@ -135,6 +135,12 @@ public class Statistics extends StorageObject {
             assertFieldNotEmpty(record, StatisticsRecord.POSITION);
             assertUnique(record, StatisticsRecord.NAME);
             assertUnique(record, StatisticsRecord.POSITION);
+            StatisticsRecord r = (StatisticsRecord)record;
+            if (r.getPubliclyAvailable() && r.getOutputTypeEnum() == StatisticsRecord.OutputTypes.efawett) {
+                throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                                "Das Erstellen von Meldedateien in öffentliche Statistiken ist nicht erlaubt.",
+                                Thread.currentThread().getStackTrace());
+            }
         }
     }
 

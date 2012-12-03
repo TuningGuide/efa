@@ -1,9 +1,6 @@
 Item
 ============================================================================================================
 
-BUG: Sortierreihenfolge nach "Name" in Statistiken wird nicht beachtet
-Funktion, um zwei Records mit unterschiedlichen ID's zusammenzuführen
-
 Backup zeitgesteuert in efa?
 Statistik Vorjahresvergleiche
 Statistik Wer unerlaubt?
@@ -43,13 +40,6 @@ Auswertung über die Bootsschäden:Zusammenfassung der Schäden pro Boot in eine
 Benachrichtigung des Admins, wenn Bootsreservierungen durch Mitglieder eingetragen werden
 Bei der Eingabe von Namen hat efa 1 erkannt das eine Person schon eingetragen wurde. z.B. Wenn Monika Mustermann gesteuert hat, kann sie nicht noch mal auf Platz 1 sitzen, efa 1 hat hier, in der Auswahl gleich Klaus Mustermann vorgeschlagen.
 Für Bootsreservierungen den Namen des Bootes ändern können.
-
-- DRV(Barbara): bei der Bearbeitung habe ich häufig Rückfragen zur den eingetragenen Fahrten. Es wäre toll, wenn ich
-die in der Fahrtenübersicht markieren und dann daraus gleich die Rückfragemail generieren könnte. So muss
-ich manuell die mangelhaften Angaben in die Rückfragemail eintragen und beschreiben. Das kostet sehr viel
-Zeit.
-- DRV(Barbara): Und eine Spalte zum Markieren, wenn die Meldung bereits bearbeitet, aber wegen Rückfragen z. B.
-nicht abgeschlossen ist. Wenn ich derzeit unterbreche, muss ich mir aufschreiben, bei wem ich war
 
 ============================================================================================================
 Gäste - automatisch erfassen

@@ -61,7 +61,9 @@ public class EfaWettMeldung {
     public String drv_gesKmAB = null;
     public String drv_fahrtenheft = null;
     public String drv_aequatorpreis = null;
+    public String drvWS_LfdNr = null;
     public String drvWS_StartZiel = null;
+    public String drvWS_Strecke = null;
     public String drvWS_Gewaesser = null;
     public String drvWS_Km = null;
     public String drvWS_Tage = null;
@@ -85,6 +87,7 @@ public class EfaWettMeldung {
     // Information ("wirdGewertet" ja/nein) in der Datei steht
     // (wird aber nicht als eigenes Feld in der Datei geführt)
     public String drvint_nichtGewertetGrund = null;
+    public String drvint_nachfrage = null;
     public boolean drvint_geprueft = false;
     // Werte, die nicht in die Datei geschrieben werden
     public DRVSignatur drvSignatur = null;
@@ -115,7 +118,9 @@ public class EfaWettMeldung {
         this.drv_gesKmAB = ewm.drv_gesKmAB;
         this.drv_fahrtenheft = ewm.drv_fahrtenheft;
         this.drv_aequatorpreis = ewm.drv_aequatorpreis;
+        this.drvWS_LfdNr = ewm.drvWS_LfdNr;
         this.drvWS_StartZiel = ewm.drvWS_StartZiel;
+        this.drvWS_Strecke = ewm.drvWS_Strecke;
         this.drvWS_Gewaesser = ewm.drvWS_Gewaesser;
         this.drvWS_Km = ewm.drvWS_Km;
         this.drvWS_Tage = ewm.drvWS_Tage;
@@ -143,6 +148,7 @@ public class EfaWettMeldung {
         this.drvint_geprueft = ewm.drvint_geprueft;
         this.drvint_wirdGewertet = ewm.drvint_wirdGewertet;
         this.drvint_nichtGewertetGrund = ewm.drvint_nichtGewertetGrund;
+        this.drvint_nachfrage = ewm.drvint_nachfrage;
 
         this.changed = false;
     }

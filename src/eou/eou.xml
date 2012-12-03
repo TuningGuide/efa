@@ -2,6 +2,29 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.0.5_xx</VersionID>
+        <ReleaseDate>xx.11.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa205.zip</DownloadUrl>
+        <DownloadSize></DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: DRV-Wanderruderstatistik enthält jetzt Verweise auf die LfdNr der Fahrtenbucheinträge sowie detailliertere Streckenbeschreibungen</ChangeItem>
+            <ChangeItem>Neu: Fahrtenbucheinträge lassen sich zwecks Korrektur jetzt direkt aus der Statistikerstellung der DRV-Wanderruderstatistik für efaWett heraus aufrufen und editieren</ChangeItem>
+            <ChangeItem>Neu: Bootsbenutzungs-Sperren erlauben es, vorübergehend oder dauerhaft einzelne Personen für die Benutzung von Booten zu sperren</ChangeItem>
+            <ChangeItem>Neu: efa bietet jetzt in der Bootshaus-Maske eine zusätzliche Möglichkeit, die letzte Benutzung eines Bootes zu ermitteln</ChangeItem>
+            <ChangeItem>Neu: Automatischer Fahrtenbuchwechsel (z.B. zum Jahreswechsel) kann jetzt beim Erstellen eines neuen Fahrtenbuchs konfiguriert werden</ChangeItem>
+            <ChangeItem>Neu: efa erinnert den Super-Admin jetzt per Nachricht an das rechtzeitige Erstellen eines neuen Fahrtenbuchs und Konfigurieren eines automatischen Fahrtenbuchwechsels</ChangeItem>
+            <ChangeItem>Bugfix: Fehlende Synchronisation mit Kanu-eFB von Gewässern bei Fahrten zu unbekannten Zielen behoben</ChangeItem>
+            <ChangeItem>Bugfix: Das Erstellen von Meldedateien für Kilometerwettbewerbe in öffentlichen Statistiken wird jetzt unterbunden</ChangeItem>
+            <ChangeItem>Bugfix: Hinzufügen oder Ändern von Ziel-Einträgen ohne Kilometerangaben überschreibt jetzt nicht mehr eine Kilometerangabe im Fahrtenbucheintrag</ChangeItem>
+            <ChangeItem>Bugfix: Fehlerhafte Berechnung der Anzahl der Mitglieder für LRV Berlin - Blauen Wimpel korrigiert</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.0.5_02</VersionID>
         <ReleaseDate>29.11.2012</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa205.zip</DownloadUrl>

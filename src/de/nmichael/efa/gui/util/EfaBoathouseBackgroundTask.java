@@ -159,6 +159,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
                     checkWarnings();
 
                     checkUnfixedBoatDamages();
+
+                    remindAdminOfLogbookSwitch();
                 }
                 
                 sleepForAWhile();
@@ -665,6 +667,39 @@ public class EfaBoathouseBackgroundTask extends Thread {
             } catch (Exception e) {
                 Logger.logdebug(e);
             }
+        }
+    }
+
+    private void remindAdminOfLogbookSwitch() {
+        try {
+            if (Daten.project != null && Daten.project.isOpen()) {
+                DataTypeDate date = Daten.project.getAutoNewLogbookDate();
+                if (date == null || !date.isSet()) {
+                    Logbook currentLogbook = efaBoathouseFrame.getLogbook();
+                    if (currentLogbook != null && currentLogbook.getEndDate() != null &&
+                        currentLogbook.getEndDate().isSet()) {
+                        DataTypeDate today = DataTypeDate.today();
+                        if (today.isBefore(currentLogbook.getEndDate()) &&
+                            today.getDifferenceDays(currentLogbook.getEndDate()) < 31) {
+                            String lastReminderForLogbook = Daten.efaConfig.getValueEfaBoathouseChangeLogbookReminder();
+                            if (!currentLogbook.getName().equals(lastReminderForLogbook)) {
+                                // ok, it's due for a reminder
+                                Daten.project.getMessages(false).createAndSaveMessageRecord(
+                                        MessageRecord.TO_ADMIN,
+                                        International.getString("Erinnerung an Fahrtenbuchwechsel"),
+                                        International.getMessage("Der Gültigkeitszeitraum des aktuellen Fahrtenbuchs {name} endet am {datum}.",
+                                                    currentLogbook.getName(), currentLogbook.getEndDate().toString()) + "\n" +
+                                        International.getString("Um anschließend automatisch ein neues Fahrtenbuch zu öffnen, erstelle bitte " +
+                                                    "im Admin-Modus ein neues Fahrtenbuch und aktiviere den automatischen Fahrtenbuchwechsel."));
+                                Daten.efaConfig.setValueEfaBoathouseChangeLogbookReminder(currentLogbook.getName());
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // can crash when project is currently being opened
+            Logger.logdebug(e);
         }
     }
 

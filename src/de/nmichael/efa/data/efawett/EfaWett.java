@@ -67,6 +67,7 @@ public class EfaWett {
     // DRV-intern (müssen unbedingt in EfaWett.resetDrvIntern() zurückgesetzt werden!)
     public boolean drvint_meldegeldEingegangen = false;
     public int drvint_anzahlPapierFahrtenhefte = -1;
+    public String drvint_notes = null;
     // Meldedaten
     public EfaWettMeldung meldung = null;
     // interne Verarbeitungsdaten (werden nicht in der Datei gespeichert)
@@ -79,6 +80,10 @@ public class EfaWett {
 
     public EfaWett() {
         this.datei = null;
+    }
+
+    public void setFileName(String fname) {
+        this.datei = fname;
     }
 
     public EfaWettMeldung letzteMeldung() {
@@ -273,13 +278,18 @@ public class EfaWett {
             }
         }
 
-        if (drvint_meldegeldEingegangen || drvint_anzahlPapierFahrtenhefte >= 0) {
+        if (drvint_meldegeldEingegangen || 
+            drvint_anzahlPapierFahrtenhefte >= 0 ||
+            (drvint_notes != null && drvint_notes.length() > 0)) {
             f.write("\n[DRV_INTERN]\n");
             if (drvint_meldegeldEingegangen) {
                 f.write("MELDEGELD_EINGEGANGEN=+\n");
             }
             if (drvint_anzahlPapierFahrtenhefte >= 0) {
                 f.write("ANZAHL_PAPIERFAHRTENHEFTE=" + drvint_anzahlPapierFahrtenhefte + "\n");
+            }
+            if (drvint_notes != null && drvint_notes.length() > 0) {
+                f.write("NOTIZEN=" + drvint_notes + "\n");
             }
         }
         if (Logger.isTraceOn(Logger.TT_STATISTICS)) {
@@ -362,8 +372,14 @@ public class EfaWett {
             }
 
             // DRV-Wanderruderstatistik
+            if (m.drvWS_LfdNr != null) {
+                f.write("DRVWS_LFDNR=" + m.drvWS_LfdNr + "\n");
+            }
             if (m.drvWS_StartZiel != null) {
                 f.write("DRVWS_STARTZIEL=" + m.drvWS_StartZiel + "\n");
+            }
+            if (m.drvWS_Strecke != null) {
+                f.write("DRVWS_STRECKE=" + m.drvWS_Strecke + "\n");
             }
             if (m.drvWS_Gewaesser != null) {
                 f.write("DRVWS_GEWAESSER=" + m.drvWS_Gewaesser + "\n");
@@ -418,6 +434,9 @@ public class EfaWett {
             }
             if (m.drvint_geprueft) {
                 f.write("DRVINTERN_GEPRUEFT=+\n");
+            }
+            if (m.drvint_nachfrage != null && m.drvint_nachfrage.length() > 0) {
+                f.write("DRVINTERN_NACHFRAGE=" + m.drvint_nachfrage + "\n");
             }
 
             m = m.next;
@@ -604,6 +623,9 @@ public class EfaWett {
                 if (s.startsWith("ANZAHL_PAPIERFAHRTENHEFTE=")) {
                     drvint_anzahlPapierFahrtenhefte = EfaUtil.string2int(s.substring(26, s.length()), 0);
                 }
+                if (s.startsWith("NOTIZEN=")) {
+                    drvint_notes = s.substring(8);
+                }
             }
             if (block.startsWith("MELDUNG#")) {
                 if (newblock) {
@@ -675,8 +697,14 @@ public class EfaWett {
                 }
 
                 // DRV-Wanderruderstatistik
+                if (s.startsWith("DRVWS_LFDNR=")) {
+                    m.drvWS_LfdNr = s.substring(12, s.length());
+                }
                 if (s.startsWith("DRVWS_STARTZIEL=")) {
                     m.drvWS_StartZiel = s.substring(16, s.length());
+                }
+                if (s.startsWith("DRVWS_STRECKE=")) {
+                    m.drvWS_Strecke = s.substring(14, s.length());
                 }
                 if (s.startsWith("DRVWS_GEWAESSER=")) {
                     m.drvWS_Gewaesser = s.substring(16, s.length());
@@ -732,6 +760,9 @@ public class EfaWett {
                 if (s.startsWith("DRVINTERN_GEPRUEFT=+")) {
                     m.drvint_geprueft = true;
                 }
+                if (s.startsWith("DRVINTERN_NACHFRAGE=")) {
+                    m.drvint_nachfrage = s.substring(20);
+                }
             }
         }
 
@@ -750,6 +781,7 @@ public class EfaWett {
     public void resetDrvIntern() {
         this.drvint_meldegeldEingegangen = false;
         this.drvint_anzahlPapierFahrtenhefte = -1;
+        this.drvint_notes = null;
 
         EfaWettMeldung m = meldung;
         int c = 0;
@@ -759,6 +791,7 @@ public class EfaWett {
             m.drvint_wirdGewertetExplizitGesetzt = false;
             m.drvint_nichtGewertetGrund = null;
             m.drvint_geprueft = false;
+            m.drvint_nachfrage = null;
             m = m.next;
         }
     }

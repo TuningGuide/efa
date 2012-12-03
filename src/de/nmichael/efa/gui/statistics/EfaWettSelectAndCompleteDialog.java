@@ -13,19 +13,15 @@ import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.data.efawett.DRVSignatur;
 import de.nmichael.efa.data.efawett.EfaWettMeldung;
 import de.nmichael.efa.data.efawett.EfaWett;
-import de.nmichael.efa.efa1.DatenFelder;
-import de.nmichael.efa.efa1.Adressen;
-import de.nmichael.efa.core.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.gui.BaseDialog;
+import de.nmichael.efa.gui.EfaBaseFrame;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
-import java.beans.*;
-import javax.swing.event.*;
 import java.util.*;
 
 // @i18n complete (needs no internationalization -- only relevant for Germany)
@@ -44,6 +40,7 @@ public class EfaWettSelectAndCompleteDialog extends BaseDialog implements Action
 
     int anzahl;
     EfaWett efaWett = null;
+    AdminRecord admin = null;
     Hashtable checkboxes;
     Hashtable textfields;
     Hashtable papierFahrtenheftErforderlich;
@@ -100,11 +97,12 @@ public class EfaWettSelectAndCompleteDialog extends BaseDialog implements Action
     JLabel jLabel1 = new JLabel();
     GridBagLayout gridBagLayout3 = new GridBagLayout();
 
-    public EfaWettSelectAndCompleteDialog(JDialog parent, EfaWett efaWett) {
+    public EfaWettSelectAndCompleteDialog(JDialog parent, EfaWett efaWett, AdminRecord admin) {
         super(parent,
                 International.onlyFor("Meldedaten", "de"),
                 International.onlyFor("Meldedatei erstellen", "de"));
         this.efaWett = efaWett;
+        this.admin = admin;
     }
 
     protected void iniDialog() throws Exception {
@@ -352,8 +350,63 @@ public class EfaWettSelectAndCompleteDialog extends BaseDialog implements Action
         }
     }
 
+    void addLink(EfaWettMeldung m, int content, int type, String text, int x, int y, int width, int height, int align, boolean checked) {
+        switch (type) {
+            case T_LABEL:
+                JLabel l = new JLabel();
+                l.setText(text);
+                l.addMouseListener(new java.awt.event.MouseAdapter() {
+
+                    public void mouseClicked(MouseEvent e) {
+                        linkMouseClicked(e);
+                    }
+
+                    public void mouseEntered(MouseEvent e) {
+                        linkMouseEntered(e);
+                    }
+
+                    public void mouseExited(MouseEvent e) {
+                        linkMouseExited(e);
+                    }
+                });
+                if (width > 0 && height > 0) {
+                    l.setPreferredSize(new Dimension(width, height));
+                }
+                l.setForeground(Color.blue);
+                dataPanel.add(l, new GridBagConstraints(x, y, 1, 1, 0.0, 0.0, align, GridBagConstraints.NONE, new Insets(0, 10, 0, 10), 0, 0));
+                break;
+        }
+    }
+
+    private void linkMouseClicked(MouseEvent e) {
+        JLabel label = (JLabel) e.getSource();
+        String entryNo = label.getText();
+        EfaBaseFrame dlg = new EfaBaseFrame(this, EfaBaseFrame.MODE_ADMIN, admin,
+                Daten.project.getCurrentLogbook(), entryNo);
+        dlg.showDialog();
+    }
+
+    private void linkMouseEntered(MouseEvent e) {
+        try {
+            JLabel label = (JLabel) e.getSource();
+            label.setForeground(Color.red);
+        } catch (Exception eignore) {
+        }
+    }
+
+    private void linkMouseExited(MouseEvent e) {
+        try {
+            JLabel label = (JLabel) e.getSource();
+            label.setForeground(Color.blue);
+        } catch (Exception eignore) {
+        }
+    }
+
     void iniFelder(EfaWett ew) {
         boolean displayGruppe = false;
+        boolean displayLfdNr = false;
+        boolean displayStrecke = false;
+        boolean displayGewaesser = false;
         boolean displayTage = false;
         boolean displayKm = false;
         boolean displayTeilnehmer = false;
@@ -371,6 +424,15 @@ public class EfaWettSelectAndCompleteDialog extends BaseDialog implements Action
             this.anzahl++;
             if (m.gruppe != null || m.jahrgang != null) {
                 displayGruppe = true;
+            }
+            if (m.drvWS_LfdNr != null) {
+                displayLfdNr = true;
+            }
+            if (m.drvWS_Strecke != null) {
+                displayStrecke = true;
+            }
+            if (m.drvWS_Gewaesser != null) {
+                displayGewaesser = true;
             }
             if (m.drvWS_Tage != null) {
                 displayTage = true;
@@ -397,13 +459,22 @@ public class EfaWettSelectAndCompleteDialog extends BaseDialog implements Action
         int x = 0;
         // Melden Name Gruppe Km Anschrift(2x) AnzAbzeichen GesKm Fahrtenheft Nadel Stoff
         addField(null, 0, T_LABEL, "Melden", x++, y, 0, 0, GridBagConstraints.CENTER, null, false);
+        if (displayLfdNr) {
+            addField(null, 0, T_LABEL, "LfdNr", x++, y, 0, 0, GridBagConstraints.CENTER, null, false);
+        }
         if (ew.wettId != WettDefs.DRV_WANDERRUDERSTATISTIK) {
-            addField(null, 0, T_LABEL, "Name", x++, y, 0, 0, GridBagConstraints.CENTER, null, false);
+            addField(null, 0, T_LABEL, "Name", x++, y, 0, 0, GridBagConstraints.WEST, null, false);
         } else {
-            addField(null, 0, T_LABEL, "Bezeichnung", x++, y, 0, 0, GridBagConstraints.CENTER, null, false);
+            addField(null, 0, T_LABEL, "Bezeichnung", x++, y, 0, 0, GridBagConstraints.WEST, null, false);
         }
         if (displayGruppe) {
             addField(null, 0, T_LABEL, "Gruppe", x++, y, 0, 0, GridBagConstraints.CENTER, null, false);
+        }
+        if (displayStrecke) {
+            addField(null, 0, T_LABEL, "Strecke", x++, y, 0, 0, GridBagConstraints.WEST, null, false);
+        }
+        if (displayGewaesser) {
+            addField(null, 0, T_LABEL, "Gewaesser", x++, y, 0, 0, GridBagConstraints.WEST, null, false);
         }
         if (displayTage) {
             addField(null, 0, T_LABEL, "Tage", x++, y, 0, 0, GridBagConstraints.CENTER, null, false);
@@ -444,13 +515,23 @@ public class EfaWettSelectAndCompleteDialog extends BaseDialog implements Action
             }
 
             // Melden (Checkbox)
-            addField(m, C_MELDEN, T_CHECKBOX, "", x++, y, 0, 0, GridBagConstraints.WEST, null, true);
+            addField(m, C_MELDEN, T_CHECKBOX, "", x++, y, 0, 0, GridBagConstraints.CENTER, null, true);
+
+            // LfdNr (Label)
+            if (displayLfdNr) {
+                if (m.drvWS_LfdNr != null && m.drvWS_LfdNr.length() > 0 &&
+                    admin != null && admin.isAllowedEditLogbook()) {
+                    addLink(m, 0, T_LABEL, m.drvWS_LfdNr, x++, y, 0, 0, GridBagConstraints.EAST, false);
+                } else {
+                    addField(m, 0, T_LABEL, (m.drvWS_LfdNr != null ? m.drvWS_LfdNr : ""), x++, y, 0, 0, GridBagConstraints.EAST, Color.black, false);
+                }
+            }
 
             // Name (Label)
             if (ew.wettId != WettDefs.DRV_WANDERRUDERSTATISTIK) {
                 addField(m, 0, T_LABEL, (m.vorname != null ? m.vorname + " " : "") + (m.nachname != null ? m.nachname : ""), x++, y, 0, 0, GridBagConstraints.WEST, Color.black, false);
             } else {
-                addField(m, 0, T_LABEL, (m.drvWS_StartZiel != null ? m.drvWS_StartZiel : ""), x++, y, 0, 0, GridBagConstraints.WEST, Color.black, false);
+                addField(m, 0, T_LABEL, (m.drvWS_StartZiel != null ? EfaUtil.trimto(m.drvWS_StartZiel, 40, true) : ""), x++, y, 0, 0, GridBagConstraints.WEST, Color.black, false);
             }
 
             // Gruppe (Label)
@@ -465,6 +546,16 @@ public class EfaWettSelectAndCompleteDialog extends BaseDialog implements Action
                 addField(m, 0, T_LABEL, (gruppe != null ? gruppe + " " : "")
                         + (m.jahrgang != null ? "(" + m.jahrgang + (m.geschlecht != null ? "; " + m.geschlecht : "") + ")" : ""),
                         x++, y, 0, 0, GridBagConstraints.WEST, null, false);
+            }
+
+            // Strecke (Label)
+            if (displayStrecke) {
+                addField(m, 0, T_LABEL, (m.drvWS_Strecke != null ? EfaUtil.trimto(m.drvWS_Strecke, 30, true) : ""), x++, y, 0, 0, GridBagConstraints.WEST, Color.black, false);
+            }
+
+            // Gewaesser (Label)
+            if (displayGewaesser) {
+                addField(m, 0, T_LABEL, (m.drvWS_Gewaesser != null ? EfaUtil.trimto(m.drvWS_Gewaesser, 25, true) : ""), x++, y, 0, 0, GridBagConstraints.WEST, Color.black, false);
             }
 
             // Tage (Label)

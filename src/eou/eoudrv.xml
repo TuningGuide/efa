@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <efaOnlineUpdate>
     <Version>
+        <VersionID>2.0.5_03</VersionID>
+        <ReleaseDate>02.12.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2drv.zip</DownloadUrl>
+        <DownloadSize>3158885</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Anzeige von LfdNr und Streckendetails für DRV-Wanderruderstatistik</ChangeItem>
+            <ChangeItem>Erstellen von Rückfragen für DRV-Wanderruderstatistik</ChangeItem>
+            <ChangeItem>Erfassen von Notizen für Meldungen</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>1.9.9_35</VersionID>
         <ReleaseDate>05.02.2012</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2drv.zip</DownloadUrl>

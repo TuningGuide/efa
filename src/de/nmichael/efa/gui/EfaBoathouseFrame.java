@@ -45,6 +45,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     public static final int ACTIONID_ABORTSESSION        = 5;
     public static final int ACTIONID_BOATRESERVATIONS    = 6;
     public static final int ACTIONID_BOATDAMAGES         = 7;
+    public static final int ACTIONID_LASTBOATUSAGE       = 8;
 
     String KEYACTION_F2;
     String KEYACTION_F3;
@@ -1021,7 +1022,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                             ACTIONID_STARTSESSION + startSession,
                             ACTIONID_LATEENTRY + International.getString("Nachtrag"),
                             ACTIONID_BOATRESERVATIONS + boatReserve,
-                            ACTIONID_BOATDAMAGES + International.getString("Bootsschaden melden")
+                            ACTIONID_BOATDAMAGES + International.getString("Bootsschaden melden"),
+                            ACTIONID_LASTBOATUSAGE + International.getString("Letzte Benutzung")
                         };
             } else {
                 return new String[]{
@@ -1046,14 +1048,16 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                             ACTIONID_FINISHSESSION + finishSession,
                             ACTIONID_LATEENTRY + International.getString("Nachtrag"),
                             ACTIONID_BOATRESERVATIONS + boatReserve,
-                            ACTIONID_BOATDAMAGES + International.getString("Bootsschaden melden")
+                            ACTIONID_BOATDAMAGES + International.getString("Bootsschaden melden"),
+                            ACTIONID_LASTBOATUSAGE + International.getString("Letzte Benutzung")
                         };
             } else {
                 return new String[]{
                             ACTIONID_STARTSESSION + startSession,
                             ACTIONID_LATEENTRY + International.getString("Nachtrag"),
                             ACTIONID_BOATRESERVATIONS + boatReserve,
-                            ACTIONID_BOATDAMAGES + International.getString("Bootsschaden melden")
+                            ACTIONID_BOATDAMAGES + International.getString("Bootsschaden melden"),
+                            ACTIONID_LASTBOATUSAGE + International.getString("Letzte Benutzung")
                         };
             }
         }
@@ -1150,6 +1154,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             }
 
             // close any other logbook first
+            String logbookNameBefore = (logbook != null ? logbook.getName() : null);
             if (logbook != null) {
                 try {
                     logbook.close();
@@ -1173,6 +1178,12 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                     OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.logbook, admin);
                     logbookName = dlg.openDialog();
                 }
+            }
+            if ( (logbookName == null || logbookName.length() == 0) &&
+                 logbookNameBefore != null && logbookNameBefore.length() > 0 && admin != null) {
+                // Admin-Mode: There was a logbook opened before, but admin aborted dialog and didn't
+                // open a new one. So let's open the old one again!
+                logbookName = logbookNameBefore;
             }
             if (logbookName == null || logbookName.length() == 0) {
                 return null;
@@ -1430,6 +1441,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                 break;
             case ACTIONID_BOATDAMAGES: // boat damages
                 actionBoatDamages();
+                break;
+            case ACTIONID_LASTBOATUSAGE: // boat damages
+                actionLastBoatUsage();
                 break;
         }
     }
@@ -2086,6 +2100,51 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             }
         } else {
             Dialog.error(International.getString("Kein Kommando für diesen Button konfiguriert!"));
+        }
+    }
+
+    void actionLastBoatUsage() {
+        alive();
+        clearAllPopups();
+        if (Daten.project == null || logbook == null) {
+            return;
+        }
+
+        ItemTypeBoatstatusList.BoatListItem item = getSelectedListItem();
+        if (item == null || item.boat == null || item.boat.getId() == null) {
+            Dialog.error(International.getString("Bitte wähle zuerst ein Boot aus!"));
+            boatListRequestFocus(1);
+            efaBoathouseBackgroundTask.interrupt(); // Falls requestFocus nicht funktioniert hat, setzt der Thread ihn richtig!
+            return;
+        }
+        try {
+            LogbookRecord latest = null;
+            DataKeyIterator it = logbook.data().getStaticIterator();
+            for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+                LogbookRecord r = (LogbookRecord) logbook.data().get(k);
+                if (r == null || r.getBoatId() == null || !r.getBoatId().equals(item.boat.getId())) {
+                    continue;
+                }
+                if (r.getDate() != null && r.getDate().isSet()) {
+                    if (latest == null ||
+                        r.getDate().isAfter(latest.getDate()) ||
+                        ( r.getDate().equals(latest.getDate()) &&
+                          r.getStartTime() != null &&
+                          r.getStartTime().isSet() &&
+                          (latest.getStartTime() == null || r.getStartTime().isAfter(latest.getStartTime())))) {
+                        latest = r;
+                    }
+                }
+            }
+            if (latest != null) {
+                Dialog.infoDialog(International.getString("Letzte Benutzung") + ":\n" +
+                        latest.getLogbookRecordAsStringDescription());
+            } else {
+                Dialog.infoDialog(International.getString("Keinen Eintrag gefunden!"));
+            }
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            Dialog.error(e.getMessage());
         }
     }
 

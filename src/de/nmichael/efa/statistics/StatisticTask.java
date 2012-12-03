@@ -1281,6 +1281,9 @@ public class StatisticTask extends ProgressTask {
     private String writeStatistic(StatisticsData[] sd) {
         logInfo(International.getString("Ausgabe der Daten") + " ...\n");
         StatisticWriter writer = StatisticWriter.getWriter(sr, sd);
+        if (sr.sOutputType == StatisticsRecord.OutputTypes.efawett) {
+            setDone();
+        }
         if (writer.write()) {
             if (sr.sOutputFtpClient != null) {
                 logInfo(International.getString("FTP-Upload") + " ...\n");

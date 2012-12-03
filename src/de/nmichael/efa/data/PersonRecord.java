@@ -54,6 +54,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public static final String DISABILITY          = "Disability";
     public static final String EXCLUDEFROMSTATISTIC= "ExcludeFromStatistics";
     public static final String EXCLUDEFROMCOMPETE  = "ExcludeFromCompetition";
+    public static final String BOATUSAGEBAN        = "BoatUsageBan";
     public static final String INPUTSHORTCUT       = "InputShortcut";
     public static final String DEFAULTBOATID       = "DefaultBoatId";
     public static final String FREEUSE1            = "FreeUse1";
@@ -98,6 +99,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         f.add(DISABILITY);                        t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EXCLUDEFROMSTATISTIC);              t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EXCLUDEFROMCOMPETE);                t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(BOATUSAGEBAN);                      t.add(IDataAccess.DATA_BOOLEAN);
         f.add(INPUTSHORTCUT);                     t.add(IDataAccess.DATA_STRING);
         f.add(DEFAULTBOATID);                     t.add(IDataAccess.DATA_UUID);
         f.add(FREEUSE1);                          t.add(IDataAccess.DATA_STRING);
@@ -361,6 +363,13 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     }
     public boolean getExcludeFromCompetition() {
         return getBool(EXCLUDEFROMCOMPETE);
+    }
+
+    public void setBoatUsageBan(boolean banned) {
+        setBool(BOATUSAGEBAN, banned);
+    }
+    public boolean getBoatUsageBan() {
+        return getBool(BOATUSAGEBAN);
     }
 
     public void setInputShortcut(String shortcut) {
@@ -633,6 +642,8 @@ public class PersonRecord extends DataRecord implements IItemFactory {
                     IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von allgemein verfügbaren Statistiken ausnehmen")));
             v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCOMPETE, getExcludeFromCompetition(),
                     IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von Wettbewerbsmeldungen ausnehmen")));
+            v.add(item = new ItemTypeBoolean(PersonRecord.BOATUSAGEBAN, getBoatUsageBan(),
+                    IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Bootsbenutzungs-Sperre")));
             v.add(item = new ItemTypeString(PersonRecord.INPUTSHORTCUT, getInputShortcut(),
                     IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Eingabekürzel")));
             v.add(item = getGuiItemTypeStringAutoComplete(PersonRecord.DEFAULTBOATID, getDefaultBoatId(),

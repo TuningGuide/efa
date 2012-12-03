@@ -109,6 +109,7 @@ public class EfaConfig extends StorageObject {
     private ItemTypeInteger countEfaStarts;
     private ItemTypeString registeredProgramID;
     private ItemTypeInteger registrationChecks;
+    private ItemTypeString efaBoathouseChangeLogbookReminder;
     private ItemTypeBoolean autoStandardmannsch;
     private ItemTypeBoolean manualStandardmannsch;
     private ItemTypeBoolean showObmann;
@@ -410,6 +411,9 @@ public class EfaConfig extends StorageObject {
             addParameter(registrationChecks = new ItemTypeInteger("EfaRegistrationChecks", 0, 0, Integer.MAX_VALUE, false,
                     IItemType.TYPE_INTERNAL,BaseTabbedDialog.makeCategory(CATEGORY_INTERNAL),
                     "efa registration checks counter"));
+            addParameter(efaBoathouseChangeLogbookReminder = new ItemTypeString("EfaBoathouseChangeLogbookReminder", "",
+                    IItemType.TYPE_INTERNAL,BaseTabbedDialog.makeCategory(CATEGORY_INTERNAL),
+                    "efa Boathouse Change Logbook Reminder"));
 
             // ============================= COMMON:COMMON =============================
             if (dataAccess != null && dataAccess.getStorageType() != IDataAccess.TYPE_EFA_REMOTE) {
@@ -1190,6 +1194,15 @@ public class EfaConfig extends StorageObject {
     public void setValueRegistrationChecks(int checks) {
         setValue(registrationChecks, Integer.toString(checks));
     }
+
+    public String getValueEfaBoathouseChangeLogbookReminder() {
+        return efaBoathouseChangeLogbookReminder.getValue();
+    }
+
+    public void setValueEfaBoathouseChangeLogbookReminder(String logbook) {
+        setValue(efaBoathouseChangeLogbookReminder, logbook);
+    }
+
 
     public boolean getValueAutoStandardmannsch() {
         return autoStandardmannsch.getValue();

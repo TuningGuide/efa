@@ -554,7 +554,10 @@ public class KanuEfbSyncTask extends ProgressTask {
                                 ArrayList<String> waterID = new ArrayList<String>();
                                 DataTypeList<UUID> waterList = (d != null ? d.getWatersIdList() : null);
                                 DataTypeList<UUID> waterListMore = r.getWatersIdList();
-                                if (waterList != null && waterListMore != null) {
+                                if (waterListMore != null) {
+                                    if (waterList == null) {
+                                        waterList = new DataTypeList<UUID>();
+                                    }
                                     waterList.addAll(waterListMore);
                                 }
                                 for (int di=0; waterList != null && di<waterList.length(); di++) {

@@ -15,8 +15,10 @@ import de.nmichael.efa.data.efawett.WettDef;
 import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.data.StatisticsRecord;
 import de.nmichael.efa.data.types.DataTypeDistance;
+import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.EfaUtil;
-import java.util.Vector;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class CompetitionLRVBerlinBlauerWimpel extends Competition {
 
@@ -28,7 +30,18 @@ public class CompetitionLRVBerlinBlauerWimpel extends Competition {
             return;
         }
         sr.pTableColumns = null;
-        int numberOfMembers = Daten.project.getPersons(false).getNumberOfMembers(sr.sTimestampBegin);
+        // @todo (P1) - excludefromcompetiton??
+        int numberOfMembers = Daten.project.getPersons(false).getNumberOfMembers(sr.sTimestampBegin, false);
+
+        if (sr.getOutputTypeEnum() == StatisticsRecord.OutputTypes.efawett) {
+            String s = Dialog.inputDialog("Anzahl der Mitglieder am 1.1. des Jahres",
+                    "Wie viele Mitglieder hatte der Verein am " + EfaUtil.getTimeStamp(sr.sTimestampBegin) + "?\n" +
+                    "efa hat anhand der Personenliste " + numberOfMembers + " Mitglieder ermittelt.",
+                    Integer.toString(numberOfMembers));
+            if (s != null) {
+                numberOfMembers = EfaUtil.string2int(s, numberOfMembers);
+            }
+        }
         int anzWertung = 20 + (int) (0.1 * numberOfMembers); // Anzahl der zu wertenden Mitglieder
         efaWett.wimpel_anzMitglieder = numberOfMembers;
 

@@ -15,6 +15,7 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.Project;
+import de.nmichael.efa.data.ProjectRecord;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
@@ -185,6 +186,18 @@ public class AdminDialog extends BaseDialog implements IItemListener {
         logbookName.setText(International.getString("Fahrtenbuch") + ": " +
                 (efaBoathouseFrame.getLogbook() != null && efaBoathouseFrame.getLogbook().isOpen() ?
                     efaBoathouseFrame.getLogbook().getName() : "- " + International.getString("Kein Fahrtenbuch geöffnet.") + " -"));
+
+        try {
+            ProjectRecord r = Daten.project.getBoathouseRecord();
+            if (r.getAutoNewLogbookName() != null && r.getAutoNewLogbookName().length() > 0 &&
+                r.getAutoNewLogbookDate() != null && r.getAutoNewLogbookDate().isSet()) {
+                logbookName.setText(logbookName.getText() + " [" +
+                        International.getMessage("ab {timestamp}", r.getAutoNewLogbookDate().toString()) + ": " +
+                        r.getAutoNewLogbookName() + "]");
+            }
+        } catch(Exception eignore) {
+            Logger.logdebug(eignore);
+        }
     }
 
     private void updateMessageButton(ItemTypeButton button) {

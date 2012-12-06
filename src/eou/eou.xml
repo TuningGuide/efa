@@ -2,10 +2,10 @@
 <efaOnlineUpdate>
 
     <Version>
-        <VersionID>2.0.5_xx</VersionID>
-        <ReleaseDate>xx.11.2012</ReleaseDate>
-        <DownloadUrl>http://efa.nmichael.de/download/efa205.zip</DownloadUrl>
-        <DownloadSize></DownloadSize>
+        <VersionID>2.0.6_00</VersionID>
+        <ReleaseDate>05.12.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa206.zip</DownloadUrl>
+        <DownloadSize>3010433</DownloadSize>
 
         <Changes lang="de">
             <ChangeItem>Neu: DRV-Wanderruderstatistik enthält jetzt Verweise auf die LfdNr der Fahrtenbucheinträge sowie detailliertere Streckenbeschreibungen</ChangeItem>
@@ -14,13 +14,23 @@
             <ChangeItem>Neu: efa bietet jetzt in der Bootshaus-Maske eine zusätzliche Möglichkeit, die letzte Benutzung eines Bootes zu ermitteln</ChangeItem>
             <ChangeItem>Neu: Automatischer Fahrtenbuchwechsel (z.B. zum Jahreswechsel) kann jetzt beim Erstellen eines neuen Fahrtenbuchs konfiguriert werden</ChangeItem>
             <ChangeItem>Neu: efa erinnert den Super-Admin jetzt per Nachricht an das rechtzeitige Erstellen eines neuen Fahrtenbuchs und Konfigurieren eines automatischen Fahrtenbuchwechsels</ChangeItem>
+            <ChangeItem>Neu: Benachrichtigung an alle Bootswarte, wenn ein Bootsschaden behoben wurde</ChangeItem>
             <ChangeItem>Bugfix: Fehlende Synchronisation mit Kanu-eFB von Gewässern bei Fahrten zu unbekannten Zielen behoben</ChangeItem>
             <ChangeItem>Bugfix: Das Erstellen von Meldedateien für Kilometerwettbewerbe in öffentlichen Statistiken wird jetzt unterbunden</ChangeItem>
             <ChangeItem>Bugfix: Hinzufügen oder Ändern von Ziel-Einträgen ohne Kilometerangaben überschreibt jetzt nicht mehr eine Kilometerangabe im Fahrtenbucheintrag</ChangeItem>
             <ChangeItem>Bugfix: Fehlerhafte Berechnung der Anzahl der Mitglieder für LRV Berlin - Blauen Wimpel korrigiert</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException beim ermitteln der Programminformationen behoben</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException beim importieren von efa1-Daten ohne Fahrtenbücher behoben</ChangeItem>
         </Changes>
 
         <Changes lang="en">
+            <ChangeItem>New: Boat usage ban allow to ban certain persons from the usage on any boat</ChangeItem>
+            <ChangeItem>New: efa can now comes with a new menu option to display the last usage of a boat directly from the main window</ChangeItem>
+            <ChangeItem>New: With automatic logswitch configured, efa can now automatically open a new logbook at a configured time (for example, new year's day)</ChangeItem>
+            <ChangeItem>New: efa now reminds super-admin per message to configure an automatic logswitch when the expiration date of the current logbook approaches</ChangeItem>
+            <ChangeItem>Neu: efa sends notifications when boat damages have been repaired</ChangeItem>
+            <ChangeItem>Bugfix: Adding or changing of destination entries now does not overwrite the distance in logbook entries any more</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException when determining program information fixed</ChangeItem>
         </Changes>
     </Version>
 

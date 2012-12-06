@@ -64,7 +64,7 @@ public class FTPClient {
     public FTPClient(String server, String username, String password,
             String localFileWithPath, String remoteDirectory, String remoteFile) {
         this.ftpString = username + ":" + password + "@" + server + ":" + remoteDirectory + 
-                (remoteDirectory.endsWith("/") ? "" : "/") + remoteFile;
+                (remoteDirectory != null && remoteDirectory.endsWith("/") ? "" : "/") + remoteFile;
         this.server = server;
         this.username = username;
         this.password = password;

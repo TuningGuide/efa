@@ -16,6 +16,7 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.types.*;
+import de.nmichael.efa.ex.InvalidValueException;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
@@ -25,13 +26,21 @@ import javax.swing.*;
 // @i18n complete
 public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements IItemListener {
 
+    private boolean boatWasDamaged = false;
+
     public BoatDamageEditDialog(Frame parent, BoatDamageRecord r, boolean newRecord, AdminRecord admin) {
         super(parent, International.getString("Bootsschaden"), r, newRecord, admin);
+        if (!newRecord && r != null && !r.getFixed()) {
+            boatWasDamaged = true;
+        }
         initListener();
     }
 
     public BoatDamageEditDialog(JDialog parent, BoatDamageRecord r, boolean newRecord, AdminRecord admin) {
         super(parent, International.getString("Bootsschaden"), r, newRecord, admin);
+        if (!newRecord && r != null && !r.getFixed()) {
+            boatWasDamaged = true;
+        }
         initListener();
     }
 
@@ -60,7 +69,7 @@ public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements
                 ItemTypeDateTime fixedDate = (ItemTypeDateTime)getItem(BoatDamageRecord.GUIITEM_FIXDATETIME);
                 fixedDate.getValueFromGui();
                 if (!fixedDate.isSet()) {
-                    fixedDate.parseAndShowValue(EfaUtil.getCurrentTimeStampYYYY_MM_DD_HH_MM_SS());
+                    fixedDate.parseAndShowValue(DataTypeDate.today().toString());
                 }
                 getItem(BoatDamageRecord.FIXEDBYPERSONID).requestFocus();
             }
@@ -80,6 +89,31 @@ public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements
                 );
     }
 
+    protected boolean saveRecord() throws InvalidValueException {
+        boolean success = super.saveRecord();
+        if (success && admin != null && dataRecord != null && boatWasDamaged &&
+            ((BoatDamageRecord)dataRecord).getFixed()) {
+            BoatDamageRecord r = (BoatDamageRecord) dataRecord;
+            Messages messages = r.getPersistence().getProject().getMessages(false);
+            messages.createAndSaveMessageRecord(r.getReportedByPersonAsName(),
+                    MessageRecord.TO_BOATMAINTENANCE,
+                    International.getString("Bootsschaden behoben") + " - " + r.getBoatAsName(),
+                    r.getCompleteDamageInfo() +
+                    "\n" +
+                    International.getString("behoben von") + ": " + r.getFixedByPersonAsName() + "\n" +
+                    International.getString("behoben am") + ": " +
+                        (r.getFixDate() != null && r.getFixDate().isSet() ?
+                            r.getFixDate().toString() : DataTypeDate.today().toString()) + "\n" +
+                    International.getString("Reparaturkosten") + ": " + (r.getRepairCosts() != null ? r.getRepairCosts() : "") + "\n" +
+                    International.getString("Versicherungsfall") + ": " + (r.getClaim() ?
+                        International.getString("ja") :
+                        International.getString("nein") ) + "\n" +
+                    International.getString("Bemerkungen") + ": " + (r.getNotes() != null ? r.getNotes() : "")
+                    );
+        }
+        return success;
+    }
+    
     public static void newBoatDamage(Window parent, BoatRecord boat) {
         newBoatDamage(parent, boat, null, null);
     }

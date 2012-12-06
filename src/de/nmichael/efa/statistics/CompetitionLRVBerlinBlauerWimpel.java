@@ -30,7 +30,6 @@ public class CompetitionLRVBerlinBlauerWimpel extends Competition {
             return;
         }
         sr.pTableColumns = null;
-        // @todo (P1) - excludefromcompetiton??
         int numberOfMembers = Daten.project.getPersons(false).getNumberOfMembers(sr.sTimestampBegin, false);
 
         if (sr.getOutputTypeEnum() == StatisticsRecord.OutputTypes.efawett) {

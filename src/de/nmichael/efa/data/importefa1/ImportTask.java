@@ -124,7 +124,8 @@ public class ImportTask extends ProgressTask {
 
         // remove pre-defined efa2 status that are not used by efa1 imported data
         try {
-            String[] importedStatusNames = statusKeys.keySet().toArray(new String[0]);
+            String[] importedStatusNames = (statusKeys != null ?
+                statusKeys.keySet().toArray(new String[0]) : null);
             for (int j = 0; statusBeforeImport != null && j < statusBeforeImport.length; j++) {
                 if (!StatusRecord.TYPE_USER.equals(statusBeforeImport[j].getType())) {
                     continue;

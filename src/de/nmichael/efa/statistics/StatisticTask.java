@@ -15,6 +15,7 @@ import java.util.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.Plugins;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.core.config.EfaTypes;
@@ -971,6 +972,14 @@ public class StatisticTask extends ProgressTask {
         if (sr.sFilterByBoatText != null && !sr.sFilterByBoatText.equals(r.getBoatAsName())) {
             return false;
         }
+
+        if (sr.sFilterStartIsBoathouse) {
+            getEntryDestination(r);
+            if (entryDestinationRecord == null || !entryDestinationRecord.getStartIsBoathouse()) {
+                return false;
+            }
+        }
+
         if (sr.sPublicStatistic && entryBoatExclude && 
                 (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook ||
                 (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list &&
@@ -1189,8 +1198,8 @@ public class StatisticTask extends ProgressTask {
             if (sdSummary.logbookFields == null) {
                 sdSummary.logbookFields = new String[sr.getLogbookFieldCount()];
             }
+            sdSummary.logbookFields[0] = sdSummary.sName;
             if (sr.sLFieldDistancePos >= 0 && sr.sLFieldDistancePos < sdSummary.logbookFields.length) {
-                sdSummary.logbookFields[0] = sdSummary.sName;
                 sdSummary.logbookFields[sr.sLFieldDistancePos] =
                         DataTypeDistance.getDistance(sdSummary.distance).getStringValueInDefaultUnit(sr.sDistanceWithUnit, 0,
                         (sr.sTruncateDistanceToFullValue ? 0 : 1));
@@ -1280,14 +1289,19 @@ public class StatisticTask extends ProgressTask {
 
     private String writeStatistic(StatisticsData[] sd) {
         logInfo(International.getString("Ausgabe der Daten") + " ...\n");
-        StatisticWriter writer = StatisticWriter.getWriter(sr, sd);
+        StatisticWriter writer = StatisticWriter.getWriter(this, sr, sd);
         if (sr.sOutputType == StatisticsRecord.OutputTypes.efawett) {
             setDone();
         }
         if (writer.write()) {
             if (sr.sOutputFtpClient != null) {
                 logInfo(International.getString("FTP-Upload") + " ...\n");
-                return sr.sOutputFtpClient.write();
+                try {
+                    return sr.sOutputFtpClient.write();
+                } catch (NoClassDefFoundError e) {
+                    Dialog.error(International.getString("Fehlendes Plugin") + ": " + Plugins.PLUGIN_FTP);
+                    return International.getString("Fehlendes Plugin") + ": " + Plugins.PLUGIN_FTP;
+                }
             }
         }
         return writer.getResultMessage();

@@ -123,6 +123,9 @@ public class FTPClient {
     public String run() {
         try {
             com.enterprisedt.net.ftp.FTPClient ftpClient = new com.enterprisedt.net.ftp.FTPClient(server);
+            if (server == null) {
+                return null; // happens for test whether FTP Plugin in installed
+            }
             ftpClient.setConnectMode(com.enterprisedt.net.ftp.FTPConnectMode.ACTIVE);
             ftpClient.login(username, password);
             if (remoteDirectory != null) {
@@ -167,8 +170,12 @@ public class FTPClient {
         items[3] = new ItemTypeString("FILE", (ftp.getFile() != null ? ftp.getFile() : ""),
                 IItemType.TYPE_PUBLIC, "", International.getString("Dateiname"));
         if (MultiInputDialog.showInputDialog((JDialog)null, International.getString("FTP-Upload"), items)) {
+            String file = items[3].toString();
+            if (file != null && !file.startsWith("/")) {
+                file = "/" + file;
+            }
             ftp = new FTPClient("ftp:" + items[1].toString() + ":" + items[2].toString() +
-                    "@" + items[0].toString() + ":" + items[3].toString(), null);
+                    "@" + items[0].toString() + ":" + file, null);
             if (ftp.isValidFormat()) {
                 return ftp.getFtpString(true);
             }

@@ -22,6 +22,7 @@ import java.util.UUID;
 import java.util.Vector;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.Plugins;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.core.items.IItemListener;
@@ -102,6 +103,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String FILTERPROMPTPERSON        = "FilterPromptPerson";
     public static final String FILTERPROMPTBOAT          = "FilterPromptBoat";
     public static final String FILTERPROMPTGROUP         = "FilterPromptGroup";
+    public static final String FILTERSTARTISBOATHOUSE    = "FilterStartIsBoathouse";
     public static final String SHOWFIELDS                = "ShowFields";  // like Name, Status, Gender, BoatType, ...
     public static final String SHOWLOGBOOKFIELDS         = "ShowLogbookFields";  // like EntryNo, Date, Boat, Cox, Crew, ...
     public static final String AGGREGATIONS              = "Aggregations"; // like Distance, Sessions, AvgDistance, ...
@@ -361,6 +363,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public UUID sFilterByBoatId;
     public String sFilterByBoatText;
     public UUID sFilterByGroupId;
+    public boolean sFilterStartIsBoathouse;
     // --- Field Settings
     public boolean sIsFieldsPosition;
     public boolean sIsFieldsName;
@@ -517,6 +520,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         f.add(FILTERPROMPTPERSON);                t.add(IDataAccess.DATA_BOOLEAN);
         f.add(FILTERPROMPTBOAT);                  t.add(IDataAccess.DATA_BOOLEAN);
         f.add(FILTERPROMPTGROUP);                 t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(FILTERSTARTISBOATHOUSE);            t.add(IDataAccess.DATA_BOOLEAN);
         f.add(SHOWFIELDS);                        t.add(IDataAccess.DATA_LIST_STRING);
         f.add(SHOWLOGBOOKFIELDS);                 t.add(IDataAccess.DATA_LIST_STRING);
         f.add(AGGREGATIONS);                      t.add(IDataAccess.DATA_LIST_STRING);
@@ -1501,6 +1505,13 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         return getBool(FILTERPROMPTGROUP);
     }
 
+    public void setFilterStartIsBoathouse(boolean startIsBoathouse) {
+        setBool(FILTERSTARTISBOATHOUSE, startIsBoathouse);
+    }
+    public boolean getFilterStartIsBoathouse() {
+        return getBool(FILTERSTARTISBOATHOUSE);
+    }
+
     public String getFilterByGroupIdAsString(long validAt) {
         try {
             return getPersistence().getProject().getGroups(false).findGroupRecord(sFilterByGroupId, validAt).getQualifiedName();
@@ -1562,6 +1573,11 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         if (sFilterByGroupId != null) {
             filter = (filter == null ? "" : filter + "\n") +
                     International.getString("Gruppe") + ": " + getFilterByGroupIdAsString(sValidAt);
+        }
+        if (sFilterStartIsBoathouse) {
+            filter = (filter == null ? "" : filter + "\n") +
+                    International.getString("nur Fahrten") + ": " +
+                    International.getString("Start ist Bootshaus");
         }
         return filter;
     }
@@ -2079,7 +2095,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         String CAT_FILTERBOATRIGG      = "%026%" + International.getString("Riggerung");
         String CAT_FILTERBOATCOXING    = "%027%" + International.getString("Steuerung");
         String CAT_FILTERBOATOWNER     = "%028%" + International.getString("Eigentümer");
-        String CAT_FILTERINDIVIDUAL    = "%029%" + International.getString("individuell");
+        String CAT_FILTERINDIVIDUAL    = "%029%" + International.getString("Individuell");
+        String CAT_FILTERVARIOUS       = "%02A%" + International.getString("Weitere");
         String CAT_FIELDS       = "%03%" + International.getString("Felder");
         String CAT_FIELDSLIST   = "%031%" + International.getString("Kilometerliste");
         String CAT_FIELDSLOGBOOK= "%032%" + International.getString("Fahrtenbuch");
@@ -2241,6 +2258,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                     IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER,CAT_FILTERINDIVIDUAL),
                     International.getMessage("{item} interaktiv abfragen",
                     International.getString("Gruppe"))));
+        v.add(item = new ItemTypeBoolean(StatisticsRecord.FILTERSTARTISBOATHOUSE, getFilterStartIsBoathouse(),
+                    IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER,CAT_FILTERVARIOUS),
+                    International.getString("Start ist Bootshaus")));
 
         // CAT_FIELDS
         v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.SHOWFIELDS, getShowFields(),
@@ -2409,17 +2429,49 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         return items;
     }
 
-    public boolean prepareStatisticSettings(AdminRecord admin) {
-        sAdmin = admin;
-        
+    public void resetStatisticValues() {
         cNumberOfEntries = 0;
         cEntryNoFirst = null;
         cEntryNoLast = null;
         cEntryDateFirst = null;
         cEntryDateLast = null;
-        cWarnings = null;
+        cWarnings = new Hashtable<String, String>();
         cCompetition = null;
 
+        pParentDialog = null;
+        pStatTitle = null;
+        pStatCreationDate = null;
+        pStatCreatedByUrl = null;
+        pStatCreatedByName = null;
+        pStatDescription = null;
+        pStatDateRange = null;
+        pStatConsideredEntries = null;
+        pStatFilter = null;
+        pStatIgnored = new Hashtable<String, String>();
+        pTableColumns = null;
+        pCompRules = null;
+        pCompRulesBold = new Hashtable();
+        pCompRulesItalics = new Hashtable();
+        pCompWarning = null;
+        pCompGroupNames = null;
+        pCompParticipants = null;
+        pCompAbortEfaWett = false;
+
+        pAdditionalTable1 = null;
+        pAdditionalTable1Title = null;
+        pAdditionalTable1FirstRowBold = false;
+        pAdditionalTable1LastRowBold = false;
+        pAdditionalTable2 = null;
+        pAdditionalTable2Title = null;
+        pAdditionalTable2FirstRowBold = false;
+        pAdditionalTable2LastRowBold = false;
+        pOutputLinesAbove = null;
+        pOutputLinesBelow = null;
+    }
+
+    public boolean prepareStatisticSettings(AdminRecord admin) {
+        sAdmin = admin;
+        
         sIsFieldsPosition = false;
         sIsFieldsName = false;
         sIsFieldsGender = false;
@@ -2549,6 +2601,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         sFilterByBoatId = getFilterByBoatId();
         sFilterByBoatText = (sFilterByBoatId != null ? null : getFilterByBoatText());
         sFilterByGroupId = getFilterByGroupId();
+        sFilterStartIsBoathouse = getFilterStartIsBoathouse();
         if (getFilterPromptPerson() && Daten.isGuiAppl()) {
             Object o = promptForInput(sFilterByPersonId, sFilterByPersonText,
                        getPersistence().getProject().getPersons(false),
@@ -2766,7 +2819,12 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             sOutputFile = getOutputFile();
         }
         if (sOutputFile.toLowerCase().startsWith("ftp:")) {
-            sOutputFtpClient = new FTPClient(sOutputFile, Daten.efaTmpDirectory + "output.ftp");
+            try {
+                sOutputFtpClient = new FTPClient(sOutputFile, Daten.efaTmpDirectory + "output.ftp");
+            } catch (NoClassDefFoundError e) {
+                Dialog.error(International.getString("Fehlendes Plugin") + ": " + Plugins.PLUGIN_FTP);
+                return false;
+            }
             sOutputFile = Daten.efaTmpDirectory + "output.ftp";
         }
         sOutputDir = (new File(sOutputFile)).getParent();
@@ -2784,10 +2842,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         sSumGuestsAndOthers = getOptionSumGuestsAndOthers();
         sSumGuestsByClub = getOptionSumGuestsByClub();
 
-
-        pStatIgnored = new Hashtable<String,String>();
-        cWarnings = new Hashtable<String,String>();
-
+        resetStatisticValues();
         return true;
     }
 

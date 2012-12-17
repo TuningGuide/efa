@@ -18,6 +18,7 @@ public abstract class StatisticWriter {
     public static final String TEXTMARK_BOLDSTART = "%%BOLD-START%%";
     public static final String TEXTMARK_BOLDEND   = "%%BOLD-END%%";
 
+    protected StatisticTask statisticTask;
     protected StatisticsRecord sr;
     protected StatisticsData[] sd;
     protected String resultMessage;
@@ -27,25 +28,35 @@ public abstract class StatisticWriter {
         this.sr = sr;
     }
 
-    public static StatisticWriter getWriter(StatisticsRecord sr, StatisticsData[] sd) {
+    public static StatisticWriter getWriter(StatisticTask statisticTask, StatisticsRecord sr, StatisticsData[] sd) {
+        StatisticWriter sw = null;
         switch(sr.sOutputType) {
             case internal:
-                return new StatisticInternalWriter(sr, sd);
+                sw = new StatisticInternalWriter(sr, sd);
+                break;
             case html:
-                return new StatisticHTMLWriter(sr, sd);
+                sw = new StatisticHTMLWriter(sr, sd);
+                break;
             case pdf:
-                // @todo (P6) return new StatisticPDFWriter(sr, sd);
-                Dialog.error("PDF output not yet implemented");
+                sw = new StatisticPDFWriter(sr, sd);
+                break;
             case csv:
-                return new StatisticCSVWriter(sr, sd);
+                sw = new StatisticCSVWriter(sr, sd);
+                break;
             case xml:
-                return new StatisticXMLWriter(sr, sd);
+                sw = new StatisticXMLWriter(sr, sd);
+                break;
             case efawett:
                 if (sr.cCompetition != null) {
-                    return new StatisticEfaWettWriter(sr, sd);
+                    sw = new StatisticEfaWettWriter(sr, sd);
                 }
+                break;
         }
-        return new StatisticInternalWriter(sr, sd);
+        if (sw == null) {
+            sw = new StatisticInternalWriter(sr, sd);
+        }
+        sw.statisticTask = statisticTask;
+        return sw;
     }
 
     public abstract boolean write();

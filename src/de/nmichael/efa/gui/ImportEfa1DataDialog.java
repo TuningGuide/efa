@@ -358,7 +358,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
                 if (f.isDirectory()) {
                     getAllLogbooks(importData, f.getAbsolutePath());
                 } else {
-                    if (f.getName().endsWith(".efb")) {
+                    if (f.getName().toLowerCase().endsWith(".efb")) {
                         recursiveAddLogbook(importData, f.getAbsolutePath());
                     }
                 }

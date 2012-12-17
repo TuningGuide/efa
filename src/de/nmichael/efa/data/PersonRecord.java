@@ -227,11 +227,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         UUID id = getStatusId();
         if (id != null) {
             StatusRecord r = getPersistence().getProject().getStatus(false).getStatus(id);
-            if (r != null) {
-                if (StatusRecord.TYPE_USER.equals(r.getType())) {
-                    return true;
-                }
-            }
+            return (r != null && r.isMember());
         }
         return false;
     }

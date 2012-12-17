@@ -11,10 +11,10 @@
 package de.nmichael.efa.gui.widgets;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.Plugins;
 import de.nmichael.efa.gui.*;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.items.*;
-import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.image.*;
 import java.awt.event.*;
@@ -577,9 +577,9 @@ public class MeteoAstroWidget extends Widget {
                         sunsetTime = "--:--";
                         if (!sunriseError) {
                             Logger.log(Logger.WARNING, Logger.MSG_CORE_MISSINGPLUGIN,
-                                    International.getString("Fehlendes Plugin") + ": " + Daten.PLUGIN_JSUNTIMES_NAME + " - "
+                                    International.getString("Fehlendes Plugin") + ": " + Plugins.PLUGIN_JSUNTIMES + " - "
                                     + International.getString("Die Sonnenaufgangs- und Untergangszeiten können nicht angezeigt werden.") + " "
-                                    + International.getMessage("Bitte lade das fehlende Plugin unter der Adresse {url} herunter.", Daten.pluginWWWdirectory));
+                                    + International.getMessage("Bitte lade das fehlende Plugin unter der Adresse {url} herunter.", Daten.pluginWebpage));
                         }
                         sunriseError = true;
                     } catch (Exception ee) {

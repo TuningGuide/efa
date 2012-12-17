@@ -2525,7 +2525,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                         continue;
                     }
 
-                    if (p.getBoatUsageBan()) {
+                    if (p != null && p.getBoatUsageBan()) {
                         switch (Dialog.auswahlDialog(International.getString("Bootsbenutzungs-Sperre"),
                             International.getMessage("Für {name} liegt zur Zeit eine Bootsbenutzungs-Sperre vor.", p.getQualifiedName()) +
                             "\n" +
@@ -2564,7 +2564,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                         nichtErlaubtAnz++;
                     }
                 }
-                if (nichtErlaubtAnz > currentBoat.getMaxNotInGroup()) {
+                if (nichtErlaubtAnz > 0 &&
+                    nichtErlaubtAnz > currentBoat.getMaxNotInGroup()) {
                     String erlaubteGruppen = null;
                     for (int j = 0; j < groupIdList.length(); j++) {
                         GroupRecord g = groups.findGroupRecord(groupIdList.get(j), tstmp);

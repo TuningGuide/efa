@@ -32,8 +32,13 @@ public class StatusRecord extends DataRecord {
     public static final String ID                  = "Id";
     public static final String NAME                = "Name";
     public static final String TYPE                = "Type";
+    public static final String MEMBERSHIP          = "Membership";
 
     public static final String[] IDX_NAME = new String[] { NAME };
+
+    public static final int MEMBERSHIP_NOMEMBER = 0;
+    public static final int MEMBERSHIP_MEMBER = 1;
+    private static final String GUIITEM_MEMBERSHIP = "GUIITEM_MEMBERSHIP";
 
     public static void initialize() {
         Vector<String> f = new Vector<String>();
@@ -42,6 +47,7 @@ public class StatusRecord extends DataRecord {
         f.add(ID);                                t.add(IDataAccess.DATA_UUID);
         f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
         f.add(TYPE);                              t.add(IDataAccess.DATA_STRING);
+        f.add(MEMBERSHIP);                        t.add(IDataAccess.DATA_INTEGER);
         MetaData metaData = constructMetaData(Status.DATATYPE, f, t, false);
         metaData.setKey(new String[] { ID });
         metaData.addIndex(IDX_NAME);
@@ -127,6 +133,27 @@ public class StatusRecord extends DataRecord {
         }
         return International.getString("benutzerdefiniert");
     }
+    public boolean isTypeUser() {
+        return TYPE_USER.equals(getType());
+    }
+    public boolean isTypeGuest() {
+        return TYPE_GUEST.equals(getType());
+    }
+    public boolean isTypeOther() {
+        return TYPE_OTHER.equals(getType());
+    }
+
+    public void setMembership(int membership) {
+        setInt(MEMBERSHIP, membership);
+    }
+    public int getMembership() {
+        return getInt(MEMBERSHIP);
+    }
+    public boolean isMember() {
+        int m = getMembership();
+        // m < 0 (and especially m == UNDEFINED_INT) are considered unset, and default to "MEMBER"
+        return m < 0 || m == MEMBERSHIP_MEMBER;
+    }
 
     public String[] getQualifiedNameFields() {
         return IDX_NAME;
@@ -140,6 +167,25 @@ public class StatusRecord extends DataRecord {
         return getStatusName();
     }
 
+    public String getAsText(String fieldName) {
+        if (fieldName.equals(MEMBERSHIP)) {
+            return (isMember() ?
+                International.getString("ja") :
+                International.getString("nein") );
+        }
+        return super.getAsText(fieldName);
+    }
+
+    public boolean setFromText(String fieldName, String value) {
+        if (fieldName.equals(MEMBERSHIP)) {
+            setMembership( (value.equals(International.getString("ja")) ?
+                MEMBERSHIP_MEMBER : MEMBERSHIP_NOMEMBER));
+        } else {
+            return super.setFromText(fieldName, value);
+        }
+        return (value.equals(getAsText(fieldName)));
+    }
+
     public Vector<IItemType> getGuiItems(AdminRecord admin) {
         String CAT_BASEDATA     = "%01%" + International.getString("Status");
         IItemType item;
@@ -148,21 +194,38 @@ public class StatusRecord extends DataRecord {
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Typ") + ": " + getTypeDescription()));
         v.add(item = new ItemTypeString(StatusRecord.NAME, getStatusName(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Status")));
+        if (isTypeUser()) {
+            v.add(item = new ItemTypeBoolean(StatusRecord.GUIITEM_MEMBERSHIP, isMember(),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Mitglied")));
+        }
         return v;
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        TableItemHeader[] header = new TableItemHeader[2];
+        TableItemHeader[] header = new TableItemHeader[3];
         header[0] = new TableItemHeader(International.getString("Status"));
         header[1] = new TableItemHeader(International.getString("Typ"));
+        header[2] = new TableItemHeader(International.getString("Mitglied"));
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
-        TableItem[] items = new TableItem[2];
+        TableItem[] items = new TableItem[3];
         items[0] = new TableItem(getStatusName());
         items[1] = new TableItem(getTypeDescription());
+        items[2] = new TableItem(isMember() ?
+            International.getString("ja") :
+            International.getString("nein"));
         return items;
+    }
+
+    public void saveGuiItems(Vector<IItemType> items) {
+        for (IItemType item : items) {
+            if (item.getName().equals(GUIITEM_MEMBERSHIP)) {
+                setMembership( ((ItemTypeBoolean)item).getValue() ? MEMBERSHIP_MEMBER : MEMBERSHIP_NOMEMBER);
+            }
+        }
+        super.saveGuiItems(items);
     }
 
 }

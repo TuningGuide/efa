@@ -175,6 +175,25 @@ public class Project extends StorageObject {
             return;
         }
         
+        // delete any "emtpy" boathouse records (bugfix)
+        try {
+            if (isOpen()) {
+                DataKeyIterator it = data().getStaticIterator();
+                for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+                    ProjectRecord r = (ProjectRecord)data().get(k);
+                    if (r != null && ProjectRecord.TYPE_BOATHOUSE.equals(r.getType()) &&
+                        (r.getName() == null || r.getName().length() == 0)) {
+                        data().delete(k);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            if (Logger.isTraceOn(Logger.TT_CORE, 3)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_DATA, "Deletion of empty Boathouse Records failed.");
+            }
+            Logger.logdebug(e);
+        }
+
         // create new Boathouse Record from previous Project, Club and Config Records
         try {
             if (isOpen()) {
@@ -247,6 +266,7 @@ public class Project extends StorageObject {
             }
             Logger.logdebug(e);
         }
+
     }
 
     public boolean isRemoteOpen() {
@@ -520,6 +540,7 @@ public class Project extends StorageObject {
             dataAccess.add(rec);
             rec = (ProjectRecord) createNewRecord();
             rec.setType(ProjectRecord.TYPE_BOATHOUSE);
+            rec.setName(International.getString("Bootshaus"));
             dataAccess.add(rec);
         } catch (Exception e) {
             Logger.log(e);
@@ -1839,6 +1860,10 @@ public class Project extends StorageObject {
             assertUnique(record, ProjectRecord.PROJECTNAME);
             assertUnique(record, ProjectRecord.NAME);
             assertUnique(record, ProjectRecord.BOATHOUSEID);
+            if (((ProjectRecord) record).getType().equals(ProjectRecord.TYPE_LOGBOOK) ||
+                ((ProjectRecord) record).getType().equals(ProjectRecord.TYPE_BOATHOUSE)) {
+                assertFieldNotEmpty(record, ProjectRecord.NAME);
+            }
             if (((ProjectRecord) record).getType().equals(ProjectRecord.TYPE_BOATHOUSE)) {
                 ProjectRecord r = (ProjectRecord) record;
                 String lName = r.getAutoNewLogbookName();

@@ -29,39 +29,80 @@ public class PDFWriter {
     }
 
     public String run() {
-        String res = null;
-        FileOutputStream out = null;
+        String errorMessage = null;
         try {
-            pageCount = 0;
-            out = new FileOutputStream(outputFile);
-            org.apache.fop.apps.Driver driver =
-                    new org.apache.fop.apps.Driver(new org.xml.sax.InputSource(inputFile), out);
-            driver.setRenderer(org.apache.fop.apps.Driver.RENDER_PDF);
-            if (Logger.isTraceOn(Logger.TT_PDF, 1)) {
-                org.apache.avalon.framework.logger.Logger logger = new org.apache.avalon.framework.logger.ConsoleLogger(org.apache.avalon.framework.logger.ConsoleLogger.LEVEL_INFO);
-                driver.setLogger(logger);
-            }
-            driver.run();
-            pageCount = driver.getResults().getPageCount();
-            out.close();
-        } catch (FileNotFoundException e) {
-            Logger.logdebug(e);
-            res = e.toString();
-        } catch (org.apache.fop.apps.FOPException e) {
-            Logger.logdebug(e);
-            res = e.toString();
-        } catch (IOException e) {
-            Logger.logdebug(e);
-            res = e.toString();
-        }
-
-        if (out != null) {
+            OutputStream out = null;
             try {
+                out = new BufferedOutputStream(new FileOutputStream(outputFile));
+
+                if (Logger.isTraceOn(Logger.TT_PDF, 5)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_PDF, "Initializing up FOP Factory ...");
+                }
+                org.apache.fop.apps.FopFactory fopFactory = org.apache.fop.apps.FopFactory.newInstance();
+
+                if (Logger.isTraceOn(Logger.TT_PDF, 5)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_PDF, "Getting FOP Instance ...");
+                }
+                org.apache.fop.apps.Fop fop = fopFactory.newFop(org.apache.xmlgraphics.util.MimeConstants.MIME_PDF, out);
+
+                if (Logger.isTraceOn(Logger.TT_PDF, 5)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_PDF, "Setting FOP Event Listener ...");
+                }
+                fop.getUserAgent().getEventBroadcaster().addEventListener(new PDFEventListener());
+
+                if (Logger.isTraceOn(Logger.TT_PDF, 5)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_PDF, "Initializing up Transformer Factory ...");
+                }
+                javax.xml.transform.TransformerFactory transformerFactory = javax.xml.transform.TransformerFactory.newInstance();
+
+                if (Logger.isTraceOn(Logger.TT_PDF, 5)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_PDF, "Getting Transformer Instance ...");
+                }
+                javax.xml.transform.Transformer transformer = transformerFactory.newTransformer();
+
+                if (Logger.isTraceOn(Logger.TT_PDF, 5)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_PDF, "Getting StreamSource ...");
+                }
+                javax.xml.transform.stream.StreamSource src = new javax.xml.transform.stream.StreamSource(new File(inputFile));
+
+                if (Logger.isTraceOn(Logger.TT_PDF, 5)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_PDF, "Getting SAXResult ...");
+                }
+                javax.xml.transform.Result result = new javax.xml.transform.sax.SAXResult(fop.getDefaultHandler());
+
+                if (Logger.isTraceOn(Logger.TT_PDF, 1)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_PDF, "Creating PDF ...");
+                }
+                transformer.transform(src, result);
+
+                pageCount = fop.getResults().getPageCount();
+                if (Logger.isTraceOn(Logger.TT_PDF, 1)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_PDF, "Successfully created " + pageCount + " Pages PDF.");
+                }
+            } catch (Exception e1) {
+                errorMessage = e1.getMessage();
+                if (Logger.isTraceOn(Logger.TT_PDF, 1)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_PDF, "Error creating PDF: " + errorMessage);
+                }
+                Logger.logdebug(e1);
+            } finally {
                 out.close();
-            } catch (IOException e) {
             }
+        } catch (Exception e) {
+            errorMessage = e.getMessage();
+            Logger.logdebug(e);
         }
 
-        return res;
+        return errorMessage;
+    }
+
+    class PDFEventListener implements org.apache.fop.events.EventListener {
+
+        public void processEvent(org.apache.fop.events.Event event) {
+            if (Logger.isTraceOn(Logger.TT_PDF, 1)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_PDFFOP,
+                        org.apache.fop.events.EventFormatter.format(event));
+            }
+        }
     }
 }

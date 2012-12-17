@@ -43,7 +43,7 @@ public class StatisticsEditDialog extends UnversionizedDataEditDialog {
     }
 
     public void initialize(boolean dontSaveButRun) {
-        mainPanel.setMinimumSize(new Dimension(1000, 400));
+        mainPanel.setMinimumSize(new Dimension(1100, 400));
         _dontSaveRecord = dontSaveButRun;
         if (dontSaveButRun) {
             _closeButtonText = International.getString("Statistik erstellen");

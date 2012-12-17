@@ -39,30 +39,26 @@ CLASSNAME=$1
 # efa
 CP=program/efa.jar:program/efahelp.jar:program
 
-# OnlineHelp-Plugin
+# OnlineHelp Plugin
 CP=$CP:program/plugins/jh.jar
 
-# JAXP-Plugin
-CP=$CP:program/plugins/dom.jar
-CP=$CP:program/plugins/jaxp-api.jar
-CP=$CP:program/plugins/sax.jar
-CP=$CP:program/plugins/xalan.jar
-CP=$CP:program/plugins/xercesImpl.jar
+# FTP Plugin
+CP=$CP:program/plugins/edtftpj.jar
 
-# FOP-Plugin
-CP=$CP:program/plugins/fop.jar
-CP=$CP:program/plugins/batik.jar
-CP=$CP:program/plugins/avalon-framework-cvs-20020315.jar
+# Mail Plugin
+CP=$CP:program/plugins/mailapi.jar
+CP=$CP:program/plugins/smtp.jar
 
-# FTP-Plugin
-CP=$CP:program/plugins/ftp.jar
-
-# Mail-Plugin
-CP=$CP:program/plugins/mail.jar
-
-# JSUNTIMES-Plugin
+# JSUNTIMES Plugin
 CP=$CP:program/plugins/jsuntimes.jar
 
+# PDF Plugin
+CP=$CP:program/plugins/avalon-framework.jar
+CP=$CP:program/plugins/batik-all.jar
+CP=$CP:program/plugins/commons-io.jar
+CP=$CP:program/plugins/commons-logging.jar
+CP=$CP:program/plugins/fop.jar
+CP=$CP:program/plugins/xmlgraphics-commons.jar
 
 # ##########################################
 # JVM Settings                             #

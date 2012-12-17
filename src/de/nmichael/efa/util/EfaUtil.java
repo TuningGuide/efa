@@ -1716,6 +1716,36 @@ public class EfaUtil {
         }
     }
 
+    public static String saveFile(String file, String dir,
+            boolean urlNotation, boolean forceOverwrite, boolean useAbsolutePath) {
+        String fname = dir + (dir.endsWith(Daten.fileSep) ? "" : Daten.fileSep) + file;
+        if (forceOverwrite || !EfaUtil.canOpenFile(fname)) {
+            try {
+                InputStream in = EfaUtil.class.getResourceAsStream(Daten.FILEPATH + file);
+                FileOutputStream out = new FileOutputStream(new File(fname));
+                byte[] data = new byte[8192];
+                int read;
+                while ( (read = in.read(data)) > 0) {
+                    out.write(data, 0, read);
+                }
+                in.close();
+                out.close();
+            } catch (Exception e) {
+                Logger.logdebug(e);
+            }
+        }
+        if (!useAbsolutePath) {
+            fname = file;
+        }
+        if (urlNotation) {
+            if (Daten.fileSep.equals("\\")) {
+                fname = (useAbsolutePath ? "/" : "") + EfaUtil.replace(fname, "\\", "/", true);
+            }
+            return (useAbsolutePath ? "file:" : "") + fname;
+        } else {
+            return fname;
+        }
+    }
 
     public static void main(String args[]) {
         String text = "abc & def";

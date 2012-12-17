@@ -33,9 +33,9 @@ import java.lang.management.*;
 // @i18n complete
 public class Daten {
 
-    public final static String VERSION            = "2.0.6"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID          = "2.0.6_00";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-    public final static String VERSIONRELEASEDATE = "05.12.2012";  // Release Date: TT.MM.JJJJ
+    public final static String VERSION            = "2.0.7"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
+    public final static String VERSIONID          = "2.0.7_#2";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "16.12.2012";  // Release Date: TT.MM.JJJJ
     public final static String MAJORVERSION       = "2";
     public final static String PROGRAMMID         = "EFA.206"; // Versions-ID für Wettbewerbsmeldungen
     public final static String PROGRAMMID_DRV     = "EFADRV.206"; // Versions-ID für Wettbewerbsmeldungen
@@ -136,29 +136,15 @@ public class Daten {
     public static String osVersion = "";
     public static String lookAndFeel = "";
 
-    public final static String PLUGIN_WWW_URL = "http://efa.nmichael.de/plugins/plugins.url"; // in dieser Datei muß eine gültige Plugin-Download-URL stehen!
-    public static String pluginWWWdirectory = "http://efa.nmichael.de/plugins/"; // wird automatisch auf das in der o.g. Datei stehende gesetzt
-    public final static String PLUGIN_JAXP_NAME = "JAXP-Plugin";
-    public final static String PLUGIN_JAXP_FILE = "jaxp.plugin";
-    public final static String PLUGIN_JAXP_HTML = "jaxp.html";
-    public final static String PLUGIN_FOP_NAME = "FOP-Plugin";
-    public final static String PLUGIN_FOP_FILE = "fop.plugin";
-    public final static String PLUGIN_FOP_HTML = "fop.html";
-    public final static String PLUGIN_FTP_NAME = "FTP-Plugin";
-    public final static String PLUGIN_FTP_FILE = "ftp.plugin";
-    public final static String PLUGIN_FTP_HTML = "ftp.html";
-    public final static String PLUGIN_EMAIL_NAME = "EMAIL-Plugin";
-    public final static String PLUGIN_EMAIL_FILE = "email.plugin";
-    public final static String PLUGIN_EMAIL_HTML = "email.html";
-    public final static String PLUGIN_JSUNTIMES_NAME = "JSUNTIMES-Plugin";
-    public final static String PLUGIN_JSUNTIMES_FILE = "jsuntimes.plugin";
-    public final static String PLUGIN_JSUNTIMES_HTML = "jsuntimes.html";
+    public final static String PLUGIN_INFO_FILE = "plugins.xml";
+    public static String pluginWebpage = "http://efa.nmichael.de/plugins.html"; // wird automatisch auf das in der o.g. Datei stehende gesetzt
 
     public final static String ONLINEUPDATE_INFO = "http://efa.nmichael.de/eou.xml";
     public final static String ONLINEUPDATE_INFO_DRV = "http://efa.nmichael.de/eoudrv.xml";
     public final static String EFW_UPDATE_DATA = "http://efa.nmichael.de/efw.data";
     public final static String INTERNET_EFAMAIL = "http://cgi.snafu.de/nmichael/user-cgi-bin/efamail.pl";
     public final static String IMAGEPATH = "/de/nmichael/efa/img/";
+    public final static String FILEPATH = "/de/nmichael/efa/files/";
     public final static String DATATEMPLATEPATH = "/de/nmichael/efa/data/templates/";
 
     public final static int AUTO_EXIT_MIN_RUNTIME = 60; // Minuten, die efa mindestens gelaufen sein muß, damit es zu einem automatischen Beenden/Restart kommt (60)
@@ -919,9 +905,9 @@ public class Daten {
                 new de.nmichael.efa.core.EmailSenderThread().start();
             } catch (NoClassDefFoundError e) {
                 Logger.log(Logger.WARNING, Logger.MSG_CORE_MISSINGPLUGIN,
-                        International.getString("Fehlendes Plugin") + ": " + Daten.PLUGIN_EMAIL_NAME + " - "
+                        International.getString("Fehlendes Plugin") + ": " + Plugins.PLUGIN_MAIL + " - "
                         + International.getString("Kein email-Versand möglich!") + " "
-                        + International.getMessage("Bitte lade das fehlende Plugin unter der Adresse {url} herunter.", Daten.pluginWWWdirectory));
+                        + International.getMessage("Bitte lade das fehlende Plugin unter der Adresse {url} herunter.", Daten.pluginWebpage));
             }
         }
     }
@@ -1145,39 +1131,12 @@ public class Daten {
                         }
                     }
                 }
-                try {
-                    if (EfaUtil.getXMLReader() != null) {
-                        infos.add("efa.plugin.xml=INSTALLED");
-                        infos.add("efa.plugin.xml.name=" + EfaUtil.getXMLReader().getClass().getCanonicalName());
-                    } else {
-                        infos.add("efa.plugin.xml=NOT INSTALLED");
-                    }
-                } catch (NoClassDefFoundError e) {
-                    infos.add("efa.plugin.xml=NOT INSTALLED");
-                }
-                try {
-                    PDFWriter tmp = new PDFWriter(null, null);
-                    infos.add("efa.plugin.fop=INSTALLED");
-                } catch (NoClassDefFoundError e) {
-                    infos.add("efa.plugin.fop=NOT INSTALLED");
-                }
-                try {
-                    FTPClient tmp = new FTPClient(null, null, null, null, null, null);
-                    infos.add("efa.plugin.ftp=INSTALLED");
-                } catch (NoClassDefFoundError e) {
-                    infos.add("efa.plugin.ftp=NOT INSTALLED");
-                }
-                try {
-                    de.nmichael.efa.core.EmailSenderThread tmp = new de.nmichael.efa.core.EmailSenderThread();
-                    infos.add("efa.plugin.email=INSTALLED");
-                } catch (NoClassDefFoundError e) {
-                    infos.add("efa.plugin.email=NOT INSTALLED");
-                }
-                try {
-                    de.nmichael.efa.util.SunRiseSet tmp = new de.nmichael.efa.util.SunRiseSet();
-                    infos.add("efa.plugin.jsuntimes=INSTALLED");
-                } catch (NoClassDefFoundError e) {
-                    infos.add("efa.plugin.jsuntimes=NOT INSTALLED");
+
+                Plugins plugins = Plugins.getPluginInfoFromLocalFile();
+                String[] names = plugins.getAllPluginNames();
+                for (String name : names) {
+                    infos.add("efa.plugin." + name + "=" +
+                            (plugins.isPluginInstalled(name) ? "installed" : "not installed"));
                 }
             } catch (Exception e) {
                 Logger.log(Logger.ERROR, Logger.MSG_CORE_INFOFAILED, International.getString("Programminformationen konnten nicht ermittelt werden") + ": " + e.toString());

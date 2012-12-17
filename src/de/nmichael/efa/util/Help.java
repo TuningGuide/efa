@@ -10,6 +10,7 @@
 package de.nmichael.efa.util;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.Plugins;
 import java.awt.BorderLayout;
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.Dimension;
@@ -111,6 +112,8 @@ public class Help {
         } catch (Exception e) {
             Dialog.infoDialog(International.getString("Hilfe"),
                               International.getString("Keine Hilfe verfügbar."));
+        } catch(NoClassDefFoundError ee) {
+            Dialog.error(International.getString("Fehlendes Plugin") + ": " + Plugins.PLUGIN_HELP);
         }
     }
 

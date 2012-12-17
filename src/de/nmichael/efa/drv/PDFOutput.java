@@ -68,8 +68,8 @@ public class PDFOutput {
             f.write("<fo:root xmlns:fo=\"http://www.w3.org/1999/XSL/Format\">\n");
             f.write("  <fo:layout-master-set>\n");
             f.write("    <fo:simple-page-master page-height=\"297mm\" page-width=\"210mm\" master-name=\"titelseite\">\n");
-            f.write("      <fo:region-before extent=\"42mm\" />\n");
             f.write("      <fo:region-body margin-right=\"25mm\" margin-left=\"25mm\" margin-bottom=\"30mm\" margin-top=\"45mm\"/>\n");
+            f.write("      <fo:region-before extent=\"42mm\" />\n");
             f.write("      <fo:region-after extent=\"30mm\" />\n");
             f.write("    </fo:simple-page-master>\n");
             f.write("    <fo:simple-page-master page-height=\"297mm\" page-width=\"210mm\" master-name=\"fahrtenhefte\">\n");
@@ -77,8 +77,9 @@ public class PDFOutput {
             f.write("    </fo:simple-page-master>\n");
             f.write("  </fo:layout-master-set>\n");
 
-            f.write("  <fo:page-sequence master-reference=\"titelseite\">\n");
+            f.write("  <fo:page-sequence master-reference=\"titelseite\" force-page-count=\"no-force\">\n");
 
+/*
             f.write("    <fo:static-content flow-name=\"xsl-region-before\" >\n");
             f.write("              <fo:external-graphic src=\"url('" + header + "')\" width=\"210mm\" height=\"42mm\" />\n");
             f.write("    </fo:static-content>\n");
@@ -86,6 +87,19 @@ public class PDFOutput {
             f.write("    <fo:static-content flow-name=\"xsl-region-after\" >\n");
             f.write("              <fo:external-graphic src=\"url('" + footer + "')\" width=\"210mm\" height=\"30mm\" />\n");
             f.write("    </fo:static-content>\n");
+*/
+            f.write("    <fo:static-content flow-name=\"xsl-region-before\" >\n");
+            f.write("        <fo:block>\n");
+            f.write("              <fo:external-graphic src=\"url('" + header + "')\" content-width=\"210mm\" content-height=\"42mm\" />\n");
+            f.write("        </fo:block>\n");
+            f.write("    </fo:static-content>\n");
+
+            f.write("    <fo:static-content flow-name=\"xsl-region-after\" >\n");
+            f.write("        <fo:block>\n");
+            f.write("              <fo:external-graphic src=\"url('" + footer + "')\" content-width=\"210mm\" content-height=\"30mm\" />\n");
+            f.write("        </fo:block>\n");
+            f.write("    </fo:static-content>\n");
+
 
             f.write("    <fo:flow font-family=\"Helvetica\" font-size=\""+fontSize+"\" flow-name=\"xsl-region-body\">\n");
 
@@ -287,37 +301,9 @@ public class PDFOutput {
             return;
         }
 
-        int pageCount;
-        String res = null;
-        FileOutputStream out = null;
-        String pdf = Daten.efaDataDirectory + drvConfig.aktJahr + Daten.fileSep + qnr + ".pdf";
-        try {
-            pageCount = 0;
-            out = new FileOutputStream(pdf);
-            org.apache.fop.apps.Driver driver =
-                    new org.apache.fop.apps.Driver(new org.xml.sax.InputSource(xslfo), out);
-            driver.setRenderer(org.apache.fop.apps.Driver.RENDER_PDF);
-            driver.run();
-            pageCount = driver.getResults().getPageCount();
-            out.close();
-            (new File(xslfo)).delete();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            res = e.toString();
-        } catch (org.apache.fop.apps.FOPException e) {
-            e.printStackTrace();
-            res = e.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-            res = e.toString();
-        }
-
-        if (out != null) {
-            try {
-                out.close();
-            } catch (IOException e) {
-            }
-        }
+        String pdffile = Daten.efaDataDirectory + drvConfig.aktJahr + Daten.fileSep + qnr + ".pdf";
+        PDFWriter pdf = new PDFWriter(xslfo, pdffile);
+        String res = pdf.run();
 
         if (res != null) {
             Dialog.error("Beim Erstellen des PDF-Dokuments trat ein Fehler auf: " + res);
@@ -326,7 +312,7 @@ public class PDFOutput {
                 try {
                     String[] cmd = new String[2];
                     cmd[0] = drvConfig.acrobat;
-                    cmd[1] = pdf;
+                    cmd[1] = pdffile;
                     Runtime.getRuntime().exec(cmd);
                 } catch (Exception ee) {
                     Dialog.error("Fehler: Acrobat Reader '" + drvConfig.acrobat + "' konnte nicht gestartet werden!");

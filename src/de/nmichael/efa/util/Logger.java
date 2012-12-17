@@ -393,6 +393,8 @@ public class Logger {
     public static final String MSG_DEBUG_GUI_EFABASEFRAME = "DBG017";
     public static final String MSG_DEBUG_DATA = "DBG018";
     public static final String MSG_DEBUG_FTP = "DBG019";
+    public static final String MSG_DEBUG_PDF = "DBG020";
+    public static final String MSG_DEBUG_PDFFOP = "DBG021";
 
     // CLI
     public static final String MSG_CLI_INFO  = "CLI001";
@@ -431,6 +433,7 @@ public class Logger {
     private static volatile boolean inMailError = false;
     private static volatile boolean inLogging = false;
     private static boolean alsoLogToStdOut;
+    private static EfaErrorPrintStream efaErrorPrintStream;
 
     private static String createLogfileName(String logfile) {
         return Daten.efaLogDirectory + logfile;
@@ -463,7 +466,8 @@ public class Logger {
                 Logger.log(Logger.DEBUG, Logger.MSG_LOGGER_ACTIVATING,
                         "Logfile being set to: " + Daten.efaLogfile);
 
-                System.setErr(new EfaErrorPrintStream(new FileOutputStream(Daten.efaLogfile, append)));
+                efaErrorPrintStream = new EfaErrorPrintStream(new FileOutputStream(Daten.efaLogfile, append));
+                System.setErr(efaErrorPrintStream);
             } catch (FileNotFoundException e) {
                 Logger.log(Logger.ERROR,
                         Logger.MSG_LOGGER_FAILEDCREATELOG,
@@ -473,6 +477,10 @@ public class Logger {
         }
 
         return baklog;
+    }
+
+    public static PrintStream getPrintStream() {
+        return efaErrorPrintStream;
     }
 
     /**

@@ -127,6 +127,7 @@ public class Status extends StorageObject {
             StatusRecord r = createStatusRecord(id);
             r.setStatusName(name);
             r.setType(type);
+            r.setMembership( (r.isTypeUser() ? StatusRecord.MEMBERSHIP_MEMBER : StatusRecord.MEMBERSHIP_NOMEMBER) );
             data().add(r);
         } catch(Exception e) {
             Logger.logdebug(e);
@@ -217,14 +218,31 @@ public class Status extends StorageObject {
 
     public void open(boolean createNewIfNotExists) throws EfaException {
         super.open(createNewIfNotExists);
-        if (isOpen()) {
+        if (isOpen() && data().getStorageType() != IDataAccess.TYPE_EFA_REMOTE) {
             if (data().getNumberOfRecords() == 0) {
                 addStatus(International.getString("Junior(in)"), StatusRecord.TYPE_USER);
                 addStatus(International.getString("Senior(in)"), StatusRecord.TYPE_USER);
             }
+
             // make sure GUEST and OTHER status types are always present
             addStatus(International.getString("Gast"), StatusRecord.TYPE_GUEST);
             addStatus(International.getString("andere"), StatusRecord.TYPE_OTHER);
+
+            // fix membership status, if necessary
+            try {
+                DataKeyIterator it = data().getStaticIterator();
+                for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+                    StatusRecord r = (StatusRecord) data().get(k);
+                    if (r.getMembership() < 0) {
+                        r.setMembership( (r.isTypeUser() ?
+                            StatusRecord.MEMBERSHIP_MEMBER :
+                            StatusRecord.MEMBERSHIP_NOMEMBER) );
+                        data().update(r);
+                    }
+                }
+            } catch (Exception e) {
+                Logger.logdebug(e);
+            }
         }
     }
 
@@ -233,6 +251,10 @@ public class Status extends StorageObject {
             assertFieldNotEmpty(record, StatusRecord.ID);
             assertFieldNotEmpty(record, StatusRecord.NAME);
             assertUnique(record, StatusRecord.NAME);
+            StatusRecord sr = (StatusRecord)record;
+            if (sr.isTypeGuest() || sr.isTypeOther()) {
+                sr.setMembership(StatusRecord.MEMBERSHIP_NOMEMBER);
+            }
         }
         if (delete) {
             StatusRecord sr = (StatusRecord) record;

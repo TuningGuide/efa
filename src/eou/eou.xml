@@ -2,6 +2,87 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.0.7_#2</VersionID>
+        <ReleaseDate>xx.12.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa206.zip</DownloadUrl>
+        <DownloadSize></DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Verbesserte Formatierung der HTML-Statistikausgabe durch die Verwendung von CSS</ChangeItem>
+            <ChangeItem>Neu: Ausgabe von Statistiken jetzt auch als PDF-Dokument möglich</ChangeItem>
+            <ChangeItem>Neu: Statistik-Filter für Fahrten nur vom Bootshaus aus</ChangeItem>
+            <ChangeItem>Neu: Für jeden (benutzerdefinierten) Status von Personen kann jetzt festgelegt werden, ob es sich um einen Mitgliedsstatus handelt oder nicht</ChangeItem>
+            <ChangeItem>Neu: Zusätzliche Funktionalität kann jetzt in Form von Plugins zu efa hinzugefügt werden</ChangeItem>
+            <ChangeItem>Neu: Bestehende Plugins auf neue Versionen aktualisiert</ChangeItem>
+            <ChangeItem>Bugfix: Leerer Bootshaus-Datensatz aus bestehenden Projekten wird von efa automatisch repariert</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.6_04</VersionID>
+        <ReleaseDate>12.12.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa206.zip</DownloadUrl>
+        <DownloadSize>3005476</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Leerer Bootshaus-Datensatz ohne Namen bei neu erstellten Projekt führte zu Fehlern beim ermitteln des aktuellen Bootshauses</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Empty boathouse record without name for newly created projects caused errors when trying to determine boathouse name</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.6_03</VersionID>
+        <ReleaseDate>10.12.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa206.zip</DownloadUrl>
+        <DownloadSize>3005552</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Fehler "null" bei Überprüfung von Bootsbenutzungsrechten beim Beginnen einer Fahrt behoben</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Error "null" when checking boat usage permission at session start fixed</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.6_02</VersionID>
+        <ReleaseDate>09.12.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa206.zip</DownloadUrl>
+        <DownloadSize>3005381</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: NullPointerException beim Beginnen von Fahrten mit unbekannten Personen</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: NullPointerException when starting sessions for unknown persons</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.6_01</VersionID>
+        <ReleaseDate>08.12.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa206.zip</DownloadUrl>
+        <DownloadSize>3005221</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: NullPointerException bei Wochentagsauswahl (Englisch) behoben</ChangeItem>
+            <ChangeItem>Bugfix: Suche nach Fahrtenbuchdateien bei efa1-Import findet Fahrtenbücher jetzt unabhängig von Klein- oder Grußbuchstaben in Extension</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: NullPointerException for selection of weekdays fixed</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.0.6_00</VersionID>
         <ReleaseDate>05.12.2012</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa206.zip</DownloadUrl>

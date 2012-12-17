@@ -625,7 +625,7 @@ public class EfaTypes extends StorageObject {
     }
 
     public static String[] makeDayOfWeekArray(int type) {
-        int shift = (International.getLanguageID().startsWith("de") ? 0 : -1);
+        int shift = (International.getLanguageID().startsWith("de") ? 0 : 6);
         String[] list = new String[7];
         for(int i=0; i<list.length; i++) {
             int nrOfDay = (i + shift) % 7;

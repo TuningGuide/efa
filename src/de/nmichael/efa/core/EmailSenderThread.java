@@ -124,6 +124,10 @@ public class EmailSenderThread extends Thread {
             for (int i=0; i<addresses.size(); i++) {
                 recipients.append( (recipients.length() > 0 ? ", " : "") + addresses.get(i));
             }
+            if (Logger.isTraceOn(Logger.TT_BACKGROUND, 3)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_SENDMAIL,
+                        "Trying to send message " + msg.getMessageId() + " to " + recipients.toString() + " ...");
+            }
             boolean auth = (serverUsername != null && serverPassword != null);
             Properties props = new Properties();
             props.put("mail.smtp.host", serverUrl);
@@ -131,7 +135,7 @@ public class EmailSenderThread extends Thread {
             if (auth) {
                 props.put("mail.smtp.auth", "true");
             }
-            if (Logger.isDebugLoggin()) {
+            if (Logger.isTraceOn(Logger.TT_BACKGROUND, 5)) {
                 props.put("mail.debug", "true");
             }
             MailAuthenticator ma = null;
@@ -140,6 +144,9 @@ public class EmailSenderThread extends Thread {
             }
             String charset = "ISO-8859-1";
             javax.mail.Session session = javax.mail.Session.getInstance(props, ma);
+            if (Logger.isTraceOn(Logger.TT_BACKGROUND, 5)) {
+                session.setDebugOut(Logger.getPrintStream());
+            }
             com.sun.mail.smtp.SMTPMessage mail = new com.sun.mail.smtp.SMTPMessage(session);
             mail.setAllow8bitMIME(true);
             mail.setHeader("X-Mailer", Daten.EFA_SHORTNAME + " " + Daten.VERSIONID);

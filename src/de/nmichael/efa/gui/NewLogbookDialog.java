@@ -206,7 +206,8 @@ public class NewLogbookDialog extends StepwiseDialog {
                     Dialog.infoDialog(International.getMessage("Fahrtenbuchwechsel zum {datum} konfiguriert.",
                             logFromDate.getDate().toString()));
                 } else {
-                    Dialog.error(International.getString("Fahrtenbuchwechsel konnte nicht konfiguriert werden."));
+                    Dialog.error(International.getString("Fahrtenbuchwechsel konnte nicht konfiguriert werden.") + "\n" +
+                            "BoathouseRecord not found - please check your boathouse configuration in the project");
                 }
             }
             setDialogResult(true);

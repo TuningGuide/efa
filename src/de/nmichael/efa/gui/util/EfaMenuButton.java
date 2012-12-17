@@ -41,6 +41,7 @@ public class EfaMenuButton {
     public final static String BUTTON_LOGBOOKS          = "LOGBOOKS";
     public final static String BUTTON_BACKUP            = "BACKUP";
     public final static String BUTTON_UPDATE            = "UPDATE";
+    public final static String BUTTON_PLUGINS           = "PLUGINS";
     public final static String BUTTON_OSCOMMAND         = "OSCOMMAND";
     public final static String BUTTON_EXIT              = "EXIT";
 
@@ -169,6 +170,12 @@ public class EfaMenuButton {
                     International.getStringWithMnemonic("Datei"),
                     International.getStringWithMnemonic("Online-Update"),
                     BaseFrame.getIcon("menu_update.png")));
+        }
+        if (admin == null || admin.isAllowedUpdateEfa()) {
+            v.add(new EfaMenuButton(MENU_FILE, BUTTON_PLUGINS,
+                    International.getStringWithMnemonic("Datei"),
+                    International.getStringWithMnemonic("Plugins"),
+                    BaseFrame.getIcon("menu_plugins.png")));
         }
         if (admin == null || admin.isAllowedExecCommand()) {
             v.add(new EfaMenuButton(MENU_FILE, BUTTON_OSCOMMAND,
@@ -474,6 +481,17 @@ public class EfaMenuButton {
             } else {
                 OnlineUpdate.runOnlineUpdate(parentDialog, Daten.ONLINEUPDATE_INFO);
             }
+            return false; // nothing to do for caller of this method
+        }
+
+        if (action.equals(BUTTON_PLUGINS)) {
+            if (admin == null || (!admin.isAllowedUpdateEfa())) {
+                insufficientRights(admin, action);
+                return false;
+            }
+
+            PluginDialog pdlg = new PluginDialog(parentDialog);
+            pdlg.showDialog();
             return false; // nothing to do for caller of this method
         }
 

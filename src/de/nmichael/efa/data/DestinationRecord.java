@@ -247,8 +247,6 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
         }
         if (end != null && end.length() > 0) {
             s.append(" - " + end);
-        } else {
-            s.append(" - ?");
         }
         if (getRoundtrip()) {
             s.append(" (" + International.getString("Start gleich Ziel") + ")");
@@ -265,18 +263,22 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
             }
         }
         if (start == null || start.length() == 0) {
-            start = "?";
+            start = null;
         }
         if (end == null || end.length() == 0) {
             end = getName();
         }
-        if (end == null || end.length() == 0) {
-            end = "?";
+        if (end == null) {
+            end = "";
+        }
+        if (start == null && end.length() == 0) {
+            return "?";
         }
         if (getRoundtrip()) {
-            return start + " - " + end + " - " + start;
+            return (start != null ? start + " - " : "") + end +
+                   (start != null ? " - " + start : "");
         } else {
-            return start + " - " + end;
+            return (start != null ? start + " - " : "") + end;
         }
     }
 

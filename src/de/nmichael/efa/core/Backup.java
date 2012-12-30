@@ -113,9 +113,9 @@ public class Backup {
                         data.getStorageObjectDescription(), e.toString()));
                 Logger.logdebug(e);
             }
-        }
-        if (backupTask != null) {
-            backupTask.setCurrentWorkDone(++totalWorkDone);
+            if (backupTask != null) {
+                backupTask.setCurrentWorkDone(++totalWorkDone);
+            }
         }
         return successful;
     }

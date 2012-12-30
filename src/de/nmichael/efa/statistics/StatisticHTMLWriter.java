@@ -245,7 +245,8 @@ public class StatisticHTMLWriter extends StatisticWriter {
                         f.write("<tr>\n");
                     }
 
-                    if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list) {
+                    if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list ||
+                        sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
                         outHTML(f, sd[i].sPosition, "entry_pos");
                         outHTML(f, sd[i].sName, "entry_data");
                         outHTML(f, sd[i].sGender, "entry_data");
@@ -267,8 +268,21 @@ public class StatisticHTMLWriter extends StatisticWriter {
                         outHTML(f, sd[i].sAvgDistance, sd[i].avgDistance,
                                 (sdMaximum != null && !sd[i].isSummary ? sdMaximum.avgDistance : 0),
                                 "entry_avgdistance", sr.sAggrAvgDistanceBarSize);
+                        outHTML(f, sd[i].sDuration, sd[i].duration,
+                                (sdMaximum != null && !sd[i].isSummary ? sdMaximum.duration : 0),
+                                "entry_duration", sr.sAggrDurationBarSize);
+                        outHTML(f, sd[i].sSpeed, sd[i].speed,
+                                (sdMaximum != null && !sd[i].isSummary ? sdMaximum.speed : 0),
+                                "entry_speed", sr.sAggrSpeedBarSize);
                         outHTML(f, sd[i].sDestinationAreas, "entry_data");
                         outHTML(f, sd[i].sWanderfahrten, 0, 0, null, 0);
+                        if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
+                            for (int j = sr.pMatrixColumnFirst; j < sr.pTableColumns.size(); j++) {
+                                StatisticsData sdm = (sd[i].matrixData != null ?
+                                    sd[i].matrixData.get(sr.pMatrixColumns.get(sr.pTableColumns.get(j))) : null);
+                                outHTML(f, EfaUtil.escapeHtml(getMatrixString(sdm)), "entry_data");
+                            }
+                        }
                     }
                     if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook) {
                         if (sd[i].logbookFields != null) {
@@ -387,6 +401,10 @@ public class StatisticHTMLWriter extends StatisticWriter {
                         image = "color_red.gif";
                     } else if ("entry_avgdistance".equals(cssclass)) {
                         image = "color_green.gif";
+                    } else if ("entry_duration".equals(cssclass)) {
+                        image = "color_cyan.gif";
+                    } else if ("entry_speed".equals(cssclass)) {
+                        image = "color_magenta.gif";
                     }
                 }
                 f.write("<img" + (cssclass != null ? " class=\"" + cssclass + "\"" : "")

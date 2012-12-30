@@ -59,6 +59,40 @@ public abstract class StatisticWriter {
         return sw;
     }
 
+    protected String getMatrixString(StatisticsData sdm) {
+        StringBuilder s = new StringBuilder();
+        if (sdm != null) {
+            if (sdm.sDistance != null) {
+                s.append((s.length() > 0 ? "; " : "") + sdm.sDistance);
+            }
+            if (sdm.sRowDistance != null) {
+                s.append((s.length() > 0 ? "; " : "") + sdm.sRowDistance);
+            }
+            if (sdm.sCoxDistance != null) {
+                s.append((s.length() > 0 ? "; " : "") + sdm.sCoxDistance);
+            }
+            if (sdm.sSessions != null) {
+                s.append((s.length() > 0 ? "; " : "") + sdm.sSessions);
+            }
+            if (sdm.sAvgDistance != null) {
+                s.append((s.length() > 0 ? "; " : "") + sdm.sAvgDistance);
+            }
+            if (sdm.sDuration != null) {
+                s.append((s.length() > 0 ? "; " : "") + sdm.sDuration);
+            }
+            if (sdm.sSpeed != null) {
+                s.append((s.length() > 0 ? "; " : "") + sdm.sSpeed);
+            }
+            if (sdm.sDestinationAreas != null) {
+                s.append((s.length() > 0 ? "; " : "") + sdm.sDestinationAreas);
+            }
+            if (sdm.sWanderfahrten != null) {
+                s.append((s.length() > 0 ? "; " : "") + sdm.sWanderfahrten);
+            }
+        }
+        return s.toString();
+    }
+
     public abstract boolean write();
 
     public String getResultMessage() {

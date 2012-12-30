@@ -19,10 +19,9 @@ import de.nmichael.efa.data.efawett.Zielfahrt;
 import de.nmichael.efa.data.efawett.ZielfahrtFolge;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeDistance;
-import de.nmichael.efa.data.types.DataTypeHours;
 import de.nmichael.efa.data.types.DataTypeIntString;
 import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.International;
+import java.util.Hashtable;
 
 public class StatisticsData implements Comparable {
 
@@ -31,7 +30,7 @@ public class StatisticsData implements Comparable {
 
     public static final String SORTING_PREFIX  = "%%";
     public static final String SORTING_POSTFIX = "$$";
-    public static final String SORTTOEND_PREFIX = "$END$";
+    public static final String SORTTOEND_PREFIX = "~END~";
 
     private StatisticsRecord sr;
 
@@ -47,6 +46,8 @@ public class StatisticsData implements Comparable {
     String sCoxDistance;
     String sSessions;
     String sAvgDistance;
+    String sDuration;
+    String sSpeed;
     String sDestinationAreas;
     String sWanderfahrten;
     String sAdditional;
@@ -64,6 +65,8 @@ public class StatisticsData implements Comparable {
     long coxdistance = 0;
     long sessions = 0;
     long avgDistance = 0;
+    long duration = 0; // in minutes
+    long speed = 0;
     SessionHistory sessionHistory;
     double clubwork = 0;
     double clubworkRelativeToTarget = 0;
@@ -74,6 +77,7 @@ public class StatisticsData implements Comparable {
     DataTypeDate date;
     String[] logbookFields;
     CompetitionData compData;
+    public Hashtable<Object,StatisticsData> matrixData;
 
     PersonRecord personRecord; // filled by postprocessing if this is a person
     String gender;
@@ -105,6 +109,7 @@ public class StatisticsData implements Comparable {
         this.rowdistance += sd.rowdistance;
         this.coxdistance += sd.coxdistance;
         this.sessions += sd.sessions;
+        this.duration += sd.duration;
         this.clubwork += sd.clubwork;
     }
 
@@ -120,6 +125,17 @@ public class StatisticsData implements Comparable {
         }
         if (sd.sessions > this.sessions) {
             this.sessions = sd.sessions;
+        }
+        long myAvgDist = (sd.sessions > 0 ? sd.distance / sd.sessions : 0);
+        if (myAvgDist > this.avgDistance) {
+            this.avgDistance = myAvgDist;
+        }
+        if (sd.duration > this.duration) {
+            this.duration = sd.duration;
+        }
+        long mySpeed = (sd.duration > 0 ? sd.distance*60 / sd.duration : 0);
+        if (mySpeed > this.speed) {
+            this.speed = mySpeed;
         }
         if (sd.clubwork > this.clubwork) {
             this.clubwork = sd.clubwork;
@@ -230,6 +246,24 @@ public class StatisticsData implements Comparable {
             } else {
                 this.avgDistance = 0;
                 this.sAvgDistance = "";
+            }
+        }
+        if (sr.sIsAggrDuration) {
+            if (sr.sIgnoreNullValues && duration == 0) {
+                this.sDuration = "";
+            } else {
+                this.sDuration = EfaUtil.getHHMMstring(duration) +
+                        (sr.sDistanceWithUnit ? " h" : "");
+            }
+        }
+        if (sr.sIsAggrSpeed) {
+            if (this.duration > 0) {
+                this.speed = this.distance*60 / this.duration;
+                this.sSpeed = DataTypeDistance.getDistance(this.speed).getStringValueInDefaultUnit(sr.sDistanceWithUnit, 1, 1)
+                        + (sr.sDistanceWithUnit ? "/h" : "");
+            } else {
+                this.speed = 0;
+                this.sSpeed = "";
             }
         }
         if (sr.sIsAggrZielfahrten) {
@@ -354,6 +388,20 @@ public class StatisticsData implements Comparable {
                 if (this.avgDistance > osd.avgDistance) {
                     return 1 * order;
                 } else if (this.avgDistance < osd.avgDistance) {
+                    return -1 * order;
+                }
+                break;
+            case duration:
+                if (this.duration > osd.duration) {
+                    return 1 * order;
+                } else if (this.duration < osd.duration) {
+                    return -1 * order;
+                }
+                break;
+            case speed:
+                if (this.speed > osd.speed) {
+                    return 1 * order;
+                } else if (this.speed < osd.speed) {
                     return -1 * order;
                 }
                 break;

@@ -153,17 +153,17 @@ public class XMLFile extends DataFile {
         }
     }
 
-    private static String xmltagStart(XmlFileInfo data, String tag) {
+    public static String xmltagStart(XmlFileInfo data, String tag) {
         data.indent++;
         return "<" + tag + ">";
     }
 
-    private static String xmltagEnd(XmlFileInfo data, String tag) {
+    public static String xmltagEnd(XmlFileInfo data, String tag) {
         data.indent--;
         return "</" + tag + ">";
     }
 
-    private static String xmltag(XmlFileInfo data, String tag, String value) {
+    public static String xmltag(XmlFileInfo data, String tag, String value) {
         return xmltagStart(data, tag) +
                 EfaUtil.escapeXml(value) +
                 xmltagEnd(data, tag);
@@ -196,7 +196,7 @@ class XmlFileInfo {
         this.dataAccess = dataAccess;
         this.out = out;
         // BufferedWriter is more efficient for files; only used if out is an instance of FileOutputStream
-        if (out instanceof FileOutputStream) {
+        if (out != null && out instanceof FileOutputStream) {
             try {
                 fout = new BufferedWriter(new OutputStreamWriter(out, XMLFile.ENCODING));
                 fout2 = getMirrorFile();

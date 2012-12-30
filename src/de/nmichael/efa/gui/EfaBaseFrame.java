@@ -2305,12 +2305,54 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     private boolean checkAllowedDateForLogbook() {
         long tRec = getValidAtTimestamp(null);
         if (tRec < logbookValidFrom || tRec >= logbookInvalidFrom) {
-            String msg = getLogbookRecordStringWithEntryNo() + ": " +
-                    International.getMessage("Der Eintrag kann nicht gespeichert werden, da er außerhalb des gültigen Zeitraums ({startdate} - {enddate}) " +
-                    "für dieses Fahrtenbuch liegt.", logbook.getStartDate().toString(), logbook.getEndDate().toString());
-            Logger.log(Logger.WARNING, Logger.MSG_EVT_ERRORADDRECORDOUTOFRANGE, msg+" (" + getFields().toString() + ")");
-            Dialog.error(msg);
-            date.requestFocus();
+            if (getMode() != MODE_BOATHOUSE_LATEENTRY) {
+                String msg = getLogbookRecordStringWithEntryNo() + ": "
+                        + International.getMessage("Der Eintrag kann nicht gespeichert werden, da er außerhalb des gültigen Zeitraums ({startdate} - {enddate}) "
+                        + "für dieses Fahrtenbuch liegt.", logbook.getStartDate().toString(), logbook.getEndDate().toString());
+                Logger.log(Logger.WARNING, Logger.MSG_EVT_ERRORADDRECORDOUTOFRANGE, msg + " (" + getFields().toString() + ")");
+                Dialog.error(msg);
+                date.requestFocus();
+            } else {
+                currentRecord = getFields();
+                String msg = International.getMessage("Das Datum {date} liegt außerhalb des Zeitraums " + 
+                        "für dieses Fahrtenbuch ({dateFrom} - {dateTo}) und kann daher nicht gespeichert werden. " +
+                        "Du kannst diesen Eintrag aber zum Nachtrag an den Administrator senden.",
+                        (currentRecord.getDate() != null ? currentRecord.getDate().toString() : "?"),
+                        logbook.getStartDate().toString(), logbook.getEndDate().toString()) + "\n" +
+                        International.getString("Was möchtest Du tun?");
+                switch(Dialog.auswahlDialog(getLogbookRecordStringWithEntryNo(), msg,
+                        International.getString("Datum korrigieren"),
+                        International.getString("Nachtrag an Admin senden"), true)) {
+                    case 0:
+                        date.requestFocus();
+                        break;
+                    case 1:
+                        String fname = Daten.efaTmpDirectory + "entry_" +
+                                EfaUtil.getCurrentTimeStampYYYYMMDD_HHMMSS() + ".xml";
+                        String entryNo = getLogbookRecordStringWithEntryNo();
+                        currentRecord.setEntryId(null);
+                        if (currentRecord.saveRecordToXmlFile(fname)) {
+                            Daten.project.getMessages(false).createAndSaveMessageRecord(
+                                    MessageRecord.TO_ADMIN, International.getString("Nachtrag"),
+                                    International.getMessage("Ein Nachtrag für {datum} konnte im Fahrtenbuch {logbook} nicht gespeichert werden, " +
+                                                             "da sein Datum außerhalb des Zeitraums für dieses Fahrtenbuch liegt ({dateFrom} - {dateTo}).",
+                                                             currentRecord.getDate().toString(), logbook.getName(),
+                                                             logbook.getStartDate().toString(), logbook.getEndDate().toString()) + "\n\n" +
+                                                             currentRecord.getLogbookRecordAsStringDescription() + "\n\n"+
+                                                             International.getMessage("Der Eintrag wurde als Importdatei {name} abgespeichert " +
+                                                                                      "und kann durch Import dieser Datei zum entsprechenden Fahrtenbuch hinzugefügt werden.",
+                                                                                      fname));
+                            Dialog.infoDialog(International.getMessage("{entry} wurde zum Nachtrag an den Admin geschickt und wird erst nach der Bestätigung durch den Admin sichtbar sein.",
+                                    entryNo));
+                            cancel();
+                        } else {
+                            Dialog.error(LogString.operationFailed(International.getString("Nachtrag an Admin senden")));
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
             return false;
         }
         return true;
@@ -2518,7 +2560,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 String nichtErlaubt = null;
                 int nichtErlaubtAnz = 0;
                 //Vector g = Boote.getGruppen(b);
-                for (int i = 0; i < LogbookRecord.CREW_MAX; i++) {
+                for (int i = 0; i <= LogbookRecord.CREW_MAX; i++) {
                     PersonRecord p = myRecord.getCrewRecord(i, tstmp);
                     String ptext = myRecord.getCrewName(i);
                     if (p == null && ptext == null) {
@@ -2610,7 +2652,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 GroupRecord g = groups.findGroupRecord(currentBoat.getRequiredGroupId(), tstmp);
                 boolean found = false;
                 if (g != null && g.getMemberIdList() != null) {
-                    for (int i = 0; i < LogbookRecord.CREW_MAX; i++) {
+                    for (int i = 0; i <= LogbookRecord.CREW_MAX; i++) {
                         PersonRecord p = myRecord.getCrewRecord(i, tstmp);
                         if (p != null && g.getMemberIdList().contains(p.getId())) {
                             found = true;

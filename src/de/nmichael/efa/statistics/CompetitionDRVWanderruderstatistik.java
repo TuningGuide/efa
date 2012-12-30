@@ -38,10 +38,6 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
     protected Waters waters = Daten.project.getWaters(false);
 
     public static Object getAggregationKey(LogbookRecord r, long validAt) {
-        if (!CompetitionDRVFahrtenabzeichen.mayBeWafa(r)) {
-            return null;
-        }
-
         SessionGroupRecord sg = r.getSessionGroup();
         if (sg != null) {
             return "##" + sg.getStartDate().toString() +
@@ -135,6 +131,10 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
             }
         }
 
+        if (!CompetitionDRVFahrtenabzeichen.mayBeWafa(r)) {
+            return 0;
+        }
+
         SessionGroupRecord sg = r.getSessionGroup();
         DestinationRecord destination = r.getDestinationRecord(r.getValidAtTimestamp());
         if (sd.compData == null) {
@@ -162,7 +162,11 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
         if (fahrtDetails == null && destination != null) {
             fahrtDetails = destination.getDestinationDetailsAsSimpleStartEndString();
         }
-        String etappenName = r.getDate().toString() + "##" + r.getDestinationAndVariantName(sr.sValidAt);
+        if (fahrtDetails == null) {
+            fahrtDetails = fahrtName;
+        }
+        String etappenName = (r.getDate().toString() + "##" +
+                r.getDestinationAndVariantName(sr.sValidAt)).toLowerCase();
         if (sd.entryNo == null) {
             sd.entryNo = r.getEntryId();
         }

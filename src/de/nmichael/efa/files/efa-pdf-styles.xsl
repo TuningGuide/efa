@@ -190,8 +190,11 @@
             <xsl:apply-templates select="CoxDistance"/>
             <xsl:apply-templates select="Sessions"/>
             <xsl:apply-templates select="AvgDistance"/>
+            <xsl:apply-templates select="Duration"/>
+            <xsl:apply-templates select="Speed"/>
             <xsl:apply-templates select="DestinationAreas"/>
             <xsl:apply-templates select="WanderfahrtKm"/>
+            <xsl:apply-templates select="MatrixColumn"/>
 	  </fo:table-row>
         </xsl:for-each>
       </fo:table-body>
@@ -296,11 +299,23 @@
     <fo:table-cell padding-right="6pt"><fo:block text-align="right"><xsl:value-of select="."/></fo:block></fo:table-cell>
   </xsl:template>
 
+  <xsl:template match="Duration">
+    <fo:table-cell padding-right="6pt"><fo:block text-align="right"><xsl:value-of select="."/></fo:block></fo:table-cell>
+  </xsl:template>
+
+  <xsl:template match="Speed">
+    <fo:table-cell padding-right="6pt"><fo:block text-align="right"><xsl:value-of select="."/></fo:block></fo:table-cell>
+  </xsl:template>
+
   <xsl:template match="DestinationAreas">
     <fo:table-cell padding-right="6pt"><fo:block><xsl:value-of select="."/></fo:block></fo:table-cell>
   </xsl:template>
 
   <xsl:template match="WanderfahrtKm">
+    <fo:table-cell padding-right="6pt"><fo:block text-align="right"><xsl:value-of select="."/></fo:block></fo:table-cell>
+  </xsl:template>
+
+  <xsl:template match="MatrixColumn">
     <fo:table-cell padding-right="6pt"><fo:block text-align="right"><xsl:value-of select="."/></fo:block></fo:table-cell>
   </xsl:template>
 

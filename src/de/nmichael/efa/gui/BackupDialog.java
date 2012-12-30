@@ -200,7 +200,7 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
                     }
                 }
                 if (containsProjectData && 
-                        (Daten.project == null || 
+                        (Daten.project == null || Daten.project.getProjectName() == null ||
                          !Daten.project.getProjectName().equals(restoreMetaData.getProjectName()))
                         ) {
                     if (Dialog.yesNoCancelDialog(International.getString("Backup einspielen"),

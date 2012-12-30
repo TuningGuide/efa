@@ -408,6 +408,10 @@ public class RemoteEfaServer {
                         responses.add(requestGetLast(request, admin, p));
                         break;
                     }
+                    if (operation.equals(RemoteEfaMessage.OPERATION_SETINOPENINGMODE)) {
+                        responses.add(requestSetInOpeningStorageObject(request, admin, p));
+                        break;
+                    }
 
                     if (operation.equals(RemoteEfaMessage.OPERATION_CMD_EXITEFA)) {
                         responses.add(requestCmdExitEfa(request, admin));
@@ -897,6 +901,16 @@ public class RemoteEfaServer {
             if (r != null) {
                 response.addRecord(r);
             }
+            return response;
+        } catch(Exception e) {
+            return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.ERROR_UNKNOWN, e.toString());
+        }
+    }
+
+    private RemoteEfaMessage requestSetInOpeningStorageObject(RemoteEfaMessage request, AdminRecord admin, StorageObject p) {
+        try {
+            p.data().setInOpeningStorageObject(request.getBoolean());
+            RemoteEfaMessage response = RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_OK, null);
             return response;
         } catch(Exception e) {
             return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.ERROR_UNKNOWN, e.toString());

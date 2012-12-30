@@ -2,22 +2,77 @@
 <efaOnlineUpdate>
 
     <Version>
-        <VersionID>2.0.7_#2</VersionID>
-        <ReleaseDate>xx.12.2012</ReleaseDate>
-        <DownloadUrl>http://efa.nmichael.de/download/efa206.zip</DownloadUrl>
-        <DownloadSize></DownloadSize>
+        <VersionID>2.0.7_00</VersionID>
+        <ReleaseDate>30.12.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3230258</DownloadSize>
 
         <Changes lang="de">
             <ChangeItem>Neu: Verbesserte Formatierung der HTML-Statistikausgabe durch die Verwendung von CSS</ChangeItem>
             <ChangeItem>Neu: Ausgabe von Statistiken jetzt auch als PDF-Dokument möglich</ChangeItem>
-            <ChangeItem>Neu: Statistik-Filter für Fahrten nur vom Bootshaus aus</ChangeItem>
+            <ChangeItem>Neu: Statistik-Filter für Fahrten mit Start und Ziel am Bootshaus</ChangeItem>
             <ChangeItem>Neu: Für jeden (benutzerdefinierten) Status von Personen kann jetzt festgelegt werden, ob es sich um einen Mitgliedsstatus handelt oder nicht</ChangeItem>
             <ChangeItem>Neu: Zusätzliche Funktionalität kann jetzt in Form von Plugins zu efa hinzugefügt werden</ChangeItem>
             <ChangeItem>Neu: Bestehende Plugins auf neue Versionen aktualisiert</ChangeItem>
-            <ChangeItem>Bugfix: Leerer Bootshaus-Datensatz aus bestehenden Projekten wird von efa automatisch repariert</ChangeItem>
+            <ChangeItem>Neu: Statistikauswertung von Tageszeiten jetzt möglich</ChangeItem>
+            <ChangeItem>Neu: In Statistikauswertungen können jetzt auch alle diejenigen Einträge ausgegeben werden, zu denen es im Berechnungszeitraum keine Fahrten gibt</ChangeItem>
+            <ChangeItem>Neu: Neue Statistik-Ausgabefelder "Dauer" und "Geschwindigkeit"</ChangeItem>
+            <ChangeItem>Neu: Nachtragsmöglichkeit für Fahrten außerhalb des Gültigkeitszeitraums des aktuellen Fahrtenbuchs</ChangeItem>
+            <ChangeItem>Neu: Statistikauswertung von Matrix-Statistiken</ChangeItem>
+            <ChangeItem>Neu: efa prüft beim Start, ob efa sich zuletzt regulär beendet hat, und warnt falls nicht</ChangeItem>
+            <ChangeItem>Bugfix: Fehler beim Wiederherstellen eines Backups über efa-Remote (efaCLI, run_restore.sh) behoben, der insb. zur Beschädigung der Projekt-Datei führte</ChangeItem>
+            <ChangeItem>Bugfix: Fehler beim Löschen von beschädigten Projekten behoben</ChangeItem>
+            <ChangeItem>Bugfix: Fahrtenabzeichen von Personen, die derzeit ungültig sind, werden jetzt ausgegraut dargestellt</ChangeItem>
+            <ChangeItem>Bugfix: Fehler bei Zählung der aktiven Mitglieder für DRV-Wanderruderstatistik behoben</ChangeItem>
+            <ChangeItem>Bugfix: efa ist bei Auswertung von Etappen für Wanderfahrten jetzt toleranter und betrachtet zwei Etappen unabhängig von Groß- und Kleinschreibung als gleich</ChangeItem>
+            <ChangeItem>Bugfix: Sortierreihenfolge einiger Statistiken korrigiert</ChangeItem>
+            <ChangeItem>Bugfix: Unvollständige Ausgabe der Streckenangaben für DRV-Wanderruderstatistik korrigiert</ChangeItem>
+            <ChangeItem>Bugfix: Fehlerhafte Balkengröße für km/Fahrt in Statistikausgabe behoben</ChangeItem>
+            <ChangeItem>Bugfix: Fortschrittsbalken-Anzeige bei Backup korrigiert</ChangeItem>
+            <ChangeItem>Bugfix: Nachrichten werden jetzt mit Zeilenumbruch angezeigt</ChangeItem>
+            <ChangeItem>Bugfix: Text-Export von Fahrtenbuch beinhaltete virtuelles Feld</ChangeItem>
+            <ChangeItem>Bugfix: efa berücksichtigt für Wettbewerbe unabhängig von den ausgewählten Filtereinstellungen jetzt nur noch Mitglieder</ChangeItem>
+            <ChangeItem>Bugfix: Fehler bei Auswertung der 24. Person im Boot korrigiert</ChangeItem>
+            <ChangeItem>Bugfix: Fehler (Hang) bei Wiederherstellung von Daten bei unvollständigen Journals behoben</ChangeItem>
         </Changes>
 
         <Changes lang="en">
+            <ChangeItem>New: Improved formatting of HTML statistics through CSS</ChangeItem>
+            <ChangeItem>Neu: Output of statistics in PDF format</ChangeItem>
+            <ChangeItem>Neu: Statistics filter for sessions with start and destination at boathouse</ChangeItem>
+            <ChangeItem>Neu: For user-defined status it's possible to specify whether this is a member or non-member status</ChangeItem>
+            <ChangeItem>Neu: Plugin mechanism to add functionality to efa</ChangeItem>
+            <ChangeItem>Neu: Existing plugins updated</ChangeItem>
+            <ChangeItem>Neu: Statistic calculation based on time of day</ChangeItem>
+            <ChangeItem>Neu: Entries without sessions in statistic window can be printed as entries with 0 distance</ChangeItem>
+            <ChangeItem>Neu: New statistic output fields "duration" and "speed"</ChangeItem>
+            <ChangeItem>Neu: Late entry of sessions outside the timespan of the current logbook possible</ChangeItem>
+            <ChangeItem>Neu: New matrix statistics</ChangeItem>
+            <ChangeItem>Neu: efa now checks for abnormal previous exit upon start</ChangeItem>
+            <ChangeItem>Bugfix: Error for remote project restore (efaCLI, run_restore.sh) fixed</ChangeItem>
+            <ChangeItem>Bugfix: Error when deleting corrupted projects fixed</ChangeItem>
+            <ChangeItem>Bugfix: Sorting order in statistics fixed</ChangeItem>
+            <ChangeItem>Bugfix: Wrong bar size for some statistic outputs fixed</ChangeItem>
+            <ChangeItem>Bugfix: Progress bar in backup window fixed</ChangeItem>
+            <ChangeItem>Bugfix: Messages are now displayed with line breaks</ChangeItem>
+            <ChangeItem>Bugfix: Bugfix for text export of logbook</ChangeItem>
+            <ChangeItem>Bugfix: Wrong calculation of 24th person in boats fixed</ChangeItem>
+            <ChangeItem>Bugfix: Error (hang) in roll forward with incomplete journals fixed</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.6_05</VersionID>
+        <ReleaseDate>23.12.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa206.zip</DownloadUrl>
+        <DownloadSize>3010324</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Leerer Bootshaus-Datensatz ohne Namen wird jetzt bei bestehenden Projekten repariert</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Empty boathouse record without name will automatically be repaired by efa for existing projects</ChangeItem>
         </Changes>
     </Version>
 

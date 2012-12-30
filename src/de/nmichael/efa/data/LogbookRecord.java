@@ -19,6 +19,9 @@ import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.util.*;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.*;
 
 // @i18n complete
@@ -599,7 +602,7 @@ public class LogbookRecord extends DataRecord {
     public Vector<String> getAllCoxAndCrewAsNames(long validAt) {
         Vector<String> v = new Vector<String>();
         String s;
-        for (int i=0; i<CREW_MAX; i++) {
+        for (int i=0; i<=CREW_MAX; i++) {
             if ( (s = getPersonAsName(i, validAt)).length() > 0) {
                 v.add(s);
             }
@@ -624,7 +627,7 @@ public class LogbookRecord extends DataRecord {
     public int getNumberOfCrewMembers() {
         int c = 0;
         long validAt = getValidAtTimestamp();
-        for (int i=0; i<CREW_MAX; i++) {
+        for (int i=0; i<=CREW_MAX; i++) {
             if (getPersonAsName(i, validAt).length() > 0) {
                 c++;
             }
@@ -770,7 +773,7 @@ public class LogbookRecord extends DataRecord {
         if (fieldName.equals(EXP_COX)) {
             return new String[] { COXID, COXNAME };
         }
-        for (int i = 0; i < CREW_MAX; i++) {
+        for (int i = 0; i <= CREW_MAX; i++) {
             if (fieldName.equals(EXP_CREW+i)) {
                 return new String[]{ getCrewFieldNameId(i), getCrewFieldNameName(i) };
             }
@@ -788,7 +791,7 @@ public class LogbookRecord extends DataRecord {
     }
 
     public String[] getFieldNamesForTextExport(boolean includingVirtual) {
-        String[] allFields = getPersistence().data().getFieldNames();
+        String[] allFields = getPersistence().data().getFieldNames(includingVirtual);
         ArrayList<String> expFields = new ArrayList<String>();
         for (String f : allFields) {
             boolean found = false;
@@ -1046,7 +1049,8 @@ public class LogbookRecord extends DataRecord {
         try {
             StringBuffer s = new StringBuffer();
             s.append(International.getMessage("#{entry} vom {date} mit {boat}",
-                    getEntryId().toString(),
+                    (getEntryId() != null ? getEntryId().toString() :
+                        International.getString("Fahrtenbucheintrag")),
                     (getDate() != null ? getDate().toString() : "?"),
                     getBoatAsName()) + ": ");
             s.append(getAllCoxAndCrewAsNameString() + ": ");
@@ -1085,5 +1089,40 @@ public class LogbookRecord extends DataRecord {
         return _bcNames;
     }
 
+    public long getEntryElapsedTimeInMinutes() {
+        DataTypeTime timeFrom = getStartTime();
+        DataTypeTime timeTo = getEndTime();
+        if (timeFrom == null || !timeFrom.isSet()
+                || timeTo == null || !timeTo.isSet()) {
+            return 0;
+        }
+        DataTypeDate dateFrom = getDate();
+        DataTypeDate dateTo   = getEndDate();
+        boolean multiDay =  (dateFrom != null && dateFrom.isSet() &&
+            dateTo != null && dateTo.isSet() &&
+            dateTo.isAfter(dateFrom));
+
+        if (!multiDay) {
+            return (timeTo.getTimeAsSeconds() - timeFrom.getTimeAsSeconds()) / 60;
+        } else {
+            return (dateTo.getTimestamp(timeTo) - dateFrom.getTimestamp(timeFrom)) / 60000;
+        }
+    }
+
+    public boolean saveRecordToXmlFile(String filename) {
+        try {
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), Daten.ENCODING_UTF));
+            out.write(XmlHandler.XML_HEADER + "\n");
+            out.write("<" + DataExport.FIELD_EXPORT + " " +
+                    DataExport.EXPORT_TYPE + "=\"" + DataExport.EXPORT_TYPE_ID + "\">\n");
+            out.write(encodeAsString() + "\n");
+            out.write("</" + DataExport.FIELD_EXPORT + ">\n");
+            out.close();
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            return false;
+        }
+        return true;
+    }
 
 }

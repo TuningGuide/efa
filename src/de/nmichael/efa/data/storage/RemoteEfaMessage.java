@@ -64,6 +64,7 @@ public class RemoteEfaMessage {
     public static final String OPERATION_GETFIRST                = "GetFirst";
     public static final String OPERATION_GETLAST                 = "GetLast";
     public static final String OPERATION_COUNTRECORDS            = "CountRecs";
+    public static final String OPERATION_SETINOPENINGMODE        = "SetInOpeningMode";
 
     public static final String OPERATION_CMD_EXITEFA             = "CmdExitEfa";
     public static final String OPERATION_CMD_ONLINEUPDATE        = "CmdOnlineUpdate";

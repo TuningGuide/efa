@@ -326,7 +326,7 @@ public class Persons extends StorageObject {
                             LogbookRecord r = (LogbookRecord) logbook.data().get(k);
                             if (r != null) {
                                 boolean changed = false;
-                                for (int i = 0; i < LogbookRecord.CREW_MAX; i++) {
+                                for (int i = 0; i <= LogbookRecord.CREW_MAX; i++) {
                                     if (isIdToBeMerged(r.getCrewId(i))) {
                                         r.setCrewId(i, mainID);
                                         changed = true;
@@ -399,7 +399,7 @@ public class Persons extends StorageObject {
                     CrewRecord r = (CrewRecord) crews.data().get(k);
                     if (r != null) {
                         boolean changed = false;
-                        for (int i=0; i<LogbookRecord.CREW_MAX; i++) {
+                        for (int i=0; i<=LogbookRecord.CREW_MAX; i++) {
                             if (isIdToBeMerged(r.getCrewId(i))) {
                                 r.setCrewId(i, mainID);
                                 changed = true;

@@ -368,6 +368,12 @@ public class Journal {
             }
 
             String s = j.readNextLine();
+            if (s == null) {
+                Logger.log(Logger.ERROR, Logger.MSG_DATA_REPLAYINCOMPLETE,
+                        LogString.operationStarted(
+                        International.getString("Nachfahren von Änderungen unvollständig")));
+                break;
+            }
             long thisScn = j.getScnFromJournalLine(s);
             if (thisScn < myScn) {
                 continue;

@@ -168,6 +168,7 @@ public class Logger {
     public static final String MSG_DATA_AUDIT_BOATSTATUSCORRECTED = "DAT048";
     public static final String MSG_DATA_AUDIT_OBJECTCREATED = "DAT049";
     public static final String MSG_DATA_AUDIT_OBJECTCREATIONFAILED = "DAT050";
+    public static final String MSG_DATA_REPLAYINCOMPLETE  = "DAT051";
     
     public static final String MSG_REFA_SERVERSTATUS                 = "RMT001";
     public static final String MSG_REFA_SERVERERROR                  = "RMT002";
@@ -305,6 +306,8 @@ public class Logger {
     public static final String MSG_WARN_FONTDOESNOTEXIST = "WRN014";
     public static final String MSG_WARN_WEATHERUPDATEFAILED = "WRN015";
     public static final String MSG_WARN_SAVEMESSAGE = "WRN016";
+    public static final String MSG_WARN_PREVIOUSEXITIRREGULAR = "WRN017";
+
     // File Operations
     public static final String MSG_FILE_FILEOPENFAILED = "FLE001";
     public static final String MSG_FILE_FILEREADFAILED = "FLE002";
@@ -481,6 +484,26 @@ public class Logger {
 
     public static PrintStream getPrintStream() {
         return efaErrorPrintStream;
+    }
+
+    public static String getLastLogEntry(String logfile) {
+        try {
+            String fname = createLogfileName(logfile);
+            RandomAccessFile file = new RandomAccessFile(fname, "r");
+            file.seek(Math.max(file.length() - 1000, 0));
+            String lastLine = null;
+            String s = null;
+            while ( (s = file.readLine()) != null) {
+                if (!s.contains(Logger.DEBUG)) {
+                    lastLine = s;
+                }
+            }
+            file.close();
+            return lastLine;
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return null;
     }
 
     /**

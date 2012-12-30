@@ -64,7 +64,7 @@ public class StatisticTask extends ProgressTask {
     private boolean entryPersonIsGuest;
     private boolean entryPersonIsOther;
     private String entryPersonGender;
-    private boolean entryPersonExclude;
+    private boolean entryPersonExcludeFromPublic;
     // ---
     private UUID entryDestinationId;
     private DestinationRecord entryDestinationRecord;
@@ -115,7 +115,7 @@ public class StatisticTask extends ProgressTask {
         entryPersonIsGuest = false;
         entryPersonIsOther = false;
         entryPersonGender = null;
-        entryPersonExclude = false;
+        entryPersonExcludeFromPublic = false;
         entryDestinationId = null;
         entryDestinationRecord = null;
         entryDestinationVariant = null;
@@ -201,7 +201,7 @@ public class StatisticTask extends ProgressTask {
         }
 
         // aggregate
-        if (sr.sIsAggrDistance || sr.sIsAggrAvgDistance) {
+        if (sr.sIsAggrDistance || sr.sIsAggrAvgDistance || sr.sIsAggrSpeed) {
             sd.distance += distance;
         }
         if (sr.sIsAggrRowDistance) {
@@ -210,8 +210,16 @@ public class StatisticTask extends ProgressTask {
         if (sr.sIsAggrCoxDistance) {
             sd.coxdistance += (cox ? distance : 0);
         }
-        if (sr.sIsAggrSessions || sr.sIsAggrAvgDistance) {
+        if (sr.sIsAggrSessions || sr.sIsAggrAvgDistance || sr.sIsAggrSpeed) {
             sd.sessions += entryNumberOfDays;
+        }
+        if (sr.sIsAggrDuration || sr.sIsAggrSpeed) {
+            long myDuration = r.getEntryElapsedTimeInMinutes();
+            if (r.getDistance() != null && r.getDistance().isSet() &&
+                r.getDistance().getValueInDefaultUnit() > distance) {
+                myDuration = (myDuration * distance) / r.getDistance().getValueInDefaultUnit();
+            }
+            sd.duration += myDuration;
         }
         if (sr.sIsAggrZielfahrten
                 && entryDestinationAreas != null && entryDestinationAreas.getAnzZielfahrten() > 0) {
@@ -279,93 +287,286 @@ public class StatisticTask extends ProgressTask {
         return cnt;
     }
 
+    private int calculateAggregationsForHash(LogbookRecord r, Hashtable hash, boolean cox) {
+        int cnt = 0;
+        Object[] keys = hash.keySet().toArray();
+        for (Object k : keys) {
+            long dist = (Long) hash.get(k);
+            cnt += calculateAggregations(r, k, dist, cox);
+        }
+        return cnt;
+    }
+
+    private int calculateAggregationsForMatrix(LogbookRecord r, Object key, long distance, int seat) {
+        if (key == null) {
+            return 0;
+        }
+        calculateAggregations(r, key, distance, seat == 0);
+        StatisticsData sd = data.get(key);
+        if (sd == null) {
+            sd = new StatisticsData(sr, key);
+        }
+        boolean cox = seat == 0;
+        boolean person = seat >= 0; // else: boat
+
+        ArrayList<Object> aggregationKeys = new ArrayList<Object>();
+        if (sr.sStatistikKey == StatisticsRecord.StatisticKey.name) {
+            for (int i=0; i<=LogbookRecord.CREW_MAX; i++) {
+                if (i == seat) {
+                    continue; // don't calculate self
+                }
+                UUID pId = r.getCrewId(i);
+                String pName = r.getCrewName(i);
+                if (pId == null && pName == null) {
+                    continue;
+                }
+                PersonRecord pRecord = (pId != null ? persons.getPerson(pId, r.getValidAtTimestamp()) : null);
+                boolean pGuest = (pRecord != null ? !pRecord.isStatusMember() : false);
+                boolean pOther = (pRecord != null ? statusOther.getId().equals(pRecord.getStatusId()) : true);
+                Object k = getAggregationKey_persons(pRecord, pId, pName, pGuest, pOther);
+                if (k != null) {
+                    aggregationKeys.add(k);
+                }
+            }
+        } else {
+            Object k = getAggregationKeyForList(r);
+            if (k != null) {
+                aggregationKeys.add(k);
+            }
+        }
+
+        for (Object k : aggregationKeys) {
+            if (k == null) {
+                continue;
+            }
+            if (sd.matrixData == null) {
+                sd.matrixData = new Hashtable<Object, StatisticsData>();
+            }
+            StatisticsData sdk = sd.matrixData.get(k);
+            if (sdk == null) {
+                sdk = new StatisticsData(sr, k);
+            }
+
+            // aggregate
+            if (sr.sIsAggrDistance || sr.sIsAggrAvgDistance || sr.sIsAggrSpeed) {
+                sdk.distance += distance;
+            }
+            if (sr.sIsAggrRowDistance) {
+                sdk.rowdistance += (cox ? 0 : distance);
+            }
+            if (sr.sIsAggrCoxDistance) {
+                sdk.coxdistance += (cox ? distance : 0);
+            }
+            if (sr.sIsAggrSessions || sr.sIsAggrAvgDistance || sr.sIsAggrSpeed) {
+                sdk.sessions += entryNumberOfDays;
+            }
+            if (sr.sIsAggrDuration || sr.sIsAggrSpeed) {
+                long myDuration = r.getEntryElapsedTimeInMinutes();
+                if (r.getDistance() != null && r.getDistance().isSet()
+                        && r.getDistance().getValueInDefaultUnit() > distance) {
+                    myDuration = (myDuration * distance) / r.getDistance().getValueInDefaultUnit();
+                }
+                sdk.duration += myDuration;
+            }
+            if (sr.sIsAggrZielfahrten
+                    && entryDestinationAreas != null && entryDestinationAreas.getAnzZielfahrten() > 0) {
+                calculateSessionHistory(r, k, sdk, distance);
+            }
+            if (sr.sIsAggrWanderfahrten
+                    && (CompetitionDRVFahrtenabzeichen.mayBeWafa(r)
+                    || entrySessionType.equals(EfaTypes.TYPE_SESSION_JUMREGATTA))) {
+                calculateSessionHistory(r, k, sdk, distance);
+            }
+            if (sr.sIsAggrWinterfahrten
+                    && (CompetitionLRVBerlinWinter.mayBeWinterfahrt(r)
+                    && entryPersonRecord != null)) {
+                calculateSessionHistory(r, k, sdk, distance);
+            }
+            if (sr.sIsAggrGigfahrten
+                    && EfaTypes.isGigBoot(entryBoatType)
+                    && entryPersonRecord != null) {
+                calculateSessionHistory(r, k, sdk, distance);
+            }
+
+            sd.matrixData.put(k, sdk);
+        }
+
+        data.put(key, sd);
+        return 1;
+    }
+
+    private Object getAggregationKey_persons(PersonRecord person, UUID personId, String personName,
+            boolean isGuest, boolean isOther) {
+        if (sr.sSumGuestsByClub && isGuest) {
+            String clubName = International.getString("unbekannt");
+            if (person != null && person.getAssocitation() != null
+                    && person.getAssocitation().length() > 0) {
+                clubName = person.getAssocitation();
+            }
+            return StatisticsData.SORTTOEND_PREFIX + International.getMessage("Gäste von {club}", clubName);
+        }
+        if (sr.sSumGuestsAndOthers && (isGuest || isOther)) {
+            if (isGuest) {
+                return StatisticsData.SORTTOEND_PREFIX + International.getString("Gäste");
+            }
+            if (isOther) {
+                return StatisticsData.SORTTOEND_PREFIX + International.getString("andere");
+            }
+        }
+        if (personId != null) {
+            return personId;
+        }
+        if (personName != null) {
+            return personName;
+        }
+        return null;
+    }
+
+    private Object getAggregationKey_boats(BoatRecord boat, UUID boatId, String boatName) {
+        if (sr.sSumGuestsByClub && boat != null) {
+            String owner = boat.getOwner();
+            if (owner != null && owner.length() > 0) {
+                return StatisticsData.SORTTOEND_PREFIX
+                        + International.getMessage("Fremdboote von {owner}", owner);
+            }
+        }
+        if (boatId != null) {
+            return boatId;
+        }
+        if (boatName != null) {
+            return boatName;
+        }
+        return null;
+    }
+
+    private Object getAggregationKey_status(UUID statusId) {
+        if (statusId != null) {
+            StatusRecord statusRecord = status.getStatus(statusId);
+            if (statusRecord != null) {
+                return statusRecord.getQualifiedName();
+            }
+        }
+        return EfaTypes.TYPE_STATUS_OTHER;
+    }
+
+    private Object getAggregationKey_yearOfBirth(PersonRecord person) {
+        if (person != null) {
+            DataTypeDate birthday = person.getBirthday();
+            if (birthday != null && birthday.getYear() > 0) {
+                return birthday.getYear();
+            }
+        }
+        return EfaTypes.TEXT_UNKNOWN;
+    }
+
+    private Object getAggregationKey_gender(String gender) {
+        if (gender != null) {
+            return Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, gender);
+        }
+        return EfaTypes.TEXT_UNKNOWN;
+    }
+
+    private Object getAggregationKey_boatType(String boatType) {
+        if (boatType != null) {
+            return Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, boatType);
+        }
+        return EfaTypes.TEXT_UNKNOWN;
+    }
+
+    private Object getAggregationKey_boatSeats(String boatSeats) {
+        if (boatSeats != null) {
+            return Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, boatSeats);
+        }
+        return EfaTypes.TEXT_UNKNOWN;
+    }
+
+    private Object getAggregationKey_boatTypeDetail(String boatType, String boatSeats, String boatCoxing) {
+        if (boatType != null && boatSeats != null && boatCoxing != null) {
+            return BoatRecord.getDetailedBoatType(boatType, boatSeats, boatCoxing);
+        }
+        return EfaTypes.TEXT_UNKNOWN;
+    }
+
+    private Object getAggregationKey_destination(String destinationNameAndVariant) {
+        if (destinationNameAndVariant != null && destinationNameAndVariant.length() > 0) {
+            return destinationNameAndVariant;
+        }
+        return null;
+    }
+
+    private String getAggregationKey_waters(String watersName) {
+        return watersName;
+    }
+
+    private Object getAggregationKey_distance(long distanceInDefaultUnit) {
+        if (distanceInDefaultUnit > 0) {
+            DataTypeDistance dist = DataTypeDistance.getDistance(distanceInDefaultUnit);
+            dist.truncateToMainDistanceUnit();
+            return StatisticsData.SORTING_PREFIX + EfaUtil.long2String(dist.getValueInDefaultUnit(), 9) +
+                   StatisticsData.SORTING_POSTFIX + "<= " + dist.getAsFormattedString();
+        }
+        return null;
+    }
+
+    private Object getAggregationKey_month(DataTypeDate date) {
+        if (date != null && date.isSet()) {
+            return date.getMonthAsStringWithIntMarking(StatisticsData.SORTING_PREFIX, StatisticsData.SORTING_POSTFIX);
+        }
+        return null;
+    }
+
+    private Object getAggregationKey_weekday(DataTypeDate date) {
+        if (date != null && date.isSet()) {
+            return date.getWeekdayAsStringWithIntMarking(StatisticsData.SORTING_PREFIX, StatisticsData.SORTING_POSTFIX);
+        }
+        return null;
+    }
+
+    private String getAggregationKey_timeOfDay(int hour) {
+        return StatisticsData.SORTING_PREFIX + EfaUtil.int2String(hour, 2, true) + StatisticsData.SORTING_POSTFIX +
+                International.getMessage("{h} Uhr", hour);
+    }
+
+    private Object getAggregationKey_sessionType(String sessionType) {
+        if (sessionType != null) {
+            return Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, sessionType);
+        }
+        return null;
+    }
+
+    private Object getAggregationKey_year(DataTypeDate date) {
+        if (date != null && date.isSet()) {
+            return date.getYear();
+        }
+        return null;
+    }
+
     private Object getAggregationKeyForList(LogbookRecord r) {
         // Note: This method only provides the aggregation key for StatisticCategory=LIST!
         switch (sr.sStatistikKey) {
             case name:
                 switch (sr.sStatisticTypeEnum) {
                     case persons:
-                        if (sr.sSumGuestsByClub && entryPersonIsGuest) {
-                            String clubName = International.getString("unbekannt");
-                            if (entryPersonRecord != null && entryPersonRecord.getAssocitation() != null
-                                    && entryPersonRecord.getAssocitation().length() > 0) {
-                                clubName = entryPersonRecord.getAssocitation();
-                            }
-                            return StatisticsData.SORTTOEND_PREFIX + International.getMessage("Gäste von {club}", clubName);
-                        }
-                        if (sr.sSumGuestsAndOthers && (entryPersonIsGuest || entryPersonIsOther)) {
-                            if (entryPersonIsGuest) {
-                                return StatisticsData.SORTTOEND_PREFIX + International.getString("Gäste");
-                            }
-                            if (entryPersonIsOther) {
-                                return StatisticsData.SORTTOEND_PREFIX + International.getString("andere");
-                            }
-                        }
-                        if (entryPersonId != null) {
-                            return entryPersonId;
-                        }
-                        if (entryPersonName != null) {
-                            return entryPersonName;
-                        }
-                        break;
+                        return getAggregationKey_persons(entryPersonRecord, entryPersonId, entryPersonName,
+                                entryPersonIsGuest, entryPersonIsOther);
                     case boats:
-                        if (sr.sSumGuestsByClub && entryBoatRecord != null) {
-                            String owner = entryBoatRecord.getOwner();
-                            if (owner != null && owner.length() > 0) {
-                                return StatisticsData.SORTTOEND_PREFIX
-                                        + International.getMessage("Fremdboote von {owner}", owner);
-                            }
-                        }
-                        if (entryBoatId != null) {
-                            return entryBoatId;
-                        }
-                        if (entryBoatName != null) {
-                            return entryBoatName;
-                        }
-                        break;
+                        return getAggregationKey_boats(entryBoatRecord, entryBoatId, entryBoatName);
                 }
                 break;
             case status:
-                if (entryPersonStatusId != null) {
-                    StatusRecord statusRecord = status.getStatus(entryPersonStatusId);
-                    if (statusRecord != null) {
-                        return statusRecord.getQualifiedName();
-                    }
-                }
-                return EfaTypes.TYPE_STATUS_OTHER;
+                return getAggregationKey_status(entryPersonStatusId);
             case yearOfBirth:
-                if (entryPersonRecord != null) {
-                    DataTypeDate birthday = entryPersonRecord.getBirthday();
-                    if (birthday != null && birthday.getYear() > 0) {
-                        return birthday.getYear();
-                    }
-                }
-                return EfaTypes.TEXT_UNKNOWN;
+                return getAggregationKey_yearOfBirth(entryPersonRecord);
             case gender:
-                if (entryPersonGender != null) {
-                    return Daten.efaTypes.getValue(EfaTypes.CATEGORY_GENDER, entryPersonGender);
-                }
-                return EfaTypes.TEXT_UNKNOWN;
+                return getAggregationKey_gender(entryPersonGender);
             case boatType:
-                if (entryBoatType != null) {
-                    return Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, entryBoatType);
-                }
-                return EfaTypes.TEXT_UNKNOWN;
+                return getAggregationKey_boatType(entryBoatType);
             case boatSeats:
-                if (entryBoatSeats != null) {
-                    return Daten.efaTypes.getValue(EfaTypes.CATEGORY_NUMSEATS, entryBoatSeats);
-                }
-                return EfaTypes.TEXT_UNKNOWN;
+                return getAggregationKey_boatSeats(entryBoatSeats);
             case boatTypeDetail:
-                if (entryBoatType != null && entryBoatSeats != null && entryBoatCoxing != null) {
-                    return entryBoatRecord.getDetailedBoatType(entryBoatType, entryBoatSeats, entryBoatCoxing);
-                }
-                return EfaTypes.TEXT_UNKNOWN;
+                return getAggregationKey_boatTypeDetail(entryBoatType, entryBoatSeats, entryBoatCoxing);
             case destination:
-                if (entryDestinationNameAndVariant != null && entryDestinationNameAndVariant.length() > 0) {
-                    return entryDestinationNameAndVariant;
-                }
-                break;
+                return getAggregationKey_destination(entryDestinationNameAndVariant);
             case waters:
                 DataTypeList<String> watersText = new DataTypeList<String>();
                 DataTypeList<UUID> watersList = null;
@@ -383,14 +584,14 @@ public class StatisticTask extends ProgressTask {
                     for (int i = 0; i < watersList.length(); i++) {
                         WatersRecord w = waters.getWaters(watersList.get(i));
                         if (w != null) {
-                            watersText.add(w.getQualifiedName());
+                            watersText.add(getAggregationKey_waters(w.getQualifiedName()));
                         }
                     }
                 }
                 if (r.getWatersNameList() != null) {
                     for (int i = 0; i < r.getWatersNameList().length(); i++) {
                         if (!watersText.contains(r.getWatersNameList().get(i))) {
-                            watersText.add(r.getWatersNameList().get(i));
+                            watersText.add(getAggregationKey_waters(r.getWatersNameList().get(i)));
                         }
                     }
                 }
@@ -399,35 +600,75 @@ public class StatisticTask extends ProgressTask {
                 }
                 break;
             case distance:
-                if (entryDistanceInDefaultUnit > 0) {
-                    DataTypeDistance dist = DataTypeDistance.getDistance(entryDistanceInDefaultUnit);
-                    dist.truncateToMainDistanceUnit();
-                    return "<= " + dist.getAsFormattedString();
-                }
-                break;
+                return getAggregationKey_distance(entryDistanceInDefaultUnit);
             case month:
-                if (entryDate != null && entryDate.isSet()) {
-                    return entryDate.getMonthAsStringWithIntMarking(StatisticsData.SORTING_PREFIX, StatisticsData.SORTING_POSTFIX);
+                if (entryEndDate == null || !entryEndDate.isSet() ||
+                    entryDate == null || !entryDate.isSet() ||
+                    entryDate.isAfterOrEqual(entryEndDate)) {
+                    return getAggregationKey_month(entryDate);
                 }
-                break;
+                DataTypeDate date = new DataTypeDate(entryDate);
+                long distPerDay = entryDistanceInDefaultUnit / entryEndDate.getDifferenceDays(entryDate);
+                Hashtable<Object,Long> distancePerMonth = new Hashtable<Object,Long>();
+                while(date.isBeforeOrEqual(entryEndDate)) {
+                    Object k = getAggregationKey_month(date);
+                    Long dist = distancePerMonth.get(k);
+                    distancePerMonth.put(k, (dist == null ? distPerDay : dist + distPerDay));
+                    date.addDays(1);
+                }
+                return distancePerMonth;
             case weekday:
-                if (entryDate != null && entryDate.isSet()) {
-                    return entryDate.getWeekdayAsStringWithIntMarking(StatisticsData.SORTING_PREFIX, StatisticsData.SORTING_POSTFIX);
+                if (entryEndDate == null || !entryEndDate.isSet() ||
+                    entryDate == null || !entryDate.isSet() ||
+                    entryDate.isAfterOrEqual(entryEndDate)) {
+                    return getAggregationKey_weekday(entryDate);
                 }
-                break;
+                date = new DataTypeDate(entryDate);
+                distPerDay = entryDistanceInDefaultUnit / entryEndDate.getDifferenceDays(entryDate);
+                Hashtable<Object,Long> distancePerWeekday = new Hashtable<Object,Long>();
+                while(date.isBeforeOrEqual(entryEndDate)) {
+                    Object k = getAggregationKey_weekday(date);
+                    Long dist = distancePerWeekday.get(k);
+                    distancePerWeekday.put(k, (dist == null ? distPerDay : dist + distPerDay));
+                    date.addDays(1);
+                }
+                return distancePerWeekday;
             case timeOfDay:
-                // @todo (P6) statistics - time of day
-                break;
+                long elapsed = r.getEntryElapsedTimeInMinutes();
+                if (elapsed <= 0) {
+                    return null;
+                }
+                long totalDistance = (r.getDistance() != null ? r.getDistance().getValueInDefaultUnit() : 0);
+                if (totalDistance == 0) {
+                    return null;
+                }
+                Hashtable<String,Long> timePerHour = new Hashtable<String,Long>();
+                DataTypeTime time = r.getStartTime();
+                long remaining = elapsed;
+                while (remaining > 0) {
+                    long minutes = Math.min(60 - time.getMinute(), remaining);
+                    String hour = getAggregationKey_timeOfDay(time.getHour());
+                    Long allMinutes = timePerHour.get(hour);
+                    if (allMinutes == null) {
+                        timePerHour.put(hour, minutes);
+                    } else {
+                        timePerHour.put(hour, allMinutes + minutes);
+                    }
+                    time.add(60 * (int)minutes);
+                    remaining -= minutes;
+                }
+                String[] keys = timePerHour.keySet().toArray(new String[0]);
+                Hashtable<String,Long> distancePerHour = new Hashtable<String,Long>();
+                for (String k : keys) {
+                    long minutes = timePerHour.get(k);
+                    long distance = (long)((((double)minutes) / ((double)elapsed))  * ((double)totalDistance));
+                    distancePerHour.put(k, distance);
+                }
+                return distancePerHour;
             case sessionType:
-                if (entrySessionType != null) {
-                    return Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, entrySessionType);
-                }
-                break;
+                return getAggregationKey_sessionType(entrySessionType);
             case year:
-                if (entryDate != null && entryDate.isSet()) {
-                    return entryDate.getYear();
-                }
-                break;
+                return getAggregationKey_year(entryDate);
         }
         return null;
     }
@@ -489,7 +730,7 @@ public class StatisticTask extends ProgressTask {
     private int calculateEntryForList(LogbookRecord r) {
         int cnt = 0;
         if (sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.persons) {
-            for (int i = 0; i < LogbookRecord.CREW_MAX; i++) {
+            for (int i = 0; i <= LogbookRecord.CREW_MAX; i++) {
                 getEntryPerson(r, i);
                 if (entryPersonId == null && entryPersonName == null) {
                     continue;
@@ -497,10 +738,14 @@ public class StatisticTask extends ProgressTask {
                 if (isInPersonFilter() && isInGroupFilter()) {
                     Object aggregationKey = getAggregationKeyForList(r);
                     if (aggregationKey != null) {
-                        if (sr.sStatistikKey != StatisticsRecord.StatisticKey.waters) {
-                            cnt += calculateAggregations(r, aggregationKey, entryDistanceInDefaultUnit, i == 0);
+                        if (!(aggregationKey instanceof Hashtable)) {
+                            if (sr.sStatistikKey != StatisticsRecord.StatisticKey.waters) {
+                                cnt += calculateAggregations(r, aggregationKey, entryDistanceInDefaultUnit, i == 0);
+                            } else {
+                                cnt += calculateAggregationsForList(r, (DataTypeList) aggregationKey, i == 0);
+                            }
                         } else {
-                            cnt += calculateAggregationsForList(r, (DataTypeList) aggregationKey, i == 0);
+                            calculateAggregationsForHash(r, (Hashtable)aggregationKey, i == 0);
                         }
                     }
                 }
@@ -515,6 +760,37 @@ public class StatisticTask extends ProgressTask {
                     } else {
                         cnt += calculateAggregationsForList(r, (DataTypeList) aggregationKey, false);
                     }
+                }
+            }
+        }
+
+        return cnt;
+    }
+
+    private int calculateEntryForMatrix(LogbookRecord r) {
+        int cnt = 0;
+        if (sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.persons) {
+            for (int i = 0; i <= LogbookRecord.CREW_MAX; i++) {
+                getEntryPerson(r, i);
+                if (entryPersonId == null && entryPersonName == null) {
+                    continue;
+                }
+                if (isInPersonFilter() && isInGroupFilter()) {
+                    Object aggregationKey = getAggregationKey_persons(entryPersonRecord, entryPersonId, entryPersonName,
+                                entryPersonIsGuest, entryPersonIsOther);
+                    if (aggregationKey != null) {
+                        cnt += calculateAggregationsForMatrix(r, aggregationKey,
+                                entryDistanceInDefaultUnit, i);
+                    }
+                }
+            }
+        }
+        if (sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.boats) {
+            if (isAtLeastOneInPersonOrGroupFilter(r)) {
+                Object aggregationKey = getAggregationKey_boats(entryBoatRecord, entryBoatId, entryBoatName);
+                if (aggregationKey != null) {
+                    cnt += calculateAggregationsForMatrix(r, aggregationKey,
+                            entryDistanceInDefaultUnit, -1);
                 }
             }
         }
@@ -550,13 +826,13 @@ public class StatisticTask extends ProgressTask {
         }
         String coxName = "";
         String crewNames = "";
-        for (int i = 0; i < LogbookRecord.CREW_MAX; i++) {
+        for (int i = 0; i <= LogbookRecord.CREW_MAX; i++) {
             getEntryPerson(r, i);
             String name = (entryPersonRecord != null ? entryPersonRecord.getQualifiedName() : entryPersonName);
             if (name == null) {
                 name = "";
             }
-            if (sr.sPublicStatistic && entryPersonExclude) {
+            if (sr.sPublicStatistic && entryPersonExcludeFromPublic) {
                 name = "<" + International.getString("anonym") + ">"; // < and > will be correctly escaped in output!
             }
             if (sr.sOutputType == StatisticsRecord.OutputTypes.html
@@ -635,7 +911,7 @@ public class StatisticTask extends ProgressTask {
 
     private int calculateEntryForCompetition(LogbookRecord r) {
         int cnt = 0;
-        for (int i = 0; i < LogbookRecord.CREW_MAX; i++) {
+        for (int i = 0; i <= LogbookRecord.CREW_MAX; i++) {
             getEntryPerson(r, i);
             if (entryPersonRecord == null) {
                 continue;
@@ -718,6 +994,9 @@ public class StatisticTask extends ProgressTask {
         switch (sr.sStatisticCategory) {
             case list:
                 cnt += calculateEntryForList(r);
+                break;
+            case matrix:
+                cnt += calculateEntryForMatrix(r);
                 break;
             case logbook:
                 cnt += calculateEntryForLogbook(r);
@@ -898,7 +1177,7 @@ public class StatisticTask extends ProgressTask {
         entryPersonIsGuest = (entryPersonStatusId != null && entryPersonStatusId.equals(this.statusGuest.getId()));
         entryPersonIsOther = (entryPersonStatusId == null || entryPersonStatusId.equals(this.statusOther.getId()));
         entryPersonGender = (entryPersonRecord != null ? entryPersonRecord.getGender() : null);
-        entryPersonExclude = (entryPersonRecord != null && entryPersonRecord.getExcludeFromPublicStatistics()
+        entryPersonExcludeFromPublic = (entryPersonRecord != null && entryPersonRecord.getExcludeFromPublicStatistics()
                 && sr.getPubliclyAvailable());
     }
 
@@ -910,7 +1189,7 @@ public class StatisticTask extends ProgressTask {
         entryPersonIsGuest = (entryPersonStatusId != null && entryPersonStatusId.equals(this.statusGuest.getId()));
         entryPersonIsOther = (entryPersonStatusId == null || entryPersonStatusId.equals(this.statusOther.getId()));
         entryPersonGender = (entryPersonRecord != null ? entryPersonRecord.getGender() : null);
-        entryPersonExclude = (entryPersonRecord != null && entryPersonRecord.getExcludeFromPublicStatistics()
+        entryPersonExcludeFromPublic = (entryPersonRecord != null && entryPersonRecord.getExcludeFromPublicStatistics()
                 && sr.getPubliclyAvailable());
     }
 
@@ -958,24 +1237,14 @@ public class StatisticTask extends ProgressTask {
         }
 
         getEntryBoat(r);
-        if ((!sr.sFilterBoatTypeAll && !sr.sFilterBoatType.containsKey(entryBoatType))
-                || (!sr.sFilterBoatSeatsAll && !sr.sFilterBoatSeats.containsKey(entryBoatSeats))
-                || (!sr.sFilterBoatRiggingAll && !sr.sFilterBoatRigging.containsKey(entryBoatRigging))
-                || (!sr.sFilterBoatCoxingAll && !sr.sFilterBoatCoxing.containsKey(entryBoatCoxing))
-                || (!sr.sFilterBoatOwnerAll && !sr.sFilterBoatOwner.containsKey(entryBoatOwner))) {
+        if (!isInBoatFilter(r)) {
             return false;
         }
 
-        if (sr.sFilterByBoatId != null && !sr.sFilterByBoatId.equals(r.getBoatId())) {
-            return false;
-        }
-        if (sr.sFilterByBoatText != null && !sr.sFilterByBoatText.equals(r.getBoatAsName())) {
-            return false;
-        }
-
-        if (sr.sFilterStartIsBoathouse) {
+        if (sr.sFilterFromToBoathouse) {
             getEntryDestination(r);
-            if (entryDestinationRecord == null || !entryDestinationRecord.getStartIsBoathouse()) {
+            if (entryDestinationRecord == null || !entryDestinationRecord.getStartIsBoathouse() ||
+                !entryDestinationRecord.getRoundtrip()) {
                 return false;
             }
         }
@@ -996,31 +1265,64 @@ public class StatisticTask extends ProgressTask {
         return true;
     }
 
+    private boolean isInBoatFilter(LogbookRecord r) {
+        return isInBoatFilter(entryBoatRecord, r.getBoatAsName(),
+                entryBoatType, entryBoatSeats, entryBoatRigging,
+                entryBoatCoxing, entryBoatOwner);
+    }
+
+    private boolean isInBoatFilter(BoatRecord r, String boatName,
+            String boatType, String boatSeats, String boatRigging,
+            String boatCoxing, String boatOwner) {
+        if ((!sr.sFilterBoatTypeAll && !sr.sFilterBoatType.containsKey(boatType))
+                || (!sr.sFilterBoatSeatsAll && !sr.sFilterBoatSeats.containsKey(boatSeats))
+                || (!sr.sFilterBoatRiggingAll && !sr.sFilterBoatRigging.containsKey(boatRigging))
+                || (!sr.sFilterBoatCoxingAll && !sr.sFilterBoatCoxing.containsKey(boatCoxing))
+                || (!sr.sFilterBoatOwnerAll && !sr.sFilterBoatOwner.containsKey(boatOwner))) {
+            return false;
+        }
+
+        if (sr.sFilterByBoatId != null && !sr.sFilterByBoatId.equals(r.getId())) {
+            return false;
+        }
+        if (sr.sFilterByBoatText != null && !sr.sFilterByBoatText.equals(boatName)) {
+            return false;
+        }
+
+        return true;
+    }
+
     private boolean isInPersonFilter() {
-        if (entryPersonRecord != null) {
+        return isInPersonFilter(entryPersonRecord, entryPersonStatusId, entryPersonGender,
+                entryPersonExcludeFromPublic, entryPersonName);
+    }
+
+    private boolean isInPersonFilter(PersonRecord p, UUID statusId, String gender,
+            boolean excludeFromPublic, String personName) {
+        if (p != null) {
             // known person
             if (!sr.sFilterStatusAll
-                    && (entryPersonStatusId == null || !sr.sFilterStatus.containsKey(entryPersonStatusId))) {
+                    && (statusId == null || !sr.sFilterStatus.containsKey(statusId))) {
                 return false;
             }
             if (!sr.sFilterGenderAll
-                    && (entryPersonGender == null || !sr.sFilterGender.containsKey(entryPersonGender))) {
+                    && (gender == null || !sr.sFilterGender.containsKey(gender))) {
                 return false;
             }
-            if (sr.sFilterByPersonId != null && !sr.sFilterByPersonId.equals(entryPersonRecord.getId())) {
+            if (sr.sFilterByPersonId != null && !sr.sFilterByPersonId.equals(p.getId())) {
                 return false;
             }
-            if (sr.sFilterByPersonText != null && !sr.sFilterByPersonText.equals(entryPersonRecord.getQualifiedName())) {
+            if (sr.sFilterByPersonText != null && !sr.sFilterByPersonText.equals(p.getQualifiedName())) {
                 return false;
             }
-            if (sr.sPublicStatistic && entryPersonExclude &&
+            if (sr.sPublicStatistic && excludeFromPublic &&
                     (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.competition ||
                      (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list &&
                       sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.persons))) {
                 // exclude in all public competitions and person list statistics
                 // ... but include in boat statistics and logbooks (as anonymous)
-                sr.pStatIgnored.put((entryPersonRecord != null
-                        ? entryPersonRecord.getQualifiedName() : entryPersonName), "foo");
+                sr.pStatIgnored.put((p != null
+                        ? p.getQualifiedName() : personName), "foo");
                 return false;
             }
             return true;
@@ -1046,11 +1348,15 @@ public class StatisticTask extends ProgressTask {
     }
 
     private boolean isInGroupFilter() {
+        return isInGroupFilter(entryPersonRecord, entryValidAt);
+    }
+
+    private boolean isInGroupFilter(PersonRecord p, long validAt) {
         if (sr.sFilterByGroupId != null) {
-            if (entryPersonRecord == null) {
+            if (p == null) {
                 return false;
             }
-            GroupRecord gr = groups.findGroupRecord(sr.sFilterByGroupId, entryValidAt);
+            GroupRecord gr = groups.findGroupRecord(sr.sFilterByGroupId, validAt);
             if (gr == null) {
                 return false;
             }
@@ -1058,14 +1364,14 @@ public class StatisticTask extends ProgressTask {
             if (glist == null) {
                 return false;
             }
-            return glist.contains(entryPersonRecord.getId());
+            return glist.contains(p.getId());
         }
         return true;
     }
 
     private boolean isAtLeastOneInPersonOrGroupFilter(LogbookRecord r) {
         boolean isAtLeastOnePersonInFilter = false;
-        for (int i = 0; !isAtLeastOnePersonInFilter && i < LogbookRecord.CREW_MAX; i++) {
+        for (int i = 0; !isAtLeastOnePersonInFilter && i <= LogbookRecord.CREW_MAX; i++) {
             getEntryPerson(r, i);
             if (entryPersonId == null && entryPersonName == null) {
                 continue;
@@ -1102,6 +1408,179 @@ public class StatisticTask extends ProgressTask {
         return logbooks;
     }
 
+    private void runPreprocessing() {
+        try {
+            DataKeyIterator it;
+            if (sr.sListAllNullEntries) {
+                if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list ||
+                    sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix ||
+                    sr.sStatisticCategory == StatisticsRecord.StatisticCategory.clubwork) {
+                    switch (sr.sStatistikKey) {
+                        case name:
+                            switch (sr.sStatisticTypeEnum) {
+                                case persons:
+                                    it = persons.data().getStaticIterator();
+                                    for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+                                        PersonRecord p = (PersonRecord) persons.data().get(k);
+                                        if (!p.isValidAt(sr.sValidAt)) {
+                                            continue;
+                                        }
+                                        if (isInPersonFilter(p, p.getStatusId(), p.getGender(),
+                                                p.getExcludeFromPublicStatistics(), p.getQualifiedName())) {
+                                            Object key = getAggregationKey_persons(p, p.getId(),
+                                                    p.getQualifiedName(),
+                                                    p.getStatusId().equals(statusGuest.getId()),
+                                                    false);
+                                            if (key != null) {
+                                                data.put(key, new StatisticsData(sr, key));
+                                            }
+                                        }
+                                    }
+                                    break;
+                                case boats:
+                                    it = boats.data().getStaticIterator();
+                                    for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+                                        BoatRecord b = (BoatRecord) boats.data().get(k);
+                                        if (!b.isValidAt(sr.sValidAt)) {
+                                            continue;
+                                        }
+                                        if (isInBoatFilter(b, b.getQualifiedName(),
+                                                b.getTypeType(0), b.getTypeSeats(0),
+                                                b.getTypeRigging(0), b.getTypeCoxing(0),
+                                                b.getOwner())) {
+                                            Object key = getAggregationKey_boats(b, b.getId(),
+                                                    b.getQualifiedName());
+                                            if (key != null) {
+                                                data.put(key, new StatisticsData(sr, key));
+                                            }
+                                        }
+                                    }
+                                    break;
+                            }
+                            break;
+                        case status:
+                            UUID[] allStatus = sr.sFilterStatus.keySet().toArray(new UUID[0]);
+                            for (UUID id : allStatus) {
+                                Object key = this.getAggregationKey_status(id);
+                                if (key != null) {
+                                    data.put(key, new StatisticsData(sr, key));
+                                }
+                            }
+                            break;
+                        case yearOfBirth:
+                            it = persons.data().getStaticIterator();
+                            for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+                                PersonRecord p = (PersonRecord) persons.data().get(k);
+                                if (!p.isValidAt(sr.sValidAt)) {
+                                    continue;
+                                }
+                                if (isInPersonFilter(p, p.getStatusId(), p.getGender(),
+                                        p.getExcludeFromPublicStatistics(), p.getQualifiedName())) {
+                                    Object key = this.getAggregationKey_yearOfBirth(p);
+                                    if (key != null) {
+                                        data.put(key, new StatisticsData(sr, key));
+                                    }
+                                }
+                            }
+                            break;
+                        case gender:
+                            String[] allGender = sr.sFilterGender.keySet().toArray(new String[0]);
+                            for (String gender : allGender) {
+                                Object key = this.getAggregationKey_gender(gender);
+                                if (key != null) {
+                                    data.put(key, new StatisticsData(sr, key));
+                                }
+                            }
+                            break;
+                        case boatType:
+                            for (String t : Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_BOAT)) {
+                                data.put(t, new StatisticsData(sr, t));
+                            }
+                            break;
+                        case boatSeats:
+                            for (String t : Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_NUMSEATS)) {
+                                data.put(t, new StatisticsData(sr, t));
+                            }
+                            break;
+                        case boatTypeDetail:
+                            it = boats.data().getStaticIterator();
+                            for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+                                BoatRecord b = (BoatRecord) boats.data().get(k);
+                                if (!b.isValidAt(sr.sValidAt)) {
+                                    continue;
+                                }
+                                if (isInBoatFilter(b, b.getQualifiedName(),
+                                        b.getTypeType(0), b.getTypeSeats(0),
+                                        b.getTypeRigging(0), b.getTypeCoxing(0),
+                                        b.getOwner())) {
+                                    Object key = getAggregationKey_boatTypeDetail(
+                                            b.getTypeType(0), b.getTypeSeats(0), b.getTypeCoxing(0));
+                                    if (key != null) {
+                                        data.put(key, new StatisticsData(sr, key));
+                                    }
+                                }
+                            }
+                            break;
+                        case destination:
+                            it = destinations.data().getStaticIterator();
+                            for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+                                DestinationRecord d = (DestinationRecord) destinations.data().get(k);
+                                if (!d.isValidAt(sr.sValidAt)) {
+                                    continue;
+                                }
+                                Object key = getAggregationKey_destination(d.getQualifiedName());
+                                if (key != null) {
+                                    data.put(key, new StatisticsData(sr, key));
+                                }
+                            }
+                            break;
+                        case waters:
+                            it = waters.data().getStaticIterator();
+                            for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+                                WatersRecord w = (WatersRecord) waters.data().get(k);
+                                Object key = getAggregationKey_waters(w.getQualifiedName());
+                                if (key != null) {
+                                    data.put(key, new StatisticsData(sr, key));
+                                }
+                            }
+                            break;
+                        case distance:
+                            // nothing to do
+                            break;
+                        case month:
+                            for (int i=1; i<=12; i++) {
+                                Object key = getAggregationKey_month(new DataTypeDate(1,i,2012));
+                                data.put(key, new StatisticsData(sr, key));
+                            }
+                            break;
+                        case weekday:
+                            for (int i=1; i<=7; i++) {
+                                Object key = getAggregationKey_weekday(new DataTypeDate(i,1,2012));
+                                data.put(key, new StatisticsData(sr, key));
+                            }
+                            break;
+                        case timeOfDay:
+                            for (int i=0; i<=23; i++) {
+                                Object key = getAggregationKey_timeOfDay(i);
+                                data.put(key, new StatisticsData(sr, key));
+                            }
+                            break;
+                        case sessionType:
+                            for (String t : Daten.efaTypes.getValueArray(EfaTypes.CATEGORY_SESSION)) {
+                                data.put(t, new StatisticsData(sr, t));
+                            }
+                            break;
+                        case year:
+                            // nothing to do
+                            break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Logger.logdebug(e);
+        }
+    }
+
     private StatisticsData[] runPostprocessing() {
         logInfo(International.getString("Aufbereiten der Daten") + " ...\n");
         int workBeforePostprocessing = this.getCurrentWorkDone();
@@ -1130,7 +1609,9 @@ public class StatisticTask extends ProgressTask {
                     && !sr.sStatisticType.equals(WettDefs.STR_DRV_WANDERRUDERSTATISTIK))
                     || (sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.persons
                     && sr.sStatistikKey == StatisticsRecord.StatisticKey.name)
-                    || sr.sStatisticCategory == StatisticsRecord.StatisticCategory.clubwork) {
+                    || sr.sStatisticCategory == StatisticsRecord.StatisticCategory.clubwork
+                    || (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix &&
+                        sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.persons)) {
                 PersonRecord pr = null;
                 if (sd.key instanceof UUID) {
                     pr = persons.getPerson((UUID) sd.key, sr.sTimestampBegin, sr.sTimestampEnd, sr.sValidAt);
@@ -1163,8 +1644,10 @@ public class StatisticTask extends ProgressTask {
             }
 
             // replace UUID by Boat Name
-            if (sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.boats
-                    && sr.sStatistikKey == StatisticsRecord.StatisticKey.name) {
+            if ((sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.boats
+                    && sr.sStatistikKey == StatisticsRecord.StatisticKey.name)
+                    || (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix &&
+                        sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.boats)) {
 
                 BoatRecord br = null;
                 if (sd.key instanceof UUID) {
@@ -1182,8 +1665,7 @@ public class StatisticTask extends ProgressTask {
             }
 
             // use Key as Name for any other Data
-            if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list
-                    && sr.sStatistikKey != StatisticsRecord.StatisticKey.name) {
+            if (sd.sName == null) {
                 sd.sName = sd.key.toString();
             }
 
@@ -1218,9 +1700,16 @@ public class StatisticTask extends ProgressTask {
         setCurrentWorkDone(workBeforePostprocessing + (WORK_POSTPROCESSING / 5) * 2);
 
         // Calculate String Output Values
-        for (int i = 0; i < sdArray.length; i++) {
+        for (int i = 0; i < sdArray.length-1; i++) { // don't do for maximum!
             sdArray[i].createStringOutputValues(sr, i,
                     (i > 0 && sdArray[i].compareTo(sdArray[i - 1], false) == 0 ? sdArray[i - 1].sPosition : Integer.toString(i + 1) + "."));
+            if (sdArray[i].matrixData != null) {
+                Object[] mkeys = sdArray[i].matrixData.keySet().toArray();
+                for (Object mk : mkeys) {
+                    StatisticsData sdm = sdArray[i].matrixData.get(mk);
+                    sdm.createStringOutputValues(sr, -1, null);
+                }
+            }
         }
         setCurrentWorkDone(workBeforePostprocessing + (WORK_POSTPROCESSING / 5) * 3);
 
@@ -1237,6 +1726,7 @@ public class StatisticTask extends ProgressTask {
         String statDescrLong;
         switch (sr.sStatisticCategory) {
             case list:
+            case matrix:
                 statDescrShort = sr.getStatisticCategoryDescription() + " "
                         + (sr.sStatistikKey == StatisticsRecord.StatisticKey.name
                         ? sr.getStatisticTypeDescription() : sr.getStatisticKeyDescriptionPlural());
@@ -1280,7 +1770,7 @@ public class StatisticTask extends ProgressTask {
 
         if (sr.sStatisticCategory != StatisticsRecord.StatisticCategory.competition) {
             // Table Columns
-            sr.prepareTableColumns();
+            sr.prepareTableColumns(data);
         }
 
         setCurrentWorkDone(workBeforePostprocessing + (WORK_POSTPROCESSING / 5) * 4);
@@ -1404,6 +1894,7 @@ public class StatisticTask extends ProgressTask {
         logInfo(International.getString("Erstelle Statistik ..."),
                 true, false);
 
+        runPreprocessing();
         if (sr.sStatisticCategory != StatisticsRecord.StatisticCategory.clubwork) {
             createStatisticLogbook(sr, statisticsNumber);
         } else {

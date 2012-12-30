@@ -17,30 +17,6 @@ import de.nmichael.efa.ex.EfaException;
 
 public class StatisticCSVWriter extends StatisticWriter {
 
-    public static final String FIELD_ITEM_POSITION = "Position";
-    public static final String FIELD_ITEM_NAME = "Name";
-    public static final String FIELD_ITEM_STATUS = "Status";
-    public static final String FIELD_ITEM_YEAROFBIRTH = "YearOfBirth";
-    public static final String FIELD_ITEM_BOATTYPE = "BoatType";
-    public static final String FIELD_ITEM_DISTANCE = "Distance";
-    public static final String FIELD_ITEM_ROWDISTANCE = "RowDistance";
-    public static final String FIELD_ITEM_COXDISTANCE = "CoxDistance";
-    public static final String FIELD_ITEM_SESSIONS = "Sessions";
-    public static final String FIELD_ITEM_AVGDISTANCE = "AvgDistance";
-    public static final String FIELD_ITEM_DESTINATIONAREAS = "DestinationAreas";
-    public static final String FIELD_ITEM_WANDERFARTEN = "WanderfahrtKm";
-    public static final String FIELD_LOGBOOK = "Logbook";
-    public static final String FIELD_RECORD = "Record";
-    public static final String FIELD_RECORD_ENTRYNO = "EntryNo";
-    public static final String FIELD_RECORD_DATE = "Date";
-    public static final String FIELD_RECORD_BOAT = "Boat";
-    public static final String FIELD_RECORD_COX = "Cox";
-    public static final String FIELD_RECORD_CREW = "Crew";
-    public static final String FIELD_RECORD_STARTTIME = "StartTime";
-    public static final String FIELD_RECORD_ENDTIME = "EndTime";
-    public static final String FIELD_RECORD_DESTINATION = "Destination";
-    public static final String FIELD_RECORD_DISTANCE = "Distance";
-    public static final String FIELD_RECORD_COMMENTS = "Comments";
     private String encoding;
     private String separator;
     private String quotes;
@@ -60,32 +36,6 @@ public class StatisticCSVWriter extends StatisticWriter {
         if (this.quotes != null && this.quotes.length() == 0) {
             this.quotes = null;
         }
-    }
-
-    public static String getLogbookField(int pos) {
-        switch (pos) {
-            case 0:
-                return FIELD_RECORD_ENTRYNO;
-            case 1:
-                return FIELD_RECORD_DATE;
-            case 2:
-                return FIELD_RECORD_BOAT;
-            case 3:
-                return FIELD_RECORD_COX;
-            case 4:
-                return FIELD_RECORD_CREW;
-            case 5:
-                return FIELD_RECORD_STARTTIME;
-            case 6:
-                return FIELD_RECORD_ENDTIME;
-            case 7:
-                return FIELD_RECORD_DESTINATION;
-            case 8:
-                return FIELD_RECORD_DISTANCE;
-            case 9:
-                return FIELD_RECORD_COMMENTS;
-        }
-        return null;
     }
 
     protected synchronized void write(BufferedWriter fw, String s) throws IOException {
@@ -127,7 +77,8 @@ public class StatisticCSVWriter extends StatisticWriter {
                     if (sd[i].isMaximum || sd[i].isSummary) {
                         continue;
                     }
-                    if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list) {
+                    if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list ||
+                        sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
                         if (sr.sIsFieldsPosition) {
                             write(f, sd[i].sPosition);
                         }
@@ -161,11 +112,24 @@ public class StatisticCSVWriter extends StatisticWriter {
                         if (sr.sIsAggrAvgDistance) {
                             write(f, sd[i].sAvgDistance);
                         }
+                        if (sr.sIsAggrDuration) {
+                            write(f, sd[i].sDuration);
+                        }
+                        if (sr.sIsAggrSpeed) {
+                            write(f, sd[i].sSpeed);
+                        }
                         if (sr.sIsAggrZielfahrten) {
                             write(f, sd[i].sDestinationAreas);
                         }
                         if (sr.sIsAggrWanderfahrten) {
                             write(f, sd[i].sWanderfahrten);
+                        }
+                        if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
+                            for (int j = sr.pMatrixColumnFirst; j < sr.pTableColumns.size(); j++) {
+                                StatisticsData sdm = (sd[i].matrixData != null ?
+                                    sd[i].matrixData.get(sr.pMatrixColumns.get(sr.pTableColumns.get(j))) : null);
+                                write(f, getMatrixString(sdm));
+                            }
                         }
                     }
                     if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook) {

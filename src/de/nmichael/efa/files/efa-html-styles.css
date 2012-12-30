@@ -50,6 +50,8 @@ img                       { vertical-align:middle; float:left; margin-left:-3px;
 .entry_coxdistance        { background-color:#6666ff; }
 .entry_sessions           { background-color:#ff0000; }
 .entry_avgdistance        { background-color:#00ff00; }
+.entry_duration           { background-color:#1eddff; }
+.entry_speed              { background-color:#79005a; }
 
 .entry_distance,
 .entry_rowdistance,

@@ -289,6 +289,10 @@ public abstract class DataAccess implements IDataAccess {
         return this.inOpeningStorageObject;
     }
 
+    public void setInOpeningStorageObject(boolean inOpening) {
+        inOpeningStorageObject = inOpening;
+    }
+
     public void setPreModifyRecordCallbackEnabled(boolean enabled) {
         this.isPreModifyRecordCallbackEnabled = enabled;
     }
@@ -343,13 +347,13 @@ public abstract class DataAccess implements IDataAccess {
     }
 
     // this method does NOT set the SCN to the value of the archive.
-    // the SCN is always incresing!!
+    // the SCN is always increasing!!
     public synchronized void copyFromDataAccess(IDataAccess source) throws EfaException {
         truncateAllData();
         try {
             DataKeyIterator it = source.getStaticIterator();
             DataKey k = it.getFirst();
-            inOpeningStorageObject = true; // don't update LastModified Timestamps, don't increment SCN, don't check assertions!
+            setInOpeningStorageObject(true); // don't update LastModified Timestamps, don't increment SCN, don't check assertions!
             while (k != null) {
                 add(source.get(k));
                 k = it.getNext();
@@ -358,7 +362,7 @@ public abstract class DataAccess implements IDataAccess {
             throw new EfaException(Logger.MSG_DATA_COPYFROMDATAACCESSFAILED, getUID() + 
                     ": Restore from DataAccess failed", Thread.currentThread().getStackTrace());
         } finally {
-            inOpeningStorageObject = false;
+            setInOpeningStorageObject(false);
         }
     }
 }

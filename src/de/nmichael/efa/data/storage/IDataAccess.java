@@ -588,6 +588,7 @@ public interface IDataAccess {
 
     public void setPreModifyRecordCallbackEnabled(boolean enabled);
     public boolean isPreModifyRecordCallbackEnabled();
+    public void setInOpeningStorageObject(boolean inOpening);
 
     public void saveToXmlFile(String filename) throws EfaException;
     public BackupMetaDataItem saveToZipFile(String dir, ZipOutputStream zipOut) throws EfaException;

@@ -48,8 +48,11 @@ public class StatisticXMLWriter extends StatisticWriter {
     public static final String FIELD_ITEM_COXDISTANCE = "CoxDistance";
     public static final String FIELD_ITEM_SESSIONS = "Sessions";
     public static final String FIELD_ITEM_AVGDISTANCE = "AvgDistance";
+    public static final String FIELD_ITEM_DURATION = "Duration";
+    public static final String FIELD_ITEM_SPEED = "Speed";
     public static final String FIELD_ITEM_DESTINATIONAREAS = "DestinationAreas";
     public static final String FIELD_ITEM_WANDERFARTEN = "WanderfahrtKm";
+    public static final String FIELD_ITEM_MATRIXCOLUMN = "MatrixColumn";
     
     public static final String FIELD_LOGBOOK = "Logbook";
     public static final String FIELD_RECORD = "Record";
@@ -81,7 +84,7 @@ public class StatisticXMLWriter extends StatisticWriter {
 
     private static final boolean doIndent = true;
     private int indent = 0;
-    private boolean printColumnHeaders = false;
+    private boolean printAllColumns = false;
 
     public StatisticXMLWriter(StatisticsRecord sr, StatisticsData[] sd) {
         super(sr, sd);
@@ -103,21 +106,21 @@ public class StatisticXMLWriter extends StatisticWriter {
     }
 
     private String xmltag(String tag, String value) {
-        if (value == null || (value.length() == 0 && !printColumnHeaders)) {
+        if (value == null || (value.length() == 0 && !printAllColumns)) {
             return null;
         }
         return xmltagStart(tag) + EfaUtil.escapeXml(value) + xmltagEnd(tag);
     }
 
     private String xmltag(String tag, String value, String attrib) {
-        if (value == null || (value.length() == 0 && !printColumnHeaders)) {
+        if (value == null || (value.length() == 0 && !printAllColumns)) {
             return null;
         }
         return xmltagStart(tag, ATTR_TYPE, attrib) + EfaUtil.escapeXml(value) + xmltagEnd(tag);
     }
 
     private String xmltag(String tag, String value, String attrName, String attrValue) {
-        if (value == null || (value.length() == 0 && !printColumnHeaders)) {
+        if (value == null || (value.length() == 0 && !printAllColumns)) {
             return null;
         }
         return xmltagStart(tag, attrName, attrValue) + EfaUtil.escapeXml(value) + xmltagEnd(tag);
@@ -167,7 +170,7 @@ public class StatisticXMLWriter extends StatisticWriter {
 
     public boolean write(String filename, boolean printColumnHeaders) {
         BufferedWriter f = null;
-        this.printColumnHeaders = printColumnHeaders;
+        this.printAllColumns = printColumnHeaders;
 
         if (sr.sFileExecBefore != null && sr.sFileExecBefore.length() > 0) {
             EfaUtil.execCmd(sr.sFileExecBefore);
@@ -183,7 +186,7 @@ public class StatisticXMLWriter extends StatisticWriter {
             write(f, indent, xmltag(FIELD_HEADER_STATISTICTITLE, sr.pStatTitle,
                     ATTR_DESCRIPTION, International.getString("Titel")));
             write(f, indent, xmltag(FIELD_HEADER_STATISTICDESCRIPTION, sr.pStatDescription,
-                    ATTR_DESCRIPTION, International.getString("Art der Auswertung")));
+                    ATTR_DESCRIPTION, International.getString("Art der Auswertung")));
             write(f, indent, xmltag(FIELD_HEADER_STATISTICCATEGORY, sr.getStatisticCategory()));
             write(f, indent, xmltag(FIELD_HEADER_STATISTICTYPE, sr.getStatisticType()));
             write(f, indent, xmltag(FIELD_HEADER_STATISTICKEY, sr.getStatisticKey()));
@@ -191,11 +194,11 @@ public class StatisticXMLWriter extends StatisticWriter {
                     ATTR_DESCRIPTION, International.getString("Auswertung erstellt am")));
             write(f, indent, xmltag(FIELD_HEADER_CREATEDBYURL, sr.pStatCreatedByUrl));
             write(f, indent, xmltag(FIELD_HEADER_CREATEDBYNAME, sr.pStatCreatedByName,
-                    ATTR_DESCRIPTION, International.getString("Auswertung erstellt von")));
+                    ATTR_DESCRIPTION, International.getString("Auswertung erstellt von")));
             write(f, indent, xmltag(FIELD_HEADER_DATARANGE, sr.pStatDateRange,
-                    ATTR_DESCRIPTION, International.getString("Zeitraum für Auswertung")));
+                    ATTR_DESCRIPTION, International.getString("Zeitraum für Auswertung")));
             write(f, indent, xmltag(FIELD_HEADER_CONSIDEREDENTRIES, sr.pStatConsideredEntries,
-                    ATTR_DESCRIPTION, International.getString("Ausgewertete Einträge")));
+                    ATTR_DESCRIPTION, International.getString("Ausgewertete Einträge")));
             write(f, indent, xmltag(FIELD_HEADER_FILTER, sr.pStatFilter,
                     ATTR_DESCRIPTION, International.getString("Filter")));
             if (sr.pStatIgnored != null && sr.pStatIgnored.size() > 0) {
@@ -246,7 +249,8 @@ public class StatisticXMLWriter extends StatisticWriter {
 
             // Write normal Output
             if (sr.pTableColumns != null && sr.pTableColumns.size() > 0) {
-                if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list) {
+                if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list ||
+                    sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
                     write(f, indent, xmltagStart(FIELD_DATA));
                 }
                 if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook) {
@@ -266,7 +270,8 @@ public class StatisticXMLWriter extends StatisticWriter {
                     if (sd[i].isMaximum) {
                         continue;
                     }
-                    if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list) {
+                    if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list ||
+                        sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
                         if (!sd[i].isSummary) {
                             write(f, indent, xmltagStart(FIELD_ITEM, ATTR_INDEX, Integer.toString(i+1)));
                         } else {
@@ -283,8 +288,19 @@ public class StatisticXMLWriter extends StatisticWriter {
                         write(f, indent, xmltag(FIELD_ITEM_COXDISTANCE, sd[i].sCoxDistance));
                         write(f, indent, xmltag(FIELD_ITEM_SESSIONS, sd[i].sSessions));
                         write(f, indent, xmltag(FIELD_ITEM_AVGDISTANCE, sd[i].sAvgDistance));
+                        write(f, indent, xmltag(FIELD_ITEM_DURATION, sd[i].sDuration));
+                        write(f, indent, xmltag(FIELD_ITEM_SPEED, sd[i].sSpeed));
                         write(f, indent, xmltag(FIELD_ITEM_DESTINATIONAREAS, sd[i].sDestinationAreas));
                         write(f, indent, xmltag(FIELD_ITEM_WANDERFARTEN, sd[i].sWanderfahrten));
+                        if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
+                            printAllColumns = true;
+                            for (int j = sr.pMatrixColumnFirst; j < sr.pTableColumns.size(); j++) {
+                                StatisticsData sdm = (sd[i].matrixData != null ?
+                                    sd[i].matrixData.get(sr.pMatrixColumns.get(sr.pTableColumns.get(j))) : null);
+                                write(f, indent, xmltag(FIELD_ITEM_MATRIXCOLUMN, getMatrixString(sdm)));
+                            }
+                            printAllColumns = false;
+                        }
                         write(f, indent, xmltagEnd(FIELD_ITEM));
                     }
                     if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook) {
@@ -306,7 +322,8 @@ public class StatisticXMLWriter extends StatisticWriter {
                         write(f, indent, xmltagEnd(FIELD_RECORD));
                     }
                 }
-                if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list) {
+                if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list ||
+                    sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
                     write(f, indent, xmltagEnd(FIELD_DATA));
                 }
                 if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook) {

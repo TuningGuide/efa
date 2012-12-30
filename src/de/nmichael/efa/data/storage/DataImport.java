@@ -405,6 +405,7 @@ public class DataImport extends ProgressTask {
         private IDataAccess dataAccess;
         private DataRecord record;
         private ArrayList<String> fieldsInImport;
+        private boolean textImport;
 
         public DataImportXmlParser(DataImport dataImport, IDataAccess dataAccess) {
             super(DataExport.FIELD_EXPORT);
@@ -415,12 +416,17 @@ public class DataImport extends ProgressTask {
         public void startElement(String uri, String localName, String qname, Attributes atts) {
             super.startElement(uri, localName, qname, atts);
 
+            if (localName.equals(DataExport.FIELD_EXPORT)) {
+                String type = atts.getValue(DataExport.EXPORT_TYPE);
+                textImport = (type != null && type.equals(DataExport.EXPORT_TYPE_TEXT));
+            }
             if (localName.equals(DataRecord.ENCODING_RECORD)) {
                 // begin of record
                 record = dataAccess.getPersistence().createNewRecord();
                 fieldsInImport = new ArrayList<String>();
                 return;
             }
+
         }
 
         public void endElement(String uri, String localName, String qname) {
@@ -436,8 +442,12 @@ public class DataImport extends ProgressTask {
             if (record != null && fieldValue != null) {
                 // end of field
                 try {
-                    if (!record.setFromText(fieldName, fieldValue.trim())) {
-                        dataImport.logImportWarning(record, "Value '" + fieldValue + "' for Field '" + fieldName + "' corrected to '" + record.getAsText(fieldName) + "'");
+                    if (textImport) {
+                        if (!record.setFromText(fieldName, fieldValue.trim())) {
+                            dataImport.logImportWarning(record, "Value '" + fieldValue + "' for Field '" + fieldName + "' corrected to '" + record.getAsText(fieldName) + "'");
+                        }
+                    } else {
+                        record.set(fieldName, fieldValue.trim());
                     }
                     String[] equivFields = record.getEquivalentFields(fieldName);
                     for (String f : equivFields) {

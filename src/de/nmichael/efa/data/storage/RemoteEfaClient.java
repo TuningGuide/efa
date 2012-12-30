@@ -60,7 +60,6 @@ public class RemoteEfaClient extends DataAccess {
         return adminRecord;
     }
 
-
     // =========================== Communication Methods ===========================
 
     public URL getURL() {
@@ -903,6 +902,21 @@ public class RemoteEfaClient extends DataAccess {
         }
         return response.getRecord(0);
     }
+
+    public void setInOpeningStorageObject(boolean inOpening) {
+        super.setInOpeningStorageObject(inOpening);
+        RemoteEfaMessage request = RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
+                RemoteEfaMessage.OPERATION_SETINOPENINGMODE);
+        request.addField(RemoteEfaMessage.FIELD_BOOLEAN, Boolean.toString(inOpening));
+        RemoteEfaMessage response = runDataRequest(request);
+        if (response == null || response.getResultCode() != RemoteEfaMessage.RESULT_OK) {
+            Logger.log(Logger.DEBUG, Logger.MSG_REFA_REQUESTFAILED,
+                    getErrorLogstring(RemoteEfaMessage.OPERATION_SETINOPENINGMODE,
+                    (response != null ? response.getResultText() : "unknown"),
+                    (response != null ? response.getResultCode() : -1)));
+        }
+    }
+
 
     private void updateStatistics(String item, long count) {
         if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 1)) {

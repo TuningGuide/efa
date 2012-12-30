@@ -34,11 +34,11 @@ import java.lang.management.*;
 public class Daten {
 
     public final static String VERSION            = "2.0.7"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID          = "2.0.7_#2";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-    public final static String VERSIONRELEASEDATE = "16.12.2012";  // Release Date: TT.MM.JJJJ
+    public final static String VERSIONID          = "2.0.7_00";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "30.12.2012";  // Release Date: TT.MM.JJJJ
     public final static String MAJORVERSION       = "2";
-    public final static String PROGRAMMID         = "EFA.206"; // Versions-ID für Wettbewerbsmeldungen
-    public final static String PROGRAMMID_DRV     = "EFADRV.206"; // Versions-ID für Wettbewerbsmeldungen
+    public final static String PROGRAMMID         = "EFA.207"; // Versions-ID für Wettbewerbsmeldungen
+    public final static String PROGRAMMID_DRV     = "EFADRV.207"; // Versions-ID für Wettbewerbsmeldungen
     public final static String COPYRIGHTYEAR      = "12";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
 
     // enable/disable development functions for next version
@@ -86,6 +86,7 @@ public class Daten {
     public static final String EFA_JAR = "efa.jar";                      // <efa>/program/efa.jar
     public static final String EFA_SECFILE = "efa.sec";                  // <efa>/program/efa.sec            Hash von efa.jar: für Erstellen des Admins
     public static final String EFA_HELPSET = "help/efaHelp";
+
     
     // efa exit codes
     // Note: Codes 99 and higher will cause the shell script to restart efa!
@@ -498,6 +499,7 @@ public class Daten {
         if (!checkAndCreateDirectory(Daten.efaLogDirectory)) {
             haltProgram(HALT_DIRECTORIES);
         }
+        String lastLogEntry = Logger.getLastLogEntry("efa.log");
         String baklog = null; // backup'ed logfile
         switch (applID) {
             case APPL_EFABASE:
@@ -526,6 +528,13 @@ public class Daten {
         if (baklog != null) {
             Logger.log(Logger.INFO, Logger.MSG_EVT_LOGFILEARCHIVED,
                     International.getMessage("Alte Logdatei wurde nach '{filename}' verschoben.", baklog));
+        }
+
+        if (lastLogEntry != null && lastLogEntry.length() > 0 &&
+            !lastLogEntry.contains(International.getString("PROGRAMMENDE"))) {
+            Logger.log(Logger.WARNING, Logger.MSG_WARN_PREVIOUSEXITIRREGULAR,
+                    International.getMessage("efa wurde zuvor nicht korrekt beendet. Letzer Eintrag in Logdatei: {msg}",
+                    lastLogEntry));
         }
     }
 

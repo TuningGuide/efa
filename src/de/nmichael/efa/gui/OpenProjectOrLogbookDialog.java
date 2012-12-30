@@ -211,7 +211,8 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         if (type == Type.project) {
             Project prj = null;
             try {
-                if (Daten.project != null && Daten.project.getProjectName().equals(name)) {
+                if (Daten.project != null && Daten.project.getProjectName() != null &&
+                    Daten.project.getProjectName().equals(name)) {
                     prj = Daten.project;
                 } else {
                     prj = new Project(name);
@@ -279,7 +280,8 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
                     }
                 }
                 boolean success = false;
-                if (Daten.project != null && Daten.project.getProjectName().equals(prj.getProjectName())) {
+                if (Daten.project != null && Daten.project.getProjectName() != null &&
+                    Daten.project.getProjectName().equals(prj.getProjectName())) {
                     success = Daten.project.deleteProject();
                     Daten.project = null;
                 } else {

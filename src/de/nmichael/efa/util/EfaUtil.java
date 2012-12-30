@@ -97,6 +97,12 @@ public class EfaUtil {
         return s;
     }
 
+    public static String getHHMMstring(long minutes) {
+        long hh = minutes / 60;
+        long mm = minutes % 60;
+        return hh + ":" + long2String(mm, 2);
+    }
+
     // überprüfen, ob "c" ein "echtes" Zeichen (Buchstabe, Ziffer, Whitespace) ist
     public static boolean isRealChar(KeyEvent e) {
         char c = e.getKeyChar();

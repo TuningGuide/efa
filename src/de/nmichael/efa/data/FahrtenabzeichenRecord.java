@@ -315,11 +315,20 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
     }
 
     public TableItem[] getGuiTableItems() {
+        PersonRecord p = getPersonRecord();
+        String name = (p != null ? p.getQualifiedName() : "?");
+        boolean valid = (p != null ? p.isValidAt(System.currentTimeMillis()) : false);
         TableItem[] items = new TableItem[4];
-        items[0] = new TableItem(getPersonName());
+        items[0] = new TableItem(name);
         items[1] = new TableItem(getAbzeichen());
         items[2] = new TableItem(getKilometer());
         items[3] = new TableItem(getLetzteMeldungDescription());
+        if (!valid) {
+            items[0].setDisabled(true);
+            items[1].setDisabled(true);
+            items[2].setDisabled(true);
+            items[3].setDisabled(true);
+        }
         return items;
     }
 

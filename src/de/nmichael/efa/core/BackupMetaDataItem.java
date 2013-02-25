@@ -10,6 +10,8 @@
 
 package de.nmichael.efa.core;
 
+import de.nmichael.efa.util.EfaUtil;
+
 public class BackupMetaDataItem {
 
     private String name;
@@ -70,6 +72,14 @@ public class BackupMetaDataItem {
 
     public String getFileName() {
         return filename;
+    }
+
+    public String getFileNameWithSlash() {
+        return EfaUtil.replace(filename, "\\", "/", true);
+    }
+
+    public String getFileNameWithBackslash() {
+        return EfaUtil.replace(filename, "/", "\\", true);
     }
 
     public String getDescription() {

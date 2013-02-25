@@ -10,15 +10,14 @@
 
 package de.nmichael.efa.data.storage;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.util.*;
-import java.util.*;
 
 // @i18n complete
 
 public class DataFileWriter extends Thread {
 
-    public static final long SLEEP_INTERVAL = 10000; // 10.000 ms
-    public static final long SAVE_INTERVAL = 10000; // 10.000 ms
+    private long SAVE_INTERVAL = 10000; // 10.000 ms
 
     private DataFile dataFile;
     private volatile boolean writedata = false;
@@ -26,6 +25,10 @@ public class DataFileWriter extends Thread {
 
     public DataFileWriter(DataFile dataFile) {
         this.dataFile = dataFile;
+        try {
+            this.SAVE_INTERVAL = Daten.efaConfig.getValueDataFileSaveInterval() * 1000;
+        } catch(Exception eignore) {
+        }
     }
 
     public void run() {
@@ -47,7 +50,7 @@ public class DataFileWriter extends Thread {
                         lastSave = System.currentTimeMillis();
                         writedata = false;
                 } else {
-                    Thread.sleep(SLEEP_INTERVAL);
+                    Thread.sleep(SAVE_INTERVAL);
                 }
             } catch(Exception eglob) {
                 // no logging, also not debug exception loggin (too many interrupted exceptions)

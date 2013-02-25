@@ -37,7 +37,25 @@ public class BoatDamages extends StorageObject {
 
     public BoatDamageRecord createBoatDamageRecord(UUID id) {
         AutoIncrement autoIncrement = getProject().getAutoIncrement(false);
-        int val = autoIncrement.nextAutoIncrementIntValue(data().getStorageObjectType());
+
+        int tries = 0;
+        int val = 0;
+        try {
+            while (tries++ < 100) {
+                // usually autoincrement should always give a unique new id.
+                // but in case our id's got out of sync, we try up to 100 times to fine a
+                // new unique reservation id.
+                val = autoIncrement.nextAutoIncrementIntValue(data().getStorageObjectType());
+                if (val <= 0) {
+                    break;
+                }
+                if (data().get(BoatDamageRecord.getKey(id, val)) == null) {
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            Logger.logdebug(e);
+        }
         if (val > 0) {
             return createBoatDamageRecord(id, val);
         }

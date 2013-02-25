@@ -29,6 +29,8 @@ public class Journal {
     private static final long scnsPerJournal = 1000;
     private static final int numberOfJournals = 3;
 
+    private boolean FLUSH_WRITES = true;
+
     enum Operation {
         add,
         update,
@@ -47,6 +49,10 @@ public class Journal {
     public Journal(String storageObjectName, String storageObjectFilename) {
         this.storageObjectName = storageObjectName;
         this.storageObjectFilename = storageObjectFilename;
+        try {
+            this.FLUSH_WRITES = Daten.efaConfig.getValueDataFileSynchronousJournal();
+        } catch(Exception eignore) {
+        }
     }
 
     public static String getOperationName(Operation operation) {
@@ -313,7 +319,9 @@ public class Journal {
                 return false;
             }
             f.write(s + "\n");
-            f.flush();
+            if (FLUSH_WRITES) {
+                f.flush();
+            }
         } catch(Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_DATA_JOURNALWRITEFAILED,
                         LogString.fileWritingFailed(fwname, International.getString("Journal"), e.toString()));

@@ -336,7 +336,7 @@ public class RemoteEfaClient extends DataAccess {
         }
     }
 
-    private RemoteEfaMessage runDataRequest(RemoteEfaMessage request) {
+    protected RemoteEfaMessage runDataRequest(RemoteEfaMessage request) {
         try {
             int myRequestId = request.getMsgId();
             Vector<RemoteEfaMessage> responses = sendRequest(request);

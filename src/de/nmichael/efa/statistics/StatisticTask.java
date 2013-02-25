@@ -153,17 +153,17 @@ public class StatisticTask extends ProgressTask {
         if (splitSessionIntoDays) {
             long distancePerDay = distanceOfEntry / entryNumberOfDays;
             long remainingDistance = distanceOfEntry;
-            DataTypeDate date = entryDate;
+            DataTypeDate date = new DataTypeDate(entryDate);
             for (int i = 1; i <= entryNumberOfDays; i++) {
                 long dist = distancePerDay;
                 if (i > 1 && i == entryNumberOfDays) {
                     dist = remainingDistance;
-                    date = entryEndDate;
+                    date = new DataTypeDate(entryEndDate);
                 }
                 DataTypeDistance distance = new DataTypeDistance(dist);
                 Zielfahrt destArea = null;
                 if (entryDestinationAreas != null && i <= entryDestinationAreas.getAnzZielfahrten()) {
-                    destArea = entryDestinationAreas.getZielfahrt(i - 1);
+                    destArea = new Zielfahrt(entryDestinationAreas.getZielfahrt(i - 1));
                 }
                 sd.sessionHistory.addSession(r, i, date, distance, destArea);
                 remainingDistance -= dist;
@@ -172,7 +172,7 @@ public class StatisticTask extends ProgressTask {
         } else {
             Zielfahrt destArea = null;
             if (entryDestinationAreas != null && entryDestinationAreas.getAnzZielfahrten() > 0) {
-                destArea = entryDestinationAreas.getZielfahrt(0);
+                destArea = new Zielfahrt(entryDestinationAreas.getZielfahrt(0));
                 if (entryDestinationAreas.getAnzZielfahrten() > 1) {
                     sr.cWarnings.put("Fahrt #" + entryNo.toString() + " hat zu viele Zielfahrten; überzählige Zielbereiche werden ignoriert.",
                             "foo");
@@ -221,26 +221,19 @@ public class StatisticTask extends ProgressTask {
             }
             sd.duration += myDuration;
         }
-        if (sr.sIsAggrZielfahrten
-                && entryDestinationAreas != null && entryDestinationAreas.getAnzZielfahrten() > 0) {
-            calculateSessionHistory(r, key, sd, distance);
-        }
-        if (sr.sIsAggrWanderfahrten
+        if ((sr.sIsAggrZielfahrten
+                && entryDestinationAreas != null && entryDestinationAreas.getAnzZielfahrten() > 0) ||
+            (sr.sIsAggrWanderfahrten
                 && (CompetitionDRVFahrtenabzeichen.mayBeWafa(r)
-                || entrySessionType.equals(EfaTypes.TYPE_SESSION_JUMREGATTA))) {
-            calculateSessionHistory(r, key, sd, distance);
-        }
-        if (sr.sIsAggrWinterfahrten
+                || entrySessionType.equals(EfaTypes.TYPE_SESSION_JUMREGATTA))) ||
+            (sr.sIsAggrWinterfahrten
                 && (CompetitionLRVBerlinWinter.mayBeWinterfahrt(r)
-                && entryPersonRecord != null)) {
-            calculateSessionHistory(r, key, sd, distance);
-        }
-        if (sr.sIsAggrGigfahrten
+                && entryPersonRecord != null)) ||
+            (sr.sIsAggrGigfahrten
                 && EfaTypes.isGigBoot(entryBoatType)
-                && entryPersonRecord != null) {
+                && entryPersonRecord != null) ) {
             calculateSessionHistory(r, key, sd, distance);
         }
-
         data.put(key, sd);
         return 1;
     }
@@ -368,23 +361,17 @@ public class StatisticTask extends ProgressTask {
                 }
                 sdk.duration += myDuration;
             }
-            if (sr.sIsAggrZielfahrten
-                    && entryDestinationAreas != null && entryDestinationAreas.getAnzZielfahrten() > 0) {
-                calculateSessionHistory(r, k, sdk, distance);
-            }
-            if (sr.sIsAggrWanderfahrten
+            if ((sr.sIsAggrZielfahrten
+                    && entryDestinationAreas != null && entryDestinationAreas.getAnzZielfahrten() > 0)
+                    || (sr.sIsAggrWanderfahrten
                     && (CompetitionDRVFahrtenabzeichen.mayBeWafa(r)
-                    || entrySessionType.equals(EfaTypes.TYPE_SESSION_JUMREGATTA))) {
-                calculateSessionHistory(r, k, sdk, distance);
-            }
-            if (sr.sIsAggrWinterfahrten
+                    || entrySessionType.equals(EfaTypes.TYPE_SESSION_JUMREGATTA)))
+                    || (sr.sIsAggrWinterfahrten
                     && (CompetitionLRVBerlinWinter.mayBeWinterfahrt(r)
-                    && entryPersonRecord != null)) {
-                calculateSessionHistory(r, k, sdk, distance);
-            }
-            if (sr.sIsAggrGigfahrten
+                    && entryPersonRecord != null))
+                    || (sr.sIsAggrGigfahrten
                     && EfaTypes.isGigBoot(entryBoatType)
-                    && entryPersonRecord != null) {
+                    && entryPersonRecord != null)) {
                 calculateSessionHistory(r, k, sdk, distance);
             }
 
@@ -1159,11 +1146,7 @@ public class StatisticTask extends ProgressTask {
         }
         entryBoatOwner = StatisticsRecord.BOWNER_UNKNOWN;
         if (entryBoatRecord != null) {
-            if (entryBoatRecord.getOwner() == null || entryBoatRecord.getOwner().length() == 0) {
-                entryBoatOwner = StatisticsRecord.BOWNER_OWN;
-            } else {
-                entryBoatOwner = StatisticsRecord.BOWNER_OTHER;
-            }
+            entryBoatOwner = entryBoatRecord.getOwnerOwnOrOther();
         }
         entryBoatExclude = (entryBoatRecord != null && entryBoatRecord.getExcludeFromPublicStatistics()
                 && sr.getPubliclyAvailable());
@@ -1282,7 +1265,7 @@ public class StatisticTask extends ProgressTask {
             return false;
         }
 
-        if (sr.sFilterByBoatId != null && !sr.sFilterByBoatId.equals(r.getId())) {
+        if (sr.sFilterByBoatId != null && (r == null || !sr.sFilterByBoatId.equals(r.getId()))) {
             return false;
         }
         if (sr.sFilterByBoatText != null && !sr.sFilterByBoatText.equals(boatName)) {
@@ -1447,7 +1430,7 @@ public class StatisticTask extends ProgressTask {
                                         if (isInBoatFilter(b, b.getQualifiedName(),
                                                 b.getTypeType(0), b.getTypeSeats(0),
                                                 b.getTypeRigging(0), b.getTypeCoxing(0),
-                                                b.getOwner())) {
+                                                b.getOwnerOwnOrOther())) {
                                             Object key = getAggregationKey_boats(b, b.getId(),
                                                     b.getQualifiedName());
                                             if (key != null) {
@@ -1512,7 +1495,7 @@ public class StatisticTask extends ProgressTask {
                                 if (isInBoatFilter(b, b.getQualifiedName(),
                                         b.getTypeType(0), b.getTypeSeats(0),
                                         b.getTypeRigging(0), b.getTypeCoxing(0),
-                                        b.getOwner())) {
+                                        b.getOwnerOwnOrOther())) {
                                     Object key = getAggregationKey_boatTypeDetail(
                                             b.getTypeType(0), b.getTypeSeats(0), b.getTypeCoxing(0));
                                     if (key != null) {
@@ -1690,17 +1673,24 @@ public class StatisticTask extends ProgressTask {
 
 
         // Create Array and sort
-        StatisticsData[] sdArray = new StatisticsData[keys.length + 2];
+        boolean summax = (sr.sStatisticCategory != StatisticsRecord.StatisticCategory.competition ?
+            true : false);
+        StatisticsData[] sdArray = new StatisticsData[keys.length + (summax ? 2 : 0)];
         for (int i = 0; i < keys.length; i++) {
             sdArray[i] = data.get(keys[i]);
         }
         Arrays.sort(sdArray, 0, keys.length);
-        sdArray[sdArray.length - 2] = sdSummary;
-        sdArray[sdArray.length - 1] = sdMaximum;
+        if (summax) {
+            sdArray[sdArray.length - 2] = sdSummary;
+            sdArray[sdArray.length - 1] = sdMaximum;
+        }
         setCurrentWorkDone(workBeforePostprocessing + (WORK_POSTPROCESSING / 5) * 2);
 
         // Calculate String Output Values
-        for (int i = 0; i < sdArray.length-1; i++) { // don't do for maximum!
+        for (int i = 0; i < sdArray.length; i++) {
+            if (sdArray[i].isMaximum) {
+                continue; // don't do for maximum!
+            }
             sdArray[i].createStringOutputValues(sr, i,
                     (i > 0 && sdArray[i].compareTo(sdArray[i - 1], false) == 0 ? sdArray[i - 1].sPosition : Integer.toString(i + 1) + "."));
             if (sdArray[i].matrixData != null) {
@@ -1820,12 +1810,17 @@ public class StatisticTask extends ProgressTask {
                 while (k != null) {
                     LogbookRecord r = (LogbookRecord) logbook.data().get(k);
                     if (r != null) {
+                        if (Logger.isTraceOn(Logger.TT_STATISTICS, 9)) {
+                            Logger.log(Logger.DEBUG, Logger.MSG_STAT_VISITEDENTRIES,
+                                    "visited: " + (r.getEntryId() != null ? r.getEntryId().toString() : "EntryId = <null>"));
+                        }
                         calculateEntry(r);
                     }
                     this.setCurrentWorkDone(((++pos * WORK_PER_LOGBOOK) / size) + (i * WORK_PER_LOGBOOK) + (statisticsNumber * WORK_PER_STATISTIC));
                     k = it.getNext();
                 }
             } catch (Exception e) {
+                Logger.logdebug(e);
                 logInfo("ERROR: " + e.toString() + "\n");
             }
         }
@@ -1874,6 +1869,7 @@ public class StatisticTask extends ProgressTask {
                             k = it.getNext();
                         }
                     } catch (Exception e) {
+                        Logger.logdebug(e);
                         logInfo("ERROR: " + e.toString() + "\n");
                     }
                 }

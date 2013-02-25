@@ -470,13 +470,14 @@ public class EfaMenuButton {
 
             if (remoteEfa) {
                 RemoteCommand cmd = new RemoteCommand(Daten.project);
-                boolean result = cmd.onlineUpdate();
-                if (result) {
+                String result = cmd.onlineUpdate();
+                if (result == null) {
                     Dialog.infoDialog(LogString.operationSuccessfullyCompleted(
                             International.getString("Online-Update")));
                 } else {
                     Dialog.error(LogString.operationFailed(
-                            International.getString("Online-Update")));
+                            International.getString("Online-Update"),
+                            result));
                 }
             } else {
                 OnlineUpdate.runOnlineUpdate(parentDialog, Daten.ONLINEUPDATE_INFO);

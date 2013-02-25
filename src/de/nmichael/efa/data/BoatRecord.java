@@ -169,6 +169,14 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     public String getOwner() {
         return getString(OWNER);
     }
+    public String getOwnerOwnOrOther() {
+        String s = getString(OWNER);
+        if (s == null || s.length() == 0) {
+            return StatisticsRecord.BOWNER_OWN;
+        } else {
+            return StatisticsRecord.BOWNER_OTHER;
+        }
+    }
 
     public int getNumberOfVariants() {
         DataTypeList l = getList(TYPEVARIANT, IDataAccess.DATA_INTEGER);
@@ -1040,8 +1048,10 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Maximales Mannschaftsgewicht")));
         v.add(item = new ItemTypeDate(BoatRecord.MANUFACTIONDATE, getManufactionDate(),
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Herstellungsdatum")));
+        ((ItemTypeDate)item).setAllowYearOnly(true);
         v.add(item = new ItemTypeDate(BoatRecord.PURCHASEDATE, getPurchaseDate(),
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Kaufdatum")));
+        ((ItemTypeDate)item).setAllowYearOnly(true);
         v.add(item = new ItemTypeDecimal(BoatRecord.PURCHASEPRICE, getPurchasePrice(), 2, true,
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Kaufpreis")));
         v.add(item = new ItemTypeDecimal(BoatRecord.INSURANCEVALUE, getInsuranceValue(), 2, true,

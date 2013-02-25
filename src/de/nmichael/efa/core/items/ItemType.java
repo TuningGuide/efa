@@ -32,6 +32,7 @@ public abstract class ItemType implements IItemType {
     protected String lastValue;
     protected String lastInvalidErrorText = "";
     protected DataKey dataKey; // no purpose other than storing it inside an ItemType, if needed by external class
+    protected Object referenceObject; // just a reference to any user-defined object
 
     protected Color color = null;
     protected Color savedFgColor = null;
@@ -297,6 +298,15 @@ public abstract class ItemType implements IItemType {
     public JComponent getComponent() {
         return field;
     }
+
+    public void setReferenceObject(Object o) {
+        this.referenceObject = o;
+    }
+
+    public Object getReferenceObject() {
+        return referenceObject;
+    }
+
 
     public String getInvalidErrorText() {
         return International.getMessage("Ungültige Eingabe im Feld '{field}'",

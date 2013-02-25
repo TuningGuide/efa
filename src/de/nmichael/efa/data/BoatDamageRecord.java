@@ -93,6 +93,10 @@ public class BoatDamageRecord extends DataRecord {
         return new DataKey<UUID,Integer,String>(getBoatId(),getDamage(),null);
     }
 
+    public static DataKey getKey(UUID id, int res) {
+        return new DataKey<UUID,Integer,String>(id,res,null);
+    }
+
     public boolean isValidAt(long validAt) {
         return true;
         // BOat Damages are always valid and should be shown even if the boat is invalid

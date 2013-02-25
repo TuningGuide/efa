@@ -27,6 +27,7 @@ import de.nmichael.efa.util.ProgressTask;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.Hashtable;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -174,6 +175,18 @@ public class Backup {
                 meta.getDescription(), meta.getNameAndType()));
         try {
             ZipEntry entry = zip.getEntry(meta.getFileName());
+            if (entry == null) {
+                entry = zip.getEntry(meta.getFileNameWithSlash()); // should never happen (only if backup.meta has been manipulated manually)
+            }
+            if (entry == null) {
+                entry = zip.getEntry(meta.getFileNameWithBackslash()); // should never happen (only if backup.meta has been manipulated manually)
+            }
+            if (entry == null) {
+                logMsg(Logger.ERROR, Logger.MSG_BACKUP_RESTOREERROR,
+                        LogString.fileRestoreFailed(meta.getFileName(),
+                        meta.getNameAndType(),
+                        "File not found in ZIP Archive"));
+            }
             InputStream in = zip.getInputStream(entry);
 
             if (isProjectDataAccess(meta.getType())) {
@@ -380,16 +393,17 @@ public class Backup {
                 }
             } else {
                 totalWork = restoreObjects.length;
-                for (int i=0; i<restoreObjects.length; i++) {
-                    BackupMetaDataItem meta = backupMetaData.getItem(restoreObjects[i]);
-                    if (meta == null) {
-                        logMsg(Logger.ERROR, Logger.MSG_BACKUP_RESTOREERROR,
-                                LogString.fileRestoreFailed(restoreObjects[i],
-                                "<" + International.getString("unbekannt") + ">",
-                                "Object not found"));
-                        errors++;
-                        continue;
+                Hashtable<String,String> restoreObjectsHash = new Hashtable<String,String>();
+                for (String s : restoreObjects) {
+                    restoreObjectsHash.put(s, "foo");
+                }
+                // we have to restore objects in the order of BackupMetaData, not the order in the ZIP file!
+                for (int i=0; i<backupMetaData.size(); i++) {
+                    BackupMetaDataItem meta = backupMetaData.getItem(i);
+                    if (restoreObjectsHash.get(meta.getNameAndType()) == null) {
+                        continue; // this object was not selected to be restored
                     }
+                    restoreObjectsHash.remove(meta.getNameAndType());
                     if (restoreStorageObject(meta,
                             isRemoteProject, zip)) {
                         successful++;
@@ -397,7 +411,17 @@ public class Backup {
                         errors++;
                     }
                 }
-
+                // if there were objects selected that we have not restored, print an error
+                if (restoreObjectsHash.size() > 0) {
+                    String[] notRestoredObjects = restoreObjectsHash.keySet().toArray(new String[0]);
+                    for (String s : notRestoredObjects) {
+                        logMsg(Logger.ERROR, Logger.MSG_BACKUP_RESTOREERROR,
+                                LogString.fileRestoreFailed(s,
+                                "<" + International.getString("unbekannt") + ">",
+                                "Object not found"));
+                        errors++;
+                    }
+                }
             }
 
             logMsg(Logger.INFO, Logger.MSG_BACKUP_RESTOREFINISHEDINFO,

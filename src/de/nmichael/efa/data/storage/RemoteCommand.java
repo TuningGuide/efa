@@ -36,11 +36,20 @@ public class RemoteCommand extends RemoteEfaClient {
         return success;
     }
 
-    public boolean onlineUpdate() {
+    public String onlineUpdate() {
         RemoteEfaMessage request = RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
                 RemoteEfaMessage.OPERATION_CMD_ONLINEUPDATE);
-        boolean success = runSimpleRequest(request) == RemoteEfaMessage.RESULT_OK;
-        return success;
+        RemoteEfaMessage result = runDataRequest(request);
+        boolean success = (result != null && result.getResultCode() == RemoteEfaMessage.RESULT_OK);
+        if (success) {
+            return null;
+        } else {
+            String rtxt = (result != null ? result.getResultText() : International.getString("Fehler"));
+            if (rtxt == null || rtxt.length() == 0) {
+                rtxt = International.getString("Fehler");
+            }
+            return rtxt;
+        }
     }
 
 }

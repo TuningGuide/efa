@@ -81,6 +81,10 @@ public class BoatReservationRecord extends DataRecord {
         return new DataKey<UUID,Integer,String>(getBoatId(),getReservation(),null);
     }
 
+    public static DataKey getKey(UUID id, int res) {
+        return new DataKey<UUID,Integer,String>(id,res,null);
+    }
+    
     public boolean isValidAt(long validAt) {
         return true;
         // Boat Reservation are always valid and should be shown even if the boat is invalid

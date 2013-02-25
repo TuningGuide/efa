@@ -1,9 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <efaOnlineUpdate>
     <Version>
+        <VersionID>2.0.7_16</VersionID>
+        <ReleaseDate>24.02.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa2drv.zip</DownloadUrl>
+        <DownloadSize>3391912</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Abstände in Anschreiben (Briefbogen) korrigiert</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_13</VersionID>
+        <ReleaseDate>29.01.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa2drv.zip</DownloadUrl>
+        <DownloadSize>3375126</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Fehler beim Einbinden der Briefbogen-Vorlage in Anschreiben für DRV-Fahrtenabzeichen behoben</ChangeItem>
+            <ChangeItem>elektronisches Fahrtenheft in Anschreiben zu DRV-Fahrtenabzeichen wird jetzt in kleinerer Schriftgröße ausgegeben, damit vier Fahrtenhefte auf eine Seite passen</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_05</VersionID>
+        <ReleaseDate>03.01.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa2drv.zip</DownloadUrl>
+        <DownloadSize>3391597</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Fehler unter Windows beim Öffnen des Dialogs zum Bearbeiten von Meldungen zum DRV-Fahrtenabzeichen</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.0.5_03</VersionID>
         <ReleaseDate>02.12.2012</ReleaseDate>
-        <DownloadUrl>http://efa.nmichael.de/efa2/download/efa2drv.zip</DownloadUrl>
+        <DownloadUrl>http://efa.nmichael.de/download/efa2drv.zip</DownloadUrl>
         <DownloadSize>3158885</DownloadSize>
 
         <!-- Changes (deutsch) -->

@@ -748,7 +748,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
         }
 
         String qnr = null;
-        Pattern p = Pattern.compile(".*" + Daten.fileSep + "([0-9]+).efw(fname)");
+        Pattern p = Pattern.compile(".*" + (Daten.fileSep.equals("\\") ? "\\" : Daten.fileSep) + "([0-9]+).efw(fname)");
         Matcher m = p.matcher(fname);
         if (m.matches()) {
             qnr = m.group(1);

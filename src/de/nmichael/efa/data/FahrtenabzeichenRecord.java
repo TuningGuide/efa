@@ -57,6 +57,8 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
     public static final String GUI_STATUS = "GUI_STATUS";
 
     private Vector<IItemType> myItems;
+    private DRVSignatur cachedSignature;
+    private long cachedSignatureTs = 0;
 
     public static void initialize() {
         Vector<String> f = new Vector<String>();
@@ -142,28 +144,32 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
         setInt(ABZEICHEN, abzeichen);
     }
     public int getAbzeichen() {
-        return getInt(ABZEICHEN);
+        int sigValue = getDRVSignaturValue(ABZEICHEN);
+        return (sigValue > 0 ? sigValue : getInt(ABZEICHEN));
     }
 
     public void setAbzeichenAB(int abzeichen) {
         setInt(ABZEICHENAB, abzeichen);
     }
     public int getAbzeichenAB() {
-        return getInt(ABZEICHENAB);
+        int sigValue = getDRVSignaturValue(ABZEICHENAB);
+        return (sigValue > 0 ? sigValue : getInt(ABZEICHENAB));
     }
 
     public void setKilometer(int km) {
         setInt(KILOMETER, km);
     }
     public int getKilometer() {
-        return getInt(KILOMETER);
+        int sigValue = getDRVSignaturValue(KILOMETER);
+        return (sigValue > 0 ? sigValue : getInt(KILOMETER));
     }
 
     public void setKilometerAB(int km) {
         setInt(KILOMETERAB, km);
     }
     public int getKilometerAB() {
-        return getInt(KILOMETERAB);
+        int sigValue = getDRVSignaturValue(KILOMETERAB);
+        return (sigValue > 0 ? sigValue : getInt(KILOMETERAB));
     }
 
     public void setFahrtenheft(String data) {
@@ -179,6 +185,36 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
             return null;
         }
         return new DRVSignatur(s);
+    }
+
+    public int getDRVSignaturValue(String field) {
+        try {
+            DRVSignatur sig = cachedSignature;
+            if (sig == null || System.currentTimeMillis()-cachedSignatureTs > 100) {
+                sig = getDRVSignatur();
+                if (sig != null) {
+                    // don't check, takes too long... // sig.checkSignature();
+                    cachedSignatureTs = System.currentTimeMillis();
+                }
+            }
+            if (sig != null && sig.getSignatureState() == DRVSignatur.SIG_VALID) {
+                if (field.equals(ABZEICHEN)) {
+                    return sig.getAnzAbzeichen();
+                }
+                if (field.equals(ABZEICHENAB)) {
+                    return sig.getAnzAbzeichenAB();
+                }
+                if (field.equals(KILOMETER)) {
+                    return sig.getGesKm();
+                }
+                if (field.equals(KILOMETERAB)) {
+                    return sig.getGesKmAB();
+                }
+            }
+        } catch (Exception e) {
+            return -1;
+        }
+        return -1;
     }
 
     public String getLetzteMeldungDescription() {
@@ -385,6 +421,12 @@ public class FahrtenabzeichenRecord extends DataRecord implements IItemListener 
         getGuiItem(KILOMETER).setEditable(drvSignatur == null);
         getGuiItem(ABZEICHENAB).setEditable(drvSignatur == null);
         getGuiItem(KILOMETERAB).setEditable(drvSignatur == null);
+        if (drvSignatur != null && drvSignatur.getSignatureState() == DRVSignatur.SIG_VALID) {
+            getGuiItem(ABZEICHEN).parseAndShowValue(Integer.toString(drvSignatur.getAnzAbzeichen()));
+            getGuiItem(KILOMETER).parseAndShowValue(Integer.toString(drvSignatur.getGesKm()));
+            getGuiItem(ABZEICHENAB).parseAndShowValue(Integer.toString(drvSignatur.getAnzAbzeichenAB()));
+            getGuiItem(KILOMETERAB).parseAndShowValue(Integer.toString(drvSignatur.getGesKmAB()));
+        }
         updateGuiItem(GUI_YEAROFBIRTH, (person != null && person.getBirthday() != null && person.getBirthday().isSet() ? 
             Integer.toString(person.getBirthday().getYear()) : ""));
         updateGuiItem(GUI_LETZTESFAHRTENABZEICHEN, 

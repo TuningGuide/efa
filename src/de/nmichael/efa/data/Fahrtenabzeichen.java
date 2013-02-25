@@ -74,6 +74,14 @@ public class Fahrtenabzeichen extends StorageObject {
         }
     }
 
+    public static boolean isNameInFahrtenabzeichenEqualPersonRecord(String firstName, String lastName, PersonRecord p) {
+        String name = (firstName != null ? firstName : "");
+        if (lastName != null && lastName.length() > 0) {
+            name = (name.length() > 0 ? name + " " : "") + lastName;
+        }
+        return name.equals(p.getFirstLastName());
+    }
+
     public FahrtenabzeichenRecord getFahrtenabzeichen(String vorname, String nachname) {
         try {
             DataKeyIterator it = data().getStaticIterator();
@@ -83,15 +91,13 @@ public class Fahrtenabzeichen extends StorageObject {
                 if (fa != null && fa.getPersonId() != null) {
                     UUID id = fa.getPersonId();
                     PersonRecord p = fa.getPersonRecord();
-                    if (p != null && p.getFirstName() != null && p.getLastName() != null &&
-                        p.getFirstName().equals(vorname) && p.getLastName().equals(nachname)) {
+                    if (p != null && isNameInFahrtenabzeichenEqualPersonRecord(vorname, nachname, p)) {
                         return fa;
                     }
                     DataRecord[] records = getProject().getPersons(false).data().getValidAny(PersonRecord.getKey(id, -1));
                     for (int i=0; records != null && i<records.length; i++) {
                         p = (PersonRecord)records[i];
-                        if (p != null && p.getFirstName() != null && p.getLastName() != null
-                                && p.getFirstName().equals(vorname) && p.getLastName().equals(nachname)) {
+                        if (p != null && isNameInFahrtenabzeichenEqualPersonRecord(vorname, nachname, p)) {
                             return fa;
                         }
                     }
@@ -109,6 +115,18 @@ public class Fahrtenabzeichen extends StorageObject {
             PersonRecord p = getProject().getPersons(false).getPerson(vorname + " " + nachname, -1);
             if (p != null && p.getId() != null) {
                 return createFahrtenabzeichenRecord(p.getId());
+            }
+            // if we haven't found a matching person, it might be because of a Name Affix.
+            // try to find person just based on first and last name
+            DataKey[] keys = getProject().getPersons(false).data().getByFields(
+                    new String[] { PersonRecord.FIRSTNAME, PersonRecord.LASTNAME},
+                    new String[] { vorname, nachname },
+                    -1);
+            if (keys != null && keys.length > 0) {
+                p = (PersonRecord)getProject().getPersons(false).data().get(keys[0]);
+                if (p != null && p.getId() != null) {
+                    return createFahrtenabzeichenRecord(p.getId());
+                }
             }
         } catch(Exception e) {
             Logger.logdebug(e);

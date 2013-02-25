@@ -72,7 +72,64 @@ public abstract class DataRecord implements Cloneable, Comparable {
         DataRecord rec = createDataRecord();
         synchronized(this.data) {
             for (int i = 0; i < this.data.length; i++) {
-                rec.data[i] = this.data[i];
+                if (this.data[i] != null) {
+                    switch (metaData.getFieldType(i)) {
+                        case IDataAccess.DATA_STRING:
+                            rec.data[i] = this.data[i];
+                            break;
+                        case IDataAccess.DATA_INTEGER:
+                            rec.data[i] = this.data[i];
+                            break;
+                        case IDataAccess.DATA_LONGINT:
+                            rec.data[i] = this.data[i];
+                            break;
+                        case IDataAccess.DATA_DOUBLE:
+                            rec.data[i] = this.data[i];
+                            Double d;
+                            break;
+                        case IDataAccess.DATA_DECIMAL:
+                            rec.data[i] = new DataTypeDecimal((DataTypeDecimal) this.data[i]);
+                            break;
+                        case IDataAccess.DATA_DISTANCE:
+                            rec.data[i] = new DataTypeDistance((DataTypeDistance) this.data[i]);
+                            break;
+                        case IDataAccess.DATA_BOOLEAN:
+                            rec.data[i] = this.data[i];
+                            break;
+                        case IDataAccess.DATA_DATE:
+                            rec.data[i] = new DataTypeDate((DataTypeDate) this.data[i]);
+                            break;
+                        case IDataAccess.DATA_TIME:
+                            rec.data[i] = new DataTypeTime((DataTypeTime) this.data[i]);
+                            break;
+                        case IDataAccess.DATA_UUID:
+                            rec.data[i] = this.data[i];
+                            break;
+                        case IDataAccess.DATA_INTSTRING:
+                            rec.data[i] = new DataTypeIntString((DataTypeIntString) this.data[i]);
+                            break;
+                        case IDataAccess.DATA_PASSWORDH:
+                            rec.data[i] = new DataTypePasswordHashed((DataTypePasswordHashed) this.data[i]);
+                            break;
+                        case IDataAccess.DATA_PASSWORDC:
+                            rec.data[i] = new DataTypePasswordCrypted((DataTypePasswordCrypted) this.data[i]);
+                            break;
+                        case IDataAccess.DATA_LIST_STRING:
+                            rec.data[i] = new DataTypeList<String>((DataTypeList<String>) this.data[i]);
+                            break;
+                        case IDataAccess.DATA_LIST_INTEGER:
+                            rec.data[i] = new DataTypeList<Integer>((DataTypeList<Integer>) this.data[i]);
+                            break;
+                        case IDataAccess.DATA_LIST_UUID:
+                            rec.data[i] = new DataTypeList<UUID>((DataTypeList<UUID>) this.data[i]);
+                            break;
+                        case IDataAccess.DATA_VIRTUAL:
+                            // nothing to do
+                            break;
+                    }
+                } else {
+                    rec.data[i] = null;
+                }
             }
         }
         return rec;

@@ -12,6 +12,8 @@ package de.nmichael.efa.core.items;
 
 import de.nmichael.efa.*;
 import de.nmichael.efa.data.LogbookRecord;
+import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.gui.SimpleOptionInputDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -46,8 +48,8 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
     protected String ignoreEverythingAfter = null;
     protected String alternateFieldNameForPlainText = null;
     protected boolean alwaysReturnPlainText = false;
-    protected ItemTypeDate validAtDate;
-    protected ItemTypeTime validAtTime;
+    protected ItemTypeDate validAtDateItem;
+    protected ItemTypeTime validAtTimeItem;
 
 
     public ItemTypeStringAutoComplete(String name, String value, int type,
@@ -56,9 +58,17 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         this.showButton = showButton;
     }
 
+    public ItemTypeStringAutoComplete(String name, String value, int type,
+            String category, String description, boolean showButton,
+            AutoCompleteList autoCompleteList) {
+        super(name, value, type, category, description);
+        this.showButton = showButton;
+        setAutoCompleteData(autoCompleteList);
+    }
+
     public void setValidAt(ItemTypeDate validAtDate, ItemTypeTime validAtTime) {
-        this.validAtDate = validAtDate;
-        this.validAtTime = validAtTime;
+        this.validAtDateItem = validAtDate;
+        this.validAtTimeItem = validAtTime;
     }
 
     public void iniDisplay() {
@@ -347,9 +357,9 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
 
         // in case of versionized data, make sure it also valid
         boolean valid = false;
-        if (matching && validAtDate != null) {
-            long t = LogbookRecord.getValidAtTimestamp(validAtDate.getDate(),
-                    (validAtTime != null ? validAtTime.getTime() : null));
+        if (matching && validAtDateItem != null) {
+            long t = LogbookRecord.getValidAtTimestamp(validAtDateItem.getDate(),
+                    (validAtTimeItem != null ? validAtTimeItem.getTime() : null));
             if (ignoredString == null && complete != null) {
                 valid = autoCompleteList.isValidAt(complete, t);
             }

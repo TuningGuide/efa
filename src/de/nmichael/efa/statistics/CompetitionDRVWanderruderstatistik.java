@@ -197,9 +197,9 @@ public class CompetitionDRVWanderruderstatistik extends Competition {
                             + DataTypeDistance.getDistanceFromMeters(oldvalue).getStringValueInKilometers(true, 0, 1)
                             + " und " +
                             DataTypeDistance.getDistanceFromMeters(distanceInMeters).getStringValueInKilometers(true, 0, 1)
-                            + " Km) vor (Wert '" + 
+                            + ") vor (Wert '" + 
                             DataTypeDistance.getDistanceFromMeters(meters).getStringValueInKilometers(true, 0, 1)
-                            + " Km' wird verwendet)!";
+                            + "' wird verwendet)!";
                     sr.cWarnings.put(newWarn, "foo"); // nur neue Warnungen hinzufügen
                 }
             }

@@ -641,7 +641,9 @@ public class KanuEfbSyncTask extends ProgressTask {
                     }
                     String resultText = fields.get("resulttext");
                     if (r != null) {
-                        if (result == 0) {
+                        if (result == 0 || // 0 - ok - new trip accepted
+                            result == 1 || // 1 - ok - existing trip updated
+                            result == 2) { // 2 - ok - existing trip deleted
                             r.setSyncTime(thisSync);
                             logbook.data().update(r);
                             ok = true;

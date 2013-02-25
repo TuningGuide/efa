@@ -975,6 +975,16 @@ public class Audit extends Thread {
                         logbookErr++;
                     }
                 }
+                if (r.getEndDate() != null && r.getEndDate().isSet() &&
+                    r.getDate() != null && r.getDate().isSet() &&
+                    r.getEndDate().isBeforeOrEqual(r.getDate())) {
+                        auditError(Logger.MSG_DATA_AUDIT_LOGBOOKERROR,
+                                "runAuditLogbook(): "
+                                + International.getString("Fahrtenbuch") + " " + logbookName + " "
+                                + International.getMessage("Fahrtenbucheintrag #{entryno}", r.getEntryId().toString()) + ": "
+                                + "End date " + r.getEndDate().toString() + " must be after start date " + r.getDate().toString() + ".");
+                        logbookErr++;
+                }
                 
                 // Boat References
                 if (r.getBoatId() != null && r.getBoatName() != null && r.getBoatName().length() > 0
@@ -1243,7 +1253,7 @@ public class Audit extends Thread {
                     }
                     auditWarning(Logger.MSG_DATA_AUDIT_RECPURGED,
                             "runAuditPurgeDeletedRecords(): "
-                            + International.getMessage("{item} '{name}' endgültig gelöscht.",
+                            + International.getMessage("{item} '{name}' war durch Benutzer zur Löschung markiert worden und wurde nun endgültig gelöscht.",
                             itemDescription, r.getQualifiedName()));
                 }
                 k = it.getNext();

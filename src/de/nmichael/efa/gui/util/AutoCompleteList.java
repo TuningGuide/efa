@@ -353,7 +353,7 @@ public class AutoCompleteList {
                 vi = name2valid.get(nameWithUpper);
             }
         }
-        return (vi != null && validAt >= vi.validFrom && validAt < vi.invalidFrom);
+        return (vi != null && (validAt < 0 || (validAt >= vi.validFrom && validAt < vi.invalidFrom)));
     }
 
     public long getSCN() {

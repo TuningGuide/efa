@@ -27,16 +27,19 @@ import javax.swing.event.ChangeEvent;
 // @i18n complete
 public class VersionizedDataDeleteDialog extends BaseDialog implements IItemListener {
 
+    private String name;
     private ItemTypeDateTime deleteAt;
     private ItemTypeBoolean deleteAll;
     private long deleteAtResult = Long.MAX_VALUE;
 
-    public VersionizedDataDeleteDialog(Frame parent) {
+    public VersionizedDataDeleteDialog(Frame parent, String name) {
         super(parent, International.getString("Daten löschen"), International.getStringWithMnemonic("Löschen"));
+        this.name = name;
     }
 
-    public VersionizedDataDeleteDialog(JDialog parent) {
+    public VersionizedDataDeleteDialog(JDialog parent, String name) {
         super(parent, International.getString("Daten löschen"), International.getStringWithMnemonic("Löschen"));
+        this.name = name;
     }
 
     public void keyAction(ActionEvent evt) {
@@ -74,6 +77,21 @@ public class VersionizedDataDeleteDialog extends BaseDialog implements IItemList
     public void closeButton_actionPerformed(ActionEvent e) {
         deleteAt.getValueFromGui();
         deleteAll.getValueFromGui();
+        if (deleteAll.getValue()) {
+            if (Dialog.yesNoCancelDialog(International.getString("Wirklich löschen?"),
+                    International.getString("Wenn der Datensatz vollständig gelöscht wird, können auch " +
+                                            "frühere Fahrtenbücher darauf nicht mehr zugreifen und " +
+                                            "Eigenschaften des Datensatzes für Statistikzwecke nicht mehr " +
+                                            "verwendet werden. Datensätze sollten daher nur in absoluten Ausnahmefällen " +
+                                            "komplett gelöscht werden, wenn diese Daten (auch aus der Vergangenheit)" +
+                                            "wirklich nie wieder benötigt werden. Normalerweise (z.B. beim Austritt eines "+
+                                            "Mitglieds oder Verkauf eines Bootes) sollten Datensätze lediglich ab einem " +
+                                            "bestimmten Datum gelöscht werden, so daß sie für den Zeitraum davor noch zur " +
+                                            "Verfügung stehen") + "\n\n" +
+                    International.getMessage("Möchtest Du den Datensatz '{record}' wirklich vollständig löschen?", name)) != Dialog.YES) {
+                return;
+            }
+        }
         if (deleteAll.getValue()) {
             deleteAtResult = -1;
         } else {

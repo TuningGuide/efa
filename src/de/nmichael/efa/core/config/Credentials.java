@@ -69,7 +69,11 @@ public class Credentials {
                             username = username.substring(1);
                             defaultAdmin = (defaultAdmin == null ? username : defaultAdmin);
                         }
-                        credentials.put(username, password);
+                        if (Logger.isTraceOn(Logger.TT_CORE, 3)) {
+                            Logger.log(Logger.DEBUG, Logger.MSG_CORE_CREDENTIALS, "found credentials for: " + username
+                                    + (s.startsWith("+") ? " (default)" : ""));
+                        }
+                    credentials.put(username, password);
                     }
                 }
                 f.close();

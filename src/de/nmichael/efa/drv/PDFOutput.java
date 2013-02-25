@@ -44,10 +44,10 @@ public class PDFOutput {
         return gold + (einzeln != null ? " (" + einzeln + ")" : "");
     }
 
-    private static void writeRow(BufferedWriter f, String field, String value) throws IOException {
+    private static void writeRow(BufferedWriter f, String field, String value, String fontSize) throws IOException {
         f.write("                  <fo:table-row>\n");
         f.write("                    <fo:table-cell border=\"0.5pt #000000 solid\" padding-left=\"1pt\"><fo:block>" + field + "</fo:block></fo:table-cell>\n");
-        f.write("                    <fo:table-cell border=\"0.5pt #000000 solid\" padding-left=\"1pt\"><fo:block>" + value + "</fo:block></fo:table-cell>\n");
+        f.write("                    <fo:table-cell border=\"0.5pt #000000 solid\" padding-left=\"1pt\"><fo:block font-size=\"" + fontSize + "\">" + value + "</fo:block></fo:table-cell>\n");
         f.write("                  </fo:table-row>\n");
     }
 
@@ -57,9 +57,10 @@ public class PDFOutput {
         String xslfo = Daten.efaTmpDirectory + "esigfahrtenhefte.fo";
 
         try {
-            String header = EfaUtil.saveImage("DRV_Briefkopf_header.gif", "gif", Daten.efaTmpDirectory, false, true, true);
-            String footer = EfaUtil.saveImage("DRV_Briefkopf_footer.gif", "gif", Daten.efaTmpDirectory, false, true, true);
+            String header = EfaUtil.saveImage("DRV_Briefkopf_header.gif", "gif", Daten.efaTmpDirectory, true, true, true);
+            String footer = EfaUtil.saveImage("DRV_Briefkopf_footer.gif", "gif", Daten.efaTmpDirectory, true, true, true);
             String fontSize = "10pt";
+            String smallFontSize = "9pt";
 
             int netto = (int) ((meldegeld * 100) / 107);
             int mwst = meldegeld - netto;
@@ -107,8 +108,9 @@ public class PDFOutput {
             f.write("          <fo:table-column column-width=\"160mm\"/>\n");
             f.write("	       <fo:table-body>\n");
             f.write("	         <fo:table-row>\n");
-            f.write("            <fo:table-cell height=\"30mm\">\n");
-            f.write("              <fo:block font-size=\"7.5pt\">Deutscher Ruderverband, Ferdinand-Wilhelm-Fricke-Weg 10, 30169 Hannover</fo:block>\n");
+            f.write("            <fo:table-cell height=\"60mm\">\n");
+            f.write("              <fo:block></fo:block>\n");
+            f.write("              <fo:block space-before=\"5mm\" font-size=\"7.5pt\">Deutscher Ruderverband, Ferdinand-Wilhelm-Fricke-Weg 10, 30169 Hannover</fo:block>\n");
             f.write("              <fo:block space-before=\"5mm\">An</fo:block>\n");
             f.write("              <fo:block>" + ew.versand_name + "</fo:block>\n");
             f.write("              <fo:block>" + ew.versand_strasse + "</fo:block>\n");
@@ -123,13 +125,13 @@ public class PDFOutput {
             f.write("          <fo:table-column column-width=\"25mm\"/>\n");
             f.write("	       <fo:table-body>\n");
             f.write("	         <fo:table-row>\n");
-            f.write("            <fo:table-cell height=\"30mm\">\n");
+            f.write("            <fo:table-cell height=\"25mm\">\n");
             f.write("               <fo:block font-size=\""+fontSize+"\" font-weight=\"bold\"  space-before=\"5mm\">Meldung für das DRV-Fahrtenabzeichen " + drvConfig.aktJahr + "</fo:block>\n");
             f.write("               <fo:block font-size=\""+fontSize+"\" font-weight=\"bold\">Verein: " + ew.verein_name + "</fo:block>\n");
             f.write("               <fo:block font-size=\""+fontSize+"\" font-weight=\"bold\">Mitgliedsnummer: " + ew.verein_mitglnr + "</fo:block>\n");
             f.write("               <fo:block font-size=\""+fontSize+"\" font-weight=\"bold\">Rechnungs- und Bestätigungsnummer: " + qnr + "</fo:block>\n");
             f.write("            </fo:table-cell>\n");
-            f.write("            <fo:table-cell height=\"30mm\">\n");
+            f.write("            <fo:table-cell height=\"25mm\">\n");
             f.write("               <fo:block font-size=\""+fontSize+"\">" + EfaUtil.getCurrentTimeStampDD_MM_YYYY() + "</fo:block>\n");
             f.write("            </fo:table-cell>\n");
             f.write("	         </fo:table-row>\n");
@@ -263,21 +265,23 @@ public class PDFOutput {
                 f.write("                <fo:table-column column-width=\"40mm\"/>\n");
                 f.write("                <fo:table-column column-width=\"49mm\"/>\n");
                 f.write("                <fo:table-body>\n");
-                writeRow(f, "Teilnehmernummer:", sig.getTeilnNr());
-                writeRow(f, "Vorname:", sig.getVorname());
-                writeRow(f, "Nachname:", sig.getNachname());
-                writeRow(f, "Jahrgang:", sig.getJahrgang());
-                writeRow(f, "Fahrtenabzeichen:", Integer.toString(sig.getAnzAbzeichen()));
-                writeRow(f, "Kilometer (ges.):", Integer.toString(sig.getGesKm()));
-                writeRow(f, "FAbzeichen (Jug A/B):", Integer.toString(sig.getAnzAbzeichenAB()));
-                writeRow(f, "Kilometer (Jug A/B):", Integer.toString(sig.getGesKmAB()));
-                writeRow(f, "Meldejahr:", Integer.toString(sig.getJahr()));
-                writeRow(f, "Kilometer " + Integer.toString(sig.getJahr()) + ":", Integer.toString(sig.getLetzteKm()));
-                writeRow(f, "Ausstellungsdatum:", sig.getSignaturDatum(true));
-                writeRow(f, "Version:", Byte.toString(sig.getVersion()));
-                writeRow(f, "Schlüssel:", sig.getKeyName());
-                writeRow(f, "Signatur:", sig.getSignaturString());
-                writeRow(f, "elektronisches Fahrtenheft (zur Eingabe):", EfaUtil.replace(EfaUtil.replace(sig.toString(), ";", "~~~~~", true), "~~~~~", "; ", true));
+                writeRow(f, "Teilnehmernummer:", sig.getTeilnNr(), fontSize);
+                writeRow(f, "Vorname:", sig.getVorname(), fontSize);
+                writeRow(f, "Nachname:", sig.getNachname(), fontSize);
+                writeRow(f, "Jahrgang:", sig.getJahrgang(), fontSize);
+                writeRow(f, "Fahrtenabzeichen:", Integer.toString(sig.getAnzAbzeichen()), fontSize);
+                writeRow(f, "Kilometer (ges.):", Integer.toString(sig.getGesKm()), fontSize);
+                writeRow(f, "FAbzeichen (Jug A/B):", Integer.toString(sig.getAnzAbzeichenAB()), fontSize);
+                writeRow(f, "Kilometer (Jug A/B):", Integer.toString(sig.getGesKmAB()), fontSize);
+                writeRow(f, "Meldejahr:", Integer.toString(sig.getJahr()), fontSize);
+                writeRow(f, "Kilometer " + Integer.toString(sig.getJahr()) + ":", Integer.toString(sig.getLetzteKm()), fontSize);
+                writeRow(f, "Ausstellungsdatum:", sig.getSignaturDatum(true), fontSize);
+                writeRow(f, "Version:", Byte.toString(sig.getVersion()), fontSize);
+                writeRow(f, "Schlüssel:", sig.getKeyName(), fontSize);
+                writeRow(f, "Signatur:", sig.getSignaturString(), fontSize);
+                writeRow(f, "elektronisches Fahrtenheft (zur Eingabe):", 
+                        EfaUtil.replace(EfaUtil.replace(sig.toString(), ";", "~~~~~", true), "~~~~~", "; ", true),
+                        smallFontSize);
                 f.write("                </fo:table-body>\n");
                 f.write("              </fo:table>\n");
                 f.write("            </fo:table-cell>\n");

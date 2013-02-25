@@ -34,12 +34,12 @@ import java.lang.management.*;
 public class Daten {
 
     public final static String VERSION            = "2.0.7"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID          = "2.0.7_00";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-    public final static String VERSIONRELEASEDATE = "30.12.2012";  // Release Date: TT.MM.JJJJ
+    public final static String VERSIONID          = "2.0.7_16";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "24.02.2013";  // Release Date: TT.MM.JJJJ
     public final static String MAJORVERSION       = "2";
     public final static String PROGRAMMID         = "EFA.207"; // Versions-ID für Wettbewerbsmeldungen
     public final static String PROGRAMMID_DRV     = "EFADRV.207"; // Versions-ID für Wettbewerbsmeldungen
-    public final static String COPYRIGHTYEAR      = "12";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
+    public final static String COPYRIGHTYEAR      = "13";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
 
     // enable/disable development functions for next version
     public static final boolean NEW_FEATURES = false;
@@ -140,8 +140,8 @@ public class Daten {
     public final static String PLUGIN_INFO_FILE = "plugins.xml";
     public static String pluginWebpage = "http://efa.nmichael.de/plugins.html"; // wird automatisch auf das in der o.g. Datei stehende gesetzt
 
-    public final static String ONLINEUPDATE_INFO = "http://efa.nmichael.de/eou.xml";
-    public final static String ONLINEUPDATE_INFO_DRV = "http://efa.nmichael.de/eoudrv.xml";
+    public final static String ONLINEUPDATE_INFO = "http://efa.nmichael.de/eou/eou.xml";
+    public final static String ONLINEUPDATE_INFO_DRV = "http://efa.nmichael.de/eou/eoudrv.xml";
     public final static String EFW_UPDATE_DATA = "http://efa.nmichael.de/efw.data";
     public final static String INTERNET_EFAMAIL = "http://cgi.snafu.de/nmichael/user-cgi-bin/efamail.pl";
     public final static String IMAGEPATH = "/de/nmichael/efa/img/";
@@ -499,7 +499,10 @@ public class Daten {
         if (!checkAndCreateDirectory(Daten.efaLogDirectory)) {
             haltProgram(HALT_DIRECTORIES);
         }
-        String lastLogEntry = Logger.getLastLogEntry("efa.log");
+        String lastLogEntry = null;
+        if (applID == APPL_EFABH) {
+            lastLogEntry = Logger.getLastLogEntry("efa.log");
+        }
         String baklog = null; // backup'ed logfile
         switch (applID) {
             case APPL_EFABASE:
@@ -651,7 +654,7 @@ public class Daten {
 
     public static void iniSplashScreen(boolean show) {
         if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
-            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniSplashScreen( " + show + ")");
+            Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniSplashScreen(" + show + ")");
         }
         if (!isGuiAppl()) {
             return;
@@ -1164,7 +1167,7 @@ public class Daten {
             infos.add("os.name=" + System.getProperty("os.name"));
             infos.add("os.arch=" + System.getProperty("os.arch"));
             infos.add("os.version=" + System.getProperty("os.version"));
-            if (applID != APPL_EFABH) {
+            if (applID != APPL_EFABH || applMode == APPL_MODE_ADMIN) {
                 infos.add("user.home=" + System.getProperty("user.home"));
                 infos.add("user.name=" + System.getProperty("user.name"));
                 infos.add("user.dir=" + System.getProperty("user.dir"));

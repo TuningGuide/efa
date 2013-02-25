@@ -68,6 +68,7 @@ public class Logger {
     public static final String MSG_CORE_BASICCONFIGUSERDATACANTWRITE = "COR030";
     public static final String MSG_CORE_STARTUPINITIALIZATION = "COR031";
     public static final String MSG_CORE_RUNNINGCOMMAND = "COR032";
+    public static final String MSG_CORE_CREDENTIALS = "COR033";
     // Activities performed in Admin Mode
     public static final String MSG_ADMIN_LOGIN = "ADM001";
     public static final String MSG_ADMIN_LOGINFAILURE = "ADM002";
@@ -103,6 +104,16 @@ public class Logger {
     public static final String MSG_ADMIN_NOBOATSTATECHANGED = "ADM034";
     // Data Administration (not only Admin Mode)
     public static final String MSG_DATAADM_NEWMEMBERADDED = "DAD001";
+    public static final String MSG_DATAADM_RECORDADDED    = "DAD002";
+    public static final String MSG_DATAADM_RECORDADDEDVER = "DAD003";
+    public static final String MSG_DATAADM_RECORDUPDATED  = "DAD004";
+    public static final String MSG_DATAADM_RECORDDELETED  = "DAD006";
+    public static final String MSG_DATAADM_RECORDDELETEDAT= "DAD007";
+    public static final String MSG_DATAADM_RECORDDELETEDVER= "DAD008";
+    public static final String MSG_DATAADM_RECORDVALIDCHANGED= "DAD009";
+    public static final String MSG_DATAADM_BE_RECORDADDEDVER = "DAD010";
+    public static final String MSG_DATAADM_BE_RECORDUPDATED = "DAD011";
+    public static final String MSG_DATAADM_IMPORT_STARTED = "DAD012";
     // de.nmichael.efa.Logger
     public static final String MSG_LOGGER_ACTIVATING = "LOG001";
     public static final String MSG_LOGGER_FAILEDCREATELOG = "LOG002";
@@ -375,6 +386,7 @@ public class Logger {
     // Statistics
     public static final String MSG_STAT_CALCULATEDENTRIES = "STA001";
     public static final String MSG_STAT_IGNOREDENTRIES = "STA002";
+    public static final String MSG_STAT_VISITEDENTRIES = "STA003";
 
     // Debug Logging
     public static final String MSG_DEBUG_GENERIC = "DBG001";
@@ -404,6 +416,7 @@ public class Logger {
     public static final String MSG_CLI_ERROR = "CLI002";
     public static final String MSG_CLI_INPUT = "CLI003";
     public static final String MSG_CLI_OUTPUT = "CLI004";
+    public static final String MSG_CLI_DEBUG = "CLI005";
 
     // Trace Topics for Debug Logging
     public static final long TT_CORE = Integer.parseInt("0000000000000001", 2); // 0x0001
@@ -421,7 +434,8 @@ public class Logger {
     public static final long TT_HELP = Integer.parseInt("0001000000000000", 2); // 0x1000
     public static final long TT_SYNC = Integer.parseInt("0010000000000000", 2); // 0x2000
     public static final long TT_REMOTEEFA = Integer.parseInt("0100000000000000", 2); // 0x4000
-    public static final long TT_PDF = Integer.parseInt("1000000000000000", 2); // 0x8000
+    public static final long TT_PDF = Integer.parseInt("1000000000000000", 2);  // 0x8000
+    public static final long TT_CLI = Integer.parseInt("10000000000000000", 2); // 0x10000
 
     // Debug Logging and Trace Topics
     private static boolean debugLogging = false;
@@ -435,7 +449,8 @@ public class Logger {
     private static volatile boolean doNotLog = false;
     private static volatile boolean inMailError = false;
     private static volatile boolean inLogging = false;
-    private static boolean alsoLogToStdOut;
+    private static boolean alsoLogToStdOut = false;
+    private static boolean logAllToStdOut = false;
     private static EfaErrorPrintStream efaErrorPrintStream;
 
     private static String createLogfileName(String logfile) {
@@ -495,7 +510,10 @@ public class Logger {
             String s = null;
             while ( (s = file.readLine()) != null) {
                 if (!s.contains(Logger.DEBUG)) {
-                    lastLine = s;
+                    // file.readLine() alsways reurns ISO bytes, so we need to interpret them as UTF
+                    byte[] defaultEncodingBytes = s.getBytes(Daten.ENCODING_ISO);
+                    lastLine = new String(defaultEncodingBytes, 0, defaultEncodingBytes.length,
+                            Daten.ENCODING_UTF);
                 }
             }
             file.close();
@@ -559,7 +577,7 @@ public class Logger {
                 }
             }
 
-            if (alsoLogToStdOut && !type.equals(DEBUG)) {
+            if (logAllToStdOut || (alsoLogToStdOut && !type.equals(DEBUG))) {
                 if (type != null && !type.equals(INPUT))  {
                     System.out.println(EfaUtil.getString(type, 7) + " - " + key + " - " + txt);
                 } else {
@@ -707,12 +725,16 @@ public class Logger {
         globalTraceLevelSetByCommandLine = setFromCommandLine;
         if (globalTraceLevel != level) {
             globalTraceLevel = level;
-            if (debugLogging) {
+            if (debugLogging && globalTraceLevel > 0) {
                 Logger.log(Logger.INFO, Logger.MSG_LOGGER_TRACETOPIC,
                         "Trace Level set to " + Integer.toString(globalTraceLevel) + "."); // do not internationalize!
             }
         }
         return true;
+    }
+
+    public static void setLoggingToStdOut(boolean logToStdOut) {
+        logAllToStdOut = logToStdOut;
     }
 
     public static boolean isDebugLoggin() {

@@ -70,6 +70,16 @@ public class Persons extends StorageObject {
             if (keys == null || keys.length < 1) {
                 return null;
             }
+            if (validAt < 0 && keys.length > 1) {
+                // instead of returning just any person, first search for one that is valid today
+                long now = System.currentTimeMillis();
+                for (int i = 0; i < keys.length; i++) {
+                    PersonRecord r = (PersonRecord) data().get(keys[i]);
+                    if (r.isValidAt(now)) {
+                        return r;
+                    }
+                }
+            }
             for (int i=0; i<keys.length; i++) {
                 PersonRecord r = (PersonRecord)data().get(keys[i]);
                 if (r.isValidAt(validAt)) {

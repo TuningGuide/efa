@@ -11,6 +11,7 @@
 package de.nmichael.efa.gui;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.Logbook;
 import de.nmichael.efa.data.storage.*;
@@ -38,17 +39,20 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
 
     private StorageObject persistence;
     private long validAt;
+    private AdminRecord admin;
 
-    public DataImportDialog(Frame parent, StorageObject persistence, long validAt) {
+    public DataImportDialog(Frame parent, StorageObject persistence, long validAt, AdminRecord admin) {
         super(parent, International.getMessage("{data} importieren", persistence.getDescription()),
                 International.getStringWithMnemonic("Import starten"));
         setPersistence(persistence, validAt);
+        this.admin = admin;
     }
 
-    public DataImportDialog(JDialog parent, StorageObject persistence, long validAt) {
+    public DataImportDialog(JDialog parent, StorageObject persistence, long validAt, AdminRecord admin) {
         super(parent, International.getMessage("{data} importieren", persistence.getDescription()),
                 International.getStringWithMnemonic("Import starten"));
         setPersistence(persistence, validAt);
+        this.admin = admin;
     }
 
     public void setPersistence(StorageObject persistence, long validAt) {
@@ -273,6 +277,11 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
                 validAt);
         ProgressDialog progressDialog = new ProgressDialog(this, International.getMessage("{data} importieren", persistence.getDescription()), dataImport, false);
         dataImport.runImport(progressDialog);
+        Logger.log(Logger.INFO, Logger.MSG_DATAADM_IMPORT_STARTED,
+                persistence.getDescription() + ": "
+                + International.getMessage("{name} hat Datenimport gestartet.",
+                (admin != null ? International.getString("Admin") + " '" + admin.getName() + "'"
+                : International.getString("Normaler Benutzer"))));
     }
 
 }

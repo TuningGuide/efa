@@ -60,6 +60,27 @@ public class Logbook extends StorageObject {
         return (projectRecord != null ? projectRecord.getEndDate() : null);
     }
 
+    public long getValidFrom() {
+        DataTypeDate date = getStartDate();
+        if (date != null && date.isSet()) {
+            return date.getTimestamp(null);
+        }
+        return 0;
+    }
+
+    public long getInvalidFrom() {
+        DataTypeDate date = getEndDate();
+        if (date != null && date.isSet()) {
+            long validFrom = getValidFrom();
+            long invalidFrom = date.getTimestamp(null) + 24 * 60 * 60 * 1000;
+            if (invalidFrom < validFrom) {
+                invalidFrom = validFrom + 24 * 60 * 60 * 1000;
+            }
+            return invalidFrom;
+        }
+        return Long.MAX_VALUE;
+    }
+
     public LogbookRecord createLogbookRecord(DataTypeIntString entryNo) {
         LogbookRecord r = new LogbookRecord(this, MetaData.getMetaData(DATATYPE));
         r.setEntryId(entryNo);
@@ -132,6 +153,22 @@ public class Logbook extends StorageObject {
         return new DataTypeIntString(Integer.toString(n));
     }
 
+    public boolean isDateWithinLogbookRange(DataTypeDate d) {
+        if (d == null || !d.isSet()) {
+            return true;
+        }
+        DataTypeDate startDate = getStartDate();
+        if (startDate == null || !startDate.isSet()) {
+            return true; // should only happen in case of remote access not possible
+        }
+        DataTypeDate endDate = getEndDate();
+        if (endDate == null || !endDate.isSet()) {
+            return true; // should only happen in case of remote access not possible
+        }
+        return d.isAfterOrEqual(startDate) && d.isBeforeOrEqual(endDate);
+    }
+
+
     public void preModifyRecordCallback(DataRecord record, boolean add, boolean update, boolean delete) throws EfaModifyException {
         if (add || update) {
             assertFieldNotEmpty(record, LogbookRecord.ENTRYID);
@@ -139,9 +176,26 @@ public class Logbook extends StorageObject {
             
             LogbookRecord r = (LogbookRecord)record;
 
+            // make sure both start and end date are within logbook range
+            if (!isDateWithinLogbookRange(r.getDate())) {
+                throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                        "#" + r.getEntryId().toString() + ": " +
+                        International.getMessage("Datum {date} muß innerhalb des Zeitraums {startdate} - {enddate} liegen.",
+                        r.getDate().toString(), getStartDate().toString(), getEndDate().toString()),
+                        Thread.currentThread().getStackTrace());
+            }
+            if (!isDateWithinLogbookRange(r.getEndDate())) {
+                throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                        "#" + r.getEntryId().toString() + ": " +
+                        International.getMessage("Datum {date} muß innerhalb des Zeitraums {startdate} - {enddate} liegen.",
+                        r.getDate().toString(), getStartDate().toString(), getEndDate().toString()),
+                        Thread.currentThread().getStackTrace());
+            }
+
             // make sure enddate is after startdate
             if (r.getDate() != null && r.getDate().isSet() && r.getEndDate() != null && r.getEndDate().isSet() && !r.getDate().isBefore(r.getEndDate())) {
                 throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                        "#" + r.getEntryId().toString() + ": " +
                         International.getString("Das Enddatum muß nach dem Startdatum liegen."),
                         Thread.currentThread().getStackTrace());
             }

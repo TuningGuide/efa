@@ -10,19 +10,13 @@
 
 package de.nmichael.efa.gui.widgets;
 
-import de.nmichael.efa.*;
-import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.items.*;
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.border.*;
 import javax.swing.text.html.*;
-import java.util.*;
 import java.io.*;
+import javax.swing.text.Document;
 
 public class HTMLWidget extends Widget {
 
@@ -65,7 +59,9 @@ public class HTMLWidget extends Widget {
             scrollPane.setPreferredSize(new Dimension(getWidth(), getHeight()));
         }
         scrollPane.getViewport().add(htmlPane, null);
-        htmlUpdater = new HTMLUpdater();
+        if (htmlUpdater == null) {
+            htmlUpdater = new HTMLUpdater();
+        }
         htmlUpdater.start();
         htmlUpdater.setPage(getParameterInternal(PARAM_URL).toString(), getUpdateInterval());
     }
@@ -99,7 +95,7 @@ public class HTMLWidget extends Widget {
 
         volatile boolean keepRunning = true;
         private String url = null;
-        private int updateIntervalInSeconds = 24*3600;
+        private volatile int updateIntervalInSeconds = 24*3600;
 
         public void run() {
             while (keepRunning) {
@@ -107,6 +103,9 @@ public class HTMLWidget extends Widget {
                     try {
                         if (url != null && url.length() > 0) {
                             url = EfaUtil.correctUrl(url);
+                            Document doc = new HTMLDocument();
+                            doc.putProperty("javax.swing.JEditorPane.postdata", "foobar"); // property must match JEditorPane.PostDataProperty
+                            htmlPane.setDocument(doc);
                             htmlPane.setPage(url);
                         }
                     } catch (IOException ee) {
@@ -115,7 +114,7 @@ public class HTMLWidget extends Widget {
                     }
                     Thread.sleep(updateIntervalInSeconds*1000);
                 } catch (Exception e) {
-                    EfaUtil.foo();
+                    Logger.logdebug(e);
                 }
             }
         }

@@ -403,8 +403,7 @@ public class BatchEditDialog extends BaseTabbedDialog implements IItemFactory, I
                     for (EditCondition condition : rules.editConditions) {
                         String value = r.getAsText(condition.field);
                         if (value == null) {
-                            conditionFulfilled = false;
-                            continue;
+                            value = "";
                         }
                         if (condition.operator.equals(OP_EQUAL)) {
                             if (!value.equalsIgnoreCase(condition.value)) {
@@ -614,8 +613,21 @@ public class BatchEditDialog extends BaseTabbedDialog implements IItemFactory, I
                             if (editRules.versionAction == null ||
                                 editRules.versionAction.equals(BatchEditDialog.VA_EDITCURRENT)) {
                                 data.update(r);
+                                Logger.log(Logger.INFO, Logger.MSG_DATAADM_BE_RECORDUPDATED,
+                                        r.getPersistence().getDescription() + ": "
+                                        + International.getMessage("{name} hat Datensatz '{record}' geändert.",
+                                        (admin != null ? International.getString("Admin") + " '" + admin.getName() + "'"
+                                        : International.getString("Normaler Benutzer")),
+                                        r.getQualifiedName()));
                             } else {
                                 data.addValidAt(r, editRules.versionValidFrom);
+                                Logger.log(Logger.INFO, Logger.MSG_DATAADM_BE_RECORDADDEDVER,
+                                        r.getPersistence().getDescription() + ": "
+                                        + International.getMessage("{name} hat neue Version von Datensatz '{record}' ab {date} erstellt.",
+                                        (admin != null ? International.getString("Admin") + " '" + admin.getName() + "'"
+                                        : International.getString("Normaler Benutzer")),
+                                        r.getQualifiedName(),
+                                        EfaUtil.getTimeStampDDMMYYYY(editRules.versionValidFrom)));
                             }
                             String newVal = r.getAsText(change.field);
                             if (!change.newValue.equals(newVal)) {

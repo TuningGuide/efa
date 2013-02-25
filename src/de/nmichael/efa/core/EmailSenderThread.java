@@ -97,10 +97,10 @@ public class EmailSenderThread extends Thread {
             while (k != null) {
                 AdminRecord admin = (AdminRecord) Daten.admins.data().get(k);
                 if (admin != null && admin.getEmail() != null && admin.getEmail().length() > 0) {
-                    if (admin.isAllowedMsgReadAdmin()) {
+                    if (admin.isAllowedMsgReadAdmin() && !emailAddressesAdmin.contains(admin.getEmail())) {
                         emailAddressesAdmin.add(admin.getEmail());
                     }
-                    if (admin.isAllowedMsgReadBoatMaintenance()) {
+                    if (admin.isAllowedMsgReadBoatMaintenance() && !emailAddressesBoatMaintenance.contains(admin.getEmail())) {
                         emailAddressesBoatMaintenance.add(admin.getEmail());
                     }
                 }

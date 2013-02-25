@@ -215,6 +215,7 @@ public class ItemTypeList extends ItemType implements ActionListener {
         list = new JList();
         popup = new JPopupMenu();
         scrollPane = new JScrollPane();
+        this.field = scrollPane;
         mypanel = new JPanel();
         mypanel.setLayout(new BorderLayout());
 

@@ -380,7 +380,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                     EfaMenuButton.insufficientRights(admin, International.getString("Import"));
                     break;
                 }
-                DataImportDialog dlg1 = new DataImportDialog(this, persistence, validAt);
+                DataImportDialog dlg1 = new DataImportDialog(this, persistence, validAt, admin);
                 dlg1.showDialog();
                 break;
             case ACTION_EXPORT:

@@ -16,6 +16,7 @@ import de.nmichael.efa.core.BackupMetaData;
 import de.nmichael.efa.core.BackupMetaDataItem;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.gui.util.EfaMenuButton;
 import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.util.*;
@@ -199,15 +200,19 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
                         containsProjectData = true;
                     }
                 }
-                if (containsProjectData && 
-                        (Daten.project == null || Daten.project.getProjectName() == null ||
-                         !Daten.project.getProjectName().equals(restoreMetaData.getProjectName()))
-                        ) {
+                String prjName = "<unknown>";
+                if (Daten.project != null && Daten.project.isOpen()) {
+                    if (Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+                        prjName = Daten.project.getProjectRemoteProjectName();
+                    } else {
+                        prjName = Daten.project.getProjectName();
+                    }
+                }
+                if (containsProjectData && prjName != null && !prjName.equals(restoreMetaData.getProjectName())) {
                     if (Dialog.yesNoCancelDialog(International.getString("Backup einspielen"),
                             International.getMessage("Daten des Projekts {name} können nur in diesem auch wiederhergestellt werden, aber derzeit ist Projekt {name} geöffnet.",
                                                       restoreMetaData.getProjectName(),
-                                                      (Daten.project != null ? Daten.project.getProjectName() :
-                                                          "<--->")) + "\n" +
+                                                      prjName) + "\n" +
                             International.getMessage("Möchtest Du das Projekt {name} öffnen oder neu erstellen?",
                                                       restoreMetaData.getProjectName())) != Dialog.YES) {
                         return;

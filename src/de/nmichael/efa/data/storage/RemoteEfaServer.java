@@ -697,8 +697,12 @@ public class RemoteEfaServer {
 
     private RemoteEfaMessage requestAddValidAt(RemoteEfaMessage request, AdminRecord admin, StorageObject p) {
         try {
-            p.data().addValidAt(request.getRecord(0), request.getTimestamp(), request.getLockId());
-            return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_OK, null);
+            DataKey k = p.data().addValidAt(request.getRecord(0), request.getTimestamp(), request.getLockId());
+            RemoteEfaMessage response =  RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_OK, null);
+            if (k != null) {
+                response.addKey(k);
+            }
+            return response;
         } catch(Exception e) {
             return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.ERROR_UNKNOWN, e.toString());
         }

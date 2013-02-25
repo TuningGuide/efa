@@ -32,6 +32,7 @@ import de.nmichael.efa.core.items.ItemTypeButton;
 import de.nmichael.efa.core.items.ItemTypeDate;
 import de.nmichael.efa.core.items.ItemTypeFile;
 import de.nmichael.efa.core.items.ItemTypeInteger;
+import de.nmichael.efa.core.items.ItemTypeLabel;
 import de.nmichael.efa.core.items.ItemTypeMultiSelectList;
 import de.nmichael.efa.core.items.ItemTypeString;
 import de.nmichael.efa.core.items.ItemTypeStringAutoComplete;
@@ -62,6 +63,7 @@ import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.FTPClient;
 import de.nmichael.efa.util.International;
 import java.util.Arrays;
+import javax.swing.SwingConstants;
 
 // @i18n complete
 
@@ -1122,7 +1124,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             case pdf:
                 return "PDF";
             case efawett:
-                return Daten.EFA_WETT;
+                return International.onlyFor("Meldedatei", "de") + " (" + Daten.EFA_WETT + ")";
         }
         return EfaTypes.TEXT_UNKNOWN;
     }
@@ -1165,7 +1167,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 "PDF",
                 "CSV",
                 "XML",
-                Daten.EFA_WETT,
+                International.onlyFor("Meldedatei", "de") + " (" + Daten.EFA_WETT + ")",
 
             };
         }
@@ -1719,7 +1721,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         allKeys.put(AGGR_AVGDISTANCE, DataTypeDistance.getDefaultUnitAbbrevation(true) + "/" + International.getString("Fahrt"));
         allKeys.put(AGGR_DURATION, International.getString("Dauer"));
         allKeys.put(AGGR_SPEED, International.getString("Geschwindigkeit"));
-        allKeys.put(AGGR_WANDERFAHRTEN, International.onlyFor("Wanderfahrten", "de"));
+        allKeys.put(AGGR_WANDERFAHRTEN, International.onlyFor("Wafa-Km", "de"));
         allKeys.put(AGGR_ZIELFAHRTEN, International.onlyFor("Zielfahrten", "de"));
         if (Daten.NEW_FEATURES) {
             allKeys.put(AGGR_CLUBWORK, International.getString("Vereinsarbeit"));
@@ -2167,7 +2169,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         String CAT_FILTERBOATOWNER     = "%028%" + International.getString("Eigentümer");
         String CAT_FILTERINDIVIDUAL    = "%029%" + International.getString("Individuell");
         String CAT_FILTERVARIOUS       = "%02A%" + International.getString("Weitere");
-        String CAT_FIELDS       = "%03%" + International.getString("Felder");
+        String CAT_FIELDS       = "%03%" + International.getString("Ausgabefelder");
         String CAT_FIELDSCALC   = "%031%" + International.getString("Berechnung");
         String CAT_FIELDSLIST   = "%032%" + International.getString("Kilometerliste");
         String CAT_FIELDSLOGBOOK= "%033%" + International.getString("Fahrtenbuch");
@@ -2351,33 +2353,30 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                     International.getString("Ausgabe")));
         ((ItemTypeMultiSelectList)item).setFieldSize(400, 300);
 
+        v.add(item = new ItemTypeLabel("GUIITEM_BARSIZE_LABEL",
+                IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FIELDS,CAT_FIELDSBARS),
+                International.getString("Maximale Balkengrößen (in Pixeln)") + ": "));
+        item.setFieldGrid(2, GridBagConstraints.CENTER, -1);
         v.add(item = new ItemTypeInteger(StatisticsRecord.AGGRDISTANCEBARSIZE, getAggrDistanceBarSize(), 0, 1000,
                 IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FIELDS,CAT_FIELDSBARS),
-                International.getString("Balkengröße") + ": " +
                 International.getString("Kilometer")));
         v.add(item = new ItemTypeInteger(StatisticsRecord.AGGRROWDISTANCEBARSIZE, getAggrRowDistanceBarSize(), 0, 1000,
                 IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FIELDS,CAT_FIELDSBARS),
-                International.getString("Balkengröße") + ": " +
                 getRowingKmString()));
         v.add(item = new ItemTypeInteger(StatisticsRecord.AGGRCOXDISTANCEBARSIZE, getAggrCoxDistanceBarSize(), 0, 1000,
                 IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FIELDS,CAT_FIELDSBARS),
-                International.getString("Balkengröße") + ": " +
                 getCoxingKmString()));
         v.add(item = new ItemTypeInteger(StatisticsRecord.AGGRSESSIONSBARSIZE, getAggrSessionsBarSize(), 0, 1000,
                 IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FIELDS,CAT_FIELDSBARS),
-                International.getString("Balkengröße") + ": " +
                 International.getString("Fahrten")));
         v.add(item = new ItemTypeInteger(StatisticsRecord.AGGRAVGDISTBARSIZE, getAggrAvgDistanceBarSize(), 0, 1000,
                 IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FIELDS,CAT_FIELDSBARS),
-                International.getString("Balkengröße") + ": " +
                 International.getString("Km/Fahrt")));
         v.add(item = new ItemTypeInteger(StatisticsRecord.AGGRDURATIONBARSIZE, getAggrDurationBarSize(), 0, 1000,
                 IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FIELDS,CAT_FIELDSBARS),
-                International.getString("Balkengröße") + ": " +
                 International.getString("Dauer")));
         v.add(item = new ItemTypeInteger(StatisticsRecord.AGGRSPEEDBARSIZE, getAggrSpeedBarSize(), 0, 1000,
                 IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FIELDS,CAT_FIELDSBARS),
-                International.getString("Balkengröße") + ": " +
                 International.getString("Geschwindigkeit")));
 
         // CAT_SORTING
@@ -3051,7 +3050,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 pTableColumns.add(International.onlyFor("Zielfahrten", "de"));
             }
             if (sIsAggrWanderfahrten) {
-                pTableColumns.add(International.getString("Wanderfahrten"));
+                pTableColumns.add(International.onlyFor("Wafa-Km", "de"));
             }
         }
         if (sStatisticCategory == StatisticCategory.matrix) {

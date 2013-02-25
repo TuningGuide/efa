@@ -376,7 +376,10 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                         }
                         long deleteAt = Long.MAX_VALUE;
                         if (persistence.data().getMetaData().isVersionized()) {
-                            VersionizedDataDeleteDialog ddlg = new VersionizedDataDeleteDialog(getParentDialog());
+                            VersionizedDataDeleteDialog ddlg = 
+                                    new VersionizedDataDeleteDialog(getParentDialog(),
+                                        (records.length == 1 ? records[0].getQualifiedName() :
+                                         International.getMessage("{count} Datensätze", records.length)));
                             ddlg.showDialog();
                             deleteAt = ddlg.getDeleteAtResult();
                             if (deleteAt == Long.MAX_VALUE || deleteAt < -1) {
@@ -388,8 +391,30 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                                 if (records[i] != null) {
                                     if (persistence.data().getMetaData().isVersionized()) {
                                         persistence.data().deleteVersionizedAll(records[i].getKey(), deleteAt);
+                                        if (deleteAt >= 0) {
+                                            Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETEDAT,
+                                                    records[i].getPersistence().getDescription() + ": "
+                                                    + International.getMessage("{name} hat Datensatz '{record}' ab {date} gelöscht.",
+                                                    (admin != null ? International.getString("Admin") + " '"  + admin.getName() + "'"
+                                                    : International.getString("Normaler Benutzer")),
+                                                    records[i].getQualifiedName(),
+                                                    EfaUtil.getTimeStampDDMMYYYY(deleteAt)));
+                                        } else {
+                                            Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETED,
+                                                    records[i].getPersistence().getDescription() + ": "
+                                                    + International.getMessage("{name} hat Datensatz '{record}' zur vollständigen Löschung markiert.",
+                                                    (admin != null ? International.getString("Admin") + " '"  + admin.getName() + "'"
+                                                    : International.getString("Normaler Benutzer")),
+                                                    records[i].getQualifiedName()));
+                                        }
                                     } else {
                                         persistence.data().delete(records[i].getKey());
+                                        Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETED,
+                                                records[i].getPersistence().getDescription() + ": "
+                                                + International.getMessage("{name} hat Datensatz '{record}' gelöscht.",
+                                                (admin != null ? International.getString("Admin") + " '"  + admin.getName() + "'"
+                                                : International.getString("Normaler Benutzer")),
+                                                records[i].getQualifiedName()));
                                     }
                                 }
                             }

@@ -234,6 +234,13 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
         try {
             // create version
             DataKey key = dataRecord.getPersistence().data().addValidAt(r, newValidFrom);
+            Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDADDEDVER,
+                    r.getPersistence().getDescription() + ": "
+                    + International.getMessage("{name} hat neue Version von Datensatz '{record}' ab {date} erstellt.",
+                    (admin != null ? International.getString("Admin") + " '"  + admin.getName() + "'"
+                    : International.getString("Normaler Benutzer")),
+                    r.getQualifiedName(),
+                    EfaUtil.getTimeStampDDMMYYYY(newValidFrom)));
 
             // find new record to be shown (if any)
             dataRecord = dataRecord.getPersistence().data().get(key);
@@ -259,6 +266,13 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
 
             // delete version
             dataRecord.getPersistence().data().deleteVersionized(r.getKey(), merge);
+            Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDDELETEDVER,
+                    r.getPersistence().getDescription() + ": "
+                    + International.getMessage("{name} hat Version {version} von Datensatz '{record}' gelöscht.",
+                    (admin != null ? International.getString("Admin") + " '"  + admin.getName() + "'"
+                    : International.getString("Normaler Benutzer")),
+                    ri+1,
+                    r.getQualifiedName()));
 
             // find new record to be shown (if any)
             recs = dataRecord.getPersistence().data().getValidAny(dataRecord.getKey());
@@ -415,6 +429,13 @@ public class VersionizedDataEditDialog extends UnversionizedDataEditDialog imple
             if (newValidFrom != dataRecord.getValidFrom() || newInvalidFrom != dataRecord.getInvalidFrom()) {
                 try {
                     dataRecord.getPersistence().data().changeValidity(dataRecord, newValidFrom, newInvalidFrom);
+                    Logger.log(Logger.INFO, Logger.MSG_DATAADM_RECORDVALIDCHANGED,
+                            dataRecord.getPersistence().getDescription() + ": "
+                            + International.getMessage("{name} hat Gültigkeit von Version {version} von Datensatz '{record}' geändert.",
+                            (admin != null ? International.getString("Admin") + " '"  + admin.getName() + "'"
+                            : International.getString("Normaler Benutzer")),
+                            thisVersion,
+                            dataRecord.getQualifiedName()));
                 } catch(EfaException ex) {
                     ex.log();
                     Dialog.error("Der Datensatz konnte nicht geändert werden." + "\n" + ex.toString());

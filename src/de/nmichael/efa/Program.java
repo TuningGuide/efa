@@ -56,7 +56,10 @@ public class Program {
             printOption("-javaRestart", "efa restart by Java instead of Shell");
             System.out.println("    Parameters for development use:");
             printOption("-debug","Activate Debug Logging");
+            printOption("-debugAll","Activate Debug Logging for all Trace Topics and Levels");
             printOption("-traceTopic <topic>","Set Trace Topic <topic> for Debug Logging");
+            printOption("-traceLevel <level>","Set Trace Level <level> for Debug Logging");
+            printOption("-logToStdOut","Log all messages also to StdOut");
             printOption("-wws", "Watch Window Stack (report window stack inconsistencies)");
             printOption("-exc", "Exception Test (press [F1] in main window)");
             printOption("-emulateWin", "Emulate Windows Environment");
@@ -94,12 +97,36 @@ public class Program {
                 args[i] = null;
                 continue;
             }
+            if (args[i].equals("-debugAll")) {
+                Logger.setDebugLogging(true,true);
+                Logger.setTraceLevel(9, true);
+                Logger.setTraceTopic("0xFFFFFFFF",true);
+                args[i] = null;
+                continue;
+            }
             if (args[i].equals("-traceTopic")) {
                 if (args.length > i+1) {
                     Logger.setTraceTopic(args[i+1],true);
                     args[i] = null;
                     args[++i] = null;
                 }
+                continue;
+            }
+            if (args[i].equals("-traceLevel")) {
+                if (args.length > i+1) {
+                    try {
+                        int level = Integer.parseInt(args[i+1]);
+                        Logger.setTraceLevel(level,true);
+                    } catch(Exception eingore) {
+                    }
+                    args[i] = null;
+                    args[++i] = null;
+                }
+                continue;
+            }
+            if (args[i].equals("-logToStdOut")) {
+                Logger.setLoggingToStdOut(true);
+                args[i] = null;
                 continue;
             }
             if (args[i].equals("-helpdev")) {

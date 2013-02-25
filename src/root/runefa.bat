@@ -85,13 +85,6 @@ SET EFA_JAVA_ARGUMENTS=%JVMOPTIONS% -cp %CP% %1 -javaRestart %3 %4 %5 %6 %7 %8 %
 SET EFA_RUN_CLI=0
 SET EFA_RUN_DEBUG=0
 IF "%2" == "runcli" SET EFA_RUN_CLI=1
-IF "%3" == "-debug" SET EFA_RUN_DEBUG=1
-IF "%4" == "-debug" SET EFA_RUN_DEBUG=1
-IF "%5" == "-debug" SET EFA_RUN_DEBUG=1
-IF "%6" == "-debug" SET EFA_RUN_DEBUG=1
-IF "%7" == "-debug" SET EFA_RUN_DEBUG=1
-IF "%8" == "-debug" SET EFA_RUN_DEBUG=1
-IF "%9" == "-debug" SET EFA_RUN_DEBUG=1
 IF "%EFA_RUN_CLI%" == "1" GOTO STARTCLI
 IF "%EFA_RUN_DEBUG%" == "1" GOTO STARTCLIDBG
 IF "%OS%" == "Windows_NT" GOTO STARTNT

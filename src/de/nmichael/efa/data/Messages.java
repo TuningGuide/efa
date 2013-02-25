@@ -39,7 +39,25 @@ public class Messages extends StorageObject {
 
     private long getNextMessageId() {
         AutoIncrement autoIncrement = getProject().getAutoIncrement(false);
-        long val = autoIncrement.nextAutoIncrementLongValue(data().getStorageObjectType());
+
+        int tries = 0;
+        long val = 0;
+        try {
+            while (tries++ < 100) {
+                // usually autoincrement should always give a unique new id.
+                // but in case our id's got out of sync, we try up to 100 times to fine a
+                // new unique reservation id.
+                val = autoIncrement.nextAutoIncrementLongValue(data().getStorageObjectType());
+                if (val <= 0) {
+                    break;
+                }
+                if (data().get(MessageRecord.getKey(val)) == null) {
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            Logger.logdebug(e);
+        }
         return val;
     }
 

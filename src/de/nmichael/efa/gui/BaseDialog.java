@@ -63,6 +63,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     public static final String IMAGE_SPECIAL   = "button_special.png";
     public static final String IMAGE_ARROWUP   = "button_arrowup.png";
     public static final String IMAGE_ARROWDOWN = "button_arrowdown.png";
+    public static final String IMAGE_CORRECTION = "button_correction.png";
 
     public static final String BIGIMAGE_CLOSEDOORS = "notification_closedoors.png";
     public static final String BIGIMAGE_DARKNESS   = "notification_darkness.png";

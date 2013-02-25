@@ -176,6 +176,7 @@ public class EfaConfig extends StorageObject {
     private ItemTypeConfigButton efaDirekt_butNachrichtAnAdmin;
     private ItemTypeConfigButton efaDirekt_butAdminModus;
     private ItemTypeConfigButton efaDirekt_butSpezial;
+    private ItemTypeConfigButton efaDirekt_butHelp;
     private ItemTypeString efaDirekt_butSpezialCmd;
     private ItemTypeBoolean efaDirekt_showButtonHotkey;
     private ItemTypeBoolean efaDirekt_sortByAnzahl;
@@ -252,6 +253,8 @@ public class EfaConfig extends StorageObject {
     private ItemTypeString kanuEfb_urlRequest;
     private ItemTypeBoolean dataPreModifyRecordCallbackEnabled;
     private ItemTypeBoolean dataAuditCorrectErrors;
+    private ItemTypeLong dataFileSaveInterval;
+    private ItemTypeBoolean dataFileSynchronousJournal;
     private ItemTypeFile dataBackupDirectory;
     private ItemTypeFile dataMirrorDirectory;
     private ItemTypeBoolean dataRemoteEfaServerEnabled;
@@ -803,6 +806,11 @@ public class EfaConfig extends StorageObject {
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
                     International.getMessage("Auszuführendes Kommando für '{button}'",
                     International.getString("Spezial-Button"))));
+            addParameter(efaDirekt_butHelp = new ItemTypeConfigButton("ButtonHelp",
+                    International.getString("Hilfe-Button"), null, true, false, false, true,
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
+                    International.getMessage("Button '{button}'",
+                    International.getString("Hilfe-Button"))));
             addParameter(efaDirekt_showButtonHotkey = new ItemTypeBoolean("ButtonShowHotkeys", false,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
                     International.getString("Hotkeys für Buttons anzeigen")));
@@ -1025,6 +1033,12 @@ public class EfaConfig extends StorageObject {
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS, CATEGORY_COMMON),
                     "DataAuditCorrectErrors"));
 
+            addParameter(dataFileSaveInterval = new ItemTypeLong("DataFileSaveInterval", 10, 1, 3600,
+                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAXML),
+                    "File Save Interval (sec)"));
+            addParameter(dataFileSynchronousJournal = new ItemTypeBoolean("DataFileSynchronousJournal", true,
+                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS, CATEGORY_DATAXML),
+                    "Flush Journal synchronously"));
             addParameter(dataBackupDirectory = new ItemTypeFile("DataBackupDirectory", "",
                     International.getString("Backup-Verzeichnis"),
                     International.getString("Verzeichnisse"),
@@ -1481,6 +1495,10 @@ public class EfaConfig extends StorageObject {
         return efaDirekt_butSpezialCmd.getValue();
     }
 
+    public ItemTypeConfigButton getValueEfaDirekt_butHelp() {
+        return efaDirekt_butHelp;
+    }
+
     public boolean getValueEfaDirekt_showButtonHotkey() {
         return efaDirekt_showButtonHotkey.getValue();
     }
@@ -1805,6 +1823,14 @@ public class EfaConfig extends StorageObject {
 
     public boolean getValueDataAuditCorrectErrors() {
         return dataAuditCorrectErrors.getValue();
+    }
+
+    public long getValueDataFileSaveInterval() {
+        return dataFileSaveInterval.getValue();
+    }
+
+    public boolean getValueDataFileSynchronousJournal() {
+        return dataFileSynchronousJournal.getValue();
     }
 
     public String getValueDataBackupDirectory() {

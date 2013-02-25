@@ -219,8 +219,16 @@ public class ImportLogbook extends ImportBase {
                         if (mtour != null) {
                             // if all in one entry: update fields in LogbookRecord
                             if (!mtour.isEtappen) {
+                                if (mtour.start != null && mtour.start.length() > 0) {
+                                    r.setDate(DataTypeDate.parseDate(mtour.start));
+                                }
                                 if (mtour.ende != null && mtour.ende.length() > 0) {
                                     r.setEndDate(DataTypeDate.parseDate(mtour.ende));
+                                }
+                                if (r.getDate() != null && r.getDate().isSet() &&
+                                    r.getEndDate() != null && r.getEndDate().isSet() &&
+                                    r.getDate().isAfterOrEqual(r.getEndDate())) {
+                                    r.setEndDate(null);
                                 }
                             }
                             // set/update SessionGroup

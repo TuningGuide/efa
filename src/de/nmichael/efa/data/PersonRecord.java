@@ -444,10 +444,10 @@ public class PersonRecord extends DataRecord implements IItemFactory {
             }
         } else {
             if (last != null && last.length() > 0) {
-                s = last.trim() + ",";
+                s = last.trim();
             }
             if (first != null && first.length() > 0) {
-                s = s + (s.length() > 0 ? " " : "") + first.trim();
+                s = s + (s.length() > 0 ? ", " : "") + first.trim();
             }
         }
         if (affix != null && affix.length() > 0) {
@@ -507,8 +507,9 @@ public class PersonRecord extends DataRecord implements IItemFactory {
             affix = m.group(2).trim();
         }
 
-        String firstName = null;
-        String lastName = null;
+        boolean firstFirst = Daten.efaConfig.getValueNameFormatIsFirstNameFirst();
+        String firstName = (firstFirst ? name : null); // if first and last name cannot be found, ...
+        String lastName = (firstFirst ? null : name);  // ... use full name as either first or last
         int pos = name.indexOf(", ");
         if (pos < 0) {
             pos = name.indexOf(" ");

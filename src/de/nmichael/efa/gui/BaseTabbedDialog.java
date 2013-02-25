@@ -263,7 +263,11 @@ public abstract class BaseTabbedDialog extends BaseDialog {
             if (subCat.size() != 0) {
                 JTabbedPane subTabbedPane = new JTabbedPane();
                 if (recursiveBuildGui(subCat, items, thisCatKey, subTabbedPane, selectNextCat) > 0) {
-                    currentPane.add(subTabbedPane, catName);
+                    if (currentPane instanceof JTabbedPane) {
+                        currentPane.add(subTabbedPane, catName);
+                    } else {
+                        currentPane.add(subTabbedPane, BorderLayout.CENTER);
+                    }
                     if (key.equals(selectThisCat) && currentPane instanceof JTabbedPane) {
                         ((JTabbedPane)currentPane).setSelectedComponent(subTabbedPane);
                     }

@@ -2,6 +2,282 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.0.7_16</VersionID>
+        <ReleaseDate>24.02.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3231004</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Suchfunktion im Fahrtenbuch findet jetzt auch Fahrtgruppen</ChangeItem>
+            <ChangeItem>Bugfix: Darstellungsfehler bei Boots-/Personenauswahllisten in Hauptfenster von efa-Bootshaus behoben</ChangeItem>
+            <ChangeItem>Bugfix: Wenn Button für Bootsreservierungen ausgeblendet wird, zeigt efa jetzt auch das entsprechende Kontext-Menü nicht mehr an</ChangeItem>
+            <ChangeItem>Bugfix: Fehler wegen unstimmiger Projektnamen bei Wiederherstellung von Backups über efaRemote behoben</ChangeItem>
+            <ChangeItem>Bugfix: Verbesserte Fehlermeldung, wenn Remote-Online-Update fehlschlägt, da bereits auf dem aktuellen Stand</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Neu: Search function in logbook now also finds matching session groups</ChangeItem>
+            <ChangeItem>Bugfix: Display problem of Boat/Person selection list in main window of efa Boathouse fixed</ChangeItem>
+            <ChangeItem>Bugfix: When button for Boat Reservations is disabled, efa now also does not show the corresponding context menu any more</ChangeItem>
+            <ChangeItem>Bugfix: Error because of non-matching project names for restore of backups through efaRemote fixed</ChangeItem>
+            <ChangeItem>Bugfix: Improved error message if remote online update fails because already up to date</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_15</VersionID>
+        <ReleaseDate>07.02.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3230383</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Drucken in efa-Bootshaus im Admin-Modus wieder möglich</ChangeItem>
+            <ChangeItem>Bugfix: Fehlermeldung bei Auswahl von Fahrtgruppe behoben</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Printing in Admin Mode in efa-Boathouse now possible again</ChangeItem>
+            <ChangeItem>Bugfix: Error message when selecting session group fixed</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_14</VersionID>
+        <ReleaseDate>02.02.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3219176</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Anzeige des Hilfe-Buttons im Hauptfenster von efa-Bootshaus läßt sich jetzt deaktivieren</ChangeItem>
+            <ChangeItem>Neu: Experten-Tuning-Parameter für Schreiben von Dateien für langsame Datenträger hinzugefügt</ChangeItem>
+            <ChangeItem>Neu: Datenänderungen durch (lokale) Admins werden jetzt in Logdatei vermerkt</ChangeItem>
+            <ChangeItem>Bugfix: Fehler (Abbruch) bei Statistikauswertung mit Filter nach einem bestimmten Boot behoben</ChangeItem>
+            <ChangeItem>Bugfix: Aufruf von Funktionen im Bootshaus über Hotkeys jetzt deaktiviert, wenn entsprechende Buttons ausgeblendet werden (mit Ausnahme von Admin-Modus und Hilfe)</ChangeItem>
+            <ChangeItem>Bugfix: Abstand der Buttons im Hauptfenster von efa-Bootshaus beim Deaktivieren einzelner Buttons korrigiert</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>New: Display of Help button in efa main window can now be deactivated</ChangeItem>
+            <ChangeItem>New: Expert tuning parameters for writing to local files added</ChangeItem>
+            <ChangeItem>New: Data administration changes by (local) admins now get recorded in logfile</ChangeItem>
+            <ChangeItem>Bugfix: Bug (abortion) of statistics creation if filtering for a specific boat fixed</ChangeItem>
+            <ChangeItem>Bugfix: Access of main functions through hotkeys when associated buttons not shown now disabled</ChangeItem>
+            <ChangeItem>Bugfix: Padding between buttons in main window fixed if some buttons were hidden</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_13</VersionID>
+        <ReleaseDate>29.01.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3215259</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Fehler beim Download von Bestätigungsdateien für DRV-Fahrtenabzeichen behoben, wenn Personen mit Namenszusatz in der Personenliste eingetragen waren</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_12</VersionID>
+        <ReleaseDate>28.01.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3215113</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Fehler beim Download von Bestätigungsdateien für DRV-Fahrtenabzeichen behoben, wenn Vor- und Nachnamen nicht korrekt oder übereinstimmend erfasst waren</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_11</VersionID>
+        <ReleaseDate>27.01.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3211929</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Validierung des Bootshaus-Hauptfensters nach Umschalten zwischen Boots- und Personenliste</ChangeItem>
+            <ChangeItem>Bugfix: Zusätzliches Prüfen auf Gültigkeit eines Fahrtenbucheintrags für Fahrtenbuch jetzt auch auf Ebene des Storage Objects</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Validation of Boathouse window after switching between boats and persons lists</ChangeItem>
+            <ChangeItem>Bugfix: Additional Check for validity of logbook entry for logbook now also on the level of the Storage Object</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_10</VersionID>
+        <ReleaseDate>22.01.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3211771</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Personen ohne Vornamen wurden nicht korrekt abgespeichert</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Persons without first names were not stored properly</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_09</VersionID>
+        <ReleaseDate>19.01.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3210956</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Erweitertes Debug-Logging</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>New: Extended Debug-Logging</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_08</VersionID>
+        <ReleaseDate>17.01.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3209849</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Wechsel zur Personen-Auswahl in efa-Bootshaus war nicht mehr möglich</ChangeItem>
+            <ChangeItem>Bugfix: Inkonsistentes AutoIncrement wird von efa automatisch behoben</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Switch to person selection in efa Boathouse was not possible any more</ChangeItem>
+            <ChangeItem>Bugfix: Inconsistent AutoIncrement now is being fixed by efa automatically</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_07</VersionID>
+        <ReleaseDate>14.01.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3209581</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Einige Felder im Statistik-Dialog zwecks besserer Verständlichkeit umbenannt</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException beim Erstellen von versionierten Datensätzen über efaRemote behoben</ChangeItem>
+            <ChangeItem>Bugfix: Verbesserte Cursor-Führung und Text-Selektion bei Fahrteneingabe</ChangeItem>
+            <ChangeItem>Bugfix: Herstellungs- und Kaufdatum in Bootsverwaltung akzeptieren jetzt auch Jahreszahl ohne Tag und Monat</ChangeItem>
+            <ChangeItem>Bugfix: Zu große Darstellung der Auswahlliste von Personen in Bootshaus-Hauptfenster behoben</ChangeItem>
+            <ChangeItem>Bugfix: Signaturdaten bei DRV-Fahrtenabzeichen wurden in Übersicht nicht immer korrekt angezeigt</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Some fields in statistics dialog renamed for better understanding</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException when creating versionized records in efaRemote fixed</ChangeItem>
+            <ChangeItem>Bugfix: Improved cursor and selection handling when entering sessions</ChangeItem>
+            <ChangeItem>Bugfix: Manufacturing and purchase date in boat lists now accepts year without day and month</ChangeItem>
+            <ChangeItem>Bugfix: Display-problem with person selection list in efa-Boathouse main window fixed</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_06</VersionID>
+        <ReleaseDate>11.01.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3232499</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Import von Mehrtagesfahrten aus efa1 korrigiert, wenn die Fahrt nicht in Form von Etappen eingetragen wurde und das Startdatum in efa1 falsch gesetzt war</ChangeItem>
+            <ChangeItem>Bugfix: Fehler bei Statistikberechnung für Mehrtagesfahrten behoben</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Bug for statistics calculation of multi-day sessions fixed</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_04</VersionID>
+        <ReleaseDate>02.01.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3231858</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Warnung beim Aufruf von efaCLI, daß efa nicht korrekt beendet wurde, behoben</ChangeItem>
+            <ChangeItem>Bugfix: Aufrufoption "-cmd" für efaCLI funktionierte nicht unter Windows</ChangeItem>
+            <ChangeItem>Bugfix: Debug-Ausgabe des Tracelevels, wenn nicht gesetzt, führte zu falscher Ausschrift</ChangeItem>
+            <ChangeItem>Bugfix: Info-Dialoge im efaCLI müssen unterdrückt werden</ChangeItem>
+            <ChangeItem>Bugfix: Fehlerhafte Behandlung der Synchronisierungs-Antwort vom Kanu-eFB beim erfolgreichen Aktualisieren einer Fahrt korrigiert</ChangeItem>
+            <ChangeItem>Neu: Audit meldet jetzt Fahrtenbucheinträge, bei denen das Enddatum fälschlicherweise nicht nach dem Startdatum liegt</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Warning at efaCLI start about previous incorrect exit of efa fixed</ChangeItem>
+            <ChangeItem>Bugfix: Option "-cmd" for efaCLI under Windows didn't work</ChangeItem>
+            <ChangeItem>Bugfix: Debug message with wrong tracelevel fixed, if no level set</ChangeItem>
+            <ChangeItem>Bugfix: Info dialogs in efaCLI must be suppressed</ChangeItem>
+            <ChangeItem>New: Audit now reports logbook entries for which end date is not after the start date</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_03</VersionID>
+        <ReleaseDate>02.01.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3231773</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Suche im Fahrtenbuch jetzt auch mit exakter Übereinstimmung möglich</ChangeItem>
+            <ChangeItem>Neu: Spezialsuche im Fahrtenbuch nach derzeit ungültigen Booten, Personen und Zielen</ChangeItem>
+            <ChangeItem>Bugfix: Bearbeitungsassistent kann nicht nach leeren Feldern filtern</ChangeItem>
+            <ChangeItem>Bugfix: Aktualisierung im HTML-Widget funktionierte nicht</ChangeItem>
+            <ChangeItem>Änderung: Bemerkungs-Feld für Bootsstatus ist jetzt auch im Nicht-Expertenmodus sichtbar</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>New: Search in logbook now also with exact match possible</ChangeItem>
+            <ChangeItem>New: Special search in logbook for currently invalid boats, persons, and destinations</ChangeItem>
+            <ChangeItem>Bugfix: Batch edit can now filter for empty fields</ChangeItem>
+            <ChangeItem>Bugfix: Update on HTML page in HTML widget wasn't working</ChangeItem>
+            <ChangeItem>Change: Comment field for boat status now visible in non-expert mode</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_02</VersionID>
+        <ReleaseDate>31.12.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3230418</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Fehler (NullPointerException) bei Berechnung des DRV-Fahrtenabzeichen behoben</ChangeItem>
+            <ChangeItem>Bugfix: Statistikausgabe aller Boote mit Filter nach eigenen Booten korrigiert</ChangeItem>
+            <ChangeItem>Bugfix: Versehentliche Debug-Ausgaben entfernt</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Statistic output of all boats with filter for own boats fixed</ChangeItem>
+            <ChangeItem>Bugfix: Accidental debug output removed</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_01</VersionID>
+        <ReleaseDate>31.12.2012</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3230343</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Fehler (NullPointerException) bei Berechnung des DRV-Fahrtenabzeichen behoben</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.0.7_00</VersionID>
         <ReleaseDate>30.12.2012</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>

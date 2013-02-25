@@ -34,6 +34,15 @@ public class Zielfahrt {
         setBereich(zb);
     }
 
+    public Zielfahrt(Zielfahrt zf) {
+        ini();
+        this.datum = zf.datum;
+        this.ziel = zf.ziel;
+        this.km = zf.km;
+        for (int i=0; i<zf.zb.length; i++) {
+            this.zb[i] = zf.zb[i];
+        }
+    }
     private void ini() {
         zb = new boolean[ANZ_ZIELBEREICHE + 1]; // Element 0 ist Dummy
         Arrays.fill(zb, false);

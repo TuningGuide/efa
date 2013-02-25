@@ -66,6 +66,14 @@ public class CLI {
         this.hostname = hostname;
         this.port = port;
         this.project = project;
+        if (Logger.isTraceOn(Logger.TT_CLI, 1)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CLI_DEBUG, "CLI("+
+                    username + "," +
+                    (password != null && password.length() > 0 ? "***" : "") + "," +
+                    hostname + "," +
+                    port + "," +
+                    project + ")");
+        }
         console = System.console();
         in = new BufferedReader(new InputStreamReader(System.in));
         Credentials cred = new Credentials();
@@ -80,6 +88,9 @@ public class CLI {
     }
 
     private void getIpAndPortFromEfaOnline() {
+        if (Logger.isTraceOn(Logger.TT_CLI, 1)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CLI_DEBUG, "getIpAndPortFromEfaOnline()");
+        }
         String addr = EfaOnlineClient.getRemoteAddress(hostname, port);
         hostname = null;
         port = null;
@@ -183,6 +194,14 @@ public class CLI {
     }
 
     private int connect() {
+        if (Logger.isTraceOn(Logger.TT_CLI, 1)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_CLI_DEBUG, "connect("+
+                    username + "," +
+                    (password != null && password.length() > 0 ? "***" : "") + "," +
+                    hostname + "," +
+                    port + "," +
+                    project + ")");
+        }
         if (port != null && port.length() > 0 && !Character.isDigit(port.charAt(0))) {
             getIpAndPortFromEfaOnline();
         }

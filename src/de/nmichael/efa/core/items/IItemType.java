@@ -91,5 +91,8 @@ public interface IItemType {
 
     public JComponent getComponent();
 
+    public void setReferenceObject(Object o);
+    public Object getReferenceObject();
+
 
 }

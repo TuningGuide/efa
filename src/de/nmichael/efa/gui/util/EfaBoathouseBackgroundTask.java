@@ -284,6 +284,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
         if (isProjectOpen && !isLocalProject) {
             efaBoathouseFrame.updateBoatLists(listChanged);
+            if (Logger.isTraceOn(Logger.TT_BACKGROUND, 8)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                        "EfaBoathouseBackgroundTask: checkBoatStatus() - done for remote project");
+            }
             return;
         }
 
@@ -409,7 +413,15 @@ public class EfaBoathouseBackgroundTask extends Thread {
                     Logger.logdebug(ee);
                 }
             }
+            if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                        "EfaBoathouseBackgroundTask: checkBoatStatus() - calling updateBoatLists("+listChanged+") ...");
+            }
             efaBoathouseFrame.updateBoatLists(listChanged);
+            if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
+                        "EfaBoathouseBackgroundTask: checkBoatStatus() - done");
+            }
         } catch (Exception e) {
             Logger.logdebug(e);
         }

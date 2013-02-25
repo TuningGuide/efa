@@ -16,6 +16,7 @@ import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.gui.BaseDialog;
+import de.nmichael.efa.gui.util.EfaMenuButton;
 import de.nmichael.efa.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -24,6 +25,8 @@ import javax.swing.*;
 
 // @i18n complete
 public class LogbookListDialog extends DataListDialog {
+
+    public static final int ACTION_CORRECTIONASSISTENT = -201; // negative actions will not be shown as popup actions
 
     private Logbook logbook;
 
@@ -43,11 +46,30 @@ public class LogbookListDialog extends DataListDialog {
         removeAction(ItemTypeDataRecordTable.ACTION_NEW);
         removeAction(ItemTypeDataRecordTable.ACTION_EDIT);
         removeAction(ItemTypeDataRecordTable.ACTION_DELETE);
+        if (Daten.NEW_FEATURES) {
+        addAction(International.getString("Korrekturassistent"),
+                ACTION_CORRECTIONASSISTENT,
+                BaseDialog.IMAGE_CORRECTION);
+        }
         minColumnWidths = new int[] { 80, 150, 150, 200, 150, 80 };
     }
 
     public void keyAction(ActionEvent evt) {
         _keyAction(evt);
+    }
+
+    public void itemListenerActionTable(int actionId, DataRecord[] records) {
+        super.itemListenerActionTable(actionId, records);
+        switch(actionId) {
+            case ACTION_CORRECTIONASSISTENT:
+                if (admin == null || !admin.isAllowedAdvancedEdit()) {
+                    EfaMenuButton.insufficientRights(admin, International.getString("Bearbeitungsassistent"));
+                    break;
+                }
+                FixLogbookDialog dlg = new FixLogbookDialog(this, (Logbook)persistence, admin);
+                dlg.showDialog();
+                break;
+        }
     }
 
     public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record) {

@@ -465,6 +465,9 @@ public class LogbookRecord extends DataRecord {
         }
         return null;
     }
+    public String getSessionGroupAsName() {
+        return getAsText(SESSIONGROUPID);
+    }
 
     public void setSyncTime(long syncTime) {
         setLong(EFBSYNCTIME, syncTime);
@@ -767,24 +770,24 @@ public class LogbookRecord extends DataRecord {
     }
 
     public String[] getEquivalentFields(String fieldName) {
-        if (fieldName.equals(EXP_BOAT)) {
+        if (fieldName.equals(EXP_BOAT) || fieldName.equals(BOATID) || fieldName.equals(BOATNAME)) {
             return new String[] { BOATID, BOATNAME };
         }
-        if (fieldName.equals(EXP_COX)) {
+        if (fieldName.equals(EXP_COX) || fieldName.equals(COXID) || fieldName.equals(COXNAME)) {
             return new String[] { COXID, COXNAME };
         }
         for (int i = 0; i <= CREW_MAX; i++) {
-            if (fieldName.equals(EXP_CREW+i)) {
+            if (fieldName.equals(EXP_CREW+i) || fieldName.equals(getCrewFieldNameId(i)) || fieldName.equals(getCrewFieldNameName(i))) {
                 return new String[]{ getCrewFieldNameId(i), getCrewFieldNameName(i) };
             }
         }
-        if (fieldName.equals(EXP_DESTINATION)) {
+        if (fieldName.equals(EXP_DESTINATION) || fieldName.equals(DESTINATIONID) || fieldName.equals(DESTINATIONNAME)) {
             return new String[] { DESTINATIONID, DESTINATIONNAME };
         }
-        if (fieldName.equals(EXP_WATERSLIST)) {
+        if (fieldName.equals(EXP_WATERSLIST) || fieldName.equals(WATERSIDLIST) || fieldName.equals(WATERSNAMELIST)) {
             return new String[] { WATERSIDLIST, WATERSNAMELIST };
         }
-        if (fieldName.equals(EXP_SESSIONGROUP)) {
+        if (fieldName.equals(EXP_SESSIONGROUP) || fieldName.equals(SESSIONGROUPID)) {
             return new String[] { SESSIONGROUPID };
         }
         return super.getEquivalentFields(fieldName);
@@ -945,6 +948,10 @@ public class LogbookRecord extends DataRecord {
             return (value.equals(getAsText(fieldName)));
         }
         return super.setFromText(fieldName, value);
+    }
+
+    public void setLogbookField(String fieldName, Object data) {
+        super.set(fieldName, data);
     }
 
     public Vector<IItemType> getGuiItems(AdminRecord admin) {

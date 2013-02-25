@@ -41,6 +41,7 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
     
     private static final String CAT_NORMAL = "%01%" +  International.getString("normale Suche");
     private ItemTypeString  sSearchText;
+    private ItemTypeBoolean  sSearchExact;
     private ItemTypeBoolean sEntryno;
     private ItemTypeBoolean sDate;
     private ItemTypeBoolean sEnddate;
@@ -53,6 +54,7 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
     private ItemTypeBoolean sDistance;
     private ItemTypeBoolean sComments;
     private ItemTypeBoolean sSessiontype;
+    private ItemTypeBoolean sSessiongroup;
     private ItemTypeButton  sbAll;
     private ItemTypeButton  sbNone;
 
@@ -62,6 +64,9 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
     private ItemTypeBoolean eUnknownPerson;
     private ItemTypeBoolean eUnknownPersonIgnoreGuest;
     private ItemTypeBoolean eUnknownDestination;
+    private ItemTypeBoolean eInvalidBoat;
+    private ItemTypeBoolean eInvalidPerson;
+    private ItemTypeBoolean eInvalidDestination;
     private ItemTypeBoolean eOpenEntry;
     private ItemTypeBoolean eLargeDistance;
     private ItemTypeDistance eLargeDistanceDistance;
@@ -75,53 +80,91 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
         IItemType item;
         Vector<IItemType> items = new Vector<IItemType>();
 
-        items.add(sSearchText = new ItemTypeString("SEARCH_STRING", "", IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Suchbegriff")));
+        items.add(sSearchText = new ItemTypeString("SEARCH_STRING", "",
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Suchbegriff")));
         sSearchText.registerItemListener(this);
-        items.add(item = new ItemTypeLabel("SEARCH_IN_FIELDS", IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Suche in folgenden Feldern")));
+        items.add(sSearchExact = new ItemTypeBoolean("SEARCH_EXACT", false,
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("exakte Übereinstimmung")));
+        items.add(item = new ItemTypeLabel("SEARCH_IN_FIELDS",
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Suche in folgenden Feldern")));
         item.setPadding(0, 0, 10, 0);
-        items.add(sEntryno = new ItemTypeBoolean(LogbookRecord.ENTRYID, true, IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Lfd. Nr.")));
-        items.add(sDate = new ItemTypeBoolean(LogbookRecord.DATE, true, IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Datum")));
-        items.add(sEnddate = new ItemTypeBoolean(LogbookRecord.ENDDATE, true, IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Enddatum")));
-        items.add(sBoat = new ItemTypeBoolean(LogbookRecord.BOATNAME, true, IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Boot")));
-        items.add(sCox = new ItemTypeBoolean(LogbookRecord.COXNAME, true, IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Steuermann")));
-        items.add(sCrew = new ItemTypeBoolean(LogbookRecord.CREW1NAME, true, IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Mannschaft")));
-        items.add(sStarttime = new ItemTypeBoolean(LogbookRecord.STARTTIME, true, IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Abfahrt")));
-        items.add(sEndtime = new ItemTypeBoolean(LogbookRecord.ENDTIME, true, IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Ankunft")));
-        items.add(sDestination = new ItemTypeBoolean(LogbookRecord.DESTINATIONNAME, true, IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Ziel")));
-        items.add(sDistance = new ItemTypeBoolean(LogbookRecord.DISTANCE, true, IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Kilometer")));
-        items.add(sComments = new ItemTypeBoolean(LogbookRecord.COMMENTS, true, IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Bemerkungen")));
-        items.add(sSessiontype = new ItemTypeBoolean(LogbookRecord.SESSIONTYPE, true, IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Fahrtart")));
-        items.add(sbAll = new ItemTypeButton("SEARCH_SELECT_ALL", IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("alle")));
+        items.add(sEntryno = new ItemTypeBoolean(LogbookRecord.ENTRYID, true,
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Lfd. Nr.")));
+        items.add(sDate = new ItemTypeBoolean(LogbookRecord.DATE, true,
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Datum")));
+        items.add(sEnddate = new ItemTypeBoolean(LogbookRecord.ENDDATE, true,
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Enddatum")));
+        items.add(sBoat = new ItemTypeBoolean(LogbookRecord.BOATNAME, true,
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Boot")));
+        items.add(sCox = new ItemTypeBoolean(LogbookRecord.COXNAME, true,
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Steuermann")));
+        items.add(sCrew = new ItemTypeBoolean(LogbookRecord.CREW1NAME, true,
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Mannschaft")));
+        items.add(sStarttime = new ItemTypeBoolean(LogbookRecord.STARTTIME, true,
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Abfahrt")));
+        items.add(sEndtime = new ItemTypeBoolean(LogbookRecord.ENDTIME, true,
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Ankunft")));
+        items.add(sDestination = new ItemTypeBoolean(LogbookRecord.DESTINATIONNAME, true,
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Ziel")));
+        items.add(sDistance = new ItemTypeBoolean(LogbookRecord.DISTANCE, true,
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Kilometer")));
+        items.add(sComments = new ItemTypeBoolean(LogbookRecord.COMMENTS, true,
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Bemerkungen")));
+        items.add(sSessiontype = new ItemTypeBoolean(LogbookRecord.SESSIONTYPE, true,
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Fahrtart")));
+        items.add(sSessiongroup = new ItemTypeBoolean(LogbookRecord.SESSIONGROUPID, true,
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Fahrtgruppe")));
+        items.add(sbAll = new ItemTypeButton("SEARCH_SELECT_ALL",
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("alle")));
         sbAll.setFieldGrid(2, GridBagConstraints.CENTER, GridBagConstraints.NONE);
         sbAll.setPadding(0, 0, 10, 0);
         sbAll.registerItemListener(this);
-        items.add(sbNone = new ItemTypeButton("SEARCH_SELECT_NONE", IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("keine")));
+        items.add(sbNone = new ItemTypeButton("SEARCH_SELECT_NONE",
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("keine")));
         sbNone.setFieldGrid(2, GridBagConstraints.CENTER, GridBagConstraints.NONE);
         sbNone.registerItemListener(this);
-        items.add(item = new ItemTypeLabel("CONTINUE_SEARCH1", IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Weitersuchen mit F3")));
+        items.add(item = new ItemTypeLabel("CONTINUE_SEARCH1",
+                IItemType.TYPE_PUBLIC, CAT_NORMAL, International.getString("Weitersuchen mit F3")));
         item.setPadding(0, 0, 10, 0);
 
-        items.add(eIncomplete = new ItemTypeBoolean("ESEARCH_INCOMPLETE", true, IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("unvollständige Einträge")));
-        items.add(eUnknownBoat = new ItemTypeBoolean("ESEARCH_UNKNOWNBOAT", true, IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit unbekannten Booten")));
-        items.add(eUnknownPerson = new ItemTypeBoolean("ESEARCH_UNKNOWNPERSON", true, IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit unbekannten Personen")));
-        items.add(eUnknownPersonIgnoreGuest = new ItemTypeBoolean("ESEARCH_UNKNOWNPERSONIGNOREGUEST", true, IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getMessage("Unbekannte Einträge mit '{guest}' ignorieren",
+        items.add(eIncomplete = new ItemTypeBoolean("ESEARCH_INCOMPLETE", true,
+                IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("unvollständige Einträge")));
+        items.add(eUnknownBoat = new ItemTypeBoolean("ESEARCH_UNKNOWNBOAT", true, 
+                IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit unbekannten Booten")));
+        items.add(eUnknownPerson = new ItemTypeBoolean("ESEARCH_UNKNOWNPERSON", true, 
+                IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit unbekannten Personen")));
+        items.add(eUnknownPersonIgnoreGuest = new ItemTypeBoolean("ESEARCH_UNKNOWNPERSONIGNOREGUEST", true,
+                IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getMessage("Unbekannte Einträge mit '{guest}' ignorieren",
                 Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST))));
-        items.add(eUnknownDestination = new ItemTypeBoolean("ESEARCH_UNKNOWNDESTINATION", true, IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit unbekannten Zielen")));
-        items.add(eOpenEntry = new ItemTypeBoolean("ESEARCH_OPENENTRY", true, IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("nicht zurückgetragene Einträge")));
-        items.add(eLargeDistance = new ItemTypeBoolean("ESEARCH_LARGEDISTANCE", true, IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit Kilometern größer als") + ": "));
-        items.add(eLargeDistanceDistance = new ItemTypeDistance("ESEARCH_LARGEDISTANCEDISTANCE", DataTypeDistance.parseDistance("30 "+DataTypeDistance.KILOMETERS), IItemType.TYPE_PUBLIC, CAT_SPECIAL, null));
+        items.add(eUnknownDestination = new ItemTypeBoolean("ESEARCH_UNKNOWNDESTINATION", true, 
+                IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit unbekannten Zielen")));
+        items.add(eInvalidBoat = new ItemTypeBoolean("ESEARCH_INVALIDBOAT", true,
+                IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit ungültigen Booten")));
+        items.add(eInvalidPerson = new ItemTypeBoolean("ESEARCH_INVALIDPERSON", true,
+                IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit ungültigen Personen")));
+        items.add(eInvalidDestination = new ItemTypeBoolean("ESEARCH_INVALIDDESTINATION", true,
+                IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit ungültigen Zielen")));
+        items.add(eOpenEntry = new ItemTypeBoolean("ESEARCH_OPENENTRY", true,
+                IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("nicht zurückgetragene Einträge")));
+        items.add(eLargeDistance = new ItemTypeBoolean("ESEARCH_LARGEDISTANCE", true,
+                IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Einträge mit Kilometern größer als") + ": "));
+        items.add(eLargeDistanceDistance = new ItemTypeDistance("ESEARCH_LARGEDISTANCEDISTANCE", DataTypeDistance.parseDistance("30 "+DataTypeDistance.KILOMETERS),
+                IItemType.TYPE_PUBLIC, CAT_SPECIAL, null));
         eLargeDistance.setFieldGrid(1, GridBagConstraints.WEST, GridBagConstraints.NONE);
         eLargeDistanceDistance.setOffsetXY(1, -1); // show behind eLargeDistance Checkbox
         eLargeDistanceDistance.setFieldSize(100, -1);
 
-        items.add(eAll = new ItemTypeButton("ESEARCH_SELECT_ALL", IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("alle")));
+        items.add(eAll = new ItemTypeButton("ESEARCH_SELECT_ALL",
+                IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("alle")));
         eAll.setFieldGrid(2, GridBagConstraints.CENTER, GridBagConstraints.NONE);
         eAll.setPadding(0, 0, 10, 0);
         eAll.registerItemListener(this);
-        items.add(eNone = new ItemTypeButton("ESEARCH_SELECT_NONE", IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("keine")));
+        items.add(eNone = new ItemTypeButton("ESEARCH_SELECT_NONE",
+                IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("keine")));
         eNone.setFieldGrid(2, GridBagConstraints.CENTER, GridBagConstraints.NONE);
         eNone.registerItemListener(this);
-        items.add(item = new ItemTypeLabel("CONTINUE_SEARCH2", IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Weitersuchen mit F3")));
+        items.add(item = new ItemTypeLabel("CONTINUE_SEARCH2",
+                IItemType.TYPE_PUBLIC, CAT_SPECIAL, International.getString("Weitersuchen mit F3")));
         item.setPadding(0, 0, 10, 0);
 
         setItems(items);
@@ -197,12 +240,16 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
             sDistance.parseAndShowValue(Boolean.toString(selected));
             sComments.parseAndShowValue(Boolean.toString(selected));
             sSessiontype.parseAndShowValue(Boolean.toString(selected));
+            sSessiongroup.parseAndShowValue(Boolean.toString(selected));
         } else {
             eIncomplete.parseAndShowValue(Boolean.toString(selected));
             eUnknownBoat.parseAndShowValue(Boolean.toString(selected));
             eUnknownPerson.parseAndShowValue(Boolean.toString(selected));
             eUnknownPersonIgnoreGuest.parseAndShowValue(Boolean.toString(selected));
             eUnknownDestination.parseAndShowValue(Boolean.toString(selected));
+            eInvalidBoat.parseAndShowValue(Boolean.toString(selected));
+            eInvalidPerson.parseAndShowValue(Boolean.toString(selected));
+            eInvalidDestination.parseAndShowValue(Boolean.toString(selected));
             eOpenEntry.parseAndShowValue(Boolean.toString(selected));
             eLargeDistance.parseAndShowValue(Boolean.toString(selected));
         }
@@ -221,14 +268,17 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
         search();
     }
 
-    private static boolean tryMatch(String s, Object o, boolean selected) {
+    private static boolean tryMatch(String s, Object o, boolean exact, boolean selected) {
         if (!selected) {
             return false;
         }
         if (o == null) {
             return false;
         }
-        String f = o.toString().trim().toLowerCase();
+        String f = o.toString();
+        if (!exact) {
+            f = f.trim().toLowerCase();
+        }
         if (f.length() == 0) {
             return false;
         }
@@ -236,13 +286,20 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
              (o instanceof DataTypeTime && EfaUtil.countCharInString(s,':') == 1) ) {
             return (f.equals(s));
         }
-        return (f.indexOf(s) >= 0);
+        if (exact) {
+            return f.equals(s);
+        } else {
+            return (f.indexOf(s) >= 0);
+        }
     }
 
     private static void foundMatch(LogbookRecord r, IItemType item, boolean jumpToField) {
         efaBaseFrame.setFields(r);
         if (jumpToField) {
             item.requestFocus();
+            if (item instanceof ItemTypeStringAutoComplete) {
+                item.showValue(); // to force autocomplete and detection of color
+            }
         }
     }
 
@@ -250,12 +307,17 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
         if (searchLogbookDialog == null) {
             return false;
         }
-        String s = searchLogbookDialog.sSearchText.getValue().trim().toLowerCase();
+        boolean exact = searchLogbookDialog.sSearchExact.getValue();
+        String s = searchLogbookDialog.sSearchText.getValue();
+        if (!exact) {
+            s = s.trim().toLowerCase();
+        }
         efaBaseFrame.toolBar_goToEntry.setText( (searchMode == SearchMode.normal ? s : ""));
-        return search(s, searchMode, true, true);
+        return search(s, exact, searchMode, true, true);
     }
 
-    public static boolean search(String s, SearchMode mode, boolean startWithNext, boolean jumpToField) {
+    public static boolean search(String s, boolean exact,
+            SearchMode mode, boolean startWithNext, boolean jumpToField) {
         if (mode == SearchMode.normal && s.length() == 0) {
             Dialog.error(International.getString("Bitte gib einen Suchbegriff ein!"));
             return false;
@@ -264,6 +326,10 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
             return false;
         }
         try {
+            Boats boats = Daten.project.getBoats(false);
+            Persons persons = Daten.project.getPersons(false);
+            Destinations destinations = Daten.project.getDestinations(false);
+
             DataKey k = (startWithNext ? it.getNext() : it.getCurrent());
             while (true) {
                 if (k == null) {
@@ -282,70 +348,76 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
                     continue;
                 }
                 if (mode == SearchMode.normal) {
-                    if (tryMatch(s, r.getEntryId(), 
+                    if (tryMatch(s, r.getEntryId(), exact,
                             (searchLogbookDialog != null ? searchLogbookDialog.sEntryno.getValue() : true))) {
                         foundMatch(r, efaBaseFrame.entryno, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, r.getDate(), 
+                    if (tryMatch(s, r.getDate(), exact,
                             (searchLogbookDialog != null ? searchLogbookDialog.sDate.getValue() : true))) {
                         foundMatch(r, efaBaseFrame.date, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, r.getEndDate(), 
+                    if (tryMatch(s, r.getEndDate(), exact,
                             (searchLogbookDialog != null ? searchLogbookDialog.sEnddate.getValue() : true))) {
                         foundMatch(r, efaBaseFrame.enddate, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, r.getBoatAsName(), 
+                    if (tryMatch(s, r.getBoatAsName(), exact,
                             (searchLogbookDialog != null ? searchLogbookDialog.sBoat.getValue() : true))) {
                         foundMatch(r, efaBaseFrame.boat, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, r.getCoxAsName(), 
+                    if (tryMatch(s, r.getCoxAsName(), exact,
                             (searchLogbookDialog != null ? searchLogbookDialog.sCox.getValue() : true))) {
                         foundMatch(r, efaBaseFrame.cox, jumpToField);
                         return true;
                     }
                     for (int i = 0; i < LogbookRecord.CREW_MAX; i++) {
-                        if (tryMatch(s, r.getCrewAsName(i + 1), 
+                        if (tryMatch(s, r.getCrewAsName(i + 1), exact,
                                 (searchLogbookDialog != null ? searchLogbookDialog.sCrew.getValue() : true))) {
                             foundMatch(r, efaBaseFrame.crew[i], jumpToField);
                             return true;
                         }
                     }
-                    if (tryMatch(s, r.getStartTime(), 
+                    if (tryMatch(s, r.getStartTime(), exact,
                             (searchLogbookDialog != null ? searchLogbookDialog.sStarttime.getValue() : true))) {
                         foundMatch(r, efaBaseFrame.starttime, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, r.getEndTime(), 
+                    if (tryMatch(s, r.getEndTime(), exact,
                             (searchLogbookDialog != null ? searchLogbookDialog.sEndtime.getValue() : true))) {
                         foundMatch(r, efaBaseFrame.endtime, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, r.getDestinationAndVariantName(), 
+                    if (tryMatch(s, r.getDestinationAndVariantName(), exact,
                             (searchLogbookDialog != null ? searchLogbookDialog.sDestination.getValue() : true))) {
                         foundMatch(r, efaBaseFrame.destination, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, r.getDistance(), 
+                    if (tryMatch(s, r.getDistance(), exact,
                             (searchLogbookDialog != null ? searchLogbookDialog.sDistance.getValue() : true))) {
                         foundMatch(r, efaBaseFrame.distance, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, r.getComments(), 
+                    if (tryMatch(s, r.getComments(), exact,
                             (searchLogbookDialog != null ? searchLogbookDialog.sComments.getValue() : true))) {
                         foundMatch(r, efaBaseFrame.comments, jumpToField);
                         return true;
                     }
-                    if (tryMatch(s, Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, r.getSessionType()), 
+                    if (tryMatch(s, Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, r.getSessionType()), exact,
                             (searchLogbookDialog != null ? searchLogbookDialog.sSessiontype.getValue() : true))) {
                         foundMatch(r, efaBaseFrame.sessiontype, jumpToField);
                         return true;
                     }
+                    if (tryMatch(s, r.getSessionGroupAsName(), exact,
+                            (searchLogbookDialog != null ? searchLogbookDialog.sSessiongroup.getValue() : true))) {
+                        foundMatch(r, efaBaseFrame.sessiongroup, jumpToField);
+                        return true;
+                    }
                 }
                 if (mode == SearchMode.special) {
+                    long validAt = r.getValidAtTimestamp();
                     if (searchLogbookDialog != null && searchLogbookDialog.eIncomplete.getValue()) {
                         if (r.getBoatAsName() == null || r.getBoatAsName().length() == 0) {
                             foundMatch(r, efaBaseFrame.boat, jumpToField);
@@ -355,7 +427,8 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
                             foundMatch(r, efaBaseFrame.destination, jumpToField);
                             return true;
                         }
-                        if (r.getDistance() == null || !r.getDistance().isSet()) {
+                        if (r.getDistance() == null || !r.getDistance().isSet() ||
+                            r.getDistance().getValueInDefaultUnit() == 0) {
                             foundMatch(r, efaBaseFrame.distance, jumpToField);
                             return true;
                         }
@@ -371,7 +444,7 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
                         }
                     }
                     if (searchLogbookDialog != null && searchLogbookDialog.eUnknownPerson.getValue()) {
-                        for (int i = 0; i < LogbookRecord.CREW_MAX; i++) {
+                        for (int i = 0; i <= LogbookRecord.CREW_MAX; i++) {
                             if (r.getCrewId(i) == null && r.getCrewName(i) != null && r.getCrewName(i).length() > 0) {
                                 if (searchLogbookDialog.eUnknownPersonIgnoreGuest.getValue() &&
                                     r.getCrewName(i).toLowerCase().indexOf(Daten.efaTypes.getValue(EfaTypes.CATEGORY_STATUS, EfaTypes.TYPE_STATUS_GUEST).toLowerCase())  >= 0) {
@@ -388,6 +461,63 @@ public class SearchLogbookDialog extends BaseTabbedDialog implements IItemListen
                     }
                     if (searchLogbookDialog != null && searchLogbookDialog.eUnknownDestination.getValue()) {
                         if (r.getDestinationId() == null) {
+                            foundMatch(r, efaBaseFrame.destination, jumpToField);
+                            return true;
+                        }
+                    }
+                    if (searchLogbookDialog != null && searchLogbookDialog.eInvalidBoat.getValue()) {
+                        boolean invalid = false;
+                        if (r.getBoatId() != null &&
+                            boats.getBoat(r.getBoatId(), validAt) == null) {
+                            invalid = true; // UUID that is currently invalid
+                        }
+                        if (r.getBoatId() == null ||
+                            r.getBoatName() != null && r.getBoatName().length() > 0) {
+                            BoatRecord br = boats.getBoat(r.getBoatName(), 0, Long.MAX_VALUE, validAt);
+                            if (br != null && !br.isValidAt(validAt)) {
+                                invalid = true;
+                            }
+                        }
+                        if (invalid) {
+                            foundMatch(r, efaBaseFrame.boat, jumpToField);
+                            return true;
+                        }
+                    }
+                    if (searchLogbookDialog != null && searchLogbookDialog.eInvalidPerson.getValue()) {
+                        for (int i = 0; i <= LogbookRecord.CREW_MAX; i++) {
+                            boolean invalid = false;
+                            if (r.getCrewId(i) != null
+                                    && persons.getPerson(r.getCrewId(i), validAt) == null) {
+                                invalid = true; // UUID that is currently invalid
+                            }
+                            if (r.getCrewId(i) == null
+                                    || r.getCrewName(i) != null && r.getCrewName(i).length() > 0) {
+                                PersonRecord pr = persons.getPerson(r.getCrewName(i), 0, Long.MAX_VALUE, validAt);
+                                if (pr != null && !pr.isValidAt(validAt)) {
+                                    invalid = true;
+                                }
+                            }
+                            if (invalid) {
+                                foundMatch(r, (i == 0 ? efaBaseFrame.cox : efaBaseFrame.crew[i - 1]),
+                                        jumpToField);
+                                return true;
+                            }
+                        }
+                    }
+                    if (searchLogbookDialog != null && searchLogbookDialog.eInvalidDestination.getValue()) {
+                        boolean invalid = false;
+                        if (r.getDestinationId() != null &&
+                            destinations.getDestination(r.getDestinationId(), validAt) == null) {
+                            invalid = true; // UUID that is currently invalid
+                        }
+                        if (r.getDestinationId() == null ||
+                            r.getDestinationName() != null && r.getDestinationName().length() > 0) {
+                            DestinationRecord br = destinations.getDestination(r.getDestinationName(), 0, Long.MAX_VALUE, validAt);
+                            if (br != null && !br.isValidAt(validAt)) {
+                                invalid = true;
+                            }
+                        }
+                        if (invalid) {
                             foundMatch(r, efaBaseFrame.destination, jumpToField);
                             return true;
                         }

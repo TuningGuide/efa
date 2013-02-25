@@ -1126,11 +1126,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         }
         ProjectRecord pr = Daten.project.getLoogbookRecord(logbook.getName());
         if (pr != null) {
-            logbookValidFrom = pr.getStartDate().getTimestamp(null);
-            logbookInvalidFrom = pr.getEndDate().getTimestamp(null) + 24 * 60 * 60 * 1000;
-            if (logbookInvalidFrom < logbookValidFrom) {
-                logbookInvalidFrom = logbookValidFrom + 24 * 60 * 60 * 1000;
-            }
+            logbookValidFrom = logbook.getValidFrom();
+            logbookInvalidFrom = logbook.getInvalidFrom();
         }
         try {
             iterator = logbook.data().getDynamicIterator();
@@ -1459,7 +1456,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             if (success) {
                 setEntryUnchanged();
                 boolean createNewRecord = false;
-                if (getMode() == MODE_BASE) {
+                if (isModeFull()) { // used to be: getMode() == MODE_BASE
                     try {
                         LogbookRecord rlast = (LogbookRecord) logbook.data().getLast();
                         if (currentRecord.getEntryId().equals(rlast.getEntryId())) {
@@ -2830,7 +2827,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             }
         } else {
             SearchLogbookDialog.initialize(this, logbook, iterator);
-            SearchLogbookDialog.search(entryNo.toLowerCase(), SearchLogbookDialog.SearchMode.normal, 
+            SearchLogbookDialog.search(entryNo.toLowerCase(), false, SearchLogbookDialog.SearchMode.normal,
                     next, false);
         }
     }
@@ -2901,7 +2898,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             entryno.setUnchanged();
         } else {
             String n;
-            if (!isModeBoathouse() && entryNoForNewEntry > 0) {
+            if (isModeFull() && entryNoForNewEntry > 0) {
                 n = Integer.toString(entryNoForNewEntry + 1);
             } else {
                 n = logbook.getNextEntryNo().toString();
@@ -2920,6 +2917,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         date.parseAndShowValue(d);
         updateTimeInfoFields();
         date.setUnchanged();
+        if (isModeFull()) {
+            date.setSelection(0, Integer.MAX_VALUE);
+        }
     }
 
     void deleteRecord() {
@@ -3031,11 +3031,16 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                     !isCoxOrCrewItem(item)) {
                 autoSelectBoatCaptain();
             }
+            if (item == date) {
+                if (isNewRecord && (isModeFull() || mode == MODE_BOATHOUSE_LATEENTRY)) {
+                    date.setSelection(0, Integer.MAX_VALUE);
+                }
+            }
             if (item == destination) {
                 lastDestination = DestinationRecord.tryGetNameAndVariant(destination.getValueFromField().trim())[0];;
             }
             if (item == distance) {
-                if (isModeBoathouse()) {
+                if (isModeBoathouse() || (isModeFull() && isNewRecord )) {
                     distance.setSelection(0, Integer.MAX_VALUE);
                 }
                if (!distance.isEditable() && distance.hasFocus()) {
@@ -4058,6 +4063,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
         efaBoathouseSetPersonAndBoat(item);
         updateTimeInfoFields();
+        setRequestFocus(date);
         return true;
     }
 

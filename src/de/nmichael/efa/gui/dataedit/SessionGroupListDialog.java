@@ -25,8 +25,8 @@ import javax.swing.*;
 // @i18n complete
 public class SessionGroupListDialog extends DataListDialog {
 
-    public static final int ACTION_SELECT  =  200;
-    public static final int ACTION_UNSELECT=  201;
+    public static final int ACTION_SELECT  =  300;
+    public static final int ACTION_UNSELECT=  301;
 
     private String logbook;
     private UUID selectedSessionGroupId;

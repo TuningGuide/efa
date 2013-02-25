@@ -61,8 +61,10 @@ public class WatersListDialog extends DataListDialog {
             case ACTION_CREATEFROMTEMPLATE:
                 int count = Daten.project.getWaters(false).addAllWatersFromTemplate(International.getLanguageID());
                 if (count > 0) {
-                    Dialog.infoDialog(International.getMessage("Gewässerliste mit {count} Gewässern erfolgreich erstellt.",
+                    Dialog.infoDialog(International.getMessage("{count} Gewässer aus Gewässerkatalog erfolgreich hinzugefügt.",
                             count));
+                } else {
+                    Dialog.infoDialog(International.getString("Alle Gewässer aus dem Gewässerkatalog sind bereits vorhanden (keine neuen hinzugefügt)."));
                 }
                 break;
         }

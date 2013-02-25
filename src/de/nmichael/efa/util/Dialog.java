@@ -77,6 +77,13 @@ public class Dialog {
         return newd;
     }
 
+    public static Dimension getReducedMaxSize(Dimension d, int minusX, int minusY) {
+        Dimension dim = getMaxSize(d);
+        dim.width = Math.max(dim.width - minusX, 1);
+        dim.height = Math.max(dim.height - minusY, 1);
+        return dim;
+    }
+    
     public static void setMaxDialogSizes(int width, int height) {
         if (width > 0) {
             MAX_DIALOG_WIDTH = width;
@@ -302,9 +309,13 @@ public class Dialog {
     }
 
     public static void infoDialog(String title, String s) {
-        Window frame = frameCurrent();
-        prepareWindow(frame);
-        JOptionPane.showConfirmDialog(frame, chopDialogString(s), title, -1);
+        if (Daten.isGuiAppl() && !SUPPRESS_DIALOGS) {
+            Window frame = frameCurrent();
+            prepareWindow(frame);
+            JOptionPane.showConfirmDialog(frame, chopDialogString(s), title, -1);
+        } else {
+            System.out.println("INFO" + ": " + s);
+        }
     }
 
     public static void infoDialog(String s) {

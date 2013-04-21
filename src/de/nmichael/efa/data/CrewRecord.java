@@ -211,6 +211,18 @@ public class CrewRecord extends DataRecord {
         return (value.equals(getAsText(fieldName)));
     }
 
+    private long getPreferredValidFrom() {
+        return System.currentTimeMillis();
+    }
+
+    private long getPreferredInvalidFrom() {
+        try {
+            Logbook l = persistence.getProject().getCurrentLogbook();
+            return l.getInvalidFrom();
+        } catch(Exception e) {
+            return getInvalidFrom();
+        }
+    }
 
     public Vector<IItemType> getGuiItems(AdminRecord admin) {
         String CAT_BASEDATA     = "%01%" + International.getString("Mannschaft");
@@ -223,12 +235,12 @@ public class CrewRecord extends DataRecord {
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Mannschaftsname")));
         v.add(item = getGuiItemTypeStringAutoComplete(CrewRecord.COXID, getCoxId(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-                persons, getValidFrom(), getInvalidFrom()-1,
+                persons, getPreferredValidFrom(), getPreferredInvalidFrom()-1,
                 International.getString("Steuermann")));
         for (int i=1; i<=LogbookRecord.CREW_MAX; i++) {
             v.add(item = getGuiItemTypeStringAutoComplete(getCrewFieldNameId(i), getCrewId(i),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-                    persons, getValidFrom(), getInvalidFrom() - 1,
+                    persons, getPreferredValidFrom(), getPreferredInvalidFrom() - 1,
                     International.getString("Mannschaft") + " " + i));
         }
 

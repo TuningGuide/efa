@@ -25,6 +25,8 @@ import java.util.UUID;
 
 public class ItemTypeBoatstatusList extends ItemTypeList {
 
+    public static final int SEATS_OTHER = 99;
+
     EfaBoathouseFrame efaBoathouseFrame;
 
     public ItemTypeBoatstatusList(String name,
@@ -64,7 +66,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
                 if (gr != null && gr.isValidAt(now)) {
                     String cs = gr.getColor();
                     if (cs != null && cs.length() > 0) {
-                        groupColors.put(gr.getId(), EfaUtil.getColor(cs));
+                        groupColors.put(gr.getId(), EfaUtil.getColorOrGray(cs));
                     }
                 }
             }
@@ -83,12 +85,12 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             // find all seat variants to be shown...
             if (r != null) {
                 if (r.getNumberOfVariants() == 1) {
-                    allSeats.put(r.getNumberOfSeats(0), r.getTypeVariant(0));
+                    allSeats.put(r.getNumberOfSeats(0, SEATS_OTHER), r.getTypeVariant(0));
                 } else {
                     if (sr.getCurrentStatus().equals(BoatStatusRecord.STATUS_AVAILABLE)) {
                         for (int j = 0; j < r.getNumberOfVariants(); j++) {
                             // if the boat is available, show the boat in all seat variants
-                            allSeats.put(r.getNumberOfSeats(j), r.getTypeVariant(j));
+                            allSeats.put(r.getNumberOfSeats(j, SEATS_OTHER), r.getTypeVariant(j));
                         }
                     } else {
                         if (sr.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
@@ -97,7 +99,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
                             if (entry != null && entry.length() > 0) {
                                 LogbookRecord lr = logbook.getLogbookRecord(sr.getEntryNo());
                                 if (lr != null && lr.getBoatVariant() > 0 && lr.getBoatVariant() <= r.getNumberOfVariants()) {
-                                    allSeats.put(r.getNumberOfSeats(r.getVariantIndex(lr.getBoatVariant())),
+                                    allSeats.put(r.getNumberOfSeats(r.getVariantIndex(lr.getBoatVariant()), SEATS_OTHER),
                                             lr.getBoatVariant());
                                 }
                             }
@@ -110,12 +112,12 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
                     if (vd < 1) {
                         vd = r.getTypeVariant(0);
                     }
-                    allSeats.put(r.getNumberOfSeats(0), vd);
+                    allSeats.put(r.getNumberOfSeats(0, SEATS_OTHER), vd);
                 }
             } else {
                 if (sr.getUnknownBoat()) {
                     // unknown boat
-                    allSeats.put(99, -1);
+                    allSeats.put(SEATS_OTHER, -1);
                 } else {
                     // BoatRecord not found; may be a boat which has a status, but is invalid at timestamp "now"
                     // don't add seats for this boat; it should *not* appear in the list
@@ -138,13 +140,13 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
                 // Seats
                 int seat = seats[j];
                 if (seat == 0) {
-                    seat = 99;
+                    seat = SEATS_OTHER;
                 }
                 if (seat < 0) {
                     seat = 0;
                 }
-                if (seat > 99) {
-                    seat = 99;
+                if (seat > SEATS_OTHER) {
+                    seat = SEATS_OTHER;
                 }
                 bs.seats = seat;
                 bs.variant = variant;
@@ -273,7 +275,7 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
         for (int i = 0; i < v.size(); i++) {
             PersonRecord pr = v.get(i);
             a[i] = new BoatString();
-            a[i].seats = 99;
+            a[i].seats = SEATS_OTHER;
             a[i].name = pr.getQualifiedName();
             a[i].sortBySeats = false;
             BoatListItem item = new BoatListItem();
@@ -291,9 +293,9 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             if (name.length() > 0) {
                 if (name.toUpperCase().charAt(0) != lastChar) {
                     lastChar = name.toUpperCase().charAt(0);
-                    vv.add(new ItemTypeListData("---------- " + lastChar + " ----------", null, true, 99));
+                    vv.add(new ItemTypeListData("---------- " + lastChar + " ----------", null, true, SEATS_OTHER));
                 }
-                vv.add(new ItemTypeListData(name, a[i].record, false, 99));
+                vv.add(new ItemTypeListData(name, a[i].record, false, SEATS_OTHER));
             }
         }
         return vv;

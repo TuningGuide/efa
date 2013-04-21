@@ -20,6 +20,7 @@ import de.nmichael.efa.data.storage.XMLFile;
 import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.ProgressDialog;
 import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.Email;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.LogString;
 import de.nmichael.efa.util.Logger;
@@ -46,6 +47,7 @@ public class Backup {
     private String currentProjectName;
     private String backupDir;
     private String backupFile;
+    private String backupEmail;
     private boolean backupProject;
     private boolean backupConfig;
     private String zipFile;
@@ -57,12 +59,24 @@ public class Backup {
     private boolean openOrCreateProjectForRestore;
     private int totalWork = 0;
     private int totalWorkDone = 0;
+    private StringBuilder msgOut = new StringBuilder();
 
     public Backup(String backupDir, String backupFile,
             boolean backupProject,
             boolean backupConfig) {
         this.backupDir = backupDir;
         this.backupFile = backupFile;
+        this.backupProject = backupProject;
+        this.backupConfig = backupConfig;
+        this.mode = Mode.create;
+    }
+
+    public Backup(String backupDir, String backupFile, String backupEmail,
+            boolean backupProject,
+            boolean backupConfig) {
+        this.backupDir = backupDir;
+        this.backupFile = backupFile;
+        this.backupEmail = backupEmail;
         this.backupProject = backupProject;
         this.backupConfig = backupConfig;
         this.mode = Mode.create;
@@ -334,6 +348,17 @@ public class Backup {
                     International.getMessage("{n} Objekte in {filename} gesichert.",
                     successful, zipFile));
             if (errors == 0) {
+                if (backupEmail != null) {
+                    String subject = International.getMessage("Backup vom {date}", EfaUtil.getCurrentTimeStampDD_MM_YYYY());
+                    String text = subject + "\n\n" + msgOut.toString();
+                    if (Daten.applID == Daten.APPL_CLI) {
+                        Email.sendMessage(backupEmail,
+                                subject, text, new String[]{zipFile}, true);
+                    } else {
+                        Email.enqueueMessage(backupEmail,
+                                subject, text, new String[]{zipFile}, true);
+                    }
+                }
                 logMsg(Logger.INFO, Logger.MSG_BACKUP_BACKUPFINISHED,
                         LogString.operationSuccessfullyCompleted(International.getString("Backup")));
             } else {
@@ -515,6 +540,7 @@ public class Backup {
         if (backupTask != null && !type.equals(Logger.DEBUG)) {
             backupTask.logInfo(msg + "\n");
         }
+        msgOut.append(msg + "\n");
     }
 
     public int getTotalWork() {
@@ -558,6 +584,14 @@ class BackupTask extends ProgressTask {
             boolean backupConfig) {
         super();
         backup = new Backup(backupDir, backupFile, backupProject, backupConfig);
+    }
+
+    // Constructor for Creating an email Backup
+    public BackupTask(String email,
+            boolean backupProject,
+            boolean backupConfig) {
+        super();
+        backup = new Backup(Daten.efaTmpDirectory, null, email, backupProject, backupConfig);
     }
 
     // Constructor for Restoring a Backup

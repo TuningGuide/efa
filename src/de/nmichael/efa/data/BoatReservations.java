@@ -177,6 +177,10 @@ public class BoatReservations extends StorageObject {
                     }
                 }
             }
+            if (r.getType().equals(BoatReservationRecord.TYPE_ONETIME) &&
+                r.getDayOfWeek() != null) {
+                r.setDayOfWeek(null);
+            }
         }
     }
 

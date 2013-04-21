@@ -26,6 +26,9 @@ import javax.swing.*;
 public class DataExportDialog extends BaseDialog {
 
     private ItemTypeDateTime validAtDateTime;
+    private JRadioButton exportSelectAll;
+    private JRadioButton exportSelectSelected;
+    private JRadioButton exportSelectFiltered;
     private JScrollPane selectedFieldsScrollPane;
     private JList selectedFields;
     private ButtonGroup fileTypeGroup;
@@ -40,21 +43,29 @@ public class DataExportDialog extends BaseDialog {
     private String[] fields;
     private String[] fieldDescription;
     private int[] selectedIndices;
+    private Vector<DataRecord> selectedData;
+    private Vector<DataRecord> filteredData;
 
     // @todo (P4) DataExport option: "export to efa", which leaves all keys as they are (only xml, add flag "<exportMode>efa</exportMode>"
 
-    public DataExportDialog(Frame parent, StorageObject persistence, long validAt, AdminRecord admin) {
+    public DataExportDialog(Frame parent, StorageObject persistence, long validAt, AdminRecord admin,
+            Vector<DataRecord> selectedData, Vector<DataRecord> filteredData) {
         super(parent, International.getMessage("{data} exportieren", persistence.getDescription()),
                 International.getStringWithMnemonic("Export starten"));
         this.admin = admin;
         setPersistence(persistence, validAt);
+        this.selectedData = selectedData;
+        this.filteredData = filteredData;
     }
 
-    public DataExportDialog(JDialog parent, StorageObject persistence, long validAt, AdminRecord admin) {
+    public DataExportDialog(JDialog parent, StorageObject persistence, long validAt, AdminRecord admin,
+            Vector<DataRecord> selectedData, Vector<DataRecord> filteredData) {
         super(parent, International.getMessage("{data} exportieren", persistence.getDescription()),
                 International.getStringWithMnemonic("Export starten"));
         this.admin = admin;
         setPersistence(persistence, validAt);
+        this.selectedData = selectedData;
+        this.filteredData = filteredData;
     }
 
     public void setPersistence(StorageObject persistence, long validAt) {
@@ -103,9 +114,39 @@ public class DataExportDialog extends BaseDialog {
             validAtDateTime.setPadding(0, 0, 10, 0);
             validAtDateTime.displayOnGui(this, mainControlPanel, 0, 0);
         }
+
+        JPanel exportSelectPanel = new JPanel();
+        exportSelectPanel.setLayout(new GridBagLayout());
+        JLabel exportSelectLabel = new JLabel();
+        exportSelectLabel.setText(International.getString("Datensätze") + ":");
+        ButtonGroup exportSelectGroup = new ButtonGroup();
+        exportSelectAll = new JRadioButton(International.getString("alle"));
+        exportSelectSelected = new JRadioButton(International.getString("nur Auswahl"));
+        exportSelectFiltered = new JRadioButton(International.getString("nur Filter"));
+        exportSelectGroup.add(exportSelectAll);
+        exportSelectGroup.add(exportSelectSelected);
+        exportSelectGroup.add(exportSelectFiltered);
+        exportSelectAll.setSelected(true);
+        if (selectedData == null || selectedData.size() == 0) {
+            exportSelectSelected.setEnabled(false);
+        }
+        if (filteredData == null || filteredData.size() == 0) {
+            exportSelectFiltered.setEnabled(false);
+        }
+        exportSelectPanel.add(exportSelectLabel, new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+                new Insets(10, 0, 0, 0), 0, 0));
+        exportSelectPanel.add(exportSelectAll, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+                new Insets(0, 0, 10, 10), 0, 0));
+        exportSelectPanel.add(exportSelectSelected, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+                new Insets(0, 0, 10, 10), 0, 0));
+        exportSelectPanel.add(exportSelectFiltered, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+                new Insets(0, 0, 10, 10), 0, 0));
+        mainControlPanel.add(exportSelectPanel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+                new Insets(10, 0, 0, 0), 0, 0));
+
         JLabel fieldsLabel = new JLabel();
         Mnemonics.setLabel(this, fieldsLabel, International.getString("ausgewählte Felder") + ":");
-        mainControlPanel.add(fieldsLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+        mainControlPanel.add(fieldsLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
                 new Insets(10, 0, 0, 0), 0, 0));
         mainPanel.add(mainControlPanel, BorderLayout.NORTH);
 
@@ -227,7 +268,15 @@ public class DataExportDialog extends BaseDialog {
             }
         }
 
-        DataExport export = new DataExport(persistence, validAt, fieldNames, format, encoding.getValue(), fname, DataExport.EXPORT_TYPE_TEXT);
+        Vector<DataRecord> selection = null;
+        if (exportSelectSelected.isSelected() && selectedData != null && selectedData.size() > 0) {
+            selection = selectedData;
+        }
+        if (exportSelectFiltered.isSelected() && filteredData != null && filteredData.size() > 0) {
+            selection = filteredData;
+        }
+        DataExport export = new DataExport(persistence, validAt, selection,
+                fieldNames, format, encoding.getValue(), fname, DataExport.EXPORT_TYPE_TEXT);
         int cnt = export.runExport();
         if (cnt >= 0) {
             Dialog.infoDialog(International.getMessage("{count} Datensätze erfolgreich exportiert.", cnt));

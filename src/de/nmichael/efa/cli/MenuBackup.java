@@ -14,6 +14,7 @@ import de.nmichael.efa.core.Backup;
 import de.nmichael.efa.core.BackupMetaData;
 import de.nmichael.efa.core.BackupMetaDataItem;
 import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.Email;
 import java.io.File;
 import java.util.Stack;
 import java.util.Vector;
@@ -49,6 +50,7 @@ public class MenuBackup extends MenuBase {
         boolean backupConfig = false;
         String backupDir = Daten.efaBakDirectory;
         String backupFile = null;
+        String backupEmail = null;
         for (int i=0; i<options.size(); i++) {
             String opt = options.get(i).trim();
             switch(i) {
@@ -65,18 +67,22 @@ public class MenuBackup extends MenuBase {
                     }
                     break;
                 case 1:
-                    File f = new File(opt);
-                    if (f.isDirectory()) {
-                        backupDir = opt;
+                    if (Email.getEmailAddressFromMailtoString(opt) == null) {
+                        File f = new File(opt);
+                        if (f.isDirectory()) {
+                            backupDir = opt;
+                        } else {
+                            backupDir = EfaUtil.getPathOfFile(opt);
+                            backupFile = EfaUtil.getNameOfFile(opt);
+                        }
+                        if (backupDir == null || backupDir.length() == 0) {
+                            backupDir = Daten.efaBakDirectory;
+                        }
+                        if (backupFile != null && backupFile.length() == 0) {
+                            backupFile = null;
+                        }
                     } else {
-                        backupDir = EfaUtil.getPathOfFile(opt);
-                        backupFile = EfaUtil.getNameOfFile(opt);
-                    }
-                    if (backupDir == null || backupDir.length() == 0) {
-                        backupDir = Daten.efaBakDirectory;
-                    }
-                    if (backupFile != null && backupFile.length() == 0) {
-                        backupFile = null;
+                        backupEmail = Email.getEmailAddressFromMailtoString(opt);
                     }
                     
                     break;
@@ -87,7 +93,9 @@ public class MenuBackup extends MenuBase {
             return CLI.RC_INVALID_COMMAND;
         }
 
-        Backup backup = new Backup(backupDir, backupFile, backupProject, backupConfig);
+        Backup backup = (backupEmail == null ?
+            new Backup(backupDir, backupFile, backupProject, backupConfig) :
+            new Backup(Daten.efaTmpDirectory, null, backupEmail, backupProject, backupConfig) );
         int ret = backup.runBackup(null);
         if (ret > 0) {
             return CLI.RC_COMMAND_COMPLETED_WITH_ERRORS;

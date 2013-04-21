@@ -33,14 +33,17 @@ public class BoatReservationRecord extends DataRecord {
     // Field Names
     // =========================================================================
 
+    public static final String VBOAT               = "VirtualBoat";
     public static final String BOATID              = "BoatId";
     public static final String RESERVATION         = "Reservation";
     public static final String TYPE                = "Type";
+    public static final String VRESERVATIONDATE    = "VirtualReservationDate";
     public static final String DATEFROM            = "DateFrom";
     public static final String DATETO              = "DateTo";
     public static final String DAYOFWEEK           = "DayOfWeek";
     public static final String TIMEFROM            = "TimeFrom";
     public static final String TIMETO              = "TimeTo";
+    public static final String VPERSON             = "VirtualPerson";
     public static final String PERSONID            = "PersonId";
     public static final String PERSONNAME          = "PersonName";
     public static final String REASON              = "Reason";
@@ -52,14 +55,17 @@ public class BoatReservationRecord extends DataRecord {
         Vector<String> f = new Vector<String>();
         Vector<Integer> t = new Vector<Integer>();
 
+        f.add(VBOAT);                    t.add(IDataAccess.DATA_VIRTUAL);
         f.add(BOATID);                   t.add(IDataAccess.DATA_UUID);
         f.add(RESERVATION);              t.add(IDataAccess.DATA_INTEGER);
         f.add(TYPE);                     t.add(IDataAccess.DATA_STRING);
+        f.add(VRESERVATIONDATE);         t.add(IDataAccess.DATA_VIRTUAL);
         f.add(DATEFROM);                 t.add(IDataAccess.DATA_DATE);
         f.add(DATETO);                   t.add(IDataAccess.DATA_DATE);
         f.add(DAYOFWEEK);                t.add(IDataAccess.DATA_STRING);
         f.add(TIMEFROM);                 t.add(IDataAccess.DATA_TIME);
         f.add(TIMETO);                   t.add(IDataAccess.DATA_TIME);
+        f.add(VPERSON);                  t.add(IDataAccess.DATA_VIRTUAL);
         f.add(PERSONID);                 t.add(IDataAccess.DATA_UUID);
         f.add(PERSONNAME);               t.add(IDataAccess.DATA_STRING);
         f.add(REASON);                   t.add(IDataAccess.DATA_STRING);
@@ -247,6 +253,19 @@ public class BoatReservationRecord extends DataRecord {
             }
         }
         return boatName;
+    }
+
+    protected Object getVirtualColumn(int fieldIdx) {
+        if (getFieldName(fieldIdx).equals(VBOAT)) {
+            return getBoatName();
+        }
+        if (getFieldName(fieldIdx).equals(VRESERVATIONDATE)) {
+            return getReservationTimeDescription();
+        }
+        if (getFieldName(fieldIdx).equals(VPERSON)) {
+            return getPersonAsName();
+        }
+        return null;
     }
 
     /**
@@ -452,6 +471,13 @@ public class BoatReservationRecord extends DataRecord {
         v.add(item = new ItemTypeString(BoatReservationRecord.CONTACT, getContact(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Telefon für Rückfragen")));
 
+        // Virtual Fields hidden internal, only for list output and export/import
+        v.add(item = new ItemTypeString(BoatReservationRecord.VBOAT, getBoatName(),
+                IItemType.TYPE_INTERNAL, "", International.getString("Boot")));
+        v.add(item = new ItemTypeString(BoatReservationRecord.VRESERVATIONDATE, getReservationTimeDescription(),
+                IItemType.TYPE_INTERNAL, "", International.getString("Zeitraum")));
+        v.add(item = new ItemTypeString(BoatReservationRecord.VPERSON, getPersonAsName(),
+                IItemType.TYPE_INTERNAL, "", International.getString("Person")));
         return v;
     }
 

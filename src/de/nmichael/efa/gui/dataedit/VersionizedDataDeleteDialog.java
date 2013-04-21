@@ -54,7 +54,7 @@ public class VersionizedDataDeleteDialog extends BaseDialog implements IItemList
         deleteDate.addDays(1); // suggest to delete from tomorrow on
         deleteAt = new ItemTypeDateTime("DELETE_AT",
                 deleteDate, new DataTypeTime(0, 0, 0),
-                IItemType.TYPE_PUBLIC, "", International.getString("Datensätze als ungültig markieren ab") );
+                IItemType.TYPE_PUBLIC, "", International.getString("Datensätze löschen ab") );
         deleteAt.displayOnGui(this, mainPanel, 0, 0);
         deleteAt.requestFocus();
 

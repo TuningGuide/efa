@@ -25,6 +25,8 @@ public class AutoCompletePopupWindow extends JWindow {
     private Hashtable<AutoCompleteList,String[]> autoCompleteLists = new Hashtable<AutoCompleteList,String[]>();
     private Hashtable<AutoCompleteList,Long> autoCompleteSCN = new Hashtable<AutoCompleteList,Long>();
     private JTextField showingAt;
+    private JTextField lastShowingAt;
+    private long lastShowingAtTime = 0;
     private HideWindowThread hideWindowThread;
     private AutoCompletePopupWindowCallback callback;
     BorderLayout borderLayout = new BorderLayout();
@@ -36,6 +38,10 @@ public class AutoCompletePopupWindow extends JWindow {
         try {
             jbInit();
             setListSize(200, 100);
+            if (Daten.efaConfig != null && Daten.efaConfig.getValueTouchScreenSupport()) {
+                scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(25, 1));
+            }
+            scrollPane.setHorizontalScrollBar(null);
             // Bugfix: AutoCompletePopupWindow muß unter Windows ebenfalls alwaysOnTop sein, wenn EfaDirektFrame alwaysOnTop ist, da sonst die Popup-Liste nicht erscheint
             if (Daten.osName.startsWith("Windows") && Daten.efaConfig.getValueEfaDirekt_immerImVordergrund()) {
                 de.nmichael.efa.java15.Java15.setAlwaysOnTop(this, true);
@@ -91,6 +97,9 @@ public class AutoCompletePopupWindow extends JWindow {
     }
 
     public void setListSize(int x, int y) {
+        if (Daten.efaConfig != null && Daten.efaConfig.getValueTouchScreenSupport()) {
+            y *= 2;
+        }
         this.scrollPane.setPreferredSize(new Dimension(x, y));
         this.pack();
     }
@@ -116,10 +125,19 @@ public class AutoCompletePopupWindow extends JWindow {
             }
             return;
         }
+
+        if (lastShowingAt == field && System.currentTimeMillis() - lastShowingAtTime < 250) {
+            // We've just been showing at this field; this might be a duplicate call, like
+            // a user pressed the button (to minimize the autocomplete list), which caused a
+            // focus lost event. The focus lost already minimized the list, so we shouldn't show
+            // it again.
+            return;
+        }
+
         try {
             int x = (int) field.getLocationOnScreen().getX() + 10;
             int y = (int) field.getLocationOnScreen().getY() + field.getHeight();
-            setListSize(field.getWidth(), field.getHeight() * 5);
+            setListSize(field.getWidth()+10, field.getHeight() * 5);
             this.setLocation(x, y);
             this.setVisible(true);
             // Unter Windows bewirkt toFront(), daß der ursprüngliche Frame den Fokus verliert, daher muß unter Windows darauf verzichtet werden
@@ -127,6 +145,7 @@ public class AutoCompletePopupWindow extends JWindow {
                 this.toFront();
             }
             showingAt = field;
+            lastShowingAt = showingAt;
         } catch (Exception ee) { // nur zur Sicherheit: Es gibt seltene Exceptions in efa, die keiner Stelle im Code zugeordnet werden können und hierher kommen könnten
         }
     }
@@ -134,6 +153,8 @@ public class AutoCompletePopupWindow extends JWindow {
     public void doHide() {
         if (showingAt != null) {
             this.setVisible(false);
+            lastShowingAt = showingAt;
+            lastShowingAtTime = System.currentTimeMillis();
         }
         showingAt = null;
     }
@@ -244,7 +265,7 @@ class HideWindowThread extends Thread {
 
     public void run() {
         try {
-            Thread.sleep(100);
+            Thread.sleep(10);
             window.doHide();
         } catch (Exception e) {
         }

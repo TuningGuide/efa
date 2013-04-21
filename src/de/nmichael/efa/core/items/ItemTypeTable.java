@@ -34,6 +34,7 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
     protected Hashtable<String,TableItem[]> items; // keys -> columns for key
     protected String[] popupActions;
     protected int selectionMode = ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
+    protected boolean sortingEnabled = true;
     protected int sortByColumn = 0;
     protected boolean ascending = true;
     protected int fontSize = -1;
@@ -121,16 +122,18 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
             if (scrollPane != null && table != null) {
                 scrollPane.remove(table);
             }
-            table = Table.createTable(null, renderer, header, data);
+            table = Table.createTable(null, renderer, header, data, sortingEnabled);
             if (fontSize > 0) {
                 table.getRenderer().setFontSize(fontSize);
                 table.setRowHeight(fontSize*2);
             }
             table.setSelectionMode(selectionMode);
-            if (currentSortingColumn < 0) {
-                table.sortByColumn(this.sortByColumn, this.ascending);
-            } else {
-                table.sortByColumn(currentSortingColumn, currentSortingAscending);
+            if (sortingEnabled) {
+                if (currentSortingColumn < 0) {
+                    table.sortByColumn(this.sortByColumn, this.ascending);
+                } else {
+                    table.sortByColumn(currentSortingColumn, currentSortingAscending);
+                }
             }
             if (columnEditable != null) {
                 table.setEditableColumns(columnEditable, this);
@@ -198,6 +201,13 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
         table.selectAll();
     }
 
+    public String[] getAllKeys() {
+        if (table == null || keys == null) {
+            return null;
+        }
+        return keys;
+    }
+
     public String[] getSelectedKeys() {
         if (table == null) {
             return null;
@@ -229,6 +239,14 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
         }
     }
 
+    public void selectValues(boolean[] selected) {
+        table.clearSelection();
+        for (int i=0; i<selected.length; i++) {
+            if (selected[i]) {
+                table.addRowSelectionInterval(i, i);
+            }
+        }
+    }
 
     protected void iniDisplay() {
         scrollPane = new JScrollPane();
@@ -311,6 +329,10 @@ public class ItemTypeTable extends ItemType implements ActionListener, ITableEdi
 
     public void setSelectionMode(int selectionMode) {
         this.selectionMode = selectionMode;
+    }
+
+    public void setSortingEnabled(boolean enabled) {
+        this.sortingEnabled = enabled;
     }
 
     public void setSorting(int sortByColumn, boolean ascending) {

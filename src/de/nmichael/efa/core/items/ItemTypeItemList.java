@@ -22,6 +22,9 @@ import de.nmichael.efa.gui.BaseFrame;
 
 public class ItemTypeItemList extends ItemType {
 
+    private static final String LIST_SEPARATOR = "{=%||%=}";
+    private static final String ITEM_SEPARATOR = "{=%|%=}";
+
     private Vector<IItemType[]> items = new Vector<IItemType[]>();
     private Vector<IItemType[]> deletedItems = new Vector<IItemType[]>();
     private Hashtable<String,String> itemNameMapping = new Hashtable<String,String>();
@@ -62,7 +65,9 @@ public class ItemTypeItemList extends ItemType {
     }
 
     public IItemType copyOf() {
-        return new ItemTypeItemList(name, (Vector<IItemType[]>)items.clone(), itemFactory, type, category, description);
+        ItemTypeItemList copy = new ItemTypeItemList(name, (Vector<IItemType[]>)items.clone(), itemFactory, type, category, description);
+        copy.repeatTitle = repeatTitle;
+        return copy;
     }
 
     public void addItems(IItemType[] items) {
@@ -124,10 +129,6 @@ public class ItemTypeItemList extends ItemType {
 
     public void setItemsOrientation(Orientation orientation) {
         this.orientation = orientation;
-    }
-
-    public void parseValue(String value) {
-        // nothing to do
     }
 
     public boolean isChanged() {
@@ -344,6 +345,40 @@ public class ItemTypeItemList extends ItemType {
             }
         }
         super.setUnchanged();
+    }
+
+    public String toString() {
+        StringBuilder s1 = new StringBuilder();
+        for (int i=0; items != null && i<items.size(); i++) {
+            IItemType[] arr = items.get(i);
+            StringBuilder s2 = new StringBuilder();
+            for (int j=0; arr != null && j<arr.length; j++) {
+                s2.append( (s2.length() > 0 ? ITEM_SEPARATOR : "") + arr[j].toString());
+            }
+            s1.append( (s1.length() > 0 ? LIST_SEPARATOR : "") + s2.toString());
+        }
+        return s1.toString();
+    }
+
+    public void parseValue(String value) {
+        items = new Vector<IItemType[]>();
+        if (value == null) {
+            return;
+        }
+        StringTokenizer t1 = new StringTokenizer(value, LIST_SEPARATOR);
+        while(t1.hasMoreTokens()) {
+            String s1 = t1.nextToken();
+            StringTokenizer t2 = new StringTokenizer(s1, ITEM_SEPARATOR);
+            IItemType[] arr = itemFactory.getDefaultItems(getName());
+            int i=0;
+            while(t2.hasMoreTokens() && arr != null) {
+                String s2 = t2.nextToken();
+                if (i < arr.length) {
+                    arr[i++].parseValue(s2);
+                }
+            }
+            items.add(arr);
+        }
     }
 
 }

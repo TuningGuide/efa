@@ -46,11 +46,9 @@ public class LogbookListDialog extends DataListDialog {
         removeAction(ItemTypeDataRecordTable.ACTION_NEW);
         removeAction(ItemTypeDataRecordTable.ACTION_EDIT);
         removeAction(ItemTypeDataRecordTable.ACTION_DELETE);
-        if (Daten.NEW_FEATURES) {
         addAction(International.getString("Korrekturassistent"),
                 ACTION_CORRECTIONASSISTENT,
                 BaseDialog.IMAGE_CORRECTION);
-        }
         minColumnWidths = new int[] { 80, 150, 150, 200, 150, 80 };
     }
 
@@ -63,11 +61,15 @@ public class LogbookListDialog extends DataListDialog {
         switch(actionId) {
             case ACTION_CORRECTIONASSISTENT:
                 if (admin == null || !admin.isAllowedAdvancedEdit()) {
-                    EfaMenuButton.insufficientRights(admin, International.getString("Bearbeitungsassistent"));
+                    EfaMenuButton.insufficientRights(admin, International.getString("Korrekturassistent"));
                     break;
                 }
-                FixLogbookDialog dlg = new FixLogbookDialog(this, (Logbook)persistence, admin);
-                dlg.showDialog();
+                try {
+                    FixLogbookDialog dlg = new FixLogbookDialog(this, (Logbook)persistence, admin);
+                    dlg.showDialog();
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
                 break;
         }
     }

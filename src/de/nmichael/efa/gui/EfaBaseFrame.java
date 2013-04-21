@@ -196,10 +196,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             Dialog.error(International.getString("Login fehlgeschlagen") + ".\n" +
                     International.getString("Bitte überprüfe Remote-Adminnamen und Paßwort in den Projekteinstellungen."));
         }
-        if (remoteAdmin != null && !remoteAdmin.isAllowedAdministerProjectLogbook()) {
+        if (remoteAdmin != null && !remoteAdmin.isAllowedRemoteAccess()) {
             error = true;
             EfaMenuButton.insufficientRights(remoteAdmin,
-                    International.getString("Projekte und Fahrtenbücher administrieren"));
+                    International.getString("Remote-Zugriff über efaRemote"));
         }
         if (error) {
             Daten.project = null;
@@ -526,6 +526,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         enddate.setBackgroundColorWhenFocused(Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
         enddate.displayOnGui(this, mainInputPanel, 4, 1);
         enddate.registerItemListener(this);
+        if (isModeBoathouse() && !Daten.efaConfig.getValueAllowEnterEndDate()) {
+            enddate.setVisible(false);
+        }
 
         // Boat
         boat = new ItemTypeStringAutoComplete(LogbookRecord.BOATNAME, "", IItemType.TYPE_PUBLIC, null, International.getStringWithMnemonic("Boot"), true);
@@ -3027,6 +3030,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         }
         if (id == FocusEvent.FOCUS_GAINED) {
             showHint(item.getName());
+            if (Daten.efaConfig.getValueTouchScreenSupport() && item instanceof ItemTypeStringAutoComplete) {
+                ((ItemTypeStringAutoComplete)item).showOrRemoveAutoCompletePopupWindow();
+            }
             if (lastFocusedItem != null && isCoxOrCrewItem(lastFocusedItem) &&
                     !isCoxOrCrewItem(item)) {
                 autoSelectBoatCaptain();
@@ -4156,12 +4162,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                             currentRecord.getDestinationAndVariantName(tstmp),
                             currentRecord.getDate().toString(),
                             currentRecord.getStartTime().toString(),
-                            currentRecord.getAllCoxAndCrewAsNameString());
-                    if (Daten.efaConfig.getValueEfaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar() &&
-                        ( (currentRecord.getEndDate() != null && currentRecord.getEndDate().isSet()) ||
-                         currentRecord.getSessionType().equals(EfaTypes.TYPE_SESSION_TOUR) ||
-                         currentRecord.getSessionType().equals(EfaTypes.TYPE_SESSION_REGATTA) ||
-                         currentRecord.getSessionType().equals(EfaTypes.TYPE_SESSION_JUMREGATTA))) {
+                            currentRecord.getAllCoxAndCrewAsNameString(),
+                            (currentRecord.getEndDate() != null ? currentRecord.getEndDate().toString() : null));
+                    if (BoatStatusRecord.isOnTheWaterShowNotAvailable(currentRecord.getSessionType(),
+                            currentRecord.getEndDate())) {
                         newShowInList = BoatStatusRecord.STATUS_NOTAVAILABLE;
                     }
                     break;

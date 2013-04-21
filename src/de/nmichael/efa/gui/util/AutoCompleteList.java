@@ -89,8 +89,10 @@ public class AutoCompleteList {
             String myBoathouseName = null;
             int numberOfBoathouses = 1;
             try {
-                myBoathouseId = dataAccess.getPersistence().getProject().getMyBoathouseId();
-                numberOfBoathouses = dataAccess.getPersistence().getProject().getNumberOfBoathouses();
+                if (dataAccess != null) {
+                    myBoathouseId = dataAccess.getPersistence().getProject().getMyBoathouseId();
+                    numberOfBoathouses = dataAccess.getPersistence().getProject().getNumberOfBoathouses();
+                }
                 if (numberOfBoathouses > 1) {
                     myBoathouseName = (dataAccess.getPersistence().getProject().getBoathouseRecord() != null
                             ? dataAccess.getPersistence().getProject().getBoathouseRecord().getName() : null);

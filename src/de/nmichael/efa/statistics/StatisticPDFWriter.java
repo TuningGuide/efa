@@ -68,7 +68,9 @@ public class StatisticPDFWriter extends StatisticXMLWriter {
 
         // open PDF in Arobat Reader
         if (Daten.efaConfig.getValueAcrobat() != null &&
-            Daten.efaConfig.getValueAcrobat().length() > 0) {
+            Daten.efaConfig.getValueAcrobat().length() > 0 &&
+            (sr.sEmailAddresses == null || sr.sEmailAddresses.length() == 0) &&
+            Daten.isGuiAppl()) {
             try {
                 String[] cmd = new String[2];
                 cmd[0] = Daten.efaConfig.getValueAcrobat();

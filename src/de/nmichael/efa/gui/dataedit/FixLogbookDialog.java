@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.Vector;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 public class FixLogbookDialog extends BaseDialog implements IItemListener {
 
@@ -56,6 +57,7 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
     private JLabel infoLabel;
     private ItemTypeButton skipButton;
     private ItemTypeButton fixButton;
+    private JScrollPane changePane;
     private JPanel changePanel;
 
     public FixLogbookDialog(JDialog parent, Logbook logbook, AdminRecord admin) {
@@ -71,6 +73,7 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
         infoLabel = new JLabel();
         infoLabel.setForeground(Color.blue);
         infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        infoLabel.setBorder(new EmptyBorder(10,10,10,10));
         mainPanel.add(infoLabel, BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel();
@@ -79,23 +82,31 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
         skipButton = new ItemTypeButton("BUTTON_SKIP",
                 IItemType.TYPE_PUBLIC, "", International.getString("Überspringen"));
         skipButton.registerItemListener(this);
+        skipButton.setIcon(BaseDialog.getIcon("button_skip.png"));
+        skipButton.setPadding(10, 10, 10, 10);
         skipButton.displayOnGui(this, buttonPanel, 0, 0);
         fixButton = new ItemTypeButton("BUTTON_FIX",
                 IItemType.TYPE_PUBLIC, "", International.getString("Korrigieren"));
         fixButton.registerItemListener(this);
+        fixButton.setIcon(BaseDialog.getIcon("button_correction.png"));
+        skipButton.setPadding(10, 10, 10, 10);
         fixButton.displayOnGui(this, buttonPanel, 1, 0);
 
+        changePane = new JScrollPane();
+        changePane.setPreferredSize(Dialog.getReducedMaxSize(Dialog.screenSize, 200, 200));
         changePanel = new JPanel();
         changePanel.setLayout(new GridBagLayout());
-        changePanel.setPreferredSize(Dialog.getReducedMaxSize(Dialog.screenSize, 200, 200));
-        mainPanel.add(changePanel, BorderLayout.CENTER);
+        changePane.getViewport().add(changePanel, null);
+        mainPanel.add(changePane, BorderLayout.CENTER);
 
         nextStep();
     }
 
     private void updateFields() {
         if (changePanel != null) {
-            mainPanel.remove(changePanel);
+            synchronized(changePane) {
+                changePane.remove(changePanel);
+            }
         }
         changePanel = new JPanel();
         changePanel.setLayout(new GridBagLayout());
@@ -106,7 +117,7 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
             ChangeItem change = changes.get(name);
             change.displayOnGui(this, changePanel, y++);
         }
-        mainPanel.add(changePanel, BorderLayout.CENTER);
+        changePane.getViewport().add(changePanel, null);
     }
 
     public void keyAction(ActionEvent evt) {
@@ -129,6 +140,7 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
                 infotitle = International.getString("Fertig");
                 infoLabel.setText(infotitle);
                 changes = new Hashtable<String,ChangeItem>();
+                closeButton.setText(International.getString("Schließen"));
                 updateFields();
                 return;
         }
@@ -150,8 +162,12 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
                         break;
                 }
                 progressMonitor.setProgress(100);
-                updateFields();
-                validate();
+                if (progressMonitor.isCanceled()) {
+                    cancel();
+                } else {
+                    updateFields();
+                    validate();
+                }
             }
         }.start();
     }
@@ -184,6 +200,9 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
             long totalWork = logbook.data().getNumberOfRecords();
             long count = 0;
             for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+                if (progressMonitor.isCanceled()) {
+                    break;
+                }
                 progressMonitor.setProgress((int)((count++ * 100) / totalWork));
                 LogbookRecord r = logbook.getLogbookRecord(k);
                 String name;
@@ -378,6 +397,9 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
             long totalWork = logbook.data().getNumberOfRecords();
             long count = 0;
             for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+                if (progressMonitor.isCanceled()) {
+                    break;
+                }
                 progressMonitor.setProgress((int) ((count++ * 100) / totalWork));
                 LogbookRecord r = logbook.getLogbookRecord(k);
                 String name = r.getBoatName();
@@ -444,6 +466,9 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
             long totalWork = logbook.data().getNumberOfRecords();
             long count = 0;
             for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+                if (progressMonitor.isCanceled()) {
+                    break;
+                }
                 progressMonitor.setProgress((int) ((count++ * 100) / totalWork));
                 LogbookRecord r = logbook.getLogbookRecord(k);
                 String name = r.getDestinationName();

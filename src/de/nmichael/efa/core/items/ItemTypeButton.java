@@ -42,6 +42,9 @@ public class ItemTypeButton extends ItemType {
         button = new JButton();
         Dialog.setPreferredSize(button, fieldWidth, fieldHeight);
         button.setMargin(new Insets(1, 1, 1, 1));
+        if (border != null) {
+            button.setBorder(border);
+        }
         showValue();
         if (type == IItemType.TYPE_EXPERT) {
             button.setForeground(Color.red);

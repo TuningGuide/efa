@@ -102,6 +102,7 @@ public class DataPrintRecordDialog extends BaseDialog {
                 International.getStringWithMnemonic("auch leere Felder ausgeben"));
         mainPanel.add(printEmptyFields, BorderLayout.SOUTH);
 
+        closeButton.setIcon(BaseDialog.getIcon("button_list.png"));
     }
 
     public void keyAction(ActionEvent evt) {

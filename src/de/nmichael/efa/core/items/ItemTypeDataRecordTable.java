@@ -606,4 +606,18 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         return sortedData;
     }
 
+    public Vector<DataRecord> getSelectedData() {
+        String[] keys = getSelectedKeys();
+        Vector<DataRecord> selectedData = new Vector<DataRecord>();
+        for (int i=0; keys != null && i<keys.length; i++) {
+            selectedData.add(mappingKeyToRecord.get(keys[i]));
+        }
+        return selectedData;
+    }
+
+    public boolean isFilterSet() {
+        filterBySearch.getValueFromGui();
+        return filterBySearch.getValue();
+    }
+
 }

@@ -67,21 +67,8 @@ public class ItemTypeString extends ItemTypeLabelTextfield {
             }
         }
         if ((allowedCharacters != null || notAllowedCharacters != null) && value != null) {
-            int i = 0;
-            while (i < value.length()) {
-                char c = value.charAt(i);
-                if ((allowedCharacters != null && allowedCharacters.indexOf(c) < 0) ||
-                    (notAllowedCharacters != null && notAllowedCharacters.indexOf(c) >= 0) ) {
-                    value = (i > 0 ? value.substring(0, i) : "") +
-                            (replacementCharacter != null ? replacementCharacter : "") +
-                            (i+1 < value.length() ? value.substring(i+1) : "");
-                    if (replacementCharacter != null) {
-                        i++;
-                    }
-                } else {
-                    i++;
-                }
-            }
+            value = EfaUtil.replaceNotAllowedCharacters(value,
+                    allowedCharacters, notAllowedCharacters, replacementCharacter);
         }
         if (pattern != null && value != null) {
             Matcher m = pattern.matcher(value);

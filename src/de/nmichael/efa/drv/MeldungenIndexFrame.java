@@ -24,6 +24,7 @@ import java.util.*;
 import java.beans.*;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.*;
+import de.nmichael.efa.gui.BrowserDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.net.*;
@@ -1514,6 +1515,9 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
     }
 
     void printOverviewButton_actionPerformed(ActionEvent e) {
+        int selection = Dialog.auswahlDialog("Meldungen auswählen",
+                "Meldeübersicht erzeugen für ...",
+                "Nur bearbeite Meldungen", "Alle Meldungen", false);
         String tmpdatei = Daten.efaTmpDirectory + "uebersicht.html";
         try {
             BufferedWriter f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpdatei), Daten.ENCODING_ISO));
@@ -1526,6 +1530,9 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
                     + (MELDTYP == MELD_WANDERRUDERSTATISTIK ? "<th>Gewässer</th>" : "<th>Fahrtenhefte</th>") + "</tr>\n");
 
             for (DatenFelder d = Main.drvConfig.meldungenIndex.getCompleteFirst(); d != null; d = Main.drvConfig.meldungenIndex.getCompleteNext()) {
+                if (selection == 0 && EfaUtil.string2int(d.get(MeldungenIndex.STATUS), MeldungenIndex.ST_UNBEKANNT) != MeldungenIndex.ST_BEARBEITET) {
+                    continue;
+                }
                 String verein = d.get(MeldungenIndex.VEREIN);
                 String status = MeldungenIndex.ST_NAMES[EfaUtil.string2int(d.get(MeldungenIndex.STATUS), MeldungenIndex.ST_UNBEKANNT)];
                 String feld3 = "";
@@ -1564,6 +1571,8 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
             JEditorPane out = new JEditorPane();
             out.setContentType("text/html; charset=" + Daten.ENCODING_ISO);
             out.setPage(EfaUtil.correctUrl("file:" + tmpdatei));
+            BrowserDialog.openInternalBrowser(this, tmpdatei);
+            /*
             SimpleFilePrinter.sizeJEditorPane(out);
             SimpleFilePrinter sfp = new SimpleFilePrinter(out);
             if (sfp.setupPageFormat()) {
@@ -1571,6 +1580,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
                     sfp.printFile();
                 }
             }
+            */
             EfaUtil.deleteFile(tmpdatei);
         } catch (Exception ee) {
             Dialog.error("Druckdatei konnte nicht erstellt werden: " + ee.toString());

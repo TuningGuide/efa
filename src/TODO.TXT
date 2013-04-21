@@ -1,26 +1,14 @@
 Item
 ============================================================================================================
-
-Projekt-ID ins Projekt aufnehmen, um Restore gleichnamiger Projekte in anderem Projekt zu verhindert
-Personen-ID in Meldung zu DRV-Fahrtenabzeichen aufnehmen, um Bestätigung leichter zuordnen zu können
-Backup/Restore: Admins/Konfiguration an Anfang sortieren; Schalter zum Auswählen von Daten/Konfiguration
-Warnung wenn Backup unvollständig wiederhergestellt werden soll (kann zu Inkonsistenzen führen!)
 DRV: Melden von GEsamtkilometern bei DRV-Wanderruderstatistik
-DRV: Wie mit Namenszusatz bei Namensgleichheit umgehen? Oder wenn Person während Meldung in efa den Namen ändert?
-Filterfunktion (nach Person und Boot) für Fahrtenbuch-Export
-Filter für alle Exporte anhand der Daten, die ausgewählt/angezeigt werden
 Mehrere Vereine: Boote/Personen/Statistiken: http://forum.nmichael.de/viewtopic.php?f=9&t=494
 Namensformat für Statistikausgabe unabh. von Namensformat im Projekt einstellen können
-Backup zeitgesteuert in efa?
+Prüfen ob Vor- und Nachname eingegeben wurden: http://forum.nmichael.de/viewtopic.php?f=9&t=563
 Statistik - Vorjahresvergleiche
 Statistik - Wer unerlaubt?
 Statistik - Monatsübersicht
 Statistikfeld - Anzahl Verschiedene
-Statistikfilter - Bemerkungsfeld enthält / enthält nicht
-Statistikfilter - nur Fahrten mit mind. x Km
 Statistikfilter - nur Fahrten für Boote mit Gruppe
-Statistiken kopieren können
-Statistikausgabe "im Programm (Text)" mit sortierbaren Spalten: http://forum.nmichael.de/viewtopic.php?f=9&t=541&p=2176#p2164
 Name der Statistik im Kopf der Ausgabe sollte Statistikname der Statistikeinstellungen sein (forum.nmichael.de/viewtopic.php?f=15&t=470&p=1914#p1914)
 Gruppenzugehörigkeit mit BEarbeitungsassistent bearbeiten
 Trotz Ausblenden von Eingabefeldern nicht existierender Bootsplätze eine Möglichkeit, um Kielschweine oder "Hunde" zu erfassen:
@@ -37,7 +25,6 @@ Gelöschte Fahrtenbucheinträge sollten als gelöscht (sichtbar) im Fahrtenbuch 
 Fahrtgruppen bei Eingabe von Wanderfahrten durch Mitglieder auswählen lassen
 Gewässer in Fahrtgruppe erfassen, damit nicht für alle Etappen/Boote einzeln
 Schreiben ins Spiegelverzeichnis mit Timeout bei Netzlaufwerk
-Buttons mit Symbolen ausstatten
 Dr-Titel in Ausgabe (und erkennung) von Strings aufnehmen!
 Check Java Version (min 6)
 efaRemote - Progress/Status Indicator
@@ -60,6 +47,7 @@ Bei der Eingabe von Namen hat efa 1 erkannt das eine Person schon eingetragen wu
 Für Bootsreservierungen den Namen des Bootes ändern können.
 
 ============================================================================================================
+Touchscreen-Support: http://forum.nmichael.de/viewtopic.php?f=9&t=206&p=2275#p2275
 Gäste - automatisch erfassen
 Statistics - Special Details (e.g. Wett in Kilometerliste etc.)
 Individual Distance per Person for each Session

@@ -68,6 +68,7 @@ public class BrowserDialog extends BaseDialog {
         private BrowserDialog frame;
         private int timeout;
         private boolean locked;
+        private boolean running = true;
 
         public TimeoutThread(BrowserDialog frame, int timeout, boolean locked) {
             this.frame = frame;
@@ -81,6 +82,7 @@ public class BrowserDialog extends BaseDialog {
                     Thread.sleep(timeout * 1000);
                 } else {
                     if (Daten.efaConfig == null) {
+                        running = false;
                         return;
                     }
                     GregorianCalendar now;
@@ -107,11 +109,17 @@ public class BrowserDialog extends BaseDialog {
                     unlock();
                 }
             } catch (InterruptedException e) {
+                running = false;
                 return;
             }
             if (Dialog.frameCurrent() == frame) {
-                frame.cancel(true);
+                running = false;
+                frame.cancel();
             }
+        }
+
+        public boolean isRunning() {
+            return isAlive() && running;
         }
     }
 
@@ -381,12 +389,9 @@ public class BrowserDialog extends BaseDialog {
     }
 
     protected void processWindowEvent(WindowEvent e) {
-        if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-            cancel(false);
+        if (!locked) {
+            super.processWindowEvent(e);
         }
-//        if (!locked) {
-//            super.processWindowEvent(e);
-//        }
     }
 
     void unlock() {
@@ -402,32 +407,31 @@ public class BrowserDialog extends BaseDialog {
         }
     }
 
-    /**Close the dialog*/
-    void cancel(boolean timeout) {
+    public boolean cancel() {
         if (_inCancel) {
-            return;
+            return false;
         }
         if (locked) {
             AdminRecord admin = AdminLoginDialog.login(this, International.getString("Entsperren von efa"));
             if (admin == null) {
-                return;
+                return false;
             }
             if (!admin.isAllowedLockEfa()) {
                 Dialog.error(International.getMessage("Du hast als {user} nicht die Berechtigung, um die Funktion '{function}' auszuführen.",
                         admin.getName(), International.getString("Entsperren von efa")));
-                return;
+                return false;
             }
             unlock();
         }
 
         try {
-            if (!timeout && timeoutThread != null && timeoutThread.isAlive()) {
+            if (timeoutThread != null && timeoutThread.isRunning()) {
                 timeoutThread.interrupt();
             }
         } catch (Exception e) {
         }
 
-        super.cancel();
+        return super.cancel();
     }
 
     void setPage(String url) {

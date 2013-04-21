@@ -11,6 +11,7 @@
 package de.nmichael.efa.gui;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.CrontabThread;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.gui.widgets.*;
 import de.nmichael.efa.util.*;
@@ -45,7 +46,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     public static final int ACTIONID_ABORTSESSION        = 5;
     public static final int ACTIONID_BOATRESERVATIONS    = 6;
     public static final int ACTIONID_BOATDAMAGES         = 7;
-    public static final int ACTIONID_LASTBOATUSAGE       = 8;
+    public static final int ACTIONID_BOATINFOS           = 8;
+    public static final int ACTIONID_LASTBOATUSAGE       = 9;
 
     String KEYACTION_F2;
     String KEYACTION_F3;
@@ -115,6 +117,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
     // Data
     EfaBoathouseBackgroundTask efaBoathouseBackgroundTask;
+    CrontabThread crontabThread;
     EfaBaseFrame efaBaseFrame;
     Logbook logbook;
     BoatStatus boatStatus;
@@ -203,6 +206,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         iniGuiMain();
         iniApplication();
         iniGuiRemaining();
+        prepareEfaBaseFrame();
     }
 
     private void iniGuiBase() {
@@ -327,6 +331,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         // Background Task
         efaBoathouseBackgroundTask = new EfaBoathouseBackgroundTask(this);
         efaBoathouseBackgroundTask.start();
+
+        // Crontab Task
+        crontabThread = new CrontabThread();
+        crontabThread.start();
 
         alive();
         Logger.log(Logger.INFO, Logger.MSG_EVT_EFAREADY, International.getString("BEREIT"));
@@ -659,7 +667,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
     private void setButtonLAF(JButton button, ItemTypeConfigButton config, String icon) {
         if (config != null) {
-            button.setBackground(EfaUtil.getColor(config.getValueColor()));
+            button.setBackground(EfaUtil.getColorOrGray(config.getValueColor()));
         }
         if (icon != null && button.isVisible()) {
             button.setIcon(getIcon(icon));
@@ -1020,23 +1028,18 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             International.getString("Bootsreservierungen"));
         if (listnr == 1 || listnr == 101) { // verfügbare Boote bzw. Personen
             if (listnr == 1) {
+                ArrayList<String> listItems = new ArrayList<String>();
+                listItems.add(ACTIONID_STARTSESSION + startSession);
+                listItems.add(ACTIONID_LATEENTRY + International.getString("Nachtrag"));
                 if (Daten.efaConfig.getValueEfaDirekt_butBootsreservierungen().getValueShow()) {
-                    return new String[]{
-                                ACTIONID_STARTSESSION + startSession,
-                                ACTIONID_LATEENTRY + International.getString("Nachtrag"),
-                                ACTIONID_BOATRESERVATIONS + boatReserve,
-                                ACTIONID_BOATDAMAGES + International.getString("Bootsschaden melden"),
-                                ACTIONID_LASTBOATUSAGE + International.getString("Letzte Benutzung")
-                            };
-                } else {
-                    // if "Boat Reservation" button not shown, also don't show context menu!
-                    return new String[]{
-                                ACTIONID_STARTSESSION + startSession,
-                                ACTIONID_LATEENTRY + International.getString("Nachtrag"),
-                                ACTIONID_BOATDAMAGES + International.getString("Bootsschaden melden"),
-                                ACTIONID_LASTBOATUSAGE + International.getString("Letzte Benutzung")
-                            };
+                    listItems.add(ACTIONID_BOATRESERVATIONS + boatReserve);
                 }
+                if (Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton()) {
+                    listItems.add(ACTIONID_BOATDAMAGES + International.getString("Bootsschaden melden"));
+                }
+                listItems.add(ACTIONID_BOATINFOS + International.getString("Bootsinfos"));
+                listItems.add(ACTIONID_LASTBOATUSAGE + International.getString("Letzte Benutzung"));
+                return listItems.toArray(new String[0]);
             } else {
                 return new String[]{
                             ACTIONID_STARTSESSION + startSession,
@@ -1045,33 +1048,34 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             }
         }
         if (listnr == 2) { // Boote auf Fahrt
-            return new String[]{
-                        ACTIONID_FINISHSESSION + finishSession,
-                        ACTIONID_STARTSESSIONCORRECT + International.getString("Eintrag ändern"),
-                        ACTIONID_ABORTSESSION + International.getString("Fahrt abbrechen"),
-                        ACTIONID_BOATRESERVATIONS + boatReserve,
-                        ACTIONID_BOATDAMAGES + International.getString("Bootsschaden melden")
-                    };
+            ArrayList<String> listItems = new ArrayList<String>();
+            listItems.add(ACTIONID_FINISHSESSION + finishSession);
+            listItems.add(ACTIONID_STARTSESSIONCORRECT + International.getString("Eintrag ändern"));
+            listItems.add(ACTIONID_ABORTSESSION + International.getString("Fahrt abbrechen"));
+            if (Daten.efaConfig.getValueEfaDirekt_butBootsreservierungen().getValueShow()) {
+                listItems.add(ACTIONID_BOATRESERVATIONS + boatReserve);
+            }
+            if (Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton()) {
+                listItems.add(ACTIONID_BOATDAMAGES + International.getString("Bootsschaden melden"));
+            }
+            return listItems.toArray(new String[0]);
         }
         if (listnr == 3) { // nicht verfügbare Boote
+            ArrayList<String> listItems = new ArrayList<String>();
+            listItems.add(ACTIONID_STARTSESSION + startSession);
             if (Daten.efaConfig.getValueEfaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar()) {
-                return new String[]{
-                            ACTIONID_STARTSESSION + startSession,
-                            ACTIONID_FINISHSESSION + finishSession,
-                            ACTIONID_LATEENTRY + International.getString("Nachtrag"),
-                            ACTIONID_BOATRESERVATIONS + boatReserve,
-                            ACTIONID_BOATDAMAGES + International.getString("Bootsschaden melden"),
-                            ACTIONID_LASTBOATUSAGE + International.getString("Letzte Benutzung")
-                        };
-            } else {
-                return new String[]{
-                            ACTIONID_STARTSESSION + startSession,
-                            ACTIONID_LATEENTRY + International.getString("Nachtrag"),
-                            ACTIONID_BOATRESERVATIONS + boatReserve,
-                            ACTIONID_BOATDAMAGES + International.getString("Bootsschaden melden"),
-                            ACTIONID_LASTBOATUSAGE + International.getString("Letzte Benutzung")
-                        };
+                listItems.add(ACTIONID_FINISHSESSION + finishSession);
             }
+            listItems.add(ACTIONID_LATEENTRY + International.getString("Nachtrag"));
+            if (Daten.efaConfig.getValueEfaDirekt_butBootsreservierungen().getValueShow()) {
+                listItems.add(ACTIONID_BOATRESERVATIONS + boatReserve);
+            }
+            if (Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton()) {
+                listItems.add(ACTIONID_BOATDAMAGES + International.getString("Bootsschaden melden"));
+            }
+            listItems.add(ACTIONID_BOATINFOS + International.getString("Bootsinfos"));
+            listItems.add(ACTIONID_LASTBOATUSAGE + International.getString("Letzte Benutzung"));
+            return listItems.toArray(new String[0]);
         }
         return null;
     }
@@ -1492,6 +1496,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             case ACTIONID_BOATDAMAGES: // boat damages
                 actionBoatDamages();
                 break;
+            case ACTIONID_BOATINFOS: // boat infos
+                actionBoatInfos();
+                break;
             case ACTIONID_LASTBOATUSAGE: // boat damages
                 actionLastBoatUsage();
                 break;
@@ -1840,15 +1847,18 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         return true;
     }
 
+    void prepareEfaBaseFrame() {
+        efaBaseFrame = new EfaBaseFrame(this, EfaBaseFrame.MODE_BOATHOUSE);
+        efaBaseFrame.prepareDialog();
+        efaBaseFrame.setFixedLocationAndSize();
+    }
 
     void showEfaBaseFrame(int mode, ItemTypeBoatstatusList.BoatListItem action) {
         for (IWidget w : widgets) {
             w.runWidgetWarnings(mode, true);
         }
         if (efaBaseFrame == null) {
-            efaBaseFrame = new EfaBaseFrame(this, EfaBaseFrame.MODE_BOATHOUSE);
-            efaBaseFrame.prepareDialog();
-            efaBaseFrame.setFixedLocationAndSize();
+            prepareEfaBaseFrame();
         }
         action.mode = mode;
         if (!efaBaseFrame.setDataForBoathouseAction(action, logbook)) {
@@ -2023,6 +2033,12 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             efaBoathouseBackgroundTask.interrupt(); // Falls requestFocus nicht funktioniert hat, setzt der Thread ihn richtig!
             return;
         }
+        if (item.boat != null && item.boat.getOwner() != null && item.boat.getOwner().length() > 0 &&
+            !Daten.efaConfig.getValueMembersMayReservePrivateBoats()) {
+            Dialog.error(International.getString("Privatboote dürfen nicht reserviert werden!"));
+            return;
+        }
+
         if (item.boat != null
                 && !checkBoatDamage(item, International.getString("Möchtest Du trotzdem das Boot reservieren?"))) {
             return;
@@ -2182,6 +2198,42 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             }
         } else {
             Dialog.error(International.getString("Kein Kommando für diesen Button konfiguriert!"));
+        }
+    }
+
+    void actionBoatInfos() {
+        alive();
+        clearAllPopups();
+        if (Daten.project == null || logbook == null) {
+            return;
+        }
+
+        ItemTypeBoatstatusList.BoatListItem item = getSelectedListItem();
+        if (item == null || item.boat == null) {
+            Dialog.error(International.getString("Bitte wähle zuerst ein Boot aus!"));
+            boatListRequestFocus(1);
+            efaBoathouseBackgroundTask.interrupt(); // Falls requestFocus nicht funktioniert hat, setzt der Thread ihn richtig!
+            return;
+        }
+        try {
+            StringBuilder s = new StringBuilder();
+            s.append(International.getString("Boot")  + ": " + item.boat.getQualifiedName() + "\n\n");
+            for (int i=0; i<item.boat.getNumberOfVariants(); i++) {
+                s.append(item.boat.getDetailedBoatType(i) + "\n");
+            }
+            if (item.boat.getMaxCrewWeight() > 0) {
+                s.append("\n" + International.getString("Maximales Mannschaftsgewicht") + ": " +
+                        item.boat.getMaxCrewWeight());
+            }
+            String groups = item.boat.getAllowedGroupsAsNameString(System.currentTimeMillis());
+            if (groups.length() > 0) {
+                s.append("\n\n" + International.getString("Gruppen, die dieses Boot benutzen dürfen") + ":\n" +
+                        groups);
+            }
+            Dialog.infoDialog(s.toString());
+        } catch(Exception e) {
+            Logger.logdebug(e);
+            Dialog.error(e.getMessage());
         }
     }
 

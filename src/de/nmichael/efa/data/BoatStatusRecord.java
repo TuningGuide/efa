@@ -186,6 +186,20 @@ public class BoatStatusRecord extends DataRecord {
         return s;
     }
 
+    public static boolean isOnTheWaterShowNotAvailable(String sessionType, DataTypeDate sessionEndDate) {
+        return Daten.efaConfig.getValueEfaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar() &&
+                (  (sessionEndDate != null && sessionEndDate.isSet()) ||
+                   (sessionType != null && (sessionType.equals(EfaTypes.TYPE_SESSION_TOUR) ||
+                                            sessionType.equals(EfaTypes.TYPE_SESSION_REGATTA) ||
+                                            sessionType.equals(EfaTypes.TYPE_SESSION_JUMREGATTA)))
+                         );
+    }
+
+    public boolean isOnTheWaterShowNotAvailable() {
+        LogbookRecord r = getLogbookRecord();
+        return r != null && isOnTheWaterShowNotAvailable(r.getSessionType(), r.getEndDate());
+    }
+
     public void setOnlyInBoathouseId(int boathouseId) {
         setString(ONLYINBOATHOUSEID, (boathouseId < 0 ? null : Integer.toString(boathouseId)));
     }
@@ -208,6 +222,16 @@ public class BoatStatusRecord extends DataRecord {
     }
     public DataTypeIntString getEntryNo() {
         return getIntString(ENTRYNO);
+    }
+
+    public LogbookRecord getLogbookRecord() {
+        try {
+            Logbook l = Daten.project.getLogbook(getLogbook(), false);
+            return l.getLogbookRecord(getEntryNo());
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return null;
     }
 
     public void setComment(String comment) {
@@ -396,7 +420,7 @@ public class BoatStatusRecord extends DataRecord {
         return status;
     }
 
-    public static String createStatusString(String fahrttype, String ziel, String datum, String zeit, String person) {
+    public static String createStatusString(String fahrttype, String ziel, String datum, String zeit, String person, String enddate) {
         String aufFahrtart = "";
         if (Daten.efaTypes != null && fahrttype != null) {
             if (fahrttype.equals(EfaTypes.TYPE_SESSION_REGATTA)) {
@@ -423,6 +447,7 @@ public class BoatStatusRecord extends DataRecord {
         return International.getString("unterwegs") + aufFahrtart + nachZiel
                 + " " + International.getMessage("seit {date}", datum)
                 + (zeit.trim().length() > 0 ? " " + International.getMessage("um {time}", zeit) : "")
+                + (enddate != null && enddate.length() > 0 ? " " + International.getMessage("bis {timestamp}", enddate) : "")
                 + " " + International.getMessage("mit {crew}", person);
     }
 

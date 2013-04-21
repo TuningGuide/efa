@@ -137,4 +137,10 @@ public class ItemTypeBoolean extends ItemType {
         this.buttonGroup = buttonGroup;
     }
 
+    public void setDescription(String s) {
+        super.setDescription(s);
+        if (field != null) {
+            Mnemonics.setButton(dlg, (JCheckBox)field, getDescription());
+        }
+    }
 }

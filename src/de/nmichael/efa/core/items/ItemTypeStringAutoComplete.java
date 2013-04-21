@@ -77,7 +77,9 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             originalButtonColor = button.getBackground();
             Dialog.setPreferredSize(button, fieldHeight-4, fieldHeight-8);
             button.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) { actionEvent(e); }
+                public void actionPerformed(ActionEvent e) { 
+                    buttonPressed(e);
+                }
             });
         }
         super.iniDisplay();
@@ -181,6 +183,29 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             checkSpelling();
         }
         super.field_focusLost(e);
+    }
+
+    public void showOrRemoveAutoCompletePopupWindow() {
+        if (Daten.efaConfig.getValuePopupComplete()) {
+            JTextField f = (JTextField)field;
+            if (f.isEnabled() && f.isEditable()) {
+                if (!AutoCompletePopupWindow.isShowingAt(f)) {
+                    AutoCompletePopupWindow.hideWindow();
+                    try {
+                        Thread.sleep(50);
+                    } catch(InterruptedException eignore) {}
+                    AutoCompletePopupWindow.showAndSelect(f, autoCompleteList, f.getText(), null);
+                } else {
+                    autoComplete(null);
+                    AutoCompletePopupWindow.hideWindow();
+                }
+            }
+        }
+    }
+
+    private void buttonPressed(ActionEvent e) {
+        showOrRemoveAutoCompletePopupWindow();
+        actionEvent(e);
     }
 
     private void autoComplete(KeyEvent e) {

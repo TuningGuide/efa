@@ -81,7 +81,12 @@ public class VersionizedDataCreateVersionDialog extends BaseDialog implements II
             if (validFromTs <= dataRecord.getValidFrom()) {
                 Dialog.error(International.getMessage("Der Beginn des Zeitraums muß nach {timestamp} liegen.", dataRecord.getValidFromTimeString()));
             } else {
-                Dialog.error(International.getMessage("Das Ende des Zeitraums darf nicht nach {timestamp} liegen.", dataRecord.getValidUntilTimeString()));
+                if (validFromTs >= dataRecord.getInvalidFrom()) {
+                    Dialog.error(International.getString("Die aktuelle Version ist zum gewählten Zeitraum bereits ungültig. " +
+                                                         "Bitte wähle eine andere Version, oder verlängere zuerst den Gültigkeitszeitraum der aktuellen Version."));
+                } else {
+                    Dialog.error(International.getMessage("Das Ende des Zeitraums darf nicht nach {timestamp} liegen.", dataRecord.getValidUntilTimeString()));
+                }
             }
             validFrom.requestFocus();
         }
@@ -89,11 +94,6 @@ public class VersionizedDataCreateVersionDialog extends BaseDialog implements II
     }
 
     public void itemListenerAction(IItemType itemType, AWTEvent event) {
-        if (event.getID() == FocusEvent.FOCUS_LOST) {
-            if (itemType == validFrom) {
-                checkValidFrom();
-            }
-        }
     }
 
     public void closeButton_actionPerformed(ActionEvent e) {

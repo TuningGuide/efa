@@ -99,7 +99,7 @@ public class ItemTypeConfigButton extends ItemType {
         JButton button = new JButton();
         Dialog.setPreferredSize(button, 300, 21);
         button.setText(text);
-        button.setBackground(EfaUtil.getColor(bcolor));
+        button.setBackground(EfaUtil.getColorOrGray(bcolor));
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { buttonHit(e); }
         });

@@ -330,6 +330,7 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
                             // Ausgabe für efaWett
                             if (erfuellt && sd[i].personRecord != null) {
                                 EfaWettMeldung ewm = new EfaWettMeldung();
+                                ewm.personID = sd[i].personRecord.getId();
                                 ewm.nachname = sd[i].personRecord.getLastName();
                                 ewm.vorname = sd[i].personRecord.getFirstName();
                                 ewm.jahrgang = sd[i].sYearOfBirth;

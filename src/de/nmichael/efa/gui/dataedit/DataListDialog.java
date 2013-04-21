@@ -384,7 +384,9 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 dlg1.showDialog();
                 break;
             case ACTION_EXPORT:
-                DataExportDialog dlg2 = new DataExportDialog(this, persistence, validAt, admin);
+                DataExportDialog dlg2 = new DataExportDialog(this, persistence, validAt, admin,
+                        table.getSelectedData(), 
+                        (table.isFilterSet() ? table.getDisplayedData() : null));
                 dlg2.showDialog();
                 break;
             case ACTION_PRINTLIST:

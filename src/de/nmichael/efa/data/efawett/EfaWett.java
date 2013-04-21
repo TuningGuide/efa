@@ -13,6 +13,7 @@ import de.nmichael.efa.*;
 import de.nmichael.efa.data.Project;
 import de.nmichael.efa.util.*;
 import java.io.*;
+import java.util.UUID;
 
 // @i18n complete (needs no internationalization -- only relevant for Germany)
 public class EfaWett {
@@ -308,6 +309,9 @@ public class EfaWett {
             }
 
             // Teilnehmerdaten
+            if (m.personID != null) {
+                f.write("PERSONID=" + m.personID.toString() + "\n");
+            }
             if (m.nachname != null) {
                 f.write("NACHNAME=" + m.nachname + "\n");
             }
@@ -633,6 +637,9 @@ public class EfaWett {
                 }
 
                 // Teilnehmerdaten
+                if (s.startsWith("PERSONID=")) {
+                    m.personID = UUID.fromString(s.substring(9, s.length()));
+                }
                 if (s.startsWith("NACHNAME=")) {
                     m.nachname = s.substring(9, s.length());
                 }

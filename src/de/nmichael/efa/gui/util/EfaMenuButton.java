@@ -128,10 +128,12 @@ public class EfaMenuButton {
         return buttonName.equals(SEPARATOR);
     }
 
-    public static synchronized Vector<EfaMenuButton> getAllMenuButtons(AdminRecord admin, boolean adminMode) {
+    public static synchronized Vector<EfaMenuButton> getAllMenuButtons(AdminRecord admin,
+            boolean adminMode) {
         Vector<EfaMenuButton> v = new Vector<EfaMenuButton>();
 
-        if (admin == null || admin.isAllowedAdministerProjectLogbook()) {
+        if (admin == null || admin.isAllowedAdministerProjectLogbook() ||
+            Daten.applID == Daten.APPL_EFABASE) {
             v.add(new EfaMenuButton(MENU_FILE, BUTTON_PROJECTS,
                     International.getStringWithMnemonic("Datei"),
                     International.getStringWithMnemonic("Projekte") + " ...",
@@ -420,6 +422,9 @@ public class EfaMenuButton {
 
         if (action.equals(BUTTON_PROJECTS)) {
             if (admin == null || (!admin.isAllowedAdministerProjectLogbook())) {
+                if (Daten.applID == Daten.APPL_EFABASE) {
+                    return true; // always allow for efaBase
+                }
                 insufficientRights(admin, action);
                 return false;
             }

@@ -10,6 +10,9 @@
 package de.nmichael.efa.data.efawett;
 
 // Es werden genau die Daten ausgegeben, die "!= null" bzw. "!= -1" sind!!
+
+import java.util.UUID;
+
 public class EfaWettMeldung {
 
     public static final String GESCHLECHT_M = "M";
@@ -45,6 +48,7 @@ public class EfaWettMeldung {
     public static final String JUM = "JUM";
     public static final int FAHRT_ANZ_X = 50;
     public static final int FAHRT_ANZ_Y = 6;
+    public UUID personID = null;
     public String nachname = null;
     public String vorname = null;
     public String jahrgang = null;
@@ -102,6 +106,7 @@ public class EfaWettMeldung {
 
     // Copy Constructor
     public EfaWettMeldung(EfaWettMeldung ewm) {
+        this.personID = ewm.personID;
         this.nachname = ewm.nachname;
         this.vorname = ewm.vorname;
         this.jahrgang = ewm.jahrgang;

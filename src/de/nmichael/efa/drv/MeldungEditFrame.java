@@ -2332,7 +2332,8 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
                         if (privKey == null) {
                             errors += "Privater Schlüssel " + Main.drvConfig.schluessel + " nicht gefunden: " + Daten.keyStore.getLastError() + "\n";
                         }
-                        DRVSignatur sig = new DRVSignatur(m.drv_teilnNr, m.vorname, m.nachname, m.jahrgang,
+                        DRVSignatur sig = new DRVSignatur(m.drv_teilnNr, 
+                                m.vorname, m.nachname, m.jahrgang,
                                 anzAbz, gesKm, anzAbzAB, gesKmAB, jahr, EfaUtil.string2int(m.kilometer, 0), null,
                                 DRVConfig.VERSION, keynr,
                                 privKey);
@@ -2343,7 +2344,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
                             continue;
                         } else {
                             // elektronisches Fahrtenheft
-                            f.addFahrtenheft(sig);
+                            f.addFahrtenheft(sig, m.personID);
                             Main.drvConfig.teilnehmer.delete(m.drv_teilnNr);
                             DatenFelder d = new DatenFelder(Teilnehmer._ANZFELDER);
                             d.set(Teilnehmer.TEILNNR, m.drv_teilnNr);

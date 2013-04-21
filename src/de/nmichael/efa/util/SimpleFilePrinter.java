@@ -52,6 +52,14 @@ public class SimpleFilePrinter implements Printable {
       this.PAGE_W      = PAGE_WIDTH  - 2 * PAGE_X;
       this.PAGE_H      = PAGE_HEIGHT - 2 * PAGE_Y;
       this.OVERLAP     = ((double)Daten.efaConfig.getValuePrintPageOverlap()) * MM;
+    } else {
+      this.PAGE_WIDTH  = 210f * MM;
+      this.PAGE_HEIGHT = 297f * MM;
+      this.PAGE_X      = 15f * MM;
+      this.PAGE_Y      = 15f * MM;
+      this.PAGE_W      = PAGE_WIDTH  - 2 * PAGE_X;
+      this.PAGE_H      = PAGE_HEIGHT - 2 * PAGE_Y;
+      this.OVERLAP     = 5f * MM;
     }
   }
 
@@ -115,7 +123,16 @@ public class SimpleFilePrinter implements Printable {
     pane.getViewport().add(out, null);
     pane.doLayout();
     out.doLayout();
-    try { Thread.sleep(250); } catch(Exception eqwe) {}
+    try { 
+        Thread.sleep(250);
+    } catch(Exception eqwe) {
+    }
+    /*
+System.out.println(out.getText());
+System.out.println(out.getSize());
+System.out.println(out.getMinimumSize());
+System.out.println(out.getPreferredSize());
+    */
     double height = out.getPreferredSize().getHeight() + 50;
     out.setSize(new Dimension(1000,(int)height));
   }

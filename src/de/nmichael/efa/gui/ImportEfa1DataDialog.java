@@ -373,7 +373,8 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
     }
 
     private void recursiveAddLogbook(HashMap<String, ImportMetadata> importData, String fname) {
-        if (importData.get(fname) != null) {
+        String fnameKey = (Daten.isOsWindows() ? fname.toLowerCase() : fname);
+        if (importData.get(fnameKey) != null) {
             return;
         }
         Fahrtenbuch fb = new Fahrtenbuch(fname);
@@ -417,7 +418,7 @@ public class ImportEfa1DataDialog extends StepwiseDialog {
             if (EfaUtil.canOpenFile(stat.getFileName()) && stat.readFile()) {
                 meta.numRecStats = stat.countElements();
             }
-            importData.put(fname, meta);
+            importData.put(fnameKey, meta);
 
             recursiveAddLogbook(importData, fb.getPrevFb(true));
             recursiveAddLogbook(importData, fb.getNextFb(true));

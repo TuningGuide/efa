@@ -16,6 +16,7 @@ import de.nmichael.efa.util.Logger;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.border.Border;
 
 // @i18n complete
 
@@ -39,6 +40,7 @@ public abstract class ItemType implements IItemType {
     protected Color backgroundColor = null;
     protected Color savedBkgColor = null;
     protected Color backgroundColorWhenFocused = null;
+    protected Border border = null;
     protected int padXbefore = 0;
     protected int padXafter = 0;
     protected int padYbefore = 0;
@@ -158,6 +160,13 @@ public abstract class ItemType implements IItemType {
         }
         if (gridFill >= 0) {
             fieldGridFill = gridFill;
+        }
+    }
+
+    public void setBorder(Border border) {
+        this.border = border;
+        if (field != null) {
+            field.setBorder(border);
         }
     }
 

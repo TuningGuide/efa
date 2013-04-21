@@ -34,6 +34,9 @@ public abstract class StatisticWriter {
             case internal:
                 sw = new StatisticInternalWriter(sr, sd);
                 break;
+            case internaltxt:
+                sw = new StatisticInternalTxtWriter(sr, sd);
+                break;
             case html:
                 sw = new StatisticHTMLWriter(sr, sd);
                 break;

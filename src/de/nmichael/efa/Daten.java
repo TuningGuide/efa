@@ -9,8 +9,6 @@
  */
 package de.nmichael.efa;
 
-import de.nmichael.efa.core.EfaSec;
-import de.nmichael.efa.core.EfaKeyStore;
 import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.core.items.*;
@@ -20,8 +18,6 @@ import de.nmichael.efa.data.storage.DataFile;
 import de.nmichael.efa.data.storage.RemoteEfaServer;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.FTPClient;
-import de.nmichael.efa.util.PDFWriter;
 import de.nmichael.efa.gui.*;
 import java.io.*;
 import java.util.jar.*;
@@ -29,13 +25,14 @@ import java.util.*;
 import java.awt.*;
 import javax.swing.UIManager;
 import java.lang.management.*;
+import javax.swing.plaf.ColorUIResource;
 
 // @i18n complete
 public class Daten {
 
     public final static String VERSION            = "2.0.7"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID          = "2.0.7_16";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-    public final static String VERSIONRELEASEDATE = "24.02.2013";  // Release Date: TT.MM.JJJJ
+    public final static String VERSIONID          = "2.0.7_19";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "24.03.2013";  // Release Date: TT.MM.JJJJ
     public final static String MAJORVERSION       = "2";
     public final static String PROGRAMMID         = "EFA.207"; // Versions-ID für Wettbewerbsmeldungen
     public final static String PROGRAMMID_DRV     = "EFADRV.207"; // Versions-ID für Wettbewerbsmeldungen
@@ -170,6 +167,7 @@ public class Daten {
     
     public static EfaSec efaSec;               // efa Security File
     public static EfaRunning efaRunning;       // efa Running (Doppelstarts verhindern)
+    public static EmailSenderThread emailSenderThread;
 
     private static StartLogo splashScreen;     // Efa Splash Screen
     public static boolean firstEfaStart = false; // true wenn efa das erste Mal gestartet wurde und EfaBaseConfig neu erzeugt wurde
@@ -914,7 +912,8 @@ public class Daten {
         }
         if (applID == APPL_EFABASE || applID == APPL_EFABH) {
             try {
-                new de.nmichael.efa.core.EmailSenderThread().start();
+                emailSenderThread = new EmailSenderThread();
+                emailSenderThread.start();
             } catch (NoClassDefFoundError e) {
                 Logger.log(Logger.WARNING, Logger.MSG_CORE_MISSINGPLUGIN,
                         International.getString("Fehlendes Plugin") + ": " + Plugins.PLUGIN_MAIL + " - "
@@ -963,6 +962,12 @@ public class Daten {
             if (!lookAndFeel.endsWith("MetalLookAndFeel")) {
                 // to make PopupMenu's work properly and not swallow the next MousePressed Event, see: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6753637
                 Dialog.getUiDefaults().put("PopupMenu.consumeEventOnClose", false);
+            }
+            Color buttonFocusColor = (Daten.efaConfig != null ?
+                Daten.efaConfig.getLafButtonFocusColor() : null);
+            if (buttonFocusColor != null) {
+                // colored square around text of selected button
+                Dialog.getUiDefaults().put("Button.focus", new ColorUIResource(buttonFocusColor));
             }
             // allow users to press buttons by hitting ENTER (and not just SPACE)
             Dialog.getUiDefaults().put("Button.focusInputMap",
@@ -1024,11 +1029,16 @@ public class Daten {
                 || applID == APPL_EMIL
                 || applID == APPL_ELWIZ
                 || applID == APPL_EDDI
-                || applID == APPL_DRV);
+                || applID == APPL_DRV) &&
+                !CrontabThread.CRONJOB_THREAD_NAME.equals(Thread.currentThread().getName());
     }
 
     public static boolean isOsLinux() {
         return "Linux".equals(osName);
+    }
+
+    public static boolean isOsWindows() {
+        return (osName != null && osName.startsWith("Windows"));
     }
 
     private static boolean checkAndCreateDirectory(String dir) {

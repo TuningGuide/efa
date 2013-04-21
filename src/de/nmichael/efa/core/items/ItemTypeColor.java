@@ -55,18 +55,27 @@ public class ItemTypeColor extends ItemTypeLabelValue {
         Dialog.setPreferredSize(f, fieldWidth, fieldHeight);
         f.setText(International.getMessage("{item} auswählen",
                 International.getString("Farbe")));
-        f.setBackground(EfaUtil.getColor(color));
+        f.setBackground(EfaUtil.getColorOrGray(color));
         f.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { buttonHit(e); }
         });
     }
 
     public void getValueFromGui() {
-        color = EfaUtil.getColor(field.getBackground());
+        if (field != null) {
+            color = EfaUtil.getColor(field.getBackground());
+        }
+    }
+
+    public Color getColor() {
+        return EfaUtil.getColor(color);
     }
 
     public String getValueFromField() {
-        return EfaUtil.getColor(field.getBackground());
+        if (field != null) {
+            return EfaUtil.getColor(field.getBackground());
+        }
+        return color;
     }
 
     public void showValue() {

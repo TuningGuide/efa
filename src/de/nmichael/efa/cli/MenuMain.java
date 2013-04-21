@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.cli;
 
+import de.nmichael.efa.Daten;
 import java.util.Stack;
 
 public class MenuMain extends MenuBase {
@@ -22,11 +23,22 @@ public class MenuMain extends MenuBase {
     }
 
     public void printHelpContext() {
-        printUsage(CLI.MENU_BOATS,        "", "boat administration");
-        printUsage(CLI.MENU_PERSONS,      "", "person administration");
-        printUsage(CLI.MENU_DESTINATIONS, "", "destination administration");
-        printUsage(CLI.MENU_STATISTICS  , "", "create statistics");
-        printUsage(CLI.MENU_BACKUP      , "", "create backups");
+        printUsage(CLI.MENU_BOATS,            "", "boats");
+        printUsage(CLI.MENU_PERSONS,          "", "persons");
+        printUsage(CLI.MENU_DESTINATIONS,     "", "destinations");
+        printUsage(CLI.MENU_BOATDAMAGES,      "", "boat damages");
+        printUsage(CLI.MENU_BOATRESERVATIONS, "", "boat reservations");
+        printUsage(CLI.MENU_BOATSTATUS,       "", "boat status");
+        printUsage(CLI.MENU_CREWS,            "", "crews");
+        printUsage(CLI.MENU_GROUPS,           "", "groups");
+        printUsage(CLI.MENU_STATUS,           "", "status");
+        printUsage(CLI.MENU_WATERS,           "", "waters");
+        if (Daten.efaConfig.getValueUseFunctionalityRowingGermany()) {
+            printUsage(CLI.MENU_FAHRTENABZEICHEN, "", "fahrtenabzeichen");
+        }
+        printUsage(CLI.MENU_MESSAGES,         "", "messages");
+        printUsage(CLI.MENU_STATISTICS  ,     "", "statistics");
+        printUsage(CLI.MENU_BACKUP          , "", "backups");
     }
     
     public int runCommand(Stack<String> menuStack, String cmd, String args) {
@@ -54,6 +66,78 @@ public class MenuMain extends MenuBase {
                     return CLI.RC_NO_PERMISSION;
                 }
                 menuStack.push(CLI.MENU_DESTINATIONS);
+                return runCommandWithArgs(args);
+            }
+            if (cmd.equalsIgnoreCase(CLI.MENU_BOATDAMAGES)) {
+                if (!cli.getAdminRecord().isAllowedEditBoatDamages()) {
+                    cli.logerr("You don't have permission to access this function.");
+                    return CLI.RC_NO_PERMISSION;
+                }
+                menuStack.push(CLI.MENU_BOATDAMAGES);
+                return runCommandWithArgs(args);
+            }
+            if (cmd.equalsIgnoreCase(CLI.MENU_BOATRESERVATIONS)) {
+                if (!cli.getAdminRecord().isAllowedEditBoatReservation()) {
+                    cli.logerr("You don't have permission to access this function.");
+                    return CLI.RC_NO_PERMISSION;
+                }
+                menuStack.push(CLI.MENU_BOATRESERVATIONS);
+                return runCommandWithArgs(args);
+            }
+            if (cmd.equalsIgnoreCase(CLI.MENU_BOATSTATUS)) {
+                if (!cli.getAdminRecord().isAllowedEditBoatStatus()) {
+                    cli.logerr("You don't have permission to access this function.");
+                    return CLI.RC_NO_PERMISSION;
+                }
+                menuStack.push(CLI.MENU_BOATSTATUS);
+                return runCommandWithArgs(args);
+            }
+            if (cmd.equalsIgnoreCase(CLI.MENU_CREWS)) {
+                if (!cli.getAdminRecord().isAllowedEditCrews()) {
+                    cli.logerr("You don't have permission to access this function.");
+                    return CLI.RC_NO_PERMISSION;
+                }
+                menuStack.push(CLI.MENU_CREWS);
+                return runCommandWithArgs(args);
+            }
+            if (cmd.equalsIgnoreCase(CLI.MENU_GROUPS)) {
+                if (!cli.getAdminRecord().isAllowedEditGroups()) {
+                    cli.logerr("You don't have permission to access this function.");
+                    return CLI.RC_NO_PERMISSION;
+                }
+                menuStack.push(CLI.MENU_GROUPS);
+                return runCommandWithArgs(args);
+            }
+            if (cmd.equalsIgnoreCase(CLI.MENU_STATUS)) {
+                if (!cli.getAdminRecord().isAllowedEditPersons()) {
+                    cli.logerr("You don't have permission to access this function.");
+                    return CLI.RC_NO_PERMISSION;
+                }
+                menuStack.push(CLI.MENU_STATUS);
+                return runCommandWithArgs(args);
+            }
+            if (cmd.equalsIgnoreCase(CLI.MENU_WATERS)) {
+                if (!cli.getAdminRecord().isAllowedEditDestinations()) {
+                    cli.logerr("You don't have permission to access this function.");
+                    return CLI.RC_NO_PERMISSION;
+                }
+                menuStack.push(CLI.MENU_WATERS);
+                return runCommandWithArgs(args);
+            }
+            if (cmd.equalsIgnoreCase(CLI.MENU_FAHRTENABZEICHEN)) {
+                if (!cli.getAdminRecord().isAllowedEditFahrtenabzeichen()) {
+                    cli.logerr("You don't have permission to access this function.");
+                    return CLI.RC_NO_PERMISSION;
+                }
+                menuStack.push(CLI.MENU_FAHRTENABZEICHEN);
+                return runCommandWithArgs(args);
+            }
+            if (cmd.equalsIgnoreCase(CLI.MENU_MESSAGES)) {
+                if (!cli.getAdminRecord().isAllowedMsgReadAdmin()) {
+                    cli.logerr("You don't have permission to access this function.");
+                    return CLI.RC_NO_PERMISSION;
+                }
+                menuStack.push(CLI.MENU_MESSAGES);
                 return runCommandWithArgs(args);
             }
             if (cmd.equalsIgnoreCase(CLI.MENU_STATISTICS)) {

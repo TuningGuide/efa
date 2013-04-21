@@ -277,6 +277,20 @@ public class LogString {
                                        description, item) + ".";
   }
 
+  public static String emailSuccessfullySend(String subject) {
+      return International.getMessage("email '{subject}' erfolgreich verschickt",
+                                       subject) + ".";
+  }
+
+  public static String emailSuccessfullyEnqueued(String subject) {
+      return International.getMessage("email '{subject}' wird im Hintergrund versendet ...",
+                                       subject) + ".";
+  }
+
+  public static String emailSendFailed(String subject, String error) {
+      return International.getMessage("email '{subject}' konnte nicht versendet werden",
+                                       subject) + ": " + error;
+  }
 
   public static void logInfo_fileOpened(String filename, String description) {
       Logger.log(Logger.INFO, Logger.MSG_FILE_FILENEWCREATED,

@@ -1,5 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <efaOnlineUpdate>
+
+    <Version>
+        <VersionID>2.0.7_19</VersionID>
+        <ReleaseDate>24.03.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa2drv.zip</DownloadUrl>
+        <DownloadSize>3382282</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Mehrseitiger Ausdruck der Meldeübersicht korrigiert</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_18</VersionID>
+        <ReleaseDate>15.03.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa2drv.zip</DownloadUrl>
+        <DownloadSize>3371271</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Mehrseitiger Ausdruck der Meldeübersicht korrigiert</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_17</VersionID>
+        <ReleaseDate>06.03.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa2drv.zip</DownloadUrl>
+        <DownloadSize>3362869</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Filter für Ausgabe der Meldeübersicht nach bearbeiteten/allen Meldungen</ChangeItem>
+            <ChangeItem>"Rechnungs-Nr" im Anschreiben an Vereine hinzugefügt</ChangeItem>
+        </Changes>
+    </Version>
+
     <Version>
         <VersionID>2.0.7_16</VersionID>
         <ReleaseDate>24.02.2013</ReleaseDate>

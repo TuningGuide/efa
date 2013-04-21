@@ -112,6 +112,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
     public void run() {
         // Diese Schleife läuft i.d.R. einmal pro Minute
+        setName("EfaBoathouseBackgroundTask");
         while (true) {
             try {
                 if (Logger.isTraceOn(Logger.TT_BACKGROUND, 5)) {
@@ -210,7 +211,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
                 }
             }
         } else {
-            // sleep at most 60 seconds, but wake up earlier of boat status has changed
+            // sleep at most 60 seconds, but wake up earlier if boat status has changed
             int cnt = CHECK_INTERVAL / REMOTE_SCN_CHECK_INTERVAL;
             if (Logger.isTraceOn(Logger.TT_BACKGROUND, 9)) {
                 Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_EFABACKGROUNDTASK,
@@ -347,6 +348,21 @@ public class EfaBoathouseBackgroundTask extends Thread {
 
                         if (purgedRes > 0) {
                             boatStatusRecord.setComment(null);
+                        } else {
+                            // wow, now this is a hack!
+                            // If there is a comment for this boat that *looks* as if it was a
+                            // reservation comment, remove it! This might not work for all languages,
+                            // but for some...
+                            // Reason for such reservation strings could be reservations that were
+                            // explicitly deleted by the Admin while a boat was reserved, and have
+                            // never been purged by the background task itself.
+                            String resstr = International.getMessage("reserviert für {name} ({reason}) {from_to}", "", "", "");
+                            if (resstr.length() > 10) {
+                                resstr = resstr.substring(0, 10);
+                            }
+                            if (oldComment != null && oldComment.startsWith(resstr)) {
+                                boatStatusRecord.setComment(null);
+                            }
                         }
                     } else {
                         // reservations found
@@ -382,7 +398,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
                     }
 
                     // make sure that if the boat is on the water, this status overrides any other list settings
-                    if (boatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
+                    if (boatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER) &&
+                        !boatStatusRecord.isOnTheWaterShowNotAvailable()) {
                         boatStatusRecord.setShowInList(BoatStatusRecord.STATUS_ONTHEWATER);
                     }
 

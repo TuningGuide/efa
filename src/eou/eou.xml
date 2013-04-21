@@ -2,6 +2,65 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.1.0_xx</VersionID>
+        <ReleaseDate>xx.04.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize></DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Korrekturassistent hilft beim Finden und Korrigieren von falsch geschriebenen Personen-/Boots-/Zielnamen im Fahrtenbuch</ChangeItem>
+            <ChangeItem>Neu: Wiederkehrende Aufgaben (zum Beispiel das Erstellen einer Datensicherung oder Statistik) können in efa automatisiert und zu konfigurierbaren Zeiten ausgeführt werden</ChangeItem>
+            <ChangeItem>Neu: Automatische und über das CLI erstellte Backups können per email verschickt werden</ChangeItem>
+            <ChangeItem>Neu: Statistikauswertungen können per email verschickt werden</ChangeItem>
+            <ChangeItem>Neu: Individuelle Statistikauswertungen können per CLI auch für alle Personen/Boote/Gruppen in einem Rutsch erstellt werden</ChangeItem>
+            <ChangeItem>Neu: Statistikeinstellungen können kopiert und unter einem neuen Namen abgespeichert werden</ChangeItem>
+            <ChangeItem>Neu: Beim Datenexport können wahlweise auch nur selektierte oder entsprechend des Filters gewählte Datensätze exportiert werden</ChangeItem>
+            <ChangeItem>Neu: Wiederherzustellende Daten eines Backups werden nach Konfiguration und Projektdaten sortiert, und können entsprechend selektiert werden</ChangeItem>
+            <ChangeItem>Neu: efa warnt vor Inkonsistenten Daten im Falle einer unvollständigen Wiederherstellung eines Projekt-Backups</ChangeItem>
+            <ChangeItem>Neu: Gesamte Wanderfahrt-Kilometer und Zielbereiche werden in Kilometerlisten-Statistiken am Ende aufsummiert ausgegeben</ChangeItem>
+            <ChangeItem>Neu: Verbesserte Geschwindigkeit beim ersten Aufruf des Dialogs zum Fahrt beginnen/beenden auf langsamen Computern</ChangeItem>
+            <ChangeItem>Neu: Verbesserter Dialog beim Erstellen von neuen Versionen eines Datensatzes</ChangeItem>
+            <ChangeItem>Neu: Bei Booten auf Fahrt mit Enddatum wird dieses jetzt auch in Statuszeile angezeigt</ChangeItem>
+            <ChangeItem>Neu: Einfache Statistikausgabe in Tabellenform für leistungsschwache Computer</ChangeItem>
+            <ChangeItem>Neu: Verbesserte Unterstützung von Touchscreens (experimentell)</ChangeItem>
+            <ChangeItem>Neu: Zusätzliche (virtuelle) Ausgabefelder für Listenausgabe der Bootsreservierungen</ChangeItem>
+            <ChangeItem>Neu: Zusätzliche Statistikfilter nach Inhalt des Bemerkungsfelds und Mindestentfernung einer Fahrt</ChangeItem>
+            <ChangeItem>Neu: Das Reservieren von Privatbooten durch Mitglieder kann in der efa-Konfiguration im Expertenmodus jetzt unterbunden werden</ChangeItem>
+            <ChangeItem>Neu: Die Möglichkeit, für Fahrten ein Enddatum einzugeben, kann in der efa-Konfiguration im Expertenmodus jetzt unterbunden werden</ChangeItem>
+            <ChangeItem>Neu: Meldungen zum DRV-Fahrtenabzeichen enthalten jetzt eine interne ID, um das elektronische Fahrtenheft nach Download auch im Falle eines Namenswechsels noch eindeutig zuordnen zu können</ChangeItem>
+            <ChangeItem>Neu: Liste der DRV-Fahrtenabzeichen kann jetzt besser formatiert ausgegeben und ausgedruckt werden</ChangeItem>
+            <ChangeItem>Bugfix: Bei entsprechend gesetzter Option wird ein Boot, das auf Regatta oder Mehrtagesfahrt unterwegs ist, jetzt korrekt als nicht verfügbar angezeigt</ChangeItem>
+            <ChangeItem>Bugfix: efa1-Import hat unter Windows Fahrtenbücher in unterschiedlicher Groß-/Kleinschreibung nicht als identisch erkannt</ChangeItem>
+            <ChangeItem>Bugfix: Entsperren von efa war ohne Admin-Login möglich</ChangeItem>
+            <ChangeItem>Bugfix: Remote-Zugriff in efa-Basis ist jetzt auch für Admins ohne das Recht "Projekte und Fahrtenbücher administrieren" möglich</ChangeItem>
+            <ChangeItem>Bugfix: Anzeige von Booten mit unbekannter Anzahl von Bootsplätzen in Bootsliste in efa-Bootshaus korrigiert</ChangeItem>
+            <ChangeItem>Bugfix: Als Personen zur Eingabe für Gruppen und Mannschaften zeigt efa jetzt nur noch gültige, bzw. im Zeitraum des Fahrtenbuchs gültige Personen zur Auswahl an</ChangeItem>
+            <ChangeItem>Bugfix: Buttons für Bootsreservierungen und Bootsschäden werden jetzt im Kontext-Menü nur dann angezeigt, wenn die entsprechenden Buttons/Funktionen auch aktiviert sind</ChangeItem>
+            <ChangeItem>Bugfix: Bemerkungstext eines Bootes, dessen Reservierung explizit durch den Admin gelöscht wurde, wird jetzt von efa korrekt auf "verfügbar" gesetzt</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_17</VersionID>
+        <ReleaseDate>06.03.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3201639</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Farbe für fokussierten Button kann in der efa-Konfiguration im Expertenmodus geändert werden</ChangeItem>
+            <ChangeItem>Änderung: Text-Beschreibung in Löschfunktion geändert</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>New: Color for focused button can be configured in expert mode</ChangeItem>
+            <ChangeItem>Change: Text description of record delete function changed</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.0.7_16</VersionID>
         <ReleaseDate>24.02.2013</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>

@@ -91,6 +91,16 @@ public class BackupMetaData extends XMLWriter {
         return null;
     }
 
+    public BackupMetaDataItem getTableItem(String tableKey) {
+        for (int i=0; i<size(); i++) {
+            BackupMetaDataItem meta = getItem(i);
+            if (meta.getKeyForTable().equals(tableKey)) {
+                return meta;
+            }
+        }
+        return null;
+    }
+
     public String getZipFileName() {
         return zipFileName;
     }

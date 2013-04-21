@@ -306,7 +306,7 @@ public class Fahrtenabzeichen extends StorageObject {
         try {
             ESigFahrtenhefte sigfile = new ESigFahrtenhefte(localFile);
             sigfile.readFile();
-            Vector fahrtenhefte = sigfile.getFahrtenhefte();
+            Vector<DRVSignatur> fahrtenhefte = sigfile.getFahrtenhefte();
 
             // ggf. Schlüssel importieren
             if (Daten.keyStore != null && sigfile.keyName != null && sigfile.keyDataBase64 != null) {
@@ -330,10 +330,22 @@ public class Fahrtenabzeichen extends StorageObject {
             String nichtImportiert = null;
             for (int i = 0; i < fahrtenhefte.size(); i++) {
                 DRVSignatur sig = (DRVSignatur) fahrtenhefte.get(i);
-                FahrtenabzeichenRecord fa = getFahrtenabzeichen(sig.getVorname(), sig.getNachname());
+                UUID personID = sigfile.getIdForSignature(sig);
+                FahrtenabzeichenRecord fa = null;
+                if (personID != null) {
+                    fa = getFahrtenabzeichen(personID);
+                }
+                if (fa == null) {
+                    fa = getFahrtenabzeichen(sig.getVorname(), sig.getNachname());
+                }
                 boolean newRecord = false;
                 if (fa == null) {
-                    fa = createFahrtenabzeichen(sig.getVorname(), sig.getNachname());
+                    if (personID != null) {
+                        fa = createFahrtenabzeichenRecord(personID);
+                    }
+                    if (fa == null) {
+                        fa = createFahrtenabzeichen(sig.getVorname(), sig.getNachname());
+                    }
                     newRecord = true;
                 }
                 if (fa != null) {

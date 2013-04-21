@@ -16,6 +16,7 @@ import de.nmichael.efa.gui.BaseTabbedDialog;
 import de.nmichael.efa.gui.widgets.IWidget;
 import de.nmichael.efa.gui.widgets.Widget;
 import de.nmichael.efa.util.*;
+import java.awt.Color;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -24,7 +25,7 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 import javax.swing.UIManager;
 
-public class EfaConfig extends StorageObject {
+public class EfaConfig extends StorageObject implements IItemFactory {
 
     public static final String DATATYPE = "efa2config";
 
@@ -60,6 +61,7 @@ public class EfaConfig extends StorageObject {
     public final String CATEGORY_DATAACCESS    = "%19%" + International.getString("Daten");
     public final String CATEGORY_DATAXML       = "%191%" + International.getString("lokale Dateien");
     public final String CATEGORY_DATAREMOTE    = "%192%" + Daten.EFA_REMOTE;
+    public final String CATEGORY_CRONTAB       = "%20%" + International.getString("Automatische Abläufe");
 
     private static final int STRINGLIST_VALUES  = 1;
     private static final int STRINGLIST_DISPLAY = 2;
@@ -97,6 +99,7 @@ public class EfaConfig extends StorageObject {
     private ItemTypeString lastProjectEfaBoathouse;
     private ItemTypeString lastProjectEfaCli;
     private ItemTypeBoolean autogenAlias;
+    private ItemTypeBoolean touchscreenSupport;
     private ItemTypeString aliasFormat;
     private ItemTypeFile browser;
     private ItemTypeFile acrobat;
@@ -132,6 +135,7 @@ public class EfaConfig extends StorageObject {
     private ItemTypeInteger maxDialogHeight;
     private ItemTypeInteger maxDialogWidth;
     private ItemTypeStringList lookAndFeel;
+    private ItemTypeColor lafButtonFocusColor;
     private ItemTypeStringList standardFahrtart;
     private ItemTypeStringList defaultDistanceUnit;
     private ItemTypeBoolean debugLogging;
@@ -152,9 +156,11 @@ public class EfaConfig extends StorageObject {
     private ItemTypeBoolean efaDirekt_eintragHideUnnecessaryInputFields;
     private ItemTypeInteger efaDirekt_plusMinutenAbfahrt;
     private ItemTypeInteger efaDirekt_minusMinutenAnkunft;
-    private ItemTypeBoolean efaDirekt_mitgliederDuerfenReservieren;
-    private ItemTypeBoolean efaDirekt_mitgliederDuerfenReservierenZyklisch;
-    private ItemTypeBoolean efaDirekt_mitgliederDuerfenReservierungenEditieren;
+    private ItemTypeBoolean allowEnterEndDate;
+    private ItemTypeBoolean membersMayReserveBoats;
+    private ItemTypeBoolean membersMayReserveBoatsWeekly;
+    private ItemTypeBoolean membersMayReservePrivateBoats;
+    private ItemTypeBoolean membersMayEditBoatsReservations;
     private ItemTypeBoolean efaDirekt_mitgliederDuerfenEfaBeenden;
     private ItemTypeBoolean efaDirekt_mitgliederDuerfenNamenHinzufuegen;
     private ItemTypeBoolean efaDirekt_resBooteNichtVerfuegbar;
@@ -269,6 +275,7 @@ public class EfaConfig extends StorageObject {
     private ItemTypeLong dataRemoteLoginFailureRetryTime;
     private ItemTypeLong dataRemoteClientReceiveTimeout;
     private Vector<IWidget> widgets;
+    private ItemTypeItemList crontab;
 
     // private internal data
     private HashMap<String,IItemType> configValues; // always snychronize on this object!!
@@ -522,12 +529,18 @@ public class EfaConfig extends StorageObject {
             addParameter(autogenAlias = new ItemTypeBoolean("InputShortcutAutoGenerate", false,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
                     International.getString("Eingabe-Kürzel automatisch beim Anlegen neuer Mitglieder generieren")));
+            addParameter(touchscreenSupport = new ItemTypeBoolean("TouchScreenSupport", false,
+                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("Touchscreen-Support") + " (EXPERIMENTAL!)"));
 
             // ============================= COMMON:GUI =============================
             addParameter(lookAndFeel = new ItemTypeStringList("LookAndFeel", getDefaultLookAndFeel(),
                     makeLookAndFeelArray(STRINGLIST_VALUES), makeLookAndFeelArray(STRINGLIST_DISPLAY),
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
                     International.getString("Look & Feel")));
+            addParameter(lafButtonFocusColor = new ItemTypeColor("LookAndFeel_ButtonFocusColor", "",
+                    IItemType.TYPE_EXPERT, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
+                    "Look & Feel ButtonFocusColor"));
             addParameter(popupComplete = new ItemTypeBoolean("AutoCompleteListShow", true,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_GUI),
                     International.getString("Beim Vervollständigen Popup-Liste anzeigen")));
@@ -674,6 +687,9 @@ public class EfaConfig extends StorageObject {
             addParameter(efaDirekt_minusMinutenAnkunft = new ItemTypeInteger("FinishSessionTimeSubstract", 5, 0, Integer.MAX_VALUE, false,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
                     International.getString("Für Ankunft x Minuten von aktueller Zeit abziehen")));
+            addParameter(allowEnterEndDate = new ItemTypeBoolean("AllowEnterEndDate", true,
+                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+                    International.getString("Eingabe von Enddatum erlauben")));
             addParameter(efaDirekt_zielBeiFahrtbeginnPflicht = new ItemTypeBoolean("StartSessionMustSelectDestination", false,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
                     International.getString("Ziel muß bereits bei Fahrtbeginn angegeben werden")));
@@ -834,16 +850,19 @@ public class EfaConfig extends StorageObject {
                     International.getString("Folgendes Kommando beim Beenden von efa durch Mitglieder ausführen")));
 
             // ============================= BOATHOUSE:PERMISSIONS =============================
-            addParameter(efaDirekt_mitgliederDuerfenReservieren = new ItemTypeBoolean("AllowMembersBoatReservation", true,
+            addParameter(membersMayReserveBoats = new ItemTypeBoolean("AllowMembersBoatReservation", true,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_PERMISSIONS),
                     International.getString("Mitglieder dürfen Boote reservieren")));
-            addParameter(efaDirekt_mitgliederDuerfenReservierenZyklisch = new ItemTypeBoolean("AllowMembersBoatReservationWeekly", false,
+            addParameter(membersMayReserveBoatsWeekly = new ItemTypeBoolean("AllowMembersBoatReservationWeekly", false,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_PERMISSIONS),
                     International.getString("Mitglieder dürfen Boote reservieren")
                     + " (" + International.getString("wöchentliche Reservierungen") + ")"));
-            addParameter(efaDirekt_mitgliederDuerfenReservierungenEditieren = new ItemTypeBoolean("AllowMembersBoatReservationEdit", false,
+            addParameter(membersMayEditBoatsReservations = new ItemTypeBoolean("AllowMembersBoatReservationEdit", false,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_PERMISSIONS),
                     International.getString("Mitglieder dürfen Bootsreservierungen verändern und löschen")));
+            addParameter(membersMayReservePrivateBoats = new ItemTypeBoolean("AllowMembersPrivateBoatReservation", true,
+                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_PERMISSIONS),
+                    International.getString("Mitglieder dürfen Privatboote reservieren")));
             addParameter(efaDirekt_mitgliederDuerfenNamenHinzufuegen = new ItemTypeBoolean("AllowMembersAddNames", false,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_PERMISSIONS),
                     International.getString("Mitglieder dürfen Namen zur Mitgliederliste hinzufügen")));
@@ -1025,6 +1044,13 @@ public class EfaConfig extends StorageObject {
                 }
             }
 
+            // ============================= CRONTAB =============================
+            addParameter(crontab = new ItemTypeItemList("CronTab", new Vector<IItemType[]>(), this,
+                    IItemType.TYPE_PUBLIC,
+                    BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_CRONTAB),
+                    International.getString("Automatische Abläufe")));
+            crontab.setRepeatTitle(false);
+
             // ============================= DATA ACCESS =============================
             addParameter(dataPreModifyRecordCallbackEnabled = new ItemTypeBoolean("DataPreModifyRecordCallbackEnabled", true,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_DATAACCESS, CATEGORY_COMMON),
@@ -1151,6 +1177,10 @@ public class EfaConfig extends StorageObject {
 
     public boolean getValueAutogenAlias() {
         return autogenAlias.getValue();
+    }
+
+    public boolean getValueTouchScreenSupport() {
+        return touchscreenSupport.getValue();
     }
 
     public String getValueAliasFormat() {
@@ -1310,6 +1340,10 @@ public class EfaConfig extends StorageObject {
         return lookAndFeel.getValue();
     }
 
+    public Color getLafButtonFocusColor() {
+        return lafButtonFocusColor.getColor();
+    }
+
     public String getValueStandardFahrtart() {
         return standardFahrtart.getValue();
     }
@@ -1395,16 +1429,24 @@ public class EfaConfig extends StorageObject {
         return efaDirekt_minusMinutenAnkunft.getValue();
     }
 
+    public boolean getValueAllowEnterEndDate() {
+        return allowEnterEndDate.getValue();
+    }
+
     public boolean getValueEfaDirekt_mitgliederDuerfenReservieren() {
-        return efaDirekt_mitgliederDuerfenReservieren.getValue() || efaDirekt_mitgliederDuerfenReservierenZyklisch.getValue();
+        return membersMayReserveBoats.getValue() || membersMayReserveBoatsWeekly.getValue();
     }
 
     public boolean getValueEfaDirekt_mitgliederDuerfenReservierenZyklisch() {
-        return efaDirekt_mitgliederDuerfenReservierenZyklisch.getValue();
+        return membersMayReserveBoatsWeekly.getValue();
+    }
+
+    public boolean getValueMembersMayReservePrivateBoats() {
+        return membersMayReservePrivateBoats.getValue();
     }
 
     public boolean getValueEfaDirekt_mitgliederDuerfenReservierungenEditieren() {
-        return efaDirekt_mitgliederDuerfenReservierungenEditieren.getValue();
+        return membersMayEditBoatsReservations.getValue();
     }
 
     public boolean getValueEfaDirekt_mitgliederDuerfenEfaBeenden() {
@@ -1889,6 +1931,10 @@ public class EfaConfig extends StorageObject {
         return widgets;
     }
 
+    public ItemTypeItemList getCrontabItems() {
+        return crontab;
+    }
+
     public String getTranslateLanguageWork() {
         return translateLanguageWork.getValue();
     }
@@ -2228,6 +2274,17 @@ public class EfaConfig extends StorageObject {
         }
 
         return changed;
+    }
+
+    public IItemType[] getDefaultItems(String itemName) {
+        if (itemName.equals(crontab.getName())) {
+            int i = crontab.size()+1;
+            ItemTypeCronEntry[] item = new ItemTypeCronEntry[] {
+                new ItemTypeCronEntry(crontab.getName() + i,
+                    "", crontab.getType(), crontab.getCategory(), "Task #" + i) };
+            return item;
+        }
+        return null;
     }
 
     class ConfigValueUpdateThread extends Thread {

@@ -10,6 +10,9 @@
 
 package de.nmichael.efa.core;
 
+import de.nmichael.efa.core.config.Admins;
+import de.nmichael.efa.core.config.EfaConfig;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.util.EfaUtil;
 
 public class BackupMetaDataItem {
@@ -68,6 +71,14 @@ public class BackupMetaDataItem {
 
     public String getNameAndType() {
         return name + "." + type;
+    }
+
+    public String getKeyForTable() {
+        String pc = "C";
+        if (Backup.isProjectDataAccess(type)) {
+            pc = "P";
+        }
+        return pc + "_" + description + "_" + name + "." + type;
     }
 
     public String getFileName() {

@@ -186,12 +186,31 @@ public class GroupRecord extends DataRecord implements IItemFactory {
             IItemType[] items = new IItemType[1];
             items[0] = getGuiItemTypeStringAutoComplete(BoatRecord.ALLOWEDGROUPIDLIST, null,
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-                    getPersistence().getProject().getPersons(false), getValidFrom(), getInvalidFrom()-1,
+                    getPersistence().getProject().getPersons(false), getPreferredValidFrom(),
+                    getPreferredInvalidFrom()-1,
                     International.getString("Mitglied"));
             items[0].setFieldSize(300, -1);
             return items;
         }
         return null;
+    }
+
+    private long getPreferredValidFrom() {
+        try {
+            Logbook l = persistence.getProject().getCurrentLogbook();
+            return Math.max(l.getValidFrom(), getValidFrom());
+        } catch(Exception e) {
+            return getValidFrom();
+        }
+    }
+
+    private long getPreferredInvalidFrom() {
+        try {
+            Logbook l = persistence.getProject().getCurrentLogbook();
+            return Math.min(l.getInvalidFrom(), getInvalidFrom());
+        } catch(Exception e) {
+            return getInvalidFrom();
+        }
     }
 
     public Vector<IItemType> getGuiItems(AdminRecord admin) {

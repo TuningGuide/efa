@@ -68,6 +68,7 @@ public class CompetitionLRVBerlinBlauerWimpel extends Competition {
                 if (sr.getOutputTypeEnum() == StatisticsRecord.OutputTypes.efawett
                         && sd[i].personRecord != null) {
                     EfaWettMeldung ewm = new EfaWettMeldung();
+                    ewm.personID = sd[i].personRecord.getId();
                     ewm.nachname = sd[i].personRecord.getLastName();
                     ewm.vorname = sd[i].personRecord.getFirstName();
                     ewm.kilometer = Long.toString(DataTypeDistance.getDistance(sd[i].distance).getRoundedValueInKilometers());

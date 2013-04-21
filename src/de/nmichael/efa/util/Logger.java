@@ -69,6 +69,11 @@ public class Logger {
     public static final String MSG_CORE_STARTUPINITIALIZATION = "COR031";
     public static final String MSG_CORE_RUNNINGCOMMAND = "COR032";
     public static final String MSG_CORE_CREDENTIALS = "COR033";
+    public static final String MSG_CORE_CRONJOB = "COR034";
+    public static final String MSG_CORE_MAILSENT = "COR035";
+    public static final String MSG_CORE_MAILENQUEUED = "COR036";
+    public static final String MSG_CORE_MAILFAILED = "COR037";
+
     // Activities performed in Admin Mode
     public static final String MSG_ADMIN_LOGIN = "ADM001";
     public static final String MSG_ADMIN_LOGINFAILURE = "ADM002";

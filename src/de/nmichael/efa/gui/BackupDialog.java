@@ -31,6 +31,8 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
     private static final String CREATE_BUTTON = "CREATE_BUTTON";
 
     private static final String ZIPFILE_SELECT = "ZIPFILE_SELECT";
+    private static final String RESTORE_SELECT_CONFIG = "RESTORE_SELECT_CONFIG";
+    private static final String RESTORE_SELECT_PROJECT = "RESTORE_SELECT_PROJECT";
     private static final String RESTORE_BUTTON = "RESTORE_BUTTON";
 
     private AdminRecord admin;
@@ -41,6 +43,8 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
     private ItemTypeString restoreInfoProject;
     private ItemTypeString restoreInfoDate;
     private ItemTypeTable restoreArchiveContents;
+    private ItemTypeBoolean restoreSelectProject;
+    private ItemTypeBoolean restoreSelectConfig;
     private BackupMetaData restoreMetaData;
 
     public BackupDialog(Frame parent, AdminRecord admin) {
@@ -72,17 +76,17 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
         // Create Backup
         cat = "%01%" + International.getString("Backup erstellen");
 
+        guiItems.add(item = new ItemTypeBoolean("CREATE_SELECT_CONFIG", true,
+                IItemType.TYPE_PUBLIC, cat, International.getMessage("{typeOfData} sichern",
+                International.getString("Konfigurationsdaten"))));
+        createSelectConfig = (ItemTypeBoolean)item;
+
         if (Daten.project != null) {
             guiItems.add(item = new ItemTypeBoolean("CREATE_SELECT_PROJECT", true,
                     IItemType.TYPE_PUBLIC, cat, International.getMessage("{typeOfData} sichern",
                     International.getMessage("Projekt '{name}'", Daten.project.getProjectName()))));
             createSelectProject = (ItemTypeBoolean)item;
         }
-
-        guiItems.add(item = new ItemTypeBoolean("CREATE_SELECT_CONFIG", true,
-                IItemType.TYPE_PUBLIC, cat, International.getMessage("{typeOfData} sichern",
-                International.getString("Konfigurationsdaten"))));
-        createSelectConfig = (ItemTypeBoolean)item;
 
         guiItems.add(item = new ItemTypeFile("CREATE_DIRECTORY", Daten.efaBakDirectory,
                     International.getString("Verzeichnis"),
@@ -124,6 +128,20 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
         restoreInfoDate = (ItemTypeString)item;
         restoreInfoDate.setEditable(false);
 
+        guiItems.add(item = new ItemTypeBoolean(RESTORE_SELECT_CONFIG, false,
+                IItemType.TYPE_PUBLIC, cat, International.getMessage("{typeOfData} wiederherstellen",
+                International.getString("Konfigurationsdaten"))));
+        restoreSelectConfig = (ItemTypeBoolean)item;
+        restoreSelectConfig.registerItemListener(this);
+
+        guiItems.add(item = new ItemTypeBoolean(RESTORE_SELECT_PROJECT, true,
+                IItemType.TYPE_PUBLIC, cat,
+                International.getMessage("{typeOfData} wiederherstellen",
+                International.getMessage("Projekt '{name}'",
+                International.getString("unbekannt")))));
+        restoreSelectProject = (ItemTypeBoolean) item;
+        restoreSelectProject.registerItemListener(this);
+
         guiItems.add(item = new ItemTypeTable("RESTORE_ARCHIVECONTENT",
                     new String[] {
                         International.getString("Objekt"),
@@ -134,6 +152,7 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
                     IItemType.TYPE_PUBLIC, cat,
                     International.getString("Inhalt")));
         restoreArchiveContents = (ItemTypeTable)item;
+        restoreArchiveContents.setSortingEnabled(false);
         restoreArchiveContents.setFieldGrid(3, GridBagConstraints.CENTER, GridBagConstraints.NONE);
 
         guiItems.add(item = new ItemTypeButton(RESTORE_BUTTON,
@@ -169,6 +188,14 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
             readBackupContent();
         }
 
+        if ((itemType.getName().equals(RESTORE_SELECT_CONFIG) ||
+             itemType.getName().equals(RESTORE_SELECT_PROJECT)) &&
+             event instanceof ActionEvent) {
+            restoreSelectConfig.getValueFromGui();
+            restoreSelectProject.getValueFromGui();
+            selectItems(restoreArchiveContents, restoreSelectConfig.getValue(), restoreSelectProject.getValue());
+        }
+
         if (itemType.getName().equals(RESTORE_BUTTON) && event instanceof ActionEvent) {
             if (!admin.isAllowedRestoreBackup()) {
                 EfaMenuButton.insufficientRights(admin, itemType.getDescription());
@@ -184,48 +211,76 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
             String[] selectedObjects = restoreArchiveContents.getSelectedKeys();
             if (selectedObjects == null || selectedObjects.length == 0) {
                 Dialog.error(International.getString("Keine Objekte ausgewählt."));
-            } else {
-                if (Dialog.yesNoCancelDialog(International.getString("Backup einspielen"),
-                        International.getMessage("Möchtest Du {count} ausgewählte Objekte wiederherstellen?",
-                        selectedObjects.length)) != Dialog.YES) {
-                    return;
-                }
+                return;
+            }
+            String[] selectedMetaNames = new String[selectedObjects.length];
+            for (int i = 0; i < selectedObjects.length; i++) {
+                selectedMetaNames[i] = restoreMetaData.getTableItem(selectedObjects[i]).getNameAndType();
+            }
+            selectedObjects = selectedMetaNames;
 
-                // check whether any of the objects to be restored is a project object
-                boolean openOrCreateProjectForRestore = false;
-                boolean containsProjectData = false;
-                for (String object : selectedObjects) {
-                    BackupMetaDataItem meta = restoreMetaData.getItem(object);
-                    if (meta != null && Backup.isProjectDataAccess(meta.getType())) {
-                        containsProjectData = true;
-                    }
-                }
-                String prjName = "<unknown>";
-                if (Daten.project != null && Daten.project.isOpen()) {
-                    if (Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
-                        prjName = Daten.project.getProjectRemoteProjectName();
-                    } else {
-                        prjName = Daten.project.getProjectName();
-                    }
-                }
-                if (containsProjectData && prjName != null && !prjName.equals(restoreMetaData.getProjectName())) {
-                    if (Dialog.yesNoCancelDialog(International.getString("Backup einspielen"),
-                            International.getMessage("Daten des Projekts {name} können nur in diesem auch wiederhergestellt werden, aber derzeit ist Projekt {name} geöffnet.",
-                                                      restoreMetaData.getProjectName(),
-                                                      prjName) + "\n" +
-                            International.getMessage("Möchtest Du das Projekt {name} öffnen oder neu erstellen?",
-                                                      restoreMetaData.getProjectName())) != Dialog.YES) {
-                        return;
-                    }
-                    openOrCreateProjectForRestore = true;
-                }
-
-                Backup.runRestoreBackupTask(this,
-                        restoreMetaData.getZipFileName(), selectedObjects,
-                        openOrCreateProjectForRestore
-                        );
+            if (Dialog.yesNoCancelDialog(International.getString("Backup einspielen"),
+                    International.getMessage("Möchtest Du {count} ausgewählte Objekte wiederherstellen?",
+                    selectedObjects.length)) != Dialog.YES) {
+                return;
             }
 
+            // check whether any of the objects to be restored is a project object
+            boolean openOrCreateProjectForRestore = false;
+            boolean containsProjectData = false;
+            for (String object : selectedObjects) {
+                BackupMetaDataItem meta = restoreMetaData.getItem(object);
+                if (meta != null && Backup.isProjectDataAccess(meta.getType())) {
+                    containsProjectData = true;
+                }
+            }
+
+            // check whether all project data has been selected
+            if (containsProjectData) {
+                ArrayList<String> selection = new ArrayList<String>();
+                for (String k : selectedObjects) {
+                    selection.add(k);
+                }
+                for (int i=0; i<restoreMetaData.size(); i++) {
+                    BackupMetaDataItem meta = restoreMetaData.getItem(i);
+                    if (meta != null && Backup.isProjectDataAccess(meta.getType())
+                            && !selection.contains(meta.getNameAndType())) {
+                        if (Dialog.yesNoCancelDialog(International.getString("Warnung"),
+                                International.getString("Du hast nicht alle Projektdaten zur Wiederherstellung ausgewählt. "
+                                + "Eine nur teilweise Wiederherstellung des Projekts kann zu inkonsistenten "
+                                + "Daten führen, die später unter Umständen durch den Audit korrigiert oder gelöscht werden.") + "\n"
+                                + International.getString("Möchtest Du wirklich fortfahren?")) != Dialog.YES) {
+                            return;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            String prjName = "<unknown>";
+            if (Daten.project != null && Daten.project.isOpen()) {
+                if (Daten.project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+                    prjName = Daten.project.getProjectRemoteProjectName();
+                } else {
+                    prjName = Daten.project.getProjectName();
+                }
+            }
+            if (containsProjectData && prjName != null && !prjName.equals(restoreMetaData.getProjectName())) {
+                if (Dialog.yesNoCancelDialog(International.getString("Backup einspielen"),
+                        International.getMessage("Daten des Projekts {name} können nur in diesem auch wiederhergestellt werden, aber derzeit ist Projekt {name} geöffnet.",
+                        restoreMetaData.getProjectName(),
+                        prjName) + "\n"
+                        + International.getMessage("Möchtest Du das Projekt {name} öffnen oder neu erstellen?",
+                        restoreMetaData.getProjectName())) != Dialog.YES) {
+                    return;
+                }
+                openOrCreateProjectForRestore = true;
+            }
+
+            Backup.runRestoreBackupTask(this,
+                    restoreMetaData.getZipFileName(), selectedObjects,
+                    openOrCreateProjectForRestore);
         }
     }
 
@@ -244,14 +299,19 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
                 tItem[0] = new TableItem(meta.getDescription());
                 tItem[1] = new TableItem(meta.getNumberOfRecords());
                 tItem[2] = new TableItem(meta.getScn());
-                items.put(meta.getNameAndType(), tItem);
+                items.put(meta.getKeyForTable(), tItem);
             }
             restoreArchiveContents.setValues(items);
             restoreArchiveContents.showValue();
-            restoreArchiveContents.selectAll();
+            selectItems(restoreArchiveContents, restoreSelectConfig.getValue(), restoreSelectProject.getValue());
             restoreInfoProject.parseAndShowValue( (restoreMetaData.getProjectName() != null ?
                                                    restoreMetaData.getProjectName() : "") );
             restoreInfoDate.parseAndShowValue(EfaUtil.getTimeStamp(restoreMetaData.getTimeStamp()));
+
+            restoreSelectProject.setDescription(International.getMessage("{typeOfData} wiederherstellen",
+                International.getMessage("Projekt '{name}'",
+                (restoreMetaData.getProjectName() != null ? restoreMetaData.getProjectName() : 
+                    International.getString("unbekannt")))));
         } else {
             Dialog.error(International.getString("ZIP-Archiv kann nicht gelesen werden oder ist kein gültiges Backup."));
             restoreMetaData = null;
@@ -261,6 +321,21 @@ public class BackupDialog extends BaseTabbedDialog implements IItemListener {
             restoreInfoProject.parseAndShowValue("");
             restoreInfoDate.parseAndShowValue("");
         }
+    }
+
+    private void selectItems(ItemTypeTable table, boolean config, boolean project) {
+        String[] keys = restoreArchiveContents.getAllKeys();
+        boolean[] selected = new boolean[keys.length];
+        for (int i=0; i<keys.length; i++) {
+            selected[i] = false;
+            if (keys[i].startsWith("C") && config) {
+                selected[i] = true;
+            }
+            if (keys[i].startsWith("P") && project) {
+                selected[i] = true;
+            }
+        }
+        restoreArchiveContents.selectValues(selected);
     }
 
 }

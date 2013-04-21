@@ -169,7 +169,8 @@ public class DRVSignatur {
     }
 
     // Konstruktor zum Erstellen einer Signatur
-    public DRVSignatur(String teilnNr, String vorname, String nachname, String jahrgang, int anzAbzeichen,
+    public DRVSignatur(String teilnNr, 
+            String vorname, String nachname, String jahrgang, int anzAbzeichen,
             int gesKm, int anzAbzeichenAB, int gesKmAB, int jahr, int letztkm, String sigDatum,
             byte version, byte keyNr, PrivateKey privKey) throws Exception {
         if (teilnNr == null || teilnNr.length() == 0) {
@@ -364,15 +365,15 @@ public class DRVSignatur {
         }
     }
 
-    private String construct_meldung(boolean withBlanks) {
+    private String construct_meldung(boolean forDisplay) {
         switch (this.version) {
             case 2: // Version 2
-                if (withBlanks) {
+                if (forDisplay) {
                     return teilnNr + "; " + vorname + "; " + nachname + "; " + jahrgang + "; " + anzAbzeichen + "; " + gesKm + "; " + anzAbzeichenAB + "; " + gesKmAB + "; " + jahr + "; " + sigDatum;
                 }
                 return teilnNr + ";" + vorname + ";" + nachname + ";" + jahrgang + ";" + anzAbzeichen + ";" + gesKm + ";" + anzAbzeichenAB + ";" + gesKmAB + ";" + jahr + ";" + sigDatum;
             case 3: // Version 3
-                if (withBlanks) {
+                if (forDisplay) {
                     return teilnNr + "; " + vorname + "; " + nachname + "; " + jahrgang + "; " + anzAbzeichen + "; " + gesKm + "; " + anzAbzeichenAB + "; " + gesKmAB + "; " + jahr + "; " + letztkm + "; " + sigDatum;
                 }
                 return teilnNr + ";" + vorname + ";" + nachname + ";" + jahrgang + ";" + anzAbzeichen + ";" + gesKm + ";" + anzAbzeichenAB + ";" + gesKmAB + ";" + jahr + ";" + letztkm + ";" + sigDatum;

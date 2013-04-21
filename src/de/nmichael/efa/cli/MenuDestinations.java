@@ -19,7 +19,8 @@ public class MenuDestinations extends MenuData {
 
     public MenuDestinations(CLI cli) {
         super(cli);
-        this.storageObject = cli.getPersistence(Destinations.class, Project.STORAGEOBJECT_DESTINATIONS);
+        this.storageObject = cli.getPersistence(Destinations.class, 
+                Project.STORAGEOBJECT_DESTINATIONS, Destinations.DATATYPE);
         this.storageObjectDescription = "destinations";
     }
 

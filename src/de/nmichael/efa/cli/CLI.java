@@ -12,8 +12,10 @@ package de.nmichael.efa.cli;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.core.config.Admins;
 import de.nmichael.efa.core.config.Credentials;
 import de.nmichael.efa.core.config.EfaConfig;
+import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.Project;
 import de.nmichael.efa.data.storage.EfaOnlineClient;
 import de.nmichael.efa.data.storage.IDataAccess;
@@ -27,12 +29,21 @@ import java.util.Stack;
 
 public class CLI {
 
-    public static final String MENU_MAIN         = "main";
-    public static final String MENU_BOATS        = "boats";
-    public static final String MENU_PERSONS      = "persons";
-    public static final String MENU_DESTINATIONS = "destinations";
-    public static final String MENU_STATISTICS   = "statistics";
-    public static final String MENU_BACKUP       = "backup";
+    public static final String MENU_MAIN             = "main";
+    public static final String MENU_BOATS            = "boats";
+    public static final String MENU_PERSONS          = "persons";
+    public static final String MENU_DESTINATIONS     = "destinations";
+    public static final String MENU_STATISTICS       = "statistics";
+    public static final String MENU_BOATDAMAGES      = "damages";
+    public static final String MENU_BOATRESERVATIONS = "reservations";
+    public static final String MENU_BOATSTATUS       = "boatstatus";
+    public static final String MENU_CREWS            = "crews";
+    public static final String MENU_GROUPS           = "groups";
+    public static final String MENU_MESSAGES         = "messages";
+    public static final String MENU_STATUS           = "status";
+    public static final String MENU_WATERS           = "waters";
+    public static final String MENU_FAHRTENABZEICHEN = "fahrtenabzeichen";
+    public static final String MENU_BACKUP           = "backup";
 
     public static final int RC_OK                            =  0;
     public static final int RC_ERROR_LOGIN                   =  1;
@@ -43,6 +54,12 @@ public class CLI {
     public static final int RC_COMMAND_COMPLETED_WITH_ERRORS = 10;
     public static final int RC_COMMAND_FAILED                = 11;
 
+    enum MODE {
+        cli,
+        cron
+    }
+
+    private MODE mode;
     private String username;
     private String password;
     private String hostname;
@@ -61,6 +78,7 @@ public class CLI {
                String hostname,
                String port,
                String project) {
+        this.mode = MODE.cli;
         this.username = username;
         this.password = password;
         this.hostname = hostname;
@@ -85,6 +103,10 @@ public class CLI {
                 (password == null || password.length() == 0)) {
             this.password = cred.getPassword(username);
         }
+    }
+
+    public CLI() {
+        this.mode = MODE.cron;
     }
 
     private void getIpAndPortFromEfaOnline() {
@@ -120,6 +142,9 @@ public class CLI {
     }
 
     public String promptForInput(String prompt) {
+        if (mode == MODE.cron) {
+            return "";
+        }
         loginput((prompt != null ? prompt + ": " : Daten.EFA_CLI + ":" + menuStack.peek()  + "> "));
         String s = null;
         if (console != null) {
@@ -158,8 +183,23 @@ public class CLI {
         return s;
     }
 
-    public StorageObject getPersistence(Class c, String name) {
+    public StorageObject getPersistence(Class c, String name, String type) {
         try {
+            if (Daten.applID != Daten.APPL_CLI) {
+                if (name != null) {
+                    return Daten.project.getStorageObject(name, type, false);
+                } else {
+                    if (EfaConfig.DATATYPE.equals(type)) {
+                        return Daten.efaConfig;
+                    }
+                    if (EfaTypes.DATATYPE.equals(type)) {
+                        return Daten.efaTypes;
+                    }
+                    if (Admins.DATATYPE.equals(type)) {
+                        return Daten.admins;
+                    }
+                }
+            }
             StorageObject p;
             if (name != null) {
                 p = (StorageObject) c.getConstructor(
@@ -194,6 +234,9 @@ public class CLI {
     }
 
     private int connect() {
+        if (mode == MODE.cron) {
+            return RC_OK;
+        }
         if (Logger.isTraceOn(Logger.TT_CLI, 1)) {
             Logger.log(Logger.DEBUG, Logger.MSG_CLI_DEBUG, "connect("+
                     username + "," +
@@ -213,7 +256,7 @@ public class CLI {
             password = promptForPassword("Password for "+username);
         }
         loginfo("Connecting as "+username+" to " +hostname+":"+port+" ...");
-        remoteEfaConfig = (EfaConfig)getPersistence(EfaConfig.class, null);
+        remoteEfaConfig = (EfaConfig)getPersistence(EfaConfig.class, null, EfaConfig.DATATYPE);
         try {
             if (remoteEfaConfig.isOpen()) {
                 loginfo("Connected.");
@@ -251,7 +294,11 @@ public class CLI {
     }
 
     public AdminRecord getAdminRecord() {
-        return adminRecord;
+        if (mode == MODE.cli) {
+            return adminRecord;
+        } else {
+            return Daten.admins.getAdmin(Admins.SUPERADMIN);
+        }
     }
     
     private String parseCommand(String s, int i) {
@@ -273,7 +320,9 @@ public class CLI {
     }
 
     public void quit(int ret) {
-        Daten.haltProgram(ret);
+        if (mode == MODE.cli) {
+            Daten.haltProgram(ret);
+        }
     }
 
     public Class getMenu() {
@@ -284,14 +333,41 @@ public class CLI {
         if (mymenu.equals(MENU_BOATS)) {
             return de.nmichael.efa.cli.MenuBoats.class;
         }
+        if (mymenu.equals(MENU_BOATDAMAGES)) {
+            return de.nmichael.efa.cli.MenuBoatDamages.class;
+        }
+        if (mymenu.equals(MENU_BOATRESERVATIONS)) {
+            return de.nmichael.efa.cli.MenuBoatReservations.class;
+        }
+        if (mymenu.equals(MENU_BOATSTATUS)) {
+            return de.nmichael.efa.cli.MenuBoatStatus.class;
+        }
+        if (mymenu.equals(MENU_CREWS)) {
+            return de.nmichael.efa.cli.MenuCrews.class;
+        }
         if (mymenu.equals(MENU_PERSONS)) {
             return de.nmichael.efa.cli.MenuPersons.class;
         }
         if (mymenu.equals(MENU_DESTINATIONS)) {
             return de.nmichael.efa.cli.MenuDestinations.class;
         }
+        if (mymenu.equals(MENU_FAHRTENABZEICHEN)) {
+            return de.nmichael.efa.cli.MenuFahrtenabzeichen.class;
+        }
+        if (mymenu.equals(MENU_GROUPS)) {
+            return de.nmichael.efa.cli.MenuGroups.class;
+        }
+        if (mymenu.equals(MENU_MESSAGES)) {
+            return de.nmichael.efa.cli.MenuMessages.class;
+        }
         if (mymenu.equals(MENU_STATISTICS)) {
             return de.nmichael.efa.cli.MenuStatistics.class;
+        }
+        if (mymenu.equals(MENU_STATUS)) {
+            return de.nmichael.efa.cli.MenuStatus.class;
+        }
+        if (mymenu.equals(MENU_WATERS)) {
+            return de.nmichael.efa.cli.MenuWaters.class;
         }
         if (mymenu.equals(MENU_BACKUP)) {
             return de.nmichael.efa.cli.MenuBackup.class;
@@ -305,7 +381,9 @@ public class CLI {
             return ret;
         }
         try {
-            Thread.sleep(500);
+            if (mode == MODE.cli) {
+                Thread.sleep(500);
+            }
         } catch(InterruptedException eignore) {
         }
         if (initialCommand != null && initialCommand.length() == 0) {
@@ -324,7 +402,11 @@ public class CLI {
             String command = (initialCommand != null ? 
                 initialCommand : promptForInput(null));
             if (command == null || command.length() == 0) {
-                continue;
+                if (mode == MODE.cron) {
+                    break;
+                } else {
+                    continue;
+                }
             }
             ret = runCommandInCurrentMenu(command);
             if (menuStack.isEmpty()) {
@@ -333,7 +415,11 @@ public class CLI {
             if (initialCommand != null) {
                 quit(ret);
             }
+            if (mode == MODE.cron) {
+                break;
+            }
         }
+        return RC_OK;
     }
 
     public int runCommandInCurrentMenu(String command) {

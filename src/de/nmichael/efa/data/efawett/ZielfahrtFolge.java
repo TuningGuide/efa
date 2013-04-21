@@ -151,6 +151,26 @@ public class ZielfahrtFolge {
         zff = zffNeu;
     }
 
+    public String getUniqueAres() {
+        boolean[] erreicht = new boolean[Zielfahrt.ANZ_ZIELBEREICHE + 1]; // 0 ist Dummy-Element
+        Arrays.fill(erreicht, false);
+        for (int fahrt = 0; fahrt < zff.size(); fahrt++) {
+            Zielfahrt z = (Zielfahrt) zff.get(fahrt);
+            for (int b = 1; b < erreicht.length; b++) {
+                if (z.isErreicht(b)) {
+                    erreicht[b] = true;
+                }
+            }
+        }
+        StringBuilder s = new StringBuilder();
+        for (int b = 1; b < erreicht.length; b++) {
+            if (erreicht[b]) {
+                s.append( (s.length() > 0 ? ";" : "") + Integer.toString(b));
+            }
+        }
+        return s.toString();
+    }
+
     public int findZielbereich(int zielbereich) {
         for (int i=0; i<getAnzZielfahrten(); i++) {
             Zielfahrt z = getZielfahrt(i);

@@ -13,16 +13,20 @@ package de.nmichael.efa.core;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.util.*;
 import java.util.*;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 
 public class EmailSenderThread extends Thread {
 
     private long lastScnAdmins = -1;
     private Vector<String> emailAddressesAdmin;
     private Vector<String> emailAddressesBoatMaintenance;
+    private Vector<MultiPartMessage> multipartMessages =
+            new Vector<MultiPartMessage>();
 
     private long lastScnEfaConfig = -1;
     private String serverUrl;
@@ -37,6 +41,21 @@ public class EmailSenderThread extends Thread {
     // Constructor just for Plugin Check
     public EmailSenderThread() {
         javax.mail.Session session = javax.mail.Session.getInstance(new Properties(), null); // just dummy statement
+    }
+
+    public void enqueueMessage(javax.mail.Multipart message,
+            Vector addresses, String subject,
+            String[] attachmentFileNames, boolean deleteAttachmentFiles) {
+        multipartMessages.add(new MultiPartMessage(message, addresses, subject,
+                attachmentFileNames, deleteAttachmentFiles));
+        interrupt();
+    }
+
+    public boolean sendMessage(javax.mail.Multipart message,
+            Vector addresses, String subject,
+            String[] attachmentFileNames, boolean deleteAttachmentFiles) {
+        return sendMail(new MultiPartMessage(message, addresses, subject,
+                attachmentFileNames, deleteAttachmentFiles));
     }
 
     private void updateMailProperties() {
@@ -142,7 +161,7 @@ public class EmailSenderThread extends Thread {
             if (auth) {
                 ma = new MailAuthenticator(serverUsername, serverPassword);
             }
-            String charset = "ISO-8859-1";
+            String charset = Daten.ENCODING_ISO;
             javax.mail.Session session = javax.mail.Session.getInstance(props, ma);
             if (Logger.isTraceOn(Logger.TT_BACKGROUND, 5)) {
                 session.setDebugOut(Logger.getPrintStream());
@@ -176,73 +195,142 @@ public class EmailSenderThread extends Thread {
         }
     }
 
+    private boolean sendMail(MultiPartMessage msg) {
+        try {
+            StringBuilder recipients = new StringBuilder();
+            for (int i=0; i<msg.addresses.size(); i++) {
+                recipients.append( (recipients.length() > 0 ? ", " : "") + msg.addresses.get(i));
+            }
+            if (Logger.isTraceOn(Logger.TT_BACKGROUND, 3)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_SENDMAIL,
+                        "Trying to send multipart message to " + recipients.toString() + " ...");
+            }
+            boolean auth = (serverUsername != null && serverPassword != null);
+            Properties props = new Properties();
+            props.put("mail.smtp.host", serverUrl);
+            props.put("mail.smtp.port", serverPort);
+            if (auth) {
+                props.put("mail.smtp.auth", "true");
+            }
+            if (Logger.isTraceOn(Logger.TT_BACKGROUND, 5)) {
+                props.put("mail.debug", "true");
+            }
+            MailAuthenticator ma = null;
+            if (auth) {
+                ma = new MailAuthenticator(serverUsername, serverPassword);
+            }
+            String charset = Daten.ENCODING_ISO;
+            javax.mail.Session session = javax.mail.Session.getInstance(props, ma);
+            if (Logger.isTraceOn(Logger.TT_BACKGROUND, 5)) {
+                session.setDebugOut(Logger.getPrintStream());
+            }
+            com.sun.mail.smtp.SMTPMessage mail = new com.sun.mail.smtp.SMTPMessage(session);
+            mail.setAllow8bitMIME(true);
+            mail.setHeader("X-Mailer", Daten.EFA_SHORTNAME + " " + Daten.VERSIONID);
+            mail.setHeader("Content-Type", "text/plain; charset=" + charset);
+            mail.setFrom(new javax.mail.internet.InternetAddress(mailFromName + " <" + mailFromEmail + ">"));
+            mail.setRecipients(com.sun.mail.smtp.SMTPMessage.RecipientType.TO, javax.mail.internet.InternetAddress.parse(recipients.toString()));
+            mail.setSubject((mailSubjectPrefix != null ? "[" + mailSubjectPrefix + "] " : "") + msg.subject, charset);
+            mail.setSentDate(new Date());
+            mail.setContent(msg.message);
+            com.sun.mail.smtp.SMTPTransport t = (com.sun.mail.smtp.SMTPTransport) session.getTransport("smtp");
+            if (auth) {
+                t.connect(serverUrl, serverUsername, serverPassword);
+            } else {
+                t.connect();
+            }
+            t.send(mail, mail.getAllRecipients());
+            if (msg.deleteAttachmentFiles) {
+                for (int i=0; msg.attachmentFileNames != null && i<msg.attachmentFileNames.length; i++) {
+                    EfaUtil.deleteFile(msg.attachmentFileNames[i]);
+                }
+            }
+            Logger.log(Logger.INFO, Logger.MSG_CORE_MAILSENT,
+                    LogString.emailSuccessfullySend(msg.subject));
+            return true;
+        } catch (Exception e) {
+            Logger.log(Logger.WARNING, Logger.MSG_ERR_SENDMAILFAILED_ERROR,
+                    International.getString("email-Versand fehlgeschlagen") + ": " +
+                    e.toString() + " " + e.getMessage());
+            Logger.logdebug(e);
+            return false;
+        }
+    }
+
     public void run() {
         int errorCount = 0;
         while(true) {
             try {
                 if (Daten.efaConfig != null && Daten.project != null && Daten.admins != null &&
                     Daten.efaConfig.isOpen() && Daten.project.isOpen() && Daten.admins.isOpen() &&
-                    !Daten.project.isInOpeningProject() &&
-                    Daten.project.getProjectStorageType() != IDataAccess.TYPE_EFA_REMOTE) {
+                    !Daten.project.isInOpeningProject()) {
 
                     updateMailProperties();
                     updateAdminEmailAddresses();
 
-                    int countToBeSent = 0;
-                    int countSuccess = 0;
-                    Messages messages = Daten.project.getMessages(false);
-                    if (messages == null || messages.data() == null ||
-                        messages.data().getStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
-                        continue; // EmailSenderThread must only run for local messages!
-                    }
-                    DataKeyIterator it = messages.data().getStaticIterator();
-                    DataKey k = it.getFirst();
-                    while (k != null) {
-                        MessageRecord msg = (MessageRecord) messages.data().get(k);
-                        if (msg != null && msg.getToBeMailed()) {
-                            // new message found
-                            countToBeSent++;
-                            boolean markDone = false;
-                            if (emailAddressesAdmin != null || emailAddressesBoatMaintenance != null) {
-                                // recipient email addresses configured
-                                if (serverUrl != null && serverPort != null &&
-                                    mailFromEmail != null && mailFromName != null) {
-                                    // server properly configured
-                                    if (MessageRecord.TO_ADMIN.equals(msg.getTo()) && emailAddressesAdmin != null) {
-                                        markDone = sendMail(msg, emailAddressesAdmin);
-                                        if (markDone) {
-                                            countSuccess++;
+                    if (Daten.project.getProjectStorageType() != IDataAccess.TYPE_EFA_REMOTE) {
+                        int countToBeSent = 0;
+                        int countSuccess = 0;
+                        Messages messages = Daten.project.getMessages(false);
+                        if (messages == null || messages.data() == null
+                                || messages.data().getStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+                            continue; // EmailSenderThread must only run for local messages!
+                        }
+                        DataKeyIterator it = messages.data().getStaticIterator();
+                        DataKey k = it.getFirst();
+                        while (k != null) {
+                            MessageRecord msg = (MessageRecord) messages.data().get(k);
+                            if (msg != null && msg.getToBeMailed()) {
+                                // new message found
+                                countToBeSent++;
+                                boolean markDone = false;
+                                if (emailAddressesAdmin != null || emailAddressesBoatMaintenance != null) {
+                                    // recipient email addresses configured
+                                    if (serverUrl != null && serverPort != null
+                                            && mailFromEmail != null && mailFromName != null) {
+                                        // server properly configured
+                                        if (MessageRecord.TO_ADMIN.equals(msg.getTo()) && emailAddressesAdmin != null) {
+                                            markDone = sendMail(msg, emailAddressesAdmin);
+                                            if (markDone) {
+                                                countSuccess++;
+                                            }
                                         }
-                                    }
-                                    if (MessageRecord.TO_BOATMAINTENANCE.equals(msg.getTo()) && emailAddressesBoatMaintenance != null) {
-                                        markDone = sendMail(msg, emailAddressesBoatMaintenance);
-                                        if (markDone) {
-                                            countSuccess++;
+                                        if (MessageRecord.TO_BOATMAINTENANCE.equals(msg.getTo()) && emailAddressesBoatMaintenance != null) {
+                                            markDone = sendMail(msg, emailAddressesBoatMaintenance);
+                                            if (markDone) {
+                                                countSuccess++;
+                                            }
                                         }
+                                    } else {
+                                        Logger.log(Logger.WARNING, Logger.MSG_ERR_SENDMAILFAILED_CFG,
+                                                International.getString("Kein email-Versand möglich!") + " "
+                                                + International.getString("Mail-Konfiguration unvollständig."));
                                     }
                                 } else {
-                                    Logger.log(Logger.WARNING, Logger.MSG_ERR_SENDMAILFAILED_CFG,
-                                            International.getString("Kein email-Versand möglich!") + " " +
-                                            International.getString("Mail-Konfiguration unvollständig."));
+                                    markDone = true; // no email recipients configured - mark this message as done
                                 }
-                            } else {
-                                markDone = true; // no email recipients configured - mark this message as done
-                            }
-                            if (markDone) {
-                                msg.setToBeMailed(false);
-                                messages.data().update(msg);
-                                errorCount = 0;
-                            } else {
-                                if (errorCount < 10) {
-                                    errorCount++;
-                                    break;
+                                if (markDone) {
+                                    msg.setToBeMailed(false);
+                                    messages.data().update(msg);
+                                    errorCount = 0;
+                                } else {
+                                    if (errorCount < 10) {
+                                        errorCount++;
+                                        break;
+                                    }
                                 }
                             }
+                            k = it.getNext();
                         }
-                        k = it.getNext();
+                        if (Logger.isTraceOn(Logger.TT_BACKGROUND)) {
+                            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_SENDMAIL, "EmailSenderThread: " + countToBeSent + " unsent messages found; " + countSuccess + " messages successfully sent.");
+                        }
                     }
-                    if (Logger.isTraceOn(Logger.TT_BACKGROUND)) {
-                        Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_SENDMAIL, "EmailSenderThread: " + countToBeSent + " unsent messages found; " + countSuccess + " messages successfully sent.");
+
+                    for (int i=0; i<multipartMessages.size(); i++) {
+                        if (sendMail(multipartMessages.get(i))) {
+                            multipartMessages.remove(i--);
+                        }
                     }
                 }
                
@@ -265,6 +353,25 @@ public class EmailSenderThread extends Thread {
 
         public javax.mail.PasswordAuthentication getPasswordAuthentication() {
             return new javax.mail.PasswordAuthentication(username, password);
+        }
+    }
+
+    class MultiPartMessage {
+
+        javax.mail.Multipart message;
+        Vector<String> addresses;
+        String subject;
+        String[] attachmentFileNames;
+        boolean deleteAttachmentFiles;
+
+        public MultiPartMessage(javax.mail.Multipart message,
+            Vector<String> addresses, String subject,
+            String[] attachmentFileNames, boolean deleteAttachmentFiles) {
+            this.message = message;
+            this.addresses = addresses;
+            this.subject = subject;
+            this.attachmentFileNames = attachmentFileNames;
+            this.deleteAttachmentFiles = deleteAttachmentFiles;
         }
     }
 }

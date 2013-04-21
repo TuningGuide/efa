@@ -68,6 +68,7 @@ public class StatisticsData implements Comparable {
     long duration = 0; // in minutes
     long speed = 0;
     SessionHistory sessionHistory;
+    long wafaMetersSummary = 0;
     double clubwork = 0;
     double clubworkRelativeToTarget = 0;
     double clubworkOverUnderCarryOver = 0;
@@ -110,6 +111,17 @@ public class StatisticsData implements Comparable {
         this.coxdistance += sd.coxdistance;
         this.sessions += sd.sessions;
         this.duration += sd.duration;
+        if (sr.sIsAggrWanderfahrten) {
+            this.wafaMetersSummary += CompetitionDRVFahrtenabzeichen.getWanderfahrtenMeter(sd);
+        }
+        if (sr.sIsAggrZielfahrten) {
+            sd.getAllDestinationAreas();
+            if (destinationAreas == null) {
+                destinationAreas = new ZielfahrtFolge();
+            }
+            destinationAreas.addZielfahrten(sd.destinationAreas);
+            destinationAreas.reduceToMinimun();
+        }
         this.clubwork += sd.clubwork;
     }
 
@@ -270,7 +282,11 @@ public class StatisticsData implements Comparable {
             if (destinationAreas == null) {
                 getAllDestinationAreas();
             }
-            this.sDestinationAreas = destinationAreas.toString();
+            if (!isSummary) {
+                sDestinationAreas = destinationAreas.toString();
+            } else {
+                sDestinationAreas = destinationAreas.getUniqueAres();
+            }
         }
         if (sr.sIsAggrWanderfahrten) {
             int decimals = 1;
@@ -280,6 +296,9 @@ public class StatisticsData implements Comparable {
                 }
             }
             long meters = CompetitionDRVFahrtenabzeichen.getWanderfahrtenMeter(this);
+            if (isSummary) {
+                meters = wafaMetersSummary;
+            }
             if (sr.sIgnoreNullValues && meters == 0) {
                 sWanderfahrten = "";
             } else {

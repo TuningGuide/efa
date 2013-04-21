@@ -30,6 +30,7 @@ import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeBoolean;
 import de.nmichael.efa.core.items.ItemTypeButton;
 import de.nmichael.efa.core.items.ItemTypeDate;
+import de.nmichael.efa.core.items.ItemTypeDistance;
 import de.nmichael.efa.core.items.ItemTypeFile;
 import de.nmichael.efa.core.items.ItemTypeInteger;
 import de.nmichael.efa.core.items.ItemTypeLabel;
@@ -60,10 +61,10 @@ import de.nmichael.efa.statistics.StatOutputLines;
 import de.nmichael.efa.statistics.StatisticsData;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.Email;
 import de.nmichael.efa.util.FTPClient;
 import de.nmichael.efa.util.International;
 import java.util.Arrays;
-import javax.swing.SwingConstants;
 
 // @i18n complete
 
@@ -107,6 +108,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String FILTERPROMPTBOAT          = "FilterPromptBoat";
     public static final String FILTERPROMPTGROUP         = "FilterPromptGroup";
     public static final String FILTERFROMTOBOATHOUSE     = "FilterFromToBoathouse";
+    public static final String FILTERCOMMENTSINCLUDE     = "FilterCommentsInclude";
+    public static final String FILTERCOMMENTSEXCLUDE     = "FilterCommentsExclude";
+    public static final String FILTERMINSESSIONDISTANCE  = "FilterMinSessionDistance";
     public static final String SHOWFIELDS                = "ShowFields";  // like Name, Status, Gender, BoatType, ...
     public static final String SHOWLOGBOOKFIELDS         = "ShowLogbookFields";  // like EntryNo, Date, Boat, Cox, Crew, ...
     public static final String AGGREGATIONS              = "Aggregations"; // like Distance, Sessions, AvgDistance, ...
@@ -178,6 +182,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String SKEY_YEAR            = "Year";            // based on Persons or Boats
 
     public static final String OTYPE_INTERNAL       = "Internal";
+    public static final String OTYPE_INTERNALTXT    = "InternalTxt";
     public static final String OTYPE_HTML           = "Html";
     public static final String OTYPE_PDF            = "Pdf";
     public static final String OTYPE_CSV            = "Csv";
@@ -303,6 +308,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public enum OutputTypes {
         UNKNOWN,
         internal,
+        internaltxt,
         html,
         csv,
         xml,
@@ -314,6 +320,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     // Internal Variables for various purposes
     // =========================================================================
     private static final String GUIITEM_OUTPUTFTP = "GUIITEM_OUTPUTFTP";
+    private static final String GUIITEM_OUTPUTEMAIL = "GUIITEM_OUTPUTEMAIL";
     private ItemTypeStringList itemStatisticCategory;
     private ItemTypeStringList itemStatisticType;
     private ItemTypeStringList itemStatisticKey;
@@ -334,6 +341,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     private ItemTypeString itemOutputCsvSeparator;
     private ItemTypeString itemOutputCsvQuotes;
     private ItemTypeButton itemOutputFtpButton;
+    private ItemTypeButton itemOutputEmailButton;
     private ItemTypeStringList itemTypeSortingCriteria;
     private ItemTypeStringList itemTypeSortingOrder;
 
@@ -378,6 +386,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public String sFilterByBoatText;
     public UUID sFilterByGroupId;
     public boolean sFilterFromToBoathouse;
+    public String sFilterCommentsInclude;
+    public String sFilterCommentsExclude;
+    public DataTypeDistance sFilterMinSessionDistance;
     // --- Field Settings
     public boolean sIsFieldsPosition;
     public boolean sIsFieldsName;
@@ -436,6 +447,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public String sOutputCsvSeparator;
     public String sOutputCsvQuotes;
     public FTPClient sOutputFtpClient;
+    public String sEmailAddresses;
     public String sFileExecBefore;
     public String sFileExecAfter;
     // --- Competition Settings
@@ -541,7 +553,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         f.add(FILTERPROMPTPERSON);                t.add(IDataAccess.DATA_BOOLEAN);
         f.add(FILTERPROMPTBOAT);                  t.add(IDataAccess.DATA_BOOLEAN);
         f.add(FILTERPROMPTGROUP);                 t.add(IDataAccess.DATA_BOOLEAN);
-        f.add(FILTERFROMTOBOATHOUSE);            t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(FILTERFROMTOBOATHOUSE);             t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(FILTERCOMMENTSINCLUDE);             t.add(IDataAccess.DATA_STRING);
+        f.add(FILTERCOMMENTSEXCLUDE);             t.add(IDataAccess.DATA_STRING);
+        f.add(FILTERMINSESSIONDISTANCE);          t.add(IDataAccess.DATA_DISTANCE);
         f.add(SHOWFIELDS);                        t.add(IDataAccess.DATA_LIST_STRING);
         f.add(SHOWLOGBOOKFIELDS);                 t.add(IDataAccess.DATA_LIST_STRING);
         f.add(AGGREGATIONS);                      t.add(IDataAccess.DATA_LIST_STRING);
@@ -1093,6 +1108,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             return OutputTypes.UNKNOWN;
         } else if (type.equals(OTYPE_INTERNAL)) {
             return OutputTypes.internal;
+        } else if (type.equals(OTYPE_INTERNALTXT)) {
+            return OutputTypes.internaltxt;
         } else if (type.equals(OTYPE_HTML)) {
             return OutputTypes.html;
         } else if (type.equals(OTYPE_CSV)) {
@@ -1115,6 +1132,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         switch(getOutputTypeEnum()) {
             case internal:
                 return International.getString("intern");
+            case internaltxt:
+                return International.getString("intern") + " (" +
+                       International.getString("einfach") + ")";
             case html:
                 return "HTML";
             case csv:
@@ -1133,6 +1153,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         switch(output) {
             case internal:
                 return "html";
+            case internaltxt:
+                return "csv";
             case html:
                 return "html";
             case csv:
@@ -1154,6 +1176,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
             return new String[] {
                 OTYPE_INTERNAL,
+                OTYPE_INTERNALTXT,
                 OTYPE_HTML,
                 OTYPE_PDF,
                 OTYPE_CSV,
@@ -1163,6 +1186,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         } else {
             return new String[] {
                 International.getString("intern"),
+                International.getString("intern") + " (" +
+                       International.getString("einfach") + ")",
                 "HTML",
                 "PDF",
                 "CSV",
@@ -1547,6 +1572,27 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         return getBool(FILTERFROMTOBOATHOUSE);
     }
 
+    public void setFilterCommentsInclude(String comments) {
+        setString(FILTERCOMMENTSINCLUDE, comments);
+    }
+    public String getFilterCommentsInclude() {
+        return getString(FILTERCOMMENTSINCLUDE);
+    }
+
+    public void setFilterCommentsExclude(String comments) {
+        setString(FILTERCOMMENTSEXCLUDE, comments);
+    }
+    public String getFilterCommentsExclude() {
+        return getString(FILTERCOMMENTSEXCLUDE);
+    }
+
+    public void setFilterMinDessionDistance(DataTypeDistance distance) {
+        setDistance(FILTERMINSESSIONDISTANCE, distance);
+    }
+    public DataTypeDistance getFilterMinDessionDistance() {
+        return getDistance(FILTERMINSESSIONDISTANCE);
+    }
+
     public String getFilterByGroupIdAsString(long validAt) {
         try {
             return getPersistence().getProject().getGroups(false).findGroupRecord(sFilterByGroupId, validAt).getQualifiedName();
@@ -1613,6 +1659,21 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             filter = (filter == null ? "" : filter + "\n") +
                     International.getString("nur Fahrten") + ": " +
                     International.getString("Start und Ziel ist Bootshaus");
+        }
+        if (sFilterCommentsInclude != null) {
+            filter = (filter == null ? "" : filter + "\n") +
+                    International.getString("Bemerkungsfeld enthält") + ": " +
+                    sFilterCommentsInclude;
+        }
+        if (sFilterCommentsExclude != null) {
+            filter = (filter == null ? "" : filter + "\n") +
+                    International.getString("Bemerkungsfeld enthält nicht") + ": " +
+                    sFilterCommentsExclude;
+        }
+        if (sFilterMinSessionDistance != null && sFilterMinSessionDistance.isSet()) {
+            filter = (filter == null ? "" : filter + "\n") +
+                    International.getString("Mindestentfernung") + ": " +
+                    sFilterMinSessionDistance.getAsFormattedString();
         }
         return filter;
     }
@@ -2335,6 +2396,16 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         v.add(item = new ItemTypeBoolean(StatisticsRecord.FILTERFROMTOBOATHOUSE, getFilterFromToBoathouse(),
                     IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER,CAT_FILTERVARIOUS),
                     International.getString("Start und Ziel ist Bootshaus")));
+        v.add(item = new ItemTypeString(StatisticsRecord.FILTERCOMMENTSINCLUDE, getFilterCommentsInclude(),
+                    IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER,CAT_FILTERVARIOUS),
+                    International.getString("Bemerkungsfeld enthält")));
+        v.add(item = new ItemTypeString(StatisticsRecord.FILTERCOMMENTSEXCLUDE, getFilterCommentsExclude(),
+                    IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER,CAT_FILTERVARIOUS),
+                    International.getString("Bemerkungsfeld enthält nicht")));
+        v.add(item = new ItemTypeDistance(StatisticsRecord.FILTERMINSESSIONDISTANCE, getFilterMinDessionDistance(),
+                    IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER,CAT_FILTERVARIOUS),
+                    International.getString("Mindestentfernung")));
+
 
         // CAT_FIELDS
         v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.AGGREGATIONS, getAggregations(),
@@ -2460,6 +2531,12 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         ((ItemTypeButton)item).setFieldGrid(2, GridBagConstraints.EAST, GridBagConstraints.NONE);
         ((ItemTypeButton)item).registerItemListener(this);
         this.itemOutputFtpButton = (ItemTypeButton)item;
+        v.add(item = new ItemTypeButton(GUIITEM_OUTPUTEMAIL,
+                    IItemType.TYPE_PUBLIC, CAT_OUTPUT,
+                    International.getString("email-Versand") + " ..."));
+        ((ItemTypeButton)item).setFieldGrid(2, GridBagConstraints.EAST, GridBagConstraints.NONE);
+        ((ItemTypeButton)item).registerItemListener(this);
+        this.itemOutputEmailButton = (ItemTypeButton)item;
 
         // CAT_OPTIONS
         v.add(item = new ItemTypeBoolean(StatisticsRecord.OPTIONDISTANCEWITHUNIT, getOptionDistanceWithUnit(),
@@ -2710,6 +2787,25 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         sFilterByBoatText = (sFilterByBoatId != null ? null : getFilterByBoatText());
         sFilterByGroupId = getFilterByGroupId();
         sFilterFromToBoathouse = getFilterFromToBoathouse();
+        sFilterCommentsInclude = getFilterCommentsInclude();
+        if (sFilterCommentsInclude != null) {
+            sFilterCommentsInclude = sFilterCommentsInclude.trim();
+            if (sFilterCommentsInclude.length() == 0) {
+                sFilterCommentsInclude = null;
+            }
+        }
+        sFilterCommentsExclude = getFilterCommentsExclude();
+        if (sFilterCommentsExclude != null) {
+            sFilterCommentsExclude = sFilterCommentsExclude.trim();
+            if (sFilterCommentsExclude.length() == 0) {
+                sFilterCommentsExclude = null;
+            }
+        }
+        sFilterMinSessionDistance = getFilterMinDessionDistance();
+        if (sFilterMinSessionDistance != null && !sFilterMinSessionDistance.isSet()) {
+            sFilterMinSessionDistance = null;
+        }
+
         if (getFilterPromptPerson() && Daten.isGuiAppl()) {
             Object o = promptForInput(sFilterByPersonId, sFilterByPersonText,
                        getPersistence().getProject().getPersons(false),
@@ -2941,6 +3037,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             }
             sOutputFile = Daten.efaTmpDirectory + "output.ftp";
         }
+        if (Email.getEmailAddressFromMailtoString(sOutputFile.toLowerCase()) != null) {
+            sEmailAddresses = Email.getEmailAddressFromMailtoString(sOutputFile.toLowerCase());
+            sOutputFile = Daten.efaTmpDirectory + "output_" + System.currentTimeMillis() + getOutputExtension();
+        }
         sOutputDir = (new File(sOutputFile)).getParent();
         if (sOutputDir == null || sOutputDir.length() == 0) { // shouldn't happen, just in case...
             sOutputDir = Daten.efaTmpDirectory;
@@ -2959,6 +3059,24 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
 
         resetStatisticValues();
         return true;
+    }
+
+    public String getOutputExtension() {
+        switch(sOutputType) {
+            case internal:
+            case html:
+                return ".html";
+            case internaltxt:
+            case csv:
+                return ".csv";
+            case xml:
+                return ".xml";
+            case pdf:
+                return ".pdf";
+            case efawett:
+                return ".efw";
+        }
+        return ".out";
     }
 
     private Object promptForInput(UUID id, String text, StorageObject so, String description) {
@@ -3343,14 +3461,31 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 itemOutputFile.parseAndShowValue(f);
             }
         }
+        if (itemType.getName().equals(GUIITEM_OUTPUTEMAIL) &&
+            event instanceof ActionEvent) {
+            String f = itemOutputFile.getValueFromField();
+            f = Email.getEmailStringGuiDialog(f);
+            if (f != null) {
+                itemOutputFile.parseAndShowValue(f);
+            }
+        }
     }
 
     private void setVisibleItems(OutputTypes output) {
         if (itemOutputFile != null) {
-            itemOutputFile.setVisible(output != OutputTypes.internal && output != OutputTypes.efawett);
+            itemOutputFile.setVisible(output != OutputTypes.internal && 
+                                      output != OutputTypes.internaltxt &&
+                                      output != OutputTypes.efawett);
         }
         if (itemOutputFtpButton != null) {
-            itemOutputFtpButton.setVisible(output != OutputTypes.internal && output != OutputTypes.efawett);
+            itemOutputFtpButton.setVisible(output != OutputTypes.internal && 
+                                           output != OutputTypes.internaltxt &&
+                                           output != OutputTypes.efawett);
+        }
+        if (itemOutputEmailButton != null) {
+            itemOutputEmailButton.setVisible(output != OutputTypes.internal && 
+                                             output != OutputTypes.internaltxt &&
+                                             output != OutputTypes.efawett);
         }
         if (itemOutputEncoding != null) {
             itemOutputEncoding.setVisible(output == OutputTypes.csv);

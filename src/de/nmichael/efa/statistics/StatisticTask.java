@@ -1232,6 +1232,25 @@ public class StatisticTask extends ProgressTask {
             }
         }
 
+        if (sr.sFilterCommentsInclude != null) {
+            if (r.getComments() == null || r.getComments().indexOf(sr.sFilterCommentsInclude) < 0) {
+                return false;
+            }
+        }
+
+        if (sr.sFilterCommentsExclude != null) {
+            if (r.getComments() != null && r.getComments().indexOf(sr.sFilterCommentsExclude) >= 0) {
+                return false;
+            }
+        }
+
+        if (sr.sFilterMinSessionDistance != null) {
+            if (r.getDistance() == null || !r.getDistance().isSet() ||
+                r.getDistance().getValueInMeters() < sr.sFilterMinSessionDistance.getValueInMeters()) {
+                return false;
+            }
+        }
+
         if (sr.sPublicStatistic && entryBoatExclude && 
                 (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook ||
                 (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list &&
@@ -1783,6 +1802,41 @@ public class StatisticTask extends ProgressTask {
                     return International.getString("Fehlendes Plugin") + ": " + Plugins.PLUGIN_FTP;
                 }
             }
+            if (sr.sEmailAddresses != null) {
+                logInfo(International.getString("email-Versand") + " ...\n");
+                String subject = sr.pStatTitle;
+                String text = International.getString("Auswertung erstellt am") + " " +
+                        sr.pStatCreationDate;
+                String addr = sr.sEmailAddresses;
+                if (Email.EMAIL_INDIVIDUAL.equals(addr)) {
+                    try {
+                        addr = null;
+                        PersonRecord p = Daten.project.getPersons(false).getPerson(sr.sFilterByPersonId, System.currentTimeMillis());
+                        addr = p.getEmail();
+                    } catch(Exception e) {
+                        Logger.logdebug(e);
+                    }
+                }
+                if (addr == null || addr.length() == 0) {
+                    EfaUtil.deleteFile(sr.sOutputFile);
+                    return International.getString("Keine email-Adresse konfiguriert");
+                }
+                if (Daten.applID == Daten.APPL_CLI) {
+                    if (Email.sendMessage(addr, subject, text,
+                            new String[]{ sr.sOutputFile }, true)) {
+                        return LogString.emailSuccessfullySend(subject);
+                    } else {
+                        return LogString.emailSendFailed(subject, "Error");
+                    }
+                } else {
+                    if (Email.enqueueMessage(addr, subject, text,
+                            new String[]{ sr.sOutputFile }, true)) {
+                        return LogString.emailSuccessfullyEnqueued(subject);
+                    } else {
+                        return LogString.emailSendFailed(subject, "Error");
+                    }
+                }
+            }
         }
         return writer.getResultMessage();
     }
@@ -1961,6 +2015,7 @@ public class StatisticTask extends ProgressTask {
 
     public static void createStatisticsTask(BaseFrame parentFrame, BaseDialog parentDialog, StatisticsRecord[] sr, AdminRecord admin) {
         StatisticTask statisticTask = new StatisticTask(sr, admin);
+        EfaUtil.setThreadName(statisticTask, "StatisticTask");
         ProgressDialog progressDialog = (parentFrame != null
                 ? new ProgressDialog(parentFrame, International.getString("Statistik erstellen"), statisticTask, true, true)
                 : (parentDialog != null

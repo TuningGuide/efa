@@ -13,7 +13,7 @@ import de.nmichael.efa.efa1.Synonyme;
 import de.nmichael.efa.efa1.DatenFelder;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.*;
-import de.nmichael.efa.statistics.StatisticHTMLWriter;
+import de.nmichael.efa.core.CrontabThread;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.zip.*;
@@ -778,6 +778,27 @@ public class EfaUtil {
         return s;
     }
 
+    public static String replaceNotAllowedCharacters(String s,
+            String allowedCharacters, String notAllowedCharacters,
+            String replacementCharacter) {
+        int i = 0;
+        while (i < s.length()) {
+            char c = s.charAt(i);
+            if ((allowedCharacters != null && allowedCharacters.indexOf(c) < 0)
+                    || (notAllowedCharacters != null && notAllowedCharacters.indexOf(c) >= 0)) {
+                s = (i > 0 ? s.substring(0, i) : "")
+                        + (replacementCharacter != null ? replacementCharacter : "")
+                        + (i + 1 < s.length() ? s.substring(i + 1) : "");
+                if (replacementCharacter != null) {
+                    i++;
+                }
+            } else {
+                i++;
+            }
+        }
+        return s;
+    }
+
     // Dateinamen in Großbuchstaben umwandelt, falls Windows-System
     public static String upcaseFileName(String s) {
         if (System.getProperty("file.separator").equals("\\")) {
@@ -1178,7 +1199,7 @@ public class EfaUtil {
         return new GregorianCalendar(datum.jahr, datum.monat - 1, datum.tag, zeit.tag, zeit.monat, zeit.jahr);
     }
 
-    public static Color getColor(String s) {
+    public static Color getColorOrGray(String s) {
         int cint;
         try {
             cint = Integer.parseInt(s, 16);
@@ -1186,6 +1207,14 @@ public class EfaUtil {
             cint = 204 * 65536 + 204 * 256 + 204;
         }
         return new Color(cint);
+    }
+
+    public static Color getColor(String s) {
+        try {
+            return new Color(Integer.parseInt(s, 16));
+        } catch (Exception ee) {
+            return null;
+        }
     }
 
     public static String getColor(Color c) {
@@ -1751,6 +1780,29 @@ public class EfaUtil {
         } else {
             return fname;
         }
+    }
+
+    public static void setThreadName(Thread t, String name) {
+        if (CrontabThread.CRONJOB_THREAD_NAME.equals(Thread.currentThread().getName())) {
+            t.setName(CrontabThread.CRONJOB_THREAD_NAME);
+        } else {
+            t.setName(name);
+        }
+    }
+
+    public static String readFile(String filename, String encoding) {
+        StringBuilder txt = new StringBuilder();
+        try {
+            BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(filename), encoding));
+            String s;
+            while ( (s = f.readLine()) != null) {
+                txt.append(s + "\n");
+            }
+            f.close();
+        } catch(Exception e) {
+            Logger.logdebug(e);
+        }
+        return txt.toString();
     }
 
     public static void main(String args[]) {

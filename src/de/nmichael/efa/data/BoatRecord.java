@@ -697,7 +697,11 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     }
 
     public int getNumberOfSeats(int idx) {
-        return EfaUtil.stringFindInt(getTypeSeats(idx), 0);
+        return getNumberOfSeats(idx, 0);
+    }
+
+    public int getNumberOfSeats(int idx, int defaultIfOther) {
+        return EfaUtil.stringFindInt(getTypeSeats(idx), defaultIfOther);
     }
 
     public static String getDetailedBoatType(String tBoatType, String tNumSeats, String tCoxing) {

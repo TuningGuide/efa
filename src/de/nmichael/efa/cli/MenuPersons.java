@@ -19,7 +19,8 @@ public class MenuPersons extends MenuData {
 
     public MenuPersons(CLI cli) {
         super(cli);
-        this.storageObject = cli.getPersistence(Persons.class, Project.STORAGEOBJECT_PERSONS);
+        this.storageObject = cli.getPersistence(Persons.class, 
+                Project.STORAGEOBJECT_PERSONS, Persons.DATATYPE);
         this.storageObjectDescription = "persons";
     }
 

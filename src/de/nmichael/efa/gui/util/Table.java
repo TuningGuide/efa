@@ -34,7 +34,8 @@ public class Table extends JTable {
     private int minColumnWidth = 50;
     private int[] minColumnWidths = null;
 
-    public Table(BaseDialog dlg, TableSorter sorter, TableCellRenderer renderer, TableItemHeader[] header, TableItem[][] data) {
+    public Table(BaseDialog dlg, TableSorter sorter, TableCellRenderer renderer, 
+            TableItemHeader[] header, TableItem[][] data, boolean allowSorting) {
         super(sorter);
         this.dlg = dlg;
         this.sorter = sorter;
@@ -47,7 +48,9 @@ public class Table extends JTable {
         }
         setDefaultRenderer(Object.class, renderer);
         this.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        sorter.addMouseListenerToHeaderInTable(this);
+        if (allowSorting) {
+            sorter.addMouseListenerToHeaderInTable(this);
+        }
         addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
@@ -186,13 +189,18 @@ public class Table extends JTable {
     }
 
     public static Table createTable(BaseDialog dlg, TableCellRenderer renderer, TableItemHeader[] header, TableItem[][] data) {
+        return createTable(dlg, renderer, header, data, true);
+    }
+
+    public static Table createTable(BaseDialog dlg, TableCellRenderer renderer, TableItemHeader[] header,
+            TableItem[][] data, boolean allowSorting) {
         for (int i=0; i<data.length; i++) {
             for (int j=0; j<data[i].length; j++) {
                 header[j].updateColumnWidth(data[i][j].toString());
             }
         }
         TableSorter sorter = new TableSorter(new DefaultTableModel(data, header));
-        Table t = new Table(dlg, sorter, renderer, header, data);
+        Table t = new Table(dlg, sorter, renderer, header, data, allowSorting);
         return t;
     }
 

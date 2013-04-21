@@ -133,6 +133,21 @@ public class BoatReservationListDialog extends DataListDialog {
         if (record == null) {
             return null;
         }
+        if (admin == null) {
+            try {
+                Boats boats = Daten.project.getBoats(false);
+                BoatRecord b = boats.getBoat(((BoatReservationRecord)record).getBoatId(), System.currentTimeMillis());
+                if (b.getOwner() != null && b.getOwner().length() > 0 &&
+                    !Daten.efaConfig.getValueMembersMayReservePrivateBoats()) {
+                    Dialog.error(International.getString("Privatboote dürfen nicht reserviert werden!"));
+                    return null;
+                }
+            } catch(Exception e) {
+                Logger.logdebug(e);
+                return null;
+            }
+        }
+
         try {
             return new BoatReservationEditDialog(parent, (BoatReservationRecord) record,
                     newRecord, allowNewReservationsWeekly, admin);

@@ -26,7 +26,8 @@ public class Audit extends Thread {
 
     private static final long MAX_MESSAGES_FILESIZE = 1024*1024;
     private static final long MAX_AUDIT_MESSAGE_BUFFER = 1024*1024;
-    
+
+    private static volatile boolean auditRunning = false;
     private Project project;
     private boolean correctErrors;
     private int errors = 0;
@@ -38,6 +39,10 @@ public class Audit extends Thread {
     public Audit(Project project) {
         this.project = project;
         this.correctErrors = Daten.efaConfig.getValueDataAuditCorrectErrors();
+        if (!correctErrors) {
+            auditWarning(Logger.MSG_DATA_AUDIT_NOTCORRECTERRORSSET,
+                    "Option DataAuditCorrectErrors is NOT set. Audit will only report errors, but not fix them.");
+        }
     }
 
     /*
@@ -1268,78 +1273,87 @@ public class Audit extends Thread {
     }
 
     public boolean runAudit() {
-        if (project == null || project.isInOpeningProject() || !project.isOpen() ||
-                project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+        if (auditRunning) {
             return true;
         }
-        errors = 0;
-        warnings = 0;
-        infos = 0;
-        auditMessages = new StringBuilder();
-        Logger.log(Logger.DEBUG,Logger.MSG_DATA_AUDIT,
-                "Starting Project Audit for Project: " + project.getProjectName());
-        addMessageToBuffer("Audit Report for Project: " + project.getProjectName());
-        try {
-            runAuditPersistence(project.getSessionGroups(false), SessionGroups.DATATYPE);
-            runAuditPersistence(project.getPersons(false), Persons.DATATYPE);
-            runAuditPersistence(project.getStatus(false), Status.DATATYPE);
-            runAuditPersistence(project.getGroups(false), Groups.DATATYPE);
-            runAuditPersistence(project.getFahrtenabzeichen(false), Fahrtenabzeichen.DATATYPE);
-            runAuditPersistence(project.getBoats(false), Boats.DATATYPE);
-            runAuditPersistence(project.getCrews(false), Crews.DATATYPE);
-            runAuditPersistence(project.getBoatStatus(false), BoatStatus.DATATYPE);
-            runAuditPersistence(project.getBoatReservations(false), BoatReservations.DATATYPE);
-            runAuditPersistence(project.getBoatDamages(false), BoatDamages.DATATYPE);
-            runAuditPersistence(project.getDestinations(false), Destinations.DATATYPE);
-            runAuditPersistence(project.getWaters(false), Waters.DATATYPE);
-            runAuditPersistence(project.getMessages(false), Messages.DATATYPE);
+        auditRunning = true;
 
-            runAuditBoats();
-            runAuditCrews();
-            runAuditGroups();
-            runAuditDestinations();
-            runAuditPersons();
-            runAuditFahrtenabzeichen();
-            runAuditMessages();
-            runAuditStatistics();
-            String[] logbookNames = project.getAllLogbookNames();
-            for (int i=0; logbookNames != null && i<logbookNames.length; i++) {
-                runAuditLogbook(logbookNames[i]);
+        try {
+            if (project == null || project.isInOpeningProject() || !project.isOpen()
+                    || project.getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
+                return true;
             }
-            if (errors == 0) {
-                runAuditPurgeDeletedRecords(project.getBoats(false),
-                        International.getString("Boot"));
-                runAuditPurgeDeletedRecords(project.getPersons(false),
-                        International.getString("Person"));
-                runAuditPurgeDeletedRecords(project.getDestinations(false),
-                        International.getString("Ziel"));
-                runAuditPurgeDeletedRecords(project.getGroups(false),
-                        International.getString("Gruppe"));
+            errors = 0;
+            warnings = 0;
+            infos = 0;
+            auditMessages = new StringBuilder();
+            Logger.log(Logger.DEBUG, Logger.MSG_DATA_AUDIT,
+                    "Starting Project Audit for Project: " + project.getProjectName());
+            addMessageToBuffer("Audit Report for Project: " + project.getProjectName());
+            try {
+                runAuditPersistence(project.getSessionGroups(false), SessionGroups.DATATYPE);
+                runAuditPersistence(project.getPersons(false), Persons.DATATYPE);
+                runAuditPersistence(project.getStatus(false), Status.DATATYPE);
+                runAuditPersistence(project.getGroups(false), Groups.DATATYPE);
+                runAuditPersistence(project.getFahrtenabzeichen(false), Fahrtenabzeichen.DATATYPE);
+                runAuditPersistence(project.getBoats(false), Boats.DATATYPE);
+                runAuditPersistence(project.getCrews(false), Crews.DATATYPE);
+                runAuditPersistence(project.getBoatStatus(false), BoatStatus.DATATYPE);
+                runAuditPersistence(project.getBoatReservations(false), BoatReservations.DATATYPE);
+                runAuditPersistence(project.getBoatDamages(false), BoatDamages.DATATYPE);
+                runAuditPersistence(project.getDestinations(false), Destinations.DATATYPE);
+                runAuditPersistence(project.getWaters(false), Waters.DATATYPE);
+                runAuditPersistence(project.getMessages(false), Messages.DATATYPE);
+
+                runAuditBoats();
+                runAuditCrews();
+                runAuditGroups();
+                runAuditDestinations();
+                runAuditPersons();
+                runAuditFahrtenabzeichen();
+                runAuditMessages();
+                runAuditStatistics();
+                String[] logbookNames = project.getAllLogbookNames();
+                for (int i = 0; logbookNames != null && i < logbookNames.length; i++) {
+                    runAuditLogbook(logbookNames[i]);
+                }
+                if (errors == 0) {
+                    runAuditPurgeDeletedRecords(project.getBoats(false),
+                            International.getString("Boot"));
+                    runAuditPurgeDeletedRecords(project.getPersons(false),
+                            International.getString("Person"));
+                    runAuditPurgeDeletedRecords(project.getDestinations(false),
+                            International.getString("Ziel"));
+                    runAuditPurgeDeletedRecords(project.getGroups(false),
+                            International.getString("Gruppe"));
+                }
+                if (Daten.NEW_FEATURES) {
+                    runAuditClubworks();
+                }
+            } catch (Exception e) {
+                Logger.logdebug(e);
+                auditError(Logger.MSG_DATA_AUDIT,
+                        "runAudit() Caught Exception: " + e.toString());
             }
-            if (Daten.NEW_FEATURES) {
-                runAuditClubworks();
+            boolean logEnd = (errors > 0 || warnings > 0 || infos > 0);
+            String s = Logger.log((errors == 0 ? (logEnd ? Logger.INFO : Logger.DEBUG) : Logger.ERROR),
+                    Logger.MSG_DATA_AUDIT,
+                    "Project Audit completed with " + errors + " Errors, " + warnings + " Warnings and "
+                    + infos + " Infos.", false);
+            if (errors > 0 || warnings > 0 && auditMessages != null) {
+                addMessageToBuffer(s);
+                Messages messages = (Daten.project != null ? Daten.project.getMessages(false) : null);
+                if (messages != null && messages.isOpen()) {
+                    messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME,
+                            MessageRecord.TO_ADMIN,
+                            "Audit Report", auditMessages.toString());
+                }
+
             }
-        } catch(Exception e) {
-            Logger.logdebug(e);
-            auditError(Logger.MSG_DATA_AUDIT,
-                    "runAudit() Caught Exception: " + e.toString());
+            return errors == 0;
+        } finally {
+            auditRunning = false;
         }
-        boolean logEnd = (errors > 0 || warnings > 0 || infos > 0);
-        String s = Logger.log( (errors == 0 ? (logEnd ? Logger.INFO : Logger.DEBUG) : Logger.ERROR),
-                Logger.MSG_DATA_AUDIT,
-                "Project Audit completed with " + errors + " Errors, " + warnings+ " Warnings and "+
-                infos +" Infos.", false);
-        if (errors > 0 || warnings > 0 && auditMessages != null) {
-            addMessageToBuffer(s);
-            Messages messages = (Daten.project != null ? Daten.project.getMessages(false) : null);
-            if (messages != null && messages.isOpen()) {
-                messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME,
-                        MessageRecord.TO_ADMIN,
-                        "Audit Report", auditMessages.toString());
-            }
-            
-        }
-        return errors == 0;
     }
 
     public void run() {

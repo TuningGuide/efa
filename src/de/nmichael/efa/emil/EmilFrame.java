@@ -192,12 +192,11 @@ public class EmilFrame extends JFrame {
       System.err.println("Error setting up ActionHandler");
     }
 
-    setIconImage(Toolkit.getDefaultToolkit().createImage(EmilFrame.class.getResource("/de/nmichael/efa/img/efa_icon.gif")));
     contentPane = (JPanel) this.getContentPane();
     titledBorder1 = new TitledBorder("");
     border1 = BorderFactory.createLineBorder(Color.black,2);
     contentPane.setLayout(borderLayout1);
-    this.setSize(new Dimension(820, 550));
+    this.setSize(new Dimension(850, 550));
     this.setTitle("emil - elektronischer Meldedatei Editor");
     jMenuFile.setMnemonic('D');
     jMenuFile.setText("Datei");

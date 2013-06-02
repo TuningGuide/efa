@@ -3,7 +3,7 @@
 
     <Version>
         <VersionID>2.1.0_xx</VersionID>
-        <ReleaseDate>xx.04.2013</ReleaseDate>
+        <ReleaseDate>xx.05.2013</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
         <DownloadSize></DownloadSize>
 
@@ -13,22 +13,30 @@
             <ChangeItem>Neu: Automatische und über das CLI erstellte Backups können per email verschickt werden</ChangeItem>
             <ChangeItem>Neu: Statistikauswertungen können per email verschickt werden</ChangeItem>
             <ChangeItem>Neu: Individuelle Statistikauswertungen können per CLI auch für alle Personen/Boote/Gruppen in einem Rutsch erstellt werden</ChangeItem>
+            <ChangeItem>Neu: Erfassung von Änderungswünschen für Fahrtenbucheinträge durch Mitglieder</ChangeItem>
+            <ChangeItem>Neu: Konfigurierbare Hinweise für selektive Boote beim Beginnen und Beenden von Fahrten</ChangeItem>
+            <ChangeItem>Neu: Verbesserte Unterstützung von Touchscreens (experimentell)</ChangeItem>
+            <ChangeItem>Neu: Einfache Statistikausgabe in Tabellenform für leistungsschwache Computer</ChangeItem>
+            <ChangeItem>Neu: Verbesserte Geschwindigkeit beim ersten Aufruf des Dialogs zum Fahrt beginnen/beenden auf langsamen Computern</ChangeItem>
             <ChangeItem>Neu: Statistikeinstellungen können kopiert und unter einem neuen Namen abgespeichert werden</ChangeItem>
+            <ChangeItem>Neu: Der Name einer abgespeicherten Statistikeinstellung wird jetzt auch als Titel für die Statistikausgabe verwendet</ChangeItem>
             <ChangeItem>Neu: Beim Datenexport können wahlweise auch nur selektierte oder entsprechend des Filters gewählte Datensätze exportiert werden</ChangeItem>
             <ChangeItem>Neu: Wiederherzustellende Daten eines Backups werden nach Konfiguration und Projektdaten sortiert, und können entsprechend selektiert werden</ChangeItem>
             <ChangeItem>Neu: efa warnt vor Inkonsistenten Daten im Falle einer unvollständigen Wiederherstellung eines Projekt-Backups</ChangeItem>
             <ChangeItem>Neu: Gesamte Wanderfahrt-Kilometer und Zielbereiche werden in Kilometerlisten-Statistiken am Ende aufsummiert ausgegeben</ChangeItem>
-            <ChangeItem>Neu: Verbesserte Geschwindigkeit beim ersten Aufruf des Dialogs zum Fahrt beginnen/beenden auf langsamen Computern</ChangeItem>
             <ChangeItem>Neu: Verbesserter Dialog beim Erstellen von neuen Versionen eines Datensatzes</ChangeItem>
             <ChangeItem>Neu: Bei Booten auf Fahrt mit Enddatum wird dieses jetzt auch in Statuszeile angezeigt</ChangeItem>
-            <ChangeItem>Neu: Einfache Statistikausgabe in Tabellenform für leistungsschwache Computer</ChangeItem>
-            <ChangeItem>Neu: Verbesserte Unterstützung von Touchscreens (experimentell)</ChangeItem>
             <ChangeItem>Neu: Zusätzliche (virtuelle) Ausgabefelder für Listenausgabe der Bootsreservierungen</ChangeItem>
             <ChangeItem>Neu: Zusätzliche Statistikfilter nach Inhalt des Bemerkungsfelds und Mindestentfernung einer Fahrt</ChangeItem>
             <ChangeItem>Neu: Das Reservieren von Privatbooten durch Mitglieder kann in der efa-Konfiguration im Expertenmodus jetzt unterbunden werden</ChangeItem>
             <ChangeItem>Neu: Die Möglichkeit, für Fahrten ein Enddatum einzugeben, kann in der efa-Konfiguration im Expertenmodus jetzt unterbunden werden</ChangeItem>
             <ChangeItem>Neu: Meldungen zum DRV-Fahrtenabzeichen enthalten jetzt eine interne ID, um das elektronische Fahrtenheft nach Download auch im Falle eines Namenswechsels noch eindeutig zuordnen zu können</ChangeItem>
             <ChangeItem>Neu: Liste der DRV-Fahrtenabzeichen kann jetzt besser formatiert ausgegeben und ausgedruckt werden</ChangeItem>
+            <ChangeItem>Neu: Zugriffsstatistik für efaRemote-Zugriffe im Client</ChangeItem>
+            <ChangeItem>Neu: Sämtliche Daten sind jetzt auch über efaCLI zugänglich</ChangeItem>
+            <ChangeItem>Neu: Import und Export von Daten in efaCLI</ChangeItem>
+            <ChangeItem>Neu: Zeichensatz (Encoding) für HTML-Statistikausgabe kann jetzt zwischen UTF-8 und ISO-8859-1 ausgewählt werden</ChangeItem>
+            <ChangeItem>Neu: Meldedateieditor "emil" aus efa 1 wieder in efa2 enthalten (unsupported)</ChangeItem>
             <ChangeItem>Bugfix: Bei entsprechend gesetzter Option wird ein Boot, das auf Regatta oder Mehrtagesfahrt unterwegs ist, jetzt korrekt als nicht verfügbar angezeigt</ChangeItem>
             <ChangeItem>Bugfix: efa1-Import hat unter Windows Fahrtenbücher in unterschiedlicher Groß-/Kleinschreibung nicht als identisch erkannt</ChangeItem>
             <ChangeItem>Bugfix: Entsperren von efa war ohne Admin-Login möglich</ChangeItem>
@@ -37,9 +45,37 @@
             <ChangeItem>Bugfix: Als Personen zur Eingabe für Gruppen und Mannschaften zeigt efa jetzt nur noch gültige, bzw. im Zeitraum des Fahrtenbuchs gültige Personen zur Auswahl an</ChangeItem>
             <ChangeItem>Bugfix: Buttons für Bootsreservierungen und Bootsschäden werden jetzt im Kontext-Menü nur dann angezeigt, wenn die entsprechenden Buttons/Funktionen auch aktiviert sind</ChangeItem>
             <ChangeItem>Bugfix: Bemerkungstext eines Bootes, dessen Reservierung explizit durch den Admin gelöscht wurde, wird jetzt von efa korrekt auf "verfügbar" gesetzt</ChangeItem>
+            <ChangeItem>Bugfix: Nach Datenimport wird jetzt automatisch der Audit gestartet, um ggf. Inkonsistenzen zu erkennen und zu korrigieren</ChangeItem>
+            <ChangeItem>Bugfix: Der Audit gibt jetzt eine Warnung aus falls die Test-Option DataAuditCorrectErrors nicht gesetzt sein sollte</ChangeItem>
+            <ChangeItem>Bugfix: Bootsschaden in Bermerkungstext eines Boots wird nach Löschen/Beheben des Schadens jetzt entfernt</ChangeItem>
+            <ChangeItem>Bugfix: Geschwindigkeit von Wiederherstellung eines Backups über efaRemote deutlich verbessert</ChangeItem>
+            <ChangeItem>Bugfix: Automatischer Fahrtenbuchwechsel jetzt auch für efaRemote-Clients unterstützt</ChangeItem>
+            <ChangeItem>Bugfix: efa überprüft jetzt Größe des Logfiles auch im laufenden Betrieb und schaltet Logging aus wenn Logfile eine maximale Größe überschreitet</ChangeItem>
+            <ChangeItem>Bugfix: Unvollständige Erstellung von Meldedateien behoben falls Kurzausgabe selektiert ist</ChangeItem>
+            <ChangeItem>Bugfix: Meldung von Bootsschäden für bereits ungültige Boote wird jetzt unterdrückt</ChangeItem>
+            <ChangeItem>Bugfix: Darstellungsfehler von scrollendem News-Text behoben</ChangeItem>
+            <ChangeItem>Bugfix: Fehler bei Dekodierung von ItemLists behoben</ChangeItem>
+            <ChangeItem>Sprache: Dänische Sprachunterstützung aktualisiert</ChangeItem>
         </Changes>
 
         <Changes lang="en">
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.0.7_18</VersionID>
+        <ReleaseDate>25.04.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
+        <DownloadSize>3201776</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: NullPointerException bei Booten ohne Namen behoben</ChangeItem>
+            <ChangeItem>Bugfix: Berechnung von Anfahrt- und Abfahrtzeiten bei Konfiguration von "0 Minuten hinzuaddieren" behoben</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: NullPointerException for boats without names fixed</ChangeItem>
+            <ChangeItem>Bugfix: Calculation of session start and end times for configuration of "add 0 minutes" fixed</ChangeItem>
         </Changes>
     </Version>
 

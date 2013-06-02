@@ -354,8 +354,10 @@ public class Project extends StorageObject {
             }
 
             data().deleteStorageObject();
-            (new File(projectDir)).delete(); // delete project directory
-            if ((new File(projectDir)).exists()) {
+            if (projectDir != null) {
+                (new File(projectDir)).delete(); // delete project directory
+            }
+            if (projectDir == null || (new File(projectDir)).exists()) {
                 Dialog.error(International.getMessage("Das Projekt konnte nicht vollständig gelöscht werden. Es befinden sich noch Daten in {directory}.",
                         projectDir));
             }

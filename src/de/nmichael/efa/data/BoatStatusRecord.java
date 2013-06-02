@@ -420,7 +420,10 @@ public class BoatStatusRecord extends DataRecord {
         return status;
     }
 
-    public static String createStatusString(String fahrttype, String ziel, String datum, String zeit, String person, String enddate) {
+    public static String createStatusString(String fahrttype, String ziel, 
+            DataTypeDate date, DataTypeTime time, String person, String enddate) {
+        String datum = (date != null ? date.toString() : "");
+        String zeit = (time != null ? time.toString() : "");
         String aufFahrtart = "";
         if (Daten.efaTypes != null && fahrttype != null) {
             if (fahrttype.equals(EfaTypes.TYPE_SESSION_REGATTA)) {

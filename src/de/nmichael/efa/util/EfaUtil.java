@@ -97,6 +97,13 @@ public class EfaUtil {
         return s;
     }
 
+    public static String getStringPadLeft(String s, int length) {
+        while (s.length() < length) {
+            s = " " + s;
+        }
+        return s;
+    }
+
     public static String getHHMMstring(long minutes) {
         long hh = minutes / 60;
         long mm = minutes % 60;
@@ -423,6 +430,27 @@ public class EfaUtil {
             }
         }
         return v;
+    }
+
+    public static String[] split(String s, String sep) {
+        if (s == null) {
+            return null;
+        }
+        ArrayList<String> list = new ArrayList<String>();
+        while (s.length() != 0) {
+            int pos = s.indexOf(sep);
+            if (pos >= 0) {
+                list.add(s.substring(0, pos));
+                s = s.substring(pos + sep.length(), s.length());
+                if (s.length() == 0) {
+                    list.add(""); // letztes (leeres) Element hinter letztem Trennzeichen
+                }
+            } else if (s.length() > 0) {
+                list.add(s);
+                s = "";
+            }
+        }
+        return list.toArray(new String[0]);
     }
 
     /*
@@ -1652,6 +1680,27 @@ public class EfaUtil {
         return (addDots ?
             s.substring(0, maxchar-3) + "..."
             : s.substring(0, maxchar));
+    }
+
+    public static String wrapString(String s, int maxchar) {
+        StringBuffer str = new StringBuffer();
+        while (s.length() > 0) {
+            s = s.trim();
+            int pos = -1;
+            for (int i=0; i<s.length() && (i < maxchar || pos < 0); i++) {
+                if (s.charAt(i) == ' ') {
+                    pos = i;
+                }
+            }
+            if (pos > 0) {
+                str.append((str.length() > 0 ? "\n" : "") + s.substring(0, pos));
+                s = s.substring(pos+1);
+            } else {
+                str.append(s);
+                s = "";
+            }
+        }
+        return str.toString();
     }
 
     public static XMLReader tryToGetXMLReader(String classname) {

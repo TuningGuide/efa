@@ -693,6 +693,12 @@ public abstract class DataFile extends DataAccess {
         }
     }
 
+    public void addAll(DataRecord[] records, long lockID) throws EfaException {
+        for (DataRecord r : records) {
+            add(r, lockID);
+        }
+    }
+
     public void update(DataRecord record) throws EfaException {
         modifyRecord(record, 0, false, true, false);
     }

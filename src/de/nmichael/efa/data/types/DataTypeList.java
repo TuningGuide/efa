@@ -32,7 +32,7 @@ public class DataTypeList<T> {
 
     public DataTypeList(T[] array) {
         this.list = new ArrayList<T>();
-        for (int i=0; i<array.length; i++) {
+        for (int i=0; array != null && i<array.length; i++) {
             this.list.add(array[i]);
         }
     }

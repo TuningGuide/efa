@@ -30,12 +30,12 @@ import javax.swing.plaf.ColorUIResource;
 // @i18n complete
 public class Daten {
 
-    public final static String VERSION            = "2.0.7"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID          = "2.0.7_19";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-    public final static String VERSIONRELEASEDATE = "24.03.2013";  // Release Date: TT.MM.JJJJ
+    public final static String VERSION            = "2.1.0"; // Version für die Ausgabe (i.d.R. gleich VERSIONID, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
+    public final static String VERSIONID          = "2.1.0_#1";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "01.06.2013";  // Release Date: TT.MM.JJJJ
     public final static String MAJORVERSION       = "2";
-    public final static String PROGRAMMID         = "EFA.207"; // Versions-ID für Wettbewerbsmeldungen
-    public final static String PROGRAMMID_DRV     = "EFADRV.207"; // Versions-ID für Wettbewerbsmeldungen
+    public final static String PROGRAMMID         = "EFA.210"; // Versions-ID für Wettbewerbsmeldungen
+    public final static String PROGRAMMID_DRV     = "EFADRV.210"; // Versions-ID für Wettbewerbsmeldungen
     public final static String COPYRIGHTYEAR      = "13";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
 
     // enable/disable development functions for next version
@@ -456,9 +456,7 @@ public class Daten {
                         IItemType.TYPE_PUBLIC, "",
                         International.getString("In welchem Verzeichnis soll efa sämtliche Benutzerdaten ablegen?"));
                 dir.setFieldSize(600, 19);
-                SimpleInputDialog dlg = new SimpleInputDialog((Frame) null, International.getString("Verzeichnis für Nutzerdaten"), dir);
-                dlg.showDialog();
-                if (dlg.getDialogResult()) {
+                if (SimpleInputDialog.showInputDialog((Frame)null, International.getString("Verzeichnis für Nutzerdaten"), dir)) {
                     dir.getValueFromGui();
                     if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
                         Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "iniUserDirectory(): input=" + dir.getValue());

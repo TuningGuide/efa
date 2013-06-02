@@ -83,7 +83,7 @@ public class VersionizedDataDeleteDialog extends BaseDialog implements IItemList
                                             "frühere Fahrtenbücher darauf nicht mehr zugreifen und " +
                                             "Eigenschaften des Datensatzes für Statistikzwecke nicht mehr " +
                                             "verwendet werden. Datensätze sollten daher nur in absoluten Ausnahmefällen " +
-                                            "komplett gelöscht werden, wenn diese Daten (auch aus der Vergangenheit)" +
+                                            "komplett gelöscht werden, wenn diese Daten (auch aus der Vergangenheit) " +
                                             "wirklich nie wieder benötigt werden. Normalerweise (z.B. beim Austritt eines "+
                                             "Mitglieds oder Verkauf eines Bootes) sollten Datensätze lediglich ab einem " +
                                             "bestimmten Datum gelöscht werden, so daß sie für den Zeitraum davor noch zur " +

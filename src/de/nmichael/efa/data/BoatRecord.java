@@ -652,7 +652,7 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
 
     public String getQualifiedName() {
         String name = getName();
-        if (name != null & name.length() > 0 && getNameAffix() != null && getNameAffix().length() > 0) {
+        if (name != null && name.length() > 0 && getNameAffix() != null && getNameAffix().length() > 0) {
             name = name + " (" + getNameAffix() + ")";
         }
         return (name != null ? name : "");

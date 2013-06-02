@@ -26,21 +26,33 @@ public class HtmlFactory {
         }
     }
 
-    public static void writeHeader(BufferedWriter f, String title, boolean withH1) throws IOException {
-        f.write("<html>\n");
-        f.write("<head>\n");
-        f.write("<meta http-equiv=\"content-type\" content=\"text/html; charset=" + Daten.ENCODING_UTF + "\">\n");
-        f.write("<title>" + title + "</title>\n");
-        f.write("</head>\n");
-        f.write("<body>\n");
+    public static String getHeader(String title, boolean withH1) {
+        StringBuilder s = new StringBuilder();
+        s.append("<html>\n");
+        s.append("<head>\n");
+        s.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=" + Daten.ENCODING_UTF + "\">\n");
+        s.append("<title>" + title + "</title>\n");
+        s.append("</head>\n");
+        s.append("<body>\n");
         if (withH1) {
-            f.write("<h1 align=\"center\">" + title + "</h1>\n");
+            s.append("<h1 align=\"center\">" + title + "</h1>\n");
         }
+        return s.toString();
+    }
+
+    public static void writeHeader(BufferedWriter f, String title, boolean withH1) throws IOException {
+        f.write(getHeader(title, withH1));
+    }
+
+    public static String getFooter() {
+        StringBuilder s = new StringBuilder();
+        s.append("</body>\n");
+        s.append("</html>\n");
+        return s.toString();
     }
 
     public static void writeFooter(BufferedWriter f) throws IOException {
-        f.write("</body>\n");
-        f.write("</html>\n");
+        f.write(getFooter());
     }
 
     public static String createMailto(String email) {

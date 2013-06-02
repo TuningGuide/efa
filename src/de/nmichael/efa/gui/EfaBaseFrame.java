@@ -1665,10 +1665,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             }
         }
 
-        if (addMinutes != 0) {
-            field.parseAndShowValue(now.toString());
-            field.setSelection(0, Integer.MAX_VALUE);
-        }
+        field.parseAndShowValue(now.toString());
+        field.setSelection(0, Integer.MAX_VALUE);
     }
 
     void updateTimeInfoFields() {
@@ -4160,8 +4158,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                     newComment = BoatStatusRecord.createStatusString(
                             currentRecord.getSessionType(),
                             currentRecord.getDestinationAndVariantName(tstmp),
-                            currentRecord.getDate().toString(),
-                            currentRecord.getStartTime().toString(),
+                            currentRecord.getDate(),
+                            currentRecord.getStartTime(),
                             currentRecord.getAllCoxAndCrewAsNameString(),
                             (currentRecord.getEndDate() != null ? currentRecord.getEndDate().toString() : null));
                     if (BoatStatusRecord.isOnTheWaterShowNotAvailable(currentRecord.getSessionType(),
@@ -4315,7 +4313,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             this.setVisible(false);
             Dialog.frameClosed(this);
         }
-        efaBoathouseFrame.showEfaBoathouseFrame(efaBoathouseAction);
+        efaBoathouseFrame.showEfaBoathouseFrame(efaBoathouseAction, currentRecord);
     }
 
 

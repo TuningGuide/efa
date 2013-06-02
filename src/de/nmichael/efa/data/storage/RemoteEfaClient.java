@@ -35,7 +35,6 @@ public class RemoteEfaClient extends DataAccess {
     private int loginAttempts = 0;
     private long lastLoginFailed = -1;
 
-    private Hashtable<String,Long> statistics = new Hashtable<String,Long>();
     private long lastPrintStatistics = 0;
 
     public RemoteEfaClient(String location, String username, String password, String name, String extension, String description) {
@@ -107,7 +106,8 @@ public class RemoteEfaClient extends DataAccess {
                 r.addField(RemoteEfaMessage.FIELD_PASSWORD, getStoragePassword());
                 r.addField(RemoteEfaMessage.FIELD_PID, Daten.applPID);
             }
-            updateStatistics("Sent:" + requests.get(i).getOperationName(), 1);
+            AccessStatistics.updateStatistics(this, requests.get(i).getOperationName(),
+                    AccessStatistics.COUNTER_REQSENT, 1);
         }
 
         StringBuffer request = new StringBuffer();
@@ -117,6 +117,10 @@ public class RemoteEfaClient extends DataAccess {
             request.append(requests.get(i).toString());
         }
         request.append("</" + RemoteEfaParser.XML_EFA + ">");
+        for (int i = 0; i < requests.size(); i++) {
+            AccessStatistics.updateStatistics(this, requests.get(i).getOperationName(),
+                    AccessStatistics.COUNTER_BYTESSENT, request.length() / requests.size());
+        }
 
         if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 5)) {
             Logger.log(Logger.DEBUG, Logger.MSG_REFA_DEBUGCOMMUNICATION, "Sending Request [" + url.toString() + "]: " + request.toString());
@@ -147,41 +151,60 @@ public class RemoteEfaClient extends DataAccess {
         out.flush();
         out.close();
 
-        updateStatistics("Sent:Requests", 1);
-
         Vector<RemoteEfaMessage> responses = getResponse(connection, 
                 RemoteEfaMessage.getBufferedInputStream(connection.getInputStream(),
                 Daten.efaConfig.getValueDataRemoteClientReceiveTimeout()));
         if (responses == null) {
+            for (int i = 0; i < requests.size(); i++) {
+                AccessStatistics.updateStatistics(this, requests.get(i).getOperationName(),
+                        AccessStatistics.COUNTER_TIMEOUT, 1);
+            }
             throw new Exception("Receive Timeout");
         }
         long reqEndTs = System.currentTimeMillis();
         for (int i = 0; i < requests.size(); i++) {
-           updateStatistics("Delay:" + requests.get(i).getOperationName(), reqEndTs-reqStartTs);
+            AccessStatistics.updateStatistics(this, requests.get(i).getOperationName(),
+                    AccessStatistics.COUNTER_TIME, reqEndTs-reqStartTs);
         }
 
-        if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 2)) {
-            for (int i=0; i<responses.size(); i++) {
-                RemoteEfaMessage req = (i < requests.size() ? requests.get(i) : null);
-                RemoteEfaMessage msg = responses.get(i);
-                if (msg == null) {
-                    continue;
-                }
-                Logger.log(Logger.DEBUG, Logger.MSG_REFA_TRACECOMMUNICATION, "Rcv: " +
-                        (req != null ? req.getStorageObjectName() + "." + req.getStorageObjectType() + ":" + req.getOperationName() :
-                                       msg.getOperationName() ) +
-                        " (" + msg.toString().length() + " bytes) [" +
-                        (reqEndTs-reqStartTs) + " ms]");
+        for (int i = 0; i < responses.size(); i++) {
+            RemoteEfaMessage req = (i < requests.size() ? requests.get(i) : null);
+            RemoteEfaMessage msg = responses.get(i);
+            if (msg == null) {
+                continue;
+            }
+            AccessStatistics.updateStatistics(this, req.getOperationName(),
+                    AccessStatistics.COUNTER_BYTESRCVD, msg.getMessageSizeEstimate());
+            AccessStatistics.updateStatistics(this, req.getOperationName(),
+                    AccessStatistics.COUNTER_REQRCVD, 1);
+            if (msg.getNumberOfRecords() > 0) {
+                AccessStatistics.updateStatistics(this, req.getOperationName(),
+                        AccessStatistics.COUNTER_RECSRCVD, msg.getNumberOfRecords());
+            }
+            if (msg.getNumberOfKeys() > 0) {
+                AccessStatistics.updateStatistics(this, req.getOperationName(),
+                        AccessStatistics.COUNTER_RECSRCVD, msg.getNumberOfKeys());
+            }
+
+
+            if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 2)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_REFA_TRACECOMMUNICATION, "Rcv: "
+                        + (req != null ? req.getStorageObjectName() + "." + req.getStorageObjectType() + ":" + req.getOperationName()
+                        : msg.getOperationName())
+                        + " (" + msg.toString().length() + " bytes) ["
+                        + (reqEndTs - reqStartTs) + " ms]");
             }
         }
         getGeneralDataFromResponses(responses);
         return responses;
     }
 
-    private Vector<RemoteEfaMessage> getResponse(URLConnection connection, BufferedInputStream in) {
-        if (in == null) {
+    private Vector<RemoteEfaMessage> getResponse(URLConnection connection, RemoteEfaMessage.EfaMessageInputStream eis) {
+        if (eis == null || eis.in == null) {
             return null;
         }
+        BufferedInputStream in = eis.in;
+        
         if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 5)) {
             try {
                 in.mark(1024 * 1024);
@@ -212,7 +235,6 @@ public class RemoteEfaClient extends DataAccess {
             }
         }
 
-        updateStatistics("Rcvd:Responses", 1);
         try {
             XMLReader parser = EfaUtil.getXMLReader();
             RemoteEfaParser responseHandler = new RemoteEfaParser(this);
@@ -235,17 +257,23 @@ public class RemoteEfaClient extends DataAccess {
                             this.adminRecord.setRemoteAdminRecord(true);
                         }
                     }
+                    for (int i=0; i<responses.size(); i++) {
+                        responses.get(i).setMessageSizeEstimate(eis.size/responses.size());
+                    }
                 }
-                updateStatistics("Rcvd:Responses:Ok", 1);
+                AccessStatistics.updateStatistics(this, "All",
+                        AccessStatistics.COUNTER_RESPOK, 1);
                 return responses;
             } else {
-                updateStatistics("Rcvd:Responses:Err", 1);
+                AccessStatistics.updateStatistics(this, "All",
+                        AccessStatistics.COUNTER_RESPERR, 1);
                 return null;
             }
         } catch(Exception e) {
             Logger.log(Logger.ERROR, Logger.MSG_REFA_INVALIDRESPONSE, "Get Response failed: " + e.toString());
             Logger.logdebug(e);
-            updateStatistics("Rcvd:Responses:Err", 1);
+            AccessStatistics.updateStatistics(this, "All",
+                    AccessStatistics.COUNTER_RESPERR, 1);
             return null;
         }
     }
@@ -272,14 +300,10 @@ public class RemoteEfaClient extends DataAccess {
                             cache.updateCache(records[j], scn, totalRecordCount);
                         }
                     }
-                    updateStatistics("Rcvd:Records", records.length);
                 } else {
                     cache.updateScn(scn, totalRecordCount);
                 }
                 DataKey[] keys = response.getKeys();
-                if (keys != null) {
-                    updateStatistics("Rcvd:Keys", keys.length);
-                }
             }
 
             if (response != null &&
@@ -544,6 +568,25 @@ public class RemoteEfaClient extends DataAccess {
                     Thread.currentThread().getStackTrace());
         }
         return response.getKey(0);
+    }
+
+    public void addAll(DataRecord[] records, long lockID) throws EfaException {
+        RemoteEfaMessage request = RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
+                RemoteEfaMessage.OPERATION_ADDALL);
+        for (DataRecord r : records) {
+            request.addRecord(r);
+        }
+        if (lockID > 0) {
+            request.addField(RemoteEfaMessage.FIELD_LOCKID, Long.toString(lockID));
+        }
+        RemoteEfaMessage response = runDataRequest(request);
+        if (response == null || response.getResultCode() != RemoteEfaMessage.RESULT_OK) {
+            throw new EfaException(Logger.MSG_REFA_REQUESTFAILED,
+                    getErrorLogstring(RemoteEfaMessage.OPERATION_ADDALL,
+                    (response != null ? response.getResultText() : "unknown"),
+                    (response != null ? response.getResultCode() : -1)),
+                    Thread.currentThread().getStackTrace());
+        }
     }
 
     public DataRecord get(DataKey key) throws EfaException {
@@ -916,56 +959,5 @@ public class RemoteEfaClient extends DataAccess {
                     (response != null ? response.getResultCode() : -1)));
         }
     }
-
-
-    private void updateStatistics(String item, long count) {
-        if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 1)) {
-            synchronized (statistics) {
-                Long l = statistics.get(item);
-                if (l == null) {
-                    l = new Long(0);
-                }
-                l += count;
-                statistics.put(item, l);
-                long now = System.currentTimeMillis();
-                if (now - lastPrintStatistics > 60000) {
-                    if (now > 0) {
-                        lastPrintStatistics = now;
-                        printStatistics();
-                    } else {
-                        lastPrintStatistics = now;
-                    }
-                }
-            }
-        }
-    }
-
-    private void printStatistics() {
-        if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 1)) {
-            synchronized(statistics) {
-                String[] keys = statistics.keySet().toArray(new String[0]);
-                if (keys != null || keys.length > 0) {
-                    Arrays.sort(keys);
-                    for (int i=0; i<keys.length; i++) {
-                        Logger.log(Logger.DEBUG, Logger.MSG_REFA_DEBUGCOMMUNICATION,
-                                "RemoteEfaClient:Statistics:" + getStorageObjectName() + "." + getStorageObjectType() + ":" + keys[i] + ": " + statistics.get(keys[i]));
-                    }
-                }
-            }
-        }
-    }
-
-    public static void main(String[] args) {
-        Logger.setDebugLogging(true, true);
-        Logger.setTraceTopic("0x4000", true);
-        RemoteEfaClient client = new RemoteEfaClient("127.0.0.1:3834", "admin", "nieaibrc", "2011", Logbook.DATATYPE, "Logbook");
-        try {
-            System.out.println(client.isStorageObjectOpen());
-            System.out.println(client.get(LogbookRecord.getKey(DataTypeIntString.parseString("170"))));
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 
 }

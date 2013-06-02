@@ -47,6 +47,7 @@ public class RemoteEfaMessage {
     public static final String OPERATION_GETSCN                  = "GetSCN";
     public static final String OPERATION_ADD                     = "Add";
     public static final String OPERATION_ADDVALIDAT              = "AddValidAt";
+    public static final String OPERATION_ADDALL                  = "AddAll";
     public static final String OPERATION_GET                     = "Get";
     public static final String OPERATION_GETALLKEYS              = "GetAllKeys";
     public static final String OPERATION_GETBYFIELDS             = "GetByFields";
@@ -120,6 +121,7 @@ public class RemoteEfaMessage {
     private Vector<DataKey> keys;
     private Hashtable<String,String> fields;
     private AdminRecord adminRecord;
+    private int sizeEstimate; // just for statistic purposes
 
     public RemoteEfaMessage(int msgId, Type type, String operation) {
         this.msgId = msgId;
@@ -428,7 +430,7 @@ public class RemoteEfaMessage {
 
     // ===================================== Compression Handling =====================================
 
-    public static BufferedInputStream getBufferedInputStream(InputStream in, long timeoutSec) {
+    public static EfaMessageInputStream getBufferedInputStream(InputStream in, long timeoutSec) {
         try {
             // RemoteEfaServer has to call this method without a timeout (timeoutSec == 0).
             // RemoteEfaClient should supply a timeout value to avoid blocking
@@ -454,9 +456,10 @@ public class RemoteEfaMessage {
                     }
                 }
             }
+            int sizeEstimate = in.available();
             ZipInputStream zip = new ZipInputStream(in);
             ZipEntry entry = zip.getNextEntry();
-            return new BufferedInputStream(zip);
+            return new EfaMessageInputStream(new BufferedInputStream(zip), sizeEstimate);
         } catch(Exception e) {
             return null;
         }
@@ -471,4 +474,30 @@ public class RemoteEfaMessage {
             return null;
         }
     }
+
+    // ===================================== Message Size ====================================
+
+    public void setMessageSizeEstimate(int size) {
+        sizeEstimate = size;
+    }
+
+    public int getMessageSizeEstimate() {
+        return sizeEstimate;
+    }
+
+    // ===================================== Input Stream Wrapper ====================================
+
+    static class EfaMessageInputStream {
+
+        BufferedInputStream in;
+        int size;
+
+        public EfaMessageInputStream(BufferedInputStream in, int size) {
+            this.in = in;
+            this.size = size;
+        }
+
+
+    }
+
 }

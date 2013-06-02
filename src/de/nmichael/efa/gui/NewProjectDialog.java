@@ -129,10 +129,6 @@ public class NewProjectDialog extends StepwiseDialog implements IItemListener {
                 item.requestFocus();
                 return false;
             }
-            if (item.getValue().equals(IDataAccess.TYPESTRING_EFA_REMOTE)) {
-                Dialog.infoDialog(International.getMessage("Die ausgewählte Option '{option}' ist zur Zeit experimentell und nur bedingt funktionsfähig.",
-                        item.getValue()));
-            }
 
             // remove all StorageType-specific config options
             ProjectRecord rPrj = Project.createNewRecordFromStatic(ProjectRecord.TYPE_PROJECT);

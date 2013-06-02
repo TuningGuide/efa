@@ -2587,8 +2587,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         ItemTypeTextArea item = new ItemTypeTextArea("TEXT",
                 h.toString() + s.toString(),
                 IItemType.TYPE_PUBLIC, "", "Text");
-        SimpleInputDialog dlg = new SimpleInputDialog(this, "Nachfragen", item);
-        dlg.showDialog();
+        SimpleInputDialog.showInputDialog(this, "Nachfragen", item);
     }
 
     void vUnblockButton_actionPerformed(ActionEvent e) {

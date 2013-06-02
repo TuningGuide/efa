@@ -18,8 +18,10 @@ import java.util.*;
 // @i18n complete
 public class Logger {
 
-    private static final int LOGGING_THRESHOLD     = 1000; // max LOGGING_THRESHOLD logging messages per second
-    private static final int LOGGING_THRESHOLD_ERR = 100; // max LOGGING_THRESHOLD logging messages per second
+    private static final int LOGGING_THRESHOLD      = 1000; // max LOGGING_THRESHOLD logging messages per second
+    private static final int LOGGING_THRESHOLD_ERR  = 100;  // max LOGGING_THRESHOLD logging messages per second
+    private static final int LOGGING_CHECK_FILESIZE = 1000; // number of log messages after which to check file size
+    private static final int MAX_LOG_FILE_SIZE = 1048576;
 
     // Message Types
     public static final String ERROR = "ERROR";
@@ -126,6 +128,7 @@ public class Logger {
     public static final String MSG_LOGGER_DEBUGDEACTIVATED = "LOG004";
     public static final String MSG_LOGGER_THRESHOLDEXCEEDED = "LOG005";
     public static final String MSG_LOGGER_TRACETOPIC = "LOG006";
+    public static final String MSG_LOGGER_STOPLOGGING = "LOG007";
     // de.nmichael.efa.EfaErrorPrintStream
     public static final String MSG_ERROR_EXCEPTION = "EXC001";
     // de.nmichael.efa.International
@@ -184,7 +187,9 @@ public class Logger {
     public static final String MSG_DATA_AUDIT_BOATSTATUSCORRECTED = "DAT048";
     public static final String MSG_DATA_AUDIT_OBJECTCREATED = "DAT049";
     public static final String MSG_DATA_AUDIT_OBJECTCREATIONFAILED = "DAT050";
-    public static final String MSG_DATA_REPLAYINCOMPLETE  = "DAT051";
+    public static final String MSG_DATA_AUDIT_NOTCORRECTERRORSSET = "DAT051";
+    public static final String MSG_DATA_REPLAYINCOMPLETE  = "DAT052";
+    public static final String MSG_DATA_DATAACCESS  = "DAT053";
     
     public static final String MSG_REFA_SERVERSTATUS                 = "RMT001";
     public static final String MSG_REFA_SERVERERROR                  = "RMT002";
@@ -449,11 +454,14 @@ public class Logger {
     private static boolean debugLoggingActivatedByCommandLine = false; // if set by Command Line, this overwrites any configuration in EfaConfig
     private static boolean globalTraceTopicSetByCommandLine = false;   // if set by Command Line, this overwrites any configuration in EfaConfig
     private static boolean globalTraceLevelSetByCommandLine = false;   // if set by Command Line, this overwrites any configuration in EfaConfig
+    private static Object logLock = new Object();
+    private static volatile long totalLogCount = 0;
     private static volatile long lastLog;
     private static volatile long[] logCount;
     private static volatile boolean doNotLog = false;
     private static volatile boolean inMailError = false;
     private static volatile boolean inLogging = false;
+    private static volatile boolean stopLogging = false;
     private static boolean alsoLogToStdOut = false;
     private static boolean logAllToStdOut = false;
     private static EfaErrorPrintStream efaErrorPrintStream;
@@ -479,7 +487,7 @@ public class Logger {
                 try {
                     // Wenn Logdatei zu groß ist, die alte Logdatei verschieben
                     File log = new File(Daten.efaLogfile);
-                    if (log.exists() && log.length() > 1048576) {
+                    if (log.exists() && log.length() > MAX_LOG_FILE_SIZE) {
                         baklog = EfaUtil.moveAndEmptyFile(Daten.efaLogfile, Daten.efaBaseConfig.efaUserDirectory + "backup" + Daten.fileSep);
                     }
                 } catch (Exception e) {
@@ -549,11 +557,11 @@ public class Logger {
      * @param sendmail
      */
     public static String log(String type, String key, String txt, boolean msgToAdmin) {
-        String t = null;
-        if (inLogging) {
+        if (inLogging || stopLogging) {
             return null; // avoid recursion
         }
         inLogging = true;
+        String t = null;
         try {
             if (type != null && type.equals(DEBUG) && !debugLogging) {
                 inLogging = false;
@@ -579,6 +587,24 @@ public class Logger {
                         inLogging = false;
                         return null;
                     }
+                }
+            }
+
+            // avoid huge logfile
+            boolean checkFileSize = false;
+            synchronized(logLock) {
+                checkFileSize = (++totalLogCount % LOGGING_CHECK_FILESIZE == 0);
+            }
+            if (checkFileSize) {
+                try {
+                    File f = new File(Daten.efaLogfile);
+                    if (f.length() > 10*MAX_LOG_FILE_SIZE) {
+                        log(ERROR, MSG_LOGGER_STOPLOGGING,
+                                Daten.efaLogfile + " has reached size of " + f.length() +
+                                ". STOP LOGGING.");
+                        stopLogging = true;
+                    }
+                } catch(Exception eignore) {
                 }
             }
 

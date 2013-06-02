@@ -28,6 +28,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     public static final String IMAGE_CLOSE     = "button_close.png";
     public static final String IMAGE_DELETE    = "button_delete.png";
     public static final String IMAGE_EDIT      = "button_edit.png";
+    public static final String IMAGE_EDIT2     = "button_edit2.png";
     public static final String IMAGE_PRINT     = "button_print.png";
     public static final String IMAGE_SELECT    = "button_select.png";
     public static final String IMAGE_HIDE      = "button_hide.png";
@@ -67,6 +68,8 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
 
     public static final String BIGIMAGE_CLOSEDOORS = "notification_closedoors.png";
     public static final String BIGIMAGE_DARKNESS   = "notification_darkness.png";
+    public static final String BIGIMAGE_INFO       = "notification_info.png";
+    public static final String BIGIMAGE_WARNING    = "notification_warning.png";
 
     protected Window _parent;
     protected String _title;
@@ -79,6 +82,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     private ActionHandler ah;
     protected String KEYACTION_ESCAPE;
     protected String KEYACTION_F1;
+    protected String KEYACTION_F12;
     protected JPanel basePanel = new JPanel();
     protected JScrollPane mainScrollPane = new JScrollPane();
     protected JPanel mainPanel = new JPanel();
@@ -183,6 +187,10 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
         if (evt.getActionCommand().equals(KEYACTION_F1)) {
             Help.showHelp(getHelpTopics());
         }
+        if (evt.getActionCommand().equals(KEYACTION_F12) && Logger.isDebugLoggin()) {
+            AccessStatisticsDialog dlg = new AccessStatisticsDialog(this);
+            dlg.showDialog();
+        }
     }
 
     public abstract void keyAction(ActionEvent evt);
@@ -212,6 +220,9 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
 
         KEYACTION_ESCAPE = addKeyAction("ESCAPE");
         KEYACTION_F1 = addKeyAction("F1");
+        if (Logger.isDebugLoggin()) {
+            KEYACTION_F12 = addKeyAction("F12");
+        }
 
         if (title != null) {
             setTitle(title);

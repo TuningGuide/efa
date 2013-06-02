@@ -7,5 +7,6 @@
         <mapID target="default" url="main/index_de.html" />
         <mapID target="install" url="main/install_de.html" />
         <mapID target="configure" url="main/configure_de.html" />
+        <mapID target="cli" url="main/efacli_de.html" />
         <mapID target="de.nmichael.efa.gui.EfaConfigDialog" url="gui/EfaConfigDialog_de.html" />
 </map>

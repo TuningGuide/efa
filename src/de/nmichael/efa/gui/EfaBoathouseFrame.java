@@ -1855,7 +1855,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
     void showEfaBaseFrame(int mode, ItemTypeBoatstatusList.BoatListItem action) {
         for (IWidget w : widgets) {
-            w.runWidgetWarnings(mode, true);
+            w.runWidgetWarnings(mode, true, null);
         }
         if (efaBaseFrame == null) {
             prepareEfaBaseFrame();
@@ -1872,7 +1872,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     }
 
     // Callback from EfaBaseFrame
-    void showEfaBoathouseFrame(ItemTypeBoatstatusList.BoatListItem efaBoathouseAction) {
+    void showEfaBoathouseFrame(ItemTypeBoatstatusList.BoatListItem efaBoathouseAction, LogbookRecord r) {
         bringFrameToFront();
         updateBoatLists(true); // must be explicitly called here! only efaBoathouseBackgroundTask.interrupt() is NOT sufficient.
         efaBoathouseBackgroundTask.interrupt();
@@ -1899,7 +1899,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         }
         if (efaBoathouseAction != null) {
             for (IWidget w : widgets) {
-                w.runWidgetWarnings(efaBoathouseAction.mode, false);
+                w.runWidgetWarnings(efaBoathouseAction.mode, false, r);
             }
         }
     }

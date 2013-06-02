@@ -10,10 +10,14 @@
 
 package de.nmichael.efa.cli;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.gui.ProgressDialog;
 import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.Logger;
+import java.lang.String;
+import java.nio.charset.Charset;
 import java.util.Hashtable;
 import java.util.Stack;
 import java.util.StringTokenizer;
@@ -21,8 +25,10 @@ import java.util.Vector;
 
 public class MenuData extends MenuBase {
 
-    public static final String CMD_LIST = "list";
-    public static final String CMD_SHOW = "show";
+    public static final String CMD_LIST   = "list";
+    public static final String CMD_SHOW   = "show";
+    public static final String CMD_EXPORT = "export";
+    public static final String CMD_IMPORT = "import";
 
     protected StorageObject storageObject;
     protected String storageObjectDescription;
@@ -35,6 +41,8 @@ public class MenuData extends MenuBase {
     public void printHelpContext() {
         printUsage(CMD_LIST,        "[all|invisible|deleted]", "list " + storageObjectDescription);
         printUsage(CMD_SHOW,        "[name|index]", "show record");
+        printUsage(CMD_EXPORT,      "[-format=xml|csv] <filename>", "export records");
+        printUsage(CMD_IMPORT,      "[-encoding=ENCODING] [-csvsep=X] [-csvquote=X] [-impmode=add|update|addupdate] [-updversion=update|new] [-entryno=dupskip|dupadd|alwaysadd] <filename>", "import records");
     }
 
     public void list(String args) {
@@ -85,6 +93,114 @@ public class MenuData extends MenuBase {
         }
     }
 
+
+    public void show(String args) {
+        if (storageObject == null) {
+            return;
+        }
+        DataRecord r = getRecordFromArgs(args);
+        if (r == null) {
+            cli.logerr("Record '"+args+"' not found.");
+            return;
+        }
+        Vector<IItemType> items = r.getGuiItems(cli.getAdminRecord());
+        for (int i=0; items != null && i<items.size(); i++) {
+            IItemType item = items.get(i);
+            cli.loginfo(EfaUtil.getString(item.getName(), 25) + ": " + item.toString());
+        }
+    }
+
+
+    public void exportData(String args) {
+        if (storageObject == null) {
+            return;
+        }
+        Hashtable<String,String> options = getOptionsFromArgs(args);
+        args = removeOptionsFromArgs(args);
+        DataExport.Format format = DataExport.Format.xml;
+        if (options.get("format") != null && options.get("format").equalsIgnoreCase("csv")) {
+            format = DataExport.Format.csv;
+        }
+        String filename = args;
+        String encoding = Daten.ENCODING_UTF;
+        if (format == DataExport.Format.csv) {
+            String charset = Charset.defaultCharset().toString();
+            if (Daten.ENCODING_ISO.toLowerCase().equals(charset.toLowerCase())) {
+                encoding = Daten.ENCODING_ISO;
+            }
+        }
+        DataExport export = new DataExport(storageObject, System.currentTimeMillis(), null,
+                storageObject.createNewRecord().getFields(), format,
+                encoding, filename, DataExport.EXPORT_TYPE_TEXT);
+        int count = export.runExport();
+        cli.loginfo(count + " records exported to " + filename);
+    }
+
+    public void importData(String args) {
+        if (storageObject == null) {
+            return;
+        }
+        Hashtable<String,String> options = getOptionsFromArgs(args);
+        args = removeOptionsFromArgs(args);
+        String filename = args;
+        String encoding = options.get("encoding");
+        if (encoding == null || encoding.length() == 0) {
+            encoding = Charset.defaultCharset().toString();
+        }
+        String csvSeparator = options.get("csvsep");
+        String csvQuotes = options.get("csvquote");
+        char csep = (csvSeparator != null && csvSeparator.length() > 0 ? csvSeparator.charAt(0) : '\0');
+        char cquo = (csvQuotes != null && csvQuotes.length() > 0 ? csvQuotes.charAt(0) : '\0');
+        String importMode = options.get("impmode");
+        if (importMode != null && importMode.equalsIgnoreCase("add")) {
+            importMode = DataImport.IMPORTMODE_ADD;
+        } else if (importMode != null && importMode.equalsIgnoreCase("update")) {
+            importMode = DataImport.IMPORTMODE_UPD;
+        } else if (importMode != null && importMode.equalsIgnoreCase("addupdate")) {
+            importMode = DataImport.IMPORTMODE_ADDUPD;
+        } else {
+            importMode = DataImport.IMPORTMODE_ADD;
+        }
+        String updMode = options.get("updversion");
+        if (updMode != null && updMode.equalsIgnoreCase("update")) {
+            updMode = DataImport.UPDMODE_UPDATEVALIDVERSION;
+        } else if (updMode != null && updMode.equalsIgnoreCase("new")) {
+            updMode = DataImport.UPPMODE_CREATENEWVERSION;
+        } else {
+            updMode = DataImport.UPDMODE_UPDATEVALIDVERSION;
+        }
+        String entryNo = options.get("entryno");
+        if (entryNo != null && entryNo.equalsIgnoreCase("dupskip")) {
+            entryNo = DataImport.ENTRYNO_DUPLICATE_SKIP;
+        } else if (entryNo != null && entryNo.equalsIgnoreCase("dupadd")) {
+            entryNo = DataImport.ENTRYNO_DUPLICATE_ADDEND;
+        } else if (entryNo != null && entryNo.equalsIgnoreCase("alwaysadd")) {
+            entryNo = DataImport.ENTRYNO_ALWAYS_ADDEND;
+        } else {
+            entryNo = DataImport.ENTRYNO_DUPLICATE_SKIP;
+        }
+
+        DataImport imp = new DataImport(storageObject, filename, encoding, csep, cquo,
+                importMode, updMode, entryNo,
+                System.currentTimeMillis());
+        imp.setProgressDialog(new ProgressDialog() {
+            public void logInfo(String s) {
+                cli.loginfo(s);
+            }
+        }, true);
+        int count = 0;
+        if (DataImport.isXmlFile(filename)) {
+            count = imp.runXmlImport();
+        } else {
+            count = imp.runCsvImport();
+        }
+        cli.loginfo(count + " records imported from " + filename);
+        if (count > 0) {
+            // Start the Audit in the background to find any eventual inconsistencies
+            (new Audit(Daten.project)).start();
+        }
+    }
+
     protected DataRecord getRecordFromArgs(String args) {
         if (args == null || args.length() == 0) {
             printHelpContext();
@@ -124,21 +240,25 @@ public class MenuData extends MenuBase {
         return r;
     }
 
-    protected Hashtable<String,String> getOptionsFromArgs(String args) {
-        Hashtable<String,String> options = new Hashtable<String,String>();
-        StringTokenizer tok = new StringTokenizer(args, " ");
-        while (tok.hasMoreTokens()) {
-            String s = tok.nextToken().trim();
-            if (s.startsWith("-")) {
-                int pos = s.indexOf("=");
-                String name = s.substring(1).toLowerCase();
-                String value = "";
-                if (pos > 0) {
-                    name = s.substring(1, pos).toLowerCase();
-                    value = s.substring(pos+1);
+    protected Hashtable<String, String> getOptionsFromArgs(String args) {
+        Hashtable<String, String> options = new Hashtable<String, String>();
+        try {
+            StringTokenizer tok = new StringTokenizer(args, " ");
+            while (tok.hasMoreTokens()) {
+                String s = tok.nextToken().trim();
+                if (s.startsWith("-")) {
+                    int pos = s.indexOf("=");
+                    String name = s.substring(1).toLowerCase();
+                    String value = "";
+                    if (pos > 0) {
+                        name = s.substring(1, pos).toLowerCase();
+                        value = s.substring(pos + 1);
+                    }
+                    options.put(name, value);
                 }
-                options.put(name, value);
             }
+        } catch (Exception e) {
+            Logger.logdebug(e);
         }
         return options;
     }
@@ -158,22 +278,6 @@ public class MenuData extends MenuBase {
         return sb.toString();
     }
 
-    public void show(String args) {
-        if (storageObject == null) {
-            return;
-        }
-        DataRecord r = getRecordFromArgs(args);
-        if (r == null) {
-            cli.logerr("Record '"+args+"' not found.");
-            return;
-        }
-        Vector<IItemType> items = r.getGuiItems(cli.getAdminRecord());
-        for (int i=0; items != null && i<items.size(); i++) {
-            IItemType item = items.get(i);
-            cli.loginfo(EfaUtil.getString(item.getName(), 25) + ": " + item.toString());
-        }
-    }
-
     public int runCommand(Stack<String> menuStack, String cmd, String args) {
         int ret = super.runCommand(menuStack, cmd, args);
         if (ret < 0) {
@@ -183,6 +287,14 @@ public class MenuData extends MenuBase {
             }
             if (cmd.equalsIgnoreCase(CMD_SHOW)) {
                 show(args);
+                return CLI.RC_OK;
+            }
+            if (cmd.equalsIgnoreCase(CMD_EXPORT)) {
+                exportData(args);
+                return CLI.RC_OK;
+            }
+            if (cmd.equalsIgnoreCase(CMD_IMPORT)) {
+                importData(args);
                 return CLI.RC_OK;
             }
             return CLI.RC_UNKNOWN_COMMAND;

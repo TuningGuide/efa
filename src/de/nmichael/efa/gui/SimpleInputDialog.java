@@ -28,16 +28,16 @@ import javax.swing.event.ChangeEvent;
 public class SimpleInputDialog extends BaseDialog {
 
     private String KEYACTION_ENTER;
-    protected IItemType item;
+    protected IItemType[] items;
 
-    public SimpleInputDialog(Frame parent, String title, IItemType item) {
+    SimpleInputDialog(Frame parent, String title, IItemType[] items) {
         super(parent, title, International.getStringWithMnemonic("OK"));
-        this.item = item;
+        this.items = items;
     }
 
-    public SimpleInputDialog(JDialog parent, String title, IItemType item) {
+    SimpleInputDialog(JDialog parent, String title, IItemType[] items) {
         super(parent, title, International.getStringWithMnemonic("OK"));
-        this.item = item;
+        this.items = items;
     }
 
     public void _keyAction(ActionEvent evt) {
@@ -57,25 +57,27 @@ public class SimpleInputDialog extends BaseDialog {
         // create GUI items
         mainPanel.setLayout(new GridBagLayout());
 
-        int y=0;
-        String s = item.getDescription();
-        if (s.endsWith("?") || s.indexOf("\n")>=0) {
-            Vector<String> v = EfaUtil.split(s, '\n');
-            for (int i=0; i<v.size(); i++) {
-                ItemTypeLabel label = new ItemTypeLabel("LABEL"+i, IItemType.TYPE_PUBLIC, "", v.get(i));
-                y += label.displayOnGui(this, mainPanel, 0, y);
+        int y = 0;
+        for (IItemType item : items) {
+            String s = item.getDescription();
+            if (s.endsWith("?") || s.indexOf("\n") >= 0) {
+                Vector<String> v = EfaUtil.split(s, '\n');
+                for (int i = 0; i < v.size(); i++) {
+                    ItemTypeLabel label = new ItemTypeLabel("LABEL" + i, IItemType.TYPE_PUBLIC, "", v.get(i));
+                    y += label.displayOnGui(this, mainPanel, 0, y);
+                }
+                item.setDescription(null);
             }
-            item.setDescription(null);
-        }
 
-        item.displayOnGui(this, mainPanel, 0, y);
-        if (item instanceof ItemTypeString) {
-            String val = ((ItemTypeString)item).getValue();
-            if (val != null && val.length() > 0) {
-                ((ItemTypeString)item).setSelection(0, val.length());
+            y += item.displayOnGui(this, mainPanel, 0, y);
+            if (item instanceof ItemTypeString) {
+                String val = ((ItemTypeString) item).getValue();
+                if (val != null && val.length() > 0) {
+                    ((ItemTypeString) item).setSelection(0, val.length());
+                }
             }
         }
-        item.requestFocus();
+        items[0].requestFocus();
 
         if (closeButton != null) {
             closeButton.setIcon(getIcon("button_accept.png"));
@@ -83,24 +85,32 @@ public class SimpleInputDialog extends BaseDialog {
     }
 
     public void closeButton_actionPerformed(ActionEvent e) {
-        item.getValueFromGui();
-        if (!item.isValidInput()) {
-            Dialog.error(International.getMessage("Ungültige Eingabe im Feld '{field}'", item.getDescription()));
-            item.requestFocus();
-            return;
+        for (IItemType item : items) {
+            item.getValueFromGui();
+            if (!item.isValidInput()) {
+                Dialog.error(International.getMessage("Ungültige Eingabe im Feld '{field}'", item.getDescription()));
+                item.requestFocus();
+                return;
+            }
         }
         setDialogResult(true);
         super.closeButton_actionPerformed(e);
     }
 
+    public static boolean showInputDialog(JDialog parent, String title, IItemType[] items) {
+        SimpleInputDialog dlg = new SimpleInputDialog(parent, title, items);
+        dlg.showDialog();
+        return dlg.resultSuccess;
+    }
+
     public static boolean showInputDialog(JDialog parent, String title, IItemType item) {
-        SimpleInputDialog dlg = new SimpleInputDialog(parent, title, item);
+        SimpleInputDialog dlg = new SimpleInputDialog(parent, title, new IItemType[] { item });
         dlg.showDialog();
         return dlg.resultSuccess;
     }
 
     public static boolean showInputDialog(JFrame parent, String title, IItemType item) {
-        SimpleInputDialog dlg = new SimpleInputDialog(parent, title, item);
+        SimpleInputDialog dlg = new SimpleInputDialog(parent, title, new IItemType[] { item });
         dlg.showDialog();
         return dlg.resultSuccess;
     }

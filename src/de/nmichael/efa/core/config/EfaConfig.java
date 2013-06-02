@@ -14,6 +14,7 @@ import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.gui.BaseTabbedDialog;
 import de.nmichael.efa.gui.widgets.IWidget;
+import de.nmichael.efa.gui.widgets.AlertWidget;
 import de.nmichael.efa.gui.widgets.Widget;
 import de.nmichael.efa.util.*;
 import java.awt.Color;
@@ -2232,6 +2233,13 @@ public class EfaConfig extends StorageObject implements IItemFactory {
         iniTypes(typesStatus, EfaTypes.CATEGORY_STATUS);
         standardFahrtart.setListData(EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES),
                                      EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY));
+        if (widgets != null) {
+            for (IWidget w : widgets) {
+                if (w.getName().equals(AlertWidget.NAME)) {
+                    ((AlertWidget) w).updateTypes();
+                }
+            }
+        }
     }
 
     private void iniTypes(ItemTypeHashtable<String> types, String cat) {

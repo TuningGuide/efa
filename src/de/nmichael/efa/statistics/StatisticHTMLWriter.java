@@ -54,11 +54,11 @@ public class StatisticHTMLWriter extends StatisticWriter {
             if (sr.sOutputHtmlUpdateTable) {
                 File bak = new File(sr.sOutputFile);
                 bak.renameTo(new File(tmpFile));
-                fo = new BufferedReader(new InputStreamReader(new FileInputStream(tmpFile), Daten.ENCODING_UTF));
+                fo = new BufferedReader(new InputStreamReader(new FileInputStream(tmpFile), sr.getOutputEncoding()));
             }
 
             // Datei erstellen und Kopf schreiben
-            f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sr.sOutputFile), Daten.ENCODING_UTF));
+            f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sr.sOutputFile), sr.getOutputEncoding()));
             if (sr.sOutputHtmlUpdateTable) {
                 String zz;
                 while ((zz = fo.readLine()) != null && !zz.trim().equals("<!--EFA-START-->")) {
@@ -67,7 +67,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
             } else {
                 f.write("<html>\n");
                 f.write("<head>\n");
-                f.write("<meta http-equiv=\"content-type\" content=\"text/html; charset=" + Daten.ENCODING_UTF + "\" />\n");
+                f.write("<meta http-equiv=\"content-type\" content=\"text/html; charset=" + sr.getOutputEncoding() + "\" />\n");
                 f.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + 
                         EfaUtil.saveFile(EFA_STYLES, sr.sOutputDir, true, false, false) +
                         "\" media=\"all\" />\n");

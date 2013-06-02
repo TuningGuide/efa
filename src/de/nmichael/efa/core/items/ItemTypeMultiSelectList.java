@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.core.items;
 
+import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.data.types.DataTypeList;
 import java.util.*;
 import java.awt.*;
@@ -27,6 +28,8 @@ public class ItemTypeMultiSelectList<T> extends ItemType implements ActionListen
     JList list = new JList();
     T[] keyData;
     String[] displayData;
+    int xoffset = 0;
+    int yoffset = 0;
 
     public ItemTypeMultiSelectList(String name, DataTypeList<T> value, T[] keyData, String[] displayData,
             int type, String category, String description) {
@@ -78,7 +81,7 @@ public class ItemTypeMultiSelectList<T> extends ItemType implements ActionListen
     }
 
     public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
-        panel.add(setupPanel(dlg), new GridBagConstraints(x, y, fieldGridWidth, fieldGridHeight, 0.0, 0.0,
+        panel.add(setupPanel(dlg), new GridBagConstraints(x+xoffset, y+yoffset, fieldGridWidth, fieldGridHeight, 0.0, 0.0,
                 fieldGridAnchor, fieldGridFill, new Insets(padYbefore, 0, padYafter, padXafter), 0, 0));
         showValue();
         return 1;
@@ -149,6 +152,14 @@ public class ItemTypeMultiSelectList<T> extends ItemType implements ActionListen
         }
     }
 
+    public Object[] getValues() {
+        Object[] v = new Object[value.length()];
+        for (int i=0; i<v.length; i++) {
+            v[i] = value.get(i);
+        }
+        return v;
+    }
+
     public boolean isValidInput() {
         return true;
     }
@@ -197,7 +208,7 @@ public class ItemTypeMultiSelectList<T> extends ItemType implements ActionListen
     }
 
     public void parseValue(String value) {
-        throw new java.lang.UnsupportedOperationException();
+        this.value = DataTypeList.parseList(value, IDataAccess.DATA_STRING);
     }
 
     public void setFieldSize(int width, int height) {
@@ -236,4 +247,16 @@ public class ItemTypeMultiSelectList<T> extends ItemType implements ActionListen
         }
     }
 
+    public void setListData(T[] keyData, String[] displayData) {
+        this.keyData = keyData;
+        this.displayData = displayData;
+    }
+
+    public void setXOffset(int xoffset) {
+        this.xoffset = xoffset;
+    }
+
+    public void setYOffset(int yoffset) {
+        this.yoffset = yoffset;
+    }
 }

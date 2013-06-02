@@ -29,6 +29,7 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
     private ActionHandler ah;
     protected String KEYACTION_ESCAPE;
     protected String KEYACTION_F1;
+    protected String KEYACTION_F12;
     protected JPanel basePanel = new JPanel();
     protected JScrollPane mainScrollPane = new JScrollPane();
     protected JPanel mainPanel = new JPanel();
@@ -111,6 +112,10 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
         if (evt.getActionCommand().equals(KEYACTION_F1)) {
             Help.showHelp(getHelpTopics());
         }
+        if (evt.getActionCommand().equals(KEYACTION_F12) && Logger.isDebugLoggin()) {
+            AccessStatisticsDialog dlg = new AccessStatisticsDialog(this);
+            dlg.showDialog();
+        }
     }
 
     public abstract void keyAction(ActionEvent evt);
@@ -140,6 +145,9 @@ public abstract class BaseFrame extends JFrame implements ActionListener {
 
         KEYACTION_ESCAPE = addKeyAction("ESCAPE");
         KEYACTION_F1 = addKeyAction("F1");
+        if (Logger.isDebugLoggin()) {
+            KEYACTION_F12 = addKeyAction("F12");
+        }
 
         if (title != null) {
             setTitle(title);

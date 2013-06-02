@@ -31,8 +31,8 @@ public class MenuBackup extends MenuBase {
 
     public void printHelpContext() {
         printUsage(CMD_BACKUP,  "[project|config|all] [directory/file]", "create backup");
-        printUsage(CMD_RESTORE, "[zipfile] [objects...]", "restore backup");
-        printUsage(CMD_SHOW,    "[zipfile]", "show archive content");
+        printUsage(CMD_RESTORE, "<zipfile> [objects...]", "restore backup");
+        printUsage(CMD_SHOW,    "<zipfile>", "show archive content");
     }
 
     private int backup(String args) {

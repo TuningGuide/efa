@@ -208,7 +208,7 @@ public class DataImport extends ProgressTask {
         }
     }
 
-    private void importRecord(DataRecord r, ArrayList<String> fieldsInInport) {
+    private boolean importRecord(DataRecord r, ArrayList<String> fieldsInInport) {
         try {
             DataRecord[] otherVersions = null;
 
@@ -246,7 +246,7 @@ public class DataImport extends ProgressTask {
                                 r.set(keyFields[i], UUID.randomUUID());
                             } else {
                                 logImportFailed(r, "KeyField(s) not set");
-                                return;
+                                return false;
                             }
                         }
                     }
@@ -272,18 +272,20 @@ public class DataImport extends ProgressTask {
             if (importMode.equals(IMPORTMODE_ADD)) {
                 if (otherVersions != null && otherVersions.length > 0) {
                     logImportFailed(r, International.getString("Datensatz existiert bereits"));
+                    return false;
                 } else {
                     addRecord(r);
+                    return true;
                 }
-                return;
             }
             if (importMode.equals(IMPORTMODE_UPD)) {
                 if (otherVersions == null || otherVersions.length == 0) {
                     logImportFailed(r, International.getString("Datensatz nicht gefunden"));
+                    return false;
                 } else {
                     updateRecord(r, fieldsInInport);
+                    return true;
                 }
-                return;
             }
             if (importMode.equals(IMPORTMODE_ADDUPD)) {
                 if (otherVersions != null && otherVersions.length > 0) {
@@ -291,17 +293,19 @@ public class DataImport extends ProgressTask {
                 } else {
                     addRecord(r);
                 }
-                return;
+                return true;
             }
         } catch (Exception e) {
             logImportFailed(r, e.getMessage());
         }
+        return false;
     }
 
-    private void runXmlImport() {
+    public int runXmlImport() {
+        DataImportXmlParser responseHandler = null;
         try {
             XMLReader parser = EfaUtil.getXMLReader();
-            DataImportXmlParser responseHandler = new DataImportXmlParser(this, dataAccess);
+            responseHandler = new DataImportXmlParser(this, dataAccess);
             parser.setContentHandler(responseHandler);
             parser.parse(new InputSource(new FileInputStream(filename)));
         } catch (Exception e) {
@@ -312,9 +316,11 @@ public class DataImport extends ProgressTask {
                 Dialog.error(e.toString());
             }
         }
+        return (responseHandler != null ? responseHandler.getImportedRecordsCount() : 0);
     }
 
-    private void runCsvImport() {
+    public int runCsvImport() {
+        int count = 0;
         try {
             int linecnt = 0;
             String[] header = null;
@@ -354,7 +360,9 @@ public class DataImport extends ProgressTask {
                                 }
                             }
                         }
-                        importRecord(r, fieldsInImport);
+                        if (importRecord(r, fieldsInImport)) {
+                            count++;
+                        }
                     }
                 }
                 linecnt++;
@@ -368,6 +376,7 @@ public class DataImport extends ProgressTask {
                 Dialog.error(e.toString());
             }
         }
+        return count;
     }
 
     public void run() {
@@ -381,6 +390,10 @@ public class DataImport extends ProgressTask {
         this.logInfo("\n\n" + International.getMessage("{count} Datensätze erfolgreich importiert.", importCount));
         this.logInfo("\n" + International.getMessage("{count} Fehler.", errorCount));
         this.logInfo("\n" + International.getMessage("{count} Warnungen.", warningCount));
+
+        // Start the Audit in the background to find any eventual inconsistencies
+        (new Audit(Daten.project)).start();
+
         setDone();
     }
 
@@ -406,6 +419,7 @@ public class DataImport extends ProgressTask {
         private DataRecord record;
         private ArrayList<String> fieldsInImport;
         private boolean textImport;
+        private int count = 0;
 
         public DataImportXmlParser(DataImport dataImport, IDataAccess dataAccess) {
             super(DataExport.FIELD_EXPORT);
@@ -434,7 +448,9 @@ public class DataImport extends ProgressTask {
 
             if (record != null && localName.equals(DataRecord.ENCODING_RECORD)) {
                 // end of record
-                dataImport.importRecord(record, fieldsInImport);
+                if (dataImport.importRecord(record, fieldsInImport)) {
+                    count++;
+                }
                 record = null;
                 fieldsInImport = null;
             }
@@ -457,7 +473,11 @@ public class DataImport extends ProgressTask {
                     dataImport.logImportWarning(record, "Cannot set value '" + fieldValue + "' for Field '" + fieldName + "': " + esetvalue.toString());
                 }
             }
-
         }
+
+        public int getImportedRecordsCount() {
+            return count;
+        }
+
     }
 }

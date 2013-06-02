@@ -12,6 +12,7 @@ package de.nmichael.efa.gui.widgets;
 
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.data.LogbookRecord;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.text.html.*;
@@ -29,7 +30,7 @@ public class HTMLWidget extends Widget {
     private HTMLUpdater htmlUpdater;
 
     public HTMLWidget() {
-        super("Html", International.getString("HTML-Widget"));
+        super("Html", International.getString("HTML-Widget"), true);
 
         addParameterInternal(new ItemTypeInteger(PARAM_WIDTH, 200, 1, Integer.MAX_VALUE, false,
                 IItemType.TYPE_PUBLIC, "",
@@ -87,7 +88,7 @@ public class HTMLWidget extends Widget {
         htmlUpdater.stopHTML();
     }
 
-    public void runWidgetWarnings(int mode, boolean actionBegin) {
+    public void runWidgetWarnings(int mode, boolean actionBegin, LogbookRecord r) {
         // nothing to do
     }
 

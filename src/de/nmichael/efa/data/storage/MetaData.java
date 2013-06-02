@@ -147,4 +147,8 @@ public class MetaData {
         return versionized;
     }
 
+    public String[] getFields() {
+        return Arrays.copyOf(FIELDS, FIELDS.length);
+    }
+
 }

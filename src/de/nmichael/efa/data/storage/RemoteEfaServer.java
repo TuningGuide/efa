@@ -161,10 +161,11 @@ public class RemoteEfaServer {
 
     }
 
-    private Vector<RemoteEfaMessage> getRequests(BufferedInputStream in, InetSocketAddress peerAddress) {
-        if (in == null) {
+    private Vector<RemoteEfaMessage> getRequests(RemoteEfaMessage.EfaMessageInputStream eis, InetSocketAddress peerAddress) {
+        if (eis == null || eis.in == null) {
             return null;
         }
+        BufferedInputStream in = eis.in;
         if (Logger.isTraceOn(Logger.TT_REMOTEEFA, 5)) {
             try {
                 in.mark(1024*1024); // tracing will break messages if they are larger than 1 MB
@@ -338,6 +339,10 @@ public class RemoteEfaServer {
                     }
                     if (operation.equals(RemoteEfaMessage.OPERATION_ADDVALIDAT)) {
                         responses.add(requestAddValidAt(request, admin, p));
+                        break;
+                    }
+                    if (operation.equals(RemoteEfaMessage.OPERATION_ADDALL)) {
+                        responses.add(requestAddAll(request, admin, p));
                         break;
                     }
                     if (operation.equals(RemoteEfaMessage.OPERATION_GET)) {
@@ -703,6 +708,19 @@ public class RemoteEfaServer {
                 response.addKey(k);
             }
             return response;
+        } catch(Exception e) {
+            return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.ERROR_UNKNOWN, e.toString());
+        }
+    }
+
+    private RemoteEfaMessage requestAddAll(RemoteEfaMessage request, AdminRecord admin, StorageObject p) {
+        try {
+            if (request.getRecords() != null) {
+                for (DataRecord r : request.getRecords()) {
+                    p.data().add(r, request.getLockId());
+                }
+            }
+            return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.RESULT_OK, null);
         } catch(Exception e) {
             return RemoteEfaMessage.createResponseResult(request.getMsgId(), RemoteEfaMessage.ERROR_UNKNOWN, e.toString());
         }

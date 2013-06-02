@@ -40,6 +40,7 @@ public class ItemTypeItemList extends ItemType {
     private int xForAddDelButtons = 2;
     private int padYbetween = 10;
     private boolean repeatTitle = true;
+    private String shortDescription = null;
     private boolean appendPositionToEachElement = false;
     private Orientation orientation = Orientation.vertical;
 
@@ -67,6 +68,7 @@ public class ItemTypeItemList extends ItemType {
     public IItemType copyOf() {
         ItemTypeItemList copy = new ItemTypeItemList(name, (Vector<IItemType[]>)items.clone(), itemFactory, type, category, description);
         copy.repeatTitle = repeatTitle;
+        copy.shortDescription = shortDescription;
         return copy;
     }
 
@@ -89,6 +91,15 @@ public class ItemTypeItemList extends ItemType {
 
     public IItemType[] getItems(int idx) {
         return items.get(idx);
+    }
+
+    public IItemType getItem(int idx, String name) {
+        for (IItemType item : getItems(idx)) {
+            if (name.equals(item.getName())) {
+                return item;
+            }
+        }
+        return null;
     }
 
     public IItemType[] getDeletedItems(int idx) {
@@ -121,6 +132,14 @@ public class ItemTypeItemList extends ItemType {
 
     public void setRepeatTitle(boolean repeat) {
         repeatTitle = repeat;
+    }
+
+    public void setShortDescription(String s) {
+        this.shortDescription = s;
+    }
+
+    public String getShortDescription() {
+        return (shortDescription != null ? shortDescription : getDescription());
     }
 
     public void setAppendPositionToEachElement(boolean append) {
@@ -181,7 +200,7 @@ public class ItemTypeItemList extends ItemType {
             JLabel label = null;
             if (repeatTitle) {
                 label = new JLabel();
-                Mnemonics.setLabel(dlg, label, getDescription() + " " + (i + 1) + ": ");
+                Mnemonics.setLabel(dlg, label, getShortDescription() + " [" + (i + 1) + "]: ");
                 if (type == IItemType.TYPE_EXPERT) {
                     label.setForeground(Color.red);
                 }
@@ -365,17 +384,15 @@ public class ItemTypeItemList extends ItemType {
         if (value == null) {
             return;
         }
-        StringTokenizer t1 = new StringTokenizer(value, LIST_SEPARATOR);
-        while(t1.hasMoreTokens()) {
-            String s1 = t1.nextToken();
-            StringTokenizer t2 = new StringTokenizer(s1, ITEM_SEPARATOR);
+        String[] list = EfaUtil.split(value, LIST_SEPARATOR);
+        for (int i=0; list != null && i<list.length; i++) {
+            if (list[i] == null) {
+                continue;
+            }
+            String[] values = EfaUtil.split(list[i], ITEM_SEPARATOR);
             IItemType[] arr = itemFactory.getDefaultItems(getName());
-            int i=0;
-            while(t2.hasMoreTokens() && arr != null) {
-                String s2 = t2.nextToken();
-                if (i < arr.length) {
-                    arr[i++].parseValue(s2);
-                }
+            for (int j=0; values != null && arr != null && j<values.length && j<arr.length; j++) {
+                arr[j].parseValue(values[j]);
             }
             items.add(arr);
         }

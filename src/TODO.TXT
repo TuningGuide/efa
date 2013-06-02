@@ -1,7 +1,21 @@
 Item
 ============================================================================================================
+
+Datenabgleich zwischen Bootshäusern implementieren, bei dem efa einen Export/Import durchführt, der anhand von LastModified erkennt, welche Daten gewinnen, aber zum Beispiel nie die Bootsstatusliste, Nachrichten, ... synchronisiert.
+Multiple tasks/functions for "Special Button" - https://kenai.com/bugzilla/show_bug.cgi?id=1215
+Benachrichtigung des Admins, wenn Bootsreservierungen durch Mitglieder eingetragen werden
+Zusätzliche Import-Option: alle *nicht* importierten (versionierten) Daten als ungültig markieren --> es wird bereits das InvalidFrom Feld importiert. Reicht das?
+  (Use Case: Importieren einer neuen (vollständigen) Mitgliederliste; alles was nicht importiert wurde, ist ungültig)
+  Dabei sollten allerdings Gäste und andere nicht gelöscht werden!
+  https://kenai.com/bugzilla/show_bug.cgi?id=4495
+Gewässer in Fahrtgruppe erfassen, damit nicht für alle Etappen/Boote einzeln
+Touchscreen-Support: http://forum.nmichael.de/viewtopic.php?f=9&t=206&p=2275#p2275, https://kenai.com/bugzilla/show_bug.cgi?id=4739
+Fahrtgruppen bei Eingabe von Wanderfahrten durch Mitglieder auswählen lassen - https://kenai.com/bugzilla/show_bug.cgi?id=2231
+external API to create "efa messages" - https://kenai.com/bugzilla/show_bug.cgi?id=1640
+
+efaRemote - Progress/Status Indicator
 DRV: Melden von GEsamtkilometern bei DRV-Wanderruderstatistik
-Mehrere Vereine: Boote/Personen/Statistiken: http://forum.nmichael.de/viewtopic.php?f=9&t=494
+Mehrere Vereine: Boote/Personen/Statistiken: http://forum.nmichael.de/viewtopic.php?f=9&t=494, https://kenai.com/bugzilla/show_bug.cgi?id=4496
 Namensformat für Statistikausgabe unabh. von Namensformat im Projekt einstellen können
 Prüfen ob Vor- und Nachname eingegeben wurden: http://forum.nmichael.de/viewtopic.php?f=9&t=563
 Statistik - Vorjahresvergleiche
@@ -9,45 +23,28 @@ Statistik - Wer unerlaubt?
 Statistik - Monatsübersicht
 Statistikfeld - Anzahl Verschiedene
 Statistikfilter - nur Fahrten für Boote mit Gruppe
-Name der Statistik im Kopf der Ausgabe sollte Statistikname der Statistikeinstellungen sein (forum.nmichael.de/viewtopic.php?f=15&t=470&p=1914#p1914)
 Gruppenzugehörigkeit mit BEarbeitungsassistent bearbeiten
 Trotz Ausblenden von Eingabefeldern nicht existierender Bootsplätze eine Möglichkeit, um Kielschweine oder "Hunde" zu erfassen:
-Fahrtenbuchwechsel für efaRemote Clients
 Kombiboote sollten anstelle einer "Standardbootsart" auch eine Option haben, immer die zuletzt genutzte Bootsart als Standard vorzuschlagen (http://forum.nmichael.de/viewtopic.php?f=9&t=390&p=1443#p1443)
-Zugriff auf alle Daten im CLI
-Import/Export von Daten im CLI
 efaWett-Daten aktualisieren
 Eine alternative Gruppierung der Boote über die Bootsart würde ich auch nicht schlecht finden (alternativ zu "Einer, Zweier, Dreier, Vierer, andere").
-Datenabgleich zwischen Bootshäusern implementieren, bei dem efa einen Export/Import durchführt, der
-  anhand von LastModified erkennt, welche Daten gewinnen, aber zum Beispiel nie die Bootsstatusliste,
-  Nachrichten, ... synchronisiert.
-Gelöschte Fahrtenbucheinträge sollten als gelöscht (sichtbar) im Fahrtenbuch stehen bleiben
-Fahrtgruppen bei Eingabe von Wanderfahrten durch Mitglieder auswählen lassen
-Gewässer in Fahrtgruppe erfassen, damit nicht für alle Etappen/Boote einzeln
+Gelöschte Fahrtenbucheinträge sollten als gelöscht (sichtbar) im Fahrtenbuch stehen bleiben - https://kenai.com/bugzilla/show_bug.cgi?id=4208
 Schreiben ins Spiegelverzeichnis mit Timeout bei Netzlaufwerk
 Dr-Titel in Ausgabe (und erkennung) von Strings aufnehmen!
 Check Java Version (min 6)
-efaRemote - Progress/Status Indicator
 Point-in-Time Recovery
 Signal Handler
 DataLayer: DB Access
 Help System
 AutoComplete: match anything within input/change list content
 Spalte mit Kilometerwettbewerben in normalen Kilometerlisten
-Zusätzliche Import-Option: alle *nicht* importierten (versionierten) Daten als ungültig markieren --> es wird bereits das InvalidFrom Feld importiert. Reicht das?
-  (Use Case: Importieren einer neuen (vollständigen) Mitgliederliste; alles was nicht importiert wurde, ist ungültig)
-  Dabei sollten allerdings Gäste und andere nicht gelöscht werden!
-Datenimport sollte eine Warnung ausgeben, wenn das
 Warnungs-Fenster mit Infos zum Ruderrevier (Gefahren, Sperrungen, etc.) beim Beginnen einer Fahrt
 Feld "Trommler" für Drachenboote; "Zweiter Steuermann" oder "Kielschwein", z.B. für Kirchboote
-Für alle Daten-Felder Klartextnamen definieren, die bei Listenausgabe dann verwendet werden
 Auswertung über die Bootsschäden:Zusammenfassung der Schäden pro Boot in einem def. Zeitraum. Durchschnittliche AUsfallzeit pro Reparatur.
-Benachrichtigung des Admins, wenn Bootsreservierungen durch Mitglieder eingetragen werden
 Bei der Eingabe von Namen hat efa 1 erkannt das eine Person schon eingetragen wurde. z.B. Wenn Monika Mustermann gesteuert hat, kann sie nicht noch mal auf Platz 1 sitzen, efa 1 hat hier, in der Auswahl gleich Klaus Mustermann vorgeschlagen.
 Für Bootsreservierungen den Namen des Bootes ändern können.
 
 ============================================================================================================
-Touchscreen-Support: http://forum.nmichael.de/viewtopic.php?f=9&t=206&p=2275#p2275
 Gäste - automatisch erfassen
 Statistics - Special Details (e.g. Wett in Kilometerliste etc.)
 Individual Distance per Person for each Session

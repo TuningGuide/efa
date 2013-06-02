@@ -3023,6 +3023,18 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         if (sPublicStatistic && sOutputType == OutputTypes.efawett) {
             sOutputType = OutputTypes.internal;
         }
+        if (sOutputType == OutputTypes.efawett) {
+            if (sStatisticCategory == StatisticCategory.competition) {
+                sCompPercentFulfilled = 100;
+                sIsOutputCompShort = false;
+                sIsOutputCompRules = false;
+                sIsOutputCompAdditionalWithRequirements = false;
+                sIsOutputCompWithoutDetails = false;
+                sIsOutputCompAllDestinationAreas = false;
+            } else {
+                sOutputType = OutputTypes.internal;
+            }
+        }
         if (sOutputType == OutputTypes.internal) {
             sOutputFile = Daten.efaTmpDirectory + "output.html";
         } else {
@@ -3488,7 +3500,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                                              output != OutputTypes.efawett);
         }
         if (itemOutputEncoding != null) {
-            itemOutputEncoding.setVisible(output == OutputTypes.csv);
+            itemOutputEncoding.setVisible(output == OutputTypes.csv || output == OutputTypes.html);
         }
         if (itemOutputHtmlUpdateTable != null) {
             itemOutputHtmlUpdateTable.setVisible(output == OutputTypes.html);

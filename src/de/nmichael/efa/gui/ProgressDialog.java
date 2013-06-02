@@ -43,6 +43,11 @@ public class ProgressDialog extends BaseDialog {
         initialize(progressTask, autoCloseDialogWhenDone, minimalDialog);
     }
 
+    // dummy progress dialog, to be used by CLI
+    public ProgressDialog() {
+        super((JDialog)null, null, null);
+    }
+
     private void initialize(ProgressTask progressTask, boolean autoCloseDialogWhenDone, boolean minimalDialog) {
         this.progressTask = progressTask;
         super.enableWindowStackChecks(false);

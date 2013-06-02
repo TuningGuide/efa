@@ -385,16 +385,22 @@ public class EfaBoathouseBackgroundTask extends Thread {
                     }
 
                     // find all current damages
+                    boolean damaged = false;
                     BoatDamageRecord[] damages = boatDamages.getBoatDamages(boatStatusRecord.getBoatId());
                     for (int i = 0; damages != null && i < damages.length; i++) {
                         if (!damages[i].getFixed() && damages[i].getSeverity() != null
                                 && damages[i].getSeverity().equals(BoatDamageRecord.SEVERITY_NOTUSEABLE)) {
                             boatStatusRecord.setComment(damages[i].getShortDamageInfo());
+                            damaged = true;
                             if (!boatStatusRecord.getShowInList().equals(BoatStatusRecord.STATUS_NOTAVAILABLE)) {
                                 boatStatusRecord.setShowInList(BoatStatusRecord.STATUS_NOTAVAILABLE);
                             }
                             break; // stop after first severe damage
                         }
+                    }
+                    if (!damaged && boatStatusRecord.getComment() != null &&
+                        BoatDamageRecord.isCommentBoatDamage(boatStatusRecord.getComment())) {
+                        boatStatusRecord.setComment(null);
                     }
 
                     // make sure that if the boat is on the water, this status overrides any other list settings
@@ -565,8 +571,20 @@ public class EfaBoathouseBackgroundTask extends Thread {
         try {
             if (Daten.project != null && Daten.project.isOpen()) {
                 DataTypeDate date = Daten.project.getAutoNewLogbookDate();
-                if (date != null && date.isSet() && DataTypeDate.today().isAfterOrEqual(date)) {
-                    autoOpenNewLogbook();
+                if (date != null && date.isSet()) {
+                    DataTypeDate today = DataTypeDate.today();
+                    if (today.isAfterOrEqual(date)) {
+                        autoOpenNewLogbook();
+                        if (today.getDifferenceDays(date) >= 7) {
+                            // we only delete the logswitch data after 7 days to also give
+                            // all remote clients a chance to change the logbook; otherwise,
+                            // they wouldn't be able to see the configured date any more and
+                            // would never change the logbook
+                            Daten.project.setAutoNewLogbookDate(null);
+                            Daten.project.setAutoNewLogbookName(null);
+                            
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
@@ -665,11 +683,14 @@ public class EfaBoathouseBackgroundTask extends Thread {
                         continue;
                     }
                     if (!damage.getFixed()) {
-                        openDamages.add(k);
-                        if (damage.getReportDate() != null && damage.getReportTime() != null
-                                && damage.getReportDate().isSet() && damage.getReportTime().isSet()
-                                && damage.getReportDate().getTimestamp(damage.getReportTime()) < now - BOAT_DAMAGE_REMINDER_INTERVAL) {
-                            damagesOlderThanAWeek = true;
+                        BoatRecord r = damage.getBoatRecord();
+                        if (r != null && r.isValidAt(System.currentTimeMillis())) {
+                            openDamages.add(k);
+                            if (damage.getReportDate() != null && damage.getReportTime() != null
+                                    && damage.getReportDate().isSet() && damage.getReportTime().isSet()
+                                    && damage.getReportDate().getTimestamp(damage.getReportTime()) < now - BOAT_DAMAGE_REMINDER_INTERVAL) {
+                                damagesOlderThanAWeek = true;
+                            }
                         }
                     }
 
@@ -740,12 +761,17 @@ public class EfaBoathouseBackgroundTask extends Thread {
         if (newLogbookName == null || newLogbookName.length() == 0) {
             return;
         }
-        Daten.project.setAutoNewLogbookDate(null);
-        Daten.project.setAutoNewLogbookName(null);
+        Logbook currentLogbook = efaBoathouseFrame.getLogbook();
+        if (currentLogbook == null) {
+            return;
+        }
+        if (newLogbookName.equals(currentLogbook.getName())) {
+            // we have already changed the logbook --> nothing to do
+            return;
+        }
         Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLOGBOOK,
                 International.getString("Fahrtenbuchwechsel wird begonnen ..."));
 
-        Logbook currentLogbook = efaBoathouseFrame.getLogbook();
         BoatStatus boatStatus = Daten.project.getBoatStatus(false);
         long lockLogbook = -1;
         long lockStatus = -1;
@@ -758,15 +784,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
                         LogString.fileNotFound(newLogbookName, International.getString("Fahrtenbuch")));
                 throw new Exception("New Logbook not found");
             }
-            if (currentLogbook != null && newLogbook.getName().equals(currentLogbook.getName())) {
-                Logger.log(Logger.ERROR, Logger.MSG_ERR_AUTOSTARTNEWLOGBOOK,
-                        International.getMessage("Fahrtenbuch {name} ist bereits geöffnet.", newLogbook.getName()));
-                throw new Exception("New Logbook already opened");
-            }
 
-            // Step 2: Abort open Sessions
+            // Step 2: Abort open Sessions (only for local project)
             boolean sessionsAborted = false;
-            if (currentLogbook != null) {
+            if (Daten.project.getProjectStorageType() != IDataAccess.TYPE_EFA_REMOTE) {
                 Vector<BoatStatusRecord> boatsOnTheWater = boatStatus.getBoats(BoatStatusRecord.STATUS_ONTHEWATER);
                 if (boatsOnTheWater.size() > 0) {
                     lockStatus = boatStatus.data().acquireGlobalLock();

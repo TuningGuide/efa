@@ -381,6 +381,13 @@ public interface IDataAccess {
     public DataKey addValidAt(DataRecord record, long t, long lockID) throws EfaException;
 
     /**
+     * Adds an array of new data record to this storage object.
+     * @param record the data records to add
+     * @throws Exception if any of the data record already exists or the operation fails for another reason
+     */
+    public void addAll(DataRecord[] records, long lockID) throws EfaException;
+
+    /**
      * Updates an existing one in this storage object.
      * @param record the data record to update
      * @throws Exception if the data record is locked or the operation fails for another reason

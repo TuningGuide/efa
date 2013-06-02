@@ -114,7 +114,7 @@ public class BoatDamageRecord extends DataRecord {
         return getUUID(BOATID);
     }
 
-    public String getBoatAsName() {
+    public BoatRecord getBoatRecord() {
         try {
             Boats boats = getPersistence().getProject().getBoats(false);
             long t = (getReportDate() != null && getReportTime() != null ?
@@ -124,11 +124,16 @@ public class BoatDamageRecord extends DataRecord {
             if (r == null) {
                 r = boats.getAnyBoatRecord(getBoatId());
             }
-            return r.getQualifiedName();
+            return r;
         } catch (Exception e) {
             Logger.logdebug(e);
             return null;
         }
+    }
+
+    public String getBoatAsName() {
+        BoatRecord r = getBoatRecord();
+        return (r != null ? r.getQualifiedName() : null);
     }
     
     public void setDamage(int no) {
@@ -316,6 +321,10 @@ public class BoatDamageRecord extends DataRecord {
     public String getShortDamageInfo() {
         return International.getString("Bootsschaden") + ": " +
                 getDescription() + " (" + getSeverityDescription() + ")";
+    }
+
+    public static boolean isCommentBoatDamage(String s) {
+        return s != null && s.startsWith(International.getString("Bootsschaden") + ": ");
     }
 
     public String getAsText(String fieldName) {

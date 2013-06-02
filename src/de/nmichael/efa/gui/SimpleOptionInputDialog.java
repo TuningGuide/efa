@@ -34,14 +34,14 @@ public class SimpleOptionInputDialog extends SimpleInputDialog implements IItemL
     public SimpleOptionInputDialog(Frame parent, String title, IItemType item,
             String[] optionButtonText, int[] optionButtonAction,
             String[] optionButtonIcons) {
-        super(parent, title, item);
+        super(parent, title, new IItemType[] { item });
         ini(item, optionButtonText, optionButtonAction, optionButtonIcons);
     }
 
     public SimpleOptionInputDialog(JDialog parent, String title, IItemType item,
             String[] optionButtonText, int[] optionButtonAction,
             String[] optionButtonIcons) {
-        super(parent, title, item);
+        super(parent, title, new IItemType[] { item });
         ini(item, optionButtonText, optionButtonAction, optionButtonIcons);
     }
 
@@ -114,7 +114,7 @@ public class SimpleOptionInputDialog extends SimpleInputDialog implements IItemL
     }
 
     public void itemListenerAction(IItemType itemType, AWTEvent event) {
-        if (itemType == super.item && event != null &&
+        if (itemType == super.items[0] && event != null &&
             event instanceof ActionEvent) {
             if (((ActionEvent)event).getActionCommand().equals(EfaMouseListener.EVENT_MOUSECLICKED_2x)) {
                 closeButton_actionPerformed((ActionEvent)event);

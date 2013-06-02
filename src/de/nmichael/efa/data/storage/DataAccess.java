@@ -55,12 +55,15 @@ public abstract class DataAccess implements IDataAccess {
                 dataAccess.setPersistence(persistence);
                 return dataAccess;
             case IDataAccess.TYPE_DB_SQL:
-                return null; // @todo (P6) TYPE_DB_SQL not yet implemented
+                break; // @todo (P6) TYPE_DB_SQL not yet implemented
             case IDataAccess.TYPE_EFA_REMOTE:
                  dataAccess = (IDataAccess)new RemoteEfaClient(storageLocation, storageUsername, storagePassword, storageObjectName, storageObjectType, storageObjectDescription);
                  dataAccess.setPersistence(persistence);
                 return dataAccess;
         }
+        Logger.log(Logger.ERROR, Logger.MSG_DATA_DATAACCESS,
+                "DataAccess for " + storageObjectName + "." + storageObjectType + " (type " + type +
+                ") is null");
         return null;
     }
 
@@ -352,11 +355,16 @@ public abstract class DataAccess implements IDataAccess {
         truncateAllData();
         try {
             DataKeyIterator it = source.getStaticIterator();
+            ArrayList<DataRecord> recordList = new ArrayList<DataRecord>();
             DataKey k = it.getFirst();
-            setInOpeningStorageObject(true); // don't update LastModified Timestamps, don't increment SCN, don't check assertions!
             while (k != null) {
-                add(source.get(k));
+                recordList.add(source.get(k));
                 k = it.getNext();
+            }
+
+            setInOpeningStorageObject(true); // don't update LastModified Timestamps, don't increment SCN, don't check assertions!
+            if (recordList.size() > 0) {
+                addAll(recordList.toArray(new DataRecord[0]), -1);
             }
         } catch (Exception e) {
             throw new EfaException(Logger.MSG_DATA_COPYFROMDATAACCESSFAILED, getUID() + 

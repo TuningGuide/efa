@@ -572,6 +572,9 @@ public class EfaTypes extends StorageObject {
     }
 
     private static String[] makeTypeArray(int type, String cat) {
+        if (Daten.efaTypes == null) {
+            return null; // can happen during startup
+        }
         if (type == ARRAY_STRINGLIST_VALUES) {
             return Daten.efaTypes.getTypesArray(cat);
         }

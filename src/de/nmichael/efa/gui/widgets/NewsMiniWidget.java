@@ -68,8 +68,8 @@ public class NewsMiniWidget {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
             }
-            getMaxChar();
             while (keepRunning) {
+                getMaxChar();
                 try {
                     do {
                         label.setText(getText(text, showing, maxChar));

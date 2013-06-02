@@ -139,6 +139,10 @@ public abstract class DataRecord implements Cloneable, Comparable {
         return getKey().compareTo( (o != null ? ((DataRecord)o).getKey() : null) );
     }
 
+    public String[] getFields() {
+        return metaData.getFields();
+    }
+
     public int getFieldCount() {
         return metaData.getNumberOfFields();
     }

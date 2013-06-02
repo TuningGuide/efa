@@ -27,32 +27,38 @@ public abstract class Widget implements IWidget {
 
     String name;
     String description;
+    boolean ongui;
     Vector<IItemType> parameters = new Vector<IItemType>();
     JPanel myPanel;
     
-    public Widget(String name, String description) {
+    public Widget(String name, String description, boolean ongui) {
         this.name = name;
         this.description = description;
+        this.ongui = ongui;
 
         addParameterInternal(new ItemTypeBoolean(PARAM_ENABLED, false,
                 IItemType.TYPE_PUBLIC, "",
-                International.getMessage("{item} anzeigen", name)));
+                (ongui ?
+                    International.getMessage("{item} anzeigen", name) :
+                    International.getMessage("{item} aktivieren", description))));
 
-        addParameterInternal(new ItemTypeStringList(PARAM_POSITION, POSITION_BOTTOM,
-                new String[] { POSITION_TOP, POSITION_BOTTOM, POSITION_LEFT, POSITION_RIGHT, POSITION_CENTER },
-                new String[] { International.getString("oben"),
-                               International.getString("unten"),
-                               International.getString("links"),
-                               International.getString("rechts"),
-                               International.getString("mitte")
-                },
-                IItemType.TYPE_PUBLIC, "",
-                International.getString("Position")));
+        if (ongui) {
+            addParameterInternal(new ItemTypeStringList(PARAM_POSITION, POSITION_BOTTOM,
+                    new String[]{POSITION_TOP, POSITION_BOTTOM, POSITION_LEFT, POSITION_RIGHT, POSITION_CENTER},
+                    new String[]{International.getString("oben"),
+                        International.getString("unten"),
+                        International.getString("links"),
+                        International.getString("rechts"),
+                        International.getString("mitte")
+                    },
+                    IItemType.TYPE_PUBLIC, "",
+                    International.getString("Position")));
 
-        addParameterInternal(new ItemTypeInteger(PARAM_UPDATEINTERVAL, 3600, 1, Integer.MAX_VALUE, false,
-                IItemType.TYPE_PUBLIC, "",
-                International.getString("Aktualisierungsintervall")
-                + " (s)"));
+            addParameterInternal(new ItemTypeInteger(PARAM_UPDATEINTERVAL, 3600, 1, Integer.MAX_VALUE, false,
+                    IItemType.TYPE_PUBLIC, "",
+                    International.getString("Aktualisierungsintervall")
+                    + " (s)"));
+        }
     }
 
     public String getParameterName(String internalName) {
@@ -107,11 +113,18 @@ public abstract class Widget implements IWidget {
     }
 
     public void setPosition(String p) {
-        getParameterInternal(PARAM_POSITION).parseValue(p);
+        try {
+            getParameterInternal(PARAM_POSITION).parseValue(p);
+        } catch(NullPointerException eignoremissingparameter) {
+        }
     }
 
     public String getPosition() {
-        return getParameterInternal(PARAM_POSITION).toString();
+        try {
+            return getParameterInternal(PARAM_POSITION).toString();
+        } catch(NullPointerException eignoremissingparameter) {
+            return null;
+        }
     }
 
     public void setUpdateInterval(int seconds) {
@@ -126,21 +139,34 @@ public abstract class Widget implements IWidget {
     public abstract JComponent getComponent();
 
     public void show(JPanel panel, int x, int y) {
+        if (!ongui) {
+            return;
+        }
         myPanel = panel;
         construct();
-        panel.add(getComponent(), new GridBagConstraints(x, y, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+        JComponent comp = getComponent();
+        if (comp != null) {
+            panel.add(comp, new GridBagConstraints(x, y, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+        }
     }
 
     public void show(JPanel panel, String orientation) {
+        if (!ongui) {
+            return;
+        }
         myPanel = panel;
         construct();
-        panel.add(getComponent(), orientation);
+        JComponent comp = getComponent();
+        if (comp != null) {
+            panel.add(comp, orientation);
+        }
     }
 
     public static String[] getAllWidgetClassNames() {
         return new String[] {
             HTMLWidget.class.getCanonicalName(),
-            MeteoAstroWidget.class.getCanonicalName()
+            MeteoAstroWidget.class.getCanonicalName(),
+            AlertWidget.class.getCanonicalName()
         };
     }
 

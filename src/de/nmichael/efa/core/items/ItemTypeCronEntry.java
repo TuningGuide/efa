@@ -46,6 +46,7 @@ public class ItemTypeCronEntry extends ItemTypeLabelValue {
     private JTextField fMonth;
     private JTextField fDayOfWeek;
     private JTextField fCommand;
+    private JLabel fFrequency;
 
     public ItemTypeCronEntry(String name, String value, int type,
             String category, String description) {
@@ -210,8 +211,13 @@ public class ItemTypeCronEntry extends ItemTypeLabelValue {
         fMonth     = initializeField(International.getString("Monat"), 100, p, 3);
         fDayOfWeek = initializeField(International.getString("Wochentag"), 100, p, 4);
         fCommand   = initializeField(International.getString("Kommando"), 400, p, 5);
+        fFrequency = new JLabel();
+        p.add(fFrequency, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 2), 0, 0));
+        fFrequency.setForeground(Color.blue);
         Dimension dim = p.getPreferredSize();
-        setFieldSize(dim.width, dim.height);
+        p.doLayout();
+        setFieldSize(dim.width+20, dim.height+20);
         return p;
     }
 
@@ -235,6 +241,7 @@ public class ItemTypeCronEntry extends ItemTypeLabelValue {
         if (fCommand != null) {
             fCommand.setText(command != null ? command : "");
         }
+        showFrequency();
     }
 
     public String getValueFromField() {
@@ -261,11 +268,62 @@ public class ItemTypeCronEntry extends ItemTypeLabelValue {
             f.setText(timeFieldToString(parseTimeField(f.getText(), 12), 1));
         }
         if (fDayOfWeek == f) {
-            f.setText(timeFieldToString(parseTimeField(f.getText(), 77), 0));
+            f.setText(timeFieldToString(parseTimeField(f.getText(), 7), 0));
         }
         if (fCommand == f) {
             f.setText(f.getText().trim());
         }
+        showFrequency();
+    }
+
+    private int countValues(boolean[] bool) {
+        int count = 0;
+        for (boolean b : bool) {
+            if (b) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private void showFrequency() {
+        int minutes = countValues(parseTimeField(fMinute.getText(), 59));
+        int hours = countValues(parseTimeField(fHour.getText(), 23));
+        int days = countValues(parseTimeField(fDay.getText(), 31));
+        int months = countValues(parseTimeField(fMonth.getText(), 12));
+        int weekdays = countValues(parseTimeField(fDayOfWeek.getText(), 7));
+        int perday = minutes * hours;
+        StringBuilder s = new StringBuilder();
+        s.append(perday + " " + International.getString("mal"));
+        if (weekdays >= 7) {
+            if (days >= 31) {
+                s.append(" " + International.getString("täglich"));
+                if (months < 12) {
+                    s.append(" " + International.getMessage("in {count} Monaten", months));
+                }
+            } else {
+                if (days == 1) {
+                    if (months >= 12) {
+                        s.append(" " + International.getString("im Monat"));
+                    } else {
+                        s.append(" " + International.getString("am Tag") +
+                                 " " + International.getMessage("in {count} Monaten", months));
+                    }
+                } else {
+                    if (days >= 31) {
+                        s.append(" " + International.getString("täglich"));
+                    } else {
+                        s.append(" " + International.getMessage("an {count} Tagen", days));
+                    }
+                    if (months < 12) {
+                        s.append(" " + International.getMessage("in {count} Monaten", months));
+                    }
+                }
+            }
+        } else {
+            s.append(" " + International.getMessage("an {count} Wochentagen", weekdays));
+        }
+        fFrequency.setText(s.toString());
     }
 
     public boolean isValidInput() {

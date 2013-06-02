@@ -49,7 +49,7 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
     private AdminRecord admin;
     private Hashtable<String,ChangeItem> changes;
     private String infotitle = "";
-    private static final int LAST_STEP = 3;
+    private static final int LAST_STEP = 4;
     private int step = 0;
     private Hashtable<String,String> neighbourCache = new Hashtable<String,String>();
     private String guest = International.getString("Gast");
@@ -103,6 +103,9 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
     }
 
     private void updateFields() {
+        if (step == 1) {
+            return;
+        }
         if (changePanel != null) {
             synchronized(changePane) {
                 changePane.remove(changePanel);
@@ -128,19 +131,47 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
         infotitle = "";
         switch(++step) {
             case 1:
-                infotitle = International.getString("Unbekannte Personen");
+                infotitle = International.getString("Korrekturassistent");
+                fixButton.setVisible(false);
+                skipButton.setVisible(true);
+                skipButton.setDescription(International.getString("Weiter"));
+                if (changePanel != null) {
+                    synchronized (changePane) {
+                        changePane.remove(changePanel);
+                    }
+                }
+                changePanel = new JPanel();
+                changePanel.setLayout(new BorderLayout());
+                JLabel label = new JLabel(International.getString("Dieser Assistent such im Fahrtenbuch nach falsch geschriebenen Namen und bietet diese zur Korrektur an."));
+                label.setHorizontalAlignment(SwingConstants.CENTER);
+                changePanel.add(label, BorderLayout.CENTER);
+                changePane.getViewport().add(changePanel, null);
                 break;
             case 2:
-                infotitle = International.getString("Unbekannte Boote");
+                infotitle = International.getString("Unbekannte Personen");
+                fixButton.setVisible(true);
+                skipButton.setVisible(true);
+                skipButton.setDescription(International.getString("Überspringen"));
                 break;
             case 3:
+                infotitle = International.getString("Unbekannte Boote");
+                fixButton.setVisible(true);
+                skipButton.setVisible(true);
+                skipButton.setDescription(International.getString("Überspringen"));
+                break;
+            case 4:
                 infotitle = International.getString("Unbekannte Ziele");
+                fixButton.setVisible(true);
+                skipButton.setVisible(true);
+                skipButton.setDescription(International.getString("Überspringen"));
                 break;
             default:
                 infotitle = International.getString("Fertig");
                 infoLabel.setText(infotitle);
                 changes = new Hashtable<String,ChangeItem>();
                 closeButton.setText(International.getString("Schließen"));
+                fixButton.setVisible(false);
+                skipButton.setVisible(false);
                 updateFields();
                 return;
         }
@@ -151,13 +182,13 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
         new Thread() {
             public void run() {
                 switch(step) {
-                    case 1:
+                    case 2:
                         findPersonsToFix(progressMonitor);
                         break;
-                    case 2:
+                    case 3:
                         findBoatsToFix(progressMonitor);
                         break;
-                    case 3:
+                    case 4:
                         findDestinationsToFix(progressMonitor);
                         break;
                 }

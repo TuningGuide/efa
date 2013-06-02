@@ -997,7 +997,8 @@ public class StatisticTask extends ProgressTask {
             // update number of evaluated entries
             sr.cNumberOfEntries++;
             if (Logger.isTraceOn(Logger.TT_STATISTICS, 5)) {
-                Logger.log(Logger.DEBUG, Logger.MSG_STAT_CALCULATEDENTRIES, "calculated: " + r.toString());
+                Logger.log(Logger.DEBUG, Logger.MSG_STAT_CALCULATEDENTRIES, "calculated: " + r.toString() +
+                        (Logger.isTraceOn(Logger.TT_STATISTICS, 6) ? " (" + entryNumberOfDays + " days)" : "") );
             }
         } else {
             if (Logger.isTraceOn(Logger.TT_STATISTICS, 5)) {
@@ -1755,12 +1756,21 @@ public class StatisticTask extends ProgressTask {
                 statDescrShort = International.getString("Statistik");
                 statDescrLong = statDescrShort;
         }
-        sr.pStatTitle = statDescrShort;
-        if (sr.cEntryDateFirst != null && sr.cEntryDateFirst.isSet()) {
-            sr.pStatTitle += " " + sr.cEntryDateFirst.getYear();
-            if (sr.cEntryDateLast != null && sr.cEntryDateLast.isSet() && sr.cEntryDateFirst.getYear() != sr.cEntryDateLast.getYear()) {
-                sr.pStatTitle += " - " + sr.cEntryDateLast.getYear();
+        boolean isTemporaryStatistic = true;
+        try {
+            isTemporaryStatistic = sr.getPersistence().data().get(sr.getKey()) == null;
+        } catch(Exception eingore) {
+        }
+        if (isTemporaryStatistic) {
+            sr.pStatTitle = statDescrShort;
+            if (sr.cEntryDateFirst != null && sr.cEntryDateFirst.isSet()) {
+                sr.pStatTitle += " " + sr.cEntryDateFirst.getYear();
+                if (sr.cEntryDateLast != null && sr.cEntryDateLast.isSet() && sr.cEntryDateFirst.getYear() != sr.cEntryDateLast.getYear()) {
+                    sr.pStatTitle += " - " + sr.cEntryDateLast.getYear();
+                }
             }
+        } else {
+            sr.pStatTitle = sr.getName();
         }
         sr.pStatCreationDate = EfaUtil.getCurrentTimeStampDD_MM_YYYY();
         sr.pStatCreatedByUrl = Daten.EFAURL;

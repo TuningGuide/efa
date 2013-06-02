@@ -14,6 +14,8 @@ import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.DataKey;
 import de.nmichael.efa.data.storage.DataKeyIterator;
+import de.nmichael.efa.data.types.DataTypeIntString;
+import de.nmichael.efa.gui.util.AutoCompleteList;
 import de.nmichael.efa.gui.util.TableSorter;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
@@ -25,9 +27,6 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 
 public class ShowLogbookDialog extends BaseDialog implements IItemListener {
 
@@ -83,7 +82,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
         table.requestFocus();
     }
 
-    private void updateNestedTableHight() {
+    private void updateNestedTableHeight() {
         for (int i = 0; table != null && i < table.getRowCount(); i++) {
             int orgHeight = table.getRowHeight(i);
             int newHeight = 0;
@@ -106,7 +105,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
             scrollPane.remove(table);
         }
 
-        Object[] title = new Object[10];
+        Object[] title = new Object[11];
         title[0] = International.getString("LfdNr");
         title[1] = International.getString("Datum");
         title[2] = International.getString("Boot");
@@ -117,8 +116,9 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
         title[7] = International.getString("Ziel");
         title[8] = International.getString("Km");
         title[9] = International.getString("Bemerkungen");
+        title[10] = "C";
 
-        Object[][] fahrten = new Object[max][10];
+        Object[][] fahrten = new Object[max][11];
         //String s = "";
 
         int c = max;
@@ -170,6 +170,10 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
                 fahrten[c][8] = r.getDistance();
                 fahrten[c][9] = r.getComments();
 
+                // EntryID for this column is just used as a reference.
+                // This column will display a button to change this entry
+                fahrten[c][10] = r.getEntryId().toString();
+
                 k = it.getPrev();
                 if (c == 0) {
                     break;
@@ -193,9 +197,11 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
         table = new MyJTable(sorter);
         table.getColumn(International.getString("Steuermann")).setCellRenderer(new HighlightTableCellRenderer());
         table.getColumn(International.getString("Mannschaft")).setCellRenderer(new TableInTableRenderer());
-        //table.getColumn("Mannschaft").setCellEditor(new TableInTableEditor(new JCheckBox()));
 
-        updateNestedTableHight();
+        ButtonRenderer buttonRenderer = new ButtonRenderer();
+        table.getColumn("C").setCellRenderer(buttonRenderer);
+        table.getColumn("C").setCellEditor(new ButtonEditor(buttonRenderer));
+        updateNestedTableHeight();
         sorter.addMouseListenerToHeaderInTable(table);
         scrollPane.getViewport().add(table, null);
         try {
@@ -219,7 +225,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
 
         int[] widths = new int[11];
         int remaining = width;
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 11; i++) {
             switch (i) {
                 case 0:
                     widths[i] = 5 * width / 100; // LfdNr
@@ -251,11 +257,14 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
                         widths[i] = 50;
                     }
                     break;
+                case 10:
+                    widths[i] = 19; // Change Button
+                    break;
             }
             remaining -= widths[i];
         }
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 11; i++) {
             switch (i) {
                 case 2:
                     widths[i] = 18 * remaining / 100;
@@ -275,7 +284,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
             }
         }
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 11; i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
         }
 
@@ -301,6 +310,42 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
         }
     }
 
+    void changeRequest(String entryNo) {
+        if (entryNo == null) {
+            return;
+        }
+        try {
+            LogbookRecord r = this.logbook.getLogbookRecord(new DataTypeIntString(entryNo));
+
+
+            ItemTypeTextArea text = new ItemTypeTextArea("TEXT",
+                    EfaUtil.wrapString(International.getMessage("Korrekturwunsch für Fahrtenbuch-Eintrag {entry}",
+                    r.getLogbookRecordAsStringDescription()), 80) + "\n\n",
+                    IItemType.TYPE_PUBLIC,
+                    "", International.getString("Bitte gib eine Beschreibung der gewünschten Änderung ein"));
+            text.setCaretPosition(Integer.MAX_VALUE);
+            text.setLabelGrid(2, -1, -1);
+            text.setNotNull(true);
+            long now = System.currentTimeMillis();
+            ItemTypeStringAutoComplete from = new ItemTypeStringAutoComplete("FROM", "",
+                    IItemType.TYPE_PUBLIC, "",
+                    International.getString("Dein Name"), false);
+            from.setAutoCompleteData(new AutoCompleteList(Daten.project.getPersons(false).data(), now, now));
+            from.setAlwaysReturnPlainText(true);
+            from.setNotNull(true);
+            if (SimpleInputDialog.showInputDialog(this,
+                    International.getString("Korrekturwunsch"), new IItemType[] { text, from } )) {
+                Messages messages = Daten.project.getMessages(false);
+                messages.createAndSaveMessageRecord(from.getValueFromField(), MessageRecord.TO_ADMIN,
+                        International.getMessage("Korrekturwunsch für Fahrtenbuch-Eintrag {entry}", "#" + entryNo),
+                        text.getValueFromField());
+                Dialog.infoDialog(International.getString("Vielen Dank, dein Korrekturwunsch wurde übermittelt."));
+            }
+        } catch (Exception e) {
+            Logger.logdebug(e);
+        }
+    }
+
     class MyJTable extends JTable {
 
         public MyJTable(TableSorter sorter) {
@@ -308,7 +353,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
         }
 
         public boolean isCellEditable(int row, int column) {
-            return false;
+            return column == 10;
         }
 
         public void valueChanged(ListSelectionEvent e) {
@@ -333,7 +378,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
 
         public void tableChanged(TableModelEvent e) {
             super.tableChanged(e);
-            updateNestedTableHight();
+            updateNestedTableHeight();
         }
     }
 
@@ -419,4 +464,54 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
             }
         }
     }
+
+    class ButtonRenderer extends JButton implements TableCellRenderer {
+
+        public ButtonRenderer() {
+            setOpaque(true);
+        }
+
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            setIcon(BaseDialog.getIcon(BaseDialog.IMAGE_EDIT2));
+            return this;
+        }
+
+    }
+
+    class ButtonEditor extends DefaultCellEditor {
+
+        protected JButton button;
+        private String entryNo;
+
+        public ButtonEditor(JButton button) {
+            super(new JCheckBox());
+            this.button = button;
+            button.setOpaque(true);
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    changeRequest(entryNo);
+                }
+            });
+        }
+
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                boolean isSelected, int row, int column) {
+            entryNo = value.toString();
+            return button;
+        }
+
+        public Object getCellEditorValue() {
+            return button;
+        }
+
+        public boolean stopCellEditing() {
+            return super.stopCellEditing();
+        }
+
+        protected void fireEditingStopped() {
+            super.fireEditingStopped();
+        }
+    }
+
 }

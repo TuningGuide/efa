@@ -30,6 +30,7 @@ public class ItemTypeTextArea extends ItemType {
     protected Font labelFont;
     protected Font fieldFont;
     protected boolean wrap;
+    protected int caretPosition = 0;
 
     public ItemTypeTextArea(String name, String value, int type,
             String category, String description) {
@@ -136,8 +137,8 @@ public class ItemTypeTextArea extends ItemType {
 
     public void setLabelGrid(int gridWidth, int gridAnchor, int gridFill) {
         labelGridWidth = gridWidth;
-        labelGridAnchor = gridAnchor;
-        labelGridFill = gridFill;
+        labelGridAnchor = (gridAnchor != -1 ? gridAnchor : labelGridAnchor);
+        labelGridFill = (gridFill != -1 ? gridFill : labelGridFill);
     }
 
     public Font getLabelFont() {
@@ -183,9 +184,14 @@ public class ItemTypeTextArea extends ItemType {
 
     public void showValue() {
         if (field != null) {
-            ((JTextArea)field).setText(toString());
-            ((JTextArea)field).setCaretPosition(0);
+            String text = toString();
+            ((JTextArea)field).setText(text);
+            ((JTextArea)field).setCaretPosition( (caretPosition <= text.length() ? caretPosition : text.length()));
         }
+    }
+
+    public void setCaretPosition(int caretPosition) {
+        this.caretPosition = caretPosition;
     }
 
     public boolean isValidInput() {

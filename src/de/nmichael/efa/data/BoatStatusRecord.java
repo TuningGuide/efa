@@ -191,7 +191,8 @@ public class BoatStatusRecord extends DataRecord {
                 (  (sessionEndDate != null && sessionEndDate.isSet()) ||
                    (sessionType != null && (sessionType.equals(EfaTypes.TYPE_SESSION_TOUR) ||
                                             sessionType.equals(EfaTypes.TYPE_SESSION_REGATTA) ||
-                                            sessionType.equals(EfaTypes.TYPE_SESSION_JUMREGATTA)))
+                                            sessionType.equals(EfaTypes.TYPE_SESSION_JUMREGATTA) ||
+                                            sessionType.equals(EfaTypes.TYPE_SESSION_TRAININGCAMP)))
                          );
     }
 

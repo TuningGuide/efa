@@ -171,6 +171,52 @@ public class DataCache {
         return null;
     }
 
+    public synchronized DataRecord getValidLatest(DataKey key) throws EfaException {
+        if (!isCacheComplete()) {
+            getAllRecordsFromRemote();
+        }
+        return getValidLatestFromCache(key);
+    }
+
+    private synchronized DataRecord getValidLatestFromCache(DataKey key) {
+        int validFromField;
+        if (dataAccess.getMetaData().versionized) {
+            validFromField = dataAccess.getKeyFieldNames().length - 1; // VALID_FROM is always the last key field!
+        } else {
+            // wrong call: not versionized
+            return null;
+        }
+        DataKey[] keys = cache.keySet().toArray(new DataKey[0]);
+        if (keys == null) {
+            return null;
+        }
+        DataKey latestVersionKey = null;
+        DataRecord latestVersionRec = null;
+        for (DataKey k : keys) {
+            boolean sameRecord = true;
+            for (int i=0; i<validFromField; i++) {
+                if (k.getKeyPart(i) == null || !k.getKeyPart(i).equals(key.getKeyPart(i))) {
+                    sameRecord = false;
+                }
+            }
+            if (!sameRecord) {
+                continue;
+            }
+            long validFrom = (Long) k.getKeyPart(validFromField);
+            if (latestVersionKey == null || validFrom > (Long) latestVersionKey.getKeyPart(validFromField)) {
+                DataRecord r = get(k);
+                if (!r.getDeleted()) {
+                    latestVersionKey = k;
+                    latestVersionRec = r;
+                }
+            }
+        }
+        if (latestVersionRec != null) {
+            return latestVersionRec;
+        }
+        return null;
+    }
+
     public DataKey[] getAllKeys() {
         long numberOfRecRemote = getTotalNumberOfRecordsIfNotTooOld();
         if (numberOfRecRemote == cache.size()) {

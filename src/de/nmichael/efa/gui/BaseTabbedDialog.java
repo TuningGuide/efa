@@ -230,6 +230,17 @@ public abstract class BaseTabbedDialog extends BaseDialog {
         dataPanel.add(topLevelPane, BorderLayout.CENTER);
         this.validate();
 
+        // check if ItemTypeItemList is displayed. If yes, we need to get all currently
+        // displayed values each time ItemTypeItemList calls updateGui() whenever an item
+        // is added or removed
+        for (IItemType item : displayedGuiItems) {
+            if (item instanceof ItemTypeItemList) {
+                defaultGetGuiItemsOnUpdateGui = true;
+            }
+        }
+
+
+
         // select an item to focus
         Vector<IItemType> v = itemsPerCategory.get( (selectedPanel != null ? selectedPanel : cats[0]));
         for (int i=0; v != null && i<v.size(); i++) {

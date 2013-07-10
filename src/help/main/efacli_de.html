@@ -185,5 +185,19 @@ Um eine komplette Sicherung aus der Datei efaBackup_20130513_223131.zip wiederhe
 Um nur das 2013er Fahrtenbuch (mit dem Namen <i>2013</i>) einer Sicherung aus der Datei efaBackup_20130513_223131.zip wiederherzustellen:<br>
 <tt>backup restore efaBackup_20130513_223131.zip 2013.efa2logbook</tt></p>
 
+<h4 align="center">Externe Kommandos ausführen</h4>
+
+<p>Aus efa heraus können mittels des CLI-Kommandos <tt>command</tt> externe Kommandos ausgeführt werden.</p>
+
+<table align="center" border>
+    <tr><th>Kommando</th><th>Unterkommando</th><th>Optionen</th><th>Beschreibung</th></tr>
+    <tr><td>command</td><td>run</td><td>[options...] [>file]</td><td>Startet ein externes Kommando <i>command</i> mit den Optionen <i>options</i>. Mittels <tt>&gt;file</tt> kann die Ausgabe in eine Datei umgelenkt werden. Hinweis: Das Kommando wird im Hintergrund gestartet. efa wartet nicht auf die Beendigung des Kommandos.</td></tr>
+</table>
+
+<p>Beispiele:<br>
+Um xclock aufzurufen:<br>
+<tt>command run /usr/bin/xclock</tt>
+</p>
+
 </body>
 </html>

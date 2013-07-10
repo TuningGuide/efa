@@ -2,10 +2,10 @@
 <efaOnlineUpdate>
 
     <Version>
-        <VersionID>2.1.0_xx</VersionID>
-        <ReleaseDate>xx.05.2013</ReleaseDate>
-        <DownloadUrl>http://efa.nmichael.de/download/efa207.zip</DownloadUrl>
-        <DownloadSize></DownloadSize>
+        <VersionID>2.1.0_00</VersionID>
+        <ReleaseDate>08.07.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa210.zip</DownloadUrl>
+        <DownloadSize>3317152</DownloadSize>
 
         <Changes lang="de">
             <ChangeItem>Neu: Korrekturassistent hilft beim Finden und Korrigieren von falsch geschriebenen Personen-/Boots-/Zielnamen im Fahrtenbuch</ChangeItem>
@@ -37,6 +37,8 @@
             <ChangeItem>Neu: Import und Export von Daten in efaCLI</ChangeItem>
             <ChangeItem>Neu: Zeichensatz (Encoding) für HTML-Statistikausgabe kann jetzt zwischen UTF-8 und ISO-8859-1 ausgewählt werden</ChangeItem>
             <ChangeItem>Neu: Meldedateieditor "emil" aus efa 1 wieder in efa2 enthalten (unsupported)</ChangeItem>
+            <ChangeItem>Neu: Beim Versuch, im Admin-Modus einen nicht behobenen Bootsschaden zu löschen, fragt efa jetzt noch, ob der Bootsschaden als behoben markiert werden soll</ChangeItem>
+            <ChangeItem>Neu: Informationen im Fehlerfall enthalten jetzt auch eine Historie der Log-Ausschriften</ChangeItem>
             <ChangeItem>Bugfix: Bei entsprechend gesetzter Option wird ein Boot, das auf Regatta oder Mehrtagesfahrt unterwegs ist, jetzt korrekt als nicht verfügbar angezeigt</ChangeItem>
             <ChangeItem>Bugfix: efa1-Import hat unter Windows Fahrtenbücher in unterschiedlicher Groß-/Kleinschreibung nicht als identisch erkannt</ChangeItem>
             <ChangeItem>Bugfix: Entsperren von efa war ohne Admin-Login möglich</ChangeItem>
@@ -49,12 +51,22 @@
             <ChangeItem>Bugfix: Der Audit gibt jetzt eine Warnung aus falls die Test-Option DataAuditCorrectErrors nicht gesetzt sein sollte</ChangeItem>
             <ChangeItem>Bugfix: Bootsschaden in Bermerkungstext eines Boots wird nach Löschen/Beheben des Schadens jetzt entfernt</ChangeItem>
             <ChangeItem>Bugfix: Geschwindigkeit von Wiederherstellung eines Backups über efaRemote deutlich verbessert</ChangeItem>
+            <ChangeItem>Bugfix: Geschwindigkeit der Anzeige von derzeit ungültigen Datensätzen in Administration von Personen, Booten und Zielen über efaRemote deutlich verbessert</ChangeItem>
             <ChangeItem>Bugfix: Automatischer Fahrtenbuchwechsel jetzt auch für efaRemote-Clients unterstützt</ChangeItem>
             <ChangeItem>Bugfix: efa überprüft jetzt Größe des Logfiles auch im laufenden Betrieb und schaltet Logging aus wenn Logfile eine maximale Größe überschreitet</ChangeItem>
             <ChangeItem>Bugfix: Unvollständige Erstellung von Meldedateien behoben falls Kurzausgabe selektiert ist</ChangeItem>
             <ChangeItem>Bugfix: Meldung von Bootsschäden für bereits ungültige Boote wird jetzt unterdrückt</ChangeItem>
             <ChangeItem>Bugfix: Darstellungsfehler von scrollendem News-Text behoben</ChangeItem>
             <ChangeItem>Bugfix: Fehler bei Dekodierung von ItemLists behoben</ChangeItem>
+            <ChangeItem>Bugfix: Ersetzen von Tabelle in HTML-Statistikausgabe funktioniert jetzt auch bei FTP-Upload</ChangeItem>
+            <ChangeItem>Bugfix: Timeout durch Race Condition bei synchronem Speichern von XML-Daten behoben</ChangeItem>
+            <ChangeItem>Bugfix: Die Auswahl keiner Farbe (z.B. für Gruppen oder Buttons) ist jetzt möglich</ChangeItem>
+            <ChangeItem>Bugfix: Möglichkeit zum Abbrechen einer Fahrt dem Kontextmenü für nicht verfügbare Boote hinzugefügt, wenn Boote auf Regatten, Trainingslater oder Mehrtagesfahrt dort angezeigt werden</ChangeItem>
+            <ChangeItem>Bugfix: Boote im Trainingslater werden jetzt, wenn entsprechend konfiguriert, als nicht verfügbare Boote angezeigt</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException behoben beim Schließen einer Datei, die bereits geschlossen wurde</ChangeItem>
+            <ChangeItem>Bugfix: javatest.bat angepaßt (Test auf Java 6, nicht Java 5)</ChangeItem>
+            <ChangeItem>Bugfix: Fehlende Aktualisierung der Bootslisten in efa-Bootshaus nach Einspielen eines Backups behoben</ChangeItem>
+            <ChangeItem>Bugfix: Vermeidung von Data Lock Timeouts und mehr Diagnose-Ausschriften im Fehlerfall</ChangeItem>
             <ChangeItem>Sprache: Dänische Sprachunterstützung aktualisiert</ChangeItem>
         </Changes>
 

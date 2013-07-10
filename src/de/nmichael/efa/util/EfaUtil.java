@@ -1854,6 +1854,18 @@ public class EfaUtil {
         return txt.toString();
     }
 
+    public static String getStackTrace(Thread t) {
+        if (t == null) {
+            return null;
+        }
+        StringBuilder s = new StringBuilder();
+        StackTraceElement[] stack = t.getStackTrace();
+        for (int i = 0; stack != null && i < stack.length; i++) {
+            s.append( (s.length() > 0 ? " -> " : "") + stack[i].toString());
+        }
+        return s.toString();
+    }
+
     public static void main(String args[]) {
         String text = "abc & def";
         System.out.println(text + " -> EfaUtil.escapeXml() = " + EfaUtil.escapeXml(text));

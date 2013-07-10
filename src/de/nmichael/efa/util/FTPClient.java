@@ -120,7 +120,7 @@ public class FTPClient {
         return (remoteDirectory != null && remoteFile != null ? remoteDirectory + "/" + remoteFile : null);
     }
 
-    public String run() {
+    public String runUpload() {
         try {
             com.enterprisedt.net.ftp.FTPClient ftpClient = new com.enterprisedt.net.ftp.FTPClient(server);
             if (server == null) {
@@ -142,7 +142,44 @@ public class FTPClient {
 
     public String write() {
         if (isValidFormat()) {
-            String error = run();
+            String error = runUpload();
+            if (error == null) {
+                return LogString.fileSuccessfullyCreated(getFtpString(false),
+                        International.getString("Statistik"));
+            } else {
+                return LogString.fileCreationFailed(getFtpString(false),
+                        International.getString("Statistik"),
+                        error);
+
+            }
+        } else {
+            return International.getString("Ungültiges Format") + ": " + getFtpString();
+        }
+    }
+
+    public String runDownload() {
+        try {
+            com.enterprisedt.net.ftp.FTPClient ftpClient = new com.enterprisedt.net.ftp.FTPClient(server);
+            if (server == null) {
+                return null; // happens for test whether FTP Plugin in installed
+            }
+            ftpClient.setConnectMode(com.enterprisedt.net.ftp.FTPConnectMode.ACTIVE);
+            ftpClient.login(username, password);
+            if (remoteDirectory != null) {
+                ftpClient.chdir( (remoteDirectory.length() == 0 ? "/" : remoteDirectory) );
+            }
+            ftpClient.get(localFileWithPath, remoteFile);
+            ftpClient.quit();
+            return null; // korrektes Ende!
+        } catch (Exception e) {
+            Logger.logdebug(e);
+            return e.toString();
+        }
+    }
+
+    public String read() {
+        if (isValidFormat()) {
+            String error = runDownload();
             if (error == null) {
                 return LogString.fileSuccessfullyCreated(getFtpString(false),
                         International.getString("Statistik"));

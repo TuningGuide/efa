@@ -301,9 +301,12 @@ public class EfaRunning {
                         LogString.fileCreationFailed(lockFile, "Lock File", e.toString()));
                 Daten.haltProgram(Daten.HALT_DATALOCK);
             }
+            int loop = 0;
             while(keepRunning) {
                 try {
-                    Thread.sleep(60*1000);
+                    // for the first minute (during startup), check file every second in
+                    // case we missed another instance.
+                    Thread.sleep( (loop++ < 60 ? 1 : 60) * 1000);
                 } catch(InterruptedException eignore) {
                 }
 

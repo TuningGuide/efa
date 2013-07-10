@@ -363,6 +363,13 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                         if (records == null || records.length == 0) {
                             return;
                         }
+                        if (itemListenerActionTable != null) {
+                            if (!itemListenerActionTable.deleteCallback(records)) {
+                                updateData();
+                                showValue();
+                                return;
+                            }
+                        }
                         int res = -1;
                         if (records.length == 1) {
                             res = Dialog.yesNoDialog(International.getString("Wirklich löschen?"),

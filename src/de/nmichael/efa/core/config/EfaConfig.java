@@ -147,6 +147,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     private ItemTypeBoolean efaDirekt_zielBeiFahrtbeginnPflicht;
     private ItemTypeBoolean efaDirekt_gewaesserBeiUnbekanntenZielenPflicht;
     private ItemTypeBoolean efaDirekt_eintragErzwingeObmann;
+    private ItemTypeBoolean efaDirekt_checkAllowedPersonsInBoat;
     private ItemTypeBoolean efaDirekt_eintragErlaubeNurMaxRudererzahl;
     private ItemTypeBoolean efaDirekt_eintragNichtAenderbarUhrzeit;
     private ItemTypeBoolean efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen;
@@ -673,6 +674,9 @@ public class EfaConfig extends StorageObject implements IItemFactory {
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
                     International.getMessage("Beim Eintrag von Fahrten nur bekannte Namen erlauben für {type}",
                     International.getString("Gewässer"))));
+            addParameter(efaDirekt_checkAllowedPersonsInBoat = new ItemTypeBoolean("InputCheckAllowedPersonsInBoat", true,
+                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+                    International.getString("Bei Bootsbenutzung von nicht erlaubten Personen warnen")));
             addParameter(efaDirekt_eintragErlaubeNurMaxRudererzahl = new ItemTypeBoolean("InputAllowOnlyMaxCrewNumber", true,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
                     International.getString("Nur für das Boot maximal mögliche Anzahl an Personen erlauben")));
@@ -1387,6 +1391,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
     public boolean getValueEfaDirekt_eintragErzwingeObmann() {
         return efaDirekt_eintragErzwingeObmann.getValue();
+    }
+
+    public boolean getValueCheckAllowedPersonsInBoat() {
+        return efaDirekt_checkAllowedPersonsInBoat.getValue();
     }
 
     public boolean getValueEfaDirekt_eintragErlaubeNurMaxRudererzahl() {

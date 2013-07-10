@@ -10,9 +10,9 @@
 
 package de.nmichael.efa.core.items;
 
+import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
-import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -21,6 +21,9 @@ import javax.swing.*;
 
 public class ItemTypeColor extends ItemTypeLabelValue {
 
+    private Color origButtonColor;
+    private JButton butdel;
+    
     private String color;
 
     public ItemTypeColor(String name, String color,
@@ -51,6 +54,7 @@ public class ItemTypeColor extends ItemTypeLabelValue {
     protected void iniDisplay() {
         super.iniDisplay();
         JButton f = (JButton)field;
+        origButtonColor = f.getBackground();
         f.setEnabled(isEnabled);
         Dialog.setPreferredSize(f, fieldWidth, fieldHeight);
         f.setText(International.getMessage("{item} auswählen",
@@ -59,6 +63,22 @@ public class ItemTypeColor extends ItemTypeLabelValue {
         f.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { buttonHit(e); }
         });
+
+        butdel = new JButton();
+        butdel.setEnabled(isEnabled);
+        Dialog.setPreferredSize(butdel, fieldHeight, fieldHeight);
+        butdel.setIcon(BaseDialog.getIcon(BaseDialog.IMAGE_DELETE));
+        butdel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) { buttonDel(e); }
+        });
+    }
+
+    public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
+        int count = super.displayOnGui(dlg, panel, x, y);
+        panel.add(butdel, new GridBagConstraints(x+fieldGridWidth+1, y, 1, fieldGridHeight, 0.0, 0.0,
+                fieldGridAnchor, fieldGridFill,
+                new Insets((itemOnNewRow ? 0 : padYbefore), (itemOnNewRow ? padXbefore : 0), padYafter, padXafter), 0, 0));
+        return count;
     }
 
     public void getValueFromGui() {
@@ -89,6 +109,11 @@ public class ItemTypeColor extends ItemTypeLabelValue {
         if (color != null) {
             field.setBackground(color);
         }
+    }
+
+    private void buttonDel(ActionEvent e) {
+        this.color = null;
+        field.setBackground(origButtonColor);
     }
 
     public boolean isValidInput() {

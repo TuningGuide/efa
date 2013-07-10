@@ -1065,6 +1065,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             listItems.add(ACTIONID_STARTSESSION + startSession);
             if (Daten.efaConfig.getValueEfaDirekt_wafaRegattaBooteAufFahrtNichtVerfuegbar()) {
                 listItems.add(ACTIONID_FINISHSESSION + finishSession);
+                listItems.add(ACTIONID_ABORTSESSION + International.getString("Fahrt abbrechen"));
             }
             listItems.add(ACTIONID_LATEENTRY + International.getString("Nachtrag"));
             if (Daten.efaConfig.getValueEfaDirekt_butBootsreservierungen().getValueShow()) {
@@ -2172,6 +2173,10 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             Daten.applMode = Daten.APPL_MODE_ADMIN;
             dlg.showDialog();
             efaBoathouseBackgroundTask.interrupt();
+            if (Daten.project != null) {
+                logbook = Daten.project.getCurrentLogbook();
+                boatStatus = Daten.project.getBoatStatus(false);
+            }
             updateBoatLists(true);
             updateGuiElements();
         } finally {

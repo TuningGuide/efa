@@ -20,6 +20,7 @@ import javax.swing.*;
 public interface IItemListenerDataRecordTable {
 
     public void itemListenerActionTable(int actionId, DataRecord[] records);
+    public boolean deleteCallback(DataRecord[] records);
     public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record);
 
 }

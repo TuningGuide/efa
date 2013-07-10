@@ -118,7 +118,9 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
         int y = 0;
         for (String name : names) {
             ChangeItem change = changes.get(name);
-            change.displayOnGui(this, changePanel, y++);
+            if (change != null) {
+                change.displayOnGui(this, changePanel, y++);
+            }
         }
         changePane.getViewport().add(changePanel, null);
     }
@@ -574,6 +576,9 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
                     }
                     for (int i = 0; i < change.records.size(); i++) {
                         LogbookRecord r = change.records.get(i);
+                        // since we might already have updated r, we need to first fetch the current
+                        // version of the record so that we don't get conflicts with the change count
+                        r = logbook.getLogbookRecord(r.getKey());
                         try {
                             String field = change.fields.get(i);
                             String[] fields = r.getEquivalentFields(field);

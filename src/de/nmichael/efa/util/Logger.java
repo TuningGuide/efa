@@ -458,6 +458,9 @@ public class Logger {
     private static volatile long totalLogCount = 0;
     private static volatile long lastLog;
     private static volatile long[] logCount;
+    private static String[] lastLogMessages = new String[10];
+    private static volatile int nextLogIdx = 0;
+    private static volatile int totalLogMessages = 0;
     private static volatile boolean doNotLog = false;
     private static volatile boolean inMailError = false;
     private static volatile boolean inLogging = false;
@@ -512,6 +515,25 @@ public class Logger {
 
     public static PrintStream getPrintStream() {
         return efaErrorPrintStream;
+    }
+
+    public static String getLastLogMessages() {
+        StringBuilder s = new StringBuilder();
+        synchronized(lastLogMessages) {
+            int start = 0;
+            if (totalLogMessages > lastLogMessages.length) {
+                start = nextLogIdx;
+            }
+            int end = (nextLogIdx-1) % lastLogMessages.length;
+            int i = (start-1) % lastLogMessages.length;
+            do {
+                i = (i+1) % lastLogMessages.length;
+                if (lastLogMessages[i] != null) {
+                    s.append(lastLogMessages[i]);
+                }
+            } while (i != end);
+        }
+        return s.toString();
     }
 
     public static String getLastLogEntry(String logfile) {
@@ -617,7 +639,11 @@ public class Logger {
             }
             t = "[" + EfaUtil.getCurrentTimeStamp() + "] - " + EfaUtil.getString(Daten.applName, 7) + " - " + Daten.applPID + " - " + EfaUtil.getString(type, 7) + " - " + key + " - " + txt;
             if (type != null && !type.equals(INPUT) && !type.equals(OUTPUT))  {
-                Calendar cal = new GregorianCalendar();
+                synchronized(lastLogMessages) {
+                    lastLogMessages[nextLogIdx] = t;
+                    nextLogIdx = (nextLogIdx+1) % lastLogMessages.length;
+                    totalLogMessages++;
+                }
                 EfaErrorPrintStream.ignoreExceptions = true; // Damit Exception-Ausschriften nicht versehentlich als echte Exceptions gemeldet werden
                 System.err.println(EfaUtil.replace(t, "\n", " ", true));
                 EfaErrorPrintStream.ignoreExceptions = false;
@@ -794,10 +820,16 @@ public class Logger {
         }
         inMailError = true;
         try {
-            String txt = International.getString("Dies ist eine automatisch erstellte Fehlermeldung von efa.") + "\n"
+            String txt = International.getString("Dies ist eine automatisch erstellte Fehlermeldung von efa.") + "\n\n"
                     + International.getString("Folgender Fehler ist aufgetreten:") + "\n" + msg;
+
+            txt += "\n\n" + International.getString("Vorausgegangene Log-Ausschriften") +
+                    ":\n============================================\n" +
+                    Logger.getLastLogMessages();
+
             if (key != null && key.equals(Logger.MSG_ERROR_EXCEPTION)) {
-                txt += "\n\n" + International.getString("Programm-Information") + ":\n============================================\n";
+                txt += "\n\n" + International.getString("Programm-Information") +
+                        ":\n============================================\n";
                 Vector info = Daten.getEfaInfos();
                 for (int i = 0; info != null && i < info.size(); i++) {
                     txt += (String) info.get(i) + "\n";

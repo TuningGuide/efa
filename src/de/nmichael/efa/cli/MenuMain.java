@@ -39,6 +39,7 @@ public class MenuMain extends MenuBase {
         printUsage(CLI.MENU_MESSAGES,         "", "messages");
         printUsage(CLI.MENU_STATISTICS  ,     "", "statistics");
         printUsage(CLI.MENU_BACKUP          , "", "backups");
+        printUsage(CLI.MENU_COMMAND         , "", "run external commands");
     }
     
     public int runCommand(Stack<String> menuStack, String cmd, String args) {
@@ -155,6 +156,14 @@ public class MenuMain extends MenuBase {
                     return CLI.RC_NO_PERMISSION;
                 }
                 menuStack.push(CLI.MENU_BACKUP);
+                return runCommandWithArgs(args);
+            }
+            if (cmd.equalsIgnoreCase(CLI.MENU_COMMAND)) {
+                if (!cli.getAdminRecord().isAllowedExecCommand()) {
+                    cli.logerr("You don't have permission to access this function.");
+                    return CLI.RC_NO_PERMISSION;
+                }
+                menuStack.push(CLI.MENU_COMMAND);
                 return runCommandWithArgs(args);
             }
             return CLI.RC_UNKNOWN_COMMAND;

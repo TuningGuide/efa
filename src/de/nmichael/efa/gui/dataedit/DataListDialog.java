@@ -270,6 +270,7 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
         this.validAt = validAt;
     }
 
+    // @Override
     public void itemListenerActionTable(int actionId, DataRecord[] records) {
         // usually nothing to be done (handled in ItemTypeDataRecordTable itself).
         // override if necessary
@@ -407,6 +408,11 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
                 dlg4.showDialog();
                 break;
         }
+    }
+
+    // @Override
+    public boolean deleteCallback(DataRecord[] records) {
+        return true;
     }
 
     public void itemListenerAction(IItemType itemType, AWTEvent event) {

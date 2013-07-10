@@ -27,6 +27,7 @@ import javax.swing.*;
 public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements IItemListener {
 
     private boolean boatWasDamaged = false;
+    private boolean fixedWasChanged = false;
 
     public BoatDamageEditDialog(Frame parent, BoatDamageRecord r, boolean newRecord, AdminRecord admin) {
         super(parent, International.getString("Bootsschaden"), r, newRecord, admin);
@@ -140,6 +141,20 @@ public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements
             dlg.sendNotification();
             Dialog.infoDialog(International.getString("Vielen Dank!"),
                               International.getString("Der Bootsschaden wurde gemeldet."));
+        }
+    }
+
+    void setFixedWasChanged() {
+        fixedWasChanged = true;
+    }
+
+    protected void iniDialog() throws Exception {
+        super.iniDialog();
+        if (fixedWasChanged) {
+            ItemTypeBoolean fixed = (ItemTypeBoolean)getItem(BoatDamageRecord.FIXED);
+            if (fixed != null) {
+                fixed.setChanged();
+            }
         }
     }
 

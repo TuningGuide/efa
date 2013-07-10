@@ -690,6 +690,13 @@ public class RemoteEfaClient extends DataAccess {
     }
 
     public DataRecord getValidLatest(DataKey key) throws EfaException {
+        DataRecord r = cache.getValidLatest(key);
+        // the new implementation will always find a record in the cache if there is one
+        // (by updating the cache first); therefore, if the cache returns null, there is no
+        // record and we don't have to fetch it remotely
+        if (true || r != null) {
+            return r;
+        }
         RemoteEfaMessage request = RemoteEfaMessage.createRequestData(1, getStorageObjectType(), getStorageObjectName(),
                 RemoteEfaMessage.OPERATION_GETVALIDLATEST);
         request.addKey(key);

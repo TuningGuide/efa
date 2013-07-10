@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.data.storage;
 
+import de.nmichael.efa.util.EfaUtil;
 import java.util.*;
 import de.nmichael.efa.util.Logger;
 
@@ -100,7 +101,15 @@ public class DataLocks {
         boolean global = (object == null);
         try {
             long startTimestamp = System.currentTimeMillis();
+            int tries = 0;
             do {
+                if (tries++ > 0) {
+                    try {
+                        Thread.sleep(SLEEP_RETRY);
+                    } catch (InterruptedException ie) {
+                    }
+                    clearTimeouts();
+                }
                 synchronized(locks) {
                     if (global) {
                         // try to acquire a global lock
@@ -115,16 +124,36 @@ public class DataLocks {
                         }
                     }
                 }
-                try {
-                    Thread.sleep(SLEEP_RETRY);
-                } catch (InterruptedException ie) {
-                }
-                clearTimeouts();
             } while (System.currentTimeMillis() >= startTimestamp
                     && System.currentTimeMillis() - startTimestamp < LOCK_TIMEOUT);
         } catch (Exception e) {
             Logger.logdebug(e);
         }
+        
+        // Log error about current lock owner
+        if (global) {
+            Set<DataKey> keys = null;
+            synchronized(locks) {
+                keys = locks.keySet();
+            }
+            if (keys != null && keys.size() > 0) {
+                long now = System.currentTimeMillis();
+                for (DataKey key : keys) {
+                    DataLock lock = null;
+                    synchronized(locks) {
+                        lock = locks.get(key);
+                    }
+                    if (lock != null) {
+                        Logger.log(Logger.WARNING, Logger.MSG_DATA_GETLOCKFAILED,
+                                "tryAcquireLock() failed to acquire a global lock (now=" + now + "): " +
+                                "Lock " + lock.getLockID() + " held since " + lock.getLockTime() +
+                                " by " + EfaUtil.getStackTrace(lock.getLockOwner()));
+
+                    }
+                }
+            }
+        }
+
         return null;
     }
 

@@ -175,6 +175,7 @@ public abstract class DataFile extends DataAccess {
     }
 
     public synchronized void openStorageObject() throws EfaException {
+        String tryfilename = filename;
         try {
             boolean recovered = false;
             fileWriter = null;
@@ -192,11 +193,13 @@ public abstract class DataFile extends DataAccess {
                     Logger.log(Logger.ERROR, Logger.MSG_DATA_OPENFAILED,
                             LogString.fileOpenFailed(filename, getStorageObjectName() + "." + getStorageObjectType() , e1.toString()));
                     saveOriginalFileBeforeRecovery(filename);
-                    recovered = tryOpenStorageObject(filename + BACKUP_MOSTRECENT, true);
+                    tryfilename = filename + BACKUP_MOSTRECENT;
+                    recovered = tryOpenStorageObject(tryfilename, true);
                 } catch(Exception e2) {
                     Logger.log(Logger.ERROR, Logger.MSG_DATA_OPENFAILED,
-                            LogString.fileOpenFailed(filename, getStorageObjectName() + "." + getStorageObjectType() , e1.toString()));
-                    recovered = tryOpenStorageObject(filename + BACKUP_OLDVERSION, true);
+                            LogString.fileOpenFailed(tryfilename, getStorageObjectName() + "." + getStorageObjectType() , e1.toString()));
+                    tryfilename = filename + BACKUP_OLDVERSION;
+                    recovered = tryOpenStorageObject(tryfilename, true);
                 }
             }
             setupJournal();
@@ -207,7 +210,8 @@ public abstract class DataFile extends DataAccess {
                 saveStorageObject();
             }
         } catch(Exception e) {
-            throw new EfaException(Logger.MSG_DATA_OPENFAILED, LogString.fileOpenFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
+            Logger.log(e);
+            throw new EfaException(Logger.MSG_DATA_OPENFAILED, LogString.fileOpenFailed(tryfilename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         }
     }
 
@@ -237,12 +241,20 @@ public abstract class DataFile extends DataAccess {
             return;
         }
         try {
+            if (fileWriter == null) {
+                Logger.log(Logger.ERROR, Logger.MSG_DATA_CLOSEFAILED, LogString.fileCloseFailed(filename, storageLocation,
+                        "File appears to be already closed (fileWriter==null)"));
+                clearAllData();
+                isOpen = false;
+                closeJournal();
+                return;
+            }
             fileWriter.save(true, false);
             clearAllData();
             isOpen = false;
             closeJournal();
             fileWriter.exit();
-            fileWriter.join();
+            fileWriter.join(DataFileWriter.SAVE_INTERVAL * 2);
         } catch(Exception e) {
             throw new EfaException(Logger.MSG_DATA_CLOSEFAILED, LogString.fileCloseFailed(filename, storageLocation, e.toString()), Thread.currentThread().getStackTrace());
         } finally {
@@ -523,7 +535,7 @@ public abstract class DataFile extends DataAccess {
                     }
                 }
             } finally {
-                if (lockID <= 0) {
+                if (lockID <= 0 && myLock > 0) {
                     releaseLocalLock(myLock);
                 }
             }
@@ -641,7 +653,7 @@ public abstract class DataFile extends DataAccess {
                     }
                 }
             } finally {
-                if (lockID <= 0) {
+                if (lockID <= 0 && myLock > 0) {
                     releaseGlobalLock(myLock);
                 }
             }
@@ -755,7 +767,7 @@ public abstract class DataFile extends DataAccess {
                     }
                 }
             } finally {
-                if (lockID <= 0) {
+                if (lockID <= 0 && myLock > 0) {
                     releaseGlobalLock(myLock);
                 }
             }
@@ -812,7 +824,7 @@ public abstract class DataFile extends DataAccess {
                     }
                 }
             } finally {
-                if (lockID <= 0) {
+                if (lockID <= 0 && myLock > 0) {
                     releaseGlobalLock(myLock);
                 }
             }
@@ -865,7 +877,7 @@ public abstract class DataFile extends DataAccess {
                     }
                 }
             } finally {
-                if (lockID <= 0) {
+                if (lockID <= 0 && myLock > 0) {
                     releaseGlobalLock(myLock);
                 }
             }
@@ -1077,11 +1089,13 @@ public abstract class DataFile extends DataAccess {
     }
 
     protected void clearAllData() {
-        synchronized (data) {
-            data.clear();
-            versionizedKeyList.clear();
-            for (DataIndex idx : indices) {
-                idx.clear();
+        if (data != null) {
+            synchronized (data) {
+                data.clear();
+                versionizedKeyList.clear();
+                for (DataIndex idx : indices) {
+                    idx.clear();
+                }
             }
         }
     }
@@ -1098,7 +1112,9 @@ public abstract class DataFile extends DataAccess {
                 }
             }
         } finally {
-            this.releaseGlobalLock(lockID);
+            if (lockID > 0) {
+                releaseGlobalLock(lockID);
+            }
         }
         if (fileWriter != null) { // may be null while reading (opening) a file
             fileWriter.save(false, true);

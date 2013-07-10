@@ -1288,5 +1288,9 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
 
         return null;
     }
+
+    public boolean deleteCallback(DataRecord[] records) {
+        return true;
+    }
     
 }

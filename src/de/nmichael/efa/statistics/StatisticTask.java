@@ -1802,6 +1802,18 @@ public class StatisticTask extends ProgressTask {
         if (sr.sOutputType == StatisticsRecord.OutputTypes.efawett) {
             setDone();
         }
+        if (sr.sOutputFtpClient != null &&
+            sr.sOutputType == StatisticsRecord.OutputTypes.html &&
+            sr.sOutputHtmlUpdateTable) {
+            // fetch file from FTP Server first
+            logInfo(International.getString("FTP-Download") + " ...\n");
+            try {
+                sr.sOutputFtpClient.read();
+            } catch (NoClassDefFoundError e) {
+                Dialog.error(International.getString("Fehlendes Plugin") + ": " + Plugins.PLUGIN_FTP);
+                return International.getString("Fehlendes Plugin") + ": " + Plugins.PLUGIN_FTP;
+            }
+        }
         if (writer.write()) {
             if (sr.sOutputFtpClient != null) {
                 logInfo(International.getString("FTP-Upload") + " ...\n");

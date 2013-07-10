@@ -1,6 +1,9 @@
 Item
 ============================================================================================================
 
+Gewässer in Fahrtgruppe erfassen, damit nicht für alle Etappen/Boote einzeln
+Fahrtgruppen bei Eingabe von Wanderfahrten durch Mitglieder auswählen lassen - https://kenai.com/bugzilla/show_bug.cgi?id=2231
+
 Datenabgleich zwischen Bootshäusern implementieren, bei dem efa einen Export/Import durchführt, der anhand von LastModified erkennt, welche Daten gewinnen, aber zum Beispiel nie die Bootsstatusliste, Nachrichten, ... synchronisiert.
 Multiple tasks/functions for "Special Button" - https://kenai.com/bugzilla/show_bug.cgi?id=1215
 Benachrichtigung des Admins, wenn Bootsreservierungen durch Mitglieder eingetragen werden
@@ -8,10 +11,10 @@ Zusätzliche Import-Option: alle *nicht* importierten (versionierten) Daten als 
   (Use Case: Importieren einer neuen (vollständigen) Mitgliederliste; alles was nicht importiert wurde, ist ungültig)
   Dabei sollten allerdings Gäste und andere nicht gelöscht werden!
   https://kenai.com/bugzilla/show_bug.cgi?id=4495
-Gewässer in Fahrtgruppe erfassen, damit nicht für alle Etappen/Boote einzeln
 Touchscreen-Support: http://forum.nmichael.de/viewtopic.php?f=9&t=206&p=2275#p2275, https://kenai.com/bugzilla/show_bug.cgi?id=4739
-Fahrtgruppen bei Eingabe von Wanderfahrten durch Mitglieder auswählen lassen - https://kenai.com/bugzilla/show_bug.cgi?id=2231
 external API to create "efa messages" - https://kenai.com/bugzilla/show_bug.cgi?id=1640
+Berechtigung für Admins, bestimmte Konfigurations-Parameter zu editieren, ohne auf die gesamte Konfiguration zugreifen zu können. Z.B. nur News-Text (und ein paar andere). http://forum.nmichael.de/viewtopic.php?f=9&t=622&p=2484#p2484
+Höhe der Liste "Boote nicht verfügbar" konfigurierbar machen: http://forum.nmichael.de/viewtopic.php?f=9&t=626&p=2517#p2516
 
 efaRemote - Progress/Status Indicator
 DRV: Melden von GEsamtkilometern bei DRV-Wanderruderstatistik

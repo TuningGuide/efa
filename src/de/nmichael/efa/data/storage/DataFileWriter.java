@@ -17,7 +17,7 @@ import de.nmichael.efa.util.*;
 
 public class DataFileWriter extends Thread {
 
-    private long SAVE_INTERVAL = 10000; // 10.000 ms
+    public static long SAVE_INTERVAL = 10000; // 10.000 ms
 
     private DataFile dataFile;
     private volatile boolean writedata = false;
@@ -79,11 +79,17 @@ public class DataFileWriter extends Thread {
         if (System.currentTimeMillis() - lastSave > SAVE_INTERVAL) {
             this.interrupt();
         }
-        int maxTries = 100;
+        // tries * sleeptime must be greater than SAVE_INTERVAL.
+        // Otherwise we might interrupt the thread while it's not in a sleep,
+        // and it might go into a sleep right after...
+        long sleep = SAVE_INTERVAL / 100;
+        int maxTries = 150;
         while (synchronous && writedata && dataFile.isStorageObjectOpen()) {
             try {
-                Thread.sleep(100);
-                maxTries--;
+                Thread.sleep(sleep);
+                if (--maxTries % 50 == 0) {
+                    this.interrupt(); // interrupt again (in case thread went to sleep)
+                }
             } catch (InterruptedException e) {
                 // nothing to do
             }

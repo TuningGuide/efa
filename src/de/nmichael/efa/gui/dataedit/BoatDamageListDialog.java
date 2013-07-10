@@ -20,6 +20,7 @@ import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.gui.SimpleInputDialog;
 import de.nmichael.efa.gui.util.AutoCompleteList;
 import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.Dialog;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -90,4 +91,45 @@ public class BoatDamageListDialog extends DataListDialog {
         }
         return new BoatDamageEditDialog(parent, (BoatDamageRecord)record, newRecord, admin);
     }
+
+    // @Override
+    public boolean deleteCallback(DataRecord[] records) {
+        BoatDamageRecord unfixedDamage = null;
+        for (int i=0; records != null && i<records.length; i++) {
+            if (records[i] != null && !((BoatDamageRecord)records[i]).getFixed()) {
+                unfixedDamage = (BoatDamageRecord)records[i];
+                break;
+            }
+        }
+        if (unfixedDamage == null) {
+            return true;
+        }
+
+        switch(Dialog.auswahlDialog(International.getString("Bootsschaden löschen"),
+                International.getString("Möchtest du den Bootsschaden als behoben markieren, oder " +
+                                        "einen irrtümlich gemeldeten Schaden komplett löschen?"),
+                International.getString("als behoben markieren"),
+                International.getString("irrtümlich gemeldeten Schaden löschen"))) {
+            case 0:
+                BoatDamageEditDialog dlg = (BoatDamageEditDialog)createNewDataEditDialog(this, persistence, unfixedDamage);
+                ItemTypeBoolean fixed = (ItemTypeBoolean)dlg.getItem(BoatDamageRecord.FIXED);
+                if (fixed != null) {
+                    fixed.setValue(true);
+                    fixed.setChanged();
+                    dlg.itemListenerAction(fixed, null);
+                    dlg.setFixedWasChanged();
+                }
+                IItemType focus = dlg.getItem(BoatDamageRecord.FIXEDBYPERSONID);
+                if (focus != null) {
+                    dlg.setRequestFocus(focus);
+                }
+                dlg.showDialog();
+                return false;
+            case 1:
+                return true;
+            default:
+                return false;
+        }
+    }
+
 }

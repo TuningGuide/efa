@@ -2604,7 +2604,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                         nichtErlaubtAnz++;
                     }
                 }
-                if (nichtErlaubtAnz > 0 &&
+                if (Daten.efaConfig.getValueCheckAllowedPersonsInBoat() &&
+                    nichtErlaubtAnz > 0 &&
                     nichtErlaubtAnz > currentBoat.getMaxNotInGroup()) {
                     String erlaubteGruppen = null;
                     for (int j = 0; j < groupIdList.length(); j++) {
@@ -2646,7 +2647,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             }
 
             // Prüfen, ob mind 1 Ruderer (oder Stm) der Gruppe "mind 1 aus Gruppe" im Boot sitzt
-            if (currentBoat.getRequiredGroupId() != null) {
+            if (Daten.efaConfig.getValueCheckAllowedPersonsInBoat() &&
+                currentBoat.getRequiredGroupId() != null) {
                 GroupRecord g = groups.findGroupRecord(currentBoat.getRequiredGroupId(), tstmp);
                 boolean found = false;
                 if (g != null && g.getMemberIdList() != null) {

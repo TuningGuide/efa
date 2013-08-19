@@ -401,7 +401,17 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         if (matching) {
             setButtonColor( (ignoredString == null ? Color.green : Color.yellow) );
         } else {
-            setButtonColor( (valid ? Color.red : Color.orange) );
+            setButtonColor( (valid ? Color.red :
+                Color.orange ) ); // @todo should be green or orange? used to be orange instead of green; used for hidden records. Color.orange) );
+        }
+        if (Logger.isTraceOn(Logger.TT_GUI, 5)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_AUTOCOMPLETE,
+                    "field=" + field.getText()
+                    + ", complete=" + complete
+                    + ", matching=" + matching
+                    + ", valid=" + valid
+                    + ", validAtDateItem=" + validAtDateItem
+                    + ", ignoredString=" + ignoredString);
         }
         //System.out.println("autoComplete("+e+") on "+getName()+" with text '"+field.getText()+"' -> matching="+matching);
         

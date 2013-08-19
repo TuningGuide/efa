@@ -128,7 +128,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
 
     public EfaBaseFrame(int mode) {
-        super((JFrame)null, Daten.EFA_LONGNAME, null);
+        super((JFrame)null, Daten.EFA_LONGNAME);
         this.mode = mode;
     }
 

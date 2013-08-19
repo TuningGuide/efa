@@ -468,7 +468,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
     }
 
     public boolean isRemoteAdminRecord() {
-        return isRemoteAdmin;
+        return isRemoteAdmin || this.getPersistence().data().getStorageType() == IDataAccess.TYPE_EFA_REMOTE;
     }
 
     public void setRemoteAdminRecord(boolean isRemoteAdmin) {

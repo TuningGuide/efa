@@ -2,6 +2,18 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.1.0_03</VersionID>
+        <ReleaseDate>20.07.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa2drv.zip</DownloadUrl>
+        <DownloadSize></DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Meldedateieditor emil integriert</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.0.7_19</VersionID>
         <ReleaseDate>24.03.2013</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa2drv.zip</DownloadUrl>

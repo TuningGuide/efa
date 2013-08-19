@@ -2,6 +2,101 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.1.0_06</VersionID>
+        <ReleaseDate>18.08.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa210.zip</DownloadUrl>
+        <DownloadSize>3318274</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Fahrtenbucheinträge mit 0 Km werden jetzt in Statistikausgabe "Fahrtenbuch" mit ausgegeben (sofern es sich nicht um offene Fahrten handelt), falls di Option "Nullwerte nicht ausgeben" deaktiviert ist</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Logbook entries with a distance of 0 are now printed in statistics "Logbook", if the option "don't print null values" is not set</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.1.0_05</VersionID>
+        <ReleaseDate>02.08.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa210.zip</DownloadUrl>
+        <DownloadSize>3318309</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Boote auf Trainingslager, Regatta oder Wanderfahrt werden jetzt, wenn entsprechende Konfigurationsoption gesetzt, als nicht verfügbar angezeigt</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Boats on a trainings camp, regatta or multi day session are now, if corresponding config setting enabled, shows as not available</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.1.0_04</VersionID>
+        <ReleaseDate>24.07.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa210.zip</DownloadUrl>
+        <DownloadSize>3318291</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Falsche Farbdarstellung von doppelt existierenden (gültigen und ungültigen) identischen Namen in Auswahllisten behoben</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Wrong color coding of duplicate (valid and invalid) identical names in drop-down lists fixed</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.1.0_03</VersionID>
+        <ReleaseDate>20.07.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa210.zip</DownloadUrl>
+        <DownloadSize>3318110</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: efa-Basis erscheint jetzt auch im Taskmanager</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: efa-Basis now appears also in taskmanager</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.1.0_02</VersionID>
+        <ReleaseDate>14.07.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa210.zip</DownloadUrl>
+        <DownloadSize>3317888</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Versteckte, gültige Datensätze werden jetzt in Fahrtenbucheinträgen grün markiert angezeigt</ChangeItem>
+            <ChangeItem>Bugfix: Fehler beim gleichzeitigen Ändern von Gültigkeits-Start- und -End-Zeitpunkt eines versionierten Datensatzen behoben, wenn das neue Gültigkeitsende vor dem ursprünglichen Gültigkeitsbeginn liegt</ChangeItem>
+            <ChangeItem>Bugfix: Fehlschlagen einer Datenänderung wegen Lock-Timeout wird jetzt immer protokolliert</ChangeItem>
+            <ChangeItem>Bugfix: Fehler beim Ändern des Paßworts eines Admins im Remote-Zugriff behoben</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.1.0_01</VersionID>
+        <ReleaseDate>11.07.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa210.zip</DownloadUrl>
+        <DownloadSize>3317158</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: NullPointerException bei Fahrtenbuch-Anzeige von Einträgen mit fehlender LfdNr behoben</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException im Backup-Wiederherstellen-Dialog behoben</ChangeItem>
+            <ChangeItem>Bugfix: NoSuchMethodError im Korrektur-Assistent behoben</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfixes</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.1.0_00</VersionID>
         <ReleaseDate>08.07.2013</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa210.zip</DownloadUrl>
@@ -71,6 +166,35 @@
         </Changes>
 
         <Changes lang="en">
+            <ChangeItem>New: Fix Logbook Assistent helps to fix misspelled person, boat and destination names in logbook entries</ChangeItem>
+            <ChangeItem>New: Repeated tasks (like the creation of backups or statistics) can now be run automatically at configurable times</ChangeItem>
+            <ChangeItem>New: Backups can now be sent via email to an admin's email address</ChangeItem>
+            <ChangeItem>New: Statistics can now be sent via email</ChangeItem>
+            <ChangeItem>New: Individual statistics for all persons, boats, or destinations can now be created per CLI in one batch</ChangeItem>
+            <ChangeItem>New: Members can now submit change request for sessions</ChangeItem>
+            <ChangeItem>New: Configurable messages for selective boats at start and finish of a session</ChangeItem>
+            <ChangeItem>New: Improved support for touch screens (experimental)</ChangeItem>
+            <ChangeItem>New: Simple statistic output function in tabular form for slow computers</ChangeItem>
+            <ChangeItem>New: Improved speed at first opening of logbook dialog for slow computers</ChangeItem>
+            <ChangeItem>New: Statistics settings can now be copied and saved under a different name</ChangeItem>
+            <ChangeItem>New: The name of saved statistics settings is now being used as the title of the created statistic</ChangeItem>
+            <ChangeItem>New: Data export can now export only selected or filtered records instead of all</ChangeItem>
+            <ChangeItem>New: Backup restore now sorted by configuration and data</ChangeItem>
+            <ChangeItem>New: Warning in case of an attempt to restore an incomplete backup</ChangeItem>
+            <ChangeItem>New: Improved dialog for creating new versions of a data record</ChangeItem>
+            <ChangeItem>New: End date for boats on the water, if set, is now shown in status message</ChangeItem>
+            <ChangeItem>New: Additional (virtual) output fields for boat damages</ChangeItem>
+            <ChangeItem>New: Additional filter criteria based on content of remarks field</ChangeItem>
+            <ChangeItem>New: Reservation for private boats can now be disabled in configuration</ChangeItem>
+            <ChangeItem>New: Possibility to enter end dates for sessions can now be disabled in configuration</ChangeItem>
+            <ChangeItem>New: Access statistics for remote access in client</ChangeItem>
+            <ChangeItem>New: All data now accessible through efaCLI</ChangeItem>
+            <ChangeItem>New: Import and export of data now supported in efaCLI</ChangeItem>
+            <ChangeItem>New: Character encoding for HTML statistics output can now be selected (TF-8 or ISO-8859-1)</ChangeItem>
+            <ChangeItem>New: When trying to delete a boat damage, efa now asks the admin whether the damange should be deleted or rather just be marked as fixed</ChangeItem>
+            <ChangeItem>New: Error information created by efa now contain a history of previous log messages</ChangeItem>
+            <ChangeItem>Bugfixes</ChangeItem>
+            <ChangeItem>Language: Language support for Danish updated</ChangeItem>
         </Changes>
     </Version>
 

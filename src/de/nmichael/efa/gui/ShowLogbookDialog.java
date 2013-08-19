@@ -497,7 +497,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
 
         public Component getTableCellEditorComponent(JTable table, Object value,
                 boolean isSelected, int row, int column) {
-            entryNo = value.toString();
+            entryNo = (value != null ? value.toString() : "");
             return button;
         }
 

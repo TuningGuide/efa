@@ -99,6 +99,12 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
         this._closeButtonText = closeButtonText;
     }
 
+    public BaseDialog(Frame parent, String title) {
+        super(parent, title, ModalityType.APPLICATION_MODAL);
+        this._parent = parent;
+        this._title = title;
+    }
+
     public BaseDialog(JDialog parent, String title, String closeButtonText) {
         super(parent);
         this._parent = parent;

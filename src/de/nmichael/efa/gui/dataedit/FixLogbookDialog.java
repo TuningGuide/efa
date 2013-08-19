@@ -144,7 +144,7 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
                 }
                 changePanel = new JPanel();
                 changePanel.setLayout(new BorderLayout());
-                JLabel label = new JLabel(International.getString("Dieser Assistent such im Fahrtenbuch nach falsch geschriebenen Namen und bietet diese zur Korrektur an."));
+                JLabel label = new JLabel(International.getString("Dieser Assistent sucht im Fahrtenbuch nach falsch geschriebenen Namen und bietet diese zur Korrektur an."));
                 label.setHorizontalAlignment(SwingConstants.CENTER);
                 changePanel.add(label, BorderLayout.CENTER);
                 changePane.getViewport().add(changePanel, null);
@@ -263,9 +263,9 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
                             // if name contains "Guest", make sure it's a "(Guest)" at the end
                             pos = newname.toLowerCase().indexOf(guest.toLowerCase());
                             if (pos >= 0 && !newname.toLowerCase().equals(guest.toLowerCase()) &&
-                                    (pos == 0 || !Character.isAlphabetic(newname.charAt(pos-1))) &&
+                                    (pos == 0 || !Character.isLetter(newname.charAt(pos-1))) &&
                                     (pos+guest.length() == newname.length() ||
-                                        !Character.isAlphabetic(newname.charAt(pos+guest.length())))) {
+                                        !Character.isLetter(newname.charAt(pos+guest.length())))) {
                                 int length = guest.length();
                                 if (pos+length < newname.length() && newname.charAt(pos+length) == ')') {
                                     length++;
@@ -302,12 +302,13 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
                             newname = EfaUtil.replace(newname, "  ", " ", true);
 
                             // remove other characters that don't belong there
-                            while (newname.length() > 0 && !Character.isAlphabetic(newname.charAt(0))) {
+
+                            while (newname.length() > 0 && !Character.isLetter(newname.charAt(0))) {
                                 newname = newname.substring(1);
                             }
                             while (newname.length() > 0) {
                                 char c = newname.charAt(newname.length() - 1);
-                                if (Character.isAlphabetic(c) || c == '.' || c == ')') {
+                                if (Character.isLetter(c) || c == '.' || c == ')') {
                                     break;
                                 }
                                 newname = newname.substring(0, newname.length() - 1);
@@ -325,7 +326,7 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
                                 }
                                 boolean shouldBeUpper =
                                         pos == 0
-                                        || !Character.isAlphabetic(newname.charAt(pos - 1));
+                                        || !Character.isLetter(newname.charAt(pos - 1));
                                 if (shouldBeUpper && !Character.isUpperCase(c)) {
                                     newname = newname.substring(0, pos)
                                             + Character.toUpperCase(c)

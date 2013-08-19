@@ -190,6 +190,7 @@ public class Logger {
     public static final String MSG_DATA_AUDIT_NOTCORRECTERRORSSET = "DAT051";
     public static final String MSG_DATA_REPLAYINCOMPLETE  = "DAT052";
     public static final String MSG_DATA_DATAACCESS  = "DAT053";
+    public static final String MSG_DATA_NOLOCKHELD  = "DAT054";
     
     public static final String MSG_REFA_SERVERSTATUS                 = "RMT001";
     public static final String MSG_REFA_SERVERERROR                  = "RMT002";
@@ -420,6 +421,7 @@ public class Logger {
     public static final String MSG_DEBUG_FTP = "DBG019";
     public static final String MSG_DEBUG_PDF = "DBG020";
     public static final String MSG_DEBUG_PDFFOP = "DBG021";
+    public static final String MSG_DEBUG_AUTOCOMPLETE = "DBG022";
 
     // CLI
     public static final String MSG_CLI_INFO  = "CLI001";

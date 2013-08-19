@@ -24,6 +24,10 @@ public class AutoCompleteList {
             this.invalidFrom = invalidFrom;
         }
         long validFrom, invalidFrom;
+
+        public String toString() {
+            return validFrom + "-" + invalidFrom;
+        }
     }
 
     private IDataAccess dataAccess;
@@ -144,13 +148,14 @@ public class AutoCompleteList {
                             }
                         }
                         String alias = (r instanceof PersonRecord ? ((PersonRecord)r).getInputShortcut() : null);
-                        if (!r.getDeleted() && !r.getInvisible()) {
+                        if (!r.getDeleted()) {
                             if (s.length() > 0) {
                                 ValidInfo vi = null;
                                 if (dataAccess.getMetaData().isVersionized()) {
                                     vi = new ValidInfo(r.getValidFrom(), r.getInvalidFrom());
                                 }
-                                add(s, alias, r.isInValidityRange(validFrom, validUntil), vi);
+                                add(s, alias, 
+                                        r.isInValidityRange(validFrom, validUntil) && !r.getInvisible(), vi);
                             }
                         } else {
                             if (!r.getDeleted()) {
@@ -172,41 +177,60 @@ public class AutoCompleteList {
         return _foundValue;
     }
 
-    public synchronized void add(String s, String alias, boolean visibleInDropDown,
-            ValidInfo validInfo) {
-        String lowers = s.toLowerCase();
-        if (visibleInDropDown) {
-            if (lower2realVisible.get(lowers) == null) {
-                // new name
+    private synchronized void addInternal(String s, String lowers, Hashtable<String, String> lower2real,
+            Vector<String> dataVisible, ValidInfo validInfo) {
+        if (lower2real.get(lowers) == null) {
+            // new name
+            if (dataVisible != null) {
                 dataVisible.add(s);
-                if (validInfo != null) {
+            }
+            if (validInfo != null) {
+                name2valid.put(s, validInfo);
+            }
+            lower2real.put(lowers, s);
+        } else {
+            // we already have this name; but it could be, that this name's validity
+            // increases the validity of the name we already have, so we need to
+            // check and increase it, if necessary.
+            if (validInfo != null) {
+                ValidInfo prevValidInfo = name2valid.get(s);
+                if (prevValidInfo != null) {
+                    if (validInfo.validFrom < prevValidInfo.validFrom) {
+                        prevValidInfo.validFrom = validInfo.validFrom;
+                    }
+                    if (validInfo.invalidFrom > prevValidInfo.invalidFrom) {
+                        prevValidInfo.invalidFrom = validInfo.invalidFrom;
+                    }
+                    name2valid.put(s, prevValidInfo);
+                } else {
                     name2valid.put(s, validInfo);
                 }
-                lower2realVisible.put(lowers, s);
-            } else {
-                // we already have this name; but it could be, that this name's validity
-                // increases the validity of the name we already have, so we need to
-                // check and increase it, if necessary.
-                if (validInfo != null) {
-                    ValidInfo prevValidInfo = name2valid.get(s);
-                    if (prevValidInfo != null) {
-                        if (validInfo.validFrom < prevValidInfo.validFrom) {
-                            prevValidInfo.validFrom = validInfo.validFrom;
-                        }
-                        if (validInfo.invalidFrom > prevValidInfo.invalidFrom) {
-                            prevValidInfo.invalidFrom = validInfo.invalidFrom;
-                        }
-                        name2valid.put(s, prevValidInfo);
-                    } else {
-                        name2valid.put(s, validInfo);
-                    }
-                }
             }
+        }
+    }
+
+    public synchronized void add(String s, String alias, boolean visibleInDropDown,
+            ValidInfo validInfo) {
+        if (Logger.isTraceOn(Logger.TT_GUI, 7)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_AUTOCOMPLETE,
+                    "AutoCompleteList.add(" + s + "," + alias + "," + visibleInDropDown + "," + validInfo + ")");
+        }
+        String lowers = s.toLowerCase();
+        if (visibleInDropDown) {
+            if (lower2realInvisible.get(lowers) != null) {
+                // if we find this name as a visible name, but have already
+                // added it as an invisible name, then remove the invisible one
+                lower2realInvisible.remove(lowers);
+            }
+            addInternal(s, lowers, lower2realVisible, dataVisible, validInfo);
             if (alias != null && alias.length() > 0) {
                 aliases2realVisible.put(alias.toLowerCase(), s);
             }
         } else {
-            lower2realInvisible.put(lowers, s);
+            if (lower2realVisible.get(lowers) == null) {
+                // add invisble name, but only if we don't yet have it as a visible name
+                addInternal(s, lowers, lower2realInvisible, null, validInfo);
+            }
         }
         scn++;
     }
@@ -349,6 +373,9 @@ public class AutoCompleteList {
 
     public synchronized boolean isValidAt(String name, long validAt) {
         ValidInfo vi = name2valid.get(name);
+        if (Logger.isTraceOn(Logger.TT_GUI, 6)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_AUTOCOMPLETE, "isValidAt(" + name + "): " + vi);
+        }
         if (vi == null) {
             String nameWithUpper = lower2realVisible.get(name);
             if (nameWithUpper != null) {

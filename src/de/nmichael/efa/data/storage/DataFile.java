@@ -441,7 +441,9 @@ public abstract class DataFile extends DataAccess {
     private void modifyRecord(DataRecord record, long lockID, boolean add, boolean update, boolean delete) throws EfaException {
         long myLock = -1;
         if (record == null) {
-            throw new EfaException(Logger.MSG_DATA_RECORDNOTFOUND, getUID() + ": Data Record is 'null'", Thread.currentThread().getStackTrace());
+            throw new EfaException(Logger.MSG_DATA_RECORDNOTFOUND, getUID() + ": Data Record is 'null' for " +
+                    (add ? "add" : (update ? "update" : (delete ? "delete" : "noop"))),
+                    Thread.currentThread().getStackTrace());
         }
         if ( (add && update) || (add && delete) || (update && delete) ) {
             throw new EfaException(Logger.MSG_DATA_INVALIDPARAMETER, getUID() + ": Invalid Parameter: "+add+","+update+","+delete, Thread.currentThread().getStackTrace());
@@ -657,6 +659,8 @@ public abstract class DataFile extends DataAccess {
                     releaseGlobalLock(myLock);
                 }
             }
+        } else {
+            throw new EfaException(Logger.MSG_DATA_NOLOCKHELD, getUID() + ": Attempt to add data without holding a lock", Thread.currentThread().getStackTrace());
         }
         return record.getKey();
     }
@@ -771,6 +775,8 @@ public abstract class DataFile extends DataAccess {
                     releaseGlobalLock(myLock);
                 }
             }
+        } else {
+            throw new EfaException(Logger.MSG_DATA_NOLOCKHELD, getUID() + ": Attempt to delete versionized data without holding a lock", Thread.currentThread().getStackTrace());
         }
     }
 
@@ -828,6 +834,8 @@ public abstract class DataFile extends DataAccess {
                     releaseGlobalLock(myLock);
                 }
             }
+        } else {
+            throw new EfaException(Logger.MSG_DATA_NOLOCKHELD, getUID() + ": Attempt to delete all versionized data without holding a lock", Thread.currentThread().getStackTrace());
         }
     }
 
@@ -881,6 +889,8 @@ public abstract class DataFile extends DataAccess {
                     releaseGlobalLock(myLock);
                 }
             }
+        } else {
+            throw new EfaException(Logger.MSG_DATA_NOLOCKHELD, getUID() + ": Attempt to change validity without holding a lock", Thread.currentThread().getStackTrace());
         }
     }
 
@@ -926,7 +936,13 @@ public abstract class DataFile extends DataAccess {
                 long validFrom = (Long)k.getKeyPart(validFromField);
                 if (t >= validFrom) {
                     DataRecord rec = get(k);
-                    if (rec != null && rec.isValidAt(t)) {
+                    if (rec != null && (rec.isValidAt(t) ||
+                            // if we change both validFrom and InvalidFrom at the same time,
+                            // then for a short time during this operation, we might have a record
+                            // with invalidFrom < validFrom. Since the validity range must always be
+                            // >= 1, we accept a record as valid either if t is in it's validy range,
+                            // or if t is exactly the validity begin
+                            t == validFrom)) {
                         return rec;
                     }
                 }

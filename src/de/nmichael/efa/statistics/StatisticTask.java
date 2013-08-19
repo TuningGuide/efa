@@ -19,6 +19,7 @@ import de.nmichael.efa.core.Plugins;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.core.config.EfaTypes;
+import de.nmichael.efa.data.StatisticsRecord.StatisticCategory;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.gui.*;
@@ -971,10 +972,14 @@ public class StatisticTask extends ProgressTask {
         }
 
         if (!getEntryDistance(r)) {
-            if (Logger.isTraceOn(Logger.TT_STATISTICS, 5)) {
-                Logger.log(Logger.DEBUG, Logger.MSG_STAT_IGNOREDENTRIES, "ignored (2): " + r.toString());
+            if (sr.sStatisticCategory == StatisticCategory.logbook && !sr.getOptionIgnoreNullValues()) {
+                // continue
+            } else {
+                if (Logger.isTraceOn(Logger.TT_STATISTICS, 5)) {
+                    Logger.log(Logger.DEBUG, Logger.MSG_STAT_IGNOREDENTRIES, "ignored (2): " + r.toString());
+                }
+                return;
             }
-            return;
         }
 
         int cnt = 0;

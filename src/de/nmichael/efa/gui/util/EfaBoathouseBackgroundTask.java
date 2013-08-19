@@ -404,9 +404,12 @@ public class EfaBoathouseBackgroundTask extends Thread {
                     }
 
                     // make sure that if the boat is on the water, this status overrides any other list settings
-                    if (boatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER) &&
-                        !boatStatusRecord.isOnTheWaterShowNotAvailable()) {
-                        boatStatusRecord.setShowInList(BoatStatusRecord.STATUS_ONTHEWATER);
+                    if (boatStatusRecord.getCurrentStatus().equals(BoatStatusRecord.STATUS_ONTHEWATER)) {
+                        if (boatStatusRecord.isOnTheWaterShowNotAvailable()) {
+                            boatStatusRecord.setShowInList(BoatStatusRecord.STATUS_NOTAVAILABLE);
+                        } else {
+                            boatStatusRecord.setShowInList(BoatStatusRecord.STATUS_ONTHEWATER);
+                        }
                     }
 
                     boolean statusRecordChanged = false;

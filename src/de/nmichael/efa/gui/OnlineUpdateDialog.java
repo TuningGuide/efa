@@ -136,6 +136,7 @@ public class OnlineUpdateDialog extends BaseDialog {
                 }
             }
         });
+        detailsUserInfo.setVisible(getTransmitUserInfo() != null);
         userInfoPanel.add(submitUserInfo, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 0, 5, 0), 0, 0));
         userInfoPanel.add(detailsUserInfo, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
@@ -169,6 +170,9 @@ public class OnlineUpdateDialog extends BaseDialog {
         if (Daten.project == null || !Daten.project.isOpen()) {
             return null;
         }
+        if (Daten.project.getClubName() == null || Daten.project.getClubName().length() == 0) {
+            return null;
+        }
         StringBuilder s = new StringBuilder();
         s.append(International.getString("Verein") + ": " + Daten.project.getClubName() + "\n");
         s.append(International.getString("Sprache") + ": " + International.getLanguageDescription() + "\n");
@@ -199,7 +203,8 @@ public class OnlineUpdateDialog extends BaseDialog {
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
             out.write("subject=User efa - " + newVersionName + " (Online-Update)" +
-                    "&comments=" + URLEncoder.encode(infos, "ISO-8859-1"));
+                    "&comments=" + URLEncoder.encode(infos, "ISO-8859-1") +
+                    "&club=" + URLEncoder.encode(Daten.project.getClubName(), "ISO-8859-1"));
             out.flush();
             out.close();
             InputStream in = new BufferedInputStream(connection.getInputStream());

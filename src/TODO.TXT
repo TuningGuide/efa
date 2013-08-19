@@ -1,6 +1,9 @@
 Item
 ============================================================================================================
 
+Option für Änderungswünsche im Fahrtenbuch deaktivierbar machen (http://forum.nmichael.de/viewtopic.php?f=9&p=2565#p2565)
+Korrekturassistent: Auswahl am Anfang, was korrigiert werden soll (sowie Konfiguration ("Schwellwerte") und ggf. zurück-Button): http://forum.nmichael.de/viewtopic.php?f=9&t=635&p=2543#p2543
+Korrekturassistent: Unbekannte Namen automatisch in Personenliste übernehmen? Auswahl einzelenr Personen, dann Dialog mit allen ausgewählten Namen und Möglichkeit, Status, Gechlecht, Jahrgang zu erfassen. http://forum.nmichael.de/viewtopic.php?f=9&t=635&p=2551#p2551
 Gewässer in Fahrtgruppe erfassen, damit nicht für alle Etappen/Boote einzeln
 Fahrtgruppen bei Eingabe von Wanderfahrten durch Mitglieder auswählen lassen - https://kenai.com/bugzilla/show_bug.cgi?id=2231
 

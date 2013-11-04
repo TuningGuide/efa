@@ -482,6 +482,13 @@ public class LogbookRecord extends DataRecord {
     public boolean getSessionIsOpen() {
         return getBool(OPEN);
     }
+    
+    public boolean isRowingOrCanoeingSession() {
+        String stype = getSessionType();
+        return stype == null || 
+               (!stype.equals(EfaTypes.TYPE_SESSION_ERG) && 
+                !stype.equals(EfaTypes.TYPE_SESSION_MOTORBOAT));
+    }
 
     protected Object getVirtualColumn(int fieldIdx) {
         if (getFieldName(fieldIdx).equals(ALLCREWNAMES)) {

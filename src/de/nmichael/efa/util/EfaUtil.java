@@ -89,6 +89,22 @@ public class EfaUtil {
 
         return buffer.toString();
     }
+    
+    public static String replaceListByList(String string, String searchList, String replaceList) {
+        if (searchList.length() != replaceList.length()) {
+            return string;
+        }
+        for (int i=0; i<searchList.length(); i++) {
+            char search = searchList.charAt(i);
+            int pos;
+            while ( (pos = string.indexOf(search)) >= 0 ) {
+                string = string.substring(0, pos) + 
+                         replaceList.charAt(i) +
+                         string.substring(pos+1);
+            }
+        }
+        return string;
+    }
 
     public static String getString(String s, int length) {
         while (s.length() < length) {
@@ -1636,10 +1652,14 @@ public class EfaUtil {
                 switch (aliasFormat.charAt(i + 1)) {
                     case 'f':
                     case 'F':
+                    case 'v':
+                    case 'V':
                         feld = firstName.trim().toLowerCase();
                         break;
                     case 'l':
                     case 'L':
+                    case 'n':
+                    case 'N':
                         feld = lastName.trim().toLowerCase();
                         break;
                 }
@@ -1869,5 +1889,6 @@ public class EfaUtil {
     public static void main(String args[]) {
         String text = "abc & def";
         System.out.println(text + " -> EfaUtil.escapeXml() = " + EfaUtil.escapeXml(text));
+        System.out.println(replaceListByList("xÄxÖxÜxäxöxüxßx","äöüÄÖÜß","aouAOUs"));
     }
 }

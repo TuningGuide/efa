@@ -357,11 +357,11 @@ public class MeteoAstroWidget extends Widget {
                 } else if (now >= sunset-getWarnTimeBeforeSunset() && now < sunset+getWarnTimeAfterSunset()) {
                     warnText = getWarnTextDarkSoon();
                 }
-                if (warnText != null) {
+                if (warnText != null && Daten.efaConfig.getValueNotificationWindowTimeout() > 0) {
                     NotificationDialog dlg = new NotificationDialog((JFrame)null,
                             warnText,
                             BaseDialog.BIGIMAGE_DARKNESS,
-                            "ffffff", "ff0000", 10);
+                            "ffffff", "ff0000", Daten.efaConfig.getValueNotificationWindowTimeout());
                     dlg.showDialog();
                 }
             }

@@ -197,7 +197,7 @@ public abstract class DataFile extends DataAccess {
                     recovered = tryOpenStorageObject(tryfilename, true);
                 } catch(Exception e2) {
                     Logger.log(Logger.ERROR, Logger.MSG_DATA_OPENFAILED,
-                            LogString.fileOpenFailed(tryfilename, getStorageObjectName() + "." + getStorageObjectType() , e1.toString()));
+                            LogString.fileOpenFailed(tryfilename, getStorageObjectName() + "." + getStorageObjectType() , e2.toString()));
                     tryfilename = filename + BACKUP_OLDVERSION;
                     recovered = tryOpenStorageObject(tryfilename, true);
                 }
@@ -353,7 +353,9 @@ public abstract class DataFile extends DataAccess {
             if (!f.delete()) {
                 throw new Exception(LogString.fileDeletionFailed(filename, getStorageObjectDescription()));
             }
-            journal.deleteAllJournals();
+            if (journal != null) {
+                journal.deleteAllJournals();
+            }
             deleteAllBackups();
         } catch(Exception e) {
             throw new EfaException(Logger.MSG_DATA_DELETEFAILED,
@@ -521,9 +523,11 @@ public abstract class DataFile extends DataAccess {
                         }
                     } else {
                         if (delete) {
-                            if (journal.log(scn + 1, Journal.Operation.delete, record)) {
+                            if (inOpeningStorageObject || journal.log(scn + 1, Journal.Operation.delete, record)) {
                                 data.remove(key);
-                                scn++;
+                                if (!inOpeningStorageObject) {
+                                    scn++;
+                                }
                             } else {
                                 throw new EfaException(Logger.MSG_DATA_JOURNALLOGFAILED, getUID() + ": Operation failed for Data Record '" + record.toString() + "'", Thread.currentThread().getStackTrace());
                             }
@@ -1122,7 +1126,9 @@ public abstract class DataFile extends DataAccess {
             synchronized (data) {
                 if (inOpeningStorageObject || journal.log(scn + 1, Journal.Operation.truncate, null)) {
                     clearAllData();
-                    scn++;
+                    if (!inOpeningStorageObject) {
+                        scn++;
+                    }
                 } else {
                     throw new EfaException(Logger.MSG_DATA_TRUNCATEFAILED, getUID() + ": Truncate failed", Thread.currentThread().getStackTrace());
                 }

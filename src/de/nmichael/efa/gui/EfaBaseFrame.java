@@ -11,11 +11,13 @@
 package de.nmichael.efa.gui;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.core.AdminTask;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.*;
+import static de.nmichael.efa.gui.BaseDialog.getIcon;
 import de.nmichael.efa.gui.util.*;
 import de.nmichael.efa.gui.dataedit.*;
 import de.nmichael.efa.util.*;
@@ -85,6 +87,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     ItemTypeButton remainingCrewUpButton;
     ItemTypeButton remainingCrewDownButton;
     ItemTypeButton boatDamageButton;
+    ItemTypeButton boatNotCleanedButton;
     ItemTypeButton saveButton;
     JLabel infoLabel = new JLabel();
     String KEYACTION_F3;
@@ -278,6 +281,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             if (p != null && p.length() > 0) {
                 Daten.efaConfig.setValueLastProjectEfaBase(p);
             }
+            AdminTask.startAdminTask(admin);
         }
         Daten.checkRegister();
     }
@@ -741,6 +745,16 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         boatDamageButton.displayOnGui(this, mainInputPanel, 4, 19);
         boatDamageButton.registerItemListener(this);
         boatDamageButton.setVisible(isModeBoathouse() && Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton());
+        
+        // Boat Not Cleaned Button
+        boatNotCleanedButton = new ItemTypeButton("BOATNOTCLEANED", IItemType.TYPE_PUBLIC, null, International.getString("Boot war nicht geputzt"));
+        boatNotCleanedButton.setFieldSize(200, 19);
+        boatNotCleanedButton.setFieldGrid(4, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL);
+        boatNotCleanedButton.setBackgroundColorWhenFocused(Daten.efaConfig.getValueEfaDirekt_colorizeInputField() ? Color.yellow : null);
+        boatNotCleanedButton.setIcon(getIcon(BaseDialog.IMAGE_SOAP));
+        boatNotCleanedButton.displayOnGui(this, mainInputPanel, 4, 20);
+        boatNotCleanedButton.registerItemListener(this);
+        boatNotCleanedButton.setVisible(isModeBoathouse() && Daten.efaConfig.getShowBoatNotCleanedButton());
 
         // Save Button
         saveButton = new ItemTypeButton("SAVE", IItemType.TYPE_PUBLIC, null, International.getString("Eintrag speichern"));
@@ -840,6 +854,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         comments.restoreBackgroundColor();
         sessiontype.restoreBackgroundColor();
         boatDamageButton.restoreBackgroundColor();
+        boatNotCleanedButton.restoreBackgroundColor();
         saveButton.restoreBackgroundColor();
     }
 
@@ -3024,6 +3039,69 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                     BoatDamageEditDialog.newBoatDamage(this, currentBoat, personID, logbookRecordText);
                 }
             }
+            if (item == boatNotCleanedButton) {
+                if (currentBoat != null && currentBoat.getId() != null) {
+                    String boatName = currentBoat.getQualifiedName();
+                    String personName = "";
+                    LogbookRecord myRecord = currentRecord;
+                    if (myRecord == null) {
+                        myRecord = getFields();
+                    }
+                    if (myRecord != null) {
+                        UUID personID = myRecord.getCoxId();
+                        if (personID == null) {
+                            personID = myRecord.getCrewId(1);
+                        }
+                        if (personID != null) {
+                            PersonRecord r = Daten.project.getPersons(false).getPerson(personID, System.currentTimeMillis());
+                            if (r != null) {
+                                personName = r.getQualifiedName();
+                            }
+                        }
+                    }
+                    String logbookRecordText = null;
+                    if (myRecord != null) {
+                        logbookRecordText = myRecord.getLogbookRecordAsStringDescription();
+                    }
+                    IItemType[] items = new IItemType[4];
+                    items[0] = new ItemTypeLabel("INFO", IItemType.TYPE_PUBLIC, "",
+                            International.getString("Bitte nur ausfüllen, wenn du das Boot ungeputzt vorgefunden hast!"));
+                    ((ItemTypeLabel)items[0]).setPadding(0, 0, 0, 20);
+                    items[1] = new ItemTypeLabel("BOAT", IItemType.TYPE_PUBLIC, "",
+                            International.getString("Boot") + ": " + boatName);
+                    items[2] = new ItemTypeString("DESCRIPTION", "", IItemType.TYPE_PUBLIC, "",
+                            International.getString("Beschreibung"));
+                    ((ItemTypeString)items[2]).setNotNull(true);
+                    items[3] = new ItemTypeStringAutoComplete("NAME", personName,
+                            IItemType.TYPE_PUBLIC, "",
+                            International.getString("Dein Name"), false);
+                    ((ItemTypeStringAutoComplete)items[3]).setNotNull(true);
+                    ((ItemTypeStringAutoComplete)items[3]).setAutoCompleteData(autoCompleteListPersons);
+                    if (SimpleInputDialog.showInputDialog(this, 
+                            International.getString("ein ungeputztes Boot melden"), 
+                            items)) {
+                        String description = items[2].getValueFromField();
+                        personName = items[3].getValueFromField();
+                        LogbookRecord latest = logbook.getLastBoatUsage(currentBoat.getId(), myRecord);
+                        String lastUsage = (latest != null ?
+                                latest.getLogbookRecordAsStringDescription() :
+                                International.getString("Keinen Eintrag gefunden!"));
+                        StringBuilder message = new StringBuilder();
+                        message.append(International.getMessage("{person} hat gemeldet, dass das Boot '{boat}' nicht geputzt war.", 
+                                personName, boatName) + "\n\n");
+                        message.append(International.getString("gemeldet am") + ": " + EfaUtil.getCurrentTimeStampYYYY_MM_DD_HH_MM_SS() + "\n");
+                        message.append(International.getString("gemeldet von") + ": " + personName + 
+                                       " (" + logbookRecordText + ")\n\n");
+                        message.append(International.getString("Letzte Benutzung") + ":\n" + lastUsage);
+                        
+                        Daten.project.getMessages(false).createAndSaveMessageRecord(personName,
+                                MessageRecord.TO_BOATMAINTENANCE, 
+                                International.getString("Boot war nicht geputzt") + " - " + boatName, 
+                                message.toString());
+                        Dialog.infoDialog(International.getString("Danke") + "!");
+                    }
+                }
+            }
             if (item == saveButton) {
                 saveEntry();
             }
@@ -3239,6 +3317,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         }
         if (s.equals("BOATDAMAGE")) {
             infoLabel.setText(International.getString("einen Schaden am Boot melden"));
+            return;
+        }
+        if (s.equals("BOATNOTCLEANED")) {
+            infoLabel.setText(International.getString("ein ungeputztes Boot melden"));
             return;
         }
         if (s.equals("SAVE")) {
@@ -3651,6 +3733,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             if (c == efaBaseFrame.boatDamageButton.getComponent()) {
                 return efaBaseFrame.boatDamageButton;
             }
+            if (c == efaBaseFrame.boatNotCleanedButton.getComponent()) {
+                return efaBaseFrame.boatNotCleanedButton;
+            }
             if (c == efaBaseFrame.saveButton.getComponent()) {
                 return efaBaseFrame.saveButton;
             }
@@ -3961,6 +4046,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         setFieldEnabled(false, false, distance);
         setFieldEnabled(true, true, comments);
         setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(), boatDamageButton);
+        setFieldEnabled(true, Daten.efaConfig.getShowBoatNotCleanedButton(), boatNotCleanedButton);
 
         efaBoathouseSetPersonAndBoat(item);
         distance.parseAndShowValue("");
@@ -4001,6 +4087,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         setFieldEnabled(false, false, distance);
         setFieldEnabled(true, true, comments);
         setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(), boatDamageButton);
+        setFieldEnabled(true, Daten.efaConfig.getShowBoatNotCleanedButton(), boatNotCleanedButton);
 
         currentBoatUpdateGui( (currentRecord.getBoatVariant() >= 0 ? currentRecord.getBoatVariant() : -1) );
         updateTimeInfoFields();
@@ -4044,6 +4131,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         setFieldEnabled(true, true, distance);
         setFieldEnabled(true, true, comments);
         setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(), boatDamageButton);
+        setFieldEnabled(true, Daten.efaConfig.getShowBoatNotCleanedButton(), boatNotCleanedButton);
 
         currentBoatUpdateGui( (currentRecord.getBoatVariant() >= 0 ? currentRecord.getBoatVariant() : -1) );
         updateTimeInfoFields();
@@ -4066,6 +4154,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         setFieldEnabled(true, true, distance);
         setFieldEnabled(true, true, comments);
         setFieldEnabled(true, Daten.efaConfig.getValueEfaDirekt_showBootsschadenButton(), boatDamageButton);
+        setFieldEnabled(true, Daten.efaConfig.getShowBoatNotCleanedButton(), boatNotCleanedButton);
 
         efaBoathouseSetPersonAndBoat(item);
         updateTimeInfoFields();

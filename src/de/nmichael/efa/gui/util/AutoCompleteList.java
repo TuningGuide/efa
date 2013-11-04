@@ -247,7 +247,11 @@ public class AutoCompleteList {
     class MyStringComparator implements Comparator {
 
         public int compare(Object o1, Object o2) {
-            return ((String)o1).compareToIgnoreCase((String)o2);
+            String s1 = ((String)o1);
+            String s2 = ((String)o2);
+            s1 = EfaUtil.replaceListByList(s1, "ÄÖÜäöüßé", "AOUaouse");
+            s2 = EfaUtil.replaceListByList(s2, "ÄÖÜäöüßé", "AOUaouse");
+            return s1.compareToIgnoreCase(s2);
         }
 
     }

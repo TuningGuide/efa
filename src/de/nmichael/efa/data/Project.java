@@ -36,7 +36,7 @@ import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.LogString;
 import de.nmichael.efa.util.Logger;
 import java.net.InetAddress;
-import org.apache.fop.fo.flow.Leader;
+import java.util.UUID;
 
 // @i18n complete
 public class Project extends StorageObject {
@@ -173,6 +173,28 @@ public class Project extends StorageObject {
         } catch(Exception e) {
             Logger.logdebug(e);
             return;
+        }
+        
+        // create project id
+        try {
+            if (isOpen()) {
+                DataKeyIterator it = data().getStaticIterator();
+                for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+                    ProjectRecord r = (ProjectRecord)data().get(k);
+                    if (r != null && ProjectRecord.TYPE_CLUB.equals(r.getType()) &&
+                        (r.getProjectId() == null)) {
+                        setProjectId(r);
+                        data().update(r);
+                        Logger.log(Logger.INFO, Logger.MSG_CORE_PROJECTIDGENERATED, 
+                                "Project ID: " + r.getProjectId());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            if (Logger.isTraceOn(Logger.TT_CORE, 3)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_DATA, "Deletion of empty Boathouse Records failed.");
+            }
+            Logger.logdebug(e);
         }
         
         // delete any "emtpy" boathouse records (bugfix)
@@ -528,6 +550,14 @@ public class Project extends StorageObject {
         }
         return true;
     }
+    
+    private void setProjectId(ProjectRecord r) {
+        r.setProjectId(UUID.randomUUID());
+    }
+    
+    public UUID getProjectId() {
+        return getClubRecord().getProjectId();
+    }
 
     public void setEmptyProject(String name) {
         try {
@@ -539,6 +569,7 @@ public class Project extends StorageObject {
             dataAccess.add(rec);
             rec = (ProjectRecord) createNewRecord();
             rec.setType(ProjectRecord.TYPE_CLUB);
+            setProjectId(rec);
             dataAccess.add(rec);
             rec = (ProjectRecord) createNewRecord();
             rec.setType(ProjectRecord.TYPE_BOATHOUSE);

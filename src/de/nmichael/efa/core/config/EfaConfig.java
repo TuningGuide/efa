@@ -192,9 +192,11 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     private ItemTypeBoolean efaDirekt_listAllowToggleBoatsPersons;
     private ItemTypeBoolean efaDirekt_showEingabeInfos;
     private ItemTypeBoolean efaDirekt_showBootsschadenButton;
+    private ItemTypeBoolean boatNotCleanedButton;
     private ItemTypeInteger efaDirekt_maxFBAnzeigenFahrten;
     private ItemTypeInteger efaDirekt_anzFBAnzeigenFahrten;
     private ItemTypeBoolean efaDirekt_FBAnzeigenAuchUnvollstaendige;
+    private ItemTypeInteger efaDirekt_notificationWindowTimeout;
     private ItemTypeInteger efaDirekt_fontSize;
     private ItemTypeStringList efaDirekt_fontStyle;
     private ItemTypeBoolean efaDirekt_colorizeInputField;
@@ -244,10 +246,13 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     private ItemTypeBoolean useFunctionalityCanoeingGermany;
     private ItemTypeBoolean developerFunctions;
     private ItemTypeFile efaUserDirectory;
+    private ItemTypeFile lastExportDirectory;
+    private ItemTypeFile lastImportDirectory;
     private ItemTypeStringList language;
     private ItemTypeString translateLanguageWork;
     private ItemTypeString translateLanguageBase;
     private ItemTypeAction typesResetToDefault;
+    private ItemTypeAction typesAddAllDefault;
     private ItemTypeAction typesAddAllDefaultRowingBoats;
     private ItemTypeAction typesAddAllDefaultCanoeingBoats;
     private ItemTypeHashtable<String> typesGender;
@@ -447,6 +452,18 @@ public class EfaConfig extends StorageObject implements IItemFactory {
             addParameter(lastProjectEfaCli = new ItemTypeString("LastProjectEfaCli", "",
                     IItemType.TYPE_INTERNAL,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_COMMON),
                     "Last project opened by efaCLI"));
+            addParameter(lastExportDirectory = new ItemTypeFile("LastExportDirectory", Daten.userHomeDir,
+                    "last export directory",
+                    International.getString("Verzeichnisse"),
+                    null, ItemTypeFile.MODE_OPEN, ItemTypeFile.TYPE_DIR,
+                    IItemType.TYPE_INTERNAL, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_COMMON),
+                    "last export directory"));
+            addParameter(lastImportDirectory = new ItemTypeFile("LastImportDirectory", Daten.userHomeDir,
+                    "last import directory",
+                    International.getString("Verzeichnisse"),
+                    null, ItemTypeFile.MODE_OPEN, ItemTypeFile.TYPE_DIR,
+                    IItemType.TYPE_INTERNAL, BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_COMMON),
+                    "last import directory"));
             addParameter(developerFunctions = new ItemTypeBoolean("DeveloperFunctions",
                     false,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_COMMON),
@@ -618,6 +635,9 @@ public class EfaConfig extends StorageObject implements IItemFactory {
             addParameter(efaDirekt_showBootsschadenButton = new ItemTypeBoolean("BoatDamageEnableReporting", true,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON),
                     International.getString("Melden von Bootsschäden erlauben")));
+            addParameter(boatNotCleanedButton = new ItemTypeBoolean("ShowBoatNotCleanedButton", false,
+                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_COMMON), // @todo - make PUBLIC?
+                    International.getString("Melden von ungeputzten Booten erlauben")));
             addParameter(efaDirekt_locked = new ItemTypeBoolean("LockEfaLocked", false,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_LOCKEFA),
                     International.getString("efa ist für die Benutzung gesperrt")));
@@ -764,6 +784,9 @@ public class EfaConfig extends StorageObject implements IItemFactory {
             addParameter(efaDirekt_FBAnzeigenAuchUnvollstaendige = new ItemTypeBoolean("LogbookDisplayEntriesDefaultAlsoIncomplete", false,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
                     International.getString("Fahrtenbuch anzeigen") + ": " + International.getString("auch unvollständige Fahrten")));
+            addParameter(efaDirekt_notificationWindowTimeout = new ItemTypeInteger("NotificationWindowTimeout", 10, 0, Integer.MAX_VALUE,
+                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUI),
+                    International.getString("Timeout für Hinweis-Fenster")));
 
             // ============================= BOATHOUSE:GUIBUTTONS =============================
             addParameter(efaDirekt_butFahrtBeginnen = new ItemTypeConfigButton("ButtonStartSession",
@@ -1013,13 +1036,16 @@ public class EfaConfig extends StorageObject implements IItemFactory {
             addParameter(typesResetToDefault = new ItemTypeAction("ACTION_TYPES_RESETTODEFAULT", ItemTypeAction.ACTION_TYPES_RESETTODEFAULT,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_COMMON),
                     International.getString("Alle Standard-Typen zurücksetzen")));
+            addParameter(typesAddAllDefault = new ItemTypeAction("ACTION_TYPES_ADDALLDEFAULT", ItemTypeAction.ACTION_TYPES_ADDALLDEFAULT,
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_COMMON),
+                    International.getString("Fehlende Standard-Fahrtarten neu generieren")));
             addParameter(typesAddAllDefaultRowingBoats = new ItemTypeAction("ACTION_ADDTYPES_ROWING", ItemTypeAction.ACTION_GENERATE_ROWING_BOAT_TYPES,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_BOAT),
-                    International.getMessage("Alle Standard-Bootstypen für {rowing_or_canoeing} neu hinzufügen",
+                    International.getMessage("Fehlende Standard-Bootstypen für {rowing_or_canoeing} neu generieren",
                     International.getString("Rudern"))));
             addParameter(typesAddAllDefaultCanoeingBoats = new ItemTypeAction("ACTION_ADDTYPES_CANOEING", ItemTypeAction.ACTION_GENERATE_CANOEING_BOAT_TYPES,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_TYPES, CATEGORY_TYPES_BOAT),
-                    International.getMessage("Alle Standard-Bootstypen für {rowing_or_canoeing} neu hinzufügen",
+                    International.getMessage("Fehlende Standard-Bootstypen für {rowing_or_canoeing} neu generieren",
                     International.getString("Kanufahren"))));
             buildTypes();
 
@@ -1154,6 +1180,22 @@ public class EfaConfig extends StorageObject implements IItemFactory {
         } else {
             updateValue(item.getName(), newValue);
         }
+    }
+    
+    public String getLastExportDirectory() {
+        return lastExportDirectory.getValue();
+    }
+    
+    public void setLastExportDirectory(String dir) {
+        setValue(lastExportDirectory, dir);
+    }
+
+    public String getLastImportDirectory() {
+        return lastImportDirectory.getValue();
+    }
+    
+    public void setLastImportDirectory(String dir) {
+        setValue(lastImportDirectory, dir);
     }
 
     public String getValueLastProjectEfaBase() {
@@ -1574,6 +1616,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
         return efaDirekt_showBootsschadenButton.getValue();
     }
 
+    public boolean getShowBoatNotCleanedButton() {
+        return boatNotCleanedButton.getValue();
+    }
+
     public int getValueEfaDirekt_maxFBAnzeigenFahrten() {
         return efaDirekt_maxFBAnzeigenFahrten.getValue();
     }
@@ -1584,6 +1630,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
     public boolean getValueEfaDirekt_FBAnzeigenAuchUnvollstaendige() {
         return efaDirekt_FBAnzeigenAuchUnvollstaendige.getValue();
+    }
+    
+    public int getValueNotificationWindowTimeout() {
+        return efaDirekt_notificationWindowTimeout.getValue();
     }
 
     public int getValueEfaDirekt_fontSize() {
@@ -1822,6 +1872,10 @@ public class EfaConfig extends StorageObject implements IItemFactory {
 
     public ItemTypeAction getValueTypesResetToDefault() {
         return typesResetToDefault;
+    }
+
+    public ItemTypeAction getValueTypesAddAllToDefault() {
+        return typesAddAllDefault;
     }
 
     public ItemTypeAction getValueTypesAddAllDefaultRowingBoats() {

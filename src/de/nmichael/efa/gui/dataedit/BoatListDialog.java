@@ -27,10 +27,16 @@ public class BoatListDialog extends DataListDialog {
 
     public BoatListDialog(Frame parent, long validAt, AdminRecord admin) {
         super(parent, International.getString("Boote"), Daten.project.getBoats(false), validAt, admin);
+        if (admin != null && admin.isAllowedEditBoats()) {
+            addMergeAction();
+        }
     }
 
     public BoatListDialog(JDialog parent, long validAt, AdminRecord admin) {
         super(parent, International.getString("Boote"), Daten.project.getBoats(false), validAt, admin);
+        if (admin != null && admin.isAllowedEditBoats()) {
+            addMergeAction();
+        }
     }
 
     public void keyAction(ActionEvent evt) {
@@ -46,4 +52,10 @@ public class BoatListDialog extends DataListDialog {
         }
         return new BoatEditDialog(parent, (BoatRecord)record, newRecord, admin);
     }
+
+    protected ProgressTask getMergeProgressTask(DataKey mainKey, DataKey[] mergeKeys) {
+        Boats boats = (Boats)persistence;
+        return boats.getMergeBoatsProgressTask(mainKey, mergeKeys);
+    }
+
 }

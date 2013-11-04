@@ -20,6 +20,7 @@ public abstract class ProgressTask extends Thread {
     protected int currentWorkDone = 0;
     protected BufferedWriter f;
     protected boolean autoCloseDialogWhenDone;
+    protected boolean resultSuccess = true;
 
     public void setProgressDialog(ProgressDialog progressDialog, boolean autoCloseDialogWhenDone) {
         this.progressDialog = progressDialog;
@@ -46,11 +47,13 @@ public abstract class ProgressTask extends Thread {
     public void setDone() {
         setRunning(false);
         setCurrentWorkDone(getAbsoluteWork());
-        if (getSuccessfullyDoneMessage() != null) {
+        if (resultSuccess && getSuccessfullyDoneMessage() != null) {
             Dialog.infoDialog(getSuccessfullyDoneMessage());
         } else {
             if (getErrorDoneMessage() != null) {
                 Dialog.error(getErrorDoneMessage());
+            } else {
+                Dialog.error(International.getString("Vorgang mit Fehlern abgeschlossen."));
             }
         }
         if (f != null) {

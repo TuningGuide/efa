@@ -11,6 +11,7 @@
 package de.nmichael.efa.gui;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.AdminTask;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.core.config.*;
 import de.nmichael.efa.core.items.*;
@@ -178,6 +179,10 @@ public class AdminDialog extends BaseDialog implements IItemListener {
 
         updateInfos();
         mainPanel.add(northPanel, BorderLayout.NORTH);
+    }
+    
+    protected void preShowCallback() {
+        AdminTask.startAdminTask(admin);
     }
 
     private void updateInfos() {

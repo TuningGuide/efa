@@ -91,6 +91,8 @@ public class EfaTypes extends StorageObject {
     public static final String TYPE_SESSION_TOUR          = "TOUR";         // MEHRTAGESFAHRT
     public static final String TYPE_SESSION_TOUR_EFA1X1   = "MEHRTAGESFAHRT"; // for import efa 1.x: MEHRTAGESFAHRT
     public static final String TYPE_SESSION_TOUR_EFA1X2   = "MULTIDAY";     // for import efa 1.x: MEHRTAGESFAHRT
+    public static final String TYPE_SESSION_CLUBTRIP      = "CLUBTRIP";     // "Vereinsfahrt" für Kanu-eFB
+    public static final String TYPE_SESSION_GROUPTRIP     = "GROUPTRIP";    // "Gemeinschaftsfahrt" für Kanu-eFB
 
     public static final String TYPE_STATUS_GUEST          = "GUEST";        // Gast
     public static final String TYPE_STATUS_OTHER          = "OTHER";        // andere
@@ -470,6 +472,25 @@ public class EfaTypes extends StorageObject {
         return 0;
     }
 
+    public int setToLanguage_Sessions(ResourceBundle bundle, boolean createNew) {
+        int count = 0;
+        count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_NORMAL, International.getString("normale Fahrt"),"normale Fahrt",bundle,createNew);
+        count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_TOUR, International.getString("Wanderfahrt"),"Wanderfahrt",bundle,createNew);
+        count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_TRAINING, International.getString("Training"),"Training",bundle,createNew);
+        count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_TRAININGCAMP, International.getString("Trainingslager"),"Trainingslager",bundle,createNew);
+        count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_INSTRUCTION, International.getString("Ausbildung"),"Ausbildung",bundle,createNew);
+        count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_REGATTA, International.getString("Regatta"),"Regatta",bundle,createNew);
+        count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_JUMREGATTA, International.getString("JuM-Regatta"),"JuM-Regatta",bundle,createNew);
+        count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_LATEENTRY, International.getString("Kilometernachtrag"),"Kilometernachtrag",bundle,createNew);
+        if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
+            count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_CLUBTRIP, International.onlyFor("DKV-Vereinsfahrt", "de"),"DKV-Vereinsfahrt",bundle,createNew);
+            count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_GROUPTRIP, International.onlyFor("DKV-Gemeinschaftsfahrt", "de"),"DKV-Gemeinschaftsfahrt",bundle,createNew);
+        }
+        count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_MOTORBOAT, International.getString("Motorboot"),"Motorboot",bundle,createNew);
+        count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_ERG, International.getString("Ergo"),"Ergo",bundle,createNew);
+        return count;
+    }
+
     public int setToLanguage_Boats(ResourceBundle bundle, int typeSelection, boolean createNew) {
         int count = 0;
         switch(typeSelection) {
@@ -551,20 +572,10 @@ public class EfaTypes extends StorageObject {
         setToLanguage(CATEGORY_GENDER, TYPE_GENDER_MALE, International.getString("männlich"),"männlich",bundle,createNew);
         setToLanguage(CATEGORY_GENDER, TYPE_GENDER_FEMALE, International.getString("weiblich"),"weiblich",bundle,createNew);
 
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_NORMAL, International.getString("normale Fahrt"),"normale Fahrt",bundle,createNew);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_TOUR, International.getString("Wanderfahrt"),"Wanderfahrt",bundle,createNew);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_TRAINING, International.getString("Training"),"Training",bundle,createNew);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_TRAININGCAMP, International.getString("Trainingslager"),"Trainingslager",bundle,createNew);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_INSTRUCTION, International.getString("Ausbildung"),"Ausbildung",bundle,createNew);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_REGATTA, International.getString("Regatta"),"Regatta",bundle,createNew);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_JUMREGATTA, International.getString("JuM-Regatta"),"JuM-Regatta",bundle,createNew);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_LATEENTRY, International.getString("Kilometernachtrag"),"Kilometernachtrag",bundle,createNew);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_MOTORBOAT, International.getString("Motorboot"),"Motorboot",bundle,createNew);
-        setToLanguage(CATEGORY_SESSION, TYPE_SESSION_ERG, International.getString("Ergo"),"Ergo",bundle,createNew);
-
         setToLanguage(CATEGORY_STATUS, TYPE_STATUS_GUEST, International.getString("Gast"),"Gast",bundle,createNew);
         setToLanguage(CATEGORY_STATUS, TYPE_STATUS_OTHER, International.getString("andere"),"andere",bundle,createNew);
 
+        setToLanguage_Sessions(bundle, createNew);
         setToLanguage_Boats(bundle, SELECTION_ROWING, (custSettings != null ? custSettings.activateRowingOptions : false));
         setToLanguage_Boats(bundle, SELECTION_CANOEING, (custSettings != null ? custSettings.activateCanoeingOptions : false));
 

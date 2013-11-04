@@ -55,10 +55,13 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     public static final String MODEL                 = "Model";
     public static final String MAXCREWWEIGHT         = "MaxCrewWeight";
     public static final String MANUFACTIONDATE       = "ManufactionDate";
+    public static final String SERIALNO              = "SerialNo";
     public static final String PURCHASEDATE          = "PurchaseDate";
     public static final String PURCHASEPRICE         = "PurchasePrice";
-    public static final String PURCHASEPRICECURRENCY = "PurchasePriceCurrency";
+    public static final String SELLINGDATE           = "SellingDate";
+    public static final String SELLINGPRICE          = "SellingPrice";
     public static final String INSURANCEVALUE        = "InsuranceValue";
+    public static final String CURRENCY              = "PurchasePriceCurrency";
     public static final String DEFAULTCREWID         = "DefaultCrewId";
     public static final String DEFAULTSESSIONTYPE    = "DefaultSessionType";
     public static final String DEFAULTDESTINATIONID  = "DefaultDestinationId";
@@ -102,9 +105,12 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         f.add(MODEL);                             t.add(IDataAccess.DATA_STRING);
         f.add(MAXCREWWEIGHT);                     t.add(IDataAccess.DATA_INTEGER);
         f.add(MANUFACTIONDATE);                   t.add(IDataAccess.DATA_DATE);
+        f.add(SERIALNO);                          t.add(IDataAccess.DATA_STRING);
         f.add(PURCHASEDATE);                      t.add(IDataAccess.DATA_DATE);
         f.add(PURCHASEPRICE);                     t.add(IDataAccess.DATA_DECIMAL);
-        f.add(PURCHASEPRICECURRENCY);             t.add(IDataAccess.DATA_STRING);
+        f.add(SELLINGDATE);                       t.add(IDataAccess.DATA_DATE);
+        f.add(SELLINGPRICE);                      t.add(IDataAccess.DATA_DECIMAL);
+        f.add(CURRENCY);                          t.add(IDataAccess.DATA_STRING);
         f.add(INSURANCEVALUE);                    t.add(IDataAccess.DATA_DECIMAL);
         f.add(DEFAULTCREWID);                     t.add(IDataAccess.DATA_UUID);
         f.add(DEFAULTSESSIONTYPE);                t.add(IDataAccess.DATA_STRING);
@@ -540,6 +546,13 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         return getDate(MANUFACTIONDATE);
     }
 
+    public void setSerialNo(String serialNo) {
+        setString(SERIALNO, serialNo);
+    }
+    public String getSerialNo() {
+        return getString(SERIALNO);
+    }
+
     public void setPurchaseDate(DataTypeDate date) {
         setDate(PURCHASEDATE, date);
     }
@@ -555,12 +568,27 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
     }
 
 
-    public void setPurchasePriceCurrency(String currency) {
-        setString(PURCHASEPRICECURRENCY, currency);
+    public void setCurrency(String currency) {
+        setString(CURRENCY, currency);
     }
-    public String getPurchasePriceCurrency() {
-        return getString(PURCHASEPRICECURRENCY);
+    public String getCurrency() {
+        return getString(CURRENCY);
     }
+
+    public void setSellingDate(DataTypeDate date) {
+        setDate(SELLINGDATE, date);
+    }
+    public DataTypeDate getSellingDate() {
+        return getDate(SELLINGDATE);
+    }
+
+    public void setSellingPrice(DataTypeDecimal price) {
+        setDecimal(SELLINGPRICE, price);
+    }
+    public DataTypeDecimal getSellingPrice() {
+        return getDecimal(SELLINGPRICE);
+    }
+
 
     public void setInsuranceValue(DataTypeDecimal price) {
         setDecimal(INSURANCEVALUE, price);
@@ -1053,14 +1081,21 @@ public class BoatRecord extends DataRecord implements IItemFactory, IItemListene
         v.add(item = new ItemTypeDate(BoatRecord.MANUFACTIONDATE, getManufactionDate(),
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Herstellungsdatum")));
         ((ItemTypeDate)item).setAllowYearOnly(true);
+        v.add(item = new ItemTypeString(BoatRecord.SERIALNO, getSerialNo(),
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Seriennummer")));
         v.add(item = new ItemTypeDate(BoatRecord.PURCHASEDATE, getPurchaseDate(),
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Kaufdatum")));
         ((ItemTypeDate)item).setAllowYearOnly(true);
         v.add(item = new ItemTypeDecimal(BoatRecord.PURCHASEPRICE, getPurchasePrice(), 2, true,
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Kaufpreis")));
+        v.add(item = new ItemTypeDate(BoatRecord.SELLINGDATE, getSellingDate(),
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Verkaufdatum")));
+        ((ItemTypeDate)item).setAllowYearOnly(true);
+        v.add(item = new ItemTypeDecimal(BoatRecord.SELLINGPRICE, getSellingPrice(), 2, true,
+                IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Verkaufspreis")));
         v.add(item = new ItemTypeDecimal(BoatRecord.INSURANCEVALUE, getInsuranceValue(), 2, true,
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Versicherungswert")));
-        v.add(item = new ItemTypeString(BoatRecord.PURCHASEPRICECURRENCY, getPurchasePriceCurrency(),
+        v.add(item = new ItemTypeString(BoatRecord.CURRENCY, getCurrency(),
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Währung")));
         v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMSTATISTIC, getExcludeFromPublicStatistics(),
                 IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von allgemein verfügbaren Statistiken ausnehmen")));

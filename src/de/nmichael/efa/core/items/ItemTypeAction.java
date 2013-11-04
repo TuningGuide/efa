@@ -25,8 +25,9 @@ import javax.swing.*;
 public class ItemTypeAction extends ItemTypeButton {
 
     public static final int ACTION_TYPES_RESETTODEFAULT = 1;
-    public static final int ACTION_GENERATE_ROWING_BOAT_TYPES = 2;
-    public static final int ACTION_GENERATE_CANOEING_BOAT_TYPES = 3;
+    public static final int ACTION_TYPES_ADDALLDEFAULT = 2;
+    public static final int ACTION_GENERATE_ROWING_BOAT_TYPES = 3;
+    public static final int ACTION_GENERATE_CANOEING_BOAT_TYPES = 4;
 
     private int action;
 
@@ -51,6 +52,9 @@ public class ItemTypeAction extends ItemTypeButton {
         switch(action) {
             case ACTION_TYPES_RESETTODEFAULT:
                 resetTypesToDefault();
+                break;
+            case ACTION_TYPES_ADDALLDEFAULT:
+                addAllDefaultSessionTypes();
                 break;
             case ACTION_GENERATE_ROWING_BOAT_TYPES:
                 generateTypes(ACTION_GENERATE_ROWING_BOAT_TYPES);
@@ -90,6 +94,31 @@ public class ItemTypeAction extends ItemTypeButton {
         count += addNewTypes(Daten.efaTypes, efaConfigFrame.getTypesGender(), EfaTypes.CATEGORY_GENDER, true);
         count += addNewTypes(Daten.efaTypes, efaConfigFrame.getTypesSession(), EfaTypes.CATEGORY_SESSION, true);
         count += addNewTypes(Daten.efaTypes, efaConfigFrame.getTypesStatus(), EfaTypes.CATEGORY_STATUS, true);
+
+        Dialog.infoDialog(International.getMessage("Es wurden {count} Typen neu generiert (sichtbar im Expertenmodus).", count));
+        efaConfigFrame.updateGui(false);
+    }
+
+    private void addAllDefaultSessionTypes() {
+        if (Dialog.yesNoDialog(International.getString("Frage"),
+                International.getString("Möchtest Du alle Standard-Fahrtarten neu generieren? " +
+                "Manuell geänderte oder hinzugefügte Fahrtarten bleiben dabei bestehen.")) != Dialog.YES) {
+            return;
+        }
+
+        // addAllDefaultSessionTypes() is only called from buttonHit(ActionEvent) if the configured action is
+        // ACTION_TYPES_RESETTODEFAULT.
+        // This is (and must!) only be the case if dlg is a EfaConfigFrame!
+        EfaConfigDialog efaConfigFrame = null;
+        try {
+            efaConfigFrame = (EfaConfigDialog)dlg;
+        } catch(ClassCastException ee) {
+            return;
+        }
+
+        Daten.efaTypes.setToLanguage_Sessions(International.getResourceBundle(), true);
+        int count = 0;
+        count += addNewTypes(Daten.efaTypes, efaConfigFrame.getTypesSession(), EfaTypes.CATEGORY_SESSION, false);
 
         Dialog.infoDialog(International.getMessage("Es wurden {count} Typen neu generiert (sichtbar im Expertenmodus).", count));
         efaConfigFrame.updateGui(false);

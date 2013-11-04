@@ -503,7 +503,8 @@ public class EfaBoathouseBackgroundTask extends Thread {
             cal.setTime(date);
             int now = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
             int exitTime = Daten.efaConfig.getValueEfaDirekt_exitTime().getHour() * 60 + Daten.efaConfig.getValueEfaDirekt_exitTime().getMinute();
-            if ((now >= exitTime && now < exitTime + Daten.AUTO_EXIT_MIN_RUNTIME) || (now + (24 * 60) >= exitTime && now + (24 * 60) < exitTime + Daten.AUTO_EXIT_MIN_RUNTIME)) {
+            if ((now >= exitTime && now < exitTime + Daten.AUTO_EXIT_MIN_RUNTIME) || 
+                (now + (24 * 60) >= exitTime && now + (24 * 60) < exitTime + Daten.AUTO_EXIT_MIN_RUNTIME)) {
                 Logger.log(Logger.INFO, Logger.MSG_EVT_TIMEBASEDEXIT,
                         International.getString("Eingestellte Uhrzeit zum Beenden von efa erreicht!"));
                 if (System.currentTimeMillis() - efaBoathouseFrame.getLastUserInteraction() < Daten.AUTO_EXIT_MIN_LAST_USED * 60 * 1000) {
@@ -521,7 +522,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
                 && System.currentTimeMillis() - efaBoathouseFrame.getLastUserInteraction() > Daten.efaConfig.getValueEfaDirekt_exitIdleTime() * 60 * 1000) {
             Logger.log(Logger.INFO, Logger.MSG_EVT_INACTIVITYBASEDEXIT,
                     International.getString("Eingestellte Inaktivitätsdauer zum Beenden von efa erreicht!"));
-            EfaExitFrame.exitEfa(International.getString("Zeitgesteuertes Beenden von efa"), false, EfaBoathouseFrame.EFA_EXIT_REASON_TIME);
+            EfaExitFrame.exitEfa(International.getString("Zeitgesteuertes Beenden von efa"), false, EfaBoathouseFrame.EFA_EXIT_REASON_IDLE);
         }
 
         // automatischer, zeitgesteuerter Neustart von efa ?

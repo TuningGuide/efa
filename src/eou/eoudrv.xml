@@ -2,10 +2,22 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.1.1_#1</VersionID>
+        <ReleaseDate>02.11.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa2drv.zip</DownloadUrl>
+        <DownloadSize>3482296</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Ausgabe der Gewässer als Meldestatistik (DRV-Wanderruderstatistik)</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.1.0_03</VersionID>
         <ReleaseDate>20.07.2013</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa2drv.zip</DownloadUrl>
-        <DownloadSize></DownloadSize>
+        <DownloadSize>3477769</DownloadSize>
 
         <!-- Changes (deutsch) -->
         <Changes lang="de">

@@ -38,6 +38,7 @@ public class MenuMain extends MenuBase {
         }
         printUsage(CLI.MENU_MESSAGES,         "", "messages");
         printUsage(CLI.MENU_STATISTICS  ,     "", "statistics");
+        printUsage(CLI.MENU_SYNCEFB         , "", "Kanu-eFB synchronization");
         printUsage(CLI.MENU_BACKUP          , "", "backups");
         printUsage(CLI.MENU_COMMAND         , "", "run external commands");
     }
@@ -147,6 +148,14 @@ public class MenuMain extends MenuBase {
                     return CLI.RC_NO_PERMISSION;
                 }
                 menuStack.push(CLI.MENU_STATISTICS);
+                return runCommandWithArgs(args);
+            }
+            if (cmd.equalsIgnoreCase(CLI.MENU_SYNCEFB)) {
+                if (!cli.getAdminRecord().isAllowedSyncKanuEfb()) {
+                    cli.logerr("You don't have permission to access this function.");
+                    return CLI.RC_NO_PERMISSION;
+                }
+                menuStack.push(CLI.MENU_SYNCEFB);
                 return runCommandWithArgs(args);
             }
             if (cmd.equalsIgnoreCase(CLI.MENU_BACKUP)) {

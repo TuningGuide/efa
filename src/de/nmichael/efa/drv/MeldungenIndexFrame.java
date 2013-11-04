@@ -1428,6 +1428,7 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
 
     void createMeldestatistikWS() {
         try {
+            // Wanderruderstatistik (eine Zeile pro Verein)
             String stat_complete = Daten.efaDataDirectory + Main.drvConfig.aktJahr + Daten.fileSep + "wanderruderstatistik.csv";
             BufferedWriter f;
             f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(stat_complete), Daten.ENCODING_ISO));
@@ -1461,6 +1462,61 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
             }
             f.close();
 
+            // Gewässerstatistik (eine Zeile pro Gewässer)
+            Hashtable<String,WatersStat> gewaesser = new Hashtable<String,WatersStat>();
+            for (DatenFelder d = Main.drvConfig.meldungenIndex.getCompleteFirst(); d != null; d = Main.drvConfig.meldungenIndex.getCompleteNext()) {
+                String qnr = d.get(MeldungenIndex.QNR);
+                if (qnr != null && qnr.length() > 0) {
+                    EfaWett efw = new EfaWett(Daten.efaDataDirectory + Main.drvConfig.aktJahr + Daten.fileSep + qnr + ".efw");
+                    try {
+                        if (efw.readFile()) {
+                            for (EfaWettMeldung ewm = efw.meldung; ewm != null; ewm = ewm.next) {
+                                if (ewm.drvint_wirdGewertet) {
+                                    if (ewm.drvWS_Gewaesser != null && ewm.drvWS_Gewaesser.length() > 0) {
+                                        Vector<String> g = EfaUtil.split(EfaUtil.replace(ewm.drvWS_Gewaesser, ";", ",", true), ',');
+                                        for (int i=0; g != null && i<g.size(); i++) {
+                                            String name = g.get(i).trim();
+                                            WatersStat w = gewaesser.get(name);
+                                            if (w == null) {
+                                                w = new WatersStat();
+                                                gewaesser.put(name, w);
+                                            }
+                                            w.fahrten++;
+                                            w.personen += EfaUtil.string2int(ewm.drvWS_Teilnehmer, 0);
+                                            w.tage += EfaUtil.string2int(ewm.drvWS_Tage, 0);
+                                            w.kilometer += EfaUtil.string2int(ewm.drvWS_Km, 0);
+                                            w.mannschkilometer += EfaUtil.string2int(ewm.drvWS_MannschKm, 0);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } catch (Exception e1) {
+                    }
+                }
+            }
+            String stat_waters = Daten.efaDataDirectory + Main.drvConfig.aktJahr + Daten.fileSep + "gewaesser.csv";
+            f = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(stat_waters), Daten.ENCODING_ISO));
+            f.write("Hinweis:;Für Fahrten auf mehreren Gewässern werden die Tage, Kilometer und Mannschafts-Kilometer\n");
+            f.write(";der gesamten Fahrt ALLEN Gewässern der Fahrt zugerechnet, da diese in der Meldung nicht\n");
+            f.write(";separat ausgewiesen sind. Die Angaben in den Spalten Tage, Kilometer und Mannschafts-Km\n");
+            f.write(";sind daher etwas verfälscht und zu hoch und geben nur einen ungefähren Eindruck über die\n");
+            f.write(";Ruderaktivität auf diesen Gewässern.\n");
+            f.write(";\n");
+            f.write("Gewässer;Fahrten;Personen;Tage;Kilometer;Mannschafts-Km\n");
+            String[] gnames = gewaesser.keySet().toArray(new String[0]);
+            Arrays.sort(gnames);
+            for (String name : gnames) {
+                WatersStat w = gewaesser.get(name);
+                f.write(name + ";" + 
+                        w.fahrten + ";" + 
+                        w.personen + ";" + 
+                        w.tage + ";" + 
+                        w.kilometer + ";" + 
+                        w.mannschkilometer + "\n");
+            }
+            f.close();
+
             String stat_info = "";
             if (mitglnr_hash.size() < Main.drvConfig.meldungenIndex.countElements()) {
                 int differenz = Main.drvConfig.meldungenIndex.countElements() - mitglnr_hash.size();
@@ -1470,14 +1526,16 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
 
             Dialog.infoDialog("Statistik exportiert",
                     "Die Statistik wurde erfolgreich erstellt:\n"
-                    + stat_complete + "\n\n"
+                    + stat_complete + "\n"
+                    + stat_waters + "\n\n"
                     + stat_info
                     + "Um die Statistik in Excel zu öffnen:\n"
                     + "1. Excel starten\n"
                     + "2. ->Datei->Öffnen wählen\n"
                     + "3. In den Ordner \"" + EfaUtil.getPathOfFile(stat_complete) + "\" wechseln\n"
                     + "4. Bei der Auswahl der anzuzeigenden Dateien \"Alle Dateien\" wählen\n"
-                    + "5. Die Datei \"" + EfaUtil.getFilenameWithoutPath(stat_complete) + "\" öffnen");
+                    + "5. Die Dateien \"" + EfaUtil.getFilenameWithoutPath(stat_complete) + "\"\n" 
+                    + "und \"" + EfaUtil.getFilenameWithoutPath(stat_waters) + "\" öffnen");
         } catch (Exception ee) {
             Dialog.error("Fehler beim Erstellen der Statistik: " + ee.toString());
             Logger.log(Logger.ERROR, "Fehler beim Erstellen der Statistik: " + ee.toString());
@@ -1642,5 +1700,13 @@ public class MeldungenIndexFrame extends JDialog implements ActionListener {
             Dialog.error("Fehler beim Schreiben der Meldungsdatei: " + eee.toString());
         }
         showMeldungen();
+    }
+    
+    class WatersStat {
+        int fahrten = 0;
+        int personen = 0;
+        int tage = 0;
+        long kilometer = 0;
+        long mannschkilometer = 0;
     }
 }

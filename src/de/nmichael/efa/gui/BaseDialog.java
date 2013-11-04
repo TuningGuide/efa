@@ -59,6 +59,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     public static final String IMAGE_REPAIR    = "button_repair.png";
     public static final String IMAGE_LOGOUT    = "button_logout.png";
     public static final String IMAGE_DAMAGE    = "button_damage.png";
+    public static final String IMAGE_SOAP      = "button_soap.png";
     public static final String IMAGE_SEARCH    = "button_search.png";
     public static final String IMAGE_SEARCHNEXT= "button_searchnext.png";
     public static final String IMAGE_SPECIAL   = "button_special.png";
@@ -95,21 +96,28 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
     public BaseDialog(Frame parent, String title, String closeButtonText) {
         super(parent);
         this._parent = parent;
-        this._title = title;
+        this._title = ucTitle(title);
         this._closeButtonText = closeButtonText;
     }
 
     public BaseDialog(Frame parent, String title) {
         super(parent, title, ModalityType.APPLICATION_MODAL);
         this._parent = parent;
-        this._title = title;
+        this._title = ucTitle(title);
     }
 
     public BaseDialog(JDialog parent, String title, String closeButtonText) {
         super(parent);
         this._parent = parent;
-        this._title = title;
+        this._title = ucTitle(title);
         this._closeButtonText = closeButtonText;
+    }
+    
+    private String ucTitle(String s) {
+        if (s != null && s.length() > 0 && Character.isLowerCase(s.charAt(0))) {
+            return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+        }
+        return s;
     }
 
     public void setCloseButtonImage(String imageName) {
@@ -157,7 +165,12 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
         if (focusItem != null) {
             focusItem.requestFocus();
         }
+        preShowCallback();
         this.setVisible(true);
+    }
+    
+    protected void preShowCallback() {
+        // to be implemented in subclass (if needed)
     }
 
     public void setRequestFocus(IItemType item) {

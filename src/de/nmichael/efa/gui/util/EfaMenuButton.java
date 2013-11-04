@@ -900,6 +900,10 @@ public class EfaMenuButton {
                 Dialog.error(International.getString("Kein Projekt geöffnet."));
                 return false;
             }
+            if (logbook == null) {
+                Dialog.error(International.getString("Kein Fahrtenbuch geöffnet."));
+                return false;
+            }
             if (admin == null || (!admin.isAllowedSyncKanuEfb())) {
                 insufficientRights(admin, action);
                 return false;

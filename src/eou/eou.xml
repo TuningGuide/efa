@@ -2,6 +2,91 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.1.1_#1</VersionID>
+        <ReleaseDate>02.11.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa211_dev.zip</DownloadUrl>
+        <DownloadSize></DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: Zusammenfassen von Booten und Zielen, die versehentlich mehrfach als unterschiedliche Datensätze erfaßt wurden, zu einem gemeinsamen Datensatz</ChangeItem>
+            <ChangeItem>Neu: Neue Fahrtarten "DKV-Vereinsfahrt" und "DKV-Gemeinschaftsfahrt" für Paddler. ACHTUNG: Um diese Fahrtarten zu aktivieren, gehe in dem "Admin-Modus - Konfiguration - Bezeichnungen" und klicke "Fehlende Standard-Fahrtarten neu generieren"</ChangeItem>
+            <ChangeItem>Neu: Neues Feld "Veranstalter" für Fahrtgruppen zum Erfassen des Veranstalters von DKV-Gemeinschaftsfahrten</ChangeItem>
+            <ChangeItem>Neu: Synchronisation mit Kanu-eFB kann jetzt über efaCLI bzw. zeitgesteuert als automatischer Ablauf gestartet werden</ChangeItem>
+            <ChangeItem>Neu: efa überträgt jetzt auch Fartart sowie Fahrtgruppen bei Synchronisation ans Kanu-eFB</ChangeItem>
+            <ChangeItem>Neu: efa merkt sich jetzt jeweils das letzte Import- und Export-Verzeichnis und schlägt dieses beim nächsten Import/Export automatisch vor</ChangeItem>
+            <ChangeItem>Neu: Weitere Felder in der Bootsverwaltung zum Erfassen von Seriennummer, Verkaufspreis und Verkaufsdatum</ChangeItem>
+            <ChangeItem>Neu: Meldung von ungeputzten Booten möglich (experimentell)</ChangeItem>
+            <ChangeItem>Bugfix: Sortierung von Namen in Dropdown-Listen sortiert Umlaute jetzt nichts mehr ans Ende, sondern zu den entsprechenden Basis-Buchstaben</ChangeItem>
+            <ChangeItem>Bugfix: Projekt-ID bei Synchronisation mit Kanu-eFB zur eindeutigen Identifizierung von Fahrtenbucheinträgen übermittelt</ChangeItem>
+            <ChangeItem>Bugfix: Fahrten mit Motorbooten und Ergos werden von Synchronsation mit Kanu-eFB ausgenommen</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException im Korrekturassistenten behoben</ChangeItem>
+            <ChangeItem>Bugfix: Falsche Erfolgsmeldung im Fehlerfall beim Zusammenfügen von Datensätzen behoben</ChangeItem>
+        </Changes>
+        <Changes lang="en">
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.1.0_10</VersionID>
+        <ReleaseDate>02.10.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa210.zip</DownloadUrl>
+        <DownloadSize>3319474</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Sofortiges Beenden wegen angeblicher Inaktivität nach Start von efa behoben</ChangeItem>
+            <ChangeItem>Bugfix: Kodierung von Sonderzeichen in Kanu-eFB-Synchronisation korrigiert</ChangeItem>
+            <ChangeItem>Bugfix: Maximale Trace-Ausgabe für Kanu-eFB-Synchronisation auf 10 MB pro Protokollnachricht erhöht</ChangeItem>
+        </Changes>
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Immediate exit presumably because of inactivity immediately after efa start fixed</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.1.0_09</VersionID>
+        <ReleaseDate>18.09.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa210.zip</DownloadUrl>
+        <DownloadSize>3318929</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Vor Synchronisation mit Kanu-eFB prüft efa jetzt, ob tatsächlich ein Fahrtenbuch geöffnet ist</ChangeItem>
+            <ChangeItem>Bugfix: email-Versand von Fehlermeldungen jetzt größenbeschränkt, um OutOfMemory-Errors durch riesige Fehlermeldungen zu vermeiden</ChangeItem>
+            <ChangeItem>Bugfix: Kanu-eFB-Synchronisation meldet jetzt nach Abschluß auch die Anzahl der aufgetretenen Warnungen und Fehler</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.1.0_08</VersionID>
+        <ReleaseDate>11.09.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa210.zip</DownloadUrl>
+        <DownloadSize>3318666</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Format der Eingabekürzel unterstützt jetzt auch die aus efa1 übliche (deutsche) Notation mit Vx und Nx für Vorname und Nachname</ChangeItem>
+            <ChangeItem>Neu: Timeout für Hinweis-Fenster (z.B. "Hallentore schließen") ist jetzt im Expertenmodus unter "efa-Bootshaus - Erscheinungsbild" konfigurierbar</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Neu: Window closing timeout for notification windows (like "Lock boathouse") is now configurable in the expert mode under "efa Boathouse - Appearance"</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.1.0_07</VersionID>
+        <ReleaseDate>08.09.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa210.zip</DownloadUrl>
+        <DownloadSize>3318312</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Fehler (NullPointerException) beim Wiederherstellen einer beschädigten Datei behoben</ChangeItem>
+        </Changes>
+
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Error (NullPointerException) while restoring a damaged data file fixed</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.1.0_06</VersionID>
         <ReleaseDate>18.08.2013</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa210.zip</DownloadUrl>

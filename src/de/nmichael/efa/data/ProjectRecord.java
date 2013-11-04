@@ -38,6 +38,7 @@ public class ProjectRecord extends DataRecord {
 
     public static final String TYPE                         = "Type"; // one of TYPE_XXX constants
     public static final String PROJECTNAME                  = "ProjectName";
+    public static final String PROJECT_ID                   = "ProjectID";
     public static final String DEPRECATED_LOGBOOKNAME       = "LogbookName";
     public static final String NAME                         = "Name";
     public static final String DESCRIPTION                  = "Description";
@@ -110,6 +111,7 @@ public class ProjectRecord extends DataRecord {
 
         f.add(TYPE);                          t.add(IDataAccess.DATA_STRING);
         f.add(PROJECTNAME);                   t.add(IDataAccess.DATA_STRING);
+        f.add(PROJECT_ID);                    t.add(IDataAccess.DATA_UUID);
         f.add(DEPRECATED_LOGBOOKNAME);        t.add(IDataAccess.DATA_STRING);
         f.add(NAME);                          t.add(IDataAccess.DATA_STRING);
         f.add(DESCRIPTION);                   t.add(IDataAccess.DATA_STRING);
@@ -200,6 +202,9 @@ public class ProjectRecord extends DataRecord {
     }
     public void setProjectName(String projectName) {
         setString(PROJECTNAME, projectName);
+    }
+    void setProjectId(UUID id) {
+        setUUID(PROJECT_ID, id);
     }
     public void setDescription(String description) {
         setString(DESCRIPTION, description);
@@ -344,6 +349,9 @@ public class ProjectRecord extends DataRecord {
 
     public String getProjectName() {
         return getString(PROJECTNAME);
+    }
+    public UUID getProjectId() {
+        return getUUID(PROJECT_ID);
     }
     public String getDescription() {
         return getString(DESCRIPTION);

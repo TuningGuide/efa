@@ -828,10 +828,12 @@ public class FixLogbookDialog extends BaseDialog implements IItemListener {
         }
 
         public void displayOnGui(JDialog dlg, JPanel panel, int y) {
-            fixme.displayOnGui(dlg, panel, 0, y);
-            infoEntry.displayOnGui(dlg, panel, 2, y);
-            infoCount.displayOnGui(dlg, panel, 4, y);
-            item.displayOnGui(dlg, panel, 6, y);
+            if (fixme != null && infoEntry != null && infoCount != null && item != null) {
+                fixme.displayOnGui(dlg, panel, 0, y);
+                infoEntry.displayOnGui(dlg, panel, 2, y);
+                infoCount.displayOnGui(dlg, panel, 4, y);
+                item.displayOnGui(dlg, panel, 6, y);
+            }
         }
 
     }

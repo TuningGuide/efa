@@ -153,7 +153,8 @@ public class AlertWidget extends Widget implements IItemFactory {
                         || mode == EfaBaseFrame.MODE_BOATHOUSE_START_CORRECT) && !actionBegin
                         && isShowOnSessionStart(list, i))
                         || (mode == EfaBaseFrame.MODE_BOATHOUSE_FINISH && !actionBegin
-                        && isShowOnSessionFinish(list, i))) && isShowForBoat(list, i, bType, bSeats)) {
+                        && isShowOnSessionFinish(list, i))) && isShowForBoat(list, i, bType, bSeats)
+                        && Daten.efaConfig.getValueNotificationWindowTimeout() > 0) {
                     String text = getText(list, i);
                     String color = "0000ff";
                     String image = BaseDialog.BIGIMAGE_INFO;
@@ -163,7 +164,7 @@ public class AlertWidget extends Widget implements IItemFactory {
                     }
                     if (text != null && text.length() > 0) {
                         NotificationDialog dlg = new NotificationDialog((JFrame) null,
-                                text, image, "ffffff", color, 10);
+                                text, image, "ffffff", color, Daten.efaConfig.getValueNotificationWindowTimeout());
                         dlg.showDialog();
                     }
                 }

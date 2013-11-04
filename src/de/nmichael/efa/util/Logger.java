@@ -75,6 +75,8 @@ public class Logger {
     public static final String MSG_CORE_MAILSENT = "COR035";
     public static final String MSG_CORE_MAILENQUEUED = "COR036";
     public static final String MSG_CORE_MAILFAILED = "COR037";
+    public static final String MSG_CORE_PROJECTIDGENERATED = "COR038";
+    public static final String MSG_CORE_ADMINTASK = "COR039";
 
     // Activities performed in Admin Mode
     public static final String MSG_ADMIN_LOGIN = "ADM001";
@@ -531,7 +533,11 @@ public class Logger {
             do {
                 i = (i+1) % lastLogMessages.length;
                 if (lastLogMessages[i] != null) {
-                    s.append(lastLogMessages[i]);
+                    if (lastLogMessages[i].length() < 4096) {
+                        s.append(lastLogMessages[i]);
+                    } else {
+                        s.append(lastLogMessages[i].substring(0, 4096) + "...");
+                    }
                 }
             } while (i != end);
         }

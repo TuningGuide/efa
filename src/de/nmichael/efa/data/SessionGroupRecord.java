@@ -35,6 +35,7 @@ public class SessionGroupRecord extends DataRecord {
     public static final String LOGBOOK             = "Logbook";
     public static final String NAME                = "Name";
     public static final String ROUTE               = "Route";
+    public static final String ORGANIZER           = "Organizer";
     public static final String SESSIONTYPE         = "SessionType";
     public static final String STARTDATE           = "StartDate";
     public static final String ENDDATE             = "EndDate";
@@ -51,6 +52,7 @@ public class SessionGroupRecord extends DataRecord {
         f.add(LOGBOOK);                           t.add(IDataAccess.DATA_STRING);
         f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
         f.add(ROUTE);                             t.add(IDataAccess.DATA_STRING);
+        f.add(ORGANIZER);                         t.add(IDataAccess.DATA_STRING);
         f.add(SESSIONTYPE);                       t.add(IDataAccess.DATA_STRING);
         f.add(STARTDATE);                         t.add(IDataAccess.DATA_DATE);
         f.add(ENDDATE);                           t.add(IDataAccess.DATA_DATE);
@@ -127,6 +129,13 @@ public class SessionGroupRecord extends DataRecord {
     }
     public String getRoute() {
         return getString(ROUTE);
+    }
+
+    public void setOrganizer(String organizer) {
+        setString(ORGANIZER, organizer);
+    }
+    public String getOrganizer() {
+        return getString(ORGANIZER);
     }
 
     public void setSessionType(String type) {
@@ -235,6 +244,11 @@ public class SessionGroupRecord extends DataRecord {
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                 International.getString("Start & Ziel") + " / " +
                 International.getString("Strecke")));
+        if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
+            v.add(item = new ItemTypeString(ORGANIZER, getOrganizer(),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                    International.getString("Veranstalter")));
+        }
         v.add(item = new ItemTypeStringList(SESSIONTYPE, getSessionType(),
                 EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Fahrtart")));

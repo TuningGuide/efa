@@ -805,7 +805,7 @@ public class Audit extends Thread {
                 Daten.efaBakDirectory,
                 null, null,
                 "messages_" + EfaUtil.getCurrentTimeStampYYYYMMDD_HHMMSS());
-        archived.open(true);
+        archived.open(true); // @todo - causes file not found exception! need to fix!!!!
         long lock = messages.data().acquireGlobalLock();
         int cntRead = 0;
         int cntUnread = 0;

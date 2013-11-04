@@ -398,21 +398,26 @@ public class Journal {
             if (op != Operation.truncate && r == null) {
                 throw new Exception ("No Data Record found for SCN " + myScn);
             }
-            switch(op) {
-                case add:
-                    dataFile.add(r);
-                    break;
-                case update:
-                    dataFile.update(r);
-                    break;
-                case delete:
-                    dataFile.delete(r.getKey());
-                    break;
-                case truncate:
-                    dataFile.truncateAllData();
-                    break;
+            try {
+                switch (op) {
+                    case add:
+                        dataFile.add(r);
+                        break;
+                    case update:
+                        dataFile.update(r);
+                        break;
+                    case delete:
+                        dataFile.delete(r.getKey());
+                        break;
+                    case truncate:
+                        dataFile.truncateAllData();
+                        break;
+                }
+                myScn++;
+            } catch (Exception e) {
+                Logger.log(e);
+                throw new Exception("Failed to apply journal entry '" + s + "': " + e);
             }
-            myScn++;
         }
         if (j != null) {
             j.close();

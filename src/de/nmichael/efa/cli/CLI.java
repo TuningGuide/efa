@@ -43,6 +43,7 @@ public class CLI {
     public static final String MENU_STATUS           = "status";
     public static final String MENU_WATERS           = "waters";
     public static final String MENU_FAHRTENABZEICHEN = "fahrtenabzeichen";
+    public static final String MENU_SYNCEFB          = "syncefb";
     public static final String MENU_BACKUP           = "backup";
     public static final String MENU_COMMAND          = "command";
 
@@ -369,6 +370,9 @@ public class CLI {
         }
         if (mymenu.equals(MENU_WATERS)) {
             return de.nmichael.efa.cli.MenuWaters.class;
+        }
+        if (mymenu.equals(MENU_SYNCEFB)) {
+            return de.nmichael.efa.cli.MenuSyncEfb.class;
         }
         if (mymenu.equals(MENU_BACKUP)) {
             return de.nmichael.efa.cli.MenuBackup.class;

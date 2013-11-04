@@ -33,11 +33,12 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 
     public static EfaBoathouseFrame efaBoathouseFrame;
 
-    public static final int EFA_EXIT_REASON_USER         = 0;
-    public static final int EFA_EXIT_REASON_TIME         = 1;
-    public static final int EFA_EXIT_REASON_OOME         = 2;
-    public static final int EFA_EXIT_REASON_AUTORESTART  = 3;
-    public static final int EFA_EXIT_REASON_ONLINEUPDATE = 4;
+    public static final int EFA_EXIT_REASON_USER          = 0;
+    public static final int EFA_EXIT_REASON_TIME          = 1;
+    public static final int EFA_EXIT_REASON_IDLE          = 2;
+    public static final int EFA_EXIT_REASON_OOME          = 3;
+    public static final int EFA_EXIT_REASON_AUTORESTART   = 4;
+    public static final int EFA_EXIT_REASON_ONLINEUPDATE  = 5;
 
     public static final int ACTIONID_STARTSESSION        = 1;
     public static final int ACTIONID_FINISHSESSION       = 2;
@@ -121,7 +122,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     EfaBaseFrame efaBaseFrame;
     Logbook logbook;
     BoatStatus boatStatus;
-    volatile long lastUserInteraction = 0;
+    volatile long lastUserInteraction = System.currentTimeMillis();
     volatile boolean inUpdateBoatList = false;
     byte[] largeChunkOfMemory = new byte[1024*1024];
     boolean isLocked = false;
@@ -941,7 +942,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                 }
                 break;
             case EFA_EXIT_REASON_TIME:
+            case EFA_EXIT_REASON_IDLE:
                 who = International.getString("Zeitsteuerung");
+                who += " (" + (reason == EFA_EXIT_REASON_TIME ? "time" : "idle") + ")";
                 if (Daten.efaConfig.getValueEfaDirekt_execOnEfaAutoExit().length() > 0) {
                     Logger.log(Logger.INFO, Logger.MSG_EVT_EFAEXITEXECCMD,
                             International.getMessage("Programmende veranlaßt; versuche, Kommando '{cmd}' auszuführen...", Daten.efaConfig.getValueEfaDirekt_execOnEfaAutoExit()));
@@ -1885,7 +1888,8 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                 (efaBoathouseAction.mode == EfaBaseFrame.MODE_BOATHOUSE_FINISH ||
                 efaBoathouseAction.mode == EfaBaseFrame.MODE_BOATHOUSE_ABORT)) {
             if (!boatStatus.areBoatsOutOnTheWater() &&
-                Daten.efaConfig.getValueEfaBoathouseShowLastFromWaterNotification()) {
+                Daten.efaConfig.getValueEfaBoathouseShowLastFromWaterNotification() && 
+                Daten.efaConfig.getValueNotificationWindowTimeout() > 0) {
                 String txt = Daten.efaConfig.getValueEfaBoathouseShowLastFromWaterNotificationText();
                 if (txt == null || txt.length() == 0) {
                     txt = International.getString("Alle Boote sind zurück.") + "<br>" +
@@ -1894,7 +1898,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
                 NotificationDialog dlg = new NotificationDialog(this,
                         txt,
                         BaseDialog.BIGIMAGE_CLOSEDOORS,
-                        "ffffff", "ff0000", 10);
+                        "ffffff", "ff0000", Daten.efaConfig.getValueNotificationWindowTimeout());
                 dlg.showDialog();
             }
         }
@@ -2256,34 +2260,12 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             efaBoathouseBackgroundTask.interrupt(); // Falls requestFocus nicht funktioniert hat, setzt der Thread ihn richtig!
             return;
         }
-        try {
-            LogbookRecord latest = null;
-            DataKeyIterator it = logbook.data().getStaticIterator();
-            for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
-                LogbookRecord r = (LogbookRecord) logbook.data().get(k);
-                if (r == null || r.getBoatId() == null || !r.getBoatId().equals(item.boat.getId())) {
-                    continue;
-                }
-                if (r.getDate() != null && r.getDate().isSet()) {
-                    if (latest == null ||
-                        r.getDate().isAfter(latest.getDate()) ||
-                        ( r.getDate().equals(latest.getDate()) &&
-                          r.getStartTime() != null &&
-                          r.getStartTime().isSet() &&
-                          (latest.getStartTime() == null || r.getStartTime().isAfter(latest.getStartTime())))) {
-                        latest = r;
-                    }
-                }
-            }
-            if (latest != null) {
-                Dialog.infoDialog(International.getString("Letzte Benutzung") + ":\n" +
-                        latest.getLogbookRecordAsStringDescription());
-            } else {
-                Dialog.infoDialog(International.getString("Keinen Eintrag gefunden!"));
-            }
-        } catch(Exception e) {
-            Logger.logdebug(e);
-            Dialog.error(e.getMessage());
+        LogbookRecord latest = logbook.getLastBoatUsage(item.boat.getId(), null);
+        if (latest != null) {
+            Dialog.infoDialog(International.getString("Letzte Benutzung") + ":\n"
+                    + latest.getLogbookRecordAsStringDescription());
+        } else {
+            Dialog.infoDialog(International.getString("Keinen Eintrag gefunden!"));
         }
     }
 

@@ -56,4 +56,5 @@ public class PersonListDialog extends DataListDialog {
         Persons persons = (Persons)persistence;
         return persons.getMergePersonsProgressTask(mainKey, mergeKeys);
     }
+
 }

@@ -283,6 +283,9 @@ public class Persons extends StorageObject {
         private UUID mainID;
         private UUID[] mergeIDs;
         private int absoluteWork = 100;
+        private int errorCount = 0;
+        private int warningCount = 0;
+        private int updateCount = 0;
 
         public MergePersonsProgressTask(Persons persons, DataKey mainKey, DataKey[] mergeKeys) {
             this.persons = persons;
@@ -316,12 +319,12 @@ public class Persons extends StorageObject {
 
         public void run() {
             setRunning(true);
-            logInfo(International.getString("Datensätze zusammenfügen") + " ...\n");
-            int errorCount = 0;
-            int warningCount = 0;
-            int updateCount = 0;
+            logInfo(International.getString("Datensätze zusammenfügen") + " ...\n" +
+                    (errorCount > 0 || warningCount > 0 ?
+                        "\n[" + errorCount + " ERRORS, " + warningCount + " WARNINGS]" : ""));
             try {
                 Project p = persons.getProject();
+                super.resultSuccess = false;
 
                 // Search Logbooks
                 String[] logbookNames = p.getAllLogbookNames();
@@ -540,8 +543,10 @@ public class Persons extends StorageObject {
                     persons.data().delete(r.getKey());
                 }
                 setCurrentWorkDone(++workDone);
+                super.resultSuccess = true;
 
             } catch(Exception e) {
+                errorCount++;
                 this.logInfo("\n" + International.getString("Fehler") + ": " + e.getMessage());
                 this.logInfo("\n" + e.toString());
                 Logger.logdebug(e);

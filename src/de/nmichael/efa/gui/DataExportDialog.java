@@ -193,8 +193,14 @@ public class DataExportDialog extends BaseDialog {
                 International.getStringWithMnemonic("Zeichensatz")
                 );
         encoding.displayOnGui(this, filePanel, 2);
+        
+        String dir = Daten.efaConfig.getLastExportDirectory();
+        if (dir == null || dir.length() == 0 || !(new File(dir)).isDirectory()) {
+            dir = Daten.userHomeDir;
+        }
+        
         file = new ItemTypeFile("FILE",
-                Daten.userHomeDir + (Daten.fileSep != null && !Daten.userHomeDir.endsWith(Daten.fileSep) ? Daten.fileSep : "") +
+                dir + (Daten.fileSep != null && !dir.endsWith(Daten.fileSep) ? Daten.fileSep : "") +
                 persistence.data().getStorageObjectName() + ".xml",
                     International.getString("Datei"),
                     International.getString("Datei") + " (*.*)",
@@ -259,6 +265,8 @@ public class DataExportDialog extends BaseDialog {
             Dialog.error(file.getInvalidErrorText());
             return;
         }
+        
+        Daten.efaConfig.setLastExportDirectory(EfaUtil.getPathOfFile(fname));
 
         if ((new File(fname).exists())) {
             if (Dialog.yesNoDialog(International.getString("Warnung"),

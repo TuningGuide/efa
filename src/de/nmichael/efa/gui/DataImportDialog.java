@@ -75,6 +75,11 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
         file.setFieldSize(450, -1);
         file.registerItemListener(this);
         file.displayOnGui(this, mainPanel, 0, 0);
+        String dir = Daten.efaConfig.getLastImportDirectory();
+        if (dir == null || dir.length() == 0 || !(new File(dir)).isDirectory()) {
+            dir = Daten.userHomeDir;
+        }
+        file.setFileDialogBaseDirectory(dir);
 
         fileTypeXml = new JRadioButton();
         Mnemonics.setButton(this, fileTypeXml, International.getStringWithMnemonic("XML-Datei"));
@@ -268,6 +273,8 @@ public class DataImportDialog extends BaseDialog implements IItemListener {
         }
         char csep = (csvSeparator.getValue() != null ? csvSeparator.getValue().charAt(0) : '\0');
         char cquo = (csvQuotes.getValue() != null ? csvQuotes.getValue().charAt(0) : '\0');
+        
+        Daten.efaConfig.setLastImportDirectory(EfaUtil.getPathOfFile(fname));
 
         DataImport dataImport = new DataImport(persistence,
                 fname, encoding.getValue(), csep, cquo,

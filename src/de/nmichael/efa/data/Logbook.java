@@ -137,6 +137,37 @@ public class Logbook extends StorageObject {
         return null;
     }
 
+    public LogbookRecord getLastBoatUsage(UUID boatId, LogbookRecord notThisRecord) {
+        try {
+            LogbookRecord latest = null;
+            DataKeyIterator it = data().getStaticIterator();
+            for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+                LogbookRecord r = (LogbookRecord) data().get(k);
+                if (r == null || r.getBoatId() == null || !r.getBoatId().equals(boatId)) {
+                    continue;
+                }
+                if (notThisRecord != null && notThisRecord.getEntryId() != null &&
+                    r.getEntryId() != null && r.getEntryId().equals(notThisRecord.getEntryId())) {
+                    continue;
+                }
+                if (r.getDate() != null && r.getDate().isSet()) {
+                    if (latest == null
+                            || r.getDate().isAfter(latest.getDate())
+                            || (r.getDate().equals(latest.getDate())
+                            && r.getStartTime() != null
+                            && r.getStartTime().isSet()
+                            && (latest.getStartTime() == null || r.getStartTime().isAfter(latest.getStartTime())))) {
+                        latest = r;
+                    }
+                }
+            }
+            return latest;
+        } catch (Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+    
     public DataTypeIntString getNextEntryNo() {
         int n = 1;
         LogbookRecord lastrec = null;

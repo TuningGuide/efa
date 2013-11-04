@@ -29,6 +29,9 @@ public class DestinationListDialog extends DataListDialog {
                 International.getString("Ziele") + " / " +
                 International.getString("Strecken"),
                 Daten.project.getDestinations(false), validAt, admin);
+        if (admin != null && admin.isAllowedEditDestinations()) {
+            addMergeAction();
+        }
     }
 
     public DestinationListDialog(JDialog parent, long validAt, AdminRecord admin) {
@@ -36,6 +39,9 @@ public class DestinationListDialog extends DataListDialog {
                 International.getString("Ziele") + " / " +
                 International.getString("Strecken"),
                 Daten.project.getDestinations(false), validAt, admin);
+        if (admin != null && admin.isAllowedEditDestinations()) {
+            addMergeAction();
+        }
     }
 
     public void keyAction(ActionEvent evt) {
@@ -49,4 +55,10 @@ public class DestinationListDialog extends DataListDialog {
         }
         return new DestinationEditDialog(parent, (DestinationRecord)record, newRecord, admin);
     }
+
+    protected ProgressTask getMergeProgressTask(DataKey mainKey, DataKey[] mergeKeys) {
+        Destinations destinations = (Destinations)persistence;
+        return destinations.getMergeDestinationsProgressTask(mainKey, mergeKeys);
+    }
+
 }

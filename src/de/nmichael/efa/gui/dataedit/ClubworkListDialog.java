@@ -30,13 +30,11 @@ public class ClubworkListDialog extends DataListDialog {
 	public static final int ACTION_CARRYOVER = 4;
 
 	public ClubworkListDialog(Frame parent, AdminRecord admin) {
-		super(parent, International.getString("Vereinsarbeit"), Daten.project.getClubwork(Daten.project.getCurrentLogbook().getName(), false), 0, admin);
+		super(parent, International.getString("Vereinsarbeit"), Daten.project.getCurrentClubwork(), 0, admin);
 	}
 
 	public ClubworkListDialog(JDialog parent, AdminRecord admin) {
-		super(parent, International.getString("Vereinsarbeit"), Daten.project.getClubwork(Daten.project.getCurrentLogbook().getName(), false), 0, admin);
-		Logbook logbook = Daten.project.getCurrentLogbook();
-		Clubwork clubwork = Daten.project.getClubwork(logbook.getName(), false);
+		super(parent, International.getString("Vereinsarbeit"), Daten.project.getCurrentClubwork(), 0, admin);
 	}
 
 	public void keyAction(ActionEvent evt) {
@@ -66,6 +64,7 @@ public class ClubworkListDialog extends DataListDialog {
 		else {
 			actionText = new String[] {
 					ItemTypeDataRecordTable.ACTIONTEXT_NEW,
+					ItemTypeDataRecordTable.ACTIONTEXT_EDIT,
 					ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
 					International.getString("Liste ausgeben"),
 					International.getString("Übertrag berechnen")
@@ -73,6 +72,7 @@ public class ClubworkListDialog extends DataListDialog {
 
 			actionType = new int[] {
 					ItemTypeDataRecordTable.ACTION_NEW,
+					ItemTypeDataRecordTable.ACTION_EDIT,
 					ItemTypeDataRecordTable.ACTION_DELETE,
 					ACTION_PRINTLIST,
 					ACTION_CARRYOVER
@@ -90,17 +90,14 @@ public class ClubworkListDialog extends DataListDialog {
 	public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record) {
 		boolean newRecord = (record == null);
 		if (record == null) {
-			Logbook logbook = Daten.project.getCurrentLogbook();
-			Clubwork clubwork = Daten.project.getClubwork(logbook.getName(), false);
-			record = Daten.project.getClubwork(Daten.project.getCurrentLogbook().getName(), false).createClubworkRecord(UUID.randomUUID());
+			record = Daten.project.getClubwork(Daten.project.getCurrentClubwork().getName(), false).createClubworkRecord(UUID.randomUUID());
 		}
 		return new ClubworkEditDialog(parent, (ClubworkRecord)record, newRecord, admin);
 	}
 
 	public void itemListenerActionTable(int actionId, DataRecord[] records) {
 		if(actionId == ACTION_CARRYOVER) {
-			Logbook logbook = Daten.project.getCurrentLogbook();
-			Clubwork clubwork = Daten.project.getClubwork(logbook.getName(), false);
+			Clubwork clubwork = Daten.project.getCurrentClubwork();
 			clubwork.doCarryOver();
 		}
 		else {

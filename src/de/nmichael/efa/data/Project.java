@@ -1012,7 +1012,7 @@ public class Project extends StorageObject {
 
 	public synchronized boolean isClubworkOpen(String clubworkName) {
 		try {
-			String key = getPersistenceCacheKey(clubworkName, Logbook.DATATYPE);
+			String key = getPersistenceCacheKey(clubworkName, Clubwork.DATATYPE);
 			if (key == null) {
 				return false;
 			}
@@ -1400,7 +1400,7 @@ public class Project extends StorageObject {
 	public void setCurrentClubworkEfaBoathouse(String currentClubwork) {
 		try {
 			ProjectRecord r = getBoathouseRecord();
-			r.setCurrentLogbookEfaBoathouse(currentClubwork);
+			r.setCurrentClubworkEfaBoathouse(currentClubwork);
 			getMyDataAccess(ProjectRecord.TYPE_BOATHOUSE).update(r);
 		} catch (Exception e) {
 			e.printStackTrace();

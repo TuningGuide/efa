@@ -817,6 +817,10 @@ public class EfaMenuButton {
                 Dialog.error(International.getString("Kein Projekt geöffnet."));
                 return false;
             }
+			if(Daten.project.getCurrentClubwork() == null) {
+				Dialog.error(International.getString("Kein Vereinsarbeitsbuch geöffnet."));
+				return false;
+			}
             if (admin == null || (!admin.isAllowedEditClubwork())) {
                 insufficientRights(admin, action);
                 return false;

@@ -21,9 +21,9 @@ public class AdminAudit {
 
 	private void checkForClubworkCarryOver() {
 		/*if (Daten.project != null && Daten.project.isOpen()) {
-			DataTypeDate date = Daten.project.getClubworkCarryOverDate();
+			//DataTypeDate date = Daten.project.getClubworkCarryOverDate();
 			if (date != null && date.isSet() && DataTypeDate.today().isAfterOrEqual(date)) {
-				Clubwork clubwork = Daten.project.getClubwork(Daten.project.getCurrentLogbook().getName(), false);
+				Clubwork clubwork = Daten.project.getCurrentClubwork();
 				clubwork.doCarryOver();
 			}
 		}*/

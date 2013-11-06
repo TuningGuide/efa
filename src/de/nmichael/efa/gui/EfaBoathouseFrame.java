@@ -1251,7 +1251,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 			}
 
 			if (clubworkName == null || clubworkName.length() == 0) {
-				if (admin != null && admin.isAllowedAdministerProjectLogbook()) {
+				if (admin != null && admin.isAllowedAdministerProjectClubwork()) {
 					OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.clubwork, admin);
 					clubworkName = dlg.openDialog();
 				}
@@ -1265,7 +1265,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 			if (clubworkName == null || clubworkName.length() == 0) {
 				return null;
 			}
-			if (!openLogbook(clubworkName)) {
+			if (!openClubwork(clubworkName)) {
 				clubwork = null;
 				return null;
 			}

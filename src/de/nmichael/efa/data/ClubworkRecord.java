@@ -42,6 +42,13 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 	public static final String DESCRIPTION         = "Description";
 	public static final String HOURS               = "Hours";
 	public static final String GUIITEM_PERSONIDLIST= "PersonList";
+	public static final String FLAG			       = "Flag";
+
+	public enum Flags {
+		UNDEFINED,
+		Normal,
+		CarryOver
+	}
 
 	private static String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
 
@@ -64,6 +71,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 		f.add(WORKDATE);                          t.add(IDataAccess.DATA_DATE);
 		f.add(DESCRIPTION);                       t.add(IDataAccess.DATA_STRING);
 		f.add(HOURS);                             t.add(IDataAccess.DATA_DOUBLE);
+		f.add(FLAG);                              t.add(IDataAccess.DATA_INTEGER);
 
 		MetaData metaData = constructMetaData(Clubwork.DATATYPE, f, t, false);
 		metaData.setKey(new String[] { ID });
@@ -154,6 +162,21 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 		if(h == IDataAccess.UNDEFINED_DOUBLE)
 			return 0;
 	   	return h;
+	}
+
+	public void setFlag(Flags flag) {
+		setInt(FLAG, flag.ordinal());
+	}
+
+	public Flags getFlag() {
+		int flag = getInt(FLAG);
+		Flags[] flags = Flags.values();
+		if(flag >= 0 && flag < flags.length) {
+			return Flags.values()[flag];
+		}
+		else {
+			return Flags.UNDEFINED;
+		}
 	}
 
 	public String getQualifiedName(boolean firstFirst) {
@@ -286,7 +309,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 
 		v.add(item = getGuiItemTypeStringAutoComplete(ClubworkRecord.PERSONID, getPersonId(),
 				IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-				persons, getValidFrom(), getInvalidFrom()-1,
+				persons, System.currentTimeMillis(), System.currentTimeMillis(),
 				International.getString("Person")));
 		item.setFieldSize(300, 19);
 		
@@ -324,14 +347,14 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
                     IItemType[] typeItems = list.getItems(i);
                     UUID uuid = (UUID)((ItemTypeStringAutoComplete)typeItems[0]).getId(typeItems[0].toString());
                     if (uuid != null && uuid.toString().length() > 0) {
-                    	Logbook logbook = Daten.project.getCurrentLogbook();
-                    	Clubwork clubwork = Daten.project.getClubwork(logbook.getName(), false);
+                    	Clubwork clubwork = Daten.project.getCurrentClubwork();
                     	
                     	ClubworkRecord record = clubwork.createClubworkRecord(UUID.randomUUID());
                     	record.setPersonId(uuid);
                     	record.setWorkDate(getWorkDate());
                     	record.setDescription(getDescription());
                     	record.setHours(getHours());
+						record.setFlag(Flags.Normal);
                     	try {
 							clubwork.data().add(record);
                     	} catch (Exception eignore) {
@@ -345,37 +368,41 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 
 
 	public TableItemHeader[] getGuiTableHeader() {
-		TableItemHeader[] header = new TableItemHeader[5];
+		TableItemHeader[] header = new TableItemHeader[6];
 		if (Daten.efaConfig.getValueNameFormatIsFirstNameFirst()) {
 			header[0] = new TableItemHeader(International.getString("Vorname"));
 			header[1] = new TableItemHeader(International.getString("Nachname"));
 			header[2] = new TableItemHeader(International.getString("Datum"));
 			header[3] = new TableItemHeader(International.getString("Beschreibung"));
 			header[4] = new TableItemHeader(International.getString("Stunden"));
+			header[5] = new TableItemHeader(International.getString("Typ"));
 		} else {
 			header[0] = new TableItemHeader(International.getString("Nachname"));
 			header[1] = new TableItemHeader(International.getString("Vorname"));
 			header[2] = new TableItemHeader(International.getString("Datum"));
 			header[3] = new TableItemHeader(International.getString("Beschreibung"));
 			header[4] = new TableItemHeader(International.getString("Stunden"));
+			header[5] = new TableItemHeader(International.getString("Typ"));
 		}
 		return header;
 	}
 
 	public TableItem[] getGuiTableItems() {
-		TableItem[] items = new TableItem[5];
+		TableItem[] items = new TableItem[6];
 		if (Daten.efaConfig.getValueNameFormatIsFirstNameFirst()) {
 			items[0] = new TableItem(getFirstName());
 			items[1] = new TableItem(getLastName());
 			items[2] = new TableItem(getWorkDate());
 			items[3] = new TableItem(getDescription());
 			items[4] = new TableItem(getHours());
+			items[5] = new TableItem(International.getString(getFlag().toString()));
 		} else {
 			items[0] = new TableItem(getLastName());
 			items[1] = new TableItem(getFirstName());
 			items[2] = new TableItem(getWorkDate());
 			items[3] = new TableItem(getDescription());
 			items[4] = new TableItem(getHours());
+			items[5] = new TableItem(International.getString(getFlag().toString()));
 		}
 		return items;
 	}

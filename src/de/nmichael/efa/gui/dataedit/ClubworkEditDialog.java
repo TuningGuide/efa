@@ -51,23 +51,23 @@ public class ClubworkEditDialog extends UnversionizedDataEditDialog implements I
 
     private void initListener() {
         IItemType item;
-        item = getItem(ClubworkRecord.DESCRIPTION);
+        item = getItem(ClubworkRecord.FIRSTNAME);
         if (item != null) {
             item.registerItemListener(this);
         }
-        item = getItem(ClubworkRecord.HOURS);
+        item = getItem(ClubworkRecord.LASTNAME);
         if (item != null) {
             item.registerItemListener(this);
         }
     }
 
     public void itemListenerAction(IItemType itemType, AWTEvent event) {
-        if (itemType.getName().equals(ClubworkRecord.DESCRIPTION) ||
-            itemType.getName().equals(ClubworkRecord.HOURS)) {
+        if (itemType.getName().equals(ClubworkRecord.FIRSTNAME) ||
+            itemType.getName().equals(ClubworkRecord.LASTNAME)) {
             if (newRecord && Daten.efaConfig.getValueAutogenAlias() &&
                 event instanceof FocusEvent && event.getID() == FocusEvent.FOCUS_LOST) {
-                ItemTypeString firstName = (ItemTypeString)getItem(ClubworkRecord.DESCRIPTION);
-                ItemTypeString lastName = (ItemTypeString)getItem(ClubworkRecord.HOURS);
+                ItemTypeString firstName = (ItemTypeString)getItem(ClubworkRecord.FIRSTNAME);
+                ItemTypeString lastName = (ItemTypeString)getItem(ClubworkRecord.LASTNAME);
                 ItemTypeString inputShortcut = (ItemTypeString)getItem(ClubworkRecord.INPUTSHORTCUT);
                 if (firstName != null && lastName != null && inputShortcut != null) {
                     String sf = firstName.getValueFromField();

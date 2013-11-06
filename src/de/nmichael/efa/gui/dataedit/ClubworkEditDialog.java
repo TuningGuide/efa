@@ -34,7 +34,7 @@ public class ClubworkEditDialog extends UnversionizedDataEditDialog implements I
         super(parent, International.getString("Vereinsarbeit"), r, newRecord, admin);
         ini4Permissions(admin);
         initListener();
-    }
+	    }
 
     private void ini4Permissions(AdminRecord admin) {
 //        if (admin != null && !admin.isAllowedEditClubwork()) {

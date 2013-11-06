@@ -11,6 +11,7 @@
 package de.nmichael.efa.data;
 
 import de.nmichael.efa.Daten;
+import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.DataTypeDate;
@@ -203,5 +204,145 @@ public class Clubwork extends StorageObject {
             assertFieldNotEmpty(record, ClubworkRecord.HOURS);
         }
     }
+
+	public void doCarryOver() {
+		if (Daten.project == null || !Daten.project.isOpen()) {
+			return;
+		}
+		Hashtable<UUID, Double> data = new Hashtable<UUID, Double>();
+
+		String[] names = Daten.project.getAllLogbookNames();
+		for (int i=0; i < names.length; i++) {
+			if(names[i] == null) continue;
+
+			Clubwork clubwork = Daten.project.getClubwork(names[i], false);
+			DataTypeDate lbStart = clubwork.getStartDate();
+			DataTypeDate lbEnd = clubwork.getEndDate();
+			if (lbStart == null || lbEnd == null) {
+				continue; // should never happen
+			}
+
+			int lastYear = DataTypeDate.today().getYear()-1;
+
+			if(clubwork != null && (lbStart.getYear() == lastYear || lbEnd.getYear() == lastYear)) {
+				try {
+					DataKeyIterator it = clubwork.data().getStaticIterator();
+					int size = it.size();
+					DataKey k = it.getFirst();
+					int pos = 0;
+					while (k != null) {
+						ClubworkRecord r = (ClubworkRecord) clubwork.data().get(k);
+
+						DataTypeDate date = r.getWorkDate();
+						if(date.getYear() == lastYear) {
+							UUID key = r.getPersonId();
+
+							if (key == null) {
+								return;
+							}
+							Double hours = data.get(key);
+							if (hours == null) {
+								hours = new Double(0);
+							}
+
+							// aggregate
+							hours += r.getHours();
+
+							data.put(key, hours);
+						}
+						k = it.getNext();
+					}
+				} catch (EfaException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+
+		Clubwork currentCW = Daten.project.getCurrentClubwork();
+
+		if(currentCW != null) {
+			ProjectRecord pr = Daten.project.getClubworkBookRecord(currentCW.getName());
+			if (pr != null) {
+				double sDefaultClubworkTargetHours = pr.getDefaultClubworkTargetHours();
+				double sTransferableClubworkHours = pr.getTransferableClubworkHours();
+
+				double max = sDefaultClubworkTargetHours+sTransferableClubworkHours;
+				double min = sDefaultClubworkTargetHours-sTransferableClubworkHours;
+				Clubwork clubwork = Daten.project.getClubwork(currentCW.getName(), false);
+				long lock = -1;
+				try {
+					lock = clubwork.data().acquireGlobalLock();
+
+					// Save Carry Over
+					Set<UUID> set = data.keySet();
+
+					Iterator<UUID> itr = set.iterator();
+					while (itr.hasNext()) {
+						UUID person = itr.next();
+
+						ClubworkRecord record = clubwork.createClubworkRecord(UUID.randomUUID());
+						record.setPersonId(person);
+						record.setWorkDate(DataTypeDate.today());
+						record.setDescription(International.getString("Übertrag"));
+
+						Double hours = data.get(person);
+						if(hours == null) {
+							hours = new Double(0);
+						}
+						else if(hours > max) {
+							record.setHours(sTransferableClubworkHours);
+						}
+						else if(hours < min) {
+							record.setHours(-sTransferableClubworkHours);
+						}
+						else {
+							record.setHours(hours-sDefaultClubworkTargetHours);
+						}
+
+						try {
+							clubwork.data().add(record);
+						} catch (Exception eignore) {
+							Logger.logdebug(eignore);
+						}
+					}
+
+					// Save Yearly Credit
+					Vector<PersonRecord> persons = Daten.project.getPersons(false).getAllPersons(-1, false, false);
+
+					Iterator<PersonRecord> personItr = persons.iterator();
+					while (personItr.hasNext()) {
+						PersonRecord person = personItr.next();
+
+						ClubworkRecord record = clubwork.createClubworkRecord(UUID.randomUUID());
+						record.setPersonId(person.getId());
+						record.setWorkDate(DataTypeDate.today());
+						record.setDescription(International.getString("Gutschrift (jährlich)"));
+						record.setHours(person.getYearlyClubworkCredit());
+
+						try {
+							clubwork.data().add(record);
+						} catch (Exception eignore) {
+							Logger.logdebug(eignore);
+						}
+					}
+				} catch (Exception e) {
+					Logger.logdebug(e);
+					Logger.log(Logger.ERROR, Logger.MSG_ERR_GENERIC,
+							LogString.operationAborted(International.getString("Vereinsarbeit-Übertrag")));
+					Messages messages = Daten.project.getMessages(false);
+					messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME, MessageRecord.TO_ADMIN,
+							International.getString("Vereinsarbeit-Übertrag"),
+							International.getString("efa hat soeben versucht den Übertrag für die Vereinsarbeit zu berechnen.") + "\n"
+									+ International.getString("Bei diesem Vorgang traten jedoch FEHLER auf.") + "\n\n"
+									+ International.getString("Ein Protokoll ist in der Logdatei (Admin-Modus: Logdatei anzeigen) zu finden."));
+				} finally {
+					if (clubwork != null && lock >= 0) {
+						clubwork.data().releaseGlobalLock(lock);
+					}
+				}
+			}
+		}
+	}
 
 }

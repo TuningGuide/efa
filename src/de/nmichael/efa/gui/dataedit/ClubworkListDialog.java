@@ -27,6 +27,8 @@ import javax.swing.*;
 // @i18n complete
 public class ClubworkListDialog extends DataListDialog {
 
+	public static final int ACTION_CARRYOVER = 4;
+
 	public ClubworkListDialog(Frame parent, AdminRecord admin) {
 		super(parent, International.getString("Vereinsarbeit"), Daten.project.getClubwork(Daten.project.getCurrentLogbook().getName(), false), 0, admin);
 	}
@@ -42,21 +44,47 @@ public class ClubworkListDialog extends DataListDialog {
 	}
 
 	protected void iniActions() {
-		actionText = new String[] {
-				ItemTypeDataRecordTable.ACTIONTEXT_NEW,
-				ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
-				International.getString("Liste ausgeben")
-		};
-		actionType = new int[] {
-				ItemTypeDataRecordTable.ACTION_NEW,
-				ItemTypeDataRecordTable.ACTION_DELETE,
-				ACTION_PRINTLIST
-		};
-		actionImage = new String[] {
-				BaseDialog.IMAGE_ADD,
-				BaseDialog.IMAGE_DELETE,
-				BaseDialog.IMAGE_LIST,
-		};
+		if(admin == null) {
+			actionText = new String[] {
+					ItemTypeDataRecordTable.ACTIONTEXT_NEW,
+					ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
+					International.getString("Liste ausgeben")
+			};
+
+			actionType = new int[] {
+					ItemTypeDataRecordTable.ACTION_NEW,
+					ItemTypeDataRecordTable.ACTION_DELETE,
+					ACTION_PRINTLIST
+			};
+
+			actionImage = new String[] {
+					BaseDialog.IMAGE_ADD,
+					BaseDialog.IMAGE_DELETE,
+					BaseDialog.IMAGE_LIST,
+			};
+		}
+		else {
+			actionText = new String[] {
+					ItemTypeDataRecordTable.ACTIONTEXT_NEW,
+					ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
+					International.getString("Liste ausgeben"),
+					International.getString("Übertrag berechnen")
+			};
+
+			actionType = new int[] {
+					ItemTypeDataRecordTable.ACTION_NEW,
+					ItemTypeDataRecordTable.ACTION_DELETE,
+					ACTION_PRINTLIST,
+					ACTION_CARRYOVER
+			};
+
+			actionImage = new String[] {
+					BaseDialog.IMAGE_ADD,
+					BaseDialog.IMAGE_DELETE,
+					BaseDialog.IMAGE_LIST,
+					BaseDialog.IMAGE_MERGE
+			};
+		}
 	}
 
 	public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record) {
@@ -67,5 +95,16 @@ public class ClubworkListDialog extends DataListDialog {
 			record = Daten.project.getClubwork(Daten.project.getCurrentLogbook().getName(), false).createClubworkRecord(UUID.randomUUID());
 		}
 		return new ClubworkEditDialog(parent, (ClubworkRecord)record, newRecord, admin);
+	}
+
+	public void itemListenerActionTable(int actionId, DataRecord[] records) {
+		if(actionId == ACTION_CARRYOVER) {
+			Logbook logbook = Daten.project.getCurrentLogbook();
+			Clubwork clubwork = Daten.project.getClubwork(logbook.getName(), false);
+			clubwork.doCarryOver();
+		}
+		else {
+			super.itemListenerActionTable(actionId, records);
+		}
 	}
 }

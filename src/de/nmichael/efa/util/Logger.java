@@ -284,6 +284,7 @@ public class Logger {
     public static final String MSG_EVT_ONLINEUPDATEFINISHED = "EVT045";
     public static final String MSG_EVT_ERRORRECORDINVALIDATTIME = "EVT046";
     public static final String MSG_EVT_PERSONADDED = "EVT047";
+	public static final String MSG_EVT_CLUBWORKOPENED = "EVT048";
 
     // Backup
     public static final String MSG_BCK_BACKUPSTARTED = "BCK001";
@@ -599,7 +600,7 @@ public class Logger {
      * @param type the type of the message, see Logger: Message Types
      * @param key the key for this message, see Logger: Message Keys
      * @param txt the message to be logged
-     * @param sendmail
+     * @param msgToAdmin
      */
     public static String log(String type, String key, String txt, boolean msgToAdmin) {
         if (inLogging || stopLogging) {

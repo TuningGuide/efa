@@ -121,6 +121,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     CrontabThread crontabThread;
     EfaBaseFrame efaBaseFrame;
     Logbook logbook;
+	Clubwork clubwork;
     BoatStatus boatStatus;
     volatile long lastUserInteraction = System.currentTimeMillis();
     volatile boolean inUpdateBoatList = false;
@@ -314,6 +315,12 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             if (logbook == null) {
                 Logger.log(Logger.ERROR, Logger.MSG_ERR_NOLOGBOOKOPENED, International.getString("Kein Fahrtenbuch geöffnet."));
             }
+			if(Daten.NEW_FEATURES){
+				openClubwork((AdminRecord) null);
+				if (clubwork == null) {
+					Logger.log(Logger.ERROR, Logger.MSG_ERR_NOLOGBOOKOPENED, International.getString("Kein Vereinsarbeitsbuch geöffnet."));
+				}
+			}
         }
 
         updateBoatLists(true);
@@ -1005,8 +1012,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
      * 5 - cancel session
      * 6 - boat reservations
      * @param listnr
-     * @param list
-     * @param name
+     * @param r
      * @return
      */
     private String[] getListActions(int listnr, DataRecord r) {
@@ -1218,6 +1224,57 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         }
     }
 
+	public Clubwork openClubwork(AdminRecord admin) {
+		try {
+			if (Daten.project == null) {
+				return null;
+			}
+
+			// close any other logbook first
+			String clubworkNameBefore = (clubwork != null ? clubwork.getName() : null);
+			if (clubwork != null) {
+				try {
+					clubwork.close();
+				} catch (Exception e) {
+					String msg = LogString.fileCloseFailed(Daten.project.getProjectName(), International.getString("Vereinsarbeit"), e.toString());
+					Logger.log(Logger.ERROR, Logger.MSG_DATA_CLOSEFAILED, msg);
+					Logger.logdebug(e);
+					Dialog.error(msg);
+					clubwork = null;
+				}
+			}
+
+			// clubwork to open
+			String clubworkName = null;
+			if (admin == null && Daten.project.getCurrentClubworkEfaBoathouse() != null) {
+				clubworkName = Daten.project.getCurrentClubworkEfaBoathouse();
+			}
+
+			if (clubworkName == null || clubworkName.length() == 0) {
+				if (admin != null && admin.isAllowedAdministerProjectLogbook()) {
+					OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.clubwork, admin);
+					clubworkName = dlg.openDialog();
+				}
+			}
+			if ( (clubworkName == null || clubworkName.length() == 0) &&
+					clubworkNameBefore != null && clubworkNameBefore.length() > 0 && admin != null) {
+				// Admin-Mode: There was a clubwork opened before, but admin aborted dialog and didn't
+				// open a new one. So let's open the old one again!
+				clubworkName = clubworkNameBefore;
+			}
+			if (clubworkName == null || clubworkName.length() == 0) {
+				return null;
+			}
+			if (!openLogbook(clubworkName)) {
+				clubwork = null;
+				return null;
+			}
+			return clubwork;
+		} finally {
+			// current clubwork not shown yet updateProjectLogbookInfo();
+		}
+	}
+
     public boolean openLogbook(String logbookName) {
         try {
             if (Daten.project == null) {
@@ -1249,10 +1306,47 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             updateProjectLogbookInfo();
         }
     }
+
+	public boolean openClubwork(String clubworkName) {
+		try {
+			if (Daten.project == null) {
+				return false;
+			}
+			try {
+				if (clubwork != null && clubwork.isOpen()) {
+					clubwork.close();
+				}
+			} catch (Exception e) {
+				Logger.log(e);
+				Dialog.error(e.toString());
+			}
+			if (clubworkName != null && clubworkName.length() > 0) {
+				clubwork = Daten.project.getClubwork(clubworkName, false);
+				if (clubwork != null) {
+					Daten.project.setCurrentClubworkEfaBoathouse(clubworkName);
+					Logger.log(Logger.INFO, Logger.MSG_EVT_CLUBWORKOPENED, LogString.fileOpened(clubworkName, International.getString("Vereinsarbeit")
+					));
+					if (efaBoathouseBackgroundTask != null) {
+						efaBoathouseBackgroundTask.interrupt();
+					}
+					return true;
+				} else {
+					Dialog.error(LogString.fileOpenFailed(clubworkName, International.getString("Vereinarbeit")));
+				}
+			}
+			return false;
+		} finally {
+			// clubwork not shown yet updateProjectLogbookInfo();
+		}
+	}
     
     public Logbook getLogbook() {
         return logbook;
     }
+
+	public Clubwork getClubwork() {
+		return clubwork;
+	}
 
 
     // synchronizing this method can cause deadlock!!!!

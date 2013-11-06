@@ -47,6 +47,7 @@ public class EfaMenuButton {
 
     public final static String MENU_ADMINISTRATION      = "ADMINISTRATION";
     public final static String BUTTON_LOGBOOK           = "LOGBOOK";
+	public final static String BUTTON_CLUBWORKBOOK      = "CLUBWORKBOOK";
     public final static String BUTTON_LOGBOOKLIST       = "LOGBOOKLIST";
     public final static String BUTTON_SESSIONGROUPS     = "SESSIONGROUPS";
     public final static String BUTTON_BOATS             = "BOATS";
@@ -145,6 +146,12 @@ public class EfaMenuButton {
                     International.getStringWithMnemonic("Fahrtenbücher") + " ...",
                     BaseFrame.getIcon("menu_logbooks.png")));
         }
+		if (admin == null || admin.isAllowedAdministerProjectLogbook()) {
+			v.add(new EfaMenuButton(MENU_FILE, BUTTON_CLUBWORKBOOK,
+					International.getStringWithMnemonic("Datei"),
+					International.getStringWithMnemonic("Vereinsarbeitsbücher") + " ...",
+					BaseFrame.getIcon("menu_clubworkbooks.png")));
+		}
         if (v.size() > 0 && v.get(v.size()-1).getMenuName().equals(MENU_FILE) && !v.get(v.size()-1).isSeparator()) {
             v.add(new EfaMenuButton(MENU_FILE, SEPARATOR,
                     null, null, null));
@@ -438,6 +445,14 @@ public class EfaMenuButton {
             }
             return true; // Logbooks have to handled individually by the caller
         }
+
+		if (action.equals(BUTTON_CLUBWORKBOOK)) {
+			if (admin == null || (!admin.isAllowedAdministerProjectClubwork())) {
+				insufficientRights(admin, action);
+				return false;
+			}
+			return true; // ClubworkBooks have to handled individually by the caller
+		}
 
         if (action.equals(BUTTON_BACKUP)) {
             if (admin == null || 

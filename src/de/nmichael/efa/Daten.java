@@ -41,7 +41,7 @@ public class Daten {
     public final static String COPYRIGHTYEAR      = "13";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
 
     // enable/disable development functions for next version
-    public static final boolean NEW_FEATURES = false;
+    public static final boolean NEW_FEATURES = true;
 
     public final static String EFA     = "efa";                              // efa program name/ID
     public static String EFA_SHORTNAME = "efa";                              // dummy, will be set in International.ininitalize()

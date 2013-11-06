@@ -150,7 +150,10 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 		setDouble(HOURS, hours);
 	}
 	public double getHours() {
-	   	return getDouble(HOURS);
+		Double h = getDouble(HOURS);
+		if(h == IDataAccess.UNDEFINED_DOUBLE)
+			return 0;
+	   	return h;
 	}
 
 	public String getQualifiedName(boolean firstFirst) {
@@ -376,5 +379,4 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 		}
 		return items;
 	}
-
 }

@@ -34,6 +34,7 @@ public class ProjectRecord extends DataRecord {
     public static final String TYPE_CLUB       = "Club";
     public static final String TYPE_BOATHOUSE  = "Boathouse";
     public static final String TYPE_LOGBOOK    = "Logbook";
+	public static final String TYPE_CLUBWORK   = "ClubworkBook";
     //public static final String TYPE_CONFIG     = "Config";
 
     public static final String TYPE                         = "Type"; // one of TYPE_XXX constants
@@ -81,10 +82,6 @@ public class ProjectRecord extends DataRecord {
     public static final String KANUEFBUSERNAME              = "KanuEfbUsername";
     public static final String KANUEFBPASSWORD              = "KanuEfbPassword";
     public static final String KANUEFBLASTSYNC              = "KanuEfbLastSync";
-    public static final String DEFAULTCLUBWORKTARGETHOURS   = "DefaultClubworkTargetHours";
-    public static final String TRANSFERABLECLUBWORKHOURS    = "TransferableClubworkHours";
-    public static final String FINEFORTOOLITTLECLUBWORK     = "FineForTooLittleClubwork";
-    public static final String CLUBWORKCARRYOVER            = "ClubworkCarryOverDate";
     public static final String LAST_DRV_FA_YEAR             = "LastDrvFaYear";
     public static final String LAST_DRV_WS_YEAR             = "LastDrvWsYear";
 
@@ -98,6 +95,10 @@ public class ProjectRecord extends DataRecord {
     public static final String AREAID                       = "AreaID"; // previous ClubRecord
     public static final String AUTONEWLOGBOOKDATE           = "AutoNewLogbookDate"; // previous ConfigRecord
     public static final String AUTONEWLOGBOOKNAME           = "AutoNewLogbookName"; // previous ConfigRecord
+	public static final String CURRENTCLUBWORKEFABASE       = "CurrentClubworkEfaBase";			// previous ProjectRecord
+	public static final String CURRENTCLUBWORKEFABOATHOUSE  = "CurrentClubworkEfaBoathouse";	// previous ProjectRecord
+	public static final String AUTONEWCLUBWORKDATE          = "AutoNewClubworkDate"; // previous ConfigRecord
+	public static final String AUTONEWCLUBWORKNAME          = "AutoNewClubworkName"; // previous ConfigRecord
 
     // Fields for Type=Logbook
     // LOGBOOKNAME (StorageObject Name)
@@ -105,7 +106,15 @@ public class ProjectRecord extends DataRecord {
     public static final String STARTDATE                    = "StartDate";
     public static final String ENDDATE                      = "EndDate";
 
-
+	// Fields for Type=ClubworkBook
+	// CLUBWORKNAME (StorageObject Name)
+	// DESCRIPTION
+	// STARTDATE
+	// ENDDATE
+	public static final String DEFAULTCLUBWORKTARGETHOURS   = "DefaultClubworkTargetHours";
+	public static final String TRANSFERABLECLUBWORKHOURS    = "TransferableClubworkHours";
+	public static final String FINEFORTOOLITTLECLUBWORK     = "FineForTooLittleClubwork";
+	public static final String CLUBWORKCARRYOVERDONE		= "ClubworkCarryOverDone";
 
     public static void initialize() {
         Vector<String> f = new Vector<String>();
@@ -131,6 +140,8 @@ public class ProjectRecord extends DataRecord {
         f.add(CURRENTLOGBOOKEFABOATHOUSE);    t.add(IDataAccess.DATA_STRING);
         f.add(AUTONEWLOGBOOKDATE);            t.add(IDataAccess.DATA_DATE);
         f.add(AUTONEWLOGBOOKNAME);            t.add(IDataAccess.DATA_STRING);
+		f.add(AUTONEWCLUBWORKDATE);            t.add(IDataAccess.DATA_DATE);
+		f.add(AUTONEWCLUBWORKNAME);            t.add(IDataAccess.DATA_STRING);
         f.add(CLUBNAME);                      t.add(IDataAccess.DATA_STRING);
         f.add(ADDRESSSTREET);                 t.add(IDataAccess.DATA_STRING);
         f.add(ADDRESSCITY);                   t.add(IDataAccess.DATA_STRING);
@@ -152,11 +163,13 @@ public class ProjectRecord extends DataRecord {
         f.add(DEFAULTCLUBWORKTARGETHOURS);    t.add(IDataAccess.DATA_DOUBLE);
         f.add(TRANSFERABLECLUBWORKHOURS);     t.add(IDataAccess.DATA_DOUBLE);
         f.add(FINEFORTOOLITTLECLUBWORK);      t.add(IDataAccess.DATA_DOUBLE);
-        f.add(CLUBWORKCARRYOVER);             t.add(IDataAccess.DATA_DATE);
         f.add(LAST_DRV_FA_YEAR);              t.add(IDataAccess.DATA_INTEGER);
         f.add(LAST_DRV_WS_YEAR);              t.add(IDataAccess.DATA_INTEGER);
         f.add(BOATHOUSEID);                   t.add(IDataAccess.DATA_INTEGER);
         f.add(BOATHOUSE_IDENTIFIER);          t.add(IDataAccess.DATA_STRING);
+		f.add(CURRENTCLUBWORKEFABASE);        t.add(IDataAccess.DATA_STRING);
+		f.add(CURRENTCLUBWORKEFABOATHOUSE);   t.add(IDataAccess.DATA_STRING);
+		f.add(CLUBWORKCARRYOVERDONE);         t.add(IDataAccess.DATA_BOOLEAN);
         
         MetaData metaData = constructMetaData(Project.DATATYPE, f, t, false);
         metaData.setKey(new String[] { TYPE, NAME });
@@ -185,7 +198,6 @@ public class ProjectRecord extends DataRecord {
                 setGlobalAssociationName(International.onlyFor("Deutscher Kanuverband", "de"));
                 setRegionalAssociationName(International.onlyFor("Landes-Kanu-Verband Berlin", "de"));
             }
-            setClubworkCarryOverDate(new DataTypeDate(1, 1, 0));
         }
     }
 
@@ -262,9 +274,15 @@ public class ProjectRecord extends DataRecord {
     public void setAutoNewLogbookDate(DataTypeDate date) {
         setDate(AUTONEWLOGBOOKDATE, date);
     }
+	public void setAutoNewClubworkDate(DataTypeDate date) {
+		setDate(AUTONEWCLUBWORKDATE, date);
+	}
     public void setAutoNewLogbookName(String name) {
         setString(AUTONEWLOGBOOKNAME, name);
     }
+	public void setAutoNewClubworkName(String name) {
+		setString(AUTONEWCLUBWORKNAME, name);
+	}
     public void setClubName(String clubName) {
         setString(CLUBNAME, clubName);
     }
@@ -328,8 +346,8 @@ public class ProjectRecord extends DataRecord {
     public void setFineForTooLittleClubwork(double monetaryUnits) {
         setDouble(FINEFORTOOLITTLECLUBWORK, monetaryUnits);
     }
-    public void setClubworkCarryOverDate(DataTypeDate date) {
-        setDate(CLUBWORKCARRYOVER, date);
+	public void setClubworkCarryOverDone(boolean done) {
+		setBool(CLUBWORKCARRYOVERDONE, done);
     }
     public void setLastDrvFaYear(int year) {
         setInt(LAST_DRV_FA_YEAR, year);
@@ -349,6 +367,13 @@ public class ProjectRecord extends DataRecord {
     public void setBoathouseIdentifier(String identifier) {
         setString(BOATHOUSE_IDENTIFIER, identifier);
     }
+
+	public void setCurrentClubworkEfaBase(String currentClubwork) {
+		setString(CURRENTCLUBWORKEFABASE, currentClubwork);
+	}
+	public void setCurrentClubworkEfaBoathouse(String currentClubwork) {
+		setString(CURRENTCLUBWORKEFABOATHOUSE, currentClubwork);
+	}
 
     public String getType() {
         return getString(TYPE);
@@ -437,9 +462,15 @@ public class ProjectRecord extends DataRecord {
     public DataTypeDate getAutoNewLogbookDate() {
         return getDate(AUTONEWLOGBOOKDATE);
     }
+	public DataTypeDate getAutoNewClubworkDate() {
+		return getDate(AUTONEWCLUBWORKDATE);
+	}
     public String getAutoNewLogbookName() {
         return getString(AUTONEWLOGBOOKNAME);
     }
+	public String getAutoNewClubworkName() {
+		return getString(AUTONEWCLUBWORKNAME);
+	}
     public String getClubName() {
         return getString(CLUBNAME);
     }
@@ -509,8 +540,11 @@ public class ProjectRecord extends DataRecord {
     public double getFineForTooLittleClubwork() {
         return getDouble(FINEFORTOOLITTLECLUBWORK);
     }
-    public DataTypeDate getClubworkCarryOverDate() {
-        return getDate(CLUBWORKCARRYOVER);
+    public String getCurrentClubworkEfaBase() {
+        return getString(CURRENTCLUBWORKEFABASE);
+    }
+    public String getCurrentClubworkEfaBoathouse() {
+        return getString(CURRENTCLUBWORKEFABOATHOUSE);
     }
     public int getLastDrvFaYear() {
         return getInt(LAST_DRV_FA_YEAR);
@@ -641,30 +675,6 @@ public class ProjectRecord extends DataRecord {
                         IItemType.TYPE_PUBLIC, category,
                         International.getString("Anschrift") + " - "
                         + International.getString("Postleitzahl und Ort")));
-            }
-
-            if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 1) {
-                if (Daten.NEW_FEATURES) {
-                    if (usecategory == null) {
-                        category = "%02B%" + International.getString("Vereinsarbeit");
-                    }
-	            v.add(item = new ItemTypeDouble(ProjectRecord.DEFAULTCLUBWORKTARGETHOURS, getDefaultClubworkTargetHours(), 0, ItemTypeDouble.MAX,
-	                    IItemType.TYPE_PUBLIC, category,
-	                    International.getString("Sollstunden für Vereinsarbeit")));
-
-                    v.add(item = new ItemTypeDate(ProjectRecord.CLUBWORKCARRYOVER, getClubworkCarryOverDate(),
-	                    IItemType.TYPE_PUBLIC, category,
-	                    International.getString("Beginn des Zeitraums für Vereinsarbeit")));
-                    ((ItemTypeDate)item).setForceDayAndMonthOnly(true);
-
-                    v.add(item = new ItemTypeDouble(ProjectRecord.TRANSFERABLECLUBWORKHOURS, getTransferableClubworkHours(), 0, ItemTypeDouble.MAX,
-	                    IItemType.TYPE_PUBLIC, category,
-	                    International.getString("Übertragbare Vereinsarbeitsstunden pro Zeitraum")));
-
-	            v.add(item = new ItemTypeDouble(ProjectRecord.FINEFORTOOLITTLECLUBWORK, getFineForTooLittleClubwork(), 0, ItemTypeDouble.MAX,
-	                    IItemType.TYPE_PUBLIC, category,
-	                    International.getString("Bußgeld für Vereinsarbeit unter Sollstunden")));
-                }
             }
 
             if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 2 || subtype == GUIITEMS_SUBTYPE_EFAWETT) {
@@ -847,6 +857,55 @@ public class ProjectRecord extends DataRecord {
                         International.getString("Ende des Zeitraums")));
                 ((ItemTypeDate) item).setNotNull(true);
                 ((ItemTypeDate) item).setEditable(newProject);
+			}
+		}
+
+		if (getType().equals(TYPE_CLUBWORK)) {
+			if (Daten.NEW_FEATURES) {
+				if (usecategory == null) {
+					category = "%02B%" + International.getString("Vereinsarbeit");
+				}
+				if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 1) {
+					v.add(item = new ItemTypeString(ProjectRecord.NAME, getName(),
+							IItemType.TYPE_PUBLIC, category,
+							International.getString("Name des Fahrtenbuchs")));
+					((ItemTypeString) item).setAllowedCharacters("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
+					((ItemTypeString) item).setReplacementCharacter('_');
+					((ItemTypeString) item).setNotNull(true);
+					((ItemTypeString) item).setEditable(newProject);
+
+					v.add(item = new ItemTypeString(ProjectRecord.DESCRIPTION, getDescription(),
+							IItemType.TYPE_PUBLIC, category,
+							International.getString("Beschreibung")));
+				}
+
+				if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 2) {
+					// @todo (P4) allow to change time range of logbook (and make sure in ProjectEditDialog that all sessions fit into that range)
+					v.add(item = new ItemTypeDate(ProjectRecord.STARTDATE, getStartDate(),
+							IItemType.TYPE_PUBLIC, category,
+							International.getString("Beginn des Zeitraums")));
+					((ItemTypeDate) item).setNotNull(true);
+					((ItemTypeDate) item).setEditable(newProject);
+					v.add(item = new ItemTypeDate(ProjectRecord.ENDDATE, getEndDate(),
+							IItemType.TYPE_PUBLIC, category,
+							International.getString("Ende des Zeitraums")));
+					((ItemTypeDate) item).setNotNull(true);
+					((ItemTypeDate) item).setEditable(newProject);
+				}
+
+				if (subtype == GUIITEMS_SUBTYPE_ALL || subtype == 3) {
+					v.add(item = new ItemTypeDouble(ProjectRecord.DEFAULTCLUBWORKTARGETHOURS, getDefaultClubworkTargetHours(), 0, ItemTypeDouble.MAX,
+							IItemType.TYPE_PUBLIC, category,
+							International.getString("Sollstunden für Vereinsarbeit")));
+
+					v.add(item = new ItemTypeDouble(ProjectRecord.TRANSFERABLECLUBWORKHOURS, getTransferableClubworkHours(), 0, ItemTypeDouble.MAX,
+							IItemType.TYPE_PUBLIC, category,
+							International.getString("Übertragbare Vereinsarbeitsstunden pro Zeitraum")));
+
+					v.add(item = new ItemTypeDouble(ProjectRecord.FINEFORTOOLITTLECLUBWORK, getFineForTooLittleClubwork(), 0, ItemTypeDouble.MAX,
+							IItemType.TYPE_PUBLIC, category,
+							International.getString("Bußgeld für Vereinsarbeit unter Sollstunden")));
+				}
             }
         }
 

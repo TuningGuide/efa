@@ -337,7 +337,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 	
     public void saveGuiItems(Vector<IItemType> items) {
         super.saveGuiItems(items);
-        
+
         // saveGuiItems(items) has to be before this.get... otherwise null returned
         for(IItemType item : items) {
             String name = item.getName();
@@ -354,7 +354,6 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
                     	record.setWorkDate(getWorkDate());
                     	record.setDescription(getDescription());
                     	record.setHours(getHours());
-						record.setFlag(Flags.Normal);
                     	try {
 							clubwork.data().add(record);
                     	} catch (Exception eignore) {

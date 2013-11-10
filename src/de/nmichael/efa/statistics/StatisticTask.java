@@ -1115,7 +1115,11 @@ public class StatisticTask extends ProgressTask {
             return;
         }
         int cnt = 0;
-        if (isInPersonFilter() && isInGroupFilter()) {
+        if (!entryPersonIsGuest && !entryPersonIsOther && isInPersonFilter() && isInGroupFilter()) {
+			Integer month = personMemberMonthToFullYear(entryPersonRecord);
+			if(month != null) {
+				sr.sDefaultClubworkTargetHours = sr.sDefaultClubworkTargetHours/12*month;
+			}
             Object aggregationKey = getAggregationKeyForClubwork(r);
             if (aggregationKey != null) {
                 if (sr.sStatistikKey != StatisticsRecord.StatisticKey.waters) {
@@ -1132,6 +1136,31 @@ public class StatisticTask extends ProgressTask {
             }
         }
     }
+
+	private Integer personMemberMonthToFullYear(PersonRecord person) {
+		long fromLong = person.getValidFrom();
+		if(fromLong == 0) { return null; }
+		DataTypeDate from = new DataTypeDate(fromLong);
+
+		long toLong = person.getInvalidFrom();
+		if(toLong == 0) {
+			if(sr.sStartDate.isBeforeOrEqual(from)) {
+				return 12 - from.getMonth();
+			}
+			return null;
+		}
+		else {
+			DataTypeDate to = new DataTypeDate(toLong);
+			int res = 12;
+			if(sr.sStartDate.isBeforeOrEqual(from)) {
+				res = res - from.getMonth();
+			}
+			if(sr.sEndDate.isAfterOrEqual(to)) {
+				res = res - to.getMonth();
+			}
+			return res;
+		}
+	}
 
     private void getEntryBasic(LogbookRecord r) {
         entryNo = r.getEntryId();
@@ -2122,7 +2151,7 @@ public class StatisticTask extends ProgressTask {
     }
 
     private boolean createStatisticClubwork(StatisticsRecord sr, int statisticsNumber) {
-        String[] names = Daten.project.getAllLogbookNames();
+        String[] names = Daten.project.getAllClubworkNames();
         if (names == null || names.length == 0) {
             Dialog.error(International.getMessage("Keine {items} im Zeitraum {fromdate} bis {todate} gefunden.",
                     International.getString("Vereinsarbeit"),
@@ -2130,9 +2159,9 @@ public class StatisticTask extends ProgressTask {
             return false;
         }
         for (int i = 0; names != null && i < names.length; i++) {
-            ProjectRecord pr = Daten.project.getLoogbookRecord(names[i]);
+            ProjectRecord pr = Daten.project.getClubworkBookRecord(names[i]);
             if (pr != null) {
-                logInfo(International.getString("Fahrtenbuch") + " " + pr.getName() + " ...\n");
+                logInfo(International.getString("Vereinsarbeitsbuch") + " " + pr.getName() + " ...\n");
                 sr.sDefaultClubworkTargetHours = pr.getDefaultClubworkTargetHours();
                 sr.sTransferableClubworkHours = pr.getTransferableClubworkHours();
                 sr.sFineForTooLittleClubwork = pr.getFineForTooLittleClubwork();

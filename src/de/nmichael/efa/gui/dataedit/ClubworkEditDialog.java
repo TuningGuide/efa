@@ -15,6 +15,7 @@ import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.IItemListener;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeString;
+import de.nmichael.efa.ex.InvalidValueException;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.*;
 import java.awt.*;
@@ -48,6 +49,13 @@ public class ClubworkEditDialog extends UnversionizedDataEditDialog implements I
     public void keyAction(ActionEvent evt) {
         _keyAction(evt);
     }
+
+	protected boolean saveRecord() throws InvalidValueException {
+		if (newRecord) {
+			((ClubworkRecord)dataRecord).setFlag(ClubworkRecord.Flags.Normal);
+		}
+		return super.saveRecord();
+	}
 
     private void initListener() {
         IItemType item;

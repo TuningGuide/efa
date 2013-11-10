@@ -17,6 +17,7 @@ import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.Dialog;
 
 import java.util.*;
 import java.awt.*;
@@ -80,6 +81,7 @@ public class ClubworkListDialog extends DataListDialog {
 
 			actionImage = new String[] {
 					BaseDialog.IMAGE_ADD,
+					BaseDialog.IMAGE_EDIT,
 					BaseDialog.IMAGE_DELETE,
 					BaseDialog.IMAGE_LIST,
 					BaseDialog.IMAGE_MERGE
@@ -98,7 +100,7 @@ public class ClubworkListDialog extends DataListDialog {
 	public void itemListenerActionTable(int actionId, DataRecord[] records) {
 		if(actionId == ACTION_CARRYOVER) {
 			Clubwork clubwork = Daten.project.getCurrentClubwork();
-			clubwork.doCarryOver();
+			clubwork.doCarryOver(this);
 		}
 		else {
 			super.itemListenerActionTable(actionId, records);

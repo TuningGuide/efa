@@ -346,6 +346,9 @@ public class Project extends StorageObject {
         String projectDir = getProjectStorageLocation();
 
         try {
+            // we might get lots of exceptions, don't log them
+            Logger.setLogExceptions(false);
+            
             // make sure that persistenceCache is filled properly
             try {
                 openAllData();
@@ -385,9 +388,12 @@ public class Project extends StorageObject {
             }
         } catch (Exception e) {
             _inDeleteProject = false;
+            Logger.setLogExceptions(true);
             Logger.log(e);
             Dialog.error(LogString.fileDeletionFailed(projectName, International.getString("Projekt"), e.toString()));
             return false;
+        } finally {
+            Logger.setLogExceptions(true);
         }
         _inDeleteProject = false;
         return true;

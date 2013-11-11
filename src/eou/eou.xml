@@ -21,6 +21,9 @@
             <ChangeItem>Bugfix: Fahrten mit Motorbooten und Ergos werden von Synchronsation mit Kanu-eFB ausgenommen</ChangeItem>
             <ChangeItem>Bugfix: NullPointerException im Korrekturassistenten behoben</ChangeItem>
             <ChangeItem>Bugfix: Falsche Erfolgsmeldung im Fehlerfall beim Zusammenfügen von Datensätzen behoben</ChangeItem>
+            <ChangeItem>Bugfix: Falsche Überschrift bei interner HTML-Statistikausgabe behoben, falls versehentlich die versteckte Option "in existierenden HTML-Dateien nur Tabelle setzen" gesetzt war</ChangeItem>
+            <ChangeItem>Bugfix: OutOfMemoryError bei exzessivem Logging von Fehlermeldungen behoben</ChangeItem>
+            <ChangeItem>Bugfix: Probleme mit missachteter Eingabe von Namen behoben, wenn Button dahinter nicht grün oder rot, sondern grau blieb</ChangeItem>
         </Changes>
         <Changes lang="en">
         </Changes>

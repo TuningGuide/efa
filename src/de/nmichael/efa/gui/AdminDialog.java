@@ -182,7 +182,7 @@ public class AdminDialog extends BaseDialog implements IItemListener {
     }
     
     protected void preShowCallback() {
-        AdminTask.startAdminTask(admin);
+        AdminTask.startAdminTask(admin, this);
     }
 
     private void updateInfos() {

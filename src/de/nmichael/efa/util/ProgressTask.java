@@ -47,8 +47,10 @@ public abstract class ProgressTask extends Thread {
     public void setDone() {
         setRunning(false);
         setCurrentWorkDone(getAbsoluteWork());
-        if (resultSuccess && getSuccessfullyDoneMessage() != null) {
-            Dialog.infoDialog(getSuccessfullyDoneMessage());
+        if (resultSuccess) {
+            if (getSuccessfullyDoneMessage() != null) {
+                Dialog.infoDialog(getSuccessfullyDoneMessage());
+            } 
         } else {
             if (getErrorDoneMessage() != null) {
                 Dialog.error(getErrorDoneMessage());

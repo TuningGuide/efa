@@ -246,7 +246,8 @@ public class StatisticHTMLWriter extends StatisticWriter {
                     }
 
                     if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list ||
-                        sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
+                        sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix ||
+                        sr.sStatisticCategory == StatisticsRecord.StatisticCategory.other) {
                         outHTML(f, sd[i].sPosition, "entry_pos");
                         outHTML(f, sd[i].sName, "entry_data");
                         outHTML(f, sd[i].sGender, "entry_data");
@@ -262,8 +263,8 @@ public class StatisticHTMLWriter extends StatisticWriter {
                         outHTML(f, sd[i].sCoxDistance, sd[i].coxdistance,
                                 (sdMaximum != null && !sd[i].isSummary ? sdMaximum.coxdistance : 0),
                                 "entry_coxdistance", sr.sAggrCoxDistanceBarSize);
-                        outHTML(f, sd[i].sSessions, sd[i].sessions,
-                                (sdMaximum != null && !sd[i].isSummary ? sdMaximum.sessions : 0),
+                        outHTML(f, sd[i].sSessions, sd[i].count,
+                                (sdMaximum != null && !sd[i].isSummary ? sdMaximum.count : 0),
                                 "entry_sessions", sr.sAggrSessionsBarSize);
                         outHTML(f, sd[i].sAvgDistance, sd[i].avgDistance,
                                 (sdMaximum != null && !sd[i].isSummary ? sdMaximum.avgDistance : 0),
@@ -271,6 +272,9 @@ public class StatisticHTMLWriter extends StatisticWriter {
                         outHTML(f, sd[i].sDuration, sd[i].duration,
                                 (sdMaximum != null && !sd[i].isSummary ? sdMaximum.duration : 0),
                                 "entry_duration", sr.sAggrDurationBarSize);
+                        outHTML(f, sd[i].sDays, sd[i].days,
+                                (sdMaximum != null && !sd[i].isSummary ? sdMaximum.days : 0),
+                                "entry_duration", 0);
                         outHTML(f, sd[i].sSpeed, sd[i].speed,
                                 (sdMaximum != null && !sd[i].isSummary ? sdMaximum.speed : 0),
                                 "entry_speed", sr.sAggrSpeedBarSize);
@@ -292,22 +296,31 @@ public class StatisticHTMLWriter extends StatisticWriter {
                             }
                         }
                     }
-                    if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.clubwork) {
-                        outHTML(f, sd[i].sPosition, "entry_pos");
-                        outHTML(f, sd[i].sName, "entry_data");
-                        outHTML(f, sd[i].sGender, "entry_data");
-                        outHTML(f, sd[i].sStatus, "entry_data");
-                        outHTML(f, sd[i].sClubwork, "entry_data");
-                        outHTML(f, sd[i].sClubworkRelativeToTarget, 
-                        		(!sd[i].sClubworkRelativeToTarget.equals("") && !sd[i].isSummary &&
-                        		sd[i].clubworkRelativeToTarget < -sr.sTransferableClubworkHours ?
-                        				"entry_nok" : "entry_ok"));
-                        
-                        outHTML(f, sd[i].sClubworkOverUnderCarryOver, 
-                        		(!sd[i].sClubworkOverUnderCarryOver.equals("") && !sd[i].isSummary &&
-                        		sd[i].clubworkOverUnderCarryOver < 0 ?
-                        				"entry_nok" : "entry_ok"));
-                        outHTML(f, sd[i].sClubworkCredit, "entry_data");
+                    if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.other) {
+                        if (sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.clubwork) {
+                            outHTML(f, sd[i].sPosition, "entry_pos");
+                            outHTML(f, sd[i].sName, "entry_data");
+                            outHTML(f, sd[i].sGender, "entry_data");
+                            outHTML(f, sd[i].sStatus, "entry_data");
+                            outHTML(f, sd[i].sClubwork, "entry_data");
+                            outHTML(f, sd[i].sClubworkRelativeToTarget,
+                                    (!sd[i].sClubworkRelativeToTarget.equals("") && !sd[i].isSummary
+                                    && sd[i].clubworkRelativeToTarget < -sr.sTransferableClubworkHours
+                                    ? "entry_nok" : "entry_ok"));
+
+                            outHTML(f, sd[i].sClubworkOverUnderCarryOver,
+                                    (!sd[i].sClubworkOverUnderCarryOver.equals("") && !sd[i].isSummary
+                                    && sd[i].clubworkOverUnderCarryOver < 0
+                                    ? "entry_nok" : "entry_ok"));
+                            outHTML(f, sd[i].sClubworkCredit, "entry_data");
+                        } else {
+                            if (sd[i].otherFields != null) {
+                                for (int j = 0; j < sd[i].otherFields.length; j++) {
+                                    outHTML(f, (sd[i].otherFields[j] != null
+                                            ? sd[i].otherFields[j] : ""), "entry_data");
+                                }
+                            }
+                        }
                     }
                     f.write("</tr>\n");
                 }

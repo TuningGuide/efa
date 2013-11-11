@@ -12,6 +12,7 @@ package de.nmichael.efa.core;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.util.Logger;
+import javax.swing.JDialog;
 
 /**
  * Task that is executed whenever admin logs in.
@@ -28,13 +29,15 @@ public class AdminTask extends Thread {
     
     private static AdminTask task;
     private AdminRecord admin;
+    private JDialog parent;
     
-    public AdminTask(AdminRecord admin) {
+    public AdminTask(AdminRecord admin, JDialog parent) {
         this.admin = admin;
+        this.parent = parent;
     }
     
     private void runActions() {
-        Logger.log(Logger.INFO, Logger.MSG_CORE_ADMINTASK, "running AdminTask ...");
+        Logger.log(Logger.DEBUG, Logger.MSG_CORE_ADMINTASK, "running AdminTask ...");
         // Actions to be implemented here!
         // For each action, check whether admin has necessary permissions.
     }
@@ -63,7 +66,7 @@ public class AdminTask extends Thread {
         task = null;
     }
     
-    public static void startAdminTask(AdminRecord admin) {
+    public static void startAdminTask(AdminRecord admin, JDialog dlg) {
         if (!Daten.isGuiAppl()) {
             return;
         }
@@ -73,7 +76,7 @@ public class AdminTask extends Thread {
         if (task != null && task.isAlive()) {
             return;
         }
-        task = new AdminTask(admin);
+        task = new AdminTask(admin, dlg);
         task.start();
     }
     

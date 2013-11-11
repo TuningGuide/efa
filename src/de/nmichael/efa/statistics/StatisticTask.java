@@ -20,6 +20,12 @@ import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.efawett.WettDefs;
 import de.nmichael.efa.core.config.EfaTypes;
 import de.nmichael.efa.data.StatisticsRecord.StatisticCategory;
+import static de.nmichael.efa.data.StatisticsRecord.StatisticCategory.competition;
+import static de.nmichael.efa.data.StatisticsRecord.StatisticType.boatdamages;
+import static de.nmichael.efa.data.StatisticsRecord.StatisticType.boatdamagestat;
+import static de.nmichael.efa.data.StatisticsRecord.StatisticType.boatreservations;
+import static de.nmichael.efa.data.StatisticsRecord.StatisticType.boatstatus;
+import static de.nmichael.efa.data.StatisticsRecord.StatisticType.clubwork;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.gui.*;
@@ -212,7 +218,7 @@ public class StatisticTask extends ProgressTask {
             sd.coxdistance += (cox ? distance : 0);
         }
         if (sr.sIsAggrSessions || sr.sIsAggrAvgDistance || sr.sIsAggrSpeed) {
-            sd.sessions += entryNumberOfDays;
+            sd.count += entryNumberOfDays;
         }
         if (sr.sIsAggrDuration || sr.sIsAggrSpeed) {
             long myDuration = r.getEntryElapsedTimeInMinutes();
@@ -352,7 +358,7 @@ public class StatisticTask extends ProgressTask {
                 sdk.coxdistance += (cox ? distance : 0);
             }
             if (sr.sIsAggrSessions || sr.sIsAggrAvgDistance || sr.sIsAggrSpeed) {
-                sdk.sessions += entryNumberOfDays;
+                sdk.count += entryNumberOfDays;
             }
             if (sr.sIsAggrDuration || sr.sIsAggrSpeed) {
                 long myDuration = r.getEntryElapsedTimeInMinutes();
@@ -793,7 +799,7 @@ public class StatisticTask extends ProgressTask {
         StatisticsData sd = new StatisticsData(sr, logbook.getName() + ":" + entryNo.toString());
         sd.entryNo = entryNo;
         sd.date = entryDate;
-        sd.sessions = 1; // we count every entry as one session
+        sd.count = 1; // we count every entry as one session
         int fieldCount = sr.getLogbookFieldCount();
         if (fieldCount < 2) {
             fieldCount = 2; // at least sIsLFieldsEntryNo and sIsLFieldsDate are always enabled
@@ -1012,7 +1018,56 @@ public class StatisticTask extends ProgressTask {
         }
     }
 
-    private void calculateEntryForClubwork(ClubworkRecord r) {
+    private void calculateEntry(Object key, BoatRecord r, DataTypeDate date, String[] fields,
+            long days) {
+        resetEntryValues();
+        this.entryBoatRecord = r;
+        this.entryBoatId = r.getId();
+        this.entryDate = date;
+        this.entryValidAt = (date != null && date.isSet() ? date.getTimestamp(null) : System.currentTimeMillis());
+        getEntryBoatDetails(0);
+        if ((date != null && !isInRange(date))
+                || !isInBoatFilter(entryBoatRecord, null,
+                entryBoatType, entryBoatSeats, entryBoatRigging,
+                entryBoatCoxing, entryBoatOwner)) {
+            if (Logger.isTraceOn(Logger.TT_STATISTICS, 5)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_STAT_IGNOREDENTRIES, "ignored (1): " + r.toString());
+            }
+            return;
+        }
+
+        // update date range of evaluated entries
+        if (entryDate != null && entryDate.isSet()) {
+            if (sr.cEntryDateFirst == null || entryDate.isBefore(sr.cEntryDateFirst)) {
+                sr.cEntryDateFirst = entryDate;
+            }
+            if (sr.cEntryDateLast == null || entryDate.isAfter(sr.cEntryDateLast)) {
+                sr.cEntryDateLast = entryDate;
+            }
+        }
+
+        StatisticsData sd = data.get(key);
+        if (sd == null) {
+            sd = new StatisticsData(sr, key);
+            sd.count = 1;
+            sd.days = days;
+        } else {
+            sd.count++;
+            sd.days += days;
+        }
+
+        // set fields
+        sd.otherFields = fields;
+        data.put(key, sd);
+
+        // update number of evaluated entries
+        sr.cNumberOfEntries++;
+        if (Logger.isTraceOn(Logger.TT_STATISTICS, 5)) {
+            Logger.log(Logger.DEBUG, Logger.MSG_STAT_CALCULATEDENTRIES, "calculated: " + r.toString());
+        }
+    }
+
+    private void calculateEntry(ClubworkRecord r) {
         resetEntryValues();
         getEntryBasic(r);
         if (!isInRange(r) //||
@@ -1123,7 +1178,10 @@ public class StatisticTask extends ProgressTask {
         entryBoatId = r.getBoatId();
         entryBoatRecord = (entryBoatId != null ? boats.getBoat(entryBoatId, entryValidAt) : null);
         entryBoatName = (entryBoatId != null ? null : r.getBoatName());
-        int boatVariant = r.getBoatVariant();
+        getEntryBoatDetails(r.getBoatVariant());
+    }
+    
+    private void getEntryBoatDetails(int boatVariant) {
         int vidx = -1;
         if (entryBoatRecord != null) {
             if (entryBoatRecord.getNumberOfVariants() == 1) {
@@ -1212,10 +1270,14 @@ public class StatisticTask extends ProgressTask {
 
     private boolean isInRange(ClubworkRecord r) {
         getEntryDates(r);
-        if (entryDate == null || !entryDate.isSet()) {
+        return isInRange(entryDate);
+    }
+
+    private boolean isInRange(DataTypeDate date) {
+        if (date == null || !date.isSet()) {
             return false;
         } else {
-            return entryDate.isInRange(sr.sStartDate, sr.sEndDate);
+            return date.isInRange(sr.sStartDate, sr.sEndDate);
         }
     }
 
@@ -1421,8 +1483,7 @@ public class StatisticTask extends ProgressTask {
             DataKeyIterator it;
             if (sr.sListAllNullEntries) {
                 if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list ||
-                    sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix ||
-                    sr.sStatisticCategory == StatisticsRecord.StatisticCategory.clubwork) {
+                    sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
                     switch (sr.sStatistikKey) {
                         case name:
                             switch (sr.sStatisticTypeEnum) {
@@ -1617,7 +1678,8 @@ public class StatisticTask extends ProgressTask {
                     && !sr.sStatisticType.equals(WettDefs.STR_DRV_WANDERRUDERSTATISTIK))
                     || (sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.persons
                     && sr.sStatistikKey == StatisticsRecord.StatisticKey.name)
-                    || sr.sStatisticCategory == StatisticsRecord.StatisticCategory.clubwork
+                    || (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.other
+                    && sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.clubwork)
                     || (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix &&
                         sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.persons)) {
                 PersonRecord pr = null;
@@ -1757,6 +1819,10 @@ public class StatisticTask extends ProgressTask {
                 statDescrShort = sr.getStatisticTypeDescription();
                 statDescrLong = statDescrShort;
                 break;
+            case other:
+                statDescrShort = sr.getStatisticTypeDescription();
+                statDescrLong = statDescrShort;
+                break;
             default:
                 statDescrShort = International.getString("Statistik");
                 statDescrLong = statDescrShort;
@@ -1864,6 +1930,9 @@ public class StatisticTask extends ProgressTask {
                     }
                 }
             }
+            resultSuccess = true;
+        } else {
+            resultSuccess = false;
         }
         return writer.getResultMessage();
     }
@@ -1908,6 +1977,153 @@ public class StatisticTask extends ProgressTask {
         return true;
     }
 
+    private boolean createStatisticOther(StatisticsRecord sr, int statisticsNumber) {
+        try {
+            int count = 0;
+            int size = 1;
+            StorageObject list;
+            DataKeyIterator it;
+            DataKey k;
+            switch (sr.sStatisticTypeEnum) {
+                case boatstatus:
+                    sr.pTableColumns = new Vector<String>();
+                    sr.pTableColumns.add(International.getString("Boot"));
+                    sr.pTableColumns.add(International.getString("Basis-Status"));
+                    sr.pTableColumns.add(International.getString("aktueller Status"));
+                    sr.pTableColumns.add(International.getString("Bemerkungen"));
+                    list = Daten.project.getBoatStatus(false);
+                    logInfo(International.getString("Bootsstatus") + " ...\n");
+                    it = list.data().getStaticIterator();
+                    size = it.size();
+                    k = it.getFirst();
+                    while (k != null) {
+                        BoatStatusRecord r = (BoatStatusRecord) list.data().get(k);
+                        if (r != null) {
+                            BoatRecord br = r.getBoatRecord(System.currentTimeMillis());
+                            if (br != null) {
+                                calculateEntry(br.getQualifiedName(), 
+                                        br, 
+                                        null, 
+                                        new String[] {
+                                            br.getQualifiedName(),
+                                            r.getStatusDescription(r.getBaseStatus()),
+                                            r.getStatusDescription(r.getCurrentStatus()),
+                                            r.getComment()
+                                        }, 0);
+                            }
+                        }
+                        this.setCurrentWorkDone(((++count * WORK_PER_STATISTIC) / size) + (statisticsNumber * WORK_PER_STATISTIC));
+                        k = it.getNext();
+                    }
+                    return true;
+                case boatreservations:
+                    sr.pTableColumns = new Vector<String>();
+                    sr.pTableColumns.add(International.getString("Boot"));
+                    sr.pTableColumns.add(International.getString("Reserviert von"));
+                    sr.pTableColumns.add(International.getString("Reserviert bis"));
+                    sr.pTableColumns.add(International.getString("Reserviert für"));
+                    sr.pTableColumns.add(International.getString("Grund"));
+                    list = Daten.project.getBoatReservations(false);
+                    logInfo(International.getString("Bootsreservierungen") + " ...\n");
+                    it = list.data().getStaticIterator();
+                    size = it.size();
+                    k = it.getFirst();
+                    while (k != null) {
+                        BoatReservationRecord r = (BoatReservationRecord) list.data().get(k);
+                        if (r != null) {
+                            BoatRecord br = r.getBoat();
+                            if (br != null) {
+                                calculateEntry(br.getQualifiedName() + "###" + count, 
+                                        br, 
+                                        r.getDateFrom(), 
+                                        new String[] {
+                                            br.getQualifiedName(),
+                                            r.getDateTimeFromDescription(),
+                                            r.getDateTimeToDescription(),
+                                            r.getPersonAsName(),
+                                            r.getReason()
+                                        }, 0);
+                            }
+                        }
+                        this.setCurrentWorkDone(((++count * WORK_PER_STATISTIC) / size) + (statisticsNumber * WORK_PER_STATISTIC));
+                        k = it.getNext();
+                    }
+                    return true;
+                case boatdamages:
+                    sr.pTableColumns = new Vector<String>();
+                    sr.pTableColumns.add(International.getString("Boot"));
+                    sr.pTableColumns.add(International.getString("Schaden"));
+                    sr.pTableColumns.add(International.getString("gemeldet am"));
+                    sr.pTableColumns.add(International.getString("behoben am"));
+                    sr.pTableColumns.add(International.getString("Priorität"));
+                    list = Daten.project.getBoatDamages(false);
+                    logInfo(International.getString("Bootsschäden") + " ...\n");
+                    it = list.data().getStaticIterator();
+                    size = it.size();
+                    k = it.getFirst();
+                    while (k != null) {
+                        BoatDamageRecord r = (BoatDamageRecord) list.data().get(k);
+                        if (r != null) {
+                            BoatRecord br = r.getBoatRecord();
+                            if (br != null) {
+                                calculateEntry(br.getQualifiedName() + "###" + count, 
+                                        br, 
+                                        r.getReportDate(), 
+                                        new String[] {
+                                            br.getQualifiedName(),
+                                            r.getDescription(),
+                                            (r.getReportDate() != null ? r.getReportDate().toString() : ""),
+                                            (r.getFixDate() != null ? r.getFixDate().toString() : ""),
+                                            Integer.toString(r.getPriority())
+                                        }, 0);
+                            }
+                        }
+                        this.setCurrentWorkDone(((++count * WORK_PER_STATISTIC) / size) + (statisticsNumber * WORK_PER_STATISTIC));
+                        k = it.getNext();
+                    }
+                    return true;
+                case boatdamagestat:
+                    sr.pTableColumns = new Vector<String>();
+                    sr.pTableColumns.add(International.getString("Position"));
+                    sr.pTableColumns.add(International.getString("Boot"));
+                    sr.pTableColumns.add(International.getString("Schäden"));
+                    sr.pTableColumns.add(International.getString("Reparaturdauer"));
+                    sr.sIsFieldsName = true;
+                    sr.sIsAggrSessions = true;
+                    sr.sIsAggrDistance = false;
+                    sr.sIsAggrAvgDistance = false;
+                    sr.sAggrDistanceBarSize = 0;
+                    sr.sAggrAvgDistanceBarSize = 0;
+                    sr.sIsAggrDays = true;
+                    list = Daten.project.getBoatDamages(false);
+                    logInfo(International.getString("Bootsschäden") + " ...\n");
+                    it = list.data().getStaticIterator();
+                    size = it.size();
+                    k = it.getFirst();
+                    while (k != null) {
+                        BoatDamageRecord r = (BoatDamageRecord) list.data().get(k);
+                        if (r != null) {
+                            BoatRecord br = r.getBoatRecord();
+                            if (br != null) {
+                                calculateEntry(br.getQualifiedName(), 
+                                        br, 
+                                        r.getReportDate(), 
+                                        null,
+                                        r.getRepairDays());
+                            }
+                        }
+                        this.setCurrentWorkDone(((++count * WORK_PER_STATISTIC) / size) + (statisticsNumber * WORK_PER_STATISTIC));
+                        k = it.getNext();
+                    }
+                    return true;
+            }
+        } catch (Exception e) {
+            Logger.logdebug(e);
+            logInfo("ERROR: " + e.toString() + "\n");
+        }
+        return false;
+    }
+
     private boolean createStatisticClubwork(StatisticsRecord sr, int statisticsNumber) {
         String[] names = Daten.project.getAllLogbookNames();
         if (names == null || names.length == 0) {
@@ -1944,7 +2160,7 @@ public class StatisticTask extends ProgressTask {
 
                             DataTypeDate date = r.getWorkDate();
                             if (sr.sStartDate.compareTo(date) <= 0 && sr.sEndDate.compareTo(date) >= 0) {
-                                calculateEntryForClubwork(r);
+                                calculateEntry(r);
                             }
                             this.setCurrentWorkDone(((++pos * WORK_PER_LOGBOOK) / size) + (i * WORK_PER_LOGBOOK) + (statisticsNumber * WORK_PER_STATISTIC));
                             k = it.getNext();
@@ -1972,10 +2188,17 @@ public class StatisticTask extends ProgressTask {
                 true, false);
 
         runPreprocessing();
-        if (sr.sStatisticCategory != StatisticsRecord.StatisticCategory.clubwork) {
+        if (sr.sStatisticCategory != StatisticsRecord.StatisticCategory.other) {
             createStatisticLogbook(sr, statisticsNumber);
         } else {
-            createStatisticClubwork(sr, statisticsNumber);
+            switch(sr.sStatisticTypeEnum) {
+                case clubwork:
+                    createStatisticClubwork(sr, statisticsNumber);
+                    break;
+                default:
+                    createStatisticOther(sr, statisticsNumber);
+                    break;
+            }
         }
 
         StatisticsData[] sd = runPostprocessing();

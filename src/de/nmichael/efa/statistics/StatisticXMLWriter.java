@@ -250,7 +250,8 @@ public class StatisticXMLWriter extends StatisticWriter {
             // Write normal Output
             if (sr.pTableColumns != null && sr.pTableColumns.size() > 0) {
                 if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list ||
-                    sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
+                    sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix ||
+                    sr.sStatisticCategory == StatisticsRecord.StatisticCategory.other) {
                     write(f, indent, xmltagStart(FIELD_DATA));
                 }
                 if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook) {
@@ -321,9 +322,27 @@ public class StatisticXMLWriter extends StatisticWriter {
                         }
                         write(f, indent, xmltagEnd(FIELD_RECORD));
                     }
+                    if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.other) {
+                        if (!sd[i].isSummary) {
+                            write(f, indent, xmltagStart(FIELD_RECORD, ATTR_INDEX, Integer.toString(i+1)));
+                        } else {
+                            write(f, indent, xmltagStart(FIELD_RECORD, ATTR_SUMMARY, Boolean.toString(true)));
+                        }
+                        if (sd[i].otherFields != null) {
+                            for (int j = 0; j < sd[i].otherFields.length; j++) {
+                                String s = sd[i].otherFields[j];
+                                if (printColumnHeaders && s == null) {
+                                    s = "";
+                                }
+                                write(f, indent, xmltag("Field" + (j+1), s));
+                            }
+                        }
+                        write(f, indent, xmltagEnd(FIELD_RECORD));
+                    }
                 }
                 if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list ||
-                    sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
+                    sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix ||
+                    sr.sStatisticCategory == StatisticsRecord.StatisticCategory.other) {
                     write(f, indent, xmltagEnd(FIELD_DATA));
                 }
                 if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.logbook) {

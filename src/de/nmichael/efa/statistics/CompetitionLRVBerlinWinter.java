@@ -214,21 +214,21 @@ public class CompetitionLRVBerlinWinter extends Competition {
                                     + (winterAnz > gruppen[g].zusatz ? 1 : 0)][3]; // eine Fahrt mehr für den Hinweis "weitere Fahrten"
                         } else {
                             // Warnung, wenn Fahrten nicht gewertet wurden
-                            boolean warnung = !erfuellt && sd[i].sessions > winterAnz;
+                            boolean warnung = !erfuellt && sd[i].count > winterAnz;
 
                             if (sr.sIsOutputCompShort) {
                                 if (sr.sIsOutputCompAdditionalWithRequirements) {
-                                    participant.sAdditional = sd[i].sessions
+                                    participant.sAdditional = sd[i].count
                                             + (warnung ? " (" + winterAnz + ")" : "")
                                             + "/" + gruppen[g].zusatz + " F in "
                                             + anzMonate + "/" + gruppen[g].zusatz2 + " M";
                                 } else {
-                                    participant.sAdditional = sd[i].sessions
+                                    participant.sAdditional = sd[i].count
                                             + (warnung ? " (" + winterAnz + ")" : "")
                                             + " F in " + anzMonate + " M";
                                 }
                             } else {
-                                participant.sAdditional = sd[i].sessions + " Fahrten in " + anzMonate + " Monaten";
+                                participant.sAdditional = sd[i].count + " Fahrten in " + anzMonate + " Monaten";
                             }
                             if (!erfuellt) {
                                 participant.sAdditional += (monate.equals("") ? "" : " (" + monate + ")");
@@ -238,7 +238,7 @@ public class CompetitionLRVBerlinWinter extends Competition {
                                 participant.sAdditional += " (davon nur " + winterAnz + " wertbare Fahrten, da mehrere Fahrten am selben Tag)";
                             }
                         }
-                        participant.sCompAttr1 = Long.toString(sd[i].sessions);
+                        participant.sCompAttr1 = Long.toString(sd[i].count);
                         participant.sCompAttr2 = Integer.toString(anzMonate);
                         participant.compFulfilled = erfuellt;
 

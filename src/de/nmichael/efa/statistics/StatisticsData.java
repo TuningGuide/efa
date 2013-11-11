@@ -15,6 +15,7 @@ import java.util.Vector;
 import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.PersonRecord;
 import de.nmichael.efa.data.StatisticsRecord;
+import static de.nmichael.efa.data.StatisticsRecord.SortingCriteria.duration;
 import de.nmichael.efa.data.efawett.Zielfahrt;
 import de.nmichael.efa.data.efawett.ZielfahrtFolge;
 import de.nmichael.efa.data.types.DataTypeDate;
@@ -24,9 +25,6 @@ import de.nmichael.efa.util.EfaUtil;
 import java.util.Hashtable;
 
 public class StatisticsData implements Comparable {
-
-    public static final int LOGBOOK_FIELD_COUNT_NORMAL = 10;
-    public static final int LOGBOOK_FIELD_COUNT_EXTENDED = 11;
 
     public static final String SORTING_PREFIX  = "%%";
     public static final String SORTING_POSTFIX = "$$";
@@ -47,6 +45,7 @@ public class StatisticsData implements Comparable {
     String sSessions;
     String sAvgDistance;
     String sDuration;
+    String sDays;
     String sSpeed;
     String sDestinationAreas;
     String sWanderfahrten;
@@ -63,9 +62,10 @@ public class StatisticsData implements Comparable {
     long distance = 0;
     long rowdistance = 0;
     long coxdistance = 0;
-    long sessions = 0;
+    long count = 0;
     long avgDistance = 0;
     long duration = 0; // in minutes
+    long days = 0;
     long speed = 0;
     SessionHistory sessionHistory;
     long wafaMetersSummary = 0;
@@ -77,6 +77,7 @@ public class StatisticsData implements Comparable {
     DataTypeIntString entryNo;
     DataTypeDate date;
     String[] logbookFields;
+    String[] otherFields;
     CompetitionData compData;
     public Hashtable<Object,StatisticsData> matrixData;
 
@@ -109,8 +110,9 @@ public class StatisticsData implements Comparable {
         this.distance += sd.distance;
         this.rowdistance += sd.rowdistance;
         this.coxdistance += sd.coxdistance;
-        this.sessions += sd.sessions;
+        this.count += sd.count;
         this.duration += sd.duration;
+        this.days += sd.days;
         if (sr.sIsAggrWanderfahrten) {
             this.wafaMetersSummary += CompetitionDRVFahrtenabzeichen.getWanderfahrtenMeter(sd);
         }
@@ -135,15 +137,18 @@ public class StatisticsData implements Comparable {
         if (sd.coxdistance > this.coxdistance) {
             this.coxdistance = sd.coxdistance;
         }
-        if (sd.sessions > this.sessions) {
-            this.sessions = sd.sessions;
+        if (sd.count > this.count) {
+            this.count = sd.count;
         }
-        long myAvgDist = (sd.sessions > 0 ? sd.distance / sd.sessions : 0);
+        long myAvgDist = (sd.count > 0 ? sd.distance / sd.count : 0);
         if (myAvgDist > this.avgDistance) {
             this.avgDistance = myAvgDist;
         }
         if (sd.duration > this.duration) {
             this.duration = sd.duration;
+        }
+        if (sd.days > this.days) {
+            this.days = sd.days;
         }
         long mySpeed = (sd.duration > 0 ? sd.distance*60 / sd.duration : 0);
         if (mySpeed > this.speed) {
@@ -245,15 +250,15 @@ public class StatisticsData implements Comparable {
             }
         }
         if (sr.sIsAggrSessions) {
-            if (sr.sIgnoreNullValues && sessions == 0) {
+            if (sr.sIgnoreNullValues && count == 0) {
                 this.sSessions = "";
             } else {
-                this.sSessions = Long.toString(this.sessions);
+                this.sSessions = Long.toString(this.count);
             }
         }
         if (sr.sIsAggrAvgDistance) {
-            if (this.sessions > 0) {
-                this.avgDistance = this.distance / this.sessions;
+            if (this.count > 0) {
+                this.avgDistance = this.distance / this.count;
                 this.sAvgDistance = DataTypeDistance.getDistance(this.avgDistance).getStringValueInDefaultUnit(sr.sDistanceWithUnit, 1, 1);
             } else {
                 this.avgDistance = 0;
@@ -266,6 +271,13 @@ public class StatisticsData implements Comparable {
             } else {
                 this.sDuration = EfaUtil.getHHMMstring(duration) +
                         (sr.sDistanceWithUnit ? " h" : "");
+            }
+        }
+        if (sr.sIsAggrDays) {
+            if (sr.sIgnoreNullValues && days == 0) {
+                this.sDays = "";
+            } else {
+                this.sDays = Long.toString(days);
             }
         }
         if (sr.sIsAggrSpeed) {
@@ -397,9 +409,9 @@ public class StatisticsData implements Comparable {
                 }
                 break;
             case sessions:
-                if (this.sessions > osd.sessions) {
+                if (this.count > osd.count) {
                     return 1 * order;
-                } else if (this.sessions < osd.sessions) {
+                } else if (this.count < osd.count) {
                     return -1 * order;
                 }
                 break;
@@ -414,6 +426,13 @@ public class StatisticsData implements Comparable {
                 if (this.duration > osd.duration) {
                     return 1 * order;
                 } else if (this.duration < osd.duration) {
+                    return -1 * order;
+                }
+                break;
+            case days:
+                if (this.days > osd.days) {
+                    return 1 * order;
+                } else if (this.days < osd.days) {
                     return -1 * order;
                 }
                 break;

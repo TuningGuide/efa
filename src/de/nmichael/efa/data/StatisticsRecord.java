@@ -159,11 +159,16 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String SCAT_MATRIX          = "Matrix";
     public static final String SCAT_LOGBOOK         = "Logbook";
     public static final String SCAT_COMPETITION     = "Competition";
-    public static final String SCAT_CLUBWORK        = "Clubwork";
+    public static final String SCAT_OTHER           = "Other";
     
 
-    public static final String STYPE_PERSONS        = "Persons";
-    public static final String STYPE_BOATS          = "Boats";
+    public static final String STYPE_PERSONS          = "Persons";
+    public static final String STYPE_BOATS            = "Boats";
+    public static final String STYPE_BOATSTATUS       = "BoatStatus";
+    public static final String STYPE_BOATRESERVATIONS = "BoatReservations";
+    public static final String STYPE_BOATDAMAGES      = "BoatDamages";
+    public static final String STYPE_BOATDAMAGESTAT   = "BoatDamageStat";
+    public static final String STYPE_CLUBWORK         = "Clubwork";
 
     public static final String SKEY_NAME            = "Name";            // based on Persons or Boats
     public static final String SKEY_STATUS          = "Status";          // based on Persons
@@ -259,12 +264,17 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         matrix,
         logbook,
         competition,
-        clubwork
+        other
     }
 
     public enum StatisticType {
         persons,
         boats,
+        boatstatus,
+        boatreservations,
+        boatdamages,
+        boatdamagestat,
+        clubwork,
         anythingElse // if this is selected, it's most likely a competition; refer to the String value
     }
 
@@ -294,6 +304,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         sessions,
         avgDistance,
         duration,
+        days,
         speed,
         name,
         gender,
@@ -418,6 +429,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean sIsAggrSessions;
     public boolean sIsAggrAvgDistance;
     public boolean sIsAggrDuration;
+    public boolean sIsAggrDays;
     public boolean sIsAggrSpeed;
     public boolean sIsAggrZielfahrten;
     public boolean sIsAggrWanderfahrten;
@@ -738,8 +750,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             return StatisticCategory.logbook;
         } else if (type.equals(SCAT_COMPETITION)) {
             return StatisticCategory.competition;
-        } else if (type.equals(SCAT_CLUBWORK)) {
-            return StatisticCategory.clubwork;
+        } else if (type.equals(SCAT_OTHER)) {
+            return StatisticCategory.other;
         }
         return StatisticCategory.UNKNOWN;
     }
@@ -759,45 +771,28 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 return International.getString("Fahrtenbuch");
             case competition:
                 return International.getString("Wettbewerb");
-            case clubwork:
-                return International.getString("Vereinsarbeit");
+            case other:
+                return International.getString("Weitere");
         }
         return EfaTypes.TEXT_UNKNOWN;
     }
 
     public String[] getStatisticCategories(int valuesOrDisplay) {
-        if (Daten.NEW_FEATURES) {
-            if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
-                return new String[]{
-                            SCAT_LIST,
-                            SCAT_MATRIX,
-                            SCAT_LOGBOOK,
-                            SCAT_COMPETITION,
-                            SCAT_CLUBWORK
-                        };
-            } else {
-                return new String[]{
-                            International.getString("Kilometerliste"),
-                            International.getString("Matrix"),
-                            International.getString("Fahrtenbuch"),
-                            International.getString("Wettbewerb"),
-                            International.getString("Vereinsarbeit")
-                        };
-            }
-        }
         if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
             return new String[] {
                 SCAT_LIST,
                 SCAT_MATRIX,
                 SCAT_LOGBOOK,
-                SCAT_COMPETITION
+                SCAT_COMPETITION,
+                SCAT_OTHER
             };
         } else {
             return new String[] {
                 International.getString("Kilometerliste"),
                 International.getString("Matrix"),
                 International.getString("Fahrtenbuch"),
-                International.getString("Wettbewerb")
+                International.getString("Wettbewerb"),
+                International.getString("Weitere")
             };
         }
     }
@@ -828,6 +823,21 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         if (s.equals(STYPE_BOATS)) {
             return StatisticType.boats;
         }
+        if (s.equals(STYPE_BOATSTATUS)) {
+            return StatisticType.boatstatus;
+        }
+        if (s.equals(STYPE_BOATRESERVATIONS)) {
+            return StatisticType.boatreservations;
+        }
+        if (s.equals(STYPE_BOATDAMAGES)) {
+            return StatisticType.boatdamages;
+        }
+        if (s.equals(STYPE_BOATDAMAGESTAT)) {
+            return StatisticType.boatdamagestat;
+        }
+        if (s.equals(STYPE_CLUBWORK)) {
+            return StatisticType.clubwork;
+        }
         return StatisticType.anythingElse;
     }
 
@@ -844,16 +854,24 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
                 return new String[]{
                             STYPE_PERSONS,
-                            STYPE_BOATS
+                            STYPE_BOATS,
+                            STYPE_BOATSTATUS,
+                            STYPE_BOATRESERVATIONS,
+                            STYPE_BOATDAMAGES,
+                            STYPE_BOATDAMAGESTAT
                         };
             } else {
                 return new String[]{
                             International.getString("Personen"),
-                            International.getString("Boote")
+                            International.getString("Boote"),
+                            International.getString("Bootsstatus"),
+                            International.getString("Bootsreservierungen"),
+                            International.getString("Bootsschäden"),
+                            International.getString("Bootsschäden-Statistik"),
                         };
             }
         }
-        if (category == StatisticCategory.logbook || category == StatisticCategory.clubwork) {
+        if (category == StatisticCategory.logbook) {
             if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
                 return new String[]{ "" };
             } else {
@@ -868,6 +886,23 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 return (Daten.wettDefs != null
                         ? Daten.wettDefs.getAllWettDefNames() : new String[0]);
 
+            }
+        }
+        if (category == StatisticCategory.other) {
+            if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
+                return new String[]{
+                            STYPE_BOATSTATUS,
+                            STYPE_BOATRESERVATIONS,
+                            STYPE_BOATDAMAGES,
+                            STYPE_BOATDAMAGESTAT
+                        };
+            } else {
+                return new String[]{
+                            International.getString("Bootsstatus"),
+                            International.getString("Bootsreservierungen"),
+                            International.getString("Bootsschäden"),
+                            International.getString("Bootsschäden-Statistik")
+                        };
             }
         }
         return new String[]{};
@@ -2667,6 +2702,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         sIsAggrSessions = false;
         sIsAggrAvgDistance = false;
         sIsAggrDuration = false;
+        sIsAggrDays = false;
         sIsAggrSpeed = false;
         sIsAggrZielfahrten = false;
         sIsAggrWanderfahrten = false;
@@ -2894,7 +2930,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 sIsFieldsBoatType = true;
             }
         }
-        if ((sStatisticCategory == StatisticCategory.list || sStatisticCategory == StatisticCategory.clubwork) &&
+        if ((sStatisticCategory == StatisticCategory.list || 
+                (sStatisticCategory == StatisticCategory.other && sStatisticType.equals(STYPE_CLUBWORK))) &&
             (fields == null || fields.length() == 0)) {
             // at least show these fields, if for (whatever reason) no fields were selected
             sIsFieldsPosition = true;
@@ -3058,7 +3095,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             sOutputDir = Daten.efaTmpDirectory;
         }
         sOutputEncoding = getOutputEncoding();
-        sOutputHtmlUpdateTable = getOutputHtmlUpdateTable();
+        sOutputHtmlUpdateTable = getOutputHtmlUpdateTable() && sOutputType == OutputTypes.html;
         sOutputCsvSeparator = getOutputCsvSeparator();
         sOutputCsvQuotes = getOutputCsvQuotes();
 
@@ -3130,6 +3167,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     }
 
     public void prepareTableColumns(Hashtable<Object, StatisticsData> data) {
+        if (pTableColumns != null) {
+            // already set explicitly, e.g. for "others" statistics
+            return;
+        }
         pTableColumns = new Vector<String>();
         if (sStatisticCategory == StatisticCategory.list ||
             sStatisticCategory == StatisticCategory.matrix) {
@@ -3278,24 +3319,24 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 pTableColumns.add(International.getString("Bemerkungen"));
             }
         }
-        if (sStatisticCategory == StatisticCategory.clubwork) {
-            if (sIsFieldsPosition) {
-                //pTableColumns.add(International.getString("Platz"));
-                // The following line is useless, but added with intention to keep the translation for "Platz"
-                International.getString("Platz");
-                pTableColumns.add(International.getString("Position"));
-            }
-            if (sIsFieldsName) {
-                String s = getStatisticKeyDescription();
-                pTableColumns.add( (s != null ? s : International.getString("Name")) );
-            }
-            if (sIsFieldsGender) {
-                pTableColumns.add(International.getString("Geschlecht"));
-            }
-            if (sIsFieldsStatus) {
-                pTableColumns.add(International.getString("Status"));
-            }
-            if (Daten.NEW_FEATURES) {
+        if (sStatisticCategory == StatisticCategory.other) {
+            if (sStatisticType.equals(STYPE_CLUBWORK)) {
+                if (sIsFieldsPosition) {
+                    //pTableColumns.add(International.getString("Platz"));
+                    // The following line is useless, but added with intention to keep the translation for "Platz"
+                    International.getString("Platz");
+                    pTableColumns.add(International.getString("Position"));
+                }
+                if (sIsFieldsName) {
+                    String s = getStatisticKeyDescription();
+                    pTableColumns.add((s != null ? s : International.getString("Name")));
+                }
+                if (sIsFieldsGender) {
+                    pTableColumns.add(International.getString("Geschlecht"));
+                }
+                if (sIsFieldsStatus) {
+                    pTableColumns.add(International.getString("Status"));
+                }
                 if (sIsAggrClubwork) {
                     pTableColumns.add(International.getString("Vereinsarbeit"));
                 }

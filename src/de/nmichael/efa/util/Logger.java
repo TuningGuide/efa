@@ -22,6 +22,10 @@ public class Logger {
     private static final int LOGGING_THRESHOLD_ERR  = 100;  // max LOGGING_THRESHOLD logging messages per second
     private static final int LOGGING_CHECK_FILESIZE = 1000; // number of log messages after which to check file size
     private static final int MAX_LOG_FILE_SIZE = 1048576;
+    
+    private static final int MAX_LOGMSG_SIZE = 10*1024; // max. 10 Kb for log message
+    private static final int MAX_LASTLOGMSG_SIZE = 1024; // max. 1 Kb to remember last log messages
+    private static final int MAX_STACK_DEPTH = 20; // max stack depth for exceptions
 
     // Message Types
     public static final String ERROR = "ERROR";
@@ -472,6 +476,7 @@ public class Logger {
     private static boolean alsoLogToStdOut = false;
     private static boolean logAllToStdOut = false;
     private static EfaErrorPrintStream efaErrorPrintStream;
+    private static boolean logExceptions = true;
 
     private static String createLogfileName(String logfile) {
         return Daten.efaLogDirectory + logfile;
@@ -523,13 +528,20 @@ public class Logger {
 
     public static String getLastLogMessages() {
         StringBuilder s = new StringBuilder();
+        if (de.nmichael.efa.java15.Java15.isMemoryWarningLow()) {
+            s.append("Memory High (no last log");
+            return s.toString();
+        }
         synchronized(lastLogMessages) {
             int start = 0;
             if (totalLogMessages > lastLogMessages.length) {
                 start = nextLogIdx;
             }
-            int end = (nextLogIdx-1) % lastLogMessages.length;
+            int end = (nextLogIdx > 0 ?
+                    (nextLogIdx-1) % lastLogMessages.length :
+                    lastLogMessages.length - 1);
             int i = (start-1) % lastLogMessages.length;
+            int justtobesafe = 0; // had programming errors here already ;)
             do {
                 i = (i+1) % lastLogMessages.length;
                 if (lastLogMessages[i] != null) {
@@ -538,6 +550,9 @@ public class Logger {
                     } else {
                         s.append(lastLogMessages[i].substring(0, 4096) + "...");
                     }
+                }
+                if (justtobesafe++ == lastLogMessages.length) {
+                    break; // time to break out
                 }
             } while (i != end);
         }
@@ -645,10 +660,15 @@ public class Logger {
                     System.out.print(EfaUtil.getString(type, 7) + " - " + key + " - " + txt);
                 }
             }
-            t = "[" + EfaUtil.getCurrentTimeStamp() + "] - " + EfaUtil.getString(Daten.applName, 7) + " - " + Daten.applPID + " - " + EfaUtil.getString(type, 7) + " - " + key + " - " + txt;
+            if (txt.length() < MAX_LOGMSG_SIZE) {
+                t = "[" + EfaUtil.getCurrentTimeStamp() + "] - " + EfaUtil.getString(Daten.applName, 7) + " - " + Daten.applPID + " - " + EfaUtil.getString(type, 7) + " - " + key + " - " + txt;
+            } else {
+                t = "[" + EfaUtil.getCurrentTimeStamp() + "] - " + EfaUtil.getString(Daten.applName, 7) + " - " + Daten.applPID + " - " + EfaUtil.getString(type, 7) + " - " + key + " - " + txt.substring(0, MAX_LOGMSG_SIZE);
+            }
             if (type != null && !type.equals(INPUT) && !type.equals(OUTPUT))  {
                 synchronized(lastLogMessages) {
-                    lastLogMessages[nextLogIdx] = t;
+                    lastLogMessages[nextLogIdx] = (t.length() < MAX_LASTLOGMSG_SIZE ?
+                            t : t.substring(0, MAX_LASTLOGMSG_SIZE));
                     nextLogIdx = (nextLogIdx+1) % lastLogMessages.length;
                     totalLogMessages++;
                 }
@@ -692,23 +712,26 @@ public class Logger {
     }
 
     public static void logdebug(Exception e) {
-        if (isTraceOn(TT_EXCEPTIONS)) {
+        if (isTraceOn(TT_EXCEPTIONS) && logExceptions) {
             log(DEBUG, MSG_DEBUG_IGNOREDEXCEPTION, e);
         }
     }
 
     public static void log(Exception e) {
+        if (!logExceptions) {
+            return;
+        }
         log(ERROR, MSG_ERROR_EXCEPTION, e);
     }
 
     public static void log(String type, String key, Exception e) {
-        if (e == null) {
+        if (e == null || !logExceptions) {
             return;
         }
         StringBuilder s = new StringBuilder();
         s.append(e.toString());
         StackTraceElement[] stack = e.getStackTrace();
-        for (int i = 0; stack != null && i < stack.length; i++) {
+        for (int i = 0; stack != null && i < stack.length && i < MAX_STACK_DEPTH; i++) {
             s.append("\n" + stack[i].toString());
         }
         log(type, key, s.toString());
@@ -801,6 +824,10 @@ public class Logger {
     public static void setLoggingToStdOut(boolean logToStdOut) {
         logAllToStdOut = logToStdOut;
     }
+    
+    public static void setLogExceptions(boolean logEx) {
+        logExceptions = logEx;
+    }
 
     public static boolean isDebugLoggin() {
         return debugLogging;
@@ -828,24 +855,25 @@ public class Logger {
         }
         inMailError = true;
         try {
-            String txt = International.getString("Dies ist eine automatisch erstellte Fehlermeldung von efa.") + "\n\n"
-                    + International.getString("Folgender Fehler ist aufgetreten:") + "\n" + msg;
+            StringBuffer txt = new StringBuffer();
+            txt.append(International.getString("Dies ist eine automatisch erstellte Fehlermeldung von efa.") + "\n\n"
+                    + International.getString("Folgender Fehler ist aufgetreten:") + "\n" + msg);
 
-            txt += "\n\n" + International.getString("Vorausgegangene Log-Ausschriften") +
-                    ":\n============================================\n" +
-                    Logger.getLastLogMessages();
+            txt.append("\n\n" + International.getString("Vorausgegangene Log-Ausschriften") +
+                    ":\n============================================\n");
+            txt.append(Logger.getLastLogMessages());
 
             if (key != null && key.equals(Logger.MSG_ERROR_EXCEPTION)) {
-                txt += "\n\n" + International.getString("Programm-Information") +
-                        ":\n============================================\n";
+                txt.append("\n\n" + International.getString("Programm-Information") +
+                        ":\n============================================\n");
                 Vector info = Daten.getEfaInfos();
                 for (int i = 0; info != null && i < info.size(); i++) {
-                    txt += (String) info.get(i) + "\n";
+                    txt.append((String) info.get(i) + "\n");
                 }
             }
             Messages messages = (Daten.project != null ? Daten.project.getMessages(false) : null);
             if (messages != null && messages.isOpen()) {
-                messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME, to, International.getString("FEHLER"), txt);
+                messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME, to, International.getString("FEHLER"), txt.toString());
             }
         } catch (Exception e) {
             Logger.logdebug(e);

@@ -281,7 +281,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             if (p != null && p.length() > 0) {
                 Daten.efaConfig.setValueLastProjectEfaBase(p);
             }
-            AdminTask.startAdminTask(admin);
+            AdminTask.startAdminTask(admin, this);
         }
         Daten.checkRegister();
     }
@@ -878,7 +878,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     PersonRecord findPerson(ItemTypeString item, long validAt) {
         PersonRecord p = null;
         try {
-            String s = item.toString().trim();
+            String s = item.getValueFromField().trim();
             if (s.length() > 0) {
                 PersonRecord r = Daten.project.getPersons(false).getPerson(s, validAt);
 
@@ -908,7 +908,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
 
     BoatRecord findBoat(long validAt) {
         try {
-            String s = boat.toString().trim();
+            String s = boat.getValueFromField().trim();
             if (s.length() > 0) {
                 BoatRecord r = Daten.project.getBoats(false).getBoat(s, validAt);
 
@@ -989,7 +989,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     }
 
     DestinationRecord findDestination(long validAt) {
-        String s = destination.toString();
+        String s = destination.getValueFromField();
         String bths = null;
         if (isModeBoathouse() && Daten.project.getNumberOfBoathouses() > 1) {
             bths = Daten.project.getMyBoathouseName();
@@ -1430,6 +1430,26 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         
         return r;
     }
+    
+    private void autocompleteAllFields() {
+        try {
+            if (boat.isVisible()) {
+                boat.acpwCallback(null);
+            }
+            if (cox.isVisible()) {
+                cox.acpwCallback(null);
+            }
+            for (int i=0; i<crew.length; i++) {
+                if (crew[i].isVisible()) {
+                    crew[i].acpwCallback(null);
+                }
+            }
+            if (destination.isVisible()) {
+                destination.acpwCallback(null);
+            }
+        } catch(Exception e) {            
+        }
+    }
 
     // Datensatz speichern
     // liefert "true", wenn erfolgreich
@@ -1448,6 +1468,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         if (Dialog.frameCurrent() != this) {
             return false;
         }
+        
+        // make sure to autocomplete all texts once more in the input fields.
+        // users have found strange ways of working around completion...
+        autocompleteAllFields();
 
         // run all checks before saving this entry
         if (!checkMisspelledInput() ||

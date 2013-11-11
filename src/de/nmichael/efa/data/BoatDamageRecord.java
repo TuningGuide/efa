@@ -327,6 +327,17 @@ public class BoatDamageRecord extends DataRecord {
         return s != null && s.startsWith(International.getString("Bootsschaden") + ": ");
     }
 
+    public long getRepairDays() {
+        DataTypeDate d1 = this.getReportDate();
+        DataTypeDate d2 = this.getFixDate();
+        if (d1 == null || d2 == null ||
+            !d1.isSet() || !d2.isSet() ||
+            d2.isBefore(d1)) {
+            return 0;
+        }
+        return d2.getDifferenceDays(d1);
+    }
+    
     public String getAsText(String fieldName) {
         if (fieldName.equals(BOATID)) {
             return getBoatAsName();

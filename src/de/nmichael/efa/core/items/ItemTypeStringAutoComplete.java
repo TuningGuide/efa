@@ -81,6 +81,11 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
                     buttonPressed(e);
                 }
             });
+            button.addFocusListener(new java.awt.event.FocusAdapter() {
+                public void focusLost(FocusEvent e) {
+                    field_focusLost(e);
+                }
+            });
         }
         super.iniDisplay();
         ((JTextField)field).addKeyListener(new java.awt.event.KeyAdapter() {

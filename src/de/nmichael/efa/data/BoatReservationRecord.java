@@ -240,17 +240,23 @@ public class BoatReservationRecord extends DataRecord {
         return getPersonName();
     }
 
-    private String getBoatName() {
+    public BoatRecord getBoat() {
         Boats boats = getPersistence().getProject().getBoats(false);
-        String boatName = "?";
         if (boats != null) {
             BoatRecord r = boats.getBoat(getBoatId(), System.currentTimeMillis());
             if (r == null) {
                 r = boats.getAnyBoatRecord(getBoatId());
             }
-            if (r != null) {
-                boatName = r.getQualifiedName();
-            }
+            return r;
+        }
+        return null;
+    }
+
+    public String getBoatName() {
+        BoatRecord r = getBoat();
+        String boatName = "?";
+        if (r != null) {
+            boatName = r.getQualifiedName();
         }
         return boatName;
     }

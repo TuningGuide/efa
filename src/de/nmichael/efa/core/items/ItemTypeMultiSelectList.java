@@ -207,6 +207,10 @@ public class ItemTypeMultiSelectList<T> extends ItemType implements ActionListen
         return (value != null ? value.toString() : "");
     }
 
+    public void setValue(DataTypeList<T> v) {
+        this.value = v;
+    }
+
     public void parseValue(String value) {
         this.value = DataTypeList.parseList(value, IDataAccess.DATA_STRING);
     }

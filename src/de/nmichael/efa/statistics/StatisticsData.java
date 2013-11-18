@@ -15,6 +15,8 @@ import java.util.Vector;
 import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.data.PersonRecord;
 import de.nmichael.efa.data.StatisticsRecord;
+import static de.nmichael.efa.data.StatisticsRecord.SortingCriteria.damageCount;
+import static de.nmichael.efa.data.StatisticsRecord.SortingCriteria.date;
 import static de.nmichael.efa.data.StatisticsRecord.SortingCriteria.duration;
 import de.nmichael.efa.data.efawett.Zielfahrt;
 import de.nmichael.efa.data.efawett.ZielfahrtFolge;
@@ -23,12 +25,14 @@ import de.nmichael.efa.data.types.DataTypeDistance;
 import de.nmichael.efa.data.types.DataTypeIntString;
 import de.nmichael.efa.util.EfaUtil;
 import java.util.Hashtable;
+import java.util.UUID;
 
 public class StatisticsData implements Comparable {
 
     public static final String SORTING_PREFIX  = "%%";
     public static final String SORTING_POSTFIX = "$$";
     public static final String SORTTOEND_PREFIX = "~END~";
+    public static final String KEY_MODIFIER = "~%KEY%~";
 
     private StatisticsRecord sr;
 
@@ -49,6 +53,9 @@ public class StatisticsData implements Comparable {
     String sSpeed;
     String sDestinationAreas;
     String sWanderfahrten;
+    String sDamageCount;
+    String sDamageDuration;
+    String sDamageAvgDuration;
     String sAdditional;
     String[][] sDetailsArray;
     String sCompAttr1;
@@ -84,6 +91,7 @@ public class StatisticsData implements Comparable {
     PersonRecord personRecord; // filled by postprocessing if this is a person
     String gender;
     boolean disabled;
+    UUID boatId;
 
     boolean sortToEnd = false;
     int absPosition = 0;
@@ -198,6 +206,10 @@ public class StatisticsData implements Comparable {
         if (sr.sIsFieldsName && sName.startsWith(SORTTOEND_PREFIX)) {
             sName = sName.substring(SORTTOEND_PREFIX.length());
         }
+        if (sr.sIsFieldsName && sName.indexOf(KEY_MODIFIER) > 0) {
+            int pos = sName.indexOf(KEY_MODIFIER);
+            sName = sName.substring(0, pos);
+        }
         if (sr.sIsFieldsGender && sGender == null) {
             this.sGender = "";
         }
@@ -274,7 +286,7 @@ public class StatisticsData implements Comparable {
             }
         }
         if (sr.sIsAggrDays) {
-            if (sr.sIgnoreNullValues && days == 0) {
+            if (sr.sIgnoreNullValues && count == 0) {
                 this.sDays = "";
             } else {
                 this.sDays = Long.toString(days);
@@ -288,6 +300,27 @@ public class StatisticsData implements Comparable {
             } else {
                 this.speed = 0;
                 this.sSpeed = "";
+            }
+        }
+        if (sr.sIsAggrDamageCount) {
+            if (sr.sIgnoreNullValues && count == 0) {
+                this.sDamageCount = "";
+            } else {
+                this.sDamageCount = Long.toString(this.count);
+            }
+        }
+        if (sr.sIsAggrDamageDuration) {
+            if (sr.sIgnoreNullValues && count == 0) {
+                this.sDamageDuration = "";
+            } else {
+                this.sDamageDuration = Long.toString(this.days);
+            }
+        }
+        if (sr.sIsAggrDamageAvgDuration) {
+            if (sr.sIgnoreNullValues && count == 0) {
+                this.sDamageAvgDuration = "";
+            } else {
+                this.sDamageAvgDuration = EfaUtil.zehntelInt2String((int)(days*10/count));
             }
         }
         if (sr.sIsAggrZielfahrten) {
@@ -409,6 +442,7 @@ public class StatisticsData implements Comparable {
                 }
                 break;
             case sessions:
+            case damageCount:
                 if (this.count > osd.count) {
                     return 1 * order;
                 } else if (this.count < osd.count) {
@@ -430,6 +464,7 @@ public class StatisticsData implements Comparable {
                 }
                 break;
             case days:
+            case damageDuration:
                 if (this.days > osd.days) {
                     return 1 * order;
                 } else if (this.days < osd.days) {
@@ -498,6 +533,15 @@ public class StatisticsData implements Comparable {
                     if (res != 0) {
                         return res * order;
                     }
+                }
+                break;
+            case damageAvgDuration:
+                float thisDur = (this.count > 0 ? (float)this.days / (float)this.count : 0);
+                float osdDur = (osd.count > 0 ? (float)osd.days / (float)osd.count : 0);
+                if (thisDur > osdDur) {
+                    return 1 * order;
+                } else if (thisDur < osdDur) {
+                    return -1 * order;
                 }
                 break;
             case clubwork:

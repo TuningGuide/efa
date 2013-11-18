@@ -1018,7 +1018,7 @@ public class StatisticTask extends ProgressTask {
         }
     }
 
-    private void calculateEntry(Object key, BoatRecord r, DataTypeDate date, String[] fields,
+    private void calculateEntry(Object key, BoatRecord r, DataTypeDate date, ArrayList<String> fields,
             long days) {
         resetEntryValues();
         this.entryBoatRecord = r;
@@ -1057,7 +1057,10 @@ public class StatisticTask extends ProgressTask {
         }
 
         // set fields
-        sd.otherFields = fields;
+        if (fields != null) {
+            sd.otherFields = fields.toArray(new String[0]);
+        }
+        sd.boatId = (r != null ? r.getId() : null);
         data.put(key, sd);
 
         // update number of evaluated entries
@@ -1714,10 +1717,15 @@ public class StatisticTask extends ProgressTask {
             }
 
             // replace UUID by Boat Name
-            if ((sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.boats
-                    && sr.sStatistikKey == StatisticsRecord.StatisticKey.name)
-                    || (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix &&
-                        sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.boats)) {
+            if ((sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.boats &&
+                 sr.sStatistikKey == StatisticsRecord.StatisticKey.name) ||
+                (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix &&
+                 sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.boats) ||
+                (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.other &&
+                 (sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.boatstatus ||
+                  sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.boatreservations ||
+                  sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.boatdamages ||
+                  sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.boatdamagestat))) {
 
                 BoatRecord br = null;
                 if (sd.key instanceof UUID) {
@@ -1727,6 +1735,9 @@ public class StatisticTask extends ProgressTask {
                 if (sr.sIsFieldsName) {
                     sd.sName = (br != null ? br.getQualifiedName()
                             : (isUUID ? "*** " + International.getString("ungültiger Eintrag") + " ***" : sd.key.toString()));
+                }
+                if (br == null && sd.boatId != null) {
+                    br = boats.getBoat(sd.boatId, sr.sTimestampBegin, sr.sTimestampEnd, sr.sValidAt);
                 }
                 if (sr.sIsFieldsBoatType) {
                     sd.sBoatType = (br != null ? br.getDetailedBoatType(0) : Daten.efaTypes.getValue(EfaTypes.CATEGORY_BOAT, EfaTypes.TYPE_BOAT_OTHER));
@@ -1986,11 +1997,6 @@ public class StatisticTask extends ProgressTask {
             DataKey k;
             switch (sr.sStatisticTypeEnum) {
                 case boatstatus:
-                    sr.pTableColumns = new Vector<String>();
-                    sr.pTableColumns.add(International.getString("Boot"));
-                    sr.pTableColumns.add(International.getString("Basis-Status"));
-                    sr.pTableColumns.add(International.getString("aktueller Status"));
-                    sr.pTableColumns.add(International.getString("Bemerkungen"));
                     list = Daten.project.getBoatStatus(false);
                     logInfo(International.getString("Bootsstatus") + " ...\n");
                     it = list.data().getStaticIterator();
@@ -2001,15 +2007,17 @@ public class StatisticTask extends ProgressTask {
                         if (r != null) {
                             BoatRecord br = r.getBoatRecord(System.currentTimeMillis());
                             if (br != null) {
-                                calculateEntry(br.getQualifiedName(), 
-                                        br, 
-                                        null, 
-                                        new String[] {
-                                            br.getQualifiedName(),
-                                            r.getStatusDescription(r.getBaseStatus()),
-                                            r.getStatusDescription(r.getCurrentStatus()),
-                                            r.getComment()
-                                        }, 0);
+                                ArrayList<String> fields = new ArrayList<String>();
+                                if (sr.sIsOFieldsBaseStatus) {
+                                    fields.add(r.getStatusDescription(r.getBaseStatus()));
+                                }
+                                if (sr.sIsOFieldsCurrentStatus) {
+                                    fields.add(r.getStatusDescription(r.getCurrentStatus()));
+                                }
+                                if (sr.sIsOFieldsComments) {
+                                    fields.add(r.getComment());
+                                }
+                                calculateEntry(br.getQualifiedName(), br, null, fields, 0);
                             }
                         }
                         this.setCurrentWorkDone(((++count * WORK_PER_STATISTIC) / size) + (statisticsNumber * WORK_PER_STATISTIC));
@@ -2017,12 +2025,6 @@ public class StatisticTask extends ProgressTask {
                     }
                     return true;
                 case boatreservations:
-                    sr.pTableColumns = new Vector<String>();
-                    sr.pTableColumns.add(International.getString("Boot"));
-                    sr.pTableColumns.add(International.getString("Reserviert von"));
-                    sr.pTableColumns.add(International.getString("Reserviert bis"));
-                    sr.pTableColumns.add(International.getString("Reserviert für"));
-                    sr.pTableColumns.add(International.getString("Grund"));
                     list = Daten.project.getBoatReservations(false);
                     logInfo(International.getString("Bootsreservierungen") + " ...\n");
                     it = list.data().getStaticIterator();
@@ -2033,16 +2035,20 @@ public class StatisticTask extends ProgressTask {
                         if (r != null) {
                             BoatRecord br = r.getBoat();
                             if (br != null) {
-                                calculateEntry(br.getQualifiedName() + "###" + count, 
-                                        br, 
-                                        r.getDateFrom(), 
-                                        new String[] {
-                                            br.getQualifiedName(),
-                                            r.getDateTimeFromDescription(),
-                                            r.getDateTimeToDescription(),
-                                            r.getPersonAsName(),
-                                            r.getReason()
-                                        }, 0);
+                                ArrayList<String> fields = new ArrayList<String>();
+                                if (sr.sIsOFieldsReservedFrom) {
+                                    fields.add(r.getDateTimeFromDescription());
+                                }
+                                if (sr.sIsOFieldsReservedTo) {
+                                    fields.add(r.getDateTimeToDescription());
+                                }
+                                if (sr.sIsOFieldsReservedFor) {
+                                    fields.add(r.getPersonAsName());
+                                }
+                                if (sr.sIsOFieldsReason) {
+                                    fields.add(r.getReason());
+                                }
+                                calculateEntry(br.getQualifiedName() + StatisticsData.KEY_MODIFIER + count, br, r.getDateFrom(), fields, 0);
                             }
                         }
                         this.setCurrentWorkDone(((++count * WORK_PER_STATISTIC) / size) + (statisticsNumber * WORK_PER_STATISTIC));
@@ -2050,12 +2056,6 @@ public class StatisticTask extends ProgressTask {
                     }
                     return true;
                 case boatdamages:
-                    sr.pTableColumns = new Vector<String>();
-                    sr.pTableColumns.add(International.getString("Boot"));
-                    sr.pTableColumns.add(International.getString("Schaden"));
-                    sr.pTableColumns.add(International.getString("gemeldet am"));
-                    sr.pTableColumns.add(International.getString("behoben am"));
-                    sr.pTableColumns.add(International.getString("Priorität"));
                     list = Daten.project.getBoatDamages(false);
                     logInfo(International.getString("Bootsschäden") + " ...\n");
                     it = list.data().getStaticIterator();
@@ -2063,19 +2063,23 @@ public class StatisticTask extends ProgressTask {
                     k = it.getFirst();
                     while (k != null) {
                         BoatDamageRecord r = (BoatDamageRecord) list.data().get(k);
-                        if (r != null) {
+                        if (r != null && (!r.getFixed() || !sr.sFilterOnlyOpenDamages)) {
                             BoatRecord br = r.getBoatRecord();
                             if (br != null) {
-                                calculateEntry(br.getQualifiedName() + "###" + count, 
-                                        br, 
-                                        r.getReportDate(), 
-                                        new String[] {
-                                            br.getQualifiedName(),
-                                            r.getDescription(),
-                                            (r.getReportDate() != null ? r.getReportDate().toString() : ""),
-                                            (r.getFixDate() != null ? r.getFixDate().toString() : ""),
-                                            Integer.toString(r.getPriority())
-                                        }, 0);
+                                ArrayList<String> fields = new ArrayList<String>();
+                                if (sr.sIsOFieldsDamage) {
+                                    fields.add(r.getDescription());
+                                }
+                                if (sr.sIsOFieldsDamageSeverity) {
+                                    fields.add(r.getSeverityDescription());
+                                }
+                                if (sr.sIsOFieldsReportedOn) {
+                                    fields.add((r.getReportDate() != null ? r.getReportDate().toString() : ""));
+                                }
+                                if (sr.sIsOFieldsFixedOn) {
+                                    fields.add((r.getFixDate() != null ? r.getFixDate().toString() : ""));
+                                }
+                                calculateEntry(br.getQualifiedName() + StatisticsData.KEY_MODIFIER + count, br, r.getReportDate(), fields, 0);
                             }
                         }
                         this.setCurrentWorkDone(((++count * WORK_PER_STATISTIC) / size) + (statisticsNumber * WORK_PER_STATISTIC));
@@ -2083,18 +2087,6 @@ public class StatisticTask extends ProgressTask {
                     }
                     return true;
                 case boatdamagestat:
-                    sr.pTableColumns = new Vector<String>();
-                    sr.pTableColumns.add(International.getString("Position"));
-                    sr.pTableColumns.add(International.getString("Boot"));
-                    sr.pTableColumns.add(International.getString("Schäden"));
-                    sr.pTableColumns.add(International.getString("Reparaturdauer"));
-                    sr.sIsFieldsName = true;
-                    sr.sIsAggrSessions = true;
-                    sr.sIsAggrDistance = false;
-                    sr.sIsAggrAvgDistance = false;
-                    sr.sAggrDistanceBarSize = 0;
-                    sr.sAggrAvgDistanceBarSize = 0;
-                    sr.sIsAggrDays = true;
                     list = Daten.project.getBoatDamages(false);
                     logInfo(International.getString("Bootsschäden") + " ...\n");
                     it = list.data().getStaticIterator();
@@ -2102,14 +2094,10 @@ public class StatisticTask extends ProgressTask {
                     k = it.getFirst();
                     while (k != null) {
                         BoatDamageRecord r = (BoatDamageRecord) list.data().get(k);
-                        if (r != null) {
+                        if (r != null && (!r.getFixed() || !sr.sFilterOnlyOpenDamages)) {
                             BoatRecord br = r.getBoatRecord();
                             if (br != null) {
-                                calculateEntry(br.getQualifiedName(), 
-                                        br, 
-                                        r.getReportDate(), 
-                                        null,
-                                        r.getRepairDays());
+                                calculateEntry(br.getQualifiedName(), br, r.getReportDate(), null, r.getRepairDays());
                             }
                         }
                         this.setCurrentWorkDone(((++count * WORK_PER_STATISTIC) / size) + (statisticsNumber * WORK_PER_STATISTIC));

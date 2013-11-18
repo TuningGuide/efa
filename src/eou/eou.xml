@@ -2,12 +2,14 @@
 <efaOnlineUpdate>
 
     <Version>
-        <VersionID>2.1.1_#1</VersionID>
-        <ReleaseDate>02.11.2013</ReleaseDate>
-        <DownloadUrl>http://efa.nmichael.de/download/efa211_dev.zip</DownloadUrl>
-        <DownloadSize></DownloadSize>
+        <VersionID>2.1.1_00</VersionID>
+        <ReleaseDate>17.11.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa211.zip</DownloadUrl>
+        <DownloadSize>3343444</DownloadSize>
 
         <Changes lang="de">
+            <ChangeItem>Neu: Bootsreservierungen, Bootsstatus und Bootsschäden können jetzt als Statistiken in der Kategorie "Weitere" ausgegeben werden</ChangeItem>
+            <ChangeItem>Neu: Die Anzahl der Bootsschäden sowie Reparaturdauer kann als Statistik in der Kategorie "Weitere" berechnet werden</ChangeItem>
             <ChangeItem>Neu: Zusammenfassen von Booten und Zielen, die versehentlich mehrfach als unterschiedliche Datensätze erfaßt wurden, zu einem gemeinsamen Datensatz</ChangeItem>
             <ChangeItem>Neu: Neue Fahrtarten "DKV-Vereinsfahrt" und "DKV-Gemeinschaftsfahrt" für Paddler. ACHTUNG: Um diese Fahrtarten zu aktivieren, gehe in dem "Admin-Modus - Konfiguration - Bezeichnungen" und klicke "Fehlende Standard-Fahrtarten neu generieren"</ChangeItem>
             <ChangeItem>Neu: Neues Feld "Veranstalter" für Fahrtgruppen zum Erfassen des Veranstalters von DKV-Gemeinschaftsfahrten</ChangeItem>
@@ -24,8 +26,21 @@
             <ChangeItem>Bugfix: Falsche Überschrift bei interner HTML-Statistikausgabe behoben, falls versehentlich die versteckte Option "in existierenden HTML-Dateien nur Tabelle setzen" gesetzt war</ChangeItem>
             <ChangeItem>Bugfix: OutOfMemoryError bei exzessivem Logging von Fehlermeldungen behoben</ChangeItem>
             <ChangeItem>Bugfix: Probleme mit missachteter Eingabe von Namen behoben, wenn Button dahinter nicht grün oder rot, sondern grau blieb</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException beim Prüfen der erlaubten Personen in einem Boot behoben, wenn die zugeordnete Gruppe zum aktuellen Zeitpunkt nicht gültig ist</ChangeItem>
         </Changes>
         <Changes lang="en">
+            <ChangeItem>Neu: Boat reservations, status, and damages can now be summarized as a statistic in the new category "Others"</ChangeItem>
+            <ChangeItem>Neu: Number and repair time of boat damages can now be calculated as a statistic</ChangeItem>
+            <ChangeItem>Neu: Merging of boats and destinations, that have accidentally been administrated multiple times, is now possible</ChangeItem>
+            <ChangeItem>Neu: efa now remembers the last import and export directory and uses it as default for the next import/export</ChangeItem>
+            <ChangeItem>Neu: New fields in boat administration allow to keep track of serial numbers, selling date, and selling price</ChangeItem>
+            <ChangeItem>Neu: Reporting of uncleaned boats possible (experimental</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException in auto correction assistant fixed</ChangeItem>
+            <ChangeItem>Bugfix: Wrong success message in case of errors when merging records fixed</ChangeItem>
+            <ChangeItem>Bugfix: Fixed wrong headers in HTML statistics when option to replace only the table was enabled</ChangeItem>
+            <ChangeItem>Bugfix: OutOfMemoryError during excessing logging fixed</ChangeItem>
+            <ChangeItem>Bugfix: Fixed problem of entering names by only selecting them from drop-down lists without the button behind the field becoming green</ChangeItem>
+            <ChangeItem>Bugfix: NullPointerException when checking boat usage permission with invalid groups fixed</ChangeItem>
         </Changes>
     </Version>
 

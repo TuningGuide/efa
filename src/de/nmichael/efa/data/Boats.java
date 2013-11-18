@@ -206,9 +206,9 @@ public class Boats extends StorageObject {
         }
 
         public String getSuccessfullyDoneMessage() {
-            return International.getString("Datensätze erfolgreich zusammengefügt." +
+            return International.getString("Datensätze erfolgreich zusammengefügt.") +
                     (errorCount > 0 || warningCount > 0 ?
-                        "\n[" + errorCount + " ERRORS, " + warningCount + " WARNINGS]" : ""));
+                        "\n[" + errorCount + " ERRORS, " + warningCount + " WARNINGS]" : "");
         }
 
         private boolean isIdToBeMerged(UUID id) {

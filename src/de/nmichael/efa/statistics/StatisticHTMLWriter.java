@@ -280,6 +280,20 @@ public class StatisticHTMLWriter extends StatisticWriter {
                                 "entry_speed", sr.sAggrSpeedBarSize);
                         outHTML(f, sd[i].sDestinationAreas, "entry_data");
                         outHTML(f, sd[i].sWanderfahrten, 0, 0, null, 0);
+                        outHTML(f, sd[i].sDamageCount, 0, 0, null, 0);
+                        outHTML(f, sd[i].sDamageDuration, 0, 0, null, 0);
+                        outHTML(f, sd[i].sDamageAvgDuration, 0, 0, null, 0);
+                        outHTML(f, sd[i].sClubwork, "entry_data");
+                        outHTML(f, sd[i].sClubworkRelativeToTarget,
+                                (!sd[i].sClubworkRelativeToTarget.equals("") && !sd[i].isSummary
+                                && sd[i].clubworkRelativeToTarget < -sr.sTransferableClubworkHours
+                                ? "entry_nok" : "entry_ok"));
+
+                        outHTML(f, sd[i].sClubworkOverUnderCarryOver,
+                                (!sd[i].sClubworkOverUnderCarryOver.equals("") && !sd[i].isSummary
+                                && sd[i].clubworkOverUnderCarryOver < 0
+                                ? "entry_nok" : "entry_ok"));
+                        outHTML(f, sd[i].sClubworkCredit, "entry_data");
                         if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
                             for (int j = sr.pMatrixColumnFirst; j < sr.pTableColumns.size(); j++) {
                                 StatisticsData sdm = (sd[i].matrixData != null ?
@@ -297,28 +311,10 @@ public class StatisticHTMLWriter extends StatisticWriter {
                         }
                     }
                     if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.other) {
-                        if (sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.clubwork) {
-                            outHTML(f, sd[i].sPosition, "entry_pos");
-                            outHTML(f, sd[i].sName, "entry_data");
-                            outHTML(f, sd[i].sGender, "entry_data");
-                            outHTML(f, sd[i].sStatus, "entry_data");
-                            outHTML(f, sd[i].sClubwork, "entry_data");
-                            outHTML(f, sd[i].sClubworkRelativeToTarget,
-                                    (!sd[i].sClubworkRelativeToTarget.equals("") && !sd[i].isSummary
-                                    && sd[i].clubworkRelativeToTarget < -sr.sTransferableClubworkHours
-                                    ? "entry_nok" : "entry_ok"));
-
-                            outHTML(f, sd[i].sClubworkOverUnderCarryOver,
-                                    (!sd[i].sClubworkOverUnderCarryOver.equals("") && !sd[i].isSummary
-                                    && sd[i].clubworkOverUnderCarryOver < 0
-                                    ? "entry_nok" : "entry_ok"));
-                            outHTML(f, sd[i].sClubworkCredit, "entry_data");
-                        } else {
-                            if (sd[i].otherFields != null) {
-                                for (int j = 0; j < sd[i].otherFields.length; j++) {
-                                    outHTML(f, (sd[i].otherFields[j] != null
-                                            ? sd[i].otherFields[j] : ""), "entry_data");
-                                }
+                        if (sd[i].otherFields != null) {
+                            for (int j = 0; j < sd[i].otherFields.length; j++) {
+                                outHTML(f, (sd[i].otherFields[j] != null
+                                        ? sd[i].otherFields[j] : ""), "entry_data");
                             }
                         }
                     }

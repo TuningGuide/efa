@@ -111,8 +111,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String FILTERCOMMENTSINCLUDE     = "FilterCommentsInclude";
     public static final String FILTERCOMMENTSEXCLUDE     = "FilterCommentsExclude";
     public static final String FILTERMINSESSIONDISTANCE  = "FilterMinSessionDistance";
+    public static final String FILTERONLYOPENDAMAGES     = "FilterOnlyOpenDamages";
     public static final String SHOWFIELDS                = "ShowFields";  // like Name, Status, Gender, BoatType, ...
     public static final String SHOWLOGBOOKFIELDS         = "ShowLogbookFields";  // like EntryNo, Date, Boat, Cox, Crew, ...
+    public static final String SHOWOTHERFIELDS           = "ShowOtherFields";  // like boat damages, reservations, ...
     public static final String AGGREGATIONS              = "Aggregations"; // like Distance, Sessions, AvgDistance, ...
     public static final String AGGRDISTANCEBARSIZE       = "AggregationDistanceBarSize";
     public static final String AGGRROWDISTANCEBARSIZE    = "AggregationRowDistanceBarSize";
@@ -218,6 +220,18 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String LFIELDS_SESSIONTYPE = "SessionType";
     public static final String LFIELDS_NOTES       = "Notes";
 
+    public static final String OFIELDS_BASESTATUS     = "BaseStatus";
+    public static final String OFIELDS_CURRENTSTATUS  = "CurrentStatus";
+    public static final String OFIELDS_COMMENTS       = "Comments";
+    public static final String OFIELDS_RESERVEDFROM   = "ReservedFrom";
+    public static final String OFIELDS_RESERVEDTO     = "ReservedTo";
+    public static final String OFIELDS_RESERVEDFOR    = "ReservedFor";
+    public static final String OFIELDS_REASON         = "Reason";
+    public static final String OFIELDS_DAMAGE         = "Damage";
+    public static final String OFIELDS_DAMAGESEVERITY = "DamageSeverity";
+    public static final String OFIELDS_REPORTEDON     = "ReportedOn";
+    public static final String OFIELDS_FIXEDON        = "FixedOn";
+
     public static final String AGGR_DISTANCE       = "Distance";
     public static final String AGGR_ROWDISTANCE    = "RowDistance";
     public static final String AGGR_COXDISTANCE    = "CoxDistance";
@@ -227,6 +241,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String AGGR_SPEED          = "Speed";
     public static final String AGGR_ZIELFAHRTEN    = "Zielfahrten";
     public static final String AGGR_WANDERFAHRTEN  = "Wanderfahrten";
+    public static final String AGGR_DAMAGECOUNT    = "DamageCount";
+    public static final String AGGR_DAMAGEDURATION = "DamageDuration";
+    public static final String AGGR_DAMAGEAVGDUR   = "DamageAvgDuration";
     public static final String AGGR_CLUBWORK       = "Clubwork";
     public static final String AGGR_CBRELTOTARGET  = "ClubworkRelativeToTarget";
     public static final String AGGR_CBOVERUNDERCARRYOVER = "ClubworkRelativeToTargetOverUnder";
@@ -246,6 +263,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String SORTING_BOATTYPE    = "BoatType";
     public static final String SORTING_ENTRYNO     = "EntryNo";
     public static final String SORTING_DATE        = "Date";
+    public static final String SORTING_DAMAGECOUNT = "DamageCount";
+    public static final String SORTING_DAMAGEDUR   = "DamageDuration";
+    public static final String SORTING_DAMAGEAVGDUR= "DamageAvgDuration";
     public static final String SORTING_CLUBWORK    = "Clubwork";
 
     public static final String SORTINGORDER_ASC    = "Ascending";
@@ -313,6 +333,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         boatType,
         entryNo,
         date,
+        damageCount,
+        damageDuration,
+        damageAvgDuration,
         clubwork
     }
 
@@ -346,6 +369,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     private ItemTypeMultiSelectList<String> itemFilterBoatRigging;
     private ItemTypeMultiSelectList<String> itemFilterBoatCoxing;
     private ItemTypeMultiSelectList<String> itemFilterBoatOwner;
+    private ItemTypeMultiSelectList<String> itemShowOtherFields;
+    private ItemTypeMultiSelectList<String> itemAggrFields;
     private ItemTypeFile itemOutputFile;
     private ItemTypeStringList itemOutputEncoding;
     private ItemTypeBoolean itemOutputHtmlUpdateTable;
@@ -400,6 +425,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public String sFilterCommentsInclude;
     public String sFilterCommentsExclude;
     public DataTypeDistance sFilterMinSessionDistance;
+    public boolean sFilterOnlyOpenDamages;
     // --- Field Settings
     public boolean sIsFieldsPosition;
     public boolean sIsFieldsName;
@@ -423,6 +449,17 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean sIsLFieldsMultiDay;
     public boolean sIsLFieldsSessionType;
     public boolean sIsLFieldsNotes;
+    public boolean sIsOFieldsBaseStatus;
+    public boolean sIsOFieldsCurrentStatus;
+    public boolean sIsOFieldsComments;
+    public boolean sIsOFieldsReservedFrom;
+    public boolean sIsOFieldsReservedTo;
+    public boolean sIsOFieldsReservedFor;
+    public boolean sIsOFieldsReason;
+    public boolean sIsOFieldsDamage;
+    public boolean sIsOFieldsDamageSeverity;
+    public boolean sIsOFieldsReportedOn;
+    public boolean sIsOFieldsFixedOn;
     public boolean sIsAggrDistance;
     public boolean sIsAggrRowDistance;
     public boolean sIsAggrCoxDistance;
@@ -435,6 +472,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean sIsAggrWanderfahrten;
     public boolean sIsAggrWinterfahrten;
     public boolean sIsAggrGigfahrten;
+    public boolean sIsAggrDamageCount;
+    public boolean sIsAggrDamageDuration;
+    public boolean sIsAggrDamageAvgDuration;
     public boolean sIsAggrClubwork;
     public boolean sIsAggrClubworkRelativeToTarget;
     public boolean sIsAggrClubworkOverUnderCarryOver;
@@ -569,8 +609,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         f.add(FILTERCOMMENTSINCLUDE);             t.add(IDataAccess.DATA_STRING);
         f.add(FILTERCOMMENTSEXCLUDE);             t.add(IDataAccess.DATA_STRING);
         f.add(FILTERMINSESSIONDISTANCE);          t.add(IDataAccess.DATA_DISTANCE);
+        f.add(FILTERONLYOPENDAMAGES);             t.add(IDataAccess.DATA_BOOLEAN);
         f.add(SHOWFIELDS);                        t.add(IDataAccess.DATA_LIST_STRING);
         f.add(SHOWLOGBOOKFIELDS);                 t.add(IDataAccess.DATA_LIST_STRING);
+        f.add(SHOWOTHERFIELDS);                   t.add(IDataAccess.DATA_LIST_STRING);
         f.add(AGGREGATIONS);                      t.add(IDataAccess.DATA_LIST_STRING);
         f.add(AGGRDISTANCEBARSIZE);               t.add(IDataAccess.DATA_INTEGER);
         f.add(AGGRROWDISTANCEBARSIZE);            t.add(IDataAccess.DATA_INTEGER);
@@ -646,7 +688,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             LFIELDS_DESTINATION,
             LFIELDS_DISTANCE
         }));
-        setAggregations(new DataTypeList<String>(new String[] { AGGR_DISTANCE, AGGR_SESSIONS, AGGR_AVGDISTANCE }));
+        setShowOtherFields(new DataTypeList<String>(new String[0]));
+        setAggregations(new DataTypeList<String>(new String[] { AGGR_DISTANCE, AGGR_SESSIONS, AGGR_AVGDISTANCE, 
+             AGGR_DAMAGECOUNT, AGGR_DAMAGEDURATION, AGGR_CLUBWORK, AGGR_CBRELTOTARGET }));
         setAggrDistanceBarSize(200);
         setAggrRowDistanceBarSize(0);
         setAggrCoxDistanceBarSize(0);
@@ -816,7 +860,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     }
 
     public StatisticType getStatisticTypeEnum() {
-        String s = getStatisticType();
+        return getStatisticTypeEnum(getStatisticType());
+    }
+    
+    public StatisticType getStatisticTypeEnum(String s) {
         if (s.equals(STYPE_PERSONS)) {
             return StatisticType.persons;
         }
@@ -1063,7 +1110,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         allKeys.put(SKEY_YEAR, International.getString("Jahr"));
 
         Vector<String> selectedKeys = new Vector<String>();
-        if (sType == null || sType.equals(STYPE_PERSONS) || sType.equals(STYPE_BOATS)) {
+        if (sType == null || sType.equals(STYPE_PERSONS) || sType.equals(STYPE_BOATS) ||
+            sType.equals(STYPE_BOATDAMAGES) || sType.equals(STYPE_BOATDAMAGESTAT) ||
+            sType.equals(STYPE_BOATRESERVATIONS) || sType.equals(STYPE_BOATSTATUS) ||
+            sType.equals(STYPE_CLUBWORK)) {
             selectedKeys.add(SKEY_NAME);
         }
         if (sType == null || sType.equals(STYPE_PERSONS)) {
@@ -1628,6 +1678,13 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         return getDistance(FILTERMINSESSIONDISTANCE);
     }
 
+    public void setFilterOnlyOpenDamages(boolean openDamages) {
+        setBool(FILTERONLYOPENDAMAGES, openDamages);
+    }
+    public boolean getFilterOnlyOpenDamages() {
+        return getBool(FILTERONLYOPENDAMAGES);
+    }
+
     public String getFilterByGroupIdAsString(long validAt) {
         try {
             return getPersistence().getProject().getGroups(false).findGroupRecord(sFilterByGroupId, validAt).getQualifiedName();
@@ -1638,13 +1695,16 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
 
     public String getFilterCriteriaAsStringDescription() {
         String filter = null;
-        if (!isFilterGenderAllSelected()) {
-            filter = (filter == null ? "" : filter + "\n") +
-                    International.getString("Geschlecht") + ": " + getFilterGenderSelectedListAsText();
-        }
-        if (!isFilterStatusAllSelected()) {
-            filter = (filter == null ? "" : filter + "\n") +
-                    International.getString("Status") + ": " + getFilterStatusSelectedListAsText();
+        if (getStatisticCategoryEnum() != StatisticCategory.other ||
+         getStatisticTypeEnum() == StatisticType.clubwork) {
+            if (!isFilterGenderAllSelected()) {
+                filter = (filter == null ? "" : filter + "\n")
+                        + International.getString("Geschlecht") + ": " + getFilterGenderSelectedListAsText();
+            }
+            if (!isFilterStatusAllSelected()) {
+                filter = (filter == null ? "" : filter + "\n")
+                        + International.getString("Status") + ": " + getFilterStatusSelectedListAsText();
+            }
         }
         if (!isFilterSessionTypeAllSelected()) {
             filter = (filter == null ? "" : filter + "\n") +
@@ -1710,6 +1770,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                     International.getString("Mindestentfernung") + ": " +
                     sFilterMinSessionDistance.getAsFormattedString();
         }
+        if (sFilterOnlyOpenDamages) {
+            filter = (filter == null ? "" : filter + "\n") +
+                    International.getString("nur offene Bootsschäden");
+        }
         return filter;
     }
 
@@ -1724,14 +1788,22 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public void setShowLogbookFields(DataTypeList<String> list) {
         setList(SHOWLOGBOOKFIELDS, list);
     }
-
+    
     public DataTypeList<String> getShowLogbookFields() {
         return getList(SHOWLOGBOOKFIELDS, IDataAccess.DATA_STRING);
     }
 
+    public void setShowOtherFields(DataTypeList<String> list) {
+        setList(SHOWOTHERFIELDS, list);
+    }
+    
+    public DataTypeList<String> getShowOtherFields() {
+        return getList(SHOWOTHERFIELDS, IDataAccess.DATA_STRING);
+    }
+
     public String[] getFieldsList(int valuesOrDisplay) {
         if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
-            return new String[] {
+            return new String[]{
                 FIELDS_POSITION,
                 FIELDS_NAME,
                 FIELDS_GENDER,
@@ -1740,7 +1812,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 FIELDS_BOATTYPE
             };
         } else {
-            return new String[] {
+            return new String[]{
                 International.getString("Position"),
                 International.getString("Name"),
                 International.getString("Geschlecht"),
@@ -1800,6 +1872,99 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         return a;
     }
 
+    public String[] getOtherFieldsListDefaults(StatisticType type, int valuesOrDisplay) {
+        String[] fields = getOtherFieldsList(type, ARRAY_STRINGLIST_VALUES);
+        int count = 0;
+        for (int i=0; i<fields.length; i++) {
+            if (!fields[i].equals(FIELDS_BOATTYPE)) {
+                count++;
+            }
+        }
+        String[] deffields = new String[count];
+        for (int idx=0, i=0; i<fields.length; i++) {
+            if (!fields[i].equals(FIELDS_BOATTYPE)) {
+                deffields[idx++] = fields[i];
+            }
+        }
+        return deffields;
+    }
+    
+    public String[] getOtherFieldsList(StatisticType type, int valuesOrDisplay) {
+        switch (type) {
+            case boatstatus:
+                if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
+                    return new String[]{
+                        FIELDS_NAME,
+                        FIELDS_BOATTYPE,
+                        OFIELDS_BASESTATUS,
+                        OFIELDS_CURRENTSTATUS,
+                        OFIELDS_COMMENTS};
+                } else {
+                    return new String[]{
+                        International.getString("Name"),
+                        International.getString("Bootstyp"),
+                        International.getString("Basis-Status"),
+                        International.getString("aktueller Status"),
+                        International.getString("Bemerkungen")
+                    };
+                }
+            case boatreservations:
+                if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
+                    return new String[]{
+                        FIELDS_NAME,
+                        FIELDS_BOATTYPE,
+                        OFIELDS_RESERVEDFROM,
+                        OFIELDS_RESERVEDTO,
+                        OFIELDS_RESERVEDFOR,
+                        OFIELDS_REASON
+                    };
+                } else {
+                    return new String[]{
+                        International.getString("Name"),
+                        International.getString("Bootstyp"),
+                        International.getString("Reserviert von"),
+                        International.getString("Reserviert bis"),
+                        International.getString("Reserviert für"),
+                        International.getString("Grund")
+                    };
+                }
+            case boatdamages:
+                if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
+                    return new String[]{
+                        FIELDS_NAME,
+                        FIELDS_BOATTYPE,
+                        OFIELDS_DAMAGE,
+                        OFIELDS_DAMAGESEVERITY,
+                        OFIELDS_REPORTEDON,
+                        OFIELDS_FIXEDON};
+                } else {
+                    return new String[]{
+                        International.getString("Name"),
+                        International.getString("Bootstyp"),
+                        International.getString("Schaden"),
+                        International.getString("Schwere des Schadens"),
+                        International.getString("gemeldet am"),
+                        International.getString("behoben am")
+                    };
+                }
+            case boatdamagestat:
+                if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
+                    return new String[]{
+                        FIELDS_POSITION,
+                        FIELDS_NAME,
+                        FIELDS_BOATTYPE};
+                } else {
+                    return new String[]{
+                        International.getString("Position"),
+                        International.getString("Name"),
+                        International.getString("Bootstyp")
+                    };
+                }
+            default:
+                return new String[0];
+        }
+    }
+    
     public void setAggregations(DataTypeList<String> list) {
         setList(AGGREGATIONS, list);
     }
@@ -1808,7 +1973,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         return getList(AGGREGATIONS, IDataAccess.DATA_STRING);
     }
 
-    public String[] getAggregationList(int valuesOrDisplay) {
+    public String[] getAggregationList(StatisticType type, int valuesOrDisplay) {
         Hashtable<String,String> allKeys = new Hashtable<String,String>();
         allKeys.put(AGGR_DISTANCE, DataTypeDistance.getDefaultUnitName());
         allKeys.put(AGGR_ROWDISTANCE, getRowingKmString());
@@ -1819,31 +1984,41 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         allKeys.put(AGGR_SPEED, International.getString("Geschwindigkeit"));
         allKeys.put(AGGR_WANDERFAHRTEN, International.onlyFor("Wafa-Km", "de"));
         allKeys.put(AGGR_ZIELFAHRTEN, International.onlyFor("Zielfahrten", "de"));
-        if (Daten.NEW_FEATURES) {
-            allKeys.put(AGGR_CLUBWORK, International.getString("Vereinsarbeit"));
-            allKeys.put(AGGR_CBRELTOTARGET, International.getString("Vereinsarbeit") +
-                     " (" + International.getString("relativ zum Soll") + ")");
-            allKeys.put(AGGR_CBOVERUNDERCARRYOVER, International.getString("Vereinsarbeit") +
-                     " (" + International.getString("über/unter Jahresübertrag") + ")");
-            allKeys.put(AGGR_CLUBWORKCREDIT, International.getString("Vereinsarbeit") +
-                     " (" + International.getString("nur Gutschriften") + ")");
-        }
+        allKeys.put(AGGR_DAMAGECOUNT, International.getString("Schäden"));
+        allKeys.put(AGGR_DAMAGEDURATION, International.getString("Reparaturdauer") + " (" +
+                International.getString("Tage") + ")");
+        allKeys.put(AGGR_DAMAGEAVGDUR, International.getString("Reparaturdauer") + "/" +
+                International.getString("Schaden"));
+        allKeys.put(AGGR_CLUBWORK, International.getString("Vereinsarbeit"));
+        allKeys.put(AGGR_CBRELTOTARGET, International.getString("Vereinsarbeit")
+                + " (" + International.getString("relativ zum Soll") + ")");
+        allKeys.put(AGGR_CBOVERUNDERCARRYOVER, International.getString("Vereinsarbeit")
+                + " (" + International.getString("über/unter Jahresübertrag") + ")");
+        allKeys.put(AGGR_CLUBWORKCREDIT, International.getString("Vereinsarbeit")
+                + " (" + International.getString("nur Gutschriften") + ")");
 
         Vector<String> selectedKeys = new Vector<String>();
-        selectedKeys.add(AGGR_DISTANCE);
-        selectedKeys.add(AGGR_ROWDISTANCE);
-        selectedKeys.add(AGGR_COXDISTANCE);
-        selectedKeys.add(AGGR_SESSIONS);
-        selectedKeys.add(AGGR_AVGDISTANCE);
-        selectedKeys.add(AGGR_DURATION);
-        selectedKeys.add(AGGR_SPEED);
-        if (Daten.efaConfig.getValueUseFunctionalityRowingGermany()) {
-            selectedKeys.add(AGGR_WANDERFAHRTEN);
+        if (type == StatisticType.persons || type == StatisticType.boats) {
+            selectedKeys.add(AGGR_DISTANCE);
+            selectedKeys.add(AGGR_ROWDISTANCE);
+            selectedKeys.add(AGGR_COXDISTANCE);
+            selectedKeys.add(AGGR_SESSIONS);
+            selectedKeys.add(AGGR_AVGDISTANCE);
+            selectedKeys.add(AGGR_DURATION);
+            selectedKeys.add(AGGR_SPEED);
+            if (Daten.efaConfig.getValueUseFunctionalityRowingGermany()) {
+                selectedKeys.add(AGGR_WANDERFAHRTEN);
+            }
+            if (Daten.efaConfig.getValueUseFunctionalityRowingBerlin()) {
+                selectedKeys.add(AGGR_ZIELFAHRTEN);
+            }
         }
-        if (Daten.efaConfig.getValueUseFunctionalityRowingBerlin()) {
-            selectedKeys.add(AGGR_ZIELFAHRTEN);
+        if (type == StatisticType.boatdamagestat) {
+            selectedKeys.add(AGGR_DAMAGECOUNT);
+            selectedKeys.add(AGGR_DAMAGEDURATION);
+            selectedKeys.add(AGGR_DAMAGEAVGDUR);
         }
-        if (Daten.NEW_FEATURES) {
+        if (type == StatisticType.clubwork) {
             selectedKeys.add(AGGR_CLUBWORK);
             selectedKeys.add(AGGR_CBRELTOTARGET);
             selectedKeys.add(AGGR_CBOVERUNDERCARRYOVER);
@@ -1955,6 +2130,12 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             return SortingCriteria.entryNo;
         } else if (sort.equals(SORTING_DATE)) {
             return SortingCriteria.date;
+        } else if (sort.equals(SORTING_DAMAGECOUNT)) {
+            return SortingCriteria.damageCount;
+        } else if (sort.equals(SORTING_DAMAGEDUR)) {
+            return SortingCriteria.damageDuration;
+        } else if (sort.equals(SORTING_DAMAGEAVGDUR)) {
+            return SortingCriteria.damageAvgDuration;
         } else if (sort.equals(SORTING_CLUBWORK)) {
             return SortingCriteria.clubwork;
         }
@@ -1994,6 +2175,14 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 return International.getString("LfdNr");
             case date:
                 return International.getString("Datum");
+            case damageCount:
+                return International.getString("Anzahl") + " " +
+                        International.getString("Schäden");
+            case damageDuration:
+                return International.getString("Reparaturdauer");
+            case damageAvgDuration:
+                return International.getString("Reparaturdauer") + "/" +
+                International.getString("Schaden");
             case clubwork:
                 return International.getString("Vereinsarbeit");
         }
@@ -2016,7 +2205,10 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 SORTING_YEAROFBIRTH,
                 SORTING_BOATTYPE,
                 SORTING_ENTRYNO,
-                SORTING_DATE
+                SORTING_DATE,
+                SORTING_DAMAGECOUNT,
+                SORTING_DAMAGEDUR,
+                SORTING_DAMAGEAVGDUR
             };
         } else {
             return new String[] {
@@ -2037,7 +2229,12 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 International.getString("Jahrgang"),
                 International.getString("Bootstyp"),
                 International.getString("LfdNr"),
-                International.getString("Datum")
+                International.getString("Datum"),
+                International.getString("Anzahl") + " " +
+                    International.getString("Schäden"),
+                International.getString("Reparaturdauer"),
+                International.getString("Reparaturdauer") + "/" +
+                    International.getString("Schaden")
             };
         }
     }
@@ -2269,7 +2466,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         String CAT_FIELDSCALC   = "%031%" + International.getString("Berechnung");
         String CAT_FIELDSLIST   = "%032%" + International.getString("Kilometerliste");
         String CAT_FIELDSLOGBOOK= "%033%" + International.getString("Fahrtenbuch");
-        String CAT_FIELDSBARS   = "%034%" + International.getString("Balken");
+        String CAT_FIELDSOTHER  = "%034%" + International.getString("Weitere");
+        String CAT_FIELDSBARS   = "%035%" + International.getString("Balken");
         String CAT_SORTING      = "%04%" + International.getString("Sortierung");
         String CAT_COMP         = "%05%" + International.getString("Wettbewerbe");
         String CAT_OUTPUT       = "%06%" + International.getString("Ausgabe");
@@ -2440,14 +2638,19 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         v.add(item = new ItemTypeDistance(StatisticsRecord.FILTERMINSESSIONDISTANCE, getFilterMinDessionDistance(),
                     IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER,CAT_FILTERVARIOUS),
                     International.getString("Mindestentfernung")));
-
-
+        v.add(item = new ItemTypeBoolean(StatisticsRecord.FILTERONLYOPENDAMAGES, getFilterOnlyOpenDamages(),
+                    IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER,CAT_FILTERVARIOUS),
+                    International.getString("nur offene Bootsschäden")));
+        
+        
         // CAT_FIELDS
         v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.AGGREGATIONS, getAggregations(),
-                    getAggregationList(ARRAY_STRINGLIST_VALUES), getAggregationList(ARRAY_STRINGLIST_DISPLAY),
+                    getAggregationList(StatisticType.persons, ARRAY_STRINGLIST_VALUES), 
+                    getAggregationList(StatisticType.persons, ARRAY_STRINGLIST_DISPLAY),
                     IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FIELDS,CAT_FIELDSCALC),
                     International.getString("Berechnung")));
         ((ItemTypeMultiSelectList)item).setFieldSize(400, 300);
+        itemAggrFields = ((ItemTypeMultiSelectList)item);
         v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.SHOWFIELDS, getShowFields(),
                     getFieldsList(ARRAY_STRINGLIST_VALUES), getFieldsList(ARRAY_STRINGLIST_DISPLAY),
                     IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FIELDS,CAT_FIELDSLIST),
@@ -2458,6 +2661,13 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                     IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FIELDS,CAT_FIELDSLOGBOOK),
                     International.getString("Ausgabe")));
         ((ItemTypeMultiSelectList)item).setFieldSize(400, 300);
+        v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.SHOWOTHERFIELDS, getShowOtherFields(),
+                    getOtherFieldsList(StatisticType.anythingElse, ARRAY_STRINGLIST_VALUES), 
+                    getOtherFieldsList(StatisticType.anythingElse, ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FIELDS,CAT_FIELDSOTHER),
+                    International.getString("Ausgabe")));
+        ((ItemTypeMultiSelectList)item).setFieldSize(400, 300);
+        itemShowOtherFields = ((ItemTypeMultiSelectList)item);
 
         v.add(item = new ItemTypeLabel("GUIITEM_BARSIZE_LABEL",
                 IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FIELDS,CAT_FIELDSBARS),
@@ -2680,6 +2890,17 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         sIsFieldsStatus = false;
         sIsFieldsYearOfBirth = false;
         sIsFieldsBoatType = false;
+        sIsOFieldsBaseStatus = false;
+        sIsOFieldsCurrentStatus = false;
+        sIsOFieldsComments = false;
+        sIsOFieldsReservedFrom = false;
+        sIsOFieldsReservedTo = false;
+        sIsOFieldsReservedFor = false;
+        sIsOFieldsReason = false;
+        sIsOFieldsDamage = false;
+        sIsOFieldsDamageSeverity = false;
+        sIsOFieldsReportedOn = false;
+        sIsOFieldsFixedOn = false;
         sIsLFieldsEntryNo = false;
         sIsLFieldsDate = false;
         sIsLFieldsEndDate = false;
@@ -2708,6 +2929,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         sIsAggrWanderfahrten = false;
         sIsAggrWinterfahrten = false;
         sIsAggrGigfahrten = false;
+        sIsAggrDamageCount = false;
+        sIsAggrDamageDuration = false;
+        sIsAggrDamageAvgDuration = false;
         sIsAggrClubwork = false;
         sIsAggrClubworkRelativeToTarget = false;
         sIsAggrClubworkOverUnderCarryOver = false;
@@ -2841,6 +3065,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         if (sFilterMinSessionDistance != null && !sFilterMinSessionDistance.isSet()) {
             sFilterMinSessionDistance = null;
         }
+        sFilterOnlyOpenDamages = getFilterOnlyOpenDamages();
 
         if (getFilterPromptPerson() && Daten.isGuiAppl()) {
             Object o = promptForInput(sFilterByPersonId, sFilterByPersonText,
@@ -2913,7 +3138,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             }
         }
 
-        DataTypeList<String> fields = getShowFields();
+        DataTypeList<String> fields = (sStatisticCategory != StatisticCategory.other ?
+                getShowFields() : getShowOtherFields());
         for (int i=0; fields != null && i<fields.length(); i++) {
             String s = fields.get(i);
             if (s.equals(FIELDS_POSITION)) {
@@ -2928,13 +3154,37 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 sIsFieldsYearOfBirth = true;
             } else if (s.equals(FIELDS_BOATTYPE)) {
                 sIsFieldsBoatType = true;
-            }
+            } else if (s.equals(OFIELDS_BASESTATUS)) {
+                sIsOFieldsBaseStatus = true;
+            } else if (s.equals(OFIELDS_CURRENTSTATUS)) {
+                sIsOFieldsCurrentStatus = true;
+            } else if (s.equals(OFIELDS_COMMENTS)) {
+                sIsOFieldsComments = true;
+            } else if (s.equals(OFIELDS_RESERVEDFROM)) {
+                sIsOFieldsReservedFrom = true;
+            } else if (s.equals(OFIELDS_RESERVEDTO)) {
+                sIsOFieldsReservedTo = true;
+            } else if (s.equals(OFIELDS_RESERVEDFOR)) {
+                sIsOFieldsReservedFor = true;
+            } else if (s.equals(OFIELDS_REASON)) {
+                sIsOFieldsReason = true;
+            } else if (s.equals(OFIELDS_DAMAGE)) {
+                sIsOFieldsDamage = true;
+            } else if (s.equals(OFIELDS_DAMAGESEVERITY)) {
+                sIsOFieldsDamageSeverity = true;
+            } else if (s.equals(OFIELDS_REPORTEDON)) {
+                sIsOFieldsReportedOn = true;
+            } else if (s.equals(OFIELDS_FIXEDON)) {
+                sIsOFieldsFixedOn = true;
+            } 
         }
-        if ((sStatisticCategory == StatisticCategory.list || 
-                (sStatisticCategory == StatisticCategory.other && sStatisticType.equals(STYPE_CLUBWORK))) &&
+        if ((sStatisticCategory == StatisticCategory.list || sStatisticCategory == StatisticCategory.other) &&
             (fields == null || fields.length() == 0)) {
             // at least show these fields, if for (whatever reason) no fields were selected
             sIsFieldsPosition = true;
+            sIsFieldsName = true;
+        }
+        if (sStatisticCategory == StatisticCategory.other) {
             sIsFieldsName = true;
         }
 
@@ -2984,44 +3234,52 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         }
 
         DataTypeList<String> aggr = getAggregations();
-        for (int i=0; aggr != null && i<aggr.length(); i++) {
+        for (int i = 0; aggr != null && i < aggr.length(); i++) {
             String s = aggr.get(i);
-            if (s.equals(AGGR_DISTANCE)) {
+            if (s.equals(AGGR_DISTANCE) && sStatisticCategory != StatisticCategory.other) {
                 sIsAggrDistance = true;
-            } else if (s.equals(AGGR_ROWDISTANCE)) {
+            } else if (s.equals(AGGR_ROWDISTANCE) && sStatisticCategory != StatisticCategory.other) {
                 sIsAggrRowDistance = true;
-            } else if (s.equals(AGGR_COXDISTANCE)) {
+            } else if (s.equals(AGGR_COXDISTANCE) && sStatisticCategory != StatisticCategory.other) {
                 sIsAggrCoxDistance = true;
-            } else if (s.equals(AGGR_SESSIONS)) {
+            } else if (s.equals(AGGR_SESSIONS) && sStatisticCategory != StatisticCategory.other) {
                 sIsAggrSessions = true;
-            } else if (s.equals(AGGR_AVGDISTANCE)) {
+            } else if (s.equals(AGGR_AVGDISTANCE) && sStatisticCategory != StatisticCategory.other) {
                 sIsAggrAvgDistance = true;
-            } else if (s.equals(AGGR_DURATION)) {
+            } else if (s.equals(AGGR_DURATION) && sStatisticCategory != StatisticCategory.other) {
                 sIsAggrDuration = true;
-            } else if (s.equals(AGGR_SPEED)) {
+            } else if (s.equals(AGGR_SPEED) && sStatisticCategory != StatisticCategory.other) {
                 sIsAggrSpeed = true;
-            } else if (s.equals(AGGR_ZIELFAHRTEN)) {
+            } else if (s.equals(AGGR_ZIELFAHRTEN) && sStatisticCategory != StatisticCategory.other) {
                 sIsAggrZielfahrten = true;
-            } else if (s.equals(AGGR_WANDERFAHRTEN)) {
+            } else if (s.equals(AGGR_WANDERFAHRTEN) && sStatisticCategory != StatisticCategory.other) {
                 sIsAggrWanderfahrten = true;
-            } else if (s.equals(AGGR_CLUBWORK)) {
+            } else if (s.equals(AGGR_DAMAGECOUNT) && sStatisticTypeEnum == StatisticType.boatdamagestat) {
+                sIsAggrDamageCount = true;
+            } else if (s.equals(AGGR_DAMAGEDURATION) && sStatisticTypeEnum == StatisticType.boatdamagestat) {
+                sIsAggrDamageDuration = true;
+            } else if (s.equals(AGGR_DAMAGEAVGDUR) && sStatisticTypeEnum == StatisticType.boatdamagestat) {
+                sIsAggrDamageAvgDuration = true;
+            } else if (s.equals(AGGR_CLUBWORK) && sStatisticTypeEnum == StatisticType.clubwork) {
                 sIsAggrClubwork = true;
-            } else if (s.equals(AGGR_CBRELTOTARGET)) {
+            } else if (s.equals(AGGR_CBRELTOTARGET) && sStatisticTypeEnum == StatisticType.clubwork) {
                 sIsAggrClubworkRelativeToTarget = true;
-	        } else if (s.equals(AGGR_CBOVERUNDERCARRYOVER)) {
-	            sIsAggrClubworkOverUnderCarryOver = true;
-	        } else if (s.equals(AGGR_CLUBWORKCREDIT)) {
-	            sIsAggrClubworkCredit = true;
-	        }
+            } else if (s.equals(AGGR_CBOVERUNDERCARRYOVER) && sStatisticTypeEnum == StatisticType.clubwork) {
+                sIsAggrClubworkOverUnderCarryOver = true;
+            } else if (s.equals(AGGR_CLUBWORKCREDIT) && sStatisticTypeEnum == StatisticType.clubwork) {
+                sIsAggrClubworkCredit = true;
+            }
         }
 
-        sAggrDistanceBarSize = getAggrDistanceBarSize();
-        sAggrRowDistanceBarSize = getAggrRowDistanceBarSize();
-        sAggrCoxDistanceBarSize = getAggrCoxDistanceBarSize();
-        sAggrSessionsBarSize = getAggrSessionsBarSize();
-        sAggrAvgDistanceBarSize = getAggrAvgDistanceBarSize();
-        sAggrDurationBarSize = getAggrDurationBarSize();
-        sAggrSpeedBarSize = getAggrSpeedBarSize();
+        if (sStatisticCategory != StatisticCategory.other) {
+            sAggrDistanceBarSize = getAggrDistanceBarSize();
+            sAggrRowDistanceBarSize = getAggrRowDistanceBarSize();
+            sAggrCoxDistanceBarSize = getAggrCoxDistanceBarSize();
+            sAggrSessionsBarSize = getAggrSessionsBarSize();
+            sAggrAvgDistanceBarSize = getAggrAvgDistanceBarSize();
+            sAggrDurationBarSize = getAggrDurationBarSize();
+            sAggrSpeedBarSize = getAggrSpeedBarSize();
+        }
 
         sSortingCriteria = getSortingCriteriaEnum();
         sSortingOrderAscending = getSortingOrderAscending();
@@ -3173,7 +3431,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         }
         pTableColumns = new Vector<String>();
         if (sStatisticCategory == StatisticCategory.list ||
-            sStatisticCategory == StatisticCategory.matrix) {
+            sStatisticCategory == StatisticCategory.matrix ||
+            sStatisticCategory == StatisticCategory.other) {
             if (sIsFieldsPosition) {
                 //pTableColumns.add(International.getString("Platz"));
                 // The following line is useless, but added with intention to keep the translation for "Platz"
@@ -3195,6 +3454,39 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             }
             if (sIsFieldsBoatType) {
                 pTableColumns.add(International.getString("Bootstyp"));
+            }
+            if (sIsOFieldsBaseStatus) {
+                pTableColumns.add(International.getString("Basis-Status"));
+            }
+            if (sIsOFieldsCurrentStatus) {
+                pTableColumns.add(International.getString("aktueller Status"));
+            }
+            if (sIsOFieldsComments) {
+                pTableColumns.add(International.getString("Bemerkungen"));
+            }
+            if (sIsOFieldsReservedFrom) {
+                pTableColumns.add(International.getString("Reserviert von"));
+            }
+            if (sIsOFieldsReservedTo) {
+                pTableColumns.add(International.getString("Reserviert bis"));
+            }
+            if (sIsOFieldsReservedFor) {
+                pTableColumns.add(International.getString("Reserviert für"));
+            }
+            if (sIsOFieldsReason) {
+                pTableColumns.add(International.getString("Grund"));
+            }
+            if (sIsOFieldsDamage) {
+                pTableColumns.add(International.getString("Schaden"));
+            }
+            if (sIsOFieldsDamageSeverity) {
+                pTableColumns.add(International.getString("Schwere des Schadens"));
+            }
+            if (sIsOFieldsReportedOn) {
+                pTableColumns.add(International.getString("gemeldet am"));
+            }
+            if (sIsOFieldsFixedOn) {
+                pTableColumns.add(International.getString("behoben am"));
             }
             if (sIsAggrDistance) {
                 pTableColumns.add(DataTypeDistance.getDefaultUnitName());
@@ -3222,6 +3514,29 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             }
             if (sIsAggrWanderfahrten) {
                 pTableColumns.add(International.onlyFor("Wafa-Km", "de"));
+            }
+            if (sIsAggrDamageCount) {
+                pTableColumns.add(International.getString("Schäden"));
+            }
+            if (sIsAggrDamageDuration) {
+                pTableColumns.add(International.getString("Reparaturdauer") + " (" +
+                International.getString("Tage") + ")");
+            }
+            if (sIsAggrDamageAvgDuration) {
+                pTableColumns.add(International.getString("Reparaturdauer") + "/" +
+                International.getString("Schaden"));
+            }
+            if (sIsAggrClubwork) {
+                pTableColumns.add(International.getString("Vereinsarbeit"));
+            }
+            if (sIsAggrClubworkRelativeToTarget) {
+                pTableColumns.add(International.getString("relativ zum Soll"));
+            }
+            if (sIsAggrClubworkOverUnderCarryOver) {
+                pTableColumns.add(International.getString("über/unter Soll"));
+            }
+            if (sIsAggrClubworkCredit) {
+                pTableColumns.add(International.getString("Gutschriften"));
             }
         }
         if (sStatisticCategory == StatisticCategory.matrix) {
@@ -3319,38 +3634,6 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 pTableColumns.add(International.getString("Bemerkungen"));
             }
         }
-        if (sStatisticCategory == StatisticCategory.other) {
-            if (sStatisticType.equals(STYPE_CLUBWORK)) {
-                if (sIsFieldsPosition) {
-                    //pTableColumns.add(International.getString("Platz"));
-                    // The following line is useless, but added with intention to keep the translation for "Platz"
-                    International.getString("Platz");
-                    pTableColumns.add(International.getString("Position"));
-                }
-                if (sIsFieldsName) {
-                    String s = getStatisticKeyDescription();
-                    pTableColumns.add((s != null ? s : International.getString("Name")));
-                }
-                if (sIsFieldsGender) {
-                    pTableColumns.add(International.getString("Geschlecht"));
-                }
-                if (sIsFieldsStatus) {
-                    pTableColumns.add(International.getString("Status"));
-                }
-                if (sIsAggrClubwork) {
-                    pTableColumns.add(International.getString("Vereinsarbeit"));
-                }
-                if (sIsAggrClubworkRelativeToTarget) {
-                    pTableColumns.add(International.getString("relativ zum Soll"));
-                }
-                if (sIsAggrClubworkOverUnderCarryOver) {
-                    pTableColumns.add(International.getString("über/unter Soll"));
-                }
-                if (sIsAggrClubworkCredit) {
-                    pTableColumns.add(International.getString("Gutschriften"));
-                }
-            }
-        }
     }
 
     private void setDefaultSorting(StatisticCategory cat) {
@@ -3364,6 +3647,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 itemTypeSortingCriteria.parseAndShowValue(SORTING_ENTRYNO);
                 itemTypeSortingOrder.parseAndShowValue(SORTINGORDER_ASC);
             }
+        } else if (cat == StatisticCategory.other) {
+            itemTypeSortingCriteria.parseAndShowValue(SORTING_NAME);
+            itemTypeSortingOrder.parseAndShowValue(SORTINGORDER_ASC);
         } else {
             if (SORTING_ENTRYNO.equals(crit) || SORTING_DATE.equals(crit)) {
                 itemTypeSortingCriteria.parseAndShowValue(this.SORTING_DISTANCE);
@@ -3410,6 +3696,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             StatisticCategory cat = getStatisticCategoryEnum(cats);
             String defaultStatisticType = getStatisticTypeDefault(cat);
             String defaultStatisticKey = getStatisticKeyDefault(defaultStatisticType);
+            StatisticType typeEnum = getStatisticTypeEnum(defaultStatisticType);
             if (itemStatisticType != null) {
                 itemStatisticType.setListData(getStatisticTypes(cat, ARRAY_STRINGLIST_VALUES),
                                               getStatisticTypes(cat, ARRAY_STRINGLIST_DISPLAY));
@@ -3429,11 +3716,27 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             }
             setDefaultSorting(cat);
             setDefaultDates(cat, defaultStatisticType);
+            if (itemAggrFields != null) {
+                itemAggrFields.setListData(getAggregationList(typeEnum, ARRAY_STRINGLIST_VALUES),
+                                           getAggregationList(typeEnum, ARRAY_STRINGLIST_DISPLAY));
+                DataTypeList<String> selected = new DataTypeList<String>(getAggregationList(typeEnum, ARRAY_STRINGLIST_VALUES));
+                setAggregations(selected);
+                itemAggrFields.showValue();
+            }
+            if (itemShowOtherFields != null) {
+                itemShowOtherFields.setListData(getOtherFieldsList(typeEnum, ARRAY_STRINGLIST_VALUES),
+                                                getOtherFieldsList(typeEnum, ARRAY_STRINGLIST_DISPLAY));
+                DataTypeList<String> selected = new DataTypeList<String>(getOtherFieldsListDefaults(typeEnum, ARRAY_STRINGLIST_VALUES));
+                setShowOtherFields(selected);
+                itemShowOtherFields.setValue(selected);
+                itemShowOtherFields.showValue();
+            }
         }
         if (itemType.getName().equals(STATISTICTYPE) && 
             event instanceof ItemEvent  &&
             ((ItemEvent)event).getStateChange() == ItemEvent.SELECTED) {
             String type = itemType.getValueFromField();
+            StatisticType typeEnum = getStatisticTypeEnum(type);
             String defaultStatisticKey = getStatisticKeyDefault(type);
             if (itemStatisticKey != null) {
                 itemStatisticKey.setListData(getStatisticKeys(type, ARRAY_STRINGLIST_VALUES),
@@ -3443,6 +3746,21 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 }
             }
             setDefaultDates(null, type);
+            if (itemAggrFields != null) {
+                itemAggrFields.setListData(getAggregationList(typeEnum, ARRAY_STRINGLIST_VALUES),
+                                           getAggregationList(typeEnum, ARRAY_STRINGLIST_DISPLAY));
+                DataTypeList<String> selected = new DataTypeList<String>(getAggregationList(typeEnum, ARRAY_STRINGLIST_VALUES));
+                setAggregations(selected);
+                itemAggrFields.showValue();
+            }
+            if (itemShowOtherFields != null) {
+                itemShowOtherFields.setListData(getOtherFieldsList(typeEnum, ARRAY_STRINGLIST_VALUES),
+                                                getOtherFieldsList(typeEnum, ARRAY_STRINGLIST_DISPLAY));
+                DataTypeList<String> selected = new DataTypeList<String>(getOtherFieldsListDefaults(typeEnum, ARRAY_STRINGLIST_VALUES));
+                setShowOtherFields(selected);
+                itemShowOtherFields.setValue(selected);
+                itemShowOtherFields.showValue();
+            }
         }
         if (itemType.getName().equals(FILTERGENDERALL) && event instanceof ActionEvent) {
             if (itemFilterGender != null && itemType.getValueFromField() != null) {

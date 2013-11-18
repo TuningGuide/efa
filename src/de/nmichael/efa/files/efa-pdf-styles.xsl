@@ -194,6 +194,13 @@
             <xsl:apply-templates select="Speed"/>
             <xsl:apply-templates select="DestinationAreas"/>
             <xsl:apply-templates select="WanderfahrtKm"/>
+            <xsl:apply-templates select="DamageCount"/>
+            <xsl:apply-templates select="DamageDuration"/>
+            <xsl:apply-templates select="DamageAvgDuration"/>
+            <xsl:apply-templates select="Clubwork"/>
+            <xsl:apply-templates select="ClubworkRelTarget"/>
+            <xsl:apply-templates select="ClubworkCarryOver"/>
+            <xsl:apply-templates select="ClubworkCredit"/>
             <xsl:apply-templates select="MatrixColumn"/>
 	  </fo:table-row>
         </xsl:for-each>
@@ -312,6 +319,34 @@
   </xsl:template>
 
   <xsl:template match="WanderfahrtKm">
+    <fo:table-cell padding-right="6pt"><fo:block text-align="right"><xsl:value-of select="."/></fo:block></fo:table-cell>
+  </xsl:template>
+
+  <xsl:template match="DamageCount">
+    <fo:table-cell padding-right="6pt"><fo:block text-align="right"><xsl:value-of select="."/></fo:block></fo:table-cell>
+  </xsl:template>
+
+  <xsl:template match="DamageDuration">
+    <fo:table-cell padding-right="6pt"><fo:block text-align="right"><xsl:value-of select="."/></fo:block></fo:table-cell>
+  </xsl:template>
+
+  <xsl:template match="DamageAvgDuration">
+    <fo:table-cell padding-right="6pt"><fo:block text-align="right"><xsl:value-of select="."/></fo:block></fo:table-cell>
+  </xsl:template>
+
+  <xsl:template match="Clubwork">
+    <fo:table-cell padding-right="6pt"><fo:block text-align="right"><xsl:value-of select="."/></fo:block></fo:table-cell>
+  </xsl:template>
+
+  <xsl:template match="ClubworkRelTarget">
+    <fo:table-cell padding-right="6pt"><fo:block text-align="right"><xsl:value-of select="."/></fo:block></fo:table-cell>
+  </xsl:template>
+
+  <xsl:template match="ClubworkCarryOver">
+    <fo:table-cell padding-right="6pt"><fo:block text-align="right"><xsl:value-of select="."/></fo:block></fo:table-cell>
+  </xsl:template>
+
+  <xsl:template match="ClubworkCredit">
     <fo:table-cell padding-right="6pt"><fo:block text-align="right"><xsl:value-of select="."/></fo:block></fo:table-cell>
   </xsl:template>
 

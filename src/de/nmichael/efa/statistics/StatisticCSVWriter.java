@@ -78,7 +78,8 @@ public class StatisticCSVWriter extends StatisticWriter {
                         continue;
                     }
                     if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list ||
-                        sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
+                        sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix ||
+                        sr.sStatisticCategory == StatisticsRecord.StatisticCategory.other) {
                         if (sr.sIsFieldsPosition) {
                             write(f, sd[i].sPosition);
                         }
@@ -124,6 +125,27 @@ public class StatisticCSVWriter extends StatisticWriter {
                         if (sr.sIsAggrWanderfahrten) {
                             write(f, sd[i].sWanderfahrten);
                         }
+                        if (sr.sIsAggrDamageCount) {
+                            write(f, sd[i].sDamageCount);
+                        }
+                        if (sr.sIsAggrDamageDuration) {
+                            write(f, sd[i].sDamageDuration);
+                        }
+                        if (sr.sIsAggrDamageAvgDuration) {
+                            write(f, sd[i].sDamageAvgDuration);
+                        }
+                        if (sr.sIsAggrClubwork) {
+                            write(f, sd[i].sClubwork);   
+                        }
+                        if (sr.sIsAggrClubworkRelativeToTarget) {
+                            write(f, sd[i].sClubworkRelativeToTarget);   
+                        }
+                        if (sr.sIsAggrClubworkOverUnderCarryOver) {
+                            write(f, sd[i].sClubworkOverUnderCarryOver);   
+                        }
+                        if (sr.sIsAggrClubworkCredit) {
+                            write(f, sd[i].sClubworkCredit);   
+                        }
                         if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
                             for (int j = sr.pMatrixColumnFirst; j < sr.pTableColumns.size(); j++) {
                                 StatisticsData sdm = (sd[i].matrixData != null ?
@@ -143,32 +165,6 @@ public class StatisticCSVWriter extends StatisticWriter {
                         if (sd[i].otherFields != null) {
                             for (int j = 0; j < sd[i].otherFields.length; j++) {
                                 write(f, sd[i].otherFields[j]);
-                            }
-                        }
-                        if (sr.sStatisticTypeEnum == StatisticsRecord.StatisticType.clubwork) {
-                            if (sr.sIsFieldsPosition) {
-                                write(f, sd[i].sPosition);
-                            }
-                            if (sr.sIsFieldsName) {
-                                write(f, sd[i].sName);
-                            }
-                            if (sr.sIsFieldsGender) {
-                                write(f, sd[i].sGender);
-                            }
-                            if (sr.sIsFieldsStatus) {
-                                write(f, sd[i].sStatus);
-                            }
-                            if (sr.sIsAggrClubwork) {
-                                write(f, sd[i].sClubwork);
-                            }
-                            if (sr.sIsAggrClubworkRelativeToTarget) {
-                                write(f, sd[i].sClubworkRelativeToTarget);
-                            }
-                            if (sr.sIsAggrClubworkOverUnderCarryOver) {
-                                write(f, sd[i].sClubworkOverUnderCarryOver);
-                            }
-                            if (sr.sIsAggrClubworkCredit) {
-                                write(f, sd[i].sClubworkCredit);
                             }
                         }
                     }

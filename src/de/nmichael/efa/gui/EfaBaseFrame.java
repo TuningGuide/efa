@@ -2699,7 +2699,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                         }
                     }
                 }
-                if (!found) {
+                if (g != null && !found) {
                     switch (Dialog.auswahlDialog(International.getString("Boot erfordert bestimmte Berechtigung"),
                             International.getMessage("In diesem Boot muß mindestens ein Mitglied der Gruppe {groupname} sitzen.", g.getName()) + "\n"
                             + International.getString("Was möchtest Du tun?"),

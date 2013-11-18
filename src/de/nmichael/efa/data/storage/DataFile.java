@@ -755,21 +755,23 @@ public abstract class DataFile extends DataAccess {
             try {
                 synchronized (data) {
                     DataRecord r = getValidAt(key, (Long)key.getKeyPart(keyFields.length - 1)); // VALID_FROM is always the last key field!
-                    modifyRecord(r, myLock, false, false, true);
-                    if (r != null && merge != 0 && isValidAny(key)) {
-                        if (merge == -1) { // merge with left record
-                            DataRecord r2 = getValidAt(key, r.getValidFrom()-1);
-                            if (r2 != null) {
-                                r2.setInvalidFrom(r.getInvalidFrom());
-                                modifyRecord(r2, myLock, false, true, false);
+                    if (r != null) {
+                        modifyRecord(r, myLock, false, false, true);
+                        if (merge != 0 && isValidAny(key)) {
+                            if (merge == -1) { // merge with left record
+                                DataRecord r2 = getValidAt(key, r.getValidFrom() - 1);
+                                if (r2 != null) {
+                                    r2.setInvalidFrom(r.getInvalidFrom());
+                                    modifyRecord(r2, myLock, false, true, false);
+                                }
                             }
-                        }
-                        if (merge == 1) { // merge with right record
-                            DataRecord r2 = getValidAt(key, r.getInvalidFrom());
-                            if (r2 != null) {
-                                modifyRecord(r2, myLock, false, false, true);
-                                r2.setValidFrom(r.getValidFrom());
-                                modifyRecord(r2, myLock, true, false, false);
+                            if (merge == 1) { // merge with right record
+                                DataRecord r2 = getValidAt(key, r.getInvalidFrom());
+                                if (r2 != null) {
+                                    modifyRecord(r2, myLock, false, false, true);
+                                    r2.setValidFrom(r.getValidFrom());
+                                    modifyRecord(r2, myLock, true, false, false);
+                                }
                             }
                         }
                     }

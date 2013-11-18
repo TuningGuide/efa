@@ -52,6 +52,13 @@ public class StatisticXMLWriter extends StatisticWriter {
     public static final String FIELD_ITEM_SPEED = "Speed";
     public static final String FIELD_ITEM_DESTINATIONAREAS = "DestinationAreas";
     public static final String FIELD_ITEM_WANDERFARTEN = "WanderfahrtKm";
+    public static final String FIELD_ITEM_DAMAGECOUNT = "DamageCount";
+    public static final String FIELD_ITEM_DAMAGEDURATION = "DamageDuration";
+    public static final String FIELD_ITEM_DAMAGEAVGDURATION = "DamageAvgDuration";
+    public static final String FIELD_ITEM_CLUBWORK = "Clubwork";
+    public static final String FIELD_ITEM_CLUBWORKRELTARGET = "ClubworkRelTarget";
+    public static final String FIELD_ITEM_CLUBWORKCARRYOVER = "ClubworkCarryOver";
+    public static final String FIELD_ITEM_CLUBWORKCREDIT = "ClubworkCredit";
     public static final String FIELD_ITEM_MATRIXCOLUMN = "MatrixColumn";
     
     public static final String FIELD_LOGBOOK = "Logbook";
@@ -272,7 +279,8 @@ public class StatisticXMLWriter extends StatisticWriter {
                         continue;
                     }
                     if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.list ||
-                        sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
+                        sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix ||
+                        sr.sStatisticCategory == StatisticsRecord.StatisticCategory.other) {
                         if (!sd[i].isSummary) {
                             write(f, indent, xmltagStart(FIELD_ITEM, ATTR_INDEX, Integer.toString(i+1)));
                         } else {
@@ -293,6 +301,22 @@ public class StatisticXMLWriter extends StatisticWriter {
                         write(f, indent, xmltag(FIELD_ITEM_SPEED, sd[i].sSpeed));
                         write(f, indent, xmltag(FIELD_ITEM_DESTINATIONAREAS, sd[i].sDestinationAreas));
                         write(f, indent, xmltag(FIELD_ITEM_WANDERFARTEN, sd[i].sWanderfahrten));
+                        write(f, indent, xmltag(FIELD_ITEM_DAMAGECOUNT, sd[i].sDamageCount));
+                        write(f, indent, xmltag(FIELD_ITEM_DAMAGEDURATION, sd[i].sDamageDuration));
+                        write(f, indent, xmltag(FIELD_ITEM_DAMAGEAVGDURATION, sd[i].sDamageAvgDuration));
+                        write(f, indent, xmltag(FIELD_ITEM_CLUBWORK, sd[i].sClubwork));
+                        write(f, indent, xmltag(FIELD_ITEM_CLUBWORKRELTARGET, sd[i].sClubworkRelativeToTarget));
+                        write(f, indent, xmltag(FIELD_ITEM_CLUBWORKCARRYOVER, sd[i].sClubworkOverUnderCarryOver));
+                        write(f, indent, xmltag(FIELD_ITEM_CLUBWORKCREDIT, sd[i].sClubworkCredit));
+                        if (sd[i].otherFields != null) {
+                            for (int j = 0; j < sd[i].otherFields.length; j++) {
+                                String s = sd[i].otherFields[j];
+                                if (printColumnHeaders && s == null) {
+                                    s = "";
+                                }
+                                write(f, indent, xmltag("Field" + (j+1), s));
+                            }
+                        }
                         if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
                             printAllColumns = true;
                             for (int j = sr.pMatrixColumnFirst; j < sr.pTableColumns.size(); j++) {
@@ -318,23 +342,6 @@ public class StatisticXMLWriter extends StatisticWriter {
                                     s = "";
                                 }
                                 write(f, indent, xmltag(lfNames.get(j), s));
-                            }
-                        }
-                        write(f, indent, xmltagEnd(FIELD_RECORD));
-                    }
-                    if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.other) {
-                        if (!sd[i].isSummary) {
-                            write(f, indent, xmltagStart(FIELD_RECORD, ATTR_INDEX, Integer.toString(i+1)));
-                        } else {
-                            write(f, indent, xmltagStart(FIELD_RECORD, ATTR_SUMMARY, Boolean.toString(true)));
-                        }
-                        if (sd[i].otherFields != null) {
-                            for (int j = 0; j < sd[i].otherFields.length; j++) {
-                                String s = sd[i].otherFields[j];
-                                if (printColumnHeaders && s == null) {
-                                    s = "";
-                                }
-                                write(f, indent, xmltag("Field" + (j+1), s));
                             }
                         }
                         write(f, indent, xmltagEnd(FIELD_RECORD));

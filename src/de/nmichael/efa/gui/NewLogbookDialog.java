@@ -186,7 +186,9 @@ public class NewLogbookDialog extends StepwiseDialog {
             Daten.project.addLogbookRecord(rec);
             newLogbookName = logName.getValue();
             Daten.project.getLogbook(newLogbookName, true);
-            Daten.project.getClubwork(newLogbookName, true);
+            if (Daten.NEW_FEATURES) {
+                Daten.project.getClubwork(newLogbookName, true);
+            }
             Dialog.infoDialog(LogString.fileSuccessfullyCreated(logName.getValue(),
                     International.getString("Fahrtenbuch")));
             if (logswitch.getValue()) {
@@ -198,7 +200,7 @@ public class NewLogbookDialog extends StepwiseDialog {
                     if (r != null) {
                         r.setAutoNewLogbookDate(logFromDate.getDate());
                         r.setAutoNewLogbookName(logName.getValue());
-                        Daten.project.data().update(r);
+                        Daten.project.getMyDataAccess(ProjectRecord.TYPE_BOATHOUSE).update(r);
                         switchok = true;
                     }
                 }

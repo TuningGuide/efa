@@ -483,8 +483,8 @@ public class EfaTypes extends StorageObject {
         count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_JUMREGATTA, International.getString("JuM-Regatta"),"JuM-Regatta",bundle,createNew);
         count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_LATEENTRY, International.getString("Kilometernachtrag"),"Kilometernachtrag",bundle,createNew);
         if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {
-            count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_CLUBTRIP, International.onlyFor("DKV-Vereinsfahrt", "de"),"DKV-Vereinsfahrt",bundle,createNew);
-            count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_GROUPTRIP, International.onlyFor("DKV-Gemeinschaftsfahrt", "de"),"DKV-Gemeinschaftsfahrt",bundle,createNew);
+            count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_CLUBTRIP, International.onlyFor("Vereinsfahrt", "de"),"Vereinsfahrt",bundle,createNew);
+            count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_GROUPTRIP, International.onlyFor("Gemeinschaftsfahrt", "de"),"Gemeinschaftsfahrt",bundle,createNew);
         }
         count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_MOTORBOAT, International.getString("Motorboot"),"Motorboot",bundle,createNew);
         count += setToLanguage(CATEGORY_SESSION, TYPE_SESSION_ERG, International.getString("Ergo"),"Ergo",bundle,createNew);

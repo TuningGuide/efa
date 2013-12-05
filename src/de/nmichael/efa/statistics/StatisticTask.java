@@ -34,6 +34,10 @@ public class StatisticTask extends ProgressTask {
 
     private static final int WORK_PER_STATISTIC = 100;
     private static final int WORK_POSTPROCESSING = 50;
+    
+    private static BaseFrame lastParentFrame;
+    private static BaseDialog lastParentDialog;
+    
     private StatisticsRecord[] statisticsRecords;
     private AdminRecord admin;
     private StatisticsRecord sr;
@@ -1055,6 +1059,7 @@ public class StatisticTask extends ProgressTask {
             sd.count++;
             sd.days += days;
         }
+        sd.date = date;
 
         // set fields
         if (fields != null) {
@@ -1287,6 +1292,10 @@ public class StatisticTask extends ProgressTask {
     private boolean isInFilter(LogbookRecord r) {
         getEntrySessionType(r);
         if (!sr.sFilterSessionTypeAll && !sr.sFilterSessionType.containsKey(entrySessionType)) {
+            return false;
+        }
+        if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.competition &&
+            !r.isRowingOrCanoeingSession()) {
             return false;
         }
 
@@ -2230,6 +2239,34 @@ public class StatisticTask extends ProgressTask {
             setCurrentWorkDone((i + 1) * WORK_PER_STATISTIC);
         }
         setDone();
+        
+        try {
+            if (Daten.isGuiAppl() && admin != null && statisticsRecords.length == 1
+                    && statisticsRecords[0].sStatisticCategory == StatisticsRecord.StatisticCategory.competition
+                    && statisticsRecords[0].sOutputType == StatisticsRecord.OutputTypes.efawett) {
+                if (statisticsRecords[0].sStatisticType.equals(WettDefs.STR_DRV_FAHRTENABZEICHEN))  {
+                    int thisYear = statisticsRecords[0].getCompYear();
+                    Daten.project.setClubLastDrvFaWsYear(thisYear, -1);
+                    int lastYearWS = Daten.project.getClubLastDrvWsYear();
+                    if (thisYear != lastYearWS) {
+                        if (Dialog.yesNoDialog(International.onlyFor("DRV-Wanderruderstatistik", "de"),
+                                International.onlyFor("Möchtest du als nächstes auch die DRV-Wanderruderstatistik melden?", "de"))
+                                == Dialog.YES) {
+                            StatisticsRecord sr = (StatisticsRecord) statisticsRecords[0].cloneRecord();
+                            sr.setStatisticType(WettDefs.STR_DRV_WANDERRUDERSTATISTIK);
+                            createStatisticsTask(lastParentFrame, lastParentDialog,
+                                    new StatisticsRecord[]{sr}, admin);
+                        }
+                    }
+                }
+                if (statisticsRecords[0].sStatisticType.equals(WettDefs.STR_DRV_FAHRTENABZEICHEN))  {
+                    int thisYear = statisticsRecords[0].getCompYear();
+                    Daten.project.setClubLastDrvFaWsYear(-1, thisYear);
+                }
+            }
+        } catch (Exception e) {
+            Logger.logdebug(e);
+        }
     }
 
     public int getAbsoluteWork() {
@@ -2252,6 +2289,8 @@ public class StatisticTask extends ProgressTask {
     }
 
     public static void createStatisticsTask(BaseFrame parentFrame, BaseDialog parentDialog, StatisticsRecord[] sr, AdminRecord admin) {
+        lastParentFrame = parentFrame;
+        lastParentDialog = parentDialog;
         StatisticTask statisticTask = new StatisticTask(sr, admin);
         EfaUtil.setThreadName(statisticTask, "StatisticTask");
         ProgressDialog progressDialog = (parentFrame != null

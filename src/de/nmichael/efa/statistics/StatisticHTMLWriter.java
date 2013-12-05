@@ -284,15 +284,18 @@ public class StatisticHTMLWriter extends StatisticWriter {
                         outHTML(f, sd[i].sDamageDuration, 0, 0, null, 0);
                         outHTML(f, sd[i].sDamageAvgDuration, 0, 0, null, 0);
                         outHTML(f, sd[i].sClubwork, "entry_data");
-                        outHTML(f, sd[i].sClubworkRelativeToTarget,
-                                (!sd[i].sClubworkRelativeToTarget.equals("") && !sd[i].isSummary
-                                && sd[i].clubworkRelativeToTarget < -sr.sTransferableClubworkHours
-                                ? "entry_nok" : "entry_ok"));
-
-                        outHTML(f, sd[i].sClubworkOverUnderCarryOver,
-                                (!sd[i].sClubworkOverUnderCarryOver.equals("") && !sd[i].isSummary
-                                && sd[i].clubworkOverUnderCarryOver < 0
-                                ? "entry_nok" : "entry_ok"));
+                        if (sd[i].sClubworkRelativeToTarget != null) {
+                            outHTML(f, sd[i].sClubworkRelativeToTarget,
+                                    (!sd[i].sClubworkRelativeToTarget.equals("") && !sd[i].isSummary
+                                    && sd[i].clubworkRelativeToTarget < -sr.sTransferableClubworkHours
+                                    ? "entry_nok" : "entry_ok"));
+                        }
+                        if (sd[i].sClubworkOverUnderCarryOver != null) {
+                            outHTML(f, sd[i].sClubworkOverUnderCarryOver,
+                                    (!sd[i].sClubworkOverUnderCarryOver.equals("") && !sd[i].isSummary
+                                    && sd[i].clubworkOverUnderCarryOver < 0
+                                    ? "entry_nok" : "entry_ok"));
+                        }
                         outHTML(f, sd[i].sClubworkCredit, "entry_data");
                         if (sr.sStatisticCategory == StatisticsRecord.StatisticCategory.matrix) {
                             for (int j = sr.pMatrixColumnFirst; j < sr.pTableColumns.size(); j++) {

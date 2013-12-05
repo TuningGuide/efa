@@ -1,6 +1,11 @@
 Item
 ============================================================================================================
+
+BUG: Remote-Konfiguration von Fahrtenbuchwechsel führt zu Fehlermeldunge, daß logbook and clubwork nicht gefunden werden, 
+     plus update conflig (expected change count=1) für boathouse project record
+
 Schlüsselfeld für Import konfigurierbar machen: http://forum.nmichael.de/viewtopic.php?f=9&t=680&p=2764#p2764
+IP-Adresse in Sysinfos aufnehmen: http://forum.nmichael.de/viewtopic.php?f=9&t=685&p=2792#p2792
 
 Button für "Fahrt beenden" bei offenen Fahrten auch in efaBasis (inkl. Korrektur des Bootsstatus): http://forum.nmichael.de/posting.php?mode=reply&f=15&t=656
 Option für Änderungswünsche im Fahrtenbuch deaktivierbar machen (http://forum.nmichael.de/viewtopic.php?f=9&p=2565#p2565)
@@ -8,6 +13,7 @@ Korrekturassistent: Auswahl am Anfang, was korrigiert werden soll (sowie Konfigu
 Korrekturassistent: Unbekannte Namen automatisch in Personenliste übernehmen? Auswahl einzelenr Personen, dann Dialog mit allen ausgewählten Namen und Möglichkeit, Status, Gechlecht, Jahrgang zu erfassen. http://forum.nmichael.de/viewtopic.php?f=9&t=635&p=2551#p2551
 Gewässer in Fahrtgruppe erfassen, damit nicht für alle Etappen/Boote einzeln
 Fahrtgruppen bei Eingabe von Wanderfahrten durch Mitglieder auswählen lassen - https://kenai.com/bugzilla/show_bug.cgi?id=2231
+Funktion um als Admin einem normalen Nutzer eine Nachricht zu schrieben (z.B. ein freundlicher Hinweis diesmal das Boot bitte zu putzen, die Dollenbügel zu schließen oder Material an die vorgesehenen Stellen zurück zu legen
 
 Datenabgleich zwischen Bootshäusern implementieren, bei dem efa einen Export/Import durchführt, der anhand von LastModified erkennt, welche Daten gewinnen, aber zum Beispiel nie die Bootsstatusliste, Nachrichten, ... synchronisiert.
 Multiple tasks/functions for "Special Button" - https://kenai.com/bugzilla/show_bug.cgi?id=1215

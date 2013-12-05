@@ -931,7 +931,7 @@ public class Project extends StorageObject {
             return null;
         }
         Logbook logbook = (Logbook) getPersistence(Logbook.class, logbookName, Logbook.DATATYPE,
-                createNewIfDoesntExist, International.getString("Fahrtenbuch"));
+                createNewIfDoesntExist, International.getString("Fahrtenbuch"), createNewIfDoesntExist);
         if (logbook != null) {
             logbook.setName(logbookName);
             logbook.setProjectRecord(rec);
@@ -1113,7 +1113,7 @@ public class Project extends StorageObject {
             return null;
         }
         Clubwork clubwork = (Clubwork) getPersistence(Clubwork.class, name, Clubwork.DATATYPE,
-                createNewIfDoesntExist, International.getString("Vereinsarbeit"));
+                createNewIfDoesntExist, International.getString("Vereinsarbeit"), createNewIfDoesntExist);
         if (clubwork != null) {
             clubwork.setName(name);
             clubwork.setProjectRecord(rec);
@@ -1576,6 +1576,29 @@ public class Project extends StorageObject {
         }
     }
 
+    public void setClubLastDrvFaWsYear(int faYear, int wsYear) {
+        long l = 0;
+        IDataAccess access = getMyDataAccess(ProjectRecord.TYPE_CLUB);
+        if (access == null) {
+            return;
+        }
+        try {
+            l = access.acquireLocalLock(getClubRecordKey());
+            ProjectRecord r = getClubRecord();
+            if (faYear > 0) {
+                r.setLastDrvFaYear(faYear);
+            }
+            if (wsYear > 0) {
+                r.setLastDrvWsYear(wsYear);
+            }
+            access.update(r, l);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            access.releaseLocalLock(l);
+        }
+    }
+
     // set the storageLocation for this project's content
     public void setProjectStorageLocation(String storageLocation) {
         if (getProjectStorageType() == IDataAccess.TYPE_FILE_XML) {
@@ -1879,6 +1902,14 @@ public class Project extends StorageObject {
 
     public DataTypeDate getClubworkCarryOverDate() {
         return getClubRecord().getClubworkCarryOverDate();
+    }
+
+    public int getClubLastDrvFaYear() {
+        return getClubRecord().getLastDrvFaYear();
+    }
+
+    public int getClubLastDrvWsYear() {
+        return getClubRecord().getLastDrvWsYear();
     }
 
     public synchronized void setPreModifyRecordCallbackEnabled(boolean enabled) {

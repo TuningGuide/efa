@@ -901,20 +901,12 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
                 return new String[]{
                             STYPE_PERSONS,
-                            STYPE_BOATS,
-                            STYPE_BOATSTATUS,
-                            STYPE_BOATRESERVATIONS,
-                            STYPE_BOATDAMAGES,
-                            STYPE_BOATDAMAGESTAT
+                            STYPE_BOATS
                         };
             } else {
                 return new String[]{
                             International.getString("Personen"),
-                            International.getString("Boote"),
-                            International.getString("Bootsstatus"),
-                            International.getString("Bootsreservierungen"),
-                            International.getString("Bootsschäden"),
-                            International.getString("Bootsschäden-Statistik"),
+                            International.getString("Boote")
                         };
             }
         }
@@ -2645,8 +2637,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         
         // CAT_FIELDS
         v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.AGGREGATIONS, getAggregations(),
-                    getAggregationList(StatisticType.persons, ARRAY_STRINGLIST_VALUES), 
-                    getAggregationList(StatisticType.persons, ARRAY_STRINGLIST_DISPLAY),
+                    getAggregationList(getStatisticTypeEnum(), ARRAY_STRINGLIST_VALUES), 
+                    getAggregationList(getStatisticTypeEnum(), ARRAY_STRINGLIST_DISPLAY),
                     IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FIELDS,CAT_FIELDSCALC),
                     International.getString("Berechnung")));
         ((ItemTypeMultiSelectList)item).setFieldSize(400, 300);
@@ -2662,8 +2654,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                     International.getString("Ausgabe")));
         ((ItemTypeMultiSelectList)item).setFieldSize(400, 300);
         v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.SHOWOTHERFIELDS, getShowOtherFields(),
-                    getOtherFieldsList(StatisticType.anythingElse, ARRAY_STRINGLIST_VALUES), 
-                    getOtherFieldsList(StatisticType.anythingElse, ARRAY_STRINGLIST_DISPLAY),
+                    getOtherFieldsList(getStatisticTypeEnum(), ARRAY_STRINGLIST_VALUES), 
+                    getOtherFieldsList(getStatisticTypeEnum(), ARRAY_STRINGLIST_DISPLAY),
                     IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FIELDS,CAT_FIELDSOTHER),
                     International.getString("Ausgabe")));
         ((ItemTypeMultiSelectList)item).setFieldSize(400, 300);
@@ -3687,80 +3679,88 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
 
         }
     }
+    
+    private void selectedStatisticsCategory(IItemType itemType) {
+        String cats = itemType.getValueFromField();
+        StatisticCategory cat = getStatisticCategoryEnum(cats);
+        String defaultStatisticType = getStatisticTypeDefault(cat);
+        String defaultStatisticKey = getStatisticKeyDefault(defaultStatisticType);
+        StatisticType typeEnum = getStatisticTypeEnum(defaultStatisticType);
+        if (itemStatisticType != null) {
+            itemStatisticType.setListData(getStatisticTypes(cat, ARRAY_STRINGLIST_VALUES),
+                    getStatisticTypes(cat, ARRAY_STRINGLIST_DISPLAY));
+            if (defaultStatisticType != null) {
+                itemStatisticType.parseAndShowValue(defaultStatisticType);
+            }
+        }
+        if (itemStatisticKey != null) {
+            if (defaultStatisticType == null) {
+                defaultStatisticType = "other"; // null means we get all, but we want none!
+            }
+            itemStatisticKey.setListData(getStatisticKeys(defaultStatisticType, ARRAY_STRINGLIST_VALUES),
+                    getStatisticKeys(defaultStatisticType, ARRAY_STRINGLIST_DISPLAY));
+            if (defaultStatisticKey != null) {
+                itemStatisticKey.parseAndShowValue(defaultStatisticKey);
+            }
+        }
+        setDefaultSorting(cat);
+        setDefaultDates(cat, defaultStatisticType);
+        if (itemAggrFields != null) {
+            itemAggrFields.setListData(getAggregationList(typeEnum, ARRAY_STRINGLIST_VALUES),
+                    getAggregationList(typeEnum, ARRAY_STRINGLIST_DISPLAY));
+            DataTypeList<String> selected = new DataTypeList<String>(getAggregationList(typeEnum, ARRAY_STRINGLIST_VALUES));
+            setAggregations(selected);
+            itemAggrFields.showValue();
+        }
+        if (itemShowOtherFields != null) {
+            itemShowOtherFields.setListData(getOtherFieldsList(typeEnum, ARRAY_STRINGLIST_VALUES),
+                    getOtherFieldsList(typeEnum, ARRAY_STRINGLIST_DISPLAY));
+            DataTypeList<String> selected = new DataTypeList<String>(getOtherFieldsListDefaults(typeEnum, ARRAY_STRINGLIST_VALUES));
+            setShowOtherFields(selected);
+            itemShowOtherFields.setValue(selected);
+            itemShowOtherFields.showValue();
+        }
+    }
+    
+    private void selectedStatisticsType(IItemType itemType) {
+        String type = itemType.getValueFromField();
+        StatisticType typeEnum = getStatisticTypeEnum(type);
+        String defaultStatisticKey = getStatisticKeyDefault(type);
+        if (itemStatisticKey != null) {
+            itemStatisticKey.setListData(getStatisticKeys(type, ARRAY_STRINGLIST_VALUES),
+                    getStatisticKeys(type, ARRAY_STRINGLIST_DISPLAY));
+            if (defaultStatisticKey != null) {
+                itemStatisticKey.parseAndShowValue(defaultStatisticKey);
+            }
+        }
+        setDefaultDates(null, type);
+        if (itemAggrFields != null) {
+            itemAggrFields.setListData(getAggregationList(typeEnum, ARRAY_STRINGLIST_VALUES),
+                    getAggregationList(typeEnum, ARRAY_STRINGLIST_DISPLAY));
+            DataTypeList<String> selected = new DataTypeList<String>(getAggregationList(typeEnum, ARRAY_STRINGLIST_VALUES));
+            setAggregations(selected);
+            itemAggrFields.showValue();
+        }
+        if (itemShowOtherFields != null) {
+            itemShowOtherFields.setListData(getOtherFieldsList(typeEnum, ARRAY_STRINGLIST_VALUES),
+                    getOtherFieldsList(typeEnum, ARRAY_STRINGLIST_DISPLAY));
+            DataTypeList<String> selected = new DataTypeList<String>(getOtherFieldsListDefaults(typeEnum, ARRAY_STRINGLIST_VALUES));
+            setShowOtherFields(selected);
+            itemShowOtherFields.setValue(selected);
+            itemShowOtherFields.showValue();
+        }
+    }
 
     public void itemListenerAction(IItemType itemType, AWTEvent event) {
         if (itemType.getName().equals(STATISTICCATEGORY) && 
             event instanceof ItemEvent &&
             ((ItemEvent)event).getStateChange() == ItemEvent.SELECTED) {
-            String cats = itemType.getValueFromField();
-            StatisticCategory cat = getStatisticCategoryEnum(cats);
-            String defaultStatisticType = getStatisticTypeDefault(cat);
-            String defaultStatisticKey = getStatisticKeyDefault(defaultStatisticType);
-            StatisticType typeEnum = getStatisticTypeEnum(defaultStatisticType);
-            if (itemStatisticType != null) {
-                itemStatisticType.setListData(getStatisticTypes(cat, ARRAY_STRINGLIST_VALUES),
-                                              getStatisticTypes(cat, ARRAY_STRINGLIST_DISPLAY));
-                if (defaultStatisticType != null) {
-                    itemStatisticType.parseAndShowValue(defaultStatisticType);
-                }
-            }
-            if (itemStatisticKey != null) {
-                if (defaultStatisticType == null) {
-                    defaultStatisticType = "other"; // null means we get all, but we want none!
-                }
-                itemStatisticKey.setListData(getStatisticKeys(defaultStatisticType, ARRAY_STRINGLIST_VALUES),
-                                             getStatisticKeys(defaultStatisticType, ARRAY_STRINGLIST_DISPLAY));
-                if (defaultStatisticKey != null) {
-                    itemStatisticKey.parseAndShowValue(defaultStatisticKey);
-                }
-            }
-            setDefaultSorting(cat);
-            setDefaultDates(cat, defaultStatisticType);
-            if (itemAggrFields != null) {
-                itemAggrFields.setListData(getAggregationList(typeEnum, ARRAY_STRINGLIST_VALUES),
-                                           getAggregationList(typeEnum, ARRAY_STRINGLIST_DISPLAY));
-                DataTypeList<String> selected = new DataTypeList<String>(getAggregationList(typeEnum, ARRAY_STRINGLIST_VALUES));
-                setAggregations(selected);
-                itemAggrFields.showValue();
-            }
-            if (itemShowOtherFields != null) {
-                itemShowOtherFields.setListData(getOtherFieldsList(typeEnum, ARRAY_STRINGLIST_VALUES),
-                                                getOtherFieldsList(typeEnum, ARRAY_STRINGLIST_DISPLAY));
-                DataTypeList<String> selected = new DataTypeList<String>(getOtherFieldsListDefaults(typeEnum, ARRAY_STRINGLIST_VALUES));
-                setShowOtherFields(selected);
-                itemShowOtherFields.setValue(selected);
-                itemShowOtherFields.showValue();
-            }
+            selectedStatisticsCategory(itemType);
         }
         if (itemType.getName().equals(STATISTICTYPE) && 
             event instanceof ItemEvent  &&
             ((ItemEvent)event).getStateChange() == ItemEvent.SELECTED) {
-            String type = itemType.getValueFromField();
-            StatisticType typeEnum = getStatisticTypeEnum(type);
-            String defaultStatisticKey = getStatisticKeyDefault(type);
-            if (itemStatisticKey != null) {
-                itemStatisticKey.setListData(getStatisticKeys(type, ARRAY_STRINGLIST_VALUES),
-                                             getStatisticKeys(type, ARRAY_STRINGLIST_DISPLAY));
-                if (defaultStatisticKey != null) {
-                    itemStatisticKey.parseAndShowValue(defaultStatisticKey);
-                }
-            }
-            setDefaultDates(null, type);
-            if (itemAggrFields != null) {
-                itemAggrFields.setListData(getAggregationList(typeEnum, ARRAY_STRINGLIST_VALUES),
-                                           getAggregationList(typeEnum, ARRAY_STRINGLIST_DISPLAY));
-                DataTypeList<String> selected = new DataTypeList<String>(getAggregationList(typeEnum, ARRAY_STRINGLIST_VALUES));
-                setAggregations(selected);
-                itemAggrFields.showValue();
-            }
-            if (itemShowOtherFields != null) {
-                itemShowOtherFields.setListData(getOtherFieldsList(typeEnum, ARRAY_STRINGLIST_VALUES),
-                                                getOtherFieldsList(typeEnum, ARRAY_STRINGLIST_DISPLAY));
-                DataTypeList<String> selected = new DataTypeList<String>(getOtherFieldsListDefaults(typeEnum, ARRAY_STRINGLIST_VALUES));
-                setShowOtherFields(selected);
-                itemShowOtherFields.setValue(selected);
-                itemShowOtherFields.showValue();
-            }
+            selectedStatisticsType(itemType);
         }
         if (itemType.getName().equals(FILTERGENDERALL) && event instanceof ActionEvent) {
             if (itemFilterGender != null && itemType.getValueFromField() != null) {

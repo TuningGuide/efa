@@ -2,6 +2,67 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.1.1_04</VersionID>
+        <ReleaseDate>04.12.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa211.zip</DownloadUrl>
+        <DownloadSize>3343997</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Inkorrekte Auswahlliste des Statistiktyps für Kilometerlisten korrigiert</ChangeItem>
+        </Changes>
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Incorrect drop-down list of statistics types fixed</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.1.1_03</VersionID>
+        <ReleaseDate>04.12.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa211.zip</DownloadUrl>
+        <DownloadSize>3344136</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Neu: efa fordert nach Melden des DRV-Fahrtenabzeichens jetzt auch zum Melden der DRV-Wanderruderstatistik auf</ChangeItem>
+            <ChangeItem>Change: Fahrtarten DKV-Gemeinschaftsfahrt und DKV-Vereinsfahrt in Gemeinschaftsfahrt und Vereinsfahrt umbenannt</ChangeItem>
+            <ChangeItem>Bugfix: Fehler beim Konfigurieren eines Fahrtenbuchwechsels über efaRemote behoben</ChangeItem>
+            <ChangeItem>Bugfix: Falsche Handhabung von Motorboot- und Ergo-Fahrten korrigiert</ChangeItem>
+        </Changes>
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Error when configuring a logbook switch through efaRemote fixed</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.1.1_02</VersionID>
+        <ReleaseDate>21.11.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa211.zip</DownloadUrl>
+        <DownloadSize>3343326</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: Ausgabefelder bei abgespeicherten Statistikeintellungen wurden nicht korrekt angezeigt</ChangeItem>
+            <ChangeItem>Bugfix: Sortierung nach Datum für Statistiktyp "Weitere" jetzt möglich</ChangeItem>
+        </Changes>
+        <Changes lang="en">
+            <ChangeItem>Bugfix: Output fields for saved statistics settings were not displayed properly</ChangeItem>
+            <ChangeItem>Bugfix: Sorting by date for statistics category "others" now possible</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.1.1_01</VersionID>
+        <ReleaseDate>17.11.2013</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa211.zip</DownloadUrl>
+        <DownloadSize>3343193</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: NullPointerException bei Statistikerstellung behoben</ChangeItem>
+        </Changes>
+        <Changes lang="en">
+            <ChangeItem>Bugfix: NullPointerException for statistics calculation fixed</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.1.1_00</VersionID>
         <ReleaseDate>17.11.2013</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa211.zip</DownloadUrl>

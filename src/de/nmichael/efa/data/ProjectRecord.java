@@ -85,6 +85,8 @@ public class ProjectRecord extends DataRecord {
     public static final String TRANSFERABLECLUBWORKHOURS    = "TransferableClubworkHours";
     public static final String FINEFORTOOLITTLECLUBWORK     = "FineForTooLittleClubwork";
     public static final String CLUBWORKCARRYOVER            = "ClubworkCarryOverDate";
+    public static final String LAST_DRV_FA_YEAR             = "LastDrvFaYear";
+    public static final String LAST_DRV_WS_YEAR             = "LastDrvWsYear";
 
     // Fields for Type=Boathouse
     // BOATHOUSENAME (StorageObject Name)
@@ -151,6 +153,8 @@ public class ProjectRecord extends DataRecord {
         f.add(TRANSFERABLECLUBWORKHOURS);     t.add(IDataAccess.DATA_DOUBLE);
         f.add(FINEFORTOOLITTLECLUBWORK);      t.add(IDataAccess.DATA_DOUBLE);
         f.add(CLUBWORKCARRYOVER);             t.add(IDataAccess.DATA_DATE);
+        f.add(LAST_DRV_FA_YEAR);              t.add(IDataAccess.DATA_INTEGER);
+        f.add(LAST_DRV_WS_YEAR);              t.add(IDataAccess.DATA_INTEGER);
         f.add(BOATHOUSEID);                   t.add(IDataAccess.DATA_INTEGER);
         f.add(BOATHOUSE_IDENTIFIER);          t.add(IDataAccess.DATA_STRING);
         
@@ -327,6 +331,12 @@ public class ProjectRecord extends DataRecord {
     public void setClubworkCarryOverDate(DataTypeDate date) {
         setDate(CLUBWORKCARRYOVER, date);
     }
+    public void setLastDrvFaYear(int year) {
+        setInt(LAST_DRV_FA_YEAR, year);
+    }
+    public void setLastDrvWsYear(int year) {
+        setInt(LAST_DRV_WS_YEAR, year);
+    }
 
     public void setName(String name) {
         setString(NAME, name);
@@ -501,6 +511,12 @@ public class ProjectRecord extends DataRecord {
     }
     public DataTypeDate getClubworkCarryOverDate() {
         return getDate(CLUBWORKCARRYOVER);
+    }
+    public int getLastDrvFaYear() {
+        return getInt(LAST_DRV_FA_YEAR);
+    }
+    public int getLastDrvWsYear() {
+        return getInt(LAST_DRV_WS_YEAR);
     }
     
     public String getBoathouseIdentifier() {

@@ -372,18 +372,14 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 		if (Daten.efaConfig.getValueNameFormatIsFirstNameFirst()) {
 			header[0] = new TableItemHeader(International.getString("Vorname"));
 			header[1] = new TableItemHeader(International.getString("Nachname"));
-			header[2] = new TableItemHeader(International.getString("Datum"));
-			header[3] = new TableItemHeader(International.getString("Beschreibung"));
-			header[4] = new TableItemHeader(International.getString("Stunden"));
-			header[5] = new TableItemHeader(International.getString("Typ"));
 		} else {
 			header[0] = new TableItemHeader(International.getString("Nachname"));
 			header[1] = new TableItemHeader(International.getString("Vorname"));
-			header[2] = new TableItemHeader(International.getString("Datum"));
-			header[3] = new TableItemHeader(International.getString("Beschreibung"));
-			header[4] = new TableItemHeader(International.getString("Stunden"));
-			header[5] = new TableItemHeader(International.getString("Typ"));
 		}
+		header[2] = new TableItemHeader(International.getString("Datum"));
+		header[3] = new TableItemHeader(International.getString("Beschreibung"));
+		header[4] = new TableItemHeader(International.getString("Stunden"));
+		header[5] = new TableItemHeader(International.getString("Typ"));
 		return header;
 	}
 
@@ -392,18 +388,61 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 		if (Daten.efaConfig.getValueNameFormatIsFirstNameFirst()) {
 			items[0] = new TableItem(getFirstName());
 			items[1] = new TableItem(getLastName());
-			items[2] = new TableItem(getWorkDate());
-			items[3] = new TableItem(getDescription());
-			items[4] = new TableItem(getHours());
-			items[5] = new TableItem(International.getString(getFlag().toString()));
 		} else {
 			items[0] = new TableItem(getLastName());
 			items[1] = new TableItem(getFirstName());
-			items[2] = new TableItem(getWorkDate());
-			items[3] = new TableItem(getDescription());
-			items[4] = new TableItem(getHours());
-			items[5] = new TableItem(International.getString(getFlag().toString()));
 		}
+		items[2] = new TableItem(getWorkDate());
+		items[3] = new TableItem(getDescription());
+		items[4] = new TableItem(getHours());
+		items[5] = new TableItem(International.getString(getFlag().toString()));
 		return items;
+	}
+
+	/**
+	 * @param aggregations instantiated with empty strings, size == header.size
+	 * @param index
+	 * @param size
+	 * @return
+	 */
+
+	public String[] getGuiTableAggregations(String[] aggregations, int index, int size, HashMap<String, Object> sideInfo) {
+		if(index == 0) {
+			sideInfo.put("uniquePeople", new HashSet<String>(){{add(getFirstLastName());}});
+			sideInfo.put("earliestDate", getWorkDate());
+			sideInfo.put("latestDate", getWorkDate());
+			aggregations[4] = String.valueOf(getHours());
+		}
+		else {
+			DataTypeDate earliestDate = (DataTypeDate)sideInfo.get("earliestDate");
+			if(getWorkDate().isBefore(earliestDate)) {
+				sideInfo.put("earliestDate", getWorkDate());
+			}
+
+			DataTypeDate latestDate = (DataTypeDate)sideInfo.get("latestDate");
+			if(getWorkDate().isAfter(latestDate)) {
+				sideInfo.put("latestDate", getWorkDate());
+			}
+
+			aggregations[4] = String.valueOf(Double.valueOf(aggregations[4]) + getHours());
+		}
+
+		HashSet<String> uniquePeople = (HashSet<String>)sideInfo.get("uniquePeople");
+		uniquePeople.add(getFirstLastName());
+
+		if(index == size-1) {
+			int uniqueSize = uniquePeople.size();
+			aggregations[0] = uniqueSize + International.getString("Person(s)");
+			aggregations[1] = ((DataTypeDate)sideInfo.get("earliestDate")).toString() + "-" +
+					((DataTypeDate)sideInfo.get("latestDate")).toString();
+			aggregations[3] = International.getString("Sum");
+			Clubwork clubwork = Daten.project.getCurrentClubwork();
+			if(clubwork != null) {
+				ProjectRecord clubworkBook = Daten.project.getClubworkBookRecord(clubwork.getName());
+				aggregations[4] += "/"+clubworkBook.getDefaultClubworkTargetHours()*uniqueSize;
+			}
+		}
+
+		return aggregations;
 	}
 }

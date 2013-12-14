@@ -27,23 +27,13 @@ public class ClubworkEditDialog extends UnversionizedDataEditDialog implements I
 
     public ClubworkEditDialog(Frame parent, ClubworkRecord r, boolean newRecord, AdminRecord admin) {
         super(parent, International.getString("Vereinsarbeit"), r, newRecord, admin);
-        ini4Permissions(admin);
         initListener();
     }
 
     public ClubworkEditDialog(JDialog parent, ClubworkRecord r, boolean newRecord, AdminRecord admin) {
         super(parent, International.getString("Vereinsarbeit"), r, newRecord, admin);
-        ini4Permissions(admin);
         initListener();
-	    }
-
-    private void ini4Permissions(AdminRecord admin) {
-//        if (admin != null && !admin.isAllowedEditClubwork()) {
-//            setShowVersionPanel(false);
-//            setPromptToEnterValidity(false);
-//            allowConflicts = false;
-//        }
-    }
+	}
 
 
     public void keyAction(ActionEvent evt) {

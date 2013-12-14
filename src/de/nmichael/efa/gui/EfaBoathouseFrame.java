@@ -318,7 +318,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 			if(Daten.NEW_FEATURES){
 				openClubwork((AdminRecord) null);
 				if (clubwork == null) {
-					Logger.log(Logger.ERROR, Logger.MSG_ERR_NOLOGBOOKOPENED, International.getString("Kein Vereinsarbeitsbuch geöffnet."));
+					Logger.log(Logger.ERROR, Logger.MSG_ERR_NOWORKBOOKOPENED, International.getString("Kein Vereinsarbeitsbuch geöffnet."));
 				}
 			}
         }
@@ -1230,7 +1230,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
 				return null;
 			}
 
-			// close any other logbook first
+			// close any other clubworkBook first
 			String clubworkNameBefore = (clubwork != null ? clubwork.getName() : null);
 			if (clubwork != null) {
 				try {

@@ -119,6 +119,32 @@ public class Persons extends StorageObject {
         }
     }
 
+	// find all records being valid at the specified time
+	public PersonRecord[] getPersons(UUID id, long validFrom, long validUntil) {
+		try {
+			DataKey[] keys = data().getByFields(
+					new String[] { PersonRecord.ID }, new Object[] { id });
+			if (keys == null || keys.length < 1) {
+				return null;
+			}
+			ArrayList<PersonRecord> list = new ArrayList<PersonRecord>();
+			for (int i=0; i<keys.length; i++) {
+				PersonRecord r = (PersonRecord)data().get(keys[i]);
+				if (r.isInValidityRange(validFrom, validUntil)) {
+					list.add(r);
+				}
+			}
+			if (list.size() > 0) {
+				return list.toArray(new PersonRecord[0]);
+			} else {
+				return null;
+			}
+		} catch(Exception e) {
+			Logger.logdebug(e);
+			return null;
+		}
+	}
+
     // find any record being valid at least partially in the specified range
     public PersonRecord getPerson(String personName, long validFrom, long validUntil, long preferredValidAt) {
         try {

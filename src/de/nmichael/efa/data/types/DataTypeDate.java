@@ -384,6 +384,12 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
         return 0;
     }
 
+	public int getMonthsDifference(DataTypeDate o) {
+		int m1 = this.getYear() * 12 + this.getMonth();
+		int m2 = o.getYear() * 12 + o.getMonth();
+		return Math.abs(m2 - m1) + 1;
+	}
+
     public static String getDateTimeString(DataTypeDate date, DataTypeTime time) {
         String s = null;
         if (date != null && date.isSet()) {

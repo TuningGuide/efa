@@ -46,20 +46,17 @@ public class ClubworkListDialog extends DataListDialog {
 		if(admin == null) {
 			actionText = new String[] {
 					ItemTypeDataRecordTable.ACTIONTEXT_NEW,
-					ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
 					International.getString("Liste ausgeben")
 			};
 
 			actionType = new int[] {
 					ItemTypeDataRecordTable.ACTION_NEW,
-					ItemTypeDataRecordTable.ACTION_DELETE,
 					ACTION_PRINTLIST
 			};
 
 			actionImage = new String[] {
 					BaseDialog.IMAGE_ADD,
-					BaseDialog.IMAGE_DELETE,
-					BaseDialog.IMAGE_LIST,
+					BaseDialog.IMAGE_LIST
 			};
 		}
 		else {

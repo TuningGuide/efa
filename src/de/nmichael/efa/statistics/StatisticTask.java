@@ -93,6 +93,7 @@ public class StatisticTask extends ProgressTask {
     private Date entryClubworkDate;
     private String entryClubworkDescription;
     private int entryClubworkHours;
+	private boolean entryPersonExcludeFromClubwork;
     // internal variables
     private ArrayList<String> successfulDoneMessages = new ArrayList<String>();
 
@@ -143,6 +144,7 @@ public class StatisticTask extends ProgressTask {
         entryClubworkDate = null;
         entryClubworkDescription = null;
         entryClubworkHours = 0;
+		entryPersonExcludeFromClubwork = false;
     }
 
     private void calculateSessionHistory(LogbookRecord r, Object key, StatisticsData sd, long distanceOfEntry) {
@@ -1115,10 +1117,14 @@ public class StatisticTask extends ProgressTask {
             return;
         }
         int cnt = 0;
-        if (!entryPersonIsGuest && !entryPersonIsOther && isInPersonFilter() && isInGroupFilter()) {
+        if (!entryPersonIsGuest && !entryPersonIsOther && !entryPersonExcludeFromClubwork && isInPersonFilter() && isInGroupFilter()) {
 			Integer month = personMemberMonthToFullYear(entryPersonRecord);
 			if(month != null) {
-				sr.sDefaultClubworkTargetHours = sr.sDefaultClubworkTargetHours/12*month;
+				sr.sClubworkTargetHoursForStatistic = sr.sDefaultClubworkTargetHours/12*month;
+			}
+			else {
+				month = -1+sr.sStartDate.getMonth() + sr.sEndDate.getMonth() + Math.abs(sr.sEndDate.getYear() - sr.sStartDate.getYear())*12;
+				sr.sClubworkTargetHoursForStatistic = sr.sDefaultClubworkTargetHours/12*month;
 			}
             Object aggregationKey = getAggregationKeyForClubwork(r);
             if (aggregationKey != null) {
@@ -1152,13 +1158,13 @@ public class StatisticTask extends ProgressTask {
 		else {
 			DataTypeDate to = new DataTypeDate(toLong);
 			int res = 12;
-			if(sr.sStartDate.isBeforeOrEqual(from)) {
+			if(sr.sStartDate.isBeforeOrEqual(from) && sr.sEndDate.isAfter(from)) {
 				res = res - from.getMonth();
 			}
-			if(sr.sEndDate.isAfterOrEqual(to)) {
-				res = res - to.getMonth();
+			if(sr.sEndDate.isAfterOrEqual(to) && sr.sStartDate.isBefore(to)) {
+				res = res - (12-to.getMonth()-1);
 			}
-			return res;
+			return res==12?null:res;
 		}
 	}
 
@@ -1275,6 +1281,7 @@ public class StatisticTask extends ProgressTask {
         entryPersonGender = (entryPersonRecord != null ? entryPersonRecord.getGender() : null);
         entryPersonExcludeFromPublic = (entryPersonRecord != null && entryPersonRecord.getExcludeFromPublicStatistics()
                 && sr.getPubliclyAvailable());
+		entryPersonExcludeFromClubwork = (entryPersonRecord != null && entryPersonRecord.getExcludeFromClubwork());
     }
 
     private void getEntryDestination(LogbookRecord r) {
@@ -2162,9 +2169,6 @@ public class StatisticTask extends ProgressTask {
             ProjectRecord pr = Daten.project.getClubworkBookRecord(names[i]);
             if (pr != null) {
                 logInfo(International.getString("Vereinsarbeitsbuch") + " " + pr.getName() + " ...\n");
-                sr.sDefaultClubworkTargetHours = pr.getDefaultClubworkTargetHours();
-                sr.sTransferableClubworkHours = pr.getTransferableClubworkHours();
-                sr.sFineForTooLittleClubwork = pr.getFineForTooLittleClubwork();
 
                 Clubwork clubwork = Daten.project.getClubwork(names[i], false);
                 DataTypeDate lbStart = clubwork.getStartDate();
@@ -2174,6 +2178,9 @@ public class StatisticTask extends ProgressTask {
                 }
 
                 if (clubwork != null && DataTypeDate.isRangeOverlap(sr.sStartDate, sr.sEndDate, lbStart, lbEnd)) {
+					sr.sDefaultClubworkTargetHours = pr.getDefaultClubworkTargetHours();
+					sr.sTransferableClubworkHours = pr.getTransferableClubworkHours();
+					sr.sFineForTooLittleClubwork = pr.getFineForTooLittleClubwork();
                     DataKeyIterator it;
                     try {
                         it = clubwork.data().getStaticIterator();

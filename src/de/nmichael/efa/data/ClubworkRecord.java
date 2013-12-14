@@ -86,12 +86,12 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 		return getPersistence().createNewRecord();
 	}
 
-	public DataKey<UUID, Long, String> getKey() {
-		return new DataKey<UUID,Long,String>(getId(),getValidFrom(),null);
+	public DataKey getKey() {
+		return new DataKey<UUID,String,String>(getId(),null,null);
 	}
 
-	public static DataKey<UUID, Long, String> getKey(UUID id, long validFrom) {
-		return new DataKey<UUID,Long,String>(id,validFrom,null);
+	public static DataKey getKey(UUID id) {
+		return new DataKey<UUID,String,String>(id,null,null);
 	}
 
 	public void setId(UUID id) {
@@ -354,6 +354,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
                     	record.setWorkDate(getWorkDate());
                     	record.setDescription(getDescription());
                     	record.setHours(getHours());
+						record.setFlag(Flags.Normal);
                     	try {
 							clubwork.data().add(record);
                     	} catch (Exception eignore) {

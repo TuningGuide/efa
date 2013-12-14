@@ -90,80 +90,14 @@ public class Clubwork extends StorageObject {
 		return r;
 	}
 
-	public ClubworkRecord getClubworkRecord(UUID id, long validAt) {
-		try {
-			return (ClubworkRecord)data().getValidAt(ClubworkRecord.getKey(id, validAt), validAt);
-		} catch(Exception e) {
-			Logger.logdebug(e);
-			return null;
-		}
-	}
-
-	public ClubworkRecord getClubworkRecord(UUID id, long earliestValidAt, long latestValidAt, long preferredValidAt) {
-		try {
-			return (ClubworkRecord)data().getValidNearest(ClubworkRecord.getKey(id, preferredValidAt), earliestValidAt, latestValidAt, preferredValidAt);
-		} catch(Exception e) {
-			Logger.logdebug(e);
-			return null;
-		}
-	}
-
-//    // find a record being valid at the specified time
-//    public ClubworkRecord getClubworkRecord(String personName, long validAt) {
-//        try {
-//            DataKey[] keys = data().getByFields(
-//                staticClubworkRecord.getQualifiedNameFields(), staticClubworkRecord.getQualifiedNameValues(personName), validAt);
-//            if (keys == null || keys.length < 1) {
-//                return null;
-//            }
-//            for (int i=0; i<keys.length; i++) {
-//            	ClubworkRecord r = (ClubworkRecord)data().get(keys[i]);
-//                if (r.isValidAt(validAt)) {
-//                    return r;
-//                }
-//            }
-//            return null;
-//        } catch(Exception e) {
-//            Logger.logdebug(e);
-//            return null;
-//        }
-//    }
-//
-//    // find any record being valid at least partially in the specified range
-//    public ClubworkRecord getClubworkRecord(String personName, long validFrom, long validUntil, long preferredValidAt) {
-//        try {
-//            DataKey[] keys = data().getByFields(
-//                staticClubworkRecord.getQualifiedNameFields(), staticClubworkRecord.getQualifiedNameValues(personName));
-//            if (keys == null || keys.length < 1) {
-//                return null;
-//            }
-//            ClubworkRecord candidate = null;
-//            for (int i=0; i<keys.length; i++) {
-//                ClubworkRecord r = (ClubworkRecord)data().get(keys[i]);
-//                if (r != null) {
-//                    if (r.isInValidityRange(validFrom, validUntil)) {
-//                        candidate = r;
-//                        if (preferredValidAt >= r.getValidFrom() && preferredValidAt < r.getInvalidFrom()) {
-//                            return r;
-//                        }
-//                    }
-//                }
-//            }
-//            return candidate;
-//        } catch(Exception e) {
-//            Logger.logdebug(e);
-//            return null;
-//        }
-//    }
-
-	public Vector<ClubworkRecord> getAllClubworkRecords(long validAt, boolean alsoDeleted, boolean alsoInvisible) {
+	public Vector<ClubworkRecord> getAllClubworkRecords(boolean alsoDeleted, boolean alsoInvisible) {
 		try {
 			Vector<ClubworkRecord> v = new Vector<ClubworkRecord>();
 			DataKeyIterator it = data().getStaticIterator();
 			DataKey k = it.getFirst();
 			while (k != null) {
 				ClubworkRecord r = (ClubworkRecord) data().get(k);
-				if (r != null && (r.isValidAt(validAt) || (r.getDeleted() && alsoDeleted)) && (!r.getInvisible() || alsoInvisible)) {
+				if (r != null && ((r.getDeleted() && alsoDeleted)) && (!r.getInvisible() || alsoInvisible)) {
 					v.add(r);
 				}
 				k = it.getNext();
@@ -172,41 +106,6 @@ public class Clubwork extends StorageObject {
 		} catch (Exception e) {
 			Logger.logdebug(e);
 			return null;
-		}
-	}
-
-	public boolean isClubworkRecordDeleted(UUID id) {
-		try {
-			DataRecord[] records = data().getValidAny(ClubworkRecord.getKey(id, -1));
-			if (records != null && records.length > 0) {
-				return records[0].getDeleted();
-			}
-		} catch(Exception e) {
-			Logger.logdebug(e);
-		}
-		return false;
-	}
-
-	public int getNumberOfClubworkRecords(long tstmp) {
-		try {
-			DataKeyIterator it = dataAccess.getStaticIterator();
-			DataKey k = it.getFirst();
-			// actually, checking for records valid at tstmp should already
-			// give us unique records, so there should be no need to use
-			// a Hashtable to make sure we don't cound a person twice. But, well,
-			// you never know...
-			Hashtable<UUID,DataKey> uuids = new Hashtable<UUID,DataKey>();
-			while (k != null) {
-				ClubworkRecord p = (ClubworkRecord) dataAccess.get(k);
-				if (p != null && p.isValidAt(tstmp) && !p.getDeleted()) {
-					uuids.put(p.getId(), k);
-				}
-				k = it.getNext();
-			}
-			return uuids.size();
-		} catch (Exception e) {
-			Logger.log(e);
-			return -1;
 		}
 	}
 
@@ -310,13 +209,12 @@ public class Clubwork extends StorageObject {
 				if (personId == null) {
 					continue;
 				}
-				Double hours = hourAggregation.get(k);
+				Double hours = hourAggregation.get(personId);
 				if (hours == null) {
-					hours = new Double(0);
+					hours = 0.0;
 				}
 				// aggregate
 				hours += r.getHours();
-
 				hourAggregation.put(personId, hours);
 			}
 		} catch (EfaException e) {
@@ -326,26 +224,41 @@ public class Clubwork extends StorageObject {
 
 		double sDefaultClubworkTargetHours = pr.getDefaultClubworkTargetHours();
 		double sTransferableClubworkHours = pr.getTransferableClubworkHours();
-
-		double max = sDefaultClubworkTargetHours+sTransferableClubworkHours;
-		double min = sDefaultClubworkTargetHours-sTransferableClubworkHours;
 		long lock = -1;
 
 		try {
 			lock = to.data().acquireGlobalLock();
 
 			// Save Carry Over
-			Set<UUID> set = hourAggregation.keySet();
-			for(UUID person : set) {
+			Set<Map.Entry<UUID, Double>> entries = hourAggregation.entrySet();
+			for(Map.Entry<UUID, Double> entry : entries) {
+				UUID personId = entry.getKey();
+				Double hours = entry.getValue();
+
+				Persons persons = Daten.project.getPersons(false);
+				Integer month = from.getStartDate().getMonthsDifference(from.getEndDate());
+				if (personId != null && persons != null) {
+					PersonRecord[] personRecords = persons.getPersons(personId, from.getStartDate().getTimestamp(null),
+							from.getEndDate().getTimestamp(null));
+					if(personRecords != null && personRecords.length > 0) {
+						for(int i=0; i < personRecords.length; i++) {
+							if(personRecords[i].isStatusMember()) {
+								month = personMemberMonthToFullYear(personRecords[i], month, from);
+							}
+						}
+					}
+				}
+
+				double clubworkTargetHours = sDefaultClubworkTargetHours/12*month;
+				double max = clubworkTargetHours+sTransferableClubworkHours;
+				double min = clubworkTargetHours-sTransferableClubworkHours;
 
 				ClubworkRecord record = to.createClubworkRecord(UUID.randomUUID());
-				record.setPersonId(person);
+				record.setPersonId(personId);
 				record.setWorkDate(DataTypeDate.today());
 				record.setDescription(International.getString("Übertrag")+" ("+DataTypeDate.today()+")");
 				record.setFlag(ClubworkRecord.Flags.CarryOver);
 
-
-				Double hours = hourAggregation.get(person);
 				if(hours == null) {
 					hours = 0.0;
 				}
@@ -356,7 +269,7 @@ public class Clubwork extends StorageObject {
 					record.setHours(-sTransferableClubworkHours);
 				}
 				else {
-					record.setHours(hours-sDefaultClubworkTargetHours);
+					record.setHours(hours-clubworkTargetHours);
 				}
 
 				try {
@@ -402,5 +315,25 @@ public class Clubwork extends StorageObject {
 				to.data().releaseGlobalLock(lock);
 			}
 		}
+	}
+
+
+	private static Integer personMemberMonthToFullYear(PersonRecord person, int month, Clubwork fromClubwork) {
+		long fromLong = person.getValidFrom();
+		long toLong = person.getInvalidFrom();
+
+		if(fromLong > 0) {
+			DataTypeDate from = new DataTypeDate(fromLong);
+			if(fromClubwork.getStartDate().isBeforeOrEqual(from) && fromClubwork.getEndDate().isAfter(from)) {
+				month -= from.getMonth();
+			}
+		}
+		if(toLong > 0) {
+			DataTypeDate to = new DataTypeDate(toLong);
+			if( fromClubwork.getEndDate().isAfterOrEqual(to) && fromClubwork.getStartDate().isBefore(to)) {
+				month -= (12-to.getMonth()-1);
+			}
+		}
+		return month;
 	}
 }

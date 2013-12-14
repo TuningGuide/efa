@@ -399,6 +399,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
                     || !isAllowedChangePassword()
                     || !isAllowedConfiguration()
                     || !isAllowedAdministerProjectLogbook()
+					|| !isAllowedAdministerProjectClubwork()
                     || !isAllowedEditLogbook()
                     || !isAllowedEditBoatStatus()
                     || !isAllowedEditBoatReservation()

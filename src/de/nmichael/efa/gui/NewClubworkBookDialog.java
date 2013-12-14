@@ -33,8 +33,8 @@ public class NewClubworkBookDialog extends StepwiseDialog {
     private static final String CLUBWORKDESCRIPTION = "CLUBWORKDESCRIPTION";
     private static final String DATEFROM           = "DATEFROM";
     private static final String DATETO             = "DATETO";
-    private static final String AUTOMATICCLUBWORKSWITCH = "AUTOMATICCLUBWORKSWITCH";
-    private static final String CLUBWORKSWITCHBOATHOUSE = "CLUBWORKSWITCHBOATHOUSE";
+//    private static final String AUTOMATICCLUBWORKSWITCH = "AUTOMATICCLUBWORKSWITCH";
+//    private static final String CLUBWORKSWITCHBOATHOUSE = "CLUBWORKSWITCHBOATHOUSE";
 
     private String newClubworkName;
 
@@ -54,7 +54,7 @@ public class NewClubworkBookDialog extends StepwiseDialog {
         return new String[] {
             International.getString("Name und Beschreibung"),
             International.getString("Details für Vereinsarbeitsbuch"),
-            International.getString("Vereinsarbeitsbuchwechsel")
+//            International.getString("Vereinsarbeitsbuchwechsel")
         };
     }
 
@@ -66,11 +66,11 @@ public class NewClubworkBookDialog extends StepwiseDialog {
             case 1:
                 return International.getString("Bitte wähle den Zeitraum für dieses Vereinsarbeitsbuch aus. efa wird später nur Arbeit "+
                         "innerhalb dieses Zeitraums für dieses Vereinsarbeitsbuch zulassen.");
-            case 2:
-                return International.getString("Durch die Konfiguration eines Vereinsarbeitsbuchwechsels ist es möglich, ein neues Vereinsarbeitsbuch "+
-                        "automatisch zu einem konfigurierten Zeitpunkt (zum Beispiel Jahreswechsel) zu öffnen. efa-Bootshaus schließt das aktuelle " +
-						"Vereinsarbeitsbuch und wechselt zum neuen Fahrtenbuch, ohne daß " +
-                        "weitere Eingriffe eines Administrators nötig wären.");
+//            case 2:
+//                return International.getString("Durch die Konfiguration eines Vereinsarbeitsbuchwechsels ist es möglich, ein neues Vereinsarbeitsbuch "+
+//                        "automatisch zu einem konfigurierten Zeitpunkt (zum Beispiel Jahreswechsel) zu öffnen. efa-Bootshaus schließt das aktuelle " +
+//						"Vereinsarbeitsbuch und wechselt zum neuen Fahrtenbuch, ohne daß " +
+//                        "weitere Eingriffe eines Administrators nötig wären.");
         }
         return "";
     }
@@ -114,22 +114,22 @@ public class NewClubworkBookDialog extends StepwiseDialog {
 				International.getString("Bußgeld für Vereinsarbeit unter Sollstunden")));
 
         // Items for Step 2
-        item = new ItemTypeBoolean(AUTOMATICCLUBWORKSWITCH, false, IItemType.TYPE_PUBLIC, "2",
-                International.getMessage("Vereinsarbeitsbuchwechsel automatisch zum {datum}", "?"));
-        items.add(item);
-        if (Daten.project.getNumberOfBoathouses() > 1) {
-            String[] descr  = Daten.project.getAllBoathouseNames();
-            String[] values = new String[descr.length];
-            for (int i=0; i<values.length; i++) {
-                values[i] = Integer.toString(Daten.project.getBoathouseId(descr[i]));
-            }
-            item = new ItemTypeStringList(CLUBWORKSWITCHBOATHOUSE,
-                    Integer.toString(Daten.project.getMyBoathouseId()),
-                    values, descr,
-                    IItemType.TYPE_PUBLIC, "2",
-                    International.getString("Bootshaus"));
-            items.add(item);
-        }
+//        item = new ItemTypeBoolean(AUTOMATICCLUBWORKSWITCH, false, IItemType.TYPE_PUBLIC, "2",
+//                International.getMessage("Vereinsarbeitsbuchwechsel automatisch zum {datum}", "?"));
+//        items.add(item);
+//        if (Daten.project.getNumberOfBoathouses() > 1) {
+//            String[] descr  = Daten.project.getAllBoathouseNames();
+//            String[] values = new String[descr.length];
+//            for (int i=0; i<values.length; i++) {
+//                values[i] = Integer.toString(Daten.project.getBoathouseId(descr[i]));
+//            }
+//            item = new ItemTypeStringList(CLUBWORKSWITCHBOATHOUSE,
+//                    Integer.toString(Daten.project.getMyBoathouseId()),
+//                    values, descr,
+//                    IItemType.TYPE_PUBLIC, "2",
+//                    International.getString("Bootshaus"));
+//            items.add(item);
+//        }
     }
 
     boolean checkInput(int direction) {
@@ -160,14 +160,14 @@ public class NewClubworkBookDialog extends StepwiseDialog {
             }
         }
 
-        if (step == 1) {
-            ItemTypeDate clubworkFromDate = (ItemTypeDate)getItemByName(DATEFROM);
-            ItemTypeBoolean clubworkswitch = (ItemTypeBoolean)getItemByName(AUTOMATICCLUBWORKSWITCH);
-            if (clubworkFromDate != null && clubworkswitch != null) {
-                clubworkswitch.setDescription(International.getMessage("Vereinsarbeitsbuchwechsel automatisch zum {datum}",
-                        clubworkFromDate.toString()));
-            }
-        }
+//        if (step == 1) {
+//            ItemTypeDate clubworkFromDate = (ItemTypeDate)getItemByName(DATEFROM);
+//            ItemTypeBoolean clubworkswitch = (ItemTypeBoolean)getItemByName(AUTOMATICCLUBWORKSWITCH);
+//            if (clubworkFromDate != null && clubworkswitch != null) {
+//                clubworkswitch.setDescription(International.getMessage("Vereinsarbeitsbuchwechsel automatisch zum {datum}",
+//                        clubworkFromDate.toString()));
+//            }
+//        }
 
         return true;
     }
@@ -181,8 +181,8 @@ public class NewClubworkBookDialog extends StepwiseDialog {
         ItemTypeString clubworkDescription = (ItemTypeString)getItemByName(CLUBWORKDESCRIPTION);
         ItemTypeDate clubworkFromDate = (ItemTypeDate)getItemByName(DATEFROM);
         ItemTypeDate clubworkFromTo = (ItemTypeDate)getItemByName(DATETO);
-        ItemTypeBoolean clubworkswitch = (ItemTypeBoolean)getItemByName(AUTOMATICCLUBWORKSWITCH);
-        ItemTypeStringList clubworkSwitchBoathouse = (ItemTypeStringList)getItemByName(CLUBWORKSWITCHBOATHOUSE);
+//        ItemTypeBoolean clubworkswitch = (ItemTypeBoolean)getItemByName(AUTOMATICCLUBWORKSWITCH);
+//        ItemTypeStringList clubworkSwitchBoathouse = (ItemTypeStringList)getItemByName(CLUBWORKSWITCHBOATHOUSE);
 
 		ItemTypeDouble clubworkTargetHours = (ItemTypeDouble)getItemByName(ProjectRecord.DEFAULTCLUBWORKTARGETHOURS);
 		ItemTypeDouble clubworkTransferableHours = (ItemTypeDouble)getItemByName(ProjectRecord.TRANSFERABLECLUBWORKHOURS);
@@ -203,27 +203,27 @@ public class NewClubworkBookDialog extends StepwiseDialog {
             Daten.project.getClubwork(newClubworkName, true);
             Dialog.infoDialog(LogString.fileSuccessfullyCreated(clubworkName.getValue(),
                     International.getString("Vereinsarbeitsbuch")));
-            if (clubworkswitch.getValue()) {
-                boolean switchok = false;
-                String bh = (clubworkSwitchBoathouse == null ? Daten.project.getMyBoathouseName() :
-                    Daten.project.getBoathouseName(EfaUtil.string2int(clubworkSwitchBoathouse.getValue(), -1)));
-                if (bh != null) {
-                    ProjectRecord r = Daten.project.getBoathouseRecord(bh);
-                    if (r != null) {
-                        r.setAutoNewClubworkDate(clubworkFromDate.getDate());
-                        r.setAutoNewClubworkName(clubworkName.getValue());
-                        Daten.project.data().update(r);
-                        switchok = true;
-                    }
-                }
-                if (switchok) {
-                    Dialog.infoDialog(International.getMessage("Vereinsarbeitsbuch zum {datum} konfiguriert.",
-                            clubworkFromDate.getDate().toString()));
-                } else {
-                    Dialog.error(International.getString("Vereinsarbeitsbuch konnte nicht konfiguriert werden.") + "\n" +
-                            "BoathouseRecord not found - please check your boathouse configuration in the project");
-                }
-            }
+//            if (clubworkswitch.getValue()) {
+//                boolean switchok = false;
+//                String bh = (clubworkSwitchBoathouse == null ? Daten.project.getMyBoathouseName() :
+//                    Daten.project.getBoathouseName(EfaUtil.string2int(clubworkSwitchBoathouse.getValue(), -1)));
+//                if (bh != null) {
+//                    ProjectRecord r = Daten.project.getBoathouseRecord(bh);
+//                    if (r != null) {
+//                        r.setAutoNewClubworkDate(clubworkFromDate.getDate());
+//                        r.setAutoNewClubworkName(clubworkName.getValue());
+//                        Daten.project.data().update(r);
+//                        switchok = true;
+//                    }
+//                }
+//                if (switchok) {
+//                    Dialog.infoDialog(International.getMessage("Vereinsarbeitsbuch zum {datum} konfiguriert.",
+//                            clubworkFromDate.getDate().toString()));
+//                } else {
+//                    Dialog.error(International.getString("Vereinsarbeitsbuch konnte nicht konfiguriert werden.") + "\n" +
+//                            "BoathouseRecord not found - please check your boathouse configuration in the project");
+//                }
+//            }
             setDialogResult(true);
         } catch(EfaException ee) {
             newClubworkName = null;

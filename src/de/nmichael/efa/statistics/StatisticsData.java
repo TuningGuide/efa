@@ -355,8 +355,8 @@ public class StatisticsData implements Comparable {
             if (sr.sIgnoreNullValues && clubwork == 0) {
                 this.sClubwork = "";
             } else {
-            	int month = -1+sr.sStartDate.getMonth() + sr.sEndDate.getMonth() + Math.abs(sr.sEndDate.getYear() - sr.sStartDate.getYear())*12;
-            	double targetHours = sr.sDefaultClubworkTargetHours/12*month;
+            	//int month = -1+sr.sStartDate.getMonth() + sr.sEndDate.getMonth() + Math.abs(sr.sEndDate.getYear() - sr.sStartDate.getYear())*12;
+            	double targetHours = sr.sClubworkTargetHoursForStatistic;
                 this.sClubwork = this.clubwork + " " + "h"+" / "+(isSummary ? absPosition*targetHours : targetHours) + " " + "h";
             }
         }
@@ -364,8 +364,8 @@ public class StatisticsData implements Comparable {
             if (sr.sIgnoreNullValues && clubwork == 0) {
                 this.sClubworkRelativeToTarget = "";
             } else {
-            	int month = -1+sr.sStartDate.getMonth() + sr.sEndDate.getMonth() + Math.abs(sr.sEndDate.getYear() - sr.sStartDate.getYear())*12;
-            	double targetHours = sr.sDefaultClubworkTargetHours/12*month;
+				//int month = -1+sr.sStartDate.getMonth() + sr.sEndDate.getMonth() + Math.abs(sr.sEndDate.getYear() - sr.sStartDate.getYear())*12;
+				double targetHours = sr.sClubworkTargetHoursForStatistic;
             	this.clubworkRelativeToTarget = this.clubwork - (this.isSummary ? absPosition*targetHours : targetHours);
                 this.sClubworkRelativeToTarget = this.clubworkRelativeToTarget + " " + "h";
             }
@@ -374,8 +374,8 @@ public class StatisticsData implements Comparable {
             if (this.isSummary || (sr.sIgnoreNullValues && clubwork == 0)) {
                 this.sClubworkOverUnderCarryOver = "";
             } else {
-            	int month = -1+sr.sStartDate.getMonth() + sr.sEndDate.getMonth() + Math.abs(sr.sEndDate.getYear() - sr.sStartDate.getYear())*12;
-            	double targetHours = sr.sDefaultClubworkTargetHours/12*month;
+				//int month = -1+sr.sStartDate.getMonth() + sr.sEndDate.getMonth() + Math.abs(sr.sEndDate.getYear() - sr.sStartDate.getYear())*12;
+				double targetHours = sr.sClubworkTargetHoursForStatistic;
             	
             	this.clubworkOverUnderCarryOver = this.clubwork - targetHours;
             	double t_hours = sr.sTransferableClubworkHours;
@@ -383,7 +383,7 @@ public class StatisticsData implements Comparable {
             		this.clubworkOverUnderCarryOver += t_hours;
             	}
             	else if(this.clubworkOverUnderCarryOver > t_hours) {
-            		this.clubworkOverUnderCarryOver+= t_hours;
+            		this.clubworkOverUnderCarryOver -= t_hours;
             	}
             	else {
             		this.clubworkOverUnderCarryOver = 0;

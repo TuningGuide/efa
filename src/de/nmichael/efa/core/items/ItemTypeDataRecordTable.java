@@ -560,8 +560,8 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
 					}
 					aggregationTable = new JTable(dataModel);
 
-					tablePanel.add(aggregationTable, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-							GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(-21, 1, 1, 1), 0, 0));
+					tablePanel.add(aggregationTable, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+							GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
 					tablePanel.setComponentZOrder(aggregationTable, 0);
 				}
 			}

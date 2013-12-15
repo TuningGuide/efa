@@ -127,7 +127,9 @@ public class Clubwork extends StorageObject {
 		String inNächstes = International.getString("Dieses in Kommendes");
 		int num = Dialog.auswahlDialog(title, message, inDieses, inNächstes);
 
-		doCarryOver(num, parent);
+		if (num != 2 /* == CANCEL */) {
+			doCarryOver(num, parent);
+		}
 	}
 
 	public void doCarryOver(int thisOrNext, JDialog parent) {
@@ -199,6 +201,7 @@ public class Clubwork extends StorageObject {
 			return;
 		}
 
+		long lock = -1;
 		Hashtable<UUID, Double> hourAggregation = new Hashtable<UUID, Double>();
 		try {
 			DataKeyIterator it = from.data().getStaticIterator();
@@ -217,66 +220,94 @@ public class Clubwork extends StorageObject {
 				hours += r.getHours();
 				hourAggregation.put(personId, hours);
 			}
-		} catch (EfaException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
-		double sDefaultClubworkTargetHours = pr.getDefaultClubworkTargetHours();
-		double sTransferableClubworkHours = pr.getTransferableClubworkHours();
-		long lock = -1;
-
-		try {
 			lock = to.data().acquireGlobalLock();
+			it = to.data().getStaticIterator();
+			boolean deleteOldCarryOver = false;
+			for(DataKey k = it.getFirst(); k != null; k = it.getNext()) {
+				ClubworkRecord r = (ClubworkRecord) to.data().get(k);
+				if(r.getFlag() == ClubworkRecord.Flags.CarryOver) {
+					if(deleteOldCarryOver == false) {
+						int res = Dialog.yesNoDialog("Hinweis", International.getString("Es existieren Überträge im Ziel-Vereinsarbeitsbuch. Diese " +
+								"löschen?"));
+						if(res == Dialog.YES) {
+							deleteOldCarryOver = true;
+							to.dataAccess.delete(k);
+						}
+						else {
+							break;
+						}
+					}
+					else {
+						to.dataAccess.delete(k);
+					}
+				}
+			}
+
+			double sDefaultClubworkTargetHours = pr.getDefaultClubworkTargetHours();
+			double sTransferableClubworkHours = pr.getTransferableClubworkHours();
 
 			// Save Carry Over
 			Set<Map.Entry<UUID, Double>> entries = hourAggregation.entrySet();
-			for(Map.Entry<UUID, Double> entry : entries) {
-				UUID personId = entry.getKey();
-				Double hours = entry.getValue();
+			if(entries.size() > 0) {
+				int successSaved = 0;
+				for(Map.Entry<UUID, Double> entry : entries) {
+					UUID personId = entry.getKey();
+					Double hours = entry.getValue();
 
-				Persons persons = Daten.project.getPersons(false);
-				Integer month = from.getStartDate().getMonthsDifference(from.getEndDate());
-				if (personId != null && persons != null) {
-					PersonRecord[] personRecords = persons.getPersons(personId, from.getStartDate().getTimestamp(null),
-							from.getEndDate().getTimestamp(null));
-					if(personRecords != null && personRecords.length > 0) {
-						for(int i=0; i < personRecords.length; i++) {
-							if(personRecords[i].isStatusMember()) {
-								month = personMemberMonthToFullYear(personRecords[i], month, from);
+					Persons persons = Daten.project.getPersons(false);
+					Integer month = from.getStartDate().getMonthsDifference(from.getEndDate());
+					if (personId != null && persons != null) {
+						PersonRecord[] personRecords = persons.getPersons(personId, from.getStartDate().getTimestamp(null),
+								from.getEndDate().getTimestamp(null));
+						if(personRecords != null && personRecords.length > 0) {
+							for(int i=0; i < personRecords.length; i++) {
+								if(personRecords[i].isStatusMember()) {
+									month = personMemberMonthToFullYear(personRecords[i], month, from);
+								}
 							}
 						}
 					}
-				}
 
-				double clubworkTargetHours = sDefaultClubworkTargetHours/12*month;
-				double max = clubworkTargetHours+sTransferableClubworkHours;
-				double min = clubworkTargetHours-sTransferableClubworkHours;
+					double clubworkTargetHours = sDefaultClubworkTargetHours/12*month;
+					double max = clubworkTargetHours+sTransferableClubworkHours;
+					double min = clubworkTargetHours-sTransferableClubworkHours;
 
-				ClubworkRecord record = to.createClubworkRecord(UUID.randomUUID());
-				record.setPersonId(personId);
-				record.setWorkDate(DataTypeDate.today());
-				record.setDescription(International.getString("Übertrag")+" ("+DataTypeDate.today()+")");
-				record.setFlag(ClubworkRecord.Flags.CarryOver);
+					ClubworkRecord record = to.createClubworkRecord(UUID.randomUUID());
+					record.setPersonId(personId);
+					record.setWorkDate(DataTypeDate.today());
+					record.setDescription(International.getString("Übertrag")+" ("+DataTypeDate.today()+")");
+					record.setFlag(ClubworkRecord.Flags.CarryOver);
 
-				if(hours == null) {
-					hours = 0.0;
+					if(hours == null) {
+						hours = 0.0;
+					}
+					else if(hours > max) {
+						record.setHours(sTransferableClubworkHours);
+					}
+					else if(hours < min) {
+						record.setHours(-sTransferableClubworkHours);
+					}
+					else {
+						record.setHours(hours-clubworkTargetHours);
+					}
+
+					try {
+						to.data().add(record);
+						successSaved++;
+					} catch (Exception eignore) {
+						Logger.logdebug(eignore);
+					}
 				}
-				else if(hours > max) {
-					record.setHours(sTransferableClubworkHours);
-				}
-				else if(hours < min) {
-					record.setHours(-sTransferableClubworkHours);
+				if(successSaved > 0) {
+					Dialog.infoDialog(International.getMessage("{thing} erfolgreich berechnet.", International.getString("Übertrag")));
 				}
 				else {
-					record.setHours(hours-clubworkTargetHours);
+					Dialog.error(International.getMessage("{thing} konnte nicht berechnet werden!", International.getString("Übertrag")));
 				}
-
-				try {
-					to.data().add(record);
-				} catch (Exception eignore) {
-					Logger.logdebug(eignore);
-				}
+			}
+			else {
+				Dialog.error(International.getMessage("Keine Einträge im aktuellen {book} gefunden!", International.getString("Vereinsarbeitsbuch")));
 			}
 
 			// Save Yearly Credit
@@ -300,15 +331,17 @@ public class Clubwork extends StorageObject {
 			}*/
 		}
 		catch (Exception e) {
+			String message = International.getString("efa hat soeben versucht den Übertrag für die Vereinsarbeit zu berechnen.") + "\n"
+					+ International.getString("Bei diesem Vorgang traten jedoch FEHLER auf.") + "\n\n"
+					+ International.getString("Ein Protokoll ist in der Logdatei (Admin-Modus: Logdatei anzeigen) zu finden.");
+
+			Dialog.infoDialog(International.getString("Vereinsarbeit-Übertrag"), message);
 			Logger.logdebug(e);
 			Logger.log(Logger.ERROR, Logger.MSG_ERR_GENERIC,
 					LogString.operationAborted(International.getString("Vereinsarbeit-Übertrag")));
 			Messages messages = Daten.project.getMessages(false);
-			messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME, MessageRecord.TO_ADMIN,
-					International.getString("Vereinsarbeit-Übertrag"),
-					International.getString("efa hat soeben versucht den Übertrag für die Vereinsarbeit zu berechnen.") + "\n"
-							+ International.getString("Bei diesem Vorgang traten jedoch FEHLER auf.") + "\n\n"
-							+ International.getString("Ein Protokoll ist in der Logdatei (Admin-Modus: Logdatei anzeigen) zu finden."));
+			messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME, MessageRecord.TO_ADMIN, International.getString("Vereinsarbeit-Übertrag"),
+					message);
 		}
 		finally {
 			if (to != null && lock >= 0) {

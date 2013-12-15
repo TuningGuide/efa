@@ -36,11 +36,9 @@ public class SessionGroupRecord extends DataRecord {
     public static final String NAME                = "Name";
     public static final String ROUTE               = "Route";
     public static final String ORGANIZER           = "Organizer";
-    public static final String SESSIONTYPE         = "SessionType";
     public static final String STARTDATE           = "StartDate";
     public static final String ENDDATE             = "EndDate";
     public static final String ACTIVEDAYS          = "ActiveDays";
-    public static final String DISTANCE            = "Distance";
 
     public static final String[] IDX_LOGBOOK = new String[] { LOGBOOK };
 
@@ -53,11 +51,9 @@ public class SessionGroupRecord extends DataRecord {
         f.add(NAME);                              t.add(IDataAccess.DATA_STRING);
         f.add(ROUTE);                             t.add(IDataAccess.DATA_STRING);
         f.add(ORGANIZER);                         t.add(IDataAccess.DATA_STRING);
-        f.add(SESSIONTYPE);                       t.add(IDataAccess.DATA_STRING);
         f.add(STARTDATE);                         t.add(IDataAccess.DATA_DATE);
         f.add(ENDDATE);                           t.add(IDataAccess.DATA_DATE);
         f.add(ACTIVEDAYS);                        t.add(IDataAccess.DATA_INTEGER);
-        f.add(DISTANCE);                          t.add(IDataAccess.DATA_DISTANCE);
 
         MetaData metaData = constructMetaData(SessionGroups.DATATYPE, f, t, false);
         metaData.setKey(new String[] { ID });
@@ -138,20 +134,6 @@ public class SessionGroupRecord extends DataRecord {
         return getString(ORGANIZER);
     }
 
-    public void setSessionType(String type) {
-        setString(SESSIONTYPE, type);
-    }
-    public String getSessionType() {
-        return getString(SESSIONTYPE);
-    }
-    public String getSessionTypeDescription() {
-        String type = getString(SESSIONTYPE);
-        if (type == null || type.length() == 0) {
-            return "";
-        }
-        return Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, type);
-    }
-
     public void setStartDate(DataTypeDate date) {
         setDate(STARTDATE, date);
     }
@@ -171,13 +153,6 @@ public class SessionGroupRecord extends DataRecord {
     }
     public int getActiveDays() {
         return getInt(ACTIVEDAYS);
-    }
-
-    public void setDistance(DataTypeDistance distance) {
-        setDistance(DISTANCE, distance);
-    }
-    public DataTypeDistance getDistance() {
-        return getDistance(DISTANCE);
     }
 
     public String[] getQualifiedNameFields() {
@@ -204,29 +179,6 @@ public class SessionGroupRecord extends DataRecord {
         return true;
     }
 
-    public String getAsText(String fieldName) {
-        if (fieldName.equals(SESSIONTYPE)) {
-            String s = getAsString(fieldName);
-            if (s != null) {
-                return Daten.efaTypes.getValue(EfaTypes.CATEGORY_SESSION, s);
-            }
-            return null;
-        }
-        return super.getAsText(fieldName);
-    }
-
-    public boolean setFromText(String fieldName, String value) {
-        if (fieldName.equals(SESSIONTYPE)) {
-            String s = Daten.efaTypes.getTypeForValue(EfaTypes.CATEGORY_SESSION, value);
-            if (s != null) {
-                set(fieldName, s);
-            }
-        } else {
-            return super.setFromText(fieldName, value);
-        }
-        return (value.equals(getAsText(fieldName)));
-    }
-
     public Vector<IItemType> getGuiItems(AdminRecord admin) {
         String CAT_BASEDATA     = "%01%" + International.getString("Fahrtgruppe");
         IItemType item;
@@ -249,10 +201,6 @@ public class SessionGroupRecord extends DataRecord {
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                     International.getString("Veranstalter")));
         }
-        v.add(item = new ItemTypeStringList(SESSIONTYPE, getSessionType(),
-                EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeSessionTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
-                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Fahrtart")));
-        item.setNotNull(true);
         v.add(item = new ItemTypeDate(STARTDATE, getStartDate(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                 International.getString("Startdatum")));
@@ -266,27 +214,22 @@ public class SessionGroupRecord extends DataRecord {
         v.add(item = new ItemTypeInteger(ACTIVEDAYS, getActiveDays(), 1, Integer.MAX_VALUE,
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                 International.getString("aktive Tage")));
-        v.add(item = new ItemTypeDistance(DISTANCE, getDistance(),
-                IItemType.TYPE_PUBLIC, CAT_BASEDATA,
-                International.getString("Kilometer")));
         return v;
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        TableItemHeader[] header = new TableItemHeader[4];
+        TableItemHeader[] header = new TableItemHeader[3];
         header[0] = new TableItemHeader(International.getString("Name"));
-        header[1] = new TableItemHeader(International.getString("Fahrtart"));
-        header[2] = new TableItemHeader(International.getString("Startdatum"));
-        header[3] = new TableItemHeader(International.getString("Enddatum"));
+        header[1] = new TableItemHeader(International.getString("Startdatum"));
+        header[2] = new TableItemHeader(International.getString("Enddatum"));
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
-        TableItem[] items = new TableItem[4];
+        TableItem[] items = new TableItem[3];
         items[0] = new TableItem(getName());
-        items[1] = new TableItem(getSessionTypeDescription());
-        items[2] = new TableItem(getStartDate());
-        items[3] = new TableItem(getEndDate());
+        items[1] = new TableItem(getStartDate());
+        items[2] = new TableItem(getEndDate());
         return items;
     }
     

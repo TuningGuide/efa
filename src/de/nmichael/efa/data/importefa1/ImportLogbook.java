@@ -237,7 +237,6 @@ public class ImportLogbook extends ImportBase {
                                 SessionGroupRecord sg = sessionGroups.createSessionGroupRecord(UUID.randomUUID(), meta.name);
                                 id = sg.getId();
                                 sg.setName(mtourName);
-                                sg.setSessionType(EfaTypes.TYPE_SESSION_TOUR);
                                 if (mtour.start != null && mtour.start.length() > 0) {
                                     sg.setStartDate(DataTypeDate.parseDate(mtour.start));
                                 }
@@ -246,9 +245,6 @@ public class ImportLogbook extends ImportBase {
                                 }
                                 if (mtour.rudertage > 0) {
                                     sg.setActiveDays(mtour.rudertage);
-                                }
-                                if (!mtour.isEtappen) {
-                                    sg.setDistance(r.getDistance());
                                 }
                                 // Waters from MultiDayTour's are not imported, but get lost during import.
                                 // Should this be fixed? It's only relevant for DRV-Wanderruderstatistik, so it only

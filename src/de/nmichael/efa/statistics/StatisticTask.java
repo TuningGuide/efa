@@ -894,7 +894,7 @@ public class StatisticTask extends ProgressTask {
         }
         if (sr.sIsLFieldsMultiDay) {
             sd.logbookFields[col++] = (entrySessionGroup != null
-                    ? entrySessionGroup.getSessionTypeDescription() : "");
+                    ? entrySessionGroup.getRoute() : "");
         }
         if (sr.sIsLFieldsSessionType) {
             sd.logbookFields[col++] = (entrySessionType != null

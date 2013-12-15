@@ -16,9 +16,8 @@ import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.util.*;
 import java.util.*;
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
+import javax.mail.Address;
+import javax.mail.internet.InternetAddress;
 
 public class EmailSenderThread extends Thread {
 
@@ -172,6 +171,13 @@ public class EmailSenderThread extends Thread {
             mail.setHeader("Content-Type", "text/plain; charset=" + charset);
             mail.setFrom(new javax.mail.internet.InternetAddress(mailFromName + " <" + mailFromEmail + ">"));
             mail.setRecipients(com.sun.mail.smtp.SMTPMessage.RecipientType.TO, javax.mail.internet.InternetAddress.parse(recipients.toString()));
+            if (msg.getReplyTo() != null && msg.getReplyTo().length() > 0) {
+                try {
+                    mail.setReplyTo(new Address[] { new InternetAddress(msg.getReplyTo()) });
+                } catch(Exception e) {
+                    Logger.logdebug(e);
+                }
+            }
             mail.setSubject((mailSubjectPrefix != null ? "[" + mailSubjectPrefix + "] " : "") + msg.getSubject(), charset);
             mail.setSentDate(new Date());
             mail.setText("## " + International.getString("Absender") + ": " + msg.getFrom() + "\n"

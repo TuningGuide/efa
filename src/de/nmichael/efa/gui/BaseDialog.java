@@ -206,7 +206,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
         if (evt.getActionCommand().equals(KEYACTION_F1)) {
             Help.showHelp(getHelpTopics());
         }
-        if (evt.getActionCommand().equals(KEYACTION_F12) && Logger.isDebugLoggin()) {
+        if (evt.getActionCommand().equals(KEYACTION_F12) && Logger.isDebugLogging()) {
             AccessStatisticsDialog dlg = new AccessStatisticsDialog(this);
             dlg.showDialog();
         }
@@ -239,7 +239,7 @@ public abstract class BaseDialog extends JDialog implements ActionListener {
 
         KEYACTION_ESCAPE = addKeyAction("ESCAPE");
         KEYACTION_F1 = addKeyAction("F1");
-        if (Logger.isDebugLoggin()) {
+        if (Logger.isDebugLogging()) {
             KEYACTION_F12 = addKeyAction("F12");
         }
 

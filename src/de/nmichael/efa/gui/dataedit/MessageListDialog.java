@@ -129,6 +129,7 @@ public class MessageListDialog extends DataListDialog {
                             // forward message
                             ((Messages)persistence).createAndSaveMessageRecord(r.getFrom(),
                                     (origToAdmin ? MessageRecord.TO_BOATMAINTENANCE : MessageRecord.TO_ADMIN),
+                                    (String)null,
                                     r.getSubject(),
                                     International.getMessage("Weitergeleitet von {name}", admin.getName()) + ":\n\n" + r.getText());
 

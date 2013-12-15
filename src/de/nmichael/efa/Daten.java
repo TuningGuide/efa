@@ -25,6 +25,8 @@ import java.util.*;
 import java.awt.*;
 import javax.swing.UIManager;
 import java.lang.management.*;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import javax.swing.plaf.ColorUIResource;
 
 // @i18n complete
@@ -212,7 +214,7 @@ public class Daten {
     public static AdminRecord initialize() {
         if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
             Logger.log(Logger.DEBUG, Logger.MSG_CORE_STARTUPINITIALIZATION, "initialize()");
-            printEfaInfos(false, false, true, false);
+            printEfaInfos(false, false, true, false, false);
         }
         AdminRecord newlyCreatedAdminRecord = null;
         iniScreenSize();
@@ -385,7 +387,7 @@ public class Daten {
         }
         Daten.efaProgramDirectory = Daten.efaMainDirectory + "program" + Daten.fileSep; // just temporary, will be overwritten by iniDirectories()
         if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
-            printEfaInfos(true, false, false, false);
+            printEfaInfos(true, false, false, false, false);
         }
     }
 
@@ -429,7 +431,7 @@ public class Daten {
             haltProgram(HALT_BASICCONFIG);
         }
         if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
-            printEfaInfos(true, false, false, false);
+            printEfaInfos(true, false, false, false, false);
         }
     }
 
@@ -483,7 +485,7 @@ public class Daten {
             }
         }
         if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
-            printEfaInfos(true, false, false, false);
+            printEfaInfos(true, false, false, false, false);
         }
     }
 
@@ -519,7 +521,7 @@ public class Daten {
         Logger.log(Logger.INFO, Logger.MSG_INFO_VERSION,
                 "Version efa: " + Daten.VERSIONID + " -- Java: " + Daten.javaVersion + " (JVM " + Daten.jvmVersion + ") -- OS: " + Daten.osName + " " + Daten.osVersion);
 
-        if (Logger.isDebugLoggin()) {
+        if (Logger.isDebugLogging()) {
             Logger.log(Logger.INFO, Logger.MSG_LOGGER_DEBUGACTIVATED,
                     "Debug Logging activated."); // do not internationalize!
         }
@@ -644,7 +646,7 @@ public class Daten {
         }
 
         if (Logger.isTraceOn(Logger.TT_CORE, 9) || Logger.isDebugLoggingActivatedByCommandLine()) {
-            printEfaInfos(true, false, false, false);
+            printEfaInfos(true, false, false, false, false);
         }
     }
 
@@ -1096,10 +1098,14 @@ public class Daten {
     }
 
     public static Vector getEfaInfos() {
-        return getEfaInfos(true, true, true, false);
+        return getEfaInfos(true, true, true, true, false);
     }
     
-    public static Vector getEfaInfos(boolean efaInfos, boolean pluginInfos, boolean javaInfos, boolean jarInfos) {
+    public static Vector getEfaInfos(boolean efaInfos, 
+            boolean pluginInfos, 
+            boolean javaInfos, 
+            boolean hostInfos,
+            boolean jarInfos) {
         Vector infos = new Vector();
 
         // efa-Infos
@@ -1108,7 +1114,7 @@ public class Daten {
             if (EFALIVE_VERSION != null && EFALIVE_VERSION.length() > 0) {
                 infos.add("efalive.version=" + Daten.EFALIVE_VERSION);
             }
-            if (applID != APPL_EFABH) {
+            if (applID != APPL_EFABH || applMode == APPL_MODE_ADMIN) {
                 if (Daten.efaMainDirectory != null) {
                     infos.add("efa.dir.main=" + Daten.efaMainDirectory);
                 }
@@ -1143,7 +1149,7 @@ public class Daten {
         if (pluginInfos) {
             try {
                 File dir = new File(Daten.efaPluginDirectory);
-                if (applID != APPL_EFABH) {
+                if ((applID != APPL_EFABH || applMode == APPL_MODE_ADMIN) && Logger.isDebugLogging()) {
                     File[] files = dir.listFiles();
                     for (int i = 0; i < files.length; i++) {
                         if (files[i].isFile()) {
@@ -1163,7 +1169,7 @@ public class Daten {
                 return null;
             }
         }
-
+        
         // Java Infos
         if (javaInfos) {
             infos.add("java.version=" + System.getProperty("java.version"));
@@ -1183,8 +1189,20 @@ public class Daten {
             }
         }
 
+        // Host Infos
+        if (hostInfos) {
+            if (applID != APPL_EFABH || applMode == APPL_MODE_ADMIN) {
+                try {
+                    infos.add("host.name=" + InetAddress.getLocalHost().getCanonicalHostName());
+                    infos.add("host.ip=" + InetAddress.getLocalHost().getHostAddress());
+                    infos.add("host.interface=" + EfaUtil.getInterfaceInfo(NetworkInterface.getByInetAddress(InetAddress.getLocalHost())));
+                } catch(Exception eingore) {
+                }
+            }
+        }
+
         // JAR methods
-        if (jarInfos && Logger.isDebugLoggin()) {
+        if (jarInfos && Logger.isDebugLogging()) {
             try {
                 String cp = System.getProperty("java.class.path");
                 while (cp != null && cp.length() > 0) {
@@ -1224,11 +1242,11 @@ public class Daten {
     }
 
     public static void printEfaInfos() {
-        printEfaInfos(true, true, true, false);
+        printEfaInfos(true, true, true, true, false);
     }
 
-    public static void printEfaInfos(boolean efaInfos, boolean pluginInfos, boolean javaInfos, boolean jarInfos) {
-        Vector infos = getEfaInfos(efaInfos, pluginInfos, javaInfos, jarInfos);
+    public static void printEfaInfos(boolean efaInfos, boolean pluginInfos, boolean javaInfos, boolean hostInfos, boolean jarInfos) {
+        Vector infos = getEfaInfos(efaInfos, pluginInfos, javaInfos, hostInfos, jarInfos);
         for (int i = 0; infos != null && i < infos.size(); i++) {
             Logger.log(Logger.INFO, Logger.MSG_INFO_CONFIGURATION, (String) infos.get(i));
         }

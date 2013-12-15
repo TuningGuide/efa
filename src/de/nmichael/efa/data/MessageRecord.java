@@ -39,6 +39,7 @@ public class MessageRecord extends DataRecord {
     public static final String TEXT                  = "Text";
     public static final String READ                  = "Read";
     public static final String TOBEMAILED            = "ToBeMailed";
+    public static final String REPLYTO               = "ReplyTo";
 
     public static void initialize() {
         Vector<String> f = new Vector<String>();
@@ -53,6 +54,7 @@ public class MessageRecord extends DataRecord {
         f.add(TEXT);                              t.add(IDataAccess.DATA_STRING);
         f.add(READ);                              t.add(IDataAccess.DATA_BOOLEAN);
         f.add(TOBEMAILED);                        t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(REPLYTO);                           t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(Messages.DATATYPE, f, t, false);
         metaData.setKey(new String[] { MESSAGEID });
     }
@@ -146,6 +148,13 @@ public class MessageRecord extends DataRecord {
         return getBool(TOBEMAILED);
     }
 
+    public void setReplyTo(String replyTo) {
+        setString(REPLYTO, replyTo);
+    }
+    public String getReplyTo() {
+        return getString(REPLYTO);
+    }
+
     public String getQualifiedName() {
         return "#" + getMessageId() + " " + getSubject();
     }
@@ -183,6 +192,13 @@ public class MessageRecord extends DataRecord {
         ((ItemTypeStringAutoComplete)item).setAlwaysReturnPlainText(true);
         item.setEditable(newMsg);
         item.setNotNull(true);
+
+        if (!newMsg && getReplyTo() != null && getReplyTo().length() > 0) {
+            v.add(item = new ItemTypeString(REPLYTO, getReplyTo(),
+                    IItemType.TYPE_PUBLIC, CAT_BASEDATA,
+                    International.getString("Antwort an")));
+            item.setEditable(false);
+        }
 
         v.add(item = new ItemTypeString(SUBJECT, getSubject(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA,

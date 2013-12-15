@@ -3106,6 +3106,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                             items)) {
                         String description = items[2].getValueFromField();
                         personName = items[3].getValueFromField();
+                        UUID personId = (UUID)(((ItemTypeStringAutoComplete)items[3]).getId(personName));
                         LogbookRecord latest = logbook.getLastBoatUsage(currentBoat.getId(), myRecord);
                         String lastUsage = (latest != null ?
                                 latest.getLogbookRecordAsStringDescription() :
@@ -3119,7 +3120,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                         message.append(International.getString("Letzte Benutzung") + ":\n" + lastUsage);
                         
                         Daten.project.getMessages(false).createAndSaveMessageRecord(personName,
-                                MessageRecord.TO_BOATMAINTENANCE, 
+                                MessageRecord.TO_BOATMAINTENANCE, personId,
                                 International.getString("Boot war nicht geputzt") + " - " + boatName, 
                                 message.toString());
                         Dialog.infoDialog(International.getString("Danke") + "!");

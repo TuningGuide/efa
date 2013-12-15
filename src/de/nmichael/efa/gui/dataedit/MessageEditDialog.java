@@ -14,11 +14,13 @@ import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeBoolean;
+import de.nmichael.efa.core.items.ItemTypeStringAutoComplete;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.ex.InvalidValueException;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.UUID;
 import javax.swing.*;
 
 // @i18n complete
@@ -97,6 +99,17 @@ public class MessageEditDialog extends UnversionizedDataEditDialog {
                         && MessageRecord.TO_BOATMAINTENANCE.equals(to)) {
                     ((MessageRecord)dataRecord).setRead(true);
                 }
+                
+                try {
+                    ItemTypeStringAutoComplete from = (ItemTypeStringAutoComplete)getItem(MessageRecord.FROM);
+                    PersonRecord p = Daten.project.getPersons(false).getPerson((UUID)from.getId(from.getValueFromField()), System.currentTimeMillis());
+                    if (p != null && p.getEmail() != null && p.getEmail().trim().length() > 0) {
+                        ((MessageRecord)dataRecord).setReplyTo(p.getEmail().trim());
+                    }
+                } catch (Exception e) {
+                    Logger.logdebug(e);
+                }
+                
             }
         }
         return super.saveRecord();

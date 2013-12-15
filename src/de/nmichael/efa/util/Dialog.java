@@ -351,7 +351,7 @@ public class Dialog {
                 EfaUtil.foo();
             }
         }
-        if (Logger.isDebugLoggin() && Logger.isTraceOn(Logger.TT_GUI)) {
+        if (Logger.isDebugLogging() && Logger.isTraceOn(Logger.TT_GUI)) {
             Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_WINDOWS, "Dialog.frameOpened(" + w.getClass().getCanonicalName() + ")");
         }
     }
@@ -362,7 +362,7 @@ public class Dialog {
         if (frameStack == null) {
             return;
         }
-        if (Logger.isDebugLoggin() && Logger.isTraceOn(Logger.TT_GUI)) {
+        if (Logger.isDebugLogging() && Logger.isTraceOn(Logger.TT_GUI)) {
             Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_GUI_WINDOWS, "Dialog.frameClosed(" + w.getClass().getCanonicalName() + ")");
         }
         if (frameStack.isEmpty()) {

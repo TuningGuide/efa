@@ -82,6 +82,7 @@ public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements
         Messages messages = r.getPersistence().getProject().getMessages(false);
         messages.createAndSaveMessageRecord(r.getReportedByPersonAsName(),
                 MessageRecord.TO_BOATMAINTENANCE,
+                r.getReportedByPersonId(),
                 International.getString("Neuer Bootsschaden") + " - " + r.getBoatAsName(),
                 r.getCompleteDamageInfo() +
                 (r.getLogbookText() != null && r.getLogbookText().length() > 0 ?
@@ -98,6 +99,7 @@ public class BoatDamageEditDialog extends UnversionizedDataEditDialog implements
             Messages messages = r.getPersistence().getProject().getMessages(false);
             messages.createAndSaveMessageRecord(r.getReportedByPersonAsName(),
                     MessageRecord.TO_BOATMAINTENANCE,
+                    r.getReportedByPersonId(),
                     International.getString("Bootsschaden behoben") + " - " + r.getBoatAsName(),
                     r.getCompleteDamageInfo() +
                     "\n" +

@@ -829,7 +829,7 @@ public class Logger {
         logExceptions = logEx;
     }
 
-    public static boolean isDebugLoggin() {
+    public static boolean isDebugLogging() {
         return debugLogging;
     }
 
@@ -873,7 +873,7 @@ public class Logger {
             }
             Messages messages = (Daten.project != null ? Daten.project.getMessages(false) : null);
             if (messages != null && messages.isOpen()) {
-                messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME, to, International.getString("FEHLER"), txt.toString());
+                messages.createAndSaveMessageRecord(to, International.getString("FEHLER"), txt.toString());
             }
         } catch (Exception e) {
             Logger.logdebug(e);

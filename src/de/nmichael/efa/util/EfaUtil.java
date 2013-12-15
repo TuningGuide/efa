@@ -25,6 +25,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import java.net.NetworkInterface;
 import javax.swing.JComponent;
 import java.security.*;
 import org.xml.sax.XMLReader;
@@ -982,6 +983,14 @@ public class EfaUtil {
         return getHexDigit(i / 16) + "" + getHexDigit(i % 16);
     }
 
+    public static String hexByte(byte b) {
+        int i = b;
+        if (i < 0) {
+            i += 256;
+        }
+        return getHexDigit(i / 16) + "" + getHexDigit(i % 16);
+    }
+
     // Auf String s den SHA-Algorithmus anwenden und Ergebnis Hex-Codiert zurückliefern
     public static String getSHA(String z) {
         if (z == null || z.length() == 0) {
@@ -1058,6 +1067,27 @@ public class EfaUtil {
             return null;
         }
         return getSHA(buf);
+    }
+    
+    public static String getInterfaceInfo(NetworkInterface intf) {
+        try {
+            StringBuilder s = new StringBuilder();
+            s.append(intf.getDisplayName());
+            
+            s.append(" (MAC ");
+            byte[] mac = intf.getHardwareAddress();
+            for (int i=0; i<mac.length; i++) {
+                s.append( (i > 0 ? ":" : "") + EfaUtil.hexByte(mac[i]));
+            }
+            
+            s.append(" MTU " + intf.getMTU());
+            s.append(intf.isUp() ? " UP" : " DOWN");
+            
+            s.append(")");
+            return s.toString();
+        } catch(Exception e) {
+            return "";
+        }
     }
 
     // aus einem zweistelligen Jahresdatum ggf. ein vierstelliges machen

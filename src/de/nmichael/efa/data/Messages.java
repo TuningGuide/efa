@@ -16,6 +16,7 @@ import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.ex.EfaModifyException;
+import java.util.UUID;
 
 // @i18n complete
 
@@ -71,15 +72,32 @@ public class Messages extends StorageObject {
     }
 
     public MessageRecord createAndSaveMessageRecord(String to, String subject, String text) {
-        return createAndSaveMessageRecord(Daten.EFA_SHORTNAME, to, subject, text);
+        return createAndSaveMessageRecord(to, subject, text);
     }
 
-    public MessageRecord createAndSaveMessageRecord(String from, String to, String subject, String text) {
+    public MessageRecord createAndSaveMessageRecord(String from, String to, UUID replyTo,
+            String subject, String text) {
+        String email = null;
+        try {
+            PersonRecord p = Daten.project.getPersons(false).getPerson(replyTo, System.currentTimeMillis());
+            if (p != null && p.getEmail() != null && p.getEmail().length() > 0) {
+                email = p.getEmail();
+            }
+        } catch(Exception eignore) {
+        }
+        return createAndSaveMessageRecord(from, to, email, subject, text);
+    }
+    
+    public MessageRecord createAndSaveMessageRecord(String from, String to, String replyTo,
+            String subject, String text) {
         MessageRecord r = new MessageRecord(this, MetaData.getMetaData(DATATYPE));
         r.setMessageId(getNextMessageId());
         r.setDate(DataTypeDate.today());
         r.setTime(DataTypeTime.now());
         r.setTo(to);
+        if (replyTo != null && replyTo.trim().length() > 0) {
+            r.setReplyTo(replyTo.trim());
+        }
         r.setFrom(from);
         r.setSubject(subject);
         r.setText(text);

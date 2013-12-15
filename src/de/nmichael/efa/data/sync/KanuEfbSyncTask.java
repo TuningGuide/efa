@@ -572,10 +572,6 @@ public class KanuEfbSyncTask extends ProgressTask {
                                 if (triptype == null || triptype.length() == 0) {
                                     triptype = EfaTypes.TYPE_SESSION_NORMAL;
                                 }
-                                if (sg != null && sg.getSessionType() != null &&
-                                    sg.getSessionType().length() > 0) {
-                                    triptype = sg.getSessionType(); // use SessionGroup's session type to override per-trip session types
-                                }
                                 request.append("<triptype>" + triptype + "</triptype>");
                                 if (sg != null) {
                                     request.append("<tripgroup>");

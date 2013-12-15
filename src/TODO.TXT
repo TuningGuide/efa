@@ -1,11 +1,9 @@
 Item
 ============================================================================================================
 
-BUG: Remote-Konfiguration von Fahrtenbuchwechsel führt zu Fehlermeldunge, daß logbook and clubwork nicht gefunden werden, 
-     plus update conflig (expected change count=1) für boathouse project record
-
 Schlüsselfeld für Import konfigurierbar machen: http://forum.nmichael.de/viewtopic.php?f=9&t=680&p=2764#p2764
-IP-Adresse in Sysinfos aufnehmen: http://forum.nmichael.de/viewtopic.php?f=9&t=685&p=2792#p2792
+Beim Weiterleiten von Nachrichten diese Nachricht editieren können (http://forum.nmichael.de/viewtopic.php?f=9&t=699)
+Vereinsnamen optional hinter Personennamen einblenden (http://forum.nmichael.de/viewtopic.php?f=9&t=693&p=2867#p2867)
 
 Button für "Fahrt beenden" bei offenen Fahrten auch in efaBasis (inkl. Korrektur des Bootsstatus): http://forum.nmichael.de/posting.php?mode=reply&f=15&t=656
 Option für Änderungswünsche im Fahrtenbuch deaktivierbar machen (http://forum.nmichael.de/viewtopic.php?f=9&p=2565#p2565)

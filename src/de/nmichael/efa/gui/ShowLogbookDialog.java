@@ -21,6 +21,7 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.UUID;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableModelEvent;
@@ -337,6 +338,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
                     International.getString("Korrekturwunsch"), new IItemType[] { text, from } )) {
                 Messages messages = Daten.project.getMessages(false);
                 messages.createAndSaveMessageRecord(from.getValueFromField(), MessageRecord.TO_ADMIN,
+                        (UUID)from.getId(from.getValueFromField()),
                         International.getMessage("Korrekturwunsch für Fahrtenbuch-Eintrag {entry}", "#" + entryNo),
                         text.getValueFromField());
                 Dialog.infoDialog(International.getString("Vielen Dank, dein Korrekturwunsch wurde übermittelt."));

@@ -1344,8 +1344,7 @@ public class Audit extends Thread {
                 addMessageToBuffer(s);
                 Messages messages = (Daten.project != null ? Daten.project.getMessages(false) : null);
                 if (messages != null && messages.isOpen()) {
-                    messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME,
-                            MessageRecord.TO_ADMIN,
+                    messages.createAndSaveMessageRecord(MessageRecord.TO_ADMIN, 
                             "Audit Report", auditMessages.toString());
                 }
 

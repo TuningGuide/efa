@@ -92,10 +92,10 @@ public class EfaBoathouseBackgroundTask extends Thread {
                 if (Daten.project != null && Daten.efaConfig != null) {
                     Messages messages = Daten.project.getMessages(false);
                     if (messages != null && Daten.efaConfig.getValueEfaDirekt_bnrWarning_admin()) {
-                        messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME, MessageRecord.TO_ADMIN, International.getString("Warnungen"), txt);
+                        messages.createAndSaveMessageRecord(MessageRecord.TO_ADMIN, International.getString("Warnungen"), txt);
                     }
                     if (messages != null && Daten.efaConfig.getValueEfaDirekt_bnrWarning_bootswart()) {
-                        messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME, MessageRecord.TO_BOATMAINTENANCE, International.getString("Warnungen"), txt);
+                        messages.createAndSaveMessageRecord(MessageRecord.TO_BOATMAINTENANCE, International.getString("Warnungen"), txt);
                     }
                 }
             }
@@ -829,7 +829,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
             }
 
             Messages messages = Daten.project.getMessages(false);
-            messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME, MessageRecord.TO_ADMIN,
+            messages.createAndSaveMessageRecord(MessageRecord.TO_ADMIN,
                     International.getString("Fahrtenbuchwechsel"),
                     International.getString("efa hat soeben wie konfiguriert ein neues Fahrtenbuch geöffnet.") + "\n"
                     + International.getMessage("Das neue Fahrtenbuch heißt {name} und ist gültig vom {fromdate} bis {todate}.",
@@ -847,7 +847,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
             Logger.log(Logger.ERROR, Logger.MSG_ERR_AUTOSTARTNEWLOGBOOK,
                     LogString.operationAborted(International.getString("Fahrtenbuchwechsel")));
             Messages messages = Daten.project.getMessages(false);
-            messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME, MessageRecord.TO_ADMIN,
+            messages.createAndSaveMessageRecord(MessageRecord.TO_ADMIN,
                     International.getString("Fahrtenbuchwechsel"),
                     International.getString("efa hat soeben versucht, wie konfiguriert ein neues Fahrtenbuch anzulegen.") + "\n"
                     + International.getString("Bei diesem Vorgang traten jedoch FEHLER auf.") + "\n\n"

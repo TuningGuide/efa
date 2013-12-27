@@ -447,12 +447,12 @@ public class Project extends StorageObject {
             data.add(getLogbook(logbookNames[i], false));
         }
 
-        if (Daten.NEW_FEATURES) {
+		if (Daten.NEW_FEATURES) {
 			String[] clubworkNames = getAllClubworkNames();
 			for (int i = 0; clubworkNames != null && i < clubworkNames.length; i++) {
 				data.add(getClubwork(clubworkNames[i], false));
-            }
-        }
+			}
+		}
         return data;
     }
 
@@ -1437,15 +1437,15 @@ public class Project extends StorageObject {
         }
     }
 
-    public void setAutoNewClubworkName(String name) {
-        try {
-            ProjectRecord r = getBoathouseRecord();
-            r.setAutoNewClubworkName(name);
-            getMyDataAccess(ProjectRecord.TYPE_BOATHOUSE).update(r);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+	public void setAutoNewClubworkName(String name) {
+		try {
+			ProjectRecord r = getBoathouseRecord();
+			r.setAutoNewClubworkName(name);
+			getMyDataAccess(ProjectRecord.TYPE_BOATHOUSE).update(r);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
     public void setClubName(String clubName) {
         long l = 0;
@@ -2087,9 +2087,9 @@ public class Project extends StorageObject {
         return getBoathouseRecord().getAutoNewLogbookName();
     }
 
-    public String getAutoNewClubworkName() {
-        return getBoathouseRecord().getAutoNewLogbookName();
-    }
+	public String getAutoNewClubworkName() {
+		return getBoathouseRecord().getAutoNewLogbookName();
+	}
 
     public int getClubLastDrvFaYear() {
         return getClubRecord().getLastDrvFaYear();
@@ -2150,9 +2150,9 @@ public class Project extends StorageObject {
 					throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
 							International.getMessage("Der Datensatz kann nicht gelöscht werden, da er noch von {listtype} '{record}' genutzt wird.",
 									International.getString("Vereinsarbeitsbuchwechsel"), lName),
-                            Thread.currentThread().getStackTrace());
-                }
-            }
+							Thread.currentThread().getStackTrace());
+				}
+			}
             if (((ProjectRecord) record).getType().equals(ProjectRecord.TYPE_BOATHOUSE)) {
                 if (getNumberOfBoathouses(true) == 1) {
                     throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,

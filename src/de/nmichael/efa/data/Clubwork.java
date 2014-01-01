@@ -340,7 +340,8 @@ public class Clubwork extends StorageObject {
 			Logger.log(Logger.ERROR, Logger.MSG_ERR_GENERIC,
 					LogString.operationAborted(International.getString("Vereinsarbeit-Übertrag")));
 			Messages messages = Daten.project.getMessages(false);
-			messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME, MessageRecord.TO_ADMIN, International.getString("Vereinsarbeit-Übertrag"),
+			messages.createAndSaveMessageRecord(Daten.EFA_SHORTNAME, MessageRecord.TO_ADMIN,
+                    (String)null, International.getString("Vereinsarbeit-Übertrag"),
 					message);
 		}
 		finally {

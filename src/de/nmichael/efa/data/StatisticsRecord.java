@@ -934,14 +934,16 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                             STYPE_BOATSTATUS,
                             STYPE_BOATRESERVATIONS,
                             STYPE_BOATDAMAGES,
-                            STYPE_BOATDAMAGESTAT
+                            STYPE_BOATDAMAGESTAT,
+							STYPE_CLUBWORK
                         };
             } else {
                 return new String[]{
                             International.getString("Bootsstatus"),
                             International.getString("Bootsreservierungen"),
                             International.getString("Bootsschäden"),
-                            International.getString("Bootsschäden-Statistik")
+                            International.getString("Bootsschäden-Statistik"),
+							International.getString("Vereinsarbeit")
                         };
             }
         }
@@ -2201,7 +2203,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 SORTING_DATE,
                 SORTING_DAMAGECOUNT,
                 SORTING_DAMAGEDUR,
-                SORTING_DAMAGEAVGDUR
+                SORTING_DAMAGEAVGDUR,
+                SORTING_CLUBWORK
             };
         } else {
             return new String[] {
@@ -2227,7 +2230,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                     International.getString("Schäden"),
                 International.getString("Reparaturdauer"),
                 International.getString("Reparaturdauer") + "/" +
-                    International.getString("Schaden")
+                    International.getString("Schaden"),
+                International.getString("Vereinsarbeit")
             };
         }
     }
@@ -3171,7 +3175,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 sIsOFieldsFixedOn = true;
             }
         }
-        if ((sStatisticCategory == StatisticCategory.list || sStatisticCategory == StatisticCategory.other) &&
+        if ((sStatisticCategory == StatisticCategory.list || sStatisticCategory == StatisticCategory.other || sStatisticType.equals(STYPE_CLUBWORK)) &&
             (fields == null || fields.length() == 0)) {
             // at least show these fields, if for (whatever reason) no fields were selected
             sIsFieldsPosition = true;
@@ -3520,16 +3524,16 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 International.getString("Schaden"));
             }
             if (sIsAggrClubwork) {
-                pTableColumns.add(International.getString("Vereinsarbeit"));
+                pTableColumns.add(International.getString("Vereinsarbeit in h"));
             }
             if (sIsAggrClubworkRelativeToTarget) {
-                pTableColumns.add(International.getString("relativ zum Soll"));
+                pTableColumns.add(International.getString("relativ zum Soll in h"));
             }
             if (sIsAggrClubworkOverUnderCarryOver) {
-                pTableColumns.add(International.getString("über/unter Soll"));
+                pTableColumns.add(International.getString("abzgl. Übertrag in h"));
             }
             if (sIsAggrClubworkCredit) {
-                pTableColumns.add(International.getString("Gutschriften"));
+                pTableColumns.add(International.getString("Gutschriften in h"));
             }
         }
         if (sStatisticCategory == StatisticCategory.matrix) {

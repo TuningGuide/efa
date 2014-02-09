@@ -1258,6 +1258,16 @@ public class Project extends StorageObject {
         }
     }
 
+    public void setLastLogbookSwitch(String key) {
+        try {
+            ProjectRecord r = getProjectRecord();
+            r.setLastLogbookSwitch(key);
+            getMyDataAccess(ProjectRecord.TYPE_PROJECT).update(r);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void setAutoNewLogbookDate(DataTypeDate date) {
         try {
             ProjectRecord r = getBoathouseRecord();
@@ -1898,6 +1908,10 @@ public class Project extends StorageObject {
 
     public String getAutoNewLogbookName() {
         return getBoathouseRecord().getAutoNewLogbookName();
+    }
+
+    public String getLastLogbookSwitch() {
+        return getProjectRecord().getLastLogbookSwitch();
     }
 
     public DataTypeDate getClubworkCarryOverDate() {

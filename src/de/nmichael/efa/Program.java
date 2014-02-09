@@ -11,6 +11,7 @@
 package de.nmichael.efa;
 
 import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.util.EfaUtil;
 import de.nmichael.efa.util.Logger;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.LogString;
@@ -189,18 +190,22 @@ public class Program {
         int exitCode;
         if (Daten.javaRestart) {
             exitCode = Daten.HALT_JAVARESTART;
-            String restartcmd = System.getProperty("java.home") + Daten.fileSep
-                    + "bin" + Daten.fileSep + "java "
-                    + (Daten.efa_java_arguments != null ? Daten.efa_java_arguments
+            String restartargs = (Daten.efa_java_arguments != null ? Daten.efa_java_arguments
                     : "-cp " + System.getProperty("java.class.path")
                     + " " + Daten.EFADIREKT_MAINCLASS + de.nmichael.efa.boathouse.Main.STARTARGS);
+            String[] cmdargs = restartargs.split(" ");
+            String[] cmd = new String[cmdargs.length + 1];
+            cmd[0] = System.getProperty("java.home") + Daten.fileSep + "bin" + Daten.fileSep + "java";
+            for (int i=0; i<cmdargs.length; i++) {
+                cmd[i+1] = cmdargs[i];
+            }
             Logger.log(Logger.INFO, Logger.MSG_EVT_EFARESTART,
-                    International.getMessage("Neustart mit Kommando: {cmd}", restartcmd));
+                    International.getMessage("Neustart mit Kommando: {cmd}", EfaUtil.arr2string(cmd)));
             try {
-                Runtime.getRuntime().exec(restartcmd);
+                Runtime.getRuntime().exec(cmd);
             } catch (Exception ee) {
                 Logger.log(Logger.ERROR, Logger.MSG_ERR_EFARESTARTEXEC_FAILED,
-                        LogString.cantExecCommand(restartcmd, International.getString("Kommando")));
+                        LogString.cantExecCommand(EfaUtil.arr2string(cmd), International.getString("Kommando")));
             }
         } else {
             exitCode = Daten.HALT_SHELLRESTART;

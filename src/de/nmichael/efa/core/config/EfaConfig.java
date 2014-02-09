@@ -1080,6 +1080,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
                     IItemType.TYPE_PUBLIC,
                     BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_CRONTAB),
                     International.getString("Automatische Abläufe")));
+            crontab.setScrollPane(1000, 400);
             crontab.setRepeatTitle(false);
 
             // ============================= DATA ACCESS =============================

@@ -86,6 +86,7 @@
           <xsl:apply-templates select="Data"/>
           <xsl:apply-templates select="Logbook"/>
           <xsl:apply-templates select="Competition"/>
+          <xsl:apply-templates select="AdditionalTable"/>
         </fo:flow>
 
       </fo:page-sequence>
@@ -417,6 +418,15 @@
 
   <!-- Competition on Content Page -->
   <xsl:template match="Competition">
+    <fo:block font-size="14pt" text-align="center" margin-top="5cm"
+                border="3pt #000000 solid" padding-right="10mm" border-color="#ff0000">
+                Sorry, this Statistic Type is currently not supported in PDF Output.
+    </fo:block>
+  </xsl:template>
+
+
+  <!-- AdditionalTable on Content Page -->
+  <xsl:template match="AdditionalTable">
     <fo:block font-size="14pt" text-align="center" margin-top="5cm"
                 border="3pt #000000 solid" padding-right="10mm" border-color="#ff0000">
                 Sorry, this Statistic Type is currently not supported in PDF Output.

@@ -33,12 +33,12 @@ import javax.swing.plaf.ColorUIResource;
 public class Daten {
 
     public final static String VERSION            = "2.1.1"; // Version für die Ausgabe (z.B. 2.1.0, kann aber auch Zusätze wie "alpha" o.ä. enthalten)
-    public final static String VERSIONID          = "2.1.1_04";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
-    public final static String VERSIONRELEASEDATE = "04.12.2013";  // Release Date: TT.MM.JJJJ
+    public final static String VERSIONID          = "2.1.1_06";   // VersionsID: Format: "X.Y.Z_MM"; final-Version z.B. 1.4.0_00; beta-Version z.B. 1.4.0_#1
+    public final static String VERSIONRELEASEDATE = "05.02.2014";  // Release Date: TT.MM.JJJJ
     public final static String MAJORVERSION       = "2";
     public final static String PROGRAMMID         = "EFA.211"; // Versions-ID für Wettbewerbsmeldungen
     public final static String PROGRAMMID_DRV     = "EFADRV.211"; // Versions-ID für Wettbewerbsmeldungen
-    public final static String COPYRIGHTYEAR      = "13";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
+    public final static String COPYRIGHTYEAR      = "14";   // aktuelles Jahr (Copyright (c) 2001-COPYRIGHTYEAR)
 
     // enable/disable development functions for next version
     public static final boolean NEW_FEATURES = false;
@@ -1031,6 +1031,10 @@ public class Daten {
                 || applID == APPL_EDDI
                 || applID == APPL_DRV) &&
                 !CrontabThread.CRONJOB_THREAD_NAME.equals(Thread.currentThread().getName());
+    }
+    
+    public static boolean isAdminMode() {
+        return applID != APPL_EFABH || applMode == APPL_MODE_ADMIN;
     }
 
     public static boolean isOsLinux() {

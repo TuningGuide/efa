@@ -10,6 +10,7 @@
 package de.nmichael.efa.core;
 
 import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.Logger;
 import java.security.*;
 import java.security.cert.*;
 import java.security.cert.Certificate;
@@ -43,6 +44,9 @@ public class EfaKeyStore {
         } catch (Exception e) {
             keyStore = null;
             lastError = e.toString();
+            Logger.log(Logger.ERROR, Logger.MSG_ERR_KEYSTORE, 
+                    "Konnte Schlüsselspeicher '" + filename + "' nicht laden: " + e.toString());
+            Logger.logdebug(e);
             return false;
         }
         return true;

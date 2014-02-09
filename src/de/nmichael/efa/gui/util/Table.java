@@ -122,6 +122,10 @@ public class Table extends JTable {
         if (width < this.getSize().width - 20 || width > this.getSize().width) { // beim ersten Aufruf steht Tabellenbreite noch nicht (korrekt) zur Verfügung, daher dieser Plausi-Check
             width = this.getSize().width - 10;
         }
+        
+        if (header == null) {
+            return;
+        }
 
         int absoluteWidth = 0;
         for (int i=0; i<header.length; i++) {

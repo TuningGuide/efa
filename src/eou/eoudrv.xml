@@ -2,6 +2,32 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.1.1_06</VersionID>
+        <ReleaseDate>05.02.2015</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa2drv.zip</DownloadUrl>
+        <DownloadSize>3509169</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Bugfix bei ungültiger Eingabe für Anzahl der Abzeichen</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
+        <VersionID>2.1.1_05</VersionID>
+        <ReleaseDate>08.01.2015</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa2drv.zip</DownloadUrl>
+        <DownloadSize>3507587</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Anschreiben um IBAN/BIC ergänzt</ChangeItem>
+            <ChangeItem>Gewässerliste in efaDRV für Bearbeitung der Wanderruderstatistik</ChangeItem>
+            <ChangeItem>Bugfix Meldungen importieren</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.1.1_#1</VersionID>
         <ReleaseDate>02.11.2013</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa2drv.zip</DownloadUrl>

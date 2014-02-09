@@ -316,6 +316,7 @@ public class Logger {
     public static final String MSG_ERR_NOLOGBOOKOPENED = "ERR025";
     public static final String MSG_ERR_DATALOCK_FAILED = "ERR026";
     public static final String MSG_ERR_DATALOCK_CONFLICT = "ERR027";
+    public static final String MSG_ERR_KEYSTORE          = "ERR028";
 
     // efa in the Boat House - Warnings
     public static final String MSG_WARN_EFARUNNING_FAILED = "WRN001";

@@ -32,6 +32,7 @@ public class ItemTypeItemList extends ItemType {
     private int minNumberOfItems = 0;
     private boolean changed = false;
 
+    private JScrollPane scrollPane;
     private JLabel titlelabel;
     private JButton addButton;
     private Hashtable<JButton,Integer> delButtons;
@@ -41,6 +42,8 @@ public class ItemTypeItemList extends ItemType {
     private int padYbetween = 10;
     private boolean repeatTitle = true;
     private String shortDescription = null;
+    private int scrollX = -1;
+    private int scrollY = -1;
     private boolean appendPositionToEachElement = false;
     private Orientation orientation = Orientation.vertical;
 
@@ -69,6 +72,8 @@ public class ItemTypeItemList extends ItemType {
         ItemTypeItemList copy = new ItemTypeItemList(name, (Vector<IItemType[]>)items.clone(), itemFactory, type, category, description);
         copy.repeatTitle = repeatTitle;
         copy.shortDescription = shortDescription;
+        copy.scrollX = scrollX;
+        copy.scrollY = scrollY;
         return copy;
     }
 
@@ -149,6 +154,11 @@ public class ItemTypeItemList extends ItemType {
     public void setItemsOrientation(Orientation orientation) {
         this.orientation = orientation;
     }
+    
+    public void setScrollPane(int width, int height) {
+        scrollX = width;
+        scrollY = height;
+    }
 
     public boolean isChanged() {
         if (changed) {
@@ -172,6 +182,18 @@ public class ItemTypeItemList extends ItemType {
     public int displayOnGui(Window dlg, JPanel panel, int x, int y) {
         this.dlg = dlg;
 
+        
+        if (scrollX > 0 && scrollY > 0) {
+            scrollPane = new JScrollPane();
+            scrollPane.setPreferredSize(new Dimension(scrollX, scrollY));
+            scrollPane.setMinimumSize(new Dimension(scrollX, scrollY));
+            panel.add(scrollPane, new GridBagConstraints(x, y, 1, 1, 0.0, 0.0,
+                  GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+            panel = new JPanel();
+            panel.setLayout(new GridBagLayout());
+            scrollPane.getViewport().add(panel, null);
+        }
+        
         int myY = 0;
         titlelabel = new JLabel();
         Mnemonics.setLabel(dlg, titlelabel, getDescription() + ": ");
@@ -218,7 +240,7 @@ public class ItemTypeItemList extends ItemType {
 
             if (label != null) {
                 panel.add(label, new GridBagConstraints(x, y+myY, 2, 1, 0.0, 0.0,
-                        GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbetween, padXbefore, 0, 0), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(padYbetween, padXbefore, 0, 0), 0, 0));
             }
             panel.add(delButton, new GridBagConstraints(x+xForAddDelButtons, y+myY, 1, 1, 0.0, 0.0,
                     GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(padYbetween, 2, 0, 0), 0, 0));

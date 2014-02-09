@@ -30,10 +30,10 @@ import java.util.*;
 
 public class ProjectRecord extends DataRecord {
 
-    public static final String TYPE_PROJECT    = "Project";
-    public static final String TYPE_CLUB       = "Club";
-    public static final String TYPE_BOATHOUSE  = "Boathouse";
-    public static final String TYPE_LOGBOOK    = "Logbook";
+    public static final String TYPE_PROJECT    = "Project";   // local only
+    public static final String TYPE_CLUB       = "Club";      // remote access supported
+    public static final String TYPE_BOATHOUSE  = "Boathouse"; // remote access supported
+    public static final String TYPE_LOGBOOK    = "Logbook";   // remote access supported
     //public static final String TYPE_CONFIG     = "Config";
 
     public static final String TYPE                         = "Type"; // one of TYPE_XXX constants
@@ -64,6 +64,7 @@ public class ProjectRecord extends DataRecord {
     public static final String EFAONLINEPASSWORD            = "EfaOnlinePassword";
     public static final String ADMINNAME                    = "AdminName";
     public static final String ADMINEMAIL                   = "AdminEmail";
+    public static final String LASTLOGBOOKSWITCH            = "LastLogbookSwitch";
 
     // Fields for Type=Club
     public static final String CLUBNAME                     = "ClubName";
@@ -127,6 +128,7 @@ public class ProjectRecord extends DataRecord {
         f.add(EFAONLINEPASSWORD);             t.add(IDataAccess.DATA_PASSWORDC);
         f.add(ADMINNAME);                     t.add(IDataAccess.DATA_STRING);
         f.add(ADMINEMAIL);                    t.add(IDataAccess.DATA_STRING);
+        f.add(LASTLOGBOOKSWITCH);             t.add(IDataAccess.DATA_STRING);
         f.add(CURRENTLOGBOOKEFABASE);         t.add(IDataAccess.DATA_STRING);
         f.add(CURRENTLOGBOOKEFABOATHOUSE);    t.add(IDataAccess.DATA_STRING);
         f.add(AUTONEWLOGBOOKDATE);            t.add(IDataAccess.DATA_DATE);
@@ -252,6 +254,9 @@ public class ProjectRecord extends DataRecord {
     }
     public void setAdminEmail(String adminEmail) {
         setString(ADMINEMAIL, adminEmail);
+    }
+    public void setLastLogbookSwitch(String key) {
+        setString(LASTLOGBOOKSWITCH, key);
     }
     public void setCurrentLogbookEfaBase(String currentLogbook) {
         setString(CURRENTLOGBOOKEFABASE, currentLogbook);
@@ -427,6 +432,9 @@ public class ProjectRecord extends DataRecord {
     }
     public String getAdminEmail() {
         return getString(ADMINEMAIL);
+    }
+    public String getLastLogbookSwitch() {
+        return getString(LASTLOGBOOKSWITCH);
     }
     public String getCurrentLogbookEfaBase() {
         return getString(CURRENTLOGBOOKEFABASE);

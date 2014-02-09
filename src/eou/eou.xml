@@ -11,6 +11,15 @@
             <ChangeItem>Neu: Angabe von Kilometern und Fahrtart aus Fahrtgruppen entfernt</ChangeItem>
             <ChangeItem>Neu: efa-Systeminfos zeigen jetzt auch aktuelle IP-Adresse an</ChangeItem>
             <ChangeItem>Neu: Beim Versenden von Nachrichten wird die email-Adresse der Person, die die Nachricht erstellt hat, als reply-to Adresse gespeichert (sofern für die Person eine email-Adresse in der Personenliste hinterlegt ist)</ChangeItem>
+            <ChangeItem>Neu: SEPA-Kontoinformationen für DRV</ChangeItem>
+            <ChangeItem>Change: Statistikfenster werden jetzt im Admin-Modus nicht mehr nach fünf Minuten automatisch geschlossen</ChangeItem>
+            <ChangeItem>Bugfix: Fehlermeldungen beim Erstellen eines neues Fahrtenbuchs behoben</ChangeItem>
+            <ChangeItem>Bugfix: Fälschlicher wiederholter automatischer Fahrtenbuchwechsel nach manuellem Öffnen eines anderen Fahrtenbuchs behoben</ChangeItem>
+            <ChangeItem>Bugfix: Fehler bei PDF-Generierung von nicht unterstützten Statistiken behoben</ChangeItem>
+            <ChangeItem>Bugfix: Fehlermeldungen beim Öffnen von XML-Dateien, die nicht mehr unterstützte Felder enthalten, jetzt unterdrückt</ChangeItem>
+            <ChangeItem>Bugfix: Melden von Änderungswünschen für Fahrtenbucheinträge war nicht möglich, wenn weniger als konfigurierte Fahrten angezeigt wurden oder die Tabelle umsortiert wurde</ChangeItem>
+            <ChangeItem>Bugfix: efa-Neustart und Windows funktionierte nicht, wenn Java-Installationsverzeichnis Leerzeichen im Namen enthielt</ChangeItem>
+            <ChangeItem>Bugfix: Darstellungsprobleme im Konfigurationsdialog bei zu vielen Einträge in "Automatische Abläufe" korrigiert</ChangeItem>
         </Changes>
         <Changes lang="en">
         </Changes>

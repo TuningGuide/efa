@@ -72,7 +72,7 @@ public class Messages extends StorageObject {
     }
 
     public MessageRecord createAndSaveMessageRecord(String to, String subject, String text) {
-        return createAndSaveMessageRecord(to, subject, text);
+        return createAndSaveMessageRecord(Daten.EFA_SHORTNAME, to, (String)null, subject, text);
     }
 
     public MessageRecord createAndSaveMessageRecord(String from, String to, UUID replyTo,

@@ -21,6 +21,7 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Hashtable;
 import java.util.UUID;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -34,6 +35,8 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
     private Logbook logbook;
     private JScrollPane scrollPane;
     private JTable table;
+    private TableSorter sorter;
+    private Hashtable<Integer,DataTypeIntString> row2entryno;
     private ItemTypeInteger showOnlyNumber;
     private ItemTypeBoolean showAlsoIncomplete;
 
@@ -119,10 +122,30 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
         title[9] = International.getString("Bemerkungen");
         title[10] = "C";
 
-        Object[][] fahrten = new Object[max][11];
-        //String s = "";
+        // count entries to show
+        int count = 0;
+        try {
+            DataKeyIterator it = logbook.data().getStaticIterator();
+            DataKey k = it.getLast();
+            while (k != null) {
+                LogbookRecord r = (LogbookRecord)logbook.data().get(k);
+                if (r.getSessionIsOpen() && !alsoIncomplete) {
+                    k = it.getPrev();
+                    continue;
+                }
+                if (++count >= max) {
+                    break;
+                } 
+                k = it.getPrev();
+            }
+        } catch (Exception e) {
+            Logger.logdebug(e);
+        }
+        
+        int c = Math.min(count, max);
+        Object[][] fahrten = new Object[c][11];
+        row2entryno = new Hashtable<Integer,DataTypeIntString>();
 
-        int c = max;
         try {
             DataKeyIterator it = logbook.data().getStaticIterator();
             DataKey k = it.getLast();
@@ -135,6 +158,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
 
                 int obmann = r.getBoatCaptainPosition();
                 c--;
+                row2entryno.put(c, r.getEntryId());
 
                 fahrten[c][0] = r.getEntryId();
                 fahrten[c][1] = r.getDate();
@@ -194,7 +218,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
             fahrten = fahrtentmp;
         }
 
-        TableSorter sorter = new TableSorter(new DefaultTableModel(fahrten, title));
+        sorter = new TableSorter(new DefaultTableModel(fahrten, title));
         table = new MyJTable(sorter);
         table.getColumn(International.getString("Steuermann")).setCellRenderer(new HighlightTableCellRenderer());
         table.getColumn(International.getString("Mannschaft")).setCellRenderer(new TableInTableRenderer());
@@ -311,12 +335,12 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
         }
     }
 
-    void changeRequest(String entryNo) {
+    void changeRequest(DataTypeIntString entryNo) {
         if (entryNo == null) {
             return;
         }
         try {
-            LogbookRecord r = this.logbook.getLogbookRecord(new DataTypeIntString(entryNo));
+            LogbookRecord r = this.logbook.getLogbookRecord(entryNo);
 
 
             ItemTypeTextArea text = new ItemTypeTextArea("TEXT",
@@ -484,7 +508,7 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
     class ButtonEditor extends DefaultCellEditor {
 
         protected JButton button;
-        private String entryNo;
+        private DataTypeIntString entryNo;
 
         public ButtonEditor(JButton button) {
             super(new JCheckBox());
@@ -499,7 +523,9 @@ public class ShowLogbookDialog extends BaseDialog implements IItemListener {
 
         public Component getTableCellEditorComponent(JTable table, Object value,
                 boolean isSelected, int row, int column) {
-            entryNo = (value != null ? value.toString() : "");
+            int physRow = sorter.getOriginalIndex(row);
+
+            entryNo = (row2entryno != null ? row2entryno.get(physRow) : null);
             return button;
         }
 

@@ -10,6 +10,7 @@
 
 package de.nmichael.efa.statistics;
 
+import de.nmichael.efa.Daten;
 import java.io.*;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.gui.BrowserDialog;
@@ -29,9 +30,10 @@ public class StatisticInternalWriter extends StatisticHTMLWriter {
             if (!new File(sr.sOutputFile).isFile()) {
                 Dialog.error(LogString.fileNotFound(sr.sOutputFile, International.getString("Ausgabedatei")));
             } else {
+                int timeout = Daten.isAdminMode() ? 0 : BROWSER_CLOSE_TIMEOUT;
                 BrowserDialog.openInternalBrowser(sr.pParentDialog,
                         International.getString("Statistik"),
-                        "file:" + sr.sOutputFile, BROWSER_CLOSE_TIMEOUT);
+                        "file:" + sr.sOutputFile, timeout);
             }
         }
         resultMessage = null;
